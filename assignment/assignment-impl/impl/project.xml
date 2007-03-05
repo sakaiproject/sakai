@@ -20,6 +20,12 @@
 
 	<dependencies>
 		
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-email-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		
 	    	<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-component</artifactId>

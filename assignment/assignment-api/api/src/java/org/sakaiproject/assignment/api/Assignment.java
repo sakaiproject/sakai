@@ -93,6 +93,18 @@ public interface Assignment extends Entity, Comparable, TaggableActivity
 
 	/** Honor Pledge not yet set */
 	public static final int HONOR_PLEDGE_ENGINEERING = 2;
+	
+	// the option setting per assignment
+	public static final String ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE= "assignment_instructor_notifications_value";
+	
+	// no email to instructor
+	public static final String ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_NONE = "assignment_instructor_notifications_none";
+	
+	// send every email to instructor
+	public static final String ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_EACH = "assignment_instructor_notifications_each";
+	
+	// send email in digest form
+	public static final String ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DIGEST = "assignment_instructor_notifications_digest";
 
 	/**
 	 * Access the AssignmentContent of this Assignment.

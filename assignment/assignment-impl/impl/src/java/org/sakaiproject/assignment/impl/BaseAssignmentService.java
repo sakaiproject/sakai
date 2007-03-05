@@ -74,6 +74,8 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.email.cover.EmailService;
+import org.sakaiproject.email.cover.DigestService;
 import org.sakaiproject.entity.api.AttachmentContainer;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
@@ -608,6 +610,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		FunctionManager.registerFunction(SECURE_ACCESS_ASSIGNMENT);
 		FunctionManager.registerFunction(SECURE_UPDATE_ASSIGNMENT);
 		FunctionManager.registerFunction(SECURE_GRADE_ASSIGNMENT_SUBMISSION);
+		FunctionManager.registerFunction(SECURE_ASSIGNMENT_RECEIVE_NOTIFICATIONS);
 		
 		// register as a linkable activity producer
 		m_taggingManager.registerProducer(this);
@@ -1860,6 +1863,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		try
 		{
 			AssignmentSubmission s = getSubmission(submissionRef);
+			
+			Assignment a = s.getAssignment();
+			
 			Time returnedTime = s.getTimeReturned();
 			Time submittedTime = s.getTimeSubmitted();
 			
@@ -1886,6 +1892,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			{
 				// submitting a submission
 				EventTrackingService.post(EventTrackingService.newEvent(EVENT_SUBMIT_ASSIGNMENT_SUBMISSION, submissionRef, true));
+			
+				// instructor notification
+				notificationToInstructors(s, a);
+				
+				// student notification, whether the student gets email notification once he submits an assignment
+				notificationToStudent(s);
 			}
 				
 			
@@ -1900,6 +1912,139 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		}
 
 	} // commitEdit(Submission)
+
+	/**
+	 * send notification to instructor type of users if necessary
+	 * @param s
+	 * @param a
+	 */
+	private void notificationToInstructors(AssignmentSubmission s, Assignment a) 
+	{
+		String notiOption = a.getProperties().getProperty(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE);
+		if (notiOption != null && !notiOption.equals(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_NONE))
+		{
+			// need to send notification email
+			String context = s.getContext();
+			
+			List receivers = allowReceiveSubmissionNotificationUsers(context);
+			
+			List headers = new Vector();
+			headers.add(rb.getString("noti.subject.label") + rb.getString("noti.subject.content"));
+			
+			String messageBody = getNotificationMessage(s);
+			
+			if (notiOption.equals(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_EACH))
+			{
+				// send the message immidiately
+				EmailService.sendToUsers(receivers, headers, messageBody);
+			}
+			else if (notiOption.equals(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DIGEST))
+			{
+				// digest the message to each user
+				for (Iterator iReceivers = receivers.iterator(); iReceivers.hasNext();)
+				{
+					User user = (User) iReceivers.next();
+					DigestService.digest(user.getId(), rb.getString("noti.subject.label") + rb.getString("noti.subject.content")/*the subject*/, messageBody);
+				}
+			}
+		}
+	}
+
+	/**
+	 * send notification to student if necessary
+	 * @param s
+	 */
+	private void notificationToStudent(AssignmentSubmission s) 
+	{
+		if (m_serverConfigurationService.getBoolean("assignment.submission.confirmation.email", true))
+		{
+			//send notification
+			User u = UserDirectoryService.getCurrentUser();
+			List receivers = new Vector();
+			receivers.add(u);
+			List headers = new Vector();
+			headers.add(rb.getString("noti.subject.label") + rb.getString("noti.subject.content"));
+			
+			String messageBody = getNotificationMessage(s);
+			EmailService.sendToUsers(receivers, headers, messageBody);
+		}
+	}
+
+	private String getNotificationMessage(AssignmentSubmission s) 
+	{
+		Assignment a = s.getAssignment();
+		
+		String context = s.getContext();
+		
+		String siteTitle = "";
+		String siteId = "";
+		try
+		{
+			Site site = SiteService.getSite(context);
+			siteTitle = site.getTitle();
+			siteId = site.getId();
+		}
+		catch (Exception ee)
+		{
+			M_log.warn("commitEdit(), site id =" + context, ee);
+		}
+		
+		StringBuffer buffer = new StringBuffer();
+		// site title and id
+		buffer.append(rb.getString("noti.site.title") + siteTitle +"\n");
+		buffer.append(rb.getString("noti.site.id") + siteId +"\n\n");
+		// assignment title and due date
+		buffer.append(rb.getString("noti.assignment") + a.getTitle()+"\n");
+		buffer.append(rb.getString("noti.assignment.duedate") + a.getDueTime().toStringLocalFull()+"\n\n");
+		// submitter name and id
+		User[] submitters = s.getSubmitters();
+		String submitterNames = "";
+		String submitterIds = "";
+		for (int i = 0; i<submitters.length; i++)
+		{
+			User u = (User) submitters[i];
+			if (i>0)
+			{
+				submitterNames = submitterNames.concat(";");
+				submitterIds = submitterIds.concat(";");
+			}
+			submitterNames = submitterNames.concat(u.getDisplayName());
+			submitterIds = submitterIds.concat(u.getDisplayId());
+		}
+		buffer.append(rb.getString("noti.student") + submitterNames);
+		if (submitterIds.length() != 0)
+		{
+			buffer.append("(" + submitterIds + ")");
+		}
+		buffer.append("\n\n");
+		
+		// submit time
+		buffer.append(rb.getString("noti.submit.id") + s.getId() + "\n");
+		
+		// submit time 
+		buffer.append(rb.getString("noti.submit.time") + s.getTimeSubmitted().toStringLocalFull() + "\n\n");
+		
+		// submit text
+		String text = StringUtil.trimToNull(s.getSubmittedText());
+		if ( text != null)
+		{
+			buffer.append(rb.getString("noti.submit.text") + "\n" + text + "\n\n");
+		}
+		
+		// attachment if any
+		List attachments = s.getSubmittedAttachments();
+		if (attachments != null && attachments.size() >0)
+		{
+			buffer.append(rb.getString("noti.submit.attachments") + "\n");
+			for (int j = 0; j<attachments.size(); j++)
+			{
+				Reference r = (Reference) attachments.get(j);
+				buffer.append(r.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME) + "(" + r.getProperties().getPropertyFormatted(ResourceProperties.PROP_CONTENT_LENGTH)+ ")\n");
+			}
+		}
+		
+		return buffer.toString();
+	}
 
 	/**
 	 * Cancel the changes made to a AssignmentSubmissionEdit object, and release the lock.
@@ -2476,11 +2621,40 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	} // allowAddGroupAssignment
 
 	/**
-	 * Check permissions for adding an Assignment.
-	 * 
-	 * @param context -
-	 *        Describes the portlet context - generated with DefaultId.getChannel().
-	 * @return True if the current User is allowed to add an Assignment, false if not.
+	 * @inheritDoc
+	 */
+	public boolean allowReceiveSubmissionNotification(String context)
+	{
+		String resourceString = getAccessPoint(true) + Entity.SEPARATOR + "a" + Entity.SEPARATOR + context + Entity.SEPARATOR;
+
+		if (M_log.isDebugEnabled())
+		{
+			M_log.debug("Entering allowReceiveSubmissionNotification with resource string : " + resourceString);
+		}
+
+		// checking allow at the site level
+		if (unlockCheck(SECURE_ASSIGNMENT_RECEIVE_NOTIFICATIONS, resourceString)) return true;
+		
+		return false;
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public List allowReceiveSubmissionNotificationUsers(String context)
+	{
+		String resourceString = getAccessPoint(true) + Entity.SEPARATOR + "a" + Entity.SEPARATOR + context + Entity.SEPARATOR;
+		if (M_log.isDebugEnabled())
+		{
+			M_log.debug("Entering allowReceiveSubmissionNotificationUsers with resource string : " + resourceString);
+			M_log.debug("                                   				 	context string : " + context);
+		}
+		return SecurityService.unlockUsers(SECURE_ASSIGNMENT_RECEIVE_NOTIFICATIONS, resourceString);
+
+	} // allowAddAssignmentUsers
+	
+	/**
+	 * @inheritDoc
 	 */
 	public boolean allowAddAssignment(String context)
 	{

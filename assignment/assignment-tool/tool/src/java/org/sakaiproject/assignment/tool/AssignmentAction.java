@@ -418,6 +418,9 @@ public class AssignmentAction extends PagedResourceActionII
 
 	/** The student view of an assignment submission */
 	private static final String MODE_STUDENT_VIEW_SUBMISSION = "Assignment.mode_view_submission";
+	
+	/** The student view of an assignment submission confirmation */
+	private static final String MODE_STUDENT_VIEW_SUBMISSION_CONFIRMATION = "Assignment.mode_view_submission_confirmation";
 
 	/** The student preview of an assignment submission */
 	private static final String MODE_STUDENT_PREVIEW_SUBMISSION = "Assignment.mode_student_preview_submission";
@@ -467,6 +470,9 @@ public class AssignmentAction extends PagedResourceActionII
 
 	/** The student view of showing an assignment submission */
 	private static final String TEMPLATE_STUDENT_VIEW_SUBMISSION = "_student_view_submission";
+	
+	/** The student view of an assignment submission confirmation */
+	private static final String TEMPLATE_STUDENT_VIEW_SUBMISSION_CONFIRMATION = "_student_view_submission_confirmation";
 
 	/** The student preview an assignment submission */
 	private static final String TEMPLATE_STUDENT_PREVIEW_SUBMISSION = "_student_preview_submission";
@@ -544,6 +550,12 @@ public class AssignmentAction extends PagedResourceActionII
 	/** session attribute for list of decorated tagging providers */
 	private static final String PROVIDER_LIST = "providerList";
 	
+	// whether the choice of emails instructor submission notification is available in the installation
+	private static final String ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS = "assignment.instructor.notifications";
+	
+	// default for whether or how the instructor receive submission notification emails, none(default)|each|digest
+	private static final String ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DEFAULT = "assignment.instructor.notifications.default";
+	
 	/**
 	 * central place for dispatching the build routines based on the state name
 	 */
@@ -605,6 +617,11 @@ public class AssignmentAction extends PagedResourceActionII
 
 			// build the context for showing one assignment submission
 			template = build_student_view_submission_context(portlet, context, data, state);
+		}
+		else if (mode.equals(MODE_STUDENT_VIEW_SUBMISSION_CONFIRMATION))
+		{
+			// build the context for showing one assignment submission confirmation
+			template = build_student_view_submission_confirmation_context(portlet, context, data, state);
 		}
 		else if (mode.equals(MODE_STUDENT_PREVIEW_SUBMISSION))
 		{
@@ -788,6 +805,66 @@ public class AssignmentAction extends PagedResourceActionII
 
 	} // build_student_view_submission_context
 
+	/**
+	 * build the student view of showing an assignment submission confirmation
+	 */
+	protected String build_student_view_submission_confirmation_context(VelocityPortlet portlet, Context context, RunData data,
+			SessionState state)
+	{
+		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
+		context.put("context", contextString);
+		
+		// get user information
+		User user = (User) state.getAttribute(STATE_USER);
+		context.put("user_name", user.getDisplayName());
+		context.put("user_id", user.getDisplayId());
+		
+		// get site information
+		try
+		{
+			// get current site
+			Site site = SiteService.getSite(contextString);
+			context.put("site_title", site.getTitle());
+		}
+		catch (Exception ignore)
+		{
+			Log.warn("chef", this + ignore.getMessage() + " siteId= " + contextString);
+		}
+		
+		// get assignment and submission information
+		String currentAssignmentReference = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
+		try
+		{
+			Assignment currentAssignment = AssignmentService.getAssignment(currentAssignmentReference);
+			context.put("assignment_title", currentAssignment.getTitle());
+			AssignmentSubmission s = AssignmentService.getSubmission(currentAssignment.getReference(), user);
+			if (s != null)
+			{
+				context.put("submission_id", s.getId());
+				context.put("submit_time", s.getTimeSubmitted().toStringLocalFull());
+				List attachments = s.getSubmittedAttachments();
+				if (attachments != null && attachments.size()>0)
+				{
+					context.put("submit_attachments", s.getSubmittedAttachments());
+				}
+				context.put("submit_text", StringUtil.trimToNull(s.getSubmittedText()));
+				context.put("email_confirmation", Boolean.valueOf(ServerConfigurationService.getBoolean("assignment.submission.confirmation.email", true)));
+			}
+		}
+		catch (IdUnusedException e)
+		{
+			addAlert(state, rb.getString("cannot_find_assignment"));
+		}
+		catch (PermissionException e)
+		{
+			addAlert(state, rb.getString("youarenot16"));
+		}	
+
+		String template = (String) getContext(data).get("template");
+		return template + TEMPLATE_STUDENT_VIEW_SUBMISSION_CONFIRMATION;
+
+	} // build_student_view_submission_confirmation_context
+	
 	/**
 	 * build the student view of assignment
 	 */
@@ -1105,7 +1182,7 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		// number of resubmissions allowed
 		context.put("name_allowResubmitNumber", AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
-
+		
 		// set the values
 		context.put("value_title", state.getAttribute(NEW_ASSIGNMENT_TITLE));
 		context.put("value_OpenMonth", state.getAttribute(NEW_ASSIGNMENT_OPENMONTH));
@@ -1249,6 +1326,21 @@ public class AssignmentAction extends PagedResourceActionII
 
 		context.put("allowGroupAssignmentsInGradebook", new Boolean(AssignmentService.getAllowGroupAssignmentsInGradebook()));
 
+		// the notification email choices
+		if (state.getAttribute(ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS) != null && ((Boolean) state.getAttribute(ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS)).booleanValue())
+		{
+			context.put("name_assignment_instructor_notifications", ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS);
+			if (state.getAttribute(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE) == null)
+			{
+				// set the notification value using site default
+				state.setAttribute(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE, state.getAttribute(ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DEFAULT));
+			}
+			context.put("value_assignment_instructor_notifications", state.getAttribute(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE));
+			// the option values
+			context.put("value_assignment_instructor_notifications_none", Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_NONE);
+			context.put("value_assignment_instructor_notifications_each", Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_EACH);
+			context.put("value_assignment_instructor_notifications_digest", Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DIGEST);
+		}
 	} // setAssignmentFormContext
 
 	/**
@@ -2803,13 +2895,21 @@ public class AssignmentAction extends PagedResourceActionII
 	
 			if (state.getAttribute(STATE_MESSAGE) == null)
 			{
-				state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
-				state.setAttribute(ATTACHMENTS, EntityManager.newReferenceList());
+				state.setAttribute(STATE_MODE, MODE_STUDENT_VIEW_SUBMISSION_CONFIRMATION);
 			}
 		}	// if
 
 	} // doPost_submission
-
+	
+	/**
+	 * Action is to confirm the submission and return to list view
+	 */
+	public void doConfirm_assignment_submission(RunData data)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+		state.setAttribute(ATTACHMENTS, EntityManager.newReferenceList());
+	}
 	/**
 	 * Action is to show the new assignment screen
 	 */
@@ -3138,6 +3238,12 @@ public class AssignmentAction extends PagedResourceActionII
 			state.setAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, nString);
 		}
 		
+		// assignment notification option
+		String notiOption = params.getString(ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS);
+		if (notiOption != null)
+		{
+			state.setAttribute(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE, notiOption);
+		}
 
 	} // setNewAssignmentParameters
 
@@ -3448,7 +3554,7 @@ public class AssignmentAction extends PagedResourceActionII
 			String associateGradebookAssignment = (String) state.getAttribute(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
 			
 			String allowResubmitNumber = state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null?(String) state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER):null;
-
+			
 			// the attachments
 			List attachments = (List) state.getAttribute(ATTACHMENTS);
 			List attachments1 = EntityManager.newReferenceList(attachments);
@@ -3531,7 +3637,11 @@ public class AssignmentAction extends PagedResourceActionII
 				ResourcePropertiesEdit aPropertiesEdit = a.getPropertiesEdit();
 				oAssociateGradebookAssignment = aPropertiesEdit.getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
 				editAssignmentProperties(a, title, checkAddDueTime, checkAutoAnnounce, addtoGradebook, associateGradebookAssignment, allowResubmitNumber, aPropertiesEdit);
-				
+				// the notification option
+				if (state.getAttribute(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE) != null)
+				{
+					aPropertiesEdit.addProperty(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE, (String) state.getAttribute(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE));
+				}
 				
 				// comment the changes to Assignment object
 				commitAssignmentEdit(state, post, ac, a, title, openTime, dueTime, closeTime, enableCloseDate, s, range, groups);
@@ -4426,14 +4536,22 @@ public class AssignmentAction extends PagedResourceActionII
 				state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, a.getContent().getMaxGradePointDisplay());
 			}
 			state.setAttribute(NEW_ASSIGNMENT_DESCRIPTION, a.getContent().getInstructions());
-			state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, a.getProperties().getProperty(
+			
+			ResourceProperties properties = a.getProperties();
+			state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, properties.getProperty(
 					ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE));
-			state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, a.getProperties().getProperty(
+			state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, properties.getProperty(
 					ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE));
 			state.setAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE, Integer.toString(a.getContent().getHonorPledge()));
-			state.setAttribute(AssignmentService.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, a.getProperties().getProperty(AssignmentService.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK));
-			state.setAttribute(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, a.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+			state.setAttribute(AssignmentService.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, properties.getProperty(AssignmentService.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK));
+			state.setAttribute(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, properties.getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
 			state.setAttribute(ATTACHMENTS, a.getContent().getAttachments());
+			
+			// notification option
+			if (properties.getProperty(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE) != null)
+			{
+				state.setAttribute(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE, properties.getProperty(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE));
+			}
 
 			// group setting
 			if (a.getAccess().equals(Assignment.AssignmentAccess.SITE))
@@ -5593,6 +5711,18 @@ public class AssignmentAction extends PagedResourceActionII
 				withGrades = Boolean.FALSE.toString();
 			}
 			state.setAttribute(WITH_GRADES, new Boolean(withGrades));
+		}
+		
+		// whether the choice of emails instructor submission notification is available in the installation
+		if (state.getAttribute(ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS) == null)
+		{
+			state.setAttribute(ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS, Boolean.valueOf(ServerConfigurationService.getBoolean(ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS, true)));
+		}
+		
+		// whether or how the instructor receive submission notification emails, none(default)|each|digest
+		if (state.getAttribute(ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DEFAULT) == null)
+		{
+			state.setAttribute(ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DEFAULT, ServerConfigurationService.getString(ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DEFAULT, Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_NONE));
 		}
 	} // initState
 

@@ -361,7 +361,9 @@
 					#set ($addToGBDisplay="block")
 				#end
 				<p style="display:$!addToGBDisplay">
-					$!tlang.getString('grading')
+					<h4>
+						$!tlang.getString('grading')
+					</h4>
 					<div class="checkbox  indnt2" style="display:$!addToGBDisplay">
 						## hide the assignment list from Gradebook when clicked
 						<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_no" value="$!gradebookChoice_no" #if($!gradebookChoice.equals("$!gradebookChoice_no"))checked#end onclick="if (document.getElementById('gradebookList')) document.getElementById('gradebookList').style.display = 'none';" >
@@ -402,7 +404,9 @@
 			<br />
 			#if ($allowAddSiteAssignment)
 				#if ($!groups)
-					$!tlang.getString('access')
+					<h4>
+						$!tlang.getString('access')
+					</h4>
 					<p class="checkbox  indnt2">
 						#if (!$!allowGroupAssignmentsInGradebook)
 							<input type="radio" name="range" id="site" value="site" #if($!range == "site")checked="checked"#end onclick="if (document.getElementById('addToGradebook') !=null){document.getElementById('addToGradebook').style.display = 'block'};document.getElementById('groupTable').style.display = 'none';" />
@@ -416,7 +420,9 @@
 					<input type="hidden" name="range" id="site" value="site" />
 				#end
 			#elseif ($allowAddAssignment)
-				$!tlang.getString('access')
+				<h4>
+					$!tlang.getString('access')
+				</h4>
 				#if ($!groups.size() >1)
 					<label for="$tlang.getString('groups')">$tlang.getString("groups")</label>
 				#else
@@ -477,6 +483,21 @@
 						#end
 					</table>
 			#end
+			## whether to show the instructor notification choices
+			#if ($!name_assignment_instructor_notifications)
+				<h4>
+					$tlang.getString("receive.confirm.submission.email.options")
+				</h4>
+				<input type="radio" name="$!name_assignment_instructor_notifications" id="$tlang.getString('receive.confirm.submission.email.none')" value="$!value_assignment_instructor_notifications_none" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_none))checked="checked" #end >
+				<label for="$tlang.getString('receive.confirm.submission.email.none')">$tlang.getString('receive.confirm.submission.email.none')</label>
+				<br/>
+				<input type="radio" name="$!name_assignment_instructor_notifications" id="$tlang.getString('receive.confirm.submission.email.each')" value="$!value_assignment_instructor_notifications_each" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_each))checked="checked" #end >
+				<label for="$tlang.getString('receive.confirm.submission.email.each')">$tlang.getString('receive.confirm.submission.email.each')</label>
+				<br/>
+				<input type="radio" name="$!name_assignment_instructor_notifications" id="$tlang.getString('receive.confirm.submission.email.digest')" value="$!value_assignment_instructor_notifications_digest" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_digest))checked="checked" #end >
+				<label for="$tlang.getString('receive.confirm.submission.email.digest')">$tlang.getString('receive.confirm.submission.email.digest')</label>
+			#end
+			## attachments
 			<h4>
 				$tlang.getString("gen.addres")
 			</h4>
