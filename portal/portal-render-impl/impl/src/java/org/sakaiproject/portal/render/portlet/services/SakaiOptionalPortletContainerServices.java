@@ -75,7 +75,6 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
         return prefService;
     }
 
-
     public PortletRegistryService getPortletRegistryService() {
         return null;
     }
@@ -243,7 +242,9 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
 			PortletRequest request)
 	throws PortletContainerException {
 
+            boolean readOnly = true;
 
+	    // Get the Placement Id
 	    String key = portletWindow.getId().getStringId();
 
             // find the tool from some site
@@ -252,6 +253,15 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
 
 	    ArrayList<InternalPortletPreference> prefArray = new ArrayList<InternalPortletPreference> ();
        	    if ( siteTool != null ) {
+                String siteId = siteTool.getSiteId();
+                // System.out.println("siteId="+siteId);
+    
+                String siteReference = SiteService.siteReference(siteId);
+                // System.out.println("Reference="+siteReference);
+
+	        // If you don't have site.upd - Mark all references as read only
+                readOnly = ! SecurityService.unlock("site.upd",siteReference);
+
 		Properties props = siteTool.getPlacementConfig();
 		// System.out.println("props = "+props);
      		for (Enumeration e = props.propertyNames() ; e.hasMoreElements() ;) {
@@ -262,7 +272,8 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
 		    	String [] propertyList = deSerializeStringArray(propertyValue);
 		    	String internalName = propertyName.substring(14);
 		    	// System.out.println("internalName="+internalName+" propertyList="+propertyList);
-		    	InternalPortletPreference newPref = new PortletPreferenceImpl(internalName,propertyList);
+		    	InternalPortletPreference newPref = 
+				new PortletPreferenceImpl(internalName,propertyList,readOnly);
 		    	// System.out.println("newPref = "+newPref);
 			prefArray.add(newPref);
 		    }
