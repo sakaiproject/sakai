@@ -2026,19 +2026,22 @@ public class DiscussionForumTool
     {
       return decoTopic;
     }
+
     Iterator iter = temp_messages.iterator();
+    
+    final boolean isRead = decoTopic.getIsRead();
+    final boolean isNewResponse = decoTopic.getIsNewResponse();
+    
     while (iter.hasNext())
     {
       Message message = (Message) iter.next();
       if (topic != null)
       {
-        decoTopic.setTotalNoMessages(forumManager.getTotalNoMessages(topic));
-        decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(topic));
         if (message != null)
         {
           DiscussionMessageBean decoMsg = new DiscussionMessageBean(message,
               messageManager);
-          if(decoTopic.getIsRead() || (decoTopic.getIsNewResponse()&& decoMsg.getIsOwn()))
+          if(isRead || (isNewResponse && decoMsg.getIsOwn()))
           {
           	decoMsg.setRead(messageManager.isMessageReadForUser(topic.getId(),
               message.getId()));
@@ -4923,7 +4926,7 @@ public class DiscussionForumTool
 		}
 
 		public void setEditMode(boolean editMode) {
-			this.editMode = editMode;
+			this.editMode = true;
 		}
 
 		public String getPermissionMode() {
