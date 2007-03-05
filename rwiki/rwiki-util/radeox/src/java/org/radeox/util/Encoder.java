@@ -42,7 +42,7 @@ public class Encoder
 {
 	
 
-	public static final char HIGHEST_CHARACTER = '>';
+	public static final char HIGHEST_CHARACTER = '~';
 
 	public static final char[][] specialChars = new char[HIGHEST_CHARACTER + 1][];
 	static
@@ -52,6 +52,11 @@ public class Encoder
 		specialChars['&'] = "&amp;".toCharArray();
 		specialChars['"'] = "&#34;".toCharArray();
 		specialChars['\''] = "&#39;".toCharArray();
+		specialChars['['] = "&#91;".toCharArray();
+		specialChars[']'] = "&#93;".toCharArray();
+		specialChars['_'] = "&#95;".toCharArray();
+		specialChars['-'] = "&#45;".toCharArray();
+		specialChars['~'] = "&#126;".toCharArray();
 	}
 	private final static Map<String,String> ESCAPED_CHARS = new HashMap<String,String>();
 	static {
@@ -60,6 +65,11 @@ public class Encoder
 		ESCAPED_CHARS.put("&amp;", "&");
 		ESCAPED_CHARS.put("&quot;", "\"");
 		ESCAPED_CHARS.put("&#39;", "'");
+		ESCAPED_CHARS.put("&#91;", "[");
+		ESCAPED_CHARS.put("&#93;", "]");
+		ESCAPED_CHARS.put("&#95;", "_");
+		ESCAPED_CHARS.put("&#45;", "-");
+		ESCAPED_CHARS.put("&#126;", "~");
 	}
 
 	public static String escape(String toEscape)
