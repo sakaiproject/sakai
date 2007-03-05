@@ -96,7 +96,13 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
   private static final String PVT_RECEIVED = "pvt_received";
   private static final String PVT_SENT = "pvt_sent";
   private static final String PVT_DELETED = "pvt_deleted";
-  
+ 
+  /** String ids for email footer messsage */
+  private static final String EMAIL_FOOTER1 = "pvt_email_footer1";
+  private static final String EMAIL_FOOTER2 = "pvt_email_footer2";
+  private static final String EMAIL_FOOTER3 = "pvt_email_footer3";
+  private static final String EMAIL_FOOTER4 = "pvt_email_footer4";
+
   public void init()
   {
     ;
@@ -1053,10 +1059,10 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 	  }
 
       String footer = "<p>----------------------<br>" +
-                      "This forwarded message was sent via " + ServerConfigurationService.getString("ui.service") +  
-                      " Message Center from the \"" +
-                      siteTitle + "\" site.\n" +
-                      "To reply to this message click this link to access Message Center for this site:" +
+                      getResourceBundleString(EMAIL_FOOTER1) + " " + ServerConfigurationService.getString("ui.service") +
+                      " " + getResourceBundleString(EMAIL_FOOTER2) + " \"" +
+                      siteTitle + "\" " + getResourceBundleString(EMAIL_FOOTER3) + "\n" +
+                      getResourceBundleString(EMAIL_FOOTER4) +
                       " <a href=\"" +
                       ServerConfigurationService.getPortalUrl() + 
                       "/site/" + ToolManager.getCurrentPlacement().getContext() +
