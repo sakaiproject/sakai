@@ -167,11 +167,20 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 					}
 				}
 			}
-			return;
+		} else {
+			// This is an externally managed site, so remove any groups without a category and without a providerId
+			for(Iterator<Group> iter = site.getGroups().iterator(); iter.hasNext();) {
+				Group group = iter.next();
+				ResourceProperties props = group.getProperties();
+				if(group.getProviderGroupId() == null && (props != null &&
+					props.getProperty(CourseSectionImpl.CATEGORY) != null)) {
+					// This is a section, and it doesn't have a provider id
+					iter.remove();
+				}
+			}
+			// Update the sections from CM.
+			syncSections(site);
 		}
-		
-		// This is an externally managed site.  Update the sections from CM.
-		syncSections(site);
 	}
 
     private boolean handlingMandatoryConfigs(ExternalIntegrationConfig appConfig, Site site) {
@@ -255,7 +264,8 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 					// This wasn't provided, so skip it
 					continue;
 				}
-				if(group.getProperties() == null || group.getProperties().getProperty(CourseSectionImpl.CATEGORY) == null) {
+				if(group.getProperties() == null || StringUtils.trimToNull(
+						group.getProperties().getProperty(CourseSectionImpl.CATEGORY)) == null) {
 					// This isn't a section, so skip it
 					continue;
 				}
