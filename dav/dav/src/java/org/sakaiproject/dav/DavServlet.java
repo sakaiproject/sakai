@@ -352,6 +352,39 @@ public class DavServlet extends HttpServlet
 				}
 			}
 		}
+		// recognize /group-user/SITE_ID/USER_EID and make it /group-user/SITE_ID/USER_ID 
+		if (parts.length >= 4)
+		{
+			if (parts[1].equals("group-user"))
+			{
+				try
+				{
+					// if successful, the context is already a valid user id
+					UserDirectoryService.getUser(parts[3]);
+				}
+				catch (UserNotDefinedException tryEid)
+				{
+					try
+					{
+						// try using it as an EID
+						String userId = UserDirectoryService.getUserId(parts[3]);
+
+						// switch to the ID
+						parts[3] = userId;
+						String newId = StringUtil.unsplit(parts, Entity.SEPARATOR);
+
+						// add the trailing separator if needed
+						if (id.endsWith(Entity.SEPARATOR)) newId += Entity.SEPARATOR;
+
+						id = newId;
+					}
+					catch (UserNotDefinedException notEid)
+					{
+						// if context was not a valid EID, leave it alone
+					}
+				}
+			}
+		}
 
 		return id;
 	}
@@ -1779,6 +1812,27 @@ public class DavServlet extends HttpServlet
 			}
 		}
 
+		String parts[] = StringUtil.split(idx, Entity.SEPARATOR);
+		if(parts.length == 4 && parts[1].equals("group-user")){
+			try
+			{
+				// if successful, the context is already a valid user EID
+				UserDirectoryService.getUserByEid(parts[3]);
+			}
+			catch (UserNotDefinedException tryId)
+			{
+				try
+				{
+					// try using it as an ID
+					resourceName = UserDirectoryService.getUserEid(parts[3]);
+				}
+				catch (UserNotDefinedException notId)
+				{
+					// if context was not a valid ID, leave it alone
+				}
+			}
+		 }
+	 
 		// if (M_log.isDebugEnabled()) M_log.debug("getResourceNameSAKAI resourceName="+resourceName);
 		// if (M_log.isDebugEnabled()) M_log.debug(" idx="+idx);
 		// if (M_log.isDebugEnabled()) M_log.debug(" displayName = " + props.getProperty(props.PROP_DISPLAY_NAME));
