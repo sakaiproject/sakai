@@ -20,5 +20,6 @@
     <module>widgets</module>
     <module>widgets-myfaces</module>
     <module>widgets-sun</module>
+    <module>spreadsheet</module>
   </modules>
 </project>

@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>M2</version>
+    <relativePath>../../master/pom.xml</relativePath>
+  </parent>
+  <name>Sakai JSF Spreadsheet Support</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>sakai-jsf-spreadsheet</artifactId>
+  <description>
+    This provides some utility classes to support downloading
+    of spreadsheet-style data as an XLS or CSV file. It has
+    been broken out into its own artifact to avoid adding a
+    POI dependency to the standard Sakai JSF components JAR.
+  </description>
+  <packaging>jar</packaging>
+  <properties>
+    <deploy.target/>
+  </properties>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>org.apache.myfaces.core</groupId>
+      <artifactId>myfaces-api</artifactId>
+      <version>1.1.5</version>
+	  <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+		<groupId>commons-logging</groupId>
+		<artifactId>commons-logging</artifactId>
+		<version>1.0.4</version>
+		<scope>provided</scope>
+	</dependency>
+
+    <dependency>
+      <groupId>servletapi</groupId>
+      <artifactId>servletapi</artifactId>
+      <version>2.4</version>
+		<scope>provided</scope>
+    </dependency>
+
+	<dependency>
+		<groupId>poi</groupId>
+		<artifactId>poi</artifactId>
+		<version>2.5.1</version>
+		<scope>provided</scope>
+	</dependency>
+
+  </dependencies>
+
+</project>
