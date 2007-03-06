@@ -361,7 +361,7 @@ xmlns:xl="http://www.w3.org/1999/xlink" version="5.0">
     </sect2>
     <sect2 xml:id="install-env-tinstall">
       <title>Install Tomcat</title>
-      <para>Sakai 2.3.1 was QA'ed with Tomcat 5.5.17, and so that's
+      <para>Sakai 2.3.1 was QA'ed with Tomcat 5.5.17 <--TODO upgrade to 5.5.20 for 2.4 -->, and so that's
       the version we recommend, although the latest stable version
       will most likely not present problems. Tomcat can be
       downloaded as a binary from 
