@@ -159,7 +159,7 @@ public class FolderType extends BaseResourceType
     		toolSession.setAttribute(PermissionsHelper.ROLES_REF, siteRef);
 
     		// ... with this description
-    		String title = title = reference.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+    		String title = reference.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
     		String[] args = { title };
  
     		toolSession.setAttribute(PermissionsHelper.DESCRIPTION, rb.getFormattedMessage("title.permissions", args));
