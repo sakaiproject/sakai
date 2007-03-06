@@ -42,6 +42,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.myfaces.component.html.ext.HtmlDataTable;
 import org.apache.myfaces.custom.sortheader.HtmlCommandSortHeader;
+import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterCsv;
+import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterXls;
+import org.sakaiproject.jsf.spreadsheet.SpreadsheetUtil;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
@@ -50,7 +53,6 @@ import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.jsf.AssignmentPointsConverter;
-import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
 /**
  * Backing bean for the visible list of assignments in the gradebook.
@@ -289,7 +291,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
     public void exportCsv(ActionEvent event){
         if(logger.isInfoEnabled()) logger.info("exporting roster as CSV for gradebook " + getGradebookUid());
         getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadRoster","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
-        FacesUtil.downloadSpreadsheetData(getSpreadsheetData(), 
+        SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(), 
         		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
         		new SpreadsheetDataFileWriterCsv());
     }
@@ -298,7 +300,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         if(logger.isInfoEnabled()) logger.info("exporting roster as Excel for gradebook " + getGradebookUid());
         String authzLevel = (getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid())) ?"instructor" : "TA";
         getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadRoster","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
-        FacesUtil.downloadSpreadsheetData(getSpreadsheetData(), 
+        SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(), 
         		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
         		new SpreadsheetDataFileWriterXls());
     }

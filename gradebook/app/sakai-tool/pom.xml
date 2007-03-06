@@ -358,20 +358,22 @@
       <scope>provided</scope>
 <!--properties:  war.bundle: false -->
     </dependency>
+
 <!-- Sakai tag library -->
     <dependency>
-
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-widgets</artifactId>
       <version>${sakai.version}</version>
-<!--url: http://sakaiproject.org/ -->
     </dependency>
     <dependency>
-
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-widgets-myfaces</artifactId>
       <version>${sakai.version}</version>
-<!--url: http://sakaiproject.org/ -->
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-jsf-spreadsheet</artifactId>
+      <version>${sakai.version}</version>
     </dependency>
 
 <!-- blocking unwanted transitive dependency -->

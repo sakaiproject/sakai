@@ -23,21 +23,21 @@
     </dependency>
 
     <dependency>
-      
+
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-gradebook-service-api</artifactId>
       <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-gradebook-service-hibernate</artifactId>
       <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-gradebook-service-impl</artifactId>
       <version>${sakai.version}</version>
@@ -45,7 +45,7 @@
     </dependency>
 <!-- Section Awareness -->
     <dependency>
-      
+
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-api</artifactId>
       <version>${sakai.version}</version>
@@ -53,7 +53,7 @@
     </dependency>
 <!-- Standalone component -->
     <dependency>
-      
+
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-impl-standalone</artifactId>
       <version>${sakai.version}</version>
@@ -61,7 +61,7 @@
     </dependency>
 <!-- Used only for test data. -->
     <dependency>
-      
+
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-integrationsupport</artifactId>
       <version>${sakai.version}</version>
@@ -69,7 +69,7 @@
     </dependency>
 <!-- this is required for any Sakai JSF tool -->
     <dependency>
-      
+
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-tool</artifactId>
       <version>${sakai.version}</version>
@@ -77,7 +77,7 @@
     </dependency>
 <!-- these are to get full Sakai integration -->
     <dependency>
-      
+
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-app</artifactId>
       <version>${sakai.version}</version>
@@ -91,28 +91,28 @@
 		-->
 <!-- Uuid generator -->
     <dependency>
-      
+
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-util-api</artifactId>
       <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-util-impl</artifactId>
       <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-component-api</artifactId>
       <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>commons-id</groupId>
       <artifactId>commons-id</artifactId>
       <version>0.1-dev</version>
@@ -124,7 +124,7 @@
 <!-- Please contact the gradebook development team before removing these -->
 <!-- Uncomment as necessary to run tests, or to generate new db schemas -->
     <dependency>
-      
+
       <groupId>hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
       <version>1.7.3.0</version>
@@ -150,133 +150,133 @@
 -->
 <!-- End database dependencies -->
     <dependency>
-      
+
       <groupId>${sakai.spring.groupId}</groupId>
       <artifactId>${sakai.spring.artifactId}</artifactId>
       <version>${sakai.spring.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>${sakai.spring.groupId}</groupId>
       <artifactId>${sakai.spring.mock.artifactId}</artifactId>
       <version>${sakai.spring.mock.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>aopalliance</groupId>
       <artifactId>aopalliance</artifactId>
       <version>1.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>jta</groupId>
       <artifactId>jta</artifactId>
       <version>h2.1.8</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>${sakai.hibernate.groupId}</groupId>
       <artifactId>${sakai.hibernate.artifactId}</artifactId>
       <version>${sakai.hibernate.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>ehcache</groupId>
       <artifactId>ehcache</artifactId>
       <version>1.1</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>cglib</groupId>
       <artifactId>cglib-nodep</artifactId>
       <version>2.1_3</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>odmg</groupId>
       <artifactId>odmg</artifactId>
       <version>3.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>commons-dbcp</groupId>
       <artifactId>commons-dbcp</artifactId>
       <version>1.2</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>commons-pool</groupId>
       <artifactId>commons-pool</artifactId>
       <version>1.2</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
       <version>${sakai.commons.lang.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
       <version>3.1</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>commons-digester</groupId>
       <artifactId>commons-digester</artifactId>
       <version>1.6</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>commons-beanutils</groupId>
       <artifactId>commons-beanutils</artifactId>
       <version>1.7.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <version>1.2</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
       <version>1.2.9</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>dom4j</groupId>
       <artifactId>dom4j</artifactId>
       <version>1.4</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>poi</groupId>
       <artifactId>poi</artifactId>
       <version>2.5.1</version>
@@ -301,7 +301,7 @@
 
 <!-- Needed by MyFaces ExtensionsFilter -->
     <dependency>
-      
+
       <groupId>commons-fileupload</groupId>
       <artifactId>commons-fileupload</artifactId>
       <version>1.1.1</version>
@@ -309,28 +309,28 @@
     </dependency>
 <!-- base64 used to implement STATE_SAVING_METHOD client -->
     <dependency>
-      
+
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
       <version>1.2</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>javax.servlet</groupId>
       <artifactId>jstl</artifactId>
       <version>1.1.2</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
       <groupId>taglibs</groupId>
       <artifactId>standard</artifactId>
       <version>1.1.2</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+
 <!--id: servletapi -->
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
@@ -339,30 +339,34 @@
 <!--properties:  war.bundle: false -->
     </dependency>
     <dependency>
-      
+
       <groupId>javax.servlet</groupId>
       <artifactId>jsp-api</artifactId>
       <version>2.0</version>
       <scope>provided</scope>
 <!--properties:  war.bundle: false -->
     </dependency>
+
 <!-- Sakai tag library -->
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-widgets</artifactId>
       <version>${sakai.version}</version>
       <scope>provided</scope>
-<!--url: http://sakaiproject.org/ -->
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-widgets-myfaces</artifactId>
       <version>${sakai.version}</version>
       <scope>provided</scope>
-<!--url: http://sakaiproject.org/ -->
     </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-jsf-spreadsheet</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
   </dependencies>
 
 </project>

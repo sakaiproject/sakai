@@ -38,6 +38,9 @@ import javax.faces.event.ActionEvent;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterCsv;
+import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterXls;
+import org.sakaiproject.jsf.spreadsheet.SpreadsheetUtil;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.CourseGrade;
@@ -224,7 +227,7 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
     public void exportCsv(ActionEvent event){
         if(logger.isInfoEnabled()) logger.info("exporting course grade as CSV for gradebook " + getGradebookUid());
         getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadCourseGrade","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
-        FacesUtil.downloadSpreadsheetData(getSpreadsheetData(), 
+        SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(), 
         		getDownloadFileName(getLocalizedString("export_course_grade_prefix")), 
         		new SpreadsheetDataFileWriterCsv());
     }
@@ -232,7 +235,7 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
     public void exportExcel(ActionEvent event){
         if(logger.isInfoEnabled()) logger.info("exporting course grade as Excel for gradebook " + getGradebookUid());
         getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadCourseGrade","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
-        FacesUtil.downloadSpreadsheetData(getSpreadsheetData(), 
+        SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(), 
         		getDownloadFileName(getLocalizedString("export_course_grade_prefix")), 
         		new SpreadsheetDataFileWriterXls());
     }

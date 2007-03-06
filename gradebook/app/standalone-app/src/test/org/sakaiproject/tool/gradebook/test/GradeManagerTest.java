@@ -125,6 +125,8 @@ public class GradeManagerTest extends GradebookTestBase {
             Double sortGrade = cgr.getGradeAsPercentage();
             String studentId = cgr.getStudentId();
             String tmpGrade = ((CourseGradeRecord)gradeRecordMap.get(studentId)).getEnteredGrade();
+            if (logger.isDebugEnabled()) logger.debug("sortGrade=" + sortGrade + ", gradeMapping=" + gradeMapping + ", tmpGrade=" + tmpGrade);
+            
             Assert.assertTrue(sortGrade.equals(gradeMapping.getValue(tmpGrade)));
             Assert.assertTrue(gradeMapping.getGrade(cgr.getGradeAsPercentage()).equals(tmpGrade));
         }

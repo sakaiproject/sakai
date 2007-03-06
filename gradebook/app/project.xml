@@ -362,6 +362,15 @@
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-jsf-spreadsheet</artifactId>
+			<version>${sakai.version}</version>
+			<url>http://sakaiproject.org/</url>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
 	</dependencies>
 </project>
 
