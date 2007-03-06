@@ -1562,15 +1562,24 @@
           for this component.
       </description>
     </attribute>
-     <attribute>
-       <name>attachedFiles</name>
-       <required>false</required>
-       <rtexprvalue>false</rtexprvalue>
-       <description>
-         A list of SelectItems or a Map of link to label strings that
-         will be rendered as a list on the editor.
-       </description>
-     </attribute>
+    <attribute>
+      <name>attachedFiles</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          A list of SelectItems or a Map of link to label strings that
+          will be rendered as a list on the editor.
+      </description>
+    </attribute>
+    <attribute>
+      <name>collectionBase</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Collection with in Content Hosting to use for any ContentHostingService 
+          interactions with in the editor, such as the FCK file browser.
+      </description>
+    </attribute>
   </tag>
 
   <tag>

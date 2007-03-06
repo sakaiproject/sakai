@@ -226,10 +226,20 @@ public class InputRichTextRenderer extends Renderer
     {
        //not as slick as the way htmlarea is rendered, but the difference in functionality doesn't all
        //make sense for FCK at this time since it's already got the ability to insert files and such.
-       String collectionId = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
+       String collectionBase = (String) RendererUtil.getAttribute(context, component, "collectionBase");
+       String collectionId = null;
 
+       if (collectionBase != null) 
+       {
+         collectionId = collectionBase;
+       }
+       else
+       {
+         collectionId = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
+       }
+       
        //is there a slicker way to get this? 
-       String connector = "/sakai-fck-connector/web/editor/filemanager/browser/default/connectors/jsp/connector";
+       String connector = "/sakai-fck-connector/filemanager/connector" + collectionBase;
 
        writer.write("<table border=\"0\"><tr><td>");
        writer.write("<textarea name=\"" + clientId + "_inputRichText\" id=\"" + clientId + "_inputRichText\"");
@@ -275,21 +285,21 @@ public class InputRichTextRenderer extends Renderer
           writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/archival_config.js\";\n");
        else {
 
-         writer.write("\n\t\tvar courseId = \"" + collectionId  + "\";");
+         writer.write("\n\t\tvar collectionId = \"" + collectionId  + "\";");
          writer.write("\n\toFCKeditor.Config['ImageBrowserURL'] = oFCKeditor.BasePath + " +
-               "\"editor/filemanager/browser/default/browser.html?Connector=" + connector + "&Type=Image&CurrentFolder=\" + courseId;");
+               "\"editor/filemanager/browser/default/browser.html?Connector=" + connector + "&Type=Image&CurrentFolder=\" + collectionId;");
          writer.write("\n\toFCKeditor.Config['LinkBrowserURL'] = oFCKeditor.BasePath + " +
-               "\"editor/filemanager/browser/default/browser.html?Connector=" + connector + "&Type=Link&CurrentFolder=\" + courseId;");
+               "\"editor/filemanager/browser/default/browser.html?Connector=" + connector + "&Type=Link&CurrentFolder=\" + collectionId;");
          writer.write("\n\toFCKeditor.Config['FlashBrowserURL'] = oFCKeditor.BasePath + " +
-               "\"editor/filemanager/browser/default/browser.html?Connector=" + connector + "&Type=Flash&CurrentFolder=\" + courseId;");
+               "\"editor/filemanager/browser/default/browser.html?Connector=" + connector + "&Type=Flash&CurrentFolder=\" + collectionId;");
          writer.write("\n\toFCKeditor.Config['ImageUploadURL'] = oFCKeditor.BasePath + " +
-               "\"" + connector + "?Type=Image&Command=QuickUpload&Type=Image&CurrentFolder=\" + courseId;");
+               "\"" + connector + "?Type=Image&Command=QuickUpload&Type=Image&CurrentFolder=\" + collectionId;");
          writer.write("\n\toFCKeditor.Config['FlashUploadURL'] = oFCKeditor.BasePath + " +
-               "\"" + connector + "?Type=Flash&Command=QuickUpload&Type=Flash&CurrentFolder=\" + courseId;");
+               "\"" + connector + "?Type=Flash&Command=QuickUpload&Type=Flash&CurrentFolder=\" + collectionId;");
          writer.write("\n\toFCKeditor.Config['LinkUploadURL'] = oFCKeditor.BasePath + " +
-               "\"" + connector + "?Type=File&Command=QuickUpload&Type=Link&CurrentFolder=\" + courseId;");
+               "\"" + connector + "?Type=File&Command=QuickUpload&Type=Link&CurrentFolder=\" + collectionId;");
 
-         writer.write("\n\n\toFCKeditor.Config['CurrentFolder'] = courseId;");
+         writer.write("\n\n\toFCKeditor.Config['CurrentFolder'] = collectionId;");
 
          writer.write("\n\toFCKeditor.Config['CustomConfigurationsPath'] = \"/library/editor/FCKeditor/config.js\";\n");
        }
