@@ -21,17 +21,13 @@
 
 package org.sakaiproject.content.tool;
 
-import org.sakaiproject.cheftool.Context;
-import org.sakaiproject.cheftool.RunData;
-import org.sakaiproject.cheftool.VelocityPortlet;
 import org.sakaiproject.content.api.ResourceEditingHelper;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.tool.api.ToolSession;
 
 public class ResourceEditHelperAction extends FilePickerAction
 {
-	protected String initHelperAction(VelocityPortlet portlet, Context context, RunData rundata, SessionState sstate,
-			ToolSession toolSession)
+	protected String initHelperAction(SessionState sstate, ToolSession toolSession)
 	{
 		Object createType = toolSession.getAttribute(ResourceEditingHelper.CREATE_TYPE);
 		sstate.setAttribute(ResourcesAction.STATE_ATTACH_LINKS, Boolean.TRUE.toString());
