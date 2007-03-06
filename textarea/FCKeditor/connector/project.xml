@@ -62,14 +62,26 @@
 			<version>${pom.currentVersion}</version>
 		</dependency>
 
-                <dependency>
-                        <groupId>sakaiproject</groupId>
-                        <artifactId>sakai-util</artifactId>
-                        <version>${pom.currentVersion}</version>
-                        <properties>
-                                <war.bundle>true</war.bundle>
-                        </properties>
-                </dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-authz-api</artifactId>
+			<version>${pom.currentVersion}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-tool-api</artifactId>
+			<version>${pom.currentVersion}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-util</artifactId>
+			<version>${pom.currentVersion}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
 
 		<dependency>
       		<groupId>jspapi</groupId>

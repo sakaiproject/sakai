@@ -31,7 +31,12 @@
 
     <servlet-mapping>
         <servlet-name>Connector</servlet-name>
-        <url-pattern>/web/editor/filemanager/browser/default/connectors/jsp/connector</url-pattern>
+        <url-pattern>/web/editor/filemanager/browser/default/connectors/jsp/connector/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>Connector</servlet-name>
+        <url-pattern>/filemanager/connector/*</url-pattern>
     </servlet-mapping>
 
 </web-app>

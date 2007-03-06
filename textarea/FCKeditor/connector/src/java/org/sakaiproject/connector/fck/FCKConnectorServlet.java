@@ -23,6 +23,7 @@ package org.sakaiproject.connector.fck;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -42,6 +43,8 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.fileupload.DiskFileUpload;
 import org.apache.commons.fileupload.FileItem;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentResource;
@@ -52,6 +55,7 @@ import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.Validator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -82,6 +86,9 @@ import org.w3c.dom.Node;
 public class FCKConnectorServlet extends HttpServlet {
      
 	private static final long serialVersionUID = 1L;
+	
+    private static final String FCK_ADVISOR_BASE = "fck.security.advisor.";
+    private static final String FCK_EXTRA_COLLECTIONS_BASE = "fck.extra.collections.";
 
 	/**
       * Manage the Get requests (GetFolders, GetFoldersAndFiles, CreateFolder).<br>
@@ -103,6 +110,14 @@ public class FCKConnectorServlet extends HttpServlet {
           String type = request.getParameter("Type");
           String currentFolder = request.getParameter("CurrentFolder");
 
+          String collectionBase = request.getPathInfo();
+
+          SecurityAdvisor advisor = (SecurityAdvisor) SessionManager.getCurrentSession()
+               .getAttribute(FCK_ADVISOR_BASE + collectionBase);
+          if (advisor != null) {
+               SecurityService.pushAdvisor(advisor);
+          }
+          
           Document document = null;
           try {
                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -113,13 +128,14 @@ public class FCKConnectorServlet extends HttpServlet {
                pce.printStackTrace();
           }
           
-          Node root = createCommonXml(document, commandStr, type, currentFolder, "/access/content"+currentFolder);
+          Node root = createCommonXml(document, commandStr, type, currentFolder, 
+        	   ContentHostingService.getUrl(currentFolder));
           
           if ("GetFolders".equals(commandStr)) {
-               getFolders(currentFolder, root, document);
+               getFolders(currentFolder, root, document, collectionBase);
           }
           else if ("GetFoldersAndFiles".equals(commandStr)) {
-               getFolders(currentFolder, root, document);
+               getFolders(currentFolder, root, document, collectionBase);
                getFiles(currentFolder, root, document, type);
           }
           else if ("CreateFolder".equals(commandStr)) {
@@ -166,6 +182,10 @@ public class FCKConnectorServlet extends HttpServlet {
 	        	  out.close();
 	          }
           }
+          
+          if (advisor != null) {
+        	  SecurityService.clearAdvisors();
+          }
      }
      
 
@@ -187,8 +207,14 @@ public class FCKConnectorServlet extends HttpServlet {
           String command = request.getParameter("Command");
           
           String currentFolder = request.getParameter("CurrentFolder");
+          String collectionBase = request.getPathInfo();
           
-          String currentDirPath = "/access/content" + currentFolder;
+          SecurityAdvisor advisor = (SecurityAdvisor) SessionManager.getCurrentSession()
+               .getAttribute(FCK_ADVISOR_BASE + collectionBase);
+          if (advisor != null) {
+               SecurityService.pushAdvisor(advisor);
+          }
+          
           String fileName = "";
           String errorMessage = "";
           
@@ -272,7 +298,9 @@ public class FCKConnectorServlet extends HttpServlet {
                out.println("<script type=\"text/javascript\">");
 	          
                if ("QuickUpload".equals(command)) {
-                    out.println("window.parent.OnUploadCompleted("+status+",'"+currentDirPath+fileName+"','"+fileName+"','"+errorMessage+"');");
+                    out.println("window.parent.OnUploadCompleted(" + status + ",'"
+                    		+ ContentHostingService.getUrl(currentFolder) + fileName
+                    		+ "','" + fileName + "','" + errorMessage + "');");
                }
                else {
                     out.println("window.parent.frames['frmUpload'].OnUploadCompleted("+status+",'"+fileName+"');");
@@ -288,6 +316,10 @@ public class FCKConnectorServlet extends HttpServlet {
                     out.close();
                }
           }
+          
+          if (advisor != null) {
+        	  SecurityService.clearAdvisors();
+          }
      }
 
      private void setCreateFolderResponse(String status, Node root, Document doc) {
@@ -297,7 +329,7 @@ public class FCKConnectorServlet extends HttpServlet {
      }
      
 
-     private void getFolders(String dir, Node root, Document doc) {
+     private void getFolders(String dir, Node root, Document doc, String collectionBase) {
           Element folders = doc.createElement("Folders");
           root.appendChild(folders);
                     
@@ -308,11 +340,20 @@ public class FCKConnectorServlet extends HttpServlet {
    
           try {
                //hides the real root level stuff and just shows the users the
-               //the root folders of all the sites they actually have access to.
+               //the root folders of all the top collections they actually have access to.
                if (dir.split("/").length == 2) {
+                    List collections = new ArrayList();
                     map = ContentHostingService.getCollectionMap();
-                    if (map != null && map.keySet() != null)
-                         foldersIterator = map.keySet().iterator();
+                    if (map != null && map.keySet() != null) {
+                         collections.addAll(map.keySet());
+                    }
+                    List extras = (List) SessionManager.getCurrentSession()
+                         .getAttribute(FCK_EXTRA_COLLECTIONS_BASE + collectionBase);
+                    if (extras != null) {
+                         collections.addAll(extras);
+                    }
+
+                    foldersIterator = collections.iterator();
                }
                else if (dir.split("/").length > 2) {
                     collection = ContentHostingService.getCollection(dir);
