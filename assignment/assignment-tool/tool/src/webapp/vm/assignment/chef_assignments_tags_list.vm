@@ -1,7 +1,7 @@
 #foreach ($provider in $providers)
 	#if ($provider.getProvider().allowViewTags())
 		<h4>$provider.getProvider().getName() $tlang.getString("tag.tags")</h4>
-		#set ($tagList = $provider.getTags($assignment))
+		#set ($tagList = $provider.getTags($activity))
 		#if (!$tagList.isEmpty())
 			<div class="listNav">
 				#set ($pager = $provider.getPager())
@@ -40,7 +40,7 @@
 				</form>
 			</div>
 			<table class="listHier lines nolines" border="0" cellspacing="0" summary="Table contains list of tags associated with current assignment.">
-				#set ($columns = $provider.getColumns($assignment))
+				#set ($columns = $provider.getColumns($activity))
 				<tr>
 					#foreach ($column in $columns)
 						#if ($column.isSortable())

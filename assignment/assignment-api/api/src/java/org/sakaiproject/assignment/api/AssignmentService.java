@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.sakaiproject.assignment.taggable.api.TaggableActivityProducer;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
@@ -44,7 +43,7 @@ import org.w3c.dom.Element;
  * Each Assignment has an associated AssignmentContent (an AssignmentContent can belong to more the one Assignment) and a list of AssignmentSubmission (the student responses to the Assignment).
  * </p>
  */
-public interface AssignmentService extends EntityProducer, TaggableActivityProducer
+public interface AssignmentService extends EntityProducer
 {
 	/** The type string for this application: should not change over time as it may be stored in various parts of persistent entities. */
 	static final String APPLICATION_ID = "sakai:assignment";

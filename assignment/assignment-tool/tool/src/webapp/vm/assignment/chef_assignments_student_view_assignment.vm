@@ -85,9 +85,6 @@
 				</td>
 			</tr>
 		</table>
-		#if ($taggable)
-        	#parse ("/vm/assignment/chef_assignment_tags_list.vm")
-		#end
 		<h4>
 			$tlang.getString("gen.assinf")
 		</h4>
@@ -132,6 +129,9 @@
 				#end
 			</ul>
 		#end	
+		#if ($taggable)
+        	#parse ("/vm/assignment/chef_assignment_tags_list.vm")
+		#end
 		#else
 			<p class="discTria">
 				<a href="#" onclick="location='#toolLink("AssignmentAction" "doShow_view_assignment")'; return false;" title="$tlang.getString("viewassig.shoassinf2")">	

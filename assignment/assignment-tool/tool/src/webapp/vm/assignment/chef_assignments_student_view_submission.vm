@@ -181,9 +181,6 @@
 					</tr>
 				#end
 			</table>
-		#if ($taggable)
-        	#parse ("/vm/assignment/chef_assignments_tags_list.vm")
-		#end
 		<h4>
 			$tlang.getString("gen.assinfshort")
 		</h4>
@@ -224,7 +221,10 @@
 						#end
 					#end
 				</ul>
-				##end	 
+				##end
+		#end
+		#if ($taggable)
+        	#parse ("/vm/assignment/chef_assignments_tags_list.vm")
 		#end
 		<hr class="itemSeparator" />
 		<h3>$tlang.getString("gen.submission")</h3>

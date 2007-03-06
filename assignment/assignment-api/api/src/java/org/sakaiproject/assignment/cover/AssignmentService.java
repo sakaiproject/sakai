@@ -21,13 +21,9 @@
 
 package org.sakaiproject.assignment.cover;
 
-import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
-import org.sakaiproject.assignment.taggable.api.TaggableActivity;
-import org.sakaiproject.assignment.taggable.api.TaggableItem;
-import org.sakaiproject.assignment.taggable.api.TaggingProvider;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.time.api.Time;
 
@@ -678,64 +674,6 @@ public class AssignmentService {
 			return null;
 
 		return service.archive(param0, param1, param2, param3, param4);
-	}
-
-	public static String getId() {
-		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null)
-			return null;
-
-		return service.getId();
-	}
-
-	public static String getName() {
-		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null)
-			return null;
-
-		return service.getName();
-	}
-
-	public static List<TaggableActivity> getActivities(String context,
-			TaggingProvider provider) {
-		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null)
-			return null;
-
-		return service.getActivities(context, provider);
-	}
-
-	public static TaggableActivity getActivity(String activityRef,
-			TaggingProvider provider) {
-		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null)
-			return null;
-
-		return service.getActivity(activityRef, provider);
-	}
-
-	public static boolean checkReference(String ref) {
-		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null)
-			return false;
-
-		return service.checkReference(ref);
-	}
-
-	public static String getContext(String ref) {
-		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null)
-			return null;
-
-		return service.getContext(ref);
-	}
-
-	public static TaggableItem getItem(String itemRef, TaggingProvider provider) {
-		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null)
-			return null;
-
-		return service.getItem(itemRef, provider);
 	}
 
 	public static boolean getAllowGroupAssignments() {

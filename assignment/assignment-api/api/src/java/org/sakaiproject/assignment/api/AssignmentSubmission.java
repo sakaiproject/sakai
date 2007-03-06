@@ -23,7 +23,6 @@ package org.sakaiproject.assignment.api;
 
 import java.util.List;
 
-import org.sakaiproject.assignment.taggable.api.TaggableItem;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
@@ -188,23 +187,6 @@ public interface AssignmentSubmission extends Entity
 	 */
 	public String getStatus();
 
-    /**
-	 * Method to get a list of taggable submission items for this assignment
-	 * submission.
-	 *
-	 * @return A list of taggable submission items.
-	 */
-	public List<TaggableItem> getTaggableSubmissions();
-
-	/**
-	 * Method to get a taggable submission item for a submitter.
-	 *
-	 * @param submitterId
-	 *            The identifier of the submitter.
-	 * @return The taggable submission item.
-	 */
-	public TaggableItem getTaggableSubmission(String submitterId);
-	
 	/**
 	 * Method to get the number of allowed resubmission
 	 */

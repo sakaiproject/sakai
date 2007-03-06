@@ -26,12 +26,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.Hashtable;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
@@ -46,6 +44,7 @@ import org.sakaiproject.assignment.api.AssignmentEdit;
 import org.sakaiproject.assignment.api.AssignmentSubmission;
 import org.sakaiproject.assignment.api.AssignmentSubmissionEdit;
 import org.sakaiproject.assignment.cover.AssignmentService;
+import org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer;
 import org.sakaiproject.assignment.taggable.api.TaggingHelperInfo;
 import org.sakaiproject.assignment.taggable.api.TaggingManager;
 import org.sakaiproject.assignment.taggable.api.TaggingProvider;
@@ -85,10 +84,6 @@ import org.sakaiproject.archive.api.ImportMetadata;
 import org.sakaiproject.importer.api.ImportDataSource;
 import org.sakaiproject.importer.api.ImportService;
 import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
-import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
-import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
-import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -554,9 +549,6 @@ public class AssignmentAction extends PagedResourceActionII
 	/** Reference to an item */
 	private static final String ITEM_REF = "itemRef";
 	
-	/** Reference to an assignment submission object */
-	private static final String SUBMISSION_REF = "submissionRef";
-	
 	/** session attribute for list of decorated tagging providers */
 	private static final String PROVIDER_LIST = "providerList";
 	
@@ -574,12 +566,6 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public String buildMainPanelContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
-		TaggingManager taggingManager = (TaggingManager) ComponentManager
-				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
-		if (taggingManager.isTaggable()) {
-			context.put("taggable", Boolean.valueOf(true));
-		}
-		
 		String template = null;
 
 		context.put("tlang", rb);
@@ -754,28 +740,16 @@ public class AssignmentAction extends PagedResourceActionII
 	protected String build_student_view_submission_context(VelocityPortlet portlet, Context context, RunData data,
 			SessionState state)
 	{
-		context.put("context", (String) state.getAttribute(STATE_CONTEXT_STRING));
-
-		TaggingManager taggingManager = (TaggingManager) ComponentManager
-				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
-		if (taggingManager.isTaggable()) {
-			String mode = (String) state.getAttribute(STATE_MODE);
-			List<DecoratedTaggingProvider> providers = (List) state
-					.getAttribute(mode + PROVIDER_LIST);
-			if (providers == null) {
-				providers = initDecoratedProviders();
-				state.setAttribute(mode + PROVIDER_LIST, providers);
-			}
-			context.put("providers", providers);
-		}
+		context.put("context", state.getAttribute(STATE_CONTEXT_STRING));
 
 		User user = (User) state.getAttribute(STATE_USER);
 		String currentAssignmentReference = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
+		Assignment assignment = null;
 		try
 		{
-			Assignment currentAssignment = AssignmentService.getAssignment(currentAssignmentReference);
-			context.put("assignment", currentAssignment);
-			AssignmentSubmission s = AssignmentService.getSubmission(currentAssignment.getReference(), user);
+			assignment = AssignmentService.getAssignment(currentAssignmentReference);
+			context.put("assignment", assignment);
+			AssignmentSubmission s = AssignmentService.getSubmission(assignment.getReference(), user);
 			if (s != null)
 			{
 				context.put("submission", s);
@@ -803,6 +777,15 @@ public class AssignmentAction extends PagedResourceActionII
 		catch (PermissionException e)
 		{
 			addAlert(state, rb.getString("youarenot16"));
+		}
+
+		TaggingManager taggingManager = (TaggingManager) ComponentManager
+				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
+		if (taggingManager.isTaggable() && assignment != null)
+		{
+			addProviders(context, state);
+			addActivity(context, assignment);
+			context.put("taggable", Boolean.valueOf(true));
 		}
 
 		// name value pairs for the vm
@@ -892,27 +875,16 @@ public class AssignmentAction extends PagedResourceActionII
 	protected String build_student_view_assignment_context(VelocityPortlet portlet, Context context, RunData data,
 			SessionState state)
 	{
-		context.put("context", (String) state.getAttribute(STATE_CONTEXT_STRING));
+		context.put("context", state.getAttribute(STATE_CONTEXT_STRING));
 
 		String aId = (String) state.getAttribute(VIEW_ASSIGNMENT_ID);
 
-		TaggingManager taggingManager = (TaggingManager) ComponentManager
-				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
-		if (taggingManager.isTaggable()) {
-			String mode = (String) state.getAttribute(STATE_MODE);
-			List<DecoratedTaggingProvider> providers = (List) state
-					.getAttribute(mode + PROVIDER_LIST);
-			if (providers == null) {
-				providers = initDecoratedProviders();
-				state.setAttribute(mode + PROVIDER_LIST, providers);
-			}
-			context.put("providers", providers);
-		}
-
+		Assignment assignment = null;
+		
 		try
 		{
-			Assignment currentAssignment = AssignmentService.getAssignment(aId);
-			context.put("assignment", currentAssignment);
+			assignment = AssignmentService.getAssignment(aId);
+			context.put("assignment", assignment);
 		}
 		catch (IdUnusedException e)
 		{
@@ -921,6 +893,15 @@ public class AssignmentAction extends PagedResourceActionII
 		catch (PermissionException e)
 		{
 			addAlert(state, rb.getString("youarenot14"));
+		}
+
+		TaggingManager taggingManager = (TaggingManager) ComponentManager
+				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
+		if (taggingManager.isTaggable() && assignment != null)
+		{
+			addProviders(context, state);
+			addActivity(context, assignment);
+			context.put("taggable", Boolean.valueOf(true));
 		}
 
 		context.put("contentTypeImageService", state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE));
@@ -971,25 +952,13 @@ public class AssignmentAction extends PagedResourceActionII
 	protected String build_student_view_grade_context(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
 		context.put("contentTypeImageService", state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE));
-		
-		TaggingManager taggingManager = (TaggingManager) ComponentManager
-				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
-		if (taggingManager.isTaggable()) {
-			String mode = (String) state.getAttribute(STATE_MODE);
-			List<DecoratedTaggingProvider> providers = (List) state
-					.getAttribute(mode + PROVIDER_LIST);
-			if (providers == null) {
-				providers = initDecoratedProviders();
-				state.setAttribute(mode + PROVIDER_LIST, providers);
-			}
-			context.put("providers", providers);
-		}
 
+		AssignmentSubmission submission = null;
 		try
 		{
-			AssignmentSubmission s = AssignmentService.getSubmission((String) state.getAttribute(VIEW_GRADE_SUBMISSION_ID));
-			context.put("assignment", s.getAssignment());
-			context.put("submission", s);
+			submission = AssignmentService.getSubmission((String) state.getAttribute(VIEW_GRADE_SUBMISSION_ID));
+			context.put("assignment", submission.getAssignment());
+			context.put("submission", submission);
 		}
 		catch (IdUnusedException e)
 		{
@@ -998,6 +967,33 @@ public class AssignmentAction extends PagedResourceActionII
 		catch (PermissionException e)
 		{
 			addAlert(state, rb.getString("not_allowed_to_get_submission"));
+		}
+
+		TaggingManager taggingManager = (TaggingManager) ComponentManager
+				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
+		if (taggingManager.isTaggable() && submission != null)
+		{
+			AssignmentActivityProducer assignmentActivityProducer = (AssignmentActivityProducer) ComponentManager
+					.get("org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer");
+			List<DecoratedTaggingProvider> providers = addProviders(context, state);
+			List<TaggingHelperInfo> itemHelpers = new ArrayList<TaggingHelperInfo>();
+			for (DecoratedTaggingProvider provider : providers)
+			{
+				TaggingHelperInfo helper = provider.getProvider()
+						.getItemHelperInfo(
+								assignmentActivityProducer.getItem(
+										submission,
+										UserDirectoryService.getCurrentUser()
+												.getId()).getReference());
+				if (helper != null)
+				{
+					itemHelpers.add(helper);
+				}
+			}
+			addItem(context, submission, UserDirectoryService.getCurrentUser().getId());
+			addActivity(context, submission.getAssignment());
+			context.put("itemHelpers", itemHelpers);
+			context.put("taggable", Boolean.valueOf(true));
 		}
 
 		String template = (String) getContext(data).get("template");
@@ -1012,13 +1008,17 @@ public class AssignmentAction extends PagedResourceActionII
 	{
 		TaggingManager taggingManager = (TaggingManager) ComponentManager
 				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
-		if (taggingManager.isTaggable()) {
+		if (taggingManager.isTaggable())
+		{
+			context.put("producer", ComponentManager
+					.get("org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer"));
 			context.put("providers", taggingManager.getProviders());
+			context.put("taggable", Boolean.valueOf(true));
 		}
 		
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 		context.put("contextString", contextString);
-		context.put("user", (User) state.getAttribute(STATE_USER));
+		context.put("user", state.getAttribute(STATE_USER));
 		context.put("service", AssignmentService.getInstance());
 		context.put("TimeService", TimeService.getInstance());
 		context.put("LongObject", new Long(TimeService.newTime().getTime()));
@@ -1736,17 +1736,18 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("sort_submitGrade", SORTED_GRADE_SUBMISSION_BY_GRADE);
 		context.put("sort_submitReleased", SORTED_GRADE_SUBMISSION_BY_RELEASED);
 
+		Assignment assignment = null;
 		try
 		{
-			Assignment a = AssignmentService.getAssignment((String) state.getAttribute(EXPORT_ASSIGNMENT_REF));
-			context.put("assignment", a);
-			state.setAttribute(EXPORT_ASSIGNMENT_ID, a.getId());
+			assignment = AssignmentService.getAssignment((String) state.getAttribute(EXPORT_ASSIGNMENT_REF));
+			context.put("assignment", assignment);
+			state.setAttribute(EXPORT_ASSIGNMENT_ID, assignment.getId());
 			List userSubmissions = prepPage(state);
 			state.setAttribute(USER_SUBMISSIONS, userSubmissions);
 			context.put("userSubmissions", state.getAttribute(USER_SUBMISSIONS));
 			
 			// ever set the default grade for no-submissions
-			String noSubmissionDefaultGrade = a.getProperties().getProperty(GRADE_NO_SUBMISSION_DEFAULT_GRADE);
+			String noSubmissionDefaultGrade = assignment.getProperties().getProperty(GRADE_NO_SUBMISSION_DEFAULT_GRADE);
 			if (noSubmissionDefaultGrade != null)
 			{
 				context.put("noSubmissionDefaultGrade", noSubmissionDefaultGrade);
@@ -1763,10 +1764,15 @@ public class AssignmentAction extends PagedResourceActionII
 
 		TaggingManager taggingManager = (TaggingManager) ComponentManager
 				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
-		if (taggingManager.isTaggable()) {
-			context.put("providers", taggingManager.getProviders());
+		if (taggingManager.isTaggable() && assignment != null)
+		{
+			context.put("producer", ComponentManager
+					.get("org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer"));
+			addProviders(context, state);
+			addActivity(context, assignment);
+			context.put("taggable", Boolean.valueOf(true));
 		}
- 
+
 		context.put("submissionTypeTable", submissionTypeTable());
 		context.put("gradeTypeTable", gradeTypeTable());
 		context.put("attachments", state.getAttribute(ATTACHMENTS));
@@ -1797,34 +1803,13 @@ public class AssignmentAction extends PagedResourceActionII
 	protected String build_instructor_view_assignment_context(VelocityPortlet portlet, Context context, RunData data,
 			SessionState state)
 	{
-		TaggingManager taggingManager = (TaggingManager) ComponentManager
-				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
-		if (taggingManager.isTaggable()) {
-			String mode = (String) state.getAttribute(STATE_MODE);
-			List<DecoratedTaggingProvider> providers = (List) state
-					.getAttribute(mode + PROVIDER_LIST);
-			if (providers == null) {
-				providers = initDecoratedProviders();
-				state.setAttribute(mode + PROVIDER_LIST, providers);
-			}
-			List<TaggingHelperInfo> activityHelpers = new ArrayList<TaggingHelperInfo>();
-			for (DecoratedTaggingProvider provider : providers) {
-				TaggingHelperInfo helper = provider
-						.getProvider()
-						.getActivityHelperInfo(
-								(String) state.getAttribute(VIEW_ASSIGNMENT_ID));
-				if (helper != null) {
-					activityHelpers.add(helper);
-				}
-			}
-			context.put("activityHelpers", activityHelpers);
-			context.put("providers", providers);
-		}
-
 		context.put("tlang", rb);
+		
+		Assignment assignment = null;
 		try
 		{
-			context.put("assignment", AssignmentService.getAssignment((String) state.getAttribute(VIEW_ASSIGNMENT_ID)));
+			assignment = AssignmentService.getAssignment((String) state.getAttribute(VIEW_ASSIGNMENT_ID));
+			context.put("assignment", assignment);
 		}
 		catch (IdUnusedException e)
 		{
@@ -1833,6 +1818,30 @@ public class AssignmentAction extends PagedResourceActionII
 		catch (PermissionException e)
 		{
 			addAlert(state, rb.getString("youarenot14"));
+		}
+
+		TaggingManager taggingManager = (TaggingManager) ComponentManager
+				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
+		if (taggingManager.isTaggable() && assignment != null)
+		{
+			List<DecoratedTaggingProvider> providers = addProviders(context, state);
+			List<TaggingHelperInfo> activityHelpers = new ArrayList<TaggingHelperInfo>();
+			AssignmentActivityProducer assignmentActivityProducer = (AssignmentActivityProducer) ComponentManager
+					.get("org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer");
+			for (DecoratedTaggingProvider provider : providers)
+			{
+				TaggingHelperInfo helper = provider.getProvider()
+						.getActivityHelperInfo(
+								assignmentActivityProducer.getActivity(
+										assignment).getReference());
+				if (helper != null)
+				{
+					activityHelpers.add(helper);
+				}
+			}
+			addActivity(context, assignment);
+			context.put("activityHelpers", activityHelpers);
+			context.put("taggable", Boolean.valueOf(true));
 		}
 
 		context.put("currentTime", TimeService.newTime());
@@ -4685,10 +4694,14 @@ public class AssignmentAction extends PagedResourceActionII
 						TaggingManager taggingManager = (TaggingManager) ComponentManager
 								.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
 
+						AssignmentActivityProducer assignmentActivityProducer = (AssignmentActivityProducer) ComponentManager
+								.get("org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer");
+
 						if (taggingManager.isTaggable()) {
 							for (TaggingProvider provider : taggingManager
 									.getProviders()) {
-								provider.removeTags(aEdit);
+								provider.removeTags(assignmentActivityProducer
+										.getActivity(aEdit));
 							}
 						}
 						
@@ -4821,10 +4834,14 @@ public class AssignmentAction extends PagedResourceActionII
 					TaggingManager taggingManager = (TaggingManager) ComponentManager
 							.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
 
+					AssignmentActivityProducer assignmentActivityProducer = (AssignmentActivityProducer) ComponentManager
+					.get("org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer");
+
 					if (taggingManager.isTaggable()) {
 						for (TaggingProvider provider : taggingManager
 								.getProviders()) {
-							provider.removeTags(a);
+							provider.removeTags(assignmentActivityProducer
+									.getActivity(a));
 						}
 					}
 			
@@ -8043,9 +8060,40 @@ public class AssignmentAction extends PagedResourceActionII
 		TaggingManager taggingManager = (TaggingManager) ComponentManager
 				.get("org.sakaiproject.assignment.taggable.api.TaggingManager");
 		List<DecoratedTaggingProvider> providers = new ArrayList<DecoratedTaggingProvider>();
-		for (TaggingProvider provider : taggingManager.getProviders()) {
+		for (TaggingProvider provider : taggingManager.getProviders())
+		{
 			providers.add(new DecoratedTaggingProvider(provider));
 		}
 		return providers;
+	}
+	
+	private List<DecoratedTaggingProvider> addProviders(Context context, SessionState state)
+	{
+		String mode = (String) state.getAttribute(STATE_MODE);
+		List<DecoratedTaggingProvider> providers = (List) state
+				.getAttribute(mode + PROVIDER_LIST);
+		if (providers == null)
+		{
+			providers = initDecoratedProviders();
+			state.setAttribute(mode + PROVIDER_LIST, providers);
+		}
+		context.put("providers", providers);
+		return providers;
+	}
+	
+	private void addActivity(Context context, Assignment assignment)
+	{
+		AssignmentActivityProducer assignmentActivityProducer = (AssignmentActivityProducer) ComponentManager
+				.get("org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer");
+		context.put("activity", assignmentActivityProducer
+				.getActivity(assignment));
+	}
+	
+	private void addItem(Context context, AssignmentSubmission submission, String userId)
+	{
+		AssignmentActivityProducer assignmentActivityProducer = (AssignmentActivityProducer) ComponentManager
+				.get("org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer");
+		context.put("item", assignmentActivityProducer
+				.getItem(submission, userId));
 	}
 }
