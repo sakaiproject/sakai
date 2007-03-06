@@ -21,7 +21,6 @@
 
 package org.sakaiproject.access.tool;
 
-// importimport java.io.IOException;
 import java.io.IOException;
 import java.util.Enumeration;
 
@@ -50,6 +49,8 @@ import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.cover.SessionManager;
 
 /**
  * <p>
@@ -63,6 +64,42 @@ public class WebServlet extends AccessServlet
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(WebServlet.class);
 
+	/**
+	 * Set active session according to sessionId parameter
+	 */
+	private void setSession( HttpServletRequest req )
+	{
+		String sessionId = req.getParameter("session");
+		if ( sessionId != null)
+		{
+			Session session = SessionManager.getSession(sessionId);
+			
+			if (session != null)
+			{
+				session.setActive();
+				SessionManager.setCurrentSession(session);
+			}
+		}
+	}
+
+	/**
+	 * respond to an HTTP GET request
+	 * 
+	 * @param req
+	 *			 HttpServletRequest object with the client request
+	 * @param res
+	 *			 HttpServletResponse object back to the client
+	 * @exception ServletException
+	 *				  in case of difficulties
+	 * @exception IOException
+	 *				  in case of difficulties
+	 */
+	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
+	{
+		setSession(req);
+		super.dispatch(req, res);
+	}
+	
 	/**
 	 * respond to an HTTP POST request; only to handle the login process
 	 * 
@@ -87,6 +124,7 @@ public class WebServlet extends AccessServlet
 
 		else if (FileUpload.isMultipartContent(req))
 		{
+			setSession(req);
 			postUpload(req, res);
 		}
 
