@@ -401,11 +401,24 @@
           </execution>
         </executions>
       </plugin>
+
+      <!--
+		Until the Gradebook source is restructured for Maven 2, eliminate
+		incorrect execution of data loaders by excluding "Test*.java" files.
+      	(For Maven 1, JUnit tests were filtered and ordered by going
+		through a TestSuite class.)
+	  -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>**/Test*.java</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+
     </plugins>
-
-
-
-
 
     <resources>
       <resource>
@@ -445,7 +458,7 @@
       <testResource>
         <directory>src/resource</directory>
       </testResource>
-<!--includes:  include: **/*TestSuite.java -->
     </testResources>
+
   </build>
 </project>

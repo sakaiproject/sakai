@@ -217,8 +217,6 @@ public class GradeMappingTest extends GradebookTestBase {
 
     	// Make sure we can assign a manual-only grade to a student.
     	CourseGradeRecord gradeRecord = gradebookManager.getStudentCourseGradeRecord(gradebook, "Whoa");
-    	log.warn("For Whoa, gradeRecord=" + gradeRecord);
-    	log.warn("  entered=" + gradeRecord.getEnteredGrade() + ", display=" + gradeRecord.getDisplayGrade());
     	Assert.assertTrue(gradeRecord.getDisplayGrade().equals("Whoa"));
 
     	// Test the sorting of assigned grades. Need to make sure that the manual-only
@@ -240,7 +238,6 @@ public class GradeMappingTest extends GradebookTestBase {
     	Collections.reverse(gradeRecords);	// Grading scale is highest to lowest.
     	pos = 0;
     	for (String gradeCode : grades) {
-    		log.warn("pos=" + pos + ", gradeCode=" + gradeCode + ", record=" + gradeRecords.get(pos).getDisplayGrade());
     		Assert.assertTrue(gradeCode.equals(gradeRecords.get(pos++).getDisplayGrade()));
     	}
 
@@ -265,4 +262,12 @@ public class GradeMappingTest extends GradebookTestBase {
     	gradebookManager.getPointsEarnedCourseGradeRecordsWithStats(courseGrade, students);
     	Assert.assertTrue(courseGrade.getMean() == 50.0);
     }
+
+    public void testResetDefaultGradeScale() throws Exception {
+    	// Because the default grading scale is set via a Java property rather than through
+    	// the database, the last value set by these tests will hang around polluting the JVM.
+    	// Do a little cleanup before leaving.
+    	gradebookFrameworkService.setDefaultGradingScale("LetterGradePlusMinusMapping");
+    }
+
 }
