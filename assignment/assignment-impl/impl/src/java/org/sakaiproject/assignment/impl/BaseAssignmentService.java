@@ -618,10 +618,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		FunctionManager.registerFunction(SECURE_UPDATE_ASSIGNMENT);
 		FunctionManager.registerFunction(SECURE_GRADE_ASSIGNMENT_SUBMISSION);
 		FunctionManager.registerFunction(SECURE_ASSIGNMENT_RECEIVE_NOTIFICATIONS);
-		
-		// register as a linkable activity producer
-		m_taggingManager.registerProducer(m_assignmentActivityProducer);
-
 	} // init
 
 	/**
