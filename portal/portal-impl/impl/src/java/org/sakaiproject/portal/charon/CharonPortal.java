@@ -788,9 +788,9 @@ public class CharonPortal extends HttpServlet
 		{
 			out.write("\t\t<a href=\""
 				+ resetActionUrl
-				+ "\" title=\"" + Web.escapeHtml(rb.getString("sit.reset")) 
+				+ "\" title=\"" + Web.escapeHtml(rb.getString("sit_reset")) 
 				+ "\"><img src=\"/library/image/transparent.gif\" alt=\"" 
-				+ Web.escapeHtml(rb.getString("sit.reset")) + "\" border=\"1\" /></a>");
+				+ Web.escapeHtml(rb.getString("sit_reset")) + "\" border=\"1\" /></a>");
 		}
 
 		out.write("<h2>" + toolTitle + "\n" + "\t</h2></div>\n");
