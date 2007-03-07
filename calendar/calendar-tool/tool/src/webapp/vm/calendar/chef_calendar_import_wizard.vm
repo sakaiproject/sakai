@@ -22,6 +22,9 @@
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 		#if ($importWizardState == "SELECT_TYPE")
 			<h4>$tlang.getString("imp.select")</h4>
+		#elseif ($importWizardState == "OTHER_SELECT_FILE")
+      			<p class="instruction">$tlang.getString("imp.mm.outlook")<br />
+
 		#elseif ($importWizardState == "GENERIC_SELECT_FILE")
 			<p class="instruction">$tlang.getString("imp.todo")<br /><br />
 				<a href="#scheduleLink("CalendarTemplate.zip")" title="CalendarTemplate.zip" target="_blank">
