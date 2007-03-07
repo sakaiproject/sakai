@@ -229,17 +229,17 @@ public class InputRichTextRenderer extends Renderer
        String collectionBase = (String) RendererUtil.getAttribute(context, component, "collectionBase");
        String collectionId = null;
 
+       String connector = "/sakai-fck-connector/filemanager/connector";
+
        if (collectionBase != null) 
        {
          collectionId = collectionBase;
+         connector += collectionBase;
        }
        else
        {
          collectionId = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
        }
-       
-       //is there a slicker way to get this? 
-       String connector = "/sakai-fck-connector/filemanager/connector" + collectionBase;
 
        writer.write("<table border=\"0\"><tr><td>");
        writer.write("<textarea name=\"" + clientId + "_inputRichText\" id=\"" + clientId + "_inputRichText\"");
