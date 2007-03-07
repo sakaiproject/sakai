@@ -65,7 +65,6 @@
     <module>sections</module>
     <module>site</module>
     <module>site-manage</module>
-    <module>sludge</module>
     <module>syllabus</module>
     <module>test-harness</module>
     <module>textarea</module>
