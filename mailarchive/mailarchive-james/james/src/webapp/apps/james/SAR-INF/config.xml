@@ -52,6 +52,7 @@
 
 <!-- CHANGED: from >localhost< -->
          <servername>[HOST]</servername>
+         <servername>myhost.james</servername>
 
       </servernames>
 
