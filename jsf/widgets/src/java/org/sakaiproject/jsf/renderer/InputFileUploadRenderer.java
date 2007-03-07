@@ -201,7 +201,6 @@ public class InputFileUploadRenderer extends Renderer
         FileItem item = getFileItem(context, component);
         boolean isMultipartRequest = request.getContentType() != null && request.getContentType().startsWith("multipart/form-data");
         boolean wasMultipartRequestFullyParsed = request.getParameter(clientId + ID_HIDDEN_ELEMENT) != null;
-        boolean didRequestFilterHandleUpload = request.getAttribute(ATTR_UPLOADS_DONE) != null;
         String requestFilterStatus = (String) request.getAttribute("upload.status");
         Object requestFilterUploadLimit = request.getAttribute("upload.limit");
         Exception requestFilterException = (Exception) request.getAttribute("upload.exception");
@@ -228,16 +227,17 @@ public class InputFileUploadRenderer extends Renderer
             // the user tried to upload too large a file
             return "The upload size limit of " + requestFilterUploadLimit + "MB has been exceeded.";
         }
-        else if (item != null && (item.getName() == null || "".equals(item.getName())))
+        else if (item == null || item.getName() == null || item.getName().length() == 0)
         {
+             // The file item will be null if the component was previously not rendered.
              return null;
          }
-        else if (item != null && item.getSize() == 0)
+        else if (item.getSize() == 0)
         {
             return "The filename '"+item.getName()+"' is invalid.  Please select a valid file.";
         }
 
-        if (!wasMultipartRequestFullyParsed || item == null)
+        if (!wasMultipartRequestFullyParsed)
         {
             return "An error occured while processing the uploaded file.  The error was:\n"
             + "DEVELOPER ERROR: The <inputFileUpload> tag requires a <filter> in web.xml to parse the uploaded file.\n"
@@ -249,17 +249,9 @@ public class InputFileUploadRenderer extends Renderer
             return "The filename '"+item.getName()+"' is invalid.  Please select a valid file.";
         }
 
-        // at this point, if the FileItem is available and has a name and a length, then there isn't an error.
-        if (item != null && item.getName() != null && item.getName().length() != 0 && item.getSize() > 0)
-        {
-            // everything checks out fine! The upload was parsed, and a FileItem
-            // exists with a filename and non-zero length
-            return null;
-        }
-        else
-        {
-            return "An unknown error occured while processing the uploaded file.  Please try again.";
-        }
+        // everything checks out fine! The upload was parsed, and a FileItem
+        // exists with a filename and non-zero length
+        return null;
     }
 
     /**
