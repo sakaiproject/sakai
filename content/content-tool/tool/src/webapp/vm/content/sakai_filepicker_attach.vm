@@ -1,4 +1,4 @@
-<!-- sakai_filepiecker_attach.vm, version: Id:  $, use with org.sakaiproject.content.tool.FilePickerAction.java -->
+<!-- sakai_filepicker_attach.vm, version: Id:  $, use with org.sakaiproject.content.tool.FilePickerAction.java -->
 <script language="JavaScript" type="text/JavaScript">
 	<!--
 		function openCopyrightWindow(theURL,winName,winSettings) 
@@ -102,9 +102,9 @@
 		<hr class="itemSeparator" />
 		######################  Page Title / Breadcrumbs  ##############
 		<div class="highlightPanel">
-		<h4>
-			$tlang.getString("att.res")
-		</h4>
+			<h4>
+				$tlang.getString("att.res")
+			</h4>
 			<div class ="breadCrumb">
 				<h3>
 				$tlang.getString("gen.location")
@@ -156,158 +156,106 @@
 					$tlang.getString("gen.actions")
 				</th>
 			</tr>
-			#foreach($root in $this_site)
+			#set ($unit = "em")
+			#foreach($item in $this_site)
+				#set($itemcount = $itemcount + 1)
+				#set ($width = "$!{item.depth}$unit")
+				#if ($item.depth==0)	
+					#set ($margin="margin-left:0")
+				#else
+					#set ($margin="margin-left:2em")
+					#set ($marginAction="margin-left:4.7em")
+				#end
+				#if ($item.depth > 3)
+					#set($headerDepth = 6)
+				#else
+					#set($headerDepth = $item.depth + 3)
+				#end
 				############################### Show top level folder #################
 				<tr>
-					<td headers="title">
-						<h3>
-							#if ($root.isFolder())
-								#if ($root.isEmpty())
+					<td headers="title" style="text-indent:$width" class="specialLink">
+						<h$headerDepth>
+							#if ($item.isCollection())
+								#if ($item.isEmpty())
 									<img src = "#imageLink("sakai/dir_closed.gif")" border="0" alt="$tlang.getString('gen.folder1')" />
-									$validator.escapeHtml(${root.name})
-								#elseif ($root.canRead())
-									#if (!$expandedCollections.containsKey($root.Id))
-										<a href="#toolLinkParam("FilePickerAction" "doExpand_collection" "collectionId=$validator.escapeUrl($root.Id)")" title="$tlang.getString('sh.open')">
+									$validator.escapeHtml(${item.name})
+								#elseif ($item.canRead())
+									#if (!$expandedCollections.containsKey($item.Id))
+										<a href="#toolLinkParam("FilePickerAction" "doExpand_collection" "collectionId=$validator.escapeUrl($item.Id)")" title="$tlang.getString('sh.open')">
 											<img src = "#imageLink("sakai/dir_closedplus.gif")" border="0" title="$tlang.getString('sh.open')" alt="$tlang.getString('sh.open')" />
 										</a>
 									#else
-										<a href="#toolLinkParam("FilePickerAction" "doCollapse_collection" "collectionId=$validator.escapeUrl($root.Id)")" title="$tlang.getString('sh.close')">
+										<a href="#toolLinkParam("FilePickerAction" "doCollapse_collection" "collectionId=$validator.escapeUrl($item.Id)")" title="$tlang.getString('sh.close')">
 											<img src = "#imageLink("sakai/dir_openminus.gif")" border="0" title="$tlang.getString('sh.close')" alt="$tlang.getString('sh.close')" />
 										</a>
 									#end
-									<a href="#toolLinkParam("FilePickerAction" "doNavigate" "collectionId=${validator.escapeUrl(${root.id})}&navRoot=$validator.escapeUrl($root.root)")" title="$tlang.getString('sh.go')">
-										$validator.escapeHtml(${root.name})
+									<a href="#toolLinkParam("FilePickerAction" "doNavigate" "collectionId=${validator.escapeUrl(${item.id})}&navRoot=$validator.escapeUrl($item.root)")" title="$tlang.getString('sh.go')">
+										$validator.escapeHtml(${item.name})
 									</a>
 								#else
 									<img src = "#imageLink("sakai/dir_closed.gif")" border="0" alt="$tlang.getString('gen.folder1')" />
-									$validator.escapeHtml(${root.name})
+									$validator.escapeHtml(${item.name})
 								#end
-							#end					
-						</h3>
-					</td>
-					<td headers="actions">
-					</td>
-				</tr>	
-				#set($collectionMembers = $root.Members)
-				######################  No items message  ##############
-				#if ($root.isLocal() && $collectionMembers.isEmpty())
-					<tr>
-						<td  colspan="4">
-							<h3 style="margin-left:1em">
-								<p class="instruction">
-									$tlang.getString("sh.no")
-									#if($dropboxMode)$tlang.getString("sh.drop")#else$tlang.getString("sh.reso")#end
-									$tlang.getString("sh.item")
-								</p>
-							</h3>	
-						</td>
-					</tr>		
-				#else
-					######################  Display individual items/folders  ##############
-					#set ($unit ="em")
-					#foreach ($member in $collectionMembers)
-						#set ($width = "$!{member.depth}$unit")
-						#set ($widthSp = (${member.depth} + 1) )
-						#set ($widthSpDo = "$widthSp$unit")
-						#if ($member.depth==1)	
-							#set ($margin="margin-left:0")
-						#else
-							#set ($margin="margin-left:2em")
-							#set ($marginAction="margin-left:4.7em")
-						#end
-						#if ($member.depth > 3)
-							#set($headerDepth = 6)
-						#else
-							#set($headerDepth =$member.depth + 3)
-						#end
-						
-						<tr>
-							######################  Item title and action links  ##############
-							<td headers="title" style="text-indent:$width">
-								<h$headerDepth title="$validator.escapeHtml(${member.name})">
-								#if ($member.isFolder())
-									#if ($member.isEmpty())
-										<img src = "#imageLink("sakai/dir_closed.gif")" border="0" alt="$tlang.getString('gen.folder1')" />
-										$validator.escapeHtml(${member.name})
-									#elseif ($member.canRead())
-										#if (!$expandedCollections.containsKey($member.Id))
-											<a href="#toolLinkParam("FilePickerAction" "doExpand_collection" "collectionId=$validator.escapeUrl($member.Id)")" title="$tlang.getString('sh.open')">
-												<img src = "#imageLink("sakai/dir_closedplus.gif")" border="0" title="$tlang.getString('sh.open')" alt="$tlang.getString('sh.open')" />
-											</a>
+							#else
+								#if ($item.canRead())
+									#if ($item.hasCopyrightAlert())
+										## if there is a copyright alert, show the alert page first
+										<a href="" 
+										title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($item.type)  [$tlang.getString('gen.newwin')]"
+										onclick="openCopyrightWindow('${item.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false" >
 										#else
-											<a href="#toolLinkParam("FilePickerAction" "doCollapse_collection" "collectionId=$validator.escapeUrl($member.Id)")" title="$tlang.getString('sh.close')">
-												<img src = "#imageLink("sakai/dir_openminus.gif")" border="0" title="$tlang.getString('sh.close')" alt="$tlang.getString('sh.close')" />
-											</a>
-										#end
-										<a href="#toolLinkParam("FilePickerAction" "doNavigate" "collectionId=${validator.escapeUrl(${member.id})}&navRoot=$validator.escapeUrl($member.root)")" title="$tlang.getString('sh.go')">
-											$validator.escapeHtml(${member.name})
+										<a href="${item.url}" target="${item.target}"
+											title="$tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($item.type)  [$tlang.getString('gen.newwin')]"
+										>
+									#end
+									<img src = "#imageLink($contentTypeImageService.getContentTypeImage($item.type))" border= "0" alt ="" hspace="0" />
+									</a>
+									#if ($item.hasCopyrightAlert())
+										## if there is a copyright alert, show the alert page first
+										<a href=""
+										title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($item.type)  [$tlang.getString('gen.newwin')]"
+										onclick="openCopyrightWindow('${item.accessUrl}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false;" 
+										>
+											$validator.escapeHtml($item.name)
 										</a>
+										&#169;
 									#else
-										<img src = "#imageLink("sakai/dir_closed.gif")" border="0" alt="$tlang.getString('gen.folder1')" />
-										$validator.escapeHtml(${member.name})
+										<a href="$item.accessUrl" target="$item.target"
+										title="$tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($item.type)  [$tlang.getString('gen.newwin')]"
+										>
+											$validator.escapeHtml($item.name)
+										</a>
 									#end
 								#else
-									#if ($member.canRead())
-										#if ($member.hasCopyrightAlert())
-											## if there is a copyright alert, show the alert page first
-											<a href="" 
-											title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($member.type)  [$tlang.getString('gen.newwin')]"
-											onclick="openCopyrightWindow('${member.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false" >
-											#else
-											<a href="${member.url}" target="${member.target}"
-												title="$tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($member.type)  [$tlang.getString('gen.newwin')]"
-											>
-										#end
-										<img src = "#imageLink($contentTypeImageService.getContentTypeImage($member.type))" border= "0" alt ="" hspace="0" />
-										</a>
-										#if ($member.hasCopyrightAlert())
-											## if there is a copyright alert, show the alert page first
-											<a href=""
-											title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($member.type)  [$tlang.getString('gen.newwin')]"
-											onclick="openCopyrightWindow('${member.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false;" 
-											>
-												$validator.escapeHtml($member.name)
-											</a>
-											&#169;
+									 <img src = "#imageLink($contentTypeImageService.getContentTypeImage($item.type))" border="0" alt ="" hspace="0" />
+									$validator.escapeHtml($item.name)
+									#if ($item.hasCopyrightAlert())
+										&#169;
+									#end
+								#end
+							#end					
+						</h$headerDepth>
+					</td>
+					<td headers="actions">
+							<div class="itemAction">
+								#if($item.isCollection())
+								#else
+									#set ($itemsOnLine = 0)
+									####### deal with attaching item
+									#if ($item.canRead())
+										#if($disable_attach_links)
 										#else
-											<a href="$member.url" target="$member.target"
-											title="$tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($member.type)  [$tlang.getString('gen.newwin')]"
-											>
-												$validator.escapeHtml($member.name)
-											</a>
-										#end
-									#else
-										 <img src = "#imageLink($contentTypeImageService.getContentTypeImage($member.type))" border="0" alt ="" hspace="0" />
-										$validator.escapeHtml($member.name)
-										#if ($member.hasCopyrightAlert())
-											&#169;
+											#if ($itemsOnLine > 0)
+												|
+											#end
+											#set ($itemsOnLine = $itemsOnLine + 1)
+											<a href="#toolLinkParam("FilePickerAction" "doAttachitem" "itemId=$validator.escapeUrl(${item.id})")" title ="$tlang.getString('att.copy')">$tlang.getString("att.copy").trim()</a>
 										#end
 									#end
 								#end
-								</h$headerDepth>
-							</td>
-							<td headers="actions">
-								<div class="itemAction">
-									#if($member.isFolder())
-									#else
-										#set ($itemsOnLine = 0)
-										####### deal with attaching item
-										#if ($member.canRead())
-											#if($disable_attach_links)
-											#else
-												#if ($itemsOnLine > 0)
-													|
-												#end
-												#set ($itemsOnLine = $itemsOnLine + 1)
-												<a href="#toolLinkParam("FilePickerAction" "doAttachitem" "itemId=$validator.escapeUrl(${member.id})")" title ="$tlang.getString('att.copy')">$tlang.getString("att.copy").trim()</a>
-											#end
-										#end
-									#end
-								</div>
-							</td>
-						</tr>
-					#end
-				#end
+							</div>
+					</td>
+				</tr>	
 			#end ## foreach $root in $this_site
 			
 			############################################# Begin "Other sites" section
@@ -367,11 +315,24 @@
 					#end
 					################################################################ End Paging widgets
 					#foreach($root in $other_sites)
+						#set($itemcount = $itemcount + 1)
+						#set ($width = "$!{item.depth}${unit}")
+						#if ($item.depth==0)	
+							#set ($margin="margin-left:0")
+						#else
+							#set ($margin="margin-left:2em")
+							#set ($marginAction="margin-left:4.7em")
+						#end
+						#if ($item.depth > 3)
+							#set($headerDepth = 6)
+						#else
+							#set($headerDepth = $item.depth + 3)
+						#end
 						############################### Show top level folder #################
 						<tr>
-							<td headers="title">
-								#if ($root.isFolder())
-									<h3>
+							<td headers="title" style="text-indent: $width" class="specialLink">
+								#if ($root.isCollection())
+									<h$headerDepth>
 										#if ($root.isEmpty())
 											<img src = "#imageLink("sakai/dir_closed.gif")" border="0"  alt="$tlang.getString('gen.folder1')"  />
 											$validator.escapeHtml(${root.name})
@@ -392,128 +353,12 @@
 											<img src = "#imageLink("sakai/dir_closed.gif")" border="0" alt="$tlang.getString('gen.folder1')" />
 											$validator.escapeHtml(${root.name})
 										#end
-									</h3>	
+									</h$headerDepth>	
 								#end	
 							</td>
 							<td headers="actions">
 							</td>
 						</tr>	
-						#set($collectionMembers = $root.Members)
-						######################  No items message  ##############
-						#if ($root.isLocal() && $collectionMembers.isEmpty())
-							<tr>
-								<td  colspan="4">
-									<p class="instruction">
-										$tlang.getString("sh.no")
-										#if($dropboxMode)$tlang.getString("sh.drop")#else$tlang.getString("sh.reso")#end
-										$tlang.getString("sh.item")
-									</p>
-								</td>
-							</tr>		
-						#else
-							######################  Display individual items/folders  ##############
-							#set ($unit ="em")
-							#foreach ($member in $collectionMembers)
-								#set ($width = "$!{member.depth}$unit")
-								#set ($widthSp = (${member.depth} + 1) )
-								#set ($widthSpDo = "$widthSp$unit")
-								#if ($member.depth==1)	
-									#set ($margin="margin-left:0")
-								#else
-									#set ($margin="margin-left:2em")
-									#set ($marginAction="margin-left:4.7em")
-								#end
-								#if ($member.depth > 3)
-									#set($headerDepth = 6)
-								#else
-									#set($headerDepth =$member.depth + 3)
-								#end
-
-								<tr>
-									######################  Item title and action links  ##############
-									<td headers="title" style="text-indent:$width">
-										<h$headerDepth>
-											#if ($member.isFolder())
-												#if ($member.isEmpty())
-													<img src = "#imageLink("sakai/dir_closed.gif")" border="0" alt="$tlang.getString('gen.folder1')" />
-													$validator.escapeHtml(${member.name})
-												#elseif ($member.canRead())
-													#if (!$expandedCollections.containsKey($member.Id))
-														<a href="#toolLinkParam("FilePickerAction" "doExpand_collection" "collectionId=$validator.escapeUrl($member.Id)")" title="$tlang.getString('sh.open')">
-															<img src = "#imageLink("sakai/dir_closedplus.gif")" border="0" title="$tlang.getString('sh.open')" alt="$tlang.getString('sh.open')" />
-														</a>
-													#else
-														<a href="#toolLinkParam("FilePickerAction" "doCollapse_collection" "collectionId=$validator.escapeUrl($member.Id)")" title="$tlang.getString('sh.close')">
-															<img src = "#imageLink("sakai/dir_openminus.gif")" border="0" title="$tlang.getString('sh.close')" alt="$tlang.getString('sh.close')" />
-														</a>
-													#end
-													<a href="#toolLinkParam("FilePickerAction" "doNavigate" "collectionId=${validator.escapeUrl(${member.id})}&navRoot=$validator.escapeUrl($member.root)")" title="$tlang.getString('sh.go')">
-														$validator.escapeHtml(${member.name})
-													</a>
-												#else
-													<img src = "#imageLink("sakai/dir_closed.gif")" border="0" alt="$tlang.getString('gen.folder1')" />
-													$validator.escapeHtml(${member.name})
-												#end
-											#else
-												#if ($member.canRead())
-													#if ($member.hasCopyrightAlert())
-														## if there is a copyright alert, show the alert page first
-														<a href="" 
-														title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($member.type)  [$tlang.getString('gen.newwin')]"
-														onclick="openCopyrightWindow('${member.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false"
-														>
-														#else
-														<a href="${member.url}" target="${member.target}">
-													#end
-													<img src = "#imageLink($contentTypeImageService.getContentTypeImage($member.type))" border= "0" alt ="" hspace="0" />
-													</a>
-													#if ($member.hasCopyrightAlert())
-														## if there is a copyright alert, show the alert page first
-														<a href="" 
-														title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($member.type)  [$tlang.getString('gen.newwin')]"
-														onclick="openCopyrightWindow('${member.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false;"
-														>
-															$validator.escapeHtml($member.name)
-														</a>
-														&#169;
-													#else
-														<a href="$member.url" target="$member.target"
-														title="$tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($member.type)  [$tlang.getString('gen.newwin')]">
-															$validator.escapeHtml($member.name)
-														</a>
-													#end
-												#else
-													 <img src = "#imageLink($contentTypeImageService.getContentTypeImage($member.type))" border="0" alt ="" hspace="0" />
-													$validator.escapeHtml($member.name)
-													#if ($member.hasCopyrightAlert())
-														&#169;
-													#end
-												#end
-											#end
-										</h$headerDepth>
-									</td>
-									<td headers="actions">
-										<div class="itemAction">
-											#if($member.isFolder())
-											#else
-												#set ($itemsOnLine = 0)
-												####### deal with attaching item
-												#if ($member.canRead() && $member.canSelect())
-													#if($disable_attach_links)
-													#else
-														#if ($itemsOnLine > 0)
-															|
-														#end
-														#set ($itemsOnLine = $itemsOnLine + 1)
-														<a href="#toolLinkParam("FilePickerAction" "doAttachitem" "itemId=$validator.escapeUrl(${member.id})")" title ="$tlang.getString('att.copy')">$tlang.getString("att.copy").trim()</a>
-													#end
-												#end
-											#end
-										</div>
-									</td>
-								</tr>
-							#end
-						#end
 					#end ## foreach $root in $other_sites
 	
 				#else

@@ -437,7 +437,7 @@
 							</td>
 							<td headers="checkboxes">
 							</td>
-							<td headers="title" class="specialLink">
+							<td headers="title" style="text-indent:$width" class="specialLink">
 								<h3>
 									#if ($root.isCollection())
 										#if ($root.canRead())

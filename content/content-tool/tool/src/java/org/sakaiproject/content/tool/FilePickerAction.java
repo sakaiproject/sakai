@@ -22,10 +22,13 @@
 package org.sakaiproject.content.tool;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -45,10 +48,12 @@ import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.content.api.ContentResourceFilter;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentTypeImageService;
+import org.sakaiproject.content.tool.ResourcesAction.ChefBrowseItem;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -138,8 +143,10 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 	/** The sort ascending or decending */
 	private static final String STATE_SORT_ASC = PREFIX + "sort_asc";
 
-	private static final String TEMPLATE_ATTACH = "content/sakai_filepiecker_attach";
-	private static final String TEMPLATE_SELECT = "content/sakai_filepiecker_select";
+	private static final String TEMPLATE_ATTACH = "content/sakai_filepicker_attach";
+	private static final String TEMPLATE_SELECT = "content/sakai_filepicker_select";
+
+	private static final String STATE_LIST_SELECTIONS = null;
 
 
 
@@ -378,7 +385,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 				state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
 			}
 			
-			boolean expandAll = Boolean.TRUE.toString().equals(state.getAttribute(STATE_EXPAND_ALL));
+			boolean expandAll = Boolean.TRUE.toString().equals(state.getAttribute(STATE_NEED_TO_EXPAND_ALL));
 
 			//state.removeAttribute(STATE_PASTE_ALLOWED_FLAG);
 
@@ -412,7 +419,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 								expandedCollections.add(dbId);
 								
 								ListItem item = ListItem.getListItem(db, (ListItem) null, registry, expandAll, expandedCollections, (List<String>) null, (List<String>) null, 0);
-								this_site.add(item);
+								this_site.addAll(item.convert2list());
 								
 	//							List dbox = getListView(dbId, highlightedItems, (ChefBrowseItem) null, false, state); 
 	//							getBrowseItems(dbId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (ChefBrowseItem) null, false, state);
@@ -439,7 +446,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 							expandedCollections.add(dropboxId);
 	
 							ListItem item = ListItem.getListItem(db, null, registry, expandAll, expandedCollections, null, null, 0);
-							this_site.add(item);
+							this_site.addAll(item.convert2list());
 							
 	//						List dbox = getListView(dropboxId, highlightedItems, (ChefBrowseItem) null, false, state); 
 	//						// List dbox = getBrowseItems(dropboxId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (ChefBrowseItem) null, false, state);
@@ -463,7 +470,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 			{
 				ContentCollection collection = contentService.getCollection(collectionId);
 				ListItem item = ListItem.getListItem(collection, null, registry, expandAll, expandedCollections, null, null, 0);
-				this_site.add(item);
+				this_site.addAll(item.convert2list());
 				
 			}
 			
@@ -645,6 +652,16 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		{
 			attachments = EntityManager.newReferenceList(attachments);
 			state.setAttribute(STATE_ATTACHMENT_LIST, attachments);
+		}
+		
+		Object attach_links = state.getAttribute(FilePickerHelper.FILE_PICKER_ATTACH_LINKS);
+		if(attach_links == null)
+		{
+			state.removeAttribute(STATE_ATTACH_LINKS);
+		}
+		else
+		{
+			state.setAttribute(STATE_ATTACH_LINKS, Boolean.TRUE.toString());
 		}
 		
 		List<AttachItem> new_items = new Vector<AttachItem>();
@@ -1207,6 +1224,169 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 			super.toolModeDispatch(methodBase, methodExt, req, res);
 		}
 	}
+	/**
+	 * @param resource
+	 * @param newItem
+	 * @param state
+	 * @return
+	 */
+	protected static boolean checkItemFilter(ContentResource resource, ListItem newItem, SessionState state) 
+	{
+		ContentResourceFilter filter = (ContentResourceFilter)state.getAttribute(STATE_ATTACHMENT_FILTER);
+	
+	      if (filter != null) 
+	      {
+	    	  	if (newItem != null) 
+	    	  	{
+	    	  		newItem.setCanSelect(filter.allowSelect(resource));
+	    	  	}
+	    	  	return filter.allowView(resource);
+	      }
+	      else if (newItem != null) 
+	      {
+	    	  	newItem.setCanSelect(true);
+	      }
+
+	      return true;
+	}
+	
+	/**
+	* Add the collection id into the expanded collection list
+	 * @throws PermissionException
+	 * @throws TypeException
+	 * @throws IdUnusedException
+	*/
+	public void doExpand_collection(RunData data) throws IdUnusedException, TypeException, PermissionException
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		SortedSet expandedItems = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+		if(expandedItems == null)
+		{
+			expandedItems = new TreeSet();
+			state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedItems);
+		}
+
+		//get the ParameterParser from RunData
+		ParameterParser params = data.getParameters ();
+
+		String id = params.getString("collectionId");
+		expandedItems.add(id);
+
+	}	// doExpand_collection
+
+	/**
+	* Remove the collection id from the expanded collection list
+	*/
+	public void doCollapse_collection(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		SortedSet expandedItems = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+		if(expandedItems == null)
+		{
+			expandedItems = new TreeSet();
+		}
+//		Map folderSortMap = (Map) state.getAttribute(STATE_EXPANDED_FOLDER_SORT_MAP);
+//		if(folderSortMap == null)
+//		{
+//			folderSortMap = new Hashtable();
+//			state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, folderSortMap);
+//		}
+
+		//get the ParameterParser from RunData
+		ParameterParser params = data.getParameters ();
+		String collectionId = params.getString("collectionId");
+
+		SortedSet newSet = new TreeSet();
+		Iterator l = expandedItems.iterator();
+		while (l.hasNext ())
+		{
+			// remove the collection id and all of the subcollections
+//		    Resource collection = (Resource) l.next();
+//			String id = (String) collection.getId();
+		    String id = (String) l.next();
+
+			if (id.indexOf (collectionId)==-1)
+			{
+	//			newSet.put(id,collection);
+				newSet.add(id);
+			}
+//			else
+//			{
+//				folderSortMap.remove(id);
+//			}
+		}
+
+		state.setAttribute(STATE_EXPANDED_COLLECTIONS, newSet);
+
+	}	// doCollapse_collection
+
+	/**
+	* Expand all the collection resources.
+	*/
+	public void doExpandall ( RunData data)
+	{
+		// get the state object
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		//get the ParameterParser from RunData
+		ParameterParser params = data.getParameters ();
+
+		// save the current selections
+		Set selectedSet  = new TreeSet();
+		String[] selectedItems = params.getStrings("selectedMembers");
+		if(selectedItems != null)
+		{
+			selectedSet.addAll(Arrays.asList(selectedItems));
+		}
+		state.setAttribute(STATE_LIST_SELECTIONS, selectedSet);
+
+		// expansion actually occurs in getBrowseItems method.
+		state.setAttribute(STATE_EXPAND_ALL_FLAG,  Boolean.TRUE.toString());
+		state.setAttribute(STATE_NEED_TO_EXPAND_ALL, Boolean.TRUE.toString());
+
+	}	// doExpandall
+
+	/**
+	* Unexpand all the collection resources
+	*/
+	public void doUnexpandall ( RunData data)
+	{
+		// get the state object
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		//get the ParameterParser from RunData
+		ParameterParser params = data.getParameters ();
+
+		// save the current selections
+		Set selectedSet  = new TreeSet();
+		String[] selectedItems = params.getStrings ("selectedMembers");
+		if(selectedItems != null)
+		{
+			selectedSet.addAll(Arrays.asList(selectedItems));
+		}
+		state.setAttribute(STATE_LIST_SELECTIONS, selectedSet);
+
+		state.setAttribute(STATE_EXPANDED_COLLECTIONS, new TreeSet());
+		// state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, new Hashtable());
+		state.setAttribute(STATE_EXPAND_ALL_FLAG, Boolean.FALSE.toString());
+
+	}	// doUnexpandall
+	
+	/**
+	 * @param resource
+	 * @param state
+	 * @return
+	 */
+	protected boolean checkSelctItemFilter(ContentResource resource, SessionState state) 
+	{
+		ContentResourceFilter filter = (ContentResourceFilter)state.getAttribute(STATE_ATTACHMENT_FILTER);
+		
+		if (filter != null)
+		{
+			return filter.allowSelect(resource);
+		}
+		return true;
+	}
 
 	/**
 	 * Find the resource name of a given resource id or filepath.
@@ -1226,6 +1406,10 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 
 	} // isolateName
 
+	/**
+	 * AttachItem
+	 *
+	 */
 	public static class AttachItem
 	{
 		protected String m_id;
@@ -1247,7 +1431,6 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 			m_displayName = displayName;
 			m_collectionId = collectionId;
 			m_accessUrl = accessUrl;
-
 		}
 
 		/**
@@ -1256,7 +1439,6 @@ public class FilePickerAction extends VelocityPortletPaneledAction
         public void setResourceType(String resourceType)
         {
 	        this.m_resourceType = resourceType;
-	        
         }
 
 		/**
@@ -1266,6 +1448,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		{
 			return m_accessUrl;
 		}
+		
 		/**
 		 * @param accessUrl The accessUrl to set.
 		 */
@@ -1273,6 +1456,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		{
 			m_accessUrl = accessUrl;
 		}
+		
 		/**
 		 * @return Returns the collectionId.
 		 */
@@ -1280,6 +1464,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		{
 			return m_collectionId;
 		}
+		
 		/**
 		 * @param collectionId The collectionId to set.
 		 */
@@ -1287,6 +1472,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		{
 			m_collectionId = collectionId;
 		}
+		
 		/**
 		 * @return Returns the id.
 		 */
@@ -1294,6 +1480,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		{
 			return m_id;
 		}
+		
 		/**
 		 * @param id The id to set.
 		 */
@@ -1301,6 +1488,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		{
 			m_id = id;
 		}
+		
 		/**
 		 * @return Returns the name.
 		 */
@@ -1313,6 +1501,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 			}
 			return displayName;
 		}
+		
 		/**
 		 * @param name The name to set.
 		 */
@@ -1335,7 +1524,6 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		public void setContentType(String contentType)
 		{
 			this.m_contentType = contentType;
-
 		}
 
 		/**
@@ -1348,4 +1536,4 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 
 	}	// Inner class AttachItem
 	
-}
+}	// class FilePickerAction 

@@ -4359,7 +4359,7 @@ public class ResourcesAction
 
 			ListItem item = ListItem.getListItem(collection, null, registry, need_to_expand_all, expandedCollections, items_to_be_moved, items_to_be_copied, 0);
 			
-			List<ListItem> items = convert2list(item);
+			List<ListItem> items = item.convert2list();
 			
 			if(atHome && dropboxMode)
 			{
@@ -4505,35 +4505,6 @@ public class ResourcesAction
 
 	}	// buildListContext
 
-	/**
-     * @param item
-     * @return
-     */
-    private List<ListItem> convert2list(ListItem item)
-    {
-    	List<ListItem> list = new Vector<ListItem>();
-    	Stack<ListItem> processStack = new Stack<ListItem>();
-    	
-    	processStack.push(item);
-    	while(! processStack.empty())
-    	{
-    		ListItem parent = processStack.pop();
-    		list.add(parent);
-    		List<ListItem> children = parent.getMembers();
-    		if(children != null)
-    		{
-    			for(int i = children.size() - 1; i >= 0; i--)
-    			{
-    				ListItem child = children.get(i);
-    				processStack.push(child);
-    			}
-    		}
-    	}
-    	
-	    return list;
-	    
-    }	// convert2list
-    
 	/**
 	 * Access the top item on the suspended-operations stack
 	 * @param state The current session state, including the STATE_SUSPENDED_OPERATIONS_STACK attribute.

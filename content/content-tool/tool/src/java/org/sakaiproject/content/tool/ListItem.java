@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.Stack;
 import java.util.TreeSet;
 import java.util.Vector;
 
@@ -87,6 +88,8 @@ public class ListItem
 	protected String createdBy;
 	protected String modifiedTime;
 	protected int depth;
+
+	protected boolean canSelect = false;
 	
 	
 	/**
@@ -641,5 +644,51 @@ public class ListItem
     {
     	this.otherActionsLabel = otherActionsLabel;
     }
+
+	/**
+     * @param canSelect
+     */
+    public void setCanSelect(boolean canSelect)
+    {
+	    this.canSelect  = canSelect;
+    }
+    
+    /**
+     * @return
+     */
+    public boolean canSelect()
+    {
+    	return canSelect;
+    }
+    
+	/**
+     * @param item
+     * @return
+     */
+    public List<ListItem> convert2list()
+    {
+    	List<ListItem> list = new Vector<ListItem>();
+    	Stack<ListItem> processStack = new Stack<ListItem>();
+    	
+    	processStack.push(this);
+    	while(! processStack.empty())
+    	{
+    		ListItem parent = processStack.pop();
+    		list.add(parent);
+    		List<ListItem> children = parent.getMembers();
+    		if(children != null)
+    		{
+    			for(int i = children.size() - 1; i >= 0; i--)
+    			{
+    				ListItem child = children.get(i);
+    				processStack.push(child);
+    			}
+    		}
+    	}
+    	
+	    return list;
+	    
+    }	// convert2list
+    
 }
 
