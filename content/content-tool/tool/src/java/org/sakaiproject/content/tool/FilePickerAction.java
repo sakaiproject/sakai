@@ -46,13 +46,19 @@ import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
+import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.ContentResourceFilter;
 import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.content.api.InteractionAction;
+import org.sakaiproject.content.api.ResourceToolAction;
+import org.sakaiproject.content.api.ResourceToolActionPipe;
+import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentTypeImageService;
+import org.sakaiproject.content.api.ServiceLevelAction;
 import org.sakaiproject.content.tool.ResourcesAction.ChefBrowseItem;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -260,6 +266,9 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
 
 		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
+		
+		context.put("labeler", new ResourceTypeLabeler());
+		context.put("ACTION_DELIMITER", ResourceToolAction.ACTION_DELIMITER);
 
 		List new_items = (List) state.getAttribute(STATE_ADDED_ITEMS);
 		if(new_items == null)
@@ -1219,11 +1228,182 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 			}
 			return;
 		}
+		else if(false)
+		{
+			
+		}
 		else
 		{
 			super.toolModeDispatch(methodBase, methodExt, req, res);
 		}
 	}
+	
+	public void doDispatchAction(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		
+		// find the ContentHosting service
+		ContentHostingService contentService = (ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
+		
+		// get the parameter-parser
+		ParameterParser params = data.getParameters();
+		
+		String action_element = params.getString("rt_action");
+		String action_string = params.getString(action_element);
+		String selectedItemId = params.getString("selectedItemId");
+		
+		String[] parts = action_string.split(ResourceToolAction.ACTION_DELIMITER);
+		String typeId = parts[0];
+		String actionId = parts[1];
+		
+		// ResourceType type = getResourceType(selectedItemId, state);
+		ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+		if(registry == null)
+		{
+			registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+			state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
+		}
+		ResourceType type = registry.getType(typeId); 
+		
+		Reference reference = EntityManager.newReference(contentService.getReference(selectedItemId));
+		
+		ResourceToolAction action = type.getAction(actionId);
+		if(action == null)
+		{
+			
+		}
+		else if(action instanceof InteractionAction)
+		{
+			ToolSession toolSession = SessionManager.getCurrentToolSession();
+			// toolSession.setAttribute(ResourceToolAction.ACTION_ID, actionId);
+			// toolSession.setAttribute(ResourceToolAction.RESOURCE_TYPE, typeId);
+			
+			state.setAttribute(ResourcesAction.STATE_CREATE_WIZARD_COLLECTION_ID, selectedItemId);
+			
+			ContentEntity entity = (ContentEntity) reference.getEntity();
+			InteractionAction iAction = (InteractionAction) action;
+			String intitializationId = iAction.initializeAction(reference);
+			
+			ResourceToolActionPipe pipe = registry.newPipe(intitializationId, action);
+			pipe.setContentEntity(entity);
+			pipe.setHelperId(iAction.getHelperId());
+			
+			toolSession.setAttribute(ResourceToolAction.ACTION_PIPE, pipe);
+
+			ResourceProperties props = entity.getProperties();
+
+			List propKeys = iAction.getRequiredPropertyKeys();
+			if(propKeys != null)
+			{
+				Iterator it = propKeys.iterator();
+				while(it.hasNext())
+				{
+					String key = (String) it.next();
+					Object value = props.get(key);
+					if(value == null)
+					{
+						// do nothing
+					}
+					else if(value instanceof String)
+					{
+						pipe.setResourceProperty(key, (String) value);
+					}
+					else if(value instanceof List)
+					{
+						pipe.setResourceProperty(key, (List) value);
+					}
+				}
+			}
+			
+			if(entity.isResource())
+			{
+				try 
+				{
+					pipe.setMimeType(((ContentResource) entity).getContentType());
+					pipe.setContent(((ContentResource) entity).getContent());
+				} 
+				catch (ServerOverloadException e) 
+				{
+					logger.warn(this + ".doDispatchAction ServerOverloadException", e);
+				}
+			}
+
+			startHelper(data.getRequest(), iAction.getHelperId());
+		}
+		else if(action instanceof ServiceLevelAction)
+		{
+			ServiceLevelAction sAction = (ServiceLevelAction) action;
+			sAction.initializeAction(reference);
+			switch(sAction.getActionType())
+			{
+				case COPY:
+					List<String> items_to_be_copied = new Vector<String>();
+					if(selectedItemId != null)
+					{
+						items_to_be_copied.add(selectedItemId);
+					}
+					state.setAttribute(ResourcesAction.STATE_ITEMS_TO_BE_COPIED, items_to_be_copied);
+					break;
+				case DUPLICATE:
+					//duplicateItem(state, selectedItemId, contentService.getContainingCollectionId(selectedItemId));
+					break;
+				case DELETE:
+					//deleteItem(state, selectedItemId);
+					if (state.getAttribute(STATE_MESSAGE) == null)
+					{
+						// need new context
+						//state.setAttribute (STATE_MODE, MODE_DELETE_FINISH);
+					}
+					break;
+				case MOVE:
+					List<String> items_to_be_moved = new Vector<String>();
+					if(selectedItemId != null)
+					{
+						items_to_be_moved.add(selectedItemId);
+					}
+					//state.setAttribute(STATE_ITEMS_TO_BE_MOVED, items_to_be_moved);
+					break;
+				case VIEW_METADATA:
+					break;
+				case REVISE_METADATA:
+					state.setAttribute(ResourcesAction.STATE_REVISE_PROPERTIES_ENTITY_ID, selectedItemId);
+					state.setAttribute(ResourcesAction.STATE_REVISE_PROPERTIES_ACTION, action);
+					state.setAttribute (STATE_MODE, ResourcesAction.MODE_REVISE_METADATA);
+					break;
+				case CUSTOM_TOOL_ACTION:
+					// do nothing
+					break;
+				case NEW_UPLOAD:
+					break;
+				case NEW_FOLDER:
+					break;
+				case CREATE:
+					break;
+				case REVISE_CONTENT:
+					break;
+				case REPLACE_CONTENT:
+					break;
+				case PASTE_MOVED:
+					//pasteItem(state, selectedItemId);
+					break;
+				case PASTE_COPIED:
+					//pasteItem(state, selectedItemId);
+					break;
+				case REVISE_ORDER:
+					//state.setAttribute(STATE_REORDER_FOLDER, selectedItemId);
+					//state.setAttribute(STATE_MODE, MODE_REORDER);
+					break;
+				default:
+					break;
+			}
+			// not quite right for actions involving user interaction in Resources tool.
+			// For example, with delete, this should be after the confirmation and actual deletion
+			// Need mechanism to remember to do it later
+			sAction.finalizeAction(reference);
+			
+		}
+	}
+	
 	/**
 	 * @param resource
 	 * @param newItem

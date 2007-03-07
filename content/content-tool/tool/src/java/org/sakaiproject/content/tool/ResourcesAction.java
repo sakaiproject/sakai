@@ -214,64 +214,6 @@ public class ResourcesAction
 		CREATION_ACTIONS.add(ActionType.PASTE_COPIED);
 	}
 	
-	public class Labeler
-	{
-		public String getLabel(ResourceToolAction action)
-		{
-			String label = action.getLabel();
-			if(label == null)
-			{
-				switch(action.getActionType())
-				{
-					case NEW_UPLOAD:
-						label = trb.getString("create.uploads");
-						break;
-					case NEW_FOLDER:
-						label = trb.getString("create.folder");
-						break;
-					case CREATE:
-						ResourceTypeRegistry registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
-						ResourceType typedef = registry.getType(action.getTypeId());
-						String[] args = { typedef.getLabel() };
-						label = trb.getFormattedMessage("create.unknown", args);
-						break;
-					case COPY:
-						label = trb.getString("action.copy");
-						break;
-					case DUPLICATE:
-						label = trb.getString("action.duplicate");
-						break;
-					case DELETE:
-						label = trb.getString("action.delete");
-						break;
-					case MOVE:
-						label = trb.getString("action.move");
-						break;
-					case VIEW_METADATA:
-						label = trb.getString("action.info");
-						break;
-					case REVISE_METADATA:
-						label = trb.getString("action.props");
-						break;
-					case VIEW_CONTENT:
-						label = trb.getString("action.access");
-						break;
-					case REVISE_CONTENT:
-						label = trb.getString("action.revise");
-						break;
-					case REPLACE_CONTENT:
-						label = trb.getString("action.replace");
-						break;
-					default:
-						logger.info("No label provided for ResourceToolAction: " + action.getTypeId() + ResourceToolAction.ACTION_DELIMITER + action.getId());
-						label = action.getId();
-						break;
-				}
-			}
-			return label;
-		}
-	}
-	
 	/**
 	 * @param context
 	 * @return
@@ -1134,9 +1076,9 @@ public class ResourcesAction
     private static ResourceLoader rb = new ResourceLoader("content");
 
 	/** Resource bundle using current language locale */
-    private static ResourceLoader trb = new ResourceLoader("types");
+    public static ResourceLoader trb = new ResourceLoader("types");
 
-    private static final Log logger = LogFactory.getLog(ResourcesAction.class);
+    static final Log logger = LogFactory.getLog(ResourcesAction.class);
     
     public static final String PREFIX = "resources.";
 
@@ -1438,7 +1380,7 @@ public class ResourcesAction
 	private static final String MODE_CREATE = "create";
 	private static final String MODE_CREATE_WIZARD = "createWizard";
 	private static final String MODE_DELETE_FINISH = "deleteFinish";
-	private static final String MODE_REVISE_METADATA = "revise_metadata";
+	static final String MODE_REVISE_METADATA = "revise_metadata";
 
 	public  static final String MODE_HELPER = "helper";
 	private static final String MODE_DELETE_CONFIRM = "deleteConfirm";
@@ -2431,7 +2373,7 @@ public class ResourcesAction
 			ResourceType typeDef = registry.getType(typeId);
 			context.put("type", typeDef);
 			
-			context.put("title", (new Labeler()).getLabel(pipe.getAction()));
+			context.put("title", (new ResourceTypeLabeler()).getLabel(pipe.getAction()));
 			context.put("instruction", trb.getFormattedMessage("instr.create", new String[]{typeDef.getLabel()}));
 			context.put("required", trb.getFormattedMessage("instr.require", new String[]{"<span class=\"reqStarInline\">*</span>"}));
 			
@@ -2592,7 +2534,7 @@ public class ResourcesAction
 			List<ResourceToolAction> actions = getActions(selectedItem, new TreeSet(getPermissions(selectedItem.getId())), registry, items_to_be_moved, items_to_be_copied);
 			
 			context.put("actions", actions);
-			context.put("labeler", new Labeler());
+			context.put("labeler", new ResourceTypeLabeler());
 		}
 		
 		return "content/sakai_resources_columns";
@@ -3470,7 +3412,7 @@ public class ResourcesAction
 			switch(sAction.getActionType())
 			{
 				case COPY:
-					List<String> items_to_be_copied = new Vector();
+					List<String> items_to_be_copied = new Vector<String>();
 					if(selectedItemId != null)
 					{
 						items_to_be_copied.add(selectedItemId);
@@ -3489,7 +3431,7 @@ public class ResourcesAction
 					}
 					break;
 				case MOVE:
-					List<String> items_to_be_moved = new Vector();
+					List<String> items_to_be_moved = new Vector<String>();
 					if(selectedItemId != null)
 					{
 						items_to_be_moved.add(selectedItemId);
@@ -4499,7 +4441,7 @@ public class ResourcesAction
 		// pick the "show" template based on the standard template name
 		// String template = (String) getContext(data).get("template");
 
-		context.put("labeler", new Labeler());
+		context.put("labeler", new ResourceTypeLabeler());
 		
 		return TEMPLATE_NEW_LIST;
 

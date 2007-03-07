@@ -48,6 +48,8 @@
 		<input type="hidden" name="collectionId" value="$validator.escapeHtml($collectionId)" />
 		<input type="hidden" name="from" value="list" />
 		<input type="hidden" name="sakai_action" id="sakai_action" value="" />
+		<input type="hidden" name="selectedItemId" id="selectedItemId" value="" />
+		<input type="hidden" name="rt_action" id="rt_action" value="" />
 		#if($attached.isEmpty())
 		#else
 			<table class="listHier lines" cellspacing="0" cellpadding="0" summary="$tlang.getString("att.sellistsum")">
@@ -128,6 +130,7 @@
 					$tlang.getString("gen.actions")
 				</th>
 			</tr>
+			#set($itemcount = 0)
 			#set ($unit = "em")
 			#foreach($item in $this_site)
 				#set($itemcount = $itemcount + 1)
