@@ -115,7 +115,7 @@ public class OutlookReader extends CSVReader
 					lineBuffer = lineBuffer.trim();
 					
 					// If we have continuation lines, concatenate those.
-					if ( !lineBuffer.endsWith("\"") )
+					if ( !lineBuffer.endsWith("\"") || lineBuffer.endsWith(",\"") )
 					{
 						String lineRead = bufferedReader.readLine();
 						
