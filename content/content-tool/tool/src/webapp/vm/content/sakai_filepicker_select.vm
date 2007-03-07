@@ -209,49 +209,20 @@
 						</h$headerDepth>
 					</td>
 					<td headers="actions">
-						<div class="itemAction">
-							#if($item.isCollection())
-								#set ($itemsOnLine = 0)
-								####### deal with adding item/folder
-								#if($item.canAddItem())
-									#if($disable_attach_links)
-									#else
-										#if ($itemsOnLine > 0)
-											|
+						#if($item.isCollection())
+							#if($item.addActions && !$item.addActions.isEmpty())
+								<select class="actionmenu" id="action-$itemcount" name="action-$itemcount" onchange="document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='action-$itemcount';document.getElementById('sakai_action').value='doDispatchAction';submitform('attachForm');">
+									<option value="" selected="selected">$tlang.getString("action.select")</option>
+									<optgroup class="actiongroup" label="$tlang.getString("action.new")"
+										#foreach($action in $item.addActions)
+											<option class="actionitem" value="${action.typeId}${ACTION_DELIMITER}$action.id">$labeler.getLabel($action)</option> 
 										#end
-										#set ($itemsOnLine = $itemsOnLine + 1)
-										<a href="#toolLinkParam("ResourcesAction" "doCreate" "itemType=${TYPE_UPLOAD}&collectionId=$validator.escapeUrl(${item.id})")" title="$tlang.getString('att.addnewtitle')">$tlang.getString("att.addnew").trim()</a>
-									#end
-								#end
-							#else
-								#set ($itemsOnLine = 0)
-								####### deal with attaching item
-								#if ($item.canRead() && $item.canSelect())
-									#if($disable_attach_links)
-									#else
-										#if ($itemsOnLine > 0)
-											|
-										#end
-										#set ($itemsOnLine = $itemsOnLine + 1)
-										<a href="#toolLinkParam("ResourcesAction" "doAttachitem" "itemId=$validator.escapeUrl(${item.id})")" title ="$tlang.getString('att.select')">$tlang.getString("att.select").trim()</a>
-									#end
-								#end
-								####### deal with duplicating item
-								#if($item.canRead() && $item.canAddItem())
-									#if($disable_attach_links)
-									#else
-										#if ($itemsOnLine > 0)
-											|
-										#end
-										#set ($itemsOnLine = $itemsOnLine + 1)
-										<a href="#toolLinkParam("ResourcesAction" "doPasteitem" "itemId=${validator.escapeUrl(${item.id})}&collectionId=${validator.escapeUrl(${item.container})}")" title="$tlang.getString('list.dup')">$tlang.getString("list.dup").trim()</a>
-									#end
-								#end
+									</optgroup>
+								</select>
 							#end
-						</div>
-						#if($copyFlag && "${item.id}" == "$copiedItem")
-							<div class="inlineAlert">
-								$tlang.getString("list.copied")
+						#else
+							<div class="itemAction">
+								<a href="#toolLinkParam("ResourcesAction" "doAttachitem" "itemId=$validator.escapeUrl(${item.id})")" title ="$tlang.getString('att.select')">$tlang.getString("att.select").trim()</a>
 							</div>
 						#end
 					</td>
