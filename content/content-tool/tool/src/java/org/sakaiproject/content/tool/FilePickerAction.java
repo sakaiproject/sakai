@@ -64,6 +64,8 @@ import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.content.api.ServiceLevelAction;
+import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
+import org.sakaiproject.content.tool.ResourcesAction.ChefEditItem;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -79,6 +81,8 @@ import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
@@ -105,6 +109,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 	
 	protected static final String PREFIX = "filepicker.";
 	
+	protected static final String MODE_ADD_METADATA = "mode_add_metadata";
 	protected static final String MODE_ATTACHMENT_CREATE = "mode_attachment_create";
 	protected static final String MODE_ATTACHMENT_CREATE_INIT = "mode_attachment_create_init";
 	protected static final String MODE_ATTACHMENT_DONE = "mode_attachment_done";
@@ -144,6 +149,8 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 	protected static final String STATE_HELPER_CANCELED_BY_USER = PREFIX + "helper_canceled_by_user";
 	protected static final String STATE_HELPER_CHANGED = PREFIX + "made_changes";
 	protected static final String STATE_HOME_COLLECTION_ID  = PREFIX + "home_collection_id";
+	protected static final String STATE_LIST_SELECTIONS = PREFIX + "list_selections";
+
 	protected static final String STATE_NAVIGATION_ROOT = PREFIX + "navigation_root";
 	protected static final String STATE_NEED_TO_EXPAND_ALL = PREFIX + "need_to_expand_all";
 	protected static final String STATE_REMOVED_ITEMS = PREFIX + "removed_items";
@@ -161,7 +168,14 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 	private static final String TEMPLATE_ATTACH = "content/sakai_filepicker_attach";
 	private static final String TEMPLATE_SELECT = "content/sakai_filepicker_select";
 
-	private static final String STATE_LIST_SELECTIONS = null;
+	private static final String DEFAULT_COPYRIGHT = null;
+
+	private static final String STATE_DEFAULT_RETRACT_TIME = null;
+
+	private static final String STATE_PREVENT_PUBLIC_DISPLAY = null;
+
+	private static final String STATE_NEW_ATTACHMENT = null;
+
 
 
 
@@ -202,6 +216,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 	 */
 	public String buildMainPanelContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
+
 		// if we are in edit attachments...
 		String mode = (String) state.getAttribute(ResourcesAction.STATE_MODE);
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
@@ -214,26 +229,43 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 			helper_mode = (String) state.getAttribute(STATE_FILEPICKER_MODE);
 		}
 
-		boolean need_to_push = false;
+		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+		if(pipe != null)
+		{
+			if(pipe.isActionCanceled())
+			{
+				state.setAttribute(STATE_MODE, MODE_ATTACHMENT_SELECT_INIT);
+			}
+			else if(pipe.isErrorEncountered())
+			{
+				String msg = pipe.getErrorMessage();
+				if(msg != null && ! msg.trim().equals(""))
+				{
+					addAlert(state, msg);
+				}
+				state.setAttribute(STATE_MODE, MODE_ATTACHMENT_SELECT_INIT);
+			}
+			else if(pipe.isActionCompleted())
+			{
+				finishAction(state, toolSession, pipe);
+			}
+			toolSession.removeAttribute(ResourceToolAction.DONE);
+		}
 
 		if(MODE_ATTACHMENT_SELECT.equals(helper_mode))
 		{
-			need_to_push = true;
 			helper_mode = MODE_ATTACHMENT_SELECT_INIT;
 		}
 		else if(MODE_ATTACHMENT_CREATE.equals(helper_mode))
 		{
-			need_to_push = true;
 			helper_mode = MODE_ATTACHMENT_CREATE_INIT;
 		}
 		else if(MODE_ATTACHMENT_NEW_ITEM.equals(helper_mode))
 		{
-			need_to_push = true;
 			helper_mode = MODE_ATTACHMENT_NEW_ITEM_INIT;
 		}
 		else if(MODE_ATTACHMENT_EDIT_ITEM.equals(helper_mode))
 		{
-			need_to_push = true;
 			helper_mode = MODE_ATTACHMENT_EDIT_ITEM_INIT;
 		}
 
@@ -242,6 +274,10 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		if(MODE_ATTACHMENT_SELECT_INIT.equals(helper_mode))
 		{
 			template = buildSelectAttachmentContext(portlet, context, data, state);
+		}
+		else if(MODE_ADD_METADATA.equals(helper_mode))
+		{
+			template = buildAddMetadataContext(portlet, context, data, state);
 		}
 //		else if(MODE_ATTACHMENT_CREATE_INIT.equals(helper_mode))
 //		{
@@ -258,6 +294,136 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		
 		return template;
 		
+	}
+
+	/**
+     * @param portlet
+     * @param context
+     * @param data
+     * @param state
+     * @return
+     */
+    private String buildAddMetadataContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
+    {
+		context.put("tlang",rb);
+		
+		String template = "content/sakai_resources_cwiz_finish";
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+		if(pipe.isActionCanceled())
+		{
+			// go back to list view
+			
+		}
+		else if(pipe.isErrorEncountered())
+		{
+			// report the error?
+			
+		}
+		else
+		{
+			// complete the create wizard
+			String defaultCopyrightStatus = (String) state.getAttribute(DEFAULT_COPYRIGHT);
+			if(defaultCopyrightStatus == null || defaultCopyrightStatus.trim().equals(""))
+			{
+				defaultCopyrightStatus = ServerConfigurationService.getString("default.copyright");
+				state.setAttribute(DEFAULT_COPYRIGHT, defaultCopyrightStatus);
+			}
+
+			String encoding = data.getRequest().getCharacterEncoding();
+
+			Time defaultRetractDate = (Time) state.getAttribute(STATE_DEFAULT_RETRACT_TIME);
+			if(defaultRetractDate == null)
+			{
+				defaultRetractDate = TimeService.newTime();
+				state.setAttribute(STATE_DEFAULT_RETRACT_TIME, defaultRetractDate);
+			}
+	
+			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+			if(preventPublicDisplay == null)
+			{
+				preventPublicDisplay = Boolean.FALSE;
+				state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+			}
+
+			ContentEntity collection = pipe.getContentEntity();
+
+			String typeId = pipe.getAction().getTypeId();
+			//List items = newEditItems(collection.getId(), typeId, encoding, defaultCopyrightStatus, preventPublicDisplay.booleanValue(), defaultRetractDate, new Integer(1));
+
+			EditItem item = new EditItem("", collection.getId(), typeId, pipe);
+			item.setContent(pipe.getContent());
+			item.setContentType(pipe.getMimeType());
+			context.put("item", item);
+			
+			state.setAttribute(STATE_NEW_ATTACHMENT, item);
+			
+			ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+			if(registry == null)
+			{
+				registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+				state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
+			}
+			ResourceType typeDef = registry.getType(typeId);
+			context.put("type", typeDef);
+			
+			context.put("title", (new ResourceTypeLabeler()).getLabel(pipe.getAction()));
+			context.put("instruction", rb.getFormattedMessage("instr.create", new String[]{typeDef.getLabel()}));
+			context.put("required", rb.getFormattedMessage("instr.require", new String[]{"<span class=\"reqStarInline\">*</span>"}));
+			
+			// find the ContentHosting service
+			ContentHostingService contentService = (ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
+			if(contentService.isAvailabilityEnabled())
+			{
+				context.put("availability_is_enabled", Boolean.TRUE);
+			}
+			
+			ResourcesAction.copyrightChoicesIntoContext(state, context);
+			
+			context.put("SITE_ACCESS", AccessMode.SITE.toString());
+			context.put("GROUP_ACCESS", AccessMode.GROUPED.toString());
+			context.put("INHERITED_ACCESS", AccessMode.INHERITED.toString());
+			context.put("PUBLIC_ACCESS", ResourcesAction.PUBLIC_ACCESS);
+		}
+		return template;
+    }
+
+	/**
+	 * @param state
+	 * @param toolSession
+	 * @param pipe
+	 */
+	protected void finishAction(SessionState state, ToolSession toolSession, ResourceToolActionPipe pipe)
+	{
+		ResourceToolAction action = pipe.getAction();
+		// use ActionType for this 
+		switch(action.getActionType())
+		{
+		case CREATE:
+			state.setAttribute(STATE_MODE, MODE_ADD_METADATA);
+			break;
+		case NEW_UPLOAD:
+			String collectionId = ResourcesAction.createResources(pipe);
+			if(collectionId != null)
+			{
+				// expand folder
+				SortedSet<String> expandedCollections = (SortedSet<String>) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+				expandedCollections.add(collectionId);
+			}
+			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
+			break;
+		case NEW_FOLDER:
+			ResourcesAction.createFolders(state, pipe);
+			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
+			break;
+		case REVISE_CONTENT:
+			ResourcesAction.reviseContent(pipe);
+			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
+			state.setAttribute(STATE_MODE, MODE_ATTACHMENT_SELECT_INIT);
+			break;
+		default:
+			state.setAttribute(STATE_MODE, MODE_ATTACHMENT_SELECT_INIT);
+		}
 	}
 
 	/**
@@ -1640,32 +1806,6 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 			sAction.finalizeAction(reference);
 			
 		}
-	}
-	
-	/**
-	 * @param resource
-	 * @param newItem
-	 * @param state
-	 * @return
-	 */
-	protected static boolean checkItemFilter(ContentResource resource, ListItem newItem, SessionState state) 
-	{
-		ContentResourceFilter filter = (ContentResourceFilter)state.getAttribute(STATE_ATTACHMENT_FILTER);
-	
-	      if (filter != null) 
-	      {
-	    	  	if (newItem != null) 
-	    	  	{
-	    	  		newItem.setCanSelect(filter.allowSelect(resource));
-	    	  	}
-	    	  	return filter.allowView(resource);
-	      }
-	      else if (newItem != null) 
-	      {
-	    	  	newItem.setCanSelect(true);
-	      }
-
-	      return true;
 	}
 	
 	/**
