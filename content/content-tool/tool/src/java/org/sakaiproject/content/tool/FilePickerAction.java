@@ -22,6 +22,8 @@
 package org.sakaiproject.content.tool;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Hashtable;
@@ -32,6 +34,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -44,6 +48,7 @@ import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
 import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
@@ -59,7 +64,6 @@ import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.content.api.ServiceLevelAction;
-import org.sakaiproject.content.tool.ResourcesAction.ChefBrowseItem;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -81,6 +85,7 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.util.FileItem;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
@@ -110,6 +115,9 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 	protected static final String MODE_ATTACHMENT_SELECT = "mode_attachment_select";
 	protected static final String MODE_ATTACHMENT_SELECT_INIT = "mode_attachment_select_init";
 	protected static final String MODE_HELPER = "mode_helper";
+	
+	/** The null/empty string */
+	private static final String NULL_STRING = "";
 
 	protected static final String STATE_ADDED_ITEMS = PREFIX + "added_items";
 	
@@ -131,6 +139,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 	protected static final String STATE_EXPAND_ALL = PREFIX + "expand_all";
 	protected static final String STATE_EXPAND_ALL_FLAG = PREFIX + "expand_all_flag";
 	protected static final String STATE_EXPANDED_COLLECTIONS = PREFIX + "expanded_collections";
+	protected static final String STATE_FILE_UPLOAD_MAX_SIZE = PREFIX + "file_upload_max_size";
 	protected static final String STATE_FILEPICKER_MODE = PREFIX + "mode";
 	protected static final String STATE_HELPER_CANCELED_BY_USER = PREFIX + "helper_canceled_by_user";
 	protected static final String STATE_HELPER_CHANGED = PREFIX + "made_changes";
@@ -720,6 +729,11 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 			state.setAttribute(ResourcesAction.STATE_ATTACH_CARDINALITY, max_cardinality);
 		}
 
+		if (state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE) == null)
+		{
+			state.setAttribute(STATE_FILE_UPLOAD_MAX_SIZE, ServerConfigurationService.getString("content.upload.max", "1"));
+		}
+		
 		return MODE_HELPER;
 	}
 
@@ -787,11 +801,233 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		}
 
 		state.setAttribute(STATE_FILEPICKER_MODE, MODE_ATTACHMENT_SELECT_INIT);
-		// popFromStack(state);
-		// resetCurrentMode(state);
 
-	}
-	
+	}	// doAttachitem
+
+	/**
+	 * @param data
+	 */
+	public void doAttachupload(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		ParameterParser params = data.getParameters ();
+
+		String max_file_size_mb = (String) state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
+		int max_bytes = 1024 * 1024;
+		try
+		{
+			max_bytes = Integer.parseInt(max_file_size_mb) * 1024 * 1024;
+		}
+		catch(Exception e)
+		{
+			// if unable to parse an integer from the value
+			// in the properties file, use 1 MB as a default
+			max_file_size_mb = "1";
+			max_bytes = 1024 * 1024;
+		}
+
+		FileItem fileitem = null;
+		try
+		{
+			fileitem = params.getFileItem("upload");
+		}
+		catch(Exception e)
+		{
+
+		}
+		if(fileitem == null)
+		{
+			// "The user submitted a file to upload but it was too big!"
+			addAlert(state, rb.getString("size") + " " + max_file_size_mb + "MB " + rb.getString("exceeded2"));
+		}
+		else if (fileitem.getFileName() == null || fileitem.getFileName().length() == 0)
+		{
+			addAlert(state, rb.getString("choosefile7"));
+		}
+		else if (fileitem.getFileName().length() > 0)
+		{
+			String filename = Validator.getFileName(fileitem.getFileName());
+			byte[] bytes = fileitem.get();
+			String contentType = fileitem.getContentType();
+
+			if(bytes.length >= max_bytes)
+			{
+				addAlert(state, rb.getString("size") + " " + max_file_size_mb + "MB " + rb.getString("exceeded2"));
+			}
+			else if(bytes.length > 0)
+			{
+				// we just want the file name part - strip off any drive and path stuff
+				String name = Validator.getFileName(filename);
+				String resourceId = Validator.escapeResourceName(name);
+
+				ContentHostingService contentService = (ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
+
+				// make a set of properties to add for the new resource
+				ResourcePropertiesEdit props = contentService.newResourceProperties();
+				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+				props.addProperty(ResourceProperties.PROP_DESCRIPTION, filename);
+
+				// make an attachment resource for this URL
+				try
+				{
+					String siteId = ToolManager.getCurrentPlacement().getContext();
+
+					String toolName = (String) state.getAttribute(STATE_ATTACH_TOOL_NAME);
+					if(toolName == null)
+					{
+						toolName = ToolManager.getCurrentPlacement().getTitle();
+						state.setAttribute(STATE_ATTACH_TOOL_NAME, toolName);
+					}
+
+					ContentResource attachment = contentService.addAttachmentResource(resourceId, siteId, toolName, contentType, bytes, props);
+
+					List<AttachItem> new_items = (List<AttachItem>) state.getAttribute(STATE_ADDED_ITEMS);
+					if(new_items == null)
+					{
+						new_items = new Vector<AttachItem>();
+						state.setAttribute(STATE_ADDED_ITEMS, new_items);
+					}
+
+					String containerId = contentService.getContainingCollectionId (attachment.getId());
+					String accessUrl = attachment.getUrl();
+
+					AttachItem item = new AttachItem(attachment.getId(), filename, containerId, accessUrl);
+					item.setResourceType(ResourceType.TYPE_UPLOAD);
+					item.setContentType(contentType);
+					new_items.add(item);
+					
+					state.setAttribute(STATE_HELPER_CHANGED, Boolean.TRUE.toString());
+				}
+				catch (PermissionException e)
+				{
+					addAlert(state, rb.getString("notpermis4"));
+				}
+				catch(OverQuotaException e)
+				{
+					addAlert(state, rb.getString("overquota"));
+				}
+				catch(ServerOverloadException e)
+				{
+					addAlert(state, rb.getString("failed"));
+				}
+				catch(IdInvalidException ignore)
+				{
+					// other exceptions should be caught earlier
+				}
+				catch(InconsistentException ignore)
+				{
+					// other exceptions should be caught earlier
+				}
+				catch(IdUsedException ignore)
+				{
+					// other exceptions should be caught earlier
+				}
+				catch(RuntimeException e)
+				{
+					logger.debug("ResourcesAction.doAttachupload ***** Unknown Exception ***** " + e.getMessage());
+					addAlert(state, rb.getString("failed"));
+				}
+			}
+			else
+			{
+				addAlert(state, rb.getString("choosefile7"));
+			}
+		}
+
+		state.setAttribute(STATE_FILEPICKER_MODE, MODE_ATTACHMENT_SELECT_INIT);
+
+	}	// doAttachupload
+
+	/**
+	 * @param data
+	 */
+	public void doAttachurl(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		ParameterParser params = data.getParameters ();
+
+		String url = params.getCleanString("url");
+
+		ContentHostingService contentService = (ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
+
+		ResourcePropertiesEdit resourceProperties = contentService.newResourceProperties ();
+		resourceProperties.addProperty (ResourceProperties.PROP_DISPLAY_NAME, url);
+		resourceProperties.addProperty (ResourceProperties.PROP_DESCRIPTION, url);
+
+		resourceProperties.addProperty(ResourceProperties.PROP_IS_COLLECTION, Boolean.FALSE.toString());
+
+		try
+		{
+			url = validateURL(url);
+
+			byte[] newUrl = url.getBytes();
+			String newResourceId = Validator.escapeResourceName(url);
+
+			String siteId = ToolManager.getCurrentPlacement().getContext();
+			String toolName = (String) (String) state.getAttribute(STATE_ATTACH_TOOL_NAME);
+			if(toolName == null)
+			{
+				toolName = ToolManager.getCurrentPlacement().getTitle();
+				state.setAttribute(STATE_ATTACH_TOOL_NAME, toolName);
+			}
+
+			ContentResource attachment = contentService.addAttachmentResource(newResourceId, siteId, toolName, ResourceProperties.TYPE_URL, newUrl, resourceProperties);
+
+			List<AttachItem> new_items = (List<AttachItem>) state.getAttribute(STATE_ADDED_ITEMS);
+			if(new_items == null)
+			{
+				new_items = new Vector();
+				state.setAttribute(STATE_ADDED_ITEMS, new_items);
+			}
+
+			String containerId = contentService.getContainingCollectionId (attachment.getId());
+			String accessUrl = attachment.getUrl();
+
+			AttachItem item = new AttachItem(attachment.getId(), url, containerId, accessUrl);
+			item.setResourceType(ResourceType.TYPE_URL);
+			item.setContentType(ResourceProperties.TYPE_URL);
+			new_items.add(item);
+			state.setAttribute(STATE_HELPER_CHANGED, Boolean.TRUE.toString());
+		}
+		catch(MalformedURLException e)
+		{
+			// invalid url
+			addAlert(state, rb.getString("validurl") + " \"" + url + "\" " + rb.getString("invalid"));
+		}
+		catch (PermissionException e)
+		{
+			addAlert(state, rb.getString("notpermis4"));
+		}
+		catch(OverQuotaException e)
+		{
+			addAlert(state, rb.getString("overquota"));
+		}
+		catch(ServerOverloadException e)
+		{
+			addAlert(state, rb.getString("failed"));
+		}
+		catch(IdInvalidException ignore)
+		{
+			// other exceptions should be caught earlier
+		}
+		catch(IdUsedException ignore)
+		{
+			// other exceptions should be caught earlier
+		}
+		catch(InconsistentException ignore)
+		{
+			// other exceptions should be caught earlier
+		}
+		catch(RuntimeException e)
+		{
+			logger.debug("ResourcesAction.doAttachurl ***** Unknown Exception ***** " + e.getMessage());
+			addAlert(state, rb.getString("failed"));
+		}
+
+		state.setAttribute(STATE_FILEPICKER_MODE, MODE_ATTACHMENT_SELECT_INIT);
+		
+	}	// doAttachurl
+
 	/**
 	* doCancel to return to the previous state
 	*/
@@ -1585,6 +1821,58 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		return id.substring(id.lastIndexOf('/', id.length() - 2) + 1, (lastIsSeparator ? id.length() - 1 : id.length()));
 
 	} // isolateName
+
+	/**
+	 * @param url
+	 * @return
+	 * @throws MalformedURLException
+	 */
+	protected static String validateURL(String url) throws MalformedURLException
+	{
+		if (url.equals (NULL_STRING))
+		{
+			// ignore the empty url field
+		}
+		else if (url.indexOf ("://") == -1)
+		{
+			// if it's missing the transport, add http://
+			url = "http://" + url;
+		}
+
+		if(!url.equals(NULL_STRING))
+		{
+			// valid protocol?
+			try
+			{
+				// test to see if the input validates as a URL.
+				// Checks string for format only.
+				URL u = new URL(url);
+			}
+			catch (MalformedURLException e1)
+			{
+				try
+				{
+					Pattern pattern = Pattern.compile("\\s*([a-zA-Z0-9]+)://([^\\n]+)");
+					Matcher matcher = pattern.matcher(url);
+					if(matcher.matches())
+					{
+						// if URL has "unknown" protocol, check remaider with
+						// "http" protocol and accept input if that validates.
+						URL test = new URL("http://" + matcher.group(2));
+					}
+					else
+					{
+						throw e1;
+					}
+				}
+				catch (MalformedURLException e2)
+				{
+					throw e1;
+				}
+			}
+		}
+		return url;
+	}
 
 	/**
 	 * AttachItem
