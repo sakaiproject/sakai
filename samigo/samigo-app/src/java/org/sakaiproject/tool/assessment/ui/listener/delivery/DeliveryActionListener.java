@@ -2070,17 +2070,16 @@ public class DeliveryActionListener
   }
   
   private long getSeed(SectionDataIfc sectionData, DeliveryBean delivery, long userSeed) {
-	  long seed = 0;
-	  if ((sectionData.getSectionMetaDataByLabel(SectionDataIfc.RANDOMIZATION_TYPE)!=null) && (sectionData.getSectionMetaDataByLabel(SectionDataIfc.RANDOMIZATION_TYPE).equals(SectionDataIfc.PER_STUDENT))) {
-		  seed = userSeed;
-	  }
-	  else {
+	  long seed = userSeed;
+	  log.debug("input seed = " + seed);
+	  if (sectionData.getSectionMetaDataByLabel(SectionDataIfc.RANDOMIZATION_TYPE) != null && sectionData.getSectionMetaDataByLabel(SectionDataIfc.RANDOMIZATION_TYPE).equals(SectionDataIfc.PER_SUBMISSION)) {
 		  Long id = delivery.getAssessmentGradingId();
 		  if (id == null) { // this happens during preview assessment
-			  seed = userSeed;
+			  log.debug("preview assessment: seed = " + seed);
 		  }
 		  else {
-			  seed = id.longValue() + sectionData.getSectionId().longValue();
+			  seed = (long) (id.toString() + "_" + sectionData.getSectionId().toString()).hashCode();
+			  log.debug("seed = " + seed);
 		  }
 	  }
 	  return seed;

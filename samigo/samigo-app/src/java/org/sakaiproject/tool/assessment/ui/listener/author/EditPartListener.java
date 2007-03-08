@@ -115,9 +115,9 @@ public class EditPartListener
   }
 
   private void populateMetaData(SectionFacade section, SectionBean bean)  {
-
     Set metaDataSet= section.getSectionMetaDataSet();
     Iterator iter = metaDataSet.iterator();
+    boolean isRandomizationTypeSet = false;
     while (iter.hasNext()){
        SectionMetaData meta= (SectionMetaData) iter.next();
        if (meta.getLabel().equals(SectionMetaDataIfc.OBJECTIVES)){
@@ -148,10 +148,11 @@ public class EditPartListener
        
        if (meta.getLabel().equals(SectionDataIfc.RANDOMIZATION_TYPE)){
            bean.setRandomizationType(meta.getEntry());
+           isRandomizationTypeSet = true;
        }
-       else {
-    	   bean.setRandomizationType(SectionDataIfc.PER_SUBMISSION);
-       }
+    }
+    if (!isRandomizationTypeSet) {
+ 	   bean.setRandomizationType(SectionDataIfc.PER_SUBMISSION);
     }
   }
 
