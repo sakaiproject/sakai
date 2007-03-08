@@ -1054,15 +1054,15 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 
 		String itemId = params.getString("itemId");
 
-		List new_items = (List) state.getAttribute(STATE_ADDED_ITEMS);
+		List<AttachItem> new_items = (List<AttachItem>) state.getAttribute(STATE_ADDED_ITEMS);
 
 		AttachItem item = null;
 		boolean found = false;
 
-		Iterator it = new_items.iterator();
+		Iterator<AttachItem> it = new_items.iterator();
 		while(!found && it.hasNext())
 		{
-			item = (AttachItem) it.next();
+			item = it.next();
 			if(item.getId().equals(itemId))
 			{
 				found = true;
@@ -1072,10 +1072,10 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		if(found && item != null)
 		{
 			new_items.remove(item);
-			List removed = (List) state.getAttribute(STATE_REMOVED_ITEMS);
+			List<AttachItem> removed = (List<AttachItem>) state.getAttribute(STATE_REMOVED_ITEMS);
 			if(removed == null)
 			{
-				removed = new Vector();
+				removed = new Vector<AttachItem>();
 				state.setAttribute(STATE_REMOVED_ITEMS, removed);
 			}
 			removed.add(item);
@@ -1106,24 +1106,24 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 
 //		state.setAttribute(STATE_LIST_SELECTIONS, new TreeSet());
 
-		List new_items = (List) state.getAttribute(STATE_ADDED_ITEMS);
+		List<AttachItem> new_items = (List<AttachItem>) state.getAttribute(STATE_ADDED_ITEMS);
 		if(new_items == null)
 		{
-			new_items = new Vector();
+			new_items = new Vector<AttachItem>();
 			state.setAttribute(STATE_ADDED_ITEMS, new_items);
 		}
 
-		List removed = (List) state.getAttribute(STATE_REMOVED_ITEMS);
+		List<AttachItem> removed = (List<AttachItem>) state.getAttribute(STATE_REMOVED_ITEMS);
 		if(removed == null)
 		{
-			removed = new Vector();
+			removed = new Vector<AttachItem>();
 			state.setAttribute(STATE_REMOVED_ITEMS, removed);
 		}
 		
-		Iterator removeIt = removed.iterator();
+		Iterator<AttachItem> removeIt = removed.iterator();
 		while(removeIt.hasNext())
 		{
-			AttachItem item = (AttachItem) removeIt.next();
+			AttachItem item = removeIt.next();
 			try
 			{
 				if(contentService.isAttachmentResource(item.getId()))
@@ -1144,10 +1144,10 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		// add to the attachments vector
 		List attachments = EntityManager.newReferenceList();
 
-		Iterator it = new_items.iterator();
+		Iterator<AttachItem> it = new_items.iterator();
 		while(it.hasNext())
 		{
-			AttachItem item = (AttachItem) it.next();
+			AttachItem item = it.next();
 
 			try
 			{
@@ -1156,6 +1156,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 			}
 			catch(Exception e)
 			{
+				logger.warn("doAddattachments " + e);
 			}
 		}
 		// cleanupState(state);
@@ -1221,18 +1222,18 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 	{
 		ContentHostingService contentService = (ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
 
-		List new_items = (List) state.getAttribute(STATE_ADDED_ITEMS);
+		List<AttachItem> new_items = (List<AttachItem>) state.getAttribute(STATE_ADDED_ITEMS);
 		if(new_items == null)
 		{
-			new_items = new Vector();
+			new_items = new Vector<AttachItem>();
 			state.setAttribute(STATE_ADDED_ITEMS, new_items);
 		}
 
 		boolean found = false;
-		Iterator it = new_items.iterator();
+		Iterator<AttachItem> it = new_items.iterator();
 		while(!found && it.hasNext())
 		{
-			AttachItem item = (AttachItem) it.next();
+			AttachItem item = it.next();
 			if(item.getId().equals(itemId))
 			{
 				found = true;
@@ -1337,10 +1338,10 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		}
 
 		boolean found = false;
-		Iterator it = new_items.iterator();
+		Iterator<AttachItem> it = new_items.iterator();
 		while(!found && it.hasNext())
 		{
-			AttachItem item = (AttachItem) it.next();
+			AttachItem item = it.next();
 			if(item.getId().equals(itemId))
 			{
 				found = true;
@@ -1362,8 +1363,9 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 				ResourceProperties props = res.getProperties();
 				String displayName = props.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
 				String containerId = contentService.getContainingCollectionId (itemId);
+				String accessUrl = res.getUrl();
 
-				AttachItem item = new AttachItem(itemId, displayName, containerId, res.getUrl());
+				AttachItem item = new AttachItem(itemId, displayName, containerId, accessUrl);
 				item.setContentType(res.getContentType());
 				item.setResourceType(res.getResourceType());
 				
