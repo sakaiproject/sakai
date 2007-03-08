@@ -81,4 +81,13 @@ public interface ContentEntity extends GroupAwareEntity
 	 */
 	public ContentEntity getMember(String nextId);
 	
+	/**
+	 * Access the URL which can be used to access the entity. Will return a relative or absolute url, 
+	 * depending on value of the parameter. If parameter is true, URL will be relative to the server's
+	 * root.  Otherwise, it will be a complete URL starting with the base URL of the server. 
+	 * @param relative 
+	 * @return The URL which can be used to access the resource.
+	 */
+	public String getUrl(boolean relative);
+	
 }

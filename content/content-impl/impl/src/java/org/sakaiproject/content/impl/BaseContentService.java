@@ -8855,6 +8855,14 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		} // finalize
 
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ContentEntity#getUrl(boolean)
+         */
+        public String getUrl(boolean relative)
+        {
+        	return getAccessPoint(relative) + convertIdToUserEid(m_id);
+        }
+
 		/**
 		 * Access the URL which can be used to access the resource.
 		 * 
@@ -8862,7 +8870,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		 */
 		public String getUrl()
 		{
-			return getAccessPoint(false) + convertIdToUserEid(m_id);
+			return getUrl(false);
 
 		} // getUrl
 
@@ -9637,7 +9645,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		 */
 		public String getUrl()
 		{
-			return getUrl(PROP_ALTERNATE_REFERENCE);
+			return getUrl(false, PROP_ALTERNATE_REFERENCE);
 		}
 
 		/**
@@ -9648,13 +9656,30 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			return getReference(PROP_ALTERNATE_REFERENCE);
 		}
 
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ContentEntity#getUrl(boolean)
+         */
+        public String getUrl(boolean relative)
+        {
+        	return getUrl(relative, PROP_ALTERNATE_REFERENCE);
+        }
+
+		/**
+		 * @inheritDoc
+		 */
+		public String getUrl(boolean relative, String rootProperty)
+		{
+			return (relative ? m_serverConfigurationService.getAccessPath() : m_serverConfigurationService.getAccessUrl()) 
+					+ getAlternateReferenceRoot(rootProperty) + m_relativeAccessPoint
+					+ convertIdToUserEid(m_id);
+		}
+
 		/**
 		 * @inheritDoc
 		 */
 		public String getUrl(String rootProperty)
 		{
-			return m_serverConfigurationService.getAccessUrl() + getAlternateReferenceRoot(rootProperty) + m_relativeAccessPoint
-					+ convertIdToUserEid(m_id);
+			return getUrl(false, rootProperty);
 		}
 
 		/**
