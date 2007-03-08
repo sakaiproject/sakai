@@ -43,7 +43,7 @@
 		#end	
 	</div>
 
-	<form name="attachForm" id="attachForm" action="#toolForm("FilePickerAction")" method="post" enctype="multipart/form-data">
+	<form name="attachForm" id="attachForm" action="#toolForm("FilePickerAction" "Main")" method="post" enctype="multipart/form-data">
 		<input type="hidden" name="source" value="0" />
 		<input type="hidden" name="collectionId" value="$validator.escapeHtml($collectionId)" />
 		<input type="hidden" name="from" value="list" />

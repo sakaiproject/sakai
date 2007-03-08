@@ -1228,9 +1228,9 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 			}
 			return;
 		}
-		else if(false)
+		else if(sendToHelper(req, res, req.getPathInfo()))
 		{
-			
+			return;
 		}
 		else
 		{
@@ -1328,7 +1328,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 				}
 			}
 
-			startHelper(data.getRequest(), iAction.getHelperId());
+			startHelper(data.getRequest(), iAction.getHelperId(), MAIN_PANEL);
 		}
 		else if(action instanceof ServiceLevelAction)
 		{
