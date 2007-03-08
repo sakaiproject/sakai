@@ -28,12 +28,6 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-coursemanagement-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-site-manage-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
