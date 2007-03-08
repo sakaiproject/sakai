@@ -1,0 +1,77 @@
+<SCRIPT LANGUAGE=JAVASCRIPT>
+<!-- hide from non-JS browsers
+// -->
+</SCRIPT>
+
+<div class="portletBody">
+	<h3>$tlang.getString("nscourse.findCourse")</h3>
+
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<p class="instruction">
+		<!-- add if statement to determine if the following should show -->
+		$tlang.getString("nscourse.findAlreadySelected")
+			<!-- loop through courses -->
+			<ul>
+				<li>PSYCH 213 - 01 : Mind, Culture and Society, Lecture</li>
+			</ul>
+			<!-- end loop -->
+		<!-- end if -->
+		$tlang.getString("nscourse.findInstruction")
+	</p>
+	<form name = "findCourseForm" method="post" action="#toolForm($action)">
+		
+		<!-- loop through course identifier fields -->
+			<!-- these are place holders for the actual fields - they should
+			      be dynamically labelled based on the config. -->
+			#set ($i=0)
+			#foreach ($level in $cmLevels)
+			  #set($fieldName='idField_' + $i)
+			  <!-- label for this level in CM -->
+			  $level
+			  #if ($manualEntry)
+			    <!-- text entry field for manual entry-->
+			  	#if ($cmLevelSelections.size() > $i)
+			  	    <!-- prepopulating with existing selection -->
+				  	<input type="text" name="$fieldName" value="$cmLevelSelections.get($i)"/><br/>
+				#else
+				    <input type="text" name="$fieldName"/><br/>
+				#end
+			  #else
+			  	<!-- use dropdown list to select from coursemanagement service provided options -->
+				  #if ($i < $cmLevelSelections.size() + 1)
+					  <select name="$fieldName" onchange="blur();document.findCourseForm.submit();">
+				  #else
+				  	  <select name="$fieldName" disabled="true">
+				  #end
+				  #if ($i < $cmLevelOptions.size())
+				      #foreach ($coursething in $cmLevelOptions.get($i))
+				        #if ($i < $cmLevelSelections.size())
+					        #set ($selectedItem = $cmLevelSelections.get($i))
+					    #end
+				        #if ($slectedItem && $coursething.eid == $selectedItem)
+				            <option value="$coursething.eid" selected="true">
+				        #else
+				            <option value="$coursething.eid">
+				        #end
+						        $coursething.title
+						    </option>
+				      #end
+				  #end
+			      <!-- end population of select options -->
+				      </select><br/>
+				  #set($i = $i + 1)
+			  #end
+			  <!-- end creation of select box -->
+		   #end
+		   <!-- end loop through fields-->
+
+		<input id="index" type="hidden" name="template-index" value="53" />
+		<input type="hidden" name="back" value="52" />
+		<p class="act">
+			<input id="continueButton" type="submit" class="active" accesskey="s" name="eventSubmit_doContinue" value="$tlang.getString('gen.continue')" />
+			<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" />
+			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" />
+		</p>
+
+	</form>
+</div>
