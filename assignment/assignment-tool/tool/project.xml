@@ -19,18 +19,6 @@
 	</properties>
 
 	<dependencies>
-
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-archive-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-import-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
 		
 		<dependency>
 			<groupId>sakaiproject</groupId>

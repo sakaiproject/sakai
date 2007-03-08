@@ -3301,7 +3301,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 			if (allowGradeSubmission(a.getReference()))
 			{
-				zipSubmissions(a.getTitle(), a.getContent().getTypeOfSubmission(), submissions, b, exceptionMessage);
+				zipSubmissions(a.getTitle(), a.getContent().getTypeOfGradeString(a.getContent().getTypeOfGrade()), a.getContent().getTypeOfSubmission(), submissions, b, exceptionMessage);
 
 				if (exceptionMessage.length() > 0)
 				{
@@ -3329,7 +3329,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 	} // getSubmissionsZip
 
-	protected void zipSubmissions(String assignmentTitle, int typeOfSubmission, Iterator submissions, Blob b, StringBuffer exceptionMessage) 
+	protected void zipSubmissions(String assignmentTitle, String gradeTypeString, int typeOfSubmission, Iterator submissions, Blob b, StringBuffer exceptionMessage) 
 	{
 		try
 		{
@@ -3343,6 +3343,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			{
 				exceptionMessage.append("There is no submission yet. ");
 			}
+			
+			// the buffer used to store grade information
+			StringBuffer gradesBuffer = new StringBuffer(assignmentTitle + "," + gradeTypeString + "\n\n");
+			gradesBuffer.append(rb.getString("grades.id") + "," + rb.getString("grades.lastname") + "," + rb.getString("grades.firstname") + "," + rb.getString("grades.grade") + "\n");
 
 			// Create the ZIP file
 			String submittersName = "";
@@ -3363,7 +3367,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						{
 							submittersString = submittersString.concat("; ");
 						}
-						submittersString = submittersString.concat(submitters[i].getLastName()+","+submitters[i].getFirstName());
+						submittersString = submittersString.concat(submitters[i].getSortName());
+						gradesBuffer.append(submitters[i].getDisplayId() + "," + submitters[i].getLastName() + "," + submitters[i].getFirstName() + "," + s.getGradeDisplay() + "\n");
 					}
 					
 					if (StringUtil.trimToNull(submittersString) != null)
@@ -3387,6 +3392,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 									out.write(FormattedText.encodeUnicode(submittedText).getBytes());
 									out.closeEntry();
 								}
+								
+								// the comments.txt file to show instructor's comments
+								ZipEntry textEntry = new ZipEntry(submittersName + "comments.txt");
+								out.putNextEntry(textEntry);
+								out.write(FormattedText.encodeUnicode(s.getFeedbackComment()).getBytes());
+								out.closeEntry();
 
 								// create the attachment file(s)
 								List attachments = s.getSubmittedAttachments();
@@ -3470,6 +3481,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 			} // while -- there is submission
 
+			// create a grades.csv file into zip
+			ZipEntry gradesCSVEntry = new ZipEntry(root + "grades.csv");
+			out.putNextEntry(gradesCSVEntry);
+			out.write(gradesBuffer.toString().getBytes());
+			out.closeEntry();
+			
 			// Complete the ZIP file
 			out.finish();
 			out.flush();
