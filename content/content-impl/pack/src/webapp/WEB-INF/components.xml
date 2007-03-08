@@ -40,11 +40,13 @@
 			singleton="true">
 	</bean>
 
+<!--
 	<bean id="uk.ac.cam.caret.ContentHostingHandlerFileSystemImpl.0000"
 			class="org.sakaiproject.content.impl.ContentHostingHandlerImplFileSystem"
 			singleton="true">
 			<property name="contentHostingHandlerResolver" ><ref bean="org.sakaiproject.content.api.ContentHostingHandlerResolver"/></property>
 	</bean>
+-->
 
 	<bean id="org.sakaiproject.content.api.ContentTypeImageService"
 			class="org.sakaiproject.content.impl.BasicContentTypeImageService"
