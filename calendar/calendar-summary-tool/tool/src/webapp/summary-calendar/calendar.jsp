@@ -10,7 +10,10 @@
 	response.addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
 	response.addHeader("Pragma", "no-cache");
 %>
-<f:loadBundle basename="org.sakaiproject.tool.summarycalendar.bundle.Messages" var="msgs"/>
+
+<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
+   <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.tool.summarycalendar.bundle.Messages"/>
+</jsp:useBean>
 
 <f:view>
 <sakai:view title="#{msgs.tool_title}" id="sakaiview">
@@ -21,11 +24,11 @@
 	</style>	
 
 	<h:form id="calendarForm">
-	<%/*<h:panelGroup>
+	<h:panelGroup>
        <sakai:tool_bar>
 			<sakai:tool_bar_item action="#{MenuBean.processPreferences}" value="#{msgs.menu_prefs}" />
 		</sakai:tool_bar>
-    </h:panelGroup>*/%>
+    </h:panelGroup>
 	    
 	
 			
@@ -36,15 +39,15 @@
 				<f:verbatim><h3></f:verbatim><h:outputText value="#{CalBean.caption}"/><f:verbatim></h3></f:verbatim>
 			</t:div>
 	        <t:div style="text-align: right; white-space: nowrap; ">
-	        	<h:commandButton value=" < " actionListener="#{CalBean.prevMonth}" />
-	        	<h:commandButton value="#{msgs.today}" actionListener="#{CalBean.currMonth}"/>
-	        	<h:commandButton value=" > " actionListener="#{CalBean.nextMonth}" />
+	        	<h:commandButton value=" < " actionListener="#{CalBean.prev}" immediate="true"/>
+	        	<h:commandButton value="#{msgs.today}" actionListener="#{CalBean.currDay}" immediate="true"/>
+	        	<h:commandButton value=" > " actionListener="#{CalBean.next}" immediate="true"/>
 	        </t:div>
 		</h:panelGrid>
 		
 		<t:dataTable
 			id="table_calendar"
-			value="#{CalBean.weeks}"
+			value="#{CalBean.calendar}"
 			var="week"
 			style="width:100%; text-align: center;"
 			headerClass="calHeader"
@@ -54,8 +57,8 @@
 				<f:facet name="header">	 
 		           <h:outputText value="#{msgs.day_sun}"/>		                
 		        </f:facet>
-		        <t:div style="width:100%; text-align: center;" styleClass="#{week.days[0].styleClass}">
-			        <h:commandLink value="#{week.days[0].dayOfMonth}" actionListener="#{CalBean.selectDate}" rendered="#{week.days[0].hasEvents}" >
+		        <t:div style="width:100%; text-align: center; #{week.days[0].backgroundCSSProperty};" styleClass="#{week.days[0].styleClass}">
+			        <h:commandLink value="#{week.days[0].dayOfMonth}" actionListener="#{CalBean.selectDate}" rendered="#{week.days[0].hasEvents}" immediate="true">
 				        <f:param name="selectedDay" value="#{week.days[0].dateAsString}"/>
 			        </h:commandLink>
 			        <h:outputText value="#{week.days[0].dayOfMonth}" rendered="#{!week.days[0].hasEvents}" />
@@ -65,8 +68,8 @@
 				<f:facet name="header">	 
 		           <h:outputText value="#{msgs.day_mon}"/>		                
 		        </f:facet>		        
-		        <t:div style="width:100%; text-align: center;" styleClass="#{week.days[1].styleClass}">
-			        <h:commandLink value="#{week.days[1].dayOfMonth}" actionListener="#{CalBean.selectDate}" rendered="#{week.days[1].hasEvents}" >
+		        <t:div style="width:100%; text-align: center; #{week.days[1].backgroundCSSProperty};" styleClass="#{week.days[1].styleClass}">
+			        <h:commandLink value="#{week.days[1].dayOfMonth}" actionListener="#{CalBean.selectDate}" rendered="#{week.days[1].hasEvents}" immediate="true">
 			            <f:param name="selectedDay" value="#{week.days[1].dateAsString}"/>
 			        </h:commandLink>
 			        <h:outputText value="#{week.days[1].dayOfMonth}" rendered="#{!week.days[1].hasEvents}" />
@@ -76,8 +79,8 @@
 				<f:facet name="header">	 
 		           <h:outputText value="#{msgs.day_tue}"/>		                
 		        </f:facet>		        
-		        <t:div style="width:100%; text-align: center;" styleClass="#{week.days[2].styleClass}">
-			        <h:commandLink value="#{week.days[2].dayOfMonth}" actionListener="#{CalBean.selectDate}" rendered="#{week.days[2].hasEvents}">
+		        <t:div style="width:100%; text-align: center; #{week.days[2].backgroundCSSProperty};" styleClass="#{week.days[2].styleClass}">
+			        <h:commandLink value="#{week.days[2].dayOfMonth}" actionListener="#{CalBean.selectDate}" rendered="#{week.days[2].hasEvents}" immediate="true">
 			            <f:param name="selectedDay" value="#{week.days[2].dateAsString}"/>
 			        </h:commandLink>
 			        <h:outputText value="#{week.days[2].dayOfMonth}" rendered="#{!week.days[2].hasEvents}" />
@@ -87,8 +90,8 @@
 				<f:facet name="header">	 
 		           <h:outputText value="#{msgs.day_wed}"/>		                
 		        </f:facet>		        
-		        <t:div style="width:100%; text-align: center;" styleClass="#{week.days[3].styleClass}">
-			        <h:commandLink value="#{week.days[3].dayOfMonth}" actionListener="#{CalBean.selectDate}" rendered="#{week.days[3].hasEvents}" >
+		        <t:div style="width:100%; text-align: center; #{week.days[3].backgroundCSSProperty};" styleClass="#{week.days[3].styleClass}">
+			        <h:commandLink value="#{week.days[3].dayOfMonth}" actionListener="#{CalBean.selectDate}" rendered="#{week.days[3].hasEvents}" immediate="true">
 			            <f:param name="selectedDay" value="#{week.days[3].dateAsString}"/>
 			        </h:commandLink>
 			        <h:outputText value="#{week.days[3].dayOfMonth}" rendered="#{!week.days[3].hasEvents}" />
@@ -98,8 +101,8 @@
 				<f:facet name="header">	 
 		           <h:outputText value="#{msgs.day_thu}"/>		                
 		        </f:facet>
-		        <t:div style="width:100%; text-align: center;" styleClass="#{week.days[4].styleClass}">
-			        <h:commandLink value="#{week.days[4].dayOfMonth}" actionListener="#{CalBean.selectDate}" rendered="#{week.days[4].hasEvents}" >
+		        <t:div style="width:100%; text-align: center; #{week.days[4].backgroundCSSProperty};" styleClass="#{week.days[4].styleClass}">
+			        <h:commandLink value="#{week.days[4].dayOfMonth}" actionListener="#{CalBean.selectDate}" rendered="#{week.days[4].hasEvents}" immediate="true">
 			            <f:param name="selectedDay" value="#{week.days[4].dateAsString}"/>
 			        </h:commandLink>
 			        <h:outputText value="#{week.days[4].dayOfMonth}" rendered="#{!week.days[4].hasEvents}" />
@@ -109,8 +112,8 @@
 				<f:facet name="header">	 
 		           <h:outputText value="#{msgs.day_fri}"/>		                
 		        </f:facet>
-		        <t:div style="width:100%; text-align: center;" styleClass="#{week.days[5].styleClass}">
-			        <h:commandLink value="#{week.days[5].dayOfMonth}" actionListener="#{CalBean.selectDate}" rendered="#{week.days[5].hasEvents}">
+		        <t:div style="width:100%; text-align: center; #{week.days[5].backgroundCSSProperty};" styleClass="#{week.days[5].styleClass}">
+			        <h:commandLink value="#{week.days[5].dayOfMonth}" actionListener="#{CalBean.selectDate}" rendered="#{week.days[5].hasEvents}" immediate="true">
 			            <f:param name="selectedDay" value="#{week.days[5].dateAsString}"/>
 			        </h:commandLink>
 			        <h:outputText value="#{week.days[5].dayOfMonth}" rendered="#{!week.days[5].hasEvents}" />
@@ -120,8 +123,8 @@
 				<f:facet name="header">	 
 		           <h:outputText value="#{msgs.day_sat}"/>		                
 		        </f:facet>
-		        <t:div style="width:100%; text-align: center;" styleClass="#{week.days[6].styleClass}">
-			        <h:commandLink value="#{week.days[6].dayOfMonth}" actionListener="#{CalBean.selectDate}" rendered="#{week.days[6].hasEvents}" >
+		        <t:div style="width:100%; text-align: center; #{week.days[6].backgroundCSSProperty};" styleClass="#{week.days[6].styleClass}">
+			        <h:commandLink value="#{week.days[6].dayOfMonth}" actionListener="#{CalBean.selectDate}" rendered="#{week.days[6].hasEvents}" immediate="true">
 			            <f:param name="selectedDay" value="#{week.days[6].dateAsString}"/>
 			        </h:commandLink>
 			        <h:outputText value="#{week.days[6].dayOfMonth}" rendered="#{!week.days[6].hasEvents}" />
@@ -140,7 +143,7 @@
        		 	style="width:100%">
 		        <t:graphicImage value="#{CalBean.eventImageMap[event.type]}"/>
 				<t:outputText value=" #{event.type} - "/>
-			    <t:commandLink value="#{event.truncatedDisplayName}" actionListener="#{CalBean.selectEvent}" immediate="false">
+			    <t:commandLink value="#{event.truncatedDisplayName}" actionListener="#{CalBean.selectEvent}" immediate="true">
 			       	<f:param name="calendarRef" value="#{event.calendarRef}"/>
 			       	<f:param name="eventRef" value="#{event.eventRef}"/>
 			    </t:commandLink>

@@ -41,6 +41,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.CalendarEvent;
+import org.sakaiproject.calendar.api.CalendarEventVector;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -62,6 +63,11 @@ import org.sakaiproject.util.ResourceLoader;
 
 public class CalendarBean extends InitializableBean implements Serializable {
 	private static final long						serialVersionUID		= 3399742150736774779L;
+	public static final String 						MODE_MONTHVIEW			= "month";
+	public static final String 						MODE_WEEKVIEW			= "week";
+	public static final String 						PRIORITY_HIGH			= "priority_high";
+	public static final String 						PRIORITY_MEDIUM			= "priority_medium";
+	public static final String 						PRIORITY_LOW			= "priority_low";
 	public static final String						DATE_FORMAT				= "MMM dd, yyyy";
 	private static final String 					imgLocation				= "../../../library/image/sakai/";
 	private static final String 					SCHEDULE_TOOL_ID		= "sakai.schedule";
@@ -73,8 +79,10 @@ public class CalendarBean extends InitializableBean implements Serializable {
 	private transient ResourceLoader				msgs					= new ResourceLoader("org.sakaiproject.tool.summarycalendar.bundle.Messages");
 
 	/** Bean members */
+	private String									viewMode				= MODE_MONTHVIEW;
+	private String									prevViewMode			= null;
 	private Date									today					= null;
-	private Date									selectedMonth			= null;
+	private Date									viewingDate			= null;
 	private Date									selectedDay				= null;
 	private boolean									selectedDayHasEvents	= false;
 	private String									selectedEventRef		= null;
@@ -96,27 +104,45 @@ public class CalendarBean extends InitializableBean implements Serializable {
 			"mon_nov", "mon_dec"											};
 	private Map										eventImageMap			= new HashMap();
 	private boolean									firstTime				= true;
-
+	
+	private boolean									readPrefs 				= true;
+	private Map										priorityColorsMap		= null;
+	private String									highPrCSSProp			= "";
+	private String									mediumPrCSSProp			= "";
+	private String									lowPrCSSProp			= "";
+	private Map										priorityEventsMap		= null;
+	private List									highPriorityEvents		= null;
+	private List									mediumPriorityEvents	= null;
+	private List									lowPriorityEvents		= null;
+	
+	
+	/** Sakai services */
 	private transient CalendarService				M_ca					= (CalendarService) ComponentManager.get(CalendarService.class.getName());
 	private transient TimeService					M_ts					= (TimeService) ComponentManager.get(TimeService.class.getName());
 	private transient SiteService					M_ss					= (SiteService) ComponentManager.get(SiteService.class.getName());
 	private transient SecurityService				M_as					= (SecurityService) ComponentManager.get(SecurityService.class.getName());
 	private transient ToolManager					M_tm					= (ToolManager) ComponentManager.get(ToolManager.class.getName());
-	//private transient ServerConfigurationService	M_config				= (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class.getName());
+	
 
 	// ######################################################################################
 	// Main methods
 	// ######################################################################################
+	public CalendarBean(){
+	}
+	
 	public void init() {
-		LOG.debug("CalendarBean.init()");
-
+		if(readPrefs){
+			readPreferences();
+			readPrefs = false;
+		}
+		
 		if(firstTime){
 			selectedDay = getToday();
 		}
 		if(selectedDay != null){
 			Calendar t = Calendar.getInstance();
 			t.setTime(selectedDay);
-			selectedDayHasEvents = getDayEventCount(t) > 0;
+			selectedDayHasEvents = getDayEventCount(getDayEventsVector(t)) > 0;
 		}
 		if(firstTime || (selectedDay != null && selectedDay.equals(getToday()))){
 			firstTime = false;
@@ -124,10 +150,40 @@ public class CalendarBean extends InitializableBean implements Serializable {
 			else selectedDay = null;
 		}
 	}
+	
+	public void setReadPrefs(String value) {
+		readPrefs = new Boolean(value).booleanValue();
+	}
+	
+	public String getReadPrefs() {
+		return "true";
+	}
 
 	// ######################################################################################
 	// Private methods
 	// ######################################################################################
+	private void readPreferences() {
+		// view mode
+		prevViewMode = viewMode;
+		viewMode = PrefsBean.getPreferenceViewMode();
+		
+		// priority colors (CSS properties)
+		priorityColorsMap = PrefsBean.getPreferencePriorityColors();
+		highPrCSSProp = (String) priorityColorsMap.get(PrefsBean.PREFS_HIGHPRIORITY_COLOR);
+		mediumPrCSSProp = (String) priorityColorsMap.get(PrefsBean.PREFS_MEDIUMPRIORITY_COLOR);
+		lowPrCSSProp = (String) priorityColorsMap.get(PrefsBean.PREFS_LOWPRIORITY_COLOR);
+		
+		highPrCSSProp = highPrCSSProp.equals("")? "" : "background-color: " + highPrCSSProp;
+		mediumPrCSSProp = mediumPrCSSProp.equals("")? "" : "background-color: " + mediumPrCSSProp;
+		lowPrCSSProp = lowPrCSSProp.equals("")? "" : "background-color: " + lowPrCSSProp;
+		
+		// priority events
+		priorityEventsMap = PrefsBean.getPreferencePriorityEvents();
+		highPriorityEvents = (List) priorityEventsMap.get(PrefsBean.PREFS_HIGHPRIORITY_EVENTS);
+		mediumPriorityEvents = (List) priorityEventsMap.get(PrefsBean.PREFS_MEDIUMPRIORITY_EVENTS);
+		lowPriorityEvents = (List) priorityEventsMap.get(PrefsBean.PREFS_LOWPRIORITY_EVENTS);
+	}
+	
 	private List getCalendarReferences() {
 		if(calendarReferences == null || calendarReferences.size() == 0){
 			MergedList mergedCalendarList = new MergedList();
@@ -173,7 +229,7 @@ public class CalendarBean extends InitializableBean implements Serializable {
 		return siteId;
 	}
 
-	private List getDayEvents(Calendar c) {
+	private CalendarEventVector getDayEventsVector(Calendar c) {
 		c.set(Calendar.HOUR_OF_DAY, 0);
 		c.set(Calendar.MINUTE, 0);
 		c.set(Calendar.SECOND, 0);
@@ -182,10 +238,13 @@ public class CalendarBean extends InitializableBean implements Serializable {
 		Time iTime = M_ts.newTime(startOfDay);
 		long one_day = 86400000 - 1;
 		Time fTime = M_ts.newTime(startOfDay + one_day);
-
+	
 		TimeRange range = M_ts.newTimeRange(iTime, fTime);
-		ListIterator i = M_ca.getEvents(getCalendarReferences(), range).listIterator();
-
+		return M_ca.getEvents(getCalendarReferences(), range);
+	}
+	
+	private List getDayEvents(CalendarEventVector dayEventVector) {
+		ListIterator i = dayEventVector.listIterator();
 		List eventList = new ArrayList();
 		while (i.hasNext()){
 			CalendarEvent e = (CalendarEvent) i.next();
@@ -201,50 +260,105 @@ public class CalendarBean extends InitializableBean implements Serializable {
 		return eventList;
 	}
 
-	private int getDayEventCount(Calendar c) {
-		c.set(Calendar.HOUR_OF_DAY, 0);
-		c.set(Calendar.MINUTE, 0);
-		c.set(Calendar.SECOND, 0);
-		c.set(Calendar.MILLISECOND, 0);
-		long startOfDay = c.getTimeInMillis();
-		Time iTime = M_ts.newTime(startOfDay);
-		long one_day = 86400000 - 1;
-		Time fTime = M_ts.newTime(startOfDay + one_day);
+	private int getDayEventCount(CalendarEventVector dayEventVector) {
+		return dayEventVector.size();
+	}
 
-		TimeRange range = M_ts.newTimeRange(iTime, fTime);
-		return M_ca.getEvents(getCalendarReferences(), range).size();
+	private String getDayPriorityCSSProperty(CalendarEventVector dayEventVector) {
+		ListIterator i = dayEventVector.listIterator();
+		String highestPriorityFound = "";
+		while (i.hasNext()){
+			CalendarEvent e = (CalendarEvent) i.next();
+			String type = e.getType();
+			if(highPriorityEvents.contains(type))
+				highestPriorityFound = PRIORITY_HIGH;
+			else if(mediumPriorityEvents.contains(type) && !highestPriorityFound.equals(PRIORITY_HIGH))
+				highestPriorityFound = PRIORITY_MEDIUM;
+			else if(lowPriorityEvents.contains(type) && !highestPriorityFound.equals(PRIORITY_HIGH) && !highestPriorityFound.equals(PRIORITY_MEDIUM))
+				highestPriorityFound = PRIORITY_LOW;
+			
+			if(highestPriorityFound.equals(PRIORITY_HIGH))
+				break;
+		}
+		if(highestPriorityFound.equals(""))
+			return "";
+		else if(highestPriorityFound.equals(PRIORITY_LOW))
+			return lowPrCSSProp;
+		else if(highestPriorityFound.equals(PRIORITY_MEDIUM))
+			return mediumPrCSSProp;
+		else if(highestPriorityFound.equals(PRIORITY_HIGH))
+			return highPrCSSProp;
+		return "";
 	}
 
 	// ######################################################################################
 	// Action/ActionListener methods
 	// ######################################################################################
-	public void prevMonth(ActionEvent e) {
+	public void currDay(ActionEvent e) {
 		Calendar cal = Calendar.getInstance();
-		cal.setTime(selectedMonth);
-		cal.add(Calendar.MONTH, -1);
-		setSelectedMonth(cal.getTime());
-		selectedDay = null;
-		selectedEventRef = null;
-		updateEventList = true;
-	}
-
-	public void nextMonth(ActionEvent e) {
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(selectedMonth);
-		cal.add(Calendar.MONTH, +1);
-		setSelectedMonth(cal.getTime());
-		selectedDay = null;
-		selectedEventRef = null;
-		updateEventList = true;
-	}
-
-	public void currMonth(ActionEvent e) {
-		Calendar cal = Calendar.getInstance();
-		setSelectedMonth(cal.getTime());
+		setViewingDate(cal.getTime());
 		// show events for today if any
 		selectedDay = getToday();
 		selectedEventRef = null;
 		updateEventList = true;
+	}
+	
+	public void prev(ActionEvent e) {
+		updateEventList = true;
+		if(viewMode.equals(MODE_WEEKVIEW)){
+			// week view
+			prevWeek(e);
+		}else{
+			// month view
+			prevMonth(e);
+		}
+	}
+	
+	public void next(ActionEvent e) {
+		updateEventList = true;
+		if(viewMode.equals(MODE_WEEKVIEW)){
+			// week view
+			nextWeek(e);
+		}else{
+			// month view
+			nextMonth(e);
+		}
+	}
+	
+	private void prevMonth(ActionEvent e) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(viewingDate);
+		cal.add(Calendar.MONTH, -1);
+		setViewingDate(cal.getTime());
+		selectedDay = null;
+		selectedEventRef = null;
+	}
+
+	private void nextMonth(ActionEvent e) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(viewingDate);
+		cal.add(Calendar.MONTH, +1);
+		setViewingDate(cal.getTime());
+		selectedDay = null;
+		selectedEventRef = null;
+	}
+	
+	private void prevWeek(ActionEvent e) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(viewingDate);
+		cal.add(Calendar.WEEK_OF_YEAR, -1);
+		setViewingDate(cal.getTime());
+		selectedDay = null;
+		selectedEventRef = null;
+	}
+
+	private void nextWeek(ActionEvent e) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(viewingDate);
+		cal.add(Calendar.WEEK_OF_YEAR, +1);
+		setViewingDate(cal.getTime());
+		selectedDay = null;
+		selectedEventRef = null;
 	}
 
 	public void selectDate(ActionEvent e) {
@@ -277,10 +391,18 @@ public class CalendarBean extends InitializableBean implements Serializable {
 	public void backToEventList(ActionEvent e) {
 		try{
 			selectedEventRef = null;
-			updateEventList = false;
+			updateEventList = true;
 		}catch(Exception ex){
 			LOG.error("Error in backToEventList:" + ex.toString());
 		}
+	}
+	
+	public String getViewMode() {
+		return viewMode;
+	}
+	
+	public void setViewMode(String viewMode) {
+		this.viewMode = viewMode;
 	}
 
 	// ######################################################################################
@@ -301,15 +423,25 @@ public class CalendarBean extends InitializableBean implements Serializable {
 			}
 			weeks.set(w, week);
 		}
-		updateEventList = true;
 	}
 
-	public List getWeeks() {
-		if(weeks == null || weeks.size() == 0) initializeWeeksDataStructure();
-		if(updateEventList){
+	public List getCalendar() {
+		if(viewMode.equals(MODE_WEEKVIEW)){
+			// week view
+			return getWeek();
+		}else{
+			// month view
+			return getWeeks();
+		}
+	}
+	
+	private List getWeeks() {
+		if(reloadCalendarEvents()) {
+			initializeWeeksDataStructure();
+			
 			// selected month
 			Calendar c = Calendar.getInstance();
-			c.setTime(getSelectedMonth());
+			c.setTime(getViewingDate());
 			int selYear = c.get(Calendar.YEAR);
 			int selMonth = c.get(Calendar.MONTH);
 			c.set(Calendar.MONTH, selMonth);
@@ -346,19 +478,25 @@ public class CalendarBean extends InitializableBean implements Serializable {
 						int nDay = prevMonthLastDay - dayOfWeek + 2 + i;
 						c.set(Calendar.MONTH, selMonth - 1);
 						c.set(Calendar.DAY_OF_MONTH, nDay);
-						day = new Day(c.getTime(), getDayEventCount(c) > 0);
+						CalendarEventVector vector = getDayEventsVector(c);
+						day = new Day(c.getTime(), getDayEventCount(vector) > 0);
 						day.setOccursInOtherMonth(true);
+						day.setBackgroundCSSProperty(getDayPriorityCSSProperty(vector));
 					}else if(currDay > lastDay){
 						c.set(Calendar.MONTH, selMonth + 1);
 						c.set(Calendar.DAY_OF_MONTH, nextMonthDay++);
-						day = new Day(c.getTime(), getDayEventCount(c) > 0);
+						CalendarEventVector vector = getDayEventsVector(c);
+						day = new Day(c.getTime(), getDayEventCount(vector) > 0);
 						day.setOccursInOtherMonth(true);
+						day.setBackgroundCSSProperty(getDayPriorityCSSProperty(vector));
 					}else{
 						c.set(Calendar.YEAR, selYear);
 						c.set(Calendar.MONTH, selMonth);
 						c.set(Calendar.DAY_OF_MONTH, currDay++);
-						day = new Day(c.getTime(), getDayEventCount(c) > 0);
+						CalendarEventVector vector = getDayEventsVector(c);
+						day = new Day(c.getTime(), getDayEventCount(vector) > 0);
 						day.setOccursInOtherMonth(false);
+						day.setBackgroundCSSProperty(getDayPriorityCSSProperty(vector));
 					}
 					day.setToday(sameDay(c, getToday()));
 					day.setSelected(selectedDay != null && sameDay(c, selectedDay));
@@ -374,7 +512,55 @@ public class CalendarBean extends InitializableBean implements Serializable {
 		}
 		return weeks;
 	}
+	
+	private List getWeek() {
+		if(reloadCalendarEvents()) {
+			// initialize days
+			weeks = new ArrayList();
+			for(int d = 0; d < 7; d++){
+				week1.setDay(d, new Day());
+			}
+			weeks.add(week1);
+			
+			// selected week
+			Calendar c = Calendar.getInstance();
+			c.setTime(getViewingDate());
+			int selMonth = c.get(Calendar.MONTH);
+			int dayOfWeek = c.get(Calendar.DAY_OF_WEEK);
+			//int selWeek = c.get(Calendar.WEEK_OF_YEAR);
+			
+			// select Sunday (first day of week)
+			// TODO Allow dynamic choice of first day of week
+			while(dayOfWeek != Calendar.SUNDAY){
+				c.add(Calendar.DAY_OF_WEEK, -1);
+				dayOfWeek = c.get(Calendar.DAY_OF_WEEK);
+			}
+			
+			for(int i=0; i<7; i++){
+				Day day = (Day) week1.getDay(i);
+				boolean sameMonth = (selMonth == c.get(Calendar.MONTH));
+				boolean selected = (selectedDay != null) && (sameDay(c, selectedDay));
 
+				CalendarEventVector vector = getDayEventsVector(c);
+				day = new Day(c.getTime(), getDayEventCount(vector) > 0);
+				day.setOccursInOtherMonth(!sameMonth);
+				day.setBackgroundCSSProperty(getDayPriorityCSSProperty(vector));
+				day.setToday(sameDay(c, getToday()));
+				day.setSelected(selected);	
+	
+				week1.setDay(i, day);
+				c.add(Calendar.DAY_OF_WEEK, +1);
+			}
+			weeks.set(0, week1);
+		}
+		return weeks;
+	}
+
+	private boolean reloadCalendarEvents() {
+		boolean reload = (weeks == null) || (weeks.size() == 0) || updateEventList || (prevViewMode != viewMode);
+		return reload;
+	}
+	
 	private boolean sameDay(Calendar date1, Date date2) {
 		date1.set(Calendar.HOUR_OF_DAY, 0);
 		date1.set(Calendar.MINUTE, 0);
@@ -399,7 +585,7 @@ public class CalendarBean extends InitializableBean implements Serializable {
 
 	public String getCaption() {
 		Calendar c = Calendar.getInstance();
-		c.setTime(getSelectedMonth());
+		c.setTime(getViewingDate());
 		String month = msgs.getString(months[c.get(Calendar.MONTH)]);
 		String year = c.get(Calendar.YEAR) + "";
 		return month + ", " + year;
@@ -421,7 +607,7 @@ public class CalendarBean extends InitializableBean implements Serializable {
 	public List getSelectedDayEvents() {
 		Calendar c = Calendar.getInstance();
 		c.setTime(selectedDay);
-		return getDayEvents(c);
+		return getDayEvents(getDayEventsVector(c));
 	}
 
 	public EventSummary getSelectedEvent() {
@@ -506,16 +692,16 @@ public class CalendarBean extends InitializableBean implements Serializable {
 		return this.imgLocation;
 	}
 
-	public Date getSelectedMonth() {
-		if(selectedMonth == null){
+	public Date getViewingDate() {
+		if(viewingDate == null){
 			Calendar c = Calendar.getInstance();
-			selectedMonth = c.getTime();
+			viewingDate = c.getTime();
 		}
-		return selectedMonth;
+		return viewingDate;
 	}
 
-	public void setSelectedMonth(Date selectedMonth) {
-		this.selectedMonth = selectedMonth;
+	public void setViewingDate(Date selectedMonth) {
+		this.viewingDate = selectedMonth;
 	}
 
 }

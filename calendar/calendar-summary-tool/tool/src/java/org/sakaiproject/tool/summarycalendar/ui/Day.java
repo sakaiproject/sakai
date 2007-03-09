@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public class Day implements Serializable {
 	private static final long	serialVersionUID				= 1136403394613377956L;
@@ -35,12 +36,15 @@ public class Day implements Serializable {
 
 	Date						date							= null;
 	String						styleClass						= "";
+	List						eventSummaryList				= null;
 	boolean						hasEvents						= false;
 
 	int							dayOfMonth						= -1;
 	boolean						isToday							= false;
 	boolean						occursInOtherMonth				= false;
 	boolean						isSelected						= false;
+	
+	String 						backgroundCSSProperty			= "";
 
 	public Day() {
 	}
@@ -89,6 +93,14 @@ public class Day implements Serializable {
 		return this.styleClass;
 	}
 
+	public void setBackgroundCSSProperty(String color) {
+		this.backgroundCSSProperty = color;
+	}
+	
+	public String getBackgroundCSSProperty() {
+		return this.backgroundCSSProperty;
+	}
+	
 	public void setToday(boolean val) {
 		this.isToday = val;
 	}

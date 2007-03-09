@@ -44,6 +44,9 @@
 }
 
 .calDayWithActivity {
+	/* background-color will be overriden if: */
+	/* 1. colors specified for high/medium/low priority events in Options (user preferences) */
+	/* 2. default colors specified in sakai.properties */
 	background-color: #D4DFEE;
 	border: 1px solid #ddd;
 	font-weight: bold;
