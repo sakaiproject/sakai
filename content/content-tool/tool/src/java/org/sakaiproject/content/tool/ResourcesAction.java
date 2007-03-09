@@ -685,7 +685,7 @@ public class ResourcesAction
 	/** state attribute indicating whether we're using the Creative Commons dialog instead of the "old" copyright dialog */
 	protected static final String STATE_USING_CREATIVE_COMMONS = PREFIX + "usingCreativeCommons";
 
-	private static final int MAXIMUM_ATTEMPTS_FOR_UNIQUENESS = 100;
+	public static final int MAXIMUM_ATTEMPTS_FOR_UNIQUENESS = 100;
 
 	/** The default value for whether to show all sites in file-picker (used if global value can't be read from server config service) */
 	public static final boolean SHOW_ALL_SITES_IN_FILE_PICKER = false;
@@ -1208,12 +1208,12 @@ public class ResourcesAction
 			state.setAttribute(STATE_MODE, MODE_CREATE_WIZARD);
 			break;
 		case NEW_UPLOAD:
-			String collectionId = createResources(pipe);
-			if(collectionId != null)
+			List<ContentResource> resources = createResources(pipe);
+			if(resources != null && ! resources.isEmpty())
 			{
 				// expand folder
 				SortedSet<String> expandedCollections = (SortedSet<String>) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
-				expandedCollections.add(collectionId);
+				expandedCollections.add(resources.get(0).getContainingCollection().getId());
 			}
 			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
 			break;
@@ -1235,8 +1235,9 @@ public class ResourcesAction
 	 * @param pipe
 	 * @param state 
 	 */
-	protected static void createFolders(SessionState state, ResourceToolActionPipe pipe)
+	protected static List<ContentCollection> createFolders(SessionState state, ResourceToolActionPipe pipe)
 	{
+		List<ContentCollection> new_collections = new Vector<ContentCollection>();
 		String collectionId = pipe.getContentEntity().getId();
 		MultiFileUploadPipe mfp = (MultiFileUploadPipe) pipe;
 		Iterator<ResourceToolActionPipe> pipeIt = mfp.getPipes().iterator();
@@ -1254,6 +1255,7 @@ public class ResourcesAction
 				ResourcePropertiesEdit props = edit.getPropertiesEdit();
 				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
 				ContentHostingService.commitCollection(edit);
+				new_collections.add(edit);
 			}
 			catch (PermissionException e)
 			{
@@ -1289,6 +1291,7 @@ public class ResourcesAction
 				logger.warn("TypeException id=" + collectionId + name, e);
 			}
 		}
+		return (new_collections.isEmpty() ? null : new_collections);
 	}
 
 	/**
@@ -1385,10 +1388,11 @@ public class ResourcesAction
 	/**
 	 * @param pipe
 	 */
-	public static String createResources(ResourceToolActionPipe pipe)
+	public static List<ContentResource> createResources(ResourceToolActionPipe pipe)
 	{
 		boolean item_added = false;
 		String collectionId = null;
+		List<ContentResource> new_resources = new Vector<ContentResource>();
 		MultiFileUploadPipe mfp = (MultiFileUploadPipe) pipe;
 		Iterator<ResourceToolActionPipe> pipeIt = mfp.getPipes().iterator();
 		while(pipeIt.hasNext())
@@ -1443,6 +1447,7 @@ public class ResourcesAction
 				resource.setResourceType(pipe.getAction().getTypeId());
 				ContentHostingService.commitResource(resource, NotificationService.NOTI_NONE);
 				item_added = true;
+				new_resources.add(resource);
 			}
 			catch (PermissionException e)
 			{
@@ -1481,7 +1486,7 @@ public class ResourcesAction
 			}
 		}
 		
-		return (item_added ? collectionId : null);
+		return (item_added ? new_resources : null);
 	}
 
 	/**
@@ -2230,6 +2235,9 @@ public class ResourcesAction
 		state.setAttribute(STATE_LIST_PREFERENCE, LIST_HIERARCHY);
 	}
 	
+	/**
+	 * @param data
+	 */
 	public void doCompleteCreateWizard(RunData data)
 	{
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());

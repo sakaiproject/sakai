@@ -22,7 +22,7 @@
 package org.sakaiproject.content.impl;
 
 import java.util.Collection;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +42,7 @@ public class ResourceTypeRegistryImpl implements ResourceTypeRegistry
 	protected static Log M_log = LogFactory.getLog(ResourceTypeRegistryImpl.class);
 
 	/** Map of ResourceType objects indexed by typeId */
-	protected Map typeIndex = new Hashtable();
+	protected Map typeIndex = new HashMap();
 
 	/**
 	 * Final initialization, once all dependencies are set.

@@ -22,6 +22,7 @@
 package org.sakaiproject.content.tool;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
@@ -65,13 +66,15 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.content.api.ServiceLevelAction;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
-import org.sakaiproject.content.tool.ResourcesAction.ChefEditItem;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.SessionState;
+import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.exception.IdInvalidException;
+import org.sakaiproject.exception.IdLengthException;
+import org.sakaiproject.exception.IdUniquenessException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InconsistentException;
@@ -104,6 +107,9 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 {
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("helper");
+	
+	/** Resource bundle using current language locale */
+	private static ResourceLoader trb = new ResourceLoader("types");
 	
     private static final Log logger = LogFactory.getLog(FilePickerAction.class);
 	
@@ -141,6 +147,8 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 	protected static final String STATE_CONTENT_TYPE_IMAGE_SERVICE = PREFIX + "content_type_image_service";
 	
 	protected static final String STATE_DEFAULT_COLLECTION_ID = PREFIX + "default_collection_id";
+	protected static final String STATE_DEFAULT_COPYRIGHT = PREFIX + "default_copyright";
+	protected static final String STATE_DEFAULT_RETRACT_TIME = PREFIX + "default_retract_time";
 	protected static final String STATE_EXPAND_ALL = PREFIX + "expand_all";
 	protected static final String STATE_EXPAND_ALL_FLAG = PREFIX + "expand_all_flag";
 	protected static final String STATE_EXPANDED_COLLECTIONS = PREFIX + "expanded_collections";
@@ -150,9 +158,10 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 	protected static final String STATE_HELPER_CHANGED = PREFIX + "made_changes";
 	protected static final String STATE_HOME_COLLECTION_ID  = PREFIX + "home_collection_id";
 	protected static final String STATE_LIST_SELECTIONS = PREFIX + "list_selections";
-
 	protected static final String STATE_NAVIGATION_ROOT = PREFIX + "navigation_root";
 	protected static final String STATE_NEED_TO_EXPAND_ALL = PREFIX + "need_to_expand_all";
+	protected static final String STATE_NEW_ATTACHMENT = PREFIX + "new_attachment";
+	protected static final String STATE_PREVENT_PUBLIC_DISPLAY = PREFIX + "prevent_public_display";
 	protected static final String STATE_REMOVED_ITEMS = PREFIX + "removed_items";
 	protected static final String STATE_RESOURCES_TYPE_REGISTRY = PREFIX + "resource_type_registry";
 	protected static final String STATE_SHOW_ALL_SITES = PREFIX + "show_all_sites";
@@ -168,17 +177,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 	private static final String TEMPLATE_ATTACH = "content/sakai_filepicker_attach";
 	private static final String TEMPLATE_SELECT = "content/sakai_filepicker_select";
 
-	private static final String DEFAULT_COPYRIGHT = null;
-
-	private static final String STATE_DEFAULT_RETRACT_TIME = null;
-
-	private static final String STATE_PREVENT_PUBLIC_DISPLAY = null;
-
-	private static final String STATE_NEW_ATTACHMENT = null;
-
-
-
-
+	private static final int MAXIMUM_ATTEMPTS_FOR_UNIQUENESS = ResourcesAction.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS;
 
 
 	/**
@@ -234,7 +233,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		{
 			if(pipe.isActionCanceled())
 			{
-				state.setAttribute(STATE_MODE, MODE_ATTACHMENT_SELECT_INIT);
+				state.setAttribute(STATE_FILEPICKER_MODE, MODE_ATTACHMENT_SELECT_INIT);
 			}
 			else if(pipe.isErrorEncountered())
 			{
@@ -243,7 +242,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 				{
 					addAlert(state, msg);
 				}
-				state.setAttribute(STATE_MODE, MODE_ATTACHMENT_SELECT_INIT);
+				state.setAttribute(STATE_FILEPICKER_MODE, MODE_ATTACHMENT_SELECT_INIT);
 			}
 			else if(pipe.isActionCompleted())
 			{
@@ -251,6 +250,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 			}
 			toolSession.removeAttribute(ResourceToolAction.DONE);
 		}
+		helper_mode = (String) state.getAttribute(STATE_FILEPICKER_MODE);
 
 		if(MODE_ATTACHMENT_SELECT.equals(helper_mode))
 		{
@@ -305,7 +305,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
      */
     private String buildAddMetadataContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
     {
-		context.put("tlang",rb);
+		context.put("tlang",trb);
 		
 		String template = "content/sakai_resources_cwiz_finish";
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
@@ -323,11 +323,11 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		else
 		{
 			// complete the create wizard
-			String defaultCopyrightStatus = (String) state.getAttribute(DEFAULT_COPYRIGHT);
+			String defaultCopyrightStatus = (String) state.getAttribute(STATE_DEFAULT_COPYRIGHT);
 			if(defaultCopyrightStatus == null || defaultCopyrightStatus.trim().equals(""))
 			{
 				defaultCopyrightStatus = ServerConfigurationService.getString("default.copyright");
-				state.setAttribute(DEFAULT_COPYRIGHT, defaultCopyrightStatus);
+				state.setAttribute(STATE_DEFAULT_COPYRIGHT, defaultCopyrightStatus);
 			}
 
 			String encoding = data.getRequest().getCharacterEncoding();
@@ -368,8 +368,8 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 			context.put("type", typeDef);
 			
 			context.put("title", (new ResourceTypeLabeler()).getLabel(pipe.getAction()));
-			context.put("instruction", rb.getFormattedMessage("instr.create", new String[]{typeDef.getLabel()}));
-			context.put("required", rb.getFormattedMessage("instr.require", new String[]{"<span class=\"reqStarInline\">*</span>"}));
+			context.put("instruction", trb.getFormattedMessage("instr.create", new String[]{typeDef.getLabel()}));
+			context.put("required", trb.getFormattedMessage("instr.require", new String[]{"<span class=\"reqStarInline\">*</span>"}));
 			
 			// find the ContentHosting service
 			ContentHostingService contentService = (ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
@@ -400,29 +400,41 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		switch(action.getActionType())
 		{
 		case CREATE:
-			state.setAttribute(STATE_MODE, MODE_ADD_METADATA);
+			state.setAttribute(STATE_FILEPICKER_MODE, MODE_ADD_METADATA);
 			break;
 		case NEW_UPLOAD:
-			String collectionId = ResourcesAction.createResources(pipe);
-			if(collectionId != null)
+			List<ContentResource> resources = ResourcesAction.createResources(pipe);
+			if(resources != null && ! resources.isEmpty())
 			{
 				// expand folder
 				SortedSet<String> expandedCollections = (SortedSet<String>) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
-				expandedCollections.add(collectionId);
+				expandedCollections.add(resources.get(0).getContainingCollection().getId());
+			}
+			
+			List<AttachItem> new_items = (List<AttachItem>) state.getAttribute(STATE_ADDED_ITEMS);
+			if(new_items == null)
+			{
+				new_items = new Vector<AttachItem>();
+				state.setAttribute(STATE_ADDED_ITEMS, new_items);
+			}
+
+			for(ContentResource resource : resources)
+			{
+				new_items.add(new AttachItem(resource));
 			}
 			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
 			break;
 		case NEW_FOLDER:
-			ResourcesAction.createFolders(state, pipe);
+			List<ContentCollection> folders = ResourcesAction.createFolders(state, pipe);
 			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
 			break;
 		case REVISE_CONTENT:
 			ResourcesAction.reviseContent(pipe);
 			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
-			state.setAttribute(STATE_MODE, MODE_ATTACHMENT_SELECT_INIT);
+			state.setAttribute(STATE_FILEPICKER_MODE, MODE_ATTACHMENT_SELECT_INIT);
 			break;
 		default:
-			state.setAttribute(STATE_MODE, MODE_ATTACHMENT_SELECT_INIT);
+			state.setAttribute(STATE_FILEPICKER_MODE, MODE_ATTACHMENT_SELECT_INIT);
 		}
 	}
 
@@ -1641,7 +1653,347 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 			super.toolModeDispatch(methodBase, methodExt, req, res);
 		}
 	}
-	
+
+	/**
+	 * @param data
+	 */
+	public void doCompleteCreateWizard(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		// find the ContentHosting service
+		ContentHostingService contentService = (ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
+
+		EditItem item = (EditItem) state.getAttribute(STATE_NEW_ATTACHMENT);
+		
+		// get the parameter-parser
+		ParameterParser params = data.getParameters();
+		
+		String user_action = params.getString("user_action");
+		
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+		
+		if(user_action == null)
+		{
+			
+		}
+		else if(user_action.equals("save"))
+		{
+			String collectionId = pipe.getContentEntity().getId();
+			try 
+			{
+				// title
+				String name = params.getString("name");
+				String basename = name.trim();
+				String extension = "";
+				if(name.contains("."))
+				{
+					String[] parts = name.split("\\.");
+					basename = parts[0];
+					if(parts.length > 1)
+					{
+						extension = parts[parts.length - 1];
+					}
+					
+					for(int i = 1; i < parts.length - 1; i++)
+					{
+						basename += "." + parts[i];
+					}
+				}
+				
+				// create resource
+				ContentResourceEdit resource = contentService.addResource(collectionId, basename, extension, MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+				
+				String resourceType = null;
+				if(pipe != null)
+				{
+					ResourceToolAction action = pipe.getAction();
+					if(action == null)
+					{
+						
+					}
+					else 
+					{
+						if(action instanceof InteractionAction)
+						{
+							InteractionAction iAction = (InteractionAction) action;
+							iAction.finalizeAction(EntityManager.newReference(resource.getReference()), pipe.getInitializationId());
+						}
+						resourceType = action.getTypeId();
+					}
+				}
+				
+				resource.setResourceType(resourceType);
+				
+				byte[] content = pipe.getRevisedContent();
+				if(content == null)
+				{
+					InputStream stream = pipe.getRevisedContentStream();
+					if(stream == null)
+					{
+						logger.warn("pipe with null content and null stream: " + pipe.getFileName());
+					}
+					else
+					{
+						resource.setContent(stream);
+					}
+				}
+				else
+				{
+					resource.setContent(content);
+				}
+
+				resource.setContentType(pipe.getRevisedMimeType());
+				
+				ResourcePropertiesEdit resourceProperties = resource.getPropertiesEdit();
+				resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+				
+				Map values = pipe.getRevisedResourceProperties();
+				Iterator valueIt = values.keySet().iterator();
+				while(valueIt.hasNext())
+				{
+					String pname = (String) valueIt.next();
+					String pvalue = (String) values.get(pname);
+					resourceProperties.addProperty(pname, pvalue);
+				}
+				
+				// description
+				String description = params.getString("description");
+				resourceProperties.addProperty(ResourceProperties.PROP_DESCRIPTION, description);
+				
+				// rights
+				String copyright = params.getString("copyright");
+				String newcopyright = params.getString("newcopyright");
+				boolean copyrightAlert = params.getBoolean("copyrightAlert");
+				
+				if(copyright == null || copyright.trim().length() == 0)
+				{
+					resourceProperties.removeProperty(ResourceProperties.PROP_COPYRIGHT_CHOICE);
+				}
+				else
+				{
+					resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT_CHOICE, copyright);
+				}
+				if(newcopyright == null || newcopyright.trim().length() == 0)
+				{
+					resourceProperties.removeProperty(ResourceProperties.PROP_COPYRIGHT);
+				}
+				else
+				{
+					resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT, newcopyright);
+				}
+				if (copyrightAlert)
+				{
+					resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT_ALERT, Boolean.TRUE.toString());
+				}
+				else
+				{
+					resourceProperties.removeProperty (ResourceProperties.PROP_COPYRIGHT_ALERT);
+				}
+				
+				// availability
+				boolean hidden = params.getBoolean("hidden");
+				boolean use_start_date = params.getBoolean("use_start_date");
+				boolean use_end_date = params.getBoolean("use_end_date");
+				Time releaseDate = null;
+				Time retractDate = null;
+				
+				if(use_start_date)
+				{
+					int begin_year = params.getInt("release_year");
+					int begin_month = params.getInt("release_month");
+					int begin_day = params.getInt("release_day");
+					int begin_hour = params.getInt("release_hour");
+					int begin_min = params.getInt("release_min");
+					String release_ampm = params.getString("release_ampm");
+					if("pm".equals(release_ampm))
+					{
+						begin_hour += 12;
+					}
+					else if(begin_hour == 12)
+					{
+						begin_hour = 0;
+					}
+					releaseDate = TimeService.newTimeLocal(begin_year, begin_month, begin_day, begin_hour, begin_min, 0, 0);
+				}
+				
+				if(use_end_date)
+				{
+					int end_year = params.getInt("retract_year");
+					int end_month = params.getInt("retract_month");
+					int end_day = params.getInt("retract_day");
+					int end_hour = params.getInt("retract_hour");
+					int end_min = params.getInt("retract_min");
+					String retract_ampm = params.getString("retract_ampm");
+					if("pm".equals(retract_ampm))
+					{
+						end_hour += 12;
+					}
+					else if(end_hour == 12)
+					{
+						end_hour = 0;
+					}
+					retractDate = TimeService.newTimeLocal(end_year, end_month, end_day, end_hour, end_min, 0, 0);
+				}
+				
+				resource.setAvailability(hidden, releaseDate, retractDate);
+				
+				// access
+				Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+				if(preventPublicDisplay == null)
+				{
+					preventPublicDisplay = Boolean.FALSE;
+					state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+				}
+				
+				String access_mode = params.getString("access_mode");
+				SortedSet groups = new TreeSet();
+				
+				if(access_mode == null || AccessMode.GROUPED.toString().equals(access_mode))
+				{
+					// we inherit more than one group and must check whether group access changes at this item
+					String[] access_groups = params.getStrings("access_groups");
+					
+//					SortedSet new_groups = new TreeSet();
+//					if(access_groups != null)
+//					{
+//						new_groups.addAll(Arrays.asList(access_groups));
+//					}
+//					new_groups = item.convertToRefs(new_groups);
+//					
+//					Collection inh_grps = item.getInheritedGroupRefs();
+//					boolean groups_are_inherited = (new_groups.size() == inh_grps.size()) && inh_grps.containsAll(new_groups);
+//					
+//					if(groups_are_inherited)
+//					{
+//						new_groups.clear();
+//						item.setEntityGroupRefs(new_groups);
+//						item.setAccess(AccessMode.INHERITED.toString());
+//					}
+//					else
+//					{
+//						item.setEntityGroupRefs(new_groups);
+//						item.setAccess(AccessMode.GROUPED.toString());
+//					}
+//					
+//					item.setPubview(false);
+				}
+				else if(ResourcesAction.PUBLIC_ACCESS.equals(access_mode))
+				{
+//					if(! preventPublicDisplay.booleanValue() && ! item.isPubviewInherited())
+//					{
+//						item.setPubview(true);
+//						item.setAccess(AccessMode.INHERITED.toString());
+//					}
+				}
+				else if(AccessMode.INHERITED.toString().equals(access_mode))
+				{
+				}
+				
+				// update resource with access info
+
+				// notification
+				int noti = NotificationService.NOTI_NONE;
+				// read the notification options
+				String notification = params.getString("notify");
+				if ("r".equals(notification))
+				{
+					noti = NotificationService.NOTI_REQUIRED;
+				}
+				else if ("o".equals(notification))
+				{
+					noti = NotificationService.NOTI_OPTIONAL;
+				}
+				
+				contentService.commitResource(resource, noti);
+				
+				toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
+
+				// set to public access if allowed and requested
+				if(!preventPublicDisplay.booleanValue() && ResourcesAction.PUBLIC_ACCESS.equals(access_mode))
+				{
+					contentService.setPubView(resource.getId(), true);
+				}
+				
+				// show folder if in hierarchy view
+				SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+				expandedCollections.add(collectionId);
+				
+				AttachItem new_item = new AttachItem(resource.getId(), name, collectionId, resource.getUrl());
+				new_item.setContentType(resource.getContentType());
+				new_item.setResourceType(resourceType);
+				
+				List new_items = (List) state.getAttribute(STATE_ADDED_ITEMS);
+				if(new_items == null)
+				{
+					new_items = new Vector();
+					state.setAttribute(STATE_ADDED_ITEMS, new_items);
+				}
+				
+				new_items.add(new_item);
+
+				state.setAttribute(STATE_HELPER_CHANGED, Boolean.TRUE.toString());
+				state.setAttribute(STATE_FILEPICKER_MODE, MODE_ATTACHMENT_SELECT_INIT);
+			} 
+			catch (IdUnusedException e) 
+			{
+				logger.warn("IdUnusedException", e);
+			} 
+			catch (PermissionException e) 
+			{
+				logger.warn("PermissionException", e);
+			} 
+			catch (IdInvalidException e) 
+			{
+				logger.warn("IdInvalidException", e);
+			} 
+			catch (ServerOverloadException e) 
+			{
+				logger.warn("ServerOverloadException", e);
+			}
+			catch (OverQuotaException e)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("OverQuotaException ", e);
+			}
+            catch (IdUniquenessException e)
+            {
+	            // TODO Auto-generated catch block
+	            logger.warn("IdUniquenessException ", e);
+            }
+            catch (IdLengthException e)
+            {
+	            // TODO Auto-generated catch block
+	            logger.warn("IdLengthException ", e);
+            }
+			
+		}
+		else if(user_action.equals("cancel"))
+		{
+			if(pipe != null)
+			{
+				ResourceToolAction action = pipe.getAction();
+				if(action == null)
+				{
+					
+				}
+				else 
+				{
+					if(action instanceof InteractionAction)
+					{
+						InteractionAction iAction = (InteractionAction) action;
+						iAction.cancelAction(null, pipe.getInitializationId());
+					}
+				}
+			}
+			state.setAttribute(STATE_FILEPICKER_MODE, MODE_ATTACHMENT_SELECT_INIT);
+		}
+	}
+
+	/**
+	 * @param data
+	 */
 	public void doDispatchAction(RunData data)
 	{
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
@@ -1772,7 +2124,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 				case REVISE_METADATA:
 					state.setAttribute(ResourcesAction.STATE_REVISE_PROPERTIES_ENTITY_ID, selectedItemId);
 					state.setAttribute(ResourcesAction.STATE_REVISE_PROPERTIES_ACTION, action);
-					state.setAttribute (STATE_MODE, ResourcesAction.MODE_REVISE_METADATA);
+					state.setAttribute (STATE_FILEPICKER_MODE, ResourcesAction.MODE_REVISE_METADATA);
 					break;
 				case CUSTOM_TOOL_ACTION:
 					// do nothing
@@ -1795,7 +2147,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 					break;
 				case REVISE_ORDER:
 					//state.setAttribute(STATE_REORDER_FOLDER, selectedItemId);
-					//state.setAttribute(STATE_MODE, MODE_REORDER);
+					//state.setAttribute(STATE_FILEPICKER_MODE, MODE_REORDER);
 					break;
 				default:
 					break;
@@ -2042,6 +2394,22 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 			m_collectionId = collectionId;
 			m_accessUrl = accessUrl;
 		}
+
+		/**
+         * @param resource
+         */
+        public AttachItem(ContentEntity entity)
+        {
+			m_id = entity.getId();
+			m_displayName = entity.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+			m_collectionId = entity.getContainingCollection().getId();
+			m_accessUrl = entity.getUrl();
+			if(entity instanceof ContentResource)
+			{
+				m_contentType = ((ContentResource) entity).getContentType();
+			}
+			m_resourceType = entity.getResourceType();
+       }
 
 		/**
          * @param resourceType
