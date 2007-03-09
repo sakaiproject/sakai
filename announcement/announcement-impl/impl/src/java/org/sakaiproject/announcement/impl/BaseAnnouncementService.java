@@ -95,7 +95,7 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 
 	/** Messages, for the http access. */
 	protected static ResourceLoader rb = new ResourceLoader("annc-access");
-
+	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Constructors, Dependencies and their setter methods
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -148,8 +148,9 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 			FunctionManager.registerFunction(eventId(SECURE_REMOVE_OWN));
 			FunctionManager.registerFunction(eventId(SECURE_UPDATE_ANY));
 			FunctionManager.registerFunction(eventId(SECURE_UPDATE_OWN));
-			FunctionManager.registerFunction(eventId(SECURE_READ_DRAFT));
+//			FunctionManager.registerFunction(eventId(SECURE_READ_DRAFT));
 			FunctionManager.registerFunction(eventId(SECURE_ALL_GROUPS));
+			FunctionManager.registerFunction(eventId(SECURE_HIDDEN));
 
 			// entity producer registration
 			m_entityManager.registerEntityProducer(this, REFERENCE_ROOT);
