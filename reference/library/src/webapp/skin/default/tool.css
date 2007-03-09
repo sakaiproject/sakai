@@ -409,6 +409,10 @@ tr.selectedMove td{
 tr.highLightRow{
 	background:#ddd;
 }
+/*highlight a row representing an item that has been added*/
+tr.highLightAdded{
+	background:#afa;
+}
 
 tr.highLightRow:hover{
 	background:#ddd !important;
