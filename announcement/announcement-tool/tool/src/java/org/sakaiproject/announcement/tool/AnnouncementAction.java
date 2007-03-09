@@ -41,14 +41,12 @@ import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeaderEdit;
 import org.sakaiproject.announcement.cover.AnnouncementService;
-import org.sakaiproject.announcement.tool.AnnouncementActionState.DisplayOptions;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.ControllerState;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.PagedResourceActionII;
-import org.sakaiproject.cheftool.PortletConfig;
 import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
 import org.sakaiproject.cheftool.api.Menu;
@@ -60,6 +58,8 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
+import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
+import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.cover.EntityManager;
@@ -77,6 +77,7 @@ import org.sakaiproject.message.api.MessageHeader;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Tool;
@@ -127,6 +128,10 @@ public class AnnouncementAction extends PagedResourceActionII
 	private static final String SSTATE_PUBLICVIEW_VALUE = "public_view_value";
 
 	private static final String SORT_DATE = "date";
+	
+	private static final String SORT_RELEASEDATE = "releasedate";
+	
+	private static final String SORT_RETRACTDATE = "retractdate";
 
 	private static final String SORT_PUBLIC = "public";
 
@@ -186,6 +191,18 @@ public class AnnouncementAction extends PagedResourceActionII
    private static final String VIEW_MODE_BYGROUP  = "view.bygroup";
    private static final String VIEW_MODE_MYGROUPS = "view.mygroups";
 
+   // hours * minutes * seconds * milliseconds
+   private static final long MILLISECONDS_IN_DAY = (24 * 60 * 60 * 1000);
+   private static final long FUTURE_DAYS = 30;
+   
+   private static final String RELEASE_DATE = "releaseDate";
+   private static final String RETRACT_DATE = "retractDate";
+   private static final String HIDDEN = "hidden";
+   
+   private static final String SYNOPTIC_ANNOUNCEMENT_TOOL = "sakai.synoptic.announcement";
+ 
+   private static final String UPDATE_PERMISSIONS = "site.upd";
+   
 	/**
 	 * Used by callback to convert channel references to channels.
 	 */
@@ -330,7 +347,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		private int maxNumberOfChars;
 
 		private String range;
-
+		
 		public AnnouncementMessage getMessage()
 		{
 			return this.announcementMesssage;
@@ -395,7 +412,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			this.maxNumberOfChars = mWrapper.maxNumberOfChars;
 			this.enforceMaxNumberOfChars = mWrapper.enforceMaxNumberOfChars;
 			this.announcementMesssage = mWrapper.getMessage();
-
+			
 			this.channelDisplayName = mWrapper.channelDisplayName;
 			this.range = mWrapper.range;
 		}
@@ -405,8 +422,6 @@ public class AnnouncementAction extends PagedResourceActionII
 		 */
 		private static boolean isMessageWithinLastNDays(AnnouncementMessage message, int maxDaysInPast)
 		{
-			final long MILLISECONDS_IN_DAY = (24 * 60 * 60 * 1000);
-
 			long currentTime = TimeService.newTime().getTime();
 
 			long timeDeltaMSeconds = currentTime - message.getHeader().getDate().getTime();
@@ -521,7 +536,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		{
 			return announcementMesssage.getProperties();
 		}
-
+		
 		/**
 		 * returns the range string
 		 * 
@@ -750,7 +765,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				: PORTLET_CONFIG_PARM_MERGED_CHANNELS;
 		return configParameterName;
 	}
-
+	
 	/**
 	 * Default is to use when Portal starts up
 	 */
@@ -863,7 +878,7 @@ public class AnnouncementAction extends PagedResourceActionII
 					{
 						messages = getMessages(channel, null, true, state, portlet);
 					}
-
+					
 					sstate.setAttribute("messages", messages);
 					messages = prepPage(sstate);
 					sstate.setAttribute(STATE_MESSAGES, messages);
@@ -988,6 +1003,7 @@ public class AnnouncementAction extends PagedResourceActionII
 
 		context.put ("service", AnnouncementService.getInstance());
 		context.put ("entityManager", EntityManager.getInstance());
+		context.put("timeservice", TimeService.getInstance());
 		
 		// ********* for site column display ********
 
@@ -995,8 +1011,8 @@ public class AnnouncementAction extends PagedResourceActionII
 
 		context.put("channel", channel);
 
-		Tool tool = ToolManager.getCurrentTool();
-		String toolId = tool.getId();
+		final Tool tool = ToolManager.getCurrentTool();
+		final String toolId = tool.getId();
 		context.put("toolId", toolId);
 
 		if (channel != null)
@@ -1031,7 +1047,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		List messages = prepPage(sstate);
 		for (int i = 0; i < messages.size(); i++)
 		{
-			AnnouncementMessage m = (AnnouncementMessage) messages.get(i);
+			final AnnouncementMessage m = (AnnouncementMessage) messages.get(i);
 
 			if (m.getAnnouncementHeader().getDraft())
 			{
@@ -1042,6 +1058,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				nonDrafts.add(m);
 			}
 		}
+
 		AnnouncementActionState state = (AnnouncementActionState) getState(portlet, rundata, AnnouncementActionState.class);
 
 		SortedIterator sortedDraftIterator = new SortedIterator(drafts.iterator(), new AnnouncementComparator(state
@@ -1329,6 +1346,8 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 
 		// Apply any necessary list truncation.
+		messageList = getViewableMessages(messageList, ToolManager.getCurrentPlacement().getContext());
+		
 		messageList = trimListToMaxNumberOfAnnouncements(messageList, state.getDisplayOptions());
 
 		return messageList;
@@ -1419,9 +1438,13 @@ public class AnnouncementAction extends PagedResourceActionII
 
 			// We need to go backwards through the list, limiting it to the number
 			// of announcements that we're allowed to display.
-			for (int i = messageList.size() - 1, curAnnouncementCount = 0; i >= 0 && curAnnouncementCount < numberOfAnnouncements; i--, curAnnouncementCount++)
+			for (int i = messageList.size() - 1, curAnnouncementCount = 0; i >= 0 && curAnnouncementCount < numberOfAnnouncements; i--)
 			{
-				destList.add(messageList.get(i));
+				AnnouncementMessage message = (AnnouncementMessage) messageList.get(i);
+
+				destList.add(message);
+					
+				curAnnouncementCount++;
 			}
 
 			return destList;
@@ -1433,6 +1456,142 @@ public class AnnouncementAction extends PagedResourceActionII
 	}
 
 	/**
+	 * Filters out messages based on hidden property and release/retract dates.
+	 * Only use hidden if in synoptic tool.
+	 * 
+	 * @param messageList
+	 * 			The unfiltered message list
+	 * 
+	 * @return
+	 * 			List of messsage this user is able to view
+	 */
+	private List getViewableMessages(List messageList, String siteId) {
+		final List filteredMessages = new ArrayList();
+		
+		for (Iterator messIter = messageList.iterator(); messIter.hasNext();) {
+			final AnnouncementMessage message = (AnnouncementMessage) messIter.next();
+			
+			// for synoptic tool or if in MyWorkspace, 
+			// only display if not hidden AND
+			// between release and retract dates (if set)
+			if (isSynopticTool() || isOnWorkspaceTab()) {
+				if (!isHidden(message) && isViewable(message)) {
+					filteredMessages.add(message);
+				}
+			}
+			else {
+				// on main page, if hidden but user has hidden permission
+				// then display. Otherwise, if between release/retract dates
+				// or they are not set
+				if (isHidden(message)) {
+					if (canViewHidden(message, siteId)) {
+						filteredMessages.add(message);
+					}
+				}
+				else if (isViewable(message)) {
+					filteredMessages.add(message);
+				}
+				else if (canViewHidden(message, siteId)) {
+					filteredMessages.add(message);
+				}
+			}
+		}
+		
+		return filteredMessages;
+	}
+	
+	/**
+	 * Returns true if the tool with the id passed in exists in the
+	 * current site.
+	 * 
+	 * @param toolId
+	 * 			The tool id to search for.
+	 * 
+	 * @return
+	 * 			TRUE if tool exists, FALSE otherwise.
+	 */
+	private boolean isSynopticTool() {
+		String curToolId = ToolManager.getCurrentTool().getId();
+
+		if (SYNOPTIC_ANNOUNCEMENT_TOOL.equals(curToolId)) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Determines if use has hidden permission or site.upd
+	 * If so, they will be able to view messages that are hidden
+	 */
+	private boolean canViewHidden(AnnouncementMessage msg, String siteId) 
+	{
+		final boolean b = SecurityService.unlock(AnnouncementService.SECURE_ANNC_HIDDEN, msg.getReference())
+							 || SecurityService.unlock(UPDATE_PERMISSIONS, "/site/"+ siteId); 
+		return b;
+	}
+	
+	/**
+	 * Determine if message is hidden
+	 */
+	private boolean isHidden(AnnouncementMessage message) 
+	{
+		final ResourceProperties messageProps = message.getProperties();
+		
+		boolean hidden = false;
+		try 
+		{
+			hidden = messageProps.getBooleanProperty(HIDDEN);
+		} 
+		catch (Exception e) 
+		{
+			// Just means property not set, so continue
+		} 
+		
+		return hidden;
+		
+	}
+
+	/**
+	 * Determine if message viewable based on release/retract dates (if set)
+	 */
+	private boolean isViewable(AnnouncementMessage message) 
+	{
+		final ResourceProperties messageProps = message.getProperties();
+
+		final Time now = TimeService.newTime();
+		try 
+		{
+			final Time releaseDate = message.getProperties().getTimeProperty(RELEASE_DATE);
+
+			if (now.before(releaseDate)) 
+			{
+				return false;
+			}
+		}
+		catch (Exception e) 
+		{
+			// Just not using/set Release Date
+		} 
+
+		try 
+		{
+			final Time retractDate = message.getProperties().getTimeProperty(RETRACT_DATE);
+			
+			if (now.after(retractDate)) 
+			{
+				return false;
+			}
+		}
+		catch (Exception e) 
+		{
+			// Just not using/set Retract Date
+		}
+		
+		return true;
+	}
+	
+	/**
 	 * Build the context for preview an attachment
 	 */
 	protected String buildPreviewContext(VelocityPortlet portlet, Context context, RunData rundata, AnnouncementActionState state)
@@ -1442,13 +1601,34 @@ public class AnnouncementAction extends PagedResourceActionII
 		// to get the content Type Image Service
 		context.put("contentTypeImageService", ContentTypeImageService.getInstance());
 
-		String subject = state.getTempSubject();
-		String body = state.getTempBody();
+		final String subject = state.getTempSubject();
+		final String body = state.getTempBody();
+		final Time tempReleaseDate = state.getTempReleaseDate();
+		final Time tempRetractDate = state.getTempRetractDate();
 		context.put("subject", subject);
 		context.put("body", body);
 		context.put("user", UserDirectoryService.getCurrentUser());
-		context.put("date", TimeService.newTime());
 
+		// Set date
+		AnnouncementMessageEdit edit = state.getEdit();
+
+		if (tempReleaseDate != null)
+		{
+			context.put("date", tempReleaseDate);
+		}
+		else
+		{
+			Time releaseDate = null;
+			try {
+				releaseDate = edit.getProperties().getTimeProperty(RELEASE_DATE);
+				context.put("date", releaseDate);
+			} 
+			catch (Exception e) {
+				// not set so set switch appropriately
+				context.put("date", TimeService.newTime());
+			} 
+		}
+		
 		List attachments = state.getAttachments();
 		context.put("attachments", attachments);
 
@@ -1461,6 +1641,14 @@ public class AnnouncementAction extends PagedResourceActionII
 			context.put("IsPubView", rb.getString("java.yes"));// "Yes");
 		else
 			context.put("IsPubView", rb.getString("java.no"));// "No");
+
+		if (edit == null)
+			context.put(HIDDEN, false);
+		else
+		{
+			final String hidden = edit.getProperties().getProperty(HIDDEN);
+			context.put(HIDDEN, Boolean.valueOf(hidden));
+		}
 
 		// output the notification options
 		String notification = (String) sstate.getAttribute(SSTATE_NOTI_VALUE);;
@@ -1494,7 +1682,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		// to get the content Type Image Service
 		context.put("contentTypeImageService", ContentTypeImageService.getInstance());
 
-		String channelId = state.getChannelId();
+		final String channelId = state.getChannelId();
 
 		// find the channel and channel information through the service
 		AnnouncementChannel channel = null;
@@ -1530,10 +1718,41 @@ public class AnnouncementAction extends PagedResourceActionII
 				}
 				AnnouncementMessageEdit edit = state.getEdit();
 
+				// Get/set release information
+				Time releaseDate = null;
+				try 
+				{
+					releaseDate = edit.getProperties().getTimeProperty(RELEASE_DATE);					
+					context.put("useReleaseDate", Boolean.valueOf(true));
+				} 
+				catch (Exception e) 
+				{
+					// Set inital release date to creation date
+					releaseDate = edit.getHeader().getDate();
+				} 
+
+				context.put(RELEASE_DATE, releaseDate);
+
+				// Get/set retract information
+				Time retractDate = null;
+				try 
+				{
+					retractDate = edit.getProperties().getTimeProperty(RETRACT_DATE);
+					context.put("useRetractDate", Boolean.valueOf(true));
+				} 
+				catch (Exception e) 
+				{
+					// Set inital retract date to approx 2 months from today
+					final long futureTimeLong = TimeService.newTime().getTime() + MILLISECONDS_IN_DAY * FUTURE_DAYS;			
+					retractDate = TimeService.newTime(futureTimeLong);
+				}
+
+				context.put(RETRACT_DATE, retractDate);
+
 				// group list which user can remove message from
 				// TODO: this is almost right (see chef_announcements-revise.vm)... ideally, we would let the check groups that they can add to,
 				// and uncheck groups they can remove from... only matters if the user does not have both add and remove -ggolden
-				boolean own = edit == null ? true : edit.getHeader().getFrom().getId().equals(SessionManager.getCurrentSessionUserId());
+				final boolean own = edit == null ? true : edit.getHeader().getFrom().getId().equals(SessionManager.getCurrentSessionUserId());
 				Collection groups = channel.getGroupsAllowRemoveMessage(own);
 				context.put("allowedRemoveGroups", groups);
 				
@@ -1543,7 +1762,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				// add to these any groups that the message already has
 				if (edit != null)
 				{
-					Collection otherGroups = edit.getHeader().getGroupObjects();
+					final Collection otherGroups = edit.getHeader().getGroupObjects();
 					for (Iterator i = otherGroups.iterator(); i.hasNext();)
 					{
 						Group g = (Group) i.next();
@@ -1593,14 +1812,24 @@ public class AnnouncementAction extends PagedResourceActionII
 			context.put("pubviewset", ((sstate.getAttribute(STATE_CHANNEL_PUBVIEW) ==  null) ? Boolean.FALSE : Boolean.TRUE));
 
 			// output the sstate saved public view options
-			boolean pubview = Boolean.valueOf((String) sstate.getAttribute(SSTATE_PUBLICVIEW_VALUE)).booleanValue();
+			final boolean pubview = Boolean.valueOf((String) sstate.getAttribute(SSTATE_PUBLICVIEW_VALUE)).booleanValue();
 			if (pubview)
 				context.put("pubview", Boolean.TRUE);
 			else
 				context.put("pubview", Boolean.FALSE);
 
+			// Set inital release date to today
+			final Time currentTime = TimeService.newTime();
+			context.put(RELEASE_DATE, currentTime);
+			
+			// Set inital retract date to 60 days from now
+			final long futureTimeLong = currentTime.getTime() + MILLISECONDS_IN_DAY * FUTURE_DAYS;			
+			final Time futureTime = TimeService.newTime(futureTimeLong);
+
+			context.put(RETRACT_DATE, futureTime);
+			
 			// output the notification options
-			String notification = (String) sstate.getAttribute(SSTATE_NOTI_VALUE);;
+			String notification = (String) sstate.getAttribute(SSTATE_NOTI_VALUE);
 			// "r", "o" or "n"
 			context.put("noti", notification);
 
@@ -1620,6 +1849,36 @@ public class AnnouncementAction extends PagedResourceActionII
 			// find out about pubview
 			context.put("pubviewset", ((sstate.getAttribute(STATE_CHANNEL_PUBVIEW) ==  null) ? Boolean.FALSE : Boolean.TRUE));
 			context.put("pubview", Boolean.valueOf(edit.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW) != null));
+			context.put(HIDDEN, Boolean.valueOf(edit.getProperties().getProperty(HIDDEN)));
+
+			// Get/set release information
+			Time releaseDate = null;
+			try {
+				releaseDate = edit.getProperties().getTimeProperty(RELEASE_DATE);
+				
+				context.put("useReleaseDate", Boolean.valueOf(true));
+			} 
+			catch (Exception e) {
+				// Set inital release date to creation date
+				releaseDate = edit.getHeader().getDate();
+			} 
+
+			context.put(RELEASE_DATE, releaseDate);
+
+			// Get/set retract information
+			Time retractDate = null;
+			try {
+				retractDate = edit.getProperties().getTimeProperty(RETRACT_DATE);
+				
+				context.put("useRetractDate", Boolean.valueOf(true));
+			} 
+			catch (Exception e) {
+				// Set inital retract date to approx 2 months from today
+				final long futureTimeLong = TimeService.newTime().getTime() + MILLISECONDS_IN_DAY * FUTURE_DAYS;			
+				retractDate = TimeService.newTime(futureTimeLong);
+			}
+
+			context.put(RETRACT_DATE, retractDate);
 
 			// there is no chance to get the notification setting at this point
 		}
@@ -1630,7 +1889,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			context.put("tempSubject", state.getTempSubject());
 			context.put("tempBody", state.getTempBody());
 
-			boolean pubview = Boolean.valueOf((String) sstate.getAttribute(SSTATE_PUBLICVIEW_VALUE)).booleanValue();
+			final boolean pubview = Boolean.valueOf((String) sstate.getAttribute(SSTATE_PUBLICVIEW_VALUE)).booleanValue();
 			if (pubview)
 				context.put("pubview", Boolean.TRUE);
 			else
@@ -1660,7 +1919,6 @@ public class AnnouncementAction extends PagedResourceActionII
 	protected String buildShowMetadataContext(VelocityPortlet portlet, Context context, RunData rundata,
 			AnnouncementActionState state, SessionState sstate)
 	{
-
 		context.put("conService", ContentHostingService.getInstance());
 
 		// to get the content Type Image Service
@@ -1679,6 +1937,17 @@ public class AnnouncementAction extends PagedResourceActionII
 			// get the message object through service
 			AnnouncementMessage message = channel.getAnnouncementMessage(this.getMessageIDFromReference(messageReference));
 
+			// put release date into context if set. otherwise, put current date
+			try {
+				Time releaseDate = message.getProperties().getTimeProperty(RELEASE_DATE);
+				
+				context.put("date", releaseDate);
+			} 
+			catch (Exception e) {
+				// no release date, put in current time
+				context.put("date", TimeService.newTime());
+			}
+			
 			context.put("message", message);
 
 			// find out about pubview
@@ -2016,40 +2285,78 @@ public class AnnouncementAction extends PagedResourceActionII
 	protected void readAnnouncementForm(RunData rundata, Context context, boolean checkForm)
 	{
 		// retrieve the state from state object
-		AnnouncementActionState state = (AnnouncementActionState) getState(context, rundata, AnnouncementActionState.class);
+		final AnnouncementActionState state = (AnnouncementActionState) getState(context, rundata, AnnouncementActionState.class);
 
-		String peid = ((JetspeedRunData) rundata).getJs_peid();
-		SessionState sstate = ((JetspeedRunData) rundata).getPortletSessionState(peid);
-
+		final String peid = ((JetspeedRunData) rundata).getJs_peid();
+		final SessionState sstate = ((JetspeedRunData) rundata).getPortletSessionState(peid);
+		final ParameterParser params = rundata.getParameters();
+		
 		// *** make sure the subject and body won't be empty
 		// read in the subject input from announcements-new.vm
-		String subject = rundata.getParameters().getString("subject");
+		final String subject = params.getString("subject");
 		// read in the body input
-		String body = rundata.getParameters().getString("body");
+		String body = params.getString("body");
 		body = processFormattedTextFromBrowser(sstate, body);
 
 		state.setTempSubject(subject);
 		state.setTempBody(body);
 
-		if (checkForm)
+		final boolean use_start_date = params.getBoolean("use_start_date");
+		final boolean use_end_date = params.getBoolean("use_end_date");
+		Time releaseDate = null;
+		Time retractDate = null;
+		
+		if (use_start_date)
 		{
-			if (subject.length() == 0)
+			int begin_year = params.getInt("release_year");
+			int begin_month = params.getInt("release_month");
+			int begin_day = params.getInt("release_day");
+			int begin_hour = params.getInt("release_hour");
+			int begin_min = params.getInt("release_min");
+			String release_ampm = params.getString("release_ampm");
+			if("pm".equals(release_ampm))
 			{
-				// addAlert(sstate, "You need to fill in the subject!");
-				addAlert(sstate, rb.getString("java.alert.youneed"));
+				begin_hour += 12;
 			}
-			else if (body.length() == 0)
+			else if(begin_hour == 12)
 			{
-				addAlert(sstate, rb.getString("java.alert.youfill"));// "You need to fill in the body of the announcement!");
+				begin_hour = 0;
 			}
+			releaseDate = TimeService.newTimeLocal(begin_year, begin_month, begin_day, begin_hour, begin_min, 0, 0);
+
+			state.setTempReleaseDate(releaseDate);
+		}
+		
+		if (use_end_date)
+		{
+			int end_year = params.getInt("retract_year");
+			int end_month = params.getInt("retract_month");
+			int end_day = params.getInt("retract_day");
+			int end_hour = params.getInt("retract_hour");
+			int end_min = params.getInt("retract_min");
+			String retract_ampm = params.getString("retract_ampm");
+			if("pm".equals(retract_ampm))
+			{
+				end_hour += 12;
+			}
+			else if(end_hour == 12)
+			{
+				end_hour = 0;
+			}
+			retractDate = TimeService.newTimeLocal(end_year, end_month, end_day, end_hour, end_min, 0, 0);
+
+			state.setTempRetractDate(retractDate);
 		}
 
+		// set hidden property just in case saved
+		state.setTempHidden(params.getBoolean(HIDDEN));
+		
 		// announce to public?
-		String announceTo = rundata.getParameters().getString("announceTo");
+		String announceTo = params.getString("announceTo");
 		state.setTempAnnounceTo(announceTo);
 		if (announceTo.equals("groups"))
 		{
-			String[] groupChoice = rundata.getParameters().getStrings("selectedGroups");
+			String[] groupChoice = params.getStrings("selectedGroups");
 			if (groupChoice != null)
 			{
 				state.setTempAnnounceToGroups(new ArrayList(Arrays.asList(groupChoice)));
@@ -2070,7 +2377,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 
 		// read the public view setting and save it in session state
-		String publicView = rundata.getParameters().getString("pubview");
+		String publicView = params.getString("pubview");
 		if (publicView == null) publicView = "false";
 		sstate.setAttribute(AnnouncementAction.SSTATE_PUBLICVIEW_VALUE, publicView);
 
@@ -2096,17 +2403,22 @@ public class AnnouncementAction extends PagedResourceActionII
 		// retrieve the state from state object
 		AnnouncementActionState state = (AnnouncementActionState) getState(context, rundata, AnnouncementActionState.class);
 
-		String peid = ((JetspeedRunData) rundata).getJs_peid();
-		SessionState sstate = ((JetspeedRunData) rundata).getPortletSessionState(peid);
+		final String peid = ((JetspeedRunData) rundata).getJs_peid();
+		final SessionState sstate = ((JetspeedRunData) rundata).getPortletSessionState(peid);
 
 		// get the channel and message id information from state object
-		String channelId = state.getChannelId();
+		final String channelId = state.getChannelId();
 
-		String subject = state.getTempSubject();
-		String body = state.getTempBody();
-
+		// these are values that will be have been set if coming
+		// from Preview
+		final String subject = state.getTempSubject();
+		final String body = state.getTempBody();
+		final Time tempReleaseDate = state.getTempReleaseDate();
+		final Time tempRetractDate = state.getTempRetractDate();
+		final Boolean tempHidden = state.getTempHidden();
+		
 		// announce to public?
-		String announceTo = state.getTempAnnounceTo();
+		final String announceTo = state.getTempAnnounceTo();
 
 		// there is any error message caused by empty subject or body
 		if (sstate.getAttribute(STATE_MESSAGE) != null)
@@ -2161,6 +2473,100 @@ public class AnnouncementAction extends PagedResourceActionII
 				header.setDraft(!post);
 				header.replaceAttachments(state.getAttachments());
 
+				// values stored here if saving from Add/Revise page
+				ParameterParser params = rundata.getParameters();
+				
+				// if not saving from preview, get value from params
+				if (tempHidden == null)
+				{
+					msg.getPropertiesEdit().addProperty(HIDDEN, Boolean.valueOf(params.getBoolean(HIDDEN)).toString());
+				}
+				else
+				{
+					msg.getPropertiesEdit().addProperty(HIDDEN, tempHidden.toString());
+				}
+				
+				// get release/retract dates
+				final boolean use_start_date = params.getBoolean("use_start_date");
+				final boolean use_end_date = params.getBoolean("use_end_date");
+				Time releaseDate = null;
+				Time retractDate = null;
+				
+				if(use_start_date)
+				{
+					int begin_year = params.getInt("release_year");
+					int begin_month = params.getInt("release_month");
+					int begin_day = params.getInt("release_day");
+					int begin_hour = params.getInt("release_hour");
+					int begin_min = params.getInt("release_min");
+					String release_ampm = params.getString("release_ampm");
+					if("pm".equals(release_ampm))
+					{
+						begin_hour += 12;
+					}
+					else if(begin_hour == 12)
+					{
+						begin_hour = 0;
+					}
+					releaseDate = TimeService.newTimeLocal(begin_year, begin_month, begin_day, begin_hour, begin_min, 0, 0);
+
+					// in addition to setting release date property, also set Date to release
+					// date so properly sorted
+					msg.getPropertiesEdit().addProperty(RELEASE_DATE, releaseDate.toString());
+					header.setDate(releaseDate);
+				}
+				else if (tempReleaseDate != null) // saving from Preview page
+				{
+					// in addition to setting release date property, also set Date to release
+					// date so properly sorted
+					msg.getPropertiesEdit().addProperty(RELEASE_DATE, tempReleaseDate.toString());
+					header.setDate(tempReleaseDate);					
+				}
+				else
+				{
+					// they are not using release date so remove
+					if (msg.getProperties().getProperty(RELEASE_DATE) != null) 
+					{
+							msg.getPropertiesEdit().removeProperty(RELEASE_DATE);
+					}
+
+					// since revised, set Date to current date
+					header.setDate(TimeService.newTime());
+				}
+				
+				if (use_end_date)
+				{
+					int end_year = params.getInt("retract_year");
+					int end_month = params.getInt("retract_month");
+					int end_day = params.getInt("retract_day");
+					int end_hour = params.getInt("retract_hour");
+					int end_min = params.getInt("retract_min");
+					String retract_ampm = params.getString("retract_ampm");
+					if("pm".equals(retract_ampm))
+					{
+						end_hour += 12;
+					}
+					else if(end_hour == 12)
+					{
+						end_hour = 0;
+					}
+					retractDate = TimeService.newTimeLocal(end_year, end_month, end_day, end_hour, end_min, 0, 0);
+
+					msg.getPropertiesEdit().addProperty("retractDate", retractDate.toString());
+				}
+				else if (tempRetractDate != null)
+				{
+					msg.getPropertiesEdit().addProperty(RETRACT_DATE, tempRetractDate.toString());
+				}
+				else 
+				{
+					// they are not using release date so remove
+					if (msg.getProperties().getProperty(RETRACT_DATE) != null) 
+					{
+							msg.getPropertiesEdit().removeProperty(RELEASE_DATE);
+					}
+				}
+				
 				// announce to?
 				try
 				{
@@ -2218,9 +2624,6 @@ public class AnnouncementAction extends PagedResourceActionII
 				{
 					// No site available.
 				}
-
-				// update time
-				header.setDate(TimeService.newTime());
 
 				channel.commitMessage(msg, noti);
 
@@ -2953,6 +3356,22 @@ public class AnnouncementAction extends PagedResourceActionII
 		setupSort(rundata, context, SORT_DATE);
 	} // doSortbydate
 
+	public void doSortbyreleasedate(RunData rundata, Context context)
+	{
+		if (Log.getLogger("chef").isDebugEnabled()) Log.debug("chef", "AnnouncementAction.doSortbyreleasedate get Called");
+
+		setupSort(rundata, context, SORT_RELEASEDATE);
+		
+	} // doSortbyreleasedate
+
+	public void doSortbyretractdate(RunData rundata, Context context)
+	{
+		if (Log.getLogger("chef").isDebugEnabled()) Log.debug("chef", "AnnouncementAction.doSortbyreleasedate get Called");
+
+		setupSort(rundata, context, SORT_RETRACTDATE);
+		
+	} // doSortbyreleasedate
+
 	/**
 	 * Do sort by the announcement channel name.
 	 */
@@ -3046,6 +3465,94 @@ public class AnnouncementAction extends PagedResourceActionII
 				else
 				{
 					result = 1;
+				}
+			}
+			else if (m_criteria.equals(SORT_RELEASEDATE))
+			{
+				Time o1releaseDate = null;
+				Time o2releaseDate = null;
+				
+				try
+				{
+					o1releaseDate = ((AnnouncementMessage) o1).getProperties().getTimeProperty(RELEASE_DATE);
+				}
+				catch (Exception e) 
+				{
+					// release date not set, go on
+				}
+
+				try 
+				{
+					o2releaseDate = ((AnnouncementMessage) o2).getProperties().getTimeProperty(RELEASE_DATE);
+				}
+				catch (Exception e) 
+				{
+					// release date not set, go on
+				}
+
+				if (o1releaseDate != null && o2releaseDate != null) 
+				{
+					// sorted by the discussion message date
+					if (o1releaseDate.before(o2releaseDate))
+					{
+						result = -1;
+					}
+					else
+					{
+						result = 1;
+					}
+				}
+				else if (o1releaseDate == null)
+				{
+					return 1;
+				}
+				else
+				{
+					return -1;
+				}
+			}
+			else if (m_criteria.equals(SORT_RETRACTDATE))
+			{
+				Time o1retractDate = null;
+				Time o2retractDate = null;
+				
+				try
+				{
+					o1retractDate = ((AnnouncementMessage) o1).getProperties().getTimeProperty(RETRACT_DATE);
+				}
+				catch (Exception e) 
+				{
+					// release date not set, go on
+				}
+
+				try 
+				{
+					o2retractDate = ((AnnouncementMessage) o2).getProperties().getTimeProperty(RETRACT_DATE);
+				}
+				catch (Exception e) 
+				{
+					// release date not set, go on
+				}
+
+				if (o1retractDate != null && o2retractDate != null) 
+				{
+					// sorted by the discussion message date
+					if (o1retractDate.before(o2retractDate))
+					{
+						result = -1;
+					}
+					else
+					{
+						result = 1;
+					}
+				}
+				else if (o1retractDate == null)
+				{
+					return 1;
+				}
+				else
+				{
+					return -1;
 				}
 			}
 			else if (m_criteria.equals(SORT_FROM))

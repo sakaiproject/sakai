@@ -61,7 +61,7 @@
 		<p class="act">
 			<input type="submit" accesskey="s" class="active" name="eventSubmit_doPost" value="$tlang.getString("pre.post")" /> 
 			<input type="submit" accesskey="e" name="eventSubmit_doPreviewrevise" value="$tlang.getString("gen.revise")" />
-			<input type="submit" accesskey="d" name="eventSubmit_doSavedraft" value="$tlang.getString("gen.save") $tlang.getString("gen.draft")" /> 
+<!--			<input type="submit" accesskey="d" name="eventSubmit_doSavedraft" value="$tlang.getString("gen.save") $tlang.getString("gen.draft")" /> -->
 			<input type="submit" accesskey="x" name="eventSubmit_doPreviewrevise" value="$tlang.getString("gen.cancel")" />
 		</p>
 	</form>	

@@ -35,6 +35,7 @@ import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
 import org.sakaiproject.cheftool.ControllerState;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.api.Tool;
@@ -591,6 +592,15 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 	// temporary storage for new announcement body
 	private String m_tempBody;
 
+	// temporary storage for new announcement release date
+	private Time m_releaseDate = null;
+	
+	// temporary storage for new announcement retract date
+	private Time m_retractDate = null;
+	
+	// temporary storage for announcement hidden
+	private Boolean m_hidden = null;
+	
 	// temporary storage for announce to selection
 	private String m_tempAnnounceTo;
 
@@ -705,6 +715,47 @@ public class AnnouncementActionState extends ControllerState implements SessionB
 		}
 
 	} // setTempBody()
+
+	public void setTempReleaseDate(Time tempDate) 
+	{
+		if (tempDate != m_releaseDate)
+		{
+			//remember the new
+			m_releaseDate = tempDate;
+		}
+	} // setTempReleaseDate()
+
+	public Time getTempReleaseDate() 
+	{
+		return m_releaseDate;
+	} // getTempReleaseDate()
+
+	public void setTempRetractDate(Time tempDate) 
+	{
+		if (tempDate != m_retractDate)
+		{
+			// remember the new
+			m_retractDate = tempDate;
+		}
+	} // setTempRetractDate()
+
+	public Time getTempRetractDate() 
+	{
+		return m_retractDate;
+	} // getTempRetractDate()
+
+	public Boolean getTempHidden() 
+	{
+		return m_hidden;
+	}
+
+	public void setTempHidden(Boolean hidden) 
+	{
+		if (hidden != m_hidden)
+		{
+			m_hidden = hidden;
+		}
+	}
 
 	/**
 	 * Get the channel id of current state

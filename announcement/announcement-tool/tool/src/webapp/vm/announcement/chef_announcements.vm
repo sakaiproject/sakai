@@ -2,6 +2,48 @@
 
 ##(gsilver - remaining issues: trimming body, <p> in body when produced with WYS, the fact that how thing look in the synopsys is still undefined - and finally - the permissions nightmare as well as the ling to Remove...
 
+############################################# Check if message hidden macro begin
+#macro(rowTRconstruct $props $displayOptions)
+
+	#set($now = $timeservice.newTime())
+	#set($reldateset = false)
+	#set($retdateset = false)
+
+	#if (!$props.isEmpty() && $props.getProperty("releaseDate"))
+		#set($releasedate = $props.getTimeProperty("releaseDate"))
+		#set($reldateset = $now.before($releasedate))
+	#end
+
+	#if (!$props.isEmpty() && $props.getProperty("retractDate"))
+		#set($retractdate = $props.getTimeProperty("retractDate"))
+		#set($retdateset = $now.after($retractdate))
+	#end
+
+	#if (!$props.isEmpty() && $props.getProperty("hidden"))
+		#set($hidden = $props.getBooleanProperty("hidden"))
+	#else
+		#set($hidden = false)
+	#end
+
+	## message marked as hidden, current date is before release date, or current date is after retract date
+	#if ($hidden || $reldateset || $retdateset)
+		#if ($displayOptions.isShowAnnouncementBody())
+			class="lightHighLightRow inactive"
+		#else
+			class="inactive"
+		#end
+	#else
+		#if ($displayOptions.isShowAnnouncementBody())
+			class="lightHighLightRow"
+		#end	
+	#end
+
+#end
+############################################# Check if message hidden macro end
+		
+
+
+	
 <div class="portletBody">
 	#if ($isOnWorkspaceTab.equals("false"))
 		#if($menu && $EnabledMenuItemExists)
@@ -146,23 +188,50 @@
 								#end
 							</th>
 						#end
-						<th id ="date">
-							#if (!$currentSortedBy.equals("date"))
-								<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydate')">$tlang.getString('gen.date')</a>
-							#else
-								#if ($currentSortAsc.equals("true"))
-									 <a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydateasc')">$tlang.getString('gen.date')<img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('gen.sortbydateasc')" /></a>
+						#if ($toolId.equals("sakai.announcements"))
+							<th id ="date">
+								#if (!$currentSortedBy.equals("date"))
+									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydate')">$tlang.getString('gen.date')</a>
 								#else
-									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydatedesc')">$tlang.getString('gen.date') <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt ="$tlang.getString('gen.sortbydatedesc')" /></a>
+									#if ($currentSortAsc.equals("true"))
+										 <a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydateasc')">$tlang.getString('gen.date')<img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('gen.sortbydateasc')" /></a>
+									#else
+										<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydatedesc')">$tlang.getString('gen.date') <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt ="$tlang.getString('gen.sortbydatedesc')" /></a>
+									#end
 								#end
-							#end
-						</th>
+							</th>
+							<th id="releaseDate">
+								#if (!$currentSortedBy.equals("releasedate"))
+									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyreleasedate")';return false;"  title="$tlang.getString('gen.sortbyreleasedateasc')">$tlang.getString("gen.releasedate")</a>
+								#else
+									#if ($currentSortAsc.equals("true"))
+										 <a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyreleasedate")';return false;"  title="$tlang.getString('gen.sortbyreleasedateasc')">$tlang.getString("gen.releasedate") <img src = "#imageLink('sakai/sortascending.gif')" border="0" alt="$tlang.getString('gen.sortbyreleasedateasc')" /></a>
+									#else
+										<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyreleasedate")';return false;"  title="$tlang.getString('gen.sortbyreleasedatedesc')">$tlang.getString("gen.releasedate") <img src = "#imageLink('sakai/sortdescending.gif')" border="0" alt ="$tlang.getString('gen.sortbyreleasedatedesc')" /></a>
+									#end
+								#end
+							</th>
+							<th id="retractDate">
+								#if (!$currentSortedBy.equals("retractdate"))
+									<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyretractdate")';return false;"  title="$tlang.getString('gen.sortbyretractdateasc')">$tlang.getString("gen.retractdate")</a>
+								#else
+									#if ($currentSortAsc.equals("true"))
+										 <a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyretractdate")';return false;"  title="$tlang.getString('gen.sortbyretractdateasc')">$tlang.getString("gen.retractdate") <img src = "#imageLink('sakai/sortascending.gif')" border="0" alt="$tlang.getString('gen.sortbydateasc')" /></a>
+									#else 
+										<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyretractdate")';return false;"  title="$tlang.getString('gen.sortbyretractdatedesc')">$tlang.getString("gen.retractdate") <img src = "#imageLink('sakai/sortdescending.gif')" border="0" alt ="$tlang.getString('gen.sortbydatedesc')" /></a>
+									#end
+								#end
+							</th>									
+						#end
 					</tr>
 					#if ($!view == "view.all")
 					#set ($rowCount=0)
 					#foreach ($ann_item in $showMessagesList)
 						#set ($rowCount =$rowCount + 1)
-						<tr>
+						#set($ann_item_props=$ann_item.getProperties())
+
+						<tr #rowTRconstruct($ann_item_props $displayOptions) >
+
 							<td headers="attach" class="attach">	
 								## show the paperclip if existing
 									#set ($size = 0)
@@ -201,9 +270,25 @@
 									$validator.escapeHtml($ann_item.channelDisplayName)
 								</td>
 							#end
-							<td headers="date">
-								$ann_item.Header.Date.toStringLocalFull()
-							</td>
+							#if ($toolId.equals("sakai.announcements"))
+								<td headers="date">
+									$ann_item.Header.Date.toStringLocalFull()
+								</td>
+								<td headers="releaseDate">
+									#if (!$ann_item_props.isEmpty() && $ann_item_props.getProperty("releaseDate"))
+											$ann_item_props.getTimeProperty("releaseDate").toStringLocalFull()
+									#else
+										&nbsp;
+									#end
+								</td>
+								<td headers="retractDate">
+									#if (!$ann_item_props.isEmpty() && $ann_item_props.getProperty("retractDate"))
+										$ann_item_props.getTimeProperty("retractDate").toStringLocalFull()
+									#else
+										&nbsp;
+									#end
+								</td>
+							#end
 						</tr>
 						#if ($displayOptions.isShowAnnouncementBody()) 
 							<tr>	
@@ -243,7 +328,6 @@
 		#if ($toolId == "sakai.synoptic.announcement") 
 		##in home portlet  - so reduce display to title, attach marker, body (if selected), author and date
 
-
 			#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 
 			<form name="announcementListForm" action="#toolForm("AnnouncementAction")" method="post">
@@ -276,8 +360,16 @@
 									<img src = "#imageLink("sakai/attachments.gif")" border="0" alt="$tlang.getString('gen.attach')" />
 								#end
 							</h3>	
+							
+							#set($ann_item_props=$ann_item.getProperties())
 							<p class="textPanelFooter">
-								($validator.escapeHtml($ann_item.Header.From.DisplayName) - $ann_item.Header.Date.toStringLocalFull())
+								($validator.escapeHtml($ann_item.Header.From.DisplayName) - 
+
+								#if (!$ann_item_props.isEmpty() && $ann_item_props.getProperty("releaseDate"))
+									$ann_item_props.getTimeProperty("releaseDate").toStringLocalFull())
+								#else
+									$ann_item.Header.Date.toStringLocalFull())
+								#end
 							</p>	
 							#if ($displayOptions.isShowAnnouncementBody())
 								<div class="textPanel">
@@ -435,6 +527,29 @@
 											#end
 										#end
 									</th>
+									<th id="releaseDate">
+										#if (!$currentSortedBy.equals("releasedate"))
+											<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyreleasedate")';return false;"  title="$tlang.getString('gen.sortbyreleasedateasc')">$tlang.getString("gen.releasedate")</a>
+										#else
+											#if ($currentSortAsc.equals("true"))
+												 <a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyreleasedate")';return false;"  title="$tlang.getString('gen.sortbyreleasedateasc')">$tlang.getString("gen.releasedate") <img src = "#imageLink('sakai/sortascending.gif')" border="0" alt="$tlang.getString('gen.sortbyreleasedateasc')" /></a>
+											#else
+												<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyreleasedate")';return false;"  title="$tlang.getString('gen.sortbyreleasedatedesc')">$tlang.getString("gen.releasedate") <img src = "#imageLink('sakai/sortdescending.gif')" border="0" alt ="$tlang.getString('gen.sortbyreleasedatedesc')" /></a>
+											#end
+										#end
+									</th>
+									<th id="retractDate">
+										#if (!$currentSortedBy.equals("retractdate"))
+											<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyretractdate")';return false;"  title="$tlang.getString('gen.sortbyretractdateasc')">$tlang.getString("gen.retractdate")</a>
+										#else
+											#if ($currentSortAsc.equals("true"))
+												 <a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyretractdate")';return false;"  title="$tlang.getString('gen.sortbyretractdateasc')">$tlang.getString("gen.retractdate") <img src = "#imageLink('sakai/sortascending.gif')" border="0" alt="$tlang.getString('gen.sortbydateasc')" /></a>
+											#else 
+												<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyretractdate")';return false;"  title="$tlang.getString('gen.sortbyretractdatedesc')">$tlang.getString("gen.retractdate") <img src = "#imageLink('sakai/sortdescending.gif')" border="0" alt ="$tlang.getString('gen.sortbydatedesc')" /></a>
+											#end
+										#end
+									</th>
+									
 									#if ($!view != "view.bygroup")
 										#if ($allow_delete)
 											<th class="screenOnly" id="checkbox">
@@ -446,7 +561,10 @@
 							 #set ($rowCount=0)
 							 #foreach ($ann_item in $showMessagesList)
 								#set ($rowCount =$rowCount + 1)
-								<tr#if ($displayOptions.isShowAnnouncementBody()) class="lightHighLightRow" #end>
+								#set($ann_item_props=$ann_item.getProperties())
+
+								<tr #rowTRconstruct($ann_item_props $displayOptions) >
+
 									<td headers="attach" class="attach">
 										## show the paperclip if existing
 										#set ($size = 0)
@@ -461,6 +579,7 @@
 											#end
 										#end
 										#if ($size == 0)
+											&nbsp;
 										#else
 											<img src = "#imageLink("sakai/attachments.gif")" border="0" alt="$tlang.getString('gen.attach')" />
 										#end
@@ -493,10 +612,25 @@
 									<td >
 										$!ann_item.getRange()
 									</td>
-									<td headers="date">
+									<td headers="date"> 
 										$ann_item.Header.Date.toStringLocalFull()
 									</td>
 									
+									<td headers="releaseDate">
+									#if (!$ann_item_props.isEmpty() && $ann_item_props.getProperty("releaseDate"))
+											$ann_item_props.getTimeProperty("releaseDate").toStringLocalFull()
+									#else
+										&nbsp;
+									#end
+									</td>
+									<td headers="retractDate">
+									#if (!$ann_item_props.isEmpty() && $ann_item_props.getProperty("retractDate"))
+											$ann_item_props.getTimeProperty("retractDate").toStringLocalFull()
+									#else
+										&nbsp;
+									#end
+									</td>
+
 									#set ($ref = $entityManager.newReference($ann_item.Reference))
 									#set ($origChannelRef = $service.channelReference($ref.Context,$ref.Container))
 
