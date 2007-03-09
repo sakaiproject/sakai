@@ -4,6 +4,11 @@
 
 <beans>
 
+	<bean id="org_sakaiproject_tool_assessment_services_samlite_SamLiteService"
+		class="org.sakaiproject.tool.assessment.samlite.impl.SamLiteServiceImpl"
+		singleton="true"
+		init-method="init"/>
+
   <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.samigo"
         class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
     <property name="mappingResources">

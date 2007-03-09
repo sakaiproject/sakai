@@ -473,12 +473,17 @@ public class AuthoringHelper
 	  return createImportedAssessment(document, null);
   }
 
+  public AssessmentFacade createImportedAssessment(Document document, String unzipLocation)
+  {
+    return createImportedAssessment(document, unzipLocation, null);
+  }
+
 	  /**
 	     * Import an assessment XML document in QTI format, extract & persist the data.
 	   * @param document the assessment XML document in QTI format
 	   * @return a persisted assessment
 	   */
-  public AssessmentFacade createImportedAssessment(Document document, String unzipLocation)
+  public AssessmentFacade createImportedAssessment(Document document, String unzipLocation, String templateId)
   {
 	AssessmentFacade assessment = null;
 
@@ -496,7 +501,7 @@ public class AuthoringHelper
       String description = (String) assessmentMap.get("description");
       String title = (String) assessmentMap.get("title");
       assessment = assessmentService.createAssessmentWithoutDefaultSection(
-        title, description, null, null);
+        title, description, null, templateId);
 
       // now make sure we have a unique name for the assessment
       String baseId = assessment.getAssessmentBaseId().toString();

@@ -344,6 +344,21 @@
     </managed-property>    
   </managed-bean>
   <managed-bean>
+    <description>Samigo Lite</description>
+    <managed-bean-name>samLiteBean</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.samlite.SamLiteBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+    <managed-property>
+		  <description>Samigo Lite Service</description>
+		  <property-name>samLiteService</property-name>
+		  <value>#{org_sakaiproject_tool_assessment_services_samlite_SamLiteService}</value>
+	  </managed-property>
+    <managed-property>
+      <property-name>authorBean</property-name>
+      <value>#{author}</value>
+    </managed-property>
+  </managed-bean>
+  <managed-bean>
     <description>XML Controller.</description>
     <managed-bean-name>xmlController</managed-bean-name>
     <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.qti.XMLController</managed-bean-class>
@@ -476,7 +491,15 @@
       <from-outcome>importAssessment</from-outcome>
       <to-view-id>/jsf/qti/importAssessment.jsp</to-view-id>
     </navigation-case>
-	<navigation-case>
+    <navigation-case>
+      <from-outcome>samLiteEntry</from-outcome>
+      <to-view-id>/jsf/samlite/samLiteEntry.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>samLiteValidation</from-outcome>
+      <to-view-id>/jsf/samlite/samLiteValidation.jsp</to-view-id>
+    </navigation-case>
+	  <navigation-case>
       <from-outcome>chooseExportType</from-outcome>
       <to-view-id>/jsf/qti/chooseExportType.jsp</to-view-id>
     </navigation-case>

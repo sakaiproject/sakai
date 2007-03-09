@@ -6,7 +6,7 @@
     <name>sakai-samigo-pack</name>
     <groupId>sakaiproject</groupId>
     <id>sakai-samigo-pack</id>
-	<currentVersion>${sakai.version}</currentVersion>
+    <currentVersion>${sakai.version}</currentVersion>
     <organization>
         <name>Sakai Project</name>
         <url>http://sakaiproject.org/</url>
@@ -14,7 +14,7 @@
     <inceptionYear>2004</inceptionYear>
 
     <properties>
-	<deploy.type>components</deploy.type>
+    <deploy.type>components</deploy.type>
     </properties>
 
     <dependencies>
@@ -23,18 +23,54 @@
         <artifactId>commons-logging</artifactId>
         <version>1.0.4</version>
       </dependency>
-    <dependency>
-      <groupId>sakaiproject</groupId>
-      <artifactId>sakai-db-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
+      <dependency>
+        <groupId>sakaiproject</groupId>
+        <artifactId>sakai-db-api</artifactId>
+        <version>${sakai.version}</version>
+      </dependency>
     
-     <dependency>
-      <groupId>sakaiproject</groupId>
-      <artifactId>sakai-component-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
+      <dependency>
+        <groupId>sakaiproject</groupId>
+        <artifactId>sakai-component-api</artifactId>
+        <version>${sakai.version}</version>
+      </dependency>
 
+      <!-- Samigo Lite -->
+      <dependency>
+        <groupId>sakaiproject</groupId>
+        <artifactId>sakai-samlite-impl</artifactId>
+        <version>${sakai.version}</version>
+        <properties>
+          <war.bundle>true</war.bundle>
+        </properties>
+      </dependency>
+   
+      <dependency>
+        <groupId>ims</groupId>
+        <artifactId>imsqti</artifactId>
+        <version>1.2</version>
+        <properties>
+          <war.bundle>true</war.bundle>
+        </properties>
+       </dependency>
+  
+      <dependency>
+        <groupId>commons-xmlbeans</groupId>
+        <artifactId>xbean</artifactId>
+        <version>2.2</version>
+        <properties>
+          <war.bundle>true</war.bundle>
+        </properties>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-xmlbeans</groupId>
+        <artifactId>jsr173</artifactId>
+        <jar>jsr173_1.0_api.jar</jar>
+        <properties>
+          <war.bundle>true</war.bundle>
+        </properties>
+      </dependency>
     </dependencies>
 
     <build>
