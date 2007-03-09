@@ -284,7 +284,7 @@ if (window.attachEvent) window.attachEvent("onload", sfHover);
 										<li style="position:relative; z-index:4">Add <img src="images/sort_down.gif">
 											<ul style="">
 												#foreach($action in $item.addActions)
-													<li><a href="#" onclick="document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a></li>
+													<li><a href="#" onclick="document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('attachForm');">$labeler.getLabel($action)</a></li>
 												#end
 											</ul>
 									  	</li>
