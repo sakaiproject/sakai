@@ -12,6 +12,7 @@
 alter table osp_presentation_template add column propertyFormType varchar(36);
 alter table osp_presentation add column property_form varchar(36);
 alter table osp_scaffolding add column preview tinyint not null;
+alter table osp_wizard add column preview tinyint not null;
 alter table osp_review add column review_item_id varchar(36);
 
 update osp_list_config set selected_columns = replace(selected_columns, 'name', 'title') where binary selected_columns like '%name%';
