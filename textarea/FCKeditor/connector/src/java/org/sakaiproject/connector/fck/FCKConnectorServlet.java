@@ -56,6 +56,7 @@ import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -85,7 +86,7 @@ import org.w3c.dom.Node;
 
 public class FCKConnectorServlet extends HttpServlet {
      
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 	
     private static final String FCK_ADVISOR_BASE = "fck.security.advisor.";
     private static final String FCK_EXTRA_COLLECTIONS_BASE = "fck.extra.collections.";
@@ -143,9 +144,14 @@ public class FCKConnectorServlet extends HttpServlet {
                String status = "110";
                
                try {
-            	    ContentCollectionEdit edit = ContentHostingService.addCollection(currentFolder + Validator.escapeResourceName(newFolderStr) + Entity.SEPARATOR);
+                    ContentCollectionEdit edit = ContentHostingService
+                         .addCollection(currentFolder + Validator.escapeResourceName(newFolderStr) + Entity.SEPARATOR);
                     ResourcePropertiesEdit resourceProperties = edit.getPropertiesEdit();
                     resourceProperties.addProperty (ResourceProperties.PROP_DISPLAY_NAME, newFolderStr);
+                    String altRoot = getAltReferenceRoot(currentFolder);
+                    if (altRoot != null)
+                         resourceProperties.addProperty (ContentHostingService.PROP_ALTERNATE_REFERENCE, altRoot);
+
                     ContentHostingService.commitCollection(edit);
                     
                     status="0";
@@ -265,7 +271,11 @@ public class FCKConnectorServlet extends HttpServlet {
                          try {
                              ResourcePropertiesEdit resourceProperties = ContentHostingService.newResourceProperties();
                              resourceProperties.addProperty (ResourceProperties.PROP_DISPLAY_NAME, fileName);
-                          
+
+                             String altRoot = getAltReferenceRoot(currentFolder);
+                             if (altRoot != null)
+                                  resourceProperties.addProperty (ContentHostingService.PROP_ALTERNATE_REFERENCE, altRoot);
+
                              int noti = NotificationService.NOTI_NONE;
 
                              ContentHostingService.addResource(currentFolder+fileName, mime, uplFile.get(), 
@@ -424,7 +434,7 @@ public class FCKConnectorServlet extends HttpServlet {
                               
                               if (current.getProperties().getProperty(
                                             current.getProperties().getNamePropContentLength()) != null) {
-                            	  
+
                                    element.setAttribute("size", "" + current.getProperties().getProperty(
                                             current.getProperties().getNamePropContentLength()));
                               }
@@ -459,4 +469,25 @@ public class FCKConnectorServlet extends HttpServlet {
           return root;
           
      }
+
+     private String getAltReferenceRoot (String id)  {
+          String altRoot = null;
+          try {
+               altRoot = StringUtil.trimToNull(ContentHostingService.getProperties(id)
+                    .getProperty(ContentHostingService.PROP_ALTERNATE_REFERENCE));
+          }
+          catch (Exception e) {
+               // do nothing, we either didn't have permission or the id is bogus
+          }
+          if (altRoot != null && !"/".equals(altRoot) && !"".equals(altRoot)) {
+               if (!altRoot.startsWith(Entity.SEPARATOR))
+                    altRoot = Entity.SEPARATOR + altRoot;
+               if (altRoot.endsWith(Entity.SEPARATOR))
+                    altRoot = altRoot.substring(0, altRoot.length() - Entity.SEPARATOR.length());
+               return altRoot;
+          }
+          else
+               return null;
+     }
+
 }
