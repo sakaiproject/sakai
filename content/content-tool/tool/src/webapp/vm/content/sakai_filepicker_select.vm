@@ -214,14 +214,17 @@
 					<td headers="actions">
 						#if($item.isCollection())
 							#if($item.addActions && !$item.addActions.isEmpty())
-								<select class="actionmenu" id="action-$itemcount" name="action-$itemcount" onchange="document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='action-$itemcount';document.getElementById('sakai_action').value='doDispatchAction';submitform('attachForm');">
-									<option value="" selected="selected">$tlang.getString("action.select")</option>
-									<optgroup class="actiongroup" label="$tlang.getString("action.new")"
-										#foreach($action in $item.addActions)
-											<option class="actionitem" value="${action.typeId}${ACTION_DELIMITER}$action.id">$labeler.getLabel($action)</option> 
-										#end
-									</optgroup>
-								</select>
+								<span id="button1">
+									<ul class="makeMenu">
+										<li style="position:relative; z-index:4">Add <img src="images/sort_down.gif">
+											<ul style="">
+												#foreach($action in $item.addActions)
+													<li><a href="#" onclick="document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a></li>
+												#end
+											</ul>
+									  	</li>
+									</ul>
+								</span>
 							#end
 						#else
 							<div class="itemAction">
