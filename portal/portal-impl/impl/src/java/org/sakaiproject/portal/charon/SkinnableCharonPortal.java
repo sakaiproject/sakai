@@ -1271,8 +1271,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	protected String getScriptPath()
 	{
-		String libPath = "/library";
-		return libPath + "/js/";
+		return "/library/js/";
 	}
 
 	/**
