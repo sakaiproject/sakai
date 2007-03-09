@@ -409,20 +409,21 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 				// expand folder
 				SortedSet<String> expandedCollections = (SortedSet<String>) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
 				expandedCollections.add(resources.get(0).getContainingCollection().getId());
-			}
-			
-			List<AttachItem> new_items = (List<AttachItem>) state.getAttribute(STATE_ADDED_ITEMS);
-			if(new_items == null)
-			{
-				new_items = new Vector<AttachItem>();
-				state.setAttribute(STATE_ADDED_ITEMS, new_items);
-			}
+				List<AttachItem> new_items = (List<AttachItem>) state.getAttribute(STATE_ADDED_ITEMS);
+				if(new_items == null)
+				{
+					new_items = new Vector<AttachItem>();
+					state.setAttribute(STATE_ADDED_ITEMS, new_items);
+				}
 
-			for(ContentResource resource : resources)
-			{
-				new_items.add(new AttachItem(resource));
+				for(ContentResource resource : resources)
+				{
+					new_items.add(new AttachItem(resource));
+				}
+				state.setAttribute(STATE_HELPER_CHANGED, Boolean.TRUE.toString());
 			}
 			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
+			state.setAttribute(STATE_FILEPICKER_MODE, MODE_ATTACHMENT_SELECT_INIT);
 			break;
 		case NEW_FOLDER:
 			List<ContentCollection> folders = ResourcesAction.createFolders(state, pipe);
