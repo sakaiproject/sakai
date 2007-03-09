@@ -63,6 +63,9 @@ public interface AnnouncementService extends MessageService
 	/** Security lock / event root for generic message events to make it a mail event. */
 	public static final String SECURE_ANNC_ROOT = "annc.";
 
+	/** Hidden permission */
+	public static final String SECURE_HIDDEN = "hidden";
+
 	/** Security lock / event for reading channel / message. */
 	public static final String SECURE_ANNC_READ = SECURE_ANNC_ROOT + SECURE_READ;
 
@@ -80,13 +83,16 @@ public interface AnnouncementService extends MessageService
 
 	/** Security lock / event for updating any message. */
 	public static final String SECURE_ANNC_UPDATE_ANY = SECURE_ANNC_ROOT + SECURE_UPDATE_ANY;
+	
+	/** Security lock / event for viewing hidden messages. */
+	public static final String SECURE_ANNC_HIDDEN = SECURE_ANNC_ROOT + SECURE_HIDDEN;
 
 	/** Security lock / event for accessing someone elses draft. */
 	public static final String SECURE_ANNC_READ_DRAFT = SECURE_ANNC_ROOT + SECURE_READ_DRAFT;
 
 	/** Security function giving the user permission to all groups, if granted to at the channel or site level. */
 	public static final String SECURE_ANNC_ALL_GROUPS = SECURE_ANNC_ROOT + SECURE_ALL_GROUPS;
-
+	
 	/**
 	 * A (AnnouncementChannel) cover for getChannel() to return a specific announcement channel.
 	 * 
