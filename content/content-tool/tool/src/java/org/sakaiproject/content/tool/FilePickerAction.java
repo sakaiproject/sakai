@@ -2004,8 +2004,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		// get the parameter-parser
 		ParameterParser params = data.getParameters();
 		
-		String action_element = params.getString("rt_action");
-		String action_string = params.getString(action_element);
+		String action_string = params.getString("rt_action");
 		String selectedItemId = params.getString("selectedItemId");
 		
 		String[] parts = action_string.split(ResourceToolAction.ACTION_DELIMITER);

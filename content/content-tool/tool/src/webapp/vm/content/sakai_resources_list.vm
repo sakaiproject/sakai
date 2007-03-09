@@ -1,6 +1,71 @@
 ## version: $Id:  $
 <!-- sakai_resources_list.vm, use with org.sakaiproject.content.tool.ResourcesAction.java -->
 <!-- this is the new list template, which uses the resources type registry -->
+<style type="text/css">
+ul.makeMenu, ul.makeMenu ul {
+  width: 70px;                 /* ^^^ sets the size of the 'button' */
+  border: 2px solid #D6DCE9;      /* puts a  border around the menu blocks */
+  background-color: #ccc;      /* makes the menu blocks white - a bg-color MUST be included for IE to work properly! */
+  background-image:url(images/gloss.gif);      /* puts in a background image! */
+  padding: 2px;           /* stops the usual indent from ul */
+  padding-left: 6px;           /* stops the usual indent from ul */
+  cursor: default;             /* gives an arrow cursor */
+  margin-left: 0px;            /* Opera 7 final's margin and margin-box model cause problems */
+}
+ul.makeMenu li {
+  list-style-type: none;       /* removes the bullet points */
+  margin: 0px;                 /* Opera 7 puts large spacings between li elements */
+  position: relative;          /* makes the menu blocks be positioned relative to their parent menu item
+                                  the lack of offset makes these appear normal, but it will make a difference
+                                  to the absolutely positioned child blocks */
+  color: #000000;                 /* sets the default font colour to white */
+}
+ul.makeMenu li > ul {          /* using the > selector prevents many lesser browsers (and IE - see below) hiding child ULs */
+  display: none;               /* hides child menu blocks - one of the most important declarations */
+  position: absolute;          /* make child blocks hover without leaving space for them */
+  top: 2px;                    /* position slightly lower than the parent menu item */
+  left: 50px;                  /* this must not be more than the width of the parent block, or the mouse will
+                                  have to move off the element to move between blocks, and the menu will close */
+
+}
+ul.makeMenu li:hover, ul.makeMenu li.CSStoHighlight {
+ /* background-color: #ffa;      /* gives the active menu items a yellow background */
+  color: #000;                 /* makes the active menu item text black */ 
+}
+ul.makeMenu ul.CSStoShow {     /* must not be combined with the next rule or IE gets confused */
+  display: block;              /* specially to go with the className changes in the behaviour file */
+}
+ul.makeMenu li:hover > ul {    /* one of the most important declarations - the browser must detect hovering over arbitrary elements
+                                  the > targets only the child ul, not any child uls of that child ul */
+  display: block;              /* makes the child block visible - one of the most important declarations */
+  width: 170px;    				/* HT: make the pop up larger */
+	background-color:#ffffff;		/* HT: white background */  
+	background-image:none;		/* HT: white background */
+	position:absolute;
+ 	z-index:3
+}
+
+/* and some link styles */
+ul.makeMenu li a { display: block; width: 100%; text-decoration: underline;   padding:6px; }
+ul.makeMenu li a:hover, ul.makeMenu li a.CSStoHighLink { color: #000; }
+ul.makeMenu li:hover > a { color: #000; } /* supports links in branch headings - should not be display: block; */
+</style>
+<script type="text/javascript"><!--//--><![CDATA[//><!--
+
+sfHover = function() {
+	var sfEls = document.getElementById("nav").getElementsByTagName("LI");
+	for (var i=0; i<sfEls.length; i++) {
+		sfEls[i].onmouseover=function() {
+			this.className+=" sfhover";
+		}
+		sfEls[i].onmouseout=function() {
+			this.className=this.className.replace(new RegExp(" sfhover\\b"), "");
+		}
+	}
+}
+if (window.attachEvent) window.attachEvent("onload", sfHover);
+//--><!]]></script>
+
 #set($num = 0)
 #set($removeCount = 0)
 #set($moveCount = 0)
@@ -145,7 +210,7 @@
 					</a>
 				</th>
 				<th id="actions">
-					$tlang.getString("gen.actions")
+					##$tlang.getString("gen.actions")
 				</th>
 				<th id="access">
 					$tlang.getString("gen.access")
@@ -318,26 +383,32 @@
 							#end
 						</h$headerDepth>	
 					</td>
-					<td headers="actions">
+					<td headers="actions" style="white-space:nowrap">
 						#if($item.addActions && !$item.addActions.isEmpty())
-							<select class="actionmenu" width="100%" id="addAction-$itemcount" name="add-$itemcount" onchange="document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='add-$itemcount';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
-								<option value="" selected="selected">$tlang.getString("action.new")</option>
-								<optgroup class="actiongroup" label="$tlang.getString("action.new")"
-									#foreach($action in $item.addActions)
-										<option class="actionitem" value="${action.typeId}${ACTION_DELIMITER}$action.id">$labeler.getLabel($action)</option> 
-									#end
-								</optgroup>
-							</select>
+							<span id="button1">
+								<ul class="makeMenu">
+									<li style="position:relative; z-index:4">Add <img src="images/sort_down.gif">
+										<ul style="">
+											#foreach($action in $item.addActions)
+												<li><a href="#" onclick="document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a></li>
+											#end
+										</ul>
+								  	</li>
+								</ul>
+							</span>
 						#end
 						#if($item.otherActions && !$item.otherActions.isEmpty())
-							<select class="actionmenu" width="100%" id="otherAction-$itemcount" name="other-$itemcount" onchange="document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='other-$itemcount';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
-								<option value="" selected="selected">$item.otherActionsLabel</option>
-								<optgroup class="actiongroup" label="$item.otherActionsLabel"
-									#foreach($action in $item.otherActions)
-										<option class="actionitem" value="${action.typeId}${ACTION_DELIMITER}$action.id">$labeler.getLabel($action)</option> 
-									#end
-								</optgroup>
-							</select>
+							<span id="button1">
+								<ul class="makeMenu">
+									<li style="position:relative; z-index:4">Actions <img src="images/sort_down.gif">
+										<ul style="">
+											#foreach($action in $item.otherActions)
+												<li><a href="#" onclick="document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a></li>
+											#end
+										</ul>
+								  	</li>
+								</ul>
+							</span>
 						#end
 					</td>
 					#if($item.depth > 0)
@@ -471,7 +542,7 @@
 									#end
 								</h3>	
 							</td>
-							<td headers="actions">
+							<td headers="actions" style="white-space:nowrap">
 								#if(($root.addActions && !$root.addActions.isEmpty()) || ($root.otherActions && !$root.otherActions.isEmpty()))
 									<select id="action-$rootcount" name="action-$rootcount" onchange="document.getElementById('selectedItemId').value='$root.id';document.getElementById('rt_action').value='action-$rootcount';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
 										#foreach($action in $root.addActions)
@@ -660,7 +731,7 @@
 											#end
 										</h$headerDepth>	
 									</td>
-									<td headers="actions">
+									<td headers="actions" style="white-space:nowrap">
 										#if(($member.addActions && !$member.addActions.isEmpty()) || ($member.otherActions && !$member.otherActions.isEmpty()))
 											<select id="action-$rootcount" name="action-$rootcount" onchange="document.getElementById('selectedItemId').value='$member.id';document.getElementById('rt_action').value='action-$rootcount';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
 												#foreach($action in $member.addActions)
