@@ -1,23 +1,85 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
  * 
- * File Name: fck_2_gecko.js
- * 	This is the second part of the "FCK" object creation. This is the main
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
+ * 
+ * File Name: fck_gecko.js
+ * 	Creation and initialization of the "FCK" object. This is the main
  * 	object that represents an editor instance.
  * 	(Gecko specific implementations)
  * 
  * File Authors:
- * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
+ * 		Frederico Caldeira Knabben (www.fckeditor.net)
  */
+
+FCK.Description = "FCKeditor for Gecko Browsers" ;
+
+FCK.InitializeBehaviors = function()
+{
+	// When calling "SetHTML", the editing area IFRAME gets a fixed height. So we must recaulculate it.
+	if ( FCKBrowserInfo.IsGecko )		// Not for Safari/Opera.
+		Window_OnResize() ;
+
+	FCKFocusManager.AddWindow( this.EditorWindow ) ;
+
+	this.ExecOnSelectionChange = function()
+	{
+		FCK.Events.FireEvent( "OnSelectionChange" ) ;
+	}
+
+	this.ExecOnSelectionChangeTimer = function()
+	{
+		if ( FCK.LastOnChangeTimer )
+			window.clearTimeout( FCK.LastOnChangeTimer ) ;
+
+		FCK.LastOnChangeTimer = window.setTimeout( FCK.ExecOnSelectionChange, 100 ) ;
+	}
+
+	this.EditorDocument.addEventListener( 'mouseup', this.ExecOnSelectionChange, false ) ;
+
+	// On Gecko, firing the "OnSelectionChange" event on every key press started to be too much
+	// slow. So, a timer has been implemented to solve performance issues when tipying to quickly.
+	this.EditorDocument.addEventListener( 'keyup', this.ExecOnSelectionChangeTimer, false ) ;
+
+	this._DblClickListener = function( e )
+	{
+		FCK.OnDoubleClick( e.target ) ;
+		e.stopPropagation() ;
+	}
+	this.EditorDocument.addEventListener( 'dblclick', this._DblClickListener, true ) ;
+
+	// Reset the context menu.
+	FCK.ContextMenu._InnerContextMenu.SetMouseClickWindow( FCK.EditorWindow ) ;
+	FCK.ContextMenu._InnerContextMenu.AttachToElement( FCK.EditorDocument ) ;
+}
+
+FCK.MakeEditable = function()
+{
+	this.EditingArea.MakeEditable() ;
+}
+
+// Disable the context menu in the editor (outside the editing area).
+function Document_OnContextMenu( e )
+{
+	if ( !e.target._FCKShowContextMenu )
+		e.preventDefault() ;
+}
+document.oncontextmenu = Document_OnContextMenu ;
 
 // GetNamedCommandState overload for Gecko.
 FCK._BaseGetNamedCommandState = FCK.GetNamedCommandState ;
@@ -39,7 +101,7 @@ FCK.RedirectNamedCommands =
 	Paste	: true,
 	Cut		: true,
 	Copy	: true
-}
+} ;
 
 // ExecuteNamedCommand overload for Gecko.
 FCK.ExecuteRedirectedNamedCommand = function( commandName, commandParameter )
@@ -78,23 +140,10 @@ FCK.Paste = function()
 		FCK.PasteAsPlainText() ;	
 		return false ;
 	}
-/* For now, the AutoDetectPasteFromWord feature is IE only.
-	else if ( FCKConfig.AutoDetectPasteFromWord )
-	{
-		var sHTML = FCK.GetClipboardHTML() ;
-		var re = /<\w[^>]* class="?MsoNormal"?/gi ;
-		if ( re.test( sHTML ) )
-		{
-			if ( confirm( FCKLang["PasteWordConfirm"] ) )
-			{
-				FCK.PasteFromWord() ;
-				return false ;
-			}
-		}
-	}
-*/
-	else
-		return true ;
+	
+	/* For now, the AutoDetectPasteFromWord feature is IE only. */
+	
+	return true ;
 }
 
 //**
@@ -185,7 +234,7 @@ FCK.CreateLink = function( url )
 		FCK.ExecuteNamedCommand( 'CreateLink', sTempUrl ) ;
 
 		// Retrieve the just created link using XPath.
-		var oLink = document.evaluate("//a[@href='" + sTempUrl + "']", this.EditorDocument.body, null, 9, null).singleNodeValue ;
+		var oLink = this.EditorDocument.evaluate("//a[@href='" + sTempUrl + "']", this.EditorDocument.body, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue ;
 		
 		if ( oLink )
 		{
@@ -193,4 +242,6 @@ FCK.CreateLink = function( url )
 			return oLink ;
 		}
 	}
+
+	return null ;
 }

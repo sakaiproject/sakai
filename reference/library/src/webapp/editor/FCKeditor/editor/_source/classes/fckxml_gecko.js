@@ -1,20 +1,28 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: fckxml_gecko.js
  * 	FCKXml Class: class to load and manipulate XML files.
  * 
  * File Authors:
- * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
+ * 		Frederico Caldeira Knabben (www.fckeditor.net)
  */
 
 var FCKXml = function()
@@ -22,6 +30,7 @@ var FCKXml = function()
 
 FCKXml.prototype.LoadUrl = function( urlToCall )
 {
+	this.Error = false ;
 	var oFCKXml = this ;
 
 	var oXmlHttp = FCKTools.CreateXmlObject( 'XmlHttp' ) ;
@@ -33,11 +42,24 @@ FCKXml.prototype.LoadUrl = function( urlToCall )
 	else if ( oXmlHttp.status == 0 && oXmlHttp.readyState == 4 )
 		this.DOMDocument = oXmlHttp.responseXML ;
 	else
-		alert( 'Error loading "' + urlToCall + '"' ) ;
+		this.DOMDocument = null ;
+
+	if ( this.DOMDocument == null || this.DOMDocument.firstChild == null )
+	{
+		this.Error = true ;
+		if (window.confirm( 'Error loading "' + urlToCall + '"\r\nDo you want to see more info?' ) )
+			alert( 'URL requested: "' + urlToCall + '"\r\n' +
+						'Server response:\r\nStatus: ' + oXmlHttp.status + '\r\n' +
+						'Response text:\r\n' + oXmlHttp.responseText ) ;
+
+	}
 }
 
 FCKXml.prototype.SelectNodes = function( xpath, contextNode )
 {
+	if ( this.Error )
+		return new Array() ;
+
 	var aNodeArray = new Array();
 
 	var xPathResult = this.DOMDocument.evaluate( xpath, contextNode ? contextNode : this.DOMDocument, 
@@ -56,6 +78,9 @@ FCKXml.prototype.SelectNodes = function( xpath, contextNode )
 
 FCKXml.prototype.SelectSingleNode = function( xpath, contextNode ) 
 {
+	if ( this.Error )
+		return null ;
+
 	var xPathResult = this.DOMDocument.evaluate( xpath, contextNode ? contextNode : this.DOMDocument,
 			this.DOMDocument.createNSResolver(this.DOMDocument.documentElement), 9, null);
 

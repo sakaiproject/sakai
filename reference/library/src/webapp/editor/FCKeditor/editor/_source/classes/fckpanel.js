@@ -1,21 +1,29 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: fckpanel.js
  * 	Component that creates floating panels. It is used by many 
  * 	other components, like the toolbar items, context menu, etc...
  * 
  * File Authors:
- * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
+ * 		Frederico Caldeira Knabben (www.fckeditor.net)
  */
 
 
@@ -34,6 +42,8 @@ var FCKPanel = function( parentWindow )
 		// Create the Popup that will hold the panel.
 		this._Popup	= this._Window.createPopup() ;
 		oDocument = this.Document = this._Popup.document ;
+
+		FCK.IECleanup.AddItem( this, FCKPanel_Cleanup ) ;
 	}
 	else
 	{
@@ -74,9 +84,6 @@ var FCKPanel = function( parentWindow )
 
 	// The "float" property must be set so Firefox calculates the size correcly.
 	this.MainNode.style.cssFloat = this.IsRTL ? 'right' : 'left' ;
-
-	if ( FCK.IECleanup )
-		FCK.IECleanup.AddItem( this, FCKPanel_Cleanup ) ;
 }
 
 
@@ -96,6 +103,8 @@ FCKPanel.prototype.Preload = function( x, y, relElement )
 
 FCKPanel.prototype.Show = function( x, y, relElement, width, height )
 {
+	var iMainWidth ;
+
 	if ( this._Popup )
 	{
 		// The offsetWidth and offsetHeight properties are not available if the 
@@ -108,7 +117,7 @@ FCKPanel.prototype.Show = function( x, y, relElement, width, height )
 		this.MainNode.style.width	= width ? width + 'px' : '' ;
 		this.MainNode.style.height	= height ? height + 'px' : '' ;
 		
-		var iMainWidth = this.MainNode.offsetWidth ;
+		iMainWidth = this.MainNode.offsetWidth ;
 
 		if ( this.IsRTL )
 		{
@@ -141,7 +150,7 @@ FCKPanel.prototype.Show = function( x, y, relElement, width, height )
 		this.MainNode.style.width	= width ? width + 'px' : '' ;
 		this.MainNode.style.height	= height ? height + 'px' : '' ;
 
-		var iMainWidth = this.MainNode.offsetWidth ;
+		iMainWidth = this.MainNode.offsetWidth ;
 
 		if ( !width )	this._IFrame.width	= 1 ;
 		if ( !height )	this._IFrame.height	= 1 ;
@@ -152,7 +161,11 @@ FCKPanel.prototype.Show = function( x, y, relElement, width, height )
 		// work when the editor is in RTL.
 		iMainWidth = this.MainNode.offsetWidth ;
 
-		var oPos = FCKTools.GetElementPosition( ( relElement.nodeType == 9 ? relElement.body : relElement), this._Window ) ;
+		var oPos = FCKTools.GetElementPosition( 
+			relElement.nodeType == 9 ?  
+				( FCKTools.IsStrictMode( relElement ) ? relElement.documentElement : relElement.body ) : 
+				relElement,
+			this._Window ) ;
 
 		if ( this.IsRTL && !this.IsContextMenu )
 			x = ( x * -1 ) ;
@@ -241,7 +254,7 @@ FCKPanel.prototype.CheckIsOpened = function()
 
 FCKPanel.prototype.CreateChildPanel = function()
 {
-	var oWindow = this._Popup ? FCKTools.GetParentWindow( this.Document ) : this._Window ;
+	var oWindow = this._Popup ? FCKTools.GetDocumentWindow( this.Document ) : this._Window ;
 
 	var oChildPanel = new FCKPanel( oWindow, true ) ;
 	oChildPanel.ParentPanel = this ;

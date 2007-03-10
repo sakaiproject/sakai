@@ -69,7 +69,7 @@ FCKConfig.ToolbarSets["Default"] = [
         ['OrderedList','UnorderedList','Outdent','Indent'],
         ['JustifyLeft','JustifyCenter','JustifyRight','JustifyFull','TextColor','BGColor'],
         ['Link','Unlink','Anchor'],
-        ['Image','Flash','Table','Rule','Smiley','SpecialChar','UniversalKey'],['Style'],
+        ['Image','Flash','Table','Rule','Smiley','SpecialChar'],['Style'],
         ['FontFormat','FontName','FontSize'],
         ['About']
 ] ;
@@ -82,7 +82,7 @@ FCKConfig.ToolbarSets["Attachments"] = [
    ['OrderedList','UnorderedList','Outdent','Indent'],
    ['JustifyLeft','JustifyCenter','JustifyRight','JustifyFull','TextColor','BGColor'],
    ['Link','Unlink','Anchor'],
-   ['Image','Flash','Table','Rule','Smiley','SpecialChar','UniversalKey'],['Style'],
+   ['Image','Flash','Table','Rule','Smiley','SpecialChar'],['Style'],
    ['FontFormat','FontName','FontSize'],
    ['About'],
    '/',

@@ -1,14 +1,22 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: bg.js
  * 	Bulgarian language file.
@@ -130,7 +138,7 @@ SelectionFieldProp	: "Параметри на падащото меню с оп�
 TextareaProp		: "Параметри на текстовата област",
 FormProp			: "Параметри на формуляра",
 
-FontFormats			: "Нормален;Форматиран;Адрес;Заглавие 1;Заглавие 2;Заглавие 3;Заглавие 4;Заглавие 5;Заглавие 6;Параграф (DIV)",
+FontFormats			: "Нормален;Форматиран;Адрес;Заглавие 1;Заглавие 2;Заглавие 3;Заглавие 4;Заглавие 5;Заглавие 6;Параграф (DIV)",		//REVIEW : Check _getfontformat.html
 
 // Alerts and Messages
 ProcessingXHTML		: "Обработка на XHTML. Моля изчакайте...",
@@ -225,7 +233,7 @@ DlgLnkURL			: "Пълен път (URL)",
 DlgLnkAnchorSel		: "Изберете котва",
 DlgLnkAnchorByName	: "По име на котвата",
 DlgLnkAnchorById	: "По идентификатор на елемент",
-DlgLnkNoAnchors		: "<Няма котви в текущия документ>",
+DlgLnkNoAnchors		: "<Няма котви в текущия документ>",		//REVIEW : Change < and > with ( and )
 DlgLnkEMail			: "Адрес за е-поща",
 DlgLnkEMailSubject	: "Тема на писмото",
 DlgLnkEMailBody		: "Текст на писмото",
@@ -496,6 +504,5 @@ DlgAboutAboutTab	: "За",
 DlgAboutBrowserInfoTab	: "Информация за браузъра",
 DlgAboutLicenseTab	: "License",	//MISSING
 DlgAboutVersion		: "версия",
-DlgAboutLicense		: "Лиценз по условията на GNU Lesser General Public License",
 DlgAboutInfo		: "За повече информация посетете"
-}
+};

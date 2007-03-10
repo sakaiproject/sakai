@@ -1,21 +1,29 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <!--
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: fck_template.html
  * 	Template selection dialog window.
  * 
  * File Authors:
- * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
+ * 		Frederico Caldeira Knabben (www.fckeditor.net)
 -->
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -76,6 +84,8 @@ window.onload = function()
 
 function LoadTemplatesXml()
 {
+	var oTemplate ;
+
 	if ( !FCK._Templates )
 	{
 		GetE('eLoading').style.display = '' ;
@@ -96,28 +106,28 @@ function LoadTemplatesXml()
 
 		for ( var i = 0 ; i < aTplNodes.length ; i++ )
 		{
-			var oNode = aTplNodes[i]
+			var oNode = aTplNodes[i] ;
 
-			var oTemplate = new Object() ;
+			oTemplate = new Object() ;
 
 			var oPart ;
 
 			// Get the Template Title.
-			if ( oPart = oNode.attributes.getNamedItem('title') )
+			if ( (oPart = oNode.attributes.getNamedItem('title')) )
 				oTemplate.Title = oPart.value ;
 			else
 				oTemplate.Title = 'Template ' + ( i + 1 ) ;
 
 			// Get the Template Description.
-			if ( oPart = oXml.SelectSingleNode( 'Description', oNode ) )
+			if ( (oPart = oXml.SelectSingleNode( 'Description', oNode )) )
 				oTemplate.Description = oPart.text ? oPart.text : oPart.textContent ;
 
 			// Get the Template Image.
-			if ( oPart = oNode.attributes.getNamedItem('image') )
+			if ( (oPart = oNode.attributes.getNamedItem('image')) )
 				oTemplate.Image = sImagesBasePath + oPart.value ;
 
 			// Get the Template HTML.
-			if ( oPart = oXml.SelectSingleNode( 'Html', oNode ) )
+			if ( (oPart = oXml.SelectSingleNode( 'Html', oNode )) )
 				oTemplate.Html = oPart.text ? oPart.text : oPart.textContent ;
 			else
 			{
@@ -135,12 +145,12 @@ function LoadTemplatesXml()
 		GetE('eEmpty').style.display = '' ;
 	else
 	{
-		for ( var i = 0 ; i < FCK._Templates.length ; i++ )
+		for ( var j = 0 ; j < FCK._Templates.length ; j++ )
 		{
-			var oTemplate = FCK._Templates[i] ;
+			oTemplate = FCK._Templates[j] ;
 
 			var oItemDiv = GetE('eList').appendChild( document.createElement( 'DIV' ) ) ;
-			oItemDiv.TplIndex = i ;
+			oItemDiv.TplIndex = j ;
 			oItemDiv.className = 'TplItem' ;
 
 			// Build the inner HTML of our new item DIV.

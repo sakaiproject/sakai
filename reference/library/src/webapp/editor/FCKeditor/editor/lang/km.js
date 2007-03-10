@@ -1,14 +1,22 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: km.js
  * 	Khmer language file.
@@ -130,7 +138,7 @@ SelectionFieldProp	: "ការកំណត់ជួរជ្រើសរើស"
 TextareaProp		: "ការកំណត់កន្លែងសរសេរអត្ថបទ",
 FormProp			: "ការកំណត់បែបបទ",
 
-FontFormats			: "Normal;Formatted;Address;Heading 1;Heading 2;Heading 3;Heading 4;Heading 5;Heading 6;Normal (DIV)",
+FontFormats			: "Normal;Formatted;Address;Heading 1;Heading 2;Heading 3;Heading 4;Heading 5;Heading 6;Normal (DIV)",		//REVIEW : Check _getfontformat.html
 
 // Alerts and Messages
 ProcessingXHTML		: "កំពុងដំណើរការ XHTML ។ សូមរងចាំ...",
@@ -225,7 +233,7 @@ DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "ជ្រើសរើសយុថ្កា",
 DlgLnkAnchorByName	: "តាមឈ្មោះរបស់យុថ្កា",
 DlgLnkAnchorById	: "តាម Id",
-DlgLnkNoAnchors		: "<ពុំមានយុថ្កានៅក្នុងឯកសារនេះទេ>",
+DlgLnkNoAnchors		: "<ពុំមានយុថ្កានៅក្នុងឯកសារនេះទេ>",		//REVIEW : Change < and > with ( and )
 DlgLnkEMail			: "អ៊ីមែល",
 DlgLnkEMailSubject	: "ចំណងជើងអត្ថបទ",
 DlgLnkEMailBody		: "អត្ថបទ",
@@ -496,6 +504,5 @@ DlgAboutAboutTab	: "អំពី",
 DlgAboutBrowserInfoTab	: "ព៌តមានកម្មវិធីរុករក",
 DlgAboutLicenseTab	: "License",	//MISSING
 DlgAboutVersion		: "ជំនាន់",
-DlgAboutLicense		: "Licensed under the terms of the GNU Lesser General Public License",
 DlgAboutInfo		: "សំរាប់ព៌តមានផ្សេងទៀត សូមទាក់ទង"
-}
+};

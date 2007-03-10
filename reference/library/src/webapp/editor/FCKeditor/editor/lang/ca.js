@@ -1,14 +1,22 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: ca.js
  * 	Catalan language file.
@@ -131,7 +139,7 @@ SelectionFieldProp	: "Propietats del camp de selecció",
 TextareaProp		: "Propietats de l'àrea de text",
 FormProp			: "Propietats del formulari",
 
-FontFormats			: "Normal;Formatejat;Adreça;Encapçalament 1;Encapçalament 2;Encapçalament 3;Encapçalament 4;Encapçalament 5;Encapçalament 6",
+FontFormats			: "Normal;Formatejat;Adreça;Encapçalament 1;Encapçalament 2;Encapçalament 3;Encapçalament 4;Encapçalament 5;Encapçalament 6",		//REVIEW : Check _getfontformat.html
 
 // Alerts and Messages
 ProcessingXHTML		: "Processant XHTML. Si us plau esperi...",
@@ -226,7 +234,7 @@ DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Selecciona una àncora",
 DlgLnkAnchorByName	: "Per nom d'àncora",
 DlgLnkAnchorById	: "Per Id d'element",
-DlgLnkNoAnchors		: "<No hi ha àncores disponibles en aquest document>",
+DlgLnkNoAnchors		: "<No hi ha àncores disponibles en aquest document>",		//REVIEW : Change < and > with ( and )
 DlgLnkEMail			: "Adreça d'E-Mail",
 DlgLnkEMailSubject	: "Assumpte del missatge",
 DlgLnkEMailBody		: "Cos del missatge",
@@ -497,6 +505,5 @@ DlgAboutAboutTab	: "Quant a",
 DlgAboutBrowserInfoTab	: "Informació del navegador",
 DlgAboutLicenseTab	: "Llicència",
 DlgAboutVersion		: "versió",
-DlgAboutLicense		: "Segons els termes de la Llicència GNU Lesser General Public License",
 DlgAboutInfo		: "Per a més informació aneu a"
-}
+};

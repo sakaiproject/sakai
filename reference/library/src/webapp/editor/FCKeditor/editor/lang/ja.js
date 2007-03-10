@@ -1,14 +1,22 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: ja.js
  * 	Japanese language file.
@@ -130,7 +138,7 @@ SelectionFieldProp	: "選択フィールド プロパティ",
 TextareaProp		: "テキストエリア プロパティ",
 FormProp			: "フォーム プロパティ",
 
-FontFormats			: "標準;書式付き;アドレス;見出し 1;見出し 2;見出し 3;見出し 4;見出し 5;見出し 6;標準 (DIV)",
+FontFormats			: "標準;書式付き;アドレス;見出し 1;見出し 2;見出し 3;見出し 4;見出し 5;見出し 6;標準 (DIV)",		//REVIEW : Check _getfontformat.html
 
 // Alerts and Messages
 ProcessingXHTML		: "XHTML処理中. しばらくお待ちください...",
@@ -225,7 +233,7 @@ DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "アンカーを選択",
 DlgLnkAnchorByName	: "アンカー名",
 DlgLnkAnchorById	: "エレメントID",
-DlgLnkNoAnchors		: "<ドキュメントにおいて利用可能なアンカーはありません。>",
+DlgLnkNoAnchors		: "<ドキュメントにおいて利用可能なアンカーはありません。>",		//REVIEW : Change < and > with ( and )
 DlgLnkEMail			: "E-Mail アドレス",
 DlgLnkEMailSubject	: "件名",
 DlgLnkEMailBody		: "本文",
@@ -496,6 +504,5 @@ DlgAboutAboutTab	: "バージョン情報",
 DlgAboutBrowserInfoTab	: "ブラウザ情報",
 DlgAboutLicenseTab	: "ライセンス",
 DlgAboutVersion		: "バージョン",
-DlgAboutLicense		: "Licensed under the terms of the GNU Lesser General Public License",
 DlgAboutInfo		: "より詳しい情報はこちらで"
-}
+};

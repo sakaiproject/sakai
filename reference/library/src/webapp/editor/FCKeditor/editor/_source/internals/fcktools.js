@@ -1,100 +1,63 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: fcktools.js
  * 	Utility functions.
  * 
  * File Authors:
- * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
+ * 		Frederico Caldeira Knabben (www.fckeditor.net)
  */
+
+// Constant for the Gecko Bogus Node.
+//var GECKO_BOGUS = '<br _moz_editor_bogus_node="TRUE">' ;
+var GECKO_BOGUS = '<br type="_moz">' ;
 
 var FCKTools = new Object() ;
 
+FCKTools.CreateBogusBR = function( targetDocument )
+{
+	var eBR = targetDocument.createElement( 'br' ) ;
+//	eBR.setAttribute( '_moz_editor_bogus_node', 'TRUE' ) ;
+	eBR.setAttribute( 'type', '_moz' ) ;
+	return eBR ;
+}
+
+// Returns a reference to the appended style sheet or an array with all the appended references
 FCKTools.AppendStyleSheet = function( documentElement, cssFileUrlOrArray )
 {
 	if ( typeof( cssFileUrlOrArray ) == 'string' )
 		return this._AppendStyleSheet( documentElement, cssFileUrlOrArray ) ;
 	else
 	{
+		var aStyleSheeArray = new Array() ;
+
 		for ( var i = 0 ; i < cssFileUrlOrArray.length ; i++ )
-			this._AppendStyleSheet( documentElement, cssFileUrlOrArray[i] ) ;
+			aStyleSheeArray.push(this._AppendStyleSheet( documentElement, cssFileUrlOrArray[i] ) ) ;
+
+		return aStyleSheeArray ;
 	}
 }
 
-/**
- * Gets the value of the hidden INPUT element that is associated to the editor.
- * This element has its ID set to the editor's instance name so the user refers
- * to the instance name when getting the posted data.
- */
-FCKTools.GetLinkedFieldValue = function()
+FCKTools.GetElementDocument = function ( element )
 {
-	return FCK.LinkedField.value ;
-}
-
-/**
- * Attachs a function call to the submit event of the linked field form. This
- * function us generally used to update the linked field value before
- * submitting the form.
- */
-FCKTools.AttachToLinkedFieldFormSubmit = function( functionPointer )
-{
-	// Gets the linked field form
-	var oForm = FCK.LinkedField.form ;
-	
-	// Return now if no form is available
-	if (!oForm) return ;
-
-	// Attaches the functionPointer call to the onsubmit event
-	if ( FCKBrowserInfo.IsIE )
-		oForm.attachEvent( "onsubmit", functionPointer ) ;
-	else
-		oForm.addEventListener( 'submit', functionPointer, false ) ;
-	
-	//**
-	// Attaches the functionPointer call to the submit method 
-	// This is done because IE doesn't fire onsubmit when the submit method is called
-	// BEGIN --
-	
-	// Creates a Array in the form object that will hold all Attached function call
-	// (in the case there are more than one editor in the same page)
-	if (! oForm.updateFCKeditor) oForm.updateFCKeditor = new Array() ;
-	
-	// Adds the function pointer to the array of functions to call when "submit" is called
-	oForm.updateFCKeditor[oForm.updateFCKeditor.length] = functionPointer ;
-
-	// Switches the original submit method with a new one that first call all functions
-	// on the above array and the call the original submit
-	// IE sees it oForm.submit function as an 'object'.
-	if (! oForm.originalSubmit && ( typeof( oForm.submit ) == 'function' || ( !oForm.submit.tagName && !oForm.submit.length ) ) )
-	{
-		// Creates a copy of the original submit
-		oForm.originalSubmit = oForm.submit ;
-		
-		// Creates our replacement for the submit
-		oForm.submit = FCKTools_SubmitReplacer ;
-	}
-	// END --
-}
-
-function FCKTools_SubmitReplacer()
-{
-	if (this.updateFCKeditor)
-	{
-		// Calls all functions in the functions array
-		for (var i = 0 ; i < this.updateFCKeditor.length ; i++)
-			this.updateFCKeditor[i]() ;
-	}
-	// Calls the original "submit"
-	this.originalSubmit() ;
+	return element.ownerDocument || element.document ;
 }
 
 // Get the window object where the element is placed in.
@@ -103,13 +66,13 @@ FCKTools.GetElementWindow = function( element )
 	return this.GetDocumentWindow( this.GetElementDocument( element ) ) ;
 }
 
-FCKTools.GetDocumentWindow = function( doc )
+FCKTools.GetDocumentWindow = function( document )
 {
 	// With Safari, there is not way to retrieve the window from the document, so we must fix it.
-	if ( FCKBrowserInfo.IsSafari && !doc.parentWindow )
+	if ( FCKBrowserInfo.IsSafari && !document.parentWindow )
 		this.FixDocumentParentWindow( window.top ) ;
 	
-	return doc.parentWindow || doc.defaultView ;
+	return document.parentWindow || document.defaultView ;
 }
 
 /*
@@ -122,11 +85,6 @@ FCKTools.FixDocumentParentWindow = function( targetWindow )
 	
 	for ( var i = 0 ; i < targetWindow.frames.length ; i++ )
 		FCKTools.FixDocumentParentWindow( targetWindow.frames[i] ) ;
-}
-
-FCKTools.GetParentWindow = function( document )
-{
-	return document.contentWindow ? document.contentWindow : document.parentWindow ;
 }
 
 FCKTools.HTMLEncode = function( text )
@@ -187,12 +145,12 @@ FCKTools.SetInterval = function( func, milliseconds, thisObject, paramsArray, ti
 
 FCKTools.ConvertStyleSizeToHtml = function( size )
 {
-	return size.endsWith( '%' ) ? size : parseInt( size ) ;
+	return size.EndsWith( '%' ) ? size : parseInt( size, 10 ) ;
 }
 
 FCKTools.ConvertHtmlSizeToStyle = function( size )
 {
-	return size.endsWith( '%' ) ? size : ( size + 'px' ) ;
+	return size.EndsWith( '%' ) ? size : ( size + 'px' ) ;
 }
 
 // START iCM MODIFICATIONS
@@ -230,7 +188,30 @@ FCKTools.CreateEventListener = function( func, params )
 	return f ;
 }
 
-FCKTools.GetElementDocument = function ( element )
+FCKTools.IsStrictMode = function( document )
 {
-	return element.ownerDocument || element.document ;
+	// There is no compatMode in Safari, but it seams that it always behave as
+	// CSS1Compat, so let's assume it as the default.
+	return ( 'CSS1Compat' == ( document.compatMode || 'CSS1Compat' ) ) ;
+}
+
+// Transforms a "arguments" object to an array.
+FCKTools.ArgumentsToArray = function( args, startIndex, maxLength )
+{
+	startIndex = startIndex || 0 ;
+	maxLength = maxLength || args.length ;
+	
+	var argsArray = new Array() ;
+	
+	for ( var i = startIndex ; i < startIndex + maxLength && i < args.length ; i++ )
+		argsArray.push( args[i] ) ;
+
+	return argsArray ;
+}
+
+FCKTools.CloneObject = function( sourceObject )
+{
+	var fCloneCreator = function() {} ;
+	fCloneCreator.prototype = sourceObject ;
+	return new fCloneCreator ;
 }

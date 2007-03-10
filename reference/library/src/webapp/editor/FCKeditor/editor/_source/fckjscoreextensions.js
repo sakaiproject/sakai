@@ -1,14 +1,22 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: fckjscoreextensions.js
  * 	Extensions to the JavaScript Core.
@@ -17,7 +25,7 @@
  * 	camelCased ones.
  * 
  * File Authors:
- * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
+ * 		Frederico Caldeira Knabben (www.fckeditor.net)
  */
 
 String.prototype.Contains = function( textToCheck )
@@ -27,10 +35,35 @@ String.prototype.Contains = function( textToCheck )
 
 String.prototype.Equals = function()
 {
-	for ( var i = 0 ; i < arguments.length ; i++ )
-		if ( this == arguments[i] )
-			return true ;
+	var aArgs = arguments ;
 	
+	// The arguments could also be a single array.
+	if ( aArgs.length == 1 && aArgs[0].pop ) 
+		aArgs = aArgs[0] ;
+
+	for ( var i = 0 ; i < aArgs.length ; i++ )
+	{
+		if ( this == aArgs[i] )
+			return true ;
+	}
+	return false ;
+}
+
+String.prototype.IEquals = function()
+{
+	var thisUpper = this.toUpperCase() ;
+	
+	var aArgs = arguments ;
+	
+	// The arguments could also be a single array.
+	if ( aArgs.length == 1 && aArgs[0].pop ) 
+		aArgs = aArgs[0] ;
+	
+	for ( var i = 0 ; i < aArgs.length ; i++ )
+	{
+		if ( thisUpper == aArgs[i].toUpperCase() )
+			return true ;
+	}
 	return false ;
 }
 
@@ -53,7 +86,7 @@ Array.prototype.AddItem = function( item )
 	return i ;
 }
 
-Array.prototype.indexOf = function( value )
+Array.prototype.IndexOf = function( value )
 {
 	for ( var i = 0 ; i < this.length ; i++ )
 	{
@@ -63,13 +96,13 @@ Array.prototype.indexOf = function( value )
 	return -1 ;
 }
 
-String.prototype.startsWith = function( value )
+String.prototype.StartsWith = function( value )
 {
 	return ( this.substr( 0, value.length ) == value ) ;
 }
 
-// Extends the String object, creating a "endsWith" method on it.
-String.prototype.endsWith = function( value, ignoreCase )
+// Extends the String object, creating a "EndsWith" method on it.
+String.prototype.EndsWith = function( value, ignoreCase )
 {
 	var L1 = this.length ;
 	var L2 = value.length ;
@@ -86,7 +119,7 @@ String.prototype.endsWith = function( value, ignoreCase )
 		return ( L2 == 0 || this.substr( L1 - L2, L2 ) == value ) ;
 }
 
-String.prototype.remove = function( start, length )
+String.prototype.Remove = function( start, length )
 {
 	var s = '' ;
 	
@@ -99,22 +132,25 @@ String.prototype.remove = function( start, length )
 	return s ;
 }
 
-String.prototype.trim = function()
+String.prototype.Trim = function()
 {
-	return this.replace( /(^\s*)|(\s*$)/g, '' ) ;
+	// We are not using \s because we don't want "non-breaking spaces to be caught".
+	return this.replace( /(^[ \t\n\r]*)|([ \t\n\r]*$)/g, '' ) ;
 }
 
-String.prototype.ltrim = function()
+String.prototype.LTrim = function()
 {
-	return this.replace( /^\s*/g, '' ) ;
+	// We are not using \s because we don't want "non-breaking spaces to be caught".
+	return this.replace( /^[ \t\n\r]*/g, '' ) ;
 }
 
-String.prototype.rtrim = function()
+String.prototype.RTrim = function()
 {
-	return this.replace( /\s*$/g, '' ) ;
+	// We are not using \s because we don't want "non-breaking spaces to be caught".
+	return this.replace( /[ \t\n\r]*$/g, '' ) ;
 }
 
-String.prototype.replaceNewLineChars = function( replacement )
+String.prototype.ReplaceNewLineChars = function( replacement )
 {
 	return this.replace( /\n/g, replacement ) ;
 }

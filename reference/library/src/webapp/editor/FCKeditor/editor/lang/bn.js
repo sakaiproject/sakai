@@ -1,14 +1,22 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: bn.js
  * 	Bengali/Bangla language file.
@@ -131,7 +139,7 @@ SelectionFieldProp	: "বাছাই ফীল্ড প্রোপার্�
 TextareaProp		: "টেক্সট এরিয়া প্রোপার্টি",
 FormProp			: "ফর্ম প্রোপার্টি",
 
-FontFormats			: "সাধারণ;ফর্মেটেড;ঠিকানা;শীর্ষক ১;শীর্ষক ২;শীর্ষক ৩;শীর্ষক ৪;শীর্ষক ৫;শীর্ষক ৬;শীর্ষক (DIV)",
+FontFormats			: "সাধারণ;ফর্মেটেড;ঠিকানা;শীর্ষক ১;শীর্ষক ২;শীর্ষক ৩;শীর্ষক ৪;শীর্ষক ৫;শীর্ষক ৬;শীর্ষক (DIV)",		//REVIEW : Check _getfontformat.html
 
 // Alerts and Messages
 ProcessingXHTML		: "XHTML প্রসেস করা হচ্ছে",
@@ -226,7 +234,7 @@ DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "নোঙর বাছাই",
 DlgLnkAnchorByName	: "নোঙরের নাম দিয়ে",
 DlgLnkAnchorById	: "নোঙরের আইডি দিয়ে",
-DlgLnkNoAnchors		: "<ডকুমেন্টে আর কোন নোঙর নেই>",
+DlgLnkNoAnchors		: "<ডকুমেন্টে আর কোন নোঙর নেই>",		//REVIEW : Change < and > with ( and )
 DlgLnkEMail			: "ইমেইল ঠিকানা",
 DlgLnkEMailSubject	: "মেসেজের বিষয়",
 DlgLnkEMailBody		: "মেসেজের দেহ",
@@ -497,6 +505,5 @@ DlgAboutAboutTab	: "কে বানিয়েছে",
 DlgAboutBrowserInfoTab	: "ব্রাউজারের ব্যাপারে তথ্য",
 DlgAboutLicenseTab	: "লাইসেন্স",
 DlgAboutVersion		: "ভার্সন",
-DlgAboutLicense		: "লাইসেন্স GNU LGPL এর নীতিমালার অধীনে ",
 DlgAboutInfo		: "আরও তথ্যের জন্য যান"
-}
+};

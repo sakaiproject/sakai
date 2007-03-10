@@ -1,14 +1,22 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: ru.js
  * 	Russian language file.
@@ -130,7 +138,7 @@ SelectionFieldProp	: "Свойства списка",
 TextareaProp		: "Свойства текстовой области",
 FormProp			: "Свойства формы",
 
-FontFormats			: "Нормальный;Форматированный;Адрес;Заголовок 1;Заголовок 2;Заголовок 3;Заголовок 4;Заголовок 5;Заголовок 6;Нормальный (DIV)",
+FontFormats			: "Нормальный;Форматированный;Адрес;Заголовок 1;Заголовок 2;Заголовок 3;Заголовок 4;Заголовок 5;Заголовок 6;Нормальный (DIV)",		//REVIEW : Check _getfontformat.html
 
 // Alerts and Messages
 ProcessingXHTML		: "Обработка XHTML. Пожалуйста подождите...",
@@ -225,7 +233,7 @@ DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Выберите якорь",
 DlgLnkAnchorByName	: "По имени якоря",
 DlgLnkAnchorById	: "По идентификатору элемента",
-DlgLnkNoAnchors		: "<Нет якорей доступных в этом документе>",
+DlgLnkNoAnchors		: "<Нет якорей доступных в этом документе>",		//REVIEW : Change < and > with ( and )
 DlgLnkEMail			: "Адрес эл. почты",
 DlgLnkEMailSubject	: "Заголовок сообщения",
 DlgLnkEMailBody		: "Тело сообщения",
@@ -496,6 +504,5 @@ DlgAboutAboutTab	: "О программе",
 DlgAboutBrowserInfoTab	: "Информация браузера",
 DlgAboutLicenseTab	: "Лицензия",
 DlgAboutVersion		: "Версия",
-DlgAboutLicense		: "Лицензировано в соответствии с условиями GNU Lesser General Public License",
 DlgAboutInfo		: "Для большей информации, посетите"
-}
+};

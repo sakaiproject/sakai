@@ -1,14 +1,22 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: ko.js
  * 	Korean language file.
@@ -131,7 +139,7 @@ SelectionFieldProp	: "펼침목록 속성",
 TextareaProp		: "입력영역 속성",
 FormProp			: "폼 속성",
 
-FontFormats			: "Normal;Formatted;Address;Heading 1;Heading 2;Heading 3;Heading 4;Heading 5;Heading 6",
+FontFormats			: "Normal;Formatted;Address;Heading 1;Heading 2;Heading 3;Heading 4;Heading 5;Heading 6",		//REVIEW : Check _getfontformat.html
 
 // Alerts and Messages
 ProcessingXHTML		: "XHTML 처리중. 잠시만 기다려주십시요.",
@@ -226,7 +234,7 @@ DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "책갈피 선택",
 DlgLnkAnchorByName	: "책갈피 이름",
 DlgLnkAnchorById	: "책갈피 ID",
-DlgLnkNoAnchors		: "<문서에 책갈피가 없습니다.>",
+DlgLnkNoAnchors		: "<문서에 책갈피가 없습니다.>",		//REVIEW : Change < and > with ( and )
 DlgLnkEMail			: "이메일 주소",
 DlgLnkEMailSubject	: "제목",
 DlgLnkEMailBody		: "내용",
@@ -497,6 +505,5 @@ DlgAboutAboutTab	: "About",
 DlgAboutBrowserInfoTab	: "브라우저 정보",
 DlgAboutLicenseTab	: "License",	//MISSING
 DlgAboutVersion		: "버전",
-DlgAboutLicense		: "Licensed under the terms of the GNU Lesser General Public License",
 DlgAboutInfo		: "For further information go to"
-}
+};

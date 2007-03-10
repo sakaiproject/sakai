@@ -1,20 +1,29 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: tr.js
  * 	Turkish language file.
  * 
  * File Authors:
  * 		Bogac Guven (bogacmx@yahoo.com)
+ * 		Burak Gürsoy (burak@cpan.org)
  */
 
 var FCKLang =
@@ -22,8 +31,8 @@ var FCKLang =
 // Language direction : "ltr" (left to right) or "rtl" (right to left).
 Dir					: "ltr",
 
-ToolbarCollapse		: "Araç Çubugunu Kapat",
-ToolbarExpand		: "Araç Çubugunu Aç",
+ToolbarCollapse		: "Araç Çubuğunu Kapat",
+ToolbarExpand		: "Araç Çubuğunu Aç",
 
 // Toolbar Items and Context Menu
 Save				: "Kaydet",
@@ -74,9 +83,9 @@ BulletedListLbl		: "Simgeli Liste",
 BulletedList		: "Simgeli Liste Ekle/Kaldır",
 ShowTableBorders	: "Tablo Kenarlarını Göster",
 ShowDetails			: "Detayları Göster",
-Style				: "Stil",
+Style				: "Biçem",
 FontFormat			: "Biçim",
-Font				: "Yazı Tipi",
+Font				: "Yazı Türü",
 FontSize			: "Boyut",
 TextColor			: "Yazı Rengi",
 BGColor				: "Arka Renk",
@@ -95,10 +104,10 @@ TextField		: "Metin Girişi",
 Textarea		: "Çok Satırlı Metin",
 HiddenField		: "Gizli Veri",
 Button			: "Düğme",
-SelectionField	: "Seçim Mönüsü",
+SelectionField	: "Seçim Menüsü",
 ImageButton		: "Resimli Düğme",
 
-FitWindow		: "Editör boyutunu büyüt",
+FitWindow		: "Düzenleyici boyutunu büyüt",
 
 // Context Menu
 EditLink			: "Köprü Düzenle",
@@ -126,11 +135,11 @@ HiddenFieldProp		: "Gizli Veri Özellikleri",
 RadioButtonProp		: "Seçenek Düğmesi Özellikleri",
 ImageButtonProp		: "Resimli Düğme Özellikleri",
 TextFieldProp		: "Metin Girişi Özellikleri",
-SelectionFieldProp	: "Seçim Mönüsü Özellikleri",
+SelectionFieldProp	: "Seçim Menüsü Özellikleri",
 TextareaProp		: "Çok Satırlı Metin Özellikleri",
 FormProp			: "Form Özellikleri",
 
-FontFormats			: "Normal;Biçimli;Adres;Başlık 1;Başlık 2;Başlık 3;Başlık 4;Başlık 5;Başlık 6;Paragraf (DIV)",
+FontFormats			: "Normal;Biçimli;Adres;Başlık 1;Başlık 2;Başlık 3;Başlık 4;Başlık 5;Başlık 6;Paragraf (DIV)",		//REVIEW : Check _getfontformat.html
 
 // Alerts and Messages
 ProcessingXHTML		: "XHTML işleniyor. Lütfen bekleyin...",
@@ -143,7 +152,7 @@ NotImplemented		: "Komut uyarlanamadı",
 UnknownToolbarSet	: "\"%1\" araç çubuğu öğesi mevcut değil",
 NoActiveX			: "Kullandığınız tarayıcının güvenlik ayarları bazı özelliklerin kullanılmasını engelliyor. Bu özelliklerin çalışması için \"Run ActiveX controls and plug-ins (Activex ve eklentileri çalıştır)\" seçeneğinin aktif yapılması gerekiyor. Kullanılamayan eklentiler ve hatalar konusunda daha fazla bilgi sahibi olun.",
 BrowseServerBlocked : "Kaynak tarayıcısı açılamadı. Tüm \"popup blocker\" programlarının devre dışı olduğundan emin olun. (Yahoo toolbar, Msn toolbar, Google toolbar gibi)",
-DialogBlocked		: "diyalog açmak mümkün olmadı. Tüm \"Popup Blocker\" programlarının devre dışı olduğundan emin olun.",
+DialogBlocked		: "Diyalog açmak mümkün olmadı. Tüm \"Popup Blocker\" programlarının devre dışı olduğundan emin olun.",
 
 // Dialogs
 DlgBtnOK			: "Tamam",
@@ -158,26 +167,26 @@ DlgAlertUrl			: "Lütfen URL girin",
 // General Dialogs Labels
 DlgGenNotSet		: "<tanımlanmamış>",
 DlgGenId			: "Kimlik",
-DlgGenLangDir		: "Lisan Yönü",
+DlgGenLangDir		: "Dil Yönü",
 DlgGenLangDirLtr	: "Soldan Sağa (LTR)",
 DlgGenLangDirRtl	: "Sağdan Sola (RTL)",
-DlgGenLangCode		: "Lisan Kodlaması",
+DlgGenLangCode		: "Dil Kodlaması",
 DlgGenAccessKey		: "Erişim Tuşu",
-DlgGenName			: "İsim",
+DlgGenName			: "Ad",
 DlgGenTabIndex		: "Sekme İndeksi",
 DlgGenLongDescr		: "Uzun Tanımlı URL",
-DlgGenClass			: "Stil Klasları",
-DlgGenTitle			: "Danışma Baslığı",
+DlgGenClass			: "Biçem Sayfası Sınıfları",
+DlgGenTitle			: "Danışma Başlığı",
 DlgGenContType		: "Danışma İçerik Türü",
 DlgGenLinkCharset	: "Bağlı Kaynak Karakter Gurubu",
-DlgGenStyle			: "Stil",
+DlgGenStyle			: "Biçem",
 
 // Image Dialog
 DlgImgTitle			: "Resim Özellikleri",
 DlgImgInfoTab		: "Resim Bilgisi",
 DlgImgBtnUpload		: "Sunucuya Yolla",
 DlgImgURL			: "URL",
-DlgImgUpload		: "Karsıya Yükle",
+DlgImgUpload		: "Karşıya Yükle",
 DlgImgAlt			: "Alternatif Yazı",
 DlgImgWidth			: "Genişlik",
 DlgImgHeight		: "Yükseklik",
@@ -204,7 +213,7 @@ DlgImgLinkTab		: "Köprü",
 DlgFlashTitle		: "Flash Özellikleri",
 DlgFlashChkPlay		: "Otomatik Oynat",
 DlgFlashChkLoop		: "Döngü",
-DlgFlashChkMenu		: "Flash Mönüsünü Kullan",
+DlgFlashChkMenu		: "Flash Menüsünü Kullan",
 DlgFlashScale		: "Boyutlandır",
 DlgFlashScaleAll	: "Hepsini Göster",
 DlgFlashScaleNoBorder	: "Kenar Yok",
@@ -223,12 +232,12 @@ DlgLnkProto			: "Protokol",
 DlgLnkProtoOther	: "<diğer>",
 DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Çapa Seç",
-DlgLnkAnchorByName	: "Çapa İsmi ile",
-DlgLnkAnchorById	: "Eleman Id ile",
-DlgLnkNoAnchors		: "<Bu dokümanda hiç çapa yok>",
+DlgLnkAnchorByName	: "Çapa Adı ile",
+DlgLnkAnchorById	: "Eleman Kimlik Numarası ile",
+DlgLnkNoAnchors		: "<Bu belgede hiç çapa yok>",		//REVIEW : Change < and > with ( and )
 DlgLnkEMail			: "E-Posta Adresi",
-DlgLnkEMailSubject	: "Mesaj Konusu",
-DlgLnkEMailBody		: "Mesaj Vücudu",
+DlgLnkEMailSubject	: "İleti Konusu",
+DlgLnkEMailBody		: "İleti Gövdesi",
 DlgLnkUpload		: "Karşıya Yükle",
 DlgLnkBtnUpload		: "Sunucuya Gönder",
 
@@ -239,31 +248,31 @@ DlgLnkTargetBlank	: "Yeni Pencere(_blank)",
 DlgLnkTargetParent	: "Anne Pencere (_parent)",
 DlgLnkTargetSelf	: "Kendi Penceresi (_self)",
 DlgLnkTargetTop		: "En Üst Pencere (_top)",
-DlgLnkTargetFrameName	: "Hedef Çerçeve İsmi",
-DlgLnkPopWinName	: "Yeni Açılan Pencere İsmi",
+DlgLnkTargetFrameName	: "Hedef Çerçeve Adı",
+DlgLnkPopWinName	: "Yeni Açılan Pencere Adı",
 DlgLnkPopWinFeat	: "Yeni Açılan Pencere Özellikleri",
 DlgLnkPopResize		: "Boyutlandırılabilir",
 DlgLnkPopLocation	: "Yer Çubuğu",
-DlgLnkPopMenu		: "Mönü Çubuğu",
+DlgLnkPopMenu		: "Menü Çubuğu",
 DlgLnkPopScroll		: "Kaydırma Çubukları",
-DlgLnkPopStatus		: "Statü Çubuğu",
+DlgLnkPopStatus		: "Durum Çubuğu",
 DlgLnkPopToolbar	: "Araç Çubuğu",
 DlgLnkPopFullScrn	: "Tam Ekran (IE)",
-DlgLnkPopDependent	: "Bağlı-Dependent- (Netscape)",
+DlgLnkPopDependent	: "Bağımlı (Netscape)",
 DlgLnkPopWidth		: "Genişlik",
 DlgLnkPopHeight		: "Yükseklik",
-DlgLnkPopLeft		: "Sola Göre Pozisyon",
-DlgLnkPopTop		: "Yukarıya Göre Pozisyon",
+DlgLnkPopLeft		: "Sola Göre Konum",
+DlgLnkPopTop		: "Yukarıya Göre Konum",
 
 DlnLnkMsgNoUrl		: "Lütfen köprü URL'sini yazın",
 DlnLnkMsgNoEMail	: "Lütfen E-posta adresini yazın",
 DlnLnkMsgNoAnchor	: "Lütfen bir çapa seçin",
-DlnLnkMsgInvPopName	: "The popup name must begin with an alphabetic character and must not contain spaces",	//MISSING
+DlnLnkMsgInvPopName	: "Açılır pencere adı abecesel bir karakterle başlamalı ve boşluk içermemelidir",
 
 // Color Dialog
 DlgColorTitle		: "Renk Seç",
 DlgColorBtnClear	: "Temizle",
-DlgColorHighlight	: "Belirle",
+DlgColorHighlight	: "Vurgula",
 DlgColorSelected	: "Seçilmiş",
 
 // Smiley Dialog
@@ -333,16 +342,16 @@ DlgReplaceReplAllBtn	: "Tümünü Değiştir",
 DlgReplaceWordChk		: "Kelimenin tamamı uysun",
 
 // Paste Operations / Dialog
-PasteErrorPaste	: "Gezgin yazılımınızın güvenlik ayarları editörün otomatik yapıştırma işlemine izin vermiyor. İşlem için (Ctrl+V) tuşlarını kullanın.",
-PasteErrorCut	: "Gezgin yazılımınızın güvenlik ayarları editörün otomatik kesme işlemine izin vermiyor. İşlem için (Ctrl+X) tuşlarını kullanın.",
-PasteErrorCopy	: "Gezgin yazılımınızın güvenlik ayarları editörün otomatik kopyalama işlemine izin vermiyor. İşlem için (Ctrl+C) tuşlarını kullanın.",
+PasteErrorPaste	: "Gezgin yazılımınızın güvenlik ayarları düzenleyicinin otomatik yapıştırma işlemine izin vermiyor. İşlem için (Ctrl+V) tuşlarını kullanın.",
+PasteErrorCut	: "Gezgin yazılımınızın güvenlik ayarları düzenleyicinin otomatik kesme işlemine izin vermiyor. İşlem için (Ctrl+X) tuşlarını kullanın.",
+PasteErrorCopy	: "Gezgin yazılımınızın güvenlik ayarları düzenleyicinin otomatik kopyalama işlemine izin vermiyor. İşlem için (Ctrl+C) tuşlarını kullanın.",
 
 PasteAsText		: "Düz Metin Olarak Yapıştır",
 PasteFromWord	: "Word'den yapıştır",
 
 DlgPasteMsg2	: "Lütfen aşağıdaki kutunun içine yapıştırın. (<STRONG>Ctrl+V</STRONG>) ve <STRONG>Tamam</STRONG> butonunu tıklayın.",
 DlgPasteIgnoreFont		: "Yazı Tipi tanımlarını yoksay",
-DlgPasteRemoveStyles	: "Sitil Tanımlarını çıkar",
+DlgPasteRemoveStyles	: "Biçem Tanımlarını çıkar",
 DlgPasteCleanBox		: "Temizlik Kutusu",
 
 // Color Picker
@@ -350,12 +359,12 @@ ColorAutomatic	: "Otomatik",
 ColorMoreColors	: "Diğer renkler...",
 
 // Document Properties
-DocProps		: "Doküman Özellikleri",
+DocProps		: "Belge Özellikleri",
 
 // Anchor Dialog
 DlgAnchorTitle		: "Çapa Özellikleri",
-DlgAnchorName		: "Çapa İsmi",
-DlgAnchorErrorName	: "Lütfen çapa için isim giriniz",
+DlgAnchorName		: "Çapa Adı",
+DlgAnchorErrorName	: "Lütfen çapa için ad giriniz",
 
 // Speller Pages Dialog
 DlgSpellNotInDic		: "Sözlükte Yok",
@@ -377,22 +386,22 @@ IeSpellDownload			: "Yazım denetimi yüklenmemiş. Şimdi yüklemek ister misin
 // Button Dialog
 DlgButtonText		: "Metin (Değer)",
 DlgButtonType		: "Tip",
-DlgButtonTypeBtn	: "Button",	//MISSING
-DlgButtonTypeSbm	: "Submit",	//MISSING
-DlgButtonTypeRst	: "Reset",	//MISSING
+DlgButtonTypeBtn	: "Düğme",
+DlgButtonTypeSbm	: "Gönder",
+DlgButtonTypeRst	: "Sıfırla",
 
 // Checkbox and Radio Button Dialogs
-DlgCheckboxName		: "İsim",
+DlgCheckboxName		: "Ad",
 DlgCheckboxValue	: "Değer",
 DlgCheckboxSelected	: "Seçili",
 
 // Form Dialog
-DlgFormName		: "İsim",
+DlgFormName		: "Ad",
 DlgFormAction	: "İşlem",
-DlgFormMethod	: "Metod",
+DlgFormMethod	: "Yöntem",
 
 // Select Field Dialog
-DlgSelectName		: "İsim",
+DlgSelectName		: "Ad",
 DlgSelectValue		: "Değer",
 DlgSelectSize		: "Boyut",
 DlgSelectLines		: "satır",
@@ -402,33 +411,33 @@ DlgSelectOpText		: "Metin",
 DlgSelectOpValue	: "Değer",
 DlgSelectBtnAdd		: "Ekle",
 DlgSelectBtnModify	: "Düzenle",
-DlgSelectBtnUp		: "Yukari",
+DlgSelectBtnUp		: "Yukarı",
 DlgSelectBtnDown	: "Aşağı",
 DlgSelectBtnSetValue : "Seçili değer olarak ata",
 DlgSelectBtnDelete	: "Sil",
 
 // Textarea Dialog
-DlgTextareaName	: "İsim",
+DlgTextareaName	: "Ad",
 DlgTextareaCols	: "Sütunlar",
 DlgTextareaRows	: "Satırlar",
 
 // Text Field Dialog
-DlgTextName			: "İsim",
+DlgTextName			: "Ad",
 DlgTextValue		: "Değer",
 DlgTextCharWidth	: "Karakter Genişliği",
 DlgTextMaxChars		: "En Fazla Karakter",
-DlgTextType			: "Tip",
+DlgTextType			: "Tür",
 DlgTextTypeText		: "Metin",
-DlgTextTypePass		: "Şifre",
+DlgTextTypePass		: "Parola",
 
 // Hidden Field Dialog
-DlgHiddenName	: "İsim",
+DlgHiddenName	: "Ad",
 DlgHiddenValue	: "Değer",
 
 // Bulleted List Dialog
 BulletedListProp	: "Simgeli Liste Özellikleri",
 NumberedListProp	: "Numaralı Liste Özellikleri",
-DlgLstStart			: "Start",	//MISSING
+DlgLstStart			: "Başlangıç",
 DlgLstType			: "Tip",
 DlgLstTypeCircle	: "Çember",
 DlgLstTypeDisc		: "Disk",
@@ -442,60 +451,59 @@ DlgLstTypeLRoman	: "Büyük Romen Rakamları (I, II, III)",
 // Document Properties Dialog
 DlgDocGeneralTab	: "Genel",
 DlgDocBackTab		: "Arka Plan",
-DlgDocColorsTab		: "Renkler ve Mesafeler",
+DlgDocColorsTab		: "Renkler ve Kenar Boşlukları",
 DlgDocMetaTab		: "Tanım Bilgisi (Meta)",
 
 DlgDocPageTitle		: "Sayfa Başlığı",
-DlgDocLangDir		: "Lisan Yönü",
+DlgDocLangDir		: "Dil Yönü",
 DlgDocLangDirLTR	: "Soldan Sağa (LTR)",
 DlgDocLangDirRTL	: "Sağdan Sola (RTL)",
-DlgDocLangCode		: "Lisan Kodu",
+DlgDocLangCode		: "Dil Kodu",
 DlgDocCharSet		: "Karakter Kümesi Kodlaması",
-DlgDocCharSetCE		: "Central European",	//MISSING
-DlgDocCharSetCT		: "Chinese Traditional (Big5)",	//MISSING
-DlgDocCharSetCR		: "Cyrillic",	//MISSING
-DlgDocCharSetGR		: "Greek",	//MISSING
-DlgDocCharSetJP		: "Japanese",	//MISSING
-DlgDocCharSetKR		: "Korean",	//MISSING
-DlgDocCharSetTR		: "Turkish",	//MISSING
-DlgDocCharSetUN		: "Unicode (UTF-8)",	//MISSING
-DlgDocCharSetWE		: "Western European",	//MISSING
+DlgDocCharSetCE		: "Orta Avrupa",
+DlgDocCharSetCT		: "Geleneksel Çince (Big5)",
+DlgDocCharSetCR		: "Kiril",
+DlgDocCharSetGR		: "Yunanca",
+DlgDocCharSetJP		: "Japonca",
+DlgDocCharSetKR		: "Korece",
+DlgDocCharSetTR		: "Türkçe",
+DlgDocCharSetUN		: "Unicode (UTF-8)",
+DlgDocCharSetWE		: "Batı Avrupa",
 DlgDocCharSetOther	: "Diğer Karakter Kümesi Kodlaması",
 
-DlgDocDocType		: "Doküman Türü Başlığı",
-DlgDocDocTypeOther	: "Diğer Doküman Türü Başlığı",
+DlgDocDocType		: "Belge Türü Başlığı",
+DlgDocDocTypeOther	: "Diğer Belge Türü Başlığı",
 DlgDocIncXHTML		: "XHTML Bildirimlerini Dahil Et",
 DlgDocBgColor		: "Arka Plan Rengi",
 DlgDocBgImage		: "Arka Plan Resim URLsi",
 DlgDocBgNoScroll	: "Sabit Arka Plan",
 DlgDocCText			: "Metin",
 DlgDocCLink			: "Köprü",
-DlgDocCVisited		: "Görülmüs Köprü",
-DlgDocCActive		: "Aktif Köprü",
+DlgDocCVisited		: "Ziyaret Edilmiş Köprü",
+DlgDocCActive		: "Etkin Köprü",
 DlgDocMargins		: "Kenar Boşlukları",
 DlgDocMaTop			: "Tepe",
 DlgDocMaLeft		: "Sol",
 DlgDocMaRight		: "Sağ",
 DlgDocMaBottom		: "Alt",
-DlgDocMeIndex		: "Doküman İndeksleme Anahtar Kelimeleri (virgülle ayrılmış)",
-DlgDocMeDescr		: "Doküman Tanımı",
+DlgDocMeIndex		: "Belge Dizinleme Anahtar Kelimeleri (virgülle ayrılmış)",
+DlgDocMeDescr		: "Belge Tanımı",
 DlgDocMeAuthor		: "Yazar",
 DlgDocMeCopy		: "Telif",
 DlgDocPreview		: "Ön İzleme",
 
 // Templates Dialog
-Templates			: "Düzenler",
-DlgTemplatesTitle	: "İçerik Düzenleri",
-DlgTemplatesSelMsg	: "Editörde açmak için lütfen bir düzen seçin.<br>(hali hazırdaki içerik kaybolacaktır.):",
-DlgTemplatesLoading	: "Düzenler listesi yüklenmekte. Lütfen bekleyiniz...",
-DlgTemplatesNoTpl	: "(Belirli bir düzen seçilmedi)",
-DlgTemplatesReplace	: "Replace actual contents",	//MISSING
+Templates			: "Şablonlar",
+DlgTemplatesTitle	: "İçerik Şablonları",
+DlgTemplatesSelMsg	: "Düzenleyicide açmak için lütfen bir şablon seçin.<br>(hali hazırdaki içerik kaybolacaktır.):",
+DlgTemplatesLoading	: "Şablon listesi yüklenmekte. Lütfen bekleyiniz...",
+DlgTemplatesNoTpl	: "(Belirli bir şablon seçilmedi)",
+DlgTemplatesReplace	: "Mevcut içerik ile değiştir",
 
 // About Dialog
 DlgAboutAboutTab	: "Hakkında",
 DlgAboutBrowserInfoTab	: "Gezgin Bilgisi",
 DlgAboutLicenseTab	: "Lisans",
-DlgAboutVersion		: "versiyon",
-DlgAboutLicense		: "GNU Kısıtlı Kamu Lisansı (LGPL) koşulları altında lisanslanmıştır",
+DlgAboutVersion		: "sürüm",
 DlgAboutInfo		: "Daha fazla bilgi için:"
-}
+};

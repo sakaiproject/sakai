@@ -1,20 +1,28 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: fckspecialcombo.js
  * 	FCKSpecialCombo Class: represents a special combo.
  * 
  * File Authors:
- * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
+ * 		Frederico Caldeira Knabben (www.fckeditor.net)
  */
 
 var FCKSpecialCombo = function( caption, fieldWidth, panelWidth, panelMaxHeight, parentWindow )
@@ -155,7 +163,15 @@ FCKSpecialCombo.prototype.SetLabel = function( text )
 	this.Label = text.length == 0 ? '&nbsp;' : text ;
 
 	if ( this._LabelEl )
+	{
 		this._LabelEl.innerHTML = this.Label ;
+		
+		// It may happen that the label is some HTML, including tags. This
+		// would be a problem because when the user click on those tags, the
+		// combo will get the selection from the editing area. So we must
+		// disable any kind of selection here.
+		FCKTools.DisableSelection( this._LabelEl ) ;
+	}
 }
 
 FCKSpecialCombo.prototype.SetEnabled = function( isEnabled )
@@ -237,7 +253,7 @@ FCKSpecialCombo.prototype.Create = function( targetElement )
 	oField.onmouseover	= FCKSpecialCombo_OnMouseOver ;
 	oField.onmouseout	= FCKSpecialCombo_OnMouseOut ;
 	oField.onclick		= FCKSpecialCombo_OnClick ;
-	
+
 	FCKTools.DisableSelection( this._Panel.Document.body ) ;
 }
 

@@ -1,15 +1,23 @@
 <cfsetting enablecfoutputonly="true">
 <!---
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: sample02_mx.cfm
  * 	Sample page for ColdFusion MX.
@@ -24,15 +32,15 @@
 	  * The best position for this variable is in your Application.cfm file
 	  * 
 	  * Possible variable scopes are:
-	  * <cfset APPLICATION.userFilesPath = "/UserFiles/">
+	  * <cfset APPLICATION.userFilesPath = "/userfiles/">
 	  * OR:
-	  * <cfset SERVER.userFilesPath = "/UserFiles/">
+	  * <cfset SERVER.userFilesPath = "/userfiles/">
 	  * OR:
-	  * <cfset request.FCKeditor.userFilesPath = "/UserFiles/">
+	  * <cfset request.FCKeditor.userFilesPath = "/userfiles/">
 	  * OR:
-	  * <cfset application.FCKeditor.userFilesPath = "/UserFiles/">
+	  * <cfset application.FCKeditor.userFilesPath = "/userfiles/">
 	  * OR:
-	  * <cfset server.FCKeditor.userFilesPath = "/UserFiles/">
+	  * <cfset server.FCKeditor.userFilesPath = "/userfiles/">
 	  *
 	  * Note #1: Do _not_ set the physical directory on your server, only a path relative to your current webroot
 	  * Note #2: Directories will be automatically created

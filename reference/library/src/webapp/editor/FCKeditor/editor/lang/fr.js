@@ -1,14 +1,22 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: fr.js
  * 	French language file.
@@ -130,7 +138,7 @@ SelectionFieldProp	: "Propriétés de la liste/du menu",
 TextareaProp		: "Propriétés de la zone de texte",
 FormProp			: "Propriétés du formulaire",
 
-FontFormats			: "Normal;Formaté;Adresse;En-tête 1;En-tête 2;En-tête 3;En-tête 4;En-tête 5;En-tête 6;Normal (DIV)",
+FontFormats			: "Normal;Formaté;Adresse;En-tête 1;En-tête 2;En-tête 3;En-tête 4;En-tête 5;En-tête 6;Normal (DIV)",		//REVIEW : Check _getfontformat.html
 
 // Alerts and Messages
 ProcessingXHTML		: "Calcul XHTML. Veuillez patienter...",
@@ -225,7 +233,7 @@ DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Sélectionner une ancre",
 DlgLnkAnchorByName	: "Par nom",
 DlgLnkAnchorById	: "Par id",
-DlgLnkNoAnchors		: "<Pas d'ancre disponible dans le document>",
+DlgLnkNoAnchors		: "<Pas d'ancre disponible dans le document>",		//REVIEW : Change < and > with ( and )
 DlgLnkEMail			: "Adresse E-Mail",
 DlgLnkEMailSubject	: "Sujet du message",
 DlgLnkEMailBody		: "Corps du message",
@@ -496,6 +504,5 @@ DlgAboutAboutTab	: "A propos de",
 DlgAboutBrowserInfoTab	: "Navigateur",
 DlgAboutLicenseTab	: "License",
 DlgAboutVersion		: "version",
-DlgAboutLicense		: "License selon les termes de GNU Lesser General Public License",
 DlgAboutInfo		: "Pour plus d'informations, aller à"
-}
+};

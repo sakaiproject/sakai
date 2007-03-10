@@ -1,21 +1,29 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: fckicon.js
  * 	FCKIcon Class: renders an icon from a single image, a strip or even a
  * 	spacer.
  * 
  * File Authors:
- * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
+ * 		Frederico Caldeira Knabben (www.fckeditor.net)
  */
 
 var FCKIcon = function( iconPathOrStripInfoArray )
@@ -47,7 +55,7 @@ var FCKIcon = function( iconPathOrStripInfoArray )
 
 FCKIcon.prototype.CreateIconElement = function( document )
 {
-	var eIcon ;
+	var eIcon, eIconImage ;
 	
 	if ( this.Position )		// It is using an icons strip image.
 	{
@@ -59,7 +67,7 @@ FCKIcon.prototype.CreateIconElement = function( document )
 			
 			eIcon = document.createElement( 'DIV' ) ;
 			
-			var eIconImage = eIcon.appendChild( document.createElement( 'IMG' ) ) ;
+			eIconImage = eIcon.appendChild( document.createElement( 'IMG' ) ) ;
 			eIconImage.src = this.Path ;
 			eIconImage.style.top = sPos ;
 		}
@@ -84,7 +92,7 @@ FCKIcon.prototype.CreateIconElement = function( document )
 		// are changing to the <div> system to clip the image correctly.
 		eIcon = document.createElement( 'DIV' ) ;
 		
-		var eIconImage = eIcon.appendChild( document.createElement( 'IMG' ) ) ;
+		eIconImage = eIcon.appendChild( document.createElement( 'IMG' ) ) ;
 		eIconImage.src = this.Path ? this.Path : FCK_SPACER_PATH ;
 	}
 	

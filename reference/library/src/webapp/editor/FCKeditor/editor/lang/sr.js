@@ -1,14 +1,22 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: sr.js
  * 	Serbian (Cyrillic) language file.
@@ -130,7 +138,7 @@ SelectionFieldProp	: "Особине изборног поља",
 TextareaProp		: "Особине зоне текста",
 FormProp			: "Особине форме",
 
-FontFormats			: "Normal;Formatirano;Adresa;Heading 1;Heading 2;Heading 3;Heading 4;Heading 5;Heading 6",
+FontFormats			: "Normal;Formatirano;Adresa;Heading 1;Heading 2;Heading 3;Heading 4;Heading 5;Heading 6",		//REVIEW : Check _getfontformat.html
 
 // Alerts and Messages
 ProcessingXHTML		: "Обрађујем XHTML. Maлo стрпљења...",
@@ -225,7 +233,7 @@ DlgLnkURL			: "УРЛ",
 DlgLnkAnchorSel		: "Одабери сидро",
 DlgLnkAnchorByName	: "По називу сидра",
 DlgLnkAnchorById	: "Пo Ид-jу елемента",
-DlgLnkNoAnchors		: "<Нема доступних сидра>",
+DlgLnkNoAnchors		: "<Нема доступних сидра>",		//REVIEW : Change < and > with ( and )
 DlgLnkEMail			: "Адреса електронске поште",
 DlgLnkEMailSubject	: "Наслов",
 DlgLnkEMailBody		: "Садржај поруке",
@@ -496,6 +504,5 @@ DlgAboutAboutTab	: "О едитору",
 DlgAboutBrowserInfoTab	: "Информације о претраживачу",
 DlgAboutLicenseTab	: "License",	//MISSING
 DlgAboutVersion		: "верзија",
-DlgAboutLicense		: "Лиценцирано под условима GNU Lesser General Public License",
 DlgAboutInfo		: "За више информација посетите"
-}
+};

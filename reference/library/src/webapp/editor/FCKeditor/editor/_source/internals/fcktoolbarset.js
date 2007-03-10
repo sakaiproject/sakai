@@ -1,21 +1,29 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: fcktoolbarset.js
  * 	Defines the FCKToolbarSet object that is used to load and draw the 
  * 	toolbar.
  * 
  * File Authors:
- * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
+ * 		Frederico Caldeira Knabben (www.fckeditor.net)
  */
 
 function FCKToolbarSet_Create( overhideLocation )
@@ -60,7 +68,8 @@ function FCKToolbarSet_Create( overhideLocation )
 			}
 			
 			// If it is a shared toolbar, it may be already available in the target element.
-			if ( oToolbarSet = eToolbarTarget.__FCKToolbarSet )
+			oToolbarSet = eToolbarTarget.__FCKToolbarSet ;
+			if ( oToolbarSet )
 				break ;
 
 			// Create the IFRAME that will hold the toolbar inside the target element.
@@ -337,8 +346,8 @@ FCKToolbarSet.prototype.RefreshModeState = function( editorInstance )
 		oToolbarSet.RefreshItemsState( editorInstance ) ;
 
 		// Disable all buttons that are available on WYSIWYG mode only.
-		for ( var i = 0 ; i < aItems.length ; i++ )
-			aItems[i].Disable() ;
+		for ( var j = 0 ; j < aItems.length ; j++ )
+			aItems[j].Disable() ;
 	}	
 }
 

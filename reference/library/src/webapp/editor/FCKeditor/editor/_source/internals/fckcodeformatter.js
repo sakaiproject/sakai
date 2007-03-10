@@ -1,20 +1,28 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: fckcodeformatter.js
  * 	Format the HTML.
  * 
  * File Authors:
- * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
+ * 		Frederico Caldeira Knabben (www.fckeditor.net)
  */
 
 var FCKCodeFormatter = new Object() ;
@@ -58,7 +66,7 @@ FCKCodeFormatter.Format = function( html )
 	var sFormatted = html.replace( this.Regex.ProtectedTags, FCKCodeFormatter._ProtectData ) ;
 	
 	// Line breaks.
-	sFormatted		= sFormatted.replace( this.Regex.BlocksOpener, '\n$&' ) ; ;
+	sFormatted		= sFormatted.replace( this.Regex.BlocksOpener, '\n$&' ) ;
 	sFormatted		= sFormatted.replace( this.Regex.BlocksCloser, '$&\n' ) ;
 	sFormatted		= sFormatted.replace( this.Regex.NewLineTags, '$&\n' ) ;
 	sFormatted		= sFormatted.replace( this.Regex.MainTags, '\n$&\n' ) ;
@@ -86,11 +94,11 @@ FCKCodeFormatter.Format = function( html )
 	}
 	
 	// Now we put back the protected data.
-	for ( var i = 0 ; i < FCKCodeFormatter.ProtectedData.length ; i++ )
+	for ( var j = 0 ; j < FCKCodeFormatter.ProtectedData.length ; j++ )
 	{
-		var oRegex = new RegExp( '___FCKpd___' + i ) ;
-		sFormatted = sFormatted.replace( oRegex, FCKCodeFormatter.ProtectedData[i].replace( /\$/g, '$$$$' ) ) ;
+		var oRegex = new RegExp( '___FCKpd___' + j ) ;
+		sFormatted = sFormatted.replace( oRegex, FCKCodeFormatter.ProtectedData[j].replace( /\$/g, '$$$$' ) ) ;
 	}
 
-	return sFormatted.trim() ;
+	return sFormatted.Trim() ;
 }

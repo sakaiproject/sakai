@@ -1,14 +1,22 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: lv.js
  * 	Latvian language file.
@@ -131,7 +139,7 @@ SelectionFieldProp	: "Iezīmēšanas lauka īpašības",
 TextareaProp		: "Teksta laukuma īpašības",
 FormProp			: "Formas īpašības",
 
-FontFormats			: "Normāls teksts;Formatēts teksts;Adrese;Virsraksts 1;Virsraksts 2;Virsraksts 3;Virsraksts 4;Virsraksts 5;Virsraksts 6;Rindkopa (DIV)",
+FontFormats			: "Normāls teksts;Formatēts teksts;Adrese;Virsraksts 1;Virsraksts 2;Virsraksts 3;Virsraksts 4;Virsraksts 5;Virsraksts 6;Rindkopa (DIV)",		//REVIEW : Check _getfontformat.html
 
 // Alerts and Messages
 ProcessingXHTML		: "Tiek apstrādāts XHTML. Lūdzu uzgaidiet...",
@@ -226,7 +234,7 @@ DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Izvēlēties iezīmi",
 DlgLnkAnchorByName	: "Pēc iezīmes nosaukuma",
 DlgLnkAnchorById	: "Pēc elementa ID",
-DlgLnkNoAnchors		: "<Šajā dokumentā nav iezīmju>",
+DlgLnkNoAnchors		: "<Šajā dokumentā nav iezīmju>",		//REVIEW : Change < and > with ( and )
 DlgLnkEMail			: "E-pasta adrese",
 DlgLnkEMailSubject	: "Ziņas tēma",
 DlgLnkEMailBody		: "Ziņas saturs",
@@ -497,6 +505,5 @@ DlgAboutAboutTab	: "Par",
 DlgAboutBrowserInfoTab	: "Informācija par pārlūkprogrammu",
 DlgAboutLicenseTab	: "Licence",
 DlgAboutVersion		: "versija",
-DlgAboutLicense		: "Programmatūra lietojama saskaņā ar GNU Lesser General Public License",
 DlgAboutInfo		: "Papildus informācija ir pieejama"
-}
+};

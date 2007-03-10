@@ -1,20 +1,28 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: fckeditingarea.js
  * 	FCKEditingArea Class: renders an editable area.
  * 
  * File Authors:
- * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
+ * 		Frederico Caldeira Knabben (www.fckeditor.net)
  */
 
 /**
@@ -45,9 +53,6 @@ FCKEditingArea.prototype.Start = function( html, secondCall )
 
 	if ( this.Mode == FCK_EDITMODE_WYSIWYG )
 	{
-		if ( FCKBrowserInfo.IsGecko )
-			html = html.replace( /(<body[^>]*>)\s*(<\/body>)/i, '$1' + GECKO_BOGUS + '$2' ) ;
-	
 		// Create the editing area IFRAME.
 		var oIFrame = this.IFrame = oTargetDocument.createElement( 'iframe' ) ;
 		oIFrame.src = 'javascript:void(0)' ;
@@ -61,6 +66,30 @@ FCKEditingArea.prototype.Start = function( html, secondCall )
 		// otherwise the all sucessive tags will be set as children nodes of the <base>.
 		if ( FCKBrowserInfo.IsIE )
 			html = html.replace( /(<base[^>]*?)\s*\/?>(?!\s*<\/base>)/gi, '$1></base>' ) ;
+		else if ( !secondCall )
+		{
+			// If nothing in the body, place a BOGUS tag so the cursor will appear.
+			if ( FCKBrowserInfo.IsGecko )
+				html = html.replace( /(<body[^>]*>)\s*(<\/body>)/i, '$1' + GECKO_BOGUS + '$2' ) ;
+
+			// Gecko moves some tags out of the body to the head, so we must use
+			// innerHTML to set the body contents (SF BUG 1526154).
+		
+			// Extract the BODY contents from the html.
+			var oMatch = html.match( FCKRegexLib.BodyContents ) ;
+			
+			if ( oMatch )
+			{
+				html = 
+					oMatch[1] +					// This is the HTML until the <body...> tag, inclusive.
+					'&nbsp;' + 
+					oMatch[3] ;					// This is the HTML from the </body> tag, inclusive.
+				
+				this._BodyHTML = oMatch[2] ;	// This is the BODY tag contents.
+			}
+			else
+				this._BodyHTML = html ;			// Invalid HTML input.
+		}
 
 		// Get the window and document objects used to interact with the newly created IFRAME.
 		this.Window = oIFrame.contentWindow ;
@@ -132,15 +161,40 @@ FCKEditingArea.prototype.MakeEditable = function()
 	var oDoc = this.Document ;
 
 	if ( FCKBrowserInfo.IsIE )
+	{
 		oDoc.body.contentEditable = true ;
+		
+		/* The following commands don't throw errors, but have no effect.
+		oDoc.execCommand( 'AutoDetect', false, false ) ;
+		oDoc.execCommand( 'KeepSelection', false, true ) ;
+		*/
+	}
 	else
 	{
 		try
 		{
+			// Disable Firefox 2 Spell Checker.
+			oDoc.body.spellcheck = ( this.FFSpellChecker !== false ) ;
+			
+			if ( this._BodyHTML )
+			{
+				oDoc.body.innerHTML = this._BodyHTML ;
+				this._BodyHTML = null ;
+			}
+			
 			oDoc.designMode = 'on' ;
 
 			// Tell Gecko to use or not the <SPAN> tag for the bold, italic and underline.
-			oDoc.execCommand( 'useCSS', false, !FCKConfig.GeckoUseSPAN ) ;
+			try
+			{
+				oDoc.execCommand( 'styleWithCSS', false, FCKConfig.GeckoUseSPAN ) ;
+			}
+			catch (e)
+			{
+				// As evidenced here, useCSS is deprecated in favor of styleWithCSS:
+				// http://www.mozilla.org/editor/midas-spec.html
+				oDoc.execCommand( 'useCSS', false, !FCKConfig.GeckoUseSPAN ) ;
+			}
 
 			// Analysing Firefox 1.5 source code, it seams that there is support for a 
 			// "insertBrOnReturn" command. Applying it gives no error, but it doesn't 
@@ -164,13 +218,24 @@ FCKEditingArea.prototype.Focus = function()
 	{
 		if ( this.Mode == FCK_EDITMODE_WYSIWYG )
 		{
+			if ( FCKBrowserInfo.IsIE && this.Document.hasFocus() )
+				return ;
+
 			if ( FCKBrowserInfo.IsSafari )
 				this.IFrame.focus() ;
 			else
+			{
 				this.Window.focus() ;
+			}
 		}
 		else
+		{
+			var oDoc = FCKTools.GetElementDocument( this.Textarea ) ;
+			if ( (!oDoc.hasFocus || oDoc.hasFocus() ) && oDoc.activeElement == this.Textarea )
+				return ;
+
 			this.Textarea.focus() ;
+		}		
 	}
 	catch(e) {}
 }

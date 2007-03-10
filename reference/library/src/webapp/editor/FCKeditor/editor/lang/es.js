@@ -1,14 +1,22 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: es.js
  * 	Spanish language file.
@@ -130,7 +138,7 @@ SelectionFieldProp	: "Propiedades de Campo de Selección",
 TextareaProp		: "Propiedades de Area de Texto",
 FormProp			: "Propiedades de Formulario",
 
-FontFormats			: "Normal;Con formato;Dirección;Encabezado 1;Encabezado 2;Encabezado 3;Encabezado 4;Encabezado 5;Encabezado 6;Normal (DIV)",
+FontFormats			: "Normal;Con formato;Dirección;Encabezado 1;Encabezado 2;Encabezado 3;Encabezado 4;Encabezado 5;Encabezado 6;Normal (DIV)",		//REVIEW : Check _getfontformat.html
 
 // Alerts and Messages
 ProcessingXHTML		: "Procesando XHTML. Por favor, espere...",
@@ -225,7 +233,7 @@ DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Seleccionar una referencia",
 DlgLnkAnchorByName	: "Por Nombre de Referencia",
 DlgLnkAnchorById	: "Por ID de elemento",
-DlgLnkNoAnchors		: "<No hay referencias disponibles en el documento>",
+DlgLnkNoAnchors		: "<No hay referencias disponibles en el documento>",		//REVIEW : Change < and > with ( and )
 DlgLnkEMail			: "Dirección de E-Mail",
 DlgLnkEMailSubject	: "Título del Mensaje",
 DlgLnkEMailBody		: "Cuerpo del Mensaje",
@@ -496,6 +504,5 @@ DlgAboutAboutTab	: "Acerca de",
 DlgAboutBrowserInfoTab	: "Información de Navegador",
 DlgAboutLicenseTab	: "Licencia",
 DlgAboutVersion		: "versión",
-DlgAboutLicense		: "Licenciado bajo los términos de GNU Lesser General Public License",
 DlgAboutInfo		: "Para mayor información por favor dirigirse a"
-}
+};

@@ -1,14 +1,22 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: pt.js
  * 	Portuguese language file.
@@ -130,7 +138,7 @@ SelectionFieldProp	: "Propriedades da Caixa de Combinação",
 TextareaProp		: "Propriedades da Área de Texto",
 FormProp			: "Propriedades do Formulário",
 
-FontFormats			: "Normal;Formatado;Endereço;Título 1;Título 2;Título 3;Título 4;Título 5;Título 6",
+FontFormats			: "Normal;Formatado;Endereço;Título 1;Título 2;Título 3;Título 4;Título 5;Título 6",		//REVIEW : Check _getfontformat.html
 
 // Alerts and Messages
 ProcessingXHTML		: "A Processar XHTML. Por favor, espere...",
@@ -225,7 +233,7 @@ DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Seleccionar una referência",
 DlgLnkAnchorByName	: "Por Nome de Referência",
 DlgLnkAnchorById	: "Por ID de elemento",
-DlgLnkNoAnchors		: "<Não há referências disponíveis no documento>",
+DlgLnkNoAnchors		: "<Não há referências disponíveis no documento>",		//REVIEW : Change < and > with ( and )
 DlgLnkEMail			: "Endereço de E-Mail",
 DlgLnkEMailSubject	: "Título de Mensagem",
 DlgLnkEMailBody		: "Corpo da Mensagem",
@@ -496,6 +504,5 @@ DlgAboutAboutTab	: "Acerca",
 DlgAboutBrowserInfoTab	: "Informação do Nevegador",
 DlgAboutLicenseTab	: "Licença",
 DlgAboutVersion		: "versão",
-DlgAboutLicense		: "Licenciado segundo os términos de GNU Lesser General Public License",
 DlgAboutInfo		: "Para mais informações por favor dirija-se a"
-}
+};

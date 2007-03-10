@@ -1,20 +1,28 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: fcktools_ie.js
  * 	Utility functions. (IE version).
  * 
  * File Authors:
- * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
+ * 		Frederico Caldeira Knabben (www.fckeditor.net)
  */
 
 FCKTools.CancelEvent = function( e )
@@ -79,6 +87,7 @@ FCKTools.CreateXmlObject = function( object )
 		alert( FCKLang.NoActiveX ) ;
 		FCKLang.NoActiveX = null ;
 	}
+	return null ;
 }
 
 FCKTools.DisableSelection = function( element )
@@ -86,7 +95,8 @@ FCKTools.DisableSelection = function( element )
 	element.unselectable = 'on' ;
 
 	var e, i = 0 ;
-	while ( e = element.all[ i++ ] )
+	// The extra () is to avoid a warning with strict error checking. This is ok.
+	while ( (e = element.all[ i++ ]) )
 	{
 		switch ( e.tagName )
 		{
@@ -199,4 +209,10 @@ FCKTools.RegisterDollarFunction = function( targetWindow )
 FCKTools.AppendElement = function( target, elementName )
 {
 	return target.appendChild( this.GetElementDocument( target ).createElement( elementName ) ) ;
+}
+
+// This function may be used by Regex replacements.
+FCKTools.ToLowerCase = function( strValue )
+{
+	return strValue.toLowerCase() ;
 }

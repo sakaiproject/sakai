@@ -1,12 +1,22 @@
 <% 
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2004 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
+ * 
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: sampleposteddata.php
  * 	This page lists the data posted by a form.
@@ -20,7 +30,7 @@
 
 <html>
 	<head>
-		<title>FCKeditor - Sample</title>
+		<title>FCKeditor - AFP Sample 1</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<meta name="robots" content="noindex, nofollow">
 		<link href="../sample.css" rel="stylesheet" type="text/css" />
@@ -32,17 +42,17 @@
 		<form action="sampleposteddata.afp" method="post" target="_blank">
 <%
 
-sBasePath="../../fckeditor/"		&& Change this to your local path
+			sBasePath="../../../fckeditor/"		&& Change this to your local path
 
-lcText=[This is some <strong>sample text</strong>. You are using ]
-lcText=lcText+[<a href='http://www.fckeditor.net/'>FCKeditor</a>.]
+			lcText=[This is some <strong>sample text</strong>. You are using ]
+			lcText=lcText+[<a href='http://www.fckeditor.net/'>FCKeditor</a>.]
 
-oFCKeditor = CREATEOBJECT("FCKeditor")
-oFCKeditor.fckeditor("FCKeditor1")
-oFCKeditor.BasePath	= sBasePath 
-oFCKeditor.cValue	= lcText
+			oFCKeditor = CREATEOBJECT("FCKeditor")
+			oFCKeditor.fckeditor("FCKeditor1")
+			oFCKeditor.BasePath	= sBasePath 
+			oFCKeditor.cValue	= lcText
 
-? oFCKeditor.Create() 
+			? oFCKeditor.Create() 
 
 %>
 			<br>

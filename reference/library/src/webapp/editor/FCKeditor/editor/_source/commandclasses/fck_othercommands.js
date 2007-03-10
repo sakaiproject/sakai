@@ -1,21 +1,30 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: fck_othercommands.js
  * 	Definition of other commands that are not available internaly in the
  * 	browser (see FCKNamedCommand).
  * 
  * File Authors:
- * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
+ * 		Frederico Caldeira Knabben (www.fckeditor.net)
+ * 		Alfonso Martinez de Lizarrondo - Uritec (alfonso at uritec dot net)
  */
 
 // ### General Dialog Box Commands.
@@ -29,11 +38,13 @@ var FCKDialogCommand = function( name, title, url, width, height, getStateFuncti
 
 	this.GetStateFunction	= getStateFunction ;
 	this.GetStateParam		= getStateParam ;
+	
+	this.Resizable = false ;
 }
 
 FCKDialogCommand.prototype.Execute = function()
 {
-	FCKDialog.OpenDialog( 'FCKDialog_' + this.Name , this.Title, this.Url, this.Width, this.Height ) ;
+	FCKDialog.OpenDialog( 'FCKDialog_' + this.Name , this.Title, this.Url, this.Width, this.Height, null, null, this.Resizable ) ;
 }
 
 FCKDialogCommand.prototype.GetState = function()
@@ -89,7 +100,7 @@ var FCKFontSizeCommand = function()
 
 FCKFontSizeCommand.prototype.Execute = function( fontSize )
 {
-	if ( typeof( fontSize ) == 'string' ) fontSize = parseInt(fontSize) ;
+	if ( typeof( fontSize ) == 'string' ) fontSize = parseInt(fontSize, 10) ;
 
 	if ( fontSize == null || fontSize == '' )
 	{
@@ -151,7 +162,7 @@ var FCKSaveCommand = function()
 FCKSaveCommand.prototype.Execute = function()
 {
 	// Get the linked field form.
-	var oForm = FCK.LinkedField.form ;
+	var oForm = FCK.GetParentForm() ;
 
 	if ( typeof( oForm.onsubmit ) == 'function' )
 	{
@@ -180,8 +191,6 @@ FCKNewPageCommand.prototype.Execute = function()
 	FCKUndo.SaveUndoStep() ;
 	FCK.SetHTML( '' ) ;
 	FCKUndo.Typing = true ;
-//	FCK.SetHTML( FCKBrowserInfo.IsGecko ? '&nbsp;' : '' ) ;
-//	FCK.SetHTML( FCKBrowserInfo.IsGecko ? GECKO_BOGUS : '' ) ;
 }
 
 FCKNewPageCommand.prototype.GetState = function()
@@ -305,5 +314,29 @@ FCKUnlinkCommand.prototype.Execute = function()
 
 FCKUnlinkCommand.prototype.GetState = function()
 {
-	return FCK.GetNamedCommandState( this.Name ) ;
+	var state = FCK.GetNamedCommandState( this.Name ) ;
+
+	// Check that it isn't an anchor
+	if ( state == FCK_TRISTATE_OFF && FCK.EditMode == FCK_EDITMODE_WYSIWYG )
+	{
+		var oLink = FCKSelection.MoveToAncestorNode( 'A' ) ; 
+		var bIsAnchor = ( oLink && oLink.name.length > 0 && oLink.href.length == 0 ) ;
+		if ( bIsAnchor )
+			state = FCK_TRISTATE_DISABLED ;
+	}
+
+	return state ;
+}
+
+// FCKSelectAllCommand
+var FCKSelectAllCommand = function()
+{
+	this.Name = 'SelectAll' ;
+}
+
+FCKSelectAllCommand.prototype = new FCKNamedCommand( 'SelectAll' ) ;
+
+FCKSelectAllCommand.prototype.GetState = function()
+{
+	return FCK_TRISTATE_OFF ;
 }

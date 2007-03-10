@@ -1,21 +1,29 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <!--
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: fck_docprops.html
  * 	Link dialog window.
  * 
  * File Authors:
- * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
+ * 		Frederico Caldeira Knabben (www.fckeditor.net)
 -->
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -63,30 +71,34 @@ var oBody = FCK.EditorDocument.body ;
 var oMetaTags = new Object() ;
 
 // Get all META tags defined in the document.
-var aMetas = oHead.getElementsByTagName('meta') ;
+AppendMetaCollection( oMetaTags, oHead.getElementsByTagName('meta') ) ;
+AppendMetaCollection( oMetaTags, oHead.getElementsByTagName('fck:meta') ) ;
 
-// Loop throw all METAs and put it in the HashTable.
-for ( var i = 0 ; i < aMetas.length ; i++ )
+function AppendMetaCollection( targetObject, metaCollection )
 {
-	// Try to get the "name" attribute.
-	var sName = GetAttribute( aMetas[i], 'name', GetAttribute( aMetas[i], '___fcktoreplace:name', '' ) ) ;
-
-	// If no "name", try with the "http-equiv" attribute.
-	if ( sName.length == 0 )
+	// Loop throw all METAs and put it in the HashTable.
+	for ( var i = 0 ; i < metaCollection.length ; i++ )
 	{
-		if ( document.all )
-		{
-			// Get the http-equiv value from the outerHTML.
-			var oHttpEquivMatch = aMetas[i].outerHTML.match( oEditor.FCKRegexLib.MetaHttpEquiv ) ;
-			if ( oHttpEquivMatch )
-				sName = oHttpEquivMatch[1] ;
-		}
-		else
-			sName = GetAttribute( aMetas[i], 'http-equiv', '' ) ;
-	}
+		// Try to get the "name" attribute.
+		var sName = GetAttribute( metaCollection[i], 'name', GetAttribute( metaCollection[i], '___fcktoreplace:name', '' ) ) ;
 
-	if ( sName.length > 0 )
-		oMetaTags[ sName.toLowerCase() ] = aMetas[i] ;
+		// If no "name", try with the "http-equiv" attribute.
+		if ( sName.length == 0 )
+		{
+			if ( oEditor.FCKBrowserInfo.IsIE )
+			{
+				// Get the http-equiv value from the outerHTML.
+				var oHttpEquivMatch = metaCollection[i].outerHTML.match( oEditor.FCKRegexLib.MetaHttpEquiv ) ;
+				if ( oHttpEquivMatch )
+					sName = oHttpEquivMatch[1] ;
+			}
+			else
+				sName = GetAttribute( metaCollection[i], 'http-equiv', '' ) ;
+		}
+
+		if ( sName.length > 0 )
+			targetObject[ sName.toLowerCase() ] = metaCollection[i] ;
+	}
 }
 
 //#### END
@@ -113,7 +125,7 @@ function SetMetadata( name, content, isHttp )
 			// On IE, it is not possible to set the "name" attribute of the META tag.
 			// So a temporary attribute is used and it is replaced when getting the
 			// editor's HTML/XHTML value. This is sad, I know :(
-			if ( document.all )
+			if ( oEditor.FCKBrowserInfo.IsIE )
 				SetAttribute( oMeta, '___fcktoreplace:name', name ) ;
 			else
 				SetAttribute( oMeta, 'name', name ) ;
@@ -122,7 +134,8 @@ function SetMetadata( name, content, isHttp )
 		oMetaTags[ name.toLowerCase() ] = oMeta ;
 	}
 
-	oMeta.content = content ;
+	SetAttribute( oMeta, 'content', content ) ;
+//	oMeta.content = content ;
 }
 
 function RemoveMetadata( name )
@@ -141,7 +154,7 @@ function GetMetadata( name )
 	var oMeta = oMetaTags[ name.toLowerCase() ] ;
 
 	if ( oMeta && oMeta != null )
-		return oMeta.content ;
+		return oMeta.getAttribute( 'content', 2 ) ;
 	else
 		return '' ;
 }
@@ -173,14 +186,14 @@ function FillFields()
 	GetE('txtLang').value		= GetAttribute( oHTML, 'xml:lang', GetAttribute( oHTML, 'lang', '' ) ) ;	// "xml:lang" takes precedence to "lang".
 
 	// Character Set Encoding.
-//	if ( document.all )
+//	if ( oEditor.FCKBrowserInfo.IsIE )
 //		var sCharSet = FCK.EditorDocument.charset ;
 //	else
 		var sCharSet = GetMetadata( 'Content-Type' ) ;
 
 	if ( sCharSet != null && sCharSet.length > 0 )
 	{
-//		if ( !document.all )
+//		if ( !oEditor.FCKBrowserInfo.IsIE )
 			sCharSet = sCharSet.match( /[^=]*$/ ) ;
 
 		GetE('selCharSet').value = sCharSet ;
@@ -255,7 +268,7 @@ function Ok()
 	if ( sCharSet.length > 0 )
 			sCharSet = 'text/html; charset=' + sCharSet ;
 
-//	if ( document.all )
+//	if ( oEditor.FCKBrowserInfo.IsIE )
 //		FCK.EditorDocument.charset = sCharSet ;
 //	else
 		SetMetadata( 'Content-Type', sCharSet, true ) ;

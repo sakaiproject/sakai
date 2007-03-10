@@ -1,20 +1,29 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: fckdocumentprocessor.js
  * 	Advanced document processors.
  * 
  * File Authors:
- * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
+ * 		Frederico Caldeira Knabben (www.fckeditor.net)
+ * 		Alfonso Martinez de Lizarrondo - Uritec (alfonso at uritec dot net)
  */
 
 var FCKDocumentProcessor = new Object() ;
@@ -45,23 +54,35 @@ var FCKDocumentProcessor_CreateFakeImage = function( fakeClass, realElement )
 }
 
 // Link Anchors
-var FCKAnchorsProcessor = FCKDocumentProcessor.AppendNew() ;
-FCKAnchorsProcessor.ProcessDocument = function( document )
+if ( FCKBrowserInfo.IsIE || FCKBrowserInfo.IsOpera )
 {
-	var aLinks = document.getElementsByTagName( 'A' ) ;
-
-	var oLink ;
-	var i = aLinks.length - 1 ;
-	while ( i >= 0 && ( oLink = aLinks[i--] ) )
+	var FCKAnchorsProcessor = FCKDocumentProcessor.AppendNew() ;
+	FCKAnchorsProcessor.ProcessDocument = function( document )
 	{
-		// If it is anchor.
-		if ( oLink.name.length > 0 && ( !oLink.getAttribute('href') || oLink.getAttribute('href').length == 0 ) )
+		var aLinks = document.getElementsByTagName( 'A' ) ;
+
+		var oLink ;
+		var i = aLinks.length - 1 ;
+		while ( i >= 0 && ( oLink = aLinks[i--] ) )
 		{
-			var oImg = FCKDocumentProcessor_CreateFakeImage( 'FCK__Anchor', oLink.cloneNode(true) ) ;
-			oImg.setAttribute( '_fckanchor', 'true', 0 ) ;
-			
-			oLink.parentNode.insertBefore( oImg, oLink ) ;
-			oLink.parentNode.removeChild( oLink ) ;
+			// If it is anchor. Doesn't matter if it's also a link (even better: we show that it's both a link and an anchor)
+			if ( oLink.name.length > 0 )
+			{
+				//if the anchor has some content then we just add a temporary class
+				if ( oLink.innerHTML != '' )
+				{
+					if ( FCKBrowserInfo.IsIE )
+						oLink.className += ' FCK__AnchorC' ;
+				}
+				else
+				{
+					var oImg = FCKDocumentProcessor_CreateFakeImage( 'FCK__Anchor', oLink.cloneNode(true) ) ;
+					oImg.setAttribute( '_fckanchor', 'true', 0 ) ;
+					
+					oLink.parentNode.insertBefore( oImg, oLink ) ;
+					oLink.parentNode.removeChild( oLink ) ;
+				}
+			}
 		}
 	}
 }
@@ -91,7 +112,7 @@ FCKPageBreaksProcessor.ProcessDocument = function( document )
 	var i = aCenters.length - 1 ;
 	while ( i >= 0 && ( oCenter = aCenters[i--] ) )
 	{
-		if ( oCenter.style.pageBreakAfter == 'always' && oCenter.innerHTML.trim().length == 0 )
+		if ( oCenter.style.pageBreakAfter == 'always' && oCenter.innerHTML.Trim().length == 0 )
 		{
 			var oFakeImage = FCKDocumentProcessor_CreateFakeImage( 'FCK__PageBreak', oCenter.cloneNode(true) ) ;
 			
@@ -117,7 +138,7 @@ FCKFlashProcessor.ProcessDocument = function( document )
 	var i = aEmbeds.length - 1 ;
 	while ( i >= 0 && ( oEmbed = aEmbeds[i--] ) )
 	{
-		if ( oEmbed.src.endsWith( '.swf', true ) )
+		if ( oEmbed.src.EndsWith( '.swf', true ) )
 		{
 			var oCloned = oEmbed.cloneNode( true ) ;
 			
@@ -125,13 +146,12 @@ FCKFlashProcessor.ProcessDocument = function( document )
 			// must fix it. Thanks to Alfonso Martinez.
 			if ( FCKBrowserInfo.IsIE )
 			{
-				var oAtt ;
-				if ( oAtt = oEmbed.getAttribute( 'scale' ) ) oCloned.setAttribute( 'scale', oAtt ) ;
-				if ( oAtt = oEmbed.getAttribute( 'play' ) ) oCloned.setAttribute( 'play', oAtt ) ;
-				if ( oAtt = oEmbed.getAttribute( 'loop' ) ) oCloned.setAttribute( 'loop', oAtt ) ;
-				if ( oAtt = oEmbed.getAttribute( 'menu' ) ) oCloned.setAttribute( 'menu', oAtt ) ;
-				if ( oAtt = oEmbed.getAttribute( 'wmode' ) ) oCloned.setAttribute( 'wmode', oAtt ) ;
-				if ( oAtt = oEmbed.getAttribute( 'quality' ) ) oCloned.setAttribute( 'quality', oAtt ) ;
+				var aAttributes = [ 'scale', 'play', 'loop', 'menu', 'wmode', 'quality' ] ;
+				for ( var iAtt = 0 ; i < aAttributes.length ; i++ )
+				{
+					var oAtt = oEmbed.getAttribute( aAttributes[iAtt] ) ;
+					if ( oAtt ) oCloned.setAttribute( aAttributes[iAtt], oAtt ) ;
+				}
 			}
 		
 			var oImg = FCKDocumentProcessor_CreateFakeImage( 'FCK__Flash', oCloned ) ;

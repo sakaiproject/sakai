@@ -1,21 +1,29 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <!--
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: sampleslist.html
  * 	Page used to select the sample to view.
  * 
  * File Authors:
- * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
+ * 		Frederico Caldeira Knabben (www.fckeditor.net)
 -->
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -43,44 +51,74 @@ function OpenSample( sample )
 				Please select the sample you want to view:
 				<br />
 				<select onchange="OpenSample(this.value);">
-					<option value="html/sample01.html" selected="selected">JavaScript : Sample 01 : Editor
-						with all features</option>
-					<option value="html/sample02.html">JavaScript : Sample 02 : Replacement of a TEXTAREA</option>
-					<option value="html/sample03.html">JavaScript : Sample 03 : Multi-language support</option>
-					<option value="html/sample04.html">JavaScript : Sample 04 : Toolbar selection</option>
-					<option value="html/sample05.html">JavaScript : Sample 05 : Skins support</option>
-					<option value="html/sample06.html">JavaScript : Sample 06 : Plugins support</option>
-					<option value="html/sample07.html">JavaScript : Sample 07 : Full Page editing</option>
-					<option value="html/sample08.html">JavaScript : Sample 08 : Editor API usage</option>
-					<option value="html/sample09.html">JavaScript : Sample 09 : Complex form (multiple editors)</option>
-					<option value="html/sample10.html">JavaScript : Sample 10 : Shared toolbar on same page</option>
-					<option value="html/sample11.html">JavaScript : Sample 11 : Shared toolbar from IFRAME</option>
-					<option value=""></option>
-					<option value="cfm/sample01.cfm">ColdFusion : Sample 01 : Editor with all features</option>
-					<option value="cfm/sample02_mx.cfm">ColdFusion : Sample 02 : Advanced version for ColdFusion
-						MX</option>
-					<option value=""></option>
-					<option value="asp/sample01.asp">ASP : Sample 01 : Editor with all features</option>
-					<option value="asp/sample02.asp">ASP : Sample 02 : Multi-language support</option>
-					<option value="asp/sample03.asp">ASP : Sample 03 : Toolbar selection</option>
-					<option value="asp/sample04.asp">ASP : Sample 04 : Skins support</option>
-					<option value=""></option>
-					<option value="lasso/sample01.lasso">Lasso : Sample 01 : Editor with all features</option>
-					<option value="lasso/sample02.lasso">Lasso : Sample 02 : Multi-language support</option>
-					<option value="lasso/sample03.lasso">Lasso : Sample 03 : Toolbar selection</option>
-					<option value="lasso/sample04.lasso">Lasso : Sample 04 : Skins support</option>
-					<option value=""></option>
-					<option value="perl/sample01.cgi">Perl : Sample 01 : Editor with all features</option>
-					<option value="perl/sample02.cgi">Perl : Sample 02 : Multi-language support</option>
-					<option value="perl/sample03.cgi">Perl : Sample 03 : Toolbar selection</option>
-					<option value="perl/sample04.cgi">Perl : Sample 04 : Skins support</option>
-					<option value=""></option>
-					<option value="php/sample01.php">PHP : Sample 01 : Editor with all features</option>
-					<option value="php/sample02.php">PHP : Sample 02 : Multi-language support</option>
-					<option value="php/sample03.php">PHP : Sample 03 : Toolbar selection</option>
-					<option value="php/sample04.php">PHP : Sample 04 : Skins support</option>
-					<option value=""></option>
-					<option value="py/sample01.py">Python : Sample 01 : Editor with all features</option>
+					<optgroup label="JavaScript">
+						<option value="html/sample01.html" selected="selected">JavaScript : Sample 01 : Editor
+							with all features</option>
+						<option value="html/sample02.html">JavaScript : Sample 02 : Replacement of a TEXTAREA</option>
+						<option value="html/sample03.html">JavaScript : Sample 03 : Multi-language support</option>
+						<option value="html/sample04.html">JavaScript : Sample 04 : Toolbar selection</option>
+						<option value="html/sample05.html">JavaScript : Sample 05 : Skins support</option>
+						<option value="html/sample06.html">JavaScript : Sample 06 : Plugins support</option>
+						<option value="html/sample07.html">JavaScript : Sample 07 : Full Page editing</option>
+						<option value="html/sample08.html">JavaScript : Sample 08 : Editor API usage</option>
+						<option value="html/sample09.html">JavaScript : Sample 09 : Complex form (multiple editors)</option>
+						<option value="html/sample10.html">JavaScript : Sample 10 : Shared toolbar on same page</option>
+						<option value="html/sample11.html">JavaScript : Sample 11 : Shared toolbar from IFRAME</option>
+						<option value="html/sample12.html">JavaScript : Sample 12 : Enter key behavior</option>
+						<option value="html/sample13.html">JavaScript : Sample 13 : Dinamically switching with a Textarea</option>
+					</optgroup>
+					<optgroup label="&nbsp;">
+					</optgroup>
+					<optgroup label="Active Fox Pro">
+						<option value="afp/sample01.afp">AFP : Sample 01 : Editor with all features</option>
+						<option value="afp/sample02.afp">AFP : Sample 02 : Multi-language support</option>
+						<option value="afp/sample03.afp">AFP : Sample 03 : Toolbar selection</option>
+						<option value="afp/sample04.afp">AFP : Sample 04 : Skins support</option>
+					</optgroup>
+					<optgroup label="&nbsp;">
+					</optgroup>
+					<optgroup label="ASP">
+						<option value="asp/sample01.asp">ASP : Sample 01 : Editor with all features</option>
+						<option value="asp/sample02.asp">ASP : Sample 02 : Multi-language support</option>
+						<option value="asp/sample03.asp">ASP : Sample 03 : Toolbar selection</option>
+						<option value="asp/sample04.asp">ASP : Sample 04 : Skins support</option>
+					</optgroup>
+					<optgroup label="&nbsp;">
+					</optgroup>
+					<optgroup label="ColdFusion">
+						<option value="cfm/sample01.cfm">ColdFusion : Sample 01 : Editor with all features</option>
+						<option value="cfm/sample02_mx.cfm">ColdFusion : Sample 02 : Advanced version for ColdFusion
+							MX</option>
+					</optgroup>
+					<optgroup label="&nbsp;">
+					</optgroup>
+					<optgroup label="Lasso">
+						<option value="lasso/sample01.lasso">Lasso : Sample 01 : Editor with all features</option>
+						<option value="lasso/sample02.lasso">Lasso : Sample 02 : Multi-language support</option>
+						<option value="lasso/sample03.lasso">Lasso : Sample 03 : Toolbar selection</option>
+						<option value="lasso/sample04.lasso">Lasso : Sample 04 : Skins support</option>
+					</optgroup>
+					<optgroup label="&nbsp;">
+					</optgroup>
+					<optgroup label="Perl">
+						<option value="perl/sample01.cgi">Perl : Sample 01 : Editor with all features</option>
+						<option value="perl/sample02.cgi">Perl : Sample 02 : Multi-language support</option>
+						<option value="perl/sample03.cgi">Perl : Sample 03 : Toolbar selection</option>
+						<option value="perl/sample04.cgi">Perl : Sample 04 : Skins support</option>
+					</optgroup>
+					<optgroup label="&nbsp;">
+					</optgroup>
+					<optgroup label="PHP">
+						<option value="php/sample01.php">PHP : Sample 01 : Editor with all features</option>
+						<option value="php/sample02.php">PHP : Sample 02 : Multi-language support</option>
+						<option value="php/sample03.php">PHP : Sample 03 : Toolbar selection</option>
+						<option value="php/sample04.php">PHP : Sample 04 : Skins support</option>
+					</optgroup>
+					<optgroup label="&nbsp;">
+					</optgroup>
+					<optgroup label="Python">
+						<option value="py/sample01.py">Python : Sample 01 : Editor with all features</option>
+					</optgroup>
 				</select>
 			</td>
 		</tr>

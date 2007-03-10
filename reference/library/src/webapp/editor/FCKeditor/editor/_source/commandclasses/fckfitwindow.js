@@ -1,14 +1,22 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: fckfitwindow.js
  * 	Stretch the editor to full window size and back.
@@ -16,7 +24,7 @@
  * File Authors:
  * 		Paul Moers (mail@saulmade.nl)
  * 		Thanks to Christian Fecteau (webmaster@christianfecteau.com)
- * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
+ * 		Frederico Caldeira Knabben (www.fckeditor.net)
  */
 
 var FCKFitWindow = function()
@@ -33,6 +41,7 @@ FCKFitWindow.prototype.Execute = function()
 	var eDocEl				= eMainWindow.document.documentElement ;
 	var eBody				= eMainWindow.document.body ;
 	var eBodyStyle			= eBody.style ;
+	var eParent ;
 
 	// No original style properties known? Go fullscreen.
 	if ( !this.IsMaximized )
@@ -47,8 +56,9 @@ FCKFitWindow.prototype.Execute = function()
 		this._ScrollPos = FCKTools.GetScrollPosition( eMainWindow ) ;
 		
 		// Save and reset the styles for the entire node tree. They could interfere in the result.
-		var eParent = eEditorFrame ;
-		while( eParent = eParent.parentNode )
+		eParent = eEditorFrame ;
+		// The extra () is to avoid a warning with strict error checking. This is ok.
+		while( (eParent = eParent.parentNode) )
 		{
 			if ( eParent.nodeType == 1 )
 				eParent._fckSavedStyles = FCKTools.SaveStyles( eParent ) ;
@@ -109,8 +119,9 @@ FCKFitWindow.prototype.Execute = function()
 			eMainWindow.removeEventListener( "resize", FCKFitWindow_Resize, true ) ;
 
 		// Restore the CSS position for the entire node tree.
-		var eParent = eEditorFrame ;
-		while( eParent = eParent.parentNode )
+		eParent = eEditorFrame ;
+		// The extra () is to avoid a warning with strict error checking. This is ok.
+		while( (eParent = eParent.parentNode) )
 		{
 			if ( eParent._fckSavedStyles )
 			{

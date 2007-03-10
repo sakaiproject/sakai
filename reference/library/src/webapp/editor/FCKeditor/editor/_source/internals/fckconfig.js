@@ -1,20 +1,28 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: fckconfig.js
  * 	Creates and initializes the FCKConfig object.
  * 
  * File Authors:
- * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
+ * 		Frederico Caldeira Knabben (www.fckeditor.net)
  */
 
 var FCKConfig = FCK.Config = new Object() ;
@@ -27,7 +35,7 @@ var FCKConfig = FCK.Config = new Object() ;
 // Editor Base Path
 if ( document.location.protocol == 'file:' )
 {
-	FCKConfig.BasePath = unescape( document.location.pathname.substr(1) ) ;
+	FCKConfig.BasePath = decodeURIComponent( document.location.pathname.substr(1) ) ;
 	FCKConfig.BasePath = FCKConfig.BasePath.replace( /\\/gi, '/' ) ;
 	FCKConfig.BasePath = 'file://' + FCKConfig.BasePath.substring(0,FCKConfig.BasePath.lastIndexOf('/')+1) ;
 	FCKConfig.FullBasePath = FCKConfig.BasePath ;
@@ -73,8 +81,8 @@ FCKConfig.ProcessHiddenField = function()
 			continue ;
 
 		var aConfig = aCouples[i].split( '=' ) ;
-		var sKey = unescape( aConfig[0] ) ;
-		var sVal = unescape( aConfig[1] ) ;
+		var sKey = decodeURIComponent( aConfig[0] ) ;
+		var sVal = decodeURIComponent( aConfig[1] ) ;
 
 		if ( sKey == 'CustomConfigurationsPath' )	// The Custom Config File path must be loaded immediately.
 			FCKConfig[ sKey ] = sVal ;
@@ -86,7 +94,7 @@ FCKConfig.ProcessHiddenField = function()
 			this.PageConfig[ sKey ] = false ;
 
 		else if ( sVal.length > 0 && !isNaN( sVal ) )	// If it is a number.
-			this.PageConfig[ sKey ] = parseInt( sVal ) ;
+			this.PageConfig[ sKey ] = parseInt( sVal, 10 ) ;
 
 		else										// In any other case it is a string.
 			this.PageConfig[ sKey ] = sVal ;
@@ -116,7 +124,7 @@ function FCKConfig_PreProcess()
 	}
 
 	// Certifies that the "PluginsPath" configuration ends with a slash.
-	if ( !oConfig.PluginsPath.endsWith('/') )
+	if ( !oConfig.PluginsPath.EndsWith('/') )
 		oConfig.PluginsPath += '/' ;
 
 	// EditorAreaCSS accepts an array of paths or a single path (as string).

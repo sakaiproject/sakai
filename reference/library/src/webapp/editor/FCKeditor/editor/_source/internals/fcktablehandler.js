@@ -1,20 +1,28 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: fcktablehandler.js
  * 	Manage table operations.
  * 
  * File Authors:
- * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
+ * 		Frederico Caldeira Knabben (www.fckeditor.net)
  */
 
 var FCKTableHandler = new Object() ;
@@ -22,37 +30,37 @@ var FCKTableHandler = new Object() ;
 FCKTableHandler.InsertRow = function()
 {
 	// Get the row where the selection is placed in.	
-	var oRow = FCKSelection.MoveToAncestorNode("TR") ;
+	var oRow = FCKSelection.MoveToAncestorNode( 'TR' ) ;
 	if ( !oRow ) return ;
-
+	
 	// Create a clone of the row.
 	var oNewRow = oRow.cloneNode( true ) ;
-
+	
 	// Insert the new row (copy) before of it.
 	oRow.parentNode.insertBefore( oNewRow, oRow ) ;
-
+	
 	// Clean the row (it seems that the new row has been added after it).
 	FCKTableHandler.ClearRow( oRow ) ;
 }
 
 FCKTableHandler.DeleteRows = function( row )
 {
-	// If no row has been passed as a parameer,
+	// If no row has been passed as a parameter,
 	// then get the row where the selection is placed in.	
 	if ( !row )
-		row = FCKSelection.MoveToAncestorNode("TR") ;
+		row = FCKSelection.MoveToAncestorNode( 'TR' ) ;
 	if ( !row ) return ;
-
+	
 	// Get the row's table.	
 	var oTable = FCKTools.GetElementAscensor( row, 'TABLE' ) ;
-
+	
 	// If just one row is available then delete the entire table.
 	if ( oTable.rows.length == 1 ) 
 	{
 		FCKTableHandler.DeleteTable( oTable ) ;
 		return ;
 	}
-
+		
 	// Delete the row.
 	row.parentNode.removeChild( row ) ;
 }
@@ -63,9 +71,9 @@ FCKTableHandler.DeleteTable = function( table )
 	// then get the table where the selection is placed in.	
 	if ( !table )
 	{
-		var table = FCKSelection.GetSelectedElement() ;
+		table = FCKSelection.GetSelectedElement() ;
 		if ( !table || table.tagName != 'TABLE' )
-			table = FCKSelection.MoveToAncestorNode("TABLE") ;
+			table = FCKSelection.MoveToAncestorNode( 'TABLE' ) ;
 	}
 	if ( !table ) return ;
 
@@ -78,9 +86,7 @@ FCKTableHandler.DeleteTable = function( table )
 FCKTableHandler.InsertColumn = function()
 {
 	// Get the cell where the selection is placed in.
-	var oCell = FCKSelection.MoveToAncestorNode("TD") ;
-	if ( !oCell )
-	    oCell =  FCKSelection.MoveToAncestorNode("TH") ;
+	var oCell = FCKSelection.MoveToAncestorNode('TD') || FCKSelection.MoveToAncestorNode('TH') ;
 
 	if ( !oCell ) return ;
 	
@@ -120,7 +126,7 @@ FCKTableHandler.DeleteColumns = function()
 {
 	// Get the cell where the selection is placed in.
 	var oCell = FCKSelection.MoveToAncestorNode('TD') || FCKSelection.MoveToAncestorNode('TH') ;
-
+	
 	if ( !oCell ) return ;
 	
 	// Get the cell's table.	
@@ -128,7 +134,7 @@ FCKTableHandler.DeleteColumns = function()
 
 	// Get the cell index.
 	var iIndex = oCell.cellIndex ;
-
+	
 	// Loop throw all rows (from down to up, because it's possible that some
 	// rows will be deleted).
 	for ( var i = oTable.rows.length - 1 ; i >= 0 ; i-- )
@@ -153,11 +159,11 @@ FCKTableHandler.DeleteColumns = function()
 FCKTableHandler.InsertCell = function( cell )
 {
 	// Get the cell where the selection is placed in.
-	var oCell = cell ? cell : FCKSelection.MoveToAncestorNode("TD") ;
-	if ( !oCell ) return ;
+	var oCell = cell ? cell : FCKSelection.MoveToAncestorNode( 'TD' ) ;
+	if ( !oCell ) return null ;
 
 	// Create the new cell element to be added.
-	var oNewCell = FCK.EditorDocument.createElement("TD");
+	var oNewCell = FCK.EditorDocument.createElement( 'TD' ) ;
 	if ( FCKBrowserInfo.IsGecko )
 		oNewCell.innerHTML = GECKO_BOGUS ;
 //	oNewCell.innerHTML = "&nbsp;" ;
@@ -186,7 +192,7 @@ FCKTableHandler.DeleteCell = function( cell )
 		FCKTableHandler.DeleteRows( FCKTools.GetElementAscensor( cell, 'TR' ) ) ;
 		return ;
 	}
-
+		
 	// Delete the cell from the row.
 	cell.parentNode.removeChild( cell ) ;
 }

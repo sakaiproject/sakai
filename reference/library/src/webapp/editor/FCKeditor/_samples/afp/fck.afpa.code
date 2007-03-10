@@ -1,4 +1,32 @@
-DEFINE CLASS fckeditor AS custom
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
+ * 
+ * == BEGIN LICENSE ==
+ * 
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
+ * 
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
+ * 
+ * File Name: fxk.afp.code
+ * 	This is the class definition file for the sample pages.
+ * 
+ * Version:  1.01 
+ * Modified: 2006-11-13
+ * 
+ * File Authors: Soenke Freitag (contact at www.afp-hosting.de)
+ * 		
+
+ DEFINE CLASS fckeditor AS custom
 	cInstanceName =""
 	BasePath =""
 	cWIDTH =""
@@ -11,7 +39,7 @@ DEFINE CLASS fckeditor AS custom
 	FUNCTION fckeditor( tcInstanceName )
 		LOCAL lnLoop,lnLoop2
 		THIS.cInstanceName	= tcInstanceName
-		THIS.BasePath	= '../../'
+		THIS.BasePath	= '../../../FCKeditor/'
 		THIS.cWIDTH		= '100%'
 		THIS.cHEIGHT	= '200'
 		THIS.ToolbarSet	= 'Default'
@@ -41,8 +69,8 @@ DEFINE CLASS fckeditor AS custom
 		IF THIS.IsCompatible()
 			lcLink = THIS.BasePath+[editor/fckeditor.html?InstanceName=]+THIS.cInstanceName
 
-			IF ( THIS.ToolbarSet # '' )
-				lcLink = lcLink + [Toolbar=]+THIS.ToolbarSet
+			IF ( !THIS.ToolbarSet == '' )
+				lcLink = lcLink + [&Toolbar=]+THIS.ToolbarSet
 			ENDIF
 
 && Render the LINKED HIDDEN FIELD.
@@ -52,7 +80,7 @@ DEFINE CLASS fckeditor AS custom
 			html = html + [<input type="hidden" id="]+THIS.cInstanceName +[___Config" value="]+THIS.GetConfigFieldString() + [">] +CHR(13)+CHR(10)
 
 && Render the EDITOR IFRAME.
-			html = html + [<iframe id="]+THIS.cInstanceName +[___Frame" src="]+lcLink+[" width="]+THIS.cWIDTH+[" height="]+THIS.cHEIGHT+[" frameborder="0" scrolling="no"></iframe>]
+			html = html + [<iframe id="]+THIS.cInstanceName +[___Frame" src="]+lcLink+[" width="]+THIS.cWIDTH+[" height="]+THIS.cHEIGHT+[" frameborder="no" scrolling="no"></iframe>]
 		ELSE
 			IF ( AT("%", THIS.cWIDTH)=0 )
 				WidthCSS = THIS.cWIDTH + 'px'
@@ -117,5 +145,28 @@ DEFINE CLASS fckeditor AS custom
 		NEXT
 		RETURN(sParams)
 	ENDFUNC
+&& -----------------------------------------------------------------------
+&& This function removes unwanted characters in URL parameters mostly entered by hackers
+
+	FUNCTION StripAttacks
+		LPARAMETERS tcString
+		IF !EMPTY(tcString)
+			tcString=STRTRAN(tcString,"&","")
+			tcString=STRTRAN(tcString,"?","")
+			tcString=STRTRAN(tcString,";","")
+			tcString=STRTRAN(tcString,"!","")
+			tcString=STRTRAN(tcString,"<%","")
+			tcString=STRTRAN(tcString,"%>","")
+			tcString=STRTRAN(tcString,"<","")
+			tcString=STRTRAN(tcString,">","")
+			tcString=STRTRAN(tcString,"..","")
+			tcString=STRTRAN(tcString,"/","")
+			tcString=STRTRAN(tcString,"\","")
+			tcString=STRTRAN(tcString,":","")
+		ELSE
+			tcString=""
+		ENDIF
+		RETURN (tcString)
+
 ENDDEFINE
 

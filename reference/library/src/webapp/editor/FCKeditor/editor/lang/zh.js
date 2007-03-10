@@ -1,14 +1,22 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: zh.js
  * 	Chinese Traditional language file.
@@ -130,7 +138,7 @@ SelectionFieldProp	: "清單/選單屬性",
 TextareaProp		: "文字區域屬性",
 FormProp			: "表單屬性",
 
-FontFormats			: "本文;已格式化;位址;標題 1;標題 2;標題 3;標題 4;標題 5;標題 6;本文 (DIV)",
+FontFormats			: "本文;已格式化;位址;標題 1;標題 2;標題 3;標題 4;標題 5;標題 6;本文 (DIV)",		//REVIEW : Check _getfontformat.html
 
 // Alerts and Messages
 ProcessingXHTML		: "處理 XHTML 中，請稍候…",
@@ -225,7 +233,7 @@ DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "請選擇錨點",
 DlgLnkAnchorByName	: "依錨點名稱",
 DlgLnkAnchorById	: "依元件 ID",
-DlgLnkNoAnchors		: "<本文件尚無可用之錨點>",
+DlgLnkNoAnchors		: "<本文件尚無可用之錨點>",		//REVIEW : Change < and > with ( and )
 DlgLnkEMail			: "電子郵件",
 DlgLnkEMailSubject	: "郵件主旨",
 DlgLnkEMailBody		: "郵件內容",
@@ -496,6 +504,5 @@ DlgAboutAboutTab	: "關於",
 DlgAboutBrowserInfoTab	: "瀏覽器資訊",
 DlgAboutLicenseTab	: "許可證",
 DlgAboutVersion		: "版本",
-DlgAboutLicense		: "依據 GNU 較寬鬆公共許可證(LGPL)發佈",
 DlgAboutInfo		: "想獲得更多資訊請至 "
-}
+};

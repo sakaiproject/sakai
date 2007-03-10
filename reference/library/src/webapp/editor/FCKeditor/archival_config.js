@@ -67,7 +67,7 @@ FCKConfig.ToolbarSets["Default"] = [
         ['OrderedList','UnorderedList','Outdent','Indent'],
         ['JustifyLeft','JustifyCenter','JustifyRight','JustifyFull'],
         ['TextColor','BGColor'],
-        ['Table','Rule','Smiley','SpecialChar','UniversalKey'],['Style'],
+        ['Table','Rule','Smiley','SpecialChar'],['Style'],
         ['FontFormat','FontName','FontSize'],
         ['About']
 ] ;

@@ -1,20 +1,28 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: fckdialog_gecko.js
  * 	Dialog windows operations. (Gecko specific implementations)
  * 
  * File Authors:
- * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
+ * 		Frederico Caldeira Knabben (www.fckeditor.net)
  */
 
 FCKDialog.Show = function( dialogInfo, dialogName, pageUrl, dialogWidth, dialogHeight, parentWindow, resizable )
@@ -62,7 +70,6 @@ FCKDialog.Show = function( dialogInfo, dialogName, pageUrl, dialogWidth, dialogH
 	// "Permission denied to get property Window.releaseEvents".
 	try
 	{
-		window.top.captureEvents( Event.CLICK | Event.MOUSEDOWN | Event.MOUSEUP | Event.FOCUS ) ;
 		window.top.parent.addEventListener( 'mousedown', this.CheckFocus, true ) ;
 		window.top.parent.addEventListener( 'mouseup', this.CheckFocus, true ) ;
 		window.top.parent.addEventListener( 'click', this.CheckFocus, true ) ;
@@ -88,7 +95,6 @@ FCKDialog.CheckFocus = function()
 		// "Permission denied to get property Window.releaseEvents".
 		try
 		{
-			window.top.releaseEvents(Event.CLICK | Event.MOUSEDOWN | Event.MOUSEUP | Event.FOCUS) ;
 			window.top.parent.removeEventListener( 'onmousedown', FCKDialog.CheckFocus, true ) ;
 			window.top.parent.removeEventListener( 'mouseup', FCKDialog.CheckFocus, true ) ;
 			window.top.parent.removeEventListener( 'click', FCKDialog.CheckFocus, true ) ;

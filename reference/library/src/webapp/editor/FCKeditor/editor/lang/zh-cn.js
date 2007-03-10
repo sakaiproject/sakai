@@ -1,20 +1,28 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: zh-cn.js
  * 	Chinese Simplified language file.
  * 
  * File Authors:
- * 		NetRube (NetRube@gmail.com)
+ * 		NetRube (netrube@gmail.com)
  */
 
 var FCKLang =
@@ -130,7 +138,7 @@ SelectionFieldProp	: "菜单/列表属性",
 TextareaProp		: "多行文本属性",
 FormProp			: "表单属性",
 
-FontFormats			: "普通;已编排格式;地址;标题 1;标题 2;标题 3;标题 4;标题 5;标题 6;段落(DIV)",
+FontFormats			: "普通;已编排格式;地址;标题 1;标题 2;标题 3;标题 4;标题 5;标题 6;段落(DIV)",		//REVIEW : Check _getfontformat.html
 
 // Alerts and Messages
 ProcessingXHTML		: "正在处理 XHTML，请稍等...",
@@ -225,7 +233,7 @@ DlgLnkURL			: "地址",
 DlgLnkAnchorSel		: "选择一个锚点",
 DlgLnkAnchorByName	: "按锚点名称",
 DlgLnkAnchorById	: "按锚点 ID",
-DlgLnkNoAnchors		: "<此文档没有可用的锚点>",
+DlgLnkNoAnchors		: "<此文档没有可用的锚点>",		//REVIEW : Change < and > with ( and )
 DlgLnkEMail			: "地址",
 DlgLnkEMailSubject	: "主题",
 DlgLnkEMailBody		: "内容",
@@ -258,7 +266,7 @@ DlgLnkPopTop		: "右",
 DlnLnkMsgNoUrl		: "请输入超链接地址",
 DlnLnkMsgNoEMail	: "请输入电子邮件地址",
 DlnLnkMsgNoAnchor	: "请选择一个锚点",
-DlnLnkMsgInvPopName	: "The popup name must begin with an alphabetic character and must not contain spaces",	//MISSING
+DlnLnkMsgInvPopName	: "弹出窗口名称必须以字母开头，并且不能含有空格。",
 
 // Color Dialog
 DlgColorTitle		: "选择颜色",
@@ -377,9 +385,9 @@ IeSpellDownload			: "拼写检查插件还没安装，你是否想现在就下�
 // Button Dialog
 DlgButtonText		: "标签(值)",
 DlgButtonType		: "类型",
-DlgButtonTypeBtn	: "Button",	//MISSING
-DlgButtonTypeSbm	: "Submit",	//MISSING
-DlgButtonTypeRst	: "Reset",	//MISSING
+DlgButtonTypeBtn	: "按钮",
+DlgButtonTypeSbm	: "提交",
+DlgButtonTypeRst	: "重设",
 
 // Checkbox and Radio Button Dialogs
 DlgCheckboxName		: "名称",
@@ -428,7 +436,7 @@ DlgHiddenValue	: "初始值",
 // Bulleted List Dialog
 BulletedListProp	: "项目列表属性",
 NumberedListProp	: "编号列表属性",
-DlgLstStart			: "Start",	//MISSING
+DlgLstStart			: "开始序号",
 DlgLstType			: "列表类型",
 DlgLstTypeCircle	: "圆圈",
 DlgLstTypeDisc		: "圆点",
@@ -451,15 +459,15 @@ DlgDocLangDirLTR	: "从左到右 (LTR)",
 DlgDocLangDirRTL	: "从右到左 (RTL)",
 DlgDocLangCode		: "语言代码",
 DlgDocCharSet		: "字符编码",
-DlgDocCharSetCE		: "Central European",	//MISSING
-DlgDocCharSetCT		: "Chinese Traditional (Big5)",	//MISSING
-DlgDocCharSetCR		: "Cyrillic",	//MISSING
-DlgDocCharSetGR		: "Greek",	//MISSING
-DlgDocCharSetJP		: "Japanese",	//MISSING
-DlgDocCharSetKR		: "Korean",	//MISSING
-DlgDocCharSetTR		: "Turkish",	//MISSING
-DlgDocCharSetUN		: "Unicode (UTF-8)",	//MISSING
-DlgDocCharSetWE		: "Western European",	//MISSING
+DlgDocCharSetCE		: "中欧",
+DlgDocCharSetCT		: "繁体中文 (Big5)",
+DlgDocCharSetCR		: "西里尔文",
+DlgDocCharSetGR		: "希腊文",
+DlgDocCharSetJP		: "日文",
+DlgDocCharSetKR		: "韩文",
+DlgDocCharSetTR		: "土耳其文",
+DlgDocCharSetUN		: "Unicode (UTF-8)",
+DlgDocCharSetWE		: "西欧",
 DlgDocCharSetOther	: "其它字符编码",
 
 DlgDocDocType		: "文档类型",
@@ -489,13 +497,12 @@ DlgTemplatesTitle	: "内容模板",
 DlgTemplatesSelMsg	: "请选择编辑器内容模板<br>(当前内容将会被清除替换):",
 DlgTemplatesLoading	: "正在加载模板列表，请稍等...",
 DlgTemplatesNoTpl	: "(没有模板)",
-DlgTemplatesReplace	: "Replace actual contents",	//MISSING
+DlgTemplatesReplace	: "替换当前内容",
 
 // About Dialog
 DlgAboutAboutTab	: "关于",
 DlgAboutBrowserInfoTab	: "浏览器信息",
 DlgAboutLicenseTab	: "许可证",
 DlgAboutVersion		: "版本",
-DlgAboutLicense		: "基于 GNU 通用公共许可证授权发布 ",
 DlgAboutInfo		: "要获得更多信息请访问 "
-}
+};

@@ -1,14 +1,22 @@
 ﻿/*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: vi.js
  * 	Vietnamese language file.
@@ -131,7 +139,7 @@ SelectionFieldProp	: "Thuộc tính Ô chọn",
 TextareaProp		: "Thuộc tính Vùng văn bản",
 FormProp			: "Thuộc tính Biểu mẫu",
 
-FontFormats			: "Normal;Formatted;Address;Heading 1;Heading 2;Heading 3;Heading 4;Heading 5;Heading 6;Normal (DIV)",
+FontFormats			: "Normal;Formatted;Address;Heading 1;Heading 2;Heading 3;Heading 4;Heading 5;Heading 6;Normal (DIV)",		//REVIEW : Check _getfontformat.html
 
 // Alerts and Messages
 ProcessingXHTML		: "Đang xử lý XHTML. Vui lòng đợi trong giây lát...",
@@ -226,7 +234,7 @@ DlgLnkURL			: "URL",
 DlgLnkAnchorSel		: "Chọn một Neo",
 DlgLnkAnchorByName	: "Theo Tên Neo",
 DlgLnkAnchorById	: "Theo Định danh Element",
-DlgLnkNoAnchors		: "<Không có Neo nào trong tài liệu>",
+DlgLnkNoAnchors		: "<Không có Neo nào trong tài liệu>",		//REVIEW : Change < and > with ( and )
 DlgLnkEMail			: "Thư điện tử",
 DlgLnkEMailSubject	: "Tiêu đề Thông điệp",
 DlgLnkEMailBody		: "Nội dung Thông điệp",
@@ -497,6 +505,5 @@ DlgAboutAboutTab	: "Giới thiệu",
 DlgAboutBrowserInfoTab	: "Thông tin trình duyệt",
 DlgAboutLicenseTab	: "Giấy phép",
 DlgAboutVersion		: "phiên bản",
-DlgAboutLicense		: "Được cấp phép theo các điều khoản của giấy phép GNU Lesser General Public License",
 DlgAboutInfo		: "Để biết thêm thông tin, hãy truy cập"
-}
+};

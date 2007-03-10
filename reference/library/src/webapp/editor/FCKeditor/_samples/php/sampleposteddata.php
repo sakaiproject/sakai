@@ -1,21 +1,29 @@
 <?php 
 /*
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: sampleposteddata.php
  * 	This page lists the data posted by a form.
  * 
  * File Authors:
- * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
+ * 		Frederico Caldeira Knabben (www.fckeditor.net)
  * 		Jim Michaels (jmichae3@yahoo.com)
  */
 ?>
@@ -45,7 +53,10 @@ else
 
 foreach ( $postArray as $sForm => $value )
 {
-	$postedValue = htmlspecialchars( stripslashes( $value ) ) ;
+	if ( get_magic_quotes_gpc() )
+		$postedValue = htmlspecialchars( stripslashes( $value ) ) ;
+	else
+		$postedValue = htmlspecialchars( $value ) ;
 
 ?>
 			<tr>

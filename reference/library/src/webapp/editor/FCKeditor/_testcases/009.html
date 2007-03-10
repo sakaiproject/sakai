@@ -1,30 +1,38 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <!--
- * FCKeditor - The text editor for internet
- * Copyright (C) 2003-2006 Frederico Caldeira Knabben
+ * FCKeditor - The text editor for Internet - http://www.fckeditor.net
+ * Copyright (C) 2003-2007 Frederico Caldeira Knabben
  * 
- * Licensed under the terms of the GNU Lesser General Public License:
- * 		http://www.opensource.org/licenses/lgpl-license.php
+ * == BEGIN LICENSE ==
  * 
- * For further information visit:
- * 		http://www.fckeditor.net/
+ * Licensed under the terms of any of the following licenses at your
+ * choice:
  * 
- * "Support Open Source software. What about a donation today?"
+ *  - GNU General Public License Version 2 or later (the "GPL")
+ *    http://www.gnu.org/licenses/gpl.html
+ * 
+ *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
+ *    http://www.gnu.org/licenses/lgpl.html
+ * 
+ *  - Mozilla Public License Version 1.1 or later (the "MPL")
+ *    http://www.mozilla.org/MPL/MPL-1.1.html
+ * 
+ * == END LICENSE ==
  * 
  * File Name: 009.html
  * 	Test page.
  * 
  * File Authors:
- * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
+ * 		Frederico Caldeira Knabben (www.fckeditor.net)
 -->
-<html>
-	<head>
-		<title>FCKeditor - Sample</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		<meta name="robots" content="noindex, nofollow">
-		<link href="testcases.css" rel="stylesheet" type="text/css">
-			<script type="text/javascript" src="../fckeditor.js"></script>
-			<script>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>FCKeditor - Sample</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="robots" content="noindex, nofollow" />
+	<link href="testcases.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" src="../fckeditor.js"></script>
+	<script type="text/javascript">
 
 function FCKeditor_OnComplete( editorInstance )
 {
@@ -34,6 +42,9 @@ function FCKeditor_OnComplete( editorInstance )
 
 function FCKeditor_OnAfterSetHTML( editorInstance )
 {
+	if ( editorInstance.EditMode != FCK_EDITMODE_WYSIWYG )
+		return ;
+
 	// Get the actual color from the combo.
 	var sColor = document.getElementById('ActualColor').value ;
 
@@ -50,46 +61,38 @@ function SetActualColor()
 	FCKeditor_OnAfterSetHTML( oEditor ) ;
 }
 
-			</script>
-	</head>
-	<body>
-		<h1>FCKeditor - Test 009</h1>
-		<P>
-			<STRONG>Expected results</STRONG> : The user should be able to background color 
-			of the editor by code.<BR>
-			<STRONG>Configurations</STRONG>: Default<BR>
-			<STRONG>Steps to&nbsp;Reproduce</STRONG>:
-		</P>
-		<OL>
-			<LI>
-			Wait the editor to load.
-			<LI>
-			Type some text.
-			<LI>
-			Change the background color using the combo.
-			<LI>
-			Type more text.
-			<LI>
-			Switch to source view.
-			<LI>
-			Switch back to WYSIWYG. The background color must be the same.
-			<LI>
-			Repeate steps 3 to 6.
-			<LI>
-				Submit the form.</LI></OL>
-		<P>
-			<hr>
-		<P>
-		Select a color for the background:<br>
+	</script>
+</head>
+<body>
+	<h1>
+		FCKeditor - Test 009</h1>
+	<p>
+		<strong>Expected results</strong>: The user should be able to background color of
+		the editor by code.<br />
+		<strong>Configurations</strong>: Default<br />
+		<strong>Steps to Reproduce</strong>:
+	</p>
+	<ol>
+		<li>Wait the editor to load.</li>
+		<li>Type some text.</li>
+		<li>Change the background color using the combo.</li>
+		<li>Type more text.</li>
+		<li>Switch to source view.</li>
+		<li>Switch back to WYSIWYG. The background color must be the same.</li>
+		<li>Repeate steps 3 to 6.</li>
+		<li>Submit the form.</li></ol>
+	<hr />
+	<p>
+		Select a color for the background:<br />
 		<select id="ActualColor" onchange="SetActualColor();">
-			<option value="white" selected>White</option>
+			<option value="white" selected="selected">White</option>
 			<option value="red">Red</option>
 			<option value="green">Green</option>
 			<option value="gold">Gold</option>
 		</select>
-		</P>
-		<form action="sampleposteddata.asp" method="post" target="_blank">
-			<script type="text/javascript">
+	</p>
+	<form action="sampleposteddata.asp" method="post" target="_blank">
+		<script type="text/javascript">
 <!--
 // Automatically calculates the editor base path based on the _samples directory.
 // This is usefull only for these samples. A real application should use something like this:
@@ -101,9 +104,9 @@ oFCKeditor.BasePath	= sBasePath ;
 oFCKeditor.Value	= 'This is some <strong>sample text</strong>. You are using <a href="http://www.fckeditor.net/">FCKeditor</a>.' ;
 oFCKeditor.Create() ;
 //-->
-			</script>
-			<br>
-			<input type="submit" value="Submit">
-		</form>
-	</body>
+		</script>
+		<br />
+		<input type="submit" value="Submit" />
+	</form>
+</body>
 </html>
