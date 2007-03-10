@@ -107,7 +107,8 @@ import org.sakaiproject.metaobj.shared.mgt.home.StructuredArtifactHomeInterface;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.Term;
-import org.sakaiproject.site.cover.CourseManagementService;
+import org.sakaiproject.coursemanagement.api.AcademicSession;
+import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
@@ -136,6 +137,8 @@ public class ResourcesAction
 	extends PagedResourceHelperAction // VelocityPortletPaneledAction
 {
 	/////////////////////////////////////////////////////////////////////////// Methods, Classes, Statics in ResourceType version of Resources
+	
+	protected static CourseManagementService courseManagementService = (CourseManagementService) ComponentManager.get(CourseManagementService.class);
 	
 	public enum ContentPermissions
 	{
@@ -7089,18 +7092,15 @@ public class ResourcesAction
 		Time now = TimeService.newTime();
 		if(siteType != null && siteType.equalsIgnoreCase("course"))
 		{
-			List terms = CourseManagementService.getTerms();
+			List<AcademicSession> terms = courseManagementService.getAcademicSessions();
 			boolean found = false;
-			Term term = null;
-			Iterator termIt = terms.iterator();
-			while(termIt.hasNext())
+			for(AcademicSession term : terms)
 			{
-				term = (Term) termIt.next();
-				if(term.getEndTime().after(now))
+				if(term.getEndDate() != null && term.getEndDate().getTime() > now.getTime())
 				{
-					if(guess == null || term.getEndTime().before(guess))
+					if(guess == null || term.getEndDate().getTime() < guess.getTime())
 					{
-						guess = term.getEndTime();
+						guess.setTime(term.getEndDate().getTime());
 					}
 				}
 			}
