@@ -755,6 +755,10 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			assignment = AssignmentService.getAssignment(currentAssignmentReference);
 			context.put("assignment", assignment);
+			if (assignment.getContent().getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
+			{
+				context.put("nonElectronicType", Boolean.TRUE);
+			}
 			AssignmentSubmission s = AssignmentService.getSubmission(assignment.getReference(), user);
 			if (s != null)
 			{

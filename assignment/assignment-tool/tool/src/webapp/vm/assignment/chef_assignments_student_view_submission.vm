@@ -24,9 +24,12 @@
 				#if(!$submitted)
 					## draft submission
 					$tlang.getString("viewassign")
+					## no need to show status if this is for an non-electronic submission type of assignment
+				 #if (!$!nonElectronicType)
 						<span class="highlight">
 						 	- $tlang.getString("gen.inpro")
 						</span>
+					#end
 				#end
 				#if ($!timeReturned && $!timeSubmitted && $!timeReturned.after($!timeSubmitted))
 				 $tlang.getString("assig1")
@@ -62,9 +65,12 @@
 				<h3>$tlang.getString("subexampleassign")</h3>
 			#else 
 				<h3>$tlang.getString("gen.assig")
-									<span class="highlight">
-						 - $tlang.getString("gen.inpro")
-					</span>
+					## no need to show status if this is for an non-electronic submission type of assignment
+					#if (!$!nonElectronicType)
+							<span class="highlight">
+						 	- $tlang.getString("gen.inpro")
+							</span>
+						#end
 				</h3>
 			#end
 			<p class="instruction">
@@ -99,6 +105,8 @@
 						$!assignment.getDueTime().toStringLocalFull()
 					</td>
 				</tr>
+				## no need to show status if this is for an non-electronic submission type of assignment
+					#if (!$!nonElectronicType)
 				<tr>
 					<th>
 						$tlang.getString("gen.status2")
@@ -134,7 +142,8 @@
 							$tlang.getString("gen.notsta")
 						#end
 					</td>
-				</tr>				
+				</tr>
+				#end				
 				#if ($withGrade)
 					#set ($gradeScale = $assignment.getContent().getTypeOfGradeString($assignment.getContent().getTypeOfGrade()))
 					#if ($submission.getGraded() && $submission.getGradeReleased())
@@ -228,6 +237,16 @@
 		#end
 		<hr class="itemSeparator" />
 		<h3>$tlang.getString("gen.submission")</h3>
+		## show special instruction if this is for an non-electronic submission type of assignment
+		#if ($!nonElectronicType)
+			<p class="instruction">
+				$tlang.getString("nonelec_instruction")
+			</p>
+			##just show a simple done button for non-electronic submission type
+			<form name="dummyForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
+				<input type="submit" accesskey="x" name="eventSubmit_doCancel_show_submission" value="$tlang.getString('gen.don')" />
+			</form>
+		#else
 	<form name="addSubmissionForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
 		<input type="hidden" name="eventSubmit_doRead_add_submission_form" value="x" />
 		<input type="hidden" name="option" value="cancel" />
@@ -699,5 +718,6 @@
 			</p>
 		#end
 	</form>
+	#end
 </div>
 
