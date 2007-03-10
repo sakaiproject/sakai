@@ -279,7 +279,7 @@ if (window.attachEvent) window.attachEvent("onload", sfHover);
 					<td headers="actions">
 						#if($item.isCollection())
 							#if($item.addActions && !$item.addActions.isEmpty())
-								<span id="button1">
+								<span id="button-$itemcount">
 									<ul class="makeMenu">
 										<li style="position:relative; z-index:4">Add <img src="images/sort_down.gif">
 											<ul style="">
