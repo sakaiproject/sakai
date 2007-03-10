@@ -12,6 +12,7 @@
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
+		<property name="courseStudents"><value>22</value></property>
 	</bean>
 -->
 
@@ -24,6 +25,7 @@
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
+		<property name="courseStudents"><value>250</value></property>
 	</bean>
 -->
 
