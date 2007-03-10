@@ -69,8 +69,8 @@ public interface GradebookService {
 	/**
 	 * Besides the declared exceptions, possible runtime exceptions include:
 	 * <ul>
-	 * <li> SecurityException - If the current user is not authorized to grade
-	 * the student
+	 * <li> SecurityException - If the current user is not authorized to view
+	 * the student's score
 	 * </ul>
 	 * 
 	 * @return Returns the current score for the student, or null if no score

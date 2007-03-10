@@ -127,7 +127,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 	public Double getAssignmentScore(final String gradebookUid, final String assignmentName, final String studentUid)
 		throws GradebookNotFoundException, AssessmentNotFoundException {
-		if (!isUserAbleToGradeStudent(gradebookUid, studentUid)) {
+		final boolean studentRequestingOwnScore = authn.getUserUid().equals(studentUid);
+		if (!studentRequestingOwnScore && !isUserAbleToGradeStudent(gradebookUid, studentUid)) {
 			log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to retrieve grade for student " + studentUid);
 			throw new SecurityException("You do not have permission to perform this operation");
 		}
@@ -138,6 +139,14 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				if (assignment == null) {
 					throw new AssessmentNotFoundException("There is no assignment named " + assignmentName + " in gradebook " + gradebookUid);
 				}
+				
+				// If this is the student, then the assignment needs to have
+				// been released.
+				if (studentRequestingOwnScore && !assignment.isReleased()) {
+					log.error("AUTHORIZATION FAILURE: Student " + getUserUid() + " in gradebook " + gradebookUid + " attempted to retrieve score for unreleased assignment " + assignment.getName());
+					throw new SecurityException("You do not have permission to perform this operation");					
+				}
+				
 				AssignmentGradeRecord gradeRecord = getAssignmentGradeRecord(assignment, studentUid, session);
 				if (log.isDebugEnabled()) log.debug("gradeRecord=" + gradeRecord);
 				if (gradeRecord == null) {

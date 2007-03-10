@@ -262,13 +262,38 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
     }
     
     public void testStudentRebuff() throws Exception {
-    	setAuthnId(STUDENT_IN_SECTION_UID);
+    	setAuthnId(INSTRUCTOR_UID);
+    	
+    	// Score the unreleased assignment.
+    	gradebookService.setAssignmentScore(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID, new Double(39), "Service Test");
+ 		
+		// Try to get a list of assignments as the student.
+		setAuthnId(STUDENT_IN_SECTION_UID);
     	try {
-			if (log.isInfoEnabled()) log.info("Ignore the upcoming authorization error...");
+			if (log.isInfoEnabled()) log.info("Ignore the upcoming authorization errors...");
 			gradebookService.getAssignments(GRADEBOOK_UID);
 			fail();
 		} catch (SecurityException e) {
 		}
+		
+		// And then try to get the score.
+		Double score;
+		try {
+			score = gradebookService.getAssignmentScore(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID);
+			fail();
+		} catch (SecurityException e) {
+		}
+		
+		// Now release the assignment.
+		setAuthnId(INSTRUCTOR_UID);
+		org.sakaiproject.tool.gradebook.Assignment assignment = gradebookManager.getAssignment(asnId);
+		assignment.setReleased(true);
+		gradebookManager.updateAssignment(assignment);
+		
+		// Now see if the student gets lucky.
+		setAuthnId(STUDENT_IN_SECTION_UID);
+		score = gradebookService.getAssignmentScore(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID);
+		Assert.assertTrue(score.doubleValue() == 39.0);
    }
 
 	public void testExternalClientSupport() throws Exception {
