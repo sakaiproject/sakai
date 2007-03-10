@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>M2</version>
+    <relativePath>../../master/pom.xml</relativePath>
+  </parent>
+  <name>Sakai Samigo Lite Service Implementaiton</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>sakai-samlite-impl</artifactId>
+  <organization>
+    <name>Sakai Project</name>
+    <url>http://www.sakaiproject.org/</url>
+  </organization>
+  <inceptionYear>2007</inceptionYear>
+  <packaging>jar</packaging>
+  <dependencies>
+ <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-samigo-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+
+        <!-- Samigo Lite -->
+                <dependency>
+                        <groupId>ims</groupId>
+                        <artifactId>imsqti</artifactId>
+                        <version>1.2</version>
+			<scope>provided</scope>
+                </dependency>
+
+                <dependency>
+                        <groupId>xmlbeans</groupId>
+                        <artifactId>xbean</artifactId>
+                        <version>2.2.0</version>
+			<scope>provided</scope>
+                </dependency>
+
+                <dependency>
+                        <groupId>xmlbeans</groupId>
+                        <artifactId>jsr173</artifactId>
+                        <version>1.0_api</version>
+			<scope>provided</scope>
+                </dependency>
+   <dependency>
+        <groupId>commons-logging</groupId>
+        <artifactId>commons-logging</artifactId>
+        <version>1.0.4</version>
+			<scope>provided</scope>
+      </dependency>
+
+  </dependencies>
+</project>
