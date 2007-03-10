@@ -435,8 +435,9 @@ public class FCKConnectorServlet extends HttpServlet {
                               if (current.getProperties().getProperty(
                                             current.getProperties().getNamePropContentLength()) != null) {
 
-                                   element.setAttribute("size", "" + current.getProperties().getProperty(
-                                            current.getProperties().getNamePropContentLength()));
+                                   element.setAttribute("size", "" + current.getProperties()
+                                        .getPropertyFormatted(current.getProperties()
+                                        .getNamePropContentLength()));
                               }
                               else {
                                    element.setAttribute("size", "0");
