@@ -353,6 +353,7 @@ table.calendar .event{
 /*skinned header of standard tab. data table*/
 .listHier th{
 	background-color: #ddd;
+	border: 1px solid #999;
 }
 /*skinned cell of standard tab. data table*/
 .listHier td{
