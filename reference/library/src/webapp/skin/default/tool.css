@@ -21,12 +21,12 @@ hr.itemSeparator{
 /*SECTION 2 LINKS*/
 a:link{
 	color: #35b;
-	text-decoration: none;
+	text-decoration: underline !important;
 }
 
 a:visited{
 	color: #53b;
-	text-decoration: none;
+	text-decoration: underline !important;
 }
 
 a:hover,a:active{
