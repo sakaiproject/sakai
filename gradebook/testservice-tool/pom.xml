@@ -135,7 +135,7 @@
      </dependency>
 <!-- blocking unwanted transitive dependency -->
     <dependency>
-      <groupId>jstl</groupId>
+      <groupId>javax.servlet</groupId>
       <artifactId>jstl</artifactId>
       <version>1.1.2</version>
       <scope>provided</scope>
