@@ -52,38 +52,36 @@
 		<%/* Event priorities: event types */%>
 		<h5><h:outputText value="#{msgs.prefs_section_priority_eventypes}" styleClass="indnt1"/></h5>
 		<t:div styleClass="indnt2">
-			<h:panelGrid columns="1">
-	        	<h:outputText value="#{msgs.prefs_high_priority}"/>	            
+			<h:panelGrid columns="2">
+	        	<h:outputLabel for="highPriorityEvents" value="#{msgs.prefs_high_priority}: "/>
 	            <h:selectManyListbox id="highPriorityEvents" size="200" style="height:50px; width: 200px;"
 	            	value="#{PrefsBean.selectedHighPriorityEvents}">
 	            	<f:selectItems value="#{PrefsBean.highPriorityEvents}"/>
 	            </h:selectManyListbox>
-	        </h:panelGrid>
 	
-	        <h:panelGrid columns="2" style="width: 200px; text-align: center;">
-	            <h:commandButton onclick="moveMediumToHigh(); return false;"
-                                action="" immediate="true" value="#{msgs.prefs_move_up}" />
-	            <h:commandButton onclick="moveHighToMedium(); return false;"
-                                action="" immediate="true" value="#{msgs.prefs_move_down}" />   
-	        </h:panelGrid>
+				<h:outputText value=""/>
+		        <h:panelGrid columns="2" style="width: 200px; text-align: center;">
+	    	        <h:commandButton onclick="moveMediumToHigh(); return false;"
+            	                    action="" immediate="true" value="#{msgs.prefs_move_up}" />
+	            	<h:commandButton onclick="moveHighToMedium(); return false;"
+                    	            action="" immediate="true" value="#{msgs.prefs_move_down}" />   
+		        </h:panelGrid>
 	            
-			<h:panelGrid columns="1">
-	        	<h:outputText value="#{msgs.prefs_medium_priority}"/>	            
+				<h:outputLabel for="mediumPriorityEvents" value="#{msgs.prefs_medium_priority}: "/>	            
 	            <h:selectManyListbox id="mediumPriorityEvents" size="200" style="height:50px; width: 200px;"
 	            	value="#{PrefsBean.selectedMediumPriorityEvents}">
 	            	<f:selectItems value="#{PrefsBean.mediumPriorityEvents}"/>
 	            </h:selectManyListbox>
-	        </h:panelGrid>	    
 	
-	        <h:panelGrid columns="2" style="width: 200px; text-align: center;">
-	            <h:commandButton onclick="moveLowToMedium(); return false;"
-                                action="" immediate="true" value="#{msgs.prefs_move_up}" />
-	            <h:commandButton onclick="moveMediumToLow(); return false;"
-                                action="" immediate="true" value="#{msgs.prefs_move_down}" />
-	        </h:panelGrid>
+				<h:outputText value=""/>
+		        <h:panelGrid columns="2" style="width: 200px; text-align: center;">
+		            <h:commandButton onclick="moveLowToMedium(); return false;"
+	                                action="" immediate="true" value="#{msgs.prefs_move_up}" />
+		            <h:commandButton onclick="moveMediumToLow(); return false;"
+	                                action="" immediate="true" value="#{msgs.prefs_move_down}" />
+		        </h:panelGrid>
 	            
-			<h:panelGrid columns="1">
-	        	<h:outputText value="#{msgs.prefs_low_priority}"/>	            
+	        	<h:outputLabel for="lowPriorityEvents" value="#{msgs.prefs_low_priority}: "/>	            
 	            <h:selectManyListbox id="lowPriorityEvents" size="200" style="height:50px; width: 200px;"
 	            	value="#{PrefsBean.selectedLowPriorityEvents}">
 	            	<f:selectItems value="#{PrefsBean.lowPriorityEvents}"/>
@@ -98,7 +96,7 @@
             	<t:outputLabel for="highPriorityColor" value="#{msgs.prefs_high_priority}: "/>
                 <sakai:inputColor 
                 	id="highPriorityColor"
-                    value="#{PrefsBean.selectedHighPriorityColor}"/>
+                    value="#{PrefsBean.selectedHighPriorityColor}" />
 				
 				<t:outputLabel for="mediumPriorityColor" value="#{msgs.prefs_medium_priority}: "/>
                 <sakai:inputColor 
