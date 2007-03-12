@@ -4,17 +4,17 @@
  ***********************************************************************************
  *
  * Copyright (c) 2005, 2006 The Sakai Foundation.
- * 
- * Licensed under the Educational Community License, Version 1.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
+ *
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.opensource.org/licenses/ecl1.php
- * 
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  *
  **********************************************************************************/
@@ -108,14 +108,14 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 {
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("helper");
-	
+
 	/** Resource bundle using current language locale */
 	private static ResourceLoader trb = new ResourceLoader("types");
-	
+
     private static final Log logger = LogFactory.getLog(FilePickerAction.class);
-	
+
 	protected static final String PREFIX = "filepicker.";
-	
+
 	protected static final String MODE_ADD_METADATA = "mode_add_metadata";
 	protected static final String MODE_ATTACHMENT_CREATE = "mode_attachment_create";
 	protected static final String MODE_ATTACHMENT_CREATE_INIT = "mode_attachment_create_init";
@@ -127,26 +127,26 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 	protected static final String MODE_ATTACHMENT_SELECT = "mode_attachment_select";
 	protected static final String MODE_ATTACHMENT_SELECT_INIT = "mode_attachment_select_init";
 	protected static final String MODE_HELPER = "mode_helper";
-	
+
 	/** The null/empty string */
 	private static final String NULL_STRING = "";
 
 	protected static final String STATE_ADDED_ITEMS = PREFIX + "added_items";
-	
+
 	/** The name of the state attribute containing the name of the tool that invoked Resources as attachment helper */
 	public static final String STATE_ATTACH_TOOL_NAME = PREFIX + "attach_tool_name";
-	
+
 	protected static final String STATE_ATTACH_CARDINALITY = PREFIX + "attach_cardinality";
-	
+
 	protected static final String STATE_ATTACH_LINKS = PREFIX + "attach_links";
 
 	protected static final String STATE_ATTACHMENT_FILTER = PREFIX + "attachment_filter";
 	protected static final String STATE_ATTACHMENT_LIST = PREFIX + "attachment_list";
 	protected static final String STATE_CONTENT_SERVICE = PREFIX + "content_service";
-	
+
 	/** The content type image lookup service in the State. */
 	protected static final String STATE_CONTENT_TYPE_IMAGE_SERVICE = PREFIX + "content_type_image_service";
-	
+
 	protected static final String STATE_DEFAULT_COLLECTION_ID = PREFIX + "default_collection_id";
 	protected static final String STATE_DEFAULT_COPYRIGHT = PREFIX + "default_copyright";
 	protected static final String STATE_DEFAULT_RETRACT_TIME = PREFIX + "default_retract_time";
@@ -169,7 +169,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 	protected static final String STATE_SHOW_ALL_SITES = PREFIX + "show_all_sites";
 	protected static final String STATE_SHOW_OTHER_SITES = PREFIX + "show_other_sites";
 
-	
+
 	/** The sort by */
 	private static final String STATE_SORT_BY = PREFIX + "sort_by";
 
@@ -293,9 +293,9 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 //		{
 //			template = buildCreateContext(portlet, context, data, state);
 //		}
-		
+
 		return template;
-		
+
 	}
 
 	/**
@@ -308,19 +308,19 @@ public class FilePickerAction extends VelocityPortletPaneledAction
     private String buildAddMetadataContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
     {
 		context.put("tlang",trb);
-		
+
 		String template = "content/sakai_resources_cwiz_finish";
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 		if(pipe.isActionCanceled())
 		{
 			// go back to list view
-			
+
 		}
 		else if(pipe.isErrorEncountered())
 		{
 			// report the error?
-			
+
 		}
 		else
 		{
@@ -340,7 +340,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 				defaultRetractDate = TimeService.newTime();
 				state.setAttribute(STATE_DEFAULT_RETRACT_TIME, defaultRetractDate);
 			}
-	
+
 			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
 			if(preventPublicDisplay == null)
 			{
@@ -357,9 +357,9 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 			item.setContent(pipe.getContent());
 			item.setContentType(pipe.getMimeType());
 			context.put("item", item);
-			
+
 			state.setAttribute(STATE_NEW_ATTACHMENT, item);
-			
+
 			ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
 			if(registry == null)
 			{
@@ -368,20 +368,20 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 			}
 			ResourceType typeDef = registry.getType(typeId);
 			context.put("type", typeDef);
-			
+
 			context.put("title", (new ResourceTypeLabeler()).getLabel(pipe.getAction()));
 			context.put("instruction", trb.getFormattedMessage("instr.create", new String[]{typeDef.getLabel()}));
 			context.put("required", trb.getFormattedMessage("instr.require", new String[]{"<span class=\"reqStarInline\">*</span>"}));
-			
+
 			// find the ContentHosting service
 			ContentHostingService contentService = (ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
 			if(contentService.isAvailabilityEnabled())
 			{
 				context.put("availability_is_enabled", Boolean.TRUE);
 			}
-			
+
 			ResourcesAction.copyrightChoicesIntoContext(state, context);
-			
+
 			context.put("SITE_ACCESS", AccessMode.SITE.toString());
 			context.put("GROUP_ACCESS", AccessMode.GROUPED.toString());
 			context.put("INHERITED_ACCESS", AccessMode.INHERITED.toString());
@@ -398,7 +398,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 	protected void finishAction(SessionState state, ToolSession toolSession, ResourceToolActionPipe pipe)
 	{
 		ResourceToolAction action = pipe.getAction();
-		// use ActionType for this 
+		// use ActionType for this
 		switch(action.getActionType())
 		{
 		case CREATE:
@@ -456,7 +456,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
 
 		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
-		
+
 		context.put("labeler", new ResourceTypeLabeler());
 		context.put("ACTION_DELIMITER", ResourceToolAction.ACTION_DELIMITER);
 
@@ -486,7 +486,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		{
 			context.put("list_has_changed", Boolean.TRUE.toString());
 		}
-		
+
 		boolean inMyWorkspace = SiteService.isUserSite(ToolManager.getCurrentPlacement().getContext());
 		// context.put("inMyWorkspace", Boolean.toString(inMyWorkspace));
 
@@ -513,9 +513,9 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 			atHome = true;
 			//context.put ("collectionDisplayName", state.getAttribute (STATE_HOME_COLLECTION_DISPLAY_NAME));
 		}
-		
+
 		Comparator userSelectedSort = (Comparator) state.getAttribute(STATE_LIST_VIEW_SORT);
-		
+
 		// set the sort values
 		String sortedBy = (String) state.getAttribute (STATE_SORT_BY);
 		String sortedAsc = (String) state.getAttribute (STATE_SORT_ASC);
@@ -563,14 +563,14 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 			catch(TypeException ex)
 			{
 				logger.warn("ResourcesAction.buildSelectAttachment (static) : TypeException.");
-				throw ex;				
+				throw ex;
 			}
 			catch(PermissionException ex)
 			{
 				logger.warn("ResourcesAction.buildSelectAttachment (static) : PermissionException.");
 				throw ex;
 			}
-		
+
 			SortedSet<String> expandedCollections = (SortedSet<String>) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
 			if(expandedCollections == null)
 			{
@@ -585,13 +585,13 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 				registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
 				state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
 			}
-			
+
 			boolean expandAll = Boolean.TRUE.toString().equals(state.getAttribute(STATE_NEED_TO_EXPAND_ALL));
 
 			//state.removeAttribute(STATE_PASTE_ALLOWED_FLAG);
 
 			List<ListItem> this_site = new Vector<ListItem>();
-			
+
 			if(contentService.isInDropbox(collectionId))
 			{
 				User[] submitters = (User[]) state.getAttribute(FilePickerHelper.FILE_PICKER_SHOW_DROPBOXES);
@@ -603,7 +603,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 						contentService.createDropboxCollection();
 						dropboxId = contentService.getDropboxCollection();
 					}
-	
+
 					if(dropboxId == null)
 					{
 						// do nothing
@@ -618,11 +618,11 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 							{
 								ContentCollection db = contentService.getCollection(dbId);
 								expandedCollections.add(dbId);
-								
+
 								ListItem item = ListItem.getListItem(db, (ListItem) null, registry, expandAll, expandedCollections, (List<String>) null, (List<String>) null, 0, userSelectedSort);
 								this_site.addAll(item.convert2list());
-								
-	//							List dbox = getListView(dbId, highlightedItems, (ChefBrowseItem) null, false, state); 
+
+	//							List dbox = getListView(dbId, highlightedItems, (ChefBrowseItem) null, false, state);
 	//							getBrowseItems(dbId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (ChefBrowseItem) null, false, state);
 	//							if(dbox != null && dbox.size() > 0)
 	//							{
@@ -645,11 +645,11 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 						{
 							ContentCollection db = contentService.getCollection(dropboxId);
 							expandedCollections.add(dropboxId);
-	
+
 							ListItem item = ListItem.getListItem(db, null, registry, expandAll, expandedCollections, null, null, 0, null);
 							this_site.addAll(item.convert2list());
-							
-	//						List dbox = getListView(dropboxId, highlightedItems, (ChefBrowseItem) null, false, state); 
+
+	//						List dbox = getListView(dropboxId, highlightedItems, (ChefBrowseItem) null, false, state);
 	//						// List dbox = getBrowseItems(dropboxId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (ChefBrowseItem) null, false, state);
 	//						if(dbox != null && dbox.size() > 0)
 	//						{
@@ -854,8 +854,11 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 			attachments = EntityManager.newReferenceList(attachments);
 			state.setAttribute(STATE_ATTACHMENT_LIST, attachments);
 		}
-		
-		Object attach_links = state.getAttribute(FilePickerHelper.FILE_PICKER_ATTACH_LINKS);
+      else {
+         attachments = EntityManager.newReferenceList();
+      }
+
+      Object attach_links = state.getAttribute(FilePickerHelper.FILE_PICKER_ATTACH_LINKS);
 		if(attach_links == null)
 		{
 			state.removeAttribute(STATE_ATTACH_LINKS);
