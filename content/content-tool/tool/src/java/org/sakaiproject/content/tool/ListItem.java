@@ -23,6 +23,8 @@ package org.sakaiproject.content.tool;
 
 import java.text.NumberFormat;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -40,7 +42,7 @@ import org.sakaiproject.content.api.GroupAwareEntity;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
-import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.content.tool.ResourcesAction.ContentPermissions;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
@@ -64,8 +66,13 @@ public class ListItem
     private static ResourceLoader trb = new ResourceLoader("types");
 
     private static final Log logger = LogFactory.getLog(ResourcesAction.class);
-    
 
+    
+    protected static ContentHostingService contentService = (ContentHostingService) ComponentManager.get(ContentHostingService.class);
+    
+    protected static Comparator DEFAULT_COMPARATOR = contentService.newContentHostingComparator(ResourceProperties.PROP_DISPLAY_NAME, true);
+    protected static final Comparator PRIORITY_SORT_COMPARATOR = contentService.newContentHostingComparator(ResourceProperties.PROP_CONTENT_PRIORITY, true);
+    
 	protected String name;
 	protected String id;
 	protected List<ResourceToolAction> addActions;
@@ -131,7 +138,7 @@ public class ListItem
 	        	setSize(rb.getFormattedMessage("size.items", args));
         	}
 			setIsEmpty(collection_size < 1);
-			setSortable(ContentHostingService.isSortByPriorityEnabled() && collection_size > 1 && collection_size < ResourcesAction.EXPANDABLE_FOLDER_SIZE_LIMIT);
+			setSortable(contentService.isSortByPriorityEnabled() && collection_size > 1 && collection_size < ResourcesAction.EXPANDABLE_FOLDER_SIZE_LIMIT);
 			if(collection_size > ResourcesAction.EXPANDABLE_FOLDER_SIZE_LIMIT)
 			{
 				setIsTooBig(true);
@@ -205,7 +212,7 @@ public class ListItem
 				
 	}
 	
-	public static ListItem getListItem(ContentEntity entity, ListItem parent, ResourceTypeRegistry registry, boolean expandAll, Set<String> expandedFolders, List<String> items_to_be_moved, List<String> items_to_be_copied, int depth)
+	public static ListItem getListItem(ContentEntity entity, ListItem parent, ResourceTypeRegistry registry, boolean expandAll, Set<String> expandedFolders, List<String> items_to_be_moved, List<String> items_to_be_copied, int depth, Comparator userSelectedSort)
 	{
 		ListItem item = null;
 		boolean isCollection = entity.isCollection();
@@ -260,11 +267,40 @@ public class ListItem
 				item.setExpanded(true);
 
 		       	List<ContentEntity> children = collection.getMemberResources();
+		       	
+				Comparator comparator = null;
+				if(userSelectedSort != null)
+				{
+					comparator = userSelectedSort;
+				}
+				else
+				{
+					boolean hasCustomSort = false;
+					try
+					{
+						hasCustomSort = collection.getProperties().getBooleanProperty(ResourceProperties.PROP_HAS_CUSTOM_SORT);
+					}
+					catch(Exception e)
+					{
+						// ignore -- let value be false
+					}
+					if(hasCustomSort)
+					{
+						comparator = PRIORITY_SORT_COMPARATOR;
+					}
+					else
+					{
+						comparator = DEFAULT_COMPARATOR;
+					}
+				}
+				
+				Collections.sort(children, comparator);
+
 	        	Iterator<ContentEntity> childIt = children.iterator();
 	        	while(childIt.hasNext())
 	        	{
 	        		ContentEntity childEntity = childIt.next();
-	        		ListItem child = getListItem(childEntity, item, registry, expandAll, expandedFolders, items_to_be_moved, items_to_be_copied, depth + 1);
+	        		ListItem child = getListItem(childEntity, item, registry, expandAll, expandedFolders, items_to_be_moved, items_to_be_copied, depth + 1, userSelectedSort);
 	        		item.addMember(child);
 	        	}
 			}

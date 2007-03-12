@@ -8776,7 +8776,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			if(date0 != null && !date0.trim().equals(""))
 			{
 				m_releaseDate = TimeService.newTimeGmt(date0);
-				if(m_releaseDate.getTime() < START_OF_TIME)
+				if(m_releaseDate.getTime() <= START_OF_TIME)
 				{
 					m_releaseDate = null;
 				}
@@ -8788,7 +8788,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			if(date1 != null && !date1.trim().equals(""))
 			{
 				m_retractDate = TimeService.newTimeGmt(date1);
-				if(m_retractDate.getTime() > END_OF_TIME)
+				if(m_retractDate.getTime() >= END_OF_TIME)
 				{
 					m_retractDate = null;
 				}

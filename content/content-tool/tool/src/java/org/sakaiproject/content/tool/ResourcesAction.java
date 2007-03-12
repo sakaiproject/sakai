@@ -757,8 +757,6 @@ public class ResourcesAction
 
 	protected static final String STATE_REORDER_SORT = PREFIX + "reorder_sort";
 
-	protected static final String STATE_DEFAULT_SORT = PREFIX + "default_sort";
-
 	protected static final String STATE_EXPANDED_FOLDER_SORT_MAP = PREFIX + "expanded_folder_sort_map";
 
 	protected static final String STATE_CREATE_WIZARD_ACTION = PREFIX + "create_wizard_action";
@@ -3448,6 +3446,8 @@ public class ResourcesAction
 		{
 			context.put("availability_is_enabled", Boolean.TRUE);
 		}
+
+		Comparator userSelectedSort = (Comparator) state.getAttribute(STATE_LIST_VIEW_SORT);
 		
 		List cPath = getCollectionPath(state);
 		context.put ("collectionPath", cPath);
@@ -3552,7 +3552,7 @@ public class ResourcesAction
 
 			boolean need_to_expand_all = Boolean.TRUE.toString().equals((String)state.getAttribute(STATE_NEED_TO_EXPAND_ALL));
 
-			ListItem item = ListItem.getListItem(collection, null, registry, need_to_expand_all, expandedCollections, items_to_be_moved, items_to_be_copied, 0);
+			ListItem item = ListItem.getListItem(collection, null, registry, need_to_expand_all, expandedCollections, items_to_be_moved, items_to_be_copied, 0, userSelectedSort);
 			
 			List<ListItem> items = item.convert2list();
 			
@@ -6872,8 +6872,6 @@ public class ResourcesAction
 
 		state.setAttribute (STATE_SORT_ASC, Boolean.TRUE.toString());
 		
-		state.setAttribute(STATE_DEFAULT_SORT, ContentHostingService.newContentHostingComparator(ResourceProperties.PROP_DISPLAY_NAME, true));
-
 		state.setAttribute (STATE_SELECT_ALL_FLAG, Boolean.FALSE.toString());
 
 		state.setAttribute (STATE_EXPAND_ALL_FLAG, Boolean.FALSE.toString());
@@ -8548,6 +8546,8 @@ public class ResourcesAction
 			state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
 		}
 		
+		Comparator userSelectedSort = (Comparator) state.getAttribute(STATE_LIST_VIEW_SORT);
+		
 		// set the sort values
 		String sortedBy = (String) state.getAttribute (STATE_SORT_BY);
 		String sortedAsc = (String) state.getAttribute (STATE_SORT_ASC);
@@ -8578,7 +8578,7 @@ public class ResourcesAction
             try
             {
             	ContentCollection wsCollection = ContentHostingService.getCollection(wsCollectionId);
-				ListItem wsRoot = ListItem.getListItem(wsCollection, null, registry, false, expandedCollections, items_to_be_moved, items_to_be_copied, 0 );
+				ListItem wsRoot = ListItem.getListItem(wsCollection, null, registry, false, expandedCollections, items_to_be_moved, items_to_be_copied, 0, userSelectedSort);
 		        other_sites.add(wsRoot);
             }
             catch (IdUnusedException e)
@@ -8626,7 +8626,7 @@ public class ResourcesAction
                 try
                 {
 	                collection = ContentHostingService.getCollection(collId);
-					ListItem root = ListItem.getListItem(collection, null, registry, false, expandedCollections, items_to_be_moved, items_to_be_copied, 0);
+					ListItem root = ListItem.getListItem(collection, null, registry, false, expandedCollections, items_to_be_moved, items_to_be_copied, 0, null);
 					root.setName(displayName);
 					other_sites.add(root);
                 }
@@ -14874,7 +14874,6 @@ public class ResourcesAction
 		boolean need_to_expand_all = Boolean.TRUE.toString().equals((String)state.getAttribute(STATE_NEED_TO_EXPAND_ALL));
 		
 		Comparator userSelectedSort = (Comparator) state.getAttribute(STATE_LIST_VIEW_SORT);
-		Comparator defaultComparator = (Comparator) state.getAttribute(STATE_DEFAULT_SORT);
 		
 		Map expandedFolderSortMap = (Map) state.getAttribute(STATE_EXPANDED_FOLDER_SORT_MAP);
 		if(expandedFolderSortMap == null)
@@ -14924,7 +14923,7 @@ public class ResourcesAction
 					}
 					else
 					{
-						comparator = defaultComparator;
+						//comparator = defaultComparator;
 					}
 				}
 				expandedFolderSortMap.put(collectionId, comparator);
@@ -15178,7 +15177,7 @@ public class ResourcesAction
 					comparator = (Comparator) expandedFolderSortMap.get(collectionId);
 					if(comparator == null)
 					{
-						comparator = defaultComparator;
+						//comparator = defaultComparator;
 					}
 				}
 

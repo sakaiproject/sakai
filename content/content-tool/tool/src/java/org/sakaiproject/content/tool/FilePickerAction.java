@@ -27,6 +27,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -158,6 +159,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 	protected static final String STATE_HELPER_CHANGED = PREFIX + "made_changes";
 	protected static final String STATE_HOME_COLLECTION_ID  = PREFIX + "home_collection_id";
 	protected static final String STATE_LIST_SELECTIONS = PREFIX + "list_selections";
+	protected static final String STATE_LIST_VIEW_SORT = PREFIX + "list_view_sort";
 	protected static final String STATE_NAVIGATION_ROOT = PREFIX + "navigation_root";
 	protected static final String STATE_NEED_TO_EXPAND_ALL = PREFIX + "need_to_expand_all";
 	protected static final String STATE_NEW_ATTACHMENT = PREFIX + "new_attachment";
@@ -512,6 +514,8 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 			//context.put ("collectionDisplayName", state.getAttribute (STATE_HOME_COLLECTION_DISPLAY_NAME));
 		}
 		
+		Comparator userSelectedSort = (Comparator) state.getAttribute(STATE_LIST_VIEW_SORT);
+		
 		// set the sort values
 		String sortedBy = (String) state.getAttribute (STATE_SORT_BY);
 		String sortedAsc = (String) state.getAttribute (STATE_SORT_ASC);
@@ -615,7 +619,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 								ContentCollection db = contentService.getCollection(dbId);
 								expandedCollections.add(dbId);
 								
-								ListItem item = ListItem.getListItem(db, (ListItem) null, registry, expandAll, expandedCollections, (List<String>) null, (List<String>) null, 0);
+								ListItem item = ListItem.getListItem(db, (ListItem) null, registry, expandAll, expandedCollections, (List<String>) null, (List<String>) null, 0, userSelectedSort);
 								this_site.addAll(item.convert2list());
 								
 	//							List dbox = getListView(dbId, highlightedItems, (ChefBrowseItem) null, false, state); 
@@ -642,7 +646,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 							ContentCollection db = contentService.getCollection(dropboxId);
 							expandedCollections.add(dropboxId);
 	
-							ListItem item = ListItem.getListItem(db, null, registry, expandAll, expandedCollections, null, null, 0);
+							ListItem item = ListItem.getListItem(db, null, registry, expandAll, expandedCollections, null, null, 0, null);
 							this_site.addAll(item.convert2list());
 							
 	//						List dbox = getListView(dropboxId, highlightedItems, (ChefBrowseItem) null, false, state); 
@@ -666,7 +670,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 			else
 			{
 				ContentCollection collection = contentService.getCollection(collectionId);
-				ListItem item = ListItem.getListItem(collection, null, registry, expandAll, expandedCollections, null, null, 0);
+				ListItem item = ListItem.getListItem(collection, null, registry, expandAll, expandedCollections, null, null, 0, null);
 				this_site.addAll(item.convert2list());
 				
 			}
