@@ -13,15 +13,13 @@
 	<h:form id="msgForum">
 	
 		<h:panelGroup rendered="#{PrivateMessagesTool.instructor}">
-			<sakai:tool_bar separator="#{msgs.cdfm_toolbar_separator}">
-        		<sakai:tool_bar_item value="#{msgs.cdfm_new_forum}" action="#{ForumTool.processActionNewForum}" />
-      
-        		<sakai:tool_bar_item value=" #{msgs.cdfm_organize}" action="#{ForumTool.processActionTemplateOrganize}"  />
-
- 				<sakai:tool_bar_item value=" #{msgs.cdfm_template_setting}" action="#{ForumTool.processActionTemplateSettings}" />
-
-  				<sakai:tool_bar_item value=" #{msgs.stat_list}" action="#{ForumTool.processActionStatistics}" />
- 			</sakai:tool_bar>
+		  <sakai:tool_bar separator="#{msgs.cdfm_toolbar_separator}">
+        <sakai:tool_bar_item value="#{msgs.cdfm_new_forum}" action="#{ForumTool.processActionNewForum}" />
+        <sakai:tool_bar_item value=" #{msgs.cdfm_organize}" action="#{ForumTool.processActionTemplateOrganize}"  />
+			  <sakai:tool_bar_item value=" #{msgs.cdfm_template_setting}" action="#{ForumTool.processActionTemplateSettings}" />
+			  <sakai:tool_bar_item value=" #{msgs.stat_list}" action="#{ForumTool.processActionStatistics}" />
+			  <sakai:tool_bar_item value=" #{msgs.cdfm_msg_pending_queue} #{msgs.cdfm_openb}#{ForumTool.numPendingMessages}#{msgs.cdfm_closeb}" action="#{ForumTool.processPendingMsgQueue}" rendered="#{ForumTool.displayPendingMsgQueue}" />
+      </sakai:tool_bar>
  		</h:panelGroup>
  	
  	<div><h3><h:outputText value="#{msgs.cdfm_discussion_forums}" /></h3></div>
@@ -126,10 +124,12 @@
 					      <f:param value="#{forum.forum.id}" name="forumId"/>
 				      </h:commandLink>
 					  <f:verbatim></h5></f:verbatim>
-				     <h:outputText styleClass="textPanelFooter" id="topic_msg_count55" value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.cdfm_lowercase_msg} - #{topic.unreadNoMessages} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" 
+				     <h:outputText styleClass="textPanelFooter" id="topic_msg_count55" value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.cdfm_lowercase_msg} - #{topic.unreadNoMessages} #{msgs.cdfm_unread}" 
 				                    rendered="#{topic.isRead && topic.totalNoMessages < 2}"/>
-					   <h:outputText id="topic_msg_count56" value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.cdfm_lowercase_msgs} - #{topic.unreadNoMessages} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" 
+					   <h:outputText id="topic_msg_count56" value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.cdfm_lowercase_msgs} - #{topic.unreadNoMessages} #{msgs.cdfm_unread}" 
 				                    rendered="#{topic.isRead && topic.totalNoMessages > 1}" styleClass="textPanelFooter" />
+				     <h:outputText id="topic_moderated" value="#{msgs.cdfm_topic_moderated_flag}" styleClass="textPanelFooter" rendered="#{topic.moderated == 'true' && topic.isRead}" />
+    	        <h:outputText value=" #{msgs.cdfm_closeb}"styleClass="textPanelFooter" rendered="#{topic.isRead}"/>
     	        </h:panelGroup>
     	        <h:panelGroup styleClass="msgNav">
     	         <h:commandLink action="#{ForumTool.processActionTopicSettings}" id="topic_setting" value="#{msgs.cdfm_topic_settings}" rendered="#{topic.changeSettings}"

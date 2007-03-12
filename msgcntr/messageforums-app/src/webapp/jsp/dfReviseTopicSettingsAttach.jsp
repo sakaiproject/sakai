@@ -8,6 +8,8 @@
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
 </jsp:useBean>
 <f:view>
+	<sakai:script contextBase="/sakai-messageforums-tool" path="/js/permissions_header.js"/>
+	<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
   <sakai:view title="#{msgs.cdfm_discussion_topic_settings}">
 <!--jsp/dfReviseTopicSettingsAttach.jsp-->
     <h:form id="revise">
@@ -16,7 +18,7 @@
   			<h:outputText id="instruction"  value="#{msgs.cdfm_settings_instruction}"/>
 			 	<h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStarInline" />
 			</div>
-			<h:messages styleClass="alertMessage" id="errorMessages" /> 
+			<h:messages errorClass="alertMessage" infoClass="success" id="errorMessages" /> 
 
 		  <h:panelGrid styleClass="jsfFormTable" columns="3" columnClasses="shorttext,">
 				<h:outputText id="req_star"  value="#{msgs.cdfm_info_required_sign}" styleClass="reqStarInline"/>	
@@ -93,11 +95,22 @@
        <h4><h:outputText  value="#{msgs.cdfm_topic_posting}"/></h4>
 
 			<h:panelGrid columns="2">
-				<h:panelGroup styleClass="shorttext">
-				  <h:outputLabel id="outputLabel3" for="topic_posting"  value="#{msgs.cdfm_lock_topic}"/>	
+				
+				<h:panelGroup>
+				  <h:outputLabel for="topic_locked"  value="#{msgs.cdfm_lock_topic}" styleClass="shorttext"/>	
 				</h:panelGroup>
 				<h:panelGroup>
-					<h:selectOneRadio layout="pageDirection"  id="topic_posting"  value="#{ForumTool.selectedTopic.locked}"    style="margin:0" styleClass="checkbox inlineForm">
+					<h:selectOneRadio layout="pageDirection"  id="topic_locked"  value="#{ForumTool.selectedTopic.locked}" styleClass="checkbox inlineForm">
+    					<f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_yes}"/>
+    					<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_no}"/>
+  					</h:selectOneRadio>
+				</h:panelGroup>
+				<h:panelGroup>
+				  <h:outputLabel for="moderated"  value="#{msgs.cdfm_moderate_topic}" styleClass="shorttext"/>	
+				</h:panelGroup>
+				<h:panelGroup>
+					<h:selectOneRadio layout="pageDirection"  id="moderated"  value="#{ForumTool.selectedTopic.moderated}" styleClass="checkbox inlineForm"
+								onclick="javascript:disableOrEnableModeratePerm();" >
     					<f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_yes}"/>
     					<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_no}"/>
   					</h:selectOneRadio>

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -43,8 +43,12 @@ public interface MessageForumsMessageManager {
     public Message getMessageById(Long messageId);
     
     public Message getMessageByIdWithAttachments(Long messageId);
+    
+    public void markMessageApproval(Long messageId, boolean approved);
 
     public void markMessageReadForUser(Long topicId, Long messageId, boolean read);
+    
+    public void markMessageReadForUser(Long topicId, Long messageId, boolean read, String userId);
 
     public boolean isMessageReadForUser(Long topicId, Long messageId);
 
@@ -55,16 +59,26 @@ public interface MessageForumsMessageManager {
     public void deleteUnreadStatus(Long topicId, Long messageId);
 
     public int findMessageCountByTopicId(Long topicId);
+    
+    public int findViewableMessageCountByTopicIdByUserId(Long topicId, String userId);
+    
+    public int findViewableMessageCountByTopicId(Long topicId);
 
     public int findAuhtoredMessageCountByTopicIdByUserId(final Long topicId, final String userId);
     
     public int findUnreadMessageCountByTopicIdByUserId(Long topicId, String userId);
     
     public int findUnreadMessageCountByTopicId(Long topicId);
+    
+    public int findUnreadViewableMessageCountByTopicIdByUserId(Long topicId, String userId);
+    
+    public int findUnreadViewableMessageCountByTopicId(Long topicId);
 
     public int findReadMessageCountByTopicIdByUserId(Long topicId, String userId);
     
     public int findReadMessageCountByTopicId(Long topicId);
+    
+    public int findReadViewableMessageCountByTopicId(Long topicId);
 
     public List findDiscussionForumMessageCountsForAllSites(final List siteList);
     
@@ -102,4 +116,18 @@ public interface MessageForumsMessageManager {
 	public boolean isToolInSite(String siteId, String toolId);
 
 	public Map getReadStatusForMessagesWithId(List msgIds, String userId);
+	
+	/**
+	 * Returns list of all messages in site with Pending approval for which
+	 * at least one of the given memberships has moderate perm
+	 * @return
+	 */
+	public List getPendingMsgsInSiteByMembership(final List membershipList);
+	
+	/**
+	 * Retrieves all pending messages in a given topic
+	 * @param topicId
+	 * @return
+	 */
+	public List getPendingMsgsInTopic(final Long topicId);
 }

@@ -158,7 +158,7 @@
 	        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.LabelImpl" />
 	    </list> 
    	    <property name="moderated">
-	      <column name="MODERATED" not-null="false" />
+	      <column name="MODERATED" not-null="true" />
 	    </property>        
 	    <property name="gradebook">
 	      <column name="GRADEBOOK" length="255" not-null="false" />
@@ -236,6 +236,16 @@
   </query>
   <query name="findTopicByUuid">
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic where topic.uuid = :uuid]]>
+  </query>
+  
+    <query name="findAllModeratedTopicsForSite">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
+		    join topic.openForum as forum
+		    join forum.area as area
+		    where
+		    area.contextId = :contextId and
+		    topic.moderated = true
+		]]>
   </query>
  
 </hibernate-mapping>

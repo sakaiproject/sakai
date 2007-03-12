@@ -3,7 +3,7 @@
  * $Id: AreaManagerImpl.java 9227 2006-05-15 15:02:42Z cwen@iupui.edu $
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -136,6 +136,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
             area.setEnabled(Boolean.FALSE);
             area.setHidden(Boolean.TRUE);
             area.setLocked(Boolean.FALSE);
+            area.setModerated(Boolean.FALSE);
             saveArea(area);
         }
 
@@ -150,6 +151,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
             area.setEnabled(Boolean.TRUE);
             area.setHidden(Boolean.TRUE);
             area.setLocked(Boolean.FALSE);
+            area.setModerated(Boolean.FALSE);
             saveArea(area);
         }
         return area;

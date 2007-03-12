@@ -24,11 +24,11 @@
 				<sakai:tool_bar_item value="#{msgs.cdfm_container_title_thread}" action="#{ForumTool.processAddMessage}" id="df_compose_message_dfAllMessages"
 		  			rendered="#{ForumTool.selectedTopic.isNewResponse}" />
 		  			
-		  		<h:commandLink action="#{ForumTool.processActionMarkAllThreadAsRead}" rendered="#{ForumTool.selectedTopic.isMarkAsRead}"> 
-      				<h:graphicImage value="/images/silk/email.png" alt="#{msgs.msg_is_unread}" rendered="#{ForumTool.selectedTopic.isMarkAsRead}" 
+		  		<h:commandLink action="#{ForumTool.processActionMarkAllAsRead}" rendered="#{ForumTool.selectedTopic.isMarkAsRead}"> 
+      				<h:graphicImage value="/images/silk/email.png" alt="#{msgs.msg_is_unread}" 
 				   	    onmouseover="this.src=this.src.replace(/email\.png/, 'email_open.png');"
    	        			onmouseout="this.src=this.src.replace(/email_open\.png/, 'email.png');" />
-   	        		<h:outputText value="#{msgs.cdfm_mark_all_as_read}" rendered="#{ForumTool.selectedTopic.isMarkAsRead}" />
+   	        		<h:outputText value=" #{msgs.cdfm_mark_all_as_read}" />
                 </h:commandLink>
                 <%--
 		  		<sakai:tool_bar_item action="#{ForumTool.processActionMarkAllAsRead}" value="#{msgs.cdfm_mark_all_as_read}" 
@@ -42,7 +42,7 @@
 					
 				<h:outputLink id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyUrl}');">
 					<h:graphicImage url="/images/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
-					<h:outputText value="#{msgs.cdfm_print}" />
+					<h:outputText value=" #{msgs.cdfm_print}" />
 				</h:outputLink>
  		</sakai:tool_bar>
 
@@ -53,7 +53,7 @@
 			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussion_forums}" title=" #{msgs.cdfm_discussion_forums}"
 			      		rendered="#{ForumTool.forumsTool}" />
       			  <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
-					  <h:commandLink action="#{ForumTool.processActionDisplayForum}" value="#{ForumTool.selectedForum.forum.title}" title=" #{msgs.cdfm_topic_settings}">
+					  <h:commandLink action="#{ForumTool.processActionDisplayForum}" value="#{ForumTool.selectedForum.forum.title}" title=" #{ForumTool.selectedForum.forum.title}">
 						  <f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 					  </h:commandLink>
 				  <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>

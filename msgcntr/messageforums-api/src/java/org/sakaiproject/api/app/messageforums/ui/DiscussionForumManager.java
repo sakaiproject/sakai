@@ -3,7 +3,7 @@
  * $Id: DiscussionForumManager.java 9227 2006-05-15 15:02:42Z cwen@iupui.edu $
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -55,6 +55,13 @@ public interface DiscussionForumManager
   public Topic getTopicByIdWithMessages(final Long topicId);
   
   public Topic getTopicByIdWithMessagesAndAttachments(final Long topicId);
+  
+  /**
+   * Returns all moderated topics in site
+   * @param areaId
+   * @return
+   */
+  public List getModeratedTopicsInSite();
    
 
   
@@ -88,12 +95,42 @@ public interface DiscussionForumManager
   int getTotalNoMessages(Topic topic);
 
   /**
+   * When topic is moderated and the user does not have the moderate
+   * perm, only count approved messages and messages authored by user
+   * @param topic
+   * @return
+   */
+  int getTotalViewableMessagesWhenMod(Topic topic);
+  
+  /**
    * @param topic
    * @return
    */
   int getUnreadNoMessages(Topic topic);
-
+  
   /**
+   * When topic is moderated and the user does not have the moderate
+   * perm, only count approved messages and messages authored by user
+   * @param topic
+   * @return
+   */
+  int getNumUnreadViewableMessagesWhenMod(Topic topic);
+  
+  /**
+   * Mark all pending messages in a give topic as "Approved"
+   * Used when a moderated topic is changed to not moderated
+   * @param topicId
+   */
+  public void approveAllPendingMessages(Long topicId);
+  
+  /**
+   * Returns pending msgs in site according to user's memberships
+   * @return
+   */
+  List getPendingMsgsInSiteByMembership(List membershipList);
+  
+  /**
+   * 
    * @return
    */
   public List getDiscussionForums();
@@ -293,6 +330,14 @@ public interface DiscussionForumManager
    * @param readStatus TODO
    */
   public void markMessageAs(Message message, boolean readStatus);
+  
+  /**
+   * Mark the read status for a given message for a given user
+   * @param message
+   * @param readStatus
+   * @param userId
+   */
+  public void markMessageReadStatusForUser(Message message, boolean readStatus, String userId);
 
    
   /**
@@ -359,4 +404,11 @@ public interface DiscussionForumManager
   public Map getReadStatusForMessagesWithId(List msgIds, String userId);
   
   public List getDiscussionForumsWithTopicsMembershipNoAttachments(String contextId);
+  
+  /**
+   * Returns all pending msgs in the given topic
+   * @param topicId
+   * @return
+   */
+  public List getPendingMsgsInTopic(Long topicId);
 }

@@ -3,7 +3,7 @@
  * $Id: PermissionLevelImpl.java 9227 2006-05-15 15:02:42Z cwen@iupui.edu $
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -199,7 +199,7 @@ public class PermissionLevelImpl extends MutableEntityImpl
 		buffer.append("," + read);
 		buffer.append("," + reviseAny);
 		buffer.append("," + reviseOwn);
-		//buffer.append("," + moderatePostings);
+		buffer.append("," + moderatePostings);
 		buffer.append("]");
 		
 				

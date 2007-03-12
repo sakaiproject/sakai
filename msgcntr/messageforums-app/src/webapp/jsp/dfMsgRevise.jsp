@@ -6,7 +6,6 @@
 </jsp:useBean>
 
 <f:view>
-  <f:loadBundle basename="org.sakaiproject.tool.messageforums.bundle.Messages" var="msgs"/>
   <sakai:view_container title="#{msgs.cdfm_revise_forum_msg}">
     <sakai:view_content>
 <!--jsp/dfMsgRevise.jsp-->

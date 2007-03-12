@@ -3,7 +3,7 @@
  * $Id: DiscussionTopicBean.java 9227 2006-05-15 15:02:42Z cwen@iupui.edu $
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -331,6 +331,49 @@ public class DiscussionTopicBean
       topic.setLocked(new Boolean(false));
     }
   }
+  
+  /**
+   * returns topic moderated status
+   * @return
+   */
+  public boolean isTopicModerated()
+  {
+	  return topic.getModerated().booleanValue();
+  }
+  
+  /**
+   * @return Returns the moderated status.
+   */
+  public String getModerated()
+  {
+    LOG.debug("getModerated()");
+    if (topic == null || topic.getModerated() == null
+        || topic.getModerated().booleanValue() == false)
+    {
+      return Boolean.FALSE.toString();
+    }
+    return Boolean.TRUE.toString();
+  }
+
+  /**
+   * @param moderated
+   * Set the moderated status.
+   */
+  public void setModerated(String moderated)
+  {
+    if(LOG.isDebugEnabled())
+    {
+       LOG.debug("setModerated(String "+ moderated+")");
+    }
+    if (moderated.equals(Boolean.TRUE.toString()))
+    {
+      topic.setModerated(new Boolean(true));
+    }
+    else
+    {
+      topic.setModerated(new Boolean(false));
+    }
+  }
 
   public void removeMessage(DiscussionMessageBean decoMessage)
   {
@@ -498,9 +541,14 @@ public class DiscussionTopicBean
     return uiPermissionsManager.isMarkAsRead(topic, (DiscussionForum) topic
         .getBaseForum());
   }
+  
+  public boolean getIsModeratedAndHasPerm()
+  {
+	  LOG.debug("getIsModeratedAndHasPerm()");
+	  return topic.getModerated().booleanValue()
+	  	&& uiPermissionsManager.isModeratePostings(topic, (DiscussionForum) topic.getBaseForum());
+  }
 
-  
-  
   /**
    * @return
    */

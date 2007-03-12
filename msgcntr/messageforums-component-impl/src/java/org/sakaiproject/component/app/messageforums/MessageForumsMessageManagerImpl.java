@@ -3,7 +3,7 @@
  * $Id: MessageForumsMessageManagerImpl.java 9227 2006-05-15 15:02:42Z cwen@iupui.edu $
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -26,8 +26,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,6 +39,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.sakaiproject.api.app.messageforums.Attachment;
+import org.sakaiproject.api.app.messageforums.BaseForum;
 import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
@@ -47,6 +51,7 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl
 import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.Util;
 import org.sakaiproject.component.app.messageforums.exception.LockedException;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -71,9 +76,13 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     private static final String QUERY_COUNT_BY_READ = "findReadMessageCountByTopicId";
     private static final String QUERY_COUNT_BY_AUTHORED = "findAuhtoredMessageCountByTopicId";
     private static final String QUERY_BY_TOPIC_ID = "findMessagesByTopicId";
+    private static final String QUERY_COUNT_VIEWABLE_BY_TOPIC_ID = "findViewableMessageCountByTopicIdByUserId";
+    private static final String QUERY_COUNT_READ_VIEWABLE_BY_TOPIC_ID = "findReadViewableMessageCountByTopicIdByUserId";
     private static final String QUERY_UNREAD_STATUS = "findUnreadStatusForMessage";
     private static final String QUERY_CHILD_MESSAGES = "finalAllChildMessages";
     private static final String QUERY_READ_STATUS_WITH_MSGS_USER = "findReadStatusByMsgIds";
+    private static final String QUERY_FIND_PENDING_MSGS_BY_CONTEXT_AND_USER = "findAllPendingMsgsByContextByMembership";
+    private static final String QUERY_FIND_PENDING_MSGS_BY_TOPICID = "findPendingMsgsByTopicId";
     //private static final String ID = "id";
 
     private static final String MESSAGECENTER_HELPER_TOOL_ID = "sakai.messageforums.helper";
@@ -268,6 +277,45 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         return ((Integer) getHibernateTemplate().execute(hcb)).intValue();        
     }
+    
+    /**
+     * Returns count of all messages in a topic that have been approved or were authored by given user
+     */
+    public int findViewableMessageCountByTopicIdByUserId(final Long topicId, final String userId) {
+        if (topicId == null || userId == null) {
+            LOG.error("findViewableMessageCountByTopicIdByUserId failed with topicId: " + topicId + 
+            			" and userId: " + userId);
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("findViewableMessageCountByTopicIdByUserId executing with topicId: " + topicId + 
+        				" and userId: " + userId);
+
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery(QUERY_COUNT_VIEWABLE_BY_TOPIC_ID);
+                q.setParameter("topicId", topicId, Hibernate.LONG);
+                q.setParameter("userId", userId, Hibernate.STRING);
+                return q.uniqueResult();
+            }
+        };
+
+        return ((Integer) getHibernateTemplate().execute(hcb)).intValue();        
+    }
+    
+    /**
+     * Returns count of all msgs in a topic that have been approved or were authored by curr user
+     */
+    public int findViewableMessageCountByTopicId(final Long topicId) {
+        if (topicId == null) {
+            LOG.error("findViewableMessageCountByTopicId failed with topicId: " + topicId);
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("findViewableMessageCountByTopicId executing with topicId: " + topicId);
+
+        return findViewableMessageCountByTopicIdByUserId(topicId, getCurrentUser());
+    }
 
    public int findUnreadMessageCountByTopicIdByUserId(final Long topicId, final String userId){
 	   if (topicId == null || userId == null) {
@@ -291,6 +339,36 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         return findMessageCountByTopicId(topicId) - findReadMessageCountByTopicId(topicId);
     }
+   
+   /**
+    * Returns count of all unread msgs for given user that have been approved or
+    * were authored by user
+    */
+   public int findUnreadViewableMessageCountByTopicIdByUserId(final Long topicId, final String userId) {
+       if (topicId == null) {
+           LOG.error("findUnreadViewableMessageCountByTopicIdByUserId failed with topicId: " + topicId + " and userid: " + userId);
+           throw new IllegalArgumentException("Null Argument");
+       }
+
+       LOG.debug("findUnreadViewableMessageCountByTopicIdByUserId executing with topicId: " + topicId + " userId: " + userId);
+
+       return findViewableMessageCountByTopicIdByUserId(topicId, userId) - findReadViewableMessageCountByTopicIdByUserId(topicId, userId);
+   }
+   
+   /**
+    * Returns count of all unread msgs for current user that have been approved or
+    * were authored by current user
+    */
+   public int findUnreadViewableMessageCountByTopicId(final Long topicId) {
+       if (topicId == null) {
+           LOG.error("findUnreadViewableMessageCountByTopicId failed with topicId: " + topicId);
+           throw new IllegalArgumentException("Null Argument");
+       }
+
+       LOG.debug("findUnreadViewableMessageCountByTopicId executing with topicId: " + topicId);
+
+       return findUnreadViewableMessageCountByTopicIdByUserId(topicId, getCurrentUser());
+   }
     
     public int findReadMessageCountByTopicId(final Long topicId) {
         if (topicId == null) {
@@ -298,9 +376,53 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
             throw new IllegalArgumentException("Null Argument");
         }
 
-        return (Integer) findReadMessageCountByTopicIdByUserId(topicId, getCurrentUser());
+        return findReadMessageCountByTopicIdByUserId(topicId, getCurrentUser());
     }
+    
+    /**
+     * Returns count of all read msgs for given user that have been approved or
+     * were authored by user
+     * @param topicId
+     * @param userId
+     * @return
+     */
+    public int findReadViewableMessageCountByTopicIdByUserId(final Long topicId, final String userId) {
+    	if (topicId == null || userId == null) {
+            LOG.error("findReadViewableMessageCountByTopicIdByUserId failed with topicId: " + topicId + 
+            			" and userId: " + userId);
+            throw new IllegalArgumentException("Null Argument");
+        }
 
+        LOG.debug("findReadViewableMessageCountByTopicIdByUserId executing with topicId: " + topicId + 
+        				" and userId: " + userId);
+
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery(QUERY_COUNT_READ_VIEWABLE_BY_TOPIC_ID);
+                q.setParameter("topicId", topicId, Hibernate.LONG);
+                q.setParameter("userId", userId, Hibernate.STRING);
+                return q.uniqueResult();
+            }
+        };
+
+        return ((Integer) getHibernateTemplate().execute(hcb)).intValue();   
+    }
+    
+    /**
+     * Returns count of all read msgs for current user that have been approved or
+     * were authored by user
+     * @param topicId
+     * @return
+     */
+    public int findReadViewableMessageCountByTopicId(final Long topicId) {
+        if (topicId == null) {
+            LOG.error("findReadViewableMessageCountByTopicId failed with topicId: " + topicId);
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        return findReadViewableMessageCountByTopicIdByUserId(topicId, getCurrentUser());
+    }
+    
     public List findMessagesByTopicId(final Long topicId) {
         if (topicId == null) {
             LOG.error("findMessagesByTopicId failed with topicId: " + topicId);
@@ -392,13 +514,25 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
         LOG.debug("markMessageReadForUser executing with topicId: " + topicId + ", messageId: " + messageId);
 
-        UnreadStatus status = findUnreadStatus(topicId, messageId);
+        markMessageReadForUser(topicId, messageId, read, getCurrentUser());
+    }
+    
+    public void markMessageReadForUser(Long topicId, Long messageId, boolean read, String userId)
+    {
+    	if (messageId == null || topicId == null || userId == null) {
+            LOG.error("markMessageReadForUser failed with topicId: " + topicId + ", messageId: " + messageId + ", userId: " + userId);
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("markMessageReadForUser executing with topicId: " + topicId + ", messageId: " + messageId);
+
+        UnreadStatus status = findUnreadStatusByUserId(topicId, messageId, userId);
         if (status == null) {
             status = new UnreadStatusImpl();
         }        
         status.setTopicId(topicId);
         status.setMessageId(messageId);
-        status.setUserId(getCurrentUser());
+        status.setUserId(userId);
         status.setRead(new Boolean(read));
         
         Message message = (Message) getMessageById(messageId);
@@ -484,7 +618,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         	|| message.getCreatedBy() == null || message.getModified() == null
         	|| message.getModifiedBy() == null || message.getTitle() == null 
         	|| message.getAuthor() == null || message.getHasAttachments() == null
-        	|| message.getTypeUuid() == null || message.getApproved() == null
+        	|| message.getTypeUuid() == null 
         	|| message.getDraft() == null)
         {
         	LOG.error("null attribute(s) for saving message in MessageForumsMessageManagerImpl.saveMessage");
@@ -602,6 +736,25 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
       	}
       }
     }
+    
+    /**
+     * Will set the approved status on the given message
+     */
+    public void markMessageApproval(Long messageId, boolean approved)
+    {
+    	if (messageId == null) {
+            LOG.error("markMessageApproval failed with messageId: " + messageId);
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("markMessageApproval executing with messageId: " + messageId);
+        
+        Message message = (Message) getMessageById(messageId);
+        message.setApproved(new Boolean(approved));
+        
+        getHibernateTemplate().saveOrUpdate(message);
+    }
+
 
 
     public void deleteMsgWithChild(final Long messageId)
@@ -895,5 +1048,79 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 			}
 		}
 		return statusMap;
+	}
+	
+	public List getPendingMsgsInSiteByMembership(final List membershipList)
+	{   	
+		if (membershipList == null) {
+            LOG.error("getPendingMsgsInSiteByUser failed with membershipList: " + membershipList);
+            throw new IllegalArgumentException("Null Argument");
+        }
+		
+		HibernateCallback hcb = new HibernateCallback() 
+		{
+			public Object doInHibernate(Session session) throws HibernateException, SQLException 
+			{
+				Query q = session.getNamedQuery(QUERY_FIND_PENDING_MSGS_BY_CONTEXT_AND_USER);
+				q.setParameter("contextId", getContextId(), Hibernate.STRING);
+				q.setParameterList("membershipList", membershipList);
+				
+				return q.list();
+			}
+		};
+		
+		Message tempMsg = null;
+        Set resultSet = new HashSet();      
+        List temp = (ArrayList) getHibernateTemplate().execute(hcb);
+        for (Iterator i = temp.iterator(); i.hasNext();)
+        {
+          Object[] results = (Object[]) i.next();        
+              
+          if (results != null) {
+            if (results[0] instanceof Message) {
+              tempMsg = (Message)results[0];
+              tempMsg.setTopic((Topic)results[1]); 
+              tempMsg.getTopic().setBaseForum((BaseForum)results[2]);
+            }
+            resultSet.add(tempMsg);
+          }
+        }
+        return Util.setToList(resultSet); 
+	}
+	
+	public List getPendingMsgsInTopic(final Long topicId)
+	{
+		if (topicId == null) {
+            LOG.error("getNumPendingMsgsInTopic failed with topicId: " + topicId);
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("getNumPendingMsgsInTopic executing with topicId: " + topicId);
+
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery(QUERY_FIND_PENDING_MSGS_BY_TOPICID);
+                q.setParameter("topicId", topicId, Hibernate.LONG);
+                return q.list();
+            }
+        };
+
+        Message tempMsg = null;
+        Set resultSet = new HashSet();      
+        List temp = (ArrayList) getHibernateTemplate().execute(hcb);
+        for (Iterator i = temp.iterator(); i.hasNext();)
+        {
+          Object[] results = (Object[]) i.next();        
+              
+          if (results != null) {
+            if (results[0] instanceof Message) {
+              tempMsg = (Message)results[0];
+              tempMsg.setTopic((Topic)results[1]); 
+              tempMsg.getTopic().setBaseForum((BaseForum)results[2]);
+            }
+            resultSet.add(tempMsg);
+          }
+        }
+        return Util.setToList(resultSet); 
 	}
 }

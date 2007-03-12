@@ -3,7 +3,7 @@
  * $Id: DiscussionMessageBean.java 9227 2006-05-15 15:02:42Z cwen@iupui.edu $
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -52,6 +52,8 @@ public class DiscussionMessageBean
   private boolean hasPreThread;
   private long nextThreadId;
   private long preThreadId;
+  private String parentTopicTitle;
+  private String parentForumTitle;
 
   private MessageForumsMessageManager messageManager;
 
@@ -207,67 +209,93 @@ public class DiscussionMessageBean
   	return hasChild;
   }
   
-	public ArrayList getAttachList()
-	{
-		ArrayList decoAttachList = new ArrayList();
-		List attachList = message.getAttachments(); 
-		if(attachList != null)
-		{
-			for(int i=0; i<attachList.size(); i++)
-			{
-				DecoratedAttachment decoAttach = new DecoratedAttachment((Attachment)attachList.get(i));
-				decoAttachList.add(decoAttach);
-			}
-		}
-		return decoAttachList;
-	}
-  
+  public ArrayList getAttachList()
+  {
+	  ArrayList decoAttachList = new ArrayList();
+	  List attachList = message.getAttachments(); 
+	  if(attachList != null)
+	  {
+		  for(int i=0; i<attachList.size(); i++)
+		  {
+			  DecoratedAttachment decoAttach = new DecoratedAttachment((Attachment)attachList.get(i));
+			  decoAttachList.add(decoAttach);
+		  }
+	  }
+	  return decoAttachList;
+  }
+
   public int getChildUnread(){
 	  return childUnread;
   }
-  
+
   public void setChildUnread(int newValue){
 	  childUnread = newValue;
   }
-  
+
   public int getChildCount(){
 	  return childCount;
   }
-  
+
   public void setChildCount(int newValue){
 	  childCount = newValue;
   }
-  
+
+
   public boolean getHasNextThread(){
 	  return hasNextThread;
   }
-  
+
   public void setHasNextThread(boolean newValue){
 	  hasNextThread = newValue;
   }
-  
+
   public boolean getHasPreThread(){
 	  return hasPreThread;
   }
-  
+
   public void setHasPreThread(boolean newValue){
 	  hasPreThread = newValue;
   }
-  
+
   public long getNextThreadId(){
 	  return nextThreadId;
   }
-  
+
   public void setNextThreadId(long newValue){
 	  nextThreadId = newValue;
   }
-  
+
   public long getPreThreadId(){
 	  return preThreadId;
   }
-  
+
   public void setPreThreadId(long newValue){
 	  preThreadId = newValue;
   }
-  
+
+  /**
+   * returns true if message has been approved
+   * @return
+   */
+  public boolean isMsgApproved()
+  {
+	  return message.getApproved() == Boolean.TRUE;
+  }
+  /**
+   * returns true if message has approval pending
+   * @return
+   */
+  public boolean isMsgPending()
+  {	
+	  return message.getApproved() == null;
+  }
+
+  /**
+   * returns true if message was denied
+   * @return
+   */
+  public boolean isMsgDenied()
+  {
+	  return message.getApproved() == Boolean.FALSE;
+  }
 }

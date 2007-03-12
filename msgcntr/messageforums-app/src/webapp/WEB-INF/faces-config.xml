@@ -275,6 +275,11 @@
             <to-view-id>/jsp/discussionForum/message/dfMsgGrade.jsp</to-view-id> 
             <redirect/> 
         </navigation-case>
+        <navigation-case> 
+            <from-outcome>dfMsgAddComment</from-outcome> 
+            <to-view-id>/jsp/discussionForum/message/dfMsgAddComment.jsp</to-view-id> 
+            <redirect/> 
+        </navigation-case>
         <navigation-case>
         	<from-outcome>dfStatisticsList</from-outcome>
         	<to-view-id>/jsp/discussionForum/statistics/dfStatisticsList.jsp</to-view-id>
@@ -283,6 +288,11 @@
         <navigation-case>
         	<from-outcome>dfStatisticsUser</from-outcome>
         	<to-view-id>/jsp/discussionForum/statistics/dfStatisticsUser.jsp</to-view-id>
+        	<redirect/>
+        </navigation-case>
+        <navigation-case>
+        	<from-outcome>dfPendingMessages</from-outcome>
+        	<to-view-id>/jsp/discussionForum/message/dfPendingMessages.jsp</to-view-id>
         	<redirect/>
         </navigation-case>
          

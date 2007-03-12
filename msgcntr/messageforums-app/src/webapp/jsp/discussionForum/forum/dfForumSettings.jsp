@@ -62,10 +62,17 @@
 	
     <h4><h:outputText  value="#{msgs.cdfm_forum_posting}"/></h4>
 
-			<h:panelGrid columns="2" columnClasses="shorttext,checkbox">
-				<h:panelGroup><h:outputLabel id="outputLabel4" for="forum_posting"  value="#{msgs.cdfm_lock_forum}"/>	</h:panelGroup>
+			<h:panelGrid columns="2">
+				<h:panelGroup><h:outputLabel for="lock_forum"  value="#{msgs.cdfm_lock_forum}" styleClass="shorttext"/>	</h:panelGroup>
 				<h:panelGroup>
-					<h:selectOneRadio layout="pageDirection" disabled="true" id="forum_posting"  value="#{ForumTool.selectedForum.locked}">
+					<h:selectOneRadio layout="pageDirection" disabled="true" id="lock_forum"  value="#{ForumTool.selectedForum.locked}">
+    					<f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_yes}"/>
+    					<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_no}"/>
+  					</h:selectOneRadio>
+				</h:panelGroup>
+				<h:panelGroup><h:outputLabel for="moderate_forum"  value="#{msgs.cdfm_moderate_forum}" styleClass="shorttext"/>	</h:panelGroup>
+				<h:panelGroup>
+					<h:selectOneRadio layout="pageDirection" disabled="true" id="moderate_forum"  value="#{ForumTool.selectedForum.moderated}" styleClass="checkbox inlineForm">
     					<f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_yes}"/>
     					<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_no}"/>
   					</h:selectOneRadio>

@@ -141,3 +141,20 @@ function getScrollDist(obj){
 	}
 	return curtop;
 }
+
+function selectDeselectCheckboxes(mainCheckboxId, myForm) {   
+	var el = getTheElement(mainCheckboxId);
+	var isChecked = el.checked;           
+	for ( i = 0; i < myForm.elements.length; i++ ) {
+		if (myForm.elements[i].type == 'checkbox' ) {
+			myForm.elements[i].checked  = isChecked;                                               
+		}
+	}
+}
+
+function resetMainCheckbox(checkboxId) {
+  mainCheckboxEl = getTheElement(checkboxId);
+  if (mainCheckboxEl.checked = true) {
+  	mainCheckboxEl.checked = false;
+  }                                                  
+}

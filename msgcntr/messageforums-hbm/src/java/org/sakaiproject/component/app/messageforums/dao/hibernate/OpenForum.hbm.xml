@@ -110,7 +110,7 @@
       -->
 	  
       <property name="moderated">
-        <column name="MODERATED" not-null="false" />
+        <column name="MODERATED" not-null="true" />
       </property>        
     </subclass>
 

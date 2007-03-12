@@ -156,6 +156,13 @@ public interface MessageForumsForumManager {
     public Topic getTopicByUuid(String uuid);
     
     /**
+     * Returns all moderated topics in the site
+     * @param areaId
+     * @return
+     */
+    public List getModeratedTopicsInSite(String contextId);
+    
+    /**
      * @return
      */
     public ActorPermissions createDefaultActorPermissions();

@@ -116,6 +116,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
     private static final String QUERY_BY_TOPIC_ID_MESSAGES_ATTACHMENTS = "findTopicByIdWithAttachments";
     
+    private static final String QUERY_GET_ALL_MOD_TOPICS_IN_SITE = "findAllModeratedTopicsForSite";
+    
     //public static Comparator FORUM_CREATED_DATE_COMPARATOR;
     
     /** Sorts the forums by the sort index and if the same index then order by the creation date */
@@ -606,6 +608,43 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         };
 
         return (Topic) getHibernateTemplate().execute(hcb);
+    }
+    
+    public List getModeratedTopicsInSite(final String contextId) {
+
+        if (contextId == null) {
+            throw new IllegalArgumentException("Null Argument");
+        }
+
+        LOG.debug("getModeratedTopicsInSite executing with contextId: " + contextId);
+
+        HibernateCallback hcb = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.getNamedQuery(QUERY_GET_ALL_MOD_TOPICS_IN_SITE);
+                q.setParameter("contextId", contextId, Hibernate.STRING);
+                return q.list();
+            }
+        };
+        
+        Topic tempTopic = null;
+        Set resultSet = new HashSet();      
+        List temp = (ArrayList) getHibernateTemplate().execute(hcb);
+        for (Iterator i = temp.iterator(); i.hasNext();)
+        {
+          Object[] results = (Object[]) i.next();        
+              
+          if (results != null) {
+            if (results[0] instanceof Topic) {
+              tempTopic = (Topic)results[0];
+              tempTopic.setBaseForum((BaseForum)results[1]);            
+            } else {
+              tempTopic = (Topic)results[1];
+              tempTopic.setBaseForum((BaseForum)results[0]);
+            }
+            resultSet.add(tempTopic);
+          }
+        }
+        return Util.setToList(resultSet);
     }
 
     public DiscussionForum createDiscussionForum() {

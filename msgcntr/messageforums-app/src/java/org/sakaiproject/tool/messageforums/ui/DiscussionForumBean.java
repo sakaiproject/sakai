@@ -3,7 +3,7 @@
  * $Id: DiscussionForumBean.java 9227 2006-05-15 15:02:42Z cwen@iupui.edu $
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -155,6 +155,39 @@ public class DiscussionForumBean
       forum.setLocked(new Boolean(false));
     }
   }
+  
+  /**
+   * Returns whether the forum is moderated or not
+   * @return
+   */
+  public String getModerated()
+  {
+	  LOG.debug("getModerated()");
+	  if (forum == null || forum.getModerated() == null || 
+		  forum.getModerated().booleanValue() == false)
+	  {
+		  return Boolean.FALSE.toString();
+	  }
+
+	  return Boolean.TRUE.toString();
+  }
+  
+  /**
+   * Set the "moderated" setting for the forum
+   * @param moderated
+   */
+  public void setModerated(String moderated)
+  {
+	  LOG.debug("setModerated()");
+	  if (moderated.equals(Boolean.TRUE.toString()))
+	  {
+		  forum.setModerated(new Boolean(true));
+	  }
+	  else
+	  {
+		  forum.setModerated(new Boolean(false));
+	  }
+  }
 
   /**
    * @return Returns the markForDeletion.
@@ -218,6 +251,15 @@ public class DiscussionForumBean
   {
     LOG.debug("isReadFullDesciption()");
     return readFullDesciption;
+  }
+  
+  /**
+   * Returns the moderated status of the forum
+   * @return
+   */
+  public boolean isForumModerated()
+  {
+	  return forum.getModerated().booleanValue();
   }
 
   /**

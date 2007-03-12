@@ -91,108 +91,31 @@
 					</h:dataTable>   
 
 				<h4><h:outputText  value="#{msgs.cdfm_forum_posting}"/></h4>
-   			<h:panelGrid columns="2" >
-				<h:panelGroup styleClass="shorttext">
-				  <h:outputLabel id="outputLabel3" for="forum_posting"  value="#{msgs.cdfm_lock_forum}"/>	
+   	  <h:panelGrid columns="2" >
+   			<h:panelGroup>
+				  <h:outputLabel for="forum_locked"  value="#{msgs.cdfm_lock_forum}" styleClass="shorttext"/>	
 				</h:panelGroup>
 				<h:panelGroup>
-					<h:selectOneRadio layout="pageDirection"  id="forum_posting"  value="#{ForumTool.selectedForum.locked}"   style="margin:0" styleClass="checkbox inlineForm">
+					<h:selectOneRadio layout="pageDirection"  id="forum_locked"  value="#{ForumTool.selectedForum.locked}" styleClass="checkbox inlineForm">
     					<f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_yes}"/>
     					<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_no}"/>
   					</h:selectOneRadio>
 				</h:panelGroup>
-			</h:panelGrid>
-
-	 
-	 <%@include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
-	 
-	 <%--
-	 <mf:forumHideDivision title="#{msgs.cdfm_access}" id="access_perm" hideByDefault="true">
-	  	<p class="shorttext">
-			<h:panelGrid columns="2" width="50%">
-				<h:panelGroup><h:outputLabel id="outputLabelCont" for="contributors"  value="#{msgs.cdfm_contributors}"/>	</h:panelGroup>
+   			<h:panelGroup styleClass="shorttext">
+				  <h:outputLabel for="moderated"  value="#{msgs.cdfm_moderate_forum}" styleClass="shorttext"/>	
+				</h:panelGroup>
 				<h:panelGroup>
-					<h:selectManyListbox id="contributors"  value="#{ForumTool.selectedForum.contributorsList}" size="5" style="width:200px;">
-    					<f:selectItems value="#{ForumTool.totalComposeToList}" />
-  					</h:selectManyListbox>
+					<h:selectOneRadio layout="pageDirection"  id="moderated"  value="#{ForumTool.selectedForum.moderated}" styleClass="checkbox inlineForm"
+							onclick="javascript:disableOrEnableModeratePerm();">
+    					<f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_yes}"/>
+    					<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_no}"/>
+  					</h:selectOneRadio>
 				</h:panelGroup>
 
-			  <h:panelGroup><h:outputLabel id="outputLabelRead" for="readOnly"  value="#{msgs.cdfm_read_only_access}"/>	</h:panelGroup>
-				<h:panelGroup>
-					<h:selectManyListbox  id="readOnly"  value="#{ForumTool.selectedForum.accessorList}" size="5" style="width:200px;">
-    					<f:selectItems value="#{ForumTool.totalComposeToList}"  />
-  					</h:selectManyListbox>
-				</h:panelGroup>
 			</h:panelGrid>
-		</p>
-	  </mf:forumHideDivision>
-	 
-     <mf:forumHideDivision title="#{msgs.cdfm_control_permissions}" id="cntrl_perm" hideByDefault="true">
-          <h:dataTable styleClass="listHier" id="control_permissions" value="#{ForumTool.forumControlPermissions}" var="cntrl_settings">
-   			<h:column>
-				<f:facet name="header"><h:outputText value="#{msgs.perm_role}" /></f:facet>
-				<h:outputText value="#{cntrl_settings.role}"/>
-			</h:column>
-			<h:column>
-				<f:facet name="header"><h:outputText value="#{msgs.perm_new_topic}" /></f:facet>
-				<h:selectBooleanCheckbox disabled="true" value="#{cntrl_settings.newTopic}"/>
-			</h:column>
-			<h:column>
-				<f:facet name="header"><h:outputText value="#{msgs.perm_new_response}" /></f:facet>
-				<h:selectBooleanCheckbox disabled="true" value="#{cntrl_settings.newResponse}"/>
-			</h:column>
-			<h:column>
-				<f:facet name="header"><h:outputText value="#{msgs.perm_response_to_response}" /></f:facet>
-				<h:selectBooleanCheckbox disabled="true" value="#{cntrl_settings.responseToResponse}"/>
-			</h:column>
-			<h:column>
-				<f:facet name="header">	<h:outputText value="#{msgs.perm_move_postings}" /></f:facet>
-				<h:selectBooleanCheckbox value="#{cntrl_settings.movePostings}"/>
-			</h:column>
-			<h:column>
-				<f:facet name="header"><h:outputText value="#{msgs.perm_change_settings}" /></f:facet>
-				<h:selectBooleanCheckbox disabled="true" value="#{cntrl_settings.changeSettings}"/>
-			</h:column>
-			<h:column>
-				<f:facet name="header"><h:outputText value="#{msgs.perm_post_to_gradebook}" /></f:facet>
-				<h:selectBooleanCheckbox value="#{cntrl_settings.postToGradebook}"/>
-			</h:column>
-		</h:dataTable>
-      </mf:forumHideDivision>
-      <mf:forumHideDivision title="#{msgs.cdfm_message_permissions}" id="msg_perm" hideByDefault="true">
-      <h:dataTable styleClass="listHier" id="message_permissions" value="#{ForumTool.forumMessagePermissions}" var="msg_settings">
-   			<h:column>
-				<f:facet name="header"><h:outputText value="#{msgs.perm_role}" /></f:facet>
-				<h:outputText value="#{msg_settings.role}"/>
-			</h:column>
-			 <h:column>
-				<f:facet name="header"><h:outputText value="#{msgs.perm_read}" /></f:facet>
-				<h:selectBooleanCheckbox disabled="true" value="#{msg_settings.read}"/>
-			</h:column>
-			<h:column>
-				<f:facet name="header"><h:outputText value="#{msgs.perm_revise_any}" /></f:facet>
-				<h:selectBooleanCheckbox disabled="true" value="#{msg_settings.reviseAny}"/>
-			</h:column>
-			<h:column>
-				<f:facet name="header">	<h:outputText value="#{msgs.perm_revise_own}" /></f:facet>
-				<h:selectBooleanCheckbox disabled="true" value="#{msg_settings.reviseOwn}"/>
-			</h:column>
-			<h:column>
-				<f:facet name="header"><h:outputText value="#{msgs.perm_delete_any}" /></f:facet>
-				<h:selectBooleanCheckbox disabled="true" value="#{msg_settings.deleteAny}"/>
-			</h:column>
-			<h:column>
-				<f:facet name="header">	<h:outputText value="#{msgs.perm_delete_own}" /></f:facet>
-				<h:selectBooleanCheckbox disabled="true" value="#{msg_settings.deleteOwn}"/>
-			</h:column>
-			<h:column>
-				<f:facet name="header"><h:outputText value="#{msgs.perm_mark_as_read}" /></f:facet>
-				<h:selectBooleanCheckbox disabled="true" value="#{msg_settings.markAsRead}"/>
-			</h:column>			 		
-		</h:dataTable>
-      </mf:forumHideDivision>
-      --%>
-      
+
+	   <%@include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
+	      
       <div class="act">
           <h:commandButton action="#{ForumTool.processActionSaveForumSettings}" value="#{msgs.cdfm_button_bar_save_setting}"
           rendered="#{ForumTool.selectedForum.forum.id != null}" accesskey="s"> 

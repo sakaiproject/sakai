@@ -3,7 +3,7 @@
  * $Id: UIPermissionsManagerImpl.java 9227 2006-05-15 15:02:42Z cwen@iupui.edu $
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -817,6 +817,81 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     return false;
 
   }
+  
+  /**   
+   * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isModerate(org.sakaiproject.api.app.messageforums.DiscussionTopic,
+   *      org.sakaiproject.api.app.messageforums.DiscussionForum)
+   */
+  public boolean isModeratePostings(DiscussionTopic topic, DiscussionForum forum)
+  {
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("isModeratePostings(DiscussionTopic " + topic + ", DiscussionForum"
+          + forum + ")");
+    }
+    if (checkBaseConditions(topic, forum))
+    {
+      return true;
+    }
+    try
+    {
+      if (checkBaseConditions(topic, forum))
+      {
+        return true;
+      }
+      
+       if (topic.getLocked() == null || topic.getLocked().equals(Boolean.TRUE))
+    {
+      LOG.debug("This topic is locked " + topic);
+      return false;
+    }
+    if (topic.getDraft() == null || topic.getDraft().equals(Boolean.TRUE))
+    {
+      LOG.debug("This topic is at draft stage " + topic);
+    }
+      Iterator iter = getTopicItemsByCurrentUser(topic);
+      while (iter.hasNext())
+      {
+        DBMembershipItem item = (DBMembershipItem) iter.next();
+        if (item.getPermissionLevel().getModeratePostings().booleanValue()
+            && forum.getDraft().equals(Boolean.FALSE)
+            && forum.getLocked().equals(Boolean.FALSE)
+            && topic.getDraft().equals(Boolean.FALSE)
+            && topic.getLocked().equals(Boolean.FALSE))
+        {
+          return true;
+        }
+      }
+
+    }
+    catch (Exception e)
+    {
+      LOG.error(e.getMessage(), e);
+      return false;
+    }
+    return false;
+  }
+  
+  /*
+   * (non-Javadoc)
+   * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#getCurrentUserMemberships()
+   */
+  public List getCurrentUserMemberships()
+  {
+	  List userMemberships = new ArrayList();
+	  // first, add the user's role
+	  final String currRole = getCurrentUserRole();
+	  userMemberships.add(currRole);
+	  // now, add any groups the user is a member of
+	  Iterator groupIter = getGroupNamesByCurrentUser();
+	  while (groupIter.hasNext())
+	  {
+		  final String groupName = (String)groupIter.next();
+		  userMemberships.add(groupName);
+	  }
+	  
+	  return userMemberships;
+  }
 
   
   private Iterator getGroupsByCurrentUser()
@@ -834,6 +909,36 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
         if (member != null && member.getUserId().equals(getCurrentUserId()))
         {
           memberof.add(currentGroup.getId());
+        }
+      }
+    }
+    catch (IdUnusedException e)
+    {
+      LOG.debug("Group not found");
+    }
+    return memberof.iterator();
+  }
+  
+  /**
+   * Returns a list of names of the groups/sections
+   * the current user is a member of
+   * @return
+   */
+  private Iterator getGroupNamesByCurrentUser()
+  {
+    List memberof = new ArrayList();
+    try
+    {
+      Collection groups = SiteService.getSite(toolManager.getCurrentPlacement().getContext())
+          .getGroups();
+      for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();)
+      {
+        Group currentGroup = (Group) groupIterator.next();
+
+        Member member = currentGroup.getMember(getCurrentUserId());
+        if (member != null && member.getUserId().equals(getCurrentUserId()))
+        {
+          memberof.add(currentGroup.getTitle());
         }
       }
     }

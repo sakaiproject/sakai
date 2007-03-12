@@ -3,7 +3,7 @@
  * $Id: UIPermissionsManager.java 9227 2006-05-15 15:02:42Z cwen@iupui.edu $
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -21,6 +21,7 @@
 package org.sakaiproject.api.app.messageforums.ui;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
@@ -114,6 +115,21 @@ public interface UIPermissionsManager
    * @return
    */
   public boolean isMarkAsRead(DiscussionTopic topic, DiscussionForum forum);
+  
+  /**
+   * Returns whether current user has perm to moderate in this situation
+   * @param topic
+   * @param forum
+   * @return
+   */
+  public boolean isModeratePostings(DiscussionTopic topic, DiscussionForum forum);
+  
+  /**
+   * Returns list of current user's memberships 
+   * (role + groups/sections) 
+   * @return
+   */
+  public List getCurrentUserMemberships();
   
   public Set getAreaItemsSet(Area area);
 

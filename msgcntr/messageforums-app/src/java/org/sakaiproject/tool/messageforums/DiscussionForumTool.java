@@ -52,6 +52,7 @@ import org.sakaiproject.api.app.messageforums.MembershipManager;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
+import org.sakaiproject.api.app.messageforums.OpenForum;
 import org.sakaiproject.api.app.messageforums.PermissionLevel;
 import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
 import org.sakaiproject.api.app.messageforums.PermissionsMask;
@@ -81,6 +82,7 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.messageforums.ui.DecoratedAttachment;
+import org.sakaiproject.tool.messageforums.ui.DiscussionAreaBean;
 import org.sakaiproject.tool.messageforums.ui.DiscussionForumBean;
 import org.sakaiproject.tool.messageforums.ui.DiscussionMessageBean;
 import org.sakaiproject.tool.messageforums.ui.DiscussionTopicBean;
@@ -121,6 +123,8 @@ public class DiscussionForumTool
   private static final String GRADE_MESSAGE = "dfMsgGrade";
   private static final String FORUM_STATISTICS = "dfStatisticsList";
   private static final String FORUM_STATISTICS_USER = "dfStatisticsUser";
+  private static final String ADD_COMMENT = "dfMsgAddComment";
+  private static final String PENDING_MSG_QUEUE = "dfPendingMessages";
   
   private static final String PERMISSION_MODE_TEMPLATE = "template";
   private static final String PERMISSION_MODE_FORUM = "forum";
@@ -130,6 +134,7 @@ public class DiscussionForumTool
   private DiscussionTopicBean selectedTopic;
   private DiscussionTopicBean searchResults;
   private DiscussionMessageBean selectedMessage;
+  private DiscussionAreaBean template;
   private DiscussionMessageBean selectedThreadHead;
   private List selectedThread = new ArrayList();
   private UIData  forumTable;
@@ -140,6 +145,7 @@ public class DiscussionForumTool
   private List permissions;
   private List levels;
   private AreaManager areaManager;
+  private int numPendingMessages = 0;
   
   private static final String TOPIC_ID = "topicId";
   private static final String FORUM_ID = "forumId";
@@ -186,11 +192,19 @@ public class DiscussionForumTool
   private static final String GRADE_GREATER_ZERO = "cdfm_grade_greater_than_zero";
   private static final String GRADE_DECIMAL_WARN = "cdfm_grade_decimal_warn";
   private static final String ALERT = "cdfm_alert";
+  private static final String SELECT_ASSIGN = "cdfm_select_assign";
+  private static final String INVALID_COMMENT = "cdfm_add_comment_invalid";
+  private static final String INSUFFICIENT_PRIVILEGES_TO_ADD_COMMENT = "cdfm_insufficient_privileges_add_comment";
+  private static final String MOD_COMMENT_TEXT = "cdfm_moderator_comment_text";
+  private static final String NO_MSG_SEL_FOR_APPROVAL = "cdfm_no_message_mark_approved";
+  private static final String MSGS_APPROVED = "cdfm_approve_msgs_success";
+  private static final String MSGS_DENIED = "cdfm_deny_msgs_success";
   
   private static final String FROM_PAGE = "msgForum:mainOrForumOrTopic";
   private String fromPage = null; // keep track of originating page for common functions
   
   private List forums = new ArrayList();
+  private List pendingMsgs = new ArrayList();
 
   // compose
   private MessageForumsMessageManager messageManager;
@@ -219,8 +233,9 @@ public class DiscussionForumTool
   private boolean isDisplaySearchedMessages;
   private List siteMembers = new ArrayList();
   private String selectedRole;
+  private String moderatorComments;
   
-  private boolean editMode = false;
+  private boolean editMode = true;
   private String permissionMode;
   
   //grading 
@@ -233,6 +248,7 @@ public class DiscussionForumTool
   private boolean noGradeWarn = false; 
   private boolean noAssignWarn = false;
   private boolean gradebookExist = false;
+  private boolean displayDeniedMsg = false;
 
   /**
    * Dependency Injected
@@ -351,7 +367,7 @@ public class DiscussionForumTool
       try 
       { 
     	assignments = new ArrayList(); 
-    	SelectItem item = new SelectItem("Default_0", "Select an assignment"); 
+    	SelectItem item = new SelectItem("Default_0", getResourceBundleString(SELECT_ASSIGN)); 
     	assignments.add(item); 
     	  
         GradebookService gradebookService = (org.sakaiproject.service.gradebook.shared.GradebookService) 
@@ -508,6 +524,7 @@ public class DiscussionForumTool
     
     setEditMode(false);
     setPermissionMode(PERMISSION_MODE_TEMPLATE);
+    template = new DiscussionAreaBean(areaManager.getDiscusionArea());
                
     if(!isInstructor())
     {
@@ -604,9 +621,8 @@ public class DiscussionForumTool
       return gotoMain();
     }    
     
-    Area area = areaManager.getDiscusionArea();
-    setObjectPermissions(area);
-    areaManager.saveArea(area);
+    setObjectPermissions(template.getArea());
+    areaManager.saveArea(template.getArea());
     
     return gotoMain();
   }
@@ -654,6 +670,7 @@ public class DiscussionForumTool
     Area area = null;
     if ((area = areaManager.getDiscusionArea()) != null){
     	area.setMembershipItemSet(new HashSet());
+    	area.setModerated(Boolean.FALSE);
     	areaManager.saveArea(area);
     	permissions = null;
     }
@@ -747,6 +764,7 @@ public class DiscussionForumTool
     if (getNewForum())
     {
       DiscussionForum forum = forumManager.createForum();
+      forum.setModerated(areaManager.getDiscusionArea().getModerated()); // default to template setting
       selectedForum = null;
       selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
       if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
@@ -771,7 +789,7 @@ public class DiscussionForumTool
   public String processActionForumSettings()
   {
     LOG.debug("processForumSettings()");
-    setEditMode(false);
+    setEditMode(true);
     setPermissionMode(PERMISSION_MODE_FORUM);
     
     String forumId = getExternalParameterByKey(FORUM_ID);
@@ -781,11 +799,27 @@ public class DiscussionForumTool
       return gotoMain();
     }
     DiscussionForum forum = forumManager.getForumById(new Long(forumId));
+    if (forum == null)
+    {
+      setErrorMessage(getResourceBundleString(FORUM_NOT_FOUND));
+      return gotoMain();
+    }
+    
     if(!uiPermissionsManager.isChangeSettings(forum))
     {
       setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_CHAGNE_FORUM));
       return gotoMain();
     }
+    
+    List attachList = forum.getAttachments();
+    if (attachList != null)
+    {
+      for (int i = 0; i < attachList.size(); i++)
+      {
+        attachments.add(new DecoratedAttachment((Attachment)attachList.get(i)));
+      }
+    }
+    
     selectedForum = new DiscussionForumBean(forum, uiPermissionsManager, forumManager);
     if("true".equalsIgnoreCase(ServerConfigurationService.getString("mc.defaultLongDescription")))
     {
@@ -802,7 +836,7 @@ public class DiscussionForumTool
   /**
    * @return
    */
-  public String processActionReviseForumSettings()
+  /*public String processActionReviseForumSettings()
   {
     LOG.debug("processActionReviseForumSettings()");    
     setEditMode(true);
@@ -829,7 +863,7 @@ public class DiscussionForumTool
     setFromMainOrForumOrTopic();
 
     return FORUM_SETTING_REVISE; //
-  }
+  }*/
 
   /**
    * @return
@@ -996,6 +1030,14 @@ public class DiscussionForumTool
  
     return selectedTopic;
   }
+  
+  /**
+   * @return Returns the selected Area
+   */
+  public DiscussionAreaBean getTemplate()
+  {	
+    return template;
+  }
 
   
   /**
@@ -1104,6 +1146,14 @@ public class DiscussionForumTool
       setErrorMessage(getResourceBundleString(VALID_TOPIC_TITLE_WARN));
       return TOPIC_SETTING_REVISE;
     }
+    
+    // if the topic is not moderated, all of the pending messages must be approved
+    if (selectedTopic != null && selectedTopic.getTopic() != null &&
+    		!selectedTopic.isTopicModerated())
+    {
+    	forumManager.approveAllPendingMessages(selectedTopic.getTopic().getId());
+    }
+    
     saveTopicSettings(false);    
     Long forumId = selectedForum.getForum().getId();
     if (forumId == null)
@@ -1149,6 +1199,13 @@ public class DiscussionForumTool
     {
       setErrorMessage(getResourceBundleString(VALID_TOPIC_TITLE_WARN));
       return TOPIC_SETTING_REVISE;
+    }
+	  
+    // if the topic is not moderated, all of the messages must be approved
+    if (selectedTopic != null && selectedTopic.getTopic().getId() != null &&
+    		!selectedTopic.isTopicModerated())
+    {
+    	forumManager.approveAllPendingMessages(selectedTopic.getTopic().getId());
     }
     saveTopicSettings(false);  
     
@@ -1270,7 +1327,7 @@ public class DiscussionForumTool
   {
     LOG.debug("processActionTopicSettings()");
     
-    setEditMode(false);
+    setEditMode(true);
     setPermissionMode(PERMISSION_MODE_TOPIC);
     DiscussionTopic topic = null;
     if(getExternalParameterByKey(TOPIC_ID) != ""){
@@ -1296,7 +1353,17 @@ public class DiscussionForumTool
     {
     	selectedTopic.setReadFullDesciption(true);
     }
-
+    
+    List attachList = selectedTopic.getTopic().getAttachments();
+    if (attachList != null)
+    {
+      for (int i = 0; i < attachList.size(); i++)
+      {
+        attachments.add(new DecoratedAttachment((Attachment)attachList.get(i)));
+      }
+    }  
+    
+    
     setTopicBeanAssign();
     setFromMainOrForumOrTopic();
     
@@ -1484,6 +1551,10 @@ public class DiscussionForumTool
 	    getSelectedTopic();
 	    
 	    List msgsList = selectedTopic.getMessages();
+	    
+	    if (selectedTopic.isTopicModerated())
+	    	msgsList = filterModeratedMessages(msgsList);
+	    
 	    List orderedList = new ArrayList();
 	    selectedThread = new ArrayList();
 	    
@@ -1517,7 +1588,7 @@ public class DiscussionForumTool
    */
   public String processActionDisplayThread()
   {
-	    LOG.debug("processActionDisplayMessage()");
+	    LOG.debug("processActionDisplayThread()");
 
 	    threadAnchorMessageId = null;
 	    String threadId = getExternalParameterByKey(MESSAGE_ID);
@@ -1801,9 +1872,16 @@ public class DiscussionForumTool
           {
           	decoTopic.setReadFullDesciption(true);
           }
-
-          decoTopic.setTotalNoMessages(forumManager.getTotalNoMessages(topic));
-          decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(topic));
+          if (!decoTopic.isTopicModerated() || decoTopic.getIsModeratedAndHasPerm())
+          {
+        	  decoTopic.setTotalNoMessages(forumManager.getTotalNoMessages(topic));
+        	  decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(topic));
+          }
+          else
+          {
+        	  decoTopic.setTotalNoMessages(forumManager.getTotalViewableMessagesWhenMod(topic));
+          	  decoTopic.setUnreadNoMessages(forumManager.getNumUnreadViewableMessagesWhenMod(topic));
+          }
           decoForum.addTopic(decoTopic);
         }
       } 
@@ -1848,7 +1926,7 @@ public class DiscussionForumTool
           	decoTopic.setReadFullDesciption(true);
           }
 
-          int totalMsgNumber = 0;
+          /*int totalMsgNumber = 0;
           int readMsgNumber = 0;
           if(topic.getMessages() != null)
           {
@@ -1872,7 +1950,18 @@ public class DiscussionForumTool
           	decoTopic.setUnreadNoMessages(totalMsgNumber -readMsgNumber);
           }
           //decoTopic.setTotalNoMessages(forumManager.getTotalNoMessages(topic));
-          //decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(topic));
+          //decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(topic));*/
+          if (!decoTopic.isTopicModerated() || decoTopic.getIsModeratedAndHasPerm())
+          {
+        	  decoTopic.setTotalNoMessages(forumManager.getTotalNoMessages(topic));
+        	  decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(topic));
+          }
+          else
+          {
+        	  decoTopic.setTotalNoMessages(forumManager.getTotalViewableMessagesWhenMod(topic));
+          	  decoTopic.setUnreadNoMessages(forumManager.getNumUnreadViewableMessagesWhenMod(topic));
+          }
+          
           decoForum.addTopic(decoTopic);
         }
       } 
@@ -2018,8 +2107,16 @@ public class DiscussionForumTool
     {
     	decoTopic.setReadFullDesciption(true);
     }
-    decoTopic.setTotalNoMessages(forumManager.getTotalNoMessages(topic));
-    decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(topic));
+    if (!decoTopic.isTopicModerated() || decoTopic.getIsModeratedAndHasPerm())
+    {
+    	decoTopic.setTotalNoMessages(forumManager.getTotalNoMessages(topic));
+    	decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(topic));
+    }
+    else
+    {
+    	decoTopic.setTotalNoMessages(forumManager.getTotalViewableMessagesWhenMod(topic));
+    	decoTopic.setUnreadNoMessages(forumManager.getNumUnreadViewableMessagesWhenMod(topic));
+    }
     decoTopic.setHasNextTopic(forumManager.hasNextTopic(topic));
     decoTopic.setHasPreviousTopic(forumManager.hasPreviousTopic(topic));
     if (forumManager.hasNextTopic(topic))
@@ -2197,6 +2294,8 @@ public class DiscussionForumTool
     {
     	selectedTopic.setReadFullDesciption(true);
     }
+    
+    selectedTopic.setModerated(selectedForum.getModerated()); // default to parent forum's setting
 
     setNewTopicBeanAssign();
     
@@ -2430,7 +2529,14 @@ public class DiscussionForumTool
       aMsg.setAuthor(getUserNameOrEid());
       
       aMsg.setDraft(Boolean.FALSE);
-      aMsg.setApproved(Boolean.TRUE);
+
+      // if the topic is moderated, we want to leave approval null.
+	  // if the topic is not moderated, all msgs are approved
+      // if the author has moderator perm, the msg is automatically approved
+	  if (!selectedTopic.isTopicModerated() || selectedTopic.getIsModeratedAndHasPerm())
+	  {
+		  aMsg.setApproved(Boolean.TRUE);
+	  }
       aMsg.setTopic(selectedTopic.getTopic());
     }
     for (int i = 0; i < attachments.size(); i++)
@@ -2997,7 +3103,14 @@ public class DiscussionForumTool
     dMsg.setModified(new Date());
     
     dMsg.setModifiedBy(getUserNameOrEid());
-    // dMsg.setApproved(Boolean.TRUE);
+    if (!selectedTopic.isTopicModerated() || selectedTopic.getIsModeratedAndHasPerm())
+    {
+    	dMsg.setApproved(Boolean.TRUE);
+    }
+    else
+    {
+    	dMsg.setApproved(null);
+    }
 
     setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
         .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
@@ -3099,7 +3212,13 @@ public class DiscussionForumTool
     dMsg.setModified(new Date());
     
     dMsg.setModifiedBy(getUserNameOrEid());
-    // dMsg.setApproved(Boolean.TRUE);
+    
+    //  if the topic is moderated, we want to leave approval null.
+	// if the topic is not moderated, all msgs are approved
+	if (!selectedTopic.isTopicModerated())
+	{
+		dMsg.setApproved(Boolean.TRUE);
+	}
     
 //    setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
 //        .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
@@ -3305,6 +3424,324 @@ public class DiscussionForumTool
     this.errorSynch = false;
 
     return null;
+  }
+  
+  /**
+   * A moderator view of all msgs pending approval
+   * @return
+   */
+  public String processPendingMsgQueue()
+  {
+	  return PENDING_MSG_QUEUE;
+  }
+  
+  /**
+   * "Pending Messages" link will be displayed if current user
+   * has moderate perm for at least one moderated topic in site.
+   * Also sets number of pending msgs
+   * @return
+   */
+  public boolean isDisplayPendingMsgQueue()
+  {
+	  numPendingMessages = 0;
+
+	  //List membershipList = uiPermissionsManager.getCurrentUserMemberships();
+	  //List pendingMsgsInfo = forumManager.getPendingMsgsInSiteByMembership(membershipList);
+	  List pendingMsgsInfo = retrieveViewablePendingMsgs();
+	  numPendingMessages = pendingMsgsInfo.size();
+	  
+	  // if no msgs are returned, we need to double check that there are no
+	  // moderated topics for which current user has mod perm
+	  if (numPendingMessages < 1)
+	  {
+		  List moderatedTopics = forumManager.getModeratedTopicsInSite();
+		  if (moderatedTopics == null || moderatedTopics.isEmpty())
+		  {
+			  return false;
+		  }
+		  
+		  Iterator topicIter = moderatedTopics.iterator();
+		  while (topicIter.hasNext())
+		  {
+			  DiscussionTopic topic = (DiscussionTopic) topicIter.next();
+			  if (uiPermissionsManager.isModeratePostings(topic, (DiscussionForum)topic.getBaseForum()))
+			  {
+				  return true;
+			  }
+		  }
+		  return false;
+	  }
+	  
+	  return true;
+  }
+  
+  public int getNumPendingMessages()
+  {
+	  return numPendingMessages;
+  }
+  
+  public void setNumPendingMessages(int numPendingMessages)
+  {
+	  this.numPendingMessages = numPendingMessages;
+  }
+  
+  public List getPendingMessages()
+  {
+	  pendingMsgs = new ArrayList();
+	  //List messages = forumManager.getPendingMsgsInSiteByMembership(uiPermissionsManager.getCurrentUserMemberships());
+	  List messages = retrieveViewablePendingMsgs();
+	  
+	  Iterator msgIter = messages.iterator();
+	  while (msgIter.hasNext())
+	  {
+		  Message msg = (Message) msgIter.next();
+		  DiscussionMessageBean decoMsg = new DiscussionMessageBean(msg, messageManager);
+		  pendingMsgs.add(decoMsg);
+	  }
+	  
+	  return pendingMsgs;
+  }
+  
+  private List retrieveViewablePendingMsgs()
+  {
+	  List msgs = new ArrayList();
+	  List moderatedTopics = forumManager.getModeratedTopicsInSite();
+	  if (moderatedTopics == null || moderatedTopics.isEmpty())
+	  {
+		  return msgs;
+	  }
+	  
+	  Iterator topicIter = moderatedTopics.iterator();
+	  while (topicIter.hasNext())
+	  {
+		  DiscussionTopic topic = (DiscussionTopic) topicIter.next();
+		  if (uiPermissionsManager.isModeratePostings(topic, (DiscussionForum)topic.getBaseForum()))
+		  {
+			  List topicMsgs = new ArrayList();
+			  topicMsgs = forumManager.getPendingMsgsInTopic(topic.getId());
+			  if (topicMsgs != null && !topicMsgs.isEmpty())
+			  {
+				  msgs.addAll(topicMsgs);
+			  }
+		  }
+	  }
+	  return msgs;
+  }
+  
+  /**
+   * Will approve all "selected" messags
+   * @return
+   */
+  public String markCheckedAsApproved()
+  {
+	  approveOrDenySelectedMsgs(true);
+	  
+	  if (numPendingMessages > 0)
+		  return PENDING_MSG_QUEUE;
+	  
+	  return processActionHome();
+  }
+  
+  /**
+   * Will deny all "selected" messages
+   * @return
+   */
+  public String markCheckedAsDenied()
+  {
+	  approveOrDenySelectedMsgs(false);
+	  
+	  if (numPendingMessages > 0)
+		  return PENDING_MSG_QUEUE;
+	  
+	  return processActionHome();
+  }
+  
+  /**
+   * Mark selected msgs as denied or approved
+   * @param approved
+   */
+  private void approveOrDenySelectedMsgs(boolean approved)
+  {
+	  if (pendingMsgs == null || pendingMsgs.isEmpty())
+	  {
+		  return;
+	  }
+	  
+	  int numSelected = 0;
+	  
+	  Iterator iter = pendingMsgs.iterator();
+	  while (iter.hasNext())
+	  {
+		  DiscussionMessageBean decoMessage = (DiscussionMessageBean) iter.next();
+		  if (decoMessage.isSelected())
+		  {
+			  Message msg = decoMessage.getMessage();
+			  messageManager.markMessageApproval(msg.getId(), approved);
+			  messageManager.markMessageReadForUser(msg.getTopic().getId(), msg.getId(), true);
+			  numSelected++;
+			  numPendingMessages--;
+		  }
+	  }
+	  
+	  if (numSelected < 1)
+		  setErrorMessage(getResourceBundleString(NO_MSG_SEL_FOR_APPROVAL));
+	  else
+	  {
+		  if (approved)
+			  setSuccessMessage(getResourceBundleString(MSGS_APPROVED));
+		  else
+			  setSuccessMessage(getResourceBundleString(MSGS_DENIED));
+	  }
+  }
+
+  /**
+   * Deny a message
+   * @return
+   */
+  public String processDfMsgDeny()
+  {
+	  Long msgId = selectedMessage.getMessage().getId();
+	  if (msgId != null)
+	  {
+		  messageManager.markMessageApproval(msgId, false);
+		  selectedMessage = new DiscussionMessageBean(messageManager.getMessageByIdWithAttachments(msgId), messageManager);
+		  setSuccessMessage(getResourceBundleString("cdfm_denied_alert"));
+	  }
+	  
+	  return MESSAGE_VIEW;
+  }
+  
+  /**
+   * Deny a message and return to comment page
+   * @return
+   */
+  public String processDfMsgDenyAndComment()
+  {
+	  Long msgId = selectedMessage.getMessage().getId();
+	  if (msgId != null)
+	  {
+		  messageManager.markMessageApproval(msgId, false);
+		  selectedMessage = new DiscussionMessageBean(messageManager.getMessageByIdWithAttachments(msgId), messageManager);
+		  displayDeniedMsg = true;
+	  }
+	  
+	  return ADD_COMMENT;
+  }
+  
+  /**
+   * Approve a message
+   * @return
+   */
+  public String processDfMsgApprove()
+  {
+	  Long msgId = selectedMessage.getMessage().getId();
+	  if (msgId != null)
+	  {
+		  messageManager.markMessageApproval(msgId, true);
+		  selectedMessage = new DiscussionMessageBean(messageManager.getMessageByIdWithAttachments(msgId), messageManager);
+		  setSuccessMessage(getResourceBundleString("cdfm_approved_alert"));
+	  }
+	  
+	  return MESSAGE_VIEW;
+  }
+  
+  /**
+   * @return
+   */
+  public String processDfMsgAddComment()
+  {
+	  moderatorComments = "";
+	  return ADD_COMMENT;
+  }
+  
+  /**
+   * 
+   * @return
+   */
+  public String processCancelAddComment()
+  {
+	  if (displayDeniedMsg) // only displayed if from Deny & Comment path
+	  {
+		  setSuccessMessage(getResourceBundleString("cdfm_denied_alert"));
+		  displayDeniedMsg = false;
+	  }
+	  
+	  return MESSAGE_VIEW;
+  }
+  
+  /**
+   * Moderators may add a comment that is prepended to the text
+   * of the denied msg
+   * @return
+   */
+  public String processAddCommentToDeniedMsg()
+  {
+	  if (!selectedTopic.getIsModeratedAndHasPerm())
+	  {
+		  setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_TO_ADD_COMMENT));
+		  return ADD_COMMENT;
+	  }
+	  
+	  if (moderatorComments == null || moderatorComments.trim().length() < 1)
+	  {
+		 setErrorMessage(getResourceBundleString(INVALID_COMMENT)); 
+		 return ADD_COMMENT;
+	  }
+	  
+	  Message currMessage = selectedMessage.getMessage();
+	  
+	  StringBuffer sb = new StringBuffer();
+	  sb.append("<div style=\"font-style:italic; padding-bottom: 1.0em;\">");
+	  sb.append("<div style=\"font-weight:bold;\">");
+	  sb.append(getResourceBundleString(MOD_COMMENT_TEXT) + " ");
+	  sb.append(UserDirectoryService.getCurrentUser().getDisplayName());
+	  sb.append("</div>");
+	  sb.append(moderatorComments);
+	  sb.append("</div>");
+	  
+	  String originalText = currMessage.getBody();
+	  currMessage.setBody(sb.toString() + originalText);
+	  
+	  currMessage.setTopic((DiscussionTopic) forumManager
+              .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+      forumManager.saveMessage(currMessage);
+	  
+	  if (displayDeniedMsg) // only displayed if from Deny & Comment path
+	  {
+		  setSuccessMessage(getResourceBundleString("cdfm_denied_alert"));
+		  displayDeniedMsg = false;
+	  }
+	  
+	  // we also must mark this message as unread for the author to let them
+	  // know there is a comment
+	  forumManager.markMessageReadStatusForUser(currMessage, false, currMessage.getCreatedBy());
+	  
+	  return MESSAGE_VIEW;
+  }
+  
+  /**
+   * Approve option is displayed if:
+   * 1) topic is moderated
+   * 2) user has moderate perm
+   * 3) message has not been approved
+   * @return
+   */
+  public boolean isAllowedToApproveMsg()
+  {
+	  return selectedTopic.getIsModeratedAndHasPerm() && !selectedMessage.isMsgApproved();
+  }
+  
+  /**
+   * Deny option is displayed if:
+   * 1) topic is moderated
+   * 2) user has moderate perm
+   * 3) message has not been denied
+   * 4) message has no responses
+   * @return
+   */
+  public boolean isAllowedToDenyMsg()
+  {
+	  return selectedTopic.getIsModeratedAndHasPerm() && !selectedMessage.isMsgDenied() && !selectedMessage.getHasChild();
   }
 
   public void setNewForumBeanAssign()
@@ -3635,6 +4072,10 @@ public class DiscussionForumTool
   {
   
   	List msgsList = selectedTopic.getMessages();
+  	
+  	if (selectedTopic.isTopicModerated())
+  		msgsList = filterModeratedMessages(msgsList);
+  	
   	List orderedList = new ArrayList();
   	List threadList = new ArrayList();
   	
@@ -4666,7 +5107,13 @@ public class DiscussionForumTool
   {
     LOG.debug("setErrorMessage(String " + errorMsg + ")");
     FacesContext.getCurrentInstance().addMessage(null,
-        new FacesMessage(getResourceBundleString(ALERT) + errorMsg));
+        new FacesMessage(FacesMessage.SEVERITY_ERROR, getResourceBundleString(ALERT) + errorMsg, null));
+  }
+  
+  private void setSuccessMessage(String successMsg)
+  {
+	  LOG.debug("setSuccessMessage(String " + successMsg + ")");
+	  FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, successMsg, null));
   }
   
   private void setGradeNoticeMessage()
@@ -4996,7 +5443,7 @@ public class DiscussionForumTool
 		}
 
 		public void setEditMode(boolean editMode) {
-			this.editMode = true;
+			this.editMode = editMode;
 		}
 
 		public String getPermissionMode() {
@@ -5109,26 +5556,78 @@ public class DiscussionForumTool
 		return disableLongDesc;
 	}
 	
-	public List getMessages() {
-		if(displayUnreadOnly){
-			return selectedTopic.getUnreadMessages();
-		}
-		//else if (!orderAsc ){
-		//	return selectedTopic.getMessagesDesc();
-		//}
+	/**
+	 * Determines current level (template, forum, or topic) and
+	 * returns boolean indicating whether moderating is enabled or not.
+	 * @return
+	 */
+	public boolean isDisableModeratePerm()
+	{
+		if (permissionMode == null)
+			return true;
+		else if (permissionMode.equals(PERMISSION_MODE_TEMPLATE) && template != null)
+			return !template.isAreaModerated();
+		else if (permissionMode.equals(PERMISSION_MODE_FORUM) && selectedForum != null)
+			return !selectedForum.isForumModerated();
+		else if (permissionMode.equals(PERMISSION_MODE_TOPIC) && selectedTopic != null)
+			return !selectedTopic.isTopicModerated();
 		else
-			return selectedTopic.getMessages();
-		/****
-		if(displayUnreadOnly && !threaded) {
-			return selectedTopic.getUnreadMessages();
-			
-		}else if(displayUnreadOnly && threaded){
-			return selectedTopic.getUnreadMessagesInThreads();
-			
-		}else
-			return selectedTopic.getMessages();
-		****/
+			return true;
 	}
+	
+	public List getMessages() {
+		List messages = new ArrayList();
+		
+		if(displayUnreadOnly) 
+			messages = selectedTopic.getUnreadMessages();	
+		else
+			messages = selectedTopic.getMessages();
+
+		if (selectedTopic.isTopicModerated())
+			return filterModeratedMessages(messages);
+		
+		return messages;
+	}
+
+	/**
+	 * Given a list of messages, will return all messages that meet at
+	 * least one of the following criteria:
+	 * 1) message is approved
+	 * 2) message was written by current user
+	 * 3) current user has moderator perm
+	 */
+	private List filterModeratedMessages(List messages)
+	{
+		List viewableMsgs = new ArrayList();
+		if (messages != null || messages.size() > 0)
+		{
+			boolean hasModeratePerm = uiPermissionsManager.isModeratePostings(selectedTopic.getTopic(), selectedForum.getForum());
+			
+			if (hasModeratePerm)
+				return messages;
+			
+			Iterator msgIter = messages.iterator();
+			while (msgIter.hasNext())
+			{
+				DiscussionMessageBean msg = (DiscussionMessageBean) msgIter.next();
+				if (msg.isMsgApproved() || msg.getIsOwn())
+					viewableMsgs.add(msg);
+			}
+		}
+		
+		return viewableMsgs;
+	}
+	
+	public String getModeratorComments()
+	{
+		return moderatorComments;
+	}
+
+	public void setModeratorComments(String moderatorComments)
+	{
+		this.moderatorComments = moderatorComments;
+	}
+	
    public UIData getForumTable(){
       return forumTable;
    }

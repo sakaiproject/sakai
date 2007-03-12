@@ -78,14 +78,23 @@
       <h4><h:outputText value="#{msgs.cdfm_topic_posting}"/></h4>
 
 			<h:panelGrid columns="2">
-				<h:panelGroup styleClass="shorttext">
-				  <h:outputLabel for="" value="#{msgs.cdfm_lock_topic}"/>
+				<h:panelGroup >
+				  <h:outputLabel for="topic_locked" value="#{msgs.cdfm_lock_topic}" styleClass="shorttext"/>
 				</h:panelGroup>
 				<h:panelGroup>	
-					<h:selectOneRadio  layout="pageDirection" disabled="true" id="topic_posting"  value="#{ForumTool.selectedTopic.locked}"  style="margin:0" styleClass="checkbox inlineForm">
-    			    <f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_yes}"/>
-    					<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_no}"/>
-  					</h:selectOneRadio>
+					<h:selectOneRadio  layout="pageDirection" disabled="true" id="topic_locked"  value="#{ForumTool.selectedTopic.locked}" styleClass="checkbox inlineForm">
+    			  <f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_yes}"/>
+    		  	<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_no}"/>
+  			  </h:selectOneRadio>
+				</h:panelGroup>
+				<h:panelGroup >
+				  <h:outputLabel for="topic_moderated" value="#{msgs.cdfm_moderate_topic}" styleClass="shorttext"/>
+				</h:panelGroup>
+				<h:panelGroup>	
+		  	<h:selectOneRadio  layout="pageDirection" disabled="true" id="topic_moderated"  value="#{ForumTool.selectedTopic.moderated}" styleClass="checkbox inlineForm">
+    		  <f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_yes}"/>
+    			<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_no}"/>
+  			</h:selectOneRadio>
 				</h:panelGroup>
 			</h:panelGrid>
 

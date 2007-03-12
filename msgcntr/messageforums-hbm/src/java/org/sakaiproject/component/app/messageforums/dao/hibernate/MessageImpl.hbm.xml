@@ -78,7 +78,7 @@
       <column name="TYPE_UUID" length="36" not-null="true" />
     </property>
     <property name="approved">
-      <column name="APPROVED" not-null="true" />
+      <column name="APPROVED" not-null="false" />
     </property>
     <property name="draft">
       <column name="DRAFT" not-null="true" />
@@ -150,9 +150,30 @@
   <query name="findMessageCountByTopicId">
     <![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message where message.topic.id = :topicId and message.draft = false]]>
   </query>
+  
+  <query name="findViewableMessageCountByTopicIdByUserId">
+    <![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message 
+    				where message.topic.id = :topicId and 
+    				message.draft = false and 
+    				(message.approved = true or
+    				message.createdBy = :userId) 
+    ]]>
+  </query>
 
   <query name="findReadMessageCountByTopicId">
     <![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message, org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us where message.topic.id = :topicId and us.userId = :userId and message.id = us.messageId and us.read = true and message.draft = false]]>
+  </query>
+  
+  <query name="findReadViewableMessageCountByTopicIdByUserId">
+    <![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message,
+    				 org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us 
+    				 where message.topic.id = :topicId and 
+    				 us.userId = :userId and 
+    				 message.id = us.messageId and 
+    				 us.read = true and 
+    				 message.draft = false and 
+    				 (message.approved = true or
+    				 message.createdBy = :userId)]]>
   </query>
   
   <query name="findAuhtoredMessageCountByTopicId">
@@ -334,6 +355,38 @@
     		us.messageId in ( :msgIds )
     ]]>
   </query>
+  
+  <query name="findAllPendingMsgsByContextByMembership">
+    <![CDATA[select message, topic, forum from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message,
+    						org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl as membershipItem      
+    				 join message.topic as topic
+             join topic.openForum as forum
+             join forum.area as area 
+             join membershipItem.topic as mt
+             join membershipItem.permissionLevel as pl   
+             where area.contextId = :contextId and
+             mt.id = topic.id and
+             message.approved = null and
+             membershipItem.name in ( :membershipList ) and
+             pl.moderatePostings = true and
+             forum.draft = false and
+             topic.draft = false and
+             topic.moderated = true
+             order by message.modified asc
+    ]]>    
+  </query>
+  
+  <query name="findPendingMsgsByTopicId">
+    <![CDATA[select message, topic, forum from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message      
+    				 join message.topic as topic
+    				 join topic.openForum as forum    
+             where topic.id = :topicId and
+             topic.draft = false and
+             forum.draft = false and
+             message.approved = null
+    ]]>    
+  </query>
+  
 </hibernate-mapping>
 
 

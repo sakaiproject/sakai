@@ -43,7 +43,10 @@
 		  </h4>
 		    
 		    <h:inputHidden id="msgHidden" value="#{ForumTool.selectedMessage.message.body}" />
-		    <input type="button" value="Insert Original Message Text" onClick="InsertHTML();" /><br/>
+		    <div>
+		    	<input type="button" value="Insert Original Text" onClick="InsertHTML();" />
+		   	</div>
+		   	
             <sakai:rich_text_area value="#{ForumTool.composeBody}" rows="17" columns="70"/>
             <script language="javascript" type="text/javascript">
             var textareas = document.getElementsByTagName("textarea");
@@ -61,7 +64,7 @@
             function InsertHTML() 
             { 
               // These lines will write to the original textarea and makes the quoting work when FCK is not present
-              var finalhtml = '<b><i>Original Message:</i></b><br/><b><i><h:outputText value="#{msgs.cdfm_from}" /></i></b> <i><h:outputText value="#{ForumTool.selectedMessage.message.author}" /><h:outputText value=" #{msgs.cdfm_openb}" /><h:outputText value="#{ForumTool.selectedMessage.message.created}" ><f:convertDateTime pattern="#{msgs.date_format}" /></h:outputText><h:outputText value="#{msgs.cdfm_closeb}" /></i><br/><b><i><h:outputText value="#{msgs.cdfm_subject}" /></i></b> <i><h:outputText value="#{ForumTool.selectedMessage.message.title}" /></i><br/><br/><i>' + messagetext + '</i><br/><br/>';
+              var finalhtml = '<b><i><h:outputText value="#{msgs.cdfm_insert_original_text_comment}" /></i></b><br/><b><i><h:outputText value="#{msgs.cdfm_from}" /></i></b> <i><h:outputText value="#{ForumTool.selectedMessage.message.author}" /><h:outputText value=" #{msgs.cdfm_openb}" /><h:outputText value="#{ForumTool.selectedMessage.message.created}" ><f:convertDateTime pattern="#{msgs.date_format}" /></h:outputText><h:outputText value="#{msgs.cdfm_closeb}" /></i><br/><b><i><h:outputText value="#{msgs.cdfm_subject}" /></i></b> <i><h:outputText value="#{ForumTool.selectedMessage.message.title}" /></i><br/><br/><i>' + messagetext + '</i><br/><br/>';
               document.forms['dfCompose'].elements[rteId].value = finalhtml;
               // Get the editor instance that we want to interact with.
               var oEditor = FCKeditorAPI.GetInstance(rteId);

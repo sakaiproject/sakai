@@ -3,7 +3,7 @@
  * $Id: DiscussionForumManagerImpl.java 9227 2006-05-15 15:02:42Z cwen@iupui.edu $
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -151,6 +151,15 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
           + ")");
     }
     return forumManager.getTopicByIdWithMessagesAndAttachments(topicId);
+  }
+  
+  public List getModeratedTopicsInSite()
+  {
+	  if (LOG.isDebugEnabled())
+	  {
+		  LOG.debug("getModeratedTopicsInSite()");
+	  }
+	  return forumManager.getModeratedTopicsInSite(ToolManager.getCurrentPlacement().getContext());
   }
 
   // start injection
@@ -369,6 +378,23 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     }
     return messageManager.findMessageCountByTopicId(topic.getId());
   }
+  
+  /*
+   * (non-Javadoc)
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getTotalViewableMessagesWhenMod(org.sakaiproject.api.app.messageforums.Topic)
+   */
+  public int getTotalViewableMessagesWhenMod(Topic topic)
+  {
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("getTotalViewableMessagesWhenMod(Topic" + topic + ")");
+    }
+    if (usingHelper)
+    {
+      return 20;
+    }
+    return messageManager.findViewableMessageCountByTopicId(topic.getId());
+  }
 
   /*
    * (non-Javadoc)
@@ -386,6 +412,60 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       return 10;
     }
     return messageManager.findUnreadMessageCountByTopicId(topic.getId());
+  }
+  
+  /*
+   * (non-Javadoc)
+   * 
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getUnreadApprovedNoMessages(org.sakaiproject.api.app.messageforums.Topic)
+   */
+  public int getNumUnreadViewableMessagesWhenMod(Topic topic)
+  {
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("getNumUnreadViewableMessagesWhenMod(Topic" + topic + ")");
+    }
+    if (usingHelper)
+    {
+      return 10;
+    }
+    return messageManager.findUnreadViewableMessageCountByTopicId(topic.getId());
+  }
+  
+  /*
+   * (non-Javadoc)
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#approveAllPendingMessages(java.lang.Long)
+   */
+  public void approveAllPendingMessages(Long topicId)
+  {
+	  if (topicId == null)
+	  {
+		  LOG.error("approveAllPendingMessages failed with topicId: " + topicId);
+          throw new IllegalArgumentException("Null Argument");
+	  }
+	  List messages = this.getMessagesByTopicId(topicId);
+	  if (messages != null && messages.size() > 0)
+	  {
+		  Iterator msgIter = messages.iterator();
+		  while (msgIter.hasNext())
+		  {
+			  Message msg = (Message) msgIter.next();
+			  if (msg.getApproved() == null)
+			  {
+				  msg.setApproved(Boolean.TRUE);
+			  }
+		  }
+	  }
+  }
+  
+  
+  /*
+   * (non-Javadoc)
+   * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#getTotalNoPendingMessages()
+   */
+  public List getPendingMsgsInSiteByMembership(List membershipList)
+  {
+	  return messageManager.getPendingMsgsInSiteByMembership(membershipList);
   }
 
   /*
@@ -1353,6 +1433,23 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     }
 
   }
+  
+  public void markMessageReadStatusForUser(Message message, boolean readStatus, String userId)
+  {
+	  if (LOG.isDebugEnabled())
+	  {
+		  LOG.debug("markMessageReadStatusForUser(Message" + message + " readStatus:" + readStatus + " userId: " + userId + ")");
+	  }
+	  try
+	  {
+		  messageManager.markMessageReadForUser(message.getTopic().getId(), message
+				  .getId(), readStatus, userId);
+	  }
+	  catch (Exception e)
+	  {
+		  LOG.error(e.getMessage(), e);
+	  }
+  }
 
   private boolean getTopicAccess(DiscussionTopic t)
   {
@@ -1910,6 +2007,11 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     LOG.debug("getDiscussionForumsWithTopicsMembershipNoAttachments()");
     return forumManager.getForumByTypeAndContextWithTopicsMembership(typeManager
         .getDiscussionForumType(), contextId);
+	}
+	
+	public List getPendingMsgsInTopic(Long topicId)
+	{
+		return messageManager.getPendingMsgsInTopic(topicId);
 	}
 
 }

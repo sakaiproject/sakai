@@ -16,7 +16,21 @@
 		 		<div class="instruction">
 		  		  <h:outputText id="instruction" value="#{msgs.cdfm_default_template_settings_instruction}"/>
 				</div>
-		 <%@include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
+				
+				<h4><h:outputText  value="#{msgs.cdfm_forum_posting}"/></h4>
+				<h:panelGrid columns="2" columnClasses="shorttext,checkbox">
+				  <h:panelGroup><h:outputLabel id="outputLabel4" for="moderated"  value="#{msgs.cdfm_moderate_forum}"/>	</h:panelGroup>
+				  <h:panelGroup>
+					  <h:selectOneRadio layout="pageDirection" disabled="#{not ForumTool.editMode}" id="moderated"  value="#{ForumTool.template.moderated}"
+					  	onclick="javascript:disableOrEnableModeratePerm();">
+    					<f:selectItem itemValue="true" itemLabel="#{msgs.cdfm_yes}"/>
+    					<f:selectItem itemValue="false" itemLabel="#{msgs.cdfm_no}"/>
+  					</h:selectOneRadio>
+				  </h:panelGroup>
+			  </h:panelGrid>
+				
+		 		<%@include file="/jsp/discussionForum/permissions/permissions_include.jsp"%>
+		 		
         <div class="act">
           <h:commandButton action="#{ForumTool.processActionReviseTemplateSettings}" 
                            value="#{msgs.cdfm_button_bar_revise}" 

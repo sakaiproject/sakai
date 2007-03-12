@@ -9,6 +9,10 @@
   <h:outputText id="draft_space4" value="  &nbsp;  " escape="false" />
   <mf:forum_bar_link id="template_statistic" title="#{msgs.cdfm_statistics}" value="#{msgs.cdfm_statistics}" action="#{ForumTool.processActionStatistics}" rendered="#{ForumTool.instructor}" />
 
+	<h:outputText id="draft_space5" value="  &nbsp;  " escape="false" />
+	<mf:forum_bar_link id="pending_msgs" title="#{msgs.cdfm_msg_pending_queue}" value="#{msgs.cdfm_msg_pending_queue} #{msgs.cdfm_openb}#{ForumTool.numPendingMessages}#{msgs.cdfm_closeb}" 
+		action="#{ForumTool.processPendingMsgQueue}" rendered="#{ForumTool.displayPendingMsgQueue}"/>  
+
 <!--jsp/discussionForum/area/dfArea.jsp-->
   <h:dataTable id="forums" value="#{ForumTool.forums}" width="100%" var="forum" cellpadding="0" cellspacing="0" summary="layout">
     <h:column rendered="#{! forum.nonePermission}">
@@ -109,10 +113,12 @@
 					      <f:param value="#{forum.forum.id}" name="forumId"/>
 				      </h:commandLink>
 					  <f:verbatim></h5></f:verbatim>
-				     <h:outputText styleClass="textPanelFooter" id="topic_msg_count55" value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.cdfm_lowercase_msg} - #{topic.unreadNoMessages} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" 
+				     <h:outputText styleClass="textPanelFooter" id="topic_msg_count55" value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.cdfm_lowercase_msg} - #{topic.unreadNoMessages} #{msgs.cdfm_unread}" 
 				                    rendered="#{topic.isRead && topic.totalNoMessages < 2}"/>
-					   <h:outputText id="topic_msg_count56" value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.cdfm_lowercase_msgs} - #{topic.unreadNoMessages} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" 
+					   <h:outputText id="topic_msg_count56" value=" #{msgs.cdfm_openb} #{topic.totalNoMessages} #{msgs.cdfm_lowercase_msgs} - #{topic.unreadNoMessages} #{msgs.cdfm_unread}" 
 				                    rendered="#{topic.isRead && topic.totalNoMessages > 1}" styleClass="textPanelFooter" />
+				     <h:outputText id="topic_moderated" value="#{msgs.cdfm_topic_moderated_flag}" styleClass="textPanelFooter" rendered="#{topic.moderated == 'true' && topic.isRead}" />
+    	        <h:outputText value=" #{msgs.cdfm_closeb}"styleClass="textPanelFooter" rendered="#{topic.isRead}" />
     	        </h:panelGroup>
     	        <h:panelGroup styleClass="msgNav">
     	         <h:commandLink action="#{ForumTool.processActionTopicSettings}" id="topic_setting" value="#{msgs.cdfm_topic_settings}" rendered="#{topic.changeSettings}"
