@@ -5,7 +5,7 @@
     <artifactId>master</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../../../master/pom.xml</relativePath>
+    <relativePath>../../master/pom.xml</relativePath>
   </parent>
   <description>Shared Deployment Descriptor for postem</description>
   <name>sakai-postem-shared-deploy</name>
