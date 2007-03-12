@@ -7300,8 +7300,17 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
 					String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
 					String submitterId = (String) getSubmitterIds().get(0);
-					Double grade = g.getAssignmentScore(gradebookUid, associatedGBAssignment, submitterId);
-					return grade != null?grade.toString():"";
+					m_grade = "";
+					try
+					{
+						Double grade = g.getAssignmentScore(gradebookUid, associatedGBAssignment, submitterId);
+						m_grade = (grade != null)?grade.toString():"";
+					}
+					catch (SecurityException e)
+					{
+						M_log.warn(this + e.getMessage());
+					}
+					return m_grade;
 				}
 				else
 				{
@@ -9376,7 +9385,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			 		assignmentDefinition.setName(newAssignment_title);
 			 		assignmentDefinition.setPoints(new Double(newAssignment_maxPoints/10.0));
 			 		assignmentDefinition.setDueDate(new Date(newAssignment_dueTime.getTime()));
-			 		assignmentDefinition.setReleased(false);
+			 		assignmentDefinition.setReleased(true); // in order to let student gets his own score, has to set the assignment to be release by default
 			 		g.addAssignment(gradebookUid, assignmentDefinition);
 				}
 				else if (addUpdateRemoveAssignment.equals(GRADEBOOK_INTEGRATION_ASSOCIATE))
