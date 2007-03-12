@@ -19,12 +19,11 @@
 <sakai:script contextBase="/sakai-jsf-resource" path="/hideDivision/hideDivision.js"/>
 <sakai:script path="/summary-calendar/js/calendar-summary.js"/>
 <sakai:view title="#{msgs.tool_title}">
-	<sakai:flowState bean="#{PrefsBean}"/>
 
 	<h3><h:outputText value="#{msgs.menu_prefs}"/></h3>
 	<sakai:instruction_message value="#{msgs.instructions_preferences}" />
 		
-	<f:subview id="msg" >
+	<f:subview id="msg" rendered="#{PrefsBean.messageToBeDisplayed}">
 		<h:message for="msg" infoClass="success" fatalClass="alertMessage" style="margin-top: 15px;" showDetail="true"/>
 	</f:subview>		
 	
@@ -52,8 +51,6 @@
 		
 		<%/* Event priorities: event types */%>
 		<h5><h:outputText value="#{msgs.prefs_section_priority_eventypes}" styleClass="indnt1"/></h5>
-		<t:inputText id="moveUpStr" style="display: none" value="#{PrefsBean.moveUpStr}"/>
-		<t:inputText id="moveDownStr" style="display: none" value="#{PrefsBean.moveDownStr}"/>		
 		<t:div styleClass="indnt2">
 			<h:panelGrid columns="1">
 	        	<h:outputText value="#{msgs.prefs_high_priority}"/>	            

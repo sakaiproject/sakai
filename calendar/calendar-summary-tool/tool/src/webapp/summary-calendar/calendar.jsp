@@ -17,7 +17,6 @@
 
 <f:view>
 <sakai:view title="#{msgs.tool_title}" id="sakaiview">
-	<sakai:flowState bean="#{CalBean}"/>
 
 	<style type="text/css">
 		@import url("summary-calendar/css/cal.css");
@@ -143,10 +142,10 @@
        		 	style="width:100%">
 		        <t:graphicImage value="#{CalBean.eventImageMap[event.type]}"/>
 				<t:outputText value=" #{event.type} - "/>
-			    <t:commandLink value="#{event.truncatedDisplayName}" actionListener="#{CalBean.selectEvent}" immediate="true">
+			    <h:commandLink value="#{event.truncatedDisplayName}" actionListener="#{CalBean.selectEvent}" immediate="true">
 			       	<f:param name="calendarRef" value="#{event.calendarRef}"/>
 			       	<f:param name="eventRef" value="#{event.eventRef}"/>
-			    </t:commandLink>
+			    </h:commandLink>
 			    <h:outputText value=" "/>
 			    <t:graphicImage value="#{CalBean.imgLocation}/attachments.gif" rendered="#{event.hasAttachments}" alt="#{msgs.attachments}"/>		        	
 		        <f:verbatim><br></f:verbatim>

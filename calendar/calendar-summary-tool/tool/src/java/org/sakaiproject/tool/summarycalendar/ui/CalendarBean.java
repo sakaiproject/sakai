@@ -20,7 +20,6 @@
  **********************************************************************************/
 package org.sakaiproject.tool.summarycalendar.ui;
 
-import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -56,13 +55,12 @@ import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.tool.summarycalendar.jsf.InitializableBean;
 import org.sakaiproject.util.MergedList;
 import org.sakaiproject.util.ResourceLoader;
 
 
-public class CalendarBean extends InitializableBean implements Serializable {
-	private static final long						serialVersionUID		= 3399742150736774779L;
+public class CalendarBean {
+
 	public static final String 						MODE_MONTHVIEW			= "month";
 	public static final String 						MODE_WEEKVIEW			= "week";
 	public static final String 						PRIORITY_HIGH			= "priority_high";
@@ -103,7 +101,6 @@ public class CalendarBean extends InitializableBean implements Serializable {
 	private String[]								months					= { "mon_jan", "mon_feb", "mon_mar", "mon_apr", "mon_may", "mon_jun", "mon_jul", "mon_aug", "mon_sep", "mon_oct",
 			"mon_nov", "mon_dec"											};
 	private Map										eventImageMap			= new HashMap();
-	private boolean									firstTime				= true;
 	
 	private boolean									readPrefs 				= true;
 	private Map										priorityColorsMap		= null;
@@ -127,32 +124,23 @@ public class CalendarBean extends InitializableBean implements Serializable {
 	// ######################################################################################
 	// Main methods
 	// ######################################################################################
-	public CalendarBean(){
-	}
-	
-	public void init() {
+	public CalendarBean(){		
+		// go to today events it is first time loading
+		selectedDay = getToday();
+		
+		// read preferences
 		if(readPrefs){
 			readPreferences();
 			readPrefs = false;
-		}
-		
-		if(firstTime){
-			selectedDay = getToday();
-		}
-		if(selectedDay != null){
-			Calendar t = Calendar.getInstance();
-			t.setTime(selectedDay);
-			selectedDayHasEvents = getDayEventCount(getDayEventsVector(t)) > 0;
-		}
-		if(firstTime || (selectedDay != null && selectedDay.equals(getToday()))){
-			firstTime = false;
-			if(selectedDayHasEvents) selectedDay = getToday();
-			else selectedDay = null;
 		}
 	}
 	
 	public void setReadPrefs(String value) {
 		readPrefs = new Boolean(value).booleanValue();
+		if(readPrefs){
+			readPreferences();
+			readPrefs = false;
+		}
 	}
 	
 	public String getReadPrefs() {
@@ -592,6 +580,13 @@ public class CalendarBean extends InitializableBean implements Serializable {
 	}
 
 	public boolean isViewingSelectedDay() {
+		if(selectedDay != null){
+			Calendar t = Calendar.getInstance();
+			t.setTime(selectedDay);
+			selectedDayHasEvents = getDayEventCount(getDayEventsVector(t)) > 0;
+		}
+		
+		/*return selectedDayHasEvents && selectedDay != null && selectedEventRef == null;*/
 		return selectedDayHasEvents && selectedDay != null && selectedEventRef == null;
 	}
 

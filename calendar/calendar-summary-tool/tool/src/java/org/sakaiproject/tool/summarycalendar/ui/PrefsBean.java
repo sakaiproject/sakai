@@ -20,7 +20,6 @@
  **********************************************************************************/
 package org.sakaiproject.tool.summarycalendar.ui;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -45,16 +44,14 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.summarycalendar.jsf.InitializableBean;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.util.ResourceLoader;
 
 
-public class PrefsBean extends InitializableBean implements Serializable {
-	private static final long					serialVersionUID			= -6671159843904531584L;
-
+public class PrefsBean {
+	
 	/** Preferences properties */
 	public static String						PREFS_KEY					= "sakai:calendar:calendar-summary";
 	public static String						PREFS_SET					= "set";
@@ -88,7 +85,9 @@ public class PrefsBean extends InitializableBean implements Serializable {
 
 	/** Private members */
 	private String								message						= null;
-	private Severity							messageSeverity				= null;	
+	private Severity							messageSeverity				= null;
+	private Map 								priorityColorsMap			= null;
+	private Map 								priorityEventsMap			= null;
 
 	/** Sakai Services */
 	private static transient PreferencesService	M_ps						= (PreferencesService) ComponentManager.get(PreferencesService.class.getName());
@@ -118,38 +117,22 @@ public class PrefsBean extends InitializableBean implements Serializable {
 	// ######################################################################################
 	// Main methods
 	// ######################################################################################
-	public void init() {
-		LOG.debug("PrefsBean.init()");
-		
-		// Faces message, if any 
-		if(message != null){
-			FacesContext fc = FacesContext.getCurrentInstance();
-			fc.addMessage("msg", new FacesMessage(messageSeverity, message, null));
-			message = null;
-		}
-		
-		// Read preferences/default values
-		// calendar view mode
-		selectedViewMode = getPreferenceViewMode();
-		
-		// priority colors (CSS properties)
-		Map priorityColorsMap = getPreferencePriorityColors();
-		selectedHighPrColor = (String) priorityColorsMap.get(PREFS_HIGHPRIORITY_COLOR);
-		selectedMediumPrColor = (String) priorityColorsMap.get(PREFS_MEDIUMPRIORITY_COLOR);
-		selectedLowPrColor = (String) priorityColorsMap.get(PREFS_LOWPRIORITY_COLOR);
-		
-		// priority events
-		Map priorityEventsMap = getPreferencePriorityEvents();
-		highPriorityEvents = (List) priorityEventsMap.get(PREFS_HIGHPRIORITY_EVENTS);
-		mediumPriorityEvents = (List) priorityEventsMap.get(PREFS_MEDIUMPRIORITY_EVENTS);
-		lowPriorityEvents = (List) priorityEventsMap.get(PREFS_LOWPRIORITY_EVENTS);
-		
-		
+	public PrefsBean(){
 	}
 
 	// ######################################################################################
 	// Action/ActionListener methods
 	// ######################################################################################
+	public boolean isMessageToBeDisplayed() {
+		if(message != null){
+			FacesContext fc = FacesContext.getCurrentInstance();
+			fc.addMessage("msg", new FacesMessage(messageSeverity, message, null));
+			message = null;
+			return true;
+		}		
+		return false;
+	}
+	
 	public String update() {
 		try{
 			// read from FacesContext
@@ -172,6 +155,9 @@ public class PrefsBean extends InitializableBean implements Serializable {
 			setPreferenceList(PREFS_HIGHPRIORITY_EVENTS, highPriorityEvents);
 			setPreferenceList(PREFS_MEDIUMPRIORITY_EVENTS, mediumPriorityEvents);
 			setPreferenceList(PREFS_LOWPRIORITY_EVENTS, lowPriorityEvents);
+			
+			priorityColorsMap = null;
+			priorityEventsMap = null;
 		}catch(Exception e){
 			// error occurred
 			message = msgs.getString("prefs_not_updated");
@@ -189,13 +175,31 @@ public class PrefsBean extends InitializableBean implements Serializable {
 
 	public String cancel() {
 		message = null;
+		priorityColorsMap = null;
+		priorityEventsMap = null;
 		return "calendar";
 	}
 
 	// ######################################################################################
 	// Generic get/set methods
 	// ######################################################################################
+	private void readPriorityColorsMap() {
+		// priority colors (CSS properties)
+		priorityColorsMap = getPreferencePriorityColors();
+		selectedHighPrColor = (String) priorityColorsMap.get(PREFS_HIGHPRIORITY_COLOR);
+		selectedMediumPrColor = (String) priorityColorsMap.get(PREFS_MEDIUMPRIORITY_COLOR);
+		selectedLowPrColor = (String) priorityColorsMap.get(PREFS_LOWPRIORITY_COLOR);
+	}
+	private void readPriorityEventsMap() {
+		// priority events
+		priorityEventsMap = getPreferencePriorityEvents();
+		highPriorityEvents = (List) priorityEventsMap.get(PREFS_HIGHPRIORITY_EVENTS);
+		mediumPriorityEvents = (List) priorityEventsMap.get(PREFS_MEDIUMPRIORITY_EVENTS);
+		lowPriorityEvents = (List) priorityEventsMap.get(PREFS_LOWPRIORITY_EVENTS);
+	}
+	
 	public String getSelectedViewMode() {
+		selectedViewMode = getPreferenceViewMode();
 		return selectedViewMode;
 	}
 	public void setSelectedViewMode(String selectedViewMode) {
@@ -210,6 +214,8 @@ public class PrefsBean extends InitializableBean implements Serializable {
 
 	
 	public String getSelectedHighPriorityColor() {
+		if(priorityColorsMap == null)
+			readPriorityColorsMap();
 		return selectedHighPrColor;
 	}
 	public void setSelectedHighPriorityColor(String color) {
@@ -218,6 +224,8 @@ public class PrefsBean extends InitializableBean implements Serializable {
 	
 
 	public String getSelectedMediumPriorityColor() {
+		if(priorityColorsMap == null)
+			readPriorityColorsMap();
 		return selectedMediumPrColor;
 	}
 	public void setSelectedMediumPriorityColor(String color) {
@@ -226,6 +234,8 @@ public class PrefsBean extends InitializableBean implements Serializable {
 	
 
 	public String getSelectedLowPriorityColor() {
+		if(priorityColorsMap == null)
+			readPriorityColorsMap();
 		return selectedLowPrColor;
 	}
 	public void setSelectedLowPriorityColor(String color) {
@@ -234,6 +244,8 @@ public class PrefsBean extends InitializableBean implements Serializable {
 	
 	
 	public List getHighPriorityEvents(){
+		if(priorityEventsMap == null)
+			readPriorityEventsMap();
 		return listOfStringsToListOfSelectItem(highPriorityEvents);
 	}	
 	public void setHighPriorityEvents(List events){
@@ -251,6 +263,8 @@ public class PrefsBean extends InitializableBean implements Serializable {
 	
 	
 	public List getMediumPriorityEvents(){
+		if(priorityEventsMap == null)
+			readPriorityEventsMap();
 		return listOfStringsToListOfSelectItem(mediumPriorityEvents);
 	}	
 	public void setMediumPriorityEvents(List events){
@@ -268,6 +282,8 @@ public class PrefsBean extends InitializableBean implements Serializable {
 	
 	
 	public List getLowPriorityEvents(){
+		if(priorityEventsMap == null)
+			readPriorityEventsMap();
 		return listOfStringsToListOfSelectItem(lowPriorityEvents);
 	}	
 	public void setLowPriorityEvents(List events){
@@ -281,19 +297,6 @@ public class PrefsBean extends InitializableBean implements Serializable {
 	}
 	public void setSelectedLowPriorityEvents(List events){
 		this.lowPriorityEvents = events;
-	}
-	
-	
-	
-	public String getMoveUpStr() {
-		return msgs.getString("prefs_move_up");
-	}	
-	public void setMoveUpStr(String str){		
-	}	
-	public String getMoveDownStr() {
-		return msgs.getString("prefs_move_down");
-	}	
-	public void setMoveDownStr(String str){		
 	}
 	
 
