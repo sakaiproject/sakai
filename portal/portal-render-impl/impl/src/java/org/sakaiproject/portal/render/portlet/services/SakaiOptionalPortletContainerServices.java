@@ -8,10 +8,11 @@ import org.apache.pluto.spi.optional.PortletInvokerService;
 import org.apache.pluto.spi.optional.PortletRegistryService;
 import org.apache.pluto.spi.optional.PortletInfoService;
 import org.apache.pluto.spi.optional.PortalAdministrationService;
-// TODO: Uncomment for Pluto 1.1.1
+// TODO: Uncomment then update for Pluto 1.1.2
 // import org.apache.pluto.spi.optional.PortletServletService;
 // import org.apache.pluto.spi.optional.PortletServletListener;
-// import org.apache.pluto.spi.optional.UserInfoService;
+// TODO: Uncomment for Pluto 1.1.1
+import org.apache.pluto.spi.optional.UserInfoService;
 
 import org.apache.pluto.PortletContainerException;
 
@@ -63,7 +64,8 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
     // OptionalContainerServices Impl ------------------------------------------
     
     // TODO: Uncomment for Pluto 1.1.1
-    // private UserInfoService userInfoService = new SakaiUserInfoService();
+    private UserInfoService userInfoService = new SakaiUserInfoService();
+    // TODO: Uncomment then update for Pluto 1.1.2
     // private PortletServletService portletServletService = new SakaiPortletServletService();
 
     private PortletPreferencesService prefService = new SakaiPortletPreferencesService();
@@ -96,17 +98,18 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
     }
 
     // TODO: Uncomment for Pluto 1.1.1 - Make sure to test
-/*
     public UserInfoService getUserInfoService() {
         return userInfoService;
     }
 
+/*
+    // TODO: Uncomment then update for Pluto 1.1.2 - Make sure to test
     public PortletServletService getPortletServletService() {
         return portletServletService;
     }
 
+*/
     // Our implementations of these local services
-
     // At some level this could return a clever proxy which did lazy loading
     public class SakaiUserInfoService implements UserInfoService {
 
@@ -130,6 +133,9 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
             return retval;
         }
     }
+
+/*
+    // TODO: Uncomment for Pluto 1.1.2 - Make sure to test
 
     public class SakaiPortletServletService  implements PortletServletService {
     
@@ -218,7 +224,7 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
 
     }
 */
-    // TODO: End Uncomment for Pluto 1.1.1
+    // TODO: End Uncomment for Pluto 1.1.2
 
 
     public class SakaiPortletPreferencesService implements PortletPreferencesService {

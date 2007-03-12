@@ -20,14 +20,6 @@
 
 	<dependencies>
 
-<!--
-        <dependency>
-            <groupId>org.apache.pluto</groupId>
-            <artifactId>pluto-container</artifactId>
-            <version>1.1.0-beta2</version>
-        </dependency>
--->
-
         <dependency>
             <groupId>javax.portlet</groupId>
             <artifactId>portlet-api</artifactId>
