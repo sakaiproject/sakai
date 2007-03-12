@@ -7098,7 +7098,11 @@ public class ResourcesAction
 			{
 				if(term.getEndDate() != null && term.getEndDate().getTime() > now.getTime())
 				{
-					if(guess == null || term.getEndDate().getTime() < guess.getTime())
+					if(guess == null)
+					{
+						guess = TimeService.newTime(term.getEndDate().getTime());
+					}
+					else if(term.getEndDate().getTime() < guess.getTime())
 					{
 						guess.setTime(term.getEndDate().getTime());
 					}
