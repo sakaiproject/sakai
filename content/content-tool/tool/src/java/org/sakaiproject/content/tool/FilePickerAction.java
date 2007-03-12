@@ -852,13 +852,14 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		if (attachments != null)
 		{
 			attachments = EntityManager.newReferenceList(attachments);
-			state.setAttribute(STATE_ATTACHMENT_LIST, attachments);
 		}
-      else {
-         attachments = EntityManager.newReferenceList();
-      }
+		else 
+		{
+			attachments = EntityManager.newReferenceList();
+		}
+		state.setAttribute(STATE_ATTACHMENT_LIST, attachments);
 
-      Object attach_links = state.getAttribute(FilePickerHelper.FILE_PICKER_ATTACH_LINKS);
+		Object attach_links = state.getAttribute(FilePickerHelper.FILE_PICKER_ATTACH_LINKS);
 		if(attach_links == null)
 		{
 			state.removeAttribute(STATE_ATTACH_LINKS);
@@ -1328,7 +1329,13 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		state.removeAttribute(STATE_REMOVED_ITEMS);
 
 		// add to the attachments vector
-		List attachments = EntityManager.newReferenceList();
+		List<Reference> attachments = (List<Reference>) state.getAttribute(STATE_ATTACHMENT_LIST);
+		if(attachments == null)
+		{
+			attachments = EntityManager.newReferenceList();
+			state.setAttribute(STATE_ATTACHMENT_LIST, attachments);
+		}
+		attachments.clear();
 
 		Iterator<AttachItem> it = new_items.iterator();
 		while(it.hasNext())
@@ -1346,7 +1353,6 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 			}
 		}
 		// cleanupState(state);
-		state.setAttribute(STATE_ATTACHMENT_LIST, attachments);
 
 		// end up in main mode
 //		resetCurrentMode(state);
