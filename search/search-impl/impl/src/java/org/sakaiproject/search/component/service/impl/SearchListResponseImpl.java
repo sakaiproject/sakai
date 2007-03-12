@@ -54,10 +54,10 @@ import org.xml.sax.helpers.XMLReaderFactory;
 /**
  * @author ieb
  */
-public class SearchListReponseImpl implements SearchList, ContentHandler
+public class SearchListResponseImpl implements SearchList, ContentHandler
 {
 
-	private static Log log = LogFactory.getLog(SearchListReponseImpl.class);
+	private static Log log = LogFactory.getLog(SearchListResponseImpl.class);
 
 	private Query query;
 
@@ -85,7 +85,7 @@ public class SearchListReponseImpl implements SearchList, ContentHandler
 
 	private int fullsize;
 
-	public SearchListReponseImpl(String response, Query query, int start,
+	public SearchListResponseImpl(String response, Query query, int start,
 			int end, Analyzer analyzer, SearchItemFilter filter,
 			EntityManager entityManager, SearchIndexBuilder searchIndexBuilder,
 			SearchService searchService) throws SAXException, IOException

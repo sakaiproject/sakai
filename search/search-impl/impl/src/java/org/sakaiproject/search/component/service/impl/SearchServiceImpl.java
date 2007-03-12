@@ -377,7 +377,7 @@ public class SearchServiceImpl implements SearchService
 					}
 
 					String response = post.getResponseBodyAsString();
-					return new SearchListReponseImpl(response, textQuery,
+					return new SearchListResponseImpl(response, textQuery,
 							start, end, indexStorage.getAnalyzer(), filter,
 							entityManager, searchIndexBuilder, this);
 				}

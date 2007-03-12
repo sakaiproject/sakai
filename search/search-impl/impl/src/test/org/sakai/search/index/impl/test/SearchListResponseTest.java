@@ -9,7 +9,7 @@ import java.util.Iterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.search.api.SearchResult;
-import org.sakaiproject.search.component.service.impl.SearchListReponseImpl;
+import org.sakaiproject.search.component.service.impl.SearchListResponseImpl;
 import org.sakaiproject.search.filter.SearchItemFilter;
 import org.sakaiproject.search.filter.impl.NullSearchFilter;
 
@@ -86,7 +86,7 @@ public class SearchListResponseTest extends TestCase
 				+ "]]></error></fault>";
 		try
 		{
-			SearchListReponseImpl slri = new SearchListReponseImpl(testString,
+			SearchListResponseImpl slri = new SearchListResponseImpl(testString,
 					null, 0, 10, null, null, null, null, null);
 			fail("Should have thrown an IOException ");
 		}
@@ -137,7 +137,7 @@ public class SearchListResponseTest extends TestCase
 			"url=\"http://localhost:8088/access/wiki/site/97c4d057-9de3-49db-80df-421b2d05ed52/home.html\" />" +
 			"</results>";
 		SearchItemFilter filter = new NullSearchFilter();
-		SearchListReponseImpl slri = new SearchListReponseImpl(testString,
+		SearchListResponseImpl slri = new SearchListResponseImpl(testString,
 				null, 0, 10, null, filter, null, null, null);
 		for ( Iterator i = slri.iterator(); i.hasNext(); ) {
 			SearchResult sr = (SearchResult) i.next();
