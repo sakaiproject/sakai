@@ -700,12 +700,12 @@ public class AssignmentService {
 		return service.canSubmit(param0, param1);
 	}
 	
-	public static void integrateGradebook (String param0, String param1, String param2, String param3, String param4, int param5, Time param6, String param7, String param8){
+	public static void integrateGradebook (String param0, String param1, String param2, String param3, String param4, String param5, int param6, Time param7, String param8, String param9){
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
 		if (service == null)
 			return;
 
-		service.integrateGradebook(param0, param1, param2, param3, param4, param5, param6, param7, param8);
+		service.integrateGradebook(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9);
 	}
 	
 	public static boolean isGradebookDefined(){

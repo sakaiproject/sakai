@@ -2512,7 +2512,7 @@ public class AssignmentAction extends PagedResourceActionII
 			if (associateGradebookAssignment != null && a.getContent().getTypeOfGrade() == Assignment.SCORE_GRADE_TYPE)
 			{
 				// update grade in gradebook
-				AssignmentService.integrateGradebook(aReference, associateGradebookAssignment, null, null, null, -1, null, sReference, "update");
+				AssignmentService.integrateGradebook(aReference, associateGradebookAssignment, null, null, null, null, -1, null, sReference, "update");
 			}
 		}
 		catch (IdUnusedException e)
@@ -3767,7 +3767,7 @@ public class AssignmentAction extends PagedResourceActionII
 					// ignore the exception
 					Log.warn("chef", rb.getString("cannotfin2") + ref);
 				}
-				AssignmentService.integrateGradebook(aReference, associateGradebookAssignment, AssignmentService.GRADEBOOK_INTEGRATION_NO, null, null, -1, null, null, "remove");
+				AssignmentService.integrateGradebook(aReference, associateGradebookAssignment, oAssociateGradebookAssignment, AssignmentService.GRADEBOOK_INTEGRATION_NO, null, null, -1, null, null, "remove");
 			}
 			else
 			{
@@ -3777,13 +3777,7 @@ public class AssignmentAction extends PagedResourceActionII
 					{
 						//integrate assignment with gradebook
 						//add all existing grades, if any, into Gradebook
-						AssignmentService.integrateGradebook(aReference, associateGradebookAssignment, addtoGradebook, aOldTitle, title, Integer.parseInt (gradePoints), dueTime, null, "update");
-
-						// if the assignment has been assoicated with a different entry in gradebook before, remove those grades from the entry in Gradebook
-						if (StringUtil.trimToNull(oAssociateGradebookAssignment) != null && !oAssociateGradebookAssignment.equals(associateGradebookAssignment))
-						{
-							AssignmentService.integrateGradebook(aReference, oAssociateGradebookAssignment, null, null, null, -1, null, null, "remove");
-						}
+						AssignmentService.integrateGradebook(aReference, associateGradebookAssignment, oAssociateGradebookAssignment, addtoGradebook, aOldTitle, title, Integer.parseInt (gradePoints), dueTime, null, "update");
 					}
 					catch (NumberFormatException nE)
 					{
@@ -3799,7 +3793,7 @@ public class AssignmentAction extends PagedResourceActionII
 		else
 		{
 			// remove assignment entry from Gradebook
-			AssignmentService.integrateGradebook(aReference, oAssociateGradebookAssignment, AssignmentService.GRADEBOOK_INTEGRATION_NO, null, null, -1, null, null, "remove");
+			AssignmentService.integrateGradebook(aReference, associateGradebookAssignment, oAssociateGradebookAssignment, AssignmentService.GRADEBOOK_INTEGRATION_NO, null, null, -1, null, null, "remove");
 		}
 	}
 
@@ -4741,7 +4735,7 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 
 				// remove from Gradebook
-				AssignmentService.integrateGradebook((String) ids.get (i), associateGradebookAssignment, AssignmentService.GRADEBOOK_INTEGRATION_NO, null, null, -1, null, null, "remove");
+				AssignmentService.integrateGradebook((String) ids.get (i), associateGradebookAssignment, null, AssignmentService.GRADEBOOK_INTEGRATION_NO, null, null, -1, null, null, "remove");
 			}
 			catch (InUseException e)
 			{
@@ -5089,7 +5083,7 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				// integrate with Gradebook
 				String associateGradebookAssignment = StringUtil.trimToNull(a.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
-				AssignmentService.integrateGradebook(aReference, associateGradebookAssignment, null, a.getTitle(), a.getTitle(), -1, null, null, "update");
+				AssignmentService.integrateGradebook(aReference, associateGradebookAssignment, null, null, a.getTitle(), a.getTitle(), -1, null, null, "update");
 				// set the gradebook assignment to be released to student
 				AssignmentService.releaseGradebookAssignment(associateGradebookAssignment, true);
 			}
