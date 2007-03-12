@@ -5,7 +5,7 @@
     <artifactId>sakai-jsf-sun-ri-tool</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../../masteri/jsf-sun-tool/pom.xml</relativePath>
+    <relativePath>../../master/jsf-sun-tool/pom.xml</relativePath>
   </parent>
   <name>sakai-help-tool</name>
   <groupId>org.sakaiproject</groupId>
