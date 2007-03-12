@@ -1546,9 +1546,9 @@ public class DiscussionForumTool
   public String processActionGetDisplayThread()
   {
 	  	selectedTopic = getDecoratedTopic(selectedTopic.getTopic());
-	  
-	    setTopicBeanAssign();
-	    getSelectedTopic();
+	  	
+	  	setTopicBeanAssign();
+	  	getSelectedTopic();
 	    
 	    List msgsList = selectedTopic.getMessages();
 	    
@@ -2719,8 +2719,8 @@ public class DiscussionForumTool
 	  int depth = 0;
 	  long messageId = 0;
 	  while(cur.getDepth() > 0){
-		  depth = cur.getDepth();
 		  messageId = cur.getMessage().getInReplyTo().getId();
+		  depth = cur.getDepth();
 		  cur = new DiscussionMessageBean(messageManager.getMessageByIdWithAttachments(cur.getMessage().getInReplyTo().getId()), messageManager);
 		  cur.setDepth(--depth);
 	  }
@@ -5721,4 +5721,24 @@ public class DiscussionForumTool
 						+ Entity.SEPARATOR + "message" + Entity.SEPARATOR 
 						+ "printFriendlyThread";
 	  }
+	 
+	 public Boolean isMessageReadForUser(Long topicId, Long messageId)
+	 {
+		 return messageManager.isMessageReadForUser(topicId, messageId);
+	 }
+	 
+	 public void markMessageReadForUser(Long topicId, Long messageId, Boolean read)
+	 {
+		 messageManager.markMessageReadForUser(topicId, messageId, read);
+		 if(selectedThreadHead != null){
+			 //reset the thread to show unread
+			 processActionGetDisplayThread();
+		 }
+		 //also go ahead and reset the the topic
+		 DiscussionTopic topic = forumManager.getTopicById(new Long(topicId));
+		 setSelectedForumForCurrentTopic(topic);
+		 selectedTopic = getDecoratedTopic(topic);
+		 setTopicBeanAssign();
+		 getSelectedTopic();
+	 }
 }

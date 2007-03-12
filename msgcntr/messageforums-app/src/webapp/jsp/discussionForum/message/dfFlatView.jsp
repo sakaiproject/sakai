@@ -18,6 +18,7 @@
 	<h:form id="msgForum">
 <!--jsp/discussionForum/message/dfAllMessages.jsp-->
 		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
+		<sakai:script contextBase="/library" path="/js/jquery-1.1.2.js" />
 		
 
 		<sakai:tool_bar separator="#{msgs.cdfm_toolbar_separator}">
@@ -73,18 +74,6 @@
 		<h:inputHidden id="mainOrForumOrTopic" value="dfAllMessages" />
 		
 	</h:form>
-	
-<%
-  String thisId = request.getParameter("panel");
-  if (thisId == null) 
-  {
-    thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
-  }
-%>
-			<script type="text/javascript">
-			function resize(){
-  				setMainFrameHeight('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
-  			}
-			</script> 
+
 </sakai:view>
 </f:view>

@@ -11,6 +11,7 @@
 	<h:form id="msgForum">
 <!--jsp/discussionForum/message/dfAllMessages.jsp-->
 		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
+		<sakai:script contextBase="/library" path="/js/jquery-1.1.2.js" />
 		
 		<sakai:tool_bar separator="#{msgs.cdfm_toolbar_separator}">
 				<sakai:tool_bar_item value="#{msgs.cdfm_container_title_thread}" action="#{ForumTool.processAddMessage}" id="df_compose_message_dfAllMessages"
@@ -147,6 +148,7 @@
 				<f:facet name="header">
 					<h:outputText value="#{msgs.cdfm_thread}" />
 				</f:facet>
+				<h:outputText escape="false" value="<a id=\"#{message.message.id}\" name=\"#{message.message.id}\"></a>" />
 				
 				<h:outputText value="#{msgs.cdfm_msg_pending_label} " styleClass="highlight" rendered="#{message.msgPending}" />
 				<h:outputText value="#{msgs.cdfm_msg_denied_label} " rendered="#{message.msgDenied}" />
@@ -174,6 +176,13 @@
 	          	
 	          	<h:outputText value="  " />
 				
+				<h:outputLink value="#" onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id});$(this).remove();return false;" rendered="#{!message.read}"
+					title="#{msgs.msg_is_unread}"> 
+				   	<h:graphicImage value="/images/silk/email.png" alt="#{msgs.msg_is_unread}" rendered="#{!message.read}" 
+  	        		onmouseover="this.src=this.src.replace(/email\.png/, 'email_open.png');"
+   	        		onmouseout="this.src=this.src.replace(/email_open\.png/, 'email.png');" />
+                </h:outputLink>
+                <%--
 	          	<h:commandLink action="#{ForumTool.processDfMsgMarkMsgAsRead}">
 	                <f:param value="#{message.message.id}" name="messageId"/>
         	    	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
@@ -182,6 +191,7 @@
 	   	        		onmouseover="this.src=this.src.replace(/email\.png/, 'email_open.png');"
 	   	        		onmouseout="this.src=this.src.replace(/email_open\.png/, 'email.png');" />
                	</h:commandLink>
+               	--%>
                	
                	<h:outputText escape="false" value="<br />&nbsp;" rendered="#{message.depth == 0 }" />
                	<h:outputText escape="false" styleClass="textPanelFooter" rendered="#{message.depth == 0 && message.childCount > 0}"

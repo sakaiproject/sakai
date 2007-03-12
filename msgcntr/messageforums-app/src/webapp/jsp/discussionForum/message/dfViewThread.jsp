@@ -18,6 +18,7 @@
 	<h:form id="msgForum">
 <!--jsp/discussionForum/message/dfAllMessages.jsp-->
 		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
+		<sakai:script contextBase="/library" path="/js/jquery-1.1.2.js" />
 		
 		<sakai:tool_bar separator="#{msgs.cdfm_toolbar_separator}">
 				<sakai:tool_bar_item action="#{ForumTool.processDfMsgReplyThread}" value="#{msgs.cdfm_reply_thread}" 
@@ -101,17 +102,5 @@
 <%--	<h:outputText escape="false" value="<script type='text/javascript'>setTimeout(function(){document.location.href='##{ForumTool.threadAnchorMessageId}';},200);</script>" /> --%>
 	<h:outputText rendered="#{ForumTool.threadAnchorMessageId != '' && ForumTool.threadAnchorMessageId != null}" escape="false" 
 	value="<script type='text/javascript'>setTimeout(function(){parent.window.scrollTo(0, getScrollDist(document.getElementById('#{ForumTool.threadAnchorMessageId}')));},200);</script>" />
-<%
-  String thisId = request.getParameter("panel");
-  if (thisId == null) 
-  {
-    thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
-  }
-%>
-			<script type="text/javascript">
-			function resize(){
-  				setMainFrameHeight('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
-  			}
-			</script> 
 </sakai:view>
 </f:view>

@@ -28,14 +28,23 @@
    				   	      	<f:convertDateTime pattern="#{msgs.date_format_paren}" />
    				   	      </h:outputText>
                            
+                           
+                           <h:outputLink value="#" onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id});$(this).remove();return false;" rendered="#{!message.read}"
+                           		title="#{msgs.msg_is_unread}"> 
+      						   	<h:graphicImage value="/images/silk/email.png" alt="#{msgs.msg_is_unread}" rendered="#{!message.read}" 
+				   	        		onmouseover="this.src=this.src.replace(/email\.png/, 'email_open.png');"
+				   	        		onmouseout="this.src=this.src.replace(/email_open\.png/, 'email.png');" />
+                           </h:outputLink>
+						<%--
    				   	      <h:commandLink action="#{ForumTool.processDfMsgMarkMsgAsReadFromThread}" rendered="#{!message.read}" title="#{msgs.cdfm_button_bar_mark_as_read}"> 
-   	                  <f:param value="#{message.message.id}" name="messageId"/>
+   	                  		<f:param value="#{message.message.id}" name="messageId"/>
            	    			<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
            	    			<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
       						   	<h:graphicImage value="/images/silk/email.png" alt="#{msgs.msg_is_unread}" rendered="#{!message.read}" 
 				   	        		onmouseover="this.src=this.src.replace(/email\.png/, 'email_open.png');"
 				   	        		onmouseout="this.src=this.src.replace(/email_open\.png/, 'email.png');" />
-                    </h:commandLink>
+                    	  </h:commandLink>
+                    --%>
 	                  <f:verbatim></div></f:verbatim>
 
                          <f:verbatim><div style="width:45%;float:right;text-align:right" class="specialLink"></f:verbatim>
