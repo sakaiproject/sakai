@@ -7088,7 +7088,7 @@ public class ResourcesAction
 		Time defaultRetractTime = TimeService.newTime(TimeService.newTime().getTime() + ONE_WEEK);
 		Time guess = null;
 		Time now = TimeService.newTime();
-		if(siteType != null && siteType.equalsIgnoreCase("course"))
+		if(siteType != null && siteType.equalsIgnoreCase("course") && courseManagementService != null)
 		{
 			List<AcademicSession> terms = courseManagementService.getAcademicSessions();
 			boolean found = false;
