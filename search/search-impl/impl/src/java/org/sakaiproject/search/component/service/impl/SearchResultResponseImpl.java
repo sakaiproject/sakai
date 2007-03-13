@@ -223,8 +223,8 @@ public class SearchResultResponseImpl implements SearchResult
 		sb.append("<result"); //$NON-NLS-1$
 		sb.append(" index=\"").append(getIndex()).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
 		sb.append(" score=\"").append(getScore()).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
-		sb.append(" sid=\"").append(getId()).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
-		sb.append(" reference=\"").append(getReference()).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append(" sid=\"").append(StringUtils.xmlEscape(getId())).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append(" reference=\"").append(StringUtils.xmlEscape(getReference())).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
 		try
 		{
 			sb.append(" title=\"").append( //$NON-NLS-1$
@@ -232,10 +232,10 @@ public class SearchResultResponseImpl implements SearchResult
 		}
 		catch (UnsupportedEncodingException e)
 		{
-			sb.append(" title=\"").append(getTitle()).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
+			sb.append(" title=\"").append(StringUtils.xmlEscape(getTitle())).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		sb.append(" tool=\"").append(getTool()).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
-		sb.append(" url=\"").append(getUrl()).append("\" />"); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append(" tool=\"").append(StringUtils.xmlEscape(getTool())).append("\" "); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append(" url=\"").append(StringUtils.xmlEscape(getUrl())).append("\" />"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 }

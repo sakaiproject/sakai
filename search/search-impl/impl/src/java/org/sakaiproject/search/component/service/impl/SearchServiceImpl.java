@@ -74,6 +74,9 @@ import org.sakaiproject.search.model.SearchWriterLock;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.util.Xml;
+
+import uk.ac.cam.caret.sakai.rwiki.utils.XmlEscaper;
 
 /**
  * The search service
@@ -957,12 +960,12 @@ public class SearchServiceImpl implements SearchService
 			sb.append("<fault>"); //$NON-NLS-1$
 			sb.append("<request>"); //$NON-NLS-1$
 			sb.append("<![CDATA["); //$NON-NLS-1$
-			sb.append(" userid = ").append(userid).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
-			sb.append(" searchTerms = ").append(searchTerms).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
-			sb.append(" checksum = ").append(checksum).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
-			sb.append(" contexts = ").append(contexts).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
-			sb.append(" ss = ").append(ss).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
-			sb.append(" se = ").append(se).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+			sb.append(" userid = ").append(StringUtils.xmlEscape(userid)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+			sb.append(" searchTerms = ").append(StringUtils.xmlEscape(searchTerms)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+			sb.append(" checksum = ").append(StringUtils.xmlEscape(checksum)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+			sb.append(" contexts = ").append(StringUtils.xmlEscape(contexts)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+			sb.append(" ss = ").append(StringUtils.xmlEscape(ss)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+			sb.append(" se = ").append(StringUtils.xmlEscape(se)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
 			sb.append("]]>"); //$NON-NLS-1$
 			sb.append("</request>"); //$NON-NLS-1$
 			sb.append("<error>"); //$NON-NLS-1$
