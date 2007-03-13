@@ -1,9 +1,9 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/access/trunk/access-impl/impl/src/java/org/sakaiproject/access/tool/AccessServlet.java $
- * $Id: AccessServlet.java 7534 2006-04-09 17:09:10Z ggolden@umich.edu $
+ * $URL: $
+ * $Id: $
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -233,11 +233,15 @@ function clickOnEnter(event, element)
 	return true;
 }
 
-// if the containing frame is small, then offsetHeight is pretty good for all but ie/xp.
-// ie/xp reports clientHeight == offsetHeight, but has a good scrollHeight
+// set the parent iframe's height to hold our entire contents
 function setMainFrameHeight(id)
 {
+	// some browsers need a moment to finish rendering so the height and scroll are correct
+	setTimeout("setMainFrameHeightNow('"+id+"')",1);
+}
 
+function setMainFrameHeightNow(id)
+{
 	// run the script only if this window's name matches the id parameter
 	// this tells us that the iframe in parent by the name of 'id' is the one who spawned us
 	if (typeof window.name != "undefined" && id != window.name) return;
@@ -249,13 +253,9 @@ function setMainFrameHeight(id)
 		parent.window.scrollTo(0,0);
 
 		var objToResize = (frame.style) ? frame.style : frame;
-//		alert("After objToResize");
 
-		var height; 
-		
-		var scrollH = document.body.scrollHeight;
+		var height; 		
 		var offsetH = document.body.offsetHeight;
-		var clientH = document.body.clientHeight;
 		var innerDocScrollH = null;
 
 		if (typeof(frame.contentDocument) != 'undefined' || typeof(frame.contentWindow) != 'undefined')
@@ -266,8 +266,6 @@ function setMainFrameHeight(id)
  			var innerDoc = (frame.contentDocument) ? frame.contentDocument : frame.contentWindow.document;
 			innerDocScrollH = (innerDoc != null) ? innerDoc.body.scrollHeight : null;
 		}
-
-//		alert("After innerDocScrollH");
 	
 		if (document.all && innerDocScrollH != null)
 		{
@@ -281,22 +279,68 @@ function setMainFrameHeight(id)
 		}
 
 		// here we fudge to get a little bigger
-		//gsilver: changing this from 50 to 10, and adding extra bottom padding to the portletBody		
 		var newHeight = height + 10;
-		//contributed patch from hedrick@rutgers.edu (for very long documents)
-		if (newHeight > 32760)
-		newHeight = 32760;
-	
-		// no need to be smaller than...
-		//if (height < 200) height = 200;
-		objToResize.height=newHeight + "px";
-		
-		
-		var s = " scrollH: " + scrollH + " offsetH: " + offsetH + " clientH: " + clientH + " innerDocScrollH: " + innerDocScrollH + " Read height: " + height + " Set height to: " + newHeight;
-//		window.status = s;
-//		alert(s);
-	}
 
+		// but not too big!
+		if (newHeight > 32760) newHeight = 32760;
+
+		// capture my current scroll position
+		var scroll = findScroll();
+
+		// resize parent frame (this resets the scroll as well)
+		objToResize.height=newHeight + "px";
+
+		// reset the scroll, unless it was y=0)
+		if (scroll[1] > 0)
+		{
+			var position = findPosition(frame);
+			parent.window.scrollTo(position[0]+scroll[0], position[1]+scroll[1]);
+		}
+	}
+}
+
+// find the object position in its window
+// inspired by http://www.quirksmode.org/js/findpos.html
+function findPosition(obj)
+{
+	var x = 0;
+	var y = 0;
+	if (obj.offsetParent)
+	{
+		x = obj.offsetLeft;
+		y = obj.offsetTop;
+		while (obj = obj.offsetParent)
+		{
+			x += obj.offsetLeft;
+			y += obj.offsetTop;
+		}
+	}
+	return [x,y];
+}
+
+// find my scroll
+// inspired by http://www.quirksmode.org/viewport/compatibility.html
+function findScroll()
+{
+	var x = 0;
+	var y = 0;
+	if (self.pageYOffset)
+	{
+		x = self.pageXOffset;
+		y = self.pageYOffset;
+	}
+	else if (document.documentElement && document.documentElement.scrollTop)
+	{
+		x = document.documentElement.scrollLeft;
+		y = document.documentElement.scrollTop;
+	}
+	else if (document.body)
+	{
+		x = document.body.scrollLeft;
+		y = document.body.scrollTop;
+	}
+	
+	return [x,y];
 }
 
 // find the first form's first text field and place the cursor there
