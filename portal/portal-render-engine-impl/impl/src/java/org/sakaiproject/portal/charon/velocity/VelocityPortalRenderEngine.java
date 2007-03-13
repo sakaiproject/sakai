@@ -278,12 +278,12 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 					+ "type=\"text/javascript\" language=\"JavaScript\">\n" + styleAbleJs
 					+ "\n</script>\n";
 			headJs = headJs + styleAbleJs;
+			bodyonload = bodyonload + "styleableonload();";
 		}
 		headCssToolSkin = headCssToolSkin + customUserCss;
 		String headCss = headCssToolBase + headCssToolSkin + customUserCss;
 		String head = headCss + headJs;
 		
-		bodyonload = bodyonload + "styleableonload();";
 		req.setAttribute("sakai.html.head", head);
 		req.setAttribute("sakai.html.head.css", headCss);
 		req.setAttribute("sakai.html.head.js", headJs);
