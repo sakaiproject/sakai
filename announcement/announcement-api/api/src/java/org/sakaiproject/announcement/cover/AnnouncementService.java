@@ -75,8 +75,6 @@ public class AnnouncementService
 	public static java.lang.String SECURE_ANNC_UPDATE_ANY = org.sakaiproject.announcement.api.AnnouncementService.SECURE_ANNC_UPDATE_ANY;
 
 	public static java.lang.String SECURE_ANNC_READ_DRAFT = org.sakaiproject.announcement.api.AnnouncementService.SECURE_ANNC_READ_DRAFT;
-	
-	public static java.lang.String SECURE_ANNC_HIDDEN = org.sakaiproject.announcement.api.AnnouncementService.SECURE_ANNC_HIDDEN;
 
 	public static java.lang.String SECURE_READ = org.sakaiproject.announcement.api.AnnouncementService.SECURE_READ;
 
@@ -89,8 +87,6 @@ public class AnnouncementService
 	public static java.lang.String SECURE_UPDATE_OWN = org.sakaiproject.announcement.api.AnnouncementService.SECURE_UPDATE_OWN;
 
 	public static java.lang.String SECURE_UPDATE_ANY = org.sakaiproject.announcement.api.AnnouncementService.SECURE_UPDATE_ANY;
-	
-	public static java.lang.String SECURE_HIDDEN = org.sakaiproject.announcement.api.AnnouncementService.SECURE_HIDDEN;
 
 	public static java.lang.String SECURE_READ_DRAFT = org.sakaiproject.announcement.api.AnnouncementService.SECURE_READ_DRAFT;
 
