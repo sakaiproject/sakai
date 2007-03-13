@@ -319,7 +319,6 @@
 		#end
 ##
 ################### AVAILABLE section (to show/hide and set release/retract dates)
-##				TODO: add test to see if availability is enabled. if not, hide this entire section
 
 			<h4>$tlang.getString("avail.title")</h4>
 			<table>
@@ -330,6 +329,26 @@
 					<td colspan="4">
 						<label for="hidden_false">
 							$tlang.getString("avail.show")
+						</label>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<input type="radio" name="hidden" id="hidden_true" value="true" #if($hidden)checked="checked" #end/>
+					</td>
+					<td colspan="4">
+						<label for="hidden_true">
+							$tlang.getString("avail.hide")
+						</label>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<input type="radio" name="hidden" id="hidden_specify" value="specify" #if($specify)checked="checked" #end/>
+					</td>
+					<td colspan="4">
+						<label for="hidden_specify">
+							$tlang.getString("avail.specify")
 						</label>
 					</td>
 				</tr>
@@ -393,16 +412,6 @@
 					</td>
 					<td>
 						#custom_timeSelectionWidget("retract" $retractDate "document.getElementById('hidden_true').checked=false;document.getElementById('hidden_false').checked=true;document.getElementById('use_end_date').checked=true;")
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<input type="radio" name="hidden" id="hidden_true" value="true" #if($hidden)checked="checked" #end/>
-					</td>
-					<td colspan="4">
-						<label for="hidden_true">
-							$tlang.getString("avail.hide")
-						</label>
 					</td>
 				</tr>
 			</table>

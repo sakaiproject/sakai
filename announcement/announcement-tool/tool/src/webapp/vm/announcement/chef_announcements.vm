@@ -3,7 +3,7 @@
 ##(gsilver - remaining issues: trimming body, <p> in body when produced with WYS, the fact that how thing look in the synopsys is still undefined - and finally - the permissions nightmare as well as the ling to Remove...
 
 ############################################# Check if message hidden macro begin
-#macro(rowTRconstruct $props $displayOptions)
+#macro(rowTRconstruct $props $displayOptions $hidden)
 
 	#set($now = $timeservice.newTime())
 	#set($reldateset = false)
@@ -17,12 +17,6 @@
 	#if (!$props.isEmpty() && $props.getProperty("retractDate"))
 		#set($retractdate = $props.getTimeProperty("retractDate"))
 		#set($retdateset = $now.after($retractdate))
-	#end
-
-	#if (!$props.isEmpty() && $props.getProperty("hidden"))
-		#set($hidden = $props.getBooleanProperty("hidden"))
-	#else
-		#set($hidden = false)
 	#end
 
 	## message marked as hidden, current date is before release date, or current date is after retract date
@@ -230,7 +224,7 @@
 						#set ($rowCount =$rowCount + 1)
 						#set($ann_item_props=$ann_item.getProperties())
 
-						<tr #rowTRconstruct($ann_item_props $displayOptions) >
+						<tr #rowTRconstruct($ann_item_props $displayOptions $ann_item.Header.draft) >
 
 							<td headers="attach" class="attach">	
 								## show the paperclip if existing
@@ -563,7 +557,7 @@
 								#set ($rowCount =$rowCount + 1)
 								#set($ann_item_props=$ann_item.getProperties())
 
-								<tr #rowTRconstruct($ann_item_props $displayOptions) >
+								<tr #rowTRconstruct($ann_item_props $displayOptions $ann_item.Header.draft) >
 
 									<td headers="attach" class="attach">
 										## show the paperclip if existing

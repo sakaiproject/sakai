@@ -198,6 +198,7 @@ public class AnnouncementAction extends PagedResourceActionII
    private static final String RELEASE_DATE = "releaseDate";
    private static final String RETRACT_DATE = "retractDate";
    private static final String HIDDEN = "hidden";
+   private static final String SPECIFY_DATES  = "specify";
    
    private static final String SYNOPTIC_ANNOUNCEMENT_TOOL = "sakai.synoptic.announcement";
  
@@ -1521,27 +1522,27 @@ public class AnnouncementAction extends PagedResourceActionII
 	}
 	
 	/**
-	 * Determines if use has hidden permission or site.upd
+	 * Determines if use has draft (UI: hidden) permission or site.upd
 	 * If so, they will be able to view messages that are hidden
 	 */
 	private boolean canViewHidden(AnnouncementMessage msg, String siteId) 
 	{
-		final boolean b = SecurityService.unlock(AnnouncementService.SECURE_ANNC_HIDDEN, msg.getReference())
+		final boolean b = SecurityService.unlock(AnnouncementService.SECURE_READ_DRAFT, msg.getReference())
 							 || SecurityService.unlock(UPDATE_PERMISSIONS, "/site/"+ siteId); 
 		return b;
 	}
 	
 	/**
-	 * Determine if message is hidden
+	 * Determine if message is hidden (draft property set)
 	 */
 	private boolean isHidden(AnnouncementMessage message) 
 	{
-		final ResourceProperties messageProps = message.getProperties();
+		return 	message.getHeader().getDraft();
+/*		final ResourceProperties messageProps = message.getProperties();
 		
 		boolean hidden = false;
 		try 
-		{
-			hidden = messageProps.getBooleanProperty(HIDDEN);
+		{	hidden = messageProps.getBooleanProperty(HIDDEN);
 		} 
 		catch (Exception e) 
 		{
@@ -1549,7 +1550,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		} 
 		
 		return hidden;
-		
+*/		
 	}
 
 	/**
@@ -1646,8 +1647,8 @@ public class AnnouncementAction extends PagedResourceActionII
 			context.put(HIDDEN, false);
 		else
 		{
-			final String hidden = edit.getProperties().getProperty(HIDDEN);
-			context.put(HIDDEN, Boolean.valueOf(hidden));
+			final boolean hidden = edit.getHeader().getDraft();
+			context.put(HIDDEN, hidden);
 		}
 
 		// output the notification options
@@ -1837,6 +1838,10 @@ public class AnnouncementAction extends PagedResourceActionII
 		// if this is an existing one
 		else if (state.getStatus().equals("goToReviseAnnouncement"))
 		{
+			// to determine if release/retract dates have been specified
+			// so correct checkbox is selected
+			boolean specify = false;
+			
 			// get the message object through service
 			context.put("new", "false");
 			// get the message object through service
@@ -1849,7 +1854,6 @@ public class AnnouncementAction extends PagedResourceActionII
 			// find out about pubview
 			context.put("pubviewset", ((sstate.getAttribute(STATE_CHANNEL_PUBVIEW) ==  null) ? Boolean.FALSE : Boolean.TRUE));
 			context.put("pubview", Boolean.valueOf(edit.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW) != null));
-			context.put(HIDDEN, Boolean.valueOf(edit.getProperties().getProperty(HIDDEN)));
 
 			// Get/set release information
 			Time releaseDate = null;
@@ -1857,8 +1861,10 @@ public class AnnouncementAction extends PagedResourceActionII
 				releaseDate = edit.getProperties().getTimeProperty(RELEASE_DATE);
 				
 				context.put("useReleaseDate", Boolean.valueOf(true));
+				specify = true;
 			} 
-			catch (Exception e) {
+			catch (Exception e) 
+			{
 				// Set inital release date to creation date
 				releaseDate = edit.getHeader().getDate();
 			} 
@@ -1867,12 +1873,15 @@ public class AnnouncementAction extends PagedResourceActionII
 
 			// Get/set retract information
 			Time retractDate = null;
-			try {
+			try 
+			{
 				retractDate = edit.getProperties().getTimeProperty(RETRACT_DATE);
 				
 				context.put("useRetractDate", Boolean.valueOf(true));
+				specify = true;
 			} 
-			catch (Exception e) {
+			catch (Exception e) 
+			{
 				// Set inital retract date to approx 2 months from today
 				final long futureTimeLong = TimeService.newTime().getTime() + MILLISECONDS_IN_DAY * FUTURE_DAYS;			
 				retractDate = TimeService.newTime(futureTimeLong);
@@ -1880,6 +1889,8 @@ public class AnnouncementAction extends PagedResourceActionII
 
 			context.put(RETRACT_DATE, retractDate);
 
+			context.put(SPECIFY_DATES, specify);
+			context.put(HIDDEN, edit.getHeader().getDraft());
 			// there is no chance to get the notification setting at this point
 		}
 		else
@@ -2301,12 +2312,37 @@ public class AnnouncementAction extends PagedResourceActionII
 		state.setTempSubject(subject);
 		state.setTempBody(body);
 
+		if (checkForm)
+		{
+			if (subject.length() == 0)
+			{
+				// addAlert(sstate, "You need to fill in the subject!");
+				addAlert(sstate, rb.getString("java.alert.youneed"));
+			}
+			else if (body.length() == 0)
+			{
+				addAlert(sstate, rb.getString("java.alert.youfill"));// "You need to fill in the body of the announcement!");
+			}
+		}
+		
+		final String specify = params.getString(HIDDEN);
 		final boolean use_start_date = params.getBoolean("use_start_date");
 		final boolean use_end_date = params.getBoolean("use_end_date");
+		
+		// if user selected specify dates but then did not check a checkbox
+		// in order to do so, return an alert
+		if (checkForm)
+		{
+			if (specify.equals("specify") && !(use_start_date || use_end_date))
+			{
+				addAlert(sstate, rb.getString("java.alert.nodates"));
+			}
+		}
+	
 		Time releaseDate = null;
 		Time retractDate = null;
 		
-		if (use_start_date)
+		if (use_start_date && SPECIFY_DATES.equals(specify))
 		{
 			int begin_year = params.getInt("release_year");
 			int begin_month = params.getInt("release_month");
@@ -2326,8 +2362,12 @@ public class AnnouncementAction extends PagedResourceActionII
 
 			state.setTempReleaseDate(releaseDate);
 		}
+		else
+		{
+			state.setTempReleaseDate(null);
+		}
 		
-		if (use_end_date)
+		if (use_end_date && SPECIFY_DATES.equals(specify))
 		{
 			int end_year = params.getInt("retract_year");
 			int end_month = params.getInt("retract_month");
@@ -2347,10 +2387,21 @@ public class AnnouncementAction extends PagedResourceActionII
 
 			state.setTempRetractDate(retractDate);
 		}
+		else
+		{
+			state.setTempRetractDate(null);
+		}
 
+		if (checkForm)
+		{
+			if ((use_start_date && use_end_date) && retractDate.before(releaseDate))
+			{
+				addAlert(sstate, rb.getString("java.alert.baddates"));
+			}
+		}
 		// set hidden property just in case saved
 		state.setTempHidden(params.getBoolean(HIDDEN));
-		
+
 		// announce to public?
 		String announceTo = params.getString("announceTo");
 		state.setTempAnnounceTo(announceTo);
@@ -2470,29 +2521,22 @@ public class AnnouncementAction extends PagedResourceActionII
 				msg.setBody(body);
 				AnnouncementMessageHeaderEdit header = msg.getAnnouncementHeaderEdit();
 				header.setSubject(subject);
-				header.setDraft(!post);
+//				header.setDraft(!post);
+				// v2.4: Hidden in UI becomes Draft 'behind the scenes'
+				header.setDraft(tempHidden);
 				header.replaceAttachments(state.getAttachments());
 
 				// values stored here if saving from Add/Revise page
 				ParameterParser params = rundata.getParameters();
 				
-				// if not saving from preview, get value from params
-				if (tempHidden == null)
-				{
-					msg.getPropertiesEdit().addProperty(HIDDEN, Boolean.valueOf(params.getBoolean(HIDDEN)).toString());
-				}
-				else
-				{
-					msg.getPropertiesEdit().addProperty(HIDDEN, tempHidden.toString());
-				}
-				
 				// get release/retract dates
+				final String specify = params.getString(HIDDEN);
 				final boolean use_start_date = params.getBoolean("use_start_date");
 				final boolean use_end_date = params.getBoolean("use_end_date");
 				Time releaseDate = null;
 				Time retractDate = null;
 				
-				if(use_start_date)
+				if(use_start_date && SPECIFY_DATES.equals("specify"))
 				{
 					int begin_year = params.getInt("release_year");
 					int begin_month = params.getInt("release_month");
@@ -2534,7 +2578,7 @@ public class AnnouncementAction extends PagedResourceActionII
 					header.setDate(TimeService.newTime());
 				}
 				
-				if (use_end_date)
+				if (use_end_date && SPECIFY_DATES.equals(specify))
 				{
 					int end_year = params.getInt("retract_year");
 					int end_month = params.getInt("retract_month");
@@ -2563,7 +2607,7 @@ public class AnnouncementAction extends PagedResourceActionII
 					// they are not using release date so remove
 					if (msg.getProperties().getProperty(RETRACT_DATE) != null) 
 					{
-							msg.getPropertiesEdit().removeProperty(RELEASE_DATE);
+							msg.getPropertiesEdit().removeProperty(RETRACT_DATE);
 					}
 				}
 				
