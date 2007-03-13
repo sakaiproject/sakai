@@ -127,6 +127,7 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
 
 		// Add some GridSphere compatibility
 		retval.put("user.name", user.getEid());
+		retval.put("user.id", user.getEid());
 		retval.put("user.login.id", user.getEid());
 		retval.put("user.name.full", user.getDisplayName());
 		retval.put("user.name.first", user.getFirstName());
