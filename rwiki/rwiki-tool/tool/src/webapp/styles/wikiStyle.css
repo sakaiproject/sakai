@@ -164,6 +164,17 @@ li.autoSaveOffClass {
     padding-left:18px;
 }
 
+/*"inactive" gets applied to a container whose children you want to make look grayed out (not inactive per se) - applies to all textual elements and images
+placeholder till more standard way of doing it*/
+.rwiki_pageLinks span.pageLinkInactive {
+    padding:10px;
+    background-position:left;
+    background-repeat: no-repeat;
+    padding-left:18px;
+    filter:progid:DXImageTransform.Microsoft.Alpha(Opacity=50), progid:DXImageTransform.Microsoft.BasicImage(grayscale=1) !important;
+    -moz-opacity:.50 !important;
+    color: #999 !important;
+}
 
 
 #toolbarButtonSave  {

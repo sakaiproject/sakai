@@ -63,9 +63,15 @@ var placementid = "Main${request.getAttribute("sakai.tool.placement.id").toStrin
 	title="${resourceLoaderBean.getString("jsp_view")}" >${viewLinkName}</a> 
 #end
 #if ($useEditLink)
+#set( $permissionsCheckBean = ${requestScope.permissionsBean} )
+#if (${permissionsCheckBean.updateAllowed} )
 <a href="${util.escapeHtml($viewBean.getEditUrl())}"
 	id="editLink"  
 	title="${resourceLoaderBean.getString("jsp_edit")}" >${resourceLoaderBean.getString("jsp_edit")}</a> 
+#else
+<span
+	id="editLink" class="pageLinkInactive" >${resourceLoaderBean.getString("jsp_edit")}</span> 
+#end
 #end	
 #if ($useInfoLink) 
 <a href="${util.escapeHtml($viewBean.getInfoUrl())}"
