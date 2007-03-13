@@ -53,10 +53,12 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
+import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
+import org.sakaiproject.tool.assessment.data.ifc.grading.StudentGradingSummaryIfc;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -1362,5 +1364,118 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    	log.debug("typeId = " + typeId);
 	    }
 	    return typeId;
+  }
+
+  public List getAllAssessmentGradingByAgentId(final Long publishedAssessmentId, final String agentIdString) {
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery(
+	    				"from AssessmentGradingData a where a.publishedAssessmentId=? and a.agentId=? and a.forGrade=? order by a.submittedDate desc");
+	    		q.setLong(0, publishedAssessmentId.longValue());
+	    		q.setString(1, agentIdString);
+	    		q.setBoolean(2, true);
+	    		return q.list();
+	    	};
+	    };
+	    List assessmentGradings = getHibernateTemplate().executeFind(hcb);
+
+	    return assessmentGradings;
+  }
+  
+  public int getActualNumberRetake(final Long publishedAssessmentId, final String agentIdString) {
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery(
+	    				"select count(*) from AssessmentGradingData a, StudentGradingSummaryData s " +
+	    				" where a.publishedAssessmentId=? and a.agentId=? and a.forGrade=? " +
+	    				" and a.publishedAssessmentId = s.publishedAssessmentId and a.agentId = s.agentId " +
+	    				" and a.submittedDate > s.createdDate" +
+	    				" order by a.submittedDate desc");
+	    		q.setLong(0, publishedAssessmentId.longValue());
+	    		q.setString(1, agentIdString);
+	    		q.setBoolean(2, true);
+	    		return q.list();
+	    	};
+	    };
+	    List countList = getHibernateTemplate().executeFind(hcb);
+	    Iterator iter = countList.iterator();
+	    if (iter.hasNext()){
+	      int i = ((Integer)iter.next()).intValue();
+	      return i;
+	    }
+	    else{
+	      return 0;
+	    }
+  }
+  
+  public List getStudentGradingSummaryData(final Long publishedAssessmentId, final String agentIdString) {
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery(
+	    				"select s " +
+	    				"from StudentGradingSummaryData s " +
+	    				"where s.publishedAssessmentId=? and s.agentId=?");
+	    		q.setLong(0, publishedAssessmentId.longValue());
+	    		q.setString(1, agentIdString);
+	    		return q.list();
+	    	};
+	    };
+	    List studentGradingSummaryDataList = getHibernateTemplate().executeFind(hcb);
+
+	    return studentGradingSummaryDataList;
+  }
+  
+  public int getNumberRetake(final Long publishedAssessmentId, final String agentIdString) {
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery(
+	    				"select s.numberRetake " +
+	    				"from StudentGradingSummaryData s " +
+	    				"where s.publishedAssessmentId=? and s.agentId=?");
+	    		q.setLong(0, publishedAssessmentId.longValue());
+	    		q.setString(1, agentIdString);
+	    		return q.list();
+	    	};
+	    };
+	    List numberRetakeList = getHibernateTemplate().executeFind(hcb);
+
+	    if (numberRetakeList.size() == 0) {
+	    	return 0;
+	    }
+	    else {
+	    	Integer numberRetake = (Integer) numberRetakeList.get(0);
+	    	return numberRetake.intValue();
+	    }
+  }
+  
+  public void saveStudentGradingSummaryData(StudentGradingSummaryIfc studentGradingSummaryData) {
+	    int retryCount = PersistenceService.getInstance().getRetryCount().intValue();
+	    while (retryCount > 0){ 
+	      try {
+	        getHibernateTemplate().saveOrUpdate((StudentGradingSummaryData) studentGradingSummaryData);
+	        retryCount = 0;
+	      }
+	      catch (Exception e) {
+	        log.warn("problem saving studentGradingSummaryData: "+e.getMessage());
+	        retryCount = PersistenceService.getInstance().retryDeadlock(e, retryCount);
+	      }
+	    }
+	  }
+  
+  public int getLateSubmissionsNumberByAgentId(final Long publishedAssessmentId, final String agentIdString, final Date dueDate) {
+	    final HibernateCallback hcb = new HibernateCallback(){
+	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	    		Query q = session.createQuery(
+	    				"from AssessmentGradingData a where a.publishedAssessmentId=? and a.agentId=? and a.forGrade=? and a.submittedDate>?");
+	    		q.setLong(0, publishedAssessmentId.longValue());
+	    		q.setString(1, agentIdString);
+	    		q.setBoolean(2, true);
+	    		q.setDate(3, dueDate);
+	    		return q.list();
+	    	};
+	    };
+	    List assessmentGradings = getHibernateTemplate().executeFind(hcb);
+
+	    return assessmentGradings.size();
   }
 }

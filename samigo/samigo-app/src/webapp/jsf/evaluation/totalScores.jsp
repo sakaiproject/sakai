@@ -82,14 +82,13 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
   </h3>
 
   <p class="navViewAction">
-    <h:commandLink title="#{msg.t_submissionStatus}" action="submissionStatus" immediate="true"
-      rendered="#{totalScores.anonymous eq 'true'}" >
+    <h:commandLink title="#{msg.t_submissionStatus}" action="submissionStatus" immediate="true">
       <h:outputText value="#{msg.sub_status}" />
       <f:param name="allSubmissions" value="true"/>
       <f:actionListener
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
     </h:commandLink>
-    <h:outputText value=" #{msg.separator} " rendered="#{totalScores.anonymous eq 'true'}" />
+    <h:outputText value=" #{msg.separator} " />
     <h:outputText value="#{msg.title_total}" />
     <h:outputText value=" #{msg.separator} " rendered="#{totalScores.firstItem ne ''}" />
     <h:commandLink title="#{msg.t_questionScores}" action="questionScores" immediate="true"
@@ -256,6 +255,7 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
 	     <h:outputText value="  #{msg.email}" rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
 	   </h:outputLink>
 	 </span>
+
    	</span>
 	<h:commandLink id="hiddenlink1" value="">
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.util.EmailListener" />

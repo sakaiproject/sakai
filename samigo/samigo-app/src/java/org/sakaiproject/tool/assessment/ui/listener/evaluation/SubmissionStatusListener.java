@@ -25,6 +25,8 @@ package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -39,12 +41,16 @@ import javax.faces.event.ValueChangeListener;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
+import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.RetakeAssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.SubmissionStatusBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -203,7 +209,8 @@ public class SubmissionStatusListener
       /* Dump the grading and agent information into AgentResults */
       ArrayList students_submitted= new ArrayList();
       iter = scores.iterator();
-
+      HashMap studentGradingSummaryDataMap = new HashMap();
+      RetakeAssessmentBean retakeAssessment = (RetakeAssessmentBean) ContextUtil.lookupBean("retakeAssessment");
       while (iter.hasNext())
       {
         AgentResults results = new AgentResults();
@@ -228,11 +235,13 @@ public class SubmissionStatusListener
         results.setIdString(agent.getIdString());
         results.setAgentEid(agent.getEidString());
         results.setRole((String)userRoles.get(agentid));
+        results.setRetakeAllowed(getRetakeAllowed(agent.getIdString(), studentGradingSummaryDataMap, retakeAssessment));
         if (useridMap.containsKey(agentid) ) {
           agents.add(results);
           students_submitted.add(agentid);
         }
       }
+      retakeAssessment.setStudentGradingSummaryDataMap(studentGradingSummaryDataMap);
 
       ArrayList students_not_submitted= new ArrayList();
       Iterator useridIterator = useridMap.keySet().iterator();
@@ -310,7 +319,85 @@ public class SubmissionStatusListener
       results.setIdString(agent.getIdString());
       results.setAgentEid(agent.getEidString());
       results.setRole((String)userRoles.get(studentid));
+      results.setRetakeAllowed(false);
       agents.add(results);
     }
   }
+  
+  public boolean getRetakeAllowed(String agentId, HashMap studentGradingSummaryDataMap, RetakeAssessmentBean retakeAssessment) {
+	    TotalScoresBean totalScoresBean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
+	    PublishedAssessmentData publishedAssessmentData = totalScoresBean.getPublishedAssessment();
+	    PublishedAssessmentService pubService = new PublishedAssessmentService();
+	    int totalSubmitted = (pubService.getTotalSubmission(agentId, publishedAssessmentData.getPublishedAssessmentId().toString())).intValue();
+		//List allAssessmentGradingList = gradingService.getAllAssessmentGradingByAgentId(publishedAssessmentData.getPublishedAssessmentId(), agentId);
+		//int totalSubmitted = allAssessmentGradingList.size();
+		AssessmentAccessControlIfc assessmentAccessControl = publishedAssessmentData.getAssessmentAccessControl();
+		Date currentDate = new Date();
+		Date dueDate = assessmentAccessControl.getDueDate();
+		GradingService gradingService = new GradingService();
+		List studentGradingSummaryDataList = gradingService.getStudentGradingSummaryData(publishedAssessmentData.getPublishedAssessmentId(), agentId);
+		StudentGradingSummaryData studentGradingSummaryData = null;
+		int numberRetake = 0;
+		if (studentGradingSummaryDataList.size() != 0) {
+			studentGradingSummaryData = (StudentGradingSummaryData) studentGradingSummaryDataList.get(0);
+			studentGradingSummaryDataMap.put(agentId, studentGradingSummaryData);
+			retakeAssessment.setStudentGradingSummaryData(studentGradingSummaryData);
+			numberRetake = studentGradingSummaryData.getNumberRetake().intValue();
+		}
+		else {
+			retakeAssessment.setStudentGradingSummaryData(null);
+		}
+			
+		boolean acceptLateSubmission = AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.equals(assessmentAccessControl.getLateHandling());
+		if (acceptLateSubmission) {
+			if (dueDate != null && dueDate.before(currentDate)) {
+				// no submission at all, there will be one more last chance for student to submit
+				// therefore, don't show the retake
+				if (totalSubmitted == 0) { 
+					return false;
+				}
+
+				// if there are submission(s) and already retake issued to the student, 
+				// if the student's acutalNumberRetake is the same as numberRetake issued by the instructor
+				// we can display the retake link to allow the instructor to give out another chance to the student
+				int actualNumberRetake = gradingService.getActualNumberRetake(publishedAssessmentData.getPublishedAssessmentId(), agentId);
+				if (actualNumberRetake == numberRetake) {
+					return true;
+				}
+				/* Following commented out section is doing the same thing as above
+				 * trying to see if there are submission(s), should display the retake or not
+				 * however, I think above way is better 
+				// if there are submission(s), we need to know if any of these is submitted before or after due date
+				int numOfLateSubmission = 0;
+				boolean submitBeforeDue = false;
+				for (int i = 0; i < totalSubmitted; i++) {
+					AssessmentGradingData assessmentGradingData = (AssessmentGradingData) allAssessmentGradingList.get(i);
+					if (assessmentGradingData.getSubmittedDate().after(dueDate)) {
+						numOfLateSubmission++;
+					}
+					else {
+						submitBeforeDue = true;
+					}
+				}
+                // if at least one is submitted before due date, that means there is no extra "last chance" submission given
+                // when the count of submissions after due date equals the number of retake, we display the retake link
+                // else, if there is no submitted before due date, that means student can have an extra "last chance" submission
+                // therefore, we display the retake link when the number of number of submissions after due date is number of retake plus one
+				if ((submitBeforeDue && numOfLateSubmission == numberRetake) || (!submitBeforeDue && numOfLateSubmission == numberRetake + 1)) {
+					return true;
+				}
+				*/
+			}			
+			else {
+				int maxSubmissionsAllowed = 9999;
+				if ((Boolean.FALSE).equals(assessmentAccessControl.getUnlimitedSubmissions())) {
+					maxSubmissionsAllowed = assessmentAccessControl.getSubmissionsAllowed().intValue();
+				}
+				if ((totalSubmitted == maxSubmissionsAllowed + numberRetake)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	} 
 }

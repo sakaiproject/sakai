@@ -66,6 +66,13 @@ $Id$
     <h:outputText value="#{msg.submission_id}#{dmsg.column} #{studentScores.assessmentGradingId}" rendered="#{totalScores.anonymous eq 'true'}"/>
   </h3>
   <p class="navViewAction">
+    <h:commandLink title="#{msg.t_submissionStatus}" action="submissionStatus" immediate="true">
+      <h:outputText value="#{msg.sub_status}" />
+      <f:param name="allSubmissions" value="true"/>
+      <f:actionListener
+        type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
+    </h:commandLink>
+    <h:outputText value=" #{msg.separator} " />
     <h:commandLink title="#{msg.t_totalScores}" action="totalScores" immediate="true">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />

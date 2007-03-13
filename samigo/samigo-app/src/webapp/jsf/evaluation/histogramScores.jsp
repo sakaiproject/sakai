@@ -58,7 +58,13 @@ $Id$
     <h:outputText value="#{histogramScores.assessmentName} "/>
   </h3>
 <h:outputText value=" <p class=\"navViewAction\">" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}" escape="false"/>
- 
+     <h:commandLink title="#{msg.t_submissionStatus}" action="submissionStatus" immediate="true">
+      <h:outputText value="#{msg.sub_status}" />
+      <f:param name="allSubmissions" value="true"/>
+      <f:actionListener
+        type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
+    </h:commandLink>
+    <h:outputText value=" #{msg.separator} " />
     <h:commandLink title="#{msg.t_totalScores}" action="totalScores" immediate="true" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />

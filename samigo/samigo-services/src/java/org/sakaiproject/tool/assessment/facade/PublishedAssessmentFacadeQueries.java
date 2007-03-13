@@ -1827,22 +1827,26 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 						.getAssessmentAccessControl();
 
 				if (ac.getSubmissionsAllowed() != null) {
+					if (ac.getSubmissionsAllowed().intValue() == 1) {
+						scoringOption = EvaluationModelIfc.LAST_SCORE;
+					}
+				}
+					/*
 					if (ac.getSubmissionsAllowed().intValue() > 1) {
 						multiSubmissionAllowed = true;
 					} else {
 						multiSubmissionAllowed = false;
+						// When number of submission allowed is 1, always display the last one, that is, order by last
+						scoringOption = EvaluationModelIfc.LAST_SCORE;
 					}
 				} else {
 					multiSubmissionAllowed = true;
 				}
+				*/
 
 			}
 
-			if ((!multiSubmissionAllowed)
-					|| ((multiSubmissionAllowed)
-							&& (EvaluationModelIfc.LAST_SCORE
-									.equals(scoringOption)) && (!a
-							.getPublishedAssessmentId().equals(currentid)))) {
+			if (EvaluationModelIfc.LAST_SCORE.equals(scoringOption) && !a.getPublishedAssessmentId().equals(currentid)) {
 				currentid = a.getPublishedAssessmentId();
 				AssessmentGradingFacade f = new AssessmentGradingFacade(a);
 				assessmentList.add(f);

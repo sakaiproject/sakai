@@ -243,7 +243,12 @@ public class BeginDeliveryActionListener implements ActionListener
     int totalSubmissions = (service.getTotalSubmission(AgentFacade.getAgentString(),
         publishedAssessmentId.toString())).intValue();
     if (!(Boolean.TRUE).equals(control.getUnlimitedSubmissions())){
-      delivery.setSubmissionsRemaining(control.getSubmissionsAllowed().intValue() - totalSubmissions);
+      // when there are retaks, we always display 1 as number of remaining submission	
+      int submissionsRemaining = control.getSubmissionsAllowed().intValue() - totalSubmissions;
+      if (submissionsRemaining < 1) {
+    	  submissionsRemaining = 1;
+      }
+      delivery.setSubmissionsRemaining(submissionsRemaining);
     }
 
     // #2 - check if TOC should be made avaliable

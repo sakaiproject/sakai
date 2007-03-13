@@ -627,9 +627,15 @@ public class QuestionScoreListener implements ActionListener,
 						// for this one
 						results.setAnswer(results.getAnswer() + "<br/>"
 								+ answerText);
-						results.setTotalAutoScore(Float.toString((new Float(
+						if (gdata.getAutoScore() != null) {
+							results.setTotalAutoScore(Float.toString((new Float(
 								results.getExactTotalAutoScore())).floatValue()
 								+ gdata.getAutoScore().floatValue()));
+						}
+						else {
+							results.setTotalAutoScore(Float.toString((new Float(
+									results.getExactTotalAutoScore())).floatValue()));
+						}
 					} else {
 						results.setItemGradingId(gdata.getItemGradingId());
 						results.setAssessmentGradingId(gdata

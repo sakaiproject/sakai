@@ -89,4 +89,19 @@
     <property name="finalAssessmentScore" type="float" column="FINALASSESSMENTSCORE" not-null="false" />
     <property name="feedToGradeBook" type="boolean" column="FEEDTOGRADEBOOK" not-null="false" />
   </class>
+  
+  <class name="org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData" table="SAM_STUDENTGRADINGSUMMARY_T">
+    <id name="studentGradingSummaryId" column="STUDENTGRADINGSUMMARYID" type="java.lang.Long" unsaved-value="0" >
+      <generator class="native">
+        <param name="sequence">SAM_STUDENTGRADINGSUMMARY_ID_S</param>
+      </generator>
+    </id>
+    <property name="publishedAssessmentId" column="PUBLISHEDASSESSMENTID" not-null="true" type="long" index="SAM_PUBLISHEDASSESSMENT2_I" />
+    <property name="agentId" type="string" length="255" column="AGENTID" not-null="true" />
+    <property name="numberRetake" type="integer" column="NUMBERRETAKE" not-null="false" />
+    <property name="createdBy" type="string" length="255" column="CREATEDBY" not-null="true" />
+    <property name="createdDate" type="timestamp" column="CREATEDDATE" not-null="true" />
+    <property name="lastModifiedBy" type="string" length="255" column="LASTMODIFIEDBY" not-null="true" />
+    <property name="lastModifiedDate"  type="timestamp" column="LASTMODIFIEDDATE" not-null="true" />
+  </class>
 </hibernate-mapping>

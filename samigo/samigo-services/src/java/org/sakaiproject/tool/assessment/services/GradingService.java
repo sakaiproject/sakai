@@ -50,6 +50,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
+import org.sakaiproject.tool.assessment.data.ifc.grading.StudentGradingSummaryIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
@@ -1513,9 +1514,73 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		catch (Exception e){
 			return false;
 		}
-
 	}
 
+  public List getAllAssessmentGradingByAgentId(Long publishedAssessmentId, String agentIdString) {
+	  	List results = null;
+	    try {
+	    	results = PersistenceService.getInstance().
+	        getAssessmentGradingFacadeQueries().getAllAssessmentGradingByAgentId(publishedAssessmentId, agentIdString);
+	    } catch (Exception e) {
+	      e.printStackTrace();
+	    }
+	    return results;
+  }
+  
+
+  public int getActualNumberRetake(Long publishedAssessmentId, String agentIdString) {
+	  	int actualNumberReatke = 0;
+	    try {
+	    	actualNumberReatke = PersistenceService.getInstance().
+	        getAssessmentGradingFacadeQueries().getActualNumberRetake(publishedAssessmentId, agentIdString);
+	    } catch (Exception e) {
+	      e.printStackTrace();
+	    }
+	    return actualNumberReatke;
+  }
+  
+  public List getStudentGradingSummaryData(Long publishedAssessmentId, String agentIdString) {
+	  List results = null;
+	    try {
+	    	results = PersistenceService.getInstance().
+	        getAssessmentGradingFacadeQueries().getStudentGradingSummaryData(publishedAssessmentId, agentIdString);
+	    } catch (Exception e) {
+	      e.printStackTrace();
+	    }
+	    return results;
+  }
+  
+
+  public int getNumberRetake(Long publishedAssessmentId, String agentIdString) {
+	  int numberRetake = 0;
+	    try {
+	    	numberRetake = PersistenceService.getInstance().
+	        getAssessmentGradingFacadeQueries().getNumberRetake(publishedAssessmentId, agentIdString);
+	    } catch (Exception e) {
+	      e.printStackTrace();
+	    }
+	    return numberRetake;
+  }
+  
+  public void saveStudentGradingSummaryData(StudentGradingSummaryIfc studentGradingSummaryData) {
+	    try {
+	    	PersistenceService.getInstance().getAssessmentGradingFacadeQueries().saveStudentGradingSummaryData(studentGradingSummaryData);
+	    } catch (Exception e) {
+	      e.printStackTrace();
+	    }
+  }
+  
+
+  public int getLateSubmissionsNumberByAgentId(Long publishedAssessmentId, String agentIdString, Date dueDate) {
+	  int numberRetake = 0;
+	    try {
+	    	numberRetake = PersistenceService.getInstance().
+	        getAssessmentGradingFacadeQueries().getLateSubmissionsNumberByAgentId(publishedAssessmentId, agentIdString, dueDate);
+	    } catch (Exception e) {
+	      e.printStackTrace();
+	    }
+	    return numberRetake;
+  }
 }
 
 

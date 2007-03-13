@@ -28,43 +28,33 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
 
-import javax.activation.DataHandler;
-import javax.activation.FileDataSource;
-import javax.faces.context.FacesContext;
 import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.event.ValueChangeListener;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.business.entity.RecordingData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
-import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
+import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -72,17 +62,13 @@ import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
-import org.sakaiproject.tool.assessment.ui.bean.evaluation.SubmissionStatusBean;
-import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.HistogramScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.SubmissionStatusBean;
+import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
-import org.sakaiproject.tool.assessment.util.SamigoEmailAuthenticator;
-import org.sakaiproject.tool.assessment.util.SamigoEmailService;
-import org.sakaiproject.tool.assessment.integration.helper.ifc.AgentHelper;
-import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 
 
 /**
@@ -510,6 +496,14 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
     GradingService delegate = new GradingService();
     ArrayList allscores = bean.getAssessmentGradingList();
     if (allscores == null || allscores.size()==0){
+      PublishedAccessControl ac = (PublishedAccessControl) p.getAssessmentAccessControl();
+      if (ac.getUnlimitedSubmissions()!=null && !ac.getUnlimitedSubmissions().booleanValue()){
+        if (ac.getSubmissionsAllowed().intValue() == 1) {
+        	bean.setAllSubmissions(TotalScoresBean.LAST_SUBMISSION);
+        	((QuestionScoresBean) ContextUtil.lookupBean("questionScores")).setAllSubmissions(TotalScoresBean.LAST_SUBMISSION);
+            ((HistogramScoresBean) ContextUtil.lookupBean("histogramScores")).setAllSubmissions(TotalScoresBean.LAST_SUBMISSION);
+        }
+      }
       allscores = delegate.getTotalScores(p.getPublishedAssessmentId().toString(), bean.getAllSubmissions());
       bean.setAssessmentGradingList(allscores);
     }
@@ -759,6 +753,4 @@ log.debug("testing agent getEid agent.geteid = " + agent.getEidString());
     }
     return publishedItemIdHash;
   }
-
-
 }

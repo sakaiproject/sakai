@@ -23,6 +23,7 @@ package org.sakaiproject.tool.assessment.facade;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -36,6 +37,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.ItemGradingIfc;
+import org.sakaiproject.tool.assessment.data.ifc.grading.StudentGradingSummaryIfc;
 
 public interface AssessmentGradingFacadeQueriesAPI
 {
@@ -172,4 +174,16 @@ public interface AssessmentGradingFacadeQueriesAPI
   public HashSet getItemSet(Long publishedAssessmentId, Long sectionId);
   
   public Long getTypeId(Long itemGradingId);
+  
+  public List getAllAssessmentGradingByAgentId(Long publishedAssessmentId, String agentIdString);
+  
+  public int getActualNumberRetake(Long publishedAssessmentId, String agentIdString);
+	  
+  public List getStudentGradingSummaryData(Long publishedAssessmentId, String agentIdString);
+  
+  public int getNumberRetake(Long publishedAssessmentId, String agentIdString);
+  
+  public void saveStudentGradingSummaryData(StudentGradingSummaryIfc studentGradingSummaryData);
+
+  public int getLateSubmissionsNumberByAgentId(Long publishedAssessmentId, String agentIdString, Date dueDate);
 }

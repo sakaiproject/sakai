@@ -45,6 +45,7 @@ import org.sakaiproject.tool.assessment.facade.AssessmentGradingFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
 //import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
@@ -431,27 +432,37 @@ public class SelectActionListener
     if ( (Boolean.FALSE).equals(f.getUnlimitedSubmissions())){
       maxSubmissionsAllowed = f.getSubmissionsAllowed().intValue();
     }
-    boolean notSubmitted = false;
+    GradingService gradingService = new GradingService();
+    int numberRetake = gradingService.getNumberRetake(f.getPublishedAssessmentId(), AgentFacade.getAgentString());
     int totalSubmitted = 0;
-    if (h.get(f.getPublishedAssessmentId()) == null){
-      notSubmitted = true;
-    }
-    else{
+    
+    //boolean notSubmitted = false;
+    if (h.get(f.getPublishedAssessmentId()) != null){
       totalSubmitted = ( (Integer) h.get(f.getPublishedAssessmentId())).
           intValue();
     }
-
+    
       //2. time to go through all the criteria
     if (retractDate == null || retractDate.after(currentDate)) {
-      if (dueDate == null || dueDate.after(currentDate) ||
-          (dueDate.before(currentDate) && notSubmitted &&
-           acceptLateSubmission)) {
-        if (totalSubmitted < maxSubmissionsAllowed) {
-          if (startDate == null || startDate.before(currentDate))
-            returnValue = true;
-        }
-      }
-    }
+			if (dueDate != null && dueDate.before(currentDate)) {
+				if (acceptLateSubmission) {
+					if (totalSubmitted == 0) {
+						returnValue = true;
+					} else {
+						int actualNumberRetake = gradingService.getActualNumberRetake(f.getPublishedAssessmentId(), AgentFacade.getAgentString());
+						if (actualNumberRetake < numberRetake) {
+							returnValue = true;
+						}
+					}
+				}
+			} 
+			else {
+				if (totalSubmitted < maxSubmissionsAllowed + numberRetake) {
+					returnValue = true;
+				}
+			}
+		}
+    
     return returnValue;
   }
 

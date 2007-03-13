@@ -2495,9 +2495,11 @@ public class DeliveryBean
       return "assessmentHasBeenSubmitted";
     }
 
+    GradingService gradingService = new GradingService();
+    int numberRetake = gradingService.getNumberRetake(publishedAssessment.getPublishedAssessmentId(), AgentFacade.getAgentString());
     log.debug("check 3");
     // check 3: any submission attempt left?
-    if (!getHasSubmissionLeft(totalSubmitted)){
+    if (!getHasSubmissionLeft(totalSubmitted, numberRetake)){
       return "noSubmissionLeft";
     }
 
@@ -2507,12 +2509,18 @@ public class DeliveryBean
         ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling());
 
     log.debug("check 5");
-    // check 5: has dueDate arrived? if so, does it allow late submission?
+    // check 5: has dueDate arrived? if so, does it allow late submission? 
     if (pastDueDate()){
-      if (totalSubmitted == 0 && acceptLateSubmission){
-        // one last chance to submit
-      }
-      else return "noLateSubmission";
+    	if (acceptLateSubmission) {
+    		if (totalSubmitted != 0) {
+    			int actualNumberRetake = gradingService.getActualNumberRetake(publishedAssessment.getPublishedAssessmentId(), AgentFacade.getAgentString());
+    			log.debug("actualNumberRetake =" + actualNumberRetake);
+    			if (actualNumberRetake == numberRetake) {
+    				return "noLateSubmission";
+    			}
+    		}
+    	}
+    	else return "noLateSubmission";
     }
 
     log.debug("check 6");
@@ -2529,15 +2537,13 @@ public class DeliveryBean
     else return "safeToProceed";
   }
 
-  private boolean getHasSubmissionLeft(int totalSubmitted){
+  private boolean getHasSubmissionLeft(int totalSubmitted, int numberRetake){
     boolean hasSubmissionLeft = false;
     int maxSubmissionsAllowed = 9999;
-    PersonBean personBean = (PersonBean) ContextUtil.lookupBean("person");
     if ( (Boolean.FALSE).equals(publishedAssessment.getAssessmentAccessControl().getUnlimitedSubmissions())){
       maxSubmissionsAllowed = publishedAssessment.getAssessmentAccessControl().getSubmissionsAllowed().intValue();
     }
-
-    if (totalSubmitted < maxSubmissionsAllowed){
+    if (totalSubmitted < maxSubmissionsAllowed + numberRetake){
       hasSubmissionLeft = true;
     } 
     return hasSubmissionLeft;

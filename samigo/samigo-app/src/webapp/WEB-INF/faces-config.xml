@@ -254,6 +254,12 @@
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
   <managed-bean>
+    <description>For evaluation: Retake Assessment backing bean.</description>
+    <managed-bean-name>retakeAssessment</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.evaluation.RetakeAssessmentBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
     <description>For misc: Default Login backing bean.</description>
     <managed-bean-name>defaultlogin</managed-bean-name>
     <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.misc.DefaultLoginBean</managed-bean-class>
@@ -791,12 +797,15 @@
       <from-outcome>createNewEmail</from-outcome>
       <to-view-id>/jsf/evaluation/createNewEmail.jsp</to-view-id>
     </navigation-case>
-	<navigation-case>
+	  <navigation-case>
       <from-outcome>confirmEmailSent</from-outcome>
       <to-view-id>/jsf/evaluation/confirmEmailSent.jsp</to-view-id>
     </navigation-case>
-
-	<navigation-case>
+  	<navigation-case>
+      <from-outcome>confirmRetake</from-outcome>
+      <to-view-id>/jsf/evaluation/confirmRetake.jsp</to-view-id>
+    </navigation-case>
+	  <navigation-case>
       <from-outcome>emailError</from-outcome>
       <to-view-id>/jsf/evaluation/emailError.jsp</to-view-id>
     </navigation-case>

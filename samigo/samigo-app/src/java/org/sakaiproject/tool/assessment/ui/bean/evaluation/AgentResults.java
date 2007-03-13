@@ -22,15 +22,14 @@
 
 package org.sakaiproject.tool.assessment.ui.bean.evaluation;
 
-import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
-import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
-import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Set;
-import java.util.ArrayList;
+
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 
 /**
@@ -72,7 +71,8 @@ private Long assessmentGradingId;
   private Set itemGradingSet;
   private ArrayList itemGradingArrayList;
   private String rationale="";
-
+  private boolean retakeAllowed;
+  
   public AgentResults() {
   }
 
@@ -317,4 +317,11 @@ private Long assessmentGradingId;
   public void setRationale(String param) {
     this.rationale= param;
   }
+
+	public boolean getRetakeAllowed() {
+		return this.retakeAllowed;
+	}
+	public void setRetakeAllowed(boolean retakeAllowed) {
+		this.retakeAllowed = retakeAllowed;
+	}
 }
