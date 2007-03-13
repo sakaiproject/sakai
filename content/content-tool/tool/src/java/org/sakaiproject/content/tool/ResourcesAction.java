@@ -22,7 +22,6 @@
 package org.sakaiproject.content.tool;
 
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.NumberFormat;
@@ -32,7 +31,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -57,7 +55,6 @@ import org.sakaiproject.cheftool.PagedResourceHelperAction;
 import org.sakaiproject.cheftool.PortletConfig;
 import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
-import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
@@ -65,9 +62,6 @@ import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
-import org.sakaiproject.content.api.ContentResourceFilter;
-import org.sakaiproject.content.api.FilePickerHelper;
-import org.sakaiproject.content.api.GroupAwareEdit;
 import org.sakaiproject.content.api.GroupAwareEntity;
 import org.sakaiproject.content.api.InteractionAction;
 import org.sakaiproject.content.api.MultiFileUploadPipe;
@@ -80,6 +74,8 @@ import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.api.ResourceToolAction.ActionType;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
+import org.sakaiproject.coursemanagement.api.AcademicSession;
+import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
@@ -104,11 +100,7 @@ import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.metaobj.shared.mgt.HomeFactory;
 import org.sakaiproject.metaobj.shared.mgt.home.StructuredArtifactHomeInterface;
-import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.Term;
-import org.sakaiproject.coursemanagement.api.AcademicSession;
-import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
@@ -119,7 +111,6 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.util.FileItem;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
@@ -136,30 +127,672 @@ import org.w3c.dom.Element;
 public class ResourcesAction 
 	extends PagedResourceHelperAction // VelocityPortletPaneledAction
 {
-	/////////////////////////////////////////////////////////////////////////// Methods, Classes, Statics in ResourceType version of Resources
+	/** Resource bundle using current language locale */
+    private static ResourceLoader rb = new ResourceLoader("content");
+    
+	/** Resource bundle using current language locale */
+    public static ResourceLoader trb = new ResourceLoader("types");
+    
+	static final Log logger = LogFactory.getLog(ResourcesAction.class);
+
+	/**
+	 * Action
+	 *
+	 */
+	public class Action
+	{
+		protected String actionId;
+		protected String label;
+		
+		/**
+		 * @return the actionId
+		 */
+		public String getActionId()
+		{
+			return this.actionId;
+		}
+		
+		/**
+		 * @return the label
+		 */
+		public String getLabel()
+		{
+			return this.label;
+		}
+		
+		/**
+		 * @param actionId the actionId to set
+		 */
+		
+		public void setActionId(String actionId)
+		{
+			this.actionId = actionId;
+		}
+		
+		/**
+		 * @param label the label to set
+		 */
+		public void setLabel(String label)
+		{
+			this.label = label;
+		}
+		
+	}
 	
-	protected static CourseManagementService courseManagementService = (CourseManagementService) ComponentManager.get(CourseManagementService.class);
+	/**
+	 * Inner class encapsulates information about folders (and final item?) in a collection path (a.k.a. breadcrumb)
+	 * This is being phased out as we switch to the resources type registry.
+	 */
+	public static class ChefPathItem
+	{
+		protected boolean m_canRead;
+		protected String m_id;
+		protected boolean m_isFolder;
+		protected boolean m_isLast;
+		protected boolean m_isLocal;
+		protected String m_name;
+		protected String m_root;
+		protected String m_url;
+
+		public ChefPathItem(String id, String name)
+		{
+			m_id = id;
+			m_name = name;
+			m_canRead = false;
+			m_isFolder = false;
+			m_isLast = false;
+			m_url = "";
+			m_isLocal = true;
+		}
+
+		/**
+		 * @return
+		 */
+		public boolean canRead()
+		{
+			return m_canRead;
+		}
+
+		/**
+		 * @return
+		 */
+		public String getId()
+		{
+			return m_id;
+		}
+
+		/**
+		 * @return
+		 */
+		public String getName()
+		{
+			return m_name;
+		}
+
+		/**
+		 * @return
+		 */
+		public String getRoot()
+		{
+			return m_root;
+		}
+
+		/**
+		 * @return
+		 */
+		public String getUrl()
+		{
+			return m_url;
+		}
+
+		/**
+		 * @return
+		 */
+		public boolean isFolder()
+		{
+			return m_isFolder;
+		}
+
+		/**
+		 * @return
+		 */
+		public boolean isLast()
+		{
+			return m_isLast;
+		}
+
+		public boolean isLocal()
+		{
+			return m_isLocal;
+		}
+
+		/**
+		 * @param canRead
+		 */
+		public void setCanRead(boolean canRead)
+		{
+			m_canRead = canRead;
+		}
+
+		/**
+		 * @param id
+		 */
+		public void setId(String id)
+		{
+			m_id = id;
+		}
+
+		/**
+		 * @param isFolder
+		 */
+		public void setIsFolder(boolean isFolder)
+		{
+			m_isFolder = isFolder;
+		}
+
+		public void setIsLocal(boolean isLocal)
+		{
+			m_isLocal = isLocal;
+		}
+
+		/**
+		 * @param isLast
+		 */
+		public void setLast(boolean isLast)
+		{
+			m_isLast = isLast;
+		}
+
+		/**
+		 * @param name
+		 */
+		public void setName(String name)
+		{
+			m_name = name;
+		}
+
+		/**
+		 * @param root
+		 */
+		public void setRoot(String root)
+		{
+			m_root = root;
+		}
+
+		/**
+		 * @param url
+		 */
+		public void setUrl(String url)
+		{
+			m_url = url;
+		}
+
+	}	// inner class ChefPathItem
 	
 	public enum ContentPermissions
 	{
-		READ, CREATE, REVISE, DELETE, SITE_UPDATE
+		CREATE, DELETE, READ, REVISE, SITE_UPDATE
+	}
+	public static class ElementCarrier
+	{
+		protected Element element;
+		protected String parent;
+
+		public ElementCarrier(Element element, String parent)
+		{
+			this.element = element;
+			this.parent = parent;
+
+		}
+
+		public Element getElement()
+		{
+			return element;
+		}
+
+		public String getParent()
+		{
+			return parent;
+		}
+
+		public void setElement(Element element)
+		{
+			this.element = element;
+		}
+
+		public void setParent(String parent)
+		{
+			this.parent = parent;
+		}
+
+	}
+	/**
+	 *
+	 * inner class encapsulates information about groups of metadata tags (such as DC, LOM, etc.)
+	 *
+	 */
+	public static class MetadataGroup
+		extends Vector
+	{
+		/**
+		 *
+		 */
+		private static final long serialVersionUID = -821054142728929236L;
+		protected boolean m_isShowing;
+		protected String m_name;
+
+		/**
+		 * @param name
+		 */
+		public MetadataGroup(String name)
+		{
+			super();
+			m_name = name;
+			m_isShowing = false;
+		}
+
+		/* (non-Javadoc)
+		 * @see java.lang.Object#equals(java.lang.Object)
+		 * needed to determine List.contains()
+		 */
+		public boolean equals(Object obj)
+		{
+			MetadataGroup mg = (MetadataGroup) obj;
+			boolean rv = (obj != null) && (m_name.equals(mg));
+			return rv;
+		}
+
+		/**
+		 * @return
+		 */
+		public String getName()
+		{
+			return m_name;
+		}
+
+
+		/**
+		 * @return
+		 */
+		public boolean isShowing()
+		{
+			return m_isShowing;
+		}
+
+		/**
+		 * @param name
+		 */
+		public void setName(String name)
+		{
+			m_name = name;
+		}
+
+		/**
+		 * @param isShowing
+		 */
+		public void setShowing(boolean isShowing)
+		{
+			m_isShowing = isShowing;
+		}
+
 	}
 	
+	public static final List<ActionType> ACTIONS_ON_FOLDERS = new Vector<ActionType>();
+	public static final List<ActionType> ACTIONS_ON_MULTIPLE_ITEMS = new Vector<ActionType>();
+	public static final List<ActionType> ACTIONS_ON_RESOURCES = new Vector<ActionType>();
+	public static final List<ActionType> CONTENT_DELETE_ACTIONS = new Vector<ActionType>();
+	public static final List<ActionType> CONTENT_MODIFY_ACTIONS = new Vector<ActionType>();
+	
 	public static final List<ActionType> CONTENT_NEW_ACTIONS = new Vector<ActionType>();
-	public static final List<ActionType> PASTE_COPIED_ACTIONS = new Vector<ActionType>();
-	public static final List<ActionType> PASTE_MOVED_ACTIONS = new Vector<ActionType>();
 	public static final List<ActionType> CONTENT_NEW_FOR_PARENT_ACTIONS = new Vector<ActionType>();
 	public static final List<ActionType> CONTENT_READ_ACTIONS = new Vector<ActionType>();
-	public static final List<ActionType> CONTENT_MODIFY_ACTIONS = new Vector<ActionType>();
-	public static final List<ActionType> CONTENT_DELETE_ACTIONS = new Vector<ActionType>();
+	
+	
+	/** copyright path -- MUST have same value as AccessServlet.COPYRIGHT_PATH */
+	public static final String COPYRIGHT_PATH = Entity.SEPARATOR + "copyright";
+
+	private static final String COPYRIGHT_ALERT_URL = ServerConfigurationService.getAccessUrl() + COPYRIGHT_PATH;
+	
+	private static final String COPYRIGHT_FAIRUSE_URL = "copyright_fairuse_url";
+	
+	//private static final String COPYRIGHT_SELF_COPYRIGHT = rb.getString("cpright2");
+	private static final String COPYRIGHT_NEW_COPYRIGHT = rb.getString("cpright3");
+	
+	/** copyright related info */
+	private static final String COPYRIGHT_TYPES = "copyright_types";
+    
+	private static final int CREATE_MAX_ITEMS = 10;
+
+	public static final List<ActionType> CREATION_ACTIONS = new Vector<ActionType>();
+
+	private static final String DEFAULT_COPYRIGHT = "default_copyright";
+
+	private static final String DEFAULT_COPYRIGHT_ALERT = "default_copyright_alert";
+	
+	/** The default number of site collections per page. */
+	protected static final int DEFAULT_PAGE_SIZE = 50;
+
+	private static final String DELIM = "@";
+
+	/** The default number of members for a collection at which this tool should refuse to expand the collection. Used only if value can't be read from config service. */
+	protected static final int EXPANDABLE_FOLDER_SIZE_LIMIT = 256;
+
+	private static final String LIST_COLUMNS = "columns";
+
+	private static final String LIST_HIERARCHY = "hierarchy";
+
+	public static final int MAXIMUM_ATTEMPTS_FOR_UNIQUENESS = 100;
+
+	/** The maximum number of suspended operations that can be on the stack. */
+	private static final int MAXIMUM_SUSPENDED_OPERATIONS_STACK_DEPTH = 10;
+
+	public static final String MIME_TYPE_DOCUMENT_HTML = "text/html";
+	
+	public static final String MIME_TYPE_DOCUMENT_PLAINTEXT = "text/plain";
+
+	public static final String MIME_TYPE_STRUCTOBJ = "application/x-osp";
+
+	public static final String MODE_ATTACHMENT_CONFIRM = "resources.attachment_confirm";
+
+	public static final String MODE_ATTACHMENT_CONFIRM_INIT = "resources.attachment_confirm_initialized";
+
+	public static final String MODE_ATTACHMENT_CREATE = "resources.attachment_create";
+
+	public static final String MODE_ATTACHMENT_CREATE_INIT = "resources.attachment_create_initialized";
+
+	public static final String MODE_ATTACHMENT_DONE = "resources.attachment_done";
+
+	public static final String MODE_ATTACHMENT_EDIT_ITEM = "resources.attachment_edit_item";
+
+	public static final String MODE_ATTACHMENT_EDIT_ITEM_INIT = "resources.attachment_edit_item_initialized";
+
+	public static final String MODE_ATTACHMENT_NEW_ITEM = "resources.attachment_new_item";
+
+	public static final String MODE_ATTACHMENT_NEW_ITEM_INIT = "resources.attachment_new_item_initialized";
+
+	/** modes for attachment helper */
+	public static final String MODE_ATTACHMENT_SELECT = "resources.attachment_select";
+
+	public static final String MODE_ATTACHMENT_SELECT_INIT = "resources.attachment_select_initialized";
+
+	//private static final String MODE_CREATE = "create";
+	private static final String MODE_CREATE_WIZARD = "createWizard";
+
+	/************** the more context *****************************************/
+
+	private static final String MODE_DAV = "webdav";
+
+	private static final String MODE_DELETE_CONFIRM = "deleteConfirm";
+
+	/************** the edit context *****************************************/
+
+	private static final String MODE_DELETE_FINISH = "deleteFinish";
+	public  static final String MODE_HELPER = "helper";
+	/** Modes. */
+	private static final String MODE_LIST = "list";
+
+	private static final String MODE_MORE = "more";
+	private static final String MODE_PROPERTIES = "properties";
+	private static final String MODE_REORDER = "reorder";
+
+	static final String MODE_REVISE_METADATA = "revise_metadata";
+
+	private static final String NEW_COPYRIGHT_INPUT = "new_copyright_input";
+	/** The null/empty string */
+	private static final String NULL_STRING = "";
+
+/** A long representing the number of milliseconds in one week.  Used for date calculations */
+	protected static final long ONE_WEEK = 1000L * 60L * 60L * 24L * 7L;
+	protected static final String PARAM_PAGESIZE = "collections_per_page";
+	public static final List<ActionType> PASTE_COPIED_ACTIONS = new Vector<ActionType>();
+	public static final List<ActionType> PASTE_MOVED_ACTIONS = new Vector<ActionType>();
+
+	public static final String PREFIX = "resources.";
+	/** string used to represent "public" access mode in UI elements */
+	protected static final String PUBLIC_ACCESS = "public";
+	public static final String RESOURCES_MODE_DROPBOX = "dropbox";
+	public static final String RESOURCES_MODE_HELPER = "helper";
+
+	/** portlet configuration parameter values**/
+	public static final String RESOURCES_MODE_RESOURCES = "resources";
+	/** The default value for whether to show all sites in dropbox (used if global value can't be read from server config service) */
+	private static final boolean SHOW_ALL_SITES_IN_DROPBOX = false;
+	/** The default value for whether to show all sites in file-picker (used if global value can't be read from server config service) */
+	public static final boolean SHOW_ALL_SITES_IN_FILE_PICKER = false;
+	/** The default value for whether to show all sites in resources tool (used if global value can't be read from server config service) */
+	private static final boolean SHOW_ALL_SITES_IN_RESOURCES = false;
 	public static final List<ActionType> SITE_UPDATE_ACTIONS = new Vector<ActionType>();
 	
-	public static final List<ActionType> CREATION_ACTIONS = new Vector<ActionType>();
-	public static final List<ActionType> ACTIONS_ON_FOLDERS = new Vector<ActionType>();
-	public static final List<ActionType> ACTIONS_ON_RESOURCES = new Vector<ActionType>();
-	public static final List<ActionType> ACTIONS_ON_MULTIPLE_ITEMS = new Vector<ActionType>();
+	
+	/** The collection id being browsed. */
+	private static final String STATE_COLLECTION_ID = PREFIX + "collection_id";
+	/** The collection id path */
+	private static final String STATE_COLLECTION_PATH = PREFIX + "collection_path";
+	/** The name of the state attribute containing BrowseItems for all content collections the user has access to */
+	private static final String STATE_COLLECTION_ROOTS = PREFIX + "collection_rootie_tooties";
+
+	/************** the columns context *****************************************/
+
+	public static final String STATE_COLUMN_ITEM_ID = PREFIX + "state_column_item_id";
+	/** The content hosting service in the State. */
+	private static final String STATE_CONTENT_SERVICE = PREFIX + "content_service";
+	/** The content type image lookup service in the State. */
+	private static final String STATE_CONTENT_TYPE_IMAGE_SERVICE = PREFIX + "content_type_image_service";
+	/** The copied item ids */
+	private static final String STATE_COPIED_IDS = PREFIX + "revise_copied_ids";
+	/** The copy flag */
+	private static final String STATE_COPY_FLAG = PREFIX + "copy_flag";
+
+	//	public static final String STATE_CREATE_TYPE = PREFIX + "create_type";
+	public static final String STATE_CREATE_COLLECTION_ID = PREFIX + "create_collection_id";
+
+	protected static final String STATE_CREATE_MESSAGE = PREFIX + "create_message";
+
+	public static final String STATE_CREATE_NUMBER = PREFIX + "create_number";
+
+	protected static final String STATE_CREATE_WIZARD_ACTION = PREFIX + "create_wizard_action";
+
+	protected static final String STATE_CREATE_WIZARD_COLLECTION_ID = PREFIX + "create_wizard_collection_id";
+
+	protected static final String STATE_CREATE_WIZARD_ITEM = PREFIX + "create_wizard_item";
+
+//
+//	/** The name of the state attribute containing the name of the tool that invoked Resources as attachment helper */
+//	public static final String STATE_ATTACH_TOOL_NAME = PREFIX + "attach_tool_name";
+
+	/************** the helper context (file-picker) *****************************************/
+
+	/** The cut flag */
+	private static final String STATE_CUT_FLAG = PREFIX + "cut_flag";
+	
+	/** The cut item ids */
+	private static final String STATE_CUT_IDS = PREFIX + "revise_cut_ids";
 
 	
+	
+	/************** the delete context *****************************************/
+
+	/** name of state attribute for the default retract time */
+	protected static final String STATE_DEFAULT_RETRACT_TIME = PREFIX + "default_retract_time";
+
+	/** The name of the state attribute containing a list of ListItem objects corresponding to resources selected for deletion */
+	private static final String STATE_DELETE_ITEMS = PREFIX + "delete_items";
+
+	/** The name of the state attribute containing a list of ListItem objects corresponding to nonempty folders selected for deletion */
+	private static final String STATE_DELETE_ITEMS_NOT_EMPTY = PREFIX + "delete_items_not_empty";
+
+	/************** the copied items context *****************************************/
+
+	protected static final String STATE_DELETE_SET = PREFIX + "delete_set";
+
+	/************** the moved items context *****************************************/
+
+	public static final String STATE_EDIT_COLLECTION_ID = PREFIX + "stack_edit_collection_id";
+	
+	/** The edit id */
+	public static final String STATE_EDIT_ID = PREFIX + "edit_id";
+
+	/** The name of the state attribute indicating whether the hierarchical list is expanded */
+	private static final String STATE_EXPAND_ALL_FLAG = PREFIX + "expand_all_flag";
+
+	/** Name of state attribute indicating number of members for a collection at which this tool should refuse to expand the collection. */
+	private static final String STATE_EXPANDABLE_FOLDER_SIZE_LIMIT = PREFIX + "expandable_folder_size_limit";
+	/** Name of state attribute containing a list of opened/expanded collections */
+	private static final String STATE_EXPANDED_COLLECTIONS = PREFIX + "expanded_collections";
+	protected static final String STATE_EXPANDED_FOLDER_SORT_MAP = PREFIX + "expanded_folder_sort_map";
+	/** state attribute for the maximum size for file upload */
+	static final String STATE_FILE_UPLOAD_MAX_SIZE = PREFIX + "file_upload_max_size";
+	/** The from state name */
+	private static final String STATE_FROM = PREFIX + "from";
+	/** State attribute for where there is at least one attachment before invoking attachment tool */
+	public static final String STATE_HAS_ATTACHMENT_BEFORE = PREFIX + "has_attachment_before";
+
+	/**
+	 *  the name of the state attribute indicating that the user canceled out of the helper.  Is set only if the user canceled out of the helper. 
+	 */
+	public static final String STATE_HELPER_CANCELED_BY_USER = PREFIX + "state_attach_canceled_by_user";
+	protected static final String STATE_HIGHLIGHTED_ITEMS = PREFIX + "highlighted_items";
+	/** The display name of the "home" collection (can't go up from here.) */
+	private static final String STATE_HOME_COLLECTION_DISPLAY_NAME = PREFIX + "collection_home_display_name";
+
+	/** The id of the "home" collection (can't go up from here.) */
+	private static final String STATE_HOME_COLLECTION_ID = PREFIX + "collection_home";
+	/** Name of state attribute for status of initialization.  */
+	private static final String STATE_INITIALIZED = PREFIX + "initialized";
+	protected static final String STATE_ITEMS_TO_BE_COPIED = PREFIX + "items_to_be_copied";
+
+	protected static final String STATE_ITEMS_TO_BE_MOVED = PREFIX + "items_to_be_moved";
+	private static final String STATE_LIST_PREFERENCE = PREFIX + "state_list_preference";
+	/** The name of the state attribute containing a java.util.Set with the id's of selected items */
+	private static final String STATE_LIST_SELECTIONS = PREFIX + "ignore_delete_selections";
+	/************************** Comparators **************************/
+	
+	protected static final String STATE_LIST_VIEW_SORT = PREFIX + "list_view_sort";
+	/************** the metadata extension of edit/create contexts *****************************************/
+
+	private static final String STATE_METADATA_GROUPS = PREFIX + "metadata.types";
+	/** The resources, helper or dropbox mode. */
+	public static final String STATE_MODE_RESOURCES = PREFIX + "resources_mode";
+	/** The more collection id */
+	private static final String STATE_MORE_COLLECTION_ID = PREFIX + "more_collection_id";
+	/** The more id */
+	private static final String STATE_MORE_ID = PREFIX + "more_id";
+	/** The move flag */
+	private static final String STATE_MOVE_FLAG = PREFIX + "move_flag";
+	/** The copied item ids */
+	private static final String STATE_MOVED_IDS = PREFIX + "revise_moved_ids";
+	/** The user copyright string */
+	private static final String	STATE_MY_COPYRIGHT = PREFIX + "mycopyright";
+
+	/** The root of the navigation breadcrumbs for a folder, either the home or another site the user belongs to */
+	private static final String STATE_NAVIGATION_ROOT = PREFIX + "navigation_root";
+
+	/** The name of the state attribute indicating whether the hierarchical list needs to be expanded */
+	private static final String STATE_NEED_TO_EXPAND_ALL = PREFIX + "need_to_expand_all";
+	protected static final String STATE_NON_EMPTY_DELETE_SET = PREFIX + "non-empty_delete_set";
+	/** The can-paste flag */
+	private static final String STATE_PASTE_ALLOWED_FLAG = PREFIX + "can_paste_flag";
+	/** state attribute indicating whether users in current site should be denied option of making resources public */
+	private static final String STATE_PREVENT_PUBLIC_DISPLAY = PREFIX + "prevent_public_display";
+
+	protected static final String STATE_REMOVED_ATTACHMENTS = PREFIX + "removed_attachments";
+	/************** the reorder context *****************************************/
+
+	protected static final String STATE_REORDER_FOLDER = PREFIX + "reorder_folder_id";
+	protected static final String STATE_REORDER_SORT = PREFIX + "reorder_sort";
+
+	/** The sort ascending or decending for the reorder context */
+	protected static final String STATE_REORDER_SORT_ASC = PREFIX + "sort_asc";
+
+	/** The property (column) to sort by in the reorder context */
+	protected static final String STATE_REORDER_SORT_BY = PREFIX + "reorder_sort_by";
+	/** The resources, helper or dropbox mode. */
+	public static final String STATE_RESOURCES_HELPER_MODE = PREFIX + "resources_helper_mode";
+	private static final String STATE_RESOURCES_TYPE_REGISTRY = PREFIX + "type_registry";
+	protected static final String STATE_REVISE_PROPERTIES_ACTION = PREFIX + "revise_properties_action";
+	protected static final String STATE_REVISE_PROPERTIES_ENTITY_ID = PREFIX + "revise_properties_entity_id";
+	protected static final String STATE_REVISE_PROPERTIES_ITEM = PREFIX + "revise_properties_item";
+	/** The select all flag */
+	private static final String STATE_SELECT_ALL_FLAG = PREFIX + "select_all_flag";
+	/** The name of a state attribute indicating whether the resources tool/helper is allowed to show all sites the user has access to */
+	public static final String STATE_SHOW_ALL_SITES = PREFIX + "allow_user_to_see_all_sites";
+	protected static final String STATE_SHOW_COPY_ACTION = PREFIX + "show_copy_action";
+	
+	private static final String STATE_SHOW_FORM_ITEMS = PREFIX + "show_form_items";
+
+	protected static final String STATE_SHOW_MOVE_ACTION = PREFIX + "show_move_action";
+
+	/** The name of a state attribute indicating whether the wants to see other sites if that is enabled */
+	public static final String STATE_SHOW_OTHER_SITES = PREFIX + "user_chooses_to_see_other_sites";
+
+	protected static final String STATE_SHOW_REMOVE_ACTION = PREFIX + "show_remove_action";
+
+	/** the site title */
+	private static final String STATE_SITE_TITLE = PREFIX + "site_title";
+
+	/** The sort ascending or decending */
+	private static final String STATE_SORT_ASC = PREFIX + "sort_asc";
+
+	/** The sort by */
+	private static final String STATE_SORT_BY = PREFIX + "sort_by";
+
+	public static final String STATE_STACK_CREATE_COLLECTION_ID = PREFIX + "stack_create_collection_id";
+
+	public static final String STATE_STACK_CREATE_NUMBER = PREFIX + "stack_create_number";
+
+	public static final String STATE_STACK_CREATE_TYPE = PREFIX + "stack_create_type";
+
+	public static final String STATE_STACK_EDIT_COLLECTION_ID = PREFIX + "stack_edit_collection_id";
+
+	public static final String STATE_STACK_EDIT_ID = PREFIX + "stack_edit_id";
+
+	public static final String STATE_STACK_STRUCTOBJ_TYPE = PREFIX + "stack_create_structured_object_type";
+
+	public static final String STATE_SUSPENDED_OPERATIONS_STACK = PREFIX + "suspended_operations_stack";
+
+	public static final String STATE_SUSPENDED_OPERATIONS_STACK_DEPTH = PREFIX + "suspended_operations_stack_depth";
+
+	protected static final String STATE_TOP_MESSAGE_INDEX = PREFIX + "top_message_index";
+
+	/** state attribute indicating whether we're using the Creative Commons dialog instead of the "old" copyright dialog */
+	protected static final String STATE_USING_CREATIVE_COMMONS = PREFIX + "usingCreativeCommons";
+
+	/** vm files for each mode. */
+	//private static final String TEMPLATE_LIST = "content/chef_resources_list";
+	//private static final String TEMPLATE_EDIT = "content/chef_resources_edit";
+	//private static final String TEMPLATE_CREATE = "content/chef_resources_create";
+	private static final String TEMPLATE_DAV = "content/chef_resources_webdav";
+	//private static final String TEMPLATE_ITEMTYPE = "content/chef_resources_itemtype";
+	//private static final String TEMPLATE_SELECT = "content/chef_resources_select";
+	//private static final String TEMPLATE_ATTACH = "content/chef_resources_attach";
+
+	private static final String TEMPLATE_DELETE_CONFIRM = "content/chef_resources_deleteConfirm";
+
+	private static final String TEMPLATE_DELETE_FINISH = "content/sakai_resources_deleteFinish";
+
+	private static final String TEMPLATE_MORE = "content/chef_resources_more";
+
+	private static final String TEMPLATE_NEW_LIST = "content/sakai_resources_list";
+
+	private static final String TEMPLATE_PROPERTIES = "content/chef_resources_properties";
+
+	// private static final String TEMPLATE_REPLACE = "_replace";
+	private static final String TEMPLATE_REORDER = "content/chef_resources_reorder";
+
+	private static final String TEMPLATE_REVISE_METADATA = "content/sakai_resources_properties";
+
+	public static final String TYPE_FOLDER = "folder";
+
+	public static final String TYPE_FORM = MIME_TYPE_STRUCTOBJ;
+	public static final String TYPE_HTML = MIME_TYPE_DOCUMENT_HTML;
+	public static final String TYPE_TEXT = MIME_TYPE_DOCUMENT_PLAINTEXT;
+	
+	public static final String TYPE_UPLOAD = "file";
+	public static final String TYPE_URL = "Url";
+
+
+	public static final String UTF_8_ENCODING = "UTF-8";
+
 	// may need to distinguish permission on entity vs permission on its containing collection
 	static
 	{
@@ -216,731 +849,492 @@ public class ResourcesAction
 		CREATION_ACTIONS.add(ActionType.PASTE_MOVED);
 		CREATION_ACTIONS.add(ActionType.PASTE_COPIED);
 	}
-	
+
 	/**
-	 * @param context
-	 * @return
+	 * Add additional resource pattern to the observer
+	 *@param pattern The pattern value to be added
+	 *@param state The state object
 	 */
-	protected static Collection<ContentPermissions> getPermissions(String id)
+	private static void addObservingPattern(String pattern, SessionState state)
 	{
-		Collection<ContentPermissions> permissions = new Vector<ContentPermissions>();
-		if(ContentHostingService.isCollection(id))
+//		// get the observer and add the pattern
+//		ContentObservingCourier o = (ContentObservingCourier) state.getAttribute(STATE_OBSERVER);
+//		o.addResourcePattern(ContentHostingService.getReference(pattern));
+//
+//		// add it back to state
+//		state.setAttribute(STATE_OBSERVER, o);
+
+	}	// addObservingPattern
+
+	/**
+	* Build the context to show the list of resource properties
+	*/
+	public static String buildMoreContext (	VelocityPortlet portlet,
+									Context context,
+									RunData data,
+									SessionState state)
+	{
+		context.put("tlang",rb);
+		// find the ContentTypeImage service
+		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
+		// find the ContentHosting service
+		org.sakaiproject.content.api.ContentHostingService service = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
+		context.put ("service", service);
+
+		Map current_stack_frame = peekAtStack(state);
+
+		String id = (String) current_stack_frame.get(STATE_MORE_ID);
+		context.put ("id", id);
+		String collectionId = (String) current_stack_frame.get(STATE_MORE_COLLECTION_ID);
+		context.put ("collectionId", collectionId);
+		String homeCollectionId = (String) (String) state.getAttribute (STATE_HOME_COLLECTION_ID);
+		context.put("homeCollectionId", homeCollectionId);
+		List cPath = getCollectionPath(state);
+		context.put ("collectionPath", cPath);
+		String navRoot = (String) state.getAttribute(STATE_NAVIGATION_ROOT);
+		context.put("navRoot", navRoot);
+		
+		ResourcesEditItem item = getEditItem(id, collectionId, data);
+		context.put("item", item);
+
+		// for the resources of type URL or plain text, show the content also
+		try
 		{
-			if(ContentHostingService.allowAddCollection(id))
+			ResourceProperties properties = service.getProperties (id);
+			context.put ("properties", properties);
+
+			String isCollection = properties.getProperty (ResourceProperties.PROP_IS_COLLECTION);
+			if ((isCollection != null) && isCollection.equals (Boolean.FALSE.toString()))
 			{
-				permissions.add(ContentPermissions.CREATE);
-			}
-			if(ContentHostingService.allowRemoveCollection(id))
+				String copyrightAlert = properties.getProperty(properties.getNamePropCopyrightAlert());
+				context.put("hasCopyrightAlert", copyrightAlert);
+
+				String type = properties.getProperty (ResourceProperties.PROP_CONTENT_TYPE);
+				if (type.equalsIgnoreCase (MIME_TYPE_DOCUMENT_PLAINTEXT) || type.equalsIgnoreCase (MIME_TYPE_DOCUMENT_HTML) || type.equalsIgnoreCase (ResourceProperties.TYPE_URL))
+				{
+					ContentResource moreResource = service.getResource (id);
+					// read the body
+					String body = "";
+					byte[] content = null;
+					try
+					{
+						content = moreResource.getContent();
+						if (content != null)
+						{
+							body = new String(content);
+						}
+					}
+					catch(ServerOverloadException e)
+					{
+						// this represents server's file system is temporarily unavailable
+						// report problem to user? log problem?
+					}
+					context.put ("content", body);
+				}	// if
+			}	// if
+
+			else
 			{
-				permissions.add(ContentPermissions.DELETE);
+				// setup for quota - ADMIN only, collection only
+				if (SecurityService.isSuperUser())
+				{
+					try
+					{
+						// Getting the quota as a long validates the property
+						long quota = properties.getLongProperty(ResourceProperties.PROP_COLLECTION_BODY_QUOTA);
+						context.put("hasQuota", Boolean.TRUE);
+						context.put("quota", properties.getProperty(ResourceProperties.PROP_COLLECTION_BODY_QUOTA));
+					}
+					catch (Exception any) {}
+				}
 			}
-			if(ContentHostingService.allowGetCollection(id))
-			{
-				permissions.add(ContentPermissions.READ);
-			}
-			if(ContentHostingService.allowUpdateCollection(id))
-			{
-				permissions.add(ContentPermissions.REVISE);
-			}
-			if(SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()))
-			{
-				permissions.add(ContentPermissions.SITE_UPDATE);
-			}
+		}
+		catch (IdUnusedException e)
+		{
+			addAlert(state,rb.getString("notexist1"));
+			context.put("notExistFlag", new Boolean(true));
+		}
+		catch (TypeException e)
+		{
+			addAlert(state, rb.getString("typeex") + " ");
+		}
+		catch (PermissionException e)
+		{
+			addAlert(state," " + rb.getString("notpermis2") + " " + id + ". ");
+		}	// try-catch
+
+		if (state.getAttribute(STATE_MESSAGE) == null)
+		{
+			context.put("notExistFlag", new Boolean(false));
+		}
+		
+		if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
+		{
+			// notshow the public option or notification when in dropbox mode
+			context.put("dropboxMode", Boolean.TRUE);
 		}
 		else
 		{
-			if(ContentHostingService.allowAddResource(id))
+			context.put("dropboxMode", Boolean.FALSE);
+			
+			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+			if(preventPublicDisplay == null)
 			{
-				permissions.add(ContentPermissions.CREATE);
+				preventPublicDisplay = Boolean.FALSE;
+				state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
 			}
-			if(ContentHostingService.allowRemoveResource(id))
+			context.put("preventPublicDisplay", preventPublicDisplay);
+			if(preventPublicDisplay.equals(Boolean.FALSE))
 			{
-				permissions.add(ContentPermissions.DELETE);
+				// find out about pubview
+				boolean pubview = ContentHostingService.isInheritingPubView(id);
+				if (!pubview) pubview = ContentHostingService.isPubView(id);
+				context.put("pubview", new Boolean(pubview));
 			}
-			if(ContentHostingService.allowGetResource(id))
-			{
-				permissions.add(ContentPermissions.READ);
-			}
-			if(ContentHostingService.allowUpdateResource(id))
-			{
-				permissions.add(ContentPermissions.REVISE);
-			}
-			if(SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()))
-			{
-				permissions.add(ContentPermissions.SITE_UPDATE);
-			}
+
 		}
 		
-		return permissions;
-	}
-	
-	/**
-	 * Action
-	 *
-	 */
-	public class Action
-	{
-		protected String label;
-		protected String actionId;
-		
-		/**
-		 * @return the actionId
-		 */
-		public String getActionId()
+		context.put("siteTitle", state.getAttribute(STATE_SITE_TITLE));
+
+		if (state.getAttribute(COPYRIGHT_TYPES) != null)
 		{
-			return this.actionId;
+			List copyrightTypes = (List) state.getAttribute(COPYRIGHT_TYPES);
+			context.put("copyrightTypes", copyrightTypes);
 		}
-		
-		/**
-		 * @param actionId the actionId to set
-		 */
-		
-		public void setActionId(String actionId)
-		{
-			this.actionId = actionId;
-		}
-		
-		/**
-		 * @return the label
-		 */
-		public String getLabel()
-		{
-			return this.label;
-		}
-		
-		/**
-		 * @param label the label to set
-		 */
-		public void setLabel(String label)
-		{
-			this.label = label;
-		}
-		
-	}
-	
-	/** Resource bundle using current language locale */
-    private static ResourceLoader rb = new ResourceLoader("content");
 
-	/** Resource bundle using current language locale */
-    public static ResourceLoader trb = new ResourceLoader("types");
+		metadataGroupsIntoContext(state, context);
 
-    static final Log logger = LogFactory.getLog(ResourcesAction.class);
-    
-    public static final String PREFIX = "resources.";
+		// String template = (String) getContext(data).get("template");
+		return TEMPLATE_MORE;
 
-	/** Name of state attribute containing a list of opened/expanded collections */
-	private static final String STATE_EXPANDED_COLLECTIONS = PREFIX + "expanded_collections";
+	}	// buildMoreContext
 
-	/** Name of state attribute for status of initialization.  */
-	private static final String STATE_INITIALIZED = PREFIX + "initialized";
-
-	/** The content hosting service in the State. */
-	private static final String STATE_CONTENT_SERVICE = PREFIX + "content_service";
-
-	/** The content type image lookup service in the State. */
-	private static final String STATE_CONTENT_TYPE_IMAGE_SERVICE = PREFIX + "content_type_image_service";
-	
-	private static final String STATE_RESOURCES_TYPE_REGISTRY = PREFIX + "type_registry";
-
-	/** The resources, helper or dropbox mode. */
-	public static final String STATE_MODE_RESOURCES = PREFIX + "resources_mode";
-
-	/** The resources, helper or dropbox mode. */
-	public static final String STATE_RESOURCES_HELPER_MODE = PREFIX + "resources_helper_mode";
-
-	/** state attribute for the maximum size for file upload */
-	static final String STATE_FILE_UPLOAD_MAX_SIZE = PREFIX + "file_upload_max_size";
-	
-	/** state attribute indicating whether users in current site should be denied option of making resources public */
-	private static final String STATE_PREVENT_PUBLIC_DISPLAY = PREFIX + "prevent_public_display";
-
-	/** The name of a state attribute indicating whether the resources tool/helper is allowed to show all sites the user has access to */
-	public static final String STATE_SHOW_ALL_SITES = PREFIX + "allow_user_to_see_all_sites";
-
-	/** The name of a state attribute indicating whether the wants to see other sites if that is enabled */
-	public static final String STATE_SHOW_OTHER_SITES = PREFIX + "user_chooses_to_see_other_sites";
-
-	/** The user copyright string */
-	private static final String	STATE_MY_COPYRIGHT = PREFIX + "mycopyright";
-
-	/** copyright path -- MUST have same value as AccessServlet.COPYRIGHT_PATH */
-	public static final String COPYRIGHT_PATH = Entity.SEPARATOR + "copyright";
-
-	/** The collection id being browsed. */
-	private static final String STATE_COLLECTION_ID = PREFIX + "collection_id";
-
-	/** The id of the "home" collection (can't go up from here.) */
-	private static final String STATE_HOME_COLLECTION_ID = PREFIX + "collection_home";
-
-	/** The display name of the "home" collection (can't go up from here.) */
-	private static final String STATE_HOME_COLLECTION_DISPLAY_NAME = PREFIX + "collection_home_display_name";
-	
-	/** name of state attribute for the default retract time */
-	protected static final String STATE_DEFAULT_RETRACT_TIME = PREFIX + "default_retract_time";
-
-	/** The collection id path */
-	private static final String STATE_COLLECTION_PATH = PREFIX + "collection_path";
-
-	/** The name of the state attribute containing BrowseItems for all content collections the user has access to */
-	private static final String STATE_COLLECTION_ROOTS = PREFIX + "collection_rootie_tooties";
-
-	/** The sort by */
-	private static final String STATE_SORT_BY = PREFIX + "sort_by";
-
-	/** The sort ascending or decending */
-	private static final String STATE_SORT_ASC = PREFIX + "sort_asc";
-
-	/** The copy flag */
-	private static final String STATE_COPY_FLAG = PREFIX + "copy_flag";
-
-	/** The cut flag */
-	private static final String STATE_CUT_FLAG = PREFIX + "cut_flag";
-
-	/** The can-paste flag */
-	private static final String STATE_PASTE_ALLOWED_FLAG = PREFIX + "can_paste_flag";
-
-	/** The move flag */
-	private static final String STATE_MOVE_FLAG = PREFIX + "move_flag";
-
-	/** The select all flag */
-	private static final String STATE_SELECT_ALL_FLAG = PREFIX + "select_all_flag";
-
-	/** The name of the state attribute indicating whether the hierarchical list is expanded */
-	private static final String STATE_EXPAND_ALL_FLAG = PREFIX + "expand_all_flag";
-
-	/** The name of the state attribute indicating whether the hierarchical list needs to be expanded */
-	private static final String STATE_NEED_TO_EXPAND_ALL = PREFIX + "need_to_expand_all";
-
-	/** The name of the state attribute containing a java.util.Set with the id's of selected items */
-	private static final String STATE_LIST_SELECTIONS = PREFIX + "ignore_delete_selections";
-
-	/** The root of the navigation breadcrumbs for a folder, either the home or another site the user belongs to */
-	private static final String STATE_NAVIGATION_ROOT = PREFIX + "navigation_root";
-
-	/************** the more context *****************************************/
-
-	/** The more id */
-	private static final String STATE_MORE_ID = PREFIX + "more_id";
-
-	/** The more collection id */
-	private static final String STATE_MORE_COLLECTION_ID = PREFIX + "more_collection_id";
-
-	/************** the edit context *****************************************/
-
-	/** The edit id */
-	public static final String STATE_EDIT_ID = PREFIX + "edit_id";
-	public static final String STATE_STACK_EDIT_ID = PREFIX + "stack_edit_id";
-	public static final String STATE_EDIT_COLLECTION_ID = PREFIX + "stack_edit_collection_id";
-	public static final String STATE_STACK_EDIT_COLLECTION_ID = PREFIX + "stack_edit_collection_id";
-
-	private static final String STATE_EDIT_ALERTS = PREFIX + "edit_alerts";
-	private static final String STATE_STACK_EDIT_ITEM = PREFIX + "stack_edit_item";
-	private static final String STATE_STACK_EDIT_INTENT = PREFIX + "stack_edit_intent";
-
-	private static final String STATE_SHOW_FORM_ITEMS = PREFIX + "show_form_items";
-
-	private static final String STATE_STACK_EDIT_ITEM_TITLE = PREFIX + "stack_title";
-
-	/************** the create contexts *****************************************/
-
-	public static final String STATE_SUSPENDED_OPERATIONS_STACK = PREFIX + "suspended_operations_stack";
-	public static final String STATE_SUSPENDED_OPERATIONS_STACK_DEPTH = PREFIX + "suspended_operations_stack_depth";
-
-//	public static final String STATE_CREATE_TYPE = PREFIX + "create_type";
-	public static final String STATE_CREATE_COLLECTION_ID = PREFIX + "create_collection_id";
-	public static final String STATE_CREATE_NUMBER = PREFIX + "create_number";
-	public static final String STATE_STRUCTOBJ_TYPE = PREFIX + "create_structured_object_type";
-	public static final String STATE_STRUCTOBJ_TYPE_READONLY = PREFIX + "create_structured_object_type_readonly";
-
-	public static final String STATE_STACK_CREATE_TYPE = PREFIX + "stack_create_type";
-	public static final String STATE_STACK_CREATE_COLLECTION_ID = PREFIX + "stack_create_collection_id";
-	public static final String STATE_STACK_CREATE_NUMBER = PREFIX + "stack_create_number";
-	public static final String STATE_STACK_STRUCTOBJ_TYPE = PREFIX + "stack_create_structured_object_type";
-	public static final String STATE_STACK_STRUCTOBJ_TYPE_READONLY = PREFIX + "stack_create_structured_object_type_readonly";
-
-	private static final String STATE_STACK_CREATE_ITEMS = PREFIX + "stack_create_items";
-	private static final String STATE_STACK_CREATE_ACTUAL_COUNT = PREFIX + "stack_create_actual_count";
-	private static final String STATE_CREATE_ALERTS = PREFIX + "create_alerts";
-	protected static final String STATE_CREATE_MESSAGE = PREFIX + "create_message";
-	private static final String STATE_CREATE_MISSING_ITEM = PREFIX + "create_missing_item";
-	
-	
-	public static final String MIME_TYPE_DOCUMENT_PLAINTEXT = "text/plain";
-	public static final String MIME_TYPE_DOCUMENT_HTML = "text/html";
-	public static final String MIME_TYPE_STRUCTOBJ = "application/x-osp";
-
-	public static final String TYPE_FOLDER = "folder";
-	public static final String TYPE_UPLOAD = "file";
-	public static final String TYPE_URL = "Url";
-	public static final String TYPE_FORM = MIME_TYPE_STRUCTOBJ;
-	public static final String TYPE_HTML = MIME_TYPE_DOCUMENT_HTML;
-	public static final String TYPE_TEXT = MIME_TYPE_DOCUMENT_PLAINTEXT;
-
-	private static final int CREATE_MAX_ITEMS = 10;
-
-	private static final 	Pattern INDEXED_FORM_FIELD_PATTERN = Pattern.compile("(.+)\\.(\\d+)");
-
-	/************** the metadata extension of edit/create contexts *****************************************/
-
-	private static final String STATE_METADATA_GROUPS = PREFIX + "metadata.types";
-
-	private static final String INTENT_REVISE_FILE = "revise";
-	private static final String INTENT_REPLACE_FILE = "replace";
-
-	/** State attribute for where there is at least one attachment before invoking attachment tool */
-	public static final String STATE_HAS_ATTACHMENT_BEFORE = PREFIX + "has_attachment_before";
-
-	/** The name of the state attribute containing a list of new items to be attached */
-	private static final String STATE_HELPER_NEW_ITEMS = PREFIX + "helper_new_items";
-
-	/** The name of the state attribute indicating that the list of new items has changed */
-	private static final String STATE_HELPER_CHANGED = PREFIX + "helper_changed";
-
+	//	/**
+//	 * Retrieve values for one or more items from create context.  Create context contains up to ten items at a time
+//	 * all of the same type (folder, file, text document, structured-artifact, etc).  This method retrieves the data
+//	 * apppropriate to the type and updates the values of the ResourcesEditItem objects stored as the STATE_STACK_CREATE_ITEMS
+//	 * attribute in state. If the third parameter is "true", missing/incorrect user inputs will generate error messages
+//	 * and attach flags to the input elements.
+//	 * @param state
+//	 * @param params
+//	 * @param markMissing Should this method generate error messages and add flags for missing/incorrect user inputs?
+//	 */
+//	protected static void captureMultipleValues(SessionState state, ParameterParser params, boolean markMissing)
+//	{
+//		Map current_stack_frame = peekAtStack(state);
+//		Integer number = (Integer) current_stack_frame.get(STATE_STACK_CREATE_NUMBER);
+//		if(number == null)
+//		{
+//			number = (Integer) state.getAttribute(STATE_CREATE_NUMBER);
+//			current_stack_frame.put(STATE_STACK_CREATE_NUMBER, number);
+//		}
+//		if(number == null)
+//		{
+//			number = new Integer(1);
+//			current_stack_frame.put(STATE_STACK_CREATE_NUMBER, number);
+//		}
 //
-//	/** The name of the state attribute containing the name of the tool that invoked Resources as attachment helper */
-//	public static final String STATE_ATTACH_TOOL_NAME = PREFIX + "attach_tool_name";
-
-	/************** the helper context (file-picker) *****************************************/
-
-	/**
-	 *  the name of the state attribute indicating that the user canceled out of the helper.  Is set only if the user canceled out of the helper. 
-	 */
-	public static final String STATE_HELPER_CANCELED_BY_USER = PREFIX + "state_attach_canceled_by_user";
-	
-	/************** the columns context *****************************************/
-
-	public static final String STATE_COLUMN_ITEM_ID = PREFIX + "state_column_item_id";
-
-	
-	
-	/************** the delete context *****************************************/
-
-	/** The name of the state attribute containing a list of ListItem objects corresponding to resources selected for deletion */
-	private static final String STATE_DELETE_ITEMS = PREFIX + "delete_items";
-
-	/** The name of the state attribute containing a list of ListItem objects corresponding to nonempty folders selected for deletion */
-	private static final String STATE_DELETE_ITEMS_NOT_EMPTY = PREFIX + "delete_items_not_empty";
-
-	/** The cut item ids */
-	private static final String STATE_CUT_IDS = PREFIX + "revise_cut_ids";
-
-	/************** the copied items context *****************************************/
-
-	/** The copied item ids */
-	private static final String STATE_COPIED_IDS = PREFIX + "revise_copied_ids";
-
-	/** The copied item id */
-	private static final String STATE_COPIED_ID = PREFIX + "revise_copied_id";
-
-	/************** the moved items context *****************************************/
-
-	/** The copied item ids */
-	private static final String STATE_MOVED_IDS = PREFIX + "revise_moved_ids";
-	
-	/************** the reorder context *****************************************/
-
-	protected static final String STATE_REORDER_FOLDER = PREFIX + "reorder_folder_id";
-
-	/** The property (column) to sort by in the reorder context */
-	protected static final String STATE_REORDER_SORT_BY = PREFIX + "reorder_sort_by";
-	
-	/** The sort ascending or decending for the reorder context */
-	protected static final String STATE_REORDER_SORT_ASC = PREFIX + "sort_asc";
-
-	/** Modes. */
-	private static final String MODE_LIST = "list";
-	private static final String MODE_EDIT = "edit";
-	private static final String MODE_DAV = "webdav";
-	//private static final String MODE_CREATE = "create";
-	private static final String MODE_CREATE_WIZARD = "createWizard";
-	private static final String MODE_DELETE_FINISH = "deleteFinish";
-	static final String MODE_REVISE_METADATA = "revise_metadata";
-
-	public  static final String MODE_HELPER = "helper";
-	private static final String MODE_DELETE_CONFIRM = "deleteConfirm";
-	private static final String MODE_MORE = "more";
-	private static final String MODE_PROPERTIES = "properties";
-	private static final String MODE_REORDER = "reorder";
-
-	private static final String STATE_LIST_PREFERENCE = PREFIX + "state_list_preference";
-	private static final String LIST_COLUMNS = "columns";
-	private static final String LIST_HIERARCHY = "hierarchy";
-
-	/** modes for attachment helper */
-	public static final String MODE_ATTACHMENT_SELECT = "resources.attachment_select";
-	public static final String MODE_ATTACHMENT_CREATE = "resources.attachment_create";
-	public static final String MODE_ATTACHMENT_NEW_ITEM = "resources.attachment_new_item";
-	public static final String MODE_ATTACHMENT_EDIT_ITEM = "resources.attachment_edit_item";
-	public static final String MODE_ATTACHMENT_CONFIRM = "resources.attachment_confirm";
-	public static final String MODE_ATTACHMENT_SELECT_INIT = "resources.attachment_select_initialized";
-	public static final String MODE_ATTACHMENT_CREATE_INIT = "resources.attachment_create_initialized";
-	public static final String MODE_ATTACHMENT_NEW_ITEM_INIT = "resources.attachment_new_item_initialized";
-	public static final String MODE_ATTACHMENT_EDIT_ITEM_INIT = "resources.attachment_edit_item_initialized";
-	public static final String MODE_ATTACHMENT_CONFIRM_INIT = "resources.attachment_confirm_initialized";
-	public static final String MODE_ATTACHMENT_DONE = "resources.attachment_done";
-
-	/** vm files for each mode. */
-	//private static final String TEMPLATE_LIST = "content/chef_resources_list";
-	//private static final String TEMPLATE_EDIT = "content/chef_resources_edit";
-	//private static final String TEMPLATE_CREATE = "content/chef_resources_create";
-	private static final String TEMPLATE_DAV = "content/chef_resources_webdav";
-	//private static final String TEMPLATE_ITEMTYPE = "content/chef_resources_itemtype";
-	//private static final String TEMPLATE_SELECT = "content/chef_resources_select";
-	//private static final String TEMPLATE_ATTACH = "content/chef_resources_attach";
-
-	private static final String TEMPLATE_MORE = "content/chef_resources_more";
-	private static final String TEMPLATE_DELETE_CONFIRM = "content/chef_resources_deleteConfirm";
-	private static final String TEMPLATE_PROPERTIES = "content/chef_resources_properties";
-	// private static final String TEMPLATE_REPLACE = "_replace";
-	private static final String TEMPLATE_REORDER = "content/chef_resources_reorder";
-
-	private static final String TEMPLATE_REVISE_METADATA = "content/sakai_resources_properties";
-	private static final String TEMPLATE_DELETE_FINISH = "content/sakai_resources_deleteFinish";
-	private static final String TEMPLATE_NEW_LIST = "content/sakai_resources_list";
-
-	/** the site title */
-	private static final String STATE_SITE_TITLE = PREFIX + "site_title";
-
-	/** copyright related info */
-	private static final String COPYRIGHT_TYPES = "copyright_types";
-	private static final String COPYRIGHT_TYPE = "copyright_type";
-	private static final String DEFAULT_COPYRIGHT = "default_copyright";
-	private static final String COPYRIGHT_ALERT = "copyright_alert";
-	private static final String DEFAULT_COPYRIGHT_ALERT = "default_copyright_alert";
-	private static final String COPYRIGHT_FAIRUSE_URL = "copyright_fairuse_url";
-	private static final String NEW_COPYRIGHT_INPUT = "new_copyright_input";
-	//private static final String COPYRIGHT_SELF_COPYRIGHT = rb.getString("cpright2");
-	private static final String COPYRIGHT_NEW_COPYRIGHT = rb.getString("cpright3");
-	private static final String COPYRIGHT_ALERT_URL = ServerConfigurationService.getAccessUrl() + COPYRIGHT_PATH;
-	
-	/** state attribute indicating whether we're using the Creative Commons dialog instead of the "old" copyright dialog */
-	protected static final String STATE_USING_CREATIVE_COMMONS = PREFIX + "usingCreativeCommons";
-
-	public static final int MAXIMUM_ATTEMPTS_FOR_UNIQUENESS = 100;
-
-	/** The default value for whether to show all sites in file-picker (used if global value can't be read from server config service) */
-	public static final boolean SHOW_ALL_SITES_IN_FILE_PICKER = false;
-
-	/** The default value for whether to show all sites in resources tool (used if global value can't be read from server config service) */
-	private static final boolean SHOW_ALL_SITES_IN_RESOURCES = false;
-
-	/** The default value for whether to show all sites in dropbox (used if global value can't be read from server config service) */
-	private static final boolean SHOW_ALL_SITES_IN_DROPBOX = false;
-
-	/** The default number of members for a collection at which this tool should refuse to expand the collection. Used only if value can't be read from config service. */
-	protected static final int EXPANDABLE_FOLDER_SIZE_LIMIT = 256;
-
-	/** Name of state attribute indicating number of members for a collection at which this tool should refuse to expand the collection. */
-	private static final String STATE_EXPANDABLE_FOLDER_SIZE_LIMIT = PREFIX + "expandable_folder_size_limit";
-
-	protected static final String STATE_SHOW_REMOVE_ACTION = PREFIX + "show_remove_action";
-
-	protected static final String STATE_SHOW_MOVE_ACTION = PREFIX + "show_move_action";
-
-	protected static final String STATE_SHOW_COPY_ACTION = PREFIX + "show_copy_action";
-
-	protected static final String STATE_HIGHLIGHTED_ITEMS = PREFIX + "highlighted_items";
-
-	/** The default number of site collections per page. */
-	protected static final int DEFAULT_PAGE_SIZE = 50;
-
-	protected static final String PARAM_PAGESIZE = "collections_per_page";
-
-	protected static final String STATE_TOP_MESSAGE_INDEX = PREFIX + "top_message_index";
-
-	protected static final String STATE_REMOVED_ATTACHMENTS = PREFIX + "removed_attachments";
-	
-	/********* Global constants *********/
-
-	/** The null/empty string */
-	private static final String NULL_STRING = "";
-
-	/** The String of new copyright */
-	private static final String NEW_COPYRIGHT = "newcopyright";
-
-	/** The maximum number of suspended operations that can be on the stack. */
-	private static final int MAXIMUM_SUSPENDED_OPERATIONS_STACK_DEPTH = 10;
-
-	/** portlet configuration parameter values**/
-	public static final String RESOURCES_MODE_RESOURCES = "resources";
-	public static final String RESOURCES_MODE_DROPBOX = "dropbox";
-	public static final String RESOURCES_MODE_HELPER = "helper";
-
-	/** The from state name */
-	private static final String STATE_FROM = PREFIX + "from";
-
-	private static final String STATE_ENCODING = PREFIX + "encoding";
-
-	private static final String DELIM = "@";
-
-	/** string used to represent "public" access mode in UI elements */
-	protected static final String PUBLIC_ACCESS = "public";
-
-	/** A long representing the number of milliseconds in one week.  Used for date calculations */
-	protected static final long ONE_WEEK = 1000L * 60L * 60L * 24L * 7L;
-
-	/************************** Comparators **************************/
-	
-	protected static final String STATE_LIST_VIEW_SORT = PREFIX + "list_view_sort";
-
-	protected static final String STATE_REORDER_SORT = PREFIX + "reorder_sort";
-
-	protected static final String STATE_EXPANDED_FOLDER_SORT_MAP = PREFIX + "expanded_folder_sort_map";
-
-	protected static final String STATE_CREATE_WIZARD_ACTION = PREFIX + "create_wizard_action";
-
-	protected static final String STATE_CREATE_WIZARD_ITEM = PREFIX + "create_wizard_item";
-
-	protected static final String STATE_CREATE_WIZARD_COLLECTION_ID = PREFIX + "create_wizard_collection_id";
-
-	public static final String UTF_8_ENCODING = "UTF-8";
-
-	protected static final String STATE_DELETE_SET = PREFIX + "delete_set";
-	protected static final String STATE_NON_EMPTY_DELETE_SET = PREFIX + "non-empty_delete_set";
-
-	protected static final String STATE_REVISE_PROPERTIES_ENTITY_ID = PREFIX + "revise_properties_entity_id";
-	protected static final String STATE_REVISE_PROPERTIES_ITEM = PREFIX + "revise_properties_item";
-	protected static final String STATE_REVISE_PROPERTIES_ACTION = PREFIX + "revise_properties_action";
-	
-	protected static final String STATE_ITEMS_TO_BE_COPIED = PREFIX + "items_to_be_copied";
-	protected static final String STATE_ITEMS_TO_BE_MOVED = PREFIX + "items_to_be_moved";
-
-
-	/**
-	* Build the context for normal display
-	*/
-	public String buildMainPanelContext (	VelocityPortlet portlet,
-											Context context,
-											RunData data,
-											SessionState state)
+//		List new_items = (List) current_stack_frame.get(STATE_STACK_CREATE_ITEMS);
+//		if(new_items == null)
+//		{
+//			String collectionId = params.getString("collectionId");
+//			String defaultCopyrightStatus = (String) state.getAttribute(DEFAULT_COPYRIGHT);
+//			if(defaultCopyrightStatus == null || defaultCopyrightStatus.trim().equals(""))
+//			{
+//				defaultCopyrightStatus = ServerConfigurationService.getString("default.copyright");
+//				state.setAttribute(DEFAULT_COPYRIGHT, defaultCopyrightStatus);
+//			}
+//
+//			
+//			String encoding = (String) state.getAttribute(STATE_ENCODING);
+//
+//			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+//
+//			Time defaultRetractDate = (Time) state.getAttribute(STATE_DEFAULT_RETRACT_TIME);
+//			if(defaultRetractDate == null)
+//			{
+//				defaultRetractDate = TimeService.newTime();
+//				state.setAttribute(STATE_DEFAULT_RETRACT_TIME, defaultRetractDate);
+//			}
+//
+//		}
+//
+//		Set alerts = (Set) state.getAttribute(STATE_CREATE_ALERTS);
+//		if(alerts == null)
+//		{
+//			alerts = new HashSet();
+//			state.setAttribute(STATE_CREATE_ALERTS, alerts);
+//		}
+//		int actualCount = 0;
+//		Set first_item_alerts = null;
+//
+//		String max_file_size_mb = (String) state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
+//		int max_bytes = 1024 * 1024;
+//		try
+//		{
+//			max_bytes = Integer.parseInt(max_file_size_mb) * 1024 * 1024;
+//		}
+//		catch(Exception e)
+//		{
+//			// if unable to parse an integer from the value
+//			// in the properties file, use 1 MB as a default
+//			max_file_size_mb = "1";
+//			max_bytes = 1024 * 1024;
+//		}
+//
+//		/*
+//		// params.getContentLength() returns m_req.getContentLength()
+//		if(params.getContentLength() > max_bytes)
+//		{
+//			alerts.add(rb.getString("size") + " " + max_file_size_mb + "MB " + rb.getString("exceeded2"));
+//			state.setAttribute(STATE_CREATE_ALERTS, alerts);
+//
+//			return;
+//		}
+//		*/
+//		for(int i = 0; i < number.intValue(); i++)
+//		{
+//			ResourcesEditItem item = (ResourcesEditItem) new_items.get(i);
+//			Set item_alerts = captureValues(item, i, state, params, markMissing);
+//			if(i == 0)
+//			{
+//				first_item_alerts = item_alerts;
+//			}
+//			else if(item.isBlank())
+//			{
+//				item.clearMissing();
+//			}
+//			if(! item.isBlank())
+//			{
+//				alerts.addAll(item_alerts);
+//				actualCount ++;
+//			}
+//		}
+//		if(actualCount > 0)
+//		{
+//			ResourcesEditItem item = (ResourcesEditItem) new_items.get(0);
+//			if(item.isBlank())
+//			{
+//				item.clearMissing();
+//			}
+//		}
+//		else if(markMissing)
+//		{
+//			alerts.addAll(first_item_alerts);
+//		}
+//		state.setAttribute(STATE_CREATE_ALERTS, alerts);
+//		current_stack_frame.put(STATE_STACK_CREATE_ACTUAL_COUNT, Integer.toString(actualCount));
+//
+//	}	// captureMultipleValues
+//
+	protected static void capturePropertyValues(ParameterParser params, ResourcesEditItem item, List properties)
 	{
-		//context.put("tlang",rb);
-		// find the ContentTypeImage service
-		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
-		
-		context.put("copyright_alert_url", COPYRIGHT_ALERT_URL);
-		context.put("ACTION_DELIMITER", ResourceToolAction.ACTION_DELIMITER);
-		
-		ToolSession toolSession = SessionManager.getCurrentToolSession();
-		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
-		if(pipe != null)
+		// use the item's properties if they're not supplied
+		if(properties == null)
 		{
-			if(pipe.isActionCanceled())
-			{
-				state.setAttribute(STATE_MODE, MODE_LIST);
-			}
-			else if(pipe.isErrorEncountered())
-			{
-				String msg = pipe.getErrorMessage();
-				if(msg != null && ! msg.trim().equals(""))
-				{
-					addAlert(state, msg);
-				}
-				state.setAttribute(STATE_MODE, MODE_LIST);
-			}
-			else if(pipe.isActionCompleted())
-			{
-				finishAction(state, toolSession, pipe);
-			}
-			toolSession.removeAttribute(ResourceToolAction.DONE);
+			properties = item.getProperties();
 		}
+		// if max cardinality > 1, value is a list (Iterate over members of list)
+		// else value is an object, not a list
 
-		String template = null;
-		
-		// place if notification is enabled and current site is not of My Workspace type
-		boolean isUserSite = SiteService.isUserSite(ToolManager.getCurrentPlacement().getContext());
-		context.put("notification", new Boolean(!isUserSite && notificationEnabled(state)));
-		// get the mode
-		String mode = (String) state.getAttribute (STATE_MODE);
-		if (mode.equals (MODE_LIST))
+		// if type is nested, object is a Map (iterate over name-value pairs for the properties of the nested object)
+		// else object is type to store value, usually a string or a date/time
+
+		Iterator it = properties.iterator();
+		while(it.hasNext())
 		{
-			String list_pref = (String) state.getAttribute(STATE_LIST_PREFERENCE);
-			if(list_pref == null)
+			ResourcesMetadata prop = (ResourcesMetadata) it.next();
+			String propname = prop.getDottedname();
+
+			if(ResourcesMetadata.WIDGET_NESTED.equals(prop.getWidget()))
 			{
-				list_pref = LIST_HIERARCHY;
+				// do nothing
 			}
-			if(LIST_COLUMNS.equals(list_pref))
+			else if(ResourcesMetadata.WIDGET_BOOLEAN.equals(prop.getWidget()))
 			{
-				// build the context for list view
-				template = buildColumnsContext (portlet, context, data, state);
+				String value = params.getString(propname);
+				if(value == null || Boolean.FALSE.toString().equals(value))
+				{
+					prop.setValue(0, Boolean.FALSE.toString());
+				}
+				else
+				{
+					prop.setValue(0, Boolean.TRUE.toString());
+				}
+			}
+			else if(ResourcesMetadata.WIDGET_DATE.equals(prop.getWidget()) || ResourcesMetadata.WIDGET_DATETIME.equals(prop.getWidget()) || ResourcesMetadata.WIDGET_TIME.equals(prop.getWidget()))
+			{
+				int year = 0;
+				int month = 0;
+				int day = 0;
+				int hour = 0;
+				int minute = 0;
+				int second = 0;
+				int millisecond = 0;
+				String ampm = "";
+
+				if(prop.getWidget().equals(ResourcesMetadata.WIDGET_DATE) ||
+					prop.getWidget().equals(ResourcesMetadata.WIDGET_DATETIME))
+				{
+					year = params.getInt(propname + "_year", year);
+					month = params.getInt(propname + "_month", month);
+					day = params.getInt(propname + "_day", day);
+				}
+				if(prop.getWidget().equals(ResourcesMetadata.WIDGET_TIME) ||
+					prop.getWidget().equals(ResourcesMetadata.WIDGET_DATETIME))
+				{
+					hour = params.getInt(propname + "_hour", hour);
+					minute = params.getInt(propname + "_minute", minute);
+					second = params.getInt(propname + "_second", second);
+					millisecond = params.getInt(propname + "_millisecond", millisecond);
+					ampm = params.getString(propname + "_ampm");
+
+					if("pm".equalsIgnoreCase(ampm))
+					{
+						if(hour < 12)
+						{
+							hour += 12;
+						}
+					}
+					else if(hour == 12)
+					{
+						hour = 0;
+					}
+				}
+				if(hour > 23)
+				{
+					hour = hour % 24;
+					day++;
+				}
+
+				Time value = TimeService.newTimeLocal(year, month, day, hour, minute, second, millisecond);
+				prop.setValue(0, value);
+			}
+			else if(ResourcesMetadata.WIDGET_ANYURI.equals(prop.getWidget()))
+			{
+				String value = params.getString(propname);
+				if(value != null && ! value.trim().equals(""))
+				{
+					Reference ref = EntityManager.newReference(ContentHostingService.getReference(value));
+					prop.setValue(0, ref);
+				}
 			}
 			else
 			{
-				// build the context for list view
-				//template = buildChefListContext (portlet, context, data, state);
-				template = buildListContext (portlet, context, data, state);
+				String value = params.getString(propname);
+				if(value != null)
+				{
+					prop.setValue(0, value);
+				}
 			}
 		}
-//		else if (mode.equals (MODE_CREATE))
-//		{
-//			// build the context for create item
-//			template = buildCreateContext (portlet, context, data, state);
-//		}
-		else if(mode.equals(MODE_CREATE_WIZARD))
-		{
-			template = buildCreateWizardContext(portlet, context, data, state);
-		}
-//		else if (mode.equals (MODE_DELETE_CONFIRM))
-//		{
-//			// build the context for the basic step of delete confirm page
-//			template = buildDeleteConfirmContext (portlet, context, data, state);
-//		}
-		else if (mode.equals (MODE_DELETE_FINISH))
-		{
-			// build the context for the basic step of delete confirm page
-			template = buildDeleteFinishContext (portlet, context, data, state);
-		}
-		else if (mode.equals (MODE_MORE))
-		{
-			// build the context to display the property list
-			template = buildMoreContext (portlet, context, data, state);
-		}
-//		else if (mode.equals (MODE_EDIT))
-//		{
-//			// build the context to display the property list
-//			template = buildEditContext (portlet, context, data, state);
-//		}
-		else if (mode.equals (MODE_OPTIONS))
-		{
-			template = buildOptionsPanelContext (portlet, context, data, state);
-		}
-		else if (mode.equals (MODE_REORDER))
-		{
-			template = buildReorderContext (portlet, context, data, state);
-		}
-		else if(mode.equals(MODE_DAV))
-		{
-			template = buildWebdavContext (portlet, context, data, state);
-		}
-		else if(mode.equals(MODE_REVISE_METADATA))
-		{
-			template = buildReviseMetadataContext(portlet, context, data, state);
-		}
 
-		return template;
-
-	}	// buildMainPanelContext
+	}	// capturePropertyValues
 
 	/**
-	 * @param portlet
-	 * @param context
-	 * @param data
-	 * @param state
-	 * @return
+	 *
+	 * put copyright info into context
 	 */
-	private String buildReviseMetadataContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
+	public static void copyrightChoicesIntoContext(SessionState state, Context context)
 	{
-		context.put("tlang", trb);
+		boolean usingCreativeCommons = state.getAttribute(STATE_USING_CREATIVE_COMMONS) != null && state.getAttribute(STATE_USING_CREATIVE_COMMONS).equals(Boolean.TRUE.toString());		
 		
-		ResourceToolAction action = (ResourceToolAction) state.getAttribute(STATE_REVISE_PROPERTIES_ACTION);
-		context.put("action", action);
-		
-		String typeId = action.getTypeId();
-		
-		ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
-		if(registry == null)
+		if(usingCreativeCommons)
 		{
-			registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
-			state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
-		}
-		
-		ResourceType type = registry.getType(typeId);
-		context.put("type", type);
-		
-		copyrightChoicesIntoContext(state, context);
-		
-		context.put("required", trb.getFormattedMessage("instr.require", new String[]{"<span class=\"reqStarInline\">*</span>"}));
-		
-		// complete the create wizard
-		String defaultCopyrightStatus = (String) state.getAttribute(DEFAULT_COPYRIGHT);
-		if(defaultCopyrightStatus == null || defaultCopyrightStatus.trim().equals(""))
-		{
-			defaultCopyrightStatus = ServerConfigurationService.getString("default.copyright");
-			state.setAttribute(DEFAULT_COPYRIGHT, defaultCopyrightStatus);
-		}
+			
+			String ccOwnershipLabel = "Who created this resource?";
+			List ccOwnershipList = new Vector();
+			ccOwnershipList.add("-- Select --");
+			ccOwnershipList.add("I created this resource");
+			ccOwnershipList.add("Someone else created this resource");
+			
+			String ccMyGrantLabel = "Terms of use";
+			List ccMyGrantOptions = new Vector();
+			ccMyGrantOptions.add("-- Select --");
+			ccMyGrantOptions.add("Use my copyright");
+			ccMyGrantOptions.add("Use Creative Commons License");
+			ccMyGrantOptions.add("Use Public Domain Dedication");
+			
+			String ccCommercialLabel = "Allow commercial use?";
+			List ccCommercialList = new Vector();
+			ccCommercialList.add("Yes");
+			ccCommercialList.add("No");
+			
+			String ccModificationLabel = "Allow Modifications?";
+			List ccModificationList = new Vector();
+			ccModificationList.add("Yes");
+			ccModificationList.add("Yes, share alike");
+			ccModificationList.add("No");
+			
+			String ccOtherGrantLabel = "Terms of use";
+			List ccOtherGrantList = new Vector();
+			ccOtherGrantList.add("Subject to fair-use exception");
+			ccOtherGrantList.add("Public domain (created before copyright law applied)");
+			ccOtherGrantList.add("Public domain (copyright has expired)");
+			ccOtherGrantList.add("Public domain (government document not subject to copyright)");
+			
+			String ccRightsYear = "Year";
+			String ccRightsOwner = "Copyright owner";
+			
+			String ccAcknowledgeLabel = "Require users to acknowledge author's rights before access?";
+			List ccAcknowledgeList = new Vector();
+			ccAcknowledgeList.add("Yes");
+			ccAcknowledgeList.add("No");
+			
+			String ccInfoUrl = "";
+			
+			int year = TimeService.newTime().breakdownLocal().getYear();
+			String username = UserDirectoryService.getCurrentUser().getDisplayName(); 
 
-		Time defaultRetractDate = (Time) state.getAttribute(STATE_DEFAULT_RETRACT_TIME);
-		if(defaultRetractDate == null)
-		{
-			defaultRetractDate = TimeService.newTime();
-			state.setAttribute(STATE_DEFAULT_RETRACT_TIME, defaultRetractDate);
+			context.put("usingCreativeCommons", Boolean.TRUE);
+			context.put("ccOwnershipLabel", ccOwnershipLabel);
+			context.put("ccOwnershipList", ccOwnershipList);
+			context.put("ccMyGrantLabel", ccMyGrantLabel);
+			context.put("ccMyGrantOptions", ccMyGrantOptions);
+			context.put("ccCommercialLabel", ccCommercialLabel);
+			context.put("ccCommercialList", ccCommercialList);
+			context.put("ccModificationLabel", ccModificationLabel);
+			context.put("ccModificationList", ccModificationList);
+			context.put("ccOtherGrantLabel", ccOtherGrantLabel);
+			context.put("ccOtherGrantList", ccOtherGrantList);
+			context.put("ccRightsYear", ccRightsYear);
+			context.put("ccRightsOwner", ccRightsOwner);
+			context.put("ccAcknowledgeLabel", ccAcknowledgeLabel);
+			context.put("ccAcknowledgeList", ccAcknowledgeList);
+			context.put("ccInfoUrl", ccInfoUrl);
+			context.put("ccThisYear", Integer.toString(year));
+			context.put("ccThisUser", username);
 		}
-
+		else
+		{
+			//copyright
+			if (state.getAttribute(COPYRIGHT_FAIRUSE_URL) != null)
+			{
+				context.put("fairuseurl", state.getAttribute(COPYRIGHT_FAIRUSE_URL));
+			}
+			if (state.getAttribute(NEW_COPYRIGHT_INPUT) != null)
+			{
+				context.put("newcopyrightinput", state.getAttribute(NEW_COPYRIGHT_INPUT));
+			}
+	
+			if (state.getAttribute(COPYRIGHT_TYPES) != null)
+			{
+				List copyrightTypes = (List) state.getAttribute(COPYRIGHT_TYPES);
+				context.put("copyrightTypes", copyrightTypes);
+				context.put("copyrightTypesSize", new Integer(copyrightTypes.size() - 1));
+				context.put("USE_THIS_COPYRIGHT", copyrightTypes.get(copyrightTypes.size() - 1));
+			}
+		}
+		
 		Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
 		if(preventPublicDisplay == null)
 		{
 			preventPublicDisplay = Boolean.FALSE;
 			state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
 		}
+		context.put("preventPublicDisplay", preventPublicDisplay);
 		
-		String entityId = (String) state.getAttribute(STATE_REVISE_PROPERTIES_ENTITY_ID);
-		String refstr = ContentHostingService.getReference(entityId);
-		Reference ref = EntityManager.newReference(refstr);
-		ContentEntity entity = (ContentEntity) ref.getEntity();
-
-		ResourcesItem item = new  ResourcesItem(entity);
-		if(item.getReleaseDate() == null)
-		{
-			item.setReleaseDate(TimeService.newTime());
-		}
-		if(item.getRetractDate() == null)
-		{
-			item.setRetractDate(defaultRetractDate);
-		}
-		
-		context.put("item", item);
-		state.setAttribute(STATE_REVISE_PROPERTIES_ITEM, item);
-		
-		if(ContentHostingService.isAvailabilityEnabled())
-		{
-			context.put("availability_is_enabled", Boolean.TRUE);
-		}
-		
-		context.put("SITE_ACCESS", AccessMode.SITE.toString());
-		context.put("GROUP_ACCESS", AccessMode.GROUPED.toString());
-		context.put("INHERITED_ACCESS", AccessMode.INHERITED.toString());
-		context.put("PUBLIC_ACCESS", PUBLIC_ACCESS);
-		
-		return TEMPLATE_REVISE_METADATA;
-	}
-
-	/**
-	 * @param state
-	 * @param toolSession
-	 * @param pipe
-	 */
-	protected void finishAction(SessionState state, ToolSession toolSession, ResourceToolActionPipe pipe)
-	{
-		ResourceToolAction action = pipe.getAction();
-		// use ActionType for this 
-		switch(action.getActionType())
-		{
-		case CREATE:
-			state.setAttribute(STATE_MODE, MODE_CREATE_WIZARD);
-			break;
-		case NEW_UPLOAD:
-			List<ContentResource> resources = createResources(pipe);
-			if(resources != null && ! resources.isEmpty())
-			{
-				// expand folder
-				SortedSet<String> expandedCollections = (SortedSet<String>) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
-				expandedCollections.add(resources.get(0).getContainingCollection().getId());
-			}
-			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
-			break;
-		case NEW_FOLDER:
-			createFolders(state, pipe);
-			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
-			break;
-		case REVISE_CONTENT:
-			reviseContent(pipe);
-			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
-			state.setAttribute(STATE_MODE, MODE_LIST);
-			break;
-		default:
-			state.setAttribute(STATE_MODE, MODE_LIST);
-		}
-	}
+	}	// copyrightChoicesIntoContext
 
 	/**
 	 * @param pipe
@@ -1003,97 +1397,6 @@ public class ResourcesAction
 			}
 		}
 		return (new_collections.isEmpty() ? null : new_collections);
-	}
-
-	/**
-	 * @param pipe
-	 * @param action
-	 */
-	public static void reviseContent(ResourceToolActionPipe pipe)
-	{
-		ResourceToolAction action = pipe.getAction();
-		ContentEntity entity = pipe.getContentEntity();
-		try
-		{
-			ContentResourceEdit edit = ContentHostingService.editResource(entity.getId());
-			ResourcePropertiesEdit props = edit.getPropertiesEdit();
-			// update content
-			byte[] content = pipe.getRevisedContent();
-			if(content == null)
-			{
-				InputStream stream = pipe.getRevisedContentStream();
-				if(stream == null)
-				{
-					logger.warn("pipe with null content and null stream: " + pipe.getFileName());
-				}
-				else
-				{
-					edit.setContent(stream);
-				}
-			}
-			else
-			{
-				edit.setContent(content);
-			}
-			// update properties
-			if(action instanceof InteractionAction)
-			{
-				InteractionAction iAction = (InteractionAction) action;
-				Map revprops = pipe.getRevisedResourceProperties();
-				List propkeys = iAction.getRequiredPropertyKeys();
-				if(propkeys != null)
-				{
-					Iterator keyIt = propkeys.iterator();
-					while(keyIt.hasNext())
-					{
-						String key = (String) keyIt.next();
-						String value = (String) revprops.get(key);
-						if(value == null)
-						{
-							props.removeProperty(key);
-						}
-						else
-						{
-							// should we support multivalued properties?
-							props.addProperty(key, value);
-						}
-					}
-				}
-			}
-			// update mimetype
-			edit.setContentType(pipe.getRevisedMimeType());
-			ContentHostingService.commitResource(edit);
-		}
-		catch (PermissionException e)
-		{
-			// TODO Auto-generated catch block
-			logger.warn("PermissionException ", e);
-		}
-		catch (IdUnusedException e)
-		{
-			// TODO Auto-generated catch block
-			logger.warn("IdUnusedException ", e);
-		}
-		catch (TypeException e)
-		{
-			// TODO Auto-generated catch block
-			logger.warn("TypeException ", e);
-		}
-		catch (InUseException e)
-		{
-			// TODO Auto-generated catch block
-			logger.warn("InUseException ", e);
-		}
-		catch (OverQuotaException e)
-		{
-			// TODO Auto-generated catch block
-			logger.warn("OverQuotaException ", e);
-		}
-		catch (ServerOverloadException e)
-		{
-			// TODO Auto-generated catch block
-			logger.warn("ServerOverloadException ", e);
-		}
 	}
 
 	/**
@@ -1199,306 +1502,369 @@ public class ResourcesAction
 		
 		return (item_added ? new_resources : null);
 	}
-
-	/**
-	 * @param portlet
-	 * @param context
-	 * @param data
-	 * @param state
-	 * @return
-	 */
-	private String buildDeleteFinishContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
-	{
-		context.put("tlang",trb);
-		context.put ("collectionId", state.getAttribute (STATE_COLLECTION_ID) );
-
-		//%%%% FIXME
-		context.put ("collectionPath", state.getAttribute (STATE_COLLECTION_PATH));
-
-		List deleteItems = (List) state.getAttribute(STATE_DELETE_SET);
-		List nonEmptyFolders = (List) state.getAttribute(STATE_NON_EMPTY_DELETE_SET);
-
-		context.put ("deleteItems", deleteItems);
-
-		Iterator it = nonEmptyFolders.iterator();
-		while(it.hasNext())
-		{
-			ListItem folder = (ListItem) it.next();
-			String[] args = { folder.getName() };
-			String msg = rb.getFormattedMessage("folder.notempty", args) + " ";
-			addAlert(state, msg);
-		}
-
-		//  %%STATE_MODE_RESOURCES%%
-		//not show the public option when in dropbox mode
-		if (RESOURCES_MODE_RESOURCES.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
-		{
-			context.put("dropboxMode", Boolean.FALSE);
-		}
-		else if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
-		{
-			// not show the public option or notification when in dropbox mode
-			context.put("dropboxMode", Boolean.TRUE);
-		}
-		context.put("homeCollection", (String) state.getAttribute (STATE_HOME_COLLECTION_ID));
-		context.put("siteTitle", state.getAttribute(STATE_SITE_TITLE));
-		context.put ("resourceProperties", ContentHostingService.newResourceProperties ());
-
-		// String template = (String) getContext(data).get("template");
-		return TEMPLATE_DELETE_FINISH;
-
-	}
-
-	/**
-	 * Iterate over attributes in ToolSession and remove all attributes starting with a particular prefix.
-	 * @param toolSession
-	 * @param prefix
-	 */
-	protected void cleanup(ToolSession toolSession, String prefix) 
-	{
-		Enumeration attributeNames = toolSession.getAttributeNames();
-		while(attributeNames.hasMoreElements())
-		{
-			String aName = (String) attributeNames.nextElement();
-			if(aName.startsWith(prefix))
-			{
-				toolSession.removeAttribute(aName);
-			}
-		}
-		
-	}
-
-	public String buildCreateWizardContext(VelocityPortlet portlet, Context context, RunData data, SessionState state) 
-	{
-		context.put("tlang",trb);
-		
-		String template = "content/sakai_resources_cwiz_finish";
-		ToolSession toolSession = SessionManager.getCurrentToolSession();
-		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
-		if(pipe.isActionCanceled())
-		{
-			// go back to list view
-			
-		}
-		else if(pipe.isErrorEncountered())
-		{
-			// report the error?
-			
-		}
-		else
-		{
-			// complete the create wizard
-			String defaultCopyrightStatus = (String) state.getAttribute(DEFAULT_COPYRIGHT);
-			if(defaultCopyrightStatus == null || defaultCopyrightStatus.trim().equals(""))
-			{
-				defaultCopyrightStatus = ServerConfigurationService.getString("default.copyright");
-				state.setAttribute(DEFAULT_COPYRIGHT, defaultCopyrightStatus);
-			}
-
-			String encoding = data.getRequest().getCharacterEncoding();
-
-			Time defaultRetractDate = (Time) state.getAttribute(STATE_DEFAULT_RETRACT_TIME);
-			if(defaultRetractDate == null)
-			{
-				defaultRetractDate = TimeService.newTime();
-				state.setAttribute(STATE_DEFAULT_RETRACT_TIME, defaultRetractDate);
-			}
 	
-			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
-			if(preventPublicDisplay == null)
-			{
-				preventPublicDisplay = Boolean.FALSE;
-				state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
-			}
-
-			ContentEntity collection = pipe.getContentEntity();
-
-			String typeId = pipe.getAction().getTypeId();
-			List items = newEditItems(collection.getId(), typeId, encoding, defaultCopyrightStatus, preventPublicDisplay.booleanValue(), defaultRetractDate, new Integer(1));
-
-			ResourcesEditItem item = (ResourcesEditItem) items.get(0);
-			item.setContent(pipe.getContent());
-			item.setMimeType(pipe.getMimeType());
-			context.put("item", item);
-			
-			state.setAttribute(STATE_CREATE_WIZARD_ITEM, item);
-			
-			ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
-			if(registry == null)
-			{
-				registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
-				state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
-			}
-			ResourceType typeDef = registry.getType(typeId);
-			context.put("type", typeDef);
-			
-			context.put("title", (new ResourceTypeLabeler()).getLabel(pipe.getAction()));
-			context.put("instruction", trb.getFormattedMessage("instr.create", new String[]{typeDef.getLabel()}));
-			context.put("required", trb.getFormattedMessage("instr.require", new String[]{"<span class=\"reqStarInline\">*</span>"}));
-			
-			if(ContentHostingService.isAvailabilityEnabled())
-			{
-				context.put("availability_is_enabled", Boolean.TRUE);
-			}
-			
-			copyrightChoicesIntoContext(state, context);
-			
-			context.put("SITE_ACCESS", AccessMode.SITE.toString());
-			context.put("GROUP_ACCESS", AccessMode.GROUPED.toString());
-			context.put("INHERITED_ACCESS", AccessMode.INHERITED.toString());
-			context.put("PUBLIC_ACCESS", PUBLIC_ACCESS);
-		}
-		return template;
-	}
-
 	/**
-	 * Build the context to establish a custom-ordering of resources/folders within a folder.
-	 */
-	public String buildColumnsContext(VelocityPortlet portlet, Context context, RunData data, SessionState state) 
+	* Paste the item(s) selected to be moved
+	*/
+	public static void doMoveitems ( RunData data)
 	{
-		context.put("tlang",trb);
-		
-		// need to check permissions
-		
-		// get the id of the item currently selected
-		String selectedItemId = (String) state.getAttribute(STATE_COLUMN_ITEM_ID);
-		if(selectedItemId == null)
-		{
-			selectedItemId = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
-		}
-		context.put("selectedItemId", selectedItemId);
-		String folderId = null;
-		
-		// need a list of folders (ListItem objects) for one root in context as $folders
-		List<List<ListItem>> folders = new Vector<List<ListItem>>();
-		ContentCollection collection = null;
-		ContentEntity selectedItem = null;
-		
-		// need a list of roots (ListItem objects) in context as $roots
-		List<ListItem> roots = new Vector<ListItem>();
-		Map othersites = ContentHostingService.getCollectionMap();
-		Iterator it = othersites.keySet().iterator();
-		while(it.hasNext())
-		{
-			String rootId = (String) it.next();
-			String rootName = (String) othersites.get(rootId);
-			ListItem root = new ListItem(rootId);
-			root.setName(rootName);
-			root.setHoverText(rootName);
-			root.setAccessUrl(ContentHostingService.getUrl(rootId));
-			root.setIconLocation(ContentTypeImageService.getContentTypeImage("folder"));
-			
-			if(selectedItemId != null && selectedItemId.startsWith(rootId))
-			{
-				root.setSelected(true);
-				folderId = rootId;
-				try
-				{
-					selectedItem = ContentHostingService.getCollection(rootId);
-				}
-				catch (IdUnusedException e)
-				{
-					// TODO Auto-generated catch block
-					logger.warn("IdUnusedException ", e);
-				}
-				catch (TypeException e)
-				{
-					// TODO Auto-generated catch block
-					logger.warn("TypeException ", e);
-				}
-				catch (PermissionException e)
-				{
-					// TODO Auto-generated catch block
-					logger.warn("PermissionException ", e);
-				}
-			}
-			roots.add(root);
-		}
-		// sort by name?
-		context.put("roots", roots);
-		
-		ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
-		if(registry == null)
-		{
-			registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
-			state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
-		}
-		
-		while(folderId != null)
-		{
-			String collectionId = folderId;
-			folderId = null;
+		ParameterParser params = data.getParameters ();
 
-			List<ListItem> folder = new Vector<ListItem>();
-			try 
-			{
-				if(collection == null)
-				{
-					collection = ContentHostingService.getCollection(collectionId);
-				}
-				List members = collection.getMemberResources();
-				collection = null;
-				Iterator memberIt = members.iterator();
-				while(memberIt.hasNext())
-				{
-					ContentEntity member = (ContentEntity) memberIt.next();
-					String itemId = member.getId();
-					ListItem item = new ListItem(member);
-					if(selectedItemId != null && (selectedItemId.equals(itemId) || (member.isCollection() && selectedItemId.startsWith(itemId))))
-					{
-						selectedItem = member;
-						item.setSelected(true);
-						if(member.isCollection())
-						{
-							folderId = itemId;
-						}
-					}
-					else
-					{
-						item.setSelected(false);
-					}
-					folder.add(item);
-				}
-				folders.add(folder);
-				
-				
-			} 
-			catch (IdUnusedException e) 
-			{
-				// TODO Auto-generated catch block
-				logger.warn("IdUnusedException " + e.getMessage());
-			} 
-			catch (TypeException e) 
-			{
-				// TODO Auto-generated catch block
-				logger.warn("TypeException " + e.getMessage());
-			} 
-			catch (PermissionException e) 
-			{
-				// TODO Auto-generated catch block
-				logger.warn("PermissionException " + e.getMessage());
-			}
-			
-		}
-		context.put("folders", folders);
-		
-		if(selectedItem != null)
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		// cancel copy if there is one in progress
+		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
 		{
-			// if copy or move is in progress AND user has content.new for this folder, user can paste in the collection 
-			// (the paste action will only be defined for collections)
-			List<String> items_to_be_copied = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_COPIED);
-			
-			List<String> items_to_be_moved = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_MOVED);
-			
-			List<ResourceToolAction> actions = getActions(selectedItem, new TreeSet(getPermissions(selectedItem.getId())), registry, items_to_be_moved, items_to_be_copied);
-			
-			context.put("actions", actions);
-			context.put("labeler", new ResourceTypeLabeler());
+			initCopyContext(state);
 		}
-		
-		return "content/sakai_resources_columns";
+
+		List items = (List) state.getAttribute(STATE_MOVED_IDS);
+
+		String collectionId = params.getString ("collectionId");
+
+		Iterator itemIter = items.iterator();
+		while (itemIter.hasNext())
+		{
+			// get the copied item to be pasted
+			String itemId = (String) itemIter.next();
+
+			String originalDisplayName = NULL_STRING;
+
+			try
+			{
+				/*
+				ResourceProperties properties = ContentHostingService.getProperties (itemId);
+				originalDisplayName = properties.getPropertyFormatted (ResourceProperties.PROP_DISPLAY_NAME);
+
+				// copy, cut and paste not operated on collections
+				if (properties.getProperty (ResourceProperties.PROP_IS_COLLECTION).equals (Boolean.TRUE.toString()))
+				{
+					String alert = (String) state.getAttribute(STATE_MESSAGE);
+					if (alert == null || ((alert != null) && (alert.indexOf(rb.getString("notsupported")) == -1)))
+					{
+						addAlert(state, rb.getString("notsupported"));
+					}
+				}
+				else
+				*/
+				{
+					ContentHostingService.moveIntoFolder(itemId, collectionId);
+				}	// if-else
+			}
+			catch (PermissionException e)
+			{
+				addAlert(state, rb.getString("notpermis8") + " " + originalDisplayName + ". ");
+			}
+			catch (IdUnusedException e)
+			{
+				addAlert(state,rb.getString("notexist1"));
+			}
+			catch (InUseException e)
+			{
+				addAlert(state, rb.getString("someone") + " " + originalDisplayName);
+			}
+			catch (TypeException e)
+			{
+				addAlert(state, rb.getString("pasteitem") + " " + originalDisplayName + " " + rb.getString("mismatch"));
+			}
+			catch (InconsistentException e)
+			{
+				addAlert(state, rb.getString("recursive") + " " + itemId);
+			}
+			catch(IdUsedException e)
+			{
+				addAlert(state, rb.getString("toomany"));
+			}
+			catch(ServerOverloadException e)
+			{
+				addAlert(state, rb.getString("failed"));
+			}
+			catch (OverQuotaException e)
+			{
+				addAlert(state, rb.getString("overquota"));
+			}	// try-catch
+			catch(RuntimeException e)
+			{
+				logger.debug("ResourcesAction.doMoveitems ***** Unknown Exception ***** " + e.getMessage());
+				addAlert(state, rb.getString("failed"));
+			}
+
+			if (state.getAttribute(STATE_MESSAGE) == null)
+			{
+				// delete sucessful
+				String mode = (String) state.getAttribute(STATE_MODE);
+				if(MODE_HELPER.equals(mode))
+				{
+					state.setAttribute(STATE_RESOURCES_HELPER_MODE, MODE_ATTACHMENT_SELECT);
+				}
+				else
+				{
+					state.setAttribute (STATE_MODE, MODE_LIST);
+				}
+
+				// try to expand the collection
+				SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+				if(! expandedCollections.contains(collectionId))
+				{
+					expandedCollections.add(collectionId);
+				}
+
+				// reset the copy flag
+				if (((String)state.getAttribute (STATE_MOVE_FLAG)).equals (Boolean.TRUE.toString()))
+				{
+					state.setAttribute (STATE_MOVE_FLAG, Boolean.FALSE.toString());
+				}
+			}
+
+		}
+
+	}	// doMoveitems
+	
+	/**
+	* Paste the previously copied item(s)
+	*/
+	public static void doPasteitem ( RunData data)
+	{
+		ParameterParser params = data.getParameters ();
+
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		// get the copied item to be pasted
+		String itemId = params.getString("itemId");
+
+		String collectionId = params.getString ("collectionId");
+
+		duplicateItem(state, itemId, collectionId);
+
+	}	// doPasteitem
+	
+	/**
+	* Paste the previously copied item(s)
+	*/
+	public static void doPasteitems ( RunData data)
+	{
+		ParameterParser params = data.getParameters ();
+
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		List items = (List) state.getAttribute(STATE_COPIED_IDS);
+
+		String collectionId = params.getString ("collectionId");
+
+		Iterator itemIter = items.iterator();
+		while (itemIter.hasNext())
+		{
+			// get the copied item to be pasted
+			String itemId = (String) itemIter.next();
+
+			String originalDisplayName = NULL_STRING;
+
+			try
+			{
+				String id = ContentHostingService.copyIntoFolder(itemId, collectionId);
+				String mode = (String) state.getAttribute(STATE_MODE);
+				if(MODE_HELPER.equals(mode))
+				{
+				}
+			}
+			catch (PermissionException e)
+			{
+				addAlert(state, rb.getString("notpermis8") + " " + originalDisplayName + ". ");
+			}
+			catch (IdUnusedException e)
+			{
+				addAlert(state,rb.getString("notexist1"));
+			}
+			catch (InUseException e)
+			{
+				addAlert(state, rb.getString("someone") + " " + originalDisplayName);
+			}
+			catch (TypeException e)
+			{
+				addAlert(state, rb.getString("pasteitem") + " " + originalDisplayName + " " + rb.getString("mismatch"));
+			}
+			catch(IdUsedException e)
+			{
+				addAlert(state, rb.getString("toomany"));
+			}
+			catch(IdLengthException e)
+			{
+				addAlert(state, rb.getString("toolong") + " " + e.getMessage());
+			}
+			catch(IdUniquenessException e)
+			{
+				addAlert(state, "Could not add this item to this folder");
+			}
+			catch(ServerOverloadException e)
+			{
+				addAlert(state, rb.getString("failed"));
+			}
+			catch(InconsistentException e)
+			{
+				addAlert(state, rb.getString("recursive") + " " + itemId);
+			}
+			catch (OverQuotaException e)
+			{
+				addAlert(state, rb.getString("overquota"));
+			}	// try-catch
+			catch(RuntimeException e)
+			{
+				logger.debug("ResourcesAction.doPasteitems ***** Unknown Exception ***** " + e.getMessage());
+				addAlert(state, rb.getString("failed"));
+			}
+
+			if (state.getAttribute(STATE_MESSAGE) == null)
+			{
+				// delete sucessful
+				String mode = (String) state.getAttribute(STATE_MODE);
+				if(MODE_HELPER.equals(mode))
+				{
+					state.setAttribute(STATE_RESOURCES_HELPER_MODE, MODE_ATTACHMENT_SELECT);
+				}
+				else
+				{
+					state.setAttribute (STATE_MODE, MODE_LIST);
+				}
+
+				// try to expand the collection
+				SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+				if(expandedCollections == null)
+				{
+					expandedCollections = new TreeSet();
+					state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
+				}
+				if(! expandedCollections.contains(collectionId))
+				{
+					expandedCollections.add(collectionId);
+				}
+
+				// reset the copy flag
+				if (((String)state.getAttribute (STATE_COPY_FLAG)).equals (Boolean.TRUE.toString()))
+				{
+					state.setAttribute (STATE_COPY_FLAG, Boolean.FALSE.toString());
+				}
+			}
+
+		}
+
+	}	// doPasteitems
+	
+	/**
+	 * @param state
+	 * @param itemId
+	 * @param collectionId
+	 */
+	protected static void duplicateItem(SessionState state, String itemId, String collectionId)
+	{
+		String originalDisplayName = NULL_STRING;
+
+		try
+		{
+			ResourceProperties properties = ContentHostingService.getProperties (itemId);
+			originalDisplayName = properties.getPropertyFormatted (ResourceProperties.PROP_DISPLAY_NAME);
+
+			// copy, cut and paste not operated on collections
+			if (properties.getProperty (ResourceProperties.PROP_IS_COLLECTION).equals (Boolean.TRUE.toString()))
+			{
+				String alert = (String) state.getAttribute(STATE_MESSAGE);
+				if (alert == null || ((alert != null) && (alert.indexOf(rb.getString("notsupported")) == -1)))
+				{
+					addAlert(state, rb.getString("notsupported"));
+				}
+			}
+			else
+			{
+				// paste the resource
+				ContentResource resource = ContentHostingService.getResource (itemId);
+				ResourceProperties p = ContentHostingService.getProperties(itemId);
+				String[] args = { p.getProperty(ResourceProperties.PROP_DISPLAY_NAME) };
+				String displayName = rb.getFormattedMessage("copy.name", args);
+
+				String newItemId = ContentHostingService.copyIntoFolder(itemId, collectionId);
+
+				ContentResourceEdit copy = ContentHostingService.editResource(newItemId);
+				ResourcePropertiesEdit pedit = copy.getPropertiesEdit();
+				pedit.addProperty(ResourceProperties.PROP_DISPLAY_NAME, displayName);
+				ContentHostingService.commitResource(copy, NotificationService.NOTI_NONE);
+
+			}	// if-else
+		}
+		catch (PermissionException e)
+		{
+			addAlert(state, rb.getString("notpermis8") + " " + originalDisplayName + ". ");
+		}
+		catch (IdUnusedException e)
+		{
+			addAlert(state,rb.getString("notexist1"));
+		}
+		catch (IdUsedException e)
+		{
+			addAlert(state, rb.getString("notaddreso") + " " + originalDisplayName + " " + rb.getString("used2"));
+		}
+		catch(IdLengthException e)
+		{
+			addAlert(state, rb.getString("toolong") + " " + e.getMessage());
+		}
+		catch(IdUniquenessException e)
+		{
+			addAlert(state, "Could not add this item to this folder");
+		}
+		catch (InconsistentException ee)
+		{
+			addAlert(state, rb.getString("titlecannot"));
+		}
+		catch(InUseException e)
+		{
+			addAlert(state, rb.getString("someone") + " " + originalDisplayName + ". ");
+		}
+		catch(OverQuotaException e)
+		{
+			addAlert(state, rb.getString("overquota"));
+		}
+		catch(ServerOverloadException e)
+		{
+			// this represents temporary unavailability of server's filesystem
+			// for server configured to save resource body in filesystem
+			addAlert(state, rb.getString("failed"));
+		}
+		catch (TypeException e)
+		{
+			addAlert(state, rb.getString("pasteitem") + " " + originalDisplayName + " " + rb.getString("mismatch"));
+		}	// try-catch
+
+		if (state.getAttribute(STATE_MESSAGE) == null)
+		{
+			// delete sucessful
+			String mode = (String) state.getAttribute(STATE_MODE);
+			if(MODE_HELPER.equals(mode))
+			{
+				state.setAttribute(STATE_RESOURCES_HELPER_MODE, MODE_ATTACHMENT_SELECT);
+			}
+			else
+			{
+				state.setAttribute (STATE_MODE, MODE_LIST);
+			}
+
+			// try to expand the collection
+			SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+			if(STATE_EXPANDED_COLLECTIONS == null)
+			{
+				expandedCollections = new TreeSet();
+				state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
+			}
+			if(! expandedCollections.contains(collectionId))
+			{
+				expandedCollections.add(collectionId);
+			}
+
+			// reset the copy flag
+			if (((String)state.getAttribute (STATE_COPY_FLAG)).equals (Boolean.TRUE.toString()))
+			{
+				state.setAttribute (STATE_COPY_FLAG, Boolean.FALSE.toString());
+			}
+		}
 	}
-
+	
 	/**
      * @param selectedItem
 	 * @param permissions TODO
@@ -1679,2215 +2045,129 @@ public class ResourcesAction
 	    return actions;
     }
 	
-	public void doReviseProperties(RunData data)
-	{
-		// get the state object
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-		
-		// get the parameter-parser
-		ParameterParser params = data.getParameters();
-		
-		String user_action = params.getString("user_action");
-		
-		if(user_action.equals("save"))
-		{
-			String entityId = (String) state.getAttribute(STATE_REVISE_PROPERTIES_ENTITY_ID);
-			ResourcesItem item = (ResourcesItem) state.getAttribute(STATE_REVISE_PROPERTIES_ITEM);
-			ResourceToolAction action = (ResourceToolAction) state.getAttribute(STATE_REVISE_PROPERTIES_ACTION);
-			String name = params.getString("name");
-			String description = params.getString("description");
-			String resourceType = action.getTypeId();
-			// rights
-			String copyright = params.getString("copyright");
-			String newcopyright = params.getString("newcopyright");
-			boolean copyrightAlert = params.getBoolean("copyrightAlert");
-			
-			// availability
-			boolean hidden = params.getBoolean("hidden");
-			boolean use_start_date = params.getBoolean("use_start_date");
-			boolean use_end_date = params.getBoolean("use_end_date");
-			Time releaseDate = null;
-			Time retractDate = null;
-			
-			if(use_start_date)
-			{
-				int begin_year = params.getInt("release_year");
-				int begin_month = params.getInt("release_month");
-				int begin_day = params.getInt("release_day");
-				int begin_hour = params.getInt("release_hour");
-				int begin_min = params.getInt("release_min");
-				String release_ampm = params.getString("release_ampm");
-				if("pm".equals(release_ampm))
-				{
-					begin_hour += 12;
-				}
-				else if(begin_hour == 12)
-				{
-					begin_hour = 0;
-				}
-				releaseDate = TimeService.newTimeLocal(begin_year, begin_month, begin_day, begin_hour, begin_min, 0, 0);
-			}
-			
-			if(use_end_date)
-			{
-				int end_year = params.getInt("retract_year");
-				int end_month = params.getInt("retract_month");
-				int end_day = params.getInt("retract_day");
-				int end_hour = params.getInt("retract_hour");
-				int end_min = params.getInt("retract_min");
-				String retract_ampm = params.getString("retract_ampm");
-				if("pm".equals(retract_ampm))
-				{
-					end_hour += 12;
-				}
-				else if(end_hour == 12)
-				{
-					end_hour = 0;
-				}
-				retractDate = TimeService.newTimeLocal(end_year, end_month, end_day, end_hour, end_min, 0, 0);
-			}
-			
-			// access
-			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
-			if(preventPublicDisplay == null)
-			{
-				preventPublicDisplay = Boolean.FALSE;
-				state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
-			}
-			
-			String access_mode = params.getString("access_mode");
-			SortedSet groups = new TreeSet();
-			
-			if(access_mode == null || AccessMode.GROUPED.toString().equals(access_mode))
-			{
-				// we inherit more than one group and must check whether group access changes at this item
-				String[] access_groups = params.getStrings("access_groups");
-				
-				SortedSet new_groups = new TreeSet();
-				if(access_groups != null)
-				{
-					new_groups.addAll(Arrays.asList(access_groups));
-				}
-				//new_groups = item.convertToRefs(new_groups);
-				
-//				Collection inh_grps = null;
-//				//item.getInheritedGroupRefs();
-//				boolean groups_are_inherited = (new_groups.size() == inh_grps.size()) && inh_grps.containsAll(new_groups);
-//				
-//				if(groups_are_inherited)
-//				{
-//					new_groups.clear();
-//					item.setEntityGroupRefs(new_groups);
-//					item.setAccess(AccessMode.INHERITED.toString());
-//				}
-//				else
-//				{
-//					item.setEntityGroupRefs(new_groups);
-//					item.setAccess(AccessMode.GROUPED.toString());
-//				}
-//				
-//				item.setPubview(false);
-			}
-			else if(PUBLIC_ACCESS.equals(access_mode))
-			{
-//				if(! preventPublicDisplay.booleanValue() && ! item.isPubviewInherited())
-//				{
-//					item.setPubview(true);
-//					item.setAccess(AccessMode.INHERITED.toString());
-//				}
-			}
-			else if(AccessMode.INHERITED.toString().equals(access_mode))
-			{
-//				item.setAccess(AccessMode.INHERITED.toString());
-//				item.clearGroups();
-//				item.setPubview(false);
-			}
-
-			// notification
-			int noti = NotificationService.NOTI_NONE;
-			// %%STATE_MODE_RESOURCES%%
-			if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
-			{
-				// set noti to none if in dropbox mode
-				noti = NotificationService.NOTI_NONE;
-			}
-			else
-			{
-				// read the notification options
-				String notification = params.getString("notify");
-				if ("r".equals(notification))
-				{
-					noti = NotificationService.NOTI_REQUIRED;
-				}
-				else if ("o".equals(notification))
-				{
-					noti = NotificationService.NOTI_OPTIONAL;
-				}
-			}
-			
-
-			// set to public access if allowed and requested
-			if(!preventPublicDisplay.booleanValue() && PUBLIC_ACCESS.equals(access_mode))
-			{
-				ContentHostingService.setPubView(entityId, true);
-			}
-			
-
-			try 
-			{
-				if(item.isCollection())
-				{
-					ContentCollectionEdit entity = ContentHostingService.editCollection(entityId);
-					ResourcePropertiesEdit resourceProperties = entity.getPropertiesEdit();
-					resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
-					resourceProperties.addProperty(ResourceProperties.PROP_DESCRIPTION, description);
-					entity.setAvailability(hidden, releaseDate, retractDate);
-					ContentHostingService.commitCollection(entity);
-				}
-				else
-				{
-					ContentResourceEdit entity = ContentHostingService.editResource(entityId);
-					entity.setResourceType(resourceType);
-					ResourcePropertiesEdit resourceProperties = entity.getPropertiesEdit();
-					resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
-					resourceProperties.addProperty(ResourceProperties.PROP_DESCRIPTION, description);
-					entity.setAvailability(hidden, releaseDate, retractDate);
-					
-					if(copyright == null || copyright.trim().length() == 0)
-					{
-						resourceProperties.removeProperty(ResourceProperties.PROP_COPYRIGHT_CHOICE);
-					}
-					else
-					{
-						resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT_CHOICE, copyright);
-					}
-					if(newcopyright == null || newcopyright.trim().length() == 0)
-					{
-						resourceProperties.removeProperty(ResourceProperties.PROP_COPYRIGHT);
-					}
-					else
-					{
-						resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT, newcopyright);
-					}
-					if (copyrightAlert)
-					{
-						resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT_ALERT, Boolean.TRUE.toString());
-					}
-					else
-					{
-						resourceProperties.removeProperty (ResourceProperties.PROP_COPYRIGHT_ALERT);
-					}
-					
-					ContentHostingService.commitResource(entity, noti);
-				}
-
-				state.setAttribute(STATE_MODE, MODE_LIST);
-			} 
-			catch (IdUnusedException e) 
-			{
-				logger.warn("IdUnusedException", e);
-			} 
-			catch (TypeException e) 
-			{
-				logger.warn("TypeException", e);
-			} 
-			catch (PermissionException e) 
-			{
-				logger.warn("PermissionException", e);
-			} 
-			catch (ServerOverloadException e) 
-			{
-				logger.warn("ServerOverloadException", e);
-			}
-			catch (OverQuotaException e)
-			{
-				// TODO Auto-generated catch block
-				logger.warn("OverQuotaException ", e);
-			}
-			catch (InUseException e)
-			{
-				// TODO Auto-generated catch block
-				logger.warn("InUseException ", e);
-			}
-			
-		}
-		else if(user_action.equals("cancel"))
-		{
-			state.setAttribute(STATE_MODE, MODE_LIST);
-		}
-	}
-	
-	public void doShowMembers(RunData data)
-	{
-		// get the state object
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-		
-		// get the parameter-parser
-		ParameterParser params = data.getParameters();
-		
-		// get the item to be expanded
-		String itemId = params.getString("item");
-		if(itemId != null)
-		{
-			// put the itemId into state
-			state.setAttribute(STATE_COLUMN_ITEM_ID, itemId);
-		}
-	}
-	
-	public void doColumns(RunData data)
-	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-		state.setAttribute(STATE_LIST_PREFERENCE, LIST_COLUMNS);
-	}
-	
-	public void doHierarchy(RunData data)
-	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-		state.setAttribute(STATE_LIST_PREFERENCE, LIST_HIERARCHY);
-	}
-	
-	/**
-	 * @param data
-	 */
-	public void doCompleteCreateWizard(RunData data)
-	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-		
-		ResourcesEditItem item = (ResourcesEditItem) state.getAttribute(STATE_CREATE_WIZARD_ITEM);
-		
-		// get the parameter-parser
-		ParameterParser params = data.getParameters();
-		
-		String user_action = params.getString("user_action");
-		
-		ToolSession toolSession = SessionManager.getCurrentToolSession();
-		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
-		
-		if(user_action == null)
-		{
-			
-		}
-		else if(user_action.equals("save"))
-		{
-			String collectionId = (String) state.getAttribute(STATE_CREATE_WIZARD_COLLECTION_ID);
-			try 
-			{
-				// title
-				String name = params.getString("name");
-				String basename = name.trim();
-				String extension = "";
-				if(name.contains("."))
-				{
-					String[] parts = name.split("\\.");
-					basename = parts[0];
-					if(parts.length > 1)
-					{
-						extension = parts[parts.length - 1];
-					}
-					
-					for(int i = 1; i < parts.length - 1; i++)
-					{
-						basename += "." + parts[i];
-					}
-				}
-				
-				// create resource
-				ContentResourceEdit resource = ContentHostingService.addResource(collectionId, basename, extension, MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
-				
-				String resourceType = null;
-				if(pipe != null)
-				{
-					ResourceToolAction action = pipe.getAction();
-					if(action == null)
-					{
-						
-					}
-					else 
-					{
-						if(action instanceof InteractionAction)
-						{
-							InteractionAction iAction = (InteractionAction) action;
-							iAction.finalizeAction(EntityManager.newReference(resource.getReference()), pipe.getInitializationId());
-						}
-						resourceType = action.getTypeId();
-					}
-				}
-				
-				resource.setResourceType(resourceType);
-				
-				byte[] content = pipe.getRevisedContent();
-				if(content == null)
-				{
-					InputStream stream = pipe.getRevisedContentStream();
-					if(stream == null)
-					{
-						logger.warn("pipe with null content and null stream: " + pipe.getFileName());
-					}
-					else
-					{
-						resource.setContent(stream);
-					}
-				}
-				else
-				{
-					resource.setContent(content);
-				}
-
-				resource.setContentType(pipe.getRevisedMimeType());
-				
-				ResourcePropertiesEdit resourceProperties = resource.getPropertiesEdit();
-				resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
-				
-				Map values = pipe.getRevisedResourceProperties();
-				Iterator valueIt = values.keySet().iterator();
-				while(valueIt.hasNext())
-				{
-					String pname = (String) valueIt.next();
-					String pvalue = (String) values.get(pname);
-					resourceProperties.addProperty(pname, pvalue);
-				}
-				
-				// description
-				String description = params.getString("description");
-				resourceProperties.addProperty(ResourceProperties.PROP_DESCRIPTION, description);
-				
-				// rights
-				String copyright = params.getString("copyright");
-				String newcopyright = params.getString("newcopyright");
-				boolean copyrightAlert = params.getBoolean("copyrightAlert");
-				
-				if(copyright == null || copyright.trim().length() == 0)
-				{
-					resourceProperties.removeProperty(ResourceProperties.PROP_COPYRIGHT_CHOICE);
-				}
-				else
-				{
-					resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT_CHOICE, copyright);
-				}
-				if(newcopyright == null || newcopyright.trim().length() == 0)
-				{
-					resourceProperties.removeProperty(ResourceProperties.PROP_COPYRIGHT);
-				}
-				else
-				{
-					resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT, newcopyright);
-				}
-				if (copyrightAlert)
-				{
-					resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT_ALERT, Boolean.TRUE.toString());
-				}
-				else
-				{
-					resourceProperties.removeProperty (ResourceProperties.PROP_COPYRIGHT_ALERT);
-				}
-				
-				// availability
-				boolean hidden = params.getBoolean("hidden");
-				boolean use_start_date = params.getBoolean("use_start_date");
-				boolean use_end_date = params.getBoolean("use_end_date");
-				Time releaseDate = null;
-				Time retractDate = null;
-				
-				if(use_start_date)
-				{
-					int begin_year = params.getInt("release_year");
-					int begin_month = params.getInt("release_month");
-					int begin_day = params.getInt("release_day");
-					int begin_hour = params.getInt("release_hour");
-					int begin_min = params.getInt("release_min");
-					String release_ampm = params.getString("release_ampm");
-					if("pm".equals(release_ampm))
-					{
-						begin_hour += 12;
-					}
-					else if(begin_hour == 12)
-					{
-						begin_hour = 0;
-					}
-					releaseDate = TimeService.newTimeLocal(begin_year, begin_month, begin_day, begin_hour, begin_min, 0, 0);
-				}
-				
-				if(use_end_date)
-				{
-					int end_year = params.getInt("retract_year");
-					int end_month = params.getInt("retract_month");
-					int end_day = params.getInt("retract_day");
-					int end_hour = params.getInt("retract_hour");
-					int end_min = params.getInt("retract_min");
-					String retract_ampm = params.getString("retract_ampm");
-					if("pm".equals(retract_ampm))
-					{
-						end_hour += 12;
-					}
-					else if(end_hour == 12)
-					{
-						end_hour = 0;
-					}
-					retractDate = TimeService.newTimeLocal(end_year, end_month, end_day, end_hour, end_min, 0, 0);
-				}
-				
-				resource.setAvailability(hidden, releaseDate, retractDate);
-				
-				// access
-				Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
-				if(preventPublicDisplay == null)
-				{
-					preventPublicDisplay = Boolean.FALSE;
-					state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
-				}
-				
-				String access_mode = params.getString("access_mode");
-				SortedSet groups = new TreeSet();
-				
-				if(access_mode == null || AccessMode.GROUPED.toString().equals(access_mode))
-				{
-					// we inherit more than one group and must check whether group access changes at this item
-					String[] access_groups = params.getStrings("access_groups");
-					
-					SortedSet new_groups = new TreeSet();
-					if(access_groups != null)
-					{
-						new_groups.addAll(Arrays.asList(access_groups));
-					}
-					new_groups = item.convertToRefs(new_groups);
-					
-					Collection inh_grps = item.getInheritedGroupRefs();
-					boolean groups_are_inherited = (new_groups.size() == inh_grps.size()) && inh_grps.containsAll(new_groups);
-					
-					if(groups_are_inherited)
-					{
-						new_groups.clear();
-						item.setEntityGroupRefs(new_groups);
-						item.setAccess(AccessMode.INHERITED.toString());
-					}
-					else
-					{
-						item.setEntityGroupRefs(new_groups);
-						item.setAccess(AccessMode.GROUPED.toString());
-					}
-					
-					item.setPubview(false);
-				}
-				else if(PUBLIC_ACCESS.equals(access_mode))
-				{
-					if(! preventPublicDisplay.booleanValue() && ! item.isPubviewInherited())
-					{
-						item.setPubview(true);
-						item.setAccess(AccessMode.INHERITED.toString());
-					}
-				}
-				else if(AccessMode.INHERITED.toString().equals(access_mode))
-				{
-					item.setAccess(AccessMode.INHERITED.toString());
-					item.clearGroups();
-					item.setPubview(false);
-				}
-				
-				// update resource with access info
-
-				// notification
-				int noti = NotificationService.NOTI_NONE;
-				// %%STATE_MODE_RESOURCES%%
-				if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
-				{
-					// set noti to none if in dropbox mode
-					noti = NotificationService.NOTI_NONE;
-				}
-				else
-				{
-					// read the notification options
-					String notification = params.getString("notify");
-					if ("r".equals(notification))
-					{
-						noti = NotificationService.NOTI_REQUIRED;
-					}
-					else if ("o".equals(notification))
-					{
-						noti = NotificationService.NOTI_OPTIONAL;
-					}
-				}
-				
-				ContentHostingService.commitResource(resource, noti);
-				
-				toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
-
-				// set to public access if allowed and requested
-				if(!preventPublicDisplay.booleanValue() && PUBLIC_ACCESS.equals(access_mode))
-				{
-					ContentHostingService.setPubView(resource.getId(), true);
-				}
-				
-				// show folder if in hierarchy view
-				SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
-				expandedCollections.add(collectionId);
-
-				state.setAttribute(STATE_MODE, MODE_LIST);
-			} 
-			catch (IdUnusedException e) 
-			{
-				logger.warn("IdUnusedException", e);
-			} 
-			catch (PermissionException e) 
-			{
-				logger.warn("PermissionException", e);
-			} 
-			catch (IdInvalidException e) 
-			{
-				logger.warn("IdInvalidException", e);
-			} 
-			catch (ServerOverloadException e) 
-			{
-				logger.warn("ServerOverloadException", e);
-			}
-			catch (OverQuotaException e)
-			{
-				// TODO Auto-generated catch block
-				logger.warn("OverQuotaException ", e);
-			}
-            catch (IdUniquenessException e)
-            {
-	            // TODO Auto-generated catch block
-	            logger.warn("IdUniquenessException ", e);
-            }
-            catch (IdLengthException e)
-            {
-	            // TODO Auto-generated catch block
-	            logger.warn("IdLengthException ", e);
-            }
-			
-		}
-		else if(user_action.equals("cancel"))
-		{
-			if(pipe != null)
-			{
-				ResourceToolAction action = pipe.getAction();
-				if(action == null)
-				{
-					
-				}
-				else 
-				{
-					if(action instanceof InteractionAction)
-					{
-						InteractionAction iAction = (InteractionAction) action;
-						iAction.cancelAction(null, pipe.getInitializationId());
-					}
-				}
-			}
-			state.setAttribute(STATE_MODE, MODE_LIST);
-		}
-	}
-	
-	public void doDispatchAction(RunData data)
-	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-		
-		// get the parameter-parser
-		ParameterParser params = data.getParameters();
-		
-		String action_string = params.getString("rt_action");
-		String selectedItemId = params.getString("selectedItemId");
-		
-		String[] parts = action_string.split(ResourceToolAction.ACTION_DELIMITER);
-		String typeId = parts[0];
-		String actionId = parts[1];
-		
-		// ResourceType type = getResourceType(selectedItemId, state);
-		ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
-		if(registry == null)
-		{
-			registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
-			state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
-		}
-		ResourceType type = registry.getType(typeId); 
-		
-		Reference reference = EntityManager.newReference(ContentHostingService.getReference(selectedItemId));
-		
-		ResourceToolAction action = type.getAction(actionId);
-		if(action == null)
-		{
-			
-		}
-		else if(action instanceof InteractionAction)
-		{
-			ToolSession toolSession = SessionManager.getCurrentToolSession();
-			// toolSession.setAttribute(ResourceToolAction.ACTION_ID, actionId);
-			// toolSession.setAttribute(ResourceToolAction.RESOURCE_TYPE, typeId);
-			
-			state.setAttribute(STATE_CREATE_WIZARD_COLLECTION_ID, selectedItemId);
-			
-			ContentEntity entity = (ContentEntity) reference.getEntity();
-			InteractionAction iAction = (InteractionAction) action;
-			String intitializationId = iAction.initializeAction(reference);
-			
-			ResourceToolActionPipe pipe = registry.newPipe(intitializationId, action);
-			pipe.setContentEntity(entity);
-			pipe.setHelperId(iAction.getHelperId());
-			
-			toolSession.setAttribute(ResourceToolAction.ACTION_PIPE, pipe);
-
-			ResourceProperties props = entity.getProperties();
-
-			List propKeys = iAction.getRequiredPropertyKeys();
-			if(propKeys != null)
-			{
-				Iterator it = propKeys.iterator();
-				while(it.hasNext())
-				{
-					String key = (String) it.next();
-					Object value = props.get(key);
-					if(value == null)
-					{
-						// do nothing
-					}
-					else if(value instanceof String)
-					{
-						pipe.setResourceProperty(key, (String) value);
-					}
-					else if(value instanceof List)
-					{
-						pipe.setResourceProperty(key, (List) value);
-					}
-				}
-			}
-			
-			if(entity.isResource())
-			{
-				try 
-				{
-					pipe.setMimeType(((ContentResource) entity).getContentType());
-					pipe.setContent(((ContentResource) entity).getContent());
-				} 
-				catch (ServerOverloadException e) 
-				{
-					logger.warn(this + ".doDispatchAction ServerOverloadException", e);
-				}
-			}
-
-			startHelper(data.getRequest(), iAction.getHelperId());
-		}
-		else if(action instanceof ServiceLevelAction)
-		{
-			ServiceLevelAction sAction = (ServiceLevelAction) action;
-			sAction.initializeAction(reference);
-			switch(sAction.getActionType())
-			{
-				case COPY:
-					List<String> items_to_be_copied = new Vector<String>();
-					if(selectedItemId != null)
-					{
-						items_to_be_copied.add(selectedItemId);
-					}
-					state.setAttribute(STATE_ITEMS_TO_BE_COPIED, items_to_be_copied);
-					break;
-				case DUPLICATE:
-					duplicateItem(state, selectedItemId, ContentHostingService.getContainingCollectionId(selectedItemId));
-					break;
-				case DELETE:
-					deleteItem(state, selectedItemId);
-					if (state.getAttribute(STATE_MESSAGE) == null)
-					{
-						// need new context
-						state.setAttribute (STATE_MODE, MODE_DELETE_FINISH);
-					}
-					break;
-				case MOVE:
-					List<String> items_to_be_moved = new Vector<String>();
-					if(selectedItemId != null)
-					{
-						items_to_be_moved.add(selectedItemId);
-					}
-					state.setAttribute(STATE_ITEMS_TO_BE_MOVED, items_to_be_moved);
-					break;
-				case VIEW_METADATA:
-					break;
-				case REVISE_METADATA:
-					state.setAttribute(STATE_REVISE_PROPERTIES_ENTITY_ID, selectedItemId);
-					state.setAttribute(STATE_REVISE_PROPERTIES_ACTION, action);
-					state.setAttribute (STATE_MODE, MODE_REVISE_METADATA);
-					break;
-				case CUSTOM_TOOL_ACTION:
-					// do nothing
-					break;
-				case NEW_UPLOAD:
-					break;
-				case NEW_FOLDER:
-					break;
-				case CREATE:
-					break;
-				case REVISE_CONTENT:
-					break;
-				case REPLACE_CONTENT:
-					break;
-				case PASTE_MOVED:
-					pasteItem(state, selectedItemId);
-					break;
-				case PASTE_COPIED:
-					pasteItem(state, selectedItemId);
-					break;
-				case REVISE_ORDER:
-					state.setAttribute(STATE_REORDER_FOLDER, selectedItemId);
-					state.setAttribute(STATE_MODE, MODE_REORDER);
-					break;
-				default:
-					break;
-			}
-			// not quite right for actions involving user interaction in Resources tool.
-			// For example, with delete, this should be after the confirmation and actual deletion
-			// Need mechanism to remember to do it later
-			sAction.finalizeAction(reference);
-			
-		}
-	}
-	
 	/**
 	 * @param state
+	 * @param homeCollectionId
+	 * @param currentCollectionId
+	 * @return
 	 */
-	protected void pasteItem(SessionState state, String collectionId)
+	public static List getCollectionPath(SessionState state)
 	{
-		List<String> items_to_be_moved = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_MOVED);
-		List<String> items_to_be_copied = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_COPIED);
-	
-		if(items_to_be_moved != null)
-		{
-			try
-			{
-				Iterator<String> moveIt = items_to_be_moved.iterator();
-				while(moveIt.hasNext())
-				{
-					String item = moveIt.next();
-					// paste moved item into collection 
-					ContentHostingService.moveIntoFolder(item, collectionId);
-					// TODO expand collection
-					
-					// remove the state attribute
-					state.removeAttribute(STATE_ITEMS_TO_BE_MOVED);
-				}
-			}
-			catch (PermissionException e)
-			{
-				
-				//addAlert(state, trb.getString("notpermis8") + " " + originalDisplayName + ". ");
-			}
-			catch (IdUnusedException e)
-			{
-				addAlert(state,rb.getString("notexist1"));
-			}
-			catch (InUseException e)
-			{
-				//addAlert(state, rb.getString("someone") + " " + originalDisplayName);
-			}
-			catch (TypeException e)
-			{
-				//addAlert(state, rb.getString("pasteitem") + " " + originalDisplayName + " " + rb.getString("mismatch"));
-			}
-			catch (InconsistentException e)
-			{
-				//addAlert(state, rb.getString("recursive") + " " + itemId);
-			}
-			catch(IdUsedException e)
-			{
-				addAlert(state, rb.getString("toomany"));
-			}
-			catch(ServerOverloadException e)
-			{
-				addAlert(state, rb.getString("failed"));
-			}
-			catch (OverQuotaException e)
-			{
-				addAlert(state, rb.getString("overquota"));
-			}	// try-catch
-			catch(RuntimeException e)
-			{
-				logger.debug("ResourcesAction.doMoveitems ***** Unknown Exception ***** " + e.getMessage());
-				addAlert(state, rb.getString("failed"));
-			}
-		}
-		else if(items_to_be_copied != null)
-		{
-			try
-			{
-				Iterator<String> copyIt = items_to_be_copied.iterator();
-				while(copyIt.hasNext())
-				{
-					String item = copyIt.next();
-					// paste copied item into collection 
-					ContentHostingService.copyIntoFolder(item, collectionId);
-					
-					// if no errors
-					// TODO expand collection
-					
-					// remove the state attribute
-					state.removeAttribute(STATE_ITEMS_TO_BE_COPIED);
-				}
-			}
-			catch (PermissionException e)
-			{
-				// TODO Auto-generated catch block
-				logger.warn("PermissionException ", e);
-			}
-			catch (IdUnusedException e)
-			{
-				// TODO Auto-generated catch block
-				logger.warn("IdUnusedException ", e);
-			}
-			catch (IdLengthException e)
-			{
-				// TODO Auto-generated catch block
-				logger.warn("IdLengthException ", e);
-			}
-			catch (IdUniquenessException e)
-			{
-				// TODO Auto-generated catch block
-				logger.warn("IdUniquenessException ", e);
-			}
-			catch (TypeException e)
-			{
-				// TODO Auto-generated catch block
-				logger.warn("TypeException ", e);
-			}
-			catch (InUseException e)
-			{
-				// TODO Auto-generated catch block
-				logger.warn("InUseException ", e);
-			}
-			catch (OverQuotaException e)
-			{
-				// TODO Auto-generated catch block
-				logger.warn("OverQuotaException ", e);
-			}
-			catch (IdUsedException e)
-			{
-				// TODO Auto-generated catch block
-				logger.warn("IdUsedException ", e);
-			}
-			catch (ServerOverloadException e)
-			{
-				// TODO Auto-generated catch block
-				logger.warn("ServerOverloadException ", e);
-			}
-			catch (InconsistentException e)
-			{
-				// TODO Auto-generated catch block
-				logger.warn("InconsistentException ", e);
-			}
-			// paste copied item into collection 
-			// duplicateItem(state, item_to_be_copied, collectionId);
-		}
-		else
-		{
-			// report error?
-		}
-	}
-
-	protected ResourceType getResourceType(String id, SessionState state)
-	{
-		ResourceType type = null;
-		
-		boolean isCollection = false;
-		String typeId = TYPE_UPLOAD;
-		ResourceProperties properties;
-		try 
-		{
-			properties = ContentHostingService.getProperties(id);
-			isCollection = properties.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
-			if(isCollection)
-			{
-				typeId = "folder";
-			}
-			else 
-			{
-				ContentResource resource = ContentHostingService.getResource(id);
-				String mimetype = resource.getContentType();
-				if(TYPE_HTML.equals(mimetype) || TYPE_URL.equals(mimetype) || TYPE_TEXT.equals(mimetype))
-				{
-					typeId = mimetype;
-				}
-			}
-			
-			ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
-			if(registry == null)
-			{
-				registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
-				state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
-			}
-			type = registry.getType(typeId); 
-		} 
-		catch (PermissionException e1) 
-		{
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} 
-		catch (IdUnusedException e1) 
-		{
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} 
-		catch (EntityPropertyNotDefinedException e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
-		catch (EntityPropertyTypeException e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
-		catch (TypeException e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return type;
-
-	}
-	
-	/**
-	 * Build the context to establish a custom-ordering of resources/folders within a folder.
-	 */
-	public String buildReorderContext(VelocityPortlet portlet, Context context, RunData data, SessionState state) 
-	{
-		context.put("tlang",rb);
-		
-		String folderId = (String) state.getAttribute(STATE_REORDER_FOLDER);
-		context.put("folderId", folderId);
-		
-		// save expanded folder lists
-		SortedSet<String> expandedCollections = (SortedSet<String>) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
-		Map expandedFolderSortMap = (Map) state.getAttribute(STATE_EXPANDED_FOLDER_SORT_MAP);
-		String need_to_expand_all = (String) state.getAttribute(STATE_NEED_TO_EXPAND_ALL);
-
-		// create temporary expanded folder lists for this invocation of getListView
-		Map tempExpandedFolderSortMap = new Hashtable();
-		state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, tempExpandedFolderSortMap);
-		SortedSet tempExpandedCollections = new TreeSet();
-		tempExpandedCollections.add(folderId);
-		state.setAttribute(STATE_EXPANDED_COLLECTIONS, tempExpandedCollections);
-
-		Set highlightedItems = new TreeSet();
-		List all_roots = new Vector();
-		List this_site = new Vector();
-
-		List members = getListView(folderId, highlightedItems, (ResourcesBrowseItem) null, true, state);
-
-		// restore expanded folder lists 
-		expandedCollections.addAll(tempExpandedCollections);
-		state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
-		expandedFolderSortMap.putAll(tempExpandedFolderSortMap);
-		state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, expandedFolderSortMap);
-
-		String navRoot = (String) state.getAttribute(STATE_NAVIGATION_ROOT);
-		String homeCollectionId = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
-
-		boolean atHome = false;
-
-		context.put("atHome", Boolean.toString(atHome));
-
-		List cPath = getCollectionPath(state);
-		context.put ("collectionPath", cPath);
-
-		
-		String sortBy = (String) state.getAttribute(STATE_REORDER_SORT_BY);
-		context.put("sortBy", sortBy);
-		String sortAsc = (String) state.getAttribute(STATE_REORDER_SORT_ASC);
-		context.put("sortAsc", sortAsc);
-		// Comparator comparator = (Comparator) state.getAttribute(STATE_REORDER_SORT);
-
-		String rootTitle = (String) state.getAttribute (STATE_SITE_TITLE);
-		if (folderId.equals(homeCollectionId))
-		{
-			atHome = true;
-			String siteTitle = (String) state.getAttribute (STATE_SITE_TITLE);
-			rootTitle = siteTitle + " " + rb.getString("gen.reso");
-		}
-		else
-		{
-			// should be not PermissionException thrown at this time, when the user can successfully navigate to this collection
-			try
-			{
-				rootTitle = ContentHostingService.getCollection(folderId).getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
-			}
-			catch (IdUnusedException e){}
-			catch (TypeException e) {}
-			catch (PermissionException e) {}
-		}
-
-		if(members != null && members.size() > 0)
-		{
-			ResourcesBrowseItem root = (ResourcesBrowseItem) members.remove(0);
-			root.addMembers(members);
-			root.setName(rootTitle);
-			this_site.add(root);
-			all_roots.add(root);
-		}
-		context.put ("this_site", this_site);
-		
-		return TEMPLATE_REORDER;
-	}
-
-
-
-	/**
-	* Build the context for the new list view, which uses the resources type registry
-	*/
-	public String buildListContext (	VelocityPortlet portlet,
-										Context context,
-										RunData data,
-										SessionState state)
-	{
-		context.put("tlang",rb);
-		
-		// find the ContentTypeImage service
-		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
-
-		context.put("TYPE_FOLDER", TYPE_FOLDER);
-		context.put("TYPE_UPLOAD", TYPE_UPLOAD);
-		
-		context.put("listStack", new Stack());
-		context.put("tempStack", new Stack());
-
-		context.put("SITE_ACCESS", AccessMode.SITE.toString());
-		context.put("GROUP_ACCESS", AccessMode.GROUPED.toString());
-		context.put("INHERITED_ACCESS", AccessMode.INHERITED.toString());
-		context.put("PUBLIC_ACCESS", PUBLIC_ACCESS);
-
-		context.put("ACTION_DELIMITER", ResourceToolAction.ACTION_DELIMITER);
-		
-		Set selectedItems = (Set) state.getAttribute(STATE_LIST_SELECTIONS);
-		if(selectedItems == null)
-		{
-			selectedItems = new TreeSet();
-			state.setAttribute(STATE_LIST_SELECTIONS, selectedItems);
-		}
-		context.put("selectedItems", selectedItems);
-
-		// find the ContentHosting service
 		org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
-		context.put ("service", contentService);
-
-		boolean inMyWorkspace = SiteService.isUserSite(ToolManager.getCurrentPlacement().getContext());
-		context.put("inMyWorkspace", Boolean.toString(inMyWorkspace));
-
-		boolean atHome = false;
-
-		// %%STATE_MODE_RESOURCES%%
-
-		boolean dropboxMode = RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES));
-		if (dropboxMode)
-		{
-			// notshow the public option or notification when in dropbox mode
-			context.put("dropboxMode", Boolean.TRUE);
-		}
-		else
-		{
-			//context.put("dropboxMode", Boolean.FALSE);
-		}
-
 		// make sure the channedId is set
-		String collectionId = (String) state.getAttribute (STATE_COLLECTION_ID);
-		context.put ("collectionId", collectionId);
-		String navRoot = (String) state.getAttribute(STATE_NAVIGATION_ROOT);
+		String currentCollectionId = (String) state.getAttribute (STATE_COLLECTION_ID);
+		if(! isStackEmpty(state))
+		{
+			Map current_stack_frame = peekAtStack(state);
+			String createCollectionId = (String) current_stack_frame.get(STATE_STACK_CREATE_COLLECTION_ID);
+			if(createCollectionId == null)
+			{
+				createCollectionId = (String) state.getAttribute(STATE_CREATE_COLLECTION_ID);
+			}
+			if(createCollectionId != null)
+			{
+				currentCollectionId = createCollectionId;
+			}
+			else
+			{
+				String editCollectionId = (String) current_stack_frame.get(STATE_EDIT_COLLECTION_ID);
+				if(editCollectionId == null)
+				{
+					editCollectionId = (String) state.getAttribute(STATE_EDIT_COLLECTION_ID);
+				}
+				if(editCollectionId != null)
+				{
+					currentCollectionId = editCollectionId;
+				}
+				else
+				{
+					String infoCollectionId = (String) current_stack_frame.get(STATE_MORE_COLLECTION_ID);
+					if(infoCollectionId == null)
+					{
+						infoCollectionId = (String) state.getAttribute(STATE_MORE_COLLECTION_ID);
+					}
+					if(infoCollectionId != null)
+					{
+						currentCollectionId = infoCollectionId;
+					}
+				}
+			}
+		}
 		String homeCollectionId = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
+		String navRoot = (String) state.getAttribute(STATE_NAVIGATION_ROOT);
 
-		String siteTitle = (String) state.getAttribute (STATE_SITE_TITLE);
-		if (collectionId.equals(homeCollectionId))
-		{
-			atHome = true;
-			context.put ("collectionDisplayName", state.getAttribute (STATE_HOME_COLLECTION_DISPLAY_NAME));
-		}
-		else
-		{
-			// should be not PermissionException thrown at this time, when the user can successfully navigate to this collection
-			try
-			{
-				context.put("collectionDisplayName", contentService.getCollection(collectionId).getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME));
-			}
-			catch (IdUnusedException e){}
-			catch (TypeException e) {}
-			catch (PermissionException e) {}
-		}
-		if(!inMyWorkspace && !dropboxMode && atHome && SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()))
-		{
-			context.put("showPermissions", Boolean.TRUE.toString());
-			//buildListMenu(portlet, context, data, state);
-		}
+		LinkedList collectionPath = new LinkedList();
 
-		context.put("atHome", Boolean.toString(atHome));
-
-		if(ContentHostingService.isAvailabilityEnabled())
+		String previousCollectionId = "";
+		Vector pathitems = new Vector();
+		while ((currentCollectionId != null) && (!currentCollectionId.equals(navRoot)) && (!currentCollectionId.equals(previousCollectionId)) && (!contentService.isRootCollection(previousCollectionId)))
 		{
-			context.put("availability_is_enabled", Boolean.TRUE);
+			pathitems.add(currentCollectionId);
+			previousCollectionId = currentCollectionId;
+			currentCollectionId = contentService.getContainingCollectionId(currentCollectionId);
 		}
-
-		Comparator userSelectedSort = (Comparator) state.getAttribute(STATE_LIST_VIEW_SORT);
 		
-		List cPath = getCollectionPath(state);
-		context.put ("collectionPath", cPath);
-
-		// set the sort values
-		String sortedBy = (String) state.getAttribute (STATE_SORT_BY);
-		String sortedAsc = (String) state.getAttribute (STATE_SORT_ASC);
-		context.put ("currentSortedBy", sortedBy);
-		context.put ("currentSortAsc", sortedAsc);
-		context.put("TRUE", Boolean.TRUE.toString());
-
-		boolean showRemoveAction = false;
-		boolean showMoveAction = false;
-		boolean showCopyAction = false;
-
-		Set highlightedItems = new TreeSet();
-
-		try
+		if(navRoot != null)
 		{
+			pathitems.add(navRoot);
+
+			if(!navRoot.equals(homeCollectionId))
+			{
+				pathitems.add(homeCollectionId);
+			}
+		}
+
+		Iterator items = pathitems.iterator();
+		while(items.hasNext())
+		{
+			String id = (String) items.next();
 			try
 			{
-				contentService.checkCollection (collectionId);
-				context.put ("collectionFlag", Boolean.TRUE.toString());
-			}
-			catch(IdUnusedException ex)
-			{
-				logger.warn(this + "IdUnusedException: " + collectionId);
+				ResourceProperties props = contentService.getProperties(id);
+				String name = props.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
+				ChefPathItem item = new ChefPathItem(id, name);
+
+				boolean canRead = contentService.allowGetCollection(id) || contentService.allowGetResource(id);
+				item.setCanRead(canRead);
+
+				String url = contentService.getUrl(id);
+				item.setUrl(url);
+
+				item.setLast(collectionPath.isEmpty());
+				if(id.equals(homeCollectionId))
+				{
+					item.setRoot(homeCollectionId);
+				}
+				else
+				{
+					item.setRoot(navRoot);
+				}
+
 				try
 				{
-					ContentCollectionEdit coll = contentService.addCollection(collectionId);
-					contentService.commitCollection(coll);
+					boolean isFolder = props.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
+					item.setIsFolder(isFolder);
 				}
-				catch(IdUsedException inner)
+				catch (EntityPropertyNotDefinedException e1)
 				{
-					// how can this happen??
-					logger.warn(this + "IdUsedException: " + collectionId);
-					throw ex;
 				}
-				catch(IdInvalidException inner)
+				catch (EntityPropertyTypeException e1)
 				{
-					logger.warn(this + "IdInvalidException: " + collectionId);
-					// what now?
-					throw ex;
-				}
-				catch(InconsistentException inner)
-				{
-					logger.warn(this + "InconsistentException: " + collectionId);
-					// what now?
-					throw ex;
-				}
-			}
-			catch(TypeException ex)
-			{
-				logger.warn(this + "TypeException.");
-				throw ex;				
-			}
-			catch(PermissionException ex)
-			{
-				logger.warn(this + "PermissionException.");
-				throw ex;
-			}
-			
-			String copyFlag = (String) state.getAttribute (STATE_COPY_FLAG);
-			if (copyFlag.equals (Boolean.TRUE.toString()))
-			{
-				context.put ("copyFlag", copyFlag);
-				List copiedItems = (List) state.getAttribute(STATE_COPIED_IDS);
-				// context.put ("copiedItem", state.getAttribute (STATE_COPIED_ID));
-				highlightedItems.addAll(copiedItems);
-				// context.put("copiedItems", copiedItems);
-			}
-
-			String moveFlag = (String) state.getAttribute (STATE_MOVE_FLAG);
-			if (moveFlag.equals (Boolean.TRUE.toString()))
-			{
-				context.put ("moveFlag", moveFlag);
-				List movedItems = (List) state.getAttribute(STATE_MOVED_IDS);
-				highlightedItems.addAll(movedItems);
-				// context.put ("copiedItem", state.getAttribute (STATE_COPIED_ID));
-				// context.put("movedItems", movedItems);
-			}
-
-			SortedSet<String> expandedCollections = (SortedSet<String>) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
-			
-			//ContentCollection coll = contentService.getCollection(collectionId);
-			expandedCollections.add(collectionId);
-			context.put("expandedCollections", expandedCollections);
-
-			ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
-			if(registry == null)
-			{
-				registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
-				state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
-			}
-			
-			state.removeAttribute(STATE_PASTE_ALLOWED_FLAG);
-			
-			ContentCollection collection = ContentHostingService.getCollection(collectionId);
-			
-			List<String> items_to_be_copied = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_COPIED);
-			List<String> items_to_be_moved = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_MOVED);
-
-			boolean need_to_expand_all = Boolean.TRUE.toString().equals((String)state.getAttribute(STATE_NEED_TO_EXPAND_ALL));
-
-			ListItem item = ListItem.getListItem(collection, null, registry, need_to_expand_all, expandedCollections, items_to_be_moved, items_to_be_copied, 0, userSelectedSort);
-			
-			List<ListItem> items = item.convert2list();
-			
-			if(atHome && dropboxMode)
-			{
-				item.setName(siteTitle + " " + rb.getString("gen.drop"));
-			}
-			else if(atHome)
-			{
-				item.setName(siteTitle + " " + rb.getString("gen.reso"));
-			}
-
-			context.put("site", items);
-
-			boolean show_all_sites = false;
-
-			String allowed_to_see_other_sites = (String) state.getAttribute(STATE_SHOW_ALL_SITES);
-			String show_other_sites = (String) state.getAttribute(STATE_SHOW_OTHER_SITES);
-			context.put("show_other_sites", show_other_sites);
-			if(Boolean.TRUE.toString().equals(allowed_to_see_other_sites))
-			{
-				context.put("allowed_to_see_other_sites", Boolean.TRUE.toString());
-				show_all_sites = Boolean.TRUE.toString().equals(show_other_sites);
-			}
-
-			if(atHome && show_all_sites)
-			{
-				state.setAttribute(STATE_HIGHLIGHTED_ITEMS, highlightedItems);
-				// TODO: see call to prepPage below.  That also calls readAllResources.  Are both calls necessary?
-				//other_sites.addAll(readAllResources(state));
-				//all_roots.addAll(other_sites);
-
-				List messages = prepPage(state);
-				context.put("other_sites", messages);
-
-				if (state.getAttribute(STATE_NUM_MESSAGES) != null)
-				{
-					context.put("allMsgNumber", state.getAttribute(STATE_NUM_MESSAGES).toString());
-					context.put("allMsgNumberInt", state.getAttribute(STATE_NUM_MESSAGES));
 				}
 
-				context.put("pagesize", ((Integer) state.getAttribute(STATE_PAGESIZE)).toString());
-
-				// find the position of the message that is the top first on the page
-				if ((state.getAttribute(STATE_TOP_MESSAGE_INDEX) != null) && (state.getAttribute(STATE_PAGESIZE) != null))
-				{
-					int topMsgPos = ((Integer)state.getAttribute(STATE_TOP_MESSAGE_INDEX)).intValue() + 1;
-					context.put("topMsgPos", Integer.toString(topMsgPos));
-					int btmMsgPos = topMsgPos + ((Integer)state.getAttribute(STATE_PAGESIZE)).intValue() - 1;
-					if (state.getAttribute(STATE_NUM_MESSAGES) != null)
-					{
-						int allMsgNumber = ((Integer)state.getAttribute(STATE_NUM_MESSAGES)).intValue();
-						if (btmMsgPos > allMsgNumber)
-							btmMsgPos = allMsgNumber;
-					}
-					context.put("btmMsgPos", Integer.toString(btmMsgPos));
-				}
-
-				boolean goPPButton = state.getAttribute(STATE_PREV_PAGE_EXISTS) != null;
-				context.put("goPPButton", Boolean.toString(goPPButton));
-				boolean goNPButton = state.getAttribute(STATE_NEXT_PAGE_EXISTS) != null;
-				context.put("goNPButton", Boolean.toString(goNPButton));
-
-				/*
-				boolean goFPButton = state.getAttribute(STATE_FIRST_PAGE_EXISTS) != null;
-				context.put("goFPButton", Boolean.toString(goFPButton));
-				boolean goLPButton = state.getAttribute(STATE_LAST_PAGE_EXISTS) != null;
-				context.put("goLPButton", Boolean.toString(goLPButton));
-				*/
-
-				context.put("pagesize", state.getAttribute(STATE_PAGESIZE));
-				// context.put("pagesizes", PAGESIZES);
+				collectionPath.addFirst(item);
 
 			}
-
-			// context.put ("other_sites", other_sites);
-			//state.setAttribute(STATE_COLLECTION_ROOTS, all_roots);
-			// context.put ("root", root);
-
-			if(state.getAttribute(STATE_PASTE_ALLOWED_FLAG) != null)
+			catch (PermissionException e)
 			{
-				context.put("paste_place_showing", state.getAttribute(STATE_PASTE_ALLOWED_FLAG));
 			}
-
-			if(showRemoveAction)
+			catch (IdUnusedException e)
 			{
-				context.put("showRemoveAction", Boolean.TRUE.toString());
 			}
-
-			if(showMoveAction)
-			{
-				context.put("showMoveAction", Boolean.TRUE.toString());
-			}
-
-			if(showCopyAction)
-			{
-				context.put("showCopyAction", Boolean.TRUE.toString());
-			}
-
 		}
-		catch (IdUnusedException e)
-		{
-			addAlert(state, rb.getString("cannotfind"));
-			context.put ("collectionFlag", Boolean.FALSE.toString());
-		}
-		catch(TypeException e)
-		{
-			logger.warn(this + "TypeException.");
-			context.put ("collectionFlag", Boolean.FALSE.toString());
-		}
-		catch(PermissionException e)
-		{
-			addAlert(state, rb.getString("notpermis1"));
-			context.put ("collectionFlag", Boolean.FALSE.toString());
-		}
-
-		context.put("homeCollection", (String) state.getAttribute (STATE_HOME_COLLECTION_ID));
-		context.put("siteTitle", state.getAttribute(STATE_SITE_TITLE));
-		context.put ("resourceProperties", contentService.newResourceProperties ());
-
-		try
-		{
-			// TODO: why 'site' here?
-			Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
-			context.put("siteTitle", site.getTitle());
-		}
-		catch (IdUnusedException e)
-		{
-			logger.debug(this + e.toString());
-		}
-
-		context.put("expandallflag", state.getAttribute(STATE_EXPAND_ALL_FLAG));
-		state.removeAttribute(STATE_NEED_TO_EXPAND_ALL);
-
-		// inform the observing courier that we just updated the page...
-		// if there are pending requests to do so they can be cleared
-		justDelivered(state);
-
-		// pick the "show" template based on the standard template name
-		// String template = (String) getContext(data).get("template");
-
-		context.put("labeler", new ResourceTypeLabeler());
-		
-		return TEMPLATE_NEW_LIST;
-
-	}	// buildListContext
-
-	/**
-	 * Access the top item on the suspended-operations stack
-	 * @param state The current session state, including the STATE_SUSPENDED_OPERATIONS_STACK attribute.
-	 * @return The top item on the stack, or null if the stack is empty.
-	 */
-	private static Map peekAtStack(SessionState state)
-	{
-		Map current_stack_frame = null;
-		Stack operations_stack = (Stack) state.getAttribute(STATE_SUSPENDED_OPERATIONS_STACK);
-		if(operations_stack == null)
-		{
-			operations_stack = new Stack();
-			state.setAttribute(STATE_SUSPENDED_OPERATIONS_STACK, operations_stack);
-		}
-		if(! operations_stack.isEmpty())
-		{
-			current_stack_frame = (Map) operations_stack.peek();
-		}
-		return current_stack_frame;
-
+		return collectionPath;
 	}
-
-	/**
-	 * Returns true if the suspended operations stack contains no elements.
-	 * @param state The current session state, including the STATE_SUSPENDED_OPERATIONS_STACK attribute.
-	 * @return true if the suspended operations stack contains no elements
-	 */
-	private static boolean isStackEmpty(SessionState state)
-	{
-		Stack operations_stack = (Stack) state.getAttribute(STATE_SUSPENDED_OPERATIONS_STACK);
-		if(operations_stack == null)
-		{
-			operations_stack = new Stack();
-			state.setAttribute(STATE_SUSPENDED_OPERATIONS_STACK, operations_stack);
-		}
-		return operations_stack.isEmpty();
-	}
-
-	/**
-	 * Push an item of the suspended-operations stack.
-	 * @param state The current session state, including the STATE_SUSPENDED_OPERATIONS_STACK attribute.
-	 * @return The new item that has just been added to the stack, or null if depth limit is exceeded.
-	 */
-	private static Map pushOnStack(SessionState state)
-	{
-		Map current_stack_frame = null;
-		Stack operations_stack = (Stack) state.getAttribute(STATE_SUSPENDED_OPERATIONS_STACK);
-		if(operations_stack == null)
-		{
-			operations_stack = new Stack();
-			state.setAttribute(STATE_SUSPENDED_OPERATIONS_STACK, operations_stack);
-		}
-		if(operations_stack.size() < MAXIMUM_SUSPENDED_OPERATIONS_STACK_DEPTH)
-		{
-			current_stack_frame = (Map) operations_stack.push(new Hashtable());
-		}
-		Object helper_mode = state.getAttribute(STATE_RESOURCES_HELPER_MODE);
-		if(helper_mode != null)
-		{
-			current_stack_frame.put(STATE_RESOURCES_HELPER_MODE, helper_mode);
-		}
-		return current_stack_frame;
-
-	}
-
-	/**
-	 * Remove and return the top item from the suspended-operations stack.
-	 * @param state The current session state, including the STATE_SUSPENDED_OPERATIONS_STACK attribute.
-	 * @return The item that has just been removed from the stack, or null if the stack was empty.
-	 */
-	private static Map popFromStack(SessionState state)
-	{
-		Map current_stack_frame = null;
-		Stack operations_stack = (Stack) state.getAttribute(STATE_SUSPENDED_OPERATIONS_STACK);
-		if(operations_stack == null)
-		{
-			operations_stack = new Stack();
-			state.setAttribute(STATE_SUSPENDED_OPERATIONS_STACK, operations_stack);
-		}
-		if(! operations_stack.isEmpty())
-		{
-			current_stack_frame = (Map) operations_stack.pop();
-			if(operations_stack.isEmpty())
-			{
-				String canceled = (String) current_stack_frame.get(STATE_HELPER_CANCELED_BY_USER);
-				if(canceled != null)
-				{
-					state.setAttribute(STATE_HELPER_CANCELED_BY_USER, canceled);
-				}
-			}
-		}
-		return current_stack_frame;
-
-	}
-
-//	private static void resetCurrentMode(SessionState state)
-//	{
-//		String mode = (String) state.getAttribute(STATE_MODE);
-//		if(isStackEmpty(state))
-//		{
-//			if(MODE_HELPER.equals(mode))
-//			{
-//				cleanupState(state);
-//				state.setAttribute(STATE_RESOURCES_HELPER_MODE, MODE_ATTACHMENT_DONE);
-//			}
-//			else
-//			{
-//				state.setAttribute(STATE_MODE, MODE_LIST);
-//				state.removeAttribute(STATE_RESOURCES_HELPER_MODE);
-//			}
-//			return;
-//		}
-//		Map current_stack_frame = peekAtStack(state);
-//		String helper_mode = (String) current_stack_frame.get(STATE_RESOURCES_HELPER_MODE);
-//		if(helper_mode != null)
-//		{
-//			state.setAttribute(STATE_RESOURCES_HELPER_MODE, helper_mode);
-//		}
-//
-//	}
-//
-	/**
-	* Expand all the collection resources and put in EXPANDED_COLLECTIONS attribute.
-	*/
-	public void doList ( RunData data)
-	{
-		// get the state object
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-
-		state.setAttribute (STATE_MODE, MODE_LIST);
-
-	}	// doList
-
-
-	/**
-	* Build the context for add display
-	*/
-	public String buildWebdavContext (	VelocityPortlet portlet,
-										Context context,
-										RunData data,
-										SessionState state)
-	{
-		context.put("tlang",rb);
-		// find the ContentTypeImage service
-		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
-
-		boolean inMyWorkspace = SiteService.isUserSite(ToolManager.getCurrentPlacement().getContext());
-		context.put("inMyWorkspace", Boolean.toString(inMyWorkspace));
-
-		context.put("server_url", ServerConfigurationService.getServerUrl());
-		context.put("site_id", ToolManager.getCurrentPlacement().getContext());
-		context.put("site_title", state.getAttribute(STATE_SITE_TITLE));
-		context.put("user_id", UserDirectoryService.getCurrentUser().getEid());
-		if (ContentHostingService.isShortRefs())
-		{
-			// with short refs, this is prettier
-			context.put ("dav_group", "/dav/");
-			context.put ("dav_user", "/dav/~");
-		}
-		else
-		{
-			context.put ("dav_group", "/dav/group/");
-			context.put ("dav_user", "/dav/user/");
-		}
-
-		String webdav_instructions = ServerConfigurationService.getString("webdav.instructions.url");
-		context.put("webdav_instructions" ,webdav_instructions);
-
-		String browserID = UsageSessionService.getSession().getBrowserId();
-		if(browserID.equals(UsageSession.WIN_IE))
-		{
-			context.put("isWinIEBrowser", Boolean.TRUE.toString());
-		}
-
-		return TEMPLATE_DAV;
-
-	}	// buildWebdavContext
-
-	/**
-	* Build the context for delete confirmation page
-	*/
-	public String buildDeleteConfirmContext (	VelocityPortlet portlet,
-											Context context,
-											RunData data,
-											SessionState state)
-	{
-		context.put("tlang",rb);
-		// find the ContentTypeImage service
-		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
-		context.put ("collectionId", state.getAttribute (STATE_COLLECTION_ID) );
-
-		//%%%% FIXME
-		context.put ("collectionPath", state.getAttribute (STATE_COLLECTION_PATH));
-
-		List deleteItems = (List) state.getAttribute(STATE_DELETE_ITEMS);
-		List nonEmptyFolders = (List) state.getAttribute(STATE_DELETE_ITEMS_NOT_EMPTY);
-
-		context.put ("deleteItems", deleteItems);
-
-		Iterator it = nonEmptyFolders.iterator();
-		while(it.hasNext())
-		{
-			ResourcesBrowseItem folder = (ResourcesBrowseItem) it.next();
-			String[] args = { folder.getName() };
-			addAlert(state, rb.getFormattedMessage("folder.notempty", args) + " ");
-		}
-
-		//  %%STATE_MODE_RESOURCES%%
-		//not show the public option when in dropbox mode
-		if (RESOURCES_MODE_RESOURCES.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
-		{
-			context.put("dropboxMode", Boolean.FALSE);
-		}
-		else if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
-		{
-			// not show the public option or notification when in dropbox mode
-			context.put("dropboxMode", Boolean.TRUE);
-		}
-		context.put("homeCollection", (String) state.getAttribute (STATE_HOME_COLLECTION_ID));
-		context.put("siteTitle", state.getAttribute(STATE_SITE_TITLE));
-		context.put ("resourceProperties", ContentHostingService.newResourceProperties ());
-
-		// String template = (String) getContext(data).get("template");
-		return TEMPLATE_DELETE_CONFIRM;
-
-	}	// buildDeleteConfirmContext
-
-	/**
-	* Navigate in the resource hireachy
-	*/
-	public void doNavigate ( RunData data )
-	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-
-		if (state.getAttribute (STATE_SELECT_ALL_FLAG)!=null && state.getAttribute (STATE_SELECT_ALL_FLAG).equals (Boolean.TRUE.toString()))
-		{
-			state.setAttribute (STATE_SELECT_ALL_FLAG, Boolean.FALSE.toString());
-		}
-
-		if (state.getAttribute (STATE_EXPAND_ALL_FLAG)!=null && state.getAttribute (STATE_EXPAND_ALL_FLAG).equals (Boolean.TRUE.toString()))
-		{
-			state.setAttribute (STATE_EXPAND_ALL_FLAG, Boolean.FALSE.toString());
-		}
-
-		// save the current selections
-		Set selectedSet  = new TreeSet();
-		String[] selectedItems = data.getParameters ().getStrings ("selectedMembers");
-		if(selectedItems != null)
-		{
-			selectedSet.addAll(Arrays.asList(selectedItems));
-		}
-		state.setAttribute(STATE_LIST_SELECTIONS, selectedSet);
-
-		String collectionId = data.getParameters().getString ("collectionId");
-		String navRoot = data.getParameters().getString("navRoot");
-		state.setAttribute(STATE_NAVIGATION_ROOT, navRoot);
-
-		// the exception message
-
-		try
-		{
-			ContentHostingService.checkCollection(collectionId);
-		}
-		catch(PermissionException e)
-		{
-			addAlert(state, " " + rb.getString("notpermis3") + " " );
-		}
-		catch (IdUnusedException e)
-		{
-			addAlert(state, " " + rb.getString("notexist2") + " ");
-		}
-		catch (TypeException e)
-		{
-			addAlert(state," " + rb.getString("notexist2") + " ");
-		}
-
-		if (state.getAttribute(STATE_MESSAGE) == null)
-		{
-			String oldCollectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
-			// update this folder id in the set to be event-observed
-			removeObservingPattern(oldCollectionId, state);
-			addObservingPattern(collectionId, state);
-
-			state.setAttribute(STATE_COLLECTION_ID, collectionId);
-			
-			SortedSet currentMap = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
-			if(currentMap == null)
-			{
-				currentMap = new TreeSet();
-				state.setAttribute(STATE_EXPANDED_COLLECTIONS, currentMap);
-			}
-			
-			Map sortMap = (Map) state.getAttribute(STATE_EXPANDED_FOLDER_SORT_MAP);
-			if(sortMap == null)
-			{
-				sortMap = new Hashtable();
-				state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, sortMap);
-			}
-			
-			Iterator it = currentMap.iterator();
-			while(it.hasNext())
-			{
-				String id = (String) it.next();
-				if(id.startsWith(collectionId))
-				{
-					it.remove();
-					sortMap.remove(id);
-					removeObservingPattern(id, state);
-				}
-			}
-			
-			if(!currentMap.contains(collectionId))
-			{
-				currentMap.add (collectionId);
-
-				// add this folder id into the set to be event-observed
-				addObservingPattern(collectionId, state);
-			}
-			//state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, new Hashtable());
-		}
-
-	}	// doNavigate
-
-	/**
-	* Show information about WebDAV
-	*/
-	public void doShow_webdav ( RunData data )
-	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-
-		state.setAttribute(STATE_LIST_SELECTIONS, new TreeSet());
-
-		state.setAttribute (STATE_MODE, MODE_DAV);
-
-		// cancel copy if there is one in progress
-		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
-		{
-			initCopyContext(state);
-		}
-
-		// cancel move if there is one in progress
-		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_MOVE_FLAG)))
-		{
-			initMoveContext(state);
-		}
-
-	}	// doShow_webdav
-
-	protected static List newEditItems(String collectionId, String itemtype, String encoding, String defaultCopyrightStatus, boolean preventPublicDisplay, Time defaultRetractDate, int number)
-	{
-		List new_items = new Vector();
-		
-		ContentCollection collection = null;
-		AccessMode inheritedAccess = AccessMode.INHERITED;
-//		Collection inheritedGroups = new Vector();
-		try
-		{
-			collection = ContentHostingService.getCollection(collectionId);
-			
-			inheritedAccess = collection.getAccess();
-//			inheritedGroups = collection.getGroups();
-			if(AccessMode.INHERITED == inheritedAccess)
-			{
-				inheritedAccess = collection.getInheritedAccess();
-//				inheritedGroups = collection.getInheritedGroups();
-			}
-		}
-		catch(PermissionException e)
-		{
-			//alerts.add(rb.getString("notpermis4"));
-			logger.warn("ResourcesAction.newEditItems() PermissionException ", e);
-		} 
-		catch (IdUnusedException e) 
-		{
-			// TODO Auto-generated catch block
-			logger.warn("ResourcesAction.newEditItems() IdUnusedException ", e);
-		} 
-		catch (TypeException e) 
-		{
-			// TODO Auto-generated catch block
-			logger.warn("ResourcesAction.newEditItems() TypeException ", e);
-		}
-		
-		boolean isUserSite = false;
-		String refstr = collection.getReference();
-		Reference ref = EntityManager.newReference(refstr);
-		String contextId = ref.getContext();
-		if(contextId != null)
-		{
-			isUserSite = SiteService.isUserSite(contextId);
-		}
-
-		boolean pubviewset = ContentHostingService.isInheritingPubView(collectionId) || ContentHostingService.isPubView(collectionId);
-		
-		
-		//Collection possibleGroups = ContentHostingService.getGroupsWithReadAccess(collectionId);
-		boolean isInDropbox = ContentHostingService.isInDropbox(collectionId);
-		
-		Collection possibleGroups = ContentHostingService.getGroupsWithAddPermission(collectionId);
-		Site site = null;
-		Collection site_groups = null;
-		
-		try 
-		{
-			site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
-		} 
-		catch (IdUnusedException e) 
-		{
-			logger.warn("resourcesAction.newEditItems() IdUnusedException ", e);
-		}
-		if(site != null)
-		{
-			site_groups = site.getGroups();
-		}
-		else
-		{
-			site_groups = new Vector();
-		}
-				
-		Collection inherited_access_groups = collection.getGroups();
-		if(inherited_access_groups == null || inherited_access_groups.isEmpty())
-		{
-			inherited_access_groups = collection.getInheritedGroups();
-		}
-		if(inherited_access_groups == null)
-		{
-			inherited_access_groups = new Vector();
-		}
-
-		Collection allowedAddGroups = ContentHostingService.getGroupsWithAddPermission(collectionId); // null;
-//		if(AccessMode.GROUPED == inheritedAccess)
-//		{
-//			allowedAddGroups = ContentHostingService.getGroupsWithAddPermission(collectionId);
-//		}
-//		else
-//		{
-//			allowedAddGroups = ContentHostingService.getGroupsWithAddPermission(ContentHostingService.getSiteCollection(site.getId()));
-//		}
-		if(allowedAddGroups == null)
-		{
-			allowedAddGroups = new Vector();
-		}
-
-		for(int i = 0; i < CREATE_MAX_ITEMS; i++)
-		{
-			ResourcesEditItem item = new ResourcesEditItem(itemtype);
-			if(encoding != null)
-			{
-				item.setEncoding(encoding);
-			}
-			item.setInDropbox(isInDropbox);
-
-			if(inheritedAccess == null || AccessMode.SITE == inheritedAccess)
-			{
-				item.setInheritedAccess(AccessMode.INHERITED.toString());
-			}
-			else
-			{
-				item.setInheritedAccess(inheritedAccess.toString());
-			}
-			item.setAllSiteGroups(site_groups);
-			item.setInheritedGroupRefs(inherited_access_groups);
-			item.setAllowedAddGroupRefs(allowedAddGroups);
-			
-			item.setHidden(false);
-			item.setUseReleaseDate(false);
-			item.setReleaseDate(TimeService.newTime());
-			item.setUseRetractDate(false);
-			item.setRetractDate(defaultRetractDate);
-			item.setInWorkspace(isUserSite);
-
-			item.setCopyrightStatus(defaultCopyrightStatus);
-			new_items.add(item);
-			// item.setPossibleGroups(new Vector(possibleGroups));
-//			if(inheritedGroups != null)
-//			{
-//				item.setInheritedGroups(inheritedGroups);
-//			}
-			
-			if(preventPublicDisplay)
-			{
-				item.setPubviewPossible(false);
-				item.setPubviewInherited(false);
-				item.setPubview(false);
-			}
-			else
-			{
-				item.setPubviewPossible(true);
-				item.setPubviewInherited(pubviewset);
-				//item.setPubview(pubviewset);
-			}
-
-		}
-
-		return new_items;
-	}
-
 	
-	/**
-	* doDelete to delete the selected collection or resource items
-	*/
-	public void doDelete ( RunData data)
-	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-
-		// cancel copy if there is one in progress
-		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
-		{
-			initCopyContext(state);
-		}
-
-		// cancel move if there is one in progress
-		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_MOVE_FLAG)))
-		{
-			initMoveContext(state);
-		}
-
-		ParameterParser params = data.getParameters ();
-
-		List Items = (List) state.getAttribute(STATE_DELETE_ITEMS);
-
-		// Vector deleteIds = (Vector) state.getAttribute (STATE_DELETE_IDS);
-
-		// delete the lowest item in the hireachy first
-		Hashtable deleteItems = new Hashtable();
-		// String collectionId = (String) state.getAttribute (STATE_COLLECTION_ID);
-		int maxDepth = 0;
-		int depth = 0;
-
-		Iterator it = Items.iterator();
-		while(it.hasNext())
-		{
-			ResourcesBrowseItem item = (ResourcesBrowseItem) it.next();
-			depth = ContentHostingService.getDepth(item.getId(), item.getRoot());
-			if (depth > maxDepth)
-			{
-				maxDepth = depth;
-			}
-			List v = (List) deleteItems.get(new Integer(depth));
-			if(v == null)
-			{
-				v = new Vector();
-			}
-			v.add(item);
-			deleteItems.put(new Integer(depth), v);
-		}
-
-		boolean isCollection = false;
-		for (int j=maxDepth; j>0; j--)
-		{
-			List v = (List) deleteItems.get(new Integer(j));
-			if (v==null)
-			{
-				v = new Vector();
-			}
-			Iterator itemIt = v.iterator();
-			while(itemIt.hasNext())
-			{
-				ResourcesBrowseItem item = (ResourcesBrowseItem) itemIt.next();
-				try
-				{
-					if (item.isFolder())
-					{
-						ContentHostingService.removeCollection(item.getId());
-					}
-					else
-					{
-						ContentHostingService.removeResource(item.getId());
-					}
-				}
-				catch (PermissionException e)
-				{
-					addAlert(state, rb.getString("notpermis6") + " " + item.getName() + ". ");
-				}
-				catch (IdUnusedException e)
-				{
-					addAlert(state,rb.getString("notexist1"));
-				}
-				catch (TypeException e)
-				{
-					addAlert(state, rb.getString("deleteres") + " " + item.getName() + " " + rb.getString("wrongtype"));
-				}
-				catch (ServerOverloadException e)
-				{
-					addAlert(state, rb.getString("failed"));
-				}
-				catch (InUseException e)
-				{
-					addAlert(state, rb.getString("deleteres") + " " + item.getName() + " " + rb.getString("locked"));
-				}// try - catch
-				catch(RuntimeException e)
-				{
-					logger.debug("ResourcesAction.doDelete ***** Unknown Exception ***** " + e.getMessage());
-					addAlert(state, rb.getString("failed"));
-				}
-			}	// for
-
-		}	// for
-
-		if (state.getAttribute(STATE_MESSAGE) == null)
-		{
-			// delete sucessful
-			state.setAttribute (STATE_MODE, MODE_LIST);
-
-			if (((String) state.getAttribute (STATE_SELECT_ALL_FLAG)).equals (Boolean.TRUE.toString()))
-			{
-				state.setAttribute (STATE_SELECT_ALL_FLAG, Boolean.FALSE.toString());
-			}
-
-		}	// if-else
-
-	}	// doDelete
-
-	/**
-	* doDelete to delete the selected collection or resource items
-	*/
-	public void doFinalizeDelete( RunData data)
-	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-
-		// cancel copy if there is one in progress
-		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
-		{
-			initCopyContext(state);
-		}
-
-		// cancel move if there is one in progress
-		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_MOVE_FLAG)))
-		{
-			initMoveContext(state);
-		}
-
-		ParameterParser params = data.getParameters ();
-
-		List items = (List) state.getAttribute(STATE_DELETE_SET);
-
-		// Vector deleteIds = (Vector) state.getAttribute (STATE_DELETE_IDS);
-
-		// delete the lowest item in the hireachy first
-		Hashtable deleteItems = new Hashtable();
-		// String collectionId = (String) state.getAttribute (STATE_COLLECTION_ID);
-		int maxDepth = 0;
-		int depth = 0;
-
-		Iterator it = items.iterator();
-		while(it.hasNext())
-		{
-			ListItem item = (ListItem) it.next();
-			String[] parts = item.getId().split(Entity.SEPARATOR);
-			depth = parts.length;
-			if (depth > maxDepth)
-			{
-				maxDepth = depth;
-			}
-			List v = (List) deleteItems.get(new Integer(depth));
-			if(v == null)
-			{
-				v = new Vector();
-			}
-			v.add(item);
-			deleteItems.put(new Integer(depth), v);
-		}
-
-		boolean isCollection = false;
-		for (int j=maxDepth; j>0; j--)
-		{
-			List v = (List) deleteItems.get(new Integer(j));
-			if (v==null)
-			{
-				v = new Vector();
-			}
-			Iterator itemIt = v.iterator();
-			while(itemIt.hasNext())
-			{
-				ListItem item = (ListItem) itemIt.next();
-				try
-				{
-					if (item.isCollection())
-					{
-						ContentHostingService.removeCollection(item.getId());
-					}
-					else
-					{
-						ContentHostingService.removeResource(item.getId());
-					}
-				}
-				catch (PermissionException e)
-				{
-					addAlert(state, rb.getString("notpermis6") + " " + item.getName() + ". ");
-				}
-				catch (IdUnusedException e)
-				{
-					addAlert(state,rb.getString("notexist1"));
-				}
-				catch (TypeException e)
-				{
-					addAlert(state, rb.getString("deleteres") + " " + item.getName() + " " + rb.getString("wrongtype"));
-				}
-				catch (ServerOverloadException e)
-				{
-					addAlert(state, rb.getString("failed"));
-				}
-				catch (InUseException e)
-				{
-					addAlert(state, rb.getString("deleteres") + " " + item.getName() + " " + rb.getString("locked"));
-				}// try - catch
-				catch(RuntimeException e)
-				{
-					logger.debug("ResourcesAction.doDelete ***** Unknown Exception ***** " + e.getMessage());
-					addAlert(state, rb.getString("failed"));
-				}
-			}	// for
-
-		}	// for
-
-		if (state.getAttribute(STATE_MESSAGE) == null)
-		{
-			// delete sucessful
-			state.setAttribute (STATE_MODE, MODE_LIST);
-			state.removeAttribute(STATE_DELETE_SET);
-			state.removeAttribute(STATE_NON_EMPTY_DELETE_SET);
-
-			if (((String) state.getAttribute (STATE_SELECT_ALL_FLAG)).equals (Boolean.TRUE.toString()))
-			{
-				state.setAttribute (STATE_SELECT_ALL_FLAG, Boolean.FALSE.toString());
-			}
-
-		}	// if-else
-
-	}	// doDelete
-
-	/**
-	* doCancel to return to the previous state
-	*/
-	public void doCancel ( RunData data)
-	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-
-		state.setAttribute(STATE_LIST_SELECTIONS, new TreeSet());
-		
-		state.setAttribute(STATE_MODE, MODE_LIST);
-
-//		if(!isStackEmpty(state))
-//		{
-//			Map current_stack_frame = peekAtStack(state);
-//			current_stack_frame.put(STATE_HELPER_CANCELED_BY_USER, Boolean.TRUE.toString());
-//
-//			popFromStack(state);
-//		}
-//
-//		resetCurrentMode(state);
-
-	}	// doCancel
-
-//	/**
-//	* Edit the editable collection/resource properties
-//	*/
-//	public static void doEdit ( RunData data )
-//	{
-//		ParameterParser params = data.getParameters ();
-//		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-//
-//		Map current_stack_frame = pushOnStack(state);
-//
-//		state.setAttribute(STATE_LIST_SELECTIONS, new TreeSet());
-//
-//		// cancel copy if there is one in progress
-//		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
-//		{
-//			initCopyContext(state);
-//		}
-//
-//		// cancel move if there is one in progress
-//		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_MOVE_FLAG)))
-//		{
-//			initMoveContext(state);
-//		}
-//
-//		String id = NULL_STRING;
-//		id = params.getString ("id");
-//		if(id == null || id.length() == 0)
-//		{
-//			// there is no resource selected, show the alert message to the user
-//			addAlert(state, rb.getString("choosefile2"));
-//			return;
-//		}
-//
-//		current_stack_frame.put(STATE_STACK_EDIT_ID, id);
-//
-//		String collectionId = (String) params.getString("collectionId");
-//		if(collectionId == null)
-//		{
-//			collectionId = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
-//			state.setAttribute(STATE_HOME_COLLECTION_ID, collectionId);
-//		}
-//		current_stack_frame.put(STATE_STACK_EDIT_COLLECTION_ID, collectionId);
-//
-//		ResourcesEditItem item = getEditItem(id, collectionId, data);
-//
-//		if (state.getAttribute(STATE_MESSAGE) == null)
-//		{
-//			// got resource and sucessfully populated item with values
-//			// state.setAttribute (STATE_MODE, MODE_EDIT);
-//			state.setAttribute(ResourcesAction.STATE_RESOURCES_HELPER_MODE, ResourcesAction.MODE_ATTACHMENT_EDIT_ITEM_INIT);
-//			state.setAttribute(STATE_EDIT_ALERTS, new HashSet());
-//			current_stack_frame.put(STATE_STACK_EDIT_ITEM, item);
-//
-//		}
-//		else
-//		{
-//			popFromStack(state);
-//		}
-//
-//	}	// doEdit
-
 	public static ResourcesEditItem getEditItem(String id, String collectionId, RunData data)
 	{
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
@@ -4376,4446 +2656,6 @@ public class ResourcesAction
 		return item;
 
 	}
-   
-	/**
-	 * @param url
-	 * @return
-	 * @throws MalformedURLException
-	 */
-	protected static String validateURL(String url) throws MalformedURLException
-	{
-		if (url.equals (NULL_STRING))
-		{
-			// ignore the empty url field
-		}
-		else if (url.indexOf ("://") == -1)
-		{
-			// if it's missing the transport, add http://
-			url = "http://" + url;
-		}
-
-		if(!url.equals(NULL_STRING))
-		{
-			// valid protocol?
-			try
-			{
-				// test to see if the input validates as a URL.
-				// Checks string for format only.
-				URL u = new URL(url);
-			}
-			catch (MalformedURLException e1)
-			{
-				try
-				{
-					Pattern pattern = Pattern.compile("\\s*([a-zA-Z0-9]+)://([^\\n]+)");
-					Matcher matcher = pattern.matcher(url);
-					if(matcher.matches())
-					{
-						// if URL has "unknown" protocol, check remaider with
-						// "http" protocol and accept input if that validates.
-						URL test = new URL("http://" + matcher.group(2));
-					}
-					else
-					{
-						throw e1;
-					}
-				}
-				catch (MalformedURLException e2)
-				{
-					throw e1;
-				}
-			}
-		}
-		return url;
-	}
-
-	/**
-	 * @param pedit
-	 * @param metadataGroups
-	 * @param metadata
-	 */
-	private static void saveMetadata(ResourcePropertiesEdit pedit, List metadataGroups, ResourcesEditItem item)
-	{
-		if(metadataGroups != null && !metadataGroups.isEmpty())
-		{
-			MetadataGroup group = null;
-			Iterator it = metadataGroups.iterator();
-			while(it.hasNext())
-			{
-				group = (MetadataGroup) it.next();
-				Iterator props = group.iterator();
-				while(props.hasNext())
-				{
-					ResourcesMetadata prop = (ResourcesMetadata) props.next();
-
-					if(ResourcesMetadata.WIDGET_DATETIME.equals(prop.getWidget()) || ResourcesMetadata.WIDGET_DATE.equals(prop.getWidget()) || ResourcesMetadata.WIDGET_TIME.equals(prop.getWidget()))
-					{
-						Time val = (Time)item.getMetadata().get(prop.getFullname());
-						if(val != null)
-						{
-							pedit.addProperty(prop.getFullname(), val.toString());
-						}
-					}
-					else
-					{
-						String val = (String) item.getMetadata().get(prop.getFullname());
-						pedit.addProperty(prop.getFullname(), val);
-					}
-				}
-			}
-		}
-
-	}
-
-	/**
-	 * @param data
-	 */
-	public void doHideOtherSites(RunData data)
-	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-
-		state.setAttribute(STATE_SHOW_OTHER_SITES, Boolean.FALSE.toString());
-
-		//get the ParameterParser from RunData
-		ParameterParser params = data.getParameters ();
-
-		// save the current selections
-		Set selectedSet  = new TreeSet();
-		String[] selectedItems = params.getStrings("selectedMembers");
-		if(selectedItems != null)
-		{
-			selectedSet.addAll(Arrays.asList(selectedItems));
-		}
-		state.setAttribute(STATE_LIST_SELECTIONS, selectedSet);
-
-	}
-
-
-	/**
-	 * @param data
-	 */
-	public void doShowOtherSites(RunData data)
-	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-
-		//get the ParameterParser from RunData
-		ParameterParser params = data.getParameters ();
-
-		// save the current selections
-		Set selectedSet  = new TreeSet();
-		String[] selectedItems = params.getStrings("selectedMembers");
-		if(selectedItems != null)
-		{
-			selectedSet.addAll(Arrays.asList(selectedItems));
-		}
-		state.setAttribute(STATE_LIST_SELECTIONS, selectedSet);
-
-		state.setAttribute(STATE_SHOW_OTHER_SITES, Boolean.TRUE.toString());
-	}
-
-	/**
-	 * @param data
-	 */
-	public void doHide_metadata(RunData data)
-	{
-		ParameterParser params = data.getParameters ();
-		String name = params.getString("metadataGroup");
-
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-		List metadataGroups = (List) state.getAttribute(STATE_METADATA_GROUPS);
-		if(metadataGroups != null && ! metadataGroups.isEmpty())
-		{
-			boolean found = false;
-			MetadataGroup group = null;
-			Iterator it = metadataGroups.iterator();
-			while(!found && it.hasNext())
-			{
-				group = (MetadataGroup) it.next();
-				found = (name.equals(Validator.escapeUrl(group.getName())) || name.equals(group.getName()));
-			}
-			if(found)
-			{
-				group.setShowing(false);
-			}
-		}
-
-	}	// doHide_metadata
-
-	/**
-	 * @param data
-	 */
-	public void doShow_metadata(RunData data)
-	{
-		ParameterParser params = data.getParameters ();
-		String name = params.getString("metadataGroup");
-
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-		List metadataGroups = (List) state.getAttribute(STATE_METADATA_GROUPS);
-		if(metadataGroups != null && ! metadataGroups.isEmpty())
-		{
-			boolean found = false;
-			MetadataGroup group = null;
-			Iterator it = metadataGroups.iterator();
-			while(!found && it.hasNext())
-			{
-				group = (MetadataGroup) it.next();
-				found = (name.equals(Validator.escapeUrl(group.getName())) || name.equals(group.getName()));
-			}
-			if(found)
-			{
-				group.setShowing(true);
-			}
-		}
-
-	}	// doShow_metadata
-
-	/**
-	* Sort based on the given property
-	*/
-	public void doSort ( RunData data)
-	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-
-		//get the ParameterParser from RunData
-		ParameterParser params = data.getParameters ();
-
-		// save the current selections
-		Set selectedSet  = new TreeSet();
-		String[] selectedItems = data.getParameters ().getStrings ("selectedMembers");
-		if(selectedItems != null)
-		{
-			selectedSet.addAll(Arrays.asList(selectedItems));
-		}
-		state.setAttribute(STATE_LIST_SELECTIONS, selectedSet);
-
-		String criteria = params.getString ("criteria");
-
-		if (criteria.equals ("title"))
-		{
-			criteria = ResourceProperties.PROP_DISPLAY_NAME;
-		}
-		else if (criteria.equals ("size"))
-		{
-			criteria = ResourceProperties.PROP_CONTENT_LENGTH;
-		}
-		else if (criteria.equals ("created by"))
-		{
-			criteria = ResourceProperties.PROP_CREATOR;
-		}
-		else if (criteria.equals ("last modified"))
-		{
-			criteria = ResourceProperties.PROP_MODIFIED_DATE;
-		}
-		else if (criteria.equals("priority") && ContentHostingService.isSortByPriorityEnabled())
-		{
-			// if error, use title sort
-			criteria = ResourceProperties.PROP_CONTENT_PRIORITY;
-		}
-		else
-		{
-			criteria = ResourceProperties.PROP_DISPLAY_NAME;
-		}
-
-		String sortBy_attribute = STATE_SORT_BY;
-		String sortAsc_attribute = STATE_SORT_ASC;
-		String comparator_attribute = STATE_LIST_VIEW_SORT;
-		
-		if(state.getAttribute(STATE_MODE).equals(MODE_REORDER))
-		{
-			sortBy_attribute = STATE_REORDER_SORT_BY;
-			sortAsc_attribute = STATE_REORDER_SORT_ASC;
-			comparator_attribute = STATE_REORDER_SORT;
-		}
-		// current sorting sequence
-		String asc = NULL_STRING;
-		if (!criteria.equals (state.getAttribute (sortBy_attribute)))
-		{
-			state.setAttribute (sortBy_attribute, criteria);
-			asc = Boolean.TRUE.toString();
-			state.setAttribute (sortAsc_attribute, asc);
-		}
-		else
-		{
-			// current sorting sequence
-			asc = (String) state.getAttribute (sortAsc_attribute);
-
-			//toggle between the ascending and descending sequence
-			if (asc.equals (Boolean.TRUE.toString()))
-			{
-				asc = Boolean.FALSE.toString();
-			}
-			else
-			{
-				asc = Boolean.TRUE.toString();
-			}
-			state.setAttribute (sortAsc_attribute, asc);
-		}
-
-		if (state.getAttribute(STATE_MESSAGE) == null)
-		{
-			Comparator comparator = ContentHostingService.newContentHostingComparator(criteria, Boolean.getBoolean(asc));
-			state.setAttribute(comparator_attribute, comparator);
-			
-			// sort sucessful
-			// state.setAttribute (STATE_MODE, MODE_LIST);
-
-		}	// if-else
-
-	}	// doSort
-
-	/**
-	* Sort based on the given property
-	*/
-	public void doReorder ( RunData data)
-	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-
-		//get the ParameterParser from RunData
-		ParameterParser params = data.getParameters ();
-		
-		boolean isPrioritySortEnabled = ContentHostingService.isSortByPriorityEnabled();
-
-
-		String folderId = params.getString ("folderId");
-		if(folderId == null)
-		{
-			addAlert(state, "error");
-		}
-		
-		String sortBy = (String) state.getAttribute(STATE_REORDER_SORT_BY);
-		if(sortBy == null)
-		{
-			sortBy = ResourceProperties.PROP_CONTENT_PRIORITY;
-			state.setAttribute(STATE_REORDER_SORT_BY, sortBy);
-		}
-		String sortedAsc = (String) state.getAttribute (STATE_REORDER_SORT_ASC);
-		if(sortedAsc == null)
-		{
-			sortedAsc = Boolean.TRUE.toString();
-			state.setAttribute(STATE_REORDER_SORT_ASC, sortedAsc);
-		}
-
-		Comparator comparator = ContentHostingService.newContentHostingComparator(sortBy, Boolean.getBoolean(sortedAsc));
-		state.setAttribute(STATE_REORDER_SORT, comparator);
-
-		if (state.getAttribute(STATE_MESSAGE) == null)
-		{
-			state.setAttribute(STATE_REORDER_FOLDER, folderId);
-			state.setAttribute (STATE_MODE, MODE_REORDER);
-
-		}	// if-else
-
-	}	// doReorder
-
-	/**
-	* Sort based on the given property
-	*/
-	public void doSaveOrder ( RunData data)
-	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-
-		//get the ParameterParser from RunData
-		ParameterParser params = data.getParameters ();
-
-		String flow = params.getString("flow");
-		
-		if("save".equalsIgnoreCase(flow))
-		{
-			String folderId = params.getString ("folderId");
-			if(folderId == null)
-			{
-				// TODO: log error
-				// TODO: move strings to rb
-				addAlert(state, "Unable to complete Sort");
-			}
-			else
-			{
-				try
-				{
-					ContentCollectionEdit collection = ContentHostingService.editCollection(folderId);
-					List memberIds = collection.getMembers();
-					Map priorities = new Hashtable();
-					Iterator it = memberIds.iterator();
-					while(it.hasNext())
-					{
-						String memberId = (String) it.next();
-						int position = params.getInt("position_" + Validator.escapeUrl(memberId));
-						priorities.put(memberId, new Integer(position));
-					}
-					collection.setPriorityMap(priorities);
-					
-					ContentHostingService.commitCollection(collection);
-					
-					SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
-					if(expandedCollections == null)
-					{
-						expandedCollections = (SortedSet) new TreeSet();
-						state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
-					}
-					expandedCollections.add(folderId);
-					
-					Comparator comparator = ContentHostingService.newContentHostingComparator(ResourceProperties.PROP_CONTENT_PRIORITY, true);
-					Map expandedFolderSortMap = (Map) state.getAttribute(STATE_EXPANDED_FOLDER_SORT_MAP);
-					if(expandedFolderSortMap == null)
-					{
-						expandedFolderSortMap = new Hashtable();
-						state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, expandedFolderSortMap);
-					}
-					expandedFolderSortMap.put(folderId, comparator);
-				}
-				catch(IdUnusedException e)
-				{
-					// TODO: log error
-					// TODO: move strings to rb
-					addAlert(state, "Unable to complete Sort");
-				}
-				catch(TypeException e)
-				{
-					// TODO: log error
-					// TODO: move strings to rb
-					addAlert(state, "Unable to complete Sort");
-				}
-				catch(PermissionException e)
-				{
-					// TODO: log error
-					// TODO: move strings to rb
-					addAlert(state, "Unable to complete Sort");
-				}
-				catch(InUseException e)
-				{
-					// TODO: log error
-					// TODO: move strings to rb
-					addAlert(state, "Unable to complete Sort");
-				}
-			}
-		}
-
-		if (state.getAttribute(STATE_MESSAGE) == null)
-		{
-			state.setAttribute (STATE_MODE, MODE_LIST);
-
-		}	// if-else
-
-	}	// doSaveOrder
-
-	/**
-	* set the state name to be "deletecofirm" if any item has been selected for deleting
-	*/
-	public void doDeleteconfirm ( RunData data)
-	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-
-		// cancel copy if there is one in progress
-		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
-		{
-			initCopyContext(state);
-		}
-
-		// cancel move if there is one in progress
-		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_MOVE_FLAG)))
-		{
-			initMoveContext(state);
-		}
-
-		Set deleteIdSet  = new TreeSet();
-		String[] deleteIds = data.getParameters ().getStrings ("selectedMembers");
-		if (deleteIds == null)
-		{
-			// there is no resource selected, show the alert message to the user
-			addAlert(state, rb.getString("choosefile3"));
-		}
-		else
-		{
-			deleteIdSet.addAll(Arrays.asList(deleteIds));
-			deleteItems(state, deleteIdSet);
-		}
-
-		if (state.getAttribute(STATE_MESSAGE) == null)
-		{
-			state.setAttribute (STATE_MODE, MODE_DELETE_CONFIRM);
-			state.setAttribute(STATE_LIST_SELECTIONS, deleteIdSet);
-		}
-
-
-	}	// doDeleteconfirm
-
-	/**
-	 * @param state
-	 * @param deleteIdSet
-	 * @param deleteIds
-	 */
-	protected void deleteItems(SessionState state, Set deleteIdSet)
-	{
-		List deleteItems = new Vector();
-		List notDeleteItems = new Vector();
-		List nonEmptyFolders = new Vector();
-		List roots = (List) state.getAttribute(STATE_COLLECTION_ROOTS);
-		if(roots == null)
-		{
-			
-		}
-		Iterator rootIt = roots.iterator();
-		while(rootIt.hasNext())
-		{
-			ResourcesBrowseItem root = (ResourcesBrowseItem) rootIt.next();
-
-			List members = root.getMembers();
-			Iterator memberIt = members.iterator();
-			while(memberIt.hasNext())
-			{
-				ResourcesBrowseItem member = (ResourcesBrowseItem) memberIt.next();
-				if(deleteIdSet.contains(member.getId()))
-				{
-					if(member.isFolder())
-					{
-						if(ContentHostingService.allowRemoveCollection(member.getId()))
-						{
-							deleteItems.add(member);
-							if(! member.isEmpty())
-							{
-								nonEmptyFolders.add(member);
-							}
-						}
-						else
-						{
-							notDeleteItems.add(member);
-						}
-					}
-					else if(ContentHostingService.allowRemoveResource(member.getId()))
-					{
-						deleteItems.add(member);
-					}
-					else
-					{
-						notDeleteItems.add(member);
-					}
-				}
-			}
-		}
-
-		if(! notDeleteItems.isEmpty())
-		{
-			String notDeleteNames = "";
-			boolean first_item = true;
-			Iterator notIt = notDeleteItems.iterator();
-			while(notIt.hasNext())
-			{
-				ResourcesBrowseItem item = (ResourcesBrowseItem) notIt.next();
-				if(first_item)
-				{
-					notDeleteNames = item.getName();
-					first_item = false;
-				}
-				else if(notIt.hasNext())
-				{
-					notDeleteNames += ", " + item.getName();
-				}
-				else
-				{
-					notDeleteNames += " and " + item.getName();
-				}
-			}
-			addAlert(state, rb.getString("notpermis14") + notDeleteNames);
-		}
-
-
-		/*
-				//htripath-SAK-1712 - Set new collectionId as resources are not deleted under 'more' requirement.
-				if(state.getAttribute(STATE_MESSAGE) == null){
-				  String newCollectionId=ContentHostingService.getContainingCollectionId(currentId);
-				  state.setAttribute(STATE_COLLECTION_ID, newCollectionId);
-				}
-		*/
-
-		state.setAttribute (STATE_DELETE_ITEMS, deleteItems);
-		state.setAttribute (STATE_DELETE_ITEMS_NOT_EMPTY, nonEmptyFolders);
-	}
-
-	/**
-	 * @param state
-	 * @param deleteIdSet
-	 */
-	protected void deleteItem(SessionState state, String itemId)
-	{
-		List deleteItems = new Vector();
-		List notDeleteItems = new Vector();
-		List nonEmptyFolders = new Vector();
-		
-		boolean isFolder = itemId.endsWith(Entity.SEPARATOR);
-		
-		try
-		{
-			ContentEntity entity = null;
-			if(isFolder)
-			{
-				entity = ContentHostingService.getCollection(itemId);
-			}
-			else
-			{
-				entity = ContentHostingService.getResource(itemId);
-			}
-			
-			ListItem member = new ListItem(entity);
-			
-			if(isFolder)
-			{
-				ContentCollection collection = (ContentCollection) entity;
-				if(ContentHostingService.allowRemoveCollection(itemId))
-				{
-					deleteItems.add(member);
-					if(collection.getMemberCount() > 0)
-					{
-						nonEmptyFolders.add(member);
-					}
-				}
-				else
-				{
-					notDeleteItems.add(member);
-				}
-			}
-			else if(ContentHostingService.allowRemoveResource(member.getId()))
-			{
-				deleteItems.add(member);
-			}
-			else
-			{
-				notDeleteItems.add(member);
-			}
-		}
-		catch (IdUnusedException e)
-		{
-			// TODO Auto-generated catch block
-			logger.warn("IdUnusedException ", e);
-		}
-		catch (TypeException e)
-		{
-			// TODO Auto-generated catch block
-			logger.warn("TypeException ", e);
-		}
-		catch (PermissionException e)
-		{
-			// TODO Auto-generated catch block
-			logger.warn("PermissionException ", e);
-		}
-		
-
-		if(! notDeleteItems.isEmpty())
-		{
-			String notDeleteNames = "";
-			boolean first_item = true;
-			Iterator notIt = notDeleteItems.iterator();
-			while(notIt.hasNext())
-			{
-				ListItem item = (ListItem) notIt.next();
-				if(first_item)
-				{
-					notDeleteNames = item.getName();
-					first_item = false;
-				}
-				else if(notIt.hasNext())
-				{
-					notDeleteNames += ", " + item.getName();
-				}
-				else
-				{
-					notDeleteNames += " and " + item.getName();
-				}
-			}
-			addAlert(state, rb.getString("notpermis14") + notDeleteNames);
-		}
-
-		if(state.getAttribute(STATE_MESSAGE) == null)
-		{
-			state.setAttribute (STATE_DELETE_SET, deleteItems);
-			state.setAttribute (STATE_NON_EMPTY_DELETE_SET, nonEmptyFolders);
-		}
-	}
-
-
-	/**
-	* set the state name to be "cut" if any item has been selected for cutting
-	*/
-	public void doCut ( RunData data)
-	{
-		// get the state object
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-
-		String[] cutItems = data.getParameters ().getStrings ("selectedMembers");
-		if (cutItems == null)
-		{
-			// there is no resource selected, show the alert message to the user
-			addAlert(state, rb.getString("choosefile5"));
-			state.setAttribute (STATE_MODE, MODE_LIST);
-		}
-		else
-		{
-			Vector cutIdsVector = new Vector ();
-			String nonCutIds = NULL_STRING;
-
-			String cutId = NULL_STRING;
-			for (int i = 0; i < cutItems.length; i++)
-			{
-				cutId = cutItems[i];
-				try
-				{
-					ResourceProperties properties = ContentHostingService.getProperties (cutId);
-					if (properties.getProperty (ResourceProperties.PROP_IS_COLLECTION).equals (Boolean.TRUE.toString()))
-					{
-						String alert = (String) state.getAttribute(STATE_MESSAGE);
-						if (alert == null || ((alert != null) && (alert.indexOf(rb.getString("notsupported")) == -1)))
-						{
-							addAlert(state, rb.getString("notsupported"));
-						}
-					}
-					else
-					{
-						if (ContentHostingService.allowRemoveResource (cutId))
-						{
-							cutIdsVector.add (cutId);
-						}
-						else
-						{
-							nonCutIds = nonCutIds + " " + properties.getProperty (ResourceProperties.PROP_DISPLAY_NAME) + "; ";
-						}
-					}
-				}
-				catch (PermissionException e)
-				{
-					addAlert(state, rb.getString("notpermis15"));
-				}
-				catch (IdUnusedException e)
-				{
-					addAlert(state,rb.getString("notexist1"));
-				}	// try-catch
-			}
-
-			if (state.getAttribute(STATE_MESSAGE) == null)
-			{
-				if (nonCutIds.length ()>0)
-				{
-					addAlert(state, rb.getString("notpermis16") +" " + nonCutIds);
-				}
-
-				if (cutIdsVector.size ()>0)
-				{
-					state.setAttribute (STATE_CUT_FLAG, Boolean.TRUE.toString());
-					if (((String) state.getAttribute (STATE_SELECT_ALL_FLAG)).equals (Boolean.TRUE.toString()))
-					{
-						state.setAttribute (STATE_SELECT_ALL_FLAG, Boolean.FALSE.toString());
-					}
-
-					Vector copiedIds = (Vector) state.getAttribute (STATE_COPIED_IDS);
-					for (int i = 0; i < cutIdsVector.size (); i++)
-					{
-						String currentId = (String) cutIdsVector.elementAt (i);
-						if ( copiedIds.contains (currentId))
-						{
-							copiedIds.remove (currentId);
-						}
-					}
-					if (copiedIds.size ()==0)
-					{
-						state.setAttribute (STATE_COPY_FLAG, Boolean.FALSE.toString());
-					}
-
-					state.setAttribute (STATE_COPIED_IDS, copiedIds);
-
-					state.setAttribute (STATE_CUT_IDS, cutIdsVector);
-				}
-			}
-		}	// if-else
-
-	}	// doCut
-
-	/**
-	* set the state name to be "copy" if any item has been selected for copying
-	*/
-	public void doCopy ( RunData data )
-	{
-		// get the state object
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-
-		// cancel copy if there is one in progress
-		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
-		{
-			initCopyContext(state);
-		}
-
-		// cancel move if there is one in progress
-		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_MOVE_FLAG)))
-		{
-			initMoveContext(state);
-		}
-
-		Vector copyItemsVector = new Vector ();
-
-		String[] copyItems = data.getParameters ().getStrings ("selectedMembers");
-		if (copyItems == null)
-		{
-			// there is no resource selected, show the alert message to the user
-			addAlert(state, rb.getString("choosefile6"));
-			state.setAttribute (STATE_MODE, MODE_LIST);
-		}
-		else
-		{
-			String copyId = NULL_STRING;
-			for (int i = 0; i < copyItems.length; i++)
-			{
-				copyId = copyItems[i];
-				try
-				{
-					ResourceProperties properties = ContentHostingService.getProperties (copyId);
-					/*
-					if (properties.getProperty (ResourceProperties.PROP_IS_COLLECTION).equals (Boolean.TRUE.toString()))
-					{
-						String alert = (String) state.getAttribute(STATE_MESSAGE);
-						if (alert == null || ((alert != null) && (alert.indexOf(rb.getString("notsupported")) == -1)))
-						{
-							addAlert(state, rb.getString("notsupported"));
-						}
-					}
-					*/
-				}
-				catch (PermissionException e)
-				{
-					addAlert(state, rb.getString("notpermis15"));
-				}
-				catch (IdUnusedException e)
-				{
-					addAlert(state,rb.getString("notexist1"));
-				}	// try-catch
-			}
-
-			if (state.getAttribute(STATE_MESSAGE) == null)
-			{
-				state.setAttribute (STATE_COPY_FLAG, Boolean.TRUE.toString());
-
-				copyItemsVector.addAll(Arrays.asList(copyItems));
-				ContentHostingService.eliminateDuplicates(copyItemsVector);
-				state.setAttribute (STATE_COPIED_IDS, copyItemsVector);
-
-			}	// if-else
-		}	// if-else
-
-	}	// doCopy
-
-	/**
-	* Handle user's selection of items to be moved.
-	*/
-	public void doMove ( RunData data )
-	{
-		// get the state object
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-
-		List moveItemsVector = new Vector();
-
-		// cancel copy if there is one in progress
-		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
-		{
-			initCopyContext(state);
-		}
-
-		// cancel move if there is one in progress
-		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_MOVE_FLAG)))
-		{
-			initMoveContext(state);
-		}
-
-		state.setAttribute(STATE_LIST_SELECTIONS, new TreeSet());
-
-		String[] moveItems = data.getParameters ().getStrings ("selectedMembers");
-		if (moveItems == null)
-		{
-			// there is no resource selected, show the alert message to the user
-			addAlert(state, rb.getString("choosefile6"));
-			state.setAttribute (STATE_MODE, MODE_LIST);
-		}
-		else
-		{
-			String moveId = NULL_STRING;
-			for (int i = 0; i < moveItems.length; i++)
-			{
-				moveId = moveItems[i];
-				try
-				{
-					ResourceProperties properties = ContentHostingService.getProperties (moveId);
-					/*
-					if (properties.getProperty (ResourceProperties.PROP_IS_COLLECTION).equals (Boolean.TRUE.toString()))
-					{
-						String alert = (String) state.getAttribute(STATE_MESSAGE);
-						if (alert == null || ((alert != null) && (alert.indexOf(rb.getString("notsupported")) == -1)))
-						{
-							addAlert(state, rb.getString("notsupported"));
-						}
-					}
-					*/
-				}
-				catch (PermissionException e)
-				{
-					addAlert(state, rb.getString("notpermis15"));
-				}
-				catch (IdUnusedException e)
-				{
-					addAlert(state,rb.getString("notexist1"));
-				}	// try-catch
-			}
-
-			if (state.getAttribute(STATE_MESSAGE) == null)
-			{
-				state.setAttribute (STATE_MOVE_FLAG, Boolean.TRUE.toString());
-
-				moveItemsVector.addAll(Arrays.asList(moveItems));
-
-				ContentHostingService.eliminateDuplicates(moveItemsVector);
-
-				state.setAttribute (STATE_MOVED_IDS, moveItemsVector);
-
-			}	// if-else
-		}	// if-else
-
-	}	// doMove
-
-
-	/**
-	* Expand all the collection resources.
-	*/
-	public void doExpandall ( RunData data)
-	{
-		// get the state object
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-
-		//get the ParameterParser from RunData
-		ParameterParser params = data.getParameters ();
-
-		// save the current selections
-		Set selectedSet  = new TreeSet();
-		String[] selectedItems = params.getStrings("selectedMembers");
-		if(selectedItems != null)
-		{
-			selectedSet.addAll(Arrays.asList(selectedItems));
-		}
-		state.setAttribute(STATE_LIST_SELECTIONS, selectedSet);
-
-		// expansion actually occurs in getBrowseItems method.
-		state.setAttribute(STATE_EXPAND_ALL_FLAG,  Boolean.TRUE.toString());
-		state.setAttribute(STATE_NEED_TO_EXPAND_ALL, Boolean.TRUE.toString());
-
-	}	// doExpandall
-
-	/**
-	* Unexpand all the collection resources
-	*/
-	public void doUnexpandall ( RunData data)
-	{
-		// get the state object
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-
-		//get the ParameterParser from RunData
-		ParameterParser params = data.getParameters ();
-
-		// save the current selections
-		Set selectedSet  = new TreeSet();
-		String[] selectedItems = params.getStrings ("selectedMembers");
-		if(selectedItems != null)
-		{
-			selectedSet.addAll(Arrays.asList(selectedItems));
-		}
-		state.setAttribute(STATE_LIST_SELECTIONS, selectedSet);
-
-		state.setAttribute(STATE_EXPANDED_COLLECTIONS, new TreeSet());
-		state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, new Hashtable());
-		state.setAttribute(STATE_EXPAND_ALL_FLAG, Boolean.FALSE.toString());
-
-	}	// doUnexpandall
-
-	/**
-	* Populate the state object, if needed - override to do something!
-	*/
-	protected void initState(SessionState state, VelocityPortlet portlet, JetspeedRunData data)
-	{
-		super.initState(state, portlet, data);
-
-		if(state.getAttribute(STATE_INITIALIZED) == null)
-		{
-			initCopyContext(state);
-			initMoveContext(state);
-		}
-
-		initStateAttributes(state, portlet);
-
-	}	// initState
-
-
-	public void initStateAttributes(SessionState state, VelocityPortlet portlet)
-	{
-		if (state.getAttribute (STATE_INITIALIZED) != null) return;
-
-		if (state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE) == null)
-		{
-			state.setAttribute(STATE_FILE_UPLOAD_MAX_SIZE, ServerConfigurationService.getString("content.upload.max", "1"));
-		}
-		
-		PortletConfig config = portlet.getPortletConfig();
-		try
-		{
-			Integer size = new Integer(config.getInitParameter(PARAM_PAGESIZE));
-			if(size == null || size.intValue() < 1)
-			{
-				size = new Integer(DEFAULT_PAGE_SIZE);
-			}
-			state.setAttribute(STATE_PAGESIZE, size);
-		}
-		catch(Exception any)
-		{
-			state.setAttribute(STATE_PAGESIZE, new Integer(DEFAULT_PAGE_SIZE));
-		}
-
-		// state.setAttribute(STATE_TOP_PAGE_MESSAGE_ID, "");
-
-		state.setAttribute (STATE_CONTENT_SERVICE, ContentHostingService.getInstance());
-		state.setAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE, ContentTypeImageService.getInstance());
-		state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry"));
-
-		TimeBreakdown timeBreakdown = (TimeService.newTime()).breakdownLocal ();
-		String mycopyright = rb.getString("cpright1") + " " + timeBreakdown.getYear () +", " + UserDirectoryService.getCurrentUser().getDisplayName () + ". All Rights Reserved. ";
-		state.setAttribute (STATE_MY_COPYRIGHT, mycopyright);
-
-		if(state.getAttribute(STATE_MODE) == null)
-		{
-			state.setAttribute (STATE_MODE, MODE_LIST);
-			state.setAttribute (STATE_FROM, NULL_STRING);
-		}
-		state.setAttribute (STATE_SORT_BY, ResourceProperties.PROP_DISPLAY_NAME);
-
-		state.setAttribute (STATE_SORT_ASC, Boolean.TRUE.toString());
-		
-		state.setAttribute (STATE_SELECT_ALL_FLAG, Boolean.FALSE.toString());
-
-		state.setAttribute (STATE_EXPAND_ALL_FLAG, Boolean.FALSE.toString());
-
-		state.setAttribute(STATE_LIST_SELECTIONS, new TreeSet());
-
-		state.setAttribute (STATE_COLLECTION_PATH, new Vector ());
-
-		// %%STATE_MODE_RESOURCES%%
-		// In helper mode, calling tool should set attribute STATE_MODE_RESOURCES
-		String resources_mode = (String) state.getAttribute(STATE_MODE_RESOURCES);
-		if(resources_mode == null)
-		{
-			// get resources mode from tool registry
-			resources_mode = portlet.getPortletConfig().getInitParameter("resources_mode");
-			if(resources_mode != null)
-			{
-				state.setAttribute(STATE_MODE_RESOURCES, resources_mode);
-			}
-		}
-
-		boolean show_other_sites = false;
-		if(RESOURCES_MODE_HELPER.equals(resources_mode))
-		{
-			show_other_sites = ServerConfigurationService.getBoolean("resources.show_all_collections.helper", SHOW_ALL_SITES_IN_FILE_PICKER);
-		}
-		else if(RESOURCES_MODE_DROPBOX.equals(resources_mode))
-		{
-			show_other_sites = ServerConfigurationService.getBoolean("resources.show_all_collections.dropbox", SHOW_ALL_SITES_IN_DROPBOX);
-		}
-		else
-		{
-			show_other_sites = ServerConfigurationService.getBoolean("resources.show_all_collections.tool", SHOW_ALL_SITES_IN_RESOURCES);
-		}
-		
-		/** set attribute for the maximum size at which the resources tool will expand a collection. */
-		int expandableFolderSizeLimit = ServerConfigurationService.getInt("resources.expanded_folder_size_limit", EXPANDABLE_FOLDER_SIZE_LIMIT);
-		state.setAttribute(STATE_EXPANDABLE_FOLDER_SIZE_LIMIT, new Integer(expandableFolderSizeLimit));
-		
-		/** This attribute indicates whether "Other Sites" twiggle should show */
-		state.setAttribute(STATE_SHOW_ALL_SITES, Boolean.toString(show_other_sites));
-		/** This attribute indicates whether "Other Sites" twiggle should be open */
-		state.setAttribute(STATE_SHOW_OTHER_SITES, Boolean.FALSE.toString());
-
-		// set the home collection to the parameter, if present, or the default if not
-		String home = StringUtil.trimToNull(portlet.getPortletConfig().getInitParameter("home"));
-		state.setAttribute (STATE_HOME_COLLECTION_DISPLAY_NAME, home);
-		if ((home == null) || (home.length() == 0))
-		{
-			// no home set, see if we are in dropbox mode
-			if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase(resources_mode))
-			{
-				home = ContentHostingService.getDropboxCollection();
-
-				// if it came back null, we will pretend not to be in dropbox mode
-				if (home != null)
-				{
-					state.setAttribute(STATE_HOME_COLLECTION_DISPLAY_NAME, ContentHostingService.getDropboxDisplayName());
-
-					// create/update the collection of folders in the dropbox
-					ContentHostingService.createDropboxCollection();
-				}
-			}
-
-			// if we still don't have a home,
-			if ((home == null) || (home.length() == 0))
-			{
-				home = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
-
-				// TODO: what's the 'name' of the context? -ggolden
-				// we'll need this to create the home collection if needed
-				state.setAttribute (STATE_HOME_COLLECTION_DISPLAY_NAME, ToolManager.getCurrentPlacement().getContext()
-						/*SiteService.getSiteDisplay(ToolManager.getCurrentPlacement().getContext()) */);
-			}
-		}
-		state.setAttribute (STATE_HOME_COLLECTION_ID, home);
-		state.setAttribute (STATE_COLLECTION_ID, home);
-		state.setAttribute (STATE_NAVIGATION_ROOT, home);
-
-		HomeFactory factory = (HomeFactory) ComponentManager.get("homeFactory");
-		if(factory != null)
-		{
-			Map homes = factory.getHomes(StructuredArtifactHomeInterface.class);
-			if(! homes.isEmpty())
-			{
-				state.setAttribute(STATE_SHOW_FORM_ITEMS, Boolean.TRUE.toString());
-			}
-		}
-
-		// state.setAttribute (STATE_COLLECTION_ID, state.getAttribute (STATE_HOME_COLLECTION_ID));
-
-		if (state.getAttribute(STATE_SITE_TITLE) == null)
-		{
-			String title = "";
-			try
-			{
-				title = ((Site) SiteService.getSite(ToolManager.getCurrentPlacement().getContext())).getTitle();
-			}
-			catch (IdUnusedException e)
-			{	// ignore
-			}
-			state.setAttribute(STATE_SITE_TITLE, title);
-		}
-
-		SortedSet expandedCollections = new TreeSet();
-		//expandedCollections.add (state.getAttribute (STATE_HOME_COLLECTION_ID));
-		state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
-		state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, new Hashtable());
-		
-		if(state.getAttribute(STATE_USING_CREATIVE_COMMONS) == null)
-		{
-			String usingCreativeCommons = ServerConfigurationService.getString("copyright.use_creative_commons");
-			if( usingCreativeCommons != null && usingCreativeCommons.equalsIgnoreCase(Boolean.TRUE.toString()))
-			{
-				state.setAttribute(STATE_USING_CREATIVE_COMMONS, Boolean.TRUE.toString());
-			}
-			else
-			{
-				state.setAttribute(STATE_USING_CREATIVE_COMMONS, Boolean.FALSE.toString());
-			}
-		}
-
-		if (state.getAttribute(COPYRIGHT_TYPES) == null)
-		{
-			if (ServerConfigurationService.getStrings("copyrighttype") != null)
-			{
-				state.setAttribute(COPYRIGHT_TYPES, new ArrayList(Arrays.asList(ServerConfigurationService.getStrings("copyrighttype"))));
-			}
-		}
-
-		if (state.getAttribute(DEFAULT_COPYRIGHT) == null)
-		{
-			if (ServerConfigurationService.getString("default.copyright") != null)
-			{
-				state.setAttribute(DEFAULT_COPYRIGHT, ServerConfigurationService.getString("default.copyright"));
-			}
-		}
-
-		if (state.getAttribute(DEFAULT_COPYRIGHT_ALERT) == null)
-		{
-			if (ServerConfigurationService.getString("default.copyright.alert") != null)
-			{
-				state.setAttribute(DEFAULT_COPYRIGHT_ALERT, ServerConfigurationService.getString("default.copyright.alert"));
-			}
-		}
-
-		if (state.getAttribute(NEW_COPYRIGHT_INPUT) == null)
-		{
-			if (ServerConfigurationService.getString("newcopyrightinput") != null)
-			{
-				state.setAttribute(NEW_COPYRIGHT_INPUT, ServerConfigurationService.getString("newcopyrightinput"));
-			}
-		}
-
-		if (state.getAttribute(COPYRIGHT_FAIRUSE_URL) == null)
-		{
-			if (ServerConfigurationService.getString("fairuse.url") != null)
-			{
-				state.setAttribute(COPYRIGHT_FAIRUSE_URL, ServerConfigurationService.getString("fairuse.url"));
-			}
-		}
-
-		if (state.getAttribute(COPYRIGHT_NEW_COPYRIGHT) == null)
-		{
-			if (ServerConfigurationService.getString("copyrighttype.new") != null)
-			{
-				state.setAttribute(COPYRIGHT_NEW_COPYRIGHT, ServerConfigurationService.getString("copyrighttype.new"));
-			}
-		}
-
-		// get resources mode from tool registry
-		String optional_properties = portlet.getPortletConfig().getInitParameter("optional_properties");
-		if(optional_properties != null && "true".equalsIgnoreCase(optional_properties))
-		{
-			initMetadataContext(state);
-		}
-		
-		state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, Boolean.FALSE);
-		String[] siteTypes = ServerConfigurationService.getStrings("prevent.public.resources");
-		String siteType = null;
-		Site site;
-		try
-		{
-			site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
-			siteType = site.getType();
-			if(siteTypes != null)
-			{
-				for(int i = 0; i < siteTypes.length; i++)
-				{
-					if ((StringUtil.trimToNull(siteTypes[i])).equals(siteType))
-					{
-						state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, Boolean.TRUE);
-					}
-				}
-			}
-		}
-		catch (IdUnusedException e)
-		{
-			// allow public display
-		}
-		catch(NullPointerException e)
-		{
-			// allow public display
-		}
-		
-		Time defaultRetractTime = TimeService.newTime(TimeService.newTime().getTime() + ONE_WEEK);
-		Time guess = null;
-		Time now = TimeService.newTime();
-		if(siteType != null && siteType.equalsIgnoreCase("course") && courseManagementService != null)
-		{
-			List<AcademicSession> terms = courseManagementService.getAcademicSessions();
-			boolean found = false;
-			for(AcademicSession term : terms)
-			{
-				if(term.getEndDate() != null && term.getEndDate().getTime() > now.getTime())
-				{
-					if(guess == null)
-					{
-						guess = TimeService.newTime(term.getEndDate().getTime());
-					}
-					else if(term.getEndDate().getTime() < guess.getTime())
-					{
-						guess.setTime(term.getEndDate().getTime());
-					}
-				}
-			}
-			if(guess != null)
-			{
-				defaultRetractTime = guess;
-			}
-		}
-		state.setAttribute(STATE_DEFAULT_RETRACT_TIME, defaultRetractTime);
-		
-		if(state.getAttribute(STATE_LIST_PREFERENCE) == null)
-		{
-			state.setAttribute(STATE_LIST_PREFERENCE, LIST_HIERARCHY);
-		}
-			
-		state.setAttribute (STATE_INITIALIZED, Boolean.TRUE.toString());
-
-	}
-
-	/**
-	* Setup our observer to be watching for change events for the collection
- 	*/
- 	private void updateObservation(SessionState state, String peid)
- 	{
-// 		ContentObservingCourier observer = (ContentObservingCourier) state.getAttribute(STATE_OBSERVER);
-//
-// 		// the delivery location for this tool
-// 		String deliveryId = clientWindowId(state, peid);
-// 		observer.setDeliveryId(deliveryId);
-	}
-
-	/**
-	 * Add additional resource pattern to the observer
-	 *@param pattern The pattern value to be added
-	 *@param state The state object
-	 */
-	private static void addObservingPattern(String pattern, SessionState state)
-	{
-//		// get the observer and add the pattern
-//		ContentObservingCourier o = (ContentObservingCourier) state.getAttribute(STATE_OBSERVER);
-//		o.addResourcePattern(ContentHostingService.getReference(pattern));
-//
-//		// add it back to state
-//		state.setAttribute(STATE_OBSERVER, o);
-
-	}	// addObservingPattern
-
-	/**
-	 * Remove a resource pattern from the observer
-	 *@param pattern The pattern value to be removed
-	 *@param state The state object
-	 */
-	private static void removeObservingPattern(String pattern, SessionState state)
-	{
-//		// get the observer and remove the pattern
-//		ContentObservingCourier o = (ContentObservingCourier) state.getAttribute(STATE_OBSERVER);
-//		o.removeResourcePattern(ContentHostingService.getReference(pattern));
-//
-//		// add it back to state
-//		state.setAttribute(STATE_OBSERVER, o);
-
-	}	// removeObservingPattern
-
-	/**
-	* initialize the copy context
-	*/
-	private static void initCopyContext (SessionState state)
-	{
-		state.setAttribute (STATE_COPIED_IDS, new Vector ());
-
-		state.setAttribute (STATE_COPY_FLAG, Boolean.FALSE.toString());
-
-	}	// initCopyContent
-
-	/**
-	* initialize the copy context
-	*/
-	private static void initMoveContext (SessionState state)
-	{
-		state.setAttribute (STATE_MOVED_IDS, new Vector ());
-
-		state.setAttribute (STATE_MOVE_FLAG, Boolean.FALSE.toString());
-
-	}	// initCopyContent
-
-
-	/**
-	* initialize the cut context
-	*/
-	private void initCutContext (SessionState state)
-	{
-		state.setAttribute (STATE_CUT_IDS, new Vector ());
-
-		state.setAttribute (STATE_CUT_FLAG, Boolean.FALSE.toString());
-
-	}	// initCutContent
-
-	/**
-	*  Setup for customization
-	**/
-	public String buildOptionsPanelContext( VelocityPortlet portlet,
-											Context context,
-											RunData data,
-											SessionState state)
-	{
-		context.put("tlang",rb);
-		String home = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
-		Reference ref = EntityManager.newReference(ContentHostingService.getReference(home));
-		String siteId = ref.getContext();
-
-		context.put("form-submit", BUTTON + "doConfigure_update");
-		context.put("form-cancel", BUTTON + "doCancel_options");
-		context.put("description", "Setting options for Resources in worksite "
-				+ SiteService.getSiteDisplay(siteId));
-
-		// pick the "-customize" template based on the standard template name
-		String template = (String)getContext(data).get("template");
-		return template + "-customize";
-
-	}	// buildOptionsPanelContext
-
-	/**
-	* Handle the configure context's update button
-	*/
-	public void doConfigure_update(RunData data, Context context)
-	{
-		// access the portlet element id to find our state
-		String peid = ((JetspeedRunData)data).getJs_peid();
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState(peid);
-
-		// we are done with customization... back to the main (browse) mode
-		state.setAttribute(STATE_MODE, MODE_LIST);
-
-		// commit the change
-		// saveOptions();
-		cancelOptions();
-
-	}   // doConfigure_update
-
-	/**
-	* doCancel_options called for form input tags type="submit" named="eventSubmit_doCancel"
-	* cancel the options process
-	*/
-	public void doCancel_options(RunData data, Context context)
-	{
-		// access the portlet element id to find our state
-		String peid = ((JetspeedRunData)data).getJs_peid();
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState(peid);
-
-		// cancel the options
-		cancelOptions();
-
-		// we are done with customization... back to the main (MODE_LIST) mode
-		state.setAttribute(STATE_MODE, MODE_LIST);
-
-	}   // doCancel_options
-
-	/**
-	* Add the collection id into the expanded collection list
-	 * @throws PermissionException
-	 * @throws TypeException
-	 * @throws IdUnusedException
-	*/
-	public void doExpand_collection(RunData data) throws IdUnusedException, TypeException, PermissionException
-	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-		SortedSet expandedItems = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
-		if(expandedItems == null)
-		{
-			expandedItems = new TreeSet();
-			state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedItems);
-		}
-
-		//get the ParameterParser from RunData
-		ParameterParser params = data.getParameters ();
-
-		// save the current selections
-		Set selectedSet  = new TreeSet();
-		String[] selectedItems = params.getStrings ("selectedMembers");
-		if(selectedItems != null)
-		{
-			selectedSet.addAll(Arrays.asList(selectedItems));
-		}
-		state.setAttribute(STATE_LIST_SELECTIONS, selectedSet);
-
-		String id = params.getString("collectionId");
-		expandedItems.add(id);
-
-		// add this folder id into the set to be event-observed
-		addObservingPattern(id, state);
-
-	}	// doExpand_collection
-
-	/**
-	* Remove the collection id from the expanded collection list
-	*/
-	public void doCollapse_collection(RunData data)
-	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-		SortedSet expandedItems = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
-		if(expandedItems == null)
-		{
-			expandedItems = new TreeSet();
-		}
-		Map folderSortMap = (Map) state.getAttribute(STATE_EXPANDED_FOLDER_SORT_MAP);
-		if(folderSortMap == null)
-		{
-			folderSortMap = new Hashtable();
-			state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, folderSortMap);
-		}
-
-		//get the ParameterParser from RunData
-		ParameterParser params = data.getParameters ();
-		String collectionId = params.getString("collectionId");
-
-		// save the current selections
-		Set selectedSet  = new TreeSet();
-		String[] selectedItems = data.getParameters ().getStrings ("selectedMembers");
-		if(selectedItems != null)
-		{
-			selectedSet.addAll(Arrays.asList(selectedItems));
-		}
-		state.setAttribute(STATE_LIST_SELECTIONS, selectedSet);
-
-		SortedSet newSet = new TreeSet();
-		Iterator l = expandedItems.iterator();
-		while (l.hasNext ())
-		{
-			// remove the collection id and all of the subcollections
-//		    Resource collection = (Resource) l.next();
-//			String id = (String) collection.getId();
-		    String id = (String) l.next();
-
-			if (id.indexOf (collectionId)==-1)
-			{
-	//			newSet.put(id,collection);
-				newSet.add(id);
-			}
-			else
-			{
-				folderSortMap.remove(id);
-			}
-		}
-
-		state.setAttribute(STATE_EXPANDED_COLLECTIONS, newSet);
-
-		// remove this folder id into the set to be event-observed
-		removeObservingPattern(collectionId, state);
-
-	}	// doCollapse_collection
-
-	/**
-	 * @param state
-	 * @param homeCollectionId
-	 * @param currentCollectionId
-	 * @return
-	 */
-	public static List getCollectionPath(SessionState state)
-	{
-		org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
-		// make sure the channedId is set
-		String currentCollectionId = (String) state.getAttribute (STATE_COLLECTION_ID);
-		if(! isStackEmpty(state))
-		{
-			Map current_stack_frame = peekAtStack(state);
-			String createCollectionId = (String) current_stack_frame.get(STATE_STACK_CREATE_COLLECTION_ID);
-			if(createCollectionId == null)
-			{
-				createCollectionId = (String) state.getAttribute(STATE_CREATE_COLLECTION_ID);
-			}
-			if(createCollectionId != null)
-			{
-				currentCollectionId = createCollectionId;
-			}
-			else
-			{
-				String editCollectionId = (String) current_stack_frame.get(STATE_EDIT_COLLECTION_ID);
-				if(editCollectionId == null)
-				{
-					editCollectionId = (String) state.getAttribute(STATE_EDIT_COLLECTION_ID);
-				}
-				if(editCollectionId != null)
-				{
-					currentCollectionId = editCollectionId;
-				}
-				else
-				{
-					String infoCollectionId = (String) current_stack_frame.get(STATE_MORE_COLLECTION_ID);
-					if(infoCollectionId == null)
-					{
-						infoCollectionId = (String) state.getAttribute(STATE_MORE_COLLECTION_ID);
-					}
-					if(infoCollectionId != null)
-					{
-						currentCollectionId = infoCollectionId;
-					}
-				}
-			}
-		}
-		String homeCollectionId = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
-		String navRoot = (String) state.getAttribute(STATE_NAVIGATION_ROOT);
-
-		LinkedList collectionPath = new LinkedList();
-
-		String previousCollectionId = "";
-		Vector pathitems = new Vector();
-		while ((currentCollectionId != null) && (!currentCollectionId.equals(navRoot)) && (!currentCollectionId.equals(previousCollectionId)) && (!contentService.isRootCollection(previousCollectionId)))
-		{
-			pathitems.add(currentCollectionId);
-			previousCollectionId = currentCollectionId;
-			currentCollectionId = contentService.getContainingCollectionId(currentCollectionId);
-		}
-		
-		if(navRoot != null)
-		{
-			pathitems.add(navRoot);
-
-			if(!navRoot.equals(homeCollectionId))
-			{
-				pathitems.add(homeCollectionId);
-			}
-		}
-
-		Iterator items = pathitems.iterator();
-		while(items.hasNext())
-		{
-			String id = (String) items.next();
-			try
-			{
-				ResourceProperties props = contentService.getProperties(id);
-				String name = props.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
-				ChefPathItem item = new ChefPathItem(id, name);
-
-				boolean canRead = contentService.allowGetCollection(id) || contentService.allowGetResource(id);
-				item.setCanRead(canRead);
-
-				String url = contentService.getUrl(id);
-				item.setUrl(url);
-
-				item.setLast(collectionPath.isEmpty());
-				if(id.equals(homeCollectionId))
-				{
-					item.setRoot(homeCollectionId);
-				}
-				else
-				{
-					item.setRoot(navRoot);
-				}
-
-				try
-				{
-					boolean isFolder = props.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
-					item.setIsFolder(isFolder);
-				}
-				catch (EntityPropertyNotDefinedException e1)
-				{
-				}
-				catch (EntityPropertyTypeException e1)
-				{
-				}
-
-				collectionPath.addFirst(item);
-
-			}
-			catch (PermissionException e)
-			{
-			}
-			catch (IdUnusedException e)
-			{
-			}
-		}
-		return collectionPath;
-	}
-
-    /**
-	 * set the state name to be "copy" if any item has been selected for copying
-	 */
-	public void doCopyitem ( RunData data )
-	{
-		// get the state object
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-
-		String itemId = data.getParameters ().getString ("itemId");
-
-		if (itemId == null)
-		{
-			// there is no resource selected, show the alert message to the user
-			addAlert(state, rb.getString("choosefile6"));
-			state.setAttribute (STATE_MODE, MODE_LIST);
-		}
-		else
-		{
-			try
-			{
-				ResourceProperties properties = ContentHostingService.getProperties (itemId);
-				/*
-				if (properties.getProperty (ResourceProperties.PROP_IS_COLLECTION).equals (Boolean.TRUE.toString()))
-				{
-					String alert = (String) state.getAttribute(STATE_MESSAGE);
-					if (alert == null || ((alert != null) && (alert.indexOf(rb.getString("notsupported")) == -1)))
-					{
-						addAlert(state, rb.getString("notsupported"));
-					}
-				}
-				*/
-			}
-			catch (PermissionException e)
-			{
-				addAlert(state, rb.getString("notpermis15"));
-			}
-			catch (IdUnusedException e)
-			{
-				addAlert(state,rb.getString("notexist1"));
-			}	// try-catch
-
-			if (state.getAttribute(STATE_MESSAGE) == null)
-			{
-				state.setAttribute (STATE_COPY_FLAG, Boolean.TRUE.toString());
-
-				state.setAttribute (STATE_COPIED_ID, itemId);
-			}	// if-else
-		}	// if-else
-
-	}	// doCopyitem
-
-	/**
-	* Paste the item(s) selected to be moved
-	*/
-	public static void doMoveitems ( RunData data)
-	{
-		ParameterParser params = data.getParameters ();
-
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-
-		// cancel copy if there is one in progress
-		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
-		{
-			initCopyContext(state);
-		}
-
-		List items = (List) state.getAttribute(STATE_MOVED_IDS);
-
-		String collectionId = params.getString ("collectionId");
-
-		Iterator itemIter = items.iterator();
-		while (itemIter.hasNext())
-		{
-			// get the copied item to be pasted
-			String itemId = (String) itemIter.next();
-
-			String originalDisplayName = NULL_STRING;
-
-			try
-			{
-				/*
-				ResourceProperties properties = ContentHostingService.getProperties (itemId);
-				originalDisplayName = properties.getPropertyFormatted (ResourceProperties.PROP_DISPLAY_NAME);
-
-				// copy, cut and paste not operated on collections
-				if (properties.getProperty (ResourceProperties.PROP_IS_COLLECTION).equals (Boolean.TRUE.toString()))
-				{
-					String alert = (String) state.getAttribute(STATE_MESSAGE);
-					if (alert == null || ((alert != null) && (alert.indexOf(rb.getString("notsupported")) == -1)))
-					{
-						addAlert(state, rb.getString("notsupported"));
-					}
-				}
-				else
-				*/
-				{
-					ContentHostingService.moveIntoFolder(itemId, collectionId);
-				}	// if-else
-			}
-			catch (PermissionException e)
-			{
-				addAlert(state, rb.getString("notpermis8") + " " + originalDisplayName + ". ");
-			}
-			catch (IdUnusedException e)
-			{
-				addAlert(state,rb.getString("notexist1"));
-			}
-			catch (InUseException e)
-			{
-				addAlert(state, rb.getString("someone") + " " + originalDisplayName);
-			}
-			catch (TypeException e)
-			{
-				addAlert(state, rb.getString("pasteitem") + " " + originalDisplayName + " " + rb.getString("mismatch"));
-			}
-			catch (InconsistentException e)
-			{
-				addAlert(state, rb.getString("recursive") + " " + itemId);
-			}
-			catch(IdUsedException e)
-			{
-				addAlert(state, rb.getString("toomany"));
-			}
-			catch(ServerOverloadException e)
-			{
-				addAlert(state, rb.getString("failed"));
-			}
-			catch (OverQuotaException e)
-			{
-				addAlert(state, rb.getString("overquota"));
-			}	// try-catch
-			catch(RuntimeException e)
-			{
-				logger.debug("ResourcesAction.doMoveitems ***** Unknown Exception ***** " + e.getMessage());
-				addAlert(state, rb.getString("failed"));
-			}
-
-			if (state.getAttribute(STATE_MESSAGE) == null)
-			{
-				// delete sucessful
-				String mode = (String) state.getAttribute(STATE_MODE);
-				if(MODE_HELPER.equals(mode))
-				{
-					state.setAttribute(STATE_RESOURCES_HELPER_MODE, MODE_ATTACHMENT_SELECT);
-				}
-				else
-				{
-					state.setAttribute (STATE_MODE, MODE_LIST);
-				}
-
-				// try to expand the collection
-				SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
-				if(! expandedCollections.contains(collectionId))
-				{
-					expandedCollections.add(collectionId);
-				}
-
-				// reset the copy flag
-				if (((String)state.getAttribute (STATE_MOVE_FLAG)).equals (Boolean.TRUE.toString()))
-				{
-					state.setAttribute (STATE_MOVE_FLAG, Boolean.FALSE.toString());
-				}
-			}
-
-		}
-
-	}	// doMoveitems
-
-
-	/**
-	* Paste the previously copied item(s)
-	*/
-	public static void doPasteitem ( RunData data)
-	{
-		ParameterParser params = data.getParameters ();
-
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-
-		// get the copied item to be pasted
-		String itemId = params.getString("itemId");
-
-		String collectionId = params.getString ("collectionId");
-
-		duplicateItem(state, itemId, collectionId);
-
-	}	// doPasteitem
-
-	/**
-	 * @param state
-	 * @param itemId
-	 * @param collectionId
-	 */
-	protected static void duplicateItem(SessionState state, String itemId, String collectionId)
-	{
-		String originalDisplayName = NULL_STRING;
-
-		try
-		{
-			ResourceProperties properties = ContentHostingService.getProperties (itemId);
-			originalDisplayName = properties.getPropertyFormatted (ResourceProperties.PROP_DISPLAY_NAME);
-
-			// copy, cut and paste not operated on collections
-			if (properties.getProperty (ResourceProperties.PROP_IS_COLLECTION).equals (Boolean.TRUE.toString()))
-			{
-				String alert = (String) state.getAttribute(STATE_MESSAGE);
-				if (alert == null || ((alert != null) && (alert.indexOf(rb.getString("notsupported")) == -1)))
-				{
-					addAlert(state, rb.getString("notsupported"));
-				}
-			}
-			else
-			{
-				// paste the resource
-				ContentResource resource = ContentHostingService.getResource (itemId);
-				ResourceProperties p = ContentHostingService.getProperties(itemId);
-				String[] args = { p.getProperty(ResourceProperties.PROP_DISPLAY_NAME) };
-				String displayName = rb.getFormattedMessage("copy.name", args);
-
-				String newItemId = ContentHostingService.copyIntoFolder(itemId, collectionId);
-
-				ContentResourceEdit copy = ContentHostingService.editResource(newItemId);
-				ResourcePropertiesEdit pedit = copy.getPropertiesEdit();
-				pedit.addProperty(ResourceProperties.PROP_DISPLAY_NAME, displayName);
-				ContentHostingService.commitResource(copy, NotificationService.NOTI_NONE);
-
-			}	// if-else
-		}
-		catch (PermissionException e)
-		{
-			addAlert(state, rb.getString("notpermis8") + " " + originalDisplayName + ". ");
-		}
-		catch (IdUnusedException e)
-		{
-			addAlert(state,rb.getString("notexist1"));
-		}
-		catch (IdUsedException e)
-		{
-			addAlert(state, rb.getString("notaddreso") + " " + originalDisplayName + " " + rb.getString("used2"));
-		}
-		catch(IdLengthException e)
-		{
-			addAlert(state, rb.getString("toolong") + " " + e.getMessage());
-		}
-		catch(IdUniquenessException e)
-		{
-			addAlert(state, "Could not add this item to this folder");
-		}
-		catch (InconsistentException ee)
-		{
-			addAlert(state, rb.getString("titlecannot"));
-		}
-		catch(InUseException e)
-		{
-			addAlert(state, rb.getString("someone") + " " + originalDisplayName + ". ");
-		}
-		catch(OverQuotaException e)
-		{
-			addAlert(state, rb.getString("overquota"));
-		}
-		catch(ServerOverloadException e)
-		{
-			// this represents temporary unavailability of server's filesystem
-			// for server configured to save resource body in filesystem
-			addAlert(state, rb.getString("failed"));
-		}
-		catch (TypeException e)
-		{
-			addAlert(state, rb.getString("pasteitem") + " " + originalDisplayName + " " + rb.getString("mismatch"));
-		}	// try-catch
-
-		if (state.getAttribute(STATE_MESSAGE) == null)
-		{
-			// delete sucessful
-			String mode = (String) state.getAttribute(STATE_MODE);
-			if(MODE_HELPER.equals(mode))
-			{
-				state.setAttribute(STATE_RESOURCES_HELPER_MODE, MODE_ATTACHMENT_SELECT);
-			}
-			else
-			{
-				state.setAttribute (STATE_MODE, MODE_LIST);
-			}
-
-			// try to expand the collection
-			SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
-			if(STATE_EXPANDED_COLLECTIONS == null)
-			{
-				expandedCollections = new TreeSet();
-				state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
-			}
-			if(! expandedCollections.contains(collectionId))
-			{
-				expandedCollections.add(collectionId);
-			}
-
-			// reset the copy flag
-			if (((String)state.getAttribute (STATE_COPY_FLAG)).equals (Boolean.TRUE.toString()))
-			{
-				state.setAttribute (STATE_COPY_FLAG, Boolean.FALSE.toString());
-			}
-		}
-	}
-
-	/**
-	* Fire up the permissions editor for the current folder's permissions
-	*/
-	public void doFolder_permissions(RunData data, Context context)
-	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
-		ParameterParser params = data.getParameters();
-
-		// cancel copy if there is one in progress
-		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
-		{
-			initCopyContext(state);
-		}
-
-		// cancel move if there is one in progress
-		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_MOVE_FLAG)))
-		{
-			initMoveContext(state);
-		}
-
-		// get the current collection id and the related site
-		String collectionId = params.getString("collectionId"); //(String) state.getAttribute (STATE_COLLECTION_ID);
-		String title = "";
-		try
-		{
-			title = ContentHostingService.getProperties(collectionId).getProperty(ResourceProperties.PROP_DISPLAY_NAME);
-		}
-		catch (PermissionException e)
-		{
-			addAlert(state, rb.getString("notread"));
-		}
-		catch (IdUnusedException e)
-		{
-			addAlert(state, rb.getString("notfindfol"));
-		}
-
-		// the folder to edit
-		Reference ref = EntityManager.newReference(ContentHostingService.getReference(collectionId));
-		state.setAttribute(PermissionsHelper.TARGET_REF, ref.getReference());
-
-		// use the folder's context (as a site) for roles
-		String siteRef = SiteService.siteReference(ref.getContext());
-		state.setAttribute(PermissionsHelper.ROLES_REF, siteRef);
-
-		// ... with this description
-		state.setAttribute(PermissionsHelper.DESCRIPTION, rb.getString("setpermis") + " " + title);
-
-		// ... showing only locks that are prpefixed with this
-		state.setAttribute(PermissionsHelper.PREFIX, "content.");
-
-		// get into helper mode with this helper tool
-		startHelper(data.getRequest(), "sakai.permissions.helper");
-
-	}	// doFolder_permissions
-
-	/**
-	* Fire up the permissions editor for the tool's permissions
-	*/
-	public void doPermissions(RunData data, Context context)
-	{
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
-
-		// cancel copy if there is one in progress
-		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
-		{
-			initCopyContext(state);
-		}
-
-		// cancel move if there is one in progress
-		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_MOVE_FLAG)))
-		{
-			initMoveContext(state);
-		}
-
-		// should we save here?
-		state.setAttribute(STATE_LIST_SELECTIONS, new TreeSet());
-
-		// get the current home collection id and the related site
-		String collectionId = (String) state.getAttribute (STATE_HOME_COLLECTION_ID);
-		Reference ref = EntityManager.newReference(ContentHostingService.getReference(collectionId));
-		String siteRef = SiteService.siteReference(ref.getContext());
-
-		// setup for editing the permissions of the site for this tool, using the roles of this site, too
-		state.setAttribute(PermissionsHelper.TARGET_REF, siteRef);
-
-		// ... with this description
-		state.setAttribute(PermissionsHelper.DESCRIPTION, rb.getString("setpermis1")
-				+ SiteService.getSiteDisplay(ref.getContext()));
-
-		// ... showing only locks that are prpefixed with this
-		state.setAttribute(PermissionsHelper.PREFIX, "content.");
-
-		// get into helper mode with this helper tool
-		startHelper(data.getRequest(), "sakai.permissions.helper");
-
-	}	// doPermissions
-
-	/**
-	* is notification enabled?
-	*/
-	protected boolean notificationEnabled(SessionState state)
-	{
-		return true;
-
-	}	// notificationEnabled
-
-	/**
-	 * Processes the HTML document that is coming back from the browser
-	 * (from the formatted text editing widget).
-	 * @param state Used to pass in any user-visible alerts or errors when processing the text
-	 * @param strFromBrowser The string from the browser
-	 * @return The formatted text
-	 */
-	private String processHtmlDocumentFromBrowser(SessionState state, String strFromBrowser)
-	{
-		StringBuffer alertMsg = new StringBuffer();
-		String text = FormattedText.processHtmlDocument(strFromBrowser, alertMsg);
-		if (alertMsg.length() > 0) addAlert(state, alertMsg.toString());
-		return text;
-	}
-
-	/**
-	 *
-	 * Whether a resource item can be replaced
-	 * @param p The ResourceProperties object for the resource item
-	 * @return true If it can be replaced; false otherwise
-	 */
-	private static boolean replaceable(ResourceProperties p)
-	{
-		boolean rv = true;
-
-		if (p.getPropertyFormatted (ResourceProperties.PROP_IS_COLLECTION).equals (Boolean.TRUE.toString()))
-		{
-			rv = false;
-		}
-		else if (p.getProperty (ResourceProperties.PROP_CONTENT_TYPE).equals (ResourceProperties.TYPE_URL))
-		{
-			rv = false;
-		}
-		String displayName = p.getPropertyFormatted (ResourceProperties.PROP_DISPLAY_NAME);
-		if (displayName.indexOf(rb.getString("shortcut")) != -1)
-		{
-			rv = false;
-		}
-
-		return rv;
-
-	}	// replaceable
-
-	/**
-	 *
-	 * put copyright info into context
-	 */
-	public static void copyrightChoicesIntoContext(SessionState state, Context context)
-	{
-		boolean usingCreativeCommons = state.getAttribute(STATE_USING_CREATIVE_COMMONS) != null && state.getAttribute(STATE_USING_CREATIVE_COMMONS).equals(Boolean.TRUE.toString());		
-		
-		if(usingCreativeCommons)
-		{
-			
-			String ccOwnershipLabel = "Who created this resource?";
-			List ccOwnershipList = new Vector();
-			ccOwnershipList.add("-- Select --");
-			ccOwnershipList.add("I created this resource");
-			ccOwnershipList.add("Someone else created this resource");
-			
-			String ccMyGrantLabel = "Terms of use";
-			List ccMyGrantOptions = new Vector();
-			ccMyGrantOptions.add("-- Select --");
-			ccMyGrantOptions.add("Use my copyright");
-			ccMyGrantOptions.add("Use Creative Commons License");
-			ccMyGrantOptions.add("Use Public Domain Dedication");
-			
-			String ccCommercialLabel = "Allow commercial use?";
-			List ccCommercialList = new Vector();
-			ccCommercialList.add("Yes");
-			ccCommercialList.add("No");
-			
-			String ccModificationLabel = "Allow Modifications?";
-			List ccModificationList = new Vector();
-			ccModificationList.add("Yes");
-			ccModificationList.add("Yes, share alike");
-			ccModificationList.add("No");
-			
-			String ccOtherGrantLabel = "Terms of use";
-			List ccOtherGrantList = new Vector();
-			ccOtherGrantList.add("Subject to fair-use exception");
-			ccOtherGrantList.add("Public domain (created before copyright law applied)");
-			ccOtherGrantList.add("Public domain (copyright has expired)");
-			ccOtherGrantList.add("Public domain (government document not subject to copyright)");
-			
-			String ccRightsYear = "Year";
-			String ccRightsOwner = "Copyright owner";
-			
-			String ccAcknowledgeLabel = "Require users to acknowledge author's rights before access?";
-			List ccAcknowledgeList = new Vector();
-			ccAcknowledgeList.add("Yes");
-			ccAcknowledgeList.add("No");
-			
-			String ccInfoUrl = "";
-			
-			int year = TimeService.newTime().breakdownLocal().getYear();
-			String username = UserDirectoryService.getCurrentUser().getDisplayName(); 
-
-			context.put("usingCreativeCommons", Boolean.TRUE);
-			context.put("ccOwnershipLabel", ccOwnershipLabel);
-			context.put("ccOwnershipList", ccOwnershipList);
-			context.put("ccMyGrantLabel", ccMyGrantLabel);
-			context.put("ccMyGrantOptions", ccMyGrantOptions);
-			context.put("ccCommercialLabel", ccCommercialLabel);
-			context.put("ccCommercialList", ccCommercialList);
-			context.put("ccModificationLabel", ccModificationLabel);
-			context.put("ccModificationList", ccModificationList);
-			context.put("ccOtherGrantLabel", ccOtherGrantLabel);
-			context.put("ccOtherGrantList", ccOtherGrantList);
-			context.put("ccRightsYear", ccRightsYear);
-			context.put("ccRightsOwner", ccRightsOwner);
-			context.put("ccAcknowledgeLabel", ccAcknowledgeLabel);
-			context.put("ccAcknowledgeList", ccAcknowledgeList);
-			context.put("ccInfoUrl", ccInfoUrl);
-			context.put("ccThisYear", Integer.toString(year));
-			context.put("ccThisUser", username);
-		}
-		else
-		{
-			//copyright
-			if (state.getAttribute(COPYRIGHT_FAIRUSE_URL) != null)
-			{
-				context.put("fairuseurl", state.getAttribute(COPYRIGHT_FAIRUSE_URL));
-			}
-			if (state.getAttribute(NEW_COPYRIGHT_INPUT) != null)
-			{
-				context.put("newcopyrightinput", state.getAttribute(NEW_COPYRIGHT_INPUT));
-			}
-	
-			if (state.getAttribute(COPYRIGHT_TYPES) != null)
-			{
-				List copyrightTypes = (List) state.getAttribute(COPYRIGHT_TYPES);
-				context.put("copyrightTypes", copyrightTypes);
-				context.put("copyrightTypesSize", new Integer(copyrightTypes.size() - 1));
-				context.put("USE_THIS_COPYRIGHT", copyrightTypes.get(copyrightTypes.size() - 1));
-			}
-		}
-		
-		Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
-		if(preventPublicDisplay == null)
-		{
-			preventPublicDisplay = Boolean.FALSE;
-			state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
-		}
-		context.put("preventPublicDisplay", preventPublicDisplay);
-		
-	}	// copyrightChoicesIntoContext
-
-	/**
-	 * Add variables and constants to the velocity context to render an editor
-	 * for inputing and modifying optional metadata properties about a resource.
-	 */
-	private static void metadataGroupsIntoContext(SessionState state, Context context)
-	{
-
-		context.put("STRING", ResourcesMetadata.WIDGET_STRING);
-		context.put("TEXTAREA", ResourcesMetadata.WIDGET_TEXTAREA);
-		context.put("BOOLEAN", ResourcesMetadata.WIDGET_BOOLEAN);
-		context.put("INTEGER", ResourcesMetadata.WIDGET_INTEGER);
-		context.put("DOUBLE", ResourcesMetadata.WIDGET_DOUBLE);
-		context.put("DATE", ResourcesMetadata.WIDGET_DATE);
-		context.put("TIME", ResourcesMetadata.WIDGET_TIME);
-		context.put("DATETIME", ResourcesMetadata.WIDGET_DATETIME);
-		context.put("ANYURI", ResourcesMetadata.WIDGET_ANYURI);
-		context.put("WYSIWYG", ResourcesMetadata.WIDGET_WYSIWYG);
-
-		context.put("today", TimeService.newTime());
-
-		List metadataGroups = (List) state.getAttribute(STATE_METADATA_GROUPS);
-		if(metadataGroups != null && !metadataGroups.isEmpty())
-		{
-			context.put("metadataGroups", metadataGroups);
-		}
-
-	}	// metadataGroupsIntoContext
-
-	/**
-	 * initialize the metadata context
-	 */
-	private static void initMetadataContext(SessionState state)
-	{
-		// define MetadataSets map
-		List metadataGroups = (List) state.getAttribute(STATE_METADATA_GROUPS);
-		if(metadataGroups == null)
-		{
-			metadataGroups = new Vector();
-			state.setAttribute(STATE_METADATA_GROUPS, metadataGroups);
-		}
-		// define DublinCore
-		if( !metadataGroups.contains(new MetadataGroup(rb.getString("opt_props"))) )
-		{
-			MetadataGroup dc = new MetadataGroup( rb.getString("opt_props") );
-			// dc.add(ResourcesMetadata.PROPERTY_DC_TITLE);
-			// dc.add(ResourcesMetadata.PROPERTY_DC_DESCRIPTION);
-			dc.add(ResourcesMetadata.PROPERTY_DC_ALTERNATIVE);
-			dc.add(ResourcesMetadata.PROPERTY_DC_CREATOR);
-			dc.add(ResourcesMetadata.PROPERTY_DC_PUBLISHER);
-			dc.add(ResourcesMetadata.PROPERTY_DC_SUBJECT);
-			dc.add(ResourcesMetadata.PROPERTY_DC_CREATED);
-			dc.add(ResourcesMetadata.PROPERTY_DC_ISSUED);
-			// dc.add(ResourcesMetadata.PROPERTY_DC_MODIFIED);
-			// dc.add(ResourcesMetadata.PROPERTY_DC_TABLEOFCONTENTS);
-			dc.add(ResourcesMetadata.PROPERTY_DC_ABSTRACT);
-			dc.add(ResourcesMetadata.PROPERTY_DC_CONTRIBUTOR);
-			// dc.add(ResourcesMetadata.PROPERTY_DC_TYPE);
-			// dc.add(ResourcesMetadata.PROPERTY_DC_FORMAT);
-			// dc.add(ResourcesMetadata.PROPERTY_DC_IDENTIFIER);
-			// dc.add(ResourcesMetadata.PROPERTY_DC_SOURCE);
-			// dc.add(ResourcesMetadata.PROPERTY_DC_LANGUAGE);
-			// dc.add(ResourcesMetadata.PROPERTY_DC_COVERAGE);
-			// dc.add(ResourcesMetadata.PROPERTY_DC_RIGHTS);
-			dc.add(ResourcesMetadata.PROPERTY_DC_AUDIENCE);
-			dc.add(ResourcesMetadata.PROPERTY_DC_EDULEVEL);
-			
-			/* Filesystem and file-like mount points */
-			dc.add(ResourcesMetadata.PROPERTY_FSMOUNT_ACTIVE);
-				
-			metadataGroups.add(dc);
-			state.setAttribute(STATE_METADATA_GROUPS, metadataGroups);
-		}
-		/*
-		// define DublinCore
-		if(!metadataGroups.contains(new MetadataGroup("Test of Datatypes")))
-		{
-			MetadataGroup dc = new MetadataGroup("Test of Datatypes");
-			dc.add(ResourcesMetadata.PROPERTY_DC_TITLE);
-			dc.add(ResourcesMetadata.PROPERTY_DC_DESCRIPTION);
-			dc.add(ResourcesMetadata.PROPERTY_DC_ANYURI);
-			dc.add(ResourcesMetadata.PROPERTY_DC_DOUBLE);
-			dc.add(ResourcesMetadata.PROPERTY_DC_DATETIME);
-			dc.add(ResourcesMetadata.PROPERTY_DC_TIME);
-			dc.add(ResourcesMetadata.PROPERTY_DC_DATE);
-			dc.add(ResourcesMetadata.PROPERTY_DC_BOOLEAN);
-			dc.add(ResourcesMetadata.PROPERTY_DC_INTEGER);
-			metadataGroups.add(dc);
-			state.setAttribute(STATE_METADATA_GROUPS, metadataGroups);
-		}
-		*/
-	}
-
-			
-
-
-	/**
-	 * Inner class encapsulates information about folders (and final item?) in a collection path (a.k.a. breadcrumb)
-	 * This is being phased out as we switch to the resources type registry.
-	 */
-	public static class ChefPathItem
-	{
-		protected String m_url;
-		protected String m_name;
-		protected String m_id;
-		protected boolean m_canRead;
-		protected boolean m_isFolder;
-		protected boolean m_isLast;
-		protected String m_root;
-		protected boolean m_isLocal;
-
-		public ChefPathItem(String id, String name)
-		{
-			m_id = id;
-			m_name = name;
-			m_canRead = false;
-			m_isFolder = false;
-			m_isLast = false;
-			m_url = "";
-			m_isLocal = true;
-		}
-
-		/**
-		 * @return
-		 */
-		public boolean canRead()
-		{
-			return m_canRead;
-		}
-
-		/**
-		 * @return
-		 */
-		public String getId()
-		{
-			return m_id;
-		}
-
-		/**
-		 * @return
-		 */
-		public boolean isFolder()
-		{
-			return m_isFolder;
-		}
-
-		/**
-		 * @return
-		 */
-		public boolean isLast()
-		{
-			return m_isLast;
-		}
-
-		/**
-		 * @return
-		 */
-		public String getName()
-		{
-			return m_name;
-		}
-
-		/**
-		 * @param canRead
-		 */
-		public void setCanRead(boolean canRead)
-		{
-			m_canRead = canRead;
-		}
-
-		/**
-		 * @param id
-		 */
-		public void setId(String id)
-		{
-			m_id = id;
-		}
-
-		/**
-		 * @param isFolder
-		 */
-		public void setIsFolder(boolean isFolder)
-		{
-			m_isFolder = isFolder;
-		}
-
-		/**
-		 * @param isLast
-		 */
-		public void setLast(boolean isLast)
-		{
-			m_isLast = isLast;
-		}
-
-		/**
-		 * @param name
-		 */
-		public void setName(String name)
-		{
-			m_name = name;
-		}
-
-		/**
-		 * @return
-		 */
-		public String getUrl()
-		{
-			return m_url;
-		}
-
-		/**
-		 * @param url
-		 */
-		public void setUrl(String url)
-		{
-			m_url = url;
-		}
-
-		/**
-		 * @param root
-		 */
-		public void setRoot(String root)
-		{
-			m_root = root;
-		}
-
-		/**
-		 * @return
-		 */
-		public String getRoot()
-		{
-			return m_root;
-		}
-
-		public void setIsLocal(boolean isLocal)
-		{
-			m_isLocal = isLocal;
-		}
-
-		public boolean isLocal()
-		{
-			return m_isLocal;
-		}
-
-	}	// inner class ChefPathItem
-
-	/**
-	 *
-	 * inner class encapsulates information about groups of metadata tags (such as DC, LOM, etc.)
-	 *
-	 */
-	public static class MetadataGroup
-		extends Vector
-	{
-		/**
-		 *
-		 */
-		private static final long serialVersionUID = -821054142728929236L;
-		protected String m_name;
-		protected boolean m_isShowing;
-
-		/**
-		 * @param name
-		 */
-		public MetadataGroup(String name)
-		{
-			super();
-			m_name = name;
-			m_isShowing = false;
-		}
-
-		/**
-		 * @return
-		 */
-		public boolean isShowing()
-		{
-			return m_isShowing;
-		}
-
-		/**
-		 * @param isShowing
-		 */
-		public void setShowing(boolean isShowing)
-		{
-			m_isShowing = isShowing;
-		}
-
-
-		/**
-		 * @return
-		 */
-		public String getName()
-		{
-			return m_name;
-		}
-
-		/**
-		 * @param name
-		 */
-		public void setName(String name)
-		{
-			m_name = name;
-		}
-
-		/* (non-Javadoc)
-		 * @see java.lang.Object#equals(java.lang.Object)
-		 * needed to determine List.contains()
-		 */
-		public boolean equals(Object obj)
-		{
-			MetadataGroup mg = (MetadataGroup) obj;
-			boolean rv = (obj != null) && (m_name.equals(mg));
-			return rv;
-		}
-
-	}
-
-	public static class ElementCarrier
-	{
-		protected Element element;
-		protected String parent;
-
-		public ElementCarrier(Element element, String parent)
-		{
-			this.element = element;
-			this.parent = parent;
-
-		}
-
-		public Element getElement()
-		{
-			return element;
-		}
-
-		public void setElement(Element element)
-		{
-			this.element = element;
-		}
-
-		public String getParent()
-		{
-			return parent;
-		}
-
-		public void setParent(String parent)
-		{
-			this.parent = parent;
-		}
-
-	}
-
-	/**
-	* Develop a list of all the site collections that there are to page.
-	* Sort them as appropriate, and apply search criteria.
-	*/
-	protected List readAllResources(SessionState state)
-	{
-		ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
-		if(registry == null)
-		{
-			registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
-			state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
-		}
-		
-		List other_sites = new Vector();
-
-		String collectionId = (String) state.getAttribute (STATE_COLLECTION_ID);
-		SortedSet<String> expandedCollections = (SortedSet<String>) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
-		if(expandedCollections == null)
-		{
-			expandedCollections = new TreeSet();
-			state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
-		}
-		
-		Comparator userSelectedSort = (Comparator) state.getAttribute(STATE_LIST_VIEW_SORT);
-		
-		// set the sort values
-		String sortedBy = (String) state.getAttribute (STATE_SORT_BY);
-		String sortedAsc = (String) state.getAttribute (STATE_SORT_ASC);
-		
-		Boolean showRemove = (Boolean) state.getAttribute(STATE_SHOW_REMOVE_ACTION);
-		boolean showRemoveAction = showRemove != null && showRemove.booleanValue();
-		
-		Boolean showMove = (Boolean) state.getAttribute(STATE_SHOW_MOVE_ACTION);
-		boolean showMoveAction = showMove != null && showMove.booleanValue();
-		
-		Boolean showCopy = (Boolean) state.getAttribute(STATE_SHOW_COPY_ACTION);
-		boolean showCopyAction = showCopy != null && showCopy.booleanValue();
-		
-		Set highlightedItems = (Set) state.getAttribute(STATE_HIGHLIGHTED_ITEMS);
-		
-
-		// add user's personal workspace
-		User user = UserDirectoryService.getCurrentUser();
-		String userId = user.getId();
-		String userName = user.getDisplayName();
-		String wsId = SiteService.getUserSiteId(userId);
-		String wsCollectionId = ContentHostingService.getSiteCollection(wsId);
-		List<String> items_to_be_copied = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_COPIED);
-		List<String> items_to_be_moved = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_MOVED);
-		
-		if(! collectionId.equals(wsCollectionId))
-		{
-            try
-            {
-            	ContentCollection wsCollection = ContentHostingService.getCollection(wsCollectionId);
-				ListItem wsRoot = ListItem.getListItem(wsCollection, null, registry, false, expandedCollections, items_to_be_moved, items_to_be_copied, 0, userSelectedSort);
-		        other_sites.add(wsRoot);
-            }
-            catch (IdUnusedException e)
-            {
-	            // TODO Auto-generated catch block
-	            logger.warn("IdUnusedException ", e);
-            }
-            catch (TypeException e)
-            {
-	            // TODO Auto-generated catch block
-	            logger.warn("TypeException ", e);
-            }
-            catch (PermissionException e)
-            {
-	            // TODO Auto-generated catch block
-	            logger.warn("PermissionException ", e);
-            }
-		}
-		
- 		/*
-		 * add all other sites user has access to
-		 * NOTE: This does not (and should not) get all sites for admin.  
-		 *       Getting all sites for admin is too big a request and
-		 *       would result in too big a display to render in html.
-		 */
-		Map othersites = ContentHostingService.getCollectionMap();
-		Iterator siteIt = othersites.keySet().iterator();
-		SortedSet sort = new TreeSet();
-		while(siteIt.hasNext())
-		{
-              String collId = (String) siteIt.next();
-              String displayName = (String) othersites.get(collId);
-              sort.add(displayName + DELIM + collId);
-		}
-		
-		Iterator sortIt = sort.iterator();
-		while(sortIt.hasNext())
-		{
-			String keyvalue = (String) sortIt.next();
-			String displayName = keyvalue.substring(0, keyvalue.lastIndexOf(DELIM));
-			String collId = keyvalue.substring(keyvalue.lastIndexOf(DELIM) + 1);
-			if(! collectionId.equals(collId) && ! wsCollectionId.equals(collId))
-			{
-				ContentCollection collection;
-                try
-                {
-	                collection = ContentHostingService.getCollection(collId);
-					ListItem root = ListItem.getListItem(collection, null, registry, false, expandedCollections, items_to_be_moved, items_to_be_copied, 0, null);
-					root.setName(displayName);
-					other_sites.add(root);
-                }
-                catch (IdUnusedException e)
-                {
-	                // TODO Auto-generated catch block
-	                logger.warn("IdUnusedException ", e);
-                }
-                catch (TypeException e)
-                {
-	                // TODO Auto-generated catch block
-	                logger.warn("TypeException ", e);
-                }
-                catch (PermissionException e)
-                {
-	                // TODO Auto-generated catch block
-	                logger.warn("PermissionException ", e);
-                }
-			}
-          }
-		
-		return other_sites;
-	}
-	
-	/**
-	* Prepare the current page of site collections to display.
-	* @return List of ListItem objects to display on this page.
-	*/
-	protected List prepPage(SessionState state)
-	{
-		List rv = new Vector();
-
-		// access the page size
-		int pageSize = ((Integer) state.getAttribute(STATE_PAGESIZE)).intValue();
-
-		// cleanup prior prep
-		state.removeAttribute(STATE_NUM_MESSAGES);
-
-		// are we going next or prev, first or last page?
-		boolean goNextPage = state.getAttribute(STATE_GO_NEXT_PAGE) != null;
-		boolean goPrevPage = state.getAttribute(STATE_GO_PREV_PAGE) != null;
-		boolean goFirstPage = state.getAttribute(STATE_GO_FIRST_PAGE) != null;
-		boolean goLastPage = state.getAttribute(STATE_GO_LAST_PAGE) != null;
-		state.removeAttribute(STATE_GO_NEXT_PAGE);
-		state.removeAttribute(STATE_GO_PREV_PAGE);
-		state.removeAttribute(STATE_GO_FIRST_PAGE);
-		state.removeAttribute(STATE_GO_LAST_PAGE);
-
-		// are we going next or prev message?
-		boolean goNext = state.getAttribute(STATE_GO_NEXT) != null;
-		boolean goPrev = state.getAttribute(STATE_GO_PREV) != null;
-		state.removeAttribute(STATE_GO_NEXT);
-		state.removeAttribute(STATE_GO_PREV);
-
-		// read all channel messages
-		List allMessages = readAllResources(state);
-
-		if (allMessages == null)
-		{
-			return rv;
-		}
-		
-		String messageIdAtTheTopOfThePage = null;
-		Object topMsgId = state.getAttribute(STATE_TOP_PAGE_MESSAGE_ID);
-		if(topMsgId == null)
-		{
-			// do nothing
-		}
-		else if(topMsgId instanceof Integer)
-		{
-			messageIdAtTheTopOfThePage = ((Integer) topMsgId).toString();
-		}
-		else if(topMsgId instanceof String)
-		{
-			messageIdAtTheTopOfThePage = (String) topMsgId;
-		}
-
-		// if we have no prev page and do have a top message, then we will stay "pinned" to the top
-		boolean pinToTop = (	(messageIdAtTheTopOfThePage != null)
-							&&	(state.getAttribute(STATE_PREV_PAGE_EXISTS) == null)
-							&&	!goNextPage && !goPrevPage && !goNext && !goPrev && !goFirstPage && !goLastPage);
-
-		// if we have no next page and do have a top message, then we will stay "pinned" to the bottom
-		boolean pinToBottom = (	(messageIdAtTheTopOfThePage != null)
-							&&	(state.getAttribute(STATE_NEXT_PAGE_EXISTS) == null)
-							&&	!goNextPage && !goPrevPage && !goNext && !goPrev && !goFirstPage && !goLastPage);
-
-		// how many messages, total
-		int numMessages = allMessages.size();
-
-		if (numMessages == 0)
-		{
-			return rv;
-		}
-
-		// save the number of messges
-		state.setAttribute(STATE_NUM_MESSAGES, new Integer(numMessages));
-
-		// find the position of the message that is the top first on the page
-		int posStart = 0;
-		if (messageIdAtTheTopOfThePage != null)
-		{
-			// find the next page
-			posStart = findResourceInList(allMessages, messageIdAtTheTopOfThePage);
-
-			// if missing, start at the top
-			if (posStart == -1)
-			{
-				posStart = 0;
-			}
-		}
-		
-		// if going to the next page, adjust
-		if (goNextPage)
-		{
-			posStart += pageSize;
-		}
-
-		// if going to the prev page, adjust
-		else if (goPrevPage)
-		{
-			posStart -= pageSize;
-			if (posStart < 0) posStart = 0;
-		}
-		
-		// if going to the first page, adjust
-		else if (goFirstPage)
-		{
-			posStart = 0;
-		}
-		
-		// if going to the last page, adjust
-		else if (goLastPage)
-		{
-			posStart = numMessages - pageSize;
-			if (posStart < 0) posStart = 0;
-		}
-
-		// pinning
-		if (pinToTop)
-		{
-			posStart = 0;
-		}
-		else if (pinToBottom)
-		{
-			posStart = numMessages - pageSize;
-			if (posStart < 0) posStart = 0;
-		}
-
-		// get the last page fully displayed
-		if (posStart + pageSize > numMessages)
-		{
-			posStart = numMessages - pageSize;
-			if (posStart < 0) posStart = 0;
-		}
-
-		// compute the end to a page size, adjusted for the number of messages available
-		int posEnd = posStart + (pageSize-1);
-		if (posEnd >= numMessages) posEnd = numMessages-1;
-		int numMessagesOnThisPage = (posEnd - posStart) + 1;
-
-		// select the messages on this page
-		for (int i = posStart; i <= posEnd; i++)
-		{
-			rv.add(allMessages.get(i));
-		}
-
-		// save which message is at the top of the page
-		ListItem itemAtTheTopOfThePage = (ListItem) allMessages.get(posStart);
-		state.setAttribute(STATE_TOP_PAGE_MESSAGE_ID, itemAtTheTopOfThePage.getId());
-		state.setAttribute(STATE_TOP_MESSAGE_INDEX, new Integer(posStart));
-
-
-		// which message starts the next page (if any)
-		int next = posStart + pageSize;
-		if (next < numMessages)
-		{
-			state.setAttribute(STATE_NEXT_PAGE_EXISTS, "");
-		}
-		else
-		{
-			state.removeAttribute(STATE_NEXT_PAGE_EXISTS);
-		}
-
-		// which message ends the prior page (if any)
-		int prev = posStart - 1;
-		if (prev >= 0)
-		{
-			state.setAttribute(STATE_PREV_PAGE_EXISTS, "");
-		}
-		else
-		{
-			state.removeAttribute(STATE_PREV_PAGE_EXISTS);
-		}
-
-		if (state.getAttribute(STATE_VIEW_ID) != null)
-		{
-			int viewPos = findResourceInList(allMessages, (String) state.getAttribute(STATE_VIEW_ID));
-	
-			// are we moving to the next message
-			if (goNext)
-			{
-				// advance
-				viewPos++;
-				if (viewPos >= numMessages) viewPos = numMessages-1;
-			}
-	
-			// are we moving to the prev message
-			if (goPrev)
-			{
-				// retreat
-				viewPos--;
-				if (viewPos < 0) viewPos = 0;
-			}
-			
-			// update the view message
-			state.setAttribute(STATE_VIEW_ID, ((ListItem) allMessages.get(viewPos)).getId());
-			
-			// if the view message is no longer on the current page, adjust the page
-			// Note: next time through this will get processed
-			if (viewPos < posStart)
-			{
-				state.setAttribute(STATE_GO_PREV_PAGE, "");
-			}
-			else if (viewPos > posEnd)
-			{
-				state.setAttribute(STATE_GO_NEXT_PAGE, "");
-			}
-			
-			if (viewPos > 0)
-			{
-				state.setAttribute(STATE_PREV_EXISTS,"");
-			}
-			else
-			{
-				state.removeAttribute(STATE_PREV_EXISTS);
-			}
-			
-			if (viewPos < numMessages-1)
-			{
-				state.setAttribute(STATE_NEXT_EXISTS,"");
-			}
-			else
-			{
-				state.removeAttribute(STATE_NEXT_EXISTS);
-			}			
-		}
-
-		return rv;
-
-	}	// prepPage
-	
-	/**
-	* Find the resource with this id in the list.
-	* @param messages The list of messages.
-	* @param id The message id.
-	* @return The index position in the list of the message with this id, or -1 if not found.
-	*/
-	protected int findResourceInList(List resources, String id)
-	{
-		for (int i = 0; i < resources.size(); i++)
-		{
-			// if this is the one, return this index
-			if (((ListItem) (resources.get(i))).getId().equals(id)) return i;
-		}
-
-		// not found
-		return -1;
-
-	}	// findResourceInList
-
-	protected static User getUserProperty(ResourceProperties props, String name)
-	{
-		String id = props.getProperty(name);
-		if (id != null)
-		{
-			try
-			{
-				return UserDirectoryService.getUser(id);
-			}
-			catch (UserNotDefinedException e)
-			{
-			}
-		}
-		
-		return null;
-	}
-
-	/**
-	 * Find the resource name of a given resource id or filepath.
-	 * 
-	 * @param id
-	 *        The resource id.
-	 * @return the resource name.
-	 */
-	protected static String isolateName(String id)
-	{
-		if (id == null) return null;
-		if (id.length() == 0) return null;
-
-		// take after the last resource path separator, not counting one at the very end if there
-		boolean lastIsSeparator = id.charAt(id.length() - 1) == '/';
-		return id.substring(id.lastIndexOf('/', id.length() - 2) + 1, (lastIsSeparator ? id.length() - 1 : id.length()));
-
-	} // isolateName
-
-	/////////////////////////////////////////////////////////////////////////// Methods, Classes, Statics to be deprecated/removed
-	
-
-	
-	/**
-	 * Search a flat list of ResourcesMetadata properties for one whose localname matches "field".
-	 * If found and the field can have additional instances, increment the count for that item.
-	 * @param field
-	 * @param properties
-	 * @return true if the field is found, false otherwise.
-	 */
-	protected  boolean addInstance(String field, List properties)
-	{
-		Iterator propIt = properties.iterator();
-		boolean found = false;
-		while(!found && propIt.hasNext())
-		{
-			ResourcesMetadata property = (ResourcesMetadata) propIt.next();
-			if(field.equals(property.getDottedname()))
-			{
-				found = true;
-				property.incrementCount();
-			}
-		}
-		return found;
-	}
-
-	
-
-
-	/**
-	* Build the context to show the list of resource properties
-	*/
-	public static String buildMoreContext (	VelocityPortlet portlet,
-									Context context,
-									RunData data,
-									SessionState state)
-	{
-		context.put("tlang",rb);
-		// find the ContentTypeImage service
-		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
-		// find the ContentHosting service
-		org.sakaiproject.content.api.ContentHostingService service = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
-		context.put ("service", service);
-
-		Map current_stack_frame = peekAtStack(state);
-
-		String id = (String) current_stack_frame.get(STATE_MORE_ID);
-		context.put ("id", id);
-		String collectionId = (String) current_stack_frame.get(STATE_MORE_COLLECTION_ID);
-		context.put ("collectionId", collectionId);
-		String homeCollectionId = (String) (String) state.getAttribute (STATE_HOME_COLLECTION_ID);
-		context.put("homeCollectionId", homeCollectionId);
-		List cPath = getCollectionPath(state);
-		context.put ("collectionPath", cPath);
-		String navRoot = (String) state.getAttribute(STATE_NAVIGATION_ROOT);
-		context.put("navRoot", navRoot);
-		
-		ResourcesEditItem item = getEditItem(id, collectionId, data);
-		context.put("item", item);
-
-		// for the resources of type URL or plain text, show the content also
-		try
-		{
-			ResourceProperties properties = service.getProperties (id);
-			context.put ("properties", properties);
-
-			String isCollection = properties.getProperty (ResourceProperties.PROP_IS_COLLECTION);
-			if ((isCollection != null) && isCollection.equals (Boolean.FALSE.toString()))
-			{
-				String copyrightAlert = properties.getProperty(properties.getNamePropCopyrightAlert());
-				context.put("hasCopyrightAlert", copyrightAlert);
-
-				String type = properties.getProperty (ResourceProperties.PROP_CONTENT_TYPE);
-				if (type.equalsIgnoreCase (MIME_TYPE_DOCUMENT_PLAINTEXT) || type.equalsIgnoreCase (MIME_TYPE_DOCUMENT_HTML) || type.equalsIgnoreCase (ResourceProperties.TYPE_URL))
-				{
-					ContentResource moreResource = service.getResource (id);
-					// read the body
-					String body = "";
-					byte[] content = null;
-					try
-					{
-						content = moreResource.getContent();
-						if (content != null)
-						{
-							body = new String(content);
-						}
-					}
-					catch(ServerOverloadException e)
-					{
-						// this represents server's file system is temporarily unavailable
-						// report problem to user? log problem?
-					}
-					context.put ("content", body);
-				}	// if
-			}	// if
-
-			else
-			{
-				// setup for quota - ADMIN only, collection only
-				if (SecurityService.isSuperUser())
-				{
-					try
-					{
-						// Getting the quota as a long validates the property
-						long quota = properties.getLongProperty(ResourceProperties.PROP_COLLECTION_BODY_QUOTA);
-						context.put("hasQuota", Boolean.TRUE);
-						context.put("quota", properties.getProperty(ResourceProperties.PROP_COLLECTION_BODY_QUOTA));
-					}
-					catch (Exception any) {}
-				}
-			}
-		}
-		catch (IdUnusedException e)
-		{
-			addAlert(state,rb.getString("notexist1"));
-			context.put("notExistFlag", new Boolean(true));
-		}
-		catch (TypeException e)
-		{
-			addAlert(state, rb.getString("typeex") + " ");
-		}
-		catch (PermissionException e)
-		{
-			addAlert(state," " + rb.getString("notpermis2") + " " + id + ". ");
-		}	// try-catch
-
-		if (state.getAttribute(STATE_MESSAGE) == null)
-		{
-			context.put("notExistFlag", new Boolean(false));
-		}
-		
-		if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
-		{
-			// notshow the public option or notification when in dropbox mode
-			context.put("dropboxMode", Boolean.TRUE);
-		}
-		else
-		{
-			context.put("dropboxMode", Boolean.FALSE);
-			
-			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
-			if(preventPublicDisplay == null)
-			{
-				preventPublicDisplay = Boolean.FALSE;
-				state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
-			}
-			context.put("preventPublicDisplay", preventPublicDisplay);
-			if(preventPublicDisplay.equals(Boolean.FALSE))
-			{
-				// find out about pubview
-				boolean pubview = ContentHostingService.isInheritingPubView(id);
-				if (!pubview) pubview = ContentHostingService.isPubView(id);
-				context.put("pubview", new Boolean(pubview));
-			}
-
-		}
-		
-		context.put("siteTitle", state.getAttribute(STATE_SITE_TITLE));
-
-		if (state.getAttribute(COPYRIGHT_TYPES) != null)
-		{
-			List copyrightTypes = (List) state.getAttribute(COPYRIGHT_TYPES);
-			context.put("copyrightTypes", copyrightTypes);
-		}
-
-		metadataGroupsIntoContext(state, context);
-
-		// String template = (String) getContext(data).get("template");
-		return TEMPLATE_MORE;
-
-	}	// buildMoreContext
-
-//	/**
-//	 * Retrieve values for one or more items from create context.  Create context contains up to ten items at a time
-//	 * all of the same type (folder, file, text document, structured-artifact, etc).  This method retrieves the data
-//	 * apppropriate to the type and updates the values of the ResourcesEditItem objects stored as the STATE_STACK_CREATE_ITEMS
-//	 * attribute in state. If the third parameter is "true", missing/incorrect user inputs will generate error messages
-//	 * and attach flags to the input elements.
-//	 * @param state
-//	 * @param params
-//	 * @param markMissing Should this method generate error messages and add flags for missing/incorrect user inputs?
-//	 */
-//	protected static void captureMultipleValues(SessionState state, ParameterParser params, boolean markMissing)
-//	{
-//		Map current_stack_frame = peekAtStack(state);
-//		Integer number = (Integer) current_stack_frame.get(STATE_STACK_CREATE_NUMBER);
-//		if(number == null)
-//		{
-//			number = (Integer) state.getAttribute(STATE_CREATE_NUMBER);
-//			current_stack_frame.put(STATE_STACK_CREATE_NUMBER, number);
-//		}
-//		if(number == null)
-//		{
-//			number = new Integer(1);
-//			current_stack_frame.put(STATE_STACK_CREATE_NUMBER, number);
-//		}
-//
-//		List new_items = (List) current_stack_frame.get(STATE_STACK_CREATE_ITEMS);
-//		if(new_items == null)
-//		{
-//			String collectionId = params.getString("collectionId");
-//			String defaultCopyrightStatus = (String) state.getAttribute(DEFAULT_COPYRIGHT);
-//			if(defaultCopyrightStatus == null || defaultCopyrightStatus.trim().equals(""))
-//			{
-//				defaultCopyrightStatus = ServerConfigurationService.getString("default.copyright");
-//				state.setAttribute(DEFAULT_COPYRIGHT, defaultCopyrightStatus);
-//			}
-//
-//			
-//			String encoding = (String) state.getAttribute(STATE_ENCODING);
-//
-//			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
-//
-//			Time defaultRetractDate = (Time) state.getAttribute(STATE_DEFAULT_RETRACT_TIME);
-//			if(defaultRetractDate == null)
-//			{
-//				defaultRetractDate = TimeService.newTime();
-//				state.setAttribute(STATE_DEFAULT_RETRACT_TIME, defaultRetractDate);
-//			}
-//
-//		}
-//
-//		Set alerts = (Set) state.getAttribute(STATE_CREATE_ALERTS);
-//		if(alerts == null)
-//		{
-//			alerts = new HashSet();
-//			state.setAttribute(STATE_CREATE_ALERTS, alerts);
-//		}
-//		int actualCount = 0;
-//		Set first_item_alerts = null;
-//
-//		String max_file_size_mb = (String) state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
-//		int max_bytes = 1024 * 1024;
-//		try
-//		{
-//			max_bytes = Integer.parseInt(max_file_size_mb) * 1024 * 1024;
-//		}
-//		catch(Exception e)
-//		{
-//			// if unable to parse an integer from the value
-//			// in the properties file, use 1 MB as a default
-//			max_file_size_mb = "1";
-//			max_bytes = 1024 * 1024;
-//		}
-//
-//		/*
-//		// params.getContentLength() returns m_req.getContentLength()
-//		if(params.getContentLength() > max_bytes)
-//		{
-//			alerts.add(rb.getString("size") + " " + max_file_size_mb + "MB " + rb.getString("exceeded2"));
-//			state.setAttribute(STATE_CREATE_ALERTS, alerts);
-//
-//			return;
-//		}
-//		*/
-//		for(int i = 0; i < number.intValue(); i++)
-//		{
-//			ResourcesEditItem item = (ResourcesEditItem) new_items.get(i);
-//			Set item_alerts = captureValues(item, i, state, params, markMissing);
-//			if(i == 0)
-//			{
-//				first_item_alerts = item_alerts;
-//			}
-//			else if(item.isBlank())
-//			{
-//				item.clearMissing();
-//			}
-//			if(! item.isBlank())
-//			{
-//				alerts.addAll(item_alerts);
-//				actualCount ++;
-//			}
-//		}
-//		if(actualCount > 0)
-//		{
-//			ResourcesEditItem item = (ResourcesEditItem) new_items.get(0);
-//			if(item.isBlank())
-//			{
-//				item.clearMissing();
-//			}
-//		}
-//		else if(markMissing)
-//		{
-//			alerts.addAll(first_item_alerts);
-//		}
-//		state.setAttribute(STATE_CREATE_ALERTS, alerts);
-//		current_stack_frame.put(STATE_STACK_CREATE_ACTUAL_COUNT, Integer.toString(actualCount));
-//
-//	}	// captureMultipleValues
-//
-	protected static void capturePropertyValues(ParameterParser params, ResourcesEditItem item, List properties)
-	{
-		// use the item's properties if they're not supplied
-		if(properties == null)
-		{
-			properties = item.getProperties();
-		}
-		// if max cardinality > 1, value is a list (Iterate over members of list)
-		// else value is an object, not a list
-
-		// if type is nested, object is a Map (iterate over name-value pairs for the properties of the nested object)
-		// else object is type to store value, usually a string or a date/time
-
-		Iterator it = properties.iterator();
-		while(it.hasNext())
-		{
-			ResourcesMetadata prop = (ResourcesMetadata) it.next();
-			String propname = prop.getDottedname();
-
-			if(ResourcesMetadata.WIDGET_NESTED.equals(prop.getWidget()))
-			{
-				// do nothing
-			}
-			else if(ResourcesMetadata.WIDGET_BOOLEAN.equals(prop.getWidget()))
-			{
-				String value = params.getString(propname);
-				if(value == null || Boolean.FALSE.toString().equals(value))
-				{
-					prop.setValue(0, Boolean.FALSE.toString());
-				}
-				else
-				{
-					prop.setValue(0, Boolean.TRUE.toString());
-				}
-			}
-			else if(ResourcesMetadata.WIDGET_DATE.equals(prop.getWidget()) || ResourcesMetadata.WIDGET_DATETIME.equals(prop.getWidget()) || ResourcesMetadata.WIDGET_TIME.equals(prop.getWidget()))
-			{
-				int year = 0;
-				int month = 0;
-				int day = 0;
-				int hour = 0;
-				int minute = 0;
-				int second = 0;
-				int millisecond = 0;
-				String ampm = "";
-
-				if(prop.getWidget().equals(ResourcesMetadata.WIDGET_DATE) ||
-					prop.getWidget().equals(ResourcesMetadata.WIDGET_DATETIME))
-				{
-					year = params.getInt(propname + "_year", year);
-					month = params.getInt(propname + "_month", month);
-					day = params.getInt(propname + "_day", day);
-				}
-				if(prop.getWidget().equals(ResourcesMetadata.WIDGET_TIME) ||
-					prop.getWidget().equals(ResourcesMetadata.WIDGET_DATETIME))
-				{
-					hour = params.getInt(propname + "_hour", hour);
-					minute = params.getInt(propname + "_minute", minute);
-					second = params.getInt(propname + "_second", second);
-					millisecond = params.getInt(propname + "_millisecond", millisecond);
-					ampm = params.getString(propname + "_ampm");
-
-					if("pm".equalsIgnoreCase(ampm))
-					{
-						if(hour < 12)
-						{
-							hour += 12;
-						}
-					}
-					else if(hour == 12)
-					{
-						hour = 0;
-					}
-				}
-				if(hour > 23)
-				{
-					hour = hour % 24;
-					day++;
-				}
-
-				Time value = TimeService.newTimeLocal(year, month, day, hour, minute, second, millisecond);
-				prop.setValue(0, value);
-			}
-			else if(ResourcesMetadata.WIDGET_ANYURI.equals(prop.getWidget()))
-			{
-				String value = params.getString(propname);
-				if(value != null && ! value.trim().equals(""))
-				{
-					Reference ref = EntityManager.newReference(ContentHostingService.getReference(value));
-					prop.setValue(0, ref);
-				}
-			}
-			else
-			{
-				String value = params.getString(propname);
-				if(value != null)
-				{
-					prop.setValue(0, value);
-				}
-			}
-		}
-
-	}	// capturePropertyValues
-
-	/**
-	 * Retrieve from an html form all the values needed to create a new resource
-	 * @param item The ResourcesEditItem object in which the values are temporarily stored.
-	 * @param index The index of the item (used as a suffix in the name of the form element)
-	 * @param state
-	 * @param params
-	 * @param markMissing Indicates whether to mark required elements if they are missing.
-	 * @return
-	 */
-	public static Set captureValues(ResourcesEditItem item, int index, SessionState state, ParameterParser params, boolean markMissing)
-	{
-		Map current_stack_frame = peekAtStack(state);
-
-		Set item_alerts = new HashSet();
-		boolean blank_entry = true;
-		item.clearMissing();
-
-		String name = params.getString("name" + index);
-		if(name == null || name.trim().equals(""))
-		{
-			if(markMissing)
-			{
-				item_alerts.add(rb.getString("titlenotnull"));
-				item.setMissing("name");
-			}
-			item.setName("");
-			// addAlert(state, rb.getString("titlenotnull"));
-		}
-		else
-		{
-			item.setName(name);
-			blank_entry = false;
-		}
-
-		String description = params.getString("description" + index);
-		if(description == null || description.trim().equals(""))
-		{
-			item.setDescription("");
-		}
-		else
-		{
-			item.setDescription(description);
-			blank_entry = false;
-		}
-
-		item.setContentHasChanged(false);
-
-		if(item.isFileUpload())
-		{
-			String max_file_size_mb = (String) state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
-			int max_bytes = 1024 * 1024;
-			try
-			{
-				max_bytes = Integer.parseInt(max_file_size_mb) * 1024 * 1024;
-			}
-			catch(Exception e)
-			{
-				// if unable to parse an integer from the value
-				// in the properties file, use 1 MB as a default
-				max_file_size_mb = "1";
-				max_bytes = 1024 * 1024;
-			}
-			/*
-			 // params.getContentLength() returns m_req.getContentLength()
-			if(params.getContentLength() >= max_bytes)
-			{
-				item_alerts.add(rb.getString("size") + " " + max_file_size_mb + "MB " + rb.getString("exceeded2"));
-			}
-			else
-			*/
-			{
-				// check for file replacement
-				FileItem fileitem = null;
-				try
-				{
-					fileitem = params.getFileItem("fileName" + index);
-				}
-				catch(Exception e)
-				{
-					// this is an error in Firefox, Mozilla and Netscape
-					// "The user didn't select a file to upload!"
-					if(item.getContent() == null || item.getContent().length <= 0)
-					{
-						item_alerts.add(rb.getString("choosefile") + " " + (index + 1) + ". ");
-						item.setMissing("fileName");
-					}
-				}
-				if(fileitem == null)
-				{
-					// "The user submitted a file to upload but it was too big!"
-					item_alerts.clear();
-					item_alerts.add(rb.getString("size") + " " + max_file_size_mb + "MB " + rb.getString("exceeded2"));
-					item.setMissing("fileName");
-				}
-				else if (fileitem.getFileName() == null || fileitem.getFileName().length() == 0)
-				{
-					if(item.getContent() == null || item.getContent().length <= 0)
-					{
-						// "The user submitted the form, but didn't select a file to upload!"
-						item_alerts.add(rb.getString("choosefile") + " " + (index + 1) + ". ");
-						item.setMissing("fileName");
-					}
-				}
-				else if (fileitem.getFileName().length() > 0)
-				{
-					String filename = Validator.getFileName(fileitem.getFileName());
-					byte[] bytes = fileitem.get();
-					String contenttype = fileitem.getContentType();
-
-					if(bytes.length >= max_bytes)
-					{
-						item_alerts.clear();
-						item_alerts.add(rb.getString("size") + " " + max_file_size_mb + "MB " + rb.getString("exceeded2"));
-						item.setMissing("fileName");
-					}
-					else if(bytes.length > 0)
-					{
-						item.setContent(bytes);
-						item.setContentHasChanged(true);
-						item.setMimeType(contenttype);
-						item.setFilename(filename);
-						blank_entry = false;
-					}
-					else
-					{
-						item_alerts.add(rb.getString("choosefile") + " " + (index + 1) + ". ");
-						item.setMissing("fileName");
-					}
-				}
-
-			}
-		}
-		else if(item.isPlaintext())
-		{
-			// check for input from editor (textarea)
-			String content = params.getString("content" + index);
-			if(content != null)
-			{
-				item.setContentHasChanged(true);
-				item.setContent(content);
-				blank_entry = false;
-			}
-			item.setMimeType(MIME_TYPE_DOCUMENT_PLAINTEXT);
-		}
-		else if(item.isHtml())
-		{
-			// check for input from editor (textarea)
-			String content = params.getCleanString("content" + index);
-			StringBuffer alertMsg = new StringBuffer();
-			content = FormattedText.processHtmlDocument(content, alertMsg);
-			if (alertMsg.length() > 0)
-			{
-				item_alerts.add(alertMsg.toString());
-			}
-			if(content != null && !content.equals(""))
-			{
-				item.setContent(content);
-				item.setContentHasChanged(true);
-				blank_entry = false;
-			}
-			item.setMimeType(MIME_TYPE_DOCUMENT_HTML);
-		}
-		else if(item.isUrl())
-		{
-			item.setMimeType(ResourceProperties.TYPE_URL);
-			String url = params.getString("Url" + index);
-			if(url == null || url.trim().equals(""))
-			{
-				item.setFilename("");
-				item_alerts.add(rb.getString("specifyurl"));
-				item.setMissing("Url");
-			}
-			else
-			{
-				item.setFilename(url);
-				blank_entry = false;
-				// is protocol supplied and, if so, is it recognized?
-				try
-				{
-					// check format of input
-					URL u = new URL(url);
-				}
-				catch (MalformedURLException e1)
-				{
-					try
-					{
-						// if URL did not validate, check whether the problem was an
-						// unrecognized protocol, and accept input if that's the case.
-						Pattern pattern = Pattern.compile("\\s*([a-zA-Z0-9]+)://([^\\n]+)");
-						Matcher matcher = pattern.matcher(url);
-						if(matcher.matches())
-						{
-							URL test = new URL("http://" + matcher.group(2));
-						}
-						else
-						{
-							url = "http://" + url;
-							URL test = new URL(url);
-							item.setFilename(url);
-						}
-					}
-					catch (MalformedURLException e2)
-					{
-						// invalid url
-						item_alerts.add(rb.getString("validurl"));
-						item.setMissing("Url");
-					}
-				}
-			}
-		}
-		else if(item.isStructuredArtifact())
-		{
-			String formtype = (String) current_stack_frame.get(STATE_STACK_STRUCTOBJ_TYPE);
-			if(formtype == null)
-			{
-				formtype = (String) state.getAttribute(STATE_STRUCTOBJ_TYPE);
-				if(formtype == null)
-				{
-					formtype = "";
-				}
-				current_stack_frame.put(STATE_STACK_STRUCTOBJ_TYPE, formtype);
-			}
-			String formtype_check = params.getString("formtype");
-
-			if(formtype_check == null || formtype_check.equals(""))
-			{
-				item_alerts.add("Must select a form type");
-				item.setMissing("formtype");
-			}
-			else if(formtype_check.equals(formtype))
-			{
-				item.setFormtype(formtype);
-				capturePropertyValues(params, item, item.getProperties());
-				// blank_entry = false;
-			}
-			item.setMimeType(MIME_TYPE_STRUCTOBJ);
-
-		}
-		if(item.isFileUpload() || item.isHtml() || item.isPlaintext())
-		{
-			BasicRightsAssignment rightsObj = item.getRights();
-			rightsObj.captureValues(params);
-			
-			boolean usingCreativeCommons = state.getAttribute(STATE_USING_CREATIVE_COMMONS) != null && state.getAttribute(STATE_USING_CREATIVE_COMMONS).equals(Boolean.TRUE.toString());
-			
-			if(usingCreativeCommons)
-			{
-				String ccOwnership = params.getString("ccOwnership" + index);
-				if(ccOwnership != null)
-				{
-					item.setRightsownership(ccOwnership);
-				}
-				String ccTerms = params.getString("ccTerms" + index);
-				if(ccTerms != null)
-				{
-					item.setLicense(ccTerms);
-				}
-				String ccCommercial = params.getString("ccCommercial" + index);
-				if(ccCommercial != null)
-				{
-					item.setAllowCommercial(ccCommercial);
-				}
-				String ccModification = params.getString("ccModification" + index);
-				if(ccCommercial != null)
-				{
-					item.setAllowModifications(ccModification);
-				}
-				String ccRightsYear = params.getString("ccRightsYear" + index);
-				if(ccRightsYear != null)
-				{
-					item.setRightstyear(ccRightsYear);
-				}
-				String ccRightsOwner = params.getString("ccRightsOwner" + index);
-				if(ccRightsOwner != null)
-				{
-					item.setRightsowner(ccRightsOwner);
-				}
-
-				/*
-				ccValues.ccOwner = new Array();
-				ccValues.myRights = new Array();
-				ccValues.otherRights = new Array();
-				ccValues.ccCommercial = new Array();
-				ccValues.ccModifications = new Array();
-				ccValues.ccRightsYear = new Array();
-				ccValues.ccRightsOwner = new Array();
-				*/
-			}
-			else
-			{
-				// check for copyright status
-				// check for copyright info
-				// check for copyright alert
-	
-				String copyrightStatus = StringUtil.trimToNull(params.getString ("copyright" + index));
-				String copyrightInfo = StringUtil.trimToNull(params.getCleanString ("newcopyright" + index));
-				String copyrightAlert = StringUtil.trimToNull(params.getString("copyrightAlert" + index));
-	
-				if (copyrightStatus != null)
-				{
-					if (state.getAttribute(COPYRIGHT_NEW_COPYRIGHT) != null && copyrightStatus.equals(state.getAttribute(COPYRIGHT_NEW_COPYRIGHT)))
-					{
-						if (copyrightInfo != null)
-						{
-							item.setCopyrightInfo( copyrightInfo );
-						}
-						else
-						{
-							item_alerts.add(rb.getString("specifycp2"));
-							// addAlert(state, rb.getString("specifycp2"));
-						}
-					}
-//					else if (state.getAttribute(COPYRIGHT_SELF_COPYRIGHT) != null && copyrightStatus.equals (state.getAttribute(COPYRIGHT_SELF_COPYRIGHT)))
-//					{
-//						item.setCopyrightInfo((String) state.getAttribute (STATE_MY_COPYRIGHT));
-//					}
-	
-					item.setCopyrightStatus( copyrightStatus );
-				}
-				item.setCopyrightAlert(copyrightAlert != null);
-			}
-
-		}
-
-		if(!  RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
-		{
-			String hidden = params.getString("hidden" + index);
-			String use_start_date = params.getString("use_start_date" + index);
-			String use_end_date = params.getString("use_end_date" + index);
-			String release_month = params.getString("release_month" + index);
-			String release_day = params.getString("release_day" + index);
-			String release_year = params.getString("release_year" + index);
-			String release_hour = params.getString("release" + index + "_hour");
-			String release_min = params.getString("release" + index + "_minute");
-			String release_ampm = params.getString("release" + index + "_ampm");
-			
-			String retract_month = params.getString("retract_month" + index);
-			String retract_day = params.getString("retract_day" + index);
-			String retract_year = params.getString("retract_year" + index);
-			String retract_hour = params.getString("retract" + index + "_hour");
-			String retract_min = params.getString("retract" + index + "_minute");
-			String retract_ampm = params.getString("retract" + index + "_ampm");
-			
-			try
-			{
-				int begin_year = Integer.parseInt(release_year);
-				int begin_month = Integer.parseInt(release_month);
-				int begin_day = Integer.parseInt(release_day);
-				int begin_hour = Integer.parseInt(release_hour);
-				int begin_min = Integer.parseInt(release_min);
-				if("pm".equals(release_ampm))
-				{
-					begin_hour += 12;
-				}
-				else if(begin_hour == 12)
-				{
-					begin_hour = 0;
-				}
-				Time releaseDate = TimeService.newTimeLocal(begin_year, begin_month, begin_day, begin_hour, begin_min, 0, 0);
-				item.setReleaseDate(releaseDate);
-				
-				int end_year = Integer.parseInt(retract_year);
-				int end_month = Integer.parseInt(retract_month);
-				int end_day = Integer.parseInt(retract_day);
-				int end_hour = Integer.parseInt(retract_hour);
-				int end_min = Integer.parseInt(retract_min);
-				if("pm".equals(retract_ampm))
-				{
-					end_hour += 12;
-				}
-				else if(begin_hour == 12)
-				{
-					end_hour = 0;
-				}
-				Time retractDate = TimeService.newTimeLocal(end_year, end_month, end_day, end_hour, end_min, 0, 0);
-				item.setRetractDate(retractDate);
-	
-				item.setHidden(Boolean.TRUE.toString().equalsIgnoreCase(hidden));
-				item.setUseReleaseDate(Boolean.TRUE.toString().equalsIgnoreCase(use_start_date));
-				item.setUseRetractDate(Boolean.TRUE.toString().equalsIgnoreCase(use_end_date));
-			}
-			catch(NumberFormatException e)
-			{
-				// no values retrieved from date widget, or values are not numbers
-			}
-			
-			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
-			if(preventPublicDisplay == null)
-			{
-				preventPublicDisplay = Boolean.FALSE;
-				state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
-			}
-			
-			String access_mode = params.getString("access_mode" + index);
-			
-			if(access_mode == null || AccessMode.GROUPED.toString().equals(access_mode))
-			{
-				// we inherit more than one group and must check whether group access changes at this item
-				String[] access_groups = params.getStrings("access_groups" + index);
-				
-				SortedSet new_groups = new TreeSet();
-				if(access_groups != null)
-				{
-					new_groups.addAll(Arrays.asList(access_groups));
-				}
-				new_groups = item.convertToRefs(new_groups);
-				
-				Collection inh_grps = item.getInheritedGroupRefs();
-				boolean groups_are_inherited = (new_groups.size() == inh_grps.size()) && inh_grps.containsAll(new_groups);
-				
-				if(groups_are_inherited)
-				{
-					new_groups.clear();
-					item.setEntityGroupRefs(new_groups);
-					item.setAccess(AccessMode.INHERITED.toString());
-				}
-				else
-				{
-					item.setEntityGroupRefs(new_groups);
-					item.setAccess(AccessMode.GROUPED.toString());
-				}
-				
-				item.setPubview(false);
-			}
-			else if(PUBLIC_ACCESS.equals(access_mode))
-			{
-				if(! preventPublicDisplay.booleanValue() && ! item.isPubviewInherited())
-				{
-					item.setPubview(true);
-					item.setAccess(AccessMode.INHERITED.toString());
-				}
-			}
-			else if(AccessMode.INHERITED.toString().equals(access_mode) )
-			{
-				item.setAccess(AccessMode.INHERITED.toString());
-				item.clearGroups();
-				item.setPubview(false);
-			}
-		}
-
-		int noti = NotificationService.NOTI_NONE;
-		// %%STATE_MODE_RESOURCES%%
-		if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
-		{
-			// set noti to none if in dropbox mode
-			noti = NotificationService.NOTI_NONE;
-		}
-		else
-		{
-			// read the notification options
-			String notification = params.getString("notify" + index);
-			if ("r".equals(notification))
-			{
-				noti = NotificationService.NOTI_REQUIRED;
-			}
-			else if ("o".equals(notification))
-			{
-				noti = NotificationService.NOTI_OPTIONAL;
-			}
-		}
-		
-		item.setNotification(noti);
-
-		List metadataGroups = (List) state.getAttribute(STATE_METADATA_GROUPS);
-		if(metadataGroups != null && ! metadataGroups.isEmpty())
-		{
-			Iterator groupIt = metadataGroups.iterator();
-			while(groupIt.hasNext())
-			{
-				MetadataGroup group = (MetadataGroup) groupIt.next();
-				if(item.isGroupShowing(group.getName()))
-				{
-					Iterator propIt = group.iterator();
-					while(propIt.hasNext())
-					{
-						ResourcesMetadata prop = (ResourcesMetadata) propIt.next();
-						String propname = prop.getFullname();
-						if(ResourcesMetadata.WIDGET_DATE.equals(prop.getWidget()) || ResourcesMetadata.WIDGET_DATETIME.equals(prop.getWidget()) || ResourcesMetadata.WIDGET_TIME.equals(prop.getWidget()))
-						{
-							int year = 0;
-							int month = 0;
-							int day = 0;
-							int hour = 0;
-							int minute = 0;
-							int second = 0;
-							int millisecond = 0;
-							String ampm = "";
-
-							if(prop.getWidget().equals(ResourcesMetadata.WIDGET_DATE) ||
-								prop.getWidget().equals(ResourcesMetadata.WIDGET_DATETIME))
-							{
-								year = params.getInt(propname + "_" + index + "_year", year);
-								month = params.getInt(propname + "_" + index + "_month", month);
-								day = params.getInt(propname + "_" + index + "_day", day);
-							}
-							if(prop.getWidget().equals(ResourcesMetadata.WIDGET_TIME) ||
-								prop.getWidget().equals(ResourcesMetadata.WIDGET_DATETIME))
-							{
-								hour = params.getInt(propname + "_" + index + "_hour", hour);
-								minute = params.getInt(propname + "_" + index + "_minute", minute);
-								second = params.getInt(propname + "_" + index + "_second", second);
-								millisecond = params.getInt(propname + "_" + index + "_millisecond", millisecond);
-								ampm = params.getString(propname + "_" + index + "_ampm").trim();
-
-								if("pm".equalsIgnoreCase(ampm))
-								{
-									if(hour < 12)
-									{
-										hour += 12;
-									}
-								}
-								else if(hour == 12)
-								{
-									hour = 0;
-								}
-							}
-							if(hour > 23)
-							{
-								hour = hour % 24;
-								day++;
-							}
-
-							Time value = TimeService.newTimeLocal(year, month, day, hour, minute, second, millisecond);
-							item.setMetadataItem(propname,value);
-
-						}
-						else
-						{
-							String value = params.getString(propname + "_" + index);
-							if(value != null)
-							{
-								item.setMetadataItem(propname, value);
-							}
-						}
-					}
-				}
-			}
-		}
-		item.markAsBlank(blank_entry);
-
-		return item_alerts;
-
-	}	// captureValues
-
-	/**
-	 * Retrieve values for an item from edit context.  Edit context contains just one item at a time of a known type
-	 * (folder, file, text document, structured-artifact, etc).  This method retrieves the data apppropriate to the
-	 * type and updates the values of the ResourcesEditItem stored as the STATE_STACK_EDIT_ITEM attribute in state.
-	 * @param state
-	 * @param params
-	 * @param item
-	 */
-	protected static void captureValues(SessionState state, ParameterParser params)
-	{
-		Map current_stack_frame = peekAtStack(state);
-
-		ResourcesEditItem item = (ResourcesEditItem) current_stack_frame.get(STATE_STACK_EDIT_ITEM);
-		Set alerts = (Set) state.getAttribute(STATE_EDIT_ALERTS);
-		if(alerts == null)
-		{
-			alerts = new HashSet();
-			state.setAttribute(STATE_EDIT_ALERTS, alerts);
-		}
-		String flow = params.getString("flow");
-		boolean intentChanged = "intentChanged".equals(flow);
-		String check_fileName = params.getString("check_fileName");
-		boolean expectFile = "true".equals(check_fileName);
-		String intent = params.getString("intent");
-		String oldintent = (String) current_stack_frame.get(STATE_STACK_EDIT_INTENT);
-		boolean upload_file = expectFile && item.isFileUpload() || ((item.isHtml() || item.isPlaintext()) && !intentChanged && INTENT_REPLACE_FILE.equals(intent) && INTENT_REPLACE_FILE.equals(oldintent));
-		boolean revise_file = (item.isHtml() || item.isPlaintext()) && !intentChanged && INTENT_REVISE_FILE.equals(intent) && INTENT_REVISE_FILE.equals(oldintent);
-
-		String name = params.getString("name");
-		if(name == null || "".equals(name.trim()))
-		{
-			alerts.add(rb.getString("titlenotnull"));
-			// addAlert(state, rb.getString("titlenotnull"));
-		}
-		else
-		{
-			item.setName(name.trim());
-		}
-
-		String description = params.getString("description");
-		if(description == null)
-		{
-			item.setDescription("");
-		}
-		else
-		{
-			item.setDescription(description);
-		}
-
-		item.setContentHasChanged(false);
-
-		if(upload_file)
-		{
-			String max_file_size_mb = (String) state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
-			int max_bytes = 1096 * 1096;
-			try
-			{
-				max_bytes = Integer.parseInt(max_file_size_mb) * 1096 * 1096;
-			}
-			catch(Exception e)
-			{
-				// if unable to parse an integer from the value
-				// in the properties file, use 1 MB as a default
-				max_file_size_mb = "1";
-				max_bytes = 1096 * 1096;
-			}
-			/*
-			 // params.getContentLength() returns m_req.getContentLength()
-			if(params.getContentLength() >= max_bytes)
-			{
-				alerts.add(rb.getString("size") + " " + max_file_size_mb + "MB " + rb.getString("exceeded2"));
-			}
-			else
-			*/
-			{
-				// check for file replacement
-				FileItem fileitem = params.getFileItem("fileName");
-				if(fileitem == null)
-				{
-					// "The user submitted a file to upload but it was too big!"
-					alerts.clear();
-					alerts.add(rb.getString("size") + " " + max_file_size_mb + "MB " + rb.getString("exceeded2"));
-					//item.setMissing("fileName");
-				}
-				else if (fileitem.getFileName() == null || fileitem.getFileName().length() == 0)
-				{
-					if(item.getContent() == null || item.getContent().length <= 0)
-					{
-						// "The user submitted the form, but didn't select a file to upload!"
-						alerts.add(rb.getString("choosefile") + ". ");
-						//item.setMissing("fileName");
-					}
-				}
-				else if (fileitem.getFileName().length() > 0)
-				{
-					String filename = Validator.getFileName(fileitem.getFileName());
-					byte[] bytes = fileitem.get();
-					String contenttype = fileitem.getContentType();
-
-					if(bytes.length >= max_bytes)
-					{
-						alerts.clear();
-						alerts.add(rb.getString("size") + " " + max_file_size_mb + "MB " + rb.getString("exceeded2"));
-						// item.setMissing("fileName");
-					}
-					else if(bytes.length > 0)
-					{
-						item.setContent(bytes);
-						item.setContentHasChanged(true);
-						item.setMimeType(contenttype);
-						item.setFilename(filename);
-					}
-				}
-			}
-		}
-		else if(revise_file)
-		{
-			// check for input from editor (textarea)
-			String content = params.getString("content");
-			if(content != null)
-			{
-				item.setContent(content);
-				item.setContentHasChanged(true);
-			}
-		}
-		else if(item.isUrl())
-		{
-			String url = params.getString("Url");
-			if(url == null || url.trim().equals(""))
-			{
-				item.setFilename("");
-				alerts.add(rb.getString("validurl"));
-			}
-			else
-			{
-				// valid protocol?
-				item.setFilename(url);
-				try
-				{
-					// test format of input
-					URL u = new URL(url);
-				}
-				catch (MalformedURLException e1)
-				{
-					try
-					{
-						// if URL did not validate, check whether the problem was an
-						// unrecognized protocol, and accept input if that's the case.
-						Pattern pattern = Pattern.compile("\\s*([a-zA-Z0-9]+)://([^\\n]+)");
-						Matcher matcher = pattern.matcher(url);
-						if(matcher.matches())
-						{
-							URL test = new URL("http://" + matcher.group(2));
-						}
-						else
-						{
-							url = "http://" + url;
-							URL test = new URL(url);
-							item.setFilename(url);
-						}
-					}
-					catch (MalformedURLException e2)
-					{
-						// invalid url
-						alerts.add(rb.getString("validurl"));
-					}
-				}
-			}
-		}
-		else if(item.isFolder())
-		{
-			if(item.canSetQuota())
-			{
-				// read the quota fields
-				String setQuota = params.getString("setQuota");
-				boolean hasQuota = params.getBoolean("hasQuota");
-				item.setHasQuota(hasQuota);
-				if(hasQuota)
-				{
-					int q = params.getInt("quota");
-					item.setQuota(Integer.toString(q));
-				}
-			}
-		}
-		else if(item.isStructuredArtifact())
-		{
-			String formtype = (String) current_stack_frame.get(STATE_STACK_STRUCTOBJ_TYPE);
-			if(formtype == null)
-			{
-				formtype = (String) state.getAttribute(STATE_STRUCTOBJ_TYPE);
-				if(formtype == null)
-				{
-					formtype = "";
-				}
-				current_stack_frame.put(STATE_STACK_STRUCTOBJ_TYPE, formtype);
-			}
-			String formtype_check = params.getString("formtype");
-
-			if(formtype_check == null || formtype_check.equals(""))
-			{
-				alerts.add(rb.getString("type"));
-				item.setMissing("formtype");
-			}
-			else if(formtype_check.equals(formtype))
-			{
-				item.setFormtype(formtype);
-				capturePropertyValues(params, item, item.getProperties());
-			}
-		}
-
-		if(! item.isFolder() && ! item.isStructuredArtifact() && ! item.isUrl())
-		{
-			String mime_category = params.getString("mime_category");
-			String mime_subtype = params.getString("mime_subtype");
-
-			if(mime_category != null && mime_subtype != null)
-			{
-				String mimetype = mime_category + "/" + mime_subtype;
-				if(! mimetype.equals(item.getMimeType()))
-				{
-					item.setMimeType(mimetype);
-					item.setContentTypeHasChanged(true);
-				}
-			}
-		}
-
-		if(item.isFileUpload() || item.isHtml() || item.isPlaintext())
-		{
-			BasicRightsAssignment rightsObj = item.getRights();
-			rightsObj.captureValues(params);
-
-			boolean usingCreativeCommons = state.getAttribute(STATE_USING_CREATIVE_COMMONS) != null && state.getAttribute(STATE_USING_CREATIVE_COMMONS).equals(Boolean.TRUE.toString());		
-			
-			if(usingCreativeCommons)
-			{
-				String ccOwnership = params.getString("ccOwnership");
-				if(ccOwnership != null)
-				{
-					item.setRightsownership(ccOwnership);
-				}
-				String ccTerms = params.getString("ccTerms");
-				if(ccTerms != null)
-				{
-					item.setLicense(ccTerms);
-				}
-				String ccCommercial = params.getString("ccCommercial");
-				if(ccCommercial != null)
-				{
-					item.setAllowCommercial(ccCommercial);
-				}
-				String ccModification = params.getString("ccModification");
-				if(ccCommercial != null)
-				{
-					item.setAllowModifications(ccModification);
-				}
-				String ccRightsYear = params.getString("ccRightsYear");
-				if(ccRightsYear != null)
-				{
-					item.setRightstyear(ccRightsYear);
-				}
-				String ccRightsOwner = params.getString("ccRightsOwner");
-				if(ccRightsOwner != null)
-				{
-					item.setRightsowner(ccRightsOwner);
-				}
-
-				/*
-				ccValues.ccOwner = new Array();
-				ccValues.myRights = new Array();
-				ccValues.otherRights = new Array();
-				ccValues.ccCommercial = new Array();
-				ccValues.ccModifications = new Array();
-				ccValues.ccRightsYear = new Array();
-				ccValues.ccRightsOwner = new Array();
-				*/
-			}
-			else
-			{
-				// check for copyright status
-				// check for copyright info
-				// check for copyright alert
-	
-				String copyrightStatus = StringUtil.trimToNull(params.getString ("copyrightStatus"));
-				String copyrightInfo = StringUtil.trimToNull(params.getCleanString ("copyrightInfo"));
-				String copyrightAlert = StringUtil.trimToNull(params.getString("copyrightAlert"));
-	
-				if (copyrightStatus != null)
-				{
-					if (state.getAttribute(COPYRIGHT_NEW_COPYRIGHT) != null && copyrightStatus.equals(state.getAttribute(COPYRIGHT_NEW_COPYRIGHT)))
-					{
-						if (copyrightInfo != null)
-						{
-							item.setCopyrightInfo( copyrightInfo );
-						}
-						else
-						{
-							alerts.add(rb.getString("specifycp2"));
-							// addAlert(state, rb.getString("specifycp2"));
-						}
-					}
-//					else if (state.getAttribute(COPYRIGHT_SELF_COPYRIGHT) != null && copyrightStatus.equals (state.getAttribute(COPYRIGHT_SELF_COPYRIGHT)))
-//					{
-//						item.setCopyrightInfo((String) state.getAttribute (STATE_MY_COPYRIGHT));
-//					}
-	
-					item.setCopyrightStatus( copyrightStatus );
-				}
-				item.setCopyrightAlert(copyrightAlert != null);
-			}
-		}
-		if(!  RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
-		{
-			String hidden = params.getString("hidden");
-			String use_start_date = params.getString("use_start_date");
-			String use_end_date = params.getString("use_end_date");
-			String release_month = params.getString("release_month");
-			String release_day = params.getString("release_day");
-			String release_year = params.getString("release_year");
-			String release_hour = params.getString("release_hour");
-			String release_min = params.getString("release_minute");
-			String release_ampm = params.getString("release_ampm");
-			
-			try
-			{
-				String release_time = params.getString("release_time");
-				String retract_month = params.getString("retract_month");
-				String retract_day = params.getString("retract_day");
-				String retract_year = params.getString("retract_year");
-				String retract_time = params.getString("retract_time");
-				String retract_hour = params.getString("retract_hour");
-				String retract_min = params.getString("retract_minute");
-				String retract_ampm = params.getString("retract_ampm");
-				
-				int begin_year = Integer.parseInt(release_year);
-				int begin_month = Integer.parseInt(release_month);
-				int begin_day = Integer.parseInt(release_day);
-				int begin_hour = Integer.parseInt(release_hour);
-				int begin_min = Integer.parseInt(release_min);
-				if("pm".equals(release_ampm))
-				{
-					begin_hour += 12;
-				}
-				else if(begin_hour == 12)
-				{
-					begin_hour = 0;
-				}
-				Time releaseDate = TimeService.newTimeLocal(begin_year, begin_month, begin_day, begin_hour, begin_min, 0, 0);
-				item.setReleaseDate(releaseDate);
-				
-				int end_year = Integer.parseInt(retract_year);
-				int end_month = Integer.parseInt(retract_month);
-				int end_day = Integer.parseInt(retract_day);
-				int end_hour = Integer.parseInt(retract_hour);
-				int end_min = Integer.parseInt(retract_min);
-				if("pm".equals(retract_ampm))
-				{
-					end_hour += 12;
-				}
-				else if(begin_hour == 12)
-				{
-					end_hour = 0;
-				}
-				Time retractDate = TimeService.newTimeLocal(end_year, end_month, end_day, end_hour, end_min, 0, 0);
-				item.setRetractDate(retractDate);
-				
-				item.setHidden(Boolean.TRUE.toString().equalsIgnoreCase(hidden));
-				item.setUseReleaseDate(Boolean.TRUE.toString().equalsIgnoreCase(use_start_date));
-				item.setUseRetractDate(Boolean.TRUE.toString().equalsIgnoreCase(use_end_date));
-			}
-			catch(NumberFormatException e)
-			{
-				// no values retrieved from date widget, or values are not numbers 
-			}
-			
-			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
-			if(preventPublicDisplay == null)
-			{
-				preventPublicDisplay = Boolean.FALSE;
-				state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
-			}
-			
-			String access_mode = params.getString("access_mode");
-			
-			if(access_mode == null || AccessMode.GROUPED.toString().equals(access_mode))
-			{
-				// we inherit more than one group and must check whether group access changes at this item
-				String[] access_groups = params.getStrings("access_groups");
-				
-				SortedSet new_groups = new TreeSet();
-				if(access_groups != null)
-				{
-					new_groups.addAll(Arrays.asList(access_groups));
-				}
-				new_groups = item.convertToRefs(new_groups);
-				
-				Collection inh_grps = item.getInheritedGroupRefs();
-				boolean groups_are_inherited = (new_groups.size() == inh_grps.size()) && inh_grps.containsAll(new_groups);
-				
-				if(groups_are_inherited)
-				{
-					new_groups.clear();
-					item.setEntityGroupRefs(new_groups);
-					item.setAccess(AccessMode.INHERITED.toString());
-				}
-				else
-				{
-					item.setEntityGroupRefs(new_groups);
-					item.setAccess(AccessMode.GROUPED.toString());
-				}
-				
-				item.setPubview(false);
-			}
-			else if(PUBLIC_ACCESS.equals(access_mode))
-			{
-				if(! preventPublicDisplay.booleanValue() && ! item.isPubviewInherited())
-				{
-					item.setPubview(true);
-					item.setAccess(AccessMode.INHERITED.toString());
-				}
-			}
-			else if(AccessMode.INHERITED.toString().equals(access_mode))
-			{
-				item.setAccess(AccessMode.INHERITED.toString());
-				item.clearGroups();
-				item.setPubview(false);
-			}
-		}
-
-		int noti = NotificationService.NOTI_NONE;
-		// %%STATE_MODE_RESOURCES%%
-		if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
-		{
-			// set noti to none if in dropbox mode
-			noti = NotificationService.NOTI_NONE;
-		}
-		else
-		{
-			// read the notification options
-			String notification = params.getString("notify");
-			if ("r".equals(notification))
-			{
-				noti = NotificationService.NOTI_REQUIRED;
-			}
-			else if ("o".equals(notification))
-			{
-				noti = NotificationService.NOTI_OPTIONAL;
-			}
-		}
-		item.setNotification(noti);
-
-		List metadataGroups = (List) state.getAttribute(STATE_METADATA_GROUPS);
-		if(metadataGroups != null && ! metadataGroups.isEmpty())
-		{
-			Iterator groupIt = metadataGroups.iterator();
-			while(groupIt.hasNext())
-			{
-				MetadataGroup group = (MetadataGroup) groupIt.next();
-				if(group.isShowing())
-				{
-					Iterator propIt = group.iterator();
-					while(propIt.hasNext())
-					{
-						ResourcesMetadata prop = (ResourcesMetadata) propIt.next();
-						String propname = prop.getFullname();
-						if(ResourcesMetadata.WIDGET_DATE.equals(prop.getWidget()) || ResourcesMetadata.WIDGET_DATETIME.equals(prop.getWidget()) || ResourcesMetadata.WIDGET_TIME.equals(prop.getWidget()))
-						{
-							int year = 0;
-							int month = 0;
-							int day = 0;
-							int hour = 0;
-							int minute = 0;
-							int second = 0;
-							int millisecond = 0;
-							String ampm = "";
-
-							if(prop.getWidget().equals(ResourcesMetadata.WIDGET_DATE) ||
-								prop.getWidget().equals(ResourcesMetadata.WIDGET_DATETIME))
-							{
-								year = params.getInt(propname + "_year", year);
-								month = params.getInt(propname + "_month", month);
-								day = params.getInt(propname + "_day", day);
-
-
-							}
-							if(prop.getWidget().equals(ResourcesMetadata.WIDGET_TIME) ||
-								prop.getWidget().equals(ResourcesMetadata.WIDGET_DATETIME))
-							{
-								hour = params.getInt(propname + "_hour", hour);
-								minute = params.getInt(propname + "_minute", minute);
-								second = params.getInt(propname + "_second", second);
-								millisecond = params.getInt(propname + "_millisecond", millisecond);
-								ampm = params.getString(propname + "_ampm").trim();
-
-								if("pm".equalsIgnoreCase("ampm"))
-								{
-									if(hour < 12)
-									{
-										hour += 12;
-									}
-								}
-								else if(hour == 12)
-								{
-									hour = 0;
-								}
-							}
-							if(hour > 23)
-							{
-								hour = hour % 24;
-								day++;
-							}
-
-							Time value = TimeService.newTimeLocal(year, month, day, hour, minute, second, millisecond);
-							item.setMetadataItem(propname,value);
-
-						}
-						else
-						{
-
-							String value = params.getString(propname);
-							if(value != null)
-							{
-								item.setMetadataItem(propname, value);
-							}
-						}
-					}
-				}
-			}
-		}
-		current_stack_frame.put(STATE_STACK_EDIT_ITEM, item);
-		state.setAttribute(STATE_EDIT_ALERTS, alerts);
-
-	}	// captureValues
-	
-	/**
-	* Remove the state variables used internally, on the way out.
-	*/
-	static private void cleanupState(SessionState state)
-	{
-		state.removeAttribute(STATE_HAS_ATTACHMENT_BEFORE);
-
-		state.removeAttribute(COPYRIGHT_FAIRUSE_URL);
-		state.removeAttribute(COPYRIGHT_NEW_COPYRIGHT);
-		state.removeAttribute(COPYRIGHT_TYPES);
-		state.removeAttribute(DEFAULT_COPYRIGHT_ALERT);
-		state.removeAttribute(DEFAULT_COPYRIGHT);
-		state.removeAttribute(STATE_EXPANDED_COLLECTIONS);
-		state.removeAttribute(STATE_EXPANDED_FOLDER_SORT_MAP);
-		state.removeAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
-		state.removeAttribute(NEW_COPYRIGHT_INPUT);
-		state.removeAttribute(STATE_COLLECTION_ID);
-		state.removeAttribute(STATE_COLLECTION_PATH);
-		state.removeAttribute(STATE_CONTENT_SERVICE);
-		state.removeAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE);
-		//state.removeAttribute(STATE_STACK_EDIT_INTENT);
-		state.removeAttribute(STATE_EXPAND_ALL_FLAG);
-		state.removeAttribute(STATE_HELPER_NEW_ITEMS);
-		state.removeAttribute(STATE_HELPER_CHANGED);
-		state.removeAttribute(STATE_HOME_COLLECTION_DISPLAY_NAME);
-		state.removeAttribute(STATE_HOME_COLLECTION_ID);
-		state.removeAttribute(STATE_LIST_SELECTIONS);
-		state.removeAttribute(STATE_MY_COPYRIGHT);
-		state.removeAttribute(STATE_NAVIGATION_ROOT);
-		state.removeAttribute(STATE_PASTE_ALLOWED_FLAG);
-		state.removeAttribute(STATE_SELECT_ALL_FLAG);
-		state.removeAttribute(STATE_SHOW_ALL_SITES);
-		state.removeAttribute(STATE_SITE_TITLE);
-		state.removeAttribute(STATE_SORT_ASC);
-		state.removeAttribute(STATE_SORT_BY);
-		state.removeAttribute(STATE_STACK_STRUCTOBJ_TYPE);
-		state.removeAttribute(STATE_STACK_STRUCTOBJ_TYPE_READONLY);
-		state.removeAttribute(STATE_INITIALIZED);
-		state.removeAttribute(VelocityPortletPaneledAction.STATE_HELPER);
-
-	}	// cleanupState
 
 	/**
 	 * Get the items in this folder that should be seen.
@@ -9343,39 +3183,4259 @@ public class ResourcesAction
 		return newItems;
 
 	}	// getListView
-
+	
 	/**
-	* Paste the previously copied item(s)
-	*/
-	public static void doPasteitems ( RunData data)
+	 * @param context
+	 * @return
+	 */
+	protected static Collection<ContentPermissions> getPermissions(String id)
 	{
-		ParameterParser params = data.getParameters ();
-
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-
-		List items = (List) state.getAttribute(STATE_COPIED_IDS);
-
-		String collectionId = params.getString ("collectionId");
-
-		Iterator itemIter = items.iterator();
-		while (itemIter.hasNext())
+		Collection<ContentPermissions> permissions = new Vector<ContentPermissions>();
+		if(ContentHostingService.isCollection(id))
 		{
-			// get the copied item to be pasted
-			String itemId = (String) itemIter.next();
+			if(ContentHostingService.allowAddCollection(id))
+			{
+				permissions.add(ContentPermissions.CREATE);
+			}
+			if(ContentHostingService.allowRemoveCollection(id))
+			{
+				permissions.add(ContentPermissions.DELETE);
+			}
+			if(ContentHostingService.allowGetCollection(id))
+			{
+				permissions.add(ContentPermissions.READ);
+			}
+			if(ContentHostingService.allowUpdateCollection(id))
+			{
+				permissions.add(ContentPermissions.REVISE);
+			}
+			if(SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()))
+			{
+				permissions.add(ContentPermissions.SITE_UPDATE);
+			}
+		}
+		else
+		{
+			if(ContentHostingService.allowAddResource(id))
+			{
+				permissions.add(ContentPermissions.CREATE);
+			}
+			if(ContentHostingService.allowRemoveResource(id))
+			{
+				permissions.add(ContentPermissions.DELETE);
+			}
+			if(ContentHostingService.allowGetResource(id))
+			{
+				permissions.add(ContentPermissions.READ);
+			}
+			if(ContentHostingService.allowUpdateResource(id))
+			{
+				permissions.add(ContentPermissions.REVISE);
+			}
+			if(SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()))
+			{
+				permissions.add(ContentPermissions.SITE_UPDATE);
+			}
+		}
+		
+		return permissions;
+	}
 
-			String originalDisplayName = NULL_STRING;
 
+
+	protected static User getUserProperty(ResourceProperties props, String name)
+	{
+		String id = props.getProperty(name);
+		if (id != null)
+		{
 			try
 			{
-				String id = ContentHostingService.copyIntoFolder(itemId, collectionId);
-				String mode = (String) state.getAttribute(STATE_MODE);
-				if(MODE_HELPER.equals(mode))
+				return UserDirectoryService.getUser(id);
+			}
+			catch (UserNotDefinedException e)
+			{
+			}
+		}
+		
+		return null;
+	}
+
+	/**
+	* initialize the copy context
+	*/
+	private static void initCopyContext (SessionState state)
+	{
+		state.setAttribute (STATE_COPIED_IDS, new Vector ());
+
+		state.setAttribute (STATE_COPY_FLAG, Boolean.FALSE.toString());
+
+	}	// initCopyContent
+
+	/**
+	 * initialize the metadata context
+	 */
+	private static void initMetadataContext(SessionState state)
+	{
+		// define MetadataSets map
+		List metadataGroups = (List) state.getAttribute(STATE_METADATA_GROUPS);
+		if(metadataGroups == null)
+		{
+			metadataGroups = new Vector();
+			state.setAttribute(STATE_METADATA_GROUPS, metadataGroups);
+		}
+		// define DublinCore
+		if( !metadataGroups.contains(new MetadataGroup(rb.getString("opt_props"))) )
+		{
+			MetadataGroup dc = new MetadataGroup( rb.getString("opt_props") );
+			// dc.add(ResourcesMetadata.PROPERTY_DC_TITLE);
+			// dc.add(ResourcesMetadata.PROPERTY_DC_DESCRIPTION);
+			dc.add(ResourcesMetadata.PROPERTY_DC_ALTERNATIVE);
+			dc.add(ResourcesMetadata.PROPERTY_DC_CREATOR);
+			dc.add(ResourcesMetadata.PROPERTY_DC_PUBLISHER);
+			dc.add(ResourcesMetadata.PROPERTY_DC_SUBJECT);
+			dc.add(ResourcesMetadata.PROPERTY_DC_CREATED);
+			dc.add(ResourcesMetadata.PROPERTY_DC_ISSUED);
+			// dc.add(ResourcesMetadata.PROPERTY_DC_MODIFIED);
+			// dc.add(ResourcesMetadata.PROPERTY_DC_TABLEOFCONTENTS);
+			dc.add(ResourcesMetadata.PROPERTY_DC_ABSTRACT);
+			dc.add(ResourcesMetadata.PROPERTY_DC_CONTRIBUTOR);
+			// dc.add(ResourcesMetadata.PROPERTY_DC_TYPE);
+			// dc.add(ResourcesMetadata.PROPERTY_DC_FORMAT);
+			// dc.add(ResourcesMetadata.PROPERTY_DC_IDENTIFIER);
+			// dc.add(ResourcesMetadata.PROPERTY_DC_SOURCE);
+			// dc.add(ResourcesMetadata.PROPERTY_DC_LANGUAGE);
+			// dc.add(ResourcesMetadata.PROPERTY_DC_COVERAGE);
+			// dc.add(ResourcesMetadata.PROPERTY_DC_RIGHTS);
+			dc.add(ResourcesMetadata.PROPERTY_DC_AUDIENCE);
+			dc.add(ResourcesMetadata.PROPERTY_DC_EDULEVEL);
+			
+			/* Filesystem and file-like mount points */
+			dc.add(ResourcesMetadata.PROPERTY_FSMOUNT_ACTIVE);
+				
+			metadataGroups.add(dc);
+			state.setAttribute(STATE_METADATA_GROUPS, metadataGroups);
+		}
+		/*
+		// define DublinCore
+		if(!metadataGroups.contains(new MetadataGroup("Test of Datatypes")))
+		{
+			MetadataGroup dc = new MetadataGroup("Test of Datatypes");
+			dc.add(ResourcesMetadata.PROPERTY_DC_TITLE);
+			dc.add(ResourcesMetadata.PROPERTY_DC_DESCRIPTION);
+			dc.add(ResourcesMetadata.PROPERTY_DC_ANYURI);
+			dc.add(ResourcesMetadata.PROPERTY_DC_DOUBLE);
+			dc.add(ResourcesMetadata.PROPERTY_DC_DATETIME);
+			dc.add(ResourcesMetadata.PROPERTY_DC_TIME);
+			dc.add(ResourcesMetadata.PROPERTY_DC_DATE);
+			dc.add(ResourcesMetadata.PROPERTY_DC_BOOLEAN);
+			dc.add(ResourcesMetadata.PROPERTY_DC_INTEGER);
+			metadataGroups.add(dc);
+			state.setAttribute(STATE_METADATA_GROUPS, metadataGroups);
+		}
+		*/
+	}
+
+	/**
+	* initialize the copy context
+	*/
+	private static void initMoveContext (SessionState state)
+	{
+		state.setAttribute (STATE_MOVED_IDS, new Vector ());
+
+		state.setAttribute (STATE_MOVE_FLAG, Boolean.FALSE.toString());
+
+	}	// initCopyContent
+
+	/**
+	 * Find the resource name of a given resource id or filepath.
+	 * 
+	 * @param id
+	 *        The resource id.
+	 * @return the resource name.
+	 */
+	protected static String isolateName(String id)
+	{
+		if (id == null) return null;
+		if (id.length() == 0) return null;
+
+		// take after the last resource path separator, not counting one at the very end if there
+		boolean lastIsSeparator = id.charAt(id.length() - 1) == '/';
+		return id.substring(id.lastIndexOf('/', id.length() - 2) + 1, (lastIsSeparator ? id.length() - 1 : id.length()));
+
+	} // isolateName
+
+/**
+	 * Returns true if the suspended operations stack contains no elements.
+	 * @param state The current session state, including the STATE_SUSPENDED_OPERATIONS_STACK attribute.
+	 * @return true if the suspended operations stack contains no elements
+	 */
+	private static boolean isStackEmpty(SessionState state)
+	{
+		Stack operations_stack = (Stack) state.getAttribute(STATE_SUSPENDED_OPERATIONS_STACK);
+		if(operations_stack == null)
+		{
+			operations_stack = new Stack();
+			state.setAttribute(STATE_SUSPENDED_OPERATIONS_STACK, operations_stack);
+		}
+		return operations_stack.isEmpty();
+	}
+
+
+	/**
+	 * Add variables and constants to the velocity context to render an editor
+	 * for inputing and modifying optional metadata properties about a resource.
+	 */
+	private static void metadataGroupsIntoContext(SessionState state, Context context)
+	{
+
+		context.put("STRING", ResourcesMetadata.WIDGET_STRING);
+		context.put("TEXTAREA", ResourcesMetadata.WIDGET_TEXTAREA);
+		context.put("BOOLEAN", ResourcesMetadata.WIDGET_BOOLEAN);
+		context.put("INTEGER", ResourcesMetadata.WIDGET_INTEGER);
+		context.put("DOUBLE", ResourcesMetadata.WIDGET_DOUBLE);
+		context.put("DATE", ResourcesMetadata.WIDGET_DATE);
+		context.put("TIME", ResourcesMetadata.WIDGET_TIME);
+		context.put("DATETIME", ResourcesMetadata.WIDGET_DATETIME);
+		context.put("ANYURI", ResourcesMetadata.WIDGET_ANYURI);
+		context.put("WYSIWYG", ResourcesMetadata.WIDGET_WYSIWYG);
+
+		context.put("today", TimeService.newTime());
+
+		List metadataGroups = (List) state.getAttribute(STATE_METADATA_GROUPS);
+		if(metadataGroups != null && !metadataGroups.isEmpty())
+		{
+			context.put("metadataGroups", metadataGroups);
+		}
+
+	}	// metadataGroupsIntoContext
+
+	protected static List newEditItems(String collectionId, String itemtype, String encoding, String defaultCopyrightStatus, boolean preventPublicDisplay, Time defaultRetractDate, int number)
+	{
+		List new_items = new Vector();
+		
+		ContentCollection collection = null;
+		AccessMode inheritedAccess = AccessMode.INHERITED;
+//		Collection inheritedGroups = new Vector();
+		try
+		{
+			collection = ContentHostingService.getCollection(collectionId);
+			
+			inheritedAccess = collection.getAccess();
+//			inheritedGroups = collection.getGroups();
+			if(AccessMode.INHERITED == inheritedAccess)
+			{
+				inheritedAccess = collection.getInheritedAccess();
+//				inheritedGroups = collection.getInheritedGroups();
+			}
+		}
+		catch(PermissionException e)
+		{
+			//alerts.add(rb.getString("notpermis4"));
+			logger.warn("ResourcesAction.newEditItems() PermissionException ", e);
+		} 
+		catch (IdUnusedException e) 
+		{
+			// TODO Auto-generated catch block
+			logger.warn("ResourcesAction.newEditItems() IdUnusedException ", e);
+		} 
+		catch (TypeException e) 
+		{
+			// TODO Auto-generated catch block
+			logger.warn("ResourcesAction.newEditItems() TypeException ", e);
+		}
+		
+		boolean isUserSite = false;
+		String refstr = collection.getReference();
+		Reference ref = EntityManager.newReference(refstr);
+		String contextId = ref.getContext();
+		if(contextId != null)
+		{
+			isUserSite = SiteService.isUserSite(contextId);
+		}
+
+		boolean pubviewset = ContentHostingService.isInheritingPubView(collectionId) || ContentHostingService.isPubView(collectionId);
+		
+		
+		//Collection possibleGroups = ContentHostingService.getGroupsWithReadAccess(collectionId);
+		boolean isInDropbox = ContentHostingService.isInDropbox(collectionId);
+		
+		Collection possibleGroups = ContentHostingService.getGroupsWithAddPermission(collectionId);
+		Site site = null;
+		Collection site_groups = null;
+		
+		try 
+		{
+			site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+		} 
+		catch (IdUnusedException e) 
+		{
+			logger.warn("resourcesAction.newEditItems() IdUnusedException ", e);
+		}
+		if(site != null)
+		{
+			site_groups = site.getGroups();
+		}
+		else
+		{
+			site_groups = new Vector();
+		}
+				
+		Collection inherited_access_groups = collection.getGroups();
+		if(inherited_access_groups == null || inherited_access_groups.isEmpty())
+		{
+			inherited_access_groups = collection.getInheritedGroups();
+		}
+		if(inherited_access_groups == null)
+		{
+			inherited_access_groups = new Vector();
+		}
+
+		Collection allowedAddGroups = ContentHostingService.getGroupsWithAddPermission(collectionId); // null;
+//		if(AccessMode.GROUPED == inheritedAccess)
+//		{
+//			allowedAddGroups = ContentHostingService.getGroupsWithAddPermission(collectionId);
+//		}
+//		else
+//		{
+//			allowedAddGroups = ContentHostingService.getGroupsWithAddPermission(ContentHostingService.getSiteCollection(site.getId()));
+//		}
+		if(allowedAddGroups == null)
+		{
+			allowedAddGroups = new Vector();
+		}
+
+		for(int i = 0; i < CREATE_MAX_ITEMS; i++)
+		{
+			ResourcesEditItem item = new ResourcesEditItem(itemtype);
+			if(encoding != null)
+			{
+				item.setEncoding(encoding);
+			}
+			item.setInDropbox(isInDropbox);
+
+			if(inheritedAccess == null || AccessMode.SITE == inheritedAccess)
+			{
+				item.setInheritedAccess(AccessMode.INHERITED.toString());
+			}
+			else
+			{
+				item.setInheritedAccess(inheritedAccess.toString());
+			}
+			item.setAllSiteGroups(site_groups);
+			item.setInheritedGroupRefs(inherited_access_groups);
+			item.setAllowedAddGroupRefs(allowedAddGroups);
+			
+			item.setHidden(false);
+			item.setUseReleaseDate(false);
+			item.setReleaseDate(TimeService.newTime());
+			item.setUseRetractDate(false);
+			item.setRetractDate(defaultRetractDate);
+			item.setInWorkspace(isUserSite);
+
+			item.setCopyrightStatus(defaultCopyrightStatus);
+			new_items.add(item);
+			// item.setPossibleGroups(new Vector(possibleGroups));
+//			if(inheritedGroups != null)
+//			{
+//				item.setInheritedGroups(inheritedGroups);
+//			}
+			
+			if(preventPublicDisplay)
+			{
+				item.setPubviewPossible(false);
+				item.setPubviewInherited(false);
+				item.setPubview(false);
+			}
+			else
+			{
+				item.setPubviewPossible(true);
+				item.setPubviewInherited(pubviewset);
+				//item.setPubview(pubviewset);
+			}
+
+		}
+
+		return new_items;
+	}
+
+	/**
+	 * Access the top item on the suspended-operations stack
+	 * @param state The current session state, including the STATE_SUSPENDED_OPERATIONS_STACK attribute.
+	 * @return The top item on the stack, or null if the stack is empty.
+	 */
+	private static Map peekAtStack(SessionState state)
+	{
+		Map current_stack_frame = null;
+		Stack operations_stack = (Stack) state.getAttribute(STATE_SUSPENDED_OPERATIONS_STACK);
+		if(operations_stack == null)
+		{
+			operations_stack = new Stack();
+			state.setAttribute(STATE_SUSPENDED_OPERATIONS_STACK, operations_stack);
+		}
+		if(! operations_stack.isEmpty())
+		{
+			current_stack_frame = (Map) operations_stack.peek();
+		}
+		return current_stack_frame;
+
+	}
+
+	/**
+	 * Remove and return the top item from the suspended-operations stack.
+	 * @param state The current session state, including the STATE_SUSPENDED_OPERATIONS_STACK attribute.
+	 * @return The item that has just been removed from the stack, or null if the stack was empty.
+	 */
+	private static Map popFromStack(SessionState state)
+	{
+		Map current_stack_frame = null;
+		Stack operations_stack = (Stack) state.getAttribute(STATE_SUSPENDED_OPERATIONS_STACK);
+		if(operations_stack == null)
+		{
+			operations_stack = new Stack();
+			state.setAttribute(STATE_SUSPENDED_OPERATIONS_STACK, operations_stack);
+		}
+		if(! operations_stack.isEmpty())
+		{
+			current_stack_frame = (Map) operations_stack.pop();
+			if(operations_stack.isEmpty())
+			{
+				String canceled = (String) current_stack_frame.get(STATE_HELPER_CANCELED_BY_USER);
+				if(canceled != null)
 				{
+					state.setAttribute(STATE_HELPER_CANCELED_BY_USER, canceled);
+				}
+			}
+		}
+		return current_stack_frame;
+
+	}
+
+	/**
+	 * Push an item of the suspended-operations stack.
+	 * @param state The current session state, including the STATE_SUSPENDED_OPERATIONS_STACK attribute.
+	 * @return The new item that has just been added to the stack, or null if depth limit is exceeded.
+	 */
+	private static Map pushOnStack(SessionState state)
+	{
+		Map current_stack_frame = null;
+		Stack operations_stack = (Stack) state.getAttribute(STATE_SUSPENDED_OPERATIONS_STACK);
+		if(operations_stack == null)
+		{
+			operations_stack = new Stack();
+			state.setAttribute(STATE_SUSPENDED_OPERATIONS_STACK, operations_stack);
+		}
+		if(operations_stack.size() < MAXIMUM_SUSPENDED_OPERATIONS_STACK_DEPTH)
+		{
+			current_stack_frame = (Map) operations_stack.push(new Hashtable());
+		}
+		Object helper_mode = state.getAttribute(STATE_RESOURCES_HELPER_MODE);
+		if(helper_mode != null)
+		{
+			current_stack_frame.put(STATE_RESOURCES_HELPER_MODE, helper_mode);
+		}
+		return current_stack_frame;
+
+	}
+
+	
+	/**
+	 * Remove a resource pattern from the observer
+	 *@param pattern The pattern value to be removed
+	 *@param state The state object
+	 */
+	private static void removeObservingPattern(String pattern, SessionState state)
+	{
+//		// get the observer and remove the pattern
+//		ContentObservingCourier o = (ContentObservingCourier) state.getAttribute(STATE_OBSERVER);
+//		o.removeResourcePattern(ContentHostingService.getReference(pattern));
+//
+//		// add it back to state
+//		state.setAttribute(STATE_OBSERVER, o);
+
+	}	// removeObservingPattern
+
+	/**
+	 *
+	 * Whether a resource item can be replaced
+	 * @param p The ResourceProperties object for the resource item
+	 * @return true If it can be replaced; false otherwise
+	 */
+	private static boolean replaceable(ResourceProperties p)
+	{
+		boolean rv = true;
+
+		if (p.getPropertyFormatted (ResourceProperties.PROP_IS_COLLECTION).equals (Boolean.TRUE.toString()))
+		{
+			rv = false;
+		}
+		else if (p.getProperty (ResourceProperties.PROP_CONTENT_TYPE).equals (ResourceProperties.TYPE_URL))
+		{
+			rv = false;
+		}
+		String displayName = p.getPropertyFormatted (ResourceProperties.PROP_DISPLAY_NAME);
+		if (displayName.indexOf(rb.getString("shortcut")) != -1)
+		{
+			rv = false;
+		}
+
+		return rv;
+
+	}	// replaceable
+
+	/**
+	 * @param pipe
+	 * @param action
+	 */
+	public static void reviseContent(ResourceToolActionPipe pipe)
+	{
+		ResourceToolAction action = pipe.getAction();
+		ContentEntity entity = pipe.getContentEntity();
+		try
+		{
+			ContentResourceEdit edit = ContentHostingService.editResource(entity.getId());
+			ResourcePropertiesEdit props = edit.getPropertiesEdit();
+			// update content
+			byte[] content = pipe.getRevisedContent();
+			if(content == null)
+			{
+				InputStream stream = pipe.getRevisedContentStream();
+				if(stream == null)
+				{
+					logger.warn("pipe with null content and null stream: " + pipe.getFileName());
+				}
+				else
+				{
+					edit.setContent(stream);
+				}
+			}
+			else
+			{
+				edit.setContent(content);
+			}
+			// update properties
+			if(action instanceof InteractionAction)
+			{
+				InteractionAction iAction = (InteractionAction) action;
+				Map revprops = pipe.getRevisedResourceProperties();
+				List propkeys = iAction.getRequiredPropertyKeys();
+				if(propkeys != null)
+				{
+					Iterator keyIt = propkeys.iterator();
+					while(keyIt.hasNext())
+					{
+						String key = (String) keyIt.next();
+						String value = (String) revprops.get(key);
+						if(value == null)
+						{
+							props.removeProperty(key);
+						}
+						else
+						{
+							// should we support multivalued properties?
+							props.addProperty(key, value);
+						}
+					}
+				}
+			}
+			// update mimetype
+			edit.setContentType(pipe.getRevisedMimeType());
+			ContentHostingService.commitResource(edit);
+		}
+		catch (PermissionException e)
+		{
+			// TODO Auto-generated catch block
+			logger.warn("PermissionException ", e);
+		}
+		catch (IdUnusedException e)
+		{
+			// TODO Auto-generated catch block
+			logger.warn("IdUnusedException ", e);
+		}
+		catch (TypeException e)
+		{
+			// TODO Auto-generated catch block
+			logger.warn("TypeException ", e);
+		}
+		catch (InUseException e)
+		{
+			// TODO Auto-generated catch block
+			logger.warn("InUseException ", e);
+		}
+		catch (OverQuotaException e)
+		{
+			// TODO Auto-generated catch block
+			logger.warn("OverQuotaException ", e);
+		}
+		catch (ServerOverloadException e)
+		{
+			// TODO Auto-generated catch block
+			logger.warn("ServerOverloadException ", e);
+		}
+	}
+
+//	/**
+//	* Edit the editable collection/resource properties
+//	*/
+//	public static void doEdit ( RunData data )
+//	{
+//		ParameterParser params = data.getParameters ();
+//		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+//
+//		Map current_stack_frame = pushOnStack(state);
+//
+//		state.setAttribute(STATE_LIST_SELECTIONS, new TreeSet());
+//
+//		// cancel copy if there is one in progress
+//		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
+//		{
+//			initCopyContext(state);
+//		}
+//
+//		// cancel move if there is one in progress
+//		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_MOVE_FLAG)))
+//		{
+//			initMoveContext(state);
+//		}
+//
+//		String id = NULL_STRING;
+//		id = params.getString ("id");
+//		if(id == null || id.length() == 0)
+//		{
+//			// there is no resource selected, show the alert message to the user
+//			addAlert(state, rb.getString("choosefile2"));
+//			return;
+//		}
+//
+//		current_stack_frame.put(STATE_STACK_EDIT_ID, id);
+//
+//		String collectionId = (String) params.getString("collectionId");
+//		if(collectionId == null)
+//		{
+//			collectionId = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
+//			state.setAttribute(STATE_HOME_COLLECTION_ID, collectionId);
+//		}
+//		current_stack_frame.put(STATE_STACK_EDIT_COLLECTION_ID, collectionId);
+//
+//		ResourcesEditItem item = getEditItem(id, collectionId, data);
+//
+//		if (state.getAttribute(STATE_MESSAGE) == null)
+//		{
+//			// got resource and sucessfully populated item with values
+//			// state.setAttribute (STATE_MODE, MODE_EDIT);
+//			state.setAttribute(ResourcesAction.STATE_RESOURCES_HELPER_MODE, ResourcesAction.MODE_ATTACHMENT_EDIT_ITEM_INIT);
+//			state.setAttribute(STATE_EDIT_ALERTS, new HashSet());
+//			current_stack_frame.put(STATE_STACK_EDIT_ITEM, item);
+//
+//		}
+//		else
+//		{
+//			popFromStack(state);
+//		}
+//
+//	}	// doEdit
+
+	/**
+	 * @param pedit
+	 * @param metadataGroups
+	 * @param metadata
+	 */
+	private static void saveMetadata(ResourcePropertiesEdit pedit, List metadataGroups, ResourcesEditItem item)
+	{
+		if(metadataGroups != null && !metadataGroups.isEmpty())
+		{
+			MetadataGroup group = null;
+			Iterator it = metadataGroups.iterator();
+			while(it.hasNext())
+			{
+				group = (MetadataGroup) it.next();
+				Iterator props = group.iterator();
+				while(props.hasNext())
+				{
+					ResourcesMetadata prop = (ResourcesMetadata) props.next();
+
+					if(ResourcesMetadata.WIDGET_DATETIME.equals(prop.getWidget()) || ResourcesMetadata.WIDGET_DATE.equals(prop.getWidget()) || ResourcesMetadata.WIDGET_TIME.equals(prop.getWidget()))
+					{
+						Time val = (Time)item.getMetadata().get(prop.getFullname());
+						if(val != null)
+						{
+							pedit.addProperty(prop.getFullname(), val.toString());
+						}
+					}
+					else
+					{
+						String val = (String) item.getMetadata().get(prop.getFullname());
+						pedit.addProperty(prop.getFullname(), val);
+					}
+				}
+			}
+		}
+
+	}
+   
+	/**
+	 * @param url
+	 * @return
+	 * @throws MalformedURLException
+	 */
+	protected static String validateURL(String url) throws MalformedURLException
+	{
+		if (url.equals (NULL_STRING))
+		{
+			// ignore the empty url field
+		}
+		else if (url.indexOf ("://") == -1)
+		{
+			// if it's missing the transport, add http://
+			url = "http://" + url;
+		}
+
+		if(!url.equals(NULL_STRING))
+		{
+			// valid protocol?
+			try
+			{
+				// test to see if the input validates as a URL.
+				// Checks string for format only.
+				URL u = new URL(url);
+			}
+			catch (MalformedURLException e1)
+			{
+				try
+				{
+					Pattern pattern = Pattern.compile("\\s*([a-zA-Z0-9]+)://([^\\n]+)");
+					Matcher matcher = pattern.matcher(url);
+					if(matcher.matches())
+					{
+						// if URL has "unknown" protocol, check remaider with
+						// "http" protocol and accept input if that validates.
+						URL test = new URL("http://" + matcher.group(2));
+					}
+					else
+					{
+						throw e1;
+					}
+				}
+				catch (MalformedURLException e2)
+				{
+					throw e1;
+				}
+			}
+		}
+		return url;
+	}
+
+	/**
+	 * Search a flat list of ResourcesMetadata properties for one whose localname matches "field".
+	 * If found and the field can have additional instances, increment the count for that item.
+	 * @param field
+	 * @param properties
+	 * @return true if the field is found, false otherwise.
+	 */
+	protected  boolean addInstance(String field, List properties)
+	{
+		Iterator propIt = properties.iterator();
+		boolean found = false;
+		while(!found && propIt.hasNext())
+		{
+			ResourcesMetadata property = (ResourcesMetadata) propIt.next();
+			if(field.equals(property.getDottedname()))
+			{
+				found = true;
+				property.incrementCount();
+			}
+		}
+		return found;
+	}
+
+	/**
+	 * Build the context to establish a custom-ordering of resources/folders within a folder.
+	 */
+	public String buildColumnsContext(VelocityPortlet portlet, Context context, RunData data, SessionState state) 
+	{
+		context.put("tlang",trb);
+		
+		// need to check permissions
+		
+		// get the id of the item currently selected
+		String selectedItemId = (String) state.getAttribute(STATE_COLUMN_ITEM_ID);
+		if(selectedItemId == null)
+		{
+			selectedItemId = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
+		}
+		context.put("selectedItemId", selectedItemId);
+		String folderId = null;
+		
+		// need a list of folders (ListItem objects) for one root in context as $folders
+		List<List<ListItem>> folders = new Vector<List<ListItem>>();
+		ContentCollection collection = null;
+		ContentEntity selectedItem = null;
+		
+		// need a list of roots (ListItem objects) in context as $roots
+		List<ListItem> roots = new Vector<ListItem>();
+		Map othersites = ContentHostingService.getCollectionMap();
+		Iterator it = othersites.keySet().iterator();
+		while(it.hasNext())
+		{
+			String rootId = (String) it.next();
+			String rootName = (String) othersites.get(rootId);
+			ListItem root = new ListItem(rootId);
+			root.setName(rootName);
+			root.setHoverText(rootName);
+			root.setAccessUrl(ContentHostingService.getUrl(rootId));
+			root.setIconLocation(ContentTypeImageService.getContentTypeImage("folder"));
+			
+			if(selectedItemId != null && selectedItemId.startsWith(rootId))
+			{
+				root.setSelected(true);
+				folderId = rootId;
+				try
+				{
+					selectedItem = ContentHostingService.getCollection(rootId);
+				}
+				catch (IdUnusedException e)
+				{
+					// TODO Auto-generated catch block
+					logger.warn("IdUnusedException ", e);
+				}
+				catch (TypeException e)
+				{
+					// TODO Auto-generated catch block
+					logger.warn("TypeException ", e);
+				}
+				catch (PermissionException e)
+				{
+					// TODO Auto-generated catch block
+					logger.warn("PermissionException ", e);
+				}
+			}
+			roots.add(root);
+		}
+		// sort by name?
+		context.put("roots", roots);
+		
+		ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+		if(registry == null)
+		{
+			registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+			state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
+		}
+		
+		while(folderId != null)
+		{
+			String collectionId = folderId;
+			folderId = null;
+
+			List<ListItem> folder = new Vector<ListItem>();
+			try 
+			{
+				if(collection == null)
+				{
+					collection = ContentHostingService.getCollection(collectionId);
+				}
+				List members = collection.getMemberResources();
+				collection = null;
+				Iterator memberIt = members.iterator();
+				while(memberIt.hasNext())
+				{
+					ContentEntity member = (ContentEntity) memberIt.next();
+					String itemId = member.getId();
+					ListItem item = new ListItem(member);
+					if(selectedItemId != null && (selectedItemId.equals(itemId) || (member.isCollection() && selectedItemId.startsWith(itemId))))
+					{
+						selectedItem = member;
+						item.setSelected(true);
+						if(member.isCollection())
+						{
+							folderId = itemId;
+						}
+					}
+					else
+					{
+						item.setSelected(false);
+					}
+					folder.add(item);
+				}
+				folders.add(folder);
+				
+				
+			} 
+			catch (IdUnusedException e) 
+			{
+				// TODO Auto-generated catch block
+				logger.warn("IdUnusedException " + e.getMessage());
+			} 
+			catch (TypeException e) 
+			{
+				// TODO Auto-generated catch block
+				logger.warn("TypeException " + e.getMessage());
+			} 
+			catch (PermissionException e) 
+			{
+				// TODO Auto-generated catch block
+				logger.warn("PermissionException " + e.getMessage());
+			}
+			
+		}
+		context.put("folders", folders);
+		
+		if(selectedItem != null)
+		{
+			// if copy or move is in progress AND user has content.new for this folder, user can paste in the collection 
+			// (the paste action will only be defined for collections)
+			List<String> items_to_be_copied = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_COPIED);
+			
+			List<String> items_to_be_moved = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_MOVED);
+			
+			List<ResourceToolAction> actions = getActions(selectedItem, new TreeSet(getPermissions(selectedItem.getId())), registry, items_to_be_moved, items_to_be_copied);
+			
+			context.put("actions", actions);
+			context.put("labeler", new ResourceTypeLabeler());
+		}
+		
+		return "content/sakai_resources_columns";
+	}
+
+
+	public String buildCreateWizardContext(VelocityPortlet portlet, Context context, RunData data, SessionState state) 
+	{
+		context.put("tlang",trb);
+		
+		String template = "content/sakai_resources_cwiz_finish";
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+		if(pipe.isActionCanceled())
+		{
+			// go back to list view
+			
+		}
+		else if(pipe.isErrorEncountered())
+		{
+			// report the error?
+			
+		}
+		else
+		{
+			// complete the create wizard
+			String defaultCopyrightStatus = (String) state.getAttribute(DEFAULT_COPYRIGHT);
+			if(defaultCopyrightStatus == null || defaultCopyrightStatus.trim().equals(""))
+			{
+				defaultCopyrightStatus = ServerConfigurationService.getString("default.copyright");
+				state.setAttribute(DEFAULT_COPYRIGHT, defaultCopyrightStatus);
+			}
+
+			String encoding = data.getRequest().getCharacterEncoding();
+
+			Time defaultRetractDate = (Time) state.getAttribute(STATE_DEFAULT_RETRACT_TIME);
+			if(defaultRetractDate == null)
+			{
+				defaultRetractDate = TimeService.newTime();
+				state.setAttribute(STATE_DEFAULT_RETRACT_TIME, defaultRetractDate);
+			}
+	
+			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+			if(preventPublicDisplay == null)
+			{
+				preventPublicDisplay = Boolean.FALSE;
+				state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+			}
+
+			ContentEntity collection = pipe.getContentEntity();
+
+			String typeId = pipe.getAction().getTypeId();
+			List items = newEditItems(collection.getId(), typeId, encoding, defaultCopyrightStatus, preventPublicDisplay.booleanValue(), defaultRetractDate, new Integer(1));
+
+			ResourcesEditItem item = (ResourcesEditItem) items.get(0);
+			item.setContent(pipe.getContent());
+			item.setMimeType(pipe.getMimeType());
+			context.put("item", item);
+			
+			state.setAttribute(STATE_CREATE_WIZARD_ITEM, item);
+			
+			ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+			if(registry == null)
+			{
+				registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+				state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
+			}
+			ResourceType typeDef = registry.getType(typeId);
+			context.put("type", typeDef);
+			
+			context.put("title", (new ResourceTypeLabeler()).getLabel(pipe.getAction()));
+			context.put("instruction", trb.getFormattedMessage("instr.create", new String[]{typeDef.getLabel()}));
+			context.put("required", trb.getFormattedMessage("instr.require", new String[]{"<span class=\"reqStarInline\">*</span>"}));
+			
+			if(ContentHostingService.isAvailabilityEnabled())
+			{
+				context.put("availability_is_enabled", Boolean.TRUE);
+			}
+			
+			copyrightChoicesIntoContext(state, context);
+			
+			context.put("SITE_ACCESS", AccessMode.SITE.toString());
+			context.put("GROUP_ACCESS", AccessMode.GROUPED.toString());
+			context.put("INHERITED_ACCESS", AccessMode.INHERITED.toString());
+			context.put("PUBLIC_ACCESS", PUBLIC_ACCESS);
+		}
+		return template;
+	}
+
+	/**
+	* Build the context for delete confirmation page
+	*/
+	public String buildDeleteConfirmContext (	VelocityPortlet portlet,
+											Context context,
+											RunData data,
+											SessionState state)
+	{
+		context.put("tlang",rb);
+		// find the ContentTypeImage service
+		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
+		context.put ("collectionId", state.getAttribute (STATE_COLLECTION_ID) );
+
+		//%%%% FIXME
+		context.put ("collectionPath", state.getAttribute (STATE_COLLECTION_PATH));
+
+		List deleteItems = (List) state.getAttribute(STATE_DELETE_ITEMS);
+		List nonEmptyFolders = (List) state.getAttribute(STATE_DELETE_ITEMS_NOT_EMPTY);
+
+		context.put ("deleteItems", deleteItems);
+
+		Iterator it = nonEmptyFolders.iterator();
+		while(it.hasNext())
+		{
+			ResourcesBrowseItem folder = (ResourcesBrowseItem) it.next();
+			String[] args = { folder.getName() };
+			addAlert(state, rb.getFormattedMessage("folder.notempty", args) + " ");
+		}
+
+		//  %%STATE_MODE_RESOURCES%%
+		//not show the public option when in dropbox mode
+		if (RESOURCES_MODE_RESOURCES.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
+		{
+			context.put("dropboxMode", Boolean.FALSE);
+		}
+		else if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
+		{
+			// not show the public option or notification when in dropbox mode
+			context.put("dropboxMode", Boolean.TRUE);
+		}
+		context.put("homeCollection", (String) state.getAttribute (STATE_HOME_COLLECTION_ID));
+		context.put("siteTitle", state.getAttribute(STATE_SITE_TITLE));
+		context.put ("resourceProperties", ContentHostingService.newResourceProperties ());
+
+		// String template = (String) getContext(data).get("template");
+		return TEMPLATE_DELETE_CONFIRM;
+
+	}	// buildDeleteConfirmContext
+
+	/**
+	 * @param portlet
+	 * @param context
+	 * @param data
+	 * @param state
+	 * @return
+	 */
+	private String buildDeleteFinishContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
+	{
+		context.put("tlang",trb);
+		context.put ("collectionId", state.getAttribute (STATE_COLLECTION_ID) );
+
+		//%%%% FIXME
+		context.put ("collectionPath", state.getAttribute (STATE_COLLECTION_PATH));
+
+		List deleteItems = (List) state.getAttribute(STATE_DELETE_SET);
+		List nonEmptyFolders = (List) state.getAttribute(STATE_NON_EMPTY_DELETE_SET);
+
+		context.put ("deleteItems", deleteItems);
+
+		Iterator it = nonEmptyFolders.iterator();
+		while(it.hasNext())
+		{
+			ListItem folder = (ListItem) it.next();
+			String[] args = { folder.getName() };
+			String msg = rb.getFormattedMessage("folder.notempty", args) + " ";
+			addAlert(state, msg);
+		}
+
+		//  %%STATE_MODE_RESOURCES%%
+		//not show the public option when in dropbox mode
+		if (RESOURCES_MODE_RESOURCES.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
+		{
+			context.put("dropboxMode", Boolean.FALSE);
+		}
+		else if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
+		{
+			// not show the public option or notification when in dropbox mode
+			context.put("dropboxMode", Boolean.TRUE);
+		}
+		context.put("homeCollection", (String) state.getAttribute (STATE_HOME_COLLECTION_ID));
+		context.put("siteTitle", state.getAttribute(STATE_SITE_TITLE));
+		context.put ("resourceProperties", ContentHostingService.newResourceProperties ());
+
+		// String template = (String) getContext(data).get("template");
+		return TEMPLATE_DELETE_FINISH;
+
+	}
+
+	/**
+	* Build the context for the new list view, which uses the resources type registry
+	*/
+	public String buildListContext (	VelocityPortlet portlet,
+										Context context,
+										RunData data,
+										SessionState state)
+	{
+		context.put("tlang",rb);
+		
+		// find the ContentTypeImage service
+		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
+
+		context.put("TYPE_FOLDER", TYPE_FOLDER);
+		context.put("TYPE_UPLOAD", TYPE_UPLOAD);
+		
+		context.put("listStack", new Stack());
+		context.put("tempStack", new Stack());
+
+		context.put("SITE_ACCESS", AccessMode.SITE.toString());
+		context.put("GROUP_ACCESS", AccessMode.GROUPED.toString());
+		context.put("INHERITED_ACCESS", AccessMode.INHERITED.toString());
+		context.put("PUBLIC_ACCESS", PUBLIC_ACCESS);
+
+		context.put("ACTION_DELIMITER", ResourceToolAction.ACTION_DELIMITER);
+		
+		Set selectedItems = (Set) state.getAttribute(STATE_LIST_SELECTIONS);
+		if(selectedItems == null)
+		{
+			selectedItems = new TreeSet();
+			state.setAttribute(STATE_LIST_SELECTIONS, selectedItems);
+		}
+		context.put("selectedItems", selectedItems);
+
+		// find the ContentHosting service
+		org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
+		context.put ("service", contentService);
+
+		boolean inMyWorkspace = SiteService.isUserSite(ToolManager.getCurrentPlacement().getContext());
+		context.put("inMyWorkspace", Boolean.toString(inMyWorkspace));
+
+		boolean atHome = false;
+
+		// %%STATE_MODE_RESOURCES%%
+
+		boolean dropboxMode = RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES));
+		if (dropboxMode)
+		{
+			// notshow the public option or notification when in dropbox mode
+			context.put("dropboxMode", Boolean.TRUE);
+		}
+		else
+		{
+			//context.put("dropboxMode", Boolean.FALSE);
+		}
+
+		// make sure the channedId is set
+		String collectionId = (String) state.getAttribute (STATE_COLLECTION_ID);
+		context.put ("collectionId", collectionId);
+		String navRoot = (String) state.getAttribute(STATE_NAVIGATION_ROOT);
+		String homeCollectionId = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
+
+		String siteTitle = (String) state.getAttribute (STATE_SITE_TITLE);
+		if (collectionId.equals(homeCollectionId))
+		{
+			atHome = true;
+			context.put ("collectionDisplayName", state.getAttribute (STATE_HOME_COLLECTION_DISPLAY_NAME));
+		}
+		else
+		{
+			// should be not PermissionException thrown at this time, when the user can successfully navigate to this collection
+			try
+			{
+				context.put("collectionDisplayName", contentService.getCollection(collectionId).getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME));
+			}
+			catch (IdUnusedException e){}
+			catch (TypeException e) {}
+			catch (PermissionException e) {}
+		}
+		if(!inMyWorkspace && !dropboxMode && atHome && SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()))
+		{
+			context.put("showPermissions", Boolean.TRUE.toString());
+			//buildListMenu(portlet, context, data, state);
+		}
+
+		context.put("atHome", Boolean.toString(atHome));
+
+		if(ContentHostingService.isAvailabilityEnabled())
+		{
+			context.put("availability_is_enabled", Boolean.TRUE);
+		}
+
+		Comparator userSelectedSort = (Comparator) state.getAttribute(STATE_LIST_VIEW_SORT);
+		
+		List cPath = getCollectionPath(state);
+		context.put ("collectionPath", cPath);
+
+		// set the sort values
+		String sortedBy = (String) state.getAttribute (STATE_SORT_BY);
+		String sortedAsc = (String) state.getAttribute (STATE_SORT_ASC);
+		context.put ("currentSortedBy", sortedBy);
+		context.put ("currentSortAsc", sortedAsc);
+		context.put("TRUE", Boolean.TRUE.toString());
+
+		boolean showRemoveAction = false;
+		boolean showMoveAction = false;
+		boolean showCopyAction = false;
+
+		Set highlightedItems = new TreeSet();
+
+		try
+		{
+			try
+			{
+				contentService.checkCollection (collectionId);
+				context.put ("collectionFlag", Boolean.TRUE.toString());
+			}
+			catch(IdUnusedException ex)
+			{
+				logger.warn(this + "IdUnusedException: " + collectionId);
+				try
+				{
+					ContentCollectionEdit coll = contentService.addCollection(collectionId);
+					contentService.commitCollection(coll);
+				}
+				catch(IdUsedException inner)
+				{
+					// how can this happen??
+					logger.warn(this + "IdUsedException: " + collectionId);
+					throw ex;
+				}
+				catch(IdInvalidException inner)
+				{
+					logger.warn(this + "IdInvalidException: " + collectionId);
+					// what now?
+					throw ex;
+				}
+				catch(InconsistentException inner)
+				{
+					logger.warn(this + "InconsistentException: " + collectionId);
+					// what now?
+					throw ex;
+				}
+			}
+			catch(TypeException ex)
+			{
+				logger.warn(this + "TypeException.");
+				throw ex;				
+			}
+			catch(PermissionException ex)
+			{
+				logger.warn(this + "PermissionException.");
+				throw ex;
+			}
+			
+			String copyFlag = (String) state.getAttribute (STATE_COPY_FLAG);
+			if (copyFlag.equals (Boolean.TRUE.toString()))
+			{
+				context.put ("copyFlag", copyFlag);
+				List copiedItems = (List) state.getAttribute(STATE_COPIED_IDS);
+				// context.put ("copiedItem", state.getAttribute (STATE_COPIED_ID));
+				highlightedItems.addAll(copiedItems);
+				// context.put("copiedItems", copiedItems);
+			}
+
+			String moveFlag = (String) state.getAttribute (STATE_MOVE_FLAG);
+			if (moveFlag.equals (Boolean.TRUE.toString()))
+			{
+				context.put ("moveFlag", moveFlag);
+				List movedItems = (List) state.getAttribute(STATE_MOVED_IDS);
+				highlightedItems.addAll(movedItems);
+				// context.put ("copiedItem", state.getAttribute (STATE_COPIED_ID));
+				// context.put("movedItems", movedItems);
+			}
+
+			SortedSet<String> expandedCollections = (SortedSet<String>) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+			
+			//ContentCollection coll = contentService.getCollection(collectionId);
+			expandedCollections.add(collectionId);
+			context.put("expandedCollections", expandedCollections);
+
+			ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+			if(registry == null)
+			{
+				registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+				state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
+			}
+			
+			state.removeAttribute(STATE_PASTE_ALLOWED_FLAG);
+			
+			ContentCollection collection = ContentHostingService.getCollection(collectionId);
+			
+			List<String> items_to_be_copied = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_COPIED);
+			List<String> items_to_be_moved = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_MOVED);
+
+			boolean need_to_expand_all = Boolean.TRUE.toString().equals((String)state.getAttribute(STATE_NEED_TO_EXPAND_ALL));
+
+			ListItem item = ListItem.getListItem(collection, null, registry, need_to_expand_all, expandedCollections, items_to_be_moved, items_to_be_copied, 0, userSelectedSort);
+			
+			List<ListItem> items = item.convert2list();
+			
+			if(atHome && dropboxMode)
+			{
+				item.setName(siteTitle + " " + rb.getString("gen.drop"));
+			}
+			else if(atHome)
+			{
+				item.setName(siteTitle + " " + rb.getString("gen.reso"));
+			}
+
+			context.put("site", items);
+
+			boolean show_all_sites = false;
+
+			String allowed_to_see_other_sites = (String) state.getAttribute(STATE_SHOW_ALL_SITES);
+			String show_other_sites = (String) state.getAttribute(STATE_SHOW_OTHER_SITES);
+			context.put("show_other_sites", show_other_sites);
+			if(Boolean.TRUE.toString().equals(allowed_to_see_other_sites))
+			{
+				context.put("allowed_to_see_other_sites", Boolean.TRUE.toString());
+				show_all_sites = Boolean.TRUE.toString().equals(show_other_sites);
+			}
+
+			if(atHome && show_all_sites)
+			{
+				state.setAttribute(STATE_HIGHLIGHTED_ITEMS, highlightedItems);
+				// TODO: see call to prepPage below.  That also calls readAllResources.  Are both calls necessary?
+				//other_sites.addAll(readAllResources(state));
+				//all_roots.addAll(other_sites);
+
+				List messages = prepPage(state);
+				context.put("other_sites", messages);
+
+				if (state.getAttribute(STATE_NUM_MESSAGES) != null)
+				{
+					context.put("allMsgNumber", state.getAttribute(STATE_NUM_MESSAGES).toString());
+					context.put("allMsgNumberInt", state.getAttribute(STATE_NUM_MESSAGES));
+				}
+
+				context.put("pagesize", ((Integer) state.getAttribute(STATE_PAGESIZE)).toString());
+
+				// find the position of the message that is the top first on the page
+				if ((state.getAttribute(STATE_TOP_MESSAGE_INDEX) != null) && (state.getAttribute(STATE_PAGESIZE) != null))
+				{
+					int topMsgPos = ((Integer)state.getAttribute(STATE_TOP_MESSAGE_INDEX)).intValue() + 1;
+					context.put("topMsgPos", Integer.toString(topMsgPos));
+					int btmMsgPos = topMsgPos + ((Integer)state.getAttribute(STATE_PAGESIZE)).intValue() - 1;
+					if (state.getAttribute(STATE_NUM_MESSAGES) != null)
+					{
+						int allMsgNumber = ((Integer)state.getAttribute(STATE_NUM_MESSAGES)).intValue();
+						if (btmMsgPos > allMsgNumber)
+							btmMsgPos = allMsgNumber;
+					}
+					context.put("btmMsgPos", Integer.toString(btmMsgPos));
+				}
+
+				boolean goPPButton = state.getAttribute(STATE_PREV_PAGE_EXISTS) != null;
+				context.put("goPPButton", Boolean.toString(goPPButton));
+				boolean goNPButton = state.getAttribute(STATE_NEXT_PAGE_EXISTS) != null;
+				context.put("goNPButton", Boolean.toString(goNPButton));
+
+				/*
+				boolean goFPButton = state.getAttribute(STATE_FIRST_PAGE_EXISTS) != null;
+				context.put("goFPButton", Boolean.toString(goFPButton));
+				boolean goLPButton = state.getAttribute(STATE_LAST_PAGE_EXISTS) != null;
+				context.put("goLPButton", Boolean.toString(goLPButton));
+				*/
+
+				context.put("pagesize", state.getAttribute(STATE_PAGESIZE));
+				// context.put("pagesizes", PAGESIZES);
+
+			}
+
+			// context.put ("other_sites", other_sites);
+			//state.setAttribute(STATE_COLLECTION_ROOTS, all_roots);
+			// context.put ("root", root);
+
+			if(state.getAttribute(STATE_PASTE_ALLOWED_FLAG) != null)
+			{
+				context.put("paste_place_showing", state.getAttribute(STATE_PASTE_ALLOWED_FLAG));
+			}
+
+			if(showRemoveAction)
+			{
+				context.put("showRemoveAction", Boolean.TRUE.toString());
+			}
+
+			if(showMoveAction)
+			{
+				context.put("showMoveAction", Boolean.TRUE.toString());
+			}
+
+			if(showCopyAction)
+			{
+				context.put("showCopyAction", Boolean.TRUE.toString());
+			}
+
+		}
+		catch (IdUnusedException e)
+		{
+			addAlert(state, rb.getString("cannotfind"));
+			context.put ("collectionFlag", Boolean.FALSE.toString());
+		}
+		catch(TypeException e)
+		{
+			logger.warn(this + "TypeException.");
+			context.put ("collectionFlag", Boolean.FALSE.toString());
+		}
+		catch(PermissionException e)
+		{
+			addAlert(state, rb.getString("notpermis1"));
+			context.put ("collectionFlag", Boolean.FALSE.toString());
+		}
+
+		context.put("homeCollection", (String) state.getAttribute (STATE_HOME_COLLECTION_ID));
+		context.put("siteTitle", state.getAttribute(STATE_SITE_TITLE));
+		context.put ("resourceProperties", contentService.newResourceProperties ());
+
+		try
+		{
+			// TODO: why 'site' here?
+			Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+			context.put("siteTitle", site.getTitle());
+		}
+		catch (IdUnusedException e)
+		{
+			logger.debug(this + e.toString());
+		}
+
+		context.put("expandallflag", state.getAttribute(STATE_EXPAND_ALL_FLAG));
+		state.removeAttribute(STATE_NEED_TO_EXPAND_ALL);
+
+		// inform the observing courier that we just updated the page...
+		// if there are pending requests to do so they can be cleared
+		justDelivered(state);
+
+		// pick the "show" template based on the standard template name
+		// String template = (String) getContext(data).get("template");
+
+		context.put("labeler", new ResourceTypeLabeler());
+		
+		return TEMPLATE_NEW_LIST;
+
+	}	// buildListContext
+
+	/**
+	* Build the context for normal display
+	*/
+	public String buildMainPanelContext (	VelocityPortlet portlet,
+											Context context,
+											RunData data,
+											SessionState state)
+	{
+		//context.put("tlang",rb);
+		// find the ContentTypeImage service
+		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
+		
+		context.put("copyright_alert_url", COPYRIGHT_ALERT_URL);
+		context.put("ACTION_DELIMITER", ResourceToolAction.ACTION_DELIMITER);
+		
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+		if(pipe != null)
+		{
+			if(pipe.isActionCanceled())
+			{
+				state.setAttribute(STATE_MODE, MODE_LIST);
+			}
+			else if(pipe.isErrorEncountered())
+			{
+				String msg = pipe.getErrorMessage();
+				if(msg != null && ! msg.trim().equals(""))
+				{
+					addAlert(state, msg);
+				}
+				state.setAttribute(STATE_MODE, MODE_LIST);
+			}
+			else if(pipe.isActionCompleted())
+			{
+				finishAction(state, toolSession, pipe);
+			}
+			toolSession.removeAttribute(ResourceToolAction.DONE);
+		}
+
+		String template = null;
+		
+		// place if notification is enabled and current site is not of My Workspace type
+		boolean isUserSite = SiteService.isUserSite(ToolManager.getCurrentPlacement().getContext());
+		context.put("notification", new Boolean(!isUserSite && notificationEnabled(state)));
+		// get the mode
+		String mode = (String) state.getAttribute (STATE_MODE);
+		if (mode.equals (MODE_LIST))
+		{
+			String list_pref = (String) state.getAttribute(STATE_LIST_PREFERENCE);
+			if(list_pref == null)
+			{
+				list_pref = LIST_HIERARCHY;
+			}
+			if(LIST_COLUMNS.equals(list_pref))
+			{
+				// build the context for list view
+				template = buildColumnsContext (portlet, context, data, state);
+			}
+			else
+			{
+				// build the context for list view
+				//template = buildChefListContext (portlet, context, data, state);
+				template = buildListContext (portlet, context, data, state);
+			}
+		}
+//		else if (mode.equals (MODE_CREATE))
+//		{
+//			// build the context for create item
+//			template = buildCreateContext (portlet, context, data, state);
+//		}
+		else if(mode.equals(MODE_CREATE_WIZARD))
+		{
+			template = buildCreateWizardContext(portlet, context, data, state);
+		}
+//		else if (mode.equals (MODE_DELETE_CONFIRM))
+//		{
+//			// build the context for the basic step of delete confirm page
+//			template = buildDeleteConfirmContext (portlet, context, data, state);
+//		}
+		else if (mode.equals (MODE_DELETE_FINISH))
+		{
+			// build the context for the basic step of delete confirm page
+			template = buildDeleteFinishContext (portlet, context, data, state);
+		}
+		else if (mode.equals (MODE_MORE))
+		{
+			// build the context to display the property list
+			template = buildMoreContext (portlet, context, data, state);
+		}
+//		else if (mode.equals (MODE_EDIT))
+//		{
+//			// build the context to display the property list
+//			template = buildEditContext (portlet, context, data, state);
+//		}
+		else if (mode.equals (MODE_OPTIONS))
+		{
+			template = buildOptionsPanelContext (portlet, context, data, state);
+		}
+		else if (mode.equals (MODE_REORDER))
+		{
+			template = buildReorderContext (portlet, context, data, state);
+		}
+		else if(mode.equals(MODE_DAV))
+		{
+			template = buildWebdavContext (portlet, context, data, state);
+		}
+		else if(mode.equals(MODE_REVISE_METADATA))
+		{
+			template = buildReviseMetadataContext(portlet, context, data, state);
+		}
+
+		return template;
+
+	}	// buildMainPanelContext
+
+	/**
+	*  Setup for customization
+	**/
+	public String buildOptionsPanelContext( VelocityPortlet portlet,
+											Context context,
+											RunData data,
+											SessionState state)
+	{
+		context.put("tlang",rb);
+		String home = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
+		Reference ref = EntityManager.newReference(ContentHostingService.getReference(home));
+		String siteId = ref.getContext();
+
+		context.put("form-submit", BUTTON + "doConfigure_update");
+		context.put("form-cancel", BUTTON + "doCancel_options");
+		context.put("description", "Setting options for Resources in worksite "
+				+ SiteService.getSiteDisplay(siteId));
+
+		// pick the "-customize" template based on the standard template name
+		String template = (String)getContext(data).get("template");
+		return template + "-customize";
+
+	}	// buildOptionsPanelContext
+
+	/**
+	 * Build the context to establish a custom-ordering of resources/folders within a folder.
+	 */
+	public String buildReorderContext(VelocityPortlet portlet, Context context, RunData data, SessionState state) 
+	{
+		context.put("tlang",rb);
+		
+		String folderId = (String) state.getAttribute(STATE_REORDER_FOLDER);
+		context.put("folderId", folderId);
+		
+		// save expanded folder lists
+		SortedSet<String> expandedCollections = (SortedSet<String>) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+		Map expandedFolderSortMap = (Map) state.getAttribute(STATE_EXPANDED_FOLDER_SORT_MAP);
+		String need_to_expand_all = (String) state.getAttribute(STATE_NEED_TO_EXPAND_ALL);
+
+		// create temporary expanded folder lists for this invocation of getListView
+		Map tempExpandedFolderSortMap = new Hashtable();
+		state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, tempExpandedFolderSortMap);
+		SortedSet tempExpandedCollections = new TreeSet();
+		tempExpandedCollections.add(folderId);
+		state.setAttribute(STATE_EXPANDED_COLLECTIONS, tempExpandedCollections);
+
+		Set highlightedItems = new TreeSet();
+		List all_roots = new Vector();
+		List this_site = new Vector();
+
+		List members = getListView(folderId, highlightedItems, (ResourcesBrowseItem) null, true, state);
+
+		// restore expanded folder lists 
+		expandedCollections.addAll(tempExpandedCollections);
+		state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
+		expandedFolderSortMap.putAll(tempExpandedFolderSortMap);
+		state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, expandedFolderSortMap);
+
+		String navRoot = (String) state.getAttribute(STATE_NAVIGATION_ROOT);
+		String homeCollectionId = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
+
+		boolean atHome = false;
+
+		context.put("atHome", Boolean.toString(atHome));
+
+		List cPath = getCollectionPath(state);
+		context.put ("collectionPath", cPath);
+
+		
+		String sortBy = (String) state.getAttribute(STATE_REORDER_SORT_BY);
+		context.put("sortBy", sortBy);
+		String sortAsc = (String) state.getAttribute(STATE_REORDER_SORT_ASC);
+		context.put("sortAsc", sortAsc);
+		// Comparator comparator = (Comparator) state.getAttribute(STATE_REORDER_SORT);
+
+		String rootTitle = (String) state.getAttribute (STATE_SITE_TITLE);
+		if (folderId.equals(homeCollectionId))
+		{
+			atHome = true;
+			String siteTitle = (String) state.getAttribute (STATE_SITE_TITLE);
+			rootTitle = siteTitle + " " + rb.getString("gen.reso");
+		}
+		else
+		{
+			// should be not PermissionException thrown at this time, when the user can successfully navigate to this collection
+			try
+			{
+				rootTitle = ContentHostingService.getCollection(folderId).getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+			}
+			catch (IdUnusedException e){}
+			catch (TypeException e) {}
+			catch (PermissionException e) {}
+		}
+
+		if(members != null && members.size() > 0)
+		{
+			ResourcesBrowseItem root = (ResourcesBrowseItem) members.remove(0);
+			root.addMembers(members);
+			root.setName(rootTitle);
+			this_site.add(root);
+			all_roots.add(root);
+		}
+		context.put ("this_site", this_site);
+		
+		return TEMPLATE_REORDER;
+	}
+
+	/**
+	 * @param portlet
+	 * @param context
+	 * @param data
+	 * @param state
+	 * @return
+	 */
+	private String buildReviseMetadataContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
+	{
+		context.put("tlang", trb);
+		
+		ResourceToolAction action = (ResourceToolAction) state.getAttribute(STATE_REVISE_PROPERTIES_ACTION);
+		context.put("action", action);
+		
+		String typeId = action.getTypeId();
+		
+		ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+		if(registry == null)
+		{
+			registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+			state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
+		}
+		
+		ResourceType type = registry.getType(typeId);
+		context.put("type", type);
+		
+		copyrightChoicesIntoContext(state, context);
+		
+		context.put("required", trb.getFormattedMessage("instr.require", new String[]{"<span class=\"reqStarInline\">*</span>"}));
+		
+		// complete the create wizard
+		String defaultCopyrightStatus = (String) state.getAttribute(DEFAULT_COPYRIGHT);
+		if(defaultCopyrightStatus == null || defaultCopyrightStatus.trim().equals(""))
+		{
+			defaultCopyrightStatus = ServerConfigurationService.getString("default.copyright");
+			state.setAttribute(DEFAULT_COPYRIGHT, defaultCopyrightStatus);
+		}
+
+		Time defaultRetractDate = (Time) state.getAttribute(STATE_DEFAULT_RETRACT_TIME);
+		if(defaultRetractDate == null)
+		{
+			defaultRetractDate = TimeService.newTime();
+			state.setAttribute(STATE_DEFAULT_RETRACT_TIME, defaultRetractDate);
+		}
+
+		Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+		if(preventPublicDisplay == null)
+		{
+			preventPublicDisplay = Boolean.FALSE;
+			state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+		}
+		
+		String entityId = (String) state.getAttribute(STATE_REVISE_PROPERTIES_ENTITY_ID);
+		String refstr = ContentHostingService.getReference(entityId);
+		Reference ref = EntityManager.newReference(refstr);
+		ContentEntity entity = (ContentEntity) ref.getEntity();
+
+		ResourcesItem item = new  ResourcesItem(entity);
+		if(item.getReleaseDate() == null)
+		{
+			item.setReleaseDate(TimeService.newTime());
+		}
+		if(item.getRetractDate() == null)
+		{
+			item.setRetractDate(defaultRetractDate);
+		}
+		
+		context.put("item", item);
+		state.setAttribute(STATE_REVISE_PROPERTIES_ITEM, item);
+		
+		if(ContentHostingService.isAvailabilityEnabled())
+		{
+			context.put("availability_is_enabled", Boolean.TRUE);
+		}
+		
+		context.put("SITE_ACCESS", AccessMode.SITE.toString());
+		context.put("GROUP_ACCESS", AccessMode.GROUPED.toString());
+		context.put("INHERITED_ACCESS", AccessMode.INHERITED.toString());
+		context.put("PUBLIC_ACCESS", PUBLIC_ACCESS);
+		
+		return TEMPLATE_REVISE_METADATA;
+	}
+
+	/**
+	* Build the context for add display
+	*/
+	public String buildWebdavContext (	VelocityPortlet portlet,
+										Context context,
+										RunData data,
+										SessionState state)
+	{
+		context.put("tlang",rb);
+		// find the ContentTypeImage service
+		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
+
+		boolean inMyWorkspace = SiteService.isUserSite(ToolManager.getCurrentPlacement().getContext());
+		context.put("inMyWorkspace", Boolean.toString(inMyWorkspace));
+
+		context.put("server_url", ServerConfigurationService.getServerUrl());
+		context.put("site_id", ToolManager.getCurrentPlacement().getContext());
+		context.put("site_title", state.getAttribute(STATE_SITE_TITLE));
+		context.put("user_id", UserDirectoryService.getCurrentUser().getEid());
+		if (ContentHostingService.isShortRefs())
+		{
+			// with short refs, this is prettier
+			context.put ("dav_group", "/dav/");
+			context.put ("dav_user", "/dav/~");
+		}
+		else
+		{
+			context.put ("dav_group", "/dav/group/");
+			context.put ("dav_user", "/dav/user/");
+		}
+
+		String webdav_instructions = ServerConfigurationService.getString("webdav.instructions.url");
+		context.put("webdav_instructions" ,webdav_instructions);
+
+		String browserID = UsageSessionService.getSession().getBrowserId();
+		if(browserID.equals(UsageSession.WIN_IE))
+		{
+			context.put("isWinIEBrowser", Boolean.TRUE.toString());
+		}
+
+		return TEMPLATE_DAV;
+
+	}	// buildWebdavContext
+
+
+	/**
+	 * Iterate over attributes in ToolSession and remove all attributes starting with a particular prefix.
+	 * @param toolSession
+	 * @param prefix
+	 */
+	protected void cleanup(ToolSession toolSession, String prefix) 
+	{
+		Enumeration attributeNames = toolSession.getAttributeNames();
+		while(attributeNames.hasMoreElements())
+		{
+			String aName = (String) attributeNames.nextElement();
+			if(aName.startsWith(prefix))
+			{
+				toolSession.removeAttribute(aName);
+			}
+		}
+		
+	}
+
+	/**
+	 * @param state
+	 * @param deleteIdSet
+	 */
+	protected void deleteItem(SessionState state, String itemId)
+	{
+		List deleteItems = new Vector();
+		List notDeleteItems = new Vector();
+		List nonEmptyFolders = new Vector();
+		
+		boolean isFolder = itemId.endsWith(Entity.SEPARATOR);
+		
+		try
+		{
+			ContentEntity entity = null;
+			if(isFolder)
+			{
+				entity = ContentHostingService.getCollection(itemId);
+			}
+			else
+			{
+				entity = ContentHostingService.getResource(itemId);
+			}
+			
+			ListItem member = new ListItem(entity);
+			
+			if(isFolder)
+			{
+				ContentCollection collection = (ContentCollection) entity;
+				if(ContentHostingService.allowRemoveCollection(itemId))
+				{
+					deleteItems.add(member);
+					if(collection.getMemberCount() > 0)
+					{
+						nonEmptyFolders.add(member);
+					}
+				}
+				else
+				{
+					notDeleteItems.add(member);
+				}
+			}
+			else if(ContentHostingService.allowRemoveResource(member.getId()))
+			{
+				deleteItems.add(member);
+			}
+			else
+			{
+				notDeleteItems.add(member);
+			}
+		}
+		catch (IdUnusedException e)
+		{
+			// TODO Auto-generated catch block
+			logger.warn("IdUnusedException ", e);
+		}
+		catch (TypeException e)
+		{
+			// TODO Auto-generated catch block
+			logger.warn("TypeException ", e);
+		}
+		catch (PermissionException e)
+		{
+			// TODO Auto-generated catch block
+			logger.warn("PermissionException ", e);
+		}
+		
+
+		if(! notDeleteItems.isEmpty())
+		{
+			String notDeleteNames = "";
+			boolean first_item = true;
+			Iterator notIt = notDeleteItems.iterator();
+			while(notIt.hasNext())
+			{
+				ListItem item = (ListItem) notIt.next();
+				if(first_item)
+				{
+					notDeleteNames = item.getName();
+					first_item = false;
+				}
+				else if(notIt.hasNext())
+				{
+					notDeleteNames += ", " + item.getName();
+				}
+				else
+				{
+					notDeleteNames += " and " + item.getName();
+				}
+			}
+			addAlert(state, rb.getString("notpermis14") + notDeleteNames);
+		}
+
+		if(state.getAttribute(STATE_MESSAGE) == null)
+		{
+			state.setAttribute (STATE_DELETE_SET, deleteItems);
+			state.setAttribute (STATE_NON_EMPTY_DELETE_SET, nonEmptyFolders);
+		}
+	}
+
+	/**
+	 * @param state
+	 * @param deleteIdSet
+	 * @param deleteIds
+	 */
+	protected void deleteItems(SessionState state, Set deleteIdSet)
+	{
+		List deleteItems = new Vector();
+		List notDeleteItems = new Vector();
+		List nonEmptyFolders = new Vector();
+		List roots = (List) state.getAttribute(STATE_COLLECTION_ROOTS);
+		if(roots == null)
+		{
+			
+		}
+		Iterator rootIt = roots.iterator();
+		while(rootIt.hasNext())
+		{
+			ResourcesBrowseItem root = (ResourcesBrowseItem) rootIt.next();
+
+			List members = root.getMembers();
+			Iterator memberIt = members.iterator();
+			while(memberIt.hasNext())
+			{
+				ResourcesBrowseItem member = (ResourcesBrowseItem) memberIt.next();
+				if(deleteIdSet.contains(member.getId()))
+				{
+					if(member.isFolder())
+					{
+						if(ContentHostingService.allowRemoveCollection(member.getId()))
+						{
+							deleteItems.add(member);
+							if(! member.isEmpty())
+							{
+								nonEmptyFolders.add(member);
+							}
+						}
+						else
+						{
+							notDeleteItems.add(member);
+						}
+					}
+					else if(ContentHostingService.allowRemoveResource(member.getId()))
+					{
+						deleteItems.add(member);
+					}
+					else
+					{
+						notDeleteItems.add(member);
+					}
+				}
+			}
+		}
+
+		if(! notDeleteItems.isEmpty())
+		{
+			String notDeleteNames = "";
+			boolean first_item = true;
+			Iterator notIt = notDeleteItems.iterator();
+			while(notIt.hasNext())
+			{
+				ResourcesBrowseItem item = (ResourcesBrowseItem) notIt.next();
+				if(first_item)
+				{
+					notDeleteNames = item.getName();
+					first_item = false;
+				}
+				else if(notIt.hasNext())
+				{
+					notDeleteNames += ", " + item.getName();
+				}
+				else
+				{
+					notDeleteNames += " and " + item.getName();
+				}
+			}
+			addAlert(state, rb.getString("notpermis14") + notDeleteNames);
+		}
+
+
+		/*
+				//htripath-SAK-1712 - Set new collectionId as resources are not deleted under 'more' requirement.
+				if(state.getAttribute(STATE_MESSAGE) == null){
+				  String newCollectionId=ContentHostingService.getContainingCollectionId(currentId);
+				  state.setAttribute(STATE_COLLECTION_ID, newCollectionId);
+				}
+		*/
+
+		state.setAttribute (STATE_DELETE_ITEMS, deleteItems);
+		state.setAttribute (STATE_DELETE_ITEMS_NOT_EMPTY, nonEmptyFolders);
+	}
+
+
+	/**
+	* doCancel to return to the previous state
+	*/
+	public void doCancel ( RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		state.setAttribute(STATE_LIST_SELECTIONS, new TreeSet());
+		
+		state.setAttribute(STATE_MODE, MODE_LIST);
+
+//		if(!isStackEmpty(state))
+//		{
+//			Map current_stack_frame = peekAtStack(state);
+//			current_stack_frame.put(STATE_HELPER_CANCELED_BY_USER, Boolean.TRUE.toString());
+//
+//			popFromStack(state);
+//		}
+//
+//		resetCurrentMode(state);
+
+	}	// doCancel
+
+	/**
+	* Remove the collection id from the expanded collection list
+	*/
+	public void doCollapse_collection(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		SortedSet expandedItems = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+		if(expandedItems == null)
+		{
+			expandedItems = new TreeSet();
+		}
+		Map folderSortMap = (Map) state.getAttribute(STATE_EXPANDED_FOLDER_SORT_MAP);
+		if(folderSortMap == null)
+		{
+			folderSortMap = new Hashtable();
+			state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, folderSortMap);
+		}
+
+		//get the ParameterParser from RunData
+		ParameterParser params = data.getParameters ();
+		String collectionId = params.getString("collectionId");
+
+		// save the current selections
+		Set selectedSet  = new TreeSet();
+		String[] selectedItems = data.getParameters ().getStrings ("selectedMembers");
+		if(selectedItems != null)
+		{
+			selectedSet.addAll(Arrays.asList(selectedItems));
+		}
+		state.setAttribute(STATE_LIST_SELECTIONS, selectedSet);
+
+		SortedSet newSet = new TreeSet();
+		Iterator l = expandedItems.iterator();
+		while (l.hasNext ())
+		{
+			// remove the collection id and all of the subcollections
+//		    Resource collection = (Resource) l.next();
+//			String id = (String) collection.getId();
+		    String id = (String) l.next();
+
+			if (id.indexOf (collectionId)==-1)
+			{
+	//			newSet.put(id,collection);
+				newSet.add(id);
+			}
+			else
+			{
+				folderSortMap.remove(id);
+			}
+		}
+
+		state.setAttribute(STATE_EXPANDED_COLLECTIONS, newSet);
+
+		// remove this folder id into the set to be event-observed
+		removeObservingPattern(collectionId, state);
+
+	}	// doCollapse_collection
+
+
+	public void doColumns(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		state.setAttribute(STATE_LIST_PREFERENCE, LIST_COLUMNS);
+	}
+
+	/**
+	 * @param data
+	 */
+	public void doCompleteCreateWizard(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		
+		ResourcesEditItem item = (ResourcesEditItem) state.getAttribute(STATE_CREATE_WIZARD_ITEM);
+		
+		// get the parameter-parser
+		ParameterParser params = data.getParameters();
+		
+		String user_action = params.getString("user_action");
+		
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+		
+		if(user_action == null)
+		{
+			
+		}
+		else if(user_action.equals("save"))
+		{
+			String collectionId = (String) state.getAttribute(STATE_CREATE_WIZARD_COLLECTION_ID);
+			try 
+			{
+				// title
+				String name = params.getString("name");
+				String basename = name.trim();
+				String extension = "";
+				if(name.contains("."))
+				{
+					String[] parts = name.split("\\.");
+					basename = parts[0];
+					if(parts.length > 1)
+					{
+						extension = parts[parts.length - 1];
+					}
+					
+					for(int i = 1; i < parts.length - 1; i++)
+					{
+						basename += "." + parts[i];
+					}
+				}
+				
+				// create resource
+				ContentResourceEdit resource = ContentHostingService.addResource(collectionId, basename, extension, MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+				
+				String resourceType = null;
+				if(pipe != null)
+				{
+					ResourceToolAction action = pipe.getAction();
+					if(action == null)
+					{
+						
+					}
+					else 
+					{
+						if(action instanceof InteractionAction)
+						{
+							InteractionAction iAction = (InteractionAction) action;
+							iAction.finalizeAction(EntityManager.newReference(resource.getReference()), pipe.getInitializationId());
+						}
+						resourceType = action.getTypeId();
+					}
+				}
+				
+				resource.setResourceType(resourceType);
+				
+				byte[] content = pipe.getRevisedContent();
+				if(content == null)
+				{
+					InputStream stream = pipe.getRevisedContentStream();
+					if(stream == null)
+					{
+						logger.warn("pipe with null content and null stream: " + pipe.getFileName());
+					}
+					else
+					{
+						resource.setContent(stream);
+					}
+				}
+				else
+				{
+					resource.setContent(content);
+				}
+
+				resource.setContentType(pipe.getRevisedMimeType());
+				
+				ResourcePropertiesEdit resourceProperties = resource.getPropertiesEdit();
+				resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+				
+				Map values = pipe.getRevisedResourceProperties();
+				Iterator valueIt = values.keySet().iterator();
+				while(valueIt.hasNext())
+				{
+					String pname = (String) valueIt.next();
+					String pvalue = (String) values.get(pname);
+					resourceProperties.addProperty(pname, pvalue);
+				}
+				
+				// description
+				String description = params.getString("description");
+				resourceProperties.addProperty(ResourceProperties.PROP_DESCRIPTION, description);
+				
+				// rights
+				String copyright = params.getString("copyright");
+				String newcopyright = params.getString("newcopyright");
+				boolean copyrightAlert = params.getBoolean("copyrightAlert");
+				
+				if(copyright == null || copyright.trim().length() == 0)
+				{
+					resourceProperties.removeProperty(ResourceProperties.PROP_COPYRIGHT_CHOICE);
+				}
+				else
+				{
+					resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT_CHOICE, copyright);
+				}
+				if(newcopyright == null || newcopyright.trim().length() == 0)
+				{
+					resourceProperties.removeProperty(ResourceProperties.PROP_COPYRIGHT);
+				}
+				else
+				{
+					resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT, newcopyright);
+				}
+				if (copyrightAlert)
+				{
+					resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT_ALERT, Boolean.TRUE.toString());
+				}
+				else
+				{
+					resourceProperties.removeProperty (ResourceProperties.PROP_COPYRIGHT_ALERT);
+				}
+				
+				// availability
+				boolean hidden = params.getBoolean("hidden");
+				boolean use_start_date = params.getBoolean("use_start_date");
+				boolean use_end_date = params.getBoolean("use_end_date");
+				Time releaseDate = null;
+				Time retractDate = null;
+				
+				if(use_start_date)
+				{
+					int begin_year = params.getInt("release_year");
+					int begin_month = params.getInt("release_month");
+					int begin_day = params.getInt("release_day");
+					int begin_hour = params.getInt("release_hour");
+					int begin_min = params.getInt("release_min");
+					String release_ampm = params.getString("release_ampm");
+					if("pm".equals(release_ampm))
+					{
+						begin_hour += 12;
+					}
+					else if(begin_hour == 12)
+					{
+						begin_hour = 0;
+					}
+					releaseDate = TimeService.newTimeLocal(begin_year, begin_month, begin_day, begin_hour, begin_min, 0, 0);
+				}
+				
+				if(use_end_date)
+				{
+					int end_year = params.getInt("retract_year");
+					int end_month = params.getInt("retract_month");
+					int end_day = params.getInt("retract_day");
+					int end_hour = params.getInt("retract_hour");
+					int end_min = params.getInt("retract_min");
+					String retract_ampm = params.getString("retract_ampm");
+					if("pm".equals(retract_ampm))
+					{
+						end_hour += 12;
+					}
+					else if(end_hour == 12)
+					{
+						end_hour = 0;
+					}
+					retractDate = TimeService.newTimeLocal(end_year, end_month, end_day, end_hour, end_min, 0, 0);
+				}
+				
+				resource.setAvailability(hidden, releaseDate, retractDate);
+				
+				// access
+				Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+				if(preventPublicDisplay == null)
+				{
+					preventPublicDisplay = Boolean.FALSE;
+					state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+				}
+				
+				String access_mode = params.getString("access_mode");
+				SortedSet groups = new TreeSet();
+				
+				if(access_mode == null || AccessMode.GROUPED.toString().equals(access_mode))
+				{
+					// we inherit more than one group and must check whether group access changes at this item
+					String[] access_groups = params.getStrings("access_groups");
+					
+					SortedSet new_groups = new TreeSet();
+					if(access_groups != null)
+					{
+						new_groups.addAll(Arrays.asList(access_groups));
+					}
+					new_groups = item.convertToRefs(new_groups);
+					
+					Collection inh_grps = item.getInheritedGroupRefs();
+					boolean groups_are_inherited = (new_groups.size() == inh_grps.size()) && inh_grps.containsAll(new_groups);
+					
+					if(groups_are_inherited)
+					{
+						new_groups.clear();
+						item.setEntityGroupRefs(new_groups);
+						item.setAccess(AccessMode.INHERITED.toString());
+					}
+					else
+					{
+						item.setEntityGroupRefs(new_groups);
+						item.setAccess(AccessMode.GROUPED.toString());
+					}
+					
+					item.setPubview(false);
+				}
+				else if(PUBLIC_ACCESS.equals(access_mode))
+				{
+					if(! preventPublicDisplay.booleanValue() && ! item.isPubviewInherited())
+					{
+						item.setPubview(true);
+						item.setAccess(AccessMode.INHERITED.toString());
+					}
+				}
+				else if(AccessMode.INHERITED.toString().equals(access_mode))
+				{
+					item.setAccess(AccessMode.INHERITED.toString());
+					item.clearGroups();
+					item.setPubview(false);
+				}
+				
+				// update resource with access info
+
+				// notification
+				int noti = NotificationService.NOTI_NONE;
+				// %%STATE_MODE_RESOURCES%%
+				if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
+				{
+					// set noti to none if in dropbox mode
+					noti = NotificationService.NOTI_NONE;
+				}
+				else
+				{
+					// read the notification options
+					String notification = params.getString("notify");
+					if ("r".equals(notification))
+					{
+						noti = NotificationService.NOTI_REQUIRED;
+					}
+					else if ("o".equals(notification))
+					{
+						noti = NotificationService.NOTI_OPTIONAL;
+					}
+				}
+				
+				ContentHostingService.commitResource(resource, noti);
+				
+				toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
+
+				// set to public access if allowed and requested
+				if(!preventPublicDisplay.booleanValue() && PUBLIC_ACCESS.equals(access_mode))
+				{
+					ContentHostingService.setPubView(resource.getId(), true);
+				}
+				
+				// show folder if in hierarchy view
+				SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+				expandedCollections.add(collectionId);
+
+				state.setAttribute(STATE_MODE, MODE_LIST);
+			} 
+			catch (IdUnusedException e) 
+			{
+				logger.warn("IdUnusedException", e);
+			} 
+			catch (PermissionException e) 
+			{
+				logger.warn("PermissionException", e);
+			} 
+			catch (IdInvalidException e) 
+			{
+				logger.warn("IdInvalidException", e);
+			} 
+			catch (ServerOverloadException e) 
+			{
+				logger.warn("ServerOverloadException", e);
+			}
+			catch (OverQuotaException e)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("OverQuotaException ", e);
+			}
+            catch (IdUniquenessException e)
+            {
+	            // TODO Auto-generated catch block
+	            logger.warn("IdUniquenessException ", e);
+            }
+            catch (IdLengthException e)
+            {
+	            // TODO Auto-generated catch block
+	            logger.warn("IdLengthException ", e);
+            }
+			
+		}
+		else if(user_action.equals("cancel"))
+		{
+			if(pipe != null)
+			{
+				ResourceToolAction action = pipe.getAction();
+				if(action == null)
+				{
+					
+				}
+				else 
+				{
+					if(action instanceof InteractionAction)
+					{
+						InteractionAction iAction = (InteractionAction) action;
+						iAction.cancelAction(null, pipe.getInitializationId());
+					}
+				}
+			}
+			state.setAttribute(STATE_MODE, MODE_LIST);
+		}
+	}
+
+	/**
+	* set the state name to be "copy" if any item has been selected for copying
+	*/
+	public void doCopy ( RunData data )
+	{
+		// get the state object
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		// cancel copy if there is one in progress
+		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
+		{
+			initCopyContext(state);
+		}
+
+		// cancel move if there is one in progress
+		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_MOVE_FLAG)))
+		{
+			initMoveContext(state);
+		}
+
+		Vector copyItemsVector = new Vector ();
+
+		String[] copyItems = data.getParameters ().getStrings ("selectedMembers");
+		if (copyItems == null)
+		{
+			// there is no resource selected, show the alert message to the user
+			addAlert(state, rb.getString("choosefile6"));
+			state.setAttribute (STATE_MODE, MODE_LIST);
+		}
+		else
+		{
+			String copyId = NULL_STRING;
+			for (int i = 0; i < copyItems.length; i++)
+			{
+				copyId = copyItems[i];
+				try
+				{
+					ResourceProperties properties = ContentHostingService.getProperties (copyId);
+					/*
+					if (properties.getProperty (ResourceProperties.PROP_IS_COLLECTION).equals (Boolean.TRUE.toString()))
+					{
+						String alert = (String) state.getAttribute(STATE_MESSAGE);
+						if (alert == null || ((alert != null) && (alert.indexOf(rb.getString("notsupported")) == -1)))
+						{
+							addAlert(state, rb.getString("notsupported"));
+						}
+					}
+					*/
+				}
+				catch (PermissionException e)
+				{
+					addAlert(state, rb.getString("notpermis15"));
+				}
+				catch (IdUnusedException e)
+				{
+					addAlert(state,rb.getString("notexist1"));
+				}	// try-catch
+			}
+
+			if (state.getAttribute(STATE_MESSAGE) == null)
+			{
+				state.setAttribute (STATE_COPY_FLAG, Boolean.TRUE.toString());
+
+				copyItemsVector.addAll(Arrays.asList(copyItems));
+				ContentHostingService.eliminateDuplicates(copyItemsVector);
+				state.setAttribute (STATE_COPIED_IDS, copyItemsVector);
+
+			}	// if-else
+		}	// if-else
+
+	}	// doCopy
+
+	/**
+	* set the state name to be "deletecofirm" if any item has been selected for deleting
+	*/
+	public void doDeleteconfirm ( RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		// cancel copy if there is one in progress
+		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
+		{
+			initCopyContext(state);
+		}
+
+		// cancel move if there is one in progress
+		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_MOVE_FLAG)))
+		{
+			initMoveContext(state);
+		}
+
+		Set deleteIdSet  = new TreeSet();
+		String[] deleteIds = data.getParameters ().getStrings ("selectedMembers");
+		if (deleteIds == null)
+		{
+			// there is no resource selected, show the alert message to the user
+			addAlert(state, rb.getString("choosefile3"));
+		}
+		else
+		{
+			deleteIdSet.addAll(Arrays.asList(deleteIds));
+			deleteItems(state, deleteIdSet);
+		}
+
+		if (state.getAttribute(STATE_MESSAGE) == null)
+		{
+			state.setAttribute (STATE_MODE, MODE_DELETE_CONFIRM);
+			state.setAttribute(STATE_LIST_SELECTIONS, deleteIdSet);
+		}
+
+
+	}	// doDeleteconfirm
+
+	public void doDispatchAction(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		
+		// get the parameter-parser
+		ParameterParser params = data.getParameters();
+		
+		String action_string = params.getString("rt_action");
+		String selectedItemId = params.getString("selectedItemId");
+		
+		String[] parts = action_string.split(ResourceToolAction.ACTION_DELIMITER);
+		String typeId = parts[0];
+		String actionId = parts[1];
+		
+		// ResourceType type = getResourceType(selectedItemId, state);
+		ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+		if(registry == null)
+		{
+			registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+			state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
+		}
+		ResourceType type = registry.getType(typeId); 
+		
+		Reference reference = EntityManager.newReference(ContentHostingService.getReference(selectedItemId));
+		
+		ResourceToolAction action = type.getAction(actionId);
+		if(action == null)
+		{
+			
+		}
+		else if(action instanceof InteractionAction)
+		{
+			ToolSession toolSession = SessionManager.getCurrentToolSession();
+			// toolSession.setAttribute(ResourceToolAction.ACTION_ID, actionId);
+			// toolSession.setAttribute(ResourceToolAction.RESOURCE_TYPE, typeId);
+			
+			state.setAttribute(STATE_CREATE_WIZARD_COLLECTION_ID, selectedItemId);
+			
+			ContentEntity entity = (ContentEntity) reference.getEntity();
+			InteractionAction iAction = (InteractionAction) action;
+			String intitializationId = iAction.initializeAction(reference);
+			
+			ResourceToolActionPipe pipe = registry.newPipe(intitializationId, action);
+			pipe.setContentEntity(entity);
+			pipe.setHelperId(iAction.getHelperId());
+			
+			toolSession.setAttribute(ResourceToolAction.ACTION_PIPE, pipe);
+
+			ResourceProperties props = entity.getProperties();
+
+			List propKeys = iAction.getRequiredPropertyKeys();
+			if(propKeys != null)
+			{
+				Iterator it = propKeys.iterator();
+				while(it.hasNext())
+				{
+					String key = (String) it.next();
+					Object value = props.get(key);
+					if(value == null)
+					{
+						// do nothing
+					}
+					else if(value instanceof String)
+					{
+						pipe.setResourceProperty(key, (String) value);
+					}
+					else if(value instanceof List)
+					{
+						pipe.setResourceProperty(key, (List) value);
+					}
+				}
+			}
+			
+			if(entity.isResource())
+			{
+				try 
+				{
+					pipe.setMimeType(((ContentResource) entity).getContentType());
+					pipe.setContent(((ContentResource) entity).getContent());
+				} 
+				catch (ServerOverloadException e) 
+				{
+					logger.warn(this + ".doDispatchAction ServerOverloadException", e);
+				}
+			}
+
+			startHelper(data.getRequest(), iAction.getHelperId());
+		}
+		else if(action instanceof ServiceLevelAction)
+		{
+			ServiceLevelAction sAction = (ServiceLevelAction) action;
+			sAction.initializeAction(reference);
+			switch(sAction.getActionType())
+			{
+				case COPY:
+					List<String> items_to_be_copied = new Vector<String>();
+					if(selectedItemId != null)
+					{
+						items_to_be_copied.add(selectedItemId);
+					}
+					state.setAttribute(STATE_ITEMS_TO_BE_COPIED, items_to_be_copied);
+					break;
+				case DUPLICATE:
+					duplicateItem(state, selectedItemId, ContentHostingService.getContainingCollectionId(selectedItemId));
+					break;
+				case DELETE:
+					deleteItem(state, selectedItemId);
+					if (state.getAttribute(STATE_MESSAGE) == null)
+					{
+						// need new context
+						state.setAttribute (STATE_MODE, MODE_DELETE_FINISH);
+					}
+					break;
+				case MOVE:
+					List<String> items_to_be_moved = new Vector<String>();
+					if(selectedItemId != null)
+					{
+						items_to_be_moved.add(selectedItemId);
+					}
+					state.setAttribute(STATE_ITEMS_TO_BE_MOVED, items_to_be_moved);
+					break;
+				case VIEW_METADATA:
+					break;
+				case REVISE_METADATA:
+					state.setAttribute(STATE_REVISE_PROPERTIES_ENTITY_ID, selectedItemId);
+					state.setAttribute(STATE_REVISE_PROPERTIES_ACTION, action);
+					state.setAttribute (STATE_MODE, MODE_REVISE_METADATA);
+					break;
+				case CUSTOM_TOOL_ACTION:
+					// do nothing
+					break;
+				case NEW_UPLOAD:
+					break;
+				case NEW_FOLDER:
+					break;
+				case CREATE:
+					break;
+				case REVISE_CONTENT:
+					break;
+				case REPLACE_CONTENT:
+					break;
+				case PASTE_MOVED:
+					pasteItem(state, selectedItemId);
+					break;
+				case PASTE_COPIED:
+					pasteItem(state, selectedItemId);
+					break;
+				case REVISE_ORDER:
+					state.setAttribute(STATE_REORDER_FOLDER, selectedItemId);
+					state.setAttribute(STATE_MODE, MODE_REORDER);
+					break;
+				default:
+					break;
+			}
+			// not quite right for actions involving user interaction in Resources tool.
+			// For example, with delete, this should be after the confirmation and actual deletion
+			// Need mechanism to remember to do it later
+			sAction.finalizeAction(reference);
+			
+		}
+	}
+
+	/**
+	* Add the collection id into the expanded collection list
+	 * @throws PermissionException
+	 * @throws TypeException
+	 * @throws IdUnusedException
+	*/
+	public void doExpand_collection(RunData data) throws IdUnusedException, TypeException, PermissionException
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		SortedSet expandedItems = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+		if(expandedItems == null)
+		{
+			expandedItems = new TreeSet();
+			state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedItems);
+		}
+
+		//get the ParameterParser from RunData
+		ParameterParser params = data.getParameters ();
+
+		// save the current selections
+		Set selectedSet  = new TreeSet();
+		String[] selectedItems = params.getStrings ("selectedMembers");
+		if(selectedItems != null)
+		{
+			selectedSet.addAll(Arrays.asList(selectedItems));
+		}
+		state.setAttribute(STATE_LIST_SELECTIONS, selectedSet);
+
+		String id = params.getString("collectionId");
+		expandedItems.add(id);
+
+		// add this folder id into the set to be event-observed
+		addObservingPattern(id, state);
+
+	}	// doExpand_collection
+
+	/**
+	* Expand all the collection resources.
+	*/
+	public void doExpandall ( RunData data)
+	{
+		// get the state object
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		//get the ParameterParser from RunData
+		ParameterParser params = data.getParameters ();
+
+		// save the current selections
+		Set selectedSet  = new TreeSet();
+		String[] selectedItems = params.getStrings("selectedMembers");
+		if(selectedItems != null)
+		{
+			selectedSet.addAll(Arrays.asList(selectedItems));
+		}
+		state.setAttribute(STATE_LIST_SELECTIONS, selectedSet);
+
+		// expansion actually occurs in getBrowseItems method.
+		state.setAttribute(STATE_EXPAND_ALL_FLAG,  Boolean.TRUE.toString());
+		state.setAttribute(STATE_NEED_TO_EXPAND_ALL, Boolean.TRUE.toString());
+
+	}	// doExpandall
+
+	/**
+	* doDelete to delete the selected collection or resource items
+	*/
+	public void doFinalizeDelete( RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		// cancel copy if there is one in progress
+		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
+		{
+			initCopyContext(state);
+		}
+
+		// cancel move if there is one in progress
+		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_MOVE_FLAG)))
+		{
+			initMoveContext(state);
+		}
+
+		ParameterParser params = data.getParameters ();
+
+		List items = (List) state.getAttribute(STATE_DELETE_SET);
+
+		// Vector deleteIds = (Vector) state.getAttribute (STATE_DELETE_IDS);
+
+		// delete the lowest item in the hireachy first
+		Hashtable deleteItems = new Hashtable();
+		// String collectionId = (String) state.getAttribute (STATE_COLLECTION_ID);
+		int maxDepth = 0;
+		int depth = 0;
+
+		Iterator it = items.iterator();
+		while(it.hasNext())
+		{
+			ListItem item = (ListItem) it.next();
+			String[] parts = item.getId().split(Entity.SEPARATOR);
+			depth = parts.length;
+			if (depth > maxDepth)
+			{
+				maxDepth = depth;
+			}
+			List v = (List) deleteItems.get(new Integer(depth));
+			if(v == null)
+			{
+				v = new Vector();
+			}
+			v.add(item);
+			deleteItems.put(new Integer(depth), v);
+		}
+
+		boolean isCollection = false;
+		for (int j=maxDepth; j>0; j--)
+		{
+			List v = (List) deleteItems.get(new Integer(j));
+			if (v==null)
+			{
+				v = new Vector();
+			}
+			Iterator itemIt = v.iterator();
+			while(itemIt.hasNext())
+			{
+				ListItem item = (ListItem) itemIt.next();
+				try
+				{
+					if (item.isCollection())
+					{
+						ContentHostingService.removeCollection(item.getId());
+					}
+					else
+					{
+						ContentHostingService.removeResource(item.getId());
+					}
+				}
+				catch (PermissionException e)
+				{
+					addAlert(state, rb.getString("notpermis6") + " " + item.getName() + ". ");
+				}
+				catch (IdUnusedException e)
+				{
+					addAlert(state,rb.getString("notexist1"));
+				}
+				catch (TypeException e)
+				{
+					addAlert(state, rb.getString("deleteres") + " " + item.getName() + " " + rb.getString("wrongtype"));
+				}
+				catch (ServerOverloadException e)
+				{
+					addAlert(state, rb.getString("failed"));
+				}
+				catch (InUseException e)
+				{
+					addAlert(state, rb.getString("deleteres") + " " + item.getName() + " " + rb.getString("locked"));
+				}// try - catch
+				catch(RuntimeException e)
+				{
+					logger.debug("ResourcesAction.doDelete ***** Unknown Exception ***** " + e.getMessage());
+					addAlert(state, rb.getString("failed"));
+				}
+			}	// for
+
+		}	// for
+
+		if (state.getAttribute(STATE_MESSAGE) == null)
+		{
+			// delete sucessful
+			state.setAttribute (STATE_MODE, MODE_LIST);
+			state.removeAttribute(STATE_DELETE_SET);
+			state.removeAttribute(STATE_NON_EMPTY_DELETE_SET);
+
+			if (((String) state.getAttribute (STATE_SELECT_ALL_FLAG)).equals (Boolean.TRUE.toString()))
+			{
+				state.setAttribute (STATE_SELECT_ALL_FLAG, Boolean.FALSE.toString());
+			}
+
+		}	// if-else
+
+	}	// doDelete
+
+    /**
+	 * @param data
+	 */
+	public void doHide_metadata(RunData data)
+	{
+		ParameterParser params = data.getParameters ();
+		String name = params.getString("metadataGroup");
+
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		List metadataGroups = (List) state.getAttribute(STATE_METADATA_GROUPS);
+		if(metadataGroups != null && ! metadataGroups.isEmpty())
+		{
+			boolean found = false;
+			MetadataGroup group = null;
+			Iterator it = metadataGroups.iterator();
+			while(!found && it.hasNext())
+			{
+				group = (MetadataGroup) it.next();
+				found = (name.equals(Validator.escapeUrl(group.getName())) || name.equals(group.getName()));
+			}
+			if(found)
+			{
+				group.setShowing(false);
+			}
+		}
+
+	}	// doHide_metadata
+
+	/**
+	 * @param data
+	 */
+	public void doHideOtherSites(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		state.setAttribute(STATE_SHOW_OTHER_SITES, Boolean.FALSE.toString());
+
+		//get the ParameterParser from RunData
+		ParameterParser params = data.getParameters ();
+
+		// save the current selections
+		Set selectedSet  = new TreeSet();
+		String[] selectedItems = params.getStrings("selectedMembers");
+		if(selectedItems != null)
+		{
+			selectedSet.addAll(Arrays.asList(selectedItems));
+		}
+		state.setAttribute(STATE_LIST_SELECTIONS, selectedSet);
+
+	}
+
+
+	public void doHierarchy(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		state.setAttribute(STATE_LIST_PREFERENCE, LIST_HIERARCHY);
+	}
+
+	//	private static void resetCurrentMode(SessionState state)
+//	{
+//		String mode = (String) state.getAttribute(STATE_MODE);
+//		if(isStackEmpty(state))
+//		{
+//			if(MODE_HELPER.equals(mode))
+//			{
+//				cleanupState(state);
+//				state.setAttribute(STATE_RESOURCES_HELPER_MODE, MODE_ATTACHMENT_DONE);
+//			}
+//			else
+//			{
+//				state.setAttribute(STATE_MODE, MODE_LIST);
+//				state.removeAttribute(STATE_RESOURCES_HELPER_MODE);
+//			}
+//			return;
+//		}
+//		Map current_stack_frame = peekAtStack(state);
+//		String helper_mode = (String) current_stack_frame.get(STATE_RESOURCES_HELPER_MODE);
+//		if(helper_mode != null)
+//		{
+//			state.setAttribute(STATE_RESOURCES_HELPER_MODE, helper_mode);
+//		}
+//
+//	}
+//
+	/**
+	* Expand all the collection resources and put in EXPANDED_COLLECTIONS attribute.
+	*/
+	public void doList ( RunData data)
+	{
+		// get the state object
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		state.setAttribute (STATE_MODE, MODE_LIST);
+
+	}	// doList
+
+	/**
+	* Handle user's selection of items to be moved.
+	*/
+	public void doMove ( RunData data )
+	{
+		// get the state object
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		List moveItemsVector = new Vector();
+
+		// cancel copy if there is one in progress
+		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
+		{
+			initCopyContext(state);
+		}
+
+		// cancel move if there is one in progress
+		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_MOVE_FLAG)))
+		{
+			initMoveContext(state);
+		}
+
+		state.setAttribute(STATE_LIST_SELECTIONS, new TreeSet());
+
+		String[] moveItems = data.getParameters ().getStrings ("selectedMembers");
+		if (moveItems == null)
+		{
+			// there is no resource selected, show the alert message to the user
+			addAlert(state, rb.getString("choosefile6"));
+			state.setAttribute (STATE_MODE, MODE_LIST);
+		}
+		else
+		{
+			String moveId = NULL_STRING;
+			for (int i = 0; i < moveItems.length; i++)
+			{
+				moveId = moveItems[i];
+				try
+				{
+					ResourceProperties properties = ContentHostingService.getProperties (moveId);
+					/*
+					if (properties.getProperty (ResourceProperties.PROP_IS_COLLECTION).equals (Boolean.TRUE.toString()))
+					{
+						String alert = (String) state.getAttribute(STATE_MESSAGE);
+						if (alert == null || ((alert != null) && (alert.indexOf(rb.getString("notsupported")) == -1)))
+						{
+							addAlert(state, rb.getString("notsupported"));
+						}
+					}
+					*/
+				}
+				catch (PermissionException e)
+				{
+					addAlert(state, rb.getString("notpermis15"));
+				}
+				catch (IdUnusedException e)
+				{
+					addAlert(state,rb.getString("notexist1"));
+				}	// try-catch
+			}
+
+			if (state.getAttribute(STATE_MESSAGE) == null)
+			{
+				state.setAttribute (STATE_MOVE_FLAG, Boolean.TRUE.toString());
+
+				moveItemsVector.addAll(Arrays.asList(moveItems));
+
+				ContentHostingService.eliminateDuplicates(moveItemsVector);
+
+				state.setAttribute (STATE_MOVED_IDS, moveItemsVector);
+
+			}	// if-else
+		}	// if-else
+
+	}	// doMove
+
+	/**
+	* Navigate in the resource hireachy
+	*/
+	public void doNavigate ( RunData data )
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		if (state.getAttribute (STATE_SELECT_ALL_FLAG)!=null && state.getAttribute (STATE_SELECT_ALL_FLAG).equals (Boolean.TRUE.toString()))
+		{
+			state.setAttribute (STATE_SELECT_ALL_FLAG, Boolean.FALSE.toString());
+		}
+
+		if (state.getAttribute (STATE_EXPAND_ALL_FLAG)!=null && state.getAttribute (STATE_EXPAND_ALL_FLAG).equals (Boolean.TRUE.toString()))
+		{
+			state.setAttribute (STATE_EXPAND_ALL_FLAG, Boolean.FALSE.toString());
+		}
+
+		// save the current selections
+		Set selectedSet  = new TreeSet();
+		String[] selectedItems = data.getParameters ().getStrings ("selectedMembers");
+		if(selectedItems != null)
+		{
+			selectedSet.addAll(Arrays.asList(selectedItems));
+		}
+		state.setAttribute(STATE_LIST_SELECTIONS, selectedSet);
+
+		String collectionId = data.getParameters().getString ("collectionId");
+		String navRoot = data.getParameters().getString("navRoot");
+		state.setAttribute(STATE_NAVIGATION_ROOT, navRoot);
+
+		// the exception message
+
+		try
+		{
+			ContentHostingService.checkCollection(collectionId);
+		}
+		catch(PermissionException e)
+		{
+			addAlert(state, " " + rb.getString("notpermis3") + " " );
+		}
+		catch (IdUnusedException e)
+		{
+			addAlert(state, " " + rb.getString("notexist2") + " ");
+		}
+		catch (TypeException e)
+		{
+			addAlert(state," " + rb.getString("notexist2") + " ");
+		}
+
+		if (state.getAttribute(STATE_MESSAGE) == null)
+		{
+			String oldCollectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
+			// update this folder id in the set to be event-observed
+			removeObservingPattern(oldCollectionId, state);
+			addObservingPattern(collectionId, state);
+
+			state.setAttribute(STATE_COLLECTION_ID, collectionId);
+			
+			SortedSet currentMap = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+			if(currentMap == null)
+			{
+				currentMap = new TreeSet();
+				state.setAttribute(STATE_EXPANDED_COLLECTIONS, currentMap);
+			}
+			
+			Map sortMap = (Map) state.getAttribute(STATE_EXPANDED_FOLDER_SORT_MAP);
+			if(sortMap == null)
+			{
+				sortMap = new Hashtable();
+				state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, sortMap);
+			}
+			
+			Iterator it = currentMap.iterator();
+			while(it.hasNext())
+			{
+				String id = (String) it.next();
+				if(id.startsWith(collectionId))
+				{
+					it.remove();
+					sortMap.remove(id);
+					removeObservingPattern(id, state);
+				}
+			}
+			
+			if(!currentMap.contains(collectionId))
+			{
+				currentMap.add (collectionId);
+
+				// add this folder id into the set to be event-observed
+				addObservingPattern(collectionId, state);
+			}
+			//state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, new Hashtable());
+		}
+
+	}	// doNavigate
+
+	/**
+	* Fire up the permissions editor for the tool's permissions
+	*/
+	public void doPermissions(RunData data, Context context)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
+
+		// cancel copy if there is one in progress
+		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
+		{
+			initCopyContext(state);
+		}
+
+		// cancel move if there is one in progress
+		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_MOVE_FLAG)))
+		{
+			initMoveContext(state);
+		}
+
+		// should we save here?
+		state.setAttribute(STATE_LIST_SELECTIONS, new TreeSet());
+
+		// get the current home collection id and the related site
+		String collectionId = (String) state.getAttribute (STATE_HOME_COLLECTION_ID);
+		Reference ref = EntityManager.newReference(ContentHostingService.getReference(collectionId));
+		String siteRef = SiteService.siteReference(ref.getContext());
+
+		// setup for editing the permissions of the site for this tool, using the roles of this site, too
+		state.setAttribute(PermissionsHelper.TARGET_REF, siteRef);
+
+		// ... with this description
+		state.setAttribute(PermissionsHelper.DESCRIPTION, rb.getString("setpermis1")
+				+ SiteService.getSiteDisplay(ref.getContext()));
+
+		// ... showing only locks that are prpefixed with this
+		state.setAttribute(PermissionsHelper.PREFIX, "content.");
+
+		// get into helper mode with this helper tool
+		startHelper(data.getRequest(), "sakai.permissions.helper");
+
+	}	// doPermissions
+
+	/**
+	* Sort based on the given property
+	*/
+	public void doReorder ( RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		//get the ParameterParser from RunData
+		ParameterParser params = data.getParameters ();
+		
+		boolean isPrioritySortEnabled = ContentHostingService.isSortByPriorityEnabled();
+
+
+		String folderId = params.getString ("folderId");
+		if(folderId == null)
+		{
+			addAlert(state, "error");
+		}
+		
+		String sortBy = (String) state.getAttribute(STATE_REORDER_SORT_BY);
+		if(sortBy == null)
+		{
+			sortBy = ResourceProperties.PROP_CONTENT_PRIORITY;
+			state.setAttribute(STATE_REORDER_SORT_BY, sortBy);
+		}
+		String sortedAsc = (String) state.getAttribute (STATE_REORDER_SORT_ASC);
+		if(sortedAsc == null)
+		{
+			sortedAsc = Boolean.TRUE.toString();
+			state.setAttribute(STATE_REORDER_SORT_ASC, sortedAsc);
+		}
+
+		Comparator comparator = ContentHostingService.newContentHostingComparator(sortBy, Boolean.getBoolean(sortedAsc));
+		state.setAttribute(STATE_REORDER_SORT, comparator);
+
+		if (state.getAttribute(STATE_MESSAGE) == null)
+		{
+			state.setAttribute(STATE_REORDER_FOLDER, folderId);
+			state.setAttribute (STATE_MODE, MODE_REORDER);
+
+		}	// if-else
+
+	}	// doReorder
+
+	public void doReviseProperties(RunData data)
+	{
+		// get the state object
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		
+		// get the parameter-parser
+		ParameterParser params = data.getParameters();
+		
+		String user_action = params.getString("user_action");
+		
+		if(user_action.equals("save"))
+		{
+			String entityId = (String) state.getAttribute(STATE_REVISE_PROPERTIES_ENTITY_ID);
+			ResourcesItem item = (ResourcesItem) state.getAttribute(STATE_REVISE_PROPERTIES_ITEM);
+			ResourceToolAction action = (ResourceToolAction) state.getAttribute(STATE_REVISE_PROPERTIES_ACTION);
+			String name = params.getString("name");
+			String description = params.getString("description");
+			String resourceType = action.getTypeId();
+			// rights
+			String copyright = params.getString("copyright");
+			String newcopyright = params.getString("newcopyright");
+			boolean copyrightAlert = params.getBoolean("copyrightAlert");
+			
+			// availability
+			boolean hidden = params.getBoolean("hidden");
+			boolean use_start_date = params.getBoolean("use_start_date");
+			boolean use_end_date = params.getBoolean("use_end_date");
+			Time releaseDate = null;
+			Time retractDate = null;
+			
+			if(use_start_date)
+			{
+				int begin_year = params.getInt("release_year");
+				int begin_month = params.getInt("release_month");
+				int begin_day = params.getInt("release_day");
+				int begin_hour = params.getInt("release_hour");
+				int begin_min = params.getInt("release_min");
+				String release_ampm = params.getString("release_ampm");
+				if("pm".equals(release_ampm))
+				{
+					begin_hour += 12;
+				}
+				else if(begin_hour == 12)
+				{
+					begin_hour = 0;
+				}
+				releaseDate = TimeService.newTimeLocal(begin_year, begin_month, begin_day, begin_hour, begin_min, 0, 0);
+			}
+			
+			if(use_end_date)
+			{
+				int end_year = params.getInt("retract_year");
+				int end_month = params.getInt("retract_month");
+				int end_day = params.getInt("retract_day");
+				int end_hour = params.getInt("retract_hour");
+				int end_min = params.getInt("retract_min");
+				String retract_ampm = params.getString("retract_ampm");
+				if("pm".equals(retract_ampm))
+				{
+					end_hour += 12;
+				}
+				else if(end_hour == 12)
+				{
+					end_hour = 0;
+				}
+				retractDate = TimeService.newTimeLocal(end_year, end_month, end_day, end_hour, end_min, 0, 0);
+			}
+			
+			// access
+			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+			if(preventPublicDisplay == null)
+			{
+				preventPublicDisplay = Boolean.FALSE;
+				state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+			}
+			
+			String access_mode = params.getString("access_mode");
+			SortedSet groups = new TreeSet();
+			
+			if(access_mode == null || AccessMode.GROUPED.toString().equals(access_mode))
+			{
+				// we inherit more than one group and must check whether group access changes at this item
+				String[] access_groups = params.getStrings("access_groups");
+				
+				SortedSet new_groups = new TreeSet();
+				if(access_groups != null)
+				{
+					new_groups.addAll(Arrays.asList(access_groups));
+				}
+				//new_groups = item.convertToRefs(new_groups);
+				
+//				Collection inh_grps = null;
+//				//item.getInheritedGroupRefs();
+//				boolean groups_are_inherited = (new_groups.size() == inh_grps.size()) && inh_grps.containsAll(new_groups);
+//				
+//				if(groups_are_inherited)
+//				{
+//					new_groups.clear();
+//					item.setEntityGroupRefs(new_groups);
+//					item.setAccess(AccessMode.INHERITED.toString());
+//				}
+//				else
+//				{
+//					item.setEntityGroupRefs(new_groups);
+//					item.setAccess(AccessMode.GROUPED.toString());
+//				}
+//				
+//				item.setPubview(false);
+			}
+			else if(PUBLIC_ACCESS.equals(access_mode))
+			{
+//				if(! preventPublicDisplay.booleanValue() && ! item.isPubviewInherited())
+//				{
+//					item.setPubview(true);
+//					item.setAccess(AccessMode.INHERITED.toString());
+//				}
+			}
+			else if(AccessMode.INHERITED.toString().equals(access_mode))
+			{
+//				item.setAccess(AccessMode.INHERITED.toString());
+//				item.clearGroups();
+//				item.setPubview(false);
+			}
+
+			// notification
+			int noti = NotificationService.NOTI_NONE;
+			// %%STATE_MODE_RESOURCES%%
+			if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES)))
+			{
+				// set noti to none if in dropbox mode
+				noti = NotificationService.NOTI_NONE;
+			}
+			else
+			{
+				// read the notification options
+				String notification = params.getString("notify");
+				if ("r".equals(notification))
+				{
+					noti = NotificationService.NOTI_REQUIRED;
+				}
+				else if ("o".equals(notification))
+				{
+					noti = NotificationService.NOTI_OPTIONAL;
+				}
+			}
+			
+
+			// set to public access if allowed and requested
+			if(!preventPublicDisplay.booleanValue() && PUBLIC_ACCESS.equals(access_mode))
+			{
+				ContentHostingService.setPubView(entityId, true);
+			}
+			
+
+			try 
+			{
+				if(item.isCollection())
+				{
+					ContentCollectionEdit entity = ContentHostingService.editCollection(entityId);
+					ResourcePropertiesEdit resourceProperties = entity.getPropertiesEdit();
+					resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+					resourceProperties.addProperty(ResourceProperties.PROP_DESCRIPTION, description);
+					entity.setAvailability(hidden, releaseDate, retractDate);
+					ContentHostingService.commitCollection(entity);
+				}
+				else
+				{
+					ContentResourceEdit entity = ContentHostingService.editResource(entityId);
+					entity.setResourceType(resourceType);
+					ResourcePropertiesEdit resourceProperties = entity.getPropertiesEdit();
+					resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+					resourceProperties.addProperty(ResourceProperties.PROP_DESCRIPTION, description);
+					entity.setAvailability(hidden, releaseDate, retractDate);
+					
+					if(copyright == null || copyright.trim().length() == 0)
+					{
+						resourceProperties.removeProperty(ResourceProperties.PROP_COPYRIGHT_CHOICE);
+					}
+					else
+					{
+						resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT_CHOICE, copyright);
+					}
+					if(newcopyright == null || newcopyright.trim().length() == 0)
+					{
+						resourceProperties.removeProperty(ResourceProperties.PROP_COPYRIGHT);
+					}
+					else
+					{
+						resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT, newcopyright);
+					}
+					if (copyrightAlert)
+					{
+						resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT_ALERT, Boolean.TRUE.toString());
+					}
+					else
+					{
+						resourceProperties.removeProperty (ResourceProperties.PROP_COPYRIGHT_ALERT);
+					}
+					
+					ContentHostingService.commitResource(entity, noti);
+				}
+
+				state.setAttribute(STATE_MODE, MODE_LIST);
+			} 
+			catch (IdUnusedException e) 
+			{
+				logger.warn("IdUnusedException", e);
+			} 
+			catch (TypeException e) 
+			{
+				logger.warn("TypeException", e);
+			} 
+			catch (PermissionException e) 
+			{
+				logger.warn("PermissionException", e);
+			} 
+			catch (ServerOverloadException e) 
+			{
+				logger.warn("ServerOverloadException", e);
+			}
+			catch (OverQuotaException e)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("OverQuotaException ", e);
+			}
+			catch (InUseException e)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("InUseException ", e);
+			}
+			
+		}
+		else if(user_action.equals("cancel"))
+		{
+			state.setAttribute(STATE_MODE, MODE_LIST);
+		}
+	}
+
+	/**
+	* Sort based on the given property
+	*/
+	public void doSaveOrder ( RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		//get the ParameterParser from RunData
+		ParameterParser params = data.getParameters ();
+
+		String flow = params.getString("flow");
+		
+		if("save".equalsIgnoreCase(flow))
+		{
+			String folderId = params.getString ("folderId");
+			if(folderId == null)
+			{
+				// TODO: log error
+				// TODO: move strings to rb
+				addAlert(state, "Unable to complete Sort");
+			}
+			else
+			{
+				try
+				{
+					ContentCollectionEdit collection = ContentHostingService.editCollection(folderId);
+					List memberIds = collection.getMembers();
+					Map priorities = new Hashtable();
+					Iterator it = memberIds.iterator();
+					while(it.hasNext())
+					{
+						String memberId = (String) it.next();
+						int position = params.getInt("position_" + Validator.escapeUrl(memberId));
+						priorities.put(memberId, new Integer(position));
+					}
+					collection.setPriorityMap(priorities);
+					
+					ContentHostingService.commitCollection(collection);
+					
+					SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+					if(expandedCollections == null)
+					{
+						expandedCollections = (SortedSet) new TreeSet();
+						state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
+					}
+					expandedCollections.add(folderId);
+					
+					Comparator comparator = ContentHostingService.newContentHostingComparator(ResourceProperties.PROP_CONTENT_PRIORITY, true);
+					Map expandedFolderSortMap = (Map) state.getAttribute(STATE_EXPANDED_FOLDER_SORT_MAP);
+					if(expandedFolderSortMap == null)
+					{
+						expandedFolderSortMap = new Hashtable();
+						state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, expandedFolderSortMap);
+					}
+					expandedFolderSortMap.put(folderId, comparator);
+				}
+				catch(IdUnusedException e)
+				{
+					// TODO: log error
+					// TODO: move strings to rb
+					addAlert(state, "Unable to complete Sort");
+				}
+				catch(TypeException e)
+				{
+					// TODO: log error
+					// TODO: move strings to rb
+					addAlert(state, "Unable to complete Sort");
+				}
+				catch(PermissionException e)
+				{
+					// TODO: log error
+					// TODO: move strings to rb
+					addAlert(state, "Unable to complete Sort");
+				}
+				catch(InUseException e)
+				{
+					// TODO: log error
+					// TODO: move strings to rb
+					addAlert(state, "Unable to complete Sort");
+				}
+			}
+		}
+
+		if (state.getAttribute(STATE_MESSAGE) == null)
+		{
+			state.setAttribute (STATE_MODE, MODE_LIST);
+
+		}	// if-else
+
+	}	// doSaveOrder
+
+	/**
+	 * @param data
+	 */
+	public void doShow_metadata(RunData data)
+	{
+		ParameterParser params = data.getParameters ();
+		String name = params.getString("metadataGroup");
+
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		List metadataGroups = (List) state.getAttribute(STATE_METADATA_GROUPS);
+		if(metadataGroups != null && ! metadataGroups.isEmpty())
+		{
+			boolean found = false;
+			MetadataGroup group = null;
+			Iterator it = metadataGroups.iterator();
+			while(!found && it.hasNext())
+			{
+				group = (MetadataGroup) it.next();
+				found = (name.equals(Validator.escapeUrl(group.getName())) || name.equals(group.getName()));
+			}
+			if(found)
+			{
+				group.setShowing(true);
+			}
+		}
+
+	}	// doShow_metadata
+
+	/**
+	* Show information about WebDAV
+	*/
+	public void doShow_webdav ( RunData data )
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		state.setAttribute(STATE_LIST_SELECTIONS, new TreeSet());
+
+		state.setAttribute (STATE_MODE, MODE_DAV);
+
+		// cancel copy if there is one in progress
+		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_COPY_FLAG)))
+		{
+			initCopyContext(state);
+		}
+
+		// cancel move if there is one in progress
+		if(! Boolean.FALSE.toString().equals(state.getAttribute (STATE_MOVE_FLAG)))
+		{
+			initMoveContext(state);
+		}
+
+	}	// doShow_webdav
+
+			
+
+
+	public void doShowMembers(RunData data)
+	{
+		// get the state object
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		
+		// get the parameter-parser
+		ParameterParser params = data.getParameters();
+		
+		// get the item to be expanded
+		String itemId = params.getString("item");
+		if(itemId != null)
+		{
+			// put the itemId into state
+			state.setAttribute(STATE_COLUMN_ITEM_ID, itemId);
+		}
+	}
+
+	/**
+	 * @param data
+	 */
+	public void doShowOtherSites(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		//get the ParameterParser from RunData
+		ParameterParser params = data.getParameters ();
+
+		// save the current selections
+		Set selectedSet  = new TreeSet();
+		String[] selectedItems = params.getStrings("selectedMembers");
+		if(selectedItems != null)
+		{
+			selectedSet.addAll(Arrays.asList(selectedItems));
+		}
+		state.setAttribute(STATE_LIST_SELECTIONS, selectedSet);
+
+		state.setAttribute(STATE_SHOW_OTHER_SITES, Boolean.TRUE.toString());
+	}
+
+	/**
+	* Sort based on the given property
+	*/
+	public void doSort ( RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		//get the ParameterParser from RunData
+		ParameterParser params = data.getParameters ();
+
+		// save the current selections
+		Set selectedSet  = new TreeSet();
+		String[] selectedItems = data.getParameters ().getStrings ("selectedMembers");
+		if(selectedItems != null)
+		{
+			selectedSet.addAll(Arrays.asList(selectedItems));
+		}
+		state.setAttribute(STATE_LIST_SELECTIONS, selectedSet);
+
+		String criteria = params.getString ("criteria");
+
+		if (criteria.equals ("title"))
+		{
+			criteria = ResourceProperties.PROP_DISPLAY_NAME;
+		}
+		else if (criteria.equals ("size"))
+		{
+			criteria = ResourceProperties.PROP_CONTENT_LENGTH;
+		}
+		else if (criteria.equals ("created by"))
+		{
+			criteria = ResourceProperties.PROP_CREATOR;
+		}
+		else if (criteria.equals ("last modified"))
+		{
+			criteria = ResourceProperties.PROP_MODIFIED_DATE;
+		}
+		else if (criteria.equals("priority") && ContentHostingService.isSortByPriorityEnabled())
+		{
+			// if error, use title sort
+			criteria = ResourceProperties.PROP_CONTENT_PRIORITY;
+		}
+		else
+		{
+			criteria = ResourceProperties.PROP_DISPLAY_NAME;
+		}
+
+		String sortBy_attribute = STATE_SORT_BY;
+		String sortAsc_attribute = STATE_SORT_ASC;
+		String comparator_attribute = STATE_LIST_VIEW_SORT;
+		
+		if(state.getAttribute(STATE_MODE).equals(MODE_REORDER))
+		{
+			sortBy_attribute = STATE_REORDER_SORT_BY;
+			sortAsc_attribute = STATE_REORDER_SORT_ASC;
+			comparator_attribute = STATE_REORDER_SORT;
+		}
+		// current sorting sequence
+		String asc = NULL_STRING;
+		if (!criteria.equals (state.getAttribute (sortBy_attribute)))
+		{
+			state.setAttribute (sortBy_attribute, criteria);
+			asc = Boolean.TRUE.toString();
+			state.setAttribute (sortAsc_attribute, asc);
+		}
+		else
+		{
+			// current sorting sequence
+			asc = (String) state.getAttribute (sortAsc_attribute);
+
+			//toggle between the ascending and descending sequence
+			if (asc.equals (Boolean.TRUE.toString()))
+			{
+				asc = Boolean.FALSE.toString();
+			}
+			else
+			{
+				asc = Boolean.TRUE.toString();
+			}
+			state.setAttribute (sortAsc_attribute, asc);
+		}
+
+		if (state.getAttribute(STATE_MESSAGE) == null)
+		{
+			Comparator comparator = ContentHostingService.newContentHostingComparator(criteria, Boolean.getBoolean(asc));
+			state.setAttribute(comparator_attribute, comparator);
+			
+			// sort sucessful
+			// state.setAttribute (STATE_MODE, MODE_LIST);
+
+		}	// if-else
+
+	}	// doSort
+
+	/**
+	* Unexpand all the collection resources
+	*/
+	public void doUnexpandall ( RunData data)
+	{
+		// get the state object
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		//get the ParameterParser from RunData
+		ParameterParser params = data.getParameters ();
+
+		// save the current selections
+		Set selectedSet  = new TreeSet();
+		String[] selectedItems = params.getStrings ("selectedMembers");
+		if(selectedItems != null)
+		{
+			selectedSet.addAll(Arrays.asList(selectedItems));
+		}
+		state.setAttribute(STATE_LIST_SELECTIONS, selectedSet);
+
+		state.setAttribute(STATE_EXPANDED_COLLECTIONS, new TreeSet());
+		state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, new Hashtable());
+		state.setAttribute(STATE_EXPAND_ALL_FLAG, Boolean.FALSE.toString());
+
+	}	// doUnexpandall
+	
+	/**
+	* Find the resource with this id in the list.
+	* @param messages The list of messages.
+	* @param id The message id.
+	* @return The index position in the list of the message with this id, or -1 if not found.
+	*/
+	protected int findResourceInList(List resources, String id)
+	{
+		for (int i = 0; i < resources.size(); i++)
+		{
+			// if this is the one, return this index
+			if (((ListItem) (resources.get(i))).getId().equals(id)) return i;
+		}
+
+		// not found
+		return -1;
+
+	}	// findResourceInList
+	
+	/**
+	 * @param state
+	 * @param toolSession
+	 * @param pipe
+	 */
+	protected void finishAction(SessionState state, ToolSession toolSession, ResourceToolActionPipe pipe)
+	{
+		ResourceToolAction action = pipe.getAction();
+		// use ActionType for this 
+		switch(action.getActionType())
+		{
+		case CREATE:
+			state.setAttribute(STATE_MODE, MODE_CREATE_WIZARD);
+			break;
+		case NEW_UPLOAD:
+			List<ContentResource> resources = createResources(pipe);
+			if(resources != null && ! resources.isEmpty())
+			{
+				// expand folder
+				SortedSet<String> expandedCollections = (SortedSet<String>) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+				expandedCollections.add(resources.get(0).getContainingCollection().getId());
+			}
+			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
+			break;
+		case NEW_FOLDER:
+			createFolders(state, pipe);
+			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
+			break;
+		case REVISE_CONTENT:
+			reviseContent(pipe);
+			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
+			state.setAttribute(STATE_MODE, MODE_LIST);
+			break;
+		default:
+			state.setAttribute(STATE_MODE, MODE_LIST);
+		}
+	}
+
+	protected ResourceType getResourceType(String id, SessionState state)
+	{
+		ResourceType type = null;
+		
+		boolean isCollection = false;
+		String typeId = TYPE_UPLOAD;
+		ResourceProperties properties;
+		try 
+		{
+			properties = ContentHostingService.getProperties(id);
+			isCollection = properties.getBooleanProperty(ResourceProperties.PROP_IS_COLLECTION);
+			if(isCollection)
+			{
+				typeId = "folder";
+			}
+			else 
+			{
+				ContentResource resource = ContentHostingService.getResource(id);
+				String mimetype = resource.getContentType();
+				if(TYPE_HTML.equals(mimetype) || TYPE_URL.equals(mimetype) || TYPE_TEXT.equals(mimetype))
+				{
+					typeId = mimetype;
+				}
+			}
+			
+			ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+			if(registry == null)
+			{
+				registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+				state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
+			}
+			type = registry.getType(typeId); 
+		} 
+		catch (PermissionException e1) 
+		{
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} 
+		catch (IdUnusedException e1) 
+		{
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} 
+		catch (EntityPropertyNotDefinedException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		catch (EntityPropertyTypeException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		catch (TypeException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return type;
+
+	}
+
+	/**
+	* initialize the cut context
+	*/
+	private void initCutContext (SessionState state)
+	{
+		state.setAttribute (STATE_CUT_IDS, new Vector ());
+
+		state.setAttribute (STATE_CUT_FLAG, Boolean.FALSE.toString());
+
+	}	// initCutContent
+
+	/////////////////////////////////////////////////////////////////////////// Methods, Classes, Statics to be deprecated/removed
+	
+
+	
+	/**
+	* Populate the state object, if needed - override to do something!
+	*/
+	protected void initState(SessionState state, VelocityPortlet portlet, JetspeedRunData data)
+	{
+		super.initState(state, portlet, data);
+
+		if(state.getAttribute(STATE_INITIALIZED) == null)
+		{
+			initCopyContext(state);
+			initMoveContext(state);
+		}
+
+		initStateAttributes(state, portlet);
+
+	}	// initState
+
+	
+
+
+	public void initStateAttributes(SessionState state, VelocityPortlet portlet)
+	{
+		if (state.getAttribute (STATE_INITIALIZED) != null) return;
+
+		if (state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE) == null)
+		{
+			state.setAttribute(STATE_FILE_UPLOAD_MAX_SIZE, ServerConfigurationService.getString("content.upload.max", "1"));
+		}
+		
+		PortletConfig config = portlet.getPortletConfig();
+		try
+		{
+			Integer size = new Integer(config.getInitParameter(PARAM_PAGESIZE));
+			if(size == null || size.intValue() < 1)
+			{
+				size = new Integer(DEFAULT_PAGE_SIZE);
+			}
+			state.setAttribute(STATE_PAGESIZE, size);
+		}
+		catch(Exception any)
+		{
+			state.setAttribute(STATE_PAGESIZE, new Integer(DEFAULT_PAGE_SIZE));
+		}
+
+		// state.setAttribute(STATE_TOP_PAGE_MESSAGE_ID, "");
+
+		state.setAttribute (STATE_CONTENT_SERVICE, ContentHostingService.getInstance());
+		state.setAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE, ContentTypeImageService.getInstance());
+		state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry"));
+
+		TimeBreakdown timeBreakdown = (TimeService.newTime()).breakdownLocal ();
+		String mycopyright = rb.getString("cpright1") + " " + timeBreakdown.getYear () +", " + UserDirectoryService.getCurrentUser().getDisplayName () + ". All Rights Reserved. ";
+		state.setAttribute (STATE_MY_COPYRIGHT, mycopyright);
+
+		if(state.getAttribute(STATE_MODE) == null)
+		{
+			state.setAttribute (STATE_MODE, MODE_LIST);
+			state.setAttribute (STATE_FROM, NULL_STRING);
+		}
+		state.setAttribute (STATE_SORT_BY, ResourceProperties.PROP_DISPLAY_NAME);
+
+		state.setAttribute (STATE_SORT_ASC, Boolean.TRUE.toString());
+		
+		state.setAttribute (STATE_SELECT_ALL_FLAG, Boolean.FALSE.toString());
+
+		state.setAttribute (STATE_EXPAND_ALL_FLAG, Boolean.FALSE.toString());
+
+		state.setAttribute(STATE_LIST_SELECTIONS, new TreeSet());
+
+		state.setAttribute (STATE_COLLECTION_PATH, new Vector ());
+
+		// %%STATE_MODE_RESOURCES%%
+		// In helper mode, calling tool should set attribute STATE_MODE_RESOURCES
+		String resources_mode = (String) state.getAttribute(STATE_MODE_RESOURCES);
+		if(resources_mode == null)
+		{
+			// get resources mode from tool registry
+			resources_mode = portlet.getPortletConfig().getInitParameter("resources_mode");
+			if(resources_mode != null)
+			{
+				state.setAttribute(STATE_MODE_RESOURCES, resources_mode);
+			}
+		}
+
+		boolean show_other_sites = false;
+		if(RESOURCES_MODE_HELPER.equals(resources_mode))
+		{
+			show_other_sites = ServerConfigurationService.getBoolean("resources.show_all_collections.helper", SHOW_ALL_SITES_IN_FILE_PICKER);
+		}
+		else if(RESOURCES_MODE_DROPBOX.equals(resources_mode))
+		{
+			show_other_sites = ServerConfigurationService.getBoolean("resources.show_all_collections.dropbox", SHOW_ALL_SITES_IN_DROPBOX);
+		}
+		else
+		{
+			show_other_sites = ServerConfigurationService.getBoolean("resources.show_all_collections.tool", SHOW_ALL_SITES_IN_RESOURCES);
+		}
+		
+		/** set attribute for the maximum size at which the resources tool will expand a collection. */
+		int expandableFolderSizeLimit = ServerConfigurationService.getInt("resources.expanded_folder_size_limit", EXPANDABLE_FOLDER_SIZE_LIMIT);
+		state.setAttribute(STATE_EXPANDABLE_FOLDER_SIZE_LIMIT, new Integer(expandableFolderSizeLimit));
+		
+		/** This attribute indicates whether "Other Sites" twiggle should show */
+		state.setAttribute(STATE_SHOW_ALL_SITES, Boolean.toString(show_other_sites));
+		/** This attribute indicates whether "Other Sites" twiggle should be open */
+		state.setAttribute(STATE_SHOW_OTHER_SITES, Boolean.FALSE.toString());
+
+		// set the home collection to the parameter, if present, or the default if not
+		String home = StringUtil.trimToNull(portlet.getPortletConfig().getInitParameter("home"));
+		state.setAttribute (STATE_HOME_COLLECTION_DISPLAY_NAME, home);
+		if ((home == null) || (home.length() == 0))
+		{
+			// no home set, see if we are in dropbox mode
+			if (RESOURCES_MODE_DROPBOX.equalsIgnoreCase(resources_mode))
+			{
+				home = ContentHostingService.getDropboxCollection();
+
+				// if it came back null, we will pretend not to be in dropbox mode
+				if (home != null)
+				{
+					state.setAttribute(STATE_HOME_COLLECTION_DISPLAY_NAME, ContentHostingService.getDropboxDisplayName());
+
+					// create/update the collection of folders in the dropbox
+					ContentHostingService.createDropboxCollection();
+				}
+			}
+
+			// if we still don't have a home,
+			if ((home == null) || (home.length() == 0))
+			{
+				home = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
+
+				// TODO: what's the 'name' of the context? -ggolden
+				// we'll need this to create the home collection if needed
+				state.setAttribute (STATE_HOME_COLLECTION_DISPLAY_NAME, ToolManager.getCurrentPlacement().getContext()
+						/*SiteService.getSiteDisplay(ToolManager.getCurrentPlacement().getContext()) */);
+			}
+		}
+		state.setAttribute (STATE_HOME_COLLECTION_ID, home);
+		state.setAttribute (STATE_COLLECTION_ID, home);
+		state.setAttribute (STATE_NAVIGATION_ROOT, home);
+
+		HomeFactory factory = (HomeFactory) ComponentManager.get("homeFactory");
+		if(factory != null)
+		{
+			Map homes = factory.getHomes(StructuredArtifactHomeInterface.class);
+			if(! homes.isEmpty())
+			{
+				state.setAttribute(STATE_SHOW_FORM_ITEMS, Boolean.TRUE.toString());
+			}
+		}
+
+		// state.setAttribute (STATE_COLLECTION_ID, state.getAttribute (STATE_HOME_COLLECTION_ID));
+
+		if (state.getAttribute(STATE_SITE_TITLE) == null)
+		{
+			String title = "";
+			try
+			{
+				title = ((Site) SiteService.getSite(ToolManager.getCurrentPlacement().getContext())).getTitle();
+			}
+			catch (IdUnusedException e)
+			{	// ignore
+			}
+			state.setAttribute(STATE_SITE_TITLE, title);
+		}
+
+		SortedSet expandedCollections = new TreeSet();
+		//expandedCollections.add (state.getAttribute (STATE_HOME_COLLECTION_ID));
+		state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
+		state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, new Hashtable());
+		
+		if(state.getAttribute(STATE_USING_CREATIVE_COMMONS) == null)
+		{
+			String usingCreativeCommons = ServerConfigurationService.getString("copyright.use_creative_commons");
+			if( usingCreativeCommons != null && usingCreativeCommons.equalsIgnoreCase(Boolean.TRUE.toString()))
+			{
+				state.setAttribute(STATE_USING_CREATIVE_COMMONS, Boolean.TRUE.toString());
+			}
+			else
+			{
+				state.setAttribute(STATE_USING_CREATIVE_COMMONS, Boolean.FALSE.toString());
+			}
+		}
+
+		if (state.getAttribute(COPYRIGHT_TYPES) == null)
+		{
+			if (ServerConfigurationService.getStrings("copyrighttype") != null)
+			{
+				state.setAttribute(COPYRIGHT_TYPES, new ArrayList(Arrays.asList(ServerConfigurationService.getStrings("copyrighttype"))));
+			}
+		}
+
+		if (state.getAttribute(DEFAULT_COPYRIGHT) == null)
+		{
+			if (ServerConfigurationService.getString("default.copyright") != null)
+			{
+				state.setAttribute(DEFAULT_COPYRIGHT, ServerConfigurationService.getString("default.copyright"));
+			}
+		}
+
+		if (state.getAttribute(DEFAULT_COPYRIGHT_ALERT) == null)
+		{
+			if (ServerConfigurationService.getString("default.copyright.alert") != null)
+			{
+				state.setAttribute(DEFAULT_COPYRIGHT_ALERT, ServerConfigurationService.getString("default.copyright.alert"));
+			}
+		}
+
+		if (state.getAttribute(NEW_COPYRIGHT_INPUT) == null)
+		{
+			if (ServerConfigurationService.getString("newcopyrightinput") != null)
+			{
+				state.setAttribute(NEW_COPYRIGHT_INPUT, ServerConfigurationService.getString("newcopyrightinput"));
+			}
+		}
+
+		if (state.getAttribute(COPYRIGHT_FAIRUSE_URL) == null)
+		{
+			if (ServerConfigurationService.getString("fairuse.url") != null)
+			{
+				state.setAttribute(COPYRIGHT_FAIRUSE_URL, ServerConfigurationService.getString("fairuse.url"));
+			}
+		}
+
+		if (state.getAttribute(COPYRIGHT_NEW_COPYRIGHT) == null)
+		{
+			if (ServerConfigurationService.getString("copyrighttype.new") != null)
+			{
+				state.setAttribute(COPYRIGHT_NEW_COPYRIGHT, ServerConfigurationService.getString("copyrighttype.new"));
+			}
+		}
+
+		// get resources mode from tool registry
+		String optional_properties = portlet.getPortletConfig().getInitParameter("optional_properties");
+		if(optional_properties != null && "true".equalsIgnoreCase(optional_properties))
+		{
+			initMetadataContext(state);
+		}
+		
+		state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, Boolean.FALSE);
+		String[] siteTypes = ServerConfigurationService.getStrings("prevent.public.resources");
+		String siteType = null;
+		Site site;
+		try
+		{
+			site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+			siteType = site.getType();
+			if(siteTypes != null)
+			{
+				for(int i = 0; i < siteTypes.length; i++)
+				{
+					if ((StringUtil.trimToNull(siteTypes[i])).equals(siteType))
+					{
+						state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, Boolean.TRUE);
+					}
+				}
+			}
+		}
+		catch (IdUnusedException e)
+		{
+			// allow public display
+		}
+		catch(NullPointerException e)
+		{
+			// allow public display
+		}
+
+		CourseManagementService courseManagementService = (CourseManagementService) ComponentManager.get(CourseManagementService.class);
+
+		Time defaultRetractTime = TimeService.newTime(TimeService.newTime().getTime() + ONE_WEEK);
+		Time guess = null;
+		Time now = TimeService.newTime();
+		if(siteType != null && siteType.equalsIgnoreCase("course") && courseManagementService != null)
+		{
+			List<AcademicSession> terms = courseManagementService.getAcademicSessions();
+			boolean found = false;
+			for(AcademicSession term : terms)
+			{
+				if(term.getEndDate() != null && term.getEndDate().getTime() > now.getTime())
+				{
+					if(guess == null)
+					{
+						guess = TimeService.newTime(term.getEndDate().getTime());
+					}
+					else if(term.getEndDate().getTime() < guess.getTime())
+					{
+						guess.setTime(term.getEndDate().getTime());
+					}
+				}
+			}
+			if(guess != null)
+			{
+				defaultRetractTime = guess;
+			}
+		}
+		state.setAttribute(STATE_DEFAULT_RETRACT_TIME, defaultRetractTime);
+		
+		if(state.getAttribute(STATE_LIST_PREFERENCE) == null)
+		{
+			state.setAttribute(STATE_LIST_PREFERENCE, LIST_HIERARCHY);
+		}
+			
+		state.setAttribute (STATE_INITIALIZED, Boolean.TRUE.toString());
+
+	}
+
+/**
+	* is notification enabled?
+	*/
+	protected boolean notificationEnabled(SessionState state)
+	{
+		return true;
+
+	}	// notificationEnabled
+
+	/**
+	 * @param state
+	 */
+	protected void pasteItem(SessionState state, String collectionId)
+	{
+		List<String> items_to_be_moved = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_MOVED);
+		List<String> items_to_be_copied = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_COPIED);
+	
+		if(items_to_be_moved != null)
+		{
+			try
+			{
+				Iterator<String> moveIt = items_to_be_moved.iterator();
+				while(moveIt.hasNext())
+				{
+					String item = moveIt.next();
+					// paste moved item into collection 
+					ContentHostingService.moveIntoFolder(item, collectionId);
+					// TODO expand collection
+					
+					// remove the state attribute
+					state.removeAttribute(STATE_ITEMS_TO_BE_MOVED);
 				}
 			}
 			catch (PermissionException e)
 			{
-				addAlert(state, rb.getString("notpermis8") + " " + originalDisplayName + ". ");
+				
+				//addAlert(state, trb.getString("notpermis8") + " " + originalDisplayName + ". ");
 			}
 			catch (IdUnusedException e)
 			{
@@ -9383,31 +7443,23 @@ public class ResourcesAction
 			}
 			catch (InUseException e)
 			{
-				addAlert(state, rb.getString("someone") + " " + originalDisplayName);
+				//addAlert(state, rb.getString("someone") + " " + originalDisplayName);
 			}
 			catch (TypeException e)
 			{
-				addAlert(state, rb.getString("pasteitem") + " " + originalDisplayName + " " + rb.getString("mismatch"));
+				//addAlert(state, rb.getString("pasteitem") + " " + originalDisplayName + " " + rb.getString("mismatch"));
+			}
+			catch (InconsistentException e)
+			{
+				//addAlert(state, rb.getString("recursive") + " " + itemId);
 			}
 			catch(IdUsedException e)
 			{
 				addAlert(state, rb.getString("toomany"));
 			}
-			catch(IdLengthException e)
-			{
-				addAlert(state, rb.getString("toolong") + " " + e.getMessage());
-			}
-			catch(IdUniquenessException e)
-			{
-				addAlert(state, "Could not add this item to this folder");
-			}
 			catch(ServerOverloadException e)
 			{
 				addAlert(state, rb.getString("failed"));
-			}
-			catch(InconsistentException e)
-			{
-				addAlert(state, rb.getString("recursive") + " " + itemId);
 			}
 			catch (OverQuotaException e)
 			{
@@ -9415,45 +7467,469 @@ public class ResourcesAction
 			}	// try-catch
 			catch(RuntimeException e)
 			{
-				logger.debug("ResourcesAction.doPasteitems ***** Unknown Exception ***** " + e.getMessage());
+				logger.debug("ResourcesAction.doMoveitems ***** Unknown Exception ***** " + e.getMessage());
 				addAlert(state, rb.getString("failed"));
 			}
-
-			if (state.getAttribute(STATE_MESSAGE) == null)
+		}
+		else if(items_to_be_copied != null)
+		{
+			try
 			{
-				// delete sucessful
-				String mode = (String) state.getAttribute(STATE_MODE);
-				if(MODE_HELPER.equals(mode))
+				Iterator<String> copyIt = items_to_be_copied.iterator();
+				while(copyIt.hasNext())
 				{
-					state.setAttribute(STATE_RESOURCES_HELPER_MODE, MODE_ATTACHMENT_SELECT);
-				}
-				else
-				{
-					state.setAttribute (STATE_MODE, MODE_LIST);
-				}
-
-				// try to expand the collection
-				SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
-				if(expandedCollections == null)
-				{
-					expandedCollections = new TreeSet();
-					state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
-				}
-				if(! expandedCollections.contains(collectionId))
-				{
-					expandedCollections.add(collectionId);
-				}
-
-				// reset the copy flag
-				if (((String)state.getAttribute (STATE_COPY_FLAG)).equals (Boolean.TRUE.toString()))
-				{
-					state.setAttribute (STATE_COPY_FLAG, Boolean.FALSE.toString());
+					String item = copyIt.next();
+					// paste copied item into collection 
+					ContentHostingService.copyIntoFolder(item, collectionId);
+					
+					// if no errors
+					// TODO expand collection
+					
+					// remove the state attribute
+					state.removeAttribute(STATE_ITEMS_TO_BE_COPIED);
 				}
 			}
+			catch (PermissionException e)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("PermissionException ", e);
+			}
+			catch (IdUnusedException e)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("IdUnusedException ", e);
+			}
+			catch (IdLengthException e)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("IdLengthException ", e);
+			}
+			catch (IdUniquenessException e)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("IdUniquenessException ", e);
+			}
+			catch (TypeException e)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("TypeException ", e);
+			}
+			catch (InUseException e)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("InUseException ", e);
+			}
+			catch (OverQuotaException e)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("OverQuotaException ", e);
+			}
+			catch (IdUsedException e)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("IdUsedException ", e);
+			}
+			catch (ServerOverloadException e)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("ServerOverloadException ", e);
+			}
+			catch (InconsistentException e)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("InconsistentException ", e);
+			}
+			// paste copied item into collection 
+			// duplicateItem(state, item_to_be_copied, collectionId);
+		}
+		else
+		{
+			// report error?
+		}
+	}
 
+	/**
+	* Prepare the current page of site collections to display.
+	* @return List of ListItem objects to display on this page.
+	*/
+	protected List prepPage(SessionState state)
+	{
+		List rv = new Vector();
+
+		// access the page size
+		int pageSize = ((Integer) state.getAttribute(STATE_PAGESIZE)).intValue();
+
+		// cleanup prior prep
+		state.removeAttribute(STATE_NUM_MESSAGES);
+
+		// are we going next or prev, first or last page?
+		boolean goNextPage = state.getAttribute(STATE_GO_NEXT_PAGE) != null;
+		boolean goPrevPage = state.getAttribute(STATE_GO_PREV_PAGE) != null;
+		boolean goFirstPage = state.getAttribute(STATE_GO_FIRST_PAGE) != null;
+		boolean goLastPage = state.getAttribute(STATE_GO_LAST_PAGE) != null;
+		state.removeAttribute(STATE_GO_NEXT_PAGE);
+		state.removeAttribute(STATE_GO_PREV_PAGE);
+		state.removeAttribute(STATE_GO_FIRST_PAGE);
+		state.removeAttribute(STATE_GO_LAST_PAGE);
+
+		// are we going next or prev message?
+		boolean goNext = state.getAttribute(STATE_GO_NEXT) != null;
+		boolean goPrev = state.getAttribute(STATE_GO_PREV) != null;
+		state.removeAttribute(STATE_GO_NEXT);
+		state.removeAttribute(STATE_GO_PREV);
+
+		// read all channel messages
+		List allMessages = readAllResources(state);
+
+		if (allMessages == null)
+		{
+			return rv;
+		}
+		
+		String messageIdAtTheTopOfThePage = null;
+		Object topMsgId = state.getAttribute(STATE_TOP_PAGE_MESSAGE_ID);
+		if(topMsgId == null)
+		{
+			// do nothing
+		}
+		else if(topMsgId instanceof Integer)
+		{
+			messageIdAtTheTopOfThePage = ((Integer) topMsgId).toString();
+		}
+		else if(topMsgId instanceof String)
+		{
+			messageIdAtTheTopOfThePage = (String) topMsgId;
 		}
 
-	}	// doPasteitems
+		// if we have no prev page and do have a top message, then we will stay "pinned" to the top
+		boolean pinToTop = (	(messageIdAtTheTopOfThePage != null)
+							&&	(state.getAttribute(STATE_PREV_PAGE_EXISTS) == null)
+							&&	!goNextPage && !goPrevPage && !goNext && !goPrev && !goFirstPage && !goLastPage);
+
+		// if we have no next page and do have a top message, then we will stay "pinned" to the bottom
+		boolean pinToBottom = (	(messageIdAtTheTopOfThePage != null)
+							&&	(state.getAttribute(STATE_NEXT_PAGE_EXISTS) == null)
+							&&	!goNextPage && !goPrevPage && !goNext && !goPrev && !goFirstPage && !goLastPage);
+
+		// how many messages, total
+		int numMessages = allMessages.size();
+
+		if (numMessages == 0)
+		{
+			return rv;
+		}
+
+		// save the number of messges
+		state.setAttribute(STATE_NUM_MESSAGES, new Integer(numMessages));
+
+		// find the position of the message that is the top first on the page
+		int posStart = 0;
+		if (messageIdAtTheTopOfThePage != null)
+		{
+			// find the next page
+			posStart = findResourceInList(allMessages, messageIdAtTheTopOfThePage);
+
+			// if missing, start at the top
+			if (posStart == -1)
+			{
+				posStart = 0;
+			}
+		}
+		
+		// if going to the next page, adjust
+		if (goNextPage)
+		{
+			posStart += pageSize;
+		}
+
+		// if going to the prev page, adjust
+		else if (goPrevPage)
+		{
+			posStart -= pageSize;
+			if (posStart < 0) posStart = 0;
+		}
+		
+		// if going to the first page, adjust
+		else if (goFirstPage)
+		{
+			posStart = 0;
+		}
+		
+		// if going to the last page, adjust
+		else if (goLastPage)
+		{
+			posStart = numMessages - pageSize;
+			if (posStart < 0) posStart = 0;
+		}
+
+		// pinning
+		if (pinToTop)
+		{
+			posStart = 0;
+		}
+		else if (pinToBottom)
+		{
+			posStart = numMessages - pageSize;
+			if (posStart < 0) posStart = 0;
+		}
+
+		// get the last page fully displayed
+		if (posStart + pageSize > numMessages)
+		{
+			posStart = numMessages - pageSize;
+			if (posStart < 0) posStart = 0;
+		}
+
+		// compute the end to a page size, adjusted for the number of messages available
+		int posEnd = posStart + (pageSize-1);
+		if (posEnd >= numMessages) posEnd = numMessages-1;
+		int numMessagesOnThisPage = (posEnd - posStart) + 1;
+
+		// select the messages on this page
+		for (int i = posStart; i <= posEnd; i++)
+		{
+			rv.add(allMessages.get(i));
+		}
+
+		// save which message is at the top of the page
+		ListItem itemAtTheTopOfThePage = (ListItem) allMessages.get(posStart);
+		state.setAttribute(STATE_TOP_PAGE_MESSAGE_ID, itemAtTheTopOfThePage.getId());
+		state.setAttribute(STATE_TOP_MESSAGE_INDEX, new Integer(posStart));
+
+
+		// which message starts the next page (if any)
+		int next = posStart + pageSize;
+		if (next < numMessages)
+		{
+			state.setAttribute(STATE_NEXT_PAGE_EXISTS, "");
+		}
+		else
+		{
+			state.removeAttribute(STATE_NEXT_PAGE_EXISTS);
+		}
+
+		// which message ends the prior page (if any)
+		int prev = posStart - 1;
+		if (prev >= 0)
+		{
+			state.setAttribute(STATE_PREV_PAGE_EXISTS, "");
+		}
+		else
+		{
+			state.removeAttribute(STATE_PREV_PAGE_EXISTS);
+		}
+
+		if (state.getAttribute(STATE_VIEW_ID) != null)
+		{
+			int viewPos = findResourceInList(allMessages, (String) state.getAttribute(STATE_VIEW_ID));
+	
+			// are we moving to the next message
+			if (goNext)
+			{
+				// advance
+				viewPos++;
+				if (viewPos >= numMessages) viewPos = numMessages-1;
+			}
+	
+			// are we moving to the prev message
+			if (goPrev)
+			{
+				// retreat
+				viewPos--;
+				if (viewPos < 0) viewPos = 0;
+			}
+			
+			// update the view message
+			state.setAttribute(STATE_VIEW_ID, ((ListItem) allMessages.get(viewPos)).getId());
+			
+			// if the view message is no longer on the current page, adjust the page
+			// Note: next time through this will get processed
+			if (viewPos < posStart)
+			{
+				state.setAttribute(STATE_GO_PREV_PAGE, "");
+			}
+			else if (viewPos > posEnd)
+			{
+				state.setAttribute(STATE_GO_NEXT_PAGE, "");
+			}
+			
+			if (viewPos > 0)
+			{
+				state.setAttribute(STATE_PREV_EXISTS,"");
+			}
+			else
+			{
+				state.removeAttribute(STATE_PREV_EXISTS);
+			}
+			
+			if (viewPos < numMessages-1)
+			{
+				state.setAttribute(STATE_NEXT_EXISTS,"");
+			}
+			else
+			{
+				state.removeAttribute(STATE_NEXT_EXISTS);
+			}			
+		}
+
+		return rv;
+
+	}	// prepPage
+	
+	/**
+	 * Processes the HTML document that is coming back from the browser
+	 * (from the formatted text editing widget).
+	 * @param state Used to pass in any user-visible alerts or errors when processing the text
+	 * @param strFromBrowser The string from the browser
+	 * @return The formatted text
+	 */
+	private String processHtmlDocumentFromBrowser(SessionState state, String strFromBrowser)
+	{
+		StringBuffer alertMsg = new StringBuffer();
+		String text = FormattedText.processHtmlDocument(strFromBrowser, alertMsg);
+		if (alertMsg.length() > 0) addAlert(state, alertMsg.toString());
+		return text;
+	}
+
+	/**
+	* Develop a list of all the site collections that there are to page.
+	* Sort them as appropriate, and apply search criteria.
+	*/
+	protected List readAllResources(SessionState state)
+	{
+		ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+		if(registry == null)
+		{
+			registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+			state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
+		}
+		
+		List other_sites = new Vector();
+
+		String collectionId = (String) state.getAttribute (STATE_COLLECTION_ID);
+		SortedSet<String> expandedCollections = (SortedSet<String>) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+		if(expandedCollections == null)
+		{
+			expandedCollections = new TreeSet();
+			state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
+		}
+		
+		Comparator userSelectedSort = (Comparator) state.getAttribute(STATE_LIST_VIEW_SORT);
+		
+		// set the sort values
+		String sortedBy = (String) state.getAttribute (STATE_SORT_BY);
+		String sortedAsc = (String) state.getAttribute (STATE_SORT_ASC);
+		
+		Boolean showRemove = (Boolean) state.getAttribute(STATE_SHOW_REMOVE_ACTION);
+		boolean showRemoveAction = showRemove != null && showRemove.booleanValue();
+		
+		Boolean showMove = (Boolean) state.getAttribute(STATE_SHOW_MOVE_ACTION);
+		boolean showMoveAction = showMove != null && showMove.booleanValue();
+		
+		Boolean showCopy = (Boolean) state.getAttribute(STATE_SHOW_COPY_ACTION);
+		boolean showCopyAction = showCopy != null && showCopy.booleanValue();
+		
+		Set highlightedItems = (Set) state.getAttribute(STATE_HIGHLIGHTED_ITEMS);
+		
+
+		// add user's personal workspace
+		User user = UserDirectoryService.getCurrentUser();
+		String userId = user.getId();
+		String userName = user.getDisplayName();
+		String wsId = SiteService.getUserSiteId(userId);
+		String wsCollectionId = ContentHostingService.getSiteCollection(wsId);
+		List<String> items_to_be_copied = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_COPIED);
+		List<String> items_to_be_moved = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_MOVED);
+		
+		if(! collectionId.equals(wsCollectionId))
+		{
+            try
+            {
+            	ContentCollection wsCollection = ContentHostingService.getCollection(wsCollectionId);
+				ListItem wsRoot = ListItem.getListItem(wsCollection, null, registry, false, expandedCollections, items_to_be_moved, items_to_be_copied, 0, userSelectedSort);
+		        other_sites.add(wsRoot);
+            }
+            catch (IdUnusedException e)
+            {
+	            // TODO Auto-generated catch block
+	            logger.warn("IdUnusedException ", e);
+            }
+            catch (TypeException e)
+            {
+	            // TODO Auto-generated catch block
+	            logger.warn("TypeException ", e);
+            }
+            catch (PermissionException e)
+            {
+	            // TODO Auto-generated catch block
+	            logger.warn("PermissionException ", e);
+            }
+		}
+		
+ 		/*
+		 * add all other sites user has access to
+		 * NOTE: This does not (and should not) get all sites for admin.  
+		 *       Getting all sites for admin is too big a request and
+		 *       would result in too big a display to render in html.
+		 */
+		Map othersites = ContentHostingService.getCollectionMap();
+		Iterator siteIt = othersites.keySet().iterator();
+		SortedSet sort = new TreeSet();
+		while(siteIt.hasNext())
+		{
+              String collId = (String) siteIt.next();
+              String displayName = (String) othersites.get(collId);
+              sort.add(displayName + DELIM + collId);
+		}
+		
+		Iterator sortIt = sort.iterator();
+		while(sortIt.hasNext())
+		{
+			String keyvalue = (String) sortIt.next();
+			String displayName = keyvalue.substring(0, keyvalue.lastIndexOf(DELIM));
+			String collId = keyvalue.substring(keyvalue.lastIndexOf(DELIM) + 1);
+			if(! collectionId.equals(collId) && ! wsCollectionId.equals(collId))
+			{
+				ContentCollection collection;
+                try
+                {
+	                collection = ContentHostingService.getCollection(collId);
+					ListItem root = ListItem.getListItem(collection, null, registry, false, expandedCollections, items_to_be_moved, items_to_be_copied, 0, null);
+					root.setName(displayName);
+					other_sites.add(root);
+                }
+                catch (IdUnusedException e)
+                {
+	                // TODO Auto-generated catch block
+	                logger.warn("IdUnusedException ", e);
+                }
+                catch (TypeException e)
+                {
+	                // TODO Auto-generated catch block
+	                logger.warn("TypeException ", e);
+                }
+                catch (PermissionException e)
+                {
+	                // TODO Auto-generated catch block
+	                logger.warn("PermissionException ", e);
+                }
+			}
+          }
+		
+		return other_sites;
+	}
+
+	/**
+	* Setup our observer to be watching for change events for the collection
+ 	*/
+ 	private void updateObservation(SessionState state, String peid)
+ 	{
+// 		ContentObservingCourier observer = (ContentObservingCourier) state.getAttribute(STATE_OBSERVER);
+//
+// 		// the delivery location for this tool
+// 		String deliveryId = clientWindowId(state, peid);
+// 		observer.setDeliveryId(deliveryId);
+	}
 
 	
 }	// ResourcesAction
