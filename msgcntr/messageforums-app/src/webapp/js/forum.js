@@ -115,15 +115,11 @@ function unCheck(field)
 }
 
 function toggleDisplay(obj) {
-    var el = getTheElement(obj);
-    if ( el.style.display != 'none' ) {
-        el.style.display = 'none';
-    }
-    else {
-        el.style.display = '';
-    }
-    
+	resize();
+	$("#" + obj).slideToggle("normal", resize);
+	return;    
 }
+
 function toggleHide(obj){
 	if(obj.innerHTML.match(/hide/i)){
 		obj.innerHTML = obj.innerHTML.replace('Hide ', '');
@@ -199,7 +195,7 @@ function mySetMainFrameHeight(id)
 
 		// here we fudge to get a little bigger
 		//gsilver: changing this from 50 to 10, and adding extra bottom padding to the portletBody		
-		var newHeight = height + 10;
+		var newHeight = height + 50;
 		//contributed patch from hedrick@rutgers.edu (for very long documents)
 		if (newHeight > 32760)
 		newHeight = 32760;
@@ -214,16 +210,28 @@ function mySetMainFrameHeight(id)
 }
 
 function doAjax(messageId, topicId){
+   $("#" + messageId).parents("tr:first").toggle();
+   $("#" + messageId).parents("tr:first").after("<tr class='" + 
+   		$("#" + messageId).parents("tr:first").attr("className") + 
+   		"'><td style='padding-left:100px;height:" + $("#" + messageId).parent("td").height() + "px' colspan='" + 
+   		$("#" + messageId).parents("tr:first").children("td").size() + 
+   		"'><img src='/library/image/sakai/spinner.gif' /></td></tr>");
+   
+   $("#" + messageId).parents("tr:first").get(0).innerHTML = $("#" + messageId).parents("tr:first").get(0).innerHTML.replace(/unreadMsg/g, 'bogus');
+   setTimeout(function(){
+        $("#" + messageId).parents("tr:first").next().remove();
+        $("#" + messageId).parents("tr:first").toggle();
+   }, 500);
 	$.ajax({ type: "GET", url: "dfAjax", data: "action=markMessageAsRead&messageId=" + messageId + "&topicId=" + topicId,
-		success: function(msg){
-			if(msg.match(/SUCCESS/)){
-				$("#" + messageId).parents("tr:first").children("td").each(function(){
-               this.innerHTML = this.innerHTML.replace(/unreadMsg/g, 'bogus'); 
-            });
-			} else { //do nothing
-			}
-		}
-	});
+      success: function(msg){
+         if(!msg.match(/SUCCESS/)){
+            $("#" + messageId).parents("tr:first").css("backgroundColor", "#ffD0DC");
+         }
+      },
+      error: function(){
+         $("#" + messageId).parents("tr:first").css("backgroundColor", "#ffD0DC");
+      }
+   });
 	$.ajax({type: "GET", url: location.href, data: ""});
 	return false;
 }

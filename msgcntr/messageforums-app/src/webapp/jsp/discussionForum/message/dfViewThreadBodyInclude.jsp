@@ -3,7 +3,7 @@
 				<h:outputText escape="false" value="<a id=\"#{message.message.id}\" name=\"#{message.message.id}\"></a>" />
 				<f:verbatim><div class="hierItemBlock"></f:verbatim>
 					<f:verbatim><h4 class="textPanelHeader"></f:verbatim>
-              <f:verbatim><div class="specialLink" style="width:45%;float:left;text-align:left"></f:verbatim>
+              <f:verbatim><div class="specialLink" style="width:65%;float:left;text-align:left"></f:verbatim>
               
               <h:outputText value="#{msgs.cdfm_msg_pending_label} " styleClass="highlight" rendered="#{message.msgPending}" />
 							<h:outputText value="#{msgs.cdfm_msg_denied_label} " rendered="#{message.msgDenied}" />
@@ -29,7 +29,7 @@
    				   	      </h:outputText>
                            
                            
-                           <h:outputLink value="#" onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id});$(this).remove();return false;" rendered="#{!message.read}"
+                           <h:outputLink value="#" onclick="$(this).remove();doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id});return false;" rendered="#{!message.read}"
                            		title="#{msgs.msg_is_unread}"> 
       						   	<h:graphicImage value="/images/silk/email.png" alt="#{msgs.msg_is_unread}" rendered="#{!message.read}" 
 				   	        		onmouseover="this.src=this.src.replace(/email\.png/, 'email_open.png');"
@@ -47,7 +47,7 @@
                     --%>
 	                  <f:verbatim></div></f:verbatim>
 
-                         <f:verbatim><div style="width:45%;float:right;text-align:right" class="specialLink"></f:verbatim>
+                         <f:verbatim><div style="width:35%;float:right;text-align:right" class="specialLink"></f:verbatim>
 				   	     	<h:panelGroup rendered="#{ForumTool.selectedTopic.isNewResponseToResponse && message.msgApproved}">
 				   	     		<h:commandLink action="#{ForumTool.processDfMsgReplyMsgFromEntire}" title="#{msgs.cdfm_reply}">
 	                    <f:param value="#{message.message.id}" name="messageId"/>
@@ -61,7 +61,7 @@
 	  					    
 	  					    <h:panelGroup rendered="#{(ForumTool.selectedTopic.isPostToGradebook && ForumTool.gradebookExist) || ForumTool.selectedTopic.isModeratedAndHasPerm || ForumTool.selectedTopic.isReviseAny}">
 	  					      <h:outputText value=" #{msgs.cdfm_toolbar_separator} " rendered="#{ForumTool.selectedTopic.isNewResponseToResponse && message.msgApproved}" />
-	  					      <h:outputLink value="#" onclick="toggleDisplay('#{message.message.id}_advanced_box'); resize(); toggleHide(this); return false;" >
+	  					      <h:outputLink value="#" onclick="toggleDisplay('#{message.message.id}_advanced_box'); toggleHide(this); return false;" >
 								      <h:graphicImage value="/images/silk/email_go.png" alt="#{msgs.cdfm_other_actions}" />
 	   							    <h:outputText value="#{msgs.cdfm_other_actions}" />
 	   						    </h:outputLink>
@@ -69,12 +69,20 @@
 	   						  <h:outputText escape="false" value="<div id=\"#{message.message.id}_advanced_box\" style=\"display:none\">" />
 	   							
 	   							<h:panelGroup rendered="#{ForumTool.selectedTopic.isPostToGradebook && ForumTool.gradebookExist}">
-	   							  <h:commandLink action="#{ForumTool.processDfMsgGrd}" value="#{msgs.cdfm_button_bar_grade}" />
+	   							<h:commandLink action="#{ForumTool.processDfMsgGrdFromThread}" value="#{msgs.cdfm_button_bar_grade}">
+	   								<f:param value="#{message.message.id}" name="messageId"/>
+	              	    			<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+	              	    			<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
+	   							</h:commandLink>
                       <h:outputText value=" #{msgs.cdfm_toolbar_separator} " />
                   </h:panelGroup>
                   
                   <h:panelGroup rendered="#{ForumTool.selectedTopic.isReviseAny}">
-                    <h:commandLink action="#{ForumTool.processDfMsgRvs}" value="#{msgs.cdfm_button_bar_revise}" /> 
+                    <h:commandLink action="#{ForumTool.processDfMsgRvsFromThread}" value="#{msgs.cdfm_button_bar_revise}" >
+                    	<f:param value="#{message.message.id}" name="messageId"/>
+		        	    <f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+		        	    <f:param value="#{ForumTool.selectedTopic.topic.baseForum.id}" name="forumId"/>
+                    </h:commandLink> 
 								    <h:outputText value=" #{msgs.cdfm_toolbar_separator} " />
 								  </h:panelGroup>
 								  

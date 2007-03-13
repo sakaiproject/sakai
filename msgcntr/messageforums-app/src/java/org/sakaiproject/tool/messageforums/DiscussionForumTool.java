@@ -1711,45 +1711,51 @@ public class DiscussionForumTool
         getExternalParameterByKey(TOPIC_ID))));
     setTopicBeanAssign();
     getSelectedTopic();
-    
     //get thread from message
-    Message mes = selectedMessage.getMessage();
-    while( mes.getInReplyTo() != null) {
-    	mes = messageManager.getMessageById(mes.getInReplyTo().getId());
-    }
-    selectedThreadHead = new DiscussionMessageBean(mes, messageManager);
-    
-    List tempMsgs = selectedTopic.getMessages();
-    Boolean foundHead = false;
-    Boolean foundAfterHead = false;
-    if(tempMsgs != null)
-    {
-    	for(int i=0; i<tempMsgs.size(); i++)
-    	{
-    		DiscussionMessageBean thisDmb = (DiscussionMessageBean)tempMsgs.get(i);
-    		if(((DiscussionMessageBean)tempMsgs.get(i)).getMessage().getId().toString().equals(messageId))
-    		{
-    			selectedMessage.setDepth(thisDmb.getDepth());
-    			selectedMessage.setHasNext(thisDmb.getHasNext());
-    			selectedMessage.setHasPre(thisDmb.getHasPre());
-    			foundHead = true;
-    		}
-    		else if(((DiscussionMessageBean)tempMsgs.get(i)).getMessage().getInReplyTo() == null && foundHead && !foundAfterHead) {
-        		selectedThreadHead.setHasNextThread(true);
-        		selectedThreadHead.setNextThreadId(((DiscussionMessageBean)tempMsgs.get(i)).getMessage().getId());
-        		foundAfterHead = true;
-        	} 
-        	else if (((DiscussionMessageBean)tempMsgs.get(i)).getMessage().getInReplyTo() == null && !foundHead) {
-        		selectedThreadHead.setHasPreThread(true);
-        		selectedThreadHead.setPreThreadId(((DiscussionMessageBean)tempMsgs.get(i)).getMessage().getId());
-        	}
-    	}
-    }
-
-     
+    getThreadFromMessage();
+      
     // selectedTopic= new DiscussionTopicBean(message.getTopic());
     return MESSAGE_VIEW;
   }
+  
+  
+  public void getThreadFromMessage()
+  {
+	    Message mes = selectedMessage.getMessage();
+	    String messageId = mes.getId().toString();
+	    while( mes.getInReplyTo() != null) {
+	    	mes = messageManager.getMessageById(mes.getInReplyTo().getId());
+	    }
+	    selectedThreadHead = new DiscussionMessageBean(mes, messageManager);
+	    
+	    List tempMsgs = selectedTopic.getMessages();
+	    Boolean foundHead = false;
+	    Boolean foundAfterHead = false;
+	    if(tempMsgs != null)
+	    {
+	    	for(int i=0; i<tempMsgs.size(); i++)
+	    	{
+	    		DiscussionMessageBean thisDmb = (DiscussionMessageBean)tempMsgs.get(i);
+	    		if(((DiscussionMessageBean)tempMsgs.get(i)).getMessage().getId().toString().equals(messageId))
+	    		{
+	    			selectedMessage.setDepth(thisDmb.getDepth());
+	    			selectedMessage.setHasNext(thisDmb.getHasNext());
+	    			selectedMessage.setHasPre(thisDmb.getHasPre());
+	    			foundHead = true;
+	    		}
+	    		else if(((DiscussionMessageBean)tempMsgs.get(i)).getMessage().getInReplyTo() == null && foundHead && !foundAfterHead) {
+	        		selectedThreadHead.setHasNextThread(true);
+	        		selectedThreadHead.setNextThreadId(((DiscussionMessageBean)tempMsgs.get(i)).getMessage().getId());
+	        		foundAfterHead = true;
+	        	} 
+	        	else if (((DiscussionMessageBean)tempMsgs.get(i)).getMessage().getInReplyTo() == null && !foundHead) {
+	        		selectedThreadHead.setHasPreThread(true);
+	        		selectedThreadHead.setPreThreadId(((DiscussionMessageBean)tempMsgs.get(i)).getMessage().getId());
+	        	}
+	    	}
+	    }
+  }
+
   
   public String processDisplayPreviousMsg()
   {
@@ -2750,6 +2756,33 @@ public class DiscussionForumTool
   {
     return "dfTopicReply";
   }
+  
+  public String processDfMsgGrdFromThread()
+  {
+	  String messageId = getExternalParameterByKey(MESSAGE_ID);
+	    String topicId = getExternalParameterByKey(TOPIC_ID);
+	    if (messageId == null)
+	    {
+	      setErrorMessage(getResourceBundleString(MESSAGE_REFERENCE_NOT_FOUND));
+	      return gotoMain();
+	    }
+	    if (topicId == null)
+	    {
+	      setErrorMessage(getResourceBundleString(TOPC_REFERENCE_NOT_FOUND));
+	      return gotoMain();
+	    }
+	    // Message message=forumManager.getMessageById(new Long(messageId));
+	    Message message = messageManager.getMessageByIdWithAttachments(new Long(
+	        messageId));
+	    if (message == null)
+	    {
+	      setErrorMessage(getResourceBundleString(MESSAGE_WITH_ID) + messageId + getResourceBundleString(NOT_FOUND_WITH_QUOTE));
+	      return gotoMain();
+	    }
+	    message = messageManager.getMessageByIdWithAttachments(message.getId());
+	    selectedMessage = new DiscussionMessageBean(message, messageManager);
+	  return processDfMsgGrd();
+  }
 
   public String processDfMsgGrd()
   {
@@ -2869,6 +2902,33 @@ public class DiscussionForumTool
     } 
     
     return "dfMsgGrade"; 
+  }
+  
+  public String processDfMsgRvsFromThread()
+  {
+	  String messageId = getExternalParameterByKey(MESSAGE_ID);
+	    String topicId = getExternalParameterByKey(TOPIC_ID);
+	    if (messageId == null)
+	    {
+	      setErrorMessage(getResourceBundleString(MESSAGE_REFERENCE_NOT_FOUND));
+	      return gotoMain();
+	    }
+	    if (topicId == null)
+	    {
+	      setErrorMessage(getResourceBundleString(TOPC_REFERENCE_NOT_FOUND));
+	      return gotoMain();
+	    }
+	    // Message message=forumManager.getMessageById(new Long(messageId));
+	    Message message = messageManager.getMessageByIdWithAttachments(new Long(
+	        messageId));
+	    if (message == null)
+	    {
+	      setErrorMessage(getResourceBundleString(MESSAGE_WITH_ID) + messageId + getResourceBundleString(NOT_FOUND_WITH_QUOTE));
+	      return gotoMain();
+	    }
+	    message = messageManager.getMessageByIdWithAttachments(message.getId());
+	    selectedMessage = new DiscussionMessageBean(message, messageManager);
+	  return processDfMsgRvs();
   }
 
   public String processDfMsgRvs()
@@ -3004,7 +3064,7 @@ public class DiscussionForumTool
 
     this.attachments.clear();
 
-    return ALL_MESSAGES;
+    return THREAD_VIEW;
   }
 
   public String processDeleteAttachRevise()
@@ -3048,6 +3108,12 @@ public class DiscussionForumTool
     return null;
   }
 
+  public String processDfMsgRevisedCancel()
+  {
+	  getThreadFromMessage();
+	  return MESSAGE_VIEW;
+  }
+  
   public String processDfMsgRevisedPost()
   {
     Message dMsg = selectedMessage.getMessage();
@@ -3163,7 +3229,8 @@ public class DiscussionForumTool
     composeTitle = null;
     attachments.clear();
 
-    return ALL_MESSAGES;
+    getThreadFromMessage();
+    return MESSAGE_VIEW;
   }
 
   public String processDfMsgSaveRevisedDraft()
@@ -3283,8 +3350,9 @@ public class DiscussionForumTool
     this.composeTitle = null;
 
     this.attachments.clear();
-
-    return ALL_MESSAGES;
+    
+    getThreadFromMessage();
+    return MESSAGE_VIEW;
   }
   
   public String processDfReplyThreadCancel()
@@ -4194,7 +4262,8 @@ public class DiscussionForumTool
     gradeComment = ""; 
     noGradeWarn = false; 
     noAssignWarn = false; 
-    return MESSAGE_VIEW; 
+    getThreadFromMessage();
+    return MESSAGE_VIEW;
   } 
    
   public String processGradeAssignChange(ValueChangeEvent vce) 
@@ -4451,6 +4520,7 @@ public class DiscussionForumTool
     gradeComment = ""; 
     noAssignWarn = false; 
     noGradeWarn = false; 
+    getThreadFromMessage();
     return MESSAGE_VIEW; 
   } 
  
@@ -5661,7 +5731,8 @@ public class DiscussionForumTool
    private void setFromMainOrForumOrTopic()
    {
 	   String originatingPage = getExternalParameterByKey(FROM_PAGE);
-	   if(originatingPage != null && (originatingPage.equals(MAIN) || originatingPage.equals(ALL_MESSAGES) || originatingPage.equals(FORUM_DETAILS)))
+	   if(originatingPage != null && (originatingPage.equals(MAIN) || originatingPage.equals(ALL_MESSAGES) || originatingPage.equals(FORUM_DETAILS)
+			   	|| originatingPage.equals(THREAD_VIEW) || originatingPage.equals(FLAT_VIEW)))
 	   {
 		   fromPage = originatingPage;
 	   }

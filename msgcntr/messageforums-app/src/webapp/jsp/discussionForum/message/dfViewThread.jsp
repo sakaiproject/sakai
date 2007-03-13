@@ -96,11 +96,19 @@
 			</h:column>
 		</mf:hierDataTable>
 				
-		<h:inputHidden id="mainOrForumOrTopic" value="dfAllMessages" />
-		
+		<h:inputHidden id="mainOrForumOrTopic" value="dfViewThread" />
+		<%
+  String thisId = request.getParameter("panel");
+  if (thisId == null) 
+  {
+    thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
+  }
+%>
+			<script type="text/javascript">
+			function resize(){
+  				mySetMainFrameHeight('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
+  			}
+			</script> 
 	</h:form>
-<%--	<h:outputText escape="false" value="<script type='text/javascript'>setTimeout(function(){document.location.href='##{ForumTool.threadAnchorMessageId}';},200);</script>" /> --%>
-	<h:outputText rendered="#{ForumTool.threadAnchorMessageId != '' && ForumTool.threadAnchorMessageId != null}" escape="false" 
-	value="<script type='text/javascript'>setTimeout(function(){parent.window.scrollTo(0, getScrollDist(document.getElementById('#{ForumTool.threadAnchorMessageId}')));},200);</script>" />
 </sakai:view>
 </f:view>

@@ -47,6 +47,7 @@
 				</h:outputLink>
  		</sakai:tool_bar>
 
+			<h:panelGrid columns="2" summary="layout" width="100%" styleClass="navPanel specialLink">
 			    <h:panelGroup>
 					<f:verbatim><div class="breadCrumb specialLink"><h3></f:verbatim>
 			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"
@@ -61,7 +62,22 @@
 				  	  <h:outputText value="#{ForumTool.selectedTopic.topic.title}" />
 					  <f:verbatim></h3></div></f:verbatim>
 				 </h:panelGroup>
-		
+				 <h:panelGroup styleClass="itemNav">
+				   <h:outputText   value="#{msgs.cdfm_previous_topic}"  rendered="#{!ForumTool.selectedTopic.hasPreviousTopic}" />
+					 <h:commandLink action="#{ForumTool.processActionDisplayPreviousTopic}" value="#{msgs.cdfm_previous_topic}"  rendered="#{ForumTool.selectedTopic.hasPreviousTopic}" 
+					                title=" #{msgs.cdfm_topic_settings}">
+						 <f:param value="#{ForumTool.selectedTopic.previousTopicId}" name="previousTopicId"/>
+						 <f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
+					 </h:commandLink>
+					 <f:verbatim><h:outputText  id="blankSpace1" value=" |  " /></f:verbatim>				
+					 <h:outputText   value="#{msgs.cdfm_next_topic}" rendered="#{!ForumTool.selectedTopic.hasNextTopic}" />
+					 <h:commandLink action="#{ForumTool.processActionDisplayNextTopic}" value="#{msgs.cdfm_next_topic}" rendered="#{ForumTool.selectedTopic.hasNextTopic}" 
+					                title=" #{msgs.cdfm_topic_settings}">
+						<f:param value="#{ForumTool.selectedTopic.nextTopicId}" name="nextTopicId"/>
+						<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
+					 </h:commandLink>
+				 </h:panelGroup>
+			</h:panelGrid>
 	
 		<%--rjlowe: Expanded View to show the message bodies, threaded --%>
 		<mf:hierDataTable id="expandedThreadedMessages" value="#{ForumTool.messages}" var="message" 
@@ -71,8 +87,19 @@
 			</h:column>
 		</mf:hierDataTable>
 				
-		<h:inputHidden id="mainOrForumOrTopic" value="dfAllMessages" />
-		
+		<h:inputHidden id="mainOrForumOrTopic" value="dfFlatView" />
+<%
+  String thisId = request.getParameter("panel");
+  if (thisId == null) 
+  {
+    thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
+  }
+%>
+			<script type="text/javascript">
+			function resize(){
+  				mySetMainFrameHeight('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
+  			}
+			</script> 		
 	</h:form>
 
 </sakai:view>
