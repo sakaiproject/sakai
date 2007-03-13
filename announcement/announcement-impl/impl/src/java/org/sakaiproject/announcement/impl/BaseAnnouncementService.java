@@ -148,9 +148,11 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 			FunctionManager.registerFunction(eventId(SECURE_REMOVE_OWN));
 			FunctionManager.registerFunction(eventId(SECURE_UPDATE_ANY));
 			FunctionManager.registerFunction(eventId(SECURE_UPDATE_OWN));
-//			FunctionManager.registerFunction(eventId(SECURE_READ_DRAFT));
 			FunctionManager.registerFunction(eventId(SECURE_ALL_GROUPS));
-			FunctionManager.registerFunction(eventId(SECURE_HIDDEN));
+
+			// Sakai v2.4: UI end says hidden, 'under the covers' says draft
+			// Done so import from old sites causes drafts to 'become' hidden in new sites
+			FunctionManager.registerFunction(eventId(SECURE_READ_DRAFT));
 
 			// entity producer registration
 			m_entityManager.registerEntityProducer(this, REFERENCE_ROOT);
