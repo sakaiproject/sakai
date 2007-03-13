@@ -72,20 +72,6 @@
        <load-on-startup>1</load-on-startup>
     </servlet>
 
-   <servlet>
-       <servlet-name>
-          sakai.resource.helper
-       </servlet-name>
-       <servlet-class>
-          org.sakaiproject.content.tool.ResourceEditHelperAction
-       </servlet-class>
-       <init-param>
-           <param-name>template</param-name>
-           <param-value>helper/chef_attachment</param-value>
-       </init-param>
-       <load-on-startup>1</load-on-startup>
-    </servlet>
-
     <servlet>
         <servlet-name>
            sakai.resources
