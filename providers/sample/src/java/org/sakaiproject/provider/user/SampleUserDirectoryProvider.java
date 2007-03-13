@@ -50,7 +50,7 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/** how many students to recognize (1.. this). */
-	protected int m_courseStudents = 250;
+	protected int m_courseStudents = 500;
 
 	/**
 	 * Set how many students to recognize.
