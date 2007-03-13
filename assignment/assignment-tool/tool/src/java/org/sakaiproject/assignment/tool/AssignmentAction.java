@@ -6097,6 +6097,9 @@ public class AssignmentAction extends PagedResourceActionII
 
 		String criteria = params.getString("criteria");
 		String providerId = params.getString(PROVIDER_ID);
+		
+		String savedText = params.getString("savedText");		
+		state.setAttribute(VIEW_SUBMISSION_TEXT, savedText);
 
 		String mode = (String) state.getAttribute(STATE_MODE);
 		
@@ -6126,6 +6129,9 @@ public class AssignmentAction extends PagedResourceActionII
 		String page = params.getString("page");
 		String pageSize = params.getString("pageSize");
 		String providerId = params.getString(PROVIDER_ID);
+
+		String savedText = params.getString("savedText");		
+		state.setAttribute(VIEW_SUBMISSION_TEXT, savedText);
 
 		String mode = (String) state.getAttribute(STATE_MODE);
 		
