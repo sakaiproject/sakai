@@ -101,7 +101,7 @@ public class ContentHostingHandlerResolverImpl implements BaseContentHostingHand
 			{
 				// log and return null
 				log.warn("Failed to find CHH Bean " + chhbeanname + " or bean failed to resolve virtual entity ID", e);
-				return null;
+				return ce;
 			}
 		}
 		return vce;
@@ -143,7 +143,7 @@ public class ContentHostingHandlerResolverImpl implements BaseContentHostingHand
 			nextce = getVirtualEntity(ce.getMember(nextId), finalId);
 		}
 
-		if (nextce == null)
+		if (nextce == null || nextce.getId().equals(thisid))
 		{
 			if (exact)
 			{
