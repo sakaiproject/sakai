@@ -37,9 +37,11 @@ public interface TaggingProvider {
 	 * this returns false the list returned by the
 	 * {@link #getTags(TaggableActivity) getTags} method will be empty.
 	 * 
+	 * @param context
+	 *            The context in which to check permission.
 	 * @return True if current user is allowed to view tags, false otherwise.
 	 */
-	public boolean allowViewTags();
+	public boolean allowViewTags(String context);
 
 	/**
 	 * Method to get the necessary data to invoke a helper tool for tagging the
