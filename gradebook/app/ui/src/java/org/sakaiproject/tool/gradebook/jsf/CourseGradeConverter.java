@@ -41,8 +41,8 @@ public class CourseGradeConverter implements Converter, Serializable {
 
 	public Object getAsObject(FacesContext context, UIComponent component, String value)
 		throws ConverterException {
-		String standardizedGrade = null;
-		if (StringUtils.trimToNull(value) != null) {
+		value = StringUtils.trimToNull(value);
+		if (value != null) {
 			// Get the current gradebook.
 			GradebookBean gbb = (GradebookBean)FacesUtil.resolveVariable("gradebookBean");
 
@@ -50,13 +50,13 @@ public class CourseGradeConverter implements Converter, Serializable {
 			GradeMapping mapping = gbb.getGradebookManager().getGradebook(gbb.getGradebookId()).getSelectedGradeMapping();
 
 			// Find the corresponding standardized form, if any.
-			standardizedGrade = mapping.standardizeInputGrade(value);
-			if (standardizedGrade == null) {
+			value = mapping.standardizeInputGrade(value);
+			if (value == null) {
 				throw new ConverterException(new FacesMessage(FacesUtil.getLocalizedString(context,
 					"org.sakaiproject.gradebook.tool.jsf.CourseGradeConverter.INVALID")));
 			}
 		}
-		return standardizedGrade;
+		return value;
 	}
 
 	public String getAsString(FacesContext context, UIComponent component, Object value) {
