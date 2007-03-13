@@ -237,6 +237,7 @@
 						</h$headerDepth>
 					</td>
 					<td headers="actions">
+						#if($can_attach_more)
 							<div class="itemAction">
 								#if($item.isCollection())
 								#else
@@ -254,6 +255,7 @@
 									#end
 								#end
 							</div>
+						#end
 					</td>
 				</tr>	
 			#end ## foreach $root in $this_site
@@ -357,6 +359,25 @@
 								#end	
 							</td>
 							<td headers="actions">
+								#if($can_attach_more)
+									<div class="itemAction">
+										#if($item.isCollection())
+										#else
+											#set ($itemsOnLine = 0)
+											####### deal with attaching item
+											#if ($item.canRead())
+												#if($disable_attach_links)
+												#else
+													#if ($itemsOnLine > 0)
+														|
+													#end
+													#set ($itemsOnLine = $itemsOnLine + 1)
+													<a href="#toolLinkParam("FilePickerAction" "doAttachitem" "itemId=$validator.escapeUrl(${item.id})")" title ="$tlang.getString('att.copy')">$tlang.getString("att.copy").trim()</a>
+												#end
+											#end
+										#end
+									</div>
+								#end
 							</td>
 						</tr>	
 					#end ## foreach $root in $other_sites

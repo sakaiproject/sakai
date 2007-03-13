@@ -485,6 +485,10 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 			state.setAttribute(STATE_ATTACH_CARDINALITY, max_cardinality);
 		}
 		context.put("max_cardinality", max_cardinality);
+		if(new_items.size() < max_cardinality.intValue())
+		{
+			context.put("can_attach_more", Boolean.TRUE);
+		}
 
 		if(new_items.size() >= max_cardinality.intValue())
 		{
@@ -2324,6 +2328,51 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		state.setAttribute(STATE_EXPAND_ALL_FLAG, Boolean.FALSE.toString());
 
 	}	// doUnexpandall
+	
+	/**
+	 * @param data
+	 */
+	public void doShowOtherSites(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		//get the ParameterParser from RunData
+		ParameterParser params = data.getParameters ();
+
+		// save the current selections
+		Set selectedSet  = new TreeSet();
+		String[] selectedItems = params.getStrings("selectedMembers");
+		if(selectedItems != null)
+		{
+			selectedSet.addAll(Arrays.asList(selectedItems));
+		}
+		state.setAttribute(STATE_LIST_SELECTIONS, selectedSet);
+
+		state.setAttribute(STATE_SHOW_OTHER_SITES, Boolean.TRUE.toString());
+	}
+
+	/**
+	 * @param data
+	 */
+	public void doHideOtherSites(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		state.setAttribute(STATE_SHOW_OTHER_SITES, Boolean.FALSE.toString());
+
+		//get the ParameterParser from RunData
+		ParameterParser params = data.getParameters ();
+
+		// save the current selections
+		Set selectedSet  = new TreeSet();
+		String[] selectedItems = params.getStrings("selectedMembers");
+		if(selectedItems != null)
+		{
+			selectedSet.addAll(Arrays.asList(selectedItems));
+		}
+		state.setAttribute(STATE_LIST_SELECTIONS, selectedSet);
+
+	}
 	
 	/**
 	 * @param resource

@@ -97,14 +97,28 @@ if (window.attachEvent) window.attachEvent("onload", sfHover);
 		#end
 	</h3>
 	<div class="instruction">
-		#if($helper_instruction)
-			$helper_instruction
+		#if($can_attach_more)
+			## instructions if you can attach more
+			#if($helper_instruction)
+				$helper_instruction
+			#else
+				$tlang.getString("att.instr")
+			#end
+			#if($attached.isEmpty())
+			#else
+				$tlang.getString("att.fin")
+			#end
 		#else
-			$tlang.getString("att.instr")
-		#end
-		#if($attached.isEmpty())
-		#else
-			$tlang.getString("att.fin")
+			## instructions if max cardinality is reached
+			#if($helper_instruction)
+				$helper_instruction
+			#else
+				$tlang.getString("att.instr")
+			#end
+			#if($attached.isEmpty())
+			#else
+				$tlang.getString("att.fin")
+			#end
 		#end	
 	</div>
 
@@ -277,24 +291,26 @@ if (window.attachEvent) window.attachEvent("onload", sfHover);
 						</h$headerDepth>
 					</td>
 					<td headers="actions">
-						#if($item.isCollection())
-							#if($item.addActions && !$item.addActions.isEmpty())
-								<span id="button-$itemcount">
-									<ul class="makeMenu">
-										<li style="position:relative; z-index:4">Add <img src="images/sort_down.gif">
-											<ul style="">
-												#foreach($action in $item.addActions)
-													<li><a href="#" onclick="document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('attachForm');">$labeler.getLabel($action)</a></li>
-												#end
-											</ul>
-									  	</li>
-									</ul>
-								</span>
+						#if($can_attach_more)
+							#if($item.isCollection())
+								#if($item.addActions && !$item.addActions.isEmpty())
+									<span id="button-$itemcount">
+										<ul class="makeMenu">
+											<li style="position:relative; z-index:4">Add <img src="images/sort_down.gif">
+												<ul style="">
+													#foreach($action in $item.addActions)
+														<li><a href="#" onclick="document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('attachForm');">$labeler.getLabel($action)</a></li>
+													#end
+												</ul>
+										  	</li>
+										</ul>
+									</span>
+								#end
+							#else
+								<div class="itemAction">
+									<a href="#toolLinkParam("ResourcesAction" "doAttachitem" "itemId=$validator.escapeUrl(${item.id})")" title ="$tlang.getString('att.select')">$tlang.getString("att.select").trim()</a>
+								</div>
 							#end
-						#else
-							<div class="itemAction">
-								<a href="#toolLinkParam("ResourcesAction" "doAttachitem" "itemId=$validator.escapeUrl(${item.id})")" title ="$tlang.getString('att.select')">$tlang.getString("att.select").trim()</a>
-							</div>
 						#end
 					</td>
 				</tr>
@@ -387,24 +403,26 @@ if (window.attachEvent) window.attachEvent("onload", sfHover);
 								#end	
 							</td>
 							<td headers="actions">
-								######################  Add Action Links at Top Level  ##############
-								#if($item && ($item.canAddItem() || $item.canAddFolder()))
-									<div class="itemAction">
-										#set ($itemsOnLine = 0)
-										####### deal with adding item/folder
-										#if($item.canAddItem())
-											#if($disable_attach_links)
-											#else
-												#if ($itemsOnLine > 0)
-													|
+								#if($can_attach_more)
+									######################  Add Action Links at Top Level  ##############
+									#if($item && ($item.canAddItem() || $item.canAddFolder()))
+										<div class="itemAction">
+											#set ($itemsOnLine = 0)
+											####### deal with adding item/folder
+											#if($item.canAddItem())
+												#if($disable_attach_links)
+												#else
+													#if ($itemsOnLine > 0)
+														|
+													#end
+													#set ($itemsOnLine = $itemsOnLine + 1)
+													<a href="#toolLinkParam("ResourcesAction" "doCreate" "itemType=${TYPE_UPLOAD}&collectionId=$validator.escapeUrl(${item.id})")" title ="$tlang.getString('att.addnewtitle')">$tlang.getString("att.addnew").trim()</a>
 												#end
-												#set ($itemsOnLine = $itemsOnLine + 1)
-												<a href="#toolLinkParam("ResourcesAction" "doCreate" "itemType=${TYPE_UPLOAD}&collectionId=$validator.escapeUrl(${item.id})")" title ="$tlang.getString('att.addnewtitle')">$tlang.getString("att.addnew").trim()</a>
 											#end
-										#end
-									</div>
+										</div>
+									#end
+									######################  End of Add Items/Folders at Top Level  ##############
 								#end
-								######################  End of Add Items/Folders at Top Level  ##############
 							</td>
 						</tr>	
 						#set($collectionMembers = $item.Members)
@@ -500,50 +518,52 @@ if (window.attachEvent) window.attachEvent("onload", sfHover);
 										</h$headerDepth>
 									</td>
 									<td headers="actions">
-										<div class="itemAction">
-											#if($item.isCollection())
-												#set ($itemsOnLine = 0)
-												####### deal with adding item/folder
-												#if($item.canAddItem())
-													#if($disable_attach_links)
-													#else
-														#if ($itemsOnLine > 0)
-															|
+										#if($can_attach_more)
+											<div class="itemAction">
+												#if($item.isCollection())
+													#set ($itemsOnLine = 0)
+													####### deal with adding item/folder
+													#if($item.canAddItem())
+														#if($disable_attach_links)
+														#else
+															#if ($itemsOnLine > 0)
+																|
+															#end
+															#set ($itemsOnLine = $itemsOnLine + 1)
+															<a href="#toolLinkParam("ResourcesAction" "doCreate" "itemType=${TYPE_UPLOAD}&collectionId=$validator.escapeUrl(${item.id})")" title="$tlang.getString('att.addnewtitle')">$tlang.getString("att.addnew").trim()</a>
 														#end
-														#set ($itemsOnLine = $itemsOnLine + 1)
-														<a href="#toolLinkParam("ResourcesAction" "doCreate" "itemType=${TYPE_UPLOAD}&collectionId=$validator.escapeUrl(${item.id})")" title="$tlang.getString('att.addnewtitle')">$tlang.getString("att.addnew").trim()</a>
+													#end
+												#else
+													#set ($itemsOnLine = 0)
+													####### deal with attaching item
+													#if ($item.canRead() && $item.canSelect())
+														#if($disable_attach_links)
+														#else
+															#if ($itemsOnLine > 0)
+																|
+															#end
+															#set ($itemsOnLine = $itemsOnLine + 1)
+															<a href="#toolLinkParam("ResourcesAction" "doAttachitem" "itemId=$validator.escapeUrl(${item.id})")" title ="$tlang.getString('att.select')">$tlang.getString("att.select").trim()</a>
+														#end
+													#end
+													####### deal with duplicating item
+													#if($item.canRead() && $item.canAddItem())
+														#if($disable_attach_links)
+														#else
+															#if ($itemsOnLine > 0)
+																|
+															#end
+															#set ($itemsOnLine = $itemsOnLine + 1)
+															<a href="#toolLinkParam("ResourcesAction" "doPasteitem" "itemId=${validator.escapeUrl(${item.id})}&collectionId=${validator.escapeUrl(${item.container})}")" title="$tlang.getString('list.dup')">$tlang.getString("list.dup").trim()</a>
+														#end
 													#end
 												#end
-											#else
-												#set ($itemsOnLine = 0)
-												####### deal with attaching item
-												#if ($item.canRead() && $item.canSelect())
-													#if($disable_attach_links)
-													#else
-														#if ($itemsOnLine > 0)
-															|
-														#end
-														#set ($itemsOnLine = $itemsOnLine + 1)
-														<a href="#toolLinkParam("ResourcesAction" "doAttachitem" "itemId=$validator.escapeUrl(${item.id})")" title ="$tlang.getString('att.select')">$tlang.getString("att.select").trim()</a>
-													#end
-												#end
-												####### deal with duplicating item
-												#if($item.canRead() && $item.canAddItem())
-													#if($disable_attach_links)
-													#else
-														#if ($itemsOnLine > 0)
-															|
-														#end
-														#set ($itemsOnLine = $itemsOnLine + 1)
-														<a href="#toolLinkParam("ResourcesAction" "doPasteitem" "itemId=${validator.escapeUrl(${item.id})}&collectionId=${validator.escapeUrl(${item.container})}")" title="$tlang.getString('list.dup')">$tlang.getString("list.dup").trim()</a>
-													#end
-												#end
-											#end
-										</div>
-										#if($copyFlag && "${item.id}" == "$copiedItem")
-											<div class="inlineAlert">
-												$tlang.getString("list.copied")
 											</div>
+											#if($copyFlag && "${item.id}" == "$copiedItem")
+												<div class="inlineAlert">
+													$tlang.getString("list.copied")
+												</div>
+											#end
 										#end
 									</td>
 								</tr>
