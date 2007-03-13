@@ -124,6 +124,17 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
                 retval.put(P3PAttributes.USER_NAME_GIVEN,user.getFirstName());
                 retval.put(P3PAttributes.USER_NAME_FAMILY,user.getLastName());
                 retval.put(P3PAttributes.USER_NAME_NICKNAME,user.getDisplayName());
+
+		// Add some GridSphere compatibility
+		retval.put("user.name", user.getEid());
+		retval.put("user.login.id", user.getEid());
+		retval.put("user.name.full", user.getDisplayName());
+		retval.put("user.name.first", user.getFirstName());
+		retval.put("user.name.last", user.getLastName());
+		retval.put("user.email", user.getEmail());
+
+		// GridSphere not supported yet
+		// user.organization, user.lastlogintime, user.timezone, user.locale
             }
 
             if ( retval == null ) retval = new HashMap();
