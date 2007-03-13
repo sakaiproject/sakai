@@ -639,7 +639,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 								{
 									items = filterList(items, filter);
 								}
-								this_site.addAll(item.convert2list());
+								this_site.addAll(items);
 
 	//							List dbox = getListView(dbId, highlightedItems, (ResourcesBrowseItem) null, false, state);
 	//							getBrowseItems(dbId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (ResourcesBrowseItem) null, false, state);
@@ -690,7 +690,13 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 			{
 				ContentCollection collection = contentService.getCollection(collectionId);
 				ListItem item = ListItem.getListItem(collection, null, registry, expandAll, expandedCollections, null, null, 0, null);
-				this_site.addAll(item.convert2list());
+				List<ListItem> items = item.convert2list();
+				ContentResourceFilter filter = (ContentResourceFilter)state.getAttribute(STATE_ATTACHMENT_FILTER);
+				if(filter != null)
+				{
+					items = filterList(items, filter);
+				}
+				this_site.addAll(items);
 				
 			}
 			
