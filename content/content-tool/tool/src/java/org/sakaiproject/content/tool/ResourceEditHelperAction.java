@@ -30,31 +30,31 @@ public class ResourceEditHelperAction extends FilePickerAction
 	protected String initHelperAction(SessionState sstate, ToolSession toolSession)
 	{
 		Object createType = toolSession.getAttribute(ResourceEditingHelper.CREATE_TYPE);
-		sstate.setAttribute(ResourcesAction.STATE_ATTACH_LINKS, Boolean.TRUE.toString());
-		sstate.setAttribute(ResourcesAction.STATE_MODE, ResourcesAction.MODE_HELPER);
+		sstate.setAttribute(FilePickerAction.STATE_ATTACH_LINKS, Boolean.TRUE.toString());
+		sstate.setAttribute(FilePickerAction.STATE_MODE, FilePickerAction.MODE_HELPER);
 		if (toolSession.getAttribute(ResourceEditingHelper.ATTACHMENT_ID) != null)
 		{
-			sstate.setAttribute(ResourcesAction.STATE_RESOURCES_HELPER_MODE, ResourcesAction.MODE_ATTACHMENT_EDIT_ITEM);
-			sstate.setAttribute(ResourcesAction.STATE_EDIT_ID, toolSession.getAttribute(ResourceEditingHelper.ATTACHMENT_ID));
-			sstate.setAttribute(ResourcesAction.STATE_STRUCTOBJ_TYPE_READONLY, Boolean.TRUE.toString());
+			sstate.setAttribute(FilePickerAction.STATE_FILEPICKER_MODE, FilePickerAction.MODE_ATTACHMENT_EDIT_ITEM);
+			//sstate.setAttribute(FilePickerAction.STATE_EDIT_ID, toolSession.getAttribute(ResourceEditingHelper.ATTACHMENT_ID));
+			//sstate.setAttribute(FilePickerAction.STATE_STRUCTOBJ_TYPE_READONLY, Boolean.TRUE.toString());
 			if (ResourceEditingHelper.CREATE_TYPE_FORM.equals(createType))
 			{
-				sstate.setAttribute(ResourcesAction.STATE_CREATE_TYPE, ResourcesAction.TYPE_FORM);
+				//sstate.setAttribute(FilePickerAction.STATE_CREATE_TYPE, FilePickerAction.TYPE_FORM);
 			}
 		}
 		else
 		{
 			// must be create
-			sstate.setAttribute(ResourcesAction.STATE_RESOURCES_HELPER_MODE, ResourcesAction.MODE_ATTACHMENT_NEW_ITEM);
+			sstate.setAttribute(FilePickerAction.STATE_FILEPICKER_MODE, FilePickerAction.MODE_ATTACHMENT_NEW_ITEM);
 
 			if (ResourceEditingHelper.CREATE_TYPE_FORM.equals(createType))
 			{
-				sstate.setAttribute(ResourcesAction.STATE_CREATE_TYPE, ResourcesAction.TYPE_FORM);
+				//sstate.setAttribute(FilePickerAction.STATE_CREATE_TYPE, FilePickerAction.TYPE_FORM);
 				Object createSubType = toolSession.getAttribute(ResourceEditingHelper.CREATE_SUB_TYPE);
 				if (createSubType != null)
 				{
-					sstate.setAttribute(ResourcesAction.STATE_STRUCTOBJ_TYPE, createSubType);
-					sstate.setAttribute(ResourcesAction.STATE_STRUCTOBJ_TYPE_READONLY, Boolean.TRUE.toString());
+					//sstate.setAttribute(FilePickerAction.STATE_STRUCTOBJ_TYPE, createSubType);
+					//sstate.setAttribute(FilePickerAction.STATE_STRUCTOBJ_TYPE_READONLY, Boolean.TRUE.toString());
 				}
 			}
 
@@ -70,17 +70,6 @@ public class ResourceEditHelperAction extends FilePickerAction
 	protected void cleanup(SessionState sstate)
 	{
 		super.cleanup(sstate);
-		sstate.removeAttribute(ResourcesAction.STATE_ATTACH_ITEM_ID);
-		sstate.removeAttribute(ResourcesAction.STATE_STRUCTOBJ_TYPE_READONLY);
-		sstate.removeAttribute(ResourcesAction.STATE_CREATE_TYPE);
-		sstate.removeAttribute(ResourcesAction.STATE_STRUCTOBJ_TYPE);
-		sstate.removeAttribute(ResourcesAction.STATE_CREATE_NUMBER);
-		sstate.removeAttribute(ResourcesAction.STATE_CREATE_COLLECTION_ID);
-		sstate.removeAttribute(ResourcesAction.STATE_RESOURCES_HELPER_MODE);
-		sstate.removeAttribute(ResourcesAction.STATE_SHOW_OTHER_SITES);
-		sstate.removeAttribute(ResourcesAction.STATE_EDIT_ID);
-		sstate.removeAttribute(ResourcesAction.STATE_EDIT_COLLECTION_ID);
-		sstate.removeAttribute(ResourcesAction.STATE_ATTACH_LINKS);
 		// sstate.removeAttribute(ResourcesAction.STATE_STRUCTOBJ_HOMES);
 		// sstate.removeAttribute(ResourcesAction.STATE_EDIT_ITEM);
 		// sstate.removeAttribute(ResourcesAction.STATE_SHOW_FORM_ITEMS);
