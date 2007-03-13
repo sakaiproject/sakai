@@ -22,19 +22,25 @@
 
 package org.sakaiproject.tool.gradebooktest;
 
+import java.util.Date;
+
 import javax.faces.event.ActionEvent;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 
 public class GradebookBean {
 	private static final Log log = LogFactory.getLog(GradebookBean.class);
 
 	private String uid;
+	private String assignmentName;
 	private boolean uidFound;
 	private GradebookFrameworkService gradebookFrameworkService;
+	private GradebookExternalAssessmentService gradebookExternalAssessmentService;
+	private GradebookService gradebookService;
 
 	public String getUid() {
 		return uid;
@@ -46,12 +52,41 @@ public class GradebookBean {
 		return uidFound;
 	}
 
+	public String getAssignmentName() {
+		return assignmentName;
+	}
+	public void setAssignmentName(String assignmentName) {
+		this.assignmentName = assignmentName;
+	}
+
+	public void addAssignment(ActionEvent event) {
+		getGradebookService().addExternalAssessment(uid, "External-" + assignmentName, null, assignmentName, 10, new Date(), "Gradebook Service Test");
+	}
+
+	public void addAssignmentExternal(ActionEvent event) {
+		getGradebookExternalAssessmentService().addExternalAssessment(uid, "External-" + assignmentName, null, assignmentName, 10, new Date(), "Gradebook Service Test");
+	}
+
 	public void search(ActionEvent event) {
 		uidFound = getGradebookFrameworkService().isGradebookDefined(uid);
 		log.info("search uid=" + uid + ", uidFound=" + uidFound);
 	}
 
 	public void create(ActionEvent event) {
+		getGradebookService().addGradebook(uid, "Gradebook " + uid);
+		log.info("created Gradebook with uid=" + uid);
+	}
+
+	public GradebookService getGradebookService() {
+		log.info("getGradebookService " + gradebookService);
+		return gradebookService;
+	}
+	public void setGradebookService(GradebookService gradebookService) {
+		log.info("setGradebookService " + gradebookService);
+		this.gradebookService = gradebookService;
+	}
+
+	public void createFramework(ActionEvent event) {
 		getGradebookFrameworkService().addGradebook(uid, "Gradebook " + uid);
 		log.info("created Gradebook with uid=" + uid);
 	}
@@ -65,6 +100,13 @@ public class GradebookBean {
 		this.gradebookFrameworkService = gradebookFrameworkService;
 	}
 
+	public GradebookExternalAssessmentService getGradebookExternalAssessmentService() {
+		log.info("getGradebookExternalAssessmentService " + gradebookExternalAssessmentService);
+		return gradebookExternalAssessmentService;
+	}
+	public void setGradebookExternalAssessmentService(GradebookExternalAssessmentService gradebookExternalAssessmentService) {
+		log.info("setGradebookExternalAssessmentService " + gradebookExternalAssessmentService);
+		this.gradebookExternalAssessmentService = gradebookExternalAssessmentService;
+	}
+
 }
-
-

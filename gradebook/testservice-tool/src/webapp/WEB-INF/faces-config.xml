@@ -18,6 +18,14 @@
 			<property-name>gradebookFrameworkService</property-name>
 			<value>#{Components["org.sakaiproject.service.gradebook.GradebookFrameworkService"]}</value>
 		</managed-property>
+		<managed-property>
+			<property-name>gradebookExternalAssessmentService</property-name>
+			<value>#{Components["org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"]}</value>
+		</managed-property>
+		<managed-property>
+			<property-name>gradebookService</property-name>
+			<value>#{Components["org.sakaiproject.service.gradebook.GradebookService"]}</value>
+		</managed-property>
 	</managed-bean>
 
 </faces-config>

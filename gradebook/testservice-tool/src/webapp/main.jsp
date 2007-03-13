@@ -20,6 +20,14 @@
 			<h:outputText rendered="#{not empty gradebookBean.uid}" value="Found it = #{gradebookBean.uidFound}" /><br />
 
 			<h:commandButton id="create" actionListener="#{gradebookBean.create}" value="Create" />
+			<h:commandButton id="createFramework" actionListener="#{gradebookBean.createFramework}" value="Create through Framework" />
+
+			<hr/>
+
+			<h:outputText value="Assignment name: " />
+			<h:inputText id="gbAssignment" value="#{gradebookBean.assignmentName}" required="false"/>
+			<h:commandButton id="addAssignment" actionListener="#{gradebookBean.addAssignment}" value="Add Assignment" />
+			<h:commandButton id="addAssignmentExternal" actionListener="#{gradebookBean.addAssignmentExternal}" value="Add Assignment External" />
 
 		</h:form>
 	</f:view>
