@@ -54,7 +54,7 @@ public class ContentHostingHandlerResolverImpl implements BaseContentHostingHand
 	 * @param id
 	 * @return the closest ancestor or null if not found (bit unlikely)
 	 */
-	private ContentEntity getRealParent(Storage storage, String id)
+	public ContentEntity getRealParent(Storage storage, String id)
 	{
 		ContentEntity ce = storage.getCollection(id);
 		if (ce == null)
@@ -80,13 +80,12 @@ public class ContentHostingHandlerResolverImpl implements BaseContentHostingHand
 	 * @param ce
 	 * @return a resolved ContentEntity where appropriate, otherwise the orginal
 	 */
-	private ContentEntity getVirtualEntity(ContentEntity ce, String finalId)
+	public ContentEntity getVirtualEntity(ContentEntity ce, String finalId)
 	{
 		if (ce == null)
 		{
 			return null;
 		}
-		ContentEntity vce = null;
 		ResourceProperties p = ce.getProperties();
 		String chhbeanname = p.getProperty(CHH_BEAN_NAME);
 
@@ -95,7 +94,8 @@ public class ContentHostingHandlerResolverImpl implements BaseContentHostingHand
 			try
 			{
 				ContentHostingHandler chh = (ContentHostingHandler) ComponentManager.get(chhbeanname);
-				vce = chh.getVirtualContentEntity(ce, finalId);
+				return chh.getVirtualContentEntity(ce, finalId);
+				
 			}
 			catch (Exception e)
 			{
@@ -104,7 +104,7 @@ public class ContentHostingHandlerResolverImpl implements BaseContentHostingHand
 				return ce;
 			}
 		}
-		return vce;
+		return ce;
 	}
 
 	/**
@@ -116,32 +116,42 @@ public class ContentHostingHandlerResolverImpl implements BaseContentHostingHand
 	 *        if true, the exact match otherwise the nearest ancestor
 	 * @return
 	 */
-	private ContentEntity getVirtualChild(String finalId, ContentEntity ce, boolean exact)
+	public ContentEntity getVirtualChild(String finalId, ContentEntity ce, boolean exact)
 	{
-		if (ce==null) return null;  // entirely empty resources tool
+		if (ce == null) 
+		{
+			return null;  // entirely empty resources tool
+		}
 		String thisid = ce.getId();
+		// check for an exact match
 		if (finalId.equals(thisid))
 		{
 			return ce;
 		}
+		// find the next ID in the target eg
+		// /A/B/C == thisid
+		// /A/B/C/D/E/F == finalId
+		//         ^
 		int nextSlash = finalId.indexOf(Entity.SEPARATOR, thisid.length());
-		String nextId;
-		if (nextSlash == -1)
-			nextId = finalId;
-		else
-			nextId = finalId.substring(0, nextSlash);
-
-		// virtual container hierarchy needs the starting SEPARATOR to distinguish the (real) CE from the root of the virtual hierarchy.
+		
+		// /A/B/C/D/E/F == finalId
+		// not found
 		ContentEntity nextce;
-		if (nextSlash == finalId.length() - Entity.SEPARATOR.length()
-				&& thisid.length() + Entity.SEPARATOR.length() == finalId.length())
-		{
+		
+		if (nextSlash == -1) {
+			// hence final id found
 			nextce = getVirtualEntity(ce, finalId);
-		}
-		else
-		{
+		} else if ( nextSlash == finalId.length() - Entity.SEPARATOR.length()
+			&& thisid.length() + Entity.SEPARATOR.length() == finalId.length() ) {
+			nextce = getVirtualEntity(ce, finalId);			
+		} else {
+			// found D
+			// /A/B/C/D
+			String nextId = finalId.substring(0, nextSlash);
 			nextce = getVirtualEntity(ce.getMember(nextId), finalId);
 		}
+
+
 
 		if (nextce == null || nextce.getId().equals(thisid))
 		{
