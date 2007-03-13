@@ -1586,7 +1586,7 @@ public class CharonPortal extends HttpServlet
 		String headCss = headCssToolBase + headCssToolSkin;
 		String headJs = "<script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/js/headscripts.js\"></script>\n";
 		String head = headCss + headJs;
-		StringBuffer bodyonload = new StringBuffer();
+		StringBuilder bodyonload = new StringBuilder();
 		if (p != null)
 		{
 			String element = Web.escapeJavascript("Main" + p.getId());

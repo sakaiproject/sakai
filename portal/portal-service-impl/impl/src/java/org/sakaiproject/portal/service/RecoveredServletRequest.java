@@ -302,7 +302,7 @@ public class RecoveredServletRequest extends HttpServletRequestWrapper
 		if (o instanceof String[])
 		{
 			String[] values = (String[]) o;
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			sb.append("{");
 			for (int i = 0; i < values.length; i++)
 			{

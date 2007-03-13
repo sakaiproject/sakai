@@ -148,7 +148,7 @@ public class SakaiPortalCallbackService implements PortalCallbackService
 		@Override
 		public String toString()
 		{
-			return new StringBuffer(baseUrl).append("?")
+			return new StringBuilder(baseUrl).append("?")
 					.append(PORTLET_STATE_QUERY_PARAM).append("=").append(
 							portletStateEncoder.encode(portletState)).toString();
 		}

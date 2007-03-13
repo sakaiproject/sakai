@@ -100,7 +100,7 @@ public class EnhancedPortletStateEncoder implements PortletStateEncoder
 			else
 			{
 				String[] vals = (String[]) o;
-				StringBuffer sb = new StringBuffer();
+				StringBuilder sb = new StringBuilder();
 				for (int i = 0; i < vals.length; i++)
 				{
 					if (vals[i] == null)

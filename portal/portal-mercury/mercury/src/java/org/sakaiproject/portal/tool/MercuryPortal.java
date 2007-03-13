@@ -622,7 +622,7 @@ public class MercuryPortal extends HttpServlet
 		String headCss = headCssToolBase + headCssToolSkin;
 		String headJs = "<script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/js/headscripts.js\"></script>\n";
 		String head = headCss + headJs;
-		StringBuffer bodyonload = new StringBuffer();
+		StringBuilder bodyonload = new StringBuilder();
 		if (p != null)
 		{
 			String element = Web.escapeJavascript("Main" + p.getId());
@@ -689,7 +689,7 @@ public class MercuryPortal extends HttpServlet
 	 */
 	protected String printConfiguration(Properties config)
 	{
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		boolean first = true;
 		for (Enumeration names = config.propertyNames(); names.hasMoreElements();)
 		{
@@ -718,7 +718,7 @@ public class MercuryPortal extends HttpServlet
 	 */
 	protected String printCategories(Set categories)
 	{
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		boolean first = true;
 		for (Iterator i = categories.iterator(); i.hasNext();)
 		{
@@ -743,7 +743,7 @@ public class MercuryPortal extends HttpServlet
 	 */
 	protected String printKeywords(Set keywords)
 	{
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		boolean first = true;
 		for (Iterator i = keywords.iterator(); i.hasNext();)
 		{

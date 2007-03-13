@@ -38,6 +38,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
+import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.portal.util.PortalSiteHelper;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -130,6 +131,10 @@ public class PageHandler extends BasePortalHandler
 			// if not logged in, give them a chance
 			if (session.getUserId() == null)
 			{
+				StoredState ss = portalService.newStoredState("", "");
+				ss.setRequest(req);
+				ss.setToolContextPath(toolContextPath);
+				portalService.setStoredState(ss);
 				portal.doLogin(req, res, session, req.getPathInfo(), false);
 			}
 			else
@@ -151,6 +156,8 @@ public class PageHandler extends BasePortalHandler
 		includePage(rcontext, res, req, page, toolContextPath, "contentFull");
 
 		portal.sendResponse(rcontext, res, "page", null);
+		portalService.setStoredState(null);
+
 	}
 
 	public void includePage(PortalRenderContext rcontext, HttpServletResponse res,

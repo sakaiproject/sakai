@@ -57,6 +57,29 @@ public class PortalServiceImpl implements PortalService
 		}
 	}
 
+	private static final String TOOLSTATE_PARAM_PREFIX = "toolstate-";
+
+	private static String computeToolStateParameterName(String placementId)
+	{
+		return TOOLSTATE_PARAM_PREFIX + placementId;
+	}
+
+	public String decodeToolState(Map<String, String[]> params, String placementId)
+	{
+		String attrname = computeToolStateParameterName(placementId);
+		String[] attrval = params.get(attrname);
+		return attrval == null ? null : attrval[0];
+	}
+
+	public Map<String, String[]> encodeToolState(String placementId, String URLstub)
+	{
+		String attrname = computeToolStateParameterName(placementId);
+		Map<String, String[]> togo = new HashMap<String, String[]>();
+		// could assemble state from other visible tools here
+		togo.put(attrname, new String[] { URLstub });
+		return togo;
+	}
+
 	// To allow us to retain reset state across redirects
 	public String getResetState()
 	{
@@ -393,4 +416,5 @@ public class PortalServiceImpl implements PortalService
 		String portalContext = portal.getPortalContext();
 		safePut(portals, portalContext, null);
 	}
+
 }

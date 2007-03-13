@@ -124,7 +124,7 @@ public class ToolURLManagerImpl implements ToolURLManager
 		@Override
 		public String toString()
 		{
-			StringBuffer rv = new StringBuffer(path);
+			StringBuilder rv = new StringBuilder(path);
 			// Since we allow pre-formatted query strings to be added to the
 			// path, it may already contain
 			// some parameters

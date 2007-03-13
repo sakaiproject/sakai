@@ -40,6 +40,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
+import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.portal.util.PortalSiteHelper;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -156,6 +157,10 @@ public class SiteHandler extends WorksiteHandler
 			// if not logged in, give them a chance
 			if (session.getUserId() == null)
 			{
+				StoredState ss = portalService.newStoredState("directtool", "tool");
+				ss.setRequest(req);
+				ss.setToolContextPath(toolContextPath);
+				portalService.setStoredState(ss);
 				portal.doLogin(req, res, session, req.getPathInfo(), false);
 			}
 			else
@@ -202,6 +207,7 @@ public class SiteHandler extends WorksiteHandler
 
 		// end the response
 		portal.sendResponse(rcontext, res, "site", null);
+		portalService.setStoredState(null);
 	}
 
 	protected void includeSiteNav(PortalRenderContext rcontext, HttpServletRequest req,

@@ -124,7 +124,7 @@ public class ErrorReporter
 	protected String getStackTrace(Throwable t)
 	{
 		StackTraceElement[] st = t.getStackTrace();
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		if (st != null)
 		{
 			for (int i = 0; i < st.length; i++)
@@ -155,7 +155,7 @@ public class ErrorReporter
 	protected String getOneTrace(Throwable t)
 	{
 		StackTraceElement[] st = t.getStackTrace();
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		if (st != null && st.length > 0)
 		{
 			buf.append("\n    at "
@@ -207,7 +207,7 @@ public class ErrorReporter
 	 */
 	protected String throwableDisplay(Throwable t)
 	{
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		buf.append(t.toString()
 				+ ((getCause(t) == null) ? (getStackTrace(t)) : getOneTrace(t)));
 		while (getCause(t) != null)
@@ -469,7 +469,7 @@ public class ErrorReporter
 
 	private String placementDisplay()
 	{
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		try
 		{
 			Placement p = ToolManager.getCurrentPlacement();
@@ -500,7 +500,7 @@ public class ErrorReporter
 
 	private String requestDisplay(HttpServletRequest request)
 	{
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		try
 		{
 			sb.append(rb.getString("bugreport.request")).append("\n");

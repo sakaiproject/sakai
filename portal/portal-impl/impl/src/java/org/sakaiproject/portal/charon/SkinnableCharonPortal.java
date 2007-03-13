@@ -271,7 +271,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			{
 				String name = (String) e.nextElement();
 				String[] vals = (String[]) req.getParameterValues(name);
-				StringBuffer sb = new StringBuffer();
+				StringBuilder sb = new StringBuilder();
 				if (vals != null)
 				{
 					sb.append(vals[0]);
@@ -1177,7 +1177,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		String headCss = headCssToolBase + headCssToolSkin;
 		String headJs = "<script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/js/headscripts.js\"></script>\n";
 		String head = headCss + headJs;
-		StringBuffer bodyonload = new StringBuffer();
+		StringBuilder bodyonload = new StringBuilder();
 		if (p != null)
 		{
 			String element = Web.escapeJavascript("Main" + p.getId());

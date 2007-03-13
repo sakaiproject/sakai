@@ -29,23 +29,24 @@ import javax.servlet.http.HttpServletRequest;
 public interface PortalService
 {
 	/**
-	 * A portal request scope attribute that reprenset the placement id of the 
-	 * current request. It should be a string, and should be implimented where the 
-	 * request is portlet dispatched.
+	 * A portal request scope attribute that reprenset the placement id of the
+	 * current request. It should be a string, and should be implimented where
+	 * the request is portlet dispatched.
 	 */
 	public static final String PLACEMENT_ATTRIBUTE = PortalService.class.getName()
 			+ "_placementid";
 
 	/**
-	 * this is the property in the tool config that defines the portlet context 
-	 * of tool. At the moment we assume that this is in the read-only properties 
-	 * of the tool, but there could be a generic tool placement that enabled any 
+	 * this is the property in the tool config that defines the portlet context
+	 * of tool. At the moment we assume that this is in the read-only properties
+	 * of the tool, but there could be a generic tool placement that enabled any
 	 * portlet to be mounted
 	 */
 	public static final String TOOL_PORTLET_CONTEXT_PATH = "portlet-context";
 
 	/**
-	 * this is the property in the tool config that defines the name of the portlet
+	 * this is the property in the tool config that defines the name of the
+	 * portlet
 	 */
 	public static final String TOOL_PORTLET_NAME = "portlet-name";
 
@@ -57,6 +58,23 @@ public interface PortalService
 	void setResetState(String state);
 
 	/**
+	 * Returns a parameter map suitable for appending to a portal URL,
+	 * representing that the URL state of a tool being shown with the specified
+	 * placementId will be equal to the URLstub. URLstub may contain anchor
+	 * state, which the portal implementation may honour if it is capable. The
+	 * Map may also include the encoded state of other placements if they are
+	 * being shown in the current render state.
+	 */
+	Map<String, String[]> encodeToolState(String placementId, String URLstub);
+
+	/**
+	 * Inverts the operation of encodeToolState, and returns the URL stub which
+	 * was supplied for the supplied placementId. Will return <code>null</code>
+	 * if there was no special state registered.
+	 */
+	String decodeToolState(Map<String, String[]> params, String placementId);
+
+	/**
 	 * get the state of the state of the portal reset flag
 	 * 
 	 * @return
@@ -64,8 +82,8 @@ public interface PortalService
 	String getResetState();
 
 	/**
-	 * get the StoredState object that is used to hold initial request state on 
-	 * direct access to a portlet state or on GET or POST that requires other 
+	 * get the StoredState object that is used to hold initial request state on
+	 * direct access to a portlet state or on GET or POST that requires other
 	 * initial actions.
 	 * 
 	 * @return
@@ -113,8 +131,8 @@ public interface PortalService
 	StoredState newStoredState(String marker, String replacement);
 
 	/**
-	 * Get an Iterator of Portlet Application Descriptors from the whole of 
-	 * the application
+	 * Get an Iterator of Portlet Application Descriptors from the whole of the
+	 * application
 	 * 
 	 * @return
 	 */
@@ -134,13 +152,14 @@ public interface PortalService
 	 * add a render engine to the available render engines.
 	 * 
 	 * @param context -
-	 *        the context to rengister the render engine in, as there may be more 
-	 *        than one portal in a sakai instance, you need to register the render 
-	 *        engine against a context. The context should match the context used 
-	 *        by the portal to retrieve its render
-	 *        engine. This is dependant on the Portal implementation details.
+	 *        the context to rengister the render engine in, as there may be
+	 *        more than one portal in a sakai instance, you need to register the
+	 *        render engine against a context. The context should match the
+	 *        context used by the portal to retrieve its render engine. This is
+	 *        dependant on the Portal implementation details.
 	 * @param vengine
-	 *        the render engine implementation to register with the portal service
+	 *        the render engine implementation to register with the portal
+	 *        service
 	 */
 	void addRenderEngine(String context, PortalRenderEngine vengine);
 
@@ -148,11 +167,11 @@ public interface PortalService
 	 * remove a render engine from the avaialble render engines
 	 * 
 	 * @param context -
-	 *        the context to deregister the render engine from, as there may be 
-	 *        more than one portal in a sakai instance, you need to deregister the 
-	 *        render engine from a context. The context should match the context 
-	 *        used by the portal to retrieve its
-	 *        render engine. This is dependant on the Portal implementation details.
+	 *        the context to deregister the render engine from, as there may be
+	 *        more than one portal in a sakai instance, you need to deregister
+	 *        the render engine from a context. The context should match the
+	 *        context used by the portal to retrieve its render engine. This is
+	 *        dependant on the Portal implementation details.
 	 * @param vengine
 	 */
 	void removeRenderEngine(String context, PortalRenderEngine vengine);
@@ -166,7 +185,7 @@ public interface PortalService
 	void addHandler(Portal portal, PortalHandler handler);
 
 	/**
-	 * Remove the Portal Handler identitied by the URL fragment associated with 
+	 * Remove the Portal Handler identitied by the URL fragment associated with
 	 * the portal Context
 	 * 
 	 * @param portal
@@ -190,8 +209,8 @@ public interface PortalService
 	void removePortal(Portal portal);
 
 	/**
-	 * Remove a portal from the portal service this should perform all the necessary 
-	 * cleanup
+	 * Remove a portal from the portal service this should perform all the
+	 * necessary cleanup
 	 * 
 	 * @param portal
 	 */
