@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceFilter;
+import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.entity.api.ResourceProperties;
 
 /**
@@ -126,4 +127,18 @@ public class BaseExtensionResourceFilter implements ContentResourceFilter
 	{
 		this.acceptedExtensions = acceptedExtensions;
 	}
+
+	/**
+	 * This method controls which "create" actions are allowed for ContentCollections.  
+	 * Filtering "create" actions based on mimetype and extension is not yet
+	 * supported very well, so this may require tweaking over time.
+	 * @param actions A collection of actions to test
+	 * @return A list of actions that should be shown in the filepicker
+	 * 	for each collection.
+	 */
+    public List<ResourceToolAction> filterAllowedActions(List<ResourceToolAction> actions)
+    {
+    	// suggest checking for html, text, upload, etc and treating each separately
+	    return actions;
+    }
 }

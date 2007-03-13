@@ -633,6 +633,12 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 								expandedCollections.add(dbId);
 
 								ListItem item = ListItem.getListItem(db, (ListItem) null, registry, expandAll, expandedCollections, (List<String>) null, (List<String>) null, 0, userSelectedSort);
+								List<ListItem> items = item.convert2list();
+								ContentResourceFilter filter = (ContentResourceFilter)state.getAttribute(STATE_ATTACHMENT_FILTER);
+								if(filter != null)
+								{
+									items = filterList(items, filter);
+								}
 								this_site.addAll(item.convert2list());
 
 	//							List dbox = getListView(dbId, highlightedItems, (ResourcesBrowseItem) null, false, state);
@@ -819,6 +825,26 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 
 		return template;
 	    //return TEMPLATE_SELECT;
+    }
+
+	/**
+     * @param filter 
+	 * @param name
+     * @return
+     */
+    private List<ListItem> filterList(List<ListItem> items, ContentResourceFilter filter)
+    {
+    	
+    	List<ListItem> rv = new Vector<ListItem>();
+	    for(ListItem item : items)
+	    {
+	    	ContentEntity entity = item.getEntity();
+	    	if(entity.isCollection() || filter.allowSelect((ContentResource) entity))
+	    	{
+	    		rv.add(item);
+	    	}
+	    }
+	    return rv;
     }
 
 	/**
@@ -1719,6 +1745,8 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		
 		String user_action = params.getString("user_action");
 		
+		String displayName = null;
+		
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 		
@@ -1732,12 +1760,12 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 			try 
 			{
 				// title
-				String name = params.getString("name");
-				String basename = name.trim();
+				displayName = params.getString("name");
+				String basename = displayName.trim();
 				String extension = "";
-				if(name.contains("."))
+				if(displayName.contains("."))
 				{
-					String[] parts = name.split("\\.");
+					String[] parts = displayName.split("\\.");
 					basename = parts[0];
 					if(parts.length > 1)
 					{
@@ -1795,7 +1823,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 				resource.setContentType(pipe.getRevisedMimeType());
 				
 				ResourcePropertiesEdit resourceProperties = resource.getPropertiesEdit();
-				resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+				resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, displayName);
 				
 				Map values = pipe.getRevisedResourceProperties();
 				Iterator valueIt = values.keySet().iterator();
@@ -1968,19 +1996,26 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 				SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
 				expandedCollections.add(collectionId);
 				
-				AttachItem new_item = new AttachItem(resource.getId(), name, collectionId, resource.getUrl());
-				new_item.setContentType(resource.getContentType());
-				new_item.setResourceType(resourceType);
-				
-				List new_items = (List) state.getAttribute(STATE_ADDED_ITEMS);
-				if(new_items == null)
+				if(checkSelctItemFilter(resource, state))
 				{
-					new_items = new Vector();
-					state.setAttribute(STATE_ADDED_ITEMS, new_items);
+					AttachItem new_item = new AttachItem(resource.getId(), displayName, collectionId, resource.getUrl());
+					new_item.setContentType(resource.getContentType());
+					new_item.setResourceType(resourceType);
+					
+					List new_items = (List) state.getAttribute(STATE_ADDED_ITEMS);
+					if(new_items == null)
+					{
+						new_items = new Vector();
+						state.setAttribute(STATE_ADDED_ITEMS, new_items);
+					}
+					
+					new_items.add(new_item);
+				}
+				else
+				{
+					addAlert(state, (String) rb.getFormattedMessage("filter", new Object[]{displayName}));
 				}
 				
-				new_items.add(new_item);
-
 				state.setAttribute(STATE_HELPER_CHANGED, Boolean.TRUE.toString());
 				state.setAttribute(STATE_FILEPICKER_MODE, MODE_ATTACHMENT_SELECT_INIT);
 			} 

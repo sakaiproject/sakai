@@ -21,24 +21,39 @@
 
 package org.sakaiproject.content.api;
 
-public interface ContentResourceFilter {
+import java.util.List;
 
-   /**
-    * Implement this method to control which resources are allowed
-    * to be selected.  Implementation should inspect the resource and
-    * return true if the resource should be selectable and false if not.
-    * @param contentResource resource to test
-    * @return true if resource should be selectable, false if not
-    */
-   public boolean allowSelect(ContentResource contentResource);
+public interface ContentResourceFilter 
+{
+	/**
+	 * Implement this method to control which actions are allowed for 
+	 * ContentCollections.  This deals with "create" actions in particular. 
+	 * Implementation should inspect the actions in the list and include
+	 * them in the returned list if they are can result in creation of 
+	 * resources that can be selected. Otherwise they should not be 
+	 * inclided.
+	 * @param actions A collection of actions to test
+	 * @return A list of actions that should be shown in the filepicker
+	 * 	for each collection.
+	 */
+	public List<ResourceToolAction> filterAllowedActions(List<ResourceToolAction> actions);
 
-   /**
-    * Implement this method to control which resources are viewable.
-    * Implementation should inspect the resource and
-    * return true if the resource should be presented in the list
-    * and false if not.
-    * @param contentResource resource to test
-    * @return true if resource should be viewable, false if not
-    */
-   public boolean allowView(ContentResource contentResource);
+	/**
+	 * Implement this method to control which resources are allowed
+	 * to be selected.  Implementation should inspect the resource and
+	 * return true if the resource should be selectable and false if not.
+	 * @param contentResource resource to test
+	 * @return true if resource should be selectable, false if not
+	 */
+	public boolean allowSelect(ContentResource contentResource);
+
+	/**
+	 * Implement this method to control which resources are viewable.
+	 * Implementation should inspect the resource and
+	 * return true if the resource should be presented in the list
+	 * and false if not.
+	 * @param contentResource resource to test
+	 * @return true if resource should be viewable, false if not
+	 */
+	public boolean allowView(ContentResource contentResource);
 }

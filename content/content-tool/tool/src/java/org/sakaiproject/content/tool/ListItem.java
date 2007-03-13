@@ -97,6 +97,8 @@ public class ListItem
 	protected int depth;
 
 	protected boolean canSelect = false;
+
+	private ContentEntity entity;
 	
 	
 	/**
@@ -104,6 +106,7 @@ public class ListItem
 	 */
 	public ListItem(ContentEntity entity)
 	{
+		this.entity = entity;
 		ResourceProperties props = entity.getProperties();
 		this.accessUrl = entity.getUrl();
 		this.collection = entity.isCollection();
@@ -725,6 +728,15 @@ public class ListItem
 	    return list;
 	    
     }	// convert2list
+
+	/**
+     * @return
+     */
+    public ContentEntity getEntity()
+    {
+	    // TODO Auto-generated method stub
+	    return this.entity;
+    }
     
 }
 
