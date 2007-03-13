@@ -136,11 +136,19 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 	/** The name of the state attribute containing the name of the tool that invoked Resources as attachment helper */
 	public static final String STATE_ATTACH_TOOL_NAME = PREFIX + "attach_tool_name";
 
+	/**
+	 * The name of the state attribute for the maximum number of items to attach. The attribute value will be an Integer, 
+	 * usually FilePickerHelper.CARDINALITY_SINGLE or FilePickerHelper.CARDINALITY_MULTIPLE. 
+	 */
 	protected static final String STATE_ATTACH_CARDINALITY = PREFIX + "attach_cardinality";
+	protected static final String STATE_ATTACH_INSTRUCTION = PREFIX + "attach_instruction";
 
 	protected static final String STATE_ATTACH_LINKS = PREFIX + "attach_links";
+	protected static final String STATE_ATTACH_TITLE = PREFIX + "attach_title";
 
 	protected static final String STATE_ATTACHMENT_FILTER = PREFIX + "attachment_filter";
+
+	
 	protected static final String STATE_ATTACHMENT_LIST = PREFIX + "attachment_list";
 	protected static final String STATE_CONTENT_SERVICE = PREFIX + "content_service";
 
@@ -180,6 +188,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 	private static final String TEMPLATE_SELECT = "content/sakai_filepicker_select";
 
 	private static final int MAXIMUM_ATTEMPTS_FOR_UNIQUENESS = ResourcesAction.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS;
+
 
 
 	/**
@@ -353,7 +362,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 			String typeId = pipe.getAction().getTypeId();
 			//List items = newEditItems(collection.getId(), typeId, encoding, defaultCopyrightStatus, preventPublicDisplay.booleanValue(), defaultRetractDate, new Integer(1));
 
-			EditItem item = new EditItem("", collection.getId(), typeId, pipe);
+			ResourcesItem item = new ResourcesItem("", collection.getId(), typeId, pipe);
 			item.setContent(pipe.getContent());
 			item.setContentType(pipe.getMimeType());
 			context.put("item", item);
@@ -622,11 +631,11 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 								ListItem item = ListItem.getListItem(db, (ListItem) null, registry, expandAll, expandedCollections, (List<String>) null, (List<String>) null, 0, userSelectedSort);
 								this_site.addAll(item.convert2list());
 
-	//							List dbox = getListView(dbId, highlightedItems, (ChefBrowseItem) null, false, state);
-	//							getBrowseItems(dbId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (ChefBrowseItem) null, false, state);
+	//							List dbox = getListView(dbId, highlightedItems, (ResourcesBrowseItem) null, false, state);
+	//							getBrowseItems(dbId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (ResourcesBrowseItem) null, false, state);
 	//							if(dbox != null && dbox.size() > 0)
 	//							{
-	//								ChefBrowseItem root = (ChefBrowseItem) dbox.remove(0);
+	//								ResourcesBrowseItem root = (ResourcesBrowseItem) dbox.remove(0);
 	//								// context.put("site", root);
 	//								root.setName(submitter.getDisplayName() + " " + rb.getString("gen.drop"));
 	//								root.addMembers(dbox);
@@ -649,11 +658,11 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 							ListItem item = ListItem.getListItem(db, null, registry, expandAll, expandedCollections, null, null, 0, null);
 							this_site.addAll(item.convert2list());
 
-	//						List dbox = getListView(dropboxId, highlightedItems, (ChefBrowseItem) null, false, state);
-	//						// List dbox = getBrowseItems(dropboxId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (ChefBrowseItem) null, false, state);
+	//						List dbox = getListView(dropboxId, highlightedItems, (ResourcesBrowseItem) null, false, state);
+	//						// List dbox = getBrowseItems(dropboxId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (ResourcesBrowseItem) null, false, state);
 	//						if(dbox != null && dbox.size() > 0)
 	//						{
-	//							ChefBrowseItem root = (ChefBrowseItem) dbox.remove(0);
+	//							ResourcesBrowseItem root = (ResourcesBrowseItem) dbox.remove(0);
 	//							// context.put("site", root);
 	//							root.setName(ContentHostingService.getDropboxDisplayName());
 	//							root.addMembers(dbox);
@@ -676,11 +685,11 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 			}
 			
 			
-//			List members = getListView(collectionId, highlightedItems, (ChefBrowseItem) null, navRoot.equals(homeCollectionId), state);
-//			// List members = getBrowseItems(collectionId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (ChefBrowseItem) null, navRoot.equals(homeCollectionId), state);
+//			List members = getListView(collectionId, highlightedItems, (ResourcesBrowseItem) null, navRoot.equals(homeCollectionId), state);
+//			// List members = getBrowseItems(collectionId, expandedCollections, highlightedItems, sortedBy, sortedAsc, (ResourcesBrowseItem) null, navRoot.equals(homeCollectionId), state);
 //			if(members != null && members.size() > 0)
 //			{
-//				ChefBrowseItem root = (ChefBrowseItem) members.remove(0);
+//				ResourcesBrowseItem root = (ResourcesBrowseItem) members.remove(0);
 //				if(atHome && dropboxMode)
 //				{
 //					root.setName(siteTitle + " " + rb.getString("gen.drop"));
@@ -874,18 +883,39 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		while(attachmentIt.hasNext())
 		{
 			Reference ref = (Reference) attachmentIt.next();
-			ContentResource res = (ContentResource) ref.getEntity();
-			ResourceProperties props = res.getProperties();
-
-			String displayName = props.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
-			String containerId = contentService.getContainingCollectionId (res.getId());
-			String accessUrl = res.getUrl();
-
-			AttachItem item = new AttachItem(res.getId(), displayName, containerId, accessUrl);
-			item.setContentType(res.getContentType());
-			item.setResourceType(res.getResourceType());
-			
-			new_items.add(item);
+			try
+            {
+				ContentResource res = (ContentResource) ref.getEntity();
+				ResourceProperties props = null;
+				String accessUrl = null;
+				if(res == null)
+				{
+		                props = contentService.getProperties(ref.getId());
+		                accessUrl = contentService.getUrl(ref.getId());
+	 			}
+				else
+				{
+					props = res.getProperties();
+					accessUrl = res.getUrl();
+				}
+	
+				String displayName = props.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
+				String containerId = contentService.getContainingCollectionId (res.getId());
+	
+				AttachItem item = new AttachItem(ref.getId(), displayName, containerId, accessUrl);
+				item.setContentType(res.getContentType());
+				item.setResourceType(res.getResourceType());
+				
+				new_items.add(item);
+            }
+            catch (PermissionException e)
+            {
+                logger.info("PermissionException -- User has permission to revise item but lacks permission to view attachment: " + ref.getId());
+            }
+            catch (IdUnusedException e)
+            {
+                logger.info("IdUnusedException -- An attachment has been deleted: " + ref.getId());
+            }
 		}
 		state.setAttribute(STATE_ADDED_ITEMS, new_items);
 		
@@ -908,12 +938,12 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 
 		// state attribute ResourcesAction.STATE_ATTACH_TOOL_NAME should be set with a string to indicate name of tool
 		String toolName = ToolManager.getCurrentPlacement().getTitle();
-		state.setAttribute(ResourcesAction.STATE_ATTACH_TOOL_NAME, toolName);
+		state.setAttribute(STATE_ATTACH_TOOL_NAME, toolName);
 
 		Object max_cardinality = toolSession.getAttribute(FilePickerHelper.FILE_PICKER_MAX_ATTACHMENTS);
 		if (max_cardinality != null)
 		{
-			state.setAttribute(ResourcesAction.STATE_ATTACH_CARDINALITY, max_cardinality);
+			state.setAttribute(STATE_ATTACH_CARDINALITY, max_cardinality);
 		}
 
 		if (state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE) == null)
@@ -936,7 +966,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		{
 			message = rb.getString(FilePickerHelper.FILE_PICKER_TITLE_TEXT);
 		}
-		state.setAttribute(ResourcesAction.STATE_ATTACH_TITLE, message);
+		state.setAttribute(STATE_ATTACH_TITLE, message);
 
 		message = (String) toolSession.getAttribute(FilePickerHelper.FILE_PICKER_INSTRUCTION_TEXT);
 		toolSession.removeAttribute(FilePickerHelper.FILE_PICKER_INSTRUCTION_TEXT);
@@ -944,7 +974,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		{
 			message = rb.getString(FilePickerHelper.FILE_PICKER_INSTRUCTION_TEXT);
 		}
-		state.setAttribute(ResourcesAction.STATE_ATTACH_INSTRUCTION, message);
+		state.setAttribute(STATE_ATTACH_INSTRUCTION, message);
 	}
 
 	/**
@@ -1388,15 +1418,15 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 //					new_items = (List) state.getAttribute(ResourcesAction.STATE_HELPER_NEW_ITEMS);
 //				}
 //			}
-//			ChefEditItem edit_item = null;
+//			ResourcesEditItem edit_item = null;
 //			List edit_items = (List) current_stack_frame.get(ResourcesAction.STATE_STACK_CREATE_ITEMS);
 //			if(edit_items == null)
 //			{
-//				edit_item = (ChefEditItem) current_stack_frame.get(ResourcesAction.STATE_STACK_EDIT_ITEM);
+//				edit_item = (ResourcesEditItem) current_stack_frame.get(ResourcesAction.STATE_STACK_EDIT_ITEM);
 //			}
 //			else
 //			{
-//				edit_item = (ChefEditItem) edit_items.get(0);
+//				edit_item = (ResourcesEditItem) edit_items.get(0);
 //			}
 //			if(edit_item != null)
 //			{
@@ -1678,7 +1708,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		// find the ContentHosting service
 		ContentHostingService contentService = (ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
 
-		EditItem item = (EditItem) state.getAttribute(STATE_NEW_ATTACHMENT);
+		ResourcesItem item = (ResourcesItem) state.getAttribute(STATE_NEW_ATTACHMENT);
 		
 		// get the parameter-parser
 		ParameterParser params = data.getParameters();

@@ -81,7 +81,7 @@ if (window.attachEvent) window.attachEvent("onload", sfHover);
 				<div class="navIntraTool">
 					$tlang.getString("list.site")
 					| <a href="#toolLink("ResourcesAction" "doShow_webdav")" title="$tlang.getString('dav.webdav')">$tlang.getString("dav.webdav").trim()</a> 
-					| <a href="#toolLink("ResourcesAction" "doColumns")" title="$tlang.getString('list.columns')">$tlang.getString("list.columns")</a> 
+##					| <a href="#toolLink("ResourcesAction" "doColumns")" title="$tlang.getString('list.columns')">$tlang.getString("list.columns")</a> 
 					#if($showPermissions)
 					| <a href="#toolLinkParam("ResourcesAction" "doPermissions" "collectionId=$validator.escapeUrl(${site.id})")" title="$tlang.getString('list.sPerm')">$tlang.getString("list.sPerm").trim()</a>
 					#end
@@ -175,14 +175,12 @@ if (window.attachEvent) window.attachEvent("onload", sfHover);
 					#if ($expandallflag && "$expandallflag" == "$TRUE")
 						<a href="#" onclick="javascript:document.getElementById('sakai_action').value='doUnexpandall';document.getElementById('collectionId').value='$collectionId';document.getElementById('showForm').submit();"
 							title= "$tlang.getString('collapseall')">
-						##<a href="#toolLinkParam("ResourcesAction" "doUnexpandall" "collectionId=$validator.escapeUrl($collectionId)")" title ="$tlang.getString('collapseall')">
 							<img src = "#imageLink("sakai/collapse-expand.gif")" border="0" title="$tlang.getString('collapseall')" alt="$tlang.getString('collapseall')" hspace="0" />
 						</a>								 
 					#else
 						<a href="#"
 							onclick="javascript:document.getElementById('sakai_action').value='doExpandall';document.getElementById('collectionId').value='$collectionId';document.getElementById('showForm').submit();"
 							title= "$tlang.getString('expandall')">
-						##<a href="#toolLinkParam("ResourcesAction" "doExpandall" "collectionId=$validator.escapeUrl($collectionId)")" title ="$tlang.getString('expandall')">
 							<img src = "#imageLink("sakai/expand-collapse.gif")" border="0" title="$tlang.getString('expandall')" alt="$tlang.getString('expandall')" hspace="0" />
 						</a>								 
 					#end

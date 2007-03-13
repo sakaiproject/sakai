@@ -40,7 +40,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.time.api.Time;
 
-public class EditItem
+public class ResourcesItem
 {
 	protected byte[] content;
 	protected String contentType;
@@ -81,7 +81,7 @@ public class EditItem
 	 * @param propertyValues
 	 * @param resourceType
 	 */
-	public EditItem(String entityId, String collectionId, String resourceType, Map propertyValues)
+	public ResourcesItem(String entityId, String collectionId, String resourceType, Map propertyValues)
 	{
 		super();
 		this.entityId = entityId;
@@ -93,7 +93,7 @@ public class EditItem
 		}
 	}
 	
-	public EditItem(ContentEntity entity)
+	public ResourcesItem(ContentEntity entity)
 	{
 		ResourceProperties props = entity.getProperties();
 		this.accessMode = entity.getAccess();
@@ -170,7 +170,7 @@ public class EditItem
 		}			
 	}
 	
-	public EditItem(String entityId, String collectionId, String resourceType, ResourceToolActionPipe pipe)
+	public ResourcesItem(String entityId, String collectionId, String resourceType, ResourceToolActionPipe pipe)
 	{
 		super();
 		this.entityId = entityId;
@@ -191,7 +191,7 @@ public class EditItem
 	
 	public void update(ResourceToolActionPipe pipe)
 	{
-		// TODO: update the EditItem based on the pipe
+		// TODO: update the ResourcesItem based on the pipe
 	}
 
 	/**
