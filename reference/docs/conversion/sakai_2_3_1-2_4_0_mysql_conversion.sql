@@ -181,3 +181,53 @@ alter table MFR_OPEN_FORUM_T modify column MODERATED bit not null;
 -- change MODERATED column in MFR_TOPIC_T to not null
 update MFR_TOPIC_T set MODERATED=0 where MODERATED is NULL;
 alter table MFR_TOPIC_T modify column MODERATED bit not null;
+
+
+----------------------------------------------------------------------------------------------------------------------------------------
+-- New Chat storage and permissions (SAK-8508)
+----------------------------------------------------------------------------------------------------------------------------------------
+--create new tables
+CREATE TABLE CHAT2_CHANNEL ( 
+    CHANNEL_ID           	varchar(36) NOT NULL,
+    CONTEXT              	varchar(36) NOT NULL,
+    CREATION_DATE        	datetime NULL,
+    title                	varchar(64) NULL,
+    description          	varchar(255) NULL,
+    filterType           	varchar(25) NULL,
+    filterParam          	int(11) NULL,
+    contextDefaultChannel	tinyint(1) NULL,
+    PRIMARY KEY(CHANNEL_ID)
+);
+
+CREATE TABLE CHAT2_MESSAGE ( 
+    MESSAGE_ID  	varchar(36) NOT NULL,
+    CHANNEL_ID  	varchar(36) NULL,
+    OWNER       	varchar(96) NOT NULL,
+    MESSAGE_DATE	datetime NULL,
+    BODY        	text NOT NULL,
+    PRIMARY KEY(MESSAGE_ID)
+);
+CREATE INDEX FK720F9882555E0B79
+    ON CHAT2_MESSAGE(CHANNEL_ID);
+
+-- add new permissions
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'chat.delete.channel');
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'chat.new.channel');
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'chat.revise.channel');
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.user'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.delete.channel'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.user'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.new.channel'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.user'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.revise.channel'));
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.delete.channel'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.new.channel'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.revise.channel'));
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.delete.channel'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.new.channel'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.revise.channel'));
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '/site/mercury'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.delete.channel'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '/site/mercury'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.new.channel'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '/site/mercury'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.revise.channel'));
+
