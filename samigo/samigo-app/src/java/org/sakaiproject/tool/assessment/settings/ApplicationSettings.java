@@ -25,7 +25,7 @@ package org.sakaiproject.tool.assessment.settings;
 
 import java.io.IOException;
 import java.util.Properties;
-import java.util.ResourceBundle;
+import org.sakaiproject.util.ResourceLoader;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -155,8 +155,7 @@ public class ApplicationSettings
       }
 
       // build information
-      final ResourceBundle rb = ResourceBundle
-          .getBundle("org.navigoproject.build");
+      final ResourceLoader rb = new ResourceLoader("org.navigoproject.build");
       buildVersion = rb.getString("build.version");
       buildTime = rb.getString("build.time");
       buildTag = rb.getString("build.tag");

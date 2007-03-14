@@ -37,6 +37,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.cover.ToolManager; 
 import org.sakaiproject.content.cover.ContentHostingService; 
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.ResourceLoader;
 
 
 /**
@@ -394,7 +395,8 @@ public class RichTextEditArea extends Renderer
 	  //come up w/ rows/cols for the textarea if needed
 	  int textBoxRows = (new Integer(outRow).intValue()/20);
 	  int textBoxCols = (new Integer(outRow).intValue()/3);
-	   
+	  
+	  ResourceLoader rb=new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
     //fck's tool bar can get pretty big
     if (new Integer(outRow).intValue() < 300) 
     {
@@ -406,8 +408,9 @@ public class RichTextEditArea extends Renderer
     
     if(shouldToggle)
     {    	
-    	String show_hide_editor = (String) ContextUtil.getLocalizedString(
-			"org.sakaiproject.tool.assessment.bundle.AuthorMessages", "show_hide_editor");
+    	//String show_hide_editor = (String) ContextUtil.getLocalizedString(
+		//	"org.sakaiproject.tool.assessment.bundle.AuthorMessages", "show_hide_editor");
+    	String show_hide_editor = rb.getString("show_hide_editor");
     	writer.write("<div class=\"toggle_link_container\"><a class=\"toggle_link\" id=\"" +clientId+ "_toggle\" href=\"javascript:show_hide_editor('" +  clientId + "');\">" + show_hide_editor + "</a></div>\n");
     }
     

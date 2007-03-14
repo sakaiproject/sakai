@@ -34,6 +34,7 @@ import javax.faces.component.ValueHolder;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 import javax.faces.render.Renderer;
+import org.sakaiproject.util.ResourceLoader;
 
 import org.sakaiproject.tool.assessment.jsf.renderer.util.RendererUtil;
 
@@ -52,7 +53,9 @@ public class DatePickerRenderer extends Renderer
   private static final String HEIGHT = "16";
   private static final String WIDTH = "16";
   private static final String CURSORSTYLE = "cursor:pointer;";
-  private static final String CLICKALT = "Click Here to Pick Date";
+  
+  //moved to properties
+  //private static final String CLICKALT = "Click Here to Pick Date";
 
   private RendererUtil rUtil;
 
@@ -106,6 +109,7 @@ public class DatePickerRenderer extends Renderer
   public void encodeEnd(FacesContext context,
     UIComponent component) throws IOException
   {
+	ResourceLoader rb= new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
     ResponseWriter writer = context.getResponseWriter();
     String contextPath = context.getExternalContext()
                          .getRequestContextPath();
@@ -162,7 +166,8 @@ public class DatePickerRenderer extends Renderer
     writer.write("  src=\"" + contextPath + "/images/calendar/cal.gif\"\n");
     writer.write("  border=\"0\"\n");
     writer.write("  id=\"_datePickerPop_" + id + "\"");
-    writer.write("  alt=\"" + CLICKALT + "\"/>&#160;&#160;\n");
+    //writer.write("  alt=\"" + CLICKALT + "\"/>&#160;&#160;\n");
+    writer.write("  alt=\"" + rb.getString("dp_CLICKALT") + "\"/>&#160;&#160;\n");
   }
 
 }

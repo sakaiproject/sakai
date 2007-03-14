@@ -67,6 +67,8 @@ import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.entity.api.Reference;
 
+import org.sakaiproject.util.ResourceLoader;
+
 
 
 //import org.osid.shared.*;
@@ -667,7 +669,8 @@ public class ItemAuthorBean
 
   public ArrayList getSectionSelectList() {
     ArrayList list = new ArrayList();
-
+    
+    ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
     AssessmentBean assessbean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
     ArrayList sectionSet = assessbean.getSections();
     Iterator iter = sectionSet.iterator();
@@ -683,10 +686,10 @@ public class ItemAuthorBean
       }
       else {
         if ("".equals(part.getTitle())) {
-          selection.setLabel("Part " + i );
+          selection.setLabel(rb.getString("p")+" "+ i );
         }
         else {
-          selection.setLabel("Part " + i + " - " + part.getTitle());
+          selection.setLabel(rb.getString("p")+" " + i + " - " + part.getTitle());
         }
         selection.setValue(part.getSectionId());
         list.add(selection);
@@ -700,7 +703,7 @@ public class ItemAuthorBean
     if (list.size() <1) {
       i = i + 1;
       SelectItem temppart = new SelectItem();
-      temppart.setLabel("Part " + i );
+      temppart.setLabel(rb.getString("p")+" "+ i );
       temppart.setValue("-1");  // use -1 to indicate this is a temporary part. if the user decides to cancel the operation, this part will not be created
       list.add(temppart);
     } 

@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ResourceBundle;
+import org.sakaiproject.util.ResourceLoader;
 
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
@@ -264,22 +264,21 @@ private List attachmentList;
     // cannot disable only one radio button in a list, so am generating the list again
 
     FacesContext context=FacesContext.getCurrentInstance();
-    ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorMessages", context.getViewRoot().getLocale());
-
+    ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
 
     if (hideRandom){
         SelectItem selection = new SelectItem();
-        selection.setLabel((String)rb.getObject("type_onebyone"));
+        selection.setLabel(rb.getString("type_onebyone"));
         selection.setValue("1");
         list.add(selection);
     }
     else {
         SelectItem selection = new SelectItem();
-        selection.setLabel((String)rb.getObject("type_onebyone"));
+        selection.setLabel(rb.getString("type_onebyone"));
         selection.setValue("1");
         list.add(selection);
         SelectItem selection1 = new SelectItem();
-        selection1.setLabel((String)rb.getObject("random_draw_from_que"));
+        selection1.setLabel(rb.getString("random_draw_from_que"));
         selection1.setValue("2");
         list.add(selection1);
     }
@@ -756,15 +755,15 @@ private List attachmentList;
 	    ArrayList list = new ArrayList();
 
 	    FacesContext context=FacesContext.getCurrentInstance();
-	    ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorMessages", context.getViewRoot().getLocale());
-
+	    ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
+	    
 	    SelectItem selection = new SelectItem();
-	    selection.setLabel((String)rb.getObject("randomized_per_submission"));
+	    selection.setLabel(rb.getString("randomized_per_submission"));
 	    selection.setValue("1");
 	    list.add(selection);
 	    
 	    selection = new SelectItem();
-	    selection.setLabel((String)rb.getObject("randomized_per_student"));
+	    selection.setLabel(rb.getString("randomized_per_student"));
 	    selection.setValue("2");
 	    list.add(selection);
 	    

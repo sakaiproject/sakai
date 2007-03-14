@@ -26,8 +26,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 import javax.faces.model.SelectItem;
-import java.util.ResourceBundle;
-import java.util.Locale;
+import org.sakaiproject.util.ResourceLoader; 
 
 /**
  *
@@ -36,9 +35,6 @@ import java.util.Locale;
  * Describes what item types the will be supported.
  * To change, modify the itemConfig properties in the faces.config file.
  * Also developers could add an administrative configuration later.</p>
- * <p>Sakai Project Copyright (c) 2005</p>
- * <p> </p>
- * @author Ed Smiley <esmiley@stanford.edu>
  *
  */
 public class ItemConfigBean implements Serializable
@@ -353,7 +349,7 @@ if (showFillInNumeric)
    */
   private String getResourceDisplayName(String resName)
   {
-    ResourceBundle res = ResourceBundle.getBundle(msgResource, Locale.getDefault());
+	  ResourceLoader res = new ResourceLoader(msgResource);
     return res.getString(resName);
   }
 }

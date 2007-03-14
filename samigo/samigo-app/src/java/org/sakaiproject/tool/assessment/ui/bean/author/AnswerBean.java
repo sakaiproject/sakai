@@ -23,9 +23,8 @@
 package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
-import java.util.ResourceBundle;
-
-import javax.faces.context.FacesContext;
+import org.sakaiproject.util.ResourceLoader;
+ 
 
 public class AnswerBean implements Serializable{
 
@@ -36,11 +35,9 @@ public class AnswerBean implements Serializable{
   private String label;
   private String feedback;
   private Boolean isCorrect;
+  private static ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
 
-  // TODO should use properties file for internationalization
-  //public static String[] choiceLabels= {"A", "B", "C", "D", "E", "F","G", "H","I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
-  public static final String choiceLabels = (String) ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorMessages", FacesContext.getCurrentInstance().getViewRoot().getLocale()).getObject("choice_labels");
-  
+  public static final String choiceLabels = rb.getString("choice_labels"); 
   public AnswerBean() {}
 
   public AnswerBean(String ptext, Long pseq, String plabel, String pfdbk, Boolean pcorr, String pgrade , Float pscore) {

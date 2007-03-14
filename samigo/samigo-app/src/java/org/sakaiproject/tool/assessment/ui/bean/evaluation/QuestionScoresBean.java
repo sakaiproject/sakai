@@ -42,6 +42,7 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * <p>Description: class form for evaluating question scores</p>
@@ -343,14 +344,16 @@ public class QuestionScoresBean
    */
   public String getMaxPoint()
     {  
+	  ResourceLoader rb=new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
 	try{
-	if (Double.parseDouble(this.getMaxScore())>1.0)
-	    return this.getMaxScore()+" Points";
+		if (Double.parseDouble(this.getMaxScore())==1.0)
+			return this.getMaxScore()+ " " + rb.getString("point");
+
 	else
-	    return this.getMaxScore()+ " Point";
+		return this.getMaxScore()+ " " + rb.getString("points");
 	}
 	catch(NumberFormatException e){
-	    return this.getMaxScore()+ " Point";
+		return this.getMaxScore()+ " " + rb.getString("point");
 	}
     }
 

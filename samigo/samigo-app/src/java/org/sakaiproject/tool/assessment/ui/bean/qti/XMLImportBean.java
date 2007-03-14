@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2004, 2005, 2006, 2007 The Sakai Foundation.
  *
  * Licensed under the Educational Community License, Version 1.0 (the"License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ package org.sakaiproject.tool.assessment.ui.bean.qti;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.ResourceBundle;
+import org.sakaiproject.util.ResourceLoader;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -56,9 +56,6 @@ import org.w3c.dom.Document;
  
 /**
  * <p>Bean for QTI Import Data</p>
- * <p>Copyright: Copyright (c) 2005 Sakai</p>
- * @author Ed Smiley esmiley@stanford.edu
- * @version $Id$
  */
 
 public class XMLImportBean implements Serializable
@@ -119,7 +116,7 @@ public class XMLImportBean implements Serializable
     }
     catch (Exception ex)
     {
-      ResourceBundle rb = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorImportExport");
+      ResourceLoader rb =new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorImportExport");
       FacesMessage message = new FacesMessage( rb.getString("import_err") + ex );
       FacesContext.getCurrentInstance().addMessage(null, message);
       // remove unsuccessful file
@@ -145,7 +142,7 @@ public class XMLImportBean implements Serializable
     }
     catch (Exception ex)
     {
-      ResourceBundle rb = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorImportExport");
+      ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorImportExport");
       FacesMessage message = new FacesMessage( rb.getString("import_err") + ex );
       FacesContext.getCurrentInstance().addMessage(null, message);
       // remove unsuccessful file
@@ -337,7 +334,7 @@ public class XMLImportBean implements Serializable
     }
     catch (Exception ex)
     {
-      ResourceBundle rb = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorImportExport");
+      ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorImportExport");
       FacesMessage message = new FacesMessage( rb.getString("import_err") + ex );
       FacesContext.getCurrentInstance().addMessage(null, message);
     }

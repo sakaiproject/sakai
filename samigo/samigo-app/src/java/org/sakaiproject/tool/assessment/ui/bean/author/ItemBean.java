@@ -27,7 +27,7 @@ package org.sakaiproject.tool.assessment.ui.bean.author;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.ResourceBundle;
+import org.sakaiproject.util.ResourceLoader;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -1004,9 +1004,8 @@ public class ItemBean
 	       {
 		   //print error
                FacesContext context=FacesContext.getCurrentInstance();
-	       ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorMessages", context.getViewRoot().getLocale());
-
-	       context.addMessage(null,new FacesMessage((String)rb.getObject("MCanswer_outofbound_error")));
+               ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
+               context.addMessage(null,new FacesMessage(rb.getString("MCanswer_outofbound_error")));
 	       }
     
        }
@@ -1064,9 +1063,8 @@ public class ItemBean
     
 	if(choice==null ||choice.equals("")|| match==null || match.equals("")){
 	    FacesContext context=FacesContext.getCurrentInstance();
-	    ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorMessages", context.getViewRoot().getLocale());
-
-	    context.addMessage(null,new FacesMessage((String)rb.getObject("match_error")));
+	    ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
+	    context.addMessage(null,new FacesMessage(rb.getString("match_error")));
 	    return true;
 	}
 	return false;

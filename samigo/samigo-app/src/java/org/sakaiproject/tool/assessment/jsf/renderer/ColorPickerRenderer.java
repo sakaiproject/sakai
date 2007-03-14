@@ -34,6 +34,8 @@ import javax.faces.component.ValueHolder;
 import javax.faces.component.UIViewRoot;
 import java.util.Map;
 import org.sakaiproject.tool.assessment.jsf.renderer.util.RendererUtil;
+import org.sakaiproject.util.ResourceLoader;
+
 
 /**
  * <p>Description: </p>
@@ -52,7 +54,8 @@ public class ColorPickerRenderer extends Renderer
   // later we may want to support hidden
   private static final String TYPE = "text";
   private static final String CURSORSTYLE = "cursor:pointer;";
-  private static final String CLICKALT = "Click Here to Pick Color";
+  //moved to properties
+  //private static final String CLICKALT = "Click Here to Pick Color";
 
   //private RendererUtil rUtil;
 
@@ -118,6 +121,7 @@ public class ColorPickerRenderer extends Renderer
   public void encodeEnd(FacesContext context,
     UIComponent component) throws IOException
   {
+	ResourceLoader rb= new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
     ResponseWriter writer = context.getResponseWriter();
     String contextPath = context.getExternalContext()
                          .getRequestContextPath();
@@ -166,7 +170,7 @@ public class ColorPickerRenderer extends Renderer
     writer.write("  width=\"" + WIDTH + "\"");
     writer.write("  src=\"" + contextPath + "/images/sel.gif\" ");
     writer.write("  border=\"0\"");
-    writer.write("  alt=\"" + CLICKALT + "\" ");
+    writer.write("  alt=\"" + rb.getString("cp_CLICKALT") + "\" ");
     writer.write("  id=\"_colorPickerPop_" + id + "\"");
     writer.write("  onclick=\"javascript:TCP.popup(" +
       "document.getElementById('" + id + "'),'','" + contextPath +

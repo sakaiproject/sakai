@@ -25,7 +25,7 @@ package org.sakaiproject.tool.assessment.ui.listener.util;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.ResourceBundle;
+import org.sakaiproject.util.ResourceLoader;
 import java.util.Locale;
 
 import java.text.NumberFormat;
@@ -35,16 +35,14 @@ import javax.faces.lifecycle.Lifecycle;
 import javax.faces.lifecycle.LifecycleFactory;
 import javax.faces.FactoryFinder;
 import javax.faces.application.Application;
-import javax.faces.application.ApplicationFactory;
-import javax.faces.context.ExternalContext;
+import javax.faces.application.ApplicationFactory; 
 import javax.faces.context.FacesContext;
 import java.util.ArrayList;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.springframework.web.context.WebApplicationContext;
+import org.sakaiproject.component.cover.ServerConfigurationService; 
 
 /**
  * <p>Description: Action Listener helper utility</p>
@@ -290,15 +288,15 @@ public static ArrayList paramArrayValueLike(String paramPart)
   * @param key The key to look up the localized string
   */
   public static String getLocalizedString(String bundleName, String key) {
-    Locale locale = FacesContext.getCurrentInstance().getViewRoot().getLocale();
-    ResourceBundle rb = ResourceBundle.getBundle(bundleName, locale);
+	  //Locale locale = FacesContext.getCurrentInstance().getViewRoot().getLocale();
+	  ResourceLoader rb = new ResourceLoader(bundleName);
     return rb.getString(key);
   }
 
   public static String getLocalizedString(HttpServletRequest request,
                                           String bundleName, String key) {
-    Locale locale = request.getLocale();
-    ResourceBundle rb = ResourceBundle.getBundle(bundleName, locale);
+	  //Locale locale = request.getLocale();
+	  ResourceLoader rb = new ResourceLoader(bundleName);
     return rb.getString(key);
   }
 

@@ -32,7 +32,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ResourceBundle;
+import org.sakaiproject.util.ResourceLoader;
 import java.util.Set;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -1165,11 +1165,11 @@ public class AssessmentSettingsBean
 
     public String checkDate(){
   FacesContext context=FacesContext.getCurrentInstance();
-  ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.AuthorMessages", context.getViewRoot().getLocale());
+  ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
         String err;
   if(this.error)
       {
-    err=(String)rb.getObject("deliveryDate_error");
+	err=rb.getString("deliveryDate_error");
     context.addMessage(null,new FacesMessage(err));
     log.error("START DATE ADD MESSAGE");
     return "deliveryDate_error";

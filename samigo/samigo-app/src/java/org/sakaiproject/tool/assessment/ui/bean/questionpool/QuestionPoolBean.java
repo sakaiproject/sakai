@@ -33,7 +33,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
+import org.sakaiproject.util.ResourceLoader;
 import java.util.Set;
 
 import javax.faces.application.FacesMessage;
@@ -46,13 +46,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.upload.FormFile;
 import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTreeImpl;
-import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
-import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
-import org.sakaiproject.tool.assessment.data.dao.assessment.ItemAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.questionpool.QuestionPoolDataIfc;
 import org.sakaiproject.tool.assessment.data.model.Tree;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -154,6 +148,7 @@ public class QuestionPoolBean implements Serializable
   private String deletePoolSource;  // either from poolList.jsp , or from editPool.jsp
   private String addPoolSource;  // either from poolList.jsp , or from editPool.jsp
 
+  private ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages");
   /**
    * Creates a new QuestionPoolBean object.
    */
@@ -1178,9 +1173,8 @@ public String getAddOrEdit()
                 // we do not want to add duplicated items, show message
 
                 FacesContext context=FacesContext.getCurrentInstance();
-                ResourceBundle rb=ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages", context.getViewRoot().getLocale());
                 String err;
-                err=(String)rb.getObject("copy_duplicate_error");
+                err=rb.getString("copy_duplicate_error");
                 context.addMessage(null,new FacesMessage(err));
                 return true;
               }
@@ -1392,8 +1386,8 @@ public String getAddOrEdit()
 		if(!destId.equals((oldPool.getParentPoolId()).toString())){
 		    isUnique=delegate.poolIsUnique("0",currentName,destId, AgentFacade.getAgentString());
 		    if(!isUnique){
-			String err1=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","copy_duplicateName_error");
-			FacesContext context=FacesContext.getCurrentInstance();
+		    	String err1=rb.getString("copy_duplicateName_error");
+		    	FacesContext context=FacesContext.getCurrentInstance();
 			context.addMessage(null,new FacesMessage(err1));
        
 			return "copyPool";
@@ -1435,8 +1429,8 @@ public String getAddOrEdit()
             QuestionPoolService delegate = new QuestionPoolService();
  isUnique=delegate.poolIsUnique("0",currentName,destId, AgentFacade.getAgentString());
               if(!isUnique){
-	String err1=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages","move_duplicateName_error");
-         FacesContext context = FacesContext.getCurrentInstance();
+            	  String err1=rb.getString("move_duplicateName_error");
+            	  FacesContext context = FacesContext.getCurrentInstance();
 	context.addMessage(null,new FacesMessage(err1));
        
 	return "movePool";

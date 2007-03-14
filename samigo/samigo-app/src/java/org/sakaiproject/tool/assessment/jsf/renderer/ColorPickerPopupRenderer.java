@@ -29,6 +29,7 @@ import javax.faces.component.UIOutput;
 import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 import javax.faces.render.Renderer;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * <p>Description: </p>
@@ -43,11 +44,14 @@ import javax.faces.render.Renderer;
 public class ColorPickerPopupRenderer extends Renderer
 {
   // these should be coming from a resource
+  // [DIEGO] Now they come from a resource, but as they are static final, really they are not used and
+  // I use directly the string returned in getString...
+/*
   private static final String TITLE = "Color Picker";
-  private static final String WEB_SAFE = "Web Safe Palette";
-  private static final String WINDOWS_SYSTEM = "Windows System Palette";
-  private static final String GREY_SCALE = "Grey Scale Palette";
-
+  private  static final   String WEB_SAFE = "Web Safe Palette";
+  private  static final   String WINDOWS_SYSTEM = "Windows System Palette";
+  private  static final   String GREY_SCALE = "Grey Scale Palette";
+*/
   public boolean supportsComponentType(UIComponent component)
   {
     return (component instanceof UIOutput);
@@ -86,6 +90,7 @@ public class ColorPickerPopupRenderer extends Renderer
   public void encodeEnd(FacesContext context, UIComponent component)
     throws IOException
   {
+	ResourceLoader rb= new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
     ResponseWriter writer = context.getResponseWriter();
     writer.write("<html xmlns=\"http://www.w3.org/1999/xhtml\">\n");
     writer.write("<!--\n");
@@ -110,7 +115,7 @@ public class ColorPickerPopupRenderer extends Renderer
     writer.write("-->\n");
     writer.write("\n");
     writer.write("<head>\n");
-    writer.write("	<title>" + TITLE + "</title>\n");
+    writer.write("	<title>" + rb.getString("cp_TITLE") + "</title>\n");
     writer.write("	<style>\n");
     writer.write("		.bd { border : 1px inset InactiveBorder; }\n");
     writer.write("		.s  { width:181 }\n");
@@ -123,9 +128,9 @@ public class ColorPickerPopupRenderer extends Renderer
     writer.write("<tr><td align=\"center\">\n");
     writer.write(
       "<select name=\"type\" onchange=\"P.C(this.selectedIndex)\" class=\"s\">\n");
-    writer.write("	<option>" + WEB_SAFE + "</option>\n");
-    writer.write("	<option>" + WINDOWS_SYSTEM + "</option>\n");
-    writer.write("	<option>" + GREY_SCALE + "</option>\n");
+    writer.write("	<option>" + rb.getString("cp_WEB_SAFE") + "</option>\n");
+    writer.write("	<option>" + rb.getString("cp_WINDOWS_SYSTEM") + "</option>\n");
+    writer.write("	<option>" + rb.getString("cp_GREY_SCALE") + "</option>\n");
     writer.write("</select>\n");
     writer.write("</td></tr>\n");
     writer.write("<tr><td align=\"center\">\n");

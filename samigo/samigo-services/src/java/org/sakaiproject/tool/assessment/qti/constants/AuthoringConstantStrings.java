@@ -22,7 +22,7 @@
 
 package org.sakaiproject.tool.assessment.qti.constants;
 
-import java.util.ResourceBundle;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * A set of strings for QTI XML item characteristics
@@ -36,11 +36,56 @@ import java.util.ResourceBundle;
  */
 public class AuthoringConstantStrings
 {
-  private static ResourceBundle rb = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.Messages");
+	
+	/*
+org.sakaiproject.tool.assessment.bundle.Messages:
 
+
+anonymous = Anonymous Users
+authenticated = Authenticated Users
+
+# AssessmentFacadeQueries.java
+new_section = this section is added when a new assessment is created
+
+# AuthoringConstantStrings.java
+matching = Matching
+fib = Fill In the Blank
+fin= Numeric Response
+mcmc = Multiple Correct Answer
+mcsc = Multiple Choice
+tf = True False
+survey = Multiple Choice Survey
+essay = Short Answers/Essay
+essay_alt = Essay
+audio = Audio Recording
+file = File Upload
+*/
+
+  //private static ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.Messages");
+  //BUT ALL OF THEM ARE STATIC AND FINAL...  THIS IS NOT A GOOD COMBINATION WITH RESOURCELOADES...
   //
   public static final String UNLIMITED_SUBMISSIONS = "9999";
   
+  // use static final string instead of rb.getString() because samigo-service is deployed in shared/lib and has no access to sakai-util, which contains the REsourceLoader
+  // These are not strings displayed in UI. 
+  
+  public static final String ANONYMOUS = "Anonymous Users";
+  public static final String AUTHENTICATED = "Authenticated Users";
+  
+  //Item Types
+  public static final String MATCHING =  "Matching";
+  public static final String FIB =  "Fill In the Blank";
+  public static final String FIN = "Numeric Response";
+  public static final String MCMC = "Multiple Correct Answer";
+  public static final String MCSC = "Multiple Choice";
+  public static final String TF = "True False";
+  public static final String SURVEY = "Multiple Choice Survey";
+  public static final String ESSAY = "Short Answers/Essay";
+  public static final String ESSAY_ALT = "Essay";
+  public static final String AUDIO = "Audio Recording";
+  public static final String FILE = "File Upload";
+
+  /*
   public static final String ANONYMOUS = rb.getString("anonymous"); // Anonymous Users
   public static final String AUTHENTICATED = rb.getString("authenticated"); // Authenticated Users
   
@@ -56,7 +101,9 @@ public class AuthoringConstantStrings
   public static final String ESSAY_ALT = rb.getString("essay_alt"); // "Essay"
   public static final String AUDIO = rb.getString("audio"); // "Audio Recording"
   public static final String FILE = rb.getString("file"); // "File Upload"
-
+*/
+  
+  
   // "Unknown Type" is a placeholder for the invalid '0' , "Unused Type" is an alternate MCMC
   
   // Lydia 9/29/2006 : added "" before FIN, because Diego used 11 as the type.  Rather than changing the conversion script for SAM_TYPE_D table, 

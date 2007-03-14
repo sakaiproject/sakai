@@ -35,9 +35,8 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.HistogramQuestionScor
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.HistogramScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
-//import org.sakaiproject.tool.assessment.ui.listener.evaluation.util.EvaluationListenerUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-//import org.sakaiproject.tool.assessment.util.BeanSort;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * <p>
@@ -139,6 +138,7 @@ public class HistogramListener
     String publishedId, HistogramScoresBean bean, TotalScoresBean totalBean)
   {
     try {
+    	ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
       String assessmentName = "";
 
       // Get all submissions, or just the last?
@@ -206,8 +206,9 @@ public class HistogramListener
 
           if (section.getSequence() == null)
             section.setSequence(new Integer(secseq++));
-          String title = "Part " + section.getSequence().toString();
-          title += ", Question ";
+          String title = rb.getString("p")+" " + section.getSequence().toString();
+          title += ", " + rb.getString("q") + " ";
+
           ArrayList itemset = section.getItemArraySortedForGrading();
           int seq = 1;
           Iterator iter2 = itemset.iterator();
@@ -352,11 +353,12 @@ public class HistogramListener
   private void doAnswerStatistics(PublishedAssessmentIfc pub, HistogramQuestionScoresBean qbean,
     ArrayList scores)
   {
+	ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
     if (scores.isEmpty())
     {
       qbean.setHistogramBars(new HistogramBarBean[0]);
       qbean.setNumResponses(0);
-      qbean.setPercentCorrect("No responses");
+      qbean.setPercentCorrect(rb.getString("no_responses"));
       return;
     }
 
@@ -396,6 +398,7 @@ public class HistogramListener
   private void getFIBMCMCScores(HashMap publishedItemHash, HashMap publishedAnswerHash, 
     ArrayList scores, HistogramQuestionScoresBean qbean, ArrayList answers)
   {
+	ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
     HashMap texts = new HashMap();
     Iterator iter = answers.iterator();
     HashMap results = new HashMap();
@@ -487,11 +490,11 @@ public class HistogramListener
 
 	if ((num>1)||(num==0))
           {
-              bars[i].setNumStudentsText(num + " Responses");
+              bars[i].setNumStudentsText(num + " " +rb.getString("responses"));
           }
       else
           {
-              bars[i].setNumStudentsText(num + " Response");
+    	      bars[i].setNumStudentsText(num + " " +rb.getString("response"));
 
       }
       bars[i].setNumStudents(num);
@@ -747,6 +750,7 @@ public class HistogramListener
   private void getTFMCScores(HashMap publishedAnswerHash, ArrayList scores,
     HistogramQuestionScoresBean qbean, ArrayList answers)
   {
+	ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
     HashMap texts = new HashMap();
     Iterator iter = answers.iterator();
     HashMap results = new HashMap();
@@ -818,11 +822,11 @@ public class HistogramListener
       bars[i].setIsCorrect(answer.getIsCorrect());
       if ((num>1)||(num==0))
 	  {
-	      bars[i].setNumStudentsText(num + " Responses");
+    	  bars[i].setNumStudentsText(num +" " +rb.getString("responses"));
 	  }
       else
 	  {
-	      bars[i].setNumStudentsText(num + " Response");
+    	  bars[i].setNumStudentsText(num + " " +rb.getString("response"));
 
       }
       bars[i].setNumStudents(num);
@@ -848,6 +852,7 @@ public class HistogramListener
   private void getMatchingScores(HashMap publishedItemTextHash, HashMap publishedAnswerHash, 
     ArrayList scores, HistogramQuestionScoresBean qbean, ArrayList labels)
   {
+	ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
     HashMap texts = new HashMap();
     Iterator iter = labels.iterator();
     HashMap results = new HashMap();
@@ -918,11 +923,11 @@ if (answer != null)
       bars[i].setNumStudents(num);
       if ((num>1)||(num==0))
 	  {
-	      bars[i].setNumStudentsText(num + " Correct Responses");
+    	  bars[i].setNumStudentsText(num + " " +rb.getString("correct_responses"));
 	  }
       else
 	  {
-	      bars[i].setNumStudentsText(num + " Correct Response");
+	      bars[i].setNumStudentsText(num + " " +rb.getString("correct_response"));
 
       }
 
