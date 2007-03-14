@@ -37,8 +37,11 @@ import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.chat.cover.ChatService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.discussion.cover.DiscussionService;
+import org.sakaiproject.entity.api.EntityProducer;
+import org.sakaiproject.entity.api.EntitySummary;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.Summary;
+import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
@@ -53,6 +56,7 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.PreferencesService;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.ArrayUtil;
 import org.sakaiproject.util.MapUtil;
 
 /**
@@ -353,8 +357,10 @@ public class PortalSiteHelper
 				newMap = null;
 			}
 		}
+		/*
 		else if ("sakai.chat".equals(toolIdentifier))
 		{
+         //This is now being done by the EntitySummary stuff - chmaurer 3/2007
 			try
 			{
 				String channel = ChatService.getInstance().channelReference(site.getId(),
@@ -366,6 +372,7 @@ public class PortalSiteHelper
 				newMap = null;
 			}
 		}
+*/
 		else if ("sakai.discussion".equals(toolIdentifier))
 		{
 			try
@@ -392,6 +399,35 @@ public class PortalSiteHelper
 				newMap = null;
 			}
 		}
+      
+      
+      /* This is a new, cooler way to do this (I hope) chmaurer... 
+       * 
+       */
+      
+//  offer to all EntityProducers
+      for (Iterator i = EntityManager.getEntityProducers().iterator(); i.hasNext();)
+      {
+         EntityProducer ep = (EntityProducer) i.next();
+         if (ep instanceof EntitySummary)
+         {
+            try
+            {
+               EntitySummary es = (EntitySummary) ep;
+
+               // if this producer claims this tool id
+               if (ArrayUtil.contains(es.summarizableToolIds(), toolIdentifier))
+               {
+                  String summarizableReference = es.getSummarizableReference(site.getId());
+                  es.getSummary(summarizableReference, 5, 30);
+               }
+            }
+            catch (Throwable t)
+            {
+               log.warn("Error encountered while asking EntitySummary to getSummary() for: " + toolIdentifier, t);
+            }
+         }
+      }
 
 		if (newMap != null)
 		{
