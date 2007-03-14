@@ -44,8 +44,9 @@ import org.sakaiproject.content.api.GroupAwareEntity;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
-import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.content.api.ServiceLevelAction;
+import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.content.tool.ResourcesAction.ContentPermissions;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
@@ -53,6 +54,10 @@ import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -69,12 +74,9 @@ public class ListItem
     private static ResourceLoader trb = new ResourceLoader("types");
 
     private static final Log logger = LogFactory.getLog(ResourcesAction.class);
-
     
-    protected static ContentHostingService contentService = (ContentHostingService) ComponentManager.get(ContentHostingService.class);
-    
-    protected static Comparator DEFAULT_COMPARATOR = contentService.newContentHostingComparator(ResourceProperties.PROP_DISPLAY_NAME, true);
-    protected static final Comparator PRIORITY_SORT_COMPARATOR = contentService.newContentHostingComparator(ResourceProperties.PROP_CONTENT_PRIORITY, true);
+    protected static Comparator DEFAULT_COMPARATOR = ContentHostingService.newContentHostingComparator(ResourceProperties.PROP_DISPLAY_NAME, true);
+    protected static final Comparator PRIORITY_SORT_COMPARATOR = ContentHostingService.newContentHostingComparator(ResourceProperties.PROP_CONTENT_PRIORITY, true);
     
 	protected String name;
 	protected String id;
@@ -92,6 +94,8 @@ public class ListItem
 	protected String resourceType;
 	protected boolean isEmpty = true;
 	protected boolean isExpanded = false;
+	protected boolean isPubviewInherited = false;
+	protected boolean isPubview = false;
 	protected boolean isSortable = false;
 	protected boolean isTooBig = false;
 	protected String size = "";
@@ -102,7 +106,14 @@ public class ListItem
 
 	protected boolean canSelect = false;
 
-	private ContentEntity entity;
+	protected ContentEntity entity;
+
+	protected AccessMode accessMode;
+	protected Collection<Group> groups;
+	protected Collection<Group> inheritedGroups;
+	protected Collection<Group> possibleGroups;
+
+	private AccessMode effectiveAccess;
 	
 	
 	/**
@@ -145,7 +156,7 @@ public class ListItem
 	        	setSize(rb.getFormattedMessage("size.items", args));
         	}
 			setIsEmpty(collection_size < 1);
-			setSortable(contentService.isSortByPriorityEnabled() && collection_size > 1 && collection_size < ResourcesAction.EXPANDABLE_FOLDER_SIZE_LIMIT);
+			setSortable(ContentHostingService.isSortByPriorityEnabled() && collection_size > 1 && collection_size < ResourcesAction.EXPANDABLE_FOLDER_SIZE_LIMIT);
 			if(collection_size > ResourcesAction.EXPANDABLE_FOLDER_SIZE_LIMIT)
 			{
 				setIsTooBig(true);
@@ -216,7 +227,29 @@ public class ListItem
 		}
 		// setCreatedBy(props.getProperty(ResourceProperties.PROP_CREATOR));
 		this.setModifiedTime(props.getPropertyFormatted(ResourceProperties.PROP_MODIFIED_DATE));
-				
+		
+		this.accessMode = entity.getAccess();
+		this.effectiveAccess = entity.getInheritedAccess();
+		this.groups = entity.getGroupObjects();
+		this.inheritedGroups = entity.getInheritedGroupObjects();
+		Reference ref = EntityManager.newReference(entity.getReference());
+		try
+        {
+	        Site site = SiteService.getSite(ref.getContext());
+	        this.possibleGroups = site.getGroups();
+        }
+        catch (IdUnusedException e)
+        {
+	        // TODO Auto-generated catch block
+	        logger.warn("IdUnusedException ", e);
+        }
+
+        this.isPubviewInherited = ContentHostingService.isInheritingPubView(id);
+		if (!this.isPubviewInherited) 
+		{
+			this.isPubview = ContentHostingService.isPubView(id);
+		}
+        
 	}
 	
 	public static ListItem getListItem(ContentEntity entity, ListItem parent, ResourceTypeRegistry registry, boolean expandAll, Set<String> expandedFolders, List<String> items_to_be_moved, List<String> items_to_be_copied, int depth, Comparator userSelectedSort)
@@ -242,12 +275,12 @@ public class ListItem
         	if(parent == null)
         	{
         		// permissions are same as site
-        		item.setPermissions(ResourcesAction.getPermissions(entity.getId()));
+        		item.setPermissions(ResourcesAction.getPermissions(entity.getId(), null));
         	}
         	else
         	{
         		// permissions are same as parent
-        		item.setPermissions(parent.getPermissions());
+        		item.setPermissions(ResourcesAction.getPermissions(entity.getId(), parent.getPermissions()));
         	}
         }
         else if(GroupAwareEntity.AccessMode.GROUPED == entity.getAccess())
@@ -786,8 +819,118 @@ public class ListItem
     {
 	    return this.multipleItemActions;
     }
-    
-    
-    
+
+	/**
+     * @return the accessMode
+     */
+    public AccessMode getAccessMode()
+    {
+    	return accessMode;
+    }
+
+	/**
+     * @param accessMode the accessMode to set
+     */
+    public void setAccessMode(AccessMode accessMode)
+    {
+    	this.accessMode = accessMode;
+    }
+
+	/**
+     * @return the groups
+     */
+    public Collection<Group> getGroups()
+    {
+    	return groups;
+    }
+
+	/**
+     * @param groups the groups to set
+     */
+    public void setGroups(Collection<Group> groups)
+    {
+    	this.groups = groups;
+    }
+
+	/**
+     * @return the inheritedGroups
+     */
+    public Collection<Group> getInheritedGroups()
+    {
+    	return inheritedGroups;
+    }
+
+	/**
+     * @param inheritedGroups the inheritedGroups to set
+     */
+    public void setInheritedGroups(Collection<Group> inheritedGroups)
+    {
+    	this.inheritedGroups = inheritedGroups;
+    }
+
+	/**
+     * @return the possibleGroups
+     */
+    public Collection<Group> getPossibleGroups()
+    {
+    	return possibleGroups;
+    }
+
+	/**
+     * @param possibleGroups the possibleGroups to set
+     */
+    public void setPossibleGroups(Collection<Group> possibleGroups)
+    {
+    	this.possibleGroups = possibleGroups;
+    }
+
+	/**
+     * @return the effectiveAccess
+     */
+    public AccessMode getEffectiveAccess()
+    {
+    	return effectiveAccess;
+    }
+
+	/**
+     * @param effectiveAccess the effectiveAccess to set
+     */
+    public void setEffectiveAccess(AccessMode effectiveAccess)
+    {
+    	this.effectiveAccess = effectiveAccess;
+    }
+
+	/**
+     * @return the isPubview
+     */
+    public boolean isPubview()
+    {
+    	return isPubview;
+    }
+
+	/**
+     * @param isPubview the isPubview to set
+     */
+    public void setPubview(boolean isPubview)
+    {
+    	this.isPubview = isPubview;
+    }
+
+	/**
+     * @return the isPubviewInherited
+     */
+    public boolean isPubviewInherited()
+    {
+    	return isPubviewInherited;
+    }
+
+	/**
+     * @param isPubviewInherited the isPubviewInherited to set
+     */
+    public void setPubviewInherited(boolean isPubviewInherited)
+    {
+    	this.isPubviewInherited = isPubviewInherited;
+    }
+
 }
 

@@ -3216,54 +3216,55 @@ public class ResourcesAction
 	}	// getListView
 	
 	/**
+	 * @param inheritedPermissions TODO
 	 * @param context
 	 * @return
 	 */
-	protected static Collection<ContentPermissions> getPermissions(String id)
+	protected static Collection<ContentPermissions> getPermissions(String id, Collection<ContentPermissions> inheritedPermissions)
 	{
 		Collection<ContentPermissions> permissions = new Vector<ContentPermissions>();
 		if(ContentHostingService.isCollection(id))
 		{
-			if(ContentHostingService.allowAddCollection(id))
+			if((inheritedPermissions != null && inheritedPermissions.contains(ContentPermissions.CREATE)) || ContentHostingService.allowAddCollection(id))
 			{
 				permissions.add(ContentPermissions.CREATE);
 			}
-			if(ContentHostingService.allowRemoveCollection(id))
+			if((inheritedPermissions != null && inheritedPermissions.contains(ContentPermissions.DELETE)) || ContentHostingService.allowRemoveCollection(id))
 			{
 				permissions.add(ContentPermissions.DELETE);
 			}
-			if(ContentHostingService.allowGetCollection(id))
+			if((inheritedPermissions != null && inheritedPermissions.contains(ContentPermissions.READ)) || ContentHostingService.allowGetCollection(id))
 			{
 				permissions.add(ContentPermissions.READ);
 			}
-			if(ContentHostingService.allowUpdateCollection(id))
+			if((inheritedPermissions != null && inheritedPermissions.contains(ContentPermissions.REVISE)) || ContentHostingService.allowUpdateCollection(id))
 			{
 				permissions.add(ContentPermissions.REVISE);
 			}
-			if(SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()))
+			if((inheritedPermissions != null && inheritedPermissions.contains(ContentPermissions.SITE_UPDATE)) || SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()))
 			{
 				permissions.add(ContentPermissions.SITE_UPDATE);
 			}
 		}
 		else
 		{
-			if(ContentHostingService.allowAddResource(id))
+			if((inheritedPermissions != null && inheritedPermissions.contains(ContentPermissions.CREATE)) || ContentHostingService.allowAddResource(id))
 			{
 				permissions.add(ContentPermissions.CREATE);
 			}
-			if(ContentHostingService.allowRemoveResource(id))
+			if((inheritedPermissions != null && inheritedPermissions.contains(ContentPermissions.DELETE)) || ContentHostingService.allowRemoveResource(id))
 			{
 				permissions.add(ContentPermissions.DELETE);
 			}
-			if(ContentHostingService.allowGetResource(id))
+			if((inheritedPermissions != null && inheritedPermissions.contains(ContentPermissions.READ)) || ContentHostingService.allowGetResource(id))
 			{
 				permissions.add(ContentPermissions.READ);
 			}
-			if(ContentHostingService.allowUpdateResource(id))
+			if((inheritedPermissions != null && inheritedPermissions.contains(ContentPermissions.REVISE)) || ContentHostingService.allowUpdateResource(id))
 			{
 				permissions.add(ContentPermissions.REVISE);
 			}
-			if(SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()))
+			if((inheritedPermissions != null && inheritedPermissions.contains(ContentPermissions.SITE_UPDATE)) || SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()))
 			{
 				permissions.add(ContentPermissions.SITE_UPDATE);
 			}
@@ -4117,7 +4118,7 @@ public class ResourcesAction
 			
 			List<String> items_to_be_moved = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_MOVED);
 			
-			List<ResourceToolAction> actions = getActions(selectedItem, new TreeSet(getPermissions(selectedItem.getId())), registry, items_to_be_moved, items_to_be_copied);
+			List<ResourceToolAction> actions = getActions(selectedItem, new TreeSet(getPermissions(selectedItem.getId(), null)), registry, items_to_be_moved, items_to_be_copied);
 			
 			context.put("actions", actions);
 			context.put("labeler", new ResourceTypeLabeler());
@@ -4326,9 +4327,9 @@ public class ResourcesAction
 		context.put("listStack", new Stack());
 		context.put("tempStack", new Stack());
 
-		context.put("SITE_ACCESS", AccessMode.SITE.toString());
-		context.put("GROUP_ACCESS", AccessMode.GROUPED.toString());
-		context.put("INHERITED_ACCESS", AccessMode.INHERITED.toString());
+		context.put("SITE_ACCESS", AccessMode.SITE);
+		context.put("GROUP_ACCESS", AccessMode.GROUPED);
+		context.put("INHERITED_ACCESS", AccessMode.INHERITED);
 		context.put("PUBLIC_ACCESS", PUBLIC_ACCESS);
 
 		context.put("ACTION_DELIMITER", ResourceToolAction.ACTION_DELIMITER);
