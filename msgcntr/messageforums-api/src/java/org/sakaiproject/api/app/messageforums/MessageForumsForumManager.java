@@ -176,4 +176,13 @@ public interface MessageForumsForumManager {
     public PrivateForum getPrivateForumByOwnerAreaNullWithAllTopics(final String owner);
     
     public List getForumByTypeAndContextWithTopicsMembership(final String typeUuid, final String contextId);
+    
+    /**
+	 * Returns # moderated topics that the current user has moderate
+	 * perm for, given the user's memberships and contextid
+	 * @param membershipItems
+	 * @param contextId
+	 * @return
+	 */
+	public int getNumModTopicCurrentUserHasModPermFor(final List membershipItems);
 }

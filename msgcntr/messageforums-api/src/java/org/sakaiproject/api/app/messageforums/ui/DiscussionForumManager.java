@@ -411,4 +411,13 @@ public interface DiscussionForumManager
    * @return
    */
   public List getPendingMsgsInTopic(Long topicId);
+  
+  /**
+   * Returns num moderated topics in the current site that the current user
+   * has moderate permission for, given the user's memberships
+   * @param membershipList
+   * @param contextId
+   * @return
+   */
+  public int getNumModTopicsWithModPermission(List membershipList);
 }

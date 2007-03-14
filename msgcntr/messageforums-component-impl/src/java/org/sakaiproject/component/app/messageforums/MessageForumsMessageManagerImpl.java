@@ -179,6 +179,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
                    Query q = session.getNamedQuery("findDiscussionForumMessageRemoveCountsForAllSites");
                     q.setParameterList("siteList", siteList);
                     q.setParameterList("roleList", roleList);
+                    q.setParameter("userId", getCurrentUser(), Hibernate.STRING);
                    return q.list();
                }
     	};
@@ -824,7 +825,19 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         return list;
     }
     
+    public List sortMessageByDate(List list, boolean asc) {
+        if (list == null || list.isEmpty())
+        	return null;
+        
+        if (asc) {
+            Collections.sort(list, MessageImpl.DATE_COMPARATOR);
+        } else {
+            Collections.sort(list, MessageImpl.DATE_COMPARATOR_DESC);
+        }
 
+        return list;
+    }
+    
 
     private boolean isForumOrTopicLocked(final Long forumId, final Long topicId) {
         if (forumId == null || topicId == null) {

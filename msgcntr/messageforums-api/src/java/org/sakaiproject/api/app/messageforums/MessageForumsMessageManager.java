@@ -104,6 +104,8 @@ public interface MessageForumsMessageManager {
 
     public List sortMessageByDate(Topic topic, boolean asc);
     
+    public List sortMessageByDate(List list, boolean asc);
+    
     public List getAllRelatedMsgs(final Long messageId);
     
     public List findPvtMsgsBySearchText(final String typeUuid, final String searchText,final Date searchFromDate, final Date searchToDate,

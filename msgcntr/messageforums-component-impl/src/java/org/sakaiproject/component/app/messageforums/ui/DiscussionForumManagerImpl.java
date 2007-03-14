@@ -2013,5 +2013,10 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 	{
 		return messageManager.getPendingMsgsInTopic(topicId);
 	}
+	
+	public int getNumModTopicsWithModPermission(List membershipList)
+	{
+		return forumManager.getNumModTopicCurrentUserHasModPermFor(membershipList);
+	}
 
 }

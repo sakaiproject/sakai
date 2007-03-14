@@ -24,7 +24,7 @@
        <h:form id="msgForum">
 				<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
 				<%--gsilver:if layout="table" is needed,  need rendered attr here so that no empty tables  are put in the response - leaving undefined here so that it reverts to layout="list" --%> 
-				<h:messages styleClass="alertMessage" id="errorMessages"/>  		
+				<h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" />  		
   
   		  <%-- include hide division here so that pvtArea can be used w/o div in isolated view --%>	
   		  <mf:forumHideDivision title="#{msgs.pvtarea_name}" id="_test_div" 

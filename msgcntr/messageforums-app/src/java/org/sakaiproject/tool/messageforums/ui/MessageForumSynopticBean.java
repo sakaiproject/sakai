@@ -869,10 +869,21 @@ public class MessageForumSynopticBean {
 				final Iterator topicIter = topics.iterator();
 
 				while (topicIter.hasNext()) {
-					final Topic topic = (Topic) topicIter.next();
+					final DiscussionTopic topic = (DiscussionTopic) topicIter.next();
 					
-					if (uiPermissionsManager.isRead((DiscussionTopic) topic, df)) {
-						unreadForum += messageManager.findUnreadMessageCountByTopicId(topic.getId());
+					if (uiPermissionsManager.isRead(topic, df))
+					{
+						if (!topic.getModerated().booleanValue() || (topic.getModerated().booleanValue() && 
+									uiPermissionsManager.isModeratePostings(topic, df)))
+						{
+							unreadForum += messageManager.findUnreadMessageCountByTopicId(topic.getId());
+						}
+						else
+						{	
+							// b/c topic is moderated and user does not have mod perm, user may only
+							// see approved msgs or pending/denied msgs authored by user
+							unreadForum += messageManager.findUnreadViewableMessageCountByTopicId(topic.getId());
+						}
 					}
 				}
 			}

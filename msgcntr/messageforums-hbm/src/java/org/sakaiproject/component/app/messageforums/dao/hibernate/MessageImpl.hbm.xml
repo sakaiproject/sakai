@@ -239,16 +239,22 @@
 <query name="findDiscussionForumMessageRemoveCountsForAllSites"> 
     <![CDATA[select a.contextId, membershipItem.name, count(*)
     		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages,
-    		 org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl as membershipItem
-             join membershipItem.topic as mt
-             join membershipItem.permissionLevel as pl
-    		 join messages.topic as topic
+    		 org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
+    		 		 join messages.topic as topic
+    		 		 join topic.membershipItemSet as membershipItem
              join topic.openForum as f
              join f.area as a
              where a.contextId in ( :siteList ) and
-             mt.id = topic.id and
              membershipItem.name in ( :roleList ) and
-             pl.read = false
+             ((pl.typeUuid != '00000000-0000-0000-7777-000000000000' and 
+               pl.name = membershipItem.permissionLevelName) or
+              membershipItem.permissionLevel = pl.id) and
+             (pl.read = false or
+             (topic.moderated = true and 
+               pl.moderatePostings = false and
+               ((messages.approved = null or
+                messages.approved = false) and
+                messages.createdBy != :userId)))
              group by a.contextId, membershipItem.name
     ]]>
     
@@ -275,16 +281,22 @@
     <![CDATA[select a.contextId, membershipItem.name, count(*)
     		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages,
     		 org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us,
-	   		 org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl as membershipItem
-             join membershipItem.topic as mt
-             join membershipItem.permissionLevel as pl
-     		 join messages.topic as topic
+    		 org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
+     		 		 join messages.topic as topic
+     		 		 join topic.membershipItemSet as membershipItem
              join topic.openForum as f
              join f.area as a
              where us.userId = :userId and
              messages.id = us.messageId and
-             pl.read = false and
-             mt.id = topic.id and
+             ((pl.typeUuid != '00000000-0000-0000-7777-000000000000' and 
+               pl.name = membershipItem.permissionLevelName) or
+              membershipItem.permissionLevel = pl.id) and
+             (pl.read = false or
+             (topic.moderated = true and 
+               pl.moderatePostings = false and
+               ((messages.approved = null or
+                messages.approved = false) and
+                messages.createdBy != :userId))) and
              membershipItem.name in ( :roleList )
              group by a.contextId, membershipItem.name
     ]]>
@@ -355,24 +367,23 @@
     		us.messageId in ( :msgIds )
     ]]>
   </query>
-  
+  <!-- permissions are a little nasty...  b/c permission level  is null in the membershipItem
+  			if it is not custom, we need to	check for permission level that is custom and has same id 
+  			or that is not custom and has the same permission level name -->
   <query name="findAllPendingMsgsByContextByMembership">
     <![CDATA[select message, topic, forum from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message,
-    						org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl as membershipItem      
+    					org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
     				 join message.topic as topic
              join topic.openForum as forum
-             join forum.area as area 
-             join membershipItem.topic as mt
-             join membershipItem.permissionLevel as pl   
+             join forum.area as area
+             join topic.membershipItemSet as membershipItem   
              where area.contextId = :contextId and
-             mt.id = topic.id and
-             message.approved = null and
              membershipItem.name in ( :membershipList ) and
-             pl.moderatePostings = true and
-             forum.draft = false and
-             topic.draft = false and
-             topic.moderated = true
-             order by message.modified asc
+             message.approved = null and
+             ((pl.typeUuid != '00000000-0000-0000-7777-000000000000' and 
+               pl.name = membershipItem.permissionLevelName) or
+              membershipItem.permissionLevel = pl.id) and
+             pl.moderatePostings = true
     ]]>    
   </query>
   

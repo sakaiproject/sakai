@@ -117,6 +117,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     private static final String QUERY_BY_TOPIC_ID_MESSAGES_ATTACHMENTS = "findTopicByIdWithAttachments";
     
     private static final String QUERY_GET_ALL_MOD_TOPICS_IN_SITE = "findAllModeratedTopicsForSite";
+    private static final String QUERY_GET_NUM_MOD_TOPICS_WITH_MOD_PERM = "findNumModeratedTopicsForSiteByUserByMembership";
     
     //public static Comparator FORUM_CREATED_DATE_COMPARATOR;
     
@@ -1253,5 +1254,25 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
 			return (PrivateForum) getHibernateTemplate().execute(hcb);
 		}
+	
+		public int getNumModTopicCurrentUserHasModPermFor(final List membershipList)
+		{
+			if (membershipList == null) {
+	            LOG.error("getNumModTopicCurrentUserHasModPermFor failed with membershipList: " + membershipList);
+	            throw new IllegalArgumentException("Null Argument");
+	        }
 
+	        LOG.debug("getNumModTopicCurrentUserHasModPermFor executing with membershipItems: " + membershipList);
+
+	        HibernateCallback hcb = new HibernateCallback() {
+	            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+	                Query q = session.getNamedQuery(QUERY_GET_NUM_MOD_TOPICS_WITH_MOD_PERM);
+	                q.setParameterList("membershipList", membershipList);
+	                q.setParameter("contextId", getContextId(), Hibernate.STRING);
+	                return q.uniqueResult();
+	            }
+	        };
+
+	        return ((Integer) getHibernateTemplate().execute(hcb)).intValue();
+		}
 }

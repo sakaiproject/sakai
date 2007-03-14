@@ -146,6 +146,7 @@ public class DiscussionForumTool
   private List levels;
   private AreaManager areaManager;
   private int numPendingMessages = 0;
+  private boolean refreshPendingMsgs = true;
   
   private static final String TOPIC_ID = "topicId";
   private static final String FORUM_ID = "forumId";
@@ -199,6 +200,7 @@ public class DiscussionForumTool
   private static final String NO_MSG_SEL_FOR_APPROVAL = "cdfm_no_message_mark_approved";
   private static final String MSGS_APPROVED = "cdfm_approve_msgs_success";
   private static final String MSGS_DENIED = "cdfm_deny_msgs_success";
+  private static final String MSG_REPLY_PREFIX = "cdfm_reply_prefix";
   
   private static final String FROM_PAGE = "msgForum:mainOrForumOrTopic";
   private String fromPage = null; // keep track of originating page for common functions
@@ -522,7 +524,7 @@ public class DiscussionForumTool
   {
     LOG.debug("processActionTemplateSettings()");
     
-    setEditMode(false);
+    setEditMode(true);
     setPermissionMode(PERMISSION_MODE_TEMPLATE);
     template = new DiscussionAreaBean(areaManager.getDiscusionArea());
                
@@ -595,10 +597,10 @@ public class DiscussionForumTool
 //    this.templateMessagePermissions = templateMessagePermissions;
 //  }
   
-  /**
+  /*/**
    * @return
    */
-  public String processActionReviseTemplateSettings()
+  /*public String processActionReviseTemplateSettings()
   {
   	if (LOG.isDebugEnabled()){
       LOG.debug("processActionReviseTemplateSettings()");
@@ -607,7 +609,7 @@ public class DiscussionForumTool
   	setEditMode(true); 
   	setPermissionMode(PERMISSION_MODE_TEMPLATE);
     return TEMPLATE_SETTING;
-  }
+  }*/
 
   /**
    * @return
@@ -2710,8 +2712,8 @@ public class DiscussionForumTool
   
   public String processDfMsgReplyMsg()
   {
-    if(selectedMessage.getMessage().getTitle() != null && !selectedMessage.getMessage().getTitle().startsWith("Re: "))
-	  this.composeTitle = "Re: " + selectedMessage.getMessage().getTitle() + " ";
+    if(selectedMessage.getMessage().getTitle() != null && !selectedMessage.getMessage().getTitle().startsWith(getResourceBundleString(MSG_REPLY_PREFIX)))
+	  this.composeTitle = getResourceBundleString(MSG_REPLY_PREFIX) + " " + selectedMessage.getMessage().getTitle() + " ";
     else
       this.composeTitle = selectedMessage.getMessage().getTitle();
   	
@@ -2746,7 +2748,7 @@ public class DiscussionForumTool
 	    		}
 	    	}
 	    }
-	  composeTitle = "Re: " + selectedMessage.getMessage().getTitle();
+	  composeTitle = getResourceBundleString(MSG_REPLY_PREFIX) + " " + selectedMessage.getMessage().getTitle();
 	  
 	  
 	  return "dfMessageReplyThread";
@@ -3511,33 +3513,15 @@ public class DiscussionForumTool
    */
   public boolean isDisplayPendingMsgQueue()
   {
-	  numPendingMessages = 0;
-
-	  //List membershipList = uiPermissionsManager.getCurrentUserMemberships();
-	  //List pendingMsgsInfo = forumManager.getPendingMsgsInSiteByMembership(membershipList);
-	  List pendingMsgsInfo = retrieveViewablePendingMsgs();
-	  numPendingMessages = pendingMsgsInfo.size();
+	  List membershipList = uiPermissionsManager.getCurrentUserMemberships();
+	  int numModTopicWithPerm = forumManager.getNumModTopicsWithModPermission(membershipList);
 	  
-	  // if no msgs are returned, we need to double check that there are no
-	  // moderated topics for which current user has mod perm
-	  if (numPendingMessages < 1)
-	  {
-		  List moderatedTopics = forumManager.getModeratedTopicsInSite();
-		  if (moderatedTopics == null || moderatedTopics.isEmpty())
-		  {
-			  return false;
-		  }
-		  
-		  Iterator topicIter = moderatedTopics.iterator();
-		  while (topicIter.hasNext())
-		  {
-			  DiscussionTopic topic = (DiscussionTopic) topicIter.next();
-			  if (uiPermissionsManager.isModeratePostings(topic, (DiscussionForum)topic.getBaseForum()))
-			  {
-				  return true;
-			  }
-		  }
+	  if (numModTopicWithPerm < 1)
 		  return false;
+	  
+	  if (refreshPendingMsgs)
+	  {
+	  	refreshPendingMessages();
 	  }
 	  
 	  return true;
@@ -3553,47 +3537,46 @@ public class DiscussionForumTool
 	  this.numPendingMessages = numPendingMessages;
   }
   
-  public List getPendingMessages()
+  /**
+   * Retrieve pending msgs from db and make DiscussionMessageBeans
+   *
+   */
+  private void refreshPendingMessages()
   {
 	  pendingMsgs = new ArrayList();
-	  //List messages = forumManager.getPendingMsgsInSiteByMembership(uiPermissionsManager.getCurrentUserMemberships());
-	  List messages = retrieveViewablePendingMsgs();
+	  numPendingMessages = 0;
+	  List messages = forumManager.getPendingMsgsInSiteByMembership(uiPermissionsManager.getCurrentUserMemberships());
 	  
-	  Iterator msgIter = messages.iterator();
-	  while (msgIter.hasNext())
+	  if (messages != null && !messages.isEmpty())
 	  {
-		  Message msg = (Message) msgIter.next();
-		  DiscussionMessageBean decoMsg = new DiscussionMessageBean(msg, messageManager);
-		  pendingMsgs.add(decoMsg);
+		  messages = messageManager.sortMessageByDate(messages, false);
+	  
+		  Iterator msgIter = messages.iterator();
+		  while (msgIter.hasNext())
+		  {
+			  Message msg = (Message) msgIter.next();
+			  DiscussionMessageBean decoMsg = new DiscussionMessageBean(msg, messageManager);
+			  pendingMsgs.add(decoMsg);
+			  numPendingMessages++;
+		  }
+	  }
+	  
+	  refreshPendingMsgs = false;
+  }
+  
+  /**
+   * returns all messages in the site that are pending and curr user has
+   * moderate perm to view
+   * @return
+   */
+  public List getPendingMessages()
+  {
+	  if (refreshPendingMsgs)
+	  {
+	  	refreshPendingMessages();
 	  }
 	  
 	  return pendingMsgs;
-  }
-  
-  private List retrieveViewablePendingMsgs()
-  {
-	  List msgs = new ArrayList();
-	  List moderatedTopics = forumManager.getModeratedTopicsInSite();
-	  if (moderatedTopics == null || moderatedTopics.isEmpty())
-	  {
-		  return msgs;
-	  }
-	  
-	  Iterator topicIter = moderatedTopics.iterator();
-	  while (topicIter.hasNext())
-	  {
-		  DiscussionTopic topic = (DiscussionTopic) topicIter.next();
-		  if (uiPermissionsManager.isModeratePostings(topic, (DiscussionForum)topic.getBaseForum()))
-		  {
-			  List topicMsgs = new ArrayList();
-			  topicMsgs = forumManager.getPendingMsgsInTopic(topic.getId());
-			  if (topicMsgs != null && !topicMsgs.isEmpty())
-			  {
-				  msgs.addAll(topicMsgs);
-			  }
-		  }
-	  }
-	  return msgs;
   }
   
   /**
@@ -3660,6 +3643,8 @@ public class DiscussionForumTool
 		  else
 			  setSuccessMessage(getResourceBundleString(MSGS_DENIED));
 	  }
+	  
+	  refreshPendingMsgs = true;
   }
 
   /**
@@ -3675,6 +3660,8 @@ public class DiscussionForumTool
 		  selectedMessage = new DiscussionMessageBean(messageManager.getMessageByIdWithAttachments(msgId), messageManager);
 		  setSuccessMessage(getResourceBundleString("cdfm_denied_alert"));
 	  }
+	  
+	  refreshPendingMsgs = true;
 	  
 	  return MESSAGE_VIEW;
   }
@@ -3693,6 +3680,8 @@ public class DiscussionForumTool
 		  displayDeniedMsg = true;
 	  }
 	  
+	  refreshPendingMsgs = true;
+	  
 	  return ADD_COMMENT;
   }
   
@@ -3709,6 +3698,8 @@ public class DiscussionForumTool
 		  selectedMessage = new DiscussionMessageBean(messageManager.getMessageByIdWithAttachments(msgId), messageManager);
 		  setSuccessMessage(getResourceBundleString("cdfm_approved_alert"));
 	  }
+	  
+	  refreshPendingMsgs = true;
 	  
 	  return MESSAGE_VIEW;
   }

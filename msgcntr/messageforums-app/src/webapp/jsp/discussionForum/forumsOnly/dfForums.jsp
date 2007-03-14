@@ -15,10 +15,10 @@
 		<h:panelGroup rendered="#{PrivateMessagesTool.instructor}">
 		  <sakai:tool_bar separator="#{msgs.cdfm_toolbar_separator}">
         <sakai:tool_bar_item value="#{msgs.cdfm_new_forum}" action="#{ForumTool.processActionNewForum}" />
-        <sakai:tool_bar_item value=" #{msgs.cdfm_organize}" action="#{ForumTool.processActionTemplateOrganize}"  />
-			  <sakai:tool_bar_item value=" #{msgs.cdfm_template_setting}" action="#{ForumTool.processActionTemplateSettings}" />
-			  <sakai:tool_bar_item value=" #{msgs.stat_list}" action="#{ForumTool.processActionStatistics}" />
-			  <sakai:tool_bar_item value=" #{msgs.cdfm_msg_pending_queue} #{msgs.cdfm_openb}#{ForumTool.numPendingMessages}#{msgs.cdfm_closeb}" action="#{ForumTool.processPendingMsgQueue}" rendered="#{ForumTool.displayPendingMsgQueue}" />
+        <sakai:tool_bar_item value="#{msgs.cdfm_organize}" action="#{ForumTool.processActionTemplateOrganize}"  />
+			  <sakai:tool_bar_item value="#{msgs.cdfm_template_setting}" action="#{ForumTool.processActionTemplateSettings}" />
+			  <sakai:tool_bar_item value="#{msgs.stat_list}" action="#{ForumTool.processActionStatistics}" />
+			  <sakai:tool_bar_item value="#{msgs.cdfm_msg_pending_queue} #{msgs.cdfm_openb}#{ForumTool.numPendingMessages}#{msgs.cdfm_closeb}" action="#{ForumTool.processPendingMsgQueue}" rendered="#{ForumTool.displayPendingMsgQueue}" />
       </sakai:tool_bar>
  		</h:panelGroup>
  	
