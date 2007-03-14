@@ -387,17 +387,7 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 		Boolean allow_show_subject = new Boolean(true);
 		Boolean allow_channel_choice = new Boolean(false);
 
-		if (serviceName.equals("org.sakaiproject.chat.api.ChatService"))
-		{
-			tool_title = rb.getString("ctool_title");
-			tool_name = rb.getString("ctool_name");
-			one_item = rb.getString("cone_item");
-			all_items = rb.getString("call_items");
-			channel_analog = rb.getString("cchannel_analog");
-			allow_show_subject = new Boolean(false);
-			allow_channel_choice = new Boolean(true);
-		}
-		else if (serviceName.equals("org.sakaiproject.discussion.api.DiscussionService"))
+		if (serviceName.equals("org.sakaiproject.discussion.api.DiscussionService"))
 		{
 			tool_title = rb.getString("dtool_title");
 			tool_name = rb.getString("dtool_name");
@@ -529,12 +519,6 @@ public class SynopticMessageAction extends VelocityPortletPaneledAction
 
 		boolean allow_show_subject = true;
 		boolean allow_channel_choice = false;
-
-		if (serviceName.equals("org.sakaiproject.chat.api.ChatService"))
-		{
-			allow_show_subject = false;
-			allow_channel_choice = true;
-		}
 
 		// showSubject
 		if (allow_show_subject)
