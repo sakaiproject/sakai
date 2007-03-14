@@ -488,14 +488,16 @@
 				<h4>
 					$tlang.getString("receive.confirm.submission.email.options")
 				</h4>
-				<input type="radio" name="$!name_assignment_instructor_notifications" id="$tlang.getString('receive.confirm.submission.email.none')" value="$!value_assignment_instructor_notifications_none" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_none))checked="checked" #end >
-				<label for="$tlang.getString('receive.confirm.submission.email.none')">$tlang.getString('receive.confirm.submission.email.none')</label>
-				<br/>
-				<input type="radio" name="$!name_assignment_instructor_notifications" id="$tlang.getString('receive.confirm.submission.email.each')" value="$!value_assignment_instructor_notifications_each" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_each))checked="checked" #end >
-				<label for="$tlang.getString('receive.confirm.submission.email.each')">$tlang.getString('receive.confirm.submission.email.each')</label>
-				<br/>
-				<input type="radio" name="$!name_assignment_instructor_notifications" id="$tlang.getString('receive.confirm.submission.email.digest')" value="$!value_assignment_instructor_notifications_digest" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_digest))checked="checked" #end >
-				<label for="$tlang.getString('receive.confirm.submission.email.digest')">$tlang.getString('receive.confirm.submission.email.digest')</label>
+				<p class="checkbox  indnt2">
+					<input type="radio" name="$!name_assignment_instructor_notifications" id="$tlang.getString('receive.confirm.submission.email.none')" value="$!value_assignment_instructor_notifications_none" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_none))checked="checked" #end >
+					<label for="$tlang.getString('receive.confirm.submission.email.none')">$tlang.getString('receive.confirm.submission.email.none')</label>
+					<br/>
+					<input type="radio" name="$!name_assignment_instructor_notifications" id="$tlang.getString('receive.confirm.submission.email.each')" value="$!value_assignment_instructor_notifications_each" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_each))checked="checked" #end >
+					<label for="$tlang.getString('receive.confirm.submission.email.each')">$tlang.getString('receive.confirm.submission.email.each')</label>
+					<br/>
+					<input type="radio" name="$!name_assignment_instructor_notifications" id="$tlang.getString('receive.confirm.submission.email.digest')" value="$!value_assignment_instructor_notifications_digest" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_digest))checked="checked" #end >
+					<label for="$tlang.getString('receive.confirm.submission.email.digest')">$tlang.getString('receive.confirm.submission.email.digest')</label>
+				</p>
 			#end
 			## attachments
 			<h4>
