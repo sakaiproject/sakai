@@ -66,7 +66,7 @@ public class HTMLParserTest extends TestCase
 	
 	public void testParser() throws Exception {
 		Properties p = new Properties();
-		InputStream inStream = getClass().getResourceAsStream("parsertest.properties");
+		InputStream inStream = getClass().getResourceAsStream("parsertest.config");
 		p.load(inStream);
 		inStream.close();
 		for ( Iterator tests = p.keySet().iterator(); tests.hasNext(); ) {

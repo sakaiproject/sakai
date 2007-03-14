@@ -45,13 +45,13 @@ public class DefaultContentDigester implements ContentDigester
 		try
 		{
 		    binaryTypes = new Properties();
-		    InputStream pi = getClass().getResourceAsStream("/org/sakaiproject/search/component/bundle/binarytypes.properties");
+		    InputStream pi = getClass().getResourceAsStream("/org/sakaiproject/search/component/bundle/binarytypes.config");
 			binaryTypes.load(pi);
 		    pi.close();
 		}
 		catch (Exception e)
 		{
-			log.error("Cant find binary types file /org/sakaiproject/search/component/bundle/binarytypes.properties in class path",e);
+			log.error("Cant find binary types file /org/sakaiproject/search/component/bundle/binarytypes.config in class path",e);
 			System.exit(-1);
 		}
 	    

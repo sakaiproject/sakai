@@ -48,7 +48,7 @@ public class HTMLParser implements Iterator<String>
 		try
 		{
 			BufferedReader br = new BufferedReader(new InputStreamReader(HTMLParser.class
-					.getResourceAsStream("/org/sakaiproject/search/component/bundle/htmlentities.properties")));
+					.getResourceAsStream("/org/sakaiproject/search/component/bundle/htmlentities.config")));
 			for ( String line = br.readLine(); line != null; line = br.readLine() ) {
 				if ( !line.startsWith("#") )   {
 				String[] parts = line.split("=");
