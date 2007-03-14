@@ -25,8 +25,10 @@ import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
@@ -43,6 +45,7 @@ import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ServiceLevelAction;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.content.tool.ResourcesAction.ContentPermissions;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
@@ -95,6 +98,7 @@ public class ListItem
 	protected String createdBy;
 	protected String modifiedTime;
 	protected int depth;
+	protected Map<String, ResourceToolAction> multipleItemActions = new HashMap<String, ResourceToolAction>();
 
 	protected boolean canSelect = false;
 
@@ -601,6 +605,13 @@ public class ListItem
      */
     public void setAddActions(List<ResourceToolAction> addActions)
     {
+    	for(ResourceToolAction action : addActions)
+    	{
+    		if(action instanceof ServiceLevelAction && ((ServiceLevelAction) action).isMultipleItemAction())
+    		{
+    			this.multipleItemActions.put(action.getId(), action);
+    		}
+    	}
     	this.addActions = addActions;
     }
 
@@ -649,6 +660,13 @@ public class ListItem
      */
     public void setOtherActions(List<ResourceToolAction> otherActions)
     {
+    	for(ResourceToolAction action : otherActions)
+    	{
+    		if(action instanceof ServiceLevelAction && ((ServiceLevelAction) action).isMultipleItemAction())
+    		{
+    			this.multipleItemActions.put(action.getId(), action);
+    		}
+    	}
     	this.otherActions = otherActions;
     }
 
@@ -737,6 +755,39 @@ public class ListItem
 	    // TODO Auto-generated method stub
 	    return this.entity;
     }
+
+	/**
+     * @param action
+     */
+    public void addMultipleItemAction(ResourceToolAction action)
+    {
+	    this.multipleItemActions.put(action.getId(), action);
+    }
+    
+    public boolean hasMultipleItemActions()
+    {
+    	return ! this.multipleItemActions.isEmpty();
+    }
+    
+    public boolean hasMultipleItemAction(String key)
+    {
+    	return this.multipleItemActions.containsKey(key);
+    }
+    
+    public ResourceToolAction getMultipleItemAction(String key)
+    {
+    	return this.multipleItemActions.get(key);
+    }
+
+	/**
+     * @return
+     */
+    public Map<String, ResourceToolAction> getMultipleItemActions()
+    {
+	    return this.multipleItemActions;
+    }
+    
+    
     
 }
 

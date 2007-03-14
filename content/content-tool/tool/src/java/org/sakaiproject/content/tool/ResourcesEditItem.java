@@ -400,7 +400,7 @@ public class ResourcesEditItem
 	  */
 	 public boolean isFileUpload()
 	 {
-		 return !isFolder() && !isUrl() && !isHtml() && !isPlaintext() && !isStructuredArtifact();
+		 return !isFolder() && !isUrl() && !isHtml() && !isPlaintext() ;
 	 }
 
 	 /**
@@ -724,14 +724,6 @@ public class ResourcesEditItem
 	 public boolean isUrl()
 	 {
 		 return ResourcesAction.TYPE_URL.equals(m_type) || ResourceProperties.TYPE_URL.equals(m_mimetype);
-	 }
-
-	 /**
-	  * @return true if content-type of item indicates it represents a URL, false otherwise
-	  */
-	 public boolean isStructuredArtifact()
-	 {
-		 return ResourcesAction.TYPE_FORM.equals(m_type);
 	 }
 
 	 /**

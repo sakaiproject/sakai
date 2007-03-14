@@ -1696,10 +1696,10 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 
 				// otherwise the original list remains unchanged
 
-				else if (state.getAttribute(ResourcesAction.STATE_EDIT_ID) == null)
-				{
-					toolSession.setAttribute(FilePickerHelper.FILE_PICKER_CANCEL, Boolean.TRUE.toString());
-				}
+//				else if (state.getAttribute(STATE_EDIT_ID) == null)
+//				{
+//					toolSession.setAttribute(FilePickerHelper.FILE_PICKER_CANCEL, Boolean.TRUE.toString());
+//				}
 			}
 			else
 			{

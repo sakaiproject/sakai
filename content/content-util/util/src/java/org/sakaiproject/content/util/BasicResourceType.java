@@ -22,7 +22,7 @@
 
 package org.sakaiproject.content.util;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -63,9 +63,9 @@ public class BasicResourceType implements ResourceType
 		public String getLocalizedHoverText(ContentEntity entity);
 	}
 	
-	protected Map<ActionType,List<ResourceToolAction>> actionTypeMap = new Hashtable<ActionType,List<ResourceToolAction>>();
+	protected Map<ActionType,List<ResourceToolAction>> actionTypeMap = new HashMap<ActionType,List<ResourceToolAction>>();
 	
-	protected Map<String, ResourceToolAction> actionIdMap = new Hashtable<String, ResourceToolAction>();
+	protected Map<String, ResourceToolAction> actionIdMap = new HashMap<String, ResourceToolAction>();
 
 	protected String id;
 

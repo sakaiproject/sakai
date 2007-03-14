@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -134,6 +135,46 @@ public class ResourcesAction
     public static ResourceLoader trb = new ResourceLoader("types");
     
 	static final Log logger = LogFactory.getLog(ResourcesAction.class);
+	
+	public class Counter
+	{
+		protected Map<String, Integer> values = new HashMap<String, Integer>();
+		public void increment(String key)
+		{
+			Integer val = values.get(key);
+			if(val == null)
+			{
+				values.put(key, new Integer(1));
+			}
+			else
+			{
+				values.put(key, new Integer(val.intValue() + 1));
+			}
+		}
+		
+		public void decrement(String key)
+		{
+			Integer val = values.get(key);
+			if(val == null)
+			{
+				values.put(key, new Integer(-1));
+			}
+			else
+			{
+				values.put(key, new Integer(val.intValue() - 1));
+			}
+		}
+		
+		public int getValue(String key)
+		{
+			Integer val = values.get(key);
+			if(val == null)
+			{
+				val = new Integer(0);
+			}
+			return val.intValue();
+		}
+	}
 
 	/**
 	 * Action
@@ -440,13 +481,78 @@ public class ResourcesAction
 	public static final List<ActionType> ACTIONS_ON_FOLDERS = new Vector<ActionType>();
 	public static final List<ActionType> ACTIONS_ON_MULTIPLE_ITEMS = new Vector<ActionType>();
 	public static final List<ActionType> ACTIONS_ON_RESOURCES = new Vector<ActionType>();
+	
 	public static final List<ActionType> CONTENT_DELETE_ACTIONS = new Vector<ActionType>();
 	public static final List<ActionType> CONTENT_MODIFY_ACTIONS = new Vector<ActionType>();
-	
 	public static final List<ActionType> CONTENT_NEW_ACTIONS = new Vector<ActionType>();
 	public static final List<ActionType> CONTENT_NEW_FOR_PARENT_ACTIONS = new Vector<ActionType>();
 	public static final List<ActionType> CONTENT_READ_ACTIONS = new Vector<ActionType>();
 	
+	public static final List<ActionType> CREATION_ACTIONS = new Vector<ActionType>();
+
+	public static final List<ActionType> PASTE_COPIED_ACTIONS = new Vector<ActionType>();
+	public static final List<ActionType> PASTE_MOVED_ACTIONS = new Vector<ActionType>();
+	
+	public static final List<ActionType> SITE_UPDATE_ACTIONS = new Vector<ActionType>();
+
+	// may need to distinguish permission on entity vs permission on its containing collection
+	static
+	{
+		CONTENT_NEW_ACTIONS.add(ActionType.NEW_UPLOAD);
+		CONTENT_NEW_ACTIONS.add(ActionType.NEW_FOLDER);
+		CONTENT_NEW_ACTIONS.add(ActionType.CREATE);
+		
+		PASTE_COPIED_ACTIONS.add(ActionType.PASTE_COPIED);
+		PASTE_MOVED_ACTIONS.add(ActionType.PASTE_MOVED);
+		
+		CONTENT_NEW_FOR_PARENT_ACTIONS.add(ActionType.DUPLICATE);
+		
+		CONTENT_READ_ACTIONS.add(ActionType.VIEW_CONTENT);
+		CONTENT_READ_ACTIONS.add(ActionType.VIEW_METADATA);
+		CONTENT_READ_ACTIONS.add(ActionType.COPY);
+		
+		CONTENT_MODIFY_ACTIONS.add(ActionType.REVISE_METADATA);
+		CONTENT_MODIFY_ACTIONS.add(ActionType.REVISE_CONTENT);
+		CONTENT_MODIFY_ACTIONS.add(ActionType.REPLACE_CONTENT);
+		CONTENT_MODIFY_ACTIONS.add(ActionType.REVISE_ORDER);
+		
+		CONTENT_DELETE_ACTIONS.add(ActionType.MOVE);
+		CONTENT_DELETE_ACTIONS.add(ActionType.DELETE);
+		
+		SITE_UPDATE_ACTIONS.add(ActionType.REVISE_PERMISSIONS);
+
+		ACTIONS_ON_FOLDERS.add(ActionType.VIEW_METADATA);
+		ACTIONS_ON_FOLDERS.add(ActionType.REVISE_METADATA);
+		ACTIONS_ON_FOLDERS.add(ActionType.DUPLICATE);
+		ACTIONS_ON_FOLDERS.add(ActionType.COPY);
+		ACTIONS_ON_FOLDERS.add(ActionType.MOVE);
+		ACTIONS_ON_FOLDERS.add(ActionType.DELETE);
+		ACTIONS_ON_FOLDERS.add(ActionType.REVISE_ORDER);
+		ACTIONS_ON_FOLDERS.add(ActionType.REVISE_PERMISSIONS);
+		// ACTIONS_ON_FOLDERS.add(ActionType.PASTE_MOVED);
+
+		ACTIONS_ON_RESOURCES.add(ActionType.VIEW_CONTENT);
+		ACTIONS_ON_RESOURCES.add(ActionType.VIEW_METADATA);
+		ACTIONS_ON_RESOURCES.add(ActionType.REVISE_METADATA);
+		ACTIONS_ON_RESOURCES.add(ActionType.REVISE_CONTENT);
+		ACTIONS_ON_RESOURCES.add(ActionType.REPLACE_CONTENT);
+		ACTIONS_ON_RESOURCES.add(ActionType.DUPLICATE);
+		ACTIONS_ON_RESOURCES.add(ActionType.COPY);
+		ACTIONS_ON_RESOURCES.add(ActionType.MOVE);
+		ACTIONS_ON_RESOURCES.add(ActionType.DELETE);
+
+		ACTIONS_ON_MULTIPLE_ITEMS.add(ActionType.COPY);
+		ACTIONS_ON_MULTIPLE_ITEMS.add(ActionType.MOVE);
+		ACTIONS_ON_MULTIPLE_ITEMS.add(ActionType.DELETE);
+		
+		CREATION_ACTIONS.add(ActionType.NEW_UPLOAD);
+		CREATION_ACTIONS.add(ActionType.NEW_FOLDER);
+		CREATION_ACTIONS.add(ActionType.CREATE);
+		CREATION_ACTIONS.add(ActionType.PASTE_MOVED);
+		CREATION_ACTIONS.add(ActionType.PASTE_COPIED);
+	}
+
+
 	
 	/** copyright path -- MUST have same value as AccessServlet.COPYRIGHT_PATH */
 	public static final String COPYRIGHT_PATH = Entity.SEPARATOR + "copyright";
@@ -462,8 +568,6 @@ public class ResourcesAction
 	private static final String COPYRIGHT_TYPES = "copyright_types";
     
 	private static final int CREATE_MAX_ITEMS = 10;
-
-	public static final List<ActionType> CREATION_ACTIONS = new Vector<ActionType>();
 
 	private static final String DEFAULT_COPYRIGHT = "default_copyright";
 
@@ -527,59 +631,68 @@ public class ResourcesAction
 	/************** the edit context *****************************************/
 
 	private static final String MODE_DELETE_FINISH = "deleteFinish";
+	
 	public  static final String MODE_HELPER = "helper";
 	/** Modes. */
 	private static final String MODE_LIST = "list";
 
 	private static final String MODE_MORE = "more";
+	
 	private static final String MODE_PROPERTIES = "properties";
+	
 	private static final String MODE_REORDER = "reorder";
 
 	static final String MODE_REVISE_METADATA = "revise_metadata";
 
 	private static final String NEW_COPYRIGHT_INPUT = "new_copyright_input";
+	
 	/** The null/empty string */
 	private static final String NULL_STRING = "";
 
 /** A long representing the number of milliseconds in one week.  Used for date calculations */
 	protected static final long ONE_WEEK = 1000L * 60L * 60L * 24L * 7L;
+	
 	protected static final String PARAM_PAGESIZE = "collections_per_page";
-	public static final List<ActionType> PASTE_COPIED_ACTIONS = new Vector<ActionType>();
-	public static final List<ActionType> PASTE_MOVED_ACTIONS = new Vector<ActionType>();
 
 	public static final String PREFIX = "resources.";
+	
 	/** string used to represent "public" access mode in UI elements */
 	protected static final String PUBLIC_ACCESS = "public";
+	
 	public static final String RESOURCES_MODE_DROPBOX = "dropbox";
+	
 	public static final String RESOURCES_MODE_HELPER = "helper";
 
-	/** portlet configuration parameter values**/
 	public static final String RESOURCES_MODE_RESOURCES = "resources";
+	
 	/** The default value for whether to show all sites in dropbox (used if global value can't be read from server config service) */
 	private static final boolean SHOW_ALL_SITES_IN_DROPBOX = false;
 	/** The default value for whether to show all sites in file-picker (used if global value can't be read from server config service) */
 	public static final boolean SHOW_ALL_SITES_IN_FILE_PICKER = false;
 	/** The default value for whether to show all sites in resources tool (used if global value can't be read from server config service) */
 	private static final boolean SHOW_ALL_SITES_IN_RESOURCES = false;
-	public static final List<ActionType> SITE_UPDATE_ACTIONS = new Vector<ActionType>();
 	
 	
 	/** The collection id being browsed. */
 	private static final String STATE_COLLECTION_ID = PREFIX + "collection_id";
+	
 	/** The collection id path */
 	private static final String STATE_COLLECTION_PATH = PREFIX + "collection_path";
+	
 	/** The name of the state attribute containing BrowseItems for all content collections the user has access to */
 	private static final String STATE_COLLECTION_ROOTS = PREFIX + "collection_rootie_tooties";
 
-	/************** the columns context *****************************************/
-
 	public static final String STATE_COLUMN_ITEM_ID = PREFIX + "state_column_item_id";
+	
 	/** The content hosting service in the State. */
 	private static final String STATE_CONTENT_SERVICE = PREFIX + "content_service";
+	
 	/** The content type image lookup service in the State. */
 	private static final String STATE_CONTENT_TYPE_IMAGE_SERVICE = PREFIX + "content_type_image_service";
+	
 	/** The copied item ids */
 	private static final String STATE_COPIED_IDS = PREFIX + "revise_copied_ids";
+	
 	/** The copy flag */
 	private static final String STATE_COPY_FLAG = PREFIX + "copy_flag";
 
@@ -596,22 +709,6 @@ public class ResourcesAction
 
 	protected static final String STATE_CREATE_WIZARD_ITEM = PREFIX + "create_wizard_item";
 
-//
-//	/** The name of the state attribute containing the name of the tool that invoked Resources as attachment helper */
-//	public static final String STATE_ATTACH_TOOL_NAME = PREFIX + "attach_tool_name";
-
-	/************** the helper context (file-picker) *****************************************/
-
-	/** The cut flag */
-	private static final String STATE_CUT_FLAG = PREFIX + "cut_flag";
-	
-	/** The cut item ids */
-	private static final String STATE_CUT_IDS = PREFIX + "revise_cut_ids";
-
-	
-	
-	/************** the delete context *****************************************/
-
 	/** name of state attribute for the default retract time */
 	protected static final String STATE_DEFAULT_RETRACT_TIME = PREFIX + "default_retract_time";
 
@@ -621,29 +718,25 @@ public class ResourcesAction
 	/** The name of the state attribute containing a list of ListItem objects corresponding to nonempty folders selected for deletion */
 	private static final String STATE_DELETE_ITEMS_NOT_EMPTY = PREFIX + "delete_items_not_empty";
 
-	/************** the copied items context *****************************************/
-
 	protected static final String STATE_DELETE_SET = PREFIX + "delete_set";
-
-	/************** the moved items context *****************************************/
-
-	public static final String STATE_EDIT_COLLECTION_ID = PREFIX + "stack_edit_collection_id";
-	
-	/** The edit id */
-	public static final String STATE_EDIT_ID = PREFIX + "edit_id";
 
 	/** The name of the state attribute indicating whether the hierarchical list is expanded */
 	private static final String STATE_EXPAND_ALL_FLAG = PREFIX + "expand_all_flag";
 
 	/** Name of state attribute indicating number of members for a collection at which this tool should refuse to expand the collection. */
 	private static final String STATE_EXPANDABLE_FOLDER_SIZE_LIMIT = PREFIX + "expandable_folder_size_limit";
+	
 	/** Name of state attribute containing a list of opened/expanded collections */
 	private static final String STATE_EXPANDED_COLLECTIONS = PREFIX + "expanded_collections";
+	
 	protected static final String STATE_EXPANDED_FOLDER_SORT_MAP = PREFIX + "expanded_folder_sort_map";
+	
 	/** state attribute for the maximum size for file upload */
 	static final String STATE_FILE_UPLOAD_MAX_SIZE = PREFIX + "file_upload_max_size";
+	
 	/** The from state name */
 	private static final String STATE_FROM = PREFIX + "from";
+	
 	/** State attribute for where there is at least one attachment before invoking attachment tool */
 	public static final String STATE_HAS_ATTACHMENT_BEFORE = PREFIX + "has_attachment_before";
 
@@ -651,36 +744,46 @@ public class ResourcesAction
 	 *  the name of the state attribute indicating that the user canceled out of the helper.  Is set only if the user canceled out of the helper. 
 	 */
 	public static final String STATE_HELPER_CANCELED_BY_USER = PREFIX + "state_attach_canceled_by_user";
+	
 	protected static final String STATE_HIGHLIGHTED_ITEMS = PREFIX + "highlighted_items";
+	
 	/** The display name of the "home" collection (can't go up from here.) */
 	private static final String STATE_HOME_COLLECTION_DISPLAY_NAME = PREFIX + "collection_home_display_name";
 
 	/** The id of the "home" collection (can't go up from here.) */
 	private static final String STATE_HOME_COLLECTION_ID = PREFIX + "collection_home";
+	
 	/** Name of state attribute for status of initialization.  */
 	private static final String STATE_INITIALIZED = PREFIX + "initialized";
+	
 	protected static final String STATE_ITEMS_TO_BE_COPIED = PREFIX + "items_to_be_copied";
 
 	protected static final String STATE_ITEMS_TO_BE_MOVED = PREFIX + "items_to_be_moved";
+	
 	private static final String STATE_LIST_PREFERENCE = PREFIX + "state_list_preference";
+	
 	/** The name of the state attribute containing a java.util.Set with the id's of selected items */
 	private static final String STATE_LIST_SELECTIONS = PREFIX + "ignore_delete_selections";
-	/************************** Comparators **************************/
 	
 	protected static final String STATE_LIST_VIEW_SORT = PREFIX + "list_view_sort";
-	/************** the metadata extension of edit/create contexts *****************************************/
 
 	private static final String STATE_METADATA_GROUPS = PREFIX + "metadata.types";
+	
 	/** The resources, helper or dropbox mode. */
 	public static final String STATE_MODE_RESOURCES = PREFIX + "resources_mode";
+	
 	/** The more collection id */
 	private static final String STATE_MORE_COLLECTION_ID = PREFIX + "more_collection_id";
+	
 	/** The more id */
 	private static final String STATE_MORE_ID = PREFIX + "more_id";
+	
 	/** The move flag */
 	private static final String STATE_MOVE_FLAG = PREFIX + "move_flag";
+	
 	/** The copied item ids */
 	private static final String STATE_MOVED_IDS = PREFIX + "revise_moved_ids";
+	
 	/** The user copyright string */
 	private static final String	STATE_MY_COPYRIGHT = PREFIX + "mycopyright";
 
@@ -689,16 +792,19 @@ public class ResourcesAction
 
 	/** The name of the state attribute indicating whether the hierarchical list needs to be expanded */
 	private static final String STATE_NEED_TO_EXPAND_ALL = PREFIX + "need_to_expand_all";
+	
 	protected static final String STATE_NON_EMPTY_DELETE_SET = PREFIX + "non-empty_delete_set";
+	
 	/** The can-paste flag */
 	private static final String STATE_PASTE_ALLOWED_FLAG = PREFIX + "can_paste_flag";
+	
 	/** state attribute indicating whether users in current site should be denied option of making resources public */
 	private static final String STATE_PREVENT_PUBLIC_DISPLAY = PREFIX + "prevent_public_display";
 
 	protected static final String STATE_REMOVED_ATTACHMENTS = PREFIX + "removed_attachments";
-	/************** the reorder context *****************************************/
 
 	protected static final String STATE_REORDER_FOLDER = PREFIX + "reorder_folder_id";
+	
 	protected static final String STATE_REORDER_SORT = PREFIX + "reorder_sort";
 
 	/** The sort ascending or decending for the reorder context */
@@ -706,16 +812,24 @@ public class ResourcesAction
 
 	/** The property (column) to sort by in the reorder context */
 	protected static final String STATE_REORDER_SORT_BY = PREFIX + "reorder_sort_by";
+	
 	/** The resources, helper or dropbox mode. */
 	public static final String STATE_RESOURCES_HELPER_MODE = PREFIX + "resources_helper_mode";
+	
 	private static final String STATE_RESOURCES_TYPE_REGISTRY = PREFIX + "type_registry";
+	
 	protected static final String STATE_REVISE_PROPERTIES_ACTION = PREFIX + "revise_properties_action";
+	
 	protected static final String STATE_REVISE_PROPERTIES_ENTITY_ID = PREFIX + "revise_properties_entity_id";
+	
 	protected static final String STATE_REVISE_PROPERTIES_ITEM = PREFIX + "revise_properties_item";
+	
 	/** The select all flag */
 	private static final String STATE_SELECT_ALL_FLAG = PREFIX + "select_all_flag";
+	
 	/** The name of a state attribute indicating whether the resources tool/helper is allowed to show all sites the user has access to */
 	public static final String STATE_SHOW_ALL_SITES = PREFIX + "allow_user_to_see_all_sites";
+	
 	protected static final String STATE_SHOW_COPY_ACTION = PREFIX + "show_copy_action";
 	
 	private static final String STATE_SHOW_FORM_ITEMS = PREFIX + "show_form_items";
@@ -781,74 +895,15 @@ public class ResourcesAction
 
 	private static final String TEMPLATE_REVISE_METADATA = "content/sakai_resources_properties";
 
-	public static final String TYPE_FOLDER = "folder";
-
-	public static final String TYPE_FORM = MIME_TYPE_STRUCTOBJ;
 	public static final String TYPE_HTML = MIME_TYPE_DOCUMENT_HTML;
+	
 	public static final String TYPE_TEXT = MIME_TYPE_DOCUMENT_PLAINTEXT;
 	
 	public static final String TYPE_UPLOAD = "file";
+	
 	public static final String TYPE_URL = "Url";
 
-
 	public static final String UTF_8_ENCODING = "UTF-8";
-
-	// may need to distinguish permission on entity vs permission on its containing collection
-	static
-	{
-		CONTENT_NEW_ACTIONS.add(ActionType.NEW_UPLOAD);
-		CONTENT_NEW_ACTIONS.add(ActionType.NEW_FOLDER);
-		CONTENT_NEW_ACTIONS.add(ActionType.CREATE);
-		
-		PASTE_COPIED_ACTIONS.add(ActionType.PASTE_COPIED);
-		PASTE_MOVED_ACTIONS.add(ActionType.PASTE_MOVED);
-		
-		CONTENT_NEW_FOR_PARENT_ACTIONS.add(ActionType.DUPLICATE);
-		
-		CONTENT_READ_ACTIONS.add(ActionType.VIEW_CONTENT);
-		CONTENT_READ_ACTIONS.add(ActionType.VIEW_METADATA);
-		CONTENT_READ_ACTIONS.add(ActionType.COPY);
-		
-		CONTENT_MODIFY_ACTIONS.add(ActionType.REVISE_METADATA);
-		CONTENT_MODIFY_ACTIONS.add(ActionType.REVISE_CONTENT);
-		CONTENT_MODIFY_ACTIONS.add(ActionType.REPLACE_CONTENT);
-		CONTENT_MODIFY_ACTIONS.add(ActionType.REVISE_ORDER);
-		
-		CONTENT_DELETE_ACTIONS.add(ActionType.MOVE);
-		CONTENT_DELETE_ACTIONS.add(ActionType.DELETE);
-		
-		SITE_UPDATE_ACTIONS.add(ActionType.REVISE_PERMISSIONS);
-
-		ACTIONS_ON_FOLDERS.add(ActionType.VIEW_METADATA);
-		ACTIONS_ON_FOLDERS.add(ActionType.REVISE_METADATA);
-		ACTIONS_ON_FOLDERS.add(ActionType.DUPLICATE);
-		ACTIONS_ON_FOLDERS.add(ActionType.COPY);
-		ACTIONS_ON_FOLDERS.add(ActionType.MOVE);
-		ACTIONS_ON_FOLDERS.add(ActionType.DELETE);
-		ACTIONS_ON_FOLDERS.add(ActionType.REVISE_ORDER);
-		ACTIONS_ON_FOLDERS.add(ActionType.REVISE_PERMISSIONS);
-		// ACTIONS_ON_FOLDERS.add(ActionType.PASTE_MOVED);
-
-		ACTIONS_ON_RESOURCES.add(ActionType.VIEW_CONTENT);
-		ACTIONS_ON_RESOURCES.add(ActionType.VIEW_METADATA);
-		ACTIONS_ON_RESOURCES.add(ActionType.REVISE_METADATA);
-		ACTIONS_ON_RESOURCES.add(ActionType.REVISE_CONTENT);
-		ACTIONS_ON_RESOURCES.add(ActionType.REPLACE_CONTENT);
-		ACTIONS_ON_RESOURCES.add(ActionType.DUPLICATE);
-		ACTIONS_ON_RESOURCES.add(ActionType.COPY);
-		ACTIONS_ON_RESOURCES.add(ActionType.MOVE);
-		ACTIONS_ON_RESOURCES.add(ActionType.DELETE);
-
-		ACTIONS_ON_MULTIPLE_ITEMS.add(ActionType.COPY);
-		ACTIONS_ON_MULTIPLE_ITEMS.add(ActionType.MOVE);
-		ACTIONS_ON_MULTIPLE_ITEMS.add(ActionType.DELETE);
-		
-		CREATION_ACTIONS.add(ActionType.NEW_UPLOAD);
-		CREATION_ACTIONS.add(ActionType.NEW_FOLDER);
-		CREATION_ACTIONS.add(ActionType.CREATE);
-		CREATION_ACTIONS.add(ActionType.PASTE_MOVED);
-		CREATION_ACTIONS.add(ActionType.PASTE_COPIED);
-	}
 
 	/**
 	 * Add additional resource pattern to the observer
@@ -2067,30 +2122,6 @@ public class ResourcesAction
 			if(createCollectionId != null)
 			{
 				currentCollectionId = createCollectionId;
-			}
-			else
-			{
-				String editCollectionId = (String) current_stack_frame.get(STATE_EDIT_COLLECTION_ID);
-				if(editCollectionId == null)
-				{
-					editCollectionId = (String) state.getAttribute(STATE_EDIT_COLLECTION_ID);
-				}
-				if(editCollectionId != null)
-				{
-					currentCollectionId = editCollectionId;
-				}
-				else
-				{
-					String infoCollectionId = (String) current_stack_frame.get(STATE_MORE_COLLECTION_ID);
-					if(infoCollectionId == null)
-					{
-						infoCollectionId = (String) state.getAttribute(STATE_MORE_COLLECTION_ID);
-					}
-					if(infoCollectionId != null)
-					{
-						currentCollectionId = infoCollectionId;
-					}
-				}
 			}
 		}
 		String homeCollectionId = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
@@ -4290,7 +4321,6 @@ public class ResourcesAction
 		// find the ContentTypeImage service
 		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
 
-		context.put("TYPE_FOLDER", TYPE_FOLDER);
 		context.put("TYPE_UPLOAD", TYPE_UPLOAD);
 		
 		context.put("listStack", new Stack());
@@ -4476,7 +4506,17 @@ public class ResourcesAction
 
 			ListItem item = ListItem.getListItem(collection, null, registry, need_to_expand_all, expandedCollections, items_to_be_moved, items_to_be_copied, 0, userSelectedSort);
 			
+			Map<String, ResourceToolAction> listActions = new HashMap<String, ResourceToolAction>();
+			
 			List<ListItem> items = item.convert2list();
+			
+			for(ListItem lItem : items)
+			{
+				if(lItem.hasMultipleItemActions())
+				{
+					listActions.putAll(lItem.getMultipleItemActions());
+				}
+			}
 			
 			if(atHome && dropboxMode)
 			{
@@ -4549,6 +4589,10 @@ public class ResourcesAction
 				// context.put("pagesizes", PAGESIZES);
 
 			}
+			
+			context.put("listActions", listActions);
+			context.put("counter", new Counter());
+			context.put("sysout", System.out);
 
 			// context.put ("other_sites", other_sites);
 			//state.setAttribute(STATE_COLLECTION_ROOTS, all_roots);
@@ -6230,6 +6274,23 @@ public class ResourcesAction
 		}	// if-else
 
 	}	// doMove
+	
+	public void doMultiItemDispatch ( RunData data )
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		
+		ParameterParser params = data.getParameters();
+		
+		Set selectedSet  = new TreeSet();
+		String[] selectedItems = params.getStrings ("selectedMembers");
+		if(selectedItems != null)
+		{
+			selectedSet.addAll(Arrays.asList(selectedItems));
+		}
+		
+		String actionId = params.getString("rt_action");
+		
+	}
 
 	/**
 	* Navigate in the resource hireachy
@@ -7042,7 +7103,7 @@ public class ResourcesAction
 			ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
 			if(registry == null)
 			{
-				registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+				registry = (ResourceTypeRegistry) ComponentManager.get(ResourceTypeRegistry.class);
 				state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
 			}
 			type = registry.getType(typeId); 
@@ -7076,21 +7137,6 @@ public class ResourcesAction
 		return type;
 
 	}
-
-	/**
-	* initialize the cut context
-	*/
-	private void initCutContext (SessionState state)
-	{
-		state.setAttribute (STATE_CUT_IDS, new Vector ());
-
-		state.setAttribute (STATE_CUT_FLAG, Boolean.FALSE.toString());
-
-	}	// initCutContent
-
-	/////////////////////////////////////////////////////////////////////////// Methods, Classes, Statics to be deprecated/removed
-	
-
 	
 	/**
 	* Populate the state object, if needed - override to do something!
@@ -7108,9 +7154,6 @@ public class ResourcesAction
 		initStateAttributes(state, portlet);
 
 	}	// initState
-
-	
-
 
 	public void initStateAttributes(SessionState state, VelocityPortlet portlet)
 	{

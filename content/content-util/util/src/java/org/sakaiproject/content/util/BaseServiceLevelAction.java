@@ -31,11 +31,13 @@ import org.sakaiproject.content.api.ServiceLevelAction;
  * Time: 10:17:14 AM
  * To change this template use File | Settings | File Templates.
  */
-public class BaseServiceLevelAction extends BaseResourceAction implements ServiceLevelAction {
+public class BaseServiceLevelAction extends BaseResourceAction implements ServiceLevelAction 
+{
 
    private boolean multipleItemAction;
 
-   public BaseServiceLevelAction(String id, ActionType actionType, String typeId, boolean multipleItemAction) {
+   public BaseServiceLevelAction(String id, ActionType actionType, String typeId, boolean multipleItemAction) 
+   {
       super(id, actionType, typeId);
       this.multipleItemAction = multipleItemAction;
    }
@@ -45,10 +47,13 @@ public class BaseServiceLevelAction extends BaseResourceAction implements Servic
     *
     * @param reference
     */
-   public void invokeAction(Reference reference) {
+   public void invokeAction(Reference reference) 
+   {
+	   	// do nothing
    }
 
-   public boolean isMultipleItemAction() {
+   public boolean isMultipleItemAction() 
+   {
       return multipleItemAction;
    }
 
@@ -58,8 +63,9 @@ public class BaseServiceLevelAction extends BaseResourceAction implements Servic
     *
     * @param reference A reference to the entity with respect to which the action is taken
     */
-   public void initializeAction(Reference reference) {
-      //To change body of implemented methods use File | Settings | File Templates.
+   public void initializeAction(Reference reference) 
+   {
+      // do nothing
    }
 
    /**
@@ -69,8 +75,9 @@ public class BaseServiceLevelAction extends BaseResourceAction implements Servic
     *
     * @param entity A reference to the entity  with respect to which the action is taken
     */
-   public void finalizeAction(Reference reference) {
-      //To change body of implemented methods use File | Settings | File Templates.
+   public void finalizeAction(Reference reference) 
+   {
+      // do nothing
    }
 
    /**
@@ -81,8 +88,9 @@ public class BaseServiceLevelAction extends BaseResourceAction implements Servic
     *
     * @param entity A reference to the entity  with respect to which the action is taken
     */
-   public void cancelAction(Reference reference) {
-      //To change body of implemented methods use File | Settings | File Templates.
+   public void cancelAction(Reference reference) 
+   {
+      // do nothing
    }
 
 }
