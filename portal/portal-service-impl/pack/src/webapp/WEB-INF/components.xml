@@ -6,7 +6,9 @@
 
     <bean id="org.sakaiproject.portal.api.PortalService"
           class="org.sakaiproject.portal.service.PortalServiceImpl"
-          singleton="true">
+          singleton="true"
+          init-method="init"
+          >
     </bean>
     <bean id="org.sakaiproject.portal.api.PortalService.portletRegistryListener"
           class="org.sakaiproject.portal.service.SakaiPortletRegistryListener"

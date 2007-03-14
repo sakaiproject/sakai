@@ -15,6 +15,7 @@ import org.apache.pluto.descriptors.portlet.PortletAppDD;
 import org.apache.pluto.descriptors.portlet.PortletDD;
 import org.apache.pluto.internal.InternalPortletContext;
 import org.apache.pluto.spi.optional.PortletRegistryService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandler;
@@ -23,6 +24,7 @@ import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.api.PortletApplicationDescriptor;
 import org.sakaiproject.portal.api.PortletDescriptor;
 import org.sakaiproject.portal.api.StoredState;
+import org.sakaiproject.portal.api.StyleAbleProvider;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 
@@ -41,6 +43,21 @@ public class PortalServiceImpl implements PortalService
 
 	private Map<String, Portal> portals = new HashMap<String, Portal>();
 
+
+	private StyleAbleProvider stylableServiceProvider;
+
+	
+	public void init() {
+		try {
+			stylableServiceProvider = (StyleAbleProvider) ComponentManager.get(StyleAbleProvider.class.getName());
+		} catch ( Exception ex ) {
+		}
+		if ( stylableServiceProvider == null ) {
+			log.info("No Styleable Provider found, the portal will not be stylable");
+		}
+	}
+	
+	
 	public StoredState getStoredState()
 	{
 		Session s = SessionManager.getCurrentSession();
@@ -415,6 +432,14 @@ public class PortalServiceImpl implements PortalService
 	{
 		String portalContext = portal.getPortalContext();
 		safePut(portals, portalContext, null);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.portal.api.PortalService#getStylableService()
+	 */
+	public StyleAbleProvider getStylableService()
+	{
+		return stylableServiceProvider;
 	}
 
 }

@@ -96,36 +96,6 @@
       <artifactId>sakai-tool-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
-		<!-- TransformAble Dependencies -->
-  	<dependency>
-  		<groupId>ca.utoronto.atrc</groupId>
-  		<artifactId>sakai-styleable-api</artifactId>
-  		<version>${sakai.version}</version>	
-  	</dependency>
-  	
-  	<dependency>
-  		<groupId>ca.utoronto.atrc</groupId>
-  		<artifactId>sakai-transformable-preferences-api</artifactId>
-  		<version>${sakai.version}</version>	
-  	</dependency>
-  	
-  	<dependency>
-  		<groupId>ca.utoronto.atrc</groupId>
-  		<artifactId>accessforall</artifactId>
-  		<version>0.3</version>
-  	</dependency>
-  	
-  	<dependency>
-  		<groupId>ca.utoronto.atrc</groupId>
-  		<artifactId>transformable-common</artifactId>
-  		<version>0.3</version>
-  	</dependency>
-  	
-  	<dependency>
-  		<groupId>ca.utoronto.atrc</groupId>
-  		<artifactId>styleable</artifactId>
-  		<version>0.3</version>
-  	</dependency>
 
 	</dependencies>
 
@@ -138,6 +108,7 @@
 			<resource>
 				<directory>${basedir}/src/bundle</directory>
 				<includes>
+					<include>**/*.config</include>
 					<include>**/*.properties</include>
 					<include>**/*.vm</include>
 				</includes>

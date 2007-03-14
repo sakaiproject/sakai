@@ -41,12 +41,10 @@ import org.apache.velocity.runtime.RuntimeConstants;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.PortalRenderEngine;
+import org.sakaiproject.portal.api.PortalService;
+import org.sakaiproject.portal.api.StyleAbleProvider;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.cover.SessionManager;
-
-import ca.utoronto.atrc.transformable.common.UnknownIdException;
-import ca.utoronto.atrc.transformable.sakaipreferences.cover.TransformAblePrefsService;
-import ca.utoronto.atrc.transformable.styleable.sakai.cover.StyleAbleService;
 
 /**
  * A velocity render engine adapter
@@ -68,6 +66,8 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 	private boolean styleAble = false;
 
 	private boolean styleAbleContentSummary = false;
+
+	private PortalService portalService;
 
 	public void init() throws Exception
 	{
@@ -144,7 +144,7 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		{
 			Properties p = new Properties();
 			p.load(this.getClass().getResourceAsStream(
-					"/" + portalSkin + "/options.properties"));
+					"/" + portalSkin + "/options.config"));
 			rc.setOptions(p);
 		}
 		catch (Exception ex)
@@ -178,16 +178,21 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 	{
 		if (styleAble)
 		{
+			StyleAbleProvider sp = portalService.getStylableService();
+			if ( sp != null ) {
 			String userId = getCurrentUserId();
 			try
 			{
-				ca.utoronto.atrc.transformable.common.prefs.Preferences prefsForUser = TransformAblePrefsService
-						.getTransformAblePreferences(userId);
-				return StyleAbleService.generateStyleSheet(prefsForUser);
+				
+				return sp.generateStyleSheet(userId);
+//				ca.utoronto.atrc.transformable.common.prefs.Preferences prefsForUser = TransformAblePrefsService
+//						.getTransformAblePreferences(userId);
+//				return StyleAbleService.generateStyleSheet(prefsForUser);
 			}
-			catch (UnknownIdException e)
+			catch (Exception e)
 			{
 				return null;
+			}
 			}
 		}
 		return null;
@@ -199,18 +204,22 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 	private String generateStyleAbleJavaScript()
 	{
 		// Enable / disable StyleAble javascript based on property flag.
-		if (styleAble && styleAbleContentSummary)
+		if ( styleAble && styleAbleContentSummary)
 		{
+			StyleAbleProvider sp = portalService.getStylableService();
+			if ( sp != null ) {
 			String userId = getCurrentUserId();
 			try
 			{
-				ca.utoronto.atrc.transformable.common.prefs.Preferences prefsForUser = TransformAblePrefsService
-						.getTransformAblePreferences(userId);
-				return StyleAbleService.generateJavaScript(prefsForUser);
+				return sp.generateJavaScript(userId);
+//				ca.utoronto.atrc.transformable.common.prefs.Preferences prefsForUser = TransformAblePrefsService
+//						.getTransformAblePreferences(userId);
+//				return StyleAbleService.generateJavaScript(prefsForUser);
 			}
-			catch (UnknownIdException e)
+			catch (Exception e)
 			{
 				return null;
+			}
 			}
 		}
 		return null;
@@ -308,6 +317,15 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 	public void setStyleAble(boolean styleAble)
 	{
 		this.styleAble = styleAble;
+	}
+
+	/**
+	 * @param instance
+	 */
+	public void setPortalService(PortalService instance)
+	{
+		this.portalService = instance;
+		
 	}
 
 }

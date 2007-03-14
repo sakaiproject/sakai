@@ -164,6 +164,7 @@
 			<resource>
 				<directory>${basedir}/src/bundle</directory>
 				<includes>
+					<include>**/*.config</include>
 					<include>**/*.properties</include>
 					<include>**/*.vm</include>
 				</includes>
@@ -184,6 +185,7 @@
 			<resource>
 	  			<directory>${basedir}/src/bundle</directory>
 	  			<includes>
+					<include>**/*.config</include>
 					<include>**/*.properties</include>
 					<include>**/*.vm</include>
 	  			</includes>

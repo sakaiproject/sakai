@@ -216,4 +216,10 @@ public interface PortalService
 	 */
 	void addPortal(Portal portal);
 
+	/**
+	 * Get the implimentation of the StylableService from the portal impl
+	 * @return
+	 */
+	StyleAbleProvider getStylableService();
+
 }
