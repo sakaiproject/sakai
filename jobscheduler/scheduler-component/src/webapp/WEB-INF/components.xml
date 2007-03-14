@@ -11,7 +11,6 @@
                 <value>org.sakaiproject.component.app.scheduler.jobs.TestJob</value>
                 <value>org.sakaiproject.component.app.scheduler.jobs.TestJob2</value>
                 <value>org.sakaiproject.component.app.scheduler.jobs.LongTestJob</value>
-                <value>org.sakaiproject.component.app.scheduler.jobs.ScheduledInvocationRunner</value>
             </set>
         </property>
         <property name="qrtzPropFile">
@@ -38,7 +37,39 @@
           <value>${auto.ddl}</value>
         </property>
     </bean>
-
+    
+    <bean id="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager"
+        class="org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl"
+        init-method="init" destroy-method="destroy"> 
+        <property name="sqlService">
+        	<ref bean="org.sakaiproject.db.api.SqlService"/>
+        </property> 
+        <property name="idManager">
+        	<ref bean="org.sakaiproject.id.api.IdManager"/>
+        </property>
+    </bean>    
+    
+    <bean id="scheduledInvocationRunner"
+      class="org.sakaiproject.component.app.scheduler.jobs.ScheduledInvocationRunner">
+      <property name="sqlService">
+        	<ref bean="org.sakaiproject.db.api.SqlService"/>
+        </property> 
+   </bean>   
+    
+     <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.ScheduledInvocationRunner"
+      class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+      singleton="true" init-method="init">
+      <property name="beanId">
+         <value>scheduledInvocationRunner</value>
+      </property>
+      <property name="jobName">
+         <value>Scheduled Invocation Runner</value>
+      </property>
+      <property name="schedulerManager">
+         <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+      </property>
+   </bean>
+   
    <!-- sample bean job... this sample shows how to install a bean into quartz for scheduling -->
 
    <!-- this is the actual bean to execute.  This will have all
