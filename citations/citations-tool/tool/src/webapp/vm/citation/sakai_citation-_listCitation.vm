@@ -1,0 +1,25 @@
+<tr>
+	<td headers="checkboxes" class="attach">
+		<input type="checkbox" name="selected" id="select_$!{citation.id}"
+		  value="$!{citation.id}" onchange="updateSelectableActions(); highlightCheckedSelections();" /> 
+	</td>
+	<td headers="details">
+		<a href="$citation.openurl" target="_blank">$citation.displayName</a>
+		<br />
+		$!{citation.creator}
+		$!{citation.source}
+		<div class="itemAction">
+			#if($citation.hasCustomUrls())
+				#foreach($urlid in $citation.customUrlIds)
+					<a href="$citation.getCustomUrl("$urlid").toString()" target="_blank">$citation.getCustomUrlLabel("$urlid")</a>
+			  			|
+			  	#end
+		  	#end
+			<a href="#toolLink("CitationHelperAction" "doView")&citationId=${citation.id}&collectionId=$collectionId">$tlang.getString( "action.view" )</a>
+ 				|
+			<a href="#toolLink("CitationHelperAction" "doEdit")&citationId=$citation.id&collectionId=$collectionId">$tlang.getString("action.edit")</a>
+				|
+			<a href="#toolLink("CitationHelperAction" "doRemoveCitation")&citationId=$citation.id&collectionId=$collectionId">$tlang.getString("action.remove")</a>
+		</div>
+	</td>
+</tr>

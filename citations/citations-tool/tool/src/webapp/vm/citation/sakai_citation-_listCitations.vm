@@ -1,0 +1,151 @@
+<table class="listHier lines nolines" summary="citations table" cellpadding="0" cellspacing="0">
+  <tbody>
+    <tr>
+      <th colspan="2">
+        <div class="viewNav" style="padding: 0pt;"><strong>$tlang.getString("title.list")</strong>
+          #if($show_citations) <span class="listPageLoad_replace">$showing</span> #end
+          <span class="listPageLoad" style="display: none; vertical-align: bottom; padding: 0.5em; border: 1px solid #000; background: #fff;">
+            <img src="/library/image/sakai/spinner.gif" alt="$tlang.getString( "wait.list" )" />
+            $tlang.getString( "wait.list" )
+          </span>
+        </div>
+        <div class="listNav">
+          <input type="button" name="firstPage" id="firstPage"
+            value="&lt;&lt;" alt="$tlang.getString("first.results")"
+            #if(! $citations.hasPreviousPage())disabled="disabled" #end
+            onclick="javascript: showSpinner( '.listPageLoad' ); document.getElementById('sakai_action').value='doFirstListPage'; submitform('$FORM_NAME');"
+          />
+          <input type="button" name="prevPage" id="prevPage"
+            value="&lt;" alt="$tlang.getString("prev.results")"
+            #if(! $citations.hasPreviousPage())disabled="disabled" #end
+            onclick="javascript: showSpinner( '.listPageLoad' ); document.getElementById('sakai_action').value='doPrevListPage'; submitform('$FORM_NAME');"
+          />
+          <select name="pageSize" id="pageSize"
+            onchange="javascript: showSpinner( '.listPageLoad' ); document.getElementById('sakai_action').value='doChangeListPageSize'; submitform('$FORM_NAME');"
+            #if(!$show_citations)disabled="disabled"#end>
+            <option value="10" #if("$!{listPageSize}" == "10") selected="selected"#end>$tlang.getString("show10.results")</option>
+            <option value="20" #if("$!{listPageSize}" == "20") selected="selected"#end>$tlang.getString("show20.results")</option>
+            <option value="30" #if("$!{listPageSize}" == "30") selected="selected"#end>$tlang.getString("show30.results")</option>
+            <option value="40" #if("$!{listPageSize}" == "40") selected="selected"#end>$tlang.getString("show40.results")</option>
+            <option value="50" #if("$!{listPageSize}" == "50") selected="selected"#end>$tlang.getString("show50.results")</option>
+          </select>
+          <input type="button" name="nextPage" id="nextPage" value="&gt;"
+            alt="$tlang.getString("next.results")"
+            #if(! $citations.hasNextPage()) disabled="disabled"#end
+            onclick="javascript: showSpinner( '.listPageLoad' ); document.getElementById('sakai_action').value='doNextListPage'; submitform('$FORM_NAME');"
+          />
+          <input type="button" name="lastPage" id="lastPage"
+            value="&gt;&gt;" alt="$tlang.getString("last.results")"
+            #if(! $citations.hasNextPage()) disabled="disabled"#end
+            onclick="javascript: showSpinner( '.listPageLoad' ); document.getElementById('sakai_action').value='doLastListPage'; submitform('$FORM_NAME');"
+          />
+        </div>
+      </th>
+    </tr>
+
+	#if($show_citations)
+
+    <tr class="exclude" style="border-bottom: 1px solid #DDDDDD;">
+      <td colspan="2">
+        <div class="viewNav" style="padding: 0pt;">
+          $tlang.getString( "actions.list" )
+          <select name="citationAction" id="citationAction" class="citationActionSelect"
+            onchange="doCitationAction(this.value, '$exportURL', 'export', '$collectionId')">
+            <option value="null"> - $tlang.getString( "select.action.list" ) - </option>
+            <option class="selectAction" disabled="disabled" value="exportSelected">$tlang.getString( "export.select.list" )</option>
+            <option value="exportList">$tlang.getString( "export.all.list" )</option>
+            <option class="selectAction" disabled="disabled" value="removeSelected">$tlang.getString( "remove.select.list" )</option>
+            <option value="removeList">$tlang.getString( "remove.all.list" )</option>
+          </select>
+        </div>
+      </td>
+    </tr>
+    <tr class="exclude">
+      <td colspan="2">
+        <div class="itemAction">
+          <a href="#" onclick="selectAll( '$FORM_NAME' ); return false;">$tlang.getString("select.all.list")</a> |
+          <a href="#" onclick="selectNone( '$FORM_NAME' ); return false;">$tlang.getString("select.none.list")</a>
+        </div>
+      </td>
+    </tr>
+
+	#foreach($citation in $citations)
+	  #parse( "vm/citation/sakai_citation-_listCitation.vm" )
+	#end
+
+    <tr class="exclude">
+      <td colspan="2">
+        <div class="itemAction">
+          <a href="#" onclick="selectAll( '$FORM_NAME' ); return false;">$tlang.getString("select.all.list")</a> |
+          <a href="#" onclick="selectNone( '$FORM_NAME' ); return false;">$tlang.getString("select.none.list")</a>
+        </div>
+      </td>
+    </tr>
+    <tr class="exclude" style="border-top: 1px solid #DDDDDD;">
+      <td colspan="2">
+        <div class="viewNav" style="padding: 0pt;">
+          $tlang.getString( "actions.list" )
+          <select name="citationAction" id="citationAction" class="citationActionSelect"
+            onchange="doCitationAction(this.value, '$exportURL', 'export', '$collectionId')">
+            <option value="null"> - $tlang.getString( "select.action.list" ) - </option>
+            <option class="selectAction" disabled="disabled" value="exportSelected">$tlang.getString( "export.select.list" )</option>
+            <option value="exportList">$tlang.getString( "export.all.list" )</option>
+            <option class="selectAction" disabled="disabled" value="removeSelected">$tlang.getString( "remove.select.list" )</option>
+            <option value="removeList">$tlang.getString( "remove.all.list" )</option>
+          </select>
+        </div>
+      </td>
+    </tr>
+
+	#else
+		<tr class="exclude">
+			<td colspan="2" style="text-align:center; padding: 3em;">
+				<p class="instruction">$tlang.getFormattedMessage( "empty.list", $emptyListArgs )</p>
+			</td>
+		</tr>
+	#end
+
+	<tr>
+      <th colspan="2">
+        <div class="viewNav" style="padding: 0pt;"><strong>$tlang.getString("title.list")</strong>
+          #if($show_citations) <span class="listPageLoad_replace">$showing</span> #end
+          <span class="listPageLoad" style="display: none; vertical-align: bottom; padding: 0.5em; border: 1px solid #000; background: #fff;">
+            <img src="/library/image/sakai/spinner.gif" alt="$tlang.getString( "wait.list" )" />
+            $tlang.getString( "wait.list" )
+          </span>
+        </div>
+        <div class="listNav">
+          <input type="button" name="firstPage" id="firstPage"
+            value="&lt;&lt;" alt="$tlang.getString("first.results")"
+            #if(! $citations.hasPreviousPage())disabled="disabled" #end
+            onclick="javascript: showSpinner( '.listPageLoad' ); document.getElementById('sakai_action').value='doFirstListPage'; submitform('$FORM_NAME');"
+          />
+          <input type="button" name="prevPage" id="prevPage"
+            value="&lt;" alt="$tlang.getString("prev.results")"
+            #if(! $citations.hasPreviousPage())disabled="disabled" #end
+            onclick="javascript: showSpinner( '.listPageLoad' ); document.getElementById('sakai_action').value='doPrevListPage'; submitform('$FORM_NAME');"
+          />
+          <select name="pageSize" id="pageSize"
+            onchange="javascript: showSpinner( '.listPageLoad' ); document.getElementById('sakai_action').value='doChangeListPageSize'; submitform('$FORM_NAME');"
+            #if(!$show_citations)disabled="disabled"#end>
+            <option value="10" #if("$!{listPageSize}" == "10") selected="selected"#end>$tlang.getString("show10.results")</option>
+            <option value="20" #if("$!{listPageSize}" == "20") selected="selected"#end>$tlang.getString("show20.results")</option>
+            <option value="30" #if("$!{listPageSize}" == "30") selected="selected"#end>$tlang.getString("show30.results")</option>
+            <option value="40" #if("$!{listPageSize}" == "40") selected="selected"#end>$tlang.getString("show40.results")</option>
+            <option value="50" #if("$!{listPageSize}" == "50") selected="selected"#end>$tlang.getString("show50.results")</option>
+          </select>
+          <input type="button" name="nextPage" id="nextPage" value="&gt;"
+            alt="$tlang.getString("next.results")"
+            #if(! $citations.hasNextPage()) disabled="disabled"#end
+            onclick="javascript: showSpinner( '.listPageLoad' ); document.getElementById('sakai_action').value='doNextListPage'; submitform('$FORM_NAME');"
+          />
+          <input type="button" name="lastPage" id="lastPage"
+            value="&gt;&gt;" alt="$tlang.getString("last.results")"
+            #if(! $citations.hasNextPage()) disabled="disabled"#end
+            onclick="javascript: showSpinner( '.listPageLoad' ); document.getElementById('sakai_action').value='doLastListPage'; submitform('$FORM_NAME');"
+          />
+        </div>
+      </th>
+    </tr>
+  </tbody>
+</table>

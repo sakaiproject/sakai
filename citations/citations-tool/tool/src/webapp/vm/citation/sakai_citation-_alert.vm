@@ -1,0 +1,6 @@
+<br />
+<div class="alertMessage">
+  $tlang.getString("gen.alert")
+  $validator.escapeHtml($alertMessage)
+</div>
+<div class="clear"></div>

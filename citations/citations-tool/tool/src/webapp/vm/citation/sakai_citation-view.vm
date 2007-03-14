@@ -1,0 +1,83 @@
+#macro(showMultivalued $values)
+	#if(! $values.isEmpty())
+		<table>
+			#foreach($value in $values)
+				<tr>
+					<td>
+						$!value
+					</td>
+				</tr>
+			#end
+		</table>
+	#end
+#end
+
+<script type="text/javascript" src="/sakai-citation-tool/js/citationscript.js">	
+</script>
+
+<div class="portletBody">
+	<div class="indnt1" style="border: 3px solid red; display: none;" id="hiddenMessage">
+		<div style="margin: 10px 10px 10px 10px;">
+			<h3>
+				$tlang.getString("title.close")
+			</h3>
+			<h4>
+				$tlang.getString("subtitle.close")
+			</h4>
+			<p class="act">
+				<input type="button" name="Close" id="Close" value="$tlang.getString("button.close")" onclick="window.close();" />
+			</p>
+		</div>
+	</div>
+	<div class="indnt1">
+		<h3>$tlang.getString("title.view")</h3>
+		<table cellpadding="10">
+			<tr>
+				<td>
+					$tlang.getString("type.view")
+				</td>
+				<td>
+					$tlang.getString("type.$!{citation.schema.identifier}")
+				</td>
+			</tr>
+			#foreach($field in $!{citation.schema.fields})
+				#if($citation.hasPropertyValue("$field.identifier"))
+					#set($currentValue = "")
+					#if($!{citation.getCitationProperty("$field.identifier")})
+						#set($currentValue = $!{citation.getCitationProperty("$field.identifier")} )
+					##elseif($!{field.defaultValue})
+						##set($currentValue = $!{field.defaultValue})
+					#end
+					<tr>
+						<td>
+							$tlang.getString("$!{citation.schema.identifier}.$!{field.identifier}")
+						</td>
+						<td>
+							#if($field.isMultivalued())
+								#showMultivalued($!{currentValue})
+							#else
+								$!{currentValue}
+							#end
+						</td>
+					</tr>
+				#end
+			#end
+		</table>
+		<form name="$FORM_NAME" id="$FORM_NAME" action="#toolForm("CitationHelperAction")" method="post">
+			<input name="sakai_action" id="sakai_action" value="doList" type="hidden" />
+			<input name="citationId" id="citationId" value="$citationId" type="hidden" />
+			<input name="collectionId" id="collectionId" value="$collectionId" type="hidden" />
+
+			<p class="act">
+    			<input class="active" type="button" name="Back" id="Back"
+    		  	  value="$tlang.getString("label.back")"
+    		  	  onclick="document.getElementById('sakai_action').value='doList'; submitform('$FORM_NAME');"
+    			/>
+    			<input type="button" name="Edit" id="Edit"
+    		  	  value="$tlang.getString("label.edit.view")"
+    		  	  onclick="document.getElementById('sakai_action').value='doEdit'; submitform('$FORM_NAME');"
+    			/>
+    		</p>
+    	</form>
+	</div>
+</div>

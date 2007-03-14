@@ -1,0 +1,109 @@
+<!--
+#*
+ $URL$
+ $Id$
+*#
+ **********************************************************************************
+ *
+ * Copyright (c) 2006 The Sakai Foundation.
+ * 
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.opensource.org/licenses/ecl1.php
+ * 
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
+ *
+ **********************************************************************************
+-->
+<script type="text/javascript" src="#libraryLink('js/jquery-1.1.2.js')">
+</script>
+<script type="text/javascript" src="/sakai-citation-tool/js/citationscript.js">
+</script>
+
+<div class="portletBody">
+	<div class="indnt1">
+		<h3>$tlang.getString( "title.review" )</h3>
+		#if( $alertMessage )
+			#parse( "sakai_citation-_alert.vm" )
+		#end
+		#if($show_citations)
+			<p class="instruction">$tlang.getFormattedMessage( "instr.main.review", $instrMainArgs )</p>
+		#else
+			<p class="instruction">$tlang.getFormattedMessage( "empty.list", $emptyListArgs )</p>
+		#end
+		<p class="instruction">$tlang.getFormattedMessage( "instr.sub.review", $instrSubArgs )</p>
+		
+		<form name="$FORM_NAME" id="$FORM_NAME" action="#toolForm("CitationHelperAction")" method="post">
+			<input name="sakai_action" id="sakai_action" value="" type="hidden" />
+			<input name="citationId" id="citationId" value="" type="hidden" />
+			<input name="collectionId" id="collectionId" value="$collectionId" type="hidden" />
+			<input name="$!{specialHelperFlag}" id="$!{specialHelperFlag}" value="$!{citationToolId}" type="hidden" />
+			<div class="act">
+				<input class="active" type="button" name="Finish" id="Finish"
+				  value="$tlang.getString("label.finish")"
+				  onclick="document.getElementById('sakai_action').value='doFinish'; submitform('$FORM_NAME');"
+				/>
+				#if( $searchResults )
+				  <input type="button" name="Back" id="Back"
+				    value="$tlang.getString("label.back.results")"
+				    onclick="document.getElementById('sakai_action').value='doResults'; submitform('$FORM_NAME');"
+				  />
+				#end
+				<input type="button" name="AddCitations" id="AddCitations"
+				  value="$tlang.getString("label.menu")"
+				  onclick="document.getElementById('sakai_action').value='doAddCitations'; submitform('$FORM_NAME');"
+				/>
+				<input type="button" name="Cancel" id="Cancel"
+				  value="$tlang.getString("label.cancel")"
+				  onclick="document.getElementById('sakai_action').value='doCancel'; submitform('$FORM_NAME');"
+				/>
+			</div>
+
+			#parse( "vm/citation/sakai_citation-_listCitations.vm" )
+			
+			<div class="act">
+				<input class="active" type="button" name="Finish" id="Finish"
+				  value="$tlang.getString("label.finish")"
+				  onclick="document.getElementById('sakai_action').value='doFinish'; submitform('$FORM_NAME');"
+				/>
+				#if( $searchResults )
+				  <input type="button" name="Back" id="Back"
+				    value="$tlang.getString("label.back.results")"
+				    onclick="document.getElementById('sakai_action').value='doResults'; submitform('$FORM_NAME');"
+				  />
+				#end
+				<input type="button" name="AddCitations" id="AddCitations"
+				  value="$tlang.getString("label.menu")"
+				  onclick="document.getElementById('sakai_action').value='doAddCitations'; submitform('$FORM_NAME');"
+				/>
+				<input type="button" name="Cancel" id="Cancel"
+				  value="$tlang.getString("label.cancel")"
+				  onclick="document.getElementById('sakai_action').value='doCancel'; submitform('$FORM_NAME');"
+				/>
+			</div>
+		</form>
+	</div>
+</div>
+<script type="text/javascript">
+/*
+ * Resizes the frame to avoid double scroll bars without scrolling to the top
+ * of the page when making dynamic changes to the page.
+ * This method has not been tested with IE 5.5.
+ */
+function resizeFrame() {
+  var frame = parent.document.getElementById( window.name );
+
+  if( frame ) {
+    var clientH = document.body.clientHeight + 10;
+    $( frame ).height( clientH );
+  } else {
+    throw( "resizeFrame did not get the frame (using name=" + window.name + ")" );
+  }
+}
+</script>
