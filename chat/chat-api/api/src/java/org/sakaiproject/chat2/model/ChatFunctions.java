@@ -1,6 +1,6 @@
 /**********************************************************************************
-* $URL: https://source.sakaiproject.org/svn/osp/trunk/reports/api/src/java/org/theospi/portfolio/reports/model/ReportFunctions.java $
-* $Id: ReportFunctions.java 9134 2006-05-08 20:28:42Z chmaurer@iupui.edu $
+* $URL$
+* $Id$
 ***********************************************************************************
 *
 * Copyright (c) 2007 The Sakai Foundation.
