@@ -82,7 +82,7 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 				"org.apache.velocity.runtime.log.SimpleLog4JLogSystem");
 		vengine.setProperty("runtime.log.logsystem.log4j.category", "ve.portal");
 		Properties p = new Properties();
-		p.load(this.getClass().getResourceAsStream("portalvelocity.properties"));
+		p.load(this.getClass().getResourceAsStream("portalvelocity.config"));
 		vengine.init(p);
 		availablePortalSkins = new ArrayList();
 		Map m = new HashMap();

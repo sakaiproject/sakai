@@ -63,7 +63,7 @@ public class VelocityPortletRenderEngine implements PortletRenderEngine
 		Properties p = new Properties();
 		p
 				.load(this.getClass().getResourceAsStream(
-						"portletvelocity.properties"));
+						"portletvelocity.config"));
 		vengine.init(p);
 
 	}

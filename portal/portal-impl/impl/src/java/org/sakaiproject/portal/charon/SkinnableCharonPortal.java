@@ -428,13 +428,14 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	}
 
 	public boolean isPortletPlacement(Placement placement)
-        {
-                if ( placement == null ) return false;
-                Properties toolProps = placement.getTool().getFinalConfig();
-                if ( toolProps == null ) return false;
-                String portletContext = toolProps.getProperty(PortalService.TOOL_PORTLET_CONTEXT_PATH);
-                return (portletContext != null);
-        }
+	{
+		if (placement == null) return false;
+		Properties toolProps = placement.getTool().getFinalConfig();
+		if (toolProps == null) return false;
+		String portletContext = toolProps
+				.getProperty(PortalService.TOOL_PORTLET_CONTEXT_PATH);
+		return (portletContext != null);
+	}
 
 	public Map includeTool(HttpServletResponse res, HttpServletRequest req,
 			ToolConfiguration placement) throws IOException
@@ -473,17 +474,17 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		// for the reset button
 		boolean showResetButton = !"false".equals(placement.getConfig().getProperty(
 				Portal.TOOLCONFIG_SHOW_RESET_BUTTON));
- 
+
 		String resetActionUrl = PortalStringUtil.replaceFirst(toolUrl, "/tool/",
 				"/tool-reset/")
 				+ "?panel=Main";
 
 		// Reset is different for Portlets
-		if ( isPortletPlacement(placement) ) 
+		if (isPortletPlacement(placement))
 		{
 			resetActionUrl = Web.serverUrl(req)
-                                + ServerConfigurationService.getString("portalPath") 
-				+ req.getPathInfo() + "?sakai.state.reset=true";
+					+ ServerConfigurationService.getString("portalPath")
+					+ req.getPathInfo() + "?sakai.state.reset=true";
 		}
 
 		// for the help button
@@ -523,14 +524,14 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		toolMap.put("toolRenderResult", result);
 		toolMap.put("hasRenderResult", Boolean.valueOf(true));
 		toolMap.put("toolUrl", toolUrl);
-		if ( isPortletPlacement(placement) ) 
+		if (isPortletPlacement(placement))
 		{
 			toolMap.put("toolPlacementIDJS", "_self");
 		}
 		else
 		{
-			toolMap.put("toolPlacementIDJS", 
-                        	Web.escapeJavascript("Main" + placement.getId()));
+			toolMap.put("toolPlacementIDJS", Web.escapeJavascript("Main"
+					+ placement.getId()));
 		}
 		toolMap.put("toolResetActionUrl", resetActionUrl);
 		toolMap.put("toolTitle", titleString);
@@ -629,14 +630,14 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				return;
 			}
 
-                        // Check to see if the pre-process step has redirected us - if so,
-                        // our work is done here - we will likely come back again to finish our
-                        // work.  Thankfully RequestFilter leaves us a little trace when it
-                        // does a redirect
-                        if ( req.getAttribute("sakai.redirect") != null )
-                        {
-                                return;
-                        }
+			// Check to see if the pre-process step has redirected us - if so,
+			// our work is done here - we will likely come back again to finish
+			// our
+			// work. 
+			if (res.isCommitted())
+			{
+				return;
+			}
 
 			// get the Sakai session
 			Session session = SessionManager.getCurrentSession();
@@ -665,6 +666,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			if (ph != null)
 			{
 				stat = ph.doGet(parts, req, res, session);
+				if ( res.isCommitted() ) {
+					return;
+				}
 			}
 			if (stat == PortalHandler.NEXT)
 			{
@@ -675,6 +679,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				{
 					ph = i.next();
 					stat = ph.doGet(parts, req, res, session);
+					if ( res.isCommitted() ) {
+						return;
+					}
 					// this should be
 					if (stat != PortalHandler.NEXT)
 					{
@@ -1020,17 +1027,20 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				return;
 			}
 
-                        // Check to see if the pre-process step has redirected us - if so,
-                        // our work is done here - we will likely come back again to finish our
-                        // work.  Thankfully RequestFilter leaves us a little trace when it
-                        // does a redirect
-                        if ( req.getAttribute("sakai.redirect") != null )
-                        {
-                                return;
-                        }
+			// Check to see if the pre-process step has redirected us - if so,
+			// our work is done here - we will likely come back again to finish
+			// our
+			// work. T
+	
+			if (res.isCommitted() )
+			{
+				return;
+			}
 
-			// TODO: Ian/Glenn - will we ever get here?  If we always redirect after 
+			// TODO: Ian/Glenn - will we ever get here? If we always redirect
+			// after
 			// POST - then why would we fall through???
+			// yes because not everything does a redrirect after a post... ajax.
 
 			// get the Sakai session
 			Session session = SessionManager.getCurrentSession();
@@ -1054,6 +1064,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			if (ph != null)
 			{
 				stat = ph.doPost(parts, req, res, session);
+				if ( res.isCommitted() ) {
+					return;
+				}
 			}
 			if (stat == PortalHandler.NEXT)
 			{
@@ -1064,11 +1077,15 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				{
 					ph = i.next();
 					stat = ph.doPost(parts, req, res, session);
+					if ( res.isCommitted() ) {
+						return;
+					}
 					// this should be
 					if (stat != PortalHandler.NEXT)
 					{
 						break;
 					}
+					
 				}
 			}
 			if (stat == PortalHandler.NEXT)
