@@ -298,7 +298,17 @@
 								#if ($returned)
 									#if ($!submitTime && $!returnedTime)
 										#if ($returnedTime.before($submitTime))
-											$tlang.getString("listsub.resubmi") 
+											#if ($submission.getGraded() && $submission.TimeLastModified.after($submitTime))
+												## instructor has graded the resubmission
+												#if ($!withGrade)
+													$tlang.getString("grad3")
+												#else
+													$tlang.getString("gen.commented")
+												#end
+											#else
+												## the resubmission hasn't been graded yet
+												$tlang.getString("listsub.resubmi")
+											#end
 										#else
 											$tlang.getString("gen.returned")
 										#end

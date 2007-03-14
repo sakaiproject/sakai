@@ -517,9 +517,18 @@
 												#if($!submitTime)
 													#set ($totalNumber = $totalNumber + 1)
 													#if ($s.Returned)
-														#if ($!submitTime && $!returnedTime && $returnedTime.before($!submitTime))
-															## has been resubmitted, and ungraded
-															#set ($ungradedNumber = $ungradedNumber + 1)
+														#if ($!submitTime && $!returnedTime)
+															#if ($returnedTime.before($!submitTime))
+																#if ($s.getGraded() && $s.TimeLastModified.after($submitTime))
+																	## instructor has graded the resubmission
+																#else
+																	## has been resubmitted, and ungraded
+																	#set ($ungradedNumber = $ungradedNumber + 1)
+																#end
+															#else
+																## returned have not resubmitted
+																#set ($ungradedNumber = $ungradedNumber + 1)
+															#end
 														#end
 													#elseif (!$s.Graded)
 														#set ($ungradedNumber = $ungradedNumber + 1)
