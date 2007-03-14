@@ -3,7 +3,7 @@
 * $Id: ReportFunctions.java 9134 2006-05-08 20:28:42Z chmaurer@iupui.edu $
 ***********************************************************************************
 *
-* Copyright (c) 2005, 2006 The Sakai Foundation.
+* Copyright (c) 2007 The Sakai Foundation.
 *
 * Licensed under the Educational Community License, Version 1.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -38,6 +38,11 @@ public interface ChatFunctions {
    
    public static final String CHAT_FUNCTION_READ = CHAT_FUNCTION_PREFIX + "read";
    public static final String CHAT_FUNCTION_NEW = CHAT_FUNCTION_PREFIX + "new";
-   public static final String CHAT_FUNCTION_DELETE_OWN = CHAT_FUNCTION_PREFIX + "delete.own";
-   public static final String CHAT_FUNCTION_DELETE_ANY = CHAT_FUNCTION_PREFIX + "delete.any";
+   public static final String CHAT_FUNCTION_DELETE_PREFIX = CHAT_FUNCTION_PREFIX + "delete.";
+   public static final String CHAT_FUNCTION_DELETE_OWN = CHAT_FUNCTION_DELETE_PREFIX + "own";
+   public static final String CHAT_FUNCTION_DELETE_ANY = CHAT_FUNCTION_DELETE_PREFIX + "any";
+   
+   public static final String CHAT_FUNCTION_DELETE_CHANNEL = CHAT_FUNCTION_DELETE_PREFIX + "channel";
+   public static final String CHAT_FUNCTION_NEW_CHANNEL = CHAT_FUNCTION_PREFIX + "new.channel";
+   public static final String CHAT_FUNCTION_EDIT_CHANNEL = CHAT_FUNCTION_PREFIX + "revise.channel";
 }

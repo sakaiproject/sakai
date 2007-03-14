@@ -1,24 +1,29 @@
-<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
-<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
-<%
-    response.setContentType("text/html; charset=UTF-8");
-    response.addDateHeader("Expires", System.currentTimeMillis() - (1000L * 60L * 60L * 24L * 365L));
-    response.addDateHeader("Last-Modified", System.currentTimeMillis());
-    response.addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
-    response.addHeader("Pragma", "no-cache");
-%>
 <f:view>
-	<sakai:view_title value="#{msgs.delete_room_confirm_title}" indent="1" />
+	<sakai:view title="#{msgs.delete_room_confirm_title}">
+	<sakai:view_title value="#{msgs.delete_room_confirm_title}" />
 	
-	<sakai:instruction_message value="#{msgs.delete_room_confirm_instructions}" />
+	<h:outputText value="#{msgs.delete_room_confirm_alert}" styleClass="alertMessage" />
+	
+	<h:form styleClass="portletBody">
+	
+	<sakai:panel_edit>
+		<h:outputLabel for="title" value="#{msgs.channel_title}" />
+		<h:outputText id="title" value="#{ChatTool.currentChannelEdit.chatChannel.title}" />
+
+		<h:outputLabel for="desc" value="#{msgs.channel_description}" />
+		<h:outputText id="desc" value="#{ChatTool.currentChannelEdit.chatChannel.description}" />
+
+	</sakai:panel_edit>
 	
 	<sakai:button_bar>
-	    <sakai:button_bar_item
+	    <sakai:button_bar_item id="delete"
 	        action="#{ChatTool.processActionDeleteRoom}"
-	        value="#{msgs.delete_room}" />
-	    <sakai:button_bar_item
+	        value="#{ChatTool.deleteButtonText}" />
+	    <sakai:button_bar_item id="cancel"
 	        action="#{ChatTool.processActionDeleteRoomCancel}"
-	        value="#{msgs.cancel_delete}" />
+	        value="#{ChatTool.cancelButtonText}" />
 	</sakai:button_bar>
+	
+	</h:form>
+	</sakai:view>
 </f:view>

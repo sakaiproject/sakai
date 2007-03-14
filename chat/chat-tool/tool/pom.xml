@@ -152,18 +152,6 @@
       <artifactId>sakai-velocity-tool</artifactId>
       <version>${sakai.version}</version>
     </dependency>
-    
-    
-
-
-
-	     <dependency>
-	       <groupId>org.sakaiproject</groupId>
-	       <artifactId>sakai-metaobj-api</artifactId>
-	       <version>${sakai.version}</version>
-	     </dependency>
-	     
-
 
         <dependency>
             <groupId>jsf</groupId>

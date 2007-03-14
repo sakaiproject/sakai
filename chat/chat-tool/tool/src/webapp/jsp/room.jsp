@@ -1,48 +1,46 @@
-<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
-<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
-<%
-    response.setContentType("text/html; charset=UTF-8");
-    response.addDateHeader("Expires", System.currentTimeMillis() - (1000L * 60L * 60L * 24L * 365L));
-    response.addDateHeader("Last-Modified", System.currentTimeMillis());
-    response.addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
-    response.addHeader("Pragma", "no-cache");
-%>
 <f:view>
-   <sakai:view title="#{msgs.chat_room_title}">
+   <sakai:view title="#{ChatTool.customChatroomText}">
       <h:form>
+      
+      <script type="text/javascript">
+	focus_path = [ "Control", "mainForm:message" ];
+</script>
+      
          <sakai:tool_bar>
             <h:commandLink action="toolOptions" rendered="#{ChatTool.canManageTool}">
                <h:outputText value="#{msgs.manage_tool}" />
             </h:commandLink>
-            <h:commandLink action="selectRoom" rendered="#{ChatTool.toolChannelCount > 1}">
+            <h:commandLink action="toolOptions" rendered="#{ChatTool.siteChannelCount > 1}">
                <h:outputText value="#{msgs.change_room}" />
             </h:commandLink>
             <h:commandLink rendered="#{ChatTool.maintainer}"
                 action="#{ChatTool.processActionPermissions}">
                 <h:outputText
-                    value="#{msgs.permissions_link}" />
+                    value="#{msgs.permis}" />
             </h:commandLink>
          </sakai:tool_bar>
             	<h:outputText value="#{msgs.view}" />
-	         <h:selectOneMenu id="viewOptions" value="#{ChatTool.viewOptions}" onchange="this.form.submit();">
+	         <h:selectOneMenu id="viewOptions" value="#{ChatTool.viewOptions}" 
+	         		onchange="this.form.submit();">
 	            <f:selectItem itemValue="1" itemLabel="#{msgs.timeOnly}" />
 	            <f:selectItem itemValue="3" itemLabel="#{msgs.timeAndDate}" />
 	            <f:selectItem itemValue="2" itemLabel="#{msgs.dateOnly}" />
 	            <f:selectItem itemValue="0" itemLabel="#{msgs.neitherDateOrTime}" />
 	         </h:selectOneMenu>
-	         <h:selectOneMenu id="msgPastCutoff" value="#{ChatTool.msgDateCutoff}">
+	         <h:selectOneMenu id="messageOptions" value="#{ChatTool.messageOptions}"
+	         		onchange="this.form.submit();">
 	            <f:selectItem itemValue="-1" itemLabel="#{msgs.allMessages}" />
-	            <f:selectItems value="#{ChatTool.chotRoomsSelectItems}"/>
+	            <f:selectItem itemValue="0" itemLabel="#{ChatTool.past3DaysText}" />
 	         </h:selectOneMenu>
 	     <div id="chatListWrapper">
 				<div  class="chatListHeadWrapper">
 					<h:outputText value="#{msgs.lay_note}" />
 				</div>
+				<sakai:messages />
 				<iframe
 					name="Monitor"
 					id="Monitor"
-					title="$panel-monitor"
+					title="<h:outputText value="#{msgs.monitor_panel}" />"
 					width="100%"
 					height="300"
 					frameborder="0"
@@ -59,7 +57,7 @@
 				<iframe 
 					name="Presence"
 					id="Presence"
-					title="$panel-presence"
+					title="<h:outputText value="#{msgs.presence_panel}" />"
 					width="100%"
 					height="300"
 					frameborder="0"
@@ -73,7 +71,7 @@
 			<iframe
 					name="Control"
 					id="Control"
-					title="$panel-control"
+					title="<h:outputText value="#{msgs.control_panel}" />"
 					width="100%"
 					height="120"
 					frameborder="0"

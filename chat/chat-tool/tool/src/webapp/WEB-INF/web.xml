@@ -18,6 +18,14 @@
         <dispatcher>FORWARD</dispatcher>
         <dispatcher>INCLUDE</dispatcher>
     </filter-mapping>
+    
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.synoptic.chat</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
 
     <listener>
         <listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
@@ -77,7 +85,6 @@
     </servlet>
     
     <servlet>
-<!--      <servlet-name>sakai.syllabus.filepicker</servlet-name>-->
       <servlet-name>sakai.chat</servlet-name>
       <servlet-class>org.sakaiproject.jsf.util.HelperAwareJsfTool</servlet-class>
         <init-param>
@@ -96,11 +103,38 @@
         </init-param>
       <load-on-startup>1</load-on-startup>
    </servlet>
+   
+     <servlet>
+      <servlet-name>sakai.synoptic.chat</servlet-name>
+      <servlet-class>org.sakaiproject.jsf.util.HelperAwareJsfTool</servlet-class>
+        <init-param>
+            <param-name>path</param-name>
+            <param-value>/jsp</param-value>
+        </init-param>
+
+        <init-param>
+            <param-name>default</param-name>
+            <!-- the path is inserted before and .jsp inserted after -->
+            <param-value>synoptic</param-value>
+        </init-param>
+         <init-param>
+            <param-name>default.last.view</param-name>
+            <param-value>false</param-value>
+        </init-param>
+      <load-on-startup>1</load-on-startup>
+   </servlet>
 
 
     <servlet-mapping>
         <servlet-name>Faces Servlet</servlet-name>
         <url-pattern>*.jsf</url-pattern>
     </servlet-mapping>
+    
+		<jsp-config>
+			<jsp-property-group>
+				<url-pattern>*.jsp</url-pattern>
+				<include-prelude>/jsp/prelude.jspf</include-prelude>
+			</jsp-property-group>
+		</jsp-config>
 
 </web-app>

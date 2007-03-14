@@ -1,10 +1,34 @@
+/**********************************************************************************
+ * $URL: https://source.sakaiproject.org/svn/portal/trunk/portal-util/util/src/java/org/sakaiproject/portal/util/PortalSiteHelper.java $
+ * $Id: PortalSiteHelper.java 21708 2007-02-18 21:59:28Z ian@caret.cam.ac.uk $
+ ***********************************************************************************
+ *
+ * Copyright (c) 2007 The Sakai Foundation.
+ *
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.opensource.org/licenses/ecl1.php
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+ 
 package org.sakaiproject.chat2.model;
 
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
-import org.sakaiproject.metaobj.shared.model.Id;
+import org.sakaiproject.entity.api.EntityProducer;
+import org.sakaiproject.entity.api.EntitySummary;
+import org.sakaiproject.entity.api.EntityTransferrer;
+import org.sakaiproject.exception.PermissionException;
+
 
 
 /**
@@ -12,48 +36,60 @@ import org.sakaiproject.metaobj.shared.model.Id;
  * @author andersjb
  *
  */
-public interface ChatManager {
+public interface ChatManager extends EntityProducer, EntitySummary, EntityTransferrer {
 
-   /** The key to the tool placement setting for where to go when entering the tool */
-   public static String TOOL_INITIAL_VIEW_SETTING = "chatInitialView";
+   /** The type string for this application: should not change over time as it may be stored in various parts of persistent entities. */
+   static final String APPLICATION_ID = "sakai:chat";
    
-   /** The TOOL_INITIAL_VIEW_SETTING placement config is set to this if there is none.  This
-    * specifies that the room selection window is presented at first */
-   public static String INITIAL_VIEW_SELECT_ROOM = "____SELECT____ROOM____";
+   /** This string starts the references to resources in this service. */
+   public static final String REFERENCE_ROOT = "/chat";
+   public static final String REF_TYPE_CHANNEL = "channel";
+   
+   /** The Reference type for a messgae. */
+   public static final String REF_TYPE_MESSAGE = "msg";
 
+   public static final String CHAT_TOOL_ID = "sakai.chat";
+   
    /**
     * Creates a new ChatChannel but doesn't put it in the database.
     * @param context Id of what the channel is linked to
     * @param title String the title of the channel
+    * @param contextDefaultChannel boolean to set this as the default channel in the context
+    * @param checkAuthz boolean indicating if we should check for authorization before creating the channel
     * @return ChatChannel the new un-saved channel
     */
-   public ChatChannel createNewChannel(String context, String title);
+   public ChatChannel createNewChannel(String context, String title, boolean contextDefaultChannel, boolean checkAuthz) throws PermissionException;
    
    /**
     * updates the channel back into the database
     * @param channel ChatChannel
+    * @param checkAuthz boolean indicating if we should check for authorization before updating
     */
-   public void updateChannel(ChatChannel channel);
+   public void updateChannel(ChatChannel channel, boolean checkAuthz) throws PermissionException;
    
    /**
     * deletes the channel from the database.  It also removes the ChatMessages
     * @param channel
     */
-   public void deleteChannel(ChatChannel channel);
+   public void deleteChannel(ChatChannel channel) throws PermissionException;
 
    /**
     * gets one chat room
     * @param chatChannelId Id
     * @return ChatChannel
     */
-   public ChatChannel getChatChannel(Id chatChannelId);
+   public ChatChannel getChatChannel(String chatChannelId);
 
    /**
-    * gets all the messages from the Channel
+    * gets all the messages from the Channel after the passed date
     * @param channel ChatChannel 
+    * @param context Context of channel and messages to return
+    * @param date Date that the messages need to be newer than.  All messages will be returned if null
+    * @param items The number of messages to return.  All if set to 0
+    * @param sortAsc Boolean to sort the records in ascending order
     * @return List of ChatMessages
     */
-   public List getChannelMessages(ChatChannel channel);
+   public List<ChatMessage> getChannelMessages(ChatChannel channel, String context, Date date, int items, boolean sortAsc) throws PermissionException;
    
    /**
     * creates an unsaved Chat Message
@@ -61,7 +97,7 @@ public interface ChatManager {
     * @param String  the owner of the message
     * @return ChatMessage
     */
-   public ChatMessage createNewMessage(ChatChannel channel, String owner);
+   public ChatMessage createNewMessage(ChatChannel channel, String owner) throws PermissionException;
    
    /**
     * saves a Chat Message
@@ -73,14 +109,13 @@ public interface ChatManager {
     * delete a Chat Message
     * @param ChatMessage the message to delete
     */
-   public void deleteMessage(ChatMessage message);
+   public void deleteMessage(ChatMessage message) throws PermissionException;
    
    /**
     * gets the message with the id
     * @param chatMessageId Id
     * @return ChatMessage
     */
-   public ChatMessage getMessage(Id chatMessageId);
    public ChatMessage getMessage(String chatMessageId);
 
    /**
@@ -110,11 +145,39 @@ public interface ChatManager {
     * @return List of ChatChannel
     */
    public List getContextChannels(String contextId, String defaultNewTitle);
+   
+   /**
+    * Returns the context's default channel, or null if none.
+    * @param contextId
+    * @return
+    */
+   public ChatChannel getDefaultChannel(String contextId);
 
 
-   public Map getAuthorizationsMap();
    public boolean getCanDelete(ChatMessage chatMessage);
    public boolean getCanDelete(ChatMessage message, String placementId);
-   public boolean isMaintaner();
+   
+   public boolean getCanDelete(ChatChannel channel);
+   //public boolean getCanDelete(ChatChannel channel, String placementId);
+   
+   public boolean getCanEdit(ChatChannel channel);
+   
+   public boolean getCanCreateChannel();
+   public boolean getCanReadMessage(ChatChannel channel);
+   
+   public boolean isMaintainer();
+   
+   /**
+    * Makes the passed channel the dfault in the channel's context
+    * @param channel
+    */
+   public void makeDefaultContextChannel(ChatChannel channel);
+   
+   /**
+    * Returns a Date object that is the offset number of days before the current date
+    * @param offset Difference in days from current date
+    * @return
+    */
+   public Date calculateDateByOffset(int offset);
    
 }

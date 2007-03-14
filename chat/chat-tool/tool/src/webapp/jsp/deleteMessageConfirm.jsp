@@ -1,17 +1,30 @@
-<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
-<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
-<%
-    response.setContentType("text/html; charset=UTF-8");
-    response.addDateHeader("Expires", System.currentTimeMillis() - (1000L * 60L * 60L * 24L * 365L));
-    response.addDateHeader("Last-Modified", System.currentTimeMillis());
-    response.addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
-    response.addHeader("Pragma", "no-cache");
-%>
 <f:view>
-    <sakai:view title="#{msgs.chat_room_title}">
-            <h:form>
-            	a room: the room name
-            </h:form>
-    </sakai:view>
+	<sakai:view title="#{ChatTool.deletePageTitle}">
+		<sakai:view_title value="#{ChatTool.deletePageTitle}"/>
+		
+		<h:outputText value="#{ChatTool.deletePageConfirmAlert}" styleClass="alertMessage" />
+		
+		<h:form styleClass="portletBody">
+		
+			<sakai:panel_edit>
+				<h:outputLabel for="owner" value="#{ChatTool.fromLabelText}" />
+				<h:outputText id="owner" value="#{ChatTool.currentMessage.owner}" />
+	
+				<h:outputLabel for="date" value="#{ChatTool.dateLabelText}" />
+				<h:outputText id="date" value="#{ChatTool.currentMessage.chatMessage.messageDate}" />
+	
+				<h:outputLabel for="message" value="#{ChatTool.messageLabelText}" />
+				<h:outputText id="message" value="#{ChatTool.currentMessage.chatMessage.body}" />
+	
+			</sakai:panel_edit>
+			<sakai:button_bar>
+				<sakai:button_bar_item id="submit"
+					action="#{ChatTool.processActionDeleteMessage}"
+					value="#{ChatTool.deleteButtonText}" />
+				<sakai:button_bar_item id="reset"
+					action="#{ChatTool.processActionDeleteMessageCancel}"
+					value="#{ChatTool.cancelButtonText}" />
+			</sakai:button_bar>
+		</h:form>
+	</sakai:view>
 </f:view>

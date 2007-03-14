@@ -27,13 +27,8 @@ import org.sakaiproject.chat2.model.ChatMessage;
 import org.sakaiproject.chat2.model.ChatManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
-//import org.sakaiproject.chat.cover.ChatService;
-//import org.sakaiproject.entity.api.Reference;
-//import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.UsageSessionService;
-//import org.sakaiproject.exception.IdUnusedException;
-//import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.chat2.model.ChatChannel;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -154,7 +149,7 @@ public class ChatDelivery extends BaseDelivery
 			retval = "try { " + m_elementId + ".appendMessage('" + sender.getDisplayName() + "', '" + sender.getId() + "', '"
 					+ new Boolean(chatManager.getCanDelete(message, placementId)) + "', '" + messageTime.toStringLocalDate() + "', '"
 					+ messageTime.toStringLocalTimeZ() + "', '" + msgbody + "','" + message.getId()
-					+ "'); } catch (error) {} ";
+					+ "'); } catch (error) {alert(error);} ";
 		}
 
 		if (m_beepOnDelivery && (sender != null) && sender.compareTo(myself) != 0)
@@ -185,7 +180,7 @@ public class ChatDelivery extends BaseDelivery
 		if (!super.equals(obj)) return false;
 
 		ChatDelivery cob = (ChatDelivery) obj;
-		if (StringUtil.different(cob.getMessage().getId().getValue(), getMessage().getId().getValue() )) return false;
+		if (StringUtil.different(cob.getMessage().getId(), getMessage().getId() )) return false;
 
 		return true;
 	}

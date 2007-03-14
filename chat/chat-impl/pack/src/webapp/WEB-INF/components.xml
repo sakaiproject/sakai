@@ -29,13 +29,12 @@
                     <ref
                         bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
                 </property>
-     			<property name="idManager"><ref bean="idManager"/></property>
-               <property name="authzManager">
-                  <ref bean="org.sakaiproject.metaobj.security.AuthorizationFacade"/>
-               </property>
 		       <property name="toolManager">
 		          <ref bean="org.sakaiproject.tool.api.ActiveToolManager"/>
 		       </property>
+		       <property name="entityManager">
+		         <ref bean="org.sakaiproject.entity.api.EntityManager"/>
+		      </property>
                 <!-- 
                <property name="securityService">
                   <ref bean="org.sakaiproject.authz.api.SecurityService"/>

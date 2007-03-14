@@ -1,39 +1,73 @@
-<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
-<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
-<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
-<%
-    response.setContentType("text/html; charset=UTF-8");
-    response.addDateHeader("Expires", System.currentTimeMillis() - (1000L * 60L * 60L * 24L * 365L));
-    response.addDateHeader("Last-Modified", System.currentTimeMillis());
-    response.addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
-    response.addHeader("Pragma", "no-cache");
-%>
 <f:view>
-   <sakai:view title="#{msgs.tool_options_title}">
-      <h:form>
-         <sakai:tool_bar>
-            <h:commandLink action="${ChatTool.processActionAddRoom}">
-               <h:outputText value="#{msgs.add_room}" />
+	<sakai:view title="#{msgs.tool_options_title}">
+		<h:form>
+			<sakai:tool_bar>
+				<h:commandLink id="addRoom" rendered="#{ChatTool.canCreateChannel}"
+					action="#{ChatTool.processActionAddRoom}" immediate="true">
+					<h:outputText value="#{msgs.add_room}" />
+				</h:commandLink>
+				<h:commandLink rendered="#{ChatTool.maintainer}"
+                action="#{ChatTool.processActionPermissions}">
+                <h:outputText
+                    value="#{msgs.permis}" />
             </h:commandLink>
-         </sakai:tool_bar>
-         
-	   <sakai:panel_edit>
-	      <h:outputLabel for="room" id="roomLabel" value="#{msgs.wizard_type}" />
-	      <h:panelGroup>
-	         <h:selectOneRadio layout="pageDirection" id="room" value="#{ChatTool.currentChatChannelId}">
-	            <f:selectItems value="#{ChatTool.chotRoomsSelectItems}"/>
-	         </h:selectOneRadio>
-	      </h:panelGroup>
-	   </sakai:panel_edit>
-	   
-	   
-	   <sakai:button_bar>
-		   <sakai:button_bar_item id="enterRoom" value="#{msgs.enter_the_chat_room}"
-		      action="#{ChatTool.processActionChangeChannel}" />
-		   <sakai:button_bar_item id="cancel" value="#{msgs.cancel_wizard}" action="#{ChatTool.processActionCancelChangeChannel}"
-		      immediate="true" rendered="#{ChatTool.currentChannel != null}"/>
-	   </sakai:button_bar>
-	   
-      </h:form>
-   </sakai:view>
+			</sakai:tool_bar>
+
+			<sakai:messages />
+
+			<h:dataTable value="#{ChatTool.chatChannels}" var="channel"
+				styleClass="lines listHier" headerClass="exclude">
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="#{ChatTool.customChatroomText}" />
+					</f:facet>
+
+					<f:subview id="enterRoomLink" rendered="#{channel.canRead}">
+						<h:commandLink action="#{channel.processActionEnterRoom}" title="#{channel.enterChatText}">
+							<h:outputText value="#{channel.chatChannel.title}" />
+						</h:commandLink>
+					</f:subview>
+					<h:outputText value="#{channel.chatChannel.title}"
+						rendered="#{!channel.canRead}" />
+
+					<f:verbatim>
+						<div class="itemAction">
+					</f:verbatim>
+					<f:subview id="editLink" rendered="#{channel.canEdit}">
+						<h:commandLink action="#{channel.processActionEditRoom}">
+							<h:outputText value="#{ChatTool.editButtonText}" />
+						</h:commandLink>
+					</f:subview>
+					<f:subview id="deleteLink" rendered="#{channel.canDelete}">
+						<h:commandLink action="#{channel.processActionDeleteRoom}">
+							<h:outputText value="#{ChatTool.deleteButtonText}" />
+						</h:commandLink>
+					</f:subview>
+					<f:subview id="defaultLink" rendered="#{!channel.chatChannel.contextDefaultChannel && ChatTool.maintainer}">
+						<h:commandLink action="#{channel.processActionSetAsDefaultRoom}" 
+							title="#{channel.setAsDefaultText}">
+							<h:outputText value="#{msgs.set_default}" />
+						</h:commandLink>
+					</f:subview>
+					<f:verbatim>
+						</div>
+					</f:verbatim>
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="#{msgs.channel_creation_date}" />
+					</f:facet>
+					<h:outputText value="#{channel.chatChannel.creationDate}" />
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="#{msgs.channel_description}" />
+					</f:facet>
+					<h:outputText value="#{channel.chatChannel.description}" />
+				</h:column>
+
+			</h:dataTable>
+
+		</h:form>
+	</sakai:view>
 </f:view>
