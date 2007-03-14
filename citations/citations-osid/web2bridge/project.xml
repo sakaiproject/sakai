@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+  <pomVersion>3</pomVersion>
+  <extend>../../master/project.xml</extend>
+  <name>Search Library Resources (Repository OSID HTTP Implementation)</name>
+  <groupId>sakaiproject</groupId>
+  <id>sakai-osid-http-impl</id>
+  <currentVersion>${sakai.version}</currentVersion>
+  <organization>
+    <name>Indiana University Library Information Technology</name>
+    <url>http://libraries.iub.edu/</url>
+  </organization>
+  <inceptionYear>2004</inceptionYear>
+
+  <properties>
+    <!-- deploy as a jar -->
+    <deploy.type>jar</deploy.type>
+    <!-- deploy to "shared", "common" or "server" -->
+    <deploy.target>shared</deploy.target>
+  </properties>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>servletapi</groupId>
+      <artifactId>servletapi</artifactId>
+      <version>2.4-20040521</version>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
+    </dependency>
+
+    <dependency>
+      <groupId>ehcache</groupId>
+      <artifactId>ehcache</artifactId>
+      <version>1.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>OKI</groupId>
+      <artifactId>OkiOSID</artifactId>
+      <version>2.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>OKI</groupId>
+      <artifactId>okiRegistry</artifactId>
+      <version>2005-10-19</version>
+    </dependency>
+
+    <dependency>
+      <groupId>nekohtml</groupId>
+      <artifactId>nekohtml</artifactId>
+      <version>0.9.5</version>
+      <properties>
+        <deploy.target>shared</deploy.target>
+      </properties>
+    </dependency>
+
+    <dependency>
+      <groupId>zing</groupId>
+      <artifactId>cql-java</artifactId>
+      <version>0.7</version>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+
+    <!-- java source -->
+    <sourceDirectory>src/java</sourceDirectory>
+
+    <!-- xml configuration -->
+    <resources>
+      <resource>
+        <directory>${basedir}/src/bundle</directory>
+        <includes>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+    </resources>
+
+    <!-- other resources for the jar -->
+    <resources>
+      <resource>
+        <directory>${basedir}/src/java/edu/indiana/lib/twinpeaks/search/singlesearch/web2</directory>
+        <includes>
+          <include>**/*.xsl</include>
+        </includes>
+      </resource>
+    </resources>
+
+  </build>
+
+</project>

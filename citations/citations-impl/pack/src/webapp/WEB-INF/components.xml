@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springkernel.org/dtd/spring-beans.dtd">
+
+<beans>
+
+  <!-- Indiana -->
+  <!--
+  <bean id="org.sakaiproject.citation.api.CitationService"
+    class="org.sakaiproject.citation.impl.DbCitationService"
+    init-method="init"
+    destroy-method="destroy"
+    singleton="true">
+    <property name="openUrlLabel"><value>IU~Link</value></property>
+    <property name="openUrlResolverAddress"><value>http://libsfx.iu.edu/locater</value></property>
+    <property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+    <property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
+    <property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
+    <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+    <property name="autoDdl"><value>${auto.ddl}</value></property>
+	<property name="attemptToMatchSchema"><value>true</value></property>
+	<property name="resourceTypeRegistry"><ref bean="org.sakaiproject.content.api.ResourceTypeRegistry"/></property>
+	<property name="citationsEnabledByDefault"><value>true</value></property>
+	<property name="allowSiteBySiteOverride"><value>false</value></property>
+  </bean>
+
+  <bean id="org.sakaiproject.citation.api.SearchManager"
+    class="org.sakaiproject.citation.impl.BaseSearchManager"
+    init-method="init"
+    destroy-method="destroy"
+    singleton="true">
+    
+    <property name="metasearchUsername"><value></value></property>
+    <property name="metasearchPassword"><value></value></property>
+    <property name="metasearchBaseUrl"><value></value></property>
+    
+    <property name="osidImpl"><value>edu.indiana.lib.osid.base.repository.http</value></property>
+    <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+    <property name="googleBaseUrl"><value>http://scholar.google.com</value></property>
+    <property name="sakaiServerKey"><value>oncourse.indiana.edu</value></property>
+    <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+  </bean>
+  -->
+
+  <!-- Michigan -->
+  <bean id="org.sakaiproject.citation.api.CitationService"
+    class="org.sakaiproject.citation.impl.DbCitationService"
+    init-method="init"
+    destroy-method="destroy"
+    singleton="true">
+    <property name="openUrlLabel"><value>Find It!</value></property>
+    <property name="openUrlResolverAddress"><value>http://proxy.lib.umich.edu/login?url=http://sfx.lib.umich.edu:9003/sfx_local</value></property>
+    <property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+    <property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
+    <property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
+    <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+    <property name="autoDdl"><value>${auto.ddl}</value></property>
+	<property name="attemptToMatchSchema"><value>true</value></property>
+	<property name="resourceTypeRegistry"><ref bean="org.sakaiproject.content.api.ResourceTypeRegistry"/></property>
+ 	<property name="citationsEnabledByDefault"><value>true</value></property>
+	<property name="allowSiteBySiteOverride"><value>false</value></property>
+  </bean>
+
+  <bean id="org.sakaiproject.citation.api.SearchManager"
+    class="org.sakaiproject.citation.impl.BaseSearchManager"
+    init-method="init"
+    destroy-method="destroy"
+    singleton="true">
+    
+    <property name="metasearchPassword"><value></value></property>
+    <property name="metasearchBaseUrl"><value>http://searchtools.lib.umich.edu/X</value></property>
+    <property name="metasearchUsername"><value></value></property>
+    
+    <property name="osidImpl"><value>org.sakaibrary.osid.repository.xserver</value></property>
+    <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+    <property name="googleBaseUrl"><value>http://scholar.google.com</value></property>
+    <property name="sakaiServerKey"><value>ctools.umich.edu</value></property>
+    <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+  </bean>
+
+  <!--
+  <bean id="org.sakaiproject.citation.api.CitationService"
+    class="org.sakaiproject.citation.impl.BasicCitationService"
+    init-method="init"
+    destroy-method="destroy"
+    singleton="true">
+  </bean>
+  -->
+
+  <bean id="org.sakaiproject.citation.impl.CitationServlet"
+    class="org.sakaiproject.citation.impl.CitationServlet"
+    init-method="init"
+    destroy-method="destroy"
+    singleton="true">
+    <property name="citationService"><ref bean="org.sakaiproject.citation.api.CitationService"/></property>
+  </bean>
+
+</beans>
+
