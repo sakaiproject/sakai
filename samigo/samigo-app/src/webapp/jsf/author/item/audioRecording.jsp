@@ -30,15 +30,9 @@
 --%>
 -->
   <f:view>
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.AuthorMessages"
-     var="msg"/>
-     <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.GeneralMessages"
-     var="genMsg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.item_display_author}"/></title>
+      <title><h:outputText value="#{authorMessages.item_display_author}"/></title>
       <samigo:script path="/js/authoring.js"/>
 
       </head>
@@ -59,7 +53,7 @@
 <!-- QUESTION PROPERTIES -->
   <!-- 1 POINTS -->
    <div class="shorttext">
-    <h:outputLabel value="#{msg.answer_point_value}" />
+    <h:outputLabel value="#{authorMessages.answer_point_value}" />
     <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" required="true">
 <f:validateDoubleRange/>
 </h:inputText><br/>
@@ -67,7 +61,7 @@
   </div>
 <br/>
   <!-- 2 TEXT -->
-  <div class="longtext"> <h:outputLabel value="#{msg.q_text}" />
+  <div class="longtext"> <h:outputLabel value="#{authorMessages.q_text}" />
 
   <!-- WYSIWYG -->
 
@@ -83,7 +77,7 @@
 
   <!-- 3 TIME allowed -->
    <div class="longtext">
-  <h:outputLabel for="timeallowed" value="#{msg.time_allowed_seconds}:  #{msg.time_allowed_seconds_indic} " />
+  <h:outputLabel for="timeallowed" value="#{authorMessages.time_allowed_seconds}:  #{authorMessages.time_allowed_seconds_indic} " />
   <h:inputText id="timeallowed" value="#{itemauthor.currentItem.timeAllowed}" required="true">
 <f:validateDoubleRange/>
 </h:inputText>
@@ -93,10 +87,10 @@
   <!-- 4 attempts -->
   <div class="longtext">
 
-  <h:outputLabel for="noattempts" value="#{msg.number_of_attempts} : #{msg.number_of_attempts_indic}" />
+  <h:outputLabel for="noattempts" value="#{authorMessages.number_of_attempts} : #{authorMessages.number_of_attempts_indic}" />
   <h:selectOneMenu id="noattempts" value="#{itemauthor.currentItem.numAttempts}" required="true">
-  <f:selectItem itemLabel="#{msg.select}" itemValue=""/>
-  <f:selectItem itemLabel="#{msg.unlimited}" itemValue="9999"/> <%-- 9999 indicates unlimited --%>
+  <f:selectItem itemLabel="#{authorMessages.select}" itemValue=""/>
+  <f:selectItem itemLabel="#{authorMessages.unlimited}" itemValue="9999"/> <%-- 9999 indicates unlimited --%>
   <f:selectItem itemLabel="1" itemValue="1"/>
   <f:selectItem itemLabel="2" itemValue="2"/>
   <f:selectItem itemLabel="3" itemValue="3"/>
@@ -115,7 +109,7 @@
 
   <h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}">
    <f:verbatim>&nbsp;</f:verbatim>
-   <h:outputLabel value="#{msg.assign_to_p} " />
+   <h:outputLabel value="#{authorMessages.assign_to_p} " />
    <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
      <f:selectItems value="#{itemauthor.sectionSelectList}" />
   </h:selectOneMenu>
@@ -125,9 +119,9 @@
   <!-- 6 POOL -->
   <h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}">
   <f:verbatim>&nbsp;</f:verbatim>
-  <h:outputLabel value="#{msg.assign_to_question_p} " />
+  <h:outputLabel value="#{authorMessages.assign_to_question_p} " />
   <h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
-     <f:selectItem itemValue="" itemLabel="#{msg.select_a_pool_name}" />
+     <f:selectItem itemValue="" itemLabel="#{authorMessages.select_a_pool_name}" />
      <f:selectItems value="#{itemauthor.poolSelectList}" />
   </h:selectOneMenu>
 
@@ -137,7 +131,7 @@
  <!-- FEEDBACK -->
  <h:panelGroup rendered="#{assessmentSettings.feedbackAuthoring ne '2'}">
   <f:verbatim><div class="longtext"></f:verbatim>
-   <h:outputLabel value="#{msg.feedback_optional}<br />" />
+   <h:outputLabel value="#{authorMessages.feedback_optional}<br />" />
 
 
   <h:panelGrid >
@@ -154,11 +148,11 @@
 <f:verbatim><div class="tier3"></f:verbatim>
 
 <h:panelGrid columns="2" columnClasses="shorttext">
-<h:outputLabel value="#{msg.objective}" />
+<h:outputLabel value="#{authorMessages.objective}" />
   <h:inputText id="obj" value="#{itemauthor.currentItem.objective}" />
-<h:outputLabel value="#{msg.keyword}" />
+<h:outputLabel value="#{authorMessages.keyword}" />
   <h:inputText id="keyword" value="#{itemauthor.currentItem.keyword}" />
-<h:outputLabel value="#{msg.rubric_colon}" />
+<h:outputLabel value="#{authorMessages.rubric_colon}" />
   <h:inputText id="rubric" value="#{itemauthor.currentItem.rubric}" />
 </h:panelGrid>
  <f:verbatim></div></f:verbatim>
@@ -166,24 +160,24 @@
 </div>
 
 <p class="act">
-  <h:commandButton accesskey="#{msg.a_save}" rendered="#{itemauthor.target=='assessment'}" value="#{msg.button_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active">
+  <h:commandButton accesskey="#{authorMessages.a_save}" rendered="#{itemauthor.target=='assessment'}" value="#{authorMessages.button_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
   </h:commandButton>
-  <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{msg.button_save}" action="#{itemauthor.currentItem.getPoolOutcome}" styleClass="active">
+  <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{authorMessages.button_save}" action="#{itemauthor.currentItem.getPoolOutcome}" styleClass="active">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
   </h:commandButton>
 
 
-  <h:commandButton accesskey="#{msg.a_cancel}" rendered="#{itemauthor.target=='assessment'}" value="#{msg.button_cancel}" action="editAssessment" immediate="true">
+  <h:commandButton accesskey="#{authorMessages.a_cancel}" rendered="#{itemauthor.target=='assessment'}" value="#{authorMessages.button_cancel}" action="editAssessment" immediate="true">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ResetItemAttachmentListener" />
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
   </h:commandButton>
 
- <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{msg.button_cancel}" action="editPool" immediate="true">
+ <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{authorMessages.button_cancel}" action="editPool" immediate="true">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ResetItemAttachmentListener" />
  </h:commandButton>

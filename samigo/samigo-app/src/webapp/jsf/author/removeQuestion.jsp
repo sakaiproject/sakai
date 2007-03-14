@@ -28,12 +28,9 @@
 --%>
 -->
   <f:view>
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.AuthorMessages"
-     var="msg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.remove_q_conf}" /></title>
+      <title><h:outputText value="#{authorMessages.remove_q_conf}" /></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
@@ -41,15 +38,15 @@
   <!-- content... -->
 
  <h:form>
-  <h3><h:outputText  value="#{msg.remove_q_conf}" /></h3>
+  <h3><h:outputText  value="#{authorMessages.remove_q_conf}" /></h3>
   <div class="validation tier1">
-      <h:outputText value="#{msg.sure_rem_q}" />
+      <h:outputText value="#{authorMessages.sure_rem_q}" />
   </div>
 
 <p class="act">
-       <h:commandButton accesskey="#{msg.a_remove}" immediate="true" value="#{msg.button_remove}" type="submit" action="#{itemauthor.deleteItem}" styleClass="active">
+       <h:commandButton accesskey="#{authorMessages.a_remove}" immediate="true" value="#{authorMessages.button_remove}" type="submit" action="#{itemauthor.deleteItem}" styleClass="active">
        </h:commandButton>
-       <h:commandButton accesskey="#{msg.a_cancel}" value="#{msg.button_cancel}" type="submit"
+       <h:commandButton accesskey="#{authorMessages.a_cancel}" value="#{authorMessages.button_cancel}" type="submit"
          action="editAssessment" />
    </p>
 

@@ -29,28 +29,24 @@
 --%>
 -->
   <f:view>
-    <f:loadBundle
-      basename="org.sakaiproject.tool.assessment.bundle.DeliveryMessages"
-      var="msg"/>
-  
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.quit_assessment}"/></title>
+      <title><h:outputText value="#{deliveryMessages.quit_assessment}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
 <div class="portletBody">
-<h3> <h:outputText value="#{msg.anonymous_quit_warning}"/></h3>
+<h3> <h:outputText value="#{deliveryMessages.anonymous_quit_warning}"/></h3>
 <h:form id="redirectLoginForm">
  <div class="validation">
-<h:outputText  value="#{msg.anonymous_quit_warning_message}" />
+<h:outputText  value="#{deliveryMessages.anonymous_quit_warning_message}" />
  </div>
 
 <p class="act">
-  <h:commandButton accesskey="#{msg.a_cancel}" value="#{msg.button_continue}" type="button"
+  <h:commandButton accesskey="#{deliveryMessages.a_cancel}" value="#{deliveryMessages.button_continue}" type="button"
      styleClass="active" onclick="javascript:history.go(-1);" onkeypress="javascript:history.go(-1);" />
 
-  <h:commandButton accesskey="#{msg.a_quit}" value="#{msg.button_quit}" type="button"
+  <h:commandButton accesskey="#{deliveryMessages.a_quit}" value="#{deliveryMessages.button_quit}" type="button"
      onclick="javascript:window.open('#{delivery.portal}/login','_top')" onkeypress="javascript:window.open('#{delivery.portal}/login','_top')" />
 </p>
 </h:form>

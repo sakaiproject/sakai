@@ -29,16 +29,9 @@
 --%>
 -->
   <f:view>
-  
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.DeliveryMessages"
-     var="msg"/>
-     <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.GeneralMessages"
-     var="genMsg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.submission}" /></title>
+      <title><h:outputText value="#{deliveryMessages.submission}" /></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
@@ -48,49 +41,49 @@
  
 <!--h:outputText value="<div class='portletBody' style='background:#{delivery.settings.divBgcolor}; background-image: url(http://www.w3.org/WAI/UA/TS/html401/images/test-background.gif)>;'" escape="false"/-->
  <!-- content... -->
-<h3><h:outputText value="#{msg.submission}" /></h3>
+<h3><h:outputText value="#{deliveryMessages.submission}" /></h3>
 <div class="tier1">
 <h4>
   <h:outputText value="#{delivery.assessmentTitle} " />
-  <h:outputText value="#{msg.submission_info}" />
+  <h:outputText value="#{deliveryMessages.submission_info}" />
 </h4>
 
 <h:form id="submittedForm">
 <h:messages styleClass="validation" />
 
-    <h:outputText value="#{msg.submission_confirmation_message_1}" /> 
+    <h:outputText value="#{deliveryMessages.submission_confirmation_message_1}" /> 
     <h:outputText escape="false" value="<br /> #{delivery.submissionMessage}" />
 
   <f:verbatim><p/></f:verbatim>
   <h:panelGrid columns="2">
 
-    <h:outputLabel value="#{msg.course_name}"/>
+    <h:outputLabel value="#{deliveryMessages.course_name}"/>
     <h:outputText value="#{delivery.courseName}" />
 
-    <h:outputLabel  value="#{msg.creator}" />
+    <h:outputLabel  value="#{deliveryMessages.creator}" />
     <h:outputText value="#{delivery.creatorName}"/>
 
-    <h:outputLabel value="#{msg.assessment_title}" />
+    <h:outputLabel value="#{deliveryMessages.assessment_title}" />
     <h:outputText value="#{delivery.assessmentTitle}" />
 
-    <h:outputLabel value="#{msg.number_of_sub_remain}" />
+    <h:outputLabel value="#{deliveryMessages.number_of_sub_remain}" />
     <h:panelGroup>
       <h:outputText value="#{delivery.submissionsRemaining} out of #{delivery.settings.maxAttempts}"
           rendered="#{!delivery.settings.unlimitedAttempts}"/>
-      <h:outputText value="#{msg.unlimited_}"
+      <h:outputText value="#{deliveryMessages.unlimited_}"
           rendered="#{delivery.settings.unlimitedAttempts}"/>
     </h:panelGroup>
 
-    <h:outputLabel value="#{msg.conf_num}" />
+    <h:outputLabel value="#{deliveryMessages.conf_num}" />
     <h:outputText value="#{delivery.confirmation}" />
 
-    <h:outputLabel value="#{msg.submission_dttm}" />
+    <h:outputLabel value="#{deliveryMessages.submission_dttm}" />
     <h:outputText value="#{delivery.submissionDate}">
-        <f:convertDateTime pattern="#{genMsg.output_date_picker}" />
+        <f:convertDateTime pattern="#{generalMessages.output_date_picker}" />
      </h:outputText>
 
-    <h:outputLabel value="#{msg.final_page}" rendered="#{delivery.url!=null && delivery.url!=''}"/>
-    <h:outputLink title="#{msg.t_url}" value="#" rendered="#{delivery.url!=null && delivery.url!=''}"
+    <h:outputLabel value="#{deliveryMessages.final_page}" rendered="#{delivery.url!=null && delivery.url!=''}"/>
+    <h:outputLink title="#{deliveryMessages.t_url}" value="#" rendered="#{delivery.url!=null && delivery.url!=''}"
        onclick="window.open('#{delivery.url}','new_window');" onkeypress="window.open('#{delivery.url}','new_window');">
         <h:outputText value="#{delivery.url}" />
     </h:outputLink>
@@ -101,14 +94,14 @@
 <br /><br />
 <div class="tier1">
   <h:panelGrid columns="2" cellpadding="3" cellspacing="3">
-    <h:commandButton accesskey="#{msg.a_return}" type="submit" value="#{msg.button_return}" action="select"
+    <h:commandButton accesskey="#{deliveryMessages.a_return}" type="submit" value="#{deliveryMessages.button_return}" action="select"
        rendered="#{delivery.actionString=='takeAssessment'}" />
 
-    <h:commandButton accesskey="#{msg.a_return}" value="#{msg.button_return}" type="button" 
+    <h:commandButton accesskey="#{deliveryMessages.a_return}" value="#{deliveryMessages.button_return}" type="button" 
        rendered="#{delivery.actionString=='takeAssessmentViaUrl' && !delivery.anonymousLogin}"
        style="act" onclick="javascript:window.open('#{delivery.selectURL}','_top')" onkeypress="javascript:window.open('#{delivery.selectURL}','_top')" />
 
-	<h:commandButton accesskey="#{msg.a_return}" value="#{msg.button_return}" type="button" 
+	<h:commandButton accesskey="#{deliveryMessages.a_return}" value="#{deliveryMessages.button_return}" type="button" 
        rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin}"
        style="act" onclick="javascript:window.open('#{delivery.portal}','_top')" onkeypress="javascript:window.open('#{delivery.portal}','_top')" />
 

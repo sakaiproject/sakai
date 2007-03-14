@@ -29,10 +29,10 @@ should be included in file importing DeliveryMessages
   <%@ include file="/jsf/author/preview_item/attachment.jsp" %>
 
   <f:verbatim><br/>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-  <h:outputText escape="false" value="#{msg.time_allowed_seconds} #{question.itemData.duration}" />
+  <h:outputText escape="false" value="#{authorMessages.time_allowed_seconds} #{question.itemData.duration}" />
   <f:verbatim><br/>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
 
-  <h:outputText escape="false" value="#{msg.number_of_tries}: " />
+  <h:outputText escape="false" value="#{authorMessages.number_of_tries}: " />
   <h:panelGroup rendered="#{question.itemData.triesAllowed > 10}">
     <h:outputText escape="false" value="Unlimited" />
   </h:panelGroup>
@@ -44,13 +44,13 @@ should be included in file importing DeliveryMessages
     <h:column>
       <h:dataTable value="#{itemText.answerArray}" var="answer">
         <h:column>
-          <h:outputLabel rendered="#{answer.textIsNotEmpty}" value="#{msg.preview_model_short_answer}" />
+          <h:outputLabel rendered="#{answer.textIsNotEmpty}" value="#{authorMessages.preview_model_short_answer}" />
           <h:outputText escape="false" value="#{answer.text}" />
         </h:column>
       </h:dataTable>
     </h:column>
   </h:dataTable>
  <h:panelGroup rendered="#{question.itemData.generalItemFbIsNotEmpty && assessmentSettings.feedbackAuthoring ne '2'}">
- <h:outputLabel value="#{msg.feedback}: " />
+ <h:outputLabel value="#{authorMessages.feedback}: " />
   <h:outputText escape="false" value="#{question.itemData.generalItemFeedback}" />
 </h:panelGroup>

@@ -28,19 +28,9 @@
 --%>
 -->
   <f:view>
-    <f:loadBundle
-       basename="org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages"
-       var="msg"/>
-    <f:loadBundle
-       basename="org.sakaiproject.tool.assessment.bundle.AuthorMessages"
-       var="authmsg"/>
-    <f:loadBundle
-       basename="org.sakaiproject.tool.assessment.bundle.GeneralMessages"
-       var="genMsg"/>
-
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.edit_p}"/></title>
+      <title><h:outputText value="#{questionPoolMessages.edit_p}"/></title>
 
 <%@ include file="/js/delivery.js" %>
 
@@ -75,27 +65,27 @@
 <h:outputText rendered="#{questionpool.currentPool.showParentPools}" value="#{questionpool.currentPool.displayName}"/>
 
 <h3 class="insColor insBak insBor">
-<h:outputText value="#{msg.qp}#{msg.column} #{questionpool.currentPool.displayName}"/>
+<h:outputText value="#{questionPoolMessages.qp}#{questionPoolMessages.column} #{questionpool.currentPool.displayName}"/>
 </h3>
 <h:messages styleClass="validation" />
-<h:outputText rendered="#{questionpool.importToAuthoring == 'true'}" value="#{msg.msg_imp_editpool}"/>
+<h:outputText rendered="#{questionpool.importToAuthoring == 'true'}" value="#{questionPoolMessages.msg_imp_editpool}"/>
  <div class="tier2">
 <h:panelGrid columns="2" columnClasses="shorttext">
-  <h:outputLabel for="namefield" value="#{msg.p_name}"/>
+  <h:outputLabel for="namefield" value="#{questionPoolMessages.p_name}"/>
   <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}"  onkeydown="inIt()" id="namefield" size="30" value="#{questionpool.currentPool.displayName}" />
-  <h:outputLabel for="ownerfield" value="#{msg.creator}"/>
+  <h:outputLabel for="ownerfield" value="#{questionPoolMessages.creator}"/>
   <h:outputText id="ownerfield" value="#{questionpool.currentPool.owner}"/>
 
-  <h:outputLabel rendered="!#{questionpool.currentPool.showParentPools}"  for="orgfield" value="#{msg.dept}"/>
+  <h:outputLabel rendered="!#{questionpool.currentPool.showParentPools}"  for="orgfield" value="#{questionPoolMessages.dept}"/>
   <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}" id="orgfield" size="30"  onkeydown="inIt()" value="#{questionpool.currentPool.organizationName}" rendered="!#{questionpool.currentPool.showParentPools}"/>
  
-  <h:outputLabel rendered="!#{questionpool.currentPool.showParentPools}" for="descfield" value="#{msg.desc}" />
+  <h:outputLabel rendered="!#{questionpool.currentPool.showParentPools}" for="descfield" value="#{questionPoolMessages.desc}" />
   <h:inputTextarea disabled="#{questionpool.importToAuthoring == 'true'}"  id="descfield" onkeydown="inIt()" rendered="!#{questionpool.currentPool.showParentPools}" value="#{questionpool.currentPool.description}" cols="30" rows="5"/>
 
-  <h:outputLabel for="objfield" value="#{msg.obj} " rendered="!#{questionpool.currentPool.showParentPools}"/>
+  <h:outputLabel for="objfield" value="#{questionPoolMessages.obj} " rendered="!#{questionpool.currentPool.showParentPools}"/>
   <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}" id="objfield" size="30"  onkeydown="inIt()" value="#{questionpool.currentPool.objectives}" rendered="!#{questionpool.currentPool.showParentPools}"/>
 
-  <h:outputLabel for="keyfield" value="#{msg.keywords} " rendered="!#{questionpool.currentPool.showParentPools}" />
+  <h:outputLabel for="keyfield" value="#{questionPoolMessages.keywords} " rendered="!#{questionpool.currentPool.showParentPools}" />
   <h:inputText disabled="#{questionpool.importToAuthoring == 'true'}" id="keyfield" size="30"  onkeydown="inIt()" value="#{questionpool.currentPool.keywords}" rendered="!#{questionpool.currentPool.showParentPools}" />
 
   <h:inputHidden id="createdDate" value="#{questionpool.currentPool.dateCreated}">
@@ -111,12 +101,12 @@
 <h:panelGrid width="100%" columns="2" columnClasses="h3text,navList">
 <h:panelGroup >
 <h:outputText value="#{questionpool.currentPool.numberOfSubpools}"/>
-<h:outputText rendered="#{questionpool.currentPool.numberOfSubpools > 1}" value=" #{msg.subps}"/>
-<h:outputText rendered="#{questionpool.currentPool.numberOfSubpools == 1}" value=" #{msg.subp}"/>
-<h:outputText rendered="#{questionpool.currentPool.numberOfSubpools == 0}" value=" #{msg.subps}"/>
+<h:outputText rendered="#{questionpool.currentPool.numberOfSubpools > 1}" value=" #{questionPoolMessages.subps}"/>
+<h:outputText rendered="#{questionpool.currentPool.numberOfSubpools == 1}" value=" #{questionPoolMessages.subp}"/>
+<h:outputText rendered="#{questionpool.currentPool.numberOfSubpools == 0}" value=" #{questionPoolMessages.subps}"/>
 </h:panelGroup>
-<h:commandLink title="#{msg.t_addSubpool}" rendered="#{questionpool.importToAuthoring != 'true'}" id="addlink" immediate="true" action="#{questionpool.addPool}">
-  <h:outputText  id="add" value="#{msg.add}"/>
+<h:commandLink title="#{questionPoolMessages.t_addSubpool}" rendered="#{questionpool.importToAuthoring != 'true'}" id="addlink" immediate="true" action="#{questionpool.addPool}">
+  <h:outputText  id="add" value="#{questionPoolMessages.add}"/>
   <f:param name="qpid" value="#{questionpool.currentPool.id}"/>
   <f:param name="addsource" value="editpool"/>
 </h:commandLink>
@@ -139,12 +129,12 @@
 <h:panelGrid width="100%" columns="2" columnClasses="h3text,navList">
 <h:panelGroup >
 <h:outputText value="#{questionpool.currentPool.numberOfQuestions}"/>
-<h:outputText rendered ="#{questionpool.currentPool.numberOfQuestions >1}"value=" #{msg.qs}"/>
-<h:outputText rendered ="#{questionpool.currentPool.numberOfQuestions ==1}"value=" #{msg.q}"/>
-<h:outputText rendered ="#{questionpool.currentPool.numberOfQuestions ==0}"value=" #{msg.qs}"/>
+<h:outputText rendered ="#{questionpool.currentPool.numberOfQuestions >1}"value=" #{questionPoolMessages.qs}"/>
+<h:outputText rendered ="#{questionpool.currentPool.numberOfQuestions ==1}"value=" #{questionPoolMessages.q}"/>
+<h:outputText rendered ="#{questionpool.currentPool.numberOfQuestions ==0}"value=" #{questionPoolMessages.qs}"/>
 </h:panelGroup>
-<h:commandLink title="#{msg.t_addQuestion}" rendered="#{questionpool.importToAuthoring != 'true'}" id="addQlink" immediate="true" action="#{questionpool.selectQuestionType}">
-  <h:outputText id="addq" value="#{msg.add}"/>
+<h:commandLink title="#{questionPoolMessages.t_addQuestion}" rendered="#{questionpool.importToAuthoring != 'true'}" id="addQlink" immediate="true" action="#{questionpool.selectQuestionType}">
+  <h:outputText id="addq" value="#{questionPoolMessages.add}"/>
   <f:param name="poolId" value="#{questionpool.currentPool.id}"/>
 </h:commandLink>
 </h:panelGrid>
@@ -160,7 +150,7 @@
 <!-- END -->
 <f:verbatim><br/></f:verbatim>
 <h:panelGrid rendered="#{(questionpool.importToAuthoring == 'true') && (questionpool.currentPool.numberOfQuestions > 0)}" columnClasses="shorttext">  <h:panelGroup>
-  <h:outputLabel value="#{authmsg.assign_to_p}" />
+  <h:outputLabel value="#{authorMessages.assign_to_p}" />
   <h:selectOneMenu id="assignToPart" value="#{questionpool.selectedSection}">
      <f:selectItems  value="#{itemauthor.sectionSelectList}" />
      <!-- use this in real  value="#{section.sectionNumberList}" -->
@@ -170,8 +160,8 @@
 
 <div class="tier1">
 <!-- for normal pool operations -->
-  <h:commandButton accesskey="#{msg.a_update}" id="Submit"   rendered="#{questionpool.importToAuthoring == 'false'}" action="#{questionpool.getOutcomeEdit}"
-        value="#{msg.update}">
+  <h:commandButton accesskey="#{questionPoolMessages.a_update}" id="Submit"   rendered="#{questionpool.importToAuthoring == 'false'}" action="#{questionpool.getOutcomeEdit}"
+        value="#{questionPoolMessages.update}">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.PoolSaveListener" />
  
   </h:commandButton>
@@ -179,14 +169,14 @@
 <!-- for importing questions from pool to authoring -->
 <!-- disable copy button once clicked.  show processing... -->
 
-  <h:commandButton accesskey="#{msg.a_copy}" id="import"   rendered="#{(questionpool.importToAuthoring == 'true') && (questionpool.currentPool.numberOfQuestions > 0)}" action="#{questionpool.doit}"
+  <h:commandButton accesskey="#{questionPoolMessages.a_copy}" id="import"   rendered="#{(questionpool.importToAuthoring == 'true') && (questionpool.currentPool.numberOfQuestions > 0)}" action="#{questionpool.doit}"
    onclick="disableImport(); showNotif('submitnotif',this.name,'editform');" onkeypress="disableImport(); showNotif('submitnotif',this.name,'editform');"
-        value="#{msg.copy}">
+        value="#{questionPoolMessages.copy}">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.ImportQuestionsToAuthoring" />
   </h:commandButton>
 
 
- <h:commandButton accesskey="#{msg.a_cancel}" style="act" value="#{msg.cancel}" action="poolList" immediate="true"/>
+ <h:commandButton accesskey="#{questionPoolMessages.a_cancel}" style="act" value="#{questionPoolMessages.cancel}" action="poolList" immediate="true"/>
  <h:outputText escape="false" value="<span id=\"submitnotif\" style=\"visibility:hidden\"> Processing.....</span>"/>
  </div>
 

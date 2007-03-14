@@ -32,12 +32,12 @@ should be included in file importing DeliveryMessages
        delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}">
       <h:graphicImage id="image"
         rendered="#{selection.answer.isCorrect eq 'true' && selection.response}"
-        alt="#{msg.alt_correct}" url="/images/checkmark.gif" >
+        alt="#{deliveryMessages.alt_correct}" url="/images/checkmark.gif" >
       </h:graphicImage>
       <h:graphicImage id="image2"
         rendered="#{selection.answer.isCorrect ne 'true' && selection.response}"
         width="16" height="16"
-        alt="#{msg.alt_incorrect}" url="/images/delivery/spacer.gif">
+        alt="#{deliveryMessages.alt_incorrect}" url="/images/delivery/spacer.gif">
       </h:graphicImage>
     </h:column>
     <h:column>
@@ -45,7 +45,7 @@ should be included in file importing DeliveryMessages
         disabled="#{delivery.actionString=='reviewAssessment'
                  || delivery.actionString=='gradeAssessment'}" />
      <h:outputText value=" #{selection.answer.label}" escape="false" />
-     <h:outputText value="#{msg.dot}" rendered="#{selection.answer.label ne ''}" />
+     <h:outputText value="#{deliveryMessages.dot}" rendered="#{selection.answer.label ne ''}" />
      <h:outputText value=" #{selection.answer.text}" escape="false" />
     </h:column>
     <h:column>
@@ -54,7 +54,7 @@ should be included in file importing DeliveryMessages
 	   selection.answer.generalAnswerFeedback != 'null' && selection.answer.generalAnswerFeedback != null && selection.answer.generalAnswerFeedback != ''}" > 
 	   <!-- The above != 'null' is for SAK-5475. Once it gets fixed, we can remove this condition -->
        <f:verbatim><br /></f:verbatim>
-       <h:outputText value="#{msg.feedback}#{msg.column} " />
+       <h:outputText value="#{deliveryMessages.feedback}#{deliveryMessages.column} " />
        <h:outputText value="#{selection.answer.generalAnswerFeedback}" escape="false" />
       </h:panelGroup>
     </h:column>
@@ -62,7 +62,7 @@ should be included in file importing DeliveryMessages
 
   <h:panelGroup rendered="#{question.itemData.hasRationale}" >
     <f:verbatim><br /></f:verbatim>
-    <h:outputLabel for="rationale" value="#{msg.rationale}" />
+    <h:outputLabel for="rationale" value="#{deliveryMessages.rationale}" />
     <f:verbatim><br /></f:verbatim>
     <h:inputTextarea id="rationale" value="#{question.rationale}" rows="5" cols="40" 
         rendered="#{delivery.actionString!='reviewAssessment' 
@@ -78,7 +78,7 @@ should be included in file importing DeliveryMessages
                 || delivery.actionString=='takeAssessment'
                 || delivery.actionString=='takeAssessmentViaUrl')
              && delivery.navigation ne '1'}" />
-<h:outputLabel for="mark_for_review" value="#{msg.mark}"
+<h:outputLabel for="mark_for_review" value="#{deliveryMessages.mark}"
   rendered="#{(delivery.actionString=='previewAssessment'
                 || delivery.actionString=='takeAssessment'
                 || delivery.actionString=='takeAssessmentViaUrl')
@@ -88,7 +88,7 @@ should be included in file importing DeliveryMessages
   <f:verbatim><br /></f:verbatim>
   <h:panelGroup rendered="#{delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}" >
     <f:verbatim><b></f:verbatim>
-    <h:outputLabel for="answerKeyMC" value="#{msg.ans_key}#{msg.column} " />
+    <h:outputLabel for="answerKeyMC" value="#{deliveryMessages.ans_key}#{deliveryMessages.column} " />
     <f:verbatim></b></f:verbatim>
     <h:outputText id="answerKeyMC"
        value="#{question.key}" escape="false" />
@@ -97,14 +97,14 @@ should be included in file importing DeliveryMessages
   <h:panelGroup rendered="#{delivery.feedbackComponent.showItemLevel && !delivery.noFeedback=='true' && question.feedbackIsNotEmpty}">
     <f:verbatim><br /></f:verbatim>
     <f:verbatim><b></f:verbatim>
-    <h:outputLabel for="feedSC" value="#{msg.feedback}#{msg.column} " />
+    <h:outputLabel for="feedSC" value="#{deliveryMessages.feedback}#{deliveryMessages.column} " />
     <f:verbatim></b></f:verbatim>
     <h:outputText id="feedSC" value="#{question.feedback}" escape="false" />
   </h:panelGroup>
   <h:panelGroup rendered="#{delivery.feedbackComponent.showGraderComment && !delivery.noFeedback=='true' && question.gradingCommentIsNotEmpty}">
     <f:verbatim><br /></f:verbatim>
     <f:verbatim><b></f:verbatim>
-    <h:outputLabel for="commentSC" value="#{msg.comment}#{msg.column} " />
+    <h:outputLabel for="commentSC" value="#{deliveryMessages.comment}#{deliveryMessages.column} " />
     <f:verbatim></b></f:verbatim>
     <h:outputText id="commentSC" value="#{question.gradingComment}"
       escape="false" />

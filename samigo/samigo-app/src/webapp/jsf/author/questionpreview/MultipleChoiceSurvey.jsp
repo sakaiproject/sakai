@@ -29,7 +29,7 @@ should be included in file importing DeliveryMessages
       <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
         <h:column>
           <h:graphicImage id="image2"
-             alt="#{msg.not_correct}" url="/images/unchecked.gif" >
+             alt="#{authorMessages.not_correct}" url="/images/unchecked.gif" >
           </h:graphicImage>
           <h:outputText escape="false" value="#{answer.text}" />
         </h:column>
@@ -38,7 +38,7 @@ should be included in file importing DeliveryMessages
       <f:verbatim><br /></f:verbatim>
 
       <%-- question level feedback --%>
-      <h:outputText escape="false" value="#{msg.q_level_feedb}:" />
+      <h:outputText escape="false" value="#{authorMessages.q_level_feedb}:" />
       <f:verbatim><br/>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
       <h:outputText escape="false" value="#{itemContents.itemData.generalItemFeedback}" />
 

@@ -28,12 +28,9 @@
 --%>
 -->
   <f:view>
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.AuthorMessages"
-     var="msg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.remove_assessment_co}" /></title>
+      <title><h:outputText value="#{authorMessages.remove_assessment_co}" /></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
@@ -42,17 +39,17 @@
  <h:form id="removeAssessmentForm">
    <h:outputText value="#{assessment.assessmentId}"/>
    <h:inputHidden id="assessmentId" value="#{assessmentBean.assessmentId}"/>
-   <h3><h:outputText  value="#{msg.remove_assessment_co}" /></h3>
+   <h3><h:outputText  value="#{authorMessages.remove_assessment_co}" /></h3>
    <div class="validation tier1">
-          <h:outputText value="#{msg.cert_rem_assmt} \"#{assessmentBean.title}\" ?" />
+          <h:outputText value="#{authorMessages.cert_rem_assmt} \"#{assessmentBean.title}\" ?" />
   </div>
 <p class="act">
-       <h:commandButton accesskey="#{msg.a_remove}" value="#{msg.button_remove}" type="submit"
+       <h:commandButton accesskey="#{authorMessages.a_remove}" value="#{authorMessages.button_remove}" type="submit"
          styleClass="active" action="removeAssessment" >
           <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.author.RemoveAssessmentListener" />
        </h:commandButton>
-       <h:commandButton accesskey="#{msg.a_cancel}" value="#{msg.button_cancel}" type="submit"
+       <h:commandButton accesskey="#{authorMessages.a_cancel}" value="#{authorMessages.button_cancel}" type="submit"
          action="author" />
     </p>
  </h:form>

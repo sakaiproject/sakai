@@ -33,10 +33,10 @@ should be included in file importing DeliveryMessages
       <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
         <h:column>
           <h:graphicImage id="image1" rendered="#{answer.isCorrect}"
-             alt="#{msg.correct}" url="/images/radiochecked.gif" >
+             alt="#{authorMessages.correct}" url="/images/radiochecked.gif" >
           </h:graphicImage>
           <h:graphicImage id="image2" rendered="#{!answer.isCorrect}"
-             alt="#{msg.not_correct}" url="/images/radiounchecked.gif" >
+             alt="#{authorMessages.not_correct}" url="/images/radiounchecked.gif" >
           </h:graphicImage>
           <h:outputText escape="false" value="#{answer.text}" />
         </h:column>
@@ -45,17 +45,17 @@ should be included in file importing DeliveryMessages
   </h:dataTable>
 
 <h:panelGroup>
-  <h:outputLabel value="#{msg.answerKey}: "/>
+  <h:outputLabel value="#{authorMessages.answerKey}: "/>
   <h:outputText escape="false" value="#{question.itemData.answerKey}" />
 <f:verbatim><br/></f:verbatim>
 </h:panelGroup>
 <h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty && assessmentSettings.feedbackAuthoring ne '2'}">
-  <h:outputLabel value="#{msg.correctItemFeedback}: "/>
+  <h:outputLabel value="#{authorMessages.correctItemFeedback}: "/>
   <h:outputText value="#{question.itemData.correctItemFeedback}" escape="false"/>
 <f:verbatim><br/></f:verbatim>
 </h:panelGroup>
 <h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty && assessmentSettings.feedbackAuthoring ne '2'}">
-  <h:outputLabel value="#{msg.incorrectItemFeedback}: "/>
+  <h:outputLabel value="#{authorMessages.incorrectItemFeedback}: "/>
   <h:outputText value="#{question.itemData.inCorrectItemFeedback}" escape="false"/>
 <f:verbatim><br/></f:verbatim>
 </h:panelGroup>

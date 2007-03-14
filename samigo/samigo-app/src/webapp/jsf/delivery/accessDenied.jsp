@@ -29,27 +29,23 @@
 --%>
 -->
   <f:view>
-    <f:loadBundle
-      basename="org.sakaiproject.tool.assessment.bundle.DeliveryMessages"
-      var="msg"/>
-   
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.access_denied}"/></title>
+      <title><h:outputText value="#{deliveryMessages.access_denied}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
 <div class="portletBody">
 <h:form id="redirectLoginForm">
-  <h3><h:outputText value="#{msg.access_denied}"/></h3>
+  <h3><h:outputText value="#{deliveryMessages.access_denied}"/></h3>
    <div class="validation">
-  <h:outputText  value="#{msg.access_denied_message}" />
+  <h:outputText  value="#{deliveryMessages.access_denied_message}" />
   </div>
  <p class="act">
-  <h:commandButton accesskey="#{msg.a_login}" value="#{msg.button_continue}" type="button"
+  <h:commandButton accesskey="#{deliveryMessages.a_login}" value="#{deliveryMessages.button_continue}" type="button"
      styleClass="active" onclick="javascript:window.open('#{delivery.portal}/login','_top')" onkeypress="javascript:window.open('#{delivery.portal}/login','_top')" />
 <%--
-  <h:commandButton accesskey="#{msg.a_cancel}" value="#{msg.button_ok}" type="submit"
+  <h:commandButton accesskey="#{deliveryMessages.a_cancel}" value="#{deliveryMessages.button_ok}" type="submit"
      style="act" action="#{delivery.getOutcome}" >
      <f:actionListener
        type="org.sakaiproject.tool.assessment.ui.listener.delivery.RedirectLoginListener" />

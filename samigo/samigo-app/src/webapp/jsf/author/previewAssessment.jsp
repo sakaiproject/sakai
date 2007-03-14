@@ -28,12 +28,9 @@
 --%>
 -->
   <f:view>
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.AuthorMessages"
-     var="msg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.create_modify_a}" /></title>
+      <title><h:outputText value="#{authorMessages.create_modify_a}" /></title>
       </head>
 <body onload="document.forms[0].reset();;<%= request.getAttribute("html.body.onload") %>">
 
@@ -55,13 +52,13 @@
   <h:column>
     <h:panelGrid columns="2" width="100%">
       <h:panelGroup>
-        <h:outputText styleClass="tier1" value="#{msg.p}" />
+        <h:outputText styleClass="tier1" value="#{authorMessages.p}" />
         <h:outputText styleClass="tier1" value="#{partBean.number}" />
         <h:outputText styleClass="tier1" value="#{partBean.title}" />
         <f:verbatim>&nbsp;- </f:verbatim>
         <h:outputText rendered="#{partBean.sectionAuthorTypeString == null || partBean.sectionAuthorTypeString == '1'}" styleClass="tier1" value="#{partBean.questions}" />
         <h:outputText rendered="#{partBean.sectionAuthorTypeString != null && partBean.sectionAuthorTypeString == '2'}" styleClass="tier1" value="#{partBean.numberToBeDrawnString}" />
-        <h:outputText styleClass="tier1" value="#{msg.questions_lower_case}" />
+        <h:outputText styleClass="tier1" value="#{authorMessages.questions_lower_case}" />
       </h:panelGroup>
 
     </h:panelGrid>
@@ -74,11 +71,11 @@
       <h:column>
         <h:panelGrid columns="2" border="1" width="100%">
           <h:panelGroup>
-            <h:outputText styleClass="tier1" value="#{msg.q}" />
+            <h:outputText styleClass="tier1" value="#{authorMessages.q}" />
             <h:outputText styleClass="tier1" value="#{question.number}" />
             <h:outputText styleClass="tier1" value="#{question.itemData.type.keyword}" />
             <h:outputText styleClass="tier1" value="#{question.itemData.score}" />
-            <h:outputText styleClass="tier1" value="#{msg.points_lower_case}" />
+            <h:outputText styleClass="tier1" value="#{authorMessages.points_lower_case}" />
           </h:panelGroup>
 
         </h:panelGrid>
@@ -133,7 +130,7 @@
   </h:column>
 </h:dataTable>
 <p class="act">
- <h:commandButton accesskey="#{msg.a_back}" value="#{msg.button_back}"  action="editAssessment" type="submit" styleClass="active"/>
+ <h:commandButton accesskey="#{authorMessages.a_back}" value="#{authorMessages.button_back}"  action="editAssessment" type="submit" styleClass="active"/>
 </p>
 </h:form>
 <!-- end content -->

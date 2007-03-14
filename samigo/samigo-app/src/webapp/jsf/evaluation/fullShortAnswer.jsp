@@ -33,7 +33,7 @@ $Id: fullShortAnswer.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText
-        value="#{msg.title_question}" /></title>
+        value="#{evaluationMessages.title_question}" /></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <%--

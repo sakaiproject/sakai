@@ -30,23 +30,19 @@
 --%>
 -->
   <f:view>
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.DeliveryMessages"
-     var="msg"/>
-
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.time_expired_title}"/></title>
+      <title><h:outputText value="#{deliveryMessages.time_expired_title}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
 <div class="portletBody">
   <!-- content... -->
-  <h3><h:outputText value="#{msg.time_expired_title}"/></h3>
-  <h:outputText value="#{msg.time_expired}"/>
+  <h3><h:outputText value="#{deliveryMessages.time_expired_title}"/></h3>
+  <h:outputText value="#{deliveryMessages.time_expired}"/>
  <h:form id="timeExpired">
  <p class="act">
-       <h:commandButton accesskey="#{msg.a_return}" value="#{msg.button_return}" type="submit"
+       <h:commandButton accesskey="#{deliveryMessages.a_return}" value="#{deliveryMessages.button_return}" type="submit"
          styleClass="active" action="select" >
           <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />

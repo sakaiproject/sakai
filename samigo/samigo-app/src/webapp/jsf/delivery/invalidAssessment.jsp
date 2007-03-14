@@ -7,13 +7,9 @@
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
   
   <f:view>
-    <f:loadBundle
-      basename="org.sakaiproject.tool.assessment.bundle.DeliveryMessages"
-      var="msg"/>
-   
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.invalid_assessment}"/></title>
+      <title><h:outputText value="#{deliveryMessages.invalid_assessment}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
@@ -41,11 +37,11 @@
 **********************************************************************************/
 --%>
 -->
- <h3><h:outputText  value="#{msg.invalid_assessment_message}" /></h3>
+ <h3><h:outputText  value="#{deliveryMessages.invalid_assessment_message}" /></h3>
 <h:form id="redirectLoginForm">
-  <h:outputText value="#{msg.invalid_assessment}"/>
-  <h3 style="insColor insBak"><h:outputText  value="#{msg.invalid_assessment_message}" /></h3>
-  <h:commandButton accesskey="#{msg.a_ok}" value="#{msg.button_ok}" type="button"
+  <h:outputText value="#{deliveryMessages.invalid_assessment}"/>
+  <h3 style="insColor insBak"><h:outputText  value="#{deliveryMessages.invalid_assessment_message}" /></h3>
+  <h:commandButton accesskey="#{deliveryMessages.a_ok}" value="#{deliveryMessages.button_ok}" type="button"
      style="act" onclick="javascript:window.open('../jsf/delivery/login.faces','_top')" onkeypress="javascript:window.open('../jsf/delivery/login.faces','_top')" />
 </h:form>
 </div>

@@ -28,18 +28,14 @@
 --%>
 -->
   <f:view>
-   
-    <f:loadBundle
-      basename="org.sakaiproject.tool.assessment.bundle.MainIndexMessages"
-      var="msg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title>Exit</title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
   <!-- content... -->
-  <h3 style="insColor insBak"><h:outputText  value="#{msg.button_exit}" /></h3>
-  <h:outputText styleClass="validation" value="#{msg.you_have_left}" />
+  <h3 style="insColor insBak"><h:outputText  value="#{mainIndexMessages.button_exit}" /></h3>
+  <h:outputText styleClass="validation" value="#{mainIndexMessages.you_have_left}" />
   <!-- end content -->
       </body>
     </html>

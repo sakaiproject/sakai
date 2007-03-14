@@ -29,33 +29,29 @@
 --%>
 -->
   <f:view>
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.EvaluationMessages"
-     var="msg"/>
-  
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.retake_heading}"/></title>
+      <title><h:outputText value="#{evaluationMessages.retake_heading}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
   <!-- content... -->
  <div class="portletBody">
-  <h3><h:outputText value="#{msg.retake_assessment}"/></h3>
+  <h3><h:outputText value="#{evaluationMessages.retake_assessment}"/></h3>
  <h:form id="retractAssessmentForm">
    <h:inputHidden id="publishedId" value="#{totalScores.publishedId}" />
 
      <div class="validation tier1">
-       <h:outputText value="#{msg.retake_confirmation_1} #{retakeAssessment.studentName} #{msg.retake_confirmation_2}" />
+       <h:outputText value="#{evaluationMessages.retake_confirmation_1} #{retakeAssessment.studentName} #{evaluationMessages.retake_confirmation_2}" />
      </div>
        <p class="act">
-       <h:commandButton id="retake" accesskey="#{msg.a_retake}" value="#{msg.retake}" type="submit"
+       <h:commandButton id="retake" accesskey="#{evaluationMessages.a_retake}" value="#{evaluationMessages.retake}" type="submit"
          styleClass="active" action="submissionStatus" >
           <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.RetakeAssessmentListener" />
           <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
        </h:commandButton>
-       <h:commandButton value="#{msg.cancel}" type="submit" style="act" action="author" />
+       <h:commandButton value="#{evaluationMessages.cancel}" type="submit" style="act" action="author" />
        </p>
 
  </h:form>

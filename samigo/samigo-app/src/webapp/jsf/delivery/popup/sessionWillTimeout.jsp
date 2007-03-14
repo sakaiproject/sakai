@@ -27,26 +27,23 @@
 --%>
 -->
 <f:view>
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.AuthorMessages"
-     var="msg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.review_assmt}" /></title>
+      <title><h:outputText value="#{authorMessages.review_assmt}" /></title>
       </head>
       <body>
 
 <div class="portletBody">
 <!-- content... -->
-<h3><h:outputText value="#{msg.auto_submit}" /></h3>
+<h3><h:outputText value="#{authorMessages.auto_submit}" /></h3>
 <div class="tier1">
   <h3 style="insColor insBak">
-   <h:outputText  value="#{msg.session_will_timeout}" />
+   <h:outputText  value="#{authorMessages.session_will_timeout}" />
   </h3>
   <%-- Clicking OK will renew the session but ignoring will lead to session expiration. --%>
   <h:form id="ok">
   <h:messages styleClass="validation"/>
-   <h:commandButton value="#{msg.button_ok}" type="submit"
+   <h:commandButton value="#{authorMessages.button_ok}" type="submit"
      style="act" action="select" />
   </h:form>
 </div>

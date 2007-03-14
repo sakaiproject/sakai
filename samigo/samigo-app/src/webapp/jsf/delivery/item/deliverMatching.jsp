@@ -38,12 +38,12 @@ should be included in file importing DeliveryMessages
        delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}">
       <h:graphicImage id="image"
         rendered="#{matching.isCorrect}"
-        alt="#{msg.alt_correct}" url="/images/checkmark.gif" >
+        alt="#{deliveryMessages.alt_correct}" url="/images/checkmark.gif" >
       </h:graphicImage>
       <h:graphicImage id="image2"
         rendered="#{matching.isCorrect}"
         width="16" height="16"
-        alt="#{msg.alt_incorrect}" url="/images/delivery/spacer.gif">
+        alt="#{deliveryMessages.alt_incorrect}" url="/images/delivery/spacer.gif">
       </h:graphicImage>
    </h:column>
    <h:column>
@@ -61,7 +61,7 @@ should be included in file importing DeliveryMessages
 	   matching.feedback ne '' && matching.feedback != 'null' && matching.feedback != null}" >
 	   <!-- The above != 'null' is for SAK-5475. Once it gets fixed, we can remove this condition -->
        <f:verbatim><br /></f:verbatim>
-       <h:outputText value="#{msg.feedback}#{msg.column} " />
+       <h:outputText value="#{deliveryMessages.feedback}#{deliveryMessages.column} " />
        <h:outputText value="#{matching.feedback}" escape="false" />
      </h:panelGroup>
   </h:column>
@@ -73,7 +73,7 @@ should be included in file importing DeliveryMessages
                 || delivery.actionString=='takeAssessment'
                 || delivery.actionString=='takeAssessmentViaUrl')
              && delivery.navigation ne '1'}" />
-<h:outputLabel for="mark_for_review" value="#{msg.mark}"
+<h:outputLabel for="mark_for_review" value="#{deliveryMessages.mark}"
   rendered="#{(delivery.actionString=='previewAssessment'
                 || delivery.actionString=='takeAssessment'
                 || delivery.actionString=='takeAssessmentViaUrl')
@@ -83,7 +83,7 @@ should be included in file importing DeliveryMessages
   <f:verbatim><br /></f:verbatim>
   <h:panelGroup rendered="#{delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}" >
     <f:verbatim><b></f:verbatim>
-    <h:outputLabel for="answerKeyMC" value="#{msg.ans_key}: " />
+    <h:outputLabel for="answerKeyMC" value="#{deliveryMessages.ans_key}: " />
      <f:verbatim></b></f:verbatim>
     <h:outputText id="answerKeyMC"
        value="#{question.key}" escape="false" />
@@ -92,14 +92,14 @@ should be included in file importing DeliveryMessages
   <h:panelGroup rendered="#{delivery.feedbackComponent.showItemLevel && !delivery.noFeedback=='true' && question.feedbackIsNotEmpty}">
     <f:verbatim><br /></f:verbatim>
     <f:verbatim><b></f:verbatim>
-    <h:outputLabel for="feedSC" value="#{msg.feedback}: " />
+    <h:outputLabel for="feedSC" value="#{deliveryMessages.feedback}: " />
     <f:verbatim></b></f:verbatim>
     <h:outputText id="feedSC" value="#{question.feedback}" escape="false" />
   </h:panelGroup>
   <h:panelGroup rendered="#{delivery.feedbackComponent.showGraderComment && !delivery.noFeedback=='true' && question.gradingCommentIsNotEmpty}">
     <f:verbatim><br /></f:verbatim>
     <f:verbatim><b></f:verbatim>
-    <h:outputLabel for="commentSC" value="#{msg.comment}: " />
+    <h:outputLabel for="commentSC" value="#{deliveryMessages.comment}: " />
     <f:verbatim></b></f:verbatim>
     <h:outputText id="commentSC" value="#{question.gradingComment}"
       escape="false" />

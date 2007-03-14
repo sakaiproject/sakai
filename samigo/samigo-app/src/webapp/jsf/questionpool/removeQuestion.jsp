@@ -27,14 +27,10 @@
 **********************************************************************************/
 --%>
 -->
-  <f:view>
-    <f:loadBundle
-       basename="org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages"
-       var="msg"/>
-   
+  <f:view>   
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.rm_q}"/></title>
+      <title><h:outputText value="#{questionPoolMessages.rm_q}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!-- content... -->
@@ -43,10 +39,10 @@
    <h:panelGrid cellpadding="5" cellspacing="3">
      <h:panelGroup>
        <f:verbatim><h3 style="insColor insBak"></f:verbatim>
-       <h:outputText  value="#{msg.rm_q_confirm}" />
+       <h:outputText  value="#{questionPoolMessages.rm_q_confirm}" />
        <f:verbatim></h3></f:verbatim>
      </h:panelGroup>
-     <h:outputText styleClass="validation" value="#{msg.remove_sure_q}" />
+     <h:outputText styleClass="validation" value="#{questionPoolMessages.remove_sure_q}" />
 
 <h:dataTable value="#{questionpool.itemsToDelete}" var="question">
       <h:column>
@@ -55,11 +51,11 @@
 </h:dataTable>
 
      <h:panelGrid columns="2" cellpadding="3" cellspacing="3">
-  <h:commandButton accesskey="#{msg.a_remove}" type="submit" immediate="true" id="Submit" value="#{msg.remove}"
+  <h:commandButton accesskey="#{questionPoolMessages.a_remove}" type="submit" immediate="true" id="Submit" value="#{questionPoolMessages.remove}"
     action="#{questionpool.removeQuestionsFromPool}" >
   </h:commandButton>
 
-<h:commandButton id="cancel" accesskey="#{msg.a_cancel}" style="act" value="#{msg.cancel}" action="poolList"/>
+<h:commandButton id="cancel" accesskey="#{questionPoolMessages.a_cancel}" style="act" value="#{questionPoolMessages.cancel}" action="poolList"/>
 
      </h:panelGrid>
    </h:panelGrid>

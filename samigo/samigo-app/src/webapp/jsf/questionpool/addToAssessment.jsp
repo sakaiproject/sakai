@@ -31,14 +31,14 @@
    
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.add_to_assmt}"/></title>
+      <title><h:outputText value="#{questionPoolMessages.add_to_assmt}"/></title>
 			<!-- stylesheet and script widgets go here -->
 			<samigo:script path="/js/treeJavascript.js" />
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!-- content... -->
 <div class="portletBody">
-<div class="heading"><h:outputText value="#{msg.add_q}"></div>
+<div class="heading"><h:outputText value="#{questionPoolMessages.add_q}"></div>
  <f:verbatim><br /></f:verbatim>
  <h:form id="questionpool">
  <f:verbatim><br /></f:verbatim>
@@ -56,25 +56,25 @@
   <h:panelGrid columns="2" columnClasses="number,instructionsSteps">
 
   <h:outputText value="1"/>
-  <h:outputText value="#{msg.add_q_to_assmt}"/>
+  <h:outputText value="#{questionPoolMessages.add_q_to_assmt}"/>
 
   <!-- datasource here too needs to be fixed -->
   <h:outputText value=" "/>
   <h:panelGroup>
-    <h:outputText value="#{msg.assmt_title}" />
+    <h:outputText value="#{questionPoolMessages.assmt_title}" />
     <h:selectOneMenu>
       <f:selectItems value="#{allAssets.assessmentID}" />
     </h:selectOneMenu>
   </h:panelGroup>
 
   <h:outputText value="2"/>
-  <h:outputText value="#{msg.click_save}"/>
+  <h:outputText value="#{questionPoolMessages.click_save}"/>
 
  <f:verbatim><br /><br />
   <center>
-  <h:commandButton accesskey="#{msg.a_save}" type="submit" id="Submit" value="#{msg.save}"
+  <h:commandButton accesskey="#{questionPoolMessages.a_save}" type="submit" id="Submit" value="#{questionPoolMessages.save}"
     action="addToAssessment"/>
-  <h:commandButton accesskey="#{msg.a_cancel}" type="cancel" id="Cancel" value="#{msg.cancel}"
+  <h:commandButton accesskey="#{questionPoolMessages.a_cancel}" type="cancel" id="Cancel" value="#{questionPoolMessages.cancel}"
     action="canceladdToAssessment"/>
   </center></f:verbatim>
  </h:form>

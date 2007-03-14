@@ -29,13 +29,6 @@
 --%>
 -->
   <f:view>
-   
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.DeliveryMessages"
-     var="msg"/>
-     <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.GeneralMessages"
-     var="genMsg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
         <h:outputText escape="false" value="<meta http-equiv='Refresh' content='0; URL=#{delivery.contextPath}/jsf/delivery/beginTakingAssessment.faces'>"/>

@@ -29,13 +29,6 @@
 --%>
 -->
   <f:view>
-   
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.DeliveryMessages"
-     var="msg"/>
-     <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.GeneralMessages"
-     var="genMsg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title>
@@ -61,14 +54,14 @@
 <!-- DONE BUTTON FOR PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="validation"></f:verbatim>
-     <h:outputText value="#{msg.ass_preview}" />
-     <h:commandButton accesskey="#{msg.a_done}" value="#{msg.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
+     <h:outputText value="#{deliveryMessages.ass_preview}" />
+     <h:commandButton accesskey="#{deliveryMessages.a_done}" value="#{deliveryMessages.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 
-<h3><h:outputText value="#{msg.begin_assessment_}" /></h3>
+<h3><h:outputText value="#{deliveryMessages.begin_assessment_}" /></h3>
 <div class="tier1">
- <h4> <h:outputText value="#{delivery.assessmentTitle} #{msg.info} " /></h4>
+ <h4> <h:outputText value="#{delivery.assessmentTitle} #{deliveryMessages.info} " /></h4>
 <div class="tier2">
 <h:messages styleClass="validation"/>
   <h:outputText value="#{delivery.instructorMessage}" escape="false"/>
@@ -78,59 +71,59 @@
   <%@ include file="/jsf/delivery/assessment_attachment.jsp" %>
 
 <h:panelGrid columns="2" cellpadding="2">
-    <h:outputLabel value="#{msg.course}" rendered="#{delivery.courseName ne ''}" />
+    <h:outputLabel value="#{deliveryMessages.course}" rendered="#{delivery.courseName ne ''}" />
     <h:outputText value="#{delivery.courseName} " />
 
-    <h:outputLabel value="#{msg.creator}" rendered="#{delivery.creatorName ne ''}"/>
+    <h:outputLabel value="#{deliveryMessages.creator}" rendered="#{delivery.creatorName ne ''}"/>
     <h:outputText value="#{delivery.creatorName}" />
 
 
-    <h:outputLabel value="#{msg.assessment_title}" rendered="#{delivery.assessmentTitle ne ''}" />
+    <h:outputLabel value="#{deliveryMessages.assessment_title}" rendered="#{delivery.assessmentTitle ne ''}" />
     <h:outputText value="#{delivery.assessmentTitle}" />
 
-    <h:outputLabel value="#{msg.time_limit}"/>
+    <h:outputLabel value="#{deliveryMessages.time_limit}"/>
     <h:panelGroup rendered="#{delivery.hasTimeLimit}">
        <h:outputText value="#{delivery.timeLimit_hour} " />
-       <h:outputText value="#{msg.time_limit_hour} " />
+       <h:outputText value="#{deliveryMessages.time_limit_hour} " />
        <h:outputText value="#{delivery.timeLimit_minute} " />
-       <h:outputText value="#{msg.time_limit_minute}" />
+       <h:outputText value="#{deliveryMessages.time_limit_minute}" />
     </h:panelGroup>
     <h:panelGroup rendered="#{!delivery.hasTimeLimit}">
-       <h:outputText value="No Time Limit" />
+       <h:outputText value="#{deliveryMessages.no_time_limit}" />
     </h:panelGroup>
 
-    <h:outputLabel value="#{msg.num_subs}" rendered="#{!delivery.anonymousLogin}"/>
-    <h:outputText value="#{delivery.settings.maxAttempts} (#{delivery.submissionsRemaining} #{msg.remaining})"
+    <h:outputLabel value="#{deliveryMessages.num_subs}" rendered="#{!delivery.anonymousLogin}"/>
+    <h:outputText value="#{delivery.settings.maxAttempts} (#{delivery.submissionsRemaining} #{deliveryMessages.remaining})"
        rendered="#{!delivery.settings.unlimitedAttempts && !delivery.anonymousLogin}"/>
-    <h:outputText value="#{msg.unlimited_}"
+    <h:outputText value="#{deliveryMessages.unlimited_}"
        rendered="#{delivery.settings.unlimitedAttempts && !delivery.anonymousLogin}"/>
 
-    <h:outputLabel value="#{msg.feedback}" />
+    <h:outputLabel value="#{deliveryMessages.feedback}" />
     <h:panelGroup>
-      <h:outputText value="#{msg.immed}"
+      <h:outputText value="#{deliveryMessages.immed}"
          rendered="#{delivery.feedbackComponent.showImmediate}"/>
       <h:outputText value="#{delivery.settings.feedbackDate}"
          rendered="#{delivery.feedbackComponent.showDateFeedback}">
-        <f:convertDateTime pattern="#{genMsg.output_date_picker}"/>
+        <f:convertDateTime pattern="#{generalMessages.output_date_picker}"/>
       </h:outputText>
-      <h:outputText value="#{msg.none}"
+      <h:outputText value="#{deliveryMessages.none}"
          rendered="#{delivery.feedbackComponent.showNoFeedback}"/>
     </h:panelGroup>
 
     <h:panelGroup>
-      <h:outputLabel rendered="#{delivery.dueDate!=null}" value="#{msg.due_date}" />
+      <h:outputLabel rendered="#{delivery.dueDate!=null}" value="#{deliveryMessages.due_date}" />
     </h:panelGroup>
     <h:panelGroup>
       <h:outputText value="#{delivery.dueDateString}" >
       </h:outputText>
     </h:panelGroup>
 
-    <h:outputLabel value="#{msg.username}"
+    <h:outputLabel value="#{deliveryMessages.username}"
       rendered="#{delivery.settings.username ne ''}" />
     <h:inputText value="#{delivery.username}" size="20"
       rendered="#{delivery.settings.username ne ''}" />
 
-    <h:outputLabel value="#{msg.password}"
+    <h:outputLabel value="#{deliveryMessages.password}"
       rendered="#{delivery.settings.username ne ''}" />
     <h:inputSecret value="#{delivery.password}" size="20"
       rendered="#{delivery.settings.username ne ''}" />
@@ -141,7 +134,7 @@
 
 <!-- BEGIN ASSESSMENT BUTTON -->
 <!-- When previewing, we don't need to check security. When take the assessment for real, we do -->
- <h:commandButton id="beginAssessment1" accesskey="#{msg.a_next}" value="#{msg.begin_assessment_}" 
+ <h:commandButton id="beginAssessment1" accesskey="#{deliveryMessages.a_next}" value="#{deliveryMessages.begin_assessment_}" 
     action="#{delivery.validate}" type="submit" styleClass="active" 
     rendered="#{(delivery.actionString=='takeAssessment'
              || delivery.actionString=='takeAssessmentViaUrl')
@@ -150,7 +143,7 @@
 	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
   </h:commandButton>
 
- <h:commandButton accesskey="#{msg.a_next}" value="#{msg.begin_assessment_}" 
+ <h:commandButton accesskey="#{deliveryMessages.a_next}" value="#{deliveryMessages.begin_assessment_}" 
     action="#{delivery.validate}" type="submit" styleClass="active" 
     rendered="#{(delivery.actionString=='takeAssessment'
              || delivery.actionString=='takeAssessmentViaUrl')
@@ -159,20 +152,20 @@
 	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.LinearAccessDeliveryActionListener" />
   </h:commandButton>
 
- <h:commandButton id="beginAssessment2" accesskey="#{msg.a_next}" value="#{msg.begin_assessment_}" action="#{delivery.pvalidate}" type="submit" styleClass="active" rendered="#{delivery.actionString=='previewAssessment'}">
+ <h:commandButton id="beginAssessment2" accesskey="#{deliveryMessages.a_next}" value="#{deliveryMessages.begin_assessment_}" action="#{delivery.pvalidate}" type="submit" styleClass="active" rendered="#{delivery.actionString=='previewAssessment'}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
   </h:commandButton>
 
 
 <!-- CANCEL BUTTON -->
-  <h:commandButton value="#{msg.button_cancel}"  action="select" type="submit"
+  <h:commandButton value="#{deliveryMessages.button_cancel}"  action="select" type="submit"
      rendered="#{delivery.actionString=='previewAssessment'
              || delivery.actionString=='takeAssessment'}"
      disabled="#{delivery.actionString=='previewAssessment'}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
   </h:commandButton>
 
-  <h:commandButton accesskey="#{msg.a_cancel}" value="#{msg.button_cancel}" type="button"
+  <h:commandButton accesskey="#{deliveryMessages.a_cancel}" value="#{deliveryMessages.button_cancel}" type="button"
      style="act" onclick="javascript:window.open('#{delivery.portal}/login','_top')"
 onkeypress="javascript:window.open('#{delivery.portal}/login','_top')"
      rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
@@ -182,8 +175,8 @@ onkeypress="javascript:window.open('#{delivery.portal}/login','_top')"
 <!-- DONE BUTTON, FOR PREVIEW ONLY --> 
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="validation"></f:verbatim>
-     <h:outputText value="#{msg.ass_preview}" />
-     <h:commandButton accesskey="#{msg.a_done}" value="#{msg.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
+     <h:outputText value="#{deliveryMessages.ass_preview}" />
+     <h:commandButton accesskey="#{deliveryMessages.a_done}" value="#{deliveryMessages.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 

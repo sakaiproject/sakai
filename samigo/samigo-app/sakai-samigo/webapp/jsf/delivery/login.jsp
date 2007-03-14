@@ -3,9 +3,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
   <f:view>
-    <f:loadBundle
-      basename="org.sakaiproject.tool.assessment.bundle.MainIndexMessages"
-      var="msg"/>
     <f:verbatim><!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">

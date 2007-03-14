@@ -28,15 +28,11 @@
 --%>
 -->
   <f:view>
-  
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.AuthorImportExport"
-     var="msg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <%-- designed to be in  popup window --%>
       <samigo:stylesheet path="/css/tool.css"/>
       <samigo:stylesheet path="/css/tool_base.css"/>
-      <title><h:outputText value="#{msg.export_q}" /></title>
+      <title><h:outputText value="#{authorImportExport.export_q}" /></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
  <!-- content... -->
@@ -44,27 +40,27 @@
  <h:form id="exportItemForm">
   <h:outputText escape="false"
       value="<input type='hidden' name='itemId' value='#{param.exportItemId}'" />
-  <h3 style="insColor insBak"><h:outputText value="#{msg.export_q}" /></h3>
+  <h3 style="insColor insBak"><h:outputText value="#{authorImportExport.export_q}" /></h3>
   <div class="validation">
-        <h:outputText value="#{msg.export_instructions}" escape="false" />
+        <h:outputText value="#{authorImportExport.export_instructions}" escape="false" />
   </div>
    <h:panelGrid columns="2" rendered="false">
-     <h:outputText value="#{msg.im_ex_version_choose}"/>
+     <h:outputText value="#{authorImportExport.im_ex_version_choose}"/>
      <h:selectOneRadio layout="lineDirection">
-       <f:selectItem itemLabel="#{msg.im_ex_version_12}"
+       <f:selectItem itemLabel="#{authorImportExport.im_ex_version_12}"
          itemValue="1"/>
-       <f:selectItem itemLabel="#{msg.im_ex_version_20}"
+       <f:selectItem itemLabel="#{authorImportExport.im_ex_version_20}"
          itemValue="2"/>
      </h:selectOneRadio>
    </h:panelGrid>
   <p class="act">
-    <h:commandButton value="#{msg.export_action}" type="submit" action="xmlDisplay"
+    <h:commandButton value="#{authorImportExport.export_action}" type="submit" action="xmlDisplay"
         immediate="true" >
       <f:param name="itemId" value="#{param.exportItemId}"/>
       <f:actionListener
         type="org.sakaiproject.tool.assessment.ui.listener.author.ExportItemListener" />
     </h:commandButton>
-   <h:commandButton value="#{msg.export_cancel_action}" type="reset"
+   <h:commandButton value="#{authorImportExport.export_cancel_action}" type="reset"
      onclick="window.close()" style="act" action="author" />
   </p>
  </h:form>

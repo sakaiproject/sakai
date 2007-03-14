@@ -13,6 +13,159 @@
   "http://java.sun.com/dtd/web-facesconfig_1_1.dtd">
 
 <faces-config>
+ <managed-bean>
+ 	<description>
+ 	  Dynamic Resource Bundle Loader
+ 	</description>
+ 	<managed-bean-name>assessmentSettingsMessages</managed-bean-name>
+ 	<managed-bean-class>org.sakaiproject.util.ResourceLoader</managed-bean-class>
+ 	<managed-bean-scope>session</managed-bean-scope>
+ 	<managed-property>
+ 		<description>Bundle baseName</description>
+ 		<property-name>baseName</property-name>
+ 		<value>org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages</value>
+ 	</managed-property>
+ </managed-bean>
+ 
+ <managed-bean>
+ 	<description>
+ 		Dynamic Resource Bundle Loader
+ 	</description>
+ 	<managed-bean-name>authorFrontDoorMessages</managed-bean-name>
+ 	<managed-bean-class>org.sakaiproject.util.ResourceLoader</managed-bean-class>
+ 	<managed-bean-scope>session</managed-bean-scope>
+ 	<managed-property>
+ 		<description>Bundle baseName</description>
+ 		<property-name>baseName</property-name>
+ 		<value>org.sakaiproject.tool.assessment.bundle.AuthorFrontDoorMessages</value>
+ 	</managed-property>
+ </managed-bean>
+ 
+ <managed-bean>
+ 	<description>
+ 		Dynamic Resource Bundle Loader
+ 	</description>
+ 	<managed-bean-name>authorImportExport</managed-bean-name>
+ 	<managed-bean-class>org.sakaiproject.util.ResourceLoader</managed-bean-class>
+ 	<managed-bean-scope>session</managed-bean-scope>
+ 	<managed-property>
+ 		<description>Bundle baseName</description>
+ 		<property-name>baseName</property-name>
+ 		<value>org.sakaiproject.tool.assessment.bundle.AuthorImportExport</value>
+ 	</managed-property>
+ </managed-bean>
+ 
+ <managed-bean>
+ 	<description>
+ 		Dynamic Resource Bundle Loader
+ 	</description>
+ 	<managed-bean-name>authorMessages</managed-bean-name>
+ 	<managed-bean-class>org.sakaiproject.util.ResourceLoader</managed-bean-class>
+ 	<managed-bean-scope>session</managed-bean-scope>
+ 	<managed-property>
+ 		<description>Bundle baseName</description>
+ 		<property-name>baseName</property-name>
+ 		<value>org.sakaiproject.tool.assessment.bundle.AuthorMessages</value>
+ 	</managed-property>
+ </managed-bean>
+ 
+ <managed-bean>
+ 	<description>
+ 		Dynamic Resource Bundle Loader
+ 	</description>
+ 	<managed-bean-name>deliveryMessages</managed-bean-name>
+ 	<managed-bean-class>org.sakaiproject.util.ResourceLoader</managed-bean-class>
+ 	<managed-bean-scope>session</managed-bean-scope>
+ 	<managed-property>
+ 		<description>Bundle baseName</description>
+ 		<property-name>baseName</property-name>
+ 		<value>org.sakaiproject.tool.assessment.bundle.DeliveryMessages</value>
+ 	</managed-property>
+ </managed-bean>
+ 
+ <managed-bean>
+ 	<description>
+ 		Dynamic Resource Bundle Loader
+ 	</description>
+ 	<managed-bean-name>evaluationMessages</managed-bean-name>
+ 	<managed-bean-class>org.sakaiproject.util.ResourceLoader</managed-bean-class>
+ 	<managed-bean-scope>session</managed-bean-scope>
+ 	<managed-property>
+ 		<description>Bundle baseName</description>
+ 		<property-name>baseName</property-name>
+ 		<value>org.sakaiproject.tool.assessment.bundle.EvaluationMessages</value>
+ 	</managed-property>
+ </managed-bean>
+ 
+ <managed-bean>
+ 	<description>
+ 		Dynamic Resource Bundle Loader
+ 	</description>
+ 	<managed-bean-name>generalMessages</managed-bean-name>
+ 	<managed-bean-class>org.sakaiproject.util.ResourceLoader</managed-bean-class>
+ 	<managed-bean-scope>session</managed-bean-scope>
+ 	<managed-property>
+ 		<description>Bundle baseName</description>
+ 		<property-name>baseName</property-name>
+ 		<value>org.sakaiproject.tool.assessment.bundle.GeneralMessages</value>
+ 	</managed-property>
+ </managed-bean>
+ 
+ <managed-bean>
+ 	<description>
+ 		Dynamic Resource Bundle Loader
+ 	</description>
+ 	<managed-bean-name>mainIndexMessages</managed-bean-name>
+ 	<managed-bean-class>org.sakaiproject.util.ResourceLoader</managed-bean-class>
+ 	<managed-bean-scope>session</managed-bean-scope>
+ 	<managed-property>
+ 		<description>Bundle baseName</description>
+ 		<property-name>baseName</property-name>
+ 		<value>org.sakaiproject.tool.assessment.bundle.MainIndexMessages</value>
+ 	</managed-property>
+ </managed-bean>
+ 
+ <managed-bean>
+ 	<description>
+ 		Dynamic Resource Bundle Loader
+ 	</description>
+ 	<managed-bean-name>questionPoolMessages</managed-bean-name>
+ 	<managed-bean-class>org.sakaiproject.util.ResourceLoader</managed-bean-class>
+ 	<managed-bean-scope>session</managed-bean-scope>
+ 	<managed-property>
+ 		<description>Bundle baseName</description>
+ 		<property-name>baseName</property-name>
+ 		<value>org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages</value>
+ 	</managed-property>
+ </managed-bean>
+ 
+ <managed-bean>
+ 	<description>
+ 		Dynamic Resource Bundle Loader
+ 	</description>
+ 	<managed-bean-name>selectIndexMessages</managed-bean-name>
+ 	<managed-bean-class>org.sakaiproject.util.ResourceLoader</managed-bean-class>
+ 	<managed-bean-scope>session</managed-bean-scope>
+ 	<managed-property>
+ 		<description>Bundle baseName</description>
+ 		<property-name>baseName</property-name>
+ 		<value>org.sakaiproject.tool.assessment.bundle.SelectIndexMessages</value>
+ 	</managed-property>
+ </managed-bean>
+ 
+ <managed-bean>
+ 	<description>
+ 		Dynamic Resource Bundle Loader
+ 	</description>
+ 	<managed-bean-name>templateMessages</managed-bean-name>
+ 	<managed-bean-class>org.sakaiproject.util.ResourceLoader</managed-bean-class>
+ 	<managed-bean-scope>session</managed-bean-scope>
+ 	<managed-property>
+ 		<description>Bundle baseName</description>
+ 		<property-name>baseName</property-name>
+ 		<value>org.sakaiproject.tool.assessment.bundle.TemplateMessages</value>
+ 	</managed-property>
+ </managed-bean>  
   <!-- Managed Beans -->
   <!-- *** TEST *** -->
   <!-- main test bean -->

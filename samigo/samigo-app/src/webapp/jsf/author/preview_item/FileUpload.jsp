@@ -30,31 +30,31 @@ should be included in file importing DeliveryMessages
   <%@ include file="/jsf/author/preview_item/attachment.jsp" %>
 
   <h:panelGrid columns="1" width="100%">
-    <h:outputText escape="false" value="#{msg.upload_instruction}" />
+    <h:outputText escape="false" value="#{authorMessages.upload_instruction}" />
     <h:panelGroup>
-      <h:outputText value="File:" />
+      <h:outputText value="#{authorMessages.file}" />
 <%--
       <corejsf:upload target="test_fileupload/"/>
 --%>
       <h:inputText size="50" />
       <h:outputText value="  " />
-      <h:commandButton value="Browse" type="button"/>
+      <h:commandButton value="#{authorMessages.browse}" type="button"/>
       <h:outputText value="  " />
-      <h:commandButton value="Upload" type="button"/>
+      <h:commandButton value="#{authorMessages.upload}" type="button"/>
     </h:panelGroup>
   </h:panelGrid>
   <h:dataTable value="#{question.itemData.itemTextArraySorted}" var="itemText">
     <h:column>
       <h:dataTable value="#{itemText.answerArray}" var="answer">
         <h:column>
-          <h:outputLabel rendered="#{answer.textIsNotEmpty}" value="#{msg.preview_model_short_answer}" />
+          <h:outputLabel rendered="#{answer.textIsNotEmpty}" value="#{authorMessages.preview_model_short_answer}" />
           <h:outputText rendered="#{answer.textIsNotEmpty}" escape="false" value="#{answer.text}" />
         </h:column>
       </h:dataTable>
  </h:column>
   </h:dataTable>
 <h:panelGroup rendered="#{question.itemData.generalItemFbIsNotEmpty && assessmentSettings.feedbackAuthoring ne '2'}">
- <h:outputLabel value="#{msg.feedback}: " />
+ <h:outputLabel value="#{authorMessages.feedback}: " />
   <h:outputText escape="false" value="#{question.itemData.generalItemFeedback}" />
 </h:panelGroup>
 

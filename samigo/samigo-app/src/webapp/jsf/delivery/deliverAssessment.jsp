@@ -30,10 +30,6 @@
 --%>
 -->
   <f:view>
-  
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.DeliveryMessages"
-     var="msg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title> <h:outputText value="#{delivery.assessmentTitle}"/>
@@ -118,8 +114,8 @@ function saveTime()
 <!-- DONE BUTTON FOR PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="validation"></f:verbatim>
-     <h:outputText value="#{msg.ass_preview}" />
-     <h:commandButton id="done" accesskey="#{msg.a_done}" value="#{msg.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
+     <h:outputText value="#{deliveryMessages.ass_preview}" />
+     <h:commandButton id="done" accesskey="#{deliveryMessages.a_done}" value="#{deliveryMessages.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 
@@ -146,12 +142,12 @@ function saveTime()
       <f:verbatim><h4></f:verbatim>
       <h:panelGrid columns="2" width="100%" columnClasses="navView,navList">
        <h:panelGroup>
-      <h:outputText value="#{msg.p} #{part.number} #{msg.of} #{part.numParts}" />
-      <h:outputText value=" #{msg.dash} #{part.nonDefaultText}" escape="false"/>
+      <h:outputText value="#{deliveryMessages.p} #{part.number} #{deliveryMessages.of} #{part.numParts}" />
+      <h:outputText value=" #{deliveryMessages.dash} #{part.nonDefaultText}" escape="false"/>
          </h:panelGroup>
       <!-- h:outputText value="#{part.unansweredQuestions}/#{part.questions} " / -->
-      <!-- h:outputText value="#{msg.ans_q}, " / -->
-      <h:outputText value="#{part.pointsDisplayString} #{part.maxPoints} #{msg.pt}" 
+      <!-- h:outputText value="#{deliveryMessages.ans_q}, " / -->
+      <h:outputText value="#{part.pointsDisplayString} #{part.maxPoints} #{deliveryMessages.pt}" 
          rendered="#{delivery.actionString=='reviewAssessment'}"/>
 </h:panelGrid>
       <f:verbatim></h4></f:verbatim>
@@ -162,7 +158,7 @@ function saveTime()
   <%@ include file="/jsf/delivery/part_attachment.jsp" %>
    <f:verbatim><div class="tier2"></f:verbatim>
 
-   <h:outputText value="#{msg.no_question}" escape="false" rendered="#{part.noQuestions}"/>
+   <h:outputText value="#{deliveryMessages.no_question}" escape="false" rendered="#{part.noQuestions}"/>
 
       <h:dataTable width="100%" value="#{part.itemContents}" var="question">
         <h:column>
@@ -171,12 +167,12 @@ function saveTime()
          <h:panelGroup>
            <h:outputText value="<a name='p#{part.number}q#{question.number}'></a>" escape="false" />
 
-        <h:outputText value="#{msg.q} #{question.sequence} #{msg.of} #{part.numbering}"/>
+        <h:outputText value="#{deliveryMessages.q} #{question.sequence} #{deliveryMessages.of} #{part.numbering}"/>
 </h:panelGroup>
 <h:panelGroup>
-<h:outputText value=" #{question.pointsDisplayString} #{question.maxPoints} #{msg.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/>
+<h:outputText value=" #{question.pointsDisplayString} #{question.maxPoints} #{deliveryMessages.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/>
 
-        <h:outputText value="#{question.maxPoints} #{msg.pt}" rendered="#{delivery.actionString!='reviewAssessment'}" />
+        <h:outputText value="#{question.maxPoints} #{deliveryMessages.pt}" rendered="#{delivery.actionString!='reviewAssessment'}" />
 </h:panelGroup>
 </h:panelGrid>
         
@@ -241,7 +237,7 @@ function saveTime()
 </div>
 <p class="act">
   <%-- NEXT --%>
-  <h:commandButton id="next" accesskey="#{msg.a_saveAndContinue}" type="submit" value="#{msg.save_and_continue}"
+  <h:commandButton id="next" accesskey="#{deliveryMessages.a_saveAndContinue}" type="submit" value="#{deliveryMessages.save_and_continue}"
     action="#{delivery.next_page}" styleClass="active"
     rendered="#{(delivery.actionString=='previewAssessment'
                  || delivery.actionString=='takeAssessment' 
@@ -250,7 +246,7 @@ function saveTime()
     onclick="disableNext()" onkeypress="" />
 
   <%-- SUBMIT FOR GRADE --%>
-  <h:commandButton id="submitforGrade" accesskey="#{msg.a_submit}" type="submit" value="#{msg.button_submit_grading}"
+  <h:commandButton id="submitforGrade" accesskey="#{deliveryMessages.a_submit}" type="submit" value="#{deliveryMessages.button_submit_grading}"
     action="#{delivery.submitForGrade}" styleClass="active" 
     rendered="#{(delivery.actionString=='takeAssessment' || delivery.actionString=='previewAssessment') 
              && delivery.navigation ne '1' 
@@ -259,13 +255,13 @@ function saveTime()
     onclick="disableSubmitForGrade()" onkeypress="" />
 
   <%-- SUBMIT FOR GRADE DURING PAU --%>
-  <h:commandButton type="submit" value="#{msg.button_submit}"
+  <h:commandButton type="submit" value="#{deliveryMessages.button_submit}"
     action="#{delivery.submitForGrade}"  id="submitForm1" styleClass="active"
     rendered="#{delivery.actionString=='takeAssessmentViaUrl' && !delivery.continue}"
     onclick="pauseTiming='false'; disableSubmit2();" onkeypress="pauseTiming='false'"/>
 
   <%-- PREVIOUS --%>
-  <h:commandButton id="previous" accesskey="#{msg.a_prev}" type="submit" value="#{msg.previous}"
+  <h:commandButton id="previous" accesskey="#{deliveryMessages.a_prev}" type="submit" value="#{deliveryMessages.previous}"
     action="#{delivery.previous}"
     rendered="#{(delivery.actionString=='previewAssessment'
                  || delivery.actionString=='takeAssessment'
@@ -276,7 +272,7 @@ function saveTime()
   <!-- check for submit for grade permission to determine if button can be displayed -->
   <%-- SUBMIT FOR GRADE FOR LINEAR ACCESS --%>
   <h:panelGroup rendered="#{(authorization!=null && authorization.takeAssessment && authorization.submitAssessmentForGrade) || delivery.actionString=='previewAssessment'}">
-    <h:commandButton accesskey="#{msg.a_submit}" type="submit" value="#{msg.button_submit_grading}"
+    <h:commandButton accesskey="#{deliveryMessages.a_submit}" type="submit" value="#{deliveryMessages.button_submit_grading}"
       action="#{delivery.submitForGrade}"  id="submitForm" styleClass="active"
       rendered="#{(delivery.actionString=='takeAssessment'
                    || delivery.actionString=='takeAssessmentViaUrl'
@@ -287,7 +283,7 @@ function saveTime()
   </h:panelGroup>
 
   <%-- SAVE AND EXIT --%>
-  <h:commandButton accesskey="#{msg.a_saveAndExit}" type="submit" value="#{msg.button_save_x}"
+  <h:commandButton accesskey="#{deliveryMessages.a_saveAndExit}" type="submit" value="#{deliveryMessages.button_save_x}"
     action="#{delivery.saveAndExit}" id="saveAndExit"
     rendered="#{(delivery.actionString=='previewAssessment'  
                  || delivery.actionString=='takeAssessment')
@@ -296,19 +292,19 @@ function saveTime()
     disabled="#{delivery.actionString=='previewAssessment'}" />
 
   <%-- SUBMIT FOR GRADE DURING PAU --%>
-  <h:commandButton type="submit" value="#{msg.button_submit}"
+  <h:commandButton type="submit" value="#{deliveryMessages.button_submit}"
     action="#{delivery.submitForGrade}"  id="submitForm2" styleClass="active"
     rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.continue}"
     onclick="pauseTiming='false'; disableSubmit2();" onkeypress="pauseTiming='false'"/>
 
   <%-- SAVE AND EXIT DURING PAU WITH ANONYMOUS LOGIN--%>
-  <h:commandButton accesskey="#{msg.a_quit}" type="submit" value="#{msg.button_quit}"
+  <h:commandButton accesskey="#{deliveryMessages.a_quit}" type="submit" value="#{deliveryMessages.button_quit}"
     action="#{delivery.saveAndExit}" id="quit"
     rendered="#{(delivery.actionString=='takeAssessmentViaUrl' && delivery.anonymousLogin)}"
     onclick="pauseTiming='false'; disableQuit()" onkeypress="pauseTiming='false'"  /> 
 
   <%-- SAVE AND EXIT FOR LINEAR ACCESS --%>
-  <h:commandButton accesskey="#{msg.a_saveAndExit}" type="submit" value="#{msg.button_save_x}"
+  <h:commandButton accesskey="#{deliveryMessages.a_saveAndExit}" type="submit" value="#{deliveryMessages.button_save_x}"
     action="#{delivery.saveAndExit}" id="saveAndExit2"
     rendered="#{delivery.actionString=='takeAssessment'
             && delivery.navigation eq '1' && delivery.continue}"
@@ -320,8 +316,8 @@ function saveTime()
 <!-- DONE BUTTON IN PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="validation"></f:verbatim>
-     <h:outputText value="#{msg.ass_preview}" />
-     <h:commandButton accesskey="#{msg.a_done}" value="#{msg.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
+     <h:outputText value="#{deliveryMessages.ass_preview}" />
+     <h:commandButton accesskey="#{deliveryMessages.a_done}" value="#{deliveryMessages.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
 <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 

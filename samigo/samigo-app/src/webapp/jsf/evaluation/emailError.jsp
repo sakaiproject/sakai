@@ -31,23 +31,21 @@ $Id: createNewEmail.jsp 18063 2006-11-09 00:00:17Z ktsao@stanford.edu $
 -->
 
 <f:view>
-<f:loadBundle basename="org.sakaiproject.tool.assessment.bundle.EvaluationMessages" var="msg"/>
-<f:loadBundle basename="org.sakaiproject.tool.assessment.bundle.GeneralMessages" var="genMsg"/>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head><%= request.getAttribute("html.head") %>
-<title><h:outputText value="#{msg.error}" /></title>
+<title><h:outputText value="#{evaluationMessages.error}" /></title>
 </head>
 <body onload="<%= request.getAttribute("html.body.onload") %>">
 
 <div style="margin-left: 10px; margin-right: 10px">
 <h3>
-<h:outputText value="#{msg.error}" />
+<h:outputText value="#{evaluationMessages.error}" />
 </h3>
 
 <p>
 <h:messages styleClass="validation"/>
 </p>
-<h:commandButton id="close"onclick="window.close();" onkeypress="window.close();"  accesskey="#{msg.a_close}" value="#{msg.close}"/>
+<h:commandButton id="close"onclick="window.close();" onkeypress="window.close();"  accesskey="#{evaluationMessages.a_close}" value="#{evaluationMessages.close}"/>
 
 </div>	
 

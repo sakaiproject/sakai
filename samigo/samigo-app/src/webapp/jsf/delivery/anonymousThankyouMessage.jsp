@@ -29,21 +29,17 @@
 --%>
 -->
   <f:view>
-    <f:loadBundle
-      basename="org.sakaiproject.tool.assessment.bundle.DeliveryMessages"
-      var="msg"/>
-   
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.thankyou}"/></title>
+      <title><h:outputText value="#{deliveryMessages.thankyou}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
 <div class="portletBody">
 <h:form id="redirectLoginForm">
-  <h:outputText value="#{msg.anonymous_thank_you}"/>
-  <h3 style="insColor insBak"><h:outputText  value="#{msg.anonymous_thank_you_message}" /></h3>
-  <h:commandButton accesskey="#{msg.a_cancel}" value="#{msg.button_continue}" type="button"
+  <h:outputText value="#{deliveryMessages.anonymous_thank_you}"/>
+  <h3 style="insColor insBak"><h:outputText  value="#{deliveryMessages.anonymous_thank_you_message}" /></h3>
+  <h:commandButton accesskey="#{deliveryMessages.a_cancel}" value="#{deliveryMessages.button_continue}" type="button"
      style="act" onclick="javascript:window.open('#{delivery.portal}/login','_top')" onkeypress="javascript:window.open('#{delivery.portal}/login','_top')" />
 </h:form>
 </div>

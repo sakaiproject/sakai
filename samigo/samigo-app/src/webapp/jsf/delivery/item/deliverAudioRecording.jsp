@@ -49,28 +49,28 @@ should be included in file importing DeliveryMessages
          " />
 
       <f:verbatim><br /></f:verbatim>
-      <h:outputText value="#{msg.open_bracket}"/>
+      <h:outputText value="#{deliveryMessages.open_bracket}"/>
       <h:outputText value="#{media.duration} sec, recorded on " rendered="#{!media.durationIsOver}" />
       <h:outputText value="#{question.duration} sec, recorded on " rendered="#{media.durationIsOver}" />
       <h:outputText value="#{media.createdDate}">
-        <f:convertDateTime pattern="#{msg.delivery_date_format}" />
+        <f:convertDateTime pattern="#{deliveryMessages.delivery_date_format}" />
       </h:outputText>
-      <h:outputText value="#{msg.close_bracket}"/>
+      <h:outputText value="#{deliveryMessages.close_bracket}"/>
       <f:verbatim><br /></f:verbatim>
  
       <div>
-      <h:outputText value="#{msg.can_you_hear_1}"  escape="false"/>
+      <h:outputText value="#{deliveryMessages.can_you_hear_1}"  escape="false"/>
       <h:outputLink value="#{delivery.protocol}/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}&setMimeType=false">
-        <h:outputText value=" #{msg.can_you_hear_2} " escape="false" />
+        <h:outputText value=" #{deliveryMessages.can_you_hear_2} " escape="false" />
       </h:outputLink>
-      <h:outputText value="#{msg.can_you_hear_3}"  escape="false"/>
+      <h:outputText value="#{deliveryMessages.can_you_hear_3}"  escape="false"/>
       </div>
     </h:column>
 
     <h:column rendered="#{delivery.actionString=='takeAssessment' 
                         || delivery.actionString=='takeAssessmentViaUrl'}">
-      <h:commandLink title="#{msg.t_removeMedia}" action="confirmRemoveMedia" immediate="true">
-        <h:outputText value="   #{msg.remove}" />
+      <h:commandLink title="#{deliveryMessages.t_removeMedia}" action="confirmRemoveMedia" immediate="true">
+        <h:outputText value="   #{deliveryMessages.remove}" />
         <f:param name="mediaId" value="#{media.mediaId}"/>
         <f:param name="mediaUrl" value="/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}"/>
         <f:param name="mediaFilename" value="#{media.filename}"/>
@@ -88,7 +88,7 @@ should be included in file importing DeliveryMessages
 <h:selectBooleanCheckbox value="#{question.review}" id="mark_for_review"
    rendered="#{(delivery.actionString=='takeAssessment'|| delivery.actionString=='takeAssessmentViaUrl')
             && delivery.navigation ne '1' }" />
-<h:outputLabel for="mark_for_review" value="#{msg.mark}"
+<h:outputLabel for="mark_for_review" value="#{deliveryMessages.mark}"
   rendered="#{(delivery.actionString=='takeAssessment'|| delivery.actionString=='takeAssessmentViaUrl')
             && delivery.navigation ne '1'}" />
 
@@ -96,14 +96,14 @@ should be included in file importing DeliveryMessages
   <h:panelGroup rendered="#{delivery.feedbackComponent.showItemLevel && question.feedbackIsNotEmpty}">
     <f:verbatim><br /></f:verbatim>
     <f:verbatim><b></f:verbatim>
-    <h:outputLabel for="feedSC" value="#{msg.feedback}#{msg.column} " />
+    <h:outputLabel for="feedSC" value="#{deliveryMessages.feedback}#{deliveryMessages.column} " />
     <f:verbatim></b></f:verbatim>
     <h:outputText id="feedSC" value="#{question.feedback}" escape="false"/>
   </h:panelGroup>
   <h:panelGroup rendered="#{delivery.feedbackComponent.showGraderComment && question.gradingCommentIsNotEmpty}">
     <f:verbatim><br /></f:verbatim>
     <f:verbatim><b></f:verbatim>
-    <h:outputLabel for="commentSC" value="#{msg.comment}#{msg.column} " />
+    <h:outputLabel for="commentSC" value="#{deliveryMessages.comment}#{deliveryMessages.column} " />
     <f:verbatim></b></f:verbatim>
     <h:outputText id="commentSC" value="#{question.gradingComment}" escape="false" />
   </h:panelGroup>

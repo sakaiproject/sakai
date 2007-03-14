@@ -29,13 +29,9 @@
 --%>
 -->
 <f:view>
-
-  <f:loadBundle
-   basename="org.sakaiproject.tool.assessment.bundle.DeliveryMessages"
-   var="msg"/>
   <html xmlns="http://www.w3.org/1999/xhtml">
     <head><%= request.getAttribute("html.head") %>
-    <title><h:outputText value="#{msg.table_of_contents}" /></title>
+    <title><h:outputText value="#{deliveryMessages.table_of_contents}" /></title>
     <samigo:script path="/jsf/widget/hideDivision/hideDivision.js" />
     </head>
     <body onload="hideUnhideAllDivsExceptFirst('none');;<%= request.getAttribute("html.body.onload") %>">
@@ -91,8 +87,8 @@ function clickSubmitForGrade(){
 
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="validation"></f:verbatim>
-     <h:outputText value="#{msg.ass_preview}" />
-     <h:commandButton accesskey="#{msg.a_done}" value="#{msg.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
+     <h:outputText value="#{deliveryMessages.ass_preview}" />
+     <h:commandButton accesskey="#{deliveryMessages.a_done}" value="#{deliveryMessages.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 
@@ -102,7 +98,7 @@ function clickSubmitForGrade(){
                            || delivery.actionString=='takeAssessmentViaUrl' 
                            || delivery.actionString=='previewAssessment')
                         && delivery.hasTimeLimit}" >
-<f:verbatim><span id="remText"></f:verbatim><h:outputText value="#{msg.time_remaining} "/><f:verbatim></span></f:verbatim>
+<f:verbatim><span id="remText"></f:verbatim><h:outputText value="#{deliveryMessages.time_remaining} "/><f:verbatim></span></f:verbatim>
 <f:verbatim><span id="timer"></f:verbatim><f:verbatim> </span></f:verbatim>
 
 <f:verbatim> <span id="bar"></f:verbatim>
@@ -118,30 +114,30 @@ function clickSubmitForGrade(){
 
 
 <div class="tier1">
-  <f:verbatim><b></f:verbatim><h:outputText value="#{msg.warning}#{msg.column} "/><f:verbatim></b></f:verbatim>
-  <h:outputText value="#{msg.instruction_submitGrading}" />
+  <f:verbatim><b></f:verbatim><h:outputText value="#{deliveryMessages.warning}#{deliveryMessages.column} "/><f:verbatim></b></f:verbatim>
+  <h:outputText value="#{deliveryMessages.instruction_submitGrading}" />
 </div>
 
 <div class="tier1">
   <h4>
-    <h:outputText value="#{msg.table_of_contents} " />
-    <h:outputText styleClass="tier10" value="#{msg.tot_score} " />
+    <h:outputText value="#{deliveryMessages.table_of_contents} " />
+    <h:outputText styleClass="tier10" value="#{deliveryMessages.tot_score} " />
     <h:outputText value="#{delivery.tableOfContents.maxScore}">
       <f:convertNumber maxFractionDigits="2"/>
     </h:outputText>
-    <h:outputText value="#{msg.pt}" />
+    <h:outputText value="#{deliveryMessages.pt}" />
   </h4>
  
 </div>
 
 <div class="tier2">
   <h5>
-    <h:outputLabel value="#{msg.key}"/>
+    <h:outputLabel value="#{deliveryMessages.key}"/>
   </h5>
-  <h:graphicImage  alt="#{msg.alt_unans_q}" url="/images/tree/blank.gif" />
-  <h:outputText value="#{msg.unans_q}" /><br/>
-  <h:graphicImage  alt="#{msg.alt_q_marked}" url="/images/tree/marked.gif" />
-  <h:outputText value="#{msg.q_marked}" />
+  <h:graphicImage  alt="#{deliveryMessages.alt_unans_q}" url="/images/tree/blank.gif" />
+  <h:outputText value="#{deliveryMessages.unans_q}" /><br/>
+  <h:graphicImage  alt="#{deliveryMessages.alt_q_marked}" url="/images/tree/marked.gif" />
+  <h:outputText value="#{deliveryMessages.q_marked}" />
 
 <h:inputHidden id="assessmentID" value="#{delivery.assessmentId}"/>
 <h:inputHidden id="assessTitle" value="#{delivery.assessmentTitle}" />
@@ -153,18 +149,18 @@ function clickSubmitForGrade(){
     <h:dataTable value="#{delivery.tableOfContents.partsContents}" var="part">
       <h:column>
       <h:panelGroup>
-        <samigo:hideDivision id="part" title = "#{msg.p} #{part.number} - #{part.nonDefaultText}  -
-       #{part.questions-part.unansweredQuestions}/#{part.questions} #{msg.ans_q}, #{part.pointsDisplayString}#{part.roundedMaxPoints} #{msg.pt}" > 
+        <samigo:hideDivision id="part" title = "#{deliveryMessages.p} #{part.number} - #{part.nonDefaultText}  -
+       #{part.questions-part.unansweredQuestions}/#{part.questions} #{deliveryMessages.ans_q}, #{part.pointsDisplayString}#{part.roundedMaxPoints} #{deliveryMessages.pt}" > 
         <h:dataTable value="#{part.itemContents}" var="question">
           <h:column>
             <f:verbatim><div class="tier3"></f:verbatim>
             <h:panelGroup>
-            <h:graphicImage alt="#{msg.alt_unans_q}" 
+            <h:graphicImage alt="#{deliveryMessages.alt_unans_q}" 
                url="/images/tree/blank.gif" rendered="#{question.unanswered}"/>
-            <h:graphicImage alt="#{msg.alt_q_marked}"
+            <h:graphicImage alt="#{deliveryMessages.alt_q_marked}"
                url="/images/tree/marked.gif"  rendered="#{question.review}"/>
-              <h:commandLink title="#{msg.t_takeAssessment}" immediate="true" action="takeAssessment"> 
-                <h:outputText escape="false" value="#{question.sequence}#{msg.dot} #{question.strippedText} (#{question.pointsDisplayString}#{question.roundedMaxPoints} #{msg.pt})">
+              <h:commandLink title="#{deliveryMessages.t_takeAssessment}" immediate="true" action="takeAssessment"> 
+                <h:outputText escape="false" value="#{question.sequence}#{deliveryMessages.dot} #{question.strippedText} (#{question.pointsDisplayString}#{question.roundedMaxPoints} #{deliveryMessages.pt})">
 <f:convertNumber maxFractionDigits="2"/>
         </h:outputText>
                 <f:param name="partnumber" value="#{part.number}" />
@@ -190,19 +186,19 @@ function clickSubmitForGrade(){
                              && authorization!=null 
                              && authorization.takeAssessment 
                              && authorization.submitAssessmentForGrade)}">
-    <h:commandButton accesskey="#{msg.a_submit}" type="submit" value="#{msg.button_submit_grading}"
+    <h:commandButton accesskey="#{deliveryMessages.a_submit}" type="submit" value="#{deliveryMessages.button_submit_grading}"
       action="#{delivery.submitForGrade}" styleClass="active"  
       onclick="javascript:saveTime()" onkeypress="javascript:saveTime()"
       disabled="#{delivery.actionString=='previewAssessment'}" />
   </h:panelGroup>
 
 <!-- SUBMIT BUTTON FOR TAKE ASSESSMENT VIA URL ONLY -->
-  <h:commandButton accesskey="#{msg.a_submit}" type="submit" value="#{msg.button_submit}"
+  <h:commandButton accesskey="#{deliveryMessages.a_submit}" type="submit" value="#{deliveryMessages.button_submit}"
     action="#{delivery.submitForGrade}" styleClass="active"   
     rendered="#{delivery.actionString=='takeAssessmentViaUrl'}" />
 
 <!-- SAVE AND EXIT BUTTON FOR TAKE ASSESMENT AND PREVIEW ASSESSMENT-->
-  <h:commandButton accesskey="#{msg.a_saveAndExit}" type="submit" value="#{msg.button_save_x}"
+  <h:commandButton accesskey="#{deliveryMessages.a_saveAndExit}" type="submit" value="#{deliveryMessages.button_save_x}"
     action="#{delivery.saveAndExit}"
     onclick="javascript:saveTime()" onkeypress="javascript:saveTime()"
     rendered="#{delivery.actionString=='takeAssessment'
@@ -210,7 +206,7 @@ function clickSubmitForGrade(){
     disabled="#{delivery.actionString=='previewAssessment'}" />
 
 <!-- QUIT BUTTON FOR TAKE ASSESSMENT VIA URL -->
-  <h:commandButton accesskey="#{msg.a_quit}" type="submit" value="#{msg.button_quit}"
+  <h:commandButton accesskey="#{deliveryMessages.a_quit}" type="submit" value="#{deliveryMessages.button_quit}"
     action="#{delivery.saveAndExit}" id="quit"
     onclick="javascript:saveTime()" onkeypress="javascript:saveTime()"
     rendered="#{delivery.actionString=='takeAssessmentViaUrl'}" >
@@ -220,8 +216,8 @@ function clickSubmitForGrade(){
 <!-- DONE BUTTON FOR PREVIEW ASSESSMENT ONLY -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="validation"></f:verbatim>
-     <h:outputText value="#{msg.ass_preview}" />
-     <h:commandButton accesskey="#{msg.a_done}" value="#{msg.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
+     <h:outputText value="#{deliveryMessages.ass_preview}" />
+     <h:commandButton accesskey="#{deliveryMessages.a_done}" value="#{deliveryMessages.done}" action="#{person.cleanResourceIdListInPreview}" type="submit"/>
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 

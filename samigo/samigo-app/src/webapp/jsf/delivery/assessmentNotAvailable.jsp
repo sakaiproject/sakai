@@ -5,15 +5,10 @@
 <!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-  <f:view>
-    <f:loadBundle
-      basename="org.sakaiproject.tool.assessment.bundle.DeliveryMessages"
-      var="msg"/>
-   
+    <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.invalid_assessment}"/></title>
+      <title><h:outputText value="#{deliveryMessages.invalid_assessment}"/></title>
       </head>
 <!--
 * $Id$
@@ -40,17 +35,17 @@
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
 <div class="portletBody">
-<h3><h:outputText value="#{msg.assessment_not_available}"/></h3>
+<h3><h:outputText value="#{deliveryMessages.assessment_not_available}"/></h3>
 <h:form id="redirectLoginForm">
  <div class="validation">
-<h:outputText  value="#{msg.assessment_not_available_message}" />
+<h:outputText  value="#{deliveryMessages.assessment_not_available_message}" />
  </div>
 
 <p class="act">
-  <h:commandButton accesskey="#{msg.a_next}" value="#{msg.button_continue}" type="button"
+  <h:commandButton accesskey="#{deliveryMessages.a_next}" value="#{deliveryMessages.button_continue}" type="button"
        style="act" onclick="javascript:window.open('#{delivery.portal}/login','_top')" onkeypress="javascript:window.open('#{delivery.portal}/login','_top')" />
 <!--
-  <h:commandButton accesskey="#{msg.a_next}" value="#{msg.button_continue}" type="submit"
+  <h:commandButton accesskey="#{deliveryMessages.a_next}" value="#{deliveryMessages.button_continue}" type="submit"
      styleClass="active" action="#{delivery.doit}" >
      <f:actionListener
        type="org.sakaiproject.tool.assessment.ui.listener.delivery.RedirectLoginListener" />

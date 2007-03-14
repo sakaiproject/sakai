@@ -27,12 +27,9 @@
 --%>
 -->
   <f:view>
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.AuthorImportExport"
-     var="msg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.export_a} #{msg.dash} #{assessmentBean.title}" /></title>
+      <title><h:outputText value="#{authorImportExport.export_a} #{authorImportExport.dash} #{assessmentBean.title}" /></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <script language="javascript" style="text/JavaScript">
@@ -58,27 +55,27 @@ function getSelectedType(qtiUrl, cpUrl){
 <!-- content... -->
  <h:form id="exportAssessmentForm">          
     <h:inputHidden id="assessmentBaseId" value="#{assessmentBean.assessmentId}" />
-   <h3><h:outputText  value="#{msg.export_a} #{msg.dash} #{assessmentBean.title}" /></h3>
+   <h3><h:outputText  value="#{authorImportExport.export_a} #{authorImportExport.dash} #{assessmentBean.title}" /></h3>
     <div class="tier1">
      <div class="form_label">
       <h:messages styleClass="validation" />
-        <h:outputText value="#{msg.choose_type_1}" escape="true" />
+        <h:outputText value="#{authorImportExport.choose_type_1}" escape="true" />
 		<h:outputLink value="#" onclick="window.open('http://www.imsglobal.org/question/')" onkeypress="window.open('http://www.imsglobal.org/question/')">
-		  <h:outputText value="#{msg.ims_qti}"/>
+		  <h:outputText value="#{authorImportExport.ims_qti}"/>
 		</h:outputLink>
-		<h:outputText value="#{msg.choose_type_2}" escape="true" />
+		<h:outputText value="#{authorImportExport.choose_type_2}" escape="true" />
 		<h:outputLink value="#" onclick="window.open('http://www.imsglobal.org/content/packaging/')" onkeypress="window.open('http://www.imsglobal.org/content/packaging/')">
-		  <h:outputText value="#{msg.ims_cp}"/>
+		  <h:outputText value="#{authorImportExport.ims_cp}"/>
 		</h:outputLink>
-		<h:outputText value="#{msg.choose_type_3}" escape="true" />
+		<h:outputText value="#{authorImportExport.choose_type_3}" escape="true" />
     </div>
     <br />
     <h:panelGrid columns="2">
-     <h:outputText value="#{msg.choose_export_type}"/>
+     <h:outputText value="#{authorImportExport.choose_export_type}"/>
      <h:selectOneRadio id="exportType" layout="lineDirection" value="1">
-       <f:selectItem itemLabel="#{msg.qti12}"
+       <f:selectItem itemLabel="#{authorImportExport.qti12}"
          itemValue="1"/>
-       <f:selectItem itemLabel="#{msg.content_packaging}"
+       <f:selectItem itemLabel="#{authorImportExport.content_packaging}"
          itemValue="2"/>
      </h:selectOneRadio>
     </h:panelGrid>
@@ -86,10 +83,10 @@ function getSelectedType(qtiUrl, cpUrl){
     <br/>
     <br/>
      <%-- activates the valueChangeListener --%>
-     <h:commandButton value="#{msg.export}" type="submit"
+     <h:commandButton value="#{authorImportExport.export}" type="submit"
        style="act" onclick="getSelectedType( '/samigo/jsf/qti/exportAssessment.xml?exportAssessmentId=#{assessmentBean.assessmentId}','/samigo/servlet/DownloadCP?&assessmentId=#{assessmentBean.assessmentId}'); return false;" />
      <%-- immediate=true bypasses the valueChangeListener --%>
-     <h:commandButton value="#{msg.export_cancel_action}" type="submit"
+     <h:commandButton value="#{authorImportExport.export_cancel_action}" type="submit"
        style="act" action="author" immediate="true"/>
   </div>
  </h:form>

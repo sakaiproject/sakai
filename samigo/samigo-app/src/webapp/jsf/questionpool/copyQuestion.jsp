@@ -28,13 +28,9 @@
 --%>
 -->
   <f:view>
-    <f:loadBundle
-       basename="org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages"
-       var="msg"/>
-   
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.copy_q}"/></title>
+      <title><h:outputText value="#{questionPoolMessages.copy_q}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!-- content... -->
@@ -52,7 +48,7 @@
 <h:panelGrid columns="2" >
 
 <h:outputText styleClass="number" value="1"/>
-<h:outputText value="#{msg.copy_q_to}"/>
+<h:outputText value="#{questionPoolMessages.copy_q_to}"/>
 
 <h:outputText value=""/>
 <h:panelGroup>
@@ -61,13 +57,13 @@
 
 
 <h:outputText styleClass="number" value="2"/>
-<h:outputText value="#{msg.click_copy}"/>
+<h:outputText value="#{questionPoolMessages.click_copy}"/>
 
 </h:panelGrid>
   <center>
-  <h:commandButton type="submit" id="Submit" value="#{msg.save}"
+  <h:commandButton type="submit" id="Submit" value="#{questionPoolMessages.save}"
     action="editPool"/>
-  <h:commandButton type="cancel" id="Cancel" value="#{msg.cancel}"
+  <h:commandButton type="cancel" id="Cancel" value="#{questionPoolMessages.cancel}"
     action="cancelEditPool"/>
 
   </center>

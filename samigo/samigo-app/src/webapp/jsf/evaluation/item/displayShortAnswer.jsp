@@ -26,9 +26,9 @@ include file for displaying short answer essay questions
 <h:panelGrid columns="1" width="100%">	
 <h:outputText value="#{question.text}"  escape="false"/>
 <h:panelGroup rendered="#{questionScores.haveModelShortAnswer}">
-<h:outputText value="#{msg.model}"  escape="false"/>
-<h:outputLink title="#{msg.t_modelShortAnswer}"   value="#" onclick="javascript:window.open('modelShortAnswerQS.faces?idString=#{question.itemId}','modelShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('modelShortAnswerQS.faces?idString=#{question.itemId}','modelShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');">
-<h:outputText  value=" #{msg.click_here}"/>
+<h:outputText value="#{evaluationMessages.model}"  escape="false"/>
+<h:outputLink title="#{evaluationMessages.t_modelShortAnswer}"   value="#" onclick="javascript:window.open('modelShortAnswerQS.faces?idString=#{question.itemId}','modelShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');" onkeypress="javascript:window.open('modelShortAnswerQS.faces?idString=#{question.itemId}','modelShortAnswer','width=600,height=600,scrollbars=yes, resizable=yes');">
+<h:outputText  value=" #{evaluationMessages.click_here}"/>
 </h:outputLink>
 </h:panelGroup>
 </h:panelGrid>

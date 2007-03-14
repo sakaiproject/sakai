@@ -21,7 +21,7 @@
 -->
 
 <!-- 2a ATTACHMENTS -->
- <div class="longtext"><h:outputLabel value="#{msg.attachments}" rendered="#{partBean.hasAttachment}"/>
+ <div class="longtext"><h:outputLabel value="#{authorMessages.attachments}" rendered="#{partBean.hasAttachment}"/>
   <br/>
   <h:panelGroup rendered="#{partBean.hasAttachment}">
     <h:dataTable value="#{partBean.attachmentList}" var="attach">

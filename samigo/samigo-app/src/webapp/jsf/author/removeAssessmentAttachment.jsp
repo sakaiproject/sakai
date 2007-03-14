@@ -28,36 +28,32 @@
 --%>
 -->
   <f:view>
-   
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.AuthorMessages"
-     var="msg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.remove_attachment_heading}" /></title>
+      <title><h:outputText value="#{authorMessages.remove_attachment_heading}" /></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
  <!-- content... -->
 
  <h:form>
    <h:inputHidden id="attachmentId" value="#{attachmentBean.attachmentId}"/>
-   <h3> <h:outputText  value="#{msg.remove_attachment_conf}" /></h3>
+   <h3> <h:outputText  value="#{authorMessages.remove_attachment_conf}" /></h3>
    <div class="validation tier1">
-     <h:outputText value="#{msg.cert_rem_attachment}" />
+     <h:outputText value="#{authorMessages.cert_rem_attachment}" />
    </div>
    <p>
      <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-     <h:outputLink title="#{msg.t_attachment}" value="#" onclick="window.open('#{attachmentBean.location}','new_window');" onkeypress="window.open('#{attachmentBean.location}','new_window');">
+     <h:outputLink title="#{authorMessages.t_attachment}" value="#" onclick="window.open('#{attachmentBean.location}','new_window');" onkeypress="window.open('#{attachmentBean.location}','new_window');">
        <h:outputText escape="false" value="#{attachmentBean.filename}" />
      </h:outputLink>
    </p>
    <p class="act">
-      <h:commandButton id="remove" accesskey="#{msg.remove_attachment}" type="submit" value="#{msg.button_remove}" action="editAssessmentSettings" styleClass="active">
+      <h:commandButton id="remove" accesskey="#{authorMessages.remove_attachment}" type="submit" value="#{authorMessages.button_remove}" action="editAssessmentSettings" styleClass="active">
         <f:param name="assessmentId" value="#{assessmentSettingsBean.assessmentId}"/>
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.RemoveAttachmentListener" />
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorSettingsListener" />
       </h:commandButton>
-      <h:commandButton accesskey="#{msg.a_cancel}" id="cancel" value="#{msg.button_cancel}" type="submit" action="editAssessment"/>
+      <h:commandButton accesskey="#{authorMessages.a_cancel}" id="cancel" value="#{authorMessages.button_cancel}" type="submit" action="editAssessment"/>
    </p>
  </h:form>
  <!-- end content -->

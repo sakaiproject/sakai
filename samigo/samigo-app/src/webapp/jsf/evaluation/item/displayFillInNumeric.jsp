@@ -31,14 +31,14 @@ include file for displaying fill in the numeric questions
  <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
   <h:column>
     <h:graphicImage id="image2" rendered="#{answer.isCorrect}"
-      alt="#{msg.alt_correct}" url="/images/delivery/checkmark.gif" >
+      alt="#{evaluationMessages.alt_correct}" url="/images/delivery/checkmark.gif" >
      </h:graphicImage>
     <h:graphicImage id="image3" rendered="#{!answer.isCorrect}"
       alt="" url="/images/delivery/spacer.gif" >
      </h:graphicImage>
   </h:column>
   <h:column>
-   <h:outputText value="#{answer.sequence}#{msg.dot} #{answer.text}" escape="false" />
+   <h:outputText value="#{answer.sequence}#{evaluationMessages.dot} #{answer.text}" escape="false" />
   </h:column>
  </h:dataTable>
  </h:column>

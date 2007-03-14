@@ -34,14 +34,14 @@ should be included in file importing DeliveryMessages
       <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
         <h:column>
           <h:graphicImage id="image2"
-             alt="#{msg.not_correct}" url="/images/radiounchecked.gif" >
+             alt="#{authorMessages.not_correct}" url="/images/radiounchecked.gif" >
           </h:graphicImage>
           <h:outputText escape="false" value="#{answer.text}" />
         </h:column>
       </h:dataTable>
 
 <h:panelGroup rendered="#{question.itemData.generalItemFbIsNotEmpty && assessmentSettings.feedbackAuthoring ne '2'}">
-  <h:outputLabel value="#{msg.generalItemFeedback}: " />
+  <h:outputLabel value="#{authorMessages.generalItemFeedback}: " />
   <h:outputText value="#{question.itemData.generalItemFeedback}" escape="false" />
 
 </h:panelGroup>

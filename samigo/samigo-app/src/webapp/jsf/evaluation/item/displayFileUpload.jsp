@@ -31,17 +31,17 @@ should be included in file importing DeliveryMessages
       <h:dataTable value="#{question.mediaArray}" var="media">
         <h:column>
           <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-          <h:outputLink title="#{msg.t_fileUpload}" value="/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}" target="new_window">
+          <h:outputLink title="#{evaluationMessages.t_fileUpload}" value="/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}" target="new_window">
              <h:outputText escape="false" value="#{media.filename}" />
           </h:outputLink>
         </h:column>
         <h:column>
-         <h:outputText value="#{msg.open_bracket}"/>
+         <h:outputText value="#{evaluationMessages.open_bracket}"/>
          <h:outputText value="#{media.createdDate}">
-           <f:convertDateTime pattern="#{msg.grading_date_no_time_format}" />
+           <f:convertDateTime pattern="#{evaluationMessages.grading_date_no_time_format}" />
 
          </h:outputText>
-         <h:outputText value="#{msg.close_bracket}"/>
+         <h:outputText value="#{evaluationMessages.close_bracket}"/>
         </h:column>
       </h:dataTable>
 

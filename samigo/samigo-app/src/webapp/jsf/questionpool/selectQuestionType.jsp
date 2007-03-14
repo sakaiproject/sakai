@@ -28,16 +28,9 @@
 --%>
 -->
   <f:view>
-
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages"
-     var="qpmsg"/>
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.AuthorMessages"
-     var="msg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.item_display_author}"/></title>
+      <title><h:outputText value="#{authorMessages.item_display_author}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <div class="portletBody">
@@ -51,24 +44,24 @@
 
   <h:outputText styleClass="number" value="1" />
 <h:panelGroup>
-<h:outputText value="#{qpmsg.sel_q_type} "/>
+<h:outputText value="#{questionPoolMessages.sel_q_type} "/>
 <h:selectOneMenu id="selType" value="#{itemauthor.itemType}" required="true">
   <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
 </h:selectOneMenu>
 <h:message for="selType" styleClass="validate"/>
 </h:panelGroup>
   <h:outputText styleClass="number" value="2" />
-<h:outputText value="#{qpmsg.click_save}"/>
+<h:outputText value="#{questionPoolMessages.click_save}"/>
 </h:panelGrid>
 
 <p class="act">
-<h:commandButton accesskey="#{msg.a_save}" type="submit"  action="#{itemauthor.doit}" value="#{msg.button_save}" styleClass="active">
+<h:commandButton accesskey="#{authorMessages.a_save}" type="submit"  action="#{itemauthor.doit}" value="#{authorMessages.button_save}" styleClass="active">
    <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
    <f:param name="poolId" value="#{questionpool.currentPool.id}"/>
 </h:commandButton>
 
-  <h:commandButton accesskey="#{msg.a_cancel}" type="button" id="Cancel" value="#{msg.button_cancel}" immediate="true"
+  <h:commandButton accesskey="#{authorMessages.a_cancel}" type="button" id="Cancel" value="#{authorMessages.button_cancel}" immediate="true"
     onclick="document.location='editPool.faces'" onkeypress="document.location='editPool.faces'"/>
 </p>
 

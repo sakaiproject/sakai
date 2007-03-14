@@ -28,13 +28,9 @@
 --%>
 -->
   <f:view>
-    <f:loadBundle
-       basename="org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages"
-       var="msg"/>
-  
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.copy_p}"/></title>
+      <title><h:outputText value="#{questionPoolMessages.copy_p}"/></title>
                         <!-- stylesheet and script widgets -->
 <script language="javascript" type="text/JavaScript">
 <!--
@@ -49,13 +45,13 @@
 <h:messages styleClass="validation"/>
 
 <h3>
-<h:outputText rendered="#{questionpool.actionType == 'pool'}" value="#{msg.copy_p}"/>
-<h:outputText rendered="#{questionpool.actionType == 'item'}" value="#{msg.copy_q}"/>
+<h:outputText rendered="#{questionpool.actionType == 'pool'}" value="#{questionPoolMessages.copy_p}"/>
+<h:outputText rendered="#{questionpool.actionType == 'item'}" value="#{questionPoolMessages.copy_q}"/>
 </h3>
 
 
 <div class="tier1">
-<h:outputText value="#{msg.sel_dest_copy} "/>
+<h:outputText value="#{questionPoolMessages.sel_dest_copy} "/>
 <h:outputText rendered="#{questionpool.actionType == 'pool'}" value="#{questionpool.currentPool.displayName}"/>
 <h:outputText  rendered="#{questionpool.actionType == 'item'}" value="#{questionpool.currentItem.text}" escape="false"/>
 
@@ -63,8 +59,8 @@
 <div class="longtext tier2">
 <%--
 <h:outputText styleClass="number" value="1"/>
-<h:outputLabel rendered="#{questionpool.actionType == 'pool'}" value="#{msg.copy_p_to}"/>
-<h:outputLabel rendered="#{questionpool.actionType == 'item'}" value="#{msg.copy_q_to}"/>
+<h:outputLabel rendered="#{questionpool.actionType == 'pool'}" value="#{questionPoolMessages.copy_p_to}"/>
+<h:outputLabel rendered="#{questionpool.actionType == 'item'}" value="#{questionPoolMessages.copy_q_to}"/>
 
 <br/><br/>
 --%>
@@ -74,22 +70,22 @@
 <%--
 <br/>
 <h:outputText styleClass="number" value="2"/>
-<h:outputLabel value="#{msg.click_copy}"/>
+<h:outputLabel value="#{questionPoolMessages.click_copy}"/>
 
 --%>
 </div>
 
 <p class="act">
 
-  <h:commandButton accesskey="#{msg.a_copy}" id="copypoolsubmit" immediate="true" value="#{msg.copy}"
+  <h:commandButton accesskey="#{questionPoolMessages.a_copy}" id="copypoolsubmit" immediate="true" value="#{questionPoolMessages.copy}"
     action="#{questionpool.copyPool}" styleClass="active" rendered="#{questionpool.actionType == 'pool'}">
   </h:commandButton>
 
-  <h:commandButton accesskey="#{msg.a_copy}" id="copyitemsubmit" immediate="true" value="#{msg.copy}"
+  <h:commandButton accesskey="#{questionPoolMessages.a_copy}" id="copyitemsubmit" immediate="true" value="#{questionPoolMessages.copy}"
     action="#{questionpool.copyQuestion}" styleClass="active" rendered="#{questionpool.actionType == 'item'}">
   </h:commandButton>
 
-<h:commandButton accesskey="#{msg.a_cancel}" id="cancel" value="#{msg.cancel}" action="poolList"/>
+<h:commandButton accesskey="#{questionPoolMessages.a_cancel}" id="cancel" value="#{questionPoolMessages.cancel}" action="poolList"/>
 
 </p>
 </h:form>

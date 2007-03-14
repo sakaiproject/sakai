@@ -33,16 +33,10 @@ $Id$
 -->
 
 <f:view>
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.EvaluationMessages"
-     var="msg"/>
-   <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.GeneralMessages"
-     var="genMsg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText
-        value="#{msg.sub_status}" /></title>
+        value="#{evaluationMessages.sub_status}" /></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!-- content... -->
@@ -77,29 +71,29 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
   <%@ include file="/jsf/evaluation/evaluationHeadings.jsp" %>
 
   <h3>
-    <h:outputText value="#{msg.sub_status}"/>
-    <h:outputText value="#{msg.column} "/>
+    <h:outputText value="#{evaluationMessages.sub_status}"/>
+    <h:outputText value="#{evaluationMessages.column} "/>
     <h:outputText value="#{totalScores.assessmentName} "/>
   </h3>
   <p class="navViewAction">
-    <h:outputText value="#{msg.sub_status}" />
-    <h:outputText value=" #{msg.separator} " />
-    <h:commandLink title="#{msg.t_totalScores}" action="totalScores" immediate="true">
+    <h:outputText value="#{evaluationMessages.sub_status}" />
+    <h:outputText value=" #{evaluationMessages.separator} " />
+    <h:commandLink title="#{evaluationMessages.t_totalScores}" action="totalScores" immediate="true">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
-      <h:outputText value="#{msg.title_total}" />
+      <h:outputText value="#{evaluationMessages.title_total}" />
     </h:commandLink>
-    <h:outputText value=" #{msg.separator} " rendered="#{totalScores.firstItem ne ''}" />
-    <h:commandLink title="#{msg.t_questionScores}" action="questionScores" immediate="true"
+    <h:outputText value=" #{evaluationMessages.separator} " rendered="#{totalScores.firstItem ne ''}" />
+    <h:commandLink title="#{evaluationMessages.t_questionScores}" action="questionScores" immediate="true"
       rendered="#{totalScores.firstItem ne ''}" >
-      <h:outputText value="#{msg.q_view}" />
+      <h:outputText value="#{evaluationMessages.q_view}" />
       <f:actionListener
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
     </h:commandLink>
-    <h:outputText value=" #{msg.separator} " rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}" />
-    <h:commandLink title="#{msg.t_histogram}" action="histogramScores" immediate="true"
+    <h:outputText value=" #{evaluationMessages.separator} " rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}" />
+    <h:commandLink title="#{evaluationMessages.t_histogram}" action="histogramScores" immediate="true"
       rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}" >
-      <h:outputText value="#{msg.stat_view}" />
+      <h:outputText value="#{evaluationMessages.stat_view}" />
       <f:param name="hasNav" value="true"/>
       <f:actionListener
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
@@ -109,7 +103,7 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
   <h:messages styleClass="validation"/>
 
   <div class="tier1">
-     <h:outputText value="#{msg.max_score_poss}" style="instruction"/>
+     <h:outputText value="#{evaluationMessages.max_score_poss}" style="instruction"/>
      <h:outputText value="#{totalScores.maxScore}" style="instruction"/>
      <br />
 
@@ -120,8 +114,8 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
     <h:panelGrid columns="1" columnClasses="samLeftNav" width="100%">
 	  <h:panelGroup>
         <!-- SECTION AWARE -->
-        <h:outputText value="#{msg.view}"/>
-        <h:outputText value="#{msg.column}"/>
+        <h:outputText value="#{evaluationMessages.view}"/>
+        <h:outputText value="#{evaluationMessages.column}"/>
         <h:selectOneMenu value="#{submissionStatus.selectedSectionFilterValue}" id="sectionpicker" required="true" onchange="document.forms[0].submit();">
           <f:selectItems value="#{totalScores.sectionFilterSelectItems}"/>
           <f:valueChangeListener
@@ -130,24 +124,24 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
       </h:panelGroup>
 	
 	  <h:panelGroup>
-			<h:outputText value="#{msg.search}"/>
-            <h:outputText value="#{msg.column}"/>
+			<h:outputText value="#{evaluationMessages.search}"/>
+            <h:outputText value="#{evaluationMessages.column}"/>
 			<h:inputText
 				id="searchString"
 				value="#{submissionStatus.searchString}"
-				onfocus="clearIfDefaultString(this, '#{msg.search_default_student_search_string}')"
+				onfocus="clearIfDefaultString(this, '#{evaluationMessages.search_default_student_search_string}')"
 				onkeypress="return submitOnEnter(event, 'editTotalResults:searchSubmitButton');"/>
 			<f:verbatim> </f:verbatim>
-			<h:commandButton actionListener="#{submissionStatus.search}" value="#{msg.search_find}" id="searchSubmitButton" />
+			<h:commandButton actionListener="#{submissionStatus.search}" value="#{evaluationMessages.search_find}" id="searchSubmitButton" />
 			<f:verbatim> </f:verbatim>
-			<h:commandButton actionListener="#{submissionStatus.clear}" value="#{msg.search_clear}"/>
+			<h:commandButton actionListener="#{submissionStatus.clear}" value="#{evaluationMessages.search_clear}"/>
 	  </h:panelGroup>
     </h:panelGrid>
   </h:panelGroup>
 
   <h:panelGroup>
 	<div>
-	<sakai:pager id="pager" totalItems="#{submissionStatus.dataRows}" firstItem="#{submissionStatus.firstRow}" pageSize="#{submissionStatus.maxDisplayedRows}" textStatus="#{msg.paging_status}" />
+	<sakai:pager id="pager" totalItems="#{submissionStatus.dataRows}" firstItem="#{submissionStatus.firstRow}" pageSize="#{submissionStatus.maxDisplayedRows}" textStatus="#{evaluationMessages.paging_status}" />
 	</div>
   </h:panelGroup>
 </h:panelGrid>
@@ -161,8 +155,8 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
 
     <h:column rendered="#{submissionStatus.sortType ne 'lastName'}">
      <f:facet name="header">
-        <h:commandLink title="#{msg.t_sortLastName}" immediate="true" id="lastName" action="submissionStatus">
-          <h:outputText value="#{msg.name}" />
+        <h:commandLink title="#{evaluationMessages.t_sortLastName}" immediate="true" id="lastName" action="submissionStatus">
+          <h:outputText value="#{evaluationMessages.name}" />
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
         <f:param name="sortBy" value="lastName" />
@@ -176,11 +170,11 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
        <h:outputText value="#{description.lastName}" />
          <h:outputText value=", " rendered="#{description.lastInitial ne 'Anonymous'}"/>
        <h:outputText value="#{description.firstName}" />
-       <h:outputText value="#{msg.na}" rendered="#{description.lastInitial eq 'Anonymous'}" />
+       <h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq 'Anonymous'}" />
        <f:verbatim><br/></f:verbatim>
 	   <span class="itemAction">
 	   <h:outputLink id="createEmail1" onclick="clickEmailLink(this);" value="../evaluation/submissionStatus">
-	     <h:outputText value="  #{msg.email}" rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
+	     <h:outputText value="  #{evaluationMessages.email}" rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
 	   </h:outputLink>
 	 </span>
      </span>
@@ -209,11 +203,11 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
 
 	<h:column rendered="#{submissionStatus.sortType eq 'lastName' && submissionStatus.sortAscending}">
       <f:facet name="header">
-        <h:commandLink title="#{msg.t_sortLastName}" action="submissionStatus">
-          <h:outputText value="#{msg.name}" />
+        <h:commandLink title="#{evaluationMessages.t_sortLastName}" action="submissionStatus">
+          <h:outputText value="#{evaluationMessages.name}" />
           <f:param name="sortBy" value="lastName" />
           <f:param name="sortAscending" value="false" />
-          <h:graphicImage alt="#{msg.alt_sortLastNameDescending}" rendered="#{submissionStatus.sortAscending}" url="/images/sortascending.gif"/>
+          <h:graphicImage alt="#{evaluationMessages.alt_sortLastNameDescending}" rendered="#{submissionStatus.sortAscending}" url="/images/sortascending.gif"/>
           <f:actionListener
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
           </h:commandLink>    
@@ -225,11 +219,11 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
        <h:outputText value="#{description.lastName}" />
          <h:outputText value=", " rendered="#{description.lastInitial ne 'Anonymous'}"/>
        <h:outputText value="#{description.firstName}" />
-       <h:outputText value="#{msg.na}" rendered="#{description.lastInitial eq 'Anonymous'}" />
+       <h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq 'Anonymous'}" />
        <f:verbatim><br/></f:verbatim>
 	   <span class="itemAction">
 	   <h:outputLink id="createEmail2" onclick="clickEmailLink(this);" value="../evaluation/submissionStatus">
-	     <h:outputText value="  #{msg.email}" rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
+	     <h:outputText value="  #{evaluationMessages.email}" rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
 	   </h:outputLink>
 	 </span>
 	 </span>
@@ -258,11 +252,11 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
 
 	<h:column rendered="#{submissionStatus.sortType eq 'lastName' && !submissionStatus.sortAscending}">
       <f:facet name="header">
-        <h:commandLink title="#{msg.t_sortLastName}" action="submissionStatus">
-          <h:outputText value="#{msg.name}" />
+        <h:commandLink title="#{evaluationMessages.t_sortLastName}" action="submissionStatus">
+          <h:outputText value="#{evaluationMessages.name}" />
           <f:param name="sortBy" value="lastName" />
           <f:param name="sortAscending" value="true" />
-          <h:graphicImage alt="#{msg.alt_sortLastNameAscending}" rendered="#{!submissionStatus.sortAscending}" url="/images/sortdescending.gif"/>
+          <h:graphicImage alt="#{evaluationMessages.alt_sortLastNameAscending}" rendered="#{!submissionStatus.sortAscending}" url="/images/sortdescending.gif"/>
           <f:actionListener
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
           </h:commandLink>    
@@ -274,11 +268,11 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
        <h:outputText value="#{description.lastName}" />
          <h:outputText value=", " rendered="#{description.lastInitial ne 'Anonymous'}"/>
        <h:outputText value="#{description.firstName}" />
-       <h:outputText value="#{msg.na}" rendered="#{description.lastInitial eq 'Anonymous'}" />
+       <h:outputText value="#{evaluationMessages.na}" rendered="#{description.lastInitial eq 'Anonymous'}" />
        <f:verbatim><br/></f:verbatim>
 	   <span class="itemAction">
 	   <h:outputLink id="createEmail3" onclick="clickEmailLink(this);" value="../evaluation/submissionStatus">
-	     <h:outputText value="  #{msg.email}" rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
+	     <h:outputText value="  #{evaluationMessages.email}" rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
 	   </h:outputLink>
 	 </span>
      </span>
@@ -309,8 +303,8 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
    <!-- STUDENT ID -->
     <h:column  rendered="#{submissionStatus.sortType ne 'idString'}" >
      <f:facet name="header">
-       <h:commandLink title="#{msg.t_sortUserId}" id="idString" action="submissionStatus" >
-          <h:outputText value="#{msg.uid}" />
+       <h:commandLink title="#{evaluationMessages.t_sortUserId}" id="idString" action="submissionStatus" >
+          <h:outputText value="#{evaluationMessages.uid}" />
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
         <f:param name="sortBy" value="idString" />
@@ -322,10 +316,10 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
 
 	<h:column rendered="#{submissionStatus.sortType eq 'idString' && submissionStatus.sortAscending}">
       <f:facet name="header">
-        <h:commandLink title="#{msg.t_sortUserId}" action="submissionStatus">
-          <h:outputText value="#{msg.uid}" />
+        <h:commandLink title="#{evaluationMessages.t_sortUserId}" action="submissionStatus">
+          <h:outputText value="#{evaluationMessages.uid}" />
           <f:param name="sortAscending" value="false" />
-          <h:graphicImage alt="#{msg.alt_sortUserIdDescending}" rendered="#{submissionStatus.sortAscending}" url="/images/sortascending.gif"/>
+          <h:graphicImage alt="#{evaluationMessages.alt_sortUserIdDescending}" rendered="#{submissionStatus.sortAscending}" url="/images/sortascending.gif"/>
           <f:actionListener
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
           </h:commandLink>    
@@ -335,10 +329,10 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
 
 	<h:column rendered="#{submissionStatus.sortType eq 'idString' && !submissionStatus.sortAscending}">
       <f:facet name="header">
-        <h:commandLink title="#{msg.t_sortUserId}" action="submissionStatus">
-          <h:outputText value="#{msg.uid}" />
+        <h:commandLink title="#{evaluationMessages.t_sortUserId}" action="submissionStatus">
+          <h:outputText value="#{evaluationMessages.uid}" />
           <f:param name="sortAscending" value="true" />
-          <h:graphicImage alt="#{msg.alt_sortUserIdAscending}" rendered="#{!submissionStatus.sortAscending}" url="/images/sortdescending.gif"/>
+          <h:graphicImage alt="#{evaluationMessages.alt_sortUserIdAscending}" rendered="#{!submissionStatus.sortAscending}" url="/images/sortdescending.gif"/>
           <f:actionListener
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
           </h:commandLink>    
@@ -350,8 +344,8 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
     <!-- ROLE -->
     <h:column rendered="#{submissionStatus.sortType ne 'role'}">
      <f:facet name="header" >
-        <h:commandLink title="#{msg.t_sortRole}" id="role" action="submissionStatus">
-          <h:outputText value="#{msg.role}" />
+        <h:commandLink title="#{evaluationMessages.t_sortRole}" id="role" action="submissionStatus">
+          <h:outputText value="#{evaluationMessages.role}" />
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
         <f:param name="sortBy" value="role" />
@@ -363,10 +357,10 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
 
 	<h:column rendered="#{submissionStatus.sortType eq 'role' && submissionStatus.sortAscending}">
       <f:facet name="header">
-        <h:commandLink title="#{msg.t_sortRole}" action="submissionStatus">
-          <h:outputText value="#{msg.role}" />
+        <h:commandLink title="#{evaluationMessages.t_sortRole}" action="submissionStatus">
+          <h:outputText value="#{evaluationMessages.role}" />
           <f:param name="sortAscending" value="false" />
-          <h:graphicImage alt="#{msg.alt_sortRoleDescending}" rendered="#{submissionStatus.sortAscending}" url="/images/sortascending.gif"/>
+          <h:graphicImage alt="#{evaluationMessages.alt_sortRoleDescending}" rendered="#{submissionStatus.sortAscending}" url="/images/sortascending.gif"/>
           <f:actionListener
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
           </h:commandLink>    
@@ -376,10 +370,10 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
 
 	<h:column rendered="#{submissionStatus.sortType eq 'role' && !submissionStatus.sortAscending}">
       <f:facet name="header">
-        <h:commandLink title="#{msg.t_sortRole}" action="submissionStatus">
-          <h:outputText value="#{msg.role}" />
+        <h:commandLink title="#{evaluationMessages.t_sortRole}" action="submissionStatus">
+          <h:outputText value="#{evaluationMessages.role}" />
           <f:param name="sortAscending" value="true" />
-          <h:graphicImage alt="#{msg.alt_sortRoleAscending}" rendered="#{!submissionStatus.sortAscending}" url="/images/sortdescending.gif"/>
+          <h:graphicImage alt="#{evaluationMessages.alt_sortRoleAscending}" rendered="#{!submissionStatus.sortAscending}" url="/images/sortdescending.gif"/>
           <f:actionListener
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
           </h:commandLink>    
@@ -390,49 +384,49 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
     <!-- DATE -->
     <h:column rendered="#{submissionStatus.sortType ne 'submittedDate'}">
      <f:facet name="header">
-        <h:commandLink title="#{msg.t_sortSubmittedDate}" id="submittedDate" action="submissionStatus">
-          <h:outputText value="#{msg.date}" />
+        <h:commandLink title="#{evaluationMessages.t_sortSubmittedDate}" id="submittedDate" action="submissionStatus">
+          <h:outputText value="#{evaluationMessages.date}" />
         <f:actionListener
           type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
         <f:param name="sortBy" value="submittedDate" />
         </h:commandLink>
      </f:facet>
         <h:outputText rendered="#{description.submittedDate !=null && description.submittedDate ne ''}" value="#{description.submittedDate}">
-          <f:convertDateTime pattern="#{genMsg.output_date_picker}"/>
+          <f:convertDateTime pattern="#{generalMessages.output_date_picker}"/>
         </h:outputText>
-		<h:outputText rendered="#{description.submittedDate == null || description.submittedDate eq ''}" value="#{msg.no_submission}"/>
+		<h:outputText rendered="#{description.submittedDate == null || description.submittedDate eq ''}" value="#{evaluationMessages.no_submission}"/>
     </h:column>
 	
 	<h:column rendered="#{submissionStatus.sortType eq 'submittedDate' && submissionStatus.sortAscending}">
       <f:facet name="header">
-        <h:commandLink title="#{msg.t_sortSubmittedDate}" action="submissionStatus">
-          <h:outputText value="#{msg.date}" />
+        <h:commandLink title="#{evaluationMessages.t_sortSubmittedDate}" action="submissionStatus">
+          <h:outputText value="#{evaluationMessages.date}" />
           <f:param name="sortAscending" value="false" />
-          <h:graphicImage alt="#{msg.alt_sortSubmittedDateDescending}" rendered="#{submissionStatus.sortAscending}" url="/images/sortascending.gif"/>
+          <h:graphicImage alt="#{evaluationMessages.alt_sortSubmittedDateDescending}" rendered="#{submissionStatus.sortAscending}" url="/images/sortascending.gif"/>
           <f:actionListener
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
           </h:commandLink>    
       </f:facet>
         <h:outputText rendered="#{description.submittedDate !=null && description.submittedDate ne ''}" value="#{description.submittedDate}">
-           <f:convertDateTime pattern="#{genMsg.output_date_picker}"/>
+           <f:convertDateTime pattern="#{generalMessages.output_date_picker}"/>
         </h:outputText>
-		<h:outputText rendered="#{description.submittedDate == null || description.submittedDate eq ''}" value="#{msg.no_submission}"/>
+		<h:outputText rendered="#{description.submittedDate == null || description.submittedDate eq ''}" value="#{evaluationMessages.no_submission}"/>
     </h:column>
 
 	<h:column rendered="#{submissionStatus.sortType eq 'submittedDate' && !submissionStatus.sortAscending}">
       <f:facet name="header">
-        <h:commandLink title="#{msg.t_sortSubmittedDate}" action="submissionStatus">
-          <h:outputText value="#{msg.date}" />
+        <h:commandLink title="#{evaluationMessages.t_sortSubmittedDate}" action="submissionStatus">
+          <h:outputText value="#{evaluationMessages.date}" />
           <f:param name="sortAscending" value="true" />
-          <h:graphicImage alt="#{msg.alt_sortSubmittedDateAscending}" rendered="#{!submissionStatus.sortAscending}" url="/images/sortdescending.gif"/>
+          <h:graphicImage alt="#{evaluationMessages.alt_sortSubmittedDateAscending}" rendered="#{!submissionStatus.sortAscending}" url="/images/sortdescending.gif"/>
           <f:actionListener
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
           </h:commandLink>    
       </f:facet>
         <h:outputText rendered="#{description.submittedDate !=null && description.submittedDate ne ''}" value="#{description.submittedDate}">
-           <f:convertDateTime pattern="#{genMsg.output_date_picker}"/>
+           <f:convertDateTime pattern="#{generalMessages.output_date_picker}"/>
         </h:outputText>
-		<h:outputText rendered="#{description.submittedDate == null || description.submittedDate eq ''}" value="#{msg.no_submission}"/>
+		<h:outputText rendered="#{description.submittedDate == null || description.submittedDate eq ''}" value="#{evaluationMessages.no_submission}"/>
     </h:column>
 
   </h:dataTable>

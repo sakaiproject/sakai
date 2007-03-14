@@ -29,13 +29,9 @@
 --%>
 -->
   <f:view>
-  
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.DeliveryMessages"
-     var="msg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.remove_assessment_co}" /></title>
+      <title><h:outputText value="#{deliveryMessages.remove_assessment_co}" /></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 

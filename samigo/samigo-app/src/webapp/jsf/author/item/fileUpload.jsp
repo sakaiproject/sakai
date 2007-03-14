@@ -30,15 +30,9 @@
 --%>
 -->
   <f:view>
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.AuthorMessages"
-     var="msg"/>
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.GeneralMessages"
-     var="genMsg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.item_display_author}"/></title>
+      <title><h:outputText value="#{authorMessages.item_display_author}"/></title>
       <samigo:script path="/js/authoring.js"/>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
@@ -56,7 +50,7 @@
 <!-- QUESTION PROPERTIES -->
   <!-- 1 POINTS -->
   <div class="shorttext">
-    <h:outputLabel value="#{msg.answer_point_value}" />
+    <h:outputLabel value="#{authorMessages.answer_point_value}" />
     <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}" required="true">
 <f:validateDoubleRange/>
 </h:inputText>
@@ -65,14 +59,14 @@
 <br/>
   <!-- 2 TEXT -->
  <div class="longtext">
-  <h:outputLabel  value="#{msg.q_text}" />
+  <h:outputLabel  value="#{authorMessages.q_text}" />
   <br/>
   <!-- WYSIWYG -->
     <%--
   <h:panelGrid columns="2">
   <h:inputTextarea id="qtextarea" value="#{itemauthor.currentItem.itemText}" cols="48" rows="8"/>
 
-  <h:outputText value="#{msg.show_hide}<br />#{msg.editor}" escape="false"/>
+  <h:outputText value="#{authorMessages.show_hide}<br />#{authorMessages.editor}" escape="false"/>
   </h:panelGrid>
     --%>
   <h:panelGrid>
@@ -91,7 +85,7 @@
 
 
   <h:panelGrid columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}" columns="3">
-  <f:verbatim>&nbsp;</f:verbatim>  <h:outputLabel value="#{msg.assign_to_p}" />
+  <f:verbatim>&nbsp;</f:verbatim>  <h:outputLabel value="#{authorMessages.assign_to_p}" />
   <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
      <f:selectItems  value="#{itemauthor.sectionSelectList}" />
      <!-- use this in real  value="#{section.sectionNumberList}" -->
@@ -105,9 +99,9 @@
 
   <h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}">
   <f:verbatim>&nbsp;</f:verbatim>
-  <h:outputLabel value="#{msg.assign_to_question_p}" />
+  <h:outputLabel value="#{authorMessages.assign_to_question_p}" />
   <h:selectOneMenu id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
-     <f:selectItem itemValue="" itemLabel="#{msg.select_a_pool_name}" />
+     <f:selectItem itemValue="" itemLabel="#{authorMessages.select_a_pool_name}" />
      <f:selectItems value="#{itemauthor.poolSelectList}" />
   </h:selectOneMenu>
 
@@ -116,7 +110,7 @@
  <!-- FEEDBACK -->
  <h:panelGroup rendered="#{assessmentSettings.feedbackAuthoring ne '2'}">
   <f:verbatim><div class="longtext"></f:verbatim>
-  <h:outputLabel value="#{msg.feedback_optional}<br />" />
+  <h:outputLabel value="#{authorMessages.feedback_optional}<br />" />
 
 
   <!-- WYSIWYG -->
@@ -135,11 +129,11 @@
 <f:verbatim><div class="tier3"></f:verbatim>
 
 <h:panelGrid columns="2" columnClasses="shorttext">
-<h:outputText value="#{msg.objective}" />
+<h:outputText value="#{authorMessages.objective}" />
   <h:inputText size="30" id="obj" value="#{itemauthor.currentItem.objective}" />
-<h:outputText value="#{msg.keyword}" />
+<h:outputText value="#{authorMessages.keyword}" />
   <h:inputText size="30" id="keyword" value="#{itemauthor.currentItem.keyword}" />
-<h:outputText value="#{msg.rubric_colon}" />
+<h:outputText value="#{authorMessages.rubric_colon}" />
   <h:inputText size="30" id="rubric" value="#{itemauthor.currentItem.rubric}" />
 </h:panelGrid>
  <f:verbatim></div></f:verbatim>
@@ -150,24 +144,24 @@
 
 <p class="act">
 
-  <h:commandButton accesskey="#{msg.a_save}" rendered="#{itemauthor.target=='assessment'}" value="#{msg.button_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active">
+  <h:commandButton accesskey="#{authorMessages.a_save}" rendered="#{itemauthor.target=='assessment'}" value="#{authorMessages.button_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
   </h:commandButton>
-  <h:commandButton accesskey="#{msg.a_save}" rendered="#{itemauthor.target=='questionpool'}" value="#{msg.button_save}" action="#{itemauthor.currentItem.getPoolOutcome}" styleClass="active">
+  <h:commandButton accesskey="#{authorMessages.a_save}" rendered="#{itemauthor.target=='questionpool'}" value="#{authorMessages.button_save}" action="#{itemauthor.currentItem.getPoolOutcome}" styleClass="active">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
   </h:commandButton>
 
 
-  <h:commandButton accesskey="#{msg.a_cancel}" rendered="#{itemauthor.target=='assessment'}" value="#{msg.button_cancel}" action="editAssessment" immediate="true">
+  <h:commandButton accesskey="#{authorMessages.a_cancel}" rendered="#{itemauthor.target=='assessment'}" value="#{authorMessages.button_cancel}" action="editAssessment" immediate="true">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ResetItemAttachmentListener" />
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
   </h:commandButton>
 
- <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{msg.button_cancel}" action="editPool" immediate="true">
+ <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{authorMessages.button_cancel}" action="editPool" immediate="true">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ResetItemAttachmentListener" />
  </h:commandButton>

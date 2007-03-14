@@ -27,29 +27,25 @@
 --%>
 -->
   <f:view>
-   
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.AuthorMessages"
-     var="msg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.review_assmt}" /></title>
+      <title><h:outputText value="#{authorMessages.review_assmt}" /></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!-- content... -->
 <!-- simplified somewhat on logic of displays, and no feedback yet -->
-<h3><h:outputText value="#{msg.review_assmt}" /></h3>
+<h3><h:outputText value="#{authorMessages.review_assmt}" /></h3>
 <div class="tier1">
   <h3 style="insColor insBak">
-   <h:outputText  value="#{msg.no_feedback_assessmt}"
+   <h:outputText  value="#{authorMessages.no_feedback_assessmt}"
      rendered="#{delivery.showNoFeedback}"/>
-   <h:outputText  value="#{msg.feedback_avail_on}"
+   <h:outputText  value="#{authorMessages.feedback_avail_on}"
      rendered="#{delivery.showDateFeedback}"/>
    <h:outputText  value="This is immediate feedback."
      rendered="#{delivery.showImmediateFeedback}"/>
   </h3>
   <h:form id="reviewForm">
-   <h:commandButton value="#{msg.button_return}" type="submit"
+   <h:commandButton value="#{authorMessages.button_return}" type="submit"
      style="act" action="select" />
   </h:form>
 </div>

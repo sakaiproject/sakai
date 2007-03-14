@@ -32,13 +32,9 @@
 <%@ include file="../security/roleCheckStandaloneStaticInclude.jsp"%>
 
   <f:view>
-    <f:loadBundle
-      basename="org.sakaiproject.tool.assessment.bundle.MainIndexMessages"
-      var="msg"/>
-   
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.tool_title}"/></title>
+      <title><h:outputText value="#{mainIndexMessages.tool_title}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 

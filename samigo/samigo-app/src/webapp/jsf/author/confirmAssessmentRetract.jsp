@@ -29,31 +29,27 @@
 --%>
 -->
   <f:view>
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages"
-     var="msg"/>
-  
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.retract_heading}"/></title>
+      <title><h:outputText value="#{assessmentSettingsMessages.retract_heading}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
   <!-- content... -->
  <div class="portletBody">
-  <h3><h:outputText value="#{msg.retract_conf}"/></h3>
+  <h3><h:outputText value="#{assessmentSettingsMessages.retract_conf}"/></h3>
  <h:form id="retractAssessmentForm">
    <h:inputHidden id="templateId" value="#{template.idString}"/>
 
      <div class="validation tier1">
-       <h:outputText value="#{msg.retract_for_sure}" />
+       <h:outputText value="#{assessmentSettingsMessages.retract_for_sure}" />
      </div>
        <p class="act">
-       <h:commandButton id="retract" accesskey="#{msg.a_retract}" value="#{msg.button_retract}" type="submit"
+       <h:commandButton id="retract" accesskey="#{assessmentSettingsMessages.a_retract}" value="#{assessmentSettingsMessages.button_retract}" type="submit"
          styleClass="active" action="#{publishedSettings.getOutcome}" >
           <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.author.SavePublishedSettingsListener" />
        </h:commandButton>
-       <h:commandButton value="#{msg.button_cancel}" type="submit" style="act" action="author" />
+       <h:commandButton value="#{assessmentSettingsMessages.button_cancel}" type="submit" style="act" action="author" />
        </p>
 
  </h:form>

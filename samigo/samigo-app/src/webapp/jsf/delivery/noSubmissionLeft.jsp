@@ -30,30 +30,26 @@
 --%>
 -->
   <f:view>
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.DeliveryMessages"
-     var="msg"/>
-
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.time_expired_title}"/></title>
+      <title><h:outputText value="#{deliveryMessages.time_expired_title}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
 <div class="portletBody">
   <!-- content... -->
-  <h3><h:outputText value="#{msg.no_submission_left_title}"/></h3>
-  <h:outputText value="#{msg.no_submission_left}"/>
-  <h:outputLabel value="#{msg.num_subs}" />
-  <h:outputText value="#{delivery.settings.maxAttempts} (#{delivery.submissionsRemaining} #{msg.remaining})"
+  <h3><h:outputText value="#{deliveryMessages.no_submission_left_title}"/></h3>
+  <h:outputText value="#{deliveryMessages.no_submission_left}"/>
+  <h:outputLabel value="#{deliveryMessages.num_subs}" />
+  <h:outputText value="#{delivery.settings.maxAttempts} (#{delivery.submissionsRemaining} #{deliveryMessages.remaining})"
        rendered="#{!delivery.settings.unlimitedAttempts}"/>
-    <h:outputText value="#{msg.unlimited_}"
+    <h:outputText value="#{deliveryMessages.unlimited_}"
        rendered="#{delivery.settings.unlimitedAttempts}"/>
 
 
  <h:form id="noSubmissionLeft">
  <p class="act">
-       <h:commandButton accesskey="#{msg.a_return}" value="#{msg.button_return}" type="submit"
+       <h:commandButton accesskey="#{deliveryMessages.a_return}" value="#{deliveryMessages.button_return}" type="submit"
          styleClass="active" action="select" >
           <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />

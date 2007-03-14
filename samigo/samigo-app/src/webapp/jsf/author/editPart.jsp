@@ -30,15 +30,9 @@
 --%>
 -->
   <f:view>
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.AuthorMessages"
-     var="msg"/>
- <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.GeneralMessages"
-     var="genMsg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.create_modify_p}" /></title>
+      <title><h:outputText value="#{authorMessages.create_modify_p}" /></title>
       <!-- AUTHORING -->
       <samigo:script path="/js/authoring.js"/>
       </head>
@@ -50,7 +44,7 @@
 <!-- TODO need to add validation-->
 
 <h3>
-     <h:outputText value="#{msg.create_modify_p} #{msg.dash} #{sectionBean.assessmentTitle}" /></h3>
+     <h:outputText value="#{authorMessages.create_modify_p} #{authorMessages.dash} #{sectionBean.assessmentTitle}" /></h3>
 <h:form id="modifyPartForm"  onsubmit="return editorCheck();">
 <h:messages styleClass="validation"/>
   <h:inputHidden id="assessmentId" value="#{sectionBean.assessmentId}"/>
@@ -60,14 +54,14 @@
   <div class="tier1">
   <div class="shorttext">
 <h:panelGrid columns="2" columnClasses="shorttext">
-   <h:outputLabel for="title" value="#{msg.title}" />
+   <h:outputLabel for="title" value="#{authorMessages.title}" />
    <h:inputText id="title" size="50" maxlength="250" value="#{sectionBean.sectionTitle}"/>
      <h:outputText value="" />
-     <h:outputText value="#{msg.title_note}" /></h3>
+     <h:outputText value="#{authorMessages.title_note}" /></h3>
 </h:panelGrid>
   </div>
    <div class="longtext">
-   <h:outputLabel value="#{msg.information}" />
+   <h:outputLabel value="#{authorMessages.information}" />
 <br/>
   <h:panelGrid width="50%">
    <samigo:wysiwyg rows="140" value="#{sectionBean.sectionDescription}">
@@ -83,29 +77,29 @@
 
  <!-- Part Type -->
    <div class="longtext">
-   <h:outputText value="#{msg.type}" />
+   <h:outputText value="#{authorMessages.type}" />
    <h:panelGroup >
  <!--  had to separate the radio buttons , 'cuz there is no way to disable only one of them. -->
    <div class="longtext">
      <h:selectOneRadio value="#{sectionBean.type}" layout="pageDirection" onclick="this.form.onsubmit();document.forms[0].submit();" onkeypress="this.form.onsubmit();document.forms[0].submit();" valueChangeListener="#{sectionBean.toggleAuthorType}">
      <f:selectItems value="#{sectionBean.authorTypeList}" />
      </h:selectOneRadio>
-     <h:selectOneRadio accesskey="#{msg.a_options}" rendered="#{sectionBean.hideRandom eq 'true'}" disabled="true" value="" layout="pageDirection" >
-       <f:selectItem itemValue="2" itemLabel="#{msg.random_draw_from_que}" />
+     <h:selectOneRadio accesskey="#{authorMessages.a_options}" rendered="#{sectionBean.hideRandom eq 'true'}" disabled="true" value="" layout="pageDirection" >
+       <f:selectItem itemValue="2" itemLabel="#{authorMessages.random_draw_from_que}" />
      </h:selectOneRadio>
 
 <%--
      <h:selectOneRadio rendered="{#sectionBean.hideRandom ne 'true'}" value="#{sectionBean.type}" layout="pageDirection" onclick="this.form.onsubmit();document.forms[0].submit();" onkeypress="this.form.onsubmit();document.forms[0].submit();" valueChangeListener="#{sectionBean.toggleAuthorType}">
-       <f:selectItem itemValue="1" itemLabel="#{msg.type_onebyone}" />
-       <f:selectItem itemValue="2" itemLabel="#{msg.random_draw_from_que}" />
+       <f:selectItem itemValue="1" itemLabel="#{authorMessages.type_onebyone}" />
+       <f:selectItem itemValue="2" itemLabel="#{authorMessages.random_draw_from_que}" />
      </h:selectOneRadio>
 
      <h:selectOneRadio rendered="#{sectionBean.hideRandom eq 'true'}" value="#{sectionBean.type}" layout="pageDirection" onclick="this.form.onsubmit();document.forms[0].submit();" onkeypress="this.form.onsubmit();document.forms[0].submit();" valueChangeListener="#{sectionBean.toggleAuthorType}">
-       <f:selectItem itemValue="1" itemLabel="#{msg.type_onebyone}" />
+       <f:selectItem itemValue="1" itemLabel="#{authorMessages.type_onebyone}" />
      </h:selectOneRadio>
 
      <h:selectOneRadio disabled="#{sectionBean.type =='1'}" value="#{sectionBean.type}" layout="pageDirection" onclick="document.forms[0].submit();"  onkeypress="document.forms[0].submit();" valueChangeListener="#{sectionBean.toggleAuthorType}">
-       <f:selectItem itemValue="2" itemLabel="#{msg.random_draw_from_que}" />
+       <f:selectItem itemValue="2" itemLabel="#{authorMessages.random_draw_from_que}" />
      </h:selectOneRadio>
 --%>
 
@@ -117,13 +111,13 @@
 
 <h:panelGrid columns="2" columnClasses="longtext" >
  
-   <h:outputText value="#{msg.pool_name} #{msg.number_questions} " />
+   <h:outputText value="#{authorMessages.pool_name} #{authorMessages.number_questions} " />
    <h:selectOneMenu disabled="#{sectionBean.type == '1'}" id="assignToPool" value="#{sectionBean.selectedPool}">
-     <f:selectItem itemValue="" itemLabel="#{msg.select_a_pool_for_random_draw}(###)" />
+     <f:selectItem itemValue="" itemLabel="#{authorMessages.select_a_pool_for_random_draw}(###)" />
      <f:selectItems value="#{sectionBean.poolsAvailable}" />
   </h:selectOneMenu>
 <!--h:message for="assignToPool" rendered="#{sectionBean.type != '1'}" styleClass="validate"/-->
- <h:outputText value="#{msg.number_of_qs}" />
+ <h:outputText value="#{authorMessages.number_of_qs}" />
 
 <!--h:selectOneMenu disabled="#{sectionBean.type == '1'}" required="true" id="sumSelected" value="#{sectionBean.numberSelected}"-->
     
@@ -131,7 +125,7 @@
   <!--/h:selectOneMenu-->
    <h:inputText id="numSelected" disabled="#{sectionBean.type == '1'}" value="#{sectionBean.numberSelected}" />
 
-  <h:outputText value="#{msg.type_of_randomization}" />
+  <h:outputText value="#{authorMessages.type_of_randomization}" />
   <h:selectOneRadio value="#{sectionBean.randomizationType}" layout="pageDirection" disabled="#{sectionBean.type == '1'}" id="randomizationType">
      <f:selectItems value="#{sectionBean.randomizationTypeList}" />
   </h:selectOneRadio>
@@ -148,12 +142,12 @@
  <!-- Question Ordering -->
    <div class="longtext">
    <h:panelGroup >
-   <h:outputText value="#{msg.q_ordering_n}" />
+   <h:outputText value="#{authorMessages.q_ordering_n}" />
 
      <h:selectOneRadio disabled="#{sectionBean.type =='2'}"layout="pageDirection" value="#{sectionBean.questionOrdering}">
-       <f:selectItem itemLabel="#{msg.as_listed_on_assessm}"
+       <f:selectItem itemLabel="#{authorMessages.as_listed_on_assessm}"
          itemValue="1"/>
-       <f:selectItem itemLabel="#{msg.random_within_p}"
+       <f:selectItem itemLabel="#{authorMessages.random_within_p}"
          itemValue="2"/>
      </h:selectOneRadio>
    </h:panelGroup>
@@ -161,14 +155,14 @@
 
    <div class="longtext">
  <!-- METADATA -->
-   <h:outputText value="#{msg.metadata}" />
+   <h:outputText value="#{authorMessages.metadata}" />
 
 <h:panelGrid columns="2" columnClasses="shorttext">
-<h:outputLabel for="obj" value="#{msg.objective}" />
+<h:outputLabel for="obj" value="#{authorMessages.objective}" />
   <h:inputText id="obj" value="#{sectionBean.objective}" />
-<h:outputLabel for="keyword" value="#{msg.keyword}" />
+<h:outputLabel for="keyword" value="#{authorMessages.keyword}" />
   <h:inputText id="keyword" value="#{sectionBean.keyword}" />
-<h:outputLabel for="rubric" value="#{msg.rubric_colon}" />
+<h:outputLabel for="rubric" value="#{authorMessages.rubric_colon}" />
   <h:inputText id="rubric" value="#{sectionBean.rubric}" />
 </h:panelGrid>
 
@@ -177,12 +171,12 @@
 
 
   <p class="act">
-     <h:commandButton value="#{msg.button_save}" type="submit" accesskey="#{msg.a_save}"
+     <h:commandButton value="#{authorMessages.button_save}" type="submit" accesskey="#{authorMessages.a_save}"
        styleClass="active" action="#{sectionBean.getOutcome}" >
         <f:actionListener
           type="org.sakaiproject.tool.assessment.ui.listener.author.SavePartListener" />
      </h:commandButton>
-     <h:commandButton accesskey="#{msg.a_cancel}" value="#{msg.button_cancel}" style="act" immediate="true" action="editAssessment" >
+     <h:commandButton accesskey="#{authorMessages.a_cancel}" value="#{authorMessages.button_cancel}" style="act" immediate="true" action="editAssessment" >
         <f:actionListener
           type="org.sakaiproject.tool.assessment.ui.listener.author.ResetPartAttachmentListener" />
         <f:actionListener

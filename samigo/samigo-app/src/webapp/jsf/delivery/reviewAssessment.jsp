@@ -29,13 +29,9 @@
 --%>
 -->
   <f:view>
-   
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.DeliveryMessages"
-     var="msg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.item_display_author}"/></title>
+      <title><h:outputText value="#{deliveryMessages.item_display_author}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
@@ -43,7 +39,7 @@
 <!-- content... -->
 <h:form id="takeAssessmentForm">
 
-<h:outputText value="#{msg.review} " />
+<h:outputText value="#{deliveryMessages.review} " />
 
 <!-- FORM ... note, move these hiddens to whereever they are needed as fparams-->
 
@@ -55,11 +51,11 @@
     <h:column>
      <f:subview id="parts">
       <f:verbatim><h4 class="tier1"></f:verbatim>
-      <h:outputText value="#{msg.p} #{part.number} #{msg.of} #{part.numParts}" />
-      <h:outputText value=" #{msg.dash} #{part.text} />
+      <h:outputText value="#{deliveryMessages.p} #{part.number} #{deliveryMessages.of} #{part.numParts}" />
+      <h:outputText value=" #{deliveryMessages.dash} #{part.text} />
       <!-- h:outputText value="#{part.unansweredQuestions}/#{part.questions} " / -->
-      <!-- h:outputText value="#{msg.ans_q}, " / -->
-      <!-- h:outputText value="#{part.points}/#{part.maxPoints} #{msg.pt}" / -->
+      <!-- h:outputText value="#{deliveryMessages.ans_q}, " / -->
+      <!-- h:outputText value="#{part.points}/#{part.maxPoints} #{deliveryMessages.pt}" / -->
       <f:verbatim></h4><div class="tier1"></f:verbatim>
       <h:outputText value="#{part.description}" escape="false"/>
       <f:verbatim></div></f:verbatim>
@@ -67,10 +63,10 @@
           var="question">
         <h:column>
           <f:verbatim><h4 class="tier1"></f:verbatim>
-          <h:outputText value="#{msg.q} #{question.number} #{msg.of} " />
+          <h:outputText value="#{deliveryMessages.q} #{question.number} #{deliveryMessages.of} " />
           <h:outputText value="#{part.itemContentsSize} " />
-          <h:outputText value="#{question.points}#{msg.splash}#{question.maxPoints} " />
-          <h:outputText value="#{msg.pt}"/>
+          <h:outputText value="#{question.points}#{deliveryMessages.splash}#{question.maxPoints} " />
+          <h:outputText value="#{deliveryMessages.pt}"/>
           <f:verbatim></h4></f:verbatim>
           <h:outputText value="#{question.itemData.description}" escape="false"/>
           <h:panelGroup rendered="#{question.itemData.typeId == 7}">
@@ -126,7 +122,7 @@
   </h:dataTable>
 </div>
 <h:panelGrid columns="3" cellpadding="3" cellspacing="3">
-  <h:commandButton accesskey="#{msg.a_cancel}" type="submit" value="#{msg.button_cancel}" action="select">
+  <h:commandButton accesskey="#{deliveryMessages.a_cancel}" type="submit" value="#{deliveryMessages.button_cancel}" action="select">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
   </h:commandButton>
 </h:panelGrid>

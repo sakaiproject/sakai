@@ -28,13 +28,9 @@
 --%>
 -->
   <f:view>
-  <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages"
-     var="msg"/>
-  
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.q_mgr}"/></title>
+      <title><h:outputText value="#{questionPoolMessages.q_mgr}"/></title>
 <script language="javascript" type="text/JavaScript">
 <!--
 <%@ include file="/js/samigotree.js" %>

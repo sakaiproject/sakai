@@ -29,13 +29,9 @@
 --%>
 -->
   <f:view>
-  
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.AuthorImportExport"
-     var="msg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.import_a}" /></title>
+      <title><h:outputText value="#{authorImportExport.import_a}" /></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
  <div class="portletBody">
@@ -43,15 +39,15 @@
  <h:form id="importAssessmentForm" enctype="multipart/form-data">
 
    <h:inputHidden value="#{xmlImport.importType}" />
-   <h3><h:outputText  value="#{msg.import_a}" /></h3>
+   <h3><h:outputText  value="#{authorImportExport.import_a}" /></h3>
     <div class="tier1">
      <div class="form_label">
       <h:messages styleClass="validation" />
-      <h:outputText value="#{msg.import_instructions}"/>
+      <h:outputText value="#{authorImportExport.import_instructions}"/>
     </div>
     <br />
    <div class="tier2">
-   <h:outputLabel  styleClass="form_label" value="#{msg.choose_file}"/>
+   <h:outputLabel  styleClass="form_label" value="#{authorImportExport.choose_file}"/>
     <%-- target represents location where import will be temporarily stored
         check valueChangeListener for final destination --%>
     <corejsf:upload target="jsf/upload_tmp/qti_imports/#{person.id}"
@@ -60,10 +56,10 @@
     <br/>
     <br/>
      <%-- activates the valueChangeListener --%>
-     <h:commandButton value="#{msg.import_action}" type="submit"
+     <h:commandButton value="#{authorImportExport.import_action}" type="submit"
        style="act" action="author" />
      <%-- immediate=true bypasses the valueChangeListener --%>
-     <h:commandButton value="#{msg.import_cancel_action}" type="submit"
+     <h:commandButton value="#{authorImportExport.import_cancel_action}" type="submit"
        style="act" action="author" immediate="true"/>
   </div>
 

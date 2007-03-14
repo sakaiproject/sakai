@@ -32,11 +32,11 @@
 
 <h:panelGroup styleClass="tier#{questionpool.tree.currentLevel}"  id="firstcolumn">
 <h:inputHidden id="rowid" value="#{questionpool.tree.currentObjectHTMLId}"/>
-<h:outputLink title="#{msg.t_toggletree}" id="togglelink"  onclick="toggleRows(this)" onkeypress="toggleRows(this)" value="#" styleClass="treefolder">
+<h:outputLink title="#{questionPoolMessages.t_toggletree}" id="togglelink"  onclick="toggleRows(this)" onkeypress="toggleRows(this)" value="#" styleClass="treefolder">
 <h:graphicImage id="spacer_for_mozilla" style="border:0" width="17" value="/images/delivery/spacer.gif" />
 </h:outputLink>
 
-<h:commandLink title="#{msg.t_editPool}" id="editlink" immediate="true" action="#{questionpool.editPool}">
+<h:commandLink title="#{questionPoolMessages.t_editPool}" id="editlink" immediate="true" action="#{questionpool.editPool}">
   <h:outputText id="poolnametext" value="#{pool.data.title}"/>
   <f:param name="qpid" value="#{pool.id}"/>
 </h:commandLink>

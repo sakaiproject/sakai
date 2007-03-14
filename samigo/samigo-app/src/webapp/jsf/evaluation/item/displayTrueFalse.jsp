@@ -29,7 +29,7 @@ include file for displaying true false questions
    <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
     <h:column>
       <h:graphicImage id="image10" rendered="#{answer.isCorrect}"
-        alt="#{msg.alt_correct}" url="/images/delivery/checkmark.gif" >
+        alt="#{evaluationMessages.alt_correct}" url="/images/delivery/checkmark.gif" >
        </h:graphicImage>
       <h:graphicImage id="image11" rendered="#{!answer.isCorrect}"
         alt=" " url="/images/delivery/spacer.gif" >
@@ -44,9 +44,9 @@ include file for displaying true false questions
     </h:column>
     <h:column>
       <%-- answer --%>
-      <h:outputText value="#{msg.true_msg}"
+      <h:outputText value="#{evaluationMessages.true_msg}"
         rendered="#{answer.text=='true'}" />
-      <h:outputText value="#{msg.false_msg}"
+      <h:outputText value="#{evaluationMessages.false_msg}"
         rendered="#{answer.text=='false'}" />
     </h:column>
    </h:dataTable>

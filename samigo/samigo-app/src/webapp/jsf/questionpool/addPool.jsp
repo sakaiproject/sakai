@@ -28,13 +28,9 @@
 --%>
 -->
   <f:view>
-    <f:loadBundle
-       basename="org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages"
-       var="msg"/>
-  
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.add_title}"/></title>
+      <title><h:outputText value="#{questionPoolMessages.add_title}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!-- content... -->
@@ -43,40 +39,40 @@
 
  <h:form id="questionpool">
 <h3 class="insColor insBak insBor">
-<h:outputText value="#{msg.add_p}"/>
+<h:outputText value="#{questionPoolMessages.add_p}"/>
 </h3>
 <h:messages styleClass="validation"/>
-<h:outputText value="#{msg.add_p_required}"/>
+<h:outputText value="#{questionPoolMessages.add_p_required}"/>
  <div class="tier1">
  <h:panelGrid columns="2" columnClasses="shorttext">
-<h:outputLabel for="namefield" value="#{msg.p_name}#{msg.star}"/>
+<h:outputLabel for="namefield" value="#{questionPoolMessages.p_name}#{questionPoolMessages.star}"/>
   
   <h:inputText id="namefield" size="30" value="#{questionpool.currentPool.displayName}"/>
 
-  <h:outputLabel for="ownerfield" value="#{msg.creator}"/>
+  <h:outputLabel for="ownerfield" value="#{questionPoolMessages.creator}"/>
   <h:outputText id="ownerfield" value="#{questionpool.currentPool.owner}"/>
  
-  <h:outputLabel for="orgfield" value="#{msg.dept} "/>
+  <h:outputLabel for="orgfield" value="#{questionPoolMessages.dept} "/>
   <h:inputText id="orgfield" size="30" value="#{questionpool.currentPool.organizationName}"/>
 
-  <h:outputLabel for="descfield" value="#{msg.desc}"/>
+  <h:outputLabel for="descfield" value="#{questionPoolMessages.desc}"/>
   <h:inputTextarea id="descfield" value="#{questionpool.currentPool.description}" cols="30" rows="5"/>
 
-  <h:outputLabel for="objfield" value="#{msg.obj} "/>
+  <h:outputLabel for="objfield" value="#{questionPoolMessages.obj} "/>
   <h:inputText id="objfield" size="30" value="#{questionpool.currentPool.objectives}"/>
  
-  <h:outputLabel for="keyfield" value="#{msg.keywords} "/>
+  <h:outputLabel for="keyfield" value="#{questionPoolMessages.keywords} "/>
   <h:inputText id="keyfield" size="30" value="#{questionpool.currentPool.keywords}"/>
 </h:panelGrid>
  </p>
 
 
 <p class="act">
-  <h:commandButton accesskey="#{msg.a_save}" id="submit"  action="#{questionpool.doit}"
-	value="#{msg.save}" styleClass="active">
+  <h:commandButton accesskey="#{questionPoolMessages.a_save}" id="submit"  action="#{questionpool.doit}"
+	value="#{questionPoolMessages.save}" styleClass="active">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.PoolSaveListener" />
   </h:commandButton>
-<h:commandButton accesskey="#{msg.a_cancel}" style="act" value="#{msg.cancel}" action="poolList" immediate="true"/>
+<h:commandButton accesskey="#{questionPoolMessages.a_cancel}" style="act" value="#{questionPoolMessages.cancel}" action="poolList" immediate="true"/>
 
 </p>
  </h:form>

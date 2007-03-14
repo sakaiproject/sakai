@@ -27,14 +27,14 @@ should be included in file importing DeliveryMessages
     <h:column>
       <h:dataTable value="#{itemText.answerArray}" var="answer">
         <h:column>
-          <h:outputText escape="false" value="#{msg.preview_model_short_answer}" />
+          <h:outputText escape="false" value="#{authorMessages.preview_model_short_answer}" />
           <f:verbatim><br/>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
           <h:outputText escape="false" value="#{answer.text}" />
         </h:column>
       </h:dataTable>
 
       <%-- question level feedback --%>
-      <h:outputText escape="false" value="#{msg.q_level_feedb}:" />
+      <h:outputText escape="false" value="#{authorMessages.q_level_feedb}:" />
       <f:verbatim><br/>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
       <h:outputText escape="false" value="#{itemContents.itemData.generalItemFeedback}" />
     </h:column>

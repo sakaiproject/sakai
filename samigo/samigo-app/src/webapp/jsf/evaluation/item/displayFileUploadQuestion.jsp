@@ -27,15 +27,15 @@ should be included in file importing DeliveryMessages
 <h:outputText value="#{question.text} "  escape="false"/>
 <f:verbatim><br /></f:verbatim>
 <h:panelGroup>
-  <h:outputText value="#{msg.file}#{msg.column} " />
+  <h:outputText value="#{evaluationMessages.file}#{evaluationMessages.column} " />
   <!-- note that target represent the location where the upload medis will be temporarily stored -->
   <!-- For ItemGradingData, it is very important that target must be in this format: -->
   <!-- assessmentXXX/questionXXX/agentId -->
   <!-- please check the valueChangeListener to get the final destination -->
   <h:inputText size="50" />
   <h:outputText value="  " />
-  <h:commandButton accesskey="#{msg.a_browse}" value="#{msg.browse}" type="button"/>
+  <h:commandButton accesskey="#{evaluationMessages.a_browse}" value="#{evaluationMessages.browse}" type="button"/>
   <h:outputText value="  " />
-  <h:commandButton accesskey="#{msg.a_upload}" value="#{msg.upload}" type="button"/>
+  <h:commandButton accesskey="#{evaluationMessages.a_upload}" value="#{evaluationMessages.upload}" type="button"/>
 </h:panelGroup>
 <f:verbatim><br /></f:verbatim>

@@ -28,10 +28,10 @@ should be included in file importing DeliveryMessages
       <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
         <h:column>
           <h:graphicImage id="image1" rendered="#{answer.isCorrect}"
-             alt="#{msg.correct}" url="/images/checked.gif" >
+             alt="#{authorMessages.correct}" url="/images/checked.gif" >
           </h:graphicImage>
           <h:graphicImage id="image2" rendered="#{!answer.isCorrect}"
-             alt="#{msg.not_correct}" url="/images/unchecked.gif" >
+             alt="#{authorMessages.not_correct}" url="/images/unchecked.gif" >
           </h:graphicImage>
           <h:outputText escape="false" value="#{answer.label}. #{answer.text}" />
         </h:column>
@@ -39,7 +39,7 @@ should be included in file importing DeliveryMessages
 
       <f:verbatim><br /></f:verbatim>
       <%-- answer --%>
-      <h:outputText escape="false" value="#{msg.s_level_feedb}:" />
+      <h:outputText escape="false" value="#{authorMessages.s_level_feedb}:" />
       <%-- answer level feedback --%>
       <h:dataTable value="#{itemText.answerArray}" var="answer">
         <h:column>
@@ -49,11 +49,11 @@ should be included in file importing DeliveryMessages
       </h:dataTable>
 
       <%-- question level feedback --%>
-      <h:outputText escape="false" value="#{msg.q_level_feedb}:" />
+      <h:outputText escape="false" value="#{authorMessages.q_level_feedb}:" />
       <f:verbatim><br/>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-      <h:outputText escape="false" value="#{msg.correct}:  #{itemContents.itemData.correctItemFeedback}" />
+      <h:outputText escape="false" value="#{authorMessages.correct}:  #{itemContents.itemData.correctItemFeedback}" />
       <f:verbatim><br/>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-      <h:outputText escape="false" value="#{msg.incorrect}:  #{itemContents.itemData.inCorrectItemFeedback}"/>
+      <h:outputText escape="false" value="#{authorMessages.incorrect}:  #{itemContents.itemData.inCorrectItemFeedback}"/>
     </h:column>
   </h:dataTable>
 

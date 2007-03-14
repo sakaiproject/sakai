@@ -29,13 +29,9 @@
 -->
 
   <f:view>
-    <f:loadBundle
-       basename="org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages"
-       var="msg"/>
- 
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.mv_p"/></title>
+      <title><h:outputText value="#{questionPoolMessages.mv_p"/></title>
                         <!-- stylesheet and script widgets -->
 <script language="javascript" type="text/JavaScript">
 <!--
@@ -50,12 +46,12 @@
 <h:form id="movePool">
 <h:messages styleClass="validation"/>
 <h3>
-<h:outputText rendered="#{questionpool.actionType == 'pool'}" value="#{msg.mv_p}"/>
-<h:outputText rendered="#{questionpool.actionType == 'item'}" value="#{msg.mv_q}"/>
+<h:outputText rendered="#{questionpool.actionType == 'pool'}" value="#{questionPoolMessages.mv_p}"/>
+<h:outputText rendered="#{questionpool.actionType == 'item'}" value="#{questionPoolMessages.mv_q}"/>
 </h3>
 
 <div class="tier1">
-<h:outputText value="#{msg.sel_dest_move} "/>
+<h:outputText value="#{questionPoolMessages.sel_dest_move} "/>
 <h:outputText rendered="#{questionpool.actionType == 'pool'}" value="#{questionpool.currentPool.displayName}"/>
 <h:outputText rendered="#{questionpool.actionType == 'item'}" value="#{questionpool.currentItem.text}" escape="false"/>
 
@@ -63,8 +59,8 @@
 
 <%--
 <h:outputText styleClass="number" value="1"/>
-<h:outputLabel rendered="#{questionpool.actionType == 'item'}" value="#{msg.mv_q_to}"/>
-<h:outputLabel rendered="#{questionpool.actionType == 'pool'}" value="#{msg.mv_p_to}"/>
+<h:outputLabel rendered="#{questionpool.actionType == 'item'}" value="#{questionPoolMessages.mv_q_to}"/>
+<h:outputLabel rendered="#{questionpool.actionType == 'pool'}" value="#{questionPoolMessages.mv_p_to}"/>
 <br/><br/>
 --%>
 
@@ -77,21 +73,21 @@
 <%--
 <br/>
 <h:outputText styleClass="number" value="2"/>
-<h:outputLabel value="#{msg.click_move}"/>
+<h:outputLabel value="#{questionPoolMessages.click_move}"/>
 --%>
 
 </div>
 
 <p class="act">
-  <h:commandButton accesskey="#{msg.a_move}" type="submit" immediate="true" id="poolSubmit" value="#{msg.move}"
+  <h:commandButton accesskey="#{questionPoolMessages.a_move}" type="submit" immediate="true" id="poolSubmit" value="#{questionPoolMessages.move}"
     action="#{questionpool.movePool}" rendered="#{questionpool.actionType == 'pool'}" styleClass="active">
   </h:commandButton>
 
-  <h:commandButton accesskey="#{msg.a_move}" type="submit" immediate="true" id="itemSubmit" value="#{msg.move}"
+  <h:commandButton accesskey="#{questionPoolMessages.a_move}" type="submit" immediate="true" id="itemSubmit" value="#{questionPoolMessages.move}"
     action="#{questionpool.moveQuestion}" rendered="#{questionpool.actionType == 'item'}" styleClass="active">
   </h:commandButton>
 
-  <h:commandButton id="cancel" accesskey="#{msg.a_cancel}" value="#{msg.cancel}" action="poolList"/>
+  <h:commandButton id="cancel" accesskey="#{questionPoolMessages.a_cancel}" value="#{questionPoolMessages.cancel}" action="poolList"/>
 </p>
 
 </h:form>

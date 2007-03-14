@@ -28,16 +28,9 @@
 --%>
 -->
   <f:view>
-  <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.TemplateMessages"
-     var="msg"/>
-   <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.GeneralMessages"
-     var="genMsg"/>
-  
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.index_title}"/></title>
+      <title><h:outputText value="#{templateMessages.index_title}"/></title>
       </head>
     <body onload="<%= request.getAttribute("html.body.onload") %>">
 
@@ -49,27 +42,27 @@
   <%@ include file="/jsf/template/templateHeadings.jsp" %>
 
 <h3>
-   <h:outputText value="#{msg.index_templates}"/>
+   <h:outputText value="#{templateMessages.index_templates}"/>
  </h3>
 
 <div class="tier1">
- <h:outputText value="#{msg.index_desc}"  rendered="#{authorization.createTemplate}"/>
+ <h:outputText value="#{templateMessages.index_desc}"  rendered="#{authorization.createTemplate}"/>
 
    <h4>
-   <h:outputText value="#{msg.index_new}"  rendered="#{authorization.createTemplate}"/>
+   <h:outputText value="#{templateMessages.index_new}"  rendered="#{authorization.createTemplate}"/>
    </h4>
 
 <div class="tier2">
   <h5>
-   <h:outputText value="#{msg.index_create_new}"  rendered="#{authorization.createTemplate}"/>
+   <h:outputText value="#{templateMessages.index_create_new}"  rendered="#{authorization.createTemplate}"/>
   </h5>
    <h:panelGrid columns="2">
-      <h:outputLabel for="tempName" value="#{msg.index_templates_title}"  rendered="#{authorization.createTemplate}"/>
-      <!--h:outputText value="#{msg.index_templates_title}" /-->
+      <h:outputLabel for="tempName" value="#{templateMessages.index_templates_title}"  rendered="#{authorization.createTemplate}"/>
+      <!--h:outputText value="#{templateMessages.index_templates_title}" /-->
 <h:panelGroup  rendered="#{authorization.createTemplate}" >
       <h:inputText id="tempName" value="#{template.newName}" size="60"/>
 
-      <h:commandButton accesskey="#{msg.a_create}" type="submit" id="Submit" value="#{msg.index_button_create}" action="#{template.getOutcome}">
+      <h:commandButton accesskey="#{templateMessages.a_create}" type="submit" id="Submit" value="#{templateMessages.index_button_create}" action="#{template.getOutcome}">
               <f:actionListener
                 type="org.sakaiproject.tool.assessment.ui.listener.author.EditTemplateListener" />
        </h:commandButton>
@@ -84,7 +77,7 @@
  <h:form id="templateListForm">
  <div class="tier1">
  <h4>
-   <h:outputText value="#{msg.index_saved}"/>
+   <h:outputText value="#{templateMessages.index_saved}"/>
  </h4>
  <div class="tier2">
 
@@ -95,24 +88,24 @@
     <h:column>
      <f:facet name="header">
        <h:panelGroup>
-        <h:commandLink title="#{msg.t_sortTitle}" immediate="true"  action="template" rendered="#{templateIndex.templateOrderBy!='templateName'}">
+        <h:commandLink title="#{templateMessages.t_sortTitle}" immediate="true"  action="template" rendered="#{templateIndex.templateOrderBy!='templateName'}">
           <f:param name="templateSortType" value="templateName"/>
           <f:param name="templateAscending" value="true"/>
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
-          <h:outputText value="#{msg.index_templates_title} "/>
+          <h:outputText value="#{templateMessages.index_templates_title} "/>
         </h:commandLink>
- <h:commandLink title="#{msg.t_sortTitle}" immediate="true" action="template" rendered="#{templateIndex.templateOrderBy=='templateName' && templateIndex.templateAscending }">
-          <h:outputText  value="#{msg.index_templates_title} " styleClass="currentSort" />
+ <h:commandLink title="#{templateMessages.t_sortTitle}" immediate="true" action="template" rendered="#{templateIndex.templateOrderBy=='templateName' && templateIndex.templateAscending }">
+          <h:outputText  value="#{templateMessages.index_templates_title} " styleClass="currentSort" />
          
            <f:param name="templateAscending" value="false" />
            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
-             <h:graphicImage alt="#{msg.alt_sortTitleDescending}" rendered="#{templateIndex.templateAscending}" url="/images/sortascending.gif"/>
+             <h:graphicImage alt="#{templateMessages.alt_sortTitleDescending}" rendered="#{templateIndex.templateAscending}" url="/images/sortascending.gif"/>
           </h:commandLink>
-          <h:commandLink title="#{msg.t_sortTitle}" immediate="true"  action="template"  rendered="#{templateIndex.templateOrderBy=='templateName'&& !templateIndex.templateAscending }">
- <h:outputText  value="#{msg.index_templates_title} " styleClass="currentSort" />
+          <h:commandLink title="#{templateMessages.t_sortTitle}" immediate="true"  action="template"  rendered="#{templateIndex.templateOrderBy=='templateName'&& !templateIndex.templateAscending }">
+ <h:outputText  value="#{templateMessages.index_templates_title} " styleClass="currentSort" />
            <f:param name="templateAscending" value="true" />
            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
-           <h:graphicImage alt="#{msg.alt_sortTitleAscending}" rendered="#{!templateIndex.templateAscending}" url="/images/sortdescending.gif"/>
+           <h:graphicImage alt="#{templateMessages.alt_sortTitleAscending}" rendered="#{!templateIndex.templateAscending}" url="/images/sortdescending.gif"/>
           </h:commandLink>
          </h:panelGroup>
      </f:facet>
@@ -120,7 +113,7 @@
        <!--h:panelGroup-->
 
       <h:panelGroup rendered="#{person.isAdmin || (authorization.editOwnTemplate && templateListItem.idString!='1')}">
-        <h:commandLink title="#{msg.t_editTemplate}" id="editlink" action="editTemplate" immediate="true">
+        <h:commandLink title="#{templateMessages.t_editTemplate}" id="editlink" action="editTemplate" immediate="true">
           <h:outputText value="#{templateListItem.templateName}" />
 
           <f:actionListener
@@ -137,9 +130,9 @@
 
       <!--h:panelGroup-->
       <h:panelGroup rendered="#{authorization.deleteOwnTemplate}">
-        <h:commandLink title="#{msg.t_removeTemplate}" id="deletelink" action="confirmDeleteTemplate" immediate="true"
+        <h:commandLink title="#{templateMessages.t_removeTemplate}" id="deletelink" action="confirmDeleteTemplate" immediate="true"
             rendered="#{templateListItem.typeId ne '142' || (person.isAdmin && (templateListItem.typeId eq '142' && templateListItem.idString ne '1'))}">
-          <h:outputText value="#{msg.index_button_remove}" styleClass="itemAction"/>
+          <h:outputText value="#{templateMessages.index_button_remove}" styleClass="itemAction"/>
             <f:param name="templateId" value="#{templateListItem.idString}"/>
             <f:actionListener
                 type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmDeleteTemplateListener" />
@@ -152,31 +145,31 @@
     <h:column >
       <f:facet name="header">
        <h:panelGroup>
-        <h:commandLink title="#{msg.t_sortLastModified}" immediate="true" action="template"  rendered="#{templateIndex.templateOrderBy!='lastModified'}">
+        <h:commandLink title="#{templateMessages.t_sortLastModified}" immediate="true" action="template"  rendered="#{templateIndex.templateOrderBy!='lastModified'}">
           <f:param name="templateSortType" value="lastModified"/>
           <f:param name="templateAscending" value="true"/>
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
-          <h:outputText value="#{msg.index_templates_modified} " />
+          <h:outputText value="#{templateMessages.index_templates_modified} " />
         </h:commandLink>
-<h:commandLink title="#{msg.t_sortLastModified}" immediate="true" action="template" rendered="#{templateIndex.templateOrderBy=='lastModified' && templateIndex.templateAscending }">
-        <h:outputText  value="#{msg.index_templates_modified} " styleClass="currentSort"  />
+<h:commandLink title="#{templateMessages.t_sortLastModified}" immediate="true" action="template" rendered="#{templateIndex.templateOrderBy=='lastModified' && templateIndex.templateAscending }">
+        <h:outputText  value="#{templateMessages.index_templates_modified} " styleClass="currentSort"  />
         
            <f:param name="templateSortType" value="lastModified"/>
            <f:param name="templateAscending" value="false"/>
            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
-           <h:graphicImage alt="#{msg.alt_sortLastModifiedDescending}" rendered="#{templateIndex.templateAscending}" url="/images/sortascending.gif"/>
+           <h:graphicImage alt="#{templateMessages.alt_sortLastModifiedDescending}" rendered="#{templateIndex.templateAscending}" url="/images/sortascending.gif"/>
         </h:commandLink>
-          <h:commandLink title="#{msg.t_sortLastModified}" immediate="true" action="template" rendered="#{templateIndex.templateOrderBy=='lastModified'&& !templateIndex.templateAscending }">
-<h:outputText  value="#{msg.index_templates_modified} " styleClass="currentSort"  />
+          <h:commandLink title="#{templateMessages.t_sortLastModified}" immediate="true" action="template" rendered="#{templateIndex.templateOrderBy=='lastModified'&& !templateIndex.templateAscending }">
+<h:outputText  value="#{templateMessages.index_templates_modified} " styleClass="currentSort"  />
            <f:param name="templateSortType" value="lastModified"/>
            <f:param name="templateAscending" value="true" />
            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
-           <h:graphicImage alt="#{msg.alt_sortLastModifiedAscending}" rendered="#{!templateIndex.templateAscending}" url="/images/sortdescending.gif"/>
+           <h:graphicImage alt="#{templateMessages.alt_sortLastModifiedAscending}" rendered="#{!templateIndex.templateAscending}" url="/images/sortdescending.gif"/>
           </h:commandLink>
          </h:panelGroup>
       </f:facet>
       <h:outputText value="#{templateListItem.modifiedDate}" rendered="#{person.isAdmin or (templateListItem.idString ne '1')}">
-         <f:convertDateTime pattern="#{genMsg.output_date_picker}"/>
+         <f:convertDateTime pattern="#{generalMessages.output_date_picker}"/>
       </h:outputText>
     </h:column>
 

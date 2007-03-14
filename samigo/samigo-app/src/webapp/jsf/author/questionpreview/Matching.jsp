@@ -44,7 +44,7 @@ should be included in file importing DeliveryMessages
     <h:column>
       <h:panelGrid columns="2">
         <h:selectOneMenu id="label" disabled="true">
-          <f:selectItem itemValue="" itemLabel="select"/>
+          <f:selectItem itemValue="" itemLabel="#{authorMessages.select_combo}"/>
           <f:selectItem itemValue="" itemLabel="A"/>
           <f:selectItem itemValue="" itemLabel="B"/>
           <f:selectItem itemValue="" itemLabel="C"/>
@@ -79,9 +79,9 @@ should be included in file importing DeliveryMessages
       <h:outputText escape="false" value="Answer Key: #{itemContents.itemData.answerKey}" />
       <f:verbatim><br/></f:verbatim>
       <%-- question level feedback --%>
-      <h:outputText escape="false" value="#{msg.q_level_feedb}:" />
+      <h:outputText escape="false" value="#{authorMessages.q_level_feedb}:" />
       <f:verbatim><br/>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-      <h:outputText escape="false" value="#{msg.correct}:  #{itemContents.itemData.correctItemFeedback}" />
+      <h:outputText escape="false" value="#{authorMessages.correct}:  #{itemContents.itemData.correctItemFeedback}" />
       <f:verbatim><br/>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-      <h:outputText escape="false" value="#{msg.incorrect}:  #{itemContents.itemData.inCorrectItemFeedback}"/>
+      <h:outputText escape="false" value="#{authorMessages.incorrect}:  #{itemContents.itemData.inCorrectItemFeedback}"/>
 

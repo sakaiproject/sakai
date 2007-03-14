@@ -20,7 +20,7 @@
 --%>
 -->
 <!-- 2a ATTACHMENTS -->
- <div class="longtext"><h:outputLabel value="#{msg.attachments}" />
+ <div class="longtext"><h:outputLabel value="#{authorMessages.attachments}" />
   <br/>
   <h:panelGroup rendered="#{itemauthor.hasAttachment}">
     <h:dataTable value="#{itemauthor.attachmentList}" var="attach">
@@ -43,20 +43,20 @@
     </h:dataTable>
   </h:panelGroup>
   <h:panelGroup rendered="#{!itemauthor.hasAttachment}">
-    <h:outputText escape="false" value="#{msg.no_attachments}" />
+    <h:outputText escape="false" value="#{authorMessages.no_attachments}" />
   </h:panelGroup>
 
   <h:panelGroup rendered="#{!itemauthor.hasAttachment}">
     <sakai:button_bar>
      <sakai:button_bar_item action="#{itemauthor.addAttachmentsRedirect}"
-           value="#{msg.add_attachments}" immediate="true"/>
+           value="#{authorMessages.add_attachments}" immediate="true"/>
     </sakai:button_bar>
   </h:panelGroup>
 
   <h:panelGroup rendered="#{itemauthor.hasAttachment}">
     <sakai:button_bar>
      <sakai:button_bar_item action="#{itemauthor.addAttachmentsRedirect}"
-           value="#{msg.add_remove_attachments}" immediate="true"/>
+           value="#{authorMessages.add_remove_attachments}" immediate="true"/>
     </sakai:button_bar>
   </h:panelGroup>
 

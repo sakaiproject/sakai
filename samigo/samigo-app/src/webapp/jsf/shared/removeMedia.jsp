@@ -28,34 +28,30 @@
 --%>
 -->
   <f:view>
-   
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.DeliveryMessages"
-     var="msg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.remove_p_conf}" /></title>
+      <title><h:outputText value="#{deliveryMessages.remove_p_conf}" /></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
  <!-- content... -->
 
  <h:form>
    <h:inputHidden id="mediaId" value="#{mediaBean.mediaId}"/>
-   <h3> <h:outputText  value="#{msg.remove_media_conf}" /></h3>
+   <h3> <h:outputText  value="#{deliveryMessages.remove_media_conf}" /></h3>
    <div class="validation tier1">
-          <h:outputText value="#{msg.cert_rem_media}" />
+          <h:outputText value="#{deliveryMessages.cert_rem_media}" />
    </div>
    <p>
      <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-     <h:outputLink title="#{msg.t_media}" value="#" onclick="window.open('#{mediaBean.mediaUrl}','new_window');" onkeypress="window.open('#{mediaBean.mediaUrl}','new_window');">
+     <h:outputLink title="#{deliveryMessages.t_media}" value="#" onclick="window.open('#{mediaBean.mediaUrl}','new_window');" onkeypress="window.open('#{mediaBean.mediaUrl}','new_window');">
        <h:outputText escape="false" value="#{mediaBean.filename}" />
      </h:outputLink>
    </p>
    <p class="act">
-      <h:commandButton id="remove" accesskey="#{msg.a_remove}" type="submit" value="#{msg.button_remove}" action="#{delivery.getOutcome}" styleClass="active">
+      <h:commandButton id="remove" accesskey="#{deliveryMessages.a_remove}" type="submit" value="#{deliveryMessages.button_remove}" action="#{delivery.getOutcome}" styleClass="active">
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.shared.RemoveMediaListener" />
       </h:commandButton>
-      <h:commandButton accesskey="#{msg.a_cancel}" id="cancel" value="#{msg.button_cancel}" type="submit" action="takeAssessment">
+      <h:commandButton accesskey="#{deliveryMessages.a_cancel}" id="cancel" value="#{deliveryMessages.button_cancel}" type="submit" action="takeAssessment">
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.UpdateTimerListener" />
       </h:commandButton>
    </p>

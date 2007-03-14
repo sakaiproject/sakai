@@ -30,15 +30,9 @@
 -->
 <%-- "checked in wysiwyg code but disabled, added in lydia's changes between 1.9 and 1.10" --%>
   <f:view>
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.AuthorMessages"
-     var="msg"/>
-   <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.GeneralMessages"
-     var="genMsg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.item_display_author}"/></title>
+      <title><h:outputText value="#{authorMessages.item_display_author}"/></title>
       <!-- AUTHORING -->
       <samigo:script path="/js/authoring.js"/>
       </head>
@@ -61,7 +55,7 @@
   <!-- 1 POINTS -->
 <div class="tier2">
 
-     <div class="shorttext"> <h:outputLabel value="#{msg.answer_point_value}" />
+     <div class="shorttext"> <h:outputLabel value="#{authorMessages.answer_point_value}" />
     <h:inputText id="answerptr" value="#{itemauthor.currentItem.itemScore}"required="true" size="6" >
 <f:validateDoubleRange /></h:inputText>
 
@@ -70,7 +64,7 @@
 <br/>
   <!-- 2 TEXT -->
 
-   <div class="longtext"><h:outputLabel value="#{msg.q_text}" />
+   <div class="longtext"><h:outputLabel value="#{authorMessages.q_text}" />
 </div>
   <!-- WYSIWYG -->
    
@@ -86,7 +80,7 @@
 
   <!-- 3 ANSWER -->
   <div class="longtext">
-    <h:outputLabel value="#{msg.answer} " />  </div>
+    <h:outputLabel value="#{authorMessages.answer} " />  </div>
   <!-- need to add a listener, for the radio button below,to toggle between single and multiple correct-->
 <div class="tier2">
     <h:selectOneRadio layout="lineDirection"
@@ -95,9 +89,9 @@
            value="#{itemauthor.currentItem.multipleCorrectString}"
 	valueChangeListener="#{itemauthor.currentItem.toggleChoiceTypes}" >
       <f:selectItem itemValue="1"
-        itemLabel="#{msg.single}" />
+        itemLabel="#{authorMessages.single}" />
       <f:selectItem itemValue="2"
-        itemLabel="#{msg.multipl_mc}" />
+        itemLabel="#{authorMessages.multipl_mc}" />
     </h:selectOneRadio>
 </div>
 
@@ -110,7 +104,7 @@
       
 
 	
-<h:outputText value="#{msg.correct_answer}"  />
+<h:outputText value="#{authorMessages.correct_answer}"  />
 <f:verbatim><br/></f:verbatim>
 <!-- if multiple correct, use checkboxes -->
         <h:selectManyCheckbox value="#{itemauthor.currentItem.corrAnswers}" id="mccheckboxes"
@@ -131,8 +125,8 @@
 </h:selectOneRadio>
 
 
-<h:commandLink title="#{msg.t_removeC}" id="removelink" onfocus="document.forms[1].onsubmit();" action="#{itemauthor.currentItem.removeChoices}">
-  <h:outputText id="text" value="#{msg.button_remove}"/>
+<h:commandLink title="#{authorMessages.t_removeC}" id="removelink" onfocus="document.forms[1].onsubmit();" action="#{itemauthor.currentItem.removeChoices}">
+  <h:outputText id="text" value="#{authorMessages.button_remove}"/>
   <f:param name="answerid" value="#{answer.label}"/>
 </h:commandLink>
  </h:panelGroup>
@@ -144,7 +138,7 @@
  </h:panelGrid>
 
  
-          <h:outputText value="#{msg.feedback_optional}" rendered="#{itemauthor.target == 'questionpool' || assessmentSettings.feedbackAuthoring ne '1'}" />
+          <h:outputText value="#{authorMessages.feedback_optional}" rendered="#{itemauthor.target == 'questionpool' || assessmentSettings.feedbackAuthoring ne '1'}" />
     
         <!-- WYSIWYG -->
 
@@ -161,9 +155,9 @@
 </div>
 <h:inputHidden id="selectedRadioBtn" value="#{itemauthor.currentItem.corrAnswer}" />
 <div class="shorttext tier2">
-  <h:outputText value="#{msg.insert_additional_a}" />
+  <h:outputText value="#{authorMessages.insert_additional_a}" />
 <h:selectOneMenu  id="insertAdditionalAnswerSelectMenu"  onchange="this.form.onsubmit(); clickAddChoiceLink();" value="#{itemauthor.currentItem.additionalChoices}" >
-  <f:selectItem itemLabel="#{msg.select_menu}" itemValue="0"/>
+  <f:selectItem itemLabel="#{authorMessages.select_menu}" itemValue="0"/>
   <f:selectItem itemLabel="1" itemValue="1"/>
   <f:selectItem itemLabel="2" itemValue="2"/>
   <f:selectItem itemLabel="3" itemValue="3"/>
@@ -177,29 +171,29 @@
 <br/>
     <!-- 4 RANDOMIZE -->
   <div class="longtext">
-    <h:outputLabel value="#{msg.randomize_answers}" />    </div>
+    <h:outputLabel value="#{authorMessages.randomize_answers}" />    </div>
 <div class="tier3">
     <h:selectOneRadio value="#{itemauthor.currentItem.randomized}" >
      <f:selectItem itemValue="true"
-       itemLabel="#{msg.yes}" />
+       itemLabel="#{authorMessages.yes}" />
      <f:selectItem itemValue="false"
-       itemLabel="#{msg.no}" />
+       itemLabel="#{authorMessages.no}" />
     </h:selectOneRadio>
   </div>
 
     <!-- 5 RATIONALE -->
    <div class="longtext">
- <h:outputLabel value="#{msg.require_rationale}" /></div>
+ <h:outputLabel value="#{authorMessages.require_rationale}" /></div>
 <div class="tier3">
     <h:selectOneRadio value="#{itemauthor.currentItem.rationale}" >
-     <f:selectItem itemValue="true" itemLabel="#{msg.yes}"/>
-     <f:selectItem itemValue="false" itemLabel="#{msg.no}" />
+     <f:selectItem itemValue="true" itemLabel="#{authorMessages.yes}"/>
+     <f:selectItem itemValue="false" itemLabel="#{authorMessages.no}" />
     </h:selectOneRadio>
 </div>
     <!-- 6 PART -->
 <h:panelGrid columns="3"  columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}">
 <f:verbatim>&nbsp;</f:verbatim>
-<h:outputLabel value="#{msg.assign_to_p} " />
+<h:outputLabel value="#{authorMessages.assign_to_p} " />
   <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
      <f:selectItems value="#{itemauthor.sectionSelectList}" />
   </h:selectOneMenu>
@@ -210,9 +204,9 @@
 
 <h:panelGrid columns="3" columnClasses="shorttext" rendered="#{itemauthor.target == 'assessment'}">
 <f:verbatim>&nbsp;</f:verbatim>
-  <h:outputLabel value="#{msg.assign_to_question_p} " />
+  <h:outputLabel value="#{authorMessages.assign_to_question_p} " />
   <h:selectOneMenu rendered="#{itemauthor.target == 'assessment'}" id="assignToPool" value="#{itemauthor.currentItem.selectedPool}">
-     <f:selectItem itemValue="" itemLabel="#{msg.select_a_pool_name}" />
+     <f:selectItem itemValue="" itemLabel="#{authorMessages.select_a_pool_name}" />
      <f:selectItems value="#{itemauthor.poolSelectList}" />
   </h:selectOneMenu>
 
@@ -223,10 +217,10 @@
 <h:panelGroup rendered="#{itemauthor.target == 'questionpool' || assessmentSettings.feedbackAuthoring ne '2'}">
  <h:outputText value=" " escape="false"/>
  <f:verbatim> <div class="longtext"></f:verbatim>
-  <h:outputLabel value="#{msg.correct_incorrect_an}" />
+  <h:outputLabel value="#{authorMessages.correct_incorrect_an}" />
  <f:verbatim></div> </f:verbatim>
  <f:verbatim><div class="tier2"> </f:verbatim>
-  <h:outputText value="#{msg.correct_answer_opti}" />
+  <h:outputText value="#{authorMessages.correct_answer_opti}" />
 <br/>
   <!-- WYSIWYG -->
   
@@ -237,7 +231,7 @@
    </samigo:wysiwyg>
 </h:panelGrid>
  <f:verbatim><br/> </f:verbatim>
- <h:outputText value="#{msg.incorrect_answer_op}" />
+ <h:outputText value="#{authorMessages.incorrect_answer_op}" />
 
   <!-- WYSIWYG -->
    <h:panelGrid>
@@ -255,47 +249,47 @@
 
 
 <h:panelGrid columns="2" columnClasses="shorttext">
-<h:outputText value="#{msg.objective}" />
+<h:outputText value="#{authorMessages.objective}" />
   <h:inputText size="30" id="obj" value="#{itemauthor.currentItem.objective}" />
-<h:outputText value="#{msg.keyword}" />
+<h:outputText value="#{authorMessages.keyword}" />
   <h:inputText size="30" id="keyword" value="#{itemauthor.currentItem.keyword}" />
-<h:outputText value="#{msg.rubric_colon}" />
+<h:outputText value="#{authorMessages.rubric_colon}" />
   <h:inputText size="30" id="rubric" value="#{itemauthor.currentItem.rubric}" />
 </h:panelGrid>
 </h:panelGroup>
 </div>
 
 <p class="act">
-  <h:commandButton accesskey="#{msg.a_save}" rendered="#{itemauthor.target=='assessment' && !itemauthor.currentItem.multipleCorrect}" value="#{msg.button_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active">
+  <h:commandButton accesskey="#{authorMessages.a_save}" rendered="#{itemauthor.target=='assessment' && !itemauthor.currentItem.multipleCorrect}" value="#{authorMessages.button_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
   </h:commandButton>
  
 
- <h:commandButton accesskey="#{msg.a_save}" rendered="#{itemauthor.target=='assessment' && itemauthor.currentItem.multipleCorrect}" value="#{msg.button_save}" action="#{itemauthor.currentItem.getOutcome}"  styleClass="active">
+ <h:commandButton accesskey="#{authorMessages.a_save}" rendered="#{itemauthor.target=='assessment' && itemauthor.currentItem.multipleCorrect}" value="#{authorMessages.button_save}" action="#{itemauthor.currentItem.getOutcome}"  styleClass="active">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
   </h:commandButton>
 
 
-  <h:commandButton accesskey="#{msg.a_save}" rendered="#{itemauthor.target=='questionpool' && !itemauthor.currentItem.multipleCorrect}" value="#{msg.button_save}" action="#{itemauthor.currentItem.getPoolOutcome}"  styleClass="active">
+  <h:commandButton accesskey="#{authorMessages.a_save}" rendered="#{itemauthor.target=='questionpool' && !itemauthor.currentItem.multipleCorrect}" value="#{authorMessages.button_save}" action="#{itemauthor.currentItem.getPoolOutcome}"  styleClass="active">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
   </h:commandButton>
 
-  <h:commandButton accesskey="#{msg.a_save}" rendered="#{itemauthor.target=='questionpool' && itemauthor.currentItem.multipleCorrect}" value="#{msg.button_save}" action="#{itemauthor.currentItem.getPoolOutcome}" styleClass="active">
+  <h:commandButton accesskey="#{authorMessages.a_save}" rendered="#{itemauthor.target=='questionpool' && itemauthor.currentItem.multipleCorrect}" value="#{authorMessages.button_save}" action="#{itemauthor.currentItem.getPoolOutcome}" styleClass="active">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemAddListener" />
   </h:commandButton>
 
-  <h:commandButton accesskey="#{msg.a_cancel}" rendered="#{itemauthor.target=='assessment'}" value="#{msg.button_cancel}" action="editAssessment" immediate="true">
+  <h:commandButton accesskey="#{authorMessages.a_cancel}" rendered="#{itemauthor.target=='assessment'}" value="#{authorMessages.button_cancel}" action="editAssessment" immediate="true">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ResetItemAttachmentListener" />
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />
   </h:commandButton>
 
- <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{msg.button_cancel}" action="editPool" immediate="true">
+ <h:commandButton rendered="#{itemauthor.target=='questionpool'}" value="#{authorMessages.button_cancel}" action="editPool" immediate="true">
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ResetItemAttachmentListener" />
  </h:commandButton>

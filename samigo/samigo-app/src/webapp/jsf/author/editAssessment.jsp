@@ -29,16 +29,9 @@
 --%>
 -->
   <f:view>
-
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.AuthorMessages"
-     var="msg"/>
-     <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.GeneralMessages"
-     var="genMsg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.create_modify_a}" /></title>
+      <title><h:outputText value="#{authorMessages.create_modify_a}" /></title>
 <script language="javascript" style="text/JavaScript">
 <!--
 function resetSelectMenus(){
@@ -93,35 +86,35 @@ document.links[newindex].onclick();
 
   <div class="navView">
     <h3>
-       <h:outputText value="#{msg.qs}#{msg.column} #{assessmentBean.title}" />
+       <h:outputText value="#{authorMessages.qs}#{authorMessages.column} #{assessmentBean.title}" />
     </h3>
   </div><div class="navList">
-    <h:outputText value="#{assessmentBean.questionSize} #{msg.existing_qs} #{msg.dash} " rendered="#{assessmentBean.questionSize > 1}" />
-	<h:outputText value="#{assessmentBean.questionSize} #{msg.existing_q} #{msg.dash} " rendered="#{assessmentBean.questionSize == 1}" />
-	<h:outputText value="#{assessmentBean.questionSize} #{msg.existing_qs} #{msg.dash} " rendered="#{assessmentBean.questionSize == 0}" />
+    <h:outputText value="#{assessmentBean.questionSize} #{authorMessages.existing_qs} #{authorMessages.dash} " rendered="#{assessmentBean.questionSize > 1}" />
+	<h:outputText value="#{assessmentBean.questionSize} #{authorMessages.existing_q} #{authorMessages.dash} " rendered="#{assessmentBean.questionSize == 1}" />
+	<h:outputText value="#{assessmentBean.questionSize} #{authorMessages.existing_qs} #{authorMessages.dash} " rendered="#{assessmentBean.questionSize == 0}" />
     <h:outputText value="#{assessmentBean.totalScore}">
   <f:convertNumber maxFractionDigits="2"/>
     </h:outputText>
-    <h:outputText value="#{msg.total_pts}" rendered="#{assessmentBean.totalScore > 1}" />
-    <h:outputText value="#{msg.total_pt}" rendered="#{assessmentBean.totalScore == 1}" />
-    <h:outputText value="#{msg.total_pts}" rendered="#{assessmentBean.totalScore == 0}" />
+    <h:outputText value="#{authorMessages.total_pts}" rendered="#{assessmentBean.totalScore > 1}" />
+    <h:outputText value="#{authorMessages.total_pt}" rendered="#{assessmentBean.totalScore == 1}" />
+    <h:outputText value="#{authorMessages.total_pts}" rendered="#{assessmentBean.totalScore == 0}" />
 
  </div>
   <p class="navViewAction">
-    <h:commandLink title="#{msg.t_addPart}" id="addPart" action="editPart" immediate="true">
-      <h:outputText value="#{msg.subnav_add_part}" />
+    <h:commandLink title="#{authorMessages.t_addPart}" id="addPart" action="editPart" immediate="true">
+      <h:outputText value="#{authorMessages.subnav_add_part}" />
       <f:param name="assessmentId" value="#{assessmentBean.assessmentId}"/>
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorPartListener" />
     </h:commandLink>
-    <h:outputText value=" #{msg.separator} " />
-    <h:commandLink title="#{msg.t_settings}" id="editAssessmentSettings" action="editAssessmentSettings" immediate="true">
-      <h:outputText value="#{msg.subnav_settings}" />
+    <h:outputText value=" #{authorMessages.separator} " />
+    <h:commandLink title="#{authorMessages.t_settings}" id="editAssessmentSettings" action="editAssessmentSettings" immediate="true">
+      <h:outputText value="#{authorMessages.subnav_settings}" />
       <f:param name="assessmentId" value="#{assessmentBean.assessmentId}"/>
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorSettingsListener" />
     </h:commandLink>
-    <h:outputText value=" #{msg.separator} " />
-      <h:commandLink  title="#{msg.t_preview}" action="beginAssessment">
-        <h:outputText value="#{msg.subnav_preview}"/>
+    <h:outputText value=" #{authorMessages.separator} " />
+      <h:commandLink  title="#{authorMessages.t_preview}" action="beginAssessment">
+        <h:outputText value="#{authorMessages.subnav_preview}"/>
         <f:param name="assessmentId" value="#{assessmentBean.assessmentId}"/>
 <!--        <f:param name="previewAssessment" value="true"/> -->
         <f:param name="actionString" value="previewAssessment" />
@@ -131,11 +124,11 @@ document.links[newindex].onclick();
 
 
 <h:panelGrid columns="2" columnClasses="shortText">
-  <h:outputLabel for="changeQType" value="#{msg.add_q}   "/>
+  <h:outputLabel for="changeQType" value="#{authorMessages.add_q}   "/>
 <h:selectOneMenu onchange="clickInsertLink(this);"
   value="#{itemauthor.itemType}" id="changeQType">
   <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
-  <f:selectItem itemLabel="#{msg.import_from_q}" itemValue="10"/>
+  <f:selectItem itemLabel="#{authorMessages.import_from_q}" itemValue="10"/>
 </h:selectOneMenu>
 </h:panelGrid>
 <h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="">
@@ -154,7 +147,7 @@ document.links[newindex].onclick();
 <f:verbatim><h4></f:verbatim>
  <h:panelGrid columns="2" width="100%" columnClasses="navView,navList">
       <h:panelGroup>
-<h:outputText value="#{msg.p}" /> <f:verbatim>&nbsp; </b></f:verbatim>
+<h:outputText value="#{authorMessages.p}" /> <f:verbatim>&nbsp; </b></f:verbatim>
         <h:selectOneMenu id="number" value="#{partBean.number}" onchange="document.forms[0].submit();" >
           <f:selectItems value="#{assessmentBean.partNumbers}" />
           <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.ReorderPartsListener" />
@@ -162,29 +155,29 @@ document.links[newindex].onclick();
  <f:verbatim>&nbsp; </f:verbatim>
 
 	<h:panelGroup >
-		<h:outputText rendered="#{(partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString == '1') && partBean.questions > 1}" value="#{partBean.title} #{msg.dash} #{partBean.questions} #{msg.questions_lower_case}"/>
-		<h:outputText rendered="#{(partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString == '1') && partBean.questions == 1}" value="#{partBean.title} #{msg.dash} #{partBean.questions} #{msg.question_lower_case}"/>
-		<h:outputText rendered="#{(partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString == '1') && partBean.questions == 0}" value="#{partBean.title} #{msg.dash} #{partBean.questions} #{msg.questions_lower_case}"/>
+		<h:outputText rendered="#{(partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString == '1') && partBean.questions > 1}" value="#{partBean.title} #{authorMessages.dash} #{partBean.questions} #{authorMessages.questions_lower_case}"/>
+		<h:outputText rendered="#{(partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString == '1') && partBean.questions == 1}" value="#{partBean.title} #{authorMessages.dash} #{partBean.questions} #{authorMessages.question_lower_case}"/>
+		<h:outputText rendered="#{(partBean.sectionAuthorType== null || partBean.sectionAuthorTypeString == '1') && partBean.questions == 0}" value="#{partBean.title} #{authorMessages.dash} #{partBean.questions} #{authorMessages.questions_lower_case}"/>
 
-		<h:outputText rendered="#{(partBean.sectionAuthorType!= null &&partBean.sectionAuthorTypeString == '2') && partBean.numberToBeDrawnString > 1}" value="#{msg.random_draw_type} <#{partBean.poolNameToBeDrawn}> - #{partBean.numberToBeDrawnString} #{msg.questions_lower_case}"/>
-		<h:outputText rendered="#{(partBean.sectionAuthorType!= null &&partBean.sectionAuthorTypeString == '2') && partBean.numberToBeDrawnString == 1}" value="#{msg.random_draw_type} <#{partBean.poolNameToBeDrawn}> - #{partBean.numberToBeDrawnString} #{msg.question_lower_case}"/>
+		<h:outputText rendered="#{(partBean.sectionAuthorType!= null &&partBean.sectionAuthorTypeString == '2') && partBean.numberToBeDrawnString > 1}" value="#{authorMessages.random_draw_type} <#{partBean.poolNameToBeDrawn}> - #{partBean.numberToBeDrawnString} #{authorMessages.questions_lower_case}"/>
+		<h:outputText rendered="#{(partBean.sectionAuthorType!= null &&partBean.sectionAuthorTypeString == '2') && partBean.numberToBeDrawnString == 1}" value="#{authorMessages.random_draw_type} <#{partBean.poolNameToBeDrawn}> - #{partBean.numberToBeDrawnString} #{authorMessages.question_lower_case}"/>
 
 	</h:panelGroup>
 
      </h:panelGroup>
       <h:panelGroup>
     
-        <h:commandLink title="#{msg.t_removeP}" action="confirmRemovePart" immediate="true"
+        <h:commandLink title="#{authorMessages.t_removeP}" action="confirmRemovePart" immediate="true"
           rendered="#{partBean.number ne 1}">
-          <h:outputText value="#{msg.remove_part}" />
+          <h:outputText value="#{authorMessages.remove_part}" />
           <!-- use this to set the sectionBean.sectionId in ConfirmRemovePartListener -->
           <f:param name="sectionId" value="#{partBean.sectionId}"/>
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRemovePartListener" />
         </h:commandLink>
-          <h:outputText value=" #{msg.separator} " rendered="#{partBean.number ne 1}"/>
+          <h:outputText value=" #{authorMessages.separator} " rendered="#{partBean.number ne 1}"/>
 
-        <h:commandLink title="#{msg.t_editP}" id="editPart" immediate="true" action="editPart">
-          <h:outputText value="#{msg.button_modify}" />
+        <h:commandLink title="#{authorMessages.t_editP}" id="editPart" immediate="true" action="editPart">
+          <h:outputText value="#{authorMessages.button_modify}" />
           <f:param name="sectionId" value="#{partBean.sectionId}"/>
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditPartListener" />
         </h:commandLink>
@@ -197,11 +190,11 @@ document.links[newindex].onclick();
         <%@ include file="/jsf/author/part_attachment.jsp" %>
 <f:verbatim><div class="tier2"></f:verbatim>
 
-        <h:outputText rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '2'}" value="#{msg.random_draw_msg}" />
+        <h:outputText rendered="#{partBean.sectionAuthorType!= null && partBean.sectionAuthorTypeString == '2'}" value="#{authorMessages.random_draw_msg}" />
 
 <!-- this insert should only show up when there are no questions in this part -->
 <h:panelGroup rendered="#{partBean.itemContentsSize eq '0'}">
-    <f:verbatim>    <div class="longtext"> </f:verbatim> <h:outputLabel for="changeQType" value="#{msg.ins_new_q} "/>
+    <f:verbatim>    <div class="longtext"> </f:verbatim> <h:outputLabel for="changeQType" value="#{authorMessages.ins_new_q} "/>
 
 <!-- each selectItem stores the itemtype, current sequence -->
 
@@ -210,7 +203,7 @@ document.links[newindex].onclick();
   <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.StartInsertItemListener" />
 
   <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
-  <f:selectItem itemLabel="#{msg.import_from_q}" itemValue="10,#{partBean.number},0"/>
+  <f:selectItem itemLabel="#{authorMessages.import_from_q}" itemValue="10,#{partBean.number},0"/>
 </h:selectOneMenu>
  <f:verbatim>    </div> </f:verbatim>
 <h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="">
@@ -227,7 +220,7 @@ document.links[newindex].onclick();
 <f:verbatim><h5></f:verbatim>
          <h:panelGrid columns="2" width="100%" columnClasses="navView,navList">
           <h:panelGroup>
-          <h:outputText value="#{msg.q} " />
+          <h:outputText value="#{authorMessages.q} " />
             <h:inputHidden id="currItemId" value="#{question.itemData.itemIdString}"/>
             <h:selectOneMenu id="number" onchange="document.forms[0].submit();" value="#{question.number}">
               <f:selectItems value="#{partBean.questionNumbers}" />
@@ -235,33 +228,33 @@ document.links[newindex].onclick();
             </h:selectOneMenu>
 
 	<h:panelGroup >
-     <h:outputText rendered="#{question.itemData.typeId== 1}" value=" #{msg.multiple_choice_sin}"/>
-     <h:outputText rendered="#{question.itemData.typeId== 2}" value=" #{msg.multiple_choice_mul}"/>
-     <h:outputText rendered="#{question.itemData.typeId== 3}" value=" #{msg.multiple_choice_surv}"/>
-     <h:outputText rendered="#{question.itemData.typeId== 4}" value=" #{msg.true_false}"/>
-     <h:outputText rendered="#{question.itemData.typeId== 5}" value=" #{msg.short_answer_essay}"/>
-     <h:outputText rendered="#{question.itemData.typeId== 8}" value=" #{msg.fill_in_the_blank}"/>
-     <h:outputText rendered="#{question.itemData.typeId== 11}" value=" #{msg.fill_in_numeric}"/>
-     <h:outputText rendered="#{question.itemData.typeId== 9}" value=" #{msg.matching}"/>
-     <h:outputText rendered="#{question.itemData.typeId== 7}" value=" #{msg.audio_recording}"/>
-     <h:outputText rendered="#{question.itemData.typeId== 6}" value=" #{msg.file_upload}"/>
+     <h:outputText rendered="#{question.itemData.typeId== 1}" value=" #{authorMessages.multiple_choice_sin}"/>
+     <h:outputText rendered="#{question.itemData.typeId== 2}" value=" #{authorMessages.multiple_choice_mul}"/>
+     <h:outputText rendered="#{question.itemData.typeId== 3}" value=" #{authorMessages.multiple_choice_surv}"/>
+     <h:outputText rendered="#{question.itemData.typeId== 4}" value=" #{authorMessages.true_false}"/>
+     <h:outputText rendered="#{question.itemData.typeId== 5}" value=" #{authorMessages.short_answer_essay}"/>
+     <h:outputText rendered="#{question.itemData.typeId== 8}" value=" #{authorMessages.fill_in_the_blank}"/>
+     <h:outputText rendered="#{question.itemData.typeId== 11}" value=" #{authorMessages.fill_in_numeric}"/>
+     <h:outputText rendered="#{question.itemData.typeId== 9}" value=" #{authorMessages.matching}"/>
+     <h:outputText rendered="#{question.itemData.typeId== 7}" value=" #{authorMessages.audio_recording}"/>
+     <h:outputText rendered="#{question.itemData.typeId== 6}" value=" #{authorMessages.file_upload}"/>
 
-		<h:outputText value=" #{msg.dash} #{question.itemData.score}" />
-		<h:outputText rendered="#{question.itemData.score > 1}" value=" #{msg.points_lower_case}"/>
-		<h:outputText rendered="#{question.itemData.score == 1}" value=" #{msg.point_lower_case}"/>
-		<h:outputText rendered="#{question.itemData.score == 0}" value=" #{msg.points_lower_case}"/>
+		<h:outputText value=" #{authorMessages.dash} #{question.itemData.score}" />
+		<h:outputText rendered="#{question.itemData.score > 1}" value=" #{authorMessages.points_lower_case}"/>
+		<h:outputText rendered="#{question.itemData.score == 1}" value=" #{authorMessages.point_lower_case}"/>
+		<h:outputText rendered="#{question.itemData.score == 0}" value=" #{authorMessages.points_lower_case}"/>
 	</h:panelGroup>
 
 
         </h:panelGroup>
           <h:panelGroup>
-            <h:commandLink title="#{msg.t_removeQ}" immediate="true" id="deleteitem" action="#{itemauthor.confirmDeleteItem}">
-              <h:outputText value="#{msg.button_remove}" />
+            <h:commandLink title="#{authorMessages.t_removeQ}" immediate="true" id="deleteitem" action="#{itemauthor.confirmDeleteItem}">
+              <h:outputText value="#{authorMessages.button_remove}" />
               <f:param name="itemid" value="#{question.itemData.itemIdString}"/>
             </h:commandLink>
-            <h:outputText value=" #{msg.separator} " />
-            <h:commandLink title="#{msg.t_editQ}" id="modify" action="#{itemauthor.doit}" immediate="true">
-              <h:outputText value="#{msg.button_modify}" />
+            <h:outputText value=" #{authorMessages.separator} " />
+            <h:commandLink title="#{authorMessages.t_editQ}" id="modify" action="#{itemauthor.doit}" immediate="true">
+              <h:outputText value="#{authorMessages.button_modify}" />
               <f:actionListener
                   type="org.sakaiproject.tool.assessment.ui.listener.author.ItemModifyListener" />
               <f:param name="itemid" value="#{question.itemData.itemIdString}"/>
@@ -313,7 +306,7 @@ document.links[newindex].onclick();
             <%@ include file="/jsf/author/preview_item/MultipleChoiceSingleCorrect.jsp" %>
           </h:panelGroup>
 <f:verbatim> </div></f:verbatim>
-    <f:verbatim>    <div class="longtext"> </f:verbatim> <h:outputLabel for="changeQType" value="#{msg.ins_new_q} "/>
+    <f:verbatim>    <div class="longtext"> </f:verbatim> <h:outputLabel for="changeQType" value="#{authorMessages.ins_new_q} "/>
 
 <!-- each selectItem stores the itemtype, current sequence -->
 
@@ -322,7 +315,7 @@ document.links[newindex].onclick();
   <f:valueChangeListener type="org.sakaiproject.tool.assessment.ui.listener.author.StartInsertItemListener" />
 
   <f:selectItems value="#{itemConfig.itemTypeSelectList}" />
-  <f:selectItem itemLabel="#{msg.import_from_q}" itemValue="10,#{partBean.number},#{question.itemData.sequence}"/>
+  <f:selectItem itemLabel="#{authorMessages.import_from_q}" itemValue="10,#{partBean.number},#{question.itemData.sequence}"/>
 </h:selectOneMenu>
  <f:verbatim>    </div> </f:verbatim>
 <h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="">
@@ -334,7 +327,7 @@ document.links[newindex].onclick();
   </h:column>
 </h:dataTable>
 
-<h:outputText rendered="#{assessmentBean.hasRandomDrawPart}" value="#{msg.random_draw_total_score}"/>
+<h:outputText rendered="#{assessmentBean.hasRandomDrawPart}" value="#{authorMessages.random_draw_total_score}"/>
 </div>
 
 

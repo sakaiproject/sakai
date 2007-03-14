@@ -31,11 +31,9 @@ $Id: createNewEmail.jsp 18063 2006-11-09 00:00:17Z ktsao@stanford.edu $
 -->
 
 <f:view>
-<f:loadBundle basename="org.sakaiproject.tool.assessment.bundle.EvaluationMessages" var="msg"/>
-<f:loadBundle basename="org.sakaiproject.tool.assessment.bundle.GeneralMessages" var="genMsg"/>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head><%= request.getAttribute("html.head") %>
-<title><h:outputText value="#{msg.title_create_new_email}#{msg.colon} <Assessment Title> #{msg.feedback}" /></title>
+<title><h:outputText value="#{evaluationMessages.title_create_new_email}#{evaluationMessages.colon} <Assessment Title> #{evaluationMessages.feedback}" /></title>
 </head>
 <body onload="<%= request.getAttribute("html.body.onload") %>">
 
@@ -45,27 +43,27 @@ $Id: createNewEmail.jsp 18063 2006-11-09 00:00:17Z ktsao@stanford.edu $
 
 </script>
 <h3>
-<h:outputText value="#{msg.title_create_new_email}" />
+<h:outputText value="#{evaluationMessages.title_create_new_email}" />
 </h3>
 
 <h:panelGrid columns="1" columnClasses="navView,navView" border="0">	
 	<h:panelGrid columns="2" columnClasses="navView" border="0">	
-	<h:outputText value="#{msg.from}" />
+	<h:outputText value="#{evaluationMessages.from}" />
 	<h:outputText value="#{email.fromName} <#{email.fromEmailAddress}>" />
 
-	<h:outputText value="#{msg.to}" />    
+	<h:outputText value="#{evaluationMessages.to}" />    
 	<h:outputText value="#{email.toName} <#{email.toEmailAddress}>" />  
 
-	<h:outputText value="#{msg.subject}" />  
+	<h:outputText value="#{evaluationMessages.subject}" />  
 	<h:outputText id="subject" value="#{email.subject}" />    
 
-	<h:outputText value="#{msg.cc_me}" />
+	<h:outputText value="#{evaluationMessages.cc_me}" />
 	<h:selectOneRadio value="#{email.ccMe}">
-		<f:selectItem itemLabel="#{msg.yes}" itemValue="yes"/>
-		<f:selectItem itemLabel="#{msg.no}" itemValue="no"/>
+		<f:selectItem itemLabel="#{evaluationMessages.yes}" itemValue="yes"/>
+		<f:selectItem itemLabel="#{evaluationMessages.no}" itemValue="no"/>
 	</h:selectOneRadio>
 
-	<h:outputText value="#{msg.message}" />
+	<h:outputText value="#{evaluationMessages.message}" />
 	<h:outputText value="" />
 	</h:panelGrid>
 
@@ -82,8 +80,8 @@ $Id: createNewEmail.jsp 18063 2006-11-09 00:00:17Z ktsao@stanford.edu $
 			</h:panelGrid>
 
 			<h:panelGrid columns="2" border="0">
-				<h:commandButton id="send" accesskey="#{msg.a_send}" styleClass="active" value="#{msg.send}" action="#{email.send}" type="submit" />
-				<h:commandButton id="cancel"onclick="window.close();" onkeypress="window.close();"  accesskey="#{msg.a_cancel}" value="#{msg.cancel}" action="#{email.cancel}" immediate="true"/>
+				<h:commandButton id="send" accesskey="#{evaluationMessages.a_send}" styleClass="active" value="#{evaluationMessages.send}" action="#{email.send}" type="submit" />
+				<h:commandButton id="cancel"onclick="window.close();" onkeypress="window.close();"  accesskey="#{evaluationMessages.a_cancel}" value="#{evaluationMessages.cancel}" action="#{email.cancel}" immediate="true"/>
 			</h:panelGrid>
 		</h:panelGrid>
 	</f:facet>

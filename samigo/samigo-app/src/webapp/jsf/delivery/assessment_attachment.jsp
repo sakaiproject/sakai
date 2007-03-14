@@ -21,7 +21,7 @@
 --%>
 -->
 <!-- 2a ATTACHMENTS -->
- <div class="tier1"><h:outputLabel value="#{msg.attachments}" rendered="#{delivery.hasAttachment}"/>
+ <div class="tier1"><h:outputLabel value="#{deliveryMessages.attachments}" rendered="#{delivery.hasAttachment}"/>
   <br/>
   <h:panelGroup rendered="#{delivery.hasAttachment}">
     <h:dataTable value="#{delivery.attachmentList}" var="attach">

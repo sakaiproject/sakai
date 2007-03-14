@@ -31,7 +31,7 @@ should be included in file importing DeliveryMessages
       <h:dataTable value="#{itemText.answerArray}" var="answer">
         <h:column>
        
-<h:outputLabel rendered="#{answer.textIsNotEmpty}" value="#{msg.preview_model_short_answer}" />
+<h:outputLabel rendered="#{answer.textIsNotEmpty}" value="#{authorMessages.preview_model_short_answer}" />
           <f:verbatim><br/></f:verbatim>
           <h:outputText rendered="#{answer.textIsNotEmpty}" escape="false" value="#{answer.text}" />
 
@@ -43,7 +43,7 @@ should be included in file importing DeliveryMessages
 
 
 <h:panelGroup rendered="#{question.itemData.generalItemFbIsNotEmpty && assessmentSettings.feedbackAuthoring ne '2' }">
-  <h:outputLabel value="#{msg.feedback}: " />
+  <h:outputLabel value="#{authorMessages.feedback}: " />
   <h:outputText value="#{question.itemData.generalItemFeedback}" escape="false" />
 
 </h:panelGroup>

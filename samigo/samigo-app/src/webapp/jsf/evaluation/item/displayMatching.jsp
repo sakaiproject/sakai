@@ -26,10 +26,10 @@ include file for displaying matching questions
 <h:outputText value="#{question.text}"  escape="false"/>
 <h:dataTable value="#{question.itemTextArraySorted}" var="itemText">
  <h:column>
-   <h:outputText value="#{itemText.sequence}#{msg.dot} #{itemText.text}" escape="false" />
+   <h:outputText value="#{itemText.sequence}#{evaluationMessages.dot} #{itemText.text}" escape="false" />
    <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
      <h:column>
-      <h:graphicImage alt="#{msg.alt_correct}" id="image4" rendered="#{answer.isCorrect}"
+      <h:graphicImage alt="#{evaluationMessages.alt_correct}" id="image4" rendered="#{answer.isCorrect}"
         url="/images/delivery/checkmark.gif" >
        </h:graphicImage>
       <h:graphicImage id="image5" rendered="#{!answer.isCorrect}"

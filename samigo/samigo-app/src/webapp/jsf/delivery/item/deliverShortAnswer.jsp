@@ -33,7 +33,7 @@ should be included in file importing DeliveryMessages
      rendered="#{!(delivery.actionString=='reviewAssessment'
             || delivery.actionString=='gradeAssessment')}">
 <f:verbatim><br/><br/></f:verbatim>
-<h:outputText value="#{msg.maxSAText}"/>
+<h:outputText value="#{deliveryMessages.maxSAText}"/>
 </h:panelGroup> 
 <f:verbatim><br/></f:verbatim>
 <h:inputTextarea rows="20" cols="80" value="#{question.responseText}" 
@@ -52,7 +52,7 @@ should be included in file importing DeliveryMessages
                 || delivery.actionString=='takeAssessmentViaUrl')
              && delivery.navigation ne '1'}" />
 
-<h:outputLabel for="mark_for_review" value="#{msg.mark}"
+<h:outputLabel for="mark_for_review" value="#{deliveryMessages.mark}"
   rendered="#{(delivery.actionString=='previewAssessment'
                 || delivery.actionString=='takeAssessment'
                 || delivery.actionString=='takeAssessmentViaUrl')
@@ -62,12 +62,12 @@ should be included in file importing DeliveryMessages
   <f:verbatim><br /></f:verbatim>
   <h:panelGroup rendered="#{delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'&& question.modelAnswerIsNotEmpty}" >
     <f:verbatim><b></f:verbatim>
-    <h:outputLabel for="answerKeyMC" value="#{msg.model} " />
+    <h:outputLabel for="answerKeyMC" value="#{deliveryMessages.model} " />
      <f:verbatim></b></f:verbatim>
     <h:outputText  value="#{question.key}" escape="false"/>
 <%-- alert screen is a problem 'cos comment often contains html tag added in WYSIWYG
-    <h:outputLink title="#{msg.t_key}" value="#" onclick="javascript:window.alert('#{question.keyInUnicode}');"  onkeypress="javascript:window.alert('#{question.keyInUnicode}');" >
-    <h:outputText  value="#{msg.click}" />
+    <h:outputLink title="#{deliveryMessages.t_key}" value="#" onclick="javascript:window.alert('#{question.keyInUnicode}');"  onkeypress="javascript:window.alert('#{question.keyInUnicode}');" >
+    <h:outputText  value="#{deliveryMessages.click}" />
     </h:outputLink>
 --%>
 
@@ -75,14 +75,14 @@ should be included in file importing DeliveryMessages
   <h:panelGroup rendered="#{delivery.feedbackComponent.showItemLevel && !delivery.noFeedback=='true' && question.feedbackIsNotEmpty}">
     <f:verbatim><br /></f:verbatim>
     <f:verbatim><b></f:verbatim>
-    <h:outputLabel for="feedSC" value="#{msg.feedback}#{msg.column} " />
+    <h:outputLabel for="feedSC" value="#{deliveryMessages.feedback}#{deliveryMessages.column} " />
     <f:verbatim></b></f:verbatim>
     <h:outputText id="feedSC" value="#{question.feedback}" escape="false" />
   </h:panelGroup>
   <h:panelGroup rendered="#{delivery.feedbackComponent.showGraderComment && !delivery.noFeedback=='true' && question.gradingCommentIsNotEmpty}">
     <f:verbatim><br /></f:verbatim>
     <f:verbatim><b></f:verbatim>
-    <h:outputLabel for="commentSC" value="#{msg.comment}#{msg.column} " />
+    <h:outputLabel for="commentSC" value="#{deliveryMessages.comment}#{deliveryMessages.column} " />
     <f:verbatim></b></f:verbatim>
     <h:outputText id="commentSC" value="#{question.gradingComment}"
       escape="false" />

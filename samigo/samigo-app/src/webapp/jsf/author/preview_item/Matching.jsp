@@ -47,7 +47,7 @@ should be included in file importing DeliveryMessages
     <h:column>
       <h:panelGrid columns="2">
         <h:selectOneMenu id="label" disabled="true">
-          <f:selectItem itemValue="" itemLabel="select"/>
+          <f:selectItem itemValue="" itemLabel="#{authorMessages.select_combo}"/>
           <f:selectItem itemValue="" itemLabel="A"/>
           <f:selectItem itemValue="" itemLabel="B"/>
           <f:selectItem itemValue="" itemLabel="C"/>
@@ -62,7 +62,7 @@ should be included in file importing DeliveryMessages
         <h:dataTable value="#{itemText.answerArray}" var="answer">
             <h:column>
               <h:panelGroup rendered="#{answer.isCorrect && answer.correctAnswerFbIsNotEmpty && assessmentSettings.feedbackAuthoring ne '1'}" styleClass="longtext">
-                <h:outputLabel value="#{msg.correct}: " />
+                <h:outputLabel value="#{authorMessages.correct}: " />
                 <h:outputText escape="false" value="#{answer.correctAnswerFeedback}" />
               </h:panelGroup>
             </h:column>
@@ -73,7 +73,7 @@ should be included in file importing DeliveryMessages
         <h:dataTable value="#{itemText.answerArray}" var="answer">
             <h:column>
               <h:panelGroup rendered="#{answer.isCorrect && answer.incorrectAnswerFbIsNotEmpty && assessmentSettings.feedbackAuthoring ne '1'}" styleClass="longtext">
-                <h:outputLabel value="#{msg.incorrect}: " />
+                <h:outputLabel value="#{authorMessages.incorrect}: " />
                 <h:outputText escape="false" value="#{answer.inCorrectAnswerFeedback}" />
               </h:panelGroup>
             </h:column>
@@ -85,16 +85,16 @@ should be included in file importing DeliveryMessages
 
       <%-- answer key --%>
  <h:panelGroup>
-      <h:outputLabel value="#{msg.answerKey}: "/>
+      <h:outputLabel value="#{authorMessages.answerKey}: "/>
       <h:outputText escape="false" value="#{question.itemData.answerKey}" />
 <f:verbatim><br/></f:verbatim>
 </h:panelGroup>
 <h:panelGroup rendered="#{question.itemData.correctItemFbIsNotEmpty && assessmentSettings.feedbackAuthoring ne '2'}">
-      <h:outputLabel value="#{msg.correct}:"/>
+      <h:outputLabel value="#{authorMessages.correct}:"/>
       <h:outputText value="#{question.itemData.correctItemFeedback}" escape="false" />
 <f:verbatim><br/></f:verbatim>
 </h:panelGroup>
 <h:panelGroup rendered="#{question.itemData.incorrectItemFbIsNotEmpty && assessmentSettings.feedbackAuthoring ne '2'}">
-     <h:outputLabel value="#{msg.incorrect}:"/>
+     <h:outputLabel value="#{authorMessages.incorrect}:"/>
       <h:outputText value="#{question.itemData.inCorrectItemFeedback}" escape="false" />
 </h:panelGroup>

@@ -29,24 +29,20 @@
 --%>
 -->
   <f:view>
-    <f:loadBundle
-      basename="org.sakaiproject.tool.assessment.bundle.AuthorImportExport"
-      var="msg"/>
-   
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.export_denied}"/></title>
+      <title><h:outputText value="#{authorImportExport.export_denied}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
 <div class="portletBody">
 <h:form id="redirectLoginForm">
-  <h3><h:outputText value="#{msg.export_denied}"/></h3>
+  <h3><h:outputText value="#{authorImportExport.export_denied}"/></h3>
    <div class="validation">
-  <h:outputText  value="#{msg.export_denied_message}" />
+  <h:outputText  value="#{authorImportExport.export_denied_message}" />
   </div>
  <p class="act">
-  <h:commandButton accesskey="#{msg.a_login}" value="#{msg.button_continue}" type="button"
+  <h:commandButton accesskey="#{authorImportExport.a_login}" value="#{authorImportExport.button_continue}" type="button"
      styleClass="active" onclick="javascript:window.open('#{delivery.portal}/login','_top')" onkeypress="javascript:window.open('#{delivery.portal}/login','_top')" />
 </h:form>
 </div>

@@ -7,17 +7,10 @@
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
   <f:view>
-   
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.EvaluationMessages"
-     var="msg"/>
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.GeneralMessages"
-     var="genMsg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText
-        value="#{msg.title_stat}" /></title>
+        value="#{evaluationMessages.title_stat}" /></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!--
@@ -53,31 +46,31 @@ $Id$
   <%@ include file="/jsf/evaluation/evaluationHeadings.jsp" %>
 
   <h3>
-    <h:outputText value="#{msg.stat_view}"/>
-    <h:outputText value="#{msg.column} "/>
+    <h:outputText value="#{evaluationMessages.stat_view}"/>
+    <h:outputText value="#{evaluationMessages.column} "/>
     <h:outputText value="#{histogramScores.assessmentName} "/>
   </h3>
      <h:outputText value=" <p class=\"navViewAction\">" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}" escape="false"/>
-     <h:commandLink title="#{msg.t_submissionStatus}" action="submissionStatus" immediate="true" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
-      <h:outputText value="#{msg.sub_status}" />
+     <h:commandLink title="#{evaluationMessages.t_submissionStatus}" action="submissionStatus" immediate="true" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
+      <h:outputText value="#{evaluationMessages.sub_status}" />
       <f:param name="allSubmissions" value="true"/>
       <f:actionListener
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
     </h:commandLink>
-    <h:outputText value=" #{msg.separator} " rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}"/>
-    <h:commandLink title="#{msg.t_totalScores}" action="totalScores" immediate="true" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
+    <h:outputText value=" #{evaluationMessages.separator} " rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}"/>
+    <h:commandLink title="#{evaluationMessages.t_totalScores}" action="totalScores" immediate="true" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
-      <h:outputText value="#{msg.title_total}" />
+      <h:outputText value="#{evaluationMessages.title_total}" />
     </h:commandLink>
-    <h:outputText value=" #{msg.separator} " rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}"/>
-    <h:commandLink title="#{msg.t_questionScores}" action="questionScores" immediate="true" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
+    <h:outputText value=" #{evaluationMessages.separator} " rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}"/>
+    <h:commandLink title="#{evaluationMessages.t_questionScores}" action="questionScores" immediate="true" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
       <f:actionListener
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
-      <h:outputText value="#{msg.q_view}" />
+      <h:outputText value="#{evaluationMessages.q_view}" />
     </h:commandLink>
-    <h:outputText value=" #{msg.separator} " rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}"/>
-      <h:outputText value="#{msg.stat_view}" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}"/>
+    <h:outputText value=" #{evaluationMessages.separator} " rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}"/>
+      <h:outputText value="#{evaluationMessages.stat_view}" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}"/>
  <h:outputText value=" </p>" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}" escape="false"/>
 
   <h:messages styleClass="validation" />
@@ -87,47 +80,47 @@ $Id$
 
   <!-- LAST/ALL SUBMISSIONS; PAGER; ALPHA INDEX  -->
     <h:panelGroup rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
-     <h:outputText value="#{msg.view} " />
-      <h:outputText value="#{msg.column} " />
+     <h:outputText value="#{evaluationMessages.view} " />
+      <h:outputText value="#{evaluationMessages.column} " />
 
      <h:selectOneMenu value="#{histogramScores.allSubmissions}" id="allSubmissionsL"
         required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '2'}">
-      <f:selectItem itemValue="3" itemLabel="#{msg.all_sub}" />
-      <f:selectItem itemValue="2" itemLabel="#{msg.last_sub}" />
+      <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
+      <f:selectItem itemValue="2" itemLabel="#{evaluationMessages.last_sub}" />
       <f:valueChangeListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
      </h:selectOneMenu>
 
      <h:selectOneMenu value="#{histogramScores.allSubmissions}" id="allSubmissionsH"
         required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '1'}">
-      <f:selectItem itemValue="3" itemLabel="#{msg.all_sub}" />
-      <f:selectItem itemValue="1" itemLabel="#{msg.highest_sub}" />
+      <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
+      <f:selectItem itemValue="1" itemLabel="#{evaluationMessages.highest_sub}" />
       <f:valueChangeListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
      </h:selectOneMenu>
     </h:panelGroup>
 
     <h:panelGroup rendered="#{histogramScores.randomType =='true'}">
-    <h:outputText value="#{msg.no_histogram_for_random}" />
+    <h:outputText value="#{evaluationMessages.no_histogram_for_random}" />
       </h:panelGroup>
 
 
     <h:panelGroup rendered="#{histogramScores.randomType =='false'}">
  <f:verbatim><h4></f:verbatim>
-  <h:outputText value="#{msg.tot}" />
+  <h:outputText value="#{evaluationMessages.tot}" />
    <f:verbatim></h4><div class="tier2"></f:verbatim>
 
  <h:dataTable value="#{histogramScores.histogramBars}" var="bar" headerClass="navView">
 
     <h:column>
         <f:facet name="header">
-        <h:outputText escape="false" value="<U>#{msg.num_points}</U>" /> 
+        <h:outputText escape="false" value="<U>#{evaluationMessages.num_points}</U>" /> 
       </f:facet>
         <h:outputText value=" #{bar.rangeInfo}" />
     </h:column>
      <h:column>
 <f:facet name="header">
-         <h:outputText escape="false" value="<U>#{msg.num_students}</U>" />
+         <h:outputText escape="false" value="<U>#{evaluationMessages.num_students}</U>" />
       </f:facet>
 <h:panelGroup>
         <h:graphicImage url="/images/reddot.gif" height="12" width="#{bar.columnHeight}"/>
@@ -144,31 +137,31 @@ $Id$
 <p class="tier2">
 <h:panelGrid columns="2">
 
-<h:outputLabel value="#{msg.sub_view}"/>
+<h:outputLabel value="#{evaluationMessages.sub_view}"/>
 <h:outputLabel value="#{histogramScores.numResponses}" />
 
-<h:outputLabel value="#{msg.tot} Possible" />
+<h:outputLabel value="#{evaluationMessages.tot} Possible" />
 <h:outputText value="#{histogramScores.roundedTotalPossibleScore}"/>
 
-<h:outputLabel value="#{msg.mean_eq}" />
+<h:outputLabel value="#{evaluationMessages.mean_eq}" />
 <h:outputText value="#{histogramScores.mean}"/>
 
-<h:outputLabel value="#{msg.median}" />
+<h:outputLabel value="#{evaluationMessages.median}" />
 <h:outputText value="#{histogramScores.median}"/>
 
-<h:outputLabel value="#{msg.mode}" />
+<h:outputLabel value="#{evaluationMessages.mode}" />
 <h:outputText value="#{histogramScores.mode}"/>
 
-<h:outputLabel value="#{msg.range_eq}" />
+<h:outputLabel value="#{evaluationMessages.range_eq}" />
 <h:outputText value="#{histogramScores.range}"/>
 
-<h:outputLabel value="#{msg.qtile_1_eq}" />
+<h:outputLabel value="#{evaluationMessages.qtile_1_eq}" />
 <h:outputText value="#{histogramScores.q1}"/>
 
-<h:outputLabel value="#{msg.qtile_3_eq}" />
+<h:outputLabel value="#{evaluationMessages.qtile_3_eq}" />
 <h:outputText value="#{histogramScores.q3}"/>
 
-<h:outputLabel value="#{msg.std_dev}" />
+<h:outputLabel value="#{evaluationMessages.std_dev}" />
 <h:outputText value="#{histogramScores.standDev}"/>
 </h:panelGrid>
 </p>
@@ -178,7 +171,7 @@ $Id$
 <!-- need to add a randomtype property for histogramQuestionScoreBean (item) and if it's true, hide histogram  -->
 <%--
     <h:column rendered="#{histogramScores.randomType =='true'}">
-      <h:outputText value="#{msg.no_histogram_for_random}" />
+      <h:outputText value="#{evaluationMessages.no_histogram_for_random}" />
     </h:column>
 --%>
 
@@ -197,11 +190,11 @@ $Id$
               <h:panelGroup>
 
 <h:graphicImage id="image8" rendered="#{bar.isCorrect}" width="12" height="12"
-        alt="#{msg.correct}" url="/images/delivery/checkmark.gif" >
+        alt="#{evaluationMessages.correct}" url="/images/delivery/checkmark.gif" >
        </h:graphicImage>
 
 <h:graphicImage id="image9" rendered="#{!bar.isCorrect}" width="12" height="12"
-        alt="#{msg.not_correct}" url="/images/delivery/spacer.gif" >
+        alt="#{evaluationMessages.not_correct}" url="/images/delivery/spacer.gif" >
        </h:graphicImage>
 
                 <h:graphicImage url="/images/reddot.gif" height="12" width="#{bar.columnHeight}"/>
@@ -219,25 +212,25 @@ $Id$
 
         <h:panelGrid columns="2" rendered="#{item.questionType == '5' or item.questionType == '6' or item.questionType == '7'}">
 
-          <h:outputLabel value="#{msg.responses}" />
+          <h:outputLabel value="#{evaluationMessages.responses}" />
           <h:outputText id="responses" value="#{item.numResponses}" />
-          <h:outputLabel value="#{msg.tot_poss_eq}" />
+          <h:outputLabel value="#{evaluationMessages.tot_poss_eq}" />
           <h:outputText id="possible" value="#{item.totalScore}" />
-          <h:outputLabel value="#{msg.mean_eq}" />
+          <h:outputLabel value="#{evaluationMessages.mean_eq}" />
           <h:outputText id="mean" value="#{item.mean}" />
-          <h:outputLabel  value="#{msg.median}" />
+          <h:outputLabel  value="#{evaluationMessages.median}" />
           <h:outputText id="median" value="#{item.median}" />
-          <h:outputLabel value="#{msg.mode}" />
+          <h:outputLabel value="#{evaluationMessages.mode}" />
           <h:outputText id="mode" value="#{item.mode}" />
         </h:panelGrid>
        <h:panelGrid columns="2" rendered="#{item.questionType == '3'}">
-          <h:outputLabel for="responses1" value="#{msg.responses}" />
+          <h:outputLabel for="responses1" value="#{evaluationMessages.responses}" />
           <h:outputText id="responses1" value="#{item.numResponses}" />
         </h:panelGrid>
          <h:panelGrid columns="2" rendered="#{item.questionType == '1' or  item.questionType == '2' or  item.questionType == '4' or  item.questionType == '8' or item.questionType == '9' or item.questionType == '11'}" columnClasses="alignLeft,aligntRight">
-             <h:outputLabel for="responses2" value="#{msg.responses}" />
+             <h:outputLabel for="responses2" value="#{evaluationMessages.responses}" />
           <h:outputText id="responses2" value="#{item.numResponses}" />
-          <h:outputLabel for="percentCorrect" value="#{msg.percentCorrect}" />
+          <h:outputLabel for="percentCorrect" value="#{evaluationMessages.percentCorrect}" />
           <h:outputText id="percentCorrect" value="#{item.percentCorrect}" />
         </h:panelGrid>
 
@@ -248,7 +241,7 @@ $Id$
   </h:dataTable>
 
 
-<h:commandButton accesskey="#{msg.a_return}"value="#{msg.return}" action="select" type="submit" rendered="#{histogramScores.hasNav=='false'}"/>
+<h:commandButton accesskey="#{evaluationMessages.a_return}"value="#{evaluationMessages.return}" action="select" type="submit" rendered="#{histogramScores.hasNav=='false'}"/>
 </div>
 </h:form>
 </div>

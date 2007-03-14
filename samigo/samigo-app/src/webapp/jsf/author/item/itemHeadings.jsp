@@ -57,35 +57,35 @@ document.links[newindex].onclick();
 <h:inputHidden value="#{itemauthor.currentItem.generalFeedback}" />
 <%-- --%>
 <p class="navIntraTool">
-    <h:commandLink title="#{genMsg.t_assessment}" action="author" immediate="true">
-      <h:outputText value="#{genMsg.assessment}" />
+    <h:commandLink title="#{generalMessages.t_assessment}" action="author" immediate="true">
+      <h:outputText value="#{generalMessages.assessment}" />
     </h:commandLink>
-    <h:outputText value="#{genMsg.separator} " />
-    <h:commandLink title="#{genMsg.t_template}" action="template" immediate="true">
-      <h:outputText value="#{genMsg.template}" />
+    <h:outputText value="#{generalMessages.separator} " />
+    <h:commandLink title="#{generalMessages.t_template}" action="template" immediate="true">
+      <h:outputText value="#{generalMessages.template}" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener" />
     </h:commandLink>
-    <h:outputText value="#{genMsg.separator} " />
-    <h:commandLink title="#{genMsg.t_questionPool}" action="poolList" immediate="true">
-      <h:outputText value="#{genMsg.questionPool}" />
+    <h:outputText value="#{generalMessages.separator} " />
+    <h:commandLink title="#{generalMessages.t_questionPool}" action="poolList" immediate="true">
+      <h:outputText value="#{generalMessages.questionPool}" />
     </h:commandLink>
 </p>
 <br/>
 <!-- breadcrumb-->
 <div>
-    <h:commandLink title="#{msg.t_assessment}" rendered="#{itemauthor.target == 'assessment'}" action="author" immediate="true">
-      <h:outputText value="#{msg.global_nav_assessmt}" />
+    <h:commandLink title="#{authorMessages.t_assessment}" rendered="#{itemauthor.target == 'assessment'}" action="author" immediate="true">
+      <h:outputText value="#{authorMessages.global_nav_assessmt}" />
     </h:commandLink>
-    <h:outputText rendered="#{itemauthor.target == 'assessment'}" value=" #{msg.greater} " />
-    <h:commandLink title="#{msg.t_question}" action="editAssessment" immediate="true" rendered="#{itemauthor.target == 'assessment'}">
-      <h:outputText value="#{msg.qs}#{msg.column} #{assessmentBean.title}" />
+    <h:outputText rendered="#{itemauthor.target == 'assessment'}" value=" #{authorMessages.greater} " />
+    <h:commandLink title="#{authorMessages.t_question}" action="editAssessment" immediate="true" rendered="#{itemauthor.target == 'assessment'}">
+      <h:outputText value="#{authorMessages.qs}#{authorMessages.column} #{assessmentBean.title}" />
     </h:commandLink>
-    <h:outputText value=" #{msg.greater} " rendered="#{itemauthor.target == 'assessment'}" />
-    <h:outputText value="#{msg.q} #{itemauthor.itemNo}" rendered="#{itemauthor.target == 'assessment'}"/>
+    <h:outputText value=" #{authorMessages.greater} " rendered="#{itemauthor.target == 'assessment'}" />
+    <h:outputText value="#{authorMessages.q} #{itemauthor.itemNo}" rendered="#{itemauthor.target == 'assessment'}"/>
 
 </div>
 <div>
-<h:outputText rendered="#{itemauthor.target == 'questionpool'}" value="#{msg.global_nav_pools}> "/>
+<h:outputText rendered="#{itemauthor.target == 'questionpool'}" value="#{authorMessages.global_nav_pools}> "/>
 
 <samigo:dataLine rendered="#{itemauthor.target == 'questionpool'}" value="#{questionpool.currentPool.parentPoolsArray}" var="parent"
    separator=" > " first="0" rows="100" >
@@ -96,7 +96,7 @@ document.links[newindex].onclick();
     </h:commandLink>
   </h:column>
 </samigo:dataLine>
-<h:outputText rendered="#{questionpool.currentPool.showParentPools && itemauthor.target == 'questionpool'}" value=" #{msg.greater} " />
+<h:outputText rendered="#{questionpool.currentPool.showParentPools && itemauthor.target == 'questionpool'}" value=" #{authorMessages.greater} " />
 <h:commandLink rendered="#{itemauthor.target == 'questionpool'}" action="#{questionpool.editPool}"  immediate="true">
   <h:outputText value="#{questionpool.currentPool.displayName}"/>
   <f:param name="qpid" value="#{questionpool.currentPool.id}"/>
@@ -104,18 +104,18 @@ document.links[newindex].onclick();
 </div>
 
 <h3>
-   <h:outputText value="#{msg.modify_q}#{msg.column} "/>
+   <h:outputText value="#{authorMessages.modify_q}#{authorMessages.column} "/>
    <h:outputText value="#{assessmentBean.title}" rendered="#{itemauthor.target == 'assessment'}"/>
 </h3>
 <!-- CHANGE TYPE -->
 <div class="tier1">
-<div class=" shorttext"><h:outputLabel value="#{msg.change_q_type}"/>
+<div class=" shorttext"><h:outputLabel value="#{authorMessages.change_q_type}"/>
 <%-- todo:
 listener set selectFromQuestionPool, eliminating the rendered attribute
 --%>
 
 <%-- from question pool context, do not show question pool as option --%>
-<h:selectOneMenu accesskey="#{msg.a_options}" rendered="#{(itemauthor.target == 'assessment' && questionpool.importToAuthoring == 'true') || itemauthor.target == 'questionpool'}" onchange="changeTypeLink(this);"
+<h:selectOneMenu accesskey="#{authorMessages.a_options}" rendered="#{(itemauthor.target == 'assessment' && questionpool.importToAuthoring == 'true') || itemauthor.target == 'questionpool'}" onchange="changeTypeLink(this);"
   value="#{itemauthor.currentItem.itemType}" required="true" id="changeQType1">
   <f:valueChangeListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.StartCreateItemListener" />
@@ -142,20 +142,20 @@ listener set selectFromQuestionPool, eliminating the rendered attribute
 <p class="navModeAction">
   <span class="leftNav">
    <b>
-     <h:outputText value="#{msg.q}"/>
+     <h:outputText value="#{authorMessages.q}"/>
      <h:outputText rendered="#{itemauthor.target == 'assessment'}" value="#{itemauthor.itemNo}"/>
-     <h:outputText value=" #{msg.dash} "/>
-     <h:outputText rendered="#{itemauthor.currentItem.itemType == 1}" value="#{msg.multiple_choice_type}"/>
-     <h:outputText rendered="#{itemauthor.currentItem.itemType== 2}" value="#{msg.multiple_choice_type}"/>
-     <h:outputText rendered="#{itemauthor.currentItem.itemType== 3}" value="#{msg.multiple_choice_surv}"/>
-     <h:outputText rendered="#{itemauthor.currentItem.itemType== 4}" value="#{msg.true_false}"/>
-     <h:outputText rendered="#{itemauthor.currentItem.itemType== 5}" value="#{msg.short_answer_essay}"/>
-     <h:outputText rendered="#{itemauthor.currentItem.itemType== 8}" value="#{msg.fill_in_the_blank}"/>
-     <h:outputText rendered="#{itemauthor.currentItem.itemType== 11}" value="#{msg.fill_in_numeric}"/>
-     <h:outputText rendered="#{itemauthor.currentItem.itemType== 9}" value="#{msg.matching}"/>
-     <h:outputText rendered="#{itemauthor.currentItem.itemType== 7}" value="#{msg.audio_recording}"/>
-     <h:outputText rendered="#{itemauthor.currentItem.itemType== 6}" value="#{msg.file_upload}"/>
-     <h:outputText rendered="#{itemauthor.currentItem.itemType== 10}" value="#{msg.import_from_q}"/>
+     <h:outputText value=" #{authorMessages.dash} "/>
+     <h:outputText rendered="#{itemauthor.currentItem.itemType == 1}" value="#{authorMessages.multiple_choice_type}"/>
+     <h:outputText rendered="#{itemauthor.currentItem.itemType== 2}" value="#{authorMessages.multiple_choice_type}"/>
+     <h:outputText rendered="#{itemauthor.currentItem.itemType== 3}" value="#{authorMessages.multiple_choice_surv}"/>
+     <h:outputText rendered="#{itemauthor.currentItem.itemType== 4}" value="#{authorMessages.true_false}"/>
+     <h:outputText rendered="#{itemauthor.currentItem.itemType== 5}" value="#{authorMessages.short_answer_essay}"/>
+     <h:outputText rendered="#{itemauthor.currentItem.itemType== 8}" value="#{authorMessages.fill_in_the_blank}"/>
+     <h:outputText rendered="#{itemauthor.currentItem.itemType== 11}" value="#{authorMessages.fill_in_numeric}"/>
+     <h:outputText rendered="#{itemauthor.currentItem.itemType== 9}" value="#{authorMessages.matching}"/>
+     <h:outputText rendered="#{itemauthor.currentItem.itemType== 7}" value="#{authorMessages.audio_recording}"/>
+     <h:outputText rendered="#{itemauthor.currentItem.itemType== 6}" value="#{authorMessages.file_upload}"/>
+     <h:outputText rendered="#{itemauthor.currentItem.itemType== 10}" value="#{authorMessages.import_from_q}"/>
    </b>
  </span>
  <span class="rightNav">
@@ -163,16 +163,16 @@ listener set selectFromQuestionPool, eliminating the rendered attribute
  <%--
   temporily comment put Preview link for a specific question in Author. It will not be the feature in Sam 1.5.
   <h:commandLink id="preview" immediate="true" action="preview">
-          <h:outputText value="#{msg.preview}" />
+          <h:outputText value="#{authorMessages.preview}" />
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.author.ItemModifyListener" />
   </h:commandLink>
 
 
-  <h:outputText rendered="#{itemauthor.currentItem.itemId != null}" value=" #{msg.separator} " />
+  <h:outputText rendered="#{itemauthor.currentItem.itemId != null}" value=" #{authorMessages.separator} " />
 --%>
-  <h:commandLink title="#{msg.t_removeQ}" rendered="#{itemauthor.currentItem.itemId != null}" styleClass="navList" immediate="true" id="deleteitem" action="#{itemauthor.confirmDeleteItem}">
-                <h:outputText value="#{msg.button_remove}" />
+  <h:commandLink title="#{authorMessages.t_removeQ}" rendered="#{itemauthor.currentItem.itemId != null}" styleClass="navList" immediate="true" id="deleteitem" action="#{itemauthor.confirmDeleteItem}">
+                <h:outputText value="#{authorMessages.button_remove}" />
                 <f:param name="itemid" value="#{itemauthor.currentItem.itemId}"/>
               </h:commandLink>
 
@@ -180,7 +180,7 @@ listener set selectFromQuestionPool, eliminating the rendered attribute
 <%-- removed MyQuestion link per new mockup
   <h:outputText rendered="#{itemauthor.target == 'assessment' && itemauthor.currentItem.itemId != null}" value=" | " />
   <h:commandLink immediate="true" rendered="#{itemauthor.target == 'assessment'}" action="editAssessment">
-    <h:outputText value="#{msg.my_qs}" />
+    <h:outputText value="#{authorMessages.my_qs}" />
   </h:commandLink>
 --%>
  </span>

@@ -30,15 +30,9 @@
 --%>
 -->
   <f:view>
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages"
-     var="msg"/>
-      <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.GeneralMessages"
-     var="genMsg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.publish_assessment_confirmation}" /></title>
+      <title><h:outputText value="#{assessmentSettingsMessages.publish_assessment_confirmation}" /></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
@@ -46,61 +40,61 @@
  <!-- content... -->
  <h:form id="publishAssessmentForm">
    <h:inputHidden id="assessmentId" value="#{assessmentSettings.assessmentId}"/>
-   <h3><h:outputText  value="#{msg.publish_assessment_confirmation}" /></h3>
+   <h3><h:outputText  value="#{assessmentSettingsMessages.publish_assessment_confirmation}" /></h3>
 <div class="tier1">
 
   <!-- Error publishing assessment -->
   <h:messages globalOnly="true" styleClass="validation" />
   <div class="validation">
-       <h:outputText value="#{msg.publish_confirm_message}" />
+       <h:outputText value="#{assessmentSettingsMessages.publish_confirm_message}" />
    </div>
 
 <h:panelGrid columns="2" rowClasses="shorttext">
 
-     <h:outputLabel value="#{msg.assessment_title}" rendered="#{assessmentSettings.title ne null}" />
+     <h:outputLabel value="#{assessmentSettingsMessages.assessment_title}" rendered="#{assessmentSettings.title ne null}" />
      <h:outputText value="#{assessmentSettings.title}" rendered="#{assessmentSettings.title ne null}" />
 
-     <h:outputLabel value="#{msg.assessment_available_date}" />
+     <h:outputLabel value="#{assessmentSettingsMessages.assessment_available_date}" />
      <h:panelGroup>
        <h:outputText rendered="#{assessmentSettings.startDate ne null}" value="#{assessmentSettings.startDate}" >
-          <f:convertDateTime pattern="#{genMsg.output_date_picker}"/>
+          <f:convertDateTime pattern="#{generalMessages.output_date_picker}"/>
        </h:outputText>
        <h:outputText rendered="#{assessmentSettings.startDate eq null}" value="Immediate" />
      </h:panelGroup>
 
      <h:outputLabel rendered="#{assessmentSettings.dueDate ne null}" 
-        value="#{msg.assessment_due_date}" />
+        value="#{assessmentSettingsMessages.assessment_due_date}" />
      <h:outputText value="#{assessmentSettings.dueDate}" 
         rendered="#{assessmentSettings.dueDate ne null}" >
-       <f:convertDateTime pattern="#{genMsg.output_date_picker}" />
+       <f:convertDateTime pattern="#{generalMessages.output_date_picker}" />
      </h:outputText>
 
-     <h:outputLabel rendered="#{assessmentSettings.retractDate ne null}" value="#{msg.assessment_retract_date}" />
+     <h:outputLabel rendered="#{assessmentSettings.retractDate ne null}" value="#{assessmentSettingsMessages.assessment_retract_date}" />
      <h:outputText value="#{assessmentSettings.retractDate}" rendered="#{assessmentSettings.retractDate ne null}">
-       <f:convertDateTime pattern="#{genMsg.output_date_picker}" />
+       <f:convertDateTime pattern="#{generalMessages.output_date_picker}" />
      </h:outputText>
 
-     <h:outputLabel value="#{msg.time_limit}" />
+     <h:outputLabel value="#{assessmentSettingsMessages.time_limit}" />
      <h:panelGroup>
        <h:outputText rendered="#{assessmentSettings.valueMap.hasTimeAssessment eq 'true'}"
           value="#{assessmentSettings.timedHours} hour,
           #{assessmentSettings.timedMinutes} minutes, #{assessmentSettings.timedSeconds} seconds. " />
        <h:outputText rendered="#{assessmentSettings.valueMap.hasTimeAssessment eq 'true'}"
-          value="#{msg.auto_submit_description}" />
+          value="#{assessmentSettingsMessages.auto_submit_description}" />
        <h:outputText rendered="#{assessmentSettings.valueMap.hasTimeAssessment ne 'true'}"
-          value="No Time Limit" />
+          value="#{assessmentSettingsMessages.no_time_limit}" />
      </h:panelGroup>
 
 <%-- SAK-3578: auto submit will always be ON for timed assessment,
      so no need to have this option
-     <h:outputLabel value="#{msg.auto_submit}" />
+     <h:outputLabel value="#{assessmentSettingsMessages.auto_submit}" />
      <h:panelGroup>
        <h:outputText value="On" rendered="#{assessmentSettings.autoSubmit}" />
        <h:outputText value="Off" rendered="#{!assessmentSettings.autoSubmit}" />
      </h:panelGroup>
 --%>
 
-     <h:outputLabel value="#{msg.submissions}" />
+     <h:outputLabel value="#{assessmentSettingsMessages.submissions}" />
      <h:panelGroup>
        <h:outputText value="Unlimited" rendered="#{assessmentSettings.unlimitedSubmissions eq '1'}" />
        <h:outputText value="#{assessmentSettings.submissionsAllowed}"
@@ -108,21 +102,21 @@
      </h:panelGroup>
 
 
-     <h:outputLabel value="#{msg.feedback_type}" />
+     <h:outputLabel value="#{assessmentSettingsMessages.feedback_type}" />
      <h:panelGroup>
        <h:outputText value="Immediate" rendered="#{assessmentSettings.feedbackDelivery eq '1'}" />
        <h:outputText value="No Feedback" rendered="#{assessmentSettings.feedbackDelivery eq '3'}" />
        <h:outputText value="Available on #{assessmentSettings.feedbackDate}"
           rendered="#{assessmentSettings.feedbackDelivery eq '2'}" >
-         <f:convertDateTime pattern="#{genMsg.output_date_picker}" />
+         <f:convertDateTime pattern="#{generalMessages.output_date_picker}" />
        </h:outputText>
      </h:panelGroup>
 
-     <h:outputLabel value="#{msg.released_to_2}" />
+     <h:outputLabel value="#{assessmentSettingsMessages.released_to_2}" />
      <h:outputText value="#{assessmentSettings.releaseTo}" />
 
 
-     <h:outputLabel rendered="#{assessmentSettings.publishedUrl ne null}" value="#{msg.published_assessment_url}" />
+     <h:outputLabel rendered="#{assessmentSettings.publishedUrl ne null}" value="#{assessmentSettingsMessages.published_assessment_url}" />
      <h:outputText value="#{assessmentSettings.publishedUrl}" />
 </h:panelGrid>
 
@@ -141,15 +135,15 @@ function toggle(){
 </script>
 
 <f:verbatim><p></p></f:verbatim>
-     <h:outputText value="#{msg.open_new_browser_for_publishedUrl}" />
+     <h:outputText value="#{assessmentSettingsMessages.open_new_browser_for_publishedUrl}" />
 
      <p class="act">
-       <h:commandButton id="publish" value="#{msg.button_save_and_publish}" type="submit"
+       <h:commandButton id="publish" value="#{assessmentSettingsMessages.button_save_and_publish}" type="submit"
          styleClass="active" action="publishAssessment" onclick="toggle()" onkeypress="toggle()">
           <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.author.PublishAssessmentListener" />
        </h:commandButton>
-       <h:commandButton value="#{msg.button_cancel}" type="submit"
+       <h:commandButton value="#{assessmentSettingsMessages.button_cancel}" type="submit"
          action="author" />
 </p>
 

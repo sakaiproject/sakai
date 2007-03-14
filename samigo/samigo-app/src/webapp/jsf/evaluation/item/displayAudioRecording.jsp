@@ -36,21 +36,21 @@ should be included in file importing DeliveryMessages
          " />
 
       <f:verbatim><br /></f:verbatim>
-      <h:outputText value="#{msg.open_bracket}"/>
+      <h:outputText value="#{evaluationMessages.open_bracket}"/>
       <h:outputText value="#{media.duration} sec, recorded on " rendered="#{!media.durationIsOver}" />
       <h:outputText value="#{question.duration} sec, recorded on " rendered="#{media.durationIsOver}" />
       <h:outputText value="#{media.createdDate}">
-        <f:convertDateTime pattern="#{msg.grading_date_no_time_format}" />
+        <f:convertDateTime pattern="#{evaluationMessages.grading_date_no_time_format}" />
       </h:outputText>
-      <h:outputText value="#{msg.close_bracket}"/>
+      <h:outputText value="#{evaluationMessages.close_bracket}"/>
       <f:verbatim><br /></f:verbatim>    
 	  
 	  <div>
-      <h:outputText value="#{msg.can_you_hear_1}"  escape="false"/>
+      <h:outputText value="#{evaluationMessages.can_you_hear_1}"  escape="false"/>
       <h:outputLink value="/samigo/servlet/ShowMedia?mediaId=#{media.mediaId}&setMimeType=false">
-        <h:outputText value=" #{msg.can_you_hear_2} " escape="false" />
+        <h:outputText value=" #{evaluationMessages.can_you_hear_2} " escape="false" />
       </h:outputLink>
-      <h:outputText value="#{msg.can_you_hear_3}"  escape="false"/>
+      <h:outputText value="#{evaluationMessages.can_you_hear_3}"  escape="false"/>
       </div>
 	  
 	</h:column>

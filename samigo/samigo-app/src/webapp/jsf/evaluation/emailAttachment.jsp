@@ -20,7 +20,7 @@
 --%>
 -->
 <!-- 2a ATTACHMENTS -->
- <div class="longtext"><h:outputLabel value="#{msg.attachments}" />
+ <div class="longtext"><h:outputLabel value="#{evaluationMessages.attachments}" />
   <h:panelGroup rendered="#{email.hasAttachment}">
     <h:dataTable value="#{email.attachmentList}" var="attach">
       <h:column>
@@ -42,17 +42,17 @@
     </h:dataTable>
   </h:panelGroup>
   <h:panelGroup rendered="#{!email.hasAttachment}">
-    <h:outputText escape="false" value="#{msg.no_attachments_yet}" />
+    <h:outputText escape="false" value="#{evaluationMessages.no_attachments_yet}" />
   </h:panelGroup>
 
   <h:panelGroup rendered="#{!email.hasAttachment}">
      <h:commandButton action="#{email.addAttachmentsRedirect}"
-           value="#{msg.add_attachments}" immediate="true"/>
+           value="#{evaluationMessages.add_attachments}" immediate="true"/>
   </h:panelGroup>
 
   <h:panelGroup rendered="#{email.hasAttachment}">
      <h:commandButton action="#{email.addAttachmentsRedirect}"
-           value="#{msg.add_remove_attachments}" immediate="true"/>
+           value="#{evaluationMessages.add_remove_attachments}" immediate="true"/>
   </h:panelGroup>
 </div>
 

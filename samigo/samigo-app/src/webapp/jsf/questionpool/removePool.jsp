@@ -28,26 +28,23 @@
 --%>
 -->
   <f:view>
-    <f:loadBundle
-       basename="org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages"
-       var="msg"/>
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.rm_p}"/></title>
+      <title><h:outputText value="#{questionPoolMessages.rm_p}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!-- content... -->
  <div class="portletBody">
  <h:form id="removePoolForm">
-      <h3 style="insColor insBak"> <h:outputText  value="#{msg.rm_p_confirm}" /> </h3>
+      <h3 style="insColor insBak"> <h:outputText  value="#{questionPoolMessages.rm_p_confirm}" /> </h3>
    <h:panelGrid cellpadding="5" cellspacing="3">
      <h:panelGroup>
       <f:verbatim><div class="validation"></f:verbatim>
-         <h:outputText value="#{msg.remove_sure_p}" />
+         <h:outputText value="#{questionPoolMessages.remove_sure_p}" />
        <f:verbatim></div></f:verbatim>
      </h:panelGroup>
      <div class="tier1">
-       <h3><h:outputText value="#{msg.p_names}"/></h3>
+       <h3><h:outputText value="#{questionPoolMessages.p_names}"/></h3>
        <h:dataTable id ="table" value="#{questionpool.poolsToDelete}"
     var="pool" >
  	 <h:column>
@@ -57,10 +54,10 @@
     </div>
  </h:panelGrid>
    <p class="act">
-      <h:commandButton accesskey="#{msg.a_remove}" type="submit" immediate="true" id="Submit" value="#{msg.remove}"
+      <h:commandButton accesskey="#{questionPoolMessages.a_remove}" type="submit" immediate="true" id="Submit" value="#{questionPoolMessages.remove}"
     action="#{questionpool.removePool}" styleClass="active">
       </h:commandButton>
-      <h:commandButton id="cancel" accesskey="#{msg.a_cancel}" style="act" value="#{msg.cancel}" action="poolList"/>
+      <h:commandButton id="cancel" accesskey="#{questionPoolMessages.a_cancel}" style="act" value="#{questionPoolMessages.cancel}" action="poolList"/>
 
  </p>
 

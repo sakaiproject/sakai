@@ -29,13 +29,9 @@
 --%>
 -->
   <f:view>
-    <f:loadBundle
-      basename="org.sakaiproject.tool.assessment.bundle.MainIndexMessages"
-      var="msg"/>
-
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.tool_title}"/></title>
+      <title><h:outputText value="#{mainIndexMessages.tool_title}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
@@ -43,7 +39,7 @@
 Welcome, if this is the assessment, please continue
   <!-- content... -->
   <h:form id="anonymousPage">
-      <h:commandLink accesskey="#{msg.a_ok}" action="beginAssessment" >
+      <h:commandLink accesskey="#{mainIndexMessages.a_ok}" action="beginAssessment" >
         <f:param name="publishedId" value="#{delivery.publishedAssessment.publishedAssessmentId}" />
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener" />

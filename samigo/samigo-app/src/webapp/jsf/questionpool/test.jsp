@@ -26,7 +26,7 @@
     <h:column id="col1">
 
      <f:facet name="header">
-       <h:outputText id="c1header" value="#{msg.p_name}"/>
+       <h:outputText id="c1header" value="#{questionPoolMessages.p_name}"/>
      </f:facet>
 
 
@@ -42,19 +42,19 @@
 <f:verbatim><br/></f:verbatim>
 <h:graphicImage id="spacer" style="border:0" width="17" value="../../images/delivery/spacer.gif" />
 <h:outputLink id="addlink" styleClass="tier#{pool.level}" value="editPool.faces?id=#{pool.name}">
-<h:outputText id="add" value="#{msg.add}"/>
+<h:outputText id="add" value="#{questionPoolMessages.add}"/>
 </h:outputLink>
 <f:verbatim>&nbsp;| &nbsp;</f:verbatim>
 <h:outputLink id="copylink" value="editPool.faces?id=#{pool.name}">
-<h:outputText id="copy" value="#{msg.copy}"/>
+<h:outputText id="copy" value="#{questionPoolMessages.copy}"/>
 </h:outputLink>
 <f:verbatim>&nbsp;| &nbsp;</f:verbatim>
 <h:outputLink id="movelink" value="editPool.faces?id=#{pool.name}">
-<h:outputText id="move" value="#{msg.move}"/>
+<h:outputText id="move" value="#{questionPoolMessages.move}"/>
 </h:outputLink>
 <f:verbatim>&nbsp;| &nbsp;</f:verbatim>
 <h:outputLink id="exportlink" value="editPool.faces?id=#{pool.name}">
-<h:outputText id="export" value="#{msg.export}"/>
+<h:outputText id="export" value="#{questionPoolMessages.export}"/>
 </h:outputLink>
 
 </h:panelGroup>
@@ -62,7 +62,7 @@
 
     <h:column id="col2">
      <f:facet name="header">
-       <h:outputText id="c2header" value="#{msg.creator}"/>
+       <h:outputText id="c2header" value="#{questionPoolMessages.creator}"/>
      </f:facet>
      <h:panelGroup id="secondcolumn">
         <h:outputText value="#{pool.creator}"/>
@@ -71,7 +71,7 @@
 
     <h:column id="col3">
      <f:facet name="header">
-       <h:outputText id="c3header" value="#{msg.last_mod}"/>
+       <h:outputText id="c3header" value="#{questionPoolMessages.last_mod}"/>
      </f:facet>
      <h:panelGroup id="thirdcolumn">
         <h:outputText value="#{pool.lastModified}"/>
@@ -80,7 +80,7 @@
 
     <h:column id="col4">
      <f:facet name="header">
-       <h:outputText value="#{msg.qs}"/>
+       <h:outputText value="#{questionPoolMessages.qs}"/>
      </f:facet>
      <h:panelGroup id="fourthcolumn">
         <h:outputText value="#{pool.noQuestions}"/>
@@ -90,7 +90,7 @@
 
     <h:column id="col5">
      <f:facet name="header">
-       <h:outputText value="#{msg.subps}"/>
+       <h:outputText value="#{questionPoolMessages.subps}"/>
      </f:facet>
      <h:panelGroup id="fifthcolumn">
         <h:outputText value="#{pool.nosubpools}"/>
@@ -99,7 +99,7 @@
 
     <h:column id="col6">
      <f:facet name="header">
-       <h:outputText value="#{msg.remove_chbox}"/>
+       <h:outputText value="#{questionPoolMessages.remove_chbox}"/>
      </f:facet>
 <h:selectBooleanCheckbox id="checkboxes" value ="#{questionpoo.destPools}"/>
     </h:column>

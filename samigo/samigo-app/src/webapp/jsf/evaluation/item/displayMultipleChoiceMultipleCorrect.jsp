@@ -29,7 +29,7 @@ include file for displaying multiple choice questions
    <h:dataTable value="#{itemText.answerArraySorted}" var="answer">
     <h:column rendered="#{answer.text!=null && answer.text!=''}">
       <h:graphicImage id="image6" rendered="#{answer.isCorrect}"
-        alt="#{msg.alt_correct}" url="/images/delivery/checkmark.gif" >
+        alt="#{evaluationMessages.alt_correct}" url="/images/delivery/checkmark.gif" >
        </h:graphicImage>
       <h:graphicImage id="image7" rendered="#{!answer.isCorrect}"
         alt=" " url="/images/delivery/spacer.gif" >

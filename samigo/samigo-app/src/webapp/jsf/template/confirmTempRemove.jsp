@@ -29,35 +29,31 @@
 --%>
 -->
   <f:view>
-    <f:loadBundle
-     basename="org.sakaiproject.tool.assessment.bundle.TemplateMessages"
-     var="msg"/>
-  
     <html xmlns="http://www.w3.org/1999/xhtml">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{msg.remove_heading}"/></title>
+      <title><h:outputText value="#{templateMessages.remove_heading}"/></title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>">
   <!-- content... -->
  <div class="portletBody">
-  <h3><h:outputText value="#{msg.remove_conf}"/></h3>
+  <h3><h:outputText value="#{templateMessages.remove_conf}"/></h3>
  <h:form id="removeTemplateForm">
    <h:inputHidden id="templateId" value="#{template.idString}"/>
 
      <div class="validation tier1">
-       <h:outputText value="#{msg.remove_fer_sure}" />
+       <h:outputText value="#{templateMessages.remove_fer_sure}" />
        <h:outputText value=" &quot;" />
        <h:outputText value="#{template.templateName}"/>
        <h:outputText value="&quot;?" />
 
        </div>
        <p class="act">
-       <h:commandButton id="remove" accesskey="#{msg.a_remove}" value="#{msg.index_button_remove}" type="submit"
+       <h:commandButton id="remove" accesskey="#{templateMessages.a_remove}" value="#{templateMessages.index_button_remove}" type="submit"
          styleClass="active" action="template" >
           <f:actionListener
             type="org.sakaiproject.tool.assessment.ui.listener.author.DeleteTemplateListener" />
        </h:commandButton>
-       <h:commandButton value="#{msg.cancel}" type="submit"
+       <h:commandButton value="#{templateMessages.cancel}" type="submit"
          style="act" action="template" />
        </p>
 

@@ -26,11 +26,11 @@ should be included in file importing DeliveryMessages
   <h:dataTable value="#{itemContents.itemData.itemTextArraySorted}" var="itemText">
     <h:column>
       <%-- question level feedback --%>
-      <h:outputText escape="false" value="#{msg.q_level_feedb}:" />
+      <h:outputText escape="false" value="#{authorMessages.q_level_feedb}:" />
       <f:verbatim><br/>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-      <h:outputText escape="false" value="#{msg.correct}:  #{itemContents.itemData.correctItemFeedback}" />
+      <h:outputText escape="false" value="#{authorMessages.correct}:  #{itemContents.itemData.correctItemFeedback}" />
       <f:verbatim><br/>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-      <h:outputText escape="false" value="#{msg.incorrect}:  #{itemContents.itemData.inCorrectItemFeedback}"/>
+      <h:outputText escape="false" value="#{authorMessages.incorrect}:  #{itemContents.itemData.inCorrectItemFeedback}"/>
 <%--
       <h:outputText escape="false" value="#{itemContents.itemData.generalItemFeedback}" />
 --%>
