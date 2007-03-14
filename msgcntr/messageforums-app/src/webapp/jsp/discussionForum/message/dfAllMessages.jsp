@@ -188,12 +188,10 @@
 	          	
 	          	<h:outputText value="  " />
 				
-				<h:outputLink value="#" onclick="$(this).remove();doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id});return false;" rendered="#{!message.read}"
-					title="#{msgs.msg_is_unread}"> 
-				   	<h:graphicImage value="/images/silk/email.png" alt="#{msgs.msg_is_unread}" rendered="#{!message.read}" 
-  	        		onmouseover="this.src=this.src.replace(/email\.png/, 'email_open.png');"
-   	        		onmouseout="this.src=this.src.replace(/email_open\.png/, 'email.png');" />
-                </h:outputLink>
+				<h:graphicImage value="/images/silk/email.png" alt="#{msgs.msg_is_unread}" rendered="#{!message.read}" style="cursor:pointer"
+      								onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id}, this);"
+				   	        		onmouseover="this.src=this.src.replace(/email\.png/, 'email_open.png');"
+				   	        		onmouseout="this.src=this.src.replace(/email_open\.png/, 'email.png');" />
                 <%--
 	          	<h:commandLink action="#{ForumTool.processDfMsgMarkMsgAsRead}">
 	                <f:param value="#{message.message.id}" name="messageId"/>

@@ -209,26 +209,22 @@ function mySetMainFrameHeight(id)
 	}
 }
 
-function doAjax(messageId, topicId){
-   $("#" + messageId).parents("tr:first").toggle();
-   $("#" + messageId).parents("tr:first").after("<tr class='" + 
-   		$("#" + messageId).parents("tr:first").attr("className") + 
-   		"'><td style='padding-left:100px;height:" + $("#" + messageId).parent("td").height() + "px' colspan='" + 
-   		$("#" + messageId).parents("tr:first").children("td").size() + 
-   		"'><img src='/library/image/sakai/spinner.gif' /></td></tr>");
-
-   $("#" + messageId).parents("tr:first").children("td").each(function(){this.innerHTML = this.innerHTML.replace(/unreadMsg/g, 'bogus'); });
-   setTimeout(function(){
-        $("#" + messageId).parents("tr:first").next().remove();
-        $("#" + messageId).parents("tr").get(0).style.display = (document.all)? "block" : "table-row";
-   }, 500);
+function doAjax(messageId, topicId, self){
+ 	$(self).attr('src', '/library/image/sakai/spinner.gif');
 	$.ajax({ type: "GET", url: "dfAjax", data: "action=markMessageAsRead&messageId=" + messageId + "&topicId=" + topicId,
       success: function(msg){
-         if(!msg.match(/SUCCESS/)){
-            $("#" + messageId).parents("tr:first").css("backgroundColor", "#ffD0DC");
+         if(msg.match(/SUCCESS/)){
+     		setTimeout(function(){
+              $(self).remove();
+               $("#" + messageId).parents("tr:first").children("td").each(function(){this.innerHTML = this.innerHTML.replace(/unreadMsg/g, 'bogus'); });
+            }, 500);
+         } else {
+            $(self).remove();
+            $("#" + messageId).parents("tr:first").css("backgroundColor", "#ffD0DC");         
          }
       },
       error: function(){
+         $(self).remove();
          $("#" + messageId).parents("tr:first").css("backgroundColor", "#ffD0DC");
       }
    });

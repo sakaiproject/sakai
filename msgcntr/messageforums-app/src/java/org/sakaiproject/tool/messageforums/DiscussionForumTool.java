@@ -3066,7 +3066,7 @@ public class DiscussionForumTool
 
     this.attachments.clear();
 
-    return THREAD_VIEW;
+    return processActionGetDisplayThread();
   }
 
   public String processDeleteAttachRevise()
@@ -3366,7 +3366,7 @@ public class DiscussionForumTool
 
 	    this.attachments.clear();
 
-	    return THREAD_VIEW;
+	    return processActionGetDisplayThread();
   }
 
   public String processDfReplyTopicPost()

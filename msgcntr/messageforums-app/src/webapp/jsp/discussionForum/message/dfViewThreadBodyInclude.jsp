@@ -28,13 +28,10 @@
    				   	      	<f:convertDateTime pattern="#{msgs.date_format_paren}" />
    				   	      </h:outputText>
                            
-                           
-                           <h:outputLink value="#" onclick="$(this).remove();doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id});return false;" rendered="#{!message.read}"
-                           		title="#{msgs.msg_is_unread}"> 
-      						   	<h:graphicImage value="/images/silk/email.png" alt="#{msgs.msg_is_unread}" rendered="#{!message.read}" 
+      					<h:graphicImage value="/images/silk/email.png" alt="#{msgs.msg_is_unread}" rendered="#{!message.read}" style="cursor:pointer"
+      								onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id}, this);"
 				   	        		onmouseover="this.src=this.src.replace(/email\.png/, 'email_open.png');"
 				   	        		onmouseout="this.src=this.src.replace(/email_open\.png/, 'email.png');" />
-                           </h:outputLink>
 						<%--
    				   	      <h:commandLink action="#{ForumTool.processDfMsgMarkMsgAsReadFromThread}" rendered="#{!message.read}" title="#{msgs.cdfm_button_bar_mark_as_read}"> 
    	                  		<f:param value="#{message.message.id}" name="messageId"/>
@@ -47,13 +44,13 @@
                     --%>
 	                  <f:verbatim></div></f:verbatim>
 
-                         <f:verbatim><div style="width:35%;float:right;text-align:right" class="specialLink"></f:verbatim>
+                         <f:verbatim><div style="width:30%;float:right;text-align:right" class="specialLink"></f:verbatim>
 				   	     	<h:panelGroup rendered="#{ForumTool.selectedTopic.isNewResponseToResponse && message.msgApproved}">
 				   	     		<h:commandLink action="#{ForumTool.processDfMsgReplyMsgFromEntire}" title="#{msgs.cdfm_reply}">
 	                    <f:param value="#{message.message.id}" name="messageId"/>
               	    	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
               	    	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
-        	    				<h:graphicImage value="/images/silk/email_edit.png" alt="#{msgs.cdfm_button_bar_reply_to_msg}" />
+        	    				<h:graphicImage value="/images/silk/email_go.png" alt="#{msgs.cdfm_button_bar_reply_to_msg}" />
         	    				<h:outputText value="#{msgs.cdfm_reply}" />
    	                </h:commandLink>
    	                     
@@ -62,7 +59,7 @@
 	  					    <h:panelGroup rendered="#{(ForumTool.selectedTopic.isPostToGradebook && ForumTool.gradebookExist) || ForumTool.selectedTopic.isModeratedAndHasPerm || ForumTool.selectedTopic.isReviseAny}">
 	  					      <h:outputText value=" #{msgs.cdfm_toolbar_separator} " rendered="#{ForumTool.selectedTopic.isNewResponseToResponse && message.msgApproved}" />
 	  					      <h:outputLink value="#" onclick="toggleDisplay('#{message.message.id}_advanced_box'); toggleHide(this); return false;" >
-								      <h:graphicImage value="/images/silk/email_go.png" alt="#{msgs.cdfm_other_actions}" />
+								      <h:graphicImage value="/images/silk/cog.png" alt="#{msgs.cdfm_other_actions}" />
 	   							    <h:outputText value="#{msgs.cdfm_other_actions}" />
 	   						    </h:outputLink>
 	   						  </h:panelGroup>
