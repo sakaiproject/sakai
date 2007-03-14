@@ -35,6 +35,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
 
+import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -547,7 +548,7 @@ public class ResourcesBrowseItem
 	  */
 	 public boolean isFolder()
 	 {
-		 return ResourcesAction.TYPE_FOLDER.equals(m_type);
+		 return ResourceType.TYPE_FOLDER.equals(m_type);
 	 }
 
 	 /**

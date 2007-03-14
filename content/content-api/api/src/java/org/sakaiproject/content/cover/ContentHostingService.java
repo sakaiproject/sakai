@@ -1024,4 +1024,16 @@ public class ContentHostingService
 		return service.addCollection(collectionId, name);
 	}
 
+	/**
+     * @param id
+     * @return
+     */
+    public static boolean isAvailable(String id)
+    {
+		org.sakaiproject.content.api.ContentHostingService service = getInstance();
+		if (service == null) return false;
+		
+		return service.isAvailable(id);
+    }
+
 }

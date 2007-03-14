@@ -4343,7 +4343,7 @@ public class ResourcesAction
 		context.put("selectedItems", selectedItems);
 
 		// find the ContentHosting service
-		org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
+		org.sakaiproject.content.api.ContentHostingService contentService = ContentHostingService.getInstance();
 		context.put ("service", contentService);
 
 		boolean inMyWorkspace = SiteService.isUserSite(ToolManager.getCurrentPlacement().getContext());
@@ -4505,7 +4505,7 @@ public class ResourcesAction
 
 			boolean need_to_expand_all = Boolean.TRUE.toString().equals((String)state.getAttribute(STATE_NEED_TO_EXPAND_ALL));
 
-			ListItem item = ListItem.getListItem(collection, null, registry, need_to_expand_all, expandedCollections, items_to_be_moved, items_to_be_copied, 0, userSelectedSort);
+			ListItem item = ListItem.getListItem(collection, null, registry, need_to_expand_all, expandedCollections, items_to_be_moved, items_to_be_copied, 0, userSelectedSort, false);
 			
 			Map<String, ResourceToolAction> listActions = new HashMap<String, ResourceToolAction>();
 			
@@ -4946,7 +4946,7 @@ public class ResourcesAction
 		Reference ref = EntityManager.newReference(refstr);
 		ContentEntity entity = (ContentEntity) ref.getEntity();
 
-		ResourcesItem item = new  ResourcesItem(entity);
+		ListItem item = new  ListItem(entity);
 		if(item.getReleaseDate() == null)
 		{
 			item.setReleaseDate(TimeService.newTime());
@@ -5643,6 +5643,7 @@ public class ResourcesAction
 						InteractionAction iAction = (InteractionAction) action;
 						iAction.cancelAction(null, pipe.getInitializationId());
 					}
+					state.removeAttribute(ResourceToolAction.ACTION_PIPE);
 				}
 			}
 			state.setAttribute(STATE_MODE, MODE_LIST);
@@ -6488,7 +6489,7 @@ public class ResourcesAction
 		if(user_action.equals("save"))
 		{
 			String entityId = (String) state.getAttribute(STATE_REVISE_PROPERTIES_ENTITY_ID);
-			ResourcesItem item = (ResourcesItem) state.getAttribute(STATE_REVISE_PROPERTIES_ITEM);
+			ListItem item = (ListItem) state.getAttribute(STATE_REVISE_PROPERTIES_ITEM);
 			ResourceToolAction action = (ResourceToolAction) state.getAttribute(STATE_REVISE_PROPERTIES_ACTION);
 			String name = params.getString("name");
 			String description = params.getString("description");
@@ -6559,44 +6560,43 @@ public class ResourcesAction
 				// we inherit more than one group and must check whether group access changes at this item
 				String[] access_groups = params.getStrings("access_groups");
 				
-				SortedSet new_groups = new TreeSet();
+				SortedSet<String> new_groups = new TreeSet<String>();
 				if(access_groups != null)
 				{
 					new_groups.addAll(Arrays.asList(access_groups));
 				}
-				//new_groups = item.convertToRefs(new_groups);
+				new_groups = item.convertToRefs(new_groups);
 				
-//				Collection inh_grps = null;
-//				//item.getInheritedGroupRefs();
-//				boolean groups_are_inherited = (new_groups.size() == inh_grps.size()) && inh_grps.containsAll(new_groups);
-//				
-//				if(groups_are_inherited)
-//				{
-//					new_groups.clear();
-//					item.setEntityGroupRefs(new_groups);
-//					item.setAccess(AccessMode.INHERITED.toString());
-//				}
-//				else
-//				{
-//					item.setEntityGroupRefs(new_groups);
-//					item.setAccess(AccessMode.GROUPED.toString());
-//				}
-//				
-//				item.setPubview(false);
+				Collection inh_grps = item.getInheritedGroupRefs();
+				boolean groups_are_inherited = (new_groups.size() == inh_grps.size()) && inh_grps.containsAll(new_groups);
+				
+				if(groups_are_inherited)
+				{
+					new_groups.clear();
+					item.setGroupsById(new_groups);
+					item.setAccessMode(AccessMode.INHERITED);
+				}
+				else
+				{
+					item.setGroupsById(new_groups);
+					item.setAccessMode(AccessMode.GROUPED);
+				}
+				
+				item.setPubview(false);
 			}
 			else if(PUBLIC_ACCESS.equals(access_mode))
 			{
-//				if(! preventPublicDisplay.booleanValue() && ! item.isPubviewInherited())
-//				{
-//					item.setPubview(true);
-//					item.setAccess(AccessMode.INHERITED.toString());
-//				}
+				if(! preventPublicDisplay.booleanValue() && ! item.isPubviewInherited())
+				{
+					item.setPubview(true);
+					item.setAccessMode(AccessMode.INHERITED);
+				}
 			}
 			else if(AccessMode.INHERITED.toString().equals(access_mode))
 			{
-//				item.setAccess(AccessMode.INHERITED.toString());
-//				item.clearGroups();
-//				item.setPubview(false);
+				item.setAccessMode(AccessMode.INHERITED);
+				item.setGroupsById(null);
+				item.setPubview(false);
 			}
 
 			// notification
@@ -7391,6 +7391,7 @@ public class ResourcesAction
 					if ((StringUtil.trimToNull(siteTypes[i])).equals(siteType))
 					{
 						state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, Boolean.TRUE);
+						break;
 					}
 				}
 			}
@@ -7890,7 +7891,7 @@ public class ResourcesAction
             try
             {
             	ContentCollection wsCollection = ContentHostingService.getCollection(wsCollectionId);
-				ListItem wsRoot = ListItem.getListItem(wsCollection, null, registry, false, expandedCollections, items_to_be_moved, items_to_be_copied, 0, userSelectedSort);
+				ListItem wsRoot = ListItem.getListItem(wsCollection, null, registry, false, expandedCollections, items_to_be_moved, items_to_be_copied, 0, userSelectedSort, false);
 		        other_sites.add(wsRoot);
             }
             catch (IdUnusedException e)
@@ -7938,7 +7939,7 @@ public class ResourcesAction
                 try
                 {
 	                collection = ContentHostingService.getCollection(collId);
-					ListItem root = ListItem.getListItem(collection, null, registry, false, expandedCollections, items_to_be_moved, items_to_be_copied, 0, null);
+					ListItem root = ListItem.getListItem(collection, null, registry, false, expandedCollections, items_to_be_moved, items_to_be_copied, 0, null, false);
 					root.setName(displayName);
 					other_sites.add(root);
                 }

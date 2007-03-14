@@ -632,7 +632,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 								ContentCollection db = contentService.getCollection(dbId);
 								expandedCollections.add(dbId);
 
-								ListItem item = ListItem.getListItem(db, (ListItem) null, registry, expandAll, expandedCollections, (List<String>) null, (List<String>) null, 0, userSelectedSort);
+								ListItem item = ListItem.getListItem(db, (ListItem) null, registry, expandAll, expandedCollections, (List<String>) null, (List<String>) null, 0, userSelectedSort, false);
 								List<ListItem> items = item.convert2list();
 								ContentResourceFilter filter = (ContentResourceFilter)state.getAttribute(STATE_ATTACHMENT_FILTER);
 								if(filter != null)
@@ -665,7 +665,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 							ContentCollection db = contentService.getCollection(dropboxId);
 							expandedCollections.add(dropboxId);
 
-							ListItem item = ListItem.getListItem(db, null, registry, expandAll, expandedCollections, null, null, 0, null);
+							ListItem item = ListItem.getListItem(db, null, registry, expandAll, expandedCollections, null, null, 0, null, false);
 							this_site.addAll(item.convert2list());
 
 	//						List dbox = getListView(dropboxId, highlightedItems, (ResourcesBrowseItem) null, false, state);
@@ -689,7 +689,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 			else
 			{
 				ContentCollection collection = contentService.getCollection(collectionId);
-				ListItem item = ListItem.getListItem(collection, null, registry, expandAll, expandedCollections, null, null, 0, null);
+				ListItem item = ListItem.getListItem(collection, null, registry, expandAll, expandedCollections, null, null, 0, null, false);
 				List<ListItem> items = item.convert2list();
 				ContentResourceFilter filter = (ContentResourceFilter)state.getAttribute(STATE_ATTACHMENT_FILTER);
 				if(filter != null)
