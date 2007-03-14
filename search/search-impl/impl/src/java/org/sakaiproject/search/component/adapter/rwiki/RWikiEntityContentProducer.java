@@ -109,18 +109,20 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 		return o;
 	}
 
-	public boolean isContentFromReader(Entity cr)
+	public boolean isContentFromReader(String cr)
 	{
 		return false;
 	}
 
-	public Reader getContentReader(Entity cr)
+	public Reader getContentReader(String reference)
 	{
 		return null;
 	}
 
-	public String getContent(Entity cr)
+	public String getContent(String reference)
 	{
+		Reference ref = getReference(reference);
+		Entity cr = ref.getEntity();
 		RWikiEntity rwe = (RWikiEntity) cr;
 		RWikiObject rwo = rwe.getRWikiObject();
 		String pageName = rwo.getName();
@@ -135,17 +137,25 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 
 	}
 
-	public String getTitle(Entity cr)
+	public String getTitle(String reference)
 	{
+		Reference ref = getReference(reference);
+		Entity cr = ref.getEntity();
 		RWikiEntity rwe = (RWikiEntity) cr;
 		RWikiObject rwo = rwe.getRWikiObject();
 		return SearchUtils.appendCleanString(rwo.getName(),null).toString();
 	}
 
-	public boolean matches(Reference ref)
+	public boolean matches(String reference)
 	{
-		EntityProducer ep = ref.getEntityProducer();
-		return (ep instanceof RWikiObjectService);
+		try {
+			Reference ref = getReference(reference);
+			EntityProducer ep = ref.getEntityProducer();
+			return (ep instanceof RWikiObjectService);
+		} catch ( Exception ex ) {
+			return false;
+		}
+		
 	}
 
 	public List getAllContent()
@@ -186,12 +196,13 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 		return "wiki";
 	}
 
-	public String getUrl(Entity entity)
+	public String getUrl(String reference)
 	{
-		return entity.getUrl() + "html";
+		Reference ref = getReference(reference);
+		return ref.getUrl() + "html";
 	}
 
-	public String getSiteId(Reference ref)
+	private String getSiteId(Reference ref)
 	{
 		String context = ref.getContext();
 		if (context.startsWith("/site/"))
@@ -254,11 +265,12 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 		};
 	}
 
-	public boolean isForIndex(Reference ref)
+	public boolean isForIndex(String reference)
 	{
 
 		try
 		{
+			Reference ref = getReference(reference);
 			RWikiEntity rwe = (RWikiEntity) ref.getEntity();
 			RWikiObject rwo = rwe.getRWikiObject();
 			String pageName = rwo.getName();
@@ -275,10 +287,11 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 		return false;
 	}
 
-	public boolean canRead(Reference ref)
+	public boolean canRead(String reference)
 	{
 		try
 		{
+			Reference ref = getReference(reference);
 			RWikiEntity rwe = (RWikiEntity) ref.getEntity();
 			RWikiObject rwo = rwe.getRWikiObject();
 			return objectService.checkRead(rwo);
@@ -297,6 +310,68 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 	public String getCustomRDF()
 	{
 		return null;
+	}
+
+	private Reference getReference(String reference) {
+		try {
+			 return entityManager.newReference(reference);
+		} catch ( Exception ex ) {			
+		}
+		return null;
+	}
+	private EntityProducer getProducer(Reference ref) {
+		try {
+			 return ref.getEntityProducer();
+		} catch ( Exception ex ) {			
+		}
+		return null;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.EntityContentProducer#getId(java.lang.String)
+	 */
+	public String getId(String reference)
+	{
+		try {
+			return getReference(reference).getId();
+		} catch ( Exception ex ) {
+			return "";
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.EntityContentProducer#getSubType(java.lang.String)
+	 */
+	public String getSubType(String reference)
+	{
+		try {
+			return getReference(reference).getSubType();
+		} catch ( Exception ex ) {
+			return "";
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.EntityContentProducer#getType(java.lang.String)
+	 */
+	public String getType(String reference)
+	{
+		try {
+			return getReference(reference).getType();
+		} catch ( Exception ex ) {
+			return "";
+		}
+	}
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.EntityContentProducer#getType(java.lang.String)
+	 */
+	public String getContainer(String reference)
+	{
+		try {
+			return getReference(reference).getContainer();
+		} catch ( Exception ex ) {
+			return "";
+		}
 	}
 
 }

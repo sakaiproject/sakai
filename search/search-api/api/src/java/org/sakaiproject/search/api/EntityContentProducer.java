@@ -26,8 +26,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.Event;
 
 /**
@@ -47,7 +45,7 @@ public interface EntityContentProducer
 	 * @param cr
 	 * @return
 	 */
-	boolean isContentFromReader(Entity cr);
+	boolean isContentFromReader(String reference);
 
 	/**
 	 * Get a reader for the supplied content resource
@@ -55,7 +53,7 @@ public interface EntityContentProducer
 	 * @param cr 
 	 * @return
 	 */
-	Reader getContentReader(Entity cr);
+	Reader getContentReader(String reference);
 
 	/**
 	 * Get the content as a string
@@ -63,7 +61,7 @@ public interface EntityContentProducer
 	 * @param cr
 	 * @return
 	 */
-	String getContent(Entity cr);
+	String getContent(String reference);
 	
 
 	/**
@@ -72,7 +70,7 @@ public interface EntityContentProducer
 	 * @param cr
 	 * @return
 	 */
-	String getTitle(Entity cr);
+	String getTitle(String reference);
 
 	/**
 	 * Gets the url that displays the entity
@@ -80,7 +78,7 @@ public interface EntityContentProducer
 	 * @param entity
 	 * @return
 	 */
-	String getUrl(Entity entity);
+	String getUrl(String reference);
 
 	/**
 	 * If the reference matches this EntityContentProducer return true
@@ -88,7 +86,7 @@ public interface EntityContentProducer
 	 * @param ref
 	 * @return
 	 */
-	boolean matches(Reference ref);
+	boolean matches(String reference);
 
 	/**
 	 * Gets a list of Entity resource as a String to represent all indexable
@@ -118,19 +116,14 @@ public interface EntityContentProducer
 	 */
 	String getTool();
 
-	/**
-	 * get the site Id from the reference, just incase there are any translations 
-	 * @param ref
-	 * @return
-	 */
-	String getSiteId(Reference ref);
+
 	
 	/**
 	 * get the site ID from the resource Name
 	 * @param resourceName
 	 * @return
 	 */
-	String getSiteId(String resourceName);
+	String getSiteId(String reference);
 
 	/**
 	 * get all the content associated with a site managed by this EntityContentProducer
@@ -152,14 +145,14 @@ public interface EntityContentProducer
 	 * @param ref
 	 * @return
 	 */
-	boolean isForIndex(Reference ref);
+	boolean isForIndex(String reference);
 
 	/**
 	 * returns true if the current user can view the search result
 	 * @param ref 
 	 * @return
 	 */
-	boolean canRead(Reference ref);
+	boolean canRead(String reference);
 
 	/**
 	 * Gets a map of custom document properties. The names of the map map will contain 
@@ -179,5 +172,29 @@ public interface EntityContentProducer
 	 * @return
 	 */
 	String getCustomRDF();
+
+	/**
+	 * @param ref
+	 * @return
+	 */
+	String getId(String ref);
+
+	/**
+	 * @param ref
+	 * @return
+	 */
+	String getType(String ref);
+
+	/**
+	 * @param ref
+	 * @return
+	 */
+	String getSubType(String ref);
+
+	/**
+	 * @param ref
+	 * @return
+	 */
+	String getContainer(String ref);
 
 }

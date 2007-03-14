@@ -156,32 +156,32 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		return o;
 	}
 
-	public boolean isContentFromReader(Entity cr)
+	public boolean isContentFromReader(String ref)
 	{
 		ContentResource contentResource;
 		try
 		{
-			contentResource = contentHostingService.getResource(cr.getId());
+			contentResource = contentHostingService.getResource(ref);
 		}
 		catch (Exception e)
 		{
-			throw new RuntimeException("Failed to resolve resource " + cr, e);
+			throw new RuntimeException("Failed to resolve resource " + ref, e);
 		}
 		if (contentResource.getContentLength() > readerSizeLimit) return true;
 		return false;
 	}
 
 
-	public Reader getContentReader(Entity cr)
+	public Reader getContentReader(String ref)
 	{
 		ContentResource contentResource;
 		try
 		{
-			contentResource = contentHostingService.getResource(cr.getId());
+			contentResource = contentHostingService.getResource(ref);
 		}
 		catch (Exception e)
 		{
-			throw new RuntimeException("Failed to resolve resource " + cr, e);
+			throw new RuntimeException("Failed to resolve resource " + ref, e);
 		}
 		if (contentResource.getContentLength() <= 0)
 		{
@@ -222,16 +222,16 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		}
 		return reader;
 	}
-	public String getContent(Entity cr) {
-		return getContent(cr,3);
+	public String getContent(String  ref) {
+		return getContent(ref,3);
 	}
 
-	public String getContent(Entity cr,int minWordLenght)
+	public String getContent(String ref,int minWordLenght)
 	{
 		ContentResource contentResource;
 		try
 		{
-			contentResource = contentHostingService.getResource(cr.getId());
+			contentResource = contentHostingService.getResource(ref);
 		}
 		catch (Exception e)
 		{
@@ -296,12 +296,12 @@ public class ContentHostingContentProducer implements EntityContentProducer
 
 	}
 
-	public String getTitle(Entity cr)
+	public String getTitle(String ref)
 	{
 		ContentResource contentResource;
 		try
 		{
-			contentResource = contentHostingService.getResource(cr.getId());
+			contentResource = contentHostingService.getResource(ref);
 		}
 		catch (Exception e)
 		{
@@ -312,10 +312,15 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		return rp.getProperty(displayNameProp);
 	}
 
-	public boolean matches(Reference ref)
+	public boolean matches(String ref)
 	{
-		EntityProducer ep = ref.getEntityProducer();
-		return (ep instanceof ContentHostingService);
+		try {
+			Reference reference = entityManager.newReference(ref);
+			EntityProducer ep = reference.getEntityProducer();
+			return (ep instanceof ContentHostingService);
+		} catch ( Exception ex ) {
+			return false;
+		}
 	}
 
 	public List getAllContent()
@@ -365,12 +370,13 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		return "content";
 	}
 
-	public String getUrl(Entity entity)
+	public String getUrl(String ref)
 	{
-		return entity.getUrl();
+		Reference reference = entityManager.newReference(ref);
+		return reference.getUrl();
 	}
 
-	public String getSiteId(Reference ref)
+	private String getSiteId(Reference ref)
 	{
 		return ref.getContext();
 	}
@@ -468,12 +474,12 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		this.defaultDigester = defaultDigester;
 	}
 
-	public boolean isForIndex(Reference ref)
+	public boolean isForIndex(String ref)
 	{
 		ContentResource contentResource;
 		try
 		{
-			contentResource = contentHostingService.getResource(ref.getId());
+			contentResource = contentHostingService.getResource(ref);
 		}
 		catch (IdUnusedException idun)
 		{
@@ -487,11 +493,11 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		return true;
 	}
 
-	public boolean canRead(Reference ref)
+	public boolean canRead(String ref)
 	{
 		try
 		{
-			contentHostingService.checkResource(ref.getId());
+			contentHostingService.checkResource(ref);
 			return true;
 		}
 		catch (Exception ex)
@@ -526,5 +532,61 @@ public class ContentHostingContentProducer implements EntityContentProducer
 	{
 		this.digesterSizeLimit = digesterSizeLimit;
 	}
+	
+	private Reference getReference(String reference) {
+		try {
+			 return entityManager.newReference(reference);
+		} catch ( Exception ex ) {			
+		}
+		return null;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.EntityContentProducer#getId(java.lang.String)
+	 */
+	public String getId(String reference)
+	{
+		try {
+			return getReference(reference).getId();
+		} catch ( Exception ex ) {
+			return "";
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.EntityContentProducer#getSubType(java.lang.String)
+	 */
+	public String getSubType(String reference)
+	{
+		try {
+			return getReference(reference).getSubType();
+		} catch ( Exception ex ) {
+			return "";
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.EntityContentProducer#getType(java.lang.String)
+	 */
+	public String getType(String reference)
+	{
+		try {
+			return getReference(reference).getType();
+		} catch ( Exception ex ) {
+			return "";
+		}
+	}
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.EntityContentProducer#getType(java.lang.String)
+	 */
+	public String getContainer(String reference)
+	{
+		try {
+			return getReference(reference).getContainer();
+		} catch ( Exception ex ) {
+			return "";
+		}
+	}
+
 
 }

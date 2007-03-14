@@ -48,9 +48,10 @@ import org.apache.lucene.index.Term;
 import org.hibernate.HibernateException;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
+//import org.sakaiproject.entity.api.Entity;
+//import org.sakaiproject.entity.api.EntityManager;
+//import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchIndexBuilderWorker;
@@ -99,7 +100,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 
 	private boolean enabled = false;
 
-	private EntityManager entityManager;
+	//private EntityManager entityManager;
 
 	private RDFSearchService rdfSearchService = null;
 
@@ -117,8 +118,8 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 	{
 		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
 				.getInstance();
-		entityManager = (EntityManager) load(cm, EntityManager.class.getName(),
-				true);
+		//entityManager = (EntityManager) load(cm, EntityManager.class.getName(),
+		//		true);
 		searchIndexBuilder = (SearchIndexBuilder) load(cm,
 				SearchIndexBuilder.class.getName(), true);
 		rdfSearchService = (RDFSearchService) load(cm, RDFSearchService.class
@@ -132,10 +133,10 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 			{
 				log.error("Search Index Worker needs searchIndexBuilder "); //$NON-NLS-1$
 			}
-			if (entityManager == null)
-			{
-				log.error("Search Index Worker needs EntityManager "); //$NON-NLS-1$
-			}
+			//if (entityManager == null)
+			//{
+			//	log.error("Search Index Worker needs EntityManager "); //$NON-NLS-1$
+			//}
 			if (indexStorage == null)
 			{
 				log.error("Search Index Worker needs indexStorage "); //$NON-NLS-1$
@@ -271,8 +272,8 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 					{
 						continue;
 					}
-					Reference ref = entityManager.newReference(sbi.getName());
-
+					//Reference ref = entityManager.newReference(sbi.getName());
+					String ref = sbi.getName();
 					if (ref == null)
 					{
 						log
@@ -282,13 +283,13 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 
 					long startDocIndex = System.currentTimeMillis();
 					worker.setStartDocIndex(startDocIndex);
-					worker.setNowIndexing(ref.getReference());
+					worker.setNowIndexing(ref);
 
 					try
 					{
 						try
 						{
-							Entity entity = ref.getEntity();
+							//Entity entity = ref.getEntity();
 							EntityContentProducer sep = searchIndexBuilder
 									.newEntityContentProducer(ref);
 							boolean indexDoc = true;
@@ -318,11 +319,12 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 								}
 							}
 							if (indexDoc && sep != null && sep.isForIndex(ref)
-									&& ref.getContext() != null)
+									&& sep.getSiteId(ref) != null)
 							{
 
 								Document doc = new Document();
-								String container = ref.getContainer();
+								Reference r;
+								String container = sep.getContainer(ref);
 								if (container == null) container = ""; //$NON-NLS-1$
 								doc.add(new Field(SearchService.DATE_STAMP,
 										String.valueOf(System
@@ -333,18 +335,17 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 										SearchService.FIELD_CONTAINER,
 										filterNull(container), Field.Store.COMPRESS,
 										Field.Index.UN_TOKENIZED));
-								doc.add(new Field(SearchService.FIELD_ID, filterNull(ref
-										.getId()), Field.Store.COMPRESS,
+								doc.add(new Field(SearchService.FIELD_ID, filterNull(sep
+										.getId(ref)), Field.Store.COMPRESS,
 										Field.Index.NO));
-								doc.add(new Field(SearchService.FIELD_TYPE, filterNull(ref
-										.getType()), Field.Store.COMPRESS,
+								doc.add(new Field(SearchService.FIELD_TYPE, filterNull(sep
+										.getType(ref)), Field.Store.COMPRESS,
 										Field.Index.UN_TOKENIZED));
 								doc.add(new Field(SearchService.FIELD_SUBTYPE,
-										filterNull(ref.getSubType()), Field.Store.COMPRESS,
+										filterNull(sep.getSubType(ref)), Field.Store.COMPRESS,
 										Field.Index.UN_TOKENIZED));
 								doc.add(new Field(
-										SearchService.FIELD_REFERENCE, filterNull(ref
-												.getReference()),
+										SearchService.FIELD_REFERENCE, filterNull(ref),
 										Field.Store.COMPRESS,
 										Field.Index.UN_TOKENIZED));
 
@@ -352,10 +353,10 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 										filterNull(sep.getSiteId(ref)),
 										Field.Store.COMPRESS,
 										Field.Index.UN_TOKENIZED));
-								if (sep.isContentFromReader(entity))
+								if (sep.isContentFromReader(ref))
 								{
 									contentReader = sep
-											.getContentReader(entity);
+											.getContentReader(ref);
 									doc
 											.add(new Field(
 													SearchService.FIELD_CONTENTS,
@@ -367,14 +368,14 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 									doc.add(new Field(
 											SearchService.FIELD_CONTENTS, 
 											filterNull(sep
-													.getContent(entity)),
+													.getContent(ref)),
 											Field.Store.NO,
 											Field.Index.TOKENIZED,
 											Field.TermVector.YES));
 								}
 								
 								doc.add(new Field(SearchService.FIELD_TITLE,
-										filterNull(sep.getTitle(entity)),
+										filterNull(sep.getTitle(ref)),
 										Field.Store.COMPRESS,
 										Field.Index.TOKENIZED,
 										Field.TermVector.YES));
@@ -382,7 +383,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 										filterNull(sep.getTool()), Field.Store.COMPRESS,
 										Field.Index.UN_TOKENIZED));
 								doc.add(new Field(SearchService.FIELD_URL, 
-										filterNull(sep.getUrl(entity)), Field.Store.COMPRESS,
+										filterNull(sep.getUrl(ref)), Field.Store.COMPRESS,
 										Field.Index.UN_TOKENIZED));
 								doc.add(new Field(SearchService.FIELD_SITEID,
 										filterNull(sep.getSiteId(ref)),
@@ -443,12 +444,12 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 							}
 							else
 							{
-								log.debug("Ignored Document " + ref.getId()); //$NON-NLS-1$
+								log.debug("Ignored Document " + ref); //$NON-NLS-1$
 							}
 						}
 						catch (Exception e1)
 						{
-							log.info(" Failed to index document for "+ref.getId()+" cause: " //$NON-NLS-1$
+							log.info(" Failed to index document for "+ref+" cause: " //$NON-NLS-1$
 									+ e1.getMessage(),e1);
 						}
 						sbi.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
@@ -469,7 +470,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 										+ String
 												.valueOf((endDocIndex - startDocIndex) / 1000)
 										+ " seconds to index " //$NON-NLS-1$
-										+ ref.getReference());
+										+ ref);
 					}
 					// update this node lock to indicate its
 					// still alove, no document should
@@ -478,7 +479,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements
 					{
 						throw new Exception(
 								"Transaction Lock Expired while indexing " //$NON-NLS-1$
-										+ ref.getReference());
+										+ ref);
 					}
 
 				}

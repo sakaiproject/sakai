@@ -33,7 +33,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
@@ -122,7 +121,7 @@ public class MessageContentProducer implements EntityContentProducer
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean isContentFromReader(Entity cr)
+	public boolean isContentFromReader(String reference)
 	{
 		return false;
 	}
@@ -130,18 +129,33 @@ public class MessageContentProducer implements EntityContentProducer
 	/**
 	 * {@inheritDoc}
 	 */
-	public Reader getContentReader(Entity cr)
+	public Reader getContentReader(String reference)
 	{
-		return new StringReader(getContent(cr));
+		return new StringReader(getContent(reference));
+	}
+	
+	private Reference getReference(String reference) {
+		try {
+			 return entityManager.newReference(reference);
+		} catch ( Exception ex ) {			
+		}
+		return null;
+	}
+	private EntityProducer getProducer(Reference ref) {
+		try {
+			 return ref.getEntityProducer();
+		} catch ( Exception ex ) {			
+		}
+		return null;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public String getContent(Entity cr)
+	public String getContent(String reference)
 	{
-		Reference ref = entityManager.newReference(cr.getReference());
-		EntityProducer ep = ref.getEntityProducer();
+		Reference ref = getReference(reference);
+		EntityProducer ep = getProducer(ref);
 
 		if (ep instanceof MessageService)
 		{
@@ -180,7 +194,7 @@ public class MessageContentProducer implements EntityContentProducer
 				}
 				
 				sb.append("\n"); //$NON-NLS-1$
-				log.debug("Message Content for " + cr.getReference() + " is " //$NON-NLS-1$ //$NON-NLS-2$
+				log.debug("Message Content for " + ref.getReference() + " is " //$NON-NLS-1$ //$NON-NLS-2$
 						+ sb.toString());
 
 				// resolve attachments
@@ -190,10 +204,10 @@ public class MessageContentProducer implements EntityContentProducer
 					try
 					{
 						Reference attr = (Reference) atti.next();
+						String areference = attr.getReference();
 						EntityContentProducer ecp = searchIndexBuilder
-								.newEntityContentProducer(attr);
-						String attachementDigest = ecp.getContent(attr
-								.getEntity());
+								.newEntityContentProducer(areference);
+						String attachementDigest = ecp.getContent(areference);
 						sb.append(Messages.getString("MessageContentProducer.23")).append(attachementDigest) //$NON-NLS-1$
 								.append("\n"); //$NON-NLS-1$
 					}
@@ -214,17 +228,19 @@ public class MessageContentProducer implements EntityContentProducer
 			{
 				throw new RuntimeException(" Failed to get message content ", e); //$NON-NLS-1$
 			}
-		}
-		throw new RuntimeException(" Not a Message Entity " + cr); //$NON-NLS-1$
+		} 
+
+		
+		throw new RuntimeException(" Not a Message Entity " + reference); //$NON-NLS-1$
 	}
 
 	/**
 	 * @{inheritDoc}
 	 */
-	public String getTitle(Entity cr)
+	public String getTitle(String reference)
 	{
-		Reference ref = entityManager.newReference(cr.getReference());
-		EntityProducer ep = ref.getEntityProducer();
+		Reference ref = getReference(reference);
+		EntityProducer ep = getProducer(ref);
 		if (ep instanceof MessageService)
 		{
 			try
@@ -260,25 +276,26 @@ public class MessageContentProducer implements EntityContentProducer
 				throw new RuntimeException(" Failed to get message content ", e); //$NON-NLS-1$
 			}
 		}
-		throw new RuntimeException(" Not a Message Entity " + cr); //$NON-NLS-1$
+		throw new RuntimeException(" Not a Message Entity " + reference); //$NON-NLS-1$
 
 	}
 
 	/**
 	 * @{inheritDoc}
 	 */
-	public String getUrl(Entity entity)
+	public String getUrl(String reference)
 	{
-		return entity.getUrl();
+		Reference ref = getReference(reference);
+		return ref.getUrl();
 	}
 
 	/**
 	 * @{inheritDoc}
 	 */
-	public boolean matches(Reference ref)
+	public boolean matches(String reference)
 	{
-
-		EntityProducer ep = ref.getEntityProducer();
+		Reference ref = getReference(reference);
+		EntityProducer ep = getProducer(ref);
 
 		if (ep.getClass().equals(messageService.getClass()))
 		{
@@ -352,8 +369,7 @@ public class MessageContentProducer implements EntityContentProducer
 	 */
 	public boolean matches(Event event)
 	{
-		Reference ref = entityManager.newReference(event.getResource());
-		return matches(ref);
+		return matches(event.getResource());
 	}
 
 	/**
@@ -432,7 +448,7 @@ public class MessageContentProducer implements EntityContentProducer
 		this.removeEvents = removeEvents;
 	}
 
-	public String getSiteId(Reference ref)
+	private String getSiteId(Reference ref)
 	{
 		return ref.getContext();
 	}
@@ -547,10 +563,11 @@ public class MessageContentProducer implements EntityContentProducer
 		};
 	}
 
-	public boolean isForIndex(Reference ref)
+	public boolean isForIndex(String reference)
 	{
 
-		EntityProducer ep = ref.getEntityProducer();
+		Reference ref = getReference(reference);
+		EntityProducer ep = getProducer(ref);
 		if (ep instanceof MessageService)
 		{
 			try
@@ -579,9 +596,10 @@ public class MessageContentProducer implements EntityContentProducer
 		return false;
 	}
 
-	public boolean canRead(Reference ref)
+	public boolean canRead(String reference)
 	{
-		EntityProducer ep = ref.getEntityProducer();
+		Reference ref = getReference(reference);
+		EntityProducer ep = getProducer(ref);
 		if (ep instanceof MessageService)
 		{
 			try
@@ -605,6 +623,53 @@ public class MessageContentProducer implements EntityContentProducer
 	public String getCustomRDF()
 	{
 		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.EntityContentProducer#getId(java.lang.String)
+	 */
+	public String getId(String reference)
+	{
+		try {
+			return getReference(reference).getId();
+		} catch ( Exception ex ) {
+			return "";
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.EntityContentProducer#getSubType(java.lang.String)
+	 */
+	public String getSubType(String reference)
+	{
+		try {
+			return getReference(reference).getSubType();
+		} catch ( Exception ex ) {
+			return "";
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.EntityContentProducer#getType(java.lang.String)
+	 */
+	public String getType(String reference)
+	{
+		try {
+			return getReference(reference).getType();
+		} catch ( Exception ex ) {
+			return "";
+		}
+	}
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.EntityContentProducer#getType(java.lang.String)
+	 */
+	public String getContainer(String reference)
+	{
+		try {
+			return getReference(reference).getContainer();
+		} catch ( Exception ex ) {
+			return "";
+		}
 	}
 
 }

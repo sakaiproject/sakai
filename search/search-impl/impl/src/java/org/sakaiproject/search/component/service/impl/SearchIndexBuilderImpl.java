@@ -29,7 +29,6 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ComponentManager;
-import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.exception.IdUnusedException;
@@ -283,7 +282,7 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 	 * @throws IdUnusedException
 	 * @throws TypeException
 	 */
-	public EntityContentProducer newEntityContentProducer(Reference ref)
+	public EntityContentProducer newEntityContentProducer(String ref)
 	{
 		log.debug(" new entitycontent producer");
 		for (Iterator i = producers.iterator(); i.hasNext();)

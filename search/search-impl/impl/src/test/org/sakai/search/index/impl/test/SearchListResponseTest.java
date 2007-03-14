@@ -87,7 +87,7 @@ public class SearchListResponseTest extends TestCase
 		try
 		{
 			SearchListResponseImpl slri = new SearchListResponseImpl(testString,
-					null, 0, 10, null, null, null, null, null);
+					null, 0, 10, null, null, null, null);
 			fail("Should have thrown an IOException ");
 		}
 		catch (IOException ex)
@@ -138,7 +138,7 @@ public class SearchListResponseTest extends TestCase
 			"</results>";
 		SearchItemFilter filter = new NullSearchFilter();
 		SearchListResponseImpl slri = new SearchListResponseImpl(testString,
-				null, 0, 10, null, filter, null, null, null);
+				null, 0, 10, null, filter,  null, null);
 		for ( Iterator i = slri.iterator(); i.hasNext(); ) {
 			SearchResult sr = (SearchResult) i.next();
 			log.info("    Id         :"+sr.getId());

@@ -25,18 +25,15 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
 import java.util.Stack;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.Query;
-import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchList;
 import org.sakaiproject.search.api.SearchResult;
@@ -71,8 +68,6 @@ public class SearchListResponseImpl implements SearchList, ContentHandler
 
 	private SearchIndexBuilder searchIndexBuilder;
 
-	private EntityManager entityManager;
-
 	private SearchService searchService;
 
 	private List resultsList;
@@ -87,7 +82,7 @@ public class SearchListResponseImpl implements SearchList, ContentHandler
 
 	public SearchListResponseImpl(String response, Query query, int start,
 			int end, Analyzer analyzer, SearchItemFilter filter,
-			EntityManager entityManager, SearchIndexBuilder searchIndexBuilder,
+			 SearchIndexBuilder searchIndexBuilder,
 			SearchService searchService) throws SAXException, IOException
 	{
 
@@ -96,7 +91,6 @@ public class SearchListResponseImpl implements SearchList, ContentHandler
 		this.end = end;
 		this.analyzer = analyzer;
 		this.filter = filter;
-		this.entityManager = entityManager;
 		this.searchIndexBuilder = searchIndexBuilder;
 		this.searchService = searchService;
 
@@ -318,7 +312,7 @@ public class SearchListResponseImpl implements SearchList, ContentHandler
 			try
 			{
 				sr = new SearchResultResponseImpl(se.getAttributes(), query,
-						analyzer, entityManager, searchIndexBuilder,
+						analyzer, searchIndexBuilder,
 						searchService);
 			}
 			catch (IOException e)

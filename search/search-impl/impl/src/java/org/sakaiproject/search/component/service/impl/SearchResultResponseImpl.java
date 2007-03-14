@@ -38,7 +38,6 @@ import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.Scorer;
 import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
@@ -64,7 +63,6 @@ public class SearchResultResponseImpl implements SearchResult
 
 	private Analyzer analyzer = null;
 
-	private EntityManager entityManager;
 
 	private SearchIndexBuilder searchIndexBuilder;
 
@@ -73,7 +71,7 @@ public class SearchResultResponseImpl implements SearchResult
 	private Map attributes;
 
 	public SearchResultResponseImpl(Map attributes, Query query,
-			Analyzer analyzer, EntityManager entityManager,
+			Analyzer analyzer, 
 			SearchIndexBuilder searchIndexBuilder, SearchService searchService)
 			throws IOException
 	{
@@ -81,12 +79,11 @@ public class SearchResultResponseImpl implements SearchResult
 		this.attributes = attributes;
 		this.query = query;
 		this.analyzer = analyzer;
-		this.entityManager = entityManager;
 		this.searchIndexBuilder = searchIndexBuilder;
 		this.searchService = searchService;
 	}
 	public SearchResultResponseImpl(Attributes atts, Query query,
-			Analyzer analyzer, EntityManager entityManager,
+			Analyzer analyzer, 
 			SearchIndexBuilder searchIndexBuilder, SearchService searchService)
 			throws IOException
 	{
@@ -107,7 +104,6 @@ public class SearchResultResponseImpl implements SearchResult
 		this.attributes = m;
 		this.query = query;
 		this.analyzer = analyzer;
-		this.entityManager = entityManager;
 		this.searchIndexBuilder = searchIndexBuilder;
 		this.searchService = searchService;
 	}
@@ -191,11 +187,9 @@ public class SearchResultResponseImpl implements SearchResult
 			// contents no longer contains the digested contents, so we need to
 			// fetch it from the EntityContentProducer
 
-			Reference ref = entityManager.newReference(getReference());
-			Entity entity = ref.getEntity();
 			EntityContentProducer sep = searchIndexBuilder
-					.newEntityContentProducer(ref);
-			sb.append(sep.getContent(entity));
+					.newEntityContentProducer(getReference());
+			sb.append(sep.getContent(getReference()));
 
 			String text = StringUtils.escapeHtml(sb.toString(), false);
 			TokenStream tokenStream = analyzer.tokenStream(

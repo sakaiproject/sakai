@@ -120,7 +120,7 @@ public interface SearchIndexBuilder
 	 * @param ref
 	 * @return
 	 */
-	EntityContentProducer newEntityContentProducer(Reference ref);
+	EntityContentProducer newEntityContentProducer(String ref);
 
 	/**
 	 * get a list of Master Search Items that control the search operation for the 

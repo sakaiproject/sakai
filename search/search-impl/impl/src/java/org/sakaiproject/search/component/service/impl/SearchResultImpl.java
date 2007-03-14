@@ -41,9 +41,6 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.Scorer;
-import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchResult;
@@ -71,14 +68,12 @@ public class SearchResultImpl implements SearchResult
 
 	private Analyzer analyzer = null;
 
-	private EntityManager entityManager;
-
 	private SearchIndexBuilder searchIndexBuilder;
 
 	private SearchService searchService;
 
 	public SearchResultImpl(Hits h, int index, Query query, Analyzer analyzer,
-			EntityManager entityManager, SearchIndexBuilder searchIndexBuilder,
+			 SearchIndexBuilder searchIndexBuilder,
 			SearchService searchService) throws IOException
 	{
 		this.h = h;
@@ -86,7 +81,6 @@ public class SearchResultImpl implements SearchResult
 		this.doc = h.doc(index);
 		this.query = query;
 		this.analyzer = analyzer;
-		this.entityManager = entityManager;
 		this.searchIndexBuilder = searchIndexBuilder;
 		this.searchService = searchService;
 	}
@@ -187,11 +181,9 @@ public class SearchResultImpl implements SearchResult
 
 				for (int i = 0; i < references.length; i++)
 				{
-					Reference ref = entityManager.newReference(references[i]);
-					Entity entity = ref.getEntity();
 					EntityContentProducer sep = searchIndexBuilder
-							.newEntityContentProducer(ref);
-					sb.append(sep.getContent(entity));
+							.newEntityContentProducer(references[i]);
+					sb.append(sep.getContent(references[i]));
 				}
 			}
 

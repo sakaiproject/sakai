@@ -57,7 +57,6 @@ import org.apache.lucene.search.TermQuery;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
@@ -74,9 +73,6 @@ import org.sakaiproject.search.model.SearchWriterLock;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.util.Xml;
-
-import uk.ac.cam.caret.sakai.rwiki.utils.XmlEscaper;
 
 /**
  * The search service
@@ -131,8 +127,6 @@ public class SearchServiceImpl implements SearchService
 
 	private String defaultSorter = null;
 
-	private EntityManager entityManager = null;
-
 	private EventTrackingService eventTrackingService;
 
 	private UserDirectoryService userDirectoryService;
@@ -165,7 +159,6 @@ public class SearchServiceImpl implements SearchService
 				NotificationService.class.getName());
 		searchIndexBuilder = (SearchIndexBuilder) load(cm,
 				SearchIndexBuilder.class.getName());
-		entityManager = (EntityManager) load(cm, EntityManager.class.getName());
 		eventTrackingService = (EventTrackingService) load(cm,
 				EventTrackingService.class.getName());
 		sessionManager = (SessionManager) load(cm, SessionManager.class
@@ -196,12 +189,7 @@ public class SearchServiceImpl implements SearchService
 				log.error("filter must be set, even if its a null filter"); //$NON-NLS-1$
 				throw new RuntimeException("Must set filter"); //$NON-NLS-1$
 			}
-			if (entityManager == null)
-			{
-				log.error("Entity Manager was not found"); //$NON-NLS-1$
-				throw new RuntimeException("Entity Manager was not found"); //$NON-NLS-1$
-			}
-			if (entityManager == null)
+			if (eventTrackingService == null)
 			{
 				log.error("Event Tracking Service was not found"); //$NON-NLS-1$
 				throw new RuntimeException(
@@ -382,7 +370,7 @@ public class SearchServiceImpl implements SearchService
 					String response = post.getResponseBodyAsString();
 					return new SearchListResponseImpl(response, textQuery,
 							start, end, indexStorage.getAnalyzer(), filter,
-							entityManager, searchIndexBuilder, this);
+							searchIndexBuilder, this);
 				}
 				catch (Exception ex)
 				{
@@ -433,7 +421,7 @@ public class SearchServiceImpl implements SearchService
 									+ textQuery.toString(), true,
 							NotificationService.PREF_IMMEDIATE));
 					return new SearchListImpl(h, textQuery, start, end,
-							indexStorage.getAnalyzer(), filter, entityManager,
+							indexStorage.getAnalyzer(), filter, 
 							searchIndexBuilder, this);
 				}
 				else
