@@ -746,7 +746,8 @@ public class AssignmentAction extends PagedResourceActionII
 	protected String build_student_view_submission_context(VelocityPortlet portlet, Context context, RunData data,
 			SessionState state)
 	{
-		context.put("context", state.getAttribute(STATE_CONTEXT_STRING));
+		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
+		context.put("context", contextString);
 
 		User user = (User) state.getAttribute(STATE_USER);
 		String currentAssignmentReference = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
@@ -755,6 +756,7 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			assignment = AssignmentService.getAssignment(currentAssignmentReference);
 			context.put("assignment", assignment);
+			context.put("canSubmit", Boolean.valueOf(AssignmentService.canSubmit(contextString, assignment)));
 			if (assignment.getContent().getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
 			{
 				context.put("nonElectronicType", Boolean.TRUE);

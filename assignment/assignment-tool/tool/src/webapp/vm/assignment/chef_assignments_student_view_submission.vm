@@ -10,8 +10,12 @@
 	#set($returned=$submission.getReturned())
 	#set($closeTime = false)
 	#set($closeTime = $assignment.CloseTime)
-	#if ($!closeTime && $currentTime.after($!closeTime) && !($submitted && $timeSubmitted))
-	#set ( $submissionType = $assignment.getContent().getTypeOfSubmission())
+	#if ($!submission)
+		##override the close time setting for assignment by submission's individual setting
+		#set($closeTime = $submission.CloseTime)
+	#end
+	#set ($submissionType = $assignment.getContent().getTypeOfSubmission())
+	#if (!$!canSubmit && $!closeTime && $currentTime.after($!closeTime) && !($submitted && $timeSubmitted))
 		<div class="alertMessage">$tlang.getString("stuviewsubm.theclodat")</div><div class="clear"></div>
 	#else
 		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
@@ -20,7 +24,7 @@
 			#if ($!allowAddAssignment)
 				<h3>$tlang.getString("viewexampleassign") </h3>
 			#else
-			<h3>
+				<h3>
 				#if(!$submitted)
 					## draft submission
 					$tlang.getString("viewassign")
@@ -30,8 +34,7 @@
 						 	- $tlang.getString("gen.inpro")
 						</span>
 					#end
-				#end
-				#if ($!timeReturned && $!timeSubmitted && $!timeReturned.after($!timeSubmitted))
+				#elseif ($!timeReturned && $!timeSubmitted && $!timeReturned.after($!timeSubmitted))
 				 $tlang.getString("assig1")
 					<span class="highlight">
 						 - $tlang.getString("resubmit")
@@ -280,7 +283,7 @@
 						</td></tr></table>
 					#end
 				#elseif ($returned)
-						#if ($!timeSubmitted && $!timeReturned && $!timeReturned.after($!timeSubmitted))
+						#if ($canSubmit)
 							<h4>$tlang.getString("gen.orisub2")</h4>
 							<div class="textPanel">
 								$cheffeedbackhelper.escapeAssignmentFeedback($submission.FeedbackText)
@@ -310,7 +313,7 @@
 			#if (($submissionType==2) || ($submissionType==3)) 
 				#if ($submissionType==2)
 					<h4>
-						#if (($submitted && !$returned) || ($returned && $!timeReturned && $!timeSubmitted && $!timeReturned.before($!timeSubmitted)) || ($!closeTime && $currentTime.after($closeTime)))
+						#if (!$!canSubmit)
 							## for submitted not yet returned submission; or returned by resubmitted submission; or after close date
 							$tlang.getString("stuviewsubm.youatt")
 						#else
@@ -358,41 +361,19 @@
 							<input type="submit" name="eventSubmit_doAttachments" value="Attachment" accesskey="a" disabled="disabled" />
 						#else
 							##if the submission has not been submitted or has been returned and not yet resubmitted
-							#if (!$submitted || ($submitted && !$timeSubmitted) || ($returned && $!timeSubmitted && $!timeReturned && $!timeReturned.after($!timeSubmitted)))
-								#if ($!closeTime)
-									## there is close date. Can only submit before the close date
-									#if ($currentTime.before($!closeTime))
-										<input
-											class="disableme" 
-											type="button" 
-											name="attach" 
-											id="attach"
-											#if ($size==0) 
-												value="$tlang.getString("gen.addatt")"
-											#else
-												value="$tlang.getString("gen.adddroatt2")"
-											#end
-											accesskey="a" #if(!$allowSubmit)disabled="disabled"#end
-											onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='attach'; document.addSubmissionForm.submit(); return false;"
-										/>
-									#end
+							<input
+								class="disableme" 
+								type="button" 
+								name="attach" 
+								id="attach"
+								#if ($size==0) 
+									value="$tlang.getString("gen.addatt")"
 								#else
-									## there is no close date. Still can submit after due date
-									<input
-										class="disableme" 
-										type="button" 
-										name="attach" 
-										id="attach"
-										#if ($size==0) 
-											value="$tlang.getString("gen.addatt")"
-										#else
-											value="$tlang.getString("gen.adddroatt2")"
-										#end
-										accesskey="a" #if(!$allowSubmit)disabled="disabled"#end
-										onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='attach'; document.addSubmissionForm.submit(); return false;"
-									/>										
+									value="$tlang.getString("gen.adddroatt2")"
 								#end
-							#end
+								accesskey="a" #if(!$canSubmit)disabled="disabled"#end
+								onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='attach'; document.addSubmissionForm.submit(); return false;"
+							/>
 						#end
 					</p>
 				#end
@@ -496,7 +477,7 @@
 						<label for="$name_submission_honor_pledge_yes">
 							$tlang.getString("gen.honple2")
 						</label>
-						#if (($submitted && !$returned) || ($returned && $!timeSubmitted &&$!timeReturned && $!timeReturned.before($!timeSubmitted))||($!closeTime && $currentTime.after($closeTime)))
+						#if ($!canSubmit)
 							## for submitted submission not yet returned; or returned but resubmitted submission; or after the close time
 							#if ($value_submission_honor_pledge_yes.equals("false"))
 								<input id="$name_submission_honor_pledge_yes" type="checkbox" name="$name_submission_honor_pledge_yes" value="true" disabled="disabled" />
@@ -537,7 +518,7 @@
 							onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='cancel'; document.addSubmissionForm.submit(); return false;"
 						/>
 					#else
-					#if (!$submitted || ($submitted && !$timeSubmitted) || ($returned && $!timeSubmitted && $!timeReturned && $!timeReturned.after($!timeSubmitted)))
+					#if ($!canSubmit)
 							<input
 								type="button"
 								class="active"

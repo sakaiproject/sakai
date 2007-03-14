@@ -4604,11 +4604,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				return false;
 			}
 			
-			// return false if the current time has passed the assignment close time
-			Time closeTime = a.getCloseTime();
-			if (closeTime != null && currentTime.after(closeTime))
-				return false;
-			
 			// get user's submission
 			AssignmentSubmission submission = null;
 			
@@ -4627,8 +4622,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			
 			if (submission == null)
 			{
-				// return true if there is no submission yet
-				return true;
+				// return false if the current time has passed the assignment close time, and student hasn't make a submission yet
+				Time closeTime = a.getCloseTime();
+				if (closeTime != null && currentTime.after(closeTime))
+					return false;
+				else
+					return true;
 			}
 			else
 			{
@@ -4647,9 +4646,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					else
 					{
 						// returned 
-						if (submission.getTimeReturned().after(submission.getTimeSubmitted()) && submission.getResubmissionNum()!=0)
+						if (submission.getResubmissionNum()!=0 && currentTime.before(submission.getCloseTime()))
 						{
-							// return true for returned submission but allow for resubmit
+							// return true for returned submission but allow for resubmit and before the close time
 							return true;
 						}
 						else

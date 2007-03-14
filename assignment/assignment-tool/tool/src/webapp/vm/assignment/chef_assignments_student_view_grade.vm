@@ -16,9 +16,13 @@
 			</div>
 		#end
 	#end
+	#set($submitTime=false)
+	#set($submitTime=$submission.getTimeSubmitted())
+	#set($returnTime=false)
+	#set($returnTime=$submission.getTimeReturned())
 	<h3>
 	$tlang.getString("stuviewgrad.viewass2")
-		#if ($submission.Returned)
+		#if ($submission.Returned && $!returnTime.after($!submitTime))
 			<span class="highlight"> - $tlang.getString("gen.returned")</span>
 		#else
 			<span class="highlight"> - $tlang.getString("gen.subm4")</span>
@@ -26,10 +30,6 @@
 		</h3>
 
 		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
-		#set($submitTime=false)
-		#set($submitTime=$submission.getTimeSubmitted())
-		#set($returnTime=false)
-		#set($returnTime=$submission.getTimeReturned())
 			<table class="itemSummary" summary="$tlang.getString("stuviewgrad.thegradet")">
 				<tr>
 					<th>
