@@ -23,8 +23,8 @@ package org.sakaiproject.citation.api;
 
 import java.util.List;
 import java.util.Map;
-
 import org.sakaiproject.citation.util.SearchException;
+import org.sakaibrary.common.search.api.SearchQuery;
 
 
 /**
@@ -32,6 +32,9 @@ import org.sakaiproject.citation.util.SearchException;
  */
 public interface ActiveSearch
 {
+	public static final String BASIC_SEARCH_TYPE    = "basic";
+	public static final String ADVANCED_SEARCH_TYPE = "advanced";
+	
 	/*******************************************************
 	 * Search results
 	 *******************************************************/
@@ -89,12 +92,24 @@ public interface ActiveSearch
 	/**
 	 * @return
 	 */
-	public String getSearchCriteria();
+	public SearchQuery getBasicQuery();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public SearchQuery getAdvancedQuery();
 	
 	/**
 	 * @return
 	 */
 	public String getSearchId();
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public String getSearchType();
 	
 	/**
 	 * @return
@@ -151,6 +166,12 @@ public interface ActiveSearch
      */
     public void prepareForNextPage();
 	
+    /**
+     * 
+     * @param searchType
+     */
+    public void setSearchType( String searchType );
+    
 	/**
 	 * @param firstPage
 	 */
@@ -208,8 +229,14 @@ public interface ActiveSearch
 	/**
 	 * @param searchCriteria
 	 */
-	public void setSearchCriteria(String searchCriteria);
-	
+	public void setBasicQuery(SearchQuery basicCriteria);
+
+	/**
+	 * 
+	 * @param advancedCriteria
+	 */
+	public void setAdvancedQuery(SearchQuery advancedCriteria);
+
 	/**
 	 * @param sortBy
 	 */
