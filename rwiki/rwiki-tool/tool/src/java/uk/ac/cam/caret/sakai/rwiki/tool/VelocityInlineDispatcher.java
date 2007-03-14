@@ -66,7 +66,7 @@ public class VelocityInlineDispatcher implements Dispatcher
 
 
 			Properties p = new Properties();
-			p.load(this.getClass().getResourceAsStream("rwikivelocity.properties"));
+			p.load(this.getClass().getResourceAsStream("rwikivelocity.config"));
 			vengine.init(p);
 		}
 		catch (Exception ex)
