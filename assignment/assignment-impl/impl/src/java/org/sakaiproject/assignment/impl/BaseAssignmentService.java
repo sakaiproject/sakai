@@ -7769,7 +7769,14 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					{
 						M_log.warn(this + e.getMessage());
 					}
-					g.setAssignmentScore(gradebookUid,associatedGBAssignment, submitterId, Double.valueOf(grade), ToolManager.getInstance().getCurrentPlacement().getTitle());
+					try
+					{
+						g.setAssignmentScore(gradebookUid,associatedGBAssignment, submitterId, Double.valueOf(grade), ToolManager.getInstance().getCurrentPlacement().getTitle());
+					}
+					catch (Exception e)
+					{
+						M_log.warn(this + e.getMessage());
+					}
 				}
 				else
 				{
