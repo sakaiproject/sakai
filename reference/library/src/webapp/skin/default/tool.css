@@ -787,21 +787,21 @@ table.hierItemBlock td h4,table.hierItemBlock td h5,table.hierItemBlock td h6,
 	border-left: 1px dotted silver;
 }
 
-#chatList{
+#chatList, .chatList{
 	margin: 0;
 	padding-left: 1.2em;
 	list-style: none;
 	width: 96%;
 }
 
-#chatList li {
+#chatList li, .chatList li {
 	margin: .2em 0 0 2em;
 	padding: .2em 0;
 	text-indent: -3em;
 	line-height: 1.2em;
 }
 
-#chatList li .chatDate{
+#chatList li .chatDate, .chatList li .chatDate {
 	font-size: .8em;
 }
 
