@@ -216,11 +216,11 @@ function doAjax(messageId, topicId){
    		"'><td style='padding-left:100px;height:" + $("#" + messageId).parent("td").height() + "px' colspan='" + 
    		$("#" + messageId).parents("tr:first").children("td").size() + 
    		"'><img src='/library/image/sakai/spinner.gif' /></td></tr>");
-   
-   $("#" + messageId).parents("tr:first").get(0).innerHTML = $("#" + messageId).parents("tr:first").get(0).innerHTML.replace(/unreadMsg/g, 'bogus');
+
+   $("#" + messageId).parents("tr:first").children("td").each(function(){this.innerHTML = this.innerHTML.replace(/unreadMsg/g, 'bogus'); });
    setTimeout(function(){
         $("#" + messageId).parents("tr:first").next().remove();
-        $("#" + messageId).parents("tr:first").toggle();
+        $("#" + messageId).parents("tr").get(0).style.display = (document.all)? "block" : "table-row";
    }, 500);
 	$.ajax({ type: "GET", url: "dfAjax", data: "action=markMessageAsRead&messageId=" + messageId + "&topicId=" + topicId,
       success: function(msg){
