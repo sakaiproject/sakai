@@ -53,10 +53,8 @@ public abstract class BasePortalHandler implements PortalHandler
 	public abstract int doGet(String[] parts, HttpServletRequest req,
 			HttpServletResponse res, Session session) throws PortalHandlerException;
 
-	/*
-	 * Make sure to override this and call doGet() if this handler wants to
-	 * support JSR-168 portlets
-	 */
+	// TODO: Go through and make sure to remove and test the mistaken code that simply
+	// calls doGet in doPost()
 	public int doPost(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{

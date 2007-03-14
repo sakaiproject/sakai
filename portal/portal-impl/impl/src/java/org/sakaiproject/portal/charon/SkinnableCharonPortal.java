@@ -629,6 +629,15 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				return;
 			}
 
+                        // Check to see if the pre-process step has redirected us - if so,
+                        // our work is done here - we will likely come back again to finish our
+                        // work.  Thankfully RequestFilter leaves us a little trace when it
+                        // does a redirect
+                        if ( req.getAttribute("sakai.redirect") != null )
+                        {
+                                return;
+                        }
+
 			// get the Sakai session
 			Session session = SessionManager.getCurrentSession();
 
@@ -1010,6 +1019,19 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				System.err.println("POST FAILED, REDIRECT ?");
 				return;
 			}
+
+                        // Check to see if the pre-process step has redirected us - if so,
+                        // our work is done here - we will likely come back again to finish our
+                        // work.  Thankfully RequestFilter leaves us a little trace when it
+                        // does a redirect
+                        if ( req.getAttribute("sakai.redirect") != null )
+                        {
+                                return;
+                        }
+
+			// TODO: Ian/Glenn - will we ever get here?  If we always redirect after 
+			// POST - then why would we fall through???
+
 			// get the Sakai session
 			Session session = SessionManager.getCurrentSession();
 
