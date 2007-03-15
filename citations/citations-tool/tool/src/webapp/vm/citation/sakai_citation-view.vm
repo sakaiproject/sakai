@@ -12,7 +12,7 @@
 	#end
 #end
 
-<script type="text/javascript" src="/sakai-citation-tool/js/citationscript.js">	
+<script type="text/javascript" src="/sakai-citations-tool/js/citationscript.js">	
 </script>
 
 <div class="portletBody">
