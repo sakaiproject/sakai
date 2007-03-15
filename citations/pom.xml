@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>M2</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
+  <name>Sakai Citations Project</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>citations-base</artifactId>
+  <packaging>pom</packaging>
+  <modules>
+    <module>citations-api/api</module>
+    <module>citations-impl/impl</module>
+    <module>citations-impl/pack</module>
+    <module>citations-tool</module>
+    <module>citations-tool/tool</module>
+    <module>citations-util/util</module>
+    <module>citations-osid/xserver</module>
+    <module>citations-osid/web2bridge</module>
+    <module>citations-servlet/servlet</module>
+  </modules>
+</project>
