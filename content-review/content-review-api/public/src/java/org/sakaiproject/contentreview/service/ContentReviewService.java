@@ -23,6 +23,7 @@ package org.sakaiproject.contentreview.service;
 
 import java.util.Date;
 import java.util.List;
+import org.sakaiproject.content.api.ContentResource;
 
 import org.sakaiproject.contentreview.exception.QueueException;
 import org.sakaiproject.contentreview.exception.ReportException;
@@ -144,4 +145,20 @@ public interface ContentReviewService {
 	 */
 	
 	public void resetUserDetailsLockedItems(String userId);
+	
+	/**
+	 * Is the content resource of an type that can be accepted by the service implementation
+	 * @param resource
+	 * @return
+	 */
+	public boolean isAcceptableContent(ContentResource resource);
+	
+	
+	/**
+	 *  Get a icon URL that for a specific score
+	 * @param score
+	 * @return
+	 */
+	public String getIconUrlforScore(Long score);
+	
 }
