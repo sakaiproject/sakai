@@ -27,6 +27,7 @@ import org.sakaiproject.section.api.facade.manager.Authz;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.section.jsf.JsfUtil;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 
@@ -114,6 +115,12 @@ public class AuthzSakaiImpl implements Authz {
 		String siteRef = SiteService.siteReference(siteContext);
 		String role = AuthzGroupService.getUserRole(userUid, siteRef);
 		if(log.isDebugEnabled()) log.debug("User " + userUid + " has role " + role + " in site " + siteContext);
+		if(role == null) {
+			// Is this a superuser?
+			if(SecurityService.isSuperUser()) {
+				return JsfUtil.getLocalizedMessage("admin_role");
+			}
+		}
 		return role;
 	}
 
