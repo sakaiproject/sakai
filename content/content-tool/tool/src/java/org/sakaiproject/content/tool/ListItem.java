@@ -248,16 +248,18 @@ public class ListItem
 		this.inheritedGroups.clear();
 		this.inheritedGroups.addAll(entity.getInheritedGroupObjects());
 		Reference ref = EntityManager.newReference(entity.getReference());
-		try
-        {
-	        Site site = SiteService.getSite(ref.getContext());
-	        setPossibleGroups(site.getGroups());
-       }
-        catch (IdUnusedException e)
-        {
-	        // TODO Auto-generated catch block
-	        logger.warn("IdUnusedException ", e);
-        }
+		if(ref != null && ref.getContext() != null)
+		{
+			try
+	        {
+		        Site site = SiteService.getSite(ref.getContext());
+		        setPossibleGroups(site.getGroups());
+	        }
+	        catch (IdUnusedException e)
+	        {
+		        logger.warn("IdUnusedException for a site in resources: " + ref.getContext() + " (" + ref.getReference() + ")");
+	        }
+		}
         
 		Collection<Group> allowedRemoveGroups = null;
 		if(AccessMode.GROUPED == this.accessMode)
