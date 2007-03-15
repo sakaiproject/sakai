@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+  <pomVersion>3</pomVersion>
+  <extend>../../master/project.xml</extend>
+  <name>sakaibrary-util-impl</name>
+  <groupId>sakaibrary</groupId>
+  <id>sakaibrary-util-impl</id>
+  <currentVersion>${sakai.version}</currentVersion>
+  <organization>
+    <name>Sakaibrary</name>
+    <url>http://dlib.indiana.edu/projects/sakai/</url>
+  </organization>
+  <inceptionYear>2003</inceptionYear>
+
+  <properties>
+    <!-- deploy as a jar -->
+    <deploy.type>jar</deploy.type>
+  </properties>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>zing</groupId>
+      <artifactId>cql-java</artifactId>
+      <version>0.7</version>
+      <properties>
+      	<deploy.target>shared</deploy.target>
+      </properties>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
+    </dependency>
+
+    <dependency>
+      <groupId>sakaibrary</groupId>
+      <artifactId>sakaibrary-util-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <sourceDirectory>src/java</sourceDirectory>
+  </build>
+
+</project>
+
