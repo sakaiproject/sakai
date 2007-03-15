@@ -431,9 +431,9 @@
     </dependency>
     <dependency>
       
-      <groupId>ehcache</groupId>
-      <artifactId>ehcache</artifactId>
-      <version>1.1</version>
+<groupId>${sakai.ehcache.groupId}</groupId>
+      <artifactId>${sakai.ehcache.artifactId}</artifactId>
+      <version>${sakai.ehcache.version}</version>
 <!--properties:  war.bundle: standalone -->
       <scope>provided</scope>
     </dependency>
