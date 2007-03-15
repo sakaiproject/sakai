@@ -444,7 +444,7 @@
 												#if ($!submitTime && $submission.TimeReturned.after($submitTime) || !$submitTime)
 													$tlang.getString("gen.returned")
 												#else
-													Re-submitted #if($!submitTime)$submitTime.toStringLocalFull()#end
+													$tlang.getString("gen.resub") #if($!submitTime)$submitTime.toStringLocalFull()#end
 													#if ($!submitTime && $submitTime.after($assignment.DueTime))
 														<span class="highlight"> $tlang.getString("gen.late")</span>
 													#end
@@ -457,7 +457,12 @@
 												#end
 											#else
 												#if($!submitTime)
-													Submitted $submitTime.toStringLocalFull()
+													#if ($!assignment.Content.TypeOfSubmission == $!typeNonElectronic)
+														##for non electronic submissions
+														$tlang.getString("nonelec")
+													#else
+														$tlang.getString("gen.subm4") $submitTime.toStringLocalFull()
+													#end
 												#end
 												#if ($!submitTime && $submitTime.after($assignment.DueTime))
 													<span class="highlight">$tlang.getString("gen.late2")</span>
