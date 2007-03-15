@@ -109,10 +109,20 @@
 				<h2>${toolPlacement.toolRenderResult.getTitle()}</h2>
 			</div>
 			<div class="action">
+#if (${toolPlacement.toolJSR168Edit} )
+             <a accesskey="e" href="${toolPlacement.toolJSR168Edit}" title="${rloader.sit_edit}">
+		<img src="/library/image/transparent.gif"  alt="${rloader.sit_edit}" border="0" />
+edit
+             </a>
+#end 
 #if (${toolPlacement.toolShowHelpButton})
+	#if (${toolPlacement.toolJSR168Help} )
+             <a accesskey="h" href="${toolPlacement.toolJSR168Help}" title="${rloader.sit_help}">
+	#else
 		<a accesskey="h" href="${toolPlacement.toolHelpActionUrl}" title="${rloader.sit_help}" 
 		 target="_blank" onclick="openWindow('${toolPlacement.toolHelpActionUrl}', 'Help',
 		  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
+	#end
 			<img src="/library/image/transparent.gif"  alt="${rloader.sit_help}" border="0" />
 		</a>
 #end

@@ -79,6 +79,16 @@ public class IFrameToolRenderService implements ToolRenderService
 			{
 				return sb.toString();
 			}
+
+			public String getJSR168EditUrl()
+			{
+				return null;
+			}
+
+			public String getJSR168HelpUrl()
+			{
+				return null;
+			}
 		};
 
 		return result;

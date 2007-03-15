@@ -46,6 +46,12 @@ public interface PortalService
 
 	/**
 	 * this is the property in the tool config that defines the name of the
+	 * portlet application
+	 */
+	public static final String TOOL_PORTLET_APP_NAME = "portlet-app-name";
+
+	/**
+	 * this is the property in the tool config that defines the name of the
 	 * portlet
 	 */
 	public static final String TOOL_PORTLET_NAME = "portlet-name";

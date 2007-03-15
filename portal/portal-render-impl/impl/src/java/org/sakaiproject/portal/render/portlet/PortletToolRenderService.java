@@ -2,6 +2,8 @@ package org.sakaiproject.portal.render.portlet;
 
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.Properties;
 import java.net.MalformedURLException;
 
 import javax.portlet.PortletException;
@@ -30,6 +32,16 @@ import org.sakaiproject.portal.render.portlet.servlet.BufferedServletResponse;
 import org.sakaiproject.portal.render.portlet.servlet.SakaiServletActionRequest;
 import org.sakaiproject.portal.render.portlet.servlet.SakaiServletRequest;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.tool.api.Placement;
+
+import javax.portlet.PortletMode;
+import org.apache.pluto.PortletWindow;
+import org.apache.pluto.spi.PortalCallbackService;
+import org.apache.pluto.spi.PortletURLProvider;
+import org.apache.pluto.RequiredContainerServices;
+import org.apache.pluto.core.PortletContextManager;
+import org.apache.pluto.descriptors.portlet.PortletDD;
+import org.apache.pluto.descriptors.portlet.SupportsDD;
 
 /**
  *
@@ -104,6 +116,7 @@ public class PortletToolRenderService implements ToolRenderService
 
                                 portletContainer.doAction(window, new SakaiServletActionRequest(request,
                                                 state), response);
+
                         }
                         catch (PortletException e)
                         {
@@ -124,11 +137,13 @@ public class PortletToolRenderService implements ToolRenderService
                 return true;
         }
 
+	// Note ToolConfiguration extends Placement
         public RenderResult render(ToolConfiguration toolConfiguration,
                         final HttpServletRequest request, final HttpServletResponse response,
                         ServletContext context) throws IOException
         {
 
+		getPortletDD(toolConfiguration);
                 final SakaiPortletWindow window = isIn168TestMode(request) ? createPortletWindow(toolConfiguration
                                 .getId())
                                 : registry.getOrCreatePortletWindow(toolConfiguration);
@@ -171,20 +186,74 @@ public class PortletToolRenderService implements ToolRenderService
 
                 window.setState(state);
 
+
                 try
                 {
                         // TODO: Review David
                         final HttpServletRequest req = new SakaiServletRequest(request, state);
                         final PortletContainer portletContainer = getPortletContainer(context);
 
-                        return new RenderResult()
-                        {
-                                private BufferedServletResponse bufferedResponse = null;
+			// Derive the Edit and Help URLs
+			String editUrl = null;
+			String helpUrl = null;
+			// System.out.println("Context = "+context);
+			RequiredContainerServices rs = portletContainer.getRequiredContainerServices();
+			// System.out.println("Required Services = "+rs);
+			PortalCallbackService pcs = rs.getPortalCallbackService();
+			// System.out.println("Portal call back services="+pcs);
+			PortletURLProvider pup = null;
 
-                                private void renderResponse() throws ToolRenderException
-                                {
-                                        if (bufferedResponse == null)
-                                        {
+			if ( isPortletModeAllowed(toolConfiguration, "edit") ) 
+			{
+				pup = pcs.getPortletURLProvider(request, window);
+				// System.out.println("pup = "+pup);
+				pup.setPortletMode(new PortletMode("edit"));
+				// System.out.println("pup edit="+pup.toString());
+				editUrl = pup.toString();
+			}
+
+			if ( isPortletModeAllowed(toolConfiguration, "help") ) 
+			{
+				pup = pcs.getPortletURLProvider(request, window);
+				pup.setPortletMode(new PortletMode("help"));
+				// System.out.println("pup help="+pup.toString());
+				helpUrl = pup.toString();
+			}
+
+                        return new Sakai168RenderResult(req, response, portletContainer, window, helpUrl, editUrl);
+                }
+                catch (PortletContainerException e)
+                {
+                        throw new ToolRenderException(e.getMessage(), e);
+                }
+        }
+
+
+	private class Sakai168RenderResult implements RenderResult
+	{
+		private HttpServletRequest req = null;
+		private HttpServletResponse response = null;
+		private PortletContainer portletContainer = null;
+                private BufferedServletResponse bufferedResponse = null;
+		private SakaiPortletWindow window = null;
+		private String helpUrl = null;
+		private String editUrl = null;
+
+		public Sakai168RenderResult(HttpServletRequest req, HttpServletResponse response,
+					PortletContainer pc, SakaiPortletWindow window, String helpUrl, String editUrl)
+		{
+			this.req = req;
+			this.response = response;
+			this.portletContainer = pc;
+			this.window = window;
+			this.helpUrl = helpUrl;
+			this.editUrl = editUrl;
+		}
+
+                private void renderResponse() throws ToolRenderException
+                {
+                        if (bufferedResponse == null)
+                        {
                                                 bufferedResponse = new BufferedServletResponse(response);
                                                 try
                                                 {
@@ -202,34 +271,34 @@ public class PortletToolRenderService implements ToolRenderService
                                                 {
                                                         throw new ToolRenderException(e.getMessage(), e);
                                                 }
-                                        }
-                                }
-
-                                public String getContent() throws ToolRenderException
-                                {
-                                        renderResponse();
-                                        return bufferedResponse.getInternalBuffer().getBuffer().toString();
-                                }
-
-                                public String getTitle() throws ToolRenderException
-                                {
-                                        renderResponse();
-                                        // TODO: Review David
-                                        return PortletStateAccess.getPortletState(req,
-                                                        window.getId().getStringId()).getTitle();
-                                        // return PortletStateAccess.getPortletState(request,
-                                        // window.getId().getStringId()).getTitle();
-                                }
-
-                        };
-
+                        }
                 }
-                catch (PortletContainerException e)
+
+                public String getContent() throws ToolRenderException
                 {
-                        throw new ToolRenderException(e.getMessage(), e);
+                        renderResponse();
+                        return bufferedResponse.getInternalBuffer().getBuffer().toString();
                 }
-        }
 
+                public String getTitle() throws ToolRenderException
+                {
+                        renderResponse();
+                        return PortletStateAccess.getPortletState(req, window.getId().getStringId()).getTitle();
+                }
+
+                public String getJSR168EditUrl()
+                {
+                         return this.editUrl;
+                }
+	
+                public String getJSR168HelpUrl()
+                {
+                         return this.helpUrl;
+                }
+
+        };
+
+	// TODO: This must be test code and needs removing
         private SakaiPortletWindow createPortletWindow(String windowId)
         {
                 String contextPath = "/rsf";
@@ -338,4 +407,63 @@ public class PortletToolRenderService implements ToolRenderService
                 registry.reset(configuration);
         }
 
+
+	public PortletDD getPortletDD(Placement placement)
+	{
+ 		Properties toolProperties = placement.getPlacementConfig();
+		String portletName = null;
+		String appName = null;
+		String fred = null;
+
+                if (toolProperties != null)
+                {
+			// System.out.println("tp = "+toolProperties);
+                        portletName = toolProperties.getProperty(PortalService.TOOL_PORTLET_NAME);
+                        appName = toolProperties.getProperty(PortalService.TOOL_PORTLET_APP_NAME);
+                        fred = toolProperties.getProperty("FRED");
+                }
+		// System.out.println("appName="+appName);
+		// System.out.println("portletName="+portletName);
+		// System.out.println("fred="+fred);
+                Properties configProperties = placement.getConfig();
+                if (configProperties != null)
+                {
+                        if (portletName == null)
+                        {
+                                 portletName = configProperties
+                                           .getProperty(PortalService.TOOL_PORTLET_NAME);
+                        }
+                        if (appName == null)
+                        {
+                                 appName = configProperties
+                                           .getProperty(PortalService.TOOL_PORTLET_APP_NAME);
+                        }
+                }
+		// System.out.println("appName="+appName);
+		// System.out.println("portletName="+portletName);
+		PortletDD pdd = PortletContextManager.getManager().getPortletDescriptor(appName, portletName);
+		// System.out.println("pdd="+pdd);
+		return pdd;
+        }
+
+	public boolean isPortletModeAllowed(Placement placement, String mode)
+	{
+		if ( placement == null || mode == null ) return false;
+		PortletDD pdd = getPortletDD(placement);
+		if ( pdd == null ) return true;
+        	Iterator supports = pdd.getSupports().iterator();
+        	while(supports.hasNext()) 
+		{
+            	    SupportsDD sup = (SupportsDD)supports.next();
+            	    Iterator modes = sup.getPortletModes().iterator();
+            	    while(modes.hasNext()) 
+		    {
+                	if (modes.next().toString().equalsIgnoreCase(mode.toString())) 
+			{
+                    	    return true;
+                	}
+                    }
+                }
+		return false;
+	}
 }

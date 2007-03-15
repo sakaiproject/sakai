@@ -521,6 +521,15 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		Map<String, Object> toolMap = new HashMap<String, Object>();
 		RenderResult result = ToolRenderService.render(placement, req, res,
 				getServletContext());
+
+		if ( result.getJSR168HelpUrl() != null ) 
+		{
+			toolMap.put("toolJSR168Help",Web.serverUrl(req)+result.getJSR168HelpUrl());
+		}
+		if ( result.getJSR168EditUrl() != null ) 
+		{
+			toolMap.put("toolJSR168Edit",Web.serverUrl(req)+result.getJSR168EditUrl());
+		}
 		toolMap.put("toolRenderResult", result);
 		toolMap.put("hasRenderResult", Boolean.valueOf(true));
 		toolMap.put("toolUrl", toolUrl);

@@ -33,10 +33,17 @@
                >${currentPlacement.toolTitle}</a>
 			#end
 			#if (${currentPlacement.toolShowHelpButton})
+				#if (${currentPlacement.toolJSR168Help} )
+             &nbsp;(<a accesskey="h" href="${currentPlacement.toolJSR168Help}" title="${rloader.sit_help}">?</a>)
+				#else
              &nbsp;(<a accesskey="h" href="${currentPlacement.toolHelpActionUrl}" title="${rloader.sit_help}"
                 target="_blank" onclick="openWindow('${currentPlacement.toolHelpActionUrl}', 'Help',
                 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">?</a>)
-			 #end
+				#end
+			#end
+			#if (${currentPlacement.toolJSR168Edit} )
+             &nbsp;(<a accesskey="e" href="${currentPlacement.toolJSR168Edit}" title="${rloader.sit_edit}">*</a>)
+			#end
 			<div class="portletpresencebutton" >
 				#if (${currentSite.sitePages.pageNavShowPresenceLoggedIn})
 					#if ($currentSite)

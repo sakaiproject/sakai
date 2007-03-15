@@ -151,6 +151,7 @@ public class PortletTool implements org.sakaiproject.tool.api.Tool, Comparable
 		m_finalConfig.setProperty(PortalService.TOOL_PORTLET_CONTEXT_PATH, portlet
 				.getApplicationId());
 		m_finalConfig.setProperty(PortalService.TOOL_PORTLET_NAME, pdd.getPortletName());
+		m_finalConfig.setProperty(PortalService.TOOL_PORTLET_APP_NAME, appName);
 	}
 
 	/**

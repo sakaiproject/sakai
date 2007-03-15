@@ -27,6 +27,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.pluto</groupId>
+            <artifactId>pluto-descriptor-api</artifactId>
+            <version>${sakai.pluto.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>javax.portlet</groupId>
             <artifactId>portlet-api</artifactId>
             <version>1.0</version>

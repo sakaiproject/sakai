@@ -27,4 +27,22 @@ public interface RenderResult
 	 *         if the content can not be rendered
 	 */
 	String getContent() throws ToolRenderException;
+
+	/**
+	 * get the JSR168 Help Url
+	 * 
+	 * @return Url
+	 * @throws ToolRenderException
+	 *         if the content can not be rendered
+	 */
+	String getJSR168HelpUrl() throws ToolRenderException;
+
+	/**
+	 * get the JSR168 Edit Url
+	 * 
+	 * @return Url
+	 * @throws ToolRenderException
+	 *         if the content can not be rendered
+	 */
+	String getJSR168EditUrl() throws ToolRenderException;
 }

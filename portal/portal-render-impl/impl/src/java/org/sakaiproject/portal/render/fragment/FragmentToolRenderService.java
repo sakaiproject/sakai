@@ -128,6 +128,15 @@ public class FragmentToolRenderService implements ToolRenderService
 					return Web.escapeHtml(toolConfiguration.getTitle());
 				}
 
+                        	public String getJSR168EditUrl()
+                        	{
+                                	return null;
+                        	}
+
+                        	public String getJSR168HelpUrl()
+                        	{
+                                	return null;
+                        	}
 			};
 			// do a named dispatch to the active tool with a fragment set
 
