@@ -3,7 +3,7 @@
 <project>
   <pomVersion>3</pomVersion>
   <extend>../../../master/project.xml</extend>
-  <name>Search Library Resources (Repository OSID HTTP Implementation)</name>
+  <name>sakai-citations-web2bridge</name>
   <groupId>sakaiproject</groupId>
   <id>sakai-citations-web2bridge</id>
   <currentVersion>${sakai.version}</currentVersion>

@@ -2,7 +2,7 @@
 
 <project>
   <pomVersion>3</pomVersion>
-  <name>xserver-osid-impl</name>
+  <name>sakai-citations-xserver</name>
   <extend>../../../master/project.xml</extend>
   <groupId>sakaiproject</groupId>
   <id>sakai-citations-xserver</id>
@@ -22,13 +22,13 @@
 
     <dependency>
       <groupId>sakaiproject</groupId>
-      <artifactId>sakai-citations-util-api</artifactId>
+      <artifactId>sakai-citations-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
 
     <dependency>
       <groupId>sakaiproject</groupId>
-      <artifactId>sakai-citations-util-impl</artifactId>
+      <artifactId>sakai-citations-util</artifactId>
       <version>${sakai.version}</version>
     </dependency>
 

@@ -1,8 +1,8 @@
 package org.sakaibrary.osid.repository.xserver;
 
-import org.sakaibrary.common.search.impl.CQL2XServerFindCommand;
 import org.sakaibrary.xserver.XServerException;
 import org.sakaibrary.xserver.XServer;
+import org.sakaiproject.citation.util.impl.CQL2XServerFindCommand;
 
 /*******************************************************************************
  * Copyright (c) 2003, 2004, 2005 The Regents of the University of Michigan,

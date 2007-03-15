@@ -1,7 +1,5 @@
 package org.sakaiproject.citation.util.api;
 
-import org.sakaibrary.common.search.api.SearchQuery;
-
 public interface CQLSearchQuery {
 
 	/**

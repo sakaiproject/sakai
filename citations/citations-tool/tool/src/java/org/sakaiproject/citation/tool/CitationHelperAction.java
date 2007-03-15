@@ -43,7 +43,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.osid.repository.Repository;
 import org.osid.repository.RepositoryException;
-import org.sakaibrary.common.search.api.SearchQuery;
+import org.sakaiproject.citation.util.api.SearchQuery;
 
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
@@ -61,7 +61,7 @@ import org.sakaiproject.citation.api.SearchDatabaseHierarchy;
 import org.sakaiproject.citation.api.SearchCategory;
 import org.sakaiproject.citation.cover.CitationService;
 import org.sakaiproject.citation.cover.SearchManager;
-import org.sakaiproject.citation.util.SearchException;
+import org.sakaiproject.citation.util.api.SearchException;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -285,8 +285,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			}
 		}
 		
-		public static org.sakaibrary.common.search.api.SearchQuery
-		getAdvancedCriteria( SessionState state )
+		public static SearchQuery getAdvancedCriteria( SessionState state )
 		{
 			String advField1 = ( String )state.getAttribute( AdvancedSearchHelper.STATE_FIELD1 );
 			String advField2 = ( String )state.getAttribute( AdvancedSearchHelper.STATE_FIELD2 );
@@ -300,7 +299,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			String advCriteria4 = ( String )state.getAttribute( AdvancedSearchHelper.STATE_CRITERIA4 );
 			String advCriteria5 = ( String )state.getAttribute( AdvancedSearchHelper.STATE_CRITERIA5 );
 			
-			SearchQuery searchQuery = new org.sakaibrary.common.search.impl.SearchQuery();
+			SearchQuery searchQuery = new org.sakaiproject.citation.util.impl.SearchQuery();
 			
 			/*
 			 *  put fielded, non-null criteria into the searchQuery
@@ -2267,7 +2266,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		}
 		
 		// set up search query
-		SearchQuery basicQuery = new org.sakaibrary.common.search.impl.SearchQuery();
+		SearchQuery basicQuery = new org.sakaiproject.citation.util.impl.SearchQuery();
 		basicQuery.addKeywords( keywords );
 		
 		// set query for this search

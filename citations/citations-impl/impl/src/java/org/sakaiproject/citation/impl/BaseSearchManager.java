@@ -46,8 +46,8 @@ import org.osid.shared.ObjectIterator;
 import org.osid.shared.SharedException;
 import org.osid.shared.Type;
 import org.osid.shared.TypeIterator;
-import org.sakaibrary.common.search.api.CQLSearchQuery;
-import org.sakaibrary.common.search.api.SearchQuery;
+import org.sakaiproject.citation.util.api.CQLSearchQuery;
+import org.sakaiproject.citation.util.api.SearchQuery;
 import org.sakaiproject.citation.api.ActiveSearch;
 import org.sakaiproject.citation.api.Citation;
 import org.sakaiproject.citation.api.CitationCollection;
@@ -57,7 +57,7 @@ import org.sakaiproject.citation.api.SearchDatabase;
 import org.sakaiproject.citation.api.SearchDatabaseHierarchy;
 import org.sakaiproject.citation.api.SearchManager;
 import org.sakaiproject.citation.cover.CitationService;
-import org.sakaiproject.citation.util.SearchException;
+import org.sakaiproject.citation.util.api.SearchException;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.Entity;
@@ -1828,7 +1828,7 @@ public class BaseSearchManager implements SearchManager
 	    
 		// CQL search query setup
 		String cqlQuery = null;
-		CQLSearchQuery cqlSearch = new org.sakaibrary.common.search.impl.CQLSearchQuery();
+		CQLSearchQuery cqlSearch = new org.sakaiproject.citation.util.impl.CQLSearchQuery();
 		
 		// determine whether this is an advanced or basic search
 		if( search.getSearchType().equalsIgnoreCase( ActiveSearch.BASIC_SEARCH_TYPE ) )

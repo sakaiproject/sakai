@@ -28,6 +28,24 @@
                                 <war.bundle>true</war.bundle>
                         </properties>
                 </dependency>
+                
+                <dependency>
+                        <groupId>sakaiproject</groupId>
+                        <artifactId>sakai-citations-util</artifactId>
+                        <version>${sakai.version}</version>
+                        <properties>
+                                <deploy.target>shared</deploy.target>
+                        </properties>
+                </dependency>
+                
+                <dependency>
+                        <groupId>sakaiproject</groupId>
+                        <artifactId>sakai-citations-xserver</artifactId>
+                        <version>${sakai.version}</version>
+                        <properties>
+                                <deploy.target>shared</deploy.target>
+                        </properties>
+                </dependency>
 
                 <dependency>
                         <groupId>sakaiproject</groupId>
@@ -71,24 +89,6 @@
                         <version>${sakai.version}</version>
                         <properties>
                                 <war.bundle>true</war.bundle>
-                        </properties>
-                </dependency>
-
-				<dependency>
-                        <groupId>sakaiproject</groupId>
-                        <artifactId>xserver-osid-impl</artifactId>
-                        <version>${sakai.version}</version>
-                        <properties>
-                                <deploy.target>shared</deploy.target>
-                        </properties>
-                </dependency>
-                
-                <dependency>
-                        <groupId>sakaibrary</groupId>
-                        <artifactId>sakaibrary-util-impl</artifactId>
-                        <version>${sakai.version}</version>
-                        <properties>
-                                <deploy.target>shared</deploy.target>
                         </properties>
                 </dependency>
 
