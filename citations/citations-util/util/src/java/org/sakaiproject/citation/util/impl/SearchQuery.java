@@ -1,9 +1,9 @@
-package org.sakaiproject.citation.util;
+package org.sakaiproject.citation.util.impl;
 
 import java.util.Set;
 
 public class SearchQuery
-implements org.sakaibrary.common.search.api.SearchQuery {
+implements org.sakaiproject.citation.util.api.SearchQuery {
 	private InputStringParser isp = new InputStringParser();
 	private Set<String> keywords;
 	private Set<String> title;

@@ -1,11 +1,11 @@
-package org.sakaiproject.citation.util;
+package org.sakaiproject.citation.util.impl;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
 
 public class InputStringParser
-implements org.sakaibrary.common.search.api.InputStringParser {
+implements org.sakaiproject.citation.util.api.InputStringParser {
 	private static final java.util.Set<String> COMMON_WORDS = new java.util.HashSet<String>();
 	private static final String DOUBLE_QUOTE = "\"";
 

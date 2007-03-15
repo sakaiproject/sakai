@@ -1,13 +1,15 @@
-package org.sakaiproject.citation.util;
+package org.sakaiproject.citation.util.impl;
+
+import org.sakaiproject.citation.util.api.SearchQuery;
 
 public class CQLSearchQuery
-implements org.sakaibrary.common.search.api.CQLSearchQuery {
+implements org.sakaiproject.citation.util.api.CQLSearchQuery {
 	
 	private static final org.apache.commons.logging.Log LOG =
 		org.apache.commons.logging.LogFactory.getLog(
 				"org.sakaibrary.common.search.impl.CQLSearchQuery" ); 
 
-	private org.sakaibrary.common.search.api.SearchQuery searchQuery;
+	private org.sakaiproject.citation.util.api.SearchQuery searchQuery;
 	private String cqlQuery;
 
 	/**
@@ -17,7 +19,7 @@ implements org.sakaibrary.common.search.api.CQLSearchQuery {
 	 * @return the search query in CQL format or null if searchQuery is null.
 	 */
 	public String getCQLSearchQueryString(
-			org.sakaibrary.common.search.api.SearchQuery searchQuery ) {
+			org.sakaiproject.citation.util.api.SearchQuery searchQuery ) {
 		
 		if( searchQuery == null ) {
 			return null;
