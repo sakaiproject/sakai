@@ -3650,6 +3650,19 @@ public class AssignmentAction extends PagedResourceActionII
 				// commit the changes to AssignmentContent object
 				commitAssignmentContentEdit(state, ac, title, submissionType, gradeType, gradePoints, description, checkAddHonorPledge, attachments1);
 				
+				// set the Assignment Properties object
+				ResourcePropertiesEdit aPropertiesEdit = a.getPropertiesEdit();
+				oAssociateGradebookAssignment = aPropertiesEdit.getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+				editAssignmentProperties(a, title, checkAddDueTime, checkAutoAnnounce, addtoGradebook, associateGradebookAssignment, allowResubmitNumber, aPropertiesEdit);
+				// the notification option
+				if (state.getAttribute(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE) != null)
+				{
+					aPropertiesEdit.addProperty(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE, (String) state.getAttribute(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE));
+				}
+				
+				// comment the changes to Assignment object
+				commitAssignmentEdit(state, post, ac, a, title, openTime, dueTime, closeTime, enableCloseDate, s, range, groups);
+				
 				// in case of non-electronic submission, create submissions for all students and mark it as submitted
 				if (ac.getTypeOfSubmission()== Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
 				{
@@ -3705,19 +3718,6 @@ public class AssignmentAction extends PagedResourceActionII
 						Log.warn("chef", this + ee.getMessage());
 					}
 				}
-				
-				// set the Assignment Properties object
-				ResourcePropertiesEdit aPropertiesEdit = a.getPropertiesEdit();
-				oAssociateGradebookAssignment = aPropertiesEdit.getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-				editAssignmentProperties(a, title, checkAddDueTime, checkAutoAnnounce, addtoGradebook, associateGradebookAssignment, allowResubmitNumber, aPropertiesEdit);
-				// the notification option
-				if (state.getAttribute(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE) != null)
-				{
-					aPropertiesEdit.addProperty(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE, (String) state.getAttribute(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE));
-				}
-				
-				// comment the changes to Assignment object
-				commitAssignmentEdit(state, post, ac, a, title, openTime, dueTime, closeTime, enableCloseDate, s, range, groups);
 	
 				if (state.getAttribute(STATE_MESSAGE) == null)
 				{

@@ -1896,11 +1896,15 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				// submitting a submission
 				EventTrackingService.post(EventTrackingService.newEvent(EVENT_SUBMIT_ASSIGNMENT_SUBMISSION, submissionRef, true));
 			
-				// instructor notification
-				notificationToInstructors(s, a);
-				
-				// student notification, whether the student gets email notification once he submits an assignment
-				notificationToStudent(s);
+				// only doing the notification for real online submissions
+				if (a.getContent().getTypeOfSubmission() != Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
+				{
+					// instructor notification
+					notificationToInstructors(s, a);
+					
+					// student notification, whether the student gets email notification once he submits an assignment
+					notificationToStudent(s);
+				}
 			}
 				
 			
@@ -7395,23 +7399,16 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		public String getFeedbackComment()
 		{
 			Assignment a = getAssignment();
-			if (a.getContent().getTypeOfGrade() == Assignment.SCORE_GRADE_TYPE)
+			String associatedGBAssignment = StringUtil.trimToNull(a.getProperties().getProperty(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+			if (associatedGBAssignment != null && isGradebookDefined() && a.getContent().getTypeOfGrade() == Assignment.SCORE_GRADE_TYPE)
 			{
 				// for point-based grading
-				String associatedGBAssignment = StringUtil.trimToNull(a.getProperties().getProperty(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
-				if (associatedGBAssignment != null && isGradebookDefined())
-				{
-					// if the assignment is associated with Gradebook entry, get the comment from Gradebook
-					GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
-					String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
-					String submitterId = (String) getSubmitterIds().get(0);
-					CommentDefinition comment = g.getAssignmentScoreComment(gradebookUid, associatedGBAssignment, submitterId);
-					return comment != null?comment.getCommentText():"";
-				}
-				else
-				{
-					return m_feedbackComment;
-				}
+				// if the assignment is associated with Gradebook entry, get the comment from Gradebook
+				GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+				String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
+				String submitterId = (String) getSubmitterIds().get(0);
+				CommentDefinition comment = g.getAssignmentScoreComment(gradebookUid, associatedGBAssignment, submitterId);
+				return comment != null?comment.getCommentText():"";
 			}
 			else
 			{
