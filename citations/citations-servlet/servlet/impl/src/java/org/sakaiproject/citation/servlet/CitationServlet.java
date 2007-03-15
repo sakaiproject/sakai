@@ -61,6 +61,11 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public class CitationServlet extends VmServlet
 {
+	/**
+	 * 
+	 */
+	public static final String SERVLET_TEMPLATE = "/vm/citation/sakai_citation-servlet.vm";
+	
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(CitationServlet.class);
 
@@ -181,6 +186,9 @@ public class CitationServlet extends VmServlet
 		else
 		{
 			dispatch(req, res);
+			
+			// include your favorite template
+			includeVm(SERVLET_TEMPLATE, req, res);
 		}
 	}
 
@@ -258,7 +266,7 @@ public class CitationServlet extends VmServlet
 
 			Citation citation = citationService.addCitation(genre);
 
-			String info = "New citation from GOOGLE SCHOLAR:\n\t genre:\t\t" + genre;
+			String info = "New citation from Google Scholar:\n\t genre:\t\t" + genre;
 			if(title != null)
 			{
 				info += "\n\t title:\t\t" + title;

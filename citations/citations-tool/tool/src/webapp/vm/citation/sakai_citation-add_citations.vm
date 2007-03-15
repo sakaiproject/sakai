@@ -67,7 +67,7 @@ doubleDeep = true;
 			  <tr valign="middle">
 			    <td align="center">
 			      <div class="act">
-				    <input type="button" name="SearchGoogle" id="SearchGoogle"  value="$tlang.getString("action.google")" onclick="openWindow('$googleUrl','$tlang.getString("action.google")','scrollbars,toolbar,resizable,height=400,width=600');"  />
+				    <input type="button" name="SearchGoogle" id="SearchGoogle"  value="$tlang.getString("action.google")" onclick="openWindow('$googleUrl','$tlang.getString("action.google")','scrollbars,toolbar,resizable,height=600,width=800');"  />
 			      </div>
 			    </td>
 			    <td>$tlang.getFormattedMessage("description.google",$googleArgs)</td>

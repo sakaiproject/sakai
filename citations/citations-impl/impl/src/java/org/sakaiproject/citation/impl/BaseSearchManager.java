@@ -1606,9 +1606,11 @@ public class BaseSearchManager implements SearchManager
 	/** Our logger. */
 	private static Log m_log = LogFactory.getLog(BaseSearchManager.class);
 	
+	// google scholar constants
 	public static final String SAKAI_SESSION = "sakai.session";
 	public static final String SAKAI_KEY = "sakai.key";
 	public static final String SAKAI_HOST = "sakai.host";
+	public static final String SERVLET_NAME = "savecite";
 	
 	// Our types (defined in setupTypes())
 	protected static BasicType categoryAssetType;
@@ -2268,12 +2270,28 @@ public class BaseSearchManager implements SearchManager
     	String serverUrl = serverConfigurationService.getServerUrl();
  		SessionManager sessionManager = (SessionManager) ComponentManager.get("org.sakaiproject.tool.api.SessionManager");
 		String sessionId = sessionManager.getCurrentSession().getId();
-    	return getGoogleBaseUrl() 
-    			+ "?" + SAKAI_HOST + "=" 
-    			+ Validator.escapeUrl( serverUrl + Entity.SEPARATOR + resourceId 
-    					+ "?" + SAKAI_SESSION + "=" + Validator.escapeUrl(sessionId) )
-    			+ "&" + SAKAI_KEY + "=" 
-    			+ Validator.escapeUrl(getSakaiServerKey());
+		
+		try
+		{
+			return ( getGoogleBaseUrl() 
+					+ "?" + SAKAI_HOST + "=" 
+					+ java.net.URLEncoder.encode( serverUrl +
+							Entity.SEPARATOR +
+							SERVLET_NAME +
+							Entity.SEPARATOR +
+							resourceId +
+							"?" +
+							SAKAI_SESSION +
+							"=" +
+							sessionId, "UTF-8" )
+							+ "&" + SAKAI_KEY + "="
+							+ java.net.URLEncoder.encode( getSakaiServerKey(), "UTF-8" ) );
+		}
+		catch( Exception e )
+		{
+			m_log.warn( "getGoogleScholarUrl encoding failed", e );
+			return null;
+		}
     }
 
 	/**
