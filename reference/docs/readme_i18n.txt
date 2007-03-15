@@ -53,6 +53,7 @@ languages, as follows:
    Status: in progress (see http://elearning.ufp.pt)
    Translated by: n/a
    Contact:  Feliz Gouveia    fribeiro@ufp.pt
+             Nuno Fernandes   nuno@ufp.pt
    Local ID: pt_PT
    
 9) Slovakian
@@ -128,6 +129,13 @@ languages, as follows:
     Contact: E. Emre …zkeskin (eozkeskin@hotmail.com)
     Local ID: tr_TR
                 
+20) Mongolian
+    Status: inquiry on 3/15/2007
+    Translated by: n/a
+    Contact:  B. Ariunbold (ariunbold@newcomsystems.mn)
+    Local ID: mn_MN
+                
+
 The default language locale must be defined at boot time (though this 
 can be over-ridden by user preferences), by setting the tomcat 
 JAVA_OPTS property as follows:
