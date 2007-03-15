@@ -1,4 +1,4 @@
-package org.sakaibrary.common.search.impl;
+package org.sakaiproject.citation.util;
 
 public class CQLSearchQuery
 implements org.sakaibrary.common.search.api.CQLSearchQuery {

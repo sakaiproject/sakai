@@ -1,4 +1,4 @@
-package org.sakaibrary.common.search.impl;
+package org.sakaiproject.citation.util;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;

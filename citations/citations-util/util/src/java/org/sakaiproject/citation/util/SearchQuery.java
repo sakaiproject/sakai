@@ -1,4 +1,4 @@
-package org.sakaibrary.common.search.impl;
+package org.sakaiproject.citation.util;
 
 import java.util.Set;
 
