@@ -23,8 +23,9 @@ package org.sakaiproject.citation.api;
 
 import java.util.List;
 import java.util.Map;
-import org.sakaiproject.citation.util.SearchException;
-import org.sakaibrary.common.search.api.SearchQuery;
+
+import org.sakaiproject.citation.util.api.SearchException;
+import org.sakaiproject.citation.util.api.SearchQuery;
 
 
 /**

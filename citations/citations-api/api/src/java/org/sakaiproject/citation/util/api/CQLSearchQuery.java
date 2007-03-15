@@ -1,4 +1,4 @@
-package org.sakaiproject.citation.util;
+package org.sakaiproject.citation.util.api;
 
 import org.sakaibrary.common.search.api.SearchQuery;
 

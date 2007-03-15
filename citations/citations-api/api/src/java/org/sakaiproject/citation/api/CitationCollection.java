@@ -26,7 +26,7 @@ import java.io.OutputStream;
 import java.util.Comparator;
 import java.util.List;
 
-import org.sakaiproject.citation.util.SearchException;
+import org.sakaiproject.citation.util.api.SearchException;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.exception.IdUnusedException;
 

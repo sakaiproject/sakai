@@ -27,7 +27,7 @@ import java.util.Map;
 
 import org.osid.repository.RepositoryIterator;
 import org.sakaiproject.citation.api.ActiveSearch;
-import org.sakaiproject.citation.util.SearchException;
+import org.sakaiproject.citation.util.api.SearchException;
 
 /**
  * 

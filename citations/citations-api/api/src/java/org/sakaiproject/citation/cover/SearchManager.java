@@ -27,7 +27,7 @@ public class SearchManager
 		}
 	}
 
-	public static org.sakaiproject.citation.api.ActiveSearch doNextPage(org.sakaiproject.citation.api.ActiveSearch search) throws org.sakaiproject.citation.util.SearchException
+	public static org.sakaiproject.citation.api.ActiveSearch doNextPage(org.sakaiproject.citation.api.ActiveSearch search) throws org.sakaiproject.citation.util.api.SearchException
 	{
 		org.sakaiproject.citation.api.SearchManager instance = getInstance();
 		if(instance == null)
@@ -38,7 +38,7 @@ public class SearchManager
 		return instance.doNextPage(search);
 	}
 
-	public static org.sakaiproject.citation.api.ActiveSearch doPrevPage(org.sakaiproject.citation.api.ActiveSearch search) throws org.sakaiproject.citation.util.SearchException
+	public static org.sakaiproject.citation.api.ActiveSearch doPrevPage(org.sakaiproject.citation.api.ActiveSearch search) throws org.sakaiproject.citation.util.api.SearchException
 	{
 		org.sakaiproject.citation.api.SearchManager instance = getInstance();
 		if(instance == null)
@@ -49,7 +49,7 @@ public class SearchManager
 		return instance.doPrevPage(search);
 	}
 
-	public static org.sakaiproject.citation.api.ActiveSearch doSearch(org.sakaiproject.citation.api.ActiveSearch search) throws org.sakaiproject.citation.util.SearchException
+	public static org.sakaiproject.citation.api.ActiveSearch doSearch(org.sakaiproject.citation.api.ActiveSearch search) throws org.sakaiproject.citation.util.api.SearchException
 	{
 		org.sakaiproject.citation.api.SearchManager instance = getInstance();
 		if(instance == null)
@@ -60,7 +60,7 @@ public class SearchManager
 		return instance.doSearch(search);
 	}
 
-	public static org.sakaiproject.citation.api.SearchDatabaseHierarchy getSearchHierarchy() throws org.sakaiproject.citation.util.SearchException
+	public static org.sakaiproject.citation.api.SearchDatabaseHierarchy getSearchHierarchy() throws org.sakaiproject.citation.util.api.SearchException
 	{
 		org.sakaiproject.citation.api.SearchManager instance = getInstance();
 		if(instance == null)
