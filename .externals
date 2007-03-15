@@ -1,4 +1,3 @@
-
 access			https://source.sakaiproject.org/svn/access/trunk
 alias			https://source.sakaiproject.org/svn/alias/trunk
 announcement		https://source.sakaiproject.org/svn/announcement/trunk
@@ -8,7 +7,6 @@ authz			https://source.sakaiproject.org/svn/authz/trunk
 blog			https://source.sakaiproject.org/svn/blog/trunk
 calendar		https://source.sakaiproject.org/svn/calendar/trunk
 chat			https://source.sakaiproject.org/svn/chat/trunk
-citations		https://source.sakaiproject.org/svn/citations/trunk
 cluster			https://source.sakaiproject.org/svn/cluster/trunk
 component		https://source.sakaiproject.org/svn/component/trunk
 content			https://source.sakaiproject.org/svn/content/trunk
