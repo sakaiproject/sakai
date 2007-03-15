@@ -2,10 +2,10 @@
 
 <project>
   <pomVersion>3</pomVersion>
-  <extend>../../master/project.xml</extend>
+  <extend>../../../master/project.xml</extend>
   <name>Search Library Resources (Repository OSID HTTP Implementation)</name>
   <groupId>sakaiproject</groupId>
-  <id>sakai-osid-http-impl</id>
+  <id>sakai-citations-web2bridge</id>
   <currentVersion>${sakai.version}</currentVersion>
   <organization>
     <name>Indiana University Library Information Technology</name>

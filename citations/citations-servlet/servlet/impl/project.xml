@@ -3,9 +3,9 @@
 <project>
         <pomVersion>3</pomVersion>
         <extend>../../../../master/project.xml</extend>
-        <name>sakai-citation-servlet</name>
+        <name>sakai-citations-servlet</name>
         <groupId>sakaiproject</groupId>
-        <id>sakai-citation-servlet</id>
+        <id>sakai-citations-servlet</id>
         <currentVersion>${sakai.version}</currentVersion>
         <organization>
                 <name>University of Michigan</name>

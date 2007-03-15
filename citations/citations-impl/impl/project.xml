@@ -3,9 +3,9 @@
 <project>
 	<pomVersion>3</pomVersion>
 	<extend>../../../master/project.xml</extend>
-	<name>sakai-citation-impl</name>
+	<name>sakai-citations-impl</name>
 	<groupId>sakaiproject</groupId>
-	<id>sakai-citation-impl</id>
+	<id>sakai-citations-impl</id>
 	<currentVersion>${sakai.version}</currentVersion>
 	<organization>
 		<name>The Sakai Foundation</name>
@@ -46,7 +46,7 @@
 
     <dependency>
       <groupId>sakaiproject</groupId>
-      <artifactId>sakai-citation-api</artifactId>
+      <artifactId>sakai-citations-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
 

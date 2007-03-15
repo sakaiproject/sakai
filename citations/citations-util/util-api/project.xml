@@ -2,9 +2,9 @@
 
 <project>
   <pomVersion>3</pomVersion>
-  <extend>../../master/project.xml</extend>
+  <extend>../../../master/project.xml</extend>
   <name>sakai-citations-util-api</name>
-  <groupId>sakaibrary</groupId>
+  <groupId>sakaiproject</groupId>
   <id>sakai-citations-util-api</id>
   <currentVersion>${sakai.version}</currentVersion>
   <organization>

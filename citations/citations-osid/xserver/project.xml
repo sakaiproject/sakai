@@ -3,9 +3,9 @@
 <project>
   <pomVersion>3</pomVersion>
   <name>xserver-osid-impl</name>
-  <extend>../../master/project.xml</extend>
+  <extend>../../../master/project.xml</extend>
   <groupId>sakaiproject</groupId>
-  <id>xserver-osid-impl</id>
+  <id>sakai-citations-xserver</id>
   <currentVersion>${sakai.version}</currentVersion>
   <organization>
     <name>University of Michigan</name>
@@ -21,14 +21,14 @@
   <dependencies>
 
     <dependency>
-      <groupId>sakaibrary</groupId>
-      <artifactId>sakaibrary-util-api</artifactId>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-citations-util-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>sakaibrary</groupId>
-      <artifactId>sakaibrary-util-impl</artifactId>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-citations-util-impl</artifactId>
       <version>${sakai.version}</version>
     </dependency>
 
