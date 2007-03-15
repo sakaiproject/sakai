@@ -142,11 +142,17 @@ public class ContentHostingHandlerResolverImpl implements BaseContentHostingHand
 			// hence final id found
 			nextce = getVirtualEntity(ce, finalId);
 		} else if ( nextSlash == finalId.length() - Entity.SEPARATOR.length()
-			&& thisid.length() + Entity.SEPARATOR.length() == finalId.length() ) {
+			&& thisid.length() == nextSlash ) {
+                       // we are looking for either:
+                       // (i) the root of a virtual container, and the current position is
+                       // on the membrane between the real and virtual worlds: the
+                       // separator at the end of thisid is the root of the virtual world.
+                       // (ii) a virtual container whose name is specified with a trailing
+                       // "/" character (eg a directory in a file system) where this is OK.
 			nextce = getVirtualEntity(ce, finalId);			
 		} else {
-			// found D
-			// /A/B/C/D
+                       // found C in the middle of a long string of containers
+                       // /A/B/C/D/..
 			String nextId = finalId.substring(0, nextSlash);
 			nextce = getVirtualEntity(ce.getMember(nextId), finalId);
 		}
