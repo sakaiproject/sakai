@@ -221,7 +221,8 @@ public class HistogramListener
             // if this part is a randompart , then set randompart = true
 	    qbean.setRandomType(isRandompart);
 	    ItemDataIfc item = (ItemDataIfc) iter2.next();
-            String type = delegate.getTextForId(item.getTypeId());
+            //String type = delegate.getTextForId(item.getTypeId());
+	        String type = getType(item.getTypeId().intValue());
             if (item.getSequence() == null)
               item.setSequence(new Integer(seq++));
             qbean.setTitle(title + item.getSequence().toString() +
@@ -1624,7 +1625,40 @@ if (answer != null)
 
         newMode = newMode.substring(2, newMode.length());
         return newMode;
-
-
+  }
+  
+  private String getType(int typeId) {
+	  ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
+	  if (typeId == 1) {
+		  return rb.getString("q_mult_sing");
+	  }
+	  if (typeId == 2) {
+		  return rb.getString("q_mult_mult");
+	  }
+	  if (typeId == 3) {
+		  return rb.getString("q_mult_surv");
+	  }
+	  if (typeId == 4) {
+		  return rb.getString("q_tf");
+	  }
+	  if (typeId == 5) {
+		  return rb.getString("q_short_ess");
+	  }
+	  if (typeId == 6) {
+		  return rb.getString("q_fu");
+	  }
+	  if (typeId == 7) {
+		  return rb.getString("q_aud");
+	  }
+	  if (typeId == 8) {
+		  return rb.getString("q_fib");
+	  }
+	  if (typeId == 9) {
+		  return rb.getString("q_match");
+	  }
+	  if (typeId == 11) {
+		  return rb.getString("q_fin");
+	  }
+	  return "";
   }
 }

@@ -87,7 +87,7 @@ public class PublishAssessmentListener
   		UIComponent eventSource = (UIComponent) ae.getSource();
   		ValueBinding vb = eventSource.getValueBinding("value");
   		String buttonValue = (String) vb.getExpressionString(); 
-  		if(buttonValue.endsWith("#{msg.button_unique_save_and_publish}"))
+  		if(buttonValue.endsWith(".button_unique_save_and_publish}"))
   		{
   			repeatedPublish = Boolean.FALSE;
   			return;

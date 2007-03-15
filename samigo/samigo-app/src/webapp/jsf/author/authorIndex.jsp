@@ -314,7 +314,11 @@
           </h:commandLink>
          </h:panelGroup>
       </f:facet>
-      <h:outputText value="#{publishedAssessment.releaseTo} " >
+
+      <h:outputText value="#{publishedAssessment.releaseTo}" rendered="#{publishedAssessment.releaseTo ne 'Anonymous Users'}">
+	       <f:convertDateTime pattern="#{generalMessages.output_date_picker}"/>
+	  </h:outputText>
+      <h:outputText value="#{assessmentSettingsMessages.anonymous_users}" rendered="#{publishedAssessment.releaseTo eq 'Anonymous Users'}">
            <f:convertDateTime pattern="#{generalMessages.output_date_picker}"/>
       </h:outputText>
     </h:column>
@@ -475,9 +479,14 @@
           </h:commandLink>
          </h:panelGroup>
       </f:facet>
-      <h:outputText value="#{inactivePublishedAssessment.releaseTo}" >
-          <f:convertDateTime pattern="#{generalMessages.output_date_picker}"/>
+
+      <h:outputText value="#{inactivePublishedAssessment.releaseTo}" rendered="#{inactivePublishedAssessment.releaseTo ne 'Anonymous Users'}">
+	       <f:convertDateTime pattern="#{generalMessages.output_date_picker}"/>
+	  </h:outputText>
+      <h:outputText value="#{assessmentSettingsMessages.anonymous_users}" rendered="#{inactivePublishedAssessment.releaseTo eq 'Anonymous Users'}">
+           <f:convertDateTime pattern="#{generalMessages.output_date_picker}"/>
       </h:outputText>
+
     </h:column>
     <h:column>
       <f:facet name="header">

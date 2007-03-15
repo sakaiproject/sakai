@@ -1098,7 +1098,14 @@ public class AssessmentSettingsBean
     Arrays.sort(titles);
     SelectItem[] target = new SelectItem[targets.size()];
     for (int i=0; i<titles.length; i++){
-      target[i] = new SelectItem(titles[i]);
+      //target[i] = new SelectItem(titles[i]);	
+      if (titles[i].equals("Anonymous Users")) {
+    	  ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
+    	  target[i] = new SelectItem(titles[i], rb.getString("anonymous_users"));
+      }
+      else {
+    	  target[i] = new SelectItem(titles[i], titles[i]);
+      }
     }
     /**
     SelectItem[] target = new SelectItem[targets.size()];
