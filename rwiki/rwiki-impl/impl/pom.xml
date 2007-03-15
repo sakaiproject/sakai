@@ -258,9 +258,9 @@ limitations under the License.
     </dependency>
     <dependency>
       
-      <groupId>ehcache</groupId>
-      <artifactId>ehcache</artifactId>
-      <version>1.1</version>
+<groupId>${sakai.ehcache.groupId}</groupId>
+      <artifactId>${sakai.ehcache.artifactId}</artifactId>
+      <version>${sakai.ehcache.version}</version>
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
