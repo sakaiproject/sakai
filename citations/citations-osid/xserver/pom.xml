@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <name>sakai-citations-xserver</name>
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>M2</version>
+    <relativePath>../../../master/pom.xml</relativePath>
+  </parent>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>sakai-citations-xserver</artifactId>
+  <organization>
+    <name>University of Michigan</name>
+    <url>http://sakaiproject.org/</url>
+  </organization>
+  <inceptionYear>2003</inceptionYear>
+  <packaging>jar</packaging>
+  <properties>
+    <deploy.target></deploy.target>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-citations-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-citations-util</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
+    </dependency>
+    <dependency>
+      <groupId>OKI</groupId>
+      <artifactId>OkiOSID</artifactId>
+      <version>2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>ehcache</groupId>
+      <artifactId>ehcache</artifactId>
+      <version>1.1</version>
+    </dependency>
+  </dependencies>
+  <build>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/bundle</directory>
+        <includes>
+          <include>**/*.properties</include>
+          <include>**/*.txt</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/bundle</directory>
+        <includes>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/bundle</directory>
+        <includes>
+          <include>**/*.xsl</include>
+        </includes>
+      </resource>
+    </resources>
+    <sourceDirectory>src/java</sourceDirectory>
+<!-- other resources for the jar - the message bundles -->
+<!-- other resources for the jar - the OSID xml registries -->
+<!-- other resources for the jar - xslt stylesheets -->
+  </build>
+</project>

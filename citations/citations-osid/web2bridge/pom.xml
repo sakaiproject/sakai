@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>M2</version>
+    <relativePath>../../../master/pom.xml</relativePath>
+  </parent>
+  <name>sakai-citations-web2bridge</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>sakai-citations-web2bridge</artifactId>
+  <organization>
+    <name>Indiana University Library Information Technology</name>
+    <url>http://libraries.iub.edu/</url>
+  </organization>
+  <inceptionYear>2004</inceptionYear>
+  <packaging>jar</packaging>
+  <properties>
+    <deploy.target>shared</deploy.target>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>servletapi</groupId>
+      <artifactId>servletapi</artifactId>
+      <version>2.4-20040521</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
+    </dependency>
+    <dependency>
+      <groupId>ehcache</groupId>
+      <artifactId>ehcache</artifactId>
+      <version>1.1</version>
+    </dependency>
+    <dependency>
+      <groupId>OKI</groupId>
+      <artifactId>OkiOSID</artifactId>
+      <version>2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>OKI</groupId>
+      <artifactId>okiRegistry</artifactId>
+      <version>2005-10-19</version>
+    </dependency>
+    <dependency>
+      <groupId>nekohtml</groupId>
+      <artifactId>nekohtml</artifactId>
+      <version>0.9.5</version>
+<!--properties:  deploy.target: shared -->
+    </dependency>
+    <dependency>
+      <groupId>zing</groupId>
+      <artifactId>cql-java</artifactId>
+      <version>0.7</version>
+    </dependency>
+  </dependencies>
+  <build>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/bundle</directory>
+        <includes>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/java/edu/indiana/lib/twinpeaks/search/singlesearch/web2</directory>
+        <includes>
+          <include>**/*.xsl</include>
+        </includes>
+      </resource>
+    </resources>
+<!-- java source -->
+    <sourceDirectory>src/java</sourceDirectory>
+<!-- xml configuration -->
+<!-- other resources for the jar -->
+  </build>
+</project>

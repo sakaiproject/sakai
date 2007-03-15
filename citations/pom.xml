@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>master</artifactId>
@@ -7,19 +7,19 @@
     <version>M2</version>
     <relativePath>../master/pom.xml</relativePath>
   </parent>
-  <name>Sakai Citations Project</name>
+  <name>Sakai</name>
   <groupId>org.sakaiproject</groupId>
-  <artifactId>citations-base</artifactId>
+  <artifactId>.</artifactId>
   <packaging>pom</packaging>
-  <modules>
-    <module>citations-api/api</module>
-    <module>citations-impl/impl</module>
-    <module>citations-impl/pack</module>
-    <module>citations-tool</module>
-    <module>citations-tool/tool</module>
-    <module>citations-util/util</module>
-    <module>citations-osid/xserver</module>
-    <module>citations-osid/web2bridge</module>
-    <module>citations-servlet/servlet</module>
-  </modules>
+ <modules>
+<module>citations-servlet/servlet/impl</module>
+<module>citations-servlet/servlet/pack</module>
+<module>citations-api/api</module>
+<module>citations-tool/tool</module>
+<module>citations-util/util</module>
+<module>citations-osid/web2bridge</module>
+<module>citations-osid/xserver</module>
+<module>citations-impl/impl</module>
+<module>citations-impl/pack</module>
+ </modules>
 </project>

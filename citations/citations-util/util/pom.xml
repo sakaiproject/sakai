@@ -7,45 +7,34 @@
     <version>M2</version>
     <relativePath>../../../master/pom.xml</relativePath>
   </parent>
-  
-  <name>sakai-citations-api</name>
+  <name>sakai-citations-util</name>
   <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-citations-api</artifactId>
-  <description>
-    This project creates the general APIs used by the Sakai Citations Helper
-  </description>
-  
+  <artifactId>sakai-citations-util</artifactId>
   <organization>
-    <name>University of Michigan</name>
-    <url>http://sakaiproject.org/</url>
+    <name>Sakaibrary</name>
+    <url>http://dlib.indiana.edu/projects/sakai/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
-  
   <packaging>jar</packaging>
   <properties>
-    <deploy.target>shared</deploy.target>
+    <deploy.target></deploy.target>
   </properties>
-  
   <dependencies>
     <dependency>
       <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-component</artifactId>
+      <artifactId>sakai-citations-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-entity-api</artifactId>
-      <version>${sakai.version}</version>
+      <groupId>zing</groupId>
+      <artifactId>cql-java</artifactId>
+      <version>0.7</version>
+<!--properties:  deploy.target: shared -->
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>OKI</groupId>
-      <artifactId>OkiOSID</artifactId>
-      <version>2.0</version>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
     </dependency>
   </dependencies>
   <build>
