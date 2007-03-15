@@ -40,16 +40,17 @@ public class ScheduledInvocationManagerImpl implements
 	public String createDelayedInvocation(Time time, String componentId,
 			String opaqueContext) {
 		
-		String[] fields = null;
+		
 		
 		String uuid = m_idManager.createUuid();
 		
 		LOG.info("Creating new Delayed Invocation: " + uuid);
-		String sql = "INSERT INTO SCHEDULER_DELAYED_INVOCATION SET INVOCATION_ID = ?, INVOCATION_TIME = ?, COMPONENT_ID = ?, CONTEXT = ?";
+		String sql = "INSERT INTO SCHEDULER_DELAYED_INVOCATION SET INVOCATION_ID = ?, INVOCATION_TIME = ?, COMPONENT = ?, CONTEXT = ?";
+		
+		Object[] fields = new Object[4];
 		
 		fields[0]=uuid;
-		//TODO: FORMAT DATE
-		fields[1]=time.toString();
+		fields[1]=time;
 		fields[2]=componentId;
 		fields[3]=opaqueContext;
 		
@@ -68,11 +69,12 @@ public class ScheduledInvocationManagerImpl implements
 
 	public void deleteDelayedInvocation(String uuid) {
 		
-		String[] fields = null;
+		
 		
 		LOG.info("Removing Delayed Invocation: " + uuid);
 		String sql = "DELETE FROM SCHEDULER_DELAYED_INVOCATION WHERE INVOCATION_ID = ?";
 		
+		Object[] fields = new Object[1];
 		fields[0]=uuid;
 		
 		LOG.info("SQL: "+sql);

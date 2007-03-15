@@ -47,13 +47,17 @@
         <property name="idManager">
         	<ref bean="org.sakaiproject.id.api.IdManager"/>
         </property>
+        
     </bean>    
     
     <bean id="scheduledInvocationRunner"
       class="org.sakaiproject.component.app.scheduler.jobs.ScheduledInvocationRunner">
       <property name="sqlService">
         	<ref bean="org.sakaiproject.db.api.SqlService"/>
-        </property> 
+      </property> 
+      <property name="timeService">
+        	<ref bean="org.sakaiproject.time.api.TimeService"/>
+      </property>	
    </bean>   
     
      <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.ScheduledInvocationRunner"
@@ -69,6 +73,37 @@
          <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
       </property>
    </bean>
+   
+    <bean id="scheduledInvocationTestJob"
+      class="org.sakaiproject.component.app.scheduler.test.ScheduledInvocationTestJob">
+      <property name="timeService">
+        	<ref bean="org.sakaiproject.time.api.TimeService"/>
+      </property>
+      <property name="sim">
+      		<ref bean="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager"/>
+      </property>	
+   </bean>   
+   
+   
+   <!-- Tester for ScheduledInvocationManager
+   <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.ScheduledInvocationTestJob"
+      class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+      singleton="true" init-method="init">
+      <property name="beanId">
+         <value>scheduledInvocationTestJob</value>
+      </property>
+      <property name="jobName">
+         <value>Scheduled Invocation Test Job</value>
+      </property>
+      <property name="schedulerManager">
+         <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+      </property>
+   </bean>
+    
+   <bean id="scheduledInvocationTestCommand" class="org.sakaiproject.component.app.scheduler.test.ScheduledInvocationTestCommand">
+   </bean>
+   
+   -->
    
    <!-- sample bean job... this sample shows how to install a bean into quartz for scheduling -->
 
