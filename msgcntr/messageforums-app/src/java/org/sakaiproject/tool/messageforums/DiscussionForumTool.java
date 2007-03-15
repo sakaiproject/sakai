@@ -75,6 +75,7 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -201,6 +202,8 @@ public class DiscussionForumTool
   private static final String MSGS_APPROVED = "cdfm_approve_msgs_success";
   private static final String MSGS_DENIED = "cdfm_deny_msgs_success";
   private static final String MSG_REPLY_PREFIX = "cdfm_reply_prefix";
+  private static final String NO_GRADE_PTS = "cdfm_no_points_for_grade";
+  private static final String NO_ASSGN = "cdfm_no_assign_for_grade";
   
   private static final String FROM_PAGE = "msgForum:mainOrForumOrTopic";
   private String fromPage = null; // keep track of originating page for common functions
@@ -245,10 +248,7 @@ public class DiscussionForumTool
   private List assignments = new ArrayList(); 
   private String selectedAssign = "Default_0"; 
   private String gradePoint = ""; 
-  private String gradebookScore = ""; 
   private String gradeComment; 
-  private boolean noGradeWarn = false; 
-  private boolean noAssignWarn = false;
   private boolean gradebookExist = false;
   private boolean displayDeniedMsg = false;
 
@@ -406,6 +406,10 @@ public class DiscussionForumTool
           }
         }
       } 
+      catch(SecurityException se)
+      {
+    	  // ignore - don't want to print out stacktrace every time a non-admin user uses MC
+      }
       catch(Exception e1) 
       { 
         LOG.error("DiscussionForumTool&processDfMsgGrad:" + e1); 
@@ -2788,122 +2792,84 @@ public class DiscussionForumTool
 
   public String processDfMsgGrd()
   {
-    selectedAssign = "Default_0"; 
-    gradebookScore = ""; 
-    gradeComment = "";
+	  selectedAssign = "Default_0"; 
+	  gradePoint = ""; 
+	  gradeComment = "";
 
-    try
-    {
-      GradebookService gradebookService = (org.sakaiproject.service.gradebook.shared.GradebookService) 
-      ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService"); 
-      if(selectedMessage.getMessage().getGradeAssignmentName() !=null && 
-          selectedMessage.getMessage().getGradeAssignmentName().trim().length()>0)
-      {
-   	    if(!"false".equalsIgnoreCase(ServerConfigurationService.getString
-   	      ("separateIdEid@org.sakaiproject.user.api.UserDirectoryService"))&&
-   	      (gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
-   	      selectedMessage.getMessage().getGradeAssignmentName(),  
-   	      UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId())) != null)
-   	    {
-   	      gradePoint = (gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
-   	    		  selectedMessage.getMessage().getGradeAssignmentName(),  
-                    UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId())).toString();
-   	      gradePoint = new Double(gradePoint).toString();
-   	      gradeComment = selectedMessage.getMessage().getGradeComment();
-   	      String thisGradeAssign = selectedMessage.getMessage().getGradeAssignmentName();
-   	      setSelectedAssignForMessage(thisGradeAssign);
-   	    	
-   	    }
-   	    else if((gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
-            selectedMessage.getMessage().getGradeAssignmentName(),  
-            UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId())) != null) 
-        { 
-          gradePoint = (gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
-              selectedMessage.getMessage().getGradeAssignmentName(),  
-              UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId())).toString();
-          gradePoint = new Double(gradePoint).toString();
-          gradeComment = selectedMessage.getMessage().getGradeComment();
-          String thisGradeAssign = selectedMessage.getMessage().getGradeAssignmentName();
-          setSelectedAssignForMessage(thisGradeAssign);
-        } 
-      }
-      else if(selectedTopic.getTopic().getDefaultAssignName() != null &&
-          selectedTopic.getTopic().getDefaultAssignName().trim().length() > 0)
-      {
-    	if(!"false".equalsIgnoreCase(ServerConfigurationService.getString
-    			("separateIdEid@org.sakaiproject.user.api.UserDirectoryService"))&&
-    			(gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),
-    					selectedTopic.getTopic().getDefaultAssignName(),
-    					UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId())) != null)
-    	{
-    	  gradePoint = (gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),
-    			  selectedTopic.getTopic().getDefaultAssignName(),
-    			  UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId())).toString();
-    	  gradePoint = new Double(gradePoint).toString();
-    	  String thisGradeAssign = selectedTopic.getTopic().getDefaultAssignName();
-    	  setSelectedAssignForMessage(thisGradeAssign);
-    	}
-    	else if((gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),
-            selectedTopic.getTopic().getDefaultAssignName(),
-            UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId())) != null) 
-        { 
-          gradePoint = (gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),
-            selectedTopic.getTopic().getDefaultAssignName(),
-            UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId())).toString();
-          gradePoint = new Double(gradePoint).toString();
-          String thisGradeAssign = selectedTopic.getTopic().getDefaultAssignName();
-          setSelectedAssignForMessage(thisGradeAssign);
-       }
-        else
-        {
-            gradePoint = "";
-            String thisGradeAssign = selectedTopic.getTopic().getDefaultAssignName();
-            setSelectedAssignForMessage(thisGradeAssign);
-        }
-      }
-      else if(selectedForum.getForum().getDefaultAssignName() != null &&
-          selectedForum.getForum().getDefaultAssignName().trim().length() > 0)
-      {
-      	if(!"false".equalsIgnoreCase(ServerConfigurationService.getString
-    			("separateIdEid@org.sakaiproject.user.api.UserDirectoryService"))&&
-    			(gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
-    		            selectedForum.getForum().getDefaultAssignName(),  
-    		            UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId())) != null)
-      	{
-          gradePoint = (gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
-        		  selectedForum.getForum().getDefaultAssignName(),  
-        		  UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId())).toString();
-          gradePoint = new Double(gradePoint).toString();
-          String thisGradeAssign = selectedForum.getForum().getDefaultAssignName();
-          setSelectedAssignForMessage(thisGradeAssign);      		
-      	}
-      	else if( (gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
-            selectedForum.getForum().getDefaultAssignName(),  
-            UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId())) != null) 
-        { 
-          gradePoint = (gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
-            selectedForum.getForum().getDefaultAssignName(),  
-            UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId())).toString();
-          gradePoint = new Double(gradePoint).toString();
-          String thisGradeAssign = selectedForum.getForum().getDefaultAssignName();
-          setSelectedAssignForMessage(thisGradeAssign);
-        }
-        else
-        {
-          gradePoint = "";
-          String thisGradeAssign = selectedTopic.getTopic().getDefaultAssignName();
-          setSelectedAssignForMessage(thisGradeAssign);
-        }
-      }
-    }
-    catch(Exception e) 
-    { 
-      LOG.error("processDfMsgGrd in DiscussionFOrumTool - " + e); 
-      e.printStackTrace(); 
-      return null; 
-    } 
-    
-    return "dfMsgGrade"; 
+	  try
+	  {
+		  GradebookService gradebookService = (org.sakaiproject.service.gradebook.shared.GradebookService) 
+		  ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService"); 
+
+		  String createdById = UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();
+		  String gradebookUid = ToolManager.getCurrentPlacement().getContext();
+		  String msgAssignmentName = selectedMessage.getMessage().getGradeAssignmentName();
+		  String topicDefaultAssignment = selectedTopic.getTopic().getDefaultAssignName();
+		  String forumDefaultAssignment = selectedForum.getForum().getDefaultAssignName();
+
+		  if(msgAssignmentName !=null && msgAssignmentName.trim().length()>0)
+		  {
+			  if((gradebookService.getAssignmentScore(gradebookUid,  
+					  msgAssignmentName, createdById)) != null) 
+			  { 
+				  gradePoint = (gradebookService.getAssignmentScore(gradebookUid,  
+						  msgAssignmentName, createdById)).toString();
+				  gradePoint = new Double(gradePoint).toString();
+				  CommentDefinition assgnComment = gradebookService.getAssignmentScoreComment(gradebookUid, msgAssignmentName, createdById);
+				  if (assgnComment != null)
+					  gradeComment = assgnComment.getCommentText();
+				  setSelectedAssignForMessage(msgAssignmentName);
+			  } 
+		  }
+		  else if(topicDefaultAssignment != null &&
+				  topicDefaultAssignment.trim().length() > 0)
+		  {
+			  if((gradebookService.getAssignmentScore(gradebookUid,
+					  topicDefaultAssignment, createdById)) != null) 
+			  { 
+				  gradePoint = (gradebookService.getAssignmentScore(gradebookUid,
+						  topicDefaultAssignment, createdById)).toString();
+				  gradePoint = new Double(gradePoint).toString();
+				  CommentDefinition assgnComment = gradebookService.getAssignmentScoreComment(gradebookUid, topicDefaultAssignment, createdById);
+				  if (assgnComment != null)
+					  gradeComment = assgnComment.getCommentText();
+				  setSelectedAssignForMessage(topicDefaultAssignment);
+			  }
+			  else
+			  {
+				  gradePoint = "";
+				  setSelectedAssignForMessage(topicDefaultAssignment);
+			  }
+		  }
+		  else if(forumDefaultAssignment != null &&
+				  forumDefaultAssignment.trim().length() > 0)
+		  {
+			  if( (gradebookService.getAssignmentScore(gradebookUid,  
+					  forumDefaultAssignment, createdById)) != null) 
+			  { 
+				  gradePoint = (gradebookService.getAssignmentScore(gradebookUid,  
+						  forumDefaultAssignment, createdById)).toString();
+				  gradePoint = new Double(gradePoint).toString();
+				  CommentDefinition assgnComment = gradebookService.getAssignmentScoreComment(gradebookUid, forumDefaultAssignment, createdById);
+				  if (assgnComment != null)
+					  gradeComment = assgnComment.getCommentText();
+				  setSelectedAssignForMessage(forumDefaultAssignment);
+			  }
+			  else
+			  {
+				  gradePoint = "";
+				  setSelectedAssignForMessage(topicDefaultAssignment);
+			  }
+		  }
+	  }
+	  catch(Exception e) 
+	  { 
+		  LOG.error("processDfMsgGrd in DiscussionFOrumTool - " + e); 
+		  e.printStackTrace(); 
+		  return null; 
+	  } 
+
+	  return "dfMsgGrade"; 
   }
   
   public String processDfMsgRvsFromThread()
@@ -4077,16 +4043,6 @@ public class DiscussionForumTool
     return gradePoint; 
   } 
    
-  public String getGradebookScore() 
-  { 
-    return gradebookScore; 
-  } 
-   
-  public void setGradebookScore(String gradebookScore) 
-  { 
-    this.gradebookScore = gradebookScore; 
-  } 
-   
   public List getAssignments() 
   { 
     return assignments; 
@@ -4105,26 +4061,6 @@ public class DiscussionForumTool
   public String getGradeComment() 
   { 
     return gradeComment; 
-  } 
-   
-  public boolean getNoGradeWarn() 
-  { 
-    return noGradeWarn; 
-  } 
-
-  public void setNoGradeWarn(boolean noGradeWarn) 
-  { 
-    this.noGradeWarn = noGradeWarn; 
-  } 
-   
-  public boolean getNoAssignWarn() 
-  { 
-    return noAssignWarn; 
-  } 
- 
-  public void setNoAssignWarn(boolean noAssignWarn) 
-  { 
-    this.noAssignWarn = noAssignWarn; 
   } 
   
   public void rearrageTopicMsgsThreaded()
@@ -4249,10 +4185,7 @@ public class DiscussionForumTool
     gradeNotify = false; 
     selectedAssign = "Default_0"; 
     gradePoint = ""; 
-    gradebookScore = ""; 
     gradeComment = ""; 
-    noGradeWarn = false; 
-    noAssignWarn = false; 
     getThreadFromMessage();
     return MESSAGE_VIEW;
   } 
@@ -4273,30 +4206,18 @@ public class DiscussionForumTool
         GradebookService gradebookService = (org.sakaiproject.service.gradebook.shared.GradebookService) 
         ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService"); 
          
-      	if(!"false".equalsIgnoreCase(ServerConfigurationService.getString
-    			("separateIdEid@org.sakaiproject.user.api.UserDirectoryService"))&&
-    			(!selectedAssign.equalsIgnoreCase("Default_0")) 
-    	          && ((gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
-    	              ((SelectItem)assignments.get((new Integer(selectedAssign)).intValue())).getLabel(),  
-    	              UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId())) != null))
-      	{
-            gradebookScore = (gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
-                    ((SelectItem)assignments.get((new Integer(selectedAssign)).intValue())).getLabel(),  
-                    UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId())).toString();  
-      		
-      	}
-      	else if((!selectedAssign.equalsIgnoreCase("Default_0")) 
+      if((!selectedAssign.equalsIgnoreCase("Default_0")) 
           && ((gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
               ((SelectItem)assignments.get((new Integer(selectedAssign)).intValue())).getLabel(),  
               UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId())) != null)) 
         { 
-          gradebookScore = (gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
+          gradePoint = (gradebookService.getAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
               ((SelectItem)assignments.get((new Integer(selectedAssign)).intValue())).getLabel(),  
               UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId())).toString();  
         } 
         else 
         { 
-          gradebookScore = ""; 
+          gradePoint = ""; 
         } 
  
         return "dfMsgGrade"; 
@@ -4368,20 +4289,17 @@ public class DiscussionForumTool
   
   public String processDfGradeSubmit() 
   { 
-    if(selectedAssign == null || selectedAssign.trim().length()==0 || selectedAssign.equalsIgnoreCase("Default_0")) 
+	 if(gradePoint == null || gradePoint.trim().length()==0) 
+	 { 
+	      setErrorMessage(getResourceBundleString(NO_GRADE_PTS)); 
+	      return null; 
+	 } 
+
+	if(selectedAssign == null || selectedAssign.trim().length()==0 || selectedAssign.equalsIgnoreCase("Default_0")) 
     { 
-      noAssignWarn = true; 
-      return null; 
-    } 
-    else 
-      noAssignWarn = false; 
-    if(gradePoint == null || gradePoint.trim().length()==0) 
-    { 
-      noGradeWarn = true; 
-      return null; 
-    } 
-    else 
-      noGradeWarn = false; 
+		setErrorMessage(getResourceBundleString(NO_ASSGN)); 
+	    return null; 
+    }     
     
     if(!validateGradeInput())
       return null;
@@ -4397,103 +4315,24 @@ public class DiscussionForumTool
             GradebookService gradebookService = (org.sakaiproject.service.gradebook.shared.GradebookService) 
             ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService"); 
             String selectedAssignName = ((SelectItem)assignments.get((new Integer(selectedAssign)).intValue())).getLabel();
-          	if(!"false".equalsIgnoreCase(ServerConfigurationService.getString
-        			("separateIdEid@org.sakaiproject.user.api.UserDirectoryService")))
-          	{
-              gradebookService.setAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
-            		  selectedAssignName,  
-            		  UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId(),  
-            		  new Double(gradePoint),  
-              "");
-          	}
-          	else
-          	{
-              gradebookService.setAssignmentScore(ToolManager.getCurrentPlacement().getContext(),  
-                selectedAssignName,  
-                UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId(),  
-                new Double(gradePoint),  
-                "");
-          	}
-            setGradeNoticeMessage();
-            selectedMessage.getMessage().setGradeAssignmentName(selectedAssignName);
-            selectedMessage.getMessage().setGradeComment(gradeComment);
+            String gradebookUuid = ToolManager.getCurrentPlacement().getContext();
+            String studentUid = UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy()).getId();
 
-//            setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
-//                .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
-//            selectedTopic.setTopic((DiscussionTopic) forumManager
-//                .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
-            selectedMessage.getMessage().setTopic((DiscussionTopic) forumManager
+            gradebookService.setAssignmentScore(gradebookUuid,  
+            		  selectedAssignName, studentUid, new Double(gradePoint), "");
+            if (gradeComment != null && gradeComment.trim().length() > 0)
+            {
+            	gradebookService.setAssignmentScoreComment(gradebookUuid,  
+          		  selectedAssignName, studentUid, gradeComment);
+            }
+            
+            Message msg = selectedMessage.getMessage();
+            msg.setGradeAssignmentName(selectedAssignName);
+            msg.setTopic((DiscussionTopic) forumManager
                     .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
-            forumManager.saveMessage(selectedMessage.getMessage());
-             
-            if(gradeNotify) 
-            { 
-              PrivateMessageManager pvtMsgManager = (PrivateMessageManager) ComponentManager.get( 
-              "org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager"); 
-              User sendTo = null; 
-            	  
-              if(!"false".equalsIgnoreCase(ServerConfigurationService.getString
-            		  ("separateIdEid@org.sakaiproject.user.api.UserDirectoryService")))
-              {
-            	  sendTo = UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy());
-              }
-              else
-              {
-              	//for new created messages - with new id/edi separation - stg
-              	//sendTo = UserDirectoryService.getUser(selectedMessage.getMessage().getAuthor());
-              	sendTo = UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy());
-              }
-              //for old created messages with old id/eid??
-              if(sendTo == null)
-              {
-              	sendTo = UserDirectoryService.getUser(selectedMessage.getMessage().getCreatedBy());
-              	if(sendTo == null)
-              		sendTo = UserDirectoryService.getUser(selectedMessage.getMessage().getAuthor());
-              }
-              
-              Set sendToSet = new HashSet(); 
-              sendToSet.add(sendTo); 
-               
-              PrivateMessage pvtMsg = messageManager.createPrivateMessage() ;
-              pvtMsg.setRecipientsAsText(sendTo.getDisplayName());
- 
-              pvtMsg.setTitle(selectedMessage.getMessage().getTitle()); 
-              String msgBody = ""; 
-              for(int i=0; i<assignments.size(); i++) 
-              { 
-                if(selectedAssign.equalsIgnoreCase((String)((SelectItem)assignments.get(i)).getValue())) 
-                { 
-                  msgBody = msgBody.concat("ASSIGNMENT: " + ((SelectItem)assignments.get(i)).getLabel() + " <br/> "); 
-                  break; 
-                } 
-              } 
-              msgBody = msgBody.concat("GRADE: " + gradePoint + " <br/> "); 
-              msgBody = msgBody.concat("COMMENTS: " + gradeComment + " <br/> <br/> "); 
-              msgBody = msgBody.concat(selectedMessage.getMessage().getBody() + " <br/> "); 
-              pvtMsg.setBody(msgBody); 
-          	  if(!"false".equalsIgnoreCase(ServerConfigurationService.getString
-          			("separateIdEid@org.sakaiproject.user.api.UserDirectoryService")))
-          	  {
-          	  	try
-          	  	{
-          	  		String authorString = "";
-          	  		authorString += UserDirectoryService.getUser(getUserId()).getLastName() + ", ";
-          	  		authorString += UserDirectoryService.getUser(getUserId()).getFirstName();
-          	  		pvtMsg.setAuthor(authorString);
-          	  	}
-          	  	catch(Exception e)
-          	  	{
-          	  		e.printStackTrace();
-          	  	}
-          	  }
-          	  else
-          	  	pvtMsg.setAuthor(getUserId()); 
-              pvtMsg.setApproved(Boolean.TRUE); 
-              pvtMsg.setModified(new Date()); 
-              pvtMsg.setModifiedBy(UserDirectoryService.getCurrentUser().getId()); 
-               
-              pvtMsgManager.sendPrivateMessage(pvtMsg, sendToSet, false); 
-            } 
+            forumManager.saveMessage(msg);
+            
+            setSuccessMessage(getResourceBundleString(GRADE_SUCCESSFUL));
           } 
         } 
       } 
@@ -4507,10 +4346,7 @@ public class DiscussionForumTool
     gradeNotify = false; 
     selectedAssign = "Default_0"; 
     gradePoint = ""; 
-    gradebookScore = ""; 
-    gradeComment = ""; 
-    noAssignWarn = false; 
-    noGradeWarn = false; 
+    gradeComment = "";  
     getThreadFromMessage();
     return MESSAGE_VIEW; 
   } 
@@ -5176,13 +5012,6 @@ public class DiscussionForumTool
 	  LOG.debug("setSuccessMessage(String " + successMsg + ")");
 	  FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, successMsg, null));
   }
-  
-  private void setGradeNoticeMessage()
-  {
-    FacesContext.getCurrentInstance().addMessage(null,
-        new FacesMessage(getResourceBundleString(GRADE_SUCCESSFUL)));
-  }
-  
  
   public void processPost(){
   	

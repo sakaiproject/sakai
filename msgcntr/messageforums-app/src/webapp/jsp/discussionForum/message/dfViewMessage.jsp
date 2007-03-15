@@ -212,8 +212,15 @@
     	</h:panelGroup>
     	
     	<h:outputText value="#{msgs.cdfm_authoredby}"/>
-    	<h:outputText value="#{ForumTool.selectedMessage.message.author} #{msgs.cdfm_openb} #{ForumTool.selectedMessage.message.created} #{msgs.cdfm_closeb}" />  
-      <h:outputText value="" />
+    	<h:panelGroup>
+	      <h:outputText value="#{ForumTool.selectedMessage.message.author}" />
+	      <h:outputText value=" #{msgs.cdfm_openb}" />
+	      <h:outputText value="#{ForumTool.selectedMessage.message.created}" >
+          <f:convertDateTime pattern="#{msgs.date_format}" />  
+        </h:outputText>
+        <h:outputText value=" #{msgs.cdfm_closeb}" />
+	    </h:panelGroup>
+	<h:outputText value="" />
       
       <h:outputText value="#{msgs.cdfm_att}" rendered="#{!empty ForumTool.selectedMessage.attachList}" />
       <h:panelGroup rendered="#{!empty ForumTool.selectedMessage.attachList}">
