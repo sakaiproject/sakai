@@ -7302,28 +7302,25 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					// if the assignment is associated with Gradebook entry, get the score from Gradebook
 					GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
 					String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
-					String submitterId = (String) getSubmitterIds().get(0);
-					m_grade = "";
-					try
+					if (g.isAssignmentDefined(gradebookUid, associatedGBAssignment))
 					{
-						Double grade = g.getAssignmentScore(gradebookUid, associatedGBAssignment, submitterId);
-						m_grade = (grade != null)?grade.toString():"";
+						String submitterId = (String) getSubmitterIds().get(0);
+						m_grade = "";
+						try
+						{
+							Double grade = g.getAssignmentScore(gradebookUid, associatedGBAssignment, submitterId);
+							m_grade = (grade != null)?grade.toString():"";
+						}
+						catch (SecurityException e)
+						{
+							M_log.warn(this + e.getMessage());
+						}
+						return m_grade;
 					}
-					catch (SecurityException e)
-					{
-						M_log.warn(this + e.getMessage());
-					}
-					return m_grade;
-				}
-				else
-				{
-					return m_grade;
 				}
 			}
-			else
-			{
-				return m_grade;
-			}
+			
+			return m_grade;
 		}
 
 		/**
@@ -7406,14 +7403,15 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				// if the assignment is associated with Gradebook entry, get the comment from Gradebook
 				GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
 				String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
-				String submitterId = (String) getSubmitterIds().get(0);
-				CommentDefinition comment = g.getAssignmentScoreComment(gradebookUid, associatedGBAssignment, submitterId);
-				return comment != null?comment.getCommentText():"";
+				if (g.isAssignmentDefined(gradebookUid, associatedGBAssignment))
+				{
+					String submitterId = (String) getSubmitterIds().get(0);
+					CommentDefinition comment = g.getAssignmentScoreComment(gradebookUid, associatedGBAssignment, submitterId);
+					return comment != null?comment.getCommentText():"";
+				}
 			}
-			else
-			{
-				return m_feedbackComment;
-			}
+			
+			return m_feedbackComment;
 		}
 
 		/**
@@ -7754,24 +7752,27 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					// if the assignment is associated with Gradebook entry, set the score to Gradebook
 					GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
 					String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
-					String submitterId = (String) getSubmitterIds().get(0);
-					// scale down grade value
-					try
+					if (g.isAssignmentDefined(gradebookUid, associatedGBAssignment))
 					{
-						Integer.parseInt(grade);
-						grade = grade.substring(0, grade.length() - 1) + "." + grade.substring(grade.length() - 1);
-					}
-					catch (NumberFormatException e)
-					{
-						M_log.warn(this + e.getMessage());
-					}
-					try
-					{
-						g.setAssignmentScore(gradebookUid,associatedGBAssignment, submitterId, Double.valueOf(grade), ToolManager.getInstance().getCurrentPlacement().getTitle());
-					}
-					catch (Exception e)
-					{
-						M_log.warn(this + e.getMessage());
+						String submitterId = (String) getSubmitterIds().get(0);
+						// scale down grade value
+						try
+						{
+							Integer.parseInt(grade);
+							grade = grade.substring(0, grade.length() - 1) + "." + grade.substring(grade.length() - 1);
+						}
+						catch (NumberFormatException e)
+						{
+							M_log.warn(this + e.getMessage());
+						}
+						try
+						{
+							g.setAssignmentScore(gradebookUid,associatedGBAssignment, submitterId, Double.valueOf(grade), ToolManager.getInstance().getCurrentPlacement().getTitle());
+						}
+						catch (Exception e)
+						{
+							M_log.warn(this + e.getMessage());
+						}
 					}
 				}
 				else
@@ -7844,8 +7845,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					// if the assignment is associated with Gradebook entry, set the comment to Gradebook
 					GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
 					String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
-					String submitterId = (String) getSubmitterIds().get(0);
-					g.setAssignmentScoreComment(gradebookUid, associatedGBAssignment, submitterId, value);
+					if (g.isAssignmentDefined(gradebookUid, associatedGBAssignment))
+					{
+						String submitterId = (String) getSubmitterIds().get(0);
+						g.setAssignmentScoreComment(gradebookUid, associatedGBAssignment, submitterId, value);
+					}
 				}
 				else
 				{
