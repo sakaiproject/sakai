@@ -818,7 +818,20 @@ public class HistogramListener
 
       numarray[i] = num;
       bars[i] = new HistogramBarBean();
-      bars[i].setLabel(answer.getText());
+      if (qbean.getQuestionType().equals("4")) {
+    	  String origText = answer.getText();
+    	  String text = "";
+    	  if ("true".equals(origText)) {
+    		  text = rb.getString("true_msg");
+    	  }
+    	  else {
+    		  text = rb.getString("false_msg");
+    	  }
+    	  bars[i].setLabel(text);
+      }
+      else {
+    	  bars[i].setLabel(answer.getText());
+      }
       bars[i].setIsCorrect(answer.getIsCorrect());
       if ((num>1)||(num==0))
 	  {

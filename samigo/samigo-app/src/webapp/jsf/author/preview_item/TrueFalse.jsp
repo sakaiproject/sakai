@@ -38,7 +38,8 @@ should be included in file importing DeliveryMessages
           <h:graphicImage id="image2" rendered="#{!answer.isCorrect}"
              alt="#{authorMessages.not_correct}" url="/images/radiounchecked.gif" >
           </h:graphicImage>
-          <h:outputText escape="false" value="#{answer.text}" />
+          <h:outputText value="#{authorMessages.true_msg}" rendered="#{answer.text eq 'true'}"/>
+          <h:outputText value="#{authorMessages.false_msg}" rendered="#{answer.text eq 'false'}"/>
         </h:column>
       </h:dataTable>
  </h:column>

@@ -72,6 +72,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
 import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
 import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * <p>Title: Samigo</p>
@@ -1079,7 +1080,7 @@ public class DeliveryActionListener
     }
 
     ArrayList myanswers = new ArrayList();
-
+    ResourceLoader rb = null;
     // Generate the answer key
     String key = "";
     Iterator key1 = item.getItemTextArraySorted().iterator();
@@ -1172,7 +1173,15 @@ public class DeliveryActionListener
               answer.getIsCorrect() != null &&
               answer.getIsCorrect().booleanValue())
           {
-            key = (answer.getText().equalsIgnoreCase("true") ? "True" : "False");
+        	if (rb == null) { 	 
+        		rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
+        	}
+        	if (answer.getText().equalsIgnoreCase("true") || answer.getText().equalsIgnoreCase(rb.getString("true_msg"))) {
+        		key = rb.getString("true_msg");
+        	}
+        	else {
+        		key = rb.getString("false_msg");
+        	}
           }
           if (item.getTypeId().equals(TypeIfc.FILE_UPLOAD) ||
               item.getTypeId().equals(TypeIfc.ESSAY_QUESTION) ||
@@ -1220,12 +1229,12 @@ public class DeliveryActionListener
         if (item.getTypeId().equals(TypeIfc.TRUE_FALSE) && // True/False
             answer.getText().equals("true"))
         {
-          answer.setText("True");
+          answer.setText(rb.getString("true_msg"));
         }
         if (item.getTypeId().equals(TypeIfc.TRUE_FALSE) && // True/False
             answer.getText().equals("false"))
         {
-          answer.setText("False");
+          answer.setText(rb.getString("false_msg"));
 
         }
         String label = "";

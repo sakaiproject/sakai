@@ -62,6 +62,7 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
+import org.sakaiproject.util.ResourceLoader;
 
 // end testing
 
@@ -261,6 +262,7 @@ public class QuestionScoreListener implements ActionListener,
 			HashMap map = getItemScores(Long.valueOf(publishedId), Long
 					.valueOf(itemId), which, isValueChange);
 			log.debug("questionScores(): map .size = " + map.size());
+			ResourceLoader rb = null;
 			ArrayList allscores = new ArrayList();
 			Iterator keyiter = map.keySet().iterator();
 			while (keyiter.hasNext()) {
@@ -548,6 +550,18 @@ public class QuestionScoreListener implements ActionListener,
 						answerText = gdata.getAnswerText();
 					}
 
+					if (bean.getTypeId().equals("4")) {
+						if (rb == null) { 	 
+			        		rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
+			        	}
+						if (answerText.equals("true")) {
+							answerText = rb.getString("true_msg");
+						}
+						else {
+							answerText = rb.getString("false_msg");
+						}
+					}
+					
 					if (bean.getTypeId().equals("9")) {
 						answerText = gdataPubItemText.getSequence() + ":"
 								+ answerText;
