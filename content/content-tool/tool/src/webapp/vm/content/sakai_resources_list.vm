@@ -102,7 +102,6 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 		#end
 		#set ($actionCount=2000)
 		#set ($actionCount2=1000)
-		<div class="alertMessage">Under construction. Now dealing with padding on links.  Also the z-index of the lists needs to be generated so that lower elements have a lower z-index</div>
 		######################  Heirarchical list of resource folders/items  ##############
 		<table class="listHier lines" cellspacing="0" border="0"  summary="$tlang.getString("sh.listsum")">
 			######################  Column labels, sort controls, expand/collapse all  ##############
