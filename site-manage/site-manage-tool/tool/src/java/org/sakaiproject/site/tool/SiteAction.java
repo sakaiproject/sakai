@@ -18,7 +18,7 @@
  * limitations under the License.
  *
  **********************************************************************************/
-
+// daisy checking if she has right to commit
 package org.sakaiproject.site.tool;
 
 import java.lang.reflect.Method;
