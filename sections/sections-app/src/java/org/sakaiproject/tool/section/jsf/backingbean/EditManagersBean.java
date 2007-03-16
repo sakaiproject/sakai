@@ -35,6 +35,7 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.section.api.exception.RoleConfigurationException;
@@ -147,6 +148,14 @@ public class EditManagersBean extends CourseDependentBean implements Serializabl
 	}
 	
 	public String update() {
+		CourseSection section = getSectionManager().getSection(sectionUuid);
+		
+		// The section might have been deleted
+		if(section == null) {
+			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("error_section_deleted"));
+			return "overview";
+		}
+
 		Set userUids = getHighlightedUsers("memberForm:selectedUsers");
 		try {
 			getSectionManager().setSectionMemberships(userUids, Role.TA, sectionUuid);

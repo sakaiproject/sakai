@@ -112,6 +112,15 @@ public class EditStudentsBean extends EditManagersBean implements Serializable {
 	}
 	
 	public String update() {
+		CourseSection section = getSectionManager().getSection(sectionUuid);
+		
+		// The section might have been deleted
+		if(section == null) {
+			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("error_section_deleted"));
+			return "overview";
+		}
+
+		
 		Set selectedUserUuids = getHighlightedUsers("memberForm:selectedUsers");
 		try {
 			getSectionManager().setSectionMemberships(selectedUserUuids, Role.STUDENT, sectionUuid);

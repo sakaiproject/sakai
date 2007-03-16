@@ -55,7 +55,7 @@
 	        <%@include file="/inc/sectionFilter.jspf"%>
 	    </t:aliasBean>
 
-        <sec:sectionTable cellpadding="0" cellspacing="0"
+        <sec:rowGroupTable cellpadding="0" cellspacing="0"
             id="editStudentSectionsTable"
             value="#{editStudentSectionsBean.sections}"
             var="section"
@@ -154,7 +154,7 @@
                 </h:commandLink>
             </h:column>
     
-        </sec:sectionTable>
+        </sec:rowGroupTable>
 
         <t:div styleClass="verticalPadding" rendered="#{empty editStudentSectionsBean.sections}">
             <h:outputText value="#{msgs.no_sections_available}"/>

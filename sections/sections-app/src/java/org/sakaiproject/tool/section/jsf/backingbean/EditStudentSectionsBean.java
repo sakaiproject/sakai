@@ -207,8 +207,7 @@ public class EditStudentSectionsBean extends FilteredSectionListingBean implemen
 		
 		// The section might have been deleted
 		if(section == null) {
-			// There's nothing we can do in the UI, really.
-			log.warn("Attempted to add user " + studentUid + " to a non-existent (recently deleted?) section: " + sectionUuid);
+			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("error_section_deleted"));
 			return;
 		}
 
@@ -229,8 +228,7 @@ public class EditStudentSectionsBean extends FilteredSectionListingBean implemen
 		
 		// The section might have been deleted
 		if(section == null) {
-			// There's nothing we can do in the UI, really.
-			log.warn("Attempted to remove user " + studentUid + " from a non-existent (recently deleted?) section: " + sectionUuid);
+			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("error_section_deleted"));
 			return;
 		}
 
