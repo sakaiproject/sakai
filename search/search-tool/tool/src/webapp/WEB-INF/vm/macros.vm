@@ -1,0 +1,41 @@
+#macro( header $searchPage $pageTitle )
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+  <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+      <meta http-equiv="Content-Style-Type" content="text/css" />
+     <title>${rlb.jsp_search}: ${pageTitle}</title>
+					<link href="/sakai-search-tool/styles/${skin}/searchStyle.css" type="text/css" rel="stylesheet" media="all" />
+		   ${sakaiheader}
+  			<script type="text/javascript" src="/sakai-search-tool/scripts/search.js"> </script>
+#if ( ${searchPage} )
+#if ( ${searchModel.hasResults()} )
+					<link rel="alternate" title="${rlb.jsp_search_for}:${searchTerms}"
+ 							href="${searchModel.rssURL}" type="application/rss+xml" />
+#end
+ 			  <link rel="search"
+           type="application/opensearchdescription+xml" 
+           href="${searchModel.openSearchUrl}"
+           title="${rlb.jsp_worksite_search}" />
+    <script type="text/javascript" >
+        function searchLocalAddSherlock() {
+        	addSherlockButton(
+        	    "${searchModel.siteTitle}",
+        		"${rlb.jsp_sakai_search}",
+        		"${searchModel.baseUrl}");
+        }
+        appendLoader(searchLocalAddSherlock);
+    </script>
+#end
+    </head>
+    <body 
+    onload="callAllLoaders(); setMainFrameHeightNoScroll('${sakai_tool_placement_id}');parent.updCourier(doubleDeep,ignoreCourier);  "
+    >  
+<script type="text/javascript" >
+var placementid = "Main${sakai_tool_placement_id_js}";
+</script>  
+#end
+
+#macro (footer )
+
+#end

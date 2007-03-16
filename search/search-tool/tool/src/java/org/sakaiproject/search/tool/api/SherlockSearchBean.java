@@ -1,4 +1,4 @@
-package org.sakaiproject.search.tool;
+package org.sakaiproject.search.tool.api;
 
 import javax.servlet.http.HttpServletResponse;
 

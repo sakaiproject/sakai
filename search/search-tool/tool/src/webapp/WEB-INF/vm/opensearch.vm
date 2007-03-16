@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"
+                       xmlns:moz="http://www.mozilla.org/2006/browser/search/">
+   <ShortName>${openSearchModel.systemName}: ${openSearchModel.siteName}</ShortName>
+   <Description>${rlb.jsp_sakai_search_for_site}: ${openSearchModel.siteName}</Description>
+   <Image height="16" width="16" type="image/x-icon">${openSearchModel.iconUrl}</Image>
+   <Query role="example" searchTerms="sakai" />
+   <Developer>sakaiproject.org Development Team</Developer>
+   <Attribution>${openSearchModel.attibution}</Attribution>
+   <SyndicationRight>${openSearchModel.sindicationRight}</SyndicationRight>
+   <AdultContent>${openSearchModel.adultContent}</AdultContent>
+   <Language>${rlb.jsp_opensearch_lang}</Language>
+   <OutputEncoding>UTF-8</OutputEncoding>
+   <InputEncoding>UTF-8</InputEncoding>   
+   <Url type="text/html" method="GET" 
+   		template="${openSearchModel.hTMLSearchTemplate}" >
+   </Url>
+     <Url type="application/rss+xml"
+   		template="${openSearchModel.rSSSearchTemplate}" >
+   </Url>
+<!--
+   <Url type="application/x-suggestions+json" template="suggestionURL"/>
+-->
+   <moz:SearchForm>${openSearchModel.hTMLSearchFormUrl}</moz:SearchForm>
+</OpenSearchDescription>

@@ -16,10 +16,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.search.tool.api.SherlockSearchBean;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * @author ieb
@@ -83,17 +85,17 @@ public class SherlockSearchBeanImpl implements SherlockSearchBean
 
 	public String getSiteName()
 	{
-		return currentSite.getTitle();
+		return FormattedText.escapeHtml(currentSite.getTitle(),false);
 	}
 
 	public String getUpdateIcon()
 	{
-		return baseURL + UPDATE_IMAGE;
+		return FormattedText.escapeHtml(baseURL + UPDATE_IMAGE,false);
 	}
 
 	public String getUpdateURL()
 	{
-		return baseURL + UPDATE_URL;
+		return FormattedText.escapeHtml(baseURL + UPDATE_URL,false);
 	}
 
 	public void sendIcon(HttpServletResponse response)
@@ -142,7 +144,7 @@ public class SherlockSearchBeanImpl implements SherlockSearchBean
 	}
 	public String getSystemName()
 	{
-		return ServerConfigurationService.getString("ui.service","Sakai");
+		return FormattedText.escapeHtml(ServerConfigurationService.getString("ui.service","Sakai"),false);
 	}
 
 

@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.tool;
+package org.sakaiproject.search.tool.api;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -64,12 +64,30 @@ public interface SearchBeanFactory
 	SearchAdminBean newSearchAdminBean(HttpServletRequest request)
 			throws PermissionException;
 	
+	/**
+	 * get a OpenSearchBean model
+	 * @param request
+	 * @return
+	 * @throws PermissionException
+	 */
 	OpenSearchBean newOpenSearchBean(HttpServletRequest request)
 		throws PermissionException;
 	
+	/**
+	 * get a Sherlock SearchBean model
+	 * @param request
+	 * @return
+	 * @throws PermissionException
+	 */
 	SherlockSearchBean newSherlockSearchBean(HttpServletRequest request)
 		throws PermissionException;
 
+	/**
+	 * set the servlet context that this factory is associated with
+	 * @param servletContext
+	 */
 	void setContext(ServletContext servletContext);
+	
+	
 
 }

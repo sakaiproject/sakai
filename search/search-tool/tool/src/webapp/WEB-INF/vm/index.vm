@@ -1,0 +1,102 @@
+#header(true ${searchModel.searchTitle} )
+<div class="portletBody">    		
+#if ( ${searchModel.hasAdmin()} )  	
+   <div class="navIntraTool">
+	  <span class="rwiki_pageLinks">
+	    <a href="${searchModel.toolUrl}/admin/index">${rlb.jsp_admin}</a>
+	  </span>
+   </div>
+#end
+#if (${searchModel.enabled} )
+	<div class="navPanel">
+		<div class="searchBox">
+			<form action="?#" method="get" class="inlineForm"  >  
+				<label for="search">
+					${rlb.jsp_search}  
+				</label>
+				<input type="hidden" name="panel" value="Main" />
+				<input type="text" id="search"  name="search" size="42" maxlength="1024" value="${searchModel.search}"/>
+				<input type="submit" name="sb" value="Go" />
+			</form>
+		</div>
+	</div>	
+	
+	
+	<div class="searchHeader">
+	<span id="sherlockButtonHolder" >
+<!--
+	    <a href="#" id="addSherlockButton" >
+	    	<img src="/library/image/transparent.gif" 
+	    		border="0"   
+	    		title="${rlb.jsp_install_plugin}" 
+	    		alt="${rlb.jsp_install_plugin}" />
+	    </a>
+-->
+	</span>
+	
+ #if ( ${searchModel.hasResults()} ) 
+	<a href="${searchModel.rssURL}" target="rss" id="rssLink" >
+	     <img src="/library/image/transparent.gif" title="RSS" alt="RSS" border="0" />
+	</a>
+	${searchModel.searchFound}
+ #end
+
+	</div>
+
+ #if ( ${searchModel.hasResults()} ) 
+    <div class="searchPageContainer" >
+  #foreach ( $page in ${searchModel.pages} )
+							<a href="${page.url}" class="searchPage" >${page.name}</a></li>
+  #end
+    </div>
+    <div class="searchTabsContainer" >
+	   <div id="results" class="tabHeadOn" >        	
+		  <p class="tabhead" title="Results" ><a href="#" onClick="selectTabs('tagsTab','tabOn','tabOff','resultsTab','tabOff','tabOn','tags','tabHeadOn','tabHeadOff','results','tabHeadOff','tabHeadOn'); setMainFrameHeightNoScroll('${sakai_tool_placement_id}'); return false;" >${rlb.jsp_results}</a></p>
+       </div>
+	   <div id="tags" class="tabHeadOff" >        	
+		  <p class="tabhead" title="Tags" ><a href="#" onClick="selectTabs('tagsTab','tabOff','tabOn','resultsTab','tabOn','tabOff','tags','tabHeadOff','tabHeadOn','results','tabHeadOn','tabHeadOff'); setMainFrameHeightNoScroll('${sakai_tool_placement_id}'); return false;" >${rlb.jsp_tags}</a></p>
+    	</div>
+    </div>
+    <div class="searchResultsContainer" >
+		  <div id="resultsTab" class="tabOn" >
+
+  #if ( ${searchModel.hasError()} ) 
+		  	<div class=\"alertMessage\" >${searchModel.errorMessage}</div>
+  #else
+ 	   <!--ls--> 
+   #foreach ( $result in ${searchModel.results} ) 
+	        <!--is-->
+	        <div class="searchItem" > 
+	        <span class="searchTool">${result.tool}:</span>
+	        <a href="${result.url}" target="searchresult" class="searchTopLink" >${result.title}</a>
+			      <div class="searchItemBody" >${result.searchResult}</div>
+			      <a href="${result.url}" target="searchresult" class="searchBottonLink" >${result.url}</a>
+			      </div>
+			      <!--ie-->
+	  #end
+   <!--le--> 
+  #end
+     </div>
+		  <div id="tagsTab" class="tabOff" >
+		  <div id="aboutTabs" >
+		     ${rlb.jsp_about_tags} 
+		  </div>
+		  
+  #foreach( $term in ${searchModel.terms} )
+		  <span style="font-size:${term.weight}em;" ><a href="${term.url}" >${term.name}</a></span>
+  #end    
+    </div>
+    </div>
+    <div class="searchPageContainer" >
+  #foreach ( $page in ${searchModel.pages} )
+		     <a href="${page.url}" class="searchPage" >${page.name}</a></li>
+  #end
+    </div>
+ #end
+#else
+    <p>
+    ${rlb.jsp_search_off_msg}
+    </p>
+#end
+</div>
+#footer()

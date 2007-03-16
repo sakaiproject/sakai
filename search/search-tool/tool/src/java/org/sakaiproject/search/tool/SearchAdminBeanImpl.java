@@ -22,6 +22,7 @@
 package org.sakaiproject.search.tool;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -34,10 +35,16 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.SearchStatus;
 import org.sakaiproject.search.model.SearchBuilderItem;
+import org.sakaiproject.search.tool.api.SearchAdminBean;
+import org.sakaiproject.search.tool.model.AdminOption;
+import org.sakaiproject.search.tool.model.MasterRecord;
+import org.sakaiproject.search.tool.model.Segment;
+import org.sakaiproject.search.tool.model.WorkerThread;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * @author ieb
@@ -49,17 +56,17 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 
 	private static final String REBUILDSITE = "rebuildsite";
 
-	private static final Object COMMAND_REBUILDSITE = "?" + COMMAND + "="
+	private static final String COMMAND_REBUILDSITE = "?" + COMMAND + "="
 			+ REBUILDSITE;
 
 	private static final String REFRESHSITE = "refreshsite";
 
-	private static final Object COMMAND_REFRESHSITE = "?" + COMMAND + "="
+	private static final String COMMAND_REFRESHSITE = "?" + COMMAND + "="
 			+ REFRESHSITE;
 
 	private static final String REBUILDINSTANCE = "rebuildinstance";
 
-	private static final Object COMMAND_REBUILDINSTANCE = "?" + COMMAND + "="
+	private static final String COMMAND_REBUILDINSTANCE = "?" + COMMAND + "="
 			+ REBUILDINSTANCE;
 
 	private static final String REFRESHINSTNACE = "refreshinstance";
@@ -82,6 +89,10 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 	private static final String COMMAND_RELOADINDEX = "?" + COMMAND + "="
 	+ RELOADINDEX;
 
+	
+	
+
+	
 	private SearchService searchService = null;
 
 	private SiteService siteService = null;
@@ -132,8 +143,9 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 		if (command != null)
 		{
 			internCommand = command.intern();
-		}
 
+		}
+		doCommand();
 	}
 	
 	
@@ -265,7 +277,6 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 	 */
 	public String getIndexStatus(String statusFormat) throws PermissionException
 	{
-		doCommand();
 		SearchStatus ss = searchService.getSearchStatus();
 		
 			
@@ -300,7 +311,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 			sb.append(MessageFormat.format(rowFormat,
 					new Object[] {
 					sbi.getId(), 
-					sbi.getName(), 
+					FormattedText.escapeHtml(sbi.getName(),false), 
 					sbi.getContext(), 
 					SearchBuilderItem.actions[sbi.getSearchaction().intValue()], 
 					SearchBuilderItem.states[sbi.getSearchstate().intValue()], 
@@ -316,7 +327,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 			sb.append(MessageFormat.format(rowFormat,
 					new Object[] {
 					sbi.getId(), 
-					sbi.getName(), 
+					FormattedText.escapeHtml(sbi.getName(),false), 
 					sbi.getContext(), 
 					SearchBuilderItem.actions[sbi.getSearchaction().intValue()], 
 					SearchBuilderItem.states[sbi.getSearchstate().intValue()], 
@@ -333,7 +344,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 			sb.append(MessageFormat.format(rowFormat,
 					new Object[] {
 					sbi.getId(), 
-					sbi.getName(), 
+					FormattedText.escapeHtml(sbi.getName(),false), 
 					sbi.getContext(), 
 					SearchBuilderItem.actions[sbi.getSearchaction().intValue()], 
 					SearchBuilderItem.states[sbi.getSearchstate().intValue()], 
@@ -383,6 +394,236 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 			sb.append(MessageFormat.format(rowFormat, (Object[]) i.next() ));
 		}
 		return sb.toString();
+	}
+
+
+
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.tool.SearchAdminBean#getGlobalMasterRecords()
+	 */
+	public List<MasterRecord> getGlobalMasterRecords()
+	{
+		List<MasterRecord> masters = new ArrayList<MasterRecord>();
+		List l = searchService.getGlobalMasterSearchItems();
+		for ( Iterator i = l.iterator(); i.hasNext(); ) {
+			
+			final SearchBuilderItem sbi = (SearchBuilderItem) i.next();
+			masters.add(new MasterRecord() {
+
+				public String getContext()
+				{
+					return sbi.getContext();
+				}
+
+				public String getLastUpdate()
+				{
+					return String.valueOf(sbi.getVersion());
+				}
+
+				public String getOperation()
+				{
+					return SearchBuilderItem.actions[sbi.getSearchaction().intValue()];
+				}
+
+				public String getStatus()
+				{
+					return SearchBuilderItem.states[sbi.getSearchstate().intValue()];
+				}
+				
+			});
+		}
+		return masters;		
+	}
+
+
+
+
+
+
+
+
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.tool.SearchAdminBean#getOptons()
+	 */
+	public List<AdminOption> getOptons()
+	{
+		List<AdminOption> o  = new ArrayList<AdminOption>();
+		o.add(new AdminOptionImpl(COMMAND_REBUILDSITE, Messages.getString("searchadmin_cmd_rebuildsiteind"),"" ));
+		o.add(new AdminOptionImpl(COMMAND_REFRESHSITE, Messages.getString("searchadmin_cmd_refreshsiteind"),"" ));
+		if (superUser)
+		{
+			o.add(new AdminOptionImpl(COMMAND_REBUILDINSTANCE, Messages.getString("searchadmin_cmd_rebuildind"),"" ));
+			o.add(new AdminOptionImpl(COMMAND_REFRESHINSTANCE, Messages.getString("searchadmin_cmd_refreshind"),"" ));
+			o.add(new AdminOptionImpl(COMMAND_REMOVELOCK, Messages.getString("searchadmin_cmd_removelock"), 
+				"onClick=\"return confirm('"+Messages.getString("searchadmin_cmd_removelockconfirm")+"');\"" ));
+			o.add(new AdminOptionImpl(COMMAND_RELOADINDEX, Messages.getString("searchadmin_cmd_reloadind"),"" ));
+		}
+		return o;
+	}
+
+
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.tool.SearchAdminBean#getSegments()
+	 */
+	public List<Segment> getSegments()
+	{
+		List<Segment> segments = new ArrayList<Segment>();
+		List segmentInfo = searchService.getSegmentInfo();
+		StringBuffer sb = new StringBuffer();
+		for ( Iterator i = segmentInfo.iterator(); i.hasNext(); ) {
+			// name, size, lastup
+			final Object[] r  =(Object[]) i.next();
+			segments.add(new Segment() {
+
+				public String getLastUpdate()
+				{
+					
+					return String.valueOf(r[2]);
+				}
+
+				public String getName()
+				{
+					return String.valueOf(r[0]);
+				}
+
+				public String getSize()
+				{
+					return String.valueOf(r[1]);
+				}
+				
+			});
+		}
+		return segments;
+	}
+
+
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.tool.SearchAdminBean#getSiteMasterRecords()
+	 */
+	public List<MasterRecord> getSiteMasterRecords()
+	{
+		List<MasterRecord> masters = new ArrayList<MasterRecord>();
+		List l = searchService.getSiteMasterSearchItems();
+		for ( Iterator i = l.iterator(); i.hasNext(); ) {
+			
+			final SearchBuilderItem sbi = (SearchBuilderItem) i.next();
+			masters.add(new MasterRecord() {
+
+				public String getContext()
+				{
+					return sbi.getContext();
+				}
+
+				public String getLastUpdate()
+				{
+					return String.valueOf(sbi.getVersion());
+				}
+
+				public String getOperation()
+				{
+					return SearchBuilderItem.actions[sbi.getSearchaction().intValue()];
+				}
+
+				public String getStatus()
+				{
+					return SearchBuilderItem.states[sbi.getSearchstate().intValue()];
+				}
+				
+			});
+		}
+		return masters;		
+	}
+
+
+
+	
+	public class AdminOptionImpl implements AdminOption {
+
+		private String attributes;
+		private String name;
+		private String url;
+		
+		public AdminOptionImpl(String uri, String name, String attributes) {
+			this.attributes = attributes;
+			this.name = name;
+			this.url = uri;
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.search.tool.AdminOption#getAttributes()
+		 */
+		public String getAttributes()
+		{
+			return attributes;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.search.tool.AdminOption#getName()
+		 */
+		public String getName()
+		{
+			return name;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.search.tool.AdminOption#getUrl()
+		 */
+		public String getUrl()
+		{
+			return url;
+		}
+		
+	}
+
+
+
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.tool.SearchAdminBean#getSearchStatus()
+	 */
+	public SearchStatus getSearchStatus()
+	{
+		return searchService.getSearchStatus();
+	}
+
+
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.tool.SearchAdminBean#getWorkerThreads()
+	 */
+	public List<WorkerThread> getWorkerThreads()
+	{
+		List<WorkerThread> workers = new ArrayList<WorkerThread>();
+		SearchStatus ss = searchService.getSearchStatus();
+		StringBuffer sb = new StringBuffer();
+		List l = ss.getWorkerNodes();
+		for ( Iterator i = l.iterator(); i.hasNext(); ) {
+			final Object[] w = (Object[]) i.next();
+			workers.add(new WorkerThread(){
+
+				public String getEta()
+				{
+					return FormattedText.escapeHtml(String.valueOf(w[1]),false);
+				}
+
+				public String getName()
+				{
+					return FormattedText.escapeHtml(String.valueOf(w[0]),false);
+				}
+
+				public String getStatus()
+				{
+					return FormattedText.escapeHtml(String.valueOf(w[2]),false);
+				}
+				
+			});
+		}
+		return workers;
 	}
 
 }

@@ -19,9 +19,14 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.tool;
+package org.sakaiproject.search.tool.api;
 
 import java.io.UnsupportedEncodingException;
+import java.util.List;
+
+import org.sakaiproject.search.tool.model.SearchOutputItem;
+import org.sakaiproject.search.tool.model.SearchPage;
+import org.sakaiproject.search.tool.model.SearchTerm;
 
 /**
  * An interface describing the backing bean to the search page
@@ -40,6 +45,7 @@ public interface SearchBean
 	 *        score
 	 * @param errorFeedbackFormat {0} is the error message location
 	 * @return
+	 * @deprecated
 	 */
 	String getSearchResults(String searchItemFormat, String errorFeedbackFormat);
 
@@ -50,6 +56,7 @@ public interface SearchBean
 	 *        A MessageFormat format string {0} is the page URL, {1} is the page
 	 *        text, {2} is a css class id, 0 for first, 1 for middle, 2 for end
 	 * @return
+	 * @deprecated
 	 */
 	String getPager(String pagerFormati, String singlePageFormat) throws UnsupportedEncodingException;
 
@@ -87,6 +94,7 @@ public interface SearchBean
 	 * 
 	 * @param headerFormat
 	 * @return
+	 * @deprecated
 	 */
 	String getHeader(String headerFormat);
 	
@@ -99,14 +107,10 @@ public interface SearchBean
 	/**
 	 * Get a formatted list of terms
 	 * @param format format is {0} is the term {1} is the frequency
-	 * @param nterms the number of terms to display
-	 * @param top the top value of frequency (0) is considered the lowest
-	 * @param divisor divide the factor
-	 * @param relative if true, the order is used, if false the absolute frequency is used
 	 * @return
 	 */
 
-	String getTerms(String format, int nterms, int top, float divisor, boolean relative);
+	String getTerms(String format);
 
 	/**
 	 * Returns true if a search has been performed and there are some results
@@ -137,4 +141,60 @@ public interface SearchBean
 	 * @return
 	 */
 	String getSystemName();
+	
+	
+	/** 
+	 * get the found string
+	 * @return
+	 */
+	String getSearchFound();
+	
+	/**
+	 * get a pager objects
+	 * @return
+	 */
+	List<SearchPage> getPages();
+	
+	/**
+	 * get the results for the current pages
+	 * @return
+	 */
+	List<SearchOutputItem> getResults();
+	
+	/**
+	 * get the terms on the current page
+	 * @return
+	 */
+	List<SearchTerm> getTerms();
+
+	
+	/**
+	 * does the page have an error
+	 * @return
+	 */
+	boolean hasError();
+	
+	/**
+	 * get the error message
+	 * @return
+	 */
+	String getErrorMessage();
+
+	/**
+	 * get the RSS URL
+	 * @return
+	 */
+	String getRssURL();
+	
+	/**
+	 * get the date now in RFS-822 format
+	 * @return
+	 */
+	String getDateNow();
+	
+	/**
+	 * get the request URL
+	 * @return
+	 */
+	String getRequestUrl();
 }

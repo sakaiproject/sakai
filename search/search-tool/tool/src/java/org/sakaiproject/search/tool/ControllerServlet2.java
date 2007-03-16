@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
  *
  * Licensed under the Educational Community License, Version 1.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,10 @@ package org.sakaiproject.search.tool;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -35,19 +37,29 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.search.tool.api.SearchBeanFactory;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.util.ResourceLoader;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
- * @author Ian Boston
+ * @author ieb
  */
-public class ControllerServlet extends HttpServlet
+public class ControllerServlet2 extends HttpServlet
 {
-	public static Log log = LogFactory.getLog(ControllerServlet.class);
+	private static final Log log = LogFactory.getLog(ControllerServlet2.class);
+
+	private static final String MACROS = "/WEB-INF/vm/macros.vm";
+
+	private static final String BUNDLE_NAME = "org.sakaiproject.search.tool.bundle.Messages"; //$NON-NLS-1$
+
+	private static final ResourceLoader rlb = new ResourceLoader(BUNDLE_NAME);
 
 	/**
 	 * Required for serialization... also to stop eclipse from giving me a
@@ -67,46 +79,77 @@ public class ControllerServlet extends HttpServlet
 
 	private SessionManager sessionManager;
 
+	private Map<String, String> contentTypes = new HashMap<String, String>();
+
+	private Map<String, String> characterEncodings = new HashMap<String, String>();
+
+	private VelocityEngine vengine;
+
+	private String inlineMacros;
+
+	private String basePath;
+
+	@Override
 	public void init(ServletConfig servletConfig) throws ServletException
 	{
-
 		super.init(servletConfig);
 
 		ServletContext sc = servletConfig.getServletContext();
 
 		wac = WebApplicationContextUtils.getWebApplicationContext(sc);
+		if (wac == null)
+		{
+			throw new ServletException("Unable to get WebApplicationContext ");
+		}
+		searchBeanFactory = (SearchBeanFactory) wac.getBean("search-searchBeanFactory");
+		if (searchBeanFactory == null)
+		{
+			throw new ServletException("Unable to get search-searchBeanFactory ");
+		}
+		sessionManager = (SessionManager) wac.getBean(SessionManager.class.getName());
+		if (sessionManager == null)
+		{
+			throw new ServletException("Unable to get " + SessionManager.class.getName());
+		}
+
+		searchBeanFactory.setContext(sc);
+
+		inlineMacros = MACROS;
 		try
 		{
-			searchBeanFactory = (SearchBeanFactory) wac
-					.getBean("search-searchBeanFactory");
-			ServletContext context = getServletContext();
-			searchBeanFactory.setContext(context);
+			vengine = new VelocityEngine();
+
+			vengine.setApplicationAttribute(ServletContext.class.getName(), sc);
+
+			Properties p = new Properties();
+			p.load(this.getClass().getResourceAsStream("searchvelocity.config"));
+			vengine.init(p);
 		}
 		catch (Exception ex)
 		{
+			throw new ServletException(ex);
 		}
-		if (sessionManager == null)
-		{
-			sessionManager = (SessionManager) wac.getBean(SessionManager.class
-					.getName());
-		}
-
+		contentTypes.put("opensearch", "application/opensearchdescription+xml");
+		contentTypes.put("sakai.src", "application/opensearchdescription+xml" );
+		contentTypes.put("rss20", "text/xml" );
 	}
 
-	protected void doGet(final HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException
+	protected void doGet(final HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException
 	{
-		// GET doesnt do UTF-8 encoding even URL, take the default encoding of the machine
-		HttpServletRequestWrapper httprequest = new HttpServletRequestWrapper(request) {
-			
+		// GET doesnt do UTF-8 encoding even URL, take the default encoding of
+		// the machine
+		HttpServletRequestWrapper httprequest = new HttpServletRequestWrapper(request)
+		{
+
 			@Override
 			public String getParameter(String name)
 			{
 				String param = request.getParameter(name);
-				if ( param == null ) return null;
+				if (param == null) return null;
 				try
 				{
-					return new String(param.getBytes("ISO-8859-1"),"UTF-8");
+					return new String(param.getBytes("ISO-8859-1"), "UTF-8");
 				}
 				catch (UnsupportedEncodingException e)
 				{
@@ -114,13 +157,12 @@ public class ControllerServlet extends HttpServlet
 				}
 			}
 		};
-		
-		
+
 		execute(httprequest, response);
 	}
 
-	protected void doPost(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException
 	{
 		execute(request, response);
 	}
@@ -128,34 +170,21 @@ public class ControllerServlet extends HttpServlet
 	public void execute(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException
 	{
-		if (wac == null)
-		{
-			wac = WebApplicationContextUtils
-					.getRequiredWebApplicationContext(this.getServletContext());
-			if (wac == null)
-			{
-				response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE,
-						"Cannot get WebApplicationContext");
-				return;
-			}
-
-		}
 		request.setAttribute(Tool.NATIVE_URL, Tool.NATIVE_URL);
 
-		if (searchBeanFactory == null)
-		{
-			searchBeanFactory = (SearchBeanFactory) wac
-					.getBean("search-searchBeanFactory");
-			ServletContext context = getServletContext();
-			searchBeanFactory.setContext(context);
-		}
-		if (sessionManager == null)
-		{
-			sessionManager = (SessionManager) wac.getBean(SessionManager.class
-					.getName());
-		}
+		VelocityContext vc = new VelocityContext();
 
-		addLocalHeaders(request);
+		String sakaiHeader = (String) request.getAttribute("sakai.html.head");
+		String toolPlacement = (String) request.getAttribute("sakai.tool.placement.id");
+		String toolPlacementJs = toolPlacement.toString().replace('-','x');
+		String skin = "default/"; // this could be changed in the future to
+		// make search skin awaire
+
+		vc.put("skin", skin);
+		vc.put("sakaiheader", sakaiHeader);
+		vc.put("rlb",rlb);
+		vc.put("sakai_tool_placement_id", toolPlacement);
+		vc.put("sakai_tool_placement_id_js", toolPlacementJs);
 
 		String targetURL = persistState(request);
 		if (targetURL != null && targetURL.trim().length() > 0)
@@ -163,48 +192,100 @@ public class ControllerServlet extends HttpServlet
 			response.sendRedirect(targetURL);
 			return;
 		}
+		String template = null;
 		if (TITLE_PANEL.equals(request.getParameter(PANEL)))
 		{
-
-			String targetPage = "/WEB-INF/pages/title.jsp";
-			RequestDispatcher rd = request.getRequestDispatcher(targetPage);
-			rd.forward(request, response);
+			template = "title";
 
 		}
 		else
 		{
+			
+			
+			
 			String path = request.getPathInfo();
 			if (path == null || path.length() == 0)
 			{
-				path = "/index";
+				path = "index";
 			}
-			if (!path.startsWith("/"))
+			if (path.startsWith("/"))
 			{
-				path = "/" + path;
+				path = path.substring(1);
+			}
+			template = path;
+		}
+		log.debug("Path is "+template+" for "+request.getPathInfo());
+		if ( "sakai.gif".equals(template) ) {
+			try
+			{
+				searchBeanFactory.newSherlockSearchBean(request).sendIcon(response);
+			}
+			catch (PermissionException e)
+			{
+				log.warn("Failed to send gif ",e);
+			}
+			return;
+		}
+		try
+		{
+			vc.put("searchModel", searchBeanFactory.newSearchBean(request));
+		}
+		catch (PermissionException e1)
+		{
+		}
+		try
+		{
+			vc.put("adminModel", searchBeanFactory.newSearchAdminBean(request));
+		}
+		catch (PermissionException e1)
+		{
+		}
+		try
+		{
+			vc.put("sherlockModel", searchBeanFactory.newSherlockSearchBean(request));
+		}
+		catch (PermissionException e1)
+		{
+		}
+		try
+		{
+			vc.put("openSearchModel", searchBeanFactory.newOpenSearchBean(request));
+		}
+		catch (PermissionException e1)
+		{
+		}
+		try
+		{
+			
+
+			
+			vengine.getTemplate(inlineMacros);
+			String filePath = "/WEB-INF/vm/" + template + ".vm";
+			String contentType = contentTypes.get(template);
+			if (contentType == null)
+			{
+				contentType = "text/html";
+			}
+			String characterEncoding = characterEncodings.get(template);
+			if (characterEncoding == null)
+			{
+				characterEncoding = "UTF-8";
 			}
 
-			String targetPage = "/WEB-INF/pages" + path + ".jsp";
+			response.setContentType(contentType);
+			response.setCharacterEncoding(characterEncoding);
+			vengine.mergeTemplate(filePath, vc, response.getWriter());
 
-			request.setAttribute(SearchBeanFactory.SEARCH_BEAN_FACTORY_ATTR,
-					searchBeanFactory);
-			RequestDispatcher rd = request.getRequestDispatcher(targetPage);
-			rd.forward(request, response);
+			request.removeAttribute(Tool.NATIVE_URL);
 		}
-
-		request.removeAttribute(Tool.NATIVE_URL);
+		catch (Exception e)
+		{
+			throw new ServletException("Search Failed ", e);
+		}
 	}
 
 	public void addLocalHeaders(HttpServletRequest request)
 	{
-		String sakaiHeader = (String) request.getAttribute("sakai.html.head");
-		String skin = "default/"; // this could be changed in the future to
-		// make search skin awaire
-		String localStylesheet = "<link href=\"/sakai-search-tool/styles/"
-				+ skin
-				+ "searchStyle.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />";
-		String localJavascript = "<script type=\"text/javascript\" src=\"/sakai-search-tool/scripts/search.js\"> </script>";
-		request.setAttribute("sakai.html.head", localStylesheet + sakaiHeader
-				+ localJavascript);
 	}
 
 	/**
@@ -223,16 +304,15 @@ public class ControllerServlet extends HttpServlet
 		ToolSession ts = sessionManager.getCurrentToolSession();
 		if (isPageToolDefault(request))
 		{
-			log.debug("Incomming URL is " + request.getRequestURL().toString()
-					+ "?" + request.getQueryString());
+			log.debug("Incomming URL is " + request.getRequestURL().toString() + "?"
+					+ request.getQueryString());
 			log.debug("Restore " + ts.getAttribute(SAVED_REQUEST_URL));
 			return (String) ts.getAttribute(SAVED_REQUEST_URL);
 		}
 		if (isPageRestorable(request))
 		{
-			ts.setAttribute(SAVED_REQUEST_URL, request.getRequestURL()
-					.toString()
-					+ "?" + request.getQueryString());
+			ts.setAttribute(SAVED_REQUEST_URL, request.getRequestURL().toString() + "?"
+					+ request.getQueryString());
 			log.debug("Saved " + ts.getAttribute(SAVED_REQUEST_URL));
 		}
 		return null;
@@ -285,5 +365,6 @@ public class ControllerServlet extends HttpServlet
 
 		return false;
 	}
+
 
 }

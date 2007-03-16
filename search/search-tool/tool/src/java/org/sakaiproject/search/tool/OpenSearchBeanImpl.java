@@ -27,10 +27,12 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.search.api.SearchService;
+import org.sakaiproject.search.tool.api.OpenSearchBean;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * @author ieb
@@ -92,7 +94,7 @@ public class OpenSearchBeanImpl implements OpenSearchBean
 		{
 			copyright = siteCopyright;
 		}
-		return copyright;
+		return FormattedText.escapeHtml(copyright,false);
 	}
 
 	public String getHTMLSearchFormUrl()
@@ -111,7 +113,7 @@ public class OpenSearchBeanImpl implements OpenSearchBean
 		if ( iconURL == null ) {
 			iconURL = ServerConfigurationService.getServerUrl()+"/favicon.ico";
 		}
-		return iconURL;
+		return FormattedText.escapeHtml(iconURL,false);
 	}
 	
 
@@ -127,16 +129,16 @@ public class OpenSearchBeanImpl implements OpenSearchBean
 		{
 			sindicationRights = "limited";
 		}
-		return sindicationRights;
+		return FormattedText.escapeHtml(sindicationRights,false);
 	}
 
 	public String getSiteName()
 	{
-		return currentSite.getTitle();
+		return FormattedText.escapeHtml(currentSite.getTitle(),false);
 	}
 	public String getSystemName()
 	{
-		return ServerConfigurationService.getString("ui.service","Sakai");
+		return FormattedText.escapeHtml(ServerConfigurationService.getString("ui.service","Sakai"),false);
 	}
 
 

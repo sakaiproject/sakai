@@ -22,7 +22,6 @@
 package org.sakaiproject.search.tool;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.Writer;
 
 import javax.servlet.ServletException;
