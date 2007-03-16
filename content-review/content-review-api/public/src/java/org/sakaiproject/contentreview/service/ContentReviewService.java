@@ -24,6 +24,7 @@ package org.sakaiproject.contentreview.service;
 import java.util.Date;
 import java.util.List;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.site.api.Site;
 
 import org.sakaiproject.contentreview.exception.QueueException;
 import org.sakaiproject.contentreview.exception.ReportException;
@@ -153,6 +154,14 @@ public interface ContentReviewService {
 	 */
 	public boolean isAcceptableContent(ContentResource resource);
 	
+	/**
+	 *  Can this site make use of the content review service
+	 * 
+	 * @param site
+	 * @return
+	 * 
+	 */
+	public boolean isSiteAcceptable(Site site);
 	
 	/**
 	 *  Get a icon URL that for a specific score
