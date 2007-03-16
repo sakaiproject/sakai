@@ -140,6 +140,7 @@
     class="org.sakaiproject.search.index.impl.FSIndexStorage" 
     init-method="init" >
     <property name="location"><value>${sakai.home}searchindex</value></property>
+    <property name="recoverCorruptedIndex"><value>true</value></property>
     <property name="analyzerFactory" ><ref bean="org.sakaiproject.search.index.AnalyzerFactory" /></property>    
   </bean>
 
