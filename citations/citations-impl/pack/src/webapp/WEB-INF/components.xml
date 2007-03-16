@@ -34,9 +34,11 @@
     <property name="metasearchBaseUrl"><value></value></property>
 
     <property name="osidImpl"><value>edu.indiana.lib.osid.base.repository.http</value></property>
-    <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+
     <property name="googleBaseUrl"><value>http://scholar.google.com</value></property>
     <property name="sakaiServerKey"><value>oncourse.indiana.edu</value></property>
+
+    <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
     <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
   </bean>
   -->
@@ -86,14 +88,6 @@
   </bean>
   -->
 
-  <bean id="org.sakaiproject.citation.impl.CitationServlet"
-    class="org.sakaiproject.citation.impl.CitationServlet"
-    init-method="init"
-    destroy-method="destroy"
-    singleton="true">
-    <property name="citationService"><ref bean="org.sakaiproject.citation.api.CitationService"/></property>
-  </bean>
-
   <!--
   <bean id="org.sakaiproject.citation.api.ConfigurationService"
     class="org.sakaiproject.citation.impl.BaseConfigurationService"
@@ -121,5 +115,14 @@
     <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
   </bean>
   -->
+
+  <bean id="org.sakaiproject.citation.impl.CitationServlet"
+    class="org.sakaiproject.citation.impl.CitationServlet"
+    init-method="init"
+    destroy-method="destroy"
+   singleton="true">
+    <property name="citationService"><ref bean="org.sakaiproject.citation.api.CitationService"/></property>
+  </bean>
+
 
 </beans>
