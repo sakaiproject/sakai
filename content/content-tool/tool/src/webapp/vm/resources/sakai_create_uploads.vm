@@ -1,4 +1,4 @@
-<!-- resources/sakai_create_text.vm, use with org.sakaiproject.tool.content.ResourcesHelperAction.java -->
+<!-- resources/sakai_create_uploads.vm, use with org.sakaiproject.tool.content.ResourcesHelperAction.java -->
 <div class="portletBody">
 	<h4>
 		$tlang.getString("create.uploads")
@@ -11,15 +11,29 @@
 		$tlang.getString("instr.upload")
 	</p>
 	<form name="addContentForm" id="addContentForm" method="post" action="#toolForm("ResourcesHelperAction")"  enctype="multipart/form-data">
-		<div id="addFileDiv">
-			<input type="hidden" name="fileCount" id="fileCount" value="$pipes.size()" />
+		<input type="hidden" name="fileCount" id="fileCount" value="$pipes.size()" />
+		<input type="hidden" name="lastIndex" id="lastIndex" value="$pipes.size()" />
+		<div id="fileInputDiv">
 			#set($i = 0)
 			#foreach($pipe in $pipes)
+				
+				#set($prev = $i)
 				#set($i = $i + 1)
-				<p class="shorttext">
-					<label for="content$i">$tlang.getString("label.upload")</label>
-					<input type="file" name="content$i" id="content$i" class ="upload" />
-				</p>
+				#set($next = $i + 1)
+				
+				<div id="contentDiv" >
+					<p class="shorttext">
+						<label for="content$i">$tlang.getString("label.upload")</label>
+						<input type="file" name="content$i" id="content$i" class ="upload" onchange="javascript:seedValue(this, 'name$i', true)" />
+						<a class="sideLink" href="#" onclick="javascript:showHide('propertiesDiv$i');">$tlang.getString("edit.show")</a>
+						<a href="#" onclick="javascript:remove('$i');" >
+							<img src="#imageLink("sakai/cross.png")" title="$tlang.getString("edit.remove")" />
+						</a>
+					</p>
+					<input type="hidden" id="prev$i" name="prev$i" value="#if($i > 1)${prev}#end" />
+					<input type="hidden" id="next$i" name="next$i" value="#if($i < $pipes.size())${next}#end" />
+				</div>
+				#parse("/vm/resources/sakai_properties.vm")
 			#end
 		</div>
 		<p class="act">
@@ -50,9 +64,12 @@
 	function addFileInput()
 	{
 		var counter = document.getElementById("fileCount");
-		var fileInputDiv = document.getElementById("addFileDiv");
+		var indexer = document.getElementById("lastIndex");
+		var fileInputDiv = document.getElementById("fileInputDiv");
 		var count = new Number(counter.value) + 1;
 		counter.value = count;
+		var index = new Number(indexer.value) + 1;
+		indexer.value = index;
 		
 		var ptag = document.createElement("p");
 		ptag.setAttribute("className","shorttext");
