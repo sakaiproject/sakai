@@ -1023,3 +1023,60 @@ right now "namespaced" for mneme only to avoid any possible conflicts*/
 	margin-left: -2em;
 	margin-right: -2em;
 }
+
+/* Make a list based css menu */
+
+
+ul.makeMenu, ul.makeMenu ul {
+  width: auto;
+  border: 1px solid #ddd;
+  background:#fff; 
+  padding: 3px;
+  padding-left: 6px;
+  margin-right: 3px;
+  cursor: default;
+  margin-left: 0px;
+	display:inline;
+	position: relative;
+	text-align: left
+}
+ul.makeMenu:hover{
+	border:1px solid #666;
+}	
+.listHier ul.makeMenu img{
+	margin-right: 0;
+	vertical-align: middle;
+}
+
+ul.makeMenu li {
+  list-style-type: none;
+  margin: 0px;
+  position: relative;
+  color: #000000;
+ display:inline;
+}
+ul.makeMenu li > ul {
+  display: none;
+  position: absolute;
+  top: 4px;
+  left: 13px;
+}
+ul.makeMenu li:hover, ul.makeMenu li.CSStoHighlight {
+  color: #000;
+}
+ul.makeMenu ul.CSStoShow {
+  display: block;
+}
+ul.makeMenu li:hover > ul {
+	display: block;
+  	width: 14em;
+	background-color:#ffffff;
+	background-image:none;
+	position:absolute;
+	border:1px solid #666;
+ 	z-index:3
+}
+ul.makeMenu li a { display: block; width: 100%; text-decoration: underline;   padding:6px; }
+ul.makeMenu li a:hover, ul.makeMenu li a.CSStoHighLink { color: #000; }
+ul.makeMenu li:hover > a { color: #000; }
+
