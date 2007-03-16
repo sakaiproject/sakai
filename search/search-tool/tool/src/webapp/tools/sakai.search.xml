@@ -18,7 +18,9 @@
 		<category name="course" />
          <category name="project" />
          <category name="myworkspace" />
-		
+         
+         <!--  placeholder to allow specifing additional sites to search. -->
+		<configuration name="search_site_ids" value="" />
 
 	</tool>
 

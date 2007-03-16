@@ -32,6 +32,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -46,7 +47,9 @@ import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.api.TermFrequency;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.util.StringUtil;
 
 /**
  * Implementation of the search bean backing bean
@@ -108,6 +111,8 @@ public class SearchBeanImpl implements SearchBean
 	private String placementId;
 
 	private String toolId;
+	
+	private ToolManager toolManager;
 
 	private String siteId;
 
@@ -123,6 +128,16 @@ public class SearchBeanImpl implements SearchBean
 
 	private Site currentSite;
 
+	// Empty constructor to aid in testing.
+	 
+	public SearchBeanImpl(String siteId, SearchService ss, String search,ToolManager tm) {
+		super();
+		this.siteId = siteId;
+		this.searchService = ss;
+		this.search = search;
+		this.toolManager = tm;
+	}
+	
 	/**
 	 * Creates a searchBean
 	 * 
@@ -144,9 +159,10 @@ public class SearchBeanImpl implements SearchBean
 		this.search = request.getParameter(SEARCH_PARAM);
 		this.searchService = searchService;
 		this.siteService = siteService;
-		this.placementId = toolManager.getCurrentPlacement().getId();
-		this.toolId = toolManager.getCurrentTool().getId();
-		this.siteId = toolManager.getCurrentPlacement().getContext();
+		this.toolManager = toolManager;
+		this.placementId = this.toolManager.getCurrentPlacement().getId();
+		this.toolId = this.toolManager.getCurrentTool().getId();
+		this.siteId = this.toolManager.getCurrentPlacement().getContext();
 		try
 		{
 			this.requestPage = Integer.parseInt(request
@@ -171,9 +187,10 @@ public class SearchBeanImpl implements SearchBean
 		this.siteService = siteService;
 		this.sortName = sortName;
 		this.filterName = filterName;
-		this.placementId = toolManager.getCurrentPlacement().getId();
-		this.toolId = toolManager.getCurrentTool().getId();
-		this.siteId = toolManager.getCurrentPlacement().getContext();
+		this.toolManager = toolManager;
+		this.placementId = this.toolManager.getCurrentPlacement().getId();
+		this.toolId = this.toolManager.getCurrentTool().getId();
+		this.siteId = this.toolManager.getCurrentPlacement().getContext();
 		try
 		{
 			this.requestPage = Integer.parseInt(request
@@ -430,6 +447,56 @@ public class SearchBeanImpl implements SearchBean
 		return String.valueOf(tt);
 	}
 
+	
+	/* assemble the list of search sites */
+	
+	protected List getSearchSites (String[] toolPropertySiteIds) {
+		List<String> l = new ArrayList();
+		
+		l.add(this.siteId);
+		
+		if (toolPropertySiteIds == null) return l;
+		
+		//String[] searchSiteIds = extractSiteIdsFromToolProperty(extractPropertiesFromTool());
+		String[] searchSiteIds = toolPropertySiteIds;
+
+		// add searchSiteIds to l
+		for(int i = 0;i<searchSiteIds.length;i++){
+			String ss = searchSiteIds[i];
+			if (searchSiteIds[i].length() > 0) l.add(searchSiteIds[i]);
+		}
+
+		return l;
+	}
+
+	protected String[] getToolPropertySiteIds() {
+		Properties props = extractPropertiesFromTool();
+		String[] searchSiteIds = extractSiteIdsFromProperties(props);
+		return searchSiteIds;
+	}
+	
+	/* get any site ids that are in the tool property and normalize the string.
+	 * 
+	 */
+	protected String[] extractSiteIdsFromProperties(Properties props) {
+	//	Properties props = extractPropertiesFromTool();
+		
+		String targetSiteId = StringUtil.trimToNull(props.getProperty("search_site_ids"));
+		if (targetSiteId == null) return new String[] {""};
+		String[] searchSiteIds = StringUtil.split(targetSiteId, ",");
+		for(int i = 0;i<searchSiteIds.length;i++){
+			searchSiteIds[i] = StringUtil.trimToZero(searchSiteIds[i]);
+		}
+		return searchSiteIds;
+	}
+
+	protected Properties extractPropertiesFromTool() {
+		Placement placement = toolManager.getCurrentPlacement();
+		Properties props = placement.getPlacementConfig();
+		if(props.isEmpty())
+			props = placement.getConfig();
+		return props;
+	}
 	/**
 	 * Perform the search
 	 * 
@@ -442,8 +509,11 @@ public class SearchBeanImpl implements SearchBean
 		{
 			if (search != null && search.trim().length() > 0)
 			{
-				List l = new ArrayList();
+
+				/*				List l = new ArrayList();
 				l.add(this.siteId);
+				*/
+				List l = getSearchSites(getToolPropertySiteIds());
 				long start = System.currentTimeMillis();
 				int searchStart = requestPage * pagesize;
 				int searchEnd = searchStart + pagesize;

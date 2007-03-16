@@ -16,18 +16,11 @@
   <build>
     <!-- java source -->
     <sourceDirectory>src/java</sourceDirectory>
-    <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
+    <unitTestSourceDirectory>src/java</unitTestSourceDirectory>
     <unitTest>
-      <includes>**/*Test</includes>
-      <resources>
-	<resource>
-	  <directory>${basedir}/src/testBundle</directory>
-	  <includes>
-	    <include>**/*.*</include>
-	  </includes>
-	  <filtering>false</filtering>
-	</resource>
-      </resources>
+      <includes>
+	<include>**/*Test.java</include>
+      </includes>
     </unitTest>
     <defaultGoal>war:install</defaultGoal>
     <!-- other resources for the jar - the message bundles -->
@@ -127,6 +120,32 @@
       <version>1.0.4</version>
       <type>jar</type>
     </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>jmock</groupId>
+      <artifactId>jmock</artifactId>
+      <version>1.1.0</version>
+      <type>jar</type>
+    </dependency>
+   <dependency>
+      <groupId>jmock</groupId>
+      <artifactId>jmock-cglib</artifactId>
+      <version>1.1.0</version>
+      <type>jar</type>
+    </dependency>
+   <dependency>
+      <groupId>cglib</groupId>
+      <artifactId>cglib-full</artifactId>
+      <version>2.0.2</version>
+      <type>jar</type>
+    </dependency>
+
   </dependencies>
 </project>
 
