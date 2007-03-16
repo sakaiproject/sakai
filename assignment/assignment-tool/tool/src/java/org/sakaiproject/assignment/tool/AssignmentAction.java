@@ -3800,7 +3800,11 @@ public class AssignmentAction extends PagedResourceActionII
 					{
 						//integrate assignment with gradebook
 						//add all existing grades, if any, into Gradebook
-						AssignmentService.integrateGradebook(aReference, associateGradebookAssignment, oAssociateGradebookAssignment, addtoGradebook, aOldTitle, title, Integer.parseInt (gradePoints), dueTime, null, "update");
+						String rv = AssignmentService.integrateGradebook(aReference, associateGradebookAssignment, oAssociateGradebookAssignment, addtoGradebook, aOldTitle, title, Integer.parseInt (gradePoints), dueTime, null, "update");
+						if (rv != null && rv.length() > 0)
+						{
+							addAlert(state, rv);
+						}
 					}
 					catch (NumberFormatException nE)
 					{

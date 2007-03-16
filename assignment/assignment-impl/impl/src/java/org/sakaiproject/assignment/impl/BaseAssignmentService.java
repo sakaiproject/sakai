@@ -9363,8 +9363,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 * @param submissionRef Any submission grade need to be updated? Do bulk update if null
 	 * @param updateRemoveSubmission "update" for update submission;"remove" for remove submission
 	 */
-	public void integrateGradebook (String assignmentRef, String associateGradebookAssignment, String oAssociateGradebookAssignment, String addUpdateRemoveAssignment, String oldAssignment_title, String newAssignment_title, int newAssignment_maxPoints, Time newAssignment_dueTime, String submissionRef, String updateRemoveSubmission)
+	public String integrateGradebook (String assignmentRef, String associateGradebookAssignment, String oAssociateGradebookAssignment, String addUpdateRemoveAssignment, String oldAssignment_title, String newAssignment_title, int newAssignment_maxPoints, Time newAssignment_dueTime, String submissionRef, String updateRemoveSubmission)
 	{
+		// the return String
+		String rv = "";
+		
 		associateGradebookAssignment = StringUtil.trimToNull(associateGradebookAssignment);
 
 		// add or remove external grades to gradebook
@@ -9403,13 +9406,21 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				// add an entry into Gradebook for newly created assignment or modified assignment, and there wasn't a correspond record in gradebook yet
 				if (addUpdateRemoveAssignment.equals(GRADEBOOK_INTEGRATION_ADD) && associateGradebookAssignment == null)
 				{
-					// Create an assignment definition, and add into Gradebook
-			 		org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition = new org.sakaiproject.service.gradebook.shared.Assignment();
-			 		assignmentDefinition.setName(newAssignment_title);
-			 		assignmentDefinition.setPoints(new Double(newAssignment_maxPoints/10.0));
-			 		assignmentDefinition.setDueDate(new Date(newAssignment_dueTime.getTime()));
-			 		assignmentDefinition.setReleased(true); // in order to let student gets his own score, has to set the assignment to be release by default
-			 		g.addAssignment(gradebookUid, assignmentDefinition);
+					if (!isAssignmentDefined)
+					{
+						// Create an assignment definition, and add into Gradebook
+				 		org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition = new org.sakaiproject.service.gradebook.shared.Assignment();
+				 		assignmentDefinition.setName(newAssignment_title);
+				 		assignmentDefinition.setPoints(new Double(newAssignment_maxPoints/10.0));
+				 		assignmentDefinition.setDueDate(new Date(newAssignment_dueTime.getTime()));
+				 		assignmentDefinition.setReleased(true); // in order to let student gets his own score, has to set the assignment to be release by default
+				 		g.addAssignment(gradebookUid, assignmentDefinition);
+					}
+					else
+					{
+						// genereate alert message
+						rv = rb.getString("addtogradebook.nonUniqueTitle");
+					}
 				}
 				else if (addUpdateRemoveAssignment.equals(GRADEBOOK_INTEGRATION_ASSOCIATE))
 				{
@@ -9517,6 +9528,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				}
 			} // updateRemoveSubmission != null
 		} // if gradebook exists
+		
+		return rv;
+		
 	} // integrateGradebook
 
 	/**

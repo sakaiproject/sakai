@@ -753,8 +753,9 @@ public interface AssignmentService extends EntityProducer
 	 * @param newAssignment_dueTime The due time of the assignment
 	 * @param submissionRef Any submission grade need to be updated? Do bulk update if null
 	 * @param updateRemoveSubmission "update" for update submission;"remove" for remove submission
+	 * @param the result String
 	 */
-	public void integrateGradebook (String assignmentRef, String associateGradebookAssignment, String oAssociateGradebookAssignment,  String addUpdateRemoveAssignment, String oldAssignment_title, String newAssignment_title, int newAssignment_maxPoints, Time newAssignment_dueTime, String submissionRef, String updateRemoveSubmission);
+	public String integrateGradebook (String assignmentRef, String associateGradebookAssignment, String oAssociateGradebookAssignment,  String addUpdateRemoveAssignment, String oldAssignment_title, String newAssignment_title, int newAssignment_maxPoints, Time newAssignment_dueTime, String submissionRef, String updateRemoveSubmission);
 
 	/**
 	 * release the associated Gradebook assignment to student or not
