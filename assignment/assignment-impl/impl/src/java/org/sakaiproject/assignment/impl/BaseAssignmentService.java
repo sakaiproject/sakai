@@ -1998,11 +1998,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		
 		StringBuffer buffer = new StringBuffer();
 		// site title and id
-		buffer.append(rb.getString("noti.site.title") + siteTitle +"\n");
-		buffer.append(rb.getString("noti.site.id") + siteId +"\n\n");
+		buffer.append(rb.getString("noti.site.title") + " " + siteTitle +"\n");
+		buffer.append(rb.getString("noti.site.id") + " " + siteId +"\n\n");
 		// assignment title and due date
-		buffer.append(rb.getString("noti.assignment") + a.getTitle()+"\n");
-		buffer.append(rb.getString("noti.assignment.duedate") + a.getDueTime().toStringLocalFull()+"\n\n");
+		buffer.append(rb.getString("noti.assignment") + " " + a.getTitle()+"\n");
+		buffer.append(rb.getString("noti.assignment.duedate") + " " + a.getDueTime().toStringLocalFull()+"\n\n");
 		// submitter name and id
 		User[] submitters = s.getSubmitters();
 		String submitterNames = "";
@@ -2012,37 +2012,37 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			User u = (User) submitters[i];
 			if (i>0)
 			{
-				submitterNames = submitterNames.concat(";");
-				submitterIds = submitterIds.concat(";");
+				submitterNames = submitterNames.concat("; ");
+				submitterIds = submitterIds.concat("; ");
 			}
 			submitterNames = submitterNames.concat(u.getDisplayName());
 			submitterIds = submitterIds.concat(u.getDisplayId());
 		}
-		buffer.append(rb.getString("noti.student") + submitterNames);
+		buffer.append(rb.getString("noti.student") + " " + submitterNames);
 		if (submitterIds.length() != 0)
 		{
-			buffer.append("(" + submitterIds + ")");
+			buffer.append("( " + submitterIds + " )");
 		}
 		buffer.append("\n\n");
 		
 		// submit time
-		buffer.append(rb.getString("noti.submit.id") + s.getId() + "\n");
+		buffer.append(rb.getString("noti.submit.id") + " " + s.getId() + "\n");
 		
 		// submit time 
-		buffer.append(rb.getString("noti.submit.time") + s.getTimeSubmitted().toStringLocalFull() + "\n\n");
+		buffer.append(rb.getString("noti.submit.time") + " " + s.getTimeSubmitted().toStringLocalFull() + "\n\n");
 		
 		// submit text
 		String text = StringUtil.trimToNull(s.getSubmittedText());
 		if ( text != null)
 		{
-			buffer.append(rb.getString("noti.submit.text") + "\n" + text + "\n\n");
+			buffer.append(rb.getString("noti.submit.text") + "\n\n" + text + "\n\n");
 		}
 		
 		// attachment if any
 		List attachments = s.getSubmittedAttachments();
 		if (attachments != null && attachments.size() >0)
 		{
-			buffer.append(rb.getString("noti.submit.attachments") + "\n");
+			buffer.append(rb.getString("noti.submit.attachments") + "\n\n");
 			for (int j = 0; j<attachments.size(); j++)
 			{
 				Reference r = (Reference) attachments.get(j);
