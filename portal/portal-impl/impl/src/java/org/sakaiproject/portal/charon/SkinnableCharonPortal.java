@@ -703,184 +703,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				doError(req, res, session, Portal.ERROR_SITE);
 			}
 
-			/*
-			 * // recognize and dispatch the 'tool' option: [1] = "tool", [2] = //
-			 * placement id (of a site's tool placement), rest for the tool if
-			 * ((parts.length > 2) && (parts[1].equals("tool"))) { // Resolve
-			 * the placements of the form //
-			 * /portal/tool/sakai.resources?sakai.site=~csev String
-			 * toolPlacement = getPlacement(req, res, session, parts[2], false);
-			 * if (toolPlacement == null) { return; } parts[2] = toolPlacement;
-			 * doTool(req, res, session, parts[2], req.getContextPath() +
-			 * req.getServletPath() + Web.makePath(parts, 1, 3), Web
-			 * .makePath(parts, 3, parts.length)); } else if (enableDirect &&
-			 * (parts.length > 2) && (parts[1].equals("directtool"))) { //
-			 * Resolve the placements of the form //
-			 * /portal/tool/sakai.resources?sakai.site=~csev String
-			 * toolPlacement = getPlacement(req, res, session, parts[2], false);
-			 * if (toolPlacement == null) { return; } parts[2] = toolPlacement;
-			 * doDirectTool(req, res, session, parts[2], req.getContextPath() +
-			 * req.getServletPath() + Web.makePath(parts, 1, 3),
-			 * Web.makePath(parts, 3, parts.length)); } // These reset urls
-			 * simply set a session value to indicate to reset // state and then
-			 * redirect // This is necessary os that the URL is clean and we do
-			 * not see // resets on refresh else
-			 */
-			/*
-			 * if ((parts.length > 2) && (parts[1].equals("tool-reset"))) {
-			 * String toolUrl = req.getContextPath() + "/tool" +
-			 * Web.makePath(parts, 2, parts.length); // Make sure to add the
-			 * parameters such as panel=Main String queryString =
-			 * req.getQueryString(); if (queryString != null) { toolUrl =
-			 * toolUrl + "?" + queryString; }
-			 * portalService.setResetState("true"); resetDone = true;
-			 * res.sendRedirect(toolUrl); } // recognize a dispatch the 'page'
-			 * option (tools on a page) else
-			 */
-			/*
-			 * if ((parts.length == 3) && (parts[1].equals("page"))) { //
-			 * Resolve the placements of the form //
-			 * /portal/page/sakai.resources?sakai.site=~csev String
-			 * pagePlacement = getPlacement(req, res, session, parts[2], true);
-			 * if (pagePlacement == null) { return; } parts[2] = pagePlacement;
-			 * doPage(req, res, session, parts[2], req.getContextPath() +
-			 * req.getServletPath()); }
-			 */
-			/*
-			 * // recognize a dispatch the 'worksite' option (pages navigation + //
-			 * tools on a page) else if ((parts.length >= 3) &&
-			 * (parts[1].equals("worksite"))) { // recognize an optional
-			 * page/pageid String pageId = null; if ((parts.length == 5) &&
-			 * (parts[3].equals("page"))) { pageId = parts[4]; } doWorksite(req,
-			 * res, session, parts[2], pageId, req.getContextPath() +
-			 * req.getServletPath()); } // Implement the dense portlet-style
-			 * portal else
-			 */
-			/*
-			 * if ((parts.length >= 2) && (parts[1].equals("portlet"))) { //
-			 * /portal/portlet/site-id String siteId = null; if (parts.length >=
-			 * 3) { siteId = parts[2]; } // This is a pop-up page - it does
-			 * exactly the same as /portal/page //
-			 * /portal/portlet/site-id/page/page-id // 1 2 3 4 String pageId =
-			 * null; if ((parts.length == 5) && (parts[3].equals("page"))) {
-			 * doPage(req, res, session, parts[4], req.getContextPath() +
-			 * req.getServletPath()); return; } // Tool resetting URL - clear
-			 * state and forward to the real tool URL //
-			 * /portal/portlet/site-id/tool-reset/toolId // 0 1 2 3 4 String
-			 * toolId = null; if ((siteId != null) && (parts.length == 5) &&
-			 * (parts[3].equals("tool-reset"))) { toolId = parts[4]; String
-			 * toolUrl = req.getContextPath() + "/portlet/" + siteId + "/tool" +
-			 * Web.makePath(parts, 4, parts.length); String queryString =
-			 * req.getQueryString(); if (queryString != null) { toolUrl =
-			 * toolUrl + "?" + queryString; }
-			 * portalService.setResetState("true"); resetDone = true;
-			 * res.sendRedirect(toolUrl); } // Tool after the reset //
-			 * /portal/portlet/site-id/tool/toolId if ((parts.length == 5) &&
-			 * (parts[3].equals("tool"))) { toolId = parts[4]; } String
-			 * forceLogout = req.getParameter(PARAM_FORCE_LOGOUT); if
-			 * ("yes".equalsIgnoreCase(forceLogout) ||
-			 * "true".equalsIgnoreCase(forceLogout)) { doLogout(req, res,
-			 * session, "/portlet"); return; } if (session.getUserId() == null) {
-			 * String forceLogin = req.getParameter(PARAM_FORCE_LOGIN); if
-			 * ("yes".equalsIgnoreCase(forceLogin) ||
-			 * "true".equalsIgnoreCase(forceLogin)) { doLogin(req, res, session,
-			 * req.getPathInfo(), false); return; } } PortalRenderContext
-			 * rcontext = includePortal(req, res, session, siteId, toolId,
-			 * req.getContextPath() + req.getServletPath(), "portlet", / *
-			 * doPages * /false, /* resetTools * /true, / * includeSummary *
-			 * /false, /* expandSite * /false); sendResponse(rcontext, res,
-			 * "portlet", null); } // Implement the three forms of the rss
-			 * portal else
-			 */
-			/*
-			 * if ((parts.length >= 2) && (parts[1].equals("rss") ||
-			 * parts[1].equals("atom") || parts[1].equals("opml"))) { if
-			 * (parts[1].equals("atom")) { // /portal/rss/site-id String siteId =
-			 * null; if (parts.length >= 3) { siteId = parts[2]; }
-			 * PortalRenderContext rcontext = includePortal(req, res, session,
-			 * siteId, /* toolId * /null, req.getContextPath() +
-			 * req.getServletPath(), /* prefix * /"site", /* doPages * /true, /*
-			 * resetTools * /false, /* includeSummary * /true, /* expandSite *
-			 * /false); // sendResponse(rcontext, res, parts[1],
-			 * "application/atom+xml"); sendResponse(rcontext, res, parts[1],
-			 * "text/xml"); } else if (parts[1].equals("rss")) { //
-			 * /portal/rss/site-id String siteId = null; if (parts.length >= 3) {
-			 * siteId = parts[2]; } PortalRenderContext rcontext =
-			 * includePortal(req, res, session, siteId, /* toolId * /null,
-			 * req.getContextPath() + req.getServletPath(), /* prefix * /"site", /*
-			 * doPages * /true, /* resetTools * /false, /* includeSummary *
-			 * /true, /* expandSite * /false); sendResponse(rcontext, res,
-			 * parts[1], "text/xml"); } else { // opml // /portal/rss/site-id
-			 * String siteId = null; if (parts.length >= 3) { siteId = parts[2]; }
-			 * PortalRenderContext rcontext = includePortal(req, res, session,
-			 * siteId, /* toolId * /null, req.getContextPath() +
-			 * req.getServletPath(), /* prefix * /"site", /* doPages * /true, /*
-			 * resetTools * /false, /* includeSummary * /false, /* expandSite *
-			 * /true); // sendResponse(rcontext, res, parts[1], "text/x-opml");
-			 * sendResponse(rcontext, res, parts[1], "text/xml"); } } //
-			 * recognize a dispatch the 'gallery' option (site tabs + pages //
-			 * navigation + tools on a page) else
-			 */
-			/*
-			 * if ((parts.length >= 2) && (parts[1].equals("gallery"))) { //
-			 * recognize an optional page/pageid String pageId = null; if
-			 * ((parts.length == 5) && (parts[3].equals("page"))) { pageId =
-			 * parts[4]; } // site might be specified String siteId = null; if
-			 * (parts.length >= 3) { siteId = parts[2]; } doGallery(req, res,
-			 * session, siteId, pageId, req.getContextPath() +
-			 * req.getServletPath()); } // recognize a dispatch the 'site'
-			 * option (site logo and tabs + // pages navigation + tools on a
-			 * page) else
-			 */
-
-			/*
-			 * if ((parts.length >= 2) && (parts[1].equals("site"))) { //
-			 * recognize an optional page/pageid String pageId = null; if
-			 * ((parts.length == 5) && (parts[3].equals("page"))) { pageId =
-			 * parts[4]; } // site might be specified String siteId = null; if
-			 * (parts.length >= 3) { siteId = parts[2]; } doSite(req, res,
-			 * session, siteId, pageId, req.getContextPath() +
-			 * req.getServletPath()); } // recognize nav login else if
-			 * ((parts.length == 3) && (parts[1].equals("nav_login"))) {
-			 * doNavLogin(req, res, session, parts[2]); // recognize nav login
-			 * for the gallery else if ((parts.length == 3) &&
-			 * (parts[1].equals("nav_login_gallery"))) { doNavLoginGallery(req,
-			 * res, session, parts[2]); } // recognize presence else if
-			 * ((parts.length >= 3) && (parts[1].equals("presence"))) {
-			 * doPresence(req, res, session, parts[2], req.getContextPath() +
-			 * req.getServletPath() + Web.makePath(parts, 1, 3),
-			 * Web.makePath(parts, 3, parts.length)); } // recognize help else
-			 * if ((parts.length >= 2) && (parts[1].equals("help"))) {
-			 * doHelp(req, res, session, req.getContextPath() +
-			 * req.getServletPath() + Web.makePath(parts, 1, 2), Web.makePath(
-			 * parts, 2, parts.length)); } // recognize and dispatch the 'login'
-			 * option else if ((parts.length == 2) &&
-			 * (parts[1].equals("relogin"))) { // Note: here we send a null
-			 * path, meaning we will NOT set it as // a possible return path //
-			 * we expect we are in the middle of a login screen processing, //
-			 * and it's already set (user login button is "ulogin") -ggolden
-			 * doLogin(req, res, session, null, false); } // recognize and
-			 * dispatch the 'login' option else if ((parts.length == 2) &&
-			 * (parts[1].equals("login"))) { doLogin(req, res, session, "",
-			 * false); } // recognize and dispatch the 'login' options else if
-			 * ((parts.length == 2) && ((parts[1].equals("xlogin")))) {
-			 * doLogin(req, res, session, "", true); } // recognize and dispatch
-			 * the 'login' option for gallery else if ((parts.length == 2) &&
-			 * (parts[1].equals("login_gallery"))) { doLogin(req, res, session,
-			 * "/gallery", false); } // recognize and dispatch the 'logout'
-			 * option else if ((parts.length == 2) &&
-			 * (parts[1].equals("logout"))) { doLogout(req, res, session, null); } //
-			 * recognize and dispatch the 'logout' option for gallery else if
-			 * ((parts.length == 2) && (parts[1].equals("logout_gallery"))) {
-			 * doLogout(req, res, session, "/gallery"); } // recognize error
-			 * done else if ((parts.length >= 2) &&
-			 * (parts[1].equals("error-reported"))) { doErrorDone(req, res); }
-			 * else if ((parts.length >= 2) && (parts[1].equals("styles"))) {
-			 * doStatic(req, res, parts); } else if ((parts.length >= 2) &&
-			 * (parts[1].equals("scripts"))) { doStatic(req, res, parts); } //
-			 * handle an unrecognized request else { doError(req, res, session,
-			 * ERROR_SITE); }
-			 */
 		}
 		catch (Throwable t)
 		{
@@ -1046,11 +868,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				return;
 			}
 
-			// TODO: Ian/Glenn - will we ever get here? If we always redirect
-			// after
-			// POST - then why would we fall through???
-			// yes because not everything does a redrirect after a post... ajax.
-
 			// get the Sakai session
 			Session session = SessionManager.getCurrentSession();
 
@@ -1102,37 +919,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				doError(req, res, session, Portal.ERROR_SITE);
 			}
 
-			/*
-			 * // recognize and dispatch the 'tool' option: [1] = "tool", [2] = //
-			 * placement id (of a site's tool placement), rest for the tool if
-			 * ((parts.length > 2) && (parts[1].equals("tool"))) { doTool(req,
-			 * res, session, parts[2], req.getContextPath() +
-			 * req.getServletPath() + Web.makePath(parts, 1, 3), Web
-			 * .makePath(parts, 3, parts.length)); } else if (enableDirect &&
-			 * (parts.length > 2) && (parts[1].equals("directtool"))) { //
-			 * Resolve the placements of the form //
-			 * /portal/tool/sakai.resources?sakai.site=~csev String
-			 * toolPlacement = getPlacement(req, res, session, parts[2], false);
-			 * if (toolPlacement == null) { return; } parts[2] = toolPlacement;
-			 * doDirectTool(req, res, session, parts[2], req.getContextPath() +
-			 * req.getServletPath() + Web.makePath(parts, 1, 3),
-			 * Web.makePath(parts, 3, parts.length)); /** Title frames were no
-			 * longer used in 2.3 and are not supported in 2.4 so we emit a WARN
-			 * message here to help people with derived classes figure out the
-			 * new way. / // TODO: Remove after 2.4 } else if ((parts.length >
-			 * 2) && (parts[1].equals("title"))) { M_log.warn("The /title/ form
-			 * of portal URLs is no longer supported in Sakai 2.4 and later"); } //
-			 * recognize and dispatch the 'login' options else if ((parts.length ==
-			 * 2) && ((parts[1].equals("login") || (parts[1].equals("xlogin")) ||
-			 * (parts[1].equals("relogin"))))) { postLogin(req, res, session,
-			 * parts[1]); } // recognize help { doHelp(req, res, session,
-			 * req.getContextPath() + req.getServletPath() + Web.makePath(parts,
-			 * 1, 2), Web.makePath( parts, 2, parts.length)); } // recognize
-			 * error feedback else if ((parts.length >= 2) &&
-			 * (parts[1].equals("error-report"))) { doErrorReport(req, res); } //
-			 * handle an unrecognized request else { doError(req, res, session,
-			 * ERROR_SITE); }
-			 */
 		}
 		catch (Throwable t)
 		{
@@ -1149,24 +935,21 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		err.postResponse(req, res);
 	}
 
-	// Checks to see which form of tool or page placement we have. The normal
-	// placement is
-	// a GUID. However when the parameter sakai.site is added to the request,
-	// the placement
-	// can be of the form sakai.resources. This routine determines which form of
-	// the
-	// placement id, and if this is the second type, performs the lookup and
-	// returns the
-	// GUID of the placement. If we cannot resolve the pllacement, we simply
-	// return
-	// the passed in placement ID. If we cannot visit the site, we send the user
-	// to login
-	// processing and return null to the caller.
+	/* 
+	 * Checks to see which form of tool or page placement we have. The normal
+	 * placement is a GUID. However when the parameter sakai.site is 
+	 * added to the request, the placement can be of the form 
+	 * sakai.resources. This routine determines which form of the
+	 * placement id, and if this is the second type, performs the lookup and
+	 * returns the GUID of the placement. If we cannot resolve the 
+	 * placement, we simply return the passed in placement ID. 
+	 * If we cannot visit the site, we send the user to login
+	 * processing and return null to the caller.
+	 */
 
 	public String getPlacement(HttpServletRequest req, HttpServletResponse res,
 			Session session, String placementId, boolean doPage) throws ToolException
 	{
-
 		String siteId = req.getParameter(PARAM_SAKAI_SITE);
 		if (siteId == null) return placementId; // Standard placement
 
@@ -1530,14 +1313,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 	}
 
-	/*
-	 * Produce a page and/or a tool list doPage = true is best for the
-	 * tabs-based portal and for RSS - these think in terms of pages doPage =
-	 * false is best for the portlet-style - it unrolls all of the tools unless
-	 * a page is marked as a popup. If the page is a popup - it is left a page
-	 * and marked as such. restTools = true - generate resetting tool URLs.
-	 */
-
 	// TODO: Refactor code in other functions to use this code rather than doing
 	// it inline
 	/*
@@ -1548,8 +1323,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	 * and marked as such. restTools = true - generate resetting tool URLs.
 	 */
 
-	// TODO: Refactor code in other functions to use this code rather than doing
-	// it inline
 	protected Map pageListToMap(HttpServletRequest req, boolean loggedIn, Site site,
 			SitePage page, String toolContextPath, String portalPrefix, boolean doPages,
 			boolean resetTools, boolean includeSummary)
@@ -1883,22 +1656,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		M_log.info("Log marker " + se.getMethodName() + ":" + se.getFileName() + ":"
 				+ se.getLineNumber());
 	}
-
-	/**
-	 * Find the site in the list that has this id - return the position.
-	 * 
-	 * @param value
-	 *        The site id to find.
-	 * @param siteList
-	 *        The list of Site objects.
-	 * @return The index position in siteList of the site with site id = value,
-	 *         or -1 if not found.
-	 */
-	/*
-	 * protected int indexOf(String value, List siteList) { for (int i = 0; i <
-	 * siteList.size(); i++) { Site site = (Site) siteList.get(i); if
-	 * (site.equals(value)) { return i; } } return -1; }
-	 */
 
 	/**
 	 * Check for any just expired sessions and redirect

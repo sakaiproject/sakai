@@ -80,13 +80,6 @@ public class EnhancedPortletStateEncoder implements PortletStateEncoder
 		Map parms = portletState.getParameters();
 		Iterator it = parms.entrySet().iterator();
 
-		// TODO: Needs review by David
-		// Switch to placing explicit parameters right on the URL to save the
-		// need for wrapping the request
-		// The problem is that when you wrap the request in SakaiServletRequest
-		// and return parameters
-		// only from state - you lose the prameters *in* the form
-
 		String normalParms = "";
 		while (it.hasNext())
 		{

@@ -130,8 +130,6 @@ public class PortletToolRenderService implements ToolRenderService
                         {
                                 state.setAction(false);
                         }
-                        // TODO: This was false - but makes no sense to be false - check
-                        // with David - /Chuck
                         return true;
                 }
                 return true;
@@ -189,18 +187,14 @@ public class PortletToolRenderService implements ToolRenderService
 
                 try
                 {
-                        // TODO: Review David
                         final HttpServletRequest req = new SakaiServletRequest(request, state);
                         final PortletContainer portletContainer = getPortletContainer(context);
 
 			// Derive the Edit and Help URLs
 			String editUrl = null;
 			String helpUrl = null;
-			// System.out.println("Context = "+context);
 			RequiredContainerServices rs = portletContainer.getRequiredContainerServices();
-			// System.out.println("Required Services = "+rs);
 			PortalCallbackService pcs = rs.getPortalCallbackService();
-			// System.out.println("Portal call back services="+pcs);
 			PortletURLProvider pup = null;
 
 			if ( isPortletModeAllowed(toolConfiguration, "edit") ) 
