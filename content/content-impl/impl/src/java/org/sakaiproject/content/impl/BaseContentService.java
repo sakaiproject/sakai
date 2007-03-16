@@ -7240,11 +7240,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		// if (m_siteQuota == 0)
 		// return false;
 
-		long quota = 0;
-
-		// use this quota unless we have one more specific
-		quota = m_siteQuota;
-
 		// some quick exits, if we are not doing user quota, or if this is not a user or group resource
 		// %%% These constants should be from somewhere else -ggolden
 		if (!((edit.getId().startsWith("/user/")) || (edit.getId().startsWith("/group/")))) return false;
@@ -7266,24 +7261,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		if (collection == null) return false;
 
-		// see if this collection has a quota property
-		try
-		{
-			long siteSpecific = collection.getProperties().getLongProperty(ResourceProperties.PROP_COLLECTION_BODY_QUOTA);
-			if (siteSpecific == 0) return false;
-
-			quota = siteSpecific;
-		}
-		catch (EntityPropertyNotDefinedException ignore)
-		{
-			// don't log or anything, this just means that this site doesn't have this quota property.
-		}
-		catch (Exception ignore)
-		{
-			M_log.warn("overQuota: reading quota property of : " + collection.getId() + " : " + ignore);
-		}
-
-		if (quota == 0)
+      long quota = getQuota(collection);
+      
+      if (quota == 0)
 		{
 			return false;
 		}
@@ -7326,6 +7306,39 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		return ((bytes - 1) / 1024) + 1;
 
 	} // bytes2k
+
+   /**
+    * gets the quota for a site collection or for a user's my workspace collection
+    *
+    * @param collection the collection on which to test for a quota.  this can be the collection for a site
+    * or a user's workspace collection
+    * @return the quota in kb
+    */
+    public long getQuota(ContentCollection collection) {
+        long quota = 0;
+
+        // use this quota unless we have one more specific
+        quota = m_siteQuota;
+
+        // see if this collection has a quota property
+        try
+        {
+            long siteSpecific = collection.getProperties().getLongProperty(
+               ResourceProperties.PROP_COLLECTION_BODY_QUOTA);
+
+            quota = siteSpecific;
+        }
+        catch (EntityPropertyNotDefinedException ignore)
+        {
+            // don't log or anything, this just means that this site doesn't have this quota property.
+        }
+        catch (Exception ignore)
+        {
+            M_log.warn("getQuota: reading quota property of : " + collection.getId() + " : " + ignore);
+        }
+
+        return quota;
+    }
 
 	/**
 	 * Attempt to create any collections needed so that the parameter collection exists.

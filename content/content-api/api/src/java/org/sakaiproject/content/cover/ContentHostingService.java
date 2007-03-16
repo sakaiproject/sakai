@@ -1024,16 +1024,18 @@ public class ContentHostingService
 		return service.addCollection(collectionId, name);
 	}
 
-	/**
-     * @param id
-     * @return
-     */
-    public static boolean isAvailable(String id)
-    {
+   /**
+    * gets the quota for a site collection or for a user's my workspace collection
+    *
+    * @param collection the collection on which to test for a quota.  this can be the collection for a site
+    * or a user's workspace collection
+    * @return the quota in kb
+    */
+    public static long getQuota(org.sakaiproject.content.api.ContentCollection collection)
+	{
 		org.sakaiproject.content.api.ContentHostingService service = getInstance();
-		if (service == null) return false;
-		
-		return service.isAvailable(id);
-    }
+		if (service == null) return 0;
 
+      return service.getQuota(collection);
+	}
 }

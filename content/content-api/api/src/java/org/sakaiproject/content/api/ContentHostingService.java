@@ -1591,5 +1591,14 @@ public interface ContentHostingService extends EntityProducer
 	public ContentCollectionEdit addCollection(String collectionId, String name)
 		throws PermissionException, IdUnusedException, IdUsedException, 
 				IdLengthException, IdInvalidException, TypeException;
-	
+
+   /**
+    * gets the quota for a site collection or for a user's my workspace collection
+    *
+    * @param collection the collection on which to test for a quota.  this can be the collection for a site
+    * or a user's workspace collection
+    * @return the quota in kb
+    */
+    public long getQuota(org.sakaiproject.content.api.ContentCollection collection);
+
 }
