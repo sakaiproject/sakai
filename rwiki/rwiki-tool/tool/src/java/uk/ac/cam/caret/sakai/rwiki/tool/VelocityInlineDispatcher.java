@@ -33,9 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.app.event.EventCartridge;
 import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.util.Web;
 
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ResourceLoaderBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ViewBean;
@@ -70,6 +68,8 @@ public class VelocityInlineDispatcher implements Dispatcher
 			Properties p = new Properties();
 			p.load(this.getClass().getResourceAsStream("rwikivelocity.config"));
 			vengine.init(p);
+			vengine.getTemplate(inlineMacros);
+
 		}
 		catch (Exception ex)
 		{
@@ -95,7 +95,6 @@ public class VelocityInlineDispatcher implements Dispatcher
 		vcontext.put("util",utilBean);
 		try
 		{
-			vengine.getTemplate(inlineMacros);
 			String filePath = path + ".vm";
 			response.setContentType("text/html");
 			response.setCharacterEncoding("UTF-8");
