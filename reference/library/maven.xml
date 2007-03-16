@@ -14,7 +14,7 @@
 
   <ant:available file="${maven.tomcat.home}/webapps/ROOT/favicon.ico" property="favicon.exists" />
 
-  <j:set var="maven.tomcat.home" value="${basedir}/target/demo/apache-tomcat-5.5.20/" />
+  <j:set var="maven.tomcat.home" value="${basedir}/target/demo/apache-tomcat-5.5.23/" />
   <j:if test="${favicon.exists}">
   	<ant:copy todir="${maven.tomcat.home}/webapps/ROOT"
         	file="src/webapp/icon/favicon.ico" overwrite="true" verbose="true" failonerror="false" />
