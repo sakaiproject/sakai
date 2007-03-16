@@ -106,4 +106,29 @@ public interface ConfigurationService
    * @return the key text
    */
   public String getSiteConfigSakaiServerKey();
+
+  /**
+   * Enable/disable Google support
+   * @param state true to enable Google support
+   */
+  public void setGoogleScholarEnabled(boolean state);
+
+  /**
+   * Is Google search enabled?
+   * @return true if so
+   */
+  public boolean isGoogleScholarEnabled();
+
+  /**
+   * Enable/disable library search support
+   * @param state true to enable support
+   */
+  public void setLibrarySearchEnabled(boolean state);
+
+  /**
+   * Is library search enabled?
+   * @return true if so
+   */
+  public boolean isLibrarySearchEnabled();
+
 }
