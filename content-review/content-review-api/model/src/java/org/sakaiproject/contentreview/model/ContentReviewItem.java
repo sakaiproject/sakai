@@ -56,6 +56,7 @@ public class ContentReviewItem {
 	private Long status;
 	private Integer reviewScore;
 	private String lastError;
+	private String iconUrl;
 
 	/**
 	 * Default constructor
@@ -219,5 +220,13 @@ public class ContentReviewItem {
 	
 	public void setLastError(String le) {
 		this.lastError = le;
+	}
+	
+	public void setIconURL(String u) {
+		this.iconUrl = u;
+	}
+	
+	public String getIconUrl() {
+		return this.iconUrl;
 	}
 }
