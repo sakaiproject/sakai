@@ -64,7 +64,8 @@ import org.sakaiproject.util.ResourceLoader;
  * 
  *
  */
-public class CitationServlet extends VelocityPortletPaneledAction
+//public class CitationServlet extends VelocityPortletPaneledAction
+public class CitationServlet extends VmServlet
 {
 	/**
 	 * 
@@ -147,6 +148,7 @@ public class CitationServlet extends VelocityPortletPaneledAction
 	 *            in case of difficulties
 	 * @exception IOException
 	 *            in case of difficulties
+	 */
 	public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
 	{
 		// process any login that might be present
@@ -176,6 +178,7 @@ public class CitationServlet extends VelocityPortletPaneledAction
 	 *            in case of difficulties
 	 * @exception IOException
 	 *            in case of difficulties
+	 */
 	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
 	{
 		// process any login that might be present
@@ -189,10 +192,7 @@ public class CitationServlet extends VelocityPortletPaneledAction
 		}	
 		else
 		{
-			dispatch(req, res);
-			
-			// include your favorite template
-			includeVm(SERVLET_TEMPLATE, req, res);
+			dispatch(req, res);			
 		}
 	}
 
@@ -203,6 +203,7 @@ public class CitationServlet extends VelocityPortletPaneledAction
 	 *        HttpServletRequest object with the client request
 	 * @param res
 	 *        HttpServletResponse object back to the client
+	 */
 	public void dispatch(HttpServletRequest req, HttpServletResponse res) throws ServletException
 	{
 		ParameterParser params = (ParameterParser) req.getAttribute(ATTR_PARAMS);
@@ -241,9 +242,123 @@ public class CitationServlet extends VelocityPortletPaneledAction
 		
 		// pass to doAddCitation
 		// doAddCitation( resourceUuid, params );
+		
+		ContentHostingService contentService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
+		CitationService citationService = (CitationService) ComponentManager.get("org.sakaiproject.citation.api.CitationService");
+		
+		CitationCollection collection = null;
+		Citation citation = null;
+		
+		try
+        {
+			String resourceId = contentService.resolveUuid(resourceUuid);
+			// edit the collection to verify "content.revise" permission
+			// and to get the CitationCollection's id
+			ContentResourceEdit edit = contentService.editResource(resourceId);
+			
+			String collectionId = new String(edit.getContent());
+			collection = citationService.getCollection(collectionId);
+			
+			contentService.cancelResource(edit);
+
+			String genre = params.getString("genre");
+			String[] authors = params.getStrings("au");
+			String title = params.getString("title");
+			String atitle = params.getString("atitle");
+			String volume = params.getString("volume");
+			String issue = params.getString("issue");
+			String pages = params.getString("pages");
+			String publisher = params.getString("publisher");
+			String date = params.getString("date");
+			String id = params.getString("id");
+
+			citation = citationService.addCitation(genre);
+
+			String info = "New citation from Google Scholar:\n\t genre:\t\t" + genre;
+			if(title != null)
+			{
+				info += "\n\t title:\t\t" + title;
+				citation.addPropertyValue(Schema.TITLE, title);
+			}
+			if(authors != null && authors.length > 0)
+			{
+				for(int i = 0; i < authors.length; i++)
+				{
+					info += "\n\t au:\t\t" + authors[i];
+					citation.addPropertyValue(Schema.CREATOR, authors[i]);
+				}
+			}
+			if(atitle != null)
+			{
+				info += "\n\t atitle:\t\t" + atitle;
+				citation.addPropertyValue(Schema.SOURCE_TITLE, atitle);
+			}
+			if(volume != null)
+			{
+				info += "\n\t volume:\t\t" + volume;
+				citation.addPropertyValue(Schema.VOLUME, volume);
+			}
+			if(issue != null)
+			{
+				info += "\n\t issue:\t\t" + issue;
+				citation.addPropertyValue(Schema.ISSUE, issue);
+			}
+			if(pages != null)
+			{
+				info += "\n\t pages:\t\t" + pages;
+				citation.addPropertyValue(Schema.PAGES, pages);
+			}
+			if(publisher != null)
+			{
+				info += "\n\t publisher:\t\t" + publisher;
+				citation.addPropertyValue(Schema.PUBLISHER, publisher);
+			}
+			if(date != null)
+			{
+				info += "\n\t date:\t\t" + date;
+				citation.addPropertyValue(Schema.YEAR, date);
+			}
+			if(id != null)
+			{
+				info += "\n\t id:\t\t" + id;
+				citation.addPropertyValue(Schema.ISN, id);
+			}
+			info += "\n";
+			
+			collection.add(citation);
+			citationService.save(collection);
+			
+			M_log.info(info);
+			
+        }
+        catch (PermissionException e)
+        {
+	        // TODO Auto-generated catch block
+	        M_log.warn("PermissionException ", e);
+        }
+        catch (IdUnusedException e)
+        {
+	        // TODO Auto-generated catch block
+	        M_log.warn("IdUnusedException ", e);
+        }
+        catch (TypeException e)
+        {
+	        // TODO Auto-generated catch block
+	        M_log.warn("TypeException ", e);
+        }
+        catch (InUseException e)
+        {
+	        // TODO Auto-generated catch block
+        	M_log.warn("InUseException", e);
+        }
+        catch (ServerOverloadException e)
+        {
+	        // TODO Auto-generated catch block
+        	M_log.warn("ServerOverloadException ", e);
+        }
 	}
 
-*/	
+/*	
 	
 	public String buildMainPanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
 	{
@@ -423,4 +538,6 @@ public class CitationServlet extends VelocityPortletPaneledAction
         // no exceptions, return true
         return citation;
 	}
+	
+	*/
 }
