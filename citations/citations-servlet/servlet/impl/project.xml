@@ -100,6 +100,12 @@
 
     <dependency>
     	<groupId>sakaiproject</groupId>
+    	<artifactId>sakai-event-api</artifactId>
+    	<version>${sakai.version}</version>
+    </dependency>
+
+    <dependency>
+    	<groupId>sakaiproject</groupId>
     	<artifactId>sakai-velocity-tool</artifactId>
     	<version>${sakai.version}</version>
     </dependency>

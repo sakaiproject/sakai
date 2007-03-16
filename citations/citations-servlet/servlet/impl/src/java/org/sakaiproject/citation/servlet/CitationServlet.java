@@ -31,6 +31,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log; 
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.cheftool.Context;
+import org.sakaiproject.cheftool.RunData;
+import org.sakaiproject.cheftool.VelocityPortlet;
+import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
 import org.sakaiproject.cheftool.VmServlet;
 import org.sakaiproject.citation.api.Citation;
 import org.sakaiproject.citation.api.CitationCollection;
@@ -41,6 +45,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
@@ -59,12 +64,13 @@ import org.sakaiproject.util.ResourceLoader;
  * 
  *
  */
-public class CitationServlet extends VmServlet
+public class CitationServlet extends VelocityPortletPaneledAction
 {
 	/**
 	 * 
 	 */
-	public static final String SERVLET_TEMPLATE = "/vm/citation/sakai_citation-servlet.vm";
+	public static final String SUCCESS_TEMPLATE = "sakai_citation-servlet";
+	public static final String ERROR_TEMPLATE = "sakai_citation-servlet_err";
 	
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(CitationServlet.class);
@@ -113,13 +119,12 @@ public class CitationServlet extends VmServlet
 	 * @exception ServletException
 	 *            in case of difficulties
 	 */
-	public void init(ServletConfig config) throws ServletException
+	public void init( ServletConfig config ) throws ServletException
 	{
 		super.init(config);
 		startInit();
 		basicAuth = new BasicAuth();
 		basicAuth.init();
-		
 	}
 
 	/**
@@ -130,6 +135,7 @@ public class CitationServlet extends VmServlet
 		new CitationServletInit();
 	}
 
+		
 	/**
 	 * respond to an HTTP POST request
 	 * 
@@ -141,7 +147,6 @@ public class CitationServlet extends VmServlet
 	 *            in case of difficulties
 	 * @exception IOException
 	 *            in case of difficulties
-	 */
 	public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
 	{
 		// process any login that might be present
@@ -171,7 +176,6 @@ public class CitationServlet extends VmServlet
 	 *            in case of difficulties
 	 * @exception IOException
 	 *            in case of difficulties
-	 */
 	public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
 	{
 		// process any login that might be present
@@ -199,7 +203,6 @@ public class CitationServlet extends VmServlet
 	 *        HttpServletRequest object with the client request
 	 * @param res
 	 *        HttpServletResponse object back to the client
-	 */
 	public void dispatch(HttpServletRequest req, HttpServletResponse res) throws ServletException
 	{
 		ParameterParser params = (ParameterParser) req.getAttribute(ATTR_PARAMS);
@@ -236,10 +239,68 @@ public class CitationServlet extends VmServlet
 		String resourceUuid = parts[1];
 		//String userId = parts[2];
 		
+		// pass to doAddCitation
+		// doAddCitation( resourceUuid, params );
+	}
+
+*/	
+	
+	public String buildMainPanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
+	{
+		System.out.println( "\nbuilding main panel context..." );
+		
+		ParameterParser params = rundata.getParameters();
+		
+		// get the path info
+		String path = params.getPath();
+		if (path == null) path = "";
+
+		if (!m_ready)
+		{
+			// sendError(res, HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+			return ERROR_TEMPLATE;
+		}
+		
+// 		SessionManager sessionManager = (SessionManager) ComponentManager.get("org.sakaiproject.tool.api.SessionManager");
+//		String sessionId = sessionManager.getCurrentSession().getId();
+//		M_log.info("sessionId == " + sessionId);
+//
+//		
+//		UserDirectoryService userService = (UserDirectoryService) ComponentManager.get("org.sakaiproject.user.api.UserDirectoryService");
+//		User user = userService.getCurrentUser();
+//		String userId = user.getId();
+//		
+//		// String userId = userService.
+//		M_log.info("userId == " + userId);
+//
+//		
+		String option = rundata.getRequest().getPathInfo();
+		String[] parts = option.split("/");
+		
+		//ToolSession toolSession = SessionManager.getCurrentToolSession();
+		//String resourceId = (String) toolSession.getAttribute(CitationHelper.RESOURCE_ID);
+		
+		String resourceUuid = parts[1];
+		//String userId = parts[2];
+		
+		// pass to doAddCitation
+		if( doAddCitation( resourceUuid, params ) != null )
+		{
+			return SUCCESS_TEMPLATE;
+		}
+		else
+		{
+			return ERROR_TEMPLATE;
+		}
+		
+	}
+	
+	protected Citation doAddCitation( String resourceUuid, ParameterParser params ) {
 		ContentHostingService contentService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
 		CitationService citationService = (CitationService) ComponentManager.get("org.sakaiproject.citation.api.CitationService");
 		
 		CitationCollection collection = null;
+		Citation citation = null;
 		
 		try
         {
@@ -264,7 +325,7 @@ public class CitationServlet extends VmServlet
 			String date = params.getString("date");
 			String id = params.getString("id");
 
-			Citation citation = citationService.addCitation(genre);
+			citation = citationService.addCitation(genre);
 
 			String info = "New citation from Google Scholar:\n\t genre:\t\t" + genre;
 			if(title != null)
@@ -327,29 +388,39 @@ public class CitationServlet extends VmServlet
         {
 	        // TODO Auto-generated catch block
 	        M_log.warn("PermissionException ", e);
+	        
+	        return null;
         }
         catch (IdUnusedException e)
         {
 	        // TODO Auto-generated catch block
 	        M_log.warn("IdUnusedException ", e);
+	        
+	        return null;
         }
         catch (TypeException e)
         {
 	        // TODO Auto-generated catch block
 	        M_log.warn("TypeException ", e);
+	        
+	        return null;
         }
         catch (InUseException e)
         {
 	        // TODO Auto-generated catch block
         	M_log.warn("InUseException", e);
+        	
+        	return null;
         }
         catch (ServerOverloadException e)
         {
 	        // TODO Auto-generated catch block
         	M_log.warn("ServerOverloadException ", e);
+        	
+        	return null;
         }
-		
+        
+        // no exceptions, return true
+        return citation;
 	}
-	
-	
 }
