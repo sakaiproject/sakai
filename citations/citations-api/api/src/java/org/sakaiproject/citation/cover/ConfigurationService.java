@@ -227,4 +227,56 @@ public class ConfigurationService
 		}
 		return instance.getSiteConfigSakaiServerKey();
 	}
+
+  /**
+   * Enable/disable Google support
+   */
+  public static void setGoogleScholarEnabled(boolean state)
+	{
+		org.sakaiproject.citation.api.ConfigurationService instance = getInstance();
+		if (instance == null)
+		{
+			return;
+		}
+		instance.setGoogleScholarEnabled(state);
+	}
+
+  /**
+   * Is Google search enabled?
+   */
+  public static boolean isGoogleScholarEnabled()
+  {
+		org.sakaiproject.citation.api.ConfigurationService instance = getInstance();
+		if (instance == null)
+		{
+			return false;
+		}
+		return instance.isGoogleScholarEnabled();
+	}
+
+  /**
+   * Enable/disable library support
+   */
+ public static void setLibrarySearchEnabled(boolean state)
+	{
+		org.sakaiproject.citation.api.ConfigurationService instance = getInstance();
+		if (instance == null)
+		{
+			return;
+		}
+		instance.setLibrarySearchEnabled(state);
+	}
+
+  /**
+   * Is library search enabled?
+   */
+  public static boolean isLibrarySearchEnabled()
+  {
+		org.sakaiproject.citation.api.ConfigurationService instance = getInstance();
+		if (instance == null)
+		{
+			return false;
+		}
+		return instance.isLibrarySearchEnabled();
+	}
 }
