@@ -21,11 +21,11 @@
 package org.sakaiproject.tool.help;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -43,11 +43,10 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import com.sun.org.apache.xml.internal.serialize.OutputFormat;
-import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 import org.sakaiproject.api.app.help.HelpManager;
 import org.sakaiproject.api.app.help.Resource;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -131,19 +130,17 @@ public class RestContentProvider
 
     if (document != null)
     {
-      OutputFormat format = new OutputFormat(document);
-      StringWriter writer = new StringWriter();
-      XMLSerializer serializer = new XMLSerializer(writer, format);
-      try
-      {
-        serializer.serialize(document);
-      }
-      catch (IOException e)
-      {
-        LOG.error(e.getMessage(), e);
-      }
-
-      return writer.toString();
+    	ByteArrayOutputStream out = new ByteArrayOutputStream();
+    	Source xmlSource = new DOMSource(document);
+    	Result outputTarget = new StreamResult(out);
+    	Transformer tf;
+		try {
+			tf = TransformerFactory.newInstance().newTransformer();
+	    	tf.transform(xmlSource, outputTarget);
+		} catch (TransformerException e) {
+			LOG.warn(e);
+		}
+    	return out.toString();
     }
     else
     {
