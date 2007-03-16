@@ -186,13 +186,13 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
   		  <f:param name="toFirstName" value="#{description.firstName}" />
 	 </h:commandLink>
 
-	 <h:outputText value=" #{msg.separator} " rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != '' &&  description.retakeAllowed}" />
+	 <h:outputText value=" #{evaluationMessages.separator} " rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != '' &&  description.retakeAllowed}" />
 
 	 <span class="itemAction">
-     <h:commandLink title="#{msg.t_retake}" id="retakeAssessment1" immediate="true" 
+     <h:commandLink title="#{evaluationMessages.t_retake}" id="retakeAssessment1" immediate="true" 
         rendered="#{description.retakeAllowed}"
         action="confirmRetake">
-        <h:outputText value="#{msg.allow_retake}"/>
+        <h:outputText value="#{evaluationMessages.allow_retake}"/>
         <f:param name="agentIdString" value="#{description.idString}" />
         <f:param name="publishedAssessmentId" value="#{totalScores.publishedId}" />
         <f:param name="studentName" value="#{description.firstName} #{description.lastName}" />
@@ -234,13 +234,13 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
   		  <f:param name="toEmailAddress" value="#{description.email}" />
   		  <f:param name="toFirstName" value="#{description.firstName}" />
 	</h:commandLink>
-	 <h:outputText value=" #{msg.separator} " rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != '' &&  description.retakeAllowed}" />
+	 <h:outputText value=" #{evaluationMessages.separator} " rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != '' &&  description.retakeAllowed}" />
 
 	 <span class="itemAction">
-     <h:commandLink title="#{msg.t_retake}" id="retakeAssessment2" immediate="true" 
+     <h:commandLink title="#{evaluationMessages.t_retake}" id="retakeAssessment2" immediate="true" 
         rendered="#{description.retakeAllowed}"
         action="confirmRetake">
-        <h:outputText value="#{msg.allow_retake}"/>
+        <h:outputText value="#{evaluationMessages.allow_retake}"/>
         <f:param name="agentIdString" value="#{description.idString}" />
         <f:param name="publishedAssessmentId" value="#{totalScores.publishedId}" />
         <f:param name="studentName" value="#{description.firstName} #{description.lastName}" />
@@ -283,13 +283,13 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
   		  <f:param name="toEmailAddress" value="#{description.email}" />
   		  <f:param name="toFirstName" value="#{description.firstName}" />
 	</h:commandLink>
-	<h:outputText value=" #{msg.separator} " rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != '' &&  description.retakeAllowed}" />
+	<h:outputText value=" #{evaluationMessages.separator} " rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != '' &&  description.retakeAllowed}" />
 
 	 <span class="itemAction">
-     <h:commandLink title="#{msg.t_retake}" id="retakeAssessment3" immediate="true" 
+     <h:commandLink title="#{evaluationMessages.t_retake}" id="retakeAssessment3" immediate="true" 
         rendered="#{description.retakeAllowed}"
         action="confirmRetake">
-        <h:outputText value="#{msg.allow_retake}"/>
+        <h:outputText value="#{evaluationMessages.allow_retake}"/>
         <f:param name="agentIdString" value="#{description.idString}" />
         <f:param name="publishedAssessmentId" value="#{totalScores.publishedId}" />
         <f:param name="studentName" value="#{description.firstName} #{description.lastName}" />
