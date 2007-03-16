@@ -17,10 +17,10 @@
     <property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
     <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
     <property name="autoDdl"><value>${auto.ddl}</value></property>
-	<property name="attemptToMatchSchema"><value>true</value></property>
-	<property name="resourceTypeRegistry"><ref bean="org.sakaiproject.content.api.ResourceTypeRegistry"/></property>
-	<property name="citationsEnabledByDefault"><value>true</value></property>
-	<property name="allowSiteBySiteOverride"><value>false</value></property>
+  	<property name="attemptToMatchSchema"><value>true</value></property>
+	  <property name="resourceTypeRegistry"><ref bean="org.sakaiproject.content.api.ResourceTypeRegistry"/></property>
+	  <property name="citationsEnabledByDefault"><value>true</value></property>
+	  <property name="allowSiteBySiteOverride"><value>false</value></property>
   </bean>
 
   <bean id="org.sakaiproject.citation.api.SearchManager"
@@ -28,11 +28,11 @@
     init-method="init"
     destroy-method="destroy"
     singleton="true">
-    
+
     <property name="metasearchUsername"><value></value></property>
     <property name="metasearchPassword"><value></value></property>
     <property name="metasearchBaseUrl"><value></value></property>
-    
+
     <property name="osidImpl"><value>edu.indiana.lib.osid.base.repository.http</value></property>
     <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
     <property name="googleBaseUrl"><value>http://scholar.google.com</value></property>
@@ -54,10 +54,10 @@
     <property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
     <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
     <property name="autoDdl"><value>${auto.ddl}</value></property>
-	<property name="attemptToMatchSchema"><value>true</value></property>
-	<property name="resourceTypeRegistry"><ref bean="org.sakaiproject.content.api.ResourceTypeRegistry"/></property>
- 	<property name="citationsEnabledByDefault"><value>true</value></property>
-	<property name="allowSiteBySiteOverride"><value>false</value></property>
+	  <property name="attemptToMatchSchema"><value>true</value></property>
+	  <property name="resourceTypeRegistry"><ref bean="org.sakaiproject.content.api.ResourceTypeRegistry"/></property>
+ 	  <property name="citationsEnabledByDefault"><value>true</value></property>
+	  <property name="allowSiteBySiteOverride"><value>false</value></property>
   </bean>
 
   <bean id="org.sakaiproject.citation.api.SearchManager"
@@ -65,11 +65,11 @@
     init-method="init"
     destroy-method="destroy"
     singleton="true">
-    
+
     <property name="metasearchPassword"><value></value></property>
     <property name="metasearchBaseUrl"><value>http://searchtools.lib.umich.edu/X</value></property>
     <property name="metasearchUsername"><value></value></property>
-    
+
     <property name="osidImpl"><value>org.sakaibrary.osid.repository.xserver</value></property>
     <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
     <property name="googleBaseUrl"><value>http://libws.umdl.umich.edu/cgi-bin/gs.cgi</value></property>
@@ -94,5 +94,32 @@
     <property name="citationService"><ref bean="org.sakaiproject.citation.api.CitationService"/></property>
   </bean>
 
-</beans>
+  <!--
+  <bean id="org.sakaiproject.citation.api.ConfigurationService"
+    class="org.sakaiproject.citation.impl.BaseConfigurationService"
+    init-method="init"
+    destroy-method="destroy"
+    singleton="true">
 
+    <property name="metasearchUsername"><value></value></property>
+    <property name="metasearchPassword"><value></value></property>
+    <property name="metasearchBaseUrl"><value></value></property>
+
+    <property name="osidImpl"><value></value></property>
+
+    <property name="openUrlLabel"><value></value></property>
+    <property name="openUrlResolverAddress"><value></value></property>
+
+    <property name="googleBaseUrl"><value></value></property>
+    <property name="sakaiServerKey"><value></value></property>
+
+    <property name="databaseXml"><value></value></property>
+    <property name="siteConfigXml"><value></value></property>
+
+    <property name="osidConfig"><value>org.sakaiproject.citation.impl.SampleSiteOsidConfiguration</value></property>
+    <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+    <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+  </bean>
+  -->
+
+</beans>
