@@ -328,9 +328,15 @@ public class SearchServiceImpl implements SearchService
 			BooleanQuery contextQuery = new BooleanQuery();
 			for (Iterator i = contexts.iterator(); i.hasNext();)
 			{
+				// Setup query so that it will allow results from any
+				// included site, not all included sites.
 				contextQuery.add(new TermQuery(new Term(
-						SearchService.FIELD_SITEID, (String) i.next())),
-						BooleanClause.Occur.MUST);
+				SearchService.FIELD_SITEID, (String) i.next())),
+				BooleanClause.Occur.SHOULD);
+				// This would require term to be in all sites :-(
+//				contextQuery.add(new TermQuery(new Term(
+//						SearchService.FIELD_SITEID, (String) i.next())),
+//						BooleanClause.Occur.MUST);
 			}
 
 			QueryParser qp = new QueryParser(SearchService.FIELD_CONTENTS,

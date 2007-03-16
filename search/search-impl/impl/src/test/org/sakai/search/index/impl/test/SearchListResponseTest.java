@@ -152,5 +152,62 @@ public class SearchListResponseTest extends TestCase
 			log.info("    Field Names:"+sr.getFieldNames());
 		}
 	}
+	
+	public void testResultsSetEscape() throws Exception {
+		String testString = 
+			"<?xml version=\"1.0\"?>" +
+			"<results  fullsize=\"17\"  start=\"11\"  size=\"9\"  >" +
+			"<result index=\"11\"  score=\"0.99999994\"  " +
+			"sid=\"/site/97c4d057-9de3-49db-80df-421b2d05ed52/page11\"  " +
+			"reference=\"/wiki/site/97c4d057-9de3-49db-80df-421b2d05ed52/page11.\"  " +
+			"title=\"L3NpdGUvOTdjNGQwNTctOWRlMy00OWRiLTgwZGYtNDIxYjJkMDVlZDUyL3BhZ2UxMQ==\"  " +
+			"tool=\"wiki\" " +
+			" url=\"http://localhost:8088/access/wiki/site/97c4d057-9de3-49db-80df-421b2d05ed52/page11 &amp; page12.html\" />" +
+			"<result index=\"12\"  score=\"0.99999994\"  " +
+			"sid=\"/site/97c4d057-9de3-49db-80df-421b2d05ed52/page12\"  " +
+			"reference=\"/wiki/site/97c4d057-9de3-49db-80df-421b2d05ed52/page12.\"  " +
+			"title=\"L3NpdGUvOTdjNGQwNTctOWRlMy00OWRiLTgwZGYtNDIxYjJkMDVlZDUyL3BhZ2UxMg==\"  " +
+			"tool=\"wiki\" " +
+			" url=\"http://localhost:8088/access/wiki/site/97c4d057-9de3-49db-80df-421b2d05ed52/page12.html\" />" +
+			"<result index=\"13\"  " +
+			"score=\"0.99999994\"  sid=\"/site/97c4d057-9de3-49db-80df-421b2d05ed52/page13\"  " +
+			"reference=\"/wiki/site/97c4d057-9de3-49db-80df-421b2d05ed52/page13.\"  " +
+			"title=\"L3NpdGUvOTdjNGQwNTctOWRlMy00OWRiLTgwZGYtNDIxYjJkMDVlZDUyL3BhZ2UxMw==\"  " +
+			"tool=\"wiki\"  url=\"http://localhost:8088/access/wiki/site/97c4d057-9de3-49db-80df-421b2d05ed52/page13.html\" />" +
+			"<result index=\"14\"  " +
+			"score=\"0.99999994\"  sid=\"/site/97c4d057-9de3-49db-80df-421b2d05ed52/page14\"  " +
+			"reference=\"/wiki/site/97c4d057-9de3-49db-80df-421b2d05ed52/page14.\"  " +
+			"title=\"L3NpdGUvOTdjNGQwNTctOWRlMy00OWRiLTgwZGYtNDIxYjJkMDVlZDUyL3BhZ2UxNA==\"  " +
+			"tool=\"wiki\"  " +
+			"url=\"http://localhost:8088/access/wiki/site/97c4d057-9de3-49db-80df-421b2d05ed52/page14.html\" />" +
+			"<result index=\"15\"  " +
+			"score=\"0.99999994\"  sid=\"/site/97c4d057-9de3-49db-80df-421b2d05ed52/page15\"  " +
+			"reference=\"/wiki/site/97c4d057-9de3-49db-80df-421b2d05ed52/page15.\"  " +
+			"title=\"L3NpdGUvOTdjNGQwNTctOWRlMy00OWRiLTgwZGYtNDIxYjJkMDVlZDUyL3BhZ2UxNQ==\"  " +
+			"tool=\"wiki\"  " +
+			"url=\"http://localhost:8088/access/wiki/site/97c4d057-9de3-49db-80df-421b2d05ed52/page15.html\" />" +
+			"<result index=\"16\"  " +
+			"score=\"0.5273437\"  sid=\"/site/97c4d057-9de3-49db-80df-421b2d05ed52/home\"  " +
+			"reference=\"/wiki/site/97c4d057-9de3-49db-80df-421b2d05ed52/home.\"  " +
+			"title=\"L3NpdGUvOTdjNGQwNTctOWRlMy00OWRiLTgwZGYtNDIxYjJkMDVlZDUyL2hvbWU=\"  " +
+			"tool=\"wiki\"  " +
+			"url=\"http://localhost:8088/access/wiki/site/97c4d057-9de3-49db-80df-421b2d05ed52/home.html\" />" +
+			"</results>";
+		SearchItemFilter filter = new NullSearchFilter();
+		SearchListResponseImpl slri = new SearchListResponseImpl(testString,
+				null, 0, 10, null, filter, null, null, null);
+		for ( Iterator i = slri.iterator(); i.hasNext(); ) {
+			SearchResult sr = (SearchResult) i.next();
+			log.info("    Id         :"+sr.getId());
+			log.info("    Index      :"+sr.getIndex());
+			log.info("    Reference  :"+sr.getReference());
+			log.info("    Score      :"+sr.getScore());
+			log.info("    Title      :"+sr.getTitle());
+			log.info("    Tool       :"+sr.getTool());
+			log.info("    Url        :"+sr.getUrl());
+			log.info("    Terms      :"+sr.getTerms());
+			log.info("    Field Names:"+sr.getFieldNames());
+		}
+	}
 
 }
