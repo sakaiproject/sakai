@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -15,6 +16,8 @@ import org.apache.pluto.descriptors.portlet.PortletAppDD;
 import org.apache.pluto.descriptors.portlet.PortletDD;
 import org.apache.pluto.internal.InternalPortletContext;
 import org.apache.pluto.spi.optional.PortletRegistryService;
+import org.exolab.castor.util.LocalConfiguration;
+import org.exolab.castor.util.Configuration.Property;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.portal.api.Portal;
@@ -31,7 +34,6 @@ import org.sakaiproject.tool.cover.SessionManager;
 public class PortalServiceImpl implements PortalService
 {
 	private static final Log log = LogFactory.getLog(PortalServiceImpl.class);
-
 	/**
 	 * Parameter to force state reset
 	 */
@@ -49,6 +51,15 @@ public class PortalServiceImpl implements PortalService
 	
 	public void init() {
 		try {
+			try {
+				// configure the parser for castor.. before anything else get a chance
+				Properties castorProperties = LocalConfiguration.getDefault();
+				String parser = ServerConfigurationService.getString("sakai.xml.sax.parser","com.sun.org.apache.xerces.internal.parsers.SAXParser");
+				log.info("Configured Castor to use SAX Parser "+parser);
+				castorProperties.put(Property.Parser, parser );
+				} catch ( Exception ex ) {
+					log.error("Failed to configure Castor",ex);
+				}			
 			stylableServiceProvider = (StyleAbleProvider) ComponentManager.get(StyleAbleProvider.class.getName());
 		} catch ( Exception ex ) {
 		}

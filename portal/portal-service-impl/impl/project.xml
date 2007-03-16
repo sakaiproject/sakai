@@ -98,6 +98,12 @@
                         <artifactId>sakai-user-api</artifactId>
                         <version>${sakai.version}</version>
                 </dependency>
+                <dependency>
+      <groupId>castor</groupId>
+      <artifactId>castor</artifactId>
+      <version>1.0</version>
+    </dependency>
+
 
 
 
