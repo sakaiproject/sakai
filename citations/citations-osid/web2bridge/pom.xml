@@ -2,10 +2,10 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>sakai-citations</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../../../master/pom.xml</relativePath>
+    <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-citations-web2bridge</name>
   <groupId>org.sakaiproject</groupId>
@@ -21,24 +21,28 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>servletapi</groupId>
-      <artifactId>servletapi</artifactId>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
       <version>2.4</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>ehcache</groupId>
       <artifactId>ehcache</artifactId>
       <version>1.1</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>OKI</groupId>
       <artifactId>OkiOSID</artifactId>
       <version>2.0</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>OKI</groupId>
@@ -49,6 +53,7 @@
       <groupId>nekohtml</groupId>
       <artifactId>nekohtml</artifactId>
       <version>0.9.5</version>
+      <scope>provided</scope>
 <!--properties:  deploy.target: shared -->
     </dependency>
     <dependency>

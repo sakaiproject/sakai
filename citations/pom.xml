@@ -7,9 +7,9 @@
     <version>M2</version>
     <relativePath>../master/pom.xml</relativePath>
   </parent>
-  <name>Sakai</name>
+  <name>Citations Project</name>
   <groupId>org.sakaiproject</groupId>
-  <artifactId>.</artifactId>
+  <artifactId>sakai-citations</artifactId>
   <packaging>pom</packaging>
  <modules>
 <module>citations-servlet/servlet/impl</module>
