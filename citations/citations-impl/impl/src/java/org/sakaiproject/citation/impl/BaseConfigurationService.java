@@ -80,6 +80,11 @@ public class BaseConfigurationService implements ConfigurationService
 	protected String m_openUrlLabel;
 	protected String m_openUrlResolverAddress;
   /*
+   * Feature support
+   */
+  protected String m_googleSearchEnabled   = "false";
+  protected String m_librarySearchEnabled  = "false";
+  /*
    * Service configuration values (from components.xml)
    */
   protected String m_osidConfig;
@@ -269,6 +274,50 @@ public class BaseConfigurationService implements ConfigurationService
     String value = getConfigurationParameter("sakai-serverkey");
 
     return (value != null) ? value : getSakaiServerKey();
+  }
+
+  /**
+   * Enable/disable Google support (no support for site spefic XML configuration)
+   * @param state true to enable Google support
+   */
+  public void setGoogleScholarEnabled(boolean state)
+  {
+    String enabled = state ? "true" : "false";
+
+    setGoogleSearchEnabled(enabled);
+  }
+
+  /**
+   * Is Google search enabled? (no support for site spefic XML configuration)
+   * @return true if so
+   */
+  public boolean isGoogleScholarEnabled()
+  {
+    String state = getGoogleSearchEnabled();
+
+    return state.equals("true");
+  }
+
+  /**
+   * Enable/disable library search support (no support for site spefic XML configuration)
+   * @param state true to enable support
+   */
+  public void setLibrarySearchEnabled(boolean state)
+  {
+    String enabled = state ? "true" : "false";
+
+    setLibrarySearchEnabled(enabled);
+  }
+
+  /**
+   * Is library search enabled? (no support for site spefic XML configuration)
+   * @return true if so
+   */
+  public boolean isLibrarySearchEnabled()
+  {
+    String state = getLibrarySearchEnabled();
+
+    return state.equals("true");
   }
 
   /*
@@ -720,5 +769,57 @@ public class BaseConfigurationService implements ConfigurationService
 	public void setOsidConfig(String osidConfig)
 	{
 		m_osidConfig = osidConfig;
+	}
+
+	/**
+   * @return Google search support status
+   */
+  public String getGoogleSearchEnabled()
+  {
+  	return m_googleSearchEnabled;
+  }
+
+	/**
+   * @param googleSearchEnabled ("true" or "false")
+   */
+	public void setGoogleSearchEnabled(String googleSearchEnabled)
+	{
+	  if (googleSearchEnabled.equals("true") || googleSearchEnabled.equals("false"))
+	  {
+	    m_googleSearchEnabled = googleSearchEnabled;
+	    return;
+	  }
+
+	  m_log.warn("Invalid Google support setting \""
+	        +    googleSearchEnabled
+	        +    "\", disabling Google search");
+
+	  m_googleSearchEnabled = "false";
+	}
+
+	/**
+   * @return library search support status
+   */
+  public String getLibrarySearchEnabled()
+  {
+  	return m_librarySearchEnabled;
+  }
+
+	/**
+   * @param librarySearchEnabled ("true" or "false")
+   */
+	public void setLibrarySearchEnabled(String librarySearchEnabled)
+	{
+	  if (librarySearchEnabled.equals("true") || librarySearchEnabled.equals("false"))
+	  {
+	    m_librarySearchEnabled = librarySearchEnabled;
+	    return;
+	  }
+
+	  m_log.warn("Invalid library support setting \""
+	        +    librarySearchEnabled
+	        +    "\", disabling library search");
+
+	  m_librarySearchEnabled = "false";
 	}
 }
