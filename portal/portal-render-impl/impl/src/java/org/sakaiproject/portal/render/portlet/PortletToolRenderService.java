@@ -99,9 +99,9 @@ public class PortletToolRenderService implements ToolRenderService
 
                 if (state.isAction())
                 {
-                        if (LOG.isInfoEnabled())
+                        if (LOG.isDebugEnabled())
                         {
-                                LOG.info("Processing action for placement id " + state.getId());
+                                LOG.debug("Processing action for placement id " + state.getId());
                         }
 
                         PortletStateAccess.setPortletState(request, state);

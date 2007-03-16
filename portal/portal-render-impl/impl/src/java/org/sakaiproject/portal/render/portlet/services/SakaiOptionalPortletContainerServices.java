@@ -117,7 +117,7 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
 
             User user = UserDirectoryService.getCurrentUser();
             if ( user != null ) {
-                System.out.println("Found Current User="+user.getEid());
+                // System.out.println("Found Current User="+user.getEid());
                 retval = new HashMap<String,String> ();
                 retval.put(P3PAttributes.USER_HOME_INFO_ONLINE_EMAIL,user.getEmail());
                 retval.put(P3PAttributes.USER_BUSINESS_INFO_ONLINE_EMAIL,user.getEmail());
@@ -139,7 +139,7 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
             }
 
             if ( retval == null ) retval = new HashMap();
-            System.out.println("Returning=" +retval);
+            // System.out.println("Returning=" +retval);
             return retval;
         }
     }
