@@ -67,7 +67,20 @@ public class SakaiServletActionRequest extends HttpServletRequestWrapper
 	@Override
 	public Enumeration getParameterNames()
 	{
-		return new Vector(getParameterMap().keySet()).elements();
+		final Iterator i = getParameterMap().keySet().iterator();
+		return new Enumeration() {
+
+			public boolean hasMoreElements()
+			{
+				return i.hasNext();
+			}
+
+			public Object nextElement()
+			{
+				return i.next();
+			}
+		
+		};
 	}
 
 	@Override

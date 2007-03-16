@@ -2,6 +2,7 @@ package org.sakaiproject.portal.render.portlet.servlet;
 
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
 
@@ -44,7 +45,20 @@ public class SakaiServletRequest extends HttpServletRequestWrapper
 	@Override
 	public Enumeration getParameterNames()
 	{
-		return new Vector(state.getParameters().keySet()).elements();
+		final Iterator i = state.getParameters().keySet().iterator();
+		return new Enumeration() {
+
+			public boolean hasMoreElements()
+			{
+				return i.hasNext();
+			}
+
+			public Object nextElement()
+			{
+				return i.next();
+			}
+		
+		};
 	}
 
 	@Override

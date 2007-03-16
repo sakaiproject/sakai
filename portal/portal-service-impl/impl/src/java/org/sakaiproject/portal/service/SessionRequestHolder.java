@@ -22,19 +22,19 @@
 package org.sakaiproject.portal.service;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 
 public class SessionRequestHolder
 {
-	private Hashtable headers;
+	private Map<String,List> headers;
 
 	private String contextPath;
 
@@ -47,18 +47,18 @@ public class SessionRequestHolder
 	public SessionRequestHolder(HttpServletRequest request, String marker,
 			String replacement)
 	{
-		headers = new Hashtable();
+		headers = new HashMap<String,List>();
 		Enumeration e = request.getHeaderNames();
 		while (e.hasMoreElements())
 		{
 			String s = (String) e.nextElement();
-			Vector v = new Vector();
+			List v = new ArrayList();
 			Enumeration e1 = request.getHeaders(s);
 			while (e1.hasMoreElements())
 			{
 				v.add(e1.nextElement());
 			}
-			headers.put(s, request.getHeaders(s));
+			headers.put(s, v);
 		}
 		Map m = request.getParameterMap();
 		parameterMap = new HashMap();
@@ -96,7 +96,7 @@ public class SessionRequestHolder
 	{
 		try
 		{
-			Vector v = (Vector) headers.get(arg0);
+			List v = (List) headers.get(arg0);
 			return (String) v.get(0);
 		}
 		catch (Throwable t)
@@ -107,14 +107,39 @@ public class SessionRequestHolder
 
 	public Enumeration getHeaderNames()
 	{
-		return headers.keys();
+		final Iterator<String> i = headers.keySet().iterator();
+		return new Enumeration() {
+
+			public boolean hasMoreElements()
+			{
+				return i.hasNext();
+			}
+
+			public Object nextElement()
+			{
+				return i.next();
+			}
+			
+		}; 
 	}
 
 	public Enumeration getHeaders(String arg0)
 	{
 		try
 		{
-			return ((Vector) headers.get(arg0)).elements();
+			final Iterator i = headers.get(arg0).iterator();
+			return new Enumeration() {
+				public boolean hasMoreElements()
+				{
+					return i.hasNext();
+				}
+
+				public Object nextElement()
+				{
+					return i.next();
+				}
+				
+			};
 		}
 		catch (Throwable t)
 		{
