@@ -94,6 +94,10 @@ public class SearchListResponseImpl implements SearchList, ContentHandler
 		this.searchIndexBuilder = searchIndexBuilder;
 		this.searchService = searchService;
 
+		if (log.isDebugEnabled()) {
+			log.debug("search response: ["+response+"]");
+		}
+		
 		XMLReader xr = XMLReaderFactory.createXMLReader();
 		xr.setContentHandler(this);
 		InputSource is = new InputSource(new StringReader(response));
