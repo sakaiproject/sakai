@@ -51,8 +51,7 @@ import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
 public class RWikiEntityContentProducer implements EntityContentProducer
 {
 
-	private static Log log = LogFactory
-			.getLog(RWikiEntityContentProducer.class);
+	private static Log log = LogFactory.getLog(RWikiEntityContentProducer.class);
 
 	private RenderService renderService = null;
 
@@ -70,25 +69,20 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 		{
 			ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
 					.getInstance();
-			renderService = (RenderService) load(cm, RenderService.class
+			renderService = (RenderService) load(cm, RenderService.class.getName());
+			objectService = (RWikiObjectService) load(cm, RWikiObjectService.class
 					.getName());
-			objectService = (RWikiObjectService) load(cm,
-					RWikiObjectService.class.getName());
-			searchService = (SearchService) load(cm, SearchService.class
+			searchService = (SearchService) load(cm, SearchService.class.getName());
+			searchIndexBuilder = (SearchIndexBuilder) load(cm, SearchIndexBuilder.class
 					.getName());
-			searchIndexBuilder = (SearchIndexBuilder) load(cm,
-					SearchIndexBuilder.class.getName());
-			entityManager = (EntityManager) load(cm, EntityManager.class
-					.getName());
+			entityManager = (EntityManager) load(cm, EntityManager.class.getName());
 
-			if ("true".equals(ServerConfigurationService.getString(
-					"search.experimental", "false")))
+			if ("true".equals(ServerConfigurationService.getString("search.experimental",
+					"false")))
 			{
 
-				searchService
-						.registerFunction(RWikiObjectService.EVENT_RESOURCE_ADD);
-				searchService
-						.registerFunction(RWikiObjectService.EVENT_RESOURCE_WRITE);
+				searchService.registerFunction(RWikiObjectService.EVENT_RESOURCE_ADD);
+				searchService.registerFunction(RWikiObjectService.EVENT_RESOURCE_WRITE);
 				searchIndexBuilder.registerEntityContentProducer(this);
 			}
 		}
@@ -127,14 +121,20 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 		RWikiObject rwo = rwe.getRWikiObject();
 		String pageName = rwo.getName();
 		String pageSpace = NameHelper.localizeSpace(pageName, rwo.getRealm());
-		String renderedPage = renderService.renderPage(rwo, pageSpace,
-				objectService.getComponentPageLinkRender(pageSpace));
+		String renderedPage = renderService.renderPage(rwo, pageSpace, objectService
+				.getComponentPageLinkRender(pageSpace));
 		StringBuilder sb = new StringBuilder();
-		for ( HTMLParser hp = new HTMLParser(renderedPage); hp.hasNext(); ) {
+		for (HTMLParser hp = new HTMLParser(renderedPage); hp.hasNext();)
+		{
 			SearchUtils.appendCleanString(hp.next(), sb);
 		}
-		return sb.toString();
 
+		String r = sb.toString();
+		if (log.isDebugEnabled())
+		{
+			log.debug("Wiki.getContent:" + reference + ":" + r);
+		}
+		return r;
 	}
 
 	public String getTitle(String reference)
@@ -143,19 +143,27 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 		Entity cr = ref.getEntity();
 		RWikiEntity rwe = (RWikiEntity) cr;
 		RWikiObject rwo = rwe.getRWikiObject();
-		return SearchUtils.appendCleanString(rwo.getName(),null).toString();
+		String r = SearchUtils.appendCleanString(rwo.getName(), null).toString();
+		if (log.isDebugEnabled())
+		{
+			log.debug("Wiki.getTitle:" + reference + ":" + r);
+		}
+		return r;
 	}
 
 	public boolean matches(String reference)
 	{
-		try {
+		try
+		{
 			Reference ref = getReference(reference);
 			EntityProducer ep = ref.getEntityProducer();
 			return (ep instanceof RWikiObjectService);
-		} catch ( Exception ex ) {
+		}
+		catch (Exception ex)
+		{
 			return false;
 		}
-		
+
 	}
 
 	public List getAllContent()
@@ -218,13 +226,22 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 		{
 			context = context.substring(0, slash);
 		}
+		if (log.isDebugEnabled())
+		{
+			log.debug("Wiki.getSiteId" + ref + ":" + context);
+		}
 		return context;
 	}
 
 	public String getSiteId(String resourceName)
 	{
 
-		return getSiteId(entityManager.newReference(resourceName));
+		String r = getSiteId(entityManager.newReference(resourceName));
+		if (log.isDebugEnabled())
+		{
+			log.debug("Wiki.getSiteId" + resourceName + ":" + r);
+		}
+		return r;
 	}
 
 	public List getSiteContent(String context)
@@ -239,12 +256,14 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 		}
 		return l;
 	}
+
 	public Iterator getSiteContentIterator(String context)
 	{
 		List allPages = objectService.findRWikiSubPages("/site/" + context);
 		List l = new ArrayList();
 		final Iterator allPagesIterator = allPages.iterator();
-		return new Iterator() {
+		return new Iterator()
+		{
 
 			public boolean hasNext()
 			{
@@ -259,9 +278,9 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 
 			public void remove()
 			{
-				throw new UnsupportedOperationException("Remove not supported");				
+				throw new UnsupportedOperationException("Remove not supported");
 			}
-			
+
 		};
 	}
 
@@ -274,8 +293,7 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 			RWikiEntity rwe = (RWikiEntity) ref.getEntity();
 			RWikiObject rwo = rwe.getRWikiObject();
 			String pageName = rwo.getName();
-			String pageSpace = NameHelper.localizeSpace(pageName, rwo
-					.getRealm());
+			String pageSpace = NameHelper.localizeSpace(pageName, rwo.getRealm());
 			if (objectService.exists(pageName, pageSpace))
 			{
 				return true;
@@ -312,64 +330,119 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 		return null;
 	}
 
-	private Reference getReference(String reference) {
-		try {
-			 return entityManager.newReference(reference);
-		} catch ( Exception ex ) {			
+	private Reference getReference(String reference)
+	{
+		try
+		{
+			Reference r = entityManager.newReference(reference);
+			if (log.isDebugEnabled())
+			{
+				log.debug("Wiki.getReference:" + reference + ":" + r);
+			}
+			return r;
+		}
+		catch (Exception ex)
+		{
 		}
 		return null;
 	}
-	private EntityProducer getProducer(Reference ref) {
-		try {
-			 return ref.getEntityProducer();
-		} catch ( Exception ex ) {			
+
+	private EntityProducer getProducer(Reference ref)
+	{
+		try
+		{
+			return ref.getEntityProducer();
+		}
+		catch (Exception ex)
+		{
 		}
 		return null;
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.api.EntityContentProducer#getId(java.lang.String)
 	 */
 	public String getId(String reference)
 	{
-		try {
-			return getReference(reference).getId();
-		} catch ( Exception ex ) {
+		try
+		{
+			String r = getReference(reference).getId();
+			if (log.isDebugEnabled())
+			{
+				log.debug("Wiki.getId:" + reference + ":" + r);
+			}
+			return r;
+		}
+		catch (Exception ex)
+		{
 			return "";
 		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.api.EntityContentProducer#getSubType(java.lang.String)
 	 */
 	public String getSubType(String reference)
 	{
-		try {
-			return getReference(reference).getSubType();
-		} catch ( Exception ex ) {
+		try
+		{
+			String r = getReference(reference).getSubType();
+			if (log.isDebugEnabled())
+			{
+				log.debug("Wiki.getSubType:" + reference + ":" + r);
+			}
+			return r;
+		}
+		catch (Exception ex)
+		{
 			return "";
 		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.api.EntityContentProducer#getType(java.lang.String)
 	 */
 	public String getType(String reference)
 	{
-		try {
-			return getReference(reference).getType();
-		} catch ( Exception ex ) {
+		try
+		{
+			String r = getReference(reference).getType();
+			if (log.isDebugEnabled())
+			{
+				log.debug("Wiki.getType:" + reference + ":" + r);
+			}
+			return r;
+		}
+		catch (Exception ex)
+		{
 			return "";
 		}
 	}
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.api.EntityContentProducer#getType(java.lang.String)
 	 */
 	public String getContainer(String reference)
 	{
-		try {
-			return getReference(reference).getContainer();
-		} catch ( Exception ex ) {
+		try
+		{
+			String r = getReference(reference).getContainer();
+			if (log.isDebugEnabled())
+			{
+				log.debug("Wiki.getContainer:" + reference + ":" + r);
+			}
+			return r;
+		}
+		catch (Exception ex)
+		{
 			return "";
 		}
 	}

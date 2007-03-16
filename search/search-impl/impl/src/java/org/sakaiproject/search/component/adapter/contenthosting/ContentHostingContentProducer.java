@@ -34,7 +34,6 @@ import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.Reference;
@@ -158,26 +157,39 @@ public class ContentHostingContentProducer implements EntityContentProducer
 
 	public boolean isContentFromReader(String ref)
 	{
+		boolean debug = log.isDebugEnabled();
 		ContentResource contentResource;
 		try
 		{
-			contentResource = contentHostingService.getResource(ref);
+			Reference reference = entityManager.newReference(ref);
+			contentResource = contentHostingService.getResource(reference.getId());
 		}
 		catch (Exception e)
 		{
 			throw new RuntimeException("Failed to resolve resource " + ref, e);
 		}
-		if (contentResource.getContentLength() > readerSizeLimit) return true;
+		if (contentResource.getContentLength() > readerSizeLimit) {
+			if (debug ) {
+				log.debug("ContentHosting.isContentFromReader"+ref+":yes");
+			}
+			return true;
+		}
+		if (debug ) {
+			log.debug("ContentHosting.isContentFromReader"+ref+":yes");
+		}
 		return false;
 	}
 
 
+
 	public Reader getContentReader(String ref)
 	{
+		boolean debug = log.isDebugEnabled();
 		ContentResource contentResource;
 		try
 		{
-			contentResource = contentHostingService.getResource(ref);
+			Reference reference = entityManager.newReference(ref);
+			contentResource = contentHostingService.getResource(reference.getId());
 		}
 		catch (Exception e)
 		{
@@ -185,6 +197,9 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		}
 		if (contentResource.getContentLength() <= 0)
 		{
+			if (debug ) {
+				log.debug("ContentHosting.getContentReader"+ref+": empty");
+			}
 			return new StringReader("");
 		}
 
@@ -220,6 +235,9 @@ public class ContentHostingContentProducer implements EntityContentProducer
 						+ contentResource + " using " + digester, ex);
 			}
 		}
+		if (debug ) {
+			log.debug("ContentHosting.getContentReader"+ref+":"+reader);
+		}
 		return reader;
 	}
 	public String getContent(String  ref) {
@@ -228,17 +246,25 @@ public class ContentHostingContentProducer implements EntityContentProducer
 
 	public String getContent(String ref,int minWordLenght)
 	{
+		boolean debug = log.isDebugEnabled();
 		ContentResource contentResource;
 		try
 		{
-			contentResource = contentHostingService.getResource(ref);
+			Reference reference = entityManager.newReference(ref);
+			contentResource = contentHostingService.getResource(reference.getId());
 		}
 		catch (Exception e)
 		{
+			if ( debug ) {
+				log.debug("Failed To resolve Resource",e);
+			}
 			throw new RuntimeException("Failed to resolve resource ", e);
 		}
 		if (contentResource.getContentLength() <= 0)
 		{
+			if (debug ) {
+				log.debug("ContentHosting.getContent"+ref+":empty");
+			}
 			return "";
 		}
 		ContentDigester digester = getDigester(contentResource);
@@ -269,9 +295,15 @@ public class ContentHostingContentProducer implements EntityContentProducer
 			}
 			else
 			{
+				if ( debug ) {
+					log.debug("Failed To extract content");
+				}
 				throw new RuntimeException("Failed to extract content from "
 						+ contentResource + " using " + digester, ex);
 			}
+		}
+		if (debug ) {
+			log.debug("ContentHosting.getContent"+ref+":"+content);
 		}
 		return content;
 
@@ -279,6 +311,7 @@ public class ContentHostingContentProducer implements EntityContentProducer
 
 	public ContentDigester getDigester(ContentResource cr)
 	{
+		boolean debug = log.isDebugEnabled();
 		if (cr.getContentLength() > digesterSizeLimit)
 		{
 			return defaultDigester;
@@ -298,33 +331,53 @@ public class ContentHostingContentProducer implements EntityContentProducer
 
 	public String getTitle(String ref)
 	{
+		boolean debug = log.isDebugEnabled();
 		ContentResource contentResource;
 		try
 		{
-			contentResource = contentHostingService.getResource(ref);
+			Reference reference = entityManager.newReference(ref);
+			contentResource = contentHostingService.getResource(reference.getId());
 		}
 		catch (Exception e)
 		{
+			if ( debug ) {
+				log.debug("Failed To resolve Resource",e);
+			}
+
 			throw new RuntimeException("Failed to resolve resource ", e);
 		}
 		ResourceProperties rp = contentResource.getProperties();
 		String displayNameProp = rp.getNamePropDisplayName();
-		return rp.getProperty(displayNameProp);
+		String title = rp.getProperty(displayNameProp);
+		if (debug ) {
+			log.debug("ContentHosting.getTitle"+ref+":"+title);
+		}
+		return title;
 	}
 
 	public boolean matches(String ref)
 	{
+		boolean debug = log.isDebugEnabled();
 		try {
 			Reference reference = entityManager.newReference(ref);
 			EntityProducer ep = reference.getEntityProducer();
-			return (ep instanceof ContentHostingService);
+			boolean m = (ep instanceof ContentHostingService);
+			if (debug ) {
+				log.debug("ContentHosting.matches"+ref+":"+m);
+			}
+			return m;
+
 		} catch ( Exception ex ) {
+			if (debug ) {
+				log.debug("ContentHosting.matches"+ref+":fail-no-match");
+			}
 			return false;
 		}
 	}
 
 	public List getAllContent()
 	{
+		boolean debug = log.isDebugEnabled();
 		List sites = siteService.getSites(SelectionType.ANY, null, null, null,
 				SortType.NONE, null);
 		List l = new ArrayList();
@@ -341,28 +394,46 @@ public class ContentHostingContentProducer implements EntityContentProducer
 				l.add(resource.getReference());
 			}
 		}
+		if (debug ) {
+			log.debug("ContentHosting.getAllContent::"+l.size());
+		}
 		return l;
 
 	}
 
 	public Integer getAction(Event event)
 	{
+		boolean debug = log.isDebugEnabled();
 		String eventName = event.getEvent();
 		if (ContentHostingService.EVENT_RESOURCE_ADD.equals(eventName)
 				|| ContentHostingService.EVENT_RESOURCE_WRITE.equals(eventName))
 		{
+			if (debug ) {
+				log.debug("ContentHosting.getAction"+event+":add");
+			}
 			return SearchBuilderItem.ACTION_ADD;
 		}
 		if (ContentHostingService.EVENT_RESOURCE_REMOVE.equals(eventName))
 		{
+			if (debug ) {
+				log.debug("ContentHosting.getAction"+event+":delete");
+			}
 			return SearchBuilderItem.ACTION_DELETE;
+		}
+		if (debug ) {
+			log.debug("ContentHosting.getAction"+event+":uknown");
 		}
 		return SearchBuilderItem.ACTION_UNKNOWN;
 	}
 
 	public boolean matches(Event event)
 	{
-		return !SearchBuilderItem.ACTION_UNKNOWN.equals(getAction(event));
+		boolean debug = log.isDebugEnabled();
+		boolean m =  !SearchBuilderItem.ACTION_UNKNOWN.equals(getAction(event));
+		if (debug ) {
+			log.debug("ContentHosting.matches"+event+":"+m);
+		}
+		return m;
 	}
 
 	public String getTool()
@@ -372,22 +443,36 @@ public class ContentHostingContentProducer implements EntityContentProducer
 
 	public String getUrl(String ref)
 	{
+		boolean debug = log.isDebugEnabled();
 		Reference reference = entityManager.newReference(ref);
-		return reference.getUrl();
+		String url =  reference.getUrl();
+		if (debug ) {
+			log.debug("ContentHosting.getAction"+ref+":"+url);
+		}
+		return url;
 	}
 
 	private String getSiteId(Reference ref)
 	{
-		return ref.getContext();
+		String r =  ref.getContext();
+		if (log.isDebugEnabled() ) {
+			log.debug("ContentHosting.getSiteId"+ref+":"+r);
+		}
+		return r;
 	}
 
 	public String getSiteId(String resourceName)
 	{
-		return getSiteId(entityManager.newReference(resourceName));
+		String r =  getSiteId(entityManager.newReference(resourceName));
+		if (log.isDebugEnabled() ) {
+			log.debug("ContentHosting.getSiteId"+resourceName+":"+r);
+		}
+		return r;
 	}
 
 	public List getSiteContent(String context)
 	{
+		boolean debug = log.isDebugEnabled();
 		String siteCollection = contentHostingService
 				.getSiteCollection(context);
 		List siteContent = contentHostingService
@@ -398,15 +483,21 @@ public class ContentHostingContentProducer implements EntityContentProducer
 			ContentResource resource = (ContentResource) i.next();
 			l.add(resource.getReference());
 		}
+		if (debug ) {
+			log.debug("ContentHosting.getSiteContent"+context+":"+l.size());
+		}
 		return l;
 	}
 
 	public Iterator getSiteContentIterator(String context)
 	{
+		boolean debug = log.isDebugEnabled();
 
 		String siteCollection = contentHostingService
 				.getSiteCollection(context);
-		log.debug("Getting content for site info " + siteCollection);
+		if ( debug) {
+			log.debug("Getting content for site info " + siteCollection);
+		}
 		List siteContent = null;
 		if ("/".equals(siteCollection))
 		{
@@ -479,15 +570,24 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		ContentResource contentResource;
 		try
 		{
-			contentResource = contentHostingService.getResource(ref);
+			Reference reference = entityManager.newReference(ref);
+
+			contentResource = contentHostingService.getResource(reference.getId());
 		}
 		catch (IdUnusedException idun)
 		{
+			if ( log.isDebugEnabled() ) {
+				log.debug("Resource Not present in CHS "+ref);
+			}
+
 			return false; // a collection or unknown resource that cant be
 			// indexed
 		}
 		catch (Exception e)
 		{
+			if ( log.isDebugEnabled() ) {
+				log.debug("Failed To resolve Resource",e);
+			}
 			throw new RuntimeException("Failed to resolve resource ", e);
 		}
 		return true;
@@ -497,7 +597,8 @@ public class ContentHostingContentProducer implements EntityContentProducer
 	{
 		try
 		{
-			contentHostingService.checkResource(ref);
+			Reference reference = entityManager.newReference(ref);
+			contentHostingService.checkResource(reference.getId());
 			return true;
 		}
 		catch (Exception ex)
@@ -536,7 +637,11 @@ public class ContentHostingContentProducer implements EntityContentProducer
 	private Reference getReference(String reference) {
 		try {
 			 return entityManager.newReference(reference);
-		} catch ( Exception ex ) {			
+		} catch ( Exception ex ) {	
+			if ( log.isDebugEnabled() ) {
+				log.debug("Failed To resolve Resource",ex);
+			}
+
 		}
 		return null;
 	}
@@ -546,9 +651,14 @@ public class ContentHostingContentProducer implements EntityContentProducer
 	 */
 	public String getId(String reference)
 	{
+		boolean debug = log.isDebugEnabled();
 		try {
 			return getReference(reference).getId();
 		} catch ( Exception ex ) {
+			if ( debug ) {
+				log.debug("Failed To resolve Resource",ex);
+			}
+
 			return "";
 		}
 	}
@@ -558,8 +668,13 @@ public class ContentHostingContentProducer implements EntityContentProducer
 	 */
 	public String getSubType(String reference)
 	{
+		boolean debug = log.isDebugEnabled();
 		try {
-			return getReference(reference).getSubType();
+			String r =  getReference(reference).getSubType();
+			if (debug ) {
+				log.debug("ContentHosting.getSubType"+reference+":"+r);
+			}
+			return r;
 		} catch ( Exception ex ) {
 			return "";
 		}
@@ -570,8 +685,13 @@ public class ContentHostingContentProducer implements EntityContentProducer
 	 */
 	public String getType(String reference)
 	{
+		boolean debug = log.isDebugEnabled();
 		try {
-			return getReference(reference).getType();
+			String r =  getReference(reference).getType();
+			if (debug ) {
+				log.debug("ContentHosting.getType"+reference+":"+r);
+			}
+			return r;
 		} catch ( Exception ex ) {
 			return "";
 		}
@@ -581,8 +701,13 @@ public class ContentHostingContentProducer implements EntityContentProducer
 	 */
 	public String getContainer(String reference)
 	{
+		boolean debug = log.isDebugEnabled();
 		try {
-			return getReference(reference).getContainer();
+			String r =  getReference(reference).getContainer();
+			if (debug ) {
+				log.debug("ContentHosting.getContainer"+reference+":"+r);
+			}
+			return r;
 		} catch ( Exception ex ) {
 			return "";
 		}

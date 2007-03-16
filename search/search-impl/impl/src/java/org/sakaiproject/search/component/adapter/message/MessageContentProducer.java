@@ -136,7 +136,11 @@ public class MessageContentProducer implements EntityContentProducer
 	
 	private Reference getReference(String reference) {
 		try {
-			 return entityManager.newReference(reference);
+			Reference r = entityManager.newReference(reference);
+			if (log.isDebugEnabled() ) {
+					log.debug("Message."+toolName+".getReference"+reference+":"+r);
+			}
+			return r;		
 		} catch ( Exception ex ) {			
 		}
 		return null;
@@ -217,8 +221,11 @@ public class MessageContentProducer implements EntityContentProducer
 								+ ex.getMessage());
 					}
 				}
-
-				return sb.toString();
+				String r = sb.toString();
+				if (log.isDebugEnabled() ) {
+					log.debug("Message."+toolName+".getContent"+reference+":"+r);
+				}
+				return r;
 			}
 			catch (IdUnusedException e)
 			{
@@ -264,8 +271,12 @@ public class MessageContentProducer implements EntityContentProducer
 
 				String title = subject + Messages.getString("MessageContentProducer.36") //$NON-NLS-1$
 						+ mh.getFrom().getDisplayName();
-				return SearchUtils.appendCleanString(title,null).toString();
-
+				
+				String r = SearchUtils.appendCleanString(title,null).toString();
+				if (log.isDebugEnabled() ) {
+					log.debug("Message."+toolName+".getTitle"+reference+":"+r);
+				}
+				return r;
 			}
 			catch (IdUnusedException e)
 			{
@@ -334,6 +345,9 @@ public class MessageContentProducer implements EntityContentProducer
 				log.error("Got error on channel ", ex); //$NON-NLS-1$
 
 			}
+		}
+		if (log.isDebugEnabled() ) {
+			log.debug("Message."+toolName+".getAllContent::"+all.size());
 		}
 		return all;
 	}
@@ -631,7 +645,11 @@ public class MessageContentProducer implements EntityContentProducer
 	public String getId(String reference)
 	{
 		try {
-			return getReference(reference).getId();
+			String r = getReference(reference).getId();
+			if (log.isDebugEnabled() ) {
+				log.debug("Message."+toolName+".getContainer"+reference+":"+r);
+			}
+			return r;
 		} catch ( Exception ex ) {
 			return "";
 		}
@@ -643,7 +661,11 @@ public class MessageContentProducer implements EntityContentProducer
 	public String getSubType(String reference)
 	{
 		try {
-			return getReference(reference).getSubType();
+			String r = getReference(reference).getSubType();
+			if (log.isDebugEnabled() ) {
+				log.debug("Message."+toolName+".getContainer"+reference+":"+r);
+			}
+			return r;
 		} catch ( Exception ex ) {
 			return "";
 		}
@@ -655,7 +677,11 @@ public class MessageContentProducer implements EntityContentProducer
 	public String getType(String reference)
 	{
 		try {
-			return getReference(reference).getType();
+			String r = getReference(reference).getType();
+			if (log.isDebugEnabled() ) {
+				log.debug("Message."+toolName+".getContainer"+reference+":"+r);
+			}
+			return r;
 		} catch ( Exception ex ) {
 			return "";
 		}
@@ -666,7 +692,11 @@ public class MessageContentProducer implements EntityContentProducer
 	public String getContainer(String reference)
 	{
 		try {
-			return getReference(reference).getContainer();
+			String r = getReference(reference).getContainer();
+			if (log.isDebugEnabled() ) {
+				log.debug("Message."+toolName+".getContainer"+reference+":"+r);
+			}
+			return r;
 		} catch ( Exception ex ) {
 			return "";
 		}
