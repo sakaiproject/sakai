@@ -22,15 +22,28 @@
 package org.sakaiproject.search.tool.model;
 
 /**
+ * Model for the search terms on the page
  * @author ieb
  *
  */
 public interface SearchTerm
 {
+	/**
+	 * the relative weight of the search term 1 - 100
+	 * @return
+	 */
 	String getWeight();
 	
+	/**
+	 * The URL that will search on the term
+	 * @return
+	 */
 	String getUrl();
 	
+	/**
+	 * The name of the search term
+	 * @return
+	 */
 	String getName();
 
 }

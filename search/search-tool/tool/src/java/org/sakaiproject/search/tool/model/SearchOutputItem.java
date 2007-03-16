@@ -27,12 +27,28 @@ package org.sakaiproject.search.tool.model;
 public interface SearchOutputItem
 {
 
+	/**
+	 * the tool the hit comes from
+	 * @return
+	 */
 	String getTool();
 
+	/**
+	 * the url for the hit
+	 * @return
+	 */
 	String getUrl();
 
+	/**
+	 * the title of the hit
+	 * @return
+	 */
 	String getTitle();
 
+	/**
+	 * the highlighted content of the hit
+	 * @return
+	 */
 	String getSearchResult();
 
 }

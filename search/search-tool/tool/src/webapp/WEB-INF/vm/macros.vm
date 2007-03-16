@@ -10,7 +10,7 @@
   			<script type="text/javascript" src="/sakai-search-tool/scripts/search.js"> </script>
 #if ( ${searchPage} )
 #if ( ${searchModel.hasResults()} )
-					<link rel="alternate" title="${rlb.jsp_search_for}:${searchTerms}"
+					<link rel="alternate" title="${rlb.jsp_search_for}:${searchModel.search}"
  							href="${searchModel.rssURL}" type="application/rss+xml" />
 #end
  			  <link rel="search"

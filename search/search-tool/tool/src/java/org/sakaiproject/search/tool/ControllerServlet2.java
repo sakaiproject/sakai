@@ -124,6 +124,8 @@ public class ControllerServlet2 extends HttpServlet
 			Properties p = new Properties();
 			p.load(this.getClass().getResourceAsStream("searchvelocity.config"));
 			vengine.init(p);
+			vengine.getTemplate(inlineMacros);
+
 		}
 		catch (Exception ex)
 		{
@@ -259,7 +261,6 @@ public class ControllerServlet2 extends HttpServlet
 			
 
 			
-			vengine.getTemplate(inlineMacros);
 			String filePath = "/WEB-INF/vm/" + template + ".vm";
 			String contentType = contentTypes.get(template);
 			if (contentType == null)

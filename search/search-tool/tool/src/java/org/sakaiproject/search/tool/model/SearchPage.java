@@ -22,13 +22,22 @@
 package org.sakaiproject.search.tool.model;
 
 /**
+ * Model for the pager
  * @author ieb
  *
  */
 public interface SearchPage
 {
+	/**
+	 * The name of the page
+	 * @return
+	 */
 	String getName();
 	
+	/**
+	 * The URL to get to the page
+	 * @return
+	 */
 	String getUrl();
 
 }
