@@ -85,14 +85,17 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		p.load(this.getClass().getResourceAsStream("portalvelocity.config"));
 		vengine.init(p);
 		availablePortalSkins = new ArrayList();
-		Map m = new HashMap();
+ 		Map m = new HashMap();
 		m.put("name", "defaultskin");
 		m.put("display", "Default");
 		availablePortalSkins.add(m);
+/*		
 		m = new HashMap();
 		m.put("name", "skintwo");
 		m.put("display", "Skin Two");
 		availablePortalSkins.add(m);
+*/
+		vengine.getTemplate("/vm/defaultskin/macros.vm");
 
 	}
 
@@ -165,7 +168,6 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		{
 			skin = "defaultskin";
 		}
-		vengine.getTemplate("/vm/defaultskin/macros.vm");
 		if ( !"defaultskin".equals(skin) ) {
 			vengine.getTemplate("/vm/" + skin + "/macros.vm");
 		}
