@@ -2,7 +2,7 @@
 #set( $realmCollectionBean = ${requestScope.AuthZGroupCollectionBean} )
 #set( $errorBean = ${requestScope.rsacMap.errorBean} )
 #set( $rlb = ${requestScope.rsacMap.resourceLoaderBean} )
-#set( $title = "${rlb.jsp_edit_section}: ${multiRealmEditBean.localSpace}" )
+#set( $title = "${rlb.jsp_edit_section}: ${util.escapeHtml($multiRealmEditBean.localSpace)}" )
 #header(${title} false )  
 <div id="rwiki_container">
   <div class="portletBody">
@@ -18,12 +18,12 @@
 		
 	 <div id="rwiki_content" class="nosidebar" >
           <h3>${rlb.jsp_edit_acl_title}: 
-            ${multiRealmEditBean.PageName}
+            ${util.escapeHtml($multiRealmEditBean.PageName)}
           </h3>
           #if ( ${errorBean.errors.size()}  > 0 )
 	         <p class="validation" style="clear: none;">
 		          #foreach( $error in ${errorBean.errors} )
-		          ${error}
+		          ${util.escapeHtml($error)}
 		          #end
 		        </p>
 	         #end
@@ -43,7 +43,7 @@
                 </tr>
                 <tr> 
               	 	<th colspan="7" >
-              	 		<label>${rlb.jsp_realm}: ${authZGroupBean.RealmId}</label>
+              	 		<label>${rlb.jsp_realm}: ${util.escapeHtml($authZGroupBean.RealmId)}</label>
               	 		<input type="submit" name="save" value="${rlb.jsp_remove_realm}"/>
               	 	</th>
               	 </tr>
@@ -108,12 +108,12 @@
                 
                 <tr> 
                   <td colspan="7"> 
-                        <input type="hidden" name="pageName" value="<%= multiRealmEditBean.getPageName() %>" />
+                        <input type="hidden" name="pageName" value="${multiRealmEditBean.pageName}" />
                         <input type="hidden" name="panel" value="Main"/>
                         <input type="hidden" name="action" value="editRealmMany"/>
-                        <input type="submit" name="save" value="<%= rlb.getString("jsp_button_save") %>"/>
-                        <input type="submit" name="save" value="<%= rlb.getString("jsp_button_cancel") %>"/>
-                        <input type="hidden" name="realm" value="<%= multiRealmEditBean.getLocalSpace() %>"/>
+                        <input type="submit" name="save" value="${rlb.jsp_button_save}"/>
+                        <input type="submit" name="save" value="${rlb.jsp_button_cancel}"/>
+                        <input type="hidden" name="realm" value="${multiRealmEditBean.localSpace}"/>
                   </td>
                 </tr>
               </table>

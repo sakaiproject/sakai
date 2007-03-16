@@ -11,7 +11,7 @@
 #set( $nameHelperBean = ${requestScope.nameHelperBean} )
 #set( $homeBean = ${requestScope.homeBean} )
 #set( $rlb = ${requestScope.resourceLoaderBean} )
-#set( $title = "${rlb.jsp_edit}: ${viewBean.localName}" )
+#set( $title = "${rlb.jsp_edit}: ${util.escapeHtml($viewBean.localName)}" )
 #header(${title} false )  
 <div id="rwiki_container">
   <div class="portletBody">
@@ -24,7 +24,7 @@
 	  	 #commandlinks(true true true "View"	true  true true true ${requestScope.Withnotification}	${homeBean} ${viewBean} ${rlb} ) 
 	    <span class="rwiki_searchBox">
 	      ${rlb.jsp_search}:	
-	      <input type="hidden" name="action" value="${requestScope.SearchTarget}" />
+	      <input type="hidden" name="action" value="${util.escapeHtml($requestScope.SearchTarget)}" />
 	      <input type="hidden" name="panel" value="Main" />
 	      <input type="text" name="search" />
 	    </span>
@@ -76,7 +76,7 @@
 				      #if (${errorBean.errors.size()} > 0)
 						       <p class="validation" style="clear: none;">
 						       #foreach ( $error in ${errorBean.errors} )
-						          ${error}
+						          ${util.escapeHtml($error)}
 						       #end
 						       </p>
 				      #end
@@ -87,28 +87,28 @@
 						      #end
 					      	<p class="longtext">
 					      		<label for="submittedContent">${rlb.jsp_submitted_content}</label>
-						       <input id="submittedContent" type="hidden" name="submittedContent" value="${editBean.previousContent}" />
+						       <input id="submittedContent" type="hidden" name="submittedContent" value="${util.escapeHtml($editBean.previousContent)}" />
 						      </p>
 						      <pre class="rwiki_previousContent" >
-						          ${editBean.previousContent}
+						          ${util.escapeHtml($editBean.previousContent)}
 						      </pre>
 				      #end
 				      #if ( ${editBean.saveType} && "preview" == ${editBean.saveType} && ${nameHelperBean.submittedContent} )
 						      <p class="longtext">
 						         <label for="submittedContent">${rlb.jsp_submitted_prior_content}</label>
-						         <input type="hidden" name="submittedContent" value="${nameHelperBean.submittedContent}" />
+						         <input type="hidden" name="submittedContent" value="${util.escapeHtml($nameHelperBean.submittedContent)}" />
 						      </p>
 						      <pre class="rwiki_previousContent">
-						         ${nameHelperBean.submittedContent}
+						         ${util.escapeHtml($nameHelperBean.submittedContent)}
 						      </pre>
 				      #end
 				      #if ( ${editBean.saveType} && ${editBean.saveType.startsWith("attach")} && ${nameHelperBean.submittedContent} )
 						      <p class="longtext">
 						         <label for="submittedContent">${rlb.jsp_submitted_prior_content_attach}</label>
-						         <input type="hidden" name="submittedContent" value="${nameHelperBean.submittedContent}" />
+						         <input type="hidden" name="submittedContent" value="${util.escapeHtml($nameHelperBean.submittedContent)}" />
 						      </p>
 						      <pre class="rwiki_previousContent">
-						         ${nameHelperBean.submittedContent}
+						         ${util.escapeHtml($nameHelperBean.submittedContent)}
 						      </pre>
 				      #end
 				      <div>
@@ -122,7 +122,7 @@
 						                     id="content" 
 						                     onselect="storeCaret(this)" 
 						                     onclick="storeCaret(this)" 
-						                     onkeyup="storeCaret(this)" >${editBean.previousContent}</textarea>
+						                     onkeyup="storeCaret(this)" >${util.escapeHtml($editBean.previousContent)}</textarea>
 						 	         #else
 						           <textarea cols="60" 
 						                     rows="25" 
@@ -130,7 +130,7 @@
 						                     id="content" 
 						                     onselect="storeCaret(this)" 
 						                     onclick="storeCaret(this)" 
-						                     onkeyup="storeCaret(this)" >${currentRWikiObject.content}</textarea>
+						                     onkeyup="storeCaret(this)" >${util.escapeHtml($currentRWikiObject.content)}</textarea>
 								         #end
 						        </div>
 						      </div>
@@ -143,8 +143,8 @@
    						      <input type="hidden" name="version" id="pageVersion" 
 						                value="${currentRWikiObject.version.time}" />
 						      #end
-												<input type="hidden" name="pageName" id="pageName" value="${currentRWikiObject.name}" />
-												<input type="hidden" name="realm" id="realm" value="${currentRWikiObject.realm}" />
+												<input type="hidden" name="pageName" id="pageName" value="${util.escapeHtml($currentRWikiObject.name)}" />
+												<input type="hidden" name="realm" id="realm" value="${util.escapeHtml($currentRWikiObject.realm)}" />
 				      </div>
 				      <div class="rwiki_editControl" id="editControl">
 						       <p class="act">

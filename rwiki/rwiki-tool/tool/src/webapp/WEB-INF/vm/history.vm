@@ -29,7 +29,7 @@
 	  	 #commandlinks(true true true "View"	true  true true true ${requestScope.Withnotification}	${homeBean} ${historyBean} ${rlb} ) 
 	    <span class="rwiki_searchBox">
 	      ${rlb.jsp_search}:	
-	      <input type="hidden" name="action" value="${requestScope.SearchTarget}" />
+	      <input type="hidden" name="action" value="${util.escapeHtml($requestScope.SearchTarget)}" />
 	      <input type="hidden" name="panel" value="Main" />
 	      <input type="text" name="search" />
 	    </span>
@@ -47,7 +47,7 @@
 		#sidebar_switcher()
 	</div>
 	<div id="rwiki_content" class="${rwikiContentStyle}" >
-	 <h3>${rlb.jsp_history}: ${historyBean.localName}</h3>
+	 <h3>${rlb.jsp_history}: ${util.escapeHtml($historyBean.localName)}</h3>
 	 <div class="rwikirenderedContent">
 	  <table class="rwiki_history" summary="Page History">
 		  <tr>

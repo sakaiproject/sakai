@@ -3,7 +3,7 @@
 #set( $realmEditBean = ${requestScope.realmEditBean} )
 #set( $errorBean = ${requestScope.errorBean} )
 #set( $rlb = ${requestScope.resourceLoaderBean} )
-#set( $title = "${rlb.jsp_edit_section}: ${realmEditBean.localSpace}" )
+#set( $title = "${rlb.jsp_edit_section}: ${util.escapeHtml($realmEditBean.localSpace)}" )
 #header(${title} false )  
 <div id="rwiki_container">
   <div class="portletBody">
@@ -18,11 +18,11 @@
 	 </div>
 		
 	 <div id="rwiki_content" class="nosidebar" >
-	    <h3>${rlb.jsp_edit_section}: ${realmEditBean.localSpace}</h3>
+	    <h3>${rlb.jsp_edit_section}: ${util.escapeHtml($realmEditBean.localSpace)}</h3>
 	    #if ( ${errorBean.errors.size()}  > 0 )
 	      <p class="validation" style="clear: none;">
 		       #foreach( $error in ${errorBean.errors} )
-		        ${error}
+		        ${util.escapeHtml($error)}
 		       #end
 		     </p>
 	    #end
@@ -82,12 +82,12 @@
 		              <td colspan="7">
 			               <div class="rwiki_editControl">
 			                  <p class="act">
-			                     <input type="hidden" name="pageName" value="${realmEditBean.pageName}" />
+			                     <input type="hidden" name="pageName" value="${util.escapeHtml($realmEditBean.pageName)}" />
 			                     <input type="hidden" name="panel" value="Main"/>
 			                     <input type="hidden" name="action" value="editRealm"/>
 			                     <input type="submit" name="save" value="${rlb.jsp_button_save}"/> 
 			                     <input type="submit" name="save" value="${rlb.jsp_button_cancel}"/>
-			                     <input type="hidden" name="realm" value="${realmEditBean.localSpace}"/>
+			                     <input type="hidden" name="realm" value="${util.escapeHtml($realmEditBean.localSpace)}"/>
 			                  </p>
 			               </div>
 		              </td>

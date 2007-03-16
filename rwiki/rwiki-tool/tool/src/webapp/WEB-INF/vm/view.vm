@@ -8,7 +8,7 @@
 #set( $rlb = ${requestScope.ResourceLoaderBean} )
 
 #set(${recentlyVisitedBean.ViewPage}=${viewBean})  
-#set( $title = "${rlb.jsp_view}: ${renderBean.localisedPageName}" )
+#set( $title = "${rlb.jsp_view}: ${util.escapeHtml($renderBean.localisedPageName)}" )
 #header(${title} ${viewBean} )  
 <div id="rwiki_container">
   <div class="portletBody">
@@ -21,7 +21,7 @@
 	  	 #commandlinks(true true true "View"	true  true true true ${requestScope.Withnotification}	${homeBean} ${viewBean} ${rlb} ) 
 	    <span class="rwiki_searchBox">
 	      ${rlb.jsp_search}:	
-	      <input type="hidden" name="action" value="${requestScope.SearchTarget}" />
+	      <input type="hidden" name="action" value="${util.escapeHtml($requestScope.SearchTarget)}" />
 	      <input type="hidden" name="panel" value="Main" />
 	      <input type="text" name="search" />
 	    </span>
@@ -45,7 +45,7 @@
 	      </div>
 	    </div>
 	 <div class="lastmodified" >
-	 	${renderBean.localisedPageName}
+	 	${util.escapeHtml($renderBean.localisedPageName)}
 	 	${rlb.jsp_last_modified_by} 
 	 	#formatDisplayName(${currentRWikiObject.user})
 	 	${rlb.jsp_on}

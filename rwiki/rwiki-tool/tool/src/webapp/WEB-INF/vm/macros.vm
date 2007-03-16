@@ -55,12 +55,12 @@ var placementid = "Main${request.getAttribute("sakai.tool.placement.id").toStrin
 #if ($useHomeLink)
 <a href="${util.escapeHtml($homeBean.getHomeLinkUrl())}"
 	id="homeLink"  
-	title="${resourceLoaderBean.getString("jsp_wiki_home")}" >${homeBean.getHomeLinkValue()}</a> 
+	title="${resourceLoaderBean.getString("jsp_wiki_home")}" >${util.escapeHtml($homeBean.getHomeLinkValue())}</a> 
 #end
 #if ($useViewLink)
 <a href="${util.escapeHtml($viewBean.getViewUrl())}"
 	id="viewLink"  
-	title="${resourceLoaderBean.getString("jsp_view")}" >${viewLinkName}</a> 
+	title="${resourceLoaderBean.getString("jsp_view")}" >${util.escapeHtml($viewLinkName)}</a> 
 #end
 #if ($useEditLink)
 #set( $permissionsCheckBean = ${requestScope.permissionsBean} )
@@ -132,7 +132,7 @@ ${util.formatDateTime($date,$request)}
   	#if (${permissionsBeanRight.updateAllowed})
       <span class="instruction" >
     	<a href="${util.escapeHtml(${rightRenderBean.editUrl})}" >
-    		${rlb.jsp_edit}: ${rightRenderBean.localisedPageName}
+    		${rlb.jsp_edit}: ${util.escapeHtml($rightRenderBean.localisedPageName)}
     	</a>
       </span> 
     #end

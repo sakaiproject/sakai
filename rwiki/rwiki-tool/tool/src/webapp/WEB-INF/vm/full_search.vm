@@ -17,7 +17,7 @@
 	  	 #commandlinks(true false false "View"	false  false false false false	${homeBean} false ${rlb} ) 
 	    <span class="rwiki_searchBox">
 	      ${rlb.jsp_search}:	
-	      <input type="hidden" name="action" value="${requestScope.SearchTarget}" />
+	      <input type="hidden" name="action" value="${util.escapeHtml($requestScope.SearchTarget)}" />
 	      <input type="hidden" name="panel" value="Main" />
 	      <input type="text" name="search" />
 	    </span>
@@ -39,7 +39,7 @@
 #set ($searchResults = ${searchBean.searchResults} )
 #set ($searchPages = ${searchBean.searchPages} )
 #set ($requestSearchPages = ${searchBean.requestPage} )
-	<h3>${rlb.jsp_search}: ${searchBean.search}</h3>
+	<h3>${rlb.jsp_search}: ${util.escapeHtml($searchBean.search)}</h3>
 	<p>
      ${rlb.jsp_search_took} ${searchBean.timeTaken} ${rlb.jsp_ms_found} ${searchBean.nresults}
  </p>

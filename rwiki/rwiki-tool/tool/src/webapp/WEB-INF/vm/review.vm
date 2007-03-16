@@ -7,7 +7,7 @@
 #set ( $currentRWikiObject = ${requestScope.currentRWikiObject} )
 #set ( $homeBean = ${requestScope.homeBean} )
 #set ( $rlb = ${requestScope.resourceLoaderBean} )
-#set ( $title = "${rlb.jsp_review}: ${historyBean.localName} ${rlb.jsp_version}: ${interestedRevision}" )
+#set ( $title = "${rlb.jsp_review}: ${util.escapeHtml($historyBean.localName)} ${rlb.jsp_version}: ${interestedRevision}" )
 #header(${title} ${historyBean} )  
 <div id="rwiki_container">
   <div class="portletBody">
@@ -38,7 +38,7 @@
 	    </div>
 	  </div>
 	 <div class="lastmodified" >
-	 	${renderBean.localisedPageName}
+	 	${util.escapeHtml($renderBean.localisedPageName)}
 	 	${rlb.jsp_last_modified_by} 
 	 	#formatDisplayName(${currentRWikiObject.user})
 	 	${rlb.jsp_on}

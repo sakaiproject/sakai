@@ -9,7 +9,7 @@
 #set( $realmBean = ${requestScope.realmBean} )
 #set( $rlb = ${requestScope.ResourceLoaderBean} )
 #set( $errorBean = ${requestScope.errorBean} )
-#set( $title = "${rlb.jsp_info}: ${realmBean.localName}" )
+#set( $title = "${rlb.jsp_info}: ${util.escapeHtml($realmBean.localName)}" )
 #header(${title} ${viewBean} )  
 
 #helppopup( "permissionshelp" ${rlb.jsp_page_permissions} ${rlb.jsp_page_permissions_help} )   		
@@ -49,7 +49,7 @@
 	  	 #commandlinks(true true true "View"	true  true true true ${requestScope.Withnotification}	${homeBean} ${realmBean} ${rlb} ) 
 	    <span class="rwiki_searchBox">
 	      ${rlb.jsp_search}:	
-	      <input type="hidden" name="action" value="${requestScope.SearchTarget}" />
+	      <input type="hidden" name="action" value="${util.escapeHtml($requestScope.SearchTarget)}" />
 	      <input type="hidden" name="panel" value="Main" />
 	      <input type="text" name="search" />
 	    </span>
@@ -69,11 +69,11 @@
 		#sidebar_switcher()
 	</div>
 	<div id="rwiki_content" class="${rwikiContentStyle}" >
-		<h3>${rlb.jsp_info}: ${realmBean.localName}</h3>
+		<h3>${rlb.jsp_info}: ${util.escapeHtml($realmBean.localName)}</h3>
 	 #if (${errorBean.errors} && ${errorBean.errors.size()} > 0 )
 	      <p class="validation" style="clear: none;">
 							#foreach( $error in ${errorBean.errors} )
-		  					   ${error}
+		  					   ${util.escapeHtml($error)}
 							#end
 	      </p>
 	 #end
@@ -336,7 +336,7 @@
 			    <td colspan="7">
 			     <div class="rwiki_editControl">
 			      <p class="act">
-				       <input type="hidden" name="pageName" value="${currentRWikiObject.name}" />
+				       <input type="hidden" name="pageName" value="${util.escapeHtml($currentRWikiObject.name)}" />
 				       <input type="hidden" name="panel" value="Main"/>
 				       <input type="hidden" name="action" value="updatePermissions"/>
 				       <input type="hidden" name="version" value="${currentRWikiObject.version.time}" />
@@ -494,17 +494,17 @@
 		   <tr>
 		    	<th>${rlb.jsp_global_name}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'globalhelp'); return false;"
 		    		onMouseOut="hidePopup('globalhelp');" >?</a></th>
-		      <td colspan="6">${realmBean.pageName}</td>
+		      <td colspan="6">${util.escapeHtml($realmBean.pageName)}</td>
 		   </tr>
 		   <tr>
 		    	<th>${rlb.jsp_permission_section}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'realmhelp'); return false;"
 		    		onMouseOut="hidePopup('realmhelp');" >?</a></th>
-		      <td colspan="6">${currentRWikiObject.realm}</td>
+		      <td colspan="6">${util.escapeHtml($currentRWikiObject.realm)}</td>
 		   </tr>
 		   <tr>
 		    	<th>${rlb.jsp_id}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'idhelp'); return false;"
 		    		onMouseOut="hidePopup('idhelp');" >?</a></th>
-		     <td colspan="6">${currentRWikiObject.id}</td>
+		     <td colspan="6">${util.escapeHtml($currentRWikiObject.id)}</td>
 		   </tr>
 		   <tr>
 		    	<th>${rlb.jsp_last_edited}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'lastedithelp'); return false;"
@@ -518,7 +518,7 @@
 		   <tr>
 		    	<th>${rlb.jsp_hash_name}<a href="#" class="rwiki_help_popup_link" onClick="showPopupHere(this,'digesthelp'); return false;"
 		    		onMouseOut="hidePopup('digesthelp');" >?</a></th>
-		      <td colspan="6">${currentRWikiObject.sha1}</td>
+		      <td colspan="6">${util.escapeHtml($currentRWikiObject.sha1)}</td>
 		    </tr>
 		  </tbody>
 		</table>

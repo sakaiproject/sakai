@@ -33,6 +33,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.app.event.EventCartridge;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.Web;
 
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.ResourceLoaderBean;
@@ -82,6 +84,11 @@ public class VelocityInlineDispatcher implements Dispatcher
 	public void dispatch(String path, HttpServletRequest request, HttpServletResponse response) throws ServletException
 	{
 		VelocityContext vcontext = new VelocityContext();
+		
+		//EventCartridge ec = new EventCartridge();
+		//ec.addEventHandler(new ExcludeEscapeHtmlReference());
+		//ec.attachToContext(vcontext);
+		
 		vcontext.put("session", request.getSession());
 		vcontext.put("request",request);
 		vcontext.put("requestScope",RequestScopeSuperBean.getFromRequest(request));
@@ -106,7 +113,7 @@ public class VelocityInlineDispatcher implements Dispatcher
 	public class VelocityUtilBean {
 		
 		public String escapeHtml(String val) {
-			return Web.escapeHtml(val);
+			return FormattedText.escapeHtml(val,false);
 		}
 		public String formatDisplayName(String name) {
 			if ( name == null ) {
