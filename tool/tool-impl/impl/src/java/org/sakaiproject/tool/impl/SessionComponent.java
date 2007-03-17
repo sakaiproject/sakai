@@ -24,8 +24,10 @@ package org.sakaiproject.tool.impl;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
@@ -275,9 +277,36 @@ public abstract class SessionComponent implements SessionManager
 		threadLocalManager().set(CURRENT_TOOL_SESSION, s);
 	}
 
-	/**********************************************************************************************************************************************************************************************************************************************************
+	/**
+	 * @inheritDoc
+	 */
+	public int getActiveUserCount(int secs)
+	{
+		Set activeusers = new HashSet(m_sessions.size());
+
+		long now = System.currentTimeMillis();
+
+		for (Iterator i = m_sessions.values().iterator(); i.hasNext();)
+		{
+			MySession s = (MySession) i.next();
+
+			if ((now - s.getLastAccessedTime()) < (secs * 1000))
+			{
+				activeusers.add(s.getUserId());
+			}
+		}
+
+		// Ignore admin and postmaster
+		activeusers.remove("admin");
+		activeusers.remove("postmaster");
+		activeusers.remove(null);
+
+		return activeusers.size();
+	}
+
+	/*************************************************************************************************************************************************
 	 * Entity: Session Also is an HttpSession
-	 *********************************************************************************************************************************************************************************************************************************************************/
+	 ************************************************************************************************************************************************/
 
 	public class MySession implements Session, HttpSession
 	{

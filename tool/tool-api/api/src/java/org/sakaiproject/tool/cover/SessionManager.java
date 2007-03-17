@@ -122,4 +122,12 @@ public class SessionManager
 
 		manager.setCurrentToolSession(param0);
 	}
+
+	public static int getActiveUserCount(int param0)
+	{
+		org.sakaiproject.tool.api.SessionManager manager = getInstance();
+		if (manager == null) return 0;
+
+		return manager.getActiveUserCount(param0);
+	}
 }

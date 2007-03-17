@@ -90,4 +90,12 @@ public interface SessionManager
 	 *        The session to set as the current tool session.
 	 */
 	void setCurrentToolSession(ToolSession s);
+
+	/**
+	 * Count the number of users with sessions recently active (within the given number of seconds)
+	 * 
+	 * @param secs
+	 * 		  Elapsed time within which sessions have been active
+	 */
+	int getActiveUserCount(int secs);
 }
