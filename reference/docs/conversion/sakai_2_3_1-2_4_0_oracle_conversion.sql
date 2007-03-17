@@ -209,3 +209,20 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where RE
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '/site/mercury'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.new.channel'));
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '/site/mercury'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.revise.channel'));
 
+----------------------------------------------------------------------------------------------------------------------------------------
+-- New private folder (SAK-8759)
+----------------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO CONTENT_COLLECTION VALUES ('/private/','/',
+'<?xml version="1.0" encoding="UTF-8"?>
+<collection id="/attachment/">
+	<properties>
+		<property name="CHEF:creator" value="admin"/>
+		<property name="CHEF:is-collection" value="true"/>
+		<property name="DAV:displayname" value="private"/>
+		<property name="CHEF:modifiedby" value="admin"/>
+		<property name="DAV:getlastmodified" value="20020401000000000"/>
+		<property name="DAV:creationdate" value="20020401000000000"/>
+	</properties>
+</collection>
+');
