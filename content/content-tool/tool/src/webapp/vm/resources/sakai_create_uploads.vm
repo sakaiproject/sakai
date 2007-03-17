@@ -11,11 +11,11 @@
 		$tlang.getString("instr.upload")
 	</p>
 	<form name="addContentForm" id="addContentForm" method="post" action="#toolForm("ResourcesHelperAction")"  enctype="multipart/form-data">
-		<input type="hidden" name="fileCount" id="fileCount" value="$pipes.size()" />
-		<input type="hidden" name="lastIndex" id="lastIndex" value="$pipes.size()" />
+		<input type="hidden" name="fileCount" id="fileCount" value="$items.size()" />
+		<input type="hidden" name="lastIndex" id="lastIndex" value="$items.size()" />
 		<div id="fileInputDiv">
 			#set($i = 0)
-			#foreach($pipe in $pipes)
+			#foreach($item in $items)
 				
 				#set($prev = $i)
 				#set($i = $i + 1)
@@ -31,7 +31,7 @@
 						</a>
 					</p>
 					<input type="hidden" id="prev$i" name="prev$i" value="#if($i > 1)${prev}#end" />
-					<input type="hidden" id="next$i" name="next$i" value="#if($i < $pipes.size())${next}#end" />
+					<input type="hidden" id="next$i" name="next$i" value="#if($i < $items.size())${next}#end" />
 				</div>
 				#parse("/vm/resources/sakai_properties.vm")
 			#end
@@ -68,16 +68,17 @@
 		var fileInputDiv = document.getElementById("fileInputDiv");
 		var count = new Number(counter.value) + 1;
 		counter.value = count;
+		var prevIndex = indexer.value;
 		var index = new Number(indexer.value) + 1;
 		indexer.value = index;
 		
 		var ptag = document.createElement("p");
 		ptag.setAttribute("className","shorttext");
-		ptag.setAttribute("class","shorttext");
+		ptag.setAttribute("class","shorttext");		
 		
 		var label = document.createElement("label");
-		label.setAttribute("for","content" + count);
-		label.setAttribute("htmlFor","content" + count);
+		label.setAttribute("for","content" + index);
+		label.setAttribute("htmlFor","content" + index);
 		
 		var text = document.createTextNode("$tlang.getString("label.upload")");
 		label.appendChild(text);
@@ -85,13 +86,51 @@
 		
 		var file = document.createElement("input");
 		file.setAttribute("type","file");
-		file.setAttribute("name","content" + count);
-		file.setAttribute("id","content" + count);
+		file.setAttribute("name","content" + index);
+		file.setAttribute("id","content" + index);
+		// onchange="javascript:seedValue(this, 'name$i', true)" 
 		ptag.appendChild(file);
+		
+		var propLink = document.createElement("a");
+		propLink.setAttribute("href", "#");
+		// onclick="javascript:showHide('propertiesDiv$i');"
+		var text2 = document.createTextNode("$tlang.getString("edit.show")");
+		propLink.appendChild(text2);
+		ptag.appendChild(propLink);
+		
+		var removeLink = document.createElement("a");
+		removeLink.setAttribute("href", "#");
+		// onclick="javascript:remove('$i');"
+		var image = document.createElement("img");
+		image.setAttribute("src", "#imageLink("sakai/cross.png")");
+		image.setAttribute("title", "$tlang.getString("edit.remove")");
+		removeLink.appendChild(image);
+		ptag.appendChild(removeLink);
+
+		var prev = document.createElement("input");
+		prev.setAttribute("type", "hidden");
+		prev.setAttribute("id", "prev" + index);
+		prev.setAttribute("name", "prev" + index);
+		prev.setAttribute("value", prevIndex);
+		
+		var next = document.createElement("input");
+		next.setAttribute("type", "hidden");
+		next.setAttribute("id", "next" + index);
+		next.setAttribute("name", "next" + index);
+		next.setAttribute("value", "");
+
 		fileInputDiv.appendChild(ptag);
+		fileInputDiv.appendChild(prev);
+		fileInputDiv.appendChild(next);
+		
+		var prevPrev = document.getElementById("prev" + prevIndex);
+		if(prevPrev && prevPrev.value)
+		{
+			prevPrev.value = index;
+		}
 		
 		setMainFrameHeight(window.name);
-		focus_path = [ "content" + count ];
+		focus_path = [ "content" + index ];
 		setFocus(focus_path);
 	}
 	-->

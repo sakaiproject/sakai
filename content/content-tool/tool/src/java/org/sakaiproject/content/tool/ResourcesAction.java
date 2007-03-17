@@ -128,54 +128,6 @@ import org.w3c.dom.Element;
 public class ResourcesAction 
 	extends PagedResourceHelperAction // VelocityPortletPaneledAction
 {
-	/** Resource bundle using current language locale */
-    private static ResourceLoader rb = new ResourceLoader("content");
-    
-	/** Resource bundle using current language locale */
-    public static ResourceLoader trb = new ResourceLoader("types");
-    
-	static final Log logger = LogFactory.getLog(ResourcesAction.class);
-	
-	public class Counter
-	{
-		protected Map<String, Integer> values = new HashMap<String, Integer>();
-		public void increment(String key)
-		{
-			Integer val = values.get(key);
-			if(val == null)
-			{
-				values.put(key, new Integer(1));
-			}
-			else
-			{
-				values.put(key, new Integer(val.intValue() + 1));
-			}
-		}
-		
-		public void decrement(String key)
-		{
-			Integer val = values.get(key);
-			if(val == null)
-			{
-				values.put(key, new Integer(-1));
-			}
-			else
-			{
-				values.put(key, new Integer(val.intValue() - 1));
-			}
-		}
-		
-		public int getValue(String key)
-		{
-			Integer val = values.get(key);
-			if(val == null)
-			{
-				val = new Integer(0);
-			}
-			return val.intValue();
-		}
-	}
-
 	/**
 	 * Action
 	 *
@@ -219,7 +171,7 @@ public class ResourcesAction
 		}
 		
 	}
-	
+    
 	/**
 	 * Inner class encapsulates information about folders (and final item?) in a collection path (a.k.a. breadcrumb)
 	 * This is being phased out as we switch to the resources type registry.
@@ -369,11 +321,52 @@ public class ResourcesAction
 		}
 
 	}	// inner class ChefPathItem
-	
+    
 	public enum ContentPermissions
 	{
 		CREATE, DELETE, READ, REVISE, SITE_UPDATE
 	}
+	
+	public class Counter
+	{
+		protected Map<String, Integer> values = new HashMap<String, Integer>();
+		public void decrement(String key)
+		{
+			Integer val = values.get(key);
+			if(val == null)
+			{
+				values.put(key, new Integer(-1));
+			}
+			else
+			{
+				values.put(key, new Integer(val.intValue() - 1));
+			}
+		}
+		
+		public int getValue(String key)
+		{
+			Integer val = values.get(key);
+			if(val == null)
+			{
+				val = new Integer(0);
+			}
+			return val.intValue();
+		}
+		
+		public void increment(String key)
+		{
+			Integer val = values.get(key);
+			if(val == null)
+			{
+				values.put(key, new Integer(1));
+			}
+			else
+			{
+				values.put(key, new Integer(val.intValue() + 1));
+			}
+		}
+	}
+
 	public static class ElementCarrier
 	{
 		protected Element element;
@@ -407,6 +400,7 @@ public class ResourcesAction
 		}
 
 	}
+	
 	/**
 	 *
 	 * inner class encapsulates information about groups of metadata tags (such as DC, LOM, etc.)
@@ -478,6 +472,14 @@ public class ResourcesAction
 
 	}
 	
+	/** Resource bundle using current language locale */
+    private static ResourceLoader rb = new ResourceLoader("content");
+	/** Resource bundle using current language locale */
+    public static ResourceLoader trb = new ResourceLoader("types");
+	static final Log logger = LogFactory.getLog(ResourcesAction.class);
+
+	public static final String PREFIX = "resources.";
+	
 	public static final List<ActionType> ACTIONS_ON_FOLDERS = new Vector<ActionType>();
 	public static final List<ActionType> ACTIONS_ON_MULTIPLE_ITEMS = new Vector<ActionType>();
 	public static final List<ActionType> ACTIONS_ON_RESOURCES = new Vector<ActionType>();
@@ -495,87 +497,29 @@ public class ResourcesAction
 	
 	public static final List<ActionType> SITE_UPDATE_ACTIONS = new Vector<ActionType>();
 
-	// may need to distinguish permission on entity vs permission on its containing collection
-	static
-	{
-		CONTENT_NEW_ACTIONS.add(ActionType.NEW_UPLOAD);
-		CONTENT_NEW_ACTIONS.add(ActionType.NEW_FOLDER);
-		CONTENT_NEW_ACTIONS.add(ActionType.CREATE);
-		
-		PASTE_COPIED_ACTIONS.add(ActionType.PASTE_COPIED);
-		PASTE_MOVED_ACTIONS.add(ActionType.PASTE_MOVED);
-		
-		CONTENT_NEW_FOR_PARENT_ACTIONS.add(ActionType.DUPLICATE);
-		
-		CONTENT_READ_ACTIONS.add(ActionType.VIEW_CONTENT);
-		CONTENT_READ_ACTIONS.add(ActionType.VIEW_METADATA);
-		CONTENT_READ_ACTIONS.add(ActionType.COPY);
-		
-		CONTENT_MODIFY_ACTIONS.add(ActionType.REVISE_METADATA);
-		CONTENT_MODIFY_ACTIONS.add(ActionType.REVISE_CONTENT);
-		CONTENT_MODIFY_ACTIONS.add(ActionType.REPLACE_CONTENT);
-		CONTENT_MODIFY_ACTIONS.add(ActionType.REVISE_ORDER);
-		
-		CONTENT_DELETE_ACTIONS.add(ActionType.MOVE);
-		CONTENT_DELETE_ACTIONS.add(ActionType.DELETE);
-		
-		SITE_UPDATE_ACTIONS.add(ActionType.REVISE_PERMISSIONS);
-
-		ACTIONS_ON_FOLDERS.add(ActionType.VIEW_METADATA);
-		ACTIONS_ON_FOLDERS.add(ActionType.REVISE_METADATA);
-		ACTIONS_ON_FOLDERS.add(ActionType.DUPLICATE);
-		ACTIONS_ON_FOLDERS.add(ActionType.COPY);
-		ACTIONS_ON_FOLDERS.add(ActionType.MOVE);
-		ACTIONS_ON_FOLDERS.add(ActionType.DELETE);
-		ACTIONS_ON_FOLDERS.add(ActionType.REVISE_ORDER);
-		ACTIONS_ON_FOLDERS.add(ActionType.REVISE_PERMISSIONS);
-		// ACTIONS_ON_FOLDERS.add(ActionType.PASTE_MOVED);
-
-		ACTIONS_ON_RESOURCES.add(ActionType.VIEW_CONTENT);
-		ACTIONS_ON_RESOURCES.add(ActionType.VIEW_METADATA);
-		ACTIONS_ON_RESOURCES.add(ActionType.REVISE_METADATA);
-		ACTIONS_ON_RESOURCES.add(ActionType.REVISE_CONTENT);
-		ACTIONS_ON_RESOURCES.add(ActionType.REPLACE_CONTENT);
-		ACTIONS_ON_RESOURCES.add(ActionType.DUPLICATE);
-		ACTIONS_ON_RESOURCES.add(ActionType.COPY);
-		ACTIONS_ON_RESOURCES.add(ActionType.MOVE);
-		ACTIONS_ON_RESOURCES.add(ActionType.DELETE);
-
-		ACTIONS_ON_MULTIPLE_ITEMS.add(ActionType.COPY);
-		ACTIONS_ON_MULTIPLE_ITEMS.add(ActionType.MOVE);
-		ACTIONS_ON_MULTIPLE_ITEMS.add(ActionType.DELETE);
-		
-		CREATION_ACTIONS.add(ActionType.NEW_UPLOAD);
-		CREATION_ACTIONS.add(ActionType.NEW_FOLDER);
-		CREATION_ACTIONS.add(ActionType.CREATE);
-		CREATION_ACTIONS.add(ActionType.PASTE_MOVED);
-		CREATION_ACTIONS.add(ActionType.PASTE_COPIED);
-	}
-
-
-	
 	/** copyright path -- MUST have same value as AccessServlet.COPYRIGHT_PATH */
 	public static final String COPYRIGHT_PATH = Entity.SEPARATOR + "copyright";
 
-	private static final String COPYRIGHT_ALERT_URL = ServerConfigurationService.getAccessUrl() + COPYRIGHT_PATH;
+
+	private static final String STATE_DEFAULT_COPYRIGHT = PREFIX + "default_copyright";
+
+	private static final String STATE_DEFAULT_COPYRIGHT_ALERT = PREFIX + "default_copyright_alert";
 	
-	private static final String COPYRIGHT_FAIRUSE_URL = "copyright_fairuse_url";
+	private static final String COPYRIGHT_ALERT_URL = ServerConfigurationService.getAccessUrl() + COPYRIGHT_PATH;
+
+	private static final String STATE_COPYRIGHT_FAIRUSE_URL = PREFIX + "copyright_fairuse_url";
 	
 	//private static final String COPYRIGHT_SELF_COPYRIGHT = rb.getString("cpright2");
 	private static final String COPYRIGHT_NEW_COPYRIGHT = rb.getString("cpright3");
 	
 	/** copyright related info */
-	private static final String COPYRIGHT_TYPES = "copyright_types";
-    
-	private static final int CREATE_MAX_ITEMS = 10;
-
-	private static final String DEFAULT_COPYRIGHT = "default_copyright";
-
-	private static final String DEFAULT_COPYRIGHT_ALERT = "default_copyright_alert";
+	private static final String STATE_COPYRIGHT_TYPES = PREFIX + "copyright_types";
 	
+	private static final int CREATE_MAX_ITEMS = 10;
+    
 	/** The default number of site collections per page. */
 	protected static final int DEFAULT_PAGE_SIZE = 50;
-
+	
 	private static final String DELIM = "@";
 
 	/** The default number of members for a collection at which this tool should refuse to expand the collection. Used only if value can't be read from config service. */
@@ -591,9 +535,9 @@ public class ResourcesAction
 	private static final int MAXIMUM_SUSPENDED_OPERATIONS_STACK_DEPTH = 10;
 
 	public static final String MIME_TYPE_DOCUMENT_HTML = "text/html";
-	
-	public static final String MIME_TYPE_DOCUMENT_PLAINTEXT = "text/plain";
 
+	public static final String MIME_TYPE_DOCUMENT_PLAINTEXT = "text/plain";
+	
 	public static final String MIME_TYPE_STRUCTOBJ = "application/x-osp";
 
 	public static final String MODE_ATTACHMENT_CONFIRM = "resources.attachment_confirm";
@@ -631,59 +575,57 @@ public class ResourcesAction
 	/************** the edit context *****************************************/
 
 	private static final String MODE_DELETE_FINISH = "deleteFinish";
-	
+
 	public  static final String MODE_HELPER = "helper";
+	
 	/** Modes. */
 	private static final String MODE_LIST = "list";
-
 	private static final String MODE_MORE = "more";
-	
+
 	private static final String MODE_PROPERTIES = "properties";
 	
 	private static final String MODE_REORDER = "reorder";
-
+	
 	static final String MODE_REVISE_METADATA = "revise_metadata";
 
-	private static final String NEW_COPYRIGHT_INPUT = "new_copyright_input";
-	
+	private static final String STATE_NEW_COPYRIGHT_INPUT = PREFIX + "new_copyright_input";
+
 	/** The null/empty string */
 	private static final String NULL_STRING = "";
-
-/** A long representing the number of milliseconds in one week.  Used for date calculations */
-	protected static final long ONE_WEEK = 1000L * 60L * 60L * 24L * 7L;
 	
-	protected static final String PARAM_PAGESIZE = "collections_per_page";
+	/** A long representing the number of milliseconds in one week.  Used for date calculations */
+		protected static final long ONE_WEEK = 1000L * 60L * 60L * 24L * 7L;
 
-	public static final String PREFIX = "resources.";
+protected static final String PARAM_PAGESIZE = "collections_per_page";
 	
 	/** string used to represent "public" access mode in UI elements */
 	protected static final String PUBLIC_ACCESS = "public";
-	
+
 	public static final String RESOURCES_MODE_DROPBOX = "dropbox";
 	
 	public static final String RESOURCES_MODE_HELPER = "helper";
-
-	public static final String RESOURCES_MODE_RESOURCES = "resources";
 	
+	public static final String RESOURCES_MODE_RESOURCES = "resources";
+
 	/** The default value for whether to show all sites in dropbox (used if global value can't be read from server config service) */
 	private static final boolean SHOW_ALL_SITES_IN_DROPBOX = false;
+	
 	/** The default value for whether to show all sites in file-picker (used if global value can't be read from server config service) */
 	public static final boolean SHOW_ALL_SITES_IN_FILE_PICKER = false;
 	/** The default value for whether to show all sites in resources tool (used if global value can't be read from server config service) */
 	private static final boolean SHOW_ALL_SITES_IN_RESOURCES = false;
-	
-	
 	/** The collection id being browsed. */
 	private static final String STATE_COLLECTION_ID = PREFIX + "collection_id";
+	
 	
 	/** The collection id path */
 	private static final String STATE_COLLECTION_PATH = PREFIX + "collection_path";
 	
 	/** The name of the state attribute containing BrowseItems for all content collections the user has access to */
 	private static final String STATE_COLLECTION_ROOTS = PREFIX + "collection_rootie_tooties";
-
-	public static final String STATE_COLUMN_ITEM_ID = PREFIX + "state_column_item_id";
 	
+	public static final String STATE_COLUMN_ITEM_ID = PREFIX + "state_column_item_id";
+
 	/** The content hosting service in the State. */
 	private static final String STATE_CONTENT_SERVICE = PREFIX + "content_service";
 	
@@ -695,7 +637,7 @@ public class ResourcesAction
 	
 	/** The copy flag */
 	private static final String STATE_COPY_FLAG = PREFIX + "copy_flag";
-
+	
 	//	public static final String STATE_CREATE_TYPE = PREFIX + "create_type";
 	public static final String STATE_CREATE_COLLECTION_ID = PREFIX + "create_collection_id";
 
@@ -725,7 +667,7 @@ public class ResourcesAction
 
 	/** Name of state attribute indicating number of members for a collection at which this tool should refuse to expand the collection. */
 	private static final String STATE_EXPANDABLE_FOLDER_SIZE_LIMIT = PREFIX + "expandable_folder_size_limit";
-	
+
 	/** Name of state attribute containing a list of opened/expanded collections */
 	private static final String STATE_EXPANDED_COLLECTIONS = PREFIX + "expanded_collections";
 	
@@ -739,36 +681,36 @@ public class ResourcesAction
 	
 	/** State attribute for where there is at least one attachment before invoking attachment tool */
 	public static final String STATE_HAS_ATTACHMENT_BEFORE = PREFIX + "has_attachment_before";
-
+	
 	/**
 	 *  the name of the state attribute indicating that the user canceled out of the helper.  Is set only if the user canceled out of the helper. 
 	 */
 	public static final String STATE_HELPER_CANCELED_BY_USER = PREFIX + "state_attach_canceled_by_user";
-	
+
 	protected static final String STATE_HIGHLIGHTED_ITEMS = PREFIX + "highlighted_items";
 	
 	/** The display name of the "home" collection (can't go up from here.) */
 	private static final String STATE_HOME_COLLECTION_DISPLAY_NAME = PREFIX + "collection_home_display_name";
-
+	
 	/** The id of the "home" collection (can't go up from here.) */
 	private static final String STATE_HOME_COLLECTION_ID = PREFIX + "collection_home";
-	
+
 	/** Name of state attribute for status of initialization.  */
 	private static final String STATE_INITIALIZED = PREFIX + "initialized";
 	
 	protected static final String STATE_ITEMS_TO_BE_COPIED = PREFIX + "items_to_be_copied";
-
-	protected static final String STATE_ITEMS_TO_BE_MOVED = PREFIX + "items_to_be_moved";
 	
+	protected static final String STATE_ITEMS_TO_BE_MOVED = PREFIX + "items_to_be_moved";
+
 	private static final String STATE_LIST_PREFERENCE = PREFIX + "state_list_preference";
 	
 	/** The name of the state attribute containing a java.util.Set with the id's of selected items */
 	private static final String STATE_LIST_SELECTIONS = PREFIX + "ignore_delete_selections";
 	
 	protected static final String STATE_LIST_VIEW_SORT = PREFIX + "list_view_sort";
-
-	private static final String STATE_METADATA_GROUPS = PREFIX + "metadata.types";
 	
+	private static final String STATE_METADATA_GROUPS = PREFIX + "metadata.types";
+
 	/** The resources, helper or dropbox mode. */
 	public static final String STATE_MODE_RESOURCES = PREFIX + "resources_mode";
 	
@@ -786,13 +728,13 @@ public class ResourcesAction
 	
 	/** The user copyright string */
 	private static final String	STATE_MY_COPYRIGHT = PREFIX + "mycopyright";
-
+	
 	/** The root of the navigation breadcrumbs for a folder, either the home or another site the user belongs to */
 	private static final String STATE_NAVIGATION_ROOT = PREFIX + "navigation_root";
 
 	/** The name of the state attribute indicating whether the hierarchical list needs to be expanded */
 	private static final String STATE_NEED_TO_EXPAND_ALL = PREFIX + "need_to_expand_all";
-	
+
 	protected static final String STATE_NON_EMPTY_DELETE_SET = PREFIX + "non-empty_delete_set";
 	
 	/** The can-paste flag */
@@ -800,19 +742,19 @@ public class ResourcesAction
 	
 	/** state attribute indicating whether users in current site should be denied option of making resources public */
 	private static final String STATE_PREVENT_PUBLIC_DISPLAY = PREFIX + "prevent_public_display";
-
+	
 	protected static final String STATE_REMOVED_ATTACHMENTS = PREFIX + "removed_attachments";
 
 	protected static final String STATE_REORDER_FOLDER = PREFIX + "reorder_folder_id";
-	
-	protected static final String STATE_REORDER_SORT = PREFIX + "reorder_sort";
 
+	protected static final String STATE_REORDER_SORT = PREFIX + "reorder_sort";
+	
 	/** The sort ascending or decending for the reorder context */
 	protected static final String STATE_REORDER_SORT_ASC = PREFIX + "sort_asc";
 
 	/** The property (column) to sort by in the reorder context */
 	protected static final String STATE_REORDER_SORT_BY = PREFIX + "reorder_sort_by";
-	
+
 	/** The resources, helper or dropbox mode. */
 	public static final String STATE_RESOURCES_HELPER_MODE = PREFIX + "resources_helper_mode";
 	
@@ -833,7 +775,7 @@ public class ResourcesAction
 	protected static final String STATE_SHOW_COPY_ACTION = PREFIX + "show_copy_action";
 	
 	private static final String STATE_SHOW_FORM_ITEMS = PREFIX + "show_form_items";
-
+	
 	protected static final String STATE_SHOW_MOVE_ACTION = PREFIX + "show_move_action";
 
 	/** The name of a state attribute indicating whether the wants to see other sites if that is enabled */
@@ -896,14 +838,71 @@ public class ResourcesAction
 	private static final String TEMPLATE_REVISE_METADATA = "content/sakai_resources_properties";
 
 	public static final String TYPE_HTML = MIME_TYPE_DOCUMENT_HTML;
-	
+
 	public static final String TYPE_TEXT = MIME_TYPE_DOCUMENT_PLAINTEXT;
 	
 	public static final String TYPE_UPLOAD = "file";
 	
 	public static final String TYPE_URL = "Url";
-
+	
 	public static final String UTF_8_ENCODING = "UTF-8";
+
+	// may need to distinguish permission on entity vs permission on its containing collection
+	static
+	{
+		CONTENT_NEW_ACTIONS.add(ActionType.NEW_UPLOAD);
+		CONTENT_NEW_ACTIONS.add(ActionType.NEW_FOLDER);
+		CONTENT_NEW_ACTIONS.add(ActionType.CREATE);
+		
+		PASTE_COPIED_ACTIONS.add(ActionType.PASTE_COPIED);
+		PASTE_MOVED_ACTIONS.add(ActionType.PASTE_MOVED);
+		
+		CONTENT_NEW_FOR_PARENT_ACTIONS.add(ActionType.DUPLICATE);
+		
+		CONTENT_READ_ACTIONS.add(ActionType.VIEW_CONTENT);
+		CONTENT_READ_ACTIONS.add(ActionType.VIEW_METADATA);
+		CONTENT_READ_ACTIONS.add(ActionType.COPY);
+		
+		CONTENT_MODIFY_ACTIONS.add(ActionType.REVISE_METADATA);
+		CONTENT_MODIFY_ACTIONS.add(ActionType.REVISE_CONTENT);
+		CONTENT_MODIFY_ACTIONS.add(ActionType.REPLACE_CONTENT);
+		CONTENT_MODIFY_ACTIONS.add(ActionType.REVISE_ORDER);
+		
+		CONTENT_DELETE_ACTIONS.add(ActionType.MOVE);
+		CONTENT_DELETE_ACTIONS.add(ActionType.DELETE);
+		
+		SITE_UPDATE_ACTIONS.add(ActionType.REVISE_PERMISSIONS);
+
+		ACTIONS_ON_FOLDERS.add(ActionType.VIEW_METADATA);
+		ACTIONS_ON_FOLDERS.add(ActionType.REVISE_METADATA);
+		ACTIONS_ON_FOLDERS.add(ActionType.DUPLICATE);
+		ACTIONS_ON_FOLDERS.add(ActionType.COPY);
+		ACTIONS_ON_FOLDERS.add(ActionType.MOVE);
+		ACTIONS_ON_FOLDERS.add(ActionType.DELETE);
+		ACTIONS_ON_FOLDERS.add(ActionType.REVISE_ORDER);
+		ACTIONS_ON_FOLDERS.add(ActionType.REVISE_PERMISSIONS);
+		// ACTIONS_ON_FOLDERS.add(ActionType.PASTE_MOVED);
+
+		ACTIONS_ON_RESOURCES.add(ActionType.VIEW_CONTENT);
+		ACTIONS_ON_RESOURCES.add(ActionType.VIEW_METADATA);
+		ACTIONS_ON_RESOURCES.add(ActionType.REVISE_METADATA);
+		ACTIONS_ON_RESOURCES.add(ActionType.REVISE_CONTENT);
+		ACTIONS_ON_RESOURCES.add(ActionType.REPLACE_CONTENT);
+		ACTIONS_ON_RESOURCES.add(ActionType.DUPLICATE);
+		ACTIONS_ON_RESOURCES.add(ActionType.COPY);
+		ACTIONS_ON_RESOURCES.add(ActionType.MOVE);
+		ACTIONS_ON_RESOURCES.add(ActionType.DELETE);
+
+		ACTIONS_ON_MULTIPLE_ITEMS.add(ActionType.COPY);
+		ACTIONS_ON_MULTIPLE_ITEMS.add(ActionType.MOVE);
+		ACTIONS_ON_MULTIPLE_ITEMS.add(ActionType.DELETE);
+		
+		CREATION_ACTIONS.add(ActionType.NEW_UPLOAD);
+		CREATION_ACTIONS.add(ActionType.NEW_FOLDER);
+		CREATION_ACTIONS.add(ActionType.CREATE);
+		CREATION_ACTIONS.add(ActionType.PASTE_MOVED);
+		CREATION_ACTIONS.add(ActionType.PASTE_COPIED);
+	}
 
 	/**
 	 * Add additional resource pattern to the observer
@@ -1051,9 +1050,9 @@ public class ResourcesAction
 		
 		context.put("siteTitle", state.getAttribute(STATE_SITE_TITLE));
 
-		if (state.getAttribute(COPYRIGHT_TYPES) != null)
+		if (state.getAttribute(STATE_COPYRIGHT_TYPES) != null)
 		{
-			List copyrightTypes = (List) state.getAttribute(COPYRIGHT_TYPES);
+			List copyrightTypes = (List) state.getAttribute(STATE_COPYRIGHT_TYPES);
 			context.put("copyrightTypes", copyrightTypes);
 		}
 
@@ -1363,18 +1362,18 @@ public class ResourcesAction
 		else
 		{
 			//copyright
-			if (state.getAttribute(COPYRIGHT_FAIRUSE_URL) != null)
+			if (state.getAttribute(STATE_COPYRIGHT_FAIRUSE_URL) != null)
 			{
-				context.put("fairuseurl", state.getAttribute(COPYRIGHT_FAIRUSE_URL));
+				context.put("fairuseurl", state.getAttribute(STATE_COPYRIGHT_FAIRUSE_URL));
 			}
-			if (state.getAttribute(NEW_COPYRIGHT_INPUT) != null)
+			if (state.getAttribute(STATE_NEW_COPYRIGHT_INPUT) != null)
 			{
-				context.put("newcopyrightinput", state.getAttribute(NEW_COPYRIGHT_INPUT));
+				context.put("newcopyrightinput", state.getAttribute(STATE_NEW_COPYRIGHT_INPUT));
 			}
 	
-			if (state.getAttribute(COPYRIGHT_TYPES) != null)
+			if (state.getAttribute(STATE_COPYRIGHT_TYPES) != null)
 			{
-				List copyrightTypes = (List) state.getAttribute(COPYRIGHT_TYPES);
+				List copyrightTypes = (List) state.getAttribute(STATE_COPYRIGHT_TYPES);
 				context.put("copyrightTypes", copyrightTypes);
 				context.put("copyrightTypesSize", new Integer(copyrightTypes.size() - 1));
 				context.put("USE_THIS_COPYRIGHT", copyrightTypes.get(copyrightTypes.size() - 1));
@@ -2263,11 +2262,11 @@ public class ResourcesAction
 				item.setEncoding(encoding);
 			}
 
-			String defaultCopyrightStatus = (String) state.getAttribute(DEFAULT_COPYRIGHT);
+			String defaultCopyrightStatus = (String) state.getAttribute(STATE_DEFAULT_COPYRIGHT);
 			if(defaultCopyrightStatus == null || defaultCopyrightStatus.trim().equals(""))
 			{
 				defaultCopyrightStatus = ServerConfigurationService.getString("default.copyright");
-				state.setAttribute(DEFAULT_COPYRIGHT, defaultCopyrightStatus);
+				state.setAttribute(STATE_DEFAULT_COPYRIGHT, defaultCopyrightStatus);
 			}
 			item.setCopyrightStatus(defaultCopyrightStatus);
 
@@ -2579,7 +2578,7 @@ public class ResourcesAction
 			String copyrightStatus = properties.getProperty(properties.getNamePropCopyrightChoice());
 			if(copyrightStatus == null || copyrightStatus.trim().equals(""))
 			{
-				copyrightStatus = (String) state.getAttribute(DEFAULT_COPYRIGHT);
+				copyrightStatus = (String) state.getAttribute(STATE_DEFAULT_COPYRIGHT);
 
 			}
 			item.setCopyrightStatus(copyrightStatus);
@@ -4148,11 +4147,11 @@ public class ResourcesAction
 		else
 		{
 			// complete the create wizard
-			String defaultCopyrightStatus = (String) state.getAttribute(DEFAULT_COPYRIGHT);
+			String defaultCopyrightStatus = (String) state.getAttribute(STATE_DEFAULT_COPYRIGHT);
 			if(defaultCopyrightStatus == null || defaultCopyrightStatus.trim().equals(""))
 			{
 				defaultCopyrightStatus = ServerConfigurationService.getString("default.copyright");
-				state.setAttribute(DEFAULT_COPYRIGHT, defaultCopyrightStatus);
+				state.setAttribute(STATE_DEFAULT_COPYRIGHT, defaultCopyrightStatus);
 			}
 
 			String encoding = data.getRequest().getCharacterEncoding();
@@ -4920,11 +4919,11 @@ public class ResourcesAction
 		context.put("required", trb.getFormattedMessage("instr.require", new String[]{"<span class=\"reqStarInline\">*</span>"}));
 		
 		// complete the create wizard
-		String defaultCopyrightStatus = (String) state.getAttribute(DEFAULT_COPYRIGHT);
+		String defaultCopyrightStatus = (String) state.getAttribute(STATE_DEFAULT_COPYRIGHT);
 		if(defaultCopyrightStatus == null || defaultCopyrightStatus.trim().equals(""))
 		{
 			defaultCopyrightStatus = ServerConfigurationService.getString("default.copyright");
-			state.setAttribute(DEFAULT_COPYRIGHT, defaultCopyrightStatus);
+			state.setAttribute(STATE_DEFAULT_COPYRIGHT, defaultCopyrightStatus);
 		}
 
 		Time defaultRetractDate = (Time) state.getAttribute(STATE_DEFAULT_RETRACT_TIME);
@@ -7321,43 +7320,43 @@ public class ResourcesAction
 			}
 		}
 
-		if (state.getAttribute(COPYRIGHT_TYPES) == null)
+		if (state.getAttribute(STATE_COPYRIGHT_TYPES) == null)
 		{
 			if (ServerConfigurationService.getStrings("copyrighttype") != null)
 			{
-				state.setAttribute(COPYRIGHT_TYPES, new ArrayList(Arrays.asList(ServerConfigurationService.getStrings("copyrighttype"))));
+				state.setAttribute(STATE_COPYRIGHT_TYPES, new ArrayList(Arrays.asList(ServerConfigurationService.getStrings("copyrighttype"))));
 			}
 		}
 
-		if (state.getAttribute(DEFAULT_COPYRIGHT) == null)
+		if (state.getAttribute(STATE_DEFAULT_COPYRIGHT) == null)
 		{
 			if (ServerConfigurationService.getString("default.copyright") != null)
 			{
-				state.setAttribute(DEFAULT_COPYRIGHT, ServerConfigurationService.getString("default.copyright"));
+				state.setAttribute(STATE_DEFAULT_COPYRIGHT, ServerConfigurationService.getString("default.copyright"));
 			}
 		}
 
-		if (state.getAttribute(DEFAULT_COPYRIGHT_ALERT) == null)
+		if (state.getAttribute(STATE_DEFAULT_COPYRIGHT_ALERT) == null)
 		{
 			if (ServerConfigurationService.getString("default.copyright.alert") != null)
 			{
-				state.setAttribute(DEFAULT_COPYRIGHT_ALERT, ServerConfigurationService.getString("default.copyright.alert"));
+				state.setAttribute(STATE_DEFAULT_COPYRIGHT_ALERT, ServerConfigurationService.getString("default.copyright.alert"));
 			}
 		}
 
-		if (state.getAttribute(NEW_COPYRIGHT_INPUT) == null)
+		if (state.getAttribute(STATE_NEW_COPYRIGHT_INPUT) == null)
 		{
 			if (ServerConfigurationService.getString("newcopyrightinput") != null)
 			{
-				state.setAttribute(NEW_COPYRIGHT_INPUT, ServerConfigurationService.getString("newcopyrightinput"));
+				state.setAttribute(STATE_NEW_COPYRIGHT_INPUT, ServerConfigurationService.getString("newcopyrightinput"));
 			}
 		}
 
-		if (state.getAttribute(COPYRIGHT_FAIRUSE_URL) == null)
+		if (state.getAttribute(STATE_COPYRIGHT_FAIRUSE_URL) == null)
 		{
 			if (ServerConfigurationService.getString("fairuse.url") != null)
 			{
-				state.setAttribute(COPYRIGHT_FAIRUSE_URL, ServerConfigurationService.getString("fairuse.url"));
+				state.setAttribute(STATE_COPYRIGHT_FAIRUSE_URL, ServerConfigurationService.getString("fairuse.url"));
 			}
 		}
 

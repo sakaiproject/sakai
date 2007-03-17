@@ -24,8 +24,11 @@ package org.sakaiproject.content.tool;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -37,11 +40,15 @@ import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
 import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.MultiFileUploadPipe;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.content.api.ResourceType;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.api.SessionState;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
@@ -55,67 +62,108 @@ import org.sakaiproject.util.Validator;
 
 public class ResourcesHelperAction extends VelocityPortletPaneledAction 
 {
-	/** Resource bundle using current language locale */
-	private static ResourceLoader rb = new ResourceLoader("types");
-
 	/** the logger for this class */
     private static final Log logger = LogFactory.getLog(ResourcesHelperAction.class);
-
+    
+	/** Resource bundle using current language locale */
+	private static ResourceLoader rb = new ResourceLoader("types");
+	
 	protected  static final String ACCESS_HTML_TEMPLATE = "resources/sakai_access_html";
+
 	protected  static final String ACCESS_TEXT_TEMPLATE = "resources/sakai_access_text";
+
 	protected  static final String ACCESS_UPLOAD_TEMPLATE = "resources/sakai_access_upload";
 	protected  static final String ACCESS_URL_TEMPLATE = "resources/sakai_access_url";
 	
+	/** copyright path -- MUST have same value as AccessServlet.COPYRIGHT_PATH */
+	public static final String COPYRIGHT_PATH = Entity.SEPARATOR + "copyright";
+	private static final String COPYRIGHT_ALERT_URL = ServerConfigurationService.getAccessUrl() + COPYRIGHT_PATH;
+	//private static final String COPYRIGHT_SELF_COPYRIGHT = rb.getString("cpright2");
+	private static final String COPYRIGHT_NEW_COPYRIGHT = rb.getString("cpright3");
+	
+	protected  static final String CREATE_FOLDERS_TEMPLATE = "resources/sakai_create_folders";
 	protected  static final String CREATE_HTML_TEMPLATE = "resources/sakai_create_html";
 	protected  static final String CREATE_TEXT_TEMPLATE = "resources/sakai_create_text";
 	protected  static final String CREATE_UPLOAD_TEMPLATE = "resources/sakai_create_upload";
 	protected  static final String CREATE_UPLOADS_TEMPLATE = "resources/sakai_create_uploads";
-	protected  static final String CREATE_FOLDERS_TEMPLATE = "resources/sakai_create_folders";
+	
 	protected  static final String CREATE_URL_TEMPLATE = "resources/sakai_create_url";
+	public static final String MODE_MAIN = "main";
+	protected static final String PREFIX = "ResourceTypeHelper.";
 	
 	protected  static final String REVISE_HTML_TEMPLATE = "resources/sakai_revise_html";
-	protected  static final String REVISE_TEXT_TEMPLATE = "resources/sakai_revise_text";
-	protected  static final String REVISE_UPLOAD_TEMPLATE = "resources/sakai_revise_upload";
-	protected  static final String REVISE_URL_TEMPLATE = "resources/sakai_revise_url";
 	
-	public static final String MODE_MAIN = "main";
+	protected  static final String REVISE_TEXT_TEMPLATE = "resources/sakai_revise_text";
 
+	protected  static final String REVISE_UPLOAD_TEMPLATE = "resources/sakai_revise_upload";
 
-	protected void toolModeDispatch(String methodBase, String methodExt, HttpServletRequest req, HttpServletResponse res)
-		throws ToolException
+	protected  static final String REVISE_URL_TEMPLATE = "resources/sakai_revise_url";
+
+	private static final String STATE_COPYRIGHT_FAIRUSE_URL = PREFIX + "copyright_fairuse_url";
+
+	/** copyright related info */
+	private static final String STATE_COPYRIGHT_TYPES = PREFIX + "copyright_types";
+
+	private static final String STATE_DEFAULT_COPYRIGHT = PREFIX + "default_copyright";
+	
+	private static final String STATE_DEFAULT_COPYRIGHT_ALERT = PREFIX + "default_copyright_alert";
+	
+	/** The user copyright string */
+	private static final String	STATE_MY_COPYRIGHT = PREFIX + "mycopyright";
+	
+	private static final String STATE_NEW_COPYRIGHT_INPUT = PREFIX + "new_copyright_input";
+  
+	/** state attribute indicating whether we're using the Creative Commons dialog instead of the "old" copyright dialog */
+	protected static final String STATE_USING_CREATIVE_COMMONS = PREFIX + "usingCreativeCommons";
+	
+	/** name of state attribute for the default retract time */
+	protected static final String STATE_DEFAULT_RETRACT_TIME = PREFIX + "default_retract_time";
+
+	public String buildAccessContext(VelocityPortlet portlet,
+			Context context,
+			RunData data,
+			SessionState state)
 	{
-		SessionState sstate = getState(req);
-		ToolSession toolSession = SessionManager.getCurrentToolSession();
-		
-		//String mode = (String) sstate.getAttribute(ResourceToolAction.STATE_MODE);
-		//Object started = toolSession.getAttribute(ResourceToolAction.STARTED);
-		Object done = toolSession.getAttribute(ResourceToolAction.DONE);
-		
-		if (done != null)
-		{
-			toolSession.removeAttribute(ResourceToolAction.STARTED);
-			Tool tool = ToolManager.getCurrentTool();
-		
-			String url = (String) SessionManager.getCurrentToolSession().getAttribute(tool.getId() + Tool.HELPER_DONE_URL);
-		
-			SessionManager.getCurrentToolSession().removeAttribute(tool.getId() + Tool.HELPER_DONE_URL);
-		
-			try
-			{
-				res.sendRedirect(url);
-			}
-			catch (IOException e)
-			{
-				// Log.warn("chef", this + " : ", e);
-			}
-			return;
-		}
-		
-		super.toolModeDispatch(methodBase, methodExt, req, res);
+		String template = ACCESS_TEXT_TEMPLATE;
+		return template;
 	}
 
 
 	
+	public String buildCreateContext(VelocityPortlet portlet,
+			Context context,
+			RunData data,
+			SessionState state)
+	{
+		String template = CREATE_UPLOAD_TEMPLATE;
+		
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+
+		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+
+		//Reference reference = (Reference) toolSession.getAttribute(ResourceToolAction.COLLECTION_REFERENCE);
+		String typeId = pipe.getAction().getTypeId();
+
+		if(ResourceType.TYPE_TEXT.equals(typeId))
+		{
+			template = CREATE_TEXT_TEMPLATE;
+		}
+		else if(ResourceType.TYPE_HTML.equals(typeId))
+		{
+			template = CREATE_HTML_TEMPLATE;
+		}
+		else if(ResourceType.TYPE_URL.equals(typeId))
+		{
+			template = CREATE_URL_TEMPLATE;
+		}
+		else // assume ResourceType.TYPE_UPLOAD
+		{
+			template = CREATE_UPLOAD_TEMPLATE;
+		}
+		
+		return template;
+	}
+
 	public String buildMainPanelContext(VelocityPortlet portlet,
 			Context context,
 			RunData data,
@@ -167,6 +215,8 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		return template;
 	}
 
+
+
 	/**
 	 * @param portlet
 	 * @param context
@@ -181,36 +231,31 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		MultiFileUploadPipe pipe = (MultiFileUploadPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 		
 		List<ResourceToolActionPipe> pipes = pipe.getPipes();
+
+		Time defaultRetractDate = (Time) state.getAttribute(STATE_DEFAULT_RETRACT_TIME);
+		if(defaultRetractDate == null)
+		{
+			defaultRetractDate = TimeService.newTime();
+			state.setAttribute(STATE_DEFAULT_RETRACT_TIME, defaultRetractDate);
+		}
+
+		ListItem parent = new ListItem(pipe.getContentEntity());
+		List<ListItem> items = new Vector<ListItem>();
+		for(ResourceToolActionPipe p : pipe.getPipes())
+		{
+			ListItem item = new ListItem(p, parent, defaultRetractDate);
+			items.add(item);
+		}
+		
+		context.put("items", items);
 		
 		context.put("pipes", pipes);
+		
+		
 		
 		
 
 		return CREATE_FOLDERS_TEMPLATE;
-	}
-
-
-
-	/**
-	 * @param portlet
-	 * @param context
-	 * @param data
-	 * @param state
-	 * @return
-	 */
-	protected String buildUploadFilesContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
-	{
-		ToolSession toolSession = SessionManager.getCurrentToolSession();
-
-		MultiFileUploadPipe pipe = (MultiFileUploadPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
-		
-		List<ResourceToolActionPipe> pipes = pipe.getPipes();
-		
-		context.put("pipes", pipes);
-		
-		
-
-		return CREATE_UPLOADS_TEMPLATE;
 	}
 
 
@@ -229,49 +274,6 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	}
 
 
-
-	public String buildAccessContext(VelocityPortlet portlet,
-			Context context,
-			RunData data,
-			SessionState state)
-	{
-		String template = ACCESS_TEXT_TEMPLATE;
-		return template;
-	}
-
-	public String buildCreateContext(VelocityPortlet portlet,
-			Context context,
-			RunData data,
-			SessionState state)
-	{
-		String template = CREATE_UPLOAD_TEMPLATE;
-		
-		ToolSession toolSession = SessionManager.getCurrentToolSession();
-
-		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
-
-		//Reference reference = (Reference) toolSession.getAttribute(ResourceToolAction.COLLECTION_REFERENCE);
-		String typeId = pipe.getAction().getTypeId();
-
-		if(ResourceType.TYPE_TEXT.equals(typeId))
-		{
-			template = CREATE_TEXT_TEMPLATE;
-		}
-		else if(ResourceType.TYPE_HTML.equals(typeId))
-		{
-			template = CREATE_HTML_TEMPLATE;
-		}
-		else if(ResourceType.TYPE_URL.equals(typeId))
-		{
-			template = CREATE_URL_TEMPLATE;
-		}
-		else // assume ResourceType.TYPE_UPLOAD
-		{
-			template = CREATE_UPLOAD_TEMPLATE;
-		}
-		
-		return template;
-	}
 
 	public String buildReviseContext(VelocityPortlet portlet,
 			Context context,
@@ -307,7 +309,48 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		
 		return template;
 	}
-	
+
+	/**
+	 * @param portlet
+	 * @param context
+	 * @param data
+	 * @param state
+	 * @return
+	 */
+	protected String buildUploadFilesContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
+	{
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+
+		MultiFileUploadPipe pipe = (MultiFileUploadPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+		
+		List<ResourceToolActionPipe> pipes = pipe.getPipes();
+		
+		Time defaultRetractDate = (Time) state.getAttribute(STATE_DEFAULT_RETRACT_TIME);
+		if(defaultRetractDate == null)
+		{
+			defaultRetractDate = TimeService.newTime();
+			state.setAttribute(STATE_DEFAULT_RETRACT_TIME, defaultRetractDate);
+		}
+
+		ListItem parent = new ListItem(pipe.getContentEntity());
+		List<ListItem> items = new Vector<ListItem>();
+		for(ResourceToolActionPipe p : pipe.getPipes())
+		{
+			ListItem item = new ListItem(p, parent, defaultRetractDate);
+			items.add(item);
+		}
+		
+		context.put("items", items);
+		
+		context.put("pipes", pipes);
+		
+		
+		
+		
+
+		return CREATE_UPLOADS_TEMPLATE;
+	}
+
 	public void doCancel(RunData data)
 	{
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
@@ -392,7 +435,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
 
 	}
-
+	
 	public void doCreateFolders(RunData data)
 	{
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
@@ -422,7 +465,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
 
 	}
-	
+
 	public void doUpload(RunData data)
 	{
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
@@ -506,6 +549,100 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		//toolSession.setAttribute(ResourceToolAction.STARTED, Boolean.TRUE);
 		//state.setAttribute(ResourceToolAction.STATE_MODE, MODE_MAIN);
+		if(state.getAttribute(STATE_USING_CREATIVE_COMMONS) == null)
+		{
+			String usingCreativeCommons = ServerConfigurationService.getString("copyright.use_creative_commons");
+			if( usingCreativeCommons != null && usingCreativeCommons.equalsIgnoreCase(Boolean.TRUE.toString()))
+			{
+				state.setAttribute(STATE_USING_CREATIVE_COMMONS, Boolean.TRUE.toString());
+			}
+			else
+			{
+				state.setAttribute(STATE_USING_CREATIVE_COMMONS, Boolean.FALSE.toString());
+			}
+		}
+
+		if (state.getAttribute(STATE_COPYRIGHT_TYPES) == null)
+		{
+			if (ServerConfigurationService.getStrings("copyrighttype") != null)
+			{
+				state.setAttribute(STATE_COPYRIGHT_TYPES, new ArrayList(Arrays.asList(ServerConfigurationService.getStrings("copyrighttype"))));
+			}
+		}
+
+		if (state.getAttribute(STATE_DEFAULT_COPYRIGHT) == null)
+		{
+			if (ServerConfigurationService.getString("default.copyright") != null)
+			{
+				state.setAttribute(STATE_DEFAULT_COPYRIGHT, ServerConfigurationService.getString("default.copyright"));
+			}
+		}
+
+		if (state.getAttribute(STATE_DEFAULT_COPYRIGHT_ALERT) == null)
+		{
+			if (ServerConfigurationService.getString("default.copyright.alert") != null)
+			{
+				state.setAttribute(STATE_DEFAULT_COPYRIGHT_ALERT, ServerConfigurationService.getString("default.copyright.alert"));
+			}
+		}
+
+		if (state.getAttribute(STATE_NEW_COPYRIGHT_INPUT) == null)
+		{
+			if (ServerConfigurationService.getString("newcopyrightinput") != null)
+			{
+				state.setAttribute(STATE_NEW_COPYRIGHT_INPUT, ServerConfigurationService.getString("newcopyrightinput"));
+			}
+		}
+
+		if (state.getAttribute(STATE_COPYRIGHT_FAIRUSE_URL) == null)
+		{
+			if (ServerConfigurationService.getString("fairuse.url") != null)
+			{
+				state.setAttribute(STATE_COPYRIGHT_FAIRUSE_URL, ServerConfigurationService.getString("fairuse.url"));
+			}
+		}
+
+		if (state.getAttribute(COPYRIGHT_NEW_COPYRIGHT) == null)
+		{
+			if (ServerConfigurationService.getString("copyrighttype.new") != null)
+			{
+				state.setAttribute(COPYRIGHT_NEW_COPYRIGHT, ServerConfigurationService.getString("copyrighttype.new"));
+			}
+		}
+
+	}
+	
+	protected void toolModeDispatch(String methodBase, String methodExt, HttpServletRequest req, HttpServletResponse res)
+		throws ToolException
+	{
+		SessionState sstate = getState(req);
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		
+		//String mode = (String) sstate.getAttribute(ResourceToolAction.STATE_MODE);
+		//Object started = toolSession.getAttribute(ResourceToolAction.STARTED);
+		Object done = toolSession.getAttribute(ResourceToolAction.DONE);
+		
+		if (done != null)
+		{
+			toolSession.removeAttribute(ResourceToolAction.STARTED);
+			Tool tool = ToolManager.getCurrentTool();
+		
+			String url = (String) SessionManager.getCurrentToolSession().getAttribute(tool.getId() + Tool.HELPER_DONE_URL);
+		
+			SessionManager.getCurrentToolSession().removeAttribute(tool.getId() + Tool.HELPER_DONE_URL);
+		
+			try
+			{
+				res.sendRedirect(url);
+			}
+			catch (IOException e)
+			{
+				// Log.warn("chef", this + " : ", e);
+			}
+			return;
+		}
+		
+		super.toolModeDispatch(methodBase, methodExt, req, res);
 	}
 
 }

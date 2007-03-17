@@ -43,6 +43,7 @@ import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.GroupAwareEntity;
 import org.sakaiproject.content.api.ResourceToolAction;
+import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.cover.ContentHostingService;
@@ -62,6 +63,7 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -117,8 +119,8 @@ public class ListItem
 	protected Collection<Group> groups = new Vector<Group>();
 	protected Collection<Group> inheritedGroups = new Vector<Group>();
 	protected Collection<Group> possibleGroups = new Vector<Group>();
-	protected Collection<Group> allowedRemoveGroupRefs;
-	protected Collection<Group> allowedAddGroupRefs;
+	protected Collection<Group> allowedRemoveGroups = new Vector<Group>();
+	protected Collection<Group> allowedAddGroups = new Vector<Group>();
 	protected Map<String,Group> possibleGroupsMap = new HashMap<String, Group>();
 
 	protected boolean hidden;
@@ -261,45 +263,47 @@ public class ListItem
 	        }
 		}
         
-		Collection<Group> allowedRemoveGroups = null;
+		Collection<Group> allowRemoveGroups = null;
 		if(AccessMode.GROUPED == this.accessMode)
 		{
-			allowedRemoveGroups = contentService.getGroupsWithRemovePermission(id);
+			allowRemoveGroups = contentService.getGroupsWithRemovePermission(id);
 			Collection<Group> more = contentService.getGroupsWithRemovePermission(ref.getContainer());
 			if(more != null && ! more.isEmpty())
 			{
-				allowedRemoveGroups.addAll(more);
+				allowRemoveGroups.addAll(more);
 			}
 		}
 		else if(AccessMode.GROUPED == this.effectiveAccess)
 		{
-			allowedRemoveGroups = contentService.getGroupsWithRemovePermission(ref.getContainer());
+			allowRemoveGroups = contentService.getGroupsWithRemovePermission(ref.getContainer());
 		}
 		else
 		{
-			allowedRemoveGroups = contentService.getGroupsWithRemovePermission(contentService.getSiteCollection(ref.getContext()));
+			allowRemoveGroups = contentService.getGroupsWithRemovePermission(contentService.getSiteCollection(ref.getContext()));
 		}
-		this.allowedRemoveGroupRefs = allowedRemoveGroups;
+		this.allowedRemoveGroups.clear();
+		this.allowedRemoveGroups.addAll(allowedRemoveGroups);
 		
-		Collection<Group> allowedAddGroups = null;
+		Collection<Group> allowAddGroups = null;
 		if(AccessMode.GROUPED == this.accessMode)
 		{
-			allowedAddGroups = contentService.getGroupsWithAddPermission(id);
+			allowAddGroups = contentService.getGroupsWithAddPermission(id);
 			Collection<Group> more = contentService.getGroupsWithAddPermission(ref.getContainer());
 			if(more != null && ! more.isEmpty())
 			{
-				allowedAddGroups.addAll(more);
+				allowAddGroups.addAll(more);
 			}
 		}
 		else if(AccessMode.GROUPED == this.effectiveAccess)
 		{
-			allowedAddGroups = contentService.getGroupsWithAddPermission(ref.getContainer());
+			allowAddGroups = contentService.getGroupsWithAddPermission(ref.getContainer());
 		}
 		else
 		{
-			allowedAddGroups = contentService.getGroupsWithAddPermission(contentService.getSiteCollection(ref.getContext()));
+			allowAddGroups = contentService.getGroupsWithAddPermission(contentService.getSiteCollection(ref.getContext()));
 		}
-		this.allowedAddGroupRefs = allowedAddGroups;
+		this.allowedAddGroups.clear();
+		this.allowedAddGroups.addAll(allowAddGroups);
 		
 
 
@@ -335,6 +339,160 @@ public class ListItem
 
 	}
 	
+	public ListItem(ResourceToolActionPipe pipe, ListItem parent, Time defaultRetractTime)
+	{
+		org.sakaiproject.content.api.ContentHostingService contentService = ContentHostingService.getInstance();
+		this.entity = null;
+		
+		ResourceTypeRegistry registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+		this.resourceType = pipe.getAction().getTypeId();
+		ResourceType typeDef = registry.getType(resourceType);
+		this.hoverText = this.name;
+		if(typeDef != null)
+		{
+			this.hoverText = typeDef.getLocalizedHoverText(null);
+			this.iconLocation = typeDef.getIconLocation();
+			String[] args = { typeDef.getLabel() };
+			this.otherActionsLabel = trb.getFormattedMessage("action.other", args);
+		}
+
+		this.collection = ResourceType.TYPE_FOLDER.equals(resourceType);
+		this.id = "";
+		this.name = this.otherActionsLabel;
+		this.permissions = parent.getPermissions();
+		this.selected = false;
+		
+
+		if(this.collection)
+		{
+        	int collection_size = 0;
+        	String[] args = { Integer.toString(0) };
+	        setSize(rb.getFormattedMessage("size.items", args));
+ 			setIsEmpty(true);
+			setSortable(false);
+			setIsTooBig(false);
+		}
+		else 
+		{
+			this.mimetype = pipe.getMimeType();
+			if(this.mimetype == null)
+			{
+				
+			}
+			else if(this.iconLocation == null)
+			{
+				this.iconLocation = ContentTypeImageService.getContentTypeImage(this.mimetype);
+			}
+			String size = "";
+			if(pipe.getContent() != null)
+			{
+				long size_long = pipe.getContent().length;
+				NumberFormat formatter = NumberFormat.getInstance(rb.getLocale());
+				formatter.setMaximumFractionDigits(1);
+				if(size_long > 700000000L)
+				{
+					String[] args = { formatter.format(1.0 * size_long / (1024L * 1024L * 1024L)) };
+					size = rb.getFormattedMessage("size.gb", args);
+				}
+				else if(size_long > 700000L)
+				{
+					String[] args = { formatter.format(1.0 * size_long / (1024L * 1024L)) };
+					size = rb.getFormattedMessage("size.mb", args);
+				}
+				else if(size_long > 700L)
+				{
+					String[] args = { formatter.format(1.0 * size_long / 1024L) };
+					size = rb.getFormattedMessage("size.kb", args);
+				}
+				else 
+				{
+					String[] args = { formatter.format(size_long) };
+					size = rb.getFormattedMessage("size.bytes", args);
+				}
+			}
+			setSize(size);
+
+		}
+		
+		Time now = TimeService.newTime();
+		User creator = UserDirectoryService.getCurrentUser();
+		if(creator != null)
+		{
+			String createdBy = creator.getDisplayName();
+			setCreatedBy(createdBy);
+			setModifiedBy(createdBy);
+		}
+		// setCreatedBy(props.getProperty(ResourceProperties.PROP_CREATOR));
+		this.setModifiedTime(now.getDisplay());
+		this.setCreatedTime(now.getDisplay());
+		
+		this.accessMode = AccessMode.INHERITED;
+		this.effectiveAccess = parent.getEffectiveAccess();
+		this.groups.clear();
+		//this.groups.addAll();
+		this.inheritedGroups.clear();
+		if(parent.getAccessMode() == AccessMode.GROUPED)
+		{
+			this.inheritedGroups.addAll(parent.getGroups());
+		}
+		else
+		{
+			this.inheritedGroups.addAll(parent.getInheritedGroups());
+		}
+		setPossibleGroups(parent.getPossibleGroups());
+        
+		this.allowedRemoveGroups = new Vector(parent.allowedRemoveGroups);		
+		this.allowedAddGroups = new Vector(parent.allowedAddGroups);
+		
+
+        this.isPubviewInherited = parent.isPubviewInherited || parent.isPubview;
+		
+		this.hidden = false;
+		this.useReleaseDate = false;
+		Time releaseDate = TimeService.newTime();
+		this.useRetractDate = false;
+		Time retractDate = TimeService.newTime(defaultRetractTime.getTime());
+		this.isAvailable = parent.isAvailable();
+
+	}
+
+	private void setModifiedBy(String createdBy2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void setCreatedTime(String display) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private Collection<Group> getAllowedRemoveGroupRefs() 
+	{
+		// TODO Auto-generated method stub
+		return new TreeSet<Group>(this.allowedAddGroups);
+	}
+
+	/**
+	 * @param entityId
+	 */
+	public ListItem(String entityId)
+	{
+		this.id = entityId;
+	}
+	
+	/**
+	 * @param entity
+	 * @param parent
+	 * @param registry
+	 * @param expandAll
+	 * @param expandedFolders
+	 * @param items_to_be_moved
+	 * @param items_to_be_copied
+	 * @param depth
+	 * @param userSelectedSort
+	 * @param preventPublicDisplay
+	 * @return
+	 */
 	public static ListItem getListItem(ContentEntity entity, ListItem parent, ResourceTypeRegistry registry, boolean expandAll, Set<String> expandedFolders, List<String> items_to_be_moved, List<String> items_to_be_copied, int depth, Comparator userSelectedSort, boolean preventPublicDisplay)
 	{
 		ListItem item = null;
@@ -447,16 +605,7 @@ public class ListItem
 		
 		return item;
 	}
-
-
-	/**
-	 * 
-	 */
-	public ListItem(String entityId)
-	{
-		this.id = entityId;
-	}
-
+	
 	/**
 	 * @return the mimetype
 	 */
@@ -1086,7 +1235,7 @@ public class ListItem
      */
     public boolean isGroupPossible()
     {
-    	return this.allowedAddGroupRefs != null && ! this.allowedAddGroupRefs.isEmpty();
+    	return this.allowedAddGroups != null && ! this.allowedAddGroups.isEmpty();
     }
     
     /**
@@ -1123,7 +1272,7 @@ public class ListItem
     {
     	boolean allowed = false;
     	
-    	for(Group gr : this.allowedRemoveGroupRefs)
+    	for(Group gr : this.allowedRemoveGroups)
     	{
     		if(gr.getId().equals(group.getId()))
     		{

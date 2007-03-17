@@ -6,11 +6,57 @@
 		</label>
 		<textarea id="description$i" name="description$i" rows="5" cols="80" wrap="virtual"></textarea>
 	</p>
+	#if($type.hasRightsDialog()) 
+		#if ($!copyrightTypes)
+			<p class="shorttext">
+				<span class="reqStar">*</span>
+				<label for="copyright$i">
+					$tlang.getString("cright.status")
+				</label>	
+				<select name="copyright$i" id ="copyright$i" onchange="javascript:updateCopyright(this, '$i');">
+					#foreach ($copyright in $copyrightTypes)
+						<option value="$copyright"#if($item.copyrightStatus == $copyright) selected="selected"#end>$copyright</option>
+					#end
+				</select>
+				#if ($!fairuseurl)
+					(<a href="$fairuseurl" target="_blank" title="[$tlang.getString('cright.newwin')]"><span class="skip"> [$tlang.getString('cright.newwin')]</span>$tlang.getString("cright.fairuse")</a>)
+				#end
+			</p>
+			<div id="copyright_status$i">
+				#if($item.copyrightStatus == $USE_THIS_COPYRIGHT)
+					<p class="shorttext">
+						<span class="reqStar">*</span>
+						<label for="newcopyright">
+							$tlang.getString("cright.info")
+						</label>	
+						<textarea name="newcopyright$i" id="newcopyright$i" rows="2" cols="40" wrap="virtual" >$validator.escapeHtmlTextarea("$!item.copyrightInfo")</textarea>
+					</p>	
+				#else
+					<input type="hidden" name="newcopyright$i" id="newcopyright$i" value="$!item.copyrightInfo" />
+				#end
+			</div>
+			<table border="0">
+				<tr>
+					<td style="width:180px;padding-left:1em;vertical-align:top">
+						<label for="copyrightAlert$i">
+							$tlang.getString("cright.alert")
+						</label>
+					</td>
+					<td style="vertical-align:top">
+						<input type="checkbox" name="copyrightAlert$i" id ="copyrightAlert$i" value="true" #if($item.hasCopyrightAlert())checked="checked"#end style="border:none" />
+						$tlang.getString("cright.display") 
+						(<a href="#" onclick="javascript:openSampleCopyrightWindow();"   title="[$tlang.getString('cright.newwin')]"><span class="skip">[$tlang.getString('cright.newwin')]</span>$tlang.getString("cright.show")</a>)
+					</td>
+				</tr>
+			</table>
+		#end
+	#end
+#*	
 	<p class="shorttext">
 		<label for="copyright">
 			$tlang.getString("edit.cstatus")
 		</label>	
-		<select name="copyright$i" id="copyright$i" onchange="javascript:updateCopyright(this);">
+		<select name="copyright$i" id="copyright$i" onchange="javascript:updateCopyright(this,'copyright_status$i');">
 			#foreach ($copyright in $copyrightTypes)
 				<option value="$copyright"#if($item.copyrightStatus == $copyright) selected="selected"#end>$copyright</option>
 			#end
@@ -18,7 +64,7 @@
 		## TODO 
 		(<a href="http://fairuse.stanford.edu" target="_blank" title="[New window]"> <span class="skip">[New window]</span> more info</a>)
 	</p>
-	<div id="copyright_status">
+	<div id="copyright_status$i">
 		<input name="newcopyright$i" id="newcopyright$i" value="" type="hidden">
 	</div>
 	<p class="shorttext">
@@ -30,11 +76,8 @@
 		$tlang.getString("edit.display")
 		(<a href="#" onclick="javascript:openSampleCopyrightWindow();" title="[$tlang.getString("edit.newwin")]"><span class="skip">[$tlang.getString("edit.newwin")]</span> $tlang.getString("edit.what")</a>)
 	</p>
+*#
 	<p class="instruction">$tlang.getString("edit.who")</p>
-	
-	
-	
-	
 	######### begin access section ##########
 	## Should initial access to this resource or collection be determined
 	## for "site" (standard sakai permissions), "grouped" or "public"?
@@ -126,645 +169,129 @@
 	#end
 	</div>
 	######### end access section ##########
-	
+
 	######### begin availability section ##########
 	#if($availability_is_enabled && !$item.isInWorkspace() && !$dropboxMode)
-	<p class="instruction">
-		$tlang.getString("instr.access") 
-	</p>
-	<h4>$tlang.getString("avail.title")</h4>
-	<div  class="labelindnt">
-		<table>
-			<tr>
-				<td>
-					<input type="radio" name="hidden" id="hidden_false" value="false" #if(!$item.isHidden())checked="checked" #end/>
-				</td>
-				<td colspan="4">
-					<label for="hidden_false">
-						$tlang.getString("avail.show")
-					</label>
-				</td>
-			</tr>
-			<tr>
-				<td>
-				</td>
-				<td>
-					<input type="checkbox" name="use_start_date" id="use_start_date" value="true" #if($item.useReleaseDate())checked="checked" #end/>
-				</td>
-				<td colspan="3">
-					<label for="use_start_date">
-						$tlang.getString("avail.start")
-					</label>
-				</td>
-			</tr>
-			<tr>
-				<td>
-				</td>
-				<td>
-				</td>
-				<td>
-				</td>
-				<td>
-					<label for="release_year">Date:</label>
-				</td>
-				<td>
-					<label for="release_hour">Time:</label>
-				</td>
-			</tr>
-			#set($yearX = $item.releaseDate.breakdownLocal().year)
-			#set($year0 = $yearX - 4)
-			#set($yearN = $yearX + 4)
-			#set($monthX = $item.releaseDate.breakdownLocal().month)
-			#set($dayX = $item.releaseDate.breakdownLocal().day)
-			<tr>
-				<td>
-				</td>
-				<td>
-				</td>
-				<td>
-				</td>
-				<td>
-					#custom_dateselectionwidget("release_year" "release_month" "release_day" $year0 $yearN $yearX $monthX $dayX "document.getElementById('hidden_true').checked=false;document.getElementById('hidden_false').checked=true;document.getElementById('use_start_date').checked=true;")
-				</td>
-				<td>
-					#custom_timeSelectionWidget("release" $item.releaseDate "document.getElementById('hidden_true').checked=false;document.getElementById('hidden_false').checked=true;document.getElementById('use_start_date').checked=true;")
-				</td>
-			</tr>
-			<tr>
-				<td>
-				</td>
-				<td>
-					<input type="checkbox" name="use_end_date" id="use_end_date" value="true" #if($item.useRetractDate())checked="checked" #end/>
-				</td>
-				<td colspan="4">
-					<label for="use_end_date">
-						$tlang.getString("avail.end")
-					</label>
-				</td>
-			</tr>
-			<tr>
-				<td>
-				</td>
-				<td>
-				</td>
-				<td>
-				</td>
-				<td>
-					<label for="retract_year">Date:</label>
-				</td>
-				<td>
-					<label for="retract_time">Time:</label>
-				</td>
-			</tr>
-			#set($yearX = $item.retractDate.breakdownLocal().year)
-			#set($year0 = $yearX - 4)
-			#set($yearN = $yearX + 4)
-			#set($monthX = $item.retractDate.breakdownLocal().month)
-			#set($dayX = $item.retractDate.breakdownLocal().day)
-			<tr>
-				<td>
-				</td>
-				<td>
-				</td>
-				<td>
-				</td>
-				<td>
-					#custom_dateselectionwidget("retract_year" "retract_month" "retract_day" $year0 $yearN $yearX $monthX $dayX "document.getElementById('hidden_true$i').checked=false;document.getElementById('hidden_false$i').checked=true;document.getElementById('use_end_date$i').checked=true;")
-				</td>
-				<td>
-					#custom_timeSelectionWidget("retract" $item.retractDate "document.getElementById('hidden_true$i').checked=false;document.getElementById('hidden_false$i').checked=true;document.getElementById('use_end_date$i').checked=true;")
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<input type="radio" name="hidden" id="hidden_true" value="true" #if($item.isHidden())checked="checked" #end/>
-				</td>
-				<td colspan="4">
-					<label for="hidden_true">
-						$tlang.getString("avail.hide")
-					</label>
-				</td>
-			</tr>
-		</table>
-	</div>
+		<p class="instruction">
+			$tlang.getString("instr.access") 
+		</p>
+		<h4>$tlang.getString("avail.title")</h4>
+		<div  class="labelindnt">
+			<table>
+				<tr>
+					<td>
+						<input type="radio" name="hidden$i" id="hidden_false$i" value="false" #if(!$item.isHidden())checked="checked" #end/>
+					</td>
+					<td colspan="4">
+						<label for="hidden_false$i">
+							$tlang.getString("avail.show1")
+						</label>
+					</td>
+				</tr>
+				<tr>
+					<td>
+					</td>
+					<td>
+						<input type="checkbox" name="use_start_date$i" id="use_start_date$i" value="true" #if($item.useReleaseDate())checked="checked" #end/>
+					</td>
+					<td colspan="3">
+						<label for="use_start_date$i">
+							$tlang.getString("avail.start1")
+						</label>
+					</td>
+				</tr>
+				<tr>
+					<td>
+					</td>
+					<td>
+					</td>
+					<td>
+					</td>
+					<td>
+						<label for="release_year$i">$tlang.getString("label.date")</label>
+					</td>
+					<td>
+						<label for="release_hour$i">$tlang.getString("label.time")</label>
+					</td>
+				</tr>
+				#set($yearX = $item.releaseDate.breakdownLocal().year)
+				#set($year0 = $yearX - 4)
+				#set($yearN = $yearX + 4)
+				#set($monthX = $item.releaseDate.breakdownLocal().month)
+				#set($dayX = $item.releaseDate.breakdownLocal().day)
+				<tr>
+					<td>
+					</td>
+					<td>
+					</td>
+					<td>
+					</td>
+					<td>
+						#custom_dateselectionwidget("release_year$i" "release_month$i" "release_day$i" $year0 $yearN $yearX $monthX $dayX "document.getElementById('hidden_true').checked=false;document.getElementById('hidden_false$i').checked=true;document.getElementById('use_start_date$i').checked=true;")
+					</td>
+					<td>
+						#custom_timeSelectionWidget("release$i" $item.releaseDate "document.getElementById('hidden_true$i').checked=false;document.getElementById('hidden_false$i').checked=true;document.getElementById('use_start_date$i').checked=true;")
+					</td>
+				</tr>
+				<tr>
+					<td>
+					</td>
+					<td>
+						<input type="checkbox" name="use_end_date$i" id="use_end_date$i" value="true" #if($item.useRetractDate())checked="checked" #end/>
+					</td>
+					<td colspan="4">
+						<label for="use_end_date$i">
+							$tlang.getString("avail.end1")
+						</label>
+					</td>
+				</tr>
+				<tr>
+					<td>
+					</td>
+					<td>
+					</td>
+					<td>
+					</td>
+					<td>
+						<label for="retract_year$i">Date:</label>
+					</td>
+					<td>
+						<label for="retract_time$i">Time:</label>
+					</td>
+				</tr>
+				#set($yearX = $item.retractDate.breakdownLocal().year)
+				#set($year0 = $yearX - 4)
+				#set($yearN = $yearX + 4)
+				#set($monthX = $item.retractDate.breakdownLocal().month)
+				#set($dayX = $item.retractDate.breakdownLocal().day)
+				<tr>
+					<td>
+					</td>
+					<td>
+					</td>
+					<td>
+					</td>
+					<td>
+						#custom_dateselectionwidget("retract_year$i" "retract_month$i" "retract_day$i" $year0 $yearN $yearX $monthX $dayX "document.getElementById('hidden_true$i').checked=false;document.getElementById('hidden_false$i').checked=true;document.getElementById('use_end_date$i').checked=true;")
+					</td>
+					<td>
+						#custom_timeSelectionWidget("retract" $item.retractDate "document.getElementById('hidden_true$i').checked=false;document.getElementById('hidden_false$i').checked=true;document.getElementById('use_end_date$i').checked=true;")
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<input type="radio" name="hidden$i" id="hidden_true$i" value="true" #if($item.isHidden())checked="checked" #end/>
+					</td>
+					<td colspan="4">
+						<label for="hidden_true$i">
+							$tlang.getString("avail.hide1")
+						</label>
+					</td>
+				</tr>
+			</table>
+		</div>
 	#end
-	######### end availability section ##########
-	
-	
-	
-	<div  class="labelindnt">
-	<table>
-	<tr>
-	<td>
-	<input type="radio" name="hidden" id="hidden_false" value="false" checked="checked" />
-	</td>
-	<td colspan="4">
-	<label for="hidden_false">
-	<strong>Show</strong> this file </label>
-	
-	</td>
-	</tr>
-	<tr>
-	<td>
-	</td>
-	<td>
-	<input type="checkbox" name="use_start_date" id="use_start_date" value="true" />
-	</td>
-	<td colspan="3">
-	
-	<label for="use_start_date">
-	From</label>
-	</td>
-	</tr>
-	<tr>
-	<td>
-	</td>
-	<td>
-	
-	</td>
-	<td>
-	</td>
-	<td>
-	<label for="release_year">Date:</label>
-	</td>
-	<td>
-	<label for="release_hour">Time:</label>
-	
-	</td>
-	</tr>
-	<tr>
-	<td>
-	</td>
-	<td>
-	</td>
-	<td>
-	</td>
-	
-	<td>
-	<select name="release_month" id="release_month" onchange="blur(); document.getElementById('hidden_true').checked=false;document.getElementById('hidden_false').checked=true;document.getElementById('use_start_date').checked=true;">  
-	<option value="1">JAN</option>  		 <option value="2">FEB</option> 		 <option value="3" selected="selected">MAR</option> 		 <option value="4">APR</option> 		 <option value="5">MAY</option> 		 <option value="6">JUN</option> 		 <option value="7">JUL</option> 		 <option value="8">AUG</option> 		 <option value="9">SEP</option> 		 <option value="10">OCT</option> 		 <option value="11">NOV</option> 		 <option value="12">DEC</option>     </select>
-	
-	<select name="release_day" id="release_day" onchange="blur(); document.getElementById('hidden_true').checked=false;document.getElementById('hidden_false').checked=true;document.getElementById('use_start_date').checked=true;">
-	<option value="1">1</option>
-	<option value="2">2</option>
-	<option value="3">3</option>
-	<option value="4">4</option>
-	<option value="5">5</option>
-	
-	<option value="6">6</option>
-	<option value="7">7</option>
-	<option value="8">8</option>
-	<option value="9" selected="selected">9</option>
-	<option value="10">10</option>
-	<option value="11">11</option>
-	
-	<option value="12">12</option>
-	<option value="13">13</option>
-	<option value="14">14</option>
-	<option value="15">15</option>
-	<option value="16">16</option>
-	<option value="17">17</option>
-	
-	<option value="18">18</option>
-	<option value="19">19</option>
-	<option value="20">20</option>
-	<option value="21">21</option>
-	<option value="22">22</option>
-	<option value="23">23</option>
-	
-	<option value="24">24</option>
-	<option value="25">25</option>
-	<option value="26">26</option>
-	<option value="27">27</option>
-	<option value="28">28</option>
-	<option value="29">29</option>
-	
-	<option value="30">30</option>
-	<option value="31">31</option>
-	</select>
-	<select name="release_year" id="release_year" onchange="blur(); document.getElementById('hidden_true').checked=false;document.getElementById('hidden_false').checked=true;document.getElementById('use_start_date').checked=true;">
-	<option value="2003">2003</option>
-	<option value="2004">2004</option>
-	<option value="2005">2005</option>
-	
-	<option value="2006">2006</option>
-	<option value="2007" selected="selected">2007</option>
-	<option value="2008">2008</option>
-	<option value="2009">2009</option>
-	<option value="2010">2010</option>
-	<option value="2011">2011</option>
-	
-	</select>
-	<script type="text/javascript" src="/library/calendar/sakai-calendar.js"></script>
-	<script type="text/javascript">chef_dateselectionwidgetpopup('release_year', 'release_month', 'release_day');</script>
-	</td>
-	<td>
-	
-	
-	<select name="release_hour" id="release_hour" onchange="hourChange('release_hour'); document.getElementById('hidden_true').checked=false;document.getElementById('hidden_false').checked=true;document.getElementById('use_start_date').checked=true; return false;">
-	<option value="1">1</option> 				 <option value="2">2</option> 				 <option value="3">3</option> 				 <option value="4">4</option> 				 <option selected="selected" value="5">5</option> 				 <option value="6">6</option> 				 <option value="7">7</option> 				 <option value="8">8</option> 				 <option value="9">9</option> 				 <option value="10">10</option> 				 <option value="11">11</option> 				 <option value="12">12</option> 			</select>
-	
-	
-	<select name="release_minute" id="release_minute" onchange="hourChange('release_minute'); document.getElementById('hidden_true').checked=false;document.getElementById('hidden_false').checked=true;document.getElementById('use_start_date').checked=true; return false;">
-	<option value="0">00</option> 				 <option value="5">05</option> 				 <option value="10">10</option> 				 <option value="15">15</option> 				 <option value="20">20</option> 				 <option value="25">25</option> 				 <option value="30">30</option> 				 <option value="35">35</option> 				 <option value="40">40</option> 				 <option value="45">45</option> 				 <option value="50">50</option> 				 <option value="55">55</option> 			</select>
-	
-	
-	<select name="release_ampm" id="release_ampm" onchange="ampmChange('release_ampm'); document.getElementById('hidden_true').checked=false;document.getElementById('hidden_false').checked=true;document.getElementById('use_start_date').checked=true; return false;">
-	<option>am</option> 				 <option>pm</option> 			</select>
-	</td>
-	</tr>
-	<tr>
-	<td>
-	</td>
-	
-	<td>
-	<input type="checkbox" name="use_end_date" id="use_end_date" value="true" />
-	</td>
-	<td colspan="4">
-	<label for="use_end_date">
-	Until</label>
-	</td>
-	</tr>
-	
-	<tr>
-	<td>
-	</td>
-	<td>
-	</td>
-	<td>
-	</td>
-	<td>
-	<label for="retract_year">Date:</label>
-	
-	</td>
-	<td>
-	<label for="retract_time">Time:</label>
-	</td>
-	</tr>
-	<tr>
-	<td>
-	</td>
-	
-	<td>
-	</td>
-	<td>
-	</td>
-	<td>
-	<select name="retract_month" id="retract_month" onchange="blur(); document.getElementById('hidden_true$i').checked=false;document.getElementById('hidden_false$i').checked=true;document.getElementById('use_end_date$i').checked=true;">  
-	<option value="1">JAN</option>  		 <option value="2">FEB</option> 		 <option value="3" selected="selected">MAR</option> 		 <option value="4">APR</option> 		 <option value="5">MAY</option> 		 <option value="6">JUN</option> 		 <option value="7">JUL</option> 		 <option value="8">AUG</option> 		 <option value="9">SEP</option> 		 <option value="10">OCT</option> 		 <option value="11">NOV</option> 		 <option value="12">DEC</option>     </select>
-	
-	<select name="retract_day" id="retract_day" onchange="blur(); document.getElementById('hidden_true$i').checked=false;document.getElementById('hidden_false$i').checked=true;document.getElementById('use_end_date$i').checked=true;">
-	<option value="1">1</option>
-	<option value="2">2</option>
-	<option value="3">3</option>
-	<option value="4">4</option>
-	<option value="5">5</option>
-	
-	<option value="6">6</option>
-	<option value="7">7</option>
-	<option value="8">8</option>
-	<option value="9">9</option>
-	<option value="10">10</option>
-	<option value="11">11</option>
-	
-	<option value="12">12</option>
-	<option value="13">13</option>
-	<option value="14">14</option>
-	<option value="15">15</option>
-	<option value="16" selected="selected">16</option>
-	<option value="17">17</option>
-	
-	<option value="18">18</option>
-	<option value="19">19</option>
-	<option value="20">20</option>
-	<option value="21">21</option>
-	<option value="22">22</option>
-	<option value="23">23</option>
-	
-	<option value="24">24</option>
-	<option value="25">25</option>
-	<option value="26">26</option>
-	<option value="27">27</option>
-	<option value="28">28</option>
-	<option value="29">29</option>
-	
-	<option value="30">30</option>
-	<option value="31">31</option>
-	</select>
-	<select name="retract_year" id="retract_year" onchange="blur(); document.getElementById('hidden_true$i').checked=false;document.getElementById('hidden_false$i').checked=true;document.getElementById('use_end_date$i').checked=true;">
-	<option value="2003">2003</option>
-	<option value="2004">2004</option>
-	<option value="2005">2005</option>
-	
-	<option value="2006">2006</option>
-	<option value="2007" selected="selected">2007</option>
-	<option value="2008">2008</option>
-	<option value="2009">2009</option>
-	<option value="2010">2010</option>
-	<option value="2011">2011</option>
-	
-	</select>
-	
-	
-	<script type="text/javascript" src="/library/calendar/sakai-calendar.js"></script>
-	<script type="text/javascript">chef_dateselectionwidgetpopup('retract_year', 'retract_month', 'retract_day');</script>
-	</td>
-	<td>
-	
-	
-	<select name="retract_hour" id="retract_hour" onchange="hourChange('retract_hour'); document.getElementById('hidden_true$i').checked=false;document.getElementById('hidden_false$i').checked=true;document.getElementById('use_end_date$i').checked=true; return false;">
-	<option value="1">1</option> 				 <option value="2">2</option> 				 <option value="3">3</option> 				 <option value="4">4</option> 				 <option selected="selected" value="5">5</option> 				 <option value="6">6</option> 				 <option value="7">7</option> 				 <option value="8">8</option> 				 <option value="9">9</option> 				 <option value="10">10</option> 				 <option value="11">11</option> 				 <option value="12">12</option> 			</select>
-	
-	
-	<select name="retract_minute" id="retract_minute" onchange="hourChange('retract_minute'); document.getElementById('hidden_true$i').checked=false;document.getElementById('hidden_false$i').checked=true;document.getElementById('use_end_date$i').checked=true; return false;">
-	<option value="0">00</option> 				 <option value="5">05</option> 				 <option value="10">10</option> 				 <option value="15">15</option> 				 <option value="20">20</option> 				 <option value="25">25</option> 				 <option value="30">30</option> 				 <option value="35">35</option> 				 <option value="40">40</option> 				 <option value="45">45</option> 				 <option value="50">50</option> 				 <option value="55">55</option> 			</select>
-	
-	
-	<select name="retract_ampm" id="retract_ampm" onchange="ampmChange('retract_ampm'); document.getElementById('hidden_true$i').checked=false;document.getElementById('hidden_false$i').checked=true;document.getElementById('use_end_date$i').checked=true; return false;">
-	<option>am</option> 				 <option>pm</option> 			</select>
-	</td>
-	</tr>
-	<tr>
-	<td height="33">
-	<input type="radio" name="hidden" id="hidden_true" value="true" />					  </td>
-	<td colspan="4">
-	<label for="hidden_true">
-	<strong>Hide</strong> this file from non-administrators </label></td>
-	</tr>
-	</table>
-	</div>
-	<p class="addLink"><a href="javascript:;" onclick="javascript:showHide('optionalproperties');">Show optional properties for this file</a></p>
-	
-	<div id="optionalproperties" style="display:none;">
-	<p class="shorttext">
-	<label for="http://purl.org/dc/elements/1.1/alternative">
-	Alternate Title
-	</label>
-	<input size="40" name="http://purl.org/dc/elements/1.1/alternative" id="http://purl.org/dc/elements/1.1/alternative" value="" type="text">
-	</p>
-	
-	<p class="shorttext">
-	<label for="http://purl.org/dc/elements/1.1/creator">
-	Creator
-	</label>
-	<input size="40" name="http://purl.org/dc/elements/1.1/creator" id="http://purl.org/dc/elements/1.1/creator" value="" type="text">
-	</p>
-	<p class="shorttext">
-	<label for="http://purl.org/dc/elements/1.1/publisher">
-	Publisher
-	</label>
-	
-	<input size="40" name="http://purl.org/dc/elements/1.1/publisher" id="http://purl.org/dc/elements/1.1/publisher" value="" type="text">
-	</p>
-	<p class="shorttext">
-	<label for="http://purl.org/dc/elements/1.1/subject">
-	Subject and Keywords
-	</label>
-	<textarea rows="4" cols="30" name="http://purl.org/dc/elements/1.1/subject" id="http://purl.org/dc/elements/1.1/subject"></textarea>
-	
-	</p>
-	<p class="shorttext">
-	
-	<label for="http://purl.org/dc/terms/created">
-	Date Created
-	</label>
-	<input id="http://purl.org/dc/terms/created" value="" type="hidden">
-	
-	
-	
-	
-	<select name="http://purl.org/dc/terms/created_month" id="http://purl.org/dc/terms/created_month" onchange="blur()">  
-	<option value="1">JAN</option>         
-	<option value="2">FEB</option>         
-	<option value="3" selected="selected">MAR</option>         
-	<option value="4">APR</option>         
-	<option value="5">MAY</option>         
-	<option value="6">JUN</option>         
-	<option value="7">JUL</option>         
-	<option value="8">AUG</option>         
-	<option value="9">SEP</option>         
-	<option value="10">OCT</option>         
-	<option value="11">NOV</option>         
-	<option value="12">DEC</option> 
-	</select>
-	
-	
-	<select name="http://purl.org/dc/terms/created_day" id="http://purl.org/dc/terms/created_day" onchange="blur()">
-	
-	<option value="1">1</option>
-	<option value="2">2</option>
-	<option value="3">3</option>
-	<option value="4">4</option>
-	<option value="5">5</option>
-	
-	<option value="6">6</option>
-	<option value="7">7</option>
-	<option value="8">8</option>
-	<option value="9">9</option>
-	<option value="10">10</option>
-	<option value="11">11</option>
-	
-	<option value="12">12</option>
-	<option value="13" selected="selected">13</option>
-	<option value="14">14</option>
-	<option value="15">15</option>
-	<option value="16">16</option>
-	<option value="17">17</option>
-	
-	<option value="18">18</option>
-	<option value="19">19</option>
-	<option value="20">20</option>
-	<option value="21">21</option>
-	<option value="22">22</option>
-	<option value="23">23</option>
-	
-	<option value="24">24</option>
-	<option value="25">25</option>
-	<option value="26">26</option>
-	<option value="27">27</option>
-	<option value="28">28</option>
-	<option value="29">29</option>
-	
-	<option value="30">30</option>
-	<option value="31">31</option>
-	
-	</select>
-	
-	<select name="http://purl.org/dc/terms/created_year" id="http://purl.org/dc/terms/created_year" onchange="blur()">
-	
-	<option value="1997">1997</option>
-	<option value="1998">1998</option>
-	<option value="1999">1999</option>
-	
-	<option value="2000">2000</option>
-	<option value="2001">2001</option>
-	<option value="2002">2002</option>
-	<option value="2003">2003</option>
-	<option value="2004">2004</option>
-	<option value="2005">2005</option>
-	
-	<option value="2006">2006</option>
-	<option value="2007" selected="selected">2007</option>
-	<option value="2008">2008</option>
-	<option value="2009">2009</option>
-	<option value="2010">2010</option>
-	<option value="2011">2011</option>
-	
-	<option value="2012">2012</option>
-	<option value="2013">2013</option>
-	<option value="2014">2014</option>
-	<option value="2015">2015</option>
-	<option value="2016">2016</option>
-	<option value="2017">2017</option>
-	
-	
-	</select>
-	
-	
-	
-	<script type="text/javascript" src="/library/calendar/sakai-calendar.js"></script>
-	<script type="text/javascript">chef_dateselectionwidgetpopup('http://purl.org/dc/terms/created_year', 'http://purl.org/dc/terms/created_month', 'http://purl.org/dc/terms/created_day');</script><img src="/library/calendar/images/calendar/cal.gif" onclick="popupCalendar('chef_calendarhiddenfield2');" alt="" style="cursor: pointer;" title="Popup date selector"><input name="chef_calendarhiddenfield2" id="chef_calendarhiddenfield2" type="hidden">
-	
-	
-	</p>
-	<p class="shorttext">
-	<label for="http://purl.org/dc/terms/issued">
-	Date Issued
-	</label>
-	
-	<input id="http://purl.org/dc/terms/issued" value="" type="hidden">
-	
-	
-	
-	
-	<select name="http://purl.org/dc/terms/issued_month" id="http://purl.org/dc/terms/issued_month" onchange="blur()">  
-	<option value="1">JAN</option>         
-	<option value="2">FEB</option>         
-	<option value="3" selected="selected">MAR</option>         
-	<option value="4">APR</option>         
-	<option value="5">MAY</option>         
-	<option value="6">JUN</option>         
-	<option value="7">JUL</option>         
-	<option value="8">AUG</option>         
-	<option value="9">SEP</option>         
-	<option value="10">OCT</option>         
-	<option value="11">NOV</option>         
-	<option value="12">DEC</option> 
-	</select>
-	
-	
-	<select name="http://purl.org/dc/terms/issued_day" id="http://purl.org/dc/terms/issued_day" onchange="blur()">
-	
-	<option value="1">1</option>
-	<option value="2">2</option>
-	<option value="3">3</option>
-	<option value="4">4</option>
-	<option value="5">5</option>
-	
-	<option value="6">6</option>
-	<option value="7">7</option>
-	<option value="8">8</option>
-	<option value="9">9</option>
-	<option value="10">10</option>
-	<option value="11">11</option>
-	
-	<option value="12">12</option>
-	<option value="13" selected="selected">13</option>
-	<option value="14">14</option>
-	<option value="15">15</option>
-	<option value="16">16</option>
-	<option value="17">17</option>
-	
-	<option value="18">18</option>
-	<option value="19">19</option>
-	<option value="20">20</option>
-	<option value="21">21</option>
-	<option value="22">22</option>
-	<option value="23">23</option>
-	
-	<option value="24">24</option>
-	<option value="25">25</option>
-	<option value="26">26</option>
-	<option value="27">27</option>
-	<option value="28">28</option>
-	<option value="29">29</option>
-	
-	<option value="30">30</option>
-	<option value="31">31</option>
-	
-	</select>
-	
-	<select name="http://purl.org/dc/terms/issued_year" id="http://purl.org/dc/terms/issued_year" onchange="blur()">
-	
-	<option value="1997">1997</option>
-	<option value="1998">1998</option>
-	<option value="1999">1999</option>
-	
-	<option value="2000">2000</option>
-	<option value="2001">2001</option>
-	<option value="2002">2002</option>
-	<option value="2003">2003</option>
-	<option value="2004">2004</option>
-	<option value="2005">2005</option>
-	
-	<option value="2006">2006</option>
-	<option value="2007" selected="selected">2007</option>
-	<option value="2008">2008</option>
-	<option value="2009">2009</option>
-	<option value="2010">2010</option>
-	<option value="2011">2011</option>
-	
-	<option value="2012">2012</option>
-	<option value="2013">2013</option>
-	<option value="2014">2014</option>
-	<option value="2015">2015</option>
-	<option value="2016">2016</option>
-	<option value="2017">2017</option>
-	
-	
-	</select>
-	
-	
-	
-	<script type="text/javascript" src="/library/calendar/sakai-calendar.js"></script>
-	<script type="text/javascript">chef_dateselectionwidgetpopup('http://purl.org/dc/terms/issued_year', 'http://purl.org/dc/terms/issued_month', 'http://purl.org/dc/terms/issued_day');</script><img src="/library/calendar/images/calendar/cal.gif" onclick="popupCalendar('chef_calendarhiddenfield3');" alt="" style="cursor: pointer;" title="Popup date selector"><input name="chef_calendarhiddenfield3" id="chef_calendarhiddenfield3" type="hidden">
-	
-	
-	</p>
-	<p class="shorttext">
-	<label for="http://purl.org/dc/terms/abstract">
-	Abstract
-	</label>
-	
-	<textarea rows="4" cols="30" name="http://purl.org/dc/terms/abstract" id="http://purl.org/dc/terms/abstract"></textarea>
-	
-	</p>
-	<p class="shorttext">
-	<label for="http://purl.org/dc/elements/1.1/contributor">
-	Contributor
-	</label>
-	<textarea rows="4" cols="30" name="http://purl.org/dc/elements/1.1/contributor" id="http://purl.org/dc/elements/1.1/contributor"></textarea>
-	
-	</p>
-	
-	<p class="shorttext">
-	<label for="http://purl.org/dc/terms/audience">
-	Audience
-	</label>
-	<input size="40" name="http://purl.org/dc/terms/audience" id="http://purl.org/dc/terms/audience" value="" type="text">
-	</p>
-	<p class="shorttext">
-	<label for="http://purl.org/dc/terms/educationLevel">
-	Audience Education Level
-	</label>
-	
-	<textarea rows="4" cols="30" name="http://purl.org/dc/terms/educationLevel" id="http://purl.org/dc/terms/educationLevel"></textarea>
-	
-	</p>
-	</div>
-	
-	
-	
+	######### end availability section ##########	
 </div>
 <!-- end of sakai_properties.vm (loop counter: $i) -->
 	
