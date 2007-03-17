@@ -94,8 +94,8 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.cover.TimeService;
-import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FileItem;
@@ -105,7 +105,7 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
-
+import org.sakaiproject.contentreview.service.ContentReviewService;
 /**
  * <p>
  * AssignmentAction is the action class for the assignment tool.
@@ -115,6 +115,22 @@ public class AssignmentAction extends PagedResourceActionII
 {
 	private static ResourceLoader rb = new ResourceLoader("assignment");
 
+	
+	private static final Boolean allowReviewService = ServerConfigurationService.getBoolean("assignment.useContentReview", false);
+	
+	/** Is the review service available? */
+	private static final String ALLOW_REVIEW_SERVICE = "allow_review_service";
+	
+	/** Is review service enabled? */ 
+	private static final String ENABLE_REVIEW_SERVICE = "enable_review_service";
+	
+	private static final String NEW_ASSIGNMENT_USE_REVIEW_SERVICE = "new_assignment_use_review_service";
+	
+	private static final String NEW_ASSIGNMENT_ALLOW_STUDENT_VIEW = "new_assignment_allow_student_view";
+	
+	
+	
+	
 	/** The attachments */
 	private static final String ATTACHMENTS = "Assignment.attachments";
 
@@ -213,6 +229,9 @@ public class AssignmentAction extends PagedResourceActionII
 
 	/** state sort submission by submission released * */
 	private static final String SORTED_GRADE_SUBMISSION_BY_RELEASED = "sorted_grade_submission_by_released";
+	
+	/** state sort submissuib by content review score **/
+	private static final String SORTED_GRADE_SUBMISSION_CONTENTREVIEW = "sorted_grade_submission_by_contentreview";
 
 	/** *************************** sort submission *********************** */
 	/** state sort submission* */
@@ -590,6 +609,10 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("allowUpdateSite", Boolean
 						.valueOf(SiteService.allowUpdateSite((String) state.getAttribute(STATE_CONTEXT_STRING))));
 
+		
+		//Is the review service allowed?
+		context.put("allowReviewService", allowReviewService);
+
 		// grading option
 		context.put("withGrade", state.getAttribute(WITH_GRADES));
 
@@ -740,6 +763,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 	} // buildNormalContext
 
+		
 	/**
 	 * build the student view of showing an assignment submission
 	 */
@@ -806,6 +830,7 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("name_submission_honor_pledge_yes", VIEW_SUBMISSION_HONOR_PLEDGE_YES);
 		context.put("value_submission_honor_pledge_yes", state.getAttribute(VIEW_SUBMISSION_HONOR_PLEDGE_YES));
 		context.put("attachments", state.getAttribute(ATTACHMENTS));
+		
 		context.put("contentTypeImageService", state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE));
 		context.put("currentTime", TimeService.newTime());
 
@@ -951,6 +976,7 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("text", state.getAttribute(PREVIEW_SUBMISSION_TEXT));
 		context.put("honor_pledge_yes", state.getAttribute(PREVIEW_SUBMISSION_HONOR_PLEDGE_YES));
 		context.put("attachments", state.getAttribute(PREVIEW_SUBMISSION_ATTACHMENTS));
+		
 		context.put("contentTypeImageService", state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE));
 
 		String template = (String) getContext(data).get("template");
@@ -1171,6 +1197,11 @@ public class AssignmentAction extends PagedResourceActionII
 	protected void setAssignmentFormContext(SessionState state, Context context)
 	{
 		// put the names and values into vm file
+		
+		
+		context.put("name_UseReviewService", NEW_ASSIGNMENT_USE_REVIEW_SERVICE);
+		context.put("name_AllowStudentView", NEW_ASSIGNMENT_ALLOW_STUDENT_VIEW);
+		
 		context.put("name_title", NEW_ASSIGNMENT_TITLE);
 
 		context.put("name_OpenMonth", NEW_ASSIGNMENT_OPENMONTH);
@@ -1251,6 +1282,12 @@ public class AssignmentAction extends PagedResourceActionII
 		String maxGrade = (String) state.getAttribute(NEW_ASSIGNMENT_GRADE_POINTS);
 		context.put("value_GradePoints", displayGrade(state, maxGrade));
 		context.put("value_Description", state.getAttribute(NEW_ASSIGNMENT_DESCRIPTION));
+		
+		
+		// Keep the use review service setting
+		context.put("value_UseReviewService", state.getAttribute(NEW_ASSIGNMENT_USE_REVIEW_SERVICE));
+		context.put("value_AllowStudentView", state.getAttribute(NEW_ASSIGNMENT_ALLOW_STUDENT_VIEW));
+		
 		// don't show the choice when there is no Schedule tool yet
 		if (state.getAttribute(CALENDAR) != null)
 		context.put("value_CheckAddDueDate", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE));
@@ -1458,6 +1495,7 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("submissionTypeTable", submissionTypeTable());
 		context.put("hide_assignment_option_flag", state.getAttribute(NEW_ASSIGNMENT_HIDE_OPTION_FLAG));
 		context.put("attachments", state.getAttribute(ATTACHMENTS));
+
 		context.put("contentTypeImageService", state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE));
 
 		context.put("preview_assignment_assignment_hide_flag", state.getAttribute(PREVIEW_ASSIGNMENT_ASSIGNMENT_HIDE_FLAG));
@@ -1753,6 +1791,7 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("sort_submitStatus", SORTED_GRADE_SUBMISSION_BY_STATUS);
 		context.put("sort_submitGrade", SORTED_GRADE_SUBMISSION_BY_GRADE);
 		context.put("sort_submitReleased", SORTED_GRADE_SUBMISSION_BY_RELEASED);
+		context.put("sort_submitReview", SORTED_GRADE_SUBMISSION_CONTENTREVIEW);
 
 		Assignment assignment = null;
 		try
@@ -1794,6 +1833,12 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("submissionTypeTable", submissionTypeTable());
 		context.put("gradeTypeTable", gradeTypeTable());
 		context.put("attachments", state.getAttribute(ATTACHMENTS));
+		
+		
+		// Get turnitin results for instructors
+		
+		
+		
 		context.put("contentTypeImageService", state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE));
 		context.put("service", AssignmentService.getInstance());
 
@@ -1811,6 +1856,7 @@ public class AssignmentAction extends PagedResourceActionII
 				contextString, (String) state.getAttribute(EXPORT_ASSIGNMENT_REF))));
 
 		String template = (String) getContext(data).get("template");
+		
 		return template + TEMPLATE_INSTRUCTOR_GRADE_ASSIGNMENT;
 
 	} // build_instructor_grade_assignment_context
@@ -2068,12 +2114,12 @@ public class AssignmentAction extends PagedResourceActionII
 				{
 					v.add(l.next());
 				}
-				state.setAttribute(ATTACHMENTS, v);
+				state.setAttribute(ATTACHMENTS, v);		
 			}
 			else
 			{
 				state.setAttribute(VIEW_SUBMISSION_HONOR_PLEDGE_YES, "false");
-				state.setAttribute(ATTACHMENTS, EntityManager.newReferenceList());
+				state.setAttribute(ATTACHMENTS, EntityManager.newReferenceList());	
 			}
 
 			state.setAttribute(STATE_MODE, MODE_STUDENT_VIEW_SUBMISSION);
@@ -2115,7 +2161,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		state.setAttribute(PREVIEW_SUBMISSION_HONOR_PLEDGE_YES, honor_pledge_yes);
 		state.setAttribute(VIEW_SUBMISSION_HONOR_PLEDGE_YES, honor_pledge_yes);
-
+		
 		state.setAttribute(PREVIEW_SUBMISSION_ATTACHMENTS, state.getAttribute(ATTACHMENTS));
 		if (state.getAttribute(STATE_MESSAGE) == null)
 		{
@@ -2500,6 +2546,7 @@ public class AssignmentAction extends PagedResourceActionII
 			List v = (List) state.getAttribute(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT);
 			if (v != null)
 			{
+				
 				// clear the old attachments first
 				sEdit.clearFeedbackAttachments();
 
@@ -2887,6 +2934,15 @@ public class AssignmentAction extends PagedResourceActionII
 							List attachments = (List) state.getAttribute(ATTACHMENTS);
 							if (attachments != null)
 							{
+								
+								//Post the attachments before clearing so that we don't sumbit duplicate attachments
+								//Check if we need to post the attachments
+								if (a.getContent().getAllowReviewService()) {
+									if (!attachments.isEmpty()) { 
+										sEdit.postAttachment((Reference) attachments.get(0));
+									}
+								}
+																 
 								// clear the old attachments first
 								sEdit.clearSubmittedAttachments();
 	
@@ -2930,6 +2986,10 @@ public class AssignmentAction extends PagedResourceActionII
 							List attachments = (List) state.getAttribute(ATTACHMENTS);
 							if (attachments != null)
 							{
+	 							// add each attachment
+								if ((!attachments.isEmpty()) && a.getContent().getAllowReviewService()) 
+									edit.postAttachment((Reference) attachments.get(0));								
+								
 								// add each attachment
 								Iterator it = attachments.iterator();
 								while (it.hasNext())
@@ -2979,6 +3039,7 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doNew_assignment(RunData data, Context context)
 	{
+		
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		if (!alertGlobalNavigation(state, data))
@@ -2986,6 +3047,7 @@ public class AssignmentAction extends PagedResourceActionII
 			if (AssignmentService.allowAddAssignment((String) state.getAttribute(STATE_CONTEXT_STRING)))
 			{
 				resetAssignment(state);
+				
 				state.setAttribute(ATTACHMENTS, EntityManager.newReferenceList());
 				state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_NEW_EDIT_ASSIGNMENT);
 			}
@@ -3135,6 +3197,20 @@ public class AssignmentAction extends PagedResourceActionII
 			state.setAttribute(NEW_ASSIGNMENT_GRADE_TYPE, new Integer(gradeType));
 		}
 
+		
+		String r = params.getString(NEW_ASSIGNMENT_USE_REVIEW_SERVICE);
+		String b;
+		// set whether we use the review service or not
+		if (r == null) b = Boolean.FALSE.toString();
+		else b = Boolean.TRUE.toString();
+		state.setAttribute(NEW_ASSIGNMENT_USE_REVIEW_SERVICE, b);
+		
+		//set whether students can view the review service results
+		r = params.getString(NEW_ASSIGNMENT_ALLOW_STUDENT_VIEW);
+		if (r == null) b = Boolean.FALSE.toString();
+		else b = Boolean.TRUE.toString();
+		state.setAttribute(NEW_ASSIGNMENT_ALLOW_STUDENT_VIEW, b);
+		
 		// treat the new assignment description as formatted text
 		boolean checkForFormattingErrors = true; // instructor is creating a new assignment - so check for errors
 		String description = processFormattedTextFromBrowser(state, params.getCleanString(NEW_ASSIGNMENT_DESCRIPTION),
@@ -3308,7 +3384,6 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			state.setAttribute(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE, notiOption);
 		}
-
 	} // setNewAssignmentParameters
 
 	/**
@@ -3619,6 +3694,10 @@ public class AssignmentAction extends PagedResourceActionII
 			
 			String allowResubmitNumber = state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null?(String) state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER):null;
 			
+			boolean useReviewService = "true".equalsIgnoreCase((String) state.getAttribute(NEW_ASSIGNMENT_USE_REVIEW_SERVICE));
+			
+			boolean allowStudentViewReport = "true".equalsIgnoreCase((String) state.getAttribute(NEW_ASSIGNMENT_ALLOW_STUDENT_VIEW));
+			
 			// the attachments
 			List attachments = (List) state.getAttribute(ATTACHMENTS);
 			List attachments1 = EntityManager.newReferenceList(attachments);
@@ -3654,7 +3733,7 @@ public class AssignmentAction extends PagedResourceActionII
 				Time oldDueTime = a.getDueTime();
 				
 				// commit the changes to AssignmentContent object
-				commitAssignmentContentEdit(state, ac, title, submissionType, gradeType, gradePoints, description, checkAddHonorPledge, attachments1);
+				commitAssignmentContentEdit(state, ac, title, submissionType,useReviewService,allowStudentViewReport, gradeType, gradePoints, description, checkAddHonorPledge, attachments1);
 				
 				// set the Assignment Properties object
 				ResourcePropertiesEdit aPropertiesEdit = a.getPropertiesEdit();
@@ -4186,12 +4265,14 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 	}
 
-	private void commitAssignmentContentEdit(SessionState state, AssignmentContentEdit ac, String title, int submissionType, int gradeType, String gradePoints, String description, String checkAddHonorPledge, List attachments1) 
+	private void commitAssignmentContentEdit(SessionState state, AssignmentContentEdit ac, String title, int submissionType,boolean useReviewService, boolean allowStudentViewReport, int gradeType, String gradePoints, String description, String checkAddHonorPledge, List attachments1) 
 	{
 		ac.setTitle(title);
 		ac.setInstructions(description);
 		ac.setHonorPledge(Integer.parseInt(checkAddHonorPledge));
 		ac.setTypeOfSubmission(submissionType);
+		ac.setAllowReviewService(useReviewService);
+		ac.setAllowStudentViewReport(allowStudentViewReport);
 		ac.setTypeOfGrade(gradeType);
 		if (gradeType == 3)
 		{
@@ -4645,6 +4726,16 @@ public class AssignmentAction extends PagedResourceActionII
 				state.setAttribute(NEW_ASSIGNMENT_RANGE, "groups");
 			}
 
+			
+			
+
+			// set whether we use the review service or not
+			state.setAttribute(NEW_ASSIGNMENT_USE_REVIEW_SERVICE, new Boolean(a.getContent().getAllowReviewService()).toString());
+			
+			//set whether students can view the review service results
+			state.setAttribute(NEW_ASSIGNMENT_ALLOW_STUDENT_VIEW, new Boolean(a.getContent().getAllowStudentViewReport()).toString());
+			
+			
 			state.setAttribute(NEW_ASSIGNMENT_GROUPS, a.getGroups());
 		}
 		catch (IdUnusedException e)
@@ -5454,7 +5545,7 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			state.setAttribute(GRADE_SUBMISSION_FEEDBACK_TEXT, feedbackText);
 		}
-
+		
 		state.setAttribute(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT, state.getAttribute(ATTACHMENTS));
 
 		String g = params.getCleanString(GRADE_SUBMISSION_GRADE);
@@ -5764,6 +5855,7 @@ public class AssignmentAction extends PagedResourceActionII
 		// SECTION MOD
 		if (state.getAttribute(STATE_SECTION_STRING) == null)
 		{
+			
 			state.setAttribute(STATE_SECTION_STRING, "001");
 		}
 
@@ -6073,6 +6165,8 @@ public class AssignmentAction extends PagedResourceActionII
 	} // doSort_submission
 
 
+	
+	
 	/**
 	 * Sort submission based on the given property in instructor grade view
 	 */
@@ -6549,6 +6643,37 @@ public class AssignmentAction extends PagedResourceActionII
 				result = factor1.compareToIgnoreCase(factor2);
 			}
 			/** ***************** for sorting submissions in instructor grade assignment view ************* */
+			else if(m_criteria.equals(SORTED_GRADE_SUBMISSION_CONTENTREVIEW))
+			{
+				UserSubmission u1 = (UserSubmission) o1;
+				UserSubmission u2 = (UserSubmission) o2;
+				if (u1 == null || u2 == null || u1.getUser() == null || u2.getUser() == null )
+				{
+					result = 1;
+				}
+				else
+				{	
+					AssignmentSubmission s1 = u1.getSubmission();
+					AssignmentSubmission s2 = u2.getSubmission();
+
+
+					if (s1 == null)
+					{
+						result = -1;
+					}
+					else if (s2 == null )
+					{
+						result = 1;
+					} 
+					else
+					{
+						int score1 = u1.getSubmission().getReviewScore();
+						int score2 = u2.getSubmission().getReviewScore();
+						result = (new Integer(score1)).intValue() > (new Integer(score2)).intValue() ? 1 : -1;
+					}
+				}
+				
+			}
 			else if (m_criteria.equals(SORTED_GRADE_SUBMISSION_BY_LASTNAME))
 			{
 				// sorted by the submitters sort name
@@ -7362,7 +7487,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 		// record the total item number
 		state.setAttribute(STATE_PAGEING_TOTAL_ITEMS, returnResources);
-
+		
 		return returnResources.size();
 	}
 
@@ -8453,4 +8578,14 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("item", assignmentActivityProducer
 				.getItem(submission, userId));
 	}
+	
+	private ContentReviewService contentReviewService;
+	public String getReportURL(Long score) {
+		if (contentReviewService == null)
+		{
+			contentReviewService = (ContentReviewService) ComponentManager.get(ContentReviewService.class.getName());
+		}
+		return contentReviewService.getIconUrlforScore(score);
+	}
+
 }

@@ -218,6 +218,20 @@
 							</a>
 						</th>
 					#end	
+					#if ($allowReviewService)
+						<th id="reviewService">
+							<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitReview")'; return false;" onkeypress="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitReview")'; return false;" title="$tlang.getString("gen.sorbyreview")">
+								$tlang.getString("gen.rev")
+								#if ($sortedBy.equals($!sort_submitReview)) 
+									#if ($sortedAsc.equals("true")) 
+										<img id="sort_ascending_review" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
+									#else 
+										<img id="sort_descending_review" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" /> 
+									#end 
+								#end 
+							</a>
+						</td>
+					#end
 					<th id="gradereleased">
 						<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitReleased")'; return false;"  title="$tlang.getString("listsub.sorbyrel")">
 							$tlang.getString("gen.relea")
@@ -328,6 +342,18 @@
 									$submission.getGradeDisplay()
 								</td>
 							#end	
+							#if ($allowReviewService && $assignment.getContent().AllowReviewService)
+								<td headers="reviewService">
+								 #if ($submission.getReviewScore() == -1)
+								 	$tlang.getString("review.noreport")
+								 #else
+								 <a href="$submission.getReviewReport()" target="_blank" title="View report: score $submission.getReviewScore()">
+								 <img src="$submission.getReviewIconUrl()" alt="$submission.getReviewScore()">
+								 </a>
+								 #end
+									
+								</td>
+							#end
 							<td headers="gradereleased">
 								#if ($submission.getGradeReleased())
 									<img src="#imageLink("sakai/checkon.gif")" alt="$tlang.getString("gen.opecli")" border="0" width="17" height="13" align="top" />
@@ -355,7 +381,7 @@
 								<td headers="grade">
 									&nbsp;
 								</td>
-							#end	
+							#end
 							<td headers="gradereleased">
 								&nbsp;
 							</td>

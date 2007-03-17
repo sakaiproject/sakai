@@ -353,6 +353,31 @@
 					$tlang.getString("gen.addhonple")
 				</label>
 			</p>
+			#if ($allowReviewService)
+				<p style="display:block">
+				$!tlang.getString('review.title')
+					<div class="checkbox  indnt2">
+						#if ($!value_UseReviewService.equals("true"))
+							<input id="$name_UseReviewService" name="$name_UseReviewService" type="checkbox" value="true" checked="checked" />
+						#else
+							<input id="$name_UseReviewService" name="$name_UseReviewService" type="checkbox" value="true" />
+						#end
+						<label for="$name_UseReviewService">
+							$tlang.getString("review.use") 
+						</label>
+					</div>
+					<div class="checkbox  indnt2">
+						#if ($!value_AllowStudentView.equals("true"))
+							<input id="$name_AllowStudentView" name="$name_AllowStudentView" type="checkbox" value="true" checked="checked" />
+						#else
+							<input id="$name_AllowStudentView" name="$name_AllowStudentView" type="checkbox" value="true" />
+						#end
+						<label for="$name_AllowStudentView">
+							$tlang.getString("review.allow") 
+						</label>
+					</div>
+				</p>
+			#end
 			#if ($!withGrade && $!withGradebook)
 				## show the "Add to Gradebook" choices or not
 				#if(!$!allowGroupAssignmentsInGradebook)

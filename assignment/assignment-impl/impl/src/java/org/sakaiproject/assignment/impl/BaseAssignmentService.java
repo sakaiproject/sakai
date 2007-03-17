@@ -41,6 +41,11 @@ import java.util.zip.ZipOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+
+import org.sakaiproject.contentreview.exception.QueueException;
+import org.sakaiproject.contentreview.service.ContentReviewService;
+
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -119,6 +124,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.util.Blob;
 import org.sakaiproject.util.EmptyIterator;
 import org.sakaiproject.util.EntityCollections;
@@ -133,6 +139,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
 
 
 /**
@@ -221,6 +228,18 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	/** Event for grading an assignment submission. */
 	public static final String EVENT_GRADE_ASSIGNMENT_SUBMISSION = "asn.grade.submission";
 
+	
+
+//	spring service injection
+	
+	
+	protected ContentReviewService contentReviewService;
+	public void setContentReviewService(ContentReviewService contentReviewService) {
+		this.contentReviewService = contentReviewService;
+	}
+	
+
+	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Abstractions, etc.
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -449,6 +468,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 * Dependencies and their setter methods
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
+
+	
 	/** Dependency: MemoryService. */
 	protected MemoryService m_memoryService = null;
 
@@ -618,6 +639,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		FunctionManager.registerFunction(SECURE_UPDATE_ASSIGNMENT);
 		FunctionManager.registerFunction(SECURE_GRADE_ASSIGNMENT_SUBMISSION);
 		FunctionManager.registerFunction(SECURE_ASSIGNMENT_RECEIVE_NOTIFICATIONS);
+		
+ 		//if no contentReviewService was set try discovering it
+ 		if (contentReviewService == null)
+ 		{
+ 			contentReviewService = (ContentReviewService) ComponentManager.get(ContentReviewService.class.getName());
+ 		}
 	} // init
 
 	/**
@@ -5700,7 +5727,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		protected boolean m_releaseGrades;
 
+		
+		
 		protected boolean m_allowAttachments;
+		
+		protected boolean m_allowReviewService;
+		
+		protected boolean m_allowStudentViewReport;
 
 		protected Time m_timeCreated;
 
@@ -5757,6 +5790,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			m_individuallyGraded = getBool(el.getAttribute("indivgraded"));
 			m_releaseGrades = getBool(el.getAttribute("releasegrades"));
 			m_allowAttachments = getBool(el.getAttribute("allowattach"));
+			m_allowReviewService = getBool(el.getAttribute("allowreview"));
+			m_allowStudentViewReport = getBool(el.getAttribute("allowstudentview"));
+			
 			m_timeCreated = getTimeObject(el.getAttribute("datecreated"));
 			m_timeLastModified = getTimeObject(el.getAttribute("lastmod"));
 
@@ -5930,6 +5966,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			content.setAttribute("indivgraded", getBoolString(m_individuallyGraded));
 			content.setAttribute("releasegrades", getBoolString(m_releaseGrades));
 			content.setAttribute("allowattach", getBoolString(m_allowAttachments));
+		
+			content.setAttribute("allowreview", getBoolString(m_allowReviewService));
+			content.setAttribute("allowstudentview", getBoolString(m_allowStudentViewReport));
+			
 			content.setAttribute("honorpledge", String.valueOf(m_honorPledge));
 			content.setAttribute("submissiontype", String.valueOf(m_typeOfSubmission));
 			content.setAttribute("typeofgrade", String.valueOf(m_typeOfGrade));
@@ -5994,6 +6034,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				m_individuallyGraded = content.individuallyGraded();
 				m_releaseGrades = content.releaseGrades();
 				m_allowAttachments = content.getAllowAttachments();
+				//Uct
+				m_allowReviewService = content.getAllowReviewService();
+				m_allowStudentViewReport = content.getAllowStudentViewReport();
+				
 				m_timeCreated = content.getTimeCreated();
 				m_timeLastModified = content.getTimeLastModified();
 				m_properties = new BaseResourcePropertiesEdit();
@@ -6264,7 +6308,22 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		{
 			return m_allowAttachments;
 		}
-
+		
+		/**
+		 * Does this Assignment allow review service?
+		 * 
+		 * @return true if the Assignment allows review service, false otherwise?
+		 */
+		public boolean getAllowReviewService()
+		{
+			return m_allowReviewService;
+		}
+		
+		public boolean getAllowStudentViewReport() {
+			return m_allowStudentViewReport;
+		}
+		
+		
 		/**
 		 * Access the time that this object was created.
 		 * 
@@ -6579,6 +6638,28 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			m_honorPledge = pledgeType;
 		}
 
+		
+		/**
+		 * Does this Assignment allow using the review service?
+		 * 
+		 * @param allow -
+		 *        true if the Assignment allows review service, false otherwise?
+		 */
+		public void setAllowReviewService(boolean allow)
+		{
+			m_allowReviewService = allow;
+		}
+		
+		/**
+		 * Does this Assignment allow students to view the report?
+		 * 
+		 * @param allow -
+		 *        true if the Assignment allows students to view the report, false otherwise?
+		 */
+		public void setAllowStudentViewReport(boolean allow) {
+			m_allowStudentViewReport = allow;
+		}
+		
 		/**
 		 * Does this Assignment allow attachments?
 		 * 
@@ -6770,6 +6851,84 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		protected boolean m_honorPledgeFlag;
 
+		
+		//The score given by the review service
+		protected int m_reviewScore;
+		// The report given by the content review service
+		protected String m_reviewReport;
+		// The status of the review service
+		protected String m_reviewStatus;
+		
+		protected String m_reviewIconUrl;
+		
+		// return the variables
+		// Get new values from review service if defaults
+		public int getReviewScore() {
+			// Code to get updated score if default
+		
+			if (m_submittedAttachments.isEmpty()) M_log.debug("No attachments submitted.");
+			else
+			{
+				try {
+					String contentId = ((Reference) m_submittedAttachments.get(0)).getId();
+					return contentReviewService.getReviewScore(contentId);
+						
+				} 
+				catch (QueueException cie) {
+					//should we add the item
+					try {
+						if (this.getAssignment().getContent().getAllowReviewService())
+						{
+							String contentId = ((Reference) m_submittedAttachments.get(0)).getId();
+							String userId = (String)this.getSubmitterIds().get(0);
+							contentReviewService.queueContent(userId, null, getAssignment().getReference(), contentId);
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					return -1;
+					
+				}
+				catch (Exception e) {
+					
+					return -1;
+				}
+					
+			}
+			//No assignment available
+			return -2;
+			
+		}
+		
+		public String getReviewReport() {
+//			 Code to get updated report if default
+			if (m_submittedAttachments.isEmpty()) M_log.warn("No attachments submitted.");
+			else
+			{
+				try {
+					String contentId = ((Reference) m_submittedAttachments.get(0)).getId();
+					return contentReviewService.getReviewReport(contentId);
+					
+				} catch (Exception e) {
+					//e.printStackTrace();
+					return "Error";
+				}
+					
+			}
+			return "Error";
+		}
+		
+		public String getReviewStatus() {
+			return m_reviewStatus;
+		}
+		
+		public String getReviewIconUrl() {
+			if (m_reviewIconUrl == null )
+				m_reviewIconUrl = contentReviewService.getIconUrlforScore(new Long(this.getReviewScore()));
+				
+			return m_reviewIconUrl;
+		}
+		
 		/**
 		 * Copy constructor.
 		 */
@@ -6783,6 +6942,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 */
 		public BaseAssignmentSubmission(String id, String context, String assignId)
 		{
+			
+			// must set initial review status
+			m_reviewStatus = "";
+			m_reviewScore = -1;
+			m_reviewReport = "Not available yet";
+			
 			m_id = id;
 			m_context = context;
 			m_assignment = assignId;
@@ -6806,6 +6971,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			m_submitters.add(currentUser);
 		}
 
+		
+		// todo work out what this does
 		/**
 		 * Reads the AssignmentSubmission's attribute values from xml.
 		 * 
@@ -6814,6 +6981,14 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 */
 		public BaseAssignmentSubmission(Element el)
 		{
+			
+			
+			m_reviewScore = Integer.parseInt(el.getAttribute("reviewScore"));
+			// The report given by the content review service
+			m_reviewReport = el.getAttribute("reviewReport");
+			// The status of the review service
+			m_reviewStatus = el.getAttribute("reviewStatus");
+			
 			int numAttributes = 0;
 			String intString = null;
 			String attributeString = null;
@@ -7007,6 +7182,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		}// storage constructor
 
+		
 		/**
 		 * Takes the AssignmentContent's attribute values and puts them into the xml document.
 		 * 
@@ -7036,6 +7212,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			String itemString = null;
 			Reference tempReference = null;
 
+			
+			submission.setAttribute("reviewScore",Integer.toString(m_reviewScore));
+			submission.setAttribute("reviewReport",m_reviewReport);
+			submission.setAttribute("reviewStatus",m_reviewStatus);
+			
+			
 			submission.setAttribute("id", m_id);
 			submission.setAttribute("context", m_context);
 			submission.setAttribute("scaled_grade", m_grade);
@@ -7106,8 +7288,18 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		}// toXml
 
+		
 		protected void setAll(AssignmentSubmission submission)
 		{
+			
+			
+			m_reviewScore = submission.getReviewScore();
+			// The report given by the content review service
+			m_reviewReport = submission.getReviewReport();
+			// The status of the review service
+			m_reviewStatus = submission.getReviewStatus();
+			
+			
 			m_id = submission.getId();
 			m_context = submission.getContext();
 			m_assignment = submission.getAssignmentId();
@@ -7971,6 +8163,21 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		public void setTimeLastModified(Time lastmod)
 		{
 			if (lastmod != null) m_timeLastModified = lastmod;
+		}
+		
+		
+		
+		public void postAttachment(Reference attachment){
+			//Send the attachment to the review service
+
+			try {
+				Assignment ass = this.getAssignment();
+				contentReviewService.queueContent(null, null, ass.getReference(), attachment.getId());
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
 		}
 
 		/**
