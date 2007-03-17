@@ -18,9 +18,9 @@
     <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
     <property name="autoDdl"><value>${auto.ddl}</value></property>
   	<property name="attemptToMatchSchema"><value>true</value></property>
-	  <property name="resourceTypeRegistry"><ref bean="org.sakaiproject.content.api.ResourceTypeRegistry"/></property>
-	  <property name="citationsEnabledByDefault"><value>true</value></property>
-	  <property name="allowSiteBySiteOverride"><value>false</value></property>
+	<property name="resourceTypeRegistry"><ref bean="org.sakaiproject.content.api.ResourceTypeRegistry"/></property>
+	<property name="citationsEnabledByDefault"><value>true</value></property>
+	<property name="allowSiteBySiteOverride"><value>false</value></property>
   </bean>
 
   <bean id="org.sakaiproject.citation.api.SearchManager"
@@ -56,10 +56,10 @@
     <property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
     <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
     <property name="autoDdl"><value>${auto.ddl}</value></property>
-	  <property name="attemptToMatchSchema"><value>true</value></property>
-	  <property name="resourceTypeRegistry"><ref bean="org.sakaiproject.content.api.ResourceTypeRegistry"/></property>
- 	  <property name="citationsEnabledByDefault"><value>true</value></property>
-	  <property name="allowSiteBySiteOverride"><value>false</value></property>
+	<property name="attemptToMatchSchema"><value>true</value></property>
+	<property name="resourceTypeRegistry"><ref bean="org.sakaiproject.content.api.ResourceTypeRegistry"/></property>
+ 	<property name="citationsEnabledByDefault"><value>true</value></property>
+	<property name="allowSiteBySiteOverride"><value>false</value></property>
   </bean>
 
   <bean id="org.sakaiproject.citation.api.SearchManager"
@@ -115,14 +115,5 @@
     <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
   </bean>
   -->
-
-  <bean id="org.sakaiproject.citation.impl.CitationServlet"
-    class="org.sakaiproject.citation.impl.CitationServlet"
-    init-method="init"
-    destroy-method="destroy"
-   singleton="true">
-    <property name="citationService"><ref bean="org.sakaiproject.citation.api.CitationService"/></property>
-  </bean>
-
 
 </beans>
