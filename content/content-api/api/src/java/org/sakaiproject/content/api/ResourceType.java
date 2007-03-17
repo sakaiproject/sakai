@@ -94,9 +94,11 @@ public interface ResourceType
 	 * Access a text string suitable for use as a very brief description of a particular resource.
 	 * If the string is more than about 40 or 50 characters, it may be truncated at an arbitrary
 	 * length.  The string may identify the type of this resource or more specific information. 
-	 * The string should be localized.  If no value is supplied, a default hover-string will be 
-	 * used.
-	 * @param entity The resource that's being displayed
+	 * If the entity parameter is null, the method should return a more general description of
+	 * the the entity (suitable for a new entity during creation dialogs).  The string should be 
+	 * localized. If no return value is supplied, a default hover-string will be used.
+	 * @param entity The resource that's being displayed, or null indicating that the entity might  
+	 * not yet exist.
 	 * @return
 	 */
 	public String getLocalizedHoverText(ContentEntity entity);

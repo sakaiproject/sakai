@@ -6,7 +6,7 @@
 		</label>
 		<textarea id="description$i" name="description$i" rows="5" cols="80" wrap="virtual"></textarea>
 	</p>
-	#if($type.hasRightsDialog()) 
+	#if($item.resourceTypeDef.hasRightsDialog()) 
 		#if ($!copyrightTypes)
 			<p class="shorttext">
 				<span class="reqStar">*</span>
@@ -98,7 +98,6 @@
 			<h4>$tlang.getString("access.title5")</h4>
 			#set ($listDisplay="block")
 		#else
-			<h4>$tlang.getString("access.title1")</h4>
 			<div  class="labelindnt">
 				#if($item.isPubviewPossible())
 					<p class="checkbox">
@@ -138,7 +137,7 @@
 						$tlang.getString("edit.group2")
 					</th>
 				</tr>
-				#set($theGroups = $item.allSiteGroups)
+				#set($theGroups = $item.possibleGroups)
 				#foreach ($group in $!{theGroups})
 					#if($item.isPossible($group))
 						<tr>
@@ -167,7 +166,6 @@
 			</table>
 		#end
 	#end
-	</div>
 	######### end access section ##########
 
 	######### begin availability section ##########
@@ -292,6 +290,7 @@
 		</div>
 	#end
 	######### end availability section ##########	
+	<hr class="itemSeparator" />
 </div>
 <!-- end of sakai_properties.vm (loop counter: $i) -->
 	

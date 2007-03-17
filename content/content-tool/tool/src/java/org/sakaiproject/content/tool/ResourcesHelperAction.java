@@ -344,7 +344,10 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		
 		context.put("pipes", pipes);
 		
+		ResourcesAction.copyrightChoicesIntoContext(state, context);
 		
+		
+	
 		
 		
 

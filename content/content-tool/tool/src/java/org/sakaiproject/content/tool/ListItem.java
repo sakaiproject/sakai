@@ -97,6 +97,7 @@ public class ListItem
 	protected String iconLocation;
 	protected String mimetype;
 	protected String resourceType;
+	protected ResourceType resourceTypeDef = null;
 	protected boolean isEmpty = true;
 	protected boolean isExpanded = false;
 	protected boolean isPubviewPossible;
@@ -346,13 +347,13 @@ public class ListItem
 		
 		ResourceTypeRegistry registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
 		this.resourceType = pipe.getAction().getTypeId();
-		ResourceType typeDef = registry.getType(resourceType);
+		this.resourceTypeDef = registry.getType(resourceType);
 		this.hoverText = this.name;
-		if(typeDef != null)
+		if(resourceTypeDef != null)
 		{
-			this.hoverText = typeDef.getLocalizedHoverText(null);
-			this.iconLocation = typeDef.getIconLocation();
-			String[] args = { typeDef.getLabel() };
+			this.hoverText = resourceTypeDef.getLocalizedHoverText(null);
+			this.iconLocation = resourceTypeDef.getIconLocation();
+			String[] args = { resourceTypeDef.getLabel() };
 			this.otherActionsLabel = trb.getFormattedMessage("action.other", args);
 		}
 
@@ -1479,6 +1480,37 @@ public class ListItem
 	     	}
     	}
     }
+
+	/**
+	 * @return
+	 */
+	public ResourceType getResourceTypeDef() 
+	{
+		if(resourceTypeDef == null)
+		{
+			if(resourceType == null)
+			{
+				resourceType = ResourceType.TYPE_UPLOAD;
+			}
+			ResourceTypeRegistry registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+			resourceTypeDef = registry.getType(this.resourceType);
+		}
+		return resourceTypeDef;
+	}
+
+	/**
+	 * @param resourceTypeDef
+	 */
+	public void setResourceTypeDef(ResourceType resourceTypeDef) 
+	{
+		this.resourceTypeDef = resourceTypeDef;
+		
+		// make sure typeDef and typeId are consistent
+		if(resourceTypeDef != null)
+		{
+			this.resourceType = resourceTypeDef.getId();
+		}
+	}
 
 }
 

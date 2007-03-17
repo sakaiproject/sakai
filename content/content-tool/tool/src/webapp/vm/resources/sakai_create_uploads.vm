@@ -21,12 +21,12 @@
 				#set($i = $i + 1)
 				#set($next = $i + 1)
 				
-				<div id="contentDiv" >
+				<div id="contentDiv$i" class="highlightPanel">
 					<p class="shorttext">
 						<label for="content$i">$tlang.getString("label.upload")</label>
 						<input type="file" name="content$i" id="content$i" class ="upload" onchange="javascript:seedValue(this, 'name$i', true)" />
-						<a class="sideLink" href="#" onclick="javascript:showHide('propertiesDiv$i');">$tlang.getString("edit.show")</a>
-						<a href="#" onclick="javascript:remove('$i');" >
+						<a class="indnt2" href="#" onclick="javascript:showHide('propertiesDiv$i');">$tlang.getString("edit.show")</a>
+						<a class="indnt2" href="#" rtindex="$i" onclick="javascript:removeFileItem('$i');" >
 							<img src="#imageLink("sakai/cross.png")" title="$tlang.getString("edit.remove")" />
 						</a>
 					</p>
@@ -49,6 +49,7 @@
 </div>
 <script type="text/javascript" language="JavaScript">
 	<!--
+	var DOT = ".";
 	function submitform(id)
 	{
 		var theForm = document.getElementById(id);
@@ -72,6 +73,11 @@
 		var index = new Number(indexer.value) + 1;
 		indexer.value = index;
 		
+		var contentDiv = document.createElement("div");
+		contentDiv.setAttribute("id","contentDiv" + index);
+		contentDiv.setAttribute("class","highlightPanel");
+		contentDiv.setAttribute("className","highlightPanel");
+		
 		var ptag = document.createElement("p");
 		ptag.setAttribute("className","shorttext");
 		ptag.setAttribute("class","shorttext");		
@@ -93,6 +99,8 @@
 		
 		var propLink = document.createElement("a");
 		propLink.setAttribute("href", "#");
+		propLink.setAttribute("class","indnt2");
+		propLink.setAttribute("className","indnt2");
 		// onclick="javascript:showHide('propertiesDiv$i');"
 		var text2 = document.createTextNode("$tlang.getString("edit.show")");
 		propLink.appendChild(text2);
@@ -100,10 +108,15 @@
 		
 		var removeLink = document.createElement("a");
 		removeLink.setAttribute("href", "#");
-		// onclick="javascript:remove('$i');"
+		removeLink.setAttribute("class","indnt2");
+		removeLink.setAttribute("className","indnt2");
+		removeLink.setAttribute("id","image" + DOT + index);
+		removeLink.onclick=handleRemoveFileItem;
 		var image = document.createElement("img");
 		image.setAttribute("src", "#imageLink("sakai/cross.png")");
 		image.setAttribute("title", "$tlang.getString("edit.remove")");
+		image.setAttribute("id","image" + DOT + index);
+		image.setAttribute("name","image" + DOT + index);
 		removeLink.appendChild(image);
 		ptag.appendChild(removeLink);
 
@@ -119,9 +132,11 @@
 		next.setAttribute("name", "next" + index);
 		next.setAttribute("value", "");
 
-		fileInputDiv.appendChild(ptag);
-		fileInputDiv.appendChild(prev);
-		fileInputDiv.appendChild(next);
+		contentDiv.appendChild(ptag);
+		contentDiv.appendChild(prev);
+		contentDiv.appendChild(next);
+		
+		fileInputDiv.appendChild(contentDiv);
 		
 		var prevPrev = document.getElementById("prev" + prevIndex);
 		if(prevPrev && prevPrev.value)
@@ -132,6 +147,57 @@
 		setMainFrameHeight(window.name);
 		focus_path = [ "content" + index ];
 		setFocus(focus_path);
+	}
+	function removeFileItem(index)
+	{
+		var fileInputDiv = document.getElementById("fileInputDiv");
+		var contentDiv = document.getElementById("contentDiv" + index);
+		if(contentDiv)
+		{
+			removeTree(contentDiv);
+			fileInputDiv.removeChild(contentDiv);
+		}
+		var propertiesDiv = document.getElementById("propertiesDiv" + index);
+		if(propertiesDiv)
+		{
+			removeTree(propertiesDiv);
+			fileInputDiv.removeChild(propertiesDiv);
+		}
+		
+		setMainFrameHeight(window.name);
+	}
+	function removeTree(nodeRef)
+	{
+		if(nodeRef && nodeRef.childNodes && nodeRef.childNodes.length && nodeRef.childNodes.length > 0)
+		{
+			for(var i = 0; i < nodeRef.childNodes.length; i++)
+			{
+				removeTree(nodeRef.childNodes[i]);
+				nodeRef.removeChild(nodeRef.childNodes[i]);
+			}
+		}
+	}
+	function handleRemoveFileItem(evt)
+	{
+		evt = (evt) ? evt : ((event) ? event : null);
+		if(evt)
+		{
+			var elem = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null)
+			if(elem)
+			{
+				elem = (elem.nodeType == 1 || elem.nodeType == 9) ? elem : elem.parentNode;
+				
+				if(elem.id)
+				{
+					var dot = elem.id.lastIndexOf(DOT);
+					if(dot >= 0)
+					{
+						var index = elem.id.substr(dot + 1);
+						removeFileItem(index);
+					}
+				}
+			}
+		}
 	}
 	-->
 </script>
