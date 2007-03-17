@@ -110,10 +110,9 @@
 			</div>
 			<div class="action">
 #if (${toolPlacement.toolJSR168Edit} )
-             <a accesskey="e" href="${toolPlacement.toolJSR168Edit}" title="${rloader.sit_edit}">
-		<img src="/library/image/transparent.gif"  alt="${rloader.sit_edit}" border="0" />
-edit
-             </a>
+            <a accesskey="e" id="jsr-edit" href="${toolPlacement.toolJSR168Edit}" 
+                   title="${rloader.sit_edit}"><img src="/library/image/transparent.gif"  
+                    alt="${rloader.sit_edit}" border="0"></a>
 #end 
 #if (${toolPlacement.toolShowHelpButton})
 	#if (${toolPlacement.toolJSR168Help} )
