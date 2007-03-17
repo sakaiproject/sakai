@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2006 The Sakai Foundation.
+ * Copyright (c) 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -142,6 +142,9 @@ public class BasicAuth {
 	 * @return
 	 */
 	protected boolean isBrowser(String userAgentHeader) {
+		if (userAgentHeader == null)
+			return false;
+
 		if (patterns != null) {
 			for (int i = 0; i < patterns.length; i++) {
 				Matcher m = patterns[i].matcher(userAgentHeader);
