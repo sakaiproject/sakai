@@ -304,19 +304,21 @@ public class ErrorReporter
 				}
 			}
 
+			String subject = rb.getString("bugreport.bugreport") + ": " + problemdigest
+			+ " / " + usageSessionId;
+
 			String userComment = "";
+			
 			if (userReport != null)
 			{
 				userComment = rb.getString("bugreport.usercomment") + ":\n\n"
 						+ userReport + "\n\n\n";
+				subject = subject + " " + rb.getString("bugreport.commentflag");
 			}
 
 			String from = "\""
 					+ ServerConfigurationService.getString("ui.service", "Sakai")
 					+ "\"<no-reply@" + ServerConfigurationService.getServerName() + ">";
-
-			String subject = rb.getString("bugreport.bugreport") + ": " + problemdigest
-					+ " / " + usageSessionId;
 
 			String body = rb.getString("bugreport.user") + ": " + userEid + " ("
 					+ userName + ")\n" + rb.getString("bugreport.email") + ": "
@@ -332,7 +334,7 @@ public class ErrorReporter
 					+ userComment + rb.getString("bugreport.stacktrace") + ":\n\n"
 					+ problem + "\n\n" + placementDisplay + "\n\n" + requestDisplay;
 
-			EmailService.send(from, emailAddr, subject, body, null, null, null);
+			EmailService.send(from, emailAddr, subject, body, emailAddr, null, null);
 		}
 	}
 
