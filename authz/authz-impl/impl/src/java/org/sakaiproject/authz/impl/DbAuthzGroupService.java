@@ -40,6 +40,7 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.db.api.SqlServiceDeadlockException;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -791,7 +792,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		/**
 		 * @inheritDoc
 		 */
-		public void save(AuthzGroup edit)
+		public void save(final AuthzGroup edit)
 		{
 			// pre-check the roles and functions to make sure they are all defined
 			for (Iterator iRoles = ((BaseAuthzGroup) edit).m_roles.values().iterator(); iRoles.hasNext();)
@@ -810,6 +811,28 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				}
 			}
 
+			// run our save code in a transaction that will restart on deadlock
+			// if deadlock retry fails, or any other error occurs, a runtime error will be thrown
+			m_sql.transact(new Runnable()
+			{
+				public void run()
+				{
+					saveTx(edit);					
+				}
+			}, "azg:" + edit.getId());
+
+			// update with the provider
+			refreshAuthzGroup((BaseAuthzGroup) edit);
+		}
+
+		/**
+		 * The transaction code to save the azg.
+		 * 
+		 * @param edit
+		 *        The azg to save.
+		 */
+		protected void saveTx(AuthzGroup edit)
+		{
 			// update SAKAI_REALM_RL_FN: read, diff with the edit, add and delete
 			save_REALM_RL_FN(edit);
 
@@ -823,11 +846,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			save_REALM_ROLE_DESC(edit);
 
 			// update the main realm table and properties
-			super.commitResource(null, edit, fields(edit.getId(), ((BaseAuthzGroup) edit), true), edit.getProperties(), ((BaseAuthzGroup) edit)
+			super.commitResource(edit, fields(edit.getId(), ((BaseAuthzGroup) edit), true), edit.getProperties(), ((BaseAuthzGroup) edit)
 					.getKey());
-
-			// update with the provider
-			refreshAuthzGroup((BaseAuthzGroup) edit);
 		}
 
 		protected void save_REALM_RL_FN(AuthzGroup azg)
@@ -1214,11 +1234,25 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			super.cancelResource(edit);
 		}
 
-		public void remove(AuthzGroup edit)
+		public void remove(final AuthzGroup edit)
+		{
+			// in a transaction
+			m_sql.transact(new Runnable()
+			{
+				public void run()
+				{
+					removeTx(edit);					
+				}
+			}, "azgRemove:" + edit.getId());
+		}
+
+		/**
+		 * Transaction code for removing the azg.
+		 */
+		protected void removeTx(AuthzGroup edit)
 		{
 			// delete all the role functions, auth grants, anon grants, role grants, fucntion grants
 			// and then the realm and release the lock.
-			// Note: no need for a transaction, avoid using it to avoid deadlock conditions -ggolden
 
 			// delete the role functions, role grants, provider entries
 			Object fields[] = new Object[1];
@@ -1267,7 +1301,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			m_sql.dbWrite(statement, fields);
 
 			// delete the realm and properties
-			super.removeResource(null, edit, ((BaseAuthzGroup) edit).getKey());
+			super.removeResource(edit, ((BaseAuthzGroup) edit).getKey());
 		}
 
 		/**
