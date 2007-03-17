@@ -2312,12 +2312,10 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 		/**
 		 * Write an updated tool configuration to the database.
 		 * 
-		 * @param conn
-		 *        Optional connection to use.
 		 * @param tool
 		 *        TooConfiguration to commit.
 		 */
-		public void saveToolConfig(Connection conn, ToolConfiguration tool);
+		public void saveToolConfig(ToolConfiguration tool);
 
 		/**
 		 * Access the Site id for the group with this id.

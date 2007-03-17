@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -36,7 +36,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.db.api.SqlServiceDeadlockException;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -221,12 +223,31 @@ public abstract class DbSiteService extends BaseSiteService
 			return rv;
 		}
 
-		public void save(Site edit)
+		public void save(final Site edit)
 		{
-			// write the pages, tools, properties, using NO transaction to avoid deadlocks,
-			// and then commit the site and release the lock
+			// run our save code in a transaction that will restart on deadlock
+			// if deadlock retry fails, or any other error occurs, a runtime error will be thrown
+			m_sql.transact(new Runnable()
+			{
+				public void run()
+				{
+					saveTx(edit);					
+				}
+			}, "site:" + edit.getId());
+		}
 
+		/**
+		 * The transaction code to save a site.
+		 * 
+		 * @param edit
+		 *        The site to save.
+		 */
+		protected void saveTx(Site edit)
+		{
 			// TODO: (SAK-8669) re-write to commit only the diff, not a complete delete / add -ggolden
+
+			// write the pages, tools, properties,
+			// and then commit the site and release the lock
 
 			// delete the pages, tools, page properties, tool properties
 			Object fields[] = new Object[1];
@@ -260,8 +281,7 @@ public abstract class DbSiteService extends BaseSiteService
 				SitePage page = (SitePage) iPages.next();
 
 				// write the page
-				statement = "insert into SAKAI_SITE_PAGE (PAGE_ID, SITE_ID, TITLE, LAYOUT, POPUP, SITE_ORDER)"
-						+ " values (?,?,?,?,?,?)";
+				statement = "insert into SAKAI_SITE_PAGE (PAGE_ID, SITE_ID, TITLE, LAYOUT, POPUP, SITE_ORDER)" + " values (?,?,?,?,?,?)";
 
 				fields = new Object[6];
 				fields[0] = page.getId();
@@ -273,8 +293,8 @@ public abstract class DbSiteService extends BaseSiteService
 				m_sql.dbWrite(statement, fields);
 
 				// write the page's properties
-				writeProperties(null, "SAKAI_SITE_PAGE_PROPERTY", "PAGE_ID", page.getId(), "SITE_ID",
-						caseId(edit.getId()), page.getProperties(), deleteAgain);
+				writeProperties("SAKAI_SITE_PAGE_PROPERTY", "PAGE_ID", page.getId(), "SITE_ID", caseId(edit.getId()), page.getProperties(),
+						deleteAgain);
 
 				// write the tools
 				int toolOrder = 1;
@@ -297,8 +317,8 @@ public abstract class DbSiteService extends BaseSiteService
 					m_sql.dbWrite(statement, fields);
 
 					// write the tool's properties
-					writeProperties(null, "SAKAI_SITE_TOOL_PROPERTY", "TOOL_ID", tool.getId(), "SITE_ID", caseId(edit
-							.getId()), tool.getPlacementConfig(), deleteAgain);
+					writeProperties("SAKAI_SITE_TOOL_PROPERTY", "TOOL_ID", tool.getId(), "SITE_ID", caseId(edit.getId()), tool
+							.getPlacementConfig(), deleteAgain);
 				}
 			}
 
@@ -318,12 +338,12 @@ public abstract class DbSiteService extends BaseSiteService
 				m_sql.dbWrite(statement, fields);
 
 				// write the group's properties
-				writeProperties(null, "SAKAI_SITE_GROUP_PROPERTY", "GROUP_ID", group.getId(), "SITE_ID", caseId(edit
-						.getId()), group.getProperties(), deleteAgain);
+				writeProperties("SAKAI_SITE_GROUP_PROPERTY", "GROUP_ID", group.getId(), "SITE_ID", caseId(edit.getId()), group
+						.getProperties(), deleteAgain);
 			}
 
 			// write the site and properties, releasing the lock
-			super.commitResource(null, edit, fields(edit.getId(), edit, true), edit.getProperties(), null);
+			super.commitResource(edit, fields(edit.getId(), edit, true), edit.getProperties(), null);
 		}
 
 		/**
@@ -344,165 +364,103 @@ public abstract class DbSiteService extends BaseSiteService
 		/**
 		 * @inheritDoc
 		 */
-		public void saveToolConfig(Connection conn, ToolConfiguration tool)
+		public void saveToolConfig(final ToolConfiguration tool)
 		{
-			Connection connection = null;
-			boolean wasCommit = true;
-			try
+			// in a transaction
+			m_sql.transact(new Runnable()
 			{
-				// use the connection given if given.
-				if (conn != null)
+				public void run()
 				{
-					connection = conn;
+					saveToolConfigTx(tool);					
 				}
-
-				else
-				{
-					connection = m_sql.borrowConnection();
-					wasCommit = connection.getAutoCommit();
-					connection.setAutoCommit(false);
-				}
-
-				// delete this tool and tool properties
-				Object fields[] = new Object[2];
-				fields[0] = caseId(tool.getSiteId());
-				fields[1] = caseId(tool.getId());
-
-				String statement = "delete from SAKAI_SITE_TOOL_PROPERTY where SITE_ID = ? and TOOL_ID = ?";
-				m_sql.dbWrite(connection, statement, fields);
-
-				statement = "delete from SAKAI_SITE_TOOL where SITE_ID = ? and TOOL_ID = ?";
-				m_sql.dbWrite(connection, statement, fields);
-
-				// write the tool
-				statement = "insert into SAKAI_SITE_TOOL (TOOL_ID, PAGE_ID, SITE_ID, REGISTRATION, PAGE_ORDER, TITLE, LAYOUT_HINTS)"
-						+ " values (?,?,?,?,?,?,?)";
-
-				fields = new Object[7];
-				fields[0] = tool.getId();
-				fields[1] = tool.getPageId();
-				fields[2] = caseId(tool.getSiteId());
-				fields[3] = tool.getToolId();
-				fields[4] = new Integer(tool.getPageOrder());
-				fields[5] = tool.getTitle();
-				fields[6] = tool.getLayoutHints();
-				m_sql.dbWrite(connection, statement, fields);
-
-				// write the tool's properties
-				writeProperties(connection, "SAKAI_SITE_TOOL_PROPERTY", "TOOL_ID", tool.getId(), "SITE_ID",
-						caseId(tool.getSiteId()), tool.getPlacementConfig());
-
-				// if the connection is new, commit
-				if (conn == null)
-				{
-					connection.commit();
-				}
-			}
-			catch (Exception e)
-			{
-				if ((connection != null) && (conn == null))
-				{
-					try
-					{
-						connection.rollback();
-					}
-					catch (Exception ee)
-					{
-						M_log.warn("commitToolConfig, while rolling back: " + ee);
-					}
-				}
-				M_log.warn("commitToolConfig: " + e);
-			}
-			finally
-			{
-				if ((connection != null) && (conn == null))
-				{
-					try
-					{
-						connection.setAutoCommit(wasCommit);
-					}
-					catch (Exception e)
-					{
-						M_log.warn("commitToolConfig, while setting auto commit: " + e);
-					}
-					m_sql.returnConnection(connection);
-				}
-			}
+			}, "siteToolConfig:" + tool.getId());
 		}
 
-		public void remove(Site edit)
+		/**
+		 * The transactino code for saving a tool config.
+		 */
+		protected void saveToolConfigTx(ToolConfiguration tool)
+		{
+			// delete this tool and tool properties
+			Object fields[] = new Object[2];
+			fields[0] = caseId(tool.getSiteId());
+			fields[1] = caseId(tool.getId());
+
+			String statement = "delete from SAKAI_SITE_TOOL_PROPERTY where SITE_ID = ? and TOOL_ID = ?";
+			m_sql.dbWrite(statement, fields);
+
+			statement = "delete from SAKAI_SITE_TOOL where SITE_ID = ? and TOOL_ID = ?";
+			m_sql.dbWrite(statement, fields);
+
+			// write the tool
+			statement = "insert into SAKAI_SITE_TOOL (TOOL_ID, PAGE_ID, SITE_ID, REGISTRATION, PAGE_ORDER, TITLE, LAYOUT_HINTS)"
+					+ " values (?,?,?,?,?,?,?)";
+
+			fields = new Object[7];
+			fields[0] = tool.getId();
+			fields[1] = tool.getPageId();
+			fields[2] = caseId(tool.getSiteId());
+			fields[3] = tool.getToolId();
+			fields[4] = new Integer(tool.getPageOrder());
+			fields[5] = tool.getTitle();
+			fields[6] = tool.getLayoutHints();
+			m_sql.dbWrite(statement, fields);
+
+			// write the tool's properties
+			writeProperties("SAKAI_SITE_TOOL_PROPERTY", "TOOL_ID", tool.getId(), "SITE_ID",
+					caseId(tool.getSiteId()), tool.getPlacementConfig());
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public void remove(final Site edit)
+		{
+			// in a transaction
+			m_sql.transact(new Runnable()
+			{
+				public void run()
+				{
+					removeTx(edit);					
+				}
+			}, "siteRemove:" + edit.getId());		
+		}
+
+		/**
+		 * Transaction code to remove a site.
+		 */
+		protected void removeTx(Site edit)
 		{
 			// delete all the pages, tools, properties, permissions
-			// and then the site and release the lock, all in one transaction
-			Connection connection = null;
-			boolean wasCommit = true;
-			try
-			{
-				connection = m_sql.borrowConnection();
-				wasCommit = connection.getAutoCommit();
-				connection.setAutoCommit(false);
+			// and then the site and release the lock
 
-				// delete the pages, tools, page properties, tool properties, permissions
-				Object fields[] = new Object[1];
-				fields[0] = caseId(edit.getId());
+			// delete the pages, tools, page properties, tool properties, permissions
+			Object fields[] = new Object[1];
+			fields[0] = caseId(edit.getId());
 
-				String statement = "delete from SAKAI_SITE_TOOL_PROPERTY where SITE_ID = ?";
-				m_sql.dbWrite(connection, statement, fields);
+			String statement = "delete from SAKAI_SITE_TOOL_PROPERTY where SITE_ID = ?";
+			m_sql.dbWrite(statement, fields);
 
-				statement = "delete from SAKAI_SITE_TOOL where SITE_ID = ?";
-				m_sql.dbWrite(connection, statement, fields);
+			statement = "delete from SAKAI_SITE_TOOL where SITE_ID = ?";
+			m_sql.dbWrite(statement, fields);
 
-				statement = "delete from SAKAI_SITE_PAGE_PROPERTY where SITE_ID = ?";
-				m_sql.dbWrite(connection, statement, fields);
+			statement = "delete from SAKAI_SITE_PAGE_PROPERTY where SITE_ID = ?";
+			m_sql.dbWrite(statement, fields);
 
-				statement = "delete from SAKAI_SITE_PAGE where SITE_ID = ?";
-				m_sql.dbWrite(connection, statement, fields);
+			statement = "delete from SAKAI_SITE_PAGE where SITE_ID = ?";
+			m_sql.dbWrite(statement, fields);
 
-				statement = "delete from SAKAI_SITE_USER where SITE_ID = ?";
-				m_sql.dbWrite(connection, statement, fields);
+			statement = "delete from SAKAI_SITE_USER where SITE_ID = ?";
+			m_sql.dbWrite(statement, fields);
 
-				statement = "delete from SAKAI_SITE_GROUP_PROPERTY where SITE_ID = ?";
-				m_sql.dbWrite(connection, statement, fields);
+			statement = "delete from SAKAI_SITE_GROUP_PROPERTY where SITE_ID = ?";
+			m_sql.dbWrite(statement, fields);
 
-				statement = "delete from SAKAI_SITE_GROUP where SITE_ID = ?";
-				m_sql.dbWrite(connection, statement, fields);
+			statement = "delete from SAKAI_SITE_GROUP where SITE_ID = ?";
+			m_sql.dbWrite(statement, fields);
 
-				// delete the site and properties
-				super.removeResource(connection, edit, null);
-
-				connection.commit();
-			}
-			catch (Exception e)
-			{
-				if (connection != null)
-				{
-					try
-					{
-						connection.rollback();
-					}
-					catch (Exception ee)
-					{
-						M_log.warn("remove, while rolling back: " + ee);
-					}
-				}
-				M_log.warn("remove: " + e);
-			}
-			finally
-			{
-				if (connection != null)
-				{
-					try
-					{
-						connection.setAutoCommit(wasCommit);
-					}
-					catch (Exception e)
-					{
-						M_log.warn("remove, while setting auto commit: " + e);
-					}
-					m_sql.returnConnection(connection);
-				}
-			}
-
+			// delete the site and properties
+			super.removeResource(edit, null);
 		}
 
 		public int count()

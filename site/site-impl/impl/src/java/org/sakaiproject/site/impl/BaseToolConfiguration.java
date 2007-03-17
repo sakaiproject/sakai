@@ -463,7 +463,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 	public void save()
 	{
 		// TODO: security? version?
-		((BaseSiteService) (SiteService.getInstance())).m_storage.saveToolConfig(null, this);
+		((BaseSiteService) (SiteService.getInstance())).m_storage.saveToolConfig(this);
 
 		// track the site change
 		EventTrackingService.post(EventTrackingService.newEvent(SiteService.SECURE_UPDATE_SITE, SiteService
