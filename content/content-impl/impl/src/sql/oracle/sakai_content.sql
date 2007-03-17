@@ -75,6 +75,20 @@ INSERT INTO CONTENT_COLLECTION VALUES ('/attachment/','/',
 </collection>
 ');
 
+INSERT INTO CONTENT_COLLECTION VALUES ('/private/','/',
+'<?xml version="1.0" encoding="UTF-8"?>
+<collection id="/attachment/">
+	<properties>
+		<property name="CHEF:creator" value="admin"/>
+		<property name="CHEF:is-collection" value="true"/>
+		<property name="DAV:displayname" value="private"/>
+		<property name="CHEF:modifiedby" value="admin"/>
+		<property name="DAV:getlastmodified" value="20020401000000000"/>
+		<property name="DAV:creationdate" value="20020401000000000"/>
+	</properties>
+</collection>
+');
+
 INSERT INTO CONTENT_COLLECTION VALUES ('/user/','/',
 '<?xml version="1.0" encoding="UTF-8"?>
 <collection id="/user/">
