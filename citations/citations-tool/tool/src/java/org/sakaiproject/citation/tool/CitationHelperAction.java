@@ -550,8 +550,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	 */
 	public String buildCitationsPanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
 	{
-		System.out.println( "\n <<< buildCitationsPanelContext >>>" );
-		
 		initHelper(portlet, context, rundata, state);
 		
 		// always put appropriate bundle in velocity context
@@ -954,7 +952,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	 */
 	public String buildMainPanelContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
 	{
-		System.out.println( "\n<<< buildMainPanelContext >>>" );
 		initHelper(portlet, context, rundata, state);
 		
 		// always put appropriate bundle in velocity context
