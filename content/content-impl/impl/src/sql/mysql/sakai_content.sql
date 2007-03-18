@@ -77,7 +77,7 @@ INSERT INTO CONTENT_COLLECTION VALUES ('/attachment/','/',
 
 INSERT INTO CONTENT_COLLECTION VALUES ('/private/','/',
 '<?xml version="1.0" encoding="UTF-8"?>
-<collection id="/attachment/">
+<collection id="/private/">
 	<properties>
 		<property name="CHEF:creator" value="admin"/>
 		<property name="CHEF:is-collection" value="true"/>
