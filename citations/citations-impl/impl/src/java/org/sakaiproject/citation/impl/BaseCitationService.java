@@ -1028,167 +1028,171 @@ public abstract class BaseCitationService implements CitationService
 			StringBuffer openUrl = null;
 			try
 			{
-			  openUrl = new StringBuffer();
+				openUrl = new StringBuffer();
 
-			  openUrl.append("?url_ver=" + URLEncoder.encode(OPENURL_VERSION, "utf8")
-			      + "&url_ctx_fmt=" + URLEncoder.encode(OPENURL_CONTEXT_FORMAT, "utf8")
-			      + "&rft_val_fmt=" + URLEncoder.encode(referentValueFormat, "utf8"));
+				openUrl.append("?url_ver=" + URLEncoder.encode(OPENURL_VERSION, "utf8")
+						+ "&url_ctx_fmt=" + URLEncoder.encode(OPENURL_CONTEXT_FORMAT, "utf8")
+						+ "&rft_val_fmt=" + URLEncoder.encode(referentValueFormat, "utf8"));
 
-			  // get first author
-			  String author = getFirstAuthor();
+				// get first author
+				String author = getFirstAuthor();
 
-			  // get first author's last/first name
-			  if (author != null)
-			  {
-			    String aulast;
-			    StringBuffer aufirst = new StringBuffer();
-			    String[] authorNames = author.split(",");
-			    if (authorNames.length == 2)
-			    {
-			      aulast = authorNames[0].trim();
-			      aufirst.append(authorNames[1].trim());
-			    }
-			    else
-			    {
-			      authorNames = author.split("\\s");
-			      aulast = authorNames[authorNames.length - 1].trim();
-			      for (int i = 0; i < authorNames.length - 1; i++)
-			      {
-			        aufirst.append(authorNames[i] + " ");
-			      }
+				// get first author's last/first name
+				if (author != null)
+				{
+					String aulast;
+					StringBuffer aufirst = new StringBuffer();
+					String[] authorNames = author.split(",");
+					if (authorNames.length == 2)
+					{
+						aulast = authorNames[0].trim();
+						aufirst.append(authorNames[1].trim());
+					}
+					else
+					{
+						authorNames = author.split("\\s");
+						aulast = authorNames[authorNames.length - 1].trim();
+						for (int i = 0; i < authorNames.length - 1; i++)
+						{
+							aufirst.append(authorNames[i] + " ");
+						}
 
-            if (aufirst.length() > 0)
-            {
-              aufirst.deleteCharAt( aufirst.length() - 1 );
-            }
-			    }
-			    // append to the openUrl
-			    openUrl.append("&rft.aulast=" + URLEncoder.encode(aulast,"utf8"));
+						if (aufirst.length() > 0)
+						{
+							aufirst.deleteCharAt( aufirst.length() - 1 );
+						}
+					}
+					// append to the openUrl
+					openUrl.append("&rft.aulast=" + URLEncoder.encode(aulast,"utf8"));
 
-			    if (!aufirst.toString().trim().equals(""))
-			    {
-			      openUrl.append("&rft.aufirst=" + URLEncoder.encode(aufirst.toString().
-                trim(), "utf8"));
-			    }
-			  }
-			  // append any other authors to the openUrl
-			  java.util.List authors = (java.util.List) m_citationProperties.get(Schema.CREATOR);
-			  if (authors != null && !authors.isEmpty() && authors.size() > 1)
-			  {
-			    for (int i = 1; i < authors.size(); i++)
-			    {
-			      openUrl.append("&rft.au=" + URLEncoder.encode((String) authors.get(i),
-                "utf8"));
-			    }
-			  }
-			  // atitle <journal:article title; book: chapter title>
-			  openUrl.append("&rft.atitle=" + URLEncoder.encode(m_displayName, "utf8"));
-			  // journal title or book title
-			  String sourceTitle = (String) m_citationProperties.get(Schema.SOURCE_TITLE);
-			  if (sourceTitle != null && !sourceTitle.trim().equals(""))
-			  {
-			    if (journalOpenUrlType)
-			    {
-			      openUrl.append("&rft.jtitle=" + URLEncoder.encode(sourceTitle, "utf8"));
-			    }
-			    else
-			    {
-			      openUrl.append("&rft.btitle=" + URLEncoder.encode(sourceTitle, "utf8"));
-			    }
-			  }
+					if (!aufirst.toString().trim().equals(""))
+					{
+						openUrl.append("&rft.aufirst=" + URLEncoder.encode(aufirst.toString().
+								trim(), "utf8"));
+					}
+				}
+				// append any other authors to the openUrl
+				java.util.List authors = (java.util.List) m_citationProperties.get(Schema.CREATOR);
+				if (authors != null && !authors.isEmpty() && authors.size() > 1)
+				{
+					for (int i = 1; i < authors.size(); i++)
+					{
+						openUrl.append("&rft.au=" + URLEncoder.encode((String) authors.get(i),
+						"utf8"));
+					}
+				}
+				// atitle <journal:article title; book: chapter title>
+				if( m_displayName != null )
+				{
+					openUrl.append("&rft.atitle=" + URLEncoder.encode(m_displayName, "utf8"));
+				}
 
-			  // date [ YYYY-MM-DD | YYYY-MM | YYYY ] - need filtering TODO
-        //  -- perhaps do another regular expressions scan...
-        // currently just using the year
- 			  String year = (String) m_citationProperties.get(Schema.YEAR);
+				// journal title or book title
+				String sourceTitle = (String) m_citationProperties.get(Schema.SOURCE_TITLE);
+				if (sourceTitle != null && !sourceTitle.trim().equals(""))
+				{
+					if (journalOpenUrlType)
+					{
+						openUrl.append("&rft.jtitle=" + URLEncoder.encode(sourceTitle, "utf8"));
+					}
+					else
+					{
+						openUrl.append("&rft.btitle=" + URLEncoder.encode(sourceTitle, "utf8"));
+					}
+				}
 
-			  if (year != null && !year.trim().equals(""))
+				// date [ YYYY-MM-DD | YYYY-MM | YYYY ] - need filtering TODO
+				//  -- perhaps do another regular expressions scan...
+				// currently just using the year
+				String year = (String) m_citationProperties.get(Schema.YEAR);
+
+				if (year != null && !year.trim().equals(""))
 				{
 					openUrl.append("&rft.date=" + URLEncoder.encode(year, "utf8"));
 				}
 
-        // volume (edition)
-			  if (journalOpenUrlType)
-			  {
-			    String volume = (String) m_citationProperties.get(Schema.VOLUME);
-			    if (volume != null && !volume.trim().equals(""))
-			    {
-			      openUrl.append("&rft.volume=" + URLEncoder.encode(volume, "utf8"));
-			    }
-			  }
-			  else
-			  {
-			    String edition = (String) m_citationProperties.get("edition");
-			    if (edition != null && !edition.trim().equals(""))
-			    {
-			      openUrl.append("&rft.edition=" + URLEncoder.encode(edition, "utf8"));
-			    }
-			  }
+				// volume (edition)
+				if (journalOpenUrlType)
+				{
+					String volume = (String) m_citationProperties.get(Schema.VOLUME);
+					if (volume != null && !volume.trim().equals(""))
+					{
+						openUrl.append("&rft.volume=" + URLEncoder.encode(volume, "utf8"));
+					}
+				}
+				else
+				{
+					String edition = (String) m_citationProperties.get("edition");
+					if (edition != null && !edition.trim().equals(""))
+					{
+						openUrl.append("&rft.edition=" + URLEncoder.encode(edition, "utf8"));
+					}
+				}
 
-			  // issue (place)
-			  // (pub)
-			  if (journalOpenUrlType)
-			  {
-			    String issue = (String) m_citationProperties.get(Schema.ISSUE);
-			    if (issue != null && !issue.trim().equals(""))
-			    {
-			      openUrl.append("&rft.issue=" + URLEncoder.encode(issue, "utf8"));
-			    }
+				// issue (place)
+				// (pub)
+				if (journalOpenUrlType)
+				{
+					String issue = (String) m_citationProperties.get(Schema.ISSUE);
+					if (issue != null && !issue.trim().equals(""))
+					{
+						openUrl.append("&rft.issue=" + URLEncoder.encode(issue, "utf8"));
+					}
 
-			  }
-			  else
-			  {
-			    String pub = (String) m_citationProperties.get("pub");
+				}
+				else
+				{
+					String pub = (String) m_citationProperties.get("pub");
 
-			    if (pub != null && !pub.trim().equals(""))
-			    {
-			      openUrl.append("&rft.pub=" + URLEncoder.encode(pub, "utf8"));
-			    }
-			    String place = (String) m_citationProperties.get("place");
-			    if (place != null && !place.trim().equals(""))
-			    {
-			      openUrl.append("&rft.place=" + URLEncoder.encode(place, "utf8"));
-			    }
-			  }
+					if (pub != null && !pub.trim().equals(""))
+					{
+						openUrl.append("&rft.pub=" + URLEncoder.encode(pub, "utf8"));
+					}
+					String place = (String) m_citationProperties.get("place");
+					if (place != null && !place.trim().equals(""))
+					{
+						openUrl.append("&rft.place=" + URLEncoder.encode(place, "utf8"));
+					}
+				}
 
-			  // spage
-			  String spage = (String) m_citationProperties.get("startPage");
-			  if (spage != null && !spage.trim().equals(""))
-			  {
-			    openUrl.append("&rft.spage=" + URLEncoder.encode(spage, "utf8"));
-			  }
+				// spage
+				String spage = (String) m_citationProperties.get("startPage");
+				if (spage != null && !spage.trim().equals(""))
+				{
+					openUrl.append("&rft.spage=" + URLEncoder.encode(spage, "utf8"));
+				}
 
-			  // epage
-			  String epage = (String) m_citationProperties.get("endPage");
-			  if (epage != null && !epage.trim().equals(""))
-			  {
-			    openUrl.append("&rft.epage=" + URLEncoder.encode(epage, "utf8"));
-			  }
+				// epage
+				String epage = (String) m_citationProperties.get("endPage");
+				if (epage != null && !epage.trim().equals(""))
+				{
+					openUrl.append("&rft.epage=" + URLEncoder.encode(epage, "utf8"));
+				}
 
-			  // pages
-			  String pages = (String) m_citationProperties.get(Schema.PAGES);
-			  if (pages != null && !pages.trim().equals(""))
-			  {
-			    openUrl.append("&rft.pages=" + URLEncoder.encode(pages, "utf8"));
-			  }
+				// pages
+				String pages = (String) m_citationProperties.get(Schema.PAGES);
+				if (pages != null && !pages.trim().equals(""))
+				{
+					openUrl.append("&rft.pages=" + URLEncoder.encode(pages, "utf8"));
+				}
 
-			  // issn (isbn)
-			  String isn = (String) m_citationProperties.get(Schema.ISN);
-			  if (isn != null && !isn.trim().equals(""))
-			  {
-			    if (journalOpenUrlType)
-			    {
-			      openUrl.append("&rft.issn=" + URLEncoder.encode(isn, "utf8"));
-			    }
-			    else
-			    {
-			      openUrl.append("&rft.isbn=" + URLEncoder.encode(isn, "utf8"));
-			    }
-			  }
+				// issn (isbn)
+				String isn = (String) m_citationProperties.get(Schema.ISN);
+				if (isn != null && !isn.trim().equals(""))
+				{
+					if (journalOpenUrlType)
+					{
+						openUrl.append("&rft.issn=" + URLEncoder.encode(isn, "utf8"));
+					}
+					else
+					{
+						openUrl.append("&rft.isbn=" + URLEncoder.encode(isn, "utf8"));
+					}
+				}
 			}
 			catch( UnsupportedEncodingException uee )
 			{
-			  M_log.warn( "getOpenurlParameters -- unsupported encoding argument: utf8" );
+				M_log.warn( "getOpenurlParameters -- unsupported encoding argument: utf8" );
 			}
 
 			// genre needs some further work... TODO
