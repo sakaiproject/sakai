@@ -215,7 +215,7 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where RE
 
 INSERT INTO CONTENT_COLLECTION VALUES ('/private/','/',
 '<?xml version="1.0" encoding="UTF-8"?>
-<collection id="/attachment/">
+<collection id="/private/">
 	<properties>
 		<property name="CHEF:creator" value="admin"/>
 		<property name="CHEF:is-collection" value="true"/>
