@@ -52,6 +52,7 @@ import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.portal.charon.handlers.AtomHandler;
 import org.sakaiproject.portal.charon.handlers.DirectToolHandler;
 import org.sakaiproject.portal.charon.handlers.ErrorDoneHandler;
+import org.sakaiproject.portal.charon.handlers.ErrorReportHandler;
 import org.sakaiproject.portal.charon.handlers.GalleryHandler;
 import org.sakaiproject.portal.charon.handlers.HelpHandler;
 import org.sakaiproject.portal.charon.handlers.LoginGalleryHandler;
@@ -854,7 +855,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			basicAuth.doLogin(req);
 			if (!ToolRenderService.preprocess(req, res, getServletContext()))
 			{
-				System.err.println("POST FAILED, REDIRECT ?");
+				//System.err.println("POST FAILED, REDIRECT ?");
 				return;
 			}
 
@@ -926,14 +927,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 	}
 
-	protected void doErrorReport(HttpServletRequest req, HttpServletResponse res)
-			throws ToolException, IOException
-	{
-		setupForward(req, res, null, null);
-
-		ErrorReporter err = new ErrorReporter();
-		err.postResponse(req, res);
-	}
 
 	/* 
 	 * Checks to see which form of tool or page placement we have. The normal
@@ -1529,6 +1522,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		addHandler(new LogoutHandler());
 		addHandler(new LogoutGalleryHandler());
 		addHandler(new ErrorDoneHandler());
+		addHandler(new ErrorReportHandler());
 		addHandler(new StaticStylesHandler());
 		addHandler(new StaticScriptsHandler());
 		addHandler(new DirectToolHandler());
