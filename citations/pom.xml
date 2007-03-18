@@ -12,8 +12,7 @@
   <artifactId>sakai-citations</artifactId>
   <packaging>pom</packaging>
  <modules>
-<module>citations-servlet/servlet/impl</module>
-<module>citations-servlet/servlet/pack</module>
+<module>citations-servlet/servlet</module>
 <module>citations-api/api</module>
 <module>citations-tool/tool</module>
 <module>citations-util/util</module>
