@@ -160,10 +160,6 @@
         <entry key="doctype-system"><value>http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd</value></entry>
         <entry key="{http://xml.apache.org/xalan}indent-amount"><value>2</value></entry> 
 		<entry key="{http://xml.apache.org/xalan}content-handler"><value>uk.ac.cam.caret.sakai.rwiki.component.service.impl.XHTMLSerializer</value></entry>
-<!--        
-      <entry key="{http://xml.apache.org/xalan}entities"><value>com/sun/org/apache/xml/internal/serializer/HTMLEntities</value></entry> 
-
--->
         <entry key="{http://xml.apache.org/xalan}use-url-escaping"><value>yes</value></entry> 
         <entry key="{http://xml.apache.org/xalan}omit-meta-tag"><value>no</value></entry> 
       </map>     
@@ -173,7 +169,7 @@
     class="uk.ac.cam.caret.sakai.rwiki.component.service.impl.XSLTEntityHandler"  
     init-method="init"  destroy-method="destroy" >
     
-    <property name="experimental"><value>true</value></property>
+    <property name="experimental"><value>false</value></property>
     
     <!-- from XSLTEntityHandler -->
     <!-- The transformer use on the stream -->
@@ -203,7 +199,7 @@
     class="uk.ac.cam.caret.sakai.rwiki.component.service.impl.XSLTEntityHandler"  
     init-method="init"  destroy-method="destroy" >
     
-    <property name="experimental"><value>true</value></property>
+    <property name="experimental"><value>false</value></property>
     
     <!-- from XSLTEntityHandler -->
     <!-- The transformer use on the stream -->
@@ -370,11 +366,6 @@ DISABLED
         <entry key="encoding"><value>UTF-8</value></entry>
         <entry key="media-type"><value>text/xml</value></entry>
         <entry key="{http://xml.apache.org/xalan}indent-amount"><value>2</value></entry> 
-        <!--
-          <entry key="{http://xml.apache.org/xalan}content-handler"><value>com.sun.org.apache.xml.internal.serializer.ToHTMLStream</value></entry> 
-          <entry key="{http://xml.apache.org/xalan}entities"><value>com/sun/org/apache/xml/internal/serializer/HTMLEntities</value></entry> 
-          
-        -->
       </map>     
     </property>
     
@@ -405,11 +396,6 @@ DISABLED
         <entry key="encoding"><value>UTF-8</value></entry>
         <entry key="media-type"><value>text/xml</value></entry>
         <entry key="{http://xml.apache.org/xalan}indent-amount"><value>2</value></entry> 
-        <!--
-          <entry key="{http://xml.apache.org/xalan}content-handler"><value>com.sun.org.apache.xml.internal.serializer.ToHTMLStream</value></entry> 
-          <entry key="{http://xml.apache.org/xalan}entities"><value>com/sun/org/apache/xml/internal/serializer/HTMLEntities</value></entry> 
-          
-        -->
       </map>     
     </property>
     
@@ -440,11 +426,6 @@ DISABLED
         <entry key="encoding"><value>UTF-8</value></entry>
         <entry key="media-type"><value>text/xml</value></entry>
         <entry key="{http://xml.apache.org/xalan}indent-amount"><value>2</value></entry> 
-        <!--
-          <entry key="{http://xml.apache.org/xalan}content-handler"><value>com.sun.org.apache.xml.internal.serializer.ToHTMLStream</value></entry> 
-          <entry key="{http://xml.apache.org/xalan}entities"><value>com/sun/org/apache/xml/internal/serializer/HTMLEntities</value></entry> 
-          
-        -->
       </map>     
     </property>
     

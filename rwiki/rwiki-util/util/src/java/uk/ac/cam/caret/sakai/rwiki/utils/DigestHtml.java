@@ -23,10 +23,12 @@ package uk.ac.cam.caret.sakai.rwiki.utils;
 
 import java.io.StringReader;
 
-import org.sakaiproject.util.ResourceLoader;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
+
 
 /**
  * Digests XHTML into a string representation
@@ -35,14 +37,18 @@ import org.xml.sax.helpers.XMLReaderFactory;
  */
 public class DigestHtml
 {
+	private static SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+	static {
+		saxParserFactory.setNamespaceAware(true);
+	}
 
 	public static String digest(String todigest)
 	{
 		Digester d = new Digester();
 		try
 		{
-			XMLReader reader = XMLReaderFactory
-					.createXMLReader("com.sun.org.apache.xerces.internal.parsers.SAXParser"); //$NON-NLS-1$
+			SAXParser parser = saxParserFactory.newSAXParser();
+			XMLReader reader = parser.getXMLReader();
 			reader.setContentHandler(d);
 			reader.parse(new InputSource(new StringReader("<content>" //$NON-NLS-1$
 					+ todigest + "</content>"))); //$NON-NLS-1$

@@ -14,13 +14,13 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 <xsl:stylesheet version="1.0"
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:fo="http://www.w3.org/1999/XSL/Format"
-                xmlns:html="http://www.w3.org/1999/xhtml">
+                xmlns:xalan="http://xml.apache.org/xalan"  >
 
-  <xsl:output method="xml"
-              version="1.0"
+    <xsl:output method="xml" 
               encoding="UTF-8"
-              indent="yes"/>
-
+              indent="yes" 
+              xalan:indent-amount="2"/>
+            
   <!--======================================================================
       Parameters
   =======================================================================-->

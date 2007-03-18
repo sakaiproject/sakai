@@ -25,8 +25,9 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Properties;
 
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Result;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
@@ -36,12 +37,11 @@ import javax.xml.transform.sax.TemplatesHandler;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 
-import com.sun.org.apache.xml.internal.serializer.OutputPropertiesFactory;
-import com.sun.org.apache.xml.internal.serializer.Serializer;
+import org.apache.xml.serializer.Serializer;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
+
 
 /**
  * Manages a TraxTransform using templates to make it fast to get hold of. This
@@ -52,11 +52,13 @@ import org.xml.sax.helpers.XMLReaderFactory;
 public class XSLTTransform
 {
 
+	
 	private Templates templates = null;
 
 	private SAXTransformerFactory factory = (SAXTransformerFactory) SAXTransformerFactory
 			.newInstance();
 
+	private SAXParserFactory saxParserFactory = null;
 	/**
 	 * Set the xslt resource.
 	 * 
@@ -66,11 +68,16 @@ public class XSLTTransform
 	 */
 	public void setXslt(InputSource xsltresource) throws Exception
 	{
+		if ( saxParserFactory == null) {
+			saxParserFactory = SAXParserFactory.newInstance();
+			saxParserFactory.setNamespaceAware(true);
+		}
 		TemplatesHandler th = factory.newTemplatesHandler();
 		String systemId = xsltresource.getSystemId();
 		th.setSystemId(systemId);
-		XMLReader xr = XMLReaderFactory
-				.createXMLReader("com.sun.org.apache.xerces.internal.parsers.SAXParser");
+		SAXParser parser = saxParserFactory.newSAXParser();
+		XMLReader xr = parser.getXMLReader();
+
 		xr.setContentHandler(th);
 		xr.parse(xsltresource);
 		templates = th.getTemplates();
@@ -85,7 +92,9 @@ public class XSLTTransform
 	 * @return a content handler configured to produce output
 	 * @throws Exception
 	 */
-	public ContentHandler getOutputHandler(Writer out, Map outputProperties)
+/*
+  
+ 	public ContentHandler getOutputHandler(Writer out, Map outputProperties)
 			throws Exception
 	{
 		TransformerHandler saxTH = factory.newTransformerHandler(templates);
@@ -97,6 +106,32 @@ public class XSLTTransform
 			{
 				String name = (String) i.next();
 				String value = (String) outputProperties.get(name);
+				System.err.println("Setting Property "+name+"=["+value+"]");
+				trans.setOutputProperty(name, value);
+
+			}
+
+			// String s = OutputKeys.INDENT;
+		}
+		saxTH.setResult(r);
+		return saxTH;
+	}
+*/
+/*
+	public ContentHandler getOutputHandler(OutputStream out,
+			final Map outputProperties) throws Exception
+	{
+
+		TransformerHandler saxTH = factory.newTransformerHandler(templates);
+		StreamResult r = new StreamResult(out);
+		if (outputProperties != null)
+		{
+			Transformer trans = saxTH.getTransformer();
+			for (Iterator i = outputProperties.keySet().iterator(); i.hasNext();)
+			{
+				String name = (String) i.next();
+				String value = (String) outputProperties.get(name);
+				System.err.println("Setting Property "+name+"=["+value+"]");
 				trans.setOutputProperty(name, value);
 
 			}
@@ -107,42 +142,7 @@ public class XSLTTransform
 		return saxTH;
 	}
 
-	public ContentHandler getOutputHandler(OutputStream out,
-			final Map outputProperties) throws Exception
-	{
-
-		TransformerHandler saxTH = factory.newTransformerHandler(templates);
-		Properties p = OutputPropertiesFactory
-				.getDefaultMethodProperties("xml");
-		if (outputProperties != null && outputProperties.size() > 0)
-		{
-			p.putAll(outputProperties);
-		}
-
-		Serializer serializer = null;
-
-		String className = p
-				.getProperty(OutputPropertiesFactory.S_KEY_CONTENT_HANDLER);
-
-		if (null == className)
-		{
-			throw new IllegalArgumentException(
-					"The output format must have a '"
-							+ OutputPropertiesFactory.S_KEY_CONTENT_HANDLER
-							+ "' property!");
-		}
-
-		serializer = (Serializer) Class.forName(className).newInstance();
-		serializer.setOutputFormat(p);
-
-		serializer.setOutputStream(out);
-
-		Result r = new SAXResult(serializer.asContentHandler());
-
-		saxTH.setResult(r);
-		return saxTH;
-	}
-
+*/
 	/**
 	 * Get the content handler of the transform, this method can also be used to
 	 * test if the transform is valid.
@@ -150,9 +150,10 @@ public class XSLTTransform
 	 * @return
 	 * @throws Exception
 	 */
-	public ContentHandler getContentHandler() throws Exception
+	public TransformerHandler getContentHandler() throws Exception
 	{
 		TransformerHandler saxTH = factory.newTransformerHandler(templates);
 		return saxTH;
 	}
+
 }

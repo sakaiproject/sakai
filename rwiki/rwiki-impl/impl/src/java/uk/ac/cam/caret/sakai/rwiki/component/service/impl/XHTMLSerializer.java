@@ -23,7 +23,7 @@ package uk.ac.cam.caret.sakai.rwiki.component.service.impl;
 
 import java.util.HashMap;
 
-import com.sun.org.apache.xml.internal.serializer.ToXMLStream;
+import org.apache.xml.serializer.ToXMLStream;
 import org.xml.sax.SAXException;
 
 /**

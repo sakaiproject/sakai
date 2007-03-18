@@ -31,9 +31,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import com.sun.org.apache.xml.internal.serializer.ToXMLStream;
+import org.apache.xml.serializer.ToXMLStream;
 import org.radeox.api.engine.context.InitialRenderContext;
 import org.radeox.filter.context.FilterContext;
 import org.xml.sax.Attributes;
@@ -43,7 +46,8 @@ import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.AttributesImpl;
-import org.xml.sax.helpers.XMLReaderFactory;
+
+
 
 /*
  * The paragraph filter finds any text between two empty lines and inserts a
@@ -55,12 +59,13 @@ import org.xml.sax.helpers.XMLReaderFactory;
 
 public class XHTMLFilter implements Filter, CacheFilter
 {
-
 	private static Log log = LogFactory.getLog(XHTMLFilter.class);
 
+	private static SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
 	private static final Map blockElements = new HashMap();
 	static
 	{
+		saxParserFactory.setNamespaceAware(true);
 		List l = new ArrayList();
 		l.add("p");
 		blockElements.put("hr", l); // hr cant be nested inside p
@@ -131,9 +136,11 @@ public class XHTMLFilter implements Filter, CacheFilter
 			xser.setIndentAmount(4);
 			dbf.setContentHandler(epf);
 			epf.setContentHander(xser.asContentHandler());
-
-			XMLReader xmlr = XMLReaderFactory
-					.createXMLReader("com.sun.org.apache.xerces.internal.parsers.SAXParser");
+			
+			SAXParser parser = saxParserFactory.newSAXParser();
+		
+			XMLReader xmlr = parser.getXMLReader();
+			
 			xmlr.setContentHandler(dbf);
 			// log.warn("Input is "+input);
 			xmlr.parse(new InputSource(new StringReader("<sr>" + input
