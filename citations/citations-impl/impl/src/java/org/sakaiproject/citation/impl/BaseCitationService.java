@@ -1086,6 +1086,17 @@ public abstract class BaseCitationService implements CitationService
 				{
 					openUrl.append("&rft.atitle=" + URLEncoder.encode(m_displayName, "utf8"));
 				}
+				else
+				{
+					// want to 'borrow' a title from another field if possible
+					String sourceTitle = (String) m_citationProperties.get(Schema.SOURCE_TITLE);
+					if (sourceTitle != null && !sourceTitle.trim().equals(""))
+					{
+						m_displayName = sourceTitle;
+						openUrl.append("&rft.atitle=" + URLEncoder.encode(m_displayName, "utf8"));
+					}
+					// could add other else ifs for fields to borrow from...
+				}
 
 				// journal title or book title
 				String sourceTitle = (String) m_citationProperties.get(Schema.SOURCE_TITLE);
