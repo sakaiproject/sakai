@@ -53,8 +53,4 @@
        </url-pattern>
     </servlet-mapping>
 
-    <listener>
-        <listener-class>org.sakaiproject.util.ToolListener</listener-class>
-    </listener>
-
 </web-app>
