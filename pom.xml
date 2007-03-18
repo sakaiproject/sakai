@@ -23,11 +23,11 @@
     <module>blog</module>
     <module>calendar</module>
     <module>chat</module>
-<!--    <module>citations</module> -->
+    <module>citations</module> 
     <module>cluster</module>
     <module>component</module>
     <module>content</module>
-<!--    <module>content-review</module> -->
+    <module>content-review</module>
     <module>courier</module>
     <module>course-management</module>
     <module>dav</module>
