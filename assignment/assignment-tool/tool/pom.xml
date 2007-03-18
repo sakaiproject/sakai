@@ -20,14 +20,7 @@
   
     <dependency>
       <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-archive-api</artifactId>
-      <version>${sakai.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-import-api</artifactId>
+      <artifactId>sakai-contentreview-service-api</artifactId>
       <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
