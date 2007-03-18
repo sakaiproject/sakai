@@ -82,7 +82,10 @@ public class ListItem
     
     protected static Comparator DEFAULT_COMPARATOR = ContentHostingService.newContentHostingComparator(ResourceProperties.PROP_DISPLAY_NAME, true);
     protected static final Comparator PRIORITY_SORT_COMPARATOR = ContentHostingService.newContentHostingComparator(ResourceProperties.PROP_CONTENT_PRIORITY, true);
-    
+
+	/** A long representing the number of milliseconds in one week.  Used for date calculations */
+	protected static final long ONE_WEEK = 1000L * 60L * 60L * 24L * 7L;
+
 	protected String name;
 	protected String id;
 	protected List<ResourceToolAction> addActions;
@@ -264,47 +267,47 @@ public class ListItem
 	        }
 		}
         
-		Collection<Group> allowRemoveGroups = null;
+		Collection<Group> groupsWithRemovePermission = null;
 		if(AccessMode.GROUPED == this.accessMode)
 		{
-			allowRemoveGroups = contentService.getGroupsWithRemovePermission(id);
+			groupsWithRemovePermission = contentService.getGroupsWithRemovePermission(id);
 			Collection<Group> more = contentService.getGroupsWithRemovePermission(ref.getContainer());
 			if(more != null && ! more.isEmpty())
 			{
-				allowRemoveGroups.addAll(more);
+				groupsWithRemovePermission.addAll(more);
 			}
 		}
 		else if(AccessMode.GROUPED == this.effectiveAccess)
 		{
-			allowRemoveGroups = contentService.getGroupsWithRemovePermission(ref.getContainer());
+			groupsWithRemovePermission = contentService.getGroupsWithRemovePermission(ref.getContainer());
 		}
 		else
 		{
-			allowRemoveGroups = contentService.getGroupsWithRemovePermission(contentService.getSiteCollection(ref.getContext()));
+			groupsWithRemovePermission = contentService.getGroupsWithRemovePermission(contentService.getSiteCollection(ref.getContext()));
 		}
 		this.allowedRemoveGroups.clear();
-		this.allowedRemoveGroups.addAll(allowedRemoveGroups);
+		this.allowedRemoveGroups.addAll(groupsWithRemovePermission);
 		
-		Collection<Group> allowAddGroups = null;
+		Collection<Group> groupsWithAddPermission = null;
 		if(AccessMode.GROUPED == this.accessMode)
 		{
-			allowAddGroups = contentService.getGroupsWithAddPermission(id);
+			groupsWithAddPermission = contentService.getGroupsWithAddPermission(id);
 			Collection<Group> more = contentService.getGroupsWithAddPermission(ref.getContainer());
 			if(more != null && ! more.isEmpty())
 			{
-				allowAddGroups.addAll(more);
+				groupsWithAddPermission.addAll(more);
 			}
 		}
 		else if(AccessMode.GROUPED == this.effectiveAccess)
 		{
-			allowAddGroups = contentService.getGroupsWithAddPermission(ref.getContainer());
+			groupsWithAddPermission = contentService.getGroupsWithAddPermission(ref.getContainer());
 		}
 		else
 		{
-			allowAddGroups = contentService.getGroupsWithAddPermission(contentService.getSiteCollection(ref.getContext()));
+			groupsWithAddPermission = contentService.getGroupsWithAddPermission(contentService.getSiteCollection(ref.getContext()));
 		}
 		this.allowedAddGroups.clear();
-		this.allowedAddGroups.addAll(allowAddGroups);
+		this.allowedAddGroups.addAll(groupsWithAddPermission);
 		
 
 
@@ -1363,6 +1366,10 @@ public class ListItem
      */
     public Time getReleaseDate()
     {
+    	if(this.releaseDate == null)
+    	{
+    		this.releaseDate = TimeService.newTime();
+    	}
     	return releaseDate;
     }
 
@@ -1379,6 +1386,10 @@ public class ListItem
      */
     public Time getRetractDate()
     {
+    	if(this.retractDate == null)
+    	{
+    		this.retractDate = TimeService.newTime(TimeService.newTime().getTime() + ONE_WEEK);
+    	}
     	return retractDate;
     }
 

@@ -1,4 +1,5 @@
 <!-- resources/sakai_create_uploads.vm, use with org.sakaiproject.tool.content.ResourcesHelperAction.java -->
+#set($DOT = ".")
 <div class="portletBody">
 	<h4>
 		$tlang.getString("create.uploads")
@@ -11,29 +12,33 @@
 		$tlang.getString("instr.upload")
 	</p>
 	<form name="addContentForm" id="addContentForm" method="post" action="#toolForm("ResourcesHelperAction")"  enctype="multipart/form-data">
-		<input type="hidden" name="fileCount" id="fileCount" value="$items.size()" />
-		<input type="hidden" name="lastIndex" id="lastIndex" value="$items.size()" />
+		<input type="hidden" name="fileCount" id="fileCount" value="$pipes.size()" />
+		<input type="hidden" name="lastIndex" id="lastIndex" value="$pipes.size()" />
 		<div id="fileInputDiv">
 			#set($i = 0)
-			#foreach($item in $items)
+			#foreach($pipe in $pipes)
 				
 				#set($prev = $i)
 				#set($i = $i + 1)
 				#set($next = $i + 1)
 				
-				<div id="contentDiv$i" class="highlightPanel">
+				<div id="contentDiv${DOT}$i" class="highlightPanel">
 					<p class="shorttext">
-						<label for="content$i">$tlang.getString("label.upload")</label>
-						<input type="file" name="content$i" id="content$i" class ="upload" onchange="javascript:seedValue(this, 'name$i', true)" />
-						<a class="indnt2" href="#" onclick="javascript:showHide('propertiesDiv$i');">$tlang.getString("edit.show")</a>
-						<a class="indnt2" href="#" rtindex="$i" onclick="javascript:removeFileItem('$i');" >
+						<label for="content${DOT}$i">$tlang.getString("label.upload")</label>
+						<input type="file" name="content${DOT}$i" id="content${DOT}$i" class ="upload" onchange="javascript:seedValue(this, 'name${DOT}$i', true)" />
+						<a class="indnt2" href="#" id="propsTrigger${DOT}$i">$tlang.getString("edit.show")</a>
+						<a class="indnt2" href="#" id="removeTrigger${DOT}$i" >
 							<img src="#imageLink("sakai/cross.png")" title="$tlang.getString("edit.remove")" />
 						</a>
 					</p>
-					<input type="hidden" id="prev$i" name="prev$i" value="#if($i > 1)${prev}#end" />
-					<input type="hidden" id="next$i" name="next$i" value="#if($i < $items.size())${next}#end" />
+					<input type="hidden" id="prev${DOT}$i" name="prev${DOT}$i" value="#if($i > 1)${prev}#end" />
+					<input type="hidden" id="next${DOT}$i" name="next${DOT}$i" value="#if($i < $pipes.size())${next}#end" />
 				</div>
-				#parse("/vm/resources/sakai_properties.vm")
+				<div id="propertiesDiv${DOT}$i" style="display:none;">
+					
+					#parse("/vm/resources/sakai_properties.vm")
+					<hr class="itemSeparator" />
+				</div>
 			#end
 		</div>
 		<p class="act">
@@ -49,7 +54,7 @@
 </div>
 <script type="text/javascript" language="JavaScript">
 	<!--
-	var DOT = ".";
+	var DOT = "$DOT";
 	function submitform(id)
 	{
 		var theForm = document.getElementById(id);
@@ -72,92 +77,99 @@
 		var prevIndex = indexer.value;
 		var index = new Number(indexer.value) + 1;
 		indexer.value = index;
-		
-		var contentDiv = document.createElement("div");
-		contentDiv.setAttribute("id","contentDiv" + index);
-		contentDiv.setAttribute("class","highlightPanel");
-		contentDiv.setAttribute("className","highlightPanel");
-		
-		var ptag = document.createElement("p");
-		ptag.setAttribute("className","shorttext");
-		ptag.setAttribute("class","shorttext");		
-		
-		var label = document.createElement("label");
-		label.setAttribute("for","content" + index);
-		label.setAttribute("htmlFor","content" + index);
-		
-		var text = document.createTextNode("$tlang.getString("label.upload")");
-		label.appendChild(text);
-		ptag.appendChild(label);
-		
-		var file = document.createElement("input");
-		file.setAttribute("type","file");
-		file.setAttribute("name","content" + index);
-		file.setAttribute("id","content" + index);
-		// onchange="javascript:seedValue(this, 'name$i', true)" 
-		ptag.appendChild(file);
-		
-		var propLink = document.createElement("a");
-		propLink.setAttribute("href", "#");
-		propLink.setAttribute("class","indnt2");
-		propLink.setAttribute("className","indnt2");
-		// onclick="javascript:showHide('propertiesDiv$i');"
-		var text2 = document.createTextNode("$tlang.getString("edit.show")");
-		propLink.appendChild(text2);
-		ptag.appendChild(propLink);
-		
-		var removeLink = document.createElement("a");
-		removeLink.setAttribute("href", "#");
-		removeLink.setAttribute("class","indnt2");
-		removeLink.setAttribute("className","indnt2");
-		removeLink.setAttribute("id","image" + DOT + index);
-		removeLink.onclick=handleRemoveFileItem;
-		var image = document.createElement("img");
-		image.setAttribute("src", "#imageLink("sakai/cross.png")");
-		image.setAttribute("title", "$tlang.getString("edit.remove")");
-		image.setAttribute("id","image" + DOT + index);
-		image.setAttribute("name","image" + DOT + index);
-		removeLink.appendChild(image);
-		ptag.appendChild(removeLink);
 
-		var prev = document.createElement("input");
-		prev.setAttribute("type", "hidden");
-		prev.setAttribute("id", "prev" + index);
-		prev.setAttribute("name", "prev" + index);
-		prev.setAttribute("value", prevIndex);
-		
-		var next = document.createElement("input");
-		next.setAttribute("type", "hidden");
-		next.setAttribute("id", "next" + index);
-		next.setAttribute("name", "next" + index);
-		next.setAttribute("value", "");
-
-		contentDiv.appendChild(ptag);
-		contentDiv.appendChild(prev);
-		contentDiv.appendChild(next);
-		
-		fileInputDiv.appendChild(contentDiv);
-		
-		var prevPrev = document.getElementById("prev" + prevIndex);
-		if(prevPrev && prevPrev.value)
+		var modelContentDiv = document.getElementById("contentDiv" + DOT + prevIndex);
+		if(modelContentDiv)
 		{
-			prevPrev.value = index;
+			var newContentDiv = deepCopy(modelContentDiv, index);
+			fileInputDiv.appendChild(newContentDiv);
 		}
 		
+		var modelPropertiesDiv = document.getElementById("propertiesDiv" + DOT + prevIndex);
+		if(modelPropertiesDiv)
+		{
+			var newPropertiesDiv = deepCopy(modelPropertiesDiv, index);
+			fileInputDiv.appendChild(newPropertiesDiv);
+		}
+		
+		var prevNext = document.getElementById("next" + prevIndex);
+		if(prevNext && prevNext.value)
+		{
+			prevNext.value = index;
+		}
+		
+		attachEventHandlers();
 		setMainFrameHeight(window.name);
-		focus_path = [ "content" + index ];
+		focus_path = [ "content" + DOT + index ];
 		setFocus(focus_path);
 	}
 	function removeFileItem(index)
 	{
 		var fileInputDiv = document.getElementById("fileInputDiv");
-		var contentDiv = document.getElementById("contentDiv" + index);
+		var prev = document.getElementById("prev" + DOT + index);
+		var next = document.getElementById("next" + DOT + index);
+		
+		
+		if(prev && prev.value && next && next.value )
+		{
+			if(prev.value == "")
+			{
+				if(next.value == "")
+				{
+					// can't delete
+					return;
+				}
+				else
+				{
+					var nextPrev = document.getElementById("prev" + DOT + next.value);
+					if(nextPrev)
+					{
+						nextPrev = "";
+					}
+				}
+			}
+			else if(next.value == "")
+			{
+				var prevNext = document.getElementById("next" + DOT + prev.value);
+				if(prevNext)
+				{
+					prevNext = "";
+				}
+			}
+			else
+			{
+				var nextPrev = document.getElementById("prev" + DOT + next.value);
+				if(nextPrev)
+				{
+					nextPrev = prev.value;
+				}
+				var prevNext = document.getElementById("next" + DOT + prev.value);
+				if(prevNext)
+				{
+					prevNext = next.value;
+				}
+			}
+		}
+		
+		var counter = document.getElementById("fileCount");
+		var count = new Number(counter.value) - 1;
+		counter.value = count;
+
+		var indexer = document.getElementById("lastIndex");
+		if(indexer.value == index)
+		{
+			indexer.value = prev.value;
+		}
+		
+		var fileInputDiv = document.getElementById("fileInputDiv");
+		
+		var contentDiv = document.getElementById("contentDiv" + DOT + index);
 		if(contentDiv)
 		{
 			removeTree(contentDiv);
 			fileInputDiv.removeChild(contentDiv);
 		}
-		var propertiesDiv = document.getElementById("propertiesDiv" + index);
+		var propertiesDiv = document.getElementById("propertiesDiv" + DOT + index);
 		if(propertiesDiv)
 		{
 			removeTree(propertiesDiv);
@@ -186,18 +198,149 @@
 			if(elem)
 			{
 				elem = (elem.nodeType == 1 || elem.nodeType == 9) ? elem : elem.parentNode;
-				
-				if(elem.id)
+				deleteFileItem(elem);
+			}
+		}
+	}
+	function deleteFileItem(element)
+	{
+		if(element && element.id)
+		{
+			var dot = element.id.lastIndexOf(DOT);
+			if(dot >= 0)
+			{
+				var index = element.id.substr(dot + 1);
+				removeFileItem(index);
+			}
+		}
+		else if(element.parentNode != null && element.parentNode != element)
+		{
+			deleteFileItem(element.parentNode);
+		}
+	}
+	function toggleProperties(element)
+	{
+		if(element)
+		{
+			if(element.id)
+			{
+				var dot = element.id.lastIndexOf(DOT);
+				if(dot >= 0)
 				{
-					var dot = elem.id.lastIndexOf(DOT);
-					if(dot >= 0)
+					var index = element.id.substr(dot + 1);
+					showHide(index);
+				}
+			}
+		}
+	}
+	function togglePropertiesDiv(evt)
+	{
+		evt = (evt) ? evt : ((event) ? event : null);
+		if(evt)
+		{
+			evt.cancelBubble = true;
+			var elem = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null)
+			if(elem)
+			{
+				elem = (elem.nodeType == 1 || elem.nodeType == 9) ? elem : elem.parentNode;
+				
+				toggleProperties(elem);
+			}
+		}
+	}
+	function showHide(index)
+	{
+		var propertiesDiv = document.getElementById("propertiesDiv" + DOT + index);
+		if(propertiesDiv)
+		{
+			var display = propertiesDiv.style.display;
+			if(display && display == "none")
+			{
+				propertiesDiv.style.display = "block";
+
+				focus_path = [ "content" + DOT + index ];
+			}
+			else
+			{
+				propertiesDiv.style.display = "none";
+
+				focus_path = [ "description" + DOT + index ];
+			}
+			setMainFrameHeight(window.name);
+			setFocus(focus_path);
+		}
+	}
+	function deepCopy(element, index)
+	{
+		var newElement = element.cloneNode(false);
+		if(newElement && newElement.id)
+		{
+			var dotPos = newElement.id.lastIndexOf(DOT);
+			if(dotPos >= 0)
+			{
+				var baseName = newElement.id.substr(0,dotPos);
+				newElement.setAttribute("id", baseName + DOT + index);
+				newElement.setAttribute("name", baseName + DOT + index);
+			}
+		}
+		if(newElement && newElement.htmlFor)
+		{
+			var dotPos = newElement.htmlFor.lastIndexOf(DOT);
+			if(dotPos >= 0)
+			{
+				var baseName = newElement.htmlFor.substr(0,dotPos);
+				newElement.htmlFor = baseName + DOT + index;
+			}
+		}
+		if(newElement && element.childNodes)
+		{
+			for(var i = 0; i < element.childNodes.length; i++)
+			{
+				var newChild = deepCopy(element.childNodes[i], index);
+				newElement.appendChild(newChild);
+			}
+		}
+		
+		return newElement
+	}
+	function attachEventHandlers()
+	{
+		for(var i = 0; i < document.links.length; i++)
+		{
+			var link = document.links[i];
+			if(link.id)
+			{
+				if(link.id.match(/^propsTrigger${DOT}\d+$/))
+				{
+					alert("togglePropertiesDiv: link.id == " + link.id);
+					if(link.attachEvent)
 					{
-						var index = elem.id.substr(dot + 1);
-						removeFileItem(index);
+						alert("attachEvent: link.id == " + link.id);
+						link.attachEvent("onclick", togglePropertiesDiv);
+					}
+					else if(link.addEventListener)
+					{
+						alert("addEventListener: link.id == " + link.id);
+						link.addEventListener("click", togglePropertiesDiv, true);
+					}
+				}
+				else if(link.id.match(/^removeTrigger${DOT}\d+$/))
+				{
+					alert("handleRemoveFileItem: link.id == " + link.id);
+					if(link.attachEvent)
+					{
+						alert("attachEvent: link.id == " + link.id);
+						link.attachEvent("onclick", handleRemoveFileItem);
+					}
+					else if(link.addEventListener)
+					{
+						alert("addEventListener: link.id == " + link.id);
+						link.addEventListener("click", handleRemoveFileItem, true);
 					}
 				}
 			}
 		}
 	}
+	attachEventHandlers();
 	-->
 </script>

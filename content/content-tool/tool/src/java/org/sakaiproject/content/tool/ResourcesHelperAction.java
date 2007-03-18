@@ -45,8 +45,12 @@ import org.sakaiproject.content.api.MultiFileUploadPipe;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.content.api.ResourceType;
+import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.api.SessionState;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.Tool;
@@ -58,6 +62,7 @@ import org.sakaiproject.util.FileItem;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 
 public class ResourcesHelperAction extends VelocityPortletPaneledAction 
@@ -113,6 +118,9 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	
 	private static final String STATE_NEW_COPYRIGHT_INPUT = PREFIX + "new_copyright_input";
   
+	/** state attribute indicating whether users in current site should be denied option of making resources public */
+	private static final String STATE_PREVENT_PUBLIC_DISPLAY = PREFIX + "prevent_public_display";
+	
 	/** state attribute indicating whether we're using the Creative Commons dialog instead of the "old" copyright dialog */
 	protected static final String STATE_USING_CREATIVE_COMMONS = PREFIX + "usingCreativeCommons";
 	
@@ -333,20 +341,28 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		}
 
 		ListItem parent = new ListItem(pipe.getContentEntity());
-		List<ListItem> items = new Vector<ListItem>();
-		for(ResourceToolActionPipe p : pipe.getPipes())
-		{
-			ListItem item = new ListItem(p, parent, defaultRetractDate);
-			items.add(item);
-		}
+		ListItem model = new ListItem(pipe, parent, defaultRetractDate);
 		
-		context.put("items", items);
+		context.put("model", model);
 		
 		context.put("pipes", pipes);
 		
+		if(ContentHostingService.isAvailabilityEnabled())
+		{
+			context.put("availability_is_enabled", Boolean.TRUE);
+		}
+		
+		
 		ResourcesAction.copyrightChoicesIntoContext(state, context);
 		
-		
+		String defaultCopyrightStatus = (String) state.getAttribute(STATE_DEFAULT_COPYRIGHT);
+		if(defaultCopyrightStatus == null || defaultCopyrightStatus.trim().equals(""))
+		{
+			defaultCopyrightStatus = ServerConfigurationService.getString("default.copyright");
+			state.setAttribute(STATE_DEFAULT_COPYRIGHT, defaultCopyrightStatus);
+		}
+
+		context.put("defaultCopyrightStatus", defaultCopyrightStatus);
 	
 		
 		
@@ -611,6 +627,35 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			{
 				state.setAttribute(COPYRIGHT_NEW_COPYRIGHT, ServerConfigurationService.getString("copyrighttype.new"));
 			}
+		}
+
+		state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, Boolean.FALSE);
+		String[] siteTypes = ServerConfigurationService.getStrings("prevent.public.resources");
+		String siteType = null;
+		Site site;
+		try
+		{
+			site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+			siteType = site.getType();
+			if(siteTypes != null)
+			{
+				for(int i = 0; i < siteTypes.length; i++)
+				{
+					if ((StringUtil.trimToNull(siteTypes[i])).equals(siteType))
+					{
+						state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, Boolean.TRUE);
+						break;
+					}
+				}
+			}
+		}
+		catch (IdUnusedException e)
+		{
+			// allow public display
+		}
+		catch(NullPointerException e)
+		{
+			// allow public display
 		}
 
 	}
