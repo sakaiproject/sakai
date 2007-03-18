@@ -169,7 +169,6 @@
     class="uk.ac.cam.caret.sakai.rwiki.component.service.impl.XSLTEntityHandler"  
     init-method="init"  destroy-method="destroy" >
     
-    <property name="experimental"><value>false</value></property>
     
     <!-- from XSLTEntityHandler -->
     <!-- The transformer use on the stream -->
@@ -199,7 +198,6 @@
     class="uk.ac.cam.caret.sakai.rwiki.component.service.impl.XSLTEntityHandler"  
     init-method="init"  destroy-method="destroy" >
     
-    <property name="experimental"><value>false</value></property>
     
     <!-- from XSLTEntityHandler -->
     <!-- The transformer use on the stream -->
