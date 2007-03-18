@@ -41,7 +41,7 @@ public interface TaggingProvider {
 	 *            The context in which to check permission.
 	 * @return True if current user is allowed to view tags, false otherwise.
 	 */
-	public boolean allowViewTags(String context);
+	boolean allowViewTags(String context);
 
 	/**
 	 * Method to get the necessary data to invoke a helper tool for tagging the
@@ -53,7 +53,7 @@ public interface TaggingProvider {
 	 *         tool. Returns null if this is not supported or if the current
 	 *         user doesn't have permission to access the helper.
 	 */
-	public TaggingHelperInfo getActivityHelperInfo(String activityRef);
+	TaggingHelperInfo getActivityHelperInfo(String activityRef);
 
 	/**
 	 * Method to get the necessary data to invoke a helper tool for tagging
@@ -66,7 +66,7 @@ public interface TaggingProvider {
 	 *         tool. Returns null if this is not supported or if the current
 	 *         user doesn't have permission to access the helper.
 	 */
-	public TaggingHelperInfo getItemsHelperInfo(String activityRef);
+	TaggingHelperInfo getItemsHelperInfo(String activityRef);
 
 	/**
 	 * Method to get the necessary data to invoke a helper tool for tagging the
@@ -78,7 +78,7 @@ public interface TaggingProvider {
 	 *         tool. Returns null if this is not supported or if the current
 	 *         user doesn't have permission to access the helper.
 	 */
-	public TaggingHelperInfo getItemHelperInfo(String itemRef);
+	TaggingHelperInfo getItemHelperInfo(String itemRef);
 
 	/**
 	 * Returns a list of tags for the given activity.
@@ -88,14 +88,14 @@ public interface TaggingProvider {
 	 * @return A list of tags for the given activity.
 	 * @see TagList
 	 */
-	public TagList getTags(TaggableActivity activity);
+	TagList getTags(TaggableActivity activity);
 
 	/**
 	 * Method to get a unique identifier for this provider.
 	 * 
 	 * @return A unique identifier for this provider.
 	 */
-	public String getId();
+	String getId();
 
 	/**
 	 * Method to get a displayable name for the provider. For example "Goal
@@ -103,7 +103,7 @@ public interface TaggingProvider {
 	 * 
 	 * @return A displayable name for this provider.
 	 */
-	public String getName();
+	String getName();
 
 	/**
 	 * Method to remove all tags from this activity. This method should check
@@ -117,8 +117,7 @@ public interface TaggingProvider {
 	 *             Exception thrown if current user is not allowed to remove
 	 *             tags from the given activity.
 	 */
-	public void removeTags(TaggableActivity activity)
-			throws PermissionException;
+	void removeTags(TaggableActivity activity) throws PermissionException;
 
 	/**
 	 * Method to remove all tags from this item. This method should check with
@@ -132,7 +131,7 @@ public interface TaggingProvider {
 	 *             Exception thrown if current user is not allowed to remove
 	 *             tags from the given item.
 	 */
-	public void removeTags(TaggableItem item) throws PermissionException;
+	void removeTags(TaggableItem item) throws PermissionException;
 
 	/**
 	 * Method to copy tags from an activity being duplicated to it's duplicate,
@@ -150,6 +149,6 @@ public interface TaggingProvider {
 	 *             Exception thrown if current user is not allowed to copy tags
 	 *             for the given activities.
 	 */
-	public void transferCopyTags(TaggableActivity fromActivity,
+	void transferCopyTags(TaggableActivity fromActivity,
 			TaggableActivity toActivity) throws PermissionException;
 }

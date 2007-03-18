@@ -33,6 +33,19 @@ import org.sakaiproject.entity.api.EntityTransferrer;
 public interface TaggableActivityProducer {
 
 	/**
+	 * Method to check if the current user can get all of the items for an
+	 * activity.
+	 * 
+	 * @param activity
+	 *            The activity that contains the items.
+	 * @param provider
+	 *            The provider that is checking for permission.
+	 * @return True if the current user can get all of the items for the given
+	 *         activity, false otherwise.
+	 */
+	boolean allowGetItems(TaggableActivity activity, TaggingProvider provider);
+
+	/**
 	 * Method to determine if the current user has permission to remove tags
 	 * from the given activity. This should be checked by
 	 * {@link TaggingProvider#removeTags(TaggableActivity)} before removing
@@ -46,7 +59,7 @@ public interface TaggableActivityProducer {
 	 * @return True if the current user is allowed to delete the specified
 	 *         activity, false otherwise.
 	 */
-	public boolean allowRemoveTags(TaggableActivity activity);
+	boolean allowRemoveTags(TaggableActivity activity);
 
 	/**
 	 * Method to determine if the current user has permission to remove tags
@@ -61,7 +74,7 @@ public interface TaggableActivityProducer {
 	 * @return True if the current user is allowed to delete the specified item,
 	 *         false otherwise.
 	 */
-	public boolean allowRemoveTags(TaggableItem item);
+	boolean allowRemoveTags(TaggableItem item);
 
 	/**
 	 * Method to determine if the current user has permission to copy tags from
@@ -78,7 +91,7 @@ public interface TaggableActivityProducer {
 	 * @return True if the current user is allowed to copy the specified
 	 *         activity, false otherwise.
 	 */
-	public boolean allowTransferCopyTags(TaggableActivity activity);
+	boolean allowTransferCopyTags(TaggableActivity activity);
 
 	/**
 	 * Method to check if this producer handles the given reference.
@@ -88,7 +101,7 @@ public interface TaggableActivityProducer {
 	 *            producer.
 	 * @return True if this producer handles the reference, false otherwise.
 	 */
-	public boolean checkReference(String ref);
+	boolean checkReference(String ref);
 
 	/**
 	 * Method to get the context of the object represented by this reference.
@@ -98,21 +111,21 @@ public interface TaggableActivityProducer {
 	 *            producer.
 	 * @return The context of the referenced object.
 	 */
-	public String getContext(String ref);
+	String getContext(String ref);
 
 	/**
 	 * Method to get a displayable name for the producing service.
 	 * 
 	 * @return A common displayable name for this service.
 	 */
-	public String getName();
+	String getName();
 
 	/**
 	 * Method to get the unique identifier for this producing service.
 	 * 
 	 * @return A unique identifier for this service.
 	 */
-	public String getId();
+	String getId();
 
 	/**
 	 * Method to get a list of all taggable activities within the given context.
@@ -126,7 +139,7 @@ public interface TaggableActivityProducer {
 	 * @return A list, possibly empty, of all taggable activities within the
 	 *         given context.
 	 */
-	public List<TaggableActivity> getActivities(String context,
+	List<TaggableActivity> getActivities(String context,
 			TaggingProvider provider);
 
 	/**
@@ -141,8 +154,7 @@ public interface TaggableActivityProducer {
 	 * @return The taggable activity, or null if no such activity exists or the
 	 *         provider cannot access it.
 	 */
-	public TaggableActivity getActivity(String activityRef,
-			TaggingProvider provider);
+	TaggableActivity getActivity(String activityRef, TaggingProvider provider);
 
 	/**
 	 * Method to get a list of items for an activity.
@@ -155,7 +167,7 @@ public interface TaggableActivityProducer {
 	 *            depending on the given provider.
 	 * @return A list of items for the given activity.
 	 */
-	public List<TaggableItem> getItems(TaggableActivity activity,
+	List<TaggableItem> getItems(TaggableActivity activity,
 			TaggingProvider provider);
 
 	/**
@@ -174,8 +186,8 @@ public interface TaggableActivityProducer {
 	 * @return A list of items submitted by the specified user for the given
 	 *         activity.
 	 */
-	public List<TaggableItem> getItems(TaggableActivity activity,
-			String userId, TaggingProvider provider);
+	List<TaggableItem> getItems(TaggableActivity activity, String userId,
+			TaggingProvider provider);
 
 	/**
 	 * Method to get a taggable item by reference string.
@@ -189,5 +201,5 @@ public interface TaggableActivityProducer {
 	 * @return The taggable item, or null if no such item exists or the provider
 	 *         cannot access it.
 	 */
-	public TaggableItem getItem(String itemRef, TaggingProvider provider);
+	TaggableItem getItem(String itemRef, TaggingProvider provider);
 }
