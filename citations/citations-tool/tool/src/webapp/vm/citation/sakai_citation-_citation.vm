@@ -1,0 +1,32 @@
+<table cellpadding="10">
+	<tr>
+		<td>
+			$tlang.getString("type.view")
+		</td>
+		<td>
+			$tlang.getString("type.$!{citation.schema.identifier}")
+		</td>
+	</tr>
+	#foreach($field in $!{citation.schema.fields})
+		#if($citation.hasPropertyValue("$field.identifier"))
+			#set($currentValue = "")
+			#if($!{citation.getCitationProperty("$field.identifier")})
+				#set($currentValue = $!{citation.getCitationProperty("$field.identifier")} )
+			##elseif($!{field.defaultValue})
+				##set($currentValue = $!{field.defaultValue})
+			#end
+			<tr>
+				<td>
+					$tlang.getString("$!{citation.schema.identifier}.$!{field.identifier}")
+				</td>
+				<td>
+					#if($field.isMultivalued())
+						#showMultivalued($!{currentValue})
+					#else
+						$!{currentValue}
+					#end
+				</td>
+			</tr>
+		#end
+	#end
+</table>

@@ -31,38 +31,9 @@
 	</div>
 	<div class="indnt1">
 		<h3>$tlang.getString("title.view")</h3>
-		<table cellpadding="10">
-			<tr>
-				<td>
-					$tlang.getString("type.view")
-				</td>
-				<td>
-					$tlang.getString("type.$!{citation.schema.identifier}")
-				</td>
-			</tr>
-			#foreach($field in $!{citation.schema.fields})
-				#if($citation.hasPropertyValue("$field.identifier"))
-					#set($currentValue = "")
-					#if($!{citation.getCitationProperty("$field.identifier")})
-						#set($currentValue = $!{citation.getCitationProperty("$field.identifier")} )
-					##elseif($!{field.defaultValue})
-						##set($currentValue = $!{field.defaultValue})
-					#end
-					<tr>
-						<td>
-							$tlang.getString("$!{citation.schema.identifier}.$!{field.identifier}")
-						</td>
-						<td>
-							#if($field.isMultivalued())
-								#showMultivalued($!{currentValue})
-							#else
-								$!{currentValue}
-							#end
-						</td>
-					</tr>
-				#end
-			#end
-		</table>
+		
+		#parse( "vm/citation/sakai_citation-_citation.vm" )
+
 		<form name="$FORM_NAME" id="$FORM_NAME" action="#toolForm("CitationHelperAction")" method="post">
 			<input name="sakai_action" id="sakai_action" value="doList" type="hidden" />
 			<input name="citationId" id="citationId" value="$citationId" type="hidden" />
