@@ -45,6 +45,12 @@
     
     <dependency>
       <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-entity-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-event-api</artifactId>
       <version>${sakai.version}</version>
 	  <scope>provided</scope>
@@ -151,6 +157,12 @@
           <include>**/*.properties</include>
         </includes>
       </resource>
+		<resource>
+			<directory>${basedir}/src/bundle</directory>
+			<includes>
+				<include>**/*.properties</include>
+			</includes>
+		</resource>
       <resource>
         <directory>${basedir}/src/java</directory>
         <includes>
