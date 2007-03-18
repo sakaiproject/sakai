@@ -23,9 +23,11 @@
 				#set($next = $i + 1)
 				
 				<div id="contentDiv${DOT}$i" class="highlightPanel">
+					<input type="hidden" name="exists${DOT}$i" id="exists${DOT}$i" value="true" />
 					<p class="shorttext">
 						<label for="content${DOT}$i">$tlang.getString("label.upload")</label>
-						<input type="file" name="content${DOT}$i" id="content${DOT}$i" class ="upload" onchange="javascript:seedValue(this, 'name${DOT}$i', true)" />
+						## TODO add onchange event handler to seed file-name into displayName field
+						<input type="file" name="content${DOT}$i" id="content${DOT}$i" class="upload" />
 						<a class="indnt2" href="#" id="propsTrigger${DOT}$i">$tlang.getString("edit.show")</a>
 						<a class="indnt2" href="#" id="removeTrigger${DOT}$i" >
 							<img src="#imageLink("sakai/cross.png")" title="$tlang.getString("edit.remove")" />
@@ -35,7 +37,7 @@
 					<input type="hidden" id="next${DOT}$i" name="next${DOT}$i" value="#if($i < $pipes.size())${next}#end" />
 				</div>
 				<div id="propertiesDiv${DOT}$i" style="display:none;">
-					
+					## displayName
 					#parse("/vm/resources/sakai_properties.vm")
 					<hr class="itemSeparator" />
 				</div>
@@ -275,6 +277,39 @@
 		var newElement = element.cloneNode(false);
 		if(newElement && newElement.id)
 		{
+			if(element.id.match(/^content${DOT}\d+$/))
+			{
+				newElement = document.createElement(element.tagName);
+				for(var a = 0; a < element.attributes.length; a++)
+				{
+					if(element.attributes[a].name == "value" || element.attributes[a].name == "type")
+					{
+						// skip
+					}
+					else 
+					{
+						try
+						{
+							newElement.setAttributeNode(element.attributes[a]);
+						}
+						catch(e)
+						{
+							// ignore
+						}
+					}
+				}
+				if(element.type !== null && element.type != newElement.type)
+				{
+					try
+					{
+						newElement.setAttribute("type", element.type);
+					}
+					catch(e)
+					{
+						// ignore
+					}
+				}
+			}
 			var dotPos = newElement.id.lastIndexOf(DOT);
 			if(dotPos >= 0)
 			{
@@ -312,29 +347,23 @@
 			{
 				if(link.id.match(/^propsTrigger${DOT}\d+$/))
 				{
-					alert("togglePropertiesDiv: link.id == " + link.id);
 					if(link.attachEvent)
 					{
-						alert("attachEvent: link.id == " + link.id);
 						link.attachEvent("onclick", togglePropertiesDiv);
 					}
 					else if(link.addEventListener)
 					{
-						alert("addEventListener: link.id == " + link.id);
 						link.addEventListener("click", togglePropertiesDiv, true);
 					}
 				}
 				else if(link.id.match(/^removeTrigger${DOT}\d+$/))
 				{
-					alert("handleRemoveFileItem: link.id == " + link.id);
 					if(link.attachEvent)
 					{
-						alert("attachEvent: link.id == " + link.id);
 						link.attachEvent("onclick", handleRemoveFileItem);
 					}
 					else if(link.addEventListener)
 					{
-						alert("addEventListener: link.id == " + link.id);
 						link.addEventListener("click", handleRemoveFileItem, true);
 					}
 				}

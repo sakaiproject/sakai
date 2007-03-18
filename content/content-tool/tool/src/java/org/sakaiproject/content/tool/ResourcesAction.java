@@ -1380,6 +1380,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 		}
 		
+	}	// copyrightChoicesIntoContext
+	
+	public static void publicDisplayChoicesIntoContext(SessionState state, Context context)
+	{
 		Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
 		if(preventPublicDisplay == null)
 		{
@@ -1388,7 +1392,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		context.put("preventPublicDisplay", preventPublicDisplay);
 		
-	}	// copyrightChoicesIntoContext
+
+	}
 
 	/**
 	 * @param pipe
@@ -1413,6 +1418,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				ContentCollectionEdit edit = ContentHostingService.addCollection(collectionId, name);
 				ResourcePropertiesEdit props = edit.getPropertiesEdit();
 				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+				Object obj = fp.getRevisedListItem();
+				if(obj != null && obj instanceof ListItem)
+				{
+					((ListItem) obj).updateContentCollectionEdit(edit);
+				}
 				ContentHostingService.commitCollection(edit);
 				new_collections.add(edit);
 			}
@@ -1513,6 +1523,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 				resource.setContentType(fp.getRevisedMimeType());
 				resource.setResourceType(pipe.getAction().getTypeId());
+				Object obj = fp.getRevisedListItem();
+				if(obj != null && obj instanceof ListItem)
+				{
+					((ListItem) obj).updateContentResourceEdit(resource);
+				}
 				ContentHostingService.commitResource(resource, NotificationService.NOTI_NONE);
 				item_added = true;
 				new_resources.add(resource);
@@ -2550,28 +2565,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	                // TODO Auto-generated catch block
 	                logger.warn("EntityPropertyTypeException for size of " + item.getId());
                 }
-				NumberFormat formatter = NumberFormat.getInstance(rb.getLocale());
-				formatter.setMaximumFractionDigits(1);
-				if(size_long > 700000000L)
-				{
-					String[] args = { formatter.format(1.0 * size_long / (1024L * 1024L * 1024L)) };
-					size = rb.getFormattedMessage("size.gb", args);
-				}
-				else if(size_long > 700000L)
-				{
-					String[] args = { formatter.format(1.0 * size_long / (1024L * 1024L)) };
-					size = rb.getFormattedMessage("size.mb", args);
-				}
-				else if(size_long > 700L)
-				{
-					String[] args = { formatter.format(1.0 * size_long / 1024L) };
-					size = rb.getFormattedMessage("size.kb", args);
-				}
-				else 
-				{
-					String[] args = { formatter.format(size_long) };
-					size = rb.getFormattedMessage("size.bytes", args);
-				}
+				size = getFileSizeString(size_long, rb);
 			}
 			item.setSize(size);
 
@@ -2685,6 +2679,38 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 		return item;
 
+	}
+
+	/**
+	 * @param size_long
+	 * @param rl 
+	 * @return
+	 */
+	public static String getFileSizeString(long size_long, ResourceLoader rl) {
+		String size;
+		NumberFormat formatter = NumberFormat.getInstance(rl.getLocale());
+		formatter.setMaximumFractionDigits(1);
+		if(size_long > 700000000L)
+		{
+			String[] args = { formatter.format(1.0 * size_long / (1024L * 1024L * 1024L)) };
+			size = rl.getFormattedMessage("size.gb", args);
+		}
+		else if(size_long > 700000L)
+		{
+			String[] args = { formatter.format(1.0 * size_long / (1024L * 1024L)) };
+			size = rl.getFormattedMessage("size.mb", args);
+		}
+		else if(size_long > 700L)
+		{
+			String[] args = { formatter.format(1.0 * size_long / 1024L) };
+			size = rl.getFormattedMessage("size.kb", args);
+		}
+		else 
+		{
+			String[] args = { formatter.format(size_long) };
+			size = rl.getFormattedMessage("size.bytes", args);
+		}
+		return size;
 	}
 
 	/**
@@ -4201,6 +4227,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			
 			copyrightChoicesIntoContext(state, context);
+			publicDisplayChoicesIntoContext(state, context);
 			
 			context.put("SITE_ACCESS", AccessMode.SITE.toString());
 			context.put("GROUP_ACCESS", AccessMode.GROUPED.toString());
@@ -4915,6 +4942,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		context.put("type", type);
 		
 		copyrightChoicesIntoContext(state, context);
+		publicDisplayChoicesIntoContext(state, context);
 		
 		context.put("required", trb.getFormattedMessage("instr.require", new String[]{"<span class=\"reqStarInline\">*</span>"}));
 		
@@ -5553,7 +5581,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					item.setPubview(false);
 				}
 				
-				// update resource with access info
+				// TODO update resource with access info
+				
 
 				// notification
 				int noti = NotificationService.NOTI_NONE;
@@ -7057,12 +7086,18 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			{
 				// expand folder
 				SortedSet<String> expandedCollections = (SortedSet<String>) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
-				expandedCollections.add(resources.get(0).getContainingCollection().getId());
+				expandedCollections.add(pipe.getContentEntity().getId());
 			}
 			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
 			break;
 		case NEW_FOLDER:
-			createFolders(state, pipe);
+			List<ContentCollection> folders = createFolders(state, pipe);
+			if(folders != null && ! folders.isEmpty())
+			{
+				// expand folder
+				SortedSet<String> expandedCollections = (SortedSet<String>) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+				expandedCollections.add(pipe.getContentEntity().getId());
+			}
 			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
 			break;
 		case REVISE_CONTENT:

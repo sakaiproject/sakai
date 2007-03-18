@@ -248,20 +248,18 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		}
 
 		ListItem parent = new ListItem(pipe.getContentEntity());
-		List<ListItem> items = new Vector<ListItem>();
-		for(ResourceToolActionPipe p : pipe.getPipes())
-		{
-			ListItem item = new ListItem(p, parent, defaultRetractDate);
-			items.add(item);
-		}
+		ListItem model = new ListItem(pipe, parent, defaultRetractDate);
 		
-		context.put("items", items);
+		context.put("model", model);
 		
 		context.put("pipes", pipes);
 		
-		
-		
-		
+		if(ContentHostingService.isAvailabilityEnabled())
+		{
+			context.put("availability_is_enabled", Boolean.TRUE);
+		}	
+
+		ResourcesAction.publicDisplayChoicesIntoContext(state, context);
 
 		return CREATE_FOLDERS_TEMPLATE;
 	}
@@ -354,6 +352,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		
 		
 		ResourcesAction.copyrightChoicesIntoContext(state, context);
+		ResourcesAction.publicDisplayChoicesIntoContext(state, context);
 		
 		String defaultCopyrightStatus = (String) state.getAttribute(STATE_DEFAULT_COPYRIGHT);
 		if(defaultCopyrightStatus == null || defaultCopyrightStatus.trim().equals(""))
@@ -466,15 +465,33 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		
 		String resourceType = pipe.getAction().getTypeId();
 		
-		int count = params.getInt("folderCount");
+		int count = params.getInt("fileCount");
 		pipe.setFileCount(count);
 		
+		int lastIndex = params.getInt("lastIndex");
+		
 		List<ResourceToolActionPipe> pipes = pipe.getPipes();
-		for(int i = 0; i < pipes.size(); i++)
+		
+		for(int i = 1, c = 0; i <= lastIndex && c < count; i++)
 		{
-			ResourceToolActionPipe fp = pipes.get(i);
-			String folderName = params.getString("folder" + (i + 1));
+			String exists = params.getString("exists." + i);
+			if(exists == null || exists.equals(""))
+			{
+				continue;
+			}
+			ResourceToolActionPipe fp = pipes.get(c);
+			String folderName = params.getString("content." + i);
+			
 			fp.setFileName(folderName);
+			
+			ListItem newFolder = new ListItem(folderName);
+			
+			// capture properties
+			newFolder.captureProperties(params, "." + i);
+			
+			fp.setRevisedListItem(newFolder);
+			
+			c++;
 		}
 
 		pipe.setActionCanceled(false);
@@ -491,34 +508,30 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		ParameterParser params = data.getParameters ();
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		
-		String max_file_size_mb = (String) state.getAttribute(ResourcesAction.STATE_FILE_UPLOAD_MAX_SIZE);
-		int max_bytes = 1024 * 1024;
-		try
-		{
-			max_bytes = Integer.parseInt(max_file_size_mb) * 1024 * 1024;
-		}
-		catch(Exception e)
-		{
-			// if unable to parse an integer from the value
-			// in the properties file, use 1 MB as a default
-			max_file_size_mb = "1";
-			max_bytes = 1024 * 1024;
-		}
 
 		MultiFileUploadPipe mfp = (MultiFileUploadPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 		
 		int count = params.getInt("fileCount");
 		mfp.setFileCount(count);
 		
+		int lastIndex = params.getInt("lastIndex");
+		
 		List<ResourceToolActionPipe> pipes = mfp.getPipes();
-		for(int i = 0; i < pipes.size(); i++)
+		
+		for(int i = 1, c = 0; i <= lastIndex && c < count; i++)
 		{
-			ResourceToolActionPipe pipe = pipes.get(i);
+			String exists = params.getString("exists." + i);
+			if(exists == null || exists.equals(""))
+			{
+				continue;
+			}
+			
+			ResourceToolActionPipe pipe = pipes.get(c);
 			
 			FileItem fileitem = null;
 			try
 			{
-				fileitem = params.getFileItem("content" + (i + 1));
+				fileitem = params.getFileItem("content." + i );
 			}
 			catch(Exception e)
 			{
@@ -527,8 +540,24 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			
 			if(fileitem == null)
 			{
+				String max_file_size_mb = (String) state.getAttribute(ResourcesAction.STATE_FILE_UPLOAD_MAX_SIZE);
+				int max_bytes = 1024 * 1024;
+				try
+				{
+					max_bytes = Integer.parseInt(max_file_size_mb) * 1024 * 1024;
+				}
+				catch(Exception e)
+				{
+					// if unable to parse an integer from the value
+					// in the properties file, use 1 MB as a default
+					max_file_size_mb = "1";
+					max_bytes = 1024 * 1024;
+				}
+				
+				String max_bytes_string = ResourcesAction.getFileSizeString(max_bytes, rb);
 				// "The user submitted a file to upload but it was too big!"
-				addAlert(state, rb.getString("size") + " " + max_file_size_mb + "MB " + rb.getString("exceeded2"));
+				addAlert(state, rb.getFormattedMessage("size.exceeded", new Object[]{ max_bytes_string }));
+				//max_file_size_mb + "MB " + rb.getString("exceeded2"));
 			}
 			else if (fileitem.getFileName() == null || fileitem.getFileName().length() == 0)
 			{
@@ -552,7 +581,17 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
                 //pipe.setRevisedContent(bytes);
                 pipe.setRevisedMimeType(contentType);
                 pipe.setFileName(filename);
+                
+    			ListItem newFile = new ListItem(filename);
+    			
+    			// capture properties
+    			newFile.captureProperties(params, "." + i);
+    			
+    			pipe.setRevisedListItem(newFile);
+    			
 			}
+			c++;
+			
 		}
 
 		mfp.setActionCanceled(false);

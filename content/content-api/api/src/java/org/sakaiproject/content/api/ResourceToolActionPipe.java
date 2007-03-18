@@ -318,4 +318,23 @@ public interface ResourceToolActionPipe
 	 * @param fileName
 	 */
 	public void setFileName(String fileName);
+
+	/**
+	 * Used only for individual pipes contained within a MultiFileUploadPipe, to
+	 * return values of properties set in the helper. The parameter must be an instance 
+	 * of org.sakaiproject.content.tool.ListItem. The Resources tool will ignore
+	 * the item unless it is an instance of org.sakaiproject.content.tool.ListItem.
+	 * @param item
+	 */
+	public void setRevisedListItem(Object item);
+	
+	/**
+	 * Used by the Resources tool to retrieve aListItem from an individual pipe 
+	 * contained within a MultiFileUploadPipe. The Resources tool assumes the 
+	 * values of properties set by the helper are to be used in creating a new
+	 * entity. The Resources tool will ignore the item unless it is an instance of 
+	 * org.sakaiproject.content.tool.ListItem.
+	 * @return
+	 */
+	public Object getRevisedListItem();
 }

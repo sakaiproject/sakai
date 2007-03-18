@@ -390,6 +390,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 			}
 
 			ResourcesAction.copyrightChoicesIntoContext(state, context);
+			ResourcesAction.publicDisplayChoicesIntoContext(state, context);
 
 			context.put("SITE_ACCESS", AccessMode.SITE.toString());
 			context.put("GROUP_ACCESS", AccessMode.GROUPED.toString());
@@ -438,6 +439,12 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 			break;
 		case NEW_FOLDER:
 			List<ContentCollection> folders = ResourcesAction.createFolders(state, pipe);
+			if(folders != null && ! folders.isEmpty())
+			{
+				// expand folder
+				SortedSet<String> expandedCollections = (SortedSet<String>) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+				expandedCollections.add(pipe.getContentEntity().getId());
+			}
 			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
 			break;
 		case REVISE_CONTENT:

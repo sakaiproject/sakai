@@ -46,11 +46,12 @@ public class BasicResourceToolActionPipe
 	protected String revisedContentType;
 	protected String helperId;
 	protected ResourceToolAction action;
-	private boolean actionCompleted;
-	private String errorMessage;
-	private boolean actionCanceled;
-	private boolean errorEncountered;
-	private String fileName;
+	protected boolean actionCompleted;
+	protected String errorMessage;
+	protected boolean actionCanceled;
+	protected boolean errorEncountered;
+	protected String fileName;
+	protected Object revisedListItem;
 	
 	/**
 	 * @return the helperId
@@ -291,6 +292,16 @@ public class BasicResourceToolActionPipe
 	public void setFileName(String fileName)
 	{
 		this.fileName = fileName;
+	}
+
+	public void setRevisedListItem(Object item) 
+	{
+		this.revisedListItem = item;
+	}
+
+	public Object getRevisedListItem() 
+	{
+		return revisedListItem;
 	}
 
 }
