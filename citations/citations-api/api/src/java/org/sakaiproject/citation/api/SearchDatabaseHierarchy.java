@@ -11,8 +11,9 @@ public interface SearchDatabaseHierarchy
 	 * 
 	 * @param databaseId String representing the id of the database requested
 	 * @return an Asset if the database exists in this hierarchy, null otherwise.
-	 */
+	 *
 	public org.osid.repository.Asset getDatabase( String databaseId );
+	 */
 	
 	/**
 	 * Returns the category within this hierarchy with the given category id
@@ -69,16 +70,18 @@ public interface SearchDatabaseHierarchy
 	public boolean isSearchableDatabase( String databaseId );
 	
 	/**
-	 * Set a Repository to be associated with this hierarchy
-	 * 
-	 * @param repository to be associated with this hierarchy
-	 */
-	public void setRepository( org.osid.repository.Repository repository );
-	
-	/**
 	 * Get the Repository associated with this hierarchy
 	 * 
 	 * @return Repository associated with this hierarchy
 	 */
 	public org.osid.repository.Repository getRepository();
+	
+	/**
+	 * Determines whether or not this hierarchy is properly configured.
+	 * This hierarchy could not be properly configured if the config xml files
+	 * are not found or there is an error in parsing them.
+	 * 
+	 * @return true if hierarchy is properly configured, false otherwise.
+	 */
+	public boolean isConfigured();
 }

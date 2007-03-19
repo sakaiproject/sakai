@@ -106,7 +106,31 @@ public interface ConfigurationService
    * @return the key text
    */
   public String getSiteConfigSakaiServerKey();
+  
+  /**
+   * Enable/disable Citations Helper by default
+   * @param state true to set default 'On'
+   */
+  public void setCitationsEnabledByDefault(boolean state);
+  
+  /**
+   * Is Citations Helper by default enabled?
+   * @return true if so
+   */
+  public boolean isCitationsEnabledByDefault();
+  
+  /**
+   * Enable/disable site by site Citations Helper override
+   * @param state true to enable site by site Citations Helper
+   */
+  public void setAllowSiteBySiteOverride(boolean state);
 
+  /**
+   * Is site by site Citations Helper enabled?
+   * @return true if so
+   */
+  public boolean isAllowSiteBySiteOverride();
+  
   /**
    * Enable/disable Google support
    * @param state true to enable Google support

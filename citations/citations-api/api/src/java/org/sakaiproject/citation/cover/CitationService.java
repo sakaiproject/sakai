@@ -223,17 +223,6 @@ public class CitationService
     }
 
 
-	public static String getOpenUrlLabel() 
-	{
-		org.sakaiproject.citation.api.CitationService instance = getInstance();
-		if(instance == null)
-		{
-			return null;
-		}
-		return instance.getOpenUrlLabel();
-	}
-
-
 	public static CitationCollection copyAll(String citationCollectionId) 
 	{
 		org.sakaiproject.citation.api.CitationService instance = getInstance();

@@ -158,12 +158,6 @@ public interface CitationService extends EntityProducer
      * @param collection
      */
     public void save(CitationCollection collection);
-
-	/**
-	 * @return The label that should be used for the open url.
-	 */
-	public String getOpenUrlLabel();
-
-
+    
 }	// interface CitationService
 
