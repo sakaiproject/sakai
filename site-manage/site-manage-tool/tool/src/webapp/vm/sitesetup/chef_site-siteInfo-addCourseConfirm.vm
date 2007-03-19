@@ -48,7 +48,7 @@
 						#set($bound = $bound - 1)
 						<li>
 							#foreach ($fieldCount in [0..$!bound])
-								$!courseFieldValues.get($fieldCount)
+								$!courseFieldValues.get($fieldCount).getValue()
 							#end
 						</li>
 				#end

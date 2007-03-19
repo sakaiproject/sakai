@@ -23,7 +23,7 @@
 							<select name="selectTerm" id="selectTerm">
 							<option value="Any">$tlang.getString("se.any")</option>
 							#foreach ($term in $terms)
-							<option value="$term.Id">$term.Id</option>
+							<option value="$term.eid">$term.title</option>
 							#end
 							</select>
 						</div>	

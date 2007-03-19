@@ -1,21 +1,62 @@
 <SCRIPT LANGUAGE=JAVASCRIPT>
 <!-- hide from non-JS browsers
+	function submitRemoveSection(index){
+		id = "removeSection"+index;
+    	removeSection = document.getElementById(id);
+		removeSection.value="true";
+		document.removeSectionForm.submit();
+		return false;
+	}
+	
+	function resetOption(action){
+		document.findCourseForm.option.value=action;
+		document.findCourseForm.submit();
+		return false;
+	}
 // -->
 </SCRIPT>
 
 <div class="portletBody">
-	<h3>$tlang.getString("nscourse.findCourse")</h3>
-
+	#if (!$!site)
+		<h3>$tlang.getString("nscourse.creating")</h3>
+	#else
+		<h3>$tlang.getString("nscourse.edit") $!siteTitle...</h3>
+	#end
+	<p class="step">
+		$tlang.getString("nscourse.findCourse") - $term.title
+	</p>
+		
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<p class="instruction">
-		<!-- add if statement to determine if the following should show -->
-		$tlang.getString("nscourse.findAlreadySelected")
-			<!-- loop through courses -->
-			<ul>
-				<li>PSYCH 213 - 01 : Mind, Culture and Society, Lecture</li>
-			</ul>
-			<!-- end loop -->
-		<!-- end if -->
+		    #if ($selectedProviderCourse)
+				$tlang.getString("nscourse.already")
+				<form name = "removeSectionForm" method="post" action="#toolForm($action)">
+					<input type="hidden" name="eventSubmit_doContinue" value="$tlang.getString('gen.continue')" />
+					<input type="hidden" name="eventSubmit_doFind_course" value="x" />
+					<input type="hidden" name="option" value="remove" />
+
+					<ul>
+						#foreach($item in $!selectedProviderCourse)
+							<li>
+								<label for = "$id">
+									$item
+									<!-- Remove Section -->
+									(<a href="#" onclick="javascript:submitRemoveSection('$item');">Remove</a>)
+									<input type="hidden" id="removeSection$item" name="removeSection$item" value="" />
+								</label>
+							</li>
+						#end
+						#foreach($id in $!selectedRequestedCourse)
+							<li>
+								<label for = "$id">
+									$id
+								</label>
+							</li>
+						#end
+					</ul>
+				</form>
+			#end
+			<!-- end if section for selected courses -->
 		$tlang.getString("nscourse.findInstruction")
 	</p>
 	<form name = "findCourseForm" method="post" action="#toolForm($action)">
@@ -24,53 +65,130 @@
 			<!-- these are place holders for the actual fields - they should
 			      be dynamically labelled based on the config. -->
 			#set ($i=0)
+		<table>
 			#foreach ($level in $cmLevels)
-			  #set($fieldName='idField_' + $i)
+		  <tr>
+		    <td>
+			  #set($fieldName="idField_$i")
 			  <!-- label for this level in CM -->
-			  $level
-			  #if ($manualEntry)
-			    <!-- text entry field for manual entry-->
-			  	#if ($cmLevelSelections.size() > $i)
-			  	    <!-- prepopulating with existing selection -->
-				  	<input type="text" name="$fieldName" value="$cmLevelSelections.get($i)"/><br/>
-				#else
-				    <input type="text" name="$fieldName"/><br/>
-				#end
-			  #else
+			  ${level}
+			</td>
+			<td>
+			
+##   Removed the manual entry page.  This is handled instead by template #37 from within
+##   SiteAction.  This was preserved because of its ability to handle multiple levels
+##   of ID fields, whereas find course is spec'd to use only three levels:
+##			CourseSet (filtered to match deployer configured category)
+##			CourseOffering
+##			Section
+##
+##
+##			  #if ($manualEntry)
+##			    <!-- text entry field for manual entry-->
+##			  	<input type="text" name="$fieldName"
+##			  	#if ($cmLevelSelections.size() > $i)
+##				 value="$cmLevelSelections.get($i)"
+##				#end
+##				/>
+##				#if($i == 2 && $cmsAvailable)
+##				<a href="#" onclick="javascript:blur();document.findCourseForm.option.value='useCMS';document.findCourseForm.submit();">
+##				   $tlang.getString("nscourse.findCourse.useCMS")
+##				</a>
+##				#end
+##				
+##				<br/>
+##			  #else
 			  	<!-- use dropdown list to select from coursemanagement service provided options -->
-				  #if ($i < $cmLevelSelections.size() + 1)
+				  #if ($i == 0 || $i < $cmLevelSelections.size() + 1)
 					  <select name="$fieldName" onchange="blur();document.findCourseForm.submit();">
 				  #else
 				  	  <select name="$fieldName" disabled="true">
 				  #end
+				  <option value="">$tlang.getString("nscourse.findCourse.select")</option>
 				  #if ($i < $cmLevelOptions.size())
 				      #foreach ($coursething in $cmLevelOptions.get($i))
 				        #if ($i < $cmLevelSelections.size())
 					        #set ($selectedItem = $cmLevelSelections.get($i))
 					    #end
-				        #if ($slectedItem && $coursething.eid == $selectedItem)
-				            <option value="$coursething.eid" selected="true">
-				        #else
-				            <option value="$coursething.eid">
-				        #end
+					    <!-- selected: $selectedItem -->
+					    <option value="$coursething.eid" 
+					    #if ($coursething.eid == $selectedItem) 
+					    	selected="true" 
+					    #end
+					    >
 						        $coursething.title
-						    </option>
+					    </option>
 				      #end
 				  #end
 			      <!-- end population of select options -->
-				      </select><br/>
-				  #set($i = $i + 1)
-			  #end
+				      </select>
+				  #if($i == 2)
+				     <a href="#" onclick="javascript:blur();document.findCourseForm.option.value='manual';document.findCourseForm.submit();">
+				        $tlang.getString("nscourse.findCourse.stillNotFound")
+				     </a>
+				#end
+				      <br/>
+##			  #end
+			</td>
+	      </tr>
 			  <!-- end creation of select box -->
+			  #set($i = $i + 1)
 		   #end
 		   <!-- end loop through fields-->
+		  <tr>
+		    <td>$tlang.getString("nscourse.findCourse.selected")</td>
+		    <td>
+			    #if ($selectedCourse)
+			        $selectedCourse.title
+			    #else
+				    None
+			    #end
+			</td>
+		  </tr>
+		</table>
+		
+		#if ($selectedCourse)
+			<h3>$tlang.getString("nscourse.findCourse.authorization.title")</h3>
+			<p>$tlang.getString("nscourse.findCourse.authorization.instructions")</p>
+			
+			<table>
+			  <tr>
+			    <td>$tlang.getString("nscourse.findCourse.authorization.authname")</td>
+			    <td>
+			      <input type="text" name="authorizerName"/>
+			      #if ($campusDirectory)
+			      <a href="$campusDirectory" target="campusDirectory">
+			        $tlang.getString("nscourse.findCourse.authorization.authname.lookup")
+			      </a>
+			      #end
+			      <br/>
+			      $tlang.getString("nscourse.findCourse.authorization.email")
+			    </td>
+			  </tr>
+			  <tr>
+			    <td>
+			      $tlang.getString("nscourse.findCourse.authorization.specialInstructions")
+			    </td>
+			    <td>
+			      <textarea cols="80" rows="8" name="authorizerInstructions"></textarea><br/>
+			      $tlang.getString("nscourse.findCourse.authorization.comments")
+			    </td>
+			  </tr>
+			</table>
+		#end
+		
 
 		<input id="index" type="hidden" name="template-index" value="53" />
-		<input type="hidden" name="back" value="52" />
+		<input type="hidden" name="back" value="$backIndex" />
+		<input type="hidden" name="eventSubmit_doFind_course" value="x" />
+		<input type="hidden" name="option" value="find"/>
 		<p class="act">
-			<input id="continueButton" type="submit" class="active" accesskey="s" name="eventSubmit_doContinue" value="$tlang.getString('gen.continue')" />
-			<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" />
-			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" />
+			<input id="continueButton" type="submit" class="active" accesskey="s" name="eventSubmit_doContinue" 
+				value="$tlang.getString('gen.continue')" onclick="resetOption('continue');" />
+			<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" 
+				onclick="resetOption('back');" />
+			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')"
+				onclick="resetOption('cancel');" />
 		</p>
 
 	</form>

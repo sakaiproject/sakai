@@ -1,10 +1,26 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-newSiteCourseManual.vm,v 1.4 2005/06/03 14:08:16 gsilver.umich.edu Exp $ -->
+<script type="text/javascript">
+	function submitRemoveSection(index){
+		id = "removeSection"+index;
+		removeSection = document.getElementById(id);
+		removeSection.value="true";
+
+		document.removeSectionForm.submit();
+		return false;
+}
+</script>
+
 <div class="portletBody">
+	<form name = "removeSectionForm" method="post" action="#toolForm($action)">
+		<input type="hidden" name="eventSubmit_doContinue" value="$tlang.getString('gen.continue')" />
+		<input type="hidden" name="back" value="1" id="back" />
+		<input type="hidden" name="template-index" value="52"  />
+	
 	##if($menu)#toolbar($menu)#end<br/><br/>
 		#if (!$!site)
 			<h3>$tlang.getString("man.creat")</h3>
 			<p class="step">
-				$tlang.getString("nscourse.choose")
+				$tlang.getString("nscourse.course_sections_selection") - $term.title
 			</p>
 		#else
 			<h3>$tlang.getString("man.edit")</h3>
@@ -20,37 +36,44 @@
 				#foreach($id in $!providerCourseList)
 					<p class="indnt2">
 						$id 
+						<!-- Remove Section -->
+						(<a href="#" onclick="javascript:submitRemoveSection('$id');">Remove</a>)
+						<input type="hidden" id="removeSection$item" name="removeSection$id" value="" />
 					</p>
 				#end
 				#foreach($id in $!manualCourseList)
 					<p class="indnt2">
 						$id <span class="highlight">$tlang.getString("man.requested")</span>
+						<!-- Remove Section -->
+						(<a href="#" onclick="javascript:submitRemoveSection('$id');">Remove</a>)
+						<input type="hidden" id="removeSection$id" name="removeSection$item" value="" />
 					</p>
 				#end
 			#end
-			<form name = "requestCourseForm" method = "post" action="#toolForm("$action")">
-				<input type="hidden" name="option" value="add" />
-				<input type="hidden" name="eventSubmit_doManual_add_course" value="x" />
-				<h4> 
-					$tlang.getString("nscourse.acad")
-					$term.Id
-				</h4>
+
 				#if ($!selectedProviderCourse)
 				<p class="instruction">$tlang.getString("man.sofar") #if($!site) $tlang.getString("man.toaddto") #else $tlang.getString("java.for") #end $tlang.getString("man.this")</p> 
 				<ul>
 					#foreach ($item in $!selectedProviderCourse)
-						<li>$item </li>
+						<li>$item 
+							<!-- Remove Section -->
+							(<a href="#" onclick="javascript:submitRemoveSection('$item');">Remove</a>)
+							<input type="hidden" id="removeSection$item" name="removeSection$item" value="" />
+						</li>
 					#end
 				</ul>
-
 				#end
+	</form>
+				
+	<form name = "requestCourseForm" method = "post" action="#toolForm("$action")">
+				<input type="hidden" name="option" value="add" />
+				<input type="hidden" name="eventSubmit_doManual_add_course" value="x" />
 				<p class="instruction">
 					#if (!$!isFutureTerm)
-						$tlang.getString("man.enter")
+						$tlang.getString("man.please_enter")
 					#else
-						$tlang.getString("man.enter2")
+						$tlang.getString("man.enter2") <span class="reqStarInline">*</span> $tlang.getString("man.means")
 					#end
-					 <span class="reqStarInline">*</span> $tlang.getString("man.means")
 				</p>
 				<table  class="listHier lines nolines"  style="width:50%" border="0" cellpadding="0" cellspacing="0" summary="$tlang.getString("man.list.summary")">
 					<tr>
@@ -61,8 +84,9 @@
 						</th>
 						#foreach ($fieldCount in [0..$!bound])
 								#set($field = $!form_requiredFields.get($fieldCount))
-									<th id="$!field">	
-										<span class ="reqStarInline">*</span>$field
+								#set($fieldLabel = $!form_requiredFields.get($fieldCount).labelKey)
+									<th id="$!fieldLabel">	
+										<span class ="reqStarInline">*</span>$fieldLabel
 									</th>
 						#end
 					</tr>
@@ -74,12 +98,13 @@
 							<td headers="rownNum">$rowcount</td>
 							#foreach ($fieldCount in [0..$!bound])
 								#set($field = $!form_requiredFields.get($fieldCount))
+								#set($fieldLabel = $!form_requiredFields.get($fieldCount).labelKey)
 								#set($fieldSize = 8)
-								#set($fieldSize = $!form_requiredFieldsSizes.get($fieldCount))
+								#set($fieldSize = $!form_requiredFieldsSizes.get($fieldCount).getMaxSize())
 								
-								<td headers="$field" class="shorttext">
-									<label  for="id-$field$rowcount" class="skip">$field</label>
-									<input type="text" name="$field$k"  tabindex="$count" size="$!fieldSize" maxlength="$!fieldSize" value="$!courseFieldValues.get($fieldCount)"  id="id-$field$rowcount" /> 
+								<td headers="$fieldLabel" class="shorttext">
+									<label  for="id-$fieldLabel$rowcount" class="skip">$fieldLabel</label>
+									<input type="text" name="$fieldLabel$k"  tabindex="$count" size="$!fieldSize" maxlength="$!fieldSize" value="$!courseFieldValues.get($fieldCount).getValue()"  id="id-$fieldLabel$rowcount" /> 
 									#set ($count = $count + 1)
 
 								</td>
@@ -133,10 +158,10 @@
 				#end
 			#set ($count = $count + 1)
 			<input type="hidden" name="back" value="$back" />
-			<input type="hidden" name="template-index" value="37" />
+			<input type="hidden" name="template-index" value="37"  />
 			<input type="hidden" name="continue" value="4" />
 			<p class="act">
-				<input type="button" name="Add" 
+				<input type="button" name="Add" id="addButton"
 						value="$tlang.getString('gen.continue')" 
 						class="active" 
 						accesskey="s" 

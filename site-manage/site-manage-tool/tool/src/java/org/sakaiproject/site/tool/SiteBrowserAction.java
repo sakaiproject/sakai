@@ -48,7 +48,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.CourseManagementService;
+//import org.sakaiproject.site.cover.CourseManagementService;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
@@ -60,6 +60,9 @@ import org.sakaiproject.util.StringUtil;
  */
 public class SiteBrowserAction extends PagedResourceActionII
 {
+	private org.sakaiproject.coursemanagement.api.CourseManagementService cms = (org.sakaiproject.coursemanagement.api.CourseManagementService) ComponentManager
+	.get(org.sakaiproject.coursemanagement.api.CourseManagementService.class);
+
 	private static ResourceLoader rb = new ResourceLoader("sitebrowser");
 
 	private final static String SITE_TYPE_ANY = "Any";
@@ -315,7 +318,8 @@ public class SiteBrowserAction extends PagedResourceActionII
 
 		context.put("siteTypes", newTypes);
 
-		List terms = CourseManagementService.getTerms();
+		//List terms = CourseManagementService.getTerms();
+		List terms = cms.getAcademicSessions();
 
 		String termSearchSiteType = (String) state.getAttribute(SEARCH_TERM_SITE_TYPE);
 		if (termSearchSiteType != null)
@@ -553,7 +557,7 @@ public class SiteBrowserAction extends PagedResourceActionII
 				{
 					if (siteType.equals(termSearchSiteType))
 					{
-						// search parameter - term; termId from UI
+						// search parameter - term; term.eid from UI
 						String term = StringUtil.trimToNull(data.getParameters().getString("selectTerm"));
 						if (term != null)
 						{
