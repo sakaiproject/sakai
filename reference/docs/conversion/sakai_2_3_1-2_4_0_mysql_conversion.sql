@@ -21,8 +21,12 @@ update osp_list_config set selected_columns = replace(selected_columns, 'siteNam
 --Updating for a change to the synoptic view for portfolio worksites
 update sakai_site_tool_property set name='siteTypeList', value='portfolio,PortfolioAdmin' where value='portfolioWorksites';
 
+----------------------------------------------------------------------------------------------------------------------------------------
 
--- SAMIGO SAK-6790 conversion
+----------------------------------------------------------------------------------------------------------------------------------------
+
+-- SAMIGO conversion
+-- SAK-6790 
 alter table SAM_ASSESSMENTBASE_T MODIFY  CREATEDBY varchar(255) not null,  MODIFY LASTMODIFIEDBY varchar(255) not null;
 alter table SAM_SECTION_T MODIFY  CREATEDBY varchar(255) not null,  MODIFY LASTMODIFIEDBY varchar(255) not null;
 alter table SAM_PUBLISHEDASSESSMENT_T MODIFY  CREATEDBY varchar(255) not null,  MODIFY LASTMODIFIEDBY varchar(255) not null;
@@ -42,6 +46,30 @@ alter table SAM_ITEMGRADING_T MODIFY AGENTID varchar(255) not null, MODIFY GRADE
 alter table SAM_GRADINGSUMMARY_T MODIFY AGENTID varchar(255) not null;
 alter table SAM_MEDIA_T MODIFY CREATEDBY varchar(255), MODIFY LASTMODIFIEDBY varchar(255);
 alter table SAM_TYPE_T MODIFY CREATEDBY varchar(255) not null, MODIFY LASTMODIFIEDBY varchar(255) not null;
+
+-- For performance
+create index SAM_ANSWERFEED_ANSWERID_I on SAM_ANSWERFEEDBACK_T (ANSWERID);
+create index SAM_ANSWER_ITEMTEXTID_I on SAM_ANSWER_T (ITEMTEXTID);
+create index SAM_ITEMFEED_ITEMID_I on SAM_ITEMFEEDBACK_T (ITEMID);
+create index SAM_ITEMMETADATA_ITEMID_I on SAM_ITEMMETADATA_T (ITEMID);
+create index SAM_ITEMTEXT_ITEMID_I on SAM_ITEMTEXT_T (ITEMID);
+create index SAM_ITEM_SECTIONID_I on SAM_ITEM_T (SECTIONID);
+create index SAM_QPOOL_OWNER_I on SAM_QUESTIONPOOL_T (OWNERID);
+
+-- SAK-7093
+drop table if exists SAM_STUDENTGRADINGSUMMARY_T;
+create table SAM_STUDENTGRADINGSUMMARY_T (
+STUDENTGRADINGSUMMARYID bigint not null auto_increment,
+PUBLISHEDASSESSMENTID bigint not null,
+AGENTID varchar(255) not null,
+NUMBERRETAKE integer,
+CREATEDBY varchar(255) not null,
+CREATEDDATE datetime not null,
+LASTMODIFIEDBY varchar(255) not null,
+LASTMODIFIEDDATE datetime not null,
+primary key (STUDENTGRADINGSUMMARYID)
+);
+create index SAM_PUBLISHEDASSESSMENT2_I on SAM_STUDENTGRADINGSUMMARY_T (PUBLISHEDASSESSMENTID);
 
 ----------------------------------------------------------------------------------------------------------------------------------------
 -- add new default roster permissions
