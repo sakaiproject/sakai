@@ -138,8 +138,8 @@ public class ChatMessage implements Entity {
     * @see org.sakaiproject.entity.api.Entity#getReference()
     */
    public String getReference() {
-      // TODO Auto-generated method stub
-      return null;
+      return ChatManager.REFERENCE_ROOT + Entity.SEPARATOR + ChatManager.REF_TYPE_MESSAGE + Entity.SEPARATOR + chatChannel.getContext() + Entity.SEPARATOR
+      + chatChannel.getId() + Entity.SEPARATOR + id;
    }
 
    /* (non-Javadoc)

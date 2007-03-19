@@ -18,10 +18,10 @@
 	<sakai:button_bar>
 	    <sakai:button_bar_item id="delete"
 	        action="#{ChatTool.processActionDeleteRoom}"
-	        value="#{ChatTool.deleteButtonText}" />
+	        value="#{msgs['gen.delete']}" />
 	    <sakai:button_bar_item id="cancel"
 	        action="#{ChatTool.processActionDeleteRoomCancel}"
-	        value="#{ChatTool.cancelButtonText}" />
+	        value="#{msgs['gen.cancel']}" />
 	</sakai:button_bar>
 	
 	</h:form>

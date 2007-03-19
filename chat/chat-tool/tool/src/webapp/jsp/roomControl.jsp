@@ -43,10 +43,10 @@ try { parent.updateNow(); } catch (error) {}
       <sakai:button_bar>
           <sakai:button_bar_item id="submit"
               action="#{ChatTool.processActionSubmitMessage}"
-              value="#{ChatTool.addMessageButtonText}" />
+              value="#{msgs['control.post']}" />
           <sakai:button_bar_item id="reset"
               action="#{ChatTool.processActionResetMessage}"
-              value="#{ChatTool.clearButtonText}" />
+              value="#{msgs['control.clear']}" />
       </sakai:button_bar>
    </h:form>
 </sakai:view>

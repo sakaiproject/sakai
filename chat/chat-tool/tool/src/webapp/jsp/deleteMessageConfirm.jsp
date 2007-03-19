@@ -1,29 +1,29 @@
 <f:view>
-	<sakai:view title="#{ChatTool.deletePageTitle}">
-		<sakai:view_title value="#{ChatTool.deletePageTitle}"/>
+	<sakai:view title="#{msgs['delete.delete']}">
+		<sakai:view_title value="#{msgs['delete.delete']}"/>
 		
-		<h:outputText value="#{ChatTool.deletePageConfirmAlert}" styleClass="alertMessage" />
+		<h:outputText value="#{msgs['delete.sure']}" styleClass="alertMessage" />
 		
 		<h:form styleClass="portletBody">
 		
 			<sakai:panel_edit>
-				<h:outputLabel for="owner" value="#{ChatTool.fromLabelText}" />
+				<h:outputLabel for="owner" value="#{msgs['gen.from']}" />
 				<h:outputText id="owner" value="#{ChatTool.currentMessage.owner}" />
 	
-				<h:outputLabel for="date" value="#{ChatTool.dateLabelText}" />
+				<h:outputLabel for="date" value="#{msgs['gen.date']}" />
 				<h:outputText id="date" value="#{ChatTool.currentMessage.chatMessage.messageDate}" />
 	
-				<h:outputLabel for="message" value="#{ChatTool.messageLabelText}" />
+				<h:outputLabel for="message" value="#{msgs['gen.mess']}" />
 				<h:outputText id="message" value="#{ChatTool.currentMessage.chatMessage.body}" />
 	
 			</sakai:panel_edit>
 			<sakai:button_bar>
 				<sakai:button_bar_item id="submit"
 					action="#{ChatTool.processActionDeleteMessage}"
-					value="#{ChatTool.deleteButtonText}" />
+					value="#{msgs['gen.delete']}" />
 				<sakai:button_bar_item id="reset"
 					action="#{ChatTool.processActionDeleteMessageCancel}"
-					value="#{ChatTool.cancelButtonText}" />
+					value="#{msgs['gen.cancel']}" />
 			</sakai:button_bar>
 		</h:form>
 	</sakai:view>

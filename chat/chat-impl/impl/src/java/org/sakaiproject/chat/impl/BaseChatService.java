@@ -127,13 +127,6 @@ public abstract class BaseChatService extends BaseMessageService implements Chat
 */	
    }
    
-   /* (non-Javadoc)
-    * @see org.sakaiproject.entity.api.EntitySummary#summarizableToolIds()
-    */
-   public String[] summarizableToolIds() {
-      String[] toolIds = { "sakai.chat" };
-      return toolIds;
-   }
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * StorageUser implementation

@@ -26,7 +26,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -38,7 +37,6 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Stack;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,11 +52,8 @@ import org.sakaiproject.chat2.model.RoomObserver;
 import org.sakaiproject.chat2.model.ChatFunctions;
 import org.sakaiproject.chat2.model.ChatMessage;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.Summary;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -77,42 +72,25 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.util.StringUtil;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * 
  * @author andersjb
  *
  */
-public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager, Observer { //, EntityContentProducer {
+public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager, Observer {
 
    protected final transient Log logger = LogFactory.getLog(getClass());
    
    /** the key for sending message events around */
-   protected final static String EVENT_CHAT_SEND_MESSAGE = "sakai.chat.message";
+   //protected final static String EVENT_CHAT_SEND_MESSAGE = "sakai.chat.message";
+   //protected final static String EVENT_CHAT_SEND_MESSAGE = "chat.new";
    
-   protected final static String EVENT_CHAT_DELETE_CHANNEL = "sakai.chat.delete.channel";
+   //protected final static String EVENT_CHAT_DELETE_CHANNEL = "sakai.chat.delete.channel";
    
-   private static final String CHANNEL_PROP = "channel";
-   
-   private static final String ARCHIVE_VERSION = "2.4"; // in case new features are added in future exports
-   private static final String VERSION_ATTR = "version";
-   
-   private static final String CHAT = "chat";
-   private static final String SYNOPTIC_TOOL = "synoptic_tool";
-   private static final String NAME = "name";
-   private static final String VALUE = "value";
-   
-   private static final String PROPERTIES = "properties";
-   private static final String PROPERTY = "property";
    
    /**   The tool manager   */
    private ToolManager toolManager;
@@ -123,6 +101,17 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
    private EntityManager entityManager;
    
    
+   static Comparator channelComparatorAsc = new Comparator() {
+      public int compare(Object o1, Object o2) {
+             return ((ChatMessage)o1).getMessageDate().compareTo(((ChatMessage)o2).getMessageDate());
+      }
+   };  
+   
+   static Comparator channelComparatorDesc = new Comparator() {
+      public int compare(Object o1, Object o2) {
+             return -1 * ((ChatMessage)o1).getMessageDate().compareTo(((ChatMessage)o2).getMessageDate());
+      }
+   };     
    
    /**
     * Called on after the startup of the singleton.  This sets the global
@@ -146,13 +135,14 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
          FunctionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_NEW_CHANNEL);
          FunctionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_EDIT_CHANNEL);
       }
-      
+      /*
       try {
          getEntityManager().registerEntityProducer(this, Entity.SEPARATOR + REFERENCE_ROOT);
       }
       catch (Exception e) {
          logger.warn("Error registering Chat Entity Producer", e);
       }
+      */
    }
 
    /**
@@ -218,20 +208,16 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
    public List<ChatMessage> getChannelMessages(ChatChannel channel, String context, Date date, int items, boolean sortAsc) throws PermissionException {
       if (channel == null) {
          List<ChatMessage> allMessages = new ArrayList<ChatMessage>();
-         List channels = getContextChannels(context);
+         List channels = getContextChannels(context, true);
          for (Iterator i = channels.iterator(); i.hasNext();) {
             ChatChannel tmpChannel = (ChatChannel) i.next();
             allMessages.addAll(getChannelMessages(tmpChannel, date, items, sortAsc));
          }
          
-         
-         Comparator channelComparator = new Comparator() {
-            public int compare(Object o1, Object o2) {
-                   return ((ChatMessage)o1).getMessageDate().compareTo(((ChatMessage)o2).getMessageDate());
-            }
-         };         
-         
-         Collections.sort(allMessages, channelComparator);
+         if (sortAsc)
+            Collections.sort(allMessages, channelComparatorAsc);
+         else
+            Collections.sort(allMessages, channelComparatorDesc);
          return allMessages;
       }
       else
@@ -271,17 +257,22 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
          c.add(Expression.ge("messageDate", localDate));
       }
       
-      if (!sortAsc) {
-         c.addOrder(Order.desc("messageDate"));
-      }
-      else {
-         c.addOrder(Order.asc("messageDate"));
-      }
+      //Always sort desc so we get the newest messages
+      // reorder after we get the final list
+      c.addOrder(Order.desc("messageDate"));
       
       if (localItems > 0)
          c.setMaxResults(localItems);
       
-      return c.list();
+      List messages = c.list();
+      
+      //Reorder the list
+      if (sortAsc)
+         Collections.sort(messages, channelComparatorAsc);
+      else
+         Collections.sort(messages, channelComparatorDesc);
+      
+      return messages;
       
    }
 
@@ -372,17 +363,15 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
         return getCanCreateChannel(toolManager.getCurrentPlacement().getId());
      }
      
-     protected boolean getCanReadMessage(ChatChannel channel, String placementId) {
-        ToolConfiguration toolConfig = SiteService.findTool(placementId);
-        String context = toolConfig.getContext();
-        boolean canDelete = can(ChatFunctions.CHAT_FUNCTION_READ, context);
+     protected boolean getCanReadMessage(ChatChannel channel, String context) {
+        boolean canRead = can(ChatFunctions.CHAT_FUNCTION_READ, context);
         
-        return canDelete;
+        return canRead;
      }
      
      public boolean getCanReadMessage(ChatChannel channel)
      {
-        return getCanReadMessage(channel, toolManager.getCurrentPlacement().getId());
+        return getCanReadMessage(channel, toolManager.getCurrentPlacement().getContext());
      }
    
    /**
@@ -395,6 +384,8 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
          checkPermission(ChatFunctions.CHAT_FUNCTION_DELETE_ANY);
       
       getHibernateTemplate().delete(message);
+      
+      sendDeleteMessage(message);
    }
 
 
@@ -406,9 +397,17 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
                               ChatMessage.class, chatMessageId);
    }
 
-
-   protected List getContextChannels(String context) {
+   /**
+    * {@inheritDoc}
+    */
+   public List getContextChannels(String context, boolean lazy) {
       List channels = getHibernateTemplate().findByNamedQuery("findChannelsInContext", context);
+      if (!lazy) {
+         for (Iterator i = channels.iterator(); i.hasNext();) {
+            ChatChannel channel = (ChatChannel) i.next();
+            channel.getMessages().size();
+         }
+      }
       return channels;
    }
    
@@ -502,7 +501,19 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
    
    
    
-   
+   /**
+    * {@inheritDoc}
+    */
+   public void sendDeleteMessage(ChatMessage message) {
+      ChatMessageDeleteTxSync txSync = new ChatMessageDeleteTxSync(message);
+
+      if (TransactionSynchronizationManager.isSynchronizationActive()) {
+         TransactionSynchronizationManager.registerSynchronization(txSync);
+      }
+      else {
+         txSync.afterCompletion(ChatMessageDeleteTxSync.STATUS_COMMITTED);
+      }
+   }   
 
 
    /**
@@ -524,6 +535,36 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
     * @author andersjb
     *
     */
+   private class ChatMessageDeleteTxSync extends TransactionSynchronizationAdapter {
+      private ChatMessage message;
+      
+      public ChatMessageDeleteTxSync(ChatMessage message) {
+         this.message = message;
+      }
+
+      public void afterCompletion(int status) {
+         Event event = null;
+         String function = ChatFunctions.CHAT_FUNCTION_DELETE_ANY;
+         if (message.getOwner().equals(SessionManager.getCurrentSessionUserId()))
+         {
+            // own or any
+            function = ChatFunctions.CHAT_FUNCTION_DELETE_OWN;
+         }
+         
+         
+         event = EventTrackingService.newEvent(function, 
+               message.getReference(), false);
+
+         if (event != null)
+            EventTrackingService.post(event);
+      }
+   }
+   
+   /**
+    * This helps to send out the message when the record is placed in the database
+    * @author andersjb
+    *
+    */
    private class ChatMessageTxSync extends TransactionSynchronizationAdapter {
       private ChatMessage message;
 
@@ -533,8 +574,8 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
 
       public void afterCompletion(int status) {
          Event event = null;
-         event = EventTrackingService.newEvent(EVENT_CHAT_SEND_MESSAGE, 
-                  message.getChatChannel().getId() + ":" + message.getId(), false);
+         event = EventTrackingService.newEvent(ChatFunctions.CHAT_FUNCTION_NEW, 
+                  message.getReference(), false);
 
          if (event != null)
             EventTrackingService.post(event);
@@ -555,8 +596,8 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
 
       public void afterCompletion(int status) {
          Event event = null;
-         event = EventTrackingService.newEvent(EVENT_CHAT_DELETE_CHANNEL, 
-                  channel.getId(), false);
+         event = EventTrackingService.newEvent(ChatFunctions.CHAT_FUNCTION_DELETE_CHANNEL, 
+                  channel.getReference(), false);
 
          if (event != null)
             EventTrackingService.post(event);
@@ -578,33 +619,37 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
    public void update(Observable o, Object arg) {
       if (arg instanceof Event) {
          Event event = (Event)arg;
-         if (event.getEvent().equals(EVENT_CHAT_SEND_MESSAGE)) {
-            String[] messageParams = event.getResource().split(":");
+         
+         Reference ref = getEntityManager().newReference(event.getResource());
+         
+         if (event.getEvent().equals(ChatFunctions.CHAT_FUNCTION_NEW)) {
             
-            List observers = (List)roomListeners.get(messageParams[0]);
+            //String[] messageParams = event.getResource().split(":");
+            
+            List observers = (List)roomListeners.get(ref.getContainer());
             
             if(observers != null) {
                synchronized(observers) {
                   for(Iterator i = observers.iterator(); i.hasNext(); ) {
                      RoomObserver observer = (RoomObserver)i.next();
                      
-                     observer.receivedMessage(messageParams[0], messageParams[1]);
+                     observer.receivedMessage(ref.getContainer(), ref.getId());
                   }
                }
             }
             
             
-         } else if (event.getEvent().equals(EVENT_CHAT_DELETE_CHANNEL)) {
-            String chatChannelId = event.getResource();
+         } else if (event.getEvent().equals(ChatFunctions.CHAT_FUNCTION_DELETE_CHANNEL)) {
+            //String chatChannelId = event.getResource();
             
-            List observers = (List)roomListeners.get(chatChannelId);
+            List observers = (List)roomListeners.get(ref.getId());
             
             if(observers != null) {
                synchronized(observers) {
                   for(Iterator i = observers.iterator(); i.hasNext(); ) {
                      RoomObserver observer = (RoomObserver)i.next();
                      
-                     observer.roomDeleted(chatChannelId);
+                     observer.roomDeleted(ref.getId());
                   }
                }
             }
@@ -804,317 +849,17 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
    }
 
    
-   
-   /**
-    * {@inheritDoc}
-    */
-   public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
-   {
-      //prepare the buffer for the results log
-      StringBuffer results = new StringBuffer();
-      int channelCount = 0;
-
-      try 
-      {
-         // start with an element with our very own (service) name         
-         Element element = doc.createElement(serviceName());
-         element.setAttribute(VERSION_ATTR, ARCHIVE_VERSION);
-         ((Element) stack.peek()).appendChild(element);
-         stack.push(element);
-
-         Element chat = doc.createElement(CHAT);
-         List channelList = getContextChannels(siteId);
-         if (channelList != null && !channelList.isEmpty()) 
-         {
-            Iterator channelIterator = channelList.iterator();
-            while (channelIterator.hasNext()) 
-            {
-               ChatChannel channel = (ChatChannel)channelIterator.next();
-               Element channelElement = channel.toXml(doc, stack);
-               chat.appendChild(channelElement);
-               channelCount++;
-            }
-            results.append("archiving " + getLabel() + ": (" + channelCount + ") channels archived successfully.\n");
-            
-         } 
-         else 
-         {
-            results.append("archiving " + getLabel()
-                  + ": empty chat room archived.\n");
-         }
-         
-         // archive the chat synoptic tool options
-         archiveSynopticOptions(siteId, doc, chat);
-
-         ((Element) stack.peek()).appendChild(chat);
-         stack.push(chat);
-
-         stack.pop();
-      }
-      catch (Exception any)
-      {
-         logger.warn("archive: exception archiving service: " + serviceName());
-      }
-
-      stack.pop();
-
-      return results.toString();
-   }
-
-   /**
-    * {@inheritDoc}
-    */
-   public Entity getEntity(Reference ref)
-   {
-      // we could check that the type is one of the message services, but lets just assume it is so we don't need to know them here -ggolden
-
-      Entity rv = null;
-
-      try
-      {
-         // if this is a channel
-         if (REF_TYPE_CHANNEL.equals(ref.getSubType()))
-         {
-            rv = getChatChannel(ref.getReference());
-         }
-/*
-         // otherwise a message
-         else if (REF_TYPE_MESSAGE.equals(ref.getSubType()))
-         {
-            rv = getMessage(ref);
-         }
-*/
-         // else try {throw new Exception();} catch (Exception e) {M_log.warn("getResource(): unknown message ref subtype: " + m_subType + " in ref: " + m_reference, e);}
-         else
-            logger.warn("getEntity(): unknown message ref subtype: " + ref.getSubType() + " in ref: " + ref.getReference());
-      }
-      catch (NullPointerException e)
-      {
-         logger.warn("getEntity(): " + e);
-      }
-
-      return rv;
-   }
-
-   /* (non-Javadoc)
-    * @see org.sakaiproject.entity.api.EntityProducer#getEntityAuthzGroups(org.sakaiproject.entity.api.Reference, java.lang.String)
-    */
-   public Collection getEntityAuthzGroups(Reference ref, String userId) {
-      // TODO Auto-generated method stub
-      return null;
-   }
-
-   /* (non-Javadoc)
-    * @see org.sakaiproject.entity.api.EntityProducer#getEntityDescription(org.sakaiproject.entity.api.Reference)
-    */
-   public String getEntityDescription(Reference ref) {
-      // TODO Auto-generated method stub
-      return null;
-   }
-
-   /* (non-Javadoc)
-    * @see org.sakaiproject.entity.api.EntityProducer#getEntityResourceProperties(org.sakaiproject.entity.api.Reference)
-    */
-   public ResourceProperties getEntityResourceProperties(Reference ref) {
-      // TODO Auto-generated method stub
-      return null;
-   }
-
-   /* (non-Javadoc)
-    * @see org.sakaiproject.entity.api.EntityProducer#getEntityUrl(org.sakaiproject.entity.api.Reference)
-    */
-   public String getEntityUrl(Reference ref) {
-      // TODO Auto-generated method stub
-      return null;
-   }
-
-   /* (non-Javadoc)
-    * @see org.sakaiproject.entity.api.EntityProducer#getHttpAccess()
-    */
-   public HttpAccess getHttpAccess() {
-      // TODO Auto-generated method stub
-      return null;
-   }
 
    /**
     * {@inheritDoc}
     */
    public String getLabel() {
-      return "chat";
+      return CHAT;
    }
 
-   /**
-    * {@inheritDoc}
-    */
-   public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans,
-         Set userListAllowImport)
-   {
-      logger.debug("trying to merge chat");
 
-      // buffer for the results log
-      StringBuffer results = new StringBuffer();
 
-      int count = 0;
 
-      if (siteId != null && siteId.trim().length() > 0)
-      {
-         try
-         {
-            NodeList allChildrenNodes = root.getChildNodes();
-            int length = allChildrenNodes.getLength();
-            for (int i = 0; i < length; i++)
-            {
-               count++;
-               Node siteNode = allChildrenNodes.item(i);
-               if (siteNode.getNodeType() == Node.ELEMENT_NODE)
-               {
-                  Element chatElement = (Element) siteNode;
-                  if (chatElement.getTagName().equals(CHAT))
-                  {
-                     Site site = SiteService.getSite(siteId);
-                     if (site.getToolForCommonId(CHAT_TOOL_ID) != null) {
-   
-                        // add the chat rooms and synoptic tool options                
-                        NodeList chatNodes = chatElement.getChildNodes();
-                        int lengthChatNodes = chatNodes.getLength();
-                        for (int cn = 0; cn < lengthChatNodes; cn++)
-                        {
-                           Node chatNode = chatNodes.item(cn);
-                           if (chatNode.getNodeType() == Node.ELEMENT_NODE)
-                           {
-                              Element channelElement = (Element) chatNode;
-                              if (channelElement.getTagName().equals(CHANNEL_PROP)) {
-                                 ChatChannel channel = ChatChannel.xmlToChatChannel(channelElement, siteId);
-                                 //save the channel
-                                 updateChannel(channel, false);
-                              }
-                              
-                              else if (channelElement.getTagName().equals(SYNOPTIC_TOOL)) 
-                              {
-                                 ToolConfiguration synTool = site.getToolForCommonId("sakai.synoptic.chat");
-                                 Properties synProps = synTool.getPlacementConfig();
-
-                                 NodeList synPropNodes = channelElement.getChildNodes();
-                                 for (int props = 0; props < synPropNodes.getLength(); props++)
-                                 {
-                                    Node propsNode = synPropNodes.item(props);
-                                    if (propsNode.getNodeType() == Node.ELEMENT_NODE)
-                                    {
-                                       Element synPropEl = (Element) propsNode;
-                                       if (synPropEl.getTagName().equals(PROPERTIES))
-                                       {
-                                          NodeList synProperties = synPropEl.getChildNodes();
-                                          for (int p = 0; p < synProperties.getLength(); p++)
-                                          {
-                                             Node propertyNode = synProperties.item(p);
-                                             if (propertyNode.getNodeType() == Node.ELEMENT_NODE)
-                                             {
-                                                Element propEl = (Element) propertyNode;
-                                                if (propEl.getTagName().equals(PROPERTY))
-                                                {
-                                                   String propName = propEl.getAttribute(NAME);
-                                                   String propValue = propEl.getAttribute(VALUE);
-                                                   
-                                                   if (propName != null && propName.length() > 0 && propValue != null && propValue.length() > 0)
-                                                   {
-                                                      synProps.setProperty(propName, propValue);
-                                                   }
-                                                }
-                                             }
-                                          }
-                                       }
-                                    }
-                                 }
-                              }
-                           }        
-                        }
-                        SiteService.save(site);
-                     }
-                  }
-               }
-            }
-
-            results.append("merging chat " + siteId + " (" + count
-                  + ") chat items.\n");
-         }
-         catch (DOMException e)
-         {
-            logger.error(e.getMessage(), e);
-            results.append("merging " + getLabel()
-                  + " failed during xml parsing.\n");
-         }
-         catch (Exception e)
-         {
-            logger.error(e.getMessage(), e);
-            results.append("merging " + getLabel() + " failed.\n");
-         }
-      }
-
-      return results.toString();
-
-   } // merge
-
-   /**
-    * {@inheritDoc}
-    */
-   public boolean parseEntityReference(String reference, Reference ref)
-   {
-      if (reference.startsWith(REFERENCE_ROOT))
-      {
-         String[] parts = StringUtil.split(reference, Entity.SEPARATOR);
-
-         String id = null;
-         String subType = null;
-         String context = null;
-         String container = null;
-
-         // the first part will be null, then next the service, the third will be "msg" or "channel"
-         if (parts.length > 2)
-         {
-            subType = parts[2];
-            if (REF_TYPE_CHANNEL.equals(subType))
-            {
-               // next is the context id
-               if (parts.length > 3)
-               {
-                  context = parts[3];
-
-                  // next is the channel id
-                  if (parts.length > 4)
-                  {
-                     id = parts[4];
-                  }
-               }
-            }
-            else if (REF_TYPE_MESSAGE.equals(subType))
-            {
-               // next three parts are context, channel (container) and mesage id
-               if (parts.length > 5)
-               {
-                  context = parts[3];
-                  container = parts[4];
-                  id = parts[5];
-               }
-            }
-            else
-               logger.warn("parse(): unknown message subtype: " + subType + " in ref: " + reference);
-         }
-
-         ref.set(APPLICATION_ID, subType, id, container, context);
-
-         return true;
-      }
-
-      return false;
-   }
-
-   /**
-    * {@inheritDoc}
-    */
-   public boolean willArchiveMerge()
-   {
-      return true;
-   }
 
    /**
     * {@inheritDoc}
@@ -1133,7 +878,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
       try
       {           
          // retrieve all of the chat rooms
-         List channels = getContextChannels(fromContext);
+         List channels = getContextChannels(fromContext, true);
          if (channels != null && !channels.isEmpty()) 
          {
             Iterator channelIterator = channels.iterator();
@@ -1215,44 +960,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
       }
    }
    
-   /**
-    * try to add synoptic options for this tool to the archive, if they exist
-    * @param siteId
-    * @param doc
-    * @param element
-    */
-   public void archiveSynopticOptions(String siteId, Document doc, Element element)
-   {
-      try
-      {
-         // archive the synoptic tool options
-         Site site = SiteService.getSite(siteId);
-         ToolConfiguration synTool = site.getToolForCommonId("sakai.synoptic." + getLabel());
-         Properties synProp = synTool.getPlacementConfig();
-         if (synProp != null && synProp.size() > 0) {
-            Element synElement = doc.createElement(SYNOPTIC_TOOL);
-            Element synProps = doc.createElement(PROPERTIES);
-
-            Set synPropSet = synProp.keySet();
-            Iterator propIter = synPropSet.iterator();
-            while (propIter.hasNext())
-            {
-               String propName = (String)propIter.next();
-               Element synPropEl = doc.createElement(PROPERTY);
-               synPropEl.setAttribute(NAME, propName);
-               synPropEl.setAttribute(VALUE, synProp.getProperty(propName));
-               synProps.appendChild(synPropEl);
-            }
-
-            synElement.appendChild(synProps);
-            element.appendChild(synElement);
-         }
-      }
-      catch (Exception e)
-      {
-         logger.warn("archive: exception archiving synoptic options for service: " + serviceName());
-      }
-   }
+   
    
    private boolean inputIsValidInteger(String val)
    {
@@ -1266,7 +974,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
       }
    }
    
-   protected String serviceName() {
+   public String serviceName() {
       return ChatManager.class.getName();
    }
 

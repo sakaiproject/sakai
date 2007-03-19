@@ -79,7 +79,19 @@
 			<artifactId>sakai-message-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
+		
+	   <dependency>
+           <groupId>sakaiproject</groupId>
+           <artifactId>sakai-search-api</artifactId>
+           <version>${sakai.version}</version>
+       </dependency>
 
+		<dependency>
+           <groupId>sakaiproject</groupId>
+           <artifactId>sakai-search-impl</artifactId>
+           <version>${sakai.version}</version>
+       </dependency>
+       
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-site-api</artifactId>
@@ -165,6 +177,12 @@
 				<directory>${basedir}/src/sql</directory>
 				<includes>
 					<include>**/*.sql</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>${basedir}/src/bundle</directory>
+				<includes>
+					<include>**/*.properties</include>
 				</includes>
 			</resource>
 

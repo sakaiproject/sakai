@@ -146,7 +146,7 @@ public class ChatDelivery extends BaseDelivery
          
          Time messageTime = TimeService.newTime(message.getMessageDate().getTime());
 
-			retval = "try { " + m_elementId + ".appendMessage('" + sender.getDisplayName() + "', '" + sender.getId() + "', '"
+			retval = "try { appendMessage('" + sender.getDisplayName() + "', '" + sender.getId() + "', '"
 					+ new Boolean(chatManager.getCanDelete(message, placementId)) + "', '" + messageTime.toStringLocalDate() + "', '"
 					+ messageTime.toStringLocalTimeZ() + "', '" + msgbody + "','" + message.getId()
 					+ "'); } catch (error) {alert(error);} ";

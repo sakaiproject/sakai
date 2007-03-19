@@ -48,7 +48,53 @@
         </property>
     </bean>
     
-	<bean id="org.sakaiproject.chat.api.ChatService"
+    <bean id="org.sakaiproject.entity.api.EntityProducer.chat"
+      class="org.sakaiproject.chat2.model.impl.ChatEntityProducer"
+      init-method="init"
+		destroy-method="destroy"
+		singleton="true">
+      <property name="entityManager">
+         <ref bean="org.sakaiproject.entity.api.EntityManager"/>
+      </property>
+      <!-- 
+      <property name="httpAccess">
+         <ref bean="org.sakaiproject.entity.api.HttpAccess.ospMatrix" />
+      </property>
+      -->
+      <property name="chatManager"><ref bean="org.sakaiproject.chat2.model.ChatManager"/></property>
+   </bean>
+
+    <bean id="chatSearchAdapter"
+    	class="org.sakaiproject.chat2.model.impl.ChatContentProducer"
+    	singleton="true" init-method="init">
+    	<property name="addEvents">
+    		<list>
+    			<value>chat.new</value>
+    			<value>chat.revise.own</value>
+    			<value>chat.revise.any</value>
+    		</list>
+    	</property>
+    	<property name="removeEvents">
+    		<list>
+    			<value>chat.delete.own</value>
+    			<value>chat.delete.any</value>
+    		</list>
+    	</property>
+    	<property name="entityManager">
+         <ref bean="org.sakaiproject.entity.api.EntityManager"/>
+      </property>
+      <property name="chatManager">
+      	<ref bean="org.sakaiproject.chat2.model.ChatManager"/>
+      </property>
+      <property name="searchService">
+      	<ref bean="org.sakaiproject.search.api.SearchService" />
+      </property>
+      <property name="searchIndexBuilder">
+      	<ref bean="org.sakaiproject.search.api.SearchIndexBuilder" />
+      </property>
+    </bean>
+
+    <bean id="org.sakaiproject.chat.api.ChatService"
 			class="org.sakaiproject.chat.impl.DbChatService"
 			init-method="init"
 			destroy-method="destroy"

@@ -31,21 +31,21 @@
 				
 	            <h:panelGroup>
 	            	<t:radio for="filterType" index="0" />
-						<h:outputLabel value="#{ChatTool.showAllText}" />
+						<h:outputLabel value="#{msgs['custom.showall']}" />
 					</h:panelGroup>
 	            <h:panelGroup>
 	            	<t:radio for="filterType" index="1" />
-	            	<h:outputLabel value="#{ChatTool.showLastText} " />
+	            	<h:outputLabel value="#{msgs['custom.showlast']} " />
 	            	<h:inputText id="filterParam_last" size="3"
 	            		value="#{ChatTool.currentChannelEdit.filterParamLast}" />
-	            	<h:outputLabel value="#{ChatTool.showMessagesText}" />
+	            	<h:outputLabel value="#{msgs['custom.mess']}" />
 	            </h:panelGroup>
 	            <h:panelGroup>
 	            	<t:radio for="filterType" index="2" />
-	            	<h:outputLabel value="#{ChatTool.showPastText} " />
+	            	<h:outputLabel value="#{msgs['custom.showpast']} " />
 	            	<h:inputText id="filterParam_past" size="3"
 	            		value="#{ChatTool.currentChannelEdit.filterParamPast}" />
-	            	<h:outputLabel value="#{ChatTool.showDaysText}" />
+	            	<h:outputLabel value="#{msgs['custom.days']}" />
 	            </h:panelGroup>
 	         </h:panelGrid>
 					
@@ -57,10 +57,10 @@
 			<sakai:button_bar>
 				<sakai:button_bar_item id="submit"
 					action="#{ChatTool.processActionEditRoomSave}"
-					value="#{ChatTool.saveButtonText}" />
+					value="#{msgs['gen.save']}" />
 				<sakai:button_bar_item id="cancel"
 					action="#{ChatTool.processActionEditRoomCancel}"
-					value="#{ChatTool.cancelButtonText}" />
+					value="#{msgs['gen.cancel']}" />
 			</sakai:button_bar>
 		</h:form>
 	</sakai:view>

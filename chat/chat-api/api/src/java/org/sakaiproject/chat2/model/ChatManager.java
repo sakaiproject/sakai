@@ -24,7 +24,6 @@ package org.sakaiproject.chat2.model;
 import java.util.Date;
 import java.util.List;
 
-import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntitySummary;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.exception.PermissionException;
@@ -36,14 +35,17 @@ import org.sakaiproject.exception.PermissionException;
  * @author andersjb
  *
  */
-public interface ChatManager extends EntityProducer, EntitySummary, EntityTransferrer {
+public interface ChatManager extends EntitySummary, EntityTransferrer {
 
    /** The type string for this application: should not change over time as it may be stored in various parts of persistent entities. */
    static final String APPLICATION_ID = "sakai:chat";
    
    /** This string starts the references to resources in this service. */
    public static final String REFERENCE_ROOT = "/chat";
+   
    public static final String REF_TYPE_CHANNEL = "channel";
+   
+   public static final String CHAT = "chat";
    
    /** The Reference type for a messgae. */
    public static final String REF_TYPE_MESSAGE = "msg";
@@ -140,6 +142,16 @@ public interface ChatManager extends EntityProducer, EntitySummary, EntityTransf
    
    /**
     * gets the rooms associated with the context
+    * @param context Site the channel is in
+    * @param lazy boolean to load the messages lazily or not
+    * @return List of ChatChannel
+    */
+   
+   public List getContextChannels(String context, boolean lazy);
+   
+   /**
+    * Gets the rooms associated with the context
+    * If no rooms are found, one is created with the passed title
     * @param contextId Id
     * @param defaultNewTitle String the default name of a new ChatChannel
     * @return List of ChatChannel
@@ -179,5 +191,9 @@ public interface ChatManager extends EntityProducer, EntitySummary, EntityTransf
     * @return
     */
    public Date calculateDateByOffset(int offset);
+   
+   public String serviceName();
+   
+   public String getLabel();
    
 }

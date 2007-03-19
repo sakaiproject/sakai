@@ -24,10 +24,7 @@ function appendMessage(uname, uid, removeable, pdate, ptime, msg, msgId)
 {
 	var undefined;
 	var position = 100000, docheight = 0, frameheight = 300;	  
-	var chatList = document.getElementById("chatList");
-	// The JSF refactor has to put an additional form on the page, so the id needs to be augmented.
-	chatList = (chatList == null) ? document.getElementById("monitorForm:chatList") : chatList;
-	var transcript = (document.all) ? document.all.transcript : chatList;
+	var transcript = document.getElementById("topForm:chatList");
 	
 	// compose the time/date according to user preferences for this session
 	var msgTime = "";
@@ -44,79 +41,7 @@ function appendMessage(uname, uid, removeable, pdate, ptime, msg, msgId)
 		msgTime = " (" + ptime + ") " ;
 	}
 	
-	// find the user's current scroll-position within the chat log
-	if(navigator.appName == "Microsoft Internet Explorer" && navigator.userAgent.indexOf("Win") > -1 )
-	{
-		// WIN_IE 
-		position = document.documentElement.scrollTop;
-	}
-	else if(navigator.appName == "Microsoft Internet Explorer" && navigator.userAgent.indexOf("Mac") > -1 )
-	{
-		// MAC_IE 
-		position = document.body.scrollTop ;
-	}
-	else if(window.pageYOffset != undefined)
-	{
-		// WIN_MZ 
-		// WIN_NN
-		position = window.pageYOffset;
-	}
-	else if(document.documentElement)
-	{
-		position = document.documentElement.scrollTop;
-	}
-	else if(document.body.scrollTop != undefined)
-	{
-		position = document.body.scrollTop;
-	}
-	
-	// find the height of the frame containing the chat log
-	if(navigator.appName == "Microsoft Internet Explorer" && navigator.userAgent.indexOf("Win") > -1 )
-	{
-		// WIN_IE
-		if(document.documentElement && document.documentElement.clientHeight)
-		{
-			frameheight = document.documentElement.clientHeight;
-		}
-		else if(window.contentDocument && window.contentDocument.clientHeight)
-		{
-			frameheight = window.contentDocument.clientHeight;
-		}
-	}
-	else if(navigator.appName == "Microsoft Internet Explorer" && navigator.userAgent.indexOf("Mac") > -1 )
-	{
-		// MAC_IE
-		frameheight = document.body.clientHeight ;
-	}
-	else if(window.innerHeight != undefined)
-	{
-		// WIN_MZ 
-		// WIN_NN
-		frameheight = window.innerHeight;
-	}
-	else if(document.body.parentNode != undefined && document.body.parentNode.clientHeight != undefined)
-	{
-		frameheight = document.body.parentNode.clientHeight;
-	}
-	
-	// find the overall size (height) of the chat log
-	if(document.body.offsetHeight)
-	{
-		// MAC_IE
-		// WIN_IE
-		// WIN_MZ
-		// WIN_NN
-		docheight = document.body.offsetHeight;
-	}
-	else if(document.offsetHeight)
-	{
-		docheight = document.offsetHeight;
-	}
-	else if(document.height)
-	{
-		docheight = document.height;
-	}
-	
+
 	var newDiv = document.createElement('li');
 	var color = ColorMap[uid];
 	if(color == null)
@@ -132,8 +57,8 @@ function appendMessage(uname, uid, removeable, pdate, ptime, msg, msgId)
 	var deleteHtml = "";
 	if (removeable == "true")
 	{
-		var builtId = "monitorForm:chatList:" + msgId + ":deleteMessage";
-		deleteUrl = "document.forms['monitorForm']['monitorForm:_idcl'].value='" + builtId + "'; document.forms['monitorForm'].submit(); return false;";
+		var builtId = "topForm:chatList:" + msgId + ":deleteMessage";
+		deleteUrl = "document.forms['topForm']['topForm:_idcl'].value='" + builtId + "'; document.forms['topForm'].submit(); return false;";
 		deleteHtml = 
 			" <a id=\"" + builtId + "\" href=\"#\" onclick=\"" + deleteUrl + "\" title=\"" + deleteMsg + "\" >" +
 			"<img src=\"/library/image/sakai/delete.gif\" border=\"0\" alt=\"" + deleteMsg + "\" /></a>";
@@ -146,26 +71,9 @@ function appendMessage(uname, uid, removeable, pdate, ptime, msg, msgId)
 	transcript.appendChild(newDiv);
 
 	// adjust scroll
-	if(position >= docheight - frameheight)
-	{
-		if(document.body.offsetHeight)
-		{
-			// MAC_IE
-			// WIN_IE
-			// WIN_MZ
-			// WIN_NN
-			position = document.body.offsetHeight;
-		}
-		else if(document.offsetHeight)
-		{
-			position = document.offsetHeight;
-		}
-		else if(document.height)
-		{
-			position = document.height;
-		}
-	}
-	window.scrollTo(0, position);
+	var objDiv = document.getElementById("chatListWrapper");
+   objDiv.scrollTop = objDiv.scrollHeight;
+
 }
 
 function escapeHTML(text) {

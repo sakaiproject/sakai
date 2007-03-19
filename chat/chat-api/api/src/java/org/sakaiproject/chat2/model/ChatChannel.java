@@ -183,8 +183,8 @@ public class ChatChannel implements Entity {
     * @see org.sakaiproject.entity.api.Entity#getReference()
     */
    public String getReference() {
-      // TODO Auto-generated method stub
-      return null;
+      return ChatManager.REFERENCE_ROOT + Entity.SEPARATOR + ChatManager.REF_TYPE_CHANNEL + Entity.SEPARATOR + context + Entity.SEPARATOR + id;
+
    }
 
    /* (non-Javadoc)

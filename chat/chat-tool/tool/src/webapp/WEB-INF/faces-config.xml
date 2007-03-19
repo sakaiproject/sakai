@@ -62,16 +62,6 @@
       <redirect/>
     </navigation-case>
     <navigation-case>
-      <from-outcome>roomUsers</from-outcome>
-      <to-view-id>/jsp/roomUsers.jsp</to-view-id>
-      <redirect/>
-    </navigation-case>
-    <navigation-case>
-      <from-outcome>roomMonitor</from-outcome>
-      <to-view-id>/jsp/roomMonitor.jsp</to-view-id>
-      <redirect/>
-    </navigation-case>
-    <navigation-case>
       <from-outcome>roomControl</from-outcome>
       <to-view-id>/jsp/roomControl.jsp</to-view-id>
       <redirect/>

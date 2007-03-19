@@ -27,7 +27,7 @@
 					value="#{msgs.update_text}" />
 				<sakai:button_bar_item id="reset"
 					action="#{ChatTool.processActionSynopticOptionsCancel}"
-					value="#{ChatTool.cancelButtonText}" />
+					value="#{msgs['gen.cancel']}" />
 			</sakai:button_bar>
 
 		</h:form>

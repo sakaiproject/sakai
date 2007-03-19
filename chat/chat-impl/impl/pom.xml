@@ -90,6 +90,19 @@
       <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
+    
+    <dependency>
+           <groupId>org.sakaiproject</groupId>
+           <artifactId>sakai-search-api</artifactId>
+           <version>${sakai.version}</version>
+       </dependency>
+
+		<dependency>
+           <groupId>org.sakaiproject</groupId>
+           <artifactId>sakai-search-impl</artifactId>
+           <version>${sakai.version}</version>
+       </dependency>
+       
     <dependency>
       
       <groupId>org.sakaiproject</groupId>
@@ -189,6 +202,12 @@
           <include>**/*.sql</include>
         </includes>
       </resource>
+      <resource>
+			<directory>${basedir}/src/bundle</directory>
+			<includes>
+				<include>**/*.properties</include>
+			</includes>
+		</resource>
     </resources>
     
   </build>

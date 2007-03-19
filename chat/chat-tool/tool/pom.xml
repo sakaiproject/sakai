@@ -24,6 +24,13 @@
       <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
+    
+    	<dependency>
+			<groupId>org.sakaiproject</groupId>
+			<artifactId>sakai-chat-impl</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		
     <dependency>
       
       <groupId>org.sakaiproject</groupId>

@@ -1,5 +1,5 @@
 <f:view>
-   <sakai:view title="#{ChatTool.customChatroomText}">
+   <sakai:view title="#{msgs['custom.chatroom']}">
       <h:form>
       
          <sakai:tool_bar>

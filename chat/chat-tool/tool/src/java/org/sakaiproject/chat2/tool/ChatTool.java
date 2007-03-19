@@ -24,7 +24,6 @@ package org.sakaiproject.chat2.tool;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -108,10 +107,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    private static final String PAGE_EDIT_A_ROOM = "editRoom";
    private static final String PAGE_MANAGE_TOOL = "toolOptions";
    private static final String PAGE_ENTER_ROOM = "room";
-   private static final String PAGE_ROOM_USERS = "roomUsers";
-   private static final String PAGE_ROOM_MONITOR = "roomMonitor";
    private static final String PAGE_ROOM_CONTROL = "roomControl";
-   private static final String PAGE_ROOM_ACTIONS = "roomActions";
    private static final String PAGE_EDIT_ROOM = "editRoom";
    private static final String PAGE_DELETE_ROOM_CONFIRM = "deleteRoomConfirm";
    private static final String PAGE_DELETE_MESSAGE_CONFIRM = "deleteMessageConfirm";
@@ -152,9 +148,6 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    private DecoratedChatMessage currentMessage = null;
    
    private DecoratedSynopticOptions currentSynopticOptions = null;
-   
-   /** The next Channel to move into */
-   private String nextChatChannel = null;
    
    /** The location where the new message text goes */
    private String newMessageText = "";
@@ -236,8 +229,9 @@ public class ChatTool implements RoomObserver, PresenceObserver {
     */
    public List getUsersInCurrentChannel()
    {
-      if(presenceChannelObserver == null)
+      if(!refreshPresence()) {
          return new ArrayList();
+      }
       
       presenceChannelObserver.updatePresence();
       
@@ -248,6 +242,24 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       List users = presenceChannelObserver.getPresentUsers();
       
       return users;
+   }
+   
+   protected boolean refreshPresence() {
+      if (getCurrentChannel() == null) {
+         ChatChannel defaultChannel = getChatManager().getDefaultChannel(
+               getToolManager().getCurrentPlacement().getContext());
+         setCurrentChannel(defaultChannel);
+      }
+      if(getCurrentChannel() != null) {
+         // place a presence observer on this tool.
+         presenceChannelObserver = new PresenceObserverHelper(this,
+               getCurrentChannel().getId());
+         
+         getChatManager().addRoomListener(this, getCurrentChannel().getId());
+         return true;
+         //presenceChannelObserver.updatePresence();
+      }
+      return false;
    }
    
 
@@ -327,38 +339,6 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       }
       
       else return true;
-   }
-   
-   /**
-    * When the user selects a new room to go into
-    * @return String next page
-    */
-   public String processActionChangeChannel()
-   {
-      clearToolVars();
-      
-      
-      ChatChannel nextChannel = getChatManager().getChatChannel(nextChatChannel);
-  
-//    Why aren't we just looking it up?
-/*      
-      ChatChannel nextChannel = null;
-      for(Iterator i = getToolChannels().iterator(); i.hasNext(); ) {
-         ChatChannel channel = (ChatChannel)i.next();
-         if(channel.getId().getValue().equals(nextChatChannel)) {
-            nextChannel = channel;
-            break;
-         }
-      }
-*/  
-      if(nextChannel == null) {
-         selectedRoomNotAvailable = true;
-         return PAGE_MANAGE_TOOL;
-      }
-      setCurrentChannel(nextChannel);
-      
-      return PAGE_ENTER_ROOM;
-      
    }
    
    /**
@@ -612,7 +592,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    {
       try {
          getChatManager().deleteMessage(getCurrentMessage().getChatMessage());
-         return PAGE_ROOM_MONITOR;
+         return PAGE_ENTER_ROOM;
       }
       catch (PermissionException e) {
          setErrorMessage(PERMISSION_ERROR, new String[] {ChatFunctions.CHAT_FUNCTION_DELETE_PREFIX});
@@ -639,7 +619,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    public String processActionDeleteMessageCancel()
    {
       setCurrentMessage(null);
-      return PAGE_ROOM_MONITOR;
+      return PAGE_ENTER_ROOM;
    }
 
    
@@ -673,14 +653,6 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    }
    
    /**
-    * sets the new channel.  it gets stored until the user clicks processActionChangeChannel
-    * @param newChatChannelId
-    */
-   public void setCurrentChatChannelId(String newChatChannelId) {
-      this.nextChatChannel = newChatChannelId;
-   }
-   
-   /**
     * gets the current channel
     * @return ChatChannel
     */
@@ -690,16 +662,15 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    }
    
    /**
-    * Implements a change of the chat room.  It removes presense from the prior room,
+    * Implements a change of the chat room.  It removes presence from the prior room,
     *  adds observation of the new room, and then becomes present in the new room
     * @param channel
     */
    public void setCurrentChannel(ChatChannel channel)
    {
       if(presenceChannelObserver != null) {
+         presenceChannelObserver.endObservation();
          presenceChannelObserver.removePresence();
-         //it seems that removePresence above will call endObservation on its own somwehere
-         //presenceChannelObserver.endObservation();
          getChatManager().removeRoomListener(this, channel.getId());
       }
       presenceChannelObserver = null;
@@ -955,7 +926,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
 
    public boolean getCanRead(ChatChannel channel)
    {
-      return getChatManager().getCanCreateChannel();
+      return getChatManager().getCanReadMessage(channel);
    }
    
    public boolean getMaintainer()
@@ -974,102 +945,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       }
       return sender.getDisplayName();
    }
-   /*
-    * 
-    * 
-    * 
-      String skin = null;
-      try {
-         skin = getCurrentSite().getSkin();
-      }
-      catch (NullPointerException npe) {
-         //Couldn't find the site, just use default skin
-      }
-      if (skin == null || skin.length() == 0) {
-         skin = ServerConfigurationService.getString("skin.default");
-      }
-      String skinRepo = ServerConfigurationService.getString("skin.repo");
-      Element uri = new Element("uri");
-      uri.setText(skinRepo + "/tool_base.css");
-      css.addContent(uri);
-      uri = new Element("uri");
-      uri.setText(skinRepo + "/" + skin + "/tool.css");
-    */
 
-   
-   public String getDeleteText()
-   {
-      return getMessageFromBundle("list.del");
-   }
-   
-   public String getDeletePageTitle() {
-      return getMessageFromBundle("delete.delete");
-   }
-   
-   public String getDeletePageConfirmAlert() {
-      return getMessageFromBundle("delete.sure");
-   }
-   
-   public String getDeleteButtonText() {
-      return getMessageFromBundle("gen.delete");
-   }
-
-   public String getEditButtonText()
-   {
-      return getMessageFromBundle("gen.edit");
-   }
-   
-   public String getSaveButtonText() {
-      return getMessageFromBundle("gen.save");
-   }
-   
-   public String getFromLabelText() {
-      return getMessageFromBundle("gen.from");
-   }
-   
-   public String getDateLabelText() {
-      return getMessageFromBundle("gen.date");
-   }
-
-   public String getMessageLabelText() {
-      return getMessageFromBundle("gen.mess");
-   }
-   
-   public String getAddMessageButtonText() {
-      return getMessageFromBundle("control.post");
-   }
-   
-   public String getCancelButtonText() {
-      return getMessageFromBundle("gen.cancel");
-   }
-   
-   public String getClearButtonText() {
-      return getMessageFromBundle("control.clear");
-   }
-   
-   public String getCustomChatroomText() {
-      return getMessageFromBundle("custom.chatroom");
-   }
-   
-   public String getShowAllText() {
-      return getMessageFromBundle("custom.showall");
-   }
-   
-   public String getShowLastText() {
-      return getMessageFromBundle("custom.showlast");
-   }
-   
-   public String getShowPastText() {
-      return getMessageFromBundle("custom.showpast");
-   }
-   
-   public String getShowMessagesText() {
-      return getMessageFromBundle("custom.mess");
-   }
-
-   public String getShowDaysText() {
-      return getMessageFromBundle("custom.days");
-   }
    
    public String getPast3DaysText() {
       return getPastXDaysText(3);

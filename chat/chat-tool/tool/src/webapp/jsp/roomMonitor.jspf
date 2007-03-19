@@ -1,6 +1,5 @@
-<f:view>
-	<sakai:view title="#{msgs.monitor_panel}">
-	<h:form id="monitorForm">
+
+
 	<!--[if lte IE 6]>
 		<script type="text/javascript" language="JavaScript">
 			document.body.style.width='97%'
@@ -8,12 +7,9 @@
 	<![endif]--> 
 	
 <script type="text/javascript" language="JavaScript">
-doubleDeep = true;
-// set for the chatscript.js
-//TODO not sure how to get the deleteUrl to work properly since JSF 
-// doesn't use the href.location???
 
-deleteMsg = "<h:outputText value="#{ChatTool.deleteText}" />";
+// set for the chatscript.js
+deleteMsg = "<h:outputText value="#{msgs['list.del']}" />";
 </script>
 
 	<script  type="text/javascript" language="JavaScript" src="/sakai-chat-tool/js/chatscript.js"></script>
@@ -26,10 +22,10 @@ deleteMsg = "<h:outputText value="#{ChatTool.deleteText}" />";
 				<h:outputText value="#{message.owner} "
 					style="color: #{message.color}" />
 
-				<h:commandLink id="deleteMessage" title="#{ChatTool.deleteText}"
+				<h:commandLink id="deleteMessage" title="#{msgs['list.del']}"
 					action="#{message.processActionDeleteMessage}"
 					rendered="#{message.canRemoveMessage}">
-					<h:graphicImage id="deleteIcon" alt="#{ChatTool.deleteText}"
+					<h:graphicImage id="deleteIcon" alt="#{msgs['list.del']}"
 						value="#{ChatTool.serverUrl}/library/image/sakai/delete.gif" />
 				</h:commandLink>
 
@@ -63,41 +59,12 @@ deleteMsg = "<h:outputText value="#{ChatTool.deleteText}" />";
 		var display_date = <c:out value="${ChatTool.displayDate}" />;
 		var display_time = <c:out value="${ChatTool.displayTime}" />;
 		var sound_alert = <c:out value="${ChatTool.soundAlert}" />;
-	
-		var docbottom = 100000;
 		
-		// some of these can be eliminated after verifying that 
-		// the browsers that are working now are not using them
-		if(document.body.offsetHeight)
-		{
-			// MAC_IE MAC_MZ WIN_IE WIN_MZ WIN_NN
-			docbottom = document.body.offsetHeight;
-		}
-		else if(document.offsetHeight)
-		{
-			docbottom = document.offsetHeight;
-		}
-		else if(document.height)
-		{
-			docbottom = document.height;
-		}
-		else if(document.body.scrollHeight)
-		{
-			docbottom = document.body.scrollHeight;
-		}
-		else if(document.clientHeight)
-		{
-			docbottom = document.clientHeight;
-		}
-		else if(document.clientHeight)
-		{
-			docbottom = document.clientHeight;
-		}
-		window.scrollTo(0, docbottom);
+		var objDiv = document.getElementById("chatListWrapper");
+   	objDiv.scrollTop = objDiv.scrollHeight;
 	</script>
-	</h:form>
-	</sakai:view>
-</f:view>
+
+
 <%--
 
 JSPs needed

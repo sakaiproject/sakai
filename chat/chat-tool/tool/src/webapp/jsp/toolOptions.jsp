@@ -19,7 +19,7 @@
 				styleClass="lines listHier" headerClass="exclude">
 				<h:column>
 					<f:facet name="header">
-						<h:outputText value="#{ChatTool.customChatroomText}" />
+						<h:outputText value="#{msgs['custom.chatroom']}" />
 					</f:facet>
 
 					<f:subview id="enterRoomLink" rendered="#{channel.canRead}">
@@ -35,12 +35,12 @@
 					</f:verbatim>
 					<f:subview id="editLink" rendered="#{channel.canEdit}">
 						<h:commandLink action="#{channel.processActionEditRoom}">
-							<h:outputText value="#{ChatTool.editButtonText}" />
+							<h:outputText value="#{msgs['gen.edit']}" />
 						</h:commandLink>
 					</f:subview>
 					<f:subview id="deleteLink" rendered="#{channel.canDelete}">
 						<h:commandLink action="#{channel.processActionDeleteRoom}">
-							<h:outputText value="#{ChatTool.deleteButtonText}" />
+							<h:outputText value="#{msgs['gen.delete']}" />
 						</h:commandLink>
 					</f:subview>
 					<f:subview id="defaultLink" rendered="#{!channel.chatChannel.contextDefaultChannel && ChatTool.maintainer}">
