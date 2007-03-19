@@ -35,9 +35,14 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-component-api</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-component</artifactId>
       <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
@@ -88,6 +93,12 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-util-api</artifactId>
       <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+	<groupId>org.sakaiproject</groupId>
+	<artifactId>sakai-scheduler-api</artifactId>
+	<version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
