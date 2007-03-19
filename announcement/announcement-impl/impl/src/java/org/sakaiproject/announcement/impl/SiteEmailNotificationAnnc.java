@@ -134,14 +134,13 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		AnnouncementMessageEdit msg = (AnnouncementMessageEdit) ref.getEntity();
 		AnnouncementMessageHeader hdr = (AnnouncementMessageHeader) msg.getAnnouncementHeader();
 
-		// do not do notification for draft messages
+		// do not do notification for hidden (draft) messages
 		if (hdr.getDraft()) return;
 
+		// Put here since if release date after now, do not notify
+		// since scheduled notification has been set.
 		Time now = TimeService.newTime();
 		
-		// Need to check, is this condition necessary?
-		// Put here since if scheduled notification, do not notify.
-		// But will it get here only if not scheduled?
 		if (now.after(hdr.getDate()))
 		{
 			super.notify(notification, event);
@@ -347,16 +346,16 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	public void execute(String opaqueContext) 
 	{
 		// get the message
-		Reference ref = EntityManager.newReference(opaqueContext);
+		final Reference ref = EntityManager.newReference(opaqueContext);
 		
 		// needed to access the message
 		enableSecurityAdvisor();
 		
-		AnnouncementMessage msg = (AnnouncementMessage) ref.getEntity();
-		AnnouncementMessageHeader hdr = (AnnouncementMessageHeader) msg.getAnnouncementHeader();
+		final AnnouncementMessage msg = (AnnouncementMessage) ref.getEntity();
+		final AnnouncementMessageHeader hdr = (AnnouncementMessageHeader) msg.getAnnouncementHeader();
 
 		// read the notification options
-		String notification = msg.getProperties().getProperty("notification");
+		final String notification = msg.getProperties().getProperty("notificationLevel");
 
 		int noti = NotificationService.NOTI_OPTIONAL;
 		if ("r".equals(notification))
@@ -368,10 +367,10 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 			noti = NotificationService.NOTI_NONE;
 		}
 			
-		Event event = EventTrackingService.newEvent("annc.schInv.notify", msg.getReference(), true, noti);
+		final Event event = EventTrackingService.newEvent("annc.schInv.notify", msg.getReference(), true, noti);
 		EventTrackingService.post(event);
 
-		NotificationService notificationService = (NotificationService) ComponentManager.get(org.sakaiproject.event.api.NotificationService.class);
+		final NotificationService notificationService = (NotificationService) ComponentManager.get(org.sakaiproject.event.api.NotificationService.class);
 		NotificationEdit notify = notificationService.addTransientNotification();
 		
 		super.notify(notify, event);
