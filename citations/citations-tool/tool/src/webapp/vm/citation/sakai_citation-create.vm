@@ -58,10 +58,20 @@
 		</div>
 	</div>
 	<div class="indnt1">
-		<h3>Add citation </h3>
-		<h4></h4>
+		<h3>$tlang.getString( "title.create" )</h3>
 	
-			<span class="reqStar">*</span>
+		<p class="instruction">$tlang.getFormattedMessage( "instr.edit", $instrArgs )</p>
+		
+		<p class="act">
+			<input type="button" class="active" name="Submit" id="Submit"
+			  value="$tlang.getString("submit.create")"
+			  onclick="document.getElementById('sakai_action').value='doCreateCitation';submitform('$FORM_NAME');"
+			/>
+			<input type="button" name="CancelCitation" id="CancelCitation"
+			  value="$tlang.getString("cancel.create")"
+			  onclick="document.getElementById('sakai_action').value='doAddCitations';submitform('$FORM_NAME');"
+			/>
+		</p>
 	
 		<form name="$FORM_NAME" id="$FORM_NAME" method="post" action="#toolForm("CitationHelperAction")">
 			<input name="sakai_action" id="sakai_action" value="doCreateCitation" type="hidden" />
@@ -171,11 +181,14 @@
 			</div>
 			<input type="hidden" name="url_count" id="url_count" value="$count" />
 	 		<p class="act">
-				<input type="button" name="Search" id="Search"  value="$tlang.getString("label.continue")" onclick="document.getElementById('sakai_action').value='doCreateCitation';submitform('$FORM_NAME');" />
-				<input type="button" name="Cancel" id="Cancel"  value="$tlang.getString("label.cancel")" onclick="document.getElementById('sakai_action').value='doBack';submitform('$FORM_NAME');"  />
-	    		#if($showBackButton)
-	    			<input type="button" name="Back" id="Back" value="$tlang.getString("label.back")" onclick="document.getElementById('sakai_action').value='doBack';submitform('$FORM_NAME');" />
-	    		#end
+				<input type="button" class="active" name="Submit" id="Submit"
+				  value="$tlang.getString("submit.create")"
+				  onclick="document.getElementById('sakai_action').value='doCreateCitation';submitform('$FORM_NAME');"
+				/>
+				<input type="button" name="CancelCitation" id="CancelCitation"
+				  value="$tlang.getString("cancel.create")"
+				  onclick="document.getElementById('sakai_action').value='doAddCitations';submitform('$FORM_NAME');"
+				/>
 	    	</p>
 		</form>
 		<div id="scratch_space">

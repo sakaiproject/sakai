@@ -58,10 +58,17 @@
       <input type="button" name="Back" id="Back" value="$tlang.getString("label.new.search")"
         onclick="javascript: showSpinner( '.processing' ); document.getElementById('sakai_action').value='doSearch';submitform('$FORM_NAME');"
       />
+      #if( $resourcesAddAction )
       <input type="button" name="Cancel" id="Cancel"
         value="$tlang.getString("label.cancel")"
         onclick="javascript: showSpinner( '.processing' ); document.getElementById('sakai_action').value='doCancel'; submitform('$FORM_NAME');"
       />
+      #else
+      <input type="button" name="Done" id="Done"
+        value="$tlang.getString("label.done")"
+        onclick="javascript: document.getElementById('sakai_action').value='doFinish'; submitform('$FORM_NAME');"
+      />
+      #end      
       <span class="processing" style="display: none;">
         <img src="/library/image/sakai/spinner.gif" alt="$tlang.getString( "label.process" )" />
         $tlang.getString( "label.process" )

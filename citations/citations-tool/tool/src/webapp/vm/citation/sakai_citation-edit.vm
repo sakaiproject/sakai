@@ -63,8 +63,20 @@
 	</div>
 	<div class="indnt1">
 		<h3>$tlang.getString("title.edit")</h3>
-##			<span class="reqStar">*</span>
-	
+
+		<p class="instruction">$tlang.getFormattedMessage( "instr.edit", $instrArgs )</p>
+		
+		<p class="act">
+			<input class="active" type="button" name="Save" id="Save"
+			 value="$tlang.getString("submit.edit")"
+			 onclick="document.getElementById('sakai_action').value='doReviseCitation'; submitform('$FORM_NAME');"
+			/>
+			<input type="button" name="Cancel" id="Cancel"
+			  value="$tlang.getString("cancel.edit")"
+			  onclick="document.getElementById('sakai_action').value='doList'; submitform('$FORM_NAME');"
+			/>
+		</p>
+		
 		<form name="$FORM_NAME" id="$FORM_NAME" method="post" action="#toolForm("CitationHelperAction")">
 			<input name="sakai_action" id="sakai_action" value="doReviseCitation" type="hidden" />
 			<p class="shorttext">

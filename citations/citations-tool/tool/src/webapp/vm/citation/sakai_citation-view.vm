@@ -32,6 +32,17 @@
 	<div class="indnt1">
 		<h3>$tlang.getString("title.view")</h3>
 		
+		<p class="act">
+			<input class="active" type="button" name="Back" id="Back"
+			  value="$tlang.getString("label.back")"
+			  onclick="document.getElementById('sakai_action').value='doList'; submitform('$FORM_NAME');"
+			/>
+			<input type="button" name="Edit" id="Edit"
+			  value="$tlang.getString("label.edit.view")"
+			  onclick="document.getElementById('sakai_action').value='doEdit'; submitform('$FORM_NAME');"
+			/>
+		</p>
+		
 		#parse( "vm/citation/sakai_citation-_citation.vm" )
 
 		<form name="$FORM_NAME" id="$FORM_NAME" action="#toolForm("CitationHelperAction")" method="post">

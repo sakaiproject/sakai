@@ -37,7 +37,10 @@
 		#else
 			<p class="instruction">$tlang.getFormattedMessage( "empty.list", $emptyListArgs )</p>
 		#end
+		
+		#if( $resourcesAddAction )
 		<p class="instruction">$tlang.getFormattedMessage( "instr.sub.review", $instrSubArgs )</p>
+		#end
 		
 		<form name="$FORM_NAME" id="$FORM_NAME" action="#toolForm("CitationHelperAction")" method="post">
 			<input name="sakai_action" id="sakai_action" value="" type="hidden" />
@@ -45,47 +48,71 @@
 			<input name="collectionId" id="collectionId" value="$collectionId" type="hidden" />
 			<input name="$!{specialHelperFlag}" id="$!{specialHelperFlag}" value="$!{citationToolId}" type="hidden" />
 			<div class="act">
+				#if( $resourcesAddAction )
 				<input class="active" type="button" name="Finish" id="Finish"
 				  value="$tlang.getString("label.finish")"
 				  onclick="document.getElementById('sakai_action').value='doFinish'; submitform('$FORM_NAME');"
 				/>
+				#else
+				<input class="active" type="button" name="Done" id="Done"
+				  value="$tlang.getString("label.done")"
+				  onclick="document.getElementById('sakai_action').value='doFinish'; submitform('$FORM_NAME');"
+				/>
+				#end
+				
 				#if( $searchResults )
 				  <input type="button" name="Back" id="Back"
 				    value="$tlang.getString("label.back.results")"
 				    onclick="document.getElementById('sakai_action').value='doResults'; submitform('$FORM_NAME');"
 				  />
 				#end
+				
 				<input type="button" name="AddCitations" id="AddCitations"
 				  value="$tlang.getString("label.menu")"
 				  onclick="document.getElementById('sakai_action').value='doAddCitations'; submitform('$FORM_NAME');"
 				/>
+				
+				#if( $resourcesAddAction )
 				<input type="button" name="Cancel" id="Cancel"
 				  value="$tlang.getString("label.cancel")"
 				  onclick="document.getElementById('sakai_action').value='doCancel'; submitform('$FORM_NAME');"
 				/>
+				#end				
 			</div>
 
 			#parse( "vm/citation/sakai_citation-_listCitations.vm" )
 			
 			<div class="act">
+				#if( $resourcesAddAction )
 				<input class="active" type="button" name="Finish" id="Finish"
 				  value="$tlang.getString("label.finish")"
 				  onclick="document.getElementById('sakai_action').value='doFinish'; submitform('$FORM_NAME');"
 				/>
+				#else
+				<input class="active" type="button" name="Done" id="Done"
+				  value="$tlang.getString("label.done")"
+				  onclick="document.getElementById('sakai_action').value='doFinish'; submitform('$FORM_NAME');"
+				/>
+				#end
+				
 				#if( $searchResults )
 				  <input type="button" name="Back" id="Back"
 				    value="$tlang.getString("label.back.results")"
 				    onclick="document.getElementById('sakai_action').value='doResults'; submitform('$FORM_NAME');"
 				  />
 				#end
+				
 				<input type="button" name="AddCitations" id="AddCitations"
 				  value="$tlang.getString("label.menu")"
 				  onclick="document.getElementById('sakai_action').value='doAddCitations'; submitform('$FORM_NAME');"
 				/>
+				
+				#if( $resourcesAddAction )
 				<input type="button" name="Cancel" id="Cancel"
 				  value="$tlang.getString("label.cancel")"
 				  onclick="document.getElementById('sakai_action').value='doCancel'; submitform('$FORM_NAME');"
 				/>
+				#end				
 			</div>
 		</form>
 	</div>

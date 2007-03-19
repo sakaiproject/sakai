@@ -46,7 +46,11 @@ doubleDeep = true;
 		</table>
 
 		<p class="instruction">
-			$tlang.getString("instr.menu")
+			#if( $resourcesAddAction )
+				$tlang.getString("instr.add.menu")
+			#else
+				$tlang.getString( "instr.revise.menu" )
+			#end
 		</p>
 
 		<form name="$FORM_NAME" id="$FORM_NAME" action="#toolForm("CitationHelperAction")" method="post">
@@ -72,7 +76,10 @@ doubleDeep = true;
 			  <tr valign="middle">
 			    <td align="center">
 			      <div class="act">
-				    <input type="button" name="SearchGoogle" id="SearchGoogle"  value="$tlang.getString("action.google")" onclick="openWindow('$googleUrl','$tlang.getString("action.google")','scrollbars,toolbar,resizable,height=600,width=800');"  />
+				    <input type="button" name="SearchGoogle" id="SearchGoogle"
+				      value="$tlang.getString("action.google")"
+				      onclick="openWindow('$googleUrl','$tlang.getString("action.google")','scrollbars,toolbar,resizable,height=600,width=800');"
+				    />
 			      </div>
 			    </td>
 			    <td>$tlang.getFormattedMessage("description.google",$googleArgs)</td>
@@ -82,7 +89,10 @@ doubleDeep = true;
 			  <tr valign="middle">
 			    <td align="center">
 			      <div class="act">
-				    <input type="button" name="CreateCitation" id="CreateCitation"  value="$tlang.getString("action.create")" onclick="document.getElementById('sakai_action').value='doCreate';submitform('$FORM_NAME');"  />
+				    <input type="button" name="CreateCitation" id="CreateCitation"
+				      value="$tlang.getString("action.create")"
+				      onclick="document.getElementById('sakai_action').value='doCreate';submitform('$FORM_NAME');"
+				    />
 			      </div>
 			    </td>
 			    <td>$tlang.getString("description.create")</td>
@@ -90,8 +100,21 @@ doubleDeep = true;
 			</table>
 			<hr />
 			<div class="act">
-	    		<input type="button" class="active" name="Continue" id="Continue" value="$tlang.getString("label.review")" onclick="document.getElementById('sakai_action').value='doList';submitform('$FORM_NAME');" />
-				<input type="button" name="Cancel" id="Cancel"  value="$tlang.getString("label.cancel")" onclick="document.getElementById('sakai_action').value='doCancel';submitform('$FORM_NAME');"  />
+	    		<input type="button" class="active" name="Continue" id="Continue"
+	    		  value="$tlang.getString("label.review")"
+	    		  onclick="document.getElementById('sakai_action').value='doList';submitform('$FORM_NAME');"
+	    		/>
+	    		#if( $resourcesAddAction )
+				<input type="button" name="Cancel" id="Cancel"
+				  value="$tlang.getString("label.cancel")"
+				  onclick="document.getElementById('sakai_action').value='doCancel';submitform('$FORM_NAME');"
+				/>
+				#else
+				<input type="button" name="Done" id="Done"
+				  value="$tlang.getString("label.done")"
+				  onclick="document.getElementById('sakai_action').value='doFinish';submitform('$FORM_NAME');"
+				/>
+				#end				
 			</div>
 		</form>
 		<div id="scratch_space">

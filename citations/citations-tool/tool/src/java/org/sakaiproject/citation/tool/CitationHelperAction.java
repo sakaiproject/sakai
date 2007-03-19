@@ -470,7 +470,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	}
 	
 	protected static final String PARAM_FORM_NAME = "FORM_NAME";
-	
+
+	protected static final String STATE_RESOURCES_ADD = CitationHelper.CITATION_PREFIX + "resources_add";
 	protected static final String STATE_CURRENT_DATABASES = CitationHelper.CITATION_PREFIX + "current_databases";
 	protected static final String STATE_BACK_BUTTON_STACK = CitationHelper.CITATION_PREFIX + "back-button_stack";
 	protected static final String STATE_COLLECTION_ID = CitationHelper.CITATION_PREFIX + "collection_id";
@@ -738,9 +739,12 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		List schemas = CitationService.getSchemas();
 		context.put("TEMPLATES", schemas);
 		
-		
 		Schema defaultSchema = CitationService.getDefaultSchema();
 		context.put("DEFAULT_TEMPLATE", defaultSchema);
+		
+		// Object array for instruction message
+		Object[] instrArgs = { rb.getString( "submit.create" ) };
+		context.put( "instrArgs", instrArgs );
 
 		return TEMPLATE_CREATE;
 		
@@ -824,11 +828,14 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		context.put("citationId", citationId);
 		context.put("collectionId", collectionId);
 
-		
 		List schemas = CitationService.getSchemas();
 		context.put("TEMPLATES", schemas);
 		
 		context.put("DEFAULT_TEMPLATE", citation.getSchema());
+		
+		// Object array for formatted instruction
+		Object[] instrArgs = { rb.getString( "submit.edit" ) };
+		context.put( "instrArgs", instrArgs );
 
 	    return TEMPLATE_EDIT;
     }
@@ -972,6 +979,12 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		//context.put("citationToolId", CitationHelper.CITATION_ID);
 		//context.put("specialHelperFlag", CitationHelper.SPECIAL_HELPER_ID);
 		
+		// always put whether this is a Resources Add or Revise operation
+		if( state.getAttribute( STATE_RESOURCES_ADD ) != null )
+		{
+			context.put( "resourcesAddAction", Boolean.TRUE );
+		}
+
 		if(showBackButton(state))
 		{
 			context.put("showBackButton", Boolean.TRUE);
@@ -2793,6 +2806,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	                {
 	                    logger.warn("ServerOverloadException ", e);
 	                }
+	                state.setAttribute( STATE_RESOURCES_ADD, Boolean.TRUE );
 					setMode(state, Mode.ADD_CITATIONS);
 					break;
 				case REVISE_CONTENT:
@@ -2805,6 +2819,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	                {
 	                    logger.warn("ServerOverloadException ", e);
 	                }
+	                state.removeAttribute( STATE_RESOURCES_ADD );
 					setMode(state, Mode.LIST);
 					break;
 				default:

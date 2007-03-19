@@ -76,10 +76,17 @@
         value="$tlang.getString("label.back.search")"
         onclick="javascript: document.getElementById('sakai_action').value='doAddCitations';submitform('$FORM_NAME');"
       />
+      #if( $resourcesAddAction )
       <input type="button" name="Cancel" id="Cancel"
         value="$tlang.getString("label.cancel")"
         onclick="javascript: document.getElementById('sakai_action').value='doCancel'; submitform('$FORM_NAME');"
       />
+      #else
+      <input type="button" name="Done" id="Done"
+        value="$tlang.getString("label.done")"
+        onclick="javascript: document.getElementById('sakai_action').value='doFinish'; submitform('$FORM_NAME');"
+      />
+      #end
       <span class="basicSearchLoad" style="display: none;">
         <img src="/library/image/sakai/spinner.gif" alt="$tlang.getString( "wait.search" )" />
         $tlang.getString( "wait.search" )
