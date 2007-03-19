@@ -120,7 +120,14 @@ public class ListItem
         
         Reference ref = EntityManager.newReference(entity.getReference());
 
-        item = new ListItem(entity);
+        if(entity == null)
+        {
+        	item = new ListItem("");
+        }
+        else
+        {
+        	item = new ListItem(entity);
+        }
         item.setPubviewPossible(! preventPublicDisplay);
         item.setDepth(depth);
         
@@ -284,9 +291,21 @@ public class ListItem
 	 */
 	public ListItem(ContentEntity entity)
 	{
-		org.sakaiproject.content.api.ContentHostingService contentService = ContentHostingService.getInstance();
 		this.entity = entity;
-		this.containingCollectionId = entity.getContainingCollection().getId();
+		if(entity == null)
+		{
+			return;
+		}
+		
+		org.sakaiproject.content.api.ContentHostingService contentService = ContentHostingService.getInstance();
+		if(entity.getContainingCollection() == null)
+		{
+			this.containingCollectionId = null;
+		}
+		else
+		{
+			this.containingCollectionId = entity.getContainingCollection().getId();
+		}
 		ResourceProperties props = entity.getProperties();
 		this.accessUrl = entity.getUrl();
 		this.collection = entity.isCollection();
@@ -302,7 +321,7 @@ public class ListItem
 		if(typeDef != null)
 		{
 			this.hoverText = typeDef.getLocalizedHoverText(entity);
-			this.iconLocation = typeDef.getIconLocation();
+			this.iconLocation = typeDef.getIconLocation(this.entity);
 			String[] args = { typeDef.getLabel() };
 			this.otherActionsLabel = trb.getFormattedMessage("action.other", args);
 		}
@@ -501,7 +520,7 @@ public class ListItem
 		if(resourceTypeDef != null)
 		{
 			this.hoverText = resourceTypeDef.getLocalizedHoverText(null);
-			this.iconLocation = resourceTypeDef.getIconLocation();
+			this.iconLocation = resourceTypeDef.getIconLocation(this.entity);
 			String[] args = { resourceTypeDef.getLabel() };
 			this.otherActionsLabel = trb.getFormattedMessage("action.other", args);
 		}
@@ -948,12 +967,15 @@ public class ListItem
 		{
 			containingCollection = entity.getContainingCollection();
 		}
-		while(contentService.isRootCollection(containingCollection.getId()))
+		while(containingCollection != null && ! contentService.isRootCollection(containingCollection.getId()))
 		{
 			path.addFirst(new ListItem(containingCollection));
 			containingCollection = containingCollection.getContainingCollection();
 		}
-		path.addFirst(new ListItem(containingCollection));
+		if(containingCollection != null)
+		{
+			path.addFirst(new ListItem(containingCollection));
+		}
 		
 		return path;
 	}

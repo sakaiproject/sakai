@@ -646,7 +646,7 @@ public class HtmlDocumentType extends BaseResourceType
 		return (ResourceToolAction) actions.get(actionId);
 	}
 
-	public String getIconLocation() 
+	public String getIconLocation(ContentEntity entity) 
 	{
 		return null;
 	}

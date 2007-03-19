@@ -655,9 +655,8 @@ public class UrlResourceType extends BaseResourceType
 		return rv;
 	}
 
-	public String getIconLocation() 
+	public String getIconLocation(ContentEntity entity) 
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 	

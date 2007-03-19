@@ -46,6 +46,7 @@ import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.IdUnusedException;
@@ -101,6 +102,9 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 	protected  static final String REVISE_URL_TEMPLATE = "resources/sakai_revise_url";
 
+	/** The content type image lookup service in the State. */
+	private static final String STATE_CONTENT_TYPE_IMAGE_SERVICE = PREFIX + "content_type_image_service";
+	
 	private static final String STATE_COPYRIGHT_FAIRUSE_URL = PREFIX + "copyright_fairuse_url";
 
 	private static final String STATE_COPYRIGHT_NEW_COPYRIGHT = PREFIX + "new_copyright";
@@ -179,6 +183,10 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		context.put("tlang", rb);
 		
 		context.put("validator", new Validator());
+		
+		ContentTypeImageService contentTypeImageService = (ContentTypeImageService) state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE);
+		context.put("contentTypeImageService", contentTypeImageService);
+		
 		String mode = (String) state.getAttribute(ResourceToolAction.STATE_MODE);
 
 		if (mode == null)
@@ -696,6 +704,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			// allow public display
 		}
 
+		state.setAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE, org.sakaiproject.content.cover.ContentTypeImageService.getInstance());
 	}
 	
 	protected void toolModeDispatch(String methodBase, String methodExt, HttpServletRequest req, HttpServletResponse res)

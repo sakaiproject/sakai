@@ -254,13 +254,13 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 									#if ($item.hasCopyrightAlert())
 										## if there is a copyright alert, show the alert page first
 										<a href="#" 
-											title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($item.type)  [$tlang.getString('gen.newwin')]"	
+											title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $item.hoverText  [$tlang.getString('gen.newwin')]"	
 											onclick="openCopyrightWindow('${item.accessUrl}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false"
 										>
 										#else
 										<a href="${item.accessUrl}" target="${item.target}">
 									#end
-									<img src = "#imageLink($contentTypeImageService.getContentTypeImage($item.type))" border= "0" alt="$item.hoverText" hspace="0" />
+									<img src="#imageLink($item.iconLocation)" border= "0" alt="$item.hoverText" hspace="0" />
 									</a>
 									#if($item.isLocked())
 										<img src = "#imageLink("sakai/lock.gif")" border="0"  alt="locked" />
@@ -268,21 +268,18 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 									#if ($item.hasCopyrightAlert())
 										## if there is a copyright alert, show the alert page first
 										<a href="#" 
-											title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($item.type)  [$tlang.getString('gen.newwin')]"
-											onclick="openCopyrightWindow('${item.accessUrl}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false;"
-										>
+											title="$tlang.getString('gen.copycomf') $item.hoverText [$tlang.getString('gen.newwin')]"
+											onclick="openCopyrightWindow('${item.accessUrl}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false;">
 											$validator.escapeHtml($item.name)
 										</a>
 										&#169;
 									#else
-										<a href="$item.accessUrl" target="$item.target"
-											title="$tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($item.type)  [$tlang.getString('gen.newwin')]"
-										>
+										<a href="$item.accessUrl" target="$item.target" title="$item.hoverText">
 											$validator.escapeHtml($item.name)
 										</a>
 									#end
 								#else
-									 <img src = "#imageLink($contentTypeImageService.getContentTypeImage($item.type))" border="0" alt ="$item.hoverText" hspace="0" />
+									 <img src="#imageLink($item.iconLocation)" border="0" alt ="$item.hoverText" hspace="0" />
 									#if($item.isLocked())
 										<img src = "#imageLink("sakai/lock.gif")" border="0"  alt="locked" />
 									#end
@@ -299,25 +296,35 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 						#set ($actionCount2=($actionCount2 - 1))
 						#if($item.addActions && !$item.addActions.isEmpty())
 							<ul style="z-index:$actionCount" class="makeMenu">
-									<li><img src = "#imageLink("sakai/icon-dropdn.gif")" border="0"  alt="Add" /> Add
-										<ul class="">
-											#foreach($action in $item.addActions)
-												<li><a href="#" onclick="document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a></li>
-											#end
-										</ul>
-								  	</li>
-								</ul>
+								<li>
+									<img src = "#imageLink("sakai/icon-dropdn.gif")" border="0"  alt="Add" /> 
+									$tlang.getString("button.add")
+									<ul class="">
+										#foreach($action in $item.addActions)
+											<li>
+												<a href="#" onclick="document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a>
+											</li>
+										#end
+									</ul>
+							  	</li>
+							</ul>
 						#end
 						#if($item.otherActions && !$item.otherActions.isEmpty())
 							<ul style="z-index:$actionCount2" class="makeMenu" >
-									<li><img src = "#imageLink("sakai/icon-dropdn.gif")" border="0"   alt="Actions" /> Actions
-										<ul class="">
-											#foreach($action in $item.otherActions)
-												<li><a href="#" onclick="document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a></li>
-											#end
-										</ul>
-								  	</li>
-								</ul>
+								<li>
+									<img src = "#imageLink("sakai/icon-dropdn.gif")" border="0"   alt="Actions" />
+									$tlang.getString("button.actions")
+									<ul class="">
+										#foreach($action in $item.otherActions)
+											<li>
+												<a href="#" onclick="document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
+													$labeler.getLabel($action)
+												</a>
+											</li>
+										#end
+									</ul>
+							  	</li>
+							</ul>
 						#end
 					</td>
 					#if($item.depth > 0)

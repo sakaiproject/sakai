@@ -72,10 +72,13 @@ public interface ResourceType
 	 * Retrieve a reference for the location of the icon for this type. This should  
 	 * be relative to the image library in "/reference/library/src/webapp/image/".  
 	 * For example, the plain-text image is "sakai/text.gif";
-	 * If null, the mimetype of the resource will be used to find an icon.
-	 * @return
+	 * If null, the mimetype of the resource or other info may be used to find an icon.
+	 * @param entity The entity for which the icon is needed, or null, especially in
+	 * cases where a specific entity has not yet been created. 
+	 * @return A path to the icon relative to the root of the image library in
+	 * "/reference/library/src/webapp/image/", or null
 	 */
-	public String getIconLocation();
+	public String getIconLocation(ContentEntity entity);
 	
 	// TODO: types should be able to opt-out of some "properties"
 	// "property" categories: title (always required), description, copyright/licensing, access (groups, public), email-notification, availability  

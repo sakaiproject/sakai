@@ -35,12 +35,14 @@ import javax.servlet.http.HttpServletRequest;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.InteractionAction;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ServiceLevelAction;
 import org.sakaiproject.content.api.ResourceToolAction.ActionType;
+import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.content.util.BaseResourceType;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.user.api.User;
@@ -694,10 +696,18 @@ public class FileUploadType extends BaseResourceType
 		return rv;
 	}
 
-	public String getIconLocation() 
+	public String getIconLocation(ContentEntity entity) 
 	{
-		// TODO Auto-generated method stub
-		return null;
+		String iconLocation = null;
+		if(entity != null && entity instanceof ContentResource)
+		{
+			String mimetype = ((ContentResource) entity).getContentType();
+			if(mimetype != null && ! "".equals(mimetype.trim()))
+			{
+				iconLocation = ContentTypeImageService.getContentTypeImage(mimetype);
+			}
+		}
+		return iconLocation;
 	}
 	
 	public String getId() 
@@ -713,9 +723,18 @@ public class FileUploadType extends BaseResourceType
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.api.ResourceType#getLocalizedHoverText(org.sakaiproject.entity.api.Reference)
 	 */
-	public String getLocalizedHoverText(ContentEntity member)
+	public String getLocalizedHoverText(ContentEntity entity)
 	{
-		return rb.getString("type.upload");
+		String hoverText = rb.getString("type.upload");
+		if(entity != null && entity instanceof ContentResource)
+		{
+			String mimetype = ((ContentResource) entity).getContentType();
+			if(mimetype != null && ! "".equals(mimetype.trim()))
+			{
+				hoverText = ContentTypeImageService.getContentTypeDisplayName(mimetype);
+			}
+		}
+		return hoverText;
 	}
 	
 	/* (non-Javadoc)
