@@ -29,4 +29,9 @@
  		<property name="autoDdl"><value>${auto.ddl}</value></property>
 	</bean>
 
+	<bean id="org.sakaiproject.announcement.impl.SiteEmailNotificationAnnc"
+			class="org.sakaiproject.announcement.impl.SiteEmailNotificationAnnc">
+		<property name="scheduledInvocationManager"><ref bean="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager"/></property>
+	</bean>
+	
 </beans>

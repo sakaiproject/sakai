@@ -26,30 +26,54 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Vector;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
+import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementService;
+import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
+import org.sakaiproject.api.app.scheduler.ScheduledInvocationCommand;
+import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.event.api.NotificationAction;
+import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.util.SiteEmailNotification;
+import org.sakaiproject.component.cover.ComponentManager;
 
 /**
  * <p>
  * SiteEmailNotificationAnnc fills the notification message and headers with details from the announcement message that triggered the notification event.
  * </p>
  */
-public class SiteEmailNotificationAnnc extends SiteEmailNotification
+public class SiteEmailNotificationAnnc extends SiteEmailNotification 
+				implements ScheduledInvocationCommand
 {
 	private static ResourceBundle rb = ResourceBundle.getBundle("siteemaanc");
 
+	/** Our logger. */
+	private static Log M_log = LogFactory.getLog(SiteEmailNotificationAnnc.class);
+
+	private ScheduledInvocationManager scheduledInvocationManager;
+	
+	private ComponentManager componentManager;
+	
 	/**
 	 * Construct.
 	 */
@@ -63,6 +87,22 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	public SiteEmailNotificationAnnc(String siteId)
 	{
 		super(siteId);
+	}
+
+	/**
+	 * Inject ScheudledInvocationManager
+	 */
+	public void setScheduledInvocationManager(
+			ScheduledInvocationManager service) 
+	{
+		scheduledInvocationManager = service;
+	}
+
+	/**
+	 * Inject ComponentManager
+	 */
+	public void setComponentManager(ComponentManager componentManager) {
+		this.componentManager = componentManager;
 	}
 
 	/**
@@ -91,13 +131,21 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	{
 		// get the message
 		Reference ref = EntityManager.newReference(event.getResource());
-		AnnouncementMessage msg = (AnnouncementMessage) ref.getEntity();
+		AnnouncementMessageEdit msg = (AnnouncementMessageEdit) ref.getEntity();
 		AnnouncementMessageHeader hdr = (AnnouncementMessageHeader) msg.getAnnouncementHeader();
 
 		// do not do notification for draft messages
 		if (hdr.getDraft()) return;
 
-		super.notify(notification, event);
+		Time now = TimeService.newTime();
+		
+		// Need to check, is this condition necessary?
+		// Put here since if scheduled notification, do not notify.
+		// But will it get here only if not scheduled?
+		if (now.after(hdr.getDate()))
+		{
+			super.notify(notification, event);
+		}
 	}
 
 	/**
@@ -288,4 +336,66 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		// combine
 		users.addAll(allGroupUsers);
 	}
+
+	/**
+	 * Implementation of command pattern. Will be called by ScheduledInvocationManager 
+	 * for delayed announcement notifications
+	 * 
+	 * @param opaqueContext
+	 * 			reference (context) for message
+	 */
+	public void execute(String opaqueContext) 
+	{
+		// get the message
+		Reference ref = EntityManager.newReference(opaqueContext);
+		
+		// needed to access the message
+		enableSecurityAdvisor();
+		
+		AnnouncementMessage msg = (AnnouncementMessage) ref.getEntity();
+		AnnouncementMessageHeader hdr = (AnnouncementMessageHeader) msg.getAnnouncementHeader();
+
+		// read the notification options
+		String notification = msg.getProperties().getProperty("notification");
+
+		int noti = NotificationService.NOTI_OPTIONAL;
+		if ("r".equals(notification))
+		{
+			noti = NotificationService.NOTI_REQUIRED;
+		}
+		else if ("n".equals(notification))
+		{
+			noti = NotificationService.NOTI_NONE;
+		}
+			
+		Event event = EventTrackingService.newEvent("annc.schInv.notify", msg.getReference(), true, noti);
+		EventTrackingService.post(event);
+
+		NotificationService notificationService = (NotificationService) ComponentManager.get(org.sakaiproject.event.api.NotificationService.class);
+		NotificationEdit notify = notificationService.addTransientNotification();
+		
+		super.notify(notify, event);
+
+		// since we build the notification by accessing the
+		// message within the super class, can't remove the
+		// SecurityAdvisor until this point
+		// done with access, need to remove from stack
+		SecurityService.clearAdvisors();
+	}
+
+	/**
+	 * Establish a security advisor to allow the "embedded" azg work to occur
+	 * with no need for additional security permissions.
+	 */
+	protected void enableSecurityAdvisor() {
+		// put in a security advisor so we can do our podcast work without need
+		// of further permissions
+		SecurityService.pushAdvisor(new SecurityAdvisor() {
+			public SecurityAdvice isAllowed(String userId, String function,
+					String reference) {
+				return SecurityAdvice.ALLOWED;
+			}
+		});
+	}
+
 }

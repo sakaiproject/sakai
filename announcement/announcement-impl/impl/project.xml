@@ -40,6 +40,12 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-component</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-content-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
@@ -59,6 +65,12 @@
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-event-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-event-util</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
@@ -112,13 +124,13 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-event-util</artifactId>
+			<artifactId>sakai-db-storage</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-db-storage</artifactId>
+			<artifactId>sakai-scheduler-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
@@ -133,7 +145,6 @@
 			<artifactId>commons-logging</artifactId>
 			<version>1.0.4</version>
 		</dependency>
-
 	</dependencies>
 
 	<build>
