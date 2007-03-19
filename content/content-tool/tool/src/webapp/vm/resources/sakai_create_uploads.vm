@@ -13,8 +13,7 @@
 	</p>
 	<div class="breadCrumb">
 		$tlang.getString("gen.location")
-		<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0"  alt="folder" />
-		<!-- $model $model.collectionPath -->
+		##<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0"  alt="folder" />
 		#foreach ($folder in $model.collectionPath)
 			$folder.name /
 		#end
@@ -54,6 +53,19 @@
 		<p class="act">
 			<a href="#" onclick="javascript:addFileInput();">$tlang.getString("label.addfile")</a>
 		</p>
+		#if ($model.resourceTypeDef.hasNotificationDialog())
+			<p class="shorttext">
+				<label for="notify$i">
+					$tlang.getString("noti.label")
+				</label>	
+				<select name="notify$i" id="notify$i">
+					<option value="r">$tlang.getString("noti.all")</option>
+					<option value="o">$tlang.getString("noti.limited")</option>
+					<option value="n" selected="selected">$tlang.getString("noti.none")</option>
+				</select>
+			</p>	
+		#end
+		
 		<p class="act">
 			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="javascript:showNotif('submitnotif','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doUpload")&flow=save';submitform('addContentForm');" value="$tlang.getString("label.continue")" accesskey="s" />
 			<input type="button" name="cancel" onclick="javascript:document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
