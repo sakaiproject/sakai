@@ -13,7 +13,7 @@
 	#if ($alertMessage)<p class="information">$validator.escapeHtml($alertMessage)</p>#end
 	
 
-	#if ($openSites.size()>0)
+	#if ($openSites.size() > 0 || $search.length() > 0)
 	<div class="navPanel">
 		<div class="searchNav">
 			<form name="searchform" method="post" class="inlineForm" action="#toolForm("$action")">
@@ -24,11 +24,17 @@
 			</form> 
 		</div>
 	</div>	
+	#end
 
+	#if ($openSites.size() > 0)
 		<div class="navPanel">
 			<div class="viewNav">
 				<div class="instruction">
+				#if ($search.length() > 0)
+					$tlang.getString("mb.listsearchjoin")${search}$tlang.getString("mb.listsearchjoin2")
+				#else
 					$tlang.getString("mb.listjoin")
+				#end
 				</div>
 			</div>
 			<div class="listNav">
@@ -123,6 +129,8 @@
 				#end	
 			</table>
 		</form>
+	#elseif ($search.length() > 0)
+		<p class="instruction">$tlang.getString('mb.list.nosearchsites')${search}$tlang.getString('mb.list.nosearchsites2')</p>
 	#else
 		<p class="instruction">$tlang.getString('mb.list.nosites')</p>
 	#end
