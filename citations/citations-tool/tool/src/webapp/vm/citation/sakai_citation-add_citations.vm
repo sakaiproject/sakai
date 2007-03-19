@@ -56,6 +56,8 @@ doubleDeep = true;
 			<input name="collectionId" id="collectionId" value="$collectionId" type="hidden" />
 			<input name="$!{specialHelperFlag}" id="$!{specialHelperFlag}" value="$!{citationToolId}" type="hidden" />
 			<table>
+			
+			#if( $searchLibrary )
 			  <tr valign="middle">
 			    <td align="center">
 			      <div class="act">
@@ -64,6 +66,9 @@ doubleDeep = true;
 			    </td>
 			    <td>$tlang.getString("description.search")</td>
 			  </tr>
+			#end
+			
+			#if( $googleUrl )
 			  <tr valign="middle">
 			    <td align="center">
 			      <div class="act">
@@ -72,6 +77,8 @@ doubleDeep = true;
 			    </td>
 			    <td>$tlang.getFormattedMessage("description.google",$googleArgs)</td>
 			  </tr>
+			#end
+			
 			  <tr valign="middle">
 			    <td align="center">
 			      <div class="act">

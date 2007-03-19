@@ -60,6 +60,7 @@ import org.sakaiproject.citation.api.Schema.Field;
 import org.sakaiproject.citation.api.SearchDatabaseHierarchy;
 import org.sakaiproject.citation.api.SearchCategory;
 import org.sakaiproject.citation.cover.CitationService;
+import org.sakaiproject.citation.cover.ConfigurationService;
 import org.sakaiproject.citation.cover.SearchManager;
 import org.sakaiproject.citation.util.api.SearchException;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -691,16 +692,26 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		ContentHostingService contentService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
 		String guid = contentService.getUuid(resourceId);
 		
-		String googleUrl = SearchManager.getGoogleScholarUrl(guid);
-		context.put("googleUrl", googleUrl);
-		
 		Schema defaultSchema = CitationService.getDefaultSchema();
 		context.put("DEFAULT_TEMPLATE", defaultSchema);
 		
-		// object arrays for formatted messages		
-		Object[] googleArgs = { rb.getString( "linkLabel.google" ) };
-		context.put( "googleArgs", googleArgs );
+		// determine which features to display
+		if( ConfigurationService.isGoogleScholarEnabled() )
+		{
+			String googleUrl = SearchManager.getGoogleScholarUrl(guid);
+			context.put( "googleUrl", googleUrl );
 
+			// object array for formatted messages
+			Object[] googleArgs = { rb.getString( "linkLabel.google" ) };
+			context.put( "googleArgs", googleArgs );
+		}
+		
+		if( ConfigurationService.isLibrarySearchEnabled() &&
+				ConfigurationService.isDatabaseHierarchyXmlAvailable() )
+		{
+			context.put( "searchLibrary", Boolean.TRUE );
+		}
+		
 		return TEMPLATE_ADD_CITATIONS;
 	
     } // buildAddCitationsPanelContext
@@ -860,7 +871,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		//context.put("citationToolId", CitationHelper.CITATION_ID);
 		//context.put("specialHelperFlag", CitationHelper.SPECIAL_HELPER_ID);
 		
-		context.put("openUrlLabel", CitationService.getOpenUrlLabel());
+		context.put("openUrlLabel", ConfigurationService.getSiteConfigOpenUrlLabel());
 		
 		context.put(PARAM_FORM_NAME, ELEMENT_ID_LIST_FORM);
 		
@@ -932,7 +943,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		/*
 		 * Object arrays for formatted messages
 		 */
-		Object[] instrMainArgs = { CitationService.getOpenUrlLabel() };
+		Object[] instrMainArgs = { ConfigurationService.getSiteConfigOpenUrlLabel() };
 		context.put( "instrMainArgs", instrMainArgs );
 		
 		Object[] instrSubArgs = { rb.getString( "label.finish" ) };
@@ -1118,7 +1129,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		context.put(PARAM_FORM_NAME, ELEMENT_ID_SEARCH_FORM);
 		
 		// OpenURL Label
-		context.put( "openUrlLabel", CitationService.getOpenUrlLabel() );
+		context.put( "openUrlLabel", ConfigurationService.getSiteConfigOpenUrlLabel() );
 
 		// object arrays for formatted messages
 		Object[] instrMainArgs = { rb.getString( "add.results" ) };
@@ -1186,7 +1197,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		context.put(PARAM_FORM_NAME, ELEMENT_ID_SEARCH_FORM);
 		
 		// OpenURL Label
-		context.put( "openUrlLabel", CitationService.getOpenUrlLabel() );
+		context.put( "openUrlLabel", ConfigurationService.getSiteConfigOpenUrlLabel() );
 		
 		// object arrays for formatted messages
 		Object[] instrArgs = { rb.getString( "submit.search" ) };
