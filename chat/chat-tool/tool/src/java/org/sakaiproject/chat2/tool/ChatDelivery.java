@@ -131,12 +131,9 @@ public class ChatDelivery extends BaseDelivery
 		// trigger a panel refresh
 		boolean browserSupportsDomRefresh = !browserId.equals(UsageSession.UNKNOWN);
 		
-		// TODO: temporary workaround - IE is not liking our DOM refresh, so don't use it there till we get it working -ggolden
-		if (browserId.equals(UsageSession.WIN_IE)) browserSupportsDomRefresh = false;
-
 		if (!browserSupportsDomRefresh || channel == null)
 		{
-			retval = "try { " + m_elementId + ".location.replace(addAuto(" + m_elementId + ".location));} catch (error) {}";
+			retval = "try { this.location.replace(addAuto(this.location));} catch (error) {}";
 		}
 		
 		// otherwise setup for a browser-side javascript DOM modification to insert the message
