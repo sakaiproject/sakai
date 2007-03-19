@@ -109,6 +109,11 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    private static final int DISPLAY_ALL_MESSAGES = -1;
    private static final int DISPLAY_PAST_3_DAYS_MESSAGES = 0;
    
+   private static final int DATETIME_DISPLAY_NONE = 0;
+   private static final int DATETIME_DISPLAY_TIME = 1;
+   private static final int DATETIME_DISPLAY_DATE = 2;
+   private static final int DATETIME_DISPLAY_DATETIME = 3;
+   
    
    private static final String PARAM_CHANNEL = "channel";
    private static final String PARAM_DAYS = "days";
@@ -142,10 +147,10 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    private String newMessageText = "";
    
    /** display the time (1), date(2), both(3), or neither(0) */
-   private int viewOptions = 1;
+   private int viewOptions = DATETIME_DISPLAY_DATETIME;
    
    /** display all messages (-1), past 3 days (0) */
-   private int messageOptions = DISPLAY_ALL_MESSAGES;
+   private int messageOptions = DISPLAY_PAST_3_DAYS_MESSAGES;
    
    /** The id of the session. needed for adding messages to the courier because that runs in the notification thread */
    private String sessionId = "";
@@ -953,6 +958,10 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    
    protected String getPastXDaysText(int x) {
       return getMessageFromBundle("past_x_days", new Object[]{x});
+   }
+   
+   public String getViewingChatRoomText() {
+      return getMessageFromBundle("viewingChatRoomText", new Object[]{getCurrentChannel().getTitle()});
    }
    
    private void setErrorMessage(String errorMsg, Object[] extras)

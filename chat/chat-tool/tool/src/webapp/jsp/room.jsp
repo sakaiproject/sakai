@@ -19,6 +19,9 @@
                     value="#{msgs.permis}" />
             </h:commandLink>
          </sakai:tool_bar>
+            	
+          <sakai:view_title value="#{ChatTool.viewingChatRoomText}"/>  	
+            	
             	<h:outputText value="#{msgs.view}" />
 	         <h:selectOneMenu id="viewOptions" value="#{ChatTool.viewOptions}" 
 	         		onchange="this.form.submit();">
