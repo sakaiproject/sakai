@@ -167,7 +167,7 @@ public interface MessageChannel extends Entity
 
 	/**
 	 * Commit the changes made to a MessageEdit object, and release the lock. The MessageEdit is disabled, and not to be used after this call. If the message is in a form that the user has no permission to store, a PermissionException is thrown, and the
-	 * edit is canceled.
+	 * edit is canceled. Used when a scheduled notification is made for this message.
 	 * 
 	 * @param user
 	 *        The UserEdit object to commit.
