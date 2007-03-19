@@ -1686,7 +1686,8 @@ public class DbCitationService extends BaseCitationService
 
 	public void init()
 	{
-		if(this.citationsEnabledByDefault || this.allowSiteBySiteOverride)
+		if(m_configService.isCitationsEnabledByDefault() ||
+				m_configService.isAllowSiteBySiteOverride() )
 		{
 			try
 			{
@@ -1781,7 +1782,7 @@ public class DbCitationService extends BaseCitationService
 	{
 		m_sqlService = service;
 	}
-
+	
 	/*
 	 * Connection management helpers
 	 */

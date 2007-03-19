@@ -56,6 +56,7 @@ import org.sakaiproject.citation.api.Citation;
 import org.sakaiproject.citation.api.CitationCollection;
 import org.sakaiproject.citation.api.CitationIterator;
 import org.sakaiproject.citation.api.CitationService;
+import org.sakaiproject.citation.api.ConfigurationService;
 import org.sakaiproject.citation.api.Schema;
 import org.sakaiproject.citation.api.Schema.Field;
 import org.sakaiproject.component.api.ServerConfigurationService;
@@ -981,7 +982,7 @@ public abstract class BaseCitationService implements CitationService
 			String openUrlParams = getOpenurlParameters();
 
 			// return the URL-encoded string
-			return getOpenUrlResolverAddress() + openUrlParams;
+			return m_configService.getSiteConfigOpenUrlResolverAddress() + openUrlParams;
 		}
 
 		/*
@@ -3154,10 +3155,6 @@ public abstract class BaseCitationService implements CitationService
 	protected static final String UNKNOWN_TYPE = "unknown";
 
 	protected static Integer m_nextSerialNumber;
-	
-	protected boolean citationsEnabledByDefault = false;
-	
-	protected boolean allowSiteBySiteOverride = false;
 
 	/*
 	 * RIS MAPPINGS below
@@ -3243,10 +3240,10 @@ public abstract class BaseCitationService implements CitationService
 		}
 
 	}
-
-	/** Dependency: openUrlLabel. */
-	protected String m_openUrlLabel = null;
-
+	
+	/** Dependency: CitationsConfigurationService. */
+	protected ConfigurationService m_configService = null;
+	
 	/** Dependency: ServerConfigurationService. */
 	protected ServerConfigurationService m_serverConfigurationService = null;
 
@@ -3260,9 +3257,6 @@ public abstract class BaseCitationService implements CitationService
 
 	/** A Storage object for persistent storage. */
 	protected Storage m_storage = null;
-
-	/** The base address for the link resolver */
-	protected String m_openUrlResolverAddress = "";
 
 	protected String m_relativeAccessPoint;
 
@@ -3579,24 +3573,6 @@ public abstract class BaseCitationService implements CitationService
 		return multivalued;
 	}
 
-	/**
-	 * @return The label that should be used for the open url.
-	 */
-	public String getOpenUrlLabel()
-	{
-		return m_openUrlLabel;
-	}
-
-	/**
-	 * Access the the base address for the link resolver.
-	 *
-	 * @return
-	 */
-	public String getOpenUrlResolverAddress()
-	{
-		return m_openUrlResolverAddress;
-	}
-
 	public Schema getSchema(String name)
 	{
 		Schema schema = m_storage.getSchema(name);
@@ -3740,7 +3716,8 @@ public abstract class BaseCitationService implements CitationService
 	 */
 	public void init()
 	{
-		if(citationsEnabledByDefault || allowSiteBySiteOverride)
+		if(m_configService.isCitationsEnabledByDefault() ||
+				m_configService.isAllowSiteBySiteOverride() )
 		{
 			m_storage = newStorage();
 			m_nextSerialNumber = new Integer(0);
@@ -3751,11 +3728,6 @@ public abstract class BaseCitationService implements CitationService
 			m_entityManager.registerEntityProducer(this, REFERENCE_ROOT);
 	
 			rb = new ResourceLoader("citation_mgr");
-	
-			if (this.m_openUrlLabel == null)
-			{
-				this.m_openUrlLabel = rb.getString("cite.openUrlLabel");
-			}
 	
 			BasicSchema unknown = new BasicSchema();
 			unknown.setIdentifier(UNKNOWN_TYPE);
@@ -4317,7 +4289,17 @@ public abstract class BaseCitationService implements CitationService
 	{
 		this.m_storage.saveCollection(collection);
 	}
-
+	/**
+	 * Dependency: ConfigurationService.
+	 *
+	 * @param service
+	 *            The ConfigurationService.
+	 */
+	public void setConfigurationService(ConfigurationService service)
+	{
+		m_configService = service;
+	}
+	
 	/**
 	 * Dependency: ContentHostingService.
 	 *
@@ -4338,29 +4320,6 @@ public abstract class BaseCitationService implements CitationService
 	public void setEntityManager(EntityManager service)
 	{
 		m_entityManager = service;
-	}
-
-	/**
-	 * Dependency: openUrlLabel.
-	 *
-	 * @param openUrlLabel
-	 *            The label that should be used for the open url.
-	 */
-	public void setOpenUrlLabel(String openUrlLabel)
-	{
-		m_openUrlLabel = openUrlLabel;
-	}
-
-	/**
-	 * Configuration The base address of the link resolver is injected at
-	 * start-up time. Specify the correct value in components.xml before
-	 * deploying.
-	 *
-	 * @param address
-	 */
-	public void setOpenUrlResolverAddress(String address)
-	{
-		m_openUrlResolverAddress = address;
 	}
 
 	/**
@@ -4437,38 +4396,6 @@ public abstract class BaseCitationService implements CitationService
     public void setAttemptToMatchSchema(boolean attemptToMatchSchema)
     {
     	this.attemptToMatchSchema = attemptToMatchSchema;
-    }
-
-	/**
-     * @return the citationsEnabledByDefault
-     */
-    public boolean citationsEnabledByDefault()
-    {
-    	return citationsEnabledByDefault;
-    }
-
-	/**
-     * @param citationsEnabledByDefault the citationsEnabledByDefault to set
-     */
-    public void setCitationsEnabledByDefault(boolean citationsEnabledByDefault)
-    {
-    	this.citationsEnabledByDefault = citationsEnabledByDefault;
-    }
-
-	/**
-     * @return the allowSiteBySiteOverride
-     */
-    public boolean allowSiteBySiteOverride()
-    {
-    	return allowSiteBySiteOverride;
-    }
-
-	/**
-     * @param allowSiteBySiteOverride the allowSiteBySiteOverride to set
-     */
-    public void setAllowSiteBySiteOverride(boolean allowSiteBySiteOverride)
-    {
-    	this.allowSiteBySiteOverride = allowSiteBySiteOverride;
     }
 
 } // BaseCitationService

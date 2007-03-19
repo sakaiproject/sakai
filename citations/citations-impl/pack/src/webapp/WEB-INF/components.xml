@@ -44,22 +44,61 @@
   -->
 
   <!-- Michigan -->
+  <bean id="org.sakaiproject.citation.api.ConfigurationService"
+    class="org.sakaiproject.citation.impl.BaseConfigurationService"
+    init-method="init"
+    destroy-method="destroy"
+    singleton="true">
+
+	<!-- enable/disable entire helper -->
+    <property name="citationsEnabledByDefault"><value>false</value></property>
+	<property name="allowSiteBySiteOverride"><value>false</value></property>
+	
+	<!-- enable/disable helper features -->
+	<property name="googleSearchEnabled"><value>true</value></property>
+  	<property name="librarySearchEnabled"><value>true</value></property>
+  	
+	<!-- configuration XML file location -->
+    <property name="databaseXml"><value>sakai/org.sakaiproject.citation/categories.xml</value></property>
+    <property name="siteConfigXml"><value></value></property>
+    
+  	<!-- metasearch engine parameters -->
+    <property name="metasearchUsername"><value>elmlxs</value></property>
+    <property name="metasearchPassword"><value>hoopla!</value></property>
+    <property name="metasearchBaseUrl"><value>http://searchtools.lib.umich.edu/X</value></property>
+
+	<!-- which osid impl to use -->
+    <property name="osidImpl"><value>org.sakaibrary.osid.repository.xserver</value></property>
+
+	<!-- openURL parameters -->
+    <property name="openUrlLabel"><value>Get It!</value></property>
+    <property name="openUrlResolverAddress"><value>http://worldcatlibraries.org/registry/gateway</value></property>
+
+	<!-- google scholar parameters -->
+    <property name="googleBaseUrl"><value>http://libws.umdl.umich.edu/cgi-bin/gs.cgi</value></property>
+    <property name="sakaiServerKey"><value>ctools.umich.edu</value></property>
+    
+	<!-- site-specific config/authentication/authorization implementation -->
+    <property name="osidConfig"><value>org.sakaiproject.citation.impl.SampleSiteOsidConfiguration</value></property>
+	<!-- other config services -->
+    <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+    <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+  </bean>
+
   <bean id="org.sakaiproject.citation.api.CitationService"
     class="org.sakaiproject.citation.impl.DbCitationService"
     init-method="init"
     destroy-method="destroy"
     singleton="true">
-    <property name="openUrlLabel"><value>Find It!</value></property>
-    <property name="openUrlResolverAddress"><value>http://proxy.lib.umich.edu/login?url=http://sfx.lib.umich.edu:9003/sfx_local</value></property>
+    
     <property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
     <property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
     <property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
     <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+    <property name="configurationService"><ref bean="org.sakaiproject.citation.api.ConfigurationService"/></property>
     <property name="autoDdl"><value>${auto.ddl}</value></property>
 	<property name="attemptToMatchSchema"><value>true</value></property>
 	<property name="resourceTypeRegistry"><ref bean="org.sakaiproject.content.api.ResourceTypeRegistry"/></property>
- 	<property name="citationsEnabledByDefault"><value>true</value></property>
-	<property name="allowSiteBySiteOverride"><value>false</value></property>
   </bean>
 
   <bean id="org.sakaiproject.citation.api.SearchManager"
@@ -68,52 +107,9 @@
     destroy-method="destroy"
     singleton="true">
 
-    <property name="metasearchPassword"><value></value></property>
-    <property name="metasearchBaseUrl"><value>http://searchtools.lib.umich.edu/X</value></property>
-    <property name="metasearchUsername"><value></value></property>
-
-    <property name="osidImpl"><value>org.sakaibrary.osid.repository.xserver</value></property>
-    <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
-    <property name="googleBaseUrl"><value>http://libws.umdl.umich.edu/cgi-bin/gs.cgi</value></property>
-    <property name="sakaiServerKey"><value>ctools.umich.edu</value></property>
+	<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+    <property name="configurationService"><ref bean="org.sakaiproject.citation.api.ConfigurationService"/></property>
     <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
   </bean>
-
-  <!--
-  <bean id="org.sakaiproject.citation.api.CitationService"
-    class="org.sakaiproject.citation.impl.BasicCitationService"
-    init-method="init"
-    destroy-method="destroy"
-    singleton="true">
-  </bean>
-  -->
-
-  <!--
-  <bean id="org.sakaiproject.citation.api.ConfigurationService"
-    class="org.sakaiproject.citation.impl.BaseConfigurationService"
-    init-method="init"
-    destroy-method="destroy"
-    singleton="true">
-
-    <property name="metasearchUsername"><value></value></property>
-    <property name="metasearchPassword"><value></value></property>
-    <property name="metasearchBaseUrl"><value></value></property>
-
-    <property name="osidImpl"><value></value></property>
-
-    <property name="openUrlLabel"><value></value></property>
-    <property name="openUrlResolverAddress"><value></value></property>
-
-    <property name="googleBaseUrl"><value></value></property>
-    <property name="sakaiServerKey"><value></value></property>
-
-    <property name="databaseXml"><value></value></property>
-    <property name="siteConfigXml"><value></value></property>
-
-    <property name="osidConfig"><value>org.sakaiproject.citation.impl.SampleSiteOsidConfiguration</value></property>
-    <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
-    <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
-  </bean>
-  -->
 
 </beans>

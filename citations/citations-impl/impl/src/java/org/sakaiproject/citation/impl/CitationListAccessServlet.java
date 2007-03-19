@@ -41,6 +41,7 @@ import org.sakaiproject.citation.api.CitationHelper;
 import org.sakaiproject.citation.api.Schema;
 import org.sakaiproject.citation.api.Schema.Field;
 import org.sakaiproject.citation.cover.CitationService;
+import org.sakaiproject.citation.cover.ConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.EntityAccessOverloadException;
@@ -202,7 +203,7 @@ public class CitationListAccessServlet implements HttpAccess
 
         try
         {
-        	String openUrlLabel = CitationService.getOpenUrlLabel();
+        	String openUrlLabel = ConfigurationService.getSiteConfigOpenUrlLabel();
        		Object[] openUrlLabelArray = {openUrlLabel};
         	
     		ContentResource resource = (ContentResource) ref.getEntity(); // ContentHostingService.getResource(ref.getId());

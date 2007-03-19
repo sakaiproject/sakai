@@ -58,9 +58,7 @@ public class SampleSiteOsidConfiguration implements SiteOsidConfiguration
    */
   public void init() throws OsidConfigurationException
   {
-    _log.debug("SampleSiteOsidConfiguration.init() begins");
-
-    _log.debug("SampleSiteOsidConfiguration.init() ends");
+    _log.debug("init()");
   }
 
   /**

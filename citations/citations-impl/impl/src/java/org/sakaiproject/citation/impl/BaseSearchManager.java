@@ -52,6 +52,7 @@ import org.sakaiproject.citation.api.ActiveSearch;
 import org.sakaiproject.citation.api.Citation;
 import org.sakaiproject.citation.api.CitationCollection;
 import org.sakaiproject.citation.api.CitationIterator;
+import org.sakaiproject.citation.api.ConfigurationService;
 import org.sakaiproject.citation.api.SearchCategory;
 import org.sakaiproject.citation.api.SearchDatabase;
 import org.sakaiproject.citation.api.SearchDatabaseHierarchy;
@@ -64,7 +65,6 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.util.Validator;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -1111,12 +1111,9 @@ public class BaseSearchManager implements SearchManager
 		 * BasicSearchDatabaseHierarchy instance variables 
 		 */
 		
-		// TEMPORARY category xml filename
-		private static final String CATEGORIES_XML = "sakai/org.sakaiproject.citation/categories.xml";
-		
 		// this user's repository and groups
 		protected String repositoryPkgName;
-		protected String [] groups;
+		protected List<String> groups;
 		
 		// root category (contains top level categories)
 		protected BasicSearchCategory rootCategory;
@@ -1129,6 +1126,9 @@ public class BaseSearchManager implements SearchManager
 		
 		// default category
 		protected SearchCategory defaultCategory;
+		
+		// configured flag
+		protected boolean isConfigured;
 		
 		// for SAX parsing
 		protected StringBuffer textBuffer;
@@ -1145,43 +1145,75 @@ public class BaseSearchManager implements SearchManager
 			 * further than we have to?
 			 */
 			
-			/*
-			 * Determine which repository implementation this user should get
-			 * access to
-			 *  - ip-based
-			 *  - other things?
-			 *  
-			 *  (currently assuming X-Server)
-			 */
-			repositoryPkgName = "org.sakaibrary.osid.repository.xserver";
+			// get a ConfigurationService instance
+			if( m_configService == null )
+			{
+				m_log.warn( "BasicSearchDatabaseHierarchy() m_configService is " +
+						"null - components.xml injection did not work... getting instance from cover" );
+				m_configService = org.sakaiproject.citation.cover.ConfigurationService.getInstance();
+			}
 			
-			/*
-			 * Now we know which metasearch engine, get the corresponding XML
-			 * for that database
-			 *  - XML describes all accessible databases/categories for a given
-			 *  metasearch engine
-			 *  
-			 *  (currently assuming CATEGORIES_XML for all users)
-			 */
-			
-			/*
-			 * Determine which groups this user is a member of
-			 *  - should get an array of strings with group names/ids
-			 *  which should appear in the XML
-			 */
-			String[] tempGroups = { "all", "free" };
-			groups = tempGroups;
-			
-			/*
-			 * Parse the XML using the group information to build a hierarchy
-			 * of categories and databases this user has access to
-			 */
-			recommendedDatabaseFlag = false;
-			hierarchyDepth = 0;
-			databaseMap = new java.util.Hashtable<String, SearchDatabase>();
-			categoryMap = new java.util.Hashtable<String, SearchCategory>();
-			categoryStack = new java.util.Stack<BasicSearchCategory>();
-			parseXML();
+			try
+			{
+				/*
+				 * Determine which repository implementation this user should get
+				 * access to
+				 *  - ip-based
+				 *  - other things?
+				 *  
+				 *  (currently assuming X-Server)
+				 */
+//				repositoryPkgName = "org.sakaibrary.osid.repository.xserver";
+				repositoryPkgName = m_configService.getSiteConfigOsidPackageName();
+				if( repositoryPkgName == null )
+				{
+					// cannot continue
+					isConfigured = false;
+					return;
+				}
+
+				/*
+				 * Now we know which metasearch engine, get the corresponding XML
+				 * for that database
+				 *  - XML describes all accessible databases/categories for a given
+				 *  metasearch engine
+				 *  
+				 *  (currently assuming CATEGORIES_XML for all users)
+				 */
+
+				/*
+				 * Determine which groups this user is a member of
+				 *  - should get an array of strings with group names/ids
+				 *  which should appear in the XML
+				 */
+//				String[] tempGroups = { "all", "free" };
+//				groups = tempGroups;
+				groups = m_configService.getGroupIds();
+
+				/*
+				 * Parse the XML using the group information to build a hierarchy
+				 * of categories and databases this user has access to
+				 */
+				recommendedDatabaseFlag = false;
+				hierarchyDepth = 0;
+				databaseMap = new java.util.Hashtable<String, SearchDatabase>();
+				categoryMap = new java.util.Hashtable<String, SearchCategory>();
+				categoryStack = new java.util.Stack<BasicSearchCategory>();
+
+				if( m_configService.isDatabaseHierarchyXmlAvailable() )
+				{
+					isConfigured = true;
+					parseXML( m_configService.getDatabaseHierarchyXml() );
+				}
+				else
+				{
+					isConfigured = false;
+				}
+			}
+			catch( org.sakaiproject.citation.util.api.OsidConfigurationException oce )
+			{
+				m_log.warn( "BasicSearchDatabaseHierarchy() ran into problems with the ConfigurationService", oce );
+			}
 		}
 		
 		protected void setDefaultCategory( SearchCategory defaultCategory )
@@ -1216,7 +1248,7 @@ public class BaseSearchManager implements SearchManager
 			}
 		}
 		
-		protected void parseXML()
+		protected void parseXML( String categoriesFileName )
 		{
 			// Use the default (non-validating) parser
 	        SAXParserFactory factory = SAXParserFactory.newInstance();
@@ -1224,7 +1256,7 @@ public class BaseSearchManager implements SearchManager
 	        try {
 	            // Parse the input
 	            SAXParser saxParser = factory.newSAXParser();
-	            saxParser.parse( new java.io.File( CATEGORIES_XML ), this );
+	            saxParser.parse( categoriesFileName, this );
 	        } catch (SAXParseException spe) {
 	            // Use the contained exception, if any
 	            Exception x = spe;
@@ -1237,6 +1269,9 @@ public class BaseSearchManager implements SearchManager
 	        	m_log.warn("parseXML() parsing exception: " +
 	        			spe.getMessage() + " - xml line " + spe.getLineNumber()
 	        			+ ", uri " + spe.getSystemId(), x );
+	        	
+	        	// unset configuration flag
+	        	isConfigured = false;
 	        } catch (SAXException sxe) {
 	            // Error generated by this application
 	            // (or a parser-initialization error)
@@ -1248,15 +1283,26 @@ public class BaseSearchManager implements SearchManager
 
 	            m_log.warn( "parseXML() SAX exception: " +
 	            		sxe.getMessage(), x );
+	            // unset configuration flag
+	        	isConfigured = false;
 	        } catch (ParserConfigurationException pce) {
 	            // Parser with specified options can't be built
 	        	m_log.warn( "parseXML() SAX parser cannot be built " +
 	        			"with specified options" );
+	        	
+	        	// unset configuration flag
+	        	isConfigured = false;
 	        } catch (IOException ioe) {
 	            // I/O error
 	        	m_log.warn( "parseXML() IO exception", ioe );
+	        	
+	        	// unset configuration flag
+	        	isConfigured = false;
 	        } catch (Throwable t) {
 	        	m_log.warn( "parseXML() exception", t );
+	        	
+	        	// unset configuration flag
+	        	isConfigured = false;
 	        }
 		}
 		
@@ -1470,14 +1516,6 @@ public class BaseSearchManager implements SearchManager
 	    	
 			textBuffer = null;
 	    }
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.citation.api.SearchDatabaseHierarchy#getDatabase(java.lang.String)
-		 */
-		public Asset getDatabase(String databaseId) {
-			// TODO Auto-generated method stub
-			return null;
-		}
 		
 		public SearchCategory getCategory( String categoryId ) {
 			if( categoryId.equals( defaultCategory.getId() ) )
@@ -1530,13 +1568,6 @@ public class BaseSearchManager implements SearchManager
 			}
 			
 			return categoryListing;
-		}
-
-		/* (non-Javadoc)
-		 * @see org.sakaiproject.citation.api.SearchDatabaseHierarchy#setRepository(org.osid.repository.Repository)
-		 */
-		public void setRepository( Repository repository ) {
-			// TODO don't think this needs to be here anymore...
 		}
 		
 		/* (non-Javadoc)
@@ -1600,11 +1631,18 @@ public class BaseSearchManager implements SearchManager
 		public boolean isSearchableDatabase(String databaseId) {
 			return databaseMap.containsKey( databaseId );
 		}
+
+		public boolean isConfigured() {
+			return isConfigured;
+		}
 		
 	}  // public class BasicSearchDatabaseHierarchy
 	
 	/** Our logger. */
 	private static Log m_log = LogFactory.getLog(BaseSearchManager.class);
+	
+	// our ConfigurationService (gets set in BaseSearchDatabaseHierarchy)
+
 	
 	// google scholar constants
 	public static final String SAKAI_SESSION = "sakai.session";
@@ -1621,25 +1659,25 @@ public class BaseSearchManager implements SearchManager
 	// String array for databases being searched and database hierarchy
 	protected String[] m_databaseIds;
 	protected SearchDatabaseHierarchy hierarchy;
-	
-	// strings injected from components.xml
-	protected String m_osidImpl;
-	protected String m_metasearchUsername;
-	protected String m_metasearchPassword;
-	protected String m_metasearchBaseUrl;
-	protected String googleBaseUrl;
-	protected String sakaiServerKey;
 
 	private static Random m_generator;
 
-	protected SessionManager m_sessionManager;
-	
+	/*
+	 * necessary services and managers (provided by components.xml)
+	 */
+	protected SessionManager m_sessionManager = null;
+	protected ConfigurationService m_configService = null;
 	/** Dependency: ServerConfigurationService. */
 	protected ServerConfigurationService serverConfigurationService = null;
 
 	public void setSessionManager(SessionManager sessionManager)
 	{
 		m_sessionManager = sessionManager;
+	}
+	
+	public void setConfigurationService( ConfigurationService configService )
+	{
+		m_configService = configService;
 	}
 	
 	public void destroy()
@@ -1856,9 +1894,9 @@ public class BaseSearchManager implements SearchManager
 	    	// set up search properties
 	    	java.util.Properties properties = new java.util.Properties();
 	    	properties.put( "guid", guid );
-	    	properties.put( "baseUrl", m_metasearchBaseUrl );
-	    	properties.put( "username", m_metasearchUsername );
-	    	properties.put( "password", m_metasearchPassword );
+	    	properties.put( "baseUrl", m_configService.getSiteConfigMetasearchBaseUrl() );
+	    	properties.put( "username", m_configService.getSiteConfigMetasearchUsername() );
+	    	properties.put( "password", m_configService.getSiteConfigMetasearchPassword() );
 	    	properties.put( "sortBy", sortBy );
 	    	properties.put( "pageSize", pageSize );
 	    	properties.put( "startRecord", startRecord );
@@ -2184,83 +2222,6 @@ public class BaseSearchManager implements SearchManager
 	{
 		return param.trim().equals("");
 	}
-
-	public void setOsidImpl(String osidImpl)
-	{
-		m_osidImpl = osidImpl;
-	}
-  
-	/**
-     * @return the m_metasearchUsername
-     */
-    public String getMetasearchUsername()
-    {
-    	return m_metasearchUsername;
-    }
-
-	/**
-     * @param username the m_metasearchUsername to set
-     */
-    public void setMetasearchUsername(String username)
-    {
-    	m_metasearchUsername = username;
-    }
-
-	/**
-     * @return the m_metasearchBaseUrl
-     */
-    public String getMetasearchBaseUrl()
-    {
-    	return m_metasearchBaseUrl;
-    }
-
-	/**
-     * @param baseUrl the m_metasearchBaseUrl to set
-     */
-    public void setMetasearchBaseUrl(String baseUrl)
-    {
-    	m_metasearchBaseUrl = baseUrl;
-  }
-
-	/**
-     * @return the m_metasearchPassword
-     */
-    public String getMetasearchPassword()
-    {
-    	return m_metasearchPassword;
-    }
-
-	/**
-     * @param password the m_metasearchPassword to set
-     */
-    public void setMetasearchPassword(String password)
-    {
-    	m_metasearchPassword = password;
-  }
-
-	/**
-     * @return the m_osidImpl
-     */
-    public String getOsidImpl()
-    {
-    	return m_osidImpl;
-  }
-
-	/**
-     * @return the googleBaseUrl
-     */
-    public String getGoogleBaseUrl()
-    {
-    	return googleBaseUrl;
-    }
-
-	/**
-     * @param googleBaseUrl the googleBaseUrl to set
-     */
-    public void setGoogleBaseUrl(String googleBaseUrl)
-    {
-    	this.googleBaseUrl = googleBaseUrl;
-    }
     
     /**
      * 
@@ -2273,7 +2234,7 @@ public class BaseSearchManager implements SearchManager
 		
 		try
 		{
-			return ( getGoogleBaseUrl() 
+			return ( m_configService.getSiteConfigGoogleBaseUrl() 
 					+ "?" + SAKAI_HOST + "=" 
 					+ java.net.URLEncoder.encode( serverUrl +
 							Entity.SEPARATOR +
@@ -2285,29 +2246,13 @@ public class BaseSearchManager implements SearchManager
 							"=" +
 							sessionId, "UTF-8" )
 							+ "&" + SAKAI_KEY + "="
-							+ java.net.URLEncoder.encode( getSakaiServerKey(), "UTF-8" ) );
+							+ java.net.URLEncoder.encode( m_configService.getSiteConfigSakaiServerKey(), "UTF-8" ) );
 		}
 		catch( Exception e )
 		{
 			m_log.warn( "getGoogleScholarUrl encoding failed", e );
 			return null;
 		}
-    }
-
-	/**
-     * @return the sakaiServerKey
-     */
-    public String getSakaiServerKey()
-    {
-    	return sakaiServerKey;
-    }
-
-	/**
-     * @param sakaiServerKey the sakaiServerKey to set
-     */
-    public void setSakaiServerKey(String sakaiId)
-    {
-    	this.sakaiServerKey = sakaiId;
     }
 
 	/**

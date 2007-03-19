@@ -62,63 +62,77 @@ import org.sakaiproject.tool.api.SessionManager;
 public class BaseConfigurationService implements ConfigurationService
 {
 	private static Log m_log = LogFactory.getLog(BaseConfigurationService.class);
-  /*
-   * Site configuration data (from components.xml)
-   */
-  protected String m_databaseXml;
-  protected String m_siteConfigXml;
+	
+	/*
+	 * All the following properties will be set by Spring using components.xml
+	 */
+	// enable/disable entire helper
+    protected boolean m_citationsEnabledByDefault = false;
+    protected boolean m_allowSiteBySiteOverride = false;
+    
+	// enable/disable helper features -->
+    protected String m_googleSearchEnabled = "false";
+    protected String m_librarySearchEnabled = "false";
+  	
+	// configuration XML file location
+    protected String m_databaseXml;
+    protected String m_siteConfigXml;
+    
+  	// metasearch engine parameters
+    protected String m_metasearchUsername;
+    protected String m_metasearchPassword;
+    protected String m_metasearchBaseUrl;
 
-	protected String m_osidImpl;
+	// which osid impl to use
+    protected String m_osidImpl;
 
-	protected String m_metasearchUsername;
-	protected String m_metasearchPassword;
-	protected String m_metasearchBaseUrl;
+	// openURL parameters -->
+    protected String m_openUrlLabel;
+    protected String m_openUrlResolverAddress;
 
-	protected String m_googleBaseUrl;
-	protected String m_sakaiServerKey;
-
-	protected String m_openUrlLabel;
-	protected String m_openUrlResolverAddress;
-  /*
-   * Feature support
-   */
-  protected String m_googleSearchEnabled   = "false";
-  protected String m_librarySearchEnabled  = "false";
-  /*
-   * Service configuration values (from components.xml)
-   */
-  protected String m_osidConfig;
+	// google scholar parameters -->
+    protected String m_googleBaseUrl;
+    protected String m_sakaiServerKey;
+    
+	// site-specific config/authentication/authorization implementation -->
+    protected String m_osidConfig;
+    
+	// other config services -->
 	protected SessionManager m_sessionManager;
 	protected ServerConfigurationService m_serverConfigurationService;
-  /*
-   * Site specific OSID configuration instance
-   */
-  private static SiteOsidConfiguration m_siteConfigInstance = null;
+	/*
+	 * End of components.xml properties
+	 */
 
-  /*
-   * Interface methods
-   */
+	/*
+	 * Site specific OSID configuration instance
+	 */
+	private static SiteOsidConfiguration m_siteConfigInstance = null;
 
-  /**
-   * Fetch the appropriate XML configuration document for this user
-   * @return Configuration XML (eg file:///tomcat-home/sakai/config.xml)
-   */
-  public String getConfigurationXml() throws OsidConfigurationException
-  {
-    SiteOsidConfiguration siteConfig  = getSiteOsidConfiguration();
-    String                configXml   = null;
+	/*
+	 * Interface methods
+	 */
 
-    if (siteConfig != null)
-    {
-      configXml = siteConfig.getConfigurationXml();
-    }
+	/**
+	 * Fetch the appropriate XML configuration document for this user
+	 * @return Configuration XML (eg file:///tomcat-home/sakai/config.xml)
+	 */
+	public String getConfigurationXml() throws OsidConfigurationException
+	{
+		SiteOsidConfiguration siteConfig  = getSiteOsidConfiguration();
+		String                configXml   = null;
 
-    if (isNull(configXml))
-    {
-      configXml = m_siteConfigXml;
-    }
-    return configXml;
-  }
+		if (siteConfig != null)
+		{
+			configXml = siteConfig.getConfigurationXml();
+		}
+
+		if (isNull(configXml))
+		{
+			configXml = m_siteConfigXml;
+		}
+		return configXml;
+	}
 
   /**
    * Is the configuration XML available (was the URI provided)?
@@ -274,6 +288,42 @@ public class BaseConfigurationService implements ConfigurationService
     String value = getConfigurationParameter("sakai-serverkey");
 
     return (value != null) ? value : getSakaiServerKey();
+  }
+  
+  /**
+   * Enable/disable Citations Helper by default
+   * @param state true to set default 'On'
+   */
+  public void setCitationsEnabledByDefault(boolean citationsEnabledByDefault)
+  {
+    m_citationsEnabledByDefault = citationsEnabledByDefault;
+  }
+
+  /**
+   * Is Citations Helper by default enabled?
+   * @return true if so
+   */
+  public boolean isCitationsEnabledByDefault()
+  {
+    return m_citationsEnabledByDefault;
+  }
+  
+  /**
+   * Enable/disable site by site Citations Helper override
+   * @param state true to enable site by site Citations Helper
+   */
+  public void setAllowSiteBySiteOverride(boolean allowSiteBySiteOverride)
+  {
+	  m_allowSiteBySiteOverride = allowSiteBySiteOverride;
+  }
+
+  /**
+   * Is site by site Citations Helper enabled?
+   * @return true if so
+   */
+  public boolean isAllowSiteBySiteOverride()
+  {
+    return m_allowSiteBySiteOverride;
   }
 
   /**
@@ -547,16 +597,12 @@ public class BaseConfigurationService implements ConfigurationService
    */
  	public void init()
 	{
-		m_log.info("init() begins");
-
-		m_log.info("init() ends");
+		m_log.info("init()");
 	}
 
 	public void destroy()
 	{
-		m_log.info("destroy() begins");
-
-		m_log.info("destroy() ends");
+		m_log.info("destroy()");
 	}
 
   /*
@@ -784,7 +830,8 @@ public class BaseConfigurationService implements ConfigurationService
    */
 	public void setGoogleSearchEnabled(String googleSearchEnabled)
 	{
-	  if (googleSearchEnabled.equals("true") || googleSearchEnabled.equals("false"))
+	  if (googleSearchEnabled.equalsIgnoreCase("true") ||
+			  googleSearchEnabled.equalsIgnoreCase("false"))
 	  {
 	    m_googleSearchEnabled = googleSearchEnabled;
 	    return;
@@ -810,7 +857,8 @@ public class BaseConfigurationService implements ConfigurationService
    */
 	public void setLibrarySearchEnabled(String librarySearchEnabled)
 	{
-	  if (librarySearchEnabled.equals("true") || librarySearchEnabled.equals("false"))
+	  if (librarySearchEnabled.equalsIgnoreCase("true") ||
+			  librarySearchEnabled.equalsIgnoreCase("false"))
 	  {
 	    m_librarySearchEnabled = librarySearchEnabled;
 	    return;
