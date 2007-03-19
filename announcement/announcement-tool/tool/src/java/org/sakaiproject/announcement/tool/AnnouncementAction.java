@@ -2680,7 +2680,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				// save notification level if this is a future notification message
 				Time now = TimeService.newTime();
 				
-				if (releaseDate != null && now.after(releaseDate) && noti != NotificationService.NOTI_NONE)
+				if (releaseDate != null && now.before(releaseDate) && noti != NotificationService.NOTI_NONE)
 				{
 					msg.getPropertiesEdit().addProperty("notificationLevel", notification);
 				}
