@@ -63,8 +63,8 @@
     <property name="siteConfigXml"><value></value></property>
     
   	<!-- metasearch engine parameters -->
-    <property name="metasearchUsername"><value>elmlxs</value></property>
-    <property name="metasearchPassword"><value>hoopla!</value></property>
+    <property name="metasearchUsername"><value></value></property>
+    <property name="metasearchPassword"><value></value></property>
     <property name="metasearchBaseUrl"><value>http://searchtools.lib.umich.edu/X</value></property>
 
 	<!-- which osid impl to use -->

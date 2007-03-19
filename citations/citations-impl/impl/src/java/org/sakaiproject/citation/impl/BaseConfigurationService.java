@@ -484,7 +484,7 @@ public class BaseConfigurationService implements ConfigurationService
     }
     catch (Exception exception)
     {
-      m_log.warn("XML parse on \"" + filename + "\" failed: " + exception);
+      m_log.debug("XML parse on \"" + filename + "\" failed: " + exception);
     }
     return null;
   }
