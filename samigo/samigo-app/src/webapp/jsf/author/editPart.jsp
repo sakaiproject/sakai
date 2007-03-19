@@ -63,11 +63,11 @@
    <div class="longtext">
    <h:outputLabel value="#{authorMessages.information}" />
 <br/>
-  <h:panelGrid width="50%">
-   <samigo:wysiwyg rows="140" value="#{sectionBean.sectionDescription}">
+
+  <h:panelGrid>
+   <samigo:wysiwyg rows="140" value="#{sectionBean.sectionDescription}" hasToggle="yes">
      <f:validateLength minimum="1" maximum="4000"/>
    </samigo:wysiwyg>
-
   </h:panelGrid>
 
   <!-- PART ATTACHMENTS -->
