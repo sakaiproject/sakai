@@ -769,19 +769,22 @@ table.hierItemBlock td h4,table.hierItemBlock td h5,table.hierItemBlock td h6,
 	border-bottom: 1px dotted silver;
 }
 
-#chatPresenceHeadWrapper{
+#chatPresenceHeadWrapper, .chatPresenceHeadWrapper{
 	margin-bottom: .5em;
 	padding: 0 0  .2em .2em;
 	border-bottom: 1px dotted silver;
 }
 
-#chatListWrapper{
+#chatListWrapper, .chatListWrapper{
 	width: 83%;
 	padding-bottom: .5em;
 	float: left;
+	height: 300px;
+	overflow-y: auto;
+	overflow-x: visible;
 }
 
-#chatPresenceWrapper{
+#chatPresenceWrapper, .chatPresenceWrapper{
 	width: 16%;
 	float: left;
 	border-left: 1px dotted silver;
