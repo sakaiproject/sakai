@@ -44,4 +44,8 @@ public interface PrivateTopic extends Topic {
     
     public void removeChildFolder(PrivateTopic folder);
     
+	public Boolean getModerated();
+	
+	public void setModerated(Boolean moderated);
+    
 }

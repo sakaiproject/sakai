@@ -657,6 +657,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         forum.setDraft(Boolean.FALSE);
         forum.setTypeUuid(typeManager.getDiscussionForumType());                  
         forum.setActorPermissions(createDefaultActorPermissions());
+        forum.setModerated(Boolean.FALSE);
         LOG.debug("createDiscussionForum executed");
         return forum;
     }
@@ -709,6 +710,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         forum.setModified(new Date());
         forum.setModifiedBy(getCurrentUser());
         forum.setTypeUuid(typeManager.getPrivateMessageAreaType());
+        forum.setModerated(Boolean.FALSE);
         LOG.debug("createPrivateForum executed");
         return forum;
     }
@@ -800,6 +802,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         topic.setBaseForum(forum);
         topic.setLocked(Boolean.FALSE);
         topic.setDraft(forum.getDraft());
+        topic.setModerated(Boolean.FALSE);
         LOG.debug("createDiscussionForumTopic executed");
         return topic;
     }
@@ -887,6 +890,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         topic.setModified(new Date());
         topic.setModifiedBy(getCurrentUser());
         topic.setTypeUuid(typeManager.getPrivateMessageAreaType());
+        topic.setModerated(Boolean.FALSE);
         LOG.debug("createPrivateForumTopic executed");
         return topic;
     }
