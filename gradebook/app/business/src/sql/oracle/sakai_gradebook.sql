@@ -1,3 +1,4 @@
+-- drop table GB_COMMENT_T cascade constraints;
 -- drop table GB_GRADABLE_OBJECT_T cascade constraints;
 -- drop table GB_GRADEBOOK_T cascade constraints;
 -- drop table GB_GRADE_MAP_T cascade constraints;
@@ -8,6 +9,7 @@
 -- drop table GB_GRADING_SCALE_PERCENTS_T cascade constraints;
 -- drop table GB_GRADING_SCALE_T cascade constraints;
 -- drop table GB_PROPERTY_T cascade constraints;
+-- drop sequence GB_COMMENT_S;
 -- drop sequence GB_GRADABLE_OBJECT_S;
 -- drop sequence GB_GRADEBOOK_S;
 -- drop sequence GB_GRADE_MAPPING_S;
@@ -17,6 +19,16 @@
 -- drop sequence GB_PROPERTY_S;
 -- drop sequence GB_SPREADSHEET_T
 
+create table GB_COMMENT_T (
+	ID number(19,0) not null, 
+	VERSION number(10,0) not null, 
+	GRADER_ID varchar2(255 char) not null, 
+	STUDENT_ID varchar2(255 char) not null, 
+	COMMENT_TEXT clob, 
+	DATE_RECORDED timestamp not null, 
+	GRADABLE_OBJECT_ID number(19,0) not null, 
+	primary key (ID), 
+	unique (STUDENT_ID, GRADABLE_OBJECT_ID));
 create table GB_GRADABLE_OBJECT_T (
 	ID number(19,0) not null,
 	OBJECT_TYPE_ID number(10,0) not null,
@@ -62,7 +74,6 @@ create table GB_GRADE_RECORD_T (
 	DATE_RECORDED timestamp not null,
 	POINTS_EARNED double precision,
 	ENTERED_GRADE varchar2(255 char),
-	SORT_GRADE double precision,
 	primary key (ID),
 	unique (GRADABLE_OBJECT_ID, STUDENT_ID));
 create table GB_GRADE_TO_PERCENT_MAPPING_T (
@@ -114,6 +125,8 @@ create table GB_SPREADSHEET_T (
 );
 	
 
+alter table GB_COMMENT_T 
+	add constraint FK7977DFF06F98CFF foreign key (GRADABLE_OBJECT_ID) references GB_GRADABLE_OBJECT_T;
 alter table GB_GRADABLE_OBJECT_T
 	add constraint FK759996A7325D7986 foreign key (GRADEBOOK_ID) references GB_GRADEBOOK_T;
 alter table GB_GRADEBOOK_T
@@ -132,6 +145,7 @@ alter table GB_GRADING_SCALE_GRADES_T
 	add constraint FK5D3F0C95605CD0C5 foreign key (GRADING_SCALE_ID) references GB_GRADING_SCALE_T;
 alter table GB_GRADING_SCALE_PERCENTS_T
 	add constraint FKC98BE467605CD0C5 foreign key (GRADING_SCALE_ID) references GB_GRADING_SCALE_T;
+create sequence GB_COMMENT_S;
 create sequence GB_GRADABLE_OBJECT_S;
 create sequence GB_GRADEBOOK_S;
 create sequence GB_GRADE_MAPPING_S;
