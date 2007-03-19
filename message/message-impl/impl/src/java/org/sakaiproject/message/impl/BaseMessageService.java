@@ -128,6 +128,11 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 	private static final String NAME = "name";
 	private static final String VALUE = "value";
 	private static final String STATE_UPDATE = "update";
+	
+	/** added to allow for scheduled notifications */
+	private static final String SCHED_INV_UUID = "schInvUuid";
+	private static final String SCHINV_DELETE_EVENT = "schInv.delete";
+	
 
 	/**
 	 * Access this service from the inner classes.
@@ -2537,12 +2542,12 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			ScheduledInvocationManager scheduledInvocationManager = (ScheduledInvocationManager) 
 							ComponentManager.get(org.sakaiproject.api.app.scheduler.ScheduledInvocationManager.class);
 
-			if (edit.getProperties().getProperty("schInvUuid") != null)
+			if (edit.getProperties().getProperty(SCHED_INV_UUID) != null)
 			{
-				scheduledInvocationManager.deleteDelayedInvocation(edit.getProperties().getProperty("schInvUuid"));
-				edit.getPropertiesEdit().removeProperty("schInvUuid");
+				scheduledInvocationManager.deleteDelayedInvocation(edit.getProperties().getProperty(SCHED_INV_UUID));
+				edit.getPropertiesEdit().removeProperty(SCHED_INV_UUID);
 
-				Event event = m_eventTrackingService.newEvent("schInv.delete", edit.getReference(), true, priority);
+				Event event = m_eventTrackingService.newEvent(SCHINV_DELETE_EVENT, edit.getReference(), true, priority);
 				m_eventTrackingService.post(event);				
 			}
 
@@ -2555,12 +2560,12 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			
 			if (now.before(edit.getHeader().getDate()) && priority != NotificationService.NOTI_NONE)
 			{
-				String uuid = scheduledInvocationManager.createDelayedInvocation(edit.getHeader().getDate(), 
+				final String uuid = scheduledInvocationManager.createDelayedInvocation(edit.getHeader().getDate(), 
 									invokee, edit.getReference());
 		
-				ResourcePropertiesEdit editProps = edit.getPropertiesEdit();
+				final ResourcePropertiesEdit editProps = edit.getPropertiesEdit();
 		
-				editProps.addProperty("schInvUuid", uuid);
+				editProps.addProperty(SCHED_INV_UUID, uuid);
 				
 				transientNotification = false;
 			}
