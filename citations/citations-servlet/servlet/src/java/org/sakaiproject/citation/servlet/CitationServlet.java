@@ -389,6 +389,11 @@ public class CitationServlet extends VmServlet
 		{
 			success = new Object();
 			setVmReference( "citation", citation, req );
+			
+			// schedule a refresh of the main toolframe
+//			ToolSession toolSession = SessionManager.getCurrentToolSession();
+//			toolSession.setAttribute( "sakai.vppa.top.refresh", Boolean.TRUE );
+			setVmReference("topRefresh", Boolean.TRUE, req );  // TODO
 		}
 		
 		// set the success flag
