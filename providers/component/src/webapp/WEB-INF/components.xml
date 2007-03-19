@@ -209,7 +209,7 @@
 	can take advantage of hibernate's session-level caching.  If you are using another
 	CM implementation, you should ensure that it performs aggressive caching, since
 	calls from the CM-based legacy CM provider to the CM service are plentiful.
--->
+
 	<bean id="org.sakaiproject.site.api.CourseManagementProvider"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 			<property name="transactionManager">
@@ -239,5 +239,6 @@
 				</bean>
 			</property>
 	</bean>
+-->
 
 </beans>
