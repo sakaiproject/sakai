@@ -177,6 +177,49 @@
 ############################################# chef_announcements-revise.vm start
 <script type="text/javascript" language="JavaScript">
   focus_path = ["subject"];
+  
+  function hourChange(FieldName)
+{
+    var startHour;
+    var startMinute;
+    var endHour;
+    var endMinute;
+    var duHour;
+    var duMinute;
+
+    if (navigator.appName == "Netscape")
+    {
+    blur();
+    self.focus();
+    }
+
+    switch(FieldName)
+    {
+        case 'startHour':
+        case 'startMinute':
+        {
+            startHour = parseInt(document.getElementById('startHour').value);
+            if (startHour != 100)
+                minuteChange(FieldName);
+            else <!-- if the start hour is change back to null -->
+            {
+                document.getElementById('endHour').selectedIndex = 0;
+                document.getElementById('endMinute').selectedIndex = 0;
+            }
+        } break;
+        case 'duHour':
+        case 'duMinute':
+        {
+            minuteChange(FieldName);
+        } break;
+        <!-- if endHour is changed, modify the duration hour relatively -->
+        case 'endHour': <!-- same as minuteChange case endMinute -->
+        case 'endMinute':
+        {
+           minuteChange(FieldName);
+        } break;
+    }
+}
 </script>
 <div class="portletBody">
 	<h3>
@@ -375,10 +418,10 @@
 				<tr>
 					<td colspan="3"></td>
 					<td>
-						#custom_dateselectionwidget("release_year" "release_month" "release_day" $year0 $yearN $yearX $monthX $dayX "document.getElementById('hidden_true').checked=false;document.getElementById('hidden_false').checked=true;document.getElementById('use_start_date').checked=true;")
+						#custom_dateselectionwidget("release_year" "release_month" "release_day" $year0 $yearN $yearX $monthX $dayX "document.getElementById('hidden_specify').checked=true;document.getElementById('use_start_date').checked=true;")
 					</td>
 					<td>
-						#custom_timeSelectionWidget("release" $releaseDate "document.getElementById('hidden_true').checked=false;document.getElementById('hidden_false').checked=true;document.getElementById('use_start_date').checked=true;")
+						#custom_timeSelectionWidget("release" $releaseDate "document.getElementById('hidden_specify').checked=true;document.getElementById('use_start_date').checked=true;")
 					</td>
 				</tr>
 				<tr>
@@ -408,10 +451,10 @@
 				<tr>
 					<td colspan="3"></td>
 					<td>
-						#custom_dateselectionwidget("retract_year" "retract_month" "retract_day" $year0 $yearN $yearX $monthX $dayX "document.getElementById('hidden_true').checked=false;document.getElementById('hidden_false').checked=true;document.getElementById('use_end_date').checked=true;")
+						#custom_dateselectionwidget("retract_year" "retract_month" "retract_day" $year0 $yearN $yearX $monthX $dayX "document.getElementById('hidden_specify').checked=true;document.getElementById('use_end_date').checked=true;")
 					</td>
 					<td>
-						#custom_timeSelectionWidget("retract" $retractDate "document.getElementById('hidden_true').checked=false;document.getElementById('hidden_false').checked=true;document.getElementById('use_end_date').checked=true;")
+						#custom_timeSelectionWidget("retract" $retractDate "document.getElementById('hidden_specify').checked=true;document.getElementById('use_end_date').checked=true;")
 					</td>
 				</tr>
 			</table>

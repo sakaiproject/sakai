@@ -2542,16 +2542,24 @@ public class AnnouncementAction extends PagedResourceActionII
 					int begin_month = params.getInt("release_month");
 					int begin_day = params.getInt("release_day");
 					int begin_hour = params.getInt("release_hour");
-					int begin_min = params.getInt("release_min");
+					int begin_min = params.getInt("release_minute");
 					String release_ampm = params.getString("release_ampm");
 					if("pm".equals(release_ampm))
 					{
-						begin_hour += 12;
+						if (begin_hour < 12) 
+						{ 
+							begin_hour += 12;
+						}
+						else
+						{
+							// its noon, no change needed
+						}
 					}
 					else if(begin_hour == 12)
 					{
 						begin_hour = 0;
 					}
+					
 					releaseDate = TimeService.newTimeLocal(begin_year, begin_month, begin_day, begin_hour, begin_min, 0, 0);
 
 					// in addition to setting release date property, also set Date to release
@@ -2584,7 +2592,7 @@ public class AnnouncementAction extends PagedResourceActionII
 					int end_month = params.getInt("retract_month");
 					int end_day = params.getInt("retract_day");
 					int end_hour = params.getInt("retract_hour");
-					int end_min = params.getInt("retract_min");
+					int end_min = params.getInt("retract_minute");
 					String retract_ampm = params.getString("retract_ampm");
 					if("pm".equals(retract_ampm))
 					{
@@ -2669,7 +2677,15 @@ public class AnnouncementAction extends PagedResourceActionII
 					// No site available.
 				}
 
-				channel.commitMessage(msg, noti);
+				// save notification level if this is a future notification message
+				Time now = TimeService.newTime();
+				
+				if (releaseDate != null && now.after(releaseDate) && noti != NotificationService.NOTI_NONE)
+				{
+					msg.getPropertiesEdit().addProperty("notificationLevel", notification);
+				}
+				
+				channel.commitMessage(msg, noti, "org.sakaiproject.announcement.impl.SiteEmailNotificationAnnc");
 
 				if (!state.getIsNewAnnouncement())
 				{
