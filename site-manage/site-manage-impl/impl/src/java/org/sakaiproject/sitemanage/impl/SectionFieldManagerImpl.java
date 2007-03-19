@@ -31,18 +31,15 @@ import org.sakaiproject.util.ResourceLoader;
 
 public class SectionFieldManagerImpl implements SectionFieldManager {
 	private static final Log log = LogFactory.getLog(SectionFieldManagerImpl.class);
-	protected static final List<SectionField> fieldList = new ArrayList<SectionField>();
-	protected static final ResourceLoader resourceLoader;
-	
-	static {
-		resourceLoader = new ResourceLoader("SectionFields");
+
+	public List<SectionField> getRequiredFields() {
+		ResourceLoader resourceLoader = new ResourceLoader("SectionFields");
+		List<SectionField> fieldList = new ArrayList<SectionField>();
 
 		fieldList.add(new SectionFieldImpl(resourceLoader.getString("required_fields_subject"), null, 8));
 		fieldList.add(new SectionFieldImpl(resourceLoader.getString("required_fields_course"), null, 3));
 		fieldList.add(new SectionFieldImpl(resourceLoader.getString("required_fields_section"), null, 3));		
-	}
-
-	public List<SectionField> getRequiredFields() {
+		
 		return fieldList;
 	}
 
@@ -59,6 +56,7 @@ public class SectionFieldManagerImpl implements SectionFieldManager {
 		}
 		values[fields.size()] = academicSessionEid;
 		
+		ResourceLoader resourceLoader = new ResourceLoader("SectionFields");
 		String sectionEid = resourceLoader.getFormattedMessage("section_eid", values);
 		if(log.isDebugEnabled()) log.debug("Generated section eid = " + sectionEid);
 		return sectionEid;
