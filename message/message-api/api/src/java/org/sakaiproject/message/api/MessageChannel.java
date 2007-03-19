@@ -166,6 +166,19 @@ public interface MessageChannel extends Entity
 	void commitMessage(MessageEdit edit, int priority);
 
 	/**
+	 * Commit the changes made to a MessageEdit object, and release the lock. The MessageEdit is disabled, and not to be used after this call. If the message is in a form that the user has no permission to store, a PermissionException is thrown, and the
+	 * edit is canceled.
+	 * 
+	 * @param user
+	 *        The UserEdit object to commit.
+	 * @param priority
+	 *        The notification priority for this commit.
+	 * @param invokee
+	 * 		  The id for the object to be called when the scheduled notification fires.
+	 */
+	void commitMessage(MessageEdit edit, int priority, String invokee);
+
+	/**
 	 * Cancel the changes made to a MessageEdit object, and release the lock. The MessageEdit is disabled, and not to be used after this call.
 	 * 
 	 * @param user
