@@ -79,17 +79,6 @@ import org.sakaiproject.util.ResourceLoader;
  * that the presence change event doesn't say WHO entered or exited.  Thus... we must wait
  * until there are no users in the location before we know that we shouldn't be observing
  * 
- * TODO:
- *    permissions
- *    manage tool
- *       manage rooms
- *          add
- *          delete
- *       initial view setting
- *    export room (archive)
- *    import room (merge)
- *    write message
- *    filter messages
  * 
  * @author andersjb
  *
@@ -283,7 +272,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    public void roomDeleted(String roomId)
    {
       if(currentChannel != null && currentChannel.getId().equals(roomId)) {
-         setCurrentChannel(null);
+         resetCurrentChannel(currentChannel);
       }
    }
 
@@ -686,6 +675,17 @@ public class ChatTool implements RoomObserver, PresenceObserver {
          
          presenceChannelObserver.updatePresence();
       }
+   }
+   
+   protected void resetCurrentChannel(ChatChannel oldChannel) {
+      if(presenceChannelObserver != null) {
+         presenceChannelObserver.endObservation();
+         presenceChannelObserver.removePresence();
+         getChatManager().removeRoomListener(this, oldChannel.getId());
+      }
+      presenceChannelObserver = null;
+      
+      this.currentChannel = null;
    }
    
    /**

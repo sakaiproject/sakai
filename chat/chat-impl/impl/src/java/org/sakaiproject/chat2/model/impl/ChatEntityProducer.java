@@ -40,6 +40,7 @@ import org.sakaiproject.chat2.model.ChatMessage;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
+import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -59,7 +60,7 @@ import org.w3c.dom.NodeList;
  * @author chrismaurer
  *
  */
-public class ChatEntityProducer implements EntityProducer {
+public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
 
    protected final Log logger = LogFactory.getLog(getClass());
    private EntityManager entityManager;
@@ -84,11 +85,20 @@ public class ChatEntityProducer implements EntityProducer {
       logger.info("init()");
       
       try {
-         getEntityManager().registerEntityProducer(this, Entity.SEPARATOR + ChatManager.REFERENCE_ROOT);
+         getEntityManager().registerEntityProducer(this, ChatManager.REFERENCE_ROOT);
       }
       catch (Exception e) {
          logger.warn("Error registering Chat Entity Producer", e);
       }
+   }
+   
+   /**
+    * {@inheritDoc}
+    */
+   public String[] myToolIds()
+   {
+      String[] toolIds = { ChatManager.CHAT_TOOL_ID };
+      return toolIds;
    }
    
    public ChatMessage getMessage(Reference reference) throws IdUnusedException, PermissionException {
@@ -482,6 +492,97 @@ public class ChatEntityProducer implements EntityProducer {
    {
       return true;
    }
+   
+   /**
+    * {@inheritDoc}
+    */
+   public void transferCopyEntities(String fromContext, String toContext, List ids) 
+   {
+      try
+      {           
+         // retrieve all of the chat rooms
+         List channels = getChatManager().getContextChannels(fromContext, true);
+         if (channels != null && !channels.isEmpty()) 
+         {
+            Iterator channelIterator = channels.iterator();
+            while (channelIterator.hasNext()) 
+            {
+               ChatChannel oldChannel = (ChatChannel)channelIterator.next();
+               ChatChannel newChannel = getChatManager().createNewChannel(toContext, oldChannel.getTitle(), false, false);
+               newChannel.setDescription(oldChannel.getDescription());
+               newChannel.setFilterType(oldChannel.getFilterType());
+               newChannel.setFilterParam(oldChannel.getFilterParam());
+               newChannel.setContextDefaultChannel(oldChannel.isContextDefaultChannel());
+               try {
+                  getChatManager().updateChannel(newChannel, false);
+               } 
+               catch (Exception e) 
+               {
+                  logger.warn("Exception while creating channel: " + newChannel.getTitle() + ": " + e);
+               }
+
+            }
+         }
+         
+         transferSynopticOptions(fromContext, toContext);    
+      }
+
+      catch (Exception any)
+      {
+         logger.warn(".transferCopyEntities(): exception in handling " + getChatManager().serviceName() + " : ", any);
+      }
+   }
+   
+   /**
+    * Import the synoptic tool options from another site
+    * 
+    * @param fromContext
+    * @param toContext
+    */
+   protected void transferSynopticOptions(String fromContext, String toContext)
+   {
+      try 
+      {
+         // transfer the synoptic tool options
+         Site fromSite = SiteService.getSite(fromContext);
+         ToolConfiguration fromSynTool = fromSite.getToolForCommonId("sakai.synoptic." + getLabel());
+         Properties fromSynProp = fromSynTool.getPlacementConfig();
+
+         Site toSite = SiteService.getSite(toContext);
+         ToolConfiguration toSynTool = toSite.getToolForCommonId("sakai.synoptic." + getLabel());
+         Properties toSynProp = toSynTool.getPlacementConfig();
+
+         if (fromSynProp != null && !fromSynProp.isEmpty()) 
+         {
+            Set synPropSet = fromSynProp.keySet();
+            Iterator propIter = synPropSet.iterator();
+            while (propIter.hasNext())
+            {
+               String propName = ((String)propIter.next());
+               String propValue = fromSynProp.getProperty(propName);
+               if (propValue != null && propValue.length() > 0)
+               {
+                  toSynProp.setProperty(propName, propValue);
+               }
+            }
+
+            SiteService.save(toSite);
+         }
+      }
+      catch (PermissionException pe)
+      {
+         logger.warn("PermissionException transferring synoptic options for " + getChatManager().serviceName() + ':', pe);
+      }
+      catch (IdUnusedException e)
+      {
+         logger.warn("Channel " + fromContext + " cannot be found. ");
+      }
+      catch (Exception e)
+      {
+         logger.warn("transferSynopticOptions(): exception in handling " + getChatManager().serviceName() + " : ", e);
+      }
+   }
+   
    
    
    public EntityManager getEntityManager() {

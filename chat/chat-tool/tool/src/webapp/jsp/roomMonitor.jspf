@@ -63,16 +63,3 @@ deleteMsg = "<h:outputText value="#{msgs['list.del']}" />";
 		var objDiv = document.getElementById("chatListWrapper");
    	objDiv.scrollTop = objDiv.scrollHeight;
 	</script>
-
-
-<%--
-
-JSPs needed
-	-permission page
-	-add/edit room
-	-delete room confirm
-	-delete message confirm
-	-tool preferences -- select initial view (select room/ specific room)
-	-Room
-
---%>

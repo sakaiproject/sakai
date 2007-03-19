@@ -35,7 +35,7 @@ import org.sakaiproject.exception.PermissionException;
  * @author andersjb
  *
  */
-public interface ChatManager extends EntitySummary, EntityTransferrer {
+public interface ChatManager extends EntitySummary {
 
    /** The type string for this application: should not change over time as it may be stored in various parts of persistent entities. */
    static final String APPLICATION_ID = "sakai:chat";
