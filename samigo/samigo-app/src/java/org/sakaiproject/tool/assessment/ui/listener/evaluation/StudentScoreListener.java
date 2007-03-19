@@ -71,7 +71,7 @@ public class StudentScoreListener
 
     // we probably want to change the poster to be consistent
     String publishedId = cu.lookupParam("publishedIdd");
-
+    
     log.debug("Calling studentScores.");
     if (!studentScores(publishedId, bean, false))
     {
@@ -103,9 +103,12 @@ public class StudentScoreListener
       bean.setStudentId(studentId);
       AgentFacade agent = new AgentFacade(studentId);
       bean.setStudentName(agent.getFirstName() + " " + agent.getLastName());
+      bean.setFirstName(agent.getFirstName());
       bean.setAssessmentGradingId(cu.lookupParam("gradingData"));
       bean.setItemId(cu.lookupParam("itemId"));
-
+      String email = cu.lookupParam("email");
+      bean.setEmail(email);
+      
       DeliveryBean dbean = (DeliveryBean) cu.lookupBean("delivery");
       dbean.setActionString("gradeAssessment");
       //dbean.setForGrading(true);

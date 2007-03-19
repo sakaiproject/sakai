@@ -40,11 +40,13 @@ public class StudentScoresBean implements Serializable
   private final static long serialVersionUID = 5517587781720762296L;
 
   private String studentName;
+  private String firstName;
   private String comments;
   private String publishedId;
   private String studentId;
   private String assessmentGradingId;
   private String itemId; // ID of the first item; used by QuestionScores
+  private String email;
 
   /**
    * Creates a new StudentScoresBean object.
@@ -62,6 +64,16 @@ public class StudentScoresBean implements Serializable
   public void setStudentName(String newname)
   {
     studentName = newname;
+  }
+  
+  public String getFirstName()
+  {
+    return firstName;
+  }
+
+  public void setFirstName(String firstName)
+  {
+    this.firstName = firstName;
   }
 
   public String getComments()
@@ -112,5 +124,15 @@ public class StudentScoresBean implements Serializable
   public void setItemId(String newId)
   {
     itemId = newId;
+  }
+  
+  public String getEmail()
+  {
+    return email;
+  }
+
+  public void setEmail(String email)
+  {
+	  this.email = email;
   }
 }

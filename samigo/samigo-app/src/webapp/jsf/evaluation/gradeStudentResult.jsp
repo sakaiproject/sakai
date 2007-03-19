@@ -39,6 +39,26 @@ $Id$
   <body onload="hideUnhideAllDivsExceptFirst('none');;<%= request.getAttribute("html.body.onload") %>">
 <!-- $Id:  -->
 <!-- content... -->
+<script>
+function clickEmailLink(field){
+var emaillinkid= field.id.replace("createEmail", "hiddenlink");
+
+var newindex = 0;
+for (i=0; i<document.links.length; i++) {
+  if(document.links[i].id == emaillinkid)
+  {
+    newindex = i;
+    break;
+  }
+}
+
+document.links[newindex].onclick();
+window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height=600,scrollbars=yes, resizable=yes');
+}
+
+
+</script>
+
  <div class="portletBody">
 <h:form id="editStudentResults">
   <h:inputHidden id="publishedIdd" value="#{studentScores.publishedId}" />
@@ -221,12 +241,22 @@ $Id$
             <h:outputText value="#{deliveryMessages.comment}#{deliveryMessages.column}"/>
             <h:inputTextarea value="#{question.gradingComment}" rows="3" cols="30"/>
           </h:panelGrid>
-
         </h:column>
       </h:dataTable>
     </h:column>
   </h:dataTable>
 </div>
+
+<h:outputLink id="createEmail" onclick="clickEmailLink(this);" value="../evaluation/gradeStudentResult">
+  <h:outputText value="  #{evaluationMessages.email} #{studentScores.firstName}" rendered="#{studentScores.email != null && studentScores.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
+</h:outputLink>
+<h:commandLink id="hiddenlink" action="totalScores" value="">
+  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.util.EmailListener" />
+  <f:param name="toName" value="#{studentScores.studentName}" />
+  <f:param name="toEmailAddress" value="#{studentScores.email}" />
+  <f:param name="toFirstName" value="#{studentScores.firstName}" />
+</h:commandLink>
+
 
 <p class="act">
    <h:commandButton accesskey="#{evaluationMessages.a_save}" styleClass="active" value="#{evaluationMessages.save_cont}" action="totalScores" type="submit">
