@@ -3329,8 +3329,11 @@ public abstract class BaseCitationService implements CitationService
 	 */
 	public void destroy()
 	{
-		m_storage.close();
-		m_storage = null;
+		if(m_storage != null)
+		{
+			m_storage.close();
+			m_storage = null;
+		}
 	}
 
 	/**
