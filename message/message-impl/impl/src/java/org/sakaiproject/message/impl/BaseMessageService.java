@@ -43,11 +43,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Summary;
 import org.sakaiproject.entity.api.EntityManager;
@@ -2497,6 +2499,21 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 		 */
 		public void commitMessage(MessageEdit edit, int priority)
 		{
+			commitMessage(edit, priority, "");
+		}
+		
+		/**
+		 * Commit the changes made to a MessageEdit object, and release the lock. The MessageEdit is disabled, and not to be used after this call.
+		 * 
+		 * @param user
+		 *        The UserEdit object to commit.
+		 * @param priority
+		 *        The notification priority for this commit.
+		 * @param invoker
+		 * 		  The object to be called if a scheduled notification is used.
+		 */
+		public void commitMessage(MessageEdit edit, int priority, String invokee)
+		{
 			// check for closed edit
 			if (!edit.isActiveEdit())
 			{
@@ -2514,6 +2531,40 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 			// update the properties
 			// addLiveUpdateProperties(edit.getPropertiesEdit());//%%%
 
+			// if this message had a future invocation before, delete it because
+			// this modification changed the date of release so either it will notify it now
+			// or set a new future notification
+			ScheduledInvocationManager scheduledInvocationManager = (ScheduledInvocationManager) 
+							ComponentManager.get(org.sakaiproject.api.app.scheduler.ScheduledInvocationManager.class);
+
+			if (edit.getProperties().getProperty("schInvUuid") != null)
+			{
+				scheduledInvocationManager.deleteDelayedInvocation(edit.getProperties().getProperty("schInvUuid"));
+				edit.getPropertiesEdit().removeProperty("schInvUuid");
+
+				Event event = m_eventTrackingService.newEvent("schInv.delete", edit.getReference(), true, priority);
+				m_eventTrackingService.post(event);				
+			}
+
+			// For Scheduled Notification, compare header date with now to deterine
+			// if an immediate notification is needed or a scheduled one
+			// Put here since need to store uuid for notification just in case need to
+			// delete/modify
+			Time now = m_timeService.newTime();
+			boolean transientNotification = true;
+			
+			if (now.before(edit.getHeader().getDate()) && priority != NotificationService.NOTI_NONE)
+			{
+				String uuid = scheduledInvocationManager.createDelayedInvocation(edit.getHeader().getDate(), 
+									invokee, edit.getReference());
+		
+				ResourcePropertiesEdit editProps = edit.getPropertiesEdit();
+		
+				editProps.addProperty("schInvUuid", uuid);
+				
+				transientNotification = false;
+			}
+
 			// complete the edit
 			m_storage.commitMessage(this, edit);
 
@@ -2522,12 +2573,12 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
 
 			// track event
 			Event event = m_eventTrackingService.newEvent(eventId(((BaseMessageEdit) edit).getEvent()), edit.getReference(), true,
-					priority);
+						priority);
 			m_eventTrackingService.post(event);
 
 			// channel notification
-			notify(event);
-
+			if (transientNotification) notify(event);
+			
 			// close the edit object
 			((BaseMessageEdit) edit).closeEdit();
 

@@ -40,6 +40,12 @@
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-component</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-entity-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
@@ -77,6 +83,12 @@
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-util-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-scheduler-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 
