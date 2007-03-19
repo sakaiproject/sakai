@@ -83,9 +83,6 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	/** copyright path -- MUST have same value as AccessServlet.COPYRIGHT_PATH */
 	public static final String COPYRIGHT_PATH = Entity.SEPARATOR + "copyright";
 	private static final String COPYRIGHT_ALERT_URL = ServerConfigurationService.getAccessUrl() + COPYRIGHT_PATH;
-	//private static final String COPYRIGHT_SELF_COPYRIGHT = rb.getString("cpright2");
-	private static final String COPYRIGHT_NEW_COPYRIGHT = rb.getString("cpright3");
-	
 	protected  static final String CREATE_FOLDERS_TEMPLATE = "resources/sakai_create_folders";
 	protected  static final String CREATE_HTML_TEMPLATE = "resources/sakai_create_html";
 	protected  static final String CREATE_TEXT_TEMPLATE = "resources/sakai_create_text";
@@ -106,6 +103,8 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 	private static final String STATE_COPYRIGHT_FAIRUSE_URL = PREFIX + "copyright_fairuse_url";
 
+	private static final String STATE_COPYRIGHT_NEW_COPYRIGHT = PREFIX + "new_copyright";
+	
 	/** copyright related info */
 	private static final String STATE_COPYRIGHT_TYPES = PREFIX + "copyright_types";
 
@@ -660,11 +659,11 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			}
 		}
 
-		if (state.getAttribute(COPYRIGHT_NEW_COPYRIGHT) == null)
+		if (state.getAttribute(STATE_COPYRIGHT_NEW_COPYRIGHT) == null)
 		{
 			if (ServerConfigurationService.getString("copyrighttype.new") != null)
 			{
-				state.setAttribute(COPYRIGHT_NEW_COPYRIGHT, ServerConfigurationService.getString("copyrighttype.new"));
+				state.setAttribute(STATE_COPYRIGHT_NEW_COPYRIGHT, ServerConfigurationService.getString("copyrighttype.new"));
 			}
 		}
 

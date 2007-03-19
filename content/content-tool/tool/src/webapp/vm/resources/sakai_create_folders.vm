@@ -11,6 +11,13 @@
 	<p class="instr">
 		$tlang.getString("instr.folder")
 	</p>
+	<div class="breadCrumb">
+		$tlang.getString("gen.location")
+		<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0"  alt="folder" />
+		#foreach ($item in $model.collectionPath)
+			$item.name /
+		#end
+	</div>
 	<form name="addFolderForm" id="addFolderForm" method="post" action="#toolForm("ResourcesHelperAction")">
 		<input type="hidden" name="fileCount" id="fileCount" value="$pipes.size()" />
 		<input type="hidden" name="lastIndex" id="lastIndex" value="$pipes.size()" />
@@ -41,8 +48,7 @@
 			#end
 		</div>
 		<p class="act">
-			<input type="button" name="addfile" id="addfile" onclick="javascript:addFileInput();" value="$tlang.getString("label.addFolder")" />
-			<span class="submitnotif" id="submitnotif01" style="visibility:hidden">$tlang.getString("label.proces")</span>
+			<a href="#" onclick="javascript:addFileInput();">$tlang.getString("label.addFolder")</a>
 		</p>
 		<p class="act">
 			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="javascript:showNotif('submitnotif03','saveChanges','addFolderForm');document.getElementById('addFolderForm').action='#toolLink("ResourcesHelperAction" "doCreateFolders")&flow=save';submitform('addFolderForm');" value="$tlang.getString("label.continue")" accesskey="s" />
@@ -257,17 +263,31 @@
 			if(display && display == "none")
 			{
 				propertiesDiv.style.display = "block";
-
+				removeTextNodes(element);
+				var newText = document.createTextNode("$tlang.getString("edit.hide")");
+				element.appendChild(newText);
 				focus_path = [ "content" + DOT + index ];
 			}
 			else
 			{
 				propertiesDiv.style.display = "none";
-
+				removeTextNodes(element);
+				var newText = document.createTextNode("$tlang.getString("edit.show")");
+				element.appendChild(newText);
 				focus_path = [ "description" + DOT + index ];
 			}
 			setMainFrameHeight(window.name);
 			setFocus(focus_path);
+		}
+	}
+	function removeTextNodes(element)
+	{
+		for(var i = element.childNodes.length - 1; i >= 0; i--)
+		{
+			if(element.childNodes[i].nodeType == 3 || element.childNodes[i].nodeType == 4)
+			{
+				element.removeChild(element.childNodes[i]);
+			}
 		}
 	}
 	function deepCopy(element, index)

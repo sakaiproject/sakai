@@ -509,8 +509,7 @@ public class ResourcesAction
 
 	private static final String STATE_COPYRIGHT_FAIRUSE_URL = PREFIX + "copyright_fairuse_url";
 	
-	//private static final String COPYRIGHT_SELF_COPYRIGHT = rb.getString("cpright2");
-	private static final String COPYRIGHT_NEW_COPYRIGHT = rb.getString("cpright3");
+	private static final String STATE_COPYRIGHT_NEW_COPYRIGHT = PREFIX + "new_copyright";
 	
 	/** copyright related info */
 	private static final String STATE_COPYRIGHT_TYPES = PREFIX + "copyright_types";
@@ -7395,11 +7394,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 		}
 
-		if (state.getAttribute(COPYRIGHT_NEW_COPYRIGHT) == null)
+		if (state.getAttribute(STATE_COPYRIGHT_NEW_COPYRIGHT) == null)
 		{
 			if (ServerConfigurationService.getString("copyrighttype.new") != null)
 			{
-				state.setAttribute(COPYRIGHT_NEW_COPYRIGHT, ServerConfigurationService.getString("copyrighttype.new"));
+				state.setAttribute(STATE_COPYRIGHT_NEW_COPYRIGHT, ServerConfigurationService.getString("copyrighttype.new"));
 			}
 		}
 

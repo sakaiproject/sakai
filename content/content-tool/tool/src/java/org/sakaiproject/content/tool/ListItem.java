@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -64,6 +65,7 @@ import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InconsistentException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -272,6 +274,10 @@ public class ListItem
 	protected String copyright;
 	protected String newcopyright;
 	protected boolean copyrightAlert;
+
+	private ListItem parent;
+
+	private String containingCollectionId;
 	
 	/**
 	 * @param entity
@@ -280,6 +286,7 @@ public class ListItem
 	{
 		org.sakaiproject.content.api.ContentHostingService contentService = ContentHostingService.getInstance();
 		this.entity = entity;
+		this.containingCollectionId = entity.getContainingCollection().getId();
 		ResourceProperties props = entity.getProperties();
 		this.accessUrl = entity.getUrl();
 		this.collection = entity.isCollection();
@@ -486,7 +493,7 @@ public class ListItem
 	{
 		org.sakaiproject.content.api.ContentHostingService contentService = ContentHostingService.getInstance();
 		this.entity = null;
-		
+		this.containingCollectionId = parent.getId();
 		ResourceTypeRegistry registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
 		this.resourceType = pipe.getAction().getTypeId();
 		this.resourceTypeDef = registry.getType(resourceType);
@@ -502,6 +509,7 @@ public class ListItem
 		this.collection = ResourceType.TYPE_FOLDER.equals(resourceType);
 		this.id = "";
 		this.name = this.otherActionsLabel;
+		this.parent = parent;
 		this.permissions = parent.getPermissions();
 		this.selected = false;
 		
@@ -605,6 +613,7 @@ public class ListItem
 	public ListItem(String entityId)
 	{
 		this.id = entityId;
+		this.containingCollectionId = ContentHostingService.getContainingCollectionId(entityId);
 	}
 
 	/**
@@ -903,6 +912,51 @@ public class ListItem
     	}
     	return createdBy;
     }
+    
+	/**
+	 * @return
+	 */
+	public List<ListItem> getCollectionPath()
+	{
+		LinkedList<ListItem> path = new LinkedList<ListItem>();
+		org.sakaiproject.content.api.ContentHostingService contentService = ContentHostingService.getInstance();
+		
+		ContentCollection containingCollection = null;
+		ContentEntity entity = this.getEntity();
+		if(entity == null)
+		{
+			try 
+			{
+				containingCollection = contentService.getCollection(this.containingCollectionId);
+
+			} 
+			catch (IdUnusedException e) 
+			{
+				logger.warn("IdUnusedException " + e);
+			} 
+			catch (TypeException e) 
+			{
+				logger.warn("TypeException " + e);
+			} 
+			catch (PermissionException e) 
+			{
+				logger.warn("PermissionException " + e);
+			}
+			
+		}
+		else
+		{
+			containingCollection = entity.getContainingCollection();
+		}
+		while(contentService.isRootCollection(containingCollection.getId()))
+		{
+			path.addFirst(new ListItem(containingCollection));
+			containingCollection = containingCollection.getContainingCollection();
+		}
+		path.addFirst(new ListItem(containingCollection));
+		
+		return path;
+	}
 	
 	/**
      * @return the depth
@@ -933,7 +987,6 @@ public class ListItem
      */
     public ContentEntity getEntity()
     {
-	    // TODO Auto-generated method stub
 	    return this.entity;
     }
 	
