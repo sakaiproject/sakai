@@ -57,7 +57,8 @@ function appendMessage(uname, uid, removeable, pdate, ptime, msg, msgId)
 	var deleteHtml = "";
 	if (removeable == "true")
 	{
-		var builtId = "topForm:chatList:" + msgId + ":deleteMessage";
+		newComponentId = $(transcript).children("li").size();
+		var builtId = "topForm:chatList:" + newComponentId + ":deleteMessage";
 		deleteUrl = "document.forms['topForm']['topForm:_idcl'].value='" + builtId + "'; document.forms['topForm'].submit(); return false;";
 		deleteHtml = 
 			" <a id=\"" + builtId + "\" href=\"#\" onclick=\"" + deleteUrl + "\" title=\"" + deleteMsg + "\" >" +
@@ -73,6 +74,9 @@ function appendMessage(uname, uid, removeable, pdate, ptime, msg, msgId)
 	// adjust scroll
 	var objDiv = document.getElementById("chatListWrapper");
    objDiv.scrollTop = objDiv.scrollHeight;
+
+	//Force a refresh of the content (doesn't actually reload the page)
+   $.ajax({type: "GET", url: location.href, data: ""});
 
 }
 

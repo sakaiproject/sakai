@@ -12,7 +12,8 @@
 deleteMsg = "<h:outputText value="#{msgs['list.del']}" />";
 </script>
 
-	<script  type="text/javascript" language="JavaScript" src="/sakai-chat-tool/js/chatscript.js"></script>
+	<sakai:script contextBase="/sakai-chat-tool" path="/js/chatscript.js"/>
+	<sakai:script contextBase="/library" path="/js/jquery-1.1.2.js" />
 	
 	<sakai:messages />
 	
