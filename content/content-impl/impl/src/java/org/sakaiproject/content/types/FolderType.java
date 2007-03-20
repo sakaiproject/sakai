@@ -260,7 +260,13 @@ public class FolderType extends BaseResourceType
          */
         public boolean available(ContentEntity entity)
         {
-	        return true;
+        	boolean isAvailable = true;
+        	
+        	if(entity != null && entity instanceof ContentCollection)
+        	{
+        		isAvailable = ((ContentCollection) entity).getMemberCount() > 1;
+        	}
+	        return isAvailable;
         }
 
 		/* (non-Javadoc)
