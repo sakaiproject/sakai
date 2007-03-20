@@ -16,6 +16,7 @@
 			$tlang.getString("addsame.roles")
 		</h4>
 			#foreach ($role in $roles)
+				#if(!$!role.isProviderOnly())
 				<p class="checkbox">
 					<input type="radio" name="selectRole" id="selectRole_$role.Id" value="$role.Id"
 						#if($form_selectedRole == $role.Id)
@@ -30,7 +31,8 @@
 						#set($description = "")
 						#set($description = $role.Description)
 						$!description
-				</p>		
+				</p>
+				#end
 			#end
     	<h4>
 			$tlang.getString("addsame.participants")

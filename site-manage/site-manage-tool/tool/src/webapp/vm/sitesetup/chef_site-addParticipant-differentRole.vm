@@ -10,6 +10,7 @@
 	</p>
 	<table cellspacing="0" cellpadding="0" class="itemSummary" summary ="$tlang.getString("adddif.rolelist.summary")" >
 		#foreach ($role in $roles)
+			#if(!$!role.isProviderOnly())
 			<tr>
 				<th>
 					$role.Id
@@ -20,6 +21,7 @@
 					$!description
 				</td>
 			</tr>
+			#end
 		#end
 	</table>
 	<form action="#toolForm("SiteAction")" method="post">
@@ -50,6 +52,7 @@
 						<select name="role$uniqname" id="role$selectIDCount">
 							<option value="">$tlang.getString("adddif.please")</option>
 							#foreach($role in $roles)
+								#if(!$!role.isProviderOnly())
 								<option value ="$role.Id"
 									#if($role.Id == $!selectedRoles.get($uniqname))
 										selected="selected"
@@ -57,6 +60,7 @@
 								>
 									$role.Id
 								</option>
+								#end
 							#end
 						</select>
 					</td>
