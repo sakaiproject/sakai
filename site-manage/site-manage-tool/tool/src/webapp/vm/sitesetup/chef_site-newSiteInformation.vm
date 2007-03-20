@@ -71,8 +71,12 @@
 				</li>
 			#end
 		</ul>
-		#if ($!manualAddNumber)
+		$tlang.getString("sinfo.requestedSections")
+		#if ($!cmRequestedSections || $!manualAddNumber)
 			<ul>
+				#foreach ($sect in $!cmRequestedSections)
+				<li>$sect.eid</li>
+				#end
 				#foreach ($k in [0..$manualAddNumber])
 						#set($courseFieldValues = $!fieldValues.get($k))
 						#set($bound = $!form_requiredFields.size())

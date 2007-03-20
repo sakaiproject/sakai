@@ -555,6 +555,8 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String STATE_CM_LEVEL_SELECTIONS = "site.cm.level.selections";
 
 	private static final String STATE_CM_SELECTED_SECTION = "site.cm.selectedSection";
+	
+	private static final String STATE_CM_REQUESTED_SECTIONS = "site.cm.requested";
 
 	private String cmSubjectCategory;
 
@@ -1086,6 +1088,18 @@ public class SiteAction extends PagedResourceActionII {
 					context.put("selectedProviderCourse", state
 							.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN));
 				}
+				
+				List<SectionObject>
+					cmRequestedList = (List<SectionObject>) state.
+							getAttribute(STATE_CM_REQUESTED_SECTIONS);
+							
+				if (cmRequestedList != null)
+				{
+					context.put("cmRequestedSections", cmRequestedList);
+					context.put("back", "53");
+				}
+
+				
 				if (state.getAttribute(STATE_MANUAL_ADD_COURSE_NUMBER) != null) {
 					int number = ((Integer) state
 							.getAttribute(STATE_MANUAL_ADD_COURSE_NUMBER))
@@ -2748,6 +2762,8 @@ public class SiteAction extends PagedResourceActionII {
 
 			SectionObject selectedSect = (SectionObject) state
 					.getAttribute(STATE_CM_SELECTED_SECTION);
+			List<SectionObject> requestedSections = (List<SectionObject>) state
+					.getAttribute(STATE_CM_REQUESTED_SECTIONS);
 
 			if (courseManagementIsImplemented() && cms != null) {
 				context.put("cmsAvailable", new Boolean(true));
@@ -2802,7 +2818,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("cmLevels", cmLevels);
 			context.put("cmLevelSelections", selections);
 			context.put("selectedCourse", selectedSect);
-
+			context.put("requestedSections", requestedSections);
 			if (((String) state.getAttribute(STATE_SITE_MODE))
 					.equalsIgnoreCase(SITE_MODE_SITESETUP)) {
 				context.put("backIndex", "36");
@@ -4678,6 +4694,9 @@ public class SiteAction extends PagedResourceActionII {
 							.getAttribute(STATE_MANUAL_ADD_COURSE_NUMBER))
 							.intValue();
 				}
+				
+				List<SectionObject>
+					cmRequestedSections = (List<SectionObject>) state.getAttribute(STATE_CM_REQUESTED_SECTIONS);
 
 				String realm = SiteService.siteReference(siteId);
 
@@ -4716,7 +4735,8 @@ public class SiteAction extends PagedResourceActionII {
 					sendSiteNotification(state, providerCourseList);
 				}
 
-				if (manualAddNumber != 0) {
+				if (manualAddNumber != 0) 
+				{
 					// set the manual sections to the site property
 					String manualSections = "";
 
@@ -4743,6 +4763,11 @@ public class SiteAction extends PagedResourceActionII {
 					// send request
 					sendSiteRequest(state, "new", manualAddNumber,
 							manualCourseInputs);
+				}
+				
+				if (cmRequestedSections != null && cmRequestedSections.size() > 0)
+				{
+					sendSiteRequest(state, "new", cmRequestedSections);
 				}
 
 			}
@@ -5096,6 +5121,223 @@ public class SiteAction extends PagedResourceActionII {
 
 	} // sendSiteRequest
 
+	private void sendSiteRequest(SessionState state, String request,
+			List<SectionObject> cmRequestedSections) {
+		User cUser = UserDirectoryService.getCurrentUser();
+		boolean sendEmailToRequestee = false;
+		StringBuffer buf = new StringBuffer();
+
+		// get the request email from configuration
+		String requestEmail = ServerConfigurationService.getString(
+				"setup.request", null);
+		if (requestEmail == null) {
+			M_log.warn(this + " - no 'setup.request' in configuration");
+		} else {
+			String noEmailInIdAccountName = ServerConfigurationService
+					.getString("noEmailInIdAccountName", "");
+
+			SiteInfo siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
+
+			Site site = getStateSite(state);
+			String id = site.getId();
+			String title = site.getTitle();
+
+			Time time = TimeService.newTime();
+			String local_time = time.toStringLocalTime();
+			String local_date = time.toStringLocalDate();
+
+			AcademicSession term = null;
+			boolean termExist = false;
+			if (state.getAttribute(STATE_TERM_SELECTED) != null) {
+				termExist = true;
+				term = (AcademicSession) state
+						.getAttribute(STATE_TERM_SELECTED);
+			}
+			String productionSiteName = ServerConfigurationService
+					.getServerName();
+
+			String from = NULL_STRING;
+			String to = NULL_STRING;
+			String headerTo = NULL_STRING;
+			String replyTo = NULL_STRING;
+			String message_subject = NULL_STRING;
+			String content = NULL_STRING;
+
+			String sessionUserName = cUser.getDisplayName();
+			String additional = NULL_STRING;
+			if (request.equals("new")) {
+				additional = siteInfo.getAdditional();
+			} else {
+				additional = (String) state.getAttribute(FORM_ADDITIONAL);
+			}
+
+			boolean isFutureTerm = false;
+			if (state.getAttribute(STATE_FUTURE_TERM_SELECTED) != null
+					&& ((Boolean) state
+							.getAttribute(STATE_FUTURE_TERM_SELECTED))
+							.booleanValue()) {
+				isFutureTerm = true;
+			}
+
+			// message subject
+			if (termExist) {
+				message_subject = rb.getString("java.sitereqfrom") + " "
+						+ sessionUserName + " " + rb.getString("java.for")
+						+ " " + term.getEid();
+			} else {
+				message_subject = rb.getString("java.official") + " "
+						+ sessionUserName;
+			}
+
+			// there is no offical instructor for future term sites
+			String requestId = (String) state
+					.getAttribute(STATE_SITE_QUEST_UNIQNAME);
+			if (!isFutureTerm) {
+				// To site quest account - the instructor of record's
+				if (requestId != null) {
+					try {
+						User instructor = UserDirectoryService
+								.getUser(requestId);
+						from = requestEmail;
+						to = instructor.getEmail();
+						headerTo = instructor.getEmail();
+						replyTo = requestEmail;
+						buf.append(rb.getString("java.hello") + " \n\n");
+						buf.append(rb.getString("java.receiv") + " "
+								+ sessionUserName + ", ");
+						buf.append(rb.getString("java.who") + "\n");
+						if (termExist) {
+							String dateString = term.getStartDate().toString();
+							String year = dateString.substring(dateString
+									.length() - 4);
+							buf.append(term.getTitle() + " " + year + "\n");
+
+						}
+
+						for (int i = 0; i < cmRequestedSections.size(); i++) {
+							SectionObject
+								so = (SectionObject)cmRequestedSections.get(i);
+
+							buf.append(so.getTitle() + "(" + so.getEid() + ")" + so.getCategory() + "\n");
+						}
+
+						buf.append("\n" + rb.getString("java.sitetitle") + "\t"
+								+ title + "\n");
+						buf.append(rb.getString("java.siteid") + "\t" + id);
+						buf.append("\n\n" + rb.getString("java.according")
+								+ " " + sessionUserName + " "
+								+ rb.getString("java.record"));
+						buf.append(" " + rb.getString("java.canyou") + " "
+								+ sessionUserName + " "
+								+ rb.getString("java.assoc") + "\n\n");
+						buf.append(rb.getString("java.respond") + " "
+								+ sessionUserName
+								+ rb.getString("java.appoint") + "\n\n");
+						buf.append(rb.getString("java.thanks") + "\n");
+						buf.append(productionSiteName + " "
+								+ rb.getString("java.support"));
+						content = buf.toString();
+
+						// send the email
+						EmailService.send(from, to, message_subject, content,
+								headerTo, replyTo, null);
+
+						// email has been sent successfully
+						sendEmailToRequestee = true;
+					} catch (UserNotDefinedException ee) {
+					} // try
+				}
+			}
+
+			// To Support
+			from = cUser.getEmail();
+			to = requestEmail;
+			headerTo = requestEmail;
+			replyTo = cUser.getEmail();
+			buf.setLength(0);
+			buf.append(rb.getString("java.to") + "\t\t" + productionSiteName
+					+ " " + rb.getString("java.supp") + "\n");
+			buf.append("\n" + rb.getString("java.from") + "\t"
+					+ sessionUserName + "\n");
+			if (request.equals("new")) {
+				buf.append(rb.getString("java.subj") + "\t"
+						+ rb.getString("java.sitereq") + "\n");
+			} else {
+				buf.append(rb.getString("java.subj") + "\t"
+						+ rb.getString("java.sitechreq") + "\n");
+			}
+			buf.append(rb.getString("java.date") + "\t" + local_date + " "
+					+ local_time + "\n\n");
+			if (request.equals("new")) {
+				buf.append(rb.getString("java.approval") + " "
+						+ productionSiteName + " "
+						+ rb.getString("java.coursesite") + " ");
+			} else {
+				buf.append(rb.getString("java.approval2") + " "
+						+ productionSiteName + " "
+						+ rb.getString("java.coursesite") + " ");
+			}
+			if (termExist) {
+				String dateString = term.getStartDate().toString();
+				String year = dateString.substring(dateString.length() - 4);
+				buf.append(term.getTitle() + " " + year);
+			}
+			if (cmRequestedSections != null && cmRequestedSections.size() > 1) {
+				buf.append(" " + rb.getString("java.forthese") + " "
+						+ cmRequestedSections.size() + " " + rb.getString("java.sections")
+						+ "\n\n");
+			} else {
+				buf.append(" " + rb.getString("java.forthis") + "\n\n");
+			}
+			
+			
+			for (int i = 0; i < cmRequestedSections.size(); i++) {
+				SectionObject
+					so = (SectionObject)cmRequestedSections.get(i);
+
+				buf.append(so.getTitle() + "(" + so.getEid() + ")" + so.getCategory() + "\n");
+			}
+
+			buf.append(rb.getString("java.name") + "\t" + sessionUserName
+					+ " (" + noEmailInIdAccountName + " " + cUser.getEid()
+					+ ")\n");
+			buf.append(rb.getString("java.email") + "\t" + replyTo + "\n\n");
+			buf.append(rb.getString("java.sitetitle") + "\t" + title + "\n");
+			buf.append(rb.getString("java.siteid") + "\t" + id + "\n");
+			buf.append(rb.getString("java.siteinstr") + "\n" + additional
+					+ "\n\n");
+
+			if (!isFutureTerm) {
+				if (sendEmailToRequestee) {
+					buf.append(rb.getString("java.authoriz") + " " + requestId
+							+ " " + rb.getString("java.asreq"));
+				} else {
+					buf.append(rb.getString("java.thesiteemail") + " "
+							+ requestId + " " + rb.getString("java.asreq"));
+				}
+			}
+			content = buf.toString();
+			EmailService.send(from, to, message_subject, content, headerTo,
+					replyTo, null);
+
+			// To the Instructor
+			from = requestEmail;
+			to = cUser.getEmail();
+			headerTo = to;
+			replyTo = to;
+			buf.setLength(0);
+			buf.append(rb.getString("java.isbeing") + " ");
+			buf.append(rb.getString("java.meantime") + "\n\n");
+			buf.append(rb.getString("java.copy") + "\n\n");
+			buf.append(content);
+			buf.append("\n" + rb.getString("java.wish") + " " + requestEmail);
+			content = buf.toString();
+			EmailService.send(from, to, message_subject, content, headerTo,
+					replyTo, null);
+			state.setAttribute(REQUEST_SENT, new Boolean(true));
+		} // if
+
+	} // sendSiteRequest
 	/**
 	 * Notification sent when a course site is set up automatcally
 	 * 
@@ -11333,6 +11575,29 @@ public class SiteAction extends PagedResourceActionII {
 					manualCourseList.remove(eid);
 			}
 		}
+		
+		List<SectionObject> requestedCMSections = (List<SectionObject>) state
+				.getAttribute(STATE_CM_REQUESTED_SECTIONS);
+		
+		if (requestedCMSections != null)
+		{
+			for (int i = 0; i < requestedCMSections.size(); i++)
+			{
+				SectionObject
+					so = (SectionObject)requestedCMSections.get(i);
+				
+				String field = "removeSection" + so.getEid();
+				String toRemove = params.getString(field);
+				
+				if ("true".equals(toRemove)) {
+					requestedCMSections.remove(so);
+				}
+				
+			}
+			
+			if (requestedCMSections.size() == 0)
+				state.removeAttribute(STATE_CM_REQUESTED_SECTIONS);
+		}
 
 		// if list is empty, set to null. This is important 'cos null is
 		// the indication that the list is empty in the code. See case 2 on line
@@ -11510,8 +11775,8 @@ public class SiteAction extends PagedResourceActionII {
 	}
 
 	private void prepFindPage(SessionState state) {
-		final List cmLevels = getCMLevelLabels(), selections = (List) state
-				.getAttribute(STATE_CM_LEVEL_SELECTIONS);
+		final List cmLevels = getCMLevelLabels(), 
+			selections = (List) state.getAttribute(STATE_CM_LEVEL_SELECTIONS);
 		int lvlSz = 0;
 
 		if (cmLevels == null || (lvlSz = cmLevels.size()) < 1) {
@@ -11534,22 +11799,130 @@ public class SiteAction extends PagedResourceActionII {
 		state.setAttribute(STATE_TEMPLATE_INDEX, "53");
 	}
 
+	private void addRequestedSection (SessionState state)
+	{
+		SectionObject 
+			so = (SectionObject)state.getAttribute(STATE_CM_SELECTED_SECTION);
+		
+		if (so == null)
+			return;
+		
+		List<SectionObject>
+			requestedSections = (List<SectionObject>)state.getAttribute(STATE_CM_REQUESTED_SECTIONS);
+		
+		if (requestedSections == null)
+		{
+			requestedSections = new ArrayList<SectionObject>();
+		}
+		
+		//don't add duplicates
+		if (!requestedSections.contains(so))
+			requestedSections.add(so);
+		
+		//if the title has not yet been set and there is just
+		// one section, set the title to that section's EID
+		if (requestedSections.size() == 1)
+		{
+			SiteInfo 
+				siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
+			
+			if (siteInfo == null) {
+				siteInfo = new SiteInfo();
+			}
+		
+			if (siteInfo.title == null || 
+				siteInfo.title.trim().length() == 0)
+			{
+				siteInfo.title = so.getEid();
+			}
+
+			state.setAttribute(STATE_SITE_INFO, siteInfo);
+		}
+		
+		state.setAttribute(STATE_CM_REQUESTED_SECTIONS, requestedSections);
+		
+		state.removeAttribute(STATE_CM_LEVEL_SELECTIONS);
+		state.removeAttribute(STATE_CM_SELECTED_SECTION);
+	}
+	
 	public void doFind_course(RunData data) {
 		final SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		final ParameterParser params = data.getParameters();
 		final String option = params.get("option");
-		if ("continue".equals(option)) {
-			doContinue(data);
-			return;
-		}
-		if ("back".equals(option)) {
-			doBack(data);
-			return;
-		}
-		if ("cancel".equals(option)) {
-			doCancel_create(data);
-			return;
+		
+		if (option != null) {
+			if ("continue".equals(option)) 
+			{
+				addRequestedSection(state);
+								
+				String uniqname = StringUtil.trimToNull(params
+						.getString("uniqname"));
+				state.setAttribute(STATE_SITE_QUEST_UNIQNAME, uniqname);
+
+				if (state.getAttribute(STATE_FUTURE_TERM_SELECTED) != null
+						&& !((Boolean) state
+								.getAttribute(STATE_FUTURE_TERM_SELECTED))
+								.booleanValue()) {
+					// if a future term is selected, do not check authorization
+					// uniqname
+					if (uniqname == null) {
+						addAlert(state, rb.getString("java.author")
+								+ " "
+								+ ServerConfigurationService
+										.getString("noEmailInIdAccountName")
+								+ ". ");
+					} else {
+						try {
+							UserDirectoryService.getUserByEid(uniqname);
+						} catch (UserNotDefinedException e) {
+							addAlert(
+									state,
+									rb.getString("java.validAuthor1")
+											+ " "
+											+ ServerConfigurationService
+													.getString("noEmailInIdAccountName")
+											+ " "
+											+ rb.getString("java.validAuthor2"));
+						}
+					}
+				}
+				if (state.getAttribute(STATE_MESSAGE) == null) {
+					if (getStateSite(state) == null) {
+						state.setAttribute(STATE_TEMPLATE_INDEX, "2");
+					} else {
+						state.setAttribute(STATE_TEMPLATE_INDEX, "44");
+					}
+				}
+
+				doContinue(data);
+				return;
+			}
+			else if ("back".equals(option)) {
+				doBack(data);
+				return;
+			}
+			else if ("cancel".equals(option)) {
+				doCancel_create(data);
+				return;
+			}
+			else if (option.equals("add"))
+			{
+				addRequestedSection(state);
+				return;
+			}
+			else if (option.equals("manual")) 
+			{
+				// TODO: send to case 37
+				state.setAttribute(STATE_TEMPLATE_INDEX, "37");
+
+				state.setAttribute(STATE_MANUAL_ADD_COURSE_NUMBER, 
+									new Integer(1));
+				
+				return;
+			}
+			else if (option.equals("remove"))
+				removeAnyFlagedSection(state, params);
 		}
 
 		final List selections = new ArrayList(3);
@@ -11565,13 +11938,6 @@ public class SiteAction extends PagedResourceActionII {
 		}
 
 		state.setAttribute(STATE_CM_LEVEL_SELECTIONS, selections);
-
-		if (option != null) {
-			if (option.equals("manual")) {
-				// TODO: send to case 37
-			} else if (option.equals("remove"))
-				removeAnyFlagedSection(state, params);
-		}
 
 		prepFindPage(state);
 	}

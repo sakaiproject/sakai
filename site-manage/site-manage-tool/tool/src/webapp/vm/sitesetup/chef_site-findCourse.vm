@@ -8,6 +8,14 @@
 		return false;
 	}
 	
+	function submitRemoveRequestedSection(index){
+		id = "removeRequestedSection"+index;
+    	removeSection = document.getElementById(id);
+		removeSection.value="true";
+		document.removeSectionForm.submit();
+		return false;
+	}
+	
 	function resetOption(action){
 		document.findCourseForm.option.value=action;
 		document.findCourseForm.submit();
@@ -28,7 +36,7 @@
 		
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<p class="instruction">
-		    #if ($selectedProviderCourse)
+		    #if ($selectedProviderCourse || $requestedSections)
 				$tlang.getString("nscourse.already")
 				<form name = "removeSectionForm" method="post" action="#toolForm($action)">
 					<input type="hidden" name="eventSubmit_doContinue" value="$tlang.getString('gen.continue')" />
@@ -46,10 +54,13 @@
 								</label>
 							</li>
 						#end
-						#foreach($id in $!selectedRequestedCourse)
+						#foreach($section in $!requestedSections)
 							<li>
 								<label for = "$id">
-									$id
+									$section.title ($section.eid)
+									<!-- Remove Section -->
+									(<a href="#" onclick="javascript:submitRemoveRequestedSection('$section.eid');">Remove</a>)
+									<input type="hidden" id="removeRequestedSection$section.eid" name="removeSection$section.eid" value="" />
 								</label>
 							</li>
 						#end
@@ -139,7 +150,7 @@
 		    <td>$tlang.getString("nscourse.findCourse.selected")</td>
 		    <td>
 			    #if ($selectedCourse)
-			        $selectedCourse.title
+			        $selectedCourse.title 
 			    #else
 				    None
 			    #end
@@ -147,39 +158,34 @@
 		  </tr>
 		</table>
 		
-		#if ($selectedCourse)
-			<h3>$tlang.getString("nscourse.findCourse.authorization.title")</h3>
-			<p>$tlang.getString("nscourse.findCourse.authorization.instructions")</p>
-			
-			<table>
-			  <tr>
-			    <td>$tlang.getString("nscourse.findCourse.authorization.authname")</td>
-			    <td>
-			      <input type="text" name="authorizerName"/>
-			      #if ($campusDirectory)
-			      <a href="$campusDirectory" target="campusDirectory">
-			        $tlang.getString("nscourse.findCourse.authorization.authname.lookup")
-			      </a>
-			      #end
-			      <br/>
-			      $tlang.getString("nscourse.findCourse.authorization.email")
-			    </td>
-			  </tr>
-			  <tr>
-			    <td>
-			      $tlang.getString("nscourse.findCourse.authorization.specialInstructions")
-			    </td>
-			    <td>
-			      <textarea cols="80" rows="8" name="authorizerInstructions"></textarea><br/>
-			      $tlang.getString("nscourse.findCourse.authorization.comments")
-			    </td>
-			  </tr>
-			</table>
+		#if ($selectedCourse || $requestedSections)
+					<div class="shorttext required">
+						<span class="reqStar">*</span>						
+						<label for="uniqname">		
+						   $tlang.getString("man.authoriz")
+						</label>
+						<input type="text" name="uniqname"  id="uniqname"   size="40" value="$!value_uniqname" />
+					</div>
+					<p class="labelindnt instruction">
+					   $tlang.getString("man.email")
+					</p>
+					<div class="shorttext">
+						<label for="additional" class="block">
+							$tlang.getString("man.spec")
+						</label>
+						<textarea id="additional"   name="additional" rows="4" cols="40" wrap="virtual">$validator.escapeHtmlTextarea($form_additional)</textarea>
+					</div>
+					<p  class="instruction labelindnt">
+						$tlang.getString("man.please")
+					</p>
+
+			<a href="#" onclick="javascript:blur();document.findCourseForm.option.value='add';document.findCourseForm.submit();">$tlang.getString('nscourse.findCourse.addAnotherSection')</a>		
 		#end
 		
 
 		<input id="index" type="hidden" name="template-index" value="53" />
 		<input type="hidden" name="back" value="$backIndex" />
+		<input type="hidden" name="continue" value="2"/>
 		<input type="hidden" name="eventSubmit_doFind_course" value="x" />
 		<input type="hidden" name="option" value="find"/>
 		<p class="act">
