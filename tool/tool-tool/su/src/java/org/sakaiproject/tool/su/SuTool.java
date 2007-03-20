@@ -136,9 +136,10 @@ public class SuTool
 		}
 
 		// set the session user from the value supplied in the form
-		message = "Username " + sakaiSession.getUserEid() + " becoming " + validatedUserEid;
+      message = "Username " + sakaiSession.getUserEid() + " becoming " + validatedUserEid;
 		M_log.info("[SuTool] " + message);
-		fc.addMessage("su", new FacesMessage(FacesMessage.SEVERITY_INFO, message, message + ": Currently="
+      message = msgs.getString("title");
+		fc.addMessage("su", new FacesMessage(FacesMessage.SEVERITY_INFO, message, message + ": "
 				+ userinfo.getDisplayName()));
 		
 		// while keeping the official usage session under the real user id, swicth over everything else to be the SU'ed user
@@ -174,9 +175,9 @@ public class SuTool
 
 		if (!M_security.isSuperUser())
 		{
-			message = "Unauthorized user attempted access: " + sakaiSession.getUserId();
+			message = msgs.getString("unauthorized") + " " + sakaiSession.getUserId();
 			M_log.error("[SuTool] Fatal Error: " + message);
-			fc.addMessage("allowed", new FacesMessage(FacesMessage.SEVERITY_FATAL, message, message + ":" + " unauthorized"));
+			fc.addMessage("allowed", new FacesMessage(FacesMessage.SEVERITY_FATAL, message, message));
 			allowed = false;
 		}
 		else
