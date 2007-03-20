@@ -562,8 +562,6 @@ public class SiteAction extends PagedResourceActionII {
 
 	private boolean warnedNoSubjectCategory = false;
 
-	private List<String> cmLevels;
-
 	// the string marks the protocol part in url
 	private static final String PROTOCOL_STRING = "://";
 
@@ -11738,38 +11736,40 @@ public class SiteAction extends PagedResourceActionII {
 		return cmSubjectCategory;
 	}
 
-	private List<String> getCMLevelLabels() {
-		if (cmLevels == null || cmLevels.size() == 0) {
-			String level = null;
+	private List<String> getCMLevelLabels() 
+	{
+		List<String>
+			cmLevels = new ArrayList(3);
+		
+		String level = null;
 
-			cmLevels = new ArrayList<String>(3);
+		cmLevels = new ArrayList<String>(3);
 
-			level = ServerConfigurationService
-					.getString("site-manage.cms.subject.label");
-			if (level == null) {
-				M_log
-						.warn("site-manage.cms.subject.label is not set in sakai.properties.");
-				// return cmLevels;
-			}
-
-			cmLevels.add(level);
-
-			level = rb.getString("nscourse.cms.courseoffering.label");
-			if (level == null) {
-				M_log
-						.warn("nscourse.cms.courseoffering.label is not set in sitesetupgeneric.properties.");
-				// return cmLevels;
-			}
-			cmLevels.add(level);
-
-			level = rb.getString("nscourse.cms.section.label");
-			if (level == null) {
-				M_log
-						.warn("nscourse.cms.section.label is not set in sitesetupgeneric.properties.");
-				// return cmLevels;
-			}
-			cmLevels.add(level);
+		level = ServerConfigurationService
+				.getString("site-manage.cms.subject.label");
+		if (level == null) {
+			M_log
+					.warn("site-manage.cms.subject.label is not set in sakai.properties.");
+			// return cmLevels;
 		}
+
+		cmLevels.add(level);
+
+		level = rb.getString("nscourse.cms.courseoffering.label");
+		if (level == null) {
+			M_log
+					.warn("nscourse.cms.courseoffering.label is not set in sitesetupgeneric.properties.");
+			// return cmLevels;
+		}
+		cmLevels.add(level);
+
+		level = rb.getString("nscourse.cms.section.label");
+		if (level == null) {
+			M_log
+					.warn("nscourse.cms.section.label is not set in sitesetupgeneric.properties.");
+			// return cmLevels;
+		}
+		cmLevels.add(level);
 
 		return cmLevels;
 	}
