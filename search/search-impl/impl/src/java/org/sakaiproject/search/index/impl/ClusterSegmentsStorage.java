@@ -84,10 +84,15 @@ public class ClusterSegmentsStorage
 
 			try
 			{
-				addsi.checkSegmentValidity();
+				addsi.checkSegmentValidity(false,"Unpack Segment");
 			}
 			catch (Exception ex)
 			{
+				try {
+					addsi.checkSegmentValidity(true,"Unpack Segment Failed");
+				} catch ( Exception e ) {
+					
+				}
 				throw new RuntimeException("Segment " + addsi.getName()
 						+ " is corrupted ");
 			}

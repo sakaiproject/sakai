@@ -463,10 +463,11 @@ public class SearchServiceImpl implements SearchService
 
 	public IndexSearcher getIndexSearcher(boolean reload)
 	{
-		if (runningIndexSearcher == null || reload)
+		if (runningIndexSearcher == null || ( reload && !searchIndexBuilder.isLocalLock() ) )
 		{
 
 			long lastUpdate = indexStorage.getLastUpdate();
+			
 			if (lastUpdate > reloadStart)
 			{
 				if (log.isDebugEnabled())

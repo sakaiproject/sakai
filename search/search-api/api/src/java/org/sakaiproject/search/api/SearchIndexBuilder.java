@@ -162,6 +162,11 @@ public interface SearchIndexBuilder
 
 	boolean isOnlyIndexSearchToolSites();
 
+	/**
+	 * @return
+	 */
+	boolean isLocalLock();
+
 
 
 	

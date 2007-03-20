@@ -130,9 +130,10 @@ public class ClusterFSIndexStorage implements IndexStorage
 					}
 				}
 
-				if (!segment.checkSegmentValidity())
+				if (!segment.checkSegmentValidity(false,"getIndexReader "))
 				{
-					throw new Exception("checksum failed");
+					log.warn("Checksum Failed on  "+segment);
+					segment.checkSegmentValidity(true,"getIndexReader Failed");
 				}
 				readers[j] = IndexReader.open(segment.getSegmentLocation());
 			}
@@ -267,6 +268,7 @@ public class ClusterFSIndexStorage implements IndexStorage
 		try
 		{
 			long reloadStart = System.currentTimeMillis();
+			log.debug("Open Search");
 			indexSearcher = new IndexSearcher(getIndexReader(false));
 			if (indexSearcher == null)
 			{
@@ -352,6 +354,9 @@ public class ClusterFSIndexStorage implements IndexStorage
 			Directory[] tmpDirectory = new Directory[1];
 			tmpDirectory[0] = FSDirectory.getDirectory(tmpSegment, false);
 
+			// Need to fix checksums before merging.... is that really true,
+			// 
+			
 			List<SegmentInfo> segments = clusterFS.updateSegments();
 
 			// create a size sorted list

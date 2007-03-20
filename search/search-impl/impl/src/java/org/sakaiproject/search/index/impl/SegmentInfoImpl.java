@@ -91,8 +91,7 @@ public class SegmentInfoImpl implements SegmentInfo
 	public String toString()
 	{
 		return name + ":" + version + ":" + indb + ": State:" + states[getState()]
-				+ ":Created:" + name + ": Update"
-				+ new Date(version);
+				+ ":Created:" + name + ": Update" + new Date(version);
 	}
 
 	public SegmentInfoImpl(String name, long version, boolean indb,
@@ -193,7 +192,9 @@ public class SegmentInfoImpl implements SegmentInfo
 				}
 				catch (IOException e)
 				{
-					log.error("Failed to create deleted segment marker at " + deletedFile);
+					log
+							.error("Failed to create deleted segment marker at "
+									+ deletedFile);
 				}
 			}
 			if (newFile.exists())
@@ -277,7 +278,8 @@ public class SegmentInfoImpl implements SegmentInfo
 		return (getState() == STATE_DELETED);
 	}
 
-	public String getNewCheckSum() throws NoSuchAlgorithmException, IOException
+	public String getNewCheckSum(boolean logging, String message) throws NoSuchAlgorithmException,
+			IOException
 	{
 		File[] files = segmentLocation.listFiles();
 		MessageDigest md5 = MessageDigest.getInstance("MD5");
@@ -286,14 +288,21 @@ public class SegmentInfoImpl implements SegmentInfo
 		for (int i = 0; i < files.length; i++)
 		{
 			// only perform the md5 on the index, not the segments or del tables
-			//if (files[i].getName().endsWith(".cfs") )
-			String fname =  files[i].getName();
-			if ( !SegmentInfoImpl.DELETED_FILE.equals(fname) &&
-					!SegmentInfoImpl.NEW_FILE.equals(fname) &&
-					!SegmentInfoImpl.TIMESTAMP_FILE.equals(fname)
-					)	
+			// if (files[i].getName().endsWith(".cfs") )
+			String fname = files[i].getName();
+			if (!SegmentInfoImpl.DELETED_FILE.equals(fname)
+					&& !SegmentInfoImpl.NEW_FILE.equals(fname)
+					&& !SegmentInfoImpl.TIMESTAMP_FILE.equals(fname))
 			{
-				log.debug("      Adding "+fname+" to checksum");
+				if (logging)
+				{
+					log.info(message+"      Adding " + fname + " to checksum");
+				}
+				else
+				{
+					log.debug(message+"      Adding " + fname + " to checksum");
+
+				}
 				InputStream fin = new FileInputStream(files[i]);
 				int len = 0;
 				while ((len = fin.read(buffer)) > 0)
@@ -315,7 +324,15 @@ public class SegmentInfoImpl implements SegmentInfo
 		}
 		String echecksum = new String(hexchecksum);
 
-		log.debug("Checksum " + name + " is " + echecksum);
+		if (logging)
+		{
+			log.info(message+"Checksum " + name + " is " + echecksum);
+		}
+		else
+		{
+			log.debug(message+"Checksum " + name + " is " + echecksum);
+
+		}
 		return echecksum;
 	}
 
@@ -333,7 +350,7 @@ public class SegmentInfoImpl implements SegmentInfo
 			String[] newfields = new String[2];
 			try
 			{
-				newfields[1] = getNewCheckSum();
+				newfields[1] = getNewCheckSum(false,"setting ");
 			}
 			catch (Exception ex)
 			{
@@ -354,7 +371,7 @@ public class SegmentInfoImpl implements SegmentInfo
 		{
 			try
 			{
-				fields[1] = getNewCheckSum();
+				fields[1] = getNewCheckSum(false,"setting ");
 			}
 			catch (Exception ex)
 			{
@@ -453,7 +470,7 @@ public class SegmentInfoImpl implements SegmentInfo
 			fields = new String[2];
 			try
 			{
-				fields[1] = getNewCheckSum();
+				fields[1] = getNewCheckSum(false,"timestamp ");
 			}
 			catch (Exception ex)
 			{
@@ -477,7 +494,7 @@ public class SegmentInfoImpl implements SegmentInfo
 
 		long ts = -1;
 		String[] field = getTimeStampFields();
-		if ( field != null && field.length >= 1)
+		if (field != null && field.length >= 1)
 		{
 			ts = Long.parseLong(field[0]);
 		}
@@ -498,23 +515,22 @@ public class SegmentInfoImpl implements SegmentInfo
 	 * 
 	 * @param segmentName
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 * @throws IOException
 	 */
 	/*
-	private String getCheckSum(String segmentName) throws IOException
+	 * private String getCheckSum(String segmentName) throws IOException { File
+	 * segmentdir = SegmentInfo.getSegmentLocation(segmentName,
+	 * localStructuredStorage, searchIndexDirectory); return
+	 * getCheckSum(segmentLocation); }
+	 */
+	public boolean checkSegmentValidity(boolean logging, String message) throws Exception
 	{
-		File segmentdir = SegmentInfo.getSegmentLocation(segmentName,
-				localStructuredStorage, searchIndexDirectory);
-		return getCheckSum(segmentLocation);
-	}
-	*/
-	public boolean checkSegmentValidity() throws Exception {
-		return checkSegmentValidityInternal( true, true);
+		return checkSegmentValidityInternal(logging, message, true, true);
 	}
 
-	private boolean checkSegmentValidityInternal( boolean force, boolean validate)
-			throws Exception
+	private boolean checkSegmentValidityInternal(boolean logging, String message, boolean force,
+			boolean validate) throws Exception
 	{
 		if (!force && !validate)
 		{
@@ -525,7 +541,7 @@ public class SegmentInfoImpl implements SegmentInfo
 		if (force || checked.get(name) == null)
 		{
 
-			liveCheckSum = getNewCheckSum();
+			liveCheckSum = getNewCheckSum(logging,message);
 
 		}
 		else
@@ -533,44 +549,93 @@ public class SegmentInfoImpl implements SegmentInfo
 			cached = true;
 			liveCheckSum = (String) checked.get(name);
 		}
-		
+
 		String storedCheckSum = getCheckSum();
-		if ( "none".equals(storedCheckSum)) {
-			log.debug("No Checksum Present in segment "+name);
+		if ("none".equals(storedCheckSum))
+		{
+			if (logging)
+			{
+				log.info(message+"No Checksum Present in segment " + name);
+			}
+			else
+			{
+				log.debug(message+"No Checksum Present in segment " + name);
+			}
 			checked.put(name, liveCheckSum);
 			return true;
-		} else if ( liveCheckSum.equals(storedCheckSum) ) {
-			log.debug("Checksum is correct "+name);
+		}
+		else if (liveCheckSum.equals(storedCheckSum))
+		{
+			if (logging)
+			{
+				log.info(message+"Checksum is correct " + name);
+			}
+			else
+			{
+				log.debug(message+"Checksum is correct " + name);
+			}
 			return true;
-		}else {
+		}
+		else
+		{
 			checked.remove(name);
 			boolean check = false;
 			if (cached)
 			{
 
-				log.debug("Performing Retry "+name);
-				check = checkSegmentValidityInternal( true,validate);
+				if (logging)
+				{
+					log.info(message+"Performing Retry " + name);
+				}
+				else
+				{
+					log.debug(message+"Performing Retry " + name);
+				}
+				check = checkSegmentValidityInternal(logging,message, true, validate);
 			}
 			else
 			{
-				log.debug(" No Retry "+name);
+				if (logging)
+				{
+					log.info(message+" No Retry " + name);
+				}
+				else
+				{
+					log.debug(message+" No Retry " + name);
+				}
 			}
 			if (!check)
 			{
 				if (!force)
 				{
-					log.debug("Checksum Failed Live(" + name + ") = "
-							+ liveCheckSum);
-					log.debug("Checksum Failed Stor(" + name + ") = "
-							+ storedCheckSum);
+					if (logging)
+					{
+						log.info(message+" Checksum Failed Live(" + name + ") = " + liveCheckSum);
+						log.info(message+" Checksum Failed Stor(" + name + ") = "
+										+ storedCheckSum);
+					}
+					else
+					{
+						log.debug(message+" Checksum Failed Live(" + name + ") = " + liveCheckSum);
+						log.debug(message+" Checksum Failed Stor(" + name + ") = "
+								+ storedCheckSum);
+
+					}
 				}
 			}
-			log.debug("Valid "+name+" "+check);
+			if (logging)
+			{
+				log.info(message+" Valid " + name + " " + check);
+			}
+			else
+			{
+				log.debug(message+" Valid " + name + " " + check);
+			}
 			return check;
 		}
 
 	}
-	
+
 	public long getLocalSegmentLastModified()
 	{
 		long lm = segmentLocation.lastModified();
@@ -607,10 +672,12 @@ public class SegmentInfoImpl implements SegmentInfo
 			return segmentLocation.length();
 		}
 	}
-	public long getTotalSize() {
+
+	public long getTotalSize()
+	{
 		return getTotalSize(segmentLocation);
 	}
-	
+
 	private long getTotalSize(File currentSegment)
 	{
 		long totalSize = 0;
@@ -636,13 +703,14 @@ public class SegmentInfoImpl implements SegmentInfo
 		return totalSize;
 	}
 
-
-	public void touchSegment() throws IOException 
+	public void touchSegment() throws IOException
 	{
 		setTimeStamp(System.currentTimeMillis());
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.index.SegmentInfo#getSize()
 	 */
 	public long getSize()
@@ -651,12 +719,14 @@ public class SegmentInfoImpl implements SegmentInfo
 		return segmentSize;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.index.SegmentInfo#loadSize()
 	 */
 	public void loadSize()
 	{
 		segmentSize = getTotalSize();
-		
-	}	
+
+	}
 }

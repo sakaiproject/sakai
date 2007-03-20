@@ -137,7 +137,7 @@ public interface SegmentInfo
 	 * Check the validity of the segment
 	 * @throws Exception 
 	 */
-	boolean checkSegmentValidity() throws Exception;
+	boolean checkSegmentValidity(boolean logging, String message) throws Exception;
 
 	/**
 	 * Check the validity of segment

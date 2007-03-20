@@ -506,4 +506,12 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 		this.onlyIndexSearchToolSites = onlyIndexSearchToolSites;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.SearchIndexBuilder#isLocalLock()
+	 */
+	public boolean isLocalLock()
+	{
+		return searchIndexBuilderWorker.isLocalLock();
+	}
+
 }

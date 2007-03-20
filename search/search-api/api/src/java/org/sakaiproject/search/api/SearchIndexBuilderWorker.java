@@ -144,6 +144,11 @@ public interface SearchIndexBuilderWorker
 
         String getCurrentElapsed();
 
+		/**
+		 * @return
+		 */
+		boolean isLocalLock();
+
 
 
 }

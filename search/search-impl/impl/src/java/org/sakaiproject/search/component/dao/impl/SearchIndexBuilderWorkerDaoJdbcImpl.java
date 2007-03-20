@@ -453,7 +453,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 						}
 						catch (Exception e1)
 						{
-							log.info(" Failed to index document for " + ref + " cause: " //$NON-NLS-1$
+							log.debug(" Failed to index document for " + ref + " cause: " //$NON-NLS-1$
 									+ e1.getMessage(), e1);
 						}
 						sbi.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
@@ -588,31 +588,44 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 
 			if (totalDocs > 0)
 			{
+				log.debug("Preupdate Start");
 				indexStorage.doPreIndexUpdate();
+				log.debug("Preupdate End");
 
 				// get lock
 
 				// this needs to be exclusive
+				log.debug("Process Deletes Start");
+
 				processDeletes(worker, connection, runtimeToDo);
+				log.debug("Process Deletes End");
 
 				// upate and release lock
 				// after a process Deletes the index needs to updated
 
 				// can be parallel
+				log.debug("Process Add Start");
+
 				processAdd(worker, connection, runtimeToDo);
+				log.debug("Process Add End");
+				log.debug("Complete Update Start");
 
 				completeUpdate(worker, connection, runtimeToDo);
+				log.debug("Complete Update End");
 
 				// get lock
 				try
 				{
+					log.debug("Post update Start");
 					indexStorage.doPostIndexUpdate();
+					log.debug("Post update End");
 				}
 				catch (IOException e)
 				{
 					log.error("Failed to do Post Index Update", e); //$NON-NLS-1$
 				}
 				// release lock
+
 
 			}
 
@@ -1193,7 +1206,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 						}
 						catch (Exception ex)
 						{
-							log.info("No context for resource " + resourceName //$NON-NLS-1$
+							log.debug("No context for resource " + resourceName //$NON-NLS-1$
 									+ " defaulting to none"); //$NON-NLS-1$
 						}
 						if (context == null || context.length() == 0)

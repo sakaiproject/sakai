@@ -361,7 +361,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 
 								searchIndexBuilderWorkerDao
 										.processToDoListTransaction(this);
-
+					
 								lastLock = System.currentTimeMillis();
 
 								if (lockedTo.equals(nodeID))
@@ -375,6 +375,8 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 								}
 								log.debug("===" + nodeID
 										+ "=============COMPLETED ");
+								
+								searchService.reload();
 							}
 							else
 							{
@@ -398,7 +400,6 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 				{
 					break;
 				}
-				searchService.reload();
 				try
 				{
 					log.debug("Sleeping Processing Thread");
@@ -1603,6 +1604,10 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 	public void setLoadFactor(long loadFactor)
 	{
 		this.loadFactor = loadFactor;
+	}
+	
+	public boolean isLocalLock() {
+		return (lockedTo != null);
 	}
 
 }
