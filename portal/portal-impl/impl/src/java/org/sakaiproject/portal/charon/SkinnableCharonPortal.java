@@ -677,6 +677,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			{
 				stat = ph.doGet(parts, req, res, session);
 				if ( res.isCommitted() ) {
+                                       if (stat != PortalHandler.RESET_DONE)
+                                        {
+                                                portalService.setResetState(null);
+                                        }
 					return;
 				}
 			}
@@ -690,6 +694,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 					ph = i.next();
 					stat = ph.doGet(parts, req, res, session);
 					if ( res.isCommitted() ) {
+                                                if (stat != PortalHandler.RESET_DONE)
+                                                {
+                                                        portalService.setResetState(null);
+                                                }
 						return;
 					}
 					// this should be
