@@ -66,6 +66,25 @@ function submitChangeUser(){
     index.value="1";
 }
 
+function redirectBasedOnSelection(){
+   var selected = false;
+   var checkboxes = document.getElementsByName("providerCourseAdd");
+    for (i=0; i<checkboxes.length; i++){
+    	if (checkboxes[i].checked){
+    	  selected = true;
+    	  break;
+    	}
+    }
+    if (!selected) {
+    	find_course = document.getElementById("find_course");
+    	find_course.value="true";
+    }
+    continueButton = document.getElementById("continueButton");
+    continueButton.click();
+    document.addCourseForm.submit(); 
+    return false;
+}
+
 // -->
 </SCRIPT>
 
@@ -225,7 +244,8 @@ function submitChangeUser(){
 				<!-- Add Not Listed Courses -->
 				<a href="#" onclick="javascript:submitFindCourse();">$tlang.getString('nscourse.add_course_not_listed')</a>
 				<p></p>			
-				<input id="continueButton" type="submit" class="active" accesskey="s" name="eventSubmit_doContinue" value="$tlang.getString('gen.continue')" />
+				<input id="continueButton" type="submit" class="active" accesskey="s" name="eventSubmit_doContinue" 
+				value="$tlang.getString('gen.continue')" onclick="redirectBasedOnSelection();" />
 				<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" />
 				<input type="submit" accesskey="x" name="eventSubmit_doCancel_create" value="$tlang.getString('gen.cancel')" />
 			#else
