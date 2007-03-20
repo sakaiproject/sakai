@@ -149,7 +149,7 @@ public class BasicResourceType implements ResourceType
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.api.ResourceType#getIconLocation()
 	 */
-	public String getIconLocation()
+	public String getIconLocation(ContentEntity entity)
 	{
 		return iconLocation;
 	}
