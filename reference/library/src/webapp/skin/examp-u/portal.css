@@ -515,6 +515,16 @@ below they are contextually defined depending on the column as an example,as you
 .portletTitle .action a:hover{
 	background: url(images/help_h.gif) center right no-repeat;
 }
+
+.portletTitle .action a#jsr-edit{
+        padding:2px;
+        background: url(images/page_edit.gif) center right no-repeat;
+}
+        
+.portletTitle .action a#jsr-edit:hover{
+        background: url(images/page_edit.gif) center right no-repeat;
+}       
+
 /*iframes for portlet title and portlet content*/
 /*gone for 2.3*/
 /*.portletTitleIframe{
