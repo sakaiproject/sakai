@@ -114,7 +114,7 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
 			gradeMappingsSelectItems = new ArrayList(gradeMappings.size());
 			for (Iterator iter = gradeMappings.iterator(); iter.hasNext(); ) {
 				GradeMapping gradeMapping = (GradeMapping)iter.next();
-				gradeMappingsSelectItems.add(new SelectItem(gradeMapping.getId().toString(), gradeMapping.getName()));
+				gradeMappingsSelectItems.add(new SelectItem(gradeMapping.getId(), gradeMapping.getName()));
 			}
             // set the selected grade mapping
             GradeMapping selectedGradeMapping = localGradebook.getSelectedGradeMapping();
@@ -156,7 +156,7 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
 	 * shown mapping, but we do remember them.
 	 */
 	public void changeGradeType(ActionEvent event) {
-        for(Iterator iter = localGradebook.getGradeMappings().iterator(); iter.hasNext();) {
+		for(Iterator iter = localGradebook.getGradeMappings().iterator(); iter.hasNext();) {
             GradeMapping mapping = (GradeMapping)iter.next();
             if(mapping.getId().equals(selectedGradeMappingId)) {
                 localGradebook.setSelectedGradeMapping(mapping);
