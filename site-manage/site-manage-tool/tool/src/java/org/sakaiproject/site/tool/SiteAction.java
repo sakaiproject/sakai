@@ -3865,8 +3865,12 @@ public class SiteAction extends PagedResourceActionII {
 			if (type.equalsIgnoreCase("course")) {
 				String userId = params.getString("userId");
 				if (userId == null || "".equals(userId)) {
+					User user = UserDirectoryService.getCurrentUser();
+					userId = user.getEid();
+					/*
 					userId = StringUtil.trimToZero(SessionManager
 							.getCurrentSessionUserId());
+							*/
 				}
 				state.setAttribute(STATE_INSTRUCTOR_SELECTED, userId);
 				String academicSessionEid = params.getString("selectTerm");
@@ -4883,7 +4887,8 @@ public class SiteAction extends PagedResourceActionII {
 		}
 		String[] providers = new String[providerIdList.size()];
 		providers = (String[]) providerIdList.toArray(providers);
-		return groupProvider.packId(providers);
+		String providerId = groupProvider.packId(providers);
+		return providerId;
 
 	} // buildExternalRealm
 
