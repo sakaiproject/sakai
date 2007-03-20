@@ -61,5 +61,6 @@ util			https://source.sakaiproject.org/svn/util/trunk
 velocity		https://source.sakaiproject.org/svn/velocity/trunk
 web			https://source.sakaiproject.org/svn/web/trunk
 webservices		https://source.sakaiproject.org/svn/webservices/trunk
-
-
+mailtool		https://source.sakaiproject.org/contrib/mailtool/trunk
+usermembership		https://source.sakaiproject.org/contrib/ufp/usermembership/trunk
+polltool		https://source.sakaiproject.org/contrib/uct/PollTool/trunk
