@@ -85,93 +85,34 @@
 		  <script type="text/javascript" >
     var yes_val="${rlb.jsp_yes}";
     var no_val="${rlb.jsp_no}";  
-		  var NUMBER_OF_PERMISSIONS =0;
-		  var CREATE = NUMBER_OF_PERMISSIONS++;
-		  var READ = NUMBER_OF_PERMISSIONS++;
-		  var UPDATE = NUMBER_OF_PERMISSIONS++;
-		  var ADMIN = NUMBER_OF_PERMISSIONS++;
-		  var SUPERADMIN = NUMBER_OF_PERMISSIONS++;
 		  var permissionsMatrix = new Array();
 		  var permissionsMatriNCols = 5;
 		  var permissionsStem = "permissions_";
-
-		  function setPermissionDisplay(enabledClass,disabledClass,readSwitch,updateSwitch,adminSwitch) {
-		    var switches = new Array();
-
-		    // lets try something a bit more magical...
-		    switches[CREATE] = true;
-		    switches[READ] = readSwitch;
-		    switches[UPDATE] = updateSwitch;
-		    switches[ADMIN] = adminSwitch;
-		    switches[SUPERADMIN] = true;
-
-		    // for each role row
-		    for ( rowStart = 0; rowStart < permissionsMatrix.length;  rowStart += NUMBER_OF_PERMISSIONS ) {
-		      // determine if each permission should be set:
-		      for ( j = 0; j < NUMBER_OF_PERMISSIONS; j++) {
-			permissionNumber = rowStart + j;
-
-			permissionArray = permissionsMatrix[permissionNumber];
-			var enabled = false;
-			// By checking if the switch is set and the lock is set.
-			for (i = 0; i < NUMBER_OF_PERMISSIONS; i++) {
-			  enabled = enabled || (permissionArray[1].charAt(i) == 'x' && permissionsMatrix[rowStart + i][0] && switches[i]);
-			}
-		  						
-			setEnabledElement(permissionsStem + permissionNumber, enabled);
-
-		      }
-		    }
-		  }
-
-		  function setEnabledElement(elId, enabled) {
-		    var el = null;
-		    if ( document.all ) {
-		      el = document.all[elId];
-		    } else {
-		      el = document.getElementById(elId);
-		    }
-		    if (el != null) {
-		      el.innerHTML = enabled ? yes_val : no_val;
-		    } 
-		  }
-
-		  function setClassName(elId,className) {
-
-		    var el = null;
-		    if ( document.all ) {
-		      el = document.all[elId];
-		    } else {
-		      el = document.getElementById(elId);
-		    }
-		    if ( el != null ) {
-		      el.className = className;
-		    }
-		  }
 		  var pmi=0;
+		  
 		  #foreach( $role in ${realmBean.roles} )
 		    var x = new Array(); 
-		    x[0] = "${role.secureCreate}";
+		    x[0] = ${role.secureCreate};
 		    x[1] = "x---x";
 		    permissionsMatrix[pmi] = x;
 		    pmi++;
 		    x = new Array(); 
-		    x[0] = "${role.secureRead}";
+		    x[0] = ${role.secureRead};
 		    x[1] = "-xxxx";
 		    permissionsMatrix[pmi] = x;
 		    pmi++;
 		    x = new Array(); 
-		    x[0] = "${role.secureUpdate}";
+		    x[0] = ${role.secureUpdate};
 		    x[1] = "--xxx";
 		    permissionsMatrix[pmi] = x;
 		    pmi++;
 		    x = new Array(); 
-		    x[0] = "${role.secureAdmin}";
+		    x[0] = ${role.secureAdmin};
 		    x[1] = "---xx";
 		    permissionsMatrix[pmi] = x;
 		    pmi++;
 		    x = new Array(); 
-		    x[0] = "${role.secureSuperAdmin}";
+		    x[0] = ${role.secureSuperAdmin};
 		    x[1] = "----x";
 		    permissionsMatrix[pmi] = x;
 		    pmi++;

@@ -694,3 +694,64 @@ function selectTabs() {
 		}
 	}
 }
+
+var NUMBER_OF_PERMISSIONS =0;
+var CREATE = NUMBER_OF_PERMISSIONS++;
+var READ = NUMBER_OF_PERMISSIONS++;
+var UPDATE = NUMBER_OF_PERMISSIONS++;
+var ADMIN = NUMBER_OF_PERMISSIONS++;
+var SUPERADMIN = NUMBER_OF_PERMISSIONS++;
+
+function setPermissionDisplay(enabledClass,disabledClass,readSwitch,updateSwitch,adminSwitch) {
+	var switches = new Array();
+
+	// lets try something a bit more magical...
+	switches[CREATE] = true;
+	switches[READ] = readSwitch;
+	switches[UPDATE] = updateSwitch;
+	switches[ADMIN] = adminSwitch;
+	switches[SUPERADMIN] = true;
+	
+
+	// for each role row
+	for ( rowStart = 0; rowStart < permissionsMatrix.length;  rowStart += NUMBER_OF_PERMISSIONS ) {
+		// determine if each permission should be set:
+		for ( j = 0; j < NUMBER_OF_PERMISSIONS; j++) {
+			permissionNumber = rowStart + j;
+
+			permissionArray = permissionsMatrix[permissionNumber];
+			var enabled = false;
+			// By checking if the switch is set and the lock is set.
+			for (i = 0; (!enabled) && (i < NUMBER_OF_PERMISSIONS); i++) {
+				enabled = enabled || (( permissionArray[1].charAt(i) == 'x' ) && ( permissionsMatrix[rowStart + i][0]) && (switches[i]));			  
+			}
+		  						
+			setEnabledElement(permissionsStem + permissionNumber, enabled);
+		}
+	}
+}
+
+function setEnabledElement(elId, enabled) {
+	var el = null;
+	if ( document.all ) {
+		el = document.all[elId];
+	} else {
+		el = document.getElementById(elId);
+	}
+	if (el != null) {
+		el.innerHTML = enabled ? yes_val : no_val;
+	} 
+}
+
+function setClassName(elId,className) {
+	var el = null;
+	if ( document.all ) {
+		el = document.all[elId];
+	} else {
+		el = document.getElementById(elId);
+	}
+	if ( el != null ) {
+		el.className = className;
+	}
+}
+
