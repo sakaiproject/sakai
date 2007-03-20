@@ -128,7 +128,7 @@ public interface ClusterFilesystem
 	 * @param segmentName
 	 * @throws Exception
 	 */
-	boolean checkSegmentValidity(String segmentName) throws Exception;
+//	boolean checkSegmentValidity(String segmentName) throws Exception;
 
 	/**
 	 * Remove a segment from the index.

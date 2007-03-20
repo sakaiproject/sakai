@@ -158,6 +158,7 @@ public class SegmentInfoImpl implements SegmentInfo
 			{
 				try
 				{
+					newFile.getParentFile().mkdirs();
 					newFile.createNewFile();
 				}
 				catch (IOException e)
@@ -187,11 +188,12 @@ public class SegmentInfoImpl implements SegmentInfo
 			{
 				try
 				{
+					deletedFile.getParentFile().mkdirs();
 					deletedFile.createNewFile();
 				}
 				catch (IOException e)
 				{
-					log.error("Failed to create new segment marker at " + deletedFile);
+					log.error("Failed to create deleted segment marker at " + deletedFile);
 				}
 			}
 			if (newFile.exists())
@@ -284,8 +286,14 @@ public class SegmentInfoImpl implements SegmentInfo
 		for (int i = 0; i < files.length; i++)
 		{
 			// only perform the md5 on the index, not the segments or del tables
-			if (files[i].getName().endsWith(".cfs"))
+			//if (files[i].getName().endsWith(".cfs") )
+			String fname =  files[i].getName();
+			if ( !SegmentInfoImpl.DELETED_FILE.equals(fname) &&
+					!SegmentInfoImpl.NEW_FILE.equals(fname) &&
+					!SegmentInfoImpl.TIMESTAMP_FILE.equals(fname)
+					)	
 			{
+				log.debug("      Adding "+fname+" to checksum");
 				InputStream fin = new FileInputStream(files[i]);
 				int len = 0;
 				while ((len = fin.read(buffer)) > 0)
@@ -501,11 +509,11 @@ public class SegmentInfoImpl implements SegmentInfo
 		return getCheckSum(segmentLocation);
 	}
 	*/
-	public boolean checkSegmentValidity( boolean force ) throws Exception {
-		return checkSegmentValidity( force, force);
+	public boolean checkSegmentValidity() throws Exception {
+		return checkSegmentValidityInternal( true, true);
 	}
 
-	public boolean checkSegmentValidity( boolean force, boolean validate)
+	private boolean checkSegmentValidityInternal( boolean force, boolean validate)
 			throws Exception
 	{
 		if (!force && !validate)
@@ -525,37 +533,40 @@ public class SegmentInfoImpl implements SegmentInfo
 			cached = true;
 			liveCheckSum = (String) checked.get(name);
 		}
+		
 		String storedCheckSum = getCheckSum();
-		if (!"none".equals(storedCheckSum) && !liveCheckSum.equals(storedCheckSum))
-		{
+		if ( "none".equals(storedCheckSum)) {
+			log.debug("No Checksum Present in segment "+name);
+			checked.put(name, liveCheckSum);
+			return true;
+		} else if ( liveCheckSum.equals(storedCheckSum) ) {
+			log.debug("Checksum is correct "+name);
+			return true;
+		}else {
 			checked.remove(name);
 			boolean check = false;
 			if (cached)
 			{
 
-				log.debug("Performing Retry");
-				check = checkSegmentValidity( true,validate);
+				log.debug("Performing Retry "+name);
+				check = checkSegmentValidityInternal( true,validate);
 			}
 			else
 			{
-				log.debug(" No Retry");
+				log.debug(" No Retry "+name);
 			}
 			if (!check)
 			{
 				if (!force)
 				{
-					log.info("Checksum Failed Live(" + name + ") = "
+					log.debug("Checksum Failed Live(" + name + ") = "
 							+ liveCheckSum);
-					log.info("Checksum Failed Stor(" + name + ") = "
+					log.debug("Checksum Failed Stor(" + name + ") = "
 							+ storedCheckSum);
 				}
 			}
+			log.debug("Valid "+name+" "+check);
 			return check;
-		}
-		else
-		{
-			checked.put(name, liveCheckSum);
-			return true;
 		}
 
 	}

@@ -84,7 +84,7 @@ public class ClusterSegmentsStorage
 
 			try
 			{
-				addsi.checkSegmentValidity(true);
+				addsi.checkSegmentValidity();
 			}
 			catch (Exception ex)
 			{

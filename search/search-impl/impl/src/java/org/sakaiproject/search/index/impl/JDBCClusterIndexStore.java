@@ -1192,6 +1192,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 		SegmentInfo si = new SegmentInfoImpl(f, false, localStructuredStorage,
 				searchIndexDirectory);
+		si.setNew();
 		si.setCheckSum();
 
 		return si;
@@ -1774,14 +1775,6 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		return f.getName();
 	}
 
-	public boolean checkSegmentValidity(String segmentName) throws Exception
-	{
-		File f = SegmentInfoImpl.getSegmentLocation(segmentName, localStructuredStorage,
-				searchIndexDirectory);
-		SegmentInfo sgi = new SegmentInfoImpl(f, false, localStructuredStorage,
-				searchIndexDirectory);
-		return sgi.checkSegmentValidity(false, validate);
-	}
 
 	/**
 	 * @return Returns the validate.

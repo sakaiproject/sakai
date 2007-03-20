@@ -130,7 +130,7 @@ public class ClusterFSIndexStorage implements IndexStorage
 					}
 				}
 
-				if (!segment.checkSegmentValidity(true))
+				if (!segment.checkSegmentValidity())
 				{
 					throw new Exception("checksum failed");
 				}

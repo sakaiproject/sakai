@@ -135,10 +135,9 @@ public interface SegmentInfo
 
 	/**
 	 * Check the validity of the segment
-	 * @param force - forces validation
 	 * @throws Exception 
 	 */
-	boolean checkSegmentValidity(boolean force) throws Exception;
+	boolean checkSegmentValidity() throws Exception;
 
 	/**
 	 * Check the validity of segment
@@ -147,7 +146,7 @@ public interface SegmentInfo
 	 * @return
 	 * @throws Exception 
 	 */
-	boolean checkSegmentValidity(boolean force, boolean validate) throws Exception;
+	//boolean checkSegmentValidity(boolean force, boolean validate) throws Exception;
 
 	/**
 	 * Get the size of the segment
