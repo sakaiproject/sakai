@@ -2776,11 +2776,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					}
 					if(hasCustomSort)
 					{
-						comparator = contentService.newContentHostingComparator(ResourceProperties.PROP_CONTENT_PRIORITY, true);
+						comparator = ListItem.PRIORITY_SORT_COMPARATOR;
 					}
 					else
 					{
-						//comparator = defaultComparator;
+						comparator = ListItem.DEFAULT_COMPARATOR;
 					}
 				}
 				expandedFolderSortMap.put(collectionId, comparator);
@@ -3034,7 +3034,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					comparator = (Comparator) expandedFolderSortMap.get(collectionId);
 					if(comparator == null)
 					{
-						//comparator = defaultComparator;
+						comparator = ListItem.DEFAULT_COMPARATOR;
 					}
 				}
 
@@ -3212,6 +3212,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 						catch(Exception e)
 						{}
 						newItem.setDepth(depth + 1);
+						newItems.add(newItem);
 
 					}
 				}
