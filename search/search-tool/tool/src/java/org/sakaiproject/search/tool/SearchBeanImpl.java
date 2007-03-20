@@ -623,7 +623,7 @@ public class SearchBeanImpl implements SearchBean
 		boolean superUser = SecurityService.isSuperUser();
 		return (superUser)
 				|| ("true".equals(ServerConfigurationService.getString(
-						"search.alow.maintain.admin", "false")) && siteService
+						"search.allow.maintain.admin", "false")) && siteService
 						.allowUpdateSite(siteId));
 	}
 

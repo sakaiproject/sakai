@@ -129,7 +129,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 		siteCheck = currentSite.getReference();
 		userName = sessionManager.getCurrentSessionUserId();
 		superUser = SecurityService.isSuperUser();
-		boolean allow = ( superUser ) || ( "true".equals(ServerConfigurationService.getString("search.alow.maintain.admin","false")) &&
+		boolean allow = ( superUser ) || ( "true".equals(ServerConfigurationService.getString("search.allow.maintain.admin","false")) &&
 						siteService.allowUpdateSite(siteId));
 		if ( !allow )
 		{
