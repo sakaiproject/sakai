@@ -187,6 +187,13 @@
 				</includes>
 			</resource>
 
+			<resource>
+				<directory>${basedir}/../../content-bundles</directory>
+				<includes>
+					<include>**/*.properties</include>
+				</includes>
+			</resource>
+
 		</resources>
 
 	</build>
