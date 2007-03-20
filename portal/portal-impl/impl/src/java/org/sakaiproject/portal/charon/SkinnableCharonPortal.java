@@ -96,6 +96,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.util.BasicAuth;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
@@ -450,6 +451,24 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			return null;
 		}
 
+		// Get the Site - we could change the API call in the future to 
+		// pass site in, but that would break portals that extend Charon
+		// so for now we simply look this up here.
+		String siteId = placement.getSiteId();
+		Site site = null;
+		try
+		{
+			site = SiteService.getSiteVisit(siteId);
+		}
+		catch (IdUnusedException e)
+		{
+			site = null;
+		}
+		catch (PermissionException e)
+		{
+			site = null;
+		}
+
 		// FIXME: This does not look absolutely right,
 		// this appears to say, reset all tools on the page since there
 		// is no filtering of the tool that is bing reset, surely there
@@ -527,10 +546,16 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		{
 			toolMap.put("toolJSR168Help",Web.serverUrl(req)+result.getJSR168HelpUrl());
 		}
-		if ( result.getJSR168EditUrl() != null ) 
+
+		// Must have site.upd to see the Edit button
+		if ( result.getJSR168EditUrl() != null && site != null ) 
 		{
-			toolMap.put("toolJSR168Edit",Web.serverUrl(req)+result.getJSR168EditUrl());
+			if ( SecurityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference()))
+			{
+				toolMap.put("toolJSR168Edit",Web.serverUrl(req)+result.getJSR168EditUrl());
+			}
 		}
+
 		toolMap.put("toolRenderResult", result);
 		toolMap.put("hasRenderResult", Boolean.valueOf(true));
 		toolMap.put("toolUrl", toolUrl);
@@ -677,7 +702,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			{
 				stat = ph.doGet(parts, req, res, session);
 				if ( res.isCommitted() ) {
-                                       if (stat != PortalHandler.RESET_DONE)
+                                        if (stat != PortalHandler.RESET_DONE)
                                         {
                                                 portalService.setResetState(null);
                                         }
@@ -724,7 +749,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		{
 			portalService.setResetState(null);
 		}
-
 	}
 
 	public void doLogin(HttpServletRequest req, HttpServletResponse res, Session session,

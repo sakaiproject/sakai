@@ -115,6 +115,8 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
 
             Map retval = null;
 
+    	    setupThread(request, true);
+
             User user = UserDirectoryService.getCurrentUser();
             if ( user != null ) {
                 // System.out.println("Found Current User="+user.getEid());
@@ -177,7 +179,7 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
     	    public void onBegin(PortletInvocationEvent event)
 	    {
 		// System.out.println("======== onBegin!");
-    		setupThread(event.getPortletRequest());
+    		setupThread(event.getPortletRequest(), true);
 	    }
 
     	    public void onEnd(PortletInvocationEvent event)
@@ -197,20 +199,20 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
 
     // TODO: End commented out code waiting for Pluto 1.1.2
 
-    private void setupThread(PortletRequest request)
+    private void setupThread(PortletRequest request, boolean doLog)
     {
 
 	String placementId = (String) request.getAttribute("org.sakaiproject.portal.api.PortalService_placementid");
 	// System.out.println("place from getAttribute = "+placementId);
 	if ( placementId == null ) {
-		M_log.info("No Placement found");
+		if ( doLog ) M_log.info("No Placement found");
 		return;  // We have nothing to work with
 	}
 
         Session session = SessionManager.getCurrentSession();
 	// System.out.println("Session = "+session);
 	if ( session == null ) {
-		M_log.info("No Session found placementId="+placementId);
+		if ( doLog ) M_log.info("No Session found placementId="+placementId);
 		return;   // We have nothing to work with
 	}
 
@@ -220,21 +222,24 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
        	Placement ppp = (Placement) ThreadLocalManager.get(CURRENT_PLACEMENT);
 	// System.out.println("ThreadLocal CURRENT_PLACEMENT="+ppp);
 	if ( ppp != null ) {
-		// System.out.println("ThreadLocal CURRENT_PLACEMENT ID="+ppp.getId());
-		if ( placementId.equals(ppp.getId()) ) return;  // Placement in place
+		System.out.println("ThreadLocal CURRENT_PLACEMENT ID="+ppp.getId());
+		if ( placementId.equals(ppp.getId()) ) 
+		{
+			// System.out.println("Thread already setup");
+			return;  // Placement in place
+		}
 	}
 
 	// find the tool from some site (ToolConfiguration extends Placement)
 	ToolConfiguration siteTool = SiteService.findTool(placementId);
 	// System.out.println("siteTool="+siteTool);
 	if ( siteTool == null ) {
-		M_log.info("No ToolConfiguration found, placementId="+placementId+" session="+session);
+		if ( doLog ) M_log.info("No ToolConfiguration found, placementId="+placementId+" session="+session);
 		return;
 	}
 
 	// Actually store the placement in Thread Local
 	ThreadLocalManager.set(CURRENT_PLACEMENT, siteTool);
-
 
 	// *** Testing Printout to see how well we have the APIs Configured ****
 	// ToolSession ts = SessionManager.getCurrentToolSession();
@@ -272,6 +277,9 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
 	throws PortletContainerException {
 
             boolean readOnly = true;
+
+	    // Set up the thread if we have not already done so
+    	    setupThread(request, true);
 
 	    // Get the Placement Id
 	    String key = portletWindow.getId().getStringId();
@@ -340,6 +348,9 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
                       PortletRequest request,
                       InternalPortletPreference[] preferences)
     	throws PortletContainerException {
+
+	    // Set up the thread if we have not already done so
+    	    setupThread(request, true);
 
 	    String key = portletWindow.getId().getStringId();
 
