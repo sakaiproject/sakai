@@ -62,6 +62,10 @@ public interface BaseForum extends MutableEntity {
     public Area getArea();
 
     public void setArea(Area area);
+    
+    public Boolean getModerated();
+
+    public void setModerated(Boolean moderated);
 
     public void addTopic(Topic topic);
 

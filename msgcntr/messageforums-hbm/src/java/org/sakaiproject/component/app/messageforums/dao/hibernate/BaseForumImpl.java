@@ -46,6 +46,7 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
     private Set membershipItemSet;
     private Area area;
     private Integer sortIndex; 
+    private Boolean moderated;
     
     public Set getAttachmentsSet() {
         return attachmentsSet;
@@ -149,6 +150,14 @@ public class BaseForumImpl extends MutableEntityImpl implements BaseForum {
 
     public void setArea(Area area) {
         this.area = area;
+    }
+    
+    public Boolean getModerated() {
+        return moderated;
+    }
+
+    public void setModerated(Boolean moderated) {
+        this.moderated = moderated;
     }
 
     public String toString() {

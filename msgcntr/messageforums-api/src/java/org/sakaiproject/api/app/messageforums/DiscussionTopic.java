@@ -53,10 +53,6 @@ public interface DiscussionTopic extends OpenTopic {
 
     public void setLabels(List labels);
 
-    public Boolean getModerated();
-
-    public void setModerated(Boolean moderated);
-
     public Boolean getMustRespondBeforeReading();
 
     public void setMustRespondBeforeReading(Boolean mustRespondBeforeReading);

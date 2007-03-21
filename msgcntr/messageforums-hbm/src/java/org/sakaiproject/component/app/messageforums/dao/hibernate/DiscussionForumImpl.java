@@ -37,7 +37,6 @@ public class DiscussionForumImpl extends OpenForumImpl implements DiscussionForu
     private List labels = new UniqueArrayList();
     private DateRestrictions dateRestrictions;
     private ActorPermissions actorPermissions;
-    private Boolean moderated;
     private int areaindex;
     
     public int getAreaindex() {
@@ -74,14 +73,6 @@ public class DiscussionForumImpl extends OpenForumImpl implements DiscussionForu
 
     public void setLabels(List labels) {
         this.labels = labels;
-    }
-
-    public Boolean getModerated() {
-        return moderated;
-    }
-
-    public void setModerated(Boolean moderated) {
-        this.moderated = moderated;
     }
     
     ////////////////////////////////////////////////////////////////////////

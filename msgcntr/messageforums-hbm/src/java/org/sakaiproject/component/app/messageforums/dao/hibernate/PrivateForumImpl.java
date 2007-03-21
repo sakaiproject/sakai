@@ -32,7 +32,6 @@ public class PrivateForumImpl extends BaseForumImpl implements PrivateForum {
     private Boolean autoForward;
     private String autoForwardEmail;
     private Boolean previewPaneEnabled;
-    private Boolean moderated;
 
     // indecies for hibernate
     //private int areaindex;
@@ -81,14 +80,6 @@ public class PrivateForumImpl extends BaseForumImpl implements PrivateForum {
     public void setOwner(String owner)
     {
       this.owner = owner;
-    }
-    
-    public Boolean getModerated() {
-    	return moderated;
-    }
-    
-    public void setModerated(Boolean moderated) {
-    	this.moderated = moderated;
     }
 
 }

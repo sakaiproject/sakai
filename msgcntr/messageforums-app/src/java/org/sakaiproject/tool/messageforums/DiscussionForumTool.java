@@ -1153,9 +1153,9 @@ public class DiscussionForumTool
       return TOPIC_SETTING_REVISE;
     }
     
-    // if the topic is not moderated, all of the pending messages must be approved
+    // if the topic is not moderated (and already exists), all of the pending messages must be approved
     if (selectedTopic != null && selectedTopic.getTopic() != null &&
-    		!selectedTopic.isTopicModerated())
+    		!selectedTopic.isTopicModerated() && selectedTopic.getTopic().getId() != null)
     {
     	forumManager.approveAllPendingMessages(selectedTopic.getTopic().getId());
     }
@@ -1558,8 +1558,8 @@ public class DiscussionForumTool
 	    
 	    List msgsList = selectedTopic.getMessages();
 	    
-	    if (selectedTopic.isTopicModerated())
-	    	msgsList = filterModeratedMessages(msgsList);
+	    if (msgsList != null && !msgsList.isEmpty())
+	    	msgsList = filterModeratedMessages(msgsList, selectedTopic.getTopic(), (DiscussionForum) selectedTopic.getTopic().getBaseForum());
 	    
 	    List orderedList = new ArrayList();
 	    selectedThread = new ArrayList();
@@ -1884,7 +1884,7 @@ public class DiscussionForumTool
           {
           	decoTopic.setReadFullDesciption(true);
           }
-          if (!decoTopic.isTopicModerated() || decoTopic.getIsModeratedAndHasPerm())
+          if (uiPermissionsManager.isModeratePostings(topic, forum))
           {
         	  decoTopic.setTotalNoMessages(forumManager.getTotalNoMessages(topic));
         	  decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(topic));
@@ -1963,7 +1963,7 @@ public class DiscussionForumTool
           }
           //decoTopic.setTotalNoMessages(forumManager.getTotalNoMessages(topic));
           //decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(topic));*/
-          if (!decoTopic.isTopicModerated() || decoTopic.getIsModeratedAndHasPerm())
+          if (uiPermissionsManager.isModeratePostings(topic, forum))
           {
         	  decoTopic.setTotalNoMessages(forumManager.getTotalNoMessages(topic));
         	  decoTopic.setUnreadNoMessages(forumManager.getUnreadNoMessages(topic));
@@ -4067,9 +4067,8 @@ public class DiscussionForumTool
   {
   
   	List msgsList = selectedTopic.getMessages();
-  	
-  	if (selectedTopic.isTopicModerated())
-  		msgsList = filterModeratedMessages(msgsList);
+  	if (msgsList != null && !msgsList.isEmpty())
+  		msgsList = filterModeratedMessages(msgsList, selectedTopic.getTopic(), (DiscussionForum)selectedTopic.getTopic().getBaseForum());
   	
   	List orderedList = new ArrayList();
   	List threadList = new ArrayList();
@@ -5472,9 +5471,9 @@ public class DiscussionForumTool
 			messages = selectedTopic.getUnreadMessages();	
 		else
 			messages = selectedTopic.getMessages();
-
-		if (selectedTopic.isTopicModerated())
-			return filterModeratedMessages(messages);
+		
+		if (messages != null && !messages.isEmpty())
+			messages = filterModeratedMessages(messages, selectedTopic.getTopic(), selectedForum.getForum());
 		
 		return messages;
 	}
@@ -5486,12 +5485,12 @@ public class DiscussionForumTool
 	 * 2) message was written by current user
 	 * 3) current user has moderator perm
 	 */
-	private List filterModeratedMessages(List messages)
+	private List filterModeratedMessages(List messages, DiscussionTopic topic, DiscussionForum forum)
 	{
 		List viewableMsgs = new ArrayList();
 		if (messages != null || messages.size() > 0)
 		{
-			boolean hasModeratePerm = uiPermissionsManager.isModeratePostings(selectedTopic.getTopic(), selectedForum.getForum());
+			boolean hasModeratePerm = uiPermissionsManager.isModeratePostings(topic, forum);
 			
 			if (hasModeratePerm)
 				return messages;

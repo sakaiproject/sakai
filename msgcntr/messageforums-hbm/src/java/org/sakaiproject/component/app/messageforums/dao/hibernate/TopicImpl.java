@@ -52,6 +52,7 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
     private Set messagesSet;// = new HashSet();
     private Set membershipItemSet;
     private String defaultAssignName;
+    private Boolean moderated;
     
     // foreign keys for hibernate
     private PrivateForum privateForum;
@@ -173,6 +174,14 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
 
     public void setPrivateForum(PrivateForum privateForum) {
         this.privateForum = privateForum;
+    }
+    
+    public Boolean getModerated() {
+    	return moderated;
+    }
+    
+    public void setModerated(Boolean moderated) {
+    	this.moderated = moderated;
     }
         
 

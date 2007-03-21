@@ -88,5 +88,9 @@ public interface Topic extends MutableEntity {
     public String getDefaultAssignName();
     
     public void setDefaultAssignName(String defaultAssignName);
+    
+    public Boolean getModerated();
+
+    public void setModerated(Boolean moderated);
 
 }

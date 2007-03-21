@@ -39,7 +39,6 @@ public class PrivateTopicImpl extends TopicImpl implements PrivateTopic {
     private String contextId;
     private PrivateTopic parentTopic;
     private Set childrenFoldersSet;// = new HashSet();    
-    private Boolean moderated;
     
     //private int ptindex;
     
@@ -125,14 +124,7 @@ public class PrivateTopicImpl extends TopicImpl implements PrivateTopic {
     public void setChildrenFolders(List childrenFolders) {
         this.childrenFoldersSet = Util.listToSet(childrenFolders);
     }
-    
-    public Boolean getModerated() {
-    	return moderated;
-    }
-    
-    public void setModerated(Boolean moderated) {
-    	this.moderated = moderated;
-    }
+
 //
 //    public int getPtindex() {
 //        try {

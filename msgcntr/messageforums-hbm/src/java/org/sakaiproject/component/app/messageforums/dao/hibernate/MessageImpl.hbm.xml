@@ -250,8 +250,7 @@
                pl.name = membershipItem.permissionLevelName) or
               membershipItem.permissionLevel = pl.id) and
              (pl.read = false or
-             (topic.moderated = true and 
-               pl.moderatePostings = false and
+             (pl.moderatePostings = false and
                ((messages.approved = null or
                 messages.approved = false) and
                 messages.createdBy != :userId)))
@@ -292,8 +291,7 @@
                pl.name = membershipItem.permissionLevelName) or
               membershipItem.permissionLevel = pl.id) and
              (pl.read = false or
-             (topic.moderated = true and 
-               pl.moderatePostings = false and
+             (pl.moderatePostings = false and
                ((messages.approved = null or
                 messages.approved = false) and
                 messages.createdBy != :userId))) and

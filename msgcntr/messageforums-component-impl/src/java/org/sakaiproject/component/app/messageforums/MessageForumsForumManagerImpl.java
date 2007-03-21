@@ -755,6 +755,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         if (forum.getLocked() == null) {
             forum.setLocked(Boolean.FALSE);
         }
+        if (forum.getModerated() == null) {
+        	forum.setModerated(Boolean.FALSE);
+        }
         forum.setDraft(new Boolean(draft));
         forum.setModified(new Date());
         forum.setModifiedBy(getCurrentUser());
@@ -831,6 +834,11 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         }
         topic.setModified(new Date());
         topic.setModifiedBy(getCurrentUser());
+        
+        if (topic.getModerated() == null) {
+        	topic.setModerated(Boolean.FALSE);
+        }
+        
         if (topic.getId() == null) {
             
           DiscussionForum discussionForum = 
@@ -870,6 +878,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         topic.setCreated(new Date());
         topic.setCreatedBy(getCurrentUser());
         topic.setLocked(Boolean.FALSE);
+        topic.setModerated(Boolean.FALSE);
         topic.setDraft(forum.getDraft());
         LOG.debug("createOpenForumTopic executed");
         return topic;

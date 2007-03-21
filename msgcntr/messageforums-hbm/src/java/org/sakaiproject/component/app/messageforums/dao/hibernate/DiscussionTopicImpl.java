@@ -40,7 +40,6 @@ public class DiscussionTopicImpl extends OpenTopicImpl implements DiscussionTopi
     private DateRestrictions dateRestrictions;
     private ActorPermissions actorPermissions;
     private List labels = new UniqueArrayList();
-    private Boolean moderated;
     private String gradebook;
     private String gradebookAssignment;
     
@@ -98,14 +97,6 @@ public class DiscussionTopicImpl extends OpenTopicImpl implements DiscussionTopi
 
     public void setLabels(List labels) {
         this.labels = labels;
-    }
-
-    public Boolean getModerated() {
-        return moderated;
-    }
-
-    public void setModerated(Boolean moderated) {
-        this.moderated = moderated;
     }
 
     public Boolean getMustRespondBeforeReading() {

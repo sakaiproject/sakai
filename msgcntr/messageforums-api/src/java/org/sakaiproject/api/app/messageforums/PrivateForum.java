@@ -37,9 +37,4 @@ public interface PrivateForum extends BaseForum {
     public Boolean getPreviewPaneEnabled();
 
     public void setPreviewPaneEnabled(Boolean previewPaneEnabled);
-    
-	public Boolean getModerated();
-	
-	public void setModerated(Boolean moderated);
-
 }
