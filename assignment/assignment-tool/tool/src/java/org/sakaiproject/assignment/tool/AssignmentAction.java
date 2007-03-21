@@ -2559,16 +2559,6 @@ public class AssignmentAction extends PagedResourceActionII
 			String sReference = sEdit.getReference();
 
 			AssignmentService.commitEdit(sEdit);
-
-			// update grades in gradebook
-			String aReference = a.getReference();
-			String associateGradebookAssignment = StringUtil.trimToNull(a.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
-
-			if (associateGradebookAssignment != null && a.getContent().getTypeOfGrade() == Assignment.SCORE_GRADE_TYPE)
-			{
-				// update grade in gradebook
-				AssignmentService.integrateGradebook(aReference, associateGradebookAssignment, null, null, null, null, -1, null, sReference, "update");
-			}
 		}
 		catch (IdUnusedException e)
 		{
