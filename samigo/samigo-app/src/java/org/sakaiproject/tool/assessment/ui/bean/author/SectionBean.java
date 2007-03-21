@@ -116,7 +116,7 @@ private List attachmentList;
         this.hasAttachment = true;
     }
     catch (Exception ex) {
-      log.warn(ex.getMessage());
+      log.warn("Unable to set section. Exception thrown from setSection(): " + ex.getMessage());
     }
   }
 
