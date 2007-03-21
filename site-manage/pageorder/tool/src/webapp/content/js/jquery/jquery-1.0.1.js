@@ -5,8 +5,8 @@
  * Dual licensed under the MIT (MIT-LICENSE.txt) 
  * and GPL (GPL-LICENSE.txt) licenses.
  *
- * $Date: 2006-08-31 13:26:31 -0400 (Thu, 31 Aug 2006) $
- * $Rev: 249 $
+ * $Date$
+ * $Rev$
  */
 
 // Global undefined variable
@@ -60,7 +60,7 @@ if ( typeof $ != "undefined" )
 var $ = jQuery;
 
 jQuery.fn = jQuery.prototype = {
-	jquery: "$Rev: 249 $",
+	jquery: "$Rev$",
 
 	size: function() {
 		return this.length;
