@@ -94,7 +94,7 @@
       <!-- WYSIWYG -->
 
       <h:outputLabel value="#{templateMessages.description_intro_opt}"/>
-     <samigo:wysiwyg rows="140" value="#{template.templateDescription}"  >
+     <samigo:wysiwyg rows="140" value="#{template.templateDescription}" hasToggle="yes" >
        <f:validateLength maximum="4000"/>
      </samigo:wysiwyg>
     </h:panelGrid>
