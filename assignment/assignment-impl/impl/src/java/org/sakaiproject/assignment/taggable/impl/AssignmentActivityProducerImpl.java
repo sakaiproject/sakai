@@ -195,7 +195,7 @@ public class AssignmentActivityProducerImpl implements
 		 */
 		if (assignmentService.allowGradeSubmission(assignment.getReference())) {
 			for (Iterator<AssignmentSubmission> i = assignmentService
-					.getSubmissions(assignment); i.hasNext();) {
+					.getSubmissions(assignment).iterator(); i.hasNext();) {
 				AssignmentSubmission submission = i.next();
 				for (Object submitterId : submission.getSubmitterIds()) {
 					items.add(new AssignmentItemImpl(submission,
