@@ -327,46 +327,6 @@ public class ResourcesAction
 		CREATE, DELETE, READ, REVISE, SITE_UPDATE
 	}
 	
-	public class Counter
-	{
-		protected Map<String, Integer> values = new HashMap<String, Integer>();
-		public void decrement(String key)
-		{
-			Integer val = values.get(key);
-			if(val == null)
-			{
-				values.put(key, new Integer(-1));
-			}
-			else
-			{
-				values.put(key, new Integer(val.intValue() - 1));
-			}
-		}
-		
-		public int getValue(String key)
-		{
-			Integer val = values.get(key);
-			if(val == null)
-			{
-				val = new Integer(0);
-			}
-			return val.intValue();
-		}
-		
-		public void increment(String key)
-		{
-			Integer val = values.get(key);
-			if(val == null)
-			{
-				values.put(key, new Integer(1));
-			}
-			else
-			{
-				values.put(key, new Integer(val.intValue() + 1));
-			}
-		}
-	}
-
 	public static class ElementCarrier
 	{
 		protected Element element;
@@ -519,7 +479,7 @@ public class ResourcesAction
 	/** The default number of site collections per page. */
 	protected static final int DEFAULT_PAGE_SIZE = 50;
 	
-	private static final String DELIM = "@";
+	public static final String DELIM = "@";
 
 	/** The default number of members for a collection at which this tool should refuse to expand the collection. Used only if value can't be read from config service. */
 	protected static final int EXPANDABLE_FOLDER_SIZE_LIMIT = 256;
@@ -4623,7 +4583,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			
 			context.put("listActions", listActions);
-			context.put("counter", new Counter());
+			context.put("counter", new EntityCounter());
 			context.put("sysout", System.out);
 
 			// context.put ("other_sites", other_sites);

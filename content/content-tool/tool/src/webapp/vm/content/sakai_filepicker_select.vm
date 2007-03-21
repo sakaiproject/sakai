@@ -282,23 +282,24 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 					################################################################ Begin Paging widgets
 					#if($!allMsgNumber && $allMsgNumberInt && $allMsgNumberInt > 5)
 						<tr class="exclude">
-							<td colspan="7">
-								<div class="rightNav">
-									<span class="instruction" style="margin-bottom:.3em;">Viewing $topMsgPos - $btmMsgPos of $allMsgNumber items</span>
+							<td colspan="8">
+								<div class="navPanel">
+								<div class="listNav">
+									<div class="instruction" style="margin-bottom:.3em;">Viewing $topMsgPos - $btmMsgPos of $allMsgNumber items</div>
 									#if ("$pagesize" != "0")
 										#if ($goPPButton == "true")
-											<input type="button" name="List_first" value="|&lt;" title="First" onclick="javascript: document.getElementById('attachForm').action='#toolLink("ResourcesAction" "doList_first")'; submitform('attachForm');" />
+											<input type="button" name="List_first" value="|&lt;" title="First" onclick="javascript: document.getElementById('sakai_action').value='doList_first';document.getElementById('showForm').submit();" />
 										#else
 											<input type="button" name="List_first" value="|&lt;" disabled="disabled" />
 										#end
 										#if ($goPPButton == "true")
-											<input type="button" name="List_prev" value="&lt;" title="Previous $pagesize" onclick="javascript: document.getElementById('attachForm').action='#toolLink("ResourcesAction" "doList_prev")'; submitform('attachForm');" />
+											<input type="button" name="List_prev" value="&lt;" title="Previous $pagesize" onclick="javascript: document.getElementById('sakai_action').value='doList_prev';document.getElementById('showForm').submit();" />
 										#else
 											<input type="button" name="List_prev" value="&lt;" disabled="disabled" />
 										#end
 									#end
 									<!-- $pagesize  "$pagesize" -->
-									<select name="selectPageSize" onchange="javascript:blur(); document.getElementById('attachForm').action='#toolLink("ResourcesAction" "doChange_pagesize")';submitform('attachForm');">
+									<select name="selectPageSize" onchange="javascript:blur(); document.getElementById('sakai_action').value='doChange_pagesize';document.getElementById('showForm').submit();">
 										<option value="5"#if("$pagesize" == "5") selected="selected"#end>$tlang.getString("lis.show5")</option>
 										<option value="10"#if("$pagesize" == "10") selected="selected"#end>$tlang.getString("lis.show10")</option>
 										<option value="20"#if("$pagesize" == "20") selected="selected"#end>$tlang.getString("lis.show20")</option>
@@ -308,217 +309,127 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 									</select>
 									#if ("$pagesize" != "0")
 										#if ($goNPButton == "true")
-											<input type="button" name="List_next" value="&gt;" title="Next $pagesize" onclick="javascript: document.getElementById('attachForm').action='#toolLink("ResourcesAction" "doList_next")'; submitform('attachForm');" />
+											<input type="button" name="List_next" value="&gt;" title="Next $pagesize" onclick="javascript: document.getElementById('sakai_action').value='doList_next';document.getElementById('showForm').submit();" />
 										#else
 											<input type="button" name="List_next" value="&gt;" disabled="disabled" />
 										#end
 										#if ($goNPButton == "true")
-											<input type="button" name="List_last" value="&gt;|" title="Last" onclick="javascript: document.getElementById('attachForm').action='#toolLink("ResourcesAction" "doList_last")'; submitform('attachForm');" />
+											<input type="button" name="List_last" value="&gt;|" title="Last" onclick="javascript: document.getElementById('sakai_action').value='doList_last';document.getElementById('showForm').submit();" />
 										#else
 											<input type="button" name="List_last" value="&gt;|" disabled="disabled" />
 										#end
 									#end
-								</div>
+								</div></div>
 							</td>
 						</tr>
 					#end
-					################################################################ End Paging widgets
+					################################################################ Eng Paging widgets
 					#foreach($item in $other_sites)
 						############################### Show top level folder #################
+						#set($itemcount = $itemcount + 1)
+						#set ($width = "$!{item.depth}$unit")
+						#if ($item.depth==0)	
+							#set ($margin="margin-left:0")
+						#else
+							#set ($margin="margin-left:2em")
+							#set ($marginAction="margin-left:4.7em")
+						#end
+						#if ($item.depth > 3)
+							#set($headerDepth = 6)
+						#else
+							#set($headerDepth = $item.depth + 3)
+						#end
+						############################### Show top level folder #################
 						<tr>
-							<td headers="title">
+							######################  Item title and action links  ##############
+							<td headers="title" style="text-indent:$width">
+								<h$headerDepth title="$validator.escapeHtml(${item.name})">
 								#if ($item.isCollection())
-									<h3>
-										#if ($item.isEmpty())
-											<img src = "#imageLink("sakai/dir_closed.gif")" border="0"  alt="$tlang.getString('gen.folder1')"  />
-											$validator.escapeHtml(${item.name})
-										#elseif ($item.canRead())
-											#if (!$expandedCollections.containsKey($item.Id))
-												<a href="#toolLinkParam("ResourcesAction" "doExpand_collection" "collectionId=$validator.escapeUrl($item.Id)")" title="$tlang.getString('sh.open')">
-													<img src = "#imageLink("sakai/dir_closedplus.gif")" border="0" title="$tlang.getString('sh.open')" alt="$tlang.getString('sh.open')" />
-												</a>
-											#else
-												<a href="#toolLinkParam("ResourcesAction" "doCollapse_collection" "collectionId=$validator.escapeUrl($item.Id)")" title="$tlang.getString('sh.close')">
-													<img src = "#imageLink("sakai/dir_openminus.gif")" border="0" title="$tlang.getString('sh.close')" alt="$tlang.getString('sh.close')" />
-												</a>
-											#end
-											<a href="#toolLinkParam("ResourcesAction" "doNavigate" "collectionId=${validator.escapeUrl(${item.id})}&navRoot=$validator.escapeUrl($item.root)")" title="$tlang.getString('sh.go')">
-												$validator.escapeHtml(${item.name})
+									#if ($item.isEmpty())
+										<img src = "#imageLink("sakai/dir_closed.gif")" border="0" alt="$tlang.getString('gen.folder1')" />
+										$validator.escapeHtml(${item.name})
+									#elseif ($item.canRead())
+										#if (!$expandedCollections.containsKey($item.Id))
+											<a href="#toolLinkParam("ResourcesAction" "doExpand_collection" "collectionId=$validator.escapeUrl($item.Id)")" title="$tlang.getString('sh.open')">
+												<img src = "#imageLink("sakai/dir_closedplus.gif")" border="0" title="$tlang.getString('sh.open')" alt="$tlang.getString('sh.open')" />
 											</a>
 										#else
-											<img src = "#imageLink("sakai/dir_closed.gif")" border="0" alt="$tlang.getString('gen.folder1')" />
-											$validator.escapeHtml(${item.name})
+											<a href="#toolLinkParam("ResourcesAction" "doCollapse_collection" "collectionId=$validator.escapeUrl($item.Id)")" title="$tlang.getString('sh.close')">
+												<img src = "#imageLink("sakai/dir_openminus.gif")" border="0" title="$tlang.getString('sh.close')" alt="$tlang.getString('sh.close')" />
+											</a>
 										#end
-									</h3>	
-								#end	
+										<a href="#toolLinkParam("ResourcesAction" "doNavigate" "collectionId=${validator.escapeUrl(${item.id})}&navRoot=$validator.escapeUrl($item.root)")" title="$tlang.getString('sh.go')">
+											$validator.escapeHtml(${item.name})
+										</a>
+									#else
+										<img src = "#imageLink("sakai/dir_closed.gif")" border="0" alt="$tlang.getString('gen.folder1')" />
+										$validator.escapeHtml(${item.name})
+									#end
+								#else
+									#if ($item.canRead())
+										#if ($item.hasCopyrightAlert())
+											## if there is a copyright alert, show the alert page first
+											<a href="" 
+											title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($item.type)  [$tlang.getString('gen.newwin')]"
+											onclick="openCopyrightWindow('${item.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false">
+											#else
+											<a href="${item.url}" target="${item.target}"
+												title="$tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($item.type)  [$tlang.getString('gen.newwin')]"
+											>
+										#end
+										<img src = "#imageLink($contentTypeImageService.getContentTypeImage($item.type))" border= "0" alt ="" hspace="0" />
+										</a>
+										#if ($item.hasCopyrightAlert())
+											## if there is a copyright alert, show the alert page first
+											<a href=""
+											title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($item.type)  [$tlang.getString('gen.newwin')]"
+											onclick="openCopyrightWindow('${item.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false;">
+												$validator.escapeHtml($item.name)
+											</a>
+											&#169;
+										#else
+											<a href="$item.url" target="$item.target"
+											title="$tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($item.type)  [$tlang.getString('gen.newwin')]"
+											>
+												$validator.escapeHtml($item.name)
+											</a>
+										#end
+									#else
+										 <img src = "#imageLink($contentTypeImageService.getContentTypeImage($item.type))" border="0" alt ="" hspace="0" />
+										$validator.escapeHtml($item.name)
+										#if ($item.hasCopyrightAlert())
+											&#169;
+										#end
+									#end
+								#end
+								</h$headerDepth>
 							</td>
 							<td headers="actions">
+							#set ($actionCount=($actionCount - 1))
+		
 								#if($can_attach_more)
-									######################  Add Action Links at Top Level  ##############
-									#if($item && ($item.canAddItem() || $item.canAddFolder()))
+									#if($item.isCollection())
+										#if($item.addActions && !$item.addActions.isEmpty())
+											<span id="button-$itemcount">
+											<ul style="z-index:$actionCount" class="makeMenu">
+											<li><img src = "#imageLink("sakai/icon-dropdn.gif")" border="0"  alt="$tlang.getString('gen.add')" /> $tlang.getString('gen.add')
+														<ul style="">
+															#foreach($action in $item.addActions)
+																<li><a href="#" onclick="document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('attachForm');">$labeler.getLabel($action)</a></li>
+															#end
+														</ul>
+												  	</li>
+												</ul>
+											</span>
+										#end
+									#else
 										<div class="itemAction">
-											#set ($itemsOnLine = 0)
-											####### deal with adding item/folder
-											#if($item.canAddItem())
-												#if($disable_attach_links)
-												#else
-													#if ($itemsOnLine > 0)
-														|
-													#end
-													#set ($itemsOnLine = $itemsOnLine + 1)
-													<a href="#toolLinkParam("ResourcesAction" "doCreate" "itemType=${TYPE_UPLOAD}&collectionId=$validator.escapeUrl(${item.id})")" title ="$tlang.getString('att.addnewtitle')">$tlang.getString("att.addnew").trim()</a>
-												#end
-											#end
+											<a href="#toolLinkParam("ResourcesAction" "doAttachitem" "itemId=$validator.escapeUrl(${item.id})")" title ="$tlang.getString('att.select')">$tlang.getString("att.select").trim()</a>
 										</div>
 									#end
-									######################  End of Add Items/Folders at Top Level  ##############
 								#end
 							</td>
-						</tr>	
-						#set($collectionMembers = $item.Members)
-						######################  No items message  ##############
-						#if ($item.isLocal() && $collectionMembers.isEmpty())
-							<tr>
-								<td  colspan="4">
-									<p class="instruction">
-										$tlang.getString("sh.no")
-										#if($dropboxMode)$tlang.getString("sh.drop")#else$tlang.getString("sh.reso")#end
-										$tlang.getString("sh.item")
-									</p>
-								</td>
-							</tr>		
-						#else
-							######################  Display individual items/folders  ##############
-							#set ($unit ="em")
-							#foreach ($member in $collectionMembers)
-								#set ($width = "$!{item.depth}$unit")
-								#set ($widthSp = (${item.depth} + 1) )
-								#set ($widthSpDo = "$widthSp$unit")
-								#if ($item.depth==1)	
-									#set ($margin="margin-left:0")
-								#else
-									#set ($margin="margin-left:2em")
-									#set ($marginAction="margin-left:4.7em")
-								#end
-								#if ($item.depth > 3)
-									#set($headerDepth = 6)
-								#else
-									#set($headerDepth =$item.depth + 3)
-								#end
-
-								<tr>
-									######################  Item title and action links  ##############
-									<td headers="title" style="text-indent:$width">
-										<h$headerDepth>
-											#if ($item.isCollection())
-												#if ($item.isEmpty())
-													<img src = "#imageLink("sakai/dir_closed.gif")" border="0" alt="$tlang.getString('gen.folder1')" />
-													$validator.escapeHtml(${item.name})
-												#elseif ($item.canRead())
-													#if (!$expandedCollections.containsKey($item.Id))
-														<a href="#toolLinkParam("ResourcesAction" "doExpand_collection" "collectionId=$validator.escapeUrl($item.Id)")" title="$tlang.getString('sh.open')">
-															<img src = "#imageLink("sakai/dir_closedplus.gif")" border="0" title="$tlang.getString('sh.open')" alt="$tlang.getString('sh.open')" />
-														</a>
-													#else
-														<a href="#toolLinkParam("ResourcesAction" "doCollapse_collection" "collectionId=$validator.escapeUrl($item.Id)")" title="$tlang.getString('sh.close')">
-															<img src = "#imageLink("sakai/dir_openminus.gif")" border="0" title="$tlang.getString('sh.close')" alt="$tlang.getString('sh.close')" />
-														</a>
-													#end
-													<a href="#toolLinkParam("ResourcesAction" "doNavigate" "collectionId=${validator.escapeUrl(${item.id})}&navRoot=$validator.escapeUrl($item.root)")" title="$tlang.getString('sh.go')">
-														$validator.escapeHtml(${item.name})
-													</a>
-												#else
-													<img src = "#imageLink("sakai/dir_closed.gif")" border="0" alt="$tlang.getString('gen.folder1')" />
-													$validator.escapeHtml(${item.name})
-												#end
-											#else
-												#if ($item.canRead())
-													#if ($item.hasCopyrightAlert())
-														## if there is a copyright alert, show the alert page first
-														<a href="" 
-														title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($item.type)  [$tlang.getString('gen.newwin')]"
-														onclick="openCopyrightWindow('${item.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false">
-														#else
-														<a href="${item.url}" target="${item.target}">
-													#end
-													<img src = "#imageLink($contentTypeImageService.getContentTypeImage($item.type))" border= "0" alt ="" hspace="0" />
-													</a>
-													#if ($item.hasCopyrightAlert())
-														## if there is a copyright alert, show the alert page first
-														<a href="" 
-														title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($item.type)  [$tlang.getString('gen.newwin')]"
-														onclick="openCopyrightWindow('${item.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false;">
-															$validator.escapeHtml($item.name)
-														</a>
-														&#169;
-													#else
-														<a href="$item.url" target="$item.target"
-														title="$tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($item.type)  [$tlang.getString('gen.newwin')]">
-															$validator.escapeHtml($item.name)
-														</a>
-													#end
-												#else
-													 <img src = "#imageLink($contentTypeImageService.getContentTypeImage($item.type))" border="0" alt ="" hspace="0" />
-													$validator.escapeHtml($item.name)
-													#if ($item.hasCopyrightAlert())
-														&#169;
-													#end
-												#end
-											#end
-										</h$headerDepth>
-									</td>
-									<td headers="actions">
-										#if($can_attach_more)
-											<div class="itemAction">
-												#if($item.isCollection())
-													#set ($itemsOnLine = 0)
-													####### deal with adding item/folder
-													#if($item.canAddItem())
-														#if($disable_attach_links)
-														#else
-															#if ($itemsOnLine > 0)
-																|
-															#end
-															#set ($itemsOnLine = $itemsOnLine + 1)
-															<a href="#toolLinkParam("ResourcesAction" "doCreate" "itemType=${TYPE_UPLOAD}&collectionId=$validator.escapeUrl(${item.id})")" title="$tlang.getString('att.addnewtitle')">$tlang.getString("att.addnew").trim()</a>
-														#end
-													#end
-												#else
-													#set ($itemsOnLine = 0)
-													####### deal with attaching item
-													#if ($item.canRead() && $item.canSelect())
-														#if($disable_attach_links)
-														#else
-															#if ($itemsOnLine > 0)
-																|
-															#end
-															#set ($itemsOnLine = $itemsOnLine + 1)
-															<a href="#toolLinkParam("ResourcesAction" "doAttachitem" "itemId=$validator.escapeUrl(${item.id})")" title ="$tlang.getString('att.select')">$tlang.getString("att.select").trim()</a>
-														#end
-													#end
-													####### deal with duplicating item
-													#if($item.canRead() && $item.canAddItem())
-														#if($disable_attach_links)
-														#else
-															#if ($itemsOnLine > 0)
-																|
-															#end
-															#set ($itemsOnLine = $itemsOnLine + 1)
-															<a href="#toolLinkParam("ResourcesAction" "doPasteitem" "itemId=${validator.escapeUrl(${item.id})}&collectionId=${validator.escapeUrl(${item.container})}")" title="$tlang.getString('list.dup')">$tlang.getString("list.dup").trim()</a>
-														#end
-													#end
-												#end
-											</div>
-											#if($copyFlag && "${item.id}" == "$copiedItem")
-												<div class="inlineAlert">
-													$tlang.getString("list.copied")
-												</div>
-											#end
-										#end
-									</td>
-								</tr>
-							#end
-						#end
+						</tr>
 					#end ## foreach $item in $other_sites
 	
 				#else

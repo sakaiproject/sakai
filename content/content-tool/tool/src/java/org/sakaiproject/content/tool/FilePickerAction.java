@@ -46,6 +46,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
+import org.sakaiproject.cheftool.PagedResourceHelperAction;
 import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
 import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
@@ -93,6 +94,7 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FileItem;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
@@ -104,7 +106,7 @@ import org.sakaiproject.util.Validator;
  * This works with the ResourcesTool to show a file picker / attachment editor that can be used by any Sakai tools as a helper.<br />
  * If the user ends without a cancel, the original collection of attachments is replaced with the edited list - otherwise it is left unchanged.
  */
-public class FilePickerAction extends VelocityPortletPaneledAction
+public class FilePickerAction extends PagedResourceHelperAction
 {
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("helper");
@@ -177,9 +179,11 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 	protected static final String STATE_SHOW_ALL_SITES = PREFIX + "show_all_sites";
 	protected static final String STATE_SHOW_OTHER_SITES = PREFIX + "show_other_sites";
 
-
 	/** The sort by */
 	private static final String STATE_SORT_BY = PREFIX + "sort_by";
+	
+	protected static final String STATE_TOP_MESSAGE_INDEX = PREFIX + "top_message_index";
+
 
 	/** The sort ascending or decending */
 	private static final String STATE_SORT_ASC = PREFIX + "sort_asc";
@@ -226,6 +230,7 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 	 */
 	public String buildMainPanelContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
+		initState(state, portlet, data);
 
 		// if we are in edit attachments...
 		String mode = (String) state.getAttribute(ResourcesAction.STATE_MODE);
@@ -743,46 +748,107 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 
 			if(show_all_sites)
 			{
-//				List messages = prepPage(state);
-//				context.put("other_sites", messages);
-//
-//				if (state.getAttribute(STATE_NUM_MESSAGES) != null)
-//				{
-//					context.put("allMsgNumber", state.getAttribute(STATE_NUM_MESSAGES).toString());
-//					context.put("allMsgNumberInt", state.getAttribute(STATE_NUM_MESSAGES));
-//				}
-//
-//				context.put("pagesize", ((Integer) state.getAttribute(STATE_PAGESIZE)).toString());
-//
-//				// find the position of the message that is the top first on the page
-//				if ((state.getAttribute(STATE_TOP_MESSAGE_INDEX) != null) && (state.getAttribute(STATE_PAGESIZE) != null))
-//				{
-//					int topMsgPos = ((Integer)state.getAttribute(STATE_TOP_MESSAGE_INDEX)).intValue() + 1;
-//					context.put("topMsgPos", Integer.toString(topMsgPos));
-//					int btmMsgPos = topMsgPos + ((Integer)state.getAttribute(STATE_PAGESIZE)).intValue() - 1;
-//					if (state.getAttribute(STATE_NUM_MESSAGES) != null)
-//					{
-//						int allMsgNumber = ((Integer)state.getAttribute(STATE_NUM_MESSAGES)).intValue();
-//						if (btmMsgPos > allMsgNumber)
-//							btmMsgPos = allMsgNumber;
-//					}
-//					context.put("btmMsgPos", Integer.toString(btmMsgPos));
-//				}
-//
-//				boolean goPPButton = state.getAttribute(STATE_PREV_PAGE_EXISTS) != null;
-//				context.put("goPPButton", Boolean.toString(goPPButton));
-//				boolean goNPButton = state.getAttribute(STATE_NEXT_PAGE_EXISTS) != null;
-//				context.put("goNPButton", Boolean.toString(goNPButton));
-//
-//				/*
-//				boolean goFPButton = state.getAttribute(STATE_FIRST_PAGE_EXISTS) != null;
-//				context.put("goFPButton", Boolean.toString(goFPButton));
-//				boolean goLPButton = state.getAttribute(STATE_LAST_PAGE_EXISTS) != null;
-//				context.put("goLPButton", Boolean.toString(goLPButton));
-//				*/
-//
-//				context.put("pagesize", state.getAttribute(STATE_PAGESIZE));
-//				// context.put("pagesizes", PAGESIZES);
+				// TODO move this to a separate class used by ResourcesAction and FilePickerAction to support paging
+				
+				
+				List<ListItem> siteCollections = prepPage(state);
+				List<ListItem> otherSites = new Vector<ListItem>();
+				for(ListItem siteCollection : siteCollections)
+				{
+					otherSites.addAll(siteCollection.convert2list());
+				}
+				context.put("other_sites", otherSites);
+
+				if (state.getAttribute(STATE_NUM_MESSAGES) != null)
+				{
+					context.put("allMsgNumber", state.getAttribute(STATE_NUM_MESSAGES).toString());
+					context.put("allMsgNumberInt", state.getAttribute(STATE_NUM_MESSAGES));
+				}
+
+				context.put("pagesize", ((Integer) state.getAttribute(STATE_PAGESIZE)).toString());
+
+				// find the position of the message that is the top first on the page
+				if ((state.getAttribute(STATE_TOP_MESSAGE_INDEX) != null) && (state.getAttribute(STATE_PAGESIZE) != null))
+				{
+					int topMsgPos = ((Integer)state.getAttribute(STATE_TOP_MESSAGE_INDEX)).intValue() + 1;
+					context.put("topMsgPos", Integer.toString(topMsgPos));
+					int btmMsgPos = topMsgPos + ((Integer)state.getAttribute(STATE_PAGESIZE)).intValue() - 1;
+					if (state.getAttribute(STATE_NUM_MESSAGES) != null)
+					{
+						int allMsgNumber = ((Integer)state.getAttribute(STATE_NUM_MESSAGES)).intValue();
+						if (btmMsgPos > allMsgNumber)
+							btmMsgPos = allMsgNumber;
+					}
+					context.put("btmMsgPos", Integer.toString(btmMsgPos));
+				}
+
+				boolean goPPButton = state.getAttribute(STATE_PREV_PAGE_EXISTS) != null;
+				context.put("goPPButton", Boolean.toString(goPPButton));
+				boolean goNPButton = state.getAttribute(STATE_NEXT_PAGE_EXISTS) != null;
+				context.put("goNPButton", Boolean.toString(goNPButton));
+
+				/*
+				boolean goFPButton = state.getAttribute(STATE_FIRST_PAGE_EXISTS) != null;
+				context.put("goFPButton", Boolean.toString(goFPButton));
+				boolean goLPButton = state.getAttribute(STATE_LAST_PAGE_EXISTS) != null;
+				context.put("goLPButton", Boolean.toString(goLPButton));
+				*/
+
+				context.put("pagesize", state.getAttribute(STATE_PAGESIZE));
+				// context.put("pagesizes", PAGESIZES);
+
+			}
+
+			
+			//context.put("listActions", listActions);
+			context.put("counter", new EntityCounter());
+
+			// context.put ("other_sites", other_sites);
+			//state.setAttribute(STATE_COLLECTION_ROOTS, all_roots);
+			// context.put ("root", root);
+
+			if(show_all_sites)
+			{
+				List messages = prepPage(state);
+				context.put("other_sites", messages);
+
+				if (state.getAttribute(STATE_NUM_MESSAGES) != null)
+				{
+					context.put("allMsgNumber", state.getAttribute(STATE_NUM_MESSAGES).toString());
+					context.put("allMsgNumberInt", state.getAttribute(STATE_NUM_MESSAGES));
+				}
+
+				context.put("pagesize", ((Integer) state.getAttribute(STATE_PAGESIZE)).toString());
+
+				// find the position of the message that is the top first on the page
+				if ((state.getAttribute(STATE_TOP_MESSAGE_INDEX) != null) && (state.getAttribute(STATE_PAGESIZE) != null))
+				{
+					int topMsgPos = ((Integer)state.getAttribute(STATE_TOP_MESSAGE_INDEX)).intValue() + 1;
+					context.put("topMsgPos", Integer.toString(topMsgPos));
+					int btmMsgPos = topMsgPos + ((Integer)state.getAttribute(STATE_PAGESIZE)).intValue() - 1;
+					if (state.getAttribute(STATE_NUM_MESSAGES) != null)
+					{
+						int allMsgNumber = ((Integer)state.getAttribute(STATE_NUM_MESSAGES)).intValue();
+						if (btmMsgPos > allMsgNumber)
+							btmMsgPos = allMsgNumber;
+					}
+					context.put("btmMsgPos", Integer.toString(btmMsgPos));
+				}
+
+				boolean goPPButton = state.getAttribute(STATE_PREV_PAGE_EXISTS) != null;
+				context.put("goPPButton", Boolean.toString(goPPButton));
+				boolean goNPButton = state.getAttribute(STATE_NEXT_PAGE_EXISTS) != null;
+				context.put("goNPButton", Boolean.toString(goNPButton));
+
+				/*
+				boolean goFPButton = state.getAttribute(STATE_FIRST_PAGE_EXISTS) != null;
+				context.put("goFPButton", Boolean.toString(goFPButton));
+				boolean goLPButton = state.getAttribute(STATE_LAST_PAGE_EXISTS) != null;
+				context.put("goLPButton", Boolean.toString(goLPButton));
+				*/
+
+				context.put("pagesize", state.getAttribute(STATE_PAGESIZE));
+				// context.put("pagesizes", PAGESIZES);
 			}
 
 			// context.put ("root", root);
@@ -1020,6 +1086,15 @@ public class FilePickerAction extends VelocityPortletPaneledAction
 		state.setAttribute(STATE_ATTACH_INSTRUCTION, message);
 	}
 
+	/**
+	* Populate the state object, if needed - override to do something!
+	*/
+	protected void initState(SessionState state, VelocityPortlet portlet, RunData data)
+	{
+		super.initState(state, portlet, (JetspeedRunData) data);
+
+	}	// initState
+	
 	/**
 	 * @param data
 	 */
@@ -2653,5 +2728,376 @@ public class FilePickerAction extends VelocityPortletPaneledAction
         }
 
 	}	// Inner class AttachItem
+	
+	/**
+	* Prepare the current page of site collections to display.
+	* @return List of ListItem objects to display on this page.
+	*/
+	protected List<ListItem> prepPage(SessionState state)
+	{
+		List<ListItem> rv = new Vector<ListItem>();
+
+		// access the page size
+		int pageSize = ((Integer) state.getAttribute(STATE_PAGESIZE)).intValue();
+
+		// cleanup prior prep
+		state.removeAttribute(STATE_NUM_MESSAGES);
+
+		// are we going next or prev, first or last page?
+		boolean goNextPage = state.getAttribute(STATE_GO_NEXT_PAGE) != null;
+		boolean goPrevPage = state.getAttribute(STATE_GO_PREV_PAGE) != null;
+		boolean goFirstPage = state.getAttribute(STATE_GO_FIRST_PAGE) != null;
+		boolean goLastPage = state.getAttribute(STATE_GO_LAST_PAGE) != null;
+		state.removeAttribute(STATE_GO_NEXT_PAGE);
+		state.removeAttribute(STATE_GO_PREV_PAGE);
+		state.removeAttribute(STATE_GO_FIRST_PAGE);
+		state.removeAttribute(STATE_GO_LAST_PAGE);
+
+		// are we going next or prev message?
+		boolean goNext = state.getAttribute(STATE_GO_NEXT) != null;
+		boolean goPrev = state.getAttribute(STATE_GO_PREV) != null;
+		state.removeAttribute(STATE_GO_NEXT);
+		state.removeAttribute(STATE_GO_PREV);
+
+		// read all channel messages
+		List<ListItem> allMessages = readAllResources(state);
+
+		if (allMessages == null)
+		{
+			return rv;
+		}
+		
+		String messageIdAtTheTopOfThePage = null;
+		Object topMsgId = state.getAttribute(STATE_TOP_PAGE_MESSAGE_ID);
+		if(topMsgId == null)
+		{
+			// do nothing
+		}
+		else if(topMsgId instanceof Integer)
+		{
+			messageIdAtTheTopOfThePage = ((Integer) topMsgId).toString();
+		}
+		else if(topMsgId instanceof String)
+		{
+			messageIdAtTheTopOfThePage = (String) topMsgId;
+		}
+
+		// if we have no prev page and do have a top message, then we will stay "pinned" to the top
+		boolean pinToTop = (	(messageIdAtTheTopOfThePage != null)
+							&&	(state.getAttribute(STATE_PREV_PAGE_EXISTS) == null)
+							&&	!goNextPage && !goPrevPage && !goNext && !goPrev && !goFirstPage && !goLastPage);
+
+		// if we have no next page and do have a top message, then we will stay "pinned" to the bottom
+		boolean pinToBottom = (	(messageIdAtTheTopOfThePage != null)
+							&&	(state.getAttribute(STATE_NEXT_PAGE_EXISTS) == null)
+							&&	!goNextPage && !goPrevPage && !goNext && !goPrev && !goFirstPage && !goLastPage);
+
+		// how many messages, total
+		int numMessages = allMessages.size();
+
+		if (numMessages == 0)
+		{
+			return rv;
+		}
+
+		// save the number of messges
+		state.setAttribute(STATE_NUM_MESSAGES, new Integer(numMessages));
+
+		// find the position of the message that is the top first on the page
+		int posStart = 0;
+		if (messageIdAtTheTopOfThePage != null)
+		{
+			// find the next page
+			posStart = findResourceInList(allMessages, messageIdAtTheTopOfThePage);
+
+			// if missing, start at the top
+			if (posStart == -1)
+			{
+				posStart = 0;
+			}
+		}
+		
+		// if going to the next page, adjust
+		if (goNextPage)
+		{
+			posStart += pageSize;
+		}
+
+		// if going to the prev page, adjust
+		else if (goPrevPage)
+		{
+			posStart -= pageSize;
+			if (posStart < 0) posStart = 0;
+		}
+		
+		// if going to the first page, adjust
+		else if (goFirstPage)
+		{
+			posStart = 0;
+		}
+		
+		// if going to the last page, adjust
+		else if (goLastPage)
+		{
+			posStart = numMessages - pageSize;
+			if (posStart < 0) posStart = 0;
+		}
+
+		// pinning
+		if (pinToTop)
+		{
+			posStart = 0;
+		}
+		else if (pinToBottom)
+		{
+			posStart = numMessages - pageSize;
+			if (posStart < 0) posStart = 0;
+		}
+
+		// get the last page fully displayed
+		if (posStart + pageSize > numMessages)
+		{
+			posStart = numMessages - pageSize;
+			if (posStart < 0) posStart = 0;
+		}
+
+		// compute the end to a page size, adjusted for the number of messages available
+		int posEnd = posStart + (pageSize-1);
+		if (posEnd >= numMessages) posEnd = numMessages-1;
+		int numMessagesOnThisPage = (posEnd - posStart) + 1;
+
+		// select the messages on this page
+		for (int i = posStart; i <= posEnd; i++)
+		{
+			rv.add(allMessages.get(i));
+		}
+
+		// save which message is at the top of the page
+		ListItem itemAtTheTopOfThePage = (ListItem) allMessages.get(posStart);
+		state.setAttribute(STATE_TOP_PAGE_MESSAGE_ID, itemAtTheTopOfThePage.getId());
+		state.setAttribute(STATE_TOP_MESSAGE_INDEX, new Integer(posStart));
+
+
+		// which message starts the next page (if any)
+		int next = posStart + pageSize;
+		if (next < numMessages)
+		{
+			state.setAttribute(STATE_NEXT_PAGE_EXISTS, "");
+		}
+		else
+		{
+			state.removeAttribute(STATE_NEXT_PAGE_EXISTS);
+		}
+
+		// which message ends the prior page (if any)
+		int prev = posStart - 1;
+		if (prev >= 0)
+		{
+			state.setAttribute(STATE_PREV_PAGE_EXISTS, "");
+		}
+		else
+		{
+			state.removeAttribute(STATE_PREV_PAGE_EXISTS);
+		}
+
+		if (state.getAttribute(STATE_VIEW_ID) != null)
+		{
+			int viewPos = findResourceInList(allMessages, (String) state.getAttribute(STATE_VIEW_ID));
+	
+			// are we moving to the next message
+			if (goNext)
+			{
+				// advance
+				viewPos++;
+				if (viewPos >= numMessages) viewPos = numMessages-1;
+			}
+	
+			// are we moving to the prev message
+			if (goPrev)
+			{
+				// retreat
+				viewPos--;
+				if (viewPos < 0) viewPos = 0;
+			}
+			
+			// update the view message
+			state.setAttribute(STATE_VIEW_ID, ((ListItem) allMessages.get(viewPos)).getId());
+			
+			// if the view message is no longer on the current page, adjust the page
+			// Note: next time through this will get processed
+			if (viewPos < posStart)
+			{
+				state.setAttribute(STATE_GO_PREV_PAGE, "");
+			}
+			else if (viewPos > posEnd)
+			{
+				state.setAttribute(STATE_GO_NEXT_PAGE, "");
+			}
+			
+			if (viewPos > 0)
+			{
+				state.setAttribute(STATE_PREV_EXISTS,"");
+			}
+			else
+			{
+				state.removeAttribute(STATE_PREV_EXISTS);
+			}
+			
+			if (viewPos < numMessages-1)
+			{
+				state.setAttribute(STATE_NEXT_EXISTS,"");
+			}
+			else
+			{
+				state.removeAttribute(STATE_NEXT_EXISTS);
+			}			
+		}
+
+		return rv;
+
+	}	// prepPage
+	
+	/**
+	* Develop a list of all the site collections that there are to page.
+	* Sort them as appropriate, and apply search criteria.
+	*/
+	protected List<ListItem> readAllResources(SessionState state)
+	{
+		ContentHostingService contentService = (ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
+		
+		ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+		if(registry == null)
+		{
+			registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+			state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
+		}
+		
+		List<ListItem> other_sites = new Vector<ListItem>();
+
+		String homeCollectionId = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
+
+		// make sure the collectionId is set
+		String collectionId = (String) state.getAttribute(STATE_DEFAULT_COLLECTION_ID);
+		if(collectionId == null)
+		{
+			collectionId = homeCollectionId;
+		}
+
+		SortedSet<String> expandedCollections = (SortedSet<String>) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+		if(expandedCollections == null)
+		{
+			expandedCollections = new TreeSet();
+			state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
+		}
+		
+		Comparator userSelectedSort = (Comparator) state.getAttribute(STATE_LIST_VIEW_SORT);
+		
+		// set the sort values
+		String sortedBy = (String) state.getAttribute (STATE_SORT_BY);
+		String sortedAsc = (String) state.getAttribute (STATE_SORT_ASC);
+		
+		// add user's personal workspace
+		User user = UserDirectoryService.getCurrentUser();
+		String userId = user.getId();
+		String userName = user.getDisplayName();
+		String wsId = SiteService.getUserSiteId(userId);
+		String wsCollectionId = contentService.getSiteCollection(wsId);
+		
+		if(! collectionId.equals(wsCollectionId))
+		{
+            try
+            {
+            	ContentCollection wsCollection = contentService.getCollection(wsCollectionId);
+				ListItem wsRoot = ListItem.getListItem(wsCollection, null, registry, false, expandedCollections, null, null, 0, userSelectedSort, false);
+		        other_sites.add(wsRoot);
+            }
+            catch (IdUnusedException e)
+            {
+	            // TODO Auto-generated catch block
+	            logger.warn("IdUnusedException ", e);
+            }
+            catch (TypeException e)
+            {
+	            // TODO Auto-generated catch block
+	            logger.warn("TypeException ", e);
+            }
+            catch (PermissionException e)
+            {
+	            // TODO Auto-generated catch block
+	            logger.warn("PermissionException ", e);
+            }
+		}
+		
+ 		/*
+		 * add all other sites user has access to
+		 * NOTE: This does not (and should not) get all sites for admin.  
+		 *       Getting all sites for admin is too big a request and
+		 *       would result in too big a display to render in html.
+		 */
+		Map othersites = contentService.getCollectionMap();
+		Iterator siteIt = othersites.keySet().iterator();
+		SortedSet sort = new TreeSet();
+		while(siteIt.hasNext())
+		{
+              String collId = (String) siteIt.next();
+              String displayName = (String) othersites.get(collId);
+              sort.add(displayName + ResourcesAction.DELIM + collId);
+		}
+		
+		Iterator sortIt = sort.iterator();
+		while(sortIt.hasNext())
+		{
+			String keyvalue = (String) sortIt.next();
+			String displayName = keyvalue.substring(0, keyvalue.lastIndexOf(ResourcesAction.DELIM));
+			String collId = keyvalue.substring(keyvalue.lastIndexOf(ResourcesAction.DELIM) + 1);
+			if(! collectionId.equals(collId) && ! wsCollectionId.equals(collId))
+			{
+				ContentCollection collection;
+                try
+                {
+	                collection = contentService.getCollection(collId);
+					ListItem root = ListItem.getListItem(collection, null, registry, false, expandedCollections, null, null, 0, null, false);
+					root.setName(displayName);
+					other_sites.add(root);
+                }
+                catch (IdUnusedException e)
+                {
+	                // TODO Auto-generated catch block
+	                logger.warn("IdUnusedException ", e);
+                }
+                catch (TypeException e)
+                {
+	                // TODO Auto-generated catch block
+	                logger.warn("TypeException ", e);
+                }
+                catch (PermissionException e)
+                {
+	                // TODO Auto-generated catch block
+	                logger.warn("PermissionException ", e);
+                }
+			}
+          }
+		
+		return other_sites;
+	}
+	
+	/**
+	* Find the resource with this id in the list.
+	* @param messages The list of messages.
+	* @param id The message id.
+	* @return The index position in the list of the message with this id, or -1 if not found.
+	*/
+	protected int findResourceInList(List resources, String id)
+	{
+		for (int i = 0; i < resources.size(); i++)
+		{
+			// if this is the one, return this index
+			if (((ListItem) (resources.get(i))).getId().equals(id)) return i;
+		}
+
+		// not found
+		return -1;
+
+	}	// findResourceInList
 	
 }	// class FilePickerAction 
