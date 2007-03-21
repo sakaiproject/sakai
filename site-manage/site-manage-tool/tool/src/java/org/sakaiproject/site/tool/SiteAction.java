@@ -557,7 +557,9 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String STATE_CM_SELECTED_SECTION = "site.cm.selectedSection";
 	
 	private static final String STATE_CM_REQUESTED_SECTIONS = "site.cm.requested";
-
+	
+	private static final String STATE_PROVIDER_SECTION_LIST = "site_provider_section_list";
+	
 	private String cmSubjectCategory;
 
 	private boolean warnedNoSubjectCategory = false;
@@ -725,7 +727,7 @@ public class SiteAction extends PagedResourceActionII {
 		state.removeAttribute(STATE_MANUAL_ADD_COURSE_FIELDS);
 		state.removeAttribute(SITE_CREATE_TOTAL_STEPS);
 		state.removeAttribute(SITE_CREATE_CURRENT_STEP);
-
+		state.removeAttribute(STATE_PROVIDER_SECTION_LIST);
 	} // cleanState
 
 	/**
@@ -2438,7 +2440,7 @@ public class SiteAction extends PagedResourceActionII {
 					String userId = StringUtil.trimToZero(SessionManager
 							.getCurrentSessionUserId());
 					List courses = prepareCourseAndSectionListing(userId, t
-							.getEid());
+							.getEid(), state);
 					if (courses != null && courses.size() > 0) {
 						Vector notIncludedCourse = new Vector();
 
@@ -3878,7 +3880,7 @@ public class SiteAction extends PagedResourceActionII {
 				state.setAttribute(STATE_TERM_SELECTED, t);
 				if (t != null) {
 					List sections = prepareCourseAndSectionListing(userId, t
-							.getEid());
+							.getEid(), state);
 
 					int weeks = 0;
 					Calendar c = (Calendar) Calendar.getInstance().clone();
@@ -5947,7 +5949,7 @@ public class SiteAction extends PagedResourceActionII {
 				 * t.getEid());
 				 */
 				List courses = prepareCourseAndSectionListing(userId, t
-						.getEid());
+						.getEid(), state);
 
 				// future term? roster information is not available yet?
 				int weeks = 0;
@@ -11337,7 +11339,7 @@ public class SiteAction extends PagedResourceActionII {
 	 * @return
 	 */
 	private List prepareCourseAndSectionListing(String userId,
-			String academicSessionEid) {
+			String academicSessionEid, SessionState state) {
 		// courseOfferingHash = (courseOfferingEid, vourseOffering)
 		// sectionHash = (courseOfferingEid, list of sections)
 		HashMap courseOfferingHash = new HashMap();
@@ -11345,6 +11347,9 @@ public class SiteAction extends PagedResourceActionII {
 		prepareCourseAndSectionMap(userId, academicSessionEid,
 				courseOfferingHash, sectionHash);
 		// courseOfferingHash & sectionHash should now be filled with stuffs
+		// put section list in state for later use
+		
+		state.setAttribute(STATE_PROVIDER_SECTION_LIST, getSectionList(sectionHash));
 
 		ArrayList offeringList = new ArrayList();
 		Set keys = courseOfferingHash.keySet();
@@ -11356,7 +11361,7 @@ public class SiteAction extends PagedResourceActionII {
 
 		Collection offeringListSorted = sortOffering(offeringList);
 		ArrayList resultedList = new ArrayList();
-
+		
 		// use this to keep track of courseOffering that we have dealt with
 		// already
 		// this is important 'cos cross-listed offering is dealt with together
@@ -11412,17 +11417,11 @@ public class SiteAction extends PagedResourceActionII {
 	 */
 	public class SectionObject {
 		public Section section;
-
 		public String eid;
-
 		public String title;
-
 		public String category;
-
 		public String categoryDescription;
-
 		public boolean isLecture;
-
 		public boolean attached;
 
 		public SectionObject(Section section) {
@@ -11622,8 +11621,8 @@ public class SiteAction extends PagedResourceActionII {
 			// site title is the title of the 1st section selected -
 			// daisyf's note
 			if (providerChosenList != null && providerChosenList.size() >= 1) {
-				siteInfo.title = getCourseTab(state,
-						(String) providerChosenList.get(0));
+				String title = prepareTitle((List)state.getAttribute(STATE_PROVIDER_SECTION_LIST), providerChosenList);
+				siteInfo.title = title;
 			}
 			state.setAttribute(STATE_SITE_INFO, siteInfo);
 
@@ -11946,5 +11945,50 @@ public class SiteAction extends PagedResourceActionII {
 
 		prepFindPage(state);
 	}
+	
+	/**
+	 * return the title of the 1st section in the chosen list that has
+	 * an enrollment set. No discrimination on section category
+	 * @param sectionList
+	 * @param chosenList
+	 * @return
+	 */
+	private String prepareTitle(List sectionList, List chosenList){
+		String title=null;
+		HashMap map = new HashMap();
+		for (Iterator i = sectionList.iterator(); i.hasNext();) {
+			SectionObject o = (SectionObject) i.next();
+			map.put(o.getEid(), o.getSection());
+		}
+		for (int j=0; j<chosenList.size(); j++){
+			String eid = (String)chosenList.get(j);
+			Section s = (Section) map.get(eid);
+			// we will always has a title regardless but we prefer it to be the 
+			// 1st section on the chosen list that has an enrollment set
+			if (j==0){ 
+				title = s.getTitle();
+			}
+			if (s.getEnrollmentSet()!=null){
+				title = s.getTitle();
+				break;
+			}
+		}		
+		return title;
+	} // prepareTitle
 
+	/**
+	 * return an ArrayList of SectionObject
+	 * @param sectionHash contains an ArrayList collection of SectionObject
+	 * @return
+	 */
+	private ArrayList getSectionList(HashMap sectionHash){
+		ArrayList list = new ArrayList();
+		// values is an ArrayList of section
+		Collection c = sectionHash.values();
+		for (Iterator i = c.iterator(); i.hasNext();) {
+			ArrayList l = (ArrayList) i.next();
+			list.addAll(l);
+		}
+		return list;
+	}
 }
