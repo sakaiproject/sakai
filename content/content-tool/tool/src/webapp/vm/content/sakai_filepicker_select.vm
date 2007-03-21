@@ -1,68 +1,15 @@
 <!-- sakai_filepicker_select.vm, version: Id:  $, use with org.sakaiproject.content.tool.FilePickerAction.java -->
+<!--[if gt IE 5.0]><![if lt IE 7]>
 <style type="text/css">
-ul.makeMenu, ul.makeMenu ul {
-  width: 70px;                 /* ^^^ sets the size of the 'button' */
-  border: 2px solid #D6DCE9;      /* puts a  border around the menu blocks */
-  background-color: #ccc;      /* makes the menu blocks white - a bg-color MUST be included for IE to work properly! */
-  background-image:url(images/gloss.gif);      /* puts in a background image! */
-  padding: 2px;           /* stops the usual indent from ul */
-  padding-left: 6px;           /* stops the usual indent from ul */
-  cursor: default;             /* gives an arrow cursor */
-  margin-left: 0px;            /* Opera 7 final's margin and margin-box model cause problems */
+/* that IE 5+ conditional comment makes this only visible in IE 5+ */
+ul.makeMenu li {  /* the behaviour to mimic the li:hover rules in IE 5+ */
+  behavior: url( /library/js/IEmen.htc );
+  }
+ul.makeMenu ul {  /* copy of above declaration without the > selector */                                                                      
+  display: none; position: absolute; top: 15px; left: 20px; background-image:none; background-color:#ffffff;width: 15em; z-index:3;border:1px solid  #666  	
 }
-ul.makeMenu li {
-  list-style-type: none;       /* removes the bullet points */
-  margin: 0px;                 /* Opera 7 puts large spacings between li elements */
-  position: relative;          /* makes the menu blocks be positioned relative to their parent menu item
-                                  the lack of offset makes these appear normal, but it will make a difference
-                                  to the absolutely positioned child blocks */
-  color: #000000;                 /* sets the default font colour to white */
-}
-ul.makeMenu li > ul {          /* using the > selector prevents many lesser browsers (and IE - see below) hiding child ULs */
-  display: none;               /* hides child menu blocks - one of the most important declarations */
-  position: absolute;          /* make child blocks hover without leaving space for them */
-  top: 2px;                    /* position slightly lower than the parent menu item */
-  left: 50px;                  /* this must not be more than the width of the parent block, or the mouse will
-                                  have to move off the element to move between blocks, and the menu will close */
-
-}
-ul.makeMenu li:hover, ul.makeMenu li.CSStoHighlight {
- /* background-color: #ffa;      /* gives the active menu items a yellow background */
-  color: #000;                 /* makes the active menu item text black */ 
-}
-ul.makeMenu ul.CSStoShow {     /* must not be combined with the next rule or IE gets confused */
-  display: block;              /* specially to go with the className changes in the behaviour file */
-}
-ul.makeMenu li:hover > ul {    /* one of the most important declarations - the browser must detect hovering over arbitrary elements
-                                  the > targets only the child ul, not any child uls of that child ul */
-  display: block;              /* makes the child block visible - one of the most important declarations */
-  width: 170px;    				/* HT: make the pop up larger */
-	background-color:#ffffff;		/* HT: white background */  
-	background-image:none;		/* HT: white background */
-	position:absolute;
- 	z-index:3
-}
-
-/* and some link styles */
-ul.makeMenu li a { display: block; width: 100%; text-decoration: underline;   padding:6px; }
-ul.makeMenu li a:hover, ul.makeMenu li a.CSStoHighLink { color: #000; }
-ul.makeMenu li:hover > a { color: #000; } /* supports links in branch headings - should not be display: block; */
 </style>
-<script type="text/javascript"><!--//--><![CDATA[//><!--
-
-sfHover = function() {
-	var sfEls = document.getElementById("nav").getElementsByTagName("LI");
-	for (var i=0; i<sfEls.length; i++) {
-		sfEls[i].onmouseover=function() {
-			this.className+=" sfhover";
-		}
-		sfEls[i].onmouseout=function() {
-			this.className=this.className.replace(new RegExp(" sfhover\\b"), "");
-		}
-	}
-}
-if (window.attachEvent) window.attachEvent("onload", sfHover);
-//--><!]]></script>
+<![endif]><![endif]-->
 
 <script language="JavaScript" type="text/JavaScript">
 	<!--
@@ -180,6 +127,7 @@ if (window.attachEvent) window.attachEvent("onload", sfHover);
 				#end
 			</span>		
 		</h3>
+		#set ($actionCount=2000)
 		######################  Heirarchical list of resource folders/items  ##############
 		<table class="listHier lines" cellspacing="0" border="0" summary="$tlang.getString("att.listsum")">
 			######################  Column labels, sort controls, expand/collapse all  ##############
@@ -291,12 +239,14 @@ if (window.attachEvent) window.attachEvent("onload", sfHover);
 						</h$headerDepth>
 					</td>
 					<td headers="actions">
+					#set ($actionCount=($actionCount - 1))
+
 						#if($can_attach_more)
 							#if($item.isCollection())
 								#if($item.addActions && !$item.addActions.isEmpty())
 									<span id="button-$itemcount">
-										<ul class="makeMenu">
-											<li style="position:relative; z-index:4">Add <img src="images/sort_down.gif">
+									<ul style="z-index:$actionCount" class="makeMenu">
+									<li><img src = "#imageLink("sakai/icon-dropdn.gif")" border="0"  alt="$tlang.getString('gen.add')" /> $tlang.getString('gen.add')
 												<ul style="">
 													#foreach($action in $item.addActions)
 														<li><a href="#" onclick="document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('attachForm');">$labeler.getLabel($action)</a></li>
@@ -595,5 +545,6 @@ if (window.attachEvent) window.attachEvent("onload", sfHover);
 				onclick="javascript: document.getElementById('attachForm').action='#toolLink("ResourcesAction" "doCancel")'; submitform('attachForm');" 
 				value="$tlang.getString("att.cancel")"  />
 		</p>
+			<div id="paddingfromhell" style="height:10em">
 	</form>						
 </div>
