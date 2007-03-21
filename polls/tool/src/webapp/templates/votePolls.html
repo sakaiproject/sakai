@@ -1,0 +1,68 @@
+<!DOCTYPE html      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:rsf="http://ponder.org.uk/rsf">
+<head >
+<title>Vote Polls</title>
+<link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all"/>
+<link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" rsf:id="scr=portal-matter" />
+<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+<!--tryng this -->
+</head>
+
+<body rsf:id="scr=sakai-body">
+<div class="portletBody">
+
+<div rsf-id="actions:" class="navIntraTool">
+<a rsf:id="actions-add">Add</a><a rsf:id="actions-permissions">Permissions</a>
+</div>
+
+	
+<h3 rsf:id="poll-list-title">Polls</h3>
+
+
+<form rsf:id="delete-poll-form">
+<!-- This span is needed here to guide the renderer away to the checkboxes -->
+<span rsf:id="delete-poll"/>
+<table class="listHier" border="0" cellspacing="0">
+  <thead>
+    <tr> 
+      <th rsf:id="poll-question-title">Question</th>
+      <th rsf:id="poll-open-title">Opening</th>
+      <th rsf:id="poll-close-title">Closing</th>
+      <th rsf:id="poll-result-title">Results</th>
+      <th rsf:id="poll-remove-title">Remove?</th>
+    </tr>
+  </thead>
+  <tbody id="tasks:polllist:tbody_element">
+
+    <tr rsf:id="poll-row:votable"> 
+          <td><a href="voteQuestion.html" target="_self" rsf:id="poll-vote">{Question}</a>
+          <div class="itemAction"><a href="voteEdit" target="_self"  rsf:id="poll-revise">Edit</a></div>
+       </td>
+      <td rsf:id="poll-open-date">{window opening date}</td>
+      <td rsf:id="poll-close-date">{window closing date}</td>
+      <td><a rsf:id="poll-results">Results</a></td>
+      <td headers="checkbox" class="screenOnly"> <label for="check-2" class="skip">Select 
+        to remove</label> <input rsf:id="poll-select" title="Select to remove" type="checkbox" id="check-2" name="deletePoll" value="" /> 
+      </td>
+    </tr>
+    <tr rsf:id="poll-row:nonvotable"> 
+      <td><span rsf:id="poll-text">{Question}</span>
+         <div class="itemAction"><a href="voteEdit" target="_self" rsf:id="poll-revise">Edit</a></div>
+        </td>
+      <td rsf:id="poll-open-date">{window opening date}</td>
+      <td rsf:id="poll-close-date">{window closing date}</td>
+      <td><a target="_self" rsf:id="poll-results">Results</a></td>
+      <td headers="checkbox" class="screenOnly"> <label for="check-2" class="skip">Select 
+        to remove</label> <input rsf:id="poll-select" title="Select to remove" type="checkbox" id="check-2" name="deletePoll" value="" /> 
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<p class="act">
+<input type="submit" class="active" rsf:id="delete-polls" name="deleteSelectPoll" value="Update"  accesskey="s" />
+</p>
+</form>
+</div>
+</body>
+</html>

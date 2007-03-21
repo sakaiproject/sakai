@@ -1,0 +1,45 @@
+<!DOCTYPE html      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:rsf="http://ponder.org.uk/rsf">
+<head>
+<title>Vote!</title>
+<link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all"/>
+<link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all"/>
+<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+</head>
+
+<body rsf:id="scr=sakai-body">
+<div class="portletBody">
+<h3 rsf:id="poll-vote-title">Results</h3>
+
+
+       
+       	
+	<div rsf:id="error-row:">
+		<div class="alertMessage" rsf:id="error">We Have Errors!</div>
+		</div>
+
+<p><strong rsf:id="poll-text">{Question}</strong></p>
+
+<div class="instruction" rsf:id="poll-description">{Additional instructions}</div>
+<form rsf:id="options-form">
+
+<span rsf:id="optionform" />
+	<div rsf:id="option:radio">
+		<input type="radio" rsf:id="option-radio" /><span rsf:id="option-label">options</span><br />
+	</div>
+	<div rsf:id="option:select">
+		<input type="checkbox" rsf:id="option-radio" /><span rsf:id="option-label">options</span><br />
+	</div>
+
+
+
+
+
+<div class="act">
+  <input name="submit" type="submit" id="submit" value="Vote!" rsf:id="submit-new-vote" />
+  <input name="reset" type="reset" value="Reset"/> <input name="cancel" type="submit" value="Cancel" rsf:id="cancel"/>   
+   </div>
+  </form>
+   </div>
+</body>
+</html>

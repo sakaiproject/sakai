@@ -1,0 +1,41 @@
+<!DOCTYPE html      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:rsf="http://ponder.org.uk/rsf">
+<head>
+<title>Vote Permissions</title>
+<link  rsf:id="scr=portal-matter"  href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all"/>
+<link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all"/>
+<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+</head>
+
+<body rsf:id="scr=sakai-body">
+<div class="portletBody">
+<h3 rdf:id="permissions-title">Permissions</h3>
+<div class="instruction"><span rsf:id="permissions-instruction">Set permissions for Vote in worksite</span> '<span rsf:id="site-name">{site name}</span>'</div>
+
+<form method="post" rsf-id="perm-form">
+<input type="hidden" name="permissions" value="" />			
+<table class="listHier lines nolines" summary="List of roles and permissions that can be applied to this folder. Layout: each row lists the permissions of a role. Layout: column 1 lists the roles, the other columns list the permissions, checkboxes permit enabling a permission for a role." border="0" cellspacing="0">
+  <tbody>
+    <tr> 
+      <th id="role" rsf:id="permissions-role">Role</th>
+      <th rsf:id="head-row:"><span rsf:id="perm-name">perm.name</span></th>
+      
+    </tr>
+    <tr rsf:id="permission-row:"> 
+      <td headers="role"> <h4 rsf:id="role">Role</h4></td>
+      
+      <td headers="add" rsf:id="box-row:"> <input type="checkbox"  rsf:id="perm-box"/> 
+      </td>
+    
+    </tr>
+    
+  </tbody>
+</table>
+	<div class="act">
+    <input type="submit" value="Save" rsf:id="submit" />
+    <input name="_cancel" type="submit" value="Cancel" rsf:id="cancel" />
+   </div>
+ </form>
+ </div>
+</body>
+</html>

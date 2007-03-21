@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!-- documented by aaronz@vt.edu -->
+<!-- RSF version by antranig@caret.cam.ac.uk - 
+	some contents moved from "spring-beans.xml" -->
+<beans>
+
+
+	<!--  Spring messageSource replaces JSF message-bundle from faces-config.xml -->
+	<bean id="messageSource"
+    class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+    <property name="basename"
+			value="classpath:org/sakaiproject/poll/bundle/Messages" />
+    <property name="cacheSeconds" value="10" />
+  </bean>
+
+
+ <!--
+   <bean id="voteGuard" parent="writeGuardParent">
+     <property name="guardedPath" value="voteCollection"/>
+     <property name="guard">
+         <bean class="org.sakaiproject.poll.tool.validators.VoteValidator">
+ 			<property name="pollListManager" ref="org.sakaiproject.tool.poll.api.PollListManager"/>
+ 			<property name="messageLocator" ref="messageLocator"/>
+ 			<property name="pollVoteManager" 
+			ref="org.sakaiproject.tool.poll.api.PollVoteManagerDao" />
+			  <property name="toolManager"
+			ref="org.sakaiproject.tool.api.ToolManager" />
+ 		</bean>
+     </property>
+   </bean>
+
+   <bean id="optionGuard" parent="writeGuardParent">
+     <property name="guardedPath" value="option"/>
+     <property name="guard">
+         <bean class="org.sakaiproject.poll.tool.validators.OptionValidator">
+         	<property name="pollListManager" ref="org.sakaiproject.tool.poll.api.PollListManager"/>
+ 			<property name="messageLocator" ref="messageLocator"/>
+ 	    	<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+ 		</bean>
+     </property>
+   </bean>
+	-->	
+	
+	
+	<bean id="voteCollection" class="org.sakaiproject.poll.model.VoteCollectionImpl" />
+ 	<bean id="option" class="org.sakaiproject.poll.model.OptionImpl" />
+	
+  <bean parent="requestAddressibleParent">
+    <property name="value" value="pollToolBean, voteBean, pollVoteProducer, voteCollection,option, permissionAction, roleperms, optionValidator" />
+  </bean>
+  <bean id="voteBean" class="org.sakaiproject.poll.tool.params.VoteBean" />
+  <!-- Scope for the vote bean -->
+    <bean id="VoteScope" parent="beanScopeParent">
+    <property name="copyPreservingBeans" value="voteBean"/>
+  </bean>
+  
+ <bean id="ignoreFossilizedValues" class="uk.org.ponder.springutil.BooleanFactory">
+	<property name="value" value="true" />
+ </bean>
+	<bean id="templateResolverStrategy" parent="CRITemplateResolverStrategy">
+		<property name="baseDirectory" value="templates/" />
+	</bean>
+
+</beans>
