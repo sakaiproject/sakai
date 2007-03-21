@@ -1,5 +1,5 @@
 <f:view>
-	<sakai:view title="#{msgs.tool_options_title}">
+	<sakai:view title="#{msgs.room_list_title}">
 		<h:form>
 			<sakai:tool_bar>
 				<h:commandLink id="addRoom" rendered="#{ChatTool.canCreateChannel}"
@@ -12,6 +12,8 @@
                     value="#{msgs.permis}" />
             </h:commandLink>
 			</sakai:tool_bar>
+			
+			<sakai:view_title value="#{msgs.room_list_title}"/>  	
 
 			<sakai:messages />
 

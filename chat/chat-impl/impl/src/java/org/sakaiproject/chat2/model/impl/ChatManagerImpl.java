@@ -144,6 +144,16 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
       }
       */
    }
+   
+   /**
+    * Destroy
+    */
+   public void destroy()
+   {
+      EventTrackingService.deleteObserver(this);
+
+      logger.info("destroy()");
+   }
 
    /**
     * {@inheritDoc}

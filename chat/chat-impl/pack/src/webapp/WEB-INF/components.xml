@@ -24,21 +24,17 @@
         <property name="target">
             <bean
                 class="org.sakaiproject.chat2.model.impl.ChatManagerImpl"
-                singleton="true" init-method="init">
+                singleton="true" init-method="init" destroy-method="destroy">
                 <property name="sessionFactory">
                     <ref
                         bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
                 </property>
-		       <property name="toolManager">
-		          <ref bean="org.sakaiproject.tool.api.ActiveToolManager"/>
-		       </property>
-		       <property name="entityManager">
-		         <ref bean="org.sakaiproject.entity.api.EntityManager"/>
-		      </property>
-                <!-- 
-               <property name="securityService">
-                  <ref bean="org.sakaiproject.authz.api.SecurityService"/>
-               </property> -->
+			       <property name="toolManager">
+			          <ref bean="org.sakaiproject.tool.api.ActiveToolManager"/>
+			       </property>
+			       <property name="entityManager">
+			         <ref bean="org.sakaiproject.entity.api.EntityManager"/>
+			      </property>
             </bean>
         </property>
         <property name="transactionAttributes">
@@ -56,17 +52,12 @@
       <property name="entityManager">
          <ref bean="org.sakaiproject.entity.api.EntityManager"/>
       </property>
-      <!-- 
-      <property name="httpAccess">
-         <ref bean="org.sakaiproject.entity.api.HttpAccess.ospMatrix" />
-      </property>
-      -->
       <property name="chatManager"><ref bean="org.sakaiproject.chat2.model.ChatManager"/></property>
    </bean>
 
     <bean id="chatSearchAdapter"
     	class="org.sakaiproject.chat2.model.impl.ChatContentProducer"
-    	singleton="true" init-method="init">
+    	singleton="true" init-method="init" destroy-method="destroy">
     	<property name="addEvents">
     		<list>
     			<value>chat.new</value>

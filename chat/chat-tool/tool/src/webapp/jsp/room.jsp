@@ -6,11 +6,11 @@
 	focus_path = [ "Control", "mainForm:message" ];
 </script>
       
-         <sakai:tool_bar>
-            <h:commandLink action="toolOptions" rendered="#{ChatTool.canManageTool}">
+         <sakai:tool_bar rendered="#{ChatTool.canManageTool or ChatTool.siteChannelCount > 1 or ChatTool.maintainer}">
+            <h:commandLink action="#{ChatTool.currentChannel.processActionEditRoomDirect}" rendered="#{ChatTool.canManageTool}">
                <h:outputText value="#{msgs.manage_tool}" />
             </h:commandLink>
-            <h:commandLink action="toolOptions" rendered="#{ChatTool.siteChannelCount > 1}">
+            <h:commandLink action="listRooms" rendered="#{ChatTool.siteChannelCount > 1}">
                <h:outputText value="#{msgs.change_room}" />
             </h:commandLink>
             <h:commandLink rendered="#{ChatTool.maintainer}"
@@ -57,7 +57,6 @@
 					id="Control"
 					title="<h:outputText value="#{msgs.control_panel}" />"
 					width="100%"
-					height="120"
 					frameborder="0"
 					marginwidth="0"
 					marginheight="0"

@@ -43,11 +43,17 @@ try { parent.updateNow(); } catch (error) {}
       <sakai:button_bar>
           <sakai:button_bar_item id="submit"
               action="#{ChatTool.processActionSubmitMessage}"
-              value="#{msgs['control.post']}" />
+              value="#{msgs['control.post']}"
+              styleClass="active" />
           <sakai:button_bar_item id="reset"
               action="#{ChatTool.processActionResetMessage}"
               value="#{msgs['control.clear']}" />
       </sakai:button_bar>
    </h:form>
+
+	<script type="text/javascript" language="JavaScript">
+		setMainFrameHeight('<h:outputText value="#{ChatTool.framePlacementId}" />');
+	</script> 
+   
 </sakai:view>
 </f:view>

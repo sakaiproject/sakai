@@ -77,8 +77,8 @@
       <redirect/>
     </navigation-case>
     <navigation-case>
-      <from-outcome>toolOptions</from-outcome>
-      <to-view-id>/jsp/toolOptions.jsp</to-view-id>
+      <from-outcome>listRooms</from-outcome>
+      <to-view-id>/jsp/listRooms.jsp</to-view-id>
       <redirect/>
     </navigation-case>
     <navigation-case>

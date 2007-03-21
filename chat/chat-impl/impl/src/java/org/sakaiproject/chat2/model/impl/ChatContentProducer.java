@@ -88,6 +88,15 @@ public class ChatContentProducer implements EntityContentProducer {
       }
    }
    
+   /**
+    * Destroy
+    */
+   protected void destroy()
+   {
+      logger.info("destroy()");
+   }
+
+   
    private Reference getReference(String reference) {
       try {
           return entityManager.newReference(reference);

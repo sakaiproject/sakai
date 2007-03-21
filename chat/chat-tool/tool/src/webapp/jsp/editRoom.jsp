@@ -1,7 +1,8 @@
 <f:view>
 	<sakai:view>
 	
-		<sakai:view_title value="#{msgs.edit_channel_title}" />
+		<sakai:view_title value="#{msgs.edit_channel_title}" rendered="#{!ChatTool.currentChannelEdit.newChannel}" />
+		<sakai:view_title value="#{msgs.add_channel_title}" rendered="#{ChatTool.currentChannelEdit.newChannel}" />
 		
 		<sakai:messages />
 		<h:form id="editRoomForm">

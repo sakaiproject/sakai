@@ -93,6 +93,15 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
    }
    
    /**
+    * Destroy
+    */
+   protected void destroy()
+   {
+      logger.info("destroy()");
+   }
+
+   
+   /**
     * {@inheritDoc}
     */
    public String[] myToolIds()

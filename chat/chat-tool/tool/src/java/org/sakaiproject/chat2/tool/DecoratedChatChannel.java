@@ -29,20 +29,44 @@ public class DecoratedChatChannel {
    private ChatTool chatTool;
    private int filterParamPast;
    private int filterParamLast;
-   
+   private boolean directEdit = false;
+   private boolean newChannel = false;
+
    public DecoratedChatChannel(ChatTool chatTool, ChatChannel chatChannel)
    {
       this.chatTool = chatTool;
       this.chatChannel = chatChannel;
    }
    
-   public String processActionEnterRoom()
+   public DecoratedChatChannel(ChatTool chatTool, ChatChannel chatChannel, boolean newChannel)
    {
-      return chatTool.processActionEnterRoom(chatChannel);
+      this.chatTool = chatTool;
+      this.chatChannel = chatChannel;
+      this.newChannel = newChannel;
    }
    
+   public String processActionEnterRoom()
+   {
+      return chatTool.processActionEnterRoom(this);
+   }
+   
+   /**
+    * This method will edit the room from the page listing all the rooms
+    * @return
+    */
    public String processActionEditRoom()
    {
+      directEdit = false;
+      return chatTool.processActionEditRoom(this);
+   }
+
+   /**
+    * This method will edit the room directly from the main chat page
+    * @return
+    */
+   public String processActionEditRoomDirect()
+   {
+      directEdit = true;
       return chatTool.processActionEditRoom(this);
    }
    
@@ -103,6 +127,22 @@ public class DecoratedChatChannel {
 
    public void setFilterParamPast(int filterParamPast) {
       this.filterParamPast = filterParamPast;
+   }
+
+   public boolean isDirectEdit() {
+      return directEdit;
+   }
+
+   public void setDirectEdit(boolean directEdit) {
+      this.directEdit = directEdit;
+   }
+
+   public boolean isNewChannel() {
+      return newChannel;
+   }
+
+   public void setNewChannel(boolean newChannel) {
+      this.newChannel = newChannel;
    }
    
 

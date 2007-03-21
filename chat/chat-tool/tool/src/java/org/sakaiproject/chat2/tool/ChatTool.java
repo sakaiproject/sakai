@@ -57,6 +57,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.DirectRefreshDelivery;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.Validator;
 
 /**
  * Chat works by the courier but not the same way as the old message delivery
@@ -94,7 +95,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    /* various pages that we can go to within the tool */
    //private static final String PAGE_SELECT_A_ROOM = "selectRoom";
    private static final String PAGE_EDIT_A_ROOM = "editRoom";
-   private static final String PAGE_MANAGE_TOOL = "toolOptions";
+   private static final String PAGE_LIST_ROOMS = "listRooms";
    private static final String PAGE_ENTER_ROOM = "room";
    private static final String PAGE_ROOM_CONTROL = "roomControl";
    private static final String PAGE_EDIT_ROOM = "editRoom";
@@ -133,7 +134,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    
    /* All the private variables */
    /** The current channel the user is in */
-   private ChatChannel currentChannel = null;
+   private DecoratedChatChannel currentChannel = null;
    
    /** The current channel the user is editing */
    private DecoratedChatChannel currentChannelEdit = null;
@@ -198,11 +199,11 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       List rooms = getSiteChannels();
       
       ChatChannel defaultChannel = getChatManager().getDefaultChannel(placement.getContext());
-      setCurrentChannel(defaultChannel);
+      setCurrentChannel(new DecoratedChatChannel(this, defaultChannel));
          
       // if there is no room selected to enter then go to select a room
       if(currentChannel == null)
-         url = PAGE_MANAGE_TOOL;
+         url = PAGE_LIST_ROOMS;
          
       
       ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
@@ -242,14 +243,14 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       if (getCurrentChannel() == null) {
          ChatChannel defaultChannel = getChatManager().getDefaultChannel(
                getToolManager().getCurrentPlacement().getContext());
-         setCurrentChannel(defaultChannel);
+         setCurrentChannel(new DecoratedChatChannel(this, defaultChannel));
       }
       if(getCurrentChannel() != null) {
          // place a presence observer on this tool.
          presenceChannelObserver = new PresenceObserverHelper(this,
-               getCurrentChannel().getId());
+               getCurrentChannel().getChatChannel().getId());
          
-         getChatManager().addRoomListener(this, getCurrentChannel().getId());
+         getChatManager().addRoomListener(this, getCurrentChannel().getChatChannel().getId());
          return true;
          //presenceChannelObserver.updatePresence();
       }
@@ -266,7 +267,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
     */
    public void receivedMessage(String roomId, Object message)
    {
-      if(currentChannel != null && currentChannel.getId().equals(roomId)) {
+      if(currentChannel != null && currentChannel.getChatChannel().getId().equals(roomId)) {
          m_courierService.deliver(new ChatDelivery(sessionId+roomId, "Monitor", message, placementId, false, getChatManager()));
       }
    }
@@ -276,7 +277,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
     */
    public void roomDeleted(String roomId)
    {
-      if(currentChannel != null && currentChannel.getId().equals(roomId)) {
+      if(currentChannel != null && currentChannel.getChatChannel().getId().equals(roomId)) {
          resetCurrentChannel(currentChannel);
       }
    }
@@ -299,9 +300,9 @@ public class ChatTool implements RoomObserver, PresenceObserver {
     */
    public void userLeft(String location, String user)
    {
-      if(presenceChannelObserver.getPresentUsers().size() == 0) {
+      if(presenceChannelObserver != null && presenceChannelObserver.getPresentUsers().size() == 0) {
          presenceChannelObserver.endObservation();
-         getChatManager().removeRoomListener(this, currentChannel.getId());
+         getChatManager().removeRoomListener(this, currentChannel.getChatChannel().getId());
          presenceChannelObserver = null;
       } else
          m_courierService.deliver(new DirectRefreshDelivery(sessionId+location, "Presence"));
@@ -350,14 +351,14 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       ChatChannel channel = decoChannel.getChatChannel();
       channel.setContextDefaultChannel(true);
       getChatManager().makeDefaultContextChannel(channel);
-      return PAGE_MANAGE_TOOL;
+      return PAGE_LIST_ROOMS;
    }
    
    public String processActionAddRoom()
    {
       try {
          ChatChannel newChannel = getChatManager().createNewChannel(getContext(), "", false, true);
-         currentChannelEdit = new DecoratedChatChannel(this, newChannel);
+         currentChannelEdit = new DecoratedChatChannel(this, newChannel, true);
          //return "";
          return PAGE_EDIT_A_ROOM;
       }
@@ -371,11 +372,13 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    {
       try {
          ChatMessage message = getChatManager().createNewMessage(
-               getCurrentChannel(), SessionManager.getCurrentSessionUserId());
+               getCurrentChannel().getChatChannel(), SessionManager.getCurrentSessionUserId());
          message.setBody(newMessageText);
-         newMessageText = "";
-         getChatManager().updateMessage(message);
-         getChatManager().sendMessage(message);
+         if (!newMessageText.equals("")) {
+            newMessageText = "";
+            getChatManager().updateMessage(message);
+            getChatManager().sendMessage(message);
+         }
          return PAGE_ROOM_CONTROL;
       }
       catch (PermissionException e) {
@@ -410,6 +413,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       return null;
    }
    
+  
    public String processActionSynopticOptions() {
       DecoratedSynopticOptions dso = lookupSynopticOptions();
       setCurrentSynopticOptions(dso);
@@ -469,7 +473,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
     * @param chatChannel
     * @return String selects a new room to go into
     */
-   public String processActionEnterRoom(ChatChannel chatChannel)
+   protected String processActionEnterRoom(DecoratedChatChannel chatChannel)
    {
       setCurrentChannel(chatChannel);
       return PAGE_ENTER_ROOM;
@@ -480,7 +484,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
     * @param chatChannel
     * @return String goes to the edit room view
     */
-   public String processActionEditRoom(DecoratedChatChannel chatChannel)
+   protected String processActionEditRoom(DecoratedChatChannel chatChannel)
    {
       //Init the filter param here
       if (chatChannel.getChatChannel().getFilterType().equals(ChatChannel.FILTER_BY_NUMBER) ||
@@ -501,16 +505,25 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    {
       //Set the filter param here
       ChatChannel channel = getCurrentChannelEdit().getChatChannel();
+      boolean directEdit = getCurrentChannelEdit().isDirectEdit();
+      
       if (channel.getFilterType().equals(ChatChannel.FILTER_BY_NUMBER)) {
          channel.setFilterParam(getCurrentChannelEdit().getFilterParamLast());
       }
       else if (channel.getFilterType().equals(ChatChannel.FILTER_BY_TIME)) {
          channel.setFilterParam(getCurrentChannelEdit().getFilterParamPast());
       }
-      String retView = PAGE_MANAGE_TOOL;
+      String retView = PAGE_LIST_ROOMS;
+      
+      if (directEdit)
+         retView = PAGE_ENTER_ROOM;
+      else
+         retView = PAGE_LIST_ROOMS;
+      
       if (validateChannel(channel))
          try {
             getChatManager().updateChannel(channel, true);
+            setCurrentChannelEdit(null);
          }
          catch (PermissionException e) {
             setErrorMessage(PERMISSION_ERROR, new String[] {ChatFunctions.CHAT_FUNCTION_EDIT_CHANNEL});
@@ -530,8 +543,14 @@ public class ChatTool implements RoomObserver, PresenceObserver {
     */
    public String processActionEditRoomCancel()
    {
+      boolean directEdit = getCurrentChannelEdit().isDirectEdit();
       setCurrentChannelEdit(null);
-      return PAGE_MANAGE_TOOL;
+      
+      if (directEdit)
+         return PAGE_ENTER_ROOM;
+      else
+         return PAGE_LIST_ROOMS;
+      
    }
    
    /**
@@ -539,7 +558,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
     * @param chatChannel
     * @return String goes to the delete room confirmation page
     */
-   public String processActionDeleteRoomConfirm(DecoratedChatChannel chatChannel)
+   protected String processActionDeleteRoomConfirm(DecoratedChatChannel chatChannel)
    {
       setCurrentChannelEdit(chatChannel);
       return PAGE_DELETE_ROOM_CONFIRM;
@@ -555,7 +574,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       try {
          getChatManager().deleteChannel(currentChannelEdit.getChatChannel());
          setCurrentChannelEdit(null);
-         return PAGE_MANAGE_TOOL;
+         return PAGE_LIST_ROOMS;
       }
       catch (PermissionException e) {
          setErrorMessage(PERMISSION_ERROR, new String[] {ChatFunctions.CHAT_FUNCTION_DELETE_CHANNEL});
@@ -571,7 +590,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    public String processActionDeleteRoomCancel()
    {
       setCurrentChannelEdit(null);
-      return PAGE_MANAGE_TOOL;
+      return PAGE_LIST_ROOMS;
    }
    
    // ********************************************************************
@@ -599,7 +618,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
     * @param message
     * @return String goes to the delete message page
     */
-   public String processActionDeleteMessageConfirm(DecoratedChatMessage message)
+   protected String processActionDeleteMessageConfirm(DecoratedChatMessage message)
    {
       setCurrentMessage(message);
       //getChatManager().deleteMessage(message);
@@ -643,14 +662,14 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    public String getCurrentChatChannelId() {
       if(currentChannel == null)
          return "";
-      return currentChannel.getId();
+      return currentChannel.getChatChannel().getId();
    }
    
    /**
     * gets the current channel
     * @return ChatChannel
     */
-   public ChatChannel getCurrentChannel()
+   public DecoratedChatChannel getCurrentChannel()
    {
       return currentChannel;
    }
@@ -660,12 +679,12 @@ public class ChatTool implements RoomObserver, PresenceObserver {
     *  adds observation of the new room, and then becomes present in the new room
     * @param channel
     */
-   public void setCurrentChannel(ChatChannel channel)
+   public void setCurrentChannel(DecoratedChatChannel channel)
    {
       if(presenceChannelObserver != null) {
          presenceChannelObserver.endObservation();
          presenceChannelObserver.removePresence();
-         getChatManager().removeRoomListener(this, channel.getId());
+         getChatManager().removeRoomListener(this, channel.getChatChannel().getId());
       }
       presenceChannelObserver = null;
       
@@ -674,19 +693,19 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       if(channel != null) {
          // place a presence observer on this tool.
          presenceChannelObserver = new PresenceObserverHelper(this,
-                  channel.getId());
+                  channel.getChatChannel().getId());
          
-         getChatManager().addRoomListener(this, channel.getId());
+         getChatManager().addRoomListener(this, channel.getChatChannel().getId());
          
          presenceChannelObserver.updatePresence();
       }
    }
    
-   protected void resetCurrentChannel(ChatChannel oldChannel) {
+   protected void resetCurrentChannel(DecoratedChatChannel oldChannel) {
       if(presenceChannelObserver != null) {
          presenceChannelObserver.endObservation();
          presenceChannelObserver.removePresence();
-         getChatManager().removeRoomListener(this, oldChannel.getId());
+         getChatManager().removeRoomListener(this, oldChannel.getChatChannel().getId());
       }
       presenceChannelObserver = null;
       
@@ -891,7 +910,8 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    {
       List messages = new ArrayList();
       try {
-         messages = getChatManager().getChannelMessages(currentChannel, context, limitDate, numMessages, sortAsc);         
+         ChatChannel channel = (currentChannel==null) ? null : currentChannel.getChatChannel();
+         messages = getChatManager().getChannelMessages(channel, context, limitDate, numMessages, sortAsc);         
       }
       catch (PermissionException e) {
          setErrorMessage(PERMISSION_ERROR, new String[] {ChatFunctions.CHAT_FUNCTION_READ});
@@ -961,7 +981,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    }
    
    public String getViewingChatRoomText() {
-      return getMessageFromBundle("viewingChatRoomText", new Object[]{getCurrentChannel().getTitle()});
+      return getMessageFromBundle("viewingChatRoomText", new Object[]{getCurrentChannel().getChatChannel().getTitle()});
    }
    
    private void setErrorMessage(String errorMsg, Object[] extras)
@@ -992,7 +1012,15 @@ public class ChatTool implements RoomObserver, PresenceObserver {
     */
    protected String getContext() {
       return getToolManager().getCurrentPlacement().getContext();
-   }  
+   }
+   
+   /**
+    * Returns the frame identifier for resizing
+    * @return
+    */
+   public String getFramePlacementId() {
+      return Validator.escapeJavascript("Main" + getToolManager().getCurrentPlacement().getId());
+   }
    
    
    /**
