@@ -70,6 +70,7 @@ import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.FunctionManager;
+import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -7530,20 +7531,40 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					// if the assignment is associated with Gradebook entry, get the score from Gradebook
 					GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
 					String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
-					if (g.isAssignmentDefined(gradebookUid, associatedGBAssignment))
+					try
 					{
-						String submitterId = (String) getSubmitterIds().get(0);
-						m_grade = "";
-						try
+						// temporally allow the user get grade
+						SecurityService.pushAdvisor(new SecurityAdvisor()
+							{
+								public SecurityAdvice isAllowed(String userId, String function, String reference)
+								{
+									return SecurityAdvice.ALLOWED;
+								}
+							});
+						
+						// get score
+						if (g.isAssignmentDefined(gradebookUid, associatedGBAssignment))
 						{
-							Double grade = g.getAssignmentScore(gradebookUid, associatedGBAssignment, submitterId);
-							m_grade = (grade != null)?grade.toString():"";
+							String submitterId = (String) getSubmitterIds().get(0);
+							m_grade = "";
+							try
+							{
+								Double grade = g.getAssignmentScore(gradebookUid, associatedGBAssignment, submitterId);
+								m_grade = (grade != null)?grade.toString():"";
+							}
+							catch (SecurityException e)
+							{
+								M_log.warn(this + e.getMessage());
+							}
+							return m_grade;
 						}
-						catch (SecurityException e)
-						{
-							M_log.warn(this + e.getMessage());
-						}
-						return m_grade;
+						
+						// clean the permission
+						SecurityService.clearAdvisors();
+					}
+					catch (Exception e)
+					{
+						M_log.warn(this + e.getMessage());
 					}
 				}
 			}
@@ -7629,13 +7650,33 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			{
 				// for point-based grading
 				// if the assignment is associated with Gradebook entry, get the comment from Gradebook
-				GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
-				String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
-				if (g.isAssignmentDefined(gradebookUid, associatedGBAssignment))
+				try
 				{
-					String submitterId = (String) getSubmitterIds().get(0);
-					CommentDefinition comment = g.getAssignmentScoreComment(gradebookUid, associatedGBAssignment, submitterId);
-					return comment != null?comment.getCommentText():"";
+					
+					// temporally allow the user get grade
+					SecurityService.pushAdvisor(new SecurityAdvisor()
+						{
+							public SecurityAdvice isAllowed(String userId, String function, String reference)
+							{
+								return SecurityAdvice.ALLOWED;
+							}
+						});
+					
+					GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+					String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
+					if (g.isAssignmentDefined(gradebookUid, associatedGBAssignment))
+					{
+						String submitterId = (String) getSubmitterIds().get(0);
+						CommentDefinition comment = g.getAssignmentScoreComment(gradebookUid, associatedGBAssignment, submitterId);
+						return comment != null?comment.getCommentText():"";
+					}
+					
+					// clean the permission
+					SecurityService.clearAdvisors();
+				}
+				catch (Exception e)
+				{
+					M_log.warn(this + e.getMessage());
 				}
 			}
 			
