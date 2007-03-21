@@ -550,11 +550,13 @@ public class SiteListBean {
 		sb.append(",");
 		Export.appendQuoted(sb, msgs.getString("site_type"));
 		sb.append(",");
+		Export.appendQuoted(sb, msgs.getString("site_term"));
+		sb.append(",");
 		Export.appendQuoted(sb, msgs.getString("role_name"));
 		sb.append(",");
 		Export.appendQuoted(sb, msgs.getString("status"));
-		sb.append("\n");
-		Export.appendQuoted(sb, msgs.getString("site_term"));
+		sb.append(",");
+		Export.appendQuoted(sb, msgs.getString("site_user_status"));
 		sb.append("\n");
 
 		// Add the data
@@ -570,11 +572,13 @@ public class SiteListBean {
 			sb.append(",");
 			Export.appendQuoted(sb, usr.getSiteType());
 			sb.append(",");
+			Export.appendQuoted(sb, usr.getSiteTerm());
+			sb.append(",");
 			Export.appendQuoted(sb, usr.getRoleName());
 			sb.append(",");
 			Export.appendQuoted(sb, usr.getPubView());
 			sb.append(",");
-			Export.appendQuoted(sb, usr.getSiteTerm());
+			Export.appendQuoted(sb, usr.getUserStatus());
 			sb.append("\n");
 		}
 		return sb.toString();
