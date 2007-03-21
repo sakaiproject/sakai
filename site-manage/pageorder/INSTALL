@@ -1,0 +1,59 @@
+-------------------------------------------------------------------------------
+Site Page Order Helper Tool Install docs
+-------------------------------------------------------------------------------
+
+The following assumes that you have a working and current Sakai trunk source 
+installation.
+
+
+-------------------------------------------------------------------------------
+For Sakai 2.2.x or 2.3.x
+-------------------------------------------------------------------------------
+
+See https://source.sakaiproject.org/contrib//asu/PageOrderHelper/branches/sakai_2-3-x/
+instead. The version you are looking at now would require significant work to install
+in older versions.
+
+-------------------------------------------------------------------------------
+Get the code
+-------------------------------------------------------------------------------
+
+1. Add the pageorder helper to the top level of your Sakai source directory:
+svn co https://source.sakaiproject.org/contrib/asu/PageOrderHelper/sakai/ PageOrderHelper
+
+or
+
+svn export https://source.sakaiproject.org/contrib/asu/PageOrderHelper/sakai/ PageOrderHelper
+
+
+-------------------------------------------------------------------------------
+build and start Sakai as normal:
+-------------------------------------------------------------------------------
+
+maven sakai
+....
+
+
+-------------------------------------------------------------------------------
+Use
+-------------------------------------------------------------------------------
+
+From there whenever a user with update permissions on a site goes to SiteInfo
+a link titled 'Page Order' will appear as the last item in the menu, clicking
+on this link will take the user to this helper. From there most users should 
+know what to do... and if not let me know as one of the main goals of this helper
+is to be very easy to use.
+
+
+-------------------------------------------------------------------------------
+Comments
+-------------------------------------------------------------------------------
+
+If you have any comments or questions regarding this helper tool, please send
+them to:
+
+joshua.ryan@asu.edu
+
+
+-------------------------------------------------------------------------------
+*note* The auther never claimed to be good at explaining things in English ;-)

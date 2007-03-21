@@ -1,0 +1,110 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Site Page Order</title>
+	<link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all"/>
+	<link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all"/>
+	<link href="../css/PageList.css" rsf:id="scr=rewrite-url" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" rsf:id="resize"/>
+	<script type="text/javascript" src="../js/jquery/jquery-1.0.1.pack.js" rsf:id="scr=rewrite-url"></script>
+	<script type="text/javascript" src="../js/jquery/iutil.js" rsf:id="scr=rewrite-url"></script>
+	<script type="text/javascript" src="../js/jquery/idrag.js" rsf:id="scr=rewrite-url"></script>
+	<script type="text/javascript" src="../js/jquery/idrop.js" rsf:id="scr=rewrite-url"></script>
+	<script type="text/javascript" src="../js/jquery/isortables.js" rsf:id="scr=rewrite-url"></script>
+	<script type="text/javascript" src="../js/orderUtil.js" rsf:id="scr=rewrite-url"></script>
+	<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+</head>
+
+<body rsf:id="scr=sakai-body">
+ 	<div id="page-order-body" class="portletBody">
+		<a href="#" rsf:id="redirect">go back</a>
+		<div rsf:id="content:">
+			<form rsf:id="pages-form" class="order_action_form">
+				<p class="act">
+					<input rsf:id="save" value="Save" type="submit" onclick="serialize('sort1');"/>
+					<input rsf:id="revert" value="Cancel" type="submit"/>
+					<input rsf:id="reset" value="Reset" type="submit" onclick="return checkReset();"/>
+				</p>
+				<div class="alertMessage" id="call-results">
+					<strong rsf:id="message">Note: Changes to page ordering will not take effect until you click 'Save'. Deleting, Adding or Editing a Page is saved immediately</strong>
+				</div>
+	 			<table id="page-list">
+	  				<tr><td>
+						<div class="tool_list">
+							<div id="list-label">
+								<strong rsf:id="list-label">Current Pages</strong>
+							</div>
+							<ul class="sortable" id="sort1">
+								<li class="sortable_item" title="Click And Drag Pages Into The Order That You Want" rsf:id="page-row:">
+									<div class="item_edit_box" style="display: none;">
+										<div>
+											<label rsf:id="page-name-label">Title</label>
+											<input class="new_title" rsf:id="page-name-input"></input>
+										</div>
+										<div>
+											<label rsf:id="page-config-label">URL</label>
+											<input class="new_config" rsf:id="page-config-input"></input>
+											<a href="#" onclick="doBrowseLocalContent(this)" rsf:id="browse-link">Browse</a>
+										</div>
+										<a href="#" rsf:id="edit-link" onclick="doSaveEdit(this); return false;" title="Save Changes To This Page" alt="Save">
+											<img src="../images/accept.gif"/>
+										</a>
+										<a href="#" onclick="doCancelEdit(this); return false;" title="Cancel Editing This Page" alt="Cancel">
+											<img src="../images/cancel.gif"/>
+										</a>
+									</div>
+									<div class="item_label_box" rsf:id="page-name"></div>
+									<div class="item_control_box">
+										<a href="#" class="item_control" title="Edit This Item" alt="Edit This Page" onclick="showEditPage(this); return false;">
+											<img src="../images/page_white_edit.gif"/>
+										</a>
+										<a href="#" rsf:id="hide-link" class="item_control hide_link" title="Hide This Page From Normal Users" alt="show this page" onclick="doHidePage(this); return false;">
+											<img src="../images/lightbulb.gif"/>
+										</a>
+										<a href="#" rsf:id="show-link" class="item_control show_link" title="Show This Page To Normal Users" alt="hide this page" onclick="doShowPage(this); return false;">
+											<img src="../images/lightbulb_off.gif"/>
+										</a>
+										<a href="#" rsf:id="hide-link-off" class="item_control hide_link" style="display: none" title="Hide This Page From Normal Users" alt="show this page" onclick="doHidePage(this); return false;">
+											<img src="../images/lightbulb.gif"/>
+										</a>
+										<a href="#" rsf:id="show-link-off" class="item_control show_link" style="display: none" title="Show This Page To Normal Users" alt="hide this page" onclick="doShowPage(this); return false;">
+											<img src="../images/lightbulb_off.gif"/>
+										</a>
+										<img src="../images/indicator.gif" style="display: none" class="indicator"/>
+										<a href="#" rsf:id="del-link" class="item_control" title="Remove This Page" alt="remove this page" onclick="doRemovePage(this); return false;">
+											<img src="../images/cross.gif"/>
+										</a>
+									</div>
+								</li>
+							</ul>
+							<div id="new-page-buffer" style="display: none;">Nothing at first</div>
+						</div>
+					</td><td>
+						<div id="add-panel"></div>
+						<div id="add-control">
+							<a href="#" rsf:id="add-link" class="item_control" title="Display Pages Currently Available To Add To This Site" onclick="showAddPage(this.href); return false;">
+								<strong rsf:id="add-page">Add Page</strong><img src="../images/add.gif" rsf:id="scr=rewrite-url"/>
+							</a>
+						</div>
+						<div rsf:id="error:">
+							<span rsf:id="message"/>
+						</div>
+					</td></tr>
+				</table>
+				<input rsf:id="state-init" type="hidden"/>
+				<span id="del-message"><strong rsf:id="del-message" class="hidden"/></span>
+				<span id="exit-message"><strong rsf:id="exit-message" class="hidden"/></span>
+				<span id="reset-message"><strong rsf:id="reset-message" class="hidden"/></span>
+				<p class="act">
+					<input rsf:id="save" value="Save" type="submit" onclick="serialize('sort1');"/>
+					<input rsf:id="revert" value="Cancel" type="submit"/>
+					<input rsf:id="reset" value="Reset" type="submit" onclick="return checkReset();"/>
+				</p>					
+			</form>
+		</div>
+	</div>
+	<script type="text/javascript">
+		makeSortable('ul.sortable');	
+	</script>
+</body>
+</html>

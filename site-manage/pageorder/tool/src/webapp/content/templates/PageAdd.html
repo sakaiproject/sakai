@@ -1,0 +1,40 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<div id="add-item-shell">
+	<div rsf:id="mode-pass:">
+		<div rsf:id="tool-list:">
+			<div class="tool_list">
+				<div id="option-label">
+					<a href="#" rsf:id="refresh-link" class="item_control" title="Refresh List" onclick="showAddPage(this.href); return false;">
+						<img src="../images/arrow_refresh.gif" rsf:id="scr=rewrite-url"/>
+					</a>
+					<strong rsf:id="option-label">Available Pages</strong>
+				</div>
+				<ul class="sortable" id="sort-source">
+					<li class="sortable_item" rsf:id="tool-row:">
+						<div>
+							<a href="#" onclick="addTool($(this).parent().parent(), true); return false;" rsf:id="tool-add-url" class="tool_add_url">
+								<img src="../images/add.gif" rsf:id="scr=rewrite-url"/>
+							</a>
+							<span rsf:id="tool-name"/>
+						</div>
+						<div id="tool-id" style="display: none;"><small rsf:id="tool-id"/></div>
+						<div rsf:id="tool-description"/>					
+					</li>
+				</ul>
+			</div>
+		</div>
+		<div id="message"><strong rsf:id="message">Because</strong></div>
+		<script type="text/javascript">
+			makeDraggable('#sort-source li.sortable_item');
+		</script>
+	</div>
+	<div rsf:id="mode-failed:">
+		<div class="hidden" id="value">fail</div>
+		<div id="message"><strong rsf:id="message">Because</strong></div>
+	</div>
+	<div rsf:id="add-pass:" class="add_status">
+		<div class="hidden" id="value">pass</div>
+		<div id="message"><strong rsf:id="message">Because</strong></div>
+	</div>
+	<li class="sortable_item" rsf:id="page-row:"></li>
+</div>
