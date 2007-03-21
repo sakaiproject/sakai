@@ -311,6 +311,7 @@ public class ListItem
 		this.collection = entity.isCollection();
 		this.id = entity.getId();
 		this.name = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+		
 		this.permissions = new TreeSet<ContentPermissions>();
 		this.selected = false;
 		

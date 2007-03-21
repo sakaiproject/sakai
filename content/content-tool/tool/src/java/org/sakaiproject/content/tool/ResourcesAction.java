@@ -4574,8 +4574,13 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				//other_sites.addAll(readAllResources(state));
 				//all_roots.addAll(other_sites);
 
-				List messages = prepPage(state);
-				context.put("other_sites", messages);
+				List<ListItem> siteCollections = prepPage(state);
+				List<ListItem> otherSites = new Vector<ListItem>();
+				for(ListItem siteCollection : siteCollections)
+				{
+					otherSites.addAll(siteCollection.convert2list());
+				}
+				context.put("other_sites", otherSites);
 
 				if (state.getAttribute(STATE_NUM_MESSAGES) != null)
 				{
@@ -7631,9 +7636,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	* Prepare the current page of site collections to display.
 	* @return List of ListItem objects to display on this page.
 	*/
-	protected List prepPage(SessionState state)
+	protected List<ListItem> prepPage(SessionState state)
 	{
-		List rv = new Vector();
+		List<ListItem> rv = new Vector<ListItem>();
 
 		// access the page size
 		int pageSize = ((Integer) state.getAttribute(STATE_PAGESIZE)).intValue();
@@ -7658,7 +7663,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		state.removeAttribute(STATE_GO_PREV);
 
 		// read all channel messages
-		List allMessages = readAllResources(state);
+		List<ListItem> allMessages = readAllResources(state);
 
 		if (allMessages == null)
 		{
@@ -7874,7 +7879,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	* Develop a list of all the site collections that there are to page.
 	* Sort them as appropriate, and apply search criteria.
 	*/
-	protected List readAllResources(SessionState state)
+	protected List<ListItem> readAllResources(SessionState state)
 	{
 		ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
 		if(registry == null)
@@ -7883,7 +7888,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
 		}
 		
-		List other_sites = new Vector();
+		List<ListItem> other_sites = new Vector<ListItem>();
 
 		String collectionId = (String) state.getAttribute (STATE_COLLECTION_ID);
 		SortedSet<String> expandedCollections = (SortedSet<String>) state.getAttribute(STATE_EXPANDED_COLLECTIONS);

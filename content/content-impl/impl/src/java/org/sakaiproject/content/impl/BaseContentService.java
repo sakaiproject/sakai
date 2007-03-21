@@ -7836,6 +7836,16 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			{
 				ContentCollectionEdit edit = addValidPermittedCollection(dropbox);
 				ResourcePropertiesEdit props = edit.getPropertiesEdit();
+				try 
+				{
+					Site site = m_siteService.getSite(siteId);
+				} 
+				catch (IdUnusedException e) 
+				{
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
 				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, siteId + DROPBOX_ID);
 				props.addProperty(ResourceProperties.PROP_DESCRIPTION, PROP_SITE_DROPBOX_DESCRIPTION);
 				commitCollection(edit);

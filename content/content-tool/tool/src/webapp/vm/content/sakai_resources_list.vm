@@ -417,9 +417,170 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 						</tr>
 					#end
 					################################################################ Eng Paging widgets
-					#foreach($root in $other_sites)
-						#set($rootcount = $rootcount + 1)
+					#foreach($item in $other_sites)
 						############################### Show top level folder #################
+						#set($itemcount = $itemcount + 1)
+						#set ($width = "$!{item.depth}$unit")
+						#if ($item.depth==0)	
+							#set ($margin="margin-left:0")
+						#else
+							#set ($margin="margin-left:2em")
+							#set ($marginAction="margin-left:4.7em")
+						#end
+						#if ($item.depth > 3)
+							#set($headerDepth = 6)
+						#else
+							#set($headerDepth = $item.depth + 3)
+						#end
+						############################### Show top level folder #################
+						<tr>
+							<td headers="expansion">
+							</td>
+							<td headers="checkboxes">
+								#if($item.depth > 0 && $item.hasMultipleItemActions())
+									<input type="checkbox" name="selectedMembers" id="list$num" 
+											#if($selectedItems.contains("$item.id"))checked="checked"#end
+											onclick="#foreach($key in $item.multipleItemActions.keySet())adjustCount(this, '$key');#end"
+											value="$item.id" /><label for="list$num" class="skip">Select</label>
+									#foreach($key in $item.multipleItemActions.keySet())$counter.increment("$key") $counter.increment("selectall")#if($selectedItems.contains($item.id))$counter.increment("${key}selected")#end#end
+								#end
+							</td>
+							<td headers="title" style="text-indent:$width" class="specialLink">
+								<h$headerDepth> 
+									#if ($item.isCollection())
+										#if ($item.canRead())
+											#if ($item.isEmpty())
+												<img src = "#imageLink("sakai/dir_closed.gif")" border="0" alt="$item.hoverText" />
+											#elseif($item.isTooBig())
+												<img src = "#imageLink("sakai/dir_unexpand.gif")" border="0" title="$tlang.getString('list.toobig')" alt="$tlang.getString('list.toobig')" />
+											#elseif (!$item.isExpanded())
+												<a href="#"
+													onclick="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$item.Id';document.getElementById('showForm').submit();"
+													title= "$tlang.getString('sh.open')">
+													<img src = "#imageLink("sakai/dir_closedplus.gif")" border="0" title="$tlang.getString('sh.open')" alt="$tlang.getString('sh.open')" />
+												</a>
+											#elseif ($item.depth > 0)
+												<a href="#"
+													onclick="javascript:document.getElementById('sakai_action').value='doCollapse_collection';document.getElementById('collectionId').value='$item.Id';document.getElementById('showForm').submit();"
+													title= "$tlang.getString('sh.close')">
+													<img src = "#imageLink("sakai/dir_openminus.gif")" border="0" alt="$tlang.getString('sh.close')" />
+												</a>
+											#else
+												<img src = "#imageLink("sakai/dir_openroot.gif")" border="0" alt="" />
+											#end
+											<a href="#"
+												onclick="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$item.id';document.getElementById('navRoot').value='$validator.escapeUrl($item.root)';document.getElementById('showForm').submit();"
+												title= "$tlang.getString('sh.go')">
+												$validator.escapeHtml(${item.name})
+											</a>
+										#else
+											<img src = "#imageLink("sakai/dir_closed.gif")" border="0" alt="$item.hoverText" />
+											$validator.escapeHtml(${item.name})
+										#end
+									#else
+										#if ($item.canRead())
+											#if ($item.hasCopyrightAlert())
+												## if there is a copyright alert, show the alert page first
+												<a href="#" 
+													title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $item.hoverText  [$tlang.getString('gen.newwin')]"	
+													onclick="openCopyrightWindow('${item.accessUrl}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false"
+												>
+												#else
+												<a href="${item.accessUrl}" target="${item.target}">
+											#end
+											<img src="#imageLink($item.iconLocation)" border= "0" alt="$item.hoverText" hspace="0" />
+											</a>
+											#if($item.isLocked())
+												<img src = "#imageLink("sakai/lock.gif")" border="0"  alt="locked" />
+											#end
+											#if ($item.hasCopyrightAlert())
+												## if there is a copyright alert, show the alert page first
+												<a href="#" 
+													title="$tlang.getString('gen.copycomf') $item.hoverText [$tlang.getString('gen.newwin')]"
+													onclick="openCopyrightWindow('${item.accessUrl}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false;">
+													$validator.escapeHtml($item.name)
+												</a>
+												&#169;
+											#else
+												<a href="$item.accessUrl" target="$item.target" title="$item.hoverText">
+													$validator.escapeHtml($item.name)
+												</a>
+											#end
+										#else
+											 <img src="#imageLink($item.iconLocation)" border="0" alt ="$item.hoverText" hspace="0" />
+											#if($item.isLocked())
+												<img src = "#imageLink("sakai/lock.gif")" border="0"  alt="locked" />
+											#end
+											$validator.escapeHtml($item.name)
+											#if ($item.hasCopyrightAlert())
+												&#169;
+											#end
+										#end
+									#end
+								</h$headerDepth>	
+							</td>
+							<td headers="actions"  name="enabledActionLinks" style="text-align:right;padding:5px;vertical-align:middle">
+								#set ($actionCount=($actionCount - 1))
+								#set ($actionCount2=($actionCount2 - 1))
+								#if($item.addActions && !$item.addActions.isEmpty())
+									<ul style="z-index:$actionCount" class="makeMenu">
+										<li>
+											<img src = "#imageLink("sakai/icon-dropdn.gif")" border="0"  alt="Add" /> 
+											$tlang.getString("button.add")
+											<ul class="">
+												#foreach($action in $item.addActions)
+													<li>
+														<a href="#" onclick="document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a>
+													</li>
+												#end
+											</ul>
+									  	</li>
+									</ul>
+								#end
+								#if($item.otherActions && !$item.otherActions.isEmpty())
+									<ul style="z-index:$actionCount2" class="makeMenu" >
+										<li>
+											<img src = "#imageLink("sakai/icon-dropdn.gif")" border="0"   alt="Actions" />
+											$tlang.getString("button.actions")
+											<ul class="">
+												#foreach($action in $item.otherActions)
+													<li>
+														<a href="#" onclick="document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
+															$labeler.getLabel($action)
+														</a>
+													</li>
+												#end
+											</ul>
+									  	</li>
+									</ul>
+								#end
+							</td>
+							#if($item.depth > 0)
+								<td headers="access" title="$item.effectiveGroups">
+									#if($item.isPubviewInherited() || $item.isPubview())
+										$tlang.getString("access.public")
+									#elseif($item.isInDropbox())
+										$tlang.getString("access.dropbox")
+									#elseif($item.effectiveAccess == $INHERITED_ACCESS || $item.effectiveAccess == $SITE_ACCESS)
+										$tlang.getString("access.site")
+									#elseif($item.effectiveAccess == $GROUP_ACCESS)
+										$tlang.getString("access.group")
+									#end
+								</td>
+								<td headers="creator">
+									$item.createdBy
+								</td>
+								<td headers="modified">
+									$item.ModifiedTime
+								</td>
+								<td headers="size">
+									$item.size
+								</td>
+							#else
+								<td colspan="4">
+								</td>
+							#end
+						</tr>
 					#end ## foreach $root in $other_sites
 	
 				#else
