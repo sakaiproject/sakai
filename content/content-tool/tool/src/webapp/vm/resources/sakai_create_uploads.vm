@@ -344,10 +344,10 @@
 					}
 				}
 			}
-			var dotPos = newElement.id.lastIndexOf(DOT);
+			var dotPos = element.id.lastIndexOf(DOT);
 			if(dotPos >= 0)
 			{
-				var baseName = newElement.id.substr(0,dotPos);
+				var baseName = element.id.substr(0,dotPos);
 				newElement.setAttribute("id", baseName + DOT + index);
 				newElement.setAttribute("name", baseName + DOT + index);
 			}

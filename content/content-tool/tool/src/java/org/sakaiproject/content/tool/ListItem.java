@@ -1810,7 +1810,7 @@ public class ListItem
 			{
 				edit.setPublicAccess();
 			}
-			else
+			else if(edit.getAccess() == AccessMode.GROUPED)
 			{
 				edit.clearGroupAccess();
 			}
