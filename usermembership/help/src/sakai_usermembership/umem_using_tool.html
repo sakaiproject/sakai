@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head>
+<title>User Membership: Using the tool</title>
+<style type="text/css">
+		/* Style for specific inline images */
+		
+		/* Style for specific ordered lists */
+		
+		/* Style for specific table cells */
+		</style>
+<link type="text/css" href="/library/skin/tool_base.css" media="all" rel="stylesheet" />
+<link type="text/css" href="/library/skin/default/tool.css" media="all" rel="stylesheet" />
+</head>
+<body>
+<div class="helpBody">
+
+<h2>User Membership: Using the tool</h2>
+
+
+<p>On this page:</p>
+<ul>
+	<li><a href="#searching">Searching users</a></li>
+	<li><a href="#enrollments">Finding user enrollments</a></li>
+</ul>
+
+<hr />
+
+
+<a name="searching"> </a>
+<h3>Searching users</h3>
+<p>The first tool page presents some search parameters. Search can be narrowed by specifying:</p>
+<ul>
+	<li><strong>User Type: </strong>allows to filter by user role. A list of all existing roles is presented.</li>
+	<li><strong>User Authority: </strong>allows to select user source. Internal users are stored in internal DB. External users are provided by external authentication mechanisms (implementing <i>UserDirectoryProvider</i> interface).</li>
+	<li><strong>Search box: </strong>allows to specify a keyword to search in user name, user id and email.</li>	
+</ul>
+Clicking 'Search' will display the search results accordingly to specifyed parameters. For each search result, the following information is presented:
+<ul>
+	<li>User ID</li>
+	<li>Full user name</li>
+	<li>Email</li>
+	<li>Type (role)</li>
+	<li>Authority (user source)</li>
+</ul>
+<p>Click 'Export CSV' to download search results in a .csv file format (importable into MS Excel).</p>
+<strong>Note: </strong>externals users are only listed if they are already enrolled in an existing site.
+
+
+<a name="enrollments"> </a>
+<h3>Finding user enrollments</h3>
+<p>On the user search results, clicking on an user id link will present their memberships in a new page.
+For each site enrollment, the following information is available:</p>
+<ul>
+	<li>Site name (links to site)</li>
+	<li>Groups enrolled in this site</li>
+	<li>Site type (course, project, etc)</li>
+	<li>Site term (eg, FALL 2007)</li>
+	<li>Role (user role in site)</li>
+	<li>Site status (published, unpublished)</li>
+	<li>User status (active, inactive)</li>
+</ul>
+Click 'Export CSV' to download search results in a .csv file format (importable into MS Excel).
+ 
+</div>
+</body></html>

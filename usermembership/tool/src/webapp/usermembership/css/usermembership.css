@@ -1,0 +1,10 @@
+.left {
+	vertical-align: top;
+	text-align: left;
+	padding: 0px;
+}
+.right {
+	vertical-align: bottom;
+	text-align: right;
+	padding: 0px;
+}
