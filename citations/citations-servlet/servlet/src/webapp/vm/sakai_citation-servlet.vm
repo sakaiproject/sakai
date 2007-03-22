@@ -31,8 +31,14 @@
 		<div class="portletBody">
 			<div class="indnt1">
 				#if( $success )
+					<script type="text/javascript">
+						window.opener.citationsHelperFrame.refreshCitationsHelper();
+					</script>
+					
 					<h3>$tlang.getFormattedMessage( "title.gscholar", $titleArgs )</h3>
+					
 					#parse( "vm/sakai_citation-_citation.vm" )
+					
 				#else
 					<h3>$tlang.getString( "error.gscholar" )</h3>
 				#end

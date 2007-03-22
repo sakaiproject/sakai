@@ -24,6 +24,10 @@
 <script type="text/javascript" language="JavaScript">
 doubleDeep = true;
 </script>
+<script type="text/javascript" src="#libraryLink('js/jquery-1.1.2.js')">
+</script>
+<script type="text/javascript" src="/sakai-citations-tool/js/citationscript.js">
+</script>
 
 <div class="portletBody">
 	<div class="indnt1">
@@ -40,7 +44,7 @@ doubleDeep = true;
 				Citation List: <strong>$collectionTitle</strong>
 			</th>
 			<td>
-				Citation Count: <strong>$collection.size()</strong>
+				Citation Count: <strong>$collectionSize</strong>
 			</td>
 		</tr>
 		</table>
@@ -121,18 +125,12 @@ doubleDeep = true;
 		</div>
 	</div>
 </div>
-<script type="text/javascript">	
-	function submitform(id)
-	{
-		var theForm = document.getElementById(id);
-		if(theForm && theForm.onsubmit)
-		{
-			theForm.onsubmit();
-		}
-		if(theForm && theForm.submit)
-		{
-			theForm.submit();
-		}
-	}
+<script type="text/javascript">
+// set up screen refresh
+if( !top.citationsHelperFrame ) {
+  top.citationsHelperFrame = new CitationsHelperFrame( window.name );
+}
+top.citationsHelperFrame.citationsHelperMode = "$citationsHelperMode";
+top.citationsHelperFrame.formname = "$FORM_NAME";
 </script>
 

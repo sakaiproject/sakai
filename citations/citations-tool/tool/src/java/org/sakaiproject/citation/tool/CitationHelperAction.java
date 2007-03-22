@@ -69,6 +69,9 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.IdInvalidException;
@@ -501,11 +504,11 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	protected static final String TEMPLATE_ERROR = "citation/sakai_citation-error";
 	protected static final String TEMPLATE_LIST = "citation/sakai_citation-list";
 	protected static final String TEMPLATE_ADD_CITATIONS = "citation/sakai_citation-add_citations";
-	protected static final String TEMPLATE_MESSAGE = "citation/sakai_citation-message";
+	protected static final String TEMPLATE_MESSAGE = "citation/sakai_citation-_message";
 	protected static final String TEMPLATE_SEARCH = "citation/sakai_citation-search";
 	protected static final String TEMPLATE_RESULTS = "citation/sakai_citation-results";
 	protected static final String TEMPLATE_VIEW = "citation/sakai_citation-view";
-	protected static final String TEMPLATE_DATABASE = "citation/sakai_citation-databases";
+	protected static final String TEMPLATE_DATABASE = "citation/sakai_citation-_databases";
 
 
 	/**
@@ -654,6 +657,21 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		// body onload handler
 		context.put("sakai_onload", "setMainFrameHeight( window.name )");
 		
+		// get the citation list title
+		String resourceId = (String) state.getAttribute(CitationHelper.RESOURCE_ID);
+		ContentHostingService contentService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
+		String refStr = contentService.getReference(resourceId);
+		Reference ref = EntityManager.newReference(refStr);
+		String collectionTitle = ref.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+		if( collectionTitle != null && !collectionTitle.trim().equals("") )
+		{
+			context.put( "collectionTitle", collectionTitle );
+		}
+		else
+		{
+			context.put( "collectionTitle", (String)state.getAttribute( STATE_COLLECTION_TITLE ) );
+		}
+		
 		// get the collection we're now working on
 		String collectionId = (String)state.getAttribute(STATE_COLLECTION_ID);
 		context.put( "collectionId", collectionId );
@@ -671,35 +689,12 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		{
 			logger.warn( "buildAddCitationsPanelContext unable to access citationCollection " + collectionId );
 		}
-		context.put( "collection", collection );
+		context.put( "collectionSize", new Integer( collection.size() ) );
 
-		// TODO getTitle() should return "New Citation List..."
-		String collectionTitle = collection.getTitle();
-		if( collectionTitle != null && !collectionTitle.trim().equals("") )
-		{
-			context.put( "collectionTitle", collectionTitle );
-		}
-		else
-		{
-			context.put( "collectionTitle", (String)state.getAttribute( STATE_COLLECTION_TITLE ) );
-		}
-		
-		context.put(PARAM_FORM_NAME, ELEMENT_ID_CREATE_FORM);
-		
-		List schemas = CitationService.getSchemas();
-		context.put("TEMPLATES", schemas);
-
-		String resourceId = (String) state.getAttribute(CitationHelper.RESOURCE_ID);
-		ContentHostingService contentService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
-		String guid = contentService.getUuid(resourceId);
-		
-		Schema defaultSchema = CitationService.getDefaultSchema();
-		context.put("DEFAULT_TEMPLATE", defaultSchema);
-		
 		// determine which features to display
 		if( ConfigurationService.isGoogleScholarEnabled() )
 		{
-			String googleUrl = SearchManager.getGoogleScholarUrl(guid);
+			String googleUrl = SearchManager.getGoogleScholarUrl(contentService.getUuid(resourceId));
 			context.put( "googleUrl", googleUrl );
 
 			// object array for formatted messages
@@ -713,6 +708,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			context.put( "searchLibrary", Boolean.TRUE );
 		}
 		
+		// form name
+		context.put(PARAM_FORM_NAME, ELEMENT_ID_CREATE_FORM);
+
 		return TEMPLATE_ADD_CITATIONS;
 	
     } // buildAddCitationsPanelContext
@@ -1002,6 +1000,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			mode = Mode.ADD_CITATIONS;
 			setMode(state, mode);
 		}
+		
+		// add mode to the template
+		context.put( "citationsHelperMode", mode );
 		
 		switch(mode)
 		{

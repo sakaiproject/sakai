@@ -118,6 +118,13 @@
 	</div>
 </div>
 <script type="text/javascript">
+// set up screen refresh
+if( !top.citationsHelperFrame ) {
+  top.citationsHelperFrame = new CitationsHelperFrame( window.name );
+}
+top.citationsHelperFrame.citationsHelperMode = "$citationsHelperMode";
+top.citationsHelperFrame.formname = "$FORM_NAME";
+
 /*
  * Resizes the frame to avoid double scroll bars without scrolling to the top
  * of the page when making dynamic changes to the page.

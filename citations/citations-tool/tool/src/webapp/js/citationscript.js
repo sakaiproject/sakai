@@ -1,4 +1,28 @@
 /*
+ * define the CitationsHelperFrame object
+ */
+function CitationsHelperFrame( frameName ) {
+  this.frameName = frameName;
+  
+  this.refreshCitationsHelper = refreshCitationsHelper;
+  this.submitform = submitform;
+}
+
+/*
+ * CitationsHelperFrame method to refresh the screen.  Should only work on
+ * LIST and ADD_CITATIONS modes (citationsHelperMode variable needs to be set)
+ */
+function refreshCitationsHelper() {
+  if( this.citationsHelperMode == "ADD_CITATIONS" ) {
+    document.getElementById('sakai_action').value='doAddCitations';
+    this.submitform( this.formname );
+  } else if( this.citationsHelperMode == "LIST" ) {
+    document.getElementById('sakai_action').value='doList';
+    this.submitform( this.formname );
+  }
+}
+
+/*
  * Shows advanced form (and hides basic form) on search and search results
  * screens.  Advanced and basic search form elements need to have the correct
  * ids for this function to work properly.
