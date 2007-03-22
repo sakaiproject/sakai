@@ -46,6 +46,8 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
@@ -78,8 +80,7 @@ public class CitationServlet extends VmServlet
 	 * 
 	 */
 	public static final String SERVLET_TEMPLATE = "/vm/sakai_citation-servlet.vm";
-	public static final String HEADER_TEMPLATE = "/vm/chef_header.vm";
-	public static final String FOOTER_TEMPLATE = "/vm/chef_footer.vm";
+	private String collectionTitle;
 	
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(CitationServlet.class);
@@ -338,6 +339,10 @@ public class CitationServlet extends VmServlet
 			
 			//M_log.info(info);
 			
+			// get the citation list title
+			String refStr = contentService.getReference(resourceId);
+			Reference ref = EntityManager.newReference(refStr);
+			this.collectionTitle = ref.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
         }
         catch (PermissionException e)
         {
@@ -400,7 +405,11 @@ public class CitationServlet extends VmServlet
 		setVmReference("success", success, req);
 		
 		// include object arrays for formatted messages
-		Object[] titleArgs = { "new citation list" };  // TODO temporary placeholder
+		if( collectionTitle == null || collectionTitle.trim().equals("") )
+		{
+			collectionTitle = "your current citation list";
+		}
+		Object[] titleArgs = { collectionTitle };  // TODO temporary placeholder
 		setVmReference( "titleArgs", titleArgs, req );
 
 		// return the servlet template
