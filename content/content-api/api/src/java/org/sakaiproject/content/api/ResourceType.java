@@ -147,5 +147,5 @@ public interface ResourceType
 	 * @return true if the copyright/licensing dialog is included among the resource properties in the UI, false otherwise.
 	 */
 	public boolean hasRightsDialog();
-	
+
 }

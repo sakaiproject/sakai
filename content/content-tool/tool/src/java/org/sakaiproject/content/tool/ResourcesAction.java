@@ -789,6 +789,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	private static final String TEMPLATE_NEW_LIST = "content/sakai_resources_list";
 
+	private static final String TEMPLATE_OPTIONS = "content/sakai_resources_options";
+	
 	private static final String TEMPLATE_PROPERTIES = "content/chef_resources_properties";
 
 	// private static final String TEMPLATE_REPLACE = "_replace";
@@ -4332,6 +4334,13 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		org.sakaiproject.content.api.ContentHostingService contentService = ContentHostingService.getInstance();
 		context.put ("service", contentService);
 
+		ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+		if(registry == null)
+		{
+			registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+			state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
+		}
+		
 		boolean inMyWorkspace = SiteService.isUserSite(ToolManager.getCurrentPlacement().getContext());
 		context.put("inMyWorkspace", Boolean.toString(inMyWorkspace));
 
@@ -4377,6 +4386,16 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			context.put("showPermissions", Boolean.TRUE.toString());
 			//buildListMenu(portlet, context, data, state);
+			
+			String home = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
+			Reference ref = EntityManager.newReference(ContentHostingService.getReference(home));
+			String siteId = ref.getContext();
+			Map<String,Boolean> statusMap = registry.getMapOfResourceTypesForContext(siteId);
+			if(statusMap != null && ! statusMap.isEmpty())
+			{
+				context.put("showOptions", Boolean.TRUE.toString());
+			}
+
 		}
 
 		context.put("atHome", Boolean.toString(atHome));
@@ -4475,13 +4494,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			expandedCollections.add(collectionId);
 			context.put("expandedCollections", expandedCollections);
 
-			ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
-			if(registry == null)
-			{
-				registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
-				state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
-			}
-			
 			state.removeAttribute(STATE_PASTE_ALLOWED_FLAG);
 			
 			ContentCollection collection = ContentHostingService.getCollection(collectionId);
@@ -4786,14 +4798,35 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		Reference ref = EntityManager.newReference(ContentHostingService.getReference(home));
 		String siteId = ref.getContext();
 
-		context.put("form-submit", BUTTON + "doConfigure_update");
-		context.put("form-cancel", BUTTON + "doCancel_options");
-		context.put("description", "Setting options for Resources in worksite "
-				+ SiteService.getSiteDisplay(siteId));
+		context.put("siteId", siteId);
+		context.put("form-submit", BUTTON + "doUpdateOptions");
+		context.put("form-cancel", BUTTON + "doCancelOptions");
+		String[] args = { SiteService.getSiteDisplay(siteId) };
+		context.put("description", trb.getFormattedMessage("title.options", args));
 
-		// pick the "-customize" template based on the standard template name
-		String template = (String)getContext(data).get("template");
-		return template + "-customize";
+		ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+		if(registry == null)
+		{
+			registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+			state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
+		}
+		
+		Map<String,Boolean> statusMap = registry.getMapOfResourceTypesForContext(siteId);
+		context.put("statusMap", statusMap);
+		
+		List types = new Vector(registry.getTypes());
+		Collections.sort(types, new Comparator(){
+
+			public int compare(Object arg0, Object arg1) {
+				ResourceType type0 = (ResourceType) arg0;
+				
+				ResourceType type1 = (ResourceType) arg1;
+				return type0.getLabel().compareToIgnoreCase(type1.getLabel());
+			}});
+		
+		context.put("types", types);
+
+		return TEMPLATE_OPTIONS;
 
 	}	// buildOptionsPanelContext
 
@@ -7011,6 +7044,19 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		state.setAttribute(STATE_EXPAND_ALL_FLAG, Boolean.FALSE.toString());
 
 	}	// doUnexpandall
+	
+	public void doUpdateOptions(RunData data)
+	{
+		// get the state object
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		//get the ParameterParser from RunData
+		ParameterParser params = data.getParameters ();
+		
+		String[] types = params.getStrings("");
+		
+		
+	}
 	
 	/**
 	* Find the resource with this id in the list.

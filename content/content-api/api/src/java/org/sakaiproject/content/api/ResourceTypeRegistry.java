@@ -95,7 +95,13 @@ public interface ResourceTypeRegistry
 	 * @param context
 	 * @param typeIds
 	 */
-	public void setResourceTypesForContext(String context, Map<String,Boolean> enabled);
+	public void setMapOfResourceTypesForContext(String context, Map<String,Boolean> enabled);
+	
+	/**
+	 * @param context
+	 * @return
+	 */
+	public Map<String,Boolean> getMapOfResourceTypesForContext(String context);
 	
 	/**
 	 * Access a collection (possibly empty) of all resource types that have been defined and 

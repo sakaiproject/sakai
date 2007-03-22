@@ -34,15 +34,20 @@ import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
+import org.sakaiproject.content.api.SiteSpecificResourceType;
 import org.sakaiproject.javax.Filter;
 
+/**
+ * @author jreng
+ *
+ */
 public class ResourceTypeRegistryImpl implements ResourceTypeRegistry 
 {
 	/** Our logger. */
 	protected static Log M_log = LogFactory.getLog(ResourceTypeRegistryImpl.class);
 
 	/** Map of ResourceType objects indexed by typeId */
-	protected Map typeIndex = new HashMap();
+	protected Map<String, ResourceType> typeIndex = new HashMap<String, ResourceType>();
 	
 	protected Map<String,Map<String,Boolean>> enabledTypesMap = new HashMap <String,Map<String,Boolean>>();
 
@@ -206,16 +211,39 @@ public class ResourceTypeRegistryImpl implements ResourceTypeRegistry
 	 */
 	public Collection<ResourceType> getTypes(String context) 
 	{
-		// TODO Auto-generated method stub
+		
 		return null;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.api.ResourceTypeRegistry#setResourceTypesForContext(java.lang.String, java.util.Map)
 	 */
-	public void setResourceTypesForContext(String context, Map<String, Boolean> enabled) 
+	public void setMapOfResourceTypesForContext(String context, Map<String, Boolean> enabled) 
 	{
 		this.enabledTypesMap.put(context, enabled);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.api.ResourceTypeRegistry#getResourceTypesForContext(java.lang.String)
+	 */
+	public Map<String, Boolean> getMapOfResourceTypesForContext(String context) 
+	{
+		Map<String, Boolean> enabled = this.enabledTypesMap.get(context);
+		
+		if(enabled == null)
+		{
+			enabled = new HashMap<String, Boolean>();
+			for(ResourceType type : this.typeIndex.values())
+			{
+				if(type instanceof SiteSpecificResourceType)
+				{
+					enabled.put(type.getId(), new Boolean(((SiteSpecificResourceType) type).isEnabledByDefault()));
+				}
+			}
+			
+			return enabled;
+		}
+		return new HashMap<String, Boolean>(enabled);
 	} 
 
 }
