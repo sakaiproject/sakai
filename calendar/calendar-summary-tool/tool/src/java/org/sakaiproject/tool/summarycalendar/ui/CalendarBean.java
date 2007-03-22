@@ -102,7 +102,7 @@ public class CalendarBean {
 			"mon_nov", "mon_dec"											};
 	private Map										eventImageMap			= new HashMap();
 	
-	private boolean									readPrefs 				= true;
+	private long									lastModifiedPrefs		= 0l;
 	private Map										priorityColorsMap		= null;
 	private String									highPrCSSProp			= "";
 	private String									mediumPrCSSProp			= "";
@@ -127,30 +127,22 @@ public class CalendarBean {
 	public CalendarBean(){		
 		// go to today events it is first time loading
 		selectedDay = getToday();
-		
-		// read preferences
-		if(readPrefs){
-			readPreferences();
-			readPrefs = false;
-		}
 	}
 	
-	public void setReadPrefs(String value) {
-		readPrefs = new Boolean(value).booleanValue();
-		if(readPrefs){
+	public String getInitValues() {
+		long lastModified = PrefsBean.getPreferenceLastModified();
+		if(lastModifiedPrefs != lastModified)
 			readPreferences();
-			readPrefs = false;
-		}
-	}
-	
-	public String getReadPrefs() {
-		return "true";
+		return "";
 	}
 
 	// ######################################################################################
 	// Private methods
 	// ######################################################################################
 	private void readPreferences() {
+		LOG.debug("Reading preferences...");
+		lastModifiedPrefs = PrefsBean.getPreferenceLastModified();
+		
 		// view mode
 		prevViewMode = viewMode;
 		viewMode = PrefsBean.getPreferenceViewMode();

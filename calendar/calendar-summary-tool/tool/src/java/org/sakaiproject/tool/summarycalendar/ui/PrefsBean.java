@@ -23,6 +23,7 @@ package org.sakaiproject.tool.summarycalendar.ui;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -54,7 +55,7 @@ public class PrefsBean {
 	
 	/** Preferences properties */
 	public static String						PREFS_KEY					= "sakai:calendar:calendar-summary";
-	public static String						PREFS_SET					= "set";
+	public static String						PREFS_LAST_MODIFIED			= "lastModified";
 	public static String						PREFS_VIEW_MODE				= "viewMode";
 	public static String						PREFS_HIGHPRIORITY_COLOR	= "highPriorityColor";
 	public static String						PREFS_MEDIUMPRIORITY_COLOR	= "mediumPriorityColor";
@@ -155,6 +156,7 @@ public class PrefsBean {
 			setPreferenceList(PREFS_HIGHPRIORITY_EVENTS, highPriorityEvents);
 			setPreferenceList(PREFS_MEDIUMPRIORITY_EVENTS, mediumPriorityEvents);
 			setPreferenceList(PREFS_LOWPRIORITY_EVENTS, lowPriorityEvents);
+			setPreferenceString(PREFS_LAST_MODIFIED, Long.toString(System.currentTimeMillis()));
 			
 			priorityColorsMap = null;
 			priorityEventsMap = null;
@@ -167,9 +169,6 @@ public class PrefsBean {
 		}
 
 		// all ok
-		FacesContext context = FacesContext.getCurrentInstance();
-	    ValueBinding vb = context.getApplication().createValueBinding("#{CalBean.readPrefs}");
-	    vb.setValue(context, "true");
 		return "calendar";
 	}
 
@@ -303,6 +302,21 @@ public class PrefsBean {
 	// ######################################################################################
 	// Preferences methods
 	// ######################################################################################
+	public static long getPreferenceLastModified() {
+		Long lastModified = 0l;
+		String value = getPreferenceString(PREFS_LAST_MODIFIED);
+		
+		if(value != null){
+			try{
+				lastModified = Long.parseLong(value);
+			}catch(NumberFormatException e){
+				lastModified = 0l;
+			}
+		}
+		
+		return lastModified;
+	}
+	
 	public static String getPreferenceViewMode() {
 		String value = getPreferenceString(PREFS_VIEW_MODE);
 		

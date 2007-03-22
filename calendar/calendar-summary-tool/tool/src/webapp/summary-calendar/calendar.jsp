@@ -21,6 +21,8 @@
 	<style type="text/css">
 		@import url("summary-calendar/css/cal.css");
 	</style>	
+	
+	<h:outputText value="#{CalBean.initValues}"/>
 
 	<h:form id="calendarForm">
 	<h:panelGroup>
