@@ -129,6 +129,7 @@ public class SiteListBean {
 			this.roleName = roleName;
 			this.pubView = pubView;
 			this.userStatus = userStatus;
+			this.siteTerm = term;
 		}
 
 		public UserSitesRow(Site site, String groups, String roleName) {
@@ -252,7 +253,17 @@ public class SiteListBean {
 		userSitesRows = new ArrayList();
 		try{
 			Connection c = M_sql.borrowConnection();
-			String sql = "select distinct(SITE_ID),TITLE,TYPE,PUBLISHED,ROLE_NAME,ACTIVE from SAKAI_SITE,SAKAI_REALM,SAKAI_REALM_RL_GR,SAKAI_REALM_ROLE where SAKAI_REALM.REALM_ID=CONCAT('/site/',SAKAI_SITE.SITE_ID) and SAKAI_REALM.REALM_KEY=SAKAI_REALM_RL_GR.REALM_KEY and SAKAI_REALM_RL_GR.ROLE_KEY=SAKAI_REALM_ROLE.ROLE_KEY and SAKAI_REALM_RL_GR.USER_ID=? and IS_USER=0 and IS_SPECIAL=0 ORDER BY TITLE";
+			String sql = "select distinct(SAKAI_SITE.SITE_ID),TITLE,TYPE,PUBLISHED,ROLE_NAME,ACTIVE,VALUE as TERM " +
+						"from SAKAI_SITE,SAKAI_REALM,SAKAI_REALM_RL_GR,SAKAI_REALM_ROLE " +
+						"left join SAKAI_SITE_PROPERTY on SAKAI_SITE.SITE_ID=SAKAI_SITE_PROPERTY.SITE_ID " +
+						"and NAME='term' " +
+						"where SAKAI_REALM.REALM_ID=CONCAT('/site/',SAKAI_SITE.SITE_ID) " +
+						"and SAKAI_REALM.REALM_KEY=SAKAI_REALM_RL_GR.REALM_KEY " +
+						"and SAKAI_REALM_RL_GR.ROLE_KEY=SAKAI_REALM_ROLE.ROLE_KEY " +
+						"and SAKAI_REALM_RL_GR.USER_ID=? " +
+						"and IS_USER=0 " + 
+						"and IS_SPECIAL=0 " +
+						"ORDER BY TITLE";
 			PreparedStatement pst = c.prepareStatement(sql);
 			pst.setString(1, userId);
 			ResultSet rs = pst.executeQuery();
@@ -264,7 +275,9 @@ public class SiteListBean {
 				String rn = rs.getString("ROLE_NAME");
 				String grps = getGroups(userId, id);
 				String active = rs.getString("ACTIVE").trim().equals("1")? msgs.getString("site_user_status_active") : msgs.getString("site_user_status_inactive");
-				UserSitesRow row = new UserSitesRow(id, t, tp, grps, rn, pv, active,"");
+				String term = rs.getString("TERM");
+				term = term == null? "" : term;// || term.equals("NULL")
+				UserSitesRow row = new UserSitesRow(id, t, tp, grps, rn, pv, active, term);
 				userSitesRows.add(row);
 			}
 			rs.close();
@@ -486,7 +499,7 @@ public class SiteListBean {
 
 		if(refreshQuery){
 			LOG.debug("Refreshing query...");
-			doSearch2();
+			doSearch();
 			refreshQuery = false;
 		}
 		
