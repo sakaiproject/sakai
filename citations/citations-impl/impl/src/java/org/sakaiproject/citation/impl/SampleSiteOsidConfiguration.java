@@ -87,7 +87,8 @@ public class SampleSiteOsidConfiguration implements SiteOsidConfiguration
   {
     ArrayList<String> groupList = new ArrayList();
 
-    groupList.add("ALL");
+    groupList.add("all");
+    groupList.add("free");
     return groupList;
   }
 }

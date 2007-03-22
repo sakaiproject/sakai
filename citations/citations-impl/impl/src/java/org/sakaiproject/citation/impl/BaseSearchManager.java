@@ -1000,8 +1000,16 @@ public class BaseSearchManager implements SearchManager
 						database = databaseMap.get( databaseId );
 					}
 					
-					// add to the return List
-					databases.add( database );
+					// check if the database is a member of authorized groups
+					for( String groupId : groups )
+					{
+						if( database.isGroupMember( groupId ) )
+						{
+							// add to the return List
+							databases.add( database );
+							break;
+						}
+					}
 				}
 				return databases;
 			}
