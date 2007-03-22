@@ -7823,6 +7823,7 @@ public class SiteAction extends PagedResourceActionII {
 		// page adds and removes
 		// boolean values for adding synoptic views
 		boolean hasAnnouncement = false;
+		boolean hasSchedule = false;
 		boolean hasChat = false;
 		boolean hasDiscussion = false;
 		boolean hasEmail = false;
@@ -7878,6 +7879,8 @@ public class SiteAction extends PagedResourceActionII {
 				}
 			} else if (choice.equals("sakai.announcements")) {
 				hasAnnouncement = true;
+			} else if (choice.equals("sakai.schedule")) {
+				hasSchedule = true;
 			} else if (choice.equals("sakai.chat")) {
 				hasChat = true;
 			} else if (choice.equals("sakai.discussion")) {
@@ -7898,7 +7901,7 @@ public class SiteAction extends PagedResourceActionII {
 			SitePage page = null;
 			// Were the synoptic views of Announcement, Discussioin, Chat
 			// existing before the editing
-			boolean hadAnnouncement = false, hadDiscussion = false, hadChat = false;
+			boolean hadAnnouncement = false, hadDiscussion = false, hadChat = false, hadSchedule = false;
 
 			if (homeInWSetupPageList) {
 				if (!SiteService.isUserSite(site.getId())) {
@@ -7930,6 +7933,17 @@ public class SiteAction extends PagedResourceActionII {
 								// selected, remove
 								// the synotic
 								// Announcement
+							}
+						}
+						if (tool.getTool().getId().equals(
+								"sakai.summary.calendar")) {
+							hadSchedule= true;
+							if (!hasSchedule) {
+								removeToolList.add(tool);// if Schedule
+								// tool isn't
+								// selected, remove
+								// the synotic
+								// Schedule
 							}
 						}
 						if (tool.getTool().getId().equals(
@@ -7998,7 +8012,12 @@ public class SiteAction extends PagedResourceActionII {
 						addSynopticTool(page, "sakai.synoptic.chat", rb
 								.getString("java.recent"), "2,1");
 					}
-					if (hasAnnouncement || hasDiscussion || hasChat) {
+					if (hasSchedule && !hadSchedule) {
+						// Add synoptic schedule tool
+						addSynopticTool(page, "sakai.summary.calendar", rb
+								.getString("java.reccal"), "3,1");
+					}
+					if (hasAnnouncement || hasDiscussion || hasChat || hasSchedule) {
 						page.setLayout(SitePage.LAYOUT_DOUBLE_COL);
 					} else {
 						page.setLayout(SitePage.LAYOUT_SINGLE_COL);
@@ -8427,6 +8446,7 @@ public class SiteAction extends PagedResourceActionII {
 		int moves = 0;
 		boolean hasHome = false;
 		boolean hasAnnouncement = false;
+		boolean hasSchedule = false;
 		boolean hasChat = false;
 		boolean hasDiscussion = false;
 		boolean hasSiteInfo = false;
@@ -8534,6 +8554,8 @@ public class SiteAction extends PagedResourceActionII {
 				// booleans for synoptic views
 				if (toolId.equals("sakai.announcements")) {
 					hasAnnouncement = true;
+				} else if (toolId.equals("sakai.schedule")) {
+					hasSchedule = true;
 				} else if (toolId.equals("sakai.chat")) {
 					hasChat = true;
 				} else if (toolId.equals("sakai.discussion")) {
@@ -8556,7 +8578,7 @@ public class SiteAction extends PagedResourceActionII {
 					page.setTitle(rb.getString("java.home")); // the visible
 					// label on the
 					// tool menu
-					if (hasAnnouncement || hasDiscussion || hasChat) {
+					if (hasAnnouncement || hasDiscussion || hasChat || hasSchedule) {
 						page.setLayout(SitePage.LAYOUT_DOUBLE_COL);
 					} else {
 						page.setLayout(SitePage.LAYOUT_SINGLE_COL);
@@ -8594,6 +8616,15 @@ public class SiteAction extends PagedResourceActionII {
 								.getTool("sakai.synoptic.chat"));
 						tool.setTitle("Recent Chat Messages");
 						tool.setLayoutHints("2,1");
+					}
+
+					if (hasSchedule) {
+						// Add synoptic schedule tool
+						tool = page.addTool();
+						tool.setTool("sakai.summary.calendar", ToolManager
+								.getTool("sakai.summary.calendar"));
+						tool.setTitle(rb.getString("java.reccal"));
+						tool.setLayoutHints("3,1");
 					}
 
 				} catch (Exception e) {
