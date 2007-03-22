@@ -3968,7 +3968,7 @@ public class AssignmentAction extends PagedResourceActionII
 							// making new announcement
 							header.setSubject(/* subject */rb.getString("assig6") + " " + title);
 							message.setBody(/* body */rb.getString("opedat") + " "
-									+ FormattedText.convertPlaintextToFormattedText(title) + rb.getString("is")
+									+ FormattedText.convertPlaintextToFormattedText(title) + " " + rb.getString("is")
 									+ openTime.toStringLocalFull() + ". ");
 						}
 						else
