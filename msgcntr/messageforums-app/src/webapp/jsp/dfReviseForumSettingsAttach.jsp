@@ -127,7 +127,7 @@
           <h:commandButton action="#{ForumTool.processActionSaveForumAndAddTopic}" value="#{msgs.cdfm_button_bar_save_setting_add_topic}" accesskey="s">
 	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
           </h:commandButton>
-          <h:commandButton  action="#{ForumTool.processReturnToOriginatingPage}" value="#{msgs.cdfm_button_bar_cancel}" accesskey="x" />
+          <h:commandButton  action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_button_bar_cancel}" accesskey="x" />
        </div>
        
 	 </h:form>
