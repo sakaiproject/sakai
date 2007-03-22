@@ -45,12 +45,12 @@
 
 				<%--gsilver: would be good if the returned url from this would include a named internal anchor as the target so that the expando/collapso would go to the top of the viewport and avoid having to scroll and find --%>
 			  <h:outputLink id="forum_extended_show" value="#" title="#{msgs.cdfm_read_full_description}" styleClass="show" 
-			  		onclick="resize();$(this).next('.hide').toggle(); $('div.toggle', $(this).parents('div.hierItemBlock')).slideToggle();$(this).toggle();">
+			  		onclick="resize();$(this).next('.hide').toggle(); $('div.toggle', $(this).parents('div.hierItemBlock')).slideToggle(resize);$(this).toggle();">
 			  		<h:outputText value="#{msgs.cdfm_read_full_description}" />
 			  </h:outputLink>
 			  
 			  <h:outputLink id="forum_extended_hide" value="#" title="#{msgs.cdfm_hide_full_description}" style="display:none" styleClass="hide" 
-			  		onclick="resize();$(this).prev('.show').toggle(); $('div.toggle', $(this).parents('div.hierItemBlock')).slideToggle();$(this).toggle();">
+			  		onclick="resize();$(this).prev('.show').toggle(); $('div.toggle', $(this).parents('div.hierItemBlock')).slideToggle(resize);$(this).toggle();">
 			  		<h:outputText value="#{msgs.cdfm_hide_full_description}" />
 			  </h:outputLink>
 
@@ -97,12 +97,12 @@
 			<f:verbatim><div class="textPanel"></f:verbatim>
 			<h:panelGroup styleClass="textPanelFooter specialLink">
 			    	<h:outputLink id="forum_extended_show" value="#" title="#{msgs.cdfm_read_full_description}" styleClass="show" 
-				  		onclick="resize();$(this).next('.hide').toggle(); $('div.toggle', $(this).parents('div.textPanel')).slideToggle();$(this).toggle();">
+				  		onclick="resize();$(this).next('.hide').toggle(); $('div.toggle', $(this).parents('div.textPanel')).slideToggle(resize);$(this).toggle();">
 				  		<h:outputText value="#{msgs.cdfm_read_full_description}" />
 				    </h:outputLink>  
 				  
 				    <h:outputLink id="forum_extended_hide" value="#" title="#{msgs.cdfm_hide_full_description}" style="display:none" styleClass="hide" 
-				  		onclick="resize();$(this).prev('.show').toggle(); $('div.toggle', $(this).parents('div.textPanel')).slideToggle();$(this).toggle();">
+				  		onclick="resize();$(this).prev('.show').toggle(); $('div.toggle', $(this).parents('div.textPanel')).slideToggle(resize);$(this).toggle();">
 				  		<h:outputText value="#{msgs.cdfm_hide_full_description}" />
 				    </h:outputLink>
 
