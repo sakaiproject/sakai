@@ -51,8 +51,8 @@
     singleton="true">
 
 	<!-- enable/disable entire helper -->
-    <property name="citationsEnabledByDefault"><value>false</value></property>
-	<property name="allowSiteBySiteOverride"><value>false</value></property>
+    <property name="citationsEnabledByDefault"><value>true</value></property>
+	<property name="allowSiteBySiteOverride"><value>true</value></property>
 	
 	<!-- enable/disable helper features -->
 	<property name="googleSearchEnabled"><value>true</value></property>

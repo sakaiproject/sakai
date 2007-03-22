@@ -70,6 +70,7 @@ import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolAction.ActionType;
 import org.sakaiproject.content.util.BaseInteractionAction;
 import org.sakaiproject.content.util.BaseResourceAction;
+import org.sakaiproject.content.util.BasicSiteSelectableResourceType;
 //import org.sakaiproject.content.util.BaseResourceAction.Localizer;
 import org.sakaiproject.content.util.BaseServiceLevelAction;
 import org.sakaiproject.content.util.BasicResourceType;
@@ -4054,11 +4055,12 @@ public abstract class BaseCitationService implements CitationService
 					});
 	
 			
-			BasicResourceType typedef = new BasicResourceType(CitationService.CITATION_LIST_ID);
+			BasicSiteSelectableResourceType typedef = new BasicSiteSelectableResourceType(CitationService.CITATION_LIST_ID);
 			typedef.setLocalizer(new CitationLocalizer());
 			typedef.addAction(createAction);
 			typedef.addAction(reviseAction);
 			typedef.addAction(new CitationListDeleteAction());
+			typedef.setEnabledByDefault(m_configService.isCitationsEnabledByDefault());
 			
 			registry.register(typedef);
 		}
