@@ -71,6 +71,7 @@ import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.api.ServiceLevelAction;
+import org.sakaiproject.content.api.SiteSpecificResourceType;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.api.ResourceToolAction.ActionType;
 import org.sakaiproject.content.cover.ContentHostingService;
@@ -1997,6 +1998,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
     {
 	    String resourceType = ResourceType.TYPE_UPLOAD;
 	    Reference ref = EntityManager.newReference(selectedItem.getReference());
+	    
 	    List<ResourceToolAction> actions = new Vector<ResourceToolAction>();
 	    
 	    if(permissions.contains(ContentPermissions.CREATE))
@@ -2039,7 +2041,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		    	// if item is collection and user has content.new for item, user can create anything 
 		    	{
 		    		// iterate over resource-types and get all the registered types and find actions requiring "content.new" permission
-		    		Collection types = registry.getTypes();
+		    		Collection types = registry.getTypes(ref.getContext());
 		    		Iterator<ActionType> actionTypeIt = CONTENT_NEW_ACTIONS.iterator();
 		    		while(actionTypeIt.hasNext())
 		    		{
@@ -4793,7 +4795,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 											RunData data,
 											SessionState state)
 	{
-		context.put("tlang",rb);
+		context.put("tlang",trb);
 		String home = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
 		Reference ref = EntityManager.newReference(ContentHostingService.getReference(home));
 		String siteId = ref.getContext();
@@ -4802,7 +4804,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		context.put("form-submit", BUTTON + "doUpdateOptions");
 		context.put("form-cancel", BUTTON + "doCancelOptions");
 		String[] args = { SiteService.getSiteDisplay(siteId) };
-		context.put("description", trb.getFormattedMessage("title.options", args));
+		context.put("title", trb.getFormattedMessage("title.options", args));
 
 		ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
 		if(registry == null)
@@ -7045,6 +7047,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	}	// doUnexpandall
 	
+	/**
+	* Read user inputs from options form and update accordingly
+	*/
 	public void doUpdateOptions(RunData data)
 	{
 		// get the state object
@@ -7053,8 +7058,54 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		//get the ParameterParser from RunData
 		ParameterParser params = data.getParameters ();
 		
-		String[] types = params.getStrings("");
+		ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+		if(registry == null)
+		{
+			registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+			state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
+		}
+
+		List<ResourceType> typeDefs = new Vector<ResourceType>(registry.getTypes());
+
+		String siteId = params.getString("siteId");
+		if(siteId == null || siteId.trim().equals(""))
+		{
+			String home = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
+			Reference ref = EntityManager.newReference(ContentHostingService.getReference(home));
+			siteId = ref.getContext();
+		}
 		
+		Map<String,Boolean> statusMap = new HashMap<String,Boolean>();
+
+		String[] types = params.getStrings("types");
+		SortedSet enabledTypes = new TreeSet();
+		if(types != null)
+		{
+			enabledTypes.addAll(Arrays.asList(types));
+		}
+
+		for(ResourceType typeDef : typeDefs)
+		{
+			if(typeDef instanceof SiteSpecificResourceType)
+			{
+				statusMap.put(typeDef.getId(), new Boolean(enabledTypes.contains(typeDef.getId())));
+			}
+		}
+		registry.setMapOfResourceTypesForContext(siteId, statusMap);
+		
+		state.setAttribute(STATE_MODE, MODE_LIST);
+
+	}
+	
+	/**
+	 * cancel out of options mode
+	 */
+	public void doCancelOptions(RunData data)
+	{
+		// get the state object
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		state.setAttribute(STATE_MODE, MODE_LIST);
 		
 	}
 	

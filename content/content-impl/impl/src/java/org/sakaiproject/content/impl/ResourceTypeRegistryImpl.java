@@ -211,8 +211,26 @@ public class ResourceTypeRegistryImpl implements ResourceTypeRegistry
 	 */
 	public Collection<ResourceType> getTypes(String context) 
 	{
+		List<ResourceType> typeDefs = new Vector<ResourceType>();
 		
-		return null;
+		Map<String, Boolean> statusMap = getMapOfResourceTypesForContext(context);
+		
+		for(ResourceType type : typeIndex.values())
+		{
+			if(statusMap.containsKey(type.getId()))
+			{
+				if(statusMap.get(type.getId()).booleanValue())
+				{
+					typeDefs.add(type);
+				}
+			}
+			else
+			{
+				typeDefs.add(type);
+			}
+		}
+		
+		return typeDefs;
 	}
 
 	/* (non-Javadoc)

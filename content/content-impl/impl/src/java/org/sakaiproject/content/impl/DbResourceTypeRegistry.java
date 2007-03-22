@@ -22,11 +22,13 @@
 package org.sakaiproject.content.impl;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.ResourceType;
+import org.sakaiproject.content.api.SiteSpecificResourceType;
 
 public class DbResourceTypeRegistry extends ResourceTypeRegistryImpl 
 {
@@ -49,6 +51,15 @@ public class DbResourceTypeRegistry extends ResourceTypeRegistryImpl
 	{
 		
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.api.ResourceTypeRegistry#getResourceTypesForContext(java.lang.String)
+	 */
+	public Map<String, Boolean> getMapOfResourceTypesForContext(String context) 
+	{
+		return null;
+	} 
+
 
 	/**
 	 * Final initialization, once all dependencies are set.
