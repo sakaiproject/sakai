@@ -394,6 +394,7 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
          <f:param name="studentid" value="#{description.idString}" />
          <f:param name="publishedIdd" value="#{questionScores.publishedId}" />
          <f:param name="gradingData" value="#{description.assessmentGradingId}" />
+ 		 <f:param name="email" value="#{description.email}" />
        </h:commandLink>
 	   <f:verbatim><br/></f:verbatim>
 	   <span class="itemAction">
@@ -438,6 +439,7 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
          <f:param name="studentid" value="#{description.idString}" />
          <f:param name="publishedIdd" value="#{questionScores.publishedId}" />
          <f:param name="gradingData" value="#{description.assessmentGradingId}" />
+		 <f:param name="email" value="#{description.email}" />
        </h:commandLink>
        <f:verbatim><br/></f:verbatim>
 	   <span class="itemAction">
@@ -482,6 +484,7 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
          <f:param name="studentid" value="#{description.idString}" />
          <f:param name="publishedIdd" value="#{questionScores.publishedId}" />
          <f:param name="gradingData" value="#{description.assessmentGradingId}" />
+		 <f:param name="email" value="#{description.email}" />
        </h:commandLink>
        <f:verbatim><br/></f:verbatim>
 	   <span class="itemAction">
