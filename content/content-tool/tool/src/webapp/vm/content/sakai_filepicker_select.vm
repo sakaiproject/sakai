@@ -135,12 +135,12 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 			<tr>
 				<th id="title">
 					#if ($expandallflag && "$expandallflag" == "$TRUE")
-						<a href="#toolLinkParam("ResourcesAction" "doUnexpandall" "collectionId=$validator.escapeUrl($collectionId)")" title ="$tlang.getString('collapseall')">
-							<img src = "#imageLink("sakai/collapse-expand.gif")" border="0" title="$tlang.getString('collapseall')" alt="$tlang.getString('collapseall')" hspace="0" />
+						<a href="#toolLinkParam("ResourcesAction" "doUnexpandall" "collectionId=$validator.escapeUrl($collectionId)")" title ="$tlang.getString('collapse.all')">
+							<img src = "#imageLink("sakai/collapse-expand.gif")" border="0" title="$tlang.getString('collapse.all')" alt="$tlang.getString('collapse.all')" hspace="0" />
 						</a>								 
 					#else
-						<a href="#toolLinkParam("ResourcesAction" "doExpandall" "collectionId=$validator.escapeUrl($collectionId)")" title ="$tlang.getString('expandall')">
-							<img src = "#imageLink("sakai/expand-collapse.gif")" border="0" title="$tlang.getString('expandall')" alt="$tlang.getString('expandall')" hspace="0" />
+						<a href="#toolLinkParam("ResourcesAction" "doExpandall" "collectionId=$validator.escapeUrl($collectionId)")" title ="$tlang.getString('expand.all')">
+							<img src = "#imageLink("sakai/expand-collapse.gif")" border="0" title="$tlang.getString('expand.all')" alt="$tlang.getString('expand.all')" hspace="0" />
 						</a>								 
 					#end
 					## <img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="%%%" />

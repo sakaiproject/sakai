@@ -118,7 +118,7 @@
 					<label for="copyright">
 						$tlang.getString("cright.status")
 					</label>	
-					<select name="copyright" id ="copyright" onchange="javascript:updateCopyright(this);">
+					<select name="copyrightStatus" id ="copyrightStatus" onchange="javascript:updateCopyright(this);">
 						#foreach ($copyright in $copyrightTypes)
 							<option value="$copyright"#if($item.copyrightStatus == $copyright) selected="selected"#end>$copyright</option>
 						#end
@@ -127,17 +127,17 @@
 						(<a href="$fairuseurl" target="_blank" title="[$tlang.getString('cright.newwin')]"><span class="skip"> [$tlang.getString('cright.newwin')]</span>$tlang.getString("cright.fairuse")</a>)
 					#end
 				</p>
-				<div id="copyright_status">
+				<div id="copyright_text">
 					#if($item.copyrightStatus == $USE_THIS_COPYRIGHT)
 						<p class="shorttext">
 							<span class="reqStar">*</span>
-							<label for="newcopyright">
+							<label for="copyrightInfo">
 								$tlang.getString("cright.info")
 							</label>	
-							<textarea name="newcopyright" id="newcopyright" rows="2" cols="40" wrap="virtual" >$validator.escapeHtmlTextarea("$!item.copyrightInfo")</textarea>
+							<textarea name="copyrightInfo" id="copyrightInfo" rows="2" cols="40" wrap="virtual" >$validator.escapeHtmlTextarea("$!item.copyrightInfo")</textarea>
 						</p>	
 					#else
-						<input type="hidden" name="newcopyright" id="newcopyright" value="$!item.copyrightInfo" />
+						<input type="hidden" name="copyrightInfo" id="copyrightInfo" value="$!item.copyright" />
 					#end
 				</div>
 				<table border="0">
@@ -412,10 +412,10 @@
 	  window.open("$copyright_alert_url","SampleCopyrightAlert","scrollbars=no,menubar=no,height=400,width=700,resizable=no,toolbar=no,location=no,status=no");
 	  return false;
 	}
-	function enableNewCopyright(obj_mycopyright, obj_newcopyright)
+	function enableNewCopyright(obj_mycopyright, obj_copyrightInfo)
 	{
 		obj_mycopyright.checked = false;
-		obj_newcopyright.checked = true;
+		obj_copyrightInfo.checked = true;
 	}
 
 	function clearNewCopyright(obj_textarea)
@@ -427,45 +427,45 @@
 	{
 		var obj_alert_name="copyrightAlert";
 		var obj_alert_item=document.getElementById(obj_alert_name);
-		var obj_newcopyright_name="newcopyright";
-		var obj_newcopyright_item=document.getElementById(obj_newcopyright_name);
+		var obj_copyrightInfo_name="copyrightInfo";
+		var obj_copyrightInfo_item=document.getElementById(obj_copyrightInfo_name);
 		if (copyrightIndex == 0)
 		{
 			obj_alert_item.checked=false;
-			obj_newcopyright_item.disabled=true;
+			obj_copyrightInfo_item.disabled=true;
 		}
 		else if (copyrightIndex < 5)
 		{
 			obj_alert_item.checked=true;
-			obj_newcopyright_item.disabled=true;
+			obj_copyrightInfo_item.disabled=true;
 		}
 		else if (copyrightIndex == 5)
 		{
 			obj_alert_item.checked=true;
-			obj_newcopyright_item.disabled=false;
+			obj_copyrightInfo_item.disabled=false;
 		}
 	}
 	function updateCopyright(element)
 	{
-		var cr_div = document.getElementById("copyright_status");
+		var cr_div = document.getElementById("copyright_text");
 		var new_value = element.value;
-		var cr_element = document.getElementById("newcopyright");
+		var cr_element = document.getElementById("copyrightInfo");
 		var cr_value = cr_element.value;
 		
 		var inner_html = "";
 		if(new_value == "$USE_THIS_COPYRIGHT")
 		{
 			inner_html = "<p class=\"shorttext\">\n<span class=\"reqStar\">*</span>\n" 
-						+ "<label for=\"newcopyright\">\n$tlang.getString("cright.info")\n</label>\n"
-						+ "<textarea name=\"newcopyright\" id=\"newcopyright\" rows=\"2\" cols=\"40\" wrap=\"virtual\" ></textarea>\n</p>\n";	
+						+ "<label for=\"copyrightInfo\">\n$tlang.getString("cright.info")\n</label>\n"
+						+ "<textarea name=\"copyrightInfo\" id=\"copyrightInfo\" rows=\"2\" cols=\"40\" wrap=\"virtual\" ></textarea>\n</p>\n";	
 		}
 		else
 		{
-			inner_html = "<input type=\"hidden\" name=\"newcopyright\" id=\"newcopyright\" value=\"\" />";
+			inner_html = "<input type=\"hidden\" name=\"copyrightInfo\" id=\"copyrightInfo\" value=\"\" />";
 		}
 		cr_div.innerHTML = inner_html;
 		setMainFrameHeight('$validator.escapeJavascript("Main$pid")');	
-		cr_element = document.getElementById("newcopyright");
+		cr_element = document.getElementById("copyrightInfo");
 		cr_element.value = cr_value;
 		if(new_value == "$USE_THIS_COPYRIGHT")
 		{

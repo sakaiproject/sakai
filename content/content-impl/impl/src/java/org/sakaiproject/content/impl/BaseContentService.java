@@ -6717,10 +6717,25 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public void contextCreated(String context, boolean toolPlacement)
 	{
-		if (toolPlacement)
+		try 
 		{
-			enableResources(context);
-			enableDropbox(context);
+			if (toolPlacement)
+			{
+				Site site = m_siteService.getSite(context);
+				if(site.getToolForCommonId("sakai.dropbox") != null)
+				{
+					enableDropbox(context);
+				}
+				if(site.getToolForCommonId("sakai.resources") != null)
+				{
+					enableResources(context);
+				}
+			}
+			
+		} 
+		catch (IdUnusedException e) 
+		{
+			// ignore -- nothing to enable
 		}
 	}
 	
@@ -6729,10 +6744,25 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public void contextUpdated(String context, boolean toolPlacement)
 	{
-		if (toolPlacement)
+		try 
 		{
-			enableResources(context);
-			enableDropbox(context);
+			if (toolPlacement)
+			{
+				Site site = m_siteService.getSite(context);
+				if(site.getToolForCommonId("sakai.dropbox") != null)
+				{
+					enableDropbox(context);
+				}
+				if(site.getToolForCommonId("sakai.resources") != null)
+				{
+					enableResources(context);
+				}
+			}
+			
+		} 
+		catch (IdUnusedException e) 
+		{
+			// ignore -- nothing to enable
 		}
 	}
 
@@ -6741,8 +6771,28 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public void contextDeleted(String context, boolean toolPlacement)
 	{
-		disableResources(context);
-		disableDropbox(context);
+		// TODO This avoids disabling the collection if the tool still exists, but ...
+		// does it catch the case where the tool is being deleted from the site?
+		try 
+		{
+			if (toolPlacement)
+			{
+				Site site = m_siteService.getSite(context);
+				if(site.getToolForCommonId("sakai.dropbox") == null)
+				{
+					disableDropbox(context);
+				}
+				if(site.getToolForCommonId("sakai.resources") == null)
+				{
+					disableResources(context);
+				}
+			}
+			
+		} 
+		catch (IdUnusedException e) 
+		{
+			// ignore -- nothing to enable
+		}
 	}
 
 	/**
@@ -8148,6 +8198,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				{
 					entity = findResource(ref.getId());
 				}
+				
 				if(entity != null)
 				{
 					if(AccessMode.INHERITED == entity.getAccess())
@@ -8172,11 +8223,12 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 						groupRefs.add(group.getReference());
 					}
 				}
+				
 				if(SecurityService.isSuperUser())
 				{
 					rv.addAll(groups);
 				}
-				else if(SecurityService.unlock(AUTH_RESOURCE_ALL_GROUPS, site.getReference()) && unlockCheck(function, entity.getId()))
+				else if(SecurityService.unlock(AUTH_RESOURCE_ALL_GROUPS, site.getReference()) && entity != null && unlockCheck(function, entity.getId()))
 				{
 					rv.addAll(groups);
 				}

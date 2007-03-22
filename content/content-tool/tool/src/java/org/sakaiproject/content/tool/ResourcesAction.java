@@ -1374,7 +1374,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			try
 			{
-				ContentCollectionEdit edit = ContentHostingService.addCollection(collectionId, name);
+				ContentCollectionEdit edit = ContentHostingService.addCollection(collectionId, Validator.escapeResourceName(name));
 				ResourcePropertiesEdit props = edit.getPropertiesEdit();
 				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
 				Object obj = fp.getRevisedListItem();
@@ -1460,7 +1460,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			try
 			{
-				ContentResourceEdit resource = ContentHostingService.addResource(collectionId,basename,extension,MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+				ContentResourceEdit resource = ContentHostingService.addResource(collectionId,Validator.escapeResourceName(basename),Validator.escapeResourceName(extension),MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 				
 				byte[] content = fp.getRevisedContent();
 				if(content == null)
@@ -5355,7 +5355,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				}
 				
 				// create resource
-				ContentResourceEdit resource = ContentHostingService.addResource(collectionId, basename, extension, MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+				ContentResourceEdit resource = ContentHostingService.addResource(collectionId, Validator.escapeResourceName(basename), Validator.escapeResourceName(extension), MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 				
 				String resourceType = null;
 				if(pipe != null)
@@ -6488,8 +6488,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			String description = params.getString("description");
 			String resourceType = action.getTypeId();
 			// rights
-			String copyright = params.getString("copyright");
-			String newcopyright = params.getString("newcopyright");
+			String copyrightStatus = params.getString("copyrightStatus");
+			String copyrightInfo = params.getString("copyrightInfo");
 			boolean copyrightAlert = params.getBoolean("copyrightAlert");
 			
 			// availability
@@ -6642,21 +6642,21 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					resourceProperties.addProperty(ResourceProperties.PROP_DESCRIPTION, description);
 					entity.setAvailability(hidden, releaseDate, retractDate);
 					
-					if(copyright == null || copyright.trim().length() == 0)
+					if(copyrightStatus == null || copyrightStatus.trim().length() == 0)
 					{
 						resourceProperties.removeProperty(ResourceProperties.PROP_COPYRIGHT_CHOICE);
 					}
 					else
 					{
-						resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT_CHOICE, copyright);
+						resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT_CHOICE, copyrightStatus);
 					}
-					if(newcopyright == null || newcopyright.trim().length() == 0)
+					if(copyrightInfo == null || copyrightInfo.trim().length() == 0)
 					{
 						resourceProperties.removeProperty(ResourceProperties.PROP_COPYRIGHT);
 					}
 					else
 					{
-						resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT, newcopyright);
+						resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT, copyrightInfo);
 					}
 					if (copyrightAlert)
 					{

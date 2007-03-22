@@ -278,8 +278,8 @@ public class ListItem
 	protected Time retractDate;
 	
 	protected String description;
-	protected String copyright;
-	protected String newcopyright;
+	protected String copyrightInfo;
+	protected String copyrightStatus;
 	protected boolean copyrightAlert;
 
 	private ListItem parent;
@@ -401,7 +401,21 @@ public class ListItem
 				}
 			}
 			setSize(size);
-
+			
+			this.copyrightStatus = props.getProperty(ResourceProperties.PROP_COPYRIGHT_CHOICE);
+			this.copyrightInfo = props.getProperty(ResourceProperties.PROP_COPYRIGHT);
+			try 
+			{
+				this.copyrightAlert = props.getBooleanProperty(ResourceProperties.PROP_COPYRIGHT_ALERT);
+			} 
+			catch (EntityPropertyNotDefinedException e) 
+			{
+				this.copyrightAlert = false;
+			} 
+			catch (EntityPropertyTypeException e) 
+			{
+				this.copyrightAlert = false;
+			}
 		}
 		
 		User creator = ResourcesAction.getUserProperty(props, ResourceProperties.PROP_CREATOR);
@@ -447,12 +461,15 @@ public class ListItem
 		{
 			groupsWithRemovePermission = contentService.getGroupsWithRemovePermission(ref.getContainer());
 		}
-		else
+		else if(contentService.getSiteCollection(ref.getContext()) != null)
 		{
 			groupsWithRemovePermission = contentService.getGroupsWithRemovePermission(contentService.getSiteCollection(ref.getContext()));
 		}
 		this.allowedRemoveGroups.clear();
-		this.allowedRemoveGroups.addAll(groupsWithRemovePermission);
+		if(groupsWithRemovePermission != null)
+		{
+			this.allowedRemoveGroups.addAll(groupsWithRemovePermission);
+		}
 		
 		Collection<Group> groupsWithAddPermission = null;
 		if(AccessMode.GROUPED == this.accessMode)
@@ -468,14 +485,15 @@ public class ListItem
 		{
 			groupsWithAddPermission = contentService.getGroupsWithAddPermission(ref.getContainer());
 		}
-		else
+		else if(contentService.getSiteCollection(ref.getContext()) != null)
 		{
 			groupsWithAddPermission = contentService.getGroupsWithAddPermission(contentService.getSiteCollection(ref.getContext()));
 		}
 		this.allowedAddGroups.clear();
-		this.allowedAddGroups.addAll(groupsWithAddPermission);
-		
-
+		if(groupsWithAddPermission != null)
+		{
+			this.allowedAddGroups.addAll(groupsWithAddPermission);
+		}
 
         this.isPubviewInherited = contentService.isInheritingPubView(id);
 		if (!this.isPubviewInherited) 
@@ -810,17 +828,17 @@ public class ListItem
 		}
 		else
 		{
-			this.copyright = copyright;
+			this.copyrightInfo = copyright;
 			
 			String newcopyright = params.getString("newcopyright" + index);
 			
 			if(newcopyright == null || newcopyright.trim().length() == 0)
 			{
-				this.newcopyright = null;
+				this.copyrightStatus = null;
 			}
 			else
 			{
-				this.newcopyright = newcopyright;
+				this.copyrightStatus = newcopyright;
 			}
 			
 			boolean copyrightAlert = params.getBoolean("copyrightAlert" + index);
@@ -1774,19 +1792,23 @@ public class ListItem
     	return useRetractDate;
     }
 
-	public String getCopyright() {
-		return copyright;
+	public String getCopyrightInfo() 
+	{
+		return copyrightInfo;
 	}
 
-	public void setCopyright(String copyright) {
-		this.copyright = copyright;
+	public void setCopyrightInfo(String copyright) 
+	{
+		this.copyrightInfo = copyright;
 	}
 
-	public boolean isCopyrightAlert() {
+	public boolean isCopyrightAlert() 
+	{
 		return copyrightAlert;
 	}
 
-	public void setCopyrightAlert(boolean copyrightAlert) {
+	public void setCopyrightAlert(boolean copyrightAlert) 
+	{
 		this.copyrightAlert = copyrightAlert;
 	}
 
@@ -1828,21 +1850,21 @@ public class ListItem
 
 	protected void setCopyrightOnEntity(ResourcePropertiesEdit props) 
 	{
-		if(copyright == null || copyright.trim().length() == 0)
+		if(copyrightInfo == null || copyrightInfo.trim().length() == 0)
 		{
 			props.removeProperty(ResourceProperties.PROP_COPYRIGHT_CHOICE);
 		}
 		else
 		{
-			props.addProperty (ResourceProperties.PROP_COPYRIGHT_CHOICE, copyright);
+			props.addProperty (ResourceProperties.PROP_COPYRIGHT_CHOICE, copyrightInfo);
 		}
-		if(newcopyright == null || newcopyright.trim().length() == 0)
+		if(copyrightStatus == null || copyrightStatus.trim().length() == 0)
 		{
 			props.removeProperty(ResourceProperties.PROP_COPYRIGHT);
 		}
 		else
 		{
-			props.addProperty (ResourceProperties.PROP_COPYRIGHT, newcopyright);
+			props.addProperty (ResourceProperties.PROP_COPYRIGHT, copyrightStatus);
 		}
 		if (copyrightAlert)
 		{
@@ -1875,6 +1897,16 @@ public class ListItem
 		setCopyrightOnEntity(props);
 		setAccessOnEntity(edit);
 		setAvailabilityOnEntity(edit);
+	}
+
+	public String getCopyrightStatus() 
+	{
+		return copyrightStatus;
+	}
+
+	public void setCopyrightStatus(String copyrightStatus) 
+	{
+		this.copyrightStatus = copyrightStatus;
 	}
 
 }
