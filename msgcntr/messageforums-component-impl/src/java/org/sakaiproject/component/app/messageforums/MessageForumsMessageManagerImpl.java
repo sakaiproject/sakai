@@ -615,7 +615,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         
         message.setModified(new Date());
         message.setModifiedBy(getCurrentUser());
-        if(message.getId() == null || message.getUuid() == null || message.getCreated() == null
+        if(message.getUuid() == null || message.getCreated() == null
         	|| message.getCreatedBy() == null || message.getModified() == null
         	|| message.getModifiedBy() == null || message.getTitle() == null 
         	|| message.getAuthor() == null || message.getHasAttachments() == null
