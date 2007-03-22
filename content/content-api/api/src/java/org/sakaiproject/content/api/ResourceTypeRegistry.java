@@ -22,6 +22,8 @@
 package org.sakaiproject.content.api;
 
 import java.util.Collection;
+import java.util.Map;
+
 import org.sakaiproject.javax.Filter;
 
 /**
@@ -88,5 +90,18 @@ public interface ResourceTypeRegistry
 	 * @param type
 	 */
 	public void register(ResourceType type);
-		
+	
+	/**
+	 * @param context
+	 * @param typeIds
+	 */
+	public void setResourceTypesForContext(String context, Map<String,Boolean> enabled);
+	
+	/**
+	 * Access a collection (possibly empty) of all resource types that have been defined and 
+	 * enabled in the context (site).
+	 * @return
+	 */
+	public Collection<ResourceType> getTypes(String context);
+	
 }

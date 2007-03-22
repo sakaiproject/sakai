@@ -43,6 +43,8 @@ public class ResourceTypeRegistryImpl implements ResourceTypeRegistry
 
 	/** Map of ResourceType objects indexed by typeId */
 	protected Map typeIndex = new HashMap();
+	
+	protected Map<String,Map<String,Boolean>> enabledTypesMap = new HashMap <String,Map<String,Boolean>>();
 
 	/**
 	 * Final initialization, once all dependencies are set.
@@ -198,5 +200,22 @@ public class ResourceTypeRegistryImpl implements ResourceTypeRegistry
 		
 		return typeId;
 	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.api.ResourceTypeRegistry#getTypes(java.lang.String)
+	 */
+	public Collection<ResourceType> getTypes(String context) 
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.api.ResourceTypeRegistry#setResourceTypesForContext(java.lang.String, java.util.Map)
+	 */
+	public void setResourceTypesForContext(String context, Map<String, Boolean> enabled) 
+	{
+		this.enabledTypesMap.put(context, enabled);
+	} 
 
 }
