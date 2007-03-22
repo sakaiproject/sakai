@@ -5843,7 +5843,12 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			}
 			if(entity == null)
 			{
-				entity = findCollection(isolateContainingId(ref.getId()));
+				String refId = ref.getId();
+				while (entity == null && refId != null )
+				{
+					refId = isolateContainingId(refId);
+					entity = findCollection(refId);
+				}
 			}
 			
 			boolean inherited = false;
