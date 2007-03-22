@@ -54,6 +54,7 @@ import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Xml;
+import org.sakaiproject.util.ResourceLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -68,6 +69,8 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 {
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(ActiveToolComponent.class);
+
+	ResourceLoader toolProps = new ResourceLoader("tools");
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies
@@ -148,8 +151,7 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 			{
 				org.sakaiproject.util.Tool tool = parseToolRegistration(rootElement);
 				register(tool, context);
-			}
-
+			}	
 			// for function
 			else if (rootElement.getTagName().equals("function"))
 			{
@@ -159,6 +161,20 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 		}
 	}
 
+	public String getLocalizedToolProperty(String toolId, String key)
+	{
+		final String toolProp = toolProps.getString(toolId + "." + key, "");
+		
+		if( toolProp.length() < 1 || toolProp.equals(""))
+		{
+			return null;
+		}
+		else
+		{
+			return toolProp;
+		}
+	}
+	
 	/**
 	 * @inheritDoc
 	 */
@@ -218,10 +234,33 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 	private org.sakaiproject.util.Tool parseToolRegistration(Element rootElement)
 	{
 		org.sakaiproject.util.Tool tool = new org.sakaiproject.util.Tool();
-
-		tool.setId(rootElement.getAttribute("id").trim());
-		tool.setTitle(rootElement.getAttribute("title").trim());
-		tool.setDescription(rootElement.getAttribute("description").trim());
+		
+		final String toolId = rootElement.getAttribute("id").trim();
+		tool.setId(toolId);
+		
+		final String toolTitle = toolProps.getString(toolId + ".title","");
+		final String toolDescription =  toolProps.getString(toolId + ".description","");
+			
+		// if the key is empty or absent, the length is 0. if so, use the string from the XML file
+		if(toolTitle.length()>0)
+		{
+			tool.setTitle(toolTitle);
+		}
+		else
+		{
+			tool.setTitle(rootElement.getAttribute("title").trim());
+		}
+		
+		// if the key is empty or absent, the length is 0. if so, use the string from the XML file
+		if(toolDescription.length()>0)
+		{
+			tool.setDescription(toolDescription);
+		}
+		else
+		{
+			tool.setDescription(rootElement.getAttribute("description").trim());
+		}
+		
 		tool.setHome(StringUtil.trimToNull(rootElement.getAttribute("home")));
 
 		if ("tool".equals(rootElement.getAttribute("accessSecurity")))

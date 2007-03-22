@@ -79,6 +79,14 @@ public interface ActiveToolManager extends ToolManager
 	 * @return The Tool object that has this id, or null if not found.
 	 */
 	ActiveTool getActiveTool(String id);
+	
+	/**
+	 * Get the localized property of a tool
+	 * @param toolId The fully qualified id of a sakai tool.
+	 * @param key The name of the property, for example title or description.
+	 * @return The tool property, null if tool id is invalid.
+	 */
+	String getLocalizedToolProperty(String toolId, String key);
 }
 
 

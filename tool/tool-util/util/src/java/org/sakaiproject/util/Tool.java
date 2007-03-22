@@ -25,6 +25,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.api.ActiveToolManager;;
 
 /**
  * <p>
@@ -33,9 +36,15 @@ import java.util.Set;
  */
 public class Tool implements org.sakaiproject.tool.api.Tool, Comparable
 {
+	/** Our log (commons). */
+	private static Log M_log = LogFactory.getLog(Tool.class);
+	
 	/** The access security. */
 	protected Tool.AccessSecurity m_accessSecurity = Tool.AccessSecurity.PORTAL;
-
+	
+	/** The tool Manager that possesses the RessourceBundle. */
+	private ActiveToolManager m_activeToolManager = org.sakaiproject.tool.cover.ActiveToolManager.getInstance();
+	
 	/** The set of categories. */
 	protected Set m_categories = new HashSet();
 
@@ -113,7 +122,16 @@ public class Tool implements org.sakaiproject.tool.api.Tool, Comparable
 	 */
 	public String getDescription()
 	{
-		return m_description;
+		final String localizedToolDescription = m_activeToolManager.getLocalizedToolProperty(this.getId(), "description");
+		
+		if(localizedToolDescription == null)
+		{
+			return m_description;
+		}
+		else
+		{
+			return localizedToolDescription;
+		}
 	}
 
 	/**
@@ -179,7 +197,16 @@ public class Tool implements org.sakaiproject.tool.api.Tool, Comparable
 	 */
 	public String getTitle()
 	{
-		return m_title;
+		final String localizedToolTitle = m_activeToolManager.getLocalizedToolProperty(this.getId(), "title");
+		
+		if(localizedToolTitle == null)
+		{
+			return m_title;
+		}
+		else
+		{
+			return localizedToolTitle;
+		}
 	}
 
 	/**
