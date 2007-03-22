@@ -104,16 +104,21 @@ private List attachmentList;
 
   public void setSection(SectionFacade section) {
     try {
-      this.section = section;
-      this.assessment = section.getAssessment();
-      this.assessmentId = assessment.getAssessmentId().toString();
-      this.assessmentTitle = assessment.getTitle();
-      this.sectionId = section.getSectionId().toString();
-      this.sectionTitle = section.getTitle();
-      this.sectionDescription = section.getDescription();
-      this.attachmentList = section.getSectionAttachmentList();
-      if (this.attachmentList != null && this.attachmentList.size() >0)
-        this.hasAttachment = true;
+      if (section == null) {
+    	  this.section = null;
+      }
+      else {
+    	  this.section = section;
+    	  this.assessment = section.getAssessment();
+    	  this.assessmentId = assessment.getAssessmentId().toString();
+    	  this.assessmentTitle = assessment.getTitle();
+    	  this.sectionId = section.getSectionId().toString();
+    	  this.sectionTitle = section.getTitle();
+    	  this.sectionDescription = section.getDescription();
+    	  this.attachmentList = section.getSectionAttachmentList();
+    	  if (this.attachmentList != null && this.attachmentList.size() >0)
+    		  this.hasAttachment = true;
+      }
     }
     catch (Exception ex) {
       log.warn("Unable to set section. Exception thrown from setSection(): " + ex.getMessage());
