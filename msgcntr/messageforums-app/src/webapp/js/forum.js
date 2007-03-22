@@ -195,7 +195,7 @@ function mySetMainFrameHeight(id)
 
 		// here we fudge to get a little bigger
 		//gsilver: changing this from 50 to 10, and adding extra bottom padding to the portletBody		
-		var newHeight = height + 50;
+		var newHeight = height + 150;
 		//contributed patch from hedrick@rutgers.edu (for very long documents)
 		if (newHeight > 32760)
 		newHeight = 32760;
