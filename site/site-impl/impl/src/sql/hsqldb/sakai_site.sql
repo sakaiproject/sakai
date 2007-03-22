@@ -206,6 +206,12 @@ INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-700', '~admin', 'Memory', '0', 10, '0
 INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-710', '~admin-700', '~admin', 'sakai.memory', 1, 'Memory', NULL );
 INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-900', '~admin', 'Site Archive', '0', 11, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-910', '~admin-900', '~admin', 'sakai.archive', 1, 'Site Archive / Import', NULL );
+INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-1000', '~admin', 'Job Scheduler', '0', 12, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-1010', '~admin-1000', '~admin', 'sakai.scheduler', 1, 'Job Scheduler', NULL );
+INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-1100', '~admin', 'Become User', '0', 13, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-1110', '~admin-1100', '~admin', 'sakai.su', 1, 'Become User', NULL );
+INSERT INTO SAKAI_SITE_PAGE VALUES('~admin-1200', '~admin', 'User Membership', '0', 14, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('~admin-1210', '~admin-1200', '~admin', 'sakai.usermembership', 1, 'User Membership', NULL );
 
 INSERT INTO SAKAI_SITE VALUES('!admin', 'Administration Workspace', null, null, 'Administration Workspace', null, null, null, 1, 0, 0, '', null, null, null, null, 0, 0, 0);
 INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-100', '!admin', 'Home', '0', 1, '0' );
@@ -233,6 +239,12 @@ INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-700', '!admin', 'Memory', '0', 10, '0
 INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-710', '!admin-700', '!admin', 'sakai.memory', 1, 'Memory', NULL );
 INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-900', '!admin', 'Site Archive', '0', 11, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-910', '!admin-900', '!admin', 'sakai.archive', 1, 'Site Archive / Import', NULL );
+INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1000', '!admin', 'Job Scheduler', '0', 12, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1010', '!admin-1000', '!admin', 'sakai.scheduler', 1, 'Job Scheduler', NULL );
+INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1100', '!admin', 'Become User', '0', 13, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1110', '!admin-1100', '!admin', 'sakai.su', 1, 'Become User', NULL );
+INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1200', '!admin', 'User Membership', '0', 14, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1210', '!admin-1200', '!admin', 'sakai.usermembership', 1, 'User Membership', NULL );
 INSERT INTO SAKAI_SITE_USER VALUES('!admin', 'admin', -1);
 
 -- Create the !error site to be displayed when there is a problem accessing a site.
