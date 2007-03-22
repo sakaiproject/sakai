@@ -180,14 +180,9 @@ public class AudioConfigHelp
   {
     about = res.getString("ABOUT_SAKAI_AUDIO") +
     res.getString("Portions_copyright_c") +
-    res.getString("The_Regents_of_the") +
-    res.getString("Trustees_of_Indiana") +
-    res.getString("Board_of_Trustees_of") +
-    res.getString("and_The_MIT") +
     res.getString("Licensed_under_the") +
-    res.getString("http_cvs_sakaiproject") +
-    res.getString("Portions_Copyright_c") +
-    res.getString("_non_exclusive");
+    res.getString("http_opensource") +
+    res.getString("Portions_Copyright_c");
 
     new Thread(new Runnable()
    {
