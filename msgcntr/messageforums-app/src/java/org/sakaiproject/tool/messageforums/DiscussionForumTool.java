@@ -5467,10 +5467,11 @@ public class DiscussionForumTool
 	public List getMessages() {
 		List messages = new ArrayList();
 		
-		if(displayUnreadOnly) 
-			messages = selectedTopic.getUnreadMessages();	
-		else
-			messages = selectedTopic.getMessages();
+		//if(displayUnreadOnly) 
+		//	messages = selectedTopic.getUnreadMessages();	
+		//else
+		
+		messages = selectedTopic.getMessages();
 		
 		if (messages != null && !messages.isEmpty())
 			messages = filterModeratedMessages(messages, selectedTopic.getTopic(), selectedForum.getForum());
