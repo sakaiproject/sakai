@@ -71,6 +71,22 @@
 				<h:outputText   value="#{ForumTool.selectedTopic.topic.shortDescription}" rendered="#{ForumTool.selectedTopic.topic.shortDescription} != ''}" />
 			<h:outputText escape="false" value="</p>" rendered="#{ForumTool.selectedTopic.topic.shortDescription} != ''}" />
 				<p class="textPanelFooter specialLink">
+		
+						<%--gsilver: would be good if the returned url from this would include a named internal anchor as the target so that the expando/collapso would go to the top of the viewport and avoid having to scroll and find --%>
+					  <h:outputLink id="forum_extended_show" value="#" title="#{msgs.cdfm_read_full_description}" styleClass="show" 
+					  		onclick="resize();$(this).next('.hide').toggle(); $('div.toggle', $(this).parents(2)).slideToggle();$(this).toggle();">
+					  		<h:outputText value="#{msgs.cdfm_read_full_description}" />
+					  </h:outputLink>
+					  
+					  <h:outputLink id="forum_extended_hide" value="#" title="#{msgs.cdfm_hide_full_description}" style="display:none" styleClass="hide" 
+					  		onclick="resize();$(this).prev('.show').toggle(); $('div.toggle', $(this).parents(2)).slideToggle();$(this).toggle();">
+					  		<h:outputText value="#{msgs.cdfm_hide_full_description}" />
+					  </h:outputLink>
+		
+				    
+				</p>
+<%--
+				<p class="textPanelFooter specialLink">
 					<h:commandLink immediate="true" action="#{ForumTool.processActionToggleDisplayExtendedDescription}" rendered="#{ForumTool.selectedTopic.hasExtendedDesciption}"
 						id="topic_extended_show" value="#{msgs.cdfm_read_full_description}" title="#{msgs.cdfm_read_full_description}">
 						<f:param value="#{topic.topic.id}" name="topicId"/>
@@ -82,8 +98,11 @@
 						<f:param value="processActionDisplayTopic" name="redirectToProcessAction"/>
 					</h:commandLink>
 				</p>	
+				--%>
 				<br />
-	<mf:htmlShowArea  id="forum_fullDescription" hideBorder="false"	 value="#{ForumTool.selectedTopic.topic.extendedDescription}" rendered="#{ForumTool.selectedTopic.readFullDesciption}"/> 
+				<f:verbatim><div class="toggle" style="display:none"></f:verbatim>
+					<mf:htmlShowArea  id="forum_fullDescription" hideBorder="false"	 value="#{ForumTool.selectedTopic.topic.extendedDescription}"/> 
+			    <f:verbatim></div></f:verbatim>
 				<%--<%@include file="dfViewSearchBar.jsp"%> --%>
      <%-- gsilver:need a rendered attribute here that will toggle the display of the table (if messages) or a textblock (class="instruction") if there are no messages--%> 				
    		

@@ -9,6 +9,8 @@
   <sakai:view>
 
     <h:form id="msgForum">
+    	<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
+		<sakai:script contextBase="/library" path="/js/jquery-1.1.2.js" />
 <!--jsp/discussionForum/forum/dfForumDetail.jsp-->
       <h:panelGrid columns="2" summary="layout" width="100%" styleClass="navPanel  specialLink">
         <h:panelGroup>
@@ -40,22 +42,30 @@
 		  <h:outputText value="#{ForumTool.selectedForum.forum.shortDescription}" />
 		  </p>
 		  <p class="textPanelFooter specialLink">
-			<h:commandLink immediate="true" action="#{ForumTool.processActionToggleDisplayForumExtendedDescription}" rendered="#{ForumTool.selectedForum.hasExtendedDesciption}"
-				 	id="forum_extended_show" value="#{msgs.cdfm_read_full_description}" title="#{msgs.cdfm_read_full_description}">
-				<f:param value="#{forum.forum.id}" name="forumId"/>
-			  <f:param value="processActionDisplayForum" name="redirectToProcessAction"/>
-			</h:commandLink>
-			<h:commandLink immediate="true" action="#{ForumTool.processActionToggleDisplayForumExtendedDescription}" id="forum_extended_hide"
-						 value="#{msgs.cdfm_hide_full_description}" rendered="#{ForumTool.selectedForum.readFullDesciption}" title="#{msgs.cdfm_hide_full_description}">
-				<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
-				<f:param value="processActionDisplayForum" name="redirectToProcessAction"/>
-			</h:commandLink>
-			</p>
-				<%-- gsilver: show the text, not the editor - don't know how in this case--%>
 
-				<mf:htmlShowArea value="#{ForumTool.selectedForum.forum.extendedDescription}" 
-		                     rendered="#{ForumTool.selectedForum.readFullDesciption}" 
-		                     hideBorder="false" />
+				<%--gsilver: would be good if the returned url from this would include a named internal anchor as the target so that the expando/collapso would go to the top of the viewport and avoid having to scroll and find --%>
+			  <h:outputLink id="forum_extended_show" value="#" title="#{msgs.cdfm_read_full_description}" styleClass="show" 
+			  		onclick="resize();$(this).next('.hide').toggle(); $('div.toggle', $(this).parents('div.hierItemBlock')).slideToggle();$(this).toggle();">
+			  		<h:outputText value="#{msgs.cdfm_read_full_description}" />
+			  </h:outputLink>
+			  
+			  <h:outputLink id="forum_extended_hide" value="#" title="#{msgs.cdfm_hide_full_description}" style="display:none" styleClass="hide" 
+			  		onclick="resize();$(this).prev('.show').toggle(); $('div.toggle', $(this).parents('div.hierItemBlock')).slideToggle();$(this).toggle();">
+			  		<h:outputText value="#{msgs.cdfm_hide_full_description}" />
+			  </h:outputLink>
+
+		    
+		</p>
+
+			 	<f:verbatim><div class="toggle" style="display:none"></f:verbatim>
+				<mf:htmlShowArea value="#{ForumTool.selectedForum.forum.extendedDescription}"  
+		                     hideBorder="true" />
+
+				<f:verbatim></div></f:verbatim>
+		  
+		  
+
+
 		<f:verbatim></div></f:verbatim>
 		<h:dataTable id="topics" styleClass="topicBloc" value="#{ForumTool.selectedForum.topics}" var="topic" width="100%"  cellspacing="0" cellpadding="0">
 			<h:column rendered="#{! topic.nonePermission}">
@@ -84,20 +94,57 @@
 			<f:verbatim><div class="textPanel"></f:verbatim>  
 			<h:panelGroup><h:outputText id="topic_desc" value="#{topic.topic.shortDescription}" /></h:panelGroup>
 			<f:verbatim></div></f:verbatim>
+			<f:verbatim><div class="textPanel"></f:verbatim>
+			<h:panelGroup styleClass="textPanelFooter specialLink">
+			    	<h:outputLink id="forum_extended_show" value="#" title="#{msgs.cdfm_read_full_description}" styleClass="show" 
+				  		onclick="resize();$(this).next('.hide').toggle(); $('div.toggle', $(this).parents('div.textPanel')).slideToggle();$(this).toggle();">
+				  		<h:outputText value="#{msgs.cdfm_read_full_description}" />
+				    </h:outputLink>  
+				  
+				    <h:outputLink id="forum_extended_hide" value="#" title="#{msgs.cdfm_hide_full_description}" style="display:none" styleClass="hide" 
+				  		onclick="resize();$(this).prev('.show').toggle(); $('div.toggle', $(this).parents('div.textPanel')).slideToggle();$(this).toggle();">
+				  		<h:outputText value="#{msgs.cdfm_hide_full_description}" />
+				    </h:outputLink>
+
+				 </h:panelGroup>
+				<%--	gsilver: show the text, not the editor... --%>
+				<h:panelGroup styleClass="textPanel">
+					<f:verbatim><div class="toggle" style="display:none"></f:verbatim>
+					<mf:htmlShowArea  id="topic_fullDescription" hideBorder="true"	 value="#{topic.topic.extendedDescription}" />
+		 			<%--  <sakai:inputRichText rows="5" cols="110" buttonSet="none"  readonly="true" showXPath="false" id="topic_extended_description" value="#{topic.topic.extendedDescription}" rendered="#{topic.readFullDesciption}"/> --%>
+					<f:verbatim></div></f:verbatim>
+				</h:panelGroup>
+				
+				
+			<f:verbatim></div></f:verbatim>
+			
 			<%-- gsilver:need a rendered attribute on this next block - or is this just a forgotten bit of cruft? a placeholder to display responses in context?--%>
+			<%-- %>
 			<h:dataTable id="messages" value="#{topics.messages}" var="message">
 			<h:column>
 				<h:outputText id="message_title" value="#{message.message.title}"/>
 				<f:verbatim><br /></f:verbatim>
 				<h:outputText id="message_desc" value="#{message.message.shortDescription}" />
 			</h:column>
-		</h:dataTable>
+			</h:dataTable>
+			--%>
 				<f:verbatim></div></f:verbatim>
 				</h:column>
 		</h:dataTable>
 		<f:verbatim></div></f:verbatim>
 		<h:inputHidden id="mainOrForumOrTopic" value="dfForumDetail" />
-		
+		<%
+  String thisId = request.getParameter("panel");
+  if (thisId == null) 
+  {
+    thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
+  }
+%>
+			<script type="text/javascript">
+			function resize(){
+  				mySetMainFrameHeight('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
+  			}
+			</script> 
 	 </h:form>
     </sakai:view>
 </f:view>

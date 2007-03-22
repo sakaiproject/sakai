@@ -9,7 +9,8 @@
 
 <f:view>
   <sakai:view title="#{msgs.cdfm_discussion_forums}">
-
+		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
+		<sakai:script contextBase="/library" path="/js/jquery-1.1.2.js" />
 	<h:form id="msgForum">
 	
 		<h:panelGroup rendered="#{PrivateMessagesTool.instructor}">
@@ -58,31 +59,34 @@
 
 <%-- the forum details --%>
 	  
- 	  <h:panelGrid columns="1" cellpadding="0" cellspacing="0" summary="layout">  
-  	    	<h:panelGroup styleClass="textPanel">
-			  <h:outputText id="forum_desc" value="#{forum.forum.shortDescription}" />
-  	    </h:panelGroup>
-  	    
-  	    	<h:panelGroup  styleClass="textPanelFooter specialLink">
+      	<f:verbatim><div></f:verbatim>
+		  <f:verbatim><p class="textPanel"></f:verbatim>
+		  <h:outputText value="#{forum.forum.shortDescription}" />
+		  <f:verbatim></p></f:verbatim>
+		  <f:verbatim><p class="textPanelFooter specialLink"></f:verbatim>
+
 				<%--gsilver: would be good if the returned url from this would include a named internal anchor as the target so that the expando/collapso would go to the top of the viewport and avoid having to scroll and find --%>
-			  <h:commandLink immediate="true" action="#{ForumTool.processActionToggleDisplayForumExtendedDescription}" rendered="#{forum.hasExtendedDesciption}"
-				               id="forum_extended_show" value="#{msgs.cdfm_read_full_description}" title="#{msgs.cdfm_read_full_description}">
-				  <f:param value="#{forum.forum.id}" name="forumId_displayExtended"/>
-				  <f:param value="displayHome" name="redirectToProcessAction"/>
-		    </h:commandLink>
-		    <h:commandLink immediate="true" action="#{ForumTool.processActionToggleDisplayForumExtendedDescription}" id="forum_extended_hide"
-				               value="#{msgs.cdfm_hide_full_description}" rendered="#{forum.readFullDesciption}" title="#{msgs.cdfm_hide_full_description}">
-				  <f:param value="#{forum.forum.id}" name="forumId_hideExtended"/>
-				  <f:param value="displayHome" name="redirectToProcessAction"/>
-		    </h:commandLink>
-			 </h:panelGroup>
-			 <h:panelGroup styleClass="textPanel">
-			<%--	gsilver: show the text, not the editor... --%>
-			<%--	gsilver: h:panelGroup renders  a span for a reason known only to the jsf gods. spans cannot contain block level elements according to the xhtml dtd - and also rendering is whacked when this happens in some browsers - users can create any number of block level elements with the editor du jour, so....--%>
-			<mf:htmlShowArea  id="forum_fullDescription" hideBorder="true"	 value="#{forum.forum.extendedDescription}" rendered="#{forum.readFullDesciption}"/>
-<%--	 	    <sakai:inputRichText rows="5" cols="110" buttonSet="none" readonly="true" showXPath="false" id="forum_extended_description" value="#{forum.forum.extendedDescription}" rendered="#{forum.readFullDesciption}"/> --%>
-  	    </h:panelGroup>
-  	  </h:panelGrid>
+			  <h:outputLink id="forum_extended_show" value="#" title="#{msgs.cdfm_read_full_description}" styleClass="show" 
+			  		onclick="resize();$(this).next('.hide').toggle(); $('div.toggle', $(this).parents('div')).slideToggle();$(this).toggle();">
+			  		<h:outputText value="#{msgs.cdfm_read_full_description}" />
+			  </h:outputLink>
+			  
+			  <h:outputLink id="forum_extended_hide" value="#" title="#{msgs.cdfm_hide_full_description}" style="display:none" styleClass="hide" 
+			  		onclick="resize();$(this).prev('.show').toggle(); $('div.toggle', $(this).parents('div')).slideToggle();$(this).toggle();">
+			  		<h:outputText value="#{msgs.cdfm_hide_full_description}" />
+			  </h:outputLink>
+
+		    
+		<f:verbatim></p></f:verbatim>
+
+			 	<f:verbatim><div class="toggle" style="display:none"></f:verbatim>
+				<mf:htmlShowArea value="#{forum.forum.extendedDescription}"  
+		                     hideBorder="true" />
+
+				<f:verbatim></div></f:verbatim>
+		  
+		<f:verbatim></div></f:verbatim>
+		
 	  <h:dataTable  value="#{forum.attachList}" var="eachAttach" rendered="#{!empty forum.attachList}" columnClasses="attach,bogus" styleClass="listHier" summary="layout">
 			<h:column>
 				<h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-excel'}" alt="" />
@@ -144,19 +148,23 @@
     	          <h:outputText id="topic_desc" value="#{topic.topic.shortDescription}" />
     	        </h:panelGroup>
 			    <h:panelGroup styleClass="textPanelFooter specialLink">
-				    <h:commandLink immediate="true" action="#{ForumTool.processActionToggleDisplayExtendedDescription}" rendered="#{topic.hasExtendedDesciption}" id="topic_extended_show" value="#{msgs.cdfm_read_full_description}" title="#{msgs.cdfm_read_full_description}">
-						 <f:param value="#{topic.topic.id}" name="topicId_displayExtended"/>
-						 <f:param value="displayHome" name="redirectToProcessAction"/>
-					</h:commandLink>
-					<h:commandLink  immediate="true" action="#{ForumTool.processActionToggleDisplayExtendedDescription}" id="topic_extended_hide" value="#{msgs.cdfm_hide_full_description}" rendered="#{topic.readFullDesciption}" title="#{msgs.cdfm_hide_full_description}">
-						<f:param value="#{topic.topic.id}" name="topicId_hideExtended"/>
-						<f:param value="displayHome" name="redirectToProcessAction"/>
-					</h:commandLink>
+			    	<h:outputLink id="forum_extended_show" value="#" title="#{msgs.cdfm_read_full_description}" styleClass="show" 
+				  		onclick="resize();$(this).next('.hide').toggle(); $('td div.toggle', $(this).parents('tr:first').next('tr')).slideToggle();$(this).toggle();">
+				  		<h:outputText value="#{msgs.cdfm_read_full_description}" />
+				    </h:outputLink>  
+				  
+				    <h:outputLink id="forum_extended_hide" value="#" title="#{msgs.cdfm_hide_full_description}" style="display:none" styleClass="hide" 
+				  		onclick="resize();$(this).prev('.show').toggle(); $('td div.toggle', $(this).parents('tr:first').next('tr')).slideToggle();$(this).toggle();">
+				  		<h:outputText value="#{msgs.cdfm_hide_full_description}" />
+				    </h:outputLink>
+
 				 </h:panelGroup>
 				<%--	gsilver: show the text, not the editor... --%>
 				<h:panelGroup styleClass="textPanel">
-					<mf:htmlShowArea  id="topic_fullDescription" hideBorder="true"	 value="#{topic.topic.extendedDescription}" rendered="#{topic.readFullDesciption}"/>
+					<f:verbatim><div class="toggle" style="display:none"></f:verbatim>
+					<mf:htmlShowArea  id="topic_fullDescription" hideBorder="true"	 value="#{topic.topic.extendedDescription}" />
 		 			<%--  <sakai:inputRichText rows="5" cols="110" buttonSet="none"  readonly="true" showXPath="false" id="topic_extended_description" value="#{topic.topic.extendedDescription}" rendered="#{topic.readFullDesciption}"/> --%>
+					<f:verbatim></div></f:verbatim>
 				</h:panelGroup>
 				<h:dataTable styleClass="listHier" value="#{topic.attachList}" var="eachAttach" rendered="#{!empty topic.attachList}" cellpadding="0" cellspacing="0" columnClasses="attach,bogus" summary="layout">
 					  <h:column>
@@ -195,7 +203,18 @@
 	<f:verbatim></div><!--end single topic here --></f:verbatim>
 	  </h:column>
   </h:dataTable>
- 
+ 		<%
+  String thisId = request.getParameter("panel");
+  if (thisId == null) 
+  {
+    thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
+  }
+%>
+			<script type="text/javascript">
+			function resize(){
+  				mySetMainFrameHeight('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
+  			}
+			</script> 
  		</h:form>
  	</sakai:view>
  </f:view>
