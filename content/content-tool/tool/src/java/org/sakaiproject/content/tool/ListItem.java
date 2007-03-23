@@ -282,9 +282,11 @@ public class ListItem
 	protected String copyrightStatus;
 	protected boolean copyrightAlert;
 
-	private ListItem parent;
+	protected ListItem parent;
 
-	private String containingCollectionId;
+	protected String containingCollectionId;
+
+	protected String displayName;
 	
 	/**
 	 * @param entity
@@ -855,10 +857,34 @@ public class ListItem
 
 	public void captureProperties(ParameterParser params, String index) 
 	{
+		captureDisplayName(params, index);
 		captureDescription(params, index);
 		captureCopyright(params, index);
 		captureAccess(params, index);
 		captureAvailability(params, index);
+	}
+
+	protected void captureDisplayName(ParameterParser params, String index) 
+	{
+		String displayName = params.getString("displayName" + index);
+		if(displayName == null)
+		{
+			String[] delimiters = {"/", "\\", ":"};
+			
+			for(int i = 0; i < delimiters.length; i++)
+			{
+				if(displayName.lastIndexOf(delimiters[i]) >= 0)
+				{
+					displayName = displayName.substring(displayName.lastIndexOf(delimiters[i]) + 1);
+				}
+			}
+		}
+		this.setDisplayName(displayName);
+	}
+
+	public void setDisplayName(String displayName) 
+	{
+		this.displayName = displayName;
 	}
 
 	/**
@@ -1893,10 +1919,19 @@ public class ListItem
 	public void updateContentResourceEdit(ContentResourceEdit edit) 
 	{
 		ResourcePropertiesEdit props = edit.getPropertiesEdit();
+		setDisplayNameOnEntity(props);
 		setDescriptionOnEntity(props);
 		setCopyrightOnEntity(props);
 		setAccessOnEntity(edit);
 		setAvailabilityOnEntity(edit);
+	}
+
+	protected void setDisplayNameOnEntity(ResourcePropertiesEdit props) 
+	{
+		if(this.displayName != null)
+		{
+			props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, this.displayName);
+		}
 	}
 
 	public String getCopyrightStatus() 
@@ -1907,6 +1942,11 @@ public class ListItem
 	public void setCopyrightStatus(String copyrightStatus) 
 	{
 		this.copyrightStatus = copyrightStatus;
+	}
+
+	public String getDisplayName() 
+	{
+		return displayName;
 	}
 
 }
