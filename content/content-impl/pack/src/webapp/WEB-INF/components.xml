@@ -98,10 +98,12 @@
 	</bean>
 	
 	<bean id="org.sakaiproject.content.api.ResourceTypeRegistry"
-			class="org.sakaiproject.content.impl.ResourceTypeRegistryImpl"
+			class="org.sakaiproject.content.impl.DbResourceTypeRegistry"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
+		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+ 		<property name="autoDdl"><value>${auto.ddl}</value></property>
 	</bean>
 
 </beans>

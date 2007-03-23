@@ -238,7 +238,7 @@ public class ResourceTypeRegistryImpl implements ResourceTypeRegistry
 	 */
 	public void setMapOfResourceTypesForContext(String context, Map<String, Boolean> enabled) 
 	{
-		this.enabledTypesMap.put(context, enabled);
+		this.enabledTypesMap.put(context, new HashMap(enabled));
 	}
 
 	/* (non-Javadoc)
