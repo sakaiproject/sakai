@@ -163,6 +163,8 @@ public class AudioPanel
         help.configHelp();
       }
     });
+
+    /* comment out - SAK-8436
     JMenuItem about = (JMenuItem) options.add(new JMenuItem(res.getString("About")));
     about.addActionListener(new ActionListener()
     {
@@ -171,6 +173,7 @@ public class AudioPanel
         AudioConfigHelp.infoHelp();
       }
     });
+    */
   }
 
   /**
