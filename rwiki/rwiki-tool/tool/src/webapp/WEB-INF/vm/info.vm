@@ -10,7 +10,7 @@
 #set( $rlb = ${requestScope.ResourceLoaderBean} )
 #set( $errorBean = ${requestScope.errorBean} )
 #set( $title = "${rlb.jsp_info}: ${util.escapeHtml($realmBean.localName)}" )
-#header(${title} ${viewBean} )  
+#header(${title} ${viewBean}  )  
 
 #helppopup( "permissionshelp" ${rlb.jsp_page_permissions} ${rlb.jsp_page_permissions_help} )   		
 #helppopup( "createhelp" ${rlb.jsp_create_site_permissions} ${rlb.jsp_create_site_permissions_help} )
@@ -413,8 +413,11 @@
 		     <td colspan="6">
 			      <ul id="feedsLinks">
 			       <li>
-			        <a href="${util.escapeHtml(${realmBean.publicViewUrl})}" target="publicview" >${rlb.jsp_printer_friendly}</a>
+			        <a href="${util.escapeHtml(${realmBean.printViewUrl})}" target="printview" >${rlb.jsp_printer_friendly}</a>
 			       </li>
+##			       <li>
+##			        <a href="${util.escapeHtml(${realmBean.publicViewUrl})}" target="publicview" >${rlb.jsp_public}</a>
+##			       </li>
 			       #set( $feedsLinks = ${referencesBean.feedsLinks} )
 			       #if ($feedsLinks && $feedsLinks.size() > 0)
 			        #foreach( $item in ${feedsLinks})
