@@ -41,7 +41,7 @@ public class ScheduledInvocationManagerImpl implements ScheduledInvocationManage
 		String uuid = m_idManager.createUuid();
 
 		LOG.debug("Creating new Delayed Invocation: " + uuid);
-		String sql = "INSERT INTO SCHEDULER_DELAYED_INVOCATION SET INVOCATION_ID = ?, INVOCATION_TIME = ?, COMPONENT = ?, CONTEXT = ?";
+		String sql = "INSERT INTO SCHEDULER_DELAYED_INVOCATION VALUES(?,?,?,?)";
 
 		Object[] fields = new Object[4];
 
