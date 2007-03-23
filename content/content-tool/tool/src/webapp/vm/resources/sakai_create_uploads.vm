@@ -44,7 +44,10 @@
 					<input type="hidden" id="next${DOT}$i" name="next${DOT}$i" value="#if($i < $pipes.size())${next}#end" />
 				</div>
 				<div id="propertiesDiv${DOT}$i" style="display:none;">
-					## displayName
+					<p class="shorttext"> 
+						<label for="displayName${DOT}$i">$tlang.getString("label.display")</label> 
+						<input type="text" id="displayName${DOT}$i" name="displayName${DOT}$i" /> 
+					</p>
 					#parse("/vm/resources/sakai_properties.vm")
 					<hr class="itemSeparator" />
 				</div>
@@ -372,6 +375,62 @@
 		
 		return newElement
 	}
+	function seedDisplayNameValue(evt)
+	{
+		evt = (evt) ? evt : ((event) ? event : null);
+		if(evt)
+		{
+			evt.cancelBubble = true;
+			var element = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null)
+			if(element)
+			{
+				//element = (element.nodeType == 1 || element.nodeType == 9) ? element : element.parentNode;
+				element = (element.id && element.id.lastIndexOf(DOT) >= 0) ? element : element.parentNode;
+				
+				var dot = element.id.lastIndexOf(DOT);
+				var index = element.id.substr(dot + 1);
+				var src_node = document.getElementById("content$DOT" + index);
+				var target_node = document.getElementById("displayName$DOT" + index);
+				if(src_node && target_node)
+				{
+					var trim = false;
+					if(src_node.type == "file")
+					{
+						trim = true;
+					}
+					seedValue(src_node,target_node,trim);
+				}
+			}
+		}
+	}
+	function seedValue(src_element, target_element, trim)
+	{
+		if(target_element && src_element && src_element.value)
+		{
+			var nonWhitespaceChar = /\S/;
+			if(target_element.value.search(nonWhitespaceChar))
+			{
+				var displayName = src_element.value;
+				if(trim)
+				{
+					var delimiters = new Array('/', '\\', ':');
+					
+					for(var i = 0; i < delimiters.length; i++)
+					{
+						var delimiter = delimiters[i];
+						if(displayName.lastIndexOf(delimiter) > -1)
+						{
+							displayName = displayName.substring(displayName.lastIndexOf(delimiter) + 1);
+						}
+					}
+				}
+				target_element.value = displayName;
+			}
+			target_element.focus();
+			target_element.select();
+		}
+	}
+		
 	function attachEventHandlers()
 	{
 		for(var i = 0; i < document.links.length; i++)
@@ -400,6 +459,22 @@
 					{
 						link.addEventListener("click", handleRemoveFileItem, true);
 					}
+				}
+			}
+		}
+		var inputTags = document.getElementsByTagName("input");
+		for(var i = 0; i < inputTags.length; i++)
+		{
+			var tag = inputTags[i];
+			if(tag.id && tag.id.match(/^content${DOT}\d+$/))
+			{
+				if(tag.attachEvent)
+				{
+					tag.attachEvent("onchange", seedDisplayNameValue);
+				}
+				else if(tag.addEventListener)
+				{
+					tag.addEventListener("change", seedDisplayNameValue, true);
 				}
 			}
 		}
