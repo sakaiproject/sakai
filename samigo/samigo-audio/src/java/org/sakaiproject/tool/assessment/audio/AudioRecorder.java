@@ -221,7 +221,6 @@ public class AudioRecorder extends JPanel implements ActionListener,
 	}
 
 	private JPanel makeSaveTFPanel() {
-		System.out.println("***language"+res.getLocale().getLanguage());
 		GridLayout grid = new GridLayout(2, 2);
 		JPanel saveTFpanel = new JPanel(grid);
 		JLabel flabel = new JLabel(res.getString("current_recordig_length"),

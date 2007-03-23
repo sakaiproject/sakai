@@ -101,7 +101,6 @@ public class AudioRecorderParams implements Serializable
   public AudioRecorderParams()
   {
     // keep all defaults
-		System.out.println("**** AudioRecorderParams()");
  }
 
   /**
@@ -114,7 +113,6 @@ public class AudioRecorderParams implements Serializable
   public AudioRecorderParams(Applet applet)
   {
     // set values from applet parameters
-	System.out.println("**** AudioRecorderParams(applet)");
     String s = applet.getParameter("enablePlay");
     if ("true".equalsIgnoreCase(s))
     {
