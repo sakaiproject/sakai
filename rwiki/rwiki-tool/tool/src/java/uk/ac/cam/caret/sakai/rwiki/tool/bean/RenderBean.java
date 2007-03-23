@@ -181,7 +181,16 @@ public class RenderBean
 	{
 		return toolRenderService.renderPublicPage(rwo, withBreadcrumbs);
 	}
-
+	/**
+	 * Render the current RWikiObject with print links
+	 * 
+	 * @return XMTML as a String representing the content of the current
+	 *         RWikiObject
+	 */
+	public String getPrintRenderedPage()
+	{
+		return toolRenderService.renderPrintPage(rwo, withBreadcrumbs);
+	}
 	/**
 	 * Render the current RWikiObject
 	 * 
@@ -202,6 +211,16 @@ public class RenderBean
 	public String publicRenderedPage()
 	{
 		return toolRenderService.renderPublicPage(rwo, withBreadcrumbs);
+	}
+	/**
+	 * Render the current RWikiObject with print links
+	 * 
+	 * @return XMTML as a String representing the content of the current
+	 *         RWikiObject
+	 */
+	public String printRenderedPage()
+	{
+		return toolRenderService.renderPrintPage(rwo, withBreadcrumbs);
 	}
 
 	/**
@@ -269,7 +288,40 @@ public class RenderBean
 		}
 
 	}
+	/**
+	 * Render the rwikiObject as a print page represented by the given name and
+	 * realm
+	 * 
+	 * @param name
+	 *        a possible non-globalised name
+	 * @param defaultRealm
+	 *        the default space of that should be globalised against
+	 * @return XHTML as a String representing the content of the RWikiObject
+	 */
+	public String printRenderPage(String name, String defaultRealm,
+			boolean withBreadcrumbs)
+	{
+		String pageName = NameHelper.globaliseName(name, defaultRealm);
+		String pageSpace = NameHelper.localizeSpace(pageName, defaultRealm);
 
+		try
+		{
+			RWikiObject page = objectService
+					.getRWikiObject(pageName, pageSpace);
+			return toolRenderService.renderPrintPage(page, defaultRealm,
+					withBreadcrumbs);
+		}
+		catch (PermissionException e)
+		{
+			RWikiObject page = objectService.createNewRWikiCurrentObject();
+			page.setName(pageName);
+			ResourceLoaderBean rlb = ResourceLoaderHelperBean.getResourceLoaderBean();
+			page.setContent(rlb.getString("renderbean.permission_problem",PERMISSION_PROBLEM));
+			return toolRenderService.renderPrintPage(page, defaultRealm,
+					withBreadcrumbs);
+		}
+
+	}
 	/**
 	 * The current RWikiObject
 	 * 

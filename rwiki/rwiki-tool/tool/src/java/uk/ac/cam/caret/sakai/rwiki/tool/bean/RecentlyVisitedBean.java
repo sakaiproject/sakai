@@ -68,9 +68,14 @@ public class RecentlyVisitedBean
 
 	private interface Visit
 	{
-		public String getLink();
+		 String getLink();
 
-		public String getPublicLink();
+		/**
+		 * @return
+		 */
+		String getPrintLink();
+
+		 String getPublicLink();
 	}
 
 	private class PageVisit implements Visit
@@ -116,6 +121,16 @@ public class RecentlyVisitedBean
 			viewBean.setPageName(page);
 			return "<a href=\""
 					+ XmlEscaper.xmlEscape(viewBean.getPublicViewUrl(true))
+					+ "\">"
+					+ XmlEscaper.xmlEscape(NameHelper.localizeName(viewBean
+							.getPageName(), defaultSpace)) + "</a>";
+		}
+		public String getPrintLink()
+		{
+			viewBean.setLocalSpace(realm);
+			viewBean.setPageName(page);
+			return "<a href=\""
+					+ XmlEscaper.xmlEscape(viewBean.getPrintViewUrl(true))
 					+ "\">"
 					+ XmlEscaper.xmlEscape(NameHelper.localizeName(viewBean
 							.getPageName(), defaultSpace)) + "</a>";
@@ -180,6 +195,11 @@ public class RecentlyVisitedBean
 		}
 
 		public String getPublicLink()
+		{
+			return "";
+		}
+
+		public String getPrintLink()
 		{
 			return "";
 		}
@@ -317,6 +337,21 @@ public class RecentlyVisitedBean
 			if (publicLink.length() > 0)
 			{
 				links.add(publicLink);
+			}
+		}
+		return new ArrayList(links);
+	}
+	public List getPrintBreadcrumbLinks()
+	{
+		List links = new ArrayList(uniqueRecentlyVisited.size() + 1);
+
+		for (Iterator it = uniqueRecentlyVisited.iterator(); it.hasNext();)
+		{
+			Visit v = (Visit) it.next();
+			String printLink = v.getPrintLink();
+			if (printLink.length() > 0)
+			{
+				links.add(printLink);
 			}
 		}
 		return new ArrayList(links);
