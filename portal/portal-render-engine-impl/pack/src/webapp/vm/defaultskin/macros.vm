@@ -387,18 +387,23 @@
 		<div id="toolMenu">
 			<ul>
 #foreach( $page in $pageNavTools )
-#if (${page.current})
-				<li class="selectedTool"><a class="selected" href="#">
-#else
-#if (${page.ispopup})
-				<li><a href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
-#else
-				<li><a href="${page.pageRefUrl}" >
-#end
-#end
-						<span>${page.pageTitle}</span>
-					</a>
+  #if (${page.current})
+				<li class="selectedTool">
+				<span>${page.pageTitle}</span>
 				</li>
+  #else
+   #if (${page.ispopup})
+				<li>
+				<a href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
+				<span>${page.pageTitle}</span>
+				</a>
+				</li>
+   #else
+			<li>
+			<a href="${page.pageRefUrl}" ><span>${page.pageTitle}</span></a>
+			</li>
+   #end
+  #end
 #end
 #if (${pageNavShowHelp})
 				<li>

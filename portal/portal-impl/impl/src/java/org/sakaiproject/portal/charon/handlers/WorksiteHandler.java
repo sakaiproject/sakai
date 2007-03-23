@@ -191,7 +191,7 @@ public class WorksiteHandler extends PageHandler
 		if (rcontext.uses(INCLUDE_PAGE_NAV))
 		{
 
-			includePageList(rcontext, req, session, site, null, toolContextPath,
+			includePageList(rcontext, req, session, site, page, toolContextPath,
 					portalPrefix,
 					/* doPages */true,
 					/* resetTools */"true".equals(ServerConfigurationService
