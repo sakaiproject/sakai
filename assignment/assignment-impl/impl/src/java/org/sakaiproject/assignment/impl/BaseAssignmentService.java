@@ -9724,11 +9724,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						
 						// update attributes for existing assignment
 						org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition = new org.sakaiproject.service.gradebook.shared.Assignment();
-				 		assignmentDefinition.setName(newAssignment_title);
+				 		assignmentDefinition.setName(associateGradebookAssignment);
 				 		assignmentDefinition.setPoints(new Double(newAssignment_maxPoints/10.0));
 				 		assignmentDefinition.setDueDate(new Date(newAssignment_dueTime.getTime()));
 				 		assignmentDefinition.setReleased(false);
-				 		g.updateAssignment(gradebookUid, newAssignment_title, assignmentDefinition);
+				 		g.updateAssignment(gradebookUid, associateGradebookAssignment, assignmentDefinition);
 					}
 					
 				}	// addUpdateRemove != null
@@ -9843,34 +9843,40 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		User[] submitters = aSubmission.getSubmitters();
 		String submitterId = submitters[0].getId();
 		
-		if (StringUtil.trimToNull(oAssociateGradebookAssignment) != null && !oAssociateGradebookAssignment.equals(associateGradebookAssignment))
+		String gradeString = StringUtil.trimToNull(aSubmission.getGrade());
+		String gradeComment = StringUtil.trimToNull(aSubmission.getFeedbackComment());
+		
+		try
 		{
-			// get the submission from the old assoicated GB entry
-			try
-			{
-				// copy grade
-				Double grade = g.getAssignmentScore(gradebookUid, oAssociateGradebookAssignment, submitterId);
-				g.setAssignmentScore(gradebookUid, associateGradebookAssignment, submitterId, grade, assignmentToolTitle);
-				// copy comment
-				CommentDefinition comment = g.getAssignmentScoreComment(gradebookUid, oAssociateGradebookAssignment, submitterId);
-				g.setAssignmentScoreComment(gradebookUid, associateGradebookAssignment, submitterId, comment.getCommentText());
+				// temporally allow the user get grade
+				SecurityService.pushAdvisor(new SecurityAdvisor()
+						{
+							public SecurityAdvice isAllowed(String userId, String function, String reference)
+							{
+								return SecurityAdvice.ALLOWED;
+							}
+						});
+
+				if (StringUtil.trimToNull(oAssociateGradebookAssignment) != null && !oAssociateGradebookAssignment.equals(associateGradebookAssignment))
+				{
+					// remove grades and comments from old entry
+					gradeString = g.getAssignmentScore(gradebookUid, oAssociateGradebookAssignment, submitterId).toString();
+					g.setAssignmentScore(gradebookUid, oAssociateGradebookAssignment, submitterId, null, assignmentToolTitle);
+					
+					gradeComment = g.getAssignmentScoreComment(gradebookUid, oAssociateGradebookAssignment, submitterId).getCommentText();
+					g.setAssignmentScoreComment(gradebookUid, oAssociateGradebookAssignment, submitterId, null);
+				}
+				SecurityService.clearAdvisors();
 				
-				// remove grades and comments from old entry
-				g.setAssignmentScore(gradebookUid, oAssociateGradebookAssignment, submitterId, null, assignmentToolTitle);
-				g.setAssignmentScoreComment(gradebookUid, oAssociateGradebookAssignment, submitterId, null);
-			}
-			catch (SecurityException e)
-			{
-				M_log.warn(this + e.getMessage());
-			}
+				// update the grade and comment inside gradebook entry
+				g.setAssignmentScore(gradebookUid, associateGradebookAssignment, submitterId, (gradeString != null && aSubmission.getGradeReleased()) ? Double.valueOf(gradeString) : null, assignmentToolTitle);
+				g.setAssignmentScoreComment(gradebookUid, associateGradebookAssignment, submitterId, gradeComment);
 		}
-		else
+		catch (Exception e)
 		{
-			String gradeString = StringUtil.trimToNull(aSubmission.getGrade());
-			// update the grade and comment inside gradebook entry
-			g.setAssignmentScore(gradebookUid, associateGradebookAssignment, submitterId, (gradeString != null && aSubmission.getGradeReleased()) ? Double.valueOf(gradeString) : null, assignmentToolTitle);
-			g.setAssignmentScoreComment(gradebookUid, associateGradebookAssignment, submitterId, aSubmission.getFeedbackComment());
+			M_log.warn(e.getMessage());
 		}
+		
 	}
 	
 	/**
