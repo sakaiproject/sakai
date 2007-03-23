@@ -1,9 +1,9 @@
 <!-- resources/sakai_create_folders.vm, use with org.sakaiproject.tool.content.ResourcesHelperAction.java -->
 #set($DOT = ".")
 <div class="portletBody">
-	<h4>
+	<h3>
 		$tlang.getString("create.folder")
-	</h4>
+	</h3>
 	#if ($itemAlertMessage)
 		<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
 		<div style="display:block;clear:both" ></div>
@@ -12,11 +12,13 @@
 		$tlang.getString("instr.folder")
 	</p>
 	<div class="breadCrumb">
+		<h4>
 		$tlang.getString("gen.location")
 		##<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0"  alt="folder" />
 		#foreach ($item in $model.collectionPath)
 			$item.name /
 		#end
+		</h4>
 	</div>
 	<form name="addFolderForm" id="addFolderForm" method="post" action="#toolForm("ResourcesHelperAction")">
 		<input type="hidden" name="fileCount" id="fileCount" value="$pipes.size()" />
@@ -31,7 +33,7 @@
 					<input type="hidden" name="exists${DOT}$i" id="exists${DOT}$i" value="true" />
 					<p class="shorttext">
 						<label for="content${DOT}$i">$tlang.getString("label.folder")</label>
-						<input type="text" name="content${DOT}$i" id="content${DOT}$i" />
+						<input type="text" name="content${DOT}$i" id="content${DOT}$i"  onkeypress="return handleEnterKey(this, event)" />
 						<a class="indnt2" href="#" id="propsTrigger${DOT}$i">$tlang.getString("edit.show")</a>
 						<a class="indnt2" href="#" id="removeTrigger${DOT}$i" >
 							<img src="#imageLink("sakai/cross.png")" title="$tlang.getString("edit.remove")" />
@@ -477,3 +479,14 @@
 	attachEventHandlers();
 	-->
 </script>
+	<script type="text/javascript">
+		function handleEnterKey (field, event) {
+			var keyCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode;
+			if (keyCode == 13) {
+				return false;
+			} 
+			else
+				return true;
+		}      
+	
+	</script>
