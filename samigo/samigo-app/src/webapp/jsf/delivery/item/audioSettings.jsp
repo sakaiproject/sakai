@@ -38,6 +38,10 @@
   <PARAM NAME = "signed" VALUE="true">
   <PARAM NAME = "bigendian" VALUE="true">
   <PARAM NAME = "stereo" VALUE="false">
+  <PARAM NAME = "localeLanguage" VALUE="</f:verbatim><h:outputText
+     value="#{person.localeLanguage}" escape="false"/><f:verbatim>">
+  <PARAM NAME = "localeCountry" VALUE="</f:verbatim><h:outputText
+     value="#{person.localeCountry}" escape="false"/><f:verbatim>">
   <PARAM NAME = "agentId" VALUE="</f:verbatim><h:outputText
      value="#{person.id}" escape="false"/><f:verbatim>">
   <PARAM NAME = "maxSeconds" VALUE="</f:verbatim><h:outputText

@@ -22,9 +22,12 @@
 
 package org.sakaiproject.tool.assessment.ui.bean.shared;
 
+import org.sakaiproject.util.ResourceLoader;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 //import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
@@ -131,4 +134,15 @@ private static Log log = LogFactory.getLog(PersonBean.class);
     return "editAssessment";
   }  
 
+  public String getLocaleLanguage(){
+	  ResourceLoader r = new ResourceLoader();
+	  Locale locale = r.getLocale();
+	  return locale.getLanguage();
+  }
+  
+  public String getLocaleCountry(){
+	  ResourceLoader r = new ResourceLoader();
+	  Locale locale = r.getLocale();
+	  return locale.getCountry();
+  }
 }

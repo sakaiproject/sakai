@@ -59,6 +59,10 @@
       signed ="true" \
       bigendian ="true6" \
       stereo ="false" \
+      localeLanguage ="</f:verbatim><h:outputText
+         value="#{person.localeLanguage}" escape="false"/><f:verbatim>" \
+      localeCountry ="</f:verbatim><h:outputText
+         value="#{person.localeCountry}" escape="false"/><f:verbatim>" \
       agentId ="</f:verbatim><h:outputText
          value="#{person.id}" escape="false"/><f:verbatim>" \
       maxSeconds ="</f:verbatim><h:outputText
