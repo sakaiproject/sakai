@@ -369,3 +369,17 @@ INSERT INTO GB_COMMENT_T
         MFR_MESSAGE_T.GRADECOMMENT is not null and
         GB_GRADE_RECORD_T.GRADABLE_OBJECT_ID = GB_GRADABLE_OBJECT_T.ID);
 
+----------------------------------------------------------------------------------------------------------------------------------------
+--SAK-8702 
+--New ScheduledInvocationManager API for jobscheduler
+----------------------------------------------------------------------------------------------------------------------------------------
+
+CREATE TABLE SCHEDULER_DELAYED_INVOCATION (
+	INVOCATION_ID VARCHAR2(36) NOT NULL,
+	INVOCATION_TIME DATETIME NOT NULL,
+	COMPONENT VARCHAR2(2000) NOT NULL,
+	CONTEXT VARCHAR2(2000) NULL,
+	PRIMARY KEY (INVOCATION_ID)
+);
+
+CREATE INDEX SCHEDULER_DI_TIME_INDEX ON SCHEDULER_DELAYED_INVOCATION (INVOCATION_TIME);
