@@ -37,13 +37,6 @@
 			<version>${sakai.version}</version>
 		</dependency>
 
-        <!-- generic DAO -->
-        <dependency>
-			<groupId>generic-dao</groupId>
-			<artifactId>generic-dao</artifactId>
-			<version>0.8</version>
-			<url>http://source.edtech.vt.edu/maven/</url>
-        </dependency>
 
 		<!-- sakai dependencies -->
 		<dependency>
