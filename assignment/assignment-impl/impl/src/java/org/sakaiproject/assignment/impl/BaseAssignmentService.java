@@ -7558,11 +7558,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						if (g.isAssignmentDefined(gradebookUid, associatedGBAssignment))
 						{
 							String submitterId = (String) getSubmitterIds().get(0);
-							m_grade = "";
+							String rv = "";
 							try
 							{
 								Double grade = g.getAssignmentScore(gradebookUid, associatedGBAssignment, submitterId);
-								m_grade = (grade != null)?grade.toString():"";
+								rv = (grade != null)?grade.toString():"";
 							}
 							catch (SecurityException e)
 							{
@@ -7570,12 +7570,17 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							}
 							
 							// mark as graded
-							if (StringUtil.trimToNull(m_grade) != null)
+							if (StringUtil.trimToNull(rv) != null)
 							{
 								m_graded = true;
 							}
+							else
+							{
+								// return the local copy. e.g. GB doesn't store assignment grades for intructor type of users
+								rv = m_grade;
+							}
 							
-							return m_grade;
+							return rv;
 						}
 						
 						// clean the permission
@@ -8063,15 +8068,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						}
 					}
 				}
-				else
-				{
-					m_grade = grade;
-				}
 			}
-			else
-			{
-				m_grade = grade;
-			}
+			
+			m_grade = grade;
+			
 		}
 
 		/**
