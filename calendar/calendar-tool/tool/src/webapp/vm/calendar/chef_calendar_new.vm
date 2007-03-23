@@ -434,7 +434,7 @@ function ampmChange(FieldName)
 				<table border="0">
 					<tr>
 						<td>
-							<textarea name="description" id="description" wrap="virtual" rows="30" cols="80"></textarea>
+							<textarea name="description" id="description" wrap="virtual" rows="30" cols="80"> </textarea>
 							#chef_setupformattedtextarea("description")
 						</td>
 					</tr>
