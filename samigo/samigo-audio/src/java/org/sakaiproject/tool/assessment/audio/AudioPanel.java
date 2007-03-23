@@ -90,10 +90,7 @@ public class AudioPanel
   extends JPanel
   implements ChangeListener, Runnable
 {
-  private static final String RESOURCE_PACKAGE = "org.sakaiproject.tool.assessment.audio";
-  private static final String RESOURCE_NAME = "AudioResources";
-  static ResourceBundle res = ResourceBundle.getBundle(RESOURCE_PACKAGE + "." +
-      RESOURCE_NAME, Locale.getDefault());
+  static ResourceBundle res = AudioUtil.getInstance().getResourceBundle();
 
   Vector tabPanels = new Vector(4);
   JTabbedPane tabPane = new JTabbedPane();
@@ -290,7 +287,7 @@ public class AudioPanel
         tabPanel.close();
       }
     });
-    f.getContentPane().add(res.getString("Center"), tabPanel);
+    f.getContentPane().add("Center", tabPanel);
     f.pack();
     Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
     f.setLocation(d.width / 2 - tabPanel.width / 2, d.height / 2 - tabPanel.height / 2);

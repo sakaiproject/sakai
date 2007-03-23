@@ -61,120 +61,105 @@ import java.awt.event.WindowEvent;
 import javax.swing.JApplet;
 import javax.swing.JFrame;
 
-public class AudioRecorderApplet
-  extends JApplet
-{
-  private static final String RESOURCE_PACKAGE = "org.sakaiproject.tool.assessment.audio";
-  private static final String RESOURCE_NAME = "AudioResources";
-  static ResourceBundle res = ResourceBundle.getBundle(RESOURCE_PACKAGE + "." +
-      RESOURCE_NAME, Locale.getDefault());
-  boolean isStandalone = false;
-  //Get a parameter value
-  public String getParameter(String key, String def)
-  {
-    return isStandalone ? System.getProperty(key, def) :
-      (getParameter(key) != null ? getParameter(key) : def);
-  }
+public class AudioRecorderApplet extends JApplet {
+	static ResourceBundle res;
 
-  //Construct the applet
-  public AudioRecorderApplet()
-  {
+	boolean isStandalone = false;
 
-  }
+	// Get a parameter value
+	public String getParameter(String key, String def) {
+		return isStandalone ? System.getProperty(key, def)
+				: (getParameter(key) != null ? getParameter(key) : def);
+	}
 
-  //Initialize the applet
-  static AudioRecorderApplet applet;
-  private AudioPanel demo;
-  private AudioRecorderParams params;
+	// Construct the applet
+	public AudioRecorderApplet() {
+	}
 
-  public void init()
-  {
-    applet = this;
-    if (isStandalone)
-    {
-      params =  new AudioRecorderParams();
-    }
-    else
-    {
-      params =  new AudioRecorderParams(applet);
-    }
-    String media = res.getString("_audio");
-    String param = null;
-    getContentPane().add(res.getString("Center"), demo = new AudioPanel(media, params));
-  }
+	// Initialize the applet
+	static AudioRecorderApplet applet;
 
-  private void initAppletParams()
-  {
-    AudioRecorderParams params = this.params;
+	private AudioPanel demo;
 
-  }
+	private AudioRecorderParams params;
 
-  //Component initialization
-  private void jbInit()
-    throws Exception
-  {
-  }
+	public void init() {
+		applet = this;
+		if (isStandalone) {
+			params = new AudioRecorderParams();
+		} else {
+			params = new AudioRecorderParams(applet);
+		}
+		res = AudioUtil.getInstance().getResourceBundle();
 
-  //Start the applet
-  public void start()
-  {
-  }
+		String media = res.getString("_audio");
+		String param = null;
+		
+		//"Center" means center position
+		getContentPane().add("Center",
+				demo = new AudioPanel(media, params));
+	}
 
-  //Stop the applet
-  public void stop()
-  {
-  }
+	private void initAppletParams() {
+		AudioRecorderParams params = this.params;
+	}
 
-  //Destroy the applet
-  public void destroy()
-  {
-  }
+	// Component initialization
+	private void jbInit() throws Exception {
+	}
 
-  //Get Applet information
-  public String getAppletInfo()
-  {
-    return (res.getString("Applet_Information"));
-  }
+	// Start the applet
+	public void start() {
+	}
 
-  //Get parameter info
-  public String[][] getParameterInfo()
-  {
-    return null;
-  }
+	// Stop the applet
+	public void stop() {
+	}
 
-  /**
-   * Main method.  Run as an application.
-   * @param args
-   */
-  public static void main(String[] args)
-  {
-    AudioRecorderApplet applet = new AudioRecorderApplet();
-    applet.isStandalone = true;
-    JFrame f = new JFrame(res.getString("Audio_Recorder"));
-    f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    /* old way to exit program when window is closed - daisyf, 04/06/06
-    f.addWindowListener(new WindowAdapter()
-    {
-      public void windowClosing(WindowEvent e)
-      {
-        System.exit(0);
-      }
-    });
-    */
-    f.getContentPane().add(res.getString("Center"), applet);
-    f.pack();
-    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    int w = 450;
-    int h = 450;
-    f.setLocation(screenSize.width / 2 - w / 2, screenSize.height / 2 - h / 2);
-    applet.init();
-    applet.start();
-    f.setSize(w, h);
-    f.show();
+	// Destroy the applet
+	public void destroy() {
+	}
 
-  }
-  public AudioRecorderParams getParams()
-  {
-    return params;
-  }
+	// Get Applet information
+	public String getAppletInfo() {
+		return (res.getString("Applet_Information"));
+	}
+
+	// Get parameter info
+	public String[][] getParameterInfo() {
+		return null;
+	}
+
+	/**
+	 * Main method. Run as an application.
+	 * 
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		AudioRecorderApplet applet = new AudioRecorderApplet();
+		applet.isStandalone = true;
+		JFrame f = new JFrame(res.getString("Audio_Recorder"));
+		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		/*
+		 * old way to exit program when window is closed - daisyf, 04/06/06
+		 * f.addWindowListener(new WindowAdapter() { public void
+		 * windowClosing(WindowEvent e) { System.exit(0); } });
+		 */
+		f.getContentPane().add("Center", applet);
+		f.pack();
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		int w = 450;
+		int h = 450;
+		f.setLocation(screenSize.width / 2 - w / 2, screenSize.height / 2 - h
+				/ 2);
+		applet.init();
+		applet.start();
+		f.setSize(w, h);
+		f.show();
+	}
+
+	public AudioRecorderParams getParams() {
+		return params;
+	}
+	
 }

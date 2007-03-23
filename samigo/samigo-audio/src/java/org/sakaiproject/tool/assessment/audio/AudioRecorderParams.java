@@ -58,6 +58,8 @@ public class AudioRecorderParams implements Serializable
   private int attemptsAllowed = 5;
   private String imageUrl="";
   private String agentId="";
+  private String localeLanguage="";
+  private String localeCountry="";
 
   // -1 indicate that attemptsRemaining is not set, it should be set when question is loaded the 1st time.
   private int attemptsRemaining = -1; 
@@ -99,7 +101,8 @@ public class AudioRecorderParams implements Serializable
   public AudioRecorderParams()
   {
     // keep all defaults
-  }
+		System.out.println("**** AudioRecorderParams()");
+ }
 
   /**
    *
@@ -111,7 +114,7 @@ public class AudioRecorderParams implements Serializable
   public AudioRecorderParams(Applet applet)
   {
     // set values from applet parameters
-
+	System.out.println("**** AudioRecorderParams(applet)");
     String s = applet.getParameter("enablePlay");
     if ("true".equalsIgnoreCase(s))
     {
@@ -360,6 +363,22 @@ public class AudioRecorderParams implements Serializable
     {
       agentId = s;
     }
+    
+    s = applet.getParameter("localeLanguage");
+
+    if (s != null)
+    {
+      localeLanguage = s;
+      AudioUtil.getInstance().setLocaleLanguage(s);
+    }
+    
+    s = applet.getParameter("localeCountry");
+
+    if (s != null)
+    {
+      localeCountry = s;
+      AudioUtil.getInstance().setLocaleCountry(s);
+    }
 
   }
 
@@ -591,6 +610,26 @@ public class AudioRecorderParams implements Serializable
   public void setAgentId(String agentId)
   {
     this.agentId = agentId;
+  }
+  
+  public String getLocaleLanguage()
+  {
+    return localeLanguage;
+  }
+
+  public void setLocaleLanguage(String localeLanguage)
+  {
+    this.localeLanguage = localeLanguage;
+  }
+  
+  public String getLocaleCountry()
+  {
+    return localeCountry;
+  }
+
+  public void setLocaleCountry(String localeCountry)
+  {
+    this.localeCountry = localeCountry;
   }
 
 }

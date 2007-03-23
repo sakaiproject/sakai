@@ -108,11 +108,8 @@ import javax.swing.border.Border;
 
 public class AudioFormatPanel extends JPanel
 {
-    private static final String RESOURCE_PACKAGE = "org.sakaiproject.tool.assessment.audio";
-    private static final String RESOURCE_NAME = "AudioResources";
-    static ResourceBundle res = ResourceBundle.getBundle(RESOURCE_PACKAGE + "." +
-      RESOURCE_NAME, Locale.getDefault());
-
+     static ResourceBundle 	res = AudioUtil.getInstance().getResourceBundle();
+ 
     protected AudioRecorderParams params;
     Vector groups = new Vector();
     JToggleButton linrB, ulawB, alawB, rate8B, rate11B, rate16B, rate22B,

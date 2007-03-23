@@ -77,10 +77,7 @@ import java.util.Locale;
 public class AudioConfigHelp
   implements Serializable
 {
-  private static final String RESOURCE_PACKAGE = "org.sakaiproject.tool.assessment.audio";
-  private static final String RESOURCE_NAME = "AudioResources";
-  static ResourceBundle res = ResourceBundle.getBundle(RESOURCE_PACKAGE + "." +
-      RESOURCE_NAME, Locale.getDefault());
+  static ResourceBundle res = AudioUtil.getInstance().getResourceBundle();
   private static String message;
   private static String about;
   private boolean configHardware;
@@ -123,7 +120,6 @@ public class AudioConfigHelp
    */
   public void configHelp()
   {
-
     String msg = res.getString("When_running_the") + "\n";
 
     if (!configHardware)

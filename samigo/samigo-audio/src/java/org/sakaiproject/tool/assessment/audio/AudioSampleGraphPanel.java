@@ -80,11 +80,8 @@ import java.awt.LayoutManager;
 public class AudioSampleGraphPanel
   extends JPanel
 {
-  private static final String RESOURCE_PACKAGE =
-    "org.sakaiproject.tool.assessment.audio";
-  private static final String RESOURCE_NAME = "AudioResources";
-  static ResourceBundle res = ResourceBundle.getBundle(RESOURCE_PACKAGE + "." +
-    RESOURCE_NAME, Locale.getDefault());
+  static ResourceBundle res = AudioUtil.getInstance().getResourceBundle();
+
   static ColorModel colorModel= new ColorModel();
 
   private static final Font font10 = new Font("serif", Font.PLAIN, 10);
