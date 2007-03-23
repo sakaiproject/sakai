@@ -71,6 +71,7 @@ import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.SessionState;
@@ -1360,12 +1361,13 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		pipe.setActionCanceled(false);
 		pipe.setErrorEncountered(false);
 		pipe.setActionCompleted(true);
+		pipe.setRevisedResourceProperty(ContentHostingService.PROP_ALTERNATE_REFERENCE, org.sakaiproject.citation.api.CitationService.REFERENCE_ROOT);
 
 		toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
 		
 		cleanup(toolSession, CitationHelper.CITATION_PREFIX);
 		
-	}	// doList
+	}	// doFinish
 
     /**
      * Cancel the action for which the helper was launched. 
@@ -2852,6 +2854,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			ContentHostingService contentService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
 			ContentResourceEdit newItem = contentService.addResource(pipe.getContentEntity().getId(), "New Citation List", null, ContentHostingService.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 			newItem.setResourceType(CitationService.CITATION_LIST_ID);
+			ResourcePropertiesEdit props = newItem.getPropertiesEdit();
+			props.addProperty(contentService.PROP_ALTERNATE_REFERENCE, org.sakaiproject.citation.api.CitationService.REFERENCE_ROOT);
 			
 			CitationCollection collection = CitationService.addCollection();
 			newItem.setContent(collection.getId().getBytes());
