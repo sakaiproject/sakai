@@ -341,9 +341,14 @@
 									#end
 									#if($groups.size() == 1) #set($selected=true) #end
 									#set($disabled=true)
-									#if($allowedRemoveGroups.contains($group)) #set($disabled=false) #end
-									<input #if($disabled) type="hidden" #else type="checkbox" #end name="selectedGroups" id="group-$group.Id" title="$group.Title" value="$group.Id" #if($selected) checked="checked"#end/>
-									#if($disabled && $selected)<img src="#imageLink("sakai/checkon.gif")" border="0" width="17" height="13" align="top" />#end
+##									#if($allowedRemoveGroups.contains($group)) 
+										<input type="checkbox" name="selectedGroups" id="group-$group.Id" title="$group.title" value="$group.Id" #if($selected) checked="checked"#end />
+##									#else
+##										<img src="#imageLink("sakai/checkon.gif")" border="0" width="17" height="13" align="top" />
+##									#end
+									
+##									<input #if($disabled) type="hidden" #else type="checkbox" #end name="selectedGroups" id="group-$group.Id" title="$group.Title" value="$group.Id" #if($selected) checked="checked"#end/>
+##									#if($disabled && $selected)<img src="#imageLink("sakai/checkon.gif")" border="0" width="17" height="13" align="top" />#end
 								</td>
 								<td headers="groupname" nowrap="nowrap">
 									<label for="group-$group.Id">
