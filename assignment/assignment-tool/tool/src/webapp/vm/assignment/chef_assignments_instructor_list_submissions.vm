@@ -249,6 +249,8 @@
 				#foreach ($userSubmission in $userSubmissions)
 					#set($submission=false)
 					#set($submission = $userSubmission.Submission)
+					#set($gradeDisplay = false)
+					#set($gradeDisplay=$submission.getGradeDisplay())
 					#set($siteUser=false)
 					#set($siteUser = $userSubmission.User)
 					#set($submitTime=false)
@@ -327,6 +329,12 @@
 										#else
 											$tlang.getString("gen.returned")
 										#end
+									#else
+										#if ($!withGrade)
+											$tlang.getString("grad3")
+										#else
+											$tlang.getString("gen.commented")
+										#end
 									#end
 								#elseif ($submission.getGraded())
 									#if ($!withGrade)
@@ -340,7 +348,7 @@
 							</td>
 							#if ($withGrade)
 								<td headers="grade">
-									$submission.getGradeDisplay()
+									$!gradeDisplay
 								</td>
 							#end	
 							#if ($allowReviewService && $assignment.getContent().AllowReviewService)

@@ -7568,6 +7568,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							{
 								M_log.warn(this + e.getMessage());
 							}
+							
+							// mark as graded
+							if (StringUtil.trimToNull(m_grade) != null)
+							{
+								m_graded = true;
+							}
+							
 							return m_grade;
 						}
 						
