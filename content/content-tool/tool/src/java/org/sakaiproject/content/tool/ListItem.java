@@ -870,12 +870,15 @@ public class ListItem
 		if(displayName == null)
 		{
 			String[] delimiters = {"/", "\\", ":"};
-			
-			for(int i = 0; i < delimiters.length; i++)
+			displayName = this.id;
+			if(displayName != null)
 			{
-				if(displayName.lastIndexOf(delimiters[i]) >= 0)
+				for(int i = 0; i < delimiters.length; i++)
 				{
-					displayName = displayName.substring(displayName.lastIndexOf(delimiters[i]) + 1);
+					if(displayName.lastIndexOf(delimiters[i]) >= 0)
+					{
+						displayName = displayName.substring(displayName.lastIndexOf(delimiters[i]) + 1);
+					}
 				}
 			}
 		}

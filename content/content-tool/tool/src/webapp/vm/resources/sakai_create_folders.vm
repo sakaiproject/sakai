@@ -45,6 +45,7 @@
 ##						<label for="displayName${DOT}$i">$tlang.getString("label.display")</label>
 ##						<input type="text" id="displayName${DOT}$i" name="displayName${DOT}$i" />
 ##					</p>
+
 					#parse("/vm/resources/sakai_properties.vm")
 					<hr class="itemSeparator" />
 				</div>

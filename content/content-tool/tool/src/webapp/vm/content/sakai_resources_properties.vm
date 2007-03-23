@@ -86,6 +86,7 @@
 	</select>
 #end
 ##
+#set($DOT = ".")
 <div class="portletBody">
 	<h3>
 		$tlang.getString("action.props") 
@@ -95,16 +96,24 @@
 	<p class="instruction">
 		$tlang.getString("instr.props") $required
 	</p>
+	#set($i = "0")
+	#set($model = $item)
 	<form name="propertyForm" id="propertyForm" action="#toolLink("ResourcesAction" "doReviseProperties")" method="post">
 		<input type="hidden" name="sakai_action" id="sakai_action" value="doReviseProperties" />
 		<input type="hidden" name="user_action" id="user_action" value="save" />
-		<p class="shorttext">
-			<span class="reqStar">*</span>
-			<label for="name">
-				$tlang.getString("title.name") 
-			</label>
-			<input type="text" size="40" id="name" name="name" value="$validator.escapeHtml("$!item.name")" />
-		</p>	
+		<div id="propertiesDiv${DOT}$i" style="display:block;">
+			<p class="shorttext">
+				<span class="reqStar">*</span>
+				<label for="displayName${DOT}$i">
+					$tlang.getString("title.name") 
+				</label>
+				<input type="text" size="40" id="displayName${DOT}$i" name="displayName${DOT}$i" value="$validator.escapeHtml("$!item.name")" />
+			</p>
+			#parse("/vm/resources/sakai_properties.vm")
+			<hr class="itemSeparator" />
+		</div>		
+		
+		#*	
 		<p class="shorttext">
 			<label for="description">
 				$tlang.getString("title.description")
@@ -384,7 +393,7 @@
 				#end
 			#end
 		#end
-		
+		*#
 	
 		<p class="act">
 			<input type="button" class="active" id="finish_button" onclick="document.getElementById('user_action').value='save';submitform('propertyForm');" value="$tlang.getString("label.update")" accesskey="s" />

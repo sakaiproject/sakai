@@ -6519,113 +6519,120 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			String entityId = (String) state.getAttribute(STATE_REVISE_PROPERTIES_ENTITY_ID);
 			ListItem item = (ListItem) state.getAttribute(STATE_REVISE_PROPERTIES_ITEM);
 			ResourceToolAction action = (ResourceToolAction) state.getAttribute(STATE_REVISE_PROPERTIES_ACTION);
-			String name = params.getString("name");
-			String description = params.getString("description");
-			String resourceType = action.getTypeId();
-			// rights
-			String copyrightStatus = params.getString("copyrightStatus");
-			String copyrightInfo = params.getString("copyrightInfo");
-			boolean copyrightAlert = params.getBoolean("copyrightAlert");
 			
-			// availability
-			boolean hidden = params.getBoolean("hidden");
-			boolean use_start_date = params.getBoolean("use_start_date");
-			boolean use_end_date = params.getBoolean("use_end_date");
-			Time releaseDate = null;
-			Time retractDate = null;
-			
-			if(use_start_date)
+			if(item == null)
 			{
-				int begin_year = params.getInt("release_year");
-				int begin_month = params.getInt("release_month");
-				int begin_day = params.getInt("release_day");
-				int begin_hour = params.getInt("release_hour");
-				int begin_min = params.getInt("release_min");
-				String release_ampm = params.getString("release_ampm");
-				if("pm".equals(release_ampm))
-				{
-					begin_hour += 12;
-				}
-				else if(begin_hour == 12)
-				{
-					begin_hour = 0;
-				}
-				releaseDate = TimeService.newTimeLocal(begin_year, begin_month, begin_day, begin_hour, begin_min, 0, 0);
-			}
-			
-			if(use_end_date)
-			{
-				int end_year = params.getInt("retract_year");
-				int end_month = params.getInt("retract_month");
-				int end_day = params.getInt("retract_day");
-				int end_hour = params.getInt("retract_hour");
-				int end_min = params.getInt("retract_min");
-				String retract_ampm = params.getString("retract_ampm");
-				if("pm".equals(retract_ampm))
-				{
-					end_hour += 12;
-				}
-				else if(end_hour == 12)
-				{
-					end_hour = 0;
-				}
-				retractDate = TimeService.newTimeLocal(end_year, end_month, end_day, end_hour, end_min, 0, 0);
-			}
-			
-			// access
-			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
-			if(preventPublicDisplay == null)
-			{
-				preventPublicDisplay = Boolean.FALSE;
-				state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
-			}
-			
-			String access_mode = params.getString("access_mode");
-			SortedSet groups = new TreeSet();
-			
-			if(access_mode == null || AccessMode.GROUPED.toString().equals(access_mode))
-			{
-				// we inherit more than one group and must check whether group access changes at this item
-				String[] access_groups = params.getStrings("access_groups");
 				
-				SortedSet<String> new_groups = new TreeSet<String>();
-				if(access_groups != null)
-				{
-					new_groups.addAll(Arrays.asList(access_groups));
-				}
-				new_groups = item.convertToRefs(new_groups);
-				
-				Collection inh_grps = item.getInheritedGroupRefs();
-				boolean groups_are_inherited = (new_groups.size() == inh_grps.size()) && inh_grps.containsAll(new_groups);
-				
-				if(groups_are_inherited)
-				{
-					new_groups.clear();
-					item.setGroupsById(new_groups);
-					item.setAccessMode(AccessMode.INHERITED);
-				}
-				else
-				{
-					item.setGroupsById(new_groups);
-					item.setAccessMode(AccessMode.GROUPED);
-				}
-				
-				item.setPubview(false);
 			}
-			else if(PUBLIC_ACCESS.equals(access_mode))
-			{
-				if(! preventPublicDisplay.booleanValue() && ! item.isPubviewInherited())
-				{
-					item.setPubview(true);
-					item.setAccessMode(AccessMode.INHERITED);
-				}
-			}
-			else if(AccessMode.INHERITED.toString().equals(access_mode))
-			{
-				item.setAccessMode(AccessMode.INHERITED);
-				item.setGroupsById(null);
-				item.setPubview(false);
-			}
+			item.captureProperties(params, "0");
+			
+//			String name = params.getString("name");
+//			String description = params.getString("description");
+//			String resourceType = action.getTypeId();
+//			// rights
+//			String copyrightStatus = params.getString("copyrightStatus");
+//			String copyrightInfo = params.getString("copyrightInfo");
+//			boolean copyrightAlert = params.getBoolean("copyrightAlert");
+//			
+//			// availability
+//			boolean hidden = params.getBoolean("hidden");
+//			boolean use_start_date = params.getBoolean("use_start_date");
+//			boolean use_end_date = params.getBoolean("use_end_date");
+//			Time releaseDate = null;
+//			Time retractDate = null;
+//			
+//			if(use_start_date)
+//			{
+//				int begin_year = params.getInt("release_year");
+//				int begin_month = params.getInt("release_month");
+//				int begin_day = params.getInt("release_day");
+//				int begin_hour = params.getInt("release_hour");
+//				int begin_min = params.getInt("release_min");
+//				String release_ampm = params.getString("release_ampm");
+//				if("pm".equals(release_ampm))
+//				{
+//					begin_hour += 12;
+//				}
+//				else if(begin_hour == 12)
+//				{
+//					begin_hour = 0;
+//				}
+//				releaseDate = TimeService.newTimeLocal(begin_year, begin_month, begin_day, begin_hour, begin_min, 0, 0);
+//			}
+//			
+//			if(use_end_date)
+//			{
+//				int end_year = params.getInt("retract_year");
+//				int end_month = params.getInt("retract_month");
+//				int end_day = params.getInt("retract_day");
+//				int end_hour = params.getInt("retract_hour");
+//				int end_min = params.getInt("retract_min");
+//				String retract_ampm = params.getString("retract_ampm");
+//				if("pm".equals(retract_ampm))
+//				{
+//					end_hour += 12;
+//				}
+//				else if(end_hour == 12)
+//				{
+//					end_hour = 0;
+//				}
+//				retractDate = TimeService.newTimeLocal(end_year, end_month, end_day, end_hour, end_min, 0, 0);
+//			}
+//			
+//			// access
+//			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+//			if(preventPublicDisplay == null)
+//			{
+//				preventPublicDisplay = Boolean.FALSE;
+//				state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+//			}
+//			
+//			String access_mode = params.getString("access_mode");
+//			SortedSet groups = new TreeSet();
+//			
+//			if(access_mode == null || AccessMode.GROUPED.toString().equals(access_mode))
+//			{
+//				// we inherit more than one group and must check whether group access changes at this item
+//				String[] access_groups = params.getStrings("access_groups");
+//				
+//				SortedSet<String> new_groups = new TreeSet<String>();
+//				if(access_groups != null)
+//				{
+//					new_groups.addAll(Arrays.asList(access_groups));
+//				}
+//				new_groups = item.convertToRefs(new_groups);
+//				
+//				Collection inh_grps = item.getInheritedGroupRefs();
+//				boolean groups_are_inherited = (new_groups.size() == inh_grps.size()) && inh_grps.containsAll(new_groups);
+//				
+//				if(groups_are_inherited)
+//				{
+//					new_groups.clear();
+//					item.setGroupsById(new_groups);
+//					item.setAccessMode(AccessMode.INHERITED);
+//				}
+//				else
+//				{
+//					item.setGroupsById(new_groups);
+//					item.setAccessMode(AccessMode.GROUPED);
+//				}
+//				
+//				item.setPubview(false);
+//			}
+//			else if(PUBLIC_ACCESS.equals(access_mode))
+//			{
+//				if(! preventPublicDisplay.booleanValue() && ! item.isPubviewInherited())
+//				{
+//					item.setPubview(true);
+//					item.setAccessMode(AccessMode.INHERITED);
+//				}
+//			}
+//			else if(AccessMode.INHERITED.toString().equals(access_mode))
+//			{
+//				item.setAccessMode(AccessMode.INHERITED);
+//				item.setGroupsById(null);
+//				item.setPubview(false);
+//			}
 
 			// notification
 			int noti = NotificationService.NOTI_NONE;
@@ -6650,58 +6657,62 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			
 
-			// set to public access if allowed and requested
-			if(!preventPublicDisplay.booleanValue() && PUBLIC_ACCESS.equals(access_mode))
-			{
-				ContentHostingService.setPubView(entityId, true);
-			}
-			
+//			// set to public access if allowed and requested
+//			if(!preventPublicDisplay.booleanValue() && PUBLIC_ACCESS.equals(access_mode))
+//			{
+//				ContentHostingService.setPubView(entityId, true);
+//			}
+//			
 
 			try 
 			{
 				if(item.isCollection())
 				{
 					ContentCollectionEdit entity = ContentHostingService.editCollection(entityId);
-					ResourcePropertiesEdit resourceProperties = entity.getPropertiesEdit();
-					resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
-					resourceProperties.addProperty(ResourceProperties.PROP_DESCRIPTION, description);
-					entity.setAvailability(hidden, releaseDate, retractDate);
+					item.updateContentCollectionEdit(entity);
+					
+//					ResourcePropertiesEdit resourceProperties = entity.getPropertiesEdit();
+//					resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+//					resourceProperties.addProperty(ResourceProperties.PROP_DESCRIPTION, description);
+//					entity.setAvailability(hidden, releaseDate, retractDate);
+					
 					ContentHostingService.commitCollection(entity);
 				}
 				else
 				{
 					ContentResourceEdit entity = ContentHostingService.editResource(entityId);
-					entity.setResourceType(resourceType);
-					ResourcePropertiesEdit resourceProperties = entity.getPropertiesEdit();
-					resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
-					resourceProperties.addProperty(ResourceProperties.PROP_DESCRIPTION, description);
-					entity.setAvailability(hidden, releaseDate, retractDate);
-					
-					if(copyrightStatus == null || copyrightStatus.trim().length() == 0)
-					{
-						resourceProperties.removeProperty(ResourceProperties.PROP_COPYRIGHT_CHOICE);
-					}
-					else
-					{
-						resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT_CHOICE, copyrightStatus);
-					}
-					if(copyrightInfo == null || copyrightInfo.trim().length() == 0)
-					{
-						resourceProperties.removeProperty(ResourceProperties.PROP_COPYRIGHT);
-					}
-					else
-					{
-						resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT, copyrightInfo);
-					}
-					if (copyrightAlert)
-					{
-						resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT_ALERT, Boolean.TRUE.toString());
-					}
-					else
-					{
-						resourceProperties.removeProperty (ResourceProperties.PROP_COPYRIGHT_ALERT);
-					}
-					
+					item.updateContentResourceEdit(entity);
+//					entity.setResourceType(resourceType);
+//					ResourcePropertiesEdit resourceProperties = entity.getPropertiesEdit();
+//					resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+//					resourceProperties.addProperty(ResourceProperties.PROP_DESCRIPTION, description);
+//					entity.setAvailability(hidden, releaseDate, retractDate);
+//					
+//					if(copyrightStatus == null || copyrightStatus.trim().length() == 0)
+//					{
+//						resourceProperties.removeProperty(ResourceProperties.PROP_COPYRIGHT_CHOICE);
+//					}
+//					else
+//					{
+//						resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT_CHOICE, copyrightStatus);
+//					}
+//					if(copyrightInfo == null || copyrightInfo.trim().length() == 0)
+//					{
+//						resourceProperties.removeProperty(ResourceProperties.PROP_COPYRIGHT);
+//					}
+//					else
+//					{
+//						resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT, copyrightInfo);
+//					}
+//					if (copyrightAlert)
+//					{
+//						resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT_ALERT, Boolean.TRUE.toString());
+//					}
+//					else
+//					{
+//						resourceProperties.removeProperty (ResourceProperties.PROP_COPYRIGHT_ALERT);
+//					}
+//					
 					ContentHostingService.commitResource(entity, noti);
 				}
 
