@@ -1,4 +1,4 @@
-#macro( header $title $viewBean )
+#macro( header $title $viewBean $extraonload )
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" 
 	lang="${rlb.jsp_lang}" 
@@ -10,13 +10,14 @@
 	<link rel="alternate" title="Sakai Wiki RSS" 
  			href="${util.escapeHtml(${viewBean.rssAccessUrl})}" type="application/rss+xml" />
  			  #end
-    #if ( ${requestScope.RemoveAutoSave} )
+    #if ( ${requestScope.removeAutoSave} )
 	  <script>
-		autoSaveClear('${requestScope.CurrentPageName}');
+		WikiAutoSave_autoSaveClear('${requestScope.currentDefaultRealm}','${requestScope.currentPageName}');
 	  </script>
 	  #end
     </head>
-    <body onload="setMainFrameHeightNoScroll('${request.getAttribute("sakai.tool.placement.id")}');setFocus(focus_path);parent.updCourier(doubleDeep,ignoreCourier); callAllLoaders(); "  >
+    <body onload="setMainFrameHeightNoScroll('${request.getAttribute("sakai.tool.placement.id")}');setFocus(focus_path);parent.updCourier(doubleDeep,ignoreCourier); ${extraonload} callAllLoaders(); "  >
+
   	#if (${requestScope.headerScriptSource}) 
   		<script  type="text/javascript" src="${requestScope.headerScriptSource}"> <!-- don't reduce this! --></script>
   	#end
@@ -26,6 +27,71 @@ var placementid = "Main${request.getAttribute("sakai.tool.placement.id").toStrin
 #end
 
 #macro( footer ) 
+##
+##  If you increase the width to 500x300 there and set debug = "true"
+##  debug output will appear on the screnn
+##
+<OBJECT classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" 
+ codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0" 
+ WIDTH="1" HEIGHT="1" id="localstore" ALIGN="" >
+ <PARAM NAME="movie" VALUE="/sakai-rwiki-tool/scripts/localstore.swf"> 
+ <PARAM NAME="quality" VALUE="high"> 
+ <PARAM NAME="play" VALUE="false"> 
+ <PARAM NAME="loop" VALUE="false"> 
+ <PARAM NAME="bgcolor" VALUE="#FFFFFF"> 
+ <EMBED src="/sakai-rwiki-tool/scripts/localstore.swf" 
+ quality="high" bgcolor="#FFFFFF"  
+ WIDTH="1" 
+ HEIGHT="1" 
+ NAME="localstore" 
+ play="false"
+ loop="false"
+ swLiveConnect="true"
+ ALIGN=""
+ TYPE="application/x-shockwave-flash" 
+ PLUGINSPAGE="http://www.macromedia.com/go/getflashplayer">
+ </EMBED>
+</OBJECT>
+
+<SCRIPT LANGUAGE="VBScript" >
+	on error resume next
+	Sub localstore_FSCommand(ByVal command, ByVal args)
+	  call localstore_DoFSCommand(command, args)
+	end sub
+</SCRIPT> 
+	
+<script type="text/javascript" >
+
+function localstore_DoFSCommand(command,args) {
+ try {
+	log("Callback for "+command);
+	var InternetExplorer = navigator.appName.indexOf("Microsoft") != -1;
+	var flashObj = InternetExplorer ? localstore : document.localstore;
+ var flashid = "localstore";
+	if ( command == "setdom" ) {
+		var argsA = args.split(";");
+		for(i = 0; i < argsA.length; i+=2){
+	    	var obj = document.getElementById(argsA[i]);
+			var v =  flashObj.GetVariable(argsA[i+1]);
+//	alert("Setting "+argsA[i]+"["+v+"]");
+			obj.value = v;
+		}
+	} else {
+         flashBridgeObj[flashid].doUpdate(command,args);
+	}
+	} catch (e) {
+		log("DoFSCommand Failed "+e);
+	}
+}
+</script>
+
+<!--
+<div id="logdiv" >
+</div>
+-->
+
+
+
     <div id="guillotineFixer">&nbsp;</div>
     #if ( $requestScope.FooterScript ) 
     <script type="text/javascript" >${requestScope.footerScript}</script>
@@ -380,4 +446,24 @@ function togglePresence(target) {
 								title="${rlb.jsp_toolb_save}" 
 								alt="${rlb.jsp_toolb_save}" /></a>
 	</div>
+#end
+
+#macro( autosavetoolbar ) 
+<div class="autosaveToolBarContainer" >
+<a class="autosaveToolBar" 
+			href="#" 
+			id="toolbarButtonRecover" 
+		    			    onClick="WikiAutoSave_restoreSavedContent('pageVersion', 'content', 'restoreContent','restoreVersion','restoreDate','autosave','autoSaveOffClass' ); selectTabs('autosaveTab','tabOn','tabOff','previewTab','tabOn','tabOff','editTab','tabOff','tabOn','autosave','tabHeadOn','tabHeadOff','preview','tabHeadOn','tabHeadOff','edit','tabHeadOff','tabHeadOn'); return false;"
+		    			    >
+			<img src="/library/image/transparent.gif" 
+								border="0"   
+				    title="${rlb.jsp_button_restore_saved_edit}"
+			     alt="${rlb.jsp_button_restore_saved_edit}"
+								/></a>
+		 <label for="restoreVersion" >${rlb.jsp_auto_save_version}</label>
+		 <input id="restoreVersion" name="restoreVersion" value="${rlb.jsp_none}" readonly="readonly" />
+		 <label for="restoreDate" >${rlb.jsp_auto_save_date}</label>
+		 <input id="restoreDate" name="restoreDate" value="${rlb.jsp_none}" />
+		 <input type="hidden" id="restoreTimestamp" name="restoreTimestamp" value="${rlb.jsp_none}" readonly="readonly"  />
+</div>
 #end

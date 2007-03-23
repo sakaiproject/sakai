@@ -7,7 +7,7 @@
 #set( $homeBean = ${requestScope.homeBean} )
 #set( $rlb = ${requestScope.resourceLoaderBean} )
 #set( $title = "${rlb.jsp_info}: ${historyBean.localName}" )
-#header(${title} false )  
+#header(${title} false "" )  
 
 
 #helppopup( "versionhelp"  ${rlb.jsp_history_versions} ${rlb.jsp_history_versions_help} )

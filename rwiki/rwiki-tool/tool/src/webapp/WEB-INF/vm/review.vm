@@ -8,7 +8,7 @@
 #set ( $homeBean = ${requestScope.homeBean} )
 #set ( $rlb = ${requestScope.resourceLoaderBean} )
 #set ( $title = "${rlb.jsp_review}: ${util.escapeHtml($historyBean.localName)} ${rlb.jsp_version}: ${interestedRevision}" )
-#header(${title} ${historyBean} )  
+#header(${title} ${historyBean} "" )  
 <div id="rwiki_container">
   <div class="portletBody">
 	<div class="navIntraTool">

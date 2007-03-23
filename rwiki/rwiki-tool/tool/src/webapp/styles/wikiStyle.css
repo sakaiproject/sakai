@@ -293,6 +293,48 @@ a:hover.previewToolBar,
    border: 1px solid #efeffe;
 }
 
+#toolbarButtonRecover {
+	background: url(/sakai-rwiki-tool/images/silk/icons/arrow_undo.png) center center no-repeat;
+}
+
+a.autosaveToolBar, 
+a:visited.autosaveToolBar     {
+    border: 1px solid #efefde;	
+    cursor: default;   
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-left: 8px;
+    padding-right: 8px;
+         
+}
+a:hover.autosaveToolBar, 
+    a:active.autosaveToolBar     {
+	border: 1px solid #316ac5;	
+    cursor: default;    
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-left: 8px;
+    padding-right: 8px;
+        
+   
+}
+.autosaveToolBarContainer {
+    background-color: #efefde;
+    height:1.6em;
+    padding-top: 5px;
+    padding-bottom: 0px;
+    padding-left: 2px;
+    padding-right: 2px;
+    border:1px solid #ccc;
+}
+
+
+.autosaveToolBarContainer input {
+    zoom:1;
+   font-size:.9em;
+   border: 1px solid #efeffe;
+}
+
 
 
 a.anchorpoint {

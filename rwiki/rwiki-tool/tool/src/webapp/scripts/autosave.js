@@ -11,7 +11,6 @@
  * You may obtain a copy of the License at
  *
  *      http://www.opensource.org/licenses/ecl1.php
- *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,11 +19,12 @@
  *
  **********************************************************************************/
 
-var autoSaveObjects = new Array();
-var _autoSaveObjectID = 0;
-var autoSaver;
+var WikiAutoSave_autoSaveObjects = new Array();
+var WikiAutoSave__autoSaveObjectID = 0;
 
-function restoreSavedContent(pageVersionId, contentId, restoreId,restoreVersionId, restoreDateId , autosaveId, autosaveClass) { 
+ 
+function WikiAutoSave_restoreSavedContent(pageVersionId, contentId, restoreId,restoreVersionId, restoreDateId , autosaveId, autosaveClass) { 
+
 	var pageVersion = document.getElementById(pageVersionId);
 	var restoreVersion = document.getElementById(restoreVersionId);
 	var restoreDate = document.getElementById(restoreDateId);
@@ -60,54 +60,58 @@ function restoreSavedContent(pageVersionId, contentId, restoreId,restoreVersionI
 	}
 }
 
-function autoSaveOn(pageNameId, pageVersionId, contentId, restoreId,restoreVersionId,restoreDateId,autosaveId,autosaveClass) {
-        return;
+function WikiAutoSave_autoSaveOn(siteId,pageNameId, pageVersionId, restoreTimestampId, contentId, restoreContentId,restoreVersionId,restoreDateId,autosaveId,autosaveClass) {
 	var pageName = document.getElementById(pageNameId);
 	var pageVersion = document.getElementById(pageVersionId);
-	var pageRestore = document.getElementById(restoreId);
-	var restoreVersion = document.getElementById(restoreVersionId);
-	var restoreDate = document.getElementById(restoreDateId);
-	var autosaveDiv = document.getElementById(autosaveId);
-	autoSaver = new WikiAutoSave(0,pageName.value,pageVersion?pageVersion.value:"none");
+	var site = document.getElementById(siteId);
+	
+	var autoSaver = new WikiAutoSave(0,site.value,pageName.value,pageVersion?pageVersion.value:"none");
 	autoSaver.setTargetID(contentId);
-	try {
-		autoSaver.restoreContent();
-		var saved = autoSaver.lastSavedContent;
-		var savedDate = autoSaver.lastSavedDate;
-		var lastSavedVersion = autoSaver.lastSavedVersion;
-		var contentTA = document.getElementById(contentId);
-		if ( saved && contentTA.value != saved  ) {
-		    pageRestore.value = saved;
-		    if ( restoreVersion ) { restoreVersion.value = lastSavedVersion; }
-		    if ( restoreDate ) { restoreDate.value = savedDate; }
-		    if ( autosaveDiv ) { 
-				autosaveDiv.className = autosaveClass; 
-			}
-		}
-	} catch (e) {
-  		alert("Failed to restore content "+e);
-	}
+	autoSaver.setRestoreTimestampId(restoreTimestampId);
+	autoSaver.setRestoreContentsId(restoreContentId);
+	autoSaver.setRestoreVersionId(restoreVersionId);
+	autoSaver.setRestoreDateId(restoreDateId);
+	autoSaver.setRestoreTabId(autosaveId);
+	autoSaver.setRestoredClass(autosaveClass);
+	
 	autoSaver.startAutosave();
+	return autoSaver;
 }
-function autoSaveClear(pageName) {
+
+function WikiAutoSave_doRestore(saveID) 
+{
+    log("Restore Callback");
+	var autoSaver = WikiAutoSave_autoSaveObjects[saveID];
+	autoSaver.restoreCallback();	
+}
+
+
+
+
+function WikiAutoSave_autoSaveClear(siteId,pageName) {
     try {
-	    autoSaver = new WikiAutoSave(0,pageName,"none");
+	    var autoSaver = new WikiAutoSave(0,siteId,pageName,"none");
 	    autoSaver.deleteContent();
     } catch (e) {
-	   alert("Failed to delete AutoSave Content for "+pageName+": problem "+e);
+	   log("Failed to delete AutoSave Content for "+pageName+": problem "+e);
     }
 }
 
-function autoSaveOff() {
+function WikiAutoSave_autoSaveOff(saveID) {
+	var autoSaver = WikiAutoSave_autoSaveObjects[saveID];
 	autoSaver.stopAutosave();
 	autoSaver.deleteContent();
 }
-
-function WikiAutoSave(autoSaveID,targetPageName,targetVersion) 
+//-------------------------------------------------------------------------------------
+function WikiAutoSave(autoSaveID,targetSite,targetPageName,targetVersion) 
 {
-	logInfo = true;
+// Set this to true to get some debug
+	logInfo = false;
+	
+	
 	this.targetID = null;
-	this.interval = 10000;
+	this.interval = 100;
+	this.siteId = targetSite; 
 	this.pageName = targetPageName;
 	this.runs = 10;
 	this.lastSavedContent = null;
@@ -115,30 +119,123 @@ function WikiAutoSave(autoSaveID,targetPageName,targetVersion)
 	this.lastSavedVersion = "";
 	this.currentPageVersion = targetVersion;
 	this.hasSavedPageContent = true;
-	this.clearLog = false;
+	this.clearLog = false;	
+	this.state = 0;
 	
 	
-	this.autoSaveObjectID = _autoSaveObjectID;
-	_autoSaveObjectID++;
-	autoSaveObjects[this.autoSaveObjectID] = this;
+	this.restoreTimestampId = null;
+	this.restoreContentsId = null;
+	this.restoreVersionId = null;
+
+	this.restoreDateId = null;
+	this.restoreTabId = null;
+	this.restoredClass = null;
+	
+	this.autoSaveObjectID = WikiAutoSave__autoSaveObjectID;
+	WikiAutoSave__autoSaveObjectID++;
+	
+	log("Flash Brisdge Created");
+	this.localStoreObj = FlashBridge_getInstance("localstore");
+	log("Flash Brisdge Created");
+	WikiAutoSave_autoSaveObjects[this.autoSaveObjectID] = this;
 	
 };
+WikiAutoSave.prototype.restoreCallback = function() {
+
+    try {
+    log("Restore call back ");
+	var contentEl = document.getElementById(this.targetID);
+	if ( contentEl == null ) 
+	{
+		log("Failed to find content form with ID "+this.targetID);
+	} 
+	var content = contentEl.value;
+
+	var restoredContentEl = document.getElementById(this.restoreContentsId);
+	var restoredContent = restoredContentEl.value;
+
+	var restoreDate = document.getElementById(this.restoreDateId);
+	var restoreTimestamp = document.getElementById(this.restoreTimestampId);
+	var dateTS = restoreTimestamp.value;
+	dateTS = parseInt(dateTS);
+	log("Date is "+dateTS);
+	restoreDate.value = new Date(dateTS);
+	
+	if ( restoredContent && restoredContent != content ) {
+		var restoreTab = document.getElementById(this.restoreTabId);
+		restoreTab.className = this.restoredClass; 
+        log("Restore call back :Recovered Content set "+this.restoreTabId+" to "+this.restoredClass);
+	} else {
+		if ( restoredContent ) {
+        	log("Restore call back :Content The Same");
+        } else {
+        	log("Restore call back :No Saved Content");
+        }
+    }
+    } catch (e) {
+    	log("Callback Failed "+e);
+    }
+}
+
+WikiAutoSave.prototype.doFunction = function() {
+	var argList = arguments;
+	var args = new Array();
+	var j = 0;
+	for ( var i = 1; i < argList.length; i+=2 ) {
+		var m = new Object();
+		m.name = argList[i];
+		m.value = argList[i+1];
+		args[j++] = m;
+	}
+	var m = new Object();
+	m.name = "method";
+	m.value = argList[0];
+	args[args.length] = m;
+	
+	var InternetExplorer = navigator.appName.indexOf("Microsoft") != -1;
+	var flashObj = InternetExplorer ? localstore : document.localstore;
+	try {
+		this.localStoreObj.doFunction(flashObj,1,args);
+	} catch (e) {
+	 	log("Problem Invoking Flash Object:"+e);
+	}
+}
+
 
 WikiAutoSave.prototype.setTargetID = function (targetID) 
 {
 	this.targetID = targetID;
 };
+WikiAutoSave.prototype.setRestoreTimestampId = function (restoreTimestampId) 
+{
+	this.restoreTimestampId = restoreTimestampId;
+};
+WikiAutoSave.prototype.setRestoreContentsId = function (restoreContentsId) 
+{
+	this.restoreContentsId = restoreContentsId;
+};
+WikiAutoSave.prototype.setRestoreVersionId = function (restoreVersionId) 
+{
+	this.restoreVersionId = restoreVersionId;
+};
+WikiAutoSave.prototype.setRestoreDateId = function (restoreDateId) 
+{
+	this.restoreDateId = restoreDateId;
+};
+WikiAutoSave.prototype.setRestoreTabId = function (autosaveId) 
+{
+	this.restoreTabId = autosaveId;
+};
+WikiAutoSave.prototype.setRestoredClass = function (autosaveClass) 
+{
+	this.restoredClass = autosaveClass;
+};
+
+
+
 WikiAutoSave.prototype.deleteContent = function () 
 {
-	var cookieNameBase = this.getCookieBase();
-	this.delCookie(cookieNameBase);
-	this.delCookie(cookieNameBase+"_date");
-	this.delCookie(cookieNameBase+"_version");
-	for ( i = 0; i < 30; i++ ) 
-	{
-	 	var cookieName = cookieNameBase+"_"+i+"X";
-	 	this.delCookie(cookieName);
-	}
+	this.doFunction("clearData","zone",this.siteId,"savekey",this.pageName);
 };
 
 WikiAutoSave.prototype.saveContent = function () 
@@ -150,57 +247,26 @@ WikiAutoSave.prototype.saveContent = function ()
 		log("Failed to find content form with ID "+this.targetID);
 	} 
 	var content = contentForm.value;
-	var escapedContent = escape(content);
-	var cookieNameBase = this.getCookieBase();
-	var icookie = 0;
-	if ( escapedContent.length > 3000*30 ) 
-	{
-		this.delCookie(cookieNameBase);
-		this.delCookie(cookieNameBase+"_date");
-		this.delCookie(cookieNameBase+"_version");
-		for ( i = icookie; i < 30; i++ ) 
-		{
-		 	var cookieName = cookieNameBase+"_"+i+"X";
-		 	this.delCookie(cookieName);
-		}
-		// FIXME: Internationalize
-		alert("There is insufficent space to perform \n" 
-		    + "autosaving on this page, please save \n"
-		    + "your work at regular intervals to reduce \n"
-		    + "the size of this page \n"
-		    + "Current Size = "+escapedContent.length+"\n"
- 		    + "Limit = "+3000*30);
-		this.stopAutosave();
-		return;
-	}
-	else 
-	{
-		this.setCookie(cookieNameBase,escape(this.pageName),10);
-		var ts = new Date();
-		this.setCookie(cookieNameBase+"_date",escape(ts),10);
-		this.setCookie(cookieNameBase+"_version",this.currentPageVersion,10);
-		for ( i = 0; i < escapedContent.length; i+=3500 ) 
-		{
-	 		var cookieName = cookieNameBase+"_"+icookie+"X";
-	 		icookie++;
-	 		var cookieValue = escapedContent.substring(i,i+3500);
-	 		this.delCookie(cookieName);
-	 		this.setCookie(cookieName,cookieValue,10,true);
-		}
-		
-	}
-	for ( i = icookie; i < 30; i++ ) 
-	{
-	 	var cookieName = cookieNameBase+"_"+i+"X";
-	 	this.delCookie(cookieName);
-	}
-	var savedContent = this.getSavedContent();
-	if ( savedContent != content ) {
-		log("ERROR SAVING CONTENT got "+savedContent);
-		log("Length was "+savedContent.length+" should have been "+content.length);
-	}
+	var ts = new Date().getTime();
+	
+	this.doFunction("saveData","zone",this.siteId,"savekey",this.pageName,
+					               "contents",content,"timestamp",ts,
+					               "version",this.currentPageVersion,
+					               "timestampID",this.restoreTimestampId );					               
 	log("Save Content Done");
 };
+
+
+WikiAutoSave.prototype.restoreContent = function () 
+{
+	var content = null;
+		
+	this.doFunction("getData","zone",this.siteId,"savekey",this.pageName,
+	                              "timestampID",this.restoreTimestampId,"contentsID",this.restoreContentsId,
+	                              "versionID",this.restoreVersionId,"callback","WikiAutoSave_doRestore('"+this.autoSaveObjectID+"');"  );
+	
+	// the call back is async, the results will go into the 
+}
 
 
 
@@ -223,114 +289,14 @@ WikiAutoSave.prototype.stopAutosave = function()
 
 
 
-WikiAutoSave.prototype.restoreContent = function () 
-{
-	var content = null;
-	var cookieNameBase = this.getCookieBase();
-	
-	var savedPageName = unescape(this.getCookie(cookieNameBase));
-	var dateSaved = unescape(this.getCookie(cookieNameBase+"_date"));
-	var savedVersion = unescape(this.getCookie(cookieNameBase+"_version"));
-	if ( savedPageName == this.pageName ) {
-		content = this.getSavedContent();
-		if ( content != null ) 
-		{
-			this.lastSavedContent = content;
-			this.lastSavedDate = dateSaved;
-			this.lastSavedVersion = savedVersion;
-			this.hasSavedPageContent = true;
-			log("There is saved content for page "+savedPageName+"::"+content);
-		} else {
-			log("There is no saved content "+content);
-			
-		}
-	} else {
-		log("Saved Content not from this page, this page is  "+this.pageName+": savedPage "+savedPageName);
-	}
-	if ( this.hasSavePageContent )  
-	{
-		log("No Saved Content Present");
-	}
-	log("Restore Content Done");
-};
-
-WikiAutoSave.prototype.getSavedContent = function() 
-{
-	var content = null;
-	var cookieNameBase = this.getCookieBase();
-	for ( i = 0; i < 30; i++ ) 
-	{
-	 	var cookieName = cookieNameBase+"_"+i+"X";
-	 	var value = this.getCookie(cookieName);
-	 	if ( value != null ) 
-	 	{
-	 		if ( content == null ) 
-	 		{
-	 			content = value;
-	 		} 
-	 		else 
-	 		{
-	 				content += value;
-	 		}
-	 	}
-	}
-        if ( content != null ) {
-		content = unescape(content);
-	}
-	return content;
-}; 
-
-WikiAutoSave.prototype.getCookieBase = function() 
-{
-	return "was_"+this.autoSaveObjectID;
-}; 
-	
-	
-WikiAutoSave.prototype.getCookie = function(NameOfCookie) 
-{ 
-	if (document.cookie.length > 0) 
-	{ 
-		begin = document.cookie.indexOf(NameOfCookie+"=");	
-		if (begin != -1) 
-		{ 
-			begin += NameOfCookie.length+1;
-			end = document.cookie.indexOf(";", begin);
-			if (end == -1) end = document.cookie.length;
-			return document.cookie.substring(begin, end); 
-		}
-	}
-	return null;
-};
-
-
-WikiAutoSave.prototype.setCookie = function(NameOfCookie, value, expiredays) 
-{ 
-	var ExpireDate = new Date ();
-	ExpireDate.setTime(ExpireDate.getTime() + (expiredays * 24 * 3600 * 1000));
-	var cookieSet = NameOfCookie + "=" + value +
-		((expiredays == null) ? "" : "; expires=" + ExpireDate.toGMTString());
-	document.cookie = cookieSet;
-	var cookieVal = this.getCookie(NameOfCookie);
-	if ( cookieVal != value)  {
-		log("Failed to set cookie "+NameOfCookie+" got "+ cookieVal);
-	}
-};
-
-
-WikiAutoSave.prototype.delCookie = function(NameOfCookie) 
-{ 
-	if (this.getCookie(NameOfCookie)) 
-	{	
-		document.cookie = NameOfCookie + "=" +
-			"; expires=Thu, 01-Jan-70 00:00:01 GMT";
-	}
-};
-
 // this 
+
+
+
 
 function WikiAutoSave_doAutoSave(saveID) 
 {
-	var autoSaver = autoSaveObjects[saveID];
+	var autoSaver = WikiAutoSave_autoSaveObjects[saveID];
 	if ( autoSaver != null && autoSaver.running  ) 
 	{
 		try 
@@ -339,18 +305,29 @@ function WikiAutoSave_doAutoSave(saveID)
 			{
 				if ( autoSaver.clearLog ) 
 				{
-				 clearLog();
+				    clearLog();
 				}
 				else 
 				{
 					autoSaver.clearLog = true;
 				}
+			   if ( autoSaver.state == 0 ) {
+				 // let the dom settle down
+				 autoSaver.state = 1;
+			   } else  if ( autoSaver.state == 1 ) {
+			   	autoSaver.restoreContent();
+			   	log("Restored Content");
+				 autoSaver.state = 2;
+				 autoSaver.interval = 10000;
+			   } else {
 				autoSaver.saveContent();
+			   	log("Saveded Content");
+				}
 			//	autoSaver.runs--;
 			} 
 			catch (e)  
 			{ 
-				alert("Error "+e);
+				log("Error "+e);
 			}
 			if ( autoSaver.runs == 0 ) 
 			{
@@ -363,7 +340,8 @@ function WikiAutoSave_doAutoSave(saveID)
 		} 
 		catch (e)  
 		{ 
-			alert("Error "+e);
+			log("Error "+e);
+			autoSaver.runs = 0;
 		}
 		
 	} else {

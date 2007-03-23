@@ -9,7 +9,7 @@
 
 #set(${recentlyVisitedBean.ViewPage}=${viewBean})  
 #set( $title = "${rlb.jsp_view}: ${util.escapeHtml($renderBean.localisedPageName)}" )
-#header(${title} ${viewBean} )  
+#header(${title} ${viewBean} "" )  
 <div id="rwiki_container">
   <div class="portletBody">
 	<div class="navIntraTool">

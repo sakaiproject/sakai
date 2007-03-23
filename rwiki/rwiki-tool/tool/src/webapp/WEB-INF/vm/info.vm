@@ -10,7 +10,7 @@
 #set( $rlb = ${requestScope.ResourceLoaderBean} )
 #set( $errorBean = ${requestScope.errorBean} )
 #set( $title = "${rlb.jsp_info}: ${util.escapeHtml($realmBean.localName)}" )
-#header(${title} ${viewBean}  )  
+#header(${title} ${viewBean} ""  )  
 
 #helppopup( "permissionshelp" ${rlb.jsp_page_permissions} ${rlb.jsp_page_permissions_help} )   		
 #helppopup( "createhelp" ${rlb.jsp_create_site_permissions} ${rlb.jsp_create_site_permissions_help} )

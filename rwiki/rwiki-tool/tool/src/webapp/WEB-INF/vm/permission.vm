@@ -1,7 +1,7 @@
 #set( $viewBean = ${requestScope.ViewBean} )  
 #set( $homeBean = ${requestScope.HomeBean} )
 #set( $rlb = ${requestScope.ResourceLoaderBean} )
-#header(${rlb.jsp_permission_denied} false )  
+#header(${rlb.jsp_permission_denied} false "" )  
 <div id="rwiki_container">
   <div class="portletBody">
 	<div class="navIntraTool">

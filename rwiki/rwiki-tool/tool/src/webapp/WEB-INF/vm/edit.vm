@@ -12,7 +12,7 @@
 #set( $homeBean = ${requestScope.homeBean} )
 #set( $rlb = ${requestScope.resourceLoaderBean} )
 #set( $title = "${rlb.jsp_edit}: ${util.escapeHtml($viewBean.localName)}" )
-#header(${title} false )  
+#header(${title} false  "" )  
 <div id="rwiki_container">
   <div class="portletBody">
 	<div class="navIntraTool">
@@ -135,6 +135,7 @@
 						        </div>
 						      </div>
 						      <input type="hidden" name="action" value="save"/>
+						      
 						      <input type="hidden" name="panel" value="Main"/>
 						      #if ( ${editBean.saveType} && (${editBean.saveType} == 'preview' || ${editBean.saveType.startsWith("attach")}) )
    						      <input type="hidden" name="version" id="pageVersion" 
@@ -189,34 +190,31 @@
 		        
 		              
 				   <div id="autosaveTab" class="tabOff" >
-		    	  <p class="shorttext">
-		    			  <input 
-		    			    type="button" 
-		    			    id="restoreButton" 
-		    			    name="restoreButton" 
-		    			    title="${rlb.jsp_button_restore_saved_edit}"
-		    			    onClick="restoreSavedContent('pageVersion', 'content', 'restoreContent','restoreVersion','restoreDate','autosave','autoSaveOffClass' ); selectTabs('autosaveTab','tabOn','tabOff','previewTab','tabOn','tabOff','editTab','tabOff','tabOn','autosave','tabHeadOn','tabHeadOff','preview','tabHeadOn','tabHeadOff','edit','tabHeadOff','tabHeadOn'); return false;"
-		    			    />
-		   			</p>
-		    	 <p class="shorttext">
-		   				<label for="restoreVersion" >${rlb.jsp_auto_save_version}</label>
-		   				<input id="restoreVersion" name="restoreVersion" value="${rlb.jsp_none}" />
-		   			</p>
-		   			<p class="shorttext">
-		   				<label for="restoreDate" >${rlb.jsp_auto_save_date}</label>
-		   				<input id="restoreDate" name="restoreDate" value="${rlb.jsp_none}" />
-		   			</p>
+						      <div id="textarea_outer_sizing_divx">
+						        <div id="textarea_inner_sizing_divx">
+						           #autosavetoolbar()
 		   			 <div>
 			    		 <textarea cols="60" rows="25" name="restoreContent" id="restoreContent"  readonly="readonly" >${rlb.jsp_no_restored_content}</textarea>
+					    </div>
+					    </div>
 					    </div>
 			 	  </div> <!-- endof autosave tab -->	
 	  </div>
 	  </form>
+	  <script type="text/javascript" >
+	  logInfo = true;
+	  </script>
+	  
+	  
 	  
 #sidebar()
 	 
   </div>
 </div>
+<script type="text/javascript" >
+WikiAutoSave_autoSaveOn('realm', 'pageName','pageVersion','restoreTimestamp','content','restoreContent','restoreVersion','restoreDate','autosave','tabHeadOff');
+</script>
+
 #footer()
 
 

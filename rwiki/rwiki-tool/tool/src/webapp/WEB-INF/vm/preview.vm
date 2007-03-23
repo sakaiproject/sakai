@@ -12,7 +12,7 @@
 #set( $realmBean = ${requestScope.realmBean})
 #set(${recentlyVisitedBean.ViewPage}=${viewBean})  
 #set( $title = "${rlb.jsp_preview_changes_to}: ${util.escapeHtml($viewBean.localName)}" )
-#header(${title} false )  
+#header(${title} false "" )  
 <div id="rwiki_container">
   <div class="portletBody">
 	<div class="navIntraTool">

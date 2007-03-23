@@ -3,7 +3,7 @@
 #set( $errorBean = ${requestScope.rsacMap.errorBean} )
 #set( $rlb = ${requestScope.rsacMap.resourceLoaderBean} )
 #set( $title = "${rlb.jsp_edit_section}: ${util.escapeHtml($multiRealmEditBean.localSpace)}" )
-#header(${title} false )  
+#header(${title} false "" )  
 <div id="rwiki_container">
   <div class="portletBody">
 	<div class="navIntraTool">

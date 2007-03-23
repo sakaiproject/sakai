@@ -5,7 +5,7 @@
 #set($homeBean = ${requestScope.homeBean})
 #set($rlb = ${requestScope.resourceLoaderBean})
 #set($title = "${rlb.jsp_search}: ${util.escapeHtml($searchBean.search)}")
-#header(${title} false)  
+#header(${title} false "" )  
 <div id="rwiki_container">
   <div class="portletBody">
 	<div class="navIntraTool">

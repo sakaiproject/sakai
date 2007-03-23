@@ -5,7 +5,7 @@
 #set( $rlb = ${requestScope.ResourceLoaderBean} )
 
 #set( $title = "${rlb.jsp_info}: ${util.escapeHtml($realmBean.localName)}" )
-#header(${title} ${viewBean} )  
+#header(${title} ${viewBean} "" )  
 <div id="rwiki_container">
   <div class="portletBody">
 	<div class="navIntraTool">
