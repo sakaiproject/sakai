@@ -9,9 +9,8 @@ import org.apache.pluto.spi.optional.PortletRegistryService;
 import org.apache.pluto.spi.optional.PortletInfoService;
 import org.apache.pluto.spi.optional.UserInfoService;
 import org.apache.pluto.spi.optional.PortalAdministrationService;
-// TODO: These are for Pluto 1.1.2 and later
-// import org.apache.pluto.spi.optional.PortletInvocationEvent;
-// import org.apache.pluto.spi.optional.PortletInvocationListener;
+import org.apache.pluto.spi.optional.PortletInvocationEvent;
+import org.apache.pluto.spi.optional.PortletInvocationListener;
 
 import org.apache.pluto.PortletContainerException;
 
@@ -64,9 +63,7 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
     
     private UserInfoService userInfoService = new SakaiUserInfoService();
 
-    // TODO: Swap These for Pluto 1.1.2
-    // private PortalAdministrationService portalAdministrationService = new SakaiPortalAdministrationService();
-    private PortalAdministrationService portalAdministrationService = null;
+    private PortalAdministrationService portalAdministrationService = new SakaiPortalAdministrationService();
 
     private PortletPreferencesService prefService = new SakaiPortletPreferencesService();
 
@@ -105,12 +102,10 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
     // At some level this could return a clever proxy which did lazy loading
     public class SakaiUserInfoService implements UserInfoService {
 
-	// TODO: New method signature for Pluto 1.1.2 - should not harm 1.1.1
         public Map getUserInfo(PortletRequest request, PortletWindow window) throws PortletContainerException {
-		return getUserInfo(request);
-	}
-
-        // TODO: Remove this for 1.1.2 and go to one method
+               return getUserInfo(request);
+       }
+ 
         public Map getUserInfo(PortletRequest request) throws PortletContainerException {
 
             Map retval = null;
@@ -146,9 +141,6 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
         }
     }
 
-    // TODO: Begin commented out code waiting for Pluto 1.1.2
-
-/*
     public class SakaiPortalAdministrationService implements PortalAdministrationService
     {
         private List administrativeRequestListeners = null;
@@ -193,11 +185,7 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
 	    }
 
 	}
-
     }
-*/
-
-    // TODO: End commented out code waiting for Pluto 1.1.2
 
     private void setupThread(PortletRequest request, boolean doLog)
     {
@@ -297,7 +285,7 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
                 // System.out.println("Reference="+siteReference);
 
 	        // If you don't have site.upd - Mark all references as read only
-                readOnly = ! SecurityService.unlock("site.upd",siteReference);
+                readOnly = ! SecurityService.unlock(SiteService.SECURE_UPDATE_SITE,siteReference);
 
 		Properties props = siteTool.getPlacementConfig();
 		// System.out.println("props = "+props);

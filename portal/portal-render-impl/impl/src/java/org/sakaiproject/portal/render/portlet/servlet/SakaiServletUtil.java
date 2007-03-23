@@ -28,6 +28,8 @@ public class SakaiServletUtil
 	{
 		if ( string == null ) return false;
 		if ( string.equalsIgnoreCase("admin") && SecurityService.isSuperUser() ) return true;
+		// Gridsphere convention
+		if ( string.equalsIgnoreCase("super") && SecurityService.isSuperUser() ) return true;
 
 		String placementId = state.getId();
 		// System.out.println("state.getId()="+placementId);
