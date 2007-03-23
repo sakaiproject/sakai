@@ -76,6 +76,8 @@
 	</form>
 	
 </div>
+#parse("/vm/resources/sakai_properties_scripts.vm")
+#*
 <script type="text/javascript" language="JavaScript">
 	<!--
 	var DOT = "$DOT";
@@ -457,36 +459,8 @@
 				}
 			}
 		}
-#*
-		var inputTags = document.getElementsByTagName("input");
-		for(var i = 0; i < inputTags.length; i++)
-		{
-			var tag = inputTags.get(i);
-			if(tag.id && tag.id.match(/^content${DOT}\d+$/))
-			{
-				if(tag.attachEvent)
-				{
-					tag.attachEvent("onchange", seedDisplayNameValue);
-				}
-				else if(tag.addEventListener)
-				{
-					tag.addEventListener("change", seedDisplayNameValue, true);
-				}
-			}
-		}
-*#
 	}
 	attachEventHandlers();
 	-->
 </script>
-	<script type="text/javascript">
-		function handleEnterKey (field, event) {
-			var keyCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode;
-			if (keyCode == 13) {
-				return false;
-			} 
-			else
-				return true;
-		}      
-	
-	</script>
+*#

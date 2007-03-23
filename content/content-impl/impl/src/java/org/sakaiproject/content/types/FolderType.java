@@ -1049,5 +1049,10 @@ public class FolderType extends BaseResourceType
 		}
 		return list;
 	}
-
+	
+	public boolean hasRightsDialog() 
+	{
+		return false;
+	}
+	
 }

@@ -96,6 +96,8 @@ public class ListItem
 	/** A long representing the number of milliseconds in one week.  Used for date calculations */
 	protected static final long ONE_WEEK = 1000L * 60L * 60L * 24L * 7L;
 
+	public static final String DOT = ".";
+
 	/**
 	 * @param entity
 	 * @param parent
@@ -313,6 +315,7 @@ public class ListItem
 		this.collection = entity.isCollection();
 		this.id = entity.getId();
 		this.name = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+		this.description = props.getProperty(ResourceProperties.PROP_DESCRIPTION);
 		
 		this.permissions = new TreeSet<ContentPermissions>();
 		this.selected = false;
@@ -723,13 +726,13 @@ public class ListItem
 
 	protected void captureAccess(ParameterParser params, String index) 
 	{
-		String access_mode = params.getString("access_mode" + index);
+		String access_mode = params.getString("access_mode" + DOT + index);
 		SortedSet groups = new TreeSet();
 		
 		if(access_mode == null || AccessMode.GROUPED.toString().equals(access_mode))
 		{
 			// we inherit more than one group and must check whether group access changes at this item
-			String[] access_groups = params.getStrings("access_groups");
+			String[] access_groups = params.getStrings("access_groups" + DOT + index);
 			
 			SortedSet<String> new_groups = new TreeSet<String>();
 			if(access_groups != null)
@@ -774,19 +777,19 @@ public class ListItem
 	protected void captureAvailability(ParameterParser params, String index) 
 	{
 		// availability
-		this.hidden = params.getBoolean("hidden" + index);
-		boolean use_start_date = params.getBoolean("use_start_date" + index);
-		boolean use_end_date = params.getBoolean("use_end_date" + index);
+		this.hidden = params.getBoolean("hidden" + DOT + index);
+		boolean use_start_date = params.getBoolean("use_start_date" + DOT + index);
+		boolean use_end_date = params.getBoolean("use_end_date" + DOT + index);
 		
 		this.useReleaseDate = use_start_date;
 		if(use_start_date)
 		{
-			int begin_year = params.getInt("release_year" + index);
-			int begin_month = params.getInt("release_month" + index);
-			int begin_day = params.getInt("release_day" + index);
-			int begin_hour = params.getInt("release_hour" + index);
-			int begin_min = params.getInt("release_min" + index);
-			String release_ampm = params.getString("release_ampm" + index);
+			int begin_year = params.getInt("release_year" + DOT + index);
+			int begin_month = params.getInt("release_month" + DOT + index);
+			int begin_day = params.getInt("release_day" + DOT + index);
+			int begin_hour = params.getInt("release_hour" + DOT + index);
+			int begin_min = params.getInt("release_min" + DOT + index);
+			String release_ampm = params.getString("release_ampm" + DOT + index);
 			if("pm".equals(release_ampm))
 			{
 				begin_hour += 12;
@@ -801,12 +804,12 @@ public class ListItem
 		this.useRetractDate = use_end_date;
 		if(use_end_date)
 		{
-			int end_year = params.getInt("retract_year" + index);
-			int end_month = params.getInt("retract_month" + index);
-			int end_day = params.getInt("retract_day" + index);
-			int end_hour = params.getInt("retract_hour" + index);
-			int end_min = params.getInt("retract_min" + index);
-			String retract_ampm = params.getString("retract_ampm" + index);
+			int end_year = params.getInt("retract_year" + DOT + index);
+			int end_month = params.getInt("retract_month" + DOT + index);
+			int end_day = params.getInt("retract_day" + DOT + index);
+			int end_hour = params.getInt("retract_hour" + DOT + index);
+			int end_min = params.getInt("retract_min" + DOT + index);
+			String retract_ampm = params.getString("retract_ampm" + DOT + index);
 			if("pm".equals(retract_ampm))
 			{
 				end_hour += 12;
@@ -823,7 +826,7 @@ public class ListItem
 	protected void captureCopyright(ParameterParser params, String index) 
 	{
 		// rights
-		String copyright = params.getString("copyright" + index);
+		String copyright = params.getString("copyright" + DOT + index);
 		if(copyright == null || copyright.trim().length() == 0)
 		{
 			// do nothing -- there must be no copyright dialog
@@ -832,7 +835,7 @@ public class ListItem
 		{
 			this.copyrightInfo = copyright;
 			
-			String newcopyright = params.getString("newcopyright" + index);
+			String newcopyright = params.getString("newcopyright" + DOT + index);
 			
 			if(newcopyright == null || newcopyright.trim().length() == 0)
 			{
@@ -843,7 +846,7 @@ public class ListItem
 				this.copyrightStatus = newcopyright;
 			}
 			
-			boolean copyrightAlert = params.getBoolean("copyrightAlert" + index);
+			boolean copyrightAlert = params.getBoolean("copyrightAlert" + DOT + index);
 			this.copyrightAlert = copyrightAlert;
 		}
 	}
@@ -851,7 +854,7 @@ public class ListItem
 	protected void captureDescription(ParameterParser params, String index) 
 	{
 		// description
-		String description = params.getString("description" + index);
+		String description = params.getString("description" + DOT + index);
 		this.setDescription(description);
 	}
 
@@ -866,7 +869,7 @@ public class ListItem
 
 	protected void captureDisplayName(ParameterParser params, String index) 
 	{
-		String displayName = params.getString("displayName" + index);
+		String displayName = params.getString("displayName" + DOT + index);
 		if(displayName == null)
 		{
 			String[] delimiters = {"/", "\\", ":"};
@@ -1844,6 +1847,7 @@ public class ListItem
 	public void updateContentCollectionEdit(ContentCollectionEdit edit) 
 	{
 		ResourcePropertiesEdit props = edit.getPropertiesEdit();
+		setDisplayNameOnEntity(props);
 		setDescriptionOnEntity(props);
 		//setCopyrightOnEntity(props);
 		setAccessOnEntity(edit);
@@ -1852,29 +1856,7 @@ public class ListItem
 	
 	protected void setAvailabilityOnEntity(GroupAwareEdit edit)
 	{
-		try 
-		{
-			if(this.accessMode == AccessMode.GROUPED && this.groups != null && ! this.groups.isEmpty())
-			{
-					edit.setGroupAccess(groups);
-			}
-			else if(this.isPubview && ! this.isPubviewInherited)
-			{
-				edit.setPublicAccess();
-			}
-			else if(edit.getAccess() == AccessMode.GROUPED)
-			{
-				edit.clearGroupAccess();
-			}
-		} 
-		catch (InconsistentException e) 
-		{
-			logger.warn("InconsistentException " + e);
-		} 
-		catch (PermissionException e) 
-		{
-			logger.warn("PermissionException " + e);
-		}
+		edit.setAvailability(hidden, releaseDate, retractDate);
 	}
 
 	protected void setCopyrightOnEntity(ResourcePropertiesEdit props) 
@@ -1908,7 +1890,29 @@ public class ListItem
 
 	protected void setAccessOnEntity(GroupAwareEdit edit) 
 	{
-		edit.setAvailability(hidden, releaseDate, retractDate);		
+		try 
+		{
+			if(this.accessMode == AccessMode.GROUPED && this.groups != null && ! this.groups.isEmpty())
+			{
+					edit.setGroupAccess(groups);
+			}
+			else if(this.isPubview && ! this.isPubviewInherited)
+			{
+				edit.setPublicAccess();
+			}
+			else if(edit.getAccess() == AccessMode.GROUPED)
+			{
+				edit.clearGroupAccess();
+			}
+		} 
+		catch (InconsistentException e) 
+		{
+			logger.warn("InconsistentException " + e);
+		} 
+		catch (PermissionException e) 
+		{
+			logger.warn("PermissionException " + e);
+		}
 	}
 
 	protected void setDescriptionOnEntity(ResourcePropertiesEdit props) 
