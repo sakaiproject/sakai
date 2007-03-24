@@ -76,5 +76,8 @@
     <module>velocity</module>
     <module>web</module>
     <module>webservices</module>
+    <module>mailtool</module>
+    <module>polls</module>
+    <module>usermembership</module>
   </modules>
 </project>
