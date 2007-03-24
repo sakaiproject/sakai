@@ -2067,6 +2067,57 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 	}	// doList
 
+	
+	public void doRemoveAllCitations( RunData data )
+	{
+		// get the state object
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		ParameterParser params = data.getParameters();
+		
+		String collectionId = params.getString("collectionId");
+		
+		CitationCollection collection = null;
+		
+		if(collectionId == null)
+		{
+			collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
+		}
+		if(collectionId == null)
+		{
+			// TODO add alert and log error
+		}
+		else
+		{
+			try
+			{
+				collection = CitationService.getCollection(collectionId);
+			}
+			catch(IdUnusedException e)
+			{
+				// TODO add alert and log error
+		        logger.warn("CitationHelperAction.doRemoveCitation unable to retrieve collection: " + collectionId);
+			}
+		}
+
+		if(collection == null)
+		{
+			// TODO add alert and log error
+	        logger.warn("CitationHelperAction.doRemoveCitation collection null: " + collectionId);			
+		}
+		else
+		{
+			// remove all citations
+			List<Citation> citations = collection.getCitations();
+			for( Citation citation : citations )
+			{
+				collection.remove( citation );
+			}
+			CitationService.save(collection);
+		}
+	
+		setMode(state, Mode.LIST);
+	}
+	
 	/**
 	* 
 	*/

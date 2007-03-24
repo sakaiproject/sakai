@@ -385,3 +385,14 @@ function closeExportWindow() {
     exportWindow.close();
   }
 }
+
+function removeCitations( selectedOrAll, formname ) {
+  if( selectedOrAll == "selected" ) {
+    // need to add selections here ...
+    document.getElementById('sakai_action').value='doRemoveSelectedCitations';
+    submitform( formname );
+  } else if( selectedOrAll == "all" ) {
+    document.getElementById('sakai_action').value='doRemoveAllCitations';
+    submitform( formname );
+  }
+}
