@@ -547,11 +547,11 @@ public class ListItem
 			this.iconLocation = resourceTypeDef.getIconLocation(this.entity);
 			String[] args = { resourceTypeDef.getLabel() };
 			this.otherActionsLabel = trb.getFormattedMessage("action.other", args);
+			this.name = trb.getFormattedMessage("create.unknown", args);
 		}
 
 		this.collection = ResourceType.TYPE_FOLDER.equals(resourceType);
 		this.id = "";
-		this.name = this.otherActionsLabel;
 		this.parent = parent;
 		this.permissions = parent.getPermissions();
 		this.selected = false;

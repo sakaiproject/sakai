@@ -4163,11 +4163,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			ContentEntity collection = pipe.getContentEntity();
 
 			String typeId = pipe.getAction().getTypeId();
-			List items = newEditItems(collection.getId(), typeId, encoding, defaultCopyrightStatus, preventPublicDisplay.booleanValue(), defaultRetractDate, new Integer(1));
+			
+			ListItem parent = new ListItem(pipe.getContentEntity());
 
-			ResourcesEditItem item = (ResourcesEditItem) items.get(0);
-			item.setContent(pipe.getContent());
-			item.setMimeType(pipe.getMimeType());
+			ListItem item = new ListItem(pipe, parent, defaultRetractDate);
 			context.put("item", item);
 			
 			state.setAttribute(STATE_CREATE_WIZARD_ITEM, item);
@@ -5351,7 +5350,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	{
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		
-		ResourcesEditItem item = (ResourcesEditItem) state.getAttribute(STATE_CREATE_WIZARD_ITEM);
+		ListItem item = (ListItem) state.getAttribute(STATE_CREATE_WIZARD_ITEM);
 		
 		// get the parameter-parser
 		ParameterParser params = data.getParameters();
@@ -5367,11 +5366,17 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		else if(user_action.equals("save"))
 		{
+			item.captureProperties(params, "0");
+			String name = params.getString("name.0");
+			if(name != null)
+			{
+				item.setDisplayName(name);
+			}
+			
 			String collectionId = (String) state.getAttribute(STATE_CREATE_WIZARD_COLLECTION_ID);
 			try 
 			{
 				// title
-				String name = params.getString("name");
 				String basename = name.trim();
 				String extension = "";
 				if(name.contains("."))
@@ -5413,6 +5418,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				
 				resource.setResourceType(resourceType);
 				
+				item.updateContentResourceEdit(resource);
+				
 				byte[] content = pipe.getRevisedContent();
 				if(content == null)
 				{
@@ -5434,154 +5441,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				resource.setContentType(pipe.getRevisedMimeType());
 				
 				ResourcePropertiesEdit resourceProperties = resource.getPropertiesEdit();
-				resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
-				
-				Map values = pipe.getRevisedResourceProperties();
-				Iterator valueIt = values.keySet().iterator();
-				while(valueIt.hasNext())
-				{
-					String pname = (String) valueIt.next();
-					String pvalue = (String) values.get(pname);
-					resourceProperties.addProperty(pname, pvalue);
-				}
-				
-				// description
-				String description = params.getString("description");
-				resourceProperties.addProperty(ResourceProperties.PROP_DESCRIPTION, description);
-				
-				// rights
-				String copyright = params.getString("copyright");
-				String newcopyright = params.getString("newcopyright");
-				boolean copyrightAlert = params.getBoolean("copyrightAlert");
-				
-				if(copyright == null || copyright.trim().length() == 0)
-				{
-					resourceProperties.removeProperty(ResourceProperties.PROP_COPYRIGHT_CHOICE);
-				}
-				else
-				{
-					resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT_CHOICE, copyright);
-				}
-				if(newcopyright == null || newcopyright.trim().length() == 0)
-				{
-					resourceProperties.removeProperty(ResourceProperties.PROP_COPYRIGHT);
-				}
-				else
-				{
-					resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT, newcopyright);
-				}
-				if (copyrightAlert)
-				{
-					resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT_ALERT, Boolean.TRUE.toString());
-				}
-				else
-				{
-					resourceProperties.removeProperty (ResourceProperties.PROP_COPYRIGHT_ALERT);
-				}
-				
-				// availability
-				boolean hidden = params.getBoolean("hidden");
-				boolean use_start_date = params.getBoolean("use_start_date");
-				boolean use_end_date = params.getBoolean("use_end_date");
-				Time releaseDate = null;
-				Time retractDate = null;
-				
-				if(use_start_date)
-				{
-					int begin_year = params.getInt("release_year");
-					int begin_month = params.getInt("release_month");
-					int begin_day = params.getInt("release_day");
-					int begin_hour = params.getInt("release_hour");
-					int begin_min = params.getInt("release_min");
-					String release_ampm = params.getString("release_ampm");
-					if("pm".equals(release_ampm))
-					{
-						begin_hour += 12;
-					}
-					else if(begin_hour == 12)
-					{
-						begin_hour = 0;
-					}
-					releaseDate = TimeService.newTimeLocal(begin_year, begin_month, begin_day, begin_hour, begin_min, 0, 0);
-				}
-				
-				if(use_end_date)
-				{
-					int end_year = params.getInt("retract_year");
-					int end_month = params.getInt("retract_month");
-					int end_day = params.getInt("retract_day");
-					int end_hour = params.getInt("retract_hour");
-					int end_min = params.getInt("retract_min");
-					String retract_ampm = params.getString("retract_ampm");
-					if("pm".equals(retract_ampm))
-					{
-						end_hour += 12;
-					}
-					else if(end_hour == 12)
-					{
-						end_hour = 0;
-					}
-					retractDate = TimeService.newTimeLocal(end_year, end_month, end_day, end_hour, end_min, 0, 0);
-				}
-				
-				resource.setAvailability(hidden, releaseDate, retractDate);
-				
-				// access
-				Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
-				if(preventPublicDisplay == null)
-				{
-					preventPublicDisplay = Boolean.FALSE;
-					state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
-				}
-				
-				String access_mode = params.getString("access_mode");
-				SortedSet groups = new TreeSet();
-				
-				if(access_mode == null || AccessMode.GROUPED.toString().equals(access_mode))
-				{
-					// we inherit more than one group and must check whether group access changes at this item
-					String[] access_groups = params.getStrings("access_groups");
-					
-					SortedSet new_groups = new TreeSet();
-					if(access_groups != null)
-					{
-						new_groups.addAll(Arrays.asList(access_groups));
-					}
-					new_groups = item.convertToRefs(new_groups);
-					
-					Collection inh_grps = item.getInheritedGroupRefs();
-					boolean groups_are_inherited = (new_groups.size() == inh_grps.size()) && inh_grps.containsAll(new_groups);
-					
-					if(groups_are_inherited)
-					{
-						new_groups.clear();
-						item.setEntityGroupRefs(new_groups);
-						item.setAccess(AccessMode.INHERITED.toString());
-					}
-					else
-					{
-						item.setEntityGroupRefs(new_groups);
-						item.setAccess(AccessMode.GROUPED.toString());
-					}
-					
-					item.setPubview(false);
-				}
-				else if(PUBLIC_ACCESS.equals(access_mode))
-				{
-					if(! preventPublicDisplay.booleanValue() && ! item.isPubviewInherited())
-					{
-						item.setPubview(true);
-						item.setAccess(AccessMode.INHERITED.toString());
-					}
-				}
-				else if(AccessMode.INHERITED.toString().equals(access_mode))
-				{
-					item.setAccess(AccessMode.INHERITED.toString());
-					item.clearGroups();
-					item.setPubview(false);
-				}
-				
-				// TODO update resource with access info
 				
 
 				// notification
@@ -5610,12 +5469,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				
 				toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
 
-				// set to public access if allowed and requested
-				if(!preventPublicDisplay.booleanValue() && PUBLIC_ACCESS.equals(access_mode))
-				{
-					ContentHostingService.setPubView(resource.getId(), true);
-				}
-				
 				// show folder if in hierarchy view
 				SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
 				expandedCollections.add(collectionId);

@@ -279,7 +279,7 @@
 					<td>
 					</td>
 					<td>
-						#custom_dateselectionwidget("release_year${DOT}$i" "release_month${DOT}$i" "release_day${DOT}$i" $year0 $yearN $yearX $monthX $dayX "document.getElementById('hidden_true').checked=false;document.getElementById('hidden_false${DOT}${i}').checked=true;document.getElementById('use_start_date${DOT}${i}').checked=true;")
+						#custom_dateselectionwidget("release_year${DOT}$i" "release_month${DOT}$i" "release_day${DOT}$i" $year0 $yearN $yearX $monthX $dayX "document.getElementById('hidden_true${DOT}${i}').checked=false;document.getElementById('hidden_false${DOT}${i}').checked=true;document.getElementById('use_start_date${DOT}${i}').checked=true;")
 					</td>
 					<td>
 						#custom_timeSelectionWidget("release" "$i" $model.releaseDate "document.getElementById('hidden_true${DOT}${i}').checked=false;document.getElementById('hidden_false${DOT}${i}').checked=true;document.getElementById('use_start_date${DOT}${i}').checked=true;")
@@ -327,7 +327,7 @@
 						#custom_dateselectionwidget("retract_year${DOT}$i" "retract_month${DOT}$i" "retract_day${DOT}$i" $year0 $yearN $yearX $monthX $dayX "document.getElementById('hidden_true${DOT}${i}').checked=false;document.getElementById('hidden_false${DOT}${i}').checked=true;document.getElementById('use_end_date${DOT}${i}').checked=true;")
 					</td>
 					<td>
-						#custom_timeSelectionWidget("retract" $model.retractDate "document.getElementById('hidden_true${DOT}${i}').checked=false;document.getElementById('hidden_false${DOT}${i}').checked=true;document.getElementById('use_end_date${DOT}${i}').checked=true;")
+						#custom_timeSelectionWidget("retract" "$i" $model.retractDate "document.getElementById('hidden_true${DOT}${i}').checked=false;document.getElementById('hidden_false${DOT}${i}').checked=true;document.getElementById('use_end_date${DOT}${i}').checked=true;")
 					</td>
 				</tr>
 				<tr>
