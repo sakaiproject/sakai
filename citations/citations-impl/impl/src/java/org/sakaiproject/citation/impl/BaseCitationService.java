@@ -2163,22 +2163,19 @@ public abstract class BaseCitationService implements CitationService
 			return this.m_citations.containsKey(citation.getId());
 		}
 
-		public void exportRis(StringBuffer buffer, List citations) throws IOException
+		public void exportRis(StringBuffer buffer, List<String> citationIds) throws IOException
 		{
 			// output "header" info to buffer
 
 			// Iterate over citations and output to ostream
-			Iterator it = citations.iterator();
-			while (it.hasNext())
+			for( String citationId : citationIds )
 			{
-				String citationId = (String) it.next();
 				Citation citation = (Citation) this.m_citations.get(citationId);
 				if (citation != null)
 				{
 					citation.exportRis(buffer);
 				}
 			}
-
 		}
 
 		/**
@@ -3392,7 +3389,8 @@ public abstract class BaseCitationService implements CitationService
 		Entity entity = null;
 		if (APPLICATION_ID.equals(ref.getType()))
 		{
-			if (REF_TYPE_EXPORT_RIS.equals(ref.getSubType()))
+			if ( REF_TYPE_EXPORT_RIS_SEL.equals(ref.getSubType()) ||
+					REF_TYPE_EXPORT_RIS_ALL.equals(ref.getSubType()) )
 			{
 				// these entities are citation collections
 				String id = ref.getId();
@@ -4228,7 +4226,8 @@ public abstract class BaseCitationService implements CitationService
 			if (parts.length > 2)
 			{
 				subType = parts[2];
-				if (CitationService.REF_TYPE_EXPORT_RIS.equals(subType))
+				if (CitationService.REF_TYPE_EXPORT_RIS_ALL.equals(subType) ||
+						CitationService.REF_TYPE_EXPORT_RIS_SEL.equals(subType))
 				{
 					context = parts[3];
 					id = parts[3];

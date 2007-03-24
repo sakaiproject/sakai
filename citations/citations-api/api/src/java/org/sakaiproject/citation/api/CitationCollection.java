@@ -284,10 +284,10 @@ public interface CitationCollection extends Entity
 	/**
 	 * 
 	 * @param buffer
-	 * @param citations
+	 * @param citationIds
 	 * @throws IOException 
 	 */
-	public void exportRis(StringBuffer buffer, List citations) throws IOException;
+	public void exportRis(StringBuffer buffer, List<String> citationIds) throws IOException;
     
 }	// interface Citation
 

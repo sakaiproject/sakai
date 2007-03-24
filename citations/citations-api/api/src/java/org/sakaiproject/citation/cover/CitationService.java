@@ -29,7 +29,9 @@ import org.sakaiproject.component.cover.ComponentManager;
  */
 public class CitationService 
 {
-	public static final String REF_TYPE_EXPORT_RIS = org.sakaiproject.citation.api.CitationService.REF_TYPE_EXPORT_RIS;
+//	public static final String REF_TYPE_EXPORT_RIS = org.sakaiproject.citation.api.CitationService.REF_TYPE_EXPORT_RIS;
+	public static final String REF_TYPE_EXPORT_RIS_SEL = org.sakaiproject.citation.api.CitationService.REF_TYPE_EXPORT_RIS_SEL;
+	public static final String REF_TYPE_EXPORT_RIS_ALL = org.sakaiproject.citation.api.CitationService.REF_TYPE_EXPORT_RIS_ALL;
 	public static final String REF_TYPE_VIEW_LIST = org.sakaiproject.citation.api.CitationService.REF_TYPE_VIEW_LIST;
 	public static final String CITATION_LIST_ID = org.sakaiproject.citation.api.CitationService.CITATION_LIST_ID;
 	

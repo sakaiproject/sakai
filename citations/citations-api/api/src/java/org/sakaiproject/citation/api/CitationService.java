@@ -44,7 +44,8 @@ public interface CitationService extends EntityProducer
 	/** This string starts the references to entities in this service. */
 	public static final String REFERENCE_ROOT = Entity.SEPARATOR + "citation";
 	
-	public static final String REF_TYPE_EXPORT_RIS = "export_ris";
+	public static final String REF_TYPE_EXPORT_RIS_SEL = "export_ris_sel";
+	public static final String REF_TYPE_EXPORT_RIS_ALL = "export_ris_all";
 	
 	public static final String RIS_FORMAT = "RIS";
 

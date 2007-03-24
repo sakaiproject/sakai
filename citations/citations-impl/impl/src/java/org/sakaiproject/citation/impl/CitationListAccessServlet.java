@@ -94,9 +94,12 @@ public class CitationListAccessServlet implements HttpAccess
 			throws EntityPermissionException, EntityNotDefinedException, EntityAccessOverloadException, EntityCopyrightException
 	{
 		String subtype = ref.getSubType();
-		if(org.sakaiproject.citation.api.CitationService.REF_TYPE_EXPORT_RIS.equals(subtype))
+		if(org.sakaiproject.citation.api.CitationService.REF_TYPE_EXPORT_RIS_SEL.equals(subtype) ||
+				org.sakaiproject.citation.api.CitationService.REF_TYPE_EXPORT_RIS_ALL.equals(subtype))
 		{
-			handleExportRequest(req, res, ref, org.sakaiproject.citation.api.CitationService.RIS_FORMAT);
+			handleExportRequest(req, res, ref,
+					org.sakaiproject.citation.api.CitationService.RIS_FORMAT,
+					subtype);
 			
 		}
 		else if(org.sakaiproject.citation.api.CitationService.REF_TYPE_VIEW_LIST.equals(subtype))
@@ -110,16 +113,14 @@ public class CitationListAccessServlet implements HttpAccess
 
 	}	// handleAccess
 	
-	protected void handleExportRequest(HttpServletRequest req, HttpServletResponse res, Reference ref, String format) 
+	protected void handleExportRequest(HttpServletRequest req, HttpServletResponse res,
+			Reference ref, String format, String subtype) 
 			throws EntityNotDefinedException, EntityAccessOverloadException 
 	{
 		if(org.sakaiproject.citation.api.CitationService.RIS_FORMAT.equals(format))
 		{
 			String collectionId = req.getParameter("collectionId");
-			String[] citationIds = req.getParameterValues("citationId");
-			List citations = new Vector();
-			citations.addAll(Arrays.asList(citationIds));
-			
+			List<String> citationIds = new java.util.ArrayList<String>();			
 			CitationCollection collection = null;
 			try 
 			{
@@ -130,6 +131,25 @@ public class CitationListAccessServlet implements HttpAccess
 				throw new EntityNotDefinedException(ref.getReference());
 			}
 			
+			// decide whether to export selected or entire list
+			if( org.sakaiproject.citation.api.CitationService.REF_TYPE_EXPORT_RIS_SEL.equals(subtype) )
+			{
+				// export selected
+				String[] paramCitationIds = req.getParameterValues("citationId");
+				citationIds.addAll(Arrays.asList(paramCitationIds));
+			}
+			else
+			{
+				// export all
+				
+				// iterate through ids
+				List<Citation> citations = collection.getCitations();
+				for( Citation citation : citations )
+				{
+					citationIds.add( citation.getId() );
+				}
+			}
+			
 			// We need to write to a temporary stream for better speed, plus
 			// so we can get a byte count. Internet Explorer has problems
 			// if we don't make the setContentLength() call.
@@ -138,7 +158,7 @@ public class CitationListAccessServlet implements HttpAccess
 
 			try 
 			{
-				collection.exportRis(buffer, citations);
+				collection.exportRis(buffer, citationIds);
 			} 
 			catch (IOException e) 
 			{

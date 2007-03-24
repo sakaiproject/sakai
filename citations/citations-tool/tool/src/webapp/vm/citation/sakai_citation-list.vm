@@ -140,4 +140,26 @@ function resizeFrame() {
     throw( "resizeFrame did not get the frame (using name=" + window.name + ")" );
   }
 }
+
+/*
+ * Dispatches actions on citations
+ */
+function doCitationAction( action ) {
+  // do action
+  if( action == "exportSelected" ) {
+    exportSelectedCitations( "$exportUrlSel", "$tlang.getString( "export.title.list" )", "$collectionId" );
+  } else if( action == "exportList" ) {
+    exportAllCitations( "$exportUrlAll", "$tlang.getString( "export.title.list" )", "$collectionId" );
+  } else if( action == "removeSelected" ) {
+  
+  } else if( action == "removeList" ) {
+  
+  }
+  
+  // reset select boxes
+  $( ".citationActionSelect" ).each( function() {
+      this.selectedIndex = 0;
+    }
+  );
+}
 </script>
