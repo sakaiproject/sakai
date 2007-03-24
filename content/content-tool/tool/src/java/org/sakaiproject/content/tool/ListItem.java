@@ -39,6 +39,7 @@ import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
@@ -254,6 +255,8 @@ public class ListItem
 	protected boolean isTooBig = false;
 	protected String size = "";
 	protected String createdBy;
+	protected String createdTime;
+	protected String modifiedBy;
 	protected String modifiedTime;
 	protected int depth;
 
@@ -289,6 +292,13 @@ public class ListItem
 	protected String containingCollectionId;
 
 	protected String displayName;
+
+	protected boolean isUserSite = false;
+
+	protected boolean isSiteCollection = false;
+	protected boolean hasQuota = false;
+	protected boolean canSetQuota = false;
+	protected String quota;
 	
 	/**
 	 * @param entity
@@ -300,7 +310,16 @@ public class ListItem
 		{
 			return;
 		}
-		
+		String refstr = entity.getReference();
+		Reference ref = EntityManager.newReference(refstr);
+		String contextId = ref.getContext();
+		boolean isUserSite = false;
+		if(contextId != null)
+		{
+			isUserSite = SiteService.isUserSite(contextId);
+		}
+		setUserSite(isUserSite);
+
 		org.sakaiproject.content.api.ContentHostingService contentService = ContentHostingService.getInstance();
 		if(entity.getContainingCollection() == null)
 		{
@@ -350,6 +369,25 @@ public class ListItem
 			if(collection_size > ResourcesAction.EXPANDABLE_FOLDER_SIZE_LIMIT)
 			{
 				setIsTooBig(true);
+			}
+			// setup for quota - ADMIN only, site-root collection only
+			if (SecurityService.isSuperUser())
+			{
+				String siteCollectionId = ContentHostingService.getSiteCollection(contextId);
+				if(siteCollectionId.equals(entity.getId()))
+				{
+					setCanSetQuota(true);
+					try
+					{
+						// Getting the quota as a long validates the property
+						long quota = props.getLongProperty(ResourceProperties.PROP_COLLECTION_BODY_QUOTA);
+						setHasQuota(true);
+						setQuota(Long.toString(quota));
+					}
+					catch (Exception any)
+					{
+					}
+				}
 			}
 		}
 		else 
@@ -438,12 +476,12 @@ public class ListItem
 		this.groups.addAll(entity.getGroupObjects());
 		this.inheritedGroups.clear();
 		this.inheritedGroups.addAll(entity.getInheritedGroupObjects());
-		Reference ref = EntityManager.newReference(entity.getReference());
-		if(ref != null && ref.getContext() != null)
+		
+		if(contextId != null)
 		{
 			try
 	        {
-		        Site site = SiteService.getSite(ref.getContext());
+		        Site site = SiteService.getSite(contextId);
 		        setPossibleGroups(site.getGroups());
 	        }
 	        catch (IdUnusedException e)
@@ -530,6 +568,27 @@ public class ListItem
 		}
 		this.isAvailable = entity.isAvailable();
 
+	}
+
+	public void setQuota(String quota) 
+	{
+		this.quota = quota;
+		
+	}
+
+	public void setHasQuota(boolean hasQuota) 
+	{
+		this.hasQuota = hasQuota;
+	}
+
+	public void setCanSetQuota(boolean canSetQuota) 
+	{
+		this.canSetQuota = canSetQuota;
+	}
+
+	public void setUserSite(boolean isUserSite) 
+	{
+		this.isUserSite = isUserSite;
 	}
 
 	public ListItem(ResourceToolActionPipe pipe, ListItem parent, Time defaultRetractTime)
@@ -865,6 +924,31 @@ public class ListItem
 		captureCopyright(params, index);
 		captureAccess(params, index);
 		captureAvailability(params, index);
+		if(this.canSetQuota)
+		{
+			captureQuota(params, index);
+		}
+	}
+
+	protected void captureQuota(ParameterParser params, String index) 
+	{
+		String setQuota = params.getString("setQuota" + DOT + index);
+		if(setQuota != null)
+		{
+			this.hasQuota = params.getBoolean("hasQuota" + DOT + index);
+			if(this.hasQuota)
+			{
+				String quota = params.getString("quota" + DOT + index);
+				if(quota != null && quota.trim().matches("^\\d+$"))
+				{
+					this.quota = quota.trim();
+				}
+			}
+			else
+			{
+				this.quota = null;
+			}		
+		}
 	}
 
 	protected void captureDisplayName(ParameterParser params, String index) 
@@ -1512,9 +1596,9 @@ public class ListItem
     	this.createdBy = createdBy;
     }
 
-	private void setCreatedTime(String display) {
-		// TODO Auto-generated method stub
-		
+	private void setCreatedTime(String createdTime) 
+	{
+		this.createdTime = createdTime;
 	}
 
 	/**
@@ -1649,9 +1733,9 @@ public class ListItem
 		this.mimetype = mimetype;
 	}
 
-	private void setModifiedBy(String createdBy2) {
-		// TODO Auto-generated method stub
-		
+	private void setModifiedBy(String modifiedBy) 
+	{
+		this.modifiedBy = modifiedBy;
 	}
 
 	/**
@@ -1852,8 +1936,30 @@ public class ListItem
 		//setCopyrightOnEntity(props);
 		setAccessOnEntity(edit);
 		setAvailabilityOnEntity(edit);
+		setQuotaOnEntity(props);
 	}
 	
+	protected void setQuotaOnEntity(ResourcePropertiesEdit props) 
+	{
+		if(this.canSetQuota)
+		{
+			if(SecurityService.isSuperUser())
+			{
+				if(this.hasQuota)
+				{
+					if(this.quota != null && this.quota.trim().matches("^\\d+$"))
+					{
+						props.addProperty(ResourceProperties.PROP_COLLECTION_BODY_QUOTA, this.quota.trim());
+					}
+				}
+				else
+				{
+					props.removeProperty(ResourceProperties.PROP_COLLECTION_BODY_QUOTA);
+				}
+			}
+		}
+	}
+
 	protected void setAvailabilityOnEntity(GroupAwareEdit edit)
 	{
 		edit.setAvailability(hidden, releaseDate, retractDate);
@@ -1954,6 +2060,56 @@ public class ListItem
 	public String getDisplayName() 
 	{
 		return displayName;
+	}
+
+	public boolean isUserSite() 
+	{
+		return isUserSite;
+	}
+
+	public boolean canSetQuota() 
+	{
+		return canSetQuota;
+	}
+
+	public boolean hasQuota() 
+	{
+		return hasQuota;
+	}
+
+	public String getQuota() 
+	{
+		return quota;
+	}
+
+	public boolean isSiteCollection() 
+	{
+		return isSiteCollection;
+	}
+
+	public void setSiteCollection(boolean isSiteCollection) 
+	{
+		this.isSiteCollection = isSiteCollection;
+	}
+
+	public String getResourceType() 
+	{
+		return resourceType;
+	}
+
+	public void setResourceType(String resourceType) 
+	{
+		this.resourceType = resourceType;
+	}
+
+	public String getCreatedTime() 
+	{
+		return createdTime;
+	}
+
+	public String getModifiedBy() 
+	{
+		return modifiedBy;
 	}
 
 }

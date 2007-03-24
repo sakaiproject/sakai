@@ -91,6 +91,18 @@
 		</label>
 		<textarea id="description${DOT}$i" name="description${DOT}$i" rows="5" cols="80" wrap="virtual">$!{model.description}</textarea>
 	</p>
+	#if($model.canSetQuota())
+		<p class="shorttext">
+			<label for="hasQuota${DOT}$i">
+				$tlang.getString("edit.quota")
+			</label>
+			<span>	
+				<input type="hidden" name="setQuota${DOT}$i" value="true" />
+				<input type="checkbox" name="hasQuota${DOT}$i" id="hasQuota${DOT}$i" value="true"#if($model.hasQuota()) checked="checked" #end style="border:none" />
+				<input type="text" size="10" name="quota${DOT}$i" id="quota${DOT}$i" value="$!model.quota" />
+			</span>
+		</p>	
+	#end
 	#if($model.resourceTypeDef.hasRightsDialog()) 
 		#if ($!copyrightTypes)
 			<p class="shorttext">
@@ -132,6 +144,7 @@
 			</table>
 		#end
 	#end
+	
 	<p class="instruction">$tlang.getString("edit.who")</p>
 	######### begin access section ##########
 	## Should initial access to this resource or collection be determined
