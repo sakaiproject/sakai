@@ -14,12 +14,6 @@
     <deploy.target>shared</deploy.target>
   </properties>
   <build>
-    
-    
-    
-    
-    
-    
     <resources>
       <resource>
         <directory>src</directory>
