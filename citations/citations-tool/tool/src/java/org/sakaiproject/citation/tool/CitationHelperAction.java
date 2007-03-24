@@ -905,8 +905,10 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			}
 		}
 		
-		String exportURL = collection.getUrl(CitationService.REF_TYPE_EXPORT_RIS);
-		context.put("exportURL", exportURL);
+		String exportUrlSel = collection.getUrl(CitationService.REF_TYPE_EXPORT_RIS_SEL);
+		String exportUrlAll = collection.getUrl(CitationService.REF_TYPE_EXPORT_RIS_ALL);
+		context.put("exportUrlSel", exportUrlSel);
+		context.put("exportUrlAll", exportUrlAll);
 		
 		Integer listPageSize = (Integer) state.getAttribute(STATE_LIST_PAGE_SIZE);
 		if(listPageSize == null)
