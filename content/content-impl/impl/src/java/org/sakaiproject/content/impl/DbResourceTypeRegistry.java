@@ -48,8 +48,8 @@ public class DbResourceTypeRegistry extends ResourceTypeRegistryImpl
 	/** Table amd field names**/
 	
 	protected static String m_resourceTableName = "CONTENT_TYPE_REGISTRY";
-	protected static String m_resourceIDField   = "RESOURCE_TYPE_ID";
 	protected static String m_contextIDField    = "CONTEXT_ID";
+	protected static String m_resourceIDField   = "RESOURCE_TYPE_ID";
 	protected static String m_enabledField      = "ENABLED";
 	
 	/** SQL to get enabled resource ids **/
@@ -133,7 +133,7 @@ public class DbResourceTypeRegistry extends ResourceTypeRegistryImpl
 			Object fields[] = new Object[3];
 			fields[0]= contextID;
 			fields[1] = resourceID;
-			fields[2]= enabled.get(resourceID);
+			fields[2]= enabled.get(resourceID) ? "e" : "d";
 			
 			m_sqlService.dbWrite(connection, INSERT_RESOURCEID_MAP, fields);
 		}
@@ -188,7 +188,7 @@ public class DbResourceTypeRegistry extends ResourceTypeRegistryImpl
 			
 			while (results.next()) 
 			{
-				enabled.put(results.getString(2), results.getBoolean(3));
+				enabled.put(results.getString(2), new Boolean(results.getString(3).equals("e")));
 			}		
 			
 			m_sqlService.returnConnection(conn);
