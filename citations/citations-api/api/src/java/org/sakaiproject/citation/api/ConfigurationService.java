@@ -36,8 +36,8 @@ public interface ConfigurationService
   public String getConfigurationXml() throws OsidConfigurationException;
 
   /**
-   * Is the configuration XML available (was the URI provided)?
-   * @return true If the XML file is available
+   * Is the configuration XML file provided and readable
+   * @return true If the XML file is provided and readable, false otherwise
    */
   public boolean isConfigurationXmlAvailable();
 
@@ -48,8 +48,8 @@ public interface ConfigurationService
   public String getDatabaseHierarchyXml() throws OsidConfigurationException;
 
   /**
-   * Is the database hierarchy XML available (was the URI provided)?
-   * @return true If the XML file is available
+   * Is the database hierarchy XML file provided and readable
+   * @return true If the XML file is provided and readable, false otherwise
    */
   public boolean isDatabaseHierarchyXmlAvailable();
 

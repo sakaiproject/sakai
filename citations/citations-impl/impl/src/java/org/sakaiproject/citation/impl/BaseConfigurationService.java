@@ -135,18 +135,32 @@ public class BaseConfigurationService implements ConfigurationService
 	}
 
   /**
-   * Is the configuration XML available (was the URI provided)?
-   * @return true If the XML file is available
+   * Is the configuration XML file provided and readable
+   * @return true If the XML file is provided and readable, false otherwise
    */
   public boolean isConfigurationXmlAvailable()
   {
     try
     {
-      return (getConfigurationXml() != null);
+    	// get the xml filename
+    	String configXml = getConfigurationXml();
+    	if( configXml == null )
+    	{
+    		return false;
+    	}
+    	
+    	// not null, try to open it for reading
+    	java.io.FileInputStream fis = new java.io.FileInputStream( configXml );
+    }
+    catch( java.io.FileNotFoundException fnfe )
+    {
+    	// file not found
+    	return false;
     }
     catch (OsidConfigurationException ignore) { }
 
-    return false;
+    // filename is not null and the file is readable
+    return true;
   }
 
   /**
@@ -171,18 +185,32 @@ public class BaseConfigurationService implements ConfigurationService
   }
 
   /**
-   * Is the database hierarchy XML available (was the URI provided)?
-   * @return true If the XML file is available
+   * Is the database hierarchy XML file provided and readable
+   * @return true If the XML file is provided and readable, false otherwise
    */
   public boolean isDatabaseHierarchyXmlAvailable()
   {
     try
     {
-      return (getDatabaseHierarchyXml() != null);
+    	// get the xml filename
+    	String dbXml = getDatabaseHierarchyXml();
+    	if( dbXml == null )
+    	{
+    		return false;
+    	}
+    	
+    	// not null, try to open it for reading
+    	java.io.FileInputStream fis = new java.io.FileInputStream( dbXml );
+    }
+    catch( java.io.FileNotFoundException fnfe )
+    {
+    	// file not found
+    	return false;
     }
     catch (OsidConfigurationException ignore) { }
 
-    return false;
+    // filename is not null and the file is readable
+    return true;
   }
 
   /**

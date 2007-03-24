@@ -72,9 +72,10 @@ public class ConfigurationService
 		return instance.getConfigurationXml();
 	}
 
-  /**
-   * Is the configuration XML available (was the URI provided)?
-   */
+	  /**
+	   * Is the configuration XML file provided and readable
+	   * @return true If the XML file is provided and readable, false otherwise
+	   */
 	public static boolean isConfigurationXmlAvailable()
 	{
 		org.sakaiproject.citation.api.ConfigurationService instance = getInstance();
@@ -98,9 +99,10 @@ public class ConfigurationService
 		return instance.getDatabaseHierarchyXml();
 	}
 
-  /**
-   * Is the database hierarchy XML available (was the URI provided)?
-   */
+	  /**
+	   * Is the database hierarchy XML file provided and readable
+	   * @return true If the XML file is provided and readable, false otherwise
+	   */
 	public static boolean isDatabaseHierarchyXmlAvailable()
 	{
 		org.sakaiproject.citation.api.ConfigurationService instance = getInstance();
