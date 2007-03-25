@@ -133,7 +133,7 @@ public class DbResourceTypeRegistry extends ResourceTypeRegistryImpl
 			Object fields[] = new Object[3];
 			fields[0]= contextID;
 			fields[1] = resourceID;
-			fields[2]= enabled.get(resourceID) ? "e" : "d";
+			fields[2]= (enabled.get(resourceID).booleanValue() ? "e" : "d");
 			
 			m_sqlService.dbWrite(connection, INSERT_RESOURCEID_MAP, fields);
 		}

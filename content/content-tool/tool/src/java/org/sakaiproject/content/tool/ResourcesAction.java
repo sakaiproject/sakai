@@ -5441,7 +5441,14 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				resource.setContentType(pipe.getRevisedMimeType());
 				
 				ResourcePropertiesEdit resourceProperties = resource.getPropertiesEdit();
-				
+				Map values = pipe.getRevisedResourceProperties(); 	 
+				Iterator valueIt = values.keySet().iterator(); 	 
+				while(valueIt.hasNext()) 	 
+				{ 	 
+					String pname = (String) valueIt.next(); 	 
+					String pvalue = (String) values.get(pname); 	 
+					resourceProperties.addProperty(pname, pvalue); 	 
+				} 	 
 
 				// notification
 				int noti = NotificationService.NOTI_NONE;
