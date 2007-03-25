@@ -251,7 +251,7 @@ public class PollToolProducer implements ViewComponentProducer,
 
     
   private boolean isAllowedPollAdd() {
-	  if (SecurityService.isSuperUser() || this.isSiteOwner())
+	  if (SecurityService.isSuperUser())
 		  return true;
 	  
 	  if (SecurityService.unlock("poll.add", "/site/" + toolManager.getCurrentPlacement().getContext()))
@@ -295,7 +295,7 @@ public class PollToolProducer implements ViewComponentProducer,
   }
   
   private boolean isAllowedViewResults(Poll poll) {
-	  if (SecurityService.isSuperUser() || this.isSiteOwner())
+	  if (SecurityService.isSuperUser())
 		  return true;
 	
 	  if (poll.getDisplayResult().equals("open"))
@@ -310,11 +310,15 @@ public class PollToolProducer implements ViewComponentProducer,
 	  if (poll.getDisplayResult().equals("afterClosing") && poll.getVoteClose().before(new Date()))
 		  return true;
 	  
+	  //the owner can view the results
+	  if(poll.getOwner().equals(userDirectoryService.getCurrentUser().getId()))
+		  return true;
+	  
 	  return false;
   }
   
   private boolean pollCanEdit(Poll poll) {
-	  if (SecurityService.isSuperUser() || this.isSiteOwner())
+	  if (SecurityService.isSuperUser() )
 		  return true;
 	  
 	  if (SecurityService.unlock(pollListManager.PERMISSION_EDIT_ANY,"/site/" + toolManager.getCurrentPlacement().getContext()))
@@ -327,7 +331,7 @@ public class PollToolProducer implements ViewComponentProducer,
  }
  
   private boolean pollCanDelete(Poll poll) {
-	  if (SecurityService.isSuperUser() || this.isSiteOwner())
+	  if (SecurityService.isSuperUser() )
 		  return true;
 	  if (SecurityService.unlock(pollListManager.PERMISSION_DELETE_ANY,"/site/" + toolManager.getCurrentPlacement().getContext()))
 	  	return true;

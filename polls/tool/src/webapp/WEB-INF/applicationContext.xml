@@ -43,8 +43,7 @@
 	
 	
 	
-	<bean id="voteCollection" class="org.sakaiproject.poll.model.VoteCollectionImpl" />
- 	<bean id="option" class="org.sakaiproject.poll.model.OptionImpl" />
+
 	
   <bean parent="requestAddressibleParent">
     <property name="value" value="pollToolBean, voteBean, pollVoteProducer, voteCollection,option, permissionAction, roleperms, optionValidator" />
