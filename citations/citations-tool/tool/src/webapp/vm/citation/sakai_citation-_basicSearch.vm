@@ -1,7 +1,7 @@
 <div id="basicSearchForm" #if(!$basicSearch)style="display:none;"#end>
   <div class="shorttext">
     <label for="keywords">$tlang.getString("terms.search")</label>
-    <input name="keywords" id="keywords" type="text" size="40" value="$xilator.escapeHtml($!{keywords})" />
+    <input class="basicField" name="keywords" id="keywords" type="text" size="40" value="$xilator.escapeHtml($!{keywords})" />
     <input class="active" type="button" name="basicSearch"
       value="$tlang.getString("submit.search")"
       onclick="javascript: showSpinner( '.basicSearchLoad' ); document.getElementById('searchType').value='$basicSearchType'; submitform( '$FORM_NAME' );"
