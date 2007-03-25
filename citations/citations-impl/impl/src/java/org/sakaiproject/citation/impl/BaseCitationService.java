@@ -4022,6 +4022,9 @@ public abstract class BaseCitationService implements CitationService
 			
 			ResourceTypeRegistry registry = getResourceTypeRegistry();
 			
+			List requiredPropertyKeys = new Vector();
+			requiredPropertyKeys.add(ContentHostingService.PROP_ALTERNATE_REFERENCE);
+			
 			BaseInteractionAction createAction = new CitationListCreateAction(ResourceToolAction.CREATE,  
 					ResourceToolAction.ActionType.CREATE, 
 					CitationService.CITATION_LIST_ID, 
@@ -4059,6 +4062,7 @@ public abstract class BaseCitationService implements CitationService
 			typedef.addAction(reviseAction);
 			typedef.addAction(new CitationListDeleteAction());
 			typedef.setEnabledByDefault(m_configService.isCitationsEnabledByDefault());
+			typedef.setIconLocation("sakai/citationlist.gif");
 			
 			registry.register(typedef);
 		}
