@@ -76,6 +76,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.Validator;
 
 /**
  * ListItem
@@ -254,6 +255,7 @@ public class ListItem
 	protected boolean isSortable = false;
 	protected boolean isTooBig = false;
 	protected String size = "";
+	protected String sizzle = "";
 	protected String createdBy;
 	protected String createdTime;
 	protected String modifiedBy;
@@ -299,6 +301,7 @@ public class ListItem
 	protected boolean hasQuota = false;
 	protected boolean canSetQuota = false;
 	protected String quota;
+
 	
 	/**
 	 * @param entity
@@ -396,13 +399,18 @@ public class ListItem
 			this.mimetype = resource.getContentType();
 			if(this.mimetype == null)
 			{
+				this.mimetype = props.getProperty(ResourceProperties.PROP_CONTENT_TYPE);
+			}
+			if(this.mimetype == null)
+			{
 				
 			}
-			if(this.iconLocation == null)
+			else if(this.iconLocation == null)
 			{
 				this.iconLocation = ContentTypeImageService.getContentTypeImage(this.mimetype);
 			}
 			String size = "";
+			String sizzle = "";
 			if(props.getProperty(ResourceProperties.PROP_CONTENT_LENGTH) != null)
 			{
 				long size_long = 0;
@@ -426,24 +434,32 @@ public class ListItem
 				{
 					String[] args = { formatter.format(1.0 * size_long / (1024L * 1024L * 1024L)) };
 					size = rb.getFormattedMessage("size.gb", args);
+					String[] argyles = { formatter.format(1.0 * size_long / (1024L * 1024L * 1024L)), formatter.format(size_long) };
+					sizzle = rb.getFormattedMessage("size.gbytes", argyles);
 				}
 				else if(size_long > 700000L)
 				{
 					String[] args = { formatter.format(1.0 * size_long / (1024L * 1024L)) };
 					size = rb.getFormattedMessage("size.mb", args);
+					String[] argyles = { formatter.format(1.0 * size_long / (1024L * 1024L)), formatter.format(size_long) };
+					sizzle = rb.getFormattedMessage("size.mbytes", argyles);
 				}
 				else if(size_long > 700L)
 				{
 					String[] args = { formatter.format(1.0 * size_long / 1024L) };
 					size = rb.getFormattedMessage("size.kb", args);
+					String[] argyles = { formatter.format(1.0 * size_long / 1024L), formatter.format(size_long) };
+					sizzle = rb.getFormattedMessage("size.kbytes", argyles);
 				}
 				else 
 				{
 					String[] args = { formatter.format(size_long) };
 					size = rb.getFormattedMessage("size.bytes", args);
+					sizzle = rb.getFormattedMessage("size.bytes", args);
 				}
 			}
 			setSize(size);
+			setSizzle(sizzle);
 			
 			this.copyrightStatus = props.getProperty(ResourceProperties.PROP_COPYRIGHT_CHOICE);
 			this.copyrightInfo = props.getProperty(ResourceProperties.PROP_COPYRIGHT);
@@ -467,8 +483,15 @@ public class ListItem
 			String createdBy = creator.getDisplayName();
 			setCreatedBy(createdBy);
 		}
+		User modifier = ResourcesAction.getUserProperty(props, ResourceProperties.PROP_MODIFIED_BY);
+		if(modifier != null)
+		{
+			String modifiedBy = modifier.getDisplayName();
+			setModifiedBy(modifiedBy);
+		}
 		// setCreatedBy(props.getProperty(ResourceProperties.PROP_CREATOR));
 		this.setModifiedTime(props.getPropertyFormatted(ResourceProperties.PROP_MODIFIED_DATE));
+		this.setCreatedTime(props.getPropertyFormatted(ResourceProperties.PROP_CREATION_DATE));
 		
 		this.accessMode = entity.getAccess();
 		this.effectiveAccess = entity.getInheritedAccess();
@@ -568,6 +591,11 @@ public class ListItem
 		}
 		this.isAvailable = entity.isAvailable();
 
+	}
+
+	private void setSizzle(String sizzle) 
+	{
+		this.sizzle = sizzle;
 	}
 
 	public void setQuota(String quota) 
@@ -1345,6 +1373,11 @@ public class ListItem
     {
     	return size;
     }
+    
+    public String getTarget()
+    {
+    	return Validator.getResourceTarget(this.mimetype);
+    }
 
 	public boolean hasMultipleItemAction(String key)
     {
@@ -1531,6 +1564,11 @@ public class ListItem
 	public boolean isTooBig()
 	{
 		return this.isTooBig;
+	}
+	
+	public boolean isUrl()
+	{
+		return this.resourceType != null && this.resourceType.equals(ResourceType.TYPE_URL);
 	}
 
 	/**
@@ -1918,7 +1956,7 @@ public class ListItem
 		this.copyrightInfo = copyright;
 	}
 
-	public boolean isCopyrightAlert() 
+	public boolean hasCopyrightAlert() 
 	{
 		return copyrightAlert;
 	}
@@ -2111,6 +2149,39 @@ public class ListItem
 	{
 		return modifiedBy;
 	}
+
+	 public String getMimeCategory()
+	 {
+		 if(this.mimetype == null || this.mimetype.equals(""))
+		 {
+			 return "";
+		 }
+		 int index = this.mimetype.indexOf("/");
+		 if(index < 0)
+		 {
+			 return this.mimetype;
+		 }
+		 return this.mimetype.substring(0, index);
+	 }
+
+	 public String getMimeSubtype()
+	 {
+		 if(this.mimetype == null || this.mimetype.equals(""))
+		 {
+			 return "";
+		 }
+		 int index = this.mimetype.indexOf("/");
+		 if(index < 0 || index + 1 == this.mimetype.length())
+		 {
+			 return "";
+		 }
+		 return this.mimetype.substring(index + 1);
+	 }
+
+	public String getSizzle() {
+		return sizzle;
+	}
+
 
 }
 

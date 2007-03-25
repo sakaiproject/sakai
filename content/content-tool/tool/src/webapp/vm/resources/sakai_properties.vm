@@ -145,6 +145,10 @@
 		#end
 	#end
 	
+	<h4>
+		$tlang.getString("props.access")
+	</h4>
+	
 	<p class="instruction">$tlang.getString("edit.who")</p>
 	######### begin access section ##########
 	## Should initial access to this resource or collection be determined
@@ -357,5 +361,81 @@
 		</div>
 	#end
 	######### end availability section ##########	
+	
+	#if($showItemSummary)
+		<h4>
+			$tlang.getString("props.file")
+		</h4>
+	
+		<table class="itemSummary" border="0" style="clear:both;margin:left:.7em">
+			#if (!($dropboxMode && $collectionId==$homeCollectionId))
+				<tr> 
+					<td style="width:180px;padding-left:.7em"> 
+						<label>$tlang.getString("props.creator")</label>
+					</td>
+					<td>
+						$validator.escapeHtml("$item.createdBy")
+					</td>
+				</tr>
+				<tr> 
+					<td style="width:180px;padding-left:.7em"> 
+						<label>$tlang.getString("props.creatime")</label>
+					</td>
+					<td>
+						$validator.escapeHtml("$item.createdTime")
+					</td>
+				</tr>
+			#end
+			<tr>
+				<td style="width:180px;padding-left:.7em"> 
+					<label>$tlang.getString("props.modby")</label>
+				</td>
+				<td>
+					$validator.escapeHtml("$item.modifiedBy")
+				</td>
+			</tr>
+			<tr> 
+				<td style="width:180px;padding-left:.7em"> 
+					<label>$tlang.getString("props.modtime")</label>
+				</td>
+				<td>
+					$validator.escapeHtml("$item.modifiedTime")
+				</td>
+			</tr>
+			<tr> 
+				<td  style="width:180px;padding-left:.7em"> 
+					<label>$tlang.getString("props.url")</label>
+				</td>
+				<td>
+					<a href="$item.accessUrl" target="$item.target">$item.accessUrl</a>
+				</td>
+			</tr>
+			<tr> 
+				<td  style="width:180px;padding-left:.7em"> 
+					<label>$tlang.getString("props.size")</label>
+				</td>
+				<td>
+					$item.sizzle 
+				</td>
+			</tr>
+			#if(! $item.isUrl() && ! $item.isCollection() && "$!{item.mimetype}" != "")
+				<tr> 
+					<td style="width:180px;padding-left:.7em"> 
+						<label>$tlang.getString("props.mime")</label>
+					</td>
+					<td>
+						<span id="mime_warning${DOT}$i"></span>
+						<span id="mime_widget${DOT}$i">
+							$item.mimetype
+							<input type="hidden" name="mime_category${DOT}$i" id="mime_category${DOT}$i" value="$item.mimeCategory" />  
+							<input type="hidden" name="mime_subtype${DOT}$i" id="mime_subtype${DOT}$i" value="$item.mimeSubtype" />
+							<input type="button" name="changeMimetype${DOT}$i" id="changeMimetype${DOT}$i" value="Change File Type" />
+						</span>
+					</td>
+				</tr>
+			#end
+		</table> 
+	#end
+	
 <!-- end of sakai_properties.vm (loop counter: $i) -->
 	

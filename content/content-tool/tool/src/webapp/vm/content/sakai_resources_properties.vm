@@ -32,14 +32,15 @@
 		#if (!$dropboxMode)
 			#if (!$item.isFolder())
 				#if ($notification)
-					<p class="shorttext">
-						<label for="notify">
-							$tlang.getString("gen.email1")
+					##<p class="shorttext">
+					<p>
+						<label for="notify${DOT}$i">
+							$tlang.getString("noti.label")
 						</label>	
-						<select name="notify" id="notify">
-							<option value="r">$tlang.getString("gen.email2")</option>
-							<option value="o">$tlang.getString("gen.email3")</option>
-							<option value="n" selected="selected">$tlang.getString("gen.email4")</option>
+						<select name="notify" id="notify${DOT}$i">
+							<option value="r">$tlang.getString("noti.all")</option>
+							<option value="o">$tlang.getString("noti.limited")</option>
+							<option value="n" selected="selected">$tlang.getString("noti.none")</option>
 						</select>
 					</p>	
 				#end
@@ -54,5 +55,21 @@
 	</form>
 </div>
 #parse("/vm/resources/sakai_properties_scripts.vm")
-
+<script type="text/javascript">
+	var mimeCategories = new Array();
+#set($count = 0)
+#foreach($category in $contentTypeImageService.mimeCategories)
+	mimeCategories[$count] = "$category";
+#set($count = $count + 1)
+#end
+	var mimeSubtypes = new Array();
+#foreach($category in $contentTypeImageService.MimeCategories)
+	mimeSubtypes["$category"] = new Array();
+#set($count = 0)
+#foreach($subtype in $contentTypeImageService.getMimeSubtypes("$category"))
+	mimeSubtypes["$category"][$count] = "$subtype";
+#set($count = $count + 1)
+#end
+#end
+</script>
 

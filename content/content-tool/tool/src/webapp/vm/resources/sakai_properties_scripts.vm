@@ -84,7 +84,47 @@
 					tag.addEventListener("change", handleCopyrightChange, true);
 				}
 			}
+			else if(tag.id && tag.id.match(/^changeMimetype${DOT}\d+$/))
+			{
+				if(tag.attachEvent)
+				{
+					tag.attachEvent("onclick", handleMimetypeChange);
+				}
+				else if(tag.addEventListener)
+				{
+					tag.addEventListener("click", handleMimetypeChange, true);
+				}
+			}
+			else if(tag.id && tag.id.match(/^mime_category${DOT}\d+$/))
+			{
+				if(tag.attachEvent)
+				{
+					tag.attachEvent("onchange", handleMimeCategoryChange);
+				}
+				else if(tag.addEventListener)
+				{
+					tag.addEventListener("change", handleMimeCategoryChange, true);
+				}
+			}
 		}
+		
+		var selectTags = document.getElementsByTagName("select");
+		for(var i = 0; i < selectTags.length; i++)
+		{
+			var tag = selectTags[i];
+			if(tag.id && tag.id.match(/^mime_category${DOT}\d+$/))
+			{
+				if(tag.attachEvent)
+				{
+					tag.attachEvent("onchange", handleMimeCategoryChange);
+				}
+				else if(tag.addEventListener)
+				{
+					tag.addEventListener("change", handleMimeCategoryChange, true);
+				}
+			}
+		}
+		
 	}
 	function handleEnterKey (field, event) 
 	{
@@ -115,6 +155,46 @@
 				{
 					var index = element.id.substr(dot + 1);
 					updateCopyright(index);
+				}
+			}
+		}
+	}
+	function handleMimeCategoryChange(evt)
+	{
+		evt = (evt) ? evt : ((event) ? event : null);
+		if(evt)
+		{
+			evt.cancelBubble = true;
+			var element = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null)
+			if(element)
+			{
+				element = (element.id && element.id.lastIndexOf(DOT) >= 0) ? element : element.parentNode;
+				
+				var dot = element.id.lastIndexOf("$DOT");
+				if(dot >= 0)
+				{
+					var index = element.id.substr(dot + 1);
+					changeMimeCategory(index);
+				}
+			}
+		}
+	}
+	function handleMimetypeChange(evt)
+	{
+		evt = (evt) ? evt : ((event) ? event : null);
+		if(evt)
+		{
+			evt.cancelBubble = true;
+			var element = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null)
+			if(element)
+			{
+				element = (element.id && element.id.lastIndexOf(DOT) >= 0) ? element : element.parentNode;
+				
+				var dot = element.id.lastIndexOf("$DOT");
+				if(dot >= 0)
+				{
+					var index = element.id.substr(dot + 1);
+					changeMimeType(index);
 				}
 			}
 		}
@@ -482,8 +562,106 @@
 		}
 		
 	}
+	function changeMimeType(index)
+	{
+		var categoryElement = document.getElementById('mime_category' + DOT + index);
+		var category = categoryElement.value;
+		var subtypeElement = document.getElementById('mime_subtype' + DOT + index);
+		var subtype = subtypeElement.value;
+		var mime_widget_div = document.getElementById('mime_widget' + DOT + index);
 		
+		var select_category = document.createElement('select');
+		select_category.setAttribute('name', 'mime_category' + DOT + index);
+		select_category.setAttribute('id', 'mime_category' + DOT + index);
+		for(var i = 0; i < mimeCategories.length; i++)
+		{
+			var option_category = document.createElement('option');
+			option_category.text = mimeCategories[i];
+			option_category.value = mimeCategories[i];
+			if(category == mimeCategories[i])
+			{
+				option_category.setAttribute('selected',true);				
+			}
+			select_category.appendChild(option_category);
+		}
+
+		var slash = document.createTextNode(" / ");
+				
+		var select_subtype = document.createElement('select');
+		select_subtype.setAttribute('name','mime_subtype' + DOT + index);
+		select_subtype.setAttribute('id','mime_subtype' + DOT + index);
+		
+		for(var i = 0; i < mimeSubtypes[category].length; i++)
+		{
+			var option_subtype = document.createElement('option');
+			option_subtype.text = mimeSubtypes[category][i];
+			option_subtype.value = mimeSubtypes[category][i];
+			if(subtype == mimeSubtypes[category][i])
+			{
+				option_subtype.setAttribute('selected',true);		
+			}
+			select_subtype.appendChild(option_subtype);
+		}
+		
+		var children = mime_widget_div.childNodes;
+		for(var i = children.length - 1; i >= 0; i--)
+		{
+			mime_widget_div.removeChild(children[i]);
+		}
+
+		mime_widget_div.appendChild(select_category);
+		mime_widget_div.appendChild(slash);
+		mime_widget_div.appendChild(select_subtype);
+		
+		if(select_category.attachEvent)
+		{
+			select_category.attachEvent("onchange", handleMimeCategoryChange);
+		}
+		else if(select_category.addEventListener)
+		{
+			select_category.addEventListener("change", handleMimeCategoryChange, true);
+		}
+		
+	}
+	function changeMimeCategory(index)
+	{
+		var mime_warning_div = document.getElementById("mime_warning" + DOT + index);
+		var select_category = document.getElementById("mime_category" + DOT + index);
+		var select_subtype = document.getElementById("mime_subtype" + DOT + index);
+		var category = select_category.options[select_category.selectedIndex].text;
+		var children = select_subtype.childNodes;
+		for(var i = children.length - 1; i >= 0; i--)
+		{
+			select_subtype.removeChild(children[i]);
+		}
+
+		for(var i = 0; i < mimeSubtypes[category].length; i++)
+		{
+			var option_subtype = document.createElement('option');
+			option_subtype.text = mimeSubtypes[category][i];
+			option_subtype.value = mimeSubtypes[category][i];
+			if(i == 0)
+			{
+				option_subtype.setAttribute('selected',true);			
+			}
+			select_subtype.appendChild(option_subtype);
+		}
+		
+		if(category == "text")
+		{
+			mime_warning_div.setAttribute("className", "alertMessage");
+			mime_warning_div.setAttribute("class", "alertMessage");
+			mime_warning_div.innerHTML = "$tlang.getString("mime.alert")";
+		}
+		else
+		{
+			mime_warning_div.setAttribute("className", "");
+			mime_warning_div.setAttribute("class", "");
+			mime_warning_div.innerHTML = "";
+		}
+	}
+	
 	attachEventHandlers();
-	-->
+-->
 </script>
 

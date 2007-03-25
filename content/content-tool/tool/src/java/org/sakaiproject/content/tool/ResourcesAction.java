@@ -4679,6 +4679,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 											RunData data,
 											SessionState state)
 	{
+		context.put("sysout", System.out);
 		//context.put("tlang",rb);
 		// find the ContentTypeImage service
 		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
@@ -4927,6 +4928,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		
 		ResourceToolAction action = (ResourceToolAction) state.getAttribute(STATE_REVISE_PROPERTIES_ACTION);
 		context.put("action", action);
+		
+		context.put("showItemSummary", Boolean.TRUE.toString());
 		
 		String typeId = action.getTypeId();
 		
