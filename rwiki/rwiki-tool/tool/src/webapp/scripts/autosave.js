@@ -113,7 +113,7 @@ function WikiAutoSave(autoSaveID,targetSite,targetPageName,targetVersion)
 	this.interval = 100;
 	this.siteId = targetSite; 
 	this.pageName = targetPageName;
-	this.runs = 10;
+	this.runs = 50;
 	this.lastSavedContent = null;
 	this.lastSavedDate = "";
 	this.lastSavedVersion = "";
@@ -144,6 +144,13 @@ WikiAutoSave.prototype.restoreCallback = function() {
 
     try {
     log("Restore call back ");
+    var restoreVersion = document.getElementById(this.restoreVersionId);
+    if ( restoreVersion && restoreVersion.value == "none"  ) {
+    	// not a valid version
+    	log("Not A valid Version "+restoreVersion.value);
+		return;    	
+    }
+    
 	var contentEl = document.getElementById(this.targetID);
 	if ( contentEl == null ) 
 	{
@@ -161,7 +168,7 @@ WikiAutoSave.prototype.restoreCallback = function() {
 	log("Date is "+dateTS);
 	restoreDate.value = new Date(dateTS);
 	
-	if ( restoredContent && restoredContent != content ) {
+	if ( restoredContent && restoredContent != content && restoredContent != "no restored content" ) {
 		var restoreTab = document.getElementById(this.restoreTabId);
 		restoreTab.className = this.restoredClass; 
         log("Restore call back :Recovered Content set "+this.restoreTabId+" to "+this.restoredClass);
@@ -313,7 +320,13 @@ function WikiAutoSave_doAutoSave(saveID)
 				}
 			   if ( autoSaver.state == 0 ) {
 				 // let the dom settle down
-				 autoSaver.state = 1;
+				 var InternetExplorer = navigator.appName.indexOf("Microsoft") != -1;
+	             var flashObj = InternetExplorer ? localstore : document.localstore;
+				 if ( flashObj ) {
+				 	autoSaver.state = 1;
+				 } else {
+					autoSaver.runs--;
+				 }
 			   } else  if ( autoSaver.state == 1 ) {
 			   	autoSaver.restoreContent();
 			   	log("Restored Content");
@@ -323,7 +336,6 @@ function WikiAutoSave_doAutoSave(saveID)
 				autoSaver.saveContent();
 			   	log("Saveded Content");
 				}
-			//	autoSaver.runs--;
 			} 
 			catch (e)  
 			{ 
@@ -331,7 +343,7 @@ function WikiAutoSave_doAutoSave(saveID)
 			}
 			if ( autoSaver.runs == 0 ) 
 			{
-				alert("Done all ");
+				alert("Auto Save Disabled, No FLash Support ");
 			}	 
 			else
 			{
