@@ -21,6 +21,7 @@
 
 package org.sakaiproject.assignment.cover;
 
+import java.io.OutputStream;
 import java.util.Set;
 import java.util.Vector;
 
@@ -590,15 +591,11 @@ public class AssignmentService {
 
 		return service.getGradesSpreadsheet(param0);
 	}
-
-	public static byte[] getSubmissionsZip(java.lang.String param0)
-			throws org.sakaiproject.exception.IdUnusedException,
-			org.sakaiproject.exception.PermissionException {
+	public static void getSubmissionsZip(OutputStream param0, java.lang.String param1) throws org.sakaiproject.exception.IdUnusedException,
+		org.sakaiproject.exception.PermissionException{
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null)
-			return null;
-
-		return service.getSubmissionsZip(param0);
+		if (service != null)
+		service.getSubmissionsZip(param0, param1);
 	}
 
 	public static java.lang.String assignmentReference(java.lang.String param0,
