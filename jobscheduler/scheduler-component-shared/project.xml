@@ -36,18 +36,6 @@
          <version>${sakai.version}</version>
       </dependency>
       
-     <dependency>
-         <groupId>sakaiproject</groupId>
-         <artifactId>sakai-evaluation-logic-api</artifactId>
-         <version>${sakai.version}</version>
-      </dependency>
-      
-      <dependency>
-         <groupId>sakaiproject</groupId>
-         <artifactId>sakai-evaluation-model-api</artifactId>
-         <version>${sakai.version}</version>
-      </dependency>
-
       <dependency>
          <groupId>sakaiproject</groupId>
          <artifactId>sakai-component-api</artifactId>

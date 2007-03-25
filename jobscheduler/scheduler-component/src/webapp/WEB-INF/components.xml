@@ -84,8 +84,6 @@
       </property>	
    </bean>   
    
-   <bean id="evalScheduledInvocation" class="org.sakaiproject.component.app.scheduler.jobs.EvalScheduledInvocation">
-   </bean>
    
    
    
