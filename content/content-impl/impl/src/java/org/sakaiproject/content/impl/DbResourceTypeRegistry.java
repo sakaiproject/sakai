@@ -28,6 +28,7 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -104,12 +105,12 @@ public class DbResourceTypeRegistry extends ResourceTypeRegistryImpl
 	 *        the contextID
 	 */
 	
-	protected void deleteMapofResourceTypesForContext(Connection connection, String contextID)
+	protected void deleteMapofResourceTypesForContext(String contextID)
 	{
 		Object fields[] = new Object[1];
 		fields[0] = contextID;
 
-		boolean ok = m_sqlService.dbWrite(connection, DELETE_CURRENT_MAP, fields);
+		boolean ok = m_sqlService.dbWrite(DELETE_CURRENT_MAP, fields);
 	}
 	
 	/* insert enabled status for resource ids in the given map for the provided contextid
@@ -123,7 +124,7 @@ public class DbResourceTypeRegistry extends ResourceTypeRegistryImpl
 	 *        whether or not each resourceID is enabled in this context
 	 */
 	
-	protected void insertMapofResourceTypesforContext(Connection connection, String contextID, Map<String, Boolean> enabled)
+	protected void insertMapofResourceTypesforContext(String contextID, Map<String, Boolean> enabled)
 	{
 		Iterator<String> iter = enabled.keySet().iterator();
 		while (iter.hasNext()) 
@@ -135,39 +136,34 @@ public class DbResourceTypeRegistry extends ResourceTypeRegistryImpl
 			fields[1] = resourceID;
 			fields[2]= (enabled.get(resourceID).booleanValue() ? "e" : "d");
 			
-			m_sqlService.dbWrite(connection, INSERT_RESOURCEID_MAP, fields);
+			m_sqlService.dbWrite(INSERT_RESOURCEID_MAP, fields);
 		}
 	}
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.api.ResourceTypeRegistry#setResourceTypesForContext(java.lang.String, java.util.Map)
 	 */
-	public void setMapOfResourceTypesForContext(String context, Map<String, Boolean> enabled) 
+	public void setMapOfResourceTypesForContext(final String context, final Map<String, Boolean> enabled) 
 	{
 		//super.setMapOfResourceTypesForContext(context, enabled);
 		//Replace in teh db
-		
-		Connection conn = null;
-		Boolean wasCommit;
 
-		try
+		m_sqlService.transact(new Runnable()
 		{
-			conn = m_sqlService.borrowConnection();
-			wasCommit = conn.getAutoCommit();
-			conn.setAutoCommit(false);
+			public void run()
+			{
+				saveMap(context, enabled);					
+			}
+		}, "DbResourceTypeRegistry.setMapOfResourceTypesForContext: " + context);
 
-			this.deleteMapofResourceTypesForContext(conn, context);
-			this.insertMapofResourceTypesforContext(conn, context, enabled);
-
-			conn.commit();
-			conn.setAutoCommit(wasCommit);
-			m_sqlService.returnConnection(conn);
-		}
-		catch (SQLException e)
-		{
-			M_log.warn("setMapOfResourceTypesForContext(" + context + ") " + e);
-		}		
 	}
 	
+	protected void saveMap(String context, Map<String, Boolean> enabled) 
+	{
+		this.deleteMapofResourceTypesForContext(context);
+		this.insertMapofResourceTypesforContext(context, enabled);
+	}
+
+
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.api.ResourceTypeRegistry#getResourceTypesForContext(java.lang.String)
 	 */
@@ -175,30 +171,34 @@ public class DbResourceTypeRegistry extends ResourceTypeRegistryImpl
 	{
 		Map<String, Boolean> enabled = new HashMap<String, Boolean>();
 		
-		try 
+		Object fields[] = new Object[1];
+		fields[0] = context;
+		
+		List results = m_sqlService.dbRead(GET_RESOURCEID_MAP, fields, new SqlReader()
 		{
-			Object fields[] = new Object[1];
-			fields[0] = context;
-			
-			Connection conn = m_sqlService.borrowConnection();
-			PreparedStatement psth = conn.prepareStatement(GET_RESOURCEID_MAP);
-			psth.setString(1, context);
-			psth.execute();
-			ResultSet results = psth.getResultSet();
-			
-			while (results.next()) 
+			public Object readSqlResultRecord(ResultSet result)
 			{
-				enabled.put(results.getString(2), new Boolean(results.getString(3).equals("e")));
-			}		
+				try
+				{
+					return new Entry(result.getString(2), "e".equals(result.getString(3)));
+				}
+				catch (SQLException ignore)
+				{
+					return null;
+				}
+			}
+		});
 			
-			m_sqlService.returnConnection(conn);
-			
-		}
-		catch(SQLException sqlException) 
+		for(Object result : results)
 		{
-			M_log.warn("getMapOfResourceTypesForContext(" + context + ") " + sqlException);
+			if(result instanceof Entry)
+			{
+				Entry entry = (Entry) result;
+				
+				enabled.put(entry.getTypeId(), new Boolean(entry.isEnabled()));
+			}
 		}
-
+		
 		if(enabled.isEmpty())
 		{
 			for(ResourceType type : this.typeIndex.values())
@@ -231,6 +231,33 @@ public class DbResourceTypeRegistry extends ResourceTypeRegistryImpl
 		}
 		catch (Throwable t)
 		{
+		}
+	}
+	
+	public class Entry
+	{
+		protected String typeId;
+		protected boolean enabled;
+		public Entry(String typeId, boolean enabled)
+		{
+			this.typeId = typeId;
+			this.enabled = enabled;
+		}
+		public boolean isEnabled() 
+		{
+			return enabled;
+		}
+		public void setEnabled(boolean enabled) 
+		{
+			this.enabled = enabled;
+		}
+		public String getTypeId() 
+		{
+			return typeId;
+		}
+		public void setTypeId(String typeId) 
+		{
+			this.typeId = typeId;
 		}
 	}
 

@@ -425,8 +425,7 @@ public class ListItem
                 }
                 catch (EntityPropertyTypeException e)
                 {
-	                // TODO Auto-generated catch block
-	                logger.warn("EntityPropertyTypeException for size of " + this.id);
+	                size = props.getProperty(ResourceProperties.PROP_CONTENT_LENGTH);
                 }
 				NumberFormat formatter = NumberFormat.getInstance(rb.getLocale());
 				formatter.setMaximumFractionDigits(1);
