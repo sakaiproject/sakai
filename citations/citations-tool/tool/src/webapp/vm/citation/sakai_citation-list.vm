@@ -151,9 +151,9 @@ function doCitationAction( action ) {
   } else if( action == "exportList" ) {
     exportAllCitations( "$exportUrlAll", "$tlang.getString( "export.title.list" )", "$collectionId" );
   } else if( action == "removeSelected" ) {
-    removeCitations( "selected", "$FORM_NAME" );
+    removeSelectedCitations( "#toolLink("CitationHelperAction" "doRemoveSelectedCitations")&collectionId=$collectionId", "$FORM_NAME" );
   } else if( action == "removeList" ) {
-    removeCitations( "all", "$FORM_NAME" );
+    removeAllCitations( "$FORM_NAME" );
   }
   
   // reset select boxes

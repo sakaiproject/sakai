@@ -386,13 +386,18 @@ function closeExportWindow() {
   }
 }
 
-function removeCitations( selectedOrAll, formname ) {
-  if( selectedOrAll == "selected" ) {
-    // need to add selections here ...
-    document.getElementById('sakai_action').value='doRemoveSelectedCitations';
-    submitform( formname );
-  } else if( selectedOrAll == "all" ) {
-    document.getElementById('sakai_action').value='doRemoveAllCitations';
-    submitform( formname );
-  }
+function removeSelectedCitations( baseUrl ) {
+  // get each selected checkbox and append it to be removed
+  $( "input[@type=checkbox][@checked]" ).each( function() {
+      baseUrl += "&citationId=" + this.value;
+    }
+  );
+  
+  // do the action
+  window.location.assign( baseUrl );
+}
+
+function removeAllCitations( formname ) {
+  document.getElementById('sakai_action').value='doRemoveAllCitations';
+  submitform( formname );
 }

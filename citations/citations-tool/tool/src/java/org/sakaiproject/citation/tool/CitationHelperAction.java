@@ -24,6 +24,7 @@ package org.sakaiproject.citation.tool;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -2007,66 +2008,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		
 		setMode(state, Mode.MESSAGE);
 	}
-
-	/**
-	* 
-	*/
-	public void doRemoveCitation ( RunData data)
-	{
-		// get the state object
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-		ParameterParser params = data.getParameters();
-		
-		String citationId = params.getString("citationId");
-		String collectionId = params.getString("collectionId");
-		
-		CitationCollection collection = null;
-		
-		if(collectionId == null)
-		{
-			collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
-		}
-		if(collectionId == null)
-		{
-			// TODO add alert and log error
-		}
-		else
-		{
-			try
-			{
-				collection = CitationService.getCollection(collectionId);
-			}
-			catch(IdUnusedException e)
-			{
-				// TODO add alert and log error
-		        logger.warn("CitationHelperAction.doRemoveCitation unable to retrieve collection: " + collectionId);
-			}
-		}
-
-		if(collection == null)
-		{
-			// TODO add alert and log error
-	        logger.warn("CitationHelperAction.doRemoveCitation collection null: " + collectionId);			
-		}
-		else
-		{
-			try
-	        {
-		        Citation citation = collection.getCitation(citationId);
-				collection.remove(citation);
-				CitationService.save(collection);
-	        }
-	        catch (IdUnusedException e)
-	        {
-		        logger.warn("CitationHelperAction.doRemoveCitation unable to retrieve citation: " + citationId);
-	        }
-		}
-		
-		state.setAttribute( STATE_LIST_NO_SCROLL, Boolean.TRUE );		
-		setMode(state, Mode.LIST);
-
-	}	// doList
-
 	
 	public void doRemoveAllCitations( RunData data )
 	{
@@ -2116,7 +2057,71 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		}
 	
 		setMode(state, Mode.LIST);
-	}
+		
+	}  // doRemoveAllCitations
+	
+	public void doRemoveSelectedCitations( RunData data )
+	{
+		// get the state object
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		ParameterParser params = data.getParameters();
+		
+		String collectionId = params.getString("collectionId");
+		
+		CitationCollection collection = null;
+		
+		if(collectionId == null)
+		{
+			collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
+		}
+		if(collectionId == null)
+		{
+			// TODO add alert and log error
+		}
+		else
+		{
+			try
+			{
+				collection = CitationService.getCollection(collectionId);
+			}
+			catch(IdUnusedException e)
+			{
+				// TODO add alert and log error
+		        logger.warn("doRemoveSelectedCitation() unable to retrieve collection: " + collectionId);
+			}
+		}
+
+		if(collection == null)
+		{
+			// TODO add alert and log error
+	        logger.warn("doRemoveSelectedCitation() collection null: " + collectionId);			
+		}
+		else
+		{
+			// remove selected citations
+			String[] paramCitationIds = params.getStrings("citationId");
+			List<String> citationIds = new java.util.ArrayList<String>();
+			citationIds.addAll(Arrays.asList(paramCitationIds));
+			
+			try
+			{
+			for( String citationId : citationIds )
+			{
+				Citation citation = collection.getCitation(citationId);
+				collection.remove(citation);
+			}
+			CitationService.save(collection);
+			}
+			catch( IdUnusedException e )
+			{
+				logger.warn("doRemoveSelectedCitation() unable to get and remove citation", e );	
+			}
+		}
+	
+		state.setAttribute( STATE_LIST_NO_SCROLL, Boolean.TRUE );
+		setMode(state, Mode.LIST);
+		
+	}  // doRemoveSelectedCitations
 	
 	/**
 	* 

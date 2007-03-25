@@ -19,7 +19,7 @@
  				|
 			<a href="#toolLink("CitationHelperAction" "doEdit")&citationId=$citation.id&collectionId=$collectionId">$tlang.getString("action.edit")</a>
 				|
-			<a href="#toolLink("CitationHelperAction" "doRemoveCitation")&citationId=$citation.id&collectionId=$collectionId">$tlang.getString("action.remove")</a>
+			<a href="#toolLink("CitationHelperAction" "doRemoveSelectedCitations")&citationId=$citation.id&collectionId=$collectionId">$tlang.getString("action.remove")</a>
 		</div>
 	</td>
 </tr>
