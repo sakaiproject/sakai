@@ -15,7 +15,7 @@
   </bean>
 
 
- <!--
+ 
    <bean id="voteGuard" parent="writeGuardParent">
      <property name="guardedPath" value="voteCollection"/>
      <property name="guard">
@@ -40,7 +40,7 @@
  		</bean>
      </property>
    </bean>
-	-->	
+	
 	
 	
 	<bean id="voteCollection" class="org.sakaiproject.poll.model.VoteCollectionImpl" />

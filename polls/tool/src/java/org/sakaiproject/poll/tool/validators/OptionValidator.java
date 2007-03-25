@@ -46,9 +46,11 @@ public class OptionValidator implements Validator {
 	}
 
 	public void validate(Object obj, Errors errors) {
-		logger.info("validating Option");
+		
 		
 		Option option = (Option) obj;
+		
+		logger.debug("validating Option with id:" + option.getId());
 		if (option.getStatus()!=null && (option.getStatus().equals("cancel") || option.getStatus().equals("delete")))
 			return;
 

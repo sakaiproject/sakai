@@ -268,7 +268,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		    //StringList optList = new StringList();
 		    UIOutput.make(newPoll,"add_results_label",messageLocator.getMessage("new_poll_results_label"));
 		    for (int i = 0; i < values.length; ++i) {
-		    	m_log.debug("adding radio for " + labels[i]);
+		    	
 		      UIBranchContainer radiobranch = UIBranchContainer.make(newPoll,
 		          "releaserow:", Integer.toString(i));
 		      UISelectChoice.make(radiobranch, "release", selectID, i);
