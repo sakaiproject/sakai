@@ -956,6 +956,32 @@ public class ListItem
 		{
 			captureQuota(params, index);
 		}
+		if(! isUrl() && ! isCollection() && this.mimetype != null)
+		{
+			captureMimetypeChange(params, index);
+		}
+	}
+
+	protected void captureMimetypeChange(ParameterParser params, String index) 
+	{
+		String mimeCategory = params.getString("mime_category" + DOT + index);
+		if(mimeCategory != null)
+		{
+			String mimeSubtype = params.getString("mime_subtype" + DOT + index);
+			if(mimeSubtype != null)
+			{
+				String mimeType = mimeCategory.trim() + "/" + mimeSubtype.trim();
+				if(mimeType.equals(this.mimetype))
+				{
+					
+				}
+				else
+				{
+					this.mimetype = mimeType;
+				}
+			}
+		}
+		
 	}
 
 	protected void captureQuota(ParameterParser params, String index) 
@@ -2075,6 +2101,19 @@ public class ListItem
 		setCopyrightOnEntity(props);
 		setAccessOnEntity(edit);
 		setAvailabilityOnEntity(edit);
+		if(! isUrl() && ! isCollection() && this.mimetype != null)
+		{
+			setMimetypeOnEntity(edit, props);
+		}
+	}
+
+	protected void setMimetypeOnEntity(ContentResourceEdit edit, ResourcePropertiesEdit props) 
+	{
+		if(this.mimetype != null)
+		{
+			props.addProperty(ResourceProperties.PROP_CONTENT_TYPE, this.mimetype);
+			edit.setContentType(this.mimetype);
+		}
 	}
 
 	protected void setDisplayNameOnEntity(ResourcePropertiesEdit props) 
