@@ -19,7 +19,7 @@
 			    alt="$tlang.getString("alt.dbshow.search")" align="top" border="0"
 			    height="13" width="13"
 			  />
-			  <label for="$database.id"><strong id="$database.id_title">$xilator.escapeHtml($database.displayName)</strong></label>
+			  <label for="$database.id"><strong id="title_$database.id">$xilator.escapeHtml($database.displayName)</strong></label>
 			  <p class="dbDescription" id="description_$database.id" style="display: none;">$xilator.escapeHtml($database.description)</p>
 			</td>
 		</tr>
