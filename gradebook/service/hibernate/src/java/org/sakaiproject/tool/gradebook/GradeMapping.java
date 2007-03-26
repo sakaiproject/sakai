@@ -60,19 +60,26 @@ public class GradeMapping implements Serializable, Comparable {
 	 * Sets the percentage values for this GradeMapping to their default values.
 	 */
 	public void setDefaultValues() {
+		gradeMap = new HashMap<String, Double>(getDefaultBottomPercents());
+	}
+	
+	/**
+	 * Backwards-compatible wrapper to get to grading scale. 
+	 */
+	public Map<String, Double> getDefaultBottomPercents() {
 		GradingScale gradingScale = getGradingScale();
 		if (gradingScale != null) {
-			gradeMap = new HashMap<String, Double>(gradingScale.getDefaultBottomPercents());
+			return gradingScale.getDefaultBottomPercents();
 		} else {
-			// Backward compatibility with pre-grading-scale mappings.
-			gradeMap = new HashMap<String, Double>();
+			Map<String, Double> defaultBottomPercents = new HashMap<String, Double>();
 			Iterator defaultValuesIter = getDefaultValues().iterator();
 			Iterator gradesIter = getGrades().iterator();
 			while (gradesIter.hasNext()) {
 				String grade = (String)gradesIter.next();
 				Double value = (Double)defaultValuesIter.next();
-				gradeMap.put(grade, value);
+				defaultBottomPercents.put(grade, value);
 			}
+			return defaultBottomPercents;
 		}
 	}
 
@@ -215,7 +222,11 @@ public class GradeMapping implements Serializable, Comparable {
     	return standardizedGrade;
     }
 
-	public GradingScale getGradingScale() {
+	/**
+	 * @return the GradingScale used to define this mapping, or null if
+	 * this is an old Gradebook which uses hard-coded scales
+	 */
+    public GradingScale getGradingScale() {
 		return gradingScale;
 	}
 

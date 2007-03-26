@@ -36,7 +36,6 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
-import org.sakaiproject.tool.gradebook.GradingScale;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
 /**
@@ -130,14 +129,13 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
 		// Set up UI table view.
 		gradeRows = new ArrayList();
 		GradeMapping selectedGradeMapping = localGradebook.getSelectedGradeMapping();
-		GradingScale gradingScale = selectedGradeMapping.getGradingScale();
 		for (Iterator iter = selectedGradeMapping.getGrades().iterator(); iter.hasNext(); ) {
 			String grade = (String)iter.next();
 			
 			// Bottom grades (with a lower bound of 0%) and manual-only
 			// grades (which have no percentage equivalent) are not
 			// editable.
-			Double d = gradingScale.getDefaultBottomPercents().get(grade);
+			Double d = selectedGradeMapping.getDefaultBottomPercents().get(grade);
 			boolean editable = ((d != null) && (d.doubleValue() > 0.0));
 			gradeRows.add(new GradeRow(selectedGradeMapping, grade, editable));
 		}
@@ -199,7 +197,6 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
 
 	private boolean isMappingValid(GradeMapping gradeMapping) {
 		boolean valid = true;
-		GradingScale scale = gradeMapping.getGradingScale();
 		Double previousPercentage = null;
 		for (Iterator iter = gradeMapping.getGrades().iterator(); iter.hasNext(); ) {
 			String grade = (String)iter.next();
@@ -210,7 +207,7 @@ public class FeedbackOptionsBean extends GradebookDependentBean implements Seria
 			// be in descending order, and end with 0.
 			// Manual-only grades (which aren't associated with a percentage) always
 			// follow the lowest percentage-based grade, and must stay manual-only.
-			boolean manualOnly = (scale.getDefaultBottomPercents().get(grade) == null);
+			boolean manualOnly = (gradeMapping.getDefaultBottomPercents().get(grade) == null);
 
 			if (manualOnly) {
 				if (percentage != null) {
