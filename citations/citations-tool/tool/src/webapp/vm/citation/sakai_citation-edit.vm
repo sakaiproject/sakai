@@ -70,7 +70,7 @@
 		<h3>$tlang.getString("title.edit")</h3>
 
 		<p class="instruction">$tlang.getFormattedMessage( "instr.edit", $instrArgs )</p>
-		<p class="instruction">$tlang.getFormattedMessage( "instr.edit.sub" )</p>
+		<p class="instruction">$tlang.getString( "instr.edit.sub" )</p>
 		
 		<p class="act">
 			<input class="active" type="button" name="Save" id="Save"
@@ -368,6 +368,8 @@
 		counter.value = count;
 		
 		resizeFrame();
+		
+		return false;
 	}
 	function addUrl()
 	{
@@ -423,6 +425,8 @@
 		counter.value = count;
 		
 		resizeFrame();
+		
+		return false;
 	}
 </script>
 <script type="text/javascript">	

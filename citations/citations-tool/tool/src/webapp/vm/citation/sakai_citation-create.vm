@@ -43,6 +43,11 @@
 #set($default = "")
 #if($!DEFAULT_TEMPLATE)#set($default = "$!DEFAULT_TEMPLATE.identifier")#end
 
+<script type="text/javascript" src="#libraryLink('js/jquery-1.1.2.js')">
+</script>
+<script type="text/javascript" src="/sakai-citations-tool/js/citationscript.js">
+</script>
+
 <div class="portletBody">
 	<div class="indnt1" style="border: 3px solid red; display: none;" id="hiddenMessage">
 		<div style="margin: 10px 10px 10px 10px;">
@@ -61,6 +66,7 @@
 		<h3>$tlang.getString( "title.create" )</h3>
 	
 		<p class="instruction">$tlang.getFormattedMessage( "instr.edit", $instrArgs )</p>
+		<p class="instruction">$tlang.getString( "instr.edit.sub" )</p>
 		
 		<p class="act">
 			<input type="button" class="active" name="Submit" id="Submit"
@@ -77,7 +83,7 @@
 			<input name="sakai_action" id="sakai_action" value="doCreateCitation" type="hidden" />
 			<p class="shorttext">
 				<label for="type">
-					$tlang.getString("type.select")
+					<strong>$tlang.getString("type.select")</strong>
 				</label>
 				<select name="type" id="type_selector" onchange="changeSchema(this);">
 					#foreach($template in $TEMPLATES)
@@ -102,12 +108,12 @@
 						#end
 						#if($field.isMultivalued())
 							<label for="${field.identifier}0">
-								$tlang.getString("$!{DEFAULT_TEMPLATE.identifier}.$!{field.identifier}")
+								<strong>$tlang.getString("$!{DEFAULT_TEMPLATE.identifier}.$!{field.identifier}")</strong>
 							</label>
 							#getMultivalued($field $currentValue "$!count")
 						#else
 							<label for="$field.identifier">
-								$tlang.getString("$!{DEFAULT_TEMPLATE.identifier}.$!{field.identifier}")
+								<strong>$tlang.getString("$!{DEFAULT_TEMPLATE.identifier}.$!{field.identifier}")</strong>
 							</label>
 							#getFieldValue($field "$!currentValue" "")
 						#end						
@@ -339,6 +345,9 @@
 		
 		div.innerHTML = html;
 		counter.value = count;
+		
+		resizeFrame();
+		
 		return false;
 	}
 	function addUrl()
@@ -393,6 +402,9 @@
 
 		div.innerHTML = html;
 		counter.value = count;
+		
+		resizeFrame();
+		
 		return false;
 	}
 </script>
