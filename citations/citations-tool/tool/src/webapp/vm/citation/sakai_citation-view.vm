@@ -1,14 +1,8 @@
 #macro(showMultivalued $values)
 	#if(! $values.isEmpty())
-		<table>
-			#foreach($value in $values)
-				<tr>
-					<td>
-						$!value
-					</td>
-				</tr>
-			#end
-		</table>
+		#foreach($value in $values)
+			<p style="margin-top: 0; padding-top: 0;">$!value</p>
+		#end
 	#end
 #end
 

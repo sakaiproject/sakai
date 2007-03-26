@@ -1,7 +1,7 @@
-<table cellpadding="10">
+<table class="listHier lines nolines">
 	<tr>
-		<td>
-			$tlang.getString("type.view")
+		<td class="attach">
+			<strong>$tlang.getString("type.view")</strong>
 		</td>
 		<td>
 			$tlang.getString("type.$!{citation.schema.identifier}")
@@ -16,10 +16,10 @@
 				##set($currentValue = $!{field.defaultValue})
 			#end
 			<tr>
-				<td>
-					$tlang.getString("$!{citation.schema.identifier}.$!{field.identifier}")
+				<td class="attach">
+					<strong>$tlang.getString("$!{citation.schema.identifier}.$!{field.identifier}")</strong>
 				</td>
-				<td>
+				<td valign="top">
 					#if($field.isMultivalued())
 						#showMultivalued($!{currentValue})
 					#else

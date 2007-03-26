@@ -47,6 +47,11 @@
 #set($default = "")
 #if($!DEFAULT_TEMPLATE)#set($default = "$!DEFAULT_TEMPLATE.identifier")#end
 
+<script type="text/javascript" src="#libraryLink('js/jquery-1.1.2.js')">
+</script>
+<script type="text/javascript" src="/sakai-citations-tool/js/citationscript.js">
+</script>
+
 <div class="indnt1" class="portletBody">
 	<div class="indnt1" style="border: 3px solid red; display: none;" id="hiddenMessage">
 		<div style="margin: 10px 10px 10px 10px;">
@@ -81,7 +86,7 @@
 			<input name="sakai_action" id="sakai_action" value="doReviseCitation" type="hidden" />
 			<p class="shorttext">
 				<label for="type">
-					$tlang.getString("type.select")
+					<strong>$tlang.getString("type.select")</strong>
 				</label>
 				<select name="type" id="type_selector" onchange="changeSchema(this);">
 					#foreach($template in $TEMPLATES)
@@ -101,17 +106,17 @@
 						##set($currentValue = $!{field.defaultValue})
 					#end
 					<p class="shorttext">
-						#if ($field.isRequired())						 
+						#if ($field.isRequired())
 							<span class="reqStar">*</span>
 						#end
 						#if($field.isMultivalued())
 							<label for="${field.identifier}0">
-								$tlang.getString("$!{DEFAULT_TEMPLATE.identifier}.$!{field.identifier}")
+								<strong>$tlang.getString("$!{DEFAULT_TEMPLATE.identifier}.$!{field.identifier}")</strong>
 							</label>
 							#getMultivalued($field $currentValue "$!count")
 						#else
 							<label for="$field.identifier">
-								$tlang.getString("$!{DEFAULT_TEMPLATE.identifier}.$!{field.identifier}")
+								<strong>$tlang.getString("$!{DEFAULT_TEMPLATE.identifier}.$!{field.identifier}")</strong>
 							</label>
 							#getFieldValue($field "$!currentValue" "")
 						#end						
@@ -235,6 +240,16 @@
 	
 	var currentValues = new Array();
 	
+    // resize frame on document ready
+    function heavyResize() {
+      var frame = parent.document.getElementById( window.name );
+      
+      if( frame ) {
+        var clientH = document.body.clientHeight + 50;
+        $( frame ).height( clientH );
+      }
+    }
+	
 	function changeSchema(type_element)
 	{
 		var form_div = document.getElementById("div_$!FORM_NAME");
@@ -350,6 +365,8 @@
 		
 		div.innerHTML = html;
 		counter.value = count;
+		
+		resizeFrame();
 	}
 	function addUrl()
 	{
@@ -403,6 +420,8 @@
 		
 		div.innerHTML = html;
 		counter.value = count;
+		
+		resizeFrame();
 	}
 </script>
 <script type="text/javascript">	

@@ -3777,233 +3777,317 @@ public abstract class BaseCitationService implements CitationService
 	
 			BasicSchema report = new BasicSchema();
 			report.setIdentifier("report");
-	
-			unknown.addField(Schema.TITLE, Schema.SHORTTEXT, true, true, 1, 1);
-			article.addField(Schema.TITLE, Schema.SHORTTEXT, true, true, 1, 1);
-			book.addField(Schema.TITLE, Schema.SHORTTEXT, true, true, 1, 1);
-			chapter.addField(Schema.TITLE, Schema.SHORTTEXT, true, true, 1, 1);
-			report.addField(Schema.TITLE, Schema.SHORTTEXT, true, true, 1, 1);
-	
-			unknown.addAlternativeIdentifier(Schema.TITLE, RIS_FORMAT, "T1");
-			article.addAlternativeIdentifier(Schema.TITLE, RIS_FORMAT, "T1");
-			book.addAlternativeIdentifier(Schema.TITLE, RIS_FORMAT, "BT");
-			chapter.addAlternativeIdentifier(Schema.TITLE, RIS_FORMAT, "CT");
-			report.addAlternativeIdentifier(Schema.TITLE, RIS_FORMAT, "T1");
-	
+			
+			/* schema ordering is different for different types */
+			
+			/*
+			 * UNKNOWN (GENERIC)
+			 */
 			unknown.addField(Schema.CREATOR, Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
-			article.addField(Schema.CREATOR, Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
-			book.addField(Schema.CREATOR, Schema.SHORTTEXT, true, true, 1, Schema.UNLIMITED);
-			chapter.addField(Schema.CREATOR, Schema.SHORTTEXT, true, true, 1, Schema.UNLIMITED);
-			report.addField(Schema.CREATOR, Schema.SHORTTEXT, true, true, 1, Schema.UNLIMITED);
-	
 			unknown.addAlternativeIdentifier(Schema.CREATOR, RIS_FORMAT, "A1");
-			article.addAlternativeIdentifier(Schema.CREATOR, RIS_FORMAT, "A1");
-			book.addAlternativeIdentifier(Schema.CREATOR, RIS_FORMAT, "A1");
-			chapter.addAlternativeIdentifier(Schema.CREATOR, RIS_FORMAT, "A1");
-			report.addAlternativeIdentifier(Schema.CREATOR, RIS_FORMAT, "A1");
-	
-			unknown.addField("rights", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
-			article.addField("rights", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
-			book.addField("rights", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
-			chapter.addField("rights", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
-			report.addField("rights", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
-	
+			
+			unknown.addField(Schema.TITLE, Schema.SHORTTEXT, true, true, 1, 1);
+			unknown.addAlternativeIdentifier(Schema.TITLE, RIS_FORMAT, "T1");
+			
 			unknown.addField(Schema.YEAR, Schema.NUMBER, true, false, 0, 1);
-			article.addField(Schema.YEAR, Schema.NUMBER, true, false, 0, 1);
-			book.addField(Schema.YEAR, Schema.NUMBER, true, false, 0, 1);
-			chapter.addField(Schema.YEAR, Schema.NUMBER, true, false, 0, 1);
-			report.addField(Schema.YEAR, Schema.NUMBER, true, false, 0, 1);
-	
+			
 			unknown.addField("date", Schema.NUMBER, true, false, 0, 1);
-			article.addField("date", Schema.NUMBER, true, false, 0, 1);
-			book.addField("date", Schema.NUMBER, true, false, 0, 1);
-			chapter.addField("date", Schema.NUMBER, true, false, 0, 1);
-			report.addField("date", Schema.NUMBER, true, false, 0, 1);
-	
 			unknown.addAlternativeIdentifier("date", RIS_FORMAT, "Y1");
-			article.addAlternativeIdentifier("date", RIS_FORMAT, "Y1");
-			book.addAlternativeIdentifier("date", RIS_FORMAT, "Y1");
-			chapter.addAlternativeIdentifier("date", RIS_FORMAT, "Y1");
-			report.addAlternativeIdentifier("date", RIS_FORMAT, "Y1");
-	
+			
 			unknown.addField(Schema.PUBLISHER, Schema.SHORTTEXT, true, false, 0, 1);
-			book.addField(Schema.PUBLISHER, Schema.SHORTTEXT, true, false, 0, 1);
-			chapter.addField(Schema.PUBLISHER, Schema.SHORTTEXT, true, false, 0, 1);
-			report.addField(Schema.PUBLISHER, Schema.SHORTTEXT, true, false, 0, 1);
-	
 			unknown.addAlternativeIdentifier(Schema.PUBLISHER, RIS_FORMAT, "PB");
-			book.addAlternativeIdentifier(Schema.PUBLISHER, RIS_FORMAT, "PB");
-			chapter.addAlternativeIdentifier(Schema.PUBLISHER, RIS_FORMAT, "PB");
-			report.addAlternativeIdentifier(Schema.PUBLISHER, RIS_FORMAT, "PB");
 	
 			unknown.addField("publicationLocation", Schema.SHORTTEXT, true, false, 0, 1);
-			book.addField("publicationLocation", Schema.SHORTTEXT, true, false, 0, 1);
-			chapter.addField("publicationLocation", Schema.SHORTTEXT, true, false, 0, 1);
-			report.addField("publicationLocation", Schema.SHORTTEXT, true, false, 0, 1);
-	
 			unknown.addAlternativeIdentifier("publicationLocation", RIS_FORMAT, "CY");
-			book.addAlternativeIdentifier("publicationLocation", RIS_FORMAT, "CY");
-			chapter.addAlternativeIdentifier("publicationLocation", RIS_FORMAT, "CY");
-			report.addAlternativeIdentifier("publicationLocation", RIS_FORMAT, "CY");
-	
-			unknown.addField("editor", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
-			book.addField("editor", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
-			chapter.addField("editor", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
-			report.addField("editor", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
-	
-			unknown.addAlternativeIdentifier("editor", RIS_FORMAT, "A3");
-			book.addAlternativeIdentifier("editor", RIS_FORMAT, "A3");
-			chapter.addAlternativeIdentifier("editor", RIS_FORMAT, "ED");
-			report.addAlternativeIdentifier("editor", RIS_FORMAT, "A3");
-	
-			unknown.addField("edition", Schema.NUMBER, true, false, 0, 1);
-			book.addField("edition", Schema.NUMBER, true, false, 0, 1);
-			chapter.addField("edition", Schema.NUMBER, true, false, 0, 1);
-			report.addField("edition", Schema.NUMBER, true, false, 0, 1);
-	
-			unknown.addAlternativeIdentifier("edition", RIS_FORMAT, "VL");
-			book.addAlternativeIdentifier("edition", RIS_FORMAT, "VL");
-			chapter.addAlternativeIdentifier("edition", RIS_FORMAT, "VL");
-			report.addAlternativeIdentifier("edition", RIS_FORMAT, "VL");
-	
-			unknown.addField(Schema.SOURCE_TITLE, Schema.SHORTTEXT, true, false, 0, 1);
-			article.addField(Schema.SOURCE_TITLE, Schema.SHORTTEXT, true, false, 0, 1);
-			book.addField(Schema.SOURCE_TITLE, Schema.SHORTTEXT, true, false, 0, 1);
-			chapter.addField(Schema.SOURCE_TITLE, Schema.SHORTTEXT, true, false, 0, 1);
-			report.addField(Schema.SOURCE_TITLE, Schema.SHORTTEXT, true, false, 0, 1);
-	
-			unknown.addAlternativeIdentifier(Schema.SOURCE_TITLE, RIS_FORMAT, "T3");
-			article.addAlternativeIdentifier(Schema.SOURCE_TITLE, RIS_FORMAT, "JF");
-			book.addAlternativeIdentifier(Schema.SOURCE_TITLE, RIS_FORMAT, "T3");
-			chapter.addAlternativeIdentifier(Schema.SOURCE_TITLE, RIS_FORMAT, "BT");
-			report.addAlternativeIdentifier(Schema.SOURCE_TITLE, RIS_FORMAT, "T3");
-	
+
 			unknown.addField(Schema.VOLUME, Schema.NUMBER, true, false, 0, 1);
-			article.addField(Schema.VOLUME, Schema.NUMBER, true, false, 0, 1);
-	
 			unknown.addAlternativeIdentifier(Schema.VOLUME, RIS_FORMAT, "VL");
+			
+			unknown.addField(Schema.ISSUE, Schema.NUMBER, true, false, 0, 1);
+			unknown.addAlternativeIdentifier(Schema.ISSUE, RIS_FORMAT, "IS");
+
+			unknown.addField(Schema.PAGES, Schema.NUMBER, true, false, 0, 1);
+			unknown.addAlternativeIdentifier(Schema.PAGES, RIS_FORMAT, "SP");
+
+			unknown.addField("startPage", Schema.NUMBER, true, false, 0, 1);
+			unknown.addAlternativeIdentifier("startPage", RIS_FORMAT, "SP");
+			
+			unknown.addField("endPage", Schema.NUMBER, true, false, 0, 1);
+			unknown.addAlternativeIdentifier("endPage", RIS_FORMAT, "EP");
+			
+			unknown.addField("edition", Schema.NUMBER, true, false, 0, 1);
+			unknown.addAlternativeIdentifier("edition", RIS_FORMAT, "VL");
+
+			unknown.addField("editor", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
+			unknown.addAlternativeIdentifier("editor", RIS_FORMAT, "A3");
+
+			unknown.addField(Schema.SOURCE_TITLE, Schema.SHORTTEXT, true, false, 0, 1);
+			unknown.addAlternativeIdentifier(Schema.SOURCE_TITLE, RIS_FORMAT, "T3");
+
+			unknown.addField("Language", Schema.NUMBER, true, false, 0, 1);
+
+			unknown.addField("abstract", Schema.LONGTEXT, true, false, 0, 1);
+			unknown.addAlternativeIdentifier("abstract", RIS_FORMAT, "N2");
+
+			unknown.addField("note", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
+			unknown.addAlternativeIdentifier("note", RIS_FORMAT, "N1");
+
+			unknown.addField(Schema.ISN, Schema.SHORTTEXT, true, false, 0, 1);
+			unknown.addAlternativeIdentifier(Schema.ISN, RIS_FORMAT, "SN");
+
+			unknown.addField("subject", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
+			unknown.addAlternativeIdentifier("subject", RIS_FORMAT, "KW");
+
+			unknown.addField("locIdentifier", Schema.SHORTTEXT, true, false, 0, 1);
+			unknown.addAlternativeIdentifier("locIdentifier", RIS_FORMAT, "M1");
+
+			unknown.addField("dateRetrieved", Schema.DATE, false, false, 0, 1);
+
+			unknown.addField("openURL", Schema.SHORTTEXT, false, false, 0, 1);
+
+			unknown.addField("doi", Schema.NUMBER, true, false, 0, 1);
+
+			unknown.addField("rights", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
+			
+			/*
+			 * ARTICLE
+			 */
+			article.addField(Schema.CREATOR, Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
+			article.addAlternativeIdentifier(Schema.CREATOR, RIS_FORMAT, "A1");
+			
+			article.addField(Schema.TITLE, Schema.SHORTTEXT, true, true, 1, 1);
+			article.addAlternativeIdentifier(Schema.TITLE, RIS_FORMAT, "T1");
+			
+			article.addField(Schema.SOURCE_TITLE, Schema.SHORTTEXT, true, false, 0, 1);
+			article.addAlternativeIdentifier(Schema.SOURCE_TITLE, RIS_FORMAT, "JF");
+			
+			article.addField(Schema.YEAR, Schema.NUMBER, true, false, 0, 1);
+		
+			article.addField("date", Schema.NUMBER, true, false, 0, 1);
+			article.addAlternativeIdentifier("date", RIS_FORMAT, "Y1");
+			
+			article.addField(Schema.VOLUME, Schema.NUMBER, true, false, 0, 1);
 			article.addAlternativeIdentifier(Schema.VOLUME, RIS_FORMAT, "VL");
 	
-			unknown.addField(Schema.ISSUE, Schema.NUMBER, true, false, 0, 1);
 			article.addField(Schema.ISSUE, Schema.NUMBER, true, false, 0, 1);
-	
-			unknown.addAlternativeIdentifier(Schema.ISSUE, RIS_FORMAT, "IS");
 			article.addAlternativeIdentifier(Schema.ISSUE, RIS_FORMAT, "IS");
 	
-			unknown.addField(Schema.PAGES, Schema.NUMBER, true, false, 0, 1);
 			article.addField(Schema.PAGES, Schema.NUMBER, true, false, 0, 1);
-			chapter.addField(Schema.PAGES, Schema.NUMBER, true, false, 0, 1);
-			report.addField(Schema.PAGES, Schema.NUMBER, true, false, 0, 1);
-	
-			unknown.addAlternativeIdentifier(Schema.PAGES, RIS_FORMAT, "SP");
-			book.addAlternativeIdentifier(Schema.PAGES, RIS_FORMAT, "SP");
-			report.addAlternativeIdentifier(Schema.PAGES, RIS_FORMAT, "SP");
-	
-			unknown.addField("startPage", Schema.NUMBER, true, false, 0, 1);
+			
 			article.addField("startPage", Schema.NUMBER, true, false, 0, 1);
-			chapter.addField("startPage", Schema.NUMBER, true, false, 0, 1);
-	
-			unknown.addAlternativeIdentifier("startPage", RIS_FORMAT, "SP");
 			article.addAlternativeIdentifier("startPage", RIS_FORMAT, "SP");
+			
+			article.addField("endPage", Schema.NUMBER, true, false, 0, 1);
+			article.addAlternativeIdentifier("endPage", RIS_FORMAT, "EP");
+			
+			article.addField("abstract", Schema.LONGTEXT, true, false, 0, 1);
+			article.addAlternativeIdentifier("abstract", RIS_FORMAT, "N2");
+			
+			article.addField("note", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
+			article.addAlternativeIdentifier("note", RIS_FORMAT, "N1");
+			
+			article.addField(Schema.ISN, Schema.SHORTTEXT, true, false, 0, 1);
+			article.addAlternativeIdentifier(Schema.ISN, RIS_FORMAT, "SN");
+			
+			article.addField("subject", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
+			article.addAlternativeIdentifier("subject", RIS_FORMAT, "KW");
+			
+			article.addField("Language", Schema.NUMBER, true, false, 0, 1);
+			
+			article.addField("locIdentifier", Schema.SHORTTEXT, true, false, 0, 1);
+			article.addAlternativeIdentifier("locIdentifier", RIS_FORMAT, "M1");
+			
+			article.addField("dateRetrieved", Schema.DATE, false, false, 0, 1);
+			
+			article.addField("openURL", Schema.SHORTTEXT, false, false, 0, 1);
+			
+			article.addField("doi", Schema.NUMBER, true, false, 0, 1);
+			
+			article.addField("rights", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
+			
+			/*
+			 * BOOK
+			 */
+			book.addField(Schema.CREATOR, Schema.SHORTTEXT, true, true, 1, Schema.UNLIMITED);
+			book.addAlternativeIdentifier(Schema.CREATOR, RIS_FORMAT, "A1");
+
+			book.addField(Schema.TITLE, Schema.SHORTTEXT, true, true, 1, 1);
+			book.addAlternativeIdentifier(Schema.TITLE, RIS_FORMAT, "BT");
+
+			book.addField(Schema.YEAR, Schema.NUMBER, true, false, 0, 1);
+
+			book.addField("date", Schema.NUMBER, true, false, 0, 1);
+			book.addAlternativeIdentifier("date", RIS_FORMAT, "Y1");
+
+			book.addField(Schema.PUBLISHER, Schema.SHORTTEXT, true, false, 0, 1);
+			book.addAlternativeIdentifier(Schema.PUBLISHER, RIS_FORMAT, "PB");
+			
+			book.addField("publicationLocation", Schema.SHORTTEXT, true, false, 0, 1);
+			book.addAlternativeIdentifier("publicationLocation", RIS_FORMAT, "CY");
+			
+			book.addField("edition", Schema.NUMBER, true, false, 0, 1);
+			book.addAlternativeIdentifier("edition", RIS_FORMAT, "VL");
+			
+			book.addField("editor", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
+			book.addAlternativeIdentifier("editor", RIS_FORMAT, "A3");
+			
+			book.addField(Schema.SOURCE_TITLE, Schema.SHORTTEXT, true, false, 0, 1);
+			book.addAlternativeIdentifier(Schema.SOURCE_TITLE, RIS_FORMAT, "T3");
+
+			book.addField("abstract", Schema.LONGTEXT, true, false, 0, 1);
+			book.addAlternativeIdentifier("abstract", RIS_FORMAT, "N2");
+
+			book.addField("note", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
+			book.addAlternativeIdentifier("note", RIS_FORMAT, "N1");
+
+			book.addField(Schema.ISN, Schema.SHORTTEXT, true, false, 0, 1);
+			book.addAlternativeIdentifier(Schema.ISN, RIS_FORMAT, "SN");
+
+			book.addField("subject", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
+			book.addAlternativeIdentifier("subject", RIS_FORMAT, "KW");
+
+			book.addField("Language", Schema.NUMBER, true, false, 0, 1);
+
+			book.addField("locIdentifier", Schema.SHORTTEXT, true, false, 0, 1);
+			book.addAlternativeIdentifier("locIdentifier", RIS_FORMAT, "M1");
+
+			book.addField("dateRetrieved", Schema.DATE, false, false, 0, 1);
+
+			book.addField("openURL", Schema.SHORTTEXT, false, false, 0, 1);
+
+			book.addField("doi", Schema.NUMBER, true, false, 0, 1);
+
+			book.addField("rights", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
+
+			book.addAlternativeIdentifier(Schema.PAGES, RIS_FORMAT, "SP");
+			
+			/*
+			 * CHAPTER
+			 */
+			chapter.addField(Schema.CREATOR, Schema.SHORTTEXT, true, true, 1, Schema.UNLIMITED);
+			chapter.addAlternativeIdentifier(Schema.CREATOR, RIS_FORMAT, "A1");
+			
+			chapter.addField(Schema.TITLE, Schema.SHORTTEXT, true, true, 1, 1);
+			chapter.addAlternativeIdentifier(Schema.TITLE, RIS_FORMAT, "CT");
+			
+			chapter.addField(Schema.YEAR, Schema.NUMBER, true, false, 0, 1);
+			
+			chapter.addField("date", Schema.NUMBER, true, false, 0, 1);
+			chapter.addAlternativeIdentifier("date", RIS_FORMAT, "Y1");
+			
+			chapter.addField(Schema.PUBLISHER, Schema.SHORTTEXT, true, false, 0, 1);
+			chapter.addAlternativeIdentifier(Schema.PUBLISHER, RIS_FORMAT, "PB");
+			
+			chapter.addField("publicationLocation", Schema.SHORTTEXT, true, false, 0, 1);
+			chapter.addAlternativeIdentifier("publicationLocation", RIS_FORMAT, "CY");
+			
+			chapter.addField("edition", Schema.NUMBER, true, false, 0, 1);
+			chapter.addAlternativeIdentifier("edition", RIS_FORMAT, "VL");
+			
+			chapter.addField("editor", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
+			chapter.addAlternativeIdentifier("editor", RIS_FORMAT, "ED");
+			
+			chapter.addField(Schema.SOURCE_TITLE, Schema.SHORTTEXT, true, false, 0, 1);
+			chapter.addAlternativeIdentifier(Schema.SOURCE_TITLE, RIS_FORMAT, "BT");
+			
+			chapter.addField(Schema.PAGES, Schema.NUMBER, true, false, 0, 1);
+			chapter.addAlternativeIdentifier(Schema.PAGES, RIS_FORMAT, "SP");
+			
+			chapter.addField("startPage", Schema.NUMBER, true, false, 0, 1);
 			chapter.addAlternativeIdentifier("startPage", RIS_FORMAT, "SP");
 	
-			unknown.addField("endPage", Schema.NUMBER, true, false, 0, 1);
-			article.addField("endPage", Schema.NUMBER, true, false, 0, 1);
 			chapter.addField("endPage", Schema.NUMBER, true, false, 0, 1);
-	
-			unknown.addAlternativeIdentifier("endPage", RIS_FORMAT, "EP");
-			article.addAlternativeIdentifier("endPage", RIS_FORMAT, "EP");
 			chapter.addAlternativeIdentifier("endPage", RIS_FORMAT, "EP");
-	
-			unknown.addField("locIdentifier", Schema.SHORTTEXT, true, false, 0, 1);
-			article.addField("locIdentifier", Schema.SHORTTEXT, true, false, 0, 1);
-			book.addField("locIdentifier", Schema.SHORTTEXT, true, false, 0, 1);
-			chapter.addField("locIdentifier", Schema.SHORTTEXT, true, false, 0, 1);
-			report.addField("locIdentifier", Schema.SHORTTEXT, true, false, 0, 1);
-	
-			unknown.addAlternativeIdentifier("locIdentifier", RIS_FORMAT, "M1");
-			article.addAlternativeIdentifier("locIdentifier", RIS_FORMAT, "M1");
-			book.addAlternativeIdentifier("locIdentifier", RIS_FORMAT, "M1");
-			chapter.addAlternativeIdentifier("locIdentifier", RIS_FORMAT, "M1");
-			report.addAlternativeIdentifier("locIdentifier", RIS_FORMAT, "M1");
-	
-			unknown.addField(Schema.ISN, Schema.SHORTTEXT, true, false, 0, 1);
-			article.addField(Schema.ISN, Schema.SHORTTEXT, true, false, 0, 1);
-			book.addField(Schema.ISN, Schema.SHORTTEXT, true, false, 0, 1);
+			
+			chapter.addField("abstract", Schema.LONGTEXT, true, false, 0, 1);
+			chapter.addAlternativeIdentifier("abstract", RIS_FORMAT, "N2");
+			
+			chapter.addField("note", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
+			chapter.addAlternativeIdentifier("note", RIS_FORMAT, "N1");
+			
 			chapter.addField(Schema.ISN, Schema.SHORTTEXT, true, false, 0, 1);
-			report.addField(Schema.ISN, Schema.SHORTTEXT, true, false, 0, 1);
-	
-			unknown.addAlternativeIdentifier(Schema.ISN, RIS_FORMAT, "SN");
-			article.addAlternativeIdentifier(Schema.ISN, RIS_FORMAT, "SN");
-			book.addAlternativeIdentifier(Schema.ISN, RIS_FORMAT, "SN");
 			chapter.addAlternativeIdentifier(Schema.ISN, RIS_FORMAT, "SN");
-			report.addAlternativeIdentifier(Schema.ISN, RIS_FORMAT, "SN");
-	
-			unknown.addField("Language", Schema.NUMBER, true, false, 0, 1);
-			article.addField("Language", Schema.NUMBER, true, false, 0, 1);
-			book.addField("Language", Schema.NUMBER, true, false, 0, 1);
+			
+			chapter.addField("subject", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
+			chapter.addAlternativeIdentifier("subject", RIS_FORMAT, "KW");
+			
 			chapter.addField("Language", Schema.NUMBER, true, false, 0, 1);
-			report.addField("Language", Schema.NUMBER, true, false, 0, 1);
-	
-			unknown.addField("openURL", Schema.SHORTTEXT, false, false, 0, 1);
-			article.addField("openURL", Schema.SHORTTEXT, false, false, 0, 1);
-			book.addField("openURL", Schema.SHORTTEXT, false, false, 0, 1);
+			
+			chapter.addField("locIdentifier", Schema.SHORTTEXT, true, false, 0, 1);
+			chapter.addAlternativeIdentifier("locIdentifier", RIS_FORMAT, "M1");
+			
+			chapter.addField("dateRetrieved", Schema.DATE, false, false, 0, 1);
+
 			chapter.addField("openURL", Schema.SHORTTEXT, false, false, 0, 1);
+
+			chapter.addField("doi", Schema.NUMBER, true, false, 0, 1);
+
+			chapter.addField("rights", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
+			
+			/*
+			 * REPORT
+			 */
+			report.addField(Schema.CREATOR, Schema.SHORTTEXT, true, true, 1, Schema.UNLIMITED);
+			report.addAlternativeIdentifier(Schema.CREATOR, RIS_FORMAT, "A1");
+			
+			report.addField(Schema.TITLE, Schema.SHORTTEXT, true, true, 1, 1);
+			report.addAlternativeIdentifier(Schema.TITLE, RIS_FORMAT, "T1");
+			
+			report.addField(Schema.YEAR, Schema.NUMBER, true, false, 0, 1);
+			
+			report.addField("date", Schema.NUMBER, true, false, 0, 1);
+			report.addAlternativeIdentifier("date", RIS_FORMAT, "Y1");
+			
+			report.addField(Schema.PUBLISHER, Schema.SHORTTEXT, true, false, 0, 1);
+			report.addAlternativeIdentifier(Schema.PUBLISHER, RIS_FORMAT, "PB");
+
+			report.addField("publicationLocation", Schema.SHORTTEXT, true, false, 0, 1);
+			report.addAlternativeIdentifier("publicationLocation", RIS_FORMAT, "CY");
+			
+			report.addField("editor", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
+			report.addAlternativeIdentifier("editor", RIS_FORMAT, "A3");
+
+			report.addField("edition", Schema.NUMBER, true, false, 0, 1);
+			report.addAlternativeIdentifier("edition", RIS_FORMAT, "VL");
+
+			report.addField(Schema.SOURCE_TITLE, Schema.SHORTTEXT, true, false, 0, 1);
+			report.addAlternativeIdentifier(Schema.SOURCE_TITLE, RIS_FORMAT, "T3");
+
+			report.addField(Schema.PAGES, Schema.NUMBER, true, false, 0, 1);
+			report.addAlternativeIdentifier(Schema.PAGES, RIS_FORMAT, "SP");
+
+			report.addField("abstract", Schema.LONGTEXT, true, false, 0, 1);
+			report.addAlternativeIdentifier("abstract", RIS_FORMAT, "N2");
+
+			report.addField(Schema.ISN, Schema.SHORTTEXT, true, false, 0, 1);
+			report.addAlternativeIdentifier(Schema.ISN, RIS_FORMAT, "SN");
+
+			report.addField("note", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
+			report.addAlternativeIdentifier("note", RIS_FORMAT, "N1");
+
+			report.addField("subject", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
+			report.addAlternativeIdentifier("subject", RIS_FORMAT, "KW");
+
+			report.addField("Language", Schema.NUMBER, true, false, 0, 1);
+
+			report.addField("locIdentifier", Schema.SHORTTEXT, true, false, 0, 1);
+			report.addAlternativeIdentifier("locIdentifier", RIS_FORMAT, "M1");
+
+			report.addField("dateRetrieved", Schema.DATE, false, false, 0, 1);
+
 			report.addField("openURL", Schema.SHORTTEXT, false, false, 0, 1);
-	
+
+			report.addField("doi", Schema.NUMBER, true, false, 0, 1);
+
+			report.addField("rights", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
+			
+			/* IGNORING 'Citation' field for now...
 			unknown.addField("inlineCitation", Schema.SHORTTEXT, false, false, 0, Schema.UNLIMITED);
 			article.addField("inlineCitation", Schema.SHORTTEXT, false, false, 0, Schema.UNLIMITED);
 			book.addField("inlineCitation", Schema.SHORTTEXT, false, false, 0, Schema.UNLIMITED);
 			chapter.addField("inlineCitation", Schema.SHORTTEXT, false, false, 0, Schema.UNLIMITED);
 			report.addField("inlineCitation", Schema.SHORTTEXT, false, false, 0, Schema.UNLIMITED);
-	
-			unknown.addField("subject", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
-			article.addField("subject", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
-			book.addField("subject", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
-			chapter.addField("subject", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
-			report.addField("subject", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
-	
-			unknown.addAlternativeIdentifier("subject", RIS_FORMAT, "KW");
-			article.addAlternativeIdentifier("subject", RIS_FORMAT, "KW");
-			book.addAlternativeIdentifier("subject", RIS_FORMAT, "KW");
-			chapter.addAlternativeIdentifier("subject", RIS_FORMAT, "KW");
-			report.addAlternativeIdentifier("subject", RIS_FORMAT, "KW");
-	
-			unknown.addField("abstract", Schema.LONGTEXT, true, false, 0, 1);
-			article.addField("abstract", Schema.LONGTEXT, true, false, 0, 1);
-			book.addField("abstract", Schema.LONGTEXT, true, false, 0, 1);
-			chapter.addField("abstract", Schema.LONGTEXT, true, false, 0, 1);
-			report.addField("abstract", Schema.LONGTEXT, true, false, 0, 1);
-	
-			unknown.addAlternativeIdentifier("abstract", RIS_FORMAT, "N2");
-			article.addAlternativeIdentifier("abstract", RIS_FORMAT, "N2");
-			book.addAlternativeIdentifier("abstract", RIS_FORMAT, "N2");
-			chapter.addAlternativeIdentifier("abstract", RIS_FORMAT, "N2");
-			report.addAlternativeIdentifier("abstract", RIS_FORMAT, "N2");
-	
-			unknown.addField("note", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
-			article.addField("note", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
-			book.addField("note", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
-			chapter.addField("note", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
-			report.addField("note", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
-	
-			unknown.addAlternativeIdentifier("note", RIS_FORMAT, "N1");
-			article.addAlternativeIdentifier("note", RIS_FORMAT, "N1");
-			book.addAlternativeIdentifier("note", RIS_FORMAT, "N1");
-			chapter.addAlternativeIdentifier("note", RIS_FORMAT, "N1");
-			report.addAlternativeIdentifier("note", RIS_FORMAT, "N1");
-	
-			unknown.addField("doi", Schema.NUMBER, true, false, 0, 1);
-			article.addField("doi", Schema.NUMBER, true, false, 0, 1);
-			book.addField("doi", Schema.NUMBER, true, false, 0, 1);
-			chapter.addField("doi", Schema.NUMBER, true, false, 0, 1);
-			report.addField("doi", Schema.NUMBER, true, false, 0, 1);
-	
-			unknown.addField("dateRetrieved", Schema.DATE, false, false, 0, 1);
-			article.addField("dateRetrieved", Schema.DATE, false, false, 0, 1);
-			book.addField("dateRetrieved", Schema.DATE, false, false, 0, 1);
-			chapter.addField("dateRetrieved", Schema.DATE, false, false, 0, 1);
-			report.addField("dateRetrieved", Schema.DATE, false, false, 0, 1);
+			*/
 	
 			if (m_storage.checkSchema(unknown.getIdentifier()))
 			{
