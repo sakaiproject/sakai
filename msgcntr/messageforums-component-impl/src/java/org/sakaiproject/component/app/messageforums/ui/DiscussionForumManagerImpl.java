@@ -98,6 +98,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 
   public void init()
   {
+     LOG.info("init()");
     ;
   }
 

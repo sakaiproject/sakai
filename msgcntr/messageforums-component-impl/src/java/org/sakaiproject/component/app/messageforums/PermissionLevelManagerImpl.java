@@ -77,6 +77,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	
 			
 	public void init(){
+      LOG.info("init()");
 						
     // run ddl            
     if (autoDdl.booleanValue()){
@@ -90,7 +91,12 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
       }
     }  
     
-    loadInitialDefaultPermissionLevel();
+    try {
+       loadInitialDefaultPermissionLevel();
+    }
+    catch (Exception e) {
+       LOG.warn("Error loading initial default permissions", e);
+    }
     
     /** test creation of permission mask and author level
     PermissionsMask mask = new PermissionsMask();

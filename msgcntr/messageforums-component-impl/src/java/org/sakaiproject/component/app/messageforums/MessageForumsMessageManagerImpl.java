@@ -96,6 +96,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     private EventTrackingService eventTrackingService;
 
     public void init() {
+       LOG.info("init()");
         ;
     }
 

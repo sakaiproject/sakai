@@ -47,6 +47,7 @@ public class DefaultPermissionsManagerImpl
   
   public void init()
   {
+     LOG.info("init()");
 /*    functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_NEW_FORUM);
     functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_NEW_TOPIC);
     functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_NEW_RESPONSE);

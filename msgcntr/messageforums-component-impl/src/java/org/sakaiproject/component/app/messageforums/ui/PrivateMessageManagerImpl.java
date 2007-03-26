@@ -105,6 +105,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 
   public void init()
   {
+     LOG.info("init()");
     ;
   }
 

@@ -71,9 +71,15 @@ public class MessageForumsTypeManagerImpl implements MessageForumsTypeManager
   
   private TypeManager typeManager;
 
-  public void init()
+  public void init() throws Exception
   {
-    loadInitialDefaultPermissionType();
+    LOG.info("init()");
+    try {
+       loadInitialDefaultPermissionType();
+    }
+    catch (Exception e) {
+       LOG.warn("Error loading initial default permissions", e);
+    }
   }
 
   /**

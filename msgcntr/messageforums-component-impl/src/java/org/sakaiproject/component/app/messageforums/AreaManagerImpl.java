@@ -73,6 +73,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     private UserPermissionManager userPermissionManager;
 
     public void init() {
+       LOG.info("init()");
         ;
     }
 

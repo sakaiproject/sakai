@@ -53,6 +53,7 @@ public class MessageForumsUserManagerImpl extends HibernateDaoSupport implements
   private EventTrackingService eventTrackingService;
 
   public void init() {
+     LOG.info("init()");
       ;
   }
 

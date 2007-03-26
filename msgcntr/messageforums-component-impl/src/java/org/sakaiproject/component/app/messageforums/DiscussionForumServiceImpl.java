@@ -114,8 +114,9 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 
 	private static final Log LOG = LogFactory.getLog(DiscussionForumService.class);
 
-	public void init()
+	public void init() throws Exception
 	{
+      LOG.info("init()");
 		EntityManager.registerEntityProducer(this, REFERENCE_ROOT);	
 	}
 

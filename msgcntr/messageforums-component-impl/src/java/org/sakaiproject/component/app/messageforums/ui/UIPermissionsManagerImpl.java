@@ -76,6 +76,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 
   public void init()
   {
+     LOG.info("init()");
     ;
   }
 

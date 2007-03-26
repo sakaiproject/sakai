@@ -78,7 +78,8 @@ public class PermissionManagerImpl extends HibernateDaoSupport implements Permis
     private DefaultPermissionsManager defaultPermissionsManager;
     
     public void init() {
-        ;
+       LOG.info("init()");
+       ;
     }
 
     public EventTrackingService getEventTrackingService() {

@@ -159,6 +159,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     }
 
     public void init() {
+       LOG.info("init()");
         ;
     }
 

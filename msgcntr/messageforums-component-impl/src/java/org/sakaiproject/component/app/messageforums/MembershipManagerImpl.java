@@ -61,6 +61,7 @@ public class MembershipManagerImpl implements MembershipManager{
   private PrivacyManager privacyManager;
 
   public void init() {
+     LOG.info("init()");
     ;
   }    
 

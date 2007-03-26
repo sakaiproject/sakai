@@ -20,6 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.component.app.messageforums;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaControlPermission;
 import org.sakaiproject.api.app.messageforums.BaseForum;
@@ -43,8 +45,11 @@ public class UserPermissionManagerImpl extends HibernateDaoSupport implements Us
     private SessionManager sessionManager;
 
     private PermissionManager permissionManager;
+    
+    private static final Log LOG = LogFactory.getLog(UserPermissionManagerImpl.class);
 
     public void init() {
+       LOG.info("init()");
         ;
     }
 
