@@ -1050,7 +1050,8 @@ ul.makeMenu, ul.makeMenu ul {
   margin-left: 0px;
 	display:inline;
 	position: relative;
-	text-align: left
+	text-align: left;
+	white-space: nowrap;
 }
 ul.makeMenu:hover{
 	border:1px solid #666;
