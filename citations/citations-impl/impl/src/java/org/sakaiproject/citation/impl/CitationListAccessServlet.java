@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -55,12 +56,15 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.cheftool.VmServlet;
 
 /**
  * 
  */
 public class CitationListAccessServlet implements HttpAccess
 {
+	public static final String LIST_TEMPLATE = "/vm/citationList.vm";
+	
 	/** Messages, for the http access. */
 	protected static ResourceLoader rb = new ResourceLoader("citation_mgr");
 	
@@ -224,16 +228,13 @@ public class CitationListAccessServlet implements HttpAccess
         try
         {
         	String openUrlLabel = ConfigurationService.getSiteConfigOpenUrlLabel();
-       		Object[] openUrlLabelArray = {openUrlLabel};
         	
     		ContentResource resource = (ContentResource) ref.getEntity(); // ContentHostingService.getResource(ref.getId());
     		ResourceProperties properties = resource.getProperties();
    
     		String title = properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
     		
-     		byte[] content = resource.getContent();
-    		
-     		String citationCollectionId = properties.getProperty(CitationHelper.PROP_CITATION_COLLECTION);
+     		String citationCollectionId = new String( resource.getContent() );
     		CitationCollection collection = CitationService.getCollection(citationCollectionId);
 
     		res.setContentType("text/html; charset=UTF-8");
@@ -241,42 +242,70 @@ public class CitationListAccessServlet implements HttpAccess
     		out.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
 					+ "<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">\n"
 					+ "<head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n"
-					+ "<style type=\"text/css\">body{margin:0px;padding:1em;font-family:Verdana,Arial,Helvetica,sans-serif;font-size:80%;}</style>\n"
 					+ "<title>"
-					+ rb.getString("list.title") + " "
+					+ rb.getString("list.title") + ": "
 					+ title
-					+ "</title>" + "</head>\n<body>");
+					+ "</title>\n"
+					+ "<link href=\"/library/skin/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n"
+					+ "<link href=\"/library/skin/default/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n"
+					+ "<script type=\"text/javascript\" src=\"/library/js/jquery-1.1.2.js\"></script>\n"
+					+ "<script type=\"text/javascript\" src=\"/sakai-citations-tool/js/citationscript.js\"></script>\n"
+    				+ "</head>\n<body>" );
     		
-    		out.println("<div id=\"div_index\">\n");
-    		out.println("<h3>" + rb.getString("list.title") + " " + title + "</h3>");
-    		if(content != null && content.length > 0)
+    		out.println("<div class=\"portletBody\">\n\t<div class=\"indnt1\">");
+    		out.println("\t<h3>" + rb.getString("list.title") + ": " + title + "</h3>");
+    		out.println("\t<p class=\"instruction\">" + rb.getString("cite.subtitle") + "</p>");
+    		out.println("\t<table class=\"listHier lines nolines\" summary=\"citations table\" cellpadding=\"0\" cellspacing=\"0\">");
+    		out.println("\t<tbody>");
+    		out.println("\t<tr><th colspan=\"2\">");
+    		out.println("\t\t<div class=\"viewNav\" style=\"padding: 0pt;\"><strong>" + rb.getString("listing.title") + "</strong> (" + collection.size() + ")" );
+    		out.println("\t\t</div>");
+    		out.println("\t</th></tr>");
+    		out.println("\t<tr class=\"exclude\"><td colspan=\"2\">");
+    		out.println("\t\t<div class=\"itemAction\">");
+    		out.println("\t\t\t<a href=\"#\" onclick=\"showAllDetails( '" + rb.getString("link.hide.results") + "' ); return false;\">" + rb.getString("link.show.results") + "</a> |" );
+    		out.println("\t\t\t<a href=\"#\" onclick=\"hideAllDetails( '" + rb.getString("link.show.results") + "' ); return false;\">" + rb.getString("link.hide.results") + "</a>" );
+    		out.println("\t\t</div>\n\t</td></tr>");
+
+    		List<Citation> citations = collection.getCitations();
+    		for( Citation citation : citations )
     		{
-    			out.println("<div>\n" + (new String(content)) + "\n</div>\n");
-    		}
- 			out.println("<div>\n<h4>" + rb.getFormattedMessage("cite.subtitle", openUrlLabelArray) + "</h4>\n");
-    		List citations = collection.getCitations();
-    		Iterator citationIt = citations.iterator();
-    		while(citationIt.hasNext())
-    		{
-    			Citation citation = (Citation) citationIt.next();
-    			out.println("<p>\n<a href=\"#cite_details\" onclick=\"showCitation('" + citation.getId() + "');\" >" + citation.getDisplayName() + "</a>");
-    			out.println(citation.getCreator());
-    			out.println(citation.getSource());
-    			out.println("<a href=\"" + citation.getOpenurl() + "\" target=\"_blank\">" + openUrlLabel + "</a>\n</p>\n");
-    		}
-    		out.println("</div>\n");
-       		out.println("</div>\n");
-       		out.println("<br />\n<br />\n<br />\n");
-   			out.println("<a name=\"cite_details\" id=\"cite_details\"></a>\n");
-   		
-    		citationIt = citations.iterator();
-       		while(citationIt.hasNext())
-    		{
-    			Citation citation = (Citation) citationIt.next();
-    			out.println("<div id=\"div_" + citation.getId() + "\" style=\"display:none\">\n");
-     			out.println("<h3>" + rb.getString("cite.title") + citation.getDisplayName() + "</h3>\n");
-       			out.println("<table cellpadding=\"10\">\n");
-       		     			
+    			String escapedId = citation.getId().replace( '-', 'x' );
+    			
+    			// toggle image
+    			out.println("\t\t<tr>");
+    			out.println("\t\t\t<td class=\"attach\">");
+    			out.println("\t\t\t\t<img onclick=\"toggleDetails( '" + escapedId + "', '" + rb.getString("alt.show.result") + "', '" + rb.getString("alt.hide.result") + "' );\"" );
+    			out.println("\t\t\t\tid=\"toggle_" + escapedId + "\" class=\"toggleIcon\"" );
+    			out.println("\t\t\t\tstyle=\"cursor: pointer;\" src=\"/library/image/sakai/expand.gif?panel=Main\"");
+    			out.println("\t\t\t\talt=\"" + rb.getString("alt.show.result") + "\" align=\"top\"" );
+    			out.println("\t\t\t\tborder=\"0\" height=\"13\" width=\"13\" />" );
+    			out.println("\t\t\t</td>");
+    			
+    			out.println("\t\t<td headers=\"details\">");
+    			out.println("\t\t\t<a href=\"" + citation.getOpenurl() + "\" target=\"_blank\">" + citation.getDisplayName() + "</a><br />");
+    			out.println("\t\t\t\t" + citation.getCreator() );
+    			out.println("\t\t\t\t" + citation.getSource() );
+    			out.println("\t\t\t<div class=\"itemAction\">");
+    			if( citation.hasCustomUrls() )
+    			{
+    				List<String> customUrlIds = citation.getCustomUrlIds();
+    				for( String urlId : customUrlIds )
+    				{
+    					out.println("\t\t\t\t<a href=\"" + citation.getCustomUrl( urlId ).toString() + "\" target=\"_blank\">" + citation.getCustomUrlLabel(urlId) + "</a>");
+    				  	out.println("\t\t\t\t |");
+    				}
+    			}
+    			/* not using view citation link - using toggle triangle
+    			out.println("\t\t\t\t<a id=\"link_" + escapedId + "\" href=\"#\" onclick=\"viewFullCitation('" + escapedId + "'); return false;\">"
+    					+ rb.getString( "action.view" ) + "</a>" );
+    			*/
+    			out.println("\t\t\t</div>");
+
+    			// show detailed info
+    			out.println("\t\t<div id=\"details_" + escapedId + "\" class=\"citationDetails\" style=\"display: none;\">");
+       			out.println("\t\t\t<table class=\"listHier lines nolines\" style=\"margin-left: 2em;\" cellpadding=\"0\" cellspacing=\"0\">");
+	     			
     			Schema schema = citation.getSchema();
     			if(schema == null)
     			{
@@ -289,25 +318,32 @@ public class CitationListAccessServlet implements HttpAccess
     			while(fieldIt.hasNext())
     			{
     				Field field = (Field) fieldIt.next();
+    				
     				if(field.isMultivalued())
     				{
-    					List values = (List) citation.getCitationProperty(field.getIdentifier());
-    					Iterator valueIt = values.iterator();
-    					boolean first = true;
-    					while(valueIt.hasNext())
+    					// don't want to repeat authors
+    					if( !Schema.CREATOR.equals(field.getIdentifier()) )
     					{
-    						String value = (String) valueIt.next();
-    						if(first)
+    						List values = (List) citation.getCitationProperty(field.getIdentifier());
+    						Iterator valueIt = values.iterator();
+    						boolean first = true;
+    						while(valueIt.hasNext())
     						{
-     							String label = rb.getString(schema.getIdentifier() + "." + field.getIdentifier(), field.getIdentifier());
-         		       			out.println("<tr valign=\"top\">\n<td>\n" + label + "\n</td>\n<td>\n" + value + "\n</td>\n</tr>\n");
+    							String value = (String) valueIt.next();
+    							if( value != null && !value.trim().equals("") )
+    							{
+    								if(first)
+    								{
+    									String label = rb.getString(schema.getIdentifier() + "." + field.getIdentifier(), field.getIdentifier());
+    									out.println("\t\t\t\t<tr>\n\t\t\t\t\t<td class=\"attach\"><strong>" + label + "</strong></td>\n\t\t\t\t\t<td>" + value + "</td>\n\t\t\t\t</tr>");
+    								}
+    								else
+    								{
+    									out.println("\t\t\t\t<tr>\n\t\t\t\t\t<td class=\"attach\">&nbsp;</td>\n\t\t\t\t\t<td>" + value + "</td>\n\t\t\t\t</tr>\n");
+    								}
+    							}	
+    							first = false;
     						}
-    						else
-    						{
-        		       			out.println("<tr valign=\"top\">\n<td>\n&nbsp;\n</td>\n<td>\n" + value + "\n</td>\n</tr>\n");
-    						}
-    							
-    						first = false;
     					}
     				}
     				else
@@ -316,33 +352,40 @@ public class CitationListAccessServlet implements HttpAccess
     					if(value != null && ! value.trim().equals(""))
     					{
  							String label = rb.getString(schema.getIdentifier() + "." + field.getIdentifier(), field.getIdentifier());
+ 							/* leaving out "Find It!" link for now as we're not using it anywhere else anymore
  							if(Schema.TITLE.equals(field.getIdentifier()))
  							{
  								value += " [<a href=\"" + citation.getOpenurl() + "\" target=\"_blank\">" + openUrlLabel + "</a>]";
  							}
-   		       				out.println("<tr valign=\"top\">\n<td>\n" + label + "</td>\n<td>\n" + value + "</td>\n</tr>\n");
+ 							*/
+ 							
+ 							// don't want to repeat titles
+ 							if( !Schema.TITLE.equals(field.getIdentifier()) )
+ 							{
+ 								out.println("\t\t\t\t<tr>\n\t\t\t\t\t<td class=\"attach\"><strong>" + label + "</strong></td>\n\t\t\t\t\t<td>" + value + "</td>\n\t\t\t\t</tr>");
+ 							}
 
     					}
     				}
     			}
-	       		
-      			out.println("</table>\n");
-       		    out.println("</div>\n");
-     			
+      			out.println("\t\t\t</table>");
+       		    out.println("\t\t</div>");
+       		    out.println("\t\t</td>");
+       		    out.println("\t\t</tr>");
     		}
-    		
-			out.println("<script type=\"text/javascript\">\nfunction showCitation(citationId)\n{\n");
-			out.println("var now_showing = document.getElementById(\"div_showing\").value;");
-			out.println("if(now_showing != \"\")\n{\n");
-			out.println("var hide_me = document.getElementById(now_showing);");
-			out.println("if(hide_me)\n{\nhide_me.style.display=\"none\";\n}\n}\n");
-			out.println("var show_me = document.getElementById(\"div_\" + citationId);");
-			out.println("if(show_me)\n{\nshow_me.style.display=\"block\";\n}\n");
-			out.println("document.getElementById(\"div_showing\").value = \"div_\" + citationId;\n");
-			out.println("}\n</script>\n");
-			out.println("<input type=\"hidden\" id=\"div_showing\" value=\"\" />\n");
-			out.println("</body>\n</html>\n");
-			
+    		out.println("\t<tr class=\"exclude\"><td colspan=\"2\">");
+    		out.println("\t\t<div class=\"itemAction\">");
+    		out.println("\t\t\t<a href=\"#\" onclick=\"showAllDetails( '" + rb.getString("link.hide.results") + "' ); return false;\">" + rb.getString("link.show.results") + "</a> |" );
+    		out.println("\t\t\t<a href=\"#\" onclick=\"hideAllDetails( '" + rb.getString("link.show.results") + "' ); return false;\">" + rb.getString("link.hide.results") + "</a>" );
+    		out.println("\t\t</div>\n\t</td></tr>");
+    		out.println("\t<tr><th colspan=\"2\">");
+    		out.println("\t\t<div class=\"viewNav\" style=\"padding: 0pt;\"><strong>" + rb.getString("listing.title") + "</strong> (" + collection.size() + ")" );
+    		out.println("\t\t</div>");
+    		out.println("\t</th></tr>");
+    		out.println("\t</tbody>");
+    		out.println("\t</table>");
+    		out.println("</div></div>");
+    		out.println("</body></html>");
         }
         catch (IOException e)
         {
@@ -356,7 +399,6 @@ public class CitationListAccessServlet implements HttpAccess
         {
         	throw new EntityNotDefinedException(ref.getReference());
         }
-
 	}
 }
 
