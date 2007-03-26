@@ -64,9 +64,11 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.InteractionAction;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.api.ResourceToolAction;
+import org.sakaiproject.content.api.ServiceLevelAction;
 import org.sakaiproject.content.api.ResourceToolAction.ActionType;
 import org.sakaiproject.content.util.BaseInteractionAction;
 import org.sakaiproject.content.util.BaseResourceAction;
@@ -82,6 +84,8 @@ import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.InUseException;
+import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
@@ -2162,6 +2166,37 @@ public abstract class BaseCitationService implements CitationService
 		{
 			return this.m_citations.containsKey(citation.getId());
 		}
+		
+		protected void copy(BasicCitationCollection other)
+		{
+			this.m_ascending = other.m_ascending;
+			this.m_description = other.m_description;
+			this.m_comparator = other.m_comparator;
+			this.m_pageSize = other.m_serialNumber;
+			this.m_temporary = other.m_temporary;
+			this.m_title = other.m_title;
+			if(this.m_citations == null)
+			{
+				this.m_citations = new Hashtable();
+			}
+			this.m_citations.clear();
+			if(this.m_order == null)
+			{
+				this.m_order = new TreeSet(this.m_comparator);
+			}
+			this.m_order.clear();
+			Iterator it = other.m_citations.keySet().iterator();
+			while(it.hasNext())
+			{
+				String citationId = (String) it.next();
+				BasicCitation oldCitation = (BasicCitation) other.m_citations.get(citationId);
+				BasicCitation newCitation = new BasicCitation();
+				newCitation.copy(oldCitation);
+				this.add(newCitation);
+				saveCitation(newCitation);
+			}
+			
+		}
 
 		public void exportRis(StringBuffer buffer, List<String> citationIds) throws IOException
 		{
@@ -3703,9 +3738,6 @@ public abstract class BaseCitationService implements CitationService
         @Override
         public boolean available(ContentEntity entity)
         {
-	        // TODO If allowSiteBySiteOverride, determine whether the context allows CitationLists
-        	
-        	
 	        return super.available(entity);
         }
 		
@@ -4061,6 +4093,7 @@ public abstract class BaseCitationService implements CitationService
 			typedef.addAction(createAction);
 			typedef.addAction(reviseAction);
 			typedef.addAction(new CitationListDeleteAction());
+			typedef.addAction(new CitationListCopyAction());
 			typedef.setEnabledByDefault(m_configService.isCitationsEnabledByDefault());
 			typedef.setIconLocation("sakai/citationlist.gif");
 			
@@ -4117,6 +4150,57 @@ public abstract class BaseCitationService implements CitationService
 			return rb.getString("list.title");
 		}
 		
+	}
+	
+	public class CitationListCopyAction extends BaseServiceLevelAction
+	{
+
+		public CitationListCopyAction() 
+		{
+			super(ResourceToolAction.COPY, ResourceToolAction.ActionType.COPY, CitationService.CITATION_LIST_ID, true);
+		}
+
+		@Override
+		public void finalizeAction(Reference reference) 
+		{
+			ContentHostingService contentService = (ContentHostingService) ComponentManager.get(ContentHostingService.class);
+			try
+			{
+				ContentResourceEdit edit = contentService.editResource(reference.getId());
+				String collectionId = new String(edit.getContent());
+				CitationCollection oldCollection = getCollection(collectionId);
+				BasicCitationCollection newCollection = new BasicCitationCollection();
+				newCollection.copy((BasicCitationCollection) oldCollection);
+				save(newCollection);
+				edit.setContent(newCollection.getId().getBytes());
+				contentService.commitResource(edit);
+			}
+			catch(IdUnusedException e)
+			{
+				M_log.warn("IdUnusedException ", e);
+			}
+			catch(ServerOverloadException e)
+			{
+				M_log.warn("ServerOverloadException ", e);
+			} 
+			catch (PermissionException e) 
+			{
+				M_log.warn("PermissionException ", e);
+			} 
+			catch (TypeException e) 
+			{
+				M_log.warn("TypeException ", e);
+			} 
+			catch (InUseException e) 
+			{
+				M_log.warn("InUseException ", e);
+			} 
+			catch (OverQuotaException e) 
+			{
+				M_log.warn("OverQuotaException ", e);
+			}
+		}
+
 	}
 
 	/**

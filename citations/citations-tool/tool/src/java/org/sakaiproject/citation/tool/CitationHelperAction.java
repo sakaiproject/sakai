@@ -1327,6 +1327,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	{
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+
+		int citationCount = 0;
 		
 		if(pipe.getAction().getActionType() == ResourceToolAction.ActionType.CREATE)
 		{
@@ -1374,12 +1376,36 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
             	contentService.cancelResource(edit);
             }
 		}
-    	
+		
+		// set the alternative_reference to point to reference_root for CitationService
+		pipe.setRevisedResourceProperty(ContentHostingService.PROP_ALTERNATE_REFERENCE, org.sakaiproject.citation.api.CitationService.REFERENCE_ROOT);
+		
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		// get the collection we're now working on
+		String collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
+		
+		CitationCollection collection = null;
+		try
+        {
+            collection = CitationService.getCollection(collectionId);
+        }
+        catch (IdUnusedException e)
+        {
+            logger.warn("buildAddCitationsPanelContext unable to access citationCollection " + collectionId);
+        }
+		if(collection == null)
+		{
+			logger.warn( "buildAddCitationsPanelContext unable to access citationCollection " + collectionId );
+		}
+
+		String[] args = new String[]{ Integer.toString(collection.size()) };
+		String size_str =rb.getFormattedMessage("citation.count",  args);
+    	pipe.setRevisedResourceProperty(ResourceProperties.PROP_CONTENT_LENGTH, size_str);
+
     	// leave helper mode
 		pipe.setActionCanceled(false);
 		pipe.setErrorEncountered(false);
 		pipe.setActionCompleted(true);
-		pipe.setRevisedResourceProperty(ContentHostingService.PROP_ALTERNATE_REFERENCE, org.sakaiproject.citation.api.CitationService.REFERENCE_ROOT);
 
 		toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
 		
@@ -2931,6 +2957,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			ContentResourceEdit newItem = contentService.addResource(pipe.getContentEntity().getId(), "New Citation List", null, ContentHostingService.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 			newItem.setResourceType(CitationService.CITATION_LIST_ID);
 			ResourcePropertiesEdit props = newItem.getPropertiesEdit();
+			
+			// set the alternative_reference to point to reference_root for CitationService
 			props.addProperty(contentService.PROP_ALTERNATE_REFERENCE, org.sakaiproject.citation.api.CitationService.REFERENCE_ROOT);
 			
 			CitationCollection collection = CitationService.addCollection();
