@@ -4224,7 +4224,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		Iterator it = nonEmptyFolders.iterator();
 		while(it.hasNext())
 		{
-			ResourcesBrowseItem folder = (ResourcesBrowseItem) it.next();
+			ListItem folder = (ListItem) it.next();
 			String[] args = { folder.getName() };
 			addAlert(state, rb.getFormattedMessage("folder.notempty", args) + " ");
 		}
@@ -5175,47 +5175,58 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		List deleteItems = new Vector();
 		List notDeleteItems = new Vector();
 		List nonEmptyFolders = new Vector();
-		List roots = (List) state.getAttribute(STATE_COLLECTION_ROOTS);
-		if(roots == null)
+		
+		org.sakaiproject.content.api.ContentHostingService contentService = ContentHostingService.getInstance();
+		
+		for(String deleteId : (Set<String>) deleteIdSet)
 		{
-			
-		}
-		Iterator rootIt = roots.iterator();
-		while(rootIt.hasNext())
-		{
-			ResourcesBrowseItem root = (ResourcesBrowseItem) rootIt.next();
-
-			List members = root.getMembers();
-			Iterator memberIt = members.iterator();
-			while(memberIt.hasNext())
+			ContentEntity entity = null;
+			try
 			{
-				ResourcesBrowseItem member = (ResourcesBrowseItem) memberIt.next();
-				if(deleteIdSet.contains(member.getId()))
+				if(contentService.isCollection(deleteId))
 				{
-					if(member.isFolder())
+					entity = contentService.getCollection(deleteId);
+				}
+				else if(contentService.allowRemoveResource(deleteId))
+				{
+					entity = contentService.getResource(deleteId);
+				}
+				else
+				{
+					
+				}
+				ListItem item = new ListItem(entity);
+				if(item.isCollection() && contentService.allowRemoveCollection(deleteId))
+				{
+					deleteItems.add(item);
+					if(! item.isEmpty)
 					{
-						if(ContentHostingService.allowRemoveCollection(member.getId()))
-						{
-							deleteItems.add(member);
-							if(! member.isEmpty())
-							{
-								nonEmptyFolders.add(member);
-							}
-						}
-						else
-						{
-							notDeleteItems.add(member);
-						}
-					}
-					else if(ContentHostingService.allowRemoveResource(member.getId()))
-					{
-						deleteItems.add(member);
-					}
-					else
-					{
-						notDeleteItems.add(member);
+						nonEmptyFolders.add(item);
 					}
 				}
+				else if(!item.isCollection() && contentService.allowRemoveResource(deleteId))
+				{
+					deleteItems.add(item);
+				}
+				else
+				{
+					notDeleteItems.add(item);
+				}
+				
+			}
+			catch(PermissionException e)
+			{
+				
+			} 
+			catch (IdUnusedException e) 
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} 
+			catch (TypeException e) 
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 
@@ -5226,7 +5237,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			Iterator notIt = notDeleteItems.iterator();
 			while(notIt.hasNext())
 			{
-				ResourcesBrowseItem item = (ResourcesBrowseItem) notIt.next();
+				ListItem item = (ListItem) notIt.next();
 				if(first_item)
 				{
 					notDeleteNames = item.getName();
@@ -5244,17 +5255,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			addAlert(state, rb.getString("notpermis14") + notDeleteNames);
 		}
 
-
-		/*
-				//htripath-SAK-1712 - Set new collectionId as resources are not deleted under 'more' requirement.
-				if(state.getAttribute(STATE_MESSAGE) == null){
-				  String newCollectionId=ContentHostingService.getContainingCollectionId(currentId);
-				  state.setAttribute(STATE_COLLECTION_ID, newCollectionId);
-				}
-		*/
-
-		state.setAttribute (STATE_DELETE_ITEMS, deleteItems);
-		state.setAttribute (STATE_DELETE_ITEMS_NOT_EMPTY, nonEmptyFolders);
+		state.setAttribute (STATE_DELETE_SET, deleteItems);
+		state.setAttribute (STATE_NON_EMPTY_DELETE_SET, nonEmptyFolders);
 	}
 
 
@@ -5647,7 +5649,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 		if (state.getAttribute(STATE_MESSAGE) == null)
 		{
-			state.setAttribute (STATE_MODE, MODE_DELETE_CONFIRM);
+			state.setAttribute (STATE_MODE, MODE_DELETE_FINISH);
 			state.setAttribute(STATE_LIST_SELECTIONS, deleteIdSet);
 		}
 
@@ -6186,14 +6188,38 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		
 		ParameterParser params = data.getParameters();
 		
-		Set selectedSet  = new TreeSet();
-		String[] selectedItems = params.getStrings ("selectedMembers");
-		if(selectedItems != null)
-		{
-			selectedSet.addAll(Arrays.asList(selectedItems));
-		}
-		
 		String actionId = params.getString("rt_action");
+		
+		if(actionId == null)
+		{
+			
+		}
+		else if(ResourceToolAction.COPY.equals(actionId))
+		{
+			List selectedSet  = new Vector();
+			String[] selectedItems = params.getStrings ("selectedMembers");
+			if(selectedItems != null)
+			{
+				selectedSet.addAll(Arrays.asList(selectedItems));
+			}
+			
+			state.setAttribute(STATE_ITEMS_TO_BE_COPIED, selectedSet);
+		}
+		else if(ResourceToolAction.MOVE.equals(actionId))
+		{
+			List selectedSet  = new Vector();
+			String[] selectedItems = params.getStrings ("selectedMembers");
+			if(selectedItems != null)
+			{
+				selectedSet.addAll(Arrays.asList(selectedItems));
+			}
+			
+			state.setAttribute(STATE_ITEMS_TO_BE_MOVED, selectedSet);
+		}
+		else if(ResourceToolAction.DELETE.equals(actionId))
+		{
+			doDeleteconfirm(data);
+		}
 		
 	}
 

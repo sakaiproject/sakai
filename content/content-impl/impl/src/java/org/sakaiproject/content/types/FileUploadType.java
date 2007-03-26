@@ -72,8 +72,8 @@ public class FileUploadType extends BaseResourceType
 		actions.put(ResourceToolAction.REPLACE_CONTENT, new FileUploadReplaceAction());
 		actions.put(ResourceToolAction.REVISE_METADATA, new FileUploadPropertiesAction());
 		actions.put(ResourceToolAction.DUPLICATE, new FileUploadDuplicateAction());
-		//actions.put(ResourceToolAction.COPY, new FileUploadCopyAction());
-		//actions.put(ResourceToolAction.MOVE, new FileUploadMoveAction());
+		actions.put(ResourceToolAction.COPY, new FileUploadCopyAction());
+		actions.put(ResourceToolAction.MOVE, new FileUploadMoveAction());
 		actions.put(ResourceToolAction.DELETE, new FileUploadDeleteAction());
 		
 		// initialize actionMap with an empty List for each ActionType

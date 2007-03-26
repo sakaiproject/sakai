@@ -489,7 +489,6 @@ public class UrlResourceType extends BaseResourceType
 
 		public boolean isMultipleItemAction() 
 		{
-			// TODO Auto-generated method stub
 			return true;
 		}
 		
@@ -661,8 +660,8 @@ public class UrlResourceType extends BaseResourceType
 		actions.put(ResourceToolAction.REPLACE_CONTENT, new UrlResourceReplaceAction());
 		actions.put(ResourceToolAction.REVISE_METADATA, new UrlResourcePropertiesAction());
 		actions.put(ResourceToolAction.DUPLICATE, new UrlResourceDuplicateAction());
-		//actions.put(ResourceToolAction.COPY, new UrlResourceCopyAction());
-		//actions.put(ResourceToolAction.MOVE, new UrlResourceMoveAction());
+		actions.put(ResourceToolAction.COPY, new UrlResourceCopyAction());
+		actions.put(ResourceToolAction.MOVE, new UrlResourceMoveAction());
 		actions.put(ResourceToolAction.DELETE, new UrlResourceDeleteAction());
 		
 		// initialize actionMap with an empty List for each ActionType

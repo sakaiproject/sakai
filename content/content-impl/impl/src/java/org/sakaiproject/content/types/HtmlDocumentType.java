@@ -496,7 +496,6 @@ public class HtmlDocumentType extends BaseResourceType
 
 		public boolean isMultipleItemAction() 
 		{
-			// TODO Auto-generated method stub
 			return true;
 		}
 		
@@ -668,8 +667,8 @@ public class HtmlDocumentType extends BaseResourceType
 		actions.put(ResourceToolAction.REPLACE_CONTENT, new HtmlDocumentReplaceAction());
 		actions.put(ResourceToolAction.REVISE_METADATA, new HtmlDocumentPropertiesAction());
 		actions.put(ResourceToolAction.DUPLICATE, new HtmlDocumentDuplicateAction());
-		//actions.put(ResourceToolAction.COPY, new HtmlDocumentCopyAction());
-		//actions.put(ResourceToolAction.MOVE, new HtmlDocumentMoveAction());
+		actions.put(ResourceToolAction.COPY, new HtmlDocumentCopyAction());
+		actions.put(ResourceToolAction.MOVE, new HtmlDocumentMoveAction());
 		actions.put(ResourceToolAction.DELETE, new HtmlDocumentDeleteAction());
 
 		// initialize actionMap with an empty List for each ActionType

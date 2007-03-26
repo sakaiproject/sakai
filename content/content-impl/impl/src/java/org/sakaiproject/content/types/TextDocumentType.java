@@ -80,7 +80,7 @@ public class TextDocumentType extends BaseResourceType
 		actions.put(ResourceToolAction.REVISE_METADATA, new TextDocumentPropertiesAction());
 		actions.put(ResourceToolAction.COPY, new TextDocumentCopyAction());
 		actions.put(ResourceToolAction.DUPLICATE, new TextDocumentDuplicateAction());
-		// actions.put(ResourceToolAction.MOVE, new TextDocumentMoveAction());
+		actions.put(ResourceToolAction.MOVE, new TextDocumentMoveAction());
 		actions.put(ResourceToolAction.DELETE, new TextDocumentDeleteAction());
 
 		// initialize actionMap with an empty List for each ActionType
@@ -539,7 +539,6 @@ public class TextDocumentType extends BaseResourceType
 
 		public boolean isMultipleItemAction() 
 		{
-			// TODO Auto-generated method stub
 			return true;
 		}
 
