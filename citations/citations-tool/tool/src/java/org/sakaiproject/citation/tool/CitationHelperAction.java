@@ -136,13 +136,14 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		 */
 		public static void putFieldSelections( Context context, SessionState state )
 		{
+			/*
 			context.put( "advField1", ( String )state.getAttribute( AdvancedSearchHelper.STATE_FIELD1 ) );
 			context.put( "advField2", ( String )state.getAttribute( AdvancedSearchHelper.STATE_FIELD2 ) );
 			context.put( "advField3", ( String )state.getAttribute( AdvancedSearchHelper.STATE_FIELD3 ) );
 			context.put( "advField4", ( String )state.getAttribute( AdvancedSearchHelper.STATE_FIELD4 ) );
 			context.put( "advField5", ( String )state.getAttribute( AdvancedSearchHelper.STATE_FIELD5 ) );
-
-			/*
+			*/
+			
 			String advField1 = ( String )state.getAttribute( AdvancedSearchHelper.STATE_FIELD1 );
 			String advField2 = ( String )state.getAttribute( AdvancedSearchHelper.STATE_FIELD2 );
 			String advField3 = ( String )state.getAttribute( AdvancedSearchHelper.STATE_FIELD3 );
@@ -193,7 +194,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			{
 				context.put( "advField5", YEAR_ID );
 			}
-			*/
 		}
 		
 		/**
@@ -431,6 +431,21 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			}
 			
 			return searchQuery;
+		}
+		
+		public static void clearAdvancedFormState( SessionState state )
+		{
+			state.removeAttribute( AdvancedSearchHelper.STATE_FIELD1 );
+			state.removeAttribute( AdvancedSearchHelper.STATE_FIELD2 );
+			state.removeAttribute( AdvancedSearchHelper.STATE_FIELD3 );
+			state.removeAttribute( AdvancedSearchHelper.STATE_FIELD4 );
+			state.removeAttribute( AdvancedSearchHelper.STATE_FIELD5 );
+			
+			state.removeAttribute( AdvancedSearchHelper.STATE_CRITERIA1 );
+			state.removeAttribute( AdvancedSearchHelper.STATE_CRITERIA2 );
+			state.removeAttribute( AdvancedSearchHelper.STATE_CRITERIA3 );
+			state.removeAttribute( AdvancedSearchHelper.STATE_CRITERIA4 );
+			state.removeAttribute( AdvancedSearchHelper.STATE_CRITERIA5 );
 		}
 	}
 
@@ -1276,18 +1291,18 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	 */
 	protected void loadSearchFormState( Context context, SessionState state )
 	{
-		// advanced search default selections
-		context.put( "advField1", AdvancedSearchHelper.KEYWORD_ID );
-		context.put( "advField2", AdvancedSearchHelper.AUTHOR_ID );
-		context.put( "advField3", AdvancedSearchHelper.TITLE_ID );
-		context.put( "advField4", AdvancedSearchHelper.SUBJECT_ID );
-		context.put( "advField5", AdvancedSearchHelper.YEAR_ID );
-	
 		// remember data previously entered
 		if( state.getAttribute( STATE_BASIC_SEARCH ) != null )
 		{
 			/* basic search */
 			context.put( "keywords", ( String )state.getAttribute( STATE_KEYWORDS ) );
+			
+			// default advanced search selections
+			context.put( "advField1", AdvancedSearchHelper.KEYWORD_ID );
+			context.put( "advField2", AdvancedSearchHelper.AUTHOR_ID );
+			context.put( "advField3", AdvancedSearchHelper.TITLE_ID );
+			context.put( "advField4", AdvancedSearchHelper.SUBJECT_ID );
+			context.put( "advField5", AdvancedSearchHelper.YEAR_ID ); 
 		}
 		else
 		{
@@ -2372,6 +2387,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		state.removeAttribute( STATE_BASIC_SEARCH );
 		search.setSearchType( ActiveSearch.ADVANCED_SEARCH_TYPE );
 
+		// clear old state
+		AdvancedSearchHelper.clearAdvancedFormState( state );
+		
 		// set selected fields
 		AdvancedSearchHelper.setFieldSelections( params, state );
 		
