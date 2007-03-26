@@ -1076,7 +1076,7 @@ public class QuestionPoolFacadeQueries
       }
       
       // then save question to pool
-      newPool.setQuestionPoolItems2(prepareQuestions(newPool.getQuestionPoolId(), itemDataArray));
+      newPool.setQuestionPoolItems(prepareQuestions(newPool.getQuestionPoolId(), itemDataArray));
       newPool.setQuestions(itemDataArray);
       newPool = savePool(newPool);
 

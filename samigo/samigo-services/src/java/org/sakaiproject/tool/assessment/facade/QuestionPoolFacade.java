@@ -747,16 +747,15 @@ public class QuestionPoolFacade
     return this.data.getQuestionPoolItems();
   }
 
+  /*
   public void setQuestionPoolItems(Set questionPoolItems) {
     this.questionPoolItems = questionPoolItems;
     this.data.setQuestions(questionPoolItems);
     this.data.setQuestionPoolItems(questionPoolItems);
   }
+  */
   
-  // I don't think line "this.data.setQuestions(questionPoolItems)" is correct
-  // however, don't know what's gonna affect if I take it out
-  // make this new one instead
-  public void setQuestionPoolItems2(Set questionPoolItems) {
+  public void setQuestionPoolItems(Set questionPoolItems) {
 	this.questionPoolItems = questionPoolItems;
 	this.data.setQuestionPoolItems(questionPoolItems);
   }
