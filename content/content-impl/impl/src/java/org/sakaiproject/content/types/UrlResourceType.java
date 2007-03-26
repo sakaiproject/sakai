@@ -657,7 +657,7 @@ public class UrlResourceType extends BaseResourceType
 		actions.put(ResourceToolAction.CREATE, new UrlResourceCreateAction());
 		//actions.put(ResourceToolAction.ACCESS_CONTENT, new UrlResourceAccessAction());
 		actions.put(ResourceToolAction.REVISE_CONTENT, new UrlResourceReviseAction());
-		actions.put(ResourceToolAction.REPLACE_CONTENT, new UrlResourceReplaceAction());
+		//actions.put(ResourceToolAction.REPLACE_CONTENT, new UrlResourceReplaceAction());
 		actions.put(ResourceToolAction.REVISE_METADATA, new UrlResourcePropertiesAction());
 		actions.put(ResourceToolAction.DUPLICATE, new UrlResourceDuplicateAction());
 		actions.put(ResourceToolAction.COPY, new UrlResourceCopyAction());
