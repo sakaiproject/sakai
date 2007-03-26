@@ -469,14 +469,15 @@ tr.selectedFound{
 /*SECTION 6 HIERARCHY*/
 
 /*headers are used in many places for structuring things semantically - these are the plain headers - below there are others contextually defined*/
-h2,h3,h4,h5,h6{
-	color: #555;
-	padding: 0;
-	font-weight: bold;
-	font-family: Arial,Helvetica,sans-serif;
-	margin: 1em 0 ;
-	background-color: transparent !important;
-}
+h2,h6{ 
+	color: #555; 
+	padding: 0; 
+	font-weight: bold; 
+	font-family: Arial,Helvetica,sans-serif; 
+	margin: 1em 0; 
+	background-color: transparent !important; 
+} 
+
 
 h2{
 	font-size: 130%;
@@ -489,6 +490,14 @@ h3{
 h4,h5,h6 {
 	font-size: 100%;
 }
+h3,h4,h5{ 
+	color: #555; 
+	padding: 0; 
+	font-weight: bold; 
+	font-family: Arial,Helvetica,sans-serif; 
+	margin: 1em 0 0 0; 
+	background-color: transparent !important; 
+} 
 /*headers when they occur in a table*/
 /*want to make them look like normal text - but structure the content*/
 /*see: resources, any legacy list*/
