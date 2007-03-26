@@ -95,12 +95,11 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	protected static final String PREFIX = "ResourceTypeHelper.";
 	
 	protected  static final String REVISE_HTML_TEMPLATE = "resources/sakai_revise_html";
-	
 	protected  static final String REVISE_TEXT_TEMPLATE = "resources/sakai_revise_text";
-
 	protected  static final String REVISE_UPLOAD_TEMPLATE = "resources/sakai_revise_upload";
-
 	protected  static final String REVISE_URL_TEMPLATE = "resources/sakai_revise_url";
+	
+	protected static final String REPLACE_CONTENT_TEMPLATE = "resources/sakai_replace_file";
 
 	/** The content type image lookup service in the State. */
 	private static final String STATE_CONTENT_TYPE_IMAGE_SERVICE = PREFIX + "content_type_image_service";
@@ -282,8 +281,15 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	 */
 	protected String buildReplaceContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+
+		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+		
+		ListItem item = new ListItem(pipe.getContentEntity());
+		
+		context.put("item", item);
+		
+		return REPLACE_CONTENT_TEMPLATE;
 	}
 
 
@@ -509,6 +515,84 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 	}
 
+	public void doReplace(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		ParameterParser params = data.getParameters ();
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		
+
+		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+		
+			
+		FileItem fileitem = null;
+		try
+		{
+			fileitem = params.getFileItem("content");
+		}
+		catch(Exception e)
+		{
+			logger.warn("Exception ", e);
+		}
+		
+		if(fileitem == null)
+		{
+			String max_file_size_mb = (String) state.getAttribute(ResourcesAction.STATE_FILE_UPLOAD_MAX_SIZE);
+			int max_bytes = 1024 * 1024;
+			try
+			{
+				max_bytes = Integer.parseInt(max_file_size_mb) * 1024 * 1024;
+			}
+			catch(Exception e)
+			{
+				// if unable to parse an integer from the value
+				// in the properties file, use 1 MB as a default
+				max_file_size_mb = "1";
+				max_bytes = 1024 * 1024;
+			}
+			
+			String max_bytes_string = ResourcesAction.getFileSizeString(max_bytes, rb);
+			// "The user submitted a file to upload but it was too big!"
+			addAlert(state, rb.getFormattedMessage("size.exceeded", new Object[]{ max_bytes_string }));
+			//max_file_size_mb + "MB " + rb.getString("exceeded2"));
+		}
+		else if (fileitem.getFileName() == null || fileitem.getFileName().length() == 0)
+		{
+			addAlert(state, rb.getString("choosefile7"));
+		}
+		else if (fileitem.getFileName().length() > 0)
+		{
+			String filename = Validator.getFileName(fileitem.getFileName());
+			InputStream stream;
+            stream = fileitem.getInputStream();
+            if(stream == null)
+            {
+            	byte[] bytes = fileitem.get();
+            	pipe.setRevisedContent(bytes);
+            }
+            else
+            {
+                pipe.setRevisedContentStream(stream);
+            }
+            String contentType = fileitem.getContentType();
+            //pipe.setRevisedContent(bytes);
+            pipe.setRevisedMimeType(contentType);
+            pipe.setFileName(filename);
+            
+			ListItem newFile = new ListItem(filename);
+			
+			pipe.setRevisedListItem(newFile);
+			
+			pipe.setActionCanceled(false);
+			pipe.setErrorEncountered(false);
+			pipe.setActionCompleted(true);
+			
+			toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
+		}
+
+
+	}
+	
 	public void doUpload(RunData data)
 	{
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());

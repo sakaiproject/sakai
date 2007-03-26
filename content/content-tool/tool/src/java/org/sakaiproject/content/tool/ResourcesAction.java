@@ -7041,8 +7041,99 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
 			state.setAttribute(STATE_MODE, MODE_LIST);
 			break;
+		case REPLACE_CONTENT:
+			replaceContent(pipe);
+			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
+			state.setAttribute(STATE_MODE, MODE_LIST);
 		default:
 			state.setAttribute(STATE_MODE, MODE_LIST);
+		}
+	}
+
+	protected void replaceContent(ResourceToolActionPipe pipe) 
+	{
+		ResourceToolAction action = pipe.getAction();
+		ContentEntity entity = pipe.getContentEntity();
+		try
+		{
+			ContentResourceEdit edit = ContentHostingService.editResource(entity.getId());
+			ResourcePropertiesEdit props = edit.getPropertiesEdit();
+			// update content
+			byte[] content = pipe.getRevisedContent();
+			if(content == null)
+			{
+				InputStream stream = pipe.getRevisedContentStream();
+				if(stream == null)
+				{
+					logger.warn("pipe with null content and null stream: " + pipe.getFileName());
+				}
+				else
+				{
+					edit.setContent(stream);
+				}
+			}
+			else
+			{
+				edit.setContent(content);
+			}
+			// update properties
+			if(action instanceof InteractionAction)
+			{
+				InteractionAction iAction = (InteractionAction) action;
+				Map revprops = pipe.getRevisedResourceProperties();
+				List propkeys = iAction.getRequiredPropertyKeys();
+				if(propkeys != null)
+				{
+					Iterator keyIt = propkeys.iterator();
+					while(keyIt.hasNext())
+					{
+						String key = (String) keyIt.next();
+						String value = (String) revprops.get(key);
+						if(value == null)
+						{
+							props.removeProperty(key);
+						}
+						else
+						{
+							// should we support multivalued properties?
+							props.addProperty(key, value);
+						}
+					}
+				}
+			}
+			// update mimetype
+			edit.setContentType(pipe.getRevisedMimeType());
+			ContentHostingService.commitResource(edit);
+		}
+		catch (PermissionException e)
+		{
+			// TODO Auto-generated catch block
+			logger.warn("PermissionException ", e);
+		}
+		catch (IdUnusedException e)
+		{
+			// TODO Auto-generated catch block
+			logger.warn("IdUnusedException ", e);
+		}
+		catch (TypeException e)
+		{
+			// TODO Auto-generated catch block
+			logger.warn("TypeException ", e);
+		}
+		catch (InUseException e)
+		{
+			// TODO Auto-generated catch block
+			logger.warn("InUseException ", e);
+		}
+		catch (OverQuotaException e)
+		{
+			// TODO Auto-generated catch block
+			logger.warn("OverQuotaException ", e);
+		}
+		catch (ServerOverloadException e)
+		{
+			// TODO Auto-generated catch block
+			logger.warn("ServerOverloadException ", e);
 		}
 	}
 

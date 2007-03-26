@@ -69,6 +69,7 @@ public class FileUploadType extends BaseResourceType
 		actions.put(ResourceToolAction.CREATE, new FileUploadCreateAction());
 		//actions.put(ResourceToolAction.ACCESS_CONTENT, new FileUploadAccessAction());
 		//actions.put(ResourceToolAction.REVISE_CONTENT, new FileUploadReviseAction());
+		actions.put(ResourceToolAction.REPLACE_CONTENT, new FileUploadReplaceAction());
 		actions.put(ResourceToolAction.REVISE_METADATA, new FileUploadPropertiesAction());
 		actions.put(ResourceToolAction.DUPLICATE, new FileUploadDuplicateAction());
 		//actions.put(ResourceToolAction.COPY, new FileUploadCopyAction());
@@ -106,7 +107,6 @@ public class FileUploadType extends BaseResourceType
 		 */
 		public void cancelAction(Reference reference)
 		{
-			// TODO Auto-generated method stub
 			
 		}
 
@@ -115,7 +115,6 @@ public class FileUploadType extends BaseResourceType
 		 */
 		public void finalizeAction(Reference reference)
 		{
-			// TODO Auto-generated method stub
 			
 		}
 
@@ -124,7 +123,6 @@ public class FileUploadType extends BaseResourceType
 		 */
 		public void initializeAction(Reference reference)
 		{
-			// TODO Auto-generated method stub
 			
 		}
 
@@ -133,7 +131,6 @@ public class FileUploadType extends BaseResourceType
 		 */
 		public boolean isMultipleItemAction()
 		{
-			// TODO Auto-generated method stub
 			return false;
 		}
 
@@ -142,7 +139,6 @@ public class FileUploadType extends BaseResourceType
 		 */
 		public ActionType getActionType()
 		{
-			// TODO Auto-generated method stub
 			return ResourceToolAction.ActionType.REVISE_METADATA;
 		}
 
@@ -151,7 +147,6 @@ public class FileUploadType extends BaseResourceType
 		 */
 		public String getId()
 		{
-			// TODO Auto-generated method stub
 			return ResourceToolAction.REVISE_METADATA;
 		}
 
@@ -160,7 +155,6 @@ public class FileUploadType extends BaseResourceType
 		 */
 		public String getLabel()
 		{
-			// TODO Auto-generated method stub
 			return rb.getString("action.props");
 		}
 
@@ -169,7 +163,6 @@ public class FileUploadType extends BaseResourceType
 		 */
 		public String getTypeId()
 		{
-			// TODO Auto-generated method stub
 			return typeId;
 		}
 
@@ -232,7 +225,6 @@ public class FileUploadType extends BaseResourceType
 		 */
 		public void cancelAction(Reference reference)
 		{
-			// TODO Auto-generated method stub
 			
 		}
 
@@ -242,7 +234,6 @@ public class FileUploadType extends BaseResourceType
 		 */
 		public void finalizeAction(Reference reference)
 		{
-			// TODO Auto-generated method stub
 			
 		}
 
@@ -252,7 +243,6 @@ public class FileUploadType extends BaseResourceType
 		 */
 		public void initializeAction(Reference reference)
 		{
-			// TODO Auto-generated method stub
 			
 		}
 
@@ -270,13 +260,11 @@ public class FileUploadType extends BaseResourceType
 
 		public void cancelAction(Reference reference, String initializationId) 
 		{
-			// TODO Auto-generated method stub
 			
 		}
 
 		public void finalizeAction(Reference reference, String initializationId) 
 		{
-			// TODO Auto-generated method stub
 			
 		}
 
@@ -375,7 +363,6 @@ public class FileUploadType extends BaseResourceType
 		 */
 		public void cancelAction(Reference reference)
 		{
-			// TODO Auto-generated method stub
 			
 		}
 
@@ -384,7 +371,6 @@ public class FileUploadType extends BaseResourceType
 		 */
 		public void finalizeAction(Reference reference)
 		{
-			// TODO Auto-generated method stub
 			
 		}
 
@@ -393,7 +379,6 @@ public class FileUploadType extends BaseResourceType
 		 */
 		public void initializeAction(Reference reference)
 		{
-			// TODO Auto-generated method stub
 			
 		}
 
@@ -428,7 +413,6 @@ public class FileUploadType extends BaseResourceType
 
 		public boolean isMultipleItemAction() 
 		{
-			// TODO Auto-generated method stub
 			return false;
 		}
 		
@@ -454,7 +438,6 @@ public class FileUploadType extends BaseResourceType
 		 */
 		public void cancelAction(Reference reference)
 		{
-			// TODO Auto-generated method stub
 			
 		}
 
@@ -463,7 +446,6 @@ public class FileUploadType extends BaseResourceType
 		 */
 		public void finalizeAction(Reference reference)
 		{
-			// TODO Auto-generated method stub
 			
 		}
 
@@ -472,7 +454,6 @@ public class FileUploadType extends BaseResourceType
 		 */
 		public void initializeAction(Reference reference)
 		{
-			// TODO Auto-generated method stub
 			
 		}
 
@@ -507,7 +488,6 @@ public class FileUploadType extends BaseResourceType
 
 		public boolean isMultipleItemAction() 
 		{
-			// TODO Auto-generated method stub
 			return true;
 		}
 		
@@ -521,7 +501,6 @@ public class FileUploadType extends BaseResourceType
 		 */
 		public void cancelAction(Reference reference)
 		{
-			// TODO Auto-generated method stub
 			
 		}
 
@@ -530,7 +509,6 @@ public class FileUploadType extends BaseResourceType
 		 */
 		public void finalizeAction(Reference reference)
 		{
-			// TODO Auto-generated method stub
 			
 		}
 
@@ -539,7 +517,6 @@ public class FileUploadType extends BaseResourceType
 		 */
 		public void initializeAction(Reference reference)
 		{
-			// TODO Auto-generated method stub
 			
 		}
 
@@ -557,13 +534,11 @@ public class FileUploadType extends BaseResourceType
 
 		public void cancelAction(Reference reference, String initializationId) 
 		{
-			// TODO Auto-generated method stub
 			
 		}
 
 		public void finalizeAction(Reference reference, String initializationId) 
 		{
-			// TODO Auto-generated method stub
 			
 		}
 
@@ -623,13 +598,11 @@ public class FileUploadType extends BaseResourceType
 
 		public void cancelAction(Reference reference, String initializationId) 
 		{
-			// TODO Auto-generated method stub
 			
 		}
 
 		public void finalizeAction(Reference reference, String initializationId) 
 		{
-			// TODO Auto-generated method stub
 			
 		}
 
@@ -773,6 +746,60 @@ public class FileUploadType extends BaseResourceType
 			}
 		}
 		return list;
+	}
+
+	public class FileUploadReplaceAction implements InteractionAction 
+	{
+
+		public boolean available(ContentEntity entity) 
+		{
+			return true;
+		}
+
+		public ActionType getActionType() 
+		{
+			return ResourceToolAction.ActionType.REPLACE_CONTENT;
+		}
+
+		public String getId() 
+		{
+			return ResourceToolAction.REPLACE_CONTENT;
+		}
+
+		public String getLabel() 
+		{
+			return rb.getString("action.replace"); 
+		}
+
+		public String getTypeId() 
+		{
+			return typeId;
+		}
+
+		public void cancelAction(Reference reference, String initializationId) 
+		{
+			
+		}
+
+		public void finalizeAction(Reference reference, String initializationId) 
+		{
+			
+		}
+
+		public String getHelperId() 
+		{
+			return helperId;
+		}
+
+		public List getRequiredPropertyKeys() 
+		{
+			return null;
+		}
+
+		public String initializeAction(Reference reference) 
+		{
+			return null;
+		}
 	}
 
 }

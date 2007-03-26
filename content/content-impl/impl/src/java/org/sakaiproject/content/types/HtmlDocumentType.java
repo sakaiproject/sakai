@@ -65,6 +65,59 @@ public class HtmlDocumentType extends BaseResourceType
 	protected String typeId = ResourceType.TYPE_HTML;
 	protected String helperId = "sakai.resource.type.helper";
 	
+	public class HtmlDocumentReplaceAction implements InteractionAction 
+	{
+		public boolean available(ContentEntity entity) 
+		{
+			return true;
+		}
+
+		public ActionType getActionType() 
+		{
+			return ResourceToolAction.ActionType.REPLACE_CONTENT;
+		}
+
+		public String getId() 
+		{
+			return ResourceToolAction.REPLACE_CONTENT;
+		}
+
+		public String getLabel() 
+		{
+			return rb.getString("action.replace"); 
+		}
+
+		public String getTypeId() 
+		{
+			return typeId;
+		}
+
+		public void cancelAction(Reference reference, String initializationId) 
+		{
+			
+		}
+
+		public void finalizeAction(Reference reference, String initializationId) 
+		{
+			
+		}
+
+		public String getHelperId() 
+		{
+			return helperId;
+		}
+
+		public List getRequiredPropertyKeys() 
+		{
+			return null;
+		}
+
+		public String initializeAction(Reference reference) 
+		{
+			return null;
+		}
+	}
+	
 	public class HtmlDocumentPropertiesAction implements ServiceLevelAction
 	{
 		/* (non-Javadoc)
@@ -612,6 +665,7 @@ public class HtmlDocumentType extends BaseResourceType
 		actions.put(ResourceToolAction.CREATE, new HtmlDocumentCreateAction());
 		//actions.put(ResourceToolAction.ACCESS_CONTENT, new HtmlDocumentAccessAction());
 		actions.put(ResourceToolAction.REVISE_CONTENT, new HtmlDocumentReviseAction());
+		actions.put(ResourceToolAction.REPLACE_CONTENT, new HtmlDocumentReplaceAction());
 		actions.put(ResourceToolAction.REVISE_METADATA, new HtmlDocumentPropertiesAction());
 		actions.put(ResourceToolAction.DUPLICATE, new HtmlDocumentDuplicateAction());
 		//actions.put(ResourceToolAction.COPY, new HtmlDocumentCopyAction());

@@ -57,6 +57,59 @@ public class UrlResourceType extends BaseResourceType
 	
 	protected String typeId = ResourceType.TYPE_URL;
 	protected String helperId = "sakai.resource.type.helper";
+	
+	public class UrlResourceReplaceAction implements InteractionAction
+	{
+		public boolean available(ContentEntity entity) 
+		{
+			return true;
+		}
+
+		public ActionType getActionType() 
+		{
+			return ResourceToolAction.ActionType.REPLACE_CONTENT;
+		}
+
+		public String getId() 
+		{
+			return ResourceToolAction.REPLACE_CONTENT;
+		}
+
+		public String getLabel() 
+		{
+			return rb.getString("action.replace"); 
+		}
+
+		public String getTypeId() 
+		{
+			return typeId;
+		}
+
+		public void cancelAction(Reference reference, String initializationId) 
+		{
+			
+		}
+
+		public void finalizeAction(Reference reference, String initializationId) 
+		{
+			
+		}
+
+		public String getHelperId() 
+		{
+			return helperId;
+		}
+
+		public List getRequiredPropertyKeys() 
+		{
+			return null;
+		}
+
+		public String initializeAction(Reference reference) 
+		{
+			return null;
+		}
+	}
 
 	public class UrlResourcePropertiesAction implements ServiceLevelAction
 	{
@@ -605,6 +658,7 @@ public class UrlResourceType extends BaseResourceType
 		actions.put(ResourceToolAction.CREATE, new UrlResourceCreateAction());
 		//actions.put(ResourceToolAction.ACCESS_CONTENT, new UrlResourceAccessAction());
 		actions.put(ResourceToolAction.REVISE_CONTENT, new UrlResourceReviseAction());
+		actions.put(ResourceToolAction.REPLACE_CONTENT, new UrlResourceReplaceAction());
 		actions.put(ResourceToolAction.REVISE_METADATA, new UrlResourcePropertiesAction());
 		actions.put(ResourceToolAction.DUPLICATE, new UrlResourceDuplicateAction());
 		//actions.put(ResourceToolAction.COPY, new UrlResourceCopyAction());

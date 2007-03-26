@@ -163,6 +163,7 @@ public interface ResourceToolAction
 	public static final String DELETE = "delete";
 	public static final String COPY = "copy";
 	public static final String REVISE_CONTENT = "revise";
+	public static final String REPLACE_CONTENT = "replace";
 	public static final String REVISE_METADATA = "properties";
 	public static final String ACCESS_CONTENT = "access";
 	public static final String ACCESS_PROPERTIES = "info";
