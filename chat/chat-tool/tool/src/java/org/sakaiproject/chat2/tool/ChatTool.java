@@ -120,6 +120,10 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    private static final String PARAM_DAYS = "days";
    private static final String PARAM_ITEMS = "items";
    private static final String PARAM_LENGTH = "length";
+
+   private static final int DEFAULT_DAYS = 10;
+   private static final int DEFAULT_ITEMS = 3;
+   private static final int DEFAULT_LENGTH = 50;
    
    /* All the managers */
    /**   The work-horse of chat   */
@@ -746,17 +750,20 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       try {
          dso.setDays(Integer.parseInt(placement.getPlacementConfig().getProperty(PARAM_DAYS)));
       } catch (NumberFormatException e) {
-         logger.debug("Can't get tool property.  Using default option");
+         dso.setDays(DEFAULT_DAYS);
+         logger.debug("Can't get tool property for synoptic chat.  Using default option");
       }
       try {
          dso.setItems(Integer.parseInt(placement.getPlacementConfig().getProperty(PARAM_ITEMS)));
       } catch (NumberFormatException e) {
-         logger.debug("Can't get tool property.  Using default option");
+         dso.setItems(DEFAULT_ITEMS);
+         logger.debug("Can't get tool property for synoptic chat.  Using default option");
       }
       try {
          dso.setChars(Integer.parseInt(placement.getPlacementConfig().getProperty(PARAM_LENGTH)));
       } catch (NumberFormatException e) {
-         logger.debug("Can't get tool property.  Using default option");
+         dso.setChars(DEFAULT_LENGTH);
+         logger.debug("Can't get tool property for synoptic chat.  Using default option");
       }
       return dso;
    }
