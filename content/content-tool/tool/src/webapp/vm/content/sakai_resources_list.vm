@@ -293,7 +293,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 							#end
 						</h$headerDepth>	
 					</td>
-					<td headers="actions"  name="enabledActionLinks" style="text-align:right;padding:5px;vertical-align:middle">
+					<td headers="actions"  name="enabledActionLinks" style="text-align:right;padding:5px;vertical-align:middle;white-space:nowrap">
 						#set ($actionCount=($actionCount - 1))
 						#set ($actionCount2=($actionCount2 - 1))
 						#if($item.addActions && !$item.addActions.isEmpty())
@@ -521,7 +521,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 									#end
 								</h$headerDepth>	
 							</td>
-							<td headers="actions"  name="enabledActionLinks" style="text-align:right;padding:5px;vertical-align:middle">
+							<td headers="actions"  name="enabledActionLinks" style="text-align:right;padding:5px;vertical-align:middle;white-space:nowrap">
 								#set ($actionCount=($actionCount - 1))
 								#set ($actionCount2=($actionCount2 - 1))
 								#if($item.addActions && !$item.addActions.isEmpty())
