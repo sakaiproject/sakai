@@ -4171,6 +4171,10 @@ public abstract class BaseCitationService implements CitationService
 						} 
 					});
 	
+			BaseServiceLevelAction moveAction = new BaseServiceLevelAction(ResourceToolAction.MOVE,
+					ResourceToolAction.ActionType.MOVE,
+					CitationService.CITATION_LIST_ID, 
+					true );
 			
 			BasicSiteSelectableResourceType typedef = new BasicSiteSelectableResourceType(CitationService.CITATION_LIST_ID);
 			typedef.setLocalizer(new CitationLocalizer());
@@ -4178,6 +4182,7 @@ public abstract class BaseCitationService implements CitationService
 			typedef.addAction(reviseAction);
 			typedef.addAction(new CitationListDeleteAction());
 			typedef.addAction(new CitationListCopyAction());
+			typedef.addAction(moveAction);
 			typedef.setEnabledByDefault(m_configService.isCitationsEnabledByDefault());
 			typedef.setIconLocation("sakai/citationlist.gif");
 			
@@ -4189,7 +4194,7 @@ public abstract class BaseCitationService implements CitationService
 	{
 		public CitationListDeleteAction()
 		{
-			super(ResourceToolAction.DELETE, ResourceToolAction.ActionType.DELETE, CitationService.CITATION_LIST_ID, false);
+			super(ResourceToolAction.DELETE, ResourceToolAction.ActionType.DELETE, CitationService.CITATION_LIST_ID, true);
 		}
 		
 		public void finalizeAction(Reference reference)
