@@ -184,8 +184,6 @@ function resizeFrame() {
   if( frame ) {
     var clientH = document.body.clientHeight + 10;
     $( frame ).height( clientH );
-  } else {
-    throw( "resizeFrame did not get the frame (using name=" + window.name + ")" );
   }
 }
 
