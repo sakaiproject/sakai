@@ -5745,7 +5745,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		else if(action instanceof ServiceLevelAction)
 		{
 			ServiceLevelAction sAction = (ServiceLevelAction) action;
-			sAction.initializeAction(reference);
 			switch(sAction.getActionType())
 			{
 				case COPY:
@@ -5757,15 +5756,19 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					state.setAttribute(STATE_ITEMS_TO_BE_COPIED, items_to_be_copied);
 					break;
 				case DUPLICATE:
+					sAction.initializeAction(reference);
 					duplicateItem(state, selectedItemId, ContentHostingService.getContainingCollectionId(selectedItemId));
+					sAction.finalizeAction(reference);
 					break;
 				case DELETE:
+					sAction.initializeAction(reference);
 					deleteItem(state, selectedItemId);
 					if (state.getAttribute(STATE_MESSAGE) == null)
 					{
 						// need new context
 						state.setAttribute (STATE_MODE, MODE_DELETE_FINISH);
 					}
+					sAction.finalizeAction(reference);
 					break;
 				case MOVE:
 					List<String> items_to_be_moved = new Vector<String>();
@@ -5778,9 +5781,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				case VIEW_METADATA:
 					break;
 				case REVISE_METADATA:
+					sAction.initializeAction(reference);
 					state.setAttribute(STATE_REVISE_PROPERTIES_ENTITY_ID, selectedItemId);
 					state.setAttribute(STATE_REVISE_PROPERTIES_ACTION, action);
 					state.setAttribute (STATE_MODE, MODE_REVISE_METADATA);
+					sAction.finalizeAction(reference);
 					break;
 				case CUSTOM_TOOL_ACTION:
 					// do nothing
@@ -5796,22 +5801,29 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				case REPLACE_CONTENT:
 					break;
 				case PASTE_MOVED:
+					sAction.initializeAction(reference);
 					pasteItem(state, selectedItemId);
+					sAction.finalizeAction(reference);
 					break;
 				case PASTE_COPIED:
+					sAction.initializeAction(reference);
 					pasteItem(state, selectedItemId);
+					sAction.finalizeAction(reference);
 					break;
 				case REVISE_ORDER:
+					sAction.initializeAction(reference);
 					state.setAttribute(STATE_REORDER_FOLDER, selectedItemId);
 					state.setAttribute(STATE_MODE, MODE_REORDER);
+					sAction.finalizeAction(reference);
 					break;
 				default:
+					sAction.initializeAction(reference);
+					sAction.finalizeAction(reference);
 					break;
 			}
 			// not quite right for actions involving user interaction in Resources tool.
 			// For example, with delete, this should be after the confirmation and actual deletion
 			// Need mechanism to remember to do it later
-			sAction.finalizeAction(reference);
 			
 		}
 	}
@@ -7519,139 +7531,103 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	protected void pasteItem(SessionState state, String collectionId)
 	{
-		List<String> items_to_be_moved = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_MOVED);
-		List<String> items_to_be_copied = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_COPIED);
+		boolean moving = true;
+		boolean copying = false;
+		List<String> items_to_be_pasted = (List<String>) state.removeAttribute(STATE_ITEMS_TO_BE_MOVED);
+		if(items_to_be_pasted == null)
+		{
+			items_to_be_pasted = (List<String>) state.removeAttribute(STATE_ITEMS_TO_BE_COPIED);
+			copying = true;
+			moving = false;
+		}
+
+		if(items_to_be_pasted == null)
+		{
+			return;
+		}
 	
-		if(items_to_be_moved != null)
+		org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute(STATE_CONTENT_SERVICE);
+
+		ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+		if(registry == null)
+		{
+			registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+			state.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
+		}
+		
+		ServiceLevelAction slAction = null;
+		Reference ref = null;
+		
+		for(String entityId : items_to_be_pasted)
 		{
 			try
 			{
-				Iterator<String> moveIt = items_to_be_moved.iterator();
-				while(moveIt.hasNext())
+				ContentEntity entity = null;
+				if(contentService.isCollection(entityId))
 				{
-					String item = moveIt.next();
-					// paste moved item into collection 
-					ContentHostingService.moveIntoFolder(item, collectionId);
-					// TODO expand collection
-					
-					// remove the state attribute
-					state.removeAttribute(STATE_ITEMS_TO_BE_MOVED);
+					entity = contentService.getCollection(entityId);
 				}
-			}
-			catch (PermissionException e)
-			{
+				else
+				{
+					entity = contentService.getResource(entityId);
+				}
 				
-				//addAlert(state, trb.getString("notpermis8") + " " + originalDisplayName + ". ");
-			}
-			catch (IdUnusedException e)
-			{
-				addAlert(state,rb.getString("notexist1"));
-			}
-			catch (InUseException e)
-			{
-				//addAlert(state, rb.getString("someone") + " " + originalDisplayName);
-			}
-			catch (TypeException e)
-			{
-				//addAlert(state, rb.getString("pasteitem") + " " + originalDisplayName + " " + rb.getString("mismatch"));
-			}
-			catch (InconsistentException e)
-			{
-				//addAlert(state, rb.getString("recursive") + " " + itemId);
-			}
-			catch(IdUsedException e)
-			{
-				addAlert(state, rb.getString("toomany"));
-			}
-			catch(ServerOverloadException e)
-			{
-				addAlert(state, rb.getString("failed"));
-			}
-			catch (OverQuotaException e)
-			{
-				addAlert(state, rb.getString("overquota"));
-			}	// try-catch
-			catch(RuntimeException e)
-			{
-				logger.debug("ResourcesAction.doMoveitems ***** Unknown Exception ***** " + e.getMessage());
-				addAlert(state, rb.getString("failed"));
-			}
-		}
-		else if(items_to_be_copied != null)
-		{
-			try
-			{
-				Iterator<String> copyIt = items_to_be_copied.iterator();
-				while(copyIt.hasNext())
+				String resourceTypeId = entity.getResourceType();
+				
+				ResourceType typeDef = registry.getType(resourceTypeId);
+				
+				ResourceToolAction action = null;
+				if(moving)
 				{
-					String item = copyIt.next();
+					action = typeDef.getAction(ResourceToolAction.MOVE);
+				}
+				else
+				{
+					action = typeDef.getAction(ResourceToolAction.COPY);
+				}
+				if(action == null)
+				{
+					continue;
+				}
+				
+				if(action instanceof ServiceLevelAction)
+				{
+					slAction = (ServiceLevelAction) action;
+					
+					ref = EntityManager.newReference(entity.getReference());
+					
+					slAction.initializeAction(ref);
+					
 					// paste copied item into collection 
-					ContentHostingService.copyIntoFolder(item, collectionId);
+					String newId = null;
 					
-					// if no errors
-					// TODO expand collection
+					if(moving)
+					{
+						newId = contentService.moveIntoFolder(entityId, collectionId);
+					}
+					else
+					{
+						newId = contentService.copyIntoFolder(entityId, collectionId);
+					}
 					
-					// remove the state attribute
-					state.removeAttribute(STATE_ITEMS_TO_BE_COPIED);
+					ref = EntityManager.newReference(contentService.getReference(newId));
+					
+					slAction.finalizeAction(ref);
+				}
+				
+				ref = null;
+			}
+			catch (Exception e)
+			{
+				if(slAction != null && ref != null)
+				{
+					slAction.cancelAction(ref);
 				}
 			}
-			catch (PermissionException e)
-			{
-				// TODO Auto-generated catch block
-				logger.warn("PermissionException ", e);
-			}
-			catch (IdUnusedException e)
-			{
-				// TODO Auto-generated catch block
-				logger.warn("IdUnusedException ", e);
-			}
-			catch (IdLengthException e)
-			{
-				// TODO Auto-generated catch block
-				logger.warn("IdLengthException ", e);
-			}
-			catch (IdUniquenessException e)
-			{
-				// TODO Auto-generated catch block
-				logger.warn("IdUniquenessException ", e);
-			}
-			catch (TypeException e)
-			{
-				// TODO Auto-generated catch block
-				logger.warn("TypeException ", e);
-			}
-			catch (InUseException e)
-			{
-				// TODO Auto-generated catch block
-				logger.warn("InUseException ", e);
-			}
-			catch (OverQuotaException e)
-			{
-				// TODO Auto-generated catch block
-				logger.warn("OverQuotaException ", e);
-			}
-			catch (IdUsedException e)
-			{
-				// TODO Auto-generated catch block
-				logger.warn("IdUsedException ", e);
-			}
-			catch (ServerOverloadException e)
-			{
-				// TODO Auto-generated catch block
-				logger.warn("ServerOverloadException ", e);
-			}
-			catch (InconsistentException e)
-			{
-				// TODO Auto-generated catch block
-				logger.warn("InconsistentException ", e);
-			}
-			// paste copied item into collection 
-			// duplicateItem(state, item_to_be_copied, collectionId);
 		}
-		else
-		{
-			// report error?
-		}
+		// if no errors
+		// TODO expand collection
+		
 	}
 
 	/**
