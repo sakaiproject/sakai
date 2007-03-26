@@ -66,6 +66,7 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.InteractionAction;
+import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ServiceLevelAction;
@@ -4140,6 +4141,7 @@ public abstract class BaseCitationService implements CitationService
 			
 			List requiredPropertyKeys = new Vector();
 			requiredPropertyKeys.add(ContentHostingService.PROP_ALTERNATE_REFERENCE);
+			requiredPropertyKeys.add(ResourceProperties.PROP_CONTENT_TYPE);
 			
 			BaseInteractionAction createAction = new CitationListCreateAction(ResourceToolAction.CREATE,  
 					ResourceToolAction.ActionType.CREATE, 
@@ -4176,12 +4178,19 @@ public abstract class BaseCitationService implements CitationService
 					CitationService.CITATION_LIST_ID, 
 					true );
 			
+			BaseServiceLevelAction revisePropsAction = new BaseServiceLevelAction(ResourceToolAction.REVISE_METADATA,
+					ResourceToolAction.ActionType.REVISE_METADATA,
+					CitationService.CITATION_LIST_ID, 
+					false );
+			
 			BasicSiteSelectableResourceType typedef = new BasicSiteSelectableResourceType(CitationService.CITATION_LIST_ID);
 			typedef.setLocalizer(new CitationLocalizer());
 			typedef.addAction(createAction);
 			typedef.addAction(reviseAction);
 			typedef.addAction(new CitationListDeleteAction());
 			typedef.addAction(new CitationListCopyAction());
+			typedef.addAction(new CitationListDuplicateAction());
+			typedef.addAction(revisePropsAction);
 			typedef.addAction(moveAction);
 			typedef.setEnabledByDefault(m_configService.isCitationsEnabledByDefault());
 			typedef.setIconLocation("sakai/citationlist.gif");
@@ -4247,6 +4256,57 @@ public abstract class BaseCitationService implements CitationService
 		public CitationListCopyAction() 
 		{
 			super(ResourceToolAction.COPY, ResourceToolAction.ActionType.COPY, CitationService.CITATION_LIST_ID, true);
+		}
+
+		@Override
+		public void finalizeAction(Reference reference) 
+		{
+			ContentHostingService contentService = (ContentHostingService) ComponentManager.get(ContentHostingService.class);
+			try
+			{
+				ContentResourceEdit edit = contentService.editResource(reference.getId());
+				String collectionId = new String(edit.getContent());
+				CitationCollection oldCollection = getCollection(collectionId);
+				BasicCitationCollection newCollection = new BasicCitationCollection();
+				newCollection.copy((BasicCitationCollection) oldCollection);
+				save(newCollection);
+				edit.setContent(newCollection.getId().getBytes());
+				contentService.commitResource(edit);
+			}
+			catch(IdUnusedException e)
+			{
+				M_log.warn("IdUnusedException ", e);
+			}
+			catch(ServerOverloadException e)
+			{
+				M_log.warn("ServerOverloadException ", e);
+			} 
+			catch (PermissionException e) 
+			{
+				M_log.warn("PermissionException ", e);
+			} 
+			catch (TypeException e) 
+			{
+				M_log.warn("TypeException ", e);
+			} 
+			catch (InUseException e) 
+			{
+				M_log.warn("InUseException ", e);
+			} 
+			catch (OverQuotaException e) 
+			{
+				M_log.warn("OverQuotaException ", e);
+			}
+		}
+
+	}
+
+	public class CitationListDuplicateAction extends BaseServiceLevelAction
+	{
+
+		public CitationListDuplicateAction() 
+		{
+			super(ResourceToolAction.DUPLICATE, ResourceToolAction.ActionType.DUPLICATE, CitationService.CITATION_LIST_ID, false);
 		}
 
 		@Override

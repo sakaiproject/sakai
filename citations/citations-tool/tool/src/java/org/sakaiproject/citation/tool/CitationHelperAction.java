@@ -70,6 +70,7 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
+import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -1342,6 +1343,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
             {
 	            edit = contentService.editResource(temporaryResourceId);
 	            pipe.setRevisedContent(edit.getContent());
+	            pipe.setRevisedResourceProperty(ResourceProperties.PROP_CONTENT_TYPE, ResourceType.MIME_TYPE_HTML);
 	            contentService.removeResource(edit);
 	            edit = null;
             }
@@ -2960,6 +2962,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			
 			// set the alternative_reference to point to reference_root for CitationService
 			props.addProperty(contentService.PROP_ALTERNATE_REFERENCE, org.sakaiproject.citation.api.CitationService.REFERENCE_ROOT);
+			props.addProperty(ResourceProperties.PROP_CONTENT_TYPE, ResourceType.MIME_TYPE_HTML);
 			
 			CitationCollection collection = CitationService.addCollection();
 			newItem.setContent(collection.getId().getBytes());
