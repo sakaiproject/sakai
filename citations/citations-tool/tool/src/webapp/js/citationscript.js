@@ -379,7 +379,8 @@ function checkedDatabases () {
  * Returns the number of databases checked
  */
 function numCheckedDatabases() {
-  return checkedDatabases().length;
+  //return checkedDatabases().length;
+  return $( "#dbSelectedCount" ).html();
 }
 
 /*

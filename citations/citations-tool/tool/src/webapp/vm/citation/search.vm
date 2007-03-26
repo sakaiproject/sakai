@@ -184,7 +184,11 @@ function highlightCheckedSelections() {
   $( "tr[input[@checked]]" ).addClass( "highLightAdded" );
   
   // set selected count
-  $( "#dbSelectedCount" ).html( $( "tr[input[@checked]]" ).size() );
+  var count = $( "tr[input[@checked]]" ).size();
+  if( !count || count == "" ) {
+    count = "0";
+  }
+  $( "#dbSelectedCount" ).html( count );
 }
 
 /*
