@@ -278,12 +278,15 @@ public class SegmentInfoImpl implements SegmentInfo
 		return (getState() == STATE_DELETED);
 	}
 
-	public String getNewCheckSum(boolean logging, String message) throws NoSuchAlgorithmException,
+	public String getNewCheckSum(boolean logging, String message, long after) throws NoSuchAlgorithmException,
 			IOException
 	{
 		File[] files = segmentLocation.listFiles();
 		MessageDigest md5 = MessageDigest.getInstance("MD5");
 		String ignore = ":" + SegmentInfoImpl.TIMESTAMP_FILE + ":";
+		// Only include files modified before the checksum file
+		
+		File timeStampFile = new File(segmentLocation,SegmentInfoImpl.TIMESTAMP_FILE);
 		byte[] buffer = new byte[4096];
 		for (int i = 0; i < files.length; i++)
 		{
@@ -292,7 +295,8 @@ public class SegmentInfoImpl implements SegmentInfo
 			String fname = files[i].getName();
 			if (!SegmentInfoImpl.DELETED_FILE.equals(fname)
 					&& !SegmentInfoImpl.NEW_FILE.equals(fname)
-					&& !SegmentInfoImpl.TIMESTAMP_FILE.equals(fname))
+					&& !SegmentInfoImpl.TIMESTAMP_FILE.equals(fname)
+					&& (files[i].lastModified() < after) )
 			{
 				if (logging)
 				{
@@ -342,15 +346,16 @@ public class SegmentInfoImpl implements SegmentInfo
 	 * @param segmentdir
 	 * @throws IOException
 	 */
-	public void setCheckSum() throws IOException
+	private void setCheckSum() throws IOException
 	{
 		String[] fields = getTimeStampFields();
 		if (fields == null || fields.length < 2)
 		{
+			long after = System.currentTimeMillis();
 			String[] newfields = new String[2];
 			try
 			{
-				newfields[1] = getNewCheckSum(false,"setting ");
+				newfields[1] = getNewCheckSum(false,"setting ", after);
 			}
 			catch (Exception ex)
 			{
@@ -359,7 +364,7 @@ public class SegmentInfoImpl implements SegmentInfo
 			}
 			if (fields == null || fields.length < 1)
 			{
-				newfields[0] = String.valueOf(System.currentTimeMillis());
+				newfields[0] = String.valueOf(after);
 			}
 			else
 			{
@@ -371,7 +376,7 @@ public class SegmentInfoImpl implements SegmentInfo
 		{
 			try
 			{
-				fields[1] = getNewCheckSum(false,"setting ");
+				fields[1] = getNewCheckSum(false,"setting ", Long.parseLong(fields[0]));
 			}
 			catch (Exception ex)
 			{
@@ -468,15 +473,15 @@ public class SegmentInfoImpl implements SegmentInfo
 		if (fields == null || fields.length < 1)
 		{
 			fields = new String[2];
-			try
-			{
-				fields[1] = getNewCheckSum(false,"timestamp ");
-			}
-			catch (Exception ex)
-			{
-				log.debug("Failed to get checksum ");
-				fields[1] = "none";
-			}
+		}
+		try
+		{
+			fields[1] = getNewCheckSum(false,"timestamp ",l);
+		}
+		catch (Exception ex)
+		{
+			log.debug("Failed to get checksum ");
+			fields[1] = "none";
 		}
 		fields[0] = String.valueOf(l);
 		setTimeStampFields(fields);
@@ -541,7 +546,12 @@ public class SegmentInfoImpl implements SegmentInfo
 		if (force || checked.get(name) == null)
 		{
 
-			liveCheckSum = getNewCheckSum(logging,message);
+			String[] f = getTimeStampFields();
+			long after = System.currentTimeMillis();
+			if ( f != null && f.length >= 2 ) {
+				after = Long.parseLong(f[0]);
+			} 
+			liveCheckSum = getNewCheckSum(logging,message,after);
 
 		}
 		else

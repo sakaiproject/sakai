@@ -1193,7 +1193,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		SegmentInfo si = new SegmentInfoImpl(f, false, localStructuredStorage,
 				searchIndexDirectory);
 		si.setNew();
-		si.setCheckSum();
+		si.setTimeStamp(System.currentTimeMillis());
 
 		return si;
 	}
@@ -1477,7 +1477,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		File d = segInfo.getSegmentLocation();
 		copyAll(s, d);
 		segInfo.setCreated();
-		segInfo.setCheckSum();
+		segInfo.setTimeStamp(System.currentTimeMillis());
 		return segInfo;
 	}
 

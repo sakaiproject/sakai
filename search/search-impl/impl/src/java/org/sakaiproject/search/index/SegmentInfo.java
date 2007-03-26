@@ -89,7 +89,7 @@ public interface SegmentInfo
 	 * @throws IOException 
 	 * 
 	 */
-	void setCheckSum() throws IOException;
+//	void setCheckSum() throws IOException;
 
 	/**
 	 * Was the segment deleted

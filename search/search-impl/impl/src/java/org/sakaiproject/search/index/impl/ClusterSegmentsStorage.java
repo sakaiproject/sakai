@@ -189,7 +189,6 @@ public class ClusterSegmentsStorage
 				+ String.valueOf(System.currentTimeMillis()) + ".zip");
 		ZipOutputStream zout = new ZipOutputStream(
 				new FileOutputStream(tmpFile));
-		addsi.setCheckSum();
 		addsi.setTimeStamp( newVersion);
 
 		byte[] buffer = new byte[4096];
@@ -307,7 +306,9 @@ public class ClusterSegmentsStorage
 			}
 			else
 			{
-				addSingleFile(f, zout, buffer);
+				if ( f.lastModified() > modtime ) {
+					addSingleFile(f, zout, buffer);
+				}
 			}
 		}
 		finally
