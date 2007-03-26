@@ -517,16 +517,16 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	protected static final String STATE_BASIC_SEARCH = CitationHelper.CITATION_PREFIX + "basic_search";
 	protected static final String STATE_SEARCH_RESULTS = CitationHelper.CITATION_PREFIX + "search_results";
 
-	protected static final String TEMPLATE_CREATE = "citation/sakai_citation-create";
-	protected static final String TEMPLATE_EDIT = "citation/sakai_citation-edit";
-	protected static final String TEMPLATE_ERROR = "citation/sakai_citation-error";
-	protected static final String TEMPLATE_LIST = "citation/sakai_citation-list";
-	protected static final String TEMPLATE_ADD_CITATIONS = "citation/sakai_citation-add_citations";
-	protected static final String TEMPLATE_MESSAGE = "citation/sakai_citation-_message";
-	protected static final String TEMPLATE_SEARCH = "citation/sakai_citation-search";
-	protected static final String TEMPLATE_RESULTS = "citation/sakai_citation-results";
-	protected static final String TEMPLATE_VIEW = "citation/sakai_citation-view";
-	protected static final String TEMPLATE_DATABASE = "citation/sakai_citation-_databases";
+	protected static final String TEMPLATE_CREATE = "citation/create";
+	protected static final String TEMPLATE_EDIT = "citation/edit";
+	protected static final String TEMPLATE_ERROR = "citation/error";
+	protected static final String TEMPLATE_LIST = "citation/list";
+	protected static final String TEMPLATE_ADD_CITATIONS = "citation/add_citations";
+	protected static final String TEMPLATE_MESSAGE = "citation/_message";
+	protected static final String TEMPLATE_SEARCH = "citation/search";
+	protected static final String TEMPLATE_RESULTS = "citation/results";
+	protected static final String TEMPLATE_VIEW = "citation/view";
+	protected static final String TEMPLATE_DATABASE = "citation/_databases";
 
 
 	/**
@@ -1100,7 +1100,16 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		context.put("sakai_onload", "setMainFrameHeight( window.name ); highlightButtonSelections( '" + rb.getString("remove.results") + "' )");
 
 		// signal basic/advanced search
-		context.put( "basicSearch", state.getAttribute( STATE_BASIC_SEARCH ) );
+		Object basicSearch = state.getAttribute( STATE_BASIC_SEARCH );
+		context.put( "basicSearch", basicSearch );
+		if( basicSearch != null )
+		{
+			context.put( "searchType", ActiveSearch.BASIC_SEARCH_TYPE );
+		}
+		else
+		{
+			context.put( "searchType", ActiveSearch.ADVANCED_SEARCH_TYPE );
+		}
 		
 		/*
 		 * ERROR CHECKING

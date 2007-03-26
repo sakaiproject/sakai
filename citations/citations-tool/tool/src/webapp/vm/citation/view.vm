@@ -37,7 +37,7 @@
 			/>
 		</p>
 		
-		#parse( "vm/citation/sakai_citation-_citation.vm" )
+		#parse( "vm/citation/_citation.vm" )
 
 		<form name="$FORM_NAME" id="$FORM_NAME" action="#toolForm("CitationHelperAction")" method="post">
 			<input name="sakai_action" id="sakai_action" value="doList" type="hidden" />

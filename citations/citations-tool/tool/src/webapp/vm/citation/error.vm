@@ -12,8 +12,6 @@
 		#end
 		<h3>$tlang.getString("title.error")</h3>
 		<h4>$tlang.getString("subtitle.error")</h4>
-		
-		
 	
 		<form name="$FORM_NAME" id="$FORM_NAME" method="post" action="">
 			

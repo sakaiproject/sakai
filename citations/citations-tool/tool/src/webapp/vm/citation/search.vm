@@ -11,15 +11,21 @@
   <h3 id="advancedSearchHeader" style="display: none;">$tlang.getString("title.adv.search")</h3>
   <h3 id="basicSearchHeader">$tlang.getString("title.basic.search")</h3>
 
-  <form name="$FORM_NAME" id="$FORM_NAME" method="post" action="#toolForm("CitationHelperAction")">
+  <form name="$FORM_NAME" id="$FORM_NAME" method="post"
+    action="#toolForm("CitationHelperAction")">
     <input name="sakai_action" id="sakai_action" value="doBeginSearch" type="hidden" />
     <input name="searchType" id="searchType" value="$basicSearchType" type="hidden" />
+    
+    <!-- hidden submit button (catches 'enter' key) -->
+    <input name="submitSearch" id="submitSearch" value="Search" type="submit" style="display: none;"
+      onclick="javascript: if( legalSearch( document.getElementById('searchType').value ) ) { checkSpinner( '$basicSearchType', '$advancedSearchType' ); } else { return false; }" />
+    
     <p class="instruction">$tlang.getString("instr.search.main")</p>
     <p class="instruction">$tlang.getString("instr.search.sub")</p>
 
-    #parse( "vm/citation/sakai_citation-_advSearch.vm" )
+    #parse( "vm/citation/_advSearch.vm" )
     
-    #parse( "vm/citation/sakai_citation-_basicSearch.vm" )
+    #parse( "vm/citation/_basicSearch.vm" )
     
     <div id="categories" class="shorttext">
       #set( $count = 0 )
@@ -48,6 +54,10 @@
                 <option value="$subCategory.id">$xilator.escapeHtml($subCategory.displayName)</option>
               #end
             </select>
+            
+            #if( $velocityCount == 1 )
+              <span id="databasesSelectedWidget" style="margin-left:1em;">($tlang.getString( "dbSelected.search" ) <span id="dbSelectedCount"></span>)</span>
+            #end
           </div>
         #end
       #end
@@ -66,25 +76,25 @@
     <p class="act">
       <input type="button" class="active" name="basicSearch" id="basicSearchButton"
         value="$tlang.getString("submit.search")"
-        onclick="javascript: showSpinner( '.basicSearchLoad' ); document.getElementById('searchType').value='$basicSearchType'; submitform('$FORM_NAME');"
+        onclick="javascript: if( legalSearch( '$basicSearchType' ) ) { showSpinner( '.basicSearchLoad' ); document.getElementById('searchType').value='$basicSearchType'; submitform('$FORM_NAME'); } else { return false; }"
       />
       <input style="display: none;" type="button" class="active" name="advSearch"
         id="advancedSearchButton" value="$tlang.getString("submit.search")"
-        onclick="javascript: showSpinner( '.advancedSearchLoad' ); document.getElementById('searchType').value='$advancedSearchType'; submitform('$FORM_NAME');"
+        onclick="javascript: if( legalSearch( '$advancedSearchType' ) ) { showSpinner( '.advancedSearchLoad' ); document.getElementById('searchType').value='$advancedSearchType'; submitform('$FORM_NAME'); } else { return false; }"
       />
       <input type="button" name="AddCitations" id="AddCitations"
         value="$tlang.getString("label.back.search")"
-        onclick="javascript: document.getElementById('sakai_action').value='doAddCitations';submitform('$FORM_NAME');"
+        onclick="javascript: document.getElementById('searchType').value='noSearch'; document.getElementById('sakai_action').value='doAddCitations';submitform('$FORM_NAME');"
       />
       #if( $resourcesAddAction )
       <input type="button" name="Cancel" id="Cancel"
         value="$tlang.getString("label.cancel")"
-        onclick="javascript: document.getElementById('sakai_action').value='doCancel'; submitform('$FORM_NAME');"
+        onclick="javascript: document.getElementById('searchType').value='noSearch'; document.getElementById('sakai_action').value='doCancel'; submitform('$FORM_NAME');"
       />
       #else
       <input type="button" name="Done" id="Done"
         value="$tlang.getString("label.done")"
-        onclick="javascript: document.getElementById('sakai_action').value='doFinish'; submitform('$FORM_NAME');"
+        onclick="javascript: document.getElementById('searchType').value='noSearch'; document.getElementById('sakai_action').value='doFinish'; submitform('$FORM_NAME');"
       />
       #end
       <span class="basicSearchLoad" style="display: none;">
@@ -126,6 +136,9 @@ function categoryChange( level, id ) {
 
   // hide categories below this level
   $( ".categoryDiv" ).gt( level-1 ).hide();
+  
+  // set selected count to 0
+  $( "#dbSelectedCount" ).html( "0" );
 
   // show either databases or subcategories
   var categoryDiv = document.getElementById( id );
@@ -160,8 +173,6 @@ function resizeFrame() {
   if( frame ) {
     var clientH = document.body.clientHeight + 10;
     $( frame ).height( clientH );
-  } else {
-    throw( "resizeFrame did not get the frame (using name=" + window.name + ")" );
   }
 }
 
@@ -171,5 +182,29 @@ function resizeFrame() {
 function highlightCheckedSelections() {
   $( "tr[input]" ).removeClass( "highLightAdded" );
   $( "tr[input[@checked]]" ).addClass( "highLightAdded" );
+  
+  // set selected count
+  $( "#dbSelectedCount" ).html( $( "tr[input[@checked]]" ).size() );
+}
+
+/*
+ * Checks to make sure the user has entered search terms and selected
+ * at least one database.
+ *
+ * Returns a boolean: true if search can proceed, false otherwise
+ */
+function legalSearch( searchType ) {
+  if (!gotAQuery( searchType, '$basicSearchType', '$advancedSearchType' )) {
+      alert("$tlang.getString( "noTerms.search" )");
+      return false;
+  }
+
+  if (numCheckedDatabases() == 0) {
+      alert("$tlang.getString( "noDbs.search" )");
+      return false;
+  }
+  
+  // user has entered search terms & selected at least one db
+  return true;
 }
 </script>

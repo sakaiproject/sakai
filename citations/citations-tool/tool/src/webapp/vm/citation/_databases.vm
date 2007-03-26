@@ -9,7 +9,7 @@
 			<td class="attach">
 			  <input type="checkbox" #if($category.isDatabaseRecommended($database.id))
 			    checked="checked" #end id="$database.id" name="databasesSelected"
-			    value="$database.id" onchange="javascript: countDatabases(this, $maxDbNum); highlightCheckedSelections();"
+			    value="$database.id" onclick="javascript: countDatabases(this, $maxDbNum); highlightCheckedSelections();"
 			  />
 			</td>
 			<td>

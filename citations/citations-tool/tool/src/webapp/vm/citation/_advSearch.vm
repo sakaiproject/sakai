@@ -19,11 +19,11 @@
       <td>
         <input type="button" class="active" name="advSearch"
           value="$tlang.getString("submit.search")"
-          onclick="javascript: showSpinner( '.advancedSearchLoad' ); document.getElementById('searchType').value='$advancedSearchType'; submitform( '$FORM_NAME' );"
+          onclick="javascript: if( legalSearch( '$advancedSearchType' ) ) { showSpinner( '.advancedSearchLoad' ); document.getElementById('searchType').value='$advancedSearchType'; submitform( '$FORM_NAME' ); }"
         />
         <span class="advancedSearchLoad_replace">
           <span class="itemAction">
-            <a id="basicSearchLink" href="#" onclick="showBasicForm(); return false;">$tlang.getString( "link.basic.search" )</a>
+            <a id="basicSearchLink" href="#" onclick="showBasicForm( '$basicSearchType' ); return false;">$tlang.getString( "link.basic.search" )</a>
           </span>
         </span>
         <span class="advancedSearchLoad" style="display: none;">

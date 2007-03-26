@@ -14,19 +14,24 @@
     <p class="instruction">$tlang.getFormattedMessage("instr.results.main", $instrMainArgs)</p>
     <p class="instruction">$tlang.getFormattedMessage("instr.results.sub", $instrSubArgs)</p>
 
-    <form name="$FORM_NAME" id="$FORM_NAME" method="post" action="#toolForm("CitationHelperAction")">
+    <form name="$FORM_NAME" id="$FORM_NAME" method="post"
+      action="#toolForm("CitationHelperAction")">
       <input name="sakai_action" id="sakai_action" value="doBeginSearch" type="hidden" />
-      <input name="searchType" id="searchType" value="$basicSearchType" type="hidden" />
-      
+      <input name="searchType" id="searchType" value="$searchType" type="hidden" />
+    
+	  <!-- hidden submit button (catches 'enter' key) -->
+      <input name="submitSearch" id="submitSearch" value="Search" type="submit" style="display: none;"
+        onclick="javascript: if( legalSearch( document.getElementById('searchType').value ) ) { checkSpinner( '$basicSearchType', '$advancedSearchType' ); } else { return false; }" />
+    
       #foreach( $databaseId in $selectedDatabases )
         <input type="checkbox" name="databasesSelected" checked="checked"
           id="$databaseId" value="$databaseId" style="display: none;"
         />
       #end
 
-      #parse( "vm/citation/sakai_citation-_advSearch.vm" )
+      #parse( "vm/citation/_advSearch.vm" )
       
-      #parse( "vm/citation/sakai_citation-_basicSearch.vm" )
+      #parse( "vm/citation/_basicSearch.vm" )
 
       #if( $noSearch )
         <h3>$tlang.getString("no.terms.search")</h3>
@@ -34,13 +39,13 @@
         <h3>$tlang.getString("no.databases.search")</h3>
       #elseif($searchResults && $searchResults.searchResults && $searchResults.searchResults.citations)
         #if($alertMessages)
-          #parse( "vm/citation/sakai_citation-_alert.vm" )
+          #parse( "vm/citation/_alert.vm" )
         #end
         
         #if($searchResults.searchResults.citations.isEmpty())
           <h3>$tlang.getString("no.results")</h3>
         #else
-          #parse( "vm/citation/sakai_citation-_searchCitations.vm" )
+          #parse( "vm/citation/_resultsCitations.vm" )
         #end
       #end
       
@@ -53,20 +58,20 @@
     <p class="act">
       <input type="button" class="active"
         name="Continue" id="Continue" value="$tlang.getString("label.review")"
-        onclick="javascript: showSpinner( '.processing' ); document.getElementById('sakai_action').value='doList';submitform('$FORM_NAME');"
+        onclick="javascript: showSpinner( '.processing' ); document.getElementById('searchType').value='noSearch'; document.getElementById('sakai_action').value='doList';submitform('$FORM_NAME');"
       />
       <input type="button" name="Back" id="Back" value="$tlang.getString("label.new.search")"
-        onclick="javascript: showSpinner( '.processing' ); document.getElementById('sakai_action').value='doSearch';submitform('$FORM_NAME');"
+        onclick="javascript: showSpinner( '.processing' ); document.getElementById('searchType').value='noSearch'; document.getElementById('sakai_action').value='doSearch';submitform('$FORM_NAME');"
       />
       #if( $resourcesAddAction )
       <input type="button" name="Cancel" id="Cancel"
         value="$tlang.getString("label.cancel")"
-        onclick="javascript: showSpinner( '.processing' ); document.getElementById('sakai_action').value='doCancel'; submitform('$FORM_NAME');"
+        onclick="javascript: showSpinner( '.processing' ); document.getElementById('searchType').value='noSearch'; document.getElementById('sakai_action').value='doCancel'; submitform('$FORM_NAME');"
       />
       #else
       <input type="button" name="Done" id="Done"
         value="$tlang.getString("label.done")"
-        onclick="javascript: document.getElementById('sakai_action').value='doFinish'; submitform('$FORM_NAME');"
+        onclick="javascript: document.getElementById('searchType').value='noSearch'; document.getElementById('sakai_action').value='doFinish'; submitform('$FORM_NAME');"
       />
       #end      
       <span class="processing" style="display: none;">
@@ -91,5 +96,21 @@
 function highlightButtonSelections( removeLabel ) {
   $( "tr[input]" ).removeClass( "highLightAdded" );
   $( "tr[input[@value=" + removeLabel + "]]" ).addClass( "highLightAdded" );
+}
+
+/*
+ * Checks to make sure the user has entered search terms (databases carry over
+ * from previous search)
+ *
+ * Returns a boolean: true if search can proceed, false otherwise
+ */
+function legalSearch( searchType ) {
+  if (!gotAQuery( searchType, '$basicSearchType', '$advancedSearchType' )) {
+      alert("$tlang.getString( "noTerms.search" )");
+      return false;
+  }
+  
+  // user has entered search terms & dbs are already selected
+  return true;
 }
 </script>

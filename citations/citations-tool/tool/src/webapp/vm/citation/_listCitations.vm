@@ -70,7 +70,7 @@
     </tr>
 
 	#foreach($citation in $citations)
-	  #parse( "vm/citation/sakai_citation-_listCitation.vm" )
+	  #parse( "vm/citation/_listCitation.vm" )
 	#end
 
     <tr class="exclude">

@@ -30,7 +30,7 @@
 	<div class="indnt1">
 		<h3>$tlang.getString( "title.review" )</h3>
 		#if( $alertMessage )
-			#parse( "sakai_citation-_alert.vm" )
+			#parse( "vm/citation/_alert.vm" )
 		#end
 		#if($show_citations)
 			<p class="instruction">$tlang.getFormattedMessage( "instr.main.review", $instrMainArgs )</p>
@@ -80,7 +80,7 @@
 				#end				
 			</div>
 
-			#parse( "vm/citation/sakai_citation-_listCitations.vm" )
+			#parse( "vm/citation/_listCitations.vm" )
 			
 			<div class="act">
 				#if( $resourcesAddAction )
@@ -136,8 +136,6 @@ function resizeFrame() {
   if( frame ) {
     var clientH = document.body.clientHeight + 10;
     $( frame ).height( clientH );
-  } else {
-    throw( "resizeFrame did not get the frame (using name=" + window.name + ")" );
   }
 }
 

@@ -27,7 +27,7 @@ function refreshCitationsHelper() {
  * screens.  Advanced and basic search form elements need to have the correct
  * ids for this function to work properly.
  */
-function showAdvancedForm() {
+function showAdvancedForm( advancedType ) {
   // hide the basic form, header & button
   $( "#basicSearchForm" ).hide();
   $( "#basicSearchHeader" ).hide();
@@ -44,6 +44,9 @@ function showAdvancedForm() {
     advKeywordCriteria.value = document.getElementById( "keywords" ).value;
   }
   
+  // set hidden form parameter value
+  $( "#searchType" ).val( advancedType );
+  
   resizeFrame();
 }
 
@@ -52,7 +55,7 @@ function showAdvancedForm() {
  * screens.  Advanced and basic search form elements need to have the correct
  * ids for this function to work properly.
  */
-function showBasicForm() {
+function showBasicForm( basicType ) {
   // hide the advanced form, header & button
   $( "#advancedSearchForm" ).hide();
   $( "#advancedSearchHeader" ).hide();
@@ -75,6 +78,9 @@ function showBasicForm() {
     var keywords = keywordBuffer.substr( 0, keywordBuffer.length-1 );
     document.getElementById( "keywords" ).value = keywords;
   }
+  
+  // set hidden form parameter value
+  $( "#searchType" ).val( basicType );
   
   resizeFrame();
 }
@@ -225,6 +231,9 @@ function toggleCitation( baseUrl, citationButton, collectionId, spinnerId, addLa
     // switch to spinner
     $( "#" + citationButton.id ).hide();
     $( "#" + spinnerId ).show();
+    
+    // disable inputs
+    $( "input" ).attr( "disabled", "disabled" );
 
     if( addLabel == citationButton.value )
     { 
@@ -243,6 +252,9 @@ function toggleCitation( baseUrl, citationButton, collectionId, spinnerId, addLa
           
           // change highlighting
           highlightButtonSelections( removeLabel );
+          
+          // enable inputs
+          $( "input" ).attr( "disabled", "" );
         } );
     }
     else
@@ -259,6 +271,9 @@ function toggleCitation( baseUrl, citationButton, collectionId, spinnerId, addLa
           
           // change highlighting
           highlightButtonSelections( removeLabel );
+          
+          // enable inputs
+          $( "input" ).attr( "disabled", "" );
         } );
     }
   }
@@ -272,15 +287,9 @@ function highlightCheckedSelections() {
   $( "tr[input[@checked]]" ).addClass( "highLightAdded" );
 }
 
-function countDatabases( checkbox, maxDbNum ) {
-  var numSelected = $( "input[@type=checkbox][@checked]", "#databaseArea" ).size();
-
-  if( numSelected > maxDbNum ) {
-    alert( "Sorry - No more than " + maxDbNum + " databases can be searched at one time." );
-    checkbox.checked = false;
-  }
-}
-
+/*
+ * Show all database descriptions
+ */
 function showDbDescriptions( altHide ) {
   // show descriptions
   $( ".dbDescription" ).show( function() {
@@ -295,6 +304,9 @@ function showDbDescriptions( altHide ) {
   } );
 }
 
+/*
+ * Hide all database descriptions
+ */
 function hideDbDescriptions( altShow ) {
   // hide descriptions
   $( ".dbDescription" ).hide( function() {
@@ -329,6 +341,19 @@ function toggleDbDescription( database_id, altShow, altHide ) {
   }
 }
 
+function checkSpinner( basicType, advancedType ) {
+  // get the searchType value from the form
+  var searchType = $( "#searchType" ).val();
+  
+  if( searchType == basicType ) {
+    // show basic spinner
+    showSpinner( '.basicSearchLoad' );
+  } else if( searchType == advancedType ) {
+    // show advanced spinner
+    showSpinner( '.advancedSearchLoad' );
+  }
+}
+
 function showSpinner( spinnerSelector ) {
   // show the spinner, replacing anything marked to be replaced
   $( spinnerSelector + "_replace" ).hide();
@@ -336,6 +361,62 @@ function showSpinner( spinnerSelector ) {
   
   // disable buttons
   $( "input[@type=button]:visible" ).attr( "disabled", "disabled" );
+}
+
+/*
+ * Returns an array of checked databases
+ */
+function checkedDatabases () {
+  var selected = new Array;
+  $('input[@type="checkbox"][@checked]', '#databaseArea').each(
+     function (i) {
+        selected.push($(this).attr('id'));
+      });
+  return selected;
+}
+
+/*
+ * Returns the number of databases checked
+ */
+function numCheckedDatabases() {
+  return checkedDatabases().length;
+}
+
+/*
+ * Only allow a certain number of DBs to be checked.  If number of checked DBs
+ * is larger than maxDbNum, alert the user.
+ */
+function countDatabases( checkbox, maxDbNum ) {
+  if( numCheckedDatabases() > maxDbNum ) {
+    alert( "Sorry - No more than " + maxDbNum + " databases can be searched at one time." );
+    checkbox.checked = false;
+  }
+}
+
+/*
+ * Check to see if the user has entered a query into the given search form.
+ *
+ * Returns true if a query is present, false otherwise
+ */
+function gotAQuery( searchFormType, basicType, advancedType ) {
+  var gotone = false;
+  var value;
+  
+  if( searchFormType == basicType ) {
+    value = $( ".basicField" ).val();
+    if( value && value.match(/\S/) ) {
+      gotone = true;
+    }
+  } else if( searchFormType == advancedType ) {
+    $( ".advField" ).each( function() {
+      value = $( this ).val();
+      if( value && value.match(/\S/) ) {
+        gotone = true;
+      }
+    } );
+  }
+  
+  return( gotone );
 }
 
 function details( record ) {

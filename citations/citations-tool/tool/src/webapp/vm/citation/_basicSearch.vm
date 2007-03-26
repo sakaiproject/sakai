@@ -4,11 +4,11 @@
     <input class="basicField" name="keywords" id="keywords" type="text" size="40" value="$xilator.escapeHtml($!{keywords})" />
     <input class="active" type="button" name="basicSearch"
       value="$tlang.getString("submit.search")"
-      onclick="javascript: showSpinner( '.basicSearchLoad' ); document.getElementById('searchType').value='$basicSearchType'; submitform( '$FORM_NAME' );"
+      onclick="javascript: if( legalSearch( '$basicSearchType' ) ) { showSpinner( '.basicSearchLoad' ); document.getElementById('searchType').value='$basicSearchType'; submitform( '$FORM_NAME' ); }"
     />
     <span class="basicSearchLoad_replace">
       <span class="itemAction">
-        <a id="advancedSearchLink" href="#" onclick="showAdvancedForm(); return false;">$tlang.getString( "link.adv.search" )</a>
+        <a id="advancedSearchLink" href="#" onclick="showAdvancedForm( '$advancedSearchType' ); return false;">$tlang.getString( "link.adv.search" )</a>
       </span>
     </span>
     <span class="basicSearchLoad" style="display: none;">
