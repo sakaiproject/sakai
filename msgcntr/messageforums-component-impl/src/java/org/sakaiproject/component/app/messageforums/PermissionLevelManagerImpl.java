@@ -77,19 +77,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	
 			
 	public void init(){
-      LOG.info("init()");
-						
-    // run ddl            
-    if (autoDdl.booleanValue()){
-      try
-      {                        
-         sqlService.ddl(this.getClass().getClassLoader(), "mfr");
-      }       
-      catch (Throwable t)
-      {
-        LOG.warn(this + ".init(): ", t);
-      }
-    }  
+    LOG.info("init()");
     
     try {
        loadInitialDefaultPermissionLevel();
@@ -223,6 +211,50 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		return null;
 	}
 	
+	/**
+	 * Populates the permission level data for the case when the default permission levels
+	 * are being created, not the custom levels
+	 * @param name
+	 * @param typeUuid
+	 * @param mask
+	 * @param uuid
+	 * @return
+	 */
+	private PermissionLevel createDefaultPermissionLevel(String name, String typeUuid, PermissionsMask mask, String uuid)
+	{
+		if (LOG.isDebugEnabled()){
+			LOG.debug("createPermissionLevel executing(" + name + "," + typeUuid + "," + mask + ")");
+		}
+		
+		if (name == null || typeUuid == null || mask == null || uuid == null) {      
+			throw new IllegalArgumentException("Null Argument");
+		}
+								
+		PermissionLevel newPermissionLevel = new PermissionLevelImpl();
+		Date now = new Date();
+		newPermissionLevel.setName(name);
+		newPermissionLevel.setUuid(uuid);
+		newPermissionLevel.setCreated(now);
+		newPermissionLevel.setCreatedBy("admin");
+		newPermissionLevel.setModified(now);
+		newPermissionLevel.setModifiedBy("admin");
+		newPermissionLevel.setTypeUuid(typeUuid);
+			
+		// set permission properties using reflection
+		for (Iterator i = mask.keySet().iterator(); i.hasNext();){
+			String key = (String) i.next();
+			Boolean value = (Boolean) mask.get(key);
+			try{
+			  PropertyUtils.setSimpleProperty(newPermissionLevel, key, value);
+			}
+			catch (Exception e){
+				throw new Error(e);
+			}
+		}										
+				
+		return newPermissionLevel;		
+	}
+	
 	public PermissionLevel createPermissionLevel(String name, String typeUuid, PermissionsMask mask){
 		
 		if (LOG.isDebugEnabled()){
@@ -287,230 +319,259 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
   public void saveDBMembershipItem(DBMembershipItem item){
   	getHibernateTemplate().saveOrUpdate(item);
   }
+  
+  public void savePermissionLevel(PermissionLevel level) {
+	  getHibernateTemplate().saveOrUpdate(level);
+  }
 	
   public PermissionLevel getDefaultOwnerPermissionLevel(){
-		
-		if (LOG.isDebugEnabled()){
-			LOG.debug("getDefaultOwnerPermissionLevel executing");
-		}
-						
-		String typeUuid = typeManager.getOwnerLevelType();
-		
-		if (typeUuid == null) {      
-      throw new IllegalStateException("type cannot be null");
-		}		
-		PermissionLevel level = getDefaultPermissionLevel(typeUuid);
-		
-    if(level == null)
-    {    
-    	PermissionsMask mask = new PermissionsMask();                
-    	mask.put(PermissionLevel.NEW_FORUM, new Boolean(true)); 
-    	mask.put(PermissionLevel.NEW_TOPIC, new Boolean(true));
-    	mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(true));
-    	mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(true));
-    	mask.put(PermissionLevel.MOVE_POSTING, new Boolean(true));
-    	mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(true));
-    	mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(true));
-    	mask.put(PermissionLevel.READ, new Boolean(true));
-    	mask.put(PermissionLevel.MARK_AS_READ,new Boolean(true));
-    	mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(true));
-    	mask.put(PermissionLevel.DELETE_OWN, new Boolean(false));
-    	mask.put(PermissionLevel.DELETE_ANY, new Boolean(true));
-    	mask.put(PermissionLevel.REVISE_OWN, new Boolean(false));
-    	mask.put(PermissionLevel.REVISE_ANY, new Boolean(true));
 
-			return createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_OWNER, typeUuid, mask);
-    }
-		else
-			return level;
-	}
-  
-	public PermissionLevel getDefaultAuthorPermissionLevel(){
-						
-		if (LOG.isDebugEnabled()){
-			LOG.debug("getDefaultAuthorPermissionLevel executing");
-		}
-						
-		String typeUuid = typeManager.getAuthorLevelType();
-		
-		if (typeUuid == null) {      
-      throw new IllegalStateException("type cannot be null");
-		}		
-		PermissionLevel level = getDefaultPermissionLevel(typeUuid);
+	  if (LOG.isDebugEnabled()){
+		  LOG.debug("getDefaultOwnerPermissionLevel executing");
+	  }
 
-    if(level == null)
-    {
-  		
-      PermissionsMask mask = new PermissionsMask();                
-      mask.put(PermissionLevel.NEW_FORUM, new Boolean(true)); 
-      mask.put(PermissionLevel.NEW_TOPIC, new Boolean(true));
-      mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(true));
-      mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(true));
-      mask.put(PermissionLevel.MOVE_POSTING, new Boolean(true));
-      mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(true));
-      mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(true));
-      mask.put(PermissionLevel.READ, new Boolean(true));
-      mask.put(PermissionLevel.MARK_AS_READ,new Boolean(true));
-      mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(false));
-      mask.put(PermissionLevel.DELETE_OWN, new Boolean(true));
-      mask.put(PermissionLevel.DELETE_ANY, new Boolean(false));
-      mask.put(PermissionLevel.REVISE_OWN, new Boolean(true));
-      mask.put(PermissionLevel.REVISE_ANY, new Boolean(false));
+	  String typeUuid = typeManager.getOwnerLevelType();
 
-			return createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_AUTHOR, typeUuid, mask);
-    }
-		else
-			return level;
-	}
-	
-	public PermissionLevel getDefaultNoneditingAuthorPermissionLevel(){
-		
-		if (LOG.isDebugEnabled()){
-			LOG.debug("getDefaultNoneditingAuthorPermissionLevel executing");
-		}
-						
-		String typeUuid = typeManager.getNoneditingAuthorLevelType();
-		
-		if (typeUuid == null) {      
-      throw new IllegalStateException("type cannot be null");
-		}		
-		PermissionLevel level = getDefaultPermissionLevel(typeUuid);
-		
-    if(level == null)
-    {
-      PermissionsMask mask = new PermissionsMask();                
-      mask.put(PermissionLevel.NEW_FORUM, new Boolean(true)); 
-      mask.put(PermissionLevel.NEW_TOPIC, new Boolean(true));
-      mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(true));
-      mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(true));
-      mask.put(PermissionLevel.MOVE_POSTING, new Boolean(false));
-      mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(true));
-      mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(true));
-      mask.put(PermissionLevel.READ, new Boolean(true));
-      mask.put(PermissionLevel.MARK_AS_READ,new Boolean(true));
-      mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(false));
-      mask.put(PermissionLevel.DELETE_OWN, new Boolean(false));
-      mask.put(PermissionLevel.DELETE_ANY, new Boolean(false));
-      mask.put(PermissionLevel.REVISE_OWN, new Boolean(true));
-      mask.put(PermissionLevel.REVISE_ANY, new Boolean(false));
+	  if (typeUuid == null) {      
+		  throw new IllegalStateException("type cannot be null");
+	  }		
+	  PermissionLevel level = getDefaultPermissionLevel(typeUuid);
 
-			return createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONEDITING_AUTHOR, typeUuid, mask);
-    }
-		else
-			return level;
-	}
-	
-	public PermissionLevel getDefaultReviewerPermissionLevel(){
-		
-		if (LOG.isDebugEnabled()){
-			LOG.debug("getDefaultReviewerPermissionLevel executing");
-		}
-						
-		String typeUuid = typeManager.getReviewerLevelType();
-		
-		if (typeUuid == null) {      
-      throw new IllegalStateException("type cannot be null");
-		}		
-		PermissionLevel level = getDefaultPermissionLevel(typeUuid);
-		
-    if(level == null)
-    {
-      PermissionsMask mask = new PermissionsMask();                
-      mask.put(PermissionLevel.NEW_FORUM, new Boolean(false)); 
-      mask.put(PermissionLevel.NEW_TOPIC, new Boolean(false));
-      mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(false));
-      mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(false));
-      mask.put(PermissionLevel.MOVE_POSTING, new Boolean(false));
-      mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(false));
-      mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(false));
-      mask.put(PermissionLevel.READ, new Boolean(true));
-      mask.put(PermissionLevel.MARK_AS_READ,new Boolean(true));
-      mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(false));
-      mask.put(PermissionLevel.DELETE_OWN, new Boolean(false));
-      mask.put(PermissionLevel.DELETE_ANY, new Boolean(false));
-      mask.put(PermissionLevel.REVISE_OWN, new Boolean(false));
-      mask.put(PermissionLevel.REVISE_ANY, new Boolean(false));
+	  if(level == null)
+	  {    
+		  PermissionsMask mask = new PermissionsMask();                
+		  mask.put(PermissionLevel.NEW_FORUM, new Boolean(true)); 
+		  mask.put(PermissionLevel.NEW_TOPIC, new Boolean(true));
+		  mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(true));
+		  mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(true));
+		  mask.put(PermissionLevel.MOVE_POSTING, new Boolean(true));
+		  mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(true));
+		  mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(true));
+		  mask.put(PermissionLevel.READ, new Boolean(true));
+		  mask.put(PermissionLevel.MARK_AS_READ,new Boolean(true));
+		  mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(true));
+		  mask.put(PermissionLevel.DELETE_OWN, new Boolean(false));
+		  mask.put(PermissionLevel.DELETE_ANY, new Boolean(true));
+		  mask.put(PermissionLevel.REVISE_OWN, new Boolean(false));
+		  mask.put(PermissionLevel.REVISE_ANY, new Boolean(true));
 
-      return createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_REVIEWER, typeUuid, mask);
-    }
-		else
-			return level;
+		  // we need to add the default permission level to MFR_PERMISSION_LEVEL_T for future use
+		  PermissionLevel newLevel = createDefaultPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_OWNER, typeUuid, mask, "00000000-0000-0000-0000-111111111111");
+		  savePermissionLevel(newLevel);
 
-	}
-	
-  public PermissionLevel getDefaultContributorPermissionLevel(){
-		
-		if (LOG.isDebugEnabled()){
-			LOG.debug("getDefaultContributorPermissionLevel executing");
-		}
-						
-		String typeUuid = typeManager.getContributorLevelType();
-		
-		if (typeUuid == null) {      
-      throw new IllegalStateException("type cannot be null");
-		}		
-		PermissionLevel level = getDefaultPermissionLevel(typeUuid);
-
-    if(level == null)
-    {
-      PermissionsMask mask = new PermissionsMask();                
-      mask.put(PermissionLevel.NEW_FORUM, new Boolean(false)); 
-      mask.put(PermissionLevel.NEW_TOPIC, new Boolean(false));
-      mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(true));
-      mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(true));
-      mask.put(PermissionLevel.MOVE_POSTING, new Boolean(false));
-      mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(false));
-      mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(false));
-      mask.put(PermissionLevel.READ, new Boolean(true));
-      mask.put(PermissionLevel.MARK_AS_READ,new Boolean(true));
-      mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(false));
-      mask.put(PermissionLevel.DELETE_OWN, new Boolean(false));
-      mask.put(PermissionLevel.DELETE_ANY, new Boolean(false));
-      mask.put(PermissionLevel.REVISE_OWN, new Boolean(false));
-      mask.put(PermissionLevel.REVISE_ANY, new Boolean(false));
-			return createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR, typeUuid, mask);
-
-    }
-		else
-			return level;	
+		  return newLevel;
+	  }
+	  else
+		  return level;
   }
-  
-  public PermissionLevel getDefaultNonePermissionLevel(){
-		
-		if (LOG.isDebugEnabled()){
-			LOG.debug("getDefaultNonePermissionLevel executing");
-		}
-						
-		String typeUuid = typeManager.getNoneLevelType();
-		
-		if (typeUuid == null) {      
-      throw new IllegalStateException("type cannot be null");
-		}		
-		PermissionLevel level = getDefaultPermissionLevel(typeUuid);
-		
-		if(level == null)
-		{    
-			PermissionsMask mask = new PermissionsMask();                
-			mask.put(PermissionLevel.NEW_FORUM, new Boolean(false)); 
-			mask.put(PermissionLevel.NEW_TOPIC, new Boolean(false));
-			mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(false));
-			mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(false));
-			mask.put(PermissionLevel.MOVE_POSTING, new Boolean(false));
-			mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(false));
-			mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(false));
-			mask.put(PermissionLevel.READ, new Boolean(false));
-			mask.put(PermissionLevel.MARK_AS_READ,new Boolean(false));
-			mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(false));
-			mask.put(PermissionLevel.DELETE_OWN, new Boolean(false));
-			mask.put(PermissionLevel.DELETE_ANY, new Boolean(false));
-			mask.put(PermissionLevel.REVISE_OWN, new Boolean(false));
-			mask.put(PermissionLevel.REVISE_ANY, new Boolean(false));
 
-			return createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE, typeUuid, mask);
-		}
-		else
-			return level;
-	}
+  public PermissionLevel getDefaultAuthorPermissionLevel(){
+
+	  if (LOG.isDebugEnabled()){
+		  LOG.debug("getDefaultAuthorPermissionLevel executing");
+	  }
+
+	  String typeUuid = typeManager.getAuthorLevelType();
+
+	  if (typeUuid == null) {      
+		  throw new IllegalStateException("type cannot be null");
+	  }		
+	  PermissionLevel level = getDefaultPermissionLevel(typeUuid);
+
+	  if(level == null)
+	  {
+
+		  PermissionsMask mask = new PermissionsMask();                
+		  mask.put(PermissionLevel.NEW_FORUM, new Boolean(true)); 
+		  mask.put(PermissionLevel.NEW_TOPIC, new Boolean(true));
+		  mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(true));
+		  mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(true));
+		  mask.put(PermissionLevel.MOVE_POSTING, new Boolean(true));
+		  mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(true));
+		  mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(true));
+		  mask.put(PermissionLevel.READ, new Boolean(true));
+		  mask.put(PermissionLevel.MARK_AS_READ,new Boolean(true));
+		  mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(false));
+		  mask.put(PermissionLevel.DELETE_OWN, new Boolean(true));
+		  mask.put(PermissionLevel.DELETE_ANY, new Boolean(false));
+		  mask.put(PermissionLevel.REVISE_OWN, new Boolean(true));
+		  mask.put(PermissionLevel.REVISE_ANY, new Boolean(false));
+
+		  // we need to add the default permission level to MFR_PERMISSION_LEVEL_T for future use
+		  PermissionLevel newLevel = createDefaultPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_AUTHOR, typeUuid, mask, "00000000-0000-0000-0000-222222222222");
+		  savePermissionLevel(newLevel);
+
+		  return newLevel;
+	  }
+	  else
+		  return level;
+  }
+
+  public PermissionLevel getDefaultNoneditingAuthorPermissionLevel(){
+
+	  if (LOG.isDebugEnabled()){
+		  LOG.debug("getDefaultNoneditingAuthorPermissionLevel executing");
+	  }
+
+	  String typeUuid = typeManager.getNoneditingAuthorLevelType();
+
+	  if (typeUuid == null) {      
+		  throw new IllegalStateException("type cannot be null");
+	  }		
+	  PermissionLevel level = getDefaultPermissionLevel(typeUuid);
+
+	  if(level == null)
+	  {
+		  PermissionsMask mask = new PermissionsMask();                
+		  mask.put(PermissionLevel.NEW_FORUM, new Boolean(true)); 
+		  mask.put(PermissionLevel.NEW_TOPIC, new Boolean(true));
+		  mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(true));
+		  mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(true));
+		  mask.put(PermissionLevel.MOVE_POSTING, new Boolean(false));
+		  mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(true));
+		  mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(true));
+		  mask.put(PermissionLevel.READ, new Boolean(true));
+		  mask.put(PermissionLevel.MARK_AS_READ,new Boolean(true));
+		  mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(false));
+		  mask.put(PermissionLevel.DELETE_OWN, new Boolean(false));
+		  mask.put(PermissionLevel.DELETE_ANY, new Boolean(false));
+		  mask.put(PermissionLevel.REVISE_OWN, new Boolean(true));
+		  mask.put(PermissionLevel.REVISE_ANY, new Boolean(false));
+
+		  // we need to add the default permission level to MFR_PERMISSION_LEVEL_T for future use
+		  PermissionLevel newLevel = createDefaultPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONEDITING_AUTHOR, typeUuid, mask, "00000000-0000-0000-0000-333333333333");
+		  savePermissionLevel(newLevel);
+
+		  return newLevel;
+	  }
+	  else
+		  return level;
+  }
+
+  public PermissionLevel getDefaultReviewerPermissionLevel(){
+
+	  if (LOG.isDebugEnabled()){
+		  LOG.debug("getDefaultReviewerPermissionLevel executing");
+	  }
+
+	  String typeUuid = typeManager.getReviewerLevelType();
+
+	  if (typeUuid == null) {      
+		  throw new IllegalStateException("type cannot be null");
+	  }		
+	  PermissionLevel level = getDefaultPermissionLevel(typeUuid);
+
+	  if(level == null)
+	  {
+		  PermissionsMask mask = new PermissionsMask();                
+		  mask.put(PermissionLevel.NEW_FORUM, new Boolean(false)); 
+		  mask.put(PermissionLevel.NEW_TOPIC, new Boolean(false));
+		  mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(false));
+		  mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(false));
+		  mask.put(PermissionLevel.MOVE_POSTING, new Boolean(false));
+		  mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(false));
+		  mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(false));
+		  mask.put(PermissionLevel.READ, new Boolean(true));
+		  mask.put(PermissionLevel.MARK_AS_READ,new Boolean(true));
+		  mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(false));
+		  mask.put(PermissionLevel.DELETE_OWN, new Boolean(false));
+		  mask.put(PermissionLevel.DELETE_ANY, new Boolean(false));
+		  mask.put(PermissionLevel.REVISE_OWN, new Boolean(false));
+		  mask.put(PermissionLevel.REVISE_ANY, new Boolean(false));
+
+		  // we need to add the default permission level to MFR_PERMISSION_LEVEL_T for future use
+		  PermissionLevel newLevel = createDefaultPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_REVIEWER, typeUuid, mask, "00000000-0000-0000-0000-555555555555");
+		  savePermissionLevel(newLevel);
+		  
+		  return newLevel;
+	  }
+	  else
+		  return level;
+
+  }
+
+  public PermissionLevel getDefaultContributorPermissionLevel(){
+
+	  if (LOG.isDebugEnabled()){
+		  LOG.debug("getDefaultContributorPermissionLevel executing");
+	  }
+
+	  String typeUuid = typeManager.getContributorLevelType();
+
+	  if (typeUuid == null) {      
+		  throw new IllegalStateException("type cannot be null");
+	  }		
+	  PermissionLevel level = getDefaultPermissionLevel(typeUuid);
+
+	  if(level == null)
+	  {
+		  PermissionsMask mask = new PermissionsMask();                
+		  mask.put(PermissionLevel.NEW_FORUM, new Boolean(false)); 
+		  mask.put(PermissionLevel.NEW_TOPIC, new Boolean(false));
+		  mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(true));
+		  mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(true));
+		  mask.put(PermissionLevel.MOVE_POSTING, new Boolean(false));
+		  mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(false));
+		  mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(false));
+		  mask.put(PermissionLevel.READ, new Boolean(true));
+		  mask.put(PermissionLevel.MARK_AS_READ,new Boolean(true));
+		  mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(false));
+		  mask.put(PermissionLevel.DELETE_OWN, new Boolean(false));
+		  mask.put(PermissionLevel.DELETE_ANY, new Boolean(false));
+		  mask.put(PermissionLevel.REVISE_OWN, new Boolean(false));
+		  mask.put(PermissionLevel.REVISE_ANY, new Boolean(false));
+		  
+		  // we need to add the default permission level to MFR_PERMISSION_LEVEL_T for future use
+		  PermissionLevel newLevel = createDefaultPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR, typeUuid, mask, "00000000-0000-0000-0000-444444444444");
+		  savePermissionLevel(newLevel);
+		  
+		  return newLevel;
+
+	  }
+	  else
+		  return level;	
+  }
+
+  public PermissionLevel getDefaultNonePermissionLevel(){
+
+	  if (LOG.isDebugEnabled()){
+		  LOG.debug("getDefaultNonePermissionLevel executing");
+	  }
+
+	  String typeUuid = typeManager.getNoneLevelType();
+
+	  if (typeUuid == null) {      
+		  throw new IllegalStateException("type cannot be null");
+	  }		
+	  PermissionLevel level = getDefaultPermissionLevel(typeUuid);
+
+	  if(level == null)
+	  {    
+		  PermissionsMask mask = new PermissionsMask();                
+		  mask.put(PermissionLevel.NEW_FORUM, new Boolean(false)); 
+		  mask.put(PermissionLevel.NEW_TOPIC, new Boolean(false));
+		  mask.put(PermissionLevel.NEW_RESPONSE, new Boolean(false));
+		  mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, new Boolean(false));
+		  mask.put(PermissionLevel.MOVE_POSTING, new Boolean(false));
+		  mask.put(PermissionLevel.CHANGE_SETTINGS,new Boolean(false));
+		  mask.put(PermissionLevel.POST_TO_GRADEBOOK, new Boolean(false));
+		  mask.put(PermissionLevel.READ, new Boolean(false));
+		  mask.put(PermissionLevel.MARK_AS_READ,new Boolean(false));
+		  mask.put(PermissionLevel.MODERATE_POSTINGS, new Boolean(false));
+		  mask.put(PermissionLevel.DELETE_OWN, new Boolean(false));
+		  mask.put(PermissionLevel.DELETE_ANY, new Boolean(false));
+		  mask.put(PermissionLevel.REVISE_OWN, new Boolean(false));
+		  mask.put(PermissionLevel.REVISE_ANY, new Boolean(false));
+
+		  // we need to add the default permission level to MFR_PERMISSION_LEVEL_T for future use
+		  PermissionLevel newLevel = createDefaultPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE, typeUuid, mask, "00000000-0000-0000-0000-666666666666");
+		  savePermissionLevel(newLevel);
+		  
+		  return newLevel;
+	  }
+	  else
+		  return level;
+  }
   	
 	private PermissionLevel getDefaultPermissionLevel(final String typeUuid){
 		
