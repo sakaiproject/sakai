@@ -1785,10 +1785,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 * @param itemId
 	 * @param collectionId
 	 */
-	protected static void duplicateItem(SessionState state, String itemId, String collectionId)
+	protected static String duplicateItem(SessionState state, String itemId, String collectionId)
 	{
 		String originalDisplayName = NULL_STRING;
 
+		String newId = null;
 		try
 		{
 			ResourceProperties properties = ContentHostingService.getProperties (itemId);
@@ -1817,6 +1818,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				ResourcePropertiesEdit pedit = copy.getPropertiesEdit();
 				pedit.addProperty(ResourceProperties.PROP_DISPLAY_NAME, displayName);
 				ContentHostingService.commitResource(copy, NotificationService.NOTI_NONE);
+				newId = copy.getId();
 
 			}	// if-else
 		}
@@ -1894,6 +1896,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				state.setAttribute (STATE_COPY_FLAG, Boolean.FALSE.toString());
 			}
 		}
+		return newId;
 	}
 	
 	/**
@@ -5759,8 +5762,16 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					break;
 				case DUPLICATE:
 					sAction.initializeAction(reference);
-					duplicateItem(state, selectedItemId, ContentHostingService.getContainingCollectionId(selectedItemId));
-					sAction.finalizeAction(reference);
+					String newId = duplicateItem(state, selectedItemId, ContentHostingService.getContainingCollectionId(selectedItemId));
+					if(newId == null)
+					{
+						sAction.cancelAction(reference);
+					}
+					else
+					{
+						reference = EntityManager.newReference(ContentHostingService.getReference(newId));
+						sAction.finalizeAction(reference);
+					}
 					break;
 				case DELETE:
 					sAction.initializeAction(reference);
