@@ -180,7 +180,7 @@
       <dependency>
        <groupId>sakairsf</groupId>
        <artifactId>SakaiRSFComponents-templates</artifactId>
-       <version>0.7.1RC2-sakai_2.2.x</version>
+       <version>0.7.1RC1-sakai_2.2.x</version>
        <type>war</type>
        <properties>
          <explode>true</explode>
