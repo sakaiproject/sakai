@@ -97,11 +97,13 @@ public class ClusterSegmentsStorage
 				Map<String, File> moved = new HashMap<String, File>();
 				moveAll(new File(unpackBase,loc.getName()),loc,moved);
 				deleteAll(unpackBase);
+				// unfortunately we have to remove the files befor the reload 
+				// otherwise the checksums will fail.
+				deleteSome(loc,moved);
 				// force a reload before we delete the files,
 				// since this is in the locked thread, this node will reload
 				searchService.reload();
 				
-				deleteSome(loc,moved);
 			}
 
 			try
