@@ -47,6 +47,8 @@ public class Gradebook implements Serializable {
     private boolean courseGradeDisplayed;
     private boolean allAssignmentsEntered;
     private boolean locked;
+    private int grade_type;
+    private int category_type;
 
     /**
      * Default no-arg constructor needed for persistence
@@ -230,6 +232,26 @@ public class Gradebook implements Serializable {
         return new HashCodeBuilder().
             append(uid).toHashCode();
     }
+
+		public int getCategory_type()
+		{
+			return category_type;
+		}
+
+		public void setCategory_type(int category_type)
+		{
+			this.category_type = category_type;
+		}
+
+		public int getGrade_type()
+		{
+			return grade_type;
+		}
+
+		public void setGrade_type(int grade_type)
+		{
+			this.grade_type = grade_type;
+		}
 }
 
 

@@ -24,7 +24,10 @@ package org.sakaiproject.tool.gradebook.business;
 
 import java.util.*;
 
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
+import org.sakaiproject.service.gradebook.shared.ConflictingCategoryNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingSpreadsheetNameException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
@@ -36,7 +39,6 @@ import org.sakaiproject.tool.gradebook.*;
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  */
 public interface GradebookManager {
-
     /**
      * Updates a gradebook's representation in persistence.
      *
@@ -341,4 +343,108 @@ public interface GradebookManager {
      * @return
      */
     public List getStudentAssignmentComments(String studentId, Long gradebookId);
+    
+    /**method to create a category for a gradebook
+    *
+    * @param gradebookId
+    * @param name
+    * @param weight
+    * @param drop_lowest
+    * @return id of the new category
+    * @throws ConflictingAssignmentNameException StaleObjectModificationException
+    */
+    public Long createCategory(final Long gradebookId, final String name, final Double weight, final int drop_lowest) 
+    throws ConflictingCategoryNameException, StaleObjectModificationException;
+    
+    /**method to get all categories for a gradebook
+    *
+    * @param gradebookId
+    * @return List of categories
+    * @throws HibernateException
+    */
+    public List getCategories(final Long gradebookId) throws HibernateException;
+    
+    /**
+     * Add a new assignment to a category
+     *
+     * @param gradebookId The gradebook ID to which this new assignment belongs
+     * @param categoryId The category ID to which this new assignment belongs
+     * @param name The assignment's name (must be unique in the gradebook and not be null)
+     * @param points The number of points possible for this assignment (must not be null)
+     * @param dueDate The due date for the assignment (optional)
+     * @param isNotCounted True if the assignment should not count towards the final course grade (optional)
+     * @param isReleased  True if the assignment should be release/ or visble to students
+     * @return The ID of the new assignment
+     * @throws ConflictingAssignmentNameException StaleObjectModificationException IllegalArgumentException
+     */
+    public Long createAssignmentForCategory(Long gradebookId, Long categoryId, String name, Double points, Date dueDate, Boolean isNotCounted, Boolean isReleased)
+    throws ConflictingAssignmentNameException, StaleObjectModificationException, IllegalArgumentException;
+
+    /**method to get all assignments for a category
+    *
+    * @param categoryId
+    * @return List of assignments
+    * @throws HibernateException
+    */
+    public List getAssignmentsForCategory(Long categoryId) throws HibernateException;
+    
+    /**
+     * Fetch a category
+     *
+     * @param categoryId The category ID
+     * @return Category
+     */
+    public Category getCategory(Long categoryId) throws HibernateException;
+
+    /**
+     * Updates an existing category
+     * 
+     * @param category
+     * @throws ConflictingCategoryNameException StaleObjectModificationException
+     */
+    public void updateCategory(Category category)
+    throws ConflictingCategoryNameException, StaleObjectModificationException;
+
+    /**
+     * remove category from gradebook
+     *
+     * @param categoryId
+     * @throws StaleObjectModificationException
+     */
+    public void removeCategory(Long categoryId) throws StaleObjectModificationException;
+    
+    /**
+     * Valicates the weightings for the gradebook. All weightings from the gradebook should
+     * add up to 100%. (only not-removed categories are counted for gradebook with setting
+     * of "Weighted Categories") 
+     *
+     * @param gradebookId
+     * @return boolean value for validation of the weighting value
+     */    
+    public boolean validateCategoryWeighting(Long gradebookId);
+    
+    /**
+     * Updates the grade records in the GradeRecordSet.
+     * This method calls public Set updateAssignmentGradeRecords(Assignment assignment, Collection gradeRecords) for DB udpates.
+     * Method of public Set updateAssignmentGradeRecords(Assignment assignment, Collection gradeRecords) should not be 
+     * called outside of impl of GradebookManager anymore later.
+     *
+     * @param assignment
+     * @param Collection gradeRecords
+     * @param grade_type
+     * @return The set of student UIDs who were given scores higher than the
+     * assignment's value.
+     */
+    public Set updateAssignmentGradeRecords(Assignment assignment, Collection gradeRecords, int grade_type);
+
+    /**
+     * Get all assignment score records for the given set of student UIDs.
+     * This method will convert the points in DB to percentage values if 
+     * gradebook's grading type is GRADE_TYPE_PERCENTAGE 
+     * 
+     * @param assignment
+     * @param studentUids
+     * @return AssignmentGradeRecord list
+     */
+    public List getAssignmentGradeRecordsConverted(Assignment assignment, Collection studentUids);
 }

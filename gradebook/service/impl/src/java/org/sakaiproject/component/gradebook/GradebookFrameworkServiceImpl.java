@@ -38,6 +38,7 @@ import org.hibernate.Session;
 import org.sakaiproject.service.gradebook.shared.GradebookExistsException;
 import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.GradingScaleDefinition;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.GradeMapping;
@@ -118,6 +119,9 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
 				// the mappings to be seen while the transaction remains
 				// uncommitted.
 				gradebook.setGradeMappings(gradeMappings);
+				
+				gradebook.setGrade_type(GradebookService.GRADE_TYPE_POINTS);
+				gradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
 
 				// Update the gradebook with the new selected grade mapping
 				session.update(gradebook);

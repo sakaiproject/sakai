@@ -32,5 +32,9 @@
 
 		<property name="locked" column="LOCKED" type="boolean" not-null="true"/>
 
+		<property name="grade_type" column="GRADE_TYPE" type="integer" not-null="true"/>
+		
+		<property name="category_type" column="CATEGORY_TYPE" type="integer" not-null="true"/>
+
 	</class>
 </hibernate-mapping>

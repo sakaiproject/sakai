@@ -7,16 +7,17 @@
       class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
 		<property name="mappingResources">
 		    <list>
-				<value>org/sakaiproject/tool/gradebook/Gradebook.hbm.xml</value>
-				<value>org/sakaiproject/tool/gradebook/GradableObject.hbm.xml</value>
-				<value>org/sakaiproject/tool/gradebook/GradeRecord.hbm.xml</value>
-				<value>org/sakaiproject/tool/gradebook/GradingEvent.hbm.xml</value>
-				<value>org/sakaiproject/tool/gradebook/GradingScale.hbm.xml</value>
-				<value>org/sakaiproject/tool/gradebook/GradebookProperty.hbm.xml</value>
-				<value>org/sakaiproject/tool/gradebook/GradeMapping.hbm.xml</value>
-                <value>org/sakaiproject/tool/gradebook/Spreadsheet.hbm.xml</value>
-                <value>org/sakaiproject/tool/gradebook/Comment.hbm.xml</value>
-            </list>
+  				<value>org/sakaiproject/tool/gradebook/Gradebook.hbm.xml</value>
+	  			<value>org/sakaiproject/tool/gradebook/GradableObject.hbm.xml</value>
+		  		<value>org/sakaiproject/tool/gradebook/GradeRecord.hbm.xml</value>
+			  	<value>org/sakaiproject/tool/gradebook/GradingEvent.hbm.xml</value>
+				  <value>org/sakaiproject/tool/gradebook/GradingScale.hbm.xml</value>
+  				<value>org/sakaiproject/tool/gradebook/GradebookProperty.hbm.xml</value>
+	  			<value>org/sakaiproject/tool/gradebook/GradeMapping.hbm.xml</value>
+          <value>org/sakaiproject/tool/gradebook/Spreadsheet.hbm.xml</value>
+          <value>org/sakaiproject/tool/gradebook/Comment.hbm.xml</value>
+          <value>org/sakaiproject/tool/gradebook/Category.hbm.xml</value>
+        </list>
 		</property>
    </bean>
 

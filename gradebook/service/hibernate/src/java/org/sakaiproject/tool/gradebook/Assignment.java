@@ -57,6 +57,7 @@ public class Assignment extends GradableObject {
     private String externalId;
     private String externalAppName;
     private boolean released;
+    private Category category;
 
     static {
         dateComparator = new Comparator() {
@@ -338,6 +339,16 @@ public class Assignment extends GradableObject {
         	mean = new Double(total / numScored);
         }
     }
+
+		public Category getCategory()
+		{
+			return category;
+		}
+
+		public void setCategory(Category category)
+		{
+			this.category = category;
+		}
 }
 
 

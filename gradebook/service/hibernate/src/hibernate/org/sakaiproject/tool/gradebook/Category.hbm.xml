@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping default-cascade="none" package="org.sakaiproject.tool.gradebook"
+	default-lazy="false">
+
+	<class name="org.sakaiproject.tool.gradebook.Category" table="GB_CATEGORY_T">
+
+		<id name="id" column="ID" type="long">
+			<generator class="native">
+				<param name="sequence">GB_CATEGORY_S</param>
+			</generator>
+		</id>
+
+		<version name="version" type="integer" column="VERSION"/>
+
+		<many-to-one name="gradebook" column="GRADEBOOK_ID" not-null="true"/>
+
+		<property name="name" column="NAME" type="string" not-null="true"/>
+
+		<property name="weight" column="WEIGHT" type="double" not-null="false" />
+		
+		<property name="drop_lowest" column="DROP_LOWEST" type="integer" not-null="false" />
+		
+		<property name="removed" column="REMOVED" type="boolean" />
+  </class>
+</hibernate-mapping>

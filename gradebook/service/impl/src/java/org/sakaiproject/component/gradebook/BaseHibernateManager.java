@@ -41,11 +41,13 @@ import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
+import org.sakaiproject.service.gradebook.shared.ConflictingCategoryNameException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
+import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradeMapping;
@@ -54,7 +56,10 @@ import org.sakaiproject.tool.gradebook.GradebookProperty;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.EventTrackingService;
 import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+
+import java.lang.IllegalArgumentException;
 
 /**
  * Provides methods which are shared between service business logic and application business
@@ -370,5 +375,157 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
        eventTrackingService.postEvent(message,objectReference);
     }
 
+    public Long createCategory(final Long gradebookId, final String name, final Double weight, final int drop_lowest) 
+    throws ConflictingCategoryNameException, StaleObjectModificationException {
+    	HibernateCallback hc = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException {
+    			Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
+    			int numNameConflicts = ((Integer)session.createQuery(
+    					"select count(ca) from Category as ca where ca.name = ? and ca.gradebook = ? and ca.removed=false ").
+    					setString(0, name).
+    					setEntity(1, gb).
+    					uniqueResult()).intValue();
+    			if(numNameConflicts > 0) {
+    				throw new ConflictingCategoryNameException("You can not save multiple catetories in a gradebook with the same name");
+    			}
 
+    			Category ca = new Category();
+    			ca.setGradebook(gb);
+    			ca.setName(name);
+    			ca.setWeight(weight);
+    			ca.setDrop_lowest(drop_lowest);
+    			ca.setRemoved(false);
+
+    			Long id = (Long)session.save(ca);
+
+    			return id;
+    		}
+    	};
+
+    	return (Long)getHibernateTemplate().execute(hc);
+    }
+
+    public List getCategories(final Long gradebookId) throws HibernateException {
+    	HibernateCallback hc = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException {
+    			List categories = session.createQuery(
+					"from Category as ca where ca.gradebook=? and ca.removed=false").
+					setLong(0, gradebookId.longValue()).
+					list();
+    			return categories;
+    		}
+    	};
+    	return (List) getHibernateTemplate().execute(hc);
+    }
+    
+    public Long createAssignmentForCategory(final Long gradebookId, final Long categoryId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased)
+    throws ConflictingAssignmentNameException, StaleObjectModificationException, IllegalArgumentException
+    {
+    	if(gradebookId == null || categoryId == null)
+    	{
+    		throw new IllegalArgumentException("gradebookId or categoryId is null in BaseHibernateManager.createAssignmentForCategory");
+    	}
+    	
+    	HibernateCallback hc = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException {
+    			Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
+    			Category cat = (Category)session.load(Category.class, categoryId);
+    			int numNameConflicts = ((Integer)session.createQuery(
+    					"select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
+    					setString(0, name).
+    					setEntity(1, gb).
+    					uniqueResult()).intValue();
+    			if(numNameConflicts > 0) {
+    				throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
+    			}
+
+    			Assignment asn = new Assignment();
+    			asn.setGradebook(gb);
+    			asn.setCategory(cat);
+    			asn.setName(name);
+    			asn.setPointsPossible(points);
+    			asn.setDueDate(dueDate);
+    			if (isNotCounted != null) {
+    				asn.setNotCounted(isNotCounted.booleanValue());
+    			}
+
+    			if(isReleased!=null){
+    				asn.setReleased(isReleased.booleanValue());
+    			}
+
+    			Long id = (Long)session.save(asn);
+
+    			return id;
+    		}
+    	};
+
+    	return (Long)getHibernateTemplate().execute(hc);
+    }
+    
+    public List getAssignmentsForCategory(final Long categoryId) throws HibernateException{
+    	HibernateCallback hc = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException {
+    			List assignments = session.createQuery(
+					"from Assignment as assign where assign.category=? and assign.removed=false").
+					setLong(0, categoryId.longValue()).
+					list();
+    			return assignments;
+    		}
+    	};
+    	return (List) getHibernateTemplate().execute(hc);
+    }
+    
+    public Category getCategory(final Long categoryId) throws HibernateException{
+    	HibernateCallback hc = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException {
+    			return session.createQuery(
+    			"from Category as cat where cat.id=?").
+    			setLong(0, categoryId.longValue()).
+    			uniqueResult();
+    		}
+    	};
+    	return (Category) getHibernateTemplate().execute(hc);
+    }
+    
+    public void updateCategory(final Category category) throws ConflictingCategoryNameException, StaleObjectModificationException{
+    	HibernateCallback hc = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException {
+    			session.evict(category);
+    			Category persistentCat = (Category)session.load(Category.class, category.getId());
+    			int numNameConflicts = ((Integer)session.createQuery(
+    			"select count(ca) from Category as ca where ca.name = ? and ca.gradebook = ? and ca.id != ? and ca.removed=false").
+    			setString(0, category.getName()).
+    			setEntity(1, category.getGradebook()).
+    			setLong(2, category.getId().longValue()).
+    			uniqueResult()).intValue();
+    			if(numNameConflicts > 0) {
+    				throw new ConflictingCategoryNameException("You can not save multiple category in a gradebook with the same name");
+    			}
+    			session.evict(persistentCat);
+    			session.update(category);
+    			return null;
+    		}
+    	};
+    	try {
+    		getHibernateTemplate().execute(hc);
+    	} catch (Exception e) {
+    		throw new StaleObjectModificationException(e);
+    	}
+    }
+
+    public void removeCategory(final Long categoryId) throws StaleObjectModificationException{
+    	HibernateCallback hc = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException {
+    			Category persistentCat = (Category)session.load(Category.class, categoryId);
+    			persistentCat.setRemoved(true);
+    			session.update(persistentCat);
+    			return null;
+    		}
+    	};
+    	try {
+    		getHibernateTemplate().execute(hc);
+    	} catch (Exception e) {
+    		throw new StaleObjectModificationException(e);
+    	}
+    }
 }

@@ -42,6 +42,14 @@ import java.util.Map;
  */
 public interface GradebookService {
 	// Application service hooks.
+	public static final int GRADE_TYPE_POINTS = 1;
+	public static final int GRADE_TYPE_PERCENTAGE = 2;
+	public static final int GRADE_TYPE_LETTER = 3;
+	
+	public static final int CATEGORY_TYPE_NO_CATEGORY = 1;
+	public static final int CATEGORY_TYPE_ONLY_CATEGORY = 2;
+	public static final int CATEGORY_TYPE_WEIGHTED_CATEGORY = 3;
+
 
 	/**
      * Checks to see whether a gradebook with the given uid exists.
