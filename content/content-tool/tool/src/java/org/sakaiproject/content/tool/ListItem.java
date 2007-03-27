@@ -1183,15 +1183,21 @@ public class ListItem
 		{
 			containingCollection = entity.getContainingCollection();
 		}
+		
+		ListItem previousItem = null;
 		while(containingCollection != null && ! contentService.isRootCollection(containingCollection.getId()))
 		{
-			path.addFirst(new ListItem(containingCollection));
+			if(previousItem != null)
+			{
+				path.addFirst(previousItem);
+			}
+			previousItem = new ListItem(containingCollection);
 			containingCollection = containingCollection.getContainingCollection();
 		}
-		if(containingCollection != null)
-		{
-			path.addFirst(new ListItem(containingCollection));
-		}
+//		if(containingCollection != null)
+//		{
+//			path.addFirst(new ListItem(containingCollection));
+//		}
 		
 		return path;
 	}

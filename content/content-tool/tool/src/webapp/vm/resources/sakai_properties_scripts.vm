@@ -277,6 +277,7 @@
 		if(modelPropertiesDiv)
 		{
 			var newPropertiesDiv = deepCopy(modelPropertiesDiv, index);
+			newPropertiesDiv.style.display = "none";
 			fileInputDiv.appendChild(newPropertiesDiv);
 		}
 		
@@ -450,7 +451,11 @@
 		var newElement = element.cloneNode(false);
 		if(newElement && newElement.id)
 		{
-			if(element.id.match(/^content${DOT}\d+$/))
+			if(element.id.match(/^displayName${DOT}\d+$/))
+			{
+				newElement.value = "";
+			}
+			else if(element.id.match(/^content${DOT}\d+$/))
 			{
 				newElement = document.createElement(element.tagName);
 				for(var a = 0; a < element.attributes.length; a++)
