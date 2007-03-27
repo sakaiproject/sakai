@@ -3,7 +3,12 @@
 <!--  Request-scope beans for TaskList - actually just the handler -->
 <beans>
 
- 	
+ 		<!-- for now we will just hardwire the rich text control for this app to be
+		the Sakai FCKEditor-based rich text control -->
+	<bean id="richTextEvolver"
+		class="org.springframework.beans.factory.config.BeanReferenceFactoryBean">
+		<property name="targetBeanName" value="sakaiFCKTextEvolver" />
+	</bean>
  	
  <bean id="pollToolBean" class="org.sakaiproject.poll.tool.params.PollToolBean">
   <property name="pollListManager" ref="org.sakaiproject.tool.poll.api.PollListManager"/>
@@ -79,7 +84,9 @@
 	<property name="localeGetter" ref="requestLocaleProxy" />
 	<property name="toolManager"
 			ref="org.sakaiproject.tool.api.ToolManager" />
-	<property name="pollListManager" ref="org.sakaiproject.tool.poll.api.PollListManager"/>
+	<property name="pollListManager" 
+		ref="org.sakaiproject.tool.poll.api.PollListManager"/>
+	<property name="richTextEvolver" ref="richTextEvolver" />
 </bean>
 
   

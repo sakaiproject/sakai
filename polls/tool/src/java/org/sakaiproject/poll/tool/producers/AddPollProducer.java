@@ -37,6 +37,7 @@ import uk.org.ponder.rsf.components.UISelectLabel;
 import uk.org.ponder.rsf.components.UIOutputMany;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
+import uk.org.ponder.rsf.evolvers.TextInputEvolver;
 
 
 
@@ -84,6 +85,13 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 	  public void setVoteBean(VoteBean vb){
 		  this.voteBean = vb;
 	  }
+	  
+	  private TextInputEvolver richTextEvolver;
+	  public void setRichTextEvolver(TextInputEvolver richTextEvolver) {
+				this.richTextEvolver = richTextEvolver;
+	  }
+		
+		
 	  public void fillComponents(UIContainer tofill, ViewParameters viewparams,
 		      ComponentChecker checker) {
 		  
@@ -158,9 +166,13 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		  
 		  //the form fields
 		  
-		  UIInput.make(newPoll, "new-poll-text", "#{pollToolBean.newPoll.text}",poll.getText());
-		  UIInput.make(newPoll, "new-poll-descr", "#{pollToolBean.newPoll.details}", poll.getDetails());
+		  //UIInput.make(newPoll, "new-poll-text", "#{pollToolBean.newPoll.text}",poll.getText());
+			UIInput itemText = UIInput.make(newPoll, "new-poll-text:", "#{pollToolBean.newPoll.text}", poll.getText()); //$NON-NLS-1$ //$NON-NLS-2$
+			richTextEvolver.evolveTextInput(itemText);
 		  
+		  //UIInput.make(newPoll, "new-poll-descr", "#{pollToolBean.newPoll.details}", poll.getDetails());
+			UIInput itemDescr = UIInput.make(newPoll, "newpolldescr:", "#{pollToolBean.newPoll.details}", poll.getDetails()); //$NON-NLS-1$ //$NON-NLS-2$
+			richTextEvolver.evolveTextInput(itemDescr);
 		  
 		  //we need a date fomater
 		    SimpleDateFormat dayf = new SimpleDateFormat("d");

@@ -96,7 +96,7 @@
             <version>${sakai.version}</version>
         </dependency>
         
-                 <dependency>
+        <dependency>
             <groupId>sakaiproject</groupId>
             <artifactId>sakai-event-api</artifactId>
             <version>${sakai.version}</version>
@@ -158,7 +158,36 @@
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
-
+    <dependency>
+      <groupId>rsfutil</groupId>
+      <artifactId>RSFComponents-evolvers</artifactId>
+      <version>0.7</version>
+      <type>jar</type>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    
+      <dependency>
+      <groupId>sakairsf</groupId>
+      <artifactId>SakaiRSFComponents-evolvers</artifactId>
+      <version>0.7-sakai_2.2.x</version>
+      <type>jar</type>
+      <properties>
+        <war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+      <dependency>
+       <groupId>sakairsf</groupId>
+       <artifactId>SakaiRSFComponents-templates</artifactId>
+       <version>0.7.1RC2-sakai_2.2.x</version>
+       <type>war</type>
+       <properties>
+         <explode>true</explode>
+       </properties>
+     </dependency>
+    
+    
 		<!-- XML pull parser - required for RSF -->
 		<dependency>
 			<groupId>xpp3</groupId>
