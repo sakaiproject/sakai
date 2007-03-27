@@ -100,8 +100,6 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.metaobj.shared.mgt.HomeFactory;
-import org.sakaiproject.metaobj.shared.mgt.home.StructuredArtifactHomeInterface;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
@@ -7387,16 +7385,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		state.setAttribute (STATE_HOME_COLLECTION_ID, home);
 		state.setAttribute (STATE_COLLECTION_ID, home);
 		state.setAttribute (STATE_NAVIGATION_ROOT, home);
-
-		HomeFactory factory = (HomeFactory) ComponentManager.get("homeFactory");
-		if(factory != null)
-		{
-			Map homes = factory.getHomes(StructuredArtifactHomeInterface.class);
-			if(! homes.isEmpty())
-			{
-				state.setAttribute(STATE_SHOW_FORM_ITEMS, Boolean.TRUE.toString());
-			}
-		}
 
 		// state.setAttribute (STATE_COLLECTION_ID, state.getAttribute (STATE_HOME_COLLECTION_ID));
 
