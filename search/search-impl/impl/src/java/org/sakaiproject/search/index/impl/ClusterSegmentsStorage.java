@@ -16,6 +16,7 @@ import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.index.SegmentInfo;
 
 public class ClusterSegmentsStorage
@@ -34,12 +35,15 @@ public class ClusterSegmentsStorage
 
 	private JDBCClusterIndexStore clusterIndexStore;
 
+	private SearchService searchService;
+
 	
-	public ClusterSegmentsStorage(String searchIndexDirectory,  JDBCClusterIndexStore clusterIndexStore, boolean localStructuredStorage, boolean debug) {
+	public ClusterSegmentsStorage(SearchService searchService, String searchIndexDirectory,  JDBCClusterIndexStore clusterIndexStore, boolean localStructuredStorage, boolean debug) {
 		this.localStructuredStorage = localStructuredStorage;
 		this.clusterIndexStore = clusterIndexStore;
 		this.searchIndexDirectory = searchIndexDirectory;
 		this.debug = debug;
+		this.searchService = searchService;
 	}
 
 	/**
@@ -93,6 +97,10 @@ public class ClusterSegmentsStorage
 				Map<String, File> moved = new HashMap<String, File>();
 				moveAll(new File(unpackBase,loc.getName()),loc,moved);
 				deleteAll(unpackBase);
+				// force a reload before we delete the files,
+				// since this is in the locked thread, this node will reload
+				searchService.reload();
+				
 				deleteSome(loc,moved);
 			}
 

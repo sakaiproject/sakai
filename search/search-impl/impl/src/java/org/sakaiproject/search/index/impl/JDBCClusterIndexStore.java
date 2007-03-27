@@ -41,6 +41,7 @@ import javax.sql.DataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.index.IndexReader;
+import org.sakaiproject.search.api.SearchService;
 import org.sakaiproject.search.index.ClusterFilesystem;
 import org.sakaiproject.search.index.SegmentInfo;
 
@@ -109,10 +110,12 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 	private boolean localSegmentsOnly = false;
 
+	private SearchService searchService;
+
 	public void init()
 	{
 		log.info(this + ":init() ");
-		clusterStorage = new ClusterSegmentsStorage(searchIndexDirectory, this,
+		clusterStorage = new ClusterSegmentsStorage(searchService, searchIndexDirectory, this,
 				localStructuredStorage, debug);
 
 		// TODO: We should migrate to the correct storage format, on the local
@@ -2356,5 +2359,21 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	public void setLocalSegmentsOnly(boolean localSegmentsOnly)
 	{
 		this.localSegmentsOnly = localSegmentsOnly;
+	}
+
+	/**
+	 * @return the searchService
+	 */
+	public SearchService getSearchService()
+	{
+		return searchService;
+	}
+
+	/**
+	 * @param searchService the searchService to set
+	 */
+	public void setSearchService(SearchService searchService)
+	{
+		this.searchService = searchService;
 	}
 }

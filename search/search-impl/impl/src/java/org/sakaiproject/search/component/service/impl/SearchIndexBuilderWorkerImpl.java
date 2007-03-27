@@ -394,9 +394,10 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 					{
 						clearLockTransaction();
 					}
-					// this is here force cluster members, to perform a reload, perhapse it should happen in a different way
-					searchService.reload();
 				}
+				// this is here force cluster members
+				// this will not reload the index on this node as 
+				searchService.reload();
 				if (!runThreads)
 				{
 					break;
@@ -1607,8 +1608,19 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 		this.loadFactor = loadFactor;
 	}
 	
+	/**
+	 * Is the lock on this node, but not this thread
+	 * lockedTo == null, localloc == false
+	 * lockedTo == this node, locallock = false;
+	 * lockedTo != this node, localLock = true
+	 */
 	public boolean isLocalLock() {
-		return (lockedTo != null);
+		if ( lockedTo == null ) {
+			return false;
+		} else if ( getNodeID().equals(lockedTo) ) {
+			return false;
+		}
+		return true;
 	}
 
 }

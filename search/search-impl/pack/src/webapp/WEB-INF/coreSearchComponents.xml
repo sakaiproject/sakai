@@ -158,6 +158,7 @@
   <bean id="org.sakaiproject.search.api.SearchService.SegmentStore" 
     class="org.sakaiproject.search.index.impl.JDBCClusterIndexStore" 
     init-method="init" >
+    <property name="searchService"><ref bean="org.sakaiproject.search.api.SearchService" /></property>
     <property name="sharedSegments"><value>${sakai.home}sharedsegments</value></property>
     <property name="location"><value>${sakai.home}searchindex</value></property>
     <property name="dataSource"><ref bean="javax.sql.DataSource"/></property>
