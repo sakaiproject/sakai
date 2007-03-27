@@ -5416,7 +5416,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		else if(user_action.equals("save"))
 		{
-			item.captureProperties(params, "0");
+			item.captureProperties(params, ".0");
 			String name = params.getString("name.0");
 			if(name != null)
 			{
@@ -6478,7 +6478,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			{
 				
 			}
-			item.captureProperties(params, "0");
+			item.captureProperties(params, ".0");
 			
 //			String name = params.getString("name");
 //			String description = params.getString("description");

@@ -840,13 +840,13 @@ public class ListItem
 
 	protected void captureAccess(ParameterParser params, String index) 
 	{
-		String access_mode = params.getString("access_mode" + DOT + index);
+		String access_mode = params.getString("access_mode" + index);
 		SortedSet groups = new TreeSet();
 		
 		if(access_mode == null || AccessMode.GROUPED.toString().equals(access_mode))
 		{
 			// we inherit more than one group and must check whether group access changes at this item
-			String[] access_groups = params.getStrings("access_groups" + DOT + index);
+			String[] access_groups = params.getStrings("access_groups" + index);
 			
 			SortedSet<String> new_groups = new TreeSet<String>();
 			if(access_groups != null)
@@ -891,19 +891,19 @@ public class ListItem
 	protected void captureAvailability(ParameterParser params, String index) 
 	{
 		// availability
-		this.hidden = params.getBoolean("hidden" + DOT + index);
-		boolean use_start_date = params.getBoolean("use_start_date" + DOT + index);
-		boolean use_end_date = params.getBoolean("use_end_date" + DOT + index);
+		this.hidden = params.getBoolean("hidden" + index);
+		boolean use_start_date = params.getBoolean("use_start_date" + index);
+		boolean use_end_date = params.getBoolean("use_end_date" + index);
 		
 		this.useReleaseDate = use_start_date;
 		if(use_start_date)
 		{
-			int begin_year = params.getInt("release_year" + DOT + index);
-			int begin_month = params.getInt("release_month" + DOT + index);
-			int begin_day = params.getInt("release_day" + DOT + index);
-			int begin_hour = params.getInt("release_hour" + DOT + index);
-			int begin_min = params.getInt("release_min" + DOT + index);
-			String release_ampm = params.getString("release_ampm" + DOT + index);
+			int begin_year = params.getInt("release_year" + index);
+			int begin_month = params.getInt("release_month" + index);
+			int begin_day = params.getInt("release_day" + index);
+			int begin_hour = params.getInt("release_hour" + index);
+			int begin_min = params.getInt("release_min" + index);
+			String release_ampm = params.getString("release_ampm" + index);
 			if("pm".equals(release_ampm))
 			{
 				begin_hour += 12;
@@ -918,12 +918,12 @@ public class ListItem
 		this.useRetractDate = use_end_date;
 		if(use_end_date)
 		{
-			int end_year = params.getInt("retract_year" + DOT + index);
-			int end_month = params.getInt("retract_month" + DOT + index);
-			int end_day = params.getInt("retract_day" + DOT + index);
-			int end_hour = params.getInt("retract_hour" + DOT + index);
-			int end_min = params.getInt("retract_min" + DOT + index);
-			String retract_ampm = params.getString("retract_ampm" + DOT + index);
+			int end_year = params.getInt("retract_year" + index);
+			int end_month = params.getInt("retract_month" + index);
+			int end_day = params.getInt("retract_day" + index);
+			int end_hour = params.getInt("retract_hour" + index);
+			int end_min = params.getInt("retract_min" + index);
+			String retract_ampm = params.getString("retract_ampm" + index);
 			if("pm".equals(retract_ampm))
 			{
 				end_hour += 12;
@@ -940,7 +940,7 @@ public class ListItem
 	protected void captureCopyright(ParameterParser params, String index) 
 	{
 		// rights
-		String copyright = params.getString("copyright" + DOT + index);
+		String copyright = params.getString("copyright" + index);
 		if(copyright == null || copyright.trim().length() == 0)
 		{
 			// do nothing -- there must be no copyright dialog
@@ -949,7 +949,7 @@ public class ListItem
 		{
 			this.copyrightInfo = copyright;
 			
-			String newcopyright = params.getString("newcopyright" + DOT + index);
+			String newcopyright = params.getString("newcopyright" + index);
 			
 			if(newcopyright == null || newcopyright.trim().length() == 0)
 			{
@@ -960,7 +960,7 @@ public class ListItem
 				this.copyrightStatus = newcopyright;
 			}
 			
-			boolean copyrightAlert = params.getBoolean("copyrightAlert" + DOT + index);
+			boolean copyrightAlert = params.getBoolean("copyrightAlert" + index);
 			this.copyrightAlert = copyrightAlert;
 		}
 	}
@@ -968,7 +968,7 @@ public class ListItem
 	protected void captureDescription(ParameterParser params, String index) 
 	{
 		// description
-		String description = params.getString("description" + DOT + index);
+		String description = params.getString("description" + index);
 		this.setDescription(description);
 	}
 
@@ -991,10 +991,10 @@ public class ListItem
 
 	protected void captureMimetypeChange(ParameterParser params, String index) 
 	{
-		String mimeCategory = params.getString("mime_category" + DOT + index);
+		String mimeCategory = params.getString("mime_category" + index);
 		if(mimeCategory != null)
 		{
-			String mimeSubtype = params.getString("mime_subtype" + DOT + index);
+			String mimeSubtype = params.getString("mime_subtype" + index);
 			if(mimeSubtype != null)
 			{
 				String mimeType = mimeCategory.trim() + "/" + mimeSubtype.trim();
@@ -1013,13 +1013,13 @@ public class ListItem
 
 	protected void captureQuota(ParameterParser params, String index) 
 	{
-		String setQuota = params.getString("setQuota" + DOT + index);
+		String setQuota = params.getString("setQuota" + index);
 		if(setQuota != null)
 		{
-			this.hasQuota = params.getBoolean("hasQuota" + DOT + index);
+			this.hasQuota = params.getBoolean("hasQuota" + index);
 			if(this.hasQuota)
 			{
-				String quota = params.getString("quota" + DOT + index);
+				String quota = params.getString("quota" + index);
 				if(quota != null && quota.trim().matches("^\\d+$"))
 				{
 					this.quota = quota.trim();
@@ -1034,7 +1034,7 @@ public class ListItem
 
 	protected void captureDisplayName(ParameterParser params, String index) 
 	{
-		String displayName = params.getString("displayName" + DOT + index);
+		String displayName = params.getString("displayName" + index);
 		if(displayName == null)
 		{
 			String[] delimiters = {"/", "\\", ":"};

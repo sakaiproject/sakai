@@ -279,6 +279,13 @@
 			var newPropertiesDiv = deepCopy(modelPropertiesDiv, index);
 			newPropertiesDiv.style.display = "none";
 			fileInputDiv.appendChild(newPropertiesDiv);
+			var addDetailsLink = document.getElementById("propsTrigger${DOT}" + index);
+			if(addDetailsLink)
+			{
+				removeTextNodes(addDetailsLink);
+				var newText = document.createTextNode("$tlang.getString("edit.show")");
+				addDetailsLink.appendChild(newText);
+			}
 		}
 		
 		var prevNext = document.getElementById("next$DOT" + prevIndex);
