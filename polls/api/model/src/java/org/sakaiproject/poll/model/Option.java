@@ -1,9 +1,9 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/contrib/uct/PollTool/trunk/api/model/src/java/org/sakaiproject/poll/model/Option.java $
- * $Id: Option.java 3733 2007-03-01 14:55:42Z david.horwitz@uct.ac.za $
+ * $URL: $
+ * $Id:  $
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2006,2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 

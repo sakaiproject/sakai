@@ -1,9 +1,9 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/contrib/uct/PollTool/trunk/api/logic/src/java/org/sakaiproject/poll/logic/PollVoteManager.java $
- * $Id: PollVoteManager.java 3783 2007-03-05 06:04:22Z david.horwitz@uct.ac.za $
+ * $URL: $
+ * $Id:  $
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2006,2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
