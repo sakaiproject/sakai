@@ -1,7 +1,7 @@
 <!--
 #*
- $URL$
- $Id$
+ $URL:https://source.sakaiproject.org/svn/citations/trunk/citations-tool/tool/src/webapp/vm/citation/add_citations.vm $
+ $Id:add_citations.vm 27832 2007-03-26 23:09:09Z gbhatnag@umich.edu $
 *#
  **********************************************************************************
  *
@@ -82,7 +82,7 @@ doubleDeep = true;
 			      <div class="act">
 				    <input type="button" name="SearchGoogle" id="SearchGoogle"
 				      value="$tlang.getString("action.google")"
-				      onclick="openWindow('$googleUrl','$tlang.getString("action.google")','scrollbars,toolbar,resizable,height=600,width=800');"
+				      onclick="openWindow('$googleUrl','$tlang.getString("popup.title.google")','scrollbars=yes,toolbar=yes,resizable=yes,height=600,width=800');"
 				    />
 			      </div>
 			    </td>
@@ -94,7 +94,7 @@ doubleDeep = true;
 			    <td align="center">
 			      <div class="act">
 				    <input type="button" name="CreateCitation" id="CreateCitation"
-				      value="$tlang.getString("action.create")"
+				      value="$tlang.getString("addAction.create")"
 				      onclick="document.getElementById('sakai_action').value='doCreate';submitform('$FORM_NAME');"
 				    />
 			      </div>

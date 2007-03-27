@@ -16,10 +16,6 @@
     <input name="sakai_action" id="sakai_action" value="doBeginSearch" type="hidden" />
     <input name="searchType" id="searchType" value="$basicSearchType" type="hidden" />
     
-    <!-- hidden submit button (catches 'enter' key) -->
-    <input name="submitSearch" id="submitSearch" value="Search" type="submit" style="display: none;"
-      onclick="javascript: if( legalSearch( document.getElementById('searchType').value ) ) { checkSpinner( '$basicSearchType', '$advancedSearchType' ); } else { return false; }" />
-    
     <p class="instruction">$tlang.getString("instr.search.main")</p>
     <p class="instruction">$tlang.getString("instr.search.sub")</p>
 
@@ -76,11 +72,11 @@
     <p class="act">
       <input type="button" class="active" name="basicSearch" id="basicSearchButton"
         value="$tlang.getString("submit.search")"
-        onclick="javascript: if( legalSearch( '$basicSearchType' ) ) { showSpinner( '.basicSearchLoad' ); document.getElementById('searchType').value='$basicSearchType'; submitform('$FORM_NAME'); } else { return false; }"
+        onclick="javascript: submitSearchForm( '$basicSearchType', '$advancedSearchType', '$FORM_NAME' );"
       />
       <input style="display: none;" type="button" class="active" name="advSearch"
         id="advancedSearchButton" value="$tlang.getString("submit.search")"
-        onclick="javascript: if( legalSearch( '$advancedSearchType' ) ) { showSpinner( '.advancedSearchLoad' ); document.getElementById('searchType').value='$advancedSearchType'; submitform('$FORM_NAME'); } else { return false; }"
+        onclick="javascript: submitSearchForm( '$basicSearchType', '$advancedSearchType', '$FORM_NAME' );"
       />
       <input type="button" name="AddCitations" id="AddCitations"
         value="$tlang.getString("label.back.search")"
@@ -116,6 +112,14 @@
   });
   $( "#dbLoading" ).ajaxStop( function() {
     $( this ).hide();
+  });
+  
+  // catch the "enter" key
+  $( '.basicField, .advField' ).keydown( function( e ) {
+    if (e.keyCode == 13) {
+      submitSearchForm();
+      return false;
+    }
   });
   
 function showTopCategory() {

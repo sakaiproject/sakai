@@ -19,7 +19,7 @@
       <td>
         <input type="button" class="active" name="advSearch"
           value="$tlang.getString("submit.search")"
-          onclick="javascript: if( legalSearch( '$advancedSearchType' ) ) { showSpinner( '.advancedSearchLoad' ); document.getElementById('searchType').value='$advancedSearchType'; submitform( '$FORM_NAME' ); }"
+          onclick="javascript: submitSearchForm( '$basicSearchType', '$advancedSearchType', '$FORM_NAME' );"
         />
         <span class="advancedSearchLoad_replace">
           <span class="itemAction">

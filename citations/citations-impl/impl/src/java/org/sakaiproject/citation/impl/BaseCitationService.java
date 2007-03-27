@@ -3775,7 +3775,7 @@ public abstract class BaseCitationService implements CitationService
 			// register as an entity producer
 			m_entityManager.registerEntityProducer(this, REFERENCE_ROOT);
 	
-			rb = new ResourceLoader("citation_mgr");
+			rb = new ResourceLoader("citations");
 	
 			BasicSchema unknown = new BasicSchema();
 			unknown.setIdentifier(UNKNOWN_TYPE);

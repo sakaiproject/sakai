@@ -86,7 +86,7 @@ public class CitationServlet extends VmServlet
 	private static Log M_log = LogFactory.getLog(CitationServlet.class);
 
 	/** Resource bundle using current language locale */
-	protected static ResourceLoader rb = new ResourceLoader("savecite");
+	protected static ResourceLoader rb = new ResourceLoader("citations");
 
 	/** set to true when init'ed. */
 	protected boolean m_ready = false;

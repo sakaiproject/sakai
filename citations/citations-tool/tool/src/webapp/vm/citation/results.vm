@@ -18,11 +18,7 @@
       action="#toolForm("CitationHelperAction")">
       <input name="sakai_action" id="sakai_action" value="doBeginSearch" type="hidden" />
       <input name="searchType" id="searchType" value="$searchType" type="hidden" />
-    
-	  <!-- hidden submit button (catches 'enter' key) -->
-      <input name="submitSearch" id="submitSearch" value="Search" type="submit" style="display: none;"
-        onclick="javascript: if( legalSearch( document.getElementById('searchType').value ) ) { checkSpinner( '$basicSearchType', '$advancedSearchType' ); } else { return false; }" />
-    
+       
       #foreach( $databaseId in $selectedDatabases )
         <input type="checkbox" name="databasesSelected" checked="checked"
           id="$databaseId" value="$databaseId" style="display: none;"
@@ -87,6 +83,14 @@
 </div>  <!-- end div.portletBody -->
 
 <script type="text/javascript">
+  // catch the "enter" key
+  $( '.basicField, .advField' ).keydown( function( e ) {
+    if (e.keyCode == 13) {
+      submitSearchForm();
+      return false;
+    }
+  });
+
 /*
  * Highlights rows selected in a table using a button element
  *

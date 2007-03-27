@@ -128,7 +128,7 @@
         </includes>
       </resource>
       <resource>
-        <directory>${basedir}/src/bundle</directory>
+        <directory>${basedir}/../../citations-util/util/src/bundle</directory>
         <includes>
           <include>*.properties</include>
           <include>**/*.properties</include>

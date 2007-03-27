@@ -341,6 +341,19 @@ function toggleDbDescription( database_id, altShow, altHide ) {
   }
 }
 
+/*
+ * Submits search form if everything checks out
+ */
+function submitSearchForm() {
+  if( legalSearch( document.getElementById( "searchType" ).value ) ) {
+    checkSpinner( 'basic', 'advanced' );
+    submitform( 'searchForm' );
+    return true;
+  } else {
+    return false;
+  }
+}
+
 function checkSpinner( basicType, advancedType ) {
   // get the searchType value from the form
   var searchType = $( "#searchType" ).val();

@@ -66,7 +66,7 @@ public class CitationListAccessServlet implements HttpAccess
 	public static final String LIST_TEMPLATE = "/vm/citationList.vm";
 	
 	/** Messages, for the http access. */
-	protected static ResourceLoader rb = new ResourceLoader("citation_mgr");
+	protected static ResourceLoader rb = new ResourceLoader("citations");
 	
 	/** Our logger. */
 	private static Log m_log = LogFactory.getLog(CitationListAccessServlet.class);

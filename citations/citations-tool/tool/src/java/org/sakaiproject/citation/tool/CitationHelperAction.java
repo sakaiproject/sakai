@@ -452,7 +452,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 	protected final static Log logger = LogFactory.getLog(CitationHelperAction.class);
 	
-	public static ResourceLoader rb = new ResourceLoader("citation");
+	public static ResourceLoader rb = new ResourceLoader("citations");
 	
 	public static final Integer DEFAULT_RESULTS_PAGE_SIZE = new Integer(10);
 	public static final Integer DEFAULT_LIST_PAGE_SIZE = new Integer(10);
