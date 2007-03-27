@@ -156,6 +156,26 @@ limitations under the License.
             <version>0.7-sakai_2.2.x</version>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>rsfutil</groupId>
+            <artifactId>RSFComponents-evolvers</artifactId>
+            <version>0.7</version>
+            <type>jar</type>
+         </dependency>
+    
+         <dependency>
+          <groupId>sakairsf</groupId>
+          <artifactId>SakaiRSFComponents-evolvers</artifactId>
+          <version>0.7-sakai_2.2.x</version>
+          <type>jar</type>
+        </dependency>
+          <dependency>
+           <groupId>sakairsf</groupId>
+           <artifactId>SakaiRSFComponents-templates</artifactId>
+           <version>0.7.1RC1-sakai_2.2.x</version>
+           <type>war</type>
+         </dependency>
+
         <!-- XML pull parser - required for RSF -->
         <dependency>
             <groupId>xpp3</groupId>
@@ -171,4 +191,29 @@ limitations under the License.
         </dependency>
 
     </dependencies>
+    <build>
+      <plugins>
+        <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>unpack-dependencies</id>
+            <phase>package</phase>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <configuration>
+               <includeTypes>war</includeTypes>
+              <outputDirectory>
+                ${project.build.directory}/webapp/
+              </outputDirectory>
+              <overWriteReleases>true</overWriteReleases>
+              <overWriteSnapshots>true</overWriteSnapshots>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>
