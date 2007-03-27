@@ -376,7 +376,6 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 								log.debug("===" + nodeID
 										+ "=============COMPLETED ");
 								
-								searchService.reload();
 							}
 							else
 							{
@@ -395,6 +394,8 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 					{
 						clearLockTransaction();
 					}
+					// this is here force cluster members, to perform a reload, perhapse it should happen in a different way
+					searchService.reload();
 				}
 				if (!runThreads)
 				{
