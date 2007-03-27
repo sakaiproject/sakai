@@ -22,18 +22,23 @@
 
 package org.sakaiproject.tool.assessment.business.entity;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.Serializable;
 import java.util.StringTokenizer;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-// these are used for unit test only
-import com.sun.org.apache.xml.internal.serialize.OutputFormat;
-import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -485,19 +490,17 @@ public Document getXMLDataModel()
     log.debug("limit =" + rd.getLimit());
     log.debug("seconds=" + rd.getSeconds());
 
-    OutputFormat formatter = new OutputFormat();
-    formatter.setPreserveSpace(true);
-    formatter.setIndent(2);
-    try
-    {
-      XMLSerializer serializer = new XMLSerializer(System.out, formatter);
-      serializer.serialize(rd.getXMLDataModel());
-    }
-    catch(Exception e)
-    {
-      log.debug("cannot serialize"+e);
-    }
-
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+	Source xmlSource = new DOMSource(rd.getXMLDataModel());
+	Result outputTarget = new StreamResult(out);
+	Transformer tf;
+	try {
+		tf = TransformerFactory.newInstance().newTransformer();
+    	tf.transform(xmlSource, outputTarget);
+	} catch (TransformerException e) {
+		log.debug("cannot serialize"+e);
+	}
+	
     rd = new RecordingData(null, null, null, null, null);
     log.debug(
       "NULL file: " + rd.getFileName() + "." + rd.getFileExtension());

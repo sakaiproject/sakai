@@ -75,8 +75,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.sun.org.apache.xpath.internal.XPathAPI;
-
 /**
  * <p>Copyright: Copyright (c) 2004</p>
  * <p>Organization: Sakai Project</p>
@@ -415,35 +413,25 @@ public class AuthoringHelper
     String elementName)
   {
     Document[] documents = null;
-    try
+    // Get the matching elements
+    NodeList nodeList = objectBank.getElementsByTagName("//" + elementName); 
+    
+    int numDocs = nodeList.getLength();
+    if (numDocs == 0)
     {
-      // Get the matching elements
-      NodeList nodeList =
-        XPathAPI.selectNodeList(objectBank, "//" + elementName);
-
-      int numDocs = nodeList.getLength();
-      if (numDocs == 0)
-      {
-        return null;
-      }
-
-      documents = new Document[numDocs];
-
-      for (int i = 0; i < numDocs; i++)
-      {
-        Node node = (Node) nodeList.item(i);
-        Document objectDoc = XmlUtil.createDocument();
-        Node importNode = objectDoc.importNode(node, true);
-        objectDoc.appendChild(importNode);
-        documents[i] = objectDoc;
-      }
-    }
-    catch (TransformerException e)
-    {
-      throw (new RuntimeException("TransformerException: Cannot extract " +
-                                  elementName + " from object bank"));
+      return null;
     }
 
+    documents = new Document[numDocs];
+    for (int i = 0; i < numDocs; i++)
+    {
+      Node node = (Node) nodeList.item(i);
+      Document objectDoc = XmlUtil.createDocument();
+      Node importNode = objectDoc.importNode(node, true);
+      objectDoc.appendChild(importNode);
+      documents[i] = objectDoc;
+    }
+    
     return documents;
   }
 

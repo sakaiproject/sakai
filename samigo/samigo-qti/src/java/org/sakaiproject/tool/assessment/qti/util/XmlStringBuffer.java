@@ -23,25 +23,25 @@
 
 package org.sakaiproject.tool.assessment.qti.util;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.Iterator;
 import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.collections.ReferenceMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import com.sun.org.apache.xerces.internal.dom.AttrImpl;
-import com.sun.org.apache.xerces.internal.dom.CharacterDataImpl;
-import com.sun.org.apache.xerces.internal.dom.CoreDocumentImpl;
-import com.sun.org.apache.xerces.internal.dom.ElementImpl;
-import com.sun.org.apache.xerces.internal.dom.TextImpl;
-import com.sun.org.apache.xml.internal.serialize.OutputFormat;
-import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 import org.jaxen.JaxenException;
 import org.jaxen.XPath;
 import org.jaxen.dom.DOMXPath;
@@ -49,10 +49,12 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.DOMOutputter;
 import org.w3c.dom.Attr;
+import org.w3c.dom.CharacterData;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
 /**
@@ -313,19 +315,17 @@ public class XmlStringBuffer
     }
     else
     {
-      OutputFormat format = new OutputFormat(document);
-      StringWriter writer = new StringWriter();
-      XMLSerializer serializer = new XMLSerializer(writer, format);
-      try
-      {
-        serializer.serialize(document);
-      }
-      catch(IOException e)
-      {
-        log.error(e.getMessage(), e);
-      }
-
-      return writer.toString();
+      ByteArrayOutputStream out = new ByteArrayOutputStream();
+      Source xmlSource = new DOMSource(document);
+      Result outputTarget = new StreamResult(out);
+      Transformer tf;
+	  try {
+		tf = TransformerFactory.newInstance().newTransformer();
+	    tf.transform(xmlSource, outputTarget);
+	  } catch (TransformerException e) {
+		log.error(e.getMessage(), e);
+	  }
+      return out.toString();	
     }
   }
 
@@ -371,10 +371,10 @@ public class XmlStringBuffer
           Document document = this.getDocument();
           if((type != null) && type.equals("element"))
           {
-            ElementImpl element = (ElementImpl) list.get(0);
+            Element element = (Element) list.get(0);
 
-            CharacterDataImpl elementText =
-              (CharacterDataImpl) element.getFirstChild();
+            CharacterData elementText =
+              (CharacterData) element.getFirstChild();
             Integer getTime = null;
             if(
               (elementText != null) && (elementText.getNodeValue() != null) &&
@@ -386,10 +386,10 @@ public class XmlStringBuffer
 
           if((type != null) && type.equals("attribute"))
           {
-            AttrImpl attr = (AttrImpl) list.get(0);
+            Attr attr = (Attr) list.get(0);
 
-            CharacterDataImpl elementText =
-              (CharacterDataImpl) attr.getFirstChild();
+            CharacterData elementText =
+              (CharacterData) attr.getFirstChild();
 
             Integer getTime = null;
             if(
@@ -513,19 +513,20 @@ public class XmlStringBuffer
 
           if(childNode == null)
           {
-            CoreDocumentImpl document = new CoreDocumentImpl();
-            TextImpl newElementText =
-              new TextImpl(document, newElement.getNodeName());
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            Document document = db.newDocument();
+            Text newElementText = document.createTextNode(newElement.getNodeName());
             newElementText.setNodeValue(value);
-            TextImpl clonedText =
-              (TextImpl) newElement.getOwnerDocument().importNode(
+            Text clonedText =
+              (Text) newElement.getOwnerDocument().importNode(
                 newElementText, true);
             newElement.appendChild(clonedText);
           }
           else
           {
-            CharacterDataImpl newElementText =
-              (CharacterDataImpl) newElement.getFirstChild();
+            CharacterData newElementText =
+              (CharacterData) newElement.getFirstChild();
             newElementText.setNodeValue(value);
           }
         }
@@ -614,39 +615,45 @@ public class XmlStringBuffer
   public void insertElement(
     String afterNode, String parentXpath, String childXpath)
   {
-    String nextXpath = parentXpath + "/" + afterNode;
+	try {  
+      String nextXpath = parentXpath + "/" + afterNode;
 
-    //*************************************************************
-    Element element = null;
-    CoreDocumentImpl document = new CoreDocumentImpl();
-    element = new ElementImpl(document, childXpath);
+      //*************************************************************
+      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+      DocumentBuilder db = dbf.newDocumentBuilder();
+      Document document = db.newDocument();
+      Element element = document.createElement(childXpath);
 
-    //**************************************************************
-    Element parent = null;
-    List parentNodes = this.selectNodes(parentXpath);
-    Iterator iteratorNext = parentNodes.iterator();
-    while(iteratorNext.hasNext())
-    {
-      parent = (Element) iteratorNext.next();
-    }
-
-    if(parent != null)
-    {
-      List nodes = this.selectNodes(nextXpath);
-      Iterator iterator = nodes.iterator();
-      Element nextSibling = null;
-      while(iterator.hasNext())
+      //**************************************************************
+      Element parent = null;
+      List parentNodes = this.selectNodes(parentXpath);
+      Iterator iteratorNext = parentNodes.iterator();
+      while(iteratorNext.hasNext())
       {
-        nextSibling = (Element) iterator.next();
+        parent = (Element) iteratorNext.next();
       }
 
-      if(
-        (nextSibling != null) &&
-          ! nextSibling.equals(element.getOwnerDocument()))
+      if(parent != null)
       {
-        element = (Element) parent.getOwnerDocument().importNode(element, true);
-        parent.insertBefore(element, nextSibling);
+        List nodes = this.selectNodes(nextXpath);
+        Iterator iterator = nodes.iterator();
+        Element nextSibling = null;
+        while(iterator.hasNext())
+        {
+          nextSibling = (Element) iterator.next();
+        }
+
+        if(
+          (nextSibling != null) &&
+            ! nextSibling.equals(element.getOwnerDocument()))
+        {
+          element = (Element) parent.getOwnerDocument().importNode(element, true);
+          parent.insertBefore(element, nextSibling);
+        }
       }
+    } catch(ParserConfigurationException pce) {
+    	log.error("Exception thrown from insertElement() : " + pce.getMessage());
+		pce.printStackTrace();
     }
   }
 
@@ -682,15 +689,22 @@ public class XmlStringBuffer
       subChildXpath = childXpath.substring(index + 1);
       child = createChildElement(subChildXpath);
     }
-
-    CoreDocumentImpl document = new CoreDocumentImpl();
-    element = new ElementImpl(document, elementName);
-    if(child != null)
-    {
-      Node importedNode = document.importNode(child, true);
-      element.appendChild(importedNode);
+    try {
+      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+      DocumentBuilder db = dbf.newDocumentBuilder();
+      Document document = db.newDocument();
+      element = document.createElement(elementName);
+      element = document.createElement(elementName);
+      if(child != null)
+      {
+        Node importedNode = document.importNode(child, true);
+        element.appendChild(importedNode);
+      }
+    } catch(ParserConfigurationException pce) {
+    	log.error("Exception thrown from createChildElement(): " + pce.getMessage());
+		pce.printStackTrace();
     }
-
+    
     return element;
   }
 

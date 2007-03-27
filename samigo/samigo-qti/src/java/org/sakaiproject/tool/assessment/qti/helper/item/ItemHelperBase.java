@@ -31,7 +31,8 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import com.sun.org.apache.xerces.internal.dom.CharacterDataImpl;
+
+import org.w3c.dom.CharacterData;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -333,9 +334,9 @@ public abstract class ItemHelperBase
     {
       Node node = (Node) iter.next();
       Node child = node.getFirstChild();
-      if ( (child != null) && child instanceof CharacterDataImpl)
+      if ( (child != null) && child instanceof CharacterData)
       {
-        CharacterDataImpl cdi = (CharacterDataImpl) child;
+        CharacterData cdi = (CharacterData) child;
         text = text + " " + cdi.getData();
       }
     }

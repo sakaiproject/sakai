@@ -30,10 +30,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import com.sun.org.apache.xerces.internal.dom.CoreDocumentImpl;
-import com.sun.org.apache.xerces.internal.dom.ElementImpl;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -146,11 +148,18 @@ public class Assessment  extends ASIBaseClass
       log.debug("addSection(String " + sectionId + ")");
     }
 
-    String xpath = basePath;
-    CoreDocumentImpl document = new CoreDocumentImpl();
-    Element element = new ElementImpl(document, QTIConstantStrings.SECTIONREF);
-    element.setAttribute(QTIConstantStrings.LINKREFID, sectionId);
-    this.addElement(xpath, element);
+    try {
+    	String xpath = basePath;
+    	DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+    	DocumentBuilder db = dbf.newDocumentBuilder();
+    	Document document = db.newDocument();
+    	Element element = document.createElement(QTIConstantStrings.SECTIONREF);
+    	element.setAttribute(QTIConstantStrings.LINKREFID, sectionId);
+    	this.addElement(xpath, element);
+    } catch(ParserConfigurationException pce) {
+    	log.error("Exception thrown from addSectionRef() : " + pce.getMessage());
+		pce.printStackTrace();
+    }
   }
 
   /**
@@ -225,7 +234,7 @@ public class Assessment  extends ASIBaseClass
     int size = refs.size();
     for(int i = 0; i < size; i++)
     {
-      Element ref = (ElementImpl) refs.get(0);
+      Element ref = (Element) refs.get(0);
       String idString = ref.getAttribute(QTIConstantStrings.LINKREFID);
       ids.add(idString);
     }

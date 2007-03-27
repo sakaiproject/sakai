@@ -23,8 +23,6 @@
 
 package org.sakaiproject.tool.assessment.qti.helper;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -35,7 +33,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import org.springframework.core.io.ClassPathResource;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -43,22 +40,20 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import com.sun.org.apache.xerces.internal.dom.CharacterDataImpl;
-import com.sun.org.apache.xerces.internal.dom.CoreDocumentImpl;
-import com.sun.org.apache.xerces.internal.dom.TextImpl;
 import org.jaxen.JaxenException;
 import org.jaxen.XPath;
 import org.jaxen.dom.DOMXPath;
 import org.w3c.dom.Attr;
+import org.w3c.dom.CharacterData;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
-import org.sakaiproject.tool.assessment.qti.util.PathInfo;
 
 
 /**
@@ -395,19 +390,21 @@ public class AuthoringXml
 
           if (childNode == null)
           {
-            CoreDocumentImpl core = new CoreDocumentImpl();
-            TextImpl newElementText =
-              new TextImpl(core, newElement.getNodeName());
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+          	DocumentBuilder db = dbf.newDocumentBuilder();
+          	Document core = db.newDocument();  
+            Text newElementText =
+              core.createTextNode(newElement.getNodeName());
             newElementText.setNodeValue(value);
-            TextImpl clonedText =
-              (TextImpl) newElement.getOwnerDocument().importNode(
+            Text clonedText =
+              (Text) newElement.getOwnerDocument().importNode(
               newElementText, true);
             newElement.appendChild(clonedText);
           }
           else
           {
-            CharacterDataImpl newElementText =
-              (CharacterDataImpl) newElement.getFirstChild();
+            CharacterData newElementText =
+              (CharacterData) newElement.getFirstChild();
             newElementText.setNodeValue(value);
           }
         }

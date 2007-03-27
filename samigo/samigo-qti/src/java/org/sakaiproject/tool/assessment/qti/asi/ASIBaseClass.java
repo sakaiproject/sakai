@@ -27,16 +27,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import com.sun.org.apache.xerces.internal.dom.CharacterDataImpl;
-import com.sun.org.apache.xerces.internal.dom.CommentImpl;
-import com.sun.org.apache.xerces.internal.dom.CoreDocumentImpl;
-import com.sun.org.apache.xerces.internal.dom.ElementImpl;
-import com.sun.org.apache.xerces.internal.dom.TextImpl;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Comment;
 import org.w3c.dom.DOMException;
@@ -282,22 +280,24 @@ public abstract class ASIBaseClass
       if(qtimetadataNodes.size() > 0)
       {
         Node qtimetadataNode = (Node) qtimetadataNodes.get(0);
-        CoreDocumentImpl newDocument = new CoreDocumentImpl();
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        Document newDocument = db.newDocument();
 
         Element qtimetadataField =
-          new ElementImpl(newDocument, QTIConstantStrings.QTIMETADATAFIELD);
+          newDocument.createElement(QTIConstantStrings.QTIMETADATAFIELD);
         Element fieldlabelElement =
-          new ElementImpl(newDocument, QTIConstantStrings.FIELDLABEL);
+          newDocument.createElement(QTIConstantStrings.FIELDLABEL);
         Element fieldentryElement =
-          new ElementImpl(newDocument, QTIConstantStrings.FIELDENTRY);
+          newDocument.createElement(QTIConstantStrings.FIELDENTRY);
 
-        TextImpl fieldlabelText =
-          new TextImpl(newDocument, QTIConstantStrings.FIELDLABEL);
+        Text fieldlabelText =
+          newDocument.createTextNode(QTIConstantStrings.FIELDLABEL);
         fieldlabelText.setNodeValue(fieldlabel);
         fieldlabelElement.appendChild(fieldlabelText);
 
-        TextImpl fieldentryText =
-          new TextImpl(newDocument, QTIConstantStrings.FIELDENTRY);
+        Text fieldentryText =
+          newDocument.createTextNode(QTIConstantStrings.FIELDENTRY);
         fieldentryElement.appendChild(fieldentryText);
 
         Node importedFLE =
@@ -312,6 +312,10 @@ public abstract class ASIBaseClass
           qtimetadataNode.getOwnerDocument().importNode(qtimetadataField, true);
         qtimetadataNode.appendChild(importedField);
       }
+    }
+    catch(ParserConfigurationException pce) {
+    	log.error("Exception thrown from createFieldentry()" + pce.getMessage(), pce);
+		pce.printStackTrace();
     }
     catch(Exception ex)
     {
@@ -602,14 +606,16 @@ public abstract class ASIBaseClass
       {
         Node node = list.item(i);
         Node childNode = node.getFirstChild();
-        if((childNode != null) && childNode instanceof CharacterDataImpl)
+        if((childNode != null) && childNode instanceof CharacterData)
         {
-          CharacterDataImpl cdi = (CharacterDataImpl) childNode;
+          CharacterData cdi = (CharacterData) childNode;
           String data = cdi.getData();
 
           //modify this string;
-          CoreDocumentImpl doc = new CoreDocumentImpl();
-          Comment comment = new CommentImpl(doc, data);
+          DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+          DocumentBuilder db = dbf.newDocumentBuilder();
+          Document doc = db.newDocument();
+          Comment comment = doc.createComment(data);
           node.appendChild(node.getOwnerDocument().importNode(comment, true));
           cdi.setData("");
         }
