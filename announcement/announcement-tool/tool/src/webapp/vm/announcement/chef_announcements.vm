@@ -247,13 +247,14 @@
 							</td>
 							<td headers="subject">
 								<h4>
-									#if ($ann_item.Header.draft)
-									<a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getString('gen.editdraft')"><span class="highlight">$tlang.getString("gen.draft") - </span>
-										$validator.escapeHtml($ann_item.Header.subject)</a>
-									#else
+## removed/commented out with adding release/retract dates 3-07
+##									#if ($ann_item.Header.draft)
+##									<a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getString('gen.editdraft')"><span class="highlight">$tlang.getString("gen.draft") - </span>
+##										$validator.escapeHtml($ann_item.Header.subject)</a>
+##									#else
 										<a href="#toolLinkParam("AnnouncementAction" "doShowmetadata" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getString('gen.viewann') $validator.escapeHtml($ann_item.Header.subject)">
 										$validator.escapeHtml($ann_item.Header.subject)</a>
-									#end
+##									#end
 								</h4>	
 							</td>
 							<td headers="author">
@@ -580,13 +581,14 @@
 									</td>
 									<td headers="subject">
 										<h4>
-											#if ($ann_item.Header.draft)
-												<a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getString('gen.editdraft')"><span class="highlight">$tlang.getString("gen.draft") - </span>
-												$validator.escapeHtml($ann_item.Header.subject)</a>
-											#else
+## removed/commented out with release/retract addition 3-07
+##											#if ($ann_item.Header.draft)
+##												<a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getString('gen.editdraft')"><span class="highlight">$tlang.getString("gen.draft") - </span>
+##												$validator.escapeHtml($ann_item.Header.subject)</a>
+##											#else
 												<a href="#toolLinkParam("AnnouncementAction" "doShowmetadata" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getString('gen.viewann') $validator.escapeHtml($ann_item.Header.subject)">
 												$validator.escapeHtml($ann_item.Header.subject)</a>
-											#end
+##											#end
 										</h4>	
 										#if ($channel.allowEditMessage($ann_item.Id))
 											<div class="itemAction"><a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getString('gen.editann') $validator.escapeHtml($ann_item.Header.subject)">$tlang.getString("gen.revise")</a></div>
