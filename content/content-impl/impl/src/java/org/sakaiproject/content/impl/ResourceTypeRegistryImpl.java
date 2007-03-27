@@ -21,11 +21,15 @@
 
 package org.sakaiproject.content.impl;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.Vector;
 
 import org.apache.commons.logging.Log;
@@ -34,11 +38,13 @@ import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
+import org.sakaiproject.content.api.ServiceLevelAction;
 import org.sakaiproject.content.api.SiteSpecificResourceType;
+import org.sakaiproject.content.api.ResourceToolAction.ActionType;
 import org.sakaiproject.javax.Filter;
 
 /**
- * @author jreng
+ * 
  *
  */
 public class ResourceTypeRegistryImpl implements ResourceTypeRegistry 
@@ -50,6 +56,18 @@ public class ResourceTypeRegistryImpl implements ResourceTypeRegistry
 	protected Map<String, ResourceType> typeIndex = new HashMap<String, ResourceType>();
 	
 	protected Map<String,Map<String,Boolean>> enabledTypesMap = new HashMap <String,Map<String,Boolean>>();
+	
+	protected Map<String, ServiceLevelAction> multiItemActions = new HashMap<String, ServiceLevelAction>();
+	
+	protected static final SortedSet<String> nativeTypes = new TreeSet<String>();
+	static
+	{
+		nativeTypes.add(ResourceType.TYPE_FOLDER);
+		nativeTypes.add(ResourceType.TYPE_TEXT);
+		nativeTypes.add(ResourceType.TYPE_UPLOAD);
+		nativeTypes.add(ResourceType.TYPE_URL);
+		nativeTypes.add(ResourceType.TYPE_HTML);
+	}
 
 	/**
 	 * Final initialization, once all dependencies are set.
@@ -134,6 +152,22 @@ public class ResourceTypeRegistryImpl implements ResourceTypeRegistry
 //			
 //		}
 		typeIndex.put(type.getId(), type);
+		
+		for(ResourceToolAction action : type.getActions(Arrays.asList(ActionType.values())))
+		{
+			if(action instanceof ServiceLevelAction && ((ServiceLevelAction) action).isMultipleItemAction())
+			{
+				ResourceToolAction previouslyRegisteredAction = this.multiItemActions.get(action.getId());
+				if(previouslyRegisteredAction == null)
+				{
+					this.multiItemActions.put(action.getId(), (ServiceLevelAction) action);
+				}
+				else if(nativeTypes.contains(action.getTypeId()))
+				{
+					this.multiItemActions.put(action.getId(), (ServiceLevelAction) action);
+				}
+			}
+		}
 		
 	}
 
@@ -262,6 +296,22 @@ public class ResourceTypeRegistryImpl implements ResourceTypeRegistry
 			return enabled;
 		}
 		return new HashMap<String, Boolean>(enabled);
-	} 
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.api.ResourceTypeRegistry#getMultiItemActions()
+	 */
+	public Collection<ServiceLevelAction> getMultiItemActions()
+    {
+	    return new ArrayList<ServiceLevelAction>(this.multiItemActions.values());
+    }
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.api.ResourceTypeRegistry#getMultiItemAction(java.lang.String)
+	 */
+	public ServiceLevelAction getMultiItemAction(String listActionId)
+    {
+	    return this.multiItemActions.get(listActionId);
+    } 
 
 }

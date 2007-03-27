@@ -43,6 +43,19 @@ public interface ResourceTypeRegistry
 	public ResourceToolAction getAction(String typeId, String actionId);
 	
 	/**
+	 * Access a registered multi-item action.
+	 * @param listActionId
+	 * @return the action, or null if no multi-item action registered with that id.
+	 */
+	public ServiceLevelAction getMultiItemAction(String listActionId);
+	
+	/**
+	 * Access all multi-item actions that have been registered.
+	 * @return
+	 */
+	public Collection<ServiceLevelAction> getMultiItemActions();
+	
+	/**
 	 *  Access the definition of a particular resource type.
 	 * @param typeId The id of the resource type.
 	 * @return The ResourceType object which defines the requested type, or null if the type is not defined.
@@ -109,5 +122,5 @@ public interface ResourceTypeRegistry
 	 * @return
 	 */
 	public Collection<ResourceType> getTypes(String context);
-	
+
 }

@@ -22,6 +22,7 @@
 package org.sakaiproject.content.tool;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -223,19 +224,23 @@ public class ListItem
 	        	}
 			}
 			
-			item.setAddActions(ResourcesAction.getAddActions(entity, item.getPermissions(), registry, items_to_be_moved, items_to_be_copied));
+			item.setAddActions(ResourcesAction.getAddActions(entity, item.getPermissions(), registry));
 			//this.members = coll.getMembers();
 			item.setIconLocation( ContentTypeImageService.getContentTypeImage("folder"));
         }
         
-		item.setOtherActions(ResourcesAction.getActions(entity, item.getPermissions(), registry, items_to_be_moved, items_to_be_copied));
+		item.setOtherActions(ResourcesAction.getActions(entity, item.getPermissions(), registry));
+		
+		item.setPasteActions(ResourcesAction.getPasteActions(entity, item.getPermissions(), registry,items_to_be_moved, items_to_be_copied));
 		
 		return item;
 	}
+	
 	protected String name;
 	protected String id;
 	protected List<ResourceToolAction> addActions;
 	protected List<ResourceToolAction> otherActions;
+	protected List<ResourceToolAction> pasteActions;
 	protected String otherActionsLabel;
 	protected List<ListItem> members;
 	protected Set<ContentPermissions> permissions;
@@ -296,11 +301,13 @@ public class ListItem
 	protected String displayName;
 
 	protected boolean isUserSite = false;
+	protected boolean isDropbox = false;
 
 	protected boolean isSiteCollection = false;
 	protected boolean hasQuota = false;
 	protected boolean canSetQuota = false;
 	protected String quota;
+
 
 	
 	/**
@@ -331,6 +338,14 @@ public class ListItem
 		else
 		{
 			this.containingCollectionId = entity.getContainingCollection().getId();
+		}
+		if(this.id != null)
+		{
+			this.isDropbox = contentService.isInDropbox(id);
+		}
+		else if(this.containingCollectionId != null)
+		{
+			this.isDropbox = contentService.isInDropbox(this.containingCollectionId);
 		}
 		ResourceProperties props = entity.getProperties();
 		this.accessUrl = entity.getUrl();
@@ -692,6 +707,19 @@ public class ListItem
 			}
 			setSize(size);
 
+		}
+		
+		if(this.id != null)
+		{
+			this.isDropbox = contentService.isInDropbox(id);
+		}
+		else if(this.containingCollectionId != null)
+		{
+			this.isDropbox = contentService.isInDropbox(this.containingCollectionId);
+		}
+		else
+		{
+			this.isDropbox = parent.isDropbox;
 		}
 		
 		Time now = TimeService.newTime();
@@ -1826,7 +1854,15 @@ public class ListItem
     			this.multipleItemActions.put(action.getId(), action);
     		}
     	}
-    	this.otherActions = otherActions;
+		if(this.otherActions == null)
+		{
+			this.otherActions = new ArrayList<ResourceToolAction>();
+		}
+		this.otherActions.clear();
+	    if(otherActions != null)
+    	{
+    		this.otherActions.addAll(otherActions);
+    	}
     }
 
 	/**
@@ -1837,6 +1873,19 @@ public class ListItem
     	this.otherActionsLabel = otherActionsLabel;
     }
 
+	protected void setPasteActions(List<ResourceToolAction> pasteActions)
+    {
+		if(this.pasteActions == null)
+		{
+			this.pasteActions = new ArrayList<ResourceToolAction>();
+		}
+		this.pasteActions.clear();
+	    if(pasteActions != null)
+    	{
+    		this.pasteActions.addAll(pasteActions);
+    	}
+    }
+	
 	/**
 	 * @param permissions the permissions to set
 	 */
@@ -2216,9 +2265,25 @@ public class ListItem
 		 return this.mimetype.substring(index + 1);
 	 }
 
-	public String getSizzle() {
+	public String getSizzle() 
+	{
 		return sizzle;
 	}
+
+	public boolean isDropbox() 
+	{
+		return isDropbox;
+	}
+
+	public void setDropbox(boolean isDropbox) 
+	{
+		this.isDropbox = isDropbox;
+	}
+
+	public List<ResourceToolAction> getPasteActions()
+    {
+    	return pasteActions;
+    }
 
 
 }

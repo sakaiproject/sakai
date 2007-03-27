@@ -329,7 +329,7 @@ public class FolderType extends BaseResourceType
 
 		public String getLabel() 
 		{
-			return rb.getString("action.finmove");
+			return rb.getString("action.paste");
 		}
 
 		public boolean isMultipleItemAction() 
@@ -399,7 +399,7 @@ public class FolderType extends BaseResourceType
 
 		public String getLabel() 
 		{
-			return rb.getString("action.fincopy");
+			return rb.getString("action.paste");
 		}
 
 		public boolean isMultipleItemAction() 

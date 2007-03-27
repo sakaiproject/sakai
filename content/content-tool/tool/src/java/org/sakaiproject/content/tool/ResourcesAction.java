@@ -1901,11 +1901,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
      * @param selectedItem
 	 * @param permissions TODO
 	 * @param registry
-	 * @param items_to_be_moved
-	 * @param items_to_be_copied
 	 * @return
      */
-    protected static List<ResourceToolAction> getActions(ContentEntity selectedItem, Set<ContentPermissions> permissions, ResourceTypeRegistry registry, List<String> items_to_be_moved, List<String> items_to_be_copied)
+    protected static List<ResourceToolAction> getActions(ContentEntity selectedItem, Set<ContentPermissions> permissions, ResourceTypeRegistry registry)
     {
 	    String resourceType = ResourceType.TYPE_UPLOAD;
 	    Reference ref = EntityManager.newReference(selectedItem.getReference());
@@ -1987,15 +1985,70 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	    return actions;
     }
 	
+    public static List<ResourceToolAction> getPasteActions(ContentEntity selectedItem, Set<ContentPermissions> permissions, ResourceTypeRegistry registry, List<String> items_to_be_moved, List<String> items_to_be_copied)
+    {
+	    String resourceType = ResourceType.TYPE_UPLOAD;
+	    Reference ref = EntityManager.newReference(selectedItem.getReference());
+	    
+	    List<ResourceToolAction> actions = new Vector<ResourceToolAction>();
+	    
+	    if(permissions.contains(ContentPermissions.CREATE))
+	    {
+		    if(selectedItem.isCollection())
+		    {
+		    	resourceType = ResourceType.TYPE_FOLDER;
+		    }
+		    else
+		    {
+		    	ContentResource resource = (ContentResource) selectedItem;
+		    	// String mimetype = resource.getContentType();
+		    	resourceType = resource.getResourceType();
+		    }
+		    
+		    // get the registration for the current item's type 
+		    ResourceType typeDef = registry.getType(resourceType);
+		    if(items_to_be_moved != null && ! items_to_be_moved.isEmpty())
+		    {
+		    	List<ResourceToolAction> conditionalContentNewActions = typeDef.getActions(PASTE_MOVED_ACTIONS);
+		    	if(conditionalContentNewActions != null)
+		    	{
+		    		actions.addAll(conditionalContentNewActions);
+		    	}
+		    }
+	
+		    if(items_to_be_copied != null && ! items_to_be_copied.isEmpty())
+		    {
+		    	List<ResourceToolAction> conditionalContentNewActions = typeDef.getActions(PASTE_COPIED_ACTIONS);
+		    	if(conditionalContentNewActions != null)
+		    	{
+		    		actions.addAll(conditionalContentNewActions);
+		    	}
+		    }
+	    }
+	    
+	    // filter -- remove actions that are not available to the current user in the context of this item
+	    Iterator<ResourceToolAction> actionIt = actions.iterator();
+	    while(actionIt.hasNext())
+	    {
+	    	ResourceToolAction action = actionIt.next();
+	    	ContentEntity entity = (ContentEntity) ref.getEntity();
+			if(! action.available(entity))
+	    	{
+	    		actionIt.remove();
+	    	}
+	    }
+
+	    return actions; 
+	    
+    }
+	
 	/**
      * @param selectedItem
 	 * @param permissions TODO
 	 * @param registry
-	 * @param items_to_be_moved
-	 * @param items_to_be_copied
-     * @return
+	 * @return
      */
-    protected static List<ResourceToolAction> getAddActions(ContentEntity selectedItem, Set<ContentPermissions> permissions, ResourceTypeRegistry registry, List<String> items_to_be_moved, List<String> items_to_be_copied)
+    protected static List<ResourceToolAction> getAddActions(ContentEntity selectedItem, Set<ContentPermissions> permissions, ResourceTypeRegistry registry)
     {
 	    String resourceType = ResourceType.TYPE_UPLOAD;
 	    Reference ref = EntityManager.newReference(selectedItem.getReference());
@@ -2018,24 +2071,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		    // get the registration for the current item's type 
 		    ResourceType typeDef = registry.getType(resourceType);
 		    
-		    if(items_to_be_moved != null && ! items_to_be_moved.isEmpty())
-		    {
-		    	List<ResourceToolAction> conditionalContentNewActions = typeDef.getActions(PASTE_MOVED_ACTIONS);
-		    	if(conditionalContentNewActions != null)
-		    	{
-		    		actions.addAll(conditionalContentNewActions);
-		    	}
-		    }
-	
-		    if(items_to_be_copied != null && ! items_to_be_copied.isEmpty())
-		    {
-		    	List<ResourceToolAction> conditionalContentNewActions = typeDef.getActions(PASTE_COPIED_ACTIONS);
-		    	if(conditionalContentNewActions != null)
-		    	{
-		    		actions.addAll(conditionalContentNewActions);
-		    	}
-		    }
-	
 		    // certain actions are defined elsewhere but pertain only to collections
 		    if(selectedItem.isCollection())
 		    {
@@ -4108,7 +4143,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			
 			List<String> items_to_be_moved = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_MOVED);
 			
-			List<ResourceToolAction> actions = getActions(selectedItem, new TreeSet(getPermissions(selectedItem.getId(), null)), registry, items_to_be_moved, items_to_be_copied);
+			List<ResourceToolAction> actions = getActions(selectedItem, new TreeSet(getPermissions(selectedItem.getId(), null)), registry);
+			
+			// TODO: need to deal with paste actions
 			
 			context.put("actions", actions);
 			context.put("labeler", new ResourceTypeLabeler());
@@ -4515,7 +4552,14 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			{
 				if(lItem.hasMultipleItemActions())
 				{
-					listActions.putAll(lItem.getMultipleItemActions());
+					for(String listActionId : lItem.getMultipleItemActions().keySet())
+					{
+						ServiceLevelAction listAction = registry.getMultiItemAction(listActionId);
+						if(listAction != null)
+						{
+							listActions.put(listActionId, listAction);
+						}
+					}
 				}
 			}
 			
@@ -7648,6 +7692,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				{
 					slAction.cancelAction(ref);
 				}
+				logger.warn(ref.getReference(), e);
 			}
 		}
 		// if no errors
