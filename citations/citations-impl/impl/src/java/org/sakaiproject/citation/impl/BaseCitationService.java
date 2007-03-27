@@ -2044,11 +2044,11 @@ public abstract class BaseCitationService implements CitationService
 
 		}
 
-		protected Map m_citations = new Hashtable();
+		protected Map<String, Citation> m_citations = new Hashtable<String, Citation>();
 
 		protected Comparator m_comparator = DEFAULT_COMPARATOR;
 
-		protected SortedSet m_order;
+		protected SortedSet<String> m_order;
 
 		protected int m_pageSize = DEFAULT_PAGE_SIZE;
 
@@ -2076,7 +2076,7 @@ public abstract class BaseCitationService implements CitationService
 		 */
 		public BasicCitationCollection(boolean temporary)
 		{
-			m_order = new TreeSet(m_comparator);
+			m_order = new TreeSet<String>(m_comparator);
 			
 			m_temporary = temporary;
 			if (temporary)
@@ -2093,7 +2093,7 @@ public abstract class BaseCitationService implements CitationService
 		{
 			m_id = IdManager.createUuid();
 
-			m_order = new TreeSet(m_comparator);
+			m_order = new TreeSet<String>(m_comparator);
 
 			if (citations != null)
 			{
@@ -2121,7 +2121,6 @@ public abstract class BaseCitationService implements CitationService
 		{
 			if (!this.m_citations.keySet().contains(citation.getId()))
 			{
-				// TODO: use comparator (if defined) when adding
 				this.m_citations.put(citation.getId(), citation);
 				this.m_order.add(citation.getId());
 			}
@@ -2134,10 +2133,12 @@ public abstract class BaseCitationService implements CitationService
 		 */
 		public void addAll(CitationCollection other)
 		{
-			Iterator keyIt = ((BasicCitationCollection) other).m_order.iterator();
-			while (keyIt.hasNext())
+			if(this.m_order == null)
 			{
-				String key = (String) keyIt.next();
+				this.m_order = new TreeSet<String>();
+			}
+			for(String key : ((BasicCitationCollection) other).m_order )
+			{
 				try
 				{
 					Citation citation = other.getCitation(key);
@@ -2173,17 +2174,18 @@ public abstract class BaseCitationService implements CitationService
 			this.m_ascending = other.m_ascending;
 			this.m_description = other.m_description;
 			this.m_comparator = other.m_comparator;
-			this.m_pageSize = other.m_serialNumber;
+			this.m_serialNumber = other.m_serialNumber;
+			this.m_pageSize = other.m_pageSize;
 			this.m_temporary = other.m_temporary;
 			this.m_title = other.m_title;
 			if(this.m_citations == null)
 			{
-				this.m_citations = new Hashtable();
+				this.m_citations = new Hashtable<String, Citation>();
 			}
 			this.m_citations.clear();
 			if(this.m_order == null)
 			{
-				this.m_order = new TreeSet(this.m_comparator);
+				this.m_order = new TreeSet<String>(this.m_comparator);
 			}
 			this.m_order.clear();
 			Iterator it = other.m_citations.keySet().iterator();
@@ -2192,14 +2194,21 @@ public abstract class BaseCitationService implements CitationService
 				String citationId = (String) it.next();
 				BasicCitation oldCitation = (BasicCitation) other.m_citations.get(citationId);
 				BasicCitation newCitation = new BasicCitation();
-				newCitation.copy(oldCitation);
-				this.add(newCitation);
-				saveCitation(newCitation);
+				try
+				{
+					newCitation.copy(oldCitation);
+					this.saveCitation(newCitation);
+					this.add(newCitation);
+				}
+				catch(Exception e)
+				{
+					M_log.warn("copy(" + oldCitation.getId() + ") ==> " + newCitation.getId(), e);
+				}
 			}
 			
 		}
 
-		public void exportRis(StringBuffer buffer, List<String> citationIds) throws IOException
+		public void exportRis(StringBuffer buffer, List<String>  citationIds) throws IOException
 		{
 			// output "header" info to buffer
 
@@ -2265,7 +2274,11 @@ public abstract class BaseCitationService implements CitationService
 			List citations = new Vector();
 			if (m_citations == null)
 			{
-				m_citations = new Hashtable();
+				m_citations = new Hashtable<String, Citation>();
+			}
+			if(m_order == null)
+			{
+				m_order = new TreeSet<String>();
 			}
 
 			Iterator keyIt = this.m_order.iterator();
