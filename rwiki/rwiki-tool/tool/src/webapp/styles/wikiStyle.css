@@ -1106,6 +1106,7 @@ h6 {
 .wiki-table th {
   border-top: 1px solid #5b5b5b;
   text-align: left;
+  padding: 4px 4px 4px 4px;
   color: inherit;
   font-weight: bold;
   /* background-color: #DDEEFF; */
