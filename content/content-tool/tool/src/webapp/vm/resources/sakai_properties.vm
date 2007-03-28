@@ -180,6 +180,9 @@
 				<input type="hidden" name="access_mode${DOT}$i" id="access_mode_hidden${DOT}$i" value="$INHERITED_ACCESS" />
 			#else
 				## Site is possible and either group or public is possible
+				<p class="instruction">
+					$tlang.getString("edit.who")
+				</p>
 				<p>
 					<input type="radio" name="access_mode" id="access_mode_inherited" value="inherited" #if(!$model.isPubview() && ("$!item.accessMode" == "$SITE_ACCESS" || "$!item.accessMode" == "$INHERITED_ACCESS")) checked="checked"#end style="border:none" onclick="javascript:document.getElementById('groupTable').style.display='none';" />
 					<label for="access_mode_site">$tlang.getString("access.site.choice")</label>
