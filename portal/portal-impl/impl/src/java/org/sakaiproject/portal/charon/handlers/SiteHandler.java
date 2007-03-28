@@ -271,7 +271,8 @@ public class SiteHandler extends WorksiteHandler
 		if (rcontext.uses(INCLUDE_LOGO))
 		{
 
-			String skin = SiteService.getSiteSkin(siteId);
+			String skin = getSiteSkin(siteId);
+			
 			if (skin == null)
 			{
 				skin = ServerConfigurationService.getString("skin.default");
@@ -286,6 +287,28 @@ public class SiteHandler extends WorksiteHandler
 			portal.includeLogin(rcontext, req, session);
 		}
 	}
+	
+	private String getSiteSkin(String siteId)
+	{
+		// First, try to get the skin the default way
+		String skin = SiteService.getSiteSkin(siteId);
+		// If this fails, try to get the real site id if the site is a user site
+		if (skin == null && SiteService.isUserSite(siteId))
+		{
+			try
+			{
+				String userEid = SiteService.getSiteUserId(siteId);
+				String userId = UserDirectoryService.getUserId(userEid);
+				String alternateSiteId = SiteService.getUserSiteId(userId);
+				skin = SiteService.getSiteSkin(alternateSiteId);
+			}
+			catch (UserNotDefinedException e)
+			{
+				// Ignore
+			}
+		}
+		return skin;
+	} 
 
 	public void includeTabs(PortalRenderContext rcontext, HttpServletRequest req,
 			Session session, String siteId, String prefix, boolean addLogout)
