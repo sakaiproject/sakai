@@ -79,7 +79,7 @@ public class CitationServlet extends VmServlet
 	/**
 	 * 
 	 */
-	public static final String SERVLET_TEMPLATE = "/vm/sakai_citation-servlet.vm";
+	public static final String SERVLET_TEMPLATE = "/vm/servlet.vm";
 	private String collectionTitle;
 	
 	/** Our log (commons). */

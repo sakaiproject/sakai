@@ -3,15 +3,9 @@
  *#
 #macro(showMultivalued $values)
 	#if(! $values.isEmpty())
-		<table>
-			#foreach($value in $values)
-				<tr>
-					<td>
-						$!value
-					</td>
-				</tr>
-			#end
-		</table>
+		#foreach($value in $values)
+			<p style="margin-top: 0; padding-top: 0; margin-bottom: 0.3em; padding-bottom: 0;">$!value</p>
+		#end
 	#end
 #end
 
@@ -32,19 +26,26 @@
 			<div class="indnt1">
 				#if( $success )
 					<script type="text/javascript">
-						window.opener.citationsHelperFrame.refreshCitationsHelper();
+					  if( opener && opener.citationsHelperFrame && opener.citationsHelperFrame.refreshCitationsHelper ) {
+						opener.citationsHelperFrame.refreshCitationsHelper();
+					  }
 					</script>
 					
 					<h3>$tlang.getFormattedMessage( "title.gscholar", $titleArgs )</h3>
 					
-					#parse( "vm/sakai_citation-_citation.vm" )
+					#parse( "vm/_citation.vm" )
 					
+					<p class="act">
+						<button type="button" onclick="history.back();">$tlang.getString( "back.gscholar" )</button>
+						<button type="button" onclick="window.close();">$tlang.getString( "close.gscholar" )</button>
+					</p>
 				#else
 					<h3>$tlang.getString( "error.gscholar" )</h3>
+					<p class="instruction">$tlang.getString( "error.sub.gscholar" )</p>
+					<p class="act">
+						<button type="button" onclick="window.close();">$tlang.getString( "close.gscholar" )</button>
+					</p>
 				#end
-				<p class="act">
-					<button type="button" onclick="history.back();">$tlang.getString( "back.gscholar" )</button>
-				</p>
 			</div>
 		</div>
 	</body>
