@@ -127,7 +127,7 @@
 			</div>
 			<div id="url_div" class="shorttext">
 				<label>
-					$tlang.getString("title.link")
+					<strong>$tlang.getString("title.link")</strong>
 				</label>
 				<table id="nextTable">
 					#set($count = 0)
