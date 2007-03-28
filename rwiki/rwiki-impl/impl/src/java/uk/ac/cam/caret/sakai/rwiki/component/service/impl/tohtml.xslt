@@ -75,7 +75,9 @@
     						<a id="sidebar_switch_off" href="#" onclick="hideSidebar('pubview')" >(-)</a>
     					</div>
                         <div id="rwiki_content" class="withsidebar">
+<!--
                             <h3><xsl:value-of select="/entity-service/entity/properties/property[@name='_title']" /></h3>
+-->                    
                             <div class="rwikiRenderBody">
                                 <div class="rwiki_RenderedContent">
 				  <xsl:copy-of select="/entity-service/entity/rendered-content/content/rendered/node()"/>
@@ -90,7 +92,9 @@
                       </xsl:when>
                       <xsl:otherwise>
                         <div id="rwiki_content" class="nosidebar">
+<!--
                             <h3><xsl:value-of select="/entity-service/entity/properties/property[@name='_title']" /></h3>
+-->                         
                             <div class="rwikiRenderBody">
                                 <div class="rwiki_RenderedContent">
 				  <xsl:copy-of select="/entity-service/entity/rendered-content/content/rendered/node()"/>
