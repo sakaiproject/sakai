@@ -250,9 +250,18 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			state.setAttribute(STATE_DEFAULT_RETRACT_TIME, defaultRetractDate);
 		}
 
-		ListItem parent = new ListItem(pipe.getContentEntity());
-		ListItem model = new ListItem(pipe, parent, defaultRetractDate);
+		Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+		if(preventPublicDisplay == null)
+		{
+			preventPublicDisplay = Boolean.FALSE;
+			state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+		}
 		
+		ListItem parent = new ListItem(pipe.getContentEntity());
+		parent.setPubviewPossible(! preventPublicDisplay);
+		ListItem model = new ListItem(pipe, parent, defaultRetractDate);
+		model.setPubviewPossible(! preventPublicDisplay);
+				
 		context.put("model", model);
 		
 		context.put("pipes", pipes);
@@ -293,8 +302,17 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			state.setAttribute(STATE_DEFAULT_RETRACT_TIME, defaultRetractDate);
 		}
 
+		Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+		if(preventPublicDisplay == null)
+		{
+			preventPublicDisplay = Boolean.FALSE;
+			state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+		}
+		
 		ListItem parent = new ListItem(pipe.getContentEntity());
+		parent.setPubviewPossible(! preventPublicDisplay);
 		ListItem model = new ListItem(pipe, parent, defaultRetractDate);
+		model.setPubviewPossible(! preventPublicDisplay);
 		
 		context.put("model", model);
 		
@@ -325,7 +343,15 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 		
+		Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+		if(preventPublicDisplay == null)
+		{
+			preventPublicDisplay = Boolean.FALSE;
+			state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+		}
+		
 		ListItem item = new ListItem(pipe.getContentEntity());
+		item.setPubviewPossible(! preventPublicDisplay);
 		
 		context.put("item", item);
 		
@@ -391,9 +417,18 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			state.setAttribute(STATE_DEFAULT_RETRACT_TIME, defaultRetractDate);
 		}
 
-		ListItem parent = new ListItem(pipe.getContentEntity());
-		ListItem model = new ListItem(pipe, parent, defaultRetractDate);
+		Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+		if(preventPublicDisplay == null)
+		{
+			preventPublicDisplay = Boolean.FALSE;
+			state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+		}
 		
+		ListItem parent = new ListItem(pipe.getContentEntity());
+		parent.setPubviewPossible(! preventPublicDisplay);
+		ListItem model = new ListItem(pipe, parent, defaultRetractDate);
+		model.setPubviewPossible(! preventPublicDisplay);
+				
 		context.put("model", model);
 		
 		context.put("pipes", pipes);

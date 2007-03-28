@@ -4199,6 +4199,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				preventPublicDisplay = Boolean.FALSE;
 				state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
 			}
+			
 
 			ContentEntity collection = pipe.getContentEntity();
 
@@ -4207,6 +4208,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			ListItem parent = new ListItem(pipe.getContentEntity());
 
 			ListItem item = new ListItem(pipe, parent, defaultRetractDate);
+			
+			item.setPubviewPossible(! preventPublicDisplay);
+			
 			context.put("item", item);
 			
 			state.setAttribute(STATE_CREATE_WIZARD_ITEM, item);
@@ -5031,6 +5035,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			item.setRetractDate(defaultRetractDate);
 		}
+		item.setPubviewPossible(! preventPublicDisplay);
 		
 		context.put("item", item);
 		state.setAttribute(STATE_REVISE_PROPERTIES_ITEM, item);

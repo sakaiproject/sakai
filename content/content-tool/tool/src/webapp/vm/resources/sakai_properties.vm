@@ -167,12 +167,12 @@
 				##Grouped access is inherited; parent folder limited to two or more groups (present choice among groups; table shows only groups inherited from parent)
 				<p class="instruction">$tlang.getFormattedMessage("access.groups${$item.inheritedGroups.size()}",$item.groupNameArray)</p>
 				<p>
-					<input type="radio" name="access_mode" id="access_mode_public" value="public"   style="border:none" onclick="javascript:document.getElementById('groupTable').style.display='block';" />
-					<label for="access_mode_public">$tlang.getString("access.inherit")</label>
+					<input type="radio" name="access_mode${DOT}$i" id="access_mode_public${DOT}$i" value="public"   style="border:none" onclick="javascript:document.getElementById('groupTable').style.display='block';" />
+					<label for="access_mode_public${DOT}$i">$tlang.getString("access.inherit")</label>
 				</p>
 				<p>
-					<input type="radio" name="access_mode" id="access_mode_groups" value="groups"   style="border:none" onclick="javascript:document.getElementById('groupTable1').style.display='block';" />
-					<label for="access_mode_public">$tlang.getString("access.groups.choice")</label>
+					<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="groups"   style="border:none" onclick="javascript:document.getElementById('groupTable1').style.display='block';" />
+					<label for="access_mode_public${DOT}$i">$tlang.getString("access.groups.choice")</label>
 				</p>
 			#elseif($item.isPubviewInherited())
 				// Public access inherited from parent (report that to user)
