@@ -44,8 +44,8 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.Web;
 
 /**
  * <p>
@@ -406,20 +406,20 @@ public class ErrorReporter
 
 			out.println("<form action=\"" + postAddr + "\" method=\"POST\">");
 			out.println("<input type=\"hidden\" name=\"problem\" value=\"");
-			out.println(problem);
+			out.println(FormattedText.escapeHtml(problem, false));
 			out.println("\">");
 			out.println("<input type=\"hidden\" name=\"problemRequest\" value=\"");
-			out.println(Web.escapeHtml(requestDisplay));
+			out.println(FormattedText.escapeHtml(requestDisplay,false));
 			out.println("\">");
 			out.println("<input type=\"hidden\" name=\"problemPlacement\" value=\"");
-			out.println(Web.escapeHtml(placementDisplay));
+			out.println(FormattedText.escapeHtml(placementDisplay,false));
 			out.println("\">");
 			out.println("<input type=\"hidden\" name=\"problemdigest\" value=\""
-					+ problemdigest + "\">");
+					+ FormattedText.escapeHtml(problemdigest,false) + "\">");
 			out.println("<input type=\"hidden\" name=\"session\" value=\""
-					+ usageSessionId + "\">");
-			out.println("<input type=\"hidden\" name=\"user\" value=\"" + userId + "\">");
-			out.println("<input type=\"hidden\" name=\"time\" value=\"" + time + "\">");
+					+ FormattedText.escapeHtml(usageSessionId,false) + "\">");
+			out.println("<input type=\"hidden\" name=\"user\" value=\"" + FormattedText.escapeHtml(userId,false) + "\">");
+			out.println("<input type=\"hidden\" name=\"time\" value=\"" + FormattedText.escapeHtml(time,false) + "\">");
 
 			out
 					.println("<table class=\"itemSummary\" cellspacing=\"5\" cellpadding=\"5\">");
@@ -448,12 +448,12 @@ public class ErrorReporter
 			out.println("<h4>" + rb.getString("bugreport.detailstitle") + "</h4>");
 			out.println("<p>" + rb.getString("bugreport.detailsnote") + "</p>");
 			out.println("<p><pre>");
-			out.println(problem);
+			out.println(FormattedText.escapeHtml(problem,false));
 			out.println();
-			out.println(rb.getString("bugreport.user") + ": " + userId + "\n");
-			out.println(rb.getString("bugreport.usagesession") + ": " + usageSessionId
+			out.println(rb.getString("bugreport.user") + ": " + FormattedText.escapeHtml(userId,false) + "\n");
+			out.println(rb.getString("bugreport.usagesession") + ": " + FormattedText.escapeHtml(usageSessionId,false)
 					+ "\n");
-			out.println(rb.getString("bugreport.time") + ": " + time + "\n");
+			out.println(rb.getString("bugreport.time") + ": " + FormattedText.escapeHtml(time,false) + "\n");
 			out.println("</pre></p>");
 
 			out.println("</body>");
