@@ -539,6 +539,11 @@ public class PortalSiteHelper
 		// No way to render an opinion
 		if (placement == null || site == null) return true;
 
+                // The site owner sees all pages !
+                if ( SecurityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference())) {
+                        return true;
+                }
+
 		boolean retval = true;
 
 		String TOOL_CFG_FUNCTIONS = "functions.require";
@@ -558,4 +563,42 @@ public class PortalSiteHelper
 		return retval;
 	}
 
+	/*
+	 * Retrieve the list of pages in this site, checking to see if the user
+	 * has permission to see the page - by checking the permissions of tools
+	 * on the page.
+	 */
+
+	// TODO: Move this into Site
+	public List getPermittedPagesInOrder(Site site)
+	{
+		// Get all of the pages
+                List pages = site.getOrderedPages();
+
+		// The site owner sees all pages !
+  		if ( SecurityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference())) {
+			return pages;
+		}
+
+		List newPages = new ArrayList();
+
+                for (Iterator i = pages.iterator(); i.hasNext();)
+                {
+                        // check if current user has permission to see page
+                        SitePage p = (SitePage) i.next();
+                        List pTools = p.getTools();
+                        Iterator iPt = pTools.iterator();
+
+			boolean allowPage = false;
+                        while (iPt.hasNext())
+                        {
+                                ToolConfiguration placement = (ToolConfiguration) iPt.next();
+
+                                boolean thisTool = allowTool(site, placement);
+                                if (thisTool) allowPage = true;
+                        }
+			if ( allowPage ) newPages.add(p);
+		}
+		return newPages;
+	}
 }

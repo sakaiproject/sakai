@@ -167,7 +167,8 @@ public class SiteHandler extends WorksiteHandler
 		SitePage page = site.getPage(pageId);
 		if (page == null)
 		{
-			List pages = site.getOrderedPages();
+			// List pages = site.getOrderedPages();
+			List pages = siteHelper.getPermittedPagesInOrder(site);
 			if (!pages.isEmpty())
 			{
 				page = (SitePage) pages.get(0);

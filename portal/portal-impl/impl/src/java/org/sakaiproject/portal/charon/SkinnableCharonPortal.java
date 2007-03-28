@@ -1383,9 +1383,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		// order the pages based on their tools and the tool order for the
 		// site type
-		List pages = site.getOrderedPages();
+		// List pages = site.getOrderedPages();
+		List pages = siteHelper.getPermittedPagesInOrder(site);
 
 		List<Map> l = new ArrayList<Map>();
+
 		for (Iterator i = pages.iterator(); i.hasNext();)
 		{
 
@@ -1393,33 +1395,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// check if current user has permission to see page
 			// we will draw page button if it have permission to see at least
 			List pTools = p.getTools();
-			Iterator iPt = pTools.iterator();
 			String toolsOnPage = null;
-
-			boolean allowPage = false;
-			while (iPt.hasNext())
-			{
-				ToolConfiguration placement = (ToolConfiguration) iPt.next();
-
-				boolean thisTool = siteHelper.allowTool(site, placement);
-				// System.out.println(" Allow Tool -" + placement.getTitle() + "
-				// retval = " + thisTool + " page=" + allowPage);
-				if (thisTool)
-				{
-					allowPage = true;
-					if (toolsOnPage == null)
-					{
-						toolsOnPage = placement.getToolId();
-					}
-					else
-					{
-						toolsOnPage = toolsOnPage + ":" + placement.getToolId();
-					}
-				}
-			}
-
-			// Do not include pages we are not supposed to see
-			if (!allowPage) continue;
 
 			boolean current = (page != null && p.getId().equals(page.getId()) && !p
 					.isPopUp());
@@ -1444,7 +1420,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			}
 
 			// Loop through the tools again and Unroll the tools
-			iPt = pTools.iterator();
+			Iterator iPt = pTools.iterator();
 
 			while (iPt.hasNext())
 			{
