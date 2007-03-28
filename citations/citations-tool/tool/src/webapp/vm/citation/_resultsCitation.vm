@@ -13,10 +13,10 @@
       </div>
     </td>
     <td class="attach">
-      <img onclick="toggleDetails( '$citation.id', '$tlang.getString("alt.show.result")', '$tlang.getString("alt.hide.result")' );"
+      <img onclick="toggleDetails( '$citation.id', '$tlang.getString("link.show.results")', '$tlang.getString("link.hide.results")' );"
         id="toggle_$citation.id" class="toggleIcon"
         style="cursor: pointer;" src="/library/image/sakai/expand.gif?panel=Main"
-        alt="$tlang.getString("alt.show.result")" align="top"
+        alt="$tlang.getString("link.show.results")" align="top"
         border="0" height="13" width="13"
       />
     </td>

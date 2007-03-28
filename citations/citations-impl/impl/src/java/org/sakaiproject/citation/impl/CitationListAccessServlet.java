@@ -265,8 +265,8 @@ public class CitationListAccessServlet implements HttpAccess
     		out.println("\t</th></tr>");
     		out.println("\t<tr class=\"exclude\"><td colspan=\"2\">");
     		out.println("\t\t<div class=\"itemAction\">");
-    		out.println("\t\t\t<a href=\"#\" onclick=\"showAllDetails( '" + rb.getString("link.hide.results") + "' ); return false;\">" + rb.getString("link.show.results") + "</a> |" );
-    		out.println("\t\t\t<a href=\"#\" onclick=\"hideAllDetails( '" + rb.getString("link.show.results") + "' ); return false;\">" + rb.getString("link.hide.results") + "</a>" );
+    		out.println("\t\t\t<a href=\"#\" onclick=\"showAllDetails( '" + rb.getString("link.hide.results") + "' ); return false;\">" + rb.getString("link.show.readonly") + "</a> |" );
+    		out.println("\t\t\t<a href=\"#\" onclick=\"hideAllDetails( '" + rb.getString("link.show.readonly") + "' ); return false;\">" + rb.getString("link.hide.results") + "</a>" );
     		out.println("\t\t</div>\n\t</td></tr>");
 
     		List<Citation> citations = collection.getCitations();
@@ -277,10 +277,10 @@ public class CitationListAccessServlet implements HttpAccess
     			// toggle image
     			out.println("\t\t<tr>");
     			out.println("\t\t\t<td class=\"attach\">");
-    			out.println("\t\t\t\t<img onclick=\"toggleDetails( '" + escapedId + "', '" + rb.getString("alt.show.result") + "', '" + rb.getString("alt.hide.result") + "' );\"" );
+    			out.println("\t\t\t\t<img onclick=\"toggleDetails( '" + escapedId + "', '" + rb.getString("link.show.readonly") + "', '" + rb.getString("link.hide.results") + "' );\"" );
     			out.println("\t\t\t\tid=\"toggle_" + escapedId + "\" class=\"toggleIcon\"" );
     			out.println("\t\t\t\tstyle=\"cursor: pointer;\" src=\"/library/image/sakai/expand.gif?panel=Main\"");
-    			out.println("\t\t\t\talt=\"" + rb.getString("alt.show.result") + "\" align=\"top\"" );
+    			out.println("\t\t\t\talt=\"" + rb.getString("link.show.readonly") + "\" align=\"top\"" );
     			out.println("\t\t\t\tborder=\"0\" height=\"13\" width=\"13\" />" );
     			out.println("\t\t\t</td>");
     			
