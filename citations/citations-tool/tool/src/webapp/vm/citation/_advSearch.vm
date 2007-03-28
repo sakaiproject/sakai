@@ -1,6 +1,6 @@
 <div id="advancedSearchForm" #if($basicSearch)style="display: none;"#end>
   <p class="instruction">$tlang.getString("instr.search.adv")</p>
-  <table class="shorttext">
+  <table class="shorttext" id="advancedForm">
     <tr>
       <td>
         <select name="advField1" id="advField1">
@@ -17,9 +17,15 @@
         />
       </td>
       <td>
-        <input type="button" class="active" name="advSearch"
-          value="$tlang.getString("submit.search")"
-          onclick="javascript: submitSearchForm( '$basicSearchType', '$advancedSearchType', '$FORM_NAME' );"
+        <span class="advSearch">
+          <input type="button" class="active" name="advFormSearchButton" id="advFormSearchButton"
+            value="$tlang.getString("submit.search")"
+            onclick="javascript: submitSearchForm( '$basicSearchType', '$advancedSearchType', '$FORM_NAME' );"
+          />
+        </span>
+        <input type="button" class="advCancel" name="advFormCancelButton" id="advFormCancelButton"
+          value="$tlang.getString("cancel.search")" style="display: none;"
+          onclick="javascript: cancelSearchForm( '$FORM_NAME', '#toolForm("CitationHelperAction")' );"
         />
         <span class="advancedSearchLoad_replace">
           <span class="itemAction">

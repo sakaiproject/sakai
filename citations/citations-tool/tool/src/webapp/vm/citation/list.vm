@@ -29,13 +29,15 @@
 <div class="portletBody">
 	<div class="indnt1">
 		<h3>$tlang.getString( "title.review" )</h3>
-		#if( $alertMessage )
-			#parse( "vm/citation/_alert.vm" )
-		#end
 		#if($show_citations)
+			#parse( "vm/citation/_details.vm" )
 			<p class="instruction">$tlang.getFormattedMessage( "instr.main.review", $instrMainArgs )</p>
 		#else
+			#parse( "vm/citation/_details.vm" )
 			<p class="instruction">$tlang.getFormattedMessage( "empty.list", $emptyListArgs )</p>
+		#end
+		#if( $alertMessage )
+			#parse( "vm/citation/_alert.vm" )
 		#end
 		
 		#if( $resourcesAddAction )
@@ -47,6 +49,8 @@
 			<input name="citationId" id="citationId" value="" type="hidden" />
 			<input name="collectionId" id="collectionId" value="$collectionId" type="hidden" />
 			<input name="$!{specialHelperFlag}" id="$!{specialHelperFlag}" value="$!{citationToolId}" type="hidden" />
+			<input name="pageSelector" id="pageSelector" value="" type="hidden" />
+			
 			<div class="act">
 				#if( $resourcesAddAction )
 				<input class="active" type="button" name="Finish" id="Finish"

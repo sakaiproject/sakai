@@ -11,6 +11,8 @@
     <h3 id="advancedSearchHeader" #if( $basicSearch ) style="display: none;" #end>$tlang.getString("title.adv.search")</h3>
     <h3 id="basicSearchHeader" #if( !$basicSearch ) style="display: none;" #end>$tlang.getString("title.basic.search")</h3>
 
+	#parse( "vm/citation/_details.vm" )
+		
     <p class="instruction">$tlang.getFormattedMessage("instr.results.main", $instrMainArgs)</p>
     <p class="instruction">$tlang.getFormattedMessage("instr.results.sub", $instrSubArgs)</p>
 
@@ -18,6 +20,8 @@
       action="#toolForm("CitationHelperAction")">
       <input name="sakai_action" id="sakai_action" value="doBeginSearch" type="hidden" />
       <input name="searchType" id="searchType" value="$searchType" type="hidden" />
+      <input name="pageSelector" id="pageSelector" value="" type="hidden" />
+      <input name="cancelOp" id="cancelOp" value="" type="hidden" />
        
       #foreach( $databaseId in $selectedDatabases )
         <input type="checkbox" name="databasesSelected" checked="checked"
@@ -86,7 +90,7 @@
   // catch the "enter" key
   $( '.basicField, .advField' ).keydown( function( e ) {
     if (e.keyCode == 13) {
-      submitSearchForm();
+      submitSearchForm( '$basicSearchType', '$advancedSearchType', '$FORM_NAME' );
       return false;
     }
   });

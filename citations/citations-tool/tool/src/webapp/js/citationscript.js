@@ -236,12 +236,15 @@ function toggleCitation( baseUrl, citationButton, collectionId, spinnerId, addLa
     $( "input" ).attr( "disabled", "disabled" );
 
     if( addLabel == citationButton.value )
-    { 
+    {
       // do AJAX load
       $( "#messageDiv" ).load( baseUrl + "&sakai_action=doMessageFrame&collectionId=" + collectionId + "&citationId=" + citationButton.id + "&operation=add",
         function() {
           // update the button's id using the value from the AJAX response
           document.getElementById( citationButton.id ).id = document.getElementById( "addedCitationId" ).value;
+          
+          // update the citation list count using the value from the AJAX response
+          $( "#citationCountDisplay" ).html( document.getElementById( "citationCount" ).value );
           
           // hide the spinner
           $( "#" + spinnerId ).hide();
@@ -262,6 +265,9 @@ function toggleCitation( baseUrl, citationButton, collectionId, spinnerId, addLa
       // do AJAX load
       $( "#messageDiv" ).load( baseUrl + "&sakai_action=doMessageFrame&collectionId=" + collectionId + "&citationId=" + citationButton.id + "&operation=remove",
         function() {
+          // update the citation list count using the value from the AJAX response
+          $( "#citationCountDisplay" ).html( document.getElementById( "citationCount" ).value );
+
           // hide the spinner
           $( "#" + spinnerId ).hide();
           $( "#" + citationButton.id ).show();
@@ -344,26 +350,49 @@ function toggleDbDescription( database_id, altShow, altHide ) {
 /*
  * Submits search form if everything checks out
  */
-function submitSearchForm() {
+function submitSearchForm( basicType, advancedType, formname ) {
   if( legalSearch( document.getElementById( "searchType" ).value ) ) {
-    checkSpinner( 'basic', 'advanced' );
-    submitform( 'searchForm' );
+    checkSearchSpinner( basicType, advancedType );
+    submitform( formname );
     return true;
   } else {
     return false;
   }
 }
 
-function checkSpinner( basicType, advancedType ) {
+/*
+ * Cancels a search (browser-only)
+ */
+function cancelSearchForm( formname, baseUrl ) {
+  var sakai_action;
+  
+  if( formname == "searchForm" ) {
+    sakai_action = "doSearch";
+  } else if( formname == "resultsForm" ) {
+    sakai_action = "doBeginSearch";
+  }
+  
+  location.assign( baseUrl + "&sakai_action=" + sakai_action + "&cancelOp=cancel" );
+}
+
+function checkSearchSpinner( basicType, advancedType ) {
   // get the searchType value from the form
   var searchType = $( "#searchType" ).val();
   
   if( searchType == basicType ) {
     // show basic spinner
     showSpinner( '.basicSearchLoad' );
+    
+    // show basic cancel button
+    $( ".basicSearch" ).hide();
+    $( ".basicCancel" ).show();
   } else if( searchType == advancedType ) {
     // show advanced spinner
     showSpinner( '.advancedSearchLoad' );
+    
+    // show advanced cancel button
+    $( ".advSearch" ).hide();
+    $( ".advCancel" ).show();
   }
 }
 
@@ -372,8 +401,10 @@ function showSpinner( spinnerSelector ) {
   $( spinnerSelector + "_replace" ).hide();
   $( spinnerSelector ).show();
   
-  // disable buttons
-  $( "input[@type=button]:visible" ).attr( "disabled", "disabled" );
+  // disable buttons in results table only
+  if( $( "input[@type=button]:visible", "#resultsTable" ) ) {
+    $( "input[@type=button]:visible", "#resultsTable" ).attr( "disabled", "disabled" );
+  }
 }
 
 /*
@@ -492,5 +523,12 @@ function removeSelectedCitations( baseUrl ) {
 
 function removeAllCitations( formname ) {
   document.getElementById('sakai_action').value='doRemoveAllCitations';
+  submitform( formname );
+}
+
+function changePageSize( action, location, formname ) {
+  showSpinner( '.pageLoad' );
+  document.getElementById( 'sakai_action' ).value = action;
+  document.getElementById( 'pageSelector' ).value = location;
   submitform( formname );
 }

@@ -3,8 +3,8 @@
     <tr>
       <th colspan="2">
         <div class="viewNav" style="padding: 0pt;"><strong>$tlang.getString("title.list")</strong>
-          #if($show_citations) <span class="listPageLoad_replace">$showing</span> #end
-          <span class="listPageLoad" style="display: none; vertical-align: bottom; padding: 0.5em; border: 1px solid #000; background: #fff;">
+          #if($show_citations) <span class="pageLoad_replace">$showing</span> #end
+          <span class="pageLoad" style="display: none; vertical-align: bottom; padding: 0.5em; border: 1px solid #000; background: #fff;">
             <img src="/library/image/sakai/spinner.gif" alt="$tlang.getString( "wait.list" )" />
             $tlang.getString( "wait.list" )
           </span>
@@ -13,15 +13,15 @@
           <input type="button" name="firstPage" id="firstPage"
             value="&lt;&lt;" alt="$tlang.getString("first.results")"
             #if(! $citations.hasPreviousPage())disabled="disabled" #end
-            onclick="javascript: showSpinner( '.listPageLoad' ); document.getElementById('sakai_action').value='doFirstListPage'; submitform('$FORM_NAME');"
+            onclick="javascript: showSpinner( '.pageLoad' ); document.getElementById('sakai_action').value='doFirstListPage'; submitform('$FORM_NAME');"
           />
           <input type="button" name="prevPage" id="prevPage"
             value="&lt;" alt="$tlang.getString("prev.results")"
             #if(! $citations.hasPreviousPage())disabled="disabled" #end
-            onclick="javascript: showSpinner( '.listPageLoad' ); document.getElementById('sakai_action').value='doPrevListPage'; submitform('$FORM_NAME');"
+            onclick="javascript: showSpinner( '.pageLoad' ); document.getElementById('sakai_action').value='doPrevListPage'; submitform('$FORM_NAME');"
           />
-          <select name="pageSize" id="pageSize"
-            onchange="javascript: showSpinner( '.listPageLoad' ); document.getElementById('sakai_action').value='doChangeListPageSize'; submitform('$FORM_NAME');"
+          <select name="pageSizeTop" id="pageSizeTop"
+            onchange="javascript: changePageSize( 'doChangeListPageSize', 'top', '$FORM_NAME' );">
             #if(!$show_citations)disabled="disabled"#end>
             <option value="10" #if("$!{listPageSize}" == "10") selected="selected"#end>$tlang.getString("show10.results")</option>
             <option value="20" #if("$!{listPageSize}" == "20") selected="selected"#end>$tlang.getString("show20.results")</option>
@@ -32,12 +32,12 @@
           <input type="button" name="nextPage" id="nextPage" value="&gt;"
             alt="$tlang.getString("next.results")"
             #if(! $citations.hasNextPage()) disabled="disabled"#end
-            onclick="javascript: showSpinner( '.listPageLoad' ); document.getElementById('sakai_action').value='doNextListPage'; submitform('$FORM_NAME');"
+            onclick="javascript: showSpinner( '.pageLoad' ); document.getElementById('sakai_action').value='doNextListPage'; submitform('$FORM_NAME');"
           />
           <input type="button" name="lastPage" id="lastPage"
             value="&gt;&gt;" alt="$tlang.getString("last.results")"
             #if(! $citations.hasNextPage()) disabled="disabled"#end
-            onclick="javascript: showSpinner( '.listPageLoad' ); document.getElementById('sakai_action').value='doLastListPage'; submitform('$FORM_NAME');"
+            onclick="javascript: showSpinner( '.pageLoad' ); document.getElementById('sakai_action').value='doLastListPage'; submitform('$FORM_NAME');"
           />
         </div>
       </th>
@@ -108,8 +108,8 @@
 	<tr>
       <th colspan="2">
         <div class="viewNav" style="padding: 0pt;"><strong>$tlang.getString("title.list")</strong>
-          #if($show_citations) <span class="listPageLoad_replace">$showing</span> #end
-          <span class="listPageLoad" style="display: none; vertical-align: bottom; padding: 0.5em; border: 1px solid #000; background: #fff;">
+          #if($show_citations) <span class="pageLoad_replace">$showing</span> #end
+          <span class="pageLoad" style="display: none; vertical-align: bottom; padding: 0.5em; border: 1px solid #000; background: #fff;">
             <img src="/library/image/sakai/spinner.gif" alt="$tlang.getString( "wait.list" )" />
             $tlang.getString( "wait.list" )
           </span>
@@ -118,15 +118,15 @@
           <input type="button" name="firstPage" id="firstPage"
             value="&lt;&lt;" alt="$tlang.getString("first.results")"
             #if(! $citations.hasPreviousPage())disabled="disabled" #end
-            onclick="javascript: showSpinner( '.listPageLoad' ); document.getElementById('sakai_action').value='doFirstListPage'; submitform('$FORM_NAME');"
+            onclick="javascript: showSpinner( '.pageLoad' ); document.getElementById('sakai_action').value='doFirstListPage'; submitform('$FORM_NAME');"
           />
           <input type="button" name="prevPage" id="prevPage"
             value="&lt;" alt="$tlang.getString("prev.results")"
             #if(! $citations.hasPreviousPage())disabled="disabled" #end
-            onclick="javascript: showSpinner( '.listPageLoad' ); document.getElementById('sakai_action').value='doPrevListPage'; submitform('$FORM_NAME');"
+            onclick="javascript: showSpinner( '.pageLoad' ); document.getElementById('sakai_action').value='doPrevListPage'; submitform('$FORM_NAME');"
           />
-          <select name="pageSize" id="pageSize"
-            onchange="javascript: showSpinner( '.listPageLoad' ); document.getElementById('sakai_action').value='doChangeListPageSize'; submitform('$FORM_NAME');"
+          <select name="pageSizeBottom" id="pageSizeBottom"
+            onchange="javascript: changePageSize( 'doChangeListPageSize', 'bottom', '$FORM_NAME' );">
             #if(!$show_citations)disabled="disabled"#end>
             <option value="10" #if("$!{listPageSize}" == "10") selected="selected"#end>$tlang.getString("show10.results")</option>
             <option value="20" #if("$!{listPageSize}" == "20") selected="selected"#end>$tlang.getString("show20.results")</option>
@@ -137,12 +137,12 @@
           <input type="button" name="nextPage" id="nextPage" value="&gt;"
             alt="$tlang.getString("next.results")"
             #if(! $citations.hasNextPage()) disabled="disabled"#end
-            onclick="javascript: showSpinner( '.listPageLoad' ); document.getElementById('sakai_action').value='doNextListPage'; submitform('$FORM_NAME');"
+            onclick="javascript: showSpinner( '.pageLoad' ); document.getElementById('sakai_action').value='doNextListPage'; submitform('$FORM_NAME');"
           />
           <input type="button" name="lastPage" id="lastPage"
             value="&gt;&gt;" alt="$tlang.getString("last.results")"
             #if(! $citations.hasNextPage()) disabled="disabled"#end
-            onclick="javascript: showSpinner( '.listPageLoad' ); document.getElementById('sakai_action').value='doLastListPage'; submitform('$FORM_NAME');"
+            onclick="javascript: showSpinner( '.pageLoad' ); document.getElementById('sakai_action').value='doLastListPage'; submitform('$FORM_NAME');"
           />
         </div>
       </th>

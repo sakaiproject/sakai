@@ -10,11 +10,14 @@
 
   <h3 id="advancedSearchHeader" style="display: none;">$tlang.getString("title.adv.search")</h3>
   <h3 id="basicSearchHeader">$tlang.getString("title.basic.search")</h3>
-
+  
+	#parse( "vm/citation/_details.vm" )
+  
   <form name="$FORM_NAME" id="$FORM_NAME" method="post"
     action="#toolForm("CitationHelperAction")">
     <input name="sakai_action" id="sakai_action" value="doBeginSearch" type="hidden" />
     <input name="searchType" id="searchType" value="$basicSearchType" type="hidden" />
+    <input name="cancelOp" id="cancelOp" value="" type="hidden" />
     
     <p class="instruction">$tlang.getString("instr.search.main")</p>
     <p class="instruction">$tlang.getString("instr.search.sub")</p>
@@ -70,13 +73,25 @@
     <div id="databaseArea"></div>
 
     <p class="act">
-      <input type="button" class="active" name="basicSearch" id="basicSearchButton"
-        value="$tlang.getString("submit.search")"
-        onclick="javascript: submitSearchForm( '$basicSearchType', '$advancedSearchType', '$FORM_NAME' );"
+      <span class="basicSearch">
+        <input type="button" class="active" name="basicSearchButton" id="basicSearchButton"
+          value="$tlang.getString("submit.search")"
+          onclick="javascript: submitSearchForm( '$basicSearchType', '$advancedSearchType', '$FORM_NAME' );"
+        />
+      </span>
+      <input type="button" class="basicCancel" name="basicCancelButton" id="basicCancelButton"
+        value="$tlang.getString("cancel.search")" style="display: none;"
+        onclick="javascript: cancelSearchForm( '$FORM_NAME', '#toolForm("CitationHelperAction")' );"
       />
-      <input style="display: none;" type="button" class="active" name="advSearch"
-        id="advancedSearchButton" value="$tlang.getString("submit.search")"
-        onclick="javascript: submitSearchForm( '$basicSearchType', '$advancedSearchType', '$FORM_NAME' );"
+      <span class="advSearch">
+        <input style="display: none;" type="button" class="active" name="advancedSearchButton"
+          id="advancedSearchButton" value="$tlang.getString("submit.search")"
+          onclick="javascript: submitSearchForm( '$basicSearchType', '$advancedSearchType', '$FORM_NAME' );"
+        />
+      </span>
+      <input type="button" class="advCancel" name="advCancelButton" id="advCancelButton"
+        value="$tlang.getString("cancel.search")" style="display: none;"
+        onclick="javascript: cancelSearchForm( '$FORM_NAME', '#toolForm("CitationHelperAction")' );"
       />
       <input type="button" name="AddCitations" id="AddCitations"
         value="$tlang.getString("label.back.search")"
@@ -117,7 +132,7 @@
   // catch the "enter" key
   $( '.basicField, .advField' ).keydown( function( e ) {
     if (e.keyCode == 13) {
-      submitSearchForm();
+      submitSearchForm( '$basicSearchType', '$advancedSearchType', '$FORM_NAME' );
       return false;
     }
   });

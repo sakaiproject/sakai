@@ -38,16 +38,7 @@ doubleDeep = true;
 		#end
 		<h3>$tlang.getString("title.add")</h3>
 
-		<table class="itemSummary">
-		<tr>
-			<th>
-				Citation List: <strong>$collectionTitle</strong>
-			</th>
-			<td>
-				Citation Count: <strong>$collectionSize</strong>
-			</td>
-		</tr>
-		</table>
+		#parse( "vm/citation/_details.vm" )
 
 		<p class="instruction">
 			#if( $resourcesAddAction )

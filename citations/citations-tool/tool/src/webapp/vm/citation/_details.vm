@@ -1,0 +1,10 @@
+<table class="itemSummary">
+	<tr>
+		<th>
+			Citation List: <strong>$collectionTitle</strong>
+		</th>
+		<td>
+			Citation Count: <strong id="citationCountDisplay">$collectionSize</strong>
+		</td>
+	</tr>
+</table>
