@@ -226,8 +226,14 @@ ${util.formatDateTime($date,$request)}
 #set ($recentlyVisitedBean = ${requestScope.RecentlyVisitedBean})
 #set ( $links = ${recentlyVisitedBean.breadcrumbLinks} )
 <p class="breadcrumb" >
-	#foreach ( $link in $links ) 	
-		${link}
+ #set ( $first = ( true ) )
+	#foreach ( $link in $links )
+	 #if ( $first )  	
+			${link} 
+			#set ($first = ( false ))
+		#else
+		  &gt; ${link}
+		#end
 	#end
 </p>
 #end
@@ -236,8 +242,14 @@ ${util.formatDateTime($date,$request)}
 #set ($recentlyVisitedBean = ${requestScope.RecentlyVisitedBean})
 #set ( $links = ${recentlyVisitedBean.publicBreadcrumbLinks} )
 <p class="breadcrumb" >
-	#foreach ( $link in $links ) 	
-		${link}
+ #set ( $first = ( true ) );
+	#foreach ( $link in $links )
+	 #if ( $first )  	
+			${link} 
+			#set ($first = ( false ))
+		#else
+		  &gt; ${link}
+		#end
 	#end
 </p>
 #end
