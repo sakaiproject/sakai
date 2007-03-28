@@ -55,6 +55,7 @@
 		<input type="hidden" name="pageName" value="${currentRWikiObject.name}" />
 		<input type="hidden" name="realm" value="${currentRWikiObject.realm }"/>
 		<br/>
+		<nobr>
 		<span class="act">
 			<jsp:element name="input">
 				<jsp:attribute name="type">submit</jsp:attribute> 
@@ -67,6 +68,7 @@
 				<jsp:attribute name="value"><c:out value="${rlb.jsp_button_cancel}" /></jsp:attribute>
 			</jsp:element>
 		</span>
+		</nobr>
 	    </form>
 	</div>
 </jsp:root>
