@@ -170,4 +170,10 @@ public interface ContentReviewService {
 	 */
 	public String getIconUrlforScore(Long score);
 	
+	/**
+	 *  Does the service support resubmissions?
+	 * @return
+	 */
+	public boolean allowResubmission();
+	
 }
