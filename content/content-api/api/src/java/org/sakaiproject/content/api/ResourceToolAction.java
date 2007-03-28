@@ -66,6 +66,13 @@ public interface ResourceToolAction
 		NEW_FOLDER,
 		
 		/**
+		 * Create URLs -- Handled by Resources tool.  Can create multiple URLs at once.  
+		 * 		No content; requires metadata only.  Requires content.new permission in parent 
+		 * 		folder.
+		 */
+		NEW_URLS,
+		
+		/**
 		 * Create other -- Handled by helper and Resources tool.  Can create one item at a time.  
 		 * 		Content (and possibly some properties) handled by helper. Metadata supplied in 
 		 * 		form that appears after helper finishes.  Requires content.new permission in 

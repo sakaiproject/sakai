@@ -812,6 +812,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	{
 		CONTENT_NEW_ACTIONS.add(ActionType.NEW_UPLOAD);
 		CONTENT_NEW_ACTIONS.add(ActionType.NEW_FOLDER);
+		CONTENT_NEW_ACTIONS.add(ActionType.NEW_URLS);
 		CONTENT_NEW_ACTIONS.add(ActionType.CREATE);
 		
 		PASTE_COPIED_ACTIONS.add(ActionType.PASTE_COPIED);
@@ -859,6 +860,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		
 		CREATION_ACTIONS.add(ActionType.NEW_UPLOAD);
 		CREATION_ACTIONS.add(ActionType.NEW_FOLDER);
+		CREATION_ACTIONS.add(ActionType.NEW_URLS);
 		CREATION_ACTIONS.add(ActionType.CREATE);
 		CREATION_ACTIONS.add(ActionType.PASTE_MOVED);
 		CREATION_ACTIONS.add(ActionType.PASTE_COPIED);
@@ -5849,6 +5851,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					break;
 				case NEW_FOLDER:
 					break;
+				case NEW_URLS:
+					break;
 				case CREATE:
 					break;
 				case REVISE_CONTENT:
@@ -7127,6 +7131,20 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
 			break;
+		case NEW_URLS:
+			List<ContentResource> urls = createUrls(state, pipe);
+			if(urls == null || urls.isEmpty())
+			{
+				// add an alert and return to the addUrl view?
+			}
+			else
+			{
+				// expand folder
+				SortedSet<String> expandedCollections = (SortedSet<String>) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+				expandedCollections.add(pipe.getContentEntity().getId());
+				toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
+			}
+			break;
 		case REVISE_CONTENT:
 			reviseContent(pipe);
 			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
@@ -8082,6 +8100,112 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 // 		String deliveryId = clientWindowId(state, peid);
 // 		observer.setDeliveryId(deliveryId);
 	}
+
+	public static List<ContentResource> createUrls(SessionState state, ResourceToolActionPipe pipe)
+    {
+		boolean item_added = false;
+		String collectionId = null;
+		List<ContentResource> new_resources = new Vector<ContentResource>();
+		MultiFileUploadPipe mfp = (MultiFileUploadPipe) pipe;
+		Iterator<ResourceToolActionPipe> pipeIt = mfp.getPipes().iterator();
+		while(pipeIt.hasNext())
+		{
+			ResourceToolActionPipe fp = pipeIt.next();
+			collectionId = pipe.getContentEntity().getId();
+			String name = fp.getFileName();
+			if(name == null || name.trim().equals(""))
+			{
+				continue;
+			}
+			String basename = name.trim();
+			String extension = "";
+			if(name.contains("."))
+			{
+				String[] parts = name.split("\\.");
+				basename = parts[0];
+				if(parts.length > 1)
+				{
+					extension = parts[parts.length - 1];
+				}
+				
+				for(int i = 1; i < parts.length - 1; i++)
+				{
+					basename += "." + parts[i];
+					// extension = parts[i + 1];
+				}
+			}
+			try
+			{
+				ContentResourceEdit resource = ContentHostingService.addResource(collectionId,Validator.escapeResourceName(basename),Validator.escapeResourceName(extension),MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+				
+				byte[] content = fp.getRevisedContent();
+				if(content == null)
+				{
+					InputStream stream = fp.getRevisedContentStream();
+					if(stream == null)
+					{
+						logger.warn("pipe with null content and null stream: " + pipe.getFileName());
+					}
+					else
+					{
+						resource.setContent(stream);
+					}
+				}
+				else
+				{
+					resource.setContent(content);
+				}
+
+				resource.setContentType(fp.getRevisedMimeType());
+				resource.setResourceType(pipe.getAction().getTypeId());
+				Object obj = fp.getRevisedListItem();
+				if(obj != null && obj instanceof ListItem)
+				{
+					((ListItem) obj).updateContentResourceEdit(resource);
+				}
+				ContentHostingService.commitResource(resource, NotificationService.NOTI_NONE);
+				item_added = true;
+				new_resources.add(resource);
+			}
+			catch (PermissionException e)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("PermissionException ", e);
+			}
+			catch (IdUnusedException e)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("IdUsedException ", e);
+			}
+			catch (IdInvalidException e)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("IdInvalidException ", e);
+			}
+			catch (IdUniquenessException e)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("IdUniquenessException ", e);
+			}
+			catch (IdLengthException e)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("IdLengthException ", e);
+			}
+			catch (OverQuotaException e)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("OverQuotaException ", e);
+			}
+			catch (ServerOverloadException e)
+			{
+				// TODO Auto-generated catch block
+				logger.warn("ServerOverloadException ", e);
+			}
+		}
+		
+		return (item_added ? new_resources : null);
+   }
 
 	
 }	// ResourcesAction

@@ -24,6 +24,7 @@ package org.sakaiproject.content.tool;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -84,13 +85,15 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	/** copyright path -- MUST have same value as AccessServlet.COPYRIGHT_PATH */
 	public static final String COPYRIGHT_PATH = Entity.SEPARATOR + "copyright";
 	private static final String COPYRIGHT_ALERT_URL = ServerConfigurationService.getAccessUrl() + COPYRIGHT_PATH;
+	
 	protected  static final String CREATE_FOLDERS_TEMPLATE = "resources/sakai_create_folders";
 	protected  static final String CREATE_HTML_TEMPLATE = "resources/sakai_create_html";
 	protected  static final String CREATE_TEXT_TEMPLATE = "resources/sakai_create_text";
 	protected  static final String CREATE_UPLOAD_TEMPLATE = "resources/sakai_create_upload";
 	protected  static final String CREATE_UPLOADS_TEMPLATE = "resources/sakai_create_uploads";
-	
 	protected  static final String CREATE_URL_TEMPLATE = "resources/sakai_create_url";
+	protected static final String CREATE_URLS_TEMPLATE = "resources/sakai_create_urls";
+	
 	public static final String MODE_MAIN = "main";
 	protected static final String PREFIX = "ResourceTypeHelper.";
 	
@@ -221,6 +224,9 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		case NEW_FOLDER:
 			template = buildNewFoldersContext(portlet, context, data, state);
 			break;
+		case NEW_URLS:
+			template = buildNewUrlsContext(portlet, context, data, state);
+			break;
 		default:
 			// hmmmm
 			break;
@@ -228,6 +234,40 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		
 		return template;
 	}
+
+	protected String buildNewUrlsContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
+    {
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+
+		MultiFileUploadPipe pipe = (MultiFileUploadPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+		
+		List<ResourceToolActionPipe> pipes = pipe.getPipes();
+		
+		Time defaultRetractDate = (Time) state.getAttribute(STATE_DEFAULT_RETRACT_TIME);
+		if(defaultRetractDate == null)
+		{
+			defaultRetractDate = TimeService.newTime();
+			state.setAttribute(STATE_DEFAULT_RETRACT_TIME, defaultRetractDate);
+		}
+
+		ListItem parent = new ListItem(pipe.getContentEntity());
+		ListItem model = new ListItem(pipe, parent, defaultRetractDate);
+		
+		context.put("model", model);
+		
+		context.put("pipes", pipes);
+		
+		if(ContentHostingService.isAvailabilityEnabled())
+		{
+			context.put("availability_is_enabled", Boolean.TRUE);
+		}
+		
+		
+		ResourcesAction.copyrightChoicesIntoContext(state, context);
+		ResourcesAction.publicDisplayChoicesIntoContext(state, context);
+		
+		return CREATE_URLS_TEMPLATE;
+    }
 
 
 
@@ -592,6 +632,81 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 
 	}
+	
+	public void doAddUrls(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		ParameterParser params = data.getParameters ();
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		
+
+		MultiFileUploadPipe mfp = (MultiFileUploadPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+		
+		int count = params.getInt("fileCount");
+		mfp.setFileCount(count);
+		
+		int lastIndex = params.getInt("lastIndex");
+		
+		List<ResourceToolActionPipe> pipes = mfp.getPipes();
+		
+		int actualCount = 0;
+		for(int i = 1; i <= lastIndex && actualCount < count; i++)
+		{
+			String exists = params.getString("exists." + i);
+			if(exists == null || exists.equals(""))
+			{
+				continue;
+			}
+			
+			ResourceToolActionPipe pipe = pipes.get(actualCount);
+			
+			String url = params.getString("content." + i );
+            if(url == null)
+            {
+            	continue;
+            }
+            else
+            {
+            	try
+                {
+	                url = ResourcesAction.validateURL(url);
+                }
+                catch (MalformedURLException e)
+                {
+                	addAlert(state, rb.getFormattedMessage("url.invalid", new String[]{url}));
+	                continue;
+                }
+            	
+                pipe.setRevisedContent(url.getBytes());
+            }
+            
+            pipe.setFileName(Validator.escapeResourceName(url));
+            pipe.setRevisedMimeType(ResourceType.MIME_TYPE_URL);
+            
+			ListItem newFile = new ListItem(pipe.getFileName());
+			
+			// capture properties
+			newFile.captureProperties(params, "." + i);
+			            
+			pipe.setRevisedListItem(newFile);
+    			
+			actualCount++;
+			
+		}
+		if(actualCount < 1)
+		{
+			addAlert(state, rb.getString("url.noinput"));
+			return;
+		}
+
+		mfp.setActionCanceled(false);
+		mfp.setErrorEncountered(false);
+		mfp.setActionCompleted(true);
+		
+		toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
+
+	}
+	
 	
 	public void doUpload(RunData data)
 	{

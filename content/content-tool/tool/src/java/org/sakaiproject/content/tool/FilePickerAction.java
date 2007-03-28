@@ -452,6 +452,16 @@ public class FilePickerAction extends PagedResourceHelperAction
 			}
 			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
 			break;
+		case NEW_URLS:
+			List<ContentCollection> urls = ResourcesAction.createUrls(state, pipe);
+			if(urls != null && ! urls.isEmpty())
+			{
+				// expand folder
+				SortedSet<String> expandedCollections = (SortedSet<String>) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+				expandedCollections.add(pipe.getContentEntity().getId());
+			}
+			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
+			break;
 		case REVISE_CONTENT:
 			ResourcesAction.reviseContent(pipe);
 			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
@@ -2302,6 +2312,8 @@ public class FilePickerAction extends PagedResourceHelperAction
 				case NEW_UPLOAD:
 					break;
 				case NEW_FOLDER:
+					break;
+				case NEW_URLS:
 					break;
 				case CREATE:
 					break;

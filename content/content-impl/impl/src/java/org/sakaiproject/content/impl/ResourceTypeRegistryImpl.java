@@ -186,6 +186,9 @@ public class ResourceTypeRegistryImpl implements ResourceTypeRegistry
 			case NEW_FOLDER:
 				pipe = new BasicMultiFileUploadPipe(initializationId, action);
 				break;
+			case NEW_URLS:
+				pipe = new BasicMultiFileUploadPipe(initializationId, action);
+				break;
 			default:
 				pipe = new BasicResourceToolActionPipe(initializationId, action);
 				break;	

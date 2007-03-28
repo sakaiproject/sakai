@@ -294,7 +294,7 @@ public class UrlResourceType extends BaseResourceType
 		 */
 		public ActionType getActionType()
 		{
-			return ResourceToolAction.ActionType.CREATE;
+			return ResourceToolAction.ActionType.NEW_URLS;
 		}
 
 		public String getId() 
@@ -304,7 +304,7 @@ public class UrlResourceType extends BaseResourceType
 
 		public String getLabel() 
 		{
-			return rb.getString("create.url"); 
+			return rb.getString("create.urls"); 
 		}
 
 		public String getTypeId() 
