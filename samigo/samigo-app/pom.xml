@@ -617,18 +617,6 @@
       <version>2.0</version>
       <scope>provided</scope>
     </dependency>
-
-
-<!-- this is here to prevent packing in the war -->
-     <dependency>
-                        <groupId>xerces</groupId>
-                        <artifactId>xerces</artifactId>
-                        <version>1.2.3</version>
-                        <scope>provided</scope>
-                </dependency>
-
-
-
   </dependencies>
   <build>
     
