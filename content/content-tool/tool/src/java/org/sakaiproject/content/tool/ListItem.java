@@ -1225,6 +1225,18 @@ public class ListItem
     {
     	return effectiveAccess;
     }
+    
+    /**
+     * @return
+     */
+    public Collection<Group> getEffectiveGroups()
+    {
+    	Collection<Group> groups = new Vector<Group>();
+    	
+    	
+    	
+    	return groups;
+    }
 	
 	/**
      * @return
@@ -1232,6 +1244,20 @@ public class ListItem
     public ContentEntity getEntity()
     {
 	    return this.entity;
+    }
+    
+    public String[] getGroupNameArray()
+    {
+    	String[] names = new String[this.inheritedGroups.size()];
+    	
+    	int index = 0;
+    	for(Group group : this.inheritedGroups)
+    	{
+    		names[index] = group.getTitle();
+    		index++;
+    	}
+    	
+    	return names;
     }
 	
 	/**
