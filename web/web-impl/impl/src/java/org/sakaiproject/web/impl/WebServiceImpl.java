@@ -289,6 +289,12 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 												pageTitle = new String(decoded, "UTF-8");
 											}
 										}
+										
+										// if either tool or page title is missing, use the same for both
+										if ((toolTitle != null && toolTitle.length() > 0) && (pageTitle == null || pageTitle.length() == 0))
+											pageTitle = toolTitle;
+										if ((pageTitle != null && pageTitle.length() > 0) && (toolTitle == null || toolTitle.length() == 0))
+											toolTitle = pageTitle;
 
 										String contentUrl = contentElement.getAttribute(WEB_CONTENT_URL);
 										trimBody = null;
@@ -324,6 +330,10 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 												page.setPopup(true);
 											else
 												page.setPopup(false);
+										}
+										else
+										{
+											M_log.warn("Web content item not imported because page_title and title missing or url missing: " + "title: " + toolTitle + " page_title: " + pageTitle + " url: " + contentUrl);
 										}
 									}
 								}
