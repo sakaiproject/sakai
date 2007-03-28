@@ -233,6 +233,7 @@ public class CitationListAccessServlet implements HttpAccess
     		ResourceProperties properties = resource.getProperties();
    
     		String title = properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+    		String description = properties.getProperty( ResourceProperties.PROP_DESCRIPTION );
     		
      		String citationCollectionId = new String( resource.getContent() );
     		CitationCollection collection = CitationService.getCollection(citationCollectionId);
@@ -254,6 +255,7 @@ public class CitationListAccessServlet implements HttpAccess
     		
     		out.println("<div class=\"portletBody\">\n\t<div class=\"indnt1\">");
     		out.println("\t<h3>" + rb.getString("list.title") + ": " + title + "</h3>");
+    		out.println("\t<p>" + description + "</p>");
     		out.println("\t<p class=\"instruction\">" + rb.getString("cite.subtitle") + "</p>");
     		out.println("\t<table class=\"listHier lines nolines\" summary=\"citations table\" cellpadding=\"0\" cellspacing=\"0\">");
     		out.println("\t<tbody>");
