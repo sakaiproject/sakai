@@ -1260,11 +1260,11 @@ public abstract class BaseCitationService implements CitationService
 			}
 			if ("book".equals(schemaId) || "report".equals(schemaId))
 			{
-				if (place != null)
+				if (place != null && !place.trim().equals(""))
 				{
 					source += place;
 				}
-				if (publisher != null)
+				if (publisher != null && !publisher.trim().equals(""))
 				{
 					if (source.length() > 0)
 					{
@@ -1284,10 +1284,10 @@ public abstract class BaseCitationService implements CitationService
 			else if ("article".equals(schemaId))
 			{
 
-				if (sourceTitle != null)
+				if (sourceTitle != null && !sourceTitle.trim().equals(""))
 				{
 					source += sourceTitle;
-					if (volume != null)
+					if (volume != null && !volume.trim().equals(""))
 					{
 						source += ", " + volume;
 						if (issue != null && !issue.trim().equals(""))
@@ -1300,7 +1300,7 @@ public abstract class BaseCitationService implements CitationService
 				{
 					source += " " + year;
 				}
-				if(source != null && source.length() > 0)
+				if(source != null && source.length() > 1)
 				{
 					source = source.trim();
 					if(!source.endsWith(".") && !source.endsWith("?") && !source.endsWith("!") && !source.endsWith(","))
@@ -1308,11 +1308,11 @@ public abstract class BaseCitationService implements CitationService
 						source += ". ";
 					}
 				}
-				if (pages != null)
+				if (pages != null && !pages.trim().equals(""))
 				{
 					source += pages;
 				}
-				if(source != null && source.length() > 0)
+				if(source != null && source.length() > 1)
 				{
 					source = source.trim();
 					if(!source.endsWith(".") && !source.endsWith("?") && !source.endsWith("!") && !source.endsWith(","))
@@ -1323,15 +1323,15 @@ public abstract class BaseCitationService implements CitationService
 			}
 			else if ("chapter".equals(schemaId))
 			{
-				if (sourceTitle != null)
+				if (sourceTitle != null && !sourceTitle.trim().equals(""))
 				{
 					source += "In " + sourceTitle;
 					if (pages == null)
 					{
-						if (startPage != null)
+						if (startPage != null && !startPage.trim().equals(""))
 						{
 							source = source.trim() + ", " + startPage;
-							if (endPage != null)
+							if (endPage != null && !endPage.trim().equals(""))
 							{
 								source = source.trim() + "-" + endPage;
 							}
@@ -1341,9 +1341,9 @@ public abstract class BaseCitationService implements CitationService
 					{
 						source = source.trim() + ", " + pages;
 					}
-					if (publisher != null)
+					if (publisher != null && !publisher.trim().equals(""))
 					{
-						if (place != null)
+						if (place != null && !place.trim().equals(""))
 						{
 							source += place + ": ";
 						}
@@ -1364,7 +1364,7 @@ public abstract class BaseCitationService implements CitationService
 				if (sourceTitle != null && ! sourceTitle.trim().equals(""))
 				{
 					source += sourceTitle;
-					if (volume != null)
+					if (volume != null && ! volume.trim().equals(""))
 					{
 						source += ", " + volume;
 						if (issue != null && !issue.trim().equals(""))
@@ -1374,10 +1374,10 @@ public abstract class BaseCitationService implements CitationService
 					}
 					if (pages == null)
 					{
-						if (startPage != null)
+						if (startPage != null && !startPage.trim().equals(""))
 						{
 							source += startPage;
-							if (endPage != null)
+							if (endPage != null && !endPage.trim().equals(""))
 							{
 								source += "-" + endPage;
 							}
@@ -1394,7 +1394,7 @@ public abstract class BaseCitationService implements CitationService
 				}
 				else if (publisher != null && ! publisher.trim().equals(""))
 				{
-					if (place != null)
+					if (place != null && ! place.trim().equals(""))
 					{
 						source += place + ": ";
 					}
@@ -1405,9 +1405,15 @@ public abstract class BaseCitationService implements CitationService
 					}
 				}
 			}
-			if (!source.endsWith(".") && !source.endsWith("?") && !source.endsWith("!") && !source.endsWith(","))
+			
+			if (source.length() > 1 && !source.endsWith(".") && !source.endsWith("?") && !source.endsWith("!") && !source.endsWith(","))
 			{
 				source = source.trim() + ". ";
+			}
+			
+			if( source.trim().endsWith( ".." ) )
+			{
+				source = source.substring( 0, source.length()-2 );
 			}
 
 			return source;
