@@ -453,7 +453,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
 			break;
 		case NEW_URLS:
-			List<ContentCollection> urls = ResourcesAction.createUrls(state, pipe);
+			List<ContentResource> urls = ResourcesAction.createUrls(state, pipe);
 			if(urls != null && ! urls.isEmpty())
 			{
 				// expand folder

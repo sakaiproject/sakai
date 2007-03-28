@@ -1,0 +1,79 @@
+<!-- resources/sakai_create_uploads.vm, use with org.sakaiproject.tool.content.ResourcesHelperAction.java -->
+#set($DOT = ".")
+<div class="portletBody">
+	<h4>
+		$tlang.getString("create.urls")
+	</h4>
+	#if ($itemAlertMessage)
+		<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
+		<div style="display:block;clear:both" ></div>
+	#end
+	<p class="instr">
+		$tlang.getString("instr.urls")
+	</p>
+	<div class="breadCrumb">
+		$tlang.getString("gen.location")
+		##<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0"  alt="folder" />
+		#foreach ($folder in $model.collectionPath)
+			$folder.name /
+		#end
+	</div>
+	<form name="addContentForm" id="addContentForm" method="post" action="#toolForm("ResourcesHelperAction")"  enctype="multipart/form-data">
+		<input type="hidden" name="fileCount" id="fileCount" value="$pipes.size()" />
+		<input type="hidden" name="lastIndex" id="lastIndex" value="$pipes.size()" />
+		<div id="fileInputDiv">
+			#set($i = 0)
+			#foreach($pipe in $pipes)
+				
+				#set($prev = $i)
+				#set($i = $i + 1)
+				#set($next = $i + 1)
+				
+				<div id="contentDiv${DOT}$i" class="highlightPanel">
+					<input type="hidden" name="exists${DOT}$i" id="exists${DOT}$i" value="true" />
+					<p class="shorttext">
+						<label for="content${DOT}$i">$tlang.getString("label.urls")</label>
+						## TODO add onchange event handler to seed file-name into displayName field
+						<input type="text" name="content${DOT}$i" id="content${DOT}$i" class="upload" size="60" />
+					</p>
+					<p class="shorttext"> 
+						<label for="displayName${DOT}$i">$tlang.getString("label.website")</label> 
+						<input type="text" id="displayName${DOT}$i" name="displayName${DOT}$i" /> 
+						<a class="indnt2" href="#" id="propsTrigger${DOT}$i">$tlang.getString("edit.show")</a>
+						<a class="indnt2" href="#" id="removeTrigger${DOT}$i" >
+							<img src="#imageLink("sakai/cross.png")" title="$tlang.getString("edit.remove")" />
+						</a>
+						<input type="hidden" id="prev${DOT}$i" name="prev${DOT}$i" value="#if($i > 1)${prev}#end" />
+						<input type="hidden" id="next${DOT}$i" name="next${DOT}$i" value="#if($i < $pipes.size())${next}#end" />
+					</p>
+				</div>
+				<div id="propertiesDiv${DOT}$i" style="display:none;">
+					#parse("/vm/resources/sakai_properties.vm")
+					<hr class="itemSeparator" />
+				</div>
+			#end
+		</div>
+		<p class="act">
+			<a href="#" onclick="javascript:addFileInput();">$tlang.getString("label.addurl")</a>
+		</p>
+		#if ($model.resourceTypeDef.hasNotificationDialog())
+			<p class="shorttext">
+				<label for="notify${DOT}$i">
+					$tlang.getString("noti.label")
+				</label>	
+				<select name="notify$i" id="notify${DOT}$i">
+					<option value="r">$tlang.getString("noti.all")</option>
+					<option value="o">$tlang.getString("noti.limited")</option>
+					<option value="n" selected="selected">$tlang.getString("noti.none")</option>
+				</select>
+			</p>	
+		#end
+		
+		<p class="act">
+			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="javascript:showNotif('submitnotif','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doAddUrls")&flow=save';submitform('addContentForm');" value="$tlang.getString("label.urlnow")" accesskey="s" />
+			<input type="button" name="cancel" onclick="javascript:document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
+			<span id="submitnotif" style="visibility:hidden">$tlang.getString("label.proces")</span>
+		</p>
+	</form>
+</div>
+#parse("/vm/resources/sakai_properties_scripts.vm")
