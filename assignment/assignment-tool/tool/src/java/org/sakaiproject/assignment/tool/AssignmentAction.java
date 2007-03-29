@@ -2381,6 +2381,7 @@ public class AssignmentAction extends PagedResourceActionII
 		// back to the student list view of assignments
 		state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
 		state.setAttribute(SORTED_BY, SORTED_BY_DUEDATE);
+		state.setAttribute(SORTED_ASC, Boolean.FALSE.toString());
 
 	} // doList_assignments
 
