@@ -36,7 +36,7 @@
 
                 <h:outputLabel for="selectCommentColumn" id="commentsLabel" value="#{msgs.import_assignment_comments}"/>
                 <h:selectOneMenu id="selectCommentColumn" converter="javax.faces.Integer" value="#{spreadsheetUploadBean.selectedCommentsColumnId}">
-                    <f:selectItem itemValue="0" itemLabel="#{msgs.import_assignment_comments_none}"/>
+                    <f:selectItem itemValue="" itemLabel="#{msgs.import_assignment_comments_none}"/>
                     <f:selectItems value="#{spreadsheetUploadBean.assignmentColumnSelectItems}" />
                 </h:selectOneMenu>
 

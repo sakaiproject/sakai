@@ -66,7 +66,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     private Map scores;
     private Assignment assignment;
     private Long assignmentId;
-    private Integer selectedCommentsColumnId;
+    private Integer selectedCommentsColumnId = 0;
 
 
 
@@ -602,7 +602,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             List comments = new ArrayList();
             //check if a comments column is selected for the defalt select item value is
             // 0 which mean no comments to be imported
-            if(selectedCommentsColumnId.intValue() > 0) comments = createCommentList(assignment);
+            if(selectedCommentsColumnId!=null && selectedCommentsColumnId > 0) comments = createCommentList(assignment);
 
             if(logger.isDebugEnabled())logger.debug("remove title entry form map");
             scores.remove("Assignment");
