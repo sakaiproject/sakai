@@ -504,6 +504,7 @@
 									#set ($totalNumber = 0)
 									#set ($ungradedNumber = 0)
 									#foreach ($s in $totalSubmission)
+										#set($grade=$s.Grade)
 										#set($returnedTime=false)
 										#set ($returnedTime = $s.getTimeReturned())
 										## if the submitter is a current active user in the site
@@ -534,7 +535,8 @@
 																## returned have not resubmitted
 															#end
 														#end
-													#elseif (!$s.Graded)
+													#end
+													#if (!$s.Graded)
 														#set ($ungradedNumber = $ungradedNumber + 1)
 													#end
 												#end
