@@ -399,3 +399,49 @@ CREATE TABLE OSP_REPORT_XSL (
   CONSTRAINT FK25C0A259BE381194 FOREIGN KEY (REPORTDEFID) REFERENCES OSP_REPORT_DEF_XML (REPORTDEFID)
 );
 
+----------------------------------------------------------------------------------------------------------------------------------------
+--SAK-9029
+--Poll Tool Tables
+----------------------------------------------------------------------------------------------------------------------------------------
+
+CREATE TABLE `POLL_POLL` (
+  `POLL_ID` bigint(20) NOT NULL auto_increment,
+  `POLL_OWNER` varchar(255) default NULL,
+  `POLL_SITE_ID` varchar(255) default NULL,
+  `POLL_DETAILS` varchar(255) default NULL,
+  `POLL_CREATION_DATE` datetime default NULL,
+  `POLL_TEXT` text,
+  `POLL_VOTE_OPEN` datetime default NULL,
+  `POLL_VOTE_CLOSE` datetime default NULL,
+  `POLL_MIN_OPTIONS` int(11) default NULL,
+  `POLL_MAX_OPTIONS` int(11) default NULL,
+  `POLL_DISPLAY_RESULT` varchar(255) default NULL,
+  `POLL_LIMIT_VOTE` tinyint(1) default NULL,
+  PRIMARY KEY  (`POLL_ID`),
+  KEY `POLL_POLL_SITE_ID_IDX` (`POLL_SITE_ID`)
+);
+
+
+CREATE TABLE `POLL_OPTION` (
+  `OPTION_ID` bigint(20) NOT NULL auto_increment,
+  `OPTION_POLL_ID` bigint(20) default NULL,
+  `OPTION_TEXT` text,
+  PRIMARY KEY  (`OPTION_ID`),
+  KEY `POLL_OPTION_POLL_ID_IDX` (`OPTION_POLL_ID`)
+);
+
+CREATE TABLE `POLL_VOTE` (
+  `VOTE_ID` bigint(20) NOT NULL auto_increment,
+  `USER_ID` varchar(255) default NULL,
+  `VOTE_IP` varchar(255) default NULL,
+  `VOTE_DATE` datetime default NULL,
+  `VOTE_POLL_ID` bigint(20) default NULL,
+  `VOTE_OPTION` bigint(20) default NULL,
+  `VOTE_SUBMISSION_ID` varchar(255) default NULL,
+  PRIMARY KEY  (`VOTE_ID`),
+  KEY `POLL_VOTE_POLL_ID_IDX` (`VOTE_POLL_ID`),
+  KEY `POLL_VOTE_USER_ID_IDX` (`USER_ID`)
+);
+ 
+
+
