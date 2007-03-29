@@ -134,6 +134,16 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     }
     return forumManager.getTopicsByIdWithMessagesAndAttachments(forumId);
   }
+  
+  public List getTopicsByIdWithMessagesMembershipAndAttachments(final Long forumId)
+  {
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("getTopicsByIdWithMessagesMembershipAndAttachments(final Long" + forumId
+          + ")");
+    }
+    return forumManager.getTopicsByIdWithMessagesMembershipAndAttachments(forumId);
+  }
 
   public Topic getTopicByIdWithMessages(final Long topicId)
   {

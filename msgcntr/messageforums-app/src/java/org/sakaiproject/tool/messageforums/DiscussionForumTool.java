@@ -1027,13 +1027,8 @@ public class DiscussionForumTool
    */
   public DiscussionTopicBean getSelectedTopic()
   {
- 
-  	//if(threaded)
-  	//{
-  	  rearrageTopicMsgsThreaded();
-  	//}
+  	rearrageTopicMsgsThreaded();
   	setMessageBeanPreNextStatus();
-  	
  
     return selectedTopic;
   }
@@ -4097,33 +4092,36 @@ public class DiscussionForumTool
   
   public void rearrageTopicMsgsThreaded()
   {
+	if (selectedTopic != null)
+	{
   
-  	List msgsList = selectedTopic.getMessages();
-  	if (msgsList != null && !msgsList.isEmpty())
-  		msgsList = filterModeratedMessages(msgsList, selectedTopic.getTopic(), (DiscussionForum)selectedTopic.getTopic().getBaseForum());
-  	
-  	List orderedList = new ArrayList();
-  	List threadList = new ArrayList();
-  	
-  	if(msgsList != null)
-  	{
-  		for(int i=0; i<msgsList.size(); i++)
-  		{
-  			DiscussionMessageBean dmb = (DiscussionMessageBean)msgsList.get(i);
-  			if(dmb.getMessage().getInReplyTo() == null)
-  			{
-  				threadList.add(dmb);
-  				dmb.setDepth(0);
-  				orderedList.add(dmb);
-  				//for performance speed - operate with existing selectedTopic msgs instead of getting from manager through DB again 
-  				//recursiveGetThreadedMsgs(msgsList, orderedList, dmb);
-  				//use arrays so as to pass by reference during recursion
-  				recursiveGetThreadedMsgsFromListWithCounts(msgsList, orderedList, dmb, new int[1], new int[1]);
-  			}
-  		}
-  	}
-  	
-  	selectedTopic.setMessages(orderedList);
+	  	List msgsList = selectedTopic.getMessages();
+	  	if (msgsList != null && !msgsList.isEmpty())
+	  		msgsList = filterModeratedMessages(msgsList, selectedTopic.getTopic(), (DiscussionForum)selectedTopic.getTopic().getBaseForum());
+	  	
+	  	List orderedList = new ArrayList();
+	  	List threadList = new ArrayList();
+	  	
+	  	if(msgsList != null)
+	  	{
+	  		for(int i=0; i<msgsList.size(); i++)
+	  		{
+	  			DiscussionMessageBean dmb = (DiscussionMessageBean)msgsList.get(i);
+	  			if(dmb.getMessage().getInReplyTo() == null)
+	  			{
+	  				threadList.add(dmb);
+	  				dmb.setDepth(0);
+	  				orderedList.add(dmb);
+	  				//for performance speed - operate with existing selectedTopic msgs instead of getting from manager through DB again 
+	  				//recursiveGetThreadedMsgs(msgsList, orderedList, dmb);
+	  				//use arrays so as to pass by reference during recursion
+	  				recursiveGetThreadedMsgsFromListWithCounts(msgsList, orderedList, dmb, new int[1], new int[1]);
+	  			}
+	  		}
+	  	}
+	  	
+	  	selectedTopic.setMessages(orderedList);
+	}
  
   }
 
@@ -4855,24 +4853,26 @@ public class DiscussionForumTool
     	membershipItems = uiPermissionsManager.getAreaItemsSet(forumManager.getDiscussionForumArea());
     }
     else if (PERMISSION_MODE_FORUM.equals(getPermissionMode())){    	
-    	//membershipItems = selectedForum.getForum().getMembershipItemSet();
-    	membershipItems = uiPermissionsManager.getForumItemsSet(selectedForum.getForum());
-    	
-    	if (membershipItems == null || membershipItems.size() == 0){
-    		//membershipItems = forumManager.getDiscussionForumArea().getMembershipItemSet();
+    	if (selectedForum != null && selectedForum.getForum() != null)
+    	{
+    		membershipItems = uiPermissionsManager.getForumItemsSet(selectedForum.getForum());
+        	if (membershipItems == null || membershipItems.size() == 0)
+        	{
+        		membershipItems = uiPermissionsManager.getAreaItemsSet(forumManager.getDiscussionForumArea());
+        	}
+    	}
+    	else
+    	{
     		membershipItems = uiPermissionsManager.getAreaItemsSet(forumManager.getDiscussionForumArea());
     	}
     }
     else if (PERMISSION_MODE_TOPIC.equals(getPermissionMode())){    	
-    	//membershipItems = selectedTopic.getTopic().getMembershipItemSet();
-    	membershipItems = uiPermissionsManager.getTopicItemsSet(selectedTopic.getTopic());
-    	
-    	if (membershipItems == null || membershipItems.size() == 0){
-    		//membershipItems = forumManager.getDiscussionForumArea().getMembershipItemSet();
-    		if (selectedForum != null && selectedForum.getForum() != null){
-    		  //membershipItems = selectedForum.getForum().getMembershipItemSet();
+    	if (selectedTopic != null && selectedTopic.getTopic() != null)
+    	{
+    		membershipItems = uiPermissionsManager.getTopicItemsSet(selectedTopic.getTopic());
+    	}
+    	if (membershipItems == null || membershipItems.size() == 0 && (selectedForum != null && selectedForum.getForum() != null)) {
     			membershipItems = uiPermissionsManager.getForumItemsSet(selectedForum.getForum());
-    		}
     	}
     } 
     	            

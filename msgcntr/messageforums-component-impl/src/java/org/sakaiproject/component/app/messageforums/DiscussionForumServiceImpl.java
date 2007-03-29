@@ -85,6 +85,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 	private static final String TOPIC_TITLE = "subject";
 	private static final String DRAFT = "draft";
 	private static final String LOCKED = "locked";
+	private static final String MODERATED = "moderated";
 	private static final String PROPERTIES = "properties";
 	private static final String PROPERTY = "property";
 	private static final String TOPIC_SHORT_DESC = "Classic:bboardForums_description";
@@ -159,6 +160,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 								df_data.setAttribute(DISCUSSION_FORUM_TITLE, forum.getTitle());
 								df_data.setAttribute(DRAFT, forum.getDraft().toString());
 								df_data.setAttribute(LOCKED, forum.getLocked().toString());
+								df_data.setAttribute(MODERATED, forum.getModerated().toString());
 
 
 								try {
@@ -218,7 +220,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 									df_data.appendChild(forum_permissions);
 								}
 
-								List topicList = dfManager.getTopicsByIdWithMessagesAndAttachments(forum.getId());
+								List topicList = dfManager.getTopicsByIdWithMessagesMembershipAndAttachments(forum.getId());
 								if (topicList != null && topicList.size() > 0) {
 									Iterator topicIter = topicList.iterator();
 									while (topicIter.hasNext()) {
@@ -227,6 +229,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 										topic_data.setAttribute(TOPIC_TITLE, topic.getTitle());
 										topic_data.setAttribute(DRAFT, topic.getDraft().toString());
 										topic_data.setAttribute(LOCKED, topic.getLocked().toString());
+										topic_data.setAttribute(MODERATED, topic.getModerated().toString());
 
 										Element topic_properties = doc.createElement(PROPERTIES);
 										Element topic_short_desc = doc.createElement(PROPERTY);
@@ -378,7 +381,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 
 	public String[] myToolIds()
 	{
-		String[] toolIds = { "sakai.messagecenter" };
+		String[] toolIds = { "sakai.messagecenter", "sakai.forums" };
 		return toolIds;
 	}
 
@@ -406,6 +409,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 
 					newForum.setDraft(fromForum.getDraft());
 					newForum.setLocked(fromForum.getLocked());
+					newForum.setModerated(fromForum.getModerated());
 
 					// get permissions for "from" site
 					Set membershipItemSet = fromForum.getMembershipItemSet();
@@ -466,7 +470,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 					}
 
 					// get/add the topics
-					List topicList = dfManager.getTopicsByIdWithMessagesAndAttachments(fromForumId);
+					List topicList = dfManager.getTopicsByIdWithMessagesMembershipAndAttachments(fromForumId);
 					if (topicList != null && !topicList.isEmpty()) {
 						for (int currTopic = 0; currTopic < topicList.size(); currTopic++) {
 							DiscussionTopic fromTopic = (DiscussionTopic)topicList.get(currTopic);
@@ -481,6 +485,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 								newTopic.setExtendedDescription(fromTopic.getExtendedDescription());
 							newTopic.setLocked(fromTopic.getLocked());
 							newTopic.setDraft(fromTopic.getDraft());
+							newTopic.setModerated(fromTopic.getModerated());
 
 							// Get/set the topic's permissions
 							Set topicMembershipItemSet = fromTopic.getMembershipItemSet();
@@ -571,6 +576,16 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 										String forumLocked = forumElement.getAttribute(LOCKED);
 										if(forumLocked != null && forumLocked.length() >0)
 											dfForum.setLocked(new Boolean(forumLocked));
+										
+										String forumModerated = forumElement.getAttribute(MODERATED);
+										if(forumModerated != null && forumModerated.length() >0)
+										{
+											dfForum.setModerated(new Boolean(forumModerated));
+										}
+										else
+										{
+											dfForum.setModerated(Boolean.FALSE);
+										}
 
 										String forumDesc = forumElement.getAttribute(DISCUSSION_FORUM_DESC);
 										String trimBody = null;
@@ -668,6 +683,12 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 													String topicLocked = forumChildElement.getAttribute(LOCKED);
 													if(topicLocked != null && topicLocked.length() >0)
 														dfTopic.setLocked(new Boolean(topicLocked));
+													
+													String topicModerated = forumChildElement.getAttribute(MODERATED);
+													if(topicModerated != null && topicModerated.length() >0)
+														dfTopic.setModerated(new Boolean(topicModerated));
+													else
+														dfTopic.setModerated(Boolean.FALSE);
 
 													NodeList topicPropertiesNodes = forumChildElement.getChildNodes();
 													for(int m=0; m<topicPropertiesNodes.getLength(); m++)
@@ -933,7 +954,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 				oldAttachment.getProperties().getProperty(
 						ResourceProperties.PROP_DISPLAY_NAME), ToolManager
 						.getCurrentPlacement().getContext(), ToolManager.getTool(
-						"sakai.messagecenter").getTitle(), oldAttachment.getContentType(),
+						"sakai.forums").getTitle(), oldAttachment.getContentType(),
 						oldAttachment.getContent(), oldAttachment.getProperties());
 			Attachment thisDFAttach = dfManager.createDFAttachment(
 				attachment.getId(), 

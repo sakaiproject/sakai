@@ -104,6 +104,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         
     private static final String QUERY_TOPICS_WITH_MESSAGES_FOR_FORUM = "findTopicsWithMessagesForForum";
     private static final String QUERY_TOPICS_WITH_MESSAGES_AND_ATTACHMENTS_FOR_FORUM = "findTopicsWithMessagesAndAttachmentsForForum";
+    private static final String QUERY_TOPICS_WITH_MSGS_AND_ATTACHMENTS_AND_MEMBERSHIPS_FOR_FORUM = "findTopicsWithMessagesMembershipAndAttachmentsForForum";
             
     private static final String QUERY_BY_TOPIC_ID = "findTopicById";
     private static final String QUERY_OPEN_BY_TOPIC_AND_PARENT = "findOpenTopicAndParentById";
@@ -243,6 +244,40 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
       HibernateCallback hcb = new HibernateCallback() {
         public Object doInHibernate(Session session) throws HibernateException, SQLException {
             Query q = session.getNamedQuery(QUERY_TOPICS_WITH_MESSAGES_AND_ATTACHMENTS_FOR_FORUM);
+            q.setParameter("id", forumId, Hibernate.LONG);            
+            return q.list();
+        }
+    };
+
+    Topic tempTopic = null;
+    Set resultSet = new HashSet();      
+    List temp = (ArrayList) getHibernateTemplate().execute(hcb);
+    for (Iterator i = temp.iterator(); i.hasNext();)
+    {
+      Object[] results = (Object[]) i.next();        
+          
+      if (results != null) {
+        if (results[0] instanceof Topic) {
+          tempTopic = (Topic)results[0];
+          tempTopic.setBaseForum((BaseForum)results[1]);            
+        } else {
+          tempTopic = (Topic)results[1];
+          tempTopic.setBaseForum((BaseForum)results[0]);
+        }
+        resultSet.add(tempTopic);
+      }
+    }
+    return Util.setToList(resultSet);    
+  }
+  
+  public List getTopicsByIdWithMessagesMembershipAndAttachments(final Long forumId) {
+      if (forumId == null) {
+        throw new IllegalArgumentException("Null Argument");
+      }   
+      
+      HibernateCallback hcb = new HibernateCallback() {
+        public Object doInHibernate(Session session) throws HibernateException, SQLException {
+            Query q = session.getNamedQuery(QUERY_TOPICS_WITH_MSGS_AND_ATTACHMENTS_AND_MEMBERSHIPS_FOR_FORUM);
             q.setParameter("id", forumId, Hibernate.LONG);            
             return q.list();
         }
@@ -1189,7 +1224,7 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 				public Object doInHibernate(Session session) throws HibernateException, SQLException {
 					Query q = session.getNamedQuery(QUERY_BY_TYPE_AND_CONTEXT_WITH_ALL_TOPICS_MEMBERSHIP);
 					q.setParameter("typeUuid", typeUuid, Hibernate.STRING);
-					q.setParameter("contextId", getContextId(), Hibernate.STRING);
+					q.setParameter("contextId", contextId, Hibernate.STRING);
 					return q.list();
 				}
 			};

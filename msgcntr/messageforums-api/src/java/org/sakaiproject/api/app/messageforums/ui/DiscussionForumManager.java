@@ -52,6 +52,8 @@ public interface DiscussionForumManager
   
   public List getTopicsByIdWithMessagesAndAttachments(final Long forumId);
   
+  public List getTopicsByIdWithMessagesMembershipAndAttachments(final Long forumId);
+  
   public Topic getTopicByIdWithMessages(final Long topicId);
   
   public Topic getTopicByIdWithMessagesAndAttachments(final Long topicId);
