@@ -2939,6 +2939,10 @@ public class AssignmentAction extends PagedResourceActionII
 									{
 										sPropertiesEdit.addProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, String.valueOf(number-1));
 									}
+									else if (number == -1)
+									{
+										sPropertiesEdit.addProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, String.valueOf(-1));
+									}
 								}
 							}
 							// sEdit.addSubmitter (u);
@@ -3010,6 +3014,12 @@ public class AssignmentAction extends PagedResourceActionII
 								{
 									edit.addSubmittedAttachment((Reference) it.next());
 								}
+							}
+							
+							// get the assignment setting for resubmitting
+							if (a.getProperties().getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null)
+							{
+								edit.getPropertiesEdit().addProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, a.getProperties().getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER));
 							}
 	
 							AssignmentService.commitEdit(edit);

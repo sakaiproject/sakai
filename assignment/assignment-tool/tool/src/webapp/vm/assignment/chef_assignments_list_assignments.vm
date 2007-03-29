@@ -529,7 +529,7 @@
 																	## instructor has graded the resubmission
 																#else
 																	## has been resubmitted, and ungraded
-																	#set ($ungradedNumber = $ungradedNumber + 1)
+																	###set ($ungradedNumber = $ungradedNumber + 1)
 																#end
 															#else
 																## returned have not resubmitted
