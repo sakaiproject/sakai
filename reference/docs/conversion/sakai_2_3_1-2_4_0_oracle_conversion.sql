@@ -455,4 +455,22 @@ CREATE TABLE POLL_VOTE (
 CREATE SEQUENCE POLL_VOTE_ID_S;
 CREATE INDEX POLL_VOTE_POLL_ID_IDX ON POLL_VOTE (VOTE_POLL_ID);
 CREATE INDEX POLL_VOTE_USER_ID_IDX ON POLL_VOTE (USER_ID);
+
+
+-----------------------------------------------------------------------------
+-- SAK-8892 CONTENT_TYPE_REGISTRY
+-----------------------------------------------------------------------------
+
+CREATE TABLE CONTENT_TYPE_REGISTRY
+(
+    CONTEXT_ID VARCHAR (99) NOT NULL,
+	RESOURCE_TYPE_ID VARCHAR (255),
+    ENABLED VARCHAR (1)
+);
+
+CREATE INDEX content_type_registry_idx ON CONTENT_TYPE_REGISTRY 
+(
+	CONTEXT_ID
+);
+
  
