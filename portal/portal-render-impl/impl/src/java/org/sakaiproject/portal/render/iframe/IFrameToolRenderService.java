@@ -10,8 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.api.StoredState;
-import org.sakaiproject.portal.api.cover.PortalService;
 import org.sakaiproject.portal.render.api.RenderResult;
 import org.sakaiproject.portal.render.api.ToolRenderException;
 import org.sakaiproject.portal.render.api.ToolRenderService;
@@ -23,6 +23,8 @@ public class IFrameToolRenderService implements ToolRenderService
 {
 
 	private static final Log LOG = LogFactory.getLog(IFrameToolRenderService.class);
+	
+	private PortalService portalService;
 
 	// private static ResourceLoader rb = new ResourceLoader("sitenav");
 
@@ -41,12 +43,12 @@ public class IFrameToolRenderService implements ToolRenderService
 		final String titleString = Web.escapeHtml(configuration.getTitle());
 		String toolUrl = ServerConfigurationService.getToolUrl() + "/"
 				+ Web.escapeUrl(configuration.getId());
-		StoredState ss = PortalService.getInstance().getStoredState();
+		StoredState ss = portalService.getStoredState();
 		LOG.debug("Restoring Iframe ["+ss+"]");
 
 		Map parametermap = ss == null ? request.getParameterMap() : ss
 				.getRequest(request).getParameterMap();
-		String URLstub = PortalService.getInstance().decodeToolState(parametermap,
+		String URLstub = portalService.decodeToolState(parametermap,
 				configuration.getId());
 		if (URLstub != null)
 		{
@@ -104,5 +106,21 @@ public class IFrameToolRenderService implements ToolRenderService
 
 	public void reset(ToolConfiguration configuration)
 	{
+	}
+
+	/**
+	 * @return the portalService
+	 */
+	public PortalService getPortalService()
+	{
+		return portalService;
+	}
+
+	/**
+	 * @param portalService the portalService to set
+	 */
+	public void setPortalService(PortalService portalService)
+	{
+		this.portalService = portalService;
 	}
 }

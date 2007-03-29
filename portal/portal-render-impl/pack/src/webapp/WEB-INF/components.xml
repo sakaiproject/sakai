@@ -21,6 +21,7 @@
     </bean>
     <bean id="iframeRenderService" name="iframeRenderService"
           class="org.sakaiproject.portal.render.iframe.IFrameToolRenderService" >
+        <property name="portalService" ><ref bean="org.sakaiproject.portal.api.PortalService" /></property>
     </bean>
 
 
@@ -29,6 +30,7 @@
         <property name="portletStateEncoder">
             <ref local="portletStateEncoder"/>
         </property>
+        <property name="portalService" ><ref bean="org.sakaiproject.portal.api.PortalService" /></property>
     </bean>
 
     <bean id="portletStateEncoder"

@@ -66,6 +66,8 @@ public class PortletToolRenderService implements ToolRenderService
 
         private PortletStateEncoder portletStateEncoder;
 
+		private PortalService portalService;
+
         public PortletStateEncoder getPortletStateEncoder()
         {
                 return portletStateEncoder;
@@ -154,7 +156,6 @@ public class PortletToolRenderService implements ToolRenderService
                         LOG.debug("Retrieved PortletState from request cache.  Applying to window.");
                 }
 
-		PortalService portalService = org.sakaiproject.portal.api.cover.PortalService.getInstance();
                 if ("true".equals(request.getParameter(portalService.getResetStateParam()))
                                 || "true".equals(portalService.getResetState()))
                 {
@@ -459,5 +460,21 @@ public class PortletToolRenderService implements ToolRenderService
                     }
                 }
 		return false;
+	}
+
+	/**
+	 * @return the portalService
+	 */
+	public PortalService getPortalService()
+	{
+		return portalService;
+	}
+
+	/**
+	 * @param portalService the portalService to set
+	 */
+	public void setPortalService(PortalService portalService)
+	{
+		this.portalService = portalService;
 	}
 }
