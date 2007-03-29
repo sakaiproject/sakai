@@ -4690,24 +4690,16 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				}
 				else
 				{
-					if (!submission.getReturned())
+					// returned 
+					if (submission.getResubmissionNum()!=0 && currentTime.before(submission.getCloseTime()))
 					{
-						// return false if the submission has been submitted, but not returned yet
-						return false;
+						// return true for returned submission but allow for resubmit and before the close time
+						return true;
 					}
 					else
 					{
-						// returned 
-						if (submission.getResubmissionNum()!=0 && currentTime.before(submission.getCloseTime()))
-						{
-							// return true for returned submission but allow for resubmit and before the close time
-							return true;
-						}
-						else
-						{
-							// return false otherwise
-							return false;
-						}
+						// return false otherwise
+						return false;
 					}
 				}
 			}
