@@ -393,6 +393,9 @@ public class ItemHelper12Impl extends ItemHelperBase
            answer.getAnswerFeedback(AnswerFeedbackIfc.INCORRECT_FEEDBACK);
         }
 
+        if (responseFeedback == null) {
+        	responseFeedback = "";
+        }
         String responseNo = "" + (answerSequence.longValue() - noSources + 1);
         String respIdent = "MT-" + randomNumber + "-" + label;
 
