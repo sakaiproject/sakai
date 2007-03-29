@@ -90,6 +90,7 @@ import org.sakaiproject.tool.messageforums.ui.DiscussionTopicBean;
 import org.sakaiproject.tool.messageforums.ui.PermissionBean;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
@@ -2535,8 +2536,9 @@ public class DiscussionForumTool
 
     if (aMsg != null)
     {
-      aMsg.setTitle(getComposeTitle());
-      aMsg.setBody(getComposeBody());
+      StringBuffer alertMsg = new StringBuffer();
+      aMsg.setTitle(FormattedText.processFormattedText(getComposeTitle(), alertMsg));
+      aMsg.setBody(FormattedText.processFormattedText(getComposeBody(), alertMsg));
       
       aMsg.setAuthor(getUserNameOrEid());
       
