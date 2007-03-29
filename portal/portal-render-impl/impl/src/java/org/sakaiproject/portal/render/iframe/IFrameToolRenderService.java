@@ -42,6 +42,8 @@ public class IFrameToolRenderService implements ToolRenderService
 		String toolUrl = ServerConfigurationService.getToolUrl() + "/"
 				+ Web.escapeUrl(configuration.getId());
 		StoredState ss = PortalService.getInstance().getStoredState();
+		LOG.debug("Restoring Iframe ["+ss+"]");
+
 		Map parametermap = ss == null ? request.getParameterMap() : ss
 				.getRequest(request).getParameterMap();
 		String URLstub = PortalService.getInstance().decodeToolState(parametermap,

@@ -1083,6 +1083,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			}
 			else
 			{
+				M_log.debug("Restoring StoredState ["+ss+"]");
 				HttpServletRequest sreq = ss.getRequest(req);
 				Placement splacement = ss.getPlacement();
 				String stoolContext = ss.getToolContextPath();
@@ -1092,6 +1093,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				setupForward(sreq, res, splacement, sskin);
 				req.setAttribute(ToolURL.MANAGER, new ToolURLManagerImpl(res));
 				stool.forward(sreq, res, splacement, stoolContext, stoolPathInfo);
+				// this is correct as we have checked the context path of the tool
 				portalService.setStoredState(null);
 			}
 		}

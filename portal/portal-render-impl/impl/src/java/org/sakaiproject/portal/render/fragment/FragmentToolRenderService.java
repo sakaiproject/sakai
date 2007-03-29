@@ -7,6 +7,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -34,6 +36,8 @@ public class FragmentToolRenderService implements ToolRenderService
 {
 
 	private static final String TOOL_FRAGMENT_PRODUCER_ID = "fragment-producer";
+
+	private static final Log log = LogFactory.getLog(FragmentToolRenderService.class);
 
 	private PortalService portal;
 
@@ -225,6 +229,8 @@ public class FragmentToolRenderService implements ToolRenderService
 			}
 			else
 			{
+				log.debug("Restoring Fragment  StoredState ["+ss+"]");
+
 				HttpServletRequest sreq = ss.getRequest(req);
 				Placement splacement = ss.getPlacement();
 				String stoolContext = ss.getToolContextPath();
@@ -233,6 +239,7 @@ public class FragmentToolRenderService implements ToolRenderService
 				String sskin = ss.getSkin();
 				req.setAttribute(ToolURL.MANAGER, new ToolURLManagerImpl(res));
 				stool.include(sreq, res, splacement, stoolContext, stoolPathInfo);
+				// this is correct as we have already checked the context path of the desitination
 				portal.setStoredState(null);
 			}
 		}

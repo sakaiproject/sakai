@@ -1646,6 +1646,7 @@ public class CharonPortal extends HttpServlet
 				req.setAttribute(ToolURL.MANAGER, new ToolURLManagerImpl(res));
 				stool.forward(sreq, res, splacement, stoolContext,
 						stoolPathInfo);
+				// This is correct as we have checked the context path of the target
 				portalService.setStoredState(null);
 			}
 		}

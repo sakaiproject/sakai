@@ -73,6 +73,7 @@ public class PortalServiceImpl implements PortalService
 	{
 		Session s = SessionManager.getCurrentSession();
 		StoredState ss = (StoredState) s.getAttribute("direct-stored-state");
+		log.debug("Got Stored State as ["+ss+"]");
 		return ss;
 	}
 
@@ -81,7 +82,15 @@ public class PortalServiceImpl implements PortalService
 		Session s = SessionManager.getCurrentSession();
 		if (s.getAttribute("direct-stored-state") == null || ss == null)
 		{
+			StoredState ssx = (StoredState) s.getAttribute("direct-stored-state");
+			log.debug("Removing Stored state "+ssx);
+			if ( ssx != null ) {
+				Exception ex = new Exception("traceback");
+				log.debug("Removing active Stored State Traceback gives location ",ex);
+			}
+			
 			s.setAttribute("direct-stored-state", ss);
+			log.debug(" Set StoredState as ["+ss+"]");
 		}
 	}
 
@@ -127,8 +136,10 @@ public class PortalServiceImpl implements PortalService
 
 	public boolean isEnableDirect()
 	{
-		return "true".equals(ServerConfigurationService.getString("charon.directurl",
+		boolean directEnable = "true".equals(ServerConfigurationService.getString("charon.directurl",
 				"true"));
+		log.debug("Direct Enable is "+directEnable);
+		return directEnable;
 	}
 
 	public boolean isResetRequested(HttpServletRequest req)
@@ -145,6 +156,7 @@ public class PortalServiceImpl implements PortalService
 
 	public StoredState newStoredState(String marker, String replacement)
 	{
+		log.debug("Storing State for Marker=["+marker+"] replacement=["+replacement+"]");
 		return new StoredStateImpl(marker, replacement);
 	}
 

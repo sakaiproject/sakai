@@ -131,6 +131,7 @@ public class PageHandler extends BasePortalHandler
 			// if not logged in, give them a chance
 			if (session.getUserId() == null)
 			{
+				
 				StoredState ss = portalService.newStoredState("", "");
 				ss.setRequest(req);
 				ss.setToolContextPath(toolContextPath);
@@ -156,7 +157,11 @@ public class PageHandler extends BasePortalHandler
 		includePage(rcontext, res, req, page, toolContextPath, "contentFull");
 
 		portal.sendResponse(rcontext, res, "page", null);
-		portalService.setStoredState(null);
+		StoredState ss = portalService.getStoredState();
+		if (ss != null && toolContextPath.equals(ss.getToolContextPath())) {
+			// This request is the destination of the request
+			portalService.setStoredState(null);
+		}
 
 	}
 

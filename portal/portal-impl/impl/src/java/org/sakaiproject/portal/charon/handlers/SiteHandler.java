@@ -201,7 +201,11 @@ public class SiteHandler extends WorksiteHandler
 
 		// end the response
 		portal.sendResponse(rcontext, res, "site", null);
-		portalService.setStoredState(null);
+		StoredState ss = portalService.getStoredState();
+		if (ss != null && toolContextPath.equals(ss.getToolContextPath())) {
+			// This request is the destination of the request
+			portalService.setStoredState(null);
+		}
 	}
 
 	protected void includeSiteNav(PortalRenderContext rcontext, HttpServletRequest req,
