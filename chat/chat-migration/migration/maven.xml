@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+	xmlns:j="jelly:core"
+	xmlns:ant="jelly:ant"
+	xmlns:maven="jelly:maven"
+	xmlns:u="jelly:util">
+
+	<goal name="migrate-chat" prereqs="sakai">
+
+		<ant:path id="chat.classpath">
+			<ant:pathelement location="${basedir}/target/classes/" />
+		</ant:path>
+
+		<ant:taskdef name="migrateChat" 
+			classname="org.sakaiproject.chat2.migration.ChatDataMigration"
+			classpathref="chat.classpath" />
+			
+      <ant:migrateChat outputFile="target/chat-migration.sql" debug="true" />
+
+	</goal>
+</project>
