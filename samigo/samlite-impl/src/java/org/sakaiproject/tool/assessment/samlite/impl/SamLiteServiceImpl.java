@@ -286,7 +286,7 @@ public class SamLiteServiceImpl implements SamLiteService {
 			log.error("Unable to save this quiz as an imported assessment ", qse);
 		} finally {
 			if (null != inputStream) {
-				try { inputStream.close(); } catch (IOException ioe) {}
+				try { inputStream.close(); } catch (IOException ioe) { log.warn("Unimportant ioe"); }
 			}
 		}
 		
