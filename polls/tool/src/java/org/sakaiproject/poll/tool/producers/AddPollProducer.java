@@ -59,8 +59,8 @@ import uk.org.ponder.rsf.components.UIOutputMany;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 import uk.org.ponder.rsf.evolvers.TextInputEvolver;
-import uk.org.ponder.rsf.components.decorators.UITextDimensionsDecorator;
-import uk.org.ponder.rsf.components.decorators.DecoratorList;
+//import uk.org.ponder.rsf.components.decorators.UITextDimensionsDecorator;
+//import uk.org.ponder.rsf.components.decorators.DecoratorList;
 
 
 import org.sakaiproject.tool.api.ToolManager;
