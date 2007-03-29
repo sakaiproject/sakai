@@ -59,7 +59,8 @@ import uk.org.ponder.rsf.components.UIOutputMany;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 import uk.org.ponder.rsf.evolvers.TextInputEvolver;
-
+import uk.org.ponder.rsf.components.decorators.UITextDimensionsDecorator;
+import uk.org.ponder.rsf.components.decorators.DecoratorList;
 
 
 import org.sakaiproject.tool.api.ToolManager;
@@ -187,13 +188,18 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		  
 		  //the form fields
 		  
-		  //UIInput.make(newPoll, "new-poll-text", "#{pollToolBean.newPoll.text}",poll.getText());
-			UIInput itemText = UIInput.make(newPoll, "new-poll-text:", "#{pollToolBean.newPoll.text}", poll.getText()); //$NON-NLS-1$ //$NON-NLS-2$
+		  UIInput.make(newPoll, "new-poll-text", "#{pollToolBean.newPoll.text}",poll.getText());
+			/*
+		  UIInput itemText = UIInput.make(newPoll, "new-poll-text:", "#{pollToolBean.newPoll.text}", poll.getText()); //$NON-NLS-1$ //$NON-NLS-2$
+			itemText.decorators = new DecoratorList(new UITextDimensionsDecorator(40, 4));
 			richTextEvolver.evolveTextInput(itemText);
-		  
-		  //UIInput.make(newPoll, "new-poll-descr", "#{pollToolBean.newPoll.details}", poll.getDetails());
-			UIInput itemDescr = UIInput.make(newPoll, "newpolldescr:", "#{pollToolBean.newPoll.details}", poll.getDetails()); //$NON-NLS-1$ //$NON-NLS-2$
+		  */
+		  UIInput.make(newPoll, "new-poll-descr", "#{pollToolBean.newPoll.details}", poll.getDetails());
+			/*
+		  UIInput itemDescr = UIInput.make(newPoll, "newpolldescr:", "#{pollToolBean.newPoll.details}", poll.getDetails()); //$NON-NLS-1$ //$NON-NLS-2$
+			itemDescr.decorators = new DecoratorList(new UITextDimensionsDecorator(40, 4));
 			richTextEvolver.evolveTextInput(itemDescr);
+		  */
 		  
 		  //we need a date fomater
 		    SimpleDateFormat dayf = new SimpleDateFormat("d");
@@ -282,6 +288,9 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 			 * 	afterClosing
 			 * 
 			 */
+		  
+		  m_log.debug("finished with the date controlls");
+		  
 		    String[] values = new String[] { "open", "never", "afterVoting", "afterClosing" };
 		    String[] labels = new String[] {
 		    		messageLocator.getMessage("new_poll_open"), 
@@ -311,22 +320,23 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		    
 		    
 		    
-
-		  newPoll.parameters.add(new UIELBinding("#{pollToolBean.newPoll.owner}",
-		           currentuserid));
-		  String siteId = toolManager.getCurrentPlacement().getContext();
-		  newPoll.parameters.add(new UIELBinding("#{pollToolBean.siteID}",siteId));
+		    m_log.debug("About to close the form");
+		    newPoll.parameters.add(new UIELBinding("#{pollToolBean.newPoll.owner}",
+		    		currentuserid));
+		    String siteId = toolManager.getCurrentPlacement().getContext();
+		    newPoll.parameters.add(new UIELBinding("#{pollToolBean.siteID}",siteId));
 		  
-		  if (ecvp.mode!= null && ecvp.mode.equals(EntityCentredViewParameters.MODE_NEW))	 {
-			  UICommand.make(newPoll, "submit-new-poll", messageLocator.getMessage("new_poll_saveoption"),
-			  "#{pollToolBean.processActionAdd}");
-		  } else {
-			  UICommand.make(newPoll, "submit-new-poll", messageLocator.getMessage("new_poll_submit"),
-			  "#{pollToolBean.processActionAdd}");		  
-		  }
+		    if (ecvp.mode!= null && ecvp.mode.equals(EntityCentredViewParameters.MODE_NEW))	 {
+		    	UICommand.make(newPoll, "submit-new-poll", messageLocator.getMessage("new_poll_saveoption"),
+		    	"#{pollToolBean.processActionAdd}");
+		    } else {
+		    	UICommand.make(newPoll, "submit-new-poll", messageLocator.getMessage("new_poll_submit"),
+		    	"#{pollToolBean.processActionAdd}");		  
+		    }
 		  
-		  UICommand cancel = UICommand.make(newPoll, "cancel",messageLocator.getMessage("new_poll_cancel"),"#{pollToolBean.cancel}");
-		   cancel.parameters.add(new UIELBinding("#{voteCollection.submissionStatus}", "cancel"));
+		    UICommand cancel = UICommand.make(newPoll, "cancel",messageLocator.getMessage("new_poll_cancel"),"#{pollToolBean.cancel}");
+		    cancel.parameters.add(new UIELBinding("#{voteCollection.submissionStatus}", "cancel"));
+		    m_log.debug("Finished generating view");
 	  }
 	  
 
