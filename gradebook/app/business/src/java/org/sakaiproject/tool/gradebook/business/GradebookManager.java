@@ -447,4 +447,12 @@ public interface GradebookManager {
      * @return AssignmentGradeRecord list
      */
     public List getAssignmentGradeRecordsConverted(Assignment assignment, Collection studentUids);
+
+    /**
+     * Get all categories with stats
+     *  
+     * @param gradebookId
+     * @return Category list
+     */
+    public List getCategoriesWithStats(Long gradebookId);
 }

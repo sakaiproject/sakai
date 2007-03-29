@@ -58,6 +58,7 @@ public class Assignment extends GradableObject {
     private String externalAppName;
     private boolean released;
     private Category category;
+    private Double averageTotal;
 
     static {
         dateComparator = new Comparator() {
@@ -335,8 +336,10 @@ public class Assignment extends GradableObject {
         }
         if (numScored == 0) {
         	mean = null;
+        	averageTotal = null;
         } else {
         	mean = new Double(total / numScored);
+        	averageTotal = new Double(total / numScored / 100.0 * pointsPossible.doubleValue());
         }
     }
 
@@ -348,6 +351,17 @@ public class Assignment extends GradableObject {
 		public void setCategory(Category category)
 		{
 			this.category = category;
+		}
+
+
+		public Double getAverageTotal()
+		{
+			return averageTotal;
+		}
+
+		public void setAverageTotal(Double averageTotal)
+		{
+			this.averageTotal = averageTotal;
 		}
 }
 

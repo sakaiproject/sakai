@@ -1377,4 +1377,44 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	}
     	return null;
     }
+    
+    public List getCategoriesWithStats(Long gradebookId) {
+    	List categories = getCategories(gradebookId);
+    	Set allStudentUids = getAllStudentUids(getGradebookUid(gradebookId));
+    	List allAssignments = getAssignmentsWithStats(gradebookId, Assignment.DEFAULT_SORT, true);
+
+    	List gradeRecords = getAllAssignmentGradeRecords(gradebookId, allStudentUids);
+    	Map cateMap = new HashMap();
+    	for (Iterator iter = allAssignments.iterator(); iter.hasNext(); )
+    	{
+    		Assignment assign = (Assignment) iter.next();
+    		if(assign != null && assign.isReleased())
+    		{
+    			assign.calculateStatistics(gradeRecords);
+    			if(cateMap.get(assign.getCategory().getId()) == null)
+    			{
+    				List assignList = new ArrayList();
+    				assignList.add(assign);
+    				cateMap.put(assign.getCategory().getId(), assignList);
+    			}
+    			else
+    			{
+    				List assignList = (List) cateMap.get(assign.getCategory().getId());
+    				assignList.add(assign);
+    				cateMap.put(assign.getCategory().getId(),assignList);
+    			}
+    		}
+    	}
+    	
+  		for (Iterator iter = categories.iterator(); iter.hasNext(); )
+    	{
+    		Category cate = (Category) iter.next();
+    		if(cate != null && cateMap.get(cate.getId()) != null)
+    		{
+    			cate.calculateStatistics((List) cateMap.get(cate.getId()));
+    		}
+    	}
+  		return categories;
+    }
+
 }
