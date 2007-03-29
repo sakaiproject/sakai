@@ -123,6 +123,7 @@ import org.sakaiproject.coursemanagement.api.CourseOffering;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.Enrollment;
 import org.sakaiproject.coursemanagement.api.Membership;
+import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.authz.api.GroupProvider;
 import org.apache.velocity.tools.generic.SortTool;
 
@@ -11293,7 +11294,8 @@ public class SiteAction extends PagedResourceActionII {
 				Section section = null;
 				try {
 					section = cms.getSection(sectionEid);
-				} catch (Exception e) {
+				} catch (IdNotFoundException e) {
+					M_log.warn(e.getMessage());
 				}
 				if (section != null) {
 					String courseOfferingEid = section.getCourseOfferingEid();
