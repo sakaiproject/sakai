@@ -12,17 +12,15 @@
 <h3 rsf:id="new_poll_title">Add a question</h3>
 <form rsf:id="add-poll-form">
 <table>
+
   <tr>
-    <td colspan="2"><span class="reqStarInline">*</span> <span rsf:id="new-poll-question-label">Question</span></td>
-    </tr><tr>
-    <td colspan="2"><div rsf:id="new-poll-text:"><textarea name="Question" type="text" cols="65" rows="30" rsf:id="item_text-dummy"></textarea></div></td>
+    <td><span class="reqStarInline">*</span> <span rsf:id="new-poll-question-label">Question</span></td>
+    <td><input name="Question" type="text" size="50" rsf:id="new-poll-text" /></td>
   </tr>
   <tr>
-    	<td colspan="2"><span rsf:id="new-poll-descr-label">Additional Instructions</span><br /><span rsf:id="new-poll-descr-label2">(if applicable)</span></td>
-   </tr>
-   <tr>
-    	<td colspan="2"><div rsf:id="newpolldescr:"><textarea name="Question" type="text" cols="65" rows="30" rsf:id="new-poll-descr-dummy"></textarea></div>
-    </td>
+    <td><span rsf:id="new-poll-descr-label">Additional Instructions</span><br /><span rsf:id="new-poll-descr-label2">(if applicable)</span></td>
+
+    <td><input name="Instructions" type="text" size="50" rsf:id="new-poll-descr"/></td>
   </tr>
   <tr>
     <td> <span class="reqStarInline">*</span><span rsf:id="new-poll-open-label">Opening</span></td>
