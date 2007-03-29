@@ -118,13 +118,26 @@
 	      
       <div class="act">
           <h:commandButton action="#{ForumTool.processActionSaveForumSettings}" value="#{msgs.cdfm_button_bar_save_setting}"
-          rendered="#{ForumTool.selectedForum.forum.id != null}" accesskey="s"> 
+          								 rendered="#{ForumTool.selectedForum.forum.id != null && !ForumTool.selectedForum.markForDeletion}" accesskey="s"> 
     	 	  	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>         
           </h:commandButton>
-          <h:commandButton action="#{ForumTool.processActionSaveForumAsDraft}" value="#{msgs.cdfm_button_bar_save_draft}" accesskey="d">
+          <h:commandButton action="#{ForumTool.processActionSaveForumAsDraft}" value="#{msgs.cdfm_button_bar_save_draft}" accesskey="v"
+          								 rendered = "#{!ForumTool.selectedForum.markForDeletion}">
 	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
           </h:commandButton>  
-          <h:commandButton action="#{ForumTool.processActionSaveForumAndAddTopic}" value="#{msgs.cdfm_button_bar_save_setting_add_topic}" accesskey="s">
+          <h:commandButton action="#{ForumTool.processActionSaveForumAndAddTopic}" value="#{msgs.cdfm_button_bar_save_setting_add_topic}" accesskey="t"
+          								 rendered = "#{!ForumTool.selectedForum.markForDeletion}">
+	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
+          </h:commandButton>
+          <h:commandButton id="delete_confirm" action="#{ForumTool.processActionDeleteForumConfirm}" 
+                           value="#{msgs.cdfm_button_bar_delete}" rendered="#{!ForumTool.selectedForum.markForDeletion && ForumTool.displayForumDeleteOption}"
+                           accesskey="d">
+	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
+          </h:commandButton>
+          
+          <h:commandButton id="delete" action="#{ForumTool.processActionDeleteForum}" 
+                           value="#{msgs.cdfm_button_bar_delete}" rendered="#{ForumTool.selectedForum.markForDeletion}"
+                           accesskey="d">
 	        	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
           </h:commandButton>
           <h:commandButton  action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_button_bar_cancel}" accesskey="x" />

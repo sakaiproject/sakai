@@ -2562,6 +2562,36 @@ public class DiscussionForumTool
 
     return aMsg;
   }
+  
+  /**
+   * Prevents users from trying to delete the topic they are currently creating
+   * @return
+   */
+  public boolean isDisplayTopicDeleteOption()
+  {
+	  Topic topic = selectedTopic.getTopic();
+	  if (topic == null || topic.getId() == null)
+		  return false;
+	  
+	  Topic topicInDb = forumManager.getTopicById(topic.getId());
+	  
+	  return topicInDb != null;
+  }
+  
+  /**
+   * Prevents users from trying to delete the forum they are currently creating
+   * @return
+   */
+  public boolean isDisplayForumDeleteOption()
+  {
+	  OpenForum forum = selectedForum.getForum();
+	  if (forum == null || forum.getId() == null)
+		  return false;
+	  
+	  OpenForum forumInDb = forumManager.getForumById(forum.getId());
+	  
+	  return forumInDb != null;
+  }
 
   public String processDfComposeToggle()
   {
