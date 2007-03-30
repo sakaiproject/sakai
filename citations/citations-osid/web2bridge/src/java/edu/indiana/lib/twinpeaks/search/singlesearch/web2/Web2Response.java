@@ -113,7 +113,8 @@ public class Web2Response extends SearchResultBase {
 				.getDocumentElement(), "RESULTS");
 		recordList = DomUtils.getElementList(resultElement, "RECORD");
 
-		for (int i = 0; i < recordList.getLength(); i++) {
+		for (int i = 0; i < recordList.getLength(); i++) 
+		{
 			MatchItem item;
 			Element dataElement, recordElement;
 			NodeList nodeList;
@@ -330,7 +331,6 @@ public class Web2Response extends SearchResultBase {
 			addItem(item);
 
 		}
-
 	}
 
 	/**
@@ -344,7 +344,8 @@ public class Web2Response extends SearchResultBase {
 	 *            inLineCitation to be parsed
 	 */
 
-	private void doRegexParse(String database, MatchItem item) {
+	private void doRegexParse(String database, MatchItem item) 
+	{
 		Pattern pattern;
 		Matcher matcher;
 
@@ -357,7 +358,22 @@ public class Web2Response extends SearchResultBase {
 		boolean hasSourceTitle = false;
 		
 		
-		try {
+		try 
+		{
+			String      citation;
+			DataSource  dataSource;
+	  	boolean     regExpFound;
+			
+			citation    = (String) ((MatchItem.PartPair) getPartPair(
+               				InLineCitationPartStructure.getPartStructureId(), item))
+				                                         .getValue() ;
+		  dataSource  = new DataSource(database, citation);
+
+      if (!dataSource.findRegExp())
+      {
+        return;
+      }
+
 			hasVolume = recordHasPart(VolumePartStructure.getPartStructureId(),
 					item);
 
@@ -376,33 +392,20 @@ public class Web2Response extends SearchResultBase {
 			hasEndPage = recordHasPart(EndPagePartStructure
 					.getPartStructureId(), item);
 
-			 hasSourceTitle = recordHasPart(SourceTitlePartStructure
+ 		 hasSourceTitle = recordHasPart(SourceTitlePartStructure
 			 .getPartStructureId(), item);
 			
 			
-
-			String citation = (String) ((MatchItem.PartPair) getPartPair(
-					InLineCitationPartStructure.getPartStructureId(), item))
-					.getValue() ;
-			
-			
-			// No individual data elements, so proceed to process Citation
-			// element.
-			DataSource dataSource = new DataSource(database, citation);
-			boolean regExpFound = dataSource.findRegExp();
-
-			
-			if (!hasVolume && regExpFound) {
+			if (!hasVolume) {
 				pattern = Pattern.compile(dataSource.getVolumeToken());
 				matcher = pattern.matcher(citation);
 				if (matcher.find()) {
 					addPartStructure(item, VolumePartStructure.getInstance()
 							.getId(), matcher.group());
 				}
-
 			}
 
-			if (!hasIssue && regExpFound) {
+			if (!hasIssue) {
 				pattern = Pattern.compile(dataSource.getIssueToken());
 				matcher = pattern.matcher(citation);
 				if (matcher.find()) {
@@ -411,7 +414,7 @@ public class Web2Response extends SearchResultBase {
 				}
 			}
 
-			if (!hasDate && regExpFound) {
+			if (!hasDate) {
 				pattern = Pattern.compile(dataSource.getDateToken());
 				matcher = pattern.matcher(citation);
 							
@@ -425,8 +428,7 @@ public class Web2Response extends SearchResultBase {
 				}
 			}
 			
-
-			if (!hasYear && regExpFound) {
+			if (!hasYear) {
 				pattern = Pattern.compile(dataSource.getYearToken());
 				matcher = pattern.matcher(citation);
 							
@@ -440,7 +442,7 @@ public class Web2Response extends SearchResultBase {
 				}
 			}
 			
-			if ((!hasStartPage || !hasEndPage) && regExpFound) {
+			if (!hasStartPage || !hasEndPage) {
 				pattern = Pattern.compile(dataSource.getPagesToken());
 				matcher = pattern.matcher(citation);
 				if (matcher.find()) {
@@ -448,7 +450,7 @@ public class Web2Response extends SearchResultBase {
 				}
 			}
 			
-			if( !hasSourceTitle && regExpFound ) {
+			if(!hasSourceTitle) {
 				pattern = Pattern.compile(dataSource.getSourceTitleToken());
 				matcher = pattern.matcher( citation );
 				if( matcher.find() ) {
@@ -456,17 +458,11 @@ public class Web2Response extends SearchResultBase {
 							matcher.group().length()-1 );
 					addPartStructure(item, SourceTitlePartStructure.getInstance().getId(),
 							sourceTitle );
-					
 				}
 			}
 			
-			
-
-		} catch (org.osid.repository.RepositoryException re) {
-
-			_log.warn(
-					"doRegexParse() failed getting " + "PartStructure Types.",
-					re);
+		} catch (org.osid.repository.RepositoryException e) {
+			_log.warn("doRegexParse() failed", e);
 		}
 	}
 
