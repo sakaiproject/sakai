@@ -21,6 +21,12 @@ update osp_list_config set selected_columns = replace(selected_columns, 'siteNam
 --Updating for a change to the synoptic view for portfolio worksites
 update sakai_site_tool_property set name='siteTypeList', value='portfolio,PortfolioAdmin' where value='portfolioWorksites';
 
+--making sure these fields allow nulls
+ALTER TABLE osp_scaffolding MODIFY ( readyColor VARCHAR2(7) NULL );
+ALTER TABLE osp_scaffolding MODIFY ( pendingColor VARCHAR2(7) NULL );
+ALTER TABLE osp_scaffolding MODIFY ( completedColor VARCHAR2(7) NULL );
+ALTER TABLE osp_scaffolding MODIFY ( lockedColor VARCHAR2(7) NULL );
+
 
 ----------------------------------------------------------------------------------------------------------------------------------------
 
