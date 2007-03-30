@@ -66,7 +66,9 @@ public class DecoratedChatChannel {
     */
    public String processActionEditRoomDirect()
    {
-      directEdit = true;
+      //Setting this to false to the UI doesn't change too much
+      //directEdit = true;
+      directEdit = false;
       return chatTool.processActionEditRoom(this);
    }
    

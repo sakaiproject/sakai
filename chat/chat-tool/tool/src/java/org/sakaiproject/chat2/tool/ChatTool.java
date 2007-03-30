@@ -363,6 +363,13 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       try {
          ChatChannel newChannel = getChatManager().createNewChannel(getContext(), "", false, true);
          currentChannelEdit = new DecoratedChatChannel(this, newChannel, true);
+         
+         //init the filter param
+         if (currentChannelEdit.getChatChannel().getFilterType().equals(ChatChannel.FILTER_BY_NUMBER) ||
+               currentChannelEdit.getChatChannel().getFilterType().equals(ChatChannel.FILTER_BY_TIME)) {
+            currentChannelEdit.setFilterParamLast(currentChannelEdit.getChatChannel().getFilterParam());
+            currentChannelEdit.setFilterParamPast(currentChannelEdit.getChatChannel().getFilterParam());
+         }
          //return "";
          return PAGE_EDIT_A_ROOM;
       }
@@ -481,6 +488,10 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    {
       setCurrentChannel(chatChannel);
       return PAGE_ENTER_ROOM;
+   }
+   
+   public String processActionListRooms() {
+      return PAGE_LIST_ROOMS;
    }
    
    /**

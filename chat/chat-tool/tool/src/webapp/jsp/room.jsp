@@ -7,10 +7,10 @@
 </script>
       
          <sakai:tool_bar rendered="#{ChatTool.canManageTool or ChatTool.siteChannelCount > 1 or ChatTool.maintainer}">
-            <h:commandLink action="#{ChatTool.currentChannel.processActionEditRoomDirect}" rendered="#{ChatTool.canManageTool}">
+            <h:commandLink action="#{ChatTool.processActionListRooms}" rendered="#{ChatTool.canManageTool}">
                <h:outputText value="#{msgs.manage_tool}" />
             </h:commandLink>
-            <h:commandLink action="listRooms" rendered="#{ChatTool.siteChannelCount > 1}">
+            <h:commandLink action="#{ChatTool.processActionListRooms}" rendered="#{ChatTool.siteChannelCount > 1}">
                <h:outputText value="#{msgs.change_room}" />
             </h:commandLink>
             <h:commandLink rendered="#{ChatTool.maintainer}"
