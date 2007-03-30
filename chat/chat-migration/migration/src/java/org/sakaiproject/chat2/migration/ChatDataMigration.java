@@ -126,11 +126,16 @@ public class ChatDataMigration {
       PrintWriter sqlFile = new PrintWriter(new BufferedWriter(new FileWriter(outputFile, false)), true);
 
       try {
-         //Add a new column for us to keep track
+         
+         sqlFile.println(getDbPrefix());
+         
+         //Add a new columns for us to keep track
          sqlFile.println(getMessageFromBundle("alter.channel"));
          
          sqlFile.println(getMessageFromBundle("alter.message"));
-
+         
+         sqlFile.println();
+         
          connection = sqlService.borrowConnection();
          printDebug("*******BORROWED A CONNECTION");
          runChannelMigration(connection, sqlFile);
