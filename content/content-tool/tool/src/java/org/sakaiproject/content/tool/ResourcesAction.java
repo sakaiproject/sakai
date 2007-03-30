@@ -1353,8 +1353,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
 		}
 		context.put("preventPublicDisplay", preventPublicDisplay);
-		
-
 	}
 
 	/**
@@ -4648,7 +4646,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			
 			context.put("listActions", listActions);
 			context.put("counter", new EntityCounter());
-			context.put("sysout", System.out);
 
 			// context.put ("other_sites", other_sites);
 			//state.setAttribute(STATE_COLLECTION_ROOTS, all_roots);
@@ -5427,7 +5424,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			String name = params.getString("name.0");
 			if(name != null)
 			{
-				item.setDisplayName(name);
+				item.setName(name);
 			}
 			
 			String collectionId = (String) state.getAttribute(STATE_CREATE_WIZARD_COLLECTION_ID);

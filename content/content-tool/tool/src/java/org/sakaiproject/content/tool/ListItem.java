@@ -273,7 +273,7 @@ public class ListItem
 
 	protected ContentEntity entity;
 	protected AccessMode accessMode;
-	protected AccessMode effectiveAccess;
+	protected AccessMode inheritedAccessMode;
 	protected Collection<Group> groups = new Vector<Group>();
 	protected Collection<Group> inheritedGroups = new Vector<Group>();
 	protected Collection<Group> possibleGroups = new Vector<Group>();
@@ -281,6 +281,7 @@ public class ListItem
 	protected Collection<Group> allowedAddGroups = new Vector<Group>();
 
 	protected Map<String,Group> possibleGroupsMap = new HashMap<String, Group>();
+	
 	protected boolean hidden;
 	protected boolean isAvailable;
 	protected boolean useReleaseDate;
@@ -298,7 +299,7 @@ public class ListItem
 
 	protected String containingCollectionId;
 
-	protected String displayName;
+	//protected String displayName;
 
 	protected boolean isUserSite = false;
 	protected boolean isDropbox = false;
@@ -508,13 +509,18 @@ public class ListItem
 		this.setCreatedTime(props.getPropertyFormatted(ResourceProperties.PROP_CREATION_DATE));
 		
 		this.accessMode = entity.getAccess();
-		this.effectiveAccess = entity.getInheritedAccess();
+		this.inheritedAccessMode = entity.getInheritedAccess();
+		//this.effectiveAccess = entity.getInheritedAccess();
 		this.groups.clear();
 		this.groups.addAll(entity.getGroupObjects());
 		this.inheritedGroups.clear();
 		this.inheritedGroups.addAll(entity.getInheritedGroupObjects());
 		
-		if(contextId != null)
+		if(this.inheritedAccessMode == AccessMode.GROUPED)
+		{
+			setPossibleGroups(this.inheritedGroups);
+		}
+		else if(contextId != null)
 		{
 			try
 	        {
@@ -537,7 +543,7 @@ public class ListItem
 				groupsWithRemovePermission.addAll(more);
 			}
 		}
-		else if(AccessMode.GROUPED == this.effectiveAccess)
+		else if(AccessMode.GROUPED == this.inheritedAccessMode)
 		{
 			groupsWithRemovePermission = contentService.getGroupsWithRemovePermission(ref.getContainer());
 		}
@@ -561,7 +567,7 @@ public class ListItem
 				groupsWithAddPermission.addAll(more);
 			}
 		}
-		else if(AccessMode.GROUPED == this.effectiveAccess)
+		else if(AccessMode.GROUPED == this.inheritedAccessMode)
 		{
 			groupsWithAddPermission = contentService.getGroupsWithAddPermission(ref.getContainer());
 		}
@@ -735,25 +741,36 @@ public class ListItem
 		this.setCreatedTime(now.getDisplay());
 		
 		this.accessMode = AccessMode.INHERITED;
-		this.effectiveAccess = parent.getEffectiveAccess();
+		this.inheritedAccessMode = parent.getEffectiveAccess();
+		//this.effectiveAccess = parent.getEffectiveAccess();
 		this.groups.clear();
 		//this.groups.addAll();
 		this.inheritedGroups.clear();
 		if(parent.getAccessMode() == AccessMode.GROUPED)
 		{
 			this.inheritedGroups.addAll(parent.getGroups());
+			this.setPossibleGroups(parent.getGroups());
 		}
 		else
 		{
 			this.inheritedGroups.addAll(parent.getInheritedGroups());
+			this.setPossibleGroups(parent.getPossibleGroups());
+
 		}
-		setPossibleGroups(parent.getPossibleGroups());
         
 		this.allowedRemoveGroups = new Vector(parent.allowedRemoveGroups);		
 		this.allowedAddGroups = new Vector(parent.allowedAddGroups);
 		
 
         this.isPubviewInherited = parent.isPubviewInherited || parent.isPubview;
+        if(this.isPubviewInherited)
+        {
+        	this.isPubview = false;
+        }
+        else
+        {
+        	this.isPubview = contentService.isPubView(id);
+        }
 		
 		this.hidden = false;
 		this.useReleaseDate = false;
@@ -1050,12 +1067,7 @@ public class ListItem
 				}
 			}
 		}
-		this.setDisplayName(displayName);
-	}
-
-	public void setDisplayName(String displayName) 
-	{
-		this.displayName = displayName;
+		this.setName(displayName);
 	}
 
 	/**
@@ -1223,8 +1235,15 @@ public class ListItem
      */
     public AccessMode getEffectiveAccess()
     {
-    	return effectiveAccess;
-    }
+    	AccessMode access = this.accessMode;
+    	
+		if(AccessMode.INHERITED == access)
+		{
+			access = this.inheritedAccessMode;
+		}
+
+		return access;
+	}
     
     /**
      * @return
@@ -1246,12 +1265,28 @@ public class ListItem
 	    return this.entity;
     }
     
-    public String[] getGroupNameArray()
+    public String[] getGroupNameArray(boolean includeItemName)
     {
-    	String[] names = new String[this.inheritedGroups.size()];
+    	Collection<Group> groups = this.groups;
+    	if(AccessMode.INHERITED == this.accessMode)
+    	{
+    		groups = this.inheritedGroups;
+    	}
+    	
+    	int size = groups.size();
+		if(includeItemName)
+		{
+			size += 1;
+		}
+    	String[] names = new String[size];
     	
     	int index = 0;
-    	for(Group group : this.inheritedGroups)
+    	if(includeItemName)
+    	{
+    		names[index] = this.name;
+    		index++;
+    	}
+    	for(Group group : groups)
     	{
     		names[index] = group.getTitle();
     		index++;
@@ -1259,7 +1294,95 @@ public class ListItem
     	
     	return names;
     }
+    
+    public String getEffectiveAccessLabel()
+    {
+		String label = rb.getString("access.site");
+		
+		if(this.isPubviewInherited || this.isPubview)
+		{
+			label = rb.getString("access.public");
+		}
+		else if(AccessMode.GROUPED == this.getEffectiveAccess())
+		{
+			label = rb.getString("access.group");
+		}
+
+		return label;
+
+    }
+    
+    public String getGroupNamesAsString()
+    {
+    	String names = "";
+    	String[] groups = getGroupNameArray(false);
+    	for(int i = 0; i < groups.length; i++)
+    	{
+    		if(i > 0 && i < groups.length)
+    		{
+    			names += ", ";
+    		}
+    		names += groups[i];
+    	}
+    	return names;
+    }
+    
+    public String getEffectiveGroupsLabel()
+    {
+		String label = rb.getString("access.site1");
+		
+		if(this.isPubviewInherited())
+		{
+			label = rb.getString("access.public1");
+		}
+		else if(this.isPubview())
+		{
+			label = rb.getString("access.public1");
+		}
+		else if(this.isDropbox)
+		{
+			label = rb.getString("access.dropbox1");
+		}
+		else if(AccessMode.GROUPED == getEffectiveAccess())
+		{
+			int size = getNumberOfGroups();
+			label = (String) rb.getFormattedMessage("access.group1",  new Object[]{getGroupNamesAsString()});
+		}
+
+		return label;
+    }
 	
+	private int getNumberOfGroups()
+    {
+		int size = 0;
+    	
+    	if(AccessMode.INHERITED == this.accessMode)
+    	{
+    		size = this.inheritedGroups.size();
+    	}
+    	else
+    	{
+    		size = this.groups.size();
+    	}
+    	
+    	return size;
+    }
+	
+	public String getMultiGroupLabel()
+	{
+		int size = getNumberOfGroups();
+		String label = "";
+		if(size > 9)
+		{
+			label = trb.getFormattedMessage("access.groupsX",  getGroupNameArray(true));
+		}
+		else
+		{
+			label = trb.getFormattedMessage("access.groups" + size,  getGroupNameArray(true));
+		}
+		return label;
+	}
+
 	/**
      * @return
      */
@@ -1505,7 +1628,7 @@ public class ListItem
     
 	public boolean isGroupInherited()
     {
-    	return AccessMode.GROUPED == this.effectiveAccess && AccessMode.INHERITED == this.accessMode;
+    	return AccessMode.GROUPED == this.inheritedAccessMode;
     }
 
 	/**
@@ -1566,7 +1689,7 @@ public class ListItem
     	boolean isPossible = false;
     	
     	Collection<Group> groupsToCheck = this.possibleGroups;
-    	if(AccessMode.GROUPED == this.effectiveAccess)
+    	if(AccessMode.GROUPED == this.inheritedAccessMode)
     	{
     		groupsToCheck = this.inheritedGroups;
     	}
@@ -1582,7 +1705,7 @@ public class ListItem
     	
     	return isPossible;
     }
-
+    
 	/**
      * @return the isPubview
      */
@@ -1620,7 +1743,7 @@ public class ListItem
 	 {
 		 //Collection groups = getInheritedGroups();
 		 return // AccessMode.INHERITED.toString().equals(this.m_access) && 
-		 AccessMode.GROUPED == this.effectiveAccess && 
+		 AccessMode.GROUPED == this.inheritedAccessMode && 
 		 this.inheritedGroups != null && 
 		 this.inheritedGroups.size() == 1; 
 		 // && this.m_oldInheritedGroups != null 
@@ -1739,14 +1862,6 @@ public class ListItem
 	{
 		this.description = description;
 	}
-    
-    /**
-     * @param effectiveAccess the effectiveAccess to set
-     */
-    public void setEffectiveAccess(AccessMode effectiveAccess)
-    {
-    	this.effectiveAccess = effectiveAccess;
-    }
     
     /**
      * @param isExpanded the isExpanded to set
@@ -2198,9 +2313,9 @@ public class ListItem
 
 	protected void setDisplayNameOnEntity(ResourcePropertiesEdit props) 
 	{
-		if(this.displayName != null)
+		if(this.name != null)
 		{
-			props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, this.displayName);
+			props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, this.name);
 		}
 	}
 
@@ -2212,11 +2327,6 @@ public class ListItem
 	public void setCopyrightStatus(String copyrightStatus) 
 	{
 		this.copyrightStatus = copyrightStatus;
-	}
-
-	public String getDisplayName() 
-	{
-		return displayName;
 	}
 
 	public boolean isUserSite() 
@@ -2315,6 +2425,16 @@ public class ListItem
 	public List<ResourceToolAction> getPasteActions()
     {
     	return pasteActions;
+    }
+
+	public AccessMode getInheritedAccessMode()
+    {
+    	return inheritedAccessMode;
+    }
+
+	public void setInheritedAccessMode(AccessMode inheritedAccessMode)
+    {
+    	this.inheritedAccessMode = inheritedAccessMode;
     }
 
 

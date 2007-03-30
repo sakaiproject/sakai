@@ -341,15 +341,15 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 						#end
 					</td>
 					#if($item.depth > 0)
-						<td headers="access" title="$item.effectiveGroups">
+						<td headers="access" title="$item.effectiveGroupsLabel">
 							#if($item.isPubviewInherited() || $item.isPubview())
 								$tlang.getString("access.public")
-							#elseif($item.isInDropbox())
+							#elseif($item.isDropbox())
 								$tlang.getString("access.dropbox")
-							#elseif($item.effectiveAccess == $INHERITED_ACCESS || $item.effectiveAccess == $SITE_ACCESS)
-								$tlang.getString("access.site")
 							#elseif($item.effectiveAccess == $GROUP_ACCESS)
 								$tlang.getString("access.group")
+							#else
+								$tlang.getString("access.site")
 							#end
 						</td>
 						<td headers="creator">

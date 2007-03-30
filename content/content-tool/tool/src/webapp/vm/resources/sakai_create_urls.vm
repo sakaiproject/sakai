@@ -59,7 +59,7 @@
 		#if ($model.resourceTypeDef.hasNotificationDialog())
 			<p class="shorttext">
 				<label for="notify${DOT}$i">
-					$tlang.getString("gen.email")
+					$tlang.getString("gen.email1")
 				</label>	
 				<select name="notify$i" id="notify${DOT}$i">
 					<option value="r">$tlang.getString("gen.email2")</option>

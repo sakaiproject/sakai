@@ -83,7 +83,6 @@
 			</select>
 #end
 ##
-
 <!-- beginning of sakai_properties.vm (loop counter: $i) -->
 	<p class="shorttext">
 		<label for="description${DOT}$i">
@@ -161,21 +160,33 @@
 				<input type="hidden" name="access_mode${DOT}$i" id="access_mode_hidden${DOT}$i" value="$INHERITED_ACCESS" />
 			#elseif($item.isSingleGroupInherited())
 				##Grouped access is inherited; parent folder limited to a single group (report that grouped access limited to a single group is inherited from above)
-				<p>$tlang.getString("access.groups1")</p>
+				<p>$tlang.getFormattedMessage("access.groups1", ["$item.parent.name", "$item.groups.get(0).title"])</p>
 				<input type="hidden" name="access_mode${DOT}$i" id="access_mode_hidden${DOT}$i" value="$INHERITED_ACCESS" />
-			#elseif($item.isGroupInherited())	
+			#elseif($item.isGroupInherited() && "$item.accessMode" == "grouped")	
 				##Grouped access is inherited; parent folder limited to two or more groups (present choice among groups; table shows only groups inherited from parent)
-				<p class="instruction">$tlang.getFormattedMessage("access.groups${$item.inheritedGroups.size()}",$item.groupNameArray)</p>
+				#set ($listDisplay="block")
+				<p class="instruction">$item.multiGroupLabel</p>
 				<p>
-					<input type="radio" name="access_mode${DOT}$i" id="access_mode_public${DOT}$i" value="public"   style="border:none" onclick="javascript:document.getElementById('groupTable').style.display='block';" />
+					<input type="radio" name="access_mode${DOT}$i" id="access_mode_public${DOT}$i" value="inherit" style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='none';" />
 					<label for="access_mode_public${DOT}$i">$tlang.getString("access.inherit")</label>
 				</p>
 				<p>
-					<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="groups"   style="border:none" onclick="javascript:document.getElementById('groupTable1').style.display='block';" />
+					<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="groups" checked="checked"    style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='block';" />
+					<label for="access_mode_public${DOT}$i">$tlang.getString("access.groups.choice")</label>
+				</p>
+			#elseif($item.isGroupInherited())	
+				##Grouped access is inherited; parent folder limited to two or more groups (present choice among groups; table shows only groups inherited from parent)
+				<p class="instruction">$item.multiGroupLabel</p>
+				<p>
+					<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherited" checked="checked"   style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='block';" />
+					<label for="access_mode_public${DOT}$i">$tlang.getString("access.inherit")</label>
+				</p>
+				<p>
+					<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="groups"   style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='block';" />
 					<label for="access_mode_public${DOT}$i">$tlang.getString("access.groups.choice")</label>
 				</p>
 			#elseif($item.isPubviewInherited())
-				// Public access inherited from parent (report that to user)
+				## Public access inherited from parent (report that to user)
 				<p>$tlang.getFormattedMessage("access.public.nochoice", ["$item.parent.name"])</p>
 				<input type="hidden" name="access_mode${DOT}$i" id="access_mode_hidden${DOT}$i" value="$INHERITED_ACCESS" />
 			#else
@@ -184,14 +195,14 @@
 					$tlang.getString("edit.who")
 				</p>
 				<p>
-					<input type="radio" name="access_mode" id="access_mode_inherited" value="inherited" #if(!$model.isPubview() && ("$!item.accessMode" == "$SITE_ACCESS" || "$!item.accessMode" == "$INHERITED_ACCESS")) checked="checked"#end style="border:none" onclick="javascript:document.getElementById('groupTable').style.display='none';" />
-					<label for="access_mode_site">$tlang.getString("access.site.choice")</label>
+					<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherited" #if(!$model.isPubview() && ("$!item.accessMode" == "$SITE_ACCESS" || "$!item.accessMode" == "$INHERITED_ACCESS")) checked="checked"#end style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='none';" />
+					<label for="access_mode_site${DOT}$i">$tlang.getString("access.site.choice")</label>
 				</p>
 				#if($item.isPubviewPossible())
 					## Public is possible
 					<p>
-						<input type="radio" name="access_mode" id="access_mode_public" value="public" #if($!item.isPubview()) checked="checked"#end style="border:none" onclick="javascript:document.getElementById('groupTable').style.display='none';" />
-						<label for="access_mode_public">$tlang.getString("access.public.choice")</label>
+						<input type="radio" name="access_mode${DOT}$i" id="access_mode_public${DOT}$i" value="public" #if($!item.isPubview()) checked="checked"#end style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='none';" />
+						<label for="access_mode_public${DOT}$i">$tlang.getString("access.public.choice")</label>
 					</p>
 				#end
 				#if($item.isGroupPossible())
@@ -202,15 +213,15 @@
 						#set ($listDisplay="none")
 					#end
 					<p>
-						<input type="radio" name="access_mode" id="access_mode_groups" value="groups" #if("$!item.accessMode" == "$GROUP_ACCESS") checked="checked"#end style="border:none" onclick="javascript:document.getElementById('groupTable1').style.display='block';" />
-						<label for="access_mode_public">$tlang.getString("access.groups.choice")</label>
+						<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="groups" #if("$!item.accessMode" == "$GROUP_ACCESS") checked="checked"#end style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='block';" />
+						<label for="access_mode_groups${DOT}$i">$tlang.getString("access.groups.choice")</label>
 					</p>
 				#end
 			#end
 		</div>
 
 		#if($model.isGroupPossible())
-			<table id="groupTable" class="listHier lines labelindnt" border="0" style="width:80%;display:$listDisplay" cellspacing="0" summary="$tlang.getString("edit.group3")">
+			<table id="groupTable${DOT}$i" class="listHier lines labelindnt" border="0" style="width:80%;display:$listDisplay" cellspacing="0" summary="$tlang.getString("edit.group3")">
 				<caption class="skip" style="display:none">$tlang.getString("edit.access4")</caption>
 				<tr>
 					<th id="selected${DOT}$i" style="width:2em;padding-left:.4em">
@@ -228,20 +239,24 @@
 					#if($model.isPossible($group))
 						<tr>
 							<td headers="selected${DOT}$i" style="padding-bottom:0;" style="width:2em">
-								#if($model.allowedRemove($group))
-									<input type="checkbox" name="access_groups${DOT}$i" id="access_groups_${group.Id}${DOT}$i" title="$group.title" value="$group.Id" #if($model.isLocal($group) || $model.isGroupInherited()) checked="checked"#end />
+								#if(!$model.isLocal($group))
+									<input type="checkbox" name="access_groups${DOT}$i" id="access_groups_${group.Id}${DOT}$i" title="$group.title" value="$group.Id" #if($model.isGroupInherited()) checked="checked"#end />
+								#elseif(!$model.isGroupInherited($group))
+									<input type="checkbox" name="access_groups${DOT}$i" id="access_groups_${group.Id}${DOT}$i" title="$group.title" value="$group.Id" />
+##								#elseif($model.allowedRemove($group))
+##									<input type="checkbox" name="access_groups${DOT}$i" id="access_groups_${group.Id}${DOT}$i" title="$group.title" value="$group.Id" checked="checked" />
 								#else
 									<img src="#imageLink("sakai/checkon.gif")" border="0" width="17" height="13" align="top" />
 								#end
 							</td>
 							<td headers="groupname${DOT}$i" style="padding-bottom:0;" class="checkbox">
 								<label for="access_groups_${group.Id}${DOT}$i">
-									$group.Title
+									$group.title
 								</label>	
 							</td>
-							<td headers="grpupdescription${DOT}$i" width="100%"> ##mozilla does not resize table children dynamically , so set here
+							<td headers="groupdescription${DOT}$i" width="100%"> ##mozilla does not resize table children dynamically , so set here
 								#set($description = "")
-								#if($group.Description)
+								#if($group.description)
 									#set($description = $group.Description)
 								#end
 								$!description

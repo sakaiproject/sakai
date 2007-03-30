@@ -182,6 +182,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			RunData data,
 			SessionState state)
 	{
+		// context.put("sysout", System.out);
 		context.put("tlang", rb);
 		
 		context.put("validator", new Validator());
