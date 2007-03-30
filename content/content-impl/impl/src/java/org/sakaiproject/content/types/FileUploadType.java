@@ -45,6 +45,7 @@ import org.sakaiproject.content.api.ResourceToolAction.ActionType;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.content.util.BaseResourceType;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
@@ -298,7 +299,9 @@ public class FileUploadType extends BaseResourceType
 
 		public List getRequiredPropertyKeys() 
 		{
-			return null;
+			List<String> rv = new Vector<String>();
+			rv.add(ResourceProperties.PROP_CONTENT_ENCODING);
+			return rv;
 		}
 
 		public String initializeAction(Reference reference) 
@@ -572,7 +575,9 @@ public class FileUploadType extends BaseResourceType
 
 		public List getRequiredPropertyKeys() 
 		{
-			return null;
+			List<String> rv = new Vector<String>();
+			rv.add(ResourceProperties.PROP_CONTENT_ENCODING);
+			return rv;
 		}
 
 		public String initializeAction(Reference reference) 
@@ -793,7 +798,9 @@ public class FileUploadType extends BaseResourceType
 
 		public List getRequiredPropertyKeys() 
 		{
-			return null;
+			List<String> rv = new Vector<String>();
+			rv.add(ResourceProperties.PROP_CONTENT_ENCODING);
+			return rv;
 		}
 
 		public String initializeAction(Reference reference) 

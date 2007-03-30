@@ -48,6 +48,7 @@ import org.sakaiproject.content.types.FileUploadType.FileUploadDuplicateAction;
 import org.sakaiproject.content.types.FileUploadType.FileUploadMoveAction;
 import org.sakaiproject.content.types.FileUploadType.FileUploadReviseAction;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
@@ -109,7 +110,9 @@ public class HtmlDocumentType extends BaseResourceType
 
 		public List getRequiredPropertyKeys() 
 		{
-			return null;
+			List<String> rv = new Vector<String>();
+			rv.add(ResourceProperties.PROP_CONTENT_ENCODING);
+			return rv;
 		}
 
 		public String initializeAction(Reference reference) 
@@ -326,7 +329,9 @@ public class HtmlDocumentType extends BaseResourceType
 
 		public List getRequiredPropertyKeys() 
 		{
-			return null;
+			List<String> rv = new Vector<String>();
+			rv.add(ResourceProperties.PROP_CONTENT_ENCODING);
+			return rv;
 		}
 
 	}
@@ -590,7 +595,9 @@ public class HtmlDocumentType extends BaseResourceType
 
 		public List getRequiredPropertyKeys() 
 		{
-			return null;
+			List<String> rv = new Vector<String>();
+			rv.add(ResourceProperties.PROP_CONTENT_ENCODING);
+			return rv;
 		}
 
 	}
