@@ -5,119 +5,113 @@ import java.util.regex.Pattern;
 
 public class DataSource {
 
-	public String dataSource;
-
-	private String citationString = "";
-
-	private String volumeToken = "";
-
-	private String issueToken = "";
-
-	private String dateToken = "";
-	
-	private String yearToken = "";
-		
-	private String pagesToken = "";
-
-	private String sourceTitleToken = "";
-	
-	private String regularExp = "";
+	public  String  dataSource;
+  private boolean dataSourceFound;
+	private String  citationString = "";
+	private String  volumeToken = "";
+	private String  issueToken = "";
+	private String  dateToken = "";
+	private String  yearToken = "";
+	private String  pagesToken = "";
+	private String  sourceTitleToken = "";
+	private String  regularExp = "";
 
 	private int replaceStartToken = 1;
-
 	private int replaceEndToken = 1;
 
 	private static final String JSTOR = "jstor";
-
-	private static final String PsycINFO = "PsycINFO";
-
-	private static final String EBSCOERIC = "ERIC (EBSCO)";
-
-	private static final String Blackwell = "Blackwell Publishing";
-
-	private static final String PUBMED = "PubMed";
-
-	private static final String ProjectMuse = "Project Muse";
-
-	private static final String ComputerMusicJournal = "Academic Search (EBSCO)";
-
-	private static final String ScienceDirect = "Science Direct";
-
-	private static final String CSAIlluminaERIC = "ERIC (CSA)";
-
-	private static final String ISIZoologicalRecord = "Zoological Record";
-
-	private static final String OvidBooks = "Ovid Books";
-
-	private static final String Factiva = "Factiva";
-
-	private static final String LexisNexisAcademic = "Lexis-Nexis Academic";
-	
-	private static final String FirstSearchWorldCat = "WorldCat";
-
 	private static final String JSTOR_REG_EXP = "(.+,)?Vol\\. \\d+, No\\. (\\d+)(/\\d+)?(, .*)? \\((.*)?\\d{4}\\), (pp\\.|p\\.) \\d+(-\\d+)?";
-
-	private static final String BLACKWELL_REG_EXP = "Volume \\d+(, Issue \\d+)?(, .*)?, Page \\d+-\\d+, (.*)?\\d{4}";
-
+	
+	private static final String PsycINFO = "PsycINFO";
 	private static final String PsycINFO_REG_EXP = "(.+)?( Vol \\d+\\(\\d+\\),)?( \\(Vol\\. \\d+\\).)?((\\(\\d{4}\\)|\\w{3} \\d{4}))?(.|,)? (pp\\. \\d+-\\d+|\\d+ pp\\.|\\(pp\\. \\d+-\\d+\\).) (.+)?";
-
+	
+	private static final String EBSCOERIC = "ERIC (EBSCO)";
 	private static final String EBSCOERIC_REG_EXP = ".+, v\\d+ n\\d+ p\\d+(-\\d+)? (.+)? \\d{4} \\(.+\\)";
-
-	private static final String PUBMED_REG_EXP = "(.+)?. \\d{4}(.+)?;\\d+\\(\\d+( .+)?\\):\\d+-\\d+.";
-
+	
+	private static final String Blackwell = "Blackwell Publishing";
+	private static final String BLACKWELL_REG_EXP = "Volume \\d+(, Issue \\d+)?(, .*)?, Page \\d+-\\d+, (.*)?\\d{4}";
+	
+	private static final String PUBMED = "PubMed";
+  private static final String PUBMED_REG_EXP = "(.+)?. \\d{4}(.+)?;\\d+\\(\\d+( .+)?\\):\\d+-\\d+.";
+	
+	private static final String ProjectMuse = "Project Muse";
 	private static final String ProjectMuse_REG_EXP = ".+,( Volume)? \\d+, Number \\d+,( .+)? \\d{4}, pp. \\d+-\\d+";
 
+	private static final String ComputerMusicJournal = "Academic Search (EBSCO)";
 	private static final String ComputerMusicJournal_REG_EXP = ".+, \\w{3}\\d{4}, Vol\\. \\d+ Issue \\d+(/\\d+)?, p\\d+-\\d+,.+";
 
+	private static final String ScienceDirect = "Science Direct";
 	private static final String ScienceDirect_REG_EXP = ".+, Volume \\d+, Issue \\d+,( \\d+)? (.+)? \\d{4}, Pages \\d+-\\d+";
 
+	private static final String CSAIlluminaERIC = "ERIC (CSA)";
 	private static final String CSAIlluminaERIC_REG_EXP = ".+; v\\d+ n\\d+ p\\d+(-\\d+)? (.+)? \\d{4}";
 
+	private static final String ISIZoologicalRecord = "Zoological Record";
 	private static final String ISIZoologicalRecord_REG_EXP = "(.+)?( \\d+ \\(.+\\) :)? \\d+-\\d+ (: (.+) )?\\d{4}";
 
+	private static final String OvidBooks = "Ovid Books";
 	private static final String OvidBooks_REG_EXP = "(.+)? \\(\\d+(.+)?\\)";
 
+	private static final String Factiva = "Factiva";
 	private static final String Factiva_REG_EXP = "(.+)?, \\d+ (.+)? \\d{4}, (.+)?";
 
+	private static final String LexisNexisAcademic = "Lexis-Nexis Academic";
 	private static final String LexisNexisAcademic_REG_EXP = "(.+, )?(.+)?\\w+ \\d+, \\d{4}( .+)?,(.+)?((.+)?Pg\\.(.+)?(\\w+)?\\d+,)?(.+)?";
-		//"(.+, )?(.+)?\\w+ \\d+, \\d{4}( .+)?,(.+)?( Pg\\. (\\w)?\\d+,)?(.+)?";
-	
+
+	private static final String FirstSearchWorldCat = "WorldCat";
 	private static final String FirstSearchWorldCat_REG_EXP ="(.+)?";
 				
 	
-	public DataSource(String dataSourceCode, String citation) {
+	public DataSource(String dataSourceCode, String citation) 
+	{
 		this.dataSource = dataSourceCode;
-
+    dataSourceFound = true;
+	
 		if (this.isJSTOR()) {
 			initJstor(citation);
+
 		} else if (this.isPsycINFO()) {
 			initPsycINFO(citation);
+
 		} else if (this.isEBSCOERIC()) {
 			initEBSCOERIC(citation);
+
 		} else if (this.isBlackwell()) {
 			initBlackwell(citation);
+
 		} else if (this.isPubMed()) {
 			initPubMed(citation);
+
 		} else if (this.isProjectMuse()) {
 			initProjectMuse(citation);
+
 		} else if (this.isComputerMusicJournal()) {
 			initComputerMusicJournal(citation);
+
 		} else if (this.isScienceDirect()) {
 			initScienceDirect(citation);
+
 		} else if (this.isCSAIlluminaERIC()) {
 			initCSAIlluminaERIC(citation);
+
 		} else if (this.isISIZoologicalRecord()) {
 			initISIZoologicalRecord(citation);
+
 		} else if (this.isFirstSearchWorldCat()) {
 			initFirstSearchWorldCat(citation);
+
 		}else if (this.isOvidBooks()) {
 			initOvidBooks(citation);
+
 		} else if (this.isFactiva()) {
 			initFactiva(citation);
+
 		} else if (this.isLexisNexisAcademic()) {
 			initLexisNexisAcademic(citation);
+		
+		} else {
+		  dataSourceFound = false;
 		}
-
 	}
 
 	private void initJstor(String citation) {
@@ -275,6 +269,11 @@ public class DataSource {
 		Pattern pattern;
 		Matcher matcher;
 
+    if (!dataSourceFound)
+    {
+      return false;
+    }
+    
 		pattern = Pattern.compile(this.getRegularExp());
 		matcher = pattern.matcher(this.getCitationString());
 
