@@ -69,7 +69,7 @@ public class FileUploadType extends BaseResourceType
 		
 		actions.put(ResourceToolAction.CREATE, new FileUploadCreateAction());
 		//actions.put(ResourceToolAction.ACCESS_CONTENT, new FileUploadAccessAction());
-		//actions.put(ResourceToolAction.REVISE_CONTENT, new FileUploadReviseAction());
+		actions.put(ResourceToolAction.REVISE_CONTENT, new FileUploadReviseAction());
 		actions.put(ResourceToolAction.REPLACE_CONTENT, new FileUploadReplaceAction());
 		actions.put(ResourceToolAction.REVISE_METADATA, new FileUploadPropertiesAction());
 		actions.put(ResourceToolAction.DUPLICATE, new FileUploadDuplicateAction());
@@ -317,7 +317,7 @@ public class FileUploadType extends BaseResourceType
 	        return true;
         }
 	}
-
+	
 	public class FileUploadDeleteAction implements ServiceLevelAction
 	{
 		/* (non-Javadoc)
@@ -550,7 +550,7 @@ public class FileUploadType extends BaseResourceType
 		 */
 		public ActionType getActionType()
 		{
-			return ResourceToolAction.ActionType.REPLACE_CONTENT;
+			return ResourceToolAction.ActionType.REVISE_CONTENT;
 		}
 
 		public String getId() 
@@ -590,7 +590,17 @@ public class FileUploadType extends BaseResourceType
          */
         public boolean available(ContentEntity entity)
         {
-	        return true;
+			boolean available = false;
+			if(entity instanceof ContentResource)
+			{
+				String mimetype = ((ContentResource) entity).getContentType();
+				if(mimetype == null)
+				{
+					mimetype = entity.getProperties().getProperty(ResourceProperties.PROP_CONTENT_TYPE);
+				}
+				available = (mimetype != null) && (ResourceType.MIME_TYPE_HTML.equals(mimetype) || ResourceType.MIME_TYPE_TEXT.equals(mimetype));
+			}
+	        return available;
         }
 	}
 	
