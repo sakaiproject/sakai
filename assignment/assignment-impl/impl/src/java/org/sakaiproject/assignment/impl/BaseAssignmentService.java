@@ -9729,11 +9729,23 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						
 						// update attributes for existing assignment
 						org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition = new org.sakaiproject.service.gradebook.shared.Assignment();
-				 		assignmentDefinition.setName(associateGradebookAssignment);
+				 		assignmentDefinition.setName(newAssignment_title);
 				 		assignmentDefinition.setPoints(new Double(newAssignment_maxPoints/10.0));
 				 		assignmentDefinition.setDueDate(new Date(newAssignment_dueTime.getTime()));
 				 		assignmentDefinition.setReleased(false);
 				 		g.updateAssignment(gradebookUid, associateGradebookAssignment, assignmentDefinition);
+				 		
+				 		// update the corresponding assignment property to the newly renamed gradebook entry
+				 		try
+				 		{
+					 		AssignmentEdit aEdit = editAssignment(assignmentRef);
+							aEdit.getPropertiesEdit().addProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, newAssignment_title);
+							commitEdit(aEdit);
+				 		}
+				 		catch (Exception ignore)
+				 		{
+				 			M_log.warn(this + assignmentRef + ignore.getMessage());
+				 		}
 					}
 					
 				}	// addUpdateRemove != null
