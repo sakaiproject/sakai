@@ -76,6 +76,8 @@
 			#end
 		</div>
 		<div class="navPanel">
+			## only show this for not "non-electronic" type of assignments
+			#if ($submissionType != 4)
 			<div class="viewNav">
 				#set ($gradeType = $assignment.getContent().TypeOfGrade)
 				<form name="defaultGradeForm" class="inlineForm" method="post" action="#toolForm($action)">
@@ -106,6 +108,7 @@
 					<input type="button" accesskey="a" class="active"  name="apply" value="$tlang.getString('gen.applygrade')" onclick="blur();document.defaultGradeForm.submit();" title="$tlang.getString("gen.applygrade")" />
 				</form>
 			</div>
+			#end
 			<div class="listNav">
 				<div class="instruction">
 					$tlang.getString("gen.viewing") $topMsgPos - $btmMsgPos $tlang.getString("gen.of") $allMsgNumber $tlang.getString("gen.items")
