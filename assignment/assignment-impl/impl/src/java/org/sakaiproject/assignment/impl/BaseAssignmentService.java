@@ -9693,6 +9693,19 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					{
 						// genereate alert message
 						rv = rb.getString("addtogradebook.nonUniqueTitle");
+						// remove the setting from assignment object
+						try
+						{
+							AssignmentEdit aEdit = editAssignment(assignmentRef);
+							aEdit.getPropertiesEdit().removeProperty(AssignmentService.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
+							aEdit.getPropertiesEdit().removeProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+							commitEdit(aEdit);
+						}
+						catch (Exception ignore)
+						{
+							// ignore the exception
+							M_log.warn(this + assignmentRef + ignore.getMessage());
+						}
 					}
 				}
 				else if (addUpdateRemoveAssignment.equals(GRADEBOOK_INTEGRATION_ASSOCIATE))
