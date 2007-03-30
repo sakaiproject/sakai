@@ -6,16 +6,18 @@
 	xmlns:u="jelly:util">
 
 	<goal name="migrate-chat" prereqs="sakai">
-
 		<ant:path id="chat.classpath">
 			<ant:pathelement location="${basedir}/target/classes/" />
+			<ant:path refid="maven.dependency.classpath"/>
 		</ant:path>
-
-		<ant:taskdef name="migrateChat" 
-			classname="org.sakaiproject.chat2.migration.ChatDataMigration"
-			classpathref="chat.classpath" />
-			
-      <ant:migrateChat outputFile="target/chat-migration.sql" debug="true" />
+		
+       <java classname="org.sakaiproject.chat2.migration.ChatDataMigration" 
+       		classpathref="chat.classpath"
+       		fork="true">
+       		<arg value="${chat.migration.debug}" />
+       		<arg value="target/chat-data.sql" />
+       </java>
 
 	</goal>
+
 </project>

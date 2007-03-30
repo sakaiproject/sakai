@@ -43,7 +43,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.PropertyResourceBundle;
 
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.db.api.SqlService;
@@ -53,45 +52,52 @@ import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.Task;
+
 
 /**
  * @author chrismaurer
  *
  */
-public class ChatDataMigration extends Task { 
-   
-   private String outputFile = "./migration/chat.sql";
-   //private ChatService chatService = null;
-   private SqlService sqlService = null;
+public class ChatDataMigration { 
    
    private static boolean debug = false;
-   protected static Object compMgr;
-   private Statement stmt;
-   
-   private ResourceLoader toolBundle;
+   private static String outputFile = "./migration/chat.sql";
    
    private static Log logger = LogFactory.getLog(ChatDataMigration.class);
    
+   protected static Object compMgr;
    
-   public void execute() throws BuildException {
-      super.execute();
-      printDebug("*******EXECUTE");
-      try {
+   private static SqlService sqlService = null;
+   
+   private static Statement stmt;
+   
+   private static ResourceLoader toolBundle;
+   
+   public static void main(String[] args)
+   {
+      System.out.println("*******starting.");
+      printDebug("*******MAIN");
+      //TestFactoryUtil test = new TestFactoryUtil("test");
+      try
+      {
+         debug=Boolean.parseBoolean(args[0]);
+         outputFile=args[1];
+         
+         printDebug("*******debug:" + debug);
+         printDebug("*******outputFile:" + outputFile);
+         
          oneTimeSetup();
-         //localInit();
          testDataMigration();
+         oneTimeTearDown();
       }
-      catch (Exception e) {
-         //printDebug(e.getMessage());
-         this.log(e.getMessage());
-         throw new BuildException(e);
+      catch (Exception ex)
+      {
+        System.out.println("ex="+ex);
       }
-   }
+      System.out.println("done.");
+    }
    
-   
-   protected void setUp() throws Exception {
+   protected static void setUp() throws Exception {
       printDebug("*******SETUP");
       
       //    Get the services we need for the tests
@@ -99,12 +105,12 @@ public class ChatDataMigration extends Task {
       printDebug("*******GOT SQL SERVICE");
    }
 
-   protected void tearDown() throws Exception {
+   protected static void tearDown() throws Exception {
       printDebug("*******TEARDOWN");
       sqlService = null;      
    }
 
-   public void testDataMigration() throws Exception {
+   public static void testDataMigration() throws Exception {
       printDebug("*******BEGIN");
       setUp();
       load();
@@ -112,7 +118,7 @@ public class ChatDataMigration extends Task {
       printDebug("*******DONE");
    }
    
-   public void load() throws Exception {
+   public static void load() throws Exception {
       printDebug("*******outputDir: " + outputFile);
 
       Connection connection = null;
@@ -132,7 +138,7 @@ public class ChatDataMigration extends Task {
       }
       catch (Exception e) {
          printDebug(e.toString());
-         this.log(e.getMessage());
+         logger.error(e.getMessage());
          throw new Exception(e);         
       }
       finally {
@@ -147,7 +153,7 @@ public class ChatDataMigration extends Task {
       }
    }
    
-   protected void runChannelMigration(Connection con, PrintWriter output) {
+   protected static void runChannelMigration(Connection con, PrintWriter output) {
       logger.info("runChannelMigration()");
       printDebug("*******GETTING CHANNELS");
       
@@ -175,13 +181,12 @@ public class ChatDataMigration extends Task {
                   // verify the root element
                   Element root = doc.getDocumentElement();
                   String context = root.getAttribute("context");
-                  //String context = "test";
                   String title = root.getAttribute("id");
                   String newChannelId = IdManager.createUuid();
                   
                   //TODO Chat lookup the config params?
-                  String outputSql = getMessageFromBundle("insert.channel", new Object[] {
-                        newChannelId, context, null, title, "SelectMessagesByTime", 3, 0, oldId});
+                  String outputSql = getMessageFromBundle("insert.channel", new Object[]{
+                        newChannelId, context, null, title, "", "SelectMessagesByTime", 3, 0, oldId});
                   /* 
                    * CHANNEL_ID, 
                    * CONTEXT, 
@@ -197,7 +202,7 @@ public class ChatDataMigration extends Task {
                   output.println(outputSql);
                   
                   //Get the messages for each channel
-                  runMessageMmigration(con, output, oldId);
+                  runMessageMmigration(con, output, oldId, newChannelId);
                   
                }
            } finally {
@@ -215,11 +220,11 @@ public class ChatDataMigration extends Task {
         logger.info("Migration task fininshed: runChannelMigration()");
    }
    
-   protected void runMessageMmigration(Connection con, PrintWriter output, String oldChannelId) {
-      logger.info("runMessageMmigration()");
+   protected static void runMessageMmigration(Connection con, PrintWriter output, String oldChannelId, String newChannelId) {
+      logger.info("runMessageMigration()");
       printDebug("*******GETTING MESSAGES");
       
-      String sql = getMessageFromBundle("select.oldmessages", new Object[] {oldChannelId});
+      String sql = getMessageFromBundle("select.oldmessages", new Object[]{oldChannelId});
       //String sql = "select c.channel_id, c.xml from chat_channel c";
       
       try {
@@ -241,7 +246,7 @@ public class ChatDataMigration extends Task {
                   //String oldChannelId = rs.getString("CHANNEL_ID");
                   String oldMessageId = rs.getString("MESSAGE_ID");
                   String owner = rs.getString("OWNER");
-                  Date messageDate = rs.getDate("MESSAGE_DATE");
+                  Date messageDate = rs.getTimestamp("MESSAGE_DATE");
                   Object xml = rs.getObject("XML");
                   
                   printDebug("*******FOUND MESSAGE: " + oldMessageId);
@@ -251,13 +256,14 @@ public class ChatDataMigration extends Task {
 
                   // verify the root element
                   Element root = doc.getDocumentElement();
-                  String body = root.getAttribute("body");
+                  String body = Xml.decodeAttribute(root, "body");
+                  //String body = root.getAttribute("body");
                   //String body = "test";
 
                   String newMessageId = IdManager.createUuid();
                   
                   String outputSql = getMessageFromBundle("insert.message", new Object[] {
-                        newMessageId, oldChannelId, owner, messageDate, body, oldMessageId});
+                        newMessageId, newChannelId, owner, messageDate, body, oldMessageId});
                   /*
                    * insert into CHAT2_MESSAGE (MESSAGE_ID, CHANNEL_ID, OWNER, MESSAGE_DATE, BODY) \
                         values ('{0}', '{1}', '{2}', '{3}', '{4}');
@@ -281,28 +287,12 @@ public class ChatDataMigration extends Task {
       
    }
    
+   
    protected static void printDebug(String message) {
       if (debug) {
          System.out.println(message);
       }
    }
-   
-
-   
-   
-   public String getOutputFile() {
-      return outputFile;
-   }
-   public void setOutputFile(String outputFile) {
-      this.outputFile = outputFile;
-   }   
-   public static boolean isDebug() {
-      return debug;
-   }
-   public static void setDebug(boolean debug) {
-      ChatDataMigration.debug = debug;
-   }
-   
    
    /**
     * Initialize the component manager once for all tests, and log in as admin.
@@ -323,12 +313,9 @@ public class ChatDataMigration extends Task {
          // Add the sakai jars to the current classpath.  Note:  We are limited to using the sun jvm now
          URL[] sakaiUrls = getJarUrls(new String[] {tomcatHome + "common/endorsed/",
                tomcatHome + "common/lib/", tomcatHome + "shared/lib/"});
-         //URLClassLoader appClassLoader = (URLClassLoader)Thread.currentThread().getContextClassLoader();
-         Thread.currentThread().setContextClassLoader(ChatDataMigration.class.getClassLoader().getParent());
          URLClassLoader appClassLoader = (URLClassLoader)Thread.currentThread().getContextClassLoader();
          printDebug("*******THREAD CLASSLOADER: " + Thread.currentThread().getContextClassLoader());
          
-         //URLClassLoader appClassLoader = (URLClassLoader)ChatDataMigration.class.getClassLoader().getParent();
          Method addMethod = URLClassLoader.class.getDeclaredMethod("addURL", new Class[] {URL.class});
          addMethod.setAccessible(true);
          for(int i=0; i<sakaiUrls.length; i++) {
@@ -336,22 +323,12 @@ public class ChatDataMigration extends Task {
             addMethod.invoke(appClassLoader, new Object[] {sakaiUrls[i]});
          }
          
-         //URLClassLoader appClassLoader = URLClassLoader.newInstance(sakaiUrls);
-         //compMgr = appClassLoader.loadClass("org.sakaiproject.component.cover.ComponentManager");
-         
-         //appClassLoader.
-         /*
-         Method addMethod = URLClassLoader.class.getDeclaredMethod("addURL", new Class[] {URL.class});
-         addMethod.setAccessible(true);
-         for(int i=0; i<sakaiUrls.length; i++) {
-            addMethod.invoke(appClassLoader, new Object[] {sakaiUrls[i]});
-         }
-         */
-
          Class clazz = Class.forName("org.sakaiproject.component.cover.ComponentManager");
          compMgr = clazz.getDeclaredMethod("getInstance", (Class[])null).invoke((Object[])null, (Object[])null);
 
          logger.debug("Finished starting the component manager");
+         printDebug("*******Finished starting the component manager");
+         
       }
    }
    
@@ -369,7 +346,6 @@ public class ChatDataMigration extends Task {
          logger.error(e);
       }
    }
-
    /**
     * Fetches the "maven.tomcat.home" property from the maven build.properties
     * file located in the user's $HOME directory.
@@ -417,7 +393,7 @@ public class ChatDataMigration extends Task {
       URL[] urls = new URL[jars.length];
       for(int i = 0; i < jars.length; i++) {
          urls[i] = jars[i].toURL();
-         printDebug("*******JARS: " + urls[i]);
+         //printDebug("*******JARS: " + urls[i]);
       }
       return urls;
    }
@@ -435,8 +411,6 @@ public class ChatDataMigration extends Task {
       jarList.toArray(urlArray);
       return urlArray;
    }
-   
-   
    
    /**
     * Convenience method to get a service bean from the Sakai component manager.
@@ -459,7 +433,7 @@ public class ChatDataMigration extends Task {
     * Looks up the db vendor from the SqlService
     * @return The string for the db vendor (mysql, oracle, hsqldb, etc)
     */
-   private String getDbPrefix() {
+   private static String getDbPrefix() {
       return sqlService.getVendor();
    }
    
@@ -469,18 +443,15 @@ public class ChatDataMigration extends Task {
     * @param key
     * @return
     */
-   private String getMessageFromBundle(String key) {
+   private static String getMessageFromBundle(String key) {
       if (toolBundle == null)
          toolBundle = new ResourceLoader("chat-sql");
       
       return toolBundle.getString(getDbPrefix().concat("." + key));
    }
    
-   private String getMessageFromBundle(String key, Object[] args) {
+   private static String getMessageFromBundle(String key, Object[] args) {
       return MessageFormat.format(getMessageFromBundle(key), args);
    }
-   
-   
-   
    
 }
