@@ -2447,7 +2447,7 @@ public class SiteAction extends PagedResourceActionII {
 
 						// remove included sites
 						for (Iterator i = courses.iterator(); i.hasNext();) {
-							Section c = (Section) i.next();
+							CourseObject c = (CourseObject) i.next();
 							if (!providerCourseList.contains(c.getEid())) {
 								notIncludedCourse.add(c);
 							}
