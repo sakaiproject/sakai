@@ -1766,34 +1766,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 			
 			if (toolSession.getAttribute(STATE_HELPER_CANCELED_BY_USER) == null)
 			{
-				// not canceled, so populate the original list with the results
-				attachments.clear();
-
-				ContentHostingService contentService = (ContentHostingService) toolSession.getAttribute (STATE_CONTENT_SERVICE);
-
-//				List new_items = (List) toolSession.getAttribute(STATE_ADDED_ITEMS);
-//				if(new_items == null)
-//				{
-//					new_items = new Vector();
-//					toolSession.setAttribute(STATE_ADDED_ITEMS, new_items);
-//				}
-//
-//				Iterator<AttachItem> it = new_items.iterator();
-//				while(it.hasNext())
-//				{
-//					AttachItem item = it.next();
-//
-//					try
-//					{
-//						Reference ref = EntityManager.newReference(contentService.getReference(item.getId()));
-//						attachments.add(ref);
-//					}
-//					catch(Exception e)
-//					{
-//						logger.warn("toolModeDispatch " + e);
-//					}
-//				}
-				
+				// not canceled.  The attachments should have been added by doAddattachments
 			}
 			else
 			{
