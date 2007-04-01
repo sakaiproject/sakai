@@ -177,6 +177,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	protected static final String STATE_PREVENT_PUBLIC_DISPLAY = PREFIX + "prevent_public_display";
 	protected static final String STATE_REMOVED_ITEMS = PREFIX + "removed_items";
 	protected static final String STATE_RESOURCES_TYPE_REGISTRY = PREFIX + "resource_type_registry";
+	protected static final String STATE_SESSION_INITIALIZED = PREFIX + "session_initialized";
 	protected static final String STATE_SHOW_ALL_SITES = PREFIX + "show_all_sites";
 	protected static final String STATE_SHOW_OTHER_SITES = PREFIX + "show_other_sites";
 
@@ -506,6 +507,12 @@ public class FilePickerAction extends PagedResourceHelperAction
 		//boolean dropboxMode = RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) toolSession.getAttribute(STATE_MODE_RESOURCES));
 
 		String homeCollectionId = (String) toolSession.getAttribute(STATE_HOME_COLLECTION_ID);
+		if(homeCollectionId == null)
+		{
+			homeCollectionId = contentService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
+			toolSession.setAttribute(STATE_HOME_COLLECTION_ID, homeCollectionId);
+		}
+
 
 		// make sure the collectionId is set
 		String collectionId = (String) toolSession.getAttribute(STATE_DEFAULT_COLLECTION_ID);
@@ -955,12 +962,9 @@ public class FilePickerAction extends PagedResourceHelperAction
 		List attachments = (List) toolSession.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
 		if (attachments == null)
 		{
-			toolSession.setAttribute(STATE_ATTACHMENT_ORIGINAL_LIST, EntityManager.newReferenceList());
+			attachments = EntityManager.newReferenceList();
 		}
-		else 
-		{
-			toolSession.setAttribute(STATE_ATTACHMENT_ORIGINAL_LIST, attachments);
-		}
+		toolSession.setAttribute(STATE_ATTACHMENT_ORIGINAL_LIST, attachments);
 
 		Object attach_links = state.getAttribute(FilePickerHelper.FILE_PICKER_ATTACH_LINKS);
 		if(attach_links == null)
@@ -1077,6 +1081,12 @@ public class FilePickerAction extends PagedResourceHelperAction
 	protected void initState(SessionState state, VelocityPortlet portlet, RunData data)
 	{
 		super.initState(state, portlet, (JetspeedRunData) data);
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		if(toolSession.getAttribute(STATE_SESSION_INITIALIZED) == null)
+		{
+			initHelperAction(state, toolSession);
+			toolSession.setAttribute(STATE_SESSION_INITIALIZED, Boolean.TRUE);
+		}
 
 	}	// initState
 	
@@ -1487,6 +1497,8 @@ public class FilePickerAction extends PagedResourceHelperAction
 				logger.warn("doAddattachments " + e);
 			}
 		}
+		
+		state.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, original_attachments);
 		// cleanupState(state);
 
 		// end up in main mode
@@ -1759,28 +1771,28 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 				ContentHostingService contentService = (ContentHostingService) toolSession.getAttribute (STATE_CONTENT_SERVICE);
 
-				List new_items = (List) toolSession.getAttribute(STATE_ADDED_ITEMS);
-				if(new_items == null)
-				{
-					new_items = new Vector();
-					toolSession.setAttribute(STATE_ADDED_ITEMS, new_items);
-				}
-
-				Iterator<AttachItem> it = new_items.iterator();
-				while(it.hasNext())
-				{
-					AttachItem item = it.next();
-
-					try
-					{
-						Reference ref = EntityManager.newReference(contentService.getReference(item.getId()));
-						attachments.add(ref);
-					}
-					catch(Exception e)
-					{
-						logger.warn("toolModeDispatch " + e);
-					}
-				}
+//				List new_items = (List) toolSession.getAttribute(STATE_ADDED_ITEMS);
+//				if(new_items == null)
+//				{
+//					new_items = new Vector();
+//					toolSession.setAttribute(STATE_ADDED_ITEMS, new_items);
+//				}
+//
+//				Iterator<AttachItem> it = new_items.iterator();
+//				while(it.hasNext())
+//				{
+//					AttachItem item = it.next();
+//
+//					try
+//					{
+//						Reference ref = EntityManager.newReference(contentService.getReference(item.getId()));
+//						attachments.add(ref);
+//					}
+//					catch(Exception e)
+//					{
+//						logger.warn("toolModeDispatch " + e);
+//					}
+//				}
 				
 			}
 			else
