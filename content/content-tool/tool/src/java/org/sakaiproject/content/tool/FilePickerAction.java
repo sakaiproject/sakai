@@ -152,7 +152,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	protected static final String STATE_ATTACHMENT_FILTER = PREFIX + "attachment_filter";
 
 	
-	protected static final String STATE_ATTACHMENT_LIST = PREFIX + "attachment_list";
+	protected static final String STATE_ATTACHMENT_ORIGINAL_LIST = PREFIX + "attachment_original_list";
 	protected static final String STATE_CONTENT_SERVICE = PREFIX + "content_service";
 
 	/** The content type image lookup service in the State. */
@@ -953,15 +953,14 @@ public class FilePickerAction extends PagedResourceHelperAction
 		
 		// start with a copy of the original attachment list
 		List attachments = (List) toolSession.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
-		if (attachments != null)
+		if (attachments == null)
 		{
-			attachments = EntityManager.newReferenceList(attachments);
+			toolSession.setAttribute(STATE_ATTACHMENT_ORIGINAL_LIST, EntityManager.newReferenceList());
 		}
 		else 
 		{
-			attachments = EntityManager.newReferenceList();
+			toolSession.setAttribute(STATE_ATTACHMENT_ORIGINAL_LIST, attachments);
 		}
-		toolSession.setAttribute(STATE_ATTACHMENT_LIST, attachments);
 
 		Object attach_links = state.getAttribute(FilePickerHelper.FILE_PICKER_ATTACH_LINKS);
 		if(attach_links == null)
@@ -1469,13 +1468,9 @@ public class FilePickerAction extends PagedResourceHelperAction
 		state.removeAttribute(STATE_REMOVED_ITEMS);
 
 		// add to the attachments vector
-		List<Reference> attachments = (List<Reference>) toolSession.getAttribute(STATE_ATTACHMENT_LIST);
-		if(attachments == null)
-		{
-			attachments = EntityManager.newReferenceList();
-			toolSession.setAttribute(STATE_ATTACHMENT_LIST, attachments);
-		}
-		attachments.clear();
+		List<Reference> original_attachments = (List<Reference>) toolSession.getAttribute(STATE_ATTACHMENT_ORIGINAL_LIST);
+		
+		original_attachments.clear();
 
 		Iterator<AttachItem> it = new_items.iterator();
 		while(it.hasNext())
@@ -1485,7 +1480,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 			try
 			{
 				Reference ref = EntityManager.newReference(contentService.getReference(item.getId()));
-				attachments.add(ref);
+				original_attachments.add(ref);
 			}
 			catch(Exception e)
 			{
@@ -1500,7 +1495,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 		String field = null;
 
 		// if there is at least one attachment
-		if (attachments.size() > 0)
+		if (original_attachments.size() > 0)
 		{
 			//check -- jim
 			toolSession.setAttribute(AttachmentAction.STATE_HAS_ATTACHMENT_BEFORE, Boolean.TRUE);
@@ -1749,35 +1744,49 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 		if (MODE_ATTACHMENT_DONE.equals(toolSession.getAttribute(STATE_FILEPICKER_MODE)))
 		{
+			// canceled, so restore the original list 
+			List attachments = (List) toolSession.getAttribute(STATE_ATTACHMENT_ORIGINAL_LIST);
+
+			if (attachments == null)
+			{
+				attachments = EntityManager.newReferenceList();
+			}
+			
 			if (toolSession.getAttribute(STATE_HELPER_CANCELED_BY_USER) == null)
 			{
 				// not canceled, so populate the original list with the results
-				List attachments = (List) toolSession.getAttribute(STATE_ATTACHMENT_LIST);
+				attachments.clear();
 
-				if (attachments != null)
+				ContentHostingService contentService = (ContentHostingService) toolSession.getAttribute (STATE_CONTENT_SERVICE);
+
+				List new_items = (List) toolSession.getAttribute(STATE_ADDED_ITEMS);
+				if(new_items == null)
 				{
-					// get the original list
-					Collection original = (Collection) toolSession.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
-					if(original == null)
-					{
-						original = EntityManager.newReferenceList();
-						toolSession.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, original);
-					}
-
-					// replace its contents with the edited attachments
-					original.clear();
-					original.addAll(attachments);
+					new_items = new Vector();
+					toolSession.setAttribute(STATE_ADDED_ITEMS, new_items);
 				}
 
-				// otherwise the original list remains unchanged
+				Iterator<AttachItem> it = new_items.iterator();
+				while(it.hasNext())
+				{
+					AttachItem item = it.next();
 
-//				else if (toolSession.getAttribute(STATE_EDIT_ID) == null)
-//				{
-//					toolSession.setAttribute(FilePickerHelper.FILE_PICKER_CANCEL, Boolean.TRUE.toString());
-//				}
+					try
+					{
+						Reference ref = EntityManager.newReference(contentService.getReference(item.getId()));
+						attachments.add(ref);
+					}
+					catch(Exception e)
+					{
+						logger.warn("toolModeDispatch " + e);
+					}
+				}
+				
 			}
 			else
 			{
+				// canceled, so restore original list
+				toolSession.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, attachments);
 				toolSession.setAttribute(FilePickerHelper.FILE_PICKER_CANCEL, Boolean.TRUE.toString());
 			}
 
