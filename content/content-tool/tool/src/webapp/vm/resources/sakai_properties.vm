@@ -124,7 +124,7 @@
 					<label for="newcopyright${DOT}$i">
 						$tlang.getString("cright.info")
 					</label>	
-					<textarea name="newcopyright${DOT}$i" id="newcopyright${DOT}$i" rows="2" cols="40" wrap="virtual" >$validator.escapeHtmlTextarea("$!item.copyrightInfo")</textarea>
+					<textarea name="newcopyright${DOT}$i" id="newcopyright${DOT}$i" rows="2" cols="40" wrap="virtual" >$validator.escapeHtmlTextarea("$!model.copyrightInfo")</textarea>
 				</p>	
 			</div>
 			<table border="0">
@@ -154,29 +154,29 @@
 		
 
 			#set ($listDisplay="none")
-			#if($item.isSiteOnly())
+			#if($model.isSiteOnly())
 				##Site has *NO* groups and public-view is *NOT* enabled on the server (no choices to be made, but we should report the access)
-				<p>$tlang.getFormattedMessage("access.site.nochoice", ["$item.parent.name"])</p>
+				<p>$tlang.getFormattedMessage("access.site.nochoice", ["$model.parent.name"])</p>
 				<input type="hidden" name="access_mode${DOT}$i" id="access_mode_hidden${DOT}$i" value="$INHERITED_ACCESS" />
-			#elseif($item.isSingleGroupInherited())
+			#elseif($model.isSingleGroupInherited())
 				##Grouped access is inherited; parent folder limited to a single group (report that grouped access limited to a single group is inherited from above)
-				<p>$tlang.getFormattedMessage("access.groups1", ["$item.parent.name", "$item.groups.get(0).title"])</p>
+				<p>$tlang.getFormattedMessage("access.groups1", ["$model.parent.name", "$model.groups.get(0).title"])</p>
 				<input type="hidden" name="access_mode${DOT}$i" id="access_mode_hidden${DOT}$i" value="$INHERITED_ACCESS" />
-			#elseif($item.isGroupInherited() && "$item.accessMode" == "grouped")	
+			#elseif($model.isGroupInherited() && "$model.accessMode" == "grouped")	
 				##Grouped access is inherited; parent folder limited to two or more groups (present choice among groups; table shows only groups inherited from parent)
 				#set ($listDisplay="block")
-				<p class="instruction">$item.multiGroupLabel</p>
+				<p class="instruction">$model.multiGroupLabel</p>
 				<p>
 					<input type="radio" name="access_mode${DOT}$i" id="access_mode_public${DOT}$i" value="inherit" style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='none';" />
 					<label for="access_mode_public${DOT}$i">$tlang.getString("access.inherit")</label>
 				</p>
 				<p>
 					<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="groups" checked="checked"    style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='block';" />
-					<label for="access_mode_public${DOT}$i">$tlang.getString("access.groups.choice")</label>
+					<label for="access_mode_group${DOT}$i">$tlang.getString("access.groups.choice")</label>
 				</p>
-			#elseif($item.isGroupInherited())	
+			#elseif($model.isGroupInherited())	
 				##Grouped access is inherited; parent folder limited to two or more groups (present choice among groups; table shows only groups inherited from parent)
-				<p class="instruction">$item.multiGroupLabel</p>
+				<p class="instruction">$model.multiGroupLabel</p>
 				<p>
 					<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherited" checked="checked"   style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='block';" />
 					<label for="access_mode_public${DOT}$i">$tlang.getString("access.inherit")</label>
@@ -185,9 +185,9 @@
 					<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="groups"   style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='block';" />
 					<label for="access_mode_public${DOT}$i">$tlang.getString("access.groups.choice")</label>
 				</p>
-			#elseif($item.isPubviewInherited())
+			#elseif($model.isPubviewInherited())
 				## Public access inherited from parent (report that to user)
-				<p>$tlang.getFormattedMessage("access.public.nochoice", ["$item.parent.name"])</p>
+				<p>$tlang.getFormattedMessage("access.public.nochoice", ["$model.parent.name"])</p>
 				<input type="hidden" name="access_mode${DOT}$i" id="access_mode_hidden${DOT}$i" value="$INHERITED_ACCESS" />
 			#else
 				## Site is possible and either group or public is possible
@@ -195,27 +195,27 @@
 					$tlang.getString("edit.who")
 				</p>
 				<p>
-					<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherited" #if(!$model.isPubview() && ("$!item.accessMode" == "$SITE_ACCESS" || "$!item.accessMode" == "$INHERITED_ACCESS")) checked="checked"#end style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='none';" />
+					<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherited" #if(!$model.isPubview() && ("$!model.accessMode" == "$SITE_ACCESS" || "$!model.accessMode" == "$INHERITED_ACCESS")) checked="checked"#end style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='none';" />
 					<label for="access_mode_site${DOT}$i">$tlang.getString("access.site.choice")</label>
 				</p>
-				<!-- item.isPubviewPossible() == $item.isPubviewPossible() -->
-				#if($item.isPubviewPossible())
+				<!-- model.isPubviewPossible() == $model.isPubviewPossible() -->
+				#if($model.isPubviewPossible())
 					## Public is possible
 					<p>
-						<input type="radio" name="access_mode${DOT}$i" id="access_mode_public${DOT}$i" value="public" #if($!item.isPubview()) checked="checked"#end style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='none';" />
+						<input type="radio" name="access_mode${DOT}$i" id="access_mode_public${DOT}$i" value="public" #if($!model.isPubview()) checked="checked"#end style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='none';" />
 						<label for="access_mode_public${DOT}$i">$tlang.getString("access.public.choice")</label>
 					</p>
 				#end
-				<!-- item.isGroupPossible() == $item.isGroupPossible() -->
-				#if($item.isGroupPossible())
+				<!-- model.isGroupPossible() == $model.isGroupPossible() -->
+				#if($model.isGroupPossible())
 					## Group is possible
-					#if("$!item.accessMode" == "$GROUP_ACCESS")
+					#if("$!model.accessMode" == "$GROUP_ACCESS")
 						#set ($listDisplay="block")
 					#else
 						#set ($listDisplay="none")
 					#end
 					<p>
-						<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="groups" #if("$!item.accessMode" == "$GROUP_ACCESS") checked="checked"#end style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='block';" />
+						<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="groups" #if("$!model.accessMode" == "$GROUP_ACCESS") checked="checked"#end style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='block';" />
 						<label for="access_mode_groups${DOT}$i">$tlang.getString("access.groups.choice")</label>
 					</p>
 				#end
@@ -406,7 +406,7 @@
 						<label>$tlang.getString("props.creator")</label>
 					</td>
 					<td>
-						$validator.escapeHtml("$item.createdBy")
+						$validator.escapeHtml("$model.createdBy")
 					</td>
 				</tr>
 				<tr> 
@@ -414,7 +414,7 @@
 						<label>$tlang.getString("props.creatime")</label>
 					</td>
 					<td>
-						$validator.escapeHtml("$item.createdTime")
+						$validator.escapeHtml("$model.createdTime")
 					</td>
 				</tr>
 			#end
@@ -423,7 +423,7 @@
 					<label>$tlang.getString("props.modby")</label>
 				</td>
 				<td>
-					$validator.escapeHtml("$item.modifiedBy")
+					$validator.escapeHtml("$model.modifiedBy")
 				</td>
 			</tr>
 			<tr> 
@@ -431,7 +431,7 @@
 					<label>$tlang.getString("props.modtime")</label>
 				</td>
 				<td>
-					$validator.escapeHtml("$item.modifiedTime")
+					$validator.escapeHtml("$model.modifiedTime")
 				</td>
 			</tr>
 			<tr> 
@@ -439,7 +439,7 @@
 					<label>$tlang.getString("props.url")</label>
 				</td>
 				<td>
-					<a href="$item.accessUrl" target="$item.target">$item.accessUrl</a>
+					<a href="$model.accessUrl" target="$model.target">$model.accessUrl</a>
 				</td>
 			</tr>
 			<tr> 
@@ -447,10 +447,10 @@
 					<label>$tlang.getString("props.size")</label>
 				</td>
 				<td>
-					$item.sizzle 
+					$model.sizzle 
 				</td>
 			</tr>
-			#if(! $item.isUrl() && ! $item.isCollection() && "$!{item.mimetype}" != "")
+			#if(! $model.isUrl() && ! $model.isCollection() && "$!{model.mimetype}" != "")
 				<tr> 
 					<td style="width:180px;padding-left:.7em"> 
 						<label>$tlang.getString("props.mime")</label>
@@ -458,9 +458,9 @@
 					<td>
 						<span id="mime_warning${DOT}$i"></span>
 						<span id="mime_widget${DOT}$i">
-							$item.mimetype
-							<input type="hidden" name="mime_category${DOT}$i" id="mime_category${DOT}$i" value="$item.mimeCategory" />  
-							<input type="hidden" name="mime_subtype${DOT}$i" id="mime_subtype${DOT}$i" value="$item.mimeSubtype" />
+							$model.mimetype
+							<input type="hidden" name="mime_category${DOT}$i" id="mime_category${DOT}$i" value="$model.mimeCategory" />  
+							<input type="hidden" name="mime_subtype${DOT}$i" id="mime_subtype${DOT}$i" value="$model.mimeSubtype" />
 							<input type="button" name="changeMimetype${DOT}$i" id="changeMimetype${DOT}$i" value="Change File Type" />
 						</span>
 					</td>
