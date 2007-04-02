@@ -667,7 +667,11 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		ContentHostingService contentService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
 		String refStr = contentService.getReference(resourceId);
 		Reference ref = EntityManager.newReference(refStr);
-		String collectionTitle = ref.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+		String collectionTitle = null;
+		if( ref != null )
+		{
+			collectionTitle = ref.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);			
+		}
 		if( collectionTitle != null && !collectionTitle.trim().equals("") )
 		{
 			context.put( "collectionTitle", collectionTitle );
@@ -720,7 +724,12 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		ContentHostingService contentService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
 		String refStr = contentService.getReference(resourceId);
 		Reference ref = EntityManager.newReference(refStr);
-		String collectionTitle = ref.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+		String collectionTitle = null;
+		if( ref != null )
+		{
+			collectionTitle = ref.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+		}
+		
 		if( collectionTitle != null && !collectionTitle.trim().equals("") )
 		{
 			context.put( "collectionTitle", collectionTitle );
@@ -941,7 +950,11 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		ContentHostingService contentService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
 		String refStr = contentService.getReference(resourceId);
 		Reference ref = EntityManager.newReference(refStr);
-		String collectionTitle = ref.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+		String collectionTitle = null;
+		if( ref != null )
+		{
+			collectionTitle = ref.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+		}
 		if( collectionTitle != null && !collectionTitle.trim().equals("") )
 		{
 			context.put( "collectionTitle", collectionTitle );
