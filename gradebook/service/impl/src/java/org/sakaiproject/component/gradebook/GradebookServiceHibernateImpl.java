@@ -112,6 +112,19 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		return assignments;
 	}
 
+	public org.sakaiproject.service.gradebook.shared.Assignment getAssignment(final String gradebookUid, final String assignmentName) throws GradebookNotFoundException {
+		Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				return getAssignmentWithoutStats(gradebookUid, assignmentName, session);
+			}
+		});
+		if (assignment != null) {
+			return getAssignmentDefinition(assignment);
+		} else {
+			return null;
+		}
+	}
+
 	private org.sakaiproject.service.gradebook.shared.Assignment getAssignmentDefinition(Assignment internalAssignment) {
 		org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition = new org.sakaiproject.service.gradebook.shared.Assignment();
     	assignmentDefinition.setName(internalAssignment.getName());

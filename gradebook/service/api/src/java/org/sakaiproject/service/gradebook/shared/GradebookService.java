@@ -75,6 +75,16 @@ public interface GradebookService {
 			throws GradebookNotFoundException;
 
 	/**
+	 * @param gradebookUid
+	 * @param assignmentName
+	 * @return the assignment definition, or null if not found
+	 * @throws GradebookNotFoundException
+	 * @throws AssessmentNotFoundException
+	 */
+	public Assignment getAssignment(String gradebookUid, String assignmentName) 
+		throws GradebookNotFoundException;
+
+	/**
 	 * Besides the declared exceptions, possible runtime exceptions include:
 	 * <ul>
 	 * <li> SecurityException - If the current user is not authorized to view
