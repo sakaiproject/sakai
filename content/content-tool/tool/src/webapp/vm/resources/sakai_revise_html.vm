@@ -1,7 +1,7 @@
 <!-- resources/sakai_edit_text.vm, use with org.sakaiproject.tool.content.ResourcesHelperAction.java -->
 <div class="portletBody">
 	<h4>
-		$tlang.getString("revise.text")
+		$tlang.getString("revise.html")
 	</h4>
 	#if ($itemAlertMessage)
 		<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>

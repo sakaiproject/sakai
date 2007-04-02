@@ -254,9 +254,6 @@ public class ListItem
 	protected ResourceType resourceTypeDef = null;
 	protected boolean isEmpty = true;
 	protected boolean isExpanded = false;
-	protected boolean isPubviewPossible;
-	protected boolean isPubviewInherited = false;
-	protected boolean isPubview = false;
 	protected boolean isSortable = false;
 	protected boolean isTooBig = false;
 	protected String size = "";
@@ -271,6 +268,13 @@ public class ListItem
 
 	protected boolean canSelect = false;
 
+	/** 
+	 * Access settings
+	 * Access mode can be "grouped" or "inherited". Inherited access mode
+	 * can be "site" or "grouped". Site access implies that the site's
+	 * permissions apply, possibly with changes due to custom folder 
+	 * permissions in the hierarchy.   
+	 */
 	protected ContentEntity entity;
 	protected AccessMode accessMode;
 	protected AccessMode inheritedAccessMode;
@@ -279,9 +283,12 @@ public class ListItem
 	protected Collection<Group> possibleGroups = new Vector<Group>();
 	protected Collection<Group> allowedRemoveGroups = new Vector<Group>();
 	protected Collection<Group> allowedAddGroups = new Vector<Group>();
-
 	protected Map<String,Group> possibleGroupsMap = new HashMap<String, Group>();
-	
+
+	protected boolean isPubviewPossible;
+	protected boolean isPubviewInherited = false;
+	protected boolean isPubview = false;
+
 	protected boolean hidden;
 	protected boolean isAvailable;
 	protected boolean useReleaseDate;
@@ -298,8 +305,6 @@ public class ListItem
 	protected ListItem parent;
 
 	protected String containingCollectionId;
-
-	//protected String displayName;
 
 	protected boolean isUserSite = false;
 	protected boolean isDropbox = false;

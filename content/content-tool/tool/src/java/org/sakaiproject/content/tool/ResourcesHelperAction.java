@@ -188,6 +188,12 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		
 		context.put("validator", new Validator());
 		
+		if(state.getAttribute(ResourcesAction.STATE_MESSAGE) != null)
+		{
+			context.put("itemAlertMessage", state.getAttribute(ResourcesAction.STATE_MESSAGE));
+			state.removeAttribute(ResourcesAction.STATE_MESSAGE);
+		}
+		
 		ContentTypeImageService contentTypeImageService = (ContentTypeImageService) state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE);
 		context.put("contentTypeImageService", contentTypeImageService);
 		
@@ -783,6 +789,8 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		
 		List<ResourceToolActionPipe> pipes = mfp.getPipes();
 		
+		int uploadCount = 0;
+		
 		for(int i = 1, c = 0; i <= lastIndex && c < count; i++)
 		{
 			String exists = params.getString("exists." + i);
@@ -826,7 +834,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			}
 			else if (fileitem.getFileName() == null || fileitem.getFileName().length() == 0)
 			{
-				addAlert(state, rb.getString("choosefile7"));
+				// no file selected -- skip this one
 			}
 			else if (fileitem.getFileName().length() > 0)
 			{
@@ -863,16 +871,26 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
     			
     			pipe.setRevisedListItem(newFile);
     			
+    			uploadCount++;
+    			
 			}
 			c++;
 			
 		}
-
-		mfp.setActionCanceled(false);
-		mfp.setErrorEncountered(false);
-		mfp.setActionCompleted(true);
 		
-		toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
+		if(uploadCount < 1)
+		{
+			addAlert(state, rb.getString("choosefile7"));
+		}
+
+		if(state.getAttribute(ResourcesAction.STATE_MESSAGE) == null)
+		{
+			mfp.setActionCanceled(false);
+			mfp.setErrorEncountered(false);
+			mfp.setActionCompleted(true);
+			
+			toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
+		}
 
 	}
 	
