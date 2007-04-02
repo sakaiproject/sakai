@@ -878,7 +878,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			
 		}
 		
-		if(uploadCount < 1)
+		if(uploadCount < 1 && state.getAttribute(ResourcesAction.STATE_MESSAGE) == null)
 		{
 			addAlert(state, rb.getString("choosefile7"));
 		}
