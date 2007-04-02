@@ -2416,6 +2416,8 @@ public class SiteAction extends PagedResourceActionII {
 						.getAttribute(SITE_DUPLICATED_NAME));
 			}
 
+			setTermListForContext(context, state, true);
+			
 			return (String) getContext(data).get("template") + TEMPLATE[29];
 		case 36:
 			/*
