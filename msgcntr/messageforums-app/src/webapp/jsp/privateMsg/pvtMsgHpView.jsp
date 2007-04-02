@@ -22,7 +22,7 @@
 		<!--jsp/privateMsg/pvtMsgHpView.jsp-->
 		<h:form id="msgForum">
 
-		<h:panelGroup rendered="#{PrivateMessagesTool.messages && PrivateMessagesTool.instructor}">
+		<h:panelGroup rendered="#{PrivateMessagesTool.messages}">
 			<sakai:tool_bar>
 				<h:panelGroup rendered="#{! PrivateMessagesTool.dispError}" >
         			<sakai:tool_bar_item value="#{msgs.pvt_compose}" action="#{PrivateMessagesTool.processPvtMsgCompose}" />
