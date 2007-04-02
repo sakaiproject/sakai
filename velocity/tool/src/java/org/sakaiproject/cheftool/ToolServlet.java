@@ -634,16 +634,7 @@ protected boolean sendToHelper(HttpServletRequest req, HttpServletResponse res, 
 
       int partIndex = 0;
       String part = null;
-      for(int i = parts.length - 1; i > 0; i--)
-      {
-    	  if(parts[i] != null && parts[i].endsWith(HELPER_EXT))
-    	  {
-    		  part = parts[i];
-    		  partIndex = i;
-    		  break;
-    	  }
-      }
-      if(part == null)
+      if (!parts[1].endsWith(HELPER_EXT))
       {
     	  return false;
       }
@@ -651,13 +642,13 @@ protected boolean sendToHelper(HttpServletRequest req, HttpServletResponse res, 
       ToolSession toolSession = SessionManager.getCurrentToolSession();
 
       // calc helper id
-      int posEnd = part.lastIndexOf(".");
-
-      String helperId = part.substring(0, posEnd);
+      int posEnd = parts[1].lastIndexOf(".");
+      
+      String helperId = target.substring(1, posEnd + 1);
       ActiveTool helperTool = ActiveToolManager.getActiveTool(helperId);
 
-      String context = req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, partIndex + 1);
-      String toolPath = Web.makePath(parts, partIndex + 1, parts.length);
+      String context = req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 2);
+      String toolPath = Web.makePath(parts, 2, parts.length);
       helperTool.help(req, res, context, toolPath);
 
       return true; // was handled as helper call
