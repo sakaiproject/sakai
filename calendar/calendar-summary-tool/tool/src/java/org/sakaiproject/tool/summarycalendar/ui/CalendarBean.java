@@ -250,11 +250,11 @@ public class CalendarBean {
 		while (i.hasNext()){
 			CalendarEvent e = (CalendarEvent) i.next();
 			String type = e.getType();
-			if(highPriorityEvents.contains(type))
+			if(highPriorityEvents != null && highPriorityEvents.contains(type))
 				highestPriorityFound = PRIORITY_HIGH;
-			else if(mediumPriorityEvents.contains(type) && !highestPriorityFound.equals(PRIORITY_HIGH))
+			else if(mediumPriorityEvents != null && mediumPriorityEvents.contains(type) && !highestPriorityFound.equals(PRIORITY_HIGH))
 				highestPriorityFound = PRIORITY_MEDIUM;
-			else if(lowPriorityEvents.contains(type) && !highestPriorityFound.equals(PRIORITY_HIGH) && !highestPriorityFound.equals(PRIORITY_MEDIUM))
+			else if(lowPriorityEvents != null && lowPriorityEvents.contains(type) && !highestPriorityFound.equals(PRIORITY_HIGH) && !highestPriorityFound.equals(PRIORITY_MEDIUM))
 				highestPriorityFound = PRIORITY_LOW;
 			
 			if(highestPriorityFound.equals(PRIORITY_HIGH))
