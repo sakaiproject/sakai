@@ -1759,6 +1759,12 @@ public abstract class BaseCitationService implements CitationService
 				
 			}
 			
+			public MultipleKeyComparator( MultipleKeyComparator mkc )
+			{
+				this.m_keys      = mkc.m_keys;
+				this.m_ascending = mkc.m_ascending;
+			}
+			
 			/* (non-Javadoc)
              * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
              */
@@ -1830,7 +1836,7 @@ public abstract class BaseCitationService implements CitationService
 		}
 		
 		public class AuthorComparator extends MultipleKeyComparator
-		{			
+		{
 			/**
 			 * @param ascending
 			 */
@@ -2179,11 +2185,25 @@ public abstract class BaseCitationService implements CitationService
 		{
 			this.m_ascending = other.m_ascending;
 			this.m_description = other.m_description;
-			this.m_comparator = other.m_comparator;
+//			this.m_comparator = other.m_comparator;
 			this.m_serialNumber = other.m_serialNumber;
 			this.m_pageSize = other.m_pageSize;
 			this.m_temporary = other.m_temporary;
 			this.m_title = other.m_title;
+			
+			/*
+			 * Get new instance of comparator
+			 */
+			if( other.m_comparator instanceof MultipleKeyComparator )
+			{
+				this.m_comparator = new MultipleKeyComparator( (MultipleKeyComparator)other.m_comparator );
+			}
+			else
+			{
+				// default to title, ascending
+				this.m_comparator = new MultipleKeyComparator( TITLE_AS_KEY, true );
+			}
+			
 			if(this.m_citations == null)
 			{
 				this.m_citations = new Hashtable<String, Citation>();
