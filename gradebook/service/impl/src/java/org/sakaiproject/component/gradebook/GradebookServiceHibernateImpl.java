@@ -113,6 +113,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	}
 
 	public org.sakaiproject.service.gradebook.shared.Assignment getAssignment(final String gradebookUid, final String assignmentName) throws GradebookNotFoundException {
+		if (!isUserAbleToViewAssignments(gradebookUid)) {
+			log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to get assignment " + assignmentName);
+			throw new SecurityException("You do not have permission to perform this operation");
+		}
 		Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
 				return getAssignmentWithoutStats(gradebookUid, assignmentName, session);
