@@ -6266,6 +6266,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			
 			state.setAttribute(STATE_ITEMS_TO_BE_COPIED, selectedSet);
+			state.removeAttribute(STATE_ITEMS_TO_BE_MOVED);
 		}
 		else if(ResourceToolAction.MOVE.equals(actionId))
 		{
@@ -6277,6 +6278,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			
 			state.setAttribute(STATE_ITEMS_TO_BE_MOVED, selectedSet);
+			state.removeAttribute(STATE_ITEMS_TO_BE_COPIED);
 		}
 		else if(ResourceToolAction.DELETE.equals(actionId))
 		{
