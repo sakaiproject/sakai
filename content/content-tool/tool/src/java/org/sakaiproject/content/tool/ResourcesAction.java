@@ -5804,6 +5804,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					{
 						items_to_be_copied.add(selectedItemId);
 					}
+					state.removeAttribute(STATE_ITEMS_TO_BE_MOVED);
 					state.setAttribute(STATE_ITEMS_TO_BE_COPIED, items_to_be_copied);
 					break;
 				case DUPLICATE:
@@ -5818,6 +5819,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 						reference = EntityManager.newReference(ContentHostingService.getReference(newId));
 						sAction.finalizeAction(reference);
 					}
+					state.removeAttribute(STATE_ITEMS_TO_BE_MOVED);
 					break;
 				case DELETE:
 					sAction.initializeAction(reference);
@@ -5835,6 +5837,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					{
 						items_to_be_moved.add(selectedItemId);
 					}
+					state.removeAttribute(STATE_ITEMS_TO_BE_COPIED);
 					state.setAttribute(STATE_ITEMS_TO_BE_MOVED, items_to_be_moved);
 					break;
 				case VIEW_METADATA:

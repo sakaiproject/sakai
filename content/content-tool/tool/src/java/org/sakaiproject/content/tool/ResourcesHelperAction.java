@@ -42,6 +42,7 @@ import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
 import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.api.MultiFileUploadPipe;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
@@ -212,6 +213,10 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		}
 
 		String actionId = pipe.getAction().getId();
+		
+		context.put("GROUP_ACCESS", AccessMode.GROUPED);
+		context.put("SITE_ACCESS", AccessMode.SITE);
+		context.put("INHERITED_ACCESS", AccessMode.INHERITED);
 		
 		String template = "";
 

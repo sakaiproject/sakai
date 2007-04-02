@@ -525,17 +525,22 @@ public class ListItem
 		{
 			setPossibleGroups(this.inheritedGroups);
 		}
-		else if(contextId != null)
+		else if(this.id != null)
 		{
-			try
-	        {
-		        Site site = SiteService.getSite(contextId);
-		        setPossibleGroups(site.getGroups());
-	        }
-	        catch (IdUnusedException e)
-	        {
-		        logger.warn("IdUnusedException for a site in resources: " + ref.getContext() + " (" + ref.getReference() + ")");
-	        }
+			this.possibleGroups = ContentHostingService.getGroupsWithAddPermission(this.id);
+		}
+		else if(containingCollectionId != null)
+		{
+			this.possibleGroups = ContentHostingService.getGroupsWithAddPermission(containingCollectionId);
+//			try
+//	        {
+//		        Site site = SiteService.getSite(contextId);
+//		        setPossibleGroups(site.getGroups());
+//	        }
+//	        catch (IdUnusedException e)
+//	        {
+//		        logger.warn("IdUnusedException for a site in resources: " + ref.getContext() + " (" + ref.getReference() + ")");
+//	        }
 		}
         
 		Collection<Group> groupsWithRemovePermission = null;
