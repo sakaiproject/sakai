@@ -258,7 +258,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 								for(int i=0; i<categories.size(); i++)
 								{
 									Category cate = (Category) categories.get(i);
-									if(cate != null && !cate.isRemoved() && cate.getId().equals(assignment.getCategory().getId()))
+									if(cate != null && !cate.isRemoved() && assignment.getCategory() != null && cate.getId().equals(assignment.getCategory().getId()))
 									{
 										totalPointsPossible += assignment.getPointsPossible();
 										break;
@@ -270,7 +270,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 								for(int i=0; i<categories.size(); i++)
 								{
 									Category cate = (Category) categories.get(i);
-									if(cate != null && !cate.isRemoved() && cate.getId().equals(assignment.getCategory().getId()))
+									if(cate != null && !cate.isRemoved() && assignment.getCategory() != null && cate.getId().equals(assignment.getCategory().getId()))
 									{
 										if(cateTotalScoreMap.get(cate.getId()) == null)
 										{
@@ -311,7 +311,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	        				for(int i=0; i<categories.size(); i++)
     	        				{
     	        					Category cate = (Category) categories.get(i);
-    	        					if(cate != null && !cate.isRemoved() && cate.getId().equals(agr.getAssignment().getCategory().getId()))
+    	        					if(cate != null && !cate.isRemoved() && agr.getAssignment().getCategory() != null && cate.getId().equals(agr.getAssignment().getCategory().getId()))
     	        					{
     	        						totalPointsEarned += pointsEarned.doubleValue();
     	        						break;
@@ -323,7 +323,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     			    				for(int i=0; i<categories.size(); i++)
     			    				{
     			    					Category cate = (Category) categories.get(i);
-    			    					if(cate != null && !cate.isRemoved() && cate.getId().equals(agr.getAssignment().getCategory().getId()))
+    			    					if(cate != null && !cate.isRemoved() && agr.getAssignment().getCategory() !=null && cate.getId().equals(agr.getAssignment().getCategory().getId()))
     			    					{
     			    						if(cateScoreMap.get(cate.getId()) != null)
     			    						{
@@ -611,7 +611,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 					for(int i=0; i<categories.size(); i++)
 					{
 						Category cate = (Category) categories.get(i);
-						if(cate != null && !cate.isRemoved() && cate.getId().equals(asgn.getCategory().getId()))
+						if(cate != null && !cate.isRemoved() && asgn.getCategory() != null && cate.getId().equals(asgn.getCategory().getId()))
 						{
 							if(cateTotalScoreMap.get(cate.getId()) == null)
 							{
@@ -640,7 +640,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 						for(int i=0; i<categories.size(); i++)
 						{
 							Category cate = (Category) categories.get(i);
-							if(cate != null && !cate.isRemoved() && cate.getId().equals(go.getCategory().getId()))
+							if(cate != null && !cate.isRemoved() && go.getCategory() != null && cate.getId().equals(go.getCategory().getId()))
 							{
 								totalPointsEarned += pointsEarned.doubleValue();
 								break;
@@ -652,7 +652,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 						for(int i=0; i<categories.size(); i++)
 						{
 							Category cate = (Category) categories.get(i);
-							if(cate != null && !cate.isRemoved() && cate.getId().equals(go.getCategory().getId()))
+							if(cate != null && !cate.isRemoved() && go.getCategory() != null && cate.getId().equals(go.getCategory().getId()))
 							{
 								if(cateScoreMap.get(cate.getId()) != null)
 								{
@@ -712,7 +712,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     					for(int i=0; i<categories.size(); i++)
     					{
     						Category cate = (Category) categories.get(i);
-    						if(cate != null && !cate.isRemoved() && cate.getId().equals(asgn.getCategory().getId()))
+    						if(cate != null && !cate.isRemoved() && asgn.getCategory() != null && cate.getId().equals(asgn.getCategory().getId()))
     						{
     							if(cateTotalScoreMap.get(cate.getId()) == null)
     							{
@@ -741,7 +741,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     						for(int i=0; i<categories.size(); i++)
     						{
     							Category cate = (Category) categories.get(i);
-    							if(cate != null && !cate.isRemoved() && cate.getId().equals(go.getCategory().getId()))
+    							if(cate != null && !cate.isRemoved() && go.getCategory() != null && cate.getId().equals(go.getCategory().getId()))
     							{
     								totalPointsEarned += pointsEarned.doubleValue();
     								break;
@@ -753,7 +753,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     						for(int i=0; i<categories.size(); i++)
     						{
     							Category cate = (Category) categories.get(i);
-    							if(cate != null && !cate.isRemoved() && cate.getId().equals(go.getCategory().getId()))
+    							if(cate != null && !cate.isRemoved() && go.getCategory() != null && cate.getId().equals(go.getCategory().getId()))
     							{
     								if(cateScoreMap.get(cate.getId()) != null)
     								{
@@ -1051,7 +1051,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     						for(int i=0; i<categories.size(); i++)
     						{
     							Category cate = (Category) categories.get(i);
-    							if(cate != null && !cate.isRemoved() && cate.getId().equals(asn.getCategory().getId()))
+    							if(cate != null && !cate.isRemoved() && asn.getCategory() != null && cate.getId().equals(asn.getCategory().getId()))
     							{
     								totalPointsPossible += pointsPossible.doubleValue();
     								break;
@@ -1094,7 +1094,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     						for(int i=0; i<categories.size(); i++)
     						{
     							Category cate = (Category) categories.get(i);
-    							if(cate != null && !cate.isRemoved() && cate.getId().equals(asn.getCategory().getId()))
+    							if(cate != null && !cate.isRemoved() && asn.getCategory() != null && cate.getId().equals(asn.getCategory().getId()))
     							{
     								totalPointsPossible += pointsPossible.doubleValue();
     								break;
@@ -1391,7 +1391,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		if(assign != null && assign.isReleased())
     		{
     			assign.calculateStatistics(gradeRecords);
-    			if(cateMap.get(assign.getCategory().getId()) == null)
+    			if(assign.getCategory() != null && cateMap.get(assign.getCategory().getId()) == null)
     			{
     				List assignList = new ArrayList();
     				assignList.add(assign);
@@ -1399,9 +1399,12 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     			}
     			else
     			{
-    				List assignList = (List) cateMap.get(assign.getCategory().getId());
-    				assignList.add(assign);
-    				cateMap.put(assign.getCategory().getId(),assignList);
+    				if(assign.getCategory() != null)
+    				{
+    					List assignList = (List) cateMap.get(assign.getCategory().getId());
+    					assignList.add(assign);
+    					cateMap.put(assign.getCategory().getId(),assignList);
+    				}
     			}
     		}
     	}
