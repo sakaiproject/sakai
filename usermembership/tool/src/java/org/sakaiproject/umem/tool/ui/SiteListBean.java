@@ -245,6 +245,26 @@ public class SiteListBean {
 	// Main methods
 	// ######################################################################################
 	
+	public String getInitValues() {
+		if(isAllowed()){
+			if(userId == null){
+				String param = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("userId");
+				if(param != null){
+					userId = param;
+				}
+			}
+	
+			if(refreshQuery){
+				LOG.debug("Refreshing query...");
+				doSearch();
+				refreshQuery = false;
+			}
+			
+			if(userSitesRows != null && userSitesRows.size() > 0) Collections.sort(userSitesRows, getUserSitesRowComparator(sitesSortColumn, sitesSortAscending, collator));
+		}
+		return "";
+	}
+	
 	/**
 	 * Uses complex SQL for site membership, user role and group membership.<br>
 	 * For a 12 site users it takes < 1 secs!
@@ -486,23 +506,7 @@ public class SiteListBean {
 		return allowed;
 	}
 
-	public List getUserSitesRows() {
-		// warn if not allowed
-		if(!isAllowed()) return new ArrayList();
-
-		if(userId == null /*|| isNotValidated()*/){
-			String param = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("userId");
-			if(param != null){
-				userId = param;
-			}
-		}
-
-		if(refreshQuery){
-			LOG.debug("Refreshing query...");
-			doSearch();
-			refreshQuery = false;
-		}
-		
+	public List getUserSitesRows() {		
 		if(userSitesRows != null && userSitesRows.size() > 0) Collections.sort(userSitesRows, getUserSitesRowComparator(sitesSortColumn, sitesSortAscending, collator));
 		return userSitesRows;
 	}
@@ -513,6 +517,10 @@ public class SiteListBean {
 
 	public boolean isEmptySiteList() {
 		return (userSitesRows == null || userSitesRows.size() <= 0);
+	}
+
+	public boolean isRenderTable() {
+		return !isEmptySiteList();
 	}
 
 	public String getUserEid() {

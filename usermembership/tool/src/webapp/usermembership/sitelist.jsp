@@ -18,7 +18,8 @@
 <f:view>
 <sakai:view title="#{msgs.tool_title}">
 	<%/*<sakai:flowState bean="#{SiteListBean}"/>*/%>
-
+	<h:outputText value="#{SiteListBean.initValues}"/>
+	
 	<f:subview id="allowed">
 		<h:message for="allowed" fatalClass="alertMessage" fatalStyle="margin-top: 15px;" showDetail="true"/>
 	</f:subview>
@@ -32,7 +33,8 @@
 			var="row1"
 			styleClass="listHier narrowTable"
 			sortColumn="#{SiteListBean.sitesSortColumn}"
-            sortAscending="#{SiteListBean.sitesSortAscending}">
+            sortAscending="#{SiteListBean.sitesSortAscending}"
+            rendered="#{SiteListBean.renderTable}" >
 			<h:column id="siteName">
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="siteName" immediate="true" arrow="true">
@@ -91,7 +93,7 @@
 			</h:column>
 		</t:dataTable>
 
-		<p class="instruction">
+		<p class="instruction" style="margin-top: 40px;">
 			<h:outputText value="#{msgs.no_sitelist}" rendered="#{SiteListBean.emptySiteList}" />
 		</p>
 		

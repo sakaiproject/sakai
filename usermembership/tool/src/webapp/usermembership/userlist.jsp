@@ -85,7 +85,7 @@
 			sortColumn="#{UserListBean.userSortColumn}" 
             sortAscending="#{UserListBean.userSortAscending}"
             first="#{UserListBean.firstItem}"
-            rows="#{UserListBean.pageSize}"
+            rows="#{UserListBean.rowsNumber}"
             rendered="#{UserListBean.renderTable}">
 			<h:column id="userID">
 				<f:facet name="header">
@@ -131,7 +131,7 @@
 			</h:column>
 		</t:dataTable>
 	
-		<p class="instruction">
+		<p class="instruction" style="margin-top: 40px;">
 			<h:outputText value="#{msgs.no_enrollments}" rendered="#{UserListBean.emptyUserList}" />
 		</p>		
 		<t:div styleClass="act" rendered="#{!UserListBean.emptyUserList && UserListBean.renderTable}">

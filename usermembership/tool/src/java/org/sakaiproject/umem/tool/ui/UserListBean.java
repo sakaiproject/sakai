@@ -81,7 +81,7 @@ public class UserListBean {
 	private boolean							allowed				= false;
 	private boolean							refreshQuery		= false;
 	private boolean							renderTable			= false;
-	private boolean							renderPager			= false;
+	private boolean							renderPager			= true;
 	private boolean							renderClearSearch	= false;
 	private int								totalItems			= -1;
 	private int								firstItem			= 0;
@@ -365,10 +365,14 @@ public class UserListBean {
 
 		// 4. Update pager
 		this.totalItems = userRows.size();
-		if(totalItems <= pageSize){
+		if(totalItems > 0) 
+			renderPager = true;
+		else
 			renderPager = false;
-		}
-		else renderPager = true;
+//		if(totalItems <= pageSize){
+//			renderPager = false;
+//		}
+//		else renderPager = true;
 		firstItem = 0;
 	}
 	
@@ -425,6 +429,13 @@ public class UserListBean {
 	public List getUserRows() {		
 		return userRows;
 	}
+	
+	public int getRowsNumber() {
+		if(totalItems <= pageSize){
+			return totalItems;
+		}
+		return pageSize;
+	}
 
 	public int getFirstItem() {
 		return firstItem;
@@ -435,9 +446,9 @@ public class UserListBean {
 	}
 
 	public int getPageSize() {
-		if(totalItems <= pageSize){
-			return totalItems;
-		}
+//		if(totalItems <= pageSize){
+//			return totalItems;
+//		}
 		return pageSize;
 	}
 
@@ -458,7 +469,7 @@ public class UserListBean {
 	}
 
 	public boolean isRenderTable() {
-		return renderTable;
+		return renderTable && userRows != null && userRows.size() > 0;
 	}
 	
 	public boolean isRenderClearSearch() {		
