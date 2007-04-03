@@ -291,7 +291,11 @@ public class PrivateMessagesTool
   {           
     /** get area per request */
     area = prtMsgManager.getPrivateMessageArea();
-            
+    
+    if (! area.getEnabled() && isMessages()) {
+    	area.setEnabled(true);
+    }
+    
     if (getPvtAreaEnabled() || isInstructor()){      
       PrivateForum pf = prtMsgManager.initializePrivateMessageArea(area);
       pf = prtMsgManager.initializationHelper(pf, area);

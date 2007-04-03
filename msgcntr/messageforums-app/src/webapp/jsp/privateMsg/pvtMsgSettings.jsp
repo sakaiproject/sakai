@@ -16,18 +16,11 @@
 		}
 	</script>
 <h:form id="pvtMsgSettings">
-			<sakai:tool_bar_message 	value="#{msgs.pvt_msgs_label} #{msgs.pvt_settings}" />
+			<sakai:tool_bar_message value="#{msgs.pvt_msgs_label} #{msgs.pvt_settings}" />
 			<h:messages styleClass="alertMessage" id="errorMessages" />
-<!--
-			
-				<h:panelGrid styleClass="msgHeadings" rendered="#{PrivateMessagesTool.instructor}">
-		      <h:outputText value="#{msgs.pvt_actpvtmsg}"/>
-		    </h:panelGrid>
--->				
-				<h:panelGroup rendered="#{PrivateMessagesTool.validEmail}">
-				</h:panelGroup>
-	
-			  <h:panelGrid styleClass="jsfFormTable" columns="2" summary="layout" rendered="#{PrivateMessagesTool.instructor}">
+
+			  <h:panelGrid styleClass="jsfFormTable" columns="2" summary="layout" 
+			  				rendered="#{PrivateMessagesTool.instructor && PrivateMessagesTool.messagesandForums}">
 			    <h:panelGroup styleClass="shorttext">
 					  <h:outputLabel for="" ><h:outputText value="#{msgs.pvt_actpvtmsg1}"/></h:outputLabel>
 					</h:panelGroup>
@@ -40,11 +33,6 @@
 				  </h:panelGroup>
 			  </h:panelGrid>
 
-<!--
-		    <h:panelGrid styleClass="msgHeadings">
-		      <h:outputText value="#{msgs.pvt_autofor}" />
-		    </h:panelGrid>
--->	
 	      <h:panelGrid styleClass="jsfFormTable" columns="2" summary="layout" >
 			    <h:panelGroup styleClass="shorttext">
 					  <h:outputLabel for=""><h:outputText	value="#{msgs.pvt_autofor1}" /></h:outputLabel>
