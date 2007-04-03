@@ -395,21 +395,21 @@ CREATE INDEX SCHEDULER_DI_TIME_INDEX ON SCHEDULER_DELAYED_INVOCATION (INVOCATION
 --New Osp Reports Tables
 ----------------------------------------------------------------------------------------------------------------------------------------
 
- CREATE TABLE OSP_REPORT_DEF_XML (
-   	REPORTDEFID VARCHAR2(36 CHAR) NOT NULL,
-	XMLFILE LONG RAW NOT NULL,
-	PRIMARY KEY (REPORTDEFID)
-);
-
- CREATE TABLE OSP_REPORT_XSL (
-   	REPORTXSLFILEID VARCHAR2(36 CHAR) NOT NULL,
-	REPORTXSLFILEREF VARCHAR2(255 CHAR),
-	REPORTDEFID VARCHAR2(36 CHAR),
-	XSLFILE LONG RAW NOT NULL,
-	PRIMARY KEY (REPORTXSLFILEID)
+CREATE TABLE osp_report_def_xml (
+   reportDefId VARCHAR2(36 CHAR) NOT NULL,
+   xmlFile CLOB NOT NULL,
+   PRIMARY KEY  (reportDefId)
  );
 
- ALTER TABLE OSP_REPORT_XSL add CONSTRAINT FK25C0A259BE381194 FOREIGN KEY (REPORTDEFID)	REFERENCES OSP_REPORT_DEF_XML (REPORTDEFID);
+ CREATE TABLE osp_report_xsl (
+   	reportXslFileId VARCHAR2(36 CHAR) NOT NULL,
+	reportXslFileRef VARCHAR2(255 CHAR),
+	reportDefId VARCHAR2(36 CHAR),
+	xslFile CLOB NOT NULL,
+	PRIMARY KEY (reportXslFileId)
+ );
+
+ ALTER TABLE osp_report_xsl add CONSTRAINT FK25C0A259BE381194 FOREIGN KEY (reportDefId)	REFERENCES OSP_REPORT_DEF_XML (reportDefId);
 
 ----------------------------------------------------------------------------------------------------------------------------------------
 --SAK-9029
