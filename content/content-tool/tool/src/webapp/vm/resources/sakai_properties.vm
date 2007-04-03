@@ -143,12 +143,14 @@
 		#end
 	#end
 
-	<h4>
-		$tlang.getString("props.access")
-	</h4>
+	#if(!$dropboxMode && ! $model.isSiteCollection())
+		<h4>
+			$tlang.getString("props.access")
+		</h4>
+	#end
 	
 	######### begin access section ##########
-	#if(!$dropboxMode)
+	#if(!$dropboxMode && ! $model.isSiteCollection())
 		<div  class="labelindnt">
 		
 
@@ -270,7 +272,7 @@
 	######### end access section ##########
 
 	######### begin availability section ##########
-	#if($availability_is_enabled && !$model.isInWorkspace() && !$dropboxMode)
+	#if($availability_is_enabled && !$model.isInWorkspace() && !$dropboxMode && ! $model.isSiteCollection())
 		<p class="instruction">
 			$tlang.getString("instr.access") 
 		</p>

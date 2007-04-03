@@ -21,7 +21,12 @@
 				<label for="displayName${DOT}$i">
 					$tlang.getString("title.name") 
 				</label>
-				<input type="text" size="40" id="displayName${DOT}$i" name="displayName${DOT}$i" value="$validator.escapeHtml("$!item.name")" />
+				#if($item.isSiteCollection())
+					<input type="text" size="40" id="displayName_display${DOT}$i" disabled="disabled" value="$validator.escapeHtml("$!item.name")" />
+					<input type="hidden" id="displayName${DOT}$i" name="displayName${DOT}$i" value="$validator.escapeHtml("$!item.name")" />
+				#else
+					<input type="text" size="40" id="displayName${DOT}$i" name="displayName${DOT}$i" value="$validator.escapeHtml("$!item.name")" />
+				#end
 			</p>
 			#parse("/vm/resources/sakai_properties.vm")
 			<hr class="itemSeparator" />

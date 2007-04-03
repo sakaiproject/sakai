@@ -335,6 +335,8 @@ public class ListItem
 			isUserSite = SiteService.isUserSite(contextId);
 		}
 		setUserSite(isUserSite);
+		
+		this.isSiteCollection = this.siteCollection(refstr);
 
 		org.sakaiproject.content.api.ContentHostingService contentService = ContentHostingService.getInstance();
 		if(entity.getContainingCollection() == null)
@@ -798,6 +800,10 @@ public class ListItem
 	{
 		this.id = entityId;
 		this.containingCollectionId = ContentHostingService.getContainingCollectionId(entityId);
+		
+		String refstr = ContentHostingService.getReference(id);
+		this.isSiteCollection = this.siteCollection(refstr);
+
 	}
 
 	/**
@@ -2447,6 +2453,19 @@ public class ListItem
     	this.inheritedAccessMode = inheritedAccessMode;
     }
 
-
+	protected boolean siteCollection(String refStr)
+	{
+		boolean site = false;
+		
+		Reference ref = EntityManager.newReference(refStr);
+		String context = ref.getContext();
+		String siteCollection = ContentHostingService.getSiteCollection(context);
+		if(ref.getId().equals(siteCollection))
+		{
+			site = true;
+		}
+		
+		return site;
+	}
 }
 
