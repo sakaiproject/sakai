@@ -56,7 +56,7 @@
 	                    <f:param value="#{message.message.id}" name="messageId"/>
               	    	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
               	    	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
-        	    				<h:graphicImage value="/images/silk/email_go.png" alt="#{msgs.cdfm_button_bar_reply_to_msg}" />
+        	    				<h:graphicImage value="/images/silk/page_white_edit.png" alt="#{msgs.cdfm_button_bar_reply_to_msg}" />
         	    				<h:outputText value="#{msgs.cdfm_reply}" />
    	                </h:commandLink>
    	                     

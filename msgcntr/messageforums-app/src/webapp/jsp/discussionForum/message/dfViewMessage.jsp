@@ -104,7 +104,7 @@
 			<h:panelGroup styleClass="specialLink">
 				<h:commandLink title="#{msgs.cdfm_button_bar_reply_to_msg}" action="#{ForumTool.processDfMsgReplyMsg}" 
 		  			rendered="#{ForumTool.selectedTopic.isNewResponseToResponse && ForumTool.selectedMessage.msgApproved}">
-		  			<h:graphicImage value="/images/silk/email_go.png" alt="#{msgs.cdfm_button_bar_reply_to_msg}" rendered="#{ForumTool.selectedTopic.isNewResponseToResponse}" />
+		  			<h:graphicImage value="/images/silk/page_white_edit.png" alt="#{msgs.cdfm_button_bar_reply_to_msg}" rendered="#{ForumTool.selectedTopic.isNewResponseToResponse}" />
 		  			<h:outputText value=" #{msgs.cdfm_button_bar_reply_to_msg}" />
 		  		</h:commandLink>
       			
