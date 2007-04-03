@@ -333,6 +333,7 @@
 					</label>
 				</p>
 			#end
+			#if ($!name_CheckAutoAnnounce)
 			<p class="checkbox  indnt1">
 				#if ($value_CheckAutoAnnounce.equals("true"))
 					<input id="$name_CheckAutoAnnounce" name="$name_CheckAutoAnnounce" type="checkbox" value="true" checked="checked" />
@@ -343,6 +344,7 @@
 					$tlang.getString("gen.anntheope") 
 				</label>
 			</p>
+			#end
 			<p class="checkbox  indnt1">
 				#if (!$!value_CheckAddHonorPledge.equals("1"))
 					<input id="$name_CheckAddHonorPledge" name="$name_CheckAddHonorPledge" type="checkbox" value="2" checked="checked" />
