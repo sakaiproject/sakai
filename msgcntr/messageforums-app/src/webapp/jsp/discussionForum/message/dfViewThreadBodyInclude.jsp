@@ -32,16 +32,22 @@
       								onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id}, this);"
 				   	        		onmouseover="this.src=this.src.replace(/email\.png/, 'email_open.png');"
 				   	        		onmouseout="this.src=this.src.replace(/email_open\.png/, 'email.png');" />
-						<%--
-   				   	      <h:commandLink action="#{ForumTool.processDfMsgMarkMsgAsReadFromThread}" rendered="#{!message.read}" title="#{msgs.cdfm_button_bar_mark_as_read}"> 
-   	                  		<f:param value="#{message.message.id}" name="messageId"/>
-           	    			<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
-           	    			<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
-      						   	<h:graphicImage value="/images/silk/email.png" alt="#{msgs.msg_is_unread}" rendered="#{!message.read}" 
-				   	        		onmouseover="this.src=this.src.replace(/email\.png/, 'email_open.png');"
-				   	        		onmouseout="this.src=this.src.replace(/email_open\.png/, 'email.png');" />
-                    	  </h:commandLink>
-                    --%>
+						<h:outputText value="<br />" escape="false" rendered="#{!empty message.attachList}" />
+						<h:panelGroup rendered="#{!empty message.attachList}">
+					      	<h:dataTable value="#{message.attachList}" var="eachAttach"  styleClass="attachListJSF"  rendered="#{!empty message.attachList}">
+								  		<h:column rendered="#{!empty message.message.attachments}">
+									      <h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-excel'}" alt="" />
+											  <h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/html'}" alt="" />
+												<h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/pdf'}" alt="" />
+												<h:graphicImage url="/sakai-messageforums-tool/images/ppt.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-powerpoint'}" alt="" />
+												<h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/plain'}" alt="" />
+												<h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/msword'}" alt="" />
+												<h:outputLink value="#{eachAttach.url}" target="_blank">
+												 	<h:outputText value="#{eachAttach.attachment.attachmentName}"/>
+											  </h:outputLink>											  
+										  </h:column>
+						    </h:dataTable>
+					      </h:panelGroup>
 	                  <f:verbatim></div></f:verbatim>
 
                          <f:verbatim><div style="width:30%;float:right;text-align:right" class="specialLink"></f:verbatim>

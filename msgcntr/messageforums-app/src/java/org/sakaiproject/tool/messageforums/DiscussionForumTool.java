@@ -2115,7 +2115,7 @@ public class DiscussionForumTool
        
     }
 
-    List temp_messages = forumManager.getTopicByIdWithMessages(topic.getId())
+    List temp_messages = forumManager.getTopicByIdWithMessagesAndAttachments(topic.getId())
         .getMessages();
     if (temp_messages == null || temp_messages.size() < 1)
     {
