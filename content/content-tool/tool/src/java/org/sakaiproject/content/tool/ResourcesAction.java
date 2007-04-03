@@ -5501,7 +5501,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				{ 	 
 					String pname = (String) valueIt.next(); 	 
 					String pvalue = (String) values.get(pname); 	 
-					resourceProperties.addProperty(pname, pvalue); 	 
+					resourceProperties.addProperty(pname, pvalue); 
+				
 				} 	 
 
 				// notification

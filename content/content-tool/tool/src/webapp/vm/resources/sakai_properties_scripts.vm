@@ -354,10 +354,6 @@
 		counter.value = count;
 
 		var indexer = document.getElementById("lastIndex");
-		if(indexer.value == index)
-		{
-			indexer.value = prev.value;
-		}
 		
 		var fileInputDiv = document.getElementById("fileInputDiv");
 		
