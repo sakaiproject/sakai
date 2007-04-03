@@ -50,7 +50,7 @@
         <div class="viewNav" style="padding: 0pt;">
           $tlang.getString( "actions.list" )
           <select name="citationAction" id="citationAction" class="citationActionSelect"
-            onchange="doCitationAction(this.value)">
+            onfocus="updateSelectableActions()" onchange="doCitationAction(this.value)">
             <option value="null"> - $tlang.getString( "select.action.list" ) - </option>
             <option class="selectAction" disabled="disabled" value="exportSelected">$tlang.getString( "export.select.list" )</option>
             <option value="exportList">$tlang.getString( "export.all.list" )</option>
@@ -86,7 +86,7 @@
         <div class="viewNav" style="padding: 0pt;">
           $tlang.getString( "actions.list" )
           <select name="citationAction" id="citationAction" class="citationActionSelect"
-            onchange="doCitationAction(this.value)">
+            onfocus="updateSelectableActions()" onchange="doCitationAction(this.value)">
             <option value="null"> - $tlang.getString( "select.action.list" ) - </option>
             <option class="selectAction" disabled="disabled" value="exportSelected">$tlang.getString( "export.select.list" )</option>
             <option value="exportList">$tlang.getString( "export.all.list" )</option>

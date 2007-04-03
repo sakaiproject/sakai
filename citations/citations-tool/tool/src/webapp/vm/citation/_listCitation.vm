@@ -1,7 +1,7 @@
 <tr>
 	<td headers="checkboxes" class="attach">
 		<input type="checkbox" name="selected" id="select_$!{citation.id}"
-		  value="$!{citation.id}" onclick="updateSelectableActions(); highlightCheckedSelections();" /> 
+		  value="$!{citation.id}" onclick="highlightCheckedSelections();" /> 
 	</td>
 	<td headers="details">
 		<a href="$citation.openurl" target="_blank">$citation.displayName</a>

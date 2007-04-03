@@ -124,7 +124,7 @@ public class CitationListAccessServlet implements HttpAccess
 		if(org.sakaiproject.citation.api.CitationService.RIS_FORMAT.equals(format))
 		{
 			String collectionId = req.getParameter("collectionId");
-			List<String> citationIds = new java.util.ArrayList<String>();			
+			List<String> citationIds = new java.util.ArrayList<String>();
 			CitationCollection collection = null;
 			try 
 			{
@@ -140,6 +140,12 @@ public class CitationListAccessServlet implements HttpAccess
 			{
 				// export selected
 				String[] paramCitationIds = req.getParameterValues("citationId");
+				
+				if( paramCitationIds == null || paramCitationIds.length < 1 )
+				{
+					// none selected - do not continue
+					return;
+				}
 				citationIds.addAll(Arrays.asList(paramCitationIds));
 			}
 			else
@@ -148,6 +154,13 @@ public class CitationListAccessServlet implements HttpAccess
 				
 				// iterate through ids
 				List<Citation> citations = collection.getCitations();
+				
+				if( citations == null || citations.size() < 1 )
+				{
+					// no citations to export - do not continue
+					return;
+				}
+				
 				for( Citation citation : citations )
 				{
 					citationIds.add( citation.getId() );
@@ -169,8 +182,8 @@ public class CitationListAccessServlet implements HttpAccess
 				throw new EntityAccessOverloadException(ref.getReference());
 			}
 
-			// Set the mime type for a PDF
-			res.addHeader("Content-Disposition", "inline; filename=\"citations.RIS\"");
+			// Set the mime type for a RIS file
+			res.addHeader("Content-Disposition", "attachment; filename=\"citations.RIS\"");
 			res.setContentType("application/x-Research-Info-Systems");
 			res.setContentLength(buffer.length());
 

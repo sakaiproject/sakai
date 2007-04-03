@@ -116,7 +116,7 @@
 				  value="$tlang.getString("label.cancel")"
 				  onclick="document.getElementById('sakai_action').value='doCancel'; submitform('$FORM_NAME');"
 				/>
-				#end				
+				#end
 			</div>
 		</form>
 	</div>
@@ -149,11 +149,19 @@ function resizeFrame() {
 function doCitationAction( action ) {
   // do action
   if( action == "exportSelected" ) {
-    exportSelectedCitations( "$exportUrlSel", "$tlang.getString( "export.title.list" )", "$collectionId" );
+    if( numCitationsSelected() > 0 ) {
+      exportSelectedCitations( "$exportUrlSel", "$collectionId" );
+    } else {
+      alert( "$tlang.getString( "select.warn.list" )" );
+    }
   } else if( action == "exportList" ) {
-    exportAllCitations( "$exportUrlAll", "$tlang.getString( "export.title.list" )", "$collectionId" );
+    exportAllCitations( "$exportUrlAll", "$collectionId" );
   } else if( action == "removeSelected" ) {
-    removeSelectedCitations( "#toolLink("CitationHelperAction" "doRemoveSelectedCitations")&collectionId=$collectionId", "$FORM_NAME" );
+    if( numCitationsSelected() > 0 ) {
+      removeSelectedCitations( "#toolLink("CitationHelperAction" "doRemoveSelectedCitations")&collectionId=$collectionId", "$FORM_NAME" );
+    } else {
+      alert( "$tlang.getString( "select.warn.list" )" );
+    }
   } else if( action == "removeList" ) {
     removeAllCitations( "$FORM_NAME" );
   }

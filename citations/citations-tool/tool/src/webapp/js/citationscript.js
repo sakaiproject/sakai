@@ -472,6 +472,12 @@ function details( record ) {
   );
 }
 
+function numCitationsSelected() {
+  var count;
+  count = $( "input[@type=checkbox][@checked]" ).size();
+  return count;
+}
+
 function updateSelectableActions() {
   if( $( "input[@type=checkbox][@checked]" ).size() > 0 ) {
     $( ".selectAction" ).attr( "disabled", "" );
@@ -480,7 +486,7 @@ function updateSelectableActions() {
   }
 }
 
-function exportSelectedCitations( baseUrl, title, collectionId ) {
+function exportSelectedCitations( baseUrl, collectionId ) {
   var exportUrl = baseUrl + "?collectionId=" + collectionId;
   
   // get each selected checkbox and append it to be exported
@@ -489,25 +495,12 @@ function exportSelectedCitations( baseUrl, title, collectionId ) {
     }
   );
   
-  exportCitations( exportUrl, title );
+  window.location.assign( exportUrl );
 }
 
-function exportAllCitations( baseUrl, title, collectionId ) {
+function exportAllCitations( baseUrl, collectionId ) {
   var exportUrl = baseUrl + "?collectionId=" + collectionId;
-  exportCitations( exportUrl, title );
-}
-
-var exportWindow;
-var t;
-function exportCitations( exportUrl, title ) {
-  exportWindow = top.window.open(exportUrl, title, "height=600,width=600,scrollbars=no,menubar=no,toolbar=no,location=no,status=no");
-  t = window.setTimeout('closeExportWindow()', 15000);
-}
-
-function closeExportWindow() {
-  if( exportWindow ) {
-    exportWindow.close();
-  }
+  window.location.assign( exportUrl );
 }
 
 function removeSelectedCitations( baseUrl ) {

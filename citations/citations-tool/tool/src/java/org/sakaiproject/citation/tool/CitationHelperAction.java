@@ -2197,11 +2197,15 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		{
 			// remove all citations
 			List<Citation> citations = collection.getCitations();
-			for( Citation citation : citations )
+			
+			if( citations != null && citations.size() > 0 )
 			{
-				collection.remove( citation );
+				for( Citation citation : citations )
+				{
+					collection.remove( citation );
+				}
+				CitationService.save(collection);
 			}
-			CitationService.save(collection);
 		}
 	
 		setMode(state, Mode.LIST);
@@ -2248,21 +2252,24 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		{
 			// remove selected citations
 			String[] paramCitationIds = params.getStrings("citationId");
-			List<String> citationIds = new java.util.ArrayList<String>();
-			citationIds.addAll(Arrays.asList(paramCitationIds));
-			
-			try
+			if( paramCitationIds != null && paramCitationIds.length > 0 )
 			{
-			for( String citationId : citationIds )
-			{
-				Citation citation = collection.getCitation(citationId);
-				collection.remove(citation);
-			}
-			CitationService.save(collection);
-			}
-			catch( IdUnusedException e )
-			{
-				logger.warn("doRemoveSelectedCitation() unable to get and remove citation", e );	
+				List<String> citationIds = new java.util.ArrayList<String>();
+				citationIds.addAll(Arrays.asList(paramCitationIds));
+
+				try
+				{
+					for( String citationId : citationIds )
+					{
+						Citation citation = collection.getCitation(citationId);
+						collection.remove(citation);
+					}
+					CitationService.save(collection);
+				}
+				catch( IdUnusedException e )
+				{
+					logger.warn("doRemoveSelectedCitation() unable to get and remove citation", e );	
+				}
 			}
 		}
 	
