@@ -1445,7 +1445,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
             {
 	            edit = contentService.editResource(temporaryResourceId);
 	            pipe.setRevisedContent(edit.getContent());
-	            pipe.setRevisedResourceProperty(ResourceProperties.PROP_CONTENT_TYPE, ResourceType.MIME_TYPE_HTML);
 	            contentService.removeResource(edit);
 	            edit = null;
             }
@@ -1480,6 +1479,10 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
             	contentService.cancelResource(edit);
             }
 		}
+
+		// set content (mime) type
+		pipe.setRevisedMimeType(ResourceType.MIME_TYPE_HTML);
+        pipe.setRevisedResourceProperty(ResourceProperties.PROP_CONTENT_TYPE, ResourceType.MIME_TYPE_HTML);
 		
 		// set the alternative_reference to point to reference_root for CitationService
 		pipe.setRevisedResourceProperty(ContentHostingService.PROP_ALTERNATE_REFERENCE, org.sakaiproject.citation.api.CitationService.REFERENCE_ROOT);
@@ -3097,6 +3100,8 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			ContentHostingService contentService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
 			ContentResourceEdit newItem = contentService.addResource(pipe.getContentEntity().getId(), "New Citation List", null, ContentHostingService.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 			newItem.setResourceType(CitationService.CITATION_LIST_ID);
+			newItem.setContentType( ResourceType.MIME_TYPE_HTML );
+			
 			ResourcePropertiesEdit props = newItem.getPropertiesEdit();
 			
 			// set the alternative_reference to point to reference_root for CitationService
