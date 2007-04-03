@@ -7558,6 +7558,16 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							if (StringUtil.trimToNull(rv) != null)
 							{
 								m_graded = true;
+								org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition = g.getAssignment(gradebookUid, associatedGBAssignment);
+								if (assignmentDefinition != null && assignmentDefinition.isReleased())
+								{
+									m_gradeReleased = true;
+									m_returned = true;
+									if (m_timeReturned == null)
+									{
+										m_timeReturned = TimeService.newTime();
+									}
+								}
 							}
 							else
 							{
