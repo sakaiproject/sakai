@@ -1,6 +1,7 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_student_view_grade.vm,v 1.2 2005/05/19 19:39:49 gsilver.umich.edu Exp $ -->
 <div class="portletBody">
 	#set ($assignment = $submission.Assignment)
+	#set ($grade=$submission.Grade)
 	#if ($taggable)
 		#if (!$itemHelpers.isEmpty())
 			<div class="navIntraTool">
