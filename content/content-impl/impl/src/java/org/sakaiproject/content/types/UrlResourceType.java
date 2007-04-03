@@ -769,4 +769,10 @@ public class UrlResourceType extends BaseResourceType
 		return list;
 	}
 
+	@Override
+    public boolean hasRightsDialog()
+    {
+	    return false;
+    }
+
 }
