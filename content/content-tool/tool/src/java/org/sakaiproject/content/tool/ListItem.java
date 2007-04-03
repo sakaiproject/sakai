@@ -901,7 +901,7 @@ public class ListItem
 		}
 		else if(ResourcesAction.PUBLIC_ACCESS.equals(access_mode))
 		{
-			if(! isPubviewPossible && ! isPubviewInherited())
+			if(isPubviewPossible && ! isPubviewInherited())
 			{
 				setPubview(true);
 				setAccessMode(AccessMode.INHERITED);
