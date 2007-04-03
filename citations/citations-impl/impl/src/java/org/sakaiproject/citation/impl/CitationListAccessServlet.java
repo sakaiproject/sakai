@@ -252,24 +252,33 @@ public class CitationListAccessServlet implements HttpAccess
 					+ "<script type=\"text/javascript\" src=\"/library/js/jquery-1.1.2.js\"></script>\n"
 					+ "<script type=\"text/javascript\" src=\"/sakai-citations-tool/js/citationscript.js\"></script>\n"
     				+ "</head>\n<body>" );
+
+    		List<Citation> citations = collection.getCitations();
     		
     		out.println("<div class=\"portletBody\">\n\t<div class=\"indnt1\">");
     		out.println("\t<h3>" + rb.getString("list.title") + ": " + title + "</h3>");
     		out.println("\t<p>" + description + "</p>");
-    		out.println("\t<p class=\"instruction\">" + rb.getString("cite.subtitle") + "</p>");
+    		if( citations.size() > 0 )
+    		{
+    			out.println("\t<p class=\"instruction\">" + rb.getString("cite.subtitle") + "</p>");
+    		}
     		out.println("\t<table class=\"listHier lines nolines\" summary=\"citations table\" cellpadding=\"0\" cellspacing=\"0\">");
     		out.println("\t<tbody>");
     		out.println("\t<tr><th colspan=\"2\">");
     		out.println("\t\t<div class=\"viewNav\" style=\"padding: 0pt;\"><strong>" + rb.getString("listing.title") + "</strong> (" + collection.size() + ")" );
     		out.println("\t\t</div>");
     		out.println("\t</th></tr>");
-    		out.println("\t<tr class=\"exclude\"><td colspan=\"2\">");
-    		out.println("\t\t<div class=\"itemAction\">");
-    		out.println("\t\t\t<a href=\"#\" onclick=\"showAllDetails( '" + rb.getString("link.hide.results") + "' ); return false;\">" + rb.getString("link.show.readonly") + "</a> |" );
-    		out.println("\t\t\t<a href=\"#\" onclick=\"hideAllDetails( '" + rb.getString("link.show.readonly") + "' ); return false;\">" + rb.getString("link.hide.results") + "</a>" );
-    		out.println("\t\t</div>\n\t</td></tr>");
 
-    		List<Citation> citations = collection.getCitations();
+
+    		if( citations.size() > 0 )
+    		{
+    			out.println("\t<tr class=\"exclude\"><td colspan=\"2\">");
+    			out.println("\t\t<div class=\"itemAction\">");
+    			out.println("\t\t\t<a href=\"#\" onclick=\"showAllDetails( '" + rb.getString("link.hide.results") + "' ); return false;\">" + rb.getString("link.show.readonly") + "</a> |" );
+    			out.println("\t\t\t<a href=\"#\" onclick=\"hideAllDetails( '" + rb.getString("link.show.readonly") + "' ); return false;\">" + rb.getString("link.hide.results") + "</a>" );
+    			out.println("\t\t</div>\n\t</td></tr>");
+    		}
+
     		for( Citation citation : citations )
     		{
     			String escapedId = citation.getId().replace( '-', 'x' );
@@ -375,19 +384,24 @@ public class CitationListAccessServlet implements HttpAccess
        		    out.println("\t\t</td>");
        		    out.println("\t\t</tr>");
     		}
-    		out.println("\t<tr class=\"exclude\"><td colspan=\"2\">");
-    		out.println("\t\t<div class=\"itemAction\">");
-    		out.println("\t\t\t<a href=\"#\" onclick=\"showAllDetails( '" + rb.getString("link.hide.results") + "' ); return false;\">" + rb.getString("link.show.results") + "</a> |" );
-    		out.println("\t\t\t<a href=\"#\" onclick=\"hideAllDetails( '" + rb.getString("link.show.results") + "' ); return false;\">" + rb.getString("link.hide.results") + "</a>" );
-    		out.println("\t\t</div>\n\t</td></tr>");
-    		out.println("\t<tr><th colspan=\"2\">");
-    		out.println("\t\t<div class=\"viewNav\" style=\"padding: 0pt;\"><strong>" + rb.getString("listing.title") + "</strong> (" + collection.size() + ")" );
-    		out.println("\t\t</div>");
-    		out.println("\t</th></tr>");
-    		out.println("\t</tbody>");
-    		out.println("\t</table>");
-    		out.println("</div></div>");
-    		out.println("</body></html>");
+    		
+    		if( citations.size() > 0 )
+    		{
+    			out.println("\t<tr class=\"exclude\"><td colspan=\"2\">");
+    			out.println("\t\t<div class=\"itemAction\">");
+    			out.println("\t\t\t<a href=\"#\" onclick=\"showAllDetails( '" + rb.getString("link.hide.results") + "' ); return false;\">" + rb.getString("link.show.readonly") + "</a> |" );
+    			out.println("\t\t\t<a href=\"#\" onclick=\"hideAllDetails( '" + rb.getString("link.show.readonly") + "' ); return false;\">" + rb.getString("link.hide.results") + "</a>" );
+    			out.println("\t\t</div>\n\t</td></tr>");
+        		
+        		out.println("\t<tr><th colspan=\"2\">");
+        		out.println("\t\t<div class=\"viewNav\" style=\"padding: 0pt;\"><strong>" + rb.getString("listing.title") + "</strong> (" + collection.size() + ")" );
+        		out.println("\t\t</div>");
+        		out.println("\t</th></tr>");
+        		out.println("\t</tbody>");
+        		out.println("\t</table>");
+        		out.println("</div></div>");
+        		out.println("</body></html>");
+    		}
         }
         catch (IOException e)
         {
