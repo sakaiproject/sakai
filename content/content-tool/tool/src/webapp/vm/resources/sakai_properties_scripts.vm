@@ -259,6 +259,7 @@
 	}
 	function addFileInput()
 	{
+//alert("addFileInput");
 		var counter = document.getElementById("fileCount");
 		var indexer = document.getElementById("lastIndex");
 		var fileInputDiv = document.getElementById("fileInputDiv");
@@ -291,12 +292,19 @@
 		}
 		
 		var prevNext = document.getElementById("next$DOT" + prevIndex);
-		if(prevNext && prevNext.value)
+		if(prevNext)
 		{
 			prevNext.value = index;
 		}
 		
+		var thisPrev = document.getElementById("prev$DOT" + index);
+		if(thisPrev)
+		{
+			thisPrev.value = prevIndex;
+		}
+		
 		attachEventHandlers();
+		
 		resizeFrame('grow');
 		focus_path = [ "content" + DOT + index ];
 		setFocus(focus_path);
@@ -307,46 +315,53 @@
 		var prev = document.getElementById("prev$DOT" + index);
 		var next = document.getElementById("next$DOT" + index);
 		
-		
-		if(prev && prev.value && next && next.value )
+		if(prev && next )
 		{
-			if(prev.value == "")
+			if(prev.value && prev.value != "")
 			{
-				if(next.value == "")
-				{
-					// can't delete
-					return;
-				}
-				else
+				if(next.value && next.value != "")
 				{
 					var nextPrev = document.getElementById("prev$DOT" + next.value);
 					if(nextPrev)
 					{
-						nextPrev = "";
+						nextPrev.value = prev.value;
+					}
+					var prevNext = document.getElementById("next$DOT" + prev.value);
+					if(prevNext)
+					{
+						prevNext.value = next.value;
 					}
 				}
-			}
-			else if(next.value == "")
-			{
-				var prevNext = document.getElementById("next$DOT" + prev.value);
-				if(prevNext)
+				else
 				{
-					prevNext = "";
+					var prevNext = document.getElementById("next$DOT" + prev.value);
+					if(prevNext)
+					{
+						prevNext.value = "";
+					}
 				}
 			}
 			else
 			{
-				var nextPrev = document.getElementById("prev$DOT" + next.value);
-				if(nextPrev)
+				if(next.value && next.value != "")
 				{
-					nextPrev = prev.value;
+					var nextPrev = document.getElementById("prev$DOT" + next.value);
+					if(nextPrev)
+					{
+						nextPrev.value = "";
+					}
 				}
-				var prevNext = document.getElementById("next$DOT" + prev.value);
-				if(prevNext)
+				else
 				{
-					prevNext = next.value;
+					// can't delete
+					return;
 				}
 			}
+		}
+		else
+		{
+			// can't delete
+			return;
 		}
 		
 		var counter = document.getElementById("fileCount");
@@ -354,6 +369,10 @@
 		counter.value = count;
 
 		var indexer = document.getElementById("lastIndex");
+		if(index == indexer.value)
+		{
+			indexer.value = prev.value;
+		}
 		
 		var fileInputDiv = document.getElementById("fileInputDiv");
 		
@@ -492,6 +511,22 @@
 						// ignore
 					}
 				}
+			}
+			else if(element.id.match(/^hidden_true${DOT}\d+$/))
+			{
+				newElement.checked = false;
+			}
+			else if(element.id.match(/^hidden_false${DOT}\d+$/))
+			{
+				newElement.checked = true;
+			}
+			else if(element.id.match(/^use_start_date${DOT}\d+$/))
+			{
+				newElement.checked = false;
+			}
+			else if(element.id.match(/^use_end_date${DOT}\d+$/))
+			{
+				newElement.checked = false;
 			}
 			var dotPos = element.id.lastIndexOf(DOT);
 			if(dotPos >= 0)
