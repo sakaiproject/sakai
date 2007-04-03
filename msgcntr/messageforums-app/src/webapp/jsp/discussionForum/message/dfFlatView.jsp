@@ -43,7 +43,6 @@
 					
 				<h:outputLink id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyUrl}');">
 					<h:graphicImage url="/images/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
-					<h:outputText value=" #{msgs.cdfm_print}" />
 				</h:outputLink>
  		</sakai:tool_bar>
 

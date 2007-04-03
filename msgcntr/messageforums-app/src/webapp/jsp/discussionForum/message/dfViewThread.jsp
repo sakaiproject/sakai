@@ -37,7 +37,6 @@
 					
 				<h:outputLink id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyUrlThread}');">
 					<h:graphicImage url="/images/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
-					<h:outputText value=" #{msgs.cdfm_print}" />
 				</h:outputLink>
  		</sakai:tool_bar>
 			<h:panelGrid columns="2" summary="layout" width="100%" styleClass="navPanel specialLink">
