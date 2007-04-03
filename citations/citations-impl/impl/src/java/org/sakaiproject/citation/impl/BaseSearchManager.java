@@ -4,17 +4,17 @@
  ***********************************************************************************
  *
  * Copyright (c) 2006 The Sakai Foundation.
- * 
- * Licensed under the Educational Community License, Version 1.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
+ *
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.opensource.org/licenses/ecl1.php
- * 
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  *
  **********************************************************************************/
@@ -75,7 +75,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 
 /**
- * 
+ *
  */
 public class BaseSearchManager implements SearchManager
 {
@@ -110,8 +110,8 @@ public class BaseSearchManager implements SearchManager
 	        }
 	    }
 	}
-	
-	
+
+
 	public class BasicSearch implements ActiveSearch
 	{
 		protected List m_assets;
@@ -135,7 +135,7 @@ public class BaseSearchManager implements SearchManager
 		protected SearchQuery m_basicQuery;
 		protected SearchQuery m_advancedQuery;
 		protected String m_sortBy;
-		
+
 		protected CitationCollection m_searchResults;
 		protected CitationCollection m_savedResults;
 		protected CitationIterator m_resultsIterator;
@@ -163,7 +163,7 @@ public class BaseSearchManager implements SearchManager
 	        m_pageSize = new Integer(DEFAULT_PAGE_SIZE);
 	        m_startRecord = new Integer(DEFAULT_START_RECORD);
 	        m_sortBy = DEFAULT_SORT_BY;
-	        
+
         }
 
 		/**
@@ -182,7 +182,7 @@ public class BaseSearchManager implements SearchManager
 	        m_pageSize = new Integer(DEFAULT_PAGE_SIZE);
 	        m_startRecord = new Integer(DEFAULT_START_RECORD);
 	        m_sortBy = DEFAULT_SORT_BY;
-	        
+
         }
 
 		/* (non-Javadoc)
@@ -232,10 +232,10 @@ public class BaseSearchManager implements SearchManager
         {
 	        return m_numRecordsMerged;
         }
-        
+
         protected void setPageLimits(int page) throws SearchException
         {
-         	
+
         }
 
     	/**
@@ -246,19 +246,19 @@ public class BaseSearchManager implements SearchManager
     	public List viewPage(int page) throws SearchException
     	{
     		List citations = new Vector();
- 
+
           	if(page < 0)
         	{
         		page = 0;
         	}
-        	
+
         	this.start = page * m_viewPageSize;
          	this.end = start + m_viewPageSize;
         	if(start > this.m_pageOrder.size() + 1)
         	{
         		throw new SearchException("Request beyond next page");
         	}
-        	else 
+        	else
         	{
         		if(this.m_pageOrder.isEmpty())
         		{
@@ -269,7 +269,7 @@ public class BaseSearchManager implements SearchManager
 	                catch (SearchException e)
 	                {
 	                	m_log.warn("viewPage doSearch()");
-	                }        			
+	                }
         		}
         		else if(end > this.m_pageOrder.size())
         		{
@@ -285,12 +285,12 @@ public class BaseSearchManager implements SearchManager
 	                }
         		}
         	}
-        	
+
         	if(end > m_pageOrder.size())
         	{
         		end = m_pageOrder.size();
         	}
-        	
+
         	Citation citation = null;
         	for(int i = start; i < end; i++)
         	{
@@ -306,7 +306,7 @@ public class BaseSearchManager implements SearchManager
                 }
         	}
         	m_lastPageViewed = page;
-        	
+
     		return citations;
     	}
 
@@ -324,17 +324,17 @@ public class BaseSearchManager implements SearchManager
         		this.statusMessage = e.getMessage();
         	}
         }
-        
+
         public void setStatusMessage(String msg)
         {
         	this.statusMessage = msg;
         }
-        
+
         public void setStatusMessage()
         {
         	this.statusMessage = null;
         }
-        
+
         public String getStatusMessage()
         {
         	return this.statusMessage;
@@ -495,7 +495,7 @@ public class BaseSearchManager implements SearchManager
         {
 	        this.m_numRecordsMerged = numRecordsMerged;
         }
-        
+
 		/**
          * @param pageSize the pageSize to set
          */
@@ -668,7 +668,7 @@ public class BaseSearchManager implements SearchManager
         			m_pageOrder.add(citation.getId());
         		}
         	}
-         		
+
 	        this.m_savedResults.addAll(this.m_searchResults);
 	        this.m_searchResults.clear();
         }
@@ -705,17 +705,17 @@ public class BaseSearchManager implements SearchManager
 			return null;
         }
 
-		public int getFirstRecordIndex() 
+		public int getFirstRecordIndex()
 		{
 			return start;
 		}
 
-		public int getLastRecordIndex() 
+		public int getLastRecordIndex()
 		{
 			return end;
 		}
 
-		public void setViewPageSize(int size) 
+		public void setViewPageSize(int size)
 		{
 			m_viewPageSize = size;
 		}
@@ -737,43 +737,43 @@ public class BaseSearchManager implements SearchManager
 		}
 
 	}
-	
-	public class BasicSearchProperties implements org.osid.shared.Properties 
+
+	public class BasicSearchProperties implements org.osid.shared.Properties
 	{
 		protected List keys;
 		protected java.util.Properties properties;
 		protected Type type = new BasicType( "sakaibrary", "properties", "asynchMetasearch" );
 
-		public BasicSearchProperties( java.util.Properties properties ) 
+		public BasicSearchProperties( java.util.Properties properties )
 		{
 			this.keys = new Vector();
 			this.properties = properties;
-			
+
 			Enumeration keyNames = properties.keys();
 			while( keyNames.hasMoreElements() ) {
 				this.keys.add( (java.io.Serializable)keyNames.nextElement() );
 			}
 		}
-		
+
 		public ObjectIterator getKeys()
-			throws SharedException 
+			throws SharedException
 		{
 			return new BasicObjectIterator( keys );
 		}
 
 		public java.io.Serializable getProperty( java.io.Serializable key )
-			throws SharedException 
+			throws SharedException
 		{
 			return (java.io.Serializable)properties.get( key );
 		}
 
-		public Type getType() 
-			throws SharedException 
+		public Type getType()
+			throws SharedException
 		{
 			return type;
 		}
 	}
-	
+
 	public class BasicType extends org.osid.shared.Type
 	{
 
@@ -781,7 +781,7 @@ public class BaseSearchManager implements SearchManager
 	                 , String domain
 	                 , String keyword)
 	    {
-	        super(authority,domain,keyword);        
+	        super(authority,domain,keyword);
 	    }
 
 	    public BasicType(String authority
@@ -789,9 +789,9 @@ public class BaseSearchManager implements SearchManager
 	                 , String keyword
 	                 , String description)
 	    {
-	        super(authority,domain,keyword,description);        
+	        super(authority,domain,keyword,description);
 	    }
-	    
+
 //	    public final Type CITATION 			= new BasicType("sakaibrary", "recordStructure", "citation");
 //	    public final Type CREATOR 			= new BasicType("mit.edu", "partStructure", "creator");
 //	    public final Type DATE 				= new BasicType("mit.edu", "partStructure", "date");
@@ -819,9 +819,9 @@ public class BaseSearchManager implements SearchManager
 //	    public final Type URL_LABEL 		= new BasicType("sakaibrary", "partStructure", "urlLabel");
 //	    public final Type VOLUME 			= new BasicType("sakaibrary", "partStructure", "volume");
 //	    public final Type YEAR 				= new BasicType("sakaibrary", "partStructure", "year");
-	    
+
 	}
-	
+
 	/**
 	 * @author gbhatnag
 	 *
@@ -830,24 +830,24 @@ public class BaseSearchManager implements SearchManager
 	extends org.xml.sax.helpers.DefaultHandler
 	implements SearchDatabaseHierarchy
 	{
-		
+
 		public class BasicSearchCategory implements SearchCategory
 		{
 			private String id;
 			private String displayName;
 			private String description;
 			private boolean defaultStatus;
-			
+
 			// list of sub-categories contained in this category (could be null)
 			private java.util.List<SearchCategory> subcategoryList;
-			
+
 			// list of database ids contained in this category (could be null)
 			private java.util.List<String> databaseList;
-			
+
 			// list of database ids that are recommended within this category
 			// (could be null)
 			private java.util.List<String> recommendedDatabases;
-			
+
 			// map of databases with alternate metadata within this category
 			// keyed using database id
 			private java.util.Map<String, SearchDatabase> altDatabases;
@@ -855,7 +855,7 @@ public class BaseSearchManager implements SearchManager
 			/**
 			 * BasicSearchCategory constructor creates a BasicSearchCategory
 			 * with the given name and id
-			 * 
+			 *
 			 * @param name display name for this category
 			 * @param id unique identifier for this category
 			 */
@@ -866,12 +866,12 @@ public class BaseSearchManager implements SearchManager
 				this.description = null;
 				this.defaultStatus = false;
 			}
-			
+
 			protected void updateDescription( String description )
 			{
 				this.description = description;
 			}
-			
+
 			protected void addSubcategory( SearchCategory subcategory )
 			{
 				if( subcategory != null )
@@ -888,7 +888,7 @@ public class BaseSearchManager implements SearchManager
 							"passed a null subcategory to add" );
 				}
 			}
-			
+
 			protected void addDatabase( String databaseId )
 			{
 				if( databaseId != null )
@@ -915,7 +915,7 @@ public class BaseSearchManager implements SearchManager
 						recommendedDatabases = new Vector<String>();
 					}
 					recommendedDatabases.add( databaseId );
-					
+
 					// if this database is not in the overall list of databases,
 					// add it
 					if( databaseList == null )
@@ -934,7 +934,7 @@ public class BaseSearchManager implements SearchManager
 							" was passed a null databaseId to add" );
 				}
 			}
-			
+
 			protected void addAlternateDatabase( SearchDatabase altDatabase )
 			{
 				if( altDatabase != null )
@@ -944,7 +944,7 @@ public class BaseSearchManager implements SearchManager
 						altDatabases = new Hashtable<String, SearchDatabase>();
 					}
 					altDatabases.put( altDatabase.getId(), altDatabase );
-					
+
 					// if this database is not in the overall list of databases,
 					// add it
 					if( !databaseList.contains( altDatabase.getId() ) )
@@ -958,17 +958,17 @@ public class BaseSearchManager implements SearchManager
 							"was passed a null SearchDatabase to add" );
 				}
 			}
-			
+
 			protected void setDefault( boolean value )
 			{
 				this.defaultStatus = value;
 			}
-			
+
 			protected boolean isDefault()
 			{
 				return defaultStatus;
 			}
-			
+
 			/* (non-Javadoc)
 			 * @see org.sakaiproject.citation.api.SearchCategory#hasDatabases()
 			 */
@@ -982,12 +982,12 @@ public class BaseSearchManager implements SearchManager
 			public List<SearchDatabase> getDatabases() {
 				// List to be returned
 				Vector<SearchDatabase> databases = new Vector<SearchDatabase>();
-				
+
 				for( int i = 0; i < databaseList.size(); i++ )
 				{
 					String databaseId = databaseList.get(i);
 					SearchDatabase database;
-					
+
 					// check if there is an alternate for this database
 					if( altDatabases != null &&
 							altDatabases.containsKey( databaseId ) )
@@ -999,7 +999,7 @@ public class BaseSearchManager implements SearchManager
 						// get the database from the global map of databases
 						database = databaseMap.get( databaseId );
 					}
-					
+
 					// check if the database is a member of authorized groups
 					for( String groupId : groups )
 					{
@@ -1055,15 +1055,15 @@ public class BaseSearchManager implements SearchManager
 			public boolean isDatabaseRecommended( String databaseId ) {
 				return recommendedDatabases.contains( databaseId );
 			}
-			
+
 		}  // public class BasicSearchCategory
-		
+
 		public class BasicSearchDatabase implements SearchDatabase
 		{
 			private String id;
 			private String displayName;
 			private String description;
-			
+
 			// groups this database belongs to
 			private List<String> groups;
 
@@ -1073,12 +1073,12 @@ public class BaseSearchManager implements SearchManager
 				this.id = id;
 				this.description = null;
 			}
-			
+
 			protected void updateDescription( String description )
 			{
 				this.description = description;
 			}
-			
+
 			protected void addGroup( String groupId )
 			{
 				if( groupId != null )
@@ -1095,7 +1095,7 @@ public class BaseSearchManager implements SearchManager
 							"was passed a null groupId to add" );
 				}
 			}
-			
+
 			public String getDescription() {
 				return description;
 			}
@@ -1111,33 +1111,33 @@ public class BaseSearchManager implements SearchManager
 			public boolean isGroupMember( String groupId ) {
 				return groups.contains( groupId );
 			}
-			
+
 		}  // public class BasicSearchDatabase
-		
-		
+
+
 		/* org.sakaiproject.citation
-		 * BasicSearchDatabaseHierarchy instance variables 
+		 * BasicSearchDatabaseHierarchy instance variables
 		 */
-		
+
 		// this user's repository and groups
 		protected String repositoryPkgName;
 		protected List<String> groups;
-		
+
 		// root category (contains top level categories)
 		protected BasicSearchCategory rootCategory;
-		
+
 		// map containing all databases, keyed by database id
 		protected java.util.Map<String, SearchDatabase> databaseMap;
-		
+
 		// map containing all categories, keyed by category id
 		protected java.util.Map<String, SearchCategory> categoryMap;
-		
+
 		// default category
 		protected SearchCategory defaultCategory;
-		
+
 		// configured flag
 		protected boolean isConfigured;
-		
+
 		// for SAX parsing
 		protected StringBuffer textBuffer;
 		protected boolean recommendedDatabaseFlag;
@@ -1145,14 +1145,14 @@ public class BaseSearchManager implements SearchManager
 		protected java.util.Stack<BasicSearchCategory> categoryStack;
 		protected BasicSearchDatabase currentDatabase;
 		protected String currentDatabaseId;
-		
+
 		protected BasicSearchDatabaseHierarchy()
 		{
 			/*
 			 * Any basic user authn/authz things we can check to not go
 			 * further than we have to?
 			 */
-			
+
 			// get a ConfigurationService instance
 			if( m_configService == null )
 			{
@@ -1160,7 +1160,7 @@ public class BaseSearchManager implements SearchManager
 						"null - components.xml injection did not work... getting instance from cover" );
 				m_configService = org.sakaiproject.citation.cover.ConfigurationService.getInstance();
 			}
-			
+
 			try
 			{
 				/*
@@ -1168,7 +1168,7 @@ public class BaseSearchManager implements SearchManager
 				 * access to
 				 *  - ip-based
 				 *  - other things?
-				 *  
+				 *
 				 *  (currently assuming X-Server)
 				 */
 //				repositoryPkgName = "org.sakaibrary.osid.repository.xserver";
@@ -1185,7 +1185,7 @@ public class BaseSearchManager implements SearchManager
 				 * for that database
 				 *  - XML describes all accessible databases/categories for a given
 				 *  metasearch engine
-				 *  
+				 *
 				 *  (currently assuming CATEGORIES_XML for all users)
 				 */
 
@@ -1223,7 +1223,7 @@ public class BaseSearchManager implements SearchManager
 				m_log.warn( "BasicSearchDatabaseHierarchy() ran into problems with the ConfigurationService", oce );
 			}
 		}
-		
+
 		protected void setDefaultCategory( SearchCategory defaultCategory )
 		{
 			if( defaultCategory != null )
@@ -1236,7 +1236,7 @@ public class BaseSearchManager implements SearchManager
 						" was passed a null SearchCategory to set" );
 			}
 		}
-		
+
 		protected void addTopLevelCategory( SearchCategory topLevelCategory )
 		{
 			if( topLevelCategory != null )
@@ -1255,7 +1255,7 @@ public class BaseSearchManager implements SearchManager
 						" was passed a null SearchCategory to add" );
 			}
 		}
-		
+
 		protected void parseXML( String categoriesFileName )
 		{
 			// Use the default (non-validating) parser
@@ -1277,7 +1277,7 @@ public class BaseSearchManager implements SearchManager
 	        	m_log.warn("parseXML() parsing exception: " +
 	        			spe.getMessage() + " - xml line " + spe.getLineNumber()
 	        			+ ", uri " + spe.getSystemId(), x );
-	        	
+
 	        	// unset configuration flag
 	        	isConfigured = false;
 	        } catch (SAXException sxe) {
@@ -1297,23 +1297,23 @@ public class BaseSearchManager implements SearchManager
 	            // Parser with specified options can't be built
 	        	m_log.warn( "parseXML() SAX parser cannot be built " +
 	        			"with specified options" );
-	        	
+
 	        	// unset configuration flag
 	        	isConfigured = false;
 	        } catch (IOException ioe) {
 	            // I/O error
 	        	m_log.warn( "parseXML() IO exception", ioe );
-	        	
+
 	        	// unset configuration flag
 	        	isConfigured = false;
 	        } catch (Throwable t) {
 	        	m_log.warn( "parseXML() exception", t );
-	        	
+
 	        	// unset configuration flag
 	        	isConfigured = false;
 	        }
 		}
-		
+
 	    public void startElement( String namespaceURI, String sName,
 	    		String qName, Attributes attrs ) throws SAXException
 	    {
@@ -1323,19 +1323,19 @@ public class BaseSearchManager implements SearchManager
 	        {
 	            eName = qName;  // not namespaceAware
 	        }
-	    	
+
 	        if( eName.equals( "category" ) )
 	        {
 	        	// create a new category with the given attribute info
 	        	BasicSearchCategory newCategory = new BasicSearchCategory(
 	        			attrs.getValue( "name" ), attrs.getValue( "id" ) );
-	        	
+
 	        	// check if this is the default category
 	        	if( attrs.getValue( "default" ) != null )
 	        	{
 	        		newCategory.setDefault( true );
 	        	}
-	        	
+
 	        	// add new category to the stack
 	        	categoryStack.push( newCategory );
 	        }
@@ -1354,7 +1354,7 @@ public class BaseSearchManager implements SearchManager
 	        	}
 	        }
 	    }
-	    
+
 	    public void endElement( String namespaceURI, String sName,
 	    		String qName ) throws SAXException
 	    {
@@ -1364,7 +1364,7 @@ public class BaseSearchManager implements SearchManager
 	        {
 	            eName = qName;  // not namespaceAware
 	        }
-	        
+
 	        parseData( eName );
 	    }
 
@@ -1372,7 +1372,7 @@ public class BaseSearchManager implements SearchManager
         throws SAXException
         {
 	    	String s = new String( buf, offset, len );
-	    	
+
 	        if( textBuffer == null )
 	        {
 	            textBuffer = new StringBuffer( s );
@@ -1382,7 +1382,7 @@ public class BaseSearchManager implements SearchManager
 	            textBuffer.append( s );
 	        }
 	    }
-	    
+
 	    protected String getAttribute( Attributes attrs, String attrName )
 	    {
 	    	if( attrs != null )
@@ -1395,7 +1395,7 @@ public class BaseSearchManager implements SearchManager
 	                {
 	                    name = attrs.getQName(i);
 	                }
-	                
+
 	                if( name.equals( attrName ) )
 	                {
 	                	return attrs.getValue( i );
@@ -1404,7 +1404,7 @@ public class BaseSearchManager implements SearchManager
 	    	}
 	    	return null;
 	    }
-	    
+
 	    protected void parseData( String endElement )
 	    {
 	    	String text = null;
@@ -1425,14 +1425,14 @@ public class BaseSearchManager implements SearchManager
 	    	else if( endElement.equals( "category" ) )
 	    	{
 	    		// a category has just ended
-	    		
+
 	    		// attach it to its proper hierarchy container
 	    		if( !categoryStack.peek().isDefault() )
 	    		{
 	    			// add category to the category map
 		    		categoryMap.put( categoryStack.peek().getId(),
 		    				categoryStack.peek() );
-		    		
+
 	    			if( categoryStack.size() == 1 )
 	    			{
 	    				// at the top level
@@ -1461,14 +1461,14 @@ public class BaseSearchManager implements SearchManager
 	    			defaultCategory = categoryStack.pop();
 	    		}
 	    	}
-	    	
+
 			/*
 			 * category_database elements
 			 */
 			else if( endElement.equals( "id" ) )
 			{
 				currentDatabaseId = text;
-				
+
 				// is this database recommended?
 				if( recommendedDatabaseFlag )
 				{
@@ -1503,7 +1503,7 @@ public class BaseSearchManager implements SearchManager
 					currentDatabase = null;
 				}
 			}
-			
+
 	    	/*
 	    	 * database elements
 	    	 */
@@ -1521,10 +1521,10 @@ public class BaseSearchManager implements SearchManager
 				databaseMap.put( currentDatabase.getId(), currentDatabase );
 				currentDatabase = null;
 			}
-	    	
+
 			textBuffer = null;
 	    }
-		
+
 		public SearchCategory getCategory( String categoryId ) {
 			if( categoryId.equals( defaultCategory.getId() ) )
 			{
@@ -1542,7 +1542,7 @@ public class BaseSearchManager implements SearchManager
 		public int getNumLevels() {
 			return hierarchyDepth;
 		}
-		
+
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.citation.api.SearchDatabaseHierarchy#getNumMaxSearchableDb()
 		 */
@@ -1556,16 +1556,16 @@ public class BaseSearchManager implements SearchManager
 		public List<SearchCategory> getCategoryListing() {
 			// return list
 			List<SearchCategory> categoryListing = new java.util.ArrayList<SearchCategory>();
-			
+
 			// add root category to return list
 			categoryListing.add( rootCategory );
-			
+
 			// iterate through all categories (starting at root)
 			// and add them to the return list
 			for( int i = 0; i <= categoryMap.size(); i++ )
 			{
 				SearchCategory category = categoryListing.get( i );
-				
+
 				if( category.hasSubCategories() )
 				{
 					for( SearchCategory cat : category.getSubCategories() )
@@ -1574,18 +1574,18 @@ public class BaseSearchManager implements SearchManager
 					}
 				}
 			}
-			
+
 			return categoryListing;
 		}
-		
+
 		/* (non-Javadoc)
 		 * @see org.sakaiproject.citation.api.SearchDatabaseHierarchy#getRepository()
 		 */
-		public Repository getRepository() 
+		public Repository getRepository()
 		{
 			// get a RepositoryManager
 			RepositoryManager repositoryManager = null;
-			try 
+			try
 			{
 				repositoryManager = ( RepositoryManager )
 				SakaiOsidLoader.getManager(
@@ -1593,12 +1593,12 @@ public class BaseSearchManager implements SearchManager
 						repositoryPkgName,
 						new OsidContext(), null );
 
-				if( repositoryManager == null ) 
+				if( repositoryManager == null )
 				{
 					m_log.warn( "getRepository() failed getting " +
 							"RepositoryManager from SakaiOsidLoader" );
 				}
-				
+
 				// get repositories of type sakaibrary/repository/metasearch
 				RepositoryIterator rit = repositoryManager.getRepositoriesByType( repositoryType );
 				if( rit == null )
@@ -1607,18 +1607,18 @@ public class BaseSearchManager implements SearchManager
 							"RepositoryIterator of type sakaibrary/repository/" +
 							"metasearch from RepositoryManager" );
 				}
-				
+
 				// only one repository should be in the iterator
-				Repository repository = rit.nextRepository();				
+				Repository repository = rit.nextRepository();
 				if( repository == null )
 				{
 					m_log.warn( "getRepository() failed getting repository " +
 							"from RepositoryIterator" );
 				}
-				
+
 				return repository;
 			}
-			catch( OsidException oe ) 
+			catch( OsidException oe )
 			{
 				m_log.warn( "getRepository threw OsidException: ", oe );
 			}
@@ -1643,27 +1643,27 @@ public class BaseSearchManager implements SearchManager
 		public boolean isConfigured() {
 			return isConfigured;
 		}
-		
+
 	}  // public class BasicSearchDatabaseHierarchy
-	
+
 	/** Our logger. */
 	private static Log m_log = LogFactory.getLog(BaseSearchManager.class);
-	
+
 	// our ConfigurationService (gets set in BaseSearchDatabaseHierarchy)
 
-	
+
 	// google scholar constants
 	public static final String SAKAI_SESSION = "sakai.session";
 	public static final String SAKAI_KEY = "sakai.key";
 	public static final String SAKAI_HOST = "sakai.host";
 	public static final String SERVLET_NAME = "savecite";
-	
+
 	// Our types (defined in setupTypes())
 	protected static BasicType categoryAssetType;
 	protected static BasicType databaseAssetType;
 	protected static BasicType searchType;
 	protected static BasicType repositoryType;
-	
+
 	// String array for databases being searched and database hierarchy
 	protected String[] m_databaseIds;
 	protected SearchDatabaseHierarchy hierarchy;
@@ -1682,12 +1682,12 @@ public class BaseSearchManager implements SearchManager
 	{
 		m_sessionManager = sessionManager;
 	}
-	
+
 	public void setConfigurationService( ConfigurationService configService )
 	{
 		m_configService = configService;
 	}
-	
+
 	public void destroy()
 	{
 		m_log.info("BaseSearchManager.destroy()");
@@ -1697,34 +1697,34 @@ public class BaseSearchManager implements SearchManager
      * @see org.sakaiproject.citation.impl.SearchManager#doNextPage(org.sakaiproject.citation.api.ActiveSearch)
      */
 	public ActiveSearch doNextPage(ActiveSearch search)
-	throws SearchException 
+	throws SearchException
 	{
 		Repository repository = ((BasicSearch) search).getRepository();
 		AssetIterator assetIterator = ((BasicSearch) search).getAssetIterator();
 		int last = search.getLastRecordIndex();
-		
+
 		CitationCollection citations = search.getSearchResults();
 		if(citations == null)
 		{
 			citations = CitationService.getTemporaryCollection();
 			((BasicSearch) search).setSearchResults(citations);
 		}
-		
+
 		Set duplicateCheck = ((BasicSearch) search).getDuplicateCheck();
 		boolean done = false;
-		try 
+		try
 		{
 			// poll until you get pageSize results to return
-			while( assetIterator.hasNextAsset() && !done) 
+			while( assetIterator.hasNextAsset() && !done)
 			{
-				try 
+				try
 				{
 					Asset asset = assetIterator.nextAsset();
-					
+
 					Citation citation = CitationService.getTemporaryCitation(asset);
-					
+
 					String openUrlParams = citation.getOpenurlParameters();
-					
+
 					if(duplicateCheck.contains(openUrlParams))
 					{
 						continue;
@@ -1738,101 +1738,101 @@ public class BaseSearchManager implements SearchManager
 
 					// check if we've got enough to return
 					done = (citations.size() >= last);
-				} 
-				catch( RepositoryException re ) 
+				}
+				catch( RepositoryException re )
 				{
 					if( re.getMessage().equals( SESSION_TIMED_OUT ) ||
 							re.getMessage().equals( METASEARCH_ERROR ) ||
 							re.getMessage().equals( SharedException.NO_MORE_ITERATOR_ELEMENTS ) ||
-							re.getMessage().equals( OsidException.OPERATION_FAILED ) ) 
+							re.getMessage().equals( OsidException.OPERATION_FAILED ) )
 					{
 						// search is over, all assets that have been retrieved have been
 						// optionally check searchStatus Properties for further details or information to present in UI
 						search.setLastPage(true);
-						
+
 						m_log.warn("doNextPage -- RepositoryException nextAsset(): " + re.getMessage());
-						
+
 						String message = getSearchStatusMessage(repository);
 						if(message == null)
 						{
 							throw new SearchException(re.getMessage());
 						}
-						
+
 						throw new SearchException( message );
-					} 
-					else if( re.getMessage().equals( ASSET_NOT_FETCHED ) ) 
+					}
+					else if( re.getMessage().equals( ASSET_NOT_FETCHED ) )
 					{
 						// need to wait some time and then try again
-						try 
+						try
 						{
 							Thread.sleep( 2500 );  // sleep 2.5 seconds
-						} 
-						catch( InterruptedException ie ) 
+						}
+						catch( InterruptedException ie )
 						{
 							search.setLastPage(true);
 
 							m_log.warn("doNextPage -- InterruptedException nextAsset(): ", ie);
-							
+
     						String message = getSearchStatusMessage(repository);
-    						
+
 							throw new SearchException( message );
 						}
 					}
 				}
 			}
-		} 
-		catch( RepositoryException re ) 
+		}
+		catch( RepositoryException re )
 		{
 			if( re.getMessage().equals( SESSION_TIMED_OUT ) ||
-				re.getMessage().equals( METASEARCH_ERROR ) ) 
+				re.getMessage().equals( METASEARCH_ERROR ) )
 			{
 				search.setLastPage(true);
-				
+
 				// search is over, all assets that have been retrieved have been
 				// optionally check searchStatus Properties for further details or information to present in UI
 				m_log.warn("doNextPage -- RepositoryException hasNextAsset(): " + re.getMessage());
-				
+
 				String message = getSearchStatusMessage(repository);
-				
+
 				throw new SearchException( message );
 			}
 		}
-		
+
 		// get search status properties
 		Type statusType = getPropertyType( repository );
 		org.osid.shared.Properties statusProperties = null;
-		
-		try 
+
+		try
 		{
 			statusProperties = repository.getPropertiesByType( statusType );
-		} 
-		catch( RepositoryException re ) 
+		}
+		catch( RepositoryException re )
 		{
 			search.setLastPage(true);
-			
+
 			String message = getSearchStatusMessage(repository);
-			
+
 			throw new SearchException( message );
 		}
-		
+
 		Integer numRecordsFound = null;
 		Integer numRecordsFetched = null;
 		Integer numRecordsMerged = null;
-		try 
+		try
 		{
 			numRecordsFound = ( Integer ) statusProperties.getProperty("numRecordsFound");
 			numRecordsFetched = ( Integer ) statusProperties.getProperty("numRecordsFetched");
 			numRecordsMerged = ( Integer ) statusProperties.getProperty("numRecordsMerged");
-		} 
-		catch( SharedException se ) 
+		}
+		catch( SharedException se )
 		{
 			search.setLastPage(true);
-			
+
 			String message = getSearchStatusMessage(repository);
-			
+
 			throw new SearchException( message );
 		}
-		
+
 		search.setNumRecordsFound( numRecordsFound );
 		search.setNumRecordsFetched( numRecordsFetched );
 		search.setNumRecordsMerged( numRecordsMerged );
@@ -1846,7 +1846,7 @@ public class BaseSearchManager implements SearchManager
 		{
 			search.setLastPage(true);
 		}
-		
+
 		return search;
 	}
 
@@ -1858,7 +1858,7 @@ public class BaseSearchManager implements SearchManager
 	{
 		return search;
 	}
-	
+
 	/* (non-Javadoc)
      * @see org.sakaiproject.citation.impl.SearchManager#doSearch(org.sakaiproject.citation.api.ActiveSearch)
      */
@@ -1871,11 +1871,11 @@ public class BaseSearchManager implements SearchManager
 		Integer    startRecord    = search.getStartRecord();
 		String     sortBy         = search.getSortBy();
 		String     guid           = search.getSearchId();
-	    
+
 		// CQL search query setup
 		String cqlQuery = null;
 		CQLSearchQuery cqlSearch = new org.sakaiproject.citation.util.impl.CQLSearchQuery();
-		
+
 		// determine whether this is an advanced or basic search
 		if( search.getSearchType().equalsIgnoreCase( ActiveSearch.BASIC_SEARCH_TYPE ) )
 		{
@@ -1888,7 +1888,7 @@ public class BaseSearchManager implements SearchManager
 			cqlQuery = cqlSearch.getCQLSearchQueryString( search.getAdvancedQuery() );
 		}
 		m_log.debug( "CQL query: " + cqlQuery );
-		
+
 	    // initiate the search
 	    try
 	    {
@@ -1908,7 +1908,7 @@ public class BaseSearchManager implements SearchManager
 	    	properties.put( "sortBy", sortBy );
 	    	properties.put( "pageSize", pageSize );
 	    	properties.put( "startRecord", startRecord );
-	    	
+
 	    	// put selected databases
 	    	List<String> databaseIds = new java.util.ArrayList<String>();
 	    	for( String databaseId : m_databaseIds )
@@ -1938,12 +1938,12 @@ public class BaseSearchManager implements SearchManager
 	    	Set duplicateCheck = ((BasicSearch) search).getDuplicateCheck();
 	    	int assetsRetrieved = 0;
 	    	boolean done = false;
-	    	try 
+	    	try
 	    	{
 	    		// poll until you get pageSize results to return
-	    		while( !done && assetIterator.hasNextAsset() ) 
+	    		while( !done && assetIterator.hasNextAsset() )
 	    		{
-	    			try 
+	    			try
 	    			{
 	    				Asset asset = assetIterator.nextAsset();
 
@@ -1962,17 +1962,17 @@ public class BaseSearchManager implements SearchManager
 	    				}
 
 	    				// check if we've got enough to return
-	    				if( ++assetsRetrieved >= pageSize.intValue() ) 
+	    				if( ++assetsRetrieved >= pageSize.intValue() )
 	    				{
 	    					done = true;
 	    				}
-	    			} 
-	    			catch( RepositoryException re ) 
+	    			}
+	    			catch( RepositoryException re )
 	    			{
 	    				if( re.getMessage().equals( SESSION_TIMED_OUT ) ||
 	    						re.getMessage().equals( METASEARCH_ERROR ) ||
 	    						re.getMessage().equals( SharedException.NO_MORE_ITERATOR_ELEMENTS ) ||
-	    						re.getMessage().equals( OsidException.OPERATION_FAILED ) ) 
+	    						re.getMessage().equals( OsidException.OPERATION_FAILED ) )
 	    				{
 	    					search.setLastPage(true);
 
@@ -1983,15 +1983,15 @@ public class BaseSearchManager implements SearchManager
 
 	    					m_log.warn("doSearch -- RepositoryException nextAsset(): " + re.getMessage());
 	    					throw new SearchException( message );
-	    				} 
-	    				else if( re.getMessage().equals( ASSET_NOT_FETCHED ) ) 
+	    				}
+	    				else if( re.getMessage().equals( ASSET_NOT_FETCHED ) )
 	    				{
 	    					// need to wait some time and then try again
-	    					try 
+	    					try
 	    					{
 	    						Thread.sleep( 2500 );  // sleep 2.5 seconds
-	    					} 
-	    					catch( InterruptedException ie ) 
+	    					}
+	    					catch( InterruptedException ie )
 	    					{
 	    						search.setLastPage(true);
 
@@ -2003,11 +2003,11 @@ public class BaseSearchManager implements SearchManager
 	    				}
 	    			}
 	    		}
-	    	} 
-	    	catch( RepositoryException re ) 
+	    	}
+	    	catch( RepositoryException re )
 	    	{
 	    		if( re.getMessage().equals( SESSION_TIMED_OUT ) ||
-	    				re.getMessage().equals( METASEARCH_ERROR ) ) 
+	    				re.getMessage().equals( METASEARCH_ERROR ) )
 	    		{
 	    			search.setLastPage(true);
 
@@ -2028,7 +2028,7 @@ public class BaseSearchManager implements SearchManager
 	    	Integer numRecordsFound = null;
 	    	Integer numRecordsFetched = null;
 	    	Integer numRecordsMerged = null;
-	    	try 
+	    	try
 	    	{
 	    		numRecordsFetched = ( Integer ) statusProperties.getProperty(
 	    		"numRecordsFetched" );
@@ -2036,8 +2036,8 @@ public class BaseSearchManager implements SearchManager
 	    		"numRecordsFound" );
 	    		numRecordsMerged = ( Integer ) statusProperties.getProperty(
 	    		"numRecordsMerged" );
-	    	} 
-	    	catch( SharedException se ) 
+	    	}
+	    	catch( SharedException se )
 	    	{
 	    		search.setLastPage(true);
 
@@ -2060,47 +2060,55 @@ public class BaseSearchManager implements SearchManager
 	    	((BasicSearch) search).setAssetIterator(assetIterator);
 
 	    	return search;
-	    } 
-	    catch( RepositoryException re ) 
+	    }
+	    catch( RepositoryException re )
 		{
 			m_log.warn("doSearch -- RepositoryException: " + re.getMessage());
-			
+
 			throw new SearchException( re.getMessage() );
 		}
 	}
 	
 	protected String newSearchId()
 	{
+/******* A unique ID per-session ********/
+
+    return m_sessionManager.getCurrentSession().getId();
+
+/******* Unique ID per-search (original)
+
 		String sessionId = m_sessionManager.getCurrentSession().getId();
 		long number = m_generator.nextLong();
 		String hexString = Long.toHexString(number);
-		m_log.info("getSearchId:  " + sessionId + hexString);
+		m_log.debug("getSearchId:  " + sessionId + hexString);
 		return sessionId + hexString;
+
+*************************************************************************/
 	}
-	
+
 	protected Type getPropertyType(Repository repository)
-		throws SearchException 
+		throws SearchException
 	{
 		TypeIterator propertyTypes = null;
 		Type propertyType = null;
-		
-		try 
+
+		try
 		{
 			propertyTypes = repository.getPropertyTypes();
 
-			while( propertyTypes.hasNextType() ) 
+			while( propertyTypes.hasNextType() )
 			{
 				Type tempType = propertyTypes.nextType();
 				if( tempType.getAuthority().equals( "sakaibrary" ) &&
 						tempType.getDomain().equals( "properties" ) &&
-						tempType.getKeyword().equals( "metasearchStatus" ) ) 
+						tempType.getKeyword().equals( "metasearchStatus" ) )
 				{
 					propertyType = tempType;
 					break;
 				}
 			}
-		} 
-		catch( OsidException oe ) 
+		}
+		catch( OsidException oe )
 		{
 			m_log.warn("getPropertyType -- OsidException: " + oe.getMessage());
 			throw new SearchException( "ERROR in getting search types: " + oe.getMessage() );
@@ -2108,42 +2116,42 @@ public class BaseSearchManager implements SearchManager
 
 		return propertyType;
 	}
-	
+
 	protected Type getCategoryType( Repository repository ) throws SearchException
 	{
 		TypeIterator assetTypes = null;
-		
-		try 
+
+		try
 		{
 			assetTypes = repository.getAssetTypes();
-	
-			while( assetTypes.hasNextType() ) 
+
+			while( assetTypes.hasNextType() )
 			{
 				Type tempType = assetTypes.nextType();
-				if( tempType.isEqual( categoryAssetType ) ) 
+				if( tempType.isEqual( categoryAssetType ) )
 				{
 					return tempType;
 				}
 			}
-		} 
-		catch( OsidException oe ) 
+		}
+		catch( OsidException oe )
 		{
 			m_log.warn("getCategoryType -- OsidException: ", oe);
 			throw new SearchException( "ERROR in getting category type: " + oe.getMessage() );
 		}
-	
+
 		return null;
 	}
-	
-	protected Type getSearchType( Repository repository ) throws SearchException 
+
+	protected Type getSearchType( Repository repository ) throws SearchException
 	{
 		TypeIterator searchTypes = null;
-		
-		try 
+
+		try
 		{
 			searchTypes = repository.getSearchTypes();
-	
-			while( searchTypes.hasNextType() ) 
+
+			while( searchTypes.hasNextType() )
 			{
 				Type tempType = searchTypes.nextType();
 				if( tempType.isEqual( searchType ) )
@@ -2152,37 +2160,37 @@ public class BaseSearchManager implements SearchManager
 				}
 			}
 		}
-		catch( OsidException oe ) 
+		catch( OsidException oe )
 		{
 			m_log.warn("getSearchType -- OsidException: ", oe);
 			throw new SearchException( "ERROR in getting search types: " + oe.getMessage() );
 		}
-	
+
 		return null;
 	}
 
-	protected String getSearchStatusMessage( Repository repository ) throws SearchException 
+	protected String getSearchStatusMessage( Repository repository ) throws SearchException
 	{
 		BasicType statusType = new BasicType("sakaibrary", "properties", "metasearchStatus");
-		
+
 		String message = null;
 		try
 		{
 			org.osid.shared.Properties statusProperties = repository.getPropertiesByType(statusType);
-			
+
 			message = (String) statusProperties.getProperty("statusMessage");
 		}
 		catch(RepositoryException e)
 		{
-			// let the message remain null but log this exception 
+			// let the message remain null but log this exception
 			m_log.warn("getSearchStatusMessage RepositoryException getting properties " + e.getMessage());
 		}
 		catch(SharedException e)
 		{
-			// let the message remain null but log this exception 
+			// let the message remain null but log this exception
 			m_log.warn("getSearchStatusMessage SharedException getting property " + e.getMessage());
 		}
-		
+
 		return message;
 	}
 
@@ -2193,14 +2201,14 @@ public class BaseSearchManager implements SearchManager
 		m_generator = new Random(seed);
 		setupTypes();
 	}
-	
+
 	protected void setupTypes() {
 		categoryAssetType = new BasicType( "sakaibrary", "asset", "category" );
 		databaseAssetType = new BasicType( "sakaibrary", "asset", "database" );
 		searchType = new BasicType( "sakaibrary", "search", "asynchMetasearch" );
 		repositoryType = new BasicType( "sakaibrary", "repository", "metasearch" );
 	}
-	
+
 	/* (non-Javadoc)
      * @see org.sakaiproject.citation.api.SearchManager#listRepositories()
      */
@@ -2226,24 +2234,24 @@ public class BaseSearchManager implements SearchManager
 	    return new BasicSearch(savedResults);
     }
 
-	protected boolean paramIsEmpty( String param ) 
+	protected boolean paramIsEmpty( String param )
 	{
 		return param.trim().equals("");
 	}
-    
+
     /**
-     * 
+     *
      */
-    public String getGoogleScholarUrl(String resourceId) 
+    public String getGoogleScholarUrl(String resourceId)
     {
     	String serverUrl = serverConfigurationService.getServerUrl();
  		SessionManager sessionManager = (SessionManager) ComponentManager.get("org.sakaiproject.tool.api.SessionManager");
 		String sessionId = sessionManager.getCurrentSession().getId();
-		
+
 		try
 		{
-			return ( m_configService.getSiteConfigGoogleBaseUrl() 
-					+ "?" + SAKAI_HOST + "=" 
+			return ( m_configService.getSiteConfigGoogleBaseUrl()
+					+ "?" + SAKAI_HOST + "="
 					+ java.net.URLEncoder.encode( serverUrl +
 							Entity.SEPARATOR +
 							SERVLET_NAME +
