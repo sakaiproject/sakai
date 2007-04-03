@@ -1070,7 +1070,7 @@ public class ListItem
 		String displayName = params.getString("displayName" + index);
 		if(displayName == null)
 		{
-			String[] delimiters = {"/", "\\", ":"};
+			String[] delimiters = {"/", "\\"};
 			displayName = this.id;
 			if(displayName != null)
 			{
