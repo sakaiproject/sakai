@@ -7772,6 +7772,7 @@ public class SiteAction extends PagedResourceActionII {
 				} catch (UserNotDefinedException e) {
 					// deal with missing user quietly without throwing a
 					// warning message
+					M_log.warn(e.getMessage());
 				}
 			}
 
