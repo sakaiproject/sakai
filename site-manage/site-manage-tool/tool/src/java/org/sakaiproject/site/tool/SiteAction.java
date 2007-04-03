@@ -729,6 +729,11 @@ public class SiteAction extends PagedResourceActionII {
 		state.removeAttribute(SITE_CREATE_TOTAL_STEPS);
 		state.removeAttribute(SITE_CREATE_CURRENT_STEP);
 		state.removeAttribute(STATE_PROVIDER_SECTION_LIST);
+		state.removeAttribute(STATE_CM_LEVELS);
+		state.removeAttribute(STATE_CM_LEVEL_SELECTIONS);
+		state.removeAttribute(STATE_CM_SELECTED_SECTION);
+		state.removeAttribute(STATE_CM_REQUESTED_SECTIONS);
+
 	} // cleanState
 
 	/**
