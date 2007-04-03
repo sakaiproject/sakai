@@ -533,6 +533,16 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 								</h$headerDepth>	
 							</td>
 							<td headers="actions"  name="enabledActionLinks" style="text-align:right;padding:5px;vertical-align:middle;white-space:nowrap">
+								#if($item.pasteActions && !$item.pasteActions.isEmpty())
+									#set ($itemsOnLine = 0)
+										#foreach($action in $item.pasteActions)
+											#if($itemsOnLine > 0)|#end
+											<a href="#" class=" highlightlink" title="$labeler.getLabel($action) here" onclick="document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');"><img src = "#imageLink("silk/page_paste.gif")" border="0"  alt="$labeler.getLabel($action)"/></a> 
+											#set ($itemsOnLine = $itemsOnLine + 1)
+										#end
+								#else
+									<img src = "#imageLink("sakai/s.gif")" border="0" width="16"  alt="$labeler.getLabel($action)"/>
+								#end
 								#set ($actionCount=($actionCount - 1))
 								#set ($actionCount2=($actionCount2 - 1))
 								#if($item.addActions && !$item.addActions.isEmpty())
