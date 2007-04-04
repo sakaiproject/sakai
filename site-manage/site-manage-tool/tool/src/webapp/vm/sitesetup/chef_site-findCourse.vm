@@ -26,6 +26,9 @@
 		if (level == 0){
 			document.getElementById("deptChanged").value="true";
 		}
+		else{
+			document.getElementById("deptChanged").value="false";
+		}
 	}
 // -->
 </SCRIPT>
