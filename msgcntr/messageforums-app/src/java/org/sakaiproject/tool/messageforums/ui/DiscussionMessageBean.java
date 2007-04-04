@@ -54,6 +54,7 @@ public class DiscussionMessageBean
   private long preThreadId;
   private String parentTopicTitle;
   private String parentForumTitle;
+  private boolean revise;
 
   private MessageForumsMessageManager messageManager;
 
@@ -297,5 +298,15 @@ public class DiscussionMessageBean
   public boolean isMsgDenied()
   {
 	  return message.getApproved() == Boolean.FALSE;
+  }
+  
+  public void setRevise(boolean revise)
+  {
+	  this.revise = revise;
+  }
+  
+  public boolean getRevise()
+  {
+	  return this.revise;
   }
 }

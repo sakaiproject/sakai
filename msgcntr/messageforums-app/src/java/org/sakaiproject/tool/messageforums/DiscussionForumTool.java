@@ -1714,7 +1714,8 @@ public class DiscussionForumTool
     getSelectedTopic();
     //get thread from message
     getThreadFromMessage();
-      
+    selectedMessage.setRevise(selectedTopic.getIsReviseAny() 
+			|| (selectedTopic.getIsReviseOwn() && message.getCreatedBy().equals(UserDirectoryService.getCurrentUser().getId())));  
     // selectedTopic= new DiscussionTopicBean(message.getTopic());
     return MESSAGE_VIEW;
   }
@@ -2140,6 +2141,8 @@ public class DiscussionForumTool
           {
           	decoMsg.setRead(messageManager.isMessageReadForUser(topic.getId(),
               message.getId()));
+          	decoMsg.setRevise(decoTopic.getIsReviseAny() 
+          			|| (decoTopic.getIsReviseOwn() && decoMsg.getMessage().getCreatedBy().equals(UserDirectoryService.getCurrentUser().getId())));
           	decoTopic.addMessage(decoMsg);
           }
         }

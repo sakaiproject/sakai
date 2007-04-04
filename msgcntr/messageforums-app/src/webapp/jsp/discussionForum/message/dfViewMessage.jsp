@@ -122,8 +122,8 @@
 		  		</h:commandLink>
 		  		
 		  		<h:commandLink title="#{msgs.cdfm_button_bar_revise}" action="#{ForumTool.processDfMsgRvs}" 
-		  			rendered="#{ForumTool.selectedTopic.isReviseAny}">
-		  			<h:graphicImage value="/images/silk/email_edit.png" alt="#{msgs.cdfm_button_bar_revise}" rendered="#{ForumTool.selectedTopic.isReviseAny}" />
+		  			rendered="#{ForumTool.selectedMessage.revise}">
+		  			<h:graphicImage value="/images/silk/email_edit.png" alt="#{msgs.cdfm_button_bar_revise}" rendered="#{ForumTool.selectedMessage.revise}" />
 		  			<h:outputText value=" #{msgs.cdfm_button_bar_revise}" />
 		  		</h:commandLink>
 		  		

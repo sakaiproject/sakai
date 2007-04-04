@@ -62,7 +62,7 @@
    	                     
 		              </h:panelGroup>
 	  					    
-	  					    <h:panelGroup rendered="#{(ForumTool.selectedTopic.isPostToGradebook && ForumTool.gradebookExist) || ForumTool.selectedTopic.isModeratedAndHasPerm || ForumTool.selectedTopic.isReviseAny}">
+	  					    <h:panelGroup rendered="#{(ForumTool.selectedTopic.isPostToGradebook && ForumTool.gradebookExist) || ForumTool.selectedTopic.isModeratedAndHasPerm || message.revise}">
 	  					      <h:outputText value=" #{msgs.cdfm_toolbar_separator} " rendered="#{ForumTool.selectedTopic.isNewResponseToResponse && message.msgApproved}" />
 	  					      <h:outputLink value="#" onclick="toggleDisplay('#{message.message.id}_advanced_box'); toggleHide(this); return false;" >
 								      <h:graphicImage value="/images/silk/cog.png" alt="#{msgs.cdfm_other_actions}" />
@@ -80,7 +80,7 @@
                       <h:outputText value=" #{msgs.cdfm_toolbar_separator} " />
                   </h:panelGroup>
                   
-                  <h:panelGroup rendered="#{ForumTool.selectedTopic.isReviseAny}">
+                  <h:panelGroup rendered="#{message.revise}">
                     <h:commandLink action="#{ForumTool.processDfMsgRvsFromThread}" value="#{msgs.cdfm_button_bar_revise}" >
                     	<f:param value="#{message.message.id}" name="messageId"/>
 		        	    <f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
