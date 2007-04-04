@@ -161,7 +161,7 @@
 				<input type="hidden" name="access_mode${DOT}$i" id="access_mode_hidden${DOT}$i" value="$INHERITED_ACCESS" />
 			#elseif($model.isSingleGroupInherited())
 				##Grouped access is inherited; parent folder limited to a single group (report that grouped access limited to a single group is inherited from above)
-				<p>$tlang.getFormattedMessage("access.groups1", ["$model.parent.name", "$model.groups.get(0).title"])</p>
+				<p class="instruction">$model.multiGroupLabel</p>
 				<input type="hidden" name="access_mode${DOT}$i" id="access_mode_hidden${DOT}$i" value="$INHERITED_ACCESS" />
 			#elseif($model.isGroupInherited() && "$model.accessMode" == "grouped")	
 				##Grouped access is inherited; parent folder limited to two or more groups (present choice among groups; table shows only groups inherited from parent)
@@ -172,18 +172,18 @@
 					<label for="access_mode_inherited${DOT}$i">$tlang.getString("access.inherit")</label>
 				</p>
 				<p>
-					<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS" checked="checked"    style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='block';" />
+					<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS" checked="checked"    style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='block';resizeFrame('grow');" />
 					<label for="access_mode_group${DOT}$i">$tlang.getString("access.groups.choice")</label>
 				</p>
 			#elseif($model.isGroupInherited())	
 				##Grouped access is inherited; parent folder limited to two or more groups (present choice among groups; table shows only groups inherited from parent)
 				<p class="instruction">$model.multiGroupLabel</p>
 				<p>
-					<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherited" checked="checked"   style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='block';" />
+					<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherited" checked="checked"   style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='block';resizeFrame('grow');" />
 					<label for="access_mode_public${DOT}$i">$tlang.getString("access.inherit")</label>
 				</p>
 				<p>
-					<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS"   style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='block';" />
+					<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS"   style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='block';resizeFrame('grow');" />
 					<label for="access_mode_public${DOT}$i">$tlang.getString("access.groups.choice")</label>
 				</p>
 			#elseif($model.isPubviewInherited())
@@ -218,7 +218,7 @@
 						#set ($listDisplay="none")
 					#end
 					<p>
-						<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS" #if("$!model.accessMode" == "$GROUP_ACCESS") checked="checked"#end style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='block';" />
+						<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS" #if("$!model.accessMode" == "$GROUP_ACCESS") checked="checked"#end style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='block';resizeFrame('grow');" />
 						<label for="access_mode_groups${DOT}$i">#if($model.isCollection())$tlang.getString("access.groups.choice")#else$tlang.getString("access.groups.fldr")#end</label>
 					</p>
 				#end
