@@ -1394,7 +1394,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			catch (IdInvalidException e)
 			{
 				// TODO Auto-generated catch block
-				logger.warn("IdInvalidException ", e);
+				logger.warn("IdInvalidException " + collectionId + name, e);
 			}
 			catch (IdUsedException e)
 			{
@@ -1405,19 +1405,19 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			catch (IdUnusedException e)
 			{
 				// TODO Auto-generated catch block
-				logger.warn("IdUnusedException ", e);
+				logger.warn("IdUnusedException " + collectionId + name, e);
 				break;
 			}
 			catch (IdLengthException e)
 			{
 				String[] args = { name };
 				addAlert(state, trb.getFormattedMessage("alert.toolong", args));
-				logger.warn("IdLengthException ", e);
+				logger.warn("IdLengthException " + collectionId + name, e);
 			}
 			catch (TypeException e)
 			{
 				// TODO Auto-generated catch block
-				logger.warn("TypeException id=" + collectionId + name, e);
+				logger.warn("TypeException id = " + collectionId + name, e);
 			}
 		}
 		return (new_collections.isEmpty() ? null : new_collections);
@@ -4204,10 +4204,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			String typeId = pipe.getAction().getTypeId();
 			
 			ListItem parent = new ListItem(pipe.getContentEntity());
-
+			parent.setPubviewPossible(! preventPublicDisplay);
 			ListItem item = new ListItem(pipe, parent, defaultRetractDate);
-			
-			item.setPubviewPossible(! preventPublicDisplay);
+			//item.setPubviewPossible(! preventPublicDisplay);
 			
 			context.put("item", item);
 			

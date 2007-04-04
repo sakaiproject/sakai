@@ -172,7 +172,7 @@
 					<label for="access_mode_inherited${DOT}$i">$tlang.getString("access.inherit")</label>
 				</p>
 				<p>
-					<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="groups" checked="checked"    style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='block';" />
+					<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS" checked="checked"    style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='block';" />
 					<label for="access_mode_group${DOT}$i">$tlang.getString("access.groups.choice")</label>
 				</p>
 			#elseif($model.isGroupInherited())	
@@ -183,7 +183,7 @@
 					<label for="access_mode_public${DOT}$i">$tlang.getString("access.inherit")</label>
 				</p>
 				<p>
-					<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="groups"   style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='block';" />
+					<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS"   style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='block';" />
 					<label for="access_mode_public${DOT}$i">$tlang.getString("access.groups.choice")</label>
 				</p>
 			#elseif($model.isPubviewInherited())
@@ -214,7 +214,7 @@
 						#set ($listDisplay="none")
 					#end
 					<p>
-						<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="groups" #if("$!model.accessMode" == "$GROUP_ACCESS") checked="checked"#end style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='block';" />
+						<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS" #if("$!model.accessMode" == "$GROUP_ACCESS") checked="checked"#end style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='block';" />
 						<label for="access_mode_groups${DOT}$i">$tlang.getString("access.groups.choice")</label>
 					</p>
 				#end

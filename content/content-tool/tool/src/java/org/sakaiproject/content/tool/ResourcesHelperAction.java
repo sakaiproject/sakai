@@ -273,7 +273,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		ListItem parent = new ListItem(pipe.getContentEntity());
 		parent.setPubviewPossible(! preventPublicDisplay);
 		ListItem model = new ListItem(pipe, parent, defaultRetractDate);
-		model.setPubviewPossible(! preventPublicDisplay);
+		// model.setPubviewPossible(! preventPublicDisplay);
 				
 		context.put("model", model);
 		
@@ -325,7 +325,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		ListItem parent = new ListItem(pipe.getContentEntity());
 		parent.setPubviewPossible(! preventPublicDisplay);
 		ListItem model = new ListItem(pipe, parent, defaultRetractDate);
-		model.setPubviewPossible(! preventPublicDisplay);
+		// model.setPubviewPossible(! preventPublicDisplay);
 		
 		context.put("model", model);
 		
@@ -449,7 +449,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		ListItem parent = new ListItem(pipe.getContentEntity());
 		parent.setPubviewPossible(! preventPublicDisplay);
 		ListItem model = new ListItem(pipe, parent, defaultRetractDate);
-		model.setPubviewPossible(! preventPublicDisplay);
+		// model.setPubviewPossible(! preventPublicDisplay);
 				
 		context.put("model", model);
 		
