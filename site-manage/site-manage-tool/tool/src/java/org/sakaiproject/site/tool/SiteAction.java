@@ -11440,12 +11440,34 @@ public class SiteAction extends PagedResourceActionII {
 	 * @return
 	 */
 	private Collection sortOffering(ArrayList offeringList) {
+		return sortCmObject(offeringList);
+		/*
 		List propsList = new ArrayList();
 		propsList.add("eid");
 		propsList.add("title");
 		SortTool sort = new SortTool();
 		return sort.sort(offeringList, propsList);
+		*/
 	} // sortOffering
+
+	/**
+	 * sort any Cm object such as CourseOffering, CourseOfferingObject, SectionObject
+	 * provided object has getter & setter for eid & title
+	 * @param list
+	 * @return
+	 */
+	private Collection sortCmObject(List list) {
+		if (list != null){
+		List propsList = new ArrayList();
+		propsList.add("eid");
+		propsList.add("title");
+		SortTool sort = new SortTool();
+		return sort.sort(list, propsList);
+		}
+		else{
+			return list;
+		}
+	} // sortCmObject
 
 	/**
 	 * this object is used for displaying purposes in chef_site-newSiteCourse.vm
@@ -11713,8 +11735,8 @@ public class SiteAction extends PagedResourceActionII {
 		if (cms == null || subjectCategory == null) {
 			return new ArrayList(0);
 		}
-
-		return cms.findCourseSets(subjectCategory);
+		Collection c = sortCmObject(cms.findCourseSets(subjectCategory));
+		return (List) c;
 
 	}
 
@@ -11724,7 +11746,8 @@ public class SiteAction extends PagedResourceActionII {
 
 		if (cms != null) {
 			Set sections = cms.getSections(offeringEid);
-			return new ArrayList(sections);
+			Collection c = sortCmObject(new ArrayList(sections));
+			return (List) c;
 		}
 
 		return new ArrayList(0);
@@ -11747,8 +11770,9 @@ public class SiteAction extends PagedResourceActionII {
 				if (as != null && as.getEid().equals(termID))
 					returnList.add(co);
 			}
+			Collection c = sortCmObject(returnList);
 
-			return returnList;
+			return (List)c;
 		}
 
 		return new ArrayList(0);
