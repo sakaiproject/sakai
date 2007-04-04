@@ -11990,13 +11990,18 @@ public class SiteAction extends PagedResourceActionII {
 
 		final List selections = new ArrayList(3);
 
-		for (int i = 0; i < 3; i++) {
+		int cmLevel = 3;
+		String deptChanged = params.get("deptChanged");
+		if ("true".equals(deptChanged)){
+			// when dept changes, remove selection on courseOffering and courseSection
+			cmLevel = 1;
+		}
+		for (int i = 0; i < cmLevel; i++) {
 			String val = params.get("idField_" + i);
-
+			
 			if (val == null || val.trim().length() < 1) {
 				break;
-			}
-
+			}			
 			selections.add(val);
 		}
 

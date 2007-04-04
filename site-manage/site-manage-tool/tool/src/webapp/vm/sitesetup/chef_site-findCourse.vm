@@ -21,6 +21,12 @@
 		document.findCourseForm.submit();
 		return false;
 	}
+
+	function changeDept(level){
+		if (level == 0){
+			document.getElementById("deptChanged").value="true";
+		}
+	}
 // -->
 </SCRIPT>
 
@@ -110,8 +116,9 @@
 ##				<br/>
 ##			  #else
 			  	<!-- use dropdown list to select from coursemanagement service provided options -->
+				  <input type=hidden name="deptChanged" id="deptChanged" value="false" />
 				  #if ($i == 0 || $i < $cmLevelSelections.size() + 1)
-					  <select name="$fieldName" onchange="blur();document.findCourseForm.submit();">
+					  <select name="$fieldName" onchange="blur();changeDept($i);document.findCourseForm.submit();">
 				  #else
 				  	  <select name="$fieldName" disabled="true">
 				  #end
