@@ -7,25 +7,25 @@ localized and internationalized. Translations are underway in many
 languages, as follows:
 
 1) Chinese (China)
-   Status: completed for 2.2 (partially done in 2.1)
+   Status: released
    Translated by: Tianhua Ding, Kun Lv (and others)
    Contact: Beth Kirschner    beth.kirschner@umich.edu
    Local ID: zh_CN
    
 2) Korean
-   Status: Completed for Sakai 2.0.1 (Legacy tools only)
+   Status: released
    Translated by: Il-hwan Kim
    Contact: Beth Kirschner    beth.kirschner@umich.edu
    Local ID: ko_KR
    
 3) Japanese
-   Status: completed for 2.2 (partially done in 2.1)
+   Status: released
    Translated by: Tatsuki Sugura (and others)
    Contact: Shoji Kajita   kajita@nagoya-u.jp
    Local ID: ja_JP
    
 4) Dutch
-   Status: Completed for Sakai 2.2
+   Status: released
    Translated by: n/a
    Contact: Jim Doherty   jim.doherty@gmail.com 
    Local ID: nl_NL
@@ -63,7 +63,7 @@ languages, as follows:
    Local ID: sk_SK
     
 10) Catalan
-    Status: Partially completed for 2.2
+    Status: released
     Translated by: n/a
     Contact: Alex Ballesté   alex@asic.udl.es
     Local ID: ca_ES
@@ -75,13 +75,13 @@ languages, as follows:
     Local ID: zh_TW
     
 12) French (Canadian)
-    Status: to be released in 2.2
+    Status: released
     Translated by: n/a
     Contact Mustapha Es-salihe (Mustapha.Es-salihe@crim.ca)
     Local ID: fr_CA
 	 
 13) Spanish (Spain)
-    Status: completed for 2.2 (partially done in 2.1.2)
+    Status: released
     Translated by: David Roldán Martínez, Diego del Blanco, Raúl Mengod
     Contact: Federico Jesœs Carvajal Rodrigo (fcarvajal@abierta.upv.es)
     Local ID: es_ES
@@ -117,23 +117,35 @@ languages, as follows:
     Contact: Wolf Hilzensauer (wolf.hilzensauer@salzburgresearch.at)
     Local ID: de_AT
 
-18) Swedish
-    Status: initial 2.2 translation checked in
+19) Swedish
+    Status: released
     Translated by: n/a
     Contact: Magnus Tagesson (magnus.tagesson@it.su.se)
     Local ID: sv_SE
                 
-19) Turkish
+20) Turkish
     Status: inquiry on 7/17/2006
     Translated by: n/a
     Contact: E. Emre …zkeskin (eozkeskin@hotmail.com)
     Local ID: tr_TR
                 
-20) Mongolian
+21) Mongolian
     Status: inquiry on 3/15/2007
     Translated by: n/a
     Contact:  B. Ariunbold (ariunbold@newcomsystems.mn)
     Local ID: mn_MN
+                
+22) Arabic
+    Status: released
+    Translated by: n/a
+    Contact: Tom Landry (tom.landry@crim.ca)
+    Local ID: ar
+                
+23) Vietnamese
+    Status: inquiry on 4/02/2007
+    Translated by: n/a
+    Contact:  Nam Nguyen (nam.h.nguyen@3nexus.com)
+    Local ID: vi_VN
                 
 
 The default language locale must be defined at boot time (though this 
