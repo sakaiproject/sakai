@@ -210,7 +210,7 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
        	Placement ppp = (Placement) ThreadLocalManager.get(CURRENT_PLACEMENT);
 	// System.out.println("ThreadLocal CURRENT_PLACEMENT="+ppp);
 	if ( ppp != null ) {
-		System.out.println("ThreadLocal CURRENT_PLACEMENT ID="+ppp.getId());
+		// System.out.println("ThreadLocal CURRENT_PLACEMENT ID="+ppp.getId());
 		if ( placementId.equals(ppp.getId()) ) 
 		{
 			// System.out.println("Thread already setup");
