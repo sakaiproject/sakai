@@ -488,17 +488,19 @@ public class RichTextEditArea extends Renderer
         }
 
     }
-    
+    writer.write("\n\tdocument.wysiwyg = \"FCKeditor\";");
     writer.write("\n\n\toFCKeditor.ReplaceTextarea();\n\t}\n");
 
     writer.write("\nfunction collapseMenu(client_id){");
     writer.write("\n\tvar editor = FCKeditorAPI.GetInstance(client_id + '_textinput');");
     writer.write("\n\teditor.ToolbarSet.Collapse();");
+    writer.write("\n\tdocument.wysiwyg = \"textarea\";");
     writer.write("\n}\n");
     
     writer.write("\nfunction expandMenu(client_id){");
     writer.write("\n\tvar editor = FCKeditorAPI.GetInstance(client_id + '_textinput');");
     writer.write("\n\teditor.ToolbarSet.Expand();");
+    writer.write("\n\tdocument.wysiwyg = \"FCKeditor\";");
     writer.write("\n}\n");
     
     writer.write("</script>\n");
