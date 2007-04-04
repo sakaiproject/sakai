@@ -222,7 +222,7 @@ function redirectBasedOnSelection(){
 							#end
 							/>
  							<label for="course$courseNumber">
-								$validator.escapeHtml($sectionObject.eid) : $sectionObject.title, $sectionObject.categoryDescription</label>
+								$validator.escapeHtml($sectionObject.eid) : $sectionObject.title, $sectionObject.getCategoryDescription()</label>
 							#if ($sectionObject.attached)
 								(Site already exists, <a href="#" onclick="javascript:enableCheckBox($!courseNumber)">select anyway?</a>)
 							#end
