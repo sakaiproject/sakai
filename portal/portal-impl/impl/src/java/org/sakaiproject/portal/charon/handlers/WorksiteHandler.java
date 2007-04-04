@@ -254,6 +254,9 @@ public class WorksiteHandler extends PageHandler
 				boolean current = (page != null && p.getId().equals(page.getId()) && !p
 						.isPopUp());
 				String pagerefUrl = pageUrl + Web.escapeUrl(p.getId());
+				if ( resetTools ) {
+					pagerefUrl = pagerefUrl.replaceFirst("/"+portalPrefix+"/","/"+portalPrefix+"-reset/");
+				}
 
 				if (doPages || p.isPopUp())
 				{

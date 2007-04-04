@@ -18,8 +18,6 @@
  * limitations under the License.
  *
  **********************************************************************************/
-// Base version: CharonPortal.java 14784 -- this must be updated to map changes in Charon 
-// Patched to 17988
 package org.sakaiproject.portal.charon;
 
 import java.io.IOException;
@@ -54,6 +52,7 @@ import org.sakaiproject.portal.charon.handlers.DirectToolHandler;
 import org.sakaiproject.portal.charon.handlers.ErrorDoneHandler;
 import org.sakaiproject.portal.charon.handlers.ErrorReportHandler;
 import org.sakaiproject.portal.charon.handlers.GalleryHandler;
+import org.sakaiproject.portal.charon.handlers.GalleryResetHandler;
 import org.sakaiproject.portal.charon.handlers.HelpHandler;
 import org.sakaiproject.portal.charon.handlers.LoginGalleryHandler;
 import org.sakaiproject.portal.charon.handlers.LoginHandler;
@@ -68,11 +67,13 @@ import org.sakaiproject.portal.charon.handlers.PresenceHandler;
 import org.sakaiproject.portal.charon.handlers.ReLoginHandler;
 import org.sakaiproject.portal.charon.handlers.RssHandler;
 import org.sakaiproject.portal.charon.handlers.SiteHandler;
+import org.sakaiproject.portal.charon.handlers.SiteResetHandler;
 import org.sakaiproject.portal.charon.handlers.StaticScriptsHandler;
 import org.sakaiproject.portal.charon.handlers.StaticStylesHandler;
 import org.sakaiproject.portal.charon.handlers.ToolHandler;
 import org.sakaiproject.portal.charon.handlers.ToolResetHandler;
 import org.sakaiproject.portal.charon.handlers.WorksiteHandler;
+import org.sakaiproject.portal.charon.handlers.WorksiteResetHandler;
 import org.sakaiproject.portal.charon.handlers.XLoginHandler;
 import org.sakaiproject.portal.render.api.RenderResult;
 import org.sakaiproject.portal.render.cover.ToolRenderService;
@@ -587,6 +588,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		{
 			Site s = (Site) i.next();
 
+			// The first site is the current site
+			if ( currentSiteId == null ) currentSiteId = s.getId();
+
 			Map m = convertSiteToMap(req, s, prefix, currentSiteId, myWorkspaceSiteId,
 					includeSummary, expandSite, resetTools, doPages, toolContextPath,
 					loggedIn);
@@ -616,10 +620,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	{
 		if (s == null) return null;
 		Map<String, Object> m = new HashMap<String, Object>();
+
+		// In case the effective is different than the actual site
+		String effectiveSite = siteHelper.getSiteEffectiveId(s);
 		m.put("isCurrentSite", Boolean.valueOf(currentSiteId != null
-				&& s.getId().equals(currentSiteId)));
+		    && (s.getId().equals(currentSiteId) || effectiveSite.equals(currentSiteId))));
 		m.put("isMyWorkspace", Boolean.valueOf(myWorkspaceSiteId != null
-				&& s.getId().equals(myWorkspaceSiteId)));
+		    && (s.getId().equals(myWorkspaceSiteId) || effectiveSite.equals(myWorkspaceSiteId))));
 		m.put("siteTitle", Web.escapeHtml(s.getTitle()));
 		m.put("siteDescription", Web.escapeHtml(s.getDescription()));
 		String siteUrl = Web.serverUrl(req)
@@ -1511,16 +1518,19 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		siteHandler = new SiteHandler();
 
 		addHandler(siteHandler);
+		addHandler(new SiteResetHandler());
 
 		addHandler(new ToolHandler());
 		addHandler(new ToolResetHandler());
 		addHandler(new PageHandler());
 		addHandler(worksiteHandler);
+		addHandler(new WorksiteResetHandler());
 		addHandler(new RssHandler());
 		addHandler(new PDAHandler());
 		addHandler(new AtomHandler());
 		addHandler(new OpmlHandler());
 		addHandler(galleryHandler);
+		addHandler(new GalleryResetHandler());
 		addHandler(new NavLoginHandler());
 		addHandler(new NavLoginGalleryHandler());
 		addHandler(new PresenceHandler());

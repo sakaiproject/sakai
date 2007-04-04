@@ -328,8 +328,7 @@ public class SiteHandler extends WorksiteHandler
 			String origPrefix = prefix;
 
 			// If we have turned on auto-state reset on navigation, we generate
-			// the
-			// "site-reset" "worksite-reset" and "gallery-reset" urls
+			// the "site-reset" "worksite-reset" and "gallery-reset" urls
 			if ("true".equals(ServerConfigurationService
 					.getString(Portal.CONFIG_AUTO_RESET)))
 			{
@@ -337,14 +336,20 @@ public class SiteHandler extends WorksiteHandler
 			}
 
 			boolean loggedIn = session.getUserId() != null;
-			boolean curMyWorkspace = false;
-			String myWorkspaceSiteId = null;
+           		// Get the user's My WorkSpace and its ID
+                	Site myWorkspaceSite = siteHelper.getMyWorkspace(session);
+                	String myWorkspaceSiteId = null;
+                	if (myWorkspaceSite != null)
+                	{
+                        	myWorkspaceSiteId = siteHelper.getSiteEffectiveId(myWorkspaceSite);
+                	}
+
 			int prefTabs = 4;
 			int tabsToDisplay = prefTabs;
 
-			// Get the list of sites in the right order, don't include My
-			// WorkSpace
-			List<Site> mySites = siteHelper.getAllSites(req, session, false);
+			// Get the list of sites in the right order, 
+			// My WorkSpace will be the first in the list
+			List<Site> mySites = siteHelper.getAllSites(req, session, true);
 			if (!loggedIn)
 			{
 				prefTabs = ServerConfigurationService.getInt(
@@ -352,164 +357,75 @@ public class SiteHandler extends WorksiteHandler
 			}
 			else
 			{
-				// is the current site the end user's My Workspace?
-				// Note: the site id can match the user's id or eid
-				String curUserId = session.getUserId();
-				String curUserEid = curUserId;
-				if (siteId != null)
-				{
-					try
-					{
-						curUserEid = UserDirectoryService.getUserEid(curUserId);
-					}
-					catch (UserNotDefinedException e)
-					{
-					}
-				}
-
-				// TODO: Clean this mess up and just put the workspace in the
-				// context
-				// and let the vm figure it out using isMyWorkSpace
-				curMyWorkspace = ((siteId == null) || (SiteService.isUserSite(siteId) && ((SiteService
-						.getSiteUserId(siteId).equals(curUserId) || SiteService
-						.getSiteUserId(siteId).equals(curUserEid)))));
-
-				// if this is a My Workspace, it gets its own tab and should not
-				// be
-				// considered in the other tab logic - but save the ID for later
-				if (curMyWorkspace)
-				{
-					myWorkspaceSiteId = siteId;
-					siteId = null;
-				}
-
-				// collect the user's preferences
-				if (session.getUserId() != null)
-				{
-					Preferences prefs = PreferencesService.getPreferences(session
+				Preferences prefs = PreferencesService.getPreferences(session
 							.getUserId());
-					ResourceProperties props = prefs
+				ResourceProperties props = prefs
 							.getProperties("sakai:portal:sitenav");
-					try
-					{
-						prefTabs = (int) props.getLongProperty("tabs");
-					}
-					catch (Exception any)
-					{
-					}
+				try
+				{
+					prefTabs = (int) props.getLongProperty("tabs");
 				}
-			} // End if ( loggedIn )
+				catch (Exception any)
+				{
+				}
+			} 
 
-			// Prepare for display across the top...
-			// split into 2 lists - the first n, and the rest
+			// Note that if there are exactly one more site
+			// than tabs allowed - simply put the site on
+			// instead of a dropdown with one site
 			List<Site> moreSites = new ArrayList<Site>();
-			if (mySites.size() > tabsToDisplay)
+			if (mySites.size() > (tabsToDisplay+1))
 			{
+				// Check to see if the selected site is in the first
+				// "tabsToDisplay" tabs
+				boolean found = false;
+				for(int i=0; i < tabsToDisplay && i < mySites.size(); i++)
+				{
+					Site site = mySites.get(i);
+                        		String effectiveId = siteHelper.getSiteEffectiveId(site);
+					if (site.getId().equals(siteId) || effectiveId.equals(siteId)) found = true;
+				}
+
+				// Save space for the current site
+				if ( !found ) tabsToDisplay = tabsToDisplay - 1;
+				if ( tabsToDisplay < 2 ) tabsToDisplay = 2;
+	
+				// Create the list of "additional sites"- but do not
+				// include the currently selected set in the list
+				Site currentSelectedSite = null;
+
 				int remove = mySites.size() - tabsToDisplay;
 				for (int i = 0; i < remove; i++)
 				{
+					// We add the site the the drop-down
+					// unless it it the current site in which case
+					// we retain it for later
 					Site site = mySites.get(tabsToDisplay);
+					mySites.remove(tabsToDisplay);
 
-					// add to more unless it's the current site (it will get an
-					// extra tag)
-					if (!site.getId().equals(siteId))
+                        		String effectiveId = siteHelper.getSiteEffectiveId(site);
+					if (site.getId().equals(siteId) || effectiveId.equals(siteId)) 
+					{
+						currentSelectedSite = site;
+					}
+					else
 					{
 						moreSites.add(site);
 					}
-
-					// remove from the display list
-					mySites.remove(tabsToDisplay);
 				}
-			}
 
-			// if more has just one, put it back on the main list
-			if (moreSites.size() == 1)
-			{
-				mySites.add(moreSites.get(0));
-				moreSites.clear();
-			}
-
-			// check if the current site is missing from the main list
-			String extraTitle = null;
-
-			if (siteId != null)
-			{
-				boolean extra = true;
-				for (Iterator i = mySites.iterator(); i.hasNext();)
-				{
-					Site site = (Site) i.next();
-					if (site.getId().equals(siteId))
-					{
-						extra = false;
-						break;
-					}
-				}
-				if (extra)
-				{
-					try
-					{
-						Site site = SiteService.getSite(siteId);
-						extraTitle = site.getTitle();
-					}
-					catch (IdUnusedException e)
-					{
-						// check for another user's myWorkspace by eid
-						if (loggedIn && SiteService.isUserSite(siteId))
-						{
-							String userEid = SiteService.getSiteUserId(siteId);
-							try
-							{
-								String userId = UserDirectoryService.getUserId(userEid);
-								Site site = SiteService.getSite(SiteService
-										.getUserSiteId(userId));
-								extraTitle = site.getTitle();
-							}
-							catch (UserNotDefinedException ee)
-							{
-								log.warn("includeTabs: cur site not found (not ~eid): "
-										+ siteId);
-							}
-							catch (IdUnusedException ee)
-							{
-								log
-										.warn("includeTabs: cur site not found (assumed ~eid, didn't find site): "
-												+ siteId);
-							}
-						}
-						else
-						{
-							log.warn("includeTabs: cur site not found: " + siteId);
-						}
-					}
+				// check to see if we need to re-add the current site
+				if ( currentSelectedSite != null ) {
+					mySites.add(currentSelectedSite);
 				}
 			}
 
 			String cssClass = (siteType != null) ? "siteNavWrap " + siteType
 					: "siteNavWrap";
 
-			if (loggedIn)
-			{
-				String mySiteUrl = Web.serverUrl(req)
-						+ ServerConfigurationService.getString("portalPath")
-						+ "/"
-						+ prefix
-						+ "/"
-						+ Web
-								.escapeUrl(portal.getUserEidBasedSiteId(session
-										.getUserId()));
-				rcontext.put("tabsSiteUrl", mySiteUrl);
-			}
-
 			rcontext.put("tabsCssClass", cssClass);
-			// rcontext.put("tabsSitWorksiteHead",
-			// Web.escapeHtml(rb.getString("sit_worksiteshead")));
-			rcontext.put("tabsCurMyWorkspace", Boolean.valueOf(curMyWorkspace));
-			// rcontext.put("tabsSitMyWorkspace", rb.getString("sit_mywor"));
 
-			// rcontext.put("tabsSitWorksite",
-			// Web.escapeHtml(rb.getString("sit_worksite")));
-
-			List<Map> l = portal.convertSitesToMaps(req, mySites, origPrefix, siteId,
+			List<Map> l = portal.convertSitesToMaps(req, mySites, prefix, siteId,
 					myWorkspaceSiteId,
 					/* includeSummary */false, /* expandSite */false,
 					/* resetTools */"true".equals(ServerConfigurationService
@@ -518,38 +434,19 @@ public class SiteHandler extends WorksiteHandler
 
 			rcontext.put("tabsSites", l);
 
-			rcontext.put("tabsHasExtraTitle", Boolean.valueOf(extraTitle != null));
-
-			// current site, if not in the list of first n tabs
-			if (extraTitle != null)
-			{
-				rcontext.put("tabsExtraTitle", Web.escapeHtml(extraTitle));
-			}
-
 			rcontext.put("tabsMoreSitesShow", Boolean.valueOf(moreSites.size() > 0));
-			// rcontext.put("tabsSitMore",
-			// Web.escapeHtml(rb.getString("sit_more")));
-			// rcontext.put("tabsSitSelectMessage",
-			// Web.escapeHtml(rb.getString("sit_selectmessage")));
+
 			// more dropdown
 			if (moreSites.size() > 0)
 			{
+				List<Map> m = portal.convertSitesToMaps(req, moreSites, prefix, siteId,
+					myWorkspaceSiteId,
+					/* includeSummary */false, /* expandSite */false,
+					/* resetTools */"true".equals(ServerConfigurationService
+							.getString(Portal.CONFIG_AUTO_RESET)),
+					/* doPages */true, /* toolContextPath */null, loggedIn);
 
-				l = new ArrayList<Map>();
-
-				for (Iterator i = moreSites.iterator(); i.hasNext();)
-				{
-					Map<String, Object> m = new HashMap<String, Object>();
-
-					Site s = (Site) i.next();
-					String siteUrl = Web.serverUrl(req)
-							+ ServerConfigurationService.getString("portalPath") + "/"
-							+ prefix + "/" + siteHelper.getSiteEffectiveId(s);
-					m.put("siteTitle", Web.escapeHtml(s.getTitle()));
-					m.put("siteUrl", siteUrl);
-					l.add(m);
-				}
-				rcontext.put("tabsMoreSites", l);
+				rcontext.put("tabsMoreSites", m);
 			}
 
 			rcontext.put("tabsAddLogout", Boolean.valueOf(addLogout));
