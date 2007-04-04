@@ -193,17 +193,21 @@
 			#else
 				## Site is possible and either group or public is possible
 				<p class="instruction">
-					$tlang.getString("edit.who")
+					#if($model.isCollection())
+						$tlang.getString("edit.who.fldr")
+					#else
+						$tlang.getString("edit.who")
+					#end
 				</p>
 				<p>
 					<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherited" #if(!$model.isPubview() && "$!model.accessMode" != "$GROUP_ACCESS") checked="checked"#end style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='none';" />
-					<label for="access_mode_inherited${DOT}$i">$tlang.getString("access.site.choice")</label>
+					<label for="access_mode_inherited${DOT}$i">#if($model.isCollection())$tlang.getString("access.site.choice")#else$tlang.getString("access.site.fldr")#end</label>
 				</p>
 				#if($model.isPubviewPossible())
 					## Public is possible
 					<p>
 						<input type="radio" name="access_mode${DOT}$i" id="access_mode_public${DOT}$i" value="public" #if($!model.isPubview()) checked="checked"#end style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='none';" />
-						<label for="access_mode_public${DOT}$i">$tlang.getString("access.public.choice")</label>
+						<label for="access_mode_public${DOT}$i">#if($model.isCollection())$tlang.getString("access.public.choice")#else$tlang.getString("access.public.fldr")#end</label>
 					</p>
 				#end
 				#if($model.isGroupPossible())
@@ -215,7 +219,7 @@
 					#end
 					<p>
 						<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS" #if("$!model.accessMode" == "$GROUP_ACCESS") checked="checked"#end style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='block';" />
-						<label for="access_mode_groups${DOT}$i">$tlang.getString("access.groups.choice")</label>
+						<label for="access_mode_groups${DOT}$i">#if($model.isCollection())$tlang.getString("access.groups.choice")#else$tlang.getString("access.groups.fldr")#end</label>
 					</p>
 				#end
 			#end
@@ -274,7 +278,11 @@
 	######### begin availability section ##########
 	#if($availability_is_enabled && !$model.isInWorkspace() && !$dropboxMode && ! $model.isSiteCollection())
 		<p class="instruction">
-			$tlang.getString("instr.access") 
+			#if($model.isCollection())
+				$tlang.getString("instr.access.fldr")
+			#else
+				$tlang.getString("instr.access")
+			#end
 		</p>
 		<div  class="labelindnt">
 			<table>
@@ -284,7 +292,11 @@
 					</td>
 					<td colspan="4">
 						<label for="hidden_false${DOT}$i">
-							$tlang.getString("avail.show1")
+							#if($model.isCollection())
+								$tlang.getString("avail.show2")
+							#else
+								$tlang.getString("avail.show1")
+							#end
 						</label>
 					</td>
 				</tr>
@@ -384,7 +396,11 @@
 					</td>
 					<td colspan="4">
 						<label for="hidden_true${DOT}$i">
-							$tlang.getString("avail.hide1")
+							#if($model.isCollection())
+								$tlang.getString("avail.hide2")
+							#else
+								$tlang.getString("avail.hide1")
+							#end
 						</label>
 					</td>
 				</tr>

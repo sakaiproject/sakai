@@ -147,6 +147,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	protected static final String STATE_ATTACH_INSTRUCTION = PREFIX + "attach_instruction";
 
 	protected static final String STATE_ATTACH_LINKS = PREFIX + "attach_links";
+	protected static final String STATE_ATTACH_SUBTITLE = PREFIX + "attach_subtitle";
 	protected static final String STATE_ATTACH_TITLE = PREFIX + "attach_title";
 
 	protected static final String STATE_ATTACHMENT_FILTER = PREFIX + "attachment_filter";
@@ -1058,21 +1059,39 @@ public class FilePickerAction extends PagedResourceHelperAction
 	 */
 	protected void initMessage(ToolSession toolSession, SessionState state)
 	{
-		String message = (String) toolSession.getAttribute(FilePickerHelper.FILE_PICKER_TITLE_TEXT);
+		String title = (String) toolSession.getAttribute(FilePickerHelper.FILE_PICKER_TITLE_TEXT);
 		toolSession.removeAttribute(FilePickerHelper.FILE_PICKER_TITLE_TEXT);
-		if (message == null)
+		if (title == null)
 		{
-			message = rb.getString(FilePickerHelper.FILE_PICKER_TITLE_TEXT);
+			toolSession.removeAttribute(STATE_ATTACH_TITLE);
 		}
-		toolSession.setAttribute(STATE_ATTACH_TITLE, message);
+		else
+		{
+			toolSession.setAttribute(STATE_ATTACH_TITLE, title);
+		}
 
-		message = (String) toolSession.getAttribute(FilePickerHelper.FILE_PICKER_INSTRUCTION_TEXT);
+		String instruction = (String) toolSession.getAttribute(FilePickerHelper.FILE_PICKER_INSTRUCTION_TEXT);
 		toolSession.removeAttribute(FilePickerHelper.FILE_PICKER_INSTRUCTION_TEXT);
-		if (message == null)
+		if (instruction == null)
 		{
-			message = rb.getString(FilePickerHelper.FILE_PICKER_INSTRUCTION_TEXT);
+			toolSession.removeAttribute(STATE_ATTACH_INSTRUCTION);
 		}
-		toolSession.setAttribute(STATE_ATTACH_INSTRUCTION, message);
+		else
+		{
+			toolSession.setAttribute(STATE_ATTACH_INSTRUCTION, instruction);
+		}
+		
+		String subtitle = (String) toolSession.getAttribute(FilePickerHelper.FILE_PICKER_SUBTITLE_TEXT);
+		toolSession.removeAttribute(FilePickerHelper.FILE_PICKER_SUBTITLE_TEXT);
+		if (subtitle == null)
+		{
+			toolSession.removeAttribute(STATE_ATTACH_SUBTITLE);
+		}
+		else
+		{
+			toolSession.setAttribute(STATE_ATTACH_SUBTITLE, subtitle);
+		}
+		
 	}
 
 	/**
