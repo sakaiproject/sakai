@@ -1,28 +1,24 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: fckconfig.js
- * 	Creates and initializes the FCKConfig object.
- * 
- * File Authors:
- * 		Frederico Caldeira Knabben (www.fckeditor.net)
+ *
+ * Creates and initializes the FCKConfig object.
  */
 
 var FCKConfig = FCK.Config = new Object() ;
@@ -48,20 +44,20 @@ else
 
 FCKConfig.EditorPath = FCKConfig.BasePath.replace( /editor\/$/, '' ) ;
 
-// There is a bug in Gecko. If the editor is hidden on startup, an error is 
+// There is a bug in Gecko. If the editor is hidden on startup, an error is
 // thrown when trying to get the screen dimentions.
 try
 {
 	FCKConfig.ScreenWidth	= screen.width ;
 	FCKConfig.ScreenHeight	= screen.height ;
 }
-catch (e) 
+catch (e)
 {
 	FCKConfig.ScreenWidth	= 800 ;
 	FCKConfig.ScreenHeight	= 600 ;
 }
 
-// Override the actual configuration values with the values passed throw the 
+// Override the actual configuration values with the values passed throw the
 // hidden field "<InstanceName>___Config".
 FCKConfig.ProcessHiddenField = function()
 {
@@ -69,7 +65,7 @@ FCKConfig.ProcessHiddenField = function()
 
 	// Get the hidden field.
 	var oConfigField = window.parent.document.getElementById( FCK.Name + '___Config' ) ;
-	
+
 	// Do nothing if the config field was not defined.
 	if ( ! oConfigField ) return ;
 
@@ -111,7 +107,7 @@ function FCKConfig_LoadPageConfig()
 function FCKConfig_PreProcess()
 {
 	var oConfig = FCKConfig ;
-	
+
 	// Force debug mode if fckdebug=true in the QueryString (main page).
 	if ( oConfig.AllowQueryStringDebug )
 	{
@@ -151,20 +147,20 @@ FCKConfig.Plugins.Add = function( name, langs, path )
 	FCKConfig.Plugins.Items.AddItem( [name, langs, path] ) ;
 }
 
-// FCKConfig.ProtectedSource: object that holds a collection of Regular 
+// FCKConfig.ProtectedSource: object that holds a collection of Regular
 // Expressions that defined parts of the raw HTML that must remain untouched
 // like custom tags, scripts, server side code, etc...
 FCKConfig.ProtectedSource = new Object() ;
 
 // Initialize the regex array with the default ones.
 FCKConfig.ProtectedSource.RegexEntries = [
-	// First of any other protection, we must protect all comments to avoid 
+	// First of any other protection, we must protect all comments to avoid
 	// loosing them (of course, IE related).
 	/<!--[\s\S]*?-->/g ,
 
 	// Script tags will also be forced to be protected, otherwise IE will execute them.
 	/<script[\s\S]*?<\/script>/gi,
-	
+
 	// <noscript> tags (get lost in IE and messed up in FF).
 	/<noscript[\s\S]*?<\/noscript>/gi
 ] ;
@@ -181,12 +177,12 @@ FCKConfig.ProtectedSource.Protect = function( html )
 		var index = FCKTempBin.AddElement( protectedSource ) ;
 		return '<!--{PS..' + index + '}-->' ;
 	}
-	
+
 	for ( var i = 0 ; i < this.RegexEntries.length ; i++ )
 	{
 		html = html.replace( this.RegexEntries[i], _Replace ) ;
 	}
-	
+
 	return html ;
 }
 

@@ -1,29 +1,25 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <!--
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: replace.html
- * 	This is the sample "Replace" plugin window.
- * 
- * File Authors:
- * 		Frederico Caldeira Knabben (www.fckeditor.net)
+ *
+ * This is the sample "Replace" plugin window.
 -->
 <html>
 	<head>
@@ -43,8 +39,8 @@ function OnLoad()
 
 function btnStat(frm)
 {
-	document.getElementById('btnReplace').disabled = 
-		document.getElementById('btnReplaceAll').disabled = 
+	document.getElementById('btnReplace').disabled =
+		document.getElementById('btnReplaceAll').disabled =
 			( document.getElementById('txtFind').value.length == 0 ) ;
 }
 
@@ -69,7 +65,7 @@ function ReplaceTextNodes( parentNode, regex, replaceValue, replaceAll, hasFound
 		if ( ! replaceAll && hasFound )
 			return true ;
 	}
-	
+
 	return hasFound ;
 }
 
@@ -79,11 +75,11 @@ function GetRegexExpr()
 		var sExpr = '\\b' + document.getElementById('txtFind').value + '\\b' ;
 	else
 		var sExpr = document.getElementById('txtFind').value ;
-		
+
 	return sExpr ;
 }
 
-function GetCase() 
+function GetCase()
 {
 	return ( document.getElementById('chkCase').checked ? '' : 'i' ) ;
 }
@@ -117,7 +113,7 @@ function ReplaceAll()
 				</td>
 			</tr>
 			<tr>
-				<td vAlign="top" nowrap><label for="txtReplace" fckLang="DlgMyReplaceReplaceLbl">Replace 
+				<td vAlign="top" nowrap><label for="txtReplace" fckLang="DlgMyReplaceReplaceLbl">Replace
 						with:</label>
 				</td>
 				<td vAlign="top"><input id="txtReplace" style="WIDTH: 100%" tabIndex="2" type="text">
@@ -127,10 +123,10 @@ function ReplaceAll()
 				</td>
 			</tr>
 			<tr>
-				<td vAlign="bottom" colSpan="3">&nbsp;<input id="chkCase" tabIndex="3" type="checkbox"><label for="chkCase" fckLang="DlgMyReplaceCaseChk">Match 
+				<td vAlign="bottom" colSpan="3">&nbsp;<input id="chkCase" tabIndex="3" type="checkbox"><label for="chkCase" fckLang="DlgMyReplaceCaseChk">Match
 						case</label>
 					<br>
-					&nbsp;<input id="chkWord" tabIndex="4" type="checkbox"><label for="chkWord" fckLang="DlgMyReplaceWordChk">Match 
+					&nbsp;<input id="chkWord" tabIndex="4" type="checkbox"><label for="chkWord" fckLang="DlgMyReplaceWordChk">Match
 						whole word</label>
 				</td>
 			</tr>

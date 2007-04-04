@@ -1,37 +1,31 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: fck_link.js
- * 	Scripts related to the Link dialog window (see fck_link.html).
- * 
- * File Authors:
- * 		Frederico Caldeira Knabben (www.fckeditor.net)
- * 		Dominik Pesch ?dom? (empty selection patch) (d.pesch@11com7.de)
- * 		Alfonso Martinez de Lizarrondo - Uritec (alfonso at uritec dot net)
+ *
+ * Scripts related to the Link dialog window (see fck_link.html).
  */
 
 var oEditor		= window.parent.InnerDialogLoaded() ;
 var FCK			= oEditor.FCK ;
 var FCKLang		= oEditor.FCKLang ;
 var FCKConfig	= oEditor.FCKConfig ;
-var FCKRegexLib			= oEditor.FCKRegexLib ;
+var FCKRegexLib	= oEditor.FCKRegexLib ;
 
 //#### Dialog Tabs
 
@@ -61,28 +55,20 @@ function OnDialogTabChange( tabCode )
 //#### Regular Expressions library.
 var oRegex = new Object() ;
 
-oRegex.UriProtocol = new RegExp('') ;
-oRegex.UriProtocol.compile( '^(((http|https|ftp|news):\/\/)|mailto:)', 'gi' ) ;
+oRegex.UriProtocol = /^(((http|https|ftp|news):\/\/)|mailto:)/gi ;
 
-oRegex.UrlOnChangeProtocol = new RegExp('') ;
-oRegex.UrlOnChangeProtocol.compile( '^(http|https|ftp|news)://(?=.)', 'gi' ) ;
+oRegex.UrlOnChangeProtocol = /^(http|https|ftp|news):\/\/(?=.)/gi ;
 
-oRegex.UrlOnChangeTestOther = new RegExp('') ;
-//oRegex.UrlOnChangeTestOther.compile( '^(javascript:|#|/)', 'gi' ) ;
-oRegex.UrlOnChangeTestOther.compile( '^((javascript:)|[#/\.])', 'gi' ) ; 
+oRegex.UrlOnChangeTestOther = /^((javascript:)|[#\/\.])/gi ;
 
-oRegex.ReserveTarget = new RegExp('') ;
-oRegex.ReserveTarget.compile( '^_(blank|self|top|parent)$', 'i' ) ;
+oRegex.ReserveTarget = /^_(blank|self|top|parent)$/i ;
 
-oRegex.PopupUri = new RegExp('') ;
-oRegex.PopupUri.compile( "^javascript:void\\(\\s*window.open\\(\\s*'([^']+)'\\s*,\\s*(?:'([^']*)'|null)\\s*,\\s*'([^']*)'\\s*\\)\\s*\\)\\s*$" ) ;
+oRegex.PopupUri = /^javascript:void\(\s*window.open\(\s*'([^']+)'\s*,\s*(?:'([^']*)'|null)\s*,\s*'([^']*)'\s*\)\s*\)\s*$/ ;
 
-// Accesible popups
-oRegex.OnClickPopup = new RegExp('') ;
-oRegex.OnClickPopup.compile( "^\\s*onClick=\"\\s*window.open\\(\\s*this\\.href\\s*,\\s*(?:'([^']*)'|null)\\s*,\\s*'([^']*)'\\s*\\)\\s*;\\s*return\\s*false;*\\s*\"$" ) ;
+// Accessible popups
+oRegex.OnClickPopup = /^\s*on[cC]lick="\s*window.open\(\s*this\.href\s*,\s*(?:'([^']*)'|null)\s*,\s*'([^']*)'\s*\)\s*;\s*return\s*false;*\s*"$/ ;
 
-oRegex.PopupFeatures = new RegExp('') ;
-oRegex.PopupFeatures.compile( '(?:^|,)([^=]+)=(\\d+|yes|no)', 'gi' ) ;
+oRegex.PopupFeatures = /(?:^|,)([^=]+)=(\d+|yes|no)/gi ;
 
 //#### Parser Functions
 
@@ -173,7 +159,7 @@ var bHasAnchors ;
 
 function LoadAnchorNamesAndIds()
 {
-	// Since version 2.0, the anchors are replaced in the DOM by IMGs so the user see the icon 
+	// Since version 2.0, the anchors are replaced in the DOM by IMGs so the user see the icon
 	// to edit them. So, we must look for that images now.
 	var aAnchors = new Array() ;
 	var i ;
@@ -191,7 +177,7 @@ function LoadAnchorNamesAndIds()
 		if ( oLinks[i].name && ( oLinks[i].name.length > 0 ) )
 			aAnchors[ aAnchors.length ] = oLinks[i] ;
 	}
-	
+
 	var aIds = oEditor.FCKTools.GetAllChildrenIds( oEditor.FCK.EditorDocument.body ) ;
 
 	bHasAnchors = ( aAnchors.length > 0 || aIds.length > 0 ) ;
@@ -235,7 +221,7 @@ function LoadSelection()
 
 	// Accesible popups, the popup data is in the onclick attribute
 	if ( !oPopupMatch ) {
-		var onclick = oLink.getAttribute( 'onClick_fckprotectedatt' ) ;
+		var onclick = oLink.getAttribute( 'onclick_fckprotectedatt' ) ;
 		oPopupMatch = oRegex.OnClickPopup.exec( onclick ) ;
 		if( oPopupMatch )
 		{
@@ -516,7 +502,7 @@ function Ok()
 	// No link selected, so try to create one.
 	if ( !oLink )
 		oLink = oEditor.FCK.CreateLink( sUri ) ;
-	
+
 	if ( oLink )
 		sInnerHtml = oLink.innerHTML ;		// Save the innerHTML (IE changes it if it is like an URL).
 	else
@@ -557,17 +543,17 @@ function Ok()
 	SetAttribute( oLink, '_fcksavedurl', sUri ) ;
 
 	// Accesible popups
-	if( GetE('cmbTarget').value == 'popup' ) 
+	if( GetE('cmbTarget').value == 'popup' )
 	{
-		SetAttribute( oLink, 'onClick_fckprotectedatt', " onClick=\"" + BuildOnClickPopup() + "\"") ;
-	} 
-	else 
+		SetAttribute( oLink, 'onclick_fckprotectedatt', " onclick=\"" + BuildOnClickPopup() + "\"") ;
+	}
+	else
 	{
 		// Check if the previous onclick was for a popup:
 		// In that case remove the onclick handler.
-		var onclick = oLink.getAttribute( 'onClick_fckprotectedatt' ) ;
+		var onclick = oLink.getAttribute( 'onclick_fckprotectedatt' ) ;
 		if( oRegex.OnClickPopup.test( onclick ) )
-			SetAttribute( oLink, 'onClick_fckprotectedatt', '' ) ;
+			SetAttribute( oLink, 'onclick_fckprotectedatt', '' ) ;
 	}
 
 	oLink.innerHTML = sInnerHtml ;		// Set (or restore) the innerHTML
@@ -580,7 +566,7 @@ function Ok()
 
 	// Advances Attributes
 	SetAttribute( oLink, 'id'		, GetE('txtAttId').value ) ;
-	SetAttribute( oLink, 'name'		, GetE('txtAttName').value ) ;		
+	SetAttribute( oLink, 'name'		, GetE('txtAttName').value ) ;
 	SetAttribute( oLink, 'dir'		, GetE('cmbAttLangDir').value ) ;
 	SetAttribute( oLink, 'lang'		, GetE('txtAttLangCode').value ) ;
 	SetAttribute( oLink, 'accesskey', GetE('txtAttAccessKey').value ) ;
@@ -607,7 +593,7 @@ function Ok()
 
 	// Select the link.
 	oEditor.FCKSelection.SelectNode(oLink);
-	
+
 	return true ;
 }
 
@@ -660,19 +646,19 @@ var oUploadDeniedExtRegex	= new RegExp( FCKConfig.LinkUploadDeniedExtensions, 'i
 function CheckUpload()
 {
 	var sFile = GetE('txtUploadFile').value ;
-	
+
 	if ( sFile.length == 0 )
 	{
 		alert( 'Please select a file to upload' ) ;
 		return false ;
 	}
-	
+
 	if ( ( FCKConfig.LinkUploadAllowedExtensions.length > 0 && !oUploadAllowedExtRegex.test( sFile ) ) ||
 		( FCKConfig.LinkUploadDeniedExtensions.length > 0 && oUploadDeniedExtRegex.test( sFile ) ) )
 	{
 		OnUploadCompleted( 202 ) ;
 		return false ;
 	}
-	
+
 	return true ;
 }

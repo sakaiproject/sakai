@@ -1,29 +1,25 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: fcktoolbarpanelbutton.js
- * 	FCKToolbarPanelButton Class: represents a special button in the toolbar
- * 	that shows a panel when pressed.
- * 
- * File Authors:
- * 		Frederico Caldeira Knabben (www.fckeditor.net)
+ *
+ * FCKToolbarPanelButton Class: represents a special button in the toolbar
+ * that shows a panel when pressed.
  */
 
 var FCKToolbarPanelButton = function( commandName, label, tooltip, style, icon )
@@ -31,12 +27,12 @@ var FCKToolbarPanelButton = function( commandName, label, tooltip, style, icon )
 	this.CommandName = commandName ;
 
 	var oIcon ;
-	
+
 	if ( icon == null )
 		oIcon = FCKConfig.SkinPath + 'toolbar/' + commandName.toLowerCase() + '.gif' ;
 	else if ( typeof( icon ) == 'number' )
 		oIcon = [ FCKConfig.SkinPath + 'fck_strip.gif', 16, icon ] ;
-	
+
 	var oUIButton = this._UIButton = new FCKToolbarButtonUI( commandName, label, tooltip, oIcon, style ) ;
 	oUIButton._FCKToolbarPanelButton = this ;
 	oUIButton.ShowArrow = true ;
@@ -50,14 +46,14 @@ FCKToolbarPanelButton.prototype.Create = function( parentElement )
 	parentElement.className += 'Menu' ;
 
 	this._UIButton.Create( parentElement ) ;
-	
+
 	var oPanel = FCK.ToolbarSet.CurrentInstance.Commands.GetCommand( this.CommandName )._Panel ;
 	oPanel._FCKToolbarPanelButton = this ;
-	
+
 	var eLineDiv = oPanel.Document.body.appendChild( oPanel.Document.createElement( 'div' ) ) ;
 	eLineDiv.style.position = 'absolute' ;
 	eLineDiv.style.top = '0px' ;
-	
+
 	var eLine = this.LineImg = eLineDiv.appendChild( oPanel.Document.createElement( 'IMG' ) ) ;
 	eLine.className = 'TB_ConnectionLine' ;
 //	eLine.style.backgroundColor = 'Red' ;
@@ -74,9 +70,9 @@ function FCKToolbarPanelButton_OnButtonClick( toolbarButton )
 {
 	var oButton = this._FCKToolbarPanelButton ;
 	var e = oButton._UIButton.MainElement ;
-	
+
 	oButton._UIButton.ChangeState( FCK_TRISTATE_ON ) ;
-	
+
 	oButton.LineImg.style.width = ( e.offsetWidth - 2 ) + 'px' ;
 
 	FCK.ToolbarSet.CurrentInstance.Commands.GetCommand( oButton.CommandName ).Execute( 0, e.offsetHeight - 1, e ) ; // -1 to be over the border

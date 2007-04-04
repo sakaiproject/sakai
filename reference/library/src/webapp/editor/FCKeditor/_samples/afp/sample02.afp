@@ -1,32 +1,25 @@
-<% 
+<%
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
  * 
- * File Name: sample02.afp
- * 	This page is a basic Sample for FCKeditor integration in the AFP script language (www.afpages.de)
- * 
- * Version:  1.00 
- * Modified: 2006-11-13
- * 
- * File Authors: Soenke Freitag (contact at www.afp-hosting.de)
- * 		         Frederico Caldeira Knabben (fredck@fckeditor.net)
-
+ * This page is a basic Sample for FCKeditor integration in the AFP script language (www.afpages.de)
+ *
 %>
 
 <html>
@@ -45,20 +38,20 @@
 				AddComboOption( oCombo, editorInstance.Language.AvailableLanguages[code] + ' (' + code + ')', code ) ;
 			}
 			oCombo.value = editorInstance.Language.ActiveLanguage.Code ;
-		}	
-		
+		}
+
 		function AddComboOption(combo, optionText, optionValue)
 		{
 			var oOption = document.createElement("OPTION") ;
-		
+
 			combo.options.add(oOption) ;
-		
+
 			oOption.innerHTML = optionText ;
 			oOption.value     = optionValue ;
-			
+
 			return oOption ;
 		}
-		
+
 		function ChangeLanguage( languageCode )
 		{
 			window.location.href = window.location.pathname + "?Lang=" + languageCode ;
@@ -85,14 +78,14 @@
 <%
 
 			sBasePath="../../../fckeditor/"						&& Change this to your local path
-	
+
 			oFCKeditor = CREATEOBJECT("FCKeditor")
 			oFCKeditor.fckeditor("FCKeditor1")
 
 			lcLanguage=""										&& Initialize Variable
 			lcLanguage=request.querystring("Lang")				&& Request Parameter
 			lcLanguage=oFCKeditor.StripAttacks(lcLanguage)		&& Remove special escape characters
-			IF EMPTY(lcLanguage)							
+			IF EMPTY(lcLanguage)
 				oFCKeditor.aconfig[1,1]="AutoDetectLanguage"
 				oFCKeditor.aconfig[1,2]="true"
 				oFCKeditor.aconfig[2,1]="DefaultLanguage"
@@ -107,10 +100,10 @@
 			lcText=[This is some <strong>sample text</strong>. You are using ]
 			lcText=lcText+[<a href='http://www.fckeditor.net/'>FCKeditor</a>.]
 
-			oFCKeditor.BasePath	= sBasePath 
+			oFCKeditor.BasePath	= sBasePath
 			oFCKeditor.cValue	= lcText
 
-			? oFCKeditor.Create() 
+			? oFCKeditor.Create()
 
 %>
 			<br>

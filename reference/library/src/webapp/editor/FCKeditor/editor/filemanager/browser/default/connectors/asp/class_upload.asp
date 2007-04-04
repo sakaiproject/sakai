@@ -1,29 +1,25 @@
 ﻿<!--
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: class_upload.asp
- * 	These are the classes used to handle ASP upload without using third
- * 	part components (OCX/DLL).
- * 
- * File Authors:
- * 		NetRube (netrube@126.com)
+ *
+ * These are the classes used to handle ASP upload without using third
+ * part components (OCX/DLL).
 -->
 <%
 '**********************************************
@@ -54,32 +50,32 @@ Class NetRube_Upload
 	Public	File, Form
 	Private oSourceData
 	Private nMaxSize, nErr, sAllowed, sDenied
-	
+
 	Private Sub Class_Initialize
 		nErr		= 0
 		nMaxSize	= 1048576
-		
+
 		Set File			= Server.CreateObject("Scripting.Dictionary")
 		File.CompareMode	= 1
 		Set Form			= Server.CreateObject("Scripting.Dictionary")
 		Form.CompareMode	= 1
-		
+
 		Set oSourceData		= Server.CreateObject("ADODB.Stream")
 		oSourceData.Type	= 1
 		oSourceData.Mode	= 3
 		oSourceData.Open
 	End Sub
-	
+
 	Private Sub Class_Terminate
 		Form.RemoveAll
 		Set Form = Nothing
 		File.RemoveAll
 		Set File = Nothing
-		
+
 		oSourceData.Close
 		Set oSourceData = Nothing
 	End Sub
-	
+
 	Public Property Get Version
 		Version = "NetRube Upload Class Version 1.0 Build 20041218"
 	End Property
@@ -87,15 +83,15 @@ Class NetRube_Upload
 	Public Property Get ErrNum
 		ErrNum	= nErr
 	End Property
-	
+
 	Public Property Let MaxSize(nSize)
 		nMaxSize	= nSize
 	End Property
-	
+
 	Public Property Let Allowed(sExt)
 		sAllowed	= sExt
 	End Property
-	
+
 	Public Property Let Denied(sExt)
 		sDenied	= sExt
 	End Property
@@ -107,7 +103,7 @@ Class NetRube_Upload
 			nErr = 1
 			Exit Sub
 		End If
-		
+
 		Dim nTotalSize
 		nTotalSize	= Request.TotalBytes
 		If nTotalSize < 1 Then
@@ -118,23 +114,23 @@ Class NetRube_Upload
 			nErr = 3
 			Exit Sub
 		End If
-		
+
 		oSourceData.Write Request.BinaryRead(nTotalSize)
 		oSourceData.Position = 0
-		
+
 		Dim oTotalData, oFormStream, sFormHeader, sFormName, bCrLf, nBoundLen, nFormStart, nFormEnd, nPosStart, nPosEnd, sBoundary
-		
+
 		oTotalData	= oSourceData.Read
 		bCrLf		= ChrB(13) & ChrB(10)
 		sBoundary	= MidB(oTotalData, 1, InStrB(1, oTotalData, bCrLf) - 1)
 		nBoundLen	= LenB(sBoundary) + 2
 		nFormStart	= nBoundLen
-		
+
 		Set oFormStream = Server.CreateObject("ADODB.Stream")
-		
+
 		Do While (nFormStart + 2) < nTotalSize
 			nFormEnd	= InStrB(nFormStart, oTotalData, bCrLf & bCrLf) + 3
-			
+
 			With oFormStream
 				.Type	= 1
 				.Mode	= 3
@@ -147,12 +143,12 @@ Class NetRube_Upload
 				sFormHeader	= .ReadText
 				.Close
 			End With
-			
+
 			nFormStart	= InStrB(nFormEnd, oTotalData, sBoundary) - 1
 			nPosStart	= InStr(22, sFormHeader, " name=", 1) + 7
 			nPosEnd		= InStr(nPosStart, sFormHeader, """")
 			sFormName	= Mid(sFormHeader, nPosStart, nPosEnd - nPosStart)
-			
+
 			If InStr(45, sFormHeader, " filename=", 1) > 0 Then
 				Set File(sFormName)			= New NetRube_FileInfo
 				File(sFormName).FormName	= sFormName
@@ -180,10 +176,10 @@ Class NetRube_Upload
 					.Close
 				End With
 			End If
-			
+
 			nFormStart	= nFormStart + nBoundLen
 		Loop
-		
+
 		oTotalData = ""
 		Set oFormStream = Nothing
 	End Sub
@@ -193,12 +189,12 @@ Class NetRube_Upload
 			nErr = 2
 			Exit Sub
 		End If
-		
+
 		If Not IsAllowed(File(sItem).Ext) Then
 			nErr = 4
 			Exit Sub
 		End If
-		
+
 		Dim oFileStream
 		Set oFileStream = Server.CreateObject("ADODB.Stream")
 		With oFileStream
@@ -213,13 +209,13 @@ Class NetRube_Upload
 		End With
 		Set oFileStream = Nothing
 	End Sub
-	
+
 	Private Function IsAllowed(sExt)
 		Dim oRE
 		Set oRE	= New RegExp
 		oRE.IgnoreCase	= True
 		oRE.Global		= True
-		
+
 		If sDenied = "" Then
 			oRE.Pattern	= sAllowed
 			IsAllowed	= (sAllowed = "") Or oRE.Test(sExt)
@@ -227,7 +223,7 @@ Class NetRube_Upload
 			oRE.Pattern	= sDenied
 			IsAllowed	= Not oRE.Test(sExt)
 		End If
-		
+
 		Set oRE	= Nothing
 	End Function
 End Class

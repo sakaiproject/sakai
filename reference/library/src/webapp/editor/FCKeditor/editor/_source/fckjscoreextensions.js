@@ -1,31 +1,27 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: fckjscoreextensions.js
- * 	Extensions to the JavaScript Core.
- * 
- * 	All custom extentions functions are PascalCased to differ from the standard
- * 	camelCased ones.
- * 
- * File Authors:
- * 		Frederico Caldeira Knabben (www.fckeditor.net)
+ *
+ * Extensions to the JavaScript Core.
+ *
+ * All custom extentions functions are PascalCased to differ from the standard
+ * camelCased ones.
  */
 
 String.prototype.Contains = function( textToCheck )
@@ -36,9 +32,9 @@ String.prototype.Contains = function( textToCheck )
 String.prototype.Equals = function()
 {
 	var aArgs = arguments ;
-	
+
 	// The arguments could also be a single array.
-	if ( aArgs.length == 1 && aArgs[0].pop ) 
+	if ( aArgs.length == 1 && aArgs[0].pop )
 		aArgs = aArgs[0] ;
 
 	for ( var i = 0 ; i < aArgs.length ; i++ )
@@ -52,13 +48,13 @@ String.prototype.Equals = function()
 String.prototype.IEquals = function()
 {
 	var thisUpper = this.toUpperCase() ;
-	
+
 	var aArgs = arguments ;
-	
+
 	// The arguments could also be a single array.
-	if ( aArgs.length == 1 && aArgs[0].pop ) 
+	if ( aArgs.length == 1 && aArgs[0].pop )
 		aArgs = aArgs[0] ;
-	
+
 	for ( var i = 0 ; i < aArgs.length ; i++ )
 	{
 		if ( thisUpper == aArgs[i].toUpperCase() )
@@ -70,12 +66,12 @@ String.prototype.IEquals = function()
 String.prototype.ReplaceAll = function( searchArray, replaceArray )
 {
 	var replaced = this ;
-	
+
 	for ( var i = 0 ; i < searchArray.length ; i++ )
 	{
 		replaced = replaced.replace( searchArray[i], replaceArray[i] ) ;
 	}
-	
+
 	return replaced ;
 }
 
@@ -106,7 +102,7 @@ String.prototype.EndsWith = function( value, ignoreCase )
 {
 	var L1 = this.length ;
 	var L2 = value.length ;
-	
+
 	if ( L2 > L1 )
 		return false ;
 
@@ -122,13 +118,13 @@ String.prototype.EndsWith = function( value, ignoreCase )
 String.prototype.Remove = function( start, length )
 {
 	var s = '' ;
-	
+
 	if ( start > 0 )
 		s = this.substring( 0, start ) ;
-	
+
 	if ( start + length < this.length )
 		s += this.substring( start + length , this.length ) ;
-		
+
 	return s ;
 }
 

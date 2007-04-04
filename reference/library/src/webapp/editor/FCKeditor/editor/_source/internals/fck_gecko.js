@@ -1,30 +1,26 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: fck_gecko.js
- * 	Creation and initialization of the "FCK" object. This is the main
- * 	object that represents an editor instance.
- * 	(Gecko specific implementations)
- * 
- * File Authors:
- * 		Frederico Caldeira Knabben (www.fckeditor.net)
+ *
+ * Creation and initialization of the "FCK" object. This is the main
+ * object that represents an editor instance.
+ * (Gecko specific implementations)
  */
 
 FCK.Description = "FCKeditor for Gecko Browsers" ;
@@ -95,7 +91,7 @@ FCK.GetNamedCommandState = function( commandName )
 }
 
 // Named commands to be handled by this browsers specific implementation.
-FCK.RedirectNamedCommands = 
+FCK.RedirectNamedCommands =
 {
 	Print	: true,
 	Paste	: true,
@@ -113,7 +109,7 @@ FCK.ExecuteRedirectedNamedCommand = function( commandName, commandParameter )
 			break ;
 		case 'Paste' :
 			try			{ if ( FCK.Paste() ) FCK.ExecuteNamedCommand( 'Paste', null, true ) ; }
-			catch (e)	{ alert(FCKLang.PasteErrorPaste) ; }
+			catch (e)	{ FCKDialog.OpenDialog( 'FCKDialog_Paste', FCKLang.Paste, 'dialog/fck_paste.html', 400, 330, 'Security' ) ; }
 			break ;
 		case 'Cut' :
 			try			{ FCK.ExecuteNamedCommand( 'Cut', null, true ) ; }
@@ -122,7 +118,7 @@ FCK.ExecuteRedirectedNamedCommand = function( commandName, commandParameter )
 		case 'Copy' :
 			try			{ FCK.ExecuteNamedCommand( 'Copy', null, true ) ; }
 			catch (e)	{ alert(FCKLang.PasteErrorCopy) ; }
-			break ;			
+			break ;
 		default :
 			FCK.ExecuteNamedCommand( commandName, commandParameter ) ;
 	}
@@ -137,12 +133,12 @@ FCK.Paste = function()
 {
 	if ( FCKConfig.ForcePasteAsPlainText )
 	{
-		FCK.PasteAsPlainText() ;	
+		FCK.PasteAsPlainText() ;
 		return false ;
 	}
-	
+
 	/* For now, the AutoDetectPasteFromWord feature is IE only. */
-	
+
 	return true ;
 }
 
@@ -152,27 +148,36 @@ FCK.Paste = function()
 FCK.InsertHtml = function( html )
 {
 	html = FCKConfig.ProtectedSource.Protect( html ) ;
+	html = FCK.ProtectEvents( html ) ;
 	html = FCK.ProtectUrls( html ) ;
+	html = FCK.ProtectTags( html ) ;
+
+	// Firefox can't handle correctly the editing of the STRONG and EM tags.
+	// We must replace them with B and I.
+		html = html.replace( FCKRegexLib.StrongOpener, '<b$1' ) ;
+		html = html.replace( FCKRegexLib.StrongCloser, '<\/b>' ) ;
+		html = html.replace( FCKRegexLib.EmOpener, '<i$1' ) ;
+		html = html.replace( FCKRegexLib.EmCloser, '<\/i>' ) ;
 
 	// Delete the actual selection.
 	var oSel = FCKSelection.Delete() ;
-	
+
 	// Get the first available range.
 	var oRange = oSel.getRangeAt(0) ;
-	
+
 	// Create a fragment with the input HTML.
 	var oFragment = oRange.createContextualFragment( html ) ;
-	
+
 	// Get the last available node.
 	var oLastNode = oFragment.lastChild ;
 
 	// Insert the fragment in the range.
 	oRange.insertNode(oFragment) ;
-	
+
 	// Set the cursor after the inserted fragment.
 	FCKSelection.SelectNode( oLastNode ) ;
 	FCKSelection.Collapse( false ) ;
-	
+
 	this.Focus() ;
 }
 
@@ -180,13 +185,13 @@ FCK.InsertElement = function( element )
 {
 	// Deletes the actual selection.
 	var oSel = FCKSelection.Delete() ;
-	
+
 	// Gets the first available range.
 	var oRange = oSel.getRangeAt(0) ;
-	
+
 	// Inserts the element in the range.
 	oRange.insertNode( element ) ;
-	
+
 	// Set the cursor after the inserted fragment.
 	FCKSelection.SelectNode( element ) ;
 	FCKSelection.Collapse( false ) ;
@@ -197,20 +202,22 @@ FCK.InsertElement = function( element )
 FCK.PasteAsPlainText = function()
 {
 	// TODO: Implement the "Paste as Plain Text" code.
-	
-	FCKDialog.OpenDialog( 'FCKDialog_Paste', FCKLang.PasteAsText, 'dialog/fck_paste.html', 400, 330, 'PlainText' ) ;
-	
+
+	// If the function is called inmediately Firefox 2 does automatically paste the contents as soon as the new dialog is created
+	// so we run it in a Timeout and the paste event can be cancelled
+	FCKTools.RunFunction( FCKDialog.OpenDialog, FCKDialog, ['FCKDialog_Paste', FCKLang.PasteAsText, 'dialog/fck_paste.html', 400, 330, 'PlainText'] ) ;
+
 /*
 	var sText = FCKTools.HTMLEncode( clipboardData.getData("Text") ) ;
 	sText = sText.replace( /\n/g, '<BR>' ) ;
-	this.InsertHtml( sText ) ;	
+	this.InsertHtml( sText ) ;
 */
 }
 /*
 FCK.PasteFromWord = function()
 {
 	// TODO: Implement the "Paste as Plain Text" code.
-	
+
 	FCKDialog.OpenDialog( 'FCKDialog_Paste', FCKLang.PasteFromWord, 'dialog/fck_paste.html', 400, 330, 'Word' ) ;
 
 //	FCK.CleanAndPaste( FCK.GetClipboardHTML() ) ;
@@ -222,20 +229,20 @@ FCK.GetClipboardHTML = function()
 }
 
 FCK.CreateLink = function( url )
-{	
+{
 	FCK.ExecuteNamedCommand( 'Unlink' ) ;
-	
+
 	if ( url.length > 0 )
 	{
 		// Generate a temporary name for the link.
 		var sTempUrl = 'javascript:void(0);/*' + ( new Date().getTime() ) + '*/' ;
-		
+
 		// Use the internal "CreateLink" command to create the link.
 		FCK.ExecuteNamedCommand( 'CreateLink', sTempUrl ) ;
 
 		// Retrieve the just created link using XPath.
 		var oLink = this.EditorDocument.evaluate("//a[@href='" + sTempUrl + "']", this.EditorDocument.body, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue ;
-		
+
 		if ( oLink )
 		{
 			oLink.href = url ;

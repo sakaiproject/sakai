@@ -1,28 +1,24 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: fcktools_gecko.js
- * 	Utility functions. (Gecko version).
- * 
- * File Authors:
- * 		Frederico Caldeira Knabben (www.fckeditor.net)
+ *
+ * Utility functions. (Gecko version).
  */
 
 FCKTools.CancelEvent = function( e )
@@ -34,7 +30,7 @@ FCKTools.CancelEvent = function( e )
 FCKTools.DisableSelection = function( element )
 {
 	if ( FCKBrowserInfo.IsGecko )
-		element.style.MozUserSelect	= 'none' ;	// Gecko only.	
+		element.style.MozUserSelect	= 'none' ;	// Gecko only.
 	else
 		element.style.userSelect	= 'none' ;	// CSS3 (not supported yet).
 }
@@ -66,22 +62,22 @@ FCKTools.GetAllChildrenIds = function( parentElement )
 {
 	// Create the array that will hold all Ids.
 	var aIds = new Array() ;
-	
+
 	// Define a recursive function that search for the Ids.
 	var fGetIds = function( parent )
 	{
 		for ( var i = 0 ; i < parent.childNodes.length ; i++ )
 		{
 			var sId = parent.childNodes[i].id ;
-			
+
 			// Check if the Id is defined for the element.
 			if ( sId && sId.length > 0 ) aIds[ aIds.length ] = sId ;
-			
+
 			// Recursive call.
 			fGetIds( parent.childNodes[i] ) ;
 		}
 	}
-	
+
 	// Start the recursive calls.
 	fGetIds( parentElement ) ;
 
@@ -93,10 +89,10 @@ FCKTools.GetAllChildrenIds = function( parentElement )
 FCKTools.RemoveOuterTags = function( e )
 {
 	var oFragment = e.ownerDocument.createDocumentFragment() ;
-			
+
 	for ( var i = 0 ; i < e.childNodes.length ; i++ )
 		oFragment.appendChild( e.childNodes[i].cloneNode(true) ) ;
-			
+
 	e.parentNode.replaceChild( oFragment, e ) ;
 }
 
@@ -130,13 +126,13 @@ FCKTools.RemoveEventListener = function( sourceObject, eventName, listener )
 // Listeners attached with this function cannot be detached.
 FCKTools.AddEventListenerEx = function( sourceObject, eventName, listener, paramsArray )
 {
-	sourceObject.addEventListener( 
-		eventName, 
+	sourceObject.addEventListener(
+		eventName,
 		function( e )
 		{
 			listener.apply( sourceObject, [ e ].concat( paramsArray || [] ) ) ;
 		},
-		false 
+		false
 	) ;
 }
 
@@ -149,7 +145,7 @@ FCKTools.GetViewPaneSize = function( win )
 FCKTools.SaveStyles = function( element )
 {
 	var oSavedStyles = new Object() ;
-	
+
 	if ( element.className.length > 0 )
 	{
 		oSavedStyles.Class = element.className ;
@@ -179,8 +175,8 @@ FCKTools.RestoreStyles = function( element, savedStyles )
 
 FCKTools.RegisterDollarFunction = function( targetWindow )
 {
-	targetWindow.$ = function( id ) 
-	{ 
+	targetWindow.$ = function( id )
+	{
 		return this.document.getElementById( id ) ;
 	} ;
 }
@@ -197,7 +193,7 @@ FCKTools.GetElementPosition = function( el, relativeWindow )
 {
 	// Initializes the Coordinates object that will be returned by the function.
 	var c = { X:0, Y:0 } ;
-	
+
 	var oWindow = relativeWindow || window ;
 
 	var oOwnerWindow = FCKTools.GetElementWindow( el ) ;
@@ -209,7 +205,7 @@ FCKTools.GetElementPosition = function( el, relativeWindow )
 
 		// Check for non "static" elements.
 		// 'FCKConfig.FloatingPanelsZIndex' -- Submenus are under a positioned IFRAME.
-		if ( sPosition && sPosition != 'static' && el.style.zIndex != FCKConfig.FloatingPanelsZIndex ) 
+		if ( sPosition && sPosition != 'static' && el.style.zIndex != FCKConfig.FloatingPanelsZIndex )
 			break ;
 
 		c.X += el.offsetLeft - el.scrollLeft ;

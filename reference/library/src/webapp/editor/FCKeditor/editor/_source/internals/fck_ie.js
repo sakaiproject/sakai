@@ -1,30 +1,26 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: fck_ie.js
- * 	Creation and initialization of the "FCK" object. This is the main
- * 	object that represents an editor instance.
- * 	(IE specific implementations)
- * 
- * File Authors:
- * 		Frederico Caldeira Knabben (www.fckeditor.net)
+ *
+ * Creation and initialization of the "FCK" object. This is the main
+ * object that represents an editor instance.
+ * (IE specific implementations)
  */
 
 FCK.Description = "FCKeditor for Internet Explorer 5.5+" ;
@@ -36,25 +32,23 @@ FCK._GetBehaviorsStyle = function()
 		var sBasePath = FCKConfig.FullBasePath ;
 		var sTableBehavior = '' ;
 		var sStyle ;
-		
+
 		// The behaviors should be pointed using the FullBasePath to avoid security
 		// errors when using a differente BaseHref.
-		sStyle =
-			'<style type="text/css" _fcktemp="true">' +
-			'INPUT { behavior: url(' + sBasePath + 'css/behaviors/hiddenfield.htc) ; }' ;
+		sStyle = '<style type="text/css" _fcktemp="true">' ;
 
 		if ( FCKConfig.ShowBorders )
 			sTableBehavior = 'url(' + sBasePath + 'css/behaviors/showtableborders.htc)' ;
 
 		// Disable resize handlers.
-		sStyle += 'INPUT,TEXTAREA,SELECT,.FCK__Anchor,.FCK__PageBreak' ;
+		sStyle += 'INPUT,TEXTAREA,SELECT,.FCK__Anchor,.FCK__PageBreak,.FCK__InputHidden' ;
 
 		if ( FCKConfig.DisableObjectResizing )
 		{
 			sStyle += ',IMG' ;
 			sTableBehavior += ' url(' + sBasePath + 'css/behaviors/disablehandles.htc)' ;
 		}
-		
+
 		sStyle += ' { behavior: url(' + sBasePath + 'css/behaviors/disablehandles.htc) ; }' ;
 
 		if ( sTableBehavior.length > 0 )
@@ -63,7 +57,7 @@ FCK._GetBehaviorsStyle = function()
 		sStyle += '</style>' ;
 		FCK._BehaviorsStyle = sStyle ;
 	}
-	
+
 	return FCK._BehaviorsStyle ;
 }
 
@@ -87,7 +81,7 @@ function Doc_OnKeyDown()
 	if ( FCK.EditorWindow )
 	{
 		var e = FCK.EditorWindow.event ;
-		
+
 		if ( !( e.keyCode >=16 && e.keyCode <= 18 ) )
 			Doc_OnKeyDownUndo() ;
 	}
@@ -102,7 +96,7 @@ function Doc_OnKeyDownUndo()
 		FCKUndo.Typing = true ;
 		FCK.Events.FireEvent( "OnSelectionChange" ) ;
 	}
-	
+
 	FCKUndo.TypesCount++ ;
 
 	if ( FCKUndo.TypesCount > FCKUndo.MaxTypes )
@@ -153,7 +147,9 @@ FCK.InitializeBehaviors = function( dontReturn )
 FCK.InsertHtml = function( html )
 {
 	html = FCKConfig.ProtectedSource.Protect( html ) ;
+	html = FCK.ProtectEvents( html ) ;
 	html = FCK.ProtectUrls( html ) ;
+	html = FCK.ProtectTags( html ) ;
 
 //	FCK.Focus() ;
 	FCK.EditorWindow.focus() ;
@@ -169,7 +165,7 @@ FCK.InsertHtml = function( html )
 
 	// Insert the HTML.
 	oSel.createRange().pasteHTML( html ) ;
-	
+
 	FCKDocumentProcessor.Process( FCK.EditorDocument ) ;
 }
 
@@ -185,7 +181,7 @@ FCK.SetInnerHtml = function( html )		// IE Only
 function FCK_PreloadImages()
 {
 	var oPreloader = new FCKImagePreloader() ;
-	
+
 	// Add the configured images.
 	oPreloader.AddImages( FCKConfig.PreloadImages ) ;
 
@@ -217,56 +213,101 @@ FCK.Paste = function()
 
 	if ( FCKConfig.ForcePasteAsPlainText )
 	{
-		FCK.PasteAsPlainText() ;	
+		FCK.PasteAsPlainText() ;
 		return false ;
 	}
+	
+	var sHTML = FCK._CheckIsPastingEnabled( true ) ;
 
-	var sHTML = FCK.GetClipboardHTML() ;
-
-	if ( FCKConfig.AutoDetectPasteFromWord && sHTML.length > 0 )
+	if ( sHTML === false )
+		FCKTools.RunFunction( FCKDialog.OpenDialog, FCKDialog, ['FCKDialog_Paste', FCKLang.Paste, 'dialog/fck_paste.html', 400, 330, 'Security'] ) ;
+	else
 	{
-		var re = /<\w[^>]*(( class="?MsoNormal"?)|(="mso-))/gi ;
-		if ( re.test( sHTML ) )
+		if ( FCKConfig.AutoDetectPasteFromWord && sHTML.length > 0 )
 		{
-			if ( confirm( FCKLang.PasteWordConfirm ) )
+			var re = /<\w[^>]*(( class="?MsoNormal"?)|(="mso-))/gi ;
+			if ( re.test( sHTML ) )
 			{
-				FCK.PasteFromWord() ;
-				return false ;
+				if ( confirm( FCKLang.PasteWordConfirm ) )
+				{
+					FCK.PasteFromWord() ;
+					return false ;
+				}
 			}
 		}
+
+		// Instead of inserting the retrieved HTML, let's leave the OS work for us,
+		// by calling FCK.ExecuteNamedCommand( 'Paste' ). It could give better results.
+
+		// Enable the semaphore to avoid a loop.
+		FCK._PasteIsRunning = true ;
+
+		FCK.ExecuteNamedCommand( 'Paste' ) ;
+
+		// Removes the semaphore.
+		delete FCK._PasteIsRunning ;
 	}
 
-	// Instead of inserting the retrieved HTML, let's leave the OS work for us
-	// and paste the content (return true); It could give better results.
-	// Also, let's always make a custom implementation (return false), otherwise 
+	// Let's always make a custom implementation (return false), otherwise
 	// the new Keyboard Handler may conflict with this code, and the CTRL+V code
 	// could result in a simple "V" being pasted.
-
-	// Enable the semaphore to avoid a loop.
-	FCK._PasteIsRunning = true ;
-	
-	FCK.ExecuteNamedCommand( 'Paste' ) ;
-	
-	// Removes the semaphore.
-	delete FCK._PasteIsRunning  ;
-
-	// "false" means that we have a custom implementation.
 	return false ;
 }
 
 FCK.PasteAsPlainText = function()
 {
-	// Get the data available in the clipboard and encodes it in HTML.
+	if ( !FCK._CheckIsPastingEnabled() )
+	{
+		FCKDialog.OpenDialog( 'FCKDialog_Paste', FCKLang.PasteAsText, 'dialog/fck_paste.html', 400, 330, 'PlainText' ) ;
+		return ;
+	}
+	
+	// Get the data available in the clipboard in text format.
 	var sText = clipboardData.getData("Text") ;
 
 	if ( sText && sText.length > 0 )
 	{
 		// Replace the carriage returns with <BR>
 		sText = FCKTools.HTMLEncode( sText ).replace( /\n/g, '<BR>' ) ;
-		
+
 		// Insert the resulting data in the editor.
 		this.InsertHtml( sText ) ;
 	}
+}
+
+FCK._CheckIsPastingEnabled = function( returnContents )
+{
+	// The following seams to be the only reliable way to check is script
+	// pasting operations are enabled in the secutiry settings of IE6 and IE7.
+	// It adds a little bit of overhead to the check, but so far that's the
+	// only way, mainly because of IE7.
+	
+	FCK._PasteIsEnabled = false ;
+	
+	document.body.attachEvent( 'onpaste', FCK_CheckPasting_Listener ) ;
+	
+	// The execCommand in GetClipboardHTML will fire the "onpaste", only if the
+	// security settings are enabled.
+	var oReturn = FCK.GetClipboardHTML() ;
+
+	document.body.detachEvent( 'onpaste', FCK_CheckPasting_Listener ) ;
+	
+	if ( FCK._PasteIsEnabled )
+	{
+		if ( !returnContents )
+			oReturn = true ;
+	}
+	else
+		oReturn = false ;
+
+	delete FCK._PasteIsEnabled ;
+
+	return oReturn ;
+}
+
+function FCK_CheckPasting_Listener()
+{
+	FCK._PasteIsEnabled = true ;
 }
 
 FCK.InsertElement = function( element )
@@ -277,29 +318,29 @@ FCK.InsertElement = function( element )
 FCK.GetClipboardHTML = function()
 {
 	var oDiv = document.getElementById( '___FCKHiddenDiv' ) ;
-	
+
 	if ( !oDiv )
 	{
 		oDiv = document.createElement( 'DIV' ) ;
 		oDiv.id = '___FCKHiddenDiv' ;
-		
+
 		var oDivStyle = oDiv.style ;
 		oDivStyle.position		= 'absolute' ;
 		oDivStyle.visibility	= oDivStyle.overflow	= 'hidden' ;
 		oDivStyle.width			= oDivStyle.height		= 1 ;
-	
+
 		document.body.appendChild( oDiv ) ;
 	}
-	
+
 	oDiv.innerHTML = '' ;
-	
+
 	var oTextRange = document.body.createTextRange() ;
 	oTextRange.moveToElementText( oDiv ) ;
 	oTextRange.execCommand( 'Paste' ) ;
-	
+
 	var sData = oDiv.innerHTML ;
 	oDiv.innerHTML = '' ;
-	
+
 	return sData ;
 }
 
@@ -317,7 +358,7 @@ FCK.CreateLink = function( url )
 	{
 		// Generate a temporary name for the link.
 		var sTempUrl = 'javascript:void(0);/*' + ( new Date().getTime() ) + '*/' ;
-		
+
 		// Use the internal "CreateLink" command to create the link.
 		FCK.ExecuteNamedCommand( 'CreateLink', sTempUrl ) ;
 
@@ -327,7 +368,7 @@ FCK.CreateLink = function( url )
 		for ( i = 0 ; i < oLinks.length ; i++ )
 		{
 			var oLink = oLinks[i] ;
-			
+
 			if ( oLink.href == sTempUrl )
 			{
 				var sInnerHtml = oLink.innerHTML ;	// Save the innerHTML (IE changes it if it is like an URL).

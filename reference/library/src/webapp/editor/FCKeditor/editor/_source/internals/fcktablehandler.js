@@ -1,44 +1,40 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: fcktablehandler.js
- * 	Manage table operations.
- * 
- * File Authors:
- * 		Frederico Caldeira Knabben (www.fckeditor.net)
+ *
+ * Manage table operations.
  */
 
 var FCKTableHandler = new Object() ;
 
 FCKTableHandler.InsertRow = function()
 {
-	// Get the row where the selection is placed in.	
+	// Get the row where the selection is placed in.
 	var oRow = FCKSelection.MoveToAncestorNode( 'TR' ) ;
 	if ( !oRow ) return ;
-	
+
 	// Create a clone of the row.
 	var oNewRow = oRow.cloneNode( true ) ;
-	
+
 	// Insert the new row (copy) before of it.
 	oRow.parentNode.insertBefore( oNewRow, oRow ) ;
-	
+
 	// Clean the row (it seems that the new row has been added after it).
 	FCKTableHandler.ClearRow( oRow ) ;
 }
@@ -46,21 +42,21 @@ FCKTableHandler.InsertRow = function()
 FCKTableHandler.DeleteRows = function( row )
 {
 	// If no row has been passed as a parameter,
-	// then get the row where the selection is placed in.	
+	// then get the row where the selection is placed in.
 	if ( !row )
 		row = FCKSelection.MoveToAncestorNode( 'TR' ) ;
 	if ( !row ) return ;
-	
-	// Get the row's table.	
+
+	// Get the row's table.
 	var oTable = FCKTools.GetElementAscensor( row, 'TABLE' ) ;
-	
+
 	// If just one row is available then delete the entire table.
-	if ( oTable.rows.length == 1 ) 
+	if ( oTable.rows.length == 1 )
 	{
 		FCKTableHandler.DeleteTable( oTable ) ;
 		return ;
 	}
-		
+
 	// Delete the row.
 	row.parentNode.removeChild( row ) ;
 }
@@ -68,7 +64,7 @@ FCKTableHandler.DeleteRows = function( row )
 FCKTableHandler.DeleteTable = function( table )
 {
 	// If no table has been passed as a parameer,
-	// then get the table where the selection is placed in.	
+	// then get the table where the selection is placed in.
 	if ( !table )
 	{
 		table = FCKSelection.GetSelectedElement() ;
@@ -89,7 +85,7 @@ FCKTableHandler.InsertColumn = function()
 	var oCell = FCKSelection.MoveToAncestorNode('TD') || FCKSelection.MoveToAncestorNode('TH') ;
 
 	if ( !oCell ) return ;
-	
+
 	// Get the cell's table.
 	var oTable = FCKTools.GetElementAscensor( oCell, 'TABLE' ) ;
 
@@ -101,16 +97,16 @@ FCKTableHandler.InsertColumn = function()
 	{
 		// Get the row.
 		var oRow = oTable.rows[i] ;
-	
+
 		// If the row doens't have enought cells, ignore it.
 		if ( oRow.cells.length < iIndex )
 			continue ;
-		
+
 		oCell = oRow.cells[iIndex-1].cloneNode(false) ;
-		
+
 		if ( FCKBrowserInfo.IsGecko )
 			oCell.innerHTML = GECKO_BOGUS ;
-		
+
 		// Get the cell that is placed in the new cell place.
 		var oBaseCell = oRow.cells[iIndex] ;
 
@@ -126,22 +122,22 @@ FCKTableHandler.DeleteColumns = function()
 {
 	// Get the cell where the selection is placed in.
 	var oCell = FCKSelection.MoveToAncestorNode('TD') || FCKSelection.MoveToAncestorNode('TH') ;
-	
+
 	if ( !oCell ) return ;
-	
-	// Get the cell's table.	
+
+	// Get the cell's table.
 	var oTable = FCKTools.GetElementAscensor( oCell, 'TABLE' ) ;
 
 	// Get the cell index.
 	var iIndex = oCell.cellIndex ;
-	
+
 	// Loop throw all rows (from down to up, because it's possible that some
 	// rows will be deleted).
 	for ( var i = oTable.rows.length - 1 ; i >= 0 ; i-- )
 	{
 		// Get the row.
 		var oRow = oTable.rows[i] ;
-		
+
 		// If the cell to be removed is the first one and the row has just one cell.
 		if ( iIndex == 0 && oRow.cells.length == 1 )
 		{
@@ -149,7 +145,7 @@ FCKTableHandler.DeleteColumns = function()
 			FCKTableHandler.DeleteRows( oRow ) ;
 			continue ;
 		}
-		
+
 		// If the cell to be removed exists the delete it.
 		if ( oRow.cells[iIndex] )
 			oRow.removeChild( oRow.cells[iIndex] ) ;
@@ -179,7 +175,7 @@ FCKTableHandler.InsertCell = function( cell )
 		// Add the new cell before the next cell (after the active one).
 		oCell.parentNode.insertBefore( oNewCell, oCell.nextSibling ) ;
 	}
-	
+
 	return oNewCell ;
 }
 
@@ -192,7 +188,7 @@ FCKTableHandler.DeleteCell = function( cell )
 		FCKTableHandler.DeleteRows( FCKTools.GetElementAscensor( cell, 'TR' ) ) ;
 		return ;
 	}
-		
+
 	// Delete the cell from the row.
 	cell.parentNode.removeChild( cell ) ;
 }
@@ -200,7 +196,7 @@ FCKTableHandler.DeleteCell = function( cell )
 FCKTableHandler.DeleteCells = function()
 {
 	var aCells = FCKTableHandler.GetSelectedCells() ;
-	
+
 	for ( var i = aCells.length - 1 ; i >= 0  ; i-- )
 	{
 		FCKTableHandler.DeleteCell( aCells[i] ) ;
@@ -211,11 +207,11 @@ FCKTableHandler.MergeCells = function()
 {
 	// Get all selected cells.
 	var aCells = FCKTableHandler.GetSelectedCells() ;
-	
+
 	// At least 2 cells must be selected.
 	if ( aCells.length < 2 )
 		return ;
-		
+
 	// The merge can occour only if the selected cells are from the same row.
 	if ( aCells[0].parentNode != aCells[aCells.length-1].parentNode )
 		return ;
@@ -225,22 +221,22 @@ FCKTableHandler.MergeCells = function()
 
 	var sHtml = '' ;
 	var oCellsContents = FCK.EditorDocument.createDocumentFragment() ;
-	
+
 	for ( var i = aCells.length - 1 ; i >= 0 ; i-- )
 	{
 		var eCell = aCells[i] ;
-		
+
 		// Move its contents to the document fragment.
 		for ( var c = eCell.childNodes.length - 1 ; c >= 0 ; c-- )
 		{
 			var eChild = eCell.removeChild( eCell.childNodes[c] ) ;
-	
+
 			if ( ( eChild.hasAttribute && eChild.hasAttribute('_moz_editor_bogus_node') ) || ( eChild.getAttribute && eChild.getAttribute( 'type', 2 ) == '_moz' ) )
 				continue ;
-			
+
 				oCellsContents.insertBefore( eChild, oCellsContents.firstChild ) ;
 		}
-		
+
 		if ( i > 0 )
 		{
 			// Accumulate the colspan of the cell.
@@ -250,10 +246,10 @@ FCKTableHandler.MergeCells = function()
 			FCKTableHandler.DeleteCell( eCell ) ;
 		}
 	}
-	
+
 	// Set the innerHTML of the remaining cell (the first one).
 	aCells[0].colSpan = iColSpan ;
-	
+
 	if ( FCKBrowserInfo.IsGecko && oCellsContents.childNodes.length == 0 )
 		aCells[0].innerHTML = GECKO_BOGUS ;
 	else
@@ -266,12 +262,12 @@ FCKTableHandler.SplitCell = function()
 	var aCells = FCKTableHandler.GetSelectedCells() ;
 	if ( aCells.length != 1 )
 		return ;
-	
+
 	var aMap = this._CreateTableMap( aCells[0].parentNode.parentNode ) ;
 	var iCellIndex = FCKTableHandler._GetCellIndexSpan( aMap, aCells[0].parentNode.rowIndex , aCells[0] ) ;
-		
+
 	var aCollCells = this._GetCollumnCells( aMap, iCellIndex ) ;
-	
+
 	for ( var i = 0 ; i < aCollCells.length ; i++ )
 	{
 		if ( aCollCells[i] == aCells[0] )
@@ -295,15 +291,15 @@ FCKTableHandler._GetCellIndexSpan = function( tableMap, rowIndex, cell )
 {
 	if ( tableMap.length < rowIndex + 1 )
 		return null ;
-	
+
 	var oRow = tableMap[ rowIndex ] ;
-	
+
 	for ( var c = 0 ; c < oRow.length ; c++ )
 	{
 		if ( oRow[c] == cell )
 			return c ;
 	}
-	
+
 	return null ;
 }
 
@@ -318,7 +314,7 @@ FCKTableHandler._GetCollumnCells = function( tableMap, collumnIndex )
 		if ( oCell && ( aCollCells.length == 0 || aCollCells[ aCollCells.length - 1 ] != oCell ) )
 			aCollCells[ aCollCells.length ] = oCell ;
 	}
-	
+
 	return aCollCells ;
 }
 
@@ -331,28 +327,28 @@ FCKTableHandler._GetCollumnCells = function( tableMap, collumnIndex )
 FCKTableHandler._CreateTableMap = function( table )
 {
 	var aRows = table.rows ;
-	
+
 	// Row and Collumn counters.
 	var r = -1 ;
-	
+
 	var aMap = new Array() ;
-	
+
 	for ( var i = 0 ; i < aRows.length ; i++ )
 	{
 		r++ ;
 		if ( !aMap[r] )
 			aMap[r] = new Array() ;
-		
+
 		var c = -1 ;
-		
+
 		for ( var j = 0 ; j < aRows[i].cells.length ; j++ )
 		{
 			var oCell = aRows[i].cells[j] ;
-		
+
 			c++ ;
 			while ( aMap[r][c] )
 				c++ ;
-			
+
 			var iColSpan = isNaN( oCell.colSpan ) ? 1 : oCell.colSpan ;
 			var iRowSpan = isNaN( oCell.rowSpan ) ? 1 : oCell.rowSpan ;
 
@@ -360,13 +356,13 @@ FCKTableHandler._CreateTableMap = function( table )
 			{
 				if ( !aMap[r + rs] )
 					aMap[r + rs] = new Array() ;
-					
+
 				for ( var cs = 0 ; cs < iColSpan ; cs++ )
 				{
 					aMap[r + rs][c + cs] = aRows[i].cells[j] ;
 				}
 			}
-			
+
 			c += iColSpan - 1 ;
 		}
 	}
@@ -379,7 +375,7 @@ FCKTableHandler.ClearRow = function( tr )
 	var aCells = tr.cells ;
 
 	// Replace the contents of each cell with "nothing".
-	for ( var i = 0 ; i < aCells.length ; i++ ) 
+	for ( var i = 0 ; i < aCells.length ; i++ )
 	{
 		if ( FCKBrowserInfo.IsGecko )
 			aCells[i].innerHTML = GECKO_BOGUS ;

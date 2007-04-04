@@ -1,28 +1,24 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: fckdialog_gecko.js
- * 	Dialog windows operations. (Gecko specific implementations)
- * 
- * File Authors:
- * 		Frederico Caldeira Knabben (www.fckeditor.net)
+ *
+ * Dialog windows operations. (Gecko specific implementations)
  */
 
 FCKDialog.Show = function( dialogInfo, dialogName, pageUrl, dialogWidth, dialogHeight, parentWindow, resizable )
@@ -39,34 +35,34 @@ FCKDialog.Show = function( dialogInfo, dialogName, pageUrl, dialogWidth, dialogH
 
 	if ( !parentWindow )
 		parentWindow = window ;
-	
+
 	FCKFocusManager.Lock() ;
-	
+
 	var oWindow = parentWindow.open( '', 'FCKeditorDialog_' + dialogName, sOption, true ) ;
-	
+
 	if ( !oWindow )
 	{
 		alert( FCKLang.DialogBlocked ) ;
 		FCKFocusManager.Unlock() ;
 		return ;
 	}
-		
+
 	oWindow.moveTo( iLeft, iTop ) ;
 	oWindow.resizeTo( dialogWidth, dialogHeight ) ;
 	oWindow.focus() ;
 	oWindow.location.href = pageUrl ;
-	
+
 	oWindow.dialogArguments = dialogInfo ;
-	
-	// On some Gecko browsers (probably over slow connections) the 
+
+	// On some Gecko browsers (probably over slow connections) the
 	// "dialogArguments" are not set to the target window so we must
 	// put it in the opener window so it can be used by the target one.
 	parentWindow.FCKLastDialogInfo = dialogInfo ;
-	
+
 	this.Window = oWindow ;
-	
-	// Try/Catch must be used to avoit an error when using a frameset 
-	// on a different domain: 
+
+	// Try/Catch must be used to avoit an error when using a frameset
+	// on a different domain:
 	// "Permission denied to get property Window.releaseEvents".
 	try
 	{
@@ -81,17 +77,17 @@ FCKDialog.Show = function( dialogInfo, dialogName, pageUrl, dialogWidth, dialogH
 
 FCKDialog.CheckFocus = function()
 {
-	// It is strange, but we have to check the FCKDialog existence to avoid a 
+	// It is strange, but we have to check the FCKDialog existence to avoid a
 	// random error: "FCKDialog is not defined".
 	if ( typeof( FCKDialog ) != "object" )
 		return false ;
-	
+
 	if ( FCKDialog.Window && !FCKDialog.Window.closed )
 		FCKDialog.Window.focus() ;
 	else
 	{
-		// Try/Catch must be used to avoit an error when using a frameset 
-		// on a different domain: 
+		// Try/Catch must be used to avoit an error when using a frameset
+		// on a different domain:
 		// "Permission denied to get property Window.releaseEvents".
 		try
 		{

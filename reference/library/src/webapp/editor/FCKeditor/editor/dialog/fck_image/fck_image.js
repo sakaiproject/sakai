@@ -1,28 +1,24 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: fck_image.js
- * 	Scripts related to the Image dialog window (see fck_image.html).
- * 
- * File Authors:
- * 		Frederico Caldeira Knabben (www.fckeditor.net)
+ *
+ * Scripts related to the Image dialog window (see fck_image.html).
  */
 
 var oEditor		= window.parent.InnerDialogLoaded() ;
@@ -71,13 +67,13 @@ function UpdateOriginal( resetSize )
 {
 	if ( !eImgPreview )
 		return ;
-	
+
 	if ( GetE('txtUrl').value.length == 0 )
 	{
 		oImageOriginal = null ;
 		return ;
 	}
-		
+
 	oImageOriginal = document.createElement( 'IMG' ) ;	// new Image() ;
 
 	if ( resetSize )
@@ -139,7 +135,7 @@ function LoadSelection()
 	var iWidth, iHeight ;
 
 	var regexSize = /^\s*(\d+)px\s*$/i ;
-	
+
 	if ( oImage.style.width )
 	{
 		var aMatchW  = oImage.style.width.match( regexSize ) ;
@@ -186,7 +182,7 @@ function LoadSelection()
 		var sLinkUrl = oLink.getAttribute( '_fcksavedurl' ) ;
 		if ( sLinkUrl == null )
 			sLinkUrl = oLink.getAttribute('href',2) ;
-	
+
 		GetE('txtLnkUrl').value		= sLinkUrl ;
 		GetE('cmbLnkTarget').value	= oLink.target ;
 	}
@@ -219,7 +215,7 @@ function Ok()
 		if ( confirm( 'Do you want to transform the selected image button on a simple image?' ) )
 			oImage = null ;
 	}
-	
+
 	if ( !bHasImage )
 	{
 		if ( bImageButton )
@@ -233,7 +229,7 @@ function Ok()
 	}
 	else
 		oEditor.FCKUndo.SaveUndoStep() ;
-	
+
 	UpdateImage( oImage ) ;
 
 	var sLnkUrl = GetE('txtLnkUrl').value.Trim() ;
@@ -307,7 +303,7 @@ function SetPreviewElements( imageElement, linkElement )
 
 	UpdatePreview() ;
 	UpdateOriginal() ;
-	
+
 	bPreviewInitialized = true ;
 }
 
@@ -355,7 +351,7 @@ function OnSizeChanged( dimension, value )
 	if ( oImageOriginal && bLockRatio )
 	{
 		var e = dimension == 'Width' ? GetE('txtHeight') : GetE('txtWidth') ;
-		
+
 		if ( value.length == 0 || isNaN( value ) )
 		{
 			e.value = '' ;
@@ -430,7 +426,7 @@ function SetUrl( url, width, height, alt )
 		UpdatePreview() ;
 		UpdateOriginal( true ) ;
 	}
-	
+
 	window.parent.SetSelectedTab( 'Info' ) ;
 }
 
@@ -472,19 +468,19 @@ var oUploadDeniedExtRegex	= new RegExp( FCKConfig.ImageUploadDeniedExtensions, '
 function CheckUpload()
 {
 	var sFile = GetE('txtUploadFile').value ;
-	
+
 	if ( sFile.length == 0 )
 	{
 		alert( 'Please select a file to upload' ) ;
 		return false ;
 	}
-	
+
 	if ( ( FCKConfig.ImageUploadAllowedExtensions.length > 0 && !oUploadAllowedExtRegex.test( sFile ) ) ||
 		( FCKConfig.ImageUploadDeniedExtensions.length > 0 && oUploadDeniedExtRegex.test( sFile ) ) )
 	{
 		OnUploadCompleted( 202 ) ;
 		return false ;
 	}
-	
+
 	return true ;
 }

@@ -1,29 +1,25 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: fckxhtml_ie.js
- * 	Defines the FCKXHtml object, responsible for the XHTML operations.
- * 	IE specific.
- * 
- * File Authors:
- * 		Frederico Caldeira Knabben (www.fckeditor.net)
+ *
+ * Defines the FCKXHtml object, responsible for the XHTML operations.
+ * IE specific.
  */
 
 FCKXHtml._GetMainXmlString = function()
@@ -61,11 +57,11 @@ FCKXHtml._AppendAttributes = function( xmlNode, htmlNode, node, nodeName )
 			// XHTML doens't support attribute minimization like "CHECKED". It must be trasformed to cheched="checked".
 			else if ( oAttribute.nodeValue === true )
 				sAttValue = sAttName ;
-			else 
+			else
 			{
 				// We must use getAttribute to get it exactly as it is defined.
 				// There are some rare cases that IE throws an error here, so we must try/catch.
-				try 
+				try
 				{
 					sAttValue = htmlNode.getAttribute( sAttName, 2 ) ;
 				}
@@ -101,7 +97,7 @@ FCKXHtml.TagProcessors['font'] = function( node, htmlNode )
 	if ( node.attributes.length == 0 )
 		node = FCKXHtml.XML.createDocumentFragment() ;
 
-	FCKXHtml._AppendChildNodes( node, htmlNode ) ;
+	node = FCKXHtml._AppendChildNodes( node, htmlNode ) ;
 
 	return node ;
 }
@@ -127,7 +123,7 @@ FCKXHtml.TagProcessors['option'] = function( node, htmlNode )
 	if ( htmlNode.selected && !node.attributes.getNamedItem( 'selected' ) )
 		FCKXHtml._AppendAttribute( node, 'selected', 'selected' ) ;
 
-	FCKXHtml._AppendChildNodes( node, htmlNode ) ;
+	node = FCKXHtml._AppendChildNodes( node, htmlNode ) ;
 
 	return node ;
 }
@@ -157,7 +153,7 @@ FCKXHtml.TagProcessors['label'] = function( node, htmlNode )
 	if ( htmlNode.htmlFor.length > 0 )
 		FCKXHtml._AppendAttribute( node, 'for', htmlNode.htmlFor ) ;
 
-	FCKXHtml._AppendChildNodes( node, htmlNode ) ;
+	node = FCKXHtml._AppendChildNodes( node, htmlNode ) ;
 
 	return node ;
 }
@@ -167,24 +163,24 @@ FCKXHtml.TagProcessors['form'] = function( node, htmlNode )
 	if ( htmlNode.acceptCharset && htmlNode.acceptCharset.length > 0 && htmlNode.acceptCharset != 'UNKNOWN' )
 		FCKXHtml._AppendAttribute( node, 'accept-charset', htmlNode.acceptCharset ) ;
 
-	if ( htmlNode.name ) 
-		FCKXHtml._AppendAttribute( node, 'name', htmlNode.name ) ; 
+	if ( htmlNode.name )
+		FCKXHtml._AppendAttribute( node, 'name', htmlNode.name ) ;
 
-	FCKXHtml._AppendChildNodes( node, htmlNode ) ;
+	node = FCKXHtml._AppendChildNodes( node, htmlNode ) ;
 
 	return node ;
 }
 
 // IE doens't hold the name attribute as an attribute for the <TEXTAREA> and <SELECT> tags.
 FCKXHtml.TagProcessors['textarea'] = FCKXHtml.TagProcessors['select'] = function( node, htmlNode )
-{ 
-	if ( htmlNode.name ) 
-		FCKXHtml._AppendAttribute( node, 'name', htmlNode.name ) ; 
+{
+	if ( htmlNode.name )
+		FCKXHtml._AppendAttribute( node, 'name', htmlNode.name ) ;
 
-	FCKXHtml._AppendChildNodes( node, htmlNode ) ; 
- 
-	return node ; 
-} 
+	node = FCKXHtml._AppendChildNodes( node, htmlNode ) ;
+
+	return node ;
+}
 
 // On very rare cases, IE is loosing the "align" attribute for DIV. (right align and apply bulleted list)
 FCKXHtml.TagProcessors['div'] = function( node, htmlNode )
@@ -192,7 +188,7 @@ FCKXHtml.TagProcessors['div'] = function( node, htmlNode )
 	if ( htmlNode.align.length > 0 )
 		FCKXHtml._AppendAttribute( node, 'align', htmlNode.align ) ;
 
-	FCKXHtml._AppendChildNodes( node, htmlNode, true ) ;
+	node = FCKXHtml._AppendChildNodes( node, htmlNode, true ) ;
 
 	return node ;
 }

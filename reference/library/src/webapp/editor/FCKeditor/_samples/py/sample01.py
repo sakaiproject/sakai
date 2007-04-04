@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+﻿#!/usr/bin/env python
 
 """
 FCKeditor - The text editor for Internet - http://www.fckeditor.net
@@ -20,11 +20,7 @@ choice:
 
 == END LICENSE ==
 
-File Name: sample01.py
-	Sample page.
-
-File Authors:
-		Andrew Liu (andrew@liuholdings.com)
+Sample page.
 """
 
 import cgi
@@ -48,14 +44,14 @@ print """<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 	</head>
 	<body>
 		<h1>FCKeditor - Python - Sample 1</h1>
-		This sample displays a normal HTML form with an FCKeditor with full features 
+		This sample displays a normal HTML form with an FCKeditor with full features
 		enabled.
 		<hr>
 		<form action="sampleposteddata.py" method="post" target="_blank">
 """
 
 # This is the real work
-try: 
+try:
 	sBasePath = os.environ.get("SCRIPT_NAME")
 	sBasePath = sBasePath[0:sBasePath.find("_samples")]
 

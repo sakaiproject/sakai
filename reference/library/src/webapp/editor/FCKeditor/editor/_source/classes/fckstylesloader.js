@@ -1,29 +1,25 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: fckstylesloader.js
- * 	FCKStylesLoader Class: this class define objects that are responsible
- * 	for loading the styles defined in the XML file.
- * 
- * File Authors:
- * 		Frederico Caldeira Knabben (www.fckeditor.net)
+ *
+ * FCKStylesLoader Class: this class define objects that are responsible
+ * for loading the styles defined in the XML file.
  */
 
 var FCKStylesLoader = function()
@@ -39,24 +35,24 @@ FCKStylesLoader.prototype.Load = function( stylesXmlUrl )
 	// Load the XML file into a FCKXml object.
 	var oXml = new FCKXml() ;
 	oXml.LoadUrl( stylesXmlUrl ) ;
-	
+
 	// Get the "Style" nodes defined in the XML file.
 	var aStyleNodes = oXml.SelectNodes( 'Styles/Style' ) ;
-	
+
 	// Add each style to our "Styles" collection.
 	for ( var i = 0 ; i < aStyleNodes.length ; i++ )
 	{
 		var sElement = aStyleNodes[i].attributes.getNamedItem('element').value.toUpperCase() ;
-	
+
 		// Create the style definition object.
 		var oStyleDef = new FCKStyleDef( aStyleNodes[i].attributes.getNamedItem('name').value, sElement ) ;
-		
+
 		if ( oStyleDef.IsObjectElement )
 			this.HasObjectElements = true ;
-		
+
 		// Get the attributes defined for the style (if any).
 		var aAttNodes = oXml.SelectNodes( 'Attribute', aStyleNodes[i] ) ;
-		
+
 		// Add the attributes to the style definition object.
 		for ( var j = 0 ; j < aAttNodes.length ; j++ )
 		{
@@ -71,13 +67,13 @@ FCKStylesLoader.prototype.Load = function( stylesXmlUrl )
 				oTempE.style.cssText = sAttValue ;
 				sAttValue = oTempE.style.cssText ;
 			}
-			
+
 			oStyleDef.AddAttribute( sAttName, sAttValue ) ;
 		}
 
 		// Add the style to the "Styles" collection using it's name as the key.
 		this.Styles[ oStyleDef.Name ] = oStyleDef ;
-		
+
 		// Add the style to the "StyleGroups" collection.
 		var aGroup = this.StyleGroups[sElement] ;
 		if ( aGroup == null )
@@ -87,6 +83,6 @@ FCKStylesLoader.prototype.Load = function( stylesXmlUrl )
 		}
 		aGroup[aGroup.length] = oStyleDef ;
 	}
-	
+
 	this.Loaded = true ;
 }

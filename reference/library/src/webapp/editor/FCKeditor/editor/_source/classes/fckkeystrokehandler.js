@@ -1,28 +1,24 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: fckkeystrokehandler.js
- * 	Control keyboard keystroke combinations.
- * 
- * File Authors:
- * 		Frederico Caldeira Knabben (www.fckeditor.net)
+ *
+ * Control keyboard keystroke combinations.
  */
 
 var FCKKeystrokeHandler = function( cancelCtrlDefaults )
@@ -37,7 +33,7 @@ var FCKKeystrokeHandler = function( cancelCtrlDefaults )
  */
 FCKKeystrokeHandler.prototype.AttachToElement = function( target )
 {
-	// For newer browsers, it is enough to listen to the keydown event only. 
+	// For newer browsers, it is enough to listen to the keydown event only.
 	// Some browsers instead, don't cancel key events in the keydown, but in the
 	// keypress. So we must do a longer trip in those cases.
 	FCKTools.AddEventListenerEx( target, 'keydown', _FCKKeystrokeHandler_OnKeyDown, this ) ;
@@ -57,7 +53,7 @@ FCKKeystrokeHandler.prototype.SetKeystrokes = function()
 	for ( var i = 0 ; i < arguments.length ; i++ )
 	{
 		var keyDef = arguments[i] ;
-		
+
 		if ( typeof( keyDef[0] ) == 'object' )		// It is an array with arrays defining the keystrokes.
 			this.SetKeystrokes.apply( this, keyDef ) ;
 		else
@@ -77,25 +73,25 @@ function _FCKKeystrokeHandler_OnKeyDown( ev, keystrokeHandler )
 
 	// Combine it with the CTRL, SHIFT and ALT states.
 	var keyModifiers = 0 ;
-	
+
 	if ( ev.ctrlKey || ev.metaKey )
 		keyModifiers += CTRL ;
-	
+
 	if ( ev.shiftKey )
 		keyModifiers += SHIFT ;
-	
+
 	if ( ev.altKey )
 		keyModifiers += ALT ;
 
 	var keyCombination = keystroke + keyModifiers ;
-	
+
 	var cancelIt = keystrokeHandler._CancelIt = false ;
-	
+
 	// Look for its definition availability.
 	var keystrokeValue = keystrokeHandler.Keystrokes[ keyCombination ] ;
-	
+
 //	FCKDebug.Output( 'KeyDown: ' + keyCombination + ' - Value: ' + keystrokeValue ) ;
-	
+
 	// If the keystroke is defined
 	if ( keystrokeValue )
 	{
@@ -115,7 +111,7 @@ function _FCKKeystrokeHandler_OnKeyDown( ev, keystrokeHandler )
 
 		if ( ev.preventDefault )
 			return ev.preventDefault() ;
-		
+
 		ev.returnValue = false ;
 		ev.cancelBubble = true ;
 		return false ;

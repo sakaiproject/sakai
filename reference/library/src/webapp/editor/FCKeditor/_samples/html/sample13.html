@@ -1,31 +1,25 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!--
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: sample13.html
- * 	Sample page.
- * 
- * File Authors:
- * 		Alfonso Martinez de Lizarrondo (alfonso at uritec dot net)
- * 		Frederico Caldeira Knabben (www.fckeditor.net)
- * 		Finn Hakansson (finn_hakansson@yahoo.com)
+ *
+ * Sample page.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -46,7 +40,7 @@ function Toggle()
 	// Get the _Textarea and _FCKeditor DIVs.
 	var eTextareaDiv	= document.getElementById( '_Textarea' ) ;
 	var eFCKeditorDiv	= document.getElementById( '_FCKeditor' ) ;
-	
+
 	// If the _Textarea DIV is visible, switch to FCKeditor.
 	if ( eTextareaDiv.style.display != 'none' )
 	{
@@ -60,11 +54,11 @@ function Toggle()
 			// Set the current text in the textarea to the editor.
 			oEditor.SetHTML( document.getElementById('_DataTextarea').value ) ;
 		}
-		
+
 		// Switch the DIVs display.
 		eTextareaDiv.style.display = 'none' ;
 		eFCKeditorDiv.style.display = '' ;
-		
+
 		// This is a hack for Gecko 1.0.x ... it stops editing when the editor is hidden.
 		if ( oEditor && !document.all )
 		{
@@ -87,7 +81,7 @@ function CreateEditor()
 {
 	// Copy the value of the current textarea, to the textarea that will be used by the editor.
 	document.getElementById('_DataFCKeditor').value = document.getElementById('_DataTextarea').value ;
-	
+
 	// Automatically calculates the editor base path based on the _samples directory.
 	// This is usefull only for these samples. A real application should use something like this:
 	// oFCKeditor.BasePath = '/fckeditor/' ;	// '/fckeditor/' is the default value.

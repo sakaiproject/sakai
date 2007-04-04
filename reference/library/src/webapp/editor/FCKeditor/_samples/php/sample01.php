@@ -1,29 +1,25 @@
-<?php 
+﻿<?php
 /*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: sample01.php
- * 	Sample page.
- * 
- * File Authors:
- * 		Frederico Caldeira Knabben (www.fckeditor.net)
+ *
+ * Sample page.
  */
 
 include("../../fckeditor.php") ;
@@ -38,7 +34,7 @@ include("../../fckeditor.php") ;
 	</head>
 	<body>
 		<h1>FCKeditor - PHP - Sample 1</h1>
-		This sample displays a normal HTML form with an FCKeditor with full features 
+		This sample displays a normal HTML form with an FCKeditor with full features
 		enabled.
 		<hr>
 		<form action="sampleposteddata.php" method="post" target="_blank">

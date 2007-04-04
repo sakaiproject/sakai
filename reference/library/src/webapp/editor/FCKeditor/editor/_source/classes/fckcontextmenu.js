@@ -1,28 +1,24 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: fckcontextmenu.js
- * 	FCKContextMenu Class: renders an control a context menu.
- * 
- * File Authors:
- * 		Frederico Caldeira Knabben (www.fckeditor.net)
+ *
+ * FCKContextMenu Class: renders an control a context menu.
  */
 
 var FCKContextMenu = function( parentWindow, langDir )
@@ -30,11 +26,16 @@ var FCKContextMenu = function( parentWindow, langDir )
 	var oPanel = this._Panel = new FCKPanel( parentWindow, true ) ;
 	oPanel.AppendStyleSheet( FCKConfig.SkinPath + 'fck_editor.css' ) ;
 	oPanel.IsContextMenu = true ;
-	
+
+	// The FCKTools.DisableSelection doesn't seems to work to avoid dragging of the icons in Mozilla
+	// so we stop the start of the dragging
+	if ( FCKBrowserInfo.IsGecko )
+		oPanel.Document.addEventListener( 'draggesture', function(e) {e.preventDefault(); return false;}, true ) ;
+
 	var oMenuBlock = this._MenuBlock = new FCKMenuBlock() ;
 	oMenuBlock.Panel = oPanel ;
 	oMenuBlock.OnClick = FCKTools.CreateEventListener( FCKContextMenu_MenuBlock_OnClick, this ) ;
-	
+
 	this._Redraw = true ;
 }
 
@@ -80,7 +81,7 @@ FCKContextMenu.prototype.AttachToElement = function( element )
 function FCKContextMenu_Document_OnContextMenu( e )
 {
 	var el = e.target ;
-	
+
 	while ( el )
 	{
 		if ( el._FCKContextMenu )
@@ -106,19 +107,23 @@ function FCKContextMenu_AttachedElement_OnContextMenu( ev, fckContextMenu, el )
 
 	if ( fckContextMenu._MenuBlock.Count() == 0 )
 		return false ;
-	
+
 	if ( fckContextMenu._Redraw )
 	{
 		fckContextMenu._MenuBlock.Create( fckContextMenu._Panel.MainNode ) ;
 		fckContextMenu._Redraw = false ;
 	}
+	
+	// This will avoid that the content of the context menu can be dragged in IE
+	// as the content of the panel is recreated we need to do it every time
+	FCKTools.DisableSelection( fckContextMenu._Panel.Document.body ) ;
 
-	fckContextMenu._Panel.Show( 
-		ev.pageX || ev.screenX, 
-		ev.pageY || ev.screenY, 
+	fckContextMenu._Panel.Show(
+		ev.pageX || ev.screenX,
+		ev.pageY || ev.screenY,
 		ev.currentTarget || null
 	) ;
-	
+
 	return false ;
 }
 

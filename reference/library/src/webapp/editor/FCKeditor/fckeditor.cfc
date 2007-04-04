@@ -1,56 +1,52 @@
-<cfcomponent output="false" displayname="FCKeditor" hint="Create an instance of the FCKeditor.">
+﻿<cfcomponent output="false" displayname="FCKeditor" hint="Create an instance of the FCKeditor.">
 <!---
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: fckeditor.cfc
- * 	ColdFusion MX integration. 
- * 	Note this CFC is created for use only with Coldfusion MX and above.
- * 	For older version, check the fckeditor.cfm.
- * 
- * 	Syntax: 
- * 
- * 	<cfscript>
- * 			fckEditor = createObject("component", "fckEditorV2/fckeditor");
- * 			fckEditor.instanceName="myEditor";
- * 			fckEditor.basePath="/fckEditorV2/";
- * 			fckEditor.value="This is my <strong>initial</strong> html text.";
- * 			fckEditor.width="100%";
- * 			fckEditor.height="200";
- * 		 	// ... additional parameters ...
- * 			fckEditor.create(); // create instance now.
- * 	</cfscript>
- * 
- * 	See your macromedia coldfusion mx documentation for more info.
- * 
- * 	*** Note: 
- * 	Do not use path names with a "." (dot) in the name. This is a coldfusion 
- * 	limitation with the cfc invocation.
- * 
- * File Authors:
- * 		Hendrik Kramer (hk@lwd.de)
+ *
+ * ColdFusion MX integration.
+ * Note this CFC is created for use only with Coldfusion MX and above.
+ * For older version, check the fckeditor.cfm.
+ *
+ * Syntax:
+ *
+ * <cfscript>
+ * 		fckEditor = createObject("component", "fckEditorV2/fckeditor");
+ * 		fckEditor.instanceName="myEditor";
+ * 		fckEditor.basePath="/fckEditorV2/";
+ * 		fckEditor.value="This is my <strong>initial</strong> html text.";
+ * 		fckEditor.width="100%";
+ * 		fckEditor.height="200";
+ * 	 	// ... additional parameters ...
+ * 		fckEditor.create(); // create instance now.
+ * </cfscript>
+ *
+ * See your macromedia coldfusion mx documentation for more info.
+ *
+ * *** Note:
+ * Do not use path names with a "." (dot) in the name. This is a coldfusion
+ * limitation with the cfc invocation.
 --->
-<cffunction 
-	name="create" 
-	access="public" 
-	output="true" 
-	returntype="void" 
+<cffunction
+	name="create"
+	access="public"
+	output="true"
+	returntype="void"
 	hint="Initialize the FCKeditor instance."
 >
 
@@ -150,10 +146,10 @@
 	returnType="void"
 	hint="Create the html editor instance for compatible browsers."
 >
-	
+
 	<cfscript>
 	var sURL = "";
-	
+
 	// try to fix the basePath, if ending slash is missing
 	if( len( this.basePath) and right( this.basePath, 1 ) is not "/" )
 		this.basePath = this.basePath & "/";
@@ -191,7 +187,7 @@
 	var fieldLabel = "";
 	var lConfigKeys = "";
 	var iPos = "";
-	
+
 	/**
 	 * CFML doesn't store casesensitive names for structure keys, but the configuration names must be casesensitive for js.
 	 * So we need to find out the correct case for the configuration keys.
@@ -204,7 +200,7 @@
 	lConfigKeys = lConfigKeys & ",LinkBrowser,LinkBrowserURL,LinkBrowserWindowWidth,LinkBrowserWindowHeight";
 	lConfigKeys = lConfigKeys & ",LinkUpload,LinkUploadURL,LinkUploadWindowWidth,LinkUploadWindowHeight,LinkUploadAllowedExtensions,LinkUploadDeniedExtensions";
 	lConfigKeys = lConfigKeys & ",ImageBrowser,ImageBrowserURL,ImageBrowserWindowWidth,ImageBrowserWindowHeight,SmileyPath,SmileyImages,SmileyColumns,SmileyWindowWidth,SmileyWindowHeight";
-	
+
 	for( key in this.config )
 	{
 		iPos = listFindNoCase( lConfigKeys, key );
@@ -215,13 +211,13 @@
 
 			fieldValue = this.config[key];
 			fieldName = listGetAt( lConfigKeys, iPos );
-			
+
 			// set all boolean possibilities in CFML to true/false values
 			if( isBoolean( fieldValue) and fieldValue )
 				fieldValue = "true";
 			else if( isBoolean( fieldValue) )
 				fieldValue = "false";
-		
+
 			sParams = sParams & HTMLEditFormat( fieldName ) & '=' & HTMLEditFormat( fieldValue );
 		}
 	}

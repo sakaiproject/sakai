@@ -1,39 +1,34 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: fckmenuitem.js
- * 	Defines and renders a menu items in a menu block.
- * 
- * File Authors:
- * 		Frederico Caldeira Knabben (www.fckeditor.net)
+ *
+ * Defines and renders a menu items in a menu block.
  */
-
 
 var FCKMenuItem = function( parentMenuBlock, name, label, iconPathOrStripInfoArray, isDisabled )
 {
 	this.Name		= name ;
 	this.Label		= label || name ;
 	this.IsDisabled	= isDisabled ;
-	
+
 	this.Icon = new FCKIcon( iconPathOrStripInfoArray ) ;
-	
+
 	this.SubMenu			= new FCKMenuBlockPanel() ;
 	this.SubMenu.Parent		= parentMenuBlock ;
 	this.SubMenu.OnClick	= FCKTools.CreateEventListener( FCKMenuItem_SubMenu_OnClick, this ) ;
@@ -57,7 +52,7 @@ FCKMenuItem.prototype.AddSeparator = function()
 FCKMenuItem.prototype.Create = function( parentTable )
 {
 	var bHasSubMenu = this.HasSubMenu ;
-	
+
 	var oDoc = FCKTools.GetElementDocument( parentTable ) ;
 
 	// Add a row in the table to hold the menu item.
@@ -73,7 +68,7 @@ FCKMenuItem.prototype.Create = function( parentTable )
 		if ( !bHasSubMenu )
 			FCKTools.AddEventListenerEx( r, 'mouseout', FCKMenuItem_OnMouseOut, [ this ] ) ;
 	}
-	
+
 	// Create the icon cell.
 	var eCell = r.insertCell(-1) ;
 	eCell.className = 'MN_Icon' ;
@@ -84,7 +79,7 @@ FCKMenuItem.prototype.Create = function( parentTable )
 	eCell.className = 'MN_Label' ;
 	eCell.noWrap = true ;
 	eCell.appendChild( oDoc.createTextNode( this.Label ) ) ;
-	
+
 	// Create the arrow cell and setup the sub menu panel (if needed).
 	eCell = r.insertCell(-1) ;
 	if ( bHasSubMenu )
@@ -96,7 +91,7 @@ FCKMenuItem.prototype.Create = function( parentTable )
 		eArrowImg.src = FCK_IMAGES_PATH + 'arrow_' + FCKLang.Dir + '.gif' ;
 		eArrowImg.width	 = 4 ;
 		eArrowImg.height = 7 ;
-		
+
 		this.SubMenu.Create() ;
 		this.SubMenu.Panel.OnHide = FCKTools.CreateEventListener( FCKMenuItem_SubMenu_OnHide, this ) ;
 	}

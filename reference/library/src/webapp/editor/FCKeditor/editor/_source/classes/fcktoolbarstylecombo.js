@@ -1,28 +1,24 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: fcktoolbarstylecombo.js
- * 	FCKToolbarPanelButton Class: Handles the Fonts combo selector.
- * 
- * File Authors:
- * 		Frederico Caldeira Knabben (www.fckeditor.net)
+ *
+ * FCKToolbarPanelButton Class: Handles the Fonts combo selector.
  */
 
 var FCKToolbarStyleCombo = function( tooltip, style )
@@ -45,7 +41,7 @@ FCKToolbarStyleCombo.prototype.GetLabel = function()
 FCKToolbarStyleCombo.prototype.CreateItems = function( targetSpecialCombo )
 {
 	var oTargetDoc = targetSpecialCombo._Panel.Document ;
-	
+
 	// Add the Editor Area CSS to the panel so the style classes are previewed correctly.
 	FCKTools.AppendStyleSheet( oTargetDoc, FCKConfig.ToolbarComboPreviewCSS ) ;
 	oTargetDoc.body.className += ' ForceBaseFont' ;
@@ -68,12 +64,12 @@ FCKToolbarStyleCombo.prototype.CreateItems = function( targetSpecialCombo )
 	{
 		var oStyle = aCommandStyles[s] ;
 		var oItem ;
-		
+
 		if ( oStyle.IsObjectElement )
 			oItem = targetSpecialCombo.AddItem( s, s ) ;
 		else
 			oItem = targetSpecialCombo.AddItem( s, oStyle.GetOpenerTag() + s + oStyle.GetCloserTag() ) ;
-			
+
 		oItem.Style = oStyle ;
 	}
 }
@@ -82,10 +78,10 @@ FCKToolbarStyleCombo.prototype.RefreshActiveItems = function( targetSpecialCombo
 {
 	// Clear the actual selection.
 	targetSpecialCombo.DeselectAll() ;
-	
+
 	// Get the active styles.
 	var aStyles = FCK.ToolbarSet.CurrentInstance.Commands.GetCommand( this.CommandName ).GetActiveStyles() ;
-	
+
 	if ( aStyles.length > 0 )
 	{
 		// Select the active styles in the combo.

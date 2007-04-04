@@ -1,31 +1,25 @@
-<cfsetting enablecfoutputonly="true" showdebugoutput="false">
+﻿<cfsetting enablecfoutputonly="true" showdebugoutput="false">
 <!---
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: sample01.cfm
- * 	Sample page for ColdFusion.
- * 
- * File Authors:
- * 		Hendrik Kramer (hk@lwd.de)
- * 		Mark Woods (mark@thickpaddy.com)
- * 		Wim Lemmens (didgiman@gmail.com)
+ *
+ * Sample page for ColdFusion.
 --->
 
 <cfoutput>
@@ -41,13 +35,13 @@
 <body>
 
 <h1>FCKeditor - ColdFusion - Sample 1</h1>
-	
+
 This sample displays a normal HTML form with a FCKeditor with full features enabled; invoked by a ColdFusion Custom Tag / Module.
 <hr>
 <form method="POST" action="#cgi.script_name#">
 </cfoutput>
 
-<cfmodule 
+<cfmodule
 	template="../../fckeditor.cfm"
 	basePath="#Left(cgi.script_name, FindNoCase('_samples', cgi.script_name)-1)#"
 	instanceName="myEditor"
@@ -64,6 +58,7 @@ This sample displays a normal HTML form with a FCKeditor with full features enab
 
 <cfif isDefined( 'FORM.fieldnames' )>
 	<cfoutput>
+	<hr />
 	<style>
 	<!--
 		td, th { font: 11px Verdana, Arial, Helv, Helvetica, sans-serif; }

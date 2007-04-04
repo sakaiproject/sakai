@@ -1,28 +1,24 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: fckenterkey.js
- * 	Controls the [Enter] keystroke behavior in a document.
- * 
- * File Authors:
- * 		Frederico Caldeira Knabben (www.fckeditor.net)
+ *
+ * Controls the [Enter] keystroke behavior in a document.
  */
 
 /*
@@ -30,7 +26,7 @@
  *		@targetDocument : the target document.
  *		@enterMode : the behavior for the <Enter> keystroke.
  *			May be "p", "div", "br". Default is "p".
- *		@shiftEnterMode : the behavior for the <Shift>+<Enter> keystroke. 
+ *		@shiftEnterMode : the behavior for the <Shift>+<Enter> keystroke.
  *			May be "p", "div", "br". Defaults to "br".
  */
 var FCKEnterKey = function( targetWindow, enterMode, shiftEnterMode )
@@ -43,10 +39,10 @@ var FCKEnterKey = function( targetWindow, enterMode, shiftEnterMode )
 	var oKeystrokeHandler = new FCKKeystrokeHandler( false ) ;
 	oKeystrokeHandler._EnterKey = this ;
 	oKeystrokeHandler.OnKeystroke = FCKEnterKey_OnKeystroke ;
-	
+
 	oKeystrokeHandler.SetKeystrokes( [
 		[ 13		, 'Enter' ],
-		[ SHIFT + 13, 'ShiftEnter' ], 
+		[ SHIFT + 13, 'ShiftEnter' ],
 		[ 8			, 'Backspace' ],
 		[ 46		, 'Delete' ]
 	] ) ;
@@ -58,7 +54,7 @@ var FCKEnterKey = function( targetWindow, enterMode, shiftEnterMode )
 function FCKEnterKey_OnKeystroke(  keyCombination, keystrokeValue )
 {
 	var oEnterKey = this._EnterKey ;
-	
+
 	try
 	{
 		switch ( keystrokeValue )
@@ -81,10 +77,10 @@ function FCKEnterKey_OnKeystroke(  keyCombination, keystrokeValue )
 	}
 	catch (e)
 	{
-		// If for any reason we are not able to handle it, go 
+		// If for any reason we are not able to handle it, go
 		// ahead with the browser default behavior.
 	}
-	
+
 	return false ;
 }
 
@@ -94,7 +90,7 @@ function FCKEnterKey_OnKeystroke(  keyCombination, keystrokeValue )
 FCKEnterKey.prototype.DoEnter = function( mode, hasShift )
 {
 	this._HasShift = ( hasShift === true ) ;
-	
+
 	var sMode = mode || this.EnterMode ;
 
 	if ( sMode == 'br' )
@@ -121,11 +117,10 @@ FCKEnterKey.prototype.DoBackspace = function()
 	// Get the current selection.
 	var oRange = new FCKDomRange( this.Window ) ;
 	oRange.MoveToSelection() ;
-	
+
 	if ( !oRange.CheckIsCollapsed() )
 		return false ;
 
-	
 	var oStartBlock = oRange.StartBlock ;
 	var oEndBlock = oRange.EndBlock ;
 
@@ -135,27 +130,27 @@ FCKEnterKey.prototype.DoBackspace = function()
 		if ( !oRange.CheckIsCollapsed() )
 		{
 			var bEndOfBlock = oRange.CheckEndOfBlock() ;
-			
+
 			oRange.DeleteContents() ;
-			
+
 			if ( oStartBlock != oEndBlock )
 			{
 				oRange.SetStart(oEndBlock,1) ;
 				oRange.SetEnd(oEndBlock,1) ;
-				
+
 //				if ( bEndOfBlock )
 //					oEndBlock.parentNode.removeChild( oEndBlock ) ;
 			}
-		
+
 			oRange.Select() ;
-			
+
 			bCustom = ( oStartBlock == oEndBlock ) ;
 		}
-		
+
 		if ( oRange.CheckStartOfBlock() )
 		{
 			var oCurrentBlock = oRange.StartBlock ;
-			
+
 			var ePrevious = FCKDomTools.GetPreviousSourceElement( oCurrentBlock, true, [ 'BODY', oRange.StartBlockLimit.nodeName ], ['UL','OL'] ) ;
 
 			bCustom = this._ExecuteBackspace( oRange, ePrevious, oCurrentBlock ) ;
@@ -178,14 +173,14 @@ FCKEnterKey.prototype._ExecuteBackspace = function( range, previous, currentBloc
 	// We could be in a nested LI.
 	if ( !previous && currentBlock.nodeName.IEquals( 'LI' ) && currentBlock.parentNode.parentNode.nodeName.IEquals( 'LI' ) )
 	{
-		previous = currentBlock.parentNode.parentNode ;
-		currentBlock = FCKListHandler.OutdentListItem( currentBlock ) ;
+		this._OutdentWithSelection( currentBlock, range ) ;
+		return true ;
 	}
 
 	if ( previous && previous.nodeName.IEquals( 'LI' ) )
 	{
 		var oNestedList = FCKDomTools.GetLastChild( previous, ['UL','OL'] ) ;
-		
+
 		while ( oNestedList )
 		{
 			previous = FCKDomTools.GetLastChild( oNestedList, 'LI' ) ;
@@ -195,14 +190,18 @@ FCKEnterKey.prototype._ExecuteBackspace = function( range, previous, currentBloc
 
 	if ( previous && currentBlock )
 	{
-		// If we are in a LI, and the previous block is not an LI, we must 
+		// If we are in a LI, and the previous block is not an LI, we must outdent it.
 		if ( currentBlock.nodeName.IEquals( 'LI' ) && !previous.nodeName.IEquals( 'LI' ) )
-			currentBlock = FCKListHandler.OutdentListItem( currentBlock ) ;
+		{
+			this._OutdentWithSelection( currentBlock, range ) ;
+			return true ;
+		}
 
 		// Take a reference to the parent for post processing cleanup.
 		var oCurrentParent = currentBlock.parentNode ;
 
-		if ( previous.nodeName.IEquals( 'TABLE', 'HR' ) ) 
+		var sPreviousName = previous.nodeName.toLowerCase() ;
+		if ( FCKListsLib.EmptyElements[ sPreviousName ] != null || sPreviousName == 'table' )
 		{
 			FCKDomTools.RemoveNode( previous ) ;
 			bCustom = true ;
@@ -211,7 +210,7 @@ FCKEnterKey.prototype._ExecuteBackspace = function( range, previous, currentBloc
 		{
 			// Remove the current block.
 			FCKDomTools.RemoveNode( currentBlock ) ;
-			
+
 			// Remove any empty tag left by the block removal.
 			while ( oCurrentParent.innerHTML.Trim().length == 0 )
 			{
@@ -219,15 +218,15 @@ FCKEnterKey.prototype._ExecuteBackspace = function( range, previous, currentBloc
 				oParent.removeChild( oCurrentParent ) ;
 				oCurrentParent = oParent ;
 			}
-			
+
 			// Cleanup the previous and the current elements.
 			FCKDomTools.TrimNode( currentBlock ) ;
 			FCKDomTools.TrimNode( previous ) ;
-			
+
 			// Append a space to the previous.
 			// Maybe it is not always desirable...
 			// previous.appendChild( this.Window.document.createTextNode( ' ' ) ) ;
-			
+
 			// Set the range to the end of the previous element and bookmark it.
 			range.SetStart( previous, 2 ) ;
 			range.Collapse( true ) ;
@@ -243,7 +242,7 @@ FCKEnterKey.prototype._ExecuteBackspace = function( range, previous, currentBloc
 			bCustom = true ;
 		}
 	}
-	
+
 	return bCustom ;
 }
 
@@ -260,14 +259,14 @@ FCKEnterKey.prototype.DoDelete = function()
 	// Get the current selection.
 	var oRange = new FCKDomRange( this.Window ) ;
 	oRange.MoveToSelection() ;
-	
+
 	// There is just one special case for collapsed selections at the end of a block.
 	if ( oRange.CheckIsCollapsed() && oRange.CheckEndOfBlock( FCKBrowserInfo.IsGecko ) )
 	{
 		var oCurrentBlock = oRange.StartBlock ;
-		
+
 		var eNext = FCKDomTools.GetNextSourceElement( oCurrentBlock, true, [ oRange.StartBlockLimit.nodeName ], ['UL','OL'] ) ;
-		
+
 		bCustom = this._ExecuteBackspace( oRange, oCurrentBlock, eNext ) ;
 	}
 
@@ -275,12 +274,15 @@ FCKEnterKey.prototype.DoDelete = function()
 	return bCustom ;
 }
 
-FCKEnterKey.prototype._ExecuteEnterBlock = function( blockTag )
+FCKEnterKey.prototype._ExecuteEnterBlock = function( blockTag, range )
 {
 	// Get the current selection.
-	var oRange = new FCKDomRange( this.Window ) ;
-	oRange.MoveToSelection() ;
-	
+	var oRange = range || new FCKDomRange( this.Window ) ;
+
+	// If we don't have a range, move it to the selection.
+	if ( !range )
+		oRange.MoveToSelection() ;
+
 	// The selection boundaries must be in the same "block limit" element.
 	if ( oRange.StartBlockLimit == oRange.EndBlockLimit )
 	{
@@ -295,7 +297,7 @@ FCKEnterKey.prototype._ExecuteEnterBlock = function( blockTag )
 		// Get the current blocks.
 		var eStartBlock	= oRange.StartBlock ;
 		var eEndBlock	= oRange.EndBlock ;
-			
+
 		// Delete the current selection.
 		if ( !oRange.CheckIsEmpty() )
 			oRange.DeleteContents() ;
@@ -314,7 +316,7 @@ FCKEnterKey.prototype._ExecuteEnterBlock = function( blockTag )
 
 				if ( FCKBrowserInfo.IsGeckoLike )
 					eNewBlock.innerHTML = GECKO_BOGUS ;
-				
+
 				// Place the new block before the current block element.
 				eStartBlock.parentNode.insertBefore( eNewBlock, eStartBlock ) ;
 
@@ -329,7 +331,7 @@ FCKEnterKey.prototype._ExecuteEnterBlock = function( blockTag )
 				}
 
 				// Move the selection to the new block.
-				oRange.MoveToElementStart( eStartBlock ) ;
+				oRange.MoveToElementEditStart( eStartBlock ) ;
 			}
 			else
 			{
@@ -341,18 +343,23 @@ FCKEnterKey.prototype._ExecuteEnterBlock = function( blockTag )
 					// If the entire block is selected, and we are in a LI, let's decrease its indentation.
 					if ( bIsStartOfBlock && sStartBlockTag == 'LI' )
 					{
-						var eOutdented = FCKListHandler.OutdentListItem( eStartBlock ) ;
-						oRange.MoveToElementStart( eOutdented ) ;
+						this._OutdentWithSelection( eStartBlock, oRange ) ;
+						oRange.Release() ;
+						return true ;
 					}
 					else
 					{
-						// If is a header tag, create a new block element.
-						if ( (/^H[1-6]$/).test( sStartBlockTag ) )
+						// If is a header tag, or we are in a Shift+Enter (#77),
+						// create a new block element.
+						if ( (/^H[1-6]$/).test( sStartBlockTag ) || this._HasShift )
 							eNewBlock = this.Window.document.createElement( blockTag ) ;
 						// Otherwise, duplicate the current block.
 						else
+						{
 							eNewBlock = eStartBlock.cloneNode(false) ;
-						
+							this._RecreateEndingTree( eStartBlock, eNewBlock ) ;
+						}
+
 						if ( FCKBrowserInfo.IsGeckoLike )
 						{
 							eNewBlock.innerHTML = GECKO_BOGUS ;
@@ -368,7 +375,7 @@ FCKEnterKey.prototype._ExecuteEnterBlock = function( blockTag )
 					// Extract the contents of the block from the selection point to the end of its contents.
 					oRange.SetEnd( eStartBlock, 2 ) ;
 					var eDocFrag = oRange.ExtractContents() ;
-					
+
 					// Duplicate the block element after it.
 					eNewBlock = eStartBlock.cloneNode(false) ;
 
@@ -376,17 +383,15 @@ FCKEnterKey.prototype._ExecuteEnterBlock = function( blockTag )
 					FCKDomTools.TrimNode( eDocFrag.RootNode ) ;
 					if ( eDocFrag.RootNode.firstChild.nodeType == 1 && eDocFrag.RootNode.firstChild.tagName.toUpperCase().Equals( 'UL', 'OL' ) )
 						eNewBlock.innerHTML = GECKO_BOGUS ;
-					
+
 					// Place the extracted contents in the duplicated block.
 					eDocFrag.AppendTo( eNewBlock ) ;
 
 					if ( FCKBrowserInfo.IsGecko )
 					{
-						// In Gecko, the last child node must be a bogus <br>. 
-						var eLastChild = FCKDomTools.GetLastChild( eNewBlock ) ;
-						
-						if ( !eLastChild || eLastChild.nodeName.toLowerCase() != 'br' || eLastChild.getAttribute( 'type', 2 ) != '_moz' )
-							eNewBlock.appendChild( FCKTools.CreateBogusBR( this.Window.document ) ) ;
+						// In Gecko, the last child node must be a bogus <br>.
+						this._AppendBogusBr( eStartBlock ) ;
+						this._AppendBogusBr( eNewBlock ) ;
 					}
 				}
 
@@ -395,8 +400,8 @@ FCKEnterKey.prototype._ExecuteEnterBlock = function( blockTag )
 					FCKDomTools.InsertAfterNode( eStartBlock, eNewBlock ) ;
 
 					// Move the selection to the new block.
-					oRange.MoveToElementStart( eNewBlock ) ;
-					
+					oRange.MoveToElementEditStart( eNewBlock ) ;
+
 					if ( FCKBrowserInfo.IsGecko )
 						eNewBlock.scrollIntoView( false ) ;
 				}
@@ -405,15 +410,15 @@ FCKEnterKey.prototype._ExecuteEnterBlock = function( blockTag )
 		else
 		{
 			// Move the selection to the end block.
-			oRange.MoveToElementStart( eEndBlock ) ;
+			oRange.MoveToElementEditStart( eEndBlock ) ;
 		}
 
-		oRange.Select() ;				
+		oRange.Select() ;
 	}
-	
+
 	// Release the resources used by the range.
 	oRange.Release() ;
-	
+
 	return true ;
 }
 
@@ -427,19 +432,19 @@ FCKEnterKey.prototype._ExecuteEnterBr = function( blockTag )
 	if ( oRange.StartBlockLimit == oRange.EndBlockLimit )
 	{
 		oRange.DeleteContents() ;
-		
+
 		// Get the new selection (it is collapsed at this point).
 		oRange.MoveToSelection() ;
-	
+
 		var bIsStartOfBlock	= oRange.CheckStartOfBlock() ;
 		var bIsEndOfBlock	= oRange.CheckEndOfBlock() ;
-		
+
 		var sStartBlockTag = oRange.StartBlock ? oRange.StartBlock.tagName.toUpperCase() : '' ;
-		
+
 		var bHasShift = this._HasShift ;
-		
+
 		if ( !bHasShift && sStartBlockTag == 'LI' )
-			return this._ExecuteEnterBlock( null ) ;
+			return this._ExecuteEnterBlock( null, oRange ) ;
 
 		// If we are at the end of a header block.
 		if ( !bHasShift && bIsEndOfBlock && (/^H[1-6]$/).test( sStartBlockTag ) )
@@ -463,19 +468,14 @@ FCKEnterKey.prototype._ExecuteEnterBr = function( blockTag )
 			var eBr = this.Window.document.createElement( 'br' ) ;
 
 			oRange.InsertNode( eBr ) ;
-			
+
 			// The space is required by Gecko only to make the cursor blink.
 			if ( FCKBrowserInfo.IsGecko )
 				FCKDomTools.InsertAfterNode( eBr, this.Window.document.createTextNode( '' ) ) ;
-				
+
 			// If we are at the end of a block, we must be sure the bogus node is available in that block.
 			if ( bIsEndOfBlock && FCKBrowserInfo.IsGecko )
-			{
-				var eLastBr = FCKDomTools.GetLastChild( eBr.parentNode, 'BR' ) ;
-
-				if ( eLastBr && eLastBr.getAttribute( 'type', 2 ) != '_moz' )
-					eBr.parentNode.appendChild( FCKTools.CreateBogusBR( this.Window.document ) ) ;
-			}
+				this._AppendBogusBr( eBr.parentNode ) ;
 
 			if ( FCKBrowserInfo.IsIE )
 				oRange.SetStart( eBr, 4 ) ;
@@ -483,7 +483,7 @@ FCKEnterKey.prototype._ExecuteEnterBr = function( blockTag )
 				oRange.SetStart( eBr.nextSibling, 1 ) ;
 
 		}
-		
+
 		// This collapse guarantees the cursor will be blinking.
 		oRange.Collapse( true ) ;
 
@@ -492,7 +492,7 @@ FCKEnterKey.prototype._ExecuteEnterBr = function( blockTag )
 
 	// Release the resources used by the range.
 	oRange.Release() ;
-	
+
 	return true ;
 }
 
@@ -517,7 +517,40 @@ FCKEnterKey.prototype._FixBlock = function( range, isStart, blockTag )
 
 	// Insert the fixed block into the DOM.
 	range.InsertNode( oFixedBlock ) ;
-	
+
 	// Move the range back to the bookmarked place.
 	range.MoveToBookmark( oBookmark ) ;
+}
+
+// Appends a bogus <br> at the end of the element, if not yet available.
+FCKEnterKey.prototype._AppendBogusBr = function( element )
+{
+	var eLastChild = element.getElementsByTagName('br') ;
+
+	if ( eLastChild )
+		eLastChild = eLastChild[ eLastChild.legth - 1 ] ;
+
+	if ( !eLastChild || eLastChild.getAttribute( 'type', 2 ) != '_moz' )
+		element.appendChild( FCKTools.CreateBogusBR( this.Window.document ) ) ;
+}
+
+// Recreate the elements tree at the end of the source block, at the beginning
+// of the target block. Eg.:
+//	If source = <p><u>Some</u> sample <b><i>text</i></b></p> then target = <p><b><i></i></b></p>
+//	If source = <p><u>Some</u> sample text</p> then target = <p></p>
+FCKEnterKey.prototype._RecreateEndingTree = function( source, target )
+{
+	while ( ( source = source.lastChild ) && source.nodeType == 1 && FCKListsLib.InlineChildReqElements[ source.nodeName.toLowerCase() ] != null )
+		target = target.insertBefore( source.cloneNode( false ), target.firstChild ) ;
+}
+
+// Outdents a LI, maintaining the seletion defined on a range.
+FCKEnterKey.prototype._OutdentWithSelection = function( li, range )
+{
+	var oBookmark = range.CreateBookmark() ;
+
+	FCKListHandler.OutdentListItem( li ) ;
+
+	range.MoveToBookmark( oBookmark ) ;
+	range.Select() ;
 }

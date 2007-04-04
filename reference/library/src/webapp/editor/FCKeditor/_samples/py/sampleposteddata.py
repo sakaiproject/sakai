@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+﻿#!/usr/bin/env python
 
 """
 FCKeditor - The text editor for Internet - http://www.fckeditor.net
@@ -20,11 +20,7 @@ choice:
 
 == END LICENSE ==
 
-File Name: sampleposteddata.py
-	This page lists the data posted by a form.
-
-File Authors:
-		Andrew Liu (andrew@liuholdings.com)
+This page lists the data posted by a form.
 """
 
 import cgi
@@ -52,7 +48,7 @@ print """<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 	<body>
 """
 
-# This is the real work 
+# This is the real work
 print """
 		<h1>FCKeditor - Samples - Posted Data</h1>
 		This page lists all data posted by the form.

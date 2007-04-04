@@ -1,28 +1,24 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: fcktools.js
- * 	Utility functions.
- * 
- * File Authors:
- * 		Frederico Caldeira Knabben (www.fckeditor.net)
+ *
+ * Utility functions.
  */
 
 // Constant for the Gecko Bogus Node.
@@ -71,18 +67,18 @@ FCKTools.GetDocumentWindow = function( document )
 	// With Safari, there is not way to retrieve the window from the document, so we must fix it.
 	if ( FCKBrowserInfo.IsSafari && !document.parentWindow )
 		this.FixDocumentParentWindow( window.top ) ;
-	
+
 	return document.parentWindow || document.defaultView ;
 }
 
 /*
-	This is a Safari specific function that fix the reference to the parent 
+	This is a Safari specific function that fix the reference to the parent
 	window from the document object.
 */
 FCKTools.FixDocumentParentWindow = function( targetWindow )
 {
-	targetWindow.document.parentWindow = targetWindow ; 
-	
+	targetWindow.document.parentWindow = targetWindow ;
+
 	for ( var i = 0 ; i < targetWindow.frames.length ; i++ )
 		FCKTools.FixDocumentParentWindow( targetWindow.frames[i] ) ;
 }
@@ -99,6 +95,18 @@ FCKTools.HTMLEncode = function( text )
 	return text ;
 }
 
+FCKTools.HTMLDecode = function( text )
+{
+	if ( !text )
+		return '' ;
+
+	text = text.replace( /&gt;/g, '>' ) ;
+	text = text.replace( /&lt;/g, '<' ) ;
+	text = text.replace( /&amp;/g, '&' ) ;
+
+	return text ;
+}
+
 /**
  * Adds an option to a SELECT element.
  */
@@ -107,7 +115,7 @@ FCKTools.AddSelectOption = function( selectElement, optionText, optionValue )
 	var oOption = FCKTools.GetElementDocument( selectElement ).createElement( "OPTION" ) ;
 
 	oOption.text	= optionText ;
-	oOption.value	= optionValue ;	
+	oOption.value	= optionValue ;
 
 	selectElement.options.add(oOption) ;
 
@@ -122,7 +130,7 @@ FCKTools.RunFunction = function( func, thisObject, paramsArray, timerWindow )
 
 FCKTools.SetTimeout = function( func, milliseconds, thisObject, paramsArray, timerWindow )
 {
-	return ( timerWindow || window ).setTimeout( 
+	return ( timerWindow || window ).setTimeout(
 		function()
 		{
 			if ( paramsArray )
@@ -135,7 +143,7 @@ FCKTools.SetTimeout = function( func, milliseconds, thisObject, paramsArray, tim
 
 FCKTools.SetInterval = function( func, milliseconds, thisObject, paramsArray, timerWindow )
 {
-	return ( timerWindow || window ).setInterval( 
+	return ( timerWindow || window ).setInterval(
 		function()
 		{
 			func.apply( thisObject, paramsArray || [] ) ;
@@ -178,12 +186,12 @@ FCKTools.CreateEventListener = function( func, params )
 	var f = function()
 	{
 		var aAllParams = [] ;
-		
+
 		for ( var i = 0 ; i < arguments.length ; i++ )
 			aAllParams.push( arguments[i] ) ;
 
 		func.apply( this, aAllParams.concat( params ) ) ;
-	} 
+	}
 
 	return f ;
 }
@@ -200,9 +208,9 @@ FCKTools.ArgumentsToArray = function( args, startIndex, maxLength )
 {
 	startIndex = startIndex || 0 ;
 	maxLength = maxLength || args.length ;
-	
+
 	var argsArray = new Array() ;
-	
+
 	for ( var i = startIndex ; i < startIndex + maxLength && i < args.length ; i++ )
 		argsArray.push( args[i] ) ;
 

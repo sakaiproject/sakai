@@ -1,29 +1,25 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <!--
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: find.html
- * 	This is the sample "Find" plugin window.
- * 
- * File Authors:
- * 		Frederico Caldeira Knabben (www.fckeditor.net)
+ *
+ * This is the sample "Find" plugin window.
 -->
 <html>
 	<head>
@@ -38,7 +34,7 @@ function OnLoad()
 	// Whole word is available on IE only.
 	if ( oEditor.FCKBrowserInfo.IsIE )
 		document.getElementById('divWord').style.display = '' ;
-	
+
 	// First of all, translate the dialog box texts.
 	oEditor.FCKLanguageManager.TranslatePage( document ) ;
 
@@ -47,7 +43,7 @@ function OnLoad()
 
 function btnStat(frm)
 {
-	document.getElementById('btnFind').disabled = 
+	document.getElementById('btnFind').disabled =
 		( document.getElementById('txtFind').value.length == 0 ) ;
 }
 
@@ -81,11 +77,11 @@ function GetRegexExpr()
 		var sExpr = '\\b' + document.getElementById('txtFind').value + '\\b' ;
 	else
 		var sExpr = document.getElementById('txtFind').value ;
-		
+
 	return sExpr ;
 }
 
-function GetCase() 
+function GetCase()
 {
 	return ( document.getElementById('chkCase').checked ? '' : 'i' ) ;
 }
@@ -94,7 +90,7 @@ function Ok()
 {
 	if ( document.getElementById('txtFind').value.length == 0 )
 		return ;
-	
+
 	if ( oEditor.FCKBrowserInfo.IsIE )
 		FindIE() ;
 	else
@@ -109,15 +105,15 @@ function FindIE()
 		oRange = oEditor.FCK.EditorDocument.body.createTextRange() ;
 
 	var iFlags = 0 ;
-	
+
 	if ( chkCase.checked )
 		iFlags = iFlags | 4 ;
-	
+
 	if ( chkWord.checked )
 		iFlags = iFlags | 2 ;
-	
+
 	var bFound = oRange.findText( document.getElementById('txtFind').value, 1, iFlags ) ;
-	
+
 	if ( bFound )
 	{
 		oRange.scrollIntoView() ;
@@ -136,10 +132,10 @@ function FindGecko()
 {
 	var bCase = document.getElementById('chkCase').checked ;
 	var bWord = document.getElementById('chkWord').checked ;
-	
+
 	// window.find( searchString, caseSensitive, backwards, wrapAround, wholeWord, searchInFrames, showDialog ) ;
 	oEditor.FCK.EditorWindow.find( document.getElementById('txtFind').value, bCase, false, false, bWord, false, false ) ;
-	
+
 }
 		</script>
 	</head>
@@ -162,11 +158,11 @@ function FindGecko()
 			</tr>
 			<tr>
 				<td valign="bottom" colSpan="3">
-					&nbsp;<input id="chkCase" tabIndex="3" type="checkbox"><label for="chkCase" fckLang="DlgMyReplaceCaseChk">Match 
+					&nbsp;<input id="chkCase" tabIndex="3" type="checkbox"><label for="chkCase" fckLang="DlgMyReplaceCaseChk">Match
 						case</label>
 					<br>
 					<div id="divWord" style="DISPLAY: none">
-						&nbsp;<input id="chkWord" tabIndex="4" type="checkbox"><label for="chkWord" fckLang="DlgMyReplaceWordChk">Match 
+						&nbsp;<input id="chkWord" tabIndex="4" type="checkbox"><label for="chkWord" fckLang="DlgMyReplaceWordChk">Match
 							whole word</label>
 					</div>
 				</td>

@@ -1,28 +1,24 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: fckcommands.js
- * 	Define all commands available in the editor.
- * 
- * File Authors:
- * 		Frederico Caldeira Knabben (www.fckeditor.net)
+ *
+ * Define all commands available in the editor.
  */
 
 var FCKCommands = FCK.Commands = new Object() ;
@@ -36,7 +32,7 @@ FCKCommands.RegisterCommand = function( commandName, command )
 FCKCommands.GetCommand = function( commandName )
 {
 	var oCommand = FCKCommands.LoadedCommands[ commandName ] ;
-	
+
 	if ( oCommand )
 		return oCommand ;
 
@@ -77,6 +73,7 @@ FCKCommands.GetCommand = function( commandName )
 		case 'TextColor'	: oCommand = new FCKTextColorCommand('ForeColor') ; break ;
 		case 'BGColor'		: oCommand = new FCKTextColorCommand('BackColor') ; break ;
 
+		case 'Paste'		: oCommand = new FCKPasteCommand() ; break ;
 		case 'PasteText'	: oCommand = new FCKPastePlainTextCommand() ; break ;
 		case 'PasteWord'	: oCommand = new FCKPasteWordCommand() ; break ;
 
@@ -105,12 +102,12 @@ FCKCommands.GetCommand = function( commandName )
 
 		case 'Undo'	: oCommand = new FCKUndoCommand() ; break ;
 		case 'Redo'	: oCommand = new FCKRedoCommand() ; break ;
-		
+
 		case 'SelectAll' : oCommand = new FCKSelectAllCommand() ; break ;
 
 		// Generic Undefined command (usually used when a command is under development).
 		case 'Undefined'	: oCommand = new FCKUndefinedCommand() ; break ;
-		
+
 		// By default we assume that it is a named command.
 		default:
 			if ( FCKRegexLib.NamedCommands.test( commandName ) )
@@ -121,9 +118,9 @@ FCKCommands.GetCommand = function( commandName )
 				return null ;
 			}
 	}
-	
+
 	FCKCommands.LoadedCommands[ commandName ] = oCommand ;
-	
+
 	return oCommand ;
 }
 

@@ -1,36 +1,31 @@
-<cfsetting enablecfoutputonly="true">
+﻿<cfsetting enablecfoutputonly="true">
 <!---
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: sample02_mx.cfm
- * 	Sample page for ColdFusion MX.
- * 
- * File Authors:
- * 		Hendrik Kramer (hk@lwd.de)
- * 		Wim Lemmens (didgiman@gmail.com)
+ *
+ * Sample page for ColdFusion MX.
 --->
 
 <!--- ::
 	  * You must set the url path to the base directory for your media files (images, flash, files)
 	  * The best position for this variable is in your Application.cfm file
-	  * 
+	  *
 	  * Possible variable scopes are:
 	  * <cfset APPLICATION.userFilesPath = "/userfiles/">
 	  * OR:
@@ -88,8 +83,8 @@ This sample displays a normal HTML form with a FCKeditor with full features enab
 <hr />
 </cfoutput>
 
-<cfdump 
-	var="#FORM#" 
+<cfdump
+	var="#FORM#"
 	label="Dump of FORM Variables"
 >
 

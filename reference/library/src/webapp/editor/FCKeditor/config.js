@@ -18,16 +18,12 @@
  * 		Frederico Caldeira Knabben (fredck@fckeditor.net)
  */
 
-FCKConfig.EditorAreaCSS = FCKConfig.BasePath + 'css/fck_editorarea.css' ;
-
-FCKConfig.DocType = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">' ;
-
-FCKConfig.ToolbarComboPreviewCSS = '' ;
-
 FCKConfig.ProtectedSource.Add( /<script[\s\S]*?\/script>/gi ) ;       // <SCRIPT> tags.
 
 FCKConfig.ProcessNumericEntities = false ;
+FCKConfig.AdditionalNumericEntities = ''  ;             // Single Quote: "'"
 
+FCKConfig.TemplateReplaceAll = true ;
 FCKConfig.TemplateReplaceCheckbox = true ;
 
 FCKConfig.BaseHref = '' ;
@@ -48,9 +44,6 @@ FCKConfig.AutoDetectLanguage	= true ;
 FCKConfig.DefaultLanguage		= 'en' ;
 FCKConfig.ContentLangDirection	= 'ltr' ;
 
-FCKConfig.EnableXHTML		= true ;	// Unsupported: Do not change.
-FCKConfig.EnableSourceXHTML	= true ;	// Unsupported: Do not change.
-
 FCKConfig.ProcessHTMLEntities	= true ;
 FCKConfig.IncludeLatinEntities	= true ;
 FCKConfig.IncludeGreekEntities	= true ;
@@ -60,6 +53,31 @@ FCKConfig.FillEmptyBlocks	= true ;
 FCKConfig.FormatSource		= true ;
 FCKConfig.FormatOutput		= true ;
 FCKConfig.FormatIndentator	= '    ' ;
+
+FCKConfig.ToolbarLocation = 'In' ;
+FCKConfig.EnterMode = 'p' ;                     // p | div | br
+FCKConfig.ShiftEnterMode = 'br' ;       // p | div | br
+
+FCKConfig.Keystrokes = [
+        [ CTRL + 65 /*A*/, true ],
+        [ CTRL + 67 /*C*/, true ],
+        [ CTRL + 70 /*F*/, true ],
+        [ CTRL + 83 /*S*/, true ],
+        [ CTRL + 88 /*X*/, true ],
+        [ CTRL + 86 /*V*/, 'Paste' ],
+        [ SHIFT + 45 /*INS*/, 'Paste' ],
+        [ CTRL + 90 /*Z*/, 'Undo' ],
+        [ CTRL + 89 /*Y*/, 'Redo' ],
+        [ CTRL + SHIFT + 90 /*Z*/, 'Redo' ],
+        [ CTRL + 76 /*L*/, 'Link' ],
+        [ CTRL + 66 /*B*/, 'Bold' ],
+        [ CTRL + 73 /*I*/, 'Italic' ],
+        [ CTRL + 85 /*U*/, 'Underline' ],
+        [ CTRL + SHIFT + 83 /*S*/, 'Save' ],
+        [ CTRL + ALT + 13 /*ENTER*/, 'FitWindow' ],
+        [ CTRL + 9 /*TAB*/, 'Source' ]
+] ;
+
 
 FCKConfig.ToolbarSets["Default"] = [
         ['Source','DocProps','Templates'],
@@ -128,5 +146,3 @@ FCKConfig.LinkUpload = false ;
 FCKConfig.ImageUpload = false ;
 
 FCKConfig.FlashUpload = false ;
-
-if( window.console ) window.console.log( 'Config is loaded!' ) ;	// @Packager.Compactor.RemoveLine

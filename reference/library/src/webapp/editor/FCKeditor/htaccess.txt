@@ -1,26 +1,26 @@
-#
+﻿#
 #  FCKeditor - The text editor for Internet - http://www.fckeditor.net
 #  Copyright (C) 2003-2007 Frederico Caldeira Knabben
-# 
+#
 #  == BEGIN LICENSE ==
-# 
+#
 #  Licensed under the terms of any of the following licenses at your
 #  choice:
-# 
+#
 #   - GNU General Public License Version 2 or later (the "GPL")
 #     http://www.gnu.org/licenses/gpl.html
-#  
+#
 #   - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
 #     http://www.gnu.org/licenses/lgpl.html
-#  
+#
 #   - Mozilla Public License Version 1.1 or later (the "MPL")
 #     http://www.mozilla.org/MPL/MPL-1.1.html
-#  
+#
 #  == END LICENSE ==
 #
-# ----------------------------------------------------------------------------- 
+# -----------------------------------------------------------------------------
 #
-# On some specific Linux installations you could face problems with Firefox. 
+# On some specific Linux installations you could face problems with Firefox.
 # It could give you errors when loading the editor saying that some illegal
 # characters were found (three strange chars in the beginning of the file).
 # This could happen if you map the .js or .css files to PHP, for example.
@@ -28,8 +28,8 @@
 # Those characters are the Byte Order Mask (BOM) of the Unicode encoded files.
 # All FCKeditor files are Unicode encoded.
 #
-# Just rename this file to ".htaccess" and leave it in the editor directory. 
-# There are no security issues on doing it. It just sets the ".js" and ".css" 
+# Just rename this file to ".htaccess" and leave it in the editor directory.
+# There are no security issues on doing it. It just sets the ".js" and ".css"
 # files to their correct content types.
 #
 

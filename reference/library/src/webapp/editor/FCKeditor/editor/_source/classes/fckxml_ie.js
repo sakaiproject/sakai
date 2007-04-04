@@ -1,29 +1,25 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: fckxml_ie.js
- * 	FCKXml Class: class to load and manipulate XML files.
- * 	(IE specific implementation)
- * 
- * File Authors:
- * 		Frederico Caldeira Knabben (www.fckeditor.net)
+ *
+ * FCKXml Class: class to load and manipulate XML files.
+ * (IE specific implementation)
  */
 
 var FCKXml = function()
@@ -44,7 +40,7 @@ FCKXml.prototype.LoadUrl = function( urlToCall )
 	}
 
 	oXmlHttp.open( "GET", urlToCall, false ) ;
-	
+
 	oXmlHttp.send( null ) ;
 
 	if ( oXmlHttp.status == 200 || oXmlHttp.status == 304 )
@@ -82,11 +78,11 @@ FCKXml.prototype.SelectNodes = function( xpath, contextNode )
 		return this.DOMDocument.selectNodes( xpath ) ;
 }
 
-FCKXml.prototype.SelectSingleNode = function( xpath, contextNode ) 
+FCKXml.prototype.SelectSingleNode = function( xpath, contextNode )
 {
 	if ( this.Error )
 		return null ;
-		
+
 	if ( contextNode )
 		return contextNode.selectSingleNode( xpath ) ;
 	else

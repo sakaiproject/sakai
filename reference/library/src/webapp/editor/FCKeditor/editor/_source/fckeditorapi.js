@@ -1,29 +1,25 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: fckeditorapi.js
- * 	Create the FCKeditorAPI object that is available as a global object in
- * 	the page where the editor is placed in.
- * 
- * File Authors:
- * 		Frederico Caldeira Knabben (www.fckeditor.net)
+ *
+ * Create the FCKeditorAPI object that is available as a global object in
+ * the page where the editor is placed in.
  */
 
 var FCKeditorAPI ;
@@ -34,43 +30,47 @@ function InitializeAPI()
 
 	if ( !( FCKeditorAPI = oParentWindow.FCKeditorAPI ) )
 	{
-		// Make the FCKeditorAPI object available in the parent window. Use 
-		// eval so this core runs in the parent's scope and so it will still be 
+		// Make the FCKeditorAPI object available in the parent window. Use
+		// eval so this core runs in the parent's scope and so it will still be
 		// available if the editor instance is removed ("Can't execute code
 		// from a freed script" error).
-		var sScript = 
+
+		// Note: we check the existence of oEditor.GetParentForm because some external 
+		// code (like JSON) can extend the Object protype and we get then extra oEditor 
+		// objects that aren't really FCKeditor instances.
+		var sScript =
 			'var FCKeditorAPI = {' +
-				'Version : "2.4",' +
-				'VersionBuild : "1148",' +
+				'Version : "2.4.1",' +
+				'VersionBuild : "14797",' +
 				'__Instances : new Object(),' +
-				
+
 				'GetInstance : function( name )' +
 				'{' +
 					'return this.__Instances[ name ];' +
 				'},' +
-				
+
 				'_FormSubmit : function()' +
 				'{' +
 					'for ( var name in FCKeditorAPI.__Instances )' +
 					'{' +
 						'var oEditor = FCKeditorAPI.__Instances[ name ] ;' +
-						'if ( oEditor.GetParentForm() == this )' +
+						'if ( oEditor.GetParentForm && oEditor.GetParentForm() == this )' +
 							'oEditor.UpdateLinkedField() ;' +
 					'}' +
 					'this._FCKOriginalSubmit() ;' +
 				'},' +
-				
+
 				'_FunctionQueue	: {' +
 					'Functions : new Array(),' +
 					'IsRunning : false,' +
-					
+
 					'Add : function( f )' +
 					'{' +
 						'this.Functions.push( f );' +
 						'if ( !this.IsRunning )' +
 							'this.StartNext();' +
 					'},' +
-					
+
 					'StartNext : function()' +
 					'{' +
 						'var aQueue = this.Functions ;' +
@@ -82,7 +82,7 @@ function InitializeAPI()
 						'else ' +
 							'this.IsRunning = false;' +
 					'},' +
-					
+
 					'Remove : function( f )' +
 					'{' +
 						'var aQueue = this.Functions;' +
@@ -97,7 +97,7 @@ function InitializeAPI()
 					'}' +
 				'}' +
 			'}' ;
-		
+
 		// In IE, the "eval" function is not always available (it works with
 		// the JavaScript samples, but not with the ASP ones, for example).
 		// So, let's use the execScript instead.
@@ -123,7 +123,7 @@ function InitializeAPI()
 			else
 				oParentWindow.eval( sScript ) ;
 		}
-		
+
 		FCKeditorAPI = oParentWindow.FCKeditorAPI ;
 	}
 
@@ -136,22 +136,22 @@ function _AttachFormSubmitToAPI()
 {
 	// Get the linked field form.
 	var oForm = FCK.GetParentForm() ;
-	
+
 	if ( oForm )
 	{
 		// Attach to the onsubmit event.
 		FCKTools.AddEventListener( oForm, 'submit', FCK.UpdateLinkedField ) ;
-		
+
 		// IE sees oForm.submit function as an 'object'.
 		if ( !oForm._FCKOriginalSubmit && ( typeof( oForm.submit ) == 'function' || ( !oForm.submit.tagName && !oForm.submit.length ) ) )
 		{
 			// Save the original submit.
 			oForm._FCKOriginalSubmit = oForm.submit ;
-			
+
 			// Create our replacement for the submit.
 			oForm.submit = FCKeditorAPI._FormSubmit ;
 		}
-	}	
+	}
 }
 
 function FCKeditorAPI_Cleanup()

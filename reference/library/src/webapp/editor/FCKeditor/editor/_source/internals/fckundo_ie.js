@@ -1,28 +1,24 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: fckundo_ie.js
- * 	IE specific implementation for the Undo/Redo system.
- * 
- * File Authors:
- * 		Frederico Caldeira Knabben (www.fckeditor.net)
+ *
+ * IE specific implementation for the Undo/Redo system.
  */
 
 var FCKUndo = new Object() ;
@@ -107,7 +103,7 @@ FCKUndo.Redo = function()
 FCKUndo._ApplyUndoLevel = function(level)
 {
 	var oData = FCKUndo.SavedData[ level ] ;
-	
+
 	if ( !oData )
 		return ;
 
@@ -115,13 +111,13 @@ FCKUndo._ApplyUndoLevel = function(level)
 	FCK.SetInnerHtml( oData[0] ) ;
 //	FCK.EditorDocument.body.innerHTML = oData[0] ;
 
-	if ( oData[1] ) 
+	if ( oData[1] )
 	{
 		var oRange = FCK.EditorDocument.selection.createRange() ;
 		oRange.moveToBookmark( oData[1] ) ;
 		oRange.select() ;
 	}
-	
-	FCKUndo.TypesCount = 0 ; 
+
+	FCKUndo.TypesCount = 0 ;
 	FCKUndo.Typing = false ;
 }

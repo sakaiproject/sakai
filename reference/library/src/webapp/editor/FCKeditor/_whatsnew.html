@@ -1,23 +1,23 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!--
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
- * --- BEGIN LICENSE ---
- * 
+ *
+ * == BEGIN LICENSE ==
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
- * --- END LICENSE ---
+ *
+ * == END LICENSE ==
 -->
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -29,6 +29,98 @@
 	</style>
 </head>
 <body>
+	<h3>
+		Version 2.4.1 (SVN)</h3>
+	<p>
+		New Features and Improvements:</p>
+	<ul>
+		<li>[<a target="_blank" href="http://dev.fckeditor.net/ticket/118">#118</a>] The SelectAll
+			command now is available in Source Mode.</li>
+		<li>The new open source FCKpackager sub-project is now available. It replaces the FCKeditor.Packager
+			software to compact the editor source.</li>
+		<li>With Firefox, if a paste execution is blocked by the browser security settings,
+			the new "Paste" popup is shown to the user to complete the pasting operation. </li>
+	</ul>
+	<p>
+		Fixed Bugs:</p>
+	<ul>
+		<li>Various fixes to the ColdFusion File Browser connector.</li>
+		<li>We are now pointing the download of ieSpell to their pages, instead to a direct
+			file download from one of their mirrors. This disables the ability of "click and
+			go" (which can still be achieved by pointing the download to a file in your server),
+			but removes any troubles with mirrors link changes (and they change it frequently).</li>
+		<li>The Word cleanup has been changed to remove "display:none" tags that may come from
+			Word.</li>
+		<li>[<a target="_blank" href="https://sourceforge.net/tracker/?func=detail&atid=543653&aid=1659613&group_id=75348">SF
+			BUG-1659613</a>] The 2.4 version introduced a bug in the flash handling code that
+			generated out of memory errors in IE7.</li>
+		<li>[<a target="_blank" href="https://sourceforge.net/tracker/?func=detail&atid=543653&aid=1660456&group_id=75348">SF
+			BUG-1660456</a>] The icons in context menus were draggable.</li>
+		<li>[<a target="_blank" href="https://sourceforge.net/tracker/?func=detail&atid=543653&aid=1653009&group_id=75348">SF
+			BUG-1653009</a>] If the server is configured to process html files as asp then it
+			generated ASP error 0138.</li>
+		<li>[<a target="_blank" href="https://sourceforge.net/tracker/?func=detail&atid=543653&aid=1288609&group_id=75348">SF
+			BUG-1288609</a>] The content of iframes is now preserved.</li>
+		<li>[<a target="_blank" href="https://sourceforge.net/tracker/?func=detail&atid=543653&aid=1245504&group_id=75348">SF
+			BUG-1245504</a>] [<a target="_blank" href="https://sourceforge.net/tracker/?func=detail&atid=543653&aid=1652240&group_id=75348">SF
+				BUG-1652240</a>] Flash files without the .swf extension weren't recognized upon
+			reload.</li>
+		<li>[<a target="_blank" href="https://sourceforge.net/tracker/?func=detail&aid=1649753&group_id=75348&atid=543655">SF
+			PATCH-1649753</a>] Node selection for text didn't work in IE. Thanks to yurik dot
+			m.</li>
+		<li>[<a target="_blank" href="https://sourceforge.net/tracker/?func=detail&aid=1573191&group_id=75348&atid=543653">SF
+			BUG-1573191</a>] The Html code inserted with FCK.InsertHtml didn't have the same
+			protection for special tags.</li>
+		<li>[<a target="_blank" href="http://dev.fckeditor.net/ticket/110">#110</a>] The OK
+			button in dialogs had its width set as an inline style.</li>
+		<li>[<a target="_blank" href="http://dev.fckeditor.net/ticket/113">#113</a>] [<a
+			target="_blank" href="http://dev.fckeditor.net/ticket/94">#94</a>] [<a target="_blank"
+				href="https://sourceforge.net/tracker/?func=detail&aid=1659270&group_id=75348&atid=543653">SF
+				BUG-1659270</a>] ForcePasteAsPlainText didn't work in Firefox.</li>
+		<li>[<a target="_blank" href="http://dev.fckeditor.net/ticket/114">#114</a>] The correct
+			entity is now used to fill empty blocks when ProcessHTMLEntities is disabled.</li>
+		<li>[<a target="_blank" href="http://dev.fckeditor.net/ticket/90">#90</a>] The editor
+			was wrongly removing some &lt;br&gt; tags from the code.</li>
+		<li>[<a target="_blank" href="http://dev.fckeditor.net/ticket/139">#139</a>] The CTRL+F
+			and CTRL+S keystroke default behaviors are now preserved.</li>
+		<li>[<a target="_blank" href="http://dev.fckeditor.net/ticket/138">#138</a>] We are
+			not providing a CTRL + ALT combination in the default configuration file because
+			it may be incompatible with some keyboard layouts. So, the CTRL + ALT + S combination
+			has been changed to CTRL + SHIFT + S.</li>
+		<li>[<a target="_blank" href="http://dev.fckeditor.net/ticket/129">#129</a>] In IE,
+			it was not possible to paste if "Allow paste operation via script" was disabled
+			in the browser security settings.</li>
+		<li>[<a target="_blank" href="http://dev.fckeditor.net/ticket/112">#112</a>] The enter
+			key now behaves correctly on lists with Firefox, when the EnterMode is set to 'br'.</li>
+		<li>[<a target="_blank" href="http://dev.fckeditor.net/ticket/152">#152</a>] Invalid
+			self-closing tags are now being fixed before loading. </li>
+		<li>A few tags were being ignored to the check for required contents (not getting stripped
+			out, as expected). Fixed.</li>
+		<li>[<a target="_blank" href="http://dev.fckeditor.net/ticket/202">#202</a>] The HR
+			tag will not anymore break the contents loaded in the editor.</li>
+		<li>[<a target="_blank" href="http://dev.fckeditor.net/ticket/211">#211</a>] Some invalid
+			inputs, like "&lt;p&gt;" where making the caret disappear in Firefox.</li>
+		<li>[<a target="_blank" href="http://dev.fckeditor.net/ticket/99">#99</a>] The &lt;div&gt;
+			element is now considered a block container if EnterMode=p|br. It acts like a simple
+			block only if EnterMode=div.</li>
+		<li>Hidden fields will now show up as an icon in IE, instead of a normal text field.
+			They are also selectable and draggable, in all browsers.</li>
+		<li>[<a target="_blank" href="http://dev.fckeditor.net/ticket/213">#213</a>] Styles
+			are now preserved when hitting enter at the end of a paragraph.</li>
+		<li>[<a target="_blank" href="http://dev.fckeditor.net/ticket/77">#77</a>] If ShiftEnterMode
+			is set to a block tag (p or div), the desired block creation in now enforced, instead
+			of copying the current block (which is still the behavior of the simple enter).</li>
+		<li>[<a target="_blank" href="http://dev.fckeditor.net/ticket/209">#209</a>] Links and
+			images URLs will now be correctly preserved with Netscape 7.1.</li>
+		<li>[<a target="_blank" href="http://dev.fckeditor.net/ticket/165">#165</a>] The enter
+			key now honors the EnterMode settings when outdenting a list item.</li>
+		<li>[<a target="_blank" href="http://dev.fckeditor.net/ticket/190">#190</a>] Toolbars
+			may be wrongly positioned. Fixed.</li>
+		<li>[<a target="_blank" href="http://dev.fckeditor.net/ticket/254">#254</a>] The IgnoreEmptyParagraphValue
+			setting is now correctly handled in Firefox.</li>
+		<li>[<a target="_blank" href="http://dev.fckeditor.net/ticket/254">#248</a>] The behavior
+			of the backspace key has been fixed on some very specific cases.</li>
+	</ul>
 	<h3>
 		Version 2.4</h3>
 	<p>
@@ -103,7 +195,8 @@
 		<li><span style="color: #ff0000">Attention:</span> All connectors are now pointing by
 			default to the "/userfiles/" folder instead of "/UserFiles/" (case change). Also,
 			the inner folders for each type (file, image, flash and media) are all lower-cased
-			too.</li><li><span style="color: #ff0000">Attention:</span> The UseBROnCarriageReturn configuration
+			too.</li>
+		<li><span style="color: #ff0000">Attention:</span> The UseBROnCarriageReturn configuration
 			is not anymore valid. The EnterMode setting can now be used to precisely set the
 			enter key behavior.</li>
 	</ul>
@@ -112,9 +205,9 @@
 	<ul>
 		<li>[<a target="_blank" href="https://sourceforge.net/tracker/?func=detail&atid=543653&aid=1444937&group_id=75348">SF
 			BUG-1444937</a>] [<a target="_blank" href="https://sourceforge.net/tracker/?func=detail&atid=543653&aid=1274364&group_id=75348">SF
-				BUG-1274364</a>] Shortcut keys are now undoable correctly.</li><li>[<a target="_blank"
-					href="https://sourceforge.net/tracker/?func=detail&atid=543653&aid=1015230&group_id=75348">SF
-					BUG-1015230</a>] Toolbar buttons now update their state on shortcut keys activation.</li>
+				BUG-1274364</a>] Shortcut keys are now undoable correctly.</li>
+		<li>[<a target="_blank" href="https://sourceforge.net/tracker/?func=detail&atid=543653&aid=1015230&group_id=75348">SF
+			BUG-1015230</a>] Toolbar buttons now update their state on shortcut keys activation.</li>
 		<li>[<a target="_blank" href="https://sourceforge.net/tracker/?func=detail&atid=543653&aid=1485621&group_id=75348">SF
 			BUG-1485621</a>] It is now possible to precisely control which shortcut keys can
 			be used.</li>
@@ -224,11 +317,11 @@
 			before. </li>
 		<li><font color="#ff0000">Attention:</font> The default directory in the distribution
 			package is now named "fckeditor" (in lowercase) instead of "FCKeditor".&nbsp; This
-			change may impact installations on case sensitive OSs, like Linux. 
-		</li>
-		<li><font color="#ff0000">Attention:</font> The "Universal Keyboard"
-			has been removed from the package. The license of those files was unclear so they
-			can't be included alongside the rest of FCKeditor.</li></ul>
+			change may impact installations on case sensitive OSs, like Linux. </li>
+		<li><font color="#ff0000">Attention:</font> The "Universal Keyboard" has been removed
+			from the package. The license of those files was unclear so they can't be included
+			alongside the rest of FCKeditor.</li>
+	</ul>
 	<h3>
 		Version 2.3.2</h3>
 	<p>
@@ -469,8 +562,9 @@
 		New Features and Improvements:</p>
 	<ul>
 		<li>The <strong>Toolbar Sharing</strong> system has been completed. See sample10.html
-			and sample11.html.*</li><li>[<a target="_blank" href="https://sourceforge.net/tracker/index.php?func=detail&aid=1407500&group_id=75348&atid=543655">SF
-				Patch-1407500</a>] Small enhancement to the Find and Replace dialog windows.</li>
+			and sample11.html.*</li>
+		<li>[<a target="_blank" href="https://sourceforge.net/tracker/index.php?func=detail&aid=1407500&group_id=75348&atid=543655">SF
+			Patch-1407500</a>] Small enhancement to the Find and Replace dialog windows.</li>
 	</ul>
 	<p>
 		Fixed Bugs:</p>
@@ -480,8 +574,8 @@
 		</li>
 		<li>An error in the image preloader system was making the toolbar strip being downloaded
 			once for each button on slow connections. Some enhancements have also been made
-			so now the smaple05.html is loading fast for all skins.</li><li>Fixed many memory leak
-				issues with IE.</li>
+			so now the smaple05.html is loading fast for all skins.</li>
+		<li>Fixed many memory leak issues with IE.</li>
 		<li>[<a target="_blank" href="https://sourceforge.net/tracker/index.php?func=detail&aid=1489768&group_id=75348&atid=543653">SF
 			BUG-1489768</a>] The panels (context menus, toolbar combos and color selectors),
 			where being displayed in the wrong position if the contents of the editor, or its
@@ -623,10 +717,11 @@
 	<ul>
 		<li><strong>Important security fixes have been applied to the File Manager, Uploader
 			and Connectors. Upgrade is highly recommended.</strong> Thanks to Alberto Moro,
-			Baudouin Lamourere and James Bercegay.</li><li>[<a target="_blank" href="https://sourceforge.net/tracker/index.php?func=detail&amp;aid=1399966&amp;group_id=75348&amp;atid=543653">SF
-				BUG-1399966</a>] [<a target="_blank" href="https://sourceforge.net/tracker/index.php?func=detail&amp;aid=1249853&amp;group_id=75348&amp;atid=543653">SF
-					BUG-1249853</a>] The &quot;BaseHref&quot; configuration is now working with
-				Firefox in both normal and full page modes.</li>
+			Baudouin Lamourere and James Bercegay.</li>
+		<li>[<a target="_blank" href="https://sourceforge.net/tracker/index.php?func=detail&amp;aid=1399966&amp;group_id=75348&amp;atid=543653">SF
+			BUG-1399966</a>] [<a target="_blank" href="https://sourceforge.net/tracker/index.php?func=detail&amp;aid=1249853&amp;group_id=75348&amp;atid=543653">SF
+				BUG-1249853</a>] The &quot;BaseHref&quot; configuration is now working with
+			Firefox in both normal and full page modes.</li>
 		<li>[<a target="_blank" href="https://sourceforge.net/tracker/index.php?func=detail&amp;aid=1405263&amp;group_id=75348&amp;atid=543653">SF
 			BUG-1405263</a>] A typo in the configuration file was impacting the Quick Upload
 			feature. </li>

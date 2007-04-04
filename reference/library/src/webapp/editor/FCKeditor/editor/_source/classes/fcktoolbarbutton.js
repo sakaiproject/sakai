@@ -1,28 +1,24 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: fcktoolbarbutton.js
- * 	FCKToolbarButton Class: represents a button in the toolbar.
- * 
- * File Authors:
- * 		Frederico Caldeira Knabben (www.fckeditor.net)
+ *
+ * FCKToolbarButton Class: represents a button in the toolbar.
  */
 
 var FCKToolbarButton = function( commandName, label, tooltip, style, sourceView, contextSensitive, icon )
@@ -32,7 +28,7 @@ var FCKToolbarButton = function( commandName, label, tooltip, style, sourceView,
 	this.Tooltip			= tooltip ;
 	this.Style				= style ;
 	this.SourceView			= sourceView ? true : false ;
-	this.ContextSensitive	= contextSensitive ? true : false ;	
+	this.ContextSensitive	= contextSensitive ? true : false ;
 
 	if ( icon == null )
 		this.IconPath = FCKConfig.SkinPath + 'toolbar/' + commandName.toLowerCase() + '.gif' ;
@@ -44,7 +40,7 @@ FCKToolbarButton.prototype.Create = function( targetElement )
 {
 	this._UIButton = new FCKToolbarButtonUI( this.CommandName, this.Label, this.Tooltip, this.IconPath, this.Style ) ;
 	this._UIButton.OnClick = this.Click ;
-	this._UIButton._ToolbarButton = this ;	
+	this._UIButton._ToolbarButton = this ;
 	this._UIButton.Create( targetElement ) ;
 }
 
@@ -52,10 +48,10 @@ FCKToolbarButton.prototype.RefreshState = function()
 {
 	// Gets the actual state.
 	var eState = FCK.ToolbarSet.CurrentInstance.Commands.GetCommand( this.CommandName ).GetState() ;
-	
+
 	// If there are no state changes than do nothing and return.
 	if ( eState == this._UIButton.State ) return ;
-	
+
 	// Sets the actual state.
 	this._UIButton.ChangeState( eState ) ;
 }

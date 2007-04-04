@@ -1,30 +1,25 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: fckmenublock.js
- * 	Renders a list of menu items.
- * 
- * File Authors:
- * 		Frederico Caldeira Knabben (www.fckeditor.net)
+ *
+ * Renders a list of menu items.
  */
-
 
 var FCKMenuBlock = function()
 {
@@ -40,10 +35,10 @@ FCKMenuBlock.prototype.Count = function()
 FCKMenuBlock.prototype.AddItem = function( name, label, iconPathOrStripInfoArrayOrIndex, isDisabled )
 {
 	var oItem = new FCKMenuItem( this, name, label, iconPathOrStripInfoArrayOrIndex, isDisabled ) ;
-	
+
 	oItem.OnClick		= FCKTools.CreateEventListener( FCKMenuBlock_Item_OnClick, this ) ;
 	oItem.OnActivate	= FCKTools.CreateEventListener( FCKMenuBlock_Item_OnActivate, this ) ;
-	
+
 	this._Items.push( oItem ) ;
 
 	return oItem ;
@@ -57,7 +52,7 @@ FCKMenuBlock.prototype.AddSeparator = function()
 FCKMenuBlock.prototype.RemoveAllItems = function()
 {
 	this._Items = new Array() ;
-	
+
 	var eItemsTable = this._ItemsTable ;
 	if ( eItemsTable )
 	{
@@ -82,15 +77,15 @@ FCKMenuBlock.prototype.Create = function( parentElement )
 		eTable.cellSpacing = 0 ;
 
 		FCKTools.DisableSelection( eTable ) ;
-		
+
 		var oMainElement = eTable.insertRow(-1).insertCell(-1) ;
 		oMainElement.className = 'MN_Menu' ;
-	
+
 		var eItemsTable = this._ItemsTable = oMainElement.appendChild( oDoc.createElement( 'table' ) ) ;
 		eItemsTable.cellPadding = 0 ;
-		eItemsTable.cellSpacing = 0 ;		
+		eItemsTable.cellSpacing = 0 ;
 	}
-	
+
 	for ( var i = 0 ; i < this._Items.length ; i++ )
 		this._Items[i].Create( this._ItemsTable ) ;
 }
@@ -105,14 +100,14 @@ function FCKMenuBlock_Item_OnClick( clickedItem, menuBlock )
 function FCKMenuBlock_Item_OnActivate( menuBlock )
 {
 	var oActiveItem = menuBlock._ActiveItem ;
-	
+
 	if ( oActiveItem && oActiveItem != this )
 	{
 		// Set the focus to this menu block window (to fire OnBlur on opened panels).
 		if ( !FCKBrowserInfo.IsIE && oActiveItem.HasSubMenu && !this.HasSubMenu )
 			menuBlock._Window.focus() ;
 
-		oActiveItem.Deactivate() ;		
+		oActiveItem.Deactivate() ;
 	}
 
 	menuBlock._ActiveItem = this ;
@@ -134,7 +129,7 @@ FCKMenuSeparator.prototype.Create = function( parentTable )
 	var oDoc = FCKTools.GetElementDocument( parentTable ) ;
 
 	var r = parentTable.insertRow(-1) ;
-	
+
 	var eCell = r.insertCell(-1) ;
 	eCell.className = 'MN_Separator MN_Icon' ;
 

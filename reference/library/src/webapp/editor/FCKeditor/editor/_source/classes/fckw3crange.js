@@ -1,30 +1,26 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: fckw3crange.js
- * 	This class partially implements the W3C DOM Range for browser that don't
- * 	support the standards (like IE):
- * 	http://www.w3.org/TR/DOM-Level-2-Traversal-Range/ranges.html
- * 
- * File Authors:
- * 		Frederico Caldeira Knabben (www.fckeditor.net)
+ *
+ * This class partially implements the W3C DOM Range for browser that don't
+ * support the standards (like IE):
+ * http://www.w3.org/TR/DOM-Level-2-Traversal-Range/ranges.html
  */
 
 var FCKW3CRange = function( parentDocument )
@@ -65,7 +61,7 @@ FCKW3CRange.CreateFromRange = function( parentDocument, sourceRange )
 	return range ;
 }
 
-FCKW3CRange.prototype = 
+FCKW3CRange.prototype =
 {
 
 	_UpdateCollapsed : function()
@@ -80,7 +76,7 @@ FCKW3CRange.prototype =
 	{
 		this.startContainer	= refNode ;
 		this.startOffset	= offset ;
-		
+
 		if ( !this.endContainer )
 		{
 			this.endContainer	= refNode ;
@@ -89,7 +85,7 @@ FCKW3CRange.prototype =
 
 		this._UpdateCollapsed() ;
 	},
-	
+
 	// W3C requires a check for the new position. If it is before the start
 	// boundary, the range should be collapsed to the new end. It seams we
 	// will not need this check for our use of this class so we can ignore it for now.
@@ -97,7 +93,7 @@ FCKW3CRange.prototype =
 	{
 		this.endContainer	= refNode ;
 		this.endOffset		= offset ;
-		
+
 		if ( !this.startContainer )
 		{
 			this.startContainer	= refNode ;
@@ -126,7 +122,7 @@ FCKW3CRange.prototype =
 	{
 		this.setEnd( refNode.parentNode, FCKDomTools.GetIndexOf( refNode ) ) ;
 	},
-	
+
 	collapse : function( toStart )
 	{
 		if ( toStart )
@@ -139,7 +135,7 @@ FCKW3CRange.prototype =
 			this.startContainer	= this.endContainer ;
 			this.startOffset	= this.endOffset ;
 		}
-		
+
 		this.collapsed = true ;
 	},
 
@@ -153,7 +149,7 @@ FCKW3CRange.prototype =
 	{
 		var startContainer = this.startContainer ;
 		var startOffset = this.startOffset ;
-		
+
 		// If we are in a text node.
 		if ( startContainer.nodeType == 3 )
 		{
@@ -162,10 +158,10 @@ FCKW3CRange.prototype =
 			// Check if it is necessary to update the end boundary.
 			if ( startContainer == this.endContainer )
 				this.setEnd( startContainer.nextSibling, this.endOffset - this.startOffset ) ;
-			
+
 			// Insert the new node it after the text node.
 			FCKDomTools.InsertAfterNode( startContainer, newNode ) ;
-	
+
 			return ;
 		}
 		else
@@ -186,7 +182,7 @@ FCKW3CRange.prototype =
 	{
 		if ( this.collapsed )
 			return ;
-		
+
 		this._ExecContentsAction( 0 ) ;
 	},
 
@@ -212,18 +208,18 @@ FCKW3CRange.prototype =
 	},
 
 	_ExecContentsAction : function( action, docFrag )
-	{	
+	{
 		var startNode	= this.startContainer ;
 		var endNode		= this.endContainer ;
-		
+
 		var startOffset	= this.startOffset ;
 		var endOffset	= this.endOffset ;
-		
+
 		var removeStartNode	= false ;
 		var removeEndNode	= false ;
-		
+
 		// Check the start and end nodes and make the necessary removals or changes.
-		
+
 		// Start from the end, otherwise DOM mutations (splitText) made in the
 		// start boundary may interfere on the results here.
 
@@ -254,7 +250,7 @@ FCKW3CRange.prototype =
 		if ( startNode.nodeType == 3 )
 		{
 			startNode.splitText( startOffset ) ;
-			
+
 			// In cases the end node is the same as the start node, the above
 			// splitting will also split the end, so me must move the end to
 			// the second part of the split.
@@ -279,29 +275,29 @@ FCKW3CRange.prototype =
 					startNode = startNode.childNodes[ startOffset ].previousSibling ;
 			}
 		}
-		
+
 		// Get the parent nodes tree for the start and end boundaries.
 		var startParents	= FCKDomTools.GetParents( startNode ) ;
 		var endParents		= FCKDomTools.GetParents( endNode ) ;
-		
+
 		// Compare them, to find the top most siblings.
 		var i, topStart, topEnd ;
-		
+
 		for ( i = 0 ; i < startParents.length ; i++ )
 		{
 			topStart	= startParents[i] ;
 			topEnd		= endParents[i] ;
-			
+
 			// The compared nodes will match until we find the top most
 			// siblings (different nodes that have the same parent).
-			// "i" will hold the index in the parants array for the top 
+			// "i" will hold the index in the parants array for the top
 			// most element.
 			if ( topStart != topEnd )
 				break ;
 		}
 
 		var clone, levelStartNode, levelClone, currentNode, currentSibling ;
-		
+
 		if ( docFrag )
 			clone = docFrag.RootNode ;
 
@@ -310,20 +306,20 @@ FCKW3CRange.prototype =
 		for ( var j = i ; j < startParents.length ; j++ )
 		{
 			levelStartNode = startParents[j] ;
-			
+
 			// For Extract and Clone, we must clone this level.
 			if ( clone && levelStartNode != startNode )		// action = 0 = Delete
 				levelClone = clone.appendChild( levelStartNode.cloneNode( levelStartNode == startNode ) ) ;
-			
+
 			currentNode = levelStartNode.nextSibling ;
-			
+
 			while( currentNode )
 			{
 				// Stop processing when the current node matches a node in the
 				// endParents tree or if it is the endNode.
 				if ( currentNode == endParents[j] || currentNode == endNode )
 					break ;
-				
+
 				// Cache the next sibling.
 				currentSibling = currentNode.nextSibling ;
 
@@ -334,19 +330,19 @@ FCKW3CRange.prototype =
 				{
 					// Both Delete and Extract will remove the node.
 					currentNode.parentNode.removeChild( currentNode ) ;
-					
+
 					// When Extracting, move the removed node to the docFrag.
 					if ( action == 1 )	// 1 = Extract
 						clone.appendChild( currentNode ) ;
 				}
-				
+
 				currentNode = currentSibling ;
 			}
-			
+
 			if ( clone )
 				clone = levelClone ;
 		}
-		
+
 		if ( docFrag )
 			clone = docFrag.RootNode ;
 
@@ -355,7 +351,7 @@ FCKW3CRange.prototype =
 		for ( var k = i ; k < endParents.length ; k++ )
 		{
 			levelStartNode = endParents[k] ;
-			
+
 			// For Extract and Clone, we must clone this level.
 			if ( action > 0 && levelStartNode != endNode )		// action = 0 = Delete
 				levelClone = clone.appendChild( levelStartNode.cloneNode( levelStartNode == endNode ) ) ;
@@ -382,7 +378,7 @@ FCKW3CRange.prototype =
 					{
 						// Both Delete and Extract will remove the node.
 						currentNode.parentNode.removeChild( currentNode ) ;
-						
+
 						// When Extracting, mode the removed node to the docFrag.
 						if ( action == 1 )	// 1 = Extract
 							clone.insertBefore( currentNode, clone.firstChild ) ;
@@ -391,11 +387,11 @@ FCKW3CRange.prototype =
 					currentNode = currentSibling ;
 				}
 			}
-			
+
 			if ( clone )
 				clone = levelClone ;
 		}
-		
+
 		if ( action == 2 )		// 2 = Clone.
 		{
 			// No changes in the DOM should be done, so fix the split text (if any).
@@ -417,12 +413,12 @@ FCKW3CRange.prototype =
 		else
 		{
 			// Collapse the range.
-	
+
 			// If a node has been partially selected, collapse the range between
 			// topStart and topEnd. Otherwise, simply collapse it to the start. (W3C specs).
 			if ( topStart && topEnd && ( startNode.parentNode != topStart.parentNode || endNode.parentNode != topEnd.parentNode ) )
 				this.setStart( topEnd.parentNode, FCKDomTools.GetIndexOf( topEnd ) ) ;
-			
+
 			// Collapse it to the start.
 			this.collapse( true ) ;
 		}
@@ -443,10 +439,10 @@ FCKW3CRange.prototype =
 	toString : function()
 	{
 		var docFrag = this.cloneContents() ;
-		
+
 		var tmpDiv = this._Document.createElement( 'div' ) ;
 		docFrag.AppendTo( tmpDiv ) ;
-		
+
 		return tmpDiv.textContent || tmpDiv.innerText ;
 	}
 } ;

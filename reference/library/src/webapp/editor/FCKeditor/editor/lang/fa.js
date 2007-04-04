@@ -1,29 +1,24 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: fa.js
- * 	Persian language file.
- * 
- * File Authors:
- * 		Hamed Taj-Abadi (hamed@ranginkaman.com)
- * 		Pooyan Mahdavi (pooyanmx -@- gmail -.- com)
+ *
+ * Persian language file.
  */
 
 var FCKLang =
@@ -342,7 +337,6 @@ DlgReplaceReplAllBtn	: "جایگزینی همهٴ یافته‌ها",
 DlgReplaceWordChk		: "همسانی با واژهٴ کامل",
 
 // Paste Operations / Dialog
-PasteErrorPaste	: "تنظیمات امنیتی مرورگر شما اجازه نمی‌دهد که ویرایشگر به طور خودکار عملکردهای چسباندن را انجام دهد. لطفا با دکمه‌های صفحه‌کلید این کار را انجام دهید (Ctrl+V).",
 PasteErrorCut	: "تنظیمات امنیتی مرورگر شما اجازه نمی‌دهد که ویرایشگر به طور خودکار عملکردهای برش را انجام دهد. لطفا با دکمه‌های صفحه‌کلید این کار را انجام دهید (Ctrl+X).",
 PasteErrorCopy	: "تنظیمات امنیتی مرورگر شما اجازه نمی‌دهد که ویرایشگر به طور خودکار عملکردهای کپی‌کردن را انجام دهد. لطفا با دکمه‌های صفحه‌کلید این کار را انجام دهید (Ctrl+C).",
 
@@ -350,6 +344,7 @@ PasteAsText		: "چسباندن به عنوان متن ِساده",
 PasteFromWord	: "چسباندن از Word",
 
 DlgPasteMsg2	: "لطفا متن را با کلیدهای (<STRONG>Ctrl+V</STRONG>) در این جعبهٴ متنی بچسبانید و <STRONG>پذیرش</STRONG> را بزنید.",
+DlgPasteSec		: "Because of your browser security settings, the editor is not able to access your clipboard data directly. You are required to paste it again in this window.",	//MISSING
 DlgPasteIgnoreFont		: "چشم‌پوشی از تعاریف نوع قلم",
 DlgPasteRemoveStyles	: "چشم‌پوشی از تعاریف سبک (style)",
 DlgPasteCleanBox		: "پاک‌کردن ناحیه",

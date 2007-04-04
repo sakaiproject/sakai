@@ -1,29 +1,25 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: fcktextcolorcommand.js
- * 	FCKTextColorCommand Class: represents the text color comand. It shows the
- * 	color selection panel.
- * 
- * File Authors:
- * 		Frederico Caldeira Knabben (www.fckeditor.net)
+ *
+ * FCKTextColorCommand Class: represents the text color comand. It shows the
+ * color selection panel.
  */
 
 // FCKTextColorCommand Contructor
@@ -34,7 +30,7 @@ var FCKTextColorCommand = function( type )
 	this.Type = type ;
 
 	var oWindow ;
-	
+
 	if ( FCKBrowserInfo.IsIE )
 		oWindow = window ;
 	else if ( FCK.ToolbarSet._IFrame )
@@ -46,7 +42,7 @@ var FCKTextColorCommand = function( type )
 	this._Panel.AppendStyleSheet( FCKConfig.SkinPath + 'fck_editor.css' ) ;
 	this._Panel.MainNode.className = 'FCK_Panel' ;
 	this._CreatePanelBody( this._Panel.Document, this._Panel.MainNode ) ;
-	
+
 	FCKTools.DisableSelection( this._Panel.Document.body ) ;
 }
 
@@ -67,7 +63,7 @@ FCKTextColorCommand.prototype.SetColor = function( color )
 	{
 		if ( FCKBrowserInfo.IsGecko && !FCKConfig.GeckoUseSPAN )
 			FCK.EditorDocument.execCommand( 'useCSS', false, false ) ;
-			
+
 		FCK.ExecuteNamedCommand( 'hilitecolor', color ) ;
 
 		if ( FCKBrowserInfo.IsGecko && !FCKConfig.GeckoUseSPAN )
@@ -75,7 +71,7 @@ FCKTextColorCommand.prototype.SetColor = function( color )
 	}
 	else
 		FCK.ExecuteNamedCommand( 'BackColor', color ) ;
-	
+
 	// Delete the "cached" active panel type.
 	delete FCK._ActiveColorPanelType ;
 }
@@ -118,7 +114,7 @@ FCKTextColorCommand.prototype._CreatePanelBody = function( targetDocument, targe
 		oDiv.className		= 'ColorDeselected' ;
 		oDiv.onmouseover	= FCKTextColorCommand_OnMouseOver ;
 		oDiv.onmouseout		= FCKTextColorCommand_OnMouseOut ;
-		
+
 		return oDiv ;
 	}
 
@@ -136,7 +132,7 @@ FCKTextColorCommand.prototype._CreatePanelBody = function( targetDocument, targe
 
 	// Create the Button for the "Automatic" color selection.
 	var oDiv = oCell.appendChild( CreateSelectionDiv() ) ;
-	oDiv.innerHTML = 
+	oDiv.innerHTML =
 		'<table cellspacing="0" cellpadding="0" width="100%" border="0">\
 			<tr>\
 				<td><div class="ColorBoxBorder"><div class="ColorBox" style="background-color: #000000"></div></div></td>\
@@ -155,7 +151,7 @@ FCKTextColorCommand.prototype._CreatePanelBody = function( targetDocument, targe
 	while ( iCounter < aColors.length )
 	{
 		var oRow = oTable.insertRow(-1) ;
-		
+
 		for ( var i = 0 ; i < 8 && iCounter < aColors.length ; i++, iCounter++ )
 		{
 			oDiv = oRow.insertCell(-1).appendChild( CreateSelectionDiv() ) ;

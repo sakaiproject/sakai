@@ -1,4 +1,4 @@
-"""
+﻿"""
 FCKeditor - The text editor for Internet - http://www.fckeditor.net
 Copyright (C) 2003-2007 Frederico Caldeira Knabben
 
@@ -18,11 +18,7 @@ choice:
 
 == END LICENSE ==
 
-File Name: fckeditor.py
-	This is the integration file for Python.
-
-File Authors:
-		Andrew Liu (andrew@liuholdings.com)
+This is the integration file for Python.
 """
 
 import cgi
@@ -110,7 +106,7 @@ class FCKeditor(object):
 					)
 		Html += "</div>"
 		return Html
-	
+
 	def IsCompatible(self):
 		if (os.environ.has_key("HTTP_USER_AGENT")):
 			sAgent = os.environ.get("HTTP_USER_AGENT", "")
@@ -150,4 +146,4 @@ class FCKeditor(object):
 				else:
 					sParams += "%s=%s" % (k, v)
 		return sParams
-					
+

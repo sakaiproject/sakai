@@ -1,30 +1,25 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: fck_othercommands.js
- * 	Definition of other commands that are not available internaly in the
- * 	browser (see FCKNamedCommand).
- * 
- * File Authors:
- * 		Frederico Caldeira Knabben (www.fckeditor.net)
- * 		Alfonso Martinez de Lizarrondo - Uritec (alfonso at uritec dot net)
+ *
+ * Definition of other commands that are not available internaly in the
+ * browser (see FCKNamedCommand).
  */
 
 // ### General Dialog Box Commands.
@@ -38,7 +33,7 @@ var FCKDialogCommand = function( name, title, url, width, height, getStateFuncti
 
 	this.GetStateFunction	= getStateFunction ;
 	this.GetStateParam		= getStateParam ;
-	
+
 	this.Resizable = false ;
 }
 
@@ -276,12 +271,12 @@ FCKPageBreakCommand.prototype.Execute = function()
 //	var e = FCK.EditorDocument.createElement( 'CENTER' ) ;
 //	e.style.pageBreakAfter = 'always' ;
 
-	// Tidy was removing the empty CENTER tags, so the following solution has 
+	// Tidy was removing the empty CENTER tags, so the following solution has
 	// been found. It also validates correctly as XHTML 1.0 Strict.
 	var e = FCK.EditorDocument.createElement( 'DIV' ) ;
 	e.style.pageBreakAfter = 'always' ;
 	e.innerHTML = '<span style="DISPLAY:none">&nbsp;</span>' ;
-	
+
 	var oFakeImage = FCKDocumentProcessor_CreateFakeImage( 'FCK__PageBreak', e ) ;
 	oFakeImage	= FCK.InsertElement( oFakeImage ) ;
 }
@@ -302,10 +297,10 @@ FCKUnlinkCommand.prototype.Execute = function()
 	if ( FCKBrowserInfo.IsGecko )
 	{
 		var oLink = FCK.Selection.MoveToAncestorNode( 'A' ) ;
-		if ( oLink ) 
+		if ( oLink )
 			FCK.Selection.SelectNode( oLink ) ;
 	}
-	
+
 	FCK.ExecuteNamedCommand( this.Name ) ;
 
 	if ( FCKBrowserInfo.IsGecko )
@@ -319,7 +314,7 @@ FCKUnlinkCommand.prototype.GetState = function()
 	// Check that it isn't an anchor
 	if ( state == FCK_TRISTATE_OFF && FCK.EditMode == FCK_EDITMODE_WYSIWYG )
 	{
-		var oLink = FCKSelection.MoveToAncestorNode( 'A' ) ; 
+		var oLink = FCKSelection.MoveToAncestorNode( 'A' ) ;
 		var bIsAnchor = ( oLink && oLink.name.length > 0 && oLink.href.length == 0 ) ;
 		if ( bIsAnchor )
 			state = FCK_TRISTATE_DISABLED ;
@@ -334,9 +329,52 @@ var FCKSelectAllCommand = function()
 	this.Name = 'SelectAll' ;
 }
 
-FCKSelectAllCommand.prototype = new FCKNamedCommand( 'SelectAll' ) ;
+FCKSelectAllCommand.prototype.Execute = function()
+{
+	if ( FCK.EditMode == FCK_EDITMODE_WYSIWYG )
+	{
+		FCK.ExecuteNamedCommand( 'SelectAll' ) ;
+	}
+	else
+	{
+		// Select the contents of the textarea
+		var textarea = FCK.EditingArea.Textarea ;
+		if ( FCKBrowserInfo.IsIE )
+		{
+			textarea.createTextRange().execCommand( 'SelectAll' ) ;
+		}
+		else
+		{
+			textarea.selectionStart = 0;
+			textarea.selectionEnd = textarea.value.length ;
+		}
+		textarea.focus() ;
+	}
+}
 
 FCKSelectAllCommand.prototype.GetState = function()
 {
 	return FCK_TRISTATE_OFF ;
 }
+
+// FCKPasteCommand
+var FCKPasteCommand = function()
+{
+	this.Name = 'Paste' ;
+}
+
+FCKPasteCommand.prototype =
+{
+	Execute : function()
+	{
+		if ( FCKBrowserInfo.IsIE )
+			FCK.Paste() ;
+		else
+			FCK.ExecuteNamedCommand( 'Paste' ) ;
+	},
+
+	GetState : function()
+	{
+		return FCK.GetNamedCommandState( 'Paste' ) ;
+	}
+} ;

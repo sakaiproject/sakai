@@ -1,28 +1,24 @@
 ﻿/*
  * FCKeditor - The text editor for Internet - http://www.fckeditor.net
  * Copyright (C) 2003-2007 Frederico Caldeira Knabben
- * 
+ *
  * == BEGIN LICENSE ==
- * 
+ *
  * Licensed under the terms of any of the following licenses at your
  * choice:
- * 
+ *
  *  - GNU General Public License Version 2 or later (the "GPL")
  *    http://www.gnu.org/licenses/gpl.html
- * 
+ *
  *  - GNU Lesser General Public License Version 2.1 or later (the "LGPL")
  *    http://www.gnu.org/licenses/lgpl.html
- * 
+ *
  *  - Mozilla Public License Version 1.1 or later (the "MPL")
  *    http://www.mozilla.org/MPL/MPL-1.1.html
- * 
+ *
  * == END LICENSE ==
- * 
- * File Name: fckspecialcombo.js
- * 	FCKSpecialCombo Class: represents a special combo.
- * 
- * File Authors:
- * 		Frederico Caldeira Knabben (www.fckeditor.net)
+ *
+ * FCKSpecialCombo Class: represents a special combo.
  */
 
 var FCKSpecialCombo = function( caption, fieldWidth, panelWidth, panelMaxHeight, parentWindow )
@@ -37,9 +33,9 @@ var FCKSpecialCombo = function( caption, fieldWidth, panelWidth, panelMaxHeight,
 	this.Style			= FCK_TOOLBARITEM_ICONTEXT ;
 
 	this.Enabled = true ;
-	
+
 	this.Items = new Object() ;
-	
+
 	this._Panel = new FCKPanel( parentWindow || window, true ) ;
 	this._Panel.AppendStyleSheet( FCKConfig.SkinPath + 'fck_editor.css' ) ;
 	this._PanelBox = this._Panel.MainNode.appendChild( this._Panel.Document.createElement( 'DIV' ) ) ;
@@ -47,7 +43,7 @@ var FCKSpecialCombo = function( caption, fieldWidth, panelWidth, panelMaxHeight,
 	this._PanelBox.style.width = this.PanelWidth + 'px' ;
 
 	this._PanelBox.innerHTML = '<table cellpadding="0" cellspacing="0" width="100%" style="TABLE-LAYOUT: fixed"><tr><td nowrap></td></tr></table>' ;
-	
+
 	this._ItemsHolderEl = this._PanelBox.getElementsByTagName('TD')[0] ;
 
 	if ( FCK.IECleanup )
@@ -96,23 +92,23 @@ FCKSpecialCombo.prototype.AddItem = function( id, html, label, bgColor )
 	// In IE, the width must be set so the borders are shown correctly when the content overflows.
 	if ( FCKBrowserInfo.IsIE )
 		oDiv.style.width = '100%' ;
-	
+
 	if ( bgColor )
 		oDiv.style.backgroundColor = bgColor ;
 
 	oDiv.onmouseover	= FCKSpecialCombo_ItemOnMouseOver ;
 	oDiv.onmouseout		= FCKSpecialCombo_ItemOnMouseOut ;
 	oDiv.onclick		= FCKSpecialCombo_ItemOnClick ;
-	
+
 	this.Items[ id.toString().toLowerCase() ] = oDiv ;
-	
+
 	return oDiv ;
 }
 
 FCKSpecialCombo.prototype.SelectItem = function( itemId )
 {
 	itemId = itemId ? itemId.toString().toLowerCase() : '' ;
-	
+
 	var oDiv = this.Items[ itemId ] ;
 	if ( oDiv )
 	{
@@ -131,7 +127,7 @@ FCKSpecialCombo.prototype.SelectItemByLabel = function( itemLabel, setLabel )
 		{
 			oDiv.className = oDiv.originalClass = 'SC_ItemSelected' ;
 			oDiv.Selected = true ;
-			
+
 			if ( setLabel )
 				this.SetLabel( itemLabel ) ;
 		}
@@ -145,7 +141,7 @@ FCKSpecialCombo.prototype.DeselectAll = function( clearLabel )
 		this.Items[i].className = this.Items[i].originalClass = 'SC_Item' ;
 		this.Items[i].Selected = false ;
 	}
-	
+
 	if ( clearLabel )
 		this.SetLabel( '' ) ;
 }
@@ -153,7 +149,7 @@ FCKSpecialCombo.prototype.DeselectAll = function( clearLabel )
 FCKSpecialCombo.prototype.SetLabelById = function( id )
 {
 	id = id ? id.toString().toLowerCase() : '' ;
-	
+
 	var oDiv = this.Items[ id ] ;
 	this.SetLabel( oDiv ? oDiv.FCKItemLabel : '' ) ;
 }
@@ -165,7 +161,7 @@ FCKSpecialCombo.prototype.SetLabel = function( text )
 	if ( this._LabelEl )
 	{
 		this._LabelEl.innerHTML = this.Label ;
-		
+
 		// It may happen that the label is some HTML, including tags. This
 		// would be a problem because when the user click on those tags, the
 		// combo will get the selection from the editing area. So we must
@@ -177,7 +173,7 @@ FCKSpecialCombo.prototype.SetLabel = function( text )
 FCKSpecialCombo.prototype.SetEnabled = function( isEnabled )
 {
 	this.Enabled = isEnabled ;
-	
+
 	this._OuterTable.className = isEnabled ? '' : 'SC_FieldDisabled' ;
 }
 
@@ -187,12 +183,12 @@ FCKSpecialCombo.prototype.Create = function( targetElement )
 	var eOuterTable = this._OuterTable = targetElement.appendChild( oDoc.createElement( 'TABLE' ) ) ;
 	eOuterTable.cellPadding = 0 ;
 	eOuterTable.cellSpacing = 0 ;
-	
+
 	eOuterTable.insertRow(-1) ;
-	
+
 	var sClass ;
 	var bShowLabel ;
-	
+
 	switch ( this.Style )
 	{
 		case FCK_TOOLBARITEM_ONLYICON :
@@ -214,7 +210,7 @@ FCKSpecialCombo.prototype.Create = function( targetElement )
 		oCaptionCell.innerHTML = this.Caption ;
 		oCaptionCell.className = 'SC_FieldCaption' ;
 	}
-	
+
 	// Create the main DIV element.
 	var oField = FCKTools.AppendElement( eOuterTable.rows[0].insertCell(-1), 'div' ) ;
 	if ( bShowLabel )
@@ -231,7 +227,7 @@ FCKSpecialCombo.prototype.Create = function( targetElement )
 		oField.className = 'TB_Button_Off' ;
 		//oField.innerHTML = '<span className="SC_FieldCaption">' + this.Caption + '<table cellpadding="0" cellspacing="0" style="TABLE-LAYOUT: fixed;"><tbody><tr><td class="SC_FieldButton" style="border-left: none;">&nbsp;</td></tr></tbody></table>' ;
 		//oField.innerHTML = '<table cellpadding="0" cellspacing="0" style="TABLE-LAYOUT: fixed;"><tbody><tr><td class="SC_FieldButton" style="border-left: none;">&nbsp;</td></tr></tbody></table>' ;
-		
+
 		// Gets the correct CSS class to use for the specified style (param).
 		oField.innerHTML = '<table title="' + this.Tooltip + '" class="' + sClass + '" cellspacing="0" cellpadding="0" border="0">' +
 				'<tr>' +
@@ -249,7 +245,7 @@ FCKSpecialCombo.prototype.Create = function( targetElement )
 	// Events Handlers
 
 	oField.SpecialCombo = this ;
-	
+
 	oField.onmouseover	= FCKSpecialCombo_OnMouseOver ;
 	oField.onmouseout	= FCKSpecialCombo_OnMouseOut ;
 	oField.onclick		= FCKSpecialCombo_OnClick ;
@@ -263,13 +259,13 @@ function FCKSpecialCombo_Cleanup()
 	this._OuterTable = null ;
 	this._ItemsHolderEl = null ;
 	this._PanelBox = null ;
-	
+
 	if ( this.Items )
 	{
 		for ( var key in this.Items )
 			this.Items[key] = null ;
 	}
-}	
+}
 
 function FCKSpecialCombo_OnMouseOver()
 {
@@ -289,7 +285,7 @@ function FCKSpecialCombo_OnMouseOver()
 		}
 	}
 }
-	
+
 function FCKSpecialCombo_OnMouseOut()
 {
 	switch ( this.SpecialCombo.Style )
@@ -305,17 +301,17 @@ function FCKSpecialCombo_OnMouseOut()
 			break ;
 	}
 }
-	
+
 function FCKSpecialCombo_OnClick( e )
 {
-	// For Mozilla we must stop the event propagation to avoid it hiding 
+	// For Mozilla we must stop the event propagation to avoid it hiding
 	// the panel because of a click outside of it.
 //	if ( e )
 //	{
 //		e.stopPropagation() ;
 //		FCKPanelEventHandlers.OnDocumentClick( e ) ;
 //	}
-	
+
 	var oSpecialCombo = this.SpecialCombo ;
 
 	if ( oSpecialCombo.Enabled )
@@ -324,7 +320,7 @@ function FCKSpecialCombo_OnClick( e )
 		var oPanelBox		= oSpecialCombo._PanelBox ;
 		var oItemsHolder	= oSpecialCombo._ItemsHolderEl ;
 		var iMaxHeight		= oSpecialCombo.PanelMaxHeight ;
-		
+
 		if ( oSpecialCombo.OnBeforeClick )
 			oSpecialCombo.OnBeforeClick( oSpecialCombo ) ;
 
@@ -342,7 +338,7 @@ function FCKSpecialCombo_OnClick( e )
 //		}
 		else
 			oPanelBox.style.height = '' ;
-			
+
 //		oPanel.PanelDiv.style.width = oSpecialCombo.PanelWidth + 'px' ;
 
 		oPanel.Show( 0, this.offsetHeight, this ) ;
@@ -351,7 +347,7 @@ function FCKSpecialCombo_OnClick( e )
 //	return false ;
 }
 
-/* 
+/*
 Sample Combo Field HTML output:
 
 <div class="SC_Field" style="width: 80px;">
