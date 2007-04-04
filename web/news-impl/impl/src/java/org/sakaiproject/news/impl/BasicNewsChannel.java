@@ -39,6 +39,7 @@ import org.sakaiproject.news.api.NewsFormatException;
 import org.sakaiproject.news.api.NewsItem;
 import org.sakaiproject.news.api.NewsItemEnclosure;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 
 import com.sun.syndication.feed.synd.SyndEnclosure;
@@ -120,6 +121,8 @@ public class BasicNewsChannel implements NewsChannel
 	{
 		SyndFeed feed = null;
 
+		ResourceLoader rl = new ResourceLoader("news-impl");
+
 		try
 		{
 			URL feedUrl = new URL(source);
@@ -130,18 +133,18 @@ public class BasicNewsChannel implements NewsChannel
 		catch (MalformedURLException e)
 		{
 			if (M_log.isDebugEnabled()) M_log.debug("initChannel(" + source + ") bad url: " + e.getMessage());
-			throw new NewsFormatException("\"" + source + "\" is not a complete and valid URL.");
+			throw new NewsFormatException("\"" + source + "\" " + rl.getString("is_not_a_valid_url"));
 		}
 		catch (IOException e)
 		{
 			if (M_log.isDebugEnabled())
 				M_log.debug("initChannel(" + source + ") constructor: couldn't connect: " + e.getMessage());
-			throw new NewsConnectionException("Unable to obtain news feed from " + source);
+			throw new NewsConnectionException( rl.getString("unable_to_obtain_news_feed") + " " + source);
 		}
 		catch (Exception e)
 		{
 			M_log.info("initChannel(" + source + ") constructor: couldn't parse: " + e.getMessage());
-			throw new NewsConnectionException("Unable to interpret news feed from " + source);
+			throw new NewsConnectionException(rl.getString("unable_to_interpret") +" " + source);
 		}
 
 		m_title = feed.getTitle();
