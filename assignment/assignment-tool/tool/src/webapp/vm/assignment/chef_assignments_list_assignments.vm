@@ -380,11 +380,13 @@
 															#if ($activityHelperInfo)
 																| <a href="#toolLinkParam("$action" "doHelp_activity" "activityRef=$validator.escapeUrl($activity.reference)&providerId=$validator.escapeUrl($provider.id)")" title="$!activityHelperInfo.description">$!activityHelperInfo.name</a>
 															#end
-															#set ($itemHelperInfo = false)
-															#set ($item = $producer.getItem($submission, $user.getId()))
-															#set ($itemHelperInfo = $provider.getItemHelperInfo($item.reference))
-															#if ($itemHelperInfo)
-																| <a href="#toolLinkParam("$action" "doHelp_item" "itemRef=$validator.escapeUrl($item.reference)&providerId=$validator.escapeUrl($provider.id)")" title="$!itemHelperInfo.description">$!itemHelperInfo.name</a>
+															#if ($submission)
+																#set ($itemHelperInfo = false)
+																#set ($item = $producer.getItem($submission, $user.getId()))
+																#set ($itemHelperInfo = $provider.getItemHelperInfo($item.reference))
+																#if ($itemHelperInfo)
+																	| <a href="#toolLinkParam("$action" "doHelp_item" "itemRef=$validator.escapeUrl($item.reference)&providerId=$validator.escapeUrl($provider.id)")" title="$!itemHelperInfo.description">$!itemHelperInfo.name</a>
+																#end
 															#end
 														#end
 													</div>
