@@ -29,8 +29,12 @@
 				</a>
 			#end
 			#if ($currentPlacement)
-         	 > <a href="${currentPlacement.toolResetActionUrl}" target="${currentPlacement.toolPlacementIDJS}"
-               >${currentPlacement.toolTitle}</a>
+#if ( ${bufferedResponse} && ${responseBody} ) 
+          > ${currentPlacement.toolTitle}
+#else
+          > <a href="${currentPlacement.toolResetActionUrl}" target="${currentPlacement.toolPlacementIDJS}" 
+		>${currentPlacement.toolTitle}</a>
+#end
 			#end
 			#if (${currentPlacement.toolShowHelpButton})
 				#if (${currentPlacement.toolJSR168Help} )
@@ -60,7 +64,13 @@
 			</div>
 		</div> <!--end of menu bar -->
 	#if ($currentPlacement)
+#if ( ${bufferedResponse} && ${responseBody} ) 
+<!-- Buffered Body Tool Content -->
+${responseBody}
+<!-- End Buffered Body Tool Content -->
+#else
 		#includeToolBody ( $currentPlacement )
+#end
 	#else
 		#if ($currentSite)
 			<ul id="pda-portlet-page-menu"> 

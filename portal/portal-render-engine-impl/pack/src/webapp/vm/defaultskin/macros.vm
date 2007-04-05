@@ -21,6 +21,11 @@
     <title>${pageTitle}</title>
     <script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
     
+#if ( ${bufferedResponse} && ${responseHead} ) 
+<!-- Head material from Tool -->
+${responseHead}
+<!-- End of Head material from Tool -->
+#end
     
     
     
