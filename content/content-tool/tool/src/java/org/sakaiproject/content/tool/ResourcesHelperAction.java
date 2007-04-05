@@ -188,6 +188,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		context.put("tlang", rb);
 		
 		context.put("validator", new Validator());
+		context.put("copyright_alert_url", COPYRIGHT_ALERT_URL);
 		
 		if(state.getAttribute(ResourcesAction.STATE_MESSAGE) != null)
 		{

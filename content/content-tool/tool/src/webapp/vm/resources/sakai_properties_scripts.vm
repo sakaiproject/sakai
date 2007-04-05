@@ -16,7 +16,7 @@
 		}
 	}
 	function openSampleCopyrightWindow() 
-	{ 
+	{
 	  window.open("$copyright_alert_url","SampleCopyrightAlert","scrollbars=no,menubar=no,height=400,width=700,resizable=no,toolbar=no,location=no,status=no");
 	  return false;
 	}
@@ -306,8 +306,8 @@
 		attachEventHandlers();
 		
 		resizeFrame('grow');
-		focus_path = [ "content" + DOT + index ];
-		setFocus(focus_path);
+##		focus_path = [ "content" + DOT + index ];
+##		setFocus(focus_path);
 	}
 	function removeFileItem(index)
 	{
@@ -446,7 +446,7 @@
 				removeTextNodes(element);
 				var newText = document.createTextNode("$tlang.getString("edit.hide")");
 				element.appendChild(newText);
-				focus_path = [ "content$DOT" + index ];
+##				focus_path = [ "content$DOT" + index ];
 			}
 			else
 			{
@@ -454,10 +454,10 @@
 				removeTextNodes(element);
 				var newText = document.createTextNode("$tlang.getString("edit.show")");
 				element.appendChild(newText);
-				focus_path = [ "description$DOT" + index ];
+##				focus_path = [ "description$DOT" + index ];
 			}
 			resizeFrame('grow');
-			setFocus(focus_path);
+##			setFocus(focus_path);
 		}
 	}
 	function removeTextNodes(element)
@@ -596,8 +596,8 @@
 				{
 					copyrightDiv.style.display="block";
 					resizeFrame('grow');
-					focus_path = [ "newcopyright${DOT}" + index ];
-					setFocus(focus_path);
+##					focus_path = [ "newcopyright${DOT}" + index ];
+##					setFocus(focus_path);
 				}
 				else
 				{
