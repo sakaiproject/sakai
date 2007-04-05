@@ -304,6 +304,9 @@ create table GB_COMMENT_T (
 	GRADABLE_OBJECT_ID number(19,0) not null,
 	primary key (ID),
 	unique (STUDENT_ID, GRADABLE_OBJECT_ID));
+	
+CREATE SEQUENCE GB_COMMENT_S;
+	
 
 -- Remove database-caching of calculated course grades.
 alter table GB_GRADE_RECORD_T drop column SORT_GRADE;
