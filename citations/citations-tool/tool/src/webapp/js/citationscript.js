@@ -1,11 +1,10 @@
 /*
  * define the CitationsHelperFrame object
  */
-function CitationsHelperFrame( frameName ) {
-  this.frameName = frameName;
-  
+function CitationsHelperFrame( baseUrl, mode ) {
+  this.baseUrl = baseUrl;
+  this.mode    = mode;
   this.refreshCitationsHelper = refreshCitationsHelper;
-  this.submitform = submitform;
 }
 
 /*
@@ -13,12 +12,24 @@ function CitationsHelperFrame( frameName ) {
  * LIST and ADD_CITATIONS modes (citationsHelperMode variable needs to be set)
  */
 function refreshCitationsHelper() {
-  if( this.citationsHelperMode == "ADD_CITATIONS" ) {
-    document.getElementById('sakai_action').value='doAddCitations';
-    this.submitform( this.formname );
-  } else if( this.citationsHelperMode == "LIST" ) {
-    document.getElementById('sakai_action').value='doList';
-    this.submitform( this.formname );
+  if( this.mode == "LIST" ) {
+    // need to reload page instead of just count
+    window.location.assign( this.baseUrl + "&sakai_action=doList" );
+  } else {
+    // need to reload just the count
+    if( document.getElementById( "messageDiv" ) ) {
+      // need to have ?panel=null in the URL
+      if( ! this.baseUrl.match( "panel\=null" ) ) {
+        this.baseUrl += "?panel=null";
+      }
+    
+      $( "#messageDiv" ).load( this.baseUrl + "&sakai_action=doMessageFrame&operation=refreshCount",
+        function() {
+          // update the citation list count using the value from the AJAX response
+          $( "#citationCountDisplay" ).html( document.getElementById( "citationCount" ).value );
+        }
+      );
+    }
   }
 }
 

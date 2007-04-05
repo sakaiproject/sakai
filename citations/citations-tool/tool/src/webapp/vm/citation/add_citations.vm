@@ -112,16 +112,11 @@ doubleDeep = true;
 				#end				
 			</div>
 		</form>
-		<div id="scratch_space">
-		</div>
 	</div>
 </div>
+<div id="messageDiv" style="display: none;"></div>
 <script type="text/javascript">
-// set up screen refresh
-if( !top.citationsHelperFrame ) {
-  top.citationsHelperFrame = new CitationsHelperFrame( window.name );
-}
-top.citationsHelperFrame.citationsHelperMode = "$citationsHelperMode";
-top.citationsHelperFrame.formname = "$FORM_NAME";
+// set up count refresh
+top.citationsHelperFrame = new CitationsHelperFrame( "#toolForm("CitationHelperAction")", "$citationsHelperMode" );
 </script>
 

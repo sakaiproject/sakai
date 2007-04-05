@@ -79,14 +79,16 @@
         $tlang.getString( "label.process" )
       </span>
     </p>
-  
-    <div id="messageDiv" style="display: none;"></div>
-    
+
   </div>  <!-- end div.indnt1 -->
   
 </div>  <!-- end div.portletBody -->
 
+<div id="messageDiv" style="display: none;"></div>
 <script type="text/javascript">
+// set up count refresh
+top.citationsHelperFrame = new CitationsHelperFrame( "#toolForm("CitationHelperAction")", "$citationsHelperMode" );
+
   // catch the "enter" key
   $( '.basicField, .advField' ).keydown( function( e ) {
     if (e.keyCode == 13) {

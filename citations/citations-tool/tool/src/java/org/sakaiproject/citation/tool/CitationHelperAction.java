@@ -2088,6 +2088,21 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		String operation = params.getString("operation");
 
 		// check params
+		if( operation == null )
+		{
+			logger.warn( "doMessageFrame() 'operation' null argument" );
+			setMode(state, Mode.ERROR);
+			return;
+		}
+		
+		if( operation.trim().equalsIgnoreCase( "refreshCount" ) )
+		{
+			// do not need to do anything, let buildMessagePanelContext update
+			// count for citations
+			setMode( state, Mode.MESSAGE );
+			return;
+		}
+		
 		if( operation == null || citationId == null || collectionId == null )
 		{
 			logger.warn( "doMessageFrame() null argument - operation: " +

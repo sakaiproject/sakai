@@ -120,7 +120,12 @@
   </form>
   </div>
 </div>
+<div id="messageDiv" style="display: none;"></div>
 <script type="text/javascript">
+// set up count refresh
+top.citationsHelperFrame = new CitationsHelperFrame( "#toolForm("CitationHelperAction")", "$citationsHelperMode" );
+
+/*
   // initialize the AJAX spinner
   $( "#dbLoading" ).ajaxStart( function() {
     $( this ).show();
@@ -128,7 +133,8 @@
   $( "#dbLoading" ).ajaxStop( function() {
     $( this ).hide();
   });
-  
+*/
+
   // catch the "enter" key
   $( '.basicField, .advField' ).keydown( function( e ) {
     if (e.keyCode == 13) {
@@ -175,8 +181,14 @@ function categoryChange( level, id ) {
 function showDatabases( id ) {
   $("#databaseArea").hide()
   if( id != "null" ) {
+    $( "#dbLoading" ).show();
     $("#databaseArea").load("#toolForm("CitationHelperAction")&sakai_action=doDatabasePopulate&categoryId=" + id,
-      function() { $("#databaseArea").show(); resizeFrame(); highlightCheckedSelections();  }
+      function() {
+        $( "#dbLoading" ).hide();
+        $( "#databaseArea" ).show();
+        resizeFrame();
+        highlightCheckedSelections();
+      }
     );
   }
 }
