@@ -2226,6 +2226,7 @@ public class DiscussionForumTool
     attachments.clear();
     prepareRemoveAttach.clear();
     assignments.clear();
+    refreshPendingMsgs = true;
   
   }
 
