@@ -4756,6 +4756,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				finishAction(state, toolSession, pipe);
 			}
 			toolSession.removeAttribute(ResourceToolAction.DONE);
+			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
 		}
 
 		String template = null;
