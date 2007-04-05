@@ -112,7 +112,7 @@ public class ConfirmPublishAssessmentListener
     }
     //Gradebook right now only excep if total score >0 check if total score<=0 then throw error.
    
-    if(assessmentSettings.getToDefaultGradebook().equals("1"))
+    if(assessmentSettings.getToDefaultGradebook() != null && assessmentSettings.getToDefaultGradebook().equals("1"))
 	{
  	    if(assessmentBean.getTotalScore()<=0)
 		{
