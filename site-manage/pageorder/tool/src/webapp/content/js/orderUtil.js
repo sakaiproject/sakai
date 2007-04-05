@@ -128,8 +128,9 @@ function doSaveEdit(clickedLink) {
 		var status = $("#call-results").find("#value").text();
 		$(li).find(".item_edit_box").hide();
 		if (status == 'pass') {
+			newTitle = $("#call-results").find("#pageId strong").html();	
 			$(li).find(".item_label_box").empty();
-			$(li).find(".item_label_box").append(newTitle.val());
+			$(li).find(".item_label_box").append(newTitle);
 		}
 		$(li).find(".item_label_box").show();
 		$(li).find(".item_label_box").attr("style", "display: inline");
@@ -225,3 +226,4 @@ function addTool(draggable, manual) {
 	resetFrame();
 	return false;
 }
+
