@@ -297,6 +297,9 @@ create table GB_COMMENT_T (
 	GRADABLE_OBJECT_ID bigint not null,
 	primary key (ID),
 	unique (STUDENT_ID, GRADABLE_OBJECT_ID));
+alter table GB_COMMENT_T 
+	add index FK7977DFF06F98CFF (GRADABLE_OBJECT_ID), 
+	add constraint FK7977DFF06F98CFF foreign key (GRADABLE_OBJECT_ID) references GB_GRADABLE_OBJECT_T (ID);
 
 -- Remove database-caching of calculated course grades.
 alter table GB_GRADE_RECORD_T drop column SORT_GRADE;
