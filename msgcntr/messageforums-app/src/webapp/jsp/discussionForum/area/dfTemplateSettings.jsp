@@ -17,7 +17,7 @@
 		  		  <h:outputText id="instruction" value="#{msgs.cdfm_default_template_settings_instruction}"/>
 				</div>
 				
-				<h4><h:outputText  value="#{msgs.cdfm_forum_posting}"/></h4>
+				<div class="discTria" style="padding: 0.5em;"><h4><h:outputText  value="#{msgs.cdfm_forum_posting}" /></h4></div>
 				<h:panelGrid columns="2" columnClasses="shorttext,checkbox">
 				  <h:panelGroup><h:outputLabel id="outputLabel4" for="moderated"  value="#{msgs.cdfm_moderate_forums}"/>	</h:panelGroup>
 				  <h:panelGroup>

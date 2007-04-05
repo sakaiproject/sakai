@@ -90,7 +90,7 @@
 					</h:column>
 					</h:dataTable>   
 
-				<h4><h:outputText  value="#{msgs.cdfm_forum_posting}"/></h4>
+			<div class="discTria" style="padding: 0.5em;"><h4><h:outputText  value="#{msgs.cdfm_forum_posting}"/></h4></div>
    	  <h:panelGrid columns="2" >
    			<h:panelGroup>
 				  <h:outputLabel for="forum_locked"  value="#{msgs.cdfm_lock_forum}" styleClass="shorttext"/>	
