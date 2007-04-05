@@ -4489,7 +4489,7 @@ public class SiteAction extends PagedResourceActionII {
 			} catch (Exception e) {
 				// ignore
 			}
-			siteInfo.title = appendTermInSiteTitle(state, title);
+			siteInfo.title = title;
 		}
 		state.setAttribute(STATE_SITE_INFO, siteInfo);
 
@@ -9442,48 +9442,6 @@ public class SiteAction extends PagedResourceActionII {
 			}
 		}
 	} // addNewSite
-
-	/**
-	 * Use the AuthzGroup Provider Id to build a Site tab
-	 * 
-	 * @throws IdUnusedException
-	 * 
-	 */
-	private String getCourseTab(SessionState state, String id) {
-		StringBuffer tab = new StringBuffer();
-
-		try {
-			String courseName = cms.getSection(id).getTitle();
-			if (courseName != null && courseName.length() > 0) {
-				tab.append(courseName);
-				return appendTermInSiteTitle(state, tab.toString());
-			}
-		} catch (Exception ignore) {
-
-		}
-
-		return "";
-
-	}// getCourseTab
-
-	private String appendTermInSiteTitle(SessionState state, String title) {
-		// append term information into the tab in order to differenciate same
-		// course taught in different terms
-		if (state.getAttribute(STATE_TERM_SELECTED) != null) {
-			AcademicSession t = (AcademicSession) state
-					.getAttribute(STATE_TERM_SELECTED);
-			title = title.concat(" ").concat(t.getEid());
-			/*
-			 * sorry! academicSession don't ve abbrev. if
-			 * (StringUtil.trimToNull(t.getListAbbreviation()) != null) { // use
-			 * term abbreviation, if any title = title.concat("
-			 * ").concat(t.getListAbbreviation()); } else { // use term id title =
-			 * title.concat(" ").concat(t.getId()); }
-			 */
-		}
-		return title;
-
-	} // appendTermInSiteTitle
 
 	/**
 	 * %%% legacy properties, to be cleaned up
