@@ -48,7 +48,6 @@ function submitAddNotListed(){
     manual_add.value="true";
     continueButton = document.getElementById("continueButton");
     continueButton.click();
-    document.addCourseForm.submit(); 
     return false;
 }
 
@@ -57,7 +56,6 @@ function submitFindCourse(){
     find_course.value="true";
     continueButton = document.getElementById("continueButton");
     continueButton.click();
-    document.addCourseForm.submit(); 
     return false;
 }
 
