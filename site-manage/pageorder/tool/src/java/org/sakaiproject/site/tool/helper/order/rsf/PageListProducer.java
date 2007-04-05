@@ -95,10 +95,12 @@ public class PageListProducer
 
                 if (page.getTools().size() == 1) {
                     ToolConfiguration tool = (ToolConfiguration) page.getTools().get(0);
-                  
-                    //if the page only has one tool and it's not site info we allow the user to delete it here
+
+                    //if the page only has one tool and it's not site info or required we allow the user to delete it here
                     //TODO: can we get the fact that site info called us
-                    if (!"sakai.siteinfo".equals(tool.getToolId())) {
+                    if (!handler.isRequired(tool.getToolId()) && !"sakai.sitesetup".equals(tool.getToolId())
+                            && !"sakai.siteinfo".equals(tool.getToolId())) {
+
                         param.viewID = PageDelProducer.VIEW_ID;
                         UIInternalLink.make(pagerow, "del-link", param).decorators =
                             new DecoratorList(new UITooltipDecorator(messageLocator

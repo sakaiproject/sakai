@@ -241,7 +241,33 @@ public class SitePageEditHandler {
 
         return "";
     }
-    
+
+    /**
+     * Checks if a given toolId is required or not for the current site being edited
+     *
+     * @param toolId
+     * @return true if the tool is required
+     */
+    public boolean isRequired(String toolId) {
+        if (site == null) {
+            init();
+        }
+
+        List requiredTools = null;
+        if (site.getType() == null || siteService.isUserSite(site.getId())) {
+            requiredTools = serverConfigurationService.getToolsRequired("myworkspace");
+        }
+        else {
+            requiredTools = serverConfigurationService.getToolsRequired(site.getType());
+        }
+
+        if (requiredTools != null && requiredTools.contains(toolId)) {
+            return true;
+        }
+        return false;
+    }   
+
+
     /**
      * Checks if users without site.upd can see a page or not
      * 
