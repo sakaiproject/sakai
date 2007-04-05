@@ -3630,6 +3630,7 @@ public class DiscussionForumTool
 		  messageManager.markMessageApproval(msgId, false);
 		  selectedMessage = new DiscussionMessageBean(messageManager.getMessageByIdWithAttachments(msgId), messageManager);
 		  setSuccessMessage(getResourceBundleString("cdfm_denied_alert"));
+		  getThreadFromMessage();
 	  }
 	  
 	  refreshPendingMsgs = true;
@@ -3668,6 +3669,7 @@ public class DiscussionForumTool
 		  messageManager.markMessageApproval(msgId, true);
 		  selectedMessage = new DiscussionMessageBean(messageManager.getMessageByIdWithAttachments(msgId), messageManager);
 		  setSuccessMessage(getResourceBundleString("cdfm_approved_alert"));
+		  getThreadFromMessage();
 	  }
 	  
 	  refreshPendingMsgs = true;

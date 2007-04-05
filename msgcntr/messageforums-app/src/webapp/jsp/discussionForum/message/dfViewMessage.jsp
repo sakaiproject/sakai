@@ -133,10 +133,10 @@
 		  		</h:commandLink>
 		  	</h:panelGroup>
 		  	<h:panelGroup styleClass="specialLink" style="text-align:right;float:right;">
-		  		<h:commandLink title="#{msgs.cdfm_button_bar_deny}" action="#{ForumTool.processDfMsgDenyAndComment}" 
+		  		<h:commandLink title="#{msgs.cdfm_button_bar_deny}" action="#{ForumTool.processDfMsgDeny}" 
 		  			rendered="#{ForumTool.allowedToDenyMsg}">
-		  			<h:graphicImage value="/images/silk/cross.png" alt="#{msgs.cdfm_button_bar_deny_and_comment}" />
-		  			<h:outputText value=" #{msgs.cdfm_button_bar_deny_and_comment}" />
+		  			<h:graphicImage value="/images/silk/cross.png" alt="#{msgs.cdfm_button_bar_deny}" />
+		  			<h:outputText value=" #{msgs.cdfm_button_bar_deny}" />
 		  		</h:commandLink>
 		  		<h:commandLink title="#{msgs.cdfm_button_bar_add_comment}" action="#{ForumTool.processDfMsgAddComment}" 
 		  			rendered="#{ForumTool.allowedToApproveMsg && ForumTool.selectedMessage.msgDenied}">
