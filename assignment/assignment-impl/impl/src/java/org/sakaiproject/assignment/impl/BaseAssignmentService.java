@@ -4513,11 +4513,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							p.addAll(oAssignment.getProperties());
 							
 							// one more touch on the gradebook-integration link
-							if (p.getProperty(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT).equals(GRADEBOOK_INTEGRATION_ASSOCIATE))
+							if (p.getProperty(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK).equals(GRADEBOOK_INTEGRATION_ASSOCIATE))
 							{
 								// assignments are imported as drafts;
 								// mark the integration with "add" for now, later when user posts the assignment, the corresponding assignment will be created in gradebook.
-								p.addProperty(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, GRADEBOOK_INTEGRATION_ADD);
+								p.addProperty(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, GRADEBOOK_INTEGRATION_ADD);
+								p.removeProperty(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
 							}
 							
 							// update live properties
