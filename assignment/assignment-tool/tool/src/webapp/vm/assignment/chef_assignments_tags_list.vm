@@ -15,9 +15,9 @@ function saveChanges(formName, textAreaId) {
 	<input type="hidden" name="sakai_action" value=""/>
 	<input type="hidden" name="providerId" value=""/>
 	<input type="hidden" name="criteria" value=""/>
-	<input type="hidden" name="savedText" value=""/>	
+	<input type="hidden" name="savedText" value=""/>
 	#foreach ($provider in $providers)
-		#if ($provider.getProvider().allowViewTags())
+		#if ($provider.getProvider().allowViewTags($activity.getContext()))
 			<h4>$provider.getProvider().getName() $tlang.getString("tag.tags")</h4>
 			#set ($tagList = $provider.getTags($activity))
 			#if (!$tagList.isEmpty())
