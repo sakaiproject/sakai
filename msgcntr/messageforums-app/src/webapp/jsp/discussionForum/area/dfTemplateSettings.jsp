@@ -19,7 +19,7 @@
 				
 				<h4><h:outputText  value="#{msgs.cdfm_forum_posting}"/></h4>
 				<h:panelGrid columns="2" columnClasses="shorttext,checkbox">
-				  <h:panelGroup><h:outputLabel id="outputLabel4" for="moderated"  value="#{msgs.cdfm_moderate_forum}"/>	</h:panelGroup>
+				  <h:panelGroup><h:outputLabel id="outputLabel4" for="moderated"  value="#{msgs.cdfm_moderate_forums}"/>	</h:panelGroup>
 				  <h:panelGroup>
 					  <h:selectOneRadio layout="pageDirection" disabled="#{not ForumTool.editMode}" id="moderated"  value="#{ForumTool.template.moderated}"
 					  	onclick="javascript:disableOrEnableModeratePerm();">
