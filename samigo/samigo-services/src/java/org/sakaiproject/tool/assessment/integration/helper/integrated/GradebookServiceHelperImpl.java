@@ -21,6 +21,8 @@
 
 package org.sakaiproject.tool.assessment.integration.helper.integrated;
 
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -28,7 +30,12 @@ import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
@@ -80,7 +87,48 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
     }
     return g.isGradebookDefined(gradebookUId);
   }
+  
+	/**
+	 *  Does a gradebook exist?
+	 * @param siteId  the site id
+	 * @return true if the given gradebook exists
+	 */
+	public boolean isGradebookExist(String siteId)
+	{
+		Site currentSite = getCurrentSite(siteId);
+		if (currentSite == null) {
+			return false;
+		}
+		SitePage page = null;
+		String toolId = null;
+		try {
+			// get page
+			List pageList = currentSite.getPages();
+			for (int i = 0; i < pageList.size(); i++) {
+				page = (SitePage) pageList.get(i);
+				List pageToolList = page.getTools();
+				toolId = ((ToolConfiguration) pageToolList.get(0)).getTool().getId();
+				if (toolId.equalsIgnoreCase("sakai.gradebook.tool")) {
+					return true;
+				}
+			}
+		} catch (Exception e) {
+			log.warn(e.getMessage());
+		}
+		return false;
+	}
 
+	private Site getCurrentSite(String id) {
+		Site site = null;
+		try {
+			site = SiteService.getSite(id);
+		} catch (IdUnusedException e) {
+			log.error(e.getMessage());
+			e.printStackTrace();
+		}
+		return site;
+	}
+	
   /**
    * Remove a published assessment from the gradebook.
    * @param gradebookUId the gradebook id

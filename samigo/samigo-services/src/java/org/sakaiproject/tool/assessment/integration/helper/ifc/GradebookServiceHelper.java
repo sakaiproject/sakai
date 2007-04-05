@@ -39,6 +39,8 @@ import org.sakaiproject.tool.assessment.data.ifc.grading.AssessmentGradingIfc;
 public interface GradebookServiceHelper extends Serializable
 {
   public boolean gradebookExists(String gradebookUId, GradebookService g);
+  
+  public boolean isGradebookExist(String SiteId);
 
   public void removeExternalAssessment(String gradebookUId,
      String publishedAssessmentId, GradebookService g) throws Exception;

@@ -274,6 +274,9 @@ public class PublishedAssessmentSettingsBean
         if (evaluation.getScoringType()!=null)
           this.scoringType = evaluation.getScoringType().toString();
         
+        String currentSiteId = AgentFacade.getCurrentSiteId();
+        this.gradebookExists = gbsHelper.isGradebookExist(currentSiteId);
+        /*
         GradebookService g = null;
         if (integrated)
         {
@@ -283,6 +286,7 @@ public class PublishedAssessmentSettingsBean
 
         this.gradebookExists = gbsHelper.gradebookExists(
           GradebookFacade.getGradebookUId(), g);
+        */
       }
 
       //set IPAddresses

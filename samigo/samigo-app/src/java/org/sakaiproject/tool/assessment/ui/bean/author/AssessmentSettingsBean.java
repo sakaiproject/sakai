@@ -43,6 +43,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
@@ -347,6 +351,9 @@ public class AssessmentSettingsBean
         if (evaluation.getScoringType()!=null)
           this.scoringType = evaluation.getScoringType().toString();
 
+        String currentSiteId = AgentFacade.getCurrentSiteId();
+        this.gradebookExists = gbsHelper.isGradebookExist(currentSiteId);
+        /*
         GradebookService g = null;
         if (integrated)
         {
@@ -355,7 +362,8 @@ public class AssessmentSettingsBean
         }
 
         this.gradebookExists = gbsHelper.gradebookExists(
-          GradebookFacade.getGradebookUId(), g);
+        	GradebookFacade.getGradebookUId(), g);
+        */
       }
 
       // ip addresses
@@ -1275,5 +1283,4 @@ public class AssessmentSettingsBean
   {
       this.resourceHash = resourceHash;
   }
-
 }

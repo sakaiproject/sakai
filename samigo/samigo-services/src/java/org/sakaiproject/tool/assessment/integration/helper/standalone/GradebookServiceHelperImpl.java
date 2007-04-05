@@ -94,6 +94,18 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 	{
 		return false;
 	}
+	
+	/**
+	 * Always returns false, because standalone.
+	 * 
+	 * @param siteId
+	 *        the site id
+	 * @return false, no gradebook integration
+	 */
+	public boolean isGradebookExist(String siteId)
+	{
+		return false;
+	}
 
 	/**
 	 * STUB. NO-OP.
