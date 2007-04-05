@@ -3519,7 +3519,7 @@ public class DiscussionForumTool
 	  
 	  if (messages != null && !messages.isEmpty())
 	  {
-		  messages = messageManager.sortMessageByDate(messages, false);
+		  messages = messageManager.sortMessageByDate(messages, true);
 	  
 		  Iterator msgIter = messages.iterator();
 		  while (msgIter.hasNext())
