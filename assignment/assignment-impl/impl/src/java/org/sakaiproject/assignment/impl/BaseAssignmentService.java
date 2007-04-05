@@ -716,8 +716,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		while (badId);
 
 		String key = assignmentReference(context, assignmentId);
-
-		unlock(SECURE_ADD_ASSIGNMENT, key);
+		
+		// security check
+		if (!allowAddAssignment(context))
+		{
+			throw new PermissionException(SessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT, key);
+		}
 
 		// storage
 		AssignmentEdit assignment = m_assignmentStorage.put(assignmentId, context);
@@ -1281,7 +1285,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		}
 		while (badId);
 
-		unlock(SECURE_ADD_ASSIGNMENT_CONTENT, contentReference(context, contentId));
+		// security check
+		if (!allowAddAssignmentContent(context))
+		{
+			throw new PermissionException(SessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT_CONTENT, contentId);
+		}
 
 		AssignmentContentEdit content = m_contentStorage.put(contentId, context);
 
@@ -2925,7 +2933,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		if (M_log.isDebugEnabled()) M_log.debug("Entering allow add AssignmentContent with resource string : " + resourceString);
 
 		// check security (throws if not permitted)
-		return unlockCheck(SECURE_ADD_ASSIGNMENT_CONTENT, resourceString);
+		if (unlockCheck(SECURE_ADD_ASSIGNMENT_CONTENT, resourceString)) return true;
+		
+		// if not, see if the user has any groups to which adds are allowed
+		return (!getGroupsAllowAddAssignment(context).isEmpty());
 	}
 
 	/**
