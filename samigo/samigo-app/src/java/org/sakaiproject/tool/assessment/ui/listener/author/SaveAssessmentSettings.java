@@ -302,7 +302,7 @@ public class SaveAssessmentSettings
     }
   
   private void updateAttachment(List oldList, List newList, AssessmentIfc assessment){
-    if (newList == null || newList.size()==0) return;
+    if ((oldList == null || oldList.size() == 0 ) && (newList == null || newList.size() == 0)) return;
     List list = new ArrayList();
     HashMap map = getAttachmentIdHash(oldList);
     for (int i=0; i<newList.size(); i++){
