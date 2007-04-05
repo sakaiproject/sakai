@@ -84,13 +84,13 @@ public class ScheduledInvocationManagerImpl implements ScheduledInvocationManage
 	public void deleteDelayedInvocation(String componentId, String opaqueContext) {
 		LOG.debug("componentId=" + componentId + ", opaqueContext=" + opaqueContext);
 
-		//String sql = "DELETE FROM SCHEDULER_DELAYED_INVOCATION WHERE COMPONENT = ?, CONTEXT = ?";
+		//String sql = "DELETE FROM SCHEDULER_DELAYED_INVOCATION WHERE COMPONENT = ? AND CONTEXT = ?";
 		String sql = "DELETE FROM SCHEDULER_DELAYED_INVOCATION";
 
 		Object[] fields = new Object[0];
 		if (componentId.length() > 0 && opaqueContext.length() > 0) {
 			// both non-blank
-			sql += " WHERE COMPONENT = ?, CONTEXT = ?";
+			sql += " WHERE COMPONENT = ? AND CONTEXT = ?";
 			fields = new Object[2];
 			fields[0] = componentId;
 			fields[1] = opaqueContext;
