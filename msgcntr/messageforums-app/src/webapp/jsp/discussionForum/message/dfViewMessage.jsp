@@ -108,29 +108,27 @@
 		  			<h:outputText value=" #{msgs.cdfm_button_bar_reply_to_msg}" />
 		  		</h:commandLink>
       			
-      			<h:commandLink title="#{msgs.cdfm_button_bar_reply_to_thread}" action="#{ForumTool.processDfMsgReplyThread}" 
-		  			rendered="#{ForumTool.selectedTopic.isNewResponse}">
-		  			<h:graphicImage value="/images/silk/folder_go.png" alt="#{msgs.cdfm_button_bar_reply_to_thread}" rendered="#{ForumTool.selectedTopic.isNewResponse}" />
+      		<h:commandLink title="#{msgs.cdfm_button_bar_reply_to_thread}" action="#{ForumTool.processDfMsgReplyThread}" 
+		  			rendered="#{ForumTool.selectedTopic.isNewResponse && ForumTool.selectedThreadHead.msgApproved}">
+		  			<h:graphicImage value="/images/silk/folder_go.png" alt="#{msgs.cdfm_button_bar_reply_to_thread}" />
 		  			<h:outputText value=" #{msgs.cdfm_button_bar_reply_to_thread}" />
 		  		</h:commandLink>
 		  		
 		  		<h:commandLink title="#{msgs.cdfm_button_bar_delete_msg}" action="#{ForumTool.processDfMsgDeleteConfirm}" 
 		  			rendered="#{!ForumTool.selectedTopic.isDeleteAny && ForumTool.selectedTopic.isDeleteOwn && ForumTool.selectedMessage.isOwn}" >
-		  			<h:graphicImage value="/images/silk/email_delete.png" alt="#{msgs.cdfm_button_bar_delete_msg}" rendered="#{!ForumTool.selectedTopic.isDeleteAny && 
-      					ForumTool.selectedTopic.isDeleteOwn && ForumTool.selectedMessage.isOwn}" />
+		  			<h:graphicImage value="/images/silk/email_delete.png" alt="#{msgs.cdfm_button_bar_delete_msg}" />
 		  			<h:outputText value=" #{msgs.cdfm_button_bar_delete_msg}" />
 		  		</h:commandLink>
 		  		
 		  		<h:commandLink title="#{msgs.cdfm_button_bar_revise}" action="#{ForumTool.processDfMsgRvs}" 
 		  			rendered="#{ForumTool.selectedMessage.revise}">
-		  			<h:graphicImage value="/images/silk/email_edit.png" alt="#{msgs.cdfm_button_bar_revise}" rendered="#{ForumTool.selectedMessage.revise}" />
+		  			<h:graphicImage value="/images/silk/email_edit.png" alt="#{msgs.cdfm_button_bar_revise}" />
 		  			<h:outputText value=" #{msgs.cdfm_button_bar_revise}" />
 		  		</h:commandLink>
 		  		
 		  		<h:commandLink title="#{msgs.cdfm_button_bar_grade}" action="#{ForumTool.processDfMsgGrd}" 
 		  			rendered="#{ForumTool.selectedTopic.isPostToGradebook && ForumTool.gradebookExist}">
-		  			<h:graphicImage value="/images/silk/award_star_gold_1.png" alt="#{msgs.cdfm_button_bar_grade}" 
-		  				rendered="#{ForumTool.selectedTopic.isPostToGradebook && ForumTool.gradebookExist}" />
+		  			<h:graphicImage value="/images/silk/award_star_gold_1.png" alt="#{msgs.cdfm_button_bar_grade}" />
 		  			<h:outputText value=" #{msgs.cdfm_button_bar_grade}" />
 		  		</h:commandLink>
 		  	</h:panelGroup>
