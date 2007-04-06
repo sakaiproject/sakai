@@ -94,19 +94,18 @@ function doEditPage(clickedLink) {
   	});
 }
 
-function showAddPage(clickedLink) {
-	$("#add-panel").load(clickedLink, function() {
-		$("#call-results").fadeOut('10');
-		$("#add-control").fadeOut('10');
-		$("#call-results").html($(this).find("#message").html());
-		$(this).find("#message").remove();
-		$("#list-label").background("#9F9");
-		$("#option-label").background("#99F");
+function showAddPage(clickedLink, init) {
+	if (init) {
+		$("#add-control").hide();
+		$("#list-label").show();
 		$(".tool_list").css("border", "1px solid #ccc");
-		$("#list-label").fadeIn('normal');
-		$("#add-panel").slideDown('normal', resetFrame());
-		$("#call-results").fadeIn('500');
-	});
+	}
+	$("#add-panel").fadeOut(1, $("#add-panel").load(clickedLink, function() {
+		$("#call-results").fadeOut(200, function() {
+			$("#call-results").html($("#add-panel").find("#message").html());
+			$("#add-panel").fadeIn(200, $("#call-results").fadeIn(200, resetFrame()));
+		});
+	}));
 }
 
 function showEditPage(clickedLink) {
@@ -117,6 +116,7 @@ function showEditPage(clickedLink) {
 	$(li).removeClass("sortable_item");
 	$(li).addClass("editable_item");
 	$(li).unbind();
+	resetFrame();
 }
 
 function doSaveEdit(clickedLink) {
@@ -221,9 +221,8 @@ function addTool(draggable, manual) {
 		$(li).html($("#call-results").find("li").html());
 		$(this).find("li").remove();
 		makeSortable($(li).parent());
+		$("#call-results").fadeIn('200', resetFrame());
 	});
-	$("#call-results").fadeIn('200');
-	resetFrame();
 	return false;
 }
 

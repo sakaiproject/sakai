@@ -67,14 +67,23 @@ a.item_control, a.tool_add_url
 {
 	padding: 10px;
 }
+.option_list
+{
+	padding: 10px;
+	border: 1px solid #ccc;
+}
 #list-label
 {
 	padding: 10px;
 	display: none;
+	border: 1px solid #ccc;
+	background-color: #9F9;
 }
 #option-label
 {
 	padding: 10px;
+	border: 1px solid #ccc;
+	background-color: #99F;
 }
 #page-list td
 {

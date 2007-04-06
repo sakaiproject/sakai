@@ -2,7 +2,7 @@
 <div id="add-item-shell">
 	<div rsf:id="mode-pass:">
 		<div rsf:id="tool-list:">
-			<div class="tool_list">
+			<div class="option_list">
 				<div id="option-label">
 					<a href="#" rsf:id="refresh-link" class="item_control" title="Refresh List" onclick="showAddPage(this.href); return false;">
 						<img src="../images/arrow_refresh.gif" rsf:id="scr=rewrite-url"/>
@@ -23,7 +23,9 @@
 				</ul>
 			</div>
 		</div>
-		<div id="message"><strong rsf:id="message">Because</strong></div>
+		<div class="hidden">
+			<div id="message"><strong rsf:id="message">Because</strong></div>
+		</div>
 		<script type="text/javascript">
 			makeDraggable('#sort-source li.sortable_item');
 		</script>
