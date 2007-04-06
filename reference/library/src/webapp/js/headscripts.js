@@ -279,7 +279,7 @@ function setMainFrameHeightNow(id)
 		}
 
 		// here we fudge to get a little bigger
-		var newHeight = height + 10;
+		var newHeight = height + 40;
 
 		// but not too big!
 		if (newHeight > 32760) newHeight = 32760;
