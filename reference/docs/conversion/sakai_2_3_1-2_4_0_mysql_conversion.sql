@@ -769,3 +769,235 @@ drop table PERMISSIONS_TEMP;
 drop table PERMISSIONS_SRC_TEMP;
 
 
+----------------------------------------------------------------------------------------------------------------------------------------
+-- SAK-9327 poll permissions 
+----------------------------------------------------------------------------------------------------------------------------------------
+
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'poll.add');
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'poll.deleteAny');
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'poll.deleteOwn');
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'poll.editAny');
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'poll.editOwn');
+INSERT INTO SAKAI_REALM_FUNCTION VALUES (DEFAULT, 'poll.vote');
+
+-- ADJUST ME: adjust theses for your needs for other roles than 'access', 'Student', 'maintain', 'Instructor' and 'Teaching Assistant'-- maintain role
+-- maintain role
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template'),
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), 
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.add'));
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template'),
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'),
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.deleteAny'));
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template'),
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'),
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.deleteOwn'));
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template'),
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'),
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.editAny'));
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template'),
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'),
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.editOwn'));
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template'),
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'),
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.vote'));
+
+
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template'), 
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), 
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.add'));
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template'), 
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), 
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.deleteAny'));
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template'), 
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), 
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.deleteOwn'));
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template'), 
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), 
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.editAny'));
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template'), 
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), 
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.editOwn'));
+
+
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template'), 
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), 
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.vote'));
+
+
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '/site/mercury'), 
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), 
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.add'));
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '/site/mercury'), 
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), 
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.deleteAny'));
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '/site/mercury'), 
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), 
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.deleteOwn'));
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '/site/mercury'), 
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), 
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.editAny'));
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '/site/mercury'), 
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), 
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.editOwn'));
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '/site/mercury'), 
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), 
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.vote'));
+
+-- access role
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template'), 
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'access'), 
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.vote'));
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template'), 
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'access'), 
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.vote'));
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '/site/mercury'), 
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'access'), 
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.vote'));
+
+
+-- Instructor role
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), 
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), 
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.add'));
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), 
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), 
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.deleteAny'));
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), 
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), 
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.deleteOwn'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), 
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), 
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.editAny'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), 
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), 
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.editOwn'));
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), 
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), 
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.vote'));
+
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template.course'), 
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), 
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.add'));
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template.course'), 
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), 
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.deleteAny'));
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template.course'), 
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), 
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.deleteOwn'));
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template.course'), 
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), 
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.editAny'));
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template.course'), 
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), 
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.editOwn'));
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template.course'), 
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), 
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.vote'));
+
+
+-- Teaching Assistant role
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), 
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Teaching Assistant'), 
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.vote'));
+
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template.course'), 
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Teaching Assistant'), 
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.vote'));
+
+-- Student role
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), 
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Student'), 
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.vote'));
+
+INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template.course'), 
+(select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Student'), 
+(select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'poll.vote'));
+
+----------------------------------------------------------------------------------------------------------------------------------------
+-- backfill new Poll permissions into existing realms
+----------------------------------------------------------------------------------------------------------------------------------------
+
+-- for each realm that has a role matching something in this table, we will add to that role the function from this table
+CREATE TABLE PERMISSIONS_SRC_TEMP (ROLE_NAME VARCHAR(99), FUNCTION_NAME VARCHAR(99));
+
+-- These are for the site templates
+-- ADJUST ME: adjust theses for your needs, either with different permissions,
+-- or duplicate for other roles than 'access', 'Student', 'maintain', 'Instructor' and 'Teaching Assistant'
+
+INSERT INTO PERMISSIONS_SRC_TEMP values ('access','poll.vote');
+
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Student','poll.vote');
+
+INSERT INTO PERMISSIONS_SRC_TEMP values ('maintain','poll.add');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('maintain','poll.vote');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('maintain','poll.deleteAny');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('maintain','poll.deleteOwn');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('maintain','poll.editOwn');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('maintain','poll.editAny');
+
+
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Instructor','poll.add');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Instructor','poll.vote');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Instructor','poll.deleteAny');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Instructor','poll.deleteOwn');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Instructor','poll.editOwn');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Instructor','poll.editAny');
+
+
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Teaching Assistant','poll.vote');
+
+
+-- lookup the role and function numbers
+create table PERMISSIONS_TEMP (ROLE_KEY INTEGER, FUNCTION_KEY INTEGER);
+insert into PERMISSIONS_TEMP (ROLE_KEY, FUNCTION_KEY)
+select SRR.ROLE_KEY, SRF.FUNCTION_KEY
+from PERMISSIONS_SRC_TEMP TMPSRC
+join SAKAI_REALM_ROLE SRR on (TMPSRC.ROLE_NAME = SRR.ROLE_NAME)
+join SAKAI_REALM_FUNCTION SRF on (TMPSRC.FUNCTION_NAME = SRF.FUNCTION_NAME);
+
+-- insert the new functions into the roles of any existing realm that has the role (don't convert the "!site.helper")
+insert into SAKAI_REALM_RL_FN (REALM_KEY, ROLE_KEY, FUNCTION_KEY)
+select
+    SRRFD.REALM_KEY, SRRFD.ROLE_KEY, TMP.FUNCTION_KEY
+from
+    (select distinct SRRF.REALM_KEY, SRRF.ROLE_KEY from SAKAI_REALM_RL_FN SRRF) SRRFD
+    join PERMISSIONS_TEMP TMP on (SRRFD.ROLE_KEY = TMP.ROLE_KEY)
+    join SAKAI_REALM SR on (SRRFD.REALM_KEY = SR.REALM_KEY)
+    where SR.REALM_ID != '!site.helper'
+    and not exists (
+        select 1
+            from SAKAI_REALM_RL_FN SRRFI
+            where SRRFI.REALM_KEY=SRRFD.REALM_KEY and SRRFI.ROLE_KEY=SRRFD.ROLE_KEY and  SRRFI.FUNCTION_KEY=TMP.FUNCTION_KEY
+    );
+
+-- clean up the temp tables
+drop table PERMISSIONS_TEMP;
+drop table PERMISSIONS_SRC_TEMP;
