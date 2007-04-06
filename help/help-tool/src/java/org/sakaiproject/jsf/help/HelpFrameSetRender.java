@@ -93,10 +93,10 @@ public class HelpFrameSetRender extends Renderer
     HelpManager manager  = (HelpManager) binding.getValue(context);    
                   
     if(manager.getWelcomePage() == null) {
-    	writer.write("<FRAME src=\"" + welcomepage + "\" name=\"content\"/>");
+    	writer.write("<FRAME src=\"" + welcomepage + "\" name=\"content\">");
     }
     else {
-      writer.write("<FRAME src=\"content.hlp?docId=" + manager.getWelcomePage() + "\" name=\"content\"/>");             
+      writer.write("<FRAME src=\"content.hlp?docId=" + manager.getWelcomePage() + "\" name=\"content\">");             
     }
                                         
     writer.write("</FRAMESET></html>\n");

@@ -18,7 +18,7 @@
  function clearText(thefield) { if (thefield.defaultValue == thefield.value) thefield.value = ""; else thefield.value = thefield.defaultValue }
 </script>
 
-<div name="message" id="message" style="padding: 2px; background:#000000 none repeat scroll 0%; position: absolute; z-index: 3; 
+<div id="message" style="padding: 2px; background:#000000 none repeat scroll 0%; position: absolute; z-index: 3; 
 -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; color: white; font-size: 
 90%; top: 1px; left: 1px; display: none;">
 <h:outputText value="#{msgs.searching}" />
@@ -28,8 +28,7 @@
       <%--<h:commandButton value="#{msgs.back}" onclick="history.back()" />
       <h:commandButton value="#{msgs.forward}" onclick="history.forward()" />      
       --%>
-      <sakai:panel_edit><br/></sakai:panel_edit>
-
+      <f:verbatim><br/></f:verbatim>
       <%--
       <h:commandButton value="#{msgs.closeHelp}" onclick="javascript:top.close();" />
       --%>

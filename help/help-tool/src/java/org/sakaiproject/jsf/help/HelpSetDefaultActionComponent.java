@@ -64,6 +64,8 @@ public class HelpSetDefaultActionComponent extends UIOutput
       String formId = form.getClientId(context);
 
       writer.startElement("script", null);
+      writer.writeAttribute("type", "text/javascript", null);
+
       String functionCode = "if (document.layers) \n"
           + "document.captureEvents(Event.KEYDOWN); \n"
           + "document.onkeydown =" + "function (evt) \n {"
