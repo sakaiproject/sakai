@@ -57,38 +57,45 @@ public class PageEditProducer implements ViewComponentProducer, ViewParamsReport
 
         if (!"nil".equals(pageId)) {
             if (!"nil".equals(newTitle)) {
-                try {
-                    Site site = handler.site;
-                    SitePage page = site.getPage(pageId);
-                    String oldTitle = page.getTitle();
-                    page.setTitle(newTitle);
+                if (newTitle != null && !"".equals(newTitle)) {
+                    try {
+                        Site site = handler.site;
+                        SitePage page = site.getPage(pageId);
+                        String oldTitle = page.getTitle();
+                        page.setTitle(newTitle);
 
-                    // TODO: Find a way to call each tool to ask what fields they need configured
-                    // and what methods to use to validate the input..
-                    if (page.getTools().size() == 1 && !"nil".equals(newConfig)) {
-                        ToolConfiguration tool = (ToolConfiguration) page.getTools().get(0);
-                        if ("sakai.iframe".equals(tool.getToolId())) {
-                            tool.getPlacementConfig().setProperty("source", newConfig);
+                        // TODO: Find a way to call each tool to ask what fields they need configured
+                        // and what methods to use to validate the input..
+                        if (page.getTools().size() == 1 && !"nil".equals(newConfig)) {
+                            ToolConfiguration tool = (ToolConfiguration) page.getTools().get(0);
+                            if ("sakai.iframe".equals(tool.getToolId())) {
+                                tool.getPlacementConfig().setProperty("source", newConfig);
 
+                            }
                         }
+
+                        handler.saveSite(site);
+                        mode = UIBranchContainer.make(arg0, "mode-pass:");
+                        UIOutput.make(mode, "page-title", newTitle);
+                        UIOutput.make(mode, "message", oldTitle + " " + messageLocator
+                                .getMessage("success_changed") + " " + newTitle);
+
                     }
-
-                    handler.saveSite(site);
-                    mode = UIBranchContainer.make(arg0, "mode-pass:");
-                    UIOutput.make(mode, "page-title", newTitle);
-                    UIOutput.make(mode, "message", oldTitle + " " + messageLocator
-                            .getMessage("success_changed") + " " + newTitle);
-
+                    catch (IdUnusedException e) {
+                        mode = UIBranchContainer.make(arg0, "mode-failed:");
+                        UIOutput.make(mode, "message", e.getLocalizedMessage());
+                        e.printStackTrace();
+                    } 
+                    catch (PermissionException e) {
+                        mode = UIBranchContainer.make(arg0, "mode-failed:");
+                        UIOutput.make(mode, "message", e.getLocalizedMessage());
+                        e.printStackTrace();
+                    }
                 }
-                catch (IdUnusedException e) {
+                else {
                     mode = UIBranchContainer.make(arg0, "mode-failed:");
-                    UIOutput.make(mode, "message", e.getLocalizedMessage());
-                    e.printStackTrace();
-                } 
-                catch (PermissionException e) {
-                    mode = UIBranchContainer.make(arg0, "mode-failed:");
-                    UIOutput.make(mode, "message", e.getLocalizedMessage());
-                    e.printStackTrace();
+                    UIOutput.make(mode, "message", messageLocator
+                        .getMessage("error_title_null"));
                 }
             }
 

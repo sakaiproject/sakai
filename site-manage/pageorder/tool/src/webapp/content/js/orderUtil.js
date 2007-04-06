@@ -126,19 +126,19 @@ function doSaveEdit(clickedLink) {
 	$("#call-results").load(clickedLink + "&newTitle=" + newTitle.val() + "&newConfig=" + newConfig.val(), function() {
 		
 		var status = $("#call-results").find("#value").text();
-		$(li).find(".item_edit_box").hide();
 		if (status == 'pass') {
+			$(li).find(".item_edit_box").hide();
 			newTitle = $("#call-results").find("#pageId strong").html();	
 			$(li).find(".item_label_box").empty();
 			$(li).find(".item_label_box").append(newTitle);
+			$(li).find(".item_label_box").show();
+			$(li).find(".item_label_box").attr("style", "display: inline");
+			$(li).find(".item_control_box").show();
+			$(li).find(".item_control_box").attr("style", "display: inline");
+			$(li).addClass("sortable_item");
+			$(li).removeClass("editable_item");
+			makeSortable($(li).parent());
 		}
-		$(li).find(".item_label_box").show();
-		$(li).find(".item_label_box").attr("style", "display: inline");
-		$(li).find(".item_control_box").show();
-		$(li).find(".item_control_box").attr("style", "display: inline");
-		$(li).addClass("sortable_item");
-		$(li).removeClass("editable_item");
-		makeSortable($(li).parent());
   	});
 }
 
