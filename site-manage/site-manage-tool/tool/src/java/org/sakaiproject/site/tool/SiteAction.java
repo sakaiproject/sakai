@@ -11692,7 +11692,7 @@ public class SiteAction extends PagedResourceActionII {
 			ParameterParser params) {
 		List all = new ArrayList();
 		List providerCourseList = (List) state
-				.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN);
+		.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN);
 		if (providerCourseList != null) {
 			all.addAll(providerCourseList);
 		}
@@ -11735,6 +11735,27 @@ public class SiteAction extends PagedResourceActionII {
 			if (requestedCMSections.size() == 0)
 				state.removeAttribute(STATE_CM_REQUESTED_SECTIONS);
 		}
+
+		List<SectionObject> authorizerSections = (List<SectionObject>) state
+		.getAttribute(STATE_CM_AUTHORIZER_SECTIONS);
+		if (authorizerSections != null) {
+			for (int i = 0; i < authorizerSections.size(); i++) {
+				SectionObject so = (SectionObject) authorizerSections.get(i);
+
+				String field = "removeSection" + so.getEid();
+				String toRemove = params.getString(field);
+
+				if ("true".equals(toRemove)) {
+					authorizerSections.remove(so);
+				}
+
+			}
+
+			if (authorizerSections.size() == 0)
+				state.removeAttribute(STATE_CM_AUTHORIZER_SECTIONS);
+		}
+
+
 
 		// if list is empty, set to null. This is important 'cos null is
 		// the indication that the list is empty in the code. See case 2 on line
