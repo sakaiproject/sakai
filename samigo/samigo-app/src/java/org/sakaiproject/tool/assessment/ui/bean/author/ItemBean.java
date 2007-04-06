@@ -1058,8 +1058,8 @@ public class ItemBean
 
     public boolean isMatchError(){
 // need to trim, 'cuz in  mozilla, the field is printed as ^M , a new line char. 
-	String choice=(currentMatchPair.getChoice().replaceAll("<.*?>", "")).trim();
-	String match=(currentMatchPair.getMatch().replaceAll("<.*?>", "")).trim();
+	String choice=(currentMatchPair.getChoice().replaceAll("<^[^(img)(IMG)]*?>", "")).trim();
+	String match=(currentMatchPair.getMatch().replaceAll("<^[^(img)(IMG)]*?>", "")).trim();
     
 	if(choice==null ||choice.equals("")|| match==null || match.equals("")){
 	    FacesContext context=FacesContext.getCurrentInstance();
