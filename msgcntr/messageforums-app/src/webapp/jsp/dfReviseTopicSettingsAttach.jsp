@@ -92,7 +92,7 @@
 					</h:dataTable>   
 			
 
-       <div class="discTria" style="padding: 0.5em;"><h4><h:outputText  value="#{msgs.cdfm_topic_posting}"/></h4></div>
+       <div class="discTria" style="padding: 0.5em; margin-top:0.8em;"><h4><h:outputText  value="#{msgs.cdfm_topic_posting}"/></h4></div>
 
 			<h:panelGrid columns="2">
 				
