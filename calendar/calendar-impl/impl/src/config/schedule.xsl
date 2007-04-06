@@ -21,8 +21,6 @@
    </xsl:otherwise>
    </xsl:choose>
 </xsl:variable>
-<xsl:variable name="begin-st" select="/schedule/start-time"/>
-<xsl:variable name="begin" select="number(substring-before($begin-st, ':'))"/>
 <xsl:variable name="maxConcurrentEvents" select="/schedule/maxConcurrentEvents"/>
 
 <xsl:variable name="tbPt" select="4"/>
