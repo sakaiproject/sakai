@@ -1,0 +1,27 @@
+<xs:schema targetNamespace="http://ltsc.ieee.org/xsd/LOM/extend"
+           xmlns="http://ltsc.ieee.org/xsd/LOM/extend"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           version="IEEE LTSC LOM XML 1.0">
+
+  <xs:annotation>
+    <xs:documentation>
+       This work is licensed under the Creative Commons Attribution-ShareAlike
+       License.  To view a copy of this license, see the file license.txt,
+       visit http://creativecommons.org/licenses/by-sa/1.0 or send a letter to
+       Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+    </xs:documentation>
+
+    <xs:documentation>
+       This component schema defines the content model group customElements
+       to support strict validation of standard metadata elements.
+    </xs:documentation>
+  </xs:annotation>
+
+  <!-- Model group declarations -->
+
+  <xs:group name="customElements">
+    <xs:choice/>
+  </xs:group>
+
+</xs:schema>

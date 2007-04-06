@@ -1,0 +1,60 @@
+--
+-- TestSelfInsertDeleteQueries.txt
+--
+-- Parser tests for insert and delete queries
+--
+create cached table testtable (
+    aString              varchar(256)                   not null,
+    firstNum             integer                        not null,
+    aDate                date                           not null,
+    secondNum            integer                        not null,
+    thirdNum             integer                        not null,
+    aName                varchar(32)                    not null
+  );
+insert into TESTTABLE(aString, firstNum, aDate, secondNum, thirdNum, aName)
+  values ('Current', 22, '2003-11-10', 18, 3, 'my name goes here');
+insert into TESTTABLE(aString, firstNum, aDate, secondNum, thirdNum, aName)
+  values ('Popular', 23, '2003-11-10', 18, 3, 'my name goes here');
+insert into TESTTABLE(aString, firstNum, aDate, secondNum, thirdNum, aName)
+  values ('New', 5, '2003-11-10', 18, 3, 'my name goes here');
+insert into TESTTABLE(aString, firstNum, aDate, secondNum, thirdNum, aName)
+  values ('Old', 5, '2003-11-10', 18, 3, 'my name goes here');
+insert into TESTTABLE(aString, firstNum, aDate, secondNum, thirdNum, aName)
+  values ('CCurrent', 5, '2003-11-10', 18, 3, 'my name goes here');
+insert into TESTTABLE(aString, firstNum, aDate, secondNum, thirdNum, aName)
+  values ('ELV', 5, '2003-11-10', 18, 3, 'my name goes here');
+insert into TESTTABLE(aString, firstNum, aDate, secondNum, thirdNum, aName)
+  values ('ELNA', 5, '2003-11-10', 18, 3, 'my name goes here');
+insert into TESTTABLE(aString, firstNum, aDate, secondNum, thirdNum, aName)
+  values ('Older', 5, '2003-11-10', 18, 3, 'my name goes here');
+insert into TESTTABLE(aString, firstNum, aDate, secondNum, thirdNum, aName)
+  values ('RA', 20, '2003-11-10', 18, 3, 'my name goes here');
+insert into TESTTABLE(aString, firstNum, aDate, secondNum, thirdNum, aName)
+  values ('RP', 2, '2003-11-10', 18, 3, 'my name goes here');
+  
+insert into TESTTABLE values ('VS', 3, '2003-11-10', 18, 3, 'my name goes here');
+--
+/*c11*/select * from testtable where adate = '2003-11-10' and secondNum = 18;
+/*c11*/select * from testtable where adate = '2003-11-10';
+/*c1*/select * from testtable where adate = '2003-11-10' and firstNum = 20;
+/*c11*/select * from testtable where adate = '2003-11-10' and thirdNum = 3;
+
+--
+
+create table tt (col varchar(256));
+insert into tt (col) select aString from testtable; 
+insert into tt (col) select aString from testtable union select aName from testtable; 
+insert into tt (col) (select aString from testtable union select aName from testtable); 
+insert into tt (col) 
+ ((select aString from testtable union select aName from testtable)
+ intersect select aString from testtable where firstNum = 20); 
+
+insert into tt select aString from testtable; 
+insert into tt select aString from testtable union select aName from testtable; 
+insert into tt (select aString from testtable union select aName from testtable); 
+insert into tt 
+ ((select aString from testtable union select aName from testtable)
+ intersect select aString from testtable where firstNum = 20); 
+
+drop table tt;
+drop table testtable;

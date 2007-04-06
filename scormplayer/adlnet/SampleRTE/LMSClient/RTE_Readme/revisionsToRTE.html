@@ -1,0 +1,266 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+   <title>SCORM 2004 3rd Edition Sample Run-Time Environment Version 1.0 Readme</title>
+   <link rel="stylesheet" href="../css/README.css" type="text/css" />
+</head>
+
+<body class="bg">
+<a name="revisionsToRTE"></a>
+<!-- Page Content -->
+<table width="100%" cellpadding="3">
+   <tr>
+      <td class="stagebar">SCORM 2004 3rd Edition Sample RTE Version 1.0 Revisions</td>
+   </tr>
+</table>
+
+<table width="100%" cellpadding="3">
+   <tr>
+      <th align="left">Changes from SCORM 2004 Sample RTE Version 1.3.3 to SCORM 2004 3rd 
+      Edition Sample RTE Version 1.0 </th>
+   </tr>
+   <tr>
+      <td>
+         <ol>
+            <li><!--- Ticket  8664--->
+                 The Sample RTE now contains functionality to display
+                 API calls made by SCOs launched by the Sample RTE.  To view 
+                 the API calls that have been made by the SCOs, first click on 
+                 the <i>Activate Log</i> link in the lower left corner of the
+                 Sample RTE and then click on the <i>Show Log</i> link.  The log 
+                 will be displayed in the frame immediately above the link.  
+                 <i>Hide Log</i> will remove the display of the log string, but 
+                 does not delete the log.  <i>Clear Log</i> deletes the current 
+                 contents of the log.                           
+            </li>
+            <li><!--- Ticket 8711--->
+                The Sample RTE has been updated to hide the <i>Suspend</i> button 
+                when the Content Aggregation Content Package manifest explicitly 
+                states that the <i>Suspend All</i> control should be hidden.
+            </li>
+            <li><!--- Ticket 8750--->
+                The Sample RTE has been updated to allow invisible activities 
+                to be the target of a <i>Choice</i> navigation event when no 
+                Table of Contents is rendered.
+            </li>
+            <li><!--- Ticket 8779--->
+                The Sample RTE has been updated to display a validation error 
+                when importing a package in which there is a leaf item that 
+                contains no identifierref attribute or if the identifierref 
+                attribute is set to an empty string. In this case, the package 
+                may be imported with validation turned off.  However, when 
+                running the course contained in that package, if the element 
+                with no identifierref attribute is reached, the 
+                <i>ERROR</i> page will be displayed.
+            </li>
+            <li><!--- Ticket 8813--->
+                The Sample RTE has been updated to process an <i>Exit All</i> 
+                navigation request if the SCO sets cmi.exit to <i>time-out</i>.
+                Any other pending navigation requests will be ignored.
+            </li>
+            <li><!--- Ticket 8840--->
+               The Sample RTE Global Objectives Administration Page has been 
+                updated to include error checking for the <i>measure</i> 
+                value of a global objective. The acceptable 
+                range for <i>measure</i> is -1.0 to 1.0.
+            </li>
+            <li><!-- Ticket 8976-->
+                The Sample RTE has been updated to recognize and ignore empty 
+                sequencing elements.  If these elements occur in a SCORM Content 
+                Aggregation Content Package, the elements' defined defaults are 
+                used.
+           	<li> <!-- Ticket 8615-->
+            	The Sample RTE has been updated so that if a <i>Suspend All</i>
+                navigation event is invoked and cmi.exit is not set to 
+                <i>suspend</i>, then SCORM Run-Time Environment 
+                Data Model infomation will set cmi.exit to 
+                <i>suspend</i> and persist the run-time data. 
+            </li>
+            <li> <!-- Ticket 8915-->
+            	The Sample RTE has been updated to properly implement the 
+                sequencing Selection Control element <i>Selection Count</i>.  
+                The Selection Control elements enable content developers 
+                to define sequencing information that indicates when to select 
+                certain activities and to limit the number of activities to be 
+                chosen.  The <i>Selection Count</i> element limits the number of 
+                activities that are available.
+            </li>
+			<li> <!-- SSP-->
+				The Sample RTE has been updated to include an example implementation 
+				of IMS Shareable State Persistence SCORM Application Profile.
+			</li>
+			<li> <!-- Ticket 10141-->
+				The Sample RTE has been updated to properly handle several sets of
+				non-English characters which may be used in the imsmanifest.
+			</li>
+			<li> <!-- Ticket 9973-->
+			    The Sample RTE has been updated to allow Data Model setValue values to
+			    contain quotation marks and/or backslashes.  Values containg any number
+			    of quotation marks and/or backslahses in any location in the value can 
+			    be correctly displayed in the Data Model log.
+			</li>
+			<li> <!-- Ticket 9969-->
+			    The Sample RTE SampleRTE.mdb database has been updated to allow the
+			    CourseTitle field of the CourseInfo table to store title strings
+			    of up to 200 characters in length as specified in the SCORM_CAM
+			    document.
+			</li>
+			<li> <!-- Ticket 9942-->
+			    The Sample RTE has been updated to allow item identifiers to be 
+			    distingusished by string letter-case as well as string text.  
+			</li>
+			<li> <!-- Ticket 9909-->
+			    The Sample RTE Data Model has been updated to allow time intervals 
+			    containing sub-seconds to be correctly added and formatted between 
+			    learner sessions.
+			</li>
+			<li> <!-- Ticket 9809-->
+			    The Sample RTE has been modified to include links to <i>Start Course</i>
+			    and/or <i>View Table of Contents</i> for each course listed in the <i>View
+			    Registered Courses</i> menu.  The links will allow the user to choose
+			    to begin the course and start sequencing by choosing <i>Start Course</i>
+			    if available, or view the Table of Contents and begin without starting 
+			    sequencing by choosing <i>View Table of Contents</i> if available.
+			</li>
+			<li> <!--  -->
+			    The Sample RTE has been updated to utilize a proprietary file upload tool
+			    which has replaced the JSPSmartUpload tool.
+			</li>
+            <li>
+               <!--  PT # 9162  -->
+               The course import process of the Sample RTE has been updated to display a validation error 
+               when importing a package in which the IMS Manifest contains 
+               an adlcp:persistState attribute.  The adlcp:persistState 
+               attribute has been deleted.                
+            </li>
+            <li>
+               <!--TWG Issue #19:  Sub-Manifest Merging Process-->
+               The course import process of the Sample RTE has been updated to no longer validate 
+               (sub)manifest elements with the inclusion of metadata 
+               within the (sub)manifest.  A warning is now issued when a 
+               (sub)manifest is detected. 
+            </li>
+            <li>
+               <!--  PT # 9316 -->
+               The course import process of the Sample RTE has been updated to display a validation error 
+               when importing a package in which the IMS Manifest contains 
+               a referencedObjective attribute of a 
+               &lt;ruleCondition&gt; element that does not represent an 
+               identifier of an objective (&lt;primaryObjective&gt; / 
+               &lt;objective&gt;) found within that manifest.
+            </li>
+            <li>
+               <!--  PT # 9312 && 9721-->
+               The course import process of the Sample RTE has been updated to 
+               enforce that when a &lt;resource&gt; is local to the 
+               content package, then a &lt;file&gt; element is required 
+               that represents the &lt;resource&gt;.  The href attribute 
+               of the &lt;file&gt; element must be identical to the 
+               href attribute of the &lt;resource&gt;.  The &lt;file&gt; 
+               element can exist as a direct child of the &lt;resource&gt; 
+               or can be referenced from the &lt;dependency&gt; element.
+            </li>
+            <li>
+               <!--  PT # 9310 -->
+               The course import process of the Sample RTE has been updated to 
+               enforce that 0 or 1 &lt;adlcp:completionThreshold&gt; element 
+               exist as a child of an &lt;item&gt; element.  The Sample RTE
+               will display a validation error when more than 
+               one &lt;adlcp:completionThreshold&gt; element is detected as 
+               a child of the &lt;item&gt; element. 
+            </li>
+            <li>
+               <!--  IMS CP 1.1.4 Change -->
+               Based on the IMS CP 1.1.4 updates, the course import process of 
+               the Sample RTE has been updated to enforce a Smallest Permitted 
+               Maximum (SPM) value of 2000 characters for an href that is 
+               pre-appended with xml:base value.  This is a Best Practice 
+               warning only and does not affect validation. 
+            </li>
+            <li>
+               <!--  IMS CP 1.1.4 Change -->
+               Based on the IMS CP 1.1.4 updates, the course import process of 
+               the Sample RTE has been updated to enforce excess baggage and 
+               dangling resource checks.  Excess baggage is considered as files 
+               that exist in the Content Package that are not referenced from 
+               the IMS Manifest.  Dangling resources elements are those that 
+               are not referenced by an "identifierref" attribute.  These checks 
+               are Best Practice warnings only and do not affect validation.  
+            </li>
+            <li>
+               <!--  IMS CP 1.1.4 Change -->
+               The course import process of the Sample RTE has been updated to  
+               display an error when the parameters attribute of an 
+               &lt;item&gt; element does not abide to the following syntax:
+               <ul> 
+                  <li>#&lt;parameter&gt;</li>   
+                      <li>&lt;name&gt;=&lt;value&gt;(&&lt;name&gt;=&lt;value&gt;)*(#&lt;parameter&gt;)</li>   
+                      <li>?&lt;name&gt;=&lt;value&gt;(&&lt;name&gt;=&lt;value&gt;)*(#&lt;parameter&gt;)</li>
+               </ul>
+            </li>
+            <li>
+               <!--  Substring issue -->
+               The course import process of the Sample RTE has been updated to prevent
+               a java.lang.StringIndexOutOfBoundsException from occurring when 
+               a URI of 4 characters or less in length exists in an IMS 
+               Manifest.              
+            </li>
+            <li>
+               <!-- schemaversion element update -->
+               The course import process of the Sample RTE has been updated to 
+               conform to the requirement of SCORM 2004 3rd Edition that the 
+               <schemaversion> element value equal "2004 3rd Edition". If the 
+               SCORM 2004 2nd Edition vocabulary token of "CAM 1.3" is detected, 
+               the course import process has been updated to display a warning 
+               with the ADL recommendation to update the value to "2004 3rd 
+               Edition". It is recommended that the content package manifest be 
+               updated because some systems may rely on this value to process 
+               the content package.
+            </li>
+            <li>
+               <!-- 9853 -->
+               The course import process of the Sample RTE has been updated to 
+               produce a validation warning when the xsi:schemalocation 
+               attribute in the root manifest declaration is not declared. 
+            </li>
+            <li>
+               <!-- 9853 -->
+               When no xsi:schemalocation attribute is declared in the root 
+               manifest declaration, the Sample RTE provides the XML Parser with 
+               a defaulted list of controlling documents to use for XML 
+               validation.  The course import process of the Sample RTE has been 
+               updated to test for only those controlling document(s) to exist 
+               at the root of the content package only if the respective 
+               namespace has been declared. 
+            </li>
+            <li>
+               <!-- 10298 -->
+               The course import process of the Sample RTE has been updated to 
+               produce a warning when a URI exists multiple times in the IMS 
+               Manifest differing only in case.  
+            </li>
+            <li>
+               <!-- 10016 -->
+               The course import process of the Sample RTE has been updated to 
+               support content package zip files that contain non-ASCII 
+               characters in the file name.      
+            </li>
+            <li>
+               The Sequencer was updated to ensure that objective state (local 
+               and global) is not affected by measure threshold evaluations 
+               during tree traversals.
+            </li>
+            <li>
+               Numerous changes were made to the Sample RTE client to align 
+               implementation with the updated user interface interoperability 
+               requirements defined in the SCORM 2004 3rd Edition Conformance 
+               Requirements Document.
+            </li>
+         </ol>
+      </td>
+   </tr>
+</table>
+
+</body>
+</html>

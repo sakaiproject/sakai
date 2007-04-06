@@ -1,0 +1,7 @@
+create memory table ss(TIMED BIGINT NOT NULL IDENTITY PRIMARY KEY);
+insert into ss values(10);
+alter table ss rename to ss2;
+create memory table ss(TIMED BIGINT NOT NULL IDENTITY PRIMARY KEY);
+insert into ss values(20);
+/*r20*/select * from ss;
+/*r10*/select * from ss2;

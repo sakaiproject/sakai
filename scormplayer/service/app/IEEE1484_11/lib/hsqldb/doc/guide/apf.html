@@ -1,0 +1,131 @@
+<html><head><META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Appendix&nbsp;F.&nbsp;Database Manager</title><link href="guide.css" rel="stylesheet" type="text/css"><meta content="DocBook XSL Stylesheets V1.65.1" name="generator"><meta name="keywords" content="Hsqldb, Database, Manager"><meta name="keywords" content="Hsqldb, Hypersonic, Database, JDBC, Java"><link rel="home" href="index.html" title="Hsqldb User Guide"><link rel="up" href="index.html" title="Hsqldb User Guide"><link rel="previous" href="ape.html" title="Appendix&nbsp;E.&nbsp;Hsqldb Test Utility"><link rel="next" href="apg.html" title="Appendix&nbsp;G.&nbsp;Transfer Tool"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table summary="Navigation header" width="100%"><tr><th align="center" colspan="3">Appendix&nbsp;F.&nbsp;Database Manager</th></tr><tr><td align="left" width="20%"><a accesskey="p" href="ape.html"><img src="navicons/prev.gif" alt="Prev"></a>&nbsp;</td><th align="center" width="60%">&nbsp;</th><td align="right" width="20%">&nbsp;<a accesskey="n" href="apg.html"><img src="navicons/next.gif" alt="Next"></a></td></tr></table><hr></div><div class="appendix" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="N12ACB"></a>Appendix&nbsp;F.&nbsp;Database Manager</h2></div><div><div class="authorgroup"><div class="author"><h3 class="author"><span class="firstname">Fred</span> <span class="surname">Toussi</span></h3><div class="affiliation"><span class="orgname">HSQLDB Development Group<br></span></div><tt class="email">&lt;<a href="mailto:ft@cluedup.com">ft@cluedup.com</a>&gt;</tt></div><div class="author"><h3 class="author"><span class="firstname">Blaine</span> <span class="surname">Simpson</span></h3><div class="affiliation"><span class="orgname">HSQLDB Development Group<br></span></div><tt class="email">&lt;<a href="mailto:ft@cluedup.com">ft@cluedup.com</a>&gt;</tt></div></div></div><div><p class="pubdate">$Date: 2005/07/25 23:21:10 $</p></div></div><div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="section"><a href="apf.html#N12AF4">Brief Introduction</a></span></dt><dt><span class="section"><a href="apf.html#N12B1E">Auto tree-update</a></span></dt><dt><span class="section"><a href="apf.html#N12B35">Automatic Connection</a></span></dt><dt><span class="section"><a href="apf.html#N12B43">RC File</a></span></dt><dt><span class="section"><a href="apf.html#N12B68">Using the current DatabaseManagers with an older HSQLDB
+    distribution.</a></span></dt><dt><span class="section"><a href="apf.html#N12B9A">DatabaseManagerSwing as an Applet</a></span></dt></dl></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="N12AF4"></a>Brief Introduction</h2></div></div><div></div></div><p>The Database Manager tool is a simple GUI database query tool with a
+    tree display of the tables. Both AWT and SWING versions of the tool are
+    available and work almost identically. The AWT version class name is
+    org.hsqldb.util.DatabaseManager; the SWING version,
+    org.hsqldb.util.DatabaseManagerSwing.</p><p>The AWT version of the database manager can be deployed as an applet
+    in a browser. A demo HTML file with an embedded Database Manager is
+    included in the /demo directory.</p><p>When the Database Manager is started, a dialogue allows you to enter
+    the JDBC driver, URL, user and password for the new connection. A
+    drop-down box, Type, offers preset values for JDBC driver and URL for most
+    popular database engines, including HSQLDB. Once you have selected an item
+    from this drop-down box, you should edit the URL to specify the details of
+    the database or any additional properties to pass. You should also enter
+    the username and password before clicking on the OK button.</p><p>The connection dialogue allows you to save the settings for the
+    connection you are about to make. You can then access the connection in
+    future sessions. To save a connection setting, enter a name in the Setting
+    Name box before clicking on the OK button. Next time the connection
+    dialogue is displayed, the drop-down box labeled Recent will include the
+    name for all the saved connection settings. When you select a name, the
+    individual settings are displayed in the appropriate boxes.</p><p>The small Clr button next to the drop-down box allows you to clear
+    all the saved settings. If you want to modify an existing setting, first
+    select it from the drop-down box then modify any of the text boxes before
+    making the connection. The modified values will be saved.</p><p>Most menu items have context-sensitive tool tip help text which
+    will appear if you hold the mouse cursor still over the desired menu item.
+    (Assuming that you don't turn Tooltips off under the
+    <span class="guimenu">Help</span> menu.</p><p>The DatabaseManagers do work with HSQLDB servers serving
+    TLS-encrypted JDBC data. See the <a href="ch07.html" title="Chapter&nbsp;7.&nbsp;TLS">TLS</a> chapter and the <a href="ch08.html#auth-section" title="RC File Authentication Setup">RC File Authentication Setup</a> section of this Guide.</p><div class="tip" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Tip</h3>
+        If you are using DatabaseManagerSwing with Oracle, you will want
+        to make sure that <span class="guimenuitem">Show row counts</span>
+        and <span class="guimenuitem">Show row counts</span> are both off
+        <span class="emphasis"><em>before connecting to the database</em></span>.
+        You may also want to turn off Auto tree-update, as described in
+        the next section.
+    </div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="N12B1E"></a>Auto tree-update</h2></div></div><div></div></div><p>By default, the object tree in the left panel is refreshed when
+    you execute DDL which may update those objects. If you are on a slow
+    network or performance-challenged PC, use the <span class="guimenu">view</span> /
+    <span class="guimenuitem">Auto-refresh tree</span> menu item to turn it off. You
+    will then need to use the <span class="guimenu">view</span><span class="guimenuitem">Refresh
+    tree</span> menu item every time that you want to refresh the
+    tree.</p><div class="note" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Note</h3><p>Auto-refresh tree does not automatically show all updates to
+      database objects, it only refreshes when you submit DDL which may update
+      database objects. (This behavior is a compromise between utility and
+      performance).</p></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="N12B35"></a>Automatic Connection</h2></div></div><div></div></div><p>You can use command-line switches to supply connection information.
+    If you use these switch(es), then the connection dialog window will be
+    skipped and a JDBC connection will be established immediately. Assuming
+    that the hsqldb.jar (or an alternative jar) are in your CLASSPATH, this
+    command will list the available command-line options. <div class="informalexample"><pre class="screen">
+    java org.hsqldb.util.DatabaseManagerSwing --help</pre></div></p><p>It's convenient to skip the connection dialog window if you
+    always work with the same database account.</p><div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Warning</h3><p>Use of the --password switch is not secure. Everything typed on
+      command-lines is generally available to other users on the computer. The
+      problem is compounded if you use a network connection to obtain your
+      command line. The RC File section explains how you can set up automatic
+      connections without supplying a password on the command line.</p></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="N12B43"></a>RC File</h2></div></div><div></div></div><p>You can skip the connection dialog window securely by putting the
+    connection information into an RC file and then using the
+    <tt class="literal">--urlid</tt> switch to DatabaseManager or
+    DatabaseManagerSwing. This strategy is great for adding launch menu items
+    and/or launch icons to your desktop. You can set up one icon for each of
+    the database accounts which you regularly use.</p><p>The default location for the RC file is
+    <tt class="filename">dbmanager.rc</tt> in your home directory. The <a href="ch08.html#auth-section" title="RC File Authentication Setup">RC File Authentication Setup</a> section explains how to put
+    the connection information into this text file. If you also run <a href="ch08.html" title="Chapter&nbsp;8.&nbsp;SqlTool">SqlTool</a>, then you can share
+    the RC file with SqlTool by using a sym-link (if your operating system
+    supports sym links), or by using the <tt class="literal">--rcfile</tt> switch
+    for either SqlTool or DatabaseManagerSwing.</p><div class="warning" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Warning</h3><p>Use your operating system facilities to prevent others from
+      reading your RC file, since it contains passwords.</p></div><p>To set up launch items/icons, first experiment on your command line
+    to find exactly what command works. For example, <div class="informalexample"><pre class="screen">
+    java -cp /path/to/hsqldb.jar org.hsqldb.util.DatabaseManagerSwing --urlid mem</pre></div> Then, use your window manager to add an item that
+    runs this command.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="N12B68"></a>Using the current DatabaseManagers with an older HSQLDB
+    distribution.</h2></div></div><div></div></div><p>This procedure will allow users of a legacy version of HSQLDB to
+    use all of the new features of the DatabaseManagers. You will also get the
+    new version of the SqlTool! This procedure works for distros going back to
+    1.7.3.3 at least, probably much farther.</p><p>These instructions assume that you are capable of running an Ant
+    build. See the <a href="apa.html" title="Appendix&nbsp;A.&nbsp;Building HSQLDB">Building HSQLDB</a> chapter.</p><div class="procedure"><ol type="1"><li><p>Download and extract a current HSQLDB distribution. If you
+        don't want to use the source code, documentation, etc., you can use a
+        temporary directory and remove it afterwards.</p></li><li><p>Cd to the build directory under the root directory where you
+        extracted the distribution to.</p></li><li><p>Run <tt class="literal">ant hsqldbutil</tt>.</p></li><li><p>If you're going to wipe out the build directory, copy
+        <tt class="filename">hsqldbutil.jar</tt> to a safe location
+        first.</p></li><li><p>For now on, whenver you are going to run DatabaseManager*,
+        make sure that you have this <tt class="filename">hsqldbutil.jar</tt> as
+        the first item in your CLASSPATH.</p></li></ol></div><p>Here's a UNIX example where somebody wants to use the new
+    DatabaseManagerSwing with their older HSQLDB database, as well as with
+    Postgresql and a local application. <div class="informalexample"><pre class="screen">
+CLASSPATH=/path/to/hsqldbutil.jar:/home/bob/myapp/classes:/usr/local/lib/pg.jdbc3.jar
+export CLASSPATH
+java org.hsqldb.util.DatabaseManagerSwing --urlid urlid</pre></div></p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="N12B9A"></a>DatabaseManagerSwing as an Applet</h2></div></div><div></div></div><p>
+          DatabaseManagerSwing is also an applet.
+          You can use it in HTML, JSPs, etc.
+          Be aware that in Applet mode, actions to load or save local files
+          will be disabled, and attempts to access any server other than 
+          the HTML-serving-host will be fail.
+      </p><p>
+          Since the Applet can not store or load locally saved preferences,
+          the only way to have persistent preference settings is by using
+          Applet parameters.
+          <div class="variablelist"><p class="title"><b>DatabaseManagerSwing Applet Parameters</b></p><dl><dt><span class="term">jdbcUrl</span></dt><dd>
+                  URL of a data source to auto-connect to.  String value.
+              </dd><dt><span class="term">jdbcDriver</span></dt><dd>
+                  URL of a data source to auto-connect to.  String value.
+                  Defaults to <tt class="literal">org.hsqldb.jdbcDriver</tt>.
+              </dd><dt><span class="term">jdbcUser</span></dt><dd>
+                  User name for data source to auto-connect to.  String value.
+              </dd><dt><span class="term">jdbcPassword</span></dt><dd>
+                  Password for data source to auto-connect to.  String value.
+                  Defaults to zero-length string.
+              </dd><dt><span class="term">schemaFilter</span></dt><dd>
+                  Display only object from this schema in the object navigator.
+                  String value.
+              </dd><dt><span class="term">laf</span></dt><dd>
+                  Look-and-feel.  String value.
+              </dd><dt><span class="term">loadSampleData</span></dt><dd>
+                  Auto-load sample data.  Boolean value.
+                  Defaults to false.
+              </dd><dt><span class="term">autoRefresh</span></dt><dd>
+                  Auto-refresh the object navigator when DDL modifications
+                  detected in user SQL commands.  Boolean value.
+                  Defaults to true.
+              </dd><dt><span class="term">showRowCounts</span></dt><dd>
+                  Show number of rows in each table in the object navigator.
+                  Boolean value.  Defaults to false.
+              </dd><dt><span class="term">showSysTables</span></dt><dd>
+                  Show system tables in the object navigator.  Boolean value.
+                  Defaults to false.
+              </dd><dt><span class="term">showSchemas</span></dt><dd>
+                  Show object names like schema.name in object navigator.
+                  Boolean value.  Defaults to true.
+              </dd><dt><span class="term">resultGrid</span></dt><dd>
+                  Show query results in Gui grid (as opposed to in plain text).
+                  Boolean value.  Defaults to true.
+              </dd><dt><span class="term">showToolTips</span></dt><dd>
+                  Show help hover-text.  Boolean value.  Defaults to true.
+              </dd></dl></div>
+      </p></div></div><div class="navfooter"><hr><table summary="Navigation footer" width="100%"><tr><td align="left" width="40%"><a accesskey="p" href="ape.html"><img src="navicons/prev.gif" alt="Prev"></a>&nbsp;</td><td align="center" width="20%"><a accesskey="u" href="index.html"><img src="navicons/up.gif" alt="Up"></a></td><td align="right" width="40%">&nbsp;<a accesskey="n" href="apg.html"><img src="navicons/next.gif" alt="Next"></a></td></tr><tr><td valign="top" align="left" width="40%">Appendix&nbsp;E.&nbsp;Hsqldb Test Utility&nbsp;</td><td align="center" width="20%"><a accesskey="h" href="index.html"><img src="navicons/home.gif" alt="Home"></a></td><td valign="top" align="right" width="40%">&nbsp;Appendix&nbsp;G.&nbsp;Transfer Tool</td></tr></table></div></body></html>

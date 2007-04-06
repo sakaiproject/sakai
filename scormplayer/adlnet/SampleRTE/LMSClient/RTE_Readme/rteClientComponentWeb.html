@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+      <title>SCORM 2004 3rd Edition Sample Run-Time Environment Version 1.0 Readme</title>
+      <link rel="stylesheet" href="../css/README.css" type="text/css" />
+</head>
+<body class="bg">
+<a name="rteclientComponentWeb"></a>
+<table width="100%" cellpadding="3">
+   <tr>
+      <td class="stagebar">
+     		Design Information - Client Component Web files
+       </td>
+   </tr>
+</table>
+<p>
+   <table>
+	   <tr>
+	      <td>
+	         <p>
+	         	<strong>
+	         		Sample Run-Time Environment Client Component (Web Files)
+	         	</strong>
+	         	is comprised of the following modules:
+	         </p>
+	         <ul>
+	            <li>
+	               <i>Administrative</i>: This module contains files that change
+	               passwords, delete courses, manage global objectives, create or
+	               delete users, delete courses and clear the Sample RTE database.
+	               The files that make up the Administrative module are located 
+                   in the "admin" folder.
+	            </li>
+	            <li>
+	               <i>Help</i>: This module contains information pages on how to
+	               use the Sample RTE.  The files that make up the Help module 
+                   are located in the "help" folder.
+	            </li>
+	            <li>
+	               <i>Import</i>: This module is responsible for managing the course
+	               import process.  These files utilize the Sample Run-Time
+                    Environment Server side Java Component to handle parsing, 
+                    validation and database access. The files that make up the 
+                    Import module are located in the "import" folder.
+	            </li>
+	            <li>
+	               <i>Includes</i>:  The Sample RTE utilizes a style sheet (*.css)
+	               that handles the interface look and feel.  See
+	               sampleRTE_style.css for details.  This file is located in the
+	               "includes" directory under the Sample RTE Web Root.
+	            </li>
+	            <li>
+	               <i>Run-Time</i>:  This module contains the files used to deliver
+	               a SCORM Conformant Content Aggregation Content Package.  
+                   In addition, the SCORM Application Programming Interface is 
+                   included.  All images used in the Sample RTE menu are 
+                   located in the "menu-images" directory located in this 
+                   module.  The files that make up the Run-Time module are 
+                   located in the "runtime" directory.
+	            </li>
+	            <li>
+	               <i>Special State</i>: This module contains information pages that
+	               describe special sequencing states.  It is possible that content
+	               will not be delivered as result of a sequencing request.  In that
+	               event these pages inform the user about what state the sequencer
+	               is in.  NOTE:  These pages are included to help debug sequencing
+	               in content.  There is no requirement by the SCORM that they be
+	               presented.  LMSs may handle sequencing states in their
+	               own manner.  The files that make up the Special State 
+	               module are located in the "specialstate" folder under the 
+                   Sample RTE Web Root.
+	            </li>
+	         </ul>
+      	</td>
+  		</tr>
+  	</table>
+</p>
+</body>
+</html>
+

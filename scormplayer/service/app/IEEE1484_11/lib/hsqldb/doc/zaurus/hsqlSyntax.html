@@ -1,0 +1,1043 @@
+<html>
+<head><title>HSQLDB</title></head>
+<body bgcolor=#FFFFFF>
+<font face="Arial, Helvetica" size="2">
+<h2><font face="Arial">SQL Syntax</font></h2>
+<p><font face="Arial"> HSQLDB version 1.7.0 supports the following SQL statements and syntax: 
+</font>
+<p> 
+<table border=0 cellspacing=10 cellpadding=0 >
+   <tr> 
+      <td valign=TOP><img src="images/sqlSelect.gif" width="54" height="43"></td>
+      <td> <font face="Arial, Helvetica" size="2"> <a href="#SELECT">SELECT</a> 
+      <br>
+      <a href="#Expression">Expression</a> <br>
+      <a href="#CALL">CALL</a> <br>
+      <a href="#Stored">Stored Procedures / Functions</a> <a href="#List">List</a> 
+      </font></td>
+   </tr>
+   <tr> 
+      <td valign=TOP><img src="images/sqlDML.gif" width="52" height="44"></td>
+      <td> <font face="Arial, Helvetica" size="2"> <a href="#INSERT">INSERT</a> 
+      <br>
+      <a href="#UPDATE">UPDATE</a> <br>
+      <a href="#DELETE">DELETE</a> </font></td>
+   </tr>
+   <tr> 
+      <td valign=TOP><img src="images/sqlDDL.gif" width="52" height="44"></td>
+      <td> 
+         <p><font face="Arial, Helvetica" size="2"><a href="#ALTERTABLE">ALTER TABLE</a> <br>
+            </font><font face="Arial, Helvetica" size="2"><a href="#ALTERINDEX">ALTER INDEX<br>
+            </a></font><font face="Arial, Helvetica" size="2">
+      <a href="#CREATE ALIAS">CREATE ALIAS</a> <br>
+      <a href="#CREATE INDEX">CREATE INDEX</a> <br>
+      <a href="#DROP INDEX">DROP INDEX</a> <br>
+      <a href="#CREATE TABLE">CREATE TABLE</a> <br>
+      <a href="#DROP TABLE">DROP TABLE</a><br>
+      <a href="#CREATE TRIGGER">CREATE TRIGGER</a><br>
+      <a href="#DROP TRIGGER">DROP TRIGGER</a><br>
+      <a href="#CREATE VIEW">CREATE VIEW</a><br>
+      <a href="#DROP VIEW">DROP VIEW</a> </font><br><br>
+      <a href="#Datatypes">Datatypes</a></p>
+         </td>
+   </tr>
+   <tr> 
+      <td valign=TOP><img src="images/sqlTransact.gif" width="51" height="42"></td>
+      <td> <font face="Arial, Helvetica" size="2"> <a href="#SET AUTOCOMMIT">SET 
+      AUTOCOMMIT</a> <br>
+      <a href="#COMMIT">COMMIT</a> <br>
+      <a href="#ROLLBACK">ROLLBACK</a> </font></td>
+   </tr>
+   <tr> 
+      <td valign=TOP><img src="images/sqlSecurity.gif" width="51" height="42"></td>
+      <td> 
+         <p><font face="Arial, Helvetica" size="2"> <a href="#CONNECT">CONNECT</a> 
+      <br>
+      <a href="#DISCONNECT">DISCONNECT</a> <br>
+      <a href="#CREATE USER">CREATE USER</a> <br>
+      <a href="#DROP USER">DROP USER</a> <br>
+      <a href="#GRANT">GRANT</a> <br>
+      <a href="#REVOKE">REVOKE</a> <br>
+      <a href="#SET PASSWORD">SET PASSWORD</a> <br>
+      <a href="#SET REFINT">SET REFERENTIAL_INTEGRITY</a> <br>
+      <a href="#SET TABLE">SET TABLE READONLY</a><br>
+      </font><font face="Arial, Helvetica" size="2">
+	  <a href="#SET TABLE SOURCE">SET TABLE SOURCE</a><br>
+      <a href="#SET WRITE_DELAY">SET WRITE_DELAY</a> 
+	  </font></p>
+         </td>
+   </tr>
+   <tr> 
+      <td valign=TOP><img src="images/sqlOther.gif" width="51" height="42"></td>
+      <td> <font face="Arial, Helvetica" size="2"> <a href="#CHECKPOINT">CHECKPOINT</a> 
+      <br>
+      <a href="#SCRIPT">SCRIPT</a> <br>
+      <a href="#SET IGNORECASE">SET IGNORECASE</a> <br>
+      <a href="#SET LOGSIZE">SET LOGSIZE</a> <br>
+      <a href="#SHUTDOWN">SHUTDOWN</a> <br>
+      <a href="#Comments">Comments</a> </font></td>
+   </tr>
+</table>
+<p> 
+<hr>
+<p><font face="Arial"> Alphabetical list: 
+</font>
+<p> <font face="Arial"><br>
+  <a href="#CALL">CALL</a> <br>
+  <a href="#CHECKPOINT">CHECKPOINT</a> <br>
+  <a href="#COMMIT">COMMIT</a> <br>
+  <a href="#CONNECT">CONNECT</a> <br>
+  <a href="#CREATE ALIAS">CREATE ALIAS</a> <br>
+  <a href="#CREATE INDEX">CREATE INDEX</a> <br>
+  <a href="#CREATE TABLE">CREATE TABLE</a> <br>
+  <a href="#CREATE USER">CREATE USER</a> <br>
+  <a href="#CREATE VIEW">CREATE VIEW</a> <br>
+  <a href="#DELETE">DELETE</a> <br>
+  <a href="#DISCONNECT">DISCONNECT</a> <br>
+  <a href="#DROP INDEX">DROP INDEX</a> <br>
+  <a href="#DROP TABLE">DROP TABLE</a> <br>
+  <a href="#DROP USER">DROP USER</a> <br>
+  <a href="#DROP VIEW">DROP VIEW</a> <br>
+  <a href="#GRANT">GRANT</a> <br>
+  <a href="#INSERT">INSERT</a> <br>
+  <a href="#REVOKE">REVOKE</a> <br>
+  <a href="#ROLLBACK">ROLLBACK</a> <br>
+  <a href="#SCRIPT">SCRIPT</a> <br>
+  <a href="#SELECT">SELECT</a> <br>
+  <a href="#SET AUTOCOMMIT">SET AUTOCOMMIT</a> <br>
+  <a href="#SET IGNORECASE">SET IGNORECASE</a> <br>
+  <a href="#SET LOGSIZE">SET LOGSIZE</a> <br>
+  <a href="#SET PASSWORD">SET PASSWORD</a> <br>
+  <a href="#SET REFINT">SET REFERENTIAL_INTEGRITY</a> <br>
+  <a href="#SET TABLE">SET TABLE READONLY</a><br>
+  <a href="#SET WRITE_DELAY">SET WRITE_DELAY</a> <br>
+  <a href="#SHUTDOWN">SHUTDOWN</a> <br>
+  <a href="#UPDATE">UPDATE</a> 
+</font>
+<p> <font face="Arial"><a href="#Expression">Expression</a> <br>
+  <a href="#Comments">Comments</a> <br>
+  <a href="#Datatypes">Datatypes</a> <br>
+  <a href="#Stored">Stored Procedures / Functions</a> <a href="#List">List</a> 
+</font>
+<p> <font face="Arial" size="2"><br>
+  <a name="ALTERTABLE"></a>
+</font>
+</font>
+<hr>
+<p><font face="Arial"><br>
+   <b><font size="2" color="#FF0000">ALTER TABLE</font></b><font size="2" color="#FF0000"> &lt;tablename&gt;</font></font><font color="#FF0000" face="Arial"><b><font size="2"> ADD COLUMN</font></b><font size="2"> &lt;columnname&gt; </font><font face="Arial, Helvetica" size="2"><font face="Arial"> <a href="#Datatypes">Datatype</a><font color="#FF0000"> [(columnSize[,precision])] [DEFAULT 'defaultValue' [NOT NULL]]</font> </font></font><font size="2">[BEFORE &lt;existingcolumn&gt;];</font></font></p>
+<p><font face="Arial" size="2">Adds the column to the end of the column list. Optional attributes, size and default value (with or without  NOT NULL)  can be specified. The optional BEFORE &lt;existingcolumn&gt; can be used to specify the name of an existing column so that the new column is inserted in a position just before the &lt;existingcolumn&gt;. If NOT NULL is specified and the table is not empty, then a default value must be specified.</font></p>
+<p><font face="Arial"><b><font size="2" color="#FF0000">ALTER TABLE </font></b><font size="2" color="#FF0000">&lt;tablename&gt;</font></font><font color="#FF0000" face="Arial"><b><font size="2"> DROP COLUMN </font></b><font size="2">&lt;columnname&gt;;</font></font></p>
+<p><font face="Arial" size="2">Drops the column from the table. Will not work if column is part of a primary key, unique or foreign key constraint.</font></p>
+<p><font face="Arial"><b><font size="2" color="#FF0000">ALTER TABLE </font></b><font size="2" color="#FF0000">&lt;tablename&gt;</font></font><font color="#FF0000" face="Arial"><b><font size="2"> ADD CONSTRAINT </font></b><font size="2">&lt;constraintname&gt;</font><b><font size="2"> UNIQUE (</font></b><font size="2">&lt;column list&gt;</font><b><font size="2">);</font></b></font></p>
+<p><font face="Arial" size="2">Adds a unique constraint to the table. This will not work if there is already  a unique constraints covering exactly the same &lt;column list&gt;.</font></p>
+<p><font face="Arial"><b><font size="2" color="#FF0000">ALTER TABLE </font></b><font size="2" color="#FF0000">&lt;tablename&gt;</font></font><font color="#FF0000" face="Arial"><b><font size="2"> ADD CONSTRAINT </font></b><font size="2">&lt;constraintname&gt;</font><b><font size="2"> FOREIGN KEY (</font></b><font size="2">&lt;column list&gt;</font><b><font size="2">) REFERENCES </font></b><font size="2">&lt;exptablename&gt;</font><b><font size="2"> (</font></b><font size="2">&lt;column list&gt;</font><b><font size="2">)</font></b><font size="2"> [ON DELETE CASCADE];</font></font></p>
+<p><font face="Arial" size="2">Adds a foreign key constraint to the table, using the same constraint syntax as when the foreign key is specified in a table definition.</font></p>
+<p><font face="Arial"><b><font size="2" color="#FF0000">ALTER TABLE </font></b><font size="2" color="#FF0000">&lt;tablename&gt;</font></font><font color="#FF0000" face="Arial"><b><font size="2"> DROP CONSTRAINT </font></b><font size="2">&lt;constraintname&gt;;</font></font></p>
+<p><font face="Arial" size="2">Drops a named unique or foreign key constraint from the table.</font></p>
+<p><font face="Arial"><b><font size="2" color="#FF0000">ALTER TABLE </font></b><font size="2" color="#FF0000">&lt;tablename&gt;</font></font><font color="#FF0000" face="Arial"><b><font size="2"> RENAME TO </font></b><font size="2">&lt;newname&gt;;</font></font></p>
+<a name="ALTERINDEX"></a>
+<hr>
+<p><font color="#FF0000" face="Arial"><b><font size="2">ALTER INDEX </font></b><font size="2">&lt;indexname&gt;</font><b><font size="2"> RENAME TO </font></b><font size="2">&lt;newname&gt;;</font></font></p>
+<p><font face="Arial" size="2">Names can be changed so long as they do not conflict with other user-defined or sytem-defined names.</font></p>
+<p>
+<font face="Arial, Helvetica" size="2">
+<p><font face="Arial"><br>
+  <a name="CALL"></a>
+</font>
+<hr>
+<font face="Arial"><br>
+<b>CALL <a href="#Expression">Expression</a></b> ;
+</font>
+<p><font face="Arial">Any expression can be called like a stored procedure, including, but not only 
+  Java stored procedures or functions. This command returns a ResultSet with one 
+  column and one row (the result) just like a SELECT statement with one row and 
+  one column. 
+</font>
+<p><font face="Arial">See also: <a href="#Stored">Stored Procedures / Functions</a>, <a href="#Expression">Expression</a>. 
+</font>
+<p> <font face="Arial"><br>
+  <a name="CHECKPOINT"></a>
+</font>
+<hr>
+<font face="Arial"><br>
+<b>CHECKPOINT</b> ;
+</font>
+<p><font face="Arial">Closes the database files, shrinks the script file and opens the database. 
+</font>
+<p><font face="Arial">See also: <a href="#SHUTDOWN">SHUTDOWN</a>, <a href="#SET LOGSIZE">SET LOGSIZE</a>. 
+</font>
+<p> <font face="Arial"><br>
+  <a name="COMMIT"></a>
+</font>
+<hr>
+<font face="Arial"><br>
+<b>COMMIT</b> [WORK] ;
+</font>
+<p><font face="Arial">Ends a transaction and makes the changes permanent. 
+</font>
+<p><font face="Arial">See also: <a href="#ROLLBACK">ROLLBACK</a>, <a href="#SET AUTOCOMMIT">SET AUTOCOMMIT</a>. 
+</font>
+<p><font face="Arial"><br>
+  <a name="CONNECT"></a>
+</font>
+<hr>
+<font face="Arial"><br>
+<b>CONNECT USER</b> username<b> PASSWORD</b> password ;
+</font>
+<p><font face="Arial">Connects to the database as a different user. Use "" for an empty password. 
+</font>
+<p><font face="Arial">See also: <a href="#GRANT">GRANT</a>, <a href="#REVOKE">REVOKE</a> 
+</font>
+<p> <font face="Arial"><br>
+  <a name="CREATE ALIAS"></a>
+</font>
+<hr>
+<font face="Arial"><br>
+<b>CREATE ALIAS</b> function <b>FOR</b> javaFunction ;
+</font>
+<p><font face="Arial">Creates an alias for a Java function. The function must be accessible from 
+  the JVM in that the database runs. Example: <br>
+  CREATE ALIAS ABS FOR "java.lang.Math.abs" 
+</font>
+<p><font face="Arial">See also: <a href="#CALL">CALL</a>, <a href="#Stored">Stored Procedures / Functions</a> 
+</font>
+<p> <font face="Arial"><br>
+  <a name="CREATE INDEX"></a>
+</font>
+<hr>
+<font face="Arial"><br>
+<b>CREATE</b> [UNIQUE] <b>INDEX</b> index <b>ON</b> table (column [, ...]) ;
+</font>
+<p><font face="Arial">Creates an index on one or more columns in a table. <br>
+  Creating an index on searched columns may improve performance. 
+</font>
+<p><font face="Arial">See also: <a href="#CREATE TABLE">CREATE TABLE</a>, <a href="#DROP INDEX">DROP 
+  INDEX</a> 
+</font>
+<p> <font face="Arial"><br>
+  <a name="CREATE TABLE"></a>
+</font>
+<hr>
+<font face="Arial"><br>
+<b>CREATE</b> [ MEMORY | CACHED |<font color="#FF0000"> TEMP | TEXT   </font>] <b>TABLE</b> name <br>
+( columnDefinition [, ...] [, constraintDefinition...]) ;
+</font>
+<p><font face="Arial">Creates a tables in the memory (default) or on disk and only cached in memory. 
+  Identity columns are autoincrement columns. They must be integer columns and 
+  are automatically primary key columns. The last inserted value into an identity 
+  column for a connection is available using the function IDENTITY(), for example 
+  (where Id is the identity column): <br>
+  INSERT INTO Test (Id, Name) VALUES (NULL,'Test'); CALL IDENTITY();
+</font>
+<p><font face="Arial">columnDefinition: <br>
+  columnname <a href="#Datatypes">Datatype</a><font color="#FF0000"> [(columnSize[,precision])] [DEFAULT 'defaultValue']</font> [[NOT] NULL] [IDENTITY] 
+  [PRIMARY KEY] </font>
+<p>the default value must be enclosed in singlequotes
+<p><font face="Arial">constraintDefinition: <br>
+  [ CONSTRAINT name ] <br>
+  UNIQUE ( column [,column...] ) | <br>
+  PRIMARY KEY ( column [,column...] ) | <br>
+  FOREIGN KEY ( column [,column...] ) REFERENCES refTable ( column [,column...]) 
+<font color="#FF0000"> 
+  [ON DELETE CASCADE]</font></font>
+<p>&nbsp; 
+<p><font face="Arial">See also: <a href="#DROP TABLE">DROP TABLE</a> 
+</font>
+<p> <font face="Arial" size="2"><a name="CREATE TRIGGER"></a></font>
+</font>
+<hr>
+<font face="Arial"><br>
+<b><font size="2" color="#FF0000">CREATE TRIGGER</font></b><font size="2" color="#FF0000"> name {BEFORE|AFTER} {INSERT|UPDATE|DELETE}
+<b>ON</b> table [FOR EACH ROW] [QUEUE n] [NOWAIT] <b>CALL</b> triggerClass
+;</font></font>
+
+<p><font face="Arial" size="2">
+triggerClass is an application-supplied class that implements the
+org.hsqldb.Trigger interface e.g. "myPackage.trigClass".
+It is the fire method of
+this class that is invoked when the trigger event occurs.
+Ensure that triggerClass is present in the classpath which
+you use to start hsqldb.
+</font>
+<p><font face="Arial" size="2">
+When the 'fire' method is called, it is passed the following arguments:
+<br>
+fire (String name, String table, Object row[])
+<br>
+where 'row' represents the row acted on, with each column being
+a member of the array. The mapping of row classes to database
+types is specified in 
+<a href="#Datatypes">Datatypes</a>
+</font>
+<p><font face="Arial" size="2">
+If the trigger method wants to access the database, it must establish its own
+JDBC connection. Note that this means any access is in a separate transaction.
+The jdbc:default:connection: URL is not currently supported.
+</font>
+<p><font face="Arial" size="2">
+Implementation note: In the interests of not blocking the
+database's main thread, each trigger runs in a thread that will wait for its
+firing event to occur;
+when this happens, the trigger's thread calls triggerClass.fire.
+There is a queue of events waiting to be run by each trigger thread.
+This is particularly useful for 'FOR EACH ROW' triggers, when a large
+number of trigger events occur in rapid succession, without the trigger
+thread getting a chance to run. If the queue becomes full, subsequent
+additions to it cause the database engine to suspend awaiting space
+in the queue. Take great care to avoid this situation if the trigger
+action involves accessing the database, as deadlock will occur.
+This can be avoided either by ensuring the QUEUE parameter makes a large
+enough queue, or by using the NOWAIT parameter, which causes a new
+trigger event to overwrite the most recent event in the queue.
+The default queue size is 1024.
+Note also that the timing of trigger method calls is not guaranteed, so
+applications should implement their own synchronization measures
+if necessary.
+</font>
+<p>
+<p><font face="Arial" size="2">See also: <a href="#DROP TRIGGER">DROP TRIGGER</a>
+</font>
+<p>
+<font face="Arial, Helvetica" size="2">
+<p><font face="Arial"><br>
+  <a name="CREATE USER"></a>
+</font>
+<hr>
+<font face="Arial"><br>
+<b>CREATE USER</b> username <b>PASSWORD</b> password [ADMIN] ;
+</font>
+<p><font face="Arial">Creates a new user or new administrator in this database. Empty password can 
+  be made using "". <br>
+  Only an administrator do this. 
+</font>
+<p><font face="Arial">See also: <a href="#CONNECT">CONNECT</a>, <a href="#GRANT">GRANT</a>, <a href="#REVOKE">REVOKE</a> 
+</font>
+<font face="Arial, Helvetica" size="2">
+<p><font face="Arial"><br>
+  <a name="CREATE VIEW"></a>
+</font>
+<hr>
+<font face="Arial" color="#FF0000"><br>
+<b>CREATE VIEW</b> viewname <b>AS SELECT ... FROM ... </b>[ WHERE Expression ] ;
+</font>
+<p><font face="Arial">A view can be thought of as either a virtual table or a stored query. The data accessible through a view is not stored in the database as a distinct object. What is stored in the database is a SELECT statement. The result set of the SELECT statement forms the virtual table returned by the view. A user can use this virtual table by referencing the view name in SQL statements the same way a table is referenced. A view is used to do any or all of these functions:<br><br> 
+Restrict a user to specific rows in a table. For example, allow an employee to see only the rows recording his or her work in a labor-tracking table.
+<br><br>
+Restrict a user to specific columns. For example, allow employees who do not work in payroll to see the name, office, work phone, and department columns in an employee table, but do not allow them to see any columns with salary information or personal information.
+<br><br>
+Join columns from multiple tables so that they look like a single table.
+<br><br>
+Aggregate information instead of supplying details. For example, present the sum of a column, or the maximum or minimum value from a column.
+<br><br>
+Views are created by defining the SELECT statement that retrieves the data to be presented by
+the view. The data tables referenced by the SELECT statement are known as the base tables 
+for the view. In this example,  is a view that selects data from three base tables 
+to present a virtual table of commonly needed data:
+<br><br>
+<big><pre>
+    CREATE VIEW mealsjv AS
+      SELECT m.mid mid, m.name name, t.mealtype mt, a.aid aid,
+             a.gname + ' ' + a.sname author, m.description description,
+             m.asof asof
+        FROM meals m, mealtypes t, authors a
+       WHERE m.mealtype = t.mealtype
+	     AND m.aid = a.aid;
+</pre></big>
+You can then reference mealsjv in statements in the same way you would reference a table:
+<br><br>
+<big><pre>
+    SELECT *
+      FROM mealsjv
+</pre></big>
+A view can reference another view. For example, mealsjv presents information that is useful for long discriptions that contain identifers, but a short list might be all a web page display needs. A view can be built that selects only specific mealsjv columns:
+<br><br>
+<big><pre>
+    CREATE VIEW mealswebv AS
+      SELECT name, author
+        FROM mealsjv
+</pre></big>
+<br>
+</font>
+<p><font face="Arial">See also: <a href="#Expression">Expression</a>, <a href="#SELECT">SELECT</a>, <a href="#DROP VIEW">DROP VIEW</a>
+</font>
+<p> <font face="Arial"><br>
+  <a name="DELETE"></a>
+</font>
+<hr>
+<font face="Arial"><br>
+<b>DELETE</b> <b>FROM</b> table [ WHERE Expression ] ;
+</font>
+<p><font face="Arial">Removes rows in a table. 
+</font>
+<p><font face="Arial">See also: <a href="#Expression">Expression</a>, <a href="#INSERT">INSERT</a>, 
+  <a href="#SELECT">SELECT</a> 
+</font>
+<p> <font face="Arial"><br>
+  <a name="DISCONNECT"></a>
+</font>
+<hr>
+<font face="Arial"><br>
+<b>DISCONNECT</b> ;
+</font>
+<p><font face="Arial">Closes this connection. It is not required to call this command when using 
+  the JDBC interface: it is called automatically when the connection is closed. 
+  After disconnecting, it is not possible to execute other queries (also not CONNECT) 
+  with this connection. 
+</font>
+<p><font face="Arial">See also: <a href="#CONNECT">CONNECT</a> 
+</font>
+<p> <font face="Arial"><br>
+  <a name="DROP INDEX"></a>
+</font>
+<hr>
+<font face="Arial"><br>
+<b>DROP INDEX</b> index ;
+</font>
+<p><font face="Arial">Removes the specified index from the database. 
+</font>
+Will not work if the index backs a UNIQUE of FOREIGN KEY constraint.
+<p><font face="Arial">See also: <a href="#CREATE INDEX">CREATE INDEX</a> 
+</font>
+<p> <font face="Arial"><br>
+  <a name="DROP TABLE"></a>
+</font>
+<hr>
+<font face="Arial"><br>
+<b>DROP TABLE</b> table  [IF EXISTS]
+;</font>
+<p><font face="Arial">Removes a table, the data and indexes from the database. When IF EXIST is used, the statement returns true if the table does not exist.  
+</font>
+<p><font face="Arial">See also: <a href="#CREATE TABLE">CREATE TABLE</a> 
+</font>
+<p> <font face="Arial" size="2"><a name="DROP TRIGGER"></a></font>
+</font>
+<hr>
+<font face="Arial"><br>
+<b><font size="2">DROP TRIGGER</font></b><font size="2"> trigger</font></font>
+;
+<p><font face="Arial" size="2">Removes a trigger from the database.
+</font>
+<p><font face="Arial" size="2">See also: <a href="#CREATE TRIGGER">CREATE TRIGGER</a>
+</font>
+<p>
+<font face="Arial, Helvetica" size="2">
+<p><font face="Arial"><br>
+  <a name="DROP USER"></a>
+</font>
+<hr>
+<font face="Arial"><br>
+<b>DROP USER</b> username ;
+</font>
+<p><font face="Arial">Removes a user from the database. <br>
+  Only an administrator do this. 
+</font>
+<p><font face="Arial">See also: <a href="#CREATE USER">CREATE USER</a> 
+</font>
+<p> <font face="Arial"><br>
+  <a name="DROP VIEW"></a>
+</font>
+<hr>
+<font face="Arial" color="#FF0000"><br>
+<b>DROP VIEW</b> viewname  [IF EXISTS]
+;</font>
+<p><font face="Arial">Removes a view from the database. When IF EXIST is used, the statement returns true if the view does not exist.  
+</font>
+<p><font face="Arial">See also: <a href="#CREATE VIEW">CREATE VIEW</a> 
+</font>
+<p> <font face="Arial" size="2"><a name="DROP TRIGGER"></a></font>
+</font>
+<p> <font face="Arial"><br>
+  <a name="GRANT"></a>
+</font>
+<hr>
+<font face="Arial"><br>
+<b>GRANT</b> { SELECT | DELETE | INSERT | UPDATE | ALL } [,...] <br>
+<b>ON</b> { table | CLASS "package.class" }<b> TO </b>{ username | PUBLIC } ;
+</font>
+<p><font face="Arial">Assigns privileges to a user or to all users (PUBLIC) for a table or for a 
+  class. To allow a user to call a function from a class, the right ALL must be 
+  used. Examples: <br>
+  GRANT SELECT ON Test TO GUEST <br>
+  GRANT ALL ON CLASS "java.lang.String" TO PUBLIC <br>
+  Only an administrator do this. 
+</font>
+<p><font face="Arial">See also: <a href="#REVOKE">REVOKE</a>, <a href="#CREATE USER">CREATE USER</a> 
+</font>
+<p> <font face="Arial"><br>
+  <a name="INSERT"></a>
+</font>
+<hr>
+<font face="Arial"><br>
+<b>INSERT INTO</b> table [ ( column [,...] ) ] <br>
+{ VALUES(<a href="#Expression">Expression</a> [,...]) | <a  href="#SELECT">SelectStatement</a> 
+} ;
+</font>
+<p><font face="Arial">Adds one or more new rows of data into a table. 
+</font>
+<p> <font face="Arial"><br>
+  <a name="REVOKE"></a>
+</font>
+<hr>
+<font face="Arial"><br>
+<b>REVOKE</b> { SELECT | DELETE | INSERT | UPDATE | ALL } [,...] <br>
+<b>ON</b> { table | CLASS "package.class" } <b>TO</b> { username | PUBLIC } ;
+</font>
+<p><font face="Arial">Withdraws privileges from a user or for PUBLIC (all users) for a table or class. 
+  <br>
+  Only an administrator may do this. 
+</font>
+<p><font face="Arial">See also: <a href="#GRANT">GRANT</a> 
+</font>
+<p> <font face="Arial"><br>
+  <a name="ROLLBACK"></a>
+</font>
+<hr>
+<font face="Arial"><br>
+<b>ROLLBACK</b> [WORK] ;
+</font>
+<p><font face="Arial">Undoes changes made since the last COMMIT or ROLLBACK. 
+</font>
+<p><font face="Arial">See also: <a href="#COMMIT">COMMIT</a> 
+</font>
+<p> <font face="Arial"><br>
+  <a name="SCRIPT"></a>
+</font>
+<hr>
+<font face="Arial"><br>
+<b>SCRIPT</b> ['file'] ;
+</font>
+<p><font face="Arial">Creates an SQL script describing the database. This file is saved on the machine where the database files are located. <br>
+  Only an administrator may do this. 
+</font>
+<p> <font face="Arial"><br>
+  <a name="SELECT"></a>
+</font>
+<hr>
+<font face="Arial"><br>
+<b>SELECT</b><font color="#FF0000"> [{LIMIT n m | TOP m}]</font>[DISTINCT] <br>
+{ selectExpression | table.* | * } [, ... ] <br>
+[ INTO  <font color="#FF0000">[CACHED | TEMP  | TEXT]</font> newTable ] <br>
+<b>FROM</b> tableList <br>
+[ WHERE <a href="#Expression">Expression</a> ] <br>
+[ GROUP BY Expression [, ...] ] <br>
+[ ORDER BY orderExpression [, ...] ] <br>
+[ { UNION [ALL] | {MINUS|EXCEPT} | INTERSECT } selectStatement ] ;
+</font>
+<p><font face="Arial"> Retrieves information from one or more tables in the database. 
+</font>
+<p><font face="Arial">tableList: <br>
+  table [ { INNER | LEFT OUTER } JOIN table ON Expression ] [, ...] 
+</font>
+<p><font face="Arial">selectExpression: <br>
+  { Expression | COUNT(*) | {COUNT | MIN | MAX | SUM | AVG} (<font color="#FF0000">[DISTINCT] </font>Expression) } 
+</font>
+<p><font face="Arial">orderExpression: <br>
+  { columnNr | columnAlias | selectExpression } [ ASC | DESC ] 
+</font>
+<p><font face="Arial" size="2">LIMIT n m: creates the result set for 
+  the SELECT statement first and then discards the first n rows and returns the 
+  first m rows of the remaining result set. Special cases: LIMIT 0 m is equivalent 
+  to TOP m or FIRST m in other RDBMS's; LIMIT n 0 discards the first n rows and 
+  returns the rest of the result set.</font>
+<p><font face="Arial">TOP m is equivalent to LIMIT 0 m
+</font>
+</font>
+<p> 
+
+<p><font face="Arial" size="2">See also: <a href="#INSERT">INSERT</a>, <a href="#UPDATE">UPDATE</a>, <a href="#DELETE">DELETE</a> 
+</font>
+<p> <font face="Arial" size="2"><br>
+  <a name="SET AUTOCOMMIT"></a>
+</font>
+<hr>
+<font face="Arial" size="2"><br>
+<b>SET AUTOCOMMIT</b> { TRUE | FALSE } ;
+</font>
+<p><font face="Arial" size="2">Switches on or off the connection's auto-commit mode. If switched on, then 
+  all statements will be committed as individual transactions. Otherwise, the 
+  statements are grouped into transactions that are terminated by either <a href="#COMMIT">COMMIT</a> 
+  or <a href="#ROLLBACK">ROLLBACK</a>. By default, new connections are in auto-commit 
+  mode. 
+</font>
+<p> <font face="Arial" size="2"><br>
+  <a name="SET IGNORECASE"></a>
+</font>
+<hr>
+<font face="Arial" size="2"><br>
+<b>SET IGNORECASE</b> { TRUE | FALSE } ;
+</font>
+<p><font face="Arial" size="2">Disables (ignorecase = true) or enables (ignorecase = false) the case sensitivity 
+  of text comparison and indexing. By default, new databases are case sensitive. The sensitivity 
+  must be switched before creating tables. Existing tables and their data are not affected. 
+  When switched on, the data type VARCHAR is set to VARCHAR_IGNORECASE. This special 
+  data type can also be used without switching global  ignorecase on. So it is possible 
+  to have some columns  case sensitive and some not, even in the same table. <br>
+  Only an administrator may do this. 
+</font>
+<p> <font face="Arial" size="2"><br>
+  <a name="SET LOGSIZE"></a>
+</font>
+<hr>
+<font face="Arial" size="2"><br>
+<b>SET LOGSIZE</b> size ;
+</font>
+<p><font face="Arial" size="2">Sets the maximum size in MB of the .script file. Default is 200 MB. The database 
+  will be closed and opened (just like using CHECKPOINT) if the .script file gets 
+  over this limit, and so the .script file will shrink. 0 means no limit. 
+</font>
+<p><font face="Arial" size="2">See also: <a href="#CHECKPOINT">CHECKPOINT</a> 
+</font>
+<p> <font face="Arial" size="2"><br>
+  <a name="SET PASSWORD"></a>
+</font>
+<hr>
+<font face="Arial" size="2"><br>
+<b>SET PASSWORD</b> password ;
+</font>
+<p><font face="Arial" size="2">Changes the password of the currently connected user. Empty password can be 
+  set using "" 
+</font>
+<p> <font face="Arial" size="2"><br>
+  <a name="SET REFINT"></a>
+</font>
+<hr>
+<font face="Arial" size="2"><br>
+<b>SET REFERENTIAL_INTEGRITY</b> { TRUE | FALSE } ;
+</font>
+<p><font face="Arial" size="2">This commands enables / disables the referential integrity checking (foreign 
+  keys). Normally it should be switched on (this is the default) but when importing 
+  data (and the data is imported in the 'wrong' order) the checking can be switched 
+  off. <br>
+  Only an administrator may do this. 
+</font>
+<p><font face="Arial" size="2">See also: <a href="#CREATE TABLE">CREATE TABLE</a> 
+</font>
+<p> <font face="Arial" size="2"><br>
+  
+<a name="SET WRITE_DELAY"></a>
+</font>
+<font face="Arial, Helvetica" size="2">
+<p> 
+<hr>
+<p><font face="Arial">SET TABLE tableName INDEX 'index1rootPos index2rootPos ... '. 
+</font>
+<p><font face="Arial">This command is only used internally to store the position of index roots in 
+  the .data file. It appears only in database script files; it should not be used 
+  directly. <br>
+   </font>
+<p> <font face="Arial"><br>
+  
+<a name="SET TABLE"></a>
+</font>
+<hr>
+</font>
+<p><font face="Arial" size="2" color="#FF0000"><b>SET TABLE</b> &lt;tablename&gt; <b>READONLY</b> {TRUE | FALSE} ;</font>
+<p><font face="Arial" size="2">Sets the table as read only</font>
+<p><font face="Arial, Helvetica" size="2"><font face="Arial"><a name="SET TABLE SOURCE"></a></font></font><font face="Arial" size="2"><br>
+   </font>
+<hr>
+<font face="Arial"><br>
+<b><font size="2" color="#FF0000">SET TABLE </font></b><font size="2" color="#FF0000">&lt;tablename&gt;</font><b><font size="2" color="#FF0000"> SOURCE </font></b><font size="2" color="#FF0000">&lt;file and options&gt;</font><b><font size="2" color="#FF0000"> [DESC]</font></b>
+;</font>
+<p><font face="Arial" size="2">For details see the document TextTables.html. </font>
+<p><font face="Arial" size="2">This command is used exclusively with TEXT tables to specify which file is used for storage of the data. The optional DESC qualifier results in the text file indexed from the end and opened as readonly. The &lt;file and options&gt; argument is a double quoted string that consists of:</font>
+<p><font face="Arial" size="2">&lt;file and options&gt;::= &lt;doublequote&gt; &lt;filepath&gt; [&lt;semicolon&gt; &lt;option&gt;...] &lt;doublequote&gt;</font>
+<p><font face="Arial" size="2">Example: SET TABLE mytable SOURCE "myfile;fs=|;vs=.;lvs=~"</font>
+<p><font face="Arial" size="2">
+HSQLDB also recognises the following special indicators for separators: <br><br>
+&nbsp;&nbsp;&nbsp;&nbsp;\semi - semicolon <br>
+&nbsp;&nbsp;&nbsp;&nbsp;\quote - quote <br>
+&nbsp;&nbsp;&nbsp;&nbsp;\space - space character <br>
+&nbsp;&nbsp;&nbsp;&nbsp;\apos - apostrophe <br>
+&nbsp;&nbsp;&nbsp;&nbsp;\n - newline - Used as an end anchor (like $ in regular expressions) <br>
+&nbsp;&nbsp;&nbsp;&nbsp;\r - carriage return <br>
+&nbsp;&nbsp;&nbsp;&nbsp;\t - tab <br>
+&nbsp;&nbsp;&nbsp;&nbsp;\\ - backslash <br>
+&nbsp;&nbsp;&nbsp;&nbsp;\u#### - a Unicode character specified in hexadecimal<br>
+<br>
+  Only an administrator may do this. 
+</font>
+<p>
+<font face="Arial, Helvetica" size="2">
+<p><font face="Arial"><a name="SET WRITE_DELAY"></a>
+</font>
+<hr>
+<font face="Arial"><br>
+<b>SET WRITE_DELAY</b> { TRUE | FALSE } ;
+</font>
+<p><font face="Arial">When the write delay is switched on, the executed commands are written to the 
+  log file (.script) at most 1 second after they are executed. This improves the 
+  performance of applications that makes a lot of inserts/updates/deletes. When 
+  switched off (this is the default) then all SQL commands are written into the 
+  log file (.script) just after they are executed. <br>
+  Only an administrator may do this.</font>
+</font>
+<p> <font face="Arial" size="2"><br>
+  <a name="SHUTDOWN"></a>
+</font>
+<hr>
+<font face="Arial" size="2"><br>
+<b>SHUTDOWN</b> [ IMMEDIATELY | COMPACT ] ;
+</font><font face="Arial, Helvetica" size="2">
+<p><font face="Arial">Closes the current database.
+</font>
+<p><font face="Arial">SHUTDOWN performs a checkpoint to creates a new .script file that has the minimum size and contains the data for memory tables only. It then backs up the .data file containing the CACHED TABLE data in zipped format to the  .backup file and closes the database. 
+</font>
+<p><font face="Arial">SHUTDOWN IMMEDIATELY just closes the database files 
+  (like an external poweroff); this command is used internally to test the recovery 
+  mechanism.
+This command should not be used as the routine method of closing the database.</font>
+<p><font face="Arial">SHUTDOWN COMPACT writes out  a new .script file which contains the data for all the tables, including CACHED and TEXT tables. It then deletes the existing text table files and the  .data file before rewriting them. After this, it backs up the .data file in the same way as normal SHUTDOWN. This operations shrinks all files 
+  to the minimum size. <br>
+  Only an administrator may do this. 
+
+</font>
+<p> <font face="Arial"><br>
+  <a name="UPDATE"></a>
+</font>
+<hr>
+<font face="Arial"><br>
+<b>UPDATE</b> table <b>SET</b> column = Expression [, ...] ;<br>
+[WHERE Expression] 
+</font>
+<p><font face="Arial">Modifies data of a table in the database. 
+</font>
+<p><font face="Arial">See also: <a href="#SELECT">SELECT</a>, <a href="#INSERT">INSERT</a>, <a href="#DELETE">DELETE</a> 
+</font>
+<p> <font face="Arial"><br>
+  <a name="Datatypes"></a>
+</font>
+<hr></font>
+<p><font face="Arial, Helvetica" size="2">
+<font face="Arial"><br>
+   <b>Datatypes</b>: The types on the same line are equivalent. <br>
+<br>
+<table border="1" cellspacing="1" bordercolor="Black" >
+   <tr>
+	   <td><font size="2">INTEGER | INT </font></td>
+      <td><font size="2">"int" | "java.lang.Integer"</font></td>
+   </tr>
+   <tr>
+	   <td><font size="2">DOUBLE [PRECISION] | FLOAT</font></td>
+      <td><font size="2">"double" | "java.lang.Double"</font></td>
+   </tr>
+   <tr>
+	   <td><font size="2">VARCHAR</font></td>
+      <td><font size="2">"java.lang.String"</font></td>
+   </tr>
+   <tr>
+	   <td><font size="2">VARCHAR_IGNORECASE</font></td>
+      <td><font size="2">"java.lang.String"</font></td>
+   </tr>
+   <tr>
+	   <td><font size="2">CHAR | CHARACTER</font></td>
+      <td><font size="2">"java.lang.String"</font></td>
+   </tr>
+   <tr>
+	   <td><font size="2">LONGVARCHAR</font></td>
+      <td><font size="2">"java.lang.String"</font></td>
+   </tr>
+   <tr>
+	   <td><font size="2">DATE</font></td>
+      <td><font size="2">"java.sql.Date"</font></td>
+   </tr>
+   <tr>
+	   <td><font size="2">TIME</font></td>
+      <td><font size="2">"java.sql.Time"</font></td>
+   </tr>
+   <tr>
+	   <td><font size="2">TIMESTAMP | DATETIME</font></td>
+      <td><font size="2">"java.sql.Timestamp"</font></td>
+   </tr>
+   <tr>
+	   <td><font size="2">DECIMAL</font></td>
+      <td><font size="2">"java.math.BigDecimal"</font></td>
+   </tr>
+   <tr>
+	   <td><font size="2">NUMERIC</font></td>
+      <td><font size="2">"java.math.BigDecimal"</font></td>
+   </tr>
+   <tr>
+	   <td><font size="2">BIT</font></td>
+      <td><font size="2">"boolean" | "java.lang.Boolean"</font></td>
+   </tr>
+   <tr>
+	   <td><font size="2">TINYINT</font></td>
+      <td><font size="2">"byte" | "java.lang.Byte"</font></td>
+   </tr>
+   <tr>
+	   <td><font size="2">SMALLINT</font></td>
+      <td><font size="2">"short" | "java.lang.Short"</font></td>
+   </tr>
+   <tr>
+	   <td><font size="2">BIGINT</font></td>
+      <td><font size="2">"long" | "java.lang.Long"</font></td>
+   </tr>
+   <tr>
+	   <td><font size="2">REAL</font></td>
+      <td><font size="2" color="#FF0000">"double" | "java.lang.Double" </font></td>
+   </tr>
+   <tr>
+	   <td><font size="2">BINARY</font></td>
+      <td><font size="2">"byte[]"</font></td>
+   </tr>
+   <tr>
+	   <td><font size="2">VARBINARY</font></td>
+      <td><font size="2">"byte[]"</font></td>
+   </tr>
+   <tr>
+	   <td><font size="2">LONGVARBINARY</font></td>
+      <td><font size="2">"byte[]"</font></td>
+   </tr>
+   <tr>
+	   <td><font size="2">OTHER | OBJECT</font></td>
+      <td><font size="2">"java.lang.Object"</font></td>
+   </tr>
+</table>
+</font></font>
+<br>
+<font face="Arial, Helvetica" size="2">
+</font>
+<font face="Arial, Helvetica" size="2">
+</font><font face="Arial, Helvetica" size="2">
+<p><font face="Arial"> The uppercase names are the data types names defined by the SQL standard or commonly used by RDMS's. The 
+  data types in quotes are the Java class names - if these type names are used 
+  then they must be enclosed in quotes because in Java names are case-sensitive. 
+</font>
+<p><font face="Arial"> The recommended Java mapping for the JDBC datatype FLOAT is as a Java type 
+  "double". Because of the potential confusion it is recommended that DOUBLE is 
+  used instead of FLOAT. 
+</font>
+<p><font face="Arial"> VARCHAR_IGNORECASE is a special case-insensitive type of VARCHAR. This type 
+  is not portable. 
+</font>
+<p> <font face="Arial">In HSQLDB, when defining CHAR and VARCHAR columns,  the SIZE argument is optional and defaults to 0. If any other size is specified, it is stored in the database definition but is not enforeced by default. Once you have created the database (before adding data), you can close the database and add a database property value:</font>
+<p><font face="Arial"> sql.enforce_size=true</font>
+<p><font face="Arial">This </font><font face="Arial, Helvetica" size="2"><font face="Arial"> will  enforce the specified size and pad CHAR fields with spaces to fill the size.</font></font>
+<p><font face="Arial">
+ CHAR and VARCHAR and LONGVARCHAR columns are by default compared and sorted according to POSIX standards. To use the current JRE locale for sorting and comparison, add the following database property to the properties file.</font>
+<p><font face="Arial, Helvetica" size="2"><font face="Arial">sql.compare_in_locale=true
+
+</font></font>
+<p>Columns of the type OTHER or OBJECT contain the serialized form of a Java Object in binary format. To insert or update such columns, a binary format string (see below under Expression) should be used. Using PreparedStatements with JDBC automates this transformation.
+<p><font face="Arial"><br>
+  <a name="Comments"></a>
+</font>
+<hr>
+<font face="Arial"><br>
+<b>Comments</b> 
+</font>
+<p> <font face="Arial"><br>
+  -- SQL style line comment <br>
+  // Java style line comment <br>
+  /* C style line comment */ 
+</font>
+<p><font face="Arial">All these types of comments are ignored by the database. 
+</font>
+<p> <font face="Arial"><br>
+  <a name="Stored"></a>
+</font>
+<hr>
+<font face="Arial"><br>
+<b>Stored Procedures / Functions</b> 
+</font>
+<p><font face="Arial"> Stored procedures are Java functions that are called directly from the SQL 
+  language or using an alias. Calling Java functions (directly or using the alias) 
+  requires that the Java class can be reached by the database (server). The syntax 
+  is: 
+</font>
+<p> <font face="Arial">"java.lang.Math.sqrt"(2.0) 
+</font>
+<p><font face="Arial"> This means the packacke must be provided, and the name must be written as 
+  one word, and inside " because otherwise it is converted to uppercase (and not 
+  found). 
+</font>
+<p><font face="Arial"> An alias can be created using the command CREATE ALIAS: 
+</font>
+<p><font face="Arial"> CREATE ALIAS SQRT FOR "java.lang.Math.sqrt" 
+</font>
+<p><font face="Arial"> When an alias is defined, then the function can be called additionally using 
+  this alias: 
+</font>
+<p><font face="Arial"> SQRT(2.0) 
+</font>
+<p> <font face="Arial"><br>
+  <a name="List"></a>
+</font>
+<hr>
+<font face="Arial"><br>
+<b>List of built in functions and stored procedures</b> 
+</font>
+<p> <font face="Arial"><b>Numerical</b> <br>
+   <br>
+  ABS(d) (returns the absolute value of a double value) <br>
+  ACOS(d) (returns the arc cosine of an angle) <br>
+  ASIN(d) (returns the arc sine of an angle) <br>
+  ATAN(d) (returns the arc tangent of an angle) <br>
+  ATAN2(a,b) (returns the tangent of a/b) <br>
+  CEILING(d) (returns the smallest integer that is not less than d) <br>
+  COS(d) (returns the cosine of an angle) <br>
+  COT(d) (returns the cotangent of an angle) <br>
+  DEGREES(d) (converts radians to degrees) <br>
+  EXP(d) (returns e (2.718...) raised to the power of d) <br>
+  FLOOR(d) (returns the largest integer that is not greater than d) <br>
+  LOG(d) (returns the natural logarithm (base e)) <br>
+  LOG10(d) (returns the logarithm (base 10)) <br>
+  MOD(a,b) (returns a modulo b) <br>
+  PI() (returns pi (3.1415...)) <br>
+  POWER(a,b) (returns a raised to the power of b) <br>
+  RADIANS(d) (converts degrees to radians) <br>
+  RAND() (returns a random number x bigger or equal to 0.0 and smaller than 1.0) <br>
+  ROUND(a,b) (rounds a to b digits after the decimal point) <br>
+  SIGN(d) (returns -1 if d is smaller than 0, 0 if d==0 and 1 if d is bigger than 0) <br>
+  SIN(d) (returns the sine of an angle) <br>
+  SQRT(d) (returns the square root) <br>
+  TAN (returns the trigonometric tangent of an angle) <br>
+  TRUNCATE(a,b) (truncates a to b digits after the decimal point) <br>
+  BITAND(a,b) (return a & b) <br>
+  BITOR(a,b) (returns a | b) <br>
+  ROUNDMAGIC(d) (solves rounding problems such as 3.11-3.1-0.01) 
+</font>
+<p> <font face="Arial"><b>String</b> <br>
+   <br>
+  ASCII(s) (returns the ASCII code of the leftmost character of s) <br>
+  CHAR(c) (returns a character that has the ASCII code c) <br>
+  CONCAT(str1,str2) (returns str1 + str2 ) <br>
+  DIFFERENCE(s1,s2) (returns the difference between the sound of s1 and s2) <br>
+  <font color="#FF0000">HEXTORAW(s1) (returns translated string) </font><br>
+  INSERT(s,start,len,s2) (returns a string where len number of characters beginning at start has been replaced by s2) <br>
+  LCASE(s) (converts s to lower case) <br>
+  LEFT(s,count) (returns the leftmost count of characters of s) <br>
+  LENGTH(s) (returns the number of characters in s) <br>
+  LOCATE(search,s,[start]) (returns the first index (1=left, 0=not found) where search is found in s, starting at start) <br>
+  LTRIM(s) (removes all leading blanks in s) <br>
+  <font color="#FF0000">RAWTOHEX(s1) (returns translated string) </font><br>
+  REPEAT(s,count) (returns s repeated count times) <br>
+  REPLACE(s,replace,s2) (replaces all occurrences of replace in s with s2) <br>
+  RIGHT(s,count) (returns the rightmost count of characters of s) <br>
+  RTRIM(s) (removes all trailing spaces) <br>
+  SOUNDEX(s) (returns a four character code representing the sound of s) <br>
+  SPACE(count) (returns a string consisting of count spaces) <br>
+  SUBSTR(s,start[,len]) (alias for substring) <br>
+  SUBSTRING(s,start[,len]) (returns the substring starting at start (1=left) with length len) <br>
+  UCASE(s) (converts s to upper case) <br>
+  LOWER(s) (converts s to lower case) <br>
+  UPPER(s) (converts s to upper case) 
+</font>
+<p> <font face="Arial"><b>Date / Time</b> <br>
+   <br>
+  CURDATE() (returns the current date) <br>
+  CURTIME() (returns the current time) <br>
+  DAYNAME(date) (returns the name of the day) <br>
+  DAYOFMONTH(date) (returns the day of the month (1-31)) <br>
+  DAYOFWEEK(date) (returns the day of the week (1 means Sunday)) <br>
+  DAYOFYEAR(date) (returns the day of the year (1-366)) <br>
+  HOUR(time) (return the hour (0-23)) <br>
+  MINUTE(time) (returns the minute (0-59)) <br>
+  MONTH(date) (returns the month (1-12)) <br>
+  MONTHNAME(date) (returns the name of the month) <br>
+  NOW() (returns the current date and time as a timestamp) <br>
+  QUARTER(date) (returns the quarter (1-4)) <br>
+  SECOND(time) (returns the second (0-59)) <br>
+  WEEK(date) (returns the week of this year (1-53) <br>
+  YEAR(date) (returns the year) 
+</font>
+<p> <font face="Arial"><b>System / Connection</b> <br>
+   <br>
+  DATABASE() (returns the name of the database of this connection) <br>
+  USER() (returns the user name of this connection) <br>
+  IDENTITY() (returns the last identity values that was inserted by this connection) 
+</font>
+<p> <font face="Arial"><b>System</b> <br>
+   <br>
+  IFNULL(exp,value) (if exp is null, value is returned else exp) <br>
+  CASEWHEN(exp,v2,v2) (if exp is true, v1 is returned, else v2) <br>
+  CONVERT(term,type) (converts exp to another data type) <br>
+  CAST(term AS type) (converts exp to another data type) 
+</font>
+<p><font face="Arial"> See also: <a href="#CREATE ALIAS">CREATE ALIAS</a>, <a href="#CALL">CALL</a> 
+</font>
+<p> <font face="Arial"><br>
+  <a name="Expression"></a>
+</font>
+<hr>
+<font face="Arial"><br>
+<b>Expression</b>: <br>
+<br>
+[NOT] condition [ { OR | AND } condition ] 
+</font>
+<p><font face="Arial">condition: <br>
+  { value [ || value ] <br>
+  | value { = | &lt; | &lt;= | > | >= | &lt;> | != | IS [NOT] } value <br>
+  | EXISTS(<a href="#SELECT">selectStatement</a>) <br>
+  | value BETWEEN value AND value <br>
+  | value [NOT] IN ( {value [, ...] | selectStatement } ) <br>
+  | value [NOT] LIKE value [ESCAPE] value } 
+</font>
+<p><font face="Arial">value: <br>
+  [ + | - ] { term [ { + | - | * | / } term ] <br>
+  | ( condition ) <br>
+  | <a href="#List">function</a> ( [parameter] [,...] ) <br>
+  | selectStatement giving one value 
+</font>
+<p><font face="Arial">term: <br>
+  { 'string' | number | floatingpoint <br>
+  | [table.]column | TRUE | FALSE | NULL } 
+</font>
+<p><font face="Arial">string: <br>
+  </font><font face="Arial, Helvetica" size="2"><font face="Arial"> Strings in HSQLDB are Unicode
+strings.</font>
+</font> A string s<font face="Arial">tarts and ends with a single ' (singlequote). In a string started with ' (singlequote) use '' (two singlequotes) to create a ' (singlequote).</font>
+<p><font face="Arial">The 
+  LIKE keyword uses '%' to match any (including 0) number of characters, and '_' to match 
+  exactly one character. To search for '%' itself, '\%' must be used, for '_' 
+  use '\_'; or any other escaping character may be set using the ESCAPE clause.</font>
+<p><font face="Arial">name: <br>
+  </font><font face="Arial, Helvetica" size="2"><font face="Arial"> The character set for identifiers (names) in HSQLDB is Unicode.</font></font>
+<p><font face="Arial">A unquoted identifier (name) starts with a letter and is followed by any number of letters or digits. 
+  </font><font face="Arial, Helvetica" size="2"><font face="Arial"> In  unquoted identifiers</font></font>, l<font face="Arial">owercase characters are converted to uppercase. 
+  Because of this, unquoted names are not case sensitive when used in SQL statements.</font>
+<p><font face="Arial">Quoted identifiers can be used as names (for tables, columns, constraints or indexes). Quoted identifiers start and end with " </font><font face="Arial, Helvetica" size="2"><font face="Arial">(one doublequote)</font></font><font face="Arial">. A quoted identifier can contain any Unicode character, including space. In a quoted 
+  identifier use "" (two doublequotes) to create a " (one doublequote). With quoted identifiers it is possible to create 
+  mixed-case table and column names. Example: CREATE TABLE "Address" ("Nr" INTEGER,"Name" 
+  VARCHAR); SELECT &quot;Nr&quot;, &quot;Name&quot;  FROM "Address";</font>
+<p><font face="Arial">The equivalent quoted identifier can be used for an unquoted identifer by converting the identifier to all uppercase and quoting it. For example, if a table  name is defined as  Address2 (unquoted), it can be referred to by its  quoted form, &quot;ADDRESS2&quot;, as well as address2, aDDress2 and ADDRESS2. Quoted identifiers should not be confused with SQL strings.</font>
+<p><font face="Arial">Quoting can sometimes be used for identifiers when there is an ambiguity. For example:</font>
+
+<p>SELECT COUNT(*) &quot;COUNT&quot; FROM MYTABLE;
+<p>Portability between different JRE locales is an issue when accented characters are used in unquoted  identifiers. Because native Java methods are used to convert the identifier to uppercase, the result may vary among different locales. It is recommended that accented characters are used only in quoted identifiers.
+<p>When using JDBC methods that take table, column, or index identifiers as arguments, treat the names as they are registered in the database. With these methods, unquoted identifiers should be used in all-uppercase to get the correct result. Quoted identifiers should be used in the exact case combination as they were defined - no quote character should be included in the name. JDBC methods that return a result set containing such identifiers return unquoted identifiers as all-uppercase and quoted identifiers in the exact case they are registered in the database <font color="#FF0000">(a change from 1.6.1 and previous versions)</font>.
+<p><font face="Arial">values: <br>
+  A 'date' value starts and ends with ' (singlequote), the format is yyyy-mm-dd (see java.sql.Date). 
+  <br>
+  A 'time' value starts and ends with ' </font><font face="Arial, Helvetica" size="2"><font face="Arial">(singlequote)</font></font><font face="Arial">, the format is hh:mm:ss (see java.sql.Time). 
+  <br>
+  A 'timestamp' or 'datetime'  value starts and ends with ' </font><font face="Arial, Helvetica" size="2"><font face="Arial">(singlequote)</font></font><font face="Arial">, the format is  yyyy-mm-dd hh:mm:ss.SSSSSSSSS (see java.sql.Timestamp). 
+  <br>
+  
+</font>
+<p><font face="Arial">When specifying default values for date / time columns  in CREATE TABLE statements, or in SELECT,INSERT, and  UPDATE statements, special values<font color="#FF0000"> 'now',</font></font><font color="#FF0000" face="Arial"> 'today', 'current_timestamp', 'sysdate', 'current_time' and 'current_date' </font><font face="Arial">(case independent) can be used. 'now' is used for TIME and TIMESTAMP columns, 'today' is used for DATE columns. Example:
+</font>
+<pre> CREATE TABLE T(D DATE DEFAULT 'today');
+ CREATE TABLE T1(TS TIMESTAMP DEFAULT 'now');  </pre>
+</font>
+<p>
+<font face="Arial, Helvetica" size="2">
+<p><font face="Arial">Binary data starts and ends with ' </font><font face="Arial, Helvetica" size="2"><font face="Arial">(singlequote)</font></font><font face="Arial">, the format is hexadecimal. '0004ff' for 
+  example is 3 bytes, first 0, second 4 and last 255 (0xff). 
+</font>
+<p><font face="Arial">Any number of commands may be combined. With combined commands,  ';' (semicolon) must be used at the end of each command to ensure data integrity, despite the fact that the program may not return an error when it is not used. 
+</font>
+<p><font face="Arial"><b>Conventions Used in this Document </b>
+</font>
+<p><font face="Arial">[ A ] means A is optional <br>
+  { B | C } means either B or C must be used. <br>
+  ( and ) are the actual characters '(' and ')' used in statements.<br>
+  UPPERCASE words are keywords<br><br>
+   <font color="#FF0000">Items in red indicate features added by HSQL Development Group since April 2001<br>
+   Based on original Hypersonic documentation. Updates by Peter Hudson, Joe Maher and Fred Toussi
+   </font></font>
+<p>&nbsp; 
+</font> 
+</body></html>

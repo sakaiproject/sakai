@@ -1,0 +1,161 @@
+<?xml version="1.0"?>
+<xs:schema targetNamespace="http://ltsc.ieee.org/xsd/LOM/custom"
+           xmlns="http://ltsc.ieee.org/xsd/LOM/custom"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified">
+
+  <!-- Vocabulary enumeration declarations -->
+
+  <!-- Source [custom] -->
+  <xs:simpleType name="sourceValues">
+    <xs:restriction base="xs:token">
+      <xs:enumeration/>
+      <!-- <xs:enumeration value="custom"/> -->
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- 1.7 Structure -->
+  <xs:simpleType name="structureValues">
+    <xs:restriction base="xs:token">
+      <xs:enumeration/>
+      <!-- <xs:enumeration value="custom"/> -->
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- 1.8 Aggregation Level [custom] -->
+  <xs:simpleType name="aggregationLevelValues">
+    <xs:restriction base="xs:token">
+      <xs:enumeration/>
+      <!-- <xs:enumeration value="custom"/> -->
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- 2.2 Status -->
+  <xs:simpleType name="statusValues">
+    <xs:restriction base="xs:token">
+      <xs:enumeration/>
+      <!-- <xs:enumeration value="custom"/> -->
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- 2.3.1 Role -->
+  <xs:simpleType name="roleValues">
+    <xs:restriction base="xs:token">
+      <xs:enumeration/>
+      <!-- <xs:enumeration value="custom"/> -->
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- 3.2.1 Role -->
+  <xs:simpleType name="roleMetaValues">
+    <xs:restriction base="xs:token">
+      <xs:enumeration/>
+      <!-- <xs:enumeration value="custom"/> -->
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- 4.4.1.1 Type -->
+  <xs:simpleType name="typeValues">
+    <xs:restriction base="xs:token">
+      <xs:enumeration/>
+      <!-- <xs:enumeration value="custom"/> -->
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- 4.4.1.2 Name -->
+  <xs:simpleType name="nameValues">
+    <xs:restriction base="xs:token">
+      <xs:enumeration/>
+      <!-- <xs:enumeration value="custom"/> -->
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- 5.1 Interactivity Type -->
+  <xs:simpleType name="interactivityTypeValues">
+    <xs:restriction base="xs:token">
+      <xs:enumeration/>
+      <!-- <xs:enumeration value="custom"/> -->
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- 5.2 Learning Resource Type -->
+  <xs:simpleType name="learningResourceTypeValues">
+    <xs:restriction base="xs:token">
+      <xs:enumeration/>
+      <!-- <xs:enumeration value="custom"/> -->
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- 5.3 Interactivity Level -->
+  <xs:simpleType name="interactivityLevelValues">
+    <xs:restriction base="xs:token">
+      <xs:enumeration/>
+      <!-- <xs:enumeration value="custom"/> -->
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- 5.4 Semantic Density -->
+  <xs:simpleType name="semanticDensityValues">
+    <xs:restriction base="xs:token">
+      <xs:enumeration/>
+      <!-- <xs:enumeration value="custom"/> -->
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- 5.5 Intended End User Role -->
+  <xs:simpleType name="intendedEndUserRoleValues">
+    <xs:restriction base="xs:token">
+      <xs:enumeration/>
+      <!-- <xs:enumeration value="custom"/> -->
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- 5.6 Context -->
+  <xs:simpleType name="contextValues">
+    <xs:restriction base="xs:token">
+      <xs:enumeration/>
+      <!-- <xs:enumeration value="custom"/> -->
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- 5.8 Difficulty -->
+  <xs:simpleType name="difficultyValues">
+    <xs:restriction base="xs:token">
+      <xs:enumeration/>
+      <!-- <xs:enumeration value="custom"/> -->
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- 6.1 Cost -->
+  <xs:simpleType name="costValues">
+    <xs:restriction base="xs:token">
+      <xs:enumeration/>
+      <!-- <xs:enumeration value="custom"/> -->
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- 6.2 Copyright and Other Restrictions -->
+  <xs:simpleType name="copyrightAndOtherRestrictionsValues">
+    <xs:restriction base="xs:token">
+      <xs:enumeration/>
+      <!-- <xs:enumeration value="custom"/> -->
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- 7.1 Kind -->
+  <xs:simpleType name="kindValues">
+    <xs:restriction base="xs:token">
+      <xs:enumeration/>
+      <!-- <xs:enumeration value="custom"/> -->
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- 9.1 Purpose -->
+  <xs:simpleType name="purposeValues">
+    <xs:restriction base="xs:token">
+      <xs:enumeration/>
+      <!-- <xs:enumeration value="custom"/> -->
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

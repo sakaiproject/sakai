@@ -1,0 +1,29 @@
+<html>
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=us-ascii">
+<title>HSQLDB Find File Sample Application</title>
+</head>
+<body bgcolor=#FFFFFF lang=EN-GB class="Normal">
+<h2>HSQLDB  Find File Sample Application</h2>
+<p>This application builds a database of a directory tree and allows you to search 
+  the database.</p>
+<p>This example application is designed for programmers who are new to the JDBC. 
+  The functionality is kept low, so it should be easy to understand what is going 
+  on. It connects, execute queries and inserts data into the database. </p>
+<p>First, the database must be initialized with a path. All the file names in 
+  this directory and all its subdirectories will be stored in the database. After 
+  this is done, the database can be searched for files that match a specific pattern. 
+</p>
+<p>This sample application is not compiled as part of the hsqldb jar. You should 
+  compile it yourself. You should modify the following examples to include the 
+  correct location of the hsqldb.jar in the commands. </p>
+<h4>Usage</h4>
+<p>Re-create database from directory '.': </p>
+<p><code><span style='font-size:10.0pt;font-family:"Courier New"'>java -classpath 
+  hsqldb.jar org.hsqldb.sample.FindFile -init .</span></code> </p>
+<p>Find files like 'name': </p>
+<p><code><span style='font-size:10.0pt;font-family:"Courier New"'>java -classpath 
+  hsqldb.jar org.hsqldb.sample.FindFile name</span></code> </p>
+<p><font size="-1">This text is based on HypersonicSQL documentation, updated to reflect the latest version of HSQLDB</font></p>
+</body>
+</html>

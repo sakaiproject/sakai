@@ -1,0 +1,162 @@
+<html><head><META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Appendix&nbsp;C.&nbsp;Hsqldb Database Files and Recovery</title><link href="guide.css" rel="stylesheet" type="text/css"><meta content="DocBook XSL Stylesheets V1.65.1" name="generator"><meta name="keywords" content="HSQLDB, Data, Files"><meta name="keywords" content="Hsqldb, Hypersonic, Database, JDBC, Java"><link rel="home" href="index.html" title="Hsqldb User Guide"><link rel="up" href="index.html" title="Hsqldb User Guide"><link rel="previous" href="apb.html" title="Appendix&nbsp;B.&nbsp;First JDBC Client Example"><link rel="next" href="apd.html" title="Appendix&nbsp;D.&nbsp;Running Hsqldb with OpenOffice.org 1.1.x"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table summary="Navigation header" width="100%"><tr><th align="center" colspan="3">Appendix&nbsp;C.&nbsp;Hsqldb Database Files and Recovery</th></tr><tr><td align="left" width="20%"><a accesskey="p" href="apb.html"><img src="navicons/prev.gif" alt="Prev"></a>&nbsp;</td><th align="center" width="60%">&nbsp;</th><td align="right" width="20%">&nbsp;<a accesskey="n" href="apd.html"><img src="navicons/next.gif" alt="Next"></a></td></tr></table><hr></div><div class="appendix" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="N12811"></a>Appendix&nbsp;C.&nbsp;Hsqldb Database Files and Recovery</h2></div><div><div class="legalnotice"><p>
+        This text is based on HypersonicSQL documentation, updated to reflect 
+        the latest version 1.8.0 of HSQLDB.
+    </p></div></div><div><p class="pubdate">$Date: 2005/07/01 17:06:32 $</p></div></div><div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="section"><a href="apc.html#N12828"></a></span></dt><dt><span class="section"><a href="apc.html#N12858">States</a></span></dt><dd><dl><dt><span class="section"><a href="apc.html#N1285B"></a></span></dt><dt><span class="section"><a href="apc.html#N1288A"></a></span></dt><dt><span class="section"><a href="apc.html#N128B9"></a></span></dt></dl></dd><dt><span class="section"><a href="apc.html#N128EB">Procedures</a></span></dt><dd><dl><dt><span class="section"><a href="apc.html#N128F0">Clean Shutdown</a></span></dt><dt><span class="section"><a href="apc.html#N1294A">Startup</a></span></dt><dt><span class="section"><a href="apc.html#N1299C">Repair</a></span></dt></dl></dd></dl></div><div class="section" lang="en"><div class="titlepage"><div></div><div></div></div><p>
+        The Standalone and Client/Server modes will in most cases use files to 
+        store all data to disk in a persistent and safe way.
+        This document describes the meaning of the files, the states and the 
+        procedures followed by the engine to recover the data.
+    </p><p>
+        A database named 'test' is used in this description.
+        The database files will be as follows.
+    </p></div><div class="variablelist"><p class="title"><b>Database Files</b></p><dl><dt><span class="term">test.properties</span></dt><dd><p>
+        Contains the entry 'modified'.
+        If the entry 'modified' is set to 'yes' then the database is either 
+        running or was not closed correctly (because the close algorithm sets 
+        'modified' to 'no' at the end).
+        </p></dd><dt><span class="term">test.script</span></dt><dd><p>
+        This file contains the SQL statements that makes up the database up to 
+        the last checkpoint - it is in synch with
+        <tt class="filename">test.backup</tt>.
+        </p></dd><dt><span class="term">test.data</span></dt><dd><p>
+        This file contains the (binary) data records for CACHED tables only.
+        </p></dd><dt><span class="term">test.backup</span></dt><dd><p>
+        This is compressed file that contains the complete backup of the old 
+        <tt class="filename">test.data</tt> file at the time of last checkpoint.
+        </p></dd><dt><span class="term">test.log</span></dt><dd><p>
+        This file contains the extra SQL statements that have modified the 
+        database since the last checkpoint (something like the 'Redo-log' or 
+        'Transaction-log', but just text).
+        </p><p>
+        In the above list, a checkpoint results from both a CHECKPOINT command 
+        and a SHUTDOWN command.
+        </p></dd></dl></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="N12858"></a>States</h2></div></div><div></div></div><div class="section" lang="en"><div class="titlepage"><div></div><div></div></div>Database is closed correctly</div><div class="itemizedlist"><p class="title"><b>State after using the command <tt class="literal">SHUTDOWN</tt></b></p><ul type="disc"><li><p>
+            The <tt class="filename">test.data</tt> file is fully updated.
+        </p></li><li><p>
+            The <tt class="filename">test.backup</tt> contains the compressed 
+            <tt class="filename">test.data</tt> file.
+        </p></li><li><p>
+            The  <tt class="filename">test.script</tt> contains the information in 
+            the database, excluding data for CACHED and TEXT tables. 
+        </p></li><li><p>
+            The <tt class="filename">test.properties</tt> contains the entry 
+            'modified'  set to 'no'.
+        </p></li><li><p>
+            There is no <tt class="filename">test.log</tt> file.
+        </p></li></ul></div><div class="section" lang="en"><div class="titlepage"><div></div><div></div></div>Database is closed correctly with SHUTDOWN SCRIPT</div><div class="itemizedlist"><p class="title"><b>State after using the command <tt class="literal">SHUTDOWN SCRIPT</tt></b></p><ul type="disc"><li><p>
+            The <tt class="filename">test.data</tt> file does not exist; all CACHED 
+            table data is in the <tt class="filename">test.script</tt> file
+        </p></li><li><p>
+            The <tt class="filename">test.backup</tt> does not exist.
+        </p></li><li><p>
+            The  <tt class="filename">test.script</tt> contains the information in 
+            the database, including data for CACHED and TEXT tables.
+        </p></li><li><p>
+            The <tt class="filename">test.properties</tt> contains the entry 
+            'modified'  set to 'no'.
+        </p></li><li><p>
+            There is no <tt class="filename">test.log</tt> file.
+        </p></li></ul></div><div class="section" lang="en"><div class="titlepage"><div></div><div></div></div>Database is aborted</div><p>
+        This may happen by sudden power off, Ctrl+C in Windows, but may be 
+        simulated using the command SHUTDOWN IMMEDIATELY.
+    </p><div class="itemizedlist"><p class="title"><b>Aborted Database state</b></p><ul type="disc"><li><p>
+            The <tt class="filename">test.properties</tt> still containes 
+            'modified=yes'.
+        </p></li><li><p>
+            The <tt class="filename">test.script</tt> contains a snapshot of the 
+            database at the last checkpoint and is OK.
+        </p></li><li><p>
+            The <tt class="filename">test.data</tt> file may be corrupt because the 
+            cache in memory was not written out completely.
+        </p></li><li><p>
+            The <tt class="filename">test.backup</tt> file contains a snapshot of 
+            <tt class="filename">test.data</tt> that corresponds to 
+            <tt class="filename">test.script</tt>.
+        </p></li><li><p>
+            The  <tt class="filename">test.log</tt> file contain all information to 
+            re-do all changes since the snanapshot.
+            As a result of abnormal termination, this file may be partially 
+            corrupt.
+        </p></li></ul></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="N128EB"></a>Procedures</h2></div></div><div></div></div><p>
+        The database engine performs the following procedures internally in 
+        different circumstances. 
+    </p><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="N128F0"></a>Clean Shutdown</h3></div></div><div></div></div><div class="procedure"><p class="title"><b>Procedure&nbsp;C.1.&nbsp;Clean Hsqldb database shutdown</b></p><ol type="1"><li><p>
+                The <tt class="filename">test.data</tt> file is written completely 
+                (all the modified cached table rows are witten out) and closed.
+            </p></li><li><p>
+                The <tt class="filename">test.backup.new</tt> is created (containing 
+                the compressed <tt class="filename">test.data</tt> file)
+            </p></li><li><p>
+                The file <tt class="filename">test.script.new</tt> is created using 
+                the information in the database (and thus shrinks because no 
+                UPDATE and DELETE statements; only INSERT).
+            </p></li><li><p>
+                The entry 'modified' in the properties file is set to 
+                'yes-new-files'
+            </p></li><li><p>
+                The file <tt class="filename">test.script</tt> is deleted
+            </p></li><li><p>
+                The file <tt class="filename">test.script.new</tt> is renamed to 
+                <tt class="filename">test.script</tt>
+            </p></li><li><p>
+                The file <tt class="filename">test.backup</tt> is deleted
+            </p></li><li><p>
+                The file <tt class="filename">test.backup.new</tt> is renamed to 
+                <tt class="filename">test.backup</tt>
+            </p></li><li><p>
+                The entry 'modified' in the properties file is set to 'no' 
+            </p></li><li><p>
+                The file <tt class="filename">test.log</tt> is deleted
+            </p></li></ol></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="N1294A"></a>Startup</h3></div></div><div></div></div><div class="procedure"><p class="title"><b>Procedure&nbsp;C.2.&nbsp;Database is opened</b></p><ol type="1"><li><p>
+                Check if the database files are in use (by checking a special 
+                <tt class="filename">test.lck</tt> file).
+            </p></li><li><p>
+                See if the <tt class="filename">test.properties</tt> file exists,
+                otherwise create it.
+            </p></li><li><p>
+                If the <tt class="filename">test.properties</tt> did not exist, then 
+                this is a new database.
+                Create the empty <tt class="filename">test.log</tt> to append new 
+                commands.
+            </p></li><li><p>
+                If it is an existing database, check in the
+                <tt class="filename">test.properties</tt> file if 'modified=yes'.
+                This would mean last time it was not closed correctly, and thus 
+                the <tt class="filename">test.data</tt> file may be corrupted or 
+                incomplete.
+                In this case the 'REPAIR' algorithm is executed (see below), 
+                before the database is opened normally.
+            </p></li><li><p>
+                Otherwise, if in the <tt class="filename">test.properties</tt> file
+                'modified=yes-new-files', then the (old) 
+                <tt class="filename">test.backup</tt> and 
+                <tt class="filename">test.script</tt> files are deleted and the new 
+                <tt class="filename">test.script.new</tt> file is renamed to 
+                <tt class="filename">test.script</tt>.
+                </p></li><li><p>
+                Open the <tt class="filename">test.script</tt> file and execute the 
+                commands.
+            </p></li><li><p>
+                Create the empty test.log to append new commands.
+            </p></li></ol></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="N1299C"></a>Repair</h3></div></div><div></div></div><p>
+            The current <tt class="filename">test.data</tt> file is corrupt, but 
+            with the old <tt class="filename">test.data</tt> (from the 
+            <tt class="filename">test.backup</tt> file and 
+            <tt class="filename">test.script</tt>) and the current 
+            <tt class="filename">test.log</tt>, the database is made up-to-date.
+            The database engine takes these steps:
+        </p><div class="procedure"><p class="title"><b>Procedure&nbsp;C.3.&nbsp;Database Repair</b></p><ol type="1"><li><p>
+                    Restore the old <tt class="filename">test.data</tt> file from 
+                    the backup (uncompress the <tt class="filename">test.backup</tt>
+                    and overwrite <tt class="filename">test.data</tt>).
+            </p></li><li><p>
+                Execute all commands in the <tt class="filename">test.script</tt> 
+                file.
+            </p></li><li><p>
+                Execute all commands in the <tt class="filename">test.log</tt> file.
+                If due to corruption, an exception is thrown, the rest of the 
+                lines of command in the <tt class="filename">test.log</tt> file are 
+                ignored.
+            </p></li><li><p>
+                Close the database correctly (including a backup).
+            </p></li></ol></div></div></div></div><div class="navfooter"><hr><table summary="Navigation footer" width="100%"><tr><td align="left" width="40%"><a accesskey="p" href="apb.html"><img src="navicons/prev.gif" alt="Prev"></a>&nbsp;</td><td align="center" width="20%"><a accesskey="u" href="index.html"><img src="navicons/up.gif" alt="Up"></a></td><td align="right" width="40%">&nbsp;<a accesskey="n" href="apd.html"><img src="navicons/next.gif" alt="Next"></a></td></tr><tr><td valign="top" align="left" width="40%">Appendix&nbsp;B.&nbsp;First JDBC Client Example&nbsp;</td><td align="center" width="20%"><a accesskey="h" href="index.html"><img src="navicons/home.gif" alt="Home"></a></td><td valign="top" align="right" width="40%">&nbsp;Appendix&nbsp;D.&nbsp;Running Hsqldb with OpenOffice.org 1.1.x</td></tr></table></div></body></html>

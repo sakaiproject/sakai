@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!-- filename=adlcp_rootv1p2.xsd -->
+<!-- Conforms to w3c http://www.w3.org/TR/xmlschema-1/ 2000-10-24-->
+
+<xsd:schema xmlns="http://www.adlnet.org/xsd/bdlcp_rootv1p2"
+            targetNamespace="http://www.adlnet.org/xsd/bdlcp_rootv1p2"
+            xmlns:xml="http://www.w3.org/XML/1998/namespace"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            elementFormDefault="unqualified"
+            version="ADL Version 1.0">
+
+        <xsd:element name="myphing" type="myphingType"/>
+
+        <xsd:simpleType name="myphingType">
+                <xsd:restriction base="xsd:string">
+                        <xsd:maxLength value="2000"/>
+                </xsd:restriction>
+        </xsd:simpleType>
+</xsd:schema>

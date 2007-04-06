@@ -1,0 +1,212 @@
+<!--/***********************************************************************
+**
+** Filename:  commnetsWin.htm
+**
+** File Description:  This file is the user interface for the Admin to add
+**                    comments from the LMS.
+**
+**
+** Author: ADLI Project
+**
+** Company Name: Concurrent Technologies Corporation
+**
+** Module/Package Name:  none
+** Module/Package Description: none
+**
+** Design Issues:
+**
+** Implementation Issues:
+** Known Problems:
+** Side Effects:
+**
+** References: ADL SCORM
+**
+***************************************************************************
+**
+** Advanced Distributed Learning Co-Laboratory (ADL Co-Lab) Hub grants you
+** ("Licensee") a non-exclusive, royalty free, license to use, and
+** redistribute this software, provided that i) this copyright notice and
+** license appear on all copies of the software; and ii) Licensee does not
+** utilize the software in a manner which is disparaging to ADL Co-Lab Hub.
+**
+** This software is provided "AS IS," without a warranty of any kind.  ALL
+** EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING
+** ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+** OR NON-INFRINGEMENT, ARE HEREBY EXCLUDED.  ADL Co-Lab Hub AND ITS LICENSORS
+** SHALL NOT BE LIABLE FOR ANY DAMAGES SUFFERED BY LICENSEE AS A RESULT OF
+** USING, MODIFYING OR DISTRIBUTING THE SOFTWARE OR ITS DERIVATIVES.  IN NO
+** EVENT WILL ADL Co-Lab Hub OR ITS LICENSORS BE LIABLE FOR ANY LOST REVENUE,
+** PROFIT OR DATA, OR FOR DIRECT, INDIRECT, SPECIAL, CONSEQUENTIAL,
+** INCIDENTAL OR PUNITIVE DAMAGES, HOWEVER CAUSED AND REGARDLESS OF THE
+** THEORY OF LIABILITY, ARISING OUT OF THE USE OF OR INABILITY TO USE
+** SOFTWARE, EVEN IF ADL Co-Lab Hub HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
+** DAMAGES.
+**
+*************************************************************************-->
+
+<html>
+<head>
+   <title>Comments From LMS Admin User Interface</title>
+   <link href="../includes/sampleRTE_style.css" rel="stylesheet" type="text/css">
+   <script type = "text/javascript">
+
+   var myCommentsFromLMS = "";
+
+   //*********************************************************************
+   // Function: initPage()
+   //
+   // Description: This function clears the comments from LMS form.
+   //
+   //*********************************************************************
+   function initPage()
+   {
+      document.getElementById("comment").focus();
+   }
+
+   //*********************************************************************
+   // Function: addToCollectionOfLMSComments()
+   //
+   // Description: This function collects the data entered by the user and
+   //              builds the final result to be sent back to the Test Suite
+   //              Instructions.
+   //
+   //*********************************************************************
+   function addToCollectionOfLMSComments()
+   {
+      var UPPER_LIMIT = 10;
+      var commentEntered =  document.getElementById("comment").value;
+      var locationEntered = document.getElementById("location").value;
+      clearForm();
+
+      // Get the date via JavaScript
+      currentDate = new Date();
+      year = currentDate.getYear();
+      month = currentDate.getMonth() + 1;
+      day = currentDate.getDate();
+      hours = currentDate.getHours();
+      mins = currentDate.getMinutes();
+      secs = currentDate.getSeconds();
+
+      if ( month < UPPER_LIMIT )
+      {
+         month = "0" + month;
+      }
+
+      if ( day < UPPER_LIMIT )
+      {
+         day = "0" + day;
+      }
+
+      if ( hours < UPPER_LIMIT )
+      {
+         hours = "0" + hours;
+      }
+
+      if ( mins < UPPER_LIMIT )
+      {
+         mins = "0" + mins;
+      }
+
+      if ( secs < UPPER_LIMIT )
+      {
+         secs = "0" + secs;
+      }
+
+      currentTime = year + "-" + month + "-" + day + " " + hours + ":" + mins + 
+                    ":" + secs;
+
+      document.getElementById("comment").value = "";
+      document.getElementById("location").value= "";
+
+      window.opener.refresh(commentEntered,currentTime,locationEntered);
+
+   }
+
+   //*********************************************************************
+   // Function: clearForm()
+   //
+   // Description: This function clears the comments from LMS form.
+   //
+   //*********************************************************************
+   function clearForm()
+   {
+      document.getElementById("comment").value="";
+   }
+
+   //*********************************************************************
+   // Function: done()
+   //
+   // Description: This function reports the comments collected back to
+   //              the opener window (Instructions page of the SCO Test
+   //              Suite)
+   //
+   //*********************************************************************
+   function done()
+   {
+      window.close();
+   }
+   
+   </script>
+
+</head>
+
+   <body onload="initPage()">
+
+   <p class="font_header">
+   <b>Add Comments Window</b>
+   </p>
+
+   <form id="comments_from_lms" action ="">
+      <div id="comments_from_lms">
+         <table border="0">
+            <tr>
+               <td bgcolor="#5E60BD" colspan="3" class="white_text"><b>Enter 
+                                  comment and location.</b></td>
+            </tr>
+            <tr>
+               <td>
+                  <label class="products" for="comment">
+                  Comment:
+                  </label>
+               </td>
+               <td>
+                  <input type="text" size="75" id="comment" name="comment">
+               </td>
+            </tr>
+            <tr>
+               <td>
+                  <label class="products" for="location">
+                  Location *:    
+                  </label>
+               </td>
+               <td>
+                  <input type="text" size="75" id="location" name="location">
+               </td>
+            </tr>
+            <tr>
+               <td colspan="2" align="left">
+                  <label class="products">
+                  * optional
+                  </label>
+               </td>
+            </tr>
+            <tr>
+               <td colspan="2" align="left">
+                  <input type="button" id="addCommentFromLMS"
+                         name="addCommentFromLMS"
+                         value="Add Comment"
+                         onclick="addToCollectionOfLMSComments()" />
+
+                  <input type="button" id="doneAddingCommentFromLMS"
+                         name="doneAddingCommentFromLMS"
+                         value="Close"
+                         onclick="done()" />
+               </td>
+            </tr>
+         </table>
+      </div>
+   </form>
+   <br />
+
+   </body>
+</html>

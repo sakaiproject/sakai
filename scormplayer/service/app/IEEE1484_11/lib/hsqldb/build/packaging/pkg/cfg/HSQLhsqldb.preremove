@@ -1,0 +1,27 @@
+
+# Bourne shell Solaris packaging script (no interpreter line on purpose)
+
+# $Id: HSQLhsqldb.preremove,v 1.3 2005/07/25 02:42:10 unsaved Exp $
+
+# Do not set path.  Pkgadd sets a safe path, it does not use any inherited path
+
+
+BASE=hsqldb-1.8.0.1a
+
+/etc/init.d/hsqldb stop
+
+DATESTAMP=`date "+%Y%m%d"`
+
+FILEBASE=/etc/hsqldb.conf
+BACKUPFILE="$FILEBASE.$DATESTAMP"
+[ -r $BACKUPFILE ] || cp -p $FILEBASE $BACKUPFILE
+
+FILEBASE=$BASEDIR/hsqldb/data/server.properties
+BACKUPFILE="$FILEBASE.$DATESTAMP"
+[ -r $BACKUPFILE ] || cp -p $FILEBASE $BACKUPFILE
+
+FILEBASE=/sqltool.rc
+BACKUPFILE="$FILEBASE.$DATESTAMP"
+[ -r $BACKUPFILE ] || cp -p $FILEBASE $BACKUPFILE
+
+exit 0

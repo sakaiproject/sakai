@@ -1,0 +1,40 @@
+-- CREATE AND INITIALIZE CACHED TABLE OBJECTS
+
+-- This CREATES the schema-specific objects to be used for
+-- schema-specific persistence tests.
+
+
+--                  ******************************       CACH Tables
+--DROP TABLE nosuch;
+DROP TABLE ctblt1 IF exists;
+DROP TABLE ctblt2 IF exists;
+DROP TABLE ctblt3 IF exists;
+DROP TABLE ctblt4 IF exists;
+DROP TABLE ctblt101 IF exists;
+DROP TABLE tblj1 IF exists;
+/*u0*/CREATE CACHED TABLE ctblt1 (i int);
+/*u0*/CREATE CACHED TABLE public.ctblt2 (i int);
+/*u0*/CREATE CACHED TABLE ctblt3 (i int);
+/*u0*/CREATE CACHED TABLE tblj1 (i int, vc varchar(10));  -- For testing Joins
+/*e*/CREATE CACHED TABLE information_schema.ctblt101 (i int);
+/*e*/CREATE CACHED TABLE ctblt1 (i int); -- Create existing object
+/*e*/CREATE CACHED TABLE public.ctblt1 (i int); -- Create existing object
+/*e*/CREATE CACHED TABLE information_schema.system_users (i int); -- Existing object
+/*e*/INSERT INTO other.ctblt1 values(0);
+/*e*/INSERT INTO information_schema.ctblt1 values(1);
+/*u1*/INSERT INTO ctblt1 values(0);
+/*u1*/INSERT INTO public.ctblt1 values(100);
+-- Test one update that will be persisted (most update tests won't be)
+/*u1*/UPDATE public.ctblt1 set i = 1 WHERE i = 100;
+/*u1*/INSERT INTO tblj1 values(1, 'one');
+/*u1*/SELECT * INTO public.ctblt4 FROM public.ctblt1 WHERE i = 0;
+/*c1*/SELECT * FROM public.ctblt4;
+-- Work-around
+ALTER TABLE ctblt1 ADD CONSTRAINT cpk_workaround PRIMARY KEY(i);
+
+--                  ******************************       ALTERs
+-- Add tests when time permits.
+
+
+-- This to test recovery from .log files.
+SHUTDOWN IMMEDIATELY;

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="api/src/java"/>
+	<classpathentry kind="src" path="impl/src/java"/>
+	<classpathentry kind="src" path="hibernate/src/hbm"/>
+	<classpathentry kind="src" path="test/src/java"/>
+	<classpathentry kind="src" path="test/src/resources"/>
+	<classpathentry kind="src" path="hibernate/src/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3.8.1"/>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/spring/1.2.8/spring-1.2.8.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/scorm-adlnet"/>
+	<classpathentry kind="var" path="M2_REPO/org/hibernate/hibernate/3.1.3/hibernate-3.1.3.jar" sourcepath="/HIBERNATE_SOURCE"/>
+	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-mock/1.2.6/spring-mock-1.2.6.jar"/>
+	<classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.0.4/commons-logging-1.0.4.jar"/>
+	<classpathentry kind="var" path="M2_REPO/commons-dbcp/commons-dbcp/1.2.1/commons-dbcp-1.2.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/commons-pool/commons-pool/1.3/commons-pool-1.3.jar"/>
+	<classpathentry kind="var" path="M2_REPO/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar"/>
+	<classpathentry kind="var" path="M2_REPO/javax/transaction/jta/1.0.1B/jta-1.0.1B.jar"/>
+	<classpathentry kind="var" path="M2_REPO/net/sf/ehcache/ehcache/1.2.4/ehcache-1.2.4.jar"/>
+	<classpathentry kind="var" path="M2_REPO/commons-collections/commons-collections/3.1/commons-collections-3.1.jar"/>
+	<classpathentry kind="lib" path="lib/hsqldb/lib/hsqldb.jar"/>
+	<classpathentry kind="var" path="M2_REPO/cglib/cglib/2.1_3/cglib-2.1_3.jar"/>
+	<classpathentry kind="var" path="MAVEN_REPO/antlr/jars/antlr-2.7.6.jar"/>
+	<classpathentry kind="lib" path="/home/jrenfro/local/tomcat_full_2-3-x/common/lib/mysql-connector-java-3.1.13-bin.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

@@ -1,0 +1,53 @@
+
+# Bourne shell Solaris packaging script (no interpreter line on purpose)
+
+# $Id: HSQLhsqldb.postinstall,v 1.3 2005/07/25 02:42:10 unsaved Exp $
+
+# N.b.  If $BASEDIR/hsqldb exists before installing this package, this
+# stuff will set up for that to be the default hsqldb home.  The 
+# newly installed hsqldb branch will be a non-default baseline.
+
+# Do not set path.  Pkgadd sets a safe path, it does not use any inherited path
+
+#set -x
+
+Failout() {
+    echo "Aborting.  $@" 1>&2
+    exit 1
+}
+
+safecd() {
+    # Failure of the built-in "cd" command can completely kill the shell,
+    # thereby aborting this script with no error-handling at all.
+    # Therefore, we need to try to see if the cd will work first.
+    `cd "$@"` || return $?
+    cd "$@"
+}
+
+BASE=hsqldb-1.8.0.1a
+
+LINK=$BASEDIR/hsqldb
+[ -L $LINK ] && {
+    rm $LINK || Failout "Failed to remove link $LINK"
+}
+safecd $BASEDIR 2> /dev/null || Failout "Failed to cd to '$BASEDIR'"
+# Existence tests do not work with Solaris Bourne (bullshit if you ask me).
+# Since this is run by root, every existing fs node is readable.
+[ -r hsqldb ] || {
+    ln -s $BASE hsqldb || Failout "Failed to create sym link '$LINK'"
+}
+
+# Assertions.  If these fail, then the following usermod will fail.
+[ -d $LINK ] ||
+ Failout "Postscript assertion failed.  '$LINK' is not a directory."
+
+# This method preserves perms/ownership & preserves both hard and sym links
+XTMPFILE=hsqldb.expand.$$
+cp /etc/hsqldb.conf $XTMPFILE
+sed -e "s:/opt:$BASEDIR:g;" $XTMPFILE > /etc/hsqldb.conf
+rm -f $XTMPFILE
+
+usermod -d $LINK hsqldb ||
+ Failout "Failed to set home directory for user 'hsqldb'"
+
+exit 0

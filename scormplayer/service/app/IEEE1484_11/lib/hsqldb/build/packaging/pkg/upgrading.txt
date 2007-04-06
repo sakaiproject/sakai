@@ -1,0 +1,77 @@
+UPGRADING FROM HSQLDBhsqldb v. 1.7.1
+
+$Id: upgrading.txt,v 1.2 2005/07/25 00:19:47 unsaved Exp $
+
+Remove the old package
+
+    pkgrm HSQLDBhsqldb
+
+Your "data" and your configuration settings will not be removed.
+If you use default locations, here are the remnants which you need
+to be concerned about:
+
+    Your databases will still reside in directories like 
+    /usr/hsqldb-1.7.1/data/db1 (and similar for databases you may have
+    created).
+
+    One server.properties or webserver.properties file in each of the
+    database instance directories (see previous item).
+
+    You main configuration file will be backed up to a file like
+    /etc/hsqldb.conf.20050724 (where the last element of the file name
+    is a date stamp).
+
+
+READ THIS PARAGRAPH ONLY IF YOU ARE RUNNING MULTIPLE DB INSTANCES
+The version 1.7.1 init script ran a separate JVM for each database
+instance.  You can still do this in the new version by using
+multiple copies of the init script and the main configuration file
+(/etc/hsqldb.conf).  See the main readme.txt file about how to do 
+that.  The primary method to support multiple database instances
+in this version, however, is to run all of your instances in a
+single JVM.  This is the most efficient way to run HSQLDB for most
+(but certainly not all) environments.  The new init script uses
+server.properties files directly in /opt/hsqldb/data, not in the
+instance-specific directories like /opt/hsqldb/data/db1; and it
+depends on the server.properties files to specify the data sources
+(instead of the rather restive method of supporting only standalone 
+type databases which rely on the directory name).  Therefore,
+you need to merge your web/server.properties files from
+/usr/hsqldb-1.7.1/data/*/*server.properties to the directory
+/opt/hsqldb/data and specify the database instances as documented
+in the server.properties section of the Advanced chapter of the
+HSQLDB User Guide.  Most users will just want a single 
+server.properties file that will simply list all database instances. 
+You can, however, run different listeners on different ports in order
+to serve all combinations of Server/WebServer/port-numbers/SSL/etc.
+To run multiple listeners like this (all in the single JVM), you
+set INVOC_ADDL_ARGS to specify the *Server classes to run, and the
+startup parameters which will override the web/server.properties
+settings for that one listener.
+
+I.  Make sure your data is accessible.
+    Your instance data for 1.7.1 resides under /usr/hsqldb-1.7.1/data/db1.
+    You can either leave it there and change the value of SERVER_HOME in
+    /etc/hsqldb.conf to /usr/hsqldb-1.7.1/data, or move everything from
+    /usr/hsqldb-1.7.1/data/db1 to the new default location, 
+    /opt/hsqldb/data/db1.
+
+II. Make your web/server.properties file accessible.
+    Move the new server.properties to server.properties or
+    webserver.properties in your SERVER_HOME (see previous item).
+
+III.Update your web/server.properties file.
+    Edit the web/server.properties file to (a) merge in changes which
+    you have made to the old web/server.properties residing in your
+    .../data/db1 directory (which will no longer be used); and
+    (b) to make sure that the path to .../data/db1 is correct.  If
+    the filepath is relative, it is relative to SERVER_HOME.
+
+IV. Merge any customizations which you may have made from 
+    /etc/hsqldb.conf.20050724 into /etc/hsqldb.conf.  You will see
+    that the way several settings are made have changed, but the
+    variable names and comments should make it clear how to make
+    new settings which are equivalent to your old settings.  As
+    an example, version 1.7.1 had settings for HSQLDB_HOME and
+    JAVA_HOME.  The new version has the more specific settings 
+    HSQLDB_JAR_PATH and JAVA_EXECUTABLE instead.

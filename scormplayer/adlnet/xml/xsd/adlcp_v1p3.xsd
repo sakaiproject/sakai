@@ -1,0 +1,72 @@
+<?xml version = "1.0"?>
+<xs:schema targetNamespace = "http://www.adlnet.org/xsd/adlcp_v1p3"
+           xmlns:xs = "http://www.w3.org/2001/XMLSchema"
+           xmlns = "http://www.adlnet.org/xsd/adlcp_v1p3"
+           elementFormDefault = "qualified"
+           version = "1.0">
+
+   <xs:annotation>
+      <xs:documentation>
+          This file represents the W3C XML Schema Language Binding of the ADL namespaced elements for content packaging extensions.
+      </xs:documentation>
+   </xs:annotation>
+
+   <!-- *********************** -->
+   <!-- ** Change History ** -->
+   <!-- *********************** -->
+   <xs:annotation>
+      <xs:documentation>
+      *************************************************************************
+      *                           Change History                              *
+      *************************************************************************
+      2003-18-09  Initial creation.
+      2003-19-09  Removed the restriction of the 255 character maximum length
+                  on the dataFromLMS
+      2004-01-06  Added completionThreshold to the ADL CP namespace
+      2004-23-01  Final edits in preparation for release
+      2006-02-06  Removed persistState, change type of the locationType from 
+                  xs:string to xs:anyURI
+      *************************************************************************
+      </xs:documentation>
+   </xs:annotation>
+
+   <xs:element name = "location" type = "locationType"/>
+   <xs:element name = "dataFromLMS" type = "dataFromLMSType"/>
+   <xs:element name = "timeLimitAction" type = "timeLimitActionType"/>
+   <xs:element name = "completionThreshold" type = "completionThresholdType" />
+
+   <!-- ADL Extension to the IMS Content Packaging XSD -->
+   <xs:attribute name = "scormType">
+      <xs:simpleType>
+         <xs:restriction base = "xs:string">
+            <xs:enumeration value = "sco"/>
+            <xs:enumeration value = "asset"/>
+         </xs:restriction>
+      </xs:simpleType>
+   </xs:attribute>
+
+   <xs:simpleType name = "locationType">
+      <xs:restriction base = "xs:anyURI"/>
+   </xs:simpleType>
+
+   <xs:simpleType name = "dataFromLMSType">
+      <xs:restriction base = "xs:string"/>
+   </xs:simpleType>
+
+   <xs:simpleType name = "timeLimitActionType">
+      <xs:restriction base = "xs:string">
+         <xs:enumeration value = "exit,message"/>
+         <xs:enumeration value = "exit,no message"/>
+         <xs:enumeration value = "continue,message"/>
+         <xs:enumeration value = "continue,no message"/>
+      </xs:restriction>
+   </xs:simpleType>
+
+   <xs:simpleType name = "completionThresholdType">
+       <xs:restriction base = "xs:decimal">
+          <xs:minInclusive value = "0.0"/>
+          <xs:maxInclusive value = "1.0"/>
+       </xs:restriction>
+   </xs:simpleType>
+
+</xs:schema>

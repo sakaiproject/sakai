@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="IEEE1484_11/hibernate/src/java"/>
+	<classpathentry kind="src" path="IEEE1484_11/hibernate/src/hbm"/>
+	<classpathentry kind="src" path="navigation/impl"/>
+	<classpathentry kind="src" path="navigation/api"/>
+	<classpathentry kind="src" path="IEEE1484_11/impl"/>
+	<classpathentry kind="src" path="IEEE1484_11/api"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

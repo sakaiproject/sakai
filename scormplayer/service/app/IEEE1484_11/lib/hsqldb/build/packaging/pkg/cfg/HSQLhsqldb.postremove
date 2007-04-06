@@ -1,0 +1,19 @@
+
+# Bourne shell Solaris packaging script (no interpreter line on purpose)
+
+# $Id: HSQLhsqldb.postremove,v 1.1 2002/10/12 01:15:46 unsaved Exp $
+
+# Do not set path.  Pkgadd sets a safe path, it does not use any inherited path
+
+[ -L $BASEDIR/hsqldb ] && rm $BASEDIR/hsqldb
+
+# rmdir $BASEDIR
+
+# Leave the 'hsqldb' user and groups in place.  We do not want to orphan
+# any files that the end user may have created.
+# But do be safe...
+usermod -s /bin/false -d /dev/null hsqldb 2> /dev/null ||
+echo "WARNING:  Failed to disable shell and home directory for user 'hsqldb'" \
+ 1>&2
+
+exit 0

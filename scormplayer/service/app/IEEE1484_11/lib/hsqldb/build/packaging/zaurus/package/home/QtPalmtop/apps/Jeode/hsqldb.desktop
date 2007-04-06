@@ -1,0 +1,10 @@
+[Desktop Entry] 
+Comment=HSQLDB Database
+Comment[de]=HSQLDB Datenbank
+Exec=runhsqldb
+Icon=hsqldb 
+Type=Application 
+Type[de]=Anwendung 
+Name=hsqldb
+Name[de]=hsqldb
+CanFastload=0

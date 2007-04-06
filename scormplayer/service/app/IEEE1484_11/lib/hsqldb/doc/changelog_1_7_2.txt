@@ -1,0 +1,532 @@
+HSQLDB 1.7.2 CHANGE LOG
+
+
+The development of 1.7.2 began in late 2002 with a plan to release the new version within 6 months. Several alpha versions, culminating in ALPHA_M, were released in the first three months and featured most of the intended enhancements. However, when newly written code for system tables was introduced, many changes had to be made to internal code to accommodate the reporting requirements. This was followed from around April 2003 with efforts to separate query compilation from execution. Other developments to allow multiple databases, better query processing, more advanced SQL keywords, etc. took place simultaneously, resulting in an extended scope for 1.7.2 and extensive addition and rewrite of several key classes. The next alpha version was released in September, followed by a further six, until the first Release Candidate became available at the end of 2003. Since then, all efforts have been focused on fixing bugs and inconsistencies, with 7 additional Release Candidates issued.
+
+As a result, 1.7.2 features major changes to the database engine. Existing applications that work with previous versions may need modifications to work with the new version. Changes are listed here and in the rest of the documentation.
+
+I would like to thank all developers, testers and users who have contributed to this effort.
+
+
+June 2004
+
+Fred Toussi
+
+Maintainer, HSQLDB Project
+http://hsqldb.sourceforge.net
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+SQL ENHANCEMENTS AND CHANGES
+
+
+----------------
+
+DDL
+
+Some new restrictions have been imposed:
+
+CONSTRAINT names must be unique within each database (same with INDEX names).
+Size / precision / scale values for several types are now disallowed. Allowed types are: CHAR(n), VARCHAR(n), DOUBLE(n), DECIMAL(n,m)
+
+In column default value specification, functions such as CURRENT_TIME, CURRENT_DATA, etc. should not be enclosed in quotes. New function CURRENT_USER can also be used.
+
+SQL keywords are not allowed as table or column names unless they are double-quoted. 
+
+----------------
+
+VIEW
+
+
+View definitions can now have a column name list:
+
+CREATE VIEW <viewname> [(<colnmae>, ...)] AS SELECT ....
+
+ALTER TABLE commands take into account the views that reference the table and prevent illegal changes.
+
+
+
+----------------
+
+CHECK
+
+
+
+Support for CHECK constraints that apply to the modified/inserted row only. This can be added via ALTER TABLE ADD CHECK() or in table definition.
+
+
+
+----------------
+
+QUERY PROCESSING
+
+
+
+Query processing has been extensively enhanced in this release and better SQL standard compliance has been achieved. Major implications of the recent changes are as follows:
+
+Columns in correlated subqueries are resolved independently first. If there is an unresolved column, then the surrounding context is used to resolve it. This is opposite the resolution order previously enforced in the engine.
+
+Some ambiguities and errors in ORDER BY clauses are now caught.
+
+UNION and other set queries accept only one ORDER BY clause at the end. In this clause, column indexes or column names in the first select are allowed as sort specification e.g.:
+
+SELECT .. UNION SELECT .. ORDER BY 1 DESC, 5, 3
+
+The implemntation of UNION, EXCEPT and INTERSECT set operations has been rewritten to comply with SQL standards.
+
+When multiple set operations are present in a query, they are now evaluated from left to right, with INTERSECT taking precedence over the rest.
+
+It is now possible to use parentheses around multiple (or single) select statements with set operations to change the order of evalation.E.g.:
+
+((SELECT * FROM A EXCEPT SELECT * FROM B) INTERSECT SELECT * FROM D UNION SELECT * FROM E)
+
+The above applies to all cases where a SELECT can be used except a single value select inside another select. Eg.
+
+SELECT a, b, SELECT asinglevalue FROM anothertable WHERE ..., FROM atable JOIN ... 
+
+----------------
+
+IMPROVEMENTS TO UPDATE AND INSERT
+
+
+
+Certain types of UPDATES and INSERTS that previously failed due to blanket application of UNIQUE constraints now work.
+
+Examples include UPDATE ... SET col = col + 1 where col is an identity column or INSERT a self referencing row under FOREIGN key constraints.
+
+
+
+----------------
+
+AGGREGATES, GROUP BY, HAVING
+
+
+
+DISTINCT aggregates are now supported.
+
+Aggregates on all numeric type columns are now supported. Expressions are allowed as aggregate function parameter.
+
+SUM returns a BIGINT for TINYINT, SMALLINT and INTEGER columns. It returns a DECIMAL for BIGINT columns (scale 0). SUM of a DECIMAL column has the same scale as the column.
+
+AVG returns the same type as the column or the expression in its argument.
+
+Aggregates with GROUP BY do not return any rows if table is empty
+
+Fully enforced GROUP BY rules including support for HAVING conditions
+
+
+----------------
+
+JOINS
+
+
+
+Extensive rewrite of join processing abolishes the requirement for an index on any joined columns.
+
+Problems with OUTER and INNER joins returning incorrect results have been fixed and results are correct in all cases.
+
+When two tables are joined, rows resulting from joining null values in the joined columns are no longer returned.
+
+Most expressions are supported in the join condition (JOIN <table> ON ....).
+
+Outer join conditions can now include most comparison operators, as well as OR logical operators. For example:
+
+LEFT OUTER JOIN atable ON a=b AND c>d OR a=2 ...
+
+Illegal forward table references are no longer allowed in join conditions.
+
+There are many other small improvements and fixes, including:
+
+
+
+----------------
+
+NULLS
+
+
+
+Support for multiple rows with null fields under unique constraints.
+
+Exclusion of NULL values from results of queries with range conditions. 
+
+
+
+----------------
+
+FOREIGN KEY
+
+
+
+Full support for triggered actions, including foreign keys that reference the same table.
+
+FORIEGN KEY ... ON UPDATE { CASCADE | SET NULL | SET DEFAULT } ON DELETE { CASCADE | SET NULL | SET DEFAULT }
+
+Strict treatment of foreign key constraint requirements is now enforced. A foreign key declaration _requires_ a unique constraint to exist on the columns of the referenced table. This applies both to old and new databases. Duplicate foreign keys (with exactly the same column sets) are now disallowed.
+
+
+
+----------------
+
+SEQUENCE
+
+
+
+Support for sequences. Identity columns are now automatic sequence primary key columns that can be defined as INTEGER or BIGINT as follows:
+
+GENERATED BY DEFAULT AS IDENTITY (START WITH <n>, INCREMENT BY <m>)
+
+Named sequence objects can be defined with:
+
+CREATE SEQUENCE <sequencename> [AS {INTEGER | BIGINT}] [START WITH <startvalue>] [INCREMENT BY <incrementvalue>];
+
+And the next value can be retrieved with the following expression in SELECT, INSERT and UPDATE queries:
+
+NEXT VALUE FOR <sequencename>
+
+
+
+----------------
+
+SQL FUNCTIONS
+
+
+Added support for a range of SQL style functions:
+
+
+CASE .. WHEN .. THEN .. [WHEN .. THEN ..] ELSE .. END
+
+CASE WHEN .. THEN .. [WHEN .. THEN ..] ELSE ... END
+
+NULLIF(.. , ..)
+
+SUBSTRING(.. FROM .. FOR ..)
+
+POSITION(.. IN ..)
+
+TRIM( {LEADING | TRAILING .. } FROM ..)
+
+EXTRACT({DAY | TIME |..} FROM ..)
+
+COALESCE(.. , ..)
+
+
+
+----------------
+
+TRIGGER
+
+
+
+It is now possible to execute triggers in the main execution thread. This allows uses for triggers that were not possible before, especially checking and modifying inserted values.
+
+
+
+----------------
+
+DATETIME
+
+
+
+Fixed the TIMESTAMPS, TIME and DATE normalisation issues.
+
+
+
+----------------
+
+OTHER
+
+
+
+IN value lists can now contain column values or expressions. See TestSelfQueries.txt for an example.
+
+
+LIKE has been debugged and optimised when possible.
+
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+JDBC ENHANCEMENTS
+
+
+
+JDBC support for savepoints.
+
+Support for JDBC batch execution with multiple-results. Both Statement and PreparedStatement batch modes are supported.
+
+SSL support for server mode operation.
+
+After calling Statement.setMaxRows(int), the maximum row count restriction will no longer apply to result sets returned and used internally. (change in 1_7_2_5)
+
+
+----------------
+
+CONNECTION PROPERTY
+
+
+
+A new property, ifexists={true|false} can be specified for connections. It has an effect only on connections to in-process databases. The default is false and corresponds to current behaviour. 
+
+If set true, the connection is opened only if the database files have already been created -- otherwise no new database is created and the connection attempt will fail. Example:
+
+jdbc:hsqldb:hsql:file:mydb;ifexists=true
+
+This property is intended to reduce problems resulting from wrong URL's which get translated to unintended new database files. It is recommended to use this property for troubleshooting.
+
+Database properties can be specified for the first connection to a new file: or mem: database. This allows properties such as enforce_strict_size to be specified for mem: databases, or for a new file: database.
+
+jdbc:hsqldb:hsql:mem:test;sql.enforce_strict_size=true
+
+
+
+----------------
+
+PREPARED STATEMENTS
+
+
+
+Support for real PreparedStatements - major speedup. This has introduced the following changes from the previous versions.
+
+The execute(String sql), executeUpdate(String sql) and executeQuery(String sql) commands are no-longer supported for PreparedStatements according to JDBC specs. Use an ordinary Statement for calling these methods.
+
+The SQL for each call to the prepareStatement() method of Connection must consist of a single SQL query. For multiple statements use either multiple PreparedStatement objects or an ordinary Statement object.
+
+Bug fixes ensure date / time, java object and binary values stored in in-process databases via prepared statements will not be altered if the object is modified outside the engine.
+
+Full support for ResultSetMetaData
+
+Full support for ParameterMetaData
+
+Support for CLOB methods in ResultSet
+
+
+
+----------------
+
+TRANSACTIONS VIA WEB SERVER
+
+
+
+Uniform support for transactions via HSQL and HTTP (WebServer and Servlet) protocols
+
+
+----------------------------------------------------
+----------------------------------------------------
+
+OTHER ENHANCEMENTS
+
+
+
+----------------------------------------------------
+
+SPEED
+
+
+
+Speed optimisation of joins with views and subqueries, using indexes to optimise join performance.
+
+Improved index use for multiple key joins.
+
+Further speed improvements in all logged modes
+
+INSERT and UPDATE ops are faster by 5-20% in MEMORY tables, less in CACHED tables.
+
+General speedup of CACHED table operation due to better management of the memory cache.
+
+
+
+----------------------------------------------------
+
+DATABASE PACKAGING AND MODES
+
+
+
+Two new options for databases: files_readonly and files_in_jar were added:
+
+
+FILE READ-ONLY
+
+
+If the property hsqldb.files_readonly=true is set in the database .properties file, no attempt is made to write the changes to data to file. Default, MEMORY tables can be read/write but TEXT and CACHED tables are treated as read-only.
+
+
+FILES IN JAR
+
+
+This option allows database files to be distributed in the application jar. We have changed the original contribution so that a special URL is used for this mode in the form of:
+
+jdbc:hsqldb:res:<path in jar>
+
+The URL type 'res' determines that the path that follows is a path into the JAR. The path must be all lowercase and begin with a forward slash.
+
+The database can be readonly or files_readonly, depending on the value set in .properties file.
+
+
+'OTHER' DATA TYPE
+
+
+Change to handling of OTHER columns. It is no longer required that the classes for objects stored in OTHER columns to be available on the path of an HSQLDB engine running as a server. Classes must be available on the JDBC client's path.
+
+
+----------------------------------------------------
+
+MULTIPLE IN-MEMORY AND SERVER DATABASES
+
+
+
+Support for multiple memory-only databases within the same JVM
+
+Support for simultaneous multiple servers on different ports, multiple internal connections and multiple databases within the same JVM
+
+Each HSQLDB server or webserver can now serve up to 10 different databases.
+
+The server.properties and webserver.properties method for defining the databases has changed. The following properties should be used:
+
+server.database.0   path_of_the_first_database
+server.dbname.0 alias_for_the_first_database
+
+Up to 10 databases can be defined but they must start from 0. The same applies to command line arguments for Server and WebServer.
+
+The URL's for connecting to servers should have the alias of the database at the end. For example, to connect to the HSQL protocol server on the localhost use:
+
+jdbc:hsqldb:hsql://localhost/alias_for_the_database
+
+where alias_for_the_database is the same string as defined in server.properties as server.dbname.n
+
+If not explicitly set, the default for server.dbname.0 is "" (empty string) so that old URL types continue to work.
+
+Multiple memory-only database are supported by the use of:
+
+jdbc:hsqldb:mem:alias_for_the_first_database
+jdbc:hsqldb:mem:alias_for_the_second_database
+
+Examples: jdbc:hsqldb:mem:db1 jdbc:hsqldb:mem:mydb
+
+The connection type, 'file:', can be used for file database connections. Example below:
+
+jdbc:hsqldb:file:mydb;ifexists=true
+
+The URL for connecting to a Servlet HTTP server must have a forward-slash at the end. Servlet serves only one database.
+
+jdbc:hsqldb:hsql://localhost:8080/servlet/HsqlServlet/
+
+
+----------------------------------------------------
+
+DATABASE METADATA
+
+
+System table support and java.sql.DatabaseMetadate have been overhauled.
+
+Use SELECT * FROM SYSTEM_TABLES to see the full list.
+
+
+
+----------------------------------------------------
+
+TEXT TABLES
+
+
+Enhanced TEXT table handling and reporting of errors in CSV (source) files
+
+TEXT TABLES encoding of the source file can now be specified. UTF-8 and other encodings can be used.
+
+
+
+----------------------------------------------------
+
+MEMORY USE AND OBJECT POOLING
+
+
+An Object pool has been incorporated. This reduces memory usage to varying degrees depending on the contents of database tables and speeds up the database in most cases. Currently the size of the pool is hard-coded but it will be user adjustable in a future version.
+
+
+
+----------------------------------------------------
+
+PERSISTENCE
+
+
+----------------
+
+CHECKPOINT DEFRAG
+
+Defragments the *.data file without shutting down the database
+
+
+----------------
+
+SET SCRIPTFORMAT {TEXT | BINARY | COMPRESSED }
+
+Changes the format of the *.script file and performs a checkpoint.
+
+Database script can be stored in binary or compressed binary formats, resulting in smaller size and faster loading.
+
+
+----------------
+
+The *.script file now contains only the DDL and data that is written at CHECKPOINT or SHUTDOWN. The COMPRESSED format has the side benefit of hiding the DDL and the admin password.
+
+The *.log file now contains the statements executed since the last startup or CHECKPOINT. This file is in plain text format.
+
+----------------
+
+SET WRITE_DELAY {TRUE | FALSE}
+
+SET WRITE_DELAY <n>
+
+The behaviour of SET WRITE_DELAY has changed with the introduction of the sync() method to force the log to be written out completely to disk at given intervals.
+
+SET WRITE_DELAY {TRUE | FALSE} is interpreted as synch every 60 seconds or 1 second. SET WRITE_DELAY <n> where n is an integer is interpreted as synch every n seconds. The current default is 60 seconds which seems to provide the right balance. Under heavy INSERT/DELETE/UPDATE test conditions, the performance impact of SET WRITE_DELAY 1 is probably about 15% over that of SET WRITE_DELAY 300.
+
+Crash recovery has been modified so that any line in the *.log file that is not properly written (and causes an error) ends the redo process. A message is reported to the user, instead of stopping engine operation.
+
+----------------
+
+NIO ACCESS FOR *.data FILES
+
+New nio access layer for .data files speeds up most CACHED TABLE related operations very significantly. 90% speedups in TestCacheSize tests have been observed.
+
+There must be enough available memory in the machine to allow a memory-mapped buffer for the entire *.data file. Beyond this size, the engine reverts to non-nio access.
+
+
+
+----------------------------------------------------
+
+BUILD
+
+Reduction in JDK / JRE dependencies (see readmebuild.txt)
+
+The supplied JAR is now compiled with JDK 1.4 and requires a JRE 1.4 or later to work. You can rebuild the JAR with JDK 1.3.x in order to use it with JRE 1.3 or earlier.
+
+
+
+----------------------------------------------------
+
+DOCUMENTATION
+
+
+Documentation is now maintained mainly in XML format with HTML and PDF versions available.
+
+
+
+----------------------------------------------------
+
+UTILITIES
+
+
+The SQL Tool is a powerful new utility in 1.7.2 and allows processing SQL commands via the shell or scripts.
+
+The Transfer Tool utility saw a major upgrade just before the 1.7.2 release cycle. In this release some minor updates and bug fixes, together with significant speedup, have been intoduced.
+
+The Database Manager has been enhanced slightly to include a command to save the result set in CSV format. The Swing version of Database Manager allows the user to sort the rows of the result set on any column.
+
+The connection dialogue in the AWT version of Database Manager and Transfer Tool allows saving and recalling connection URL's together with the user name and password.
+
+
+----------------------------------------------------
+
+END

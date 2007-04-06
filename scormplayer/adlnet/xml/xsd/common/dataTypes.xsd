@@ -1,0 +1,126 @@
+<xs:schema targetNamespace="http://ltsc.ieee.org/xsd/LOM"
+           xmlns="http://ltsc.ieee.org/xsd/LOM"
+           xmlns:ag="http://ltsc.ieee.org/xsd/LOM/unique"
+           xmlns:ex="http://ltsc.ieee.org/xsd/LOM/extend"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           version="IEEE LTSC LOM XML 1.0">
+
+   <xs:annotation>
+      <xs:documentation>
+         This work is licensed under the Creative Commons Attribution-ShareAlike
+         License.  To view a copy of this license, see the file license.txt,
+         visit http://creativecommons.org/licenses/by-sa/1.0 or send a letter to
+         Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+      </xs:documentation>
+
+      <xs:documentation>
+         This component schema provides global type declarations for LOM datatypes.
+      </xs:documentation>
+   </xs:annotation>
+
+   <xs:import namespace="http://ltsc.ieee.org/xsd/LOM/unique"/>
+   <xs:import namespace="http://ltsc.ieee.org/xsd/LOM/extend"/>
+
+   <!-- Data type declarations -->
+
+   <!-- CharacterString -->
+   <xs:simpleType name="CharacterString">
+      <xs:restriction base="xs:string"/>
+   </xs:simpleType>
+
+   <!-- LanguageId -->
+   <xs:simpleType name="LanguageIdOrNone">
+      <xs:union memberTypes="LanguageId LanguageIdNone"/>
+   </xs:simpleType>
+
+   <xs:simpleType name="LanguageId">
+      <xs:restriction base="xs:language"/>
+   </xs:simpleType>
+
+   <xs:simpleType name="LanguageIdNone">
+      <xs:restriction base="xs:string">
+         <xs:enumeration value="none"/>
+      </xs:restriction>
+   </xs:simpleType>
+
+   <!-- VCard -->
+   <xs:simpleType name="VCard">
+      <xs:restriction base="CharacterString"/>
+   </xs:simpleType>
+
+   <!-- MimeType -->
+   <xs:simpleType name="MimeType">
+      <xs:restriction base="CharacterString"/>
+   </xs:simpleType>
+
+   <!-- Size -->
+   <xs:simpleType name="Size">
+      <xs:restriction base="xs:nonNegativeInteger"/>
+   </xs:simpleType>
+
+   <!-- LangString -->
+   <xs:complexType name="LangString">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+         <xs:element name="string" type="langString"/>
+         <xs:group ref="ex:customElements"/>
+      </xs:choice>
+   </xs:complexType>
+
+   <xs:complexType name="langString">
+      <xs:simpleContent>
+         <xs:extension base="CharacterString">
+            <xs:attribute name="language" type="LanguageId"/>
+         </xs:extension>
+      </xs:simpleContent>
+   </xs:complexType>
+
+   <!-- DateTime -->
+   <xs:complexType name="DateTime">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+         <xs:element name="dateTime" type="DateTimeValue"/>
+         <xs:element name="description" type="description"/>
+         <xs:group ref="ex:customElements"/>
+      </xs:choice>
+   </xs:complexType>
+
+   <xs:complexType name="DateTimeValue">
+      <xs:simpleContent>
+         <xs:extension base="DateTimeString">
+           <xs:attributeGroup ref="ag:DateTimeValue"/>
+         </xs:extension>
+      </xs:simpleContent>
+   </xs:complexType>
+
+   <!-- Regular expresion from Christian Klaue -->
+   <xs:simpleType name="DateTimeString">
+      <xs:restriction base="CharacterString">
+         <xs:pattern value="([0-9]{3}[1-9]|[0-9]{2}[1-9][0-9]|[0-9][1-9][0-9]{2}|[1-9][0-9]{3})(\-(0[1-9]|1[0-2])(\-(0[1-9]|[1-2][0-9]|3[0-1])(T([0-1][0-9]|2[0-3])(:[0-5][0-9](:[0-5][0-9](\.[0-9]{1,}(Z|((\+|\-)([0-1][0-9]|2[0-3]):[0-5][0-9]))?)?)?)?)?)?)?"/>
+      </xs:restriction>
+   </xs:simpleType>
+
+   <!-- Duration -->
+   <xs:complexType name="Duration">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+         <xs:element name="duration" type="DurationValue"/>
+         <xs:element name="description" type="description"/>
+         <xs:group ref="ex:customElements"/>
+      </xs:choice>
+   </xs:complexType>
+
+   <xs:complexType name="DurationValue">
+      <xs:simpleContent>
+         <xs:extension base="DurationString">
+            <xs:attributeGroup ref="ag:DurationValue"/>
+         </xs:extension>
+      </xs:simpleContent>
+   </xs:complexType>
+
+   <!-- Regular expresion from Christian Klaue -->
+   <xs:simpleType name="DurationString">
+      <xs:restriction base="CharacterString">
+         <xs:pattern value="P([0-9]{1,}Y){0,1}([0-9]{1,}M){0,1}([0-9]{1,}D){0,1}(T([0-9]{1,}H){0,1}([0-9]{1,}M){0,1}([0-9]{1,}(\.[0-9]{1,}){0,1}S){0,1}){0,1}"/>
+      </xs:restriction>
+   </xs:simpleType>
+
+</xs:schema>

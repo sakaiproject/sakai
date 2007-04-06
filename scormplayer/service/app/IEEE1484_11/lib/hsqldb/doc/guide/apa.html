@@ -1,0 +1,138 @@
+<html><head><META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Appendix&nbsp;A.&nbsp;Building HSQLDB</title><link href="guide.css" rel="stylesheet" type="text/css"><meta content="DocBook XSL Stylesheets V1.65.1" name="generator"><meta name="keywords" content="Hsqldb, Building, Ant"><meta name="keywords" content="Hsqldb, Hypersonic, Database, JDBC, Java"><link rel="home" href="index.html" title="Hsqldb User Guide"><link rel="up" href="index.html" title="Hsqldb User Guide"><link rel="previous" href="ch09.html" title="Chapter&nbsp;9.&nbsp;SQL Syntax"><link rel="next" href="apb.html" title="Appendix&nbsp;B.&nbsp;First JDBC Client Example"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table summary="Navigation header" width="100%"><tr><th align="center" colspan="3">Appendix&nbsp;A.&nbsp;Building HSQLDB</th></tr><tr><td align="left" width="20%"><a accesskey="p" href="ch09.html"><img src="navicons/prev.gif" alt="Prev"></a>&nbsp;</td><th align="center" width="60%">&nbsp;</th><td align="right" width="20%">&nbsp;<a accesskey="n" href="apb.html"><img src="navicons/next.gif" alt="Next"></a></td></tr></table><hr></div><div class="appendix" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="building-appendix"></a>Appendix&nbsp;A.&nbsp;Building HSQLDB</h2></div><div><div class="authorgroup"><div class="author"><h3 class="author"><span class="firstname">Fred</span> <span class="surname">Toussi</span></h3><div class="affiliation"><span class="orgname">HSQLDB Development Group<br></span></div><tt class="email">&lt;<a href="mailto:ft@cluedup.com">ft@cluedup.com</a>&gt;</tt></div></div></div><div><p class="pubdate">$Date: 2005/05/26 23:22:06 $</p></div></div><div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="section"><a href="apa.html#N1269A">Purpose</a></span></dt><dt><span class="section"><a href="apa.html#N126A3">Building with Ant</a></span></dt><dd><dl><dt><span class="section"><a href="apa.html#N126AA">Obtaining Ant</a></span></dt><dt><span class="section"><a href="apa.html#N126C2">Building Hsqldb with Ant</a></span></dt></dl></dd><dt><span class="section"><a href="apa.html#N12771">Building with DOS Batch Files</a></span></dt><dt><span class="section"><a href="apa.html#N1278A">Hsqldb CodeSwitcher</a></span></dt><dt><span class="section"><a href="apa.html#N127B6">Building documentation</a></span></dt></dl></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="N1269A"></a>Purpose</h2></div></div><div></div></div><p>From 1.8.0, the supplied <tt class="filename">hsqldb.jar</tt> file is
+    built with Java 1.5. If you want to run the engine under JDK1.3 or
+    earlier, you should rebuild the jar with Ant.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="N126A3"></a>Building with Ant, from the Apache Jakarta Project</h2></div></div><div></div></div><p>Ant (Another Neat Tool) is used for building hsqldb. The version
+    currently used to test the build script is 1.6.1 but versions since 1.5.1
+    should also be compatible.</p><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="N126AA"></a>Obtaining Ant</h3></div></div><div></div></div><p>Ant is a part of the Jakarta/Apache Project.</p><div class="itemizedlist"><ul type="disc"><li><p>
+            <a href="http://ant.apache.org" target="_top">Home of the Apache Ant
+            project</a>
+          </p></li><li><p>The <a href="http://ant.apache.org/manual/install.html#installing" target="_top">
+          Installing Ant</a> page of the <a href="http://ant.apache.org/manual" target="_top">Ant Manual </a>. Follow the
+          directions for your platform.</p></li></ul></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="N126C2"></a>Building Hsqldb with Ant</h3></div></div><div></div></div><p>Once you have unpacked the zip package for hsqldb, under the
+      <tt class="filename">/hsqldb</tt> folder, in <tt class="filename">/build</tt>
+      there is a <tt class="filename">build.xml</tt> file that builds the
+      <tt class="filename">hsqldb.jar</tt> with Ant (Ant must be already
+      installed). To use it, change to <tt class="filename">/build</tt> then
+      type:</p><div class="informalexample"><pre class="screen"> ant -projecthelp</pre></div><p>This displays the available ant targets, which you can supply as
+      command line arguments to ant. These include</p><div class="variablelist"><dl><dt><span class="term">hsqldb</span></dt><dd><p>to make the <tt class="filename">hsqldb.jar</tt></p></dd><dt><span class="term">explainjars</span></dt><dd><p>Lists all targets which build jar files, with an explanation
+            of the purposes of the different jars.</p></dd><dt><span class="term">clean</span></dt><dd><p>to clean up the /classes directory that is created</p></dd><dt><span class="term">cleanall</span></dt><dd><p>to remove the old jar as well</p></dd><dt><span class="term">javadoc</span></dt><dd><p>to build javadoc</p></dd><dt><span class="term">hsqldbmain</span></dt><dd><p>to build a smaller jar for HSQLDB that does not contain
+            utilities</p></dd><dt><span class="term">hsqljdbc</span></dt><dd><p>to build an extremely small jar containing only the
+            client-side JDBC driver (does not support direct connection to
+            HSQLDB URLs of the form jdbc:hsldb:mem:*, jdbc:hsqldb:file:*, nor
+            jdbc:hsqldb:res:*).</p></dd><dt><span class="term">hsqldbmin</span></dt><dd><p>to build a small jar that supports HSQLDB URLs of the form
+            jdbc:hsqldb:mem:*, jdbc:hsqld:file*, jdbc:hsqldb:res:*; but not
+            network URLs like jdbc:hsql* or jdbc:http*.</p></dd><dt><span class="term">hsqldbtest</span></dt><dd><p>to build a larger jar for hsqldb that contains tests</p></dd><dt><span class="term">...</span></dt><dd><p>Many more targets are available. Run <tt class="literal">ant
+            -projecthelp</tt> and <tt class="literal">ant
+            explainjars</tt>.</p></dd></dl></div><p>HSQLDB can be built in any combination of three JRE (Java Runtime
+      Environment) versions and many jar file sizes. The smallest jar
+      size(<tt class="filename">hsqljdbc.jar</tt>) contains only the HSQLDB JDBC
+      Driver client. The default size (<tt class="filename">hsqldb.jar</tt>) also
+      contains server mode support and the utilities. The largest size
+      (<tt class="filename">hsqldbtest.jar</tt>)includes some test classes as well.
+      Before building the <tt class="filename">hsqldbtest.jar</tt> package, you
+      should download the junit jar from <a href="http://www.junit.org" target="_top">http://www.junit.org</a>
+      and put it in the <tt class="filename">/lib</tt> directory, alongside
+      <tt class="filename">servlet.jar</tt>, which is included in the .zip
+      package.</p><p>Just run <tt class="literal">ant explainjars</tt> for a concise list of
+      all available jar files.</p><p>If you want your code built for debugging, as opposed to high
+      performance, make a file named <tt class="filename">build.properties</tt> in
+      your build directory with the contents <div class="informalexample"><pre class="screen">build.debug: true</pre></div>The resulting Java binaries will be larger and
+      slower, but exception stack traces will contain source code line
+      numbers, which can be extremely useful for debugging.</p><p>The preferred method of rebuilding the jar is with Ant. After
+      installing Ant on your system use the following command from the
+      <tt class="filename">/build</tt> directory:</p><div class="informalexample"><pre class="screen">ant explainjars</pre></div><p>The command displays a list of different options for building
+      different sizes of the HSQLDB Jar. The default is built using:</p><div class="example"><a name="N12763"></a><p class="title"><b>Example&nbsp;A.1.&nbsp;Buiding the standard Hsqldb jar file with Ant</b></p><pre class="screen">ant hsqldb</pre></div><p>The Ant method always builds a jar with the JDK that is used by
+      Ant and specified in its JAVA_HOME environment variable. Building with
+      JDK 1.4.x or 1.5.x will result in a jar that is not backward compatible.
+      </p><p>From version 1.7.2, use of JDK 1.1.x is not recommended for
+      building the JAR, even for running under JDK 1.1.x -- use JDK 1.3.1 for
+      compatibility with 1.1.x. This is done in the following way. JDK 1.3.1
+      should be used as the JAVA_HOME for ant. You then issue the following
+      commands. The first command will make the sources compatible with JDK
+      1.3, the second command modifies the sources further so that the
+      compiled result can run under jdk 1.1 as well. The third command builds
+      the jar.<div class="informalexample"><pre class="screen">ant switchtojdk12
+ant switchtojava1target
+ant hsqldb
+</pre></div></p></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="N12771"></a>Building with DOS Batch Files</h2></div></div><div></div></div><p>UNIX users must use Ant to build hsqldb.</p><p>For DOS/Windows users, a set of MSDOS batch files is provided as an
+    example. These files produce only the default jar size. The path and
+    classpath variables for the JDK should of course be set before running any
+    of the batch files. These files are not currently maintained and will
+    probably need some additions and changes to work correctly. Please see the
+    build.xml file for up-to-date file</p><p>If you are compiling for JDK's other than 1.4.x, you should use the
+    appropriate <tt class="filename">switchToJDK11.bat</tt> or
+    <tt class="filename">switchToJDK12.bat</tt> to adapt the source files to the
+    target JDK before running the appropriate
+    <tt class="filename">buildJDK11.bat</tt> or <tt class="filename">buildJDK12.bat</tt>
+    JDK and JRE versions.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="N1278A"></a>Hsqldb CodeSwitcher</h2></div></div><div></div></div><p>CodeSwitcher is a tool to manage different version of Java source
+    code. It allows to compile HSQLDB for different JDKs. It is something like
+    a precompiler in C but it works directly on the source code and does not
+    create intermediate output or extra files.</p><p>CodeSwitcher is used internally in HSQLDB build scripts. You do not
+    have to use it separately to compile HSQLDB.</p><p>CodeSwitcher reads the source code of a file, removes comments where
+    appropriate and comments out the blocks that are not used for a particular
+    version of the file. This operation is done for all files of a defined
+    directory, and all subdirectories.</p><div class="example"><a name="N12793"></a><p class="title"><b>Example&nbsp;A.2.&nbsp;Example source code before CodeSwitcher is run</b></p><pre class="programlisting">
+        ...
+
+    //#ifdef JAVA2
+
+        properties.store(out,"hsqldb database");
+
+    //#else
+
+    /*
+
+        properties.save(out,"hsqldb database");
+
+    */
+
+    //#endif
+
+        ...</pre></div><p>The next step is to run CodeSwitcher.</p><div class="example"><a name="N1279B"></a><p class="title"><b>Example&nbsp;A.3.&nbsp;CodeSwitcher command line invocation</b></p><pre class="screen">
+    java org.hsqldb.util.CodeSwitcher . -JAVA2</pre></div><p>The '.' means the program works on the current directory (all
+    subdirectories are processed recursively). <tt class="literal">-JAVA2</tt> means
+    the code labelled with JAVA2 must be switched off.</p><div class="example"><a name="N127A7"></a><p class="title"><b>Example&nbsp;A.4.&nbsp;Source code after CodeSwitcher processing</b></p><pre class="programlisting">
+        ...
+
+    //#ifdef JAVA2
+
+    /*
+
+        pProperties.store(out,"hsqldb database");
+
+    */
+
+    //#else
+
+        pProperties.save(out,"hsqldb database");
+
+    //#endif
+
+        ...</pre></div><p>For detailed information on the command line options run
+    <tt class="classname">java org.hsqldb.util.CodeSwitcher</tt>. Usage examples
+    can be found in the switchtojdk1*.bat files in the
+    <tt class="filename">/build</tt> directory.</p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="N127B6"></a>Building documentation</h2></div></div><div></div></div><p>To build the User Guide in HTML format, you must have the Docbook
+    stylesheets installed locally. The Docbook stylesheets are available on
+    the Internet. On Linux, just install the
+    <tt class="literal">docbook-xsl-stylesheets</tt> rpm. Then add an entry to
+    <tt class="filename">build.properties</tt> in your build directory with
+    contents like <div class="informalexample"><pre class="screen">docbook.xsl.home: /usr/share/sgml/docbook/docbook-xsl-stylesheets</pre></div> Where you specify your local path to the base
+    directory of your Docbook stylesheet installation. Build like <div class="example"><a name="N127C8"></a><p class="title"><b>Example&nbsp;A.5.&nbsp;Building HTML User Guides</b></p><pre class="screen">ant docbooks-html
+ant docbooks-chunk</pre></div></p><p>To build the User Guide in PDF format, you must also have the Java
+    FOP system installed locally. FOP is available for free download on the
+    Internet. Add an entry to <tt class="filename">build.properties</tt> in your
+    build directory with contents like <div class="informalexample"><pre class="screen">fop.home /usr/local/fop-0.20.5</pre></div> Where you specify your local path to the base
+    directory of your FOP installation. <div class="example"><a name="N127D9"></a><p class="title"><b>Example&nbsp;A.6.&nbsp;Building User Guides in all formats</b></p><pre class="screen">ant docbook</pre></div> Don't pay too much attention to error messages by FOP,
+    because they are really warnings, but do check the output. If there are
+    problems with the PDF output, try using a newer version of FOP.</p><div class="important" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Important</h3><p>By default, your docs will fail to build if you do not have
+      Internet connectivity. This is because our primary Docbook source file
+      references the Docbook DTDs via Internet URL. You can build without
+      Internet connectivity by installing the Docbook DTDs and editing our
+      primary Docbook source file. Docbook is available on the Internet. On
+      Linux, just install the <tt class="literal">docbook-dtds</tt> or
+      <tt class="literal">docbook</tt> rpm. Then make one edit to the file
+      <tt class="filename">docsrc/guide/guide.xml</tt> in your HSQLDB distribution.
+      Change the line containing <pre class="screen">"http://www.oasis-open.org/docbook/xml/4.2CR1/docbookx.dtd" [</pre>
+      to <pre class="screen">"file:///usr/share/xml/docbook/schema/dtd/4.2/docbookx.dtd" [</pre>
+      where the second filepath is the path to the
+      <tt class="filename">docbookx.dtd</tt> file within your Docbook
+      installation.</p></div></div></div><div class="navfooter"><hr><table summary="Navigation footer" width="100%"><tr><td align="left" width="40%"><a accesskey="p" href="ch09.html"><img src="navicons/prev.gif" alt="Prev"></a>&nbsp;</td><td align="center" width="20%"><a accesskey="u" href="index.html"><img src="navicons/up.gif" alt="Up"></a></td><td align="right" width="40%">&nbsp;<a accesskey="n" href="apb.html"><img src="navicons/next.gif" alt="Next"></a></td></tr><tr><td valign="top" align="left" width="40%">Chapter&nbsp;9.&nbsp;SQL Syntax&nbsp;</td><td align="center" width="20%"><a accesskey="h" href="index.html"><img src="navicons/home.gif" alt="Home"></a></td><td valign="top" align="right" width="40%">&nbsp;Appendix&nbsp;B.&nbsp;First JDBC Client Example</td></tr></table></div></body></html>

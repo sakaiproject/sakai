@@ -1,0 +1,624 @@
+# $Id: HSQLhsqldb.proto,v 1.5 2005/07/25 02:42:10 unsaved Exp $
+
+# Additions for this package are isolated up at the top here.
+# Everything beneath is stuff straight our of the hsqldb tree.
+# (This facilitates running commands like "pkgproto... >> .../thisfile.proto")
+
+# Unfortunately, this file has to be regenerated whenever hsqldb code
+# changes :(
+
+i pkginfo=HSQLhsqldb.info
+i preinstall=HSQLhsqldb.preinstall
+i postinstall=HSQLhsqldb.postinstall
+i postremove=HSQLhsqldb.postremove
+i preremove=HSQLhsqldb.preremove
+i checkinstall=HSQLhsqldb.checkinstall
+i copyright=HSQLhsqldb.copyright
+
+!default 0644 root bin
+
+# Special stuff needed for our package
+d none /var/run 0755 root bin
+e none /etc/hsqldb.conf=src/org/hsqldb/sample/sample-hsqldb.cfg
+e none /sqltool.rc=build/packaging/pkg/cfg/sqltool.rc 0600 root bin
+e none $VERDIR/data/server.properties=build/packaging/pkg/cfg/server.properties
+f none /etc/init.d/hsqldb=bin/hsqldb  0744 root bin
+l none /etc/rc0.d/K36hsqldb=/etc/init.d/hsqldb
+l none /etc/rc1.d/K36hsqldb=/etc/init.d/hsqldb
+l none /etc/rc2.d/S84hsqldb=/etc/init.d/hsqldb
+l none /etc/rcS.d/K36hsqldb=/etc/init.d/hsqldb
+f none $VERDIR/readme.solarispkg=build/packaging/pkg/readme.txt
+d none $VERDIR/data 0755 root bin
+d none $VERDIR/data/db1 2770 hsqldb hsqldb
+
+# Do NOT!!! change the following line.  It is used by scripts.
+# REGENERATE AFTER HERE
+d none $VERDIR 0755 root bin
+d none $VERDIR/bin 0755 root bin
+f none $VERDIR/bin/runUtil.bat=bin/runUtil.bat 0755 root bin
+f none $VERDIR/bin/hsqldb=bin/hsqldb 0755 root bin
+f none $VERDIR/bin/runUtil.sh=bin/runUtil.sh 0755 root bin
+d none $VERDIR/doc 0755 root bin
+f none $VERDIR/doc/hsqldb_lic.txt=doc/hsqldb_lic.txt
+f none $VERDIR/doc/.cvsignore=doc/.cvsignore
+d none $VERDIR/doc/images 0755 root bin
+f none $VERDIR/doc/images/sqlOther.gif=doc/images/sqlOther.gif
+f none $VERDIR/doc/images/sqlDDL.gif=doc/images/sqlDDL.gif
+f none $VERDIR/doc/images/sqlDML.gif=doc/images/sqlDML.gif
+f none $VERDIR/doc/images/sqlSecurity.gif=doc/images/sqlSecurity.gif
+f none $VERDIR/doc/images/sqlSelect.gif=doc/images/sqlSelect.gif
+f none $VERDIR/doc/images/sqlTransact.gif=doc/images/sqlTransact.gif
+d none $VERDIR/doc/src 0755 root bin
+f none $VERDIR/doc/src/.cvsignore=doc/src/.cvsignore
+f none $VERDIR/doc/src/hsqldb.gif=doc/src/hsqldb.gif
+f none $VERDIR/doc/src/hsqldbstylesheet.css=doc/src/hsqldbstylesheet.css
+f none $VERDIR/doc/changelist_1_7_2.txt=doc/changelist_1_7_2.txt 0755 root bin
+f none $VERDIR/doc/changelist_1_7_3.txt=doc/changelist_1_7_3.txt 0755 root bin
+f none $VERDIR/doc/changelist_1_8_0.txt=doc/changelist_1_8_0.txt 0755 root bin
+f none $VERDIR/doc/changelog_1_7_1.txt=doc/changelog_1_7_1.txt 0755 root bin
+f none $VERDIR/doc/changelog_1_7_2.txt=doc/changelog_1_7_2.txt 0755 root bin
+f none $VERDIR/doc/changelog_1_8_0.txt=doc/changelog_1_8_0.txt 0755 root bin
+f none $VERDIR/doc/databaseinjar.txt=doc/databaseinjar.txt
+f none $VERDIR/doc/hsqlFindFile.html=doc/hsqlFindFile.html
+f none $VERDIR/doc/hsqlSoftwareLinks.html=doc/hsqlSoftwareLinks.html 0755 root bin
+f none $VERDIR/doc/hypersonic_lic.txt=doc/hypersonic_lic.txt
+f none $VERDIR/doc/readme_linux.txt=doc/readme_linux.txt 0755 root bin
+d none $VERDIR/doc/zaurus 0755 root bin
+f none $VERDIR/doc/zaurus/hsqlSyntax.html=doc/zaurus/hsqlSyntax.html
+f none $VERDIR/doc/zaurus/building.html=doc/zaurus/building.html
+f none $VERDIR/doc/zaurus/index.html=doc/zaurus/index.html
+f none $VERDIR/doc/zaurus/todo.html=doc/zaurus/todo.html
+f none $VERDIR/doc/zaurus/readme=doc/zaurus/readme
+d none $VERDIR/doc/zaurus/images 0755 root bin
+f none $VERDIR/doc/zaurus/images/constructors.gif=doc/zaurus/images/constructors.gif
+f none $VERDIR/doc/zaurus/images/buttons.png=doc/zaurus/images/buttons.png
+f none $VERDIR/doc/zaurus/images/commandBut.png=doc/zaurus/images/commandBut.png
+f none $VERDIR/doc/zaurus/images/constructor-index.gif=doc/zaurus/images/constructor-index.gif
+f none $VERDIR/doc/zaurus/images/editorBut.png=doc/zaurus/images/editorBut.png
+f none $VERDIR/doc/zaurus/images/green-ball-small.gif=doc/zaurus/images/green-ball-small.gif
+f none $VERDIR/doc/zaurus/images/green-ball.gif=doc/zaurus/images/green-ball.gif
+f none $VERDIR/doc/zaurus/images/hsqldb.gif=doc/zaurus/images/hsqldb.gif
+f none $VERDIR/doc/zaurus/images/method-index.gif=doc/zaurus/images/method-index.gif
+f none $VERDIR/doc/zaurus/images/methods.gif=doc/zaurus/images/methods.gif
+f none $VERDIR/doc/zaurus/images/nicksant3.gif=doc/zaurus/images/nicksant3.gif
+f none $VERDIR/doc/zaurus/images/red-ball-small.gif=doc/zaurus/images/red-ball-small.gif
+f none $VERDIR/doc/zaurus/images/red-ball.gif=doc/zaurus/images/red-ball.gif
+f none $VERDIR/doc/zaurus/images/red_up.gif=doc/zaurus/images/red_up.gif
+f none $VERDIR/doc/zaurus/images/resultBut.png=doc/zaurus/images/resultBut.png
+f none $VERDIR/doc/zaurus/images/sharp1.jpeg=doc/zaurus/images/sharp1.jpeg
+f none $VERDIR/doc/zaurus/images/sourceforge.gif=doc/zaurus/images/sourceforge.gif
+f none $VERDIR/doc/zaurus/images/sqlDDL.gif=doc/zaurus/images/sqlDDL.gif
+f none $VERDIR/doc/zaurus/images/sqlDML.gif=doc/zaurus/images/sqlDML.gif
+f none $VERDIR/doc/zaurus/images/sqlOther.gif=doc/zaurus/images/sqlOther.gif
+f none $VERDIR/doc/zaurus/images/sqlSecurity.gif=doc/zaurus/images/sqlSecurity.gif
+f none $VERDIR/doc/zaurus/images/sqlSelect.gif=doc/zaurus/images/sqlSelect.gif
+f none $VERDIR/doc/zaurus/images/sqlTransact.gif=doc/zaurus/images/sqlTransact.gif
+f none $VERDIR/doc/zaurus/images/treeBut.png=doc/zaurus/images/treeBut.png
+f none $VERDIR/doc/zaurus/images/yellow-ball-small.gif=doc/zaurus/images/yellow-ball-small.gif
+f none $VERDIR/doc/zaurus/images/yellow-ball.gif=doc/zaurus/images/yellow-ball.gif
+f none $VERDIR/doc/zaurus/images/zaurus.jpeg=doc/zaurus/images/zaurus.jpeg
+f none $VERDIR/doc/zaurus/installation.html=doc/zaurus/installation.html
+f none $VERDIR/doc/zaurus/org.hsqldb.util.ZaurusEditor.html=doc/zaurus/org.hsqldb.util.ZaurusEditor.html
+f none $VERDIR/doc/zaurus/usage.html=doc/zaurus/usage.html
+f none $VERDIR/.cvsignore=.cvsignore
+f none $VERDIR/index.html=index.html
+f none $VERDIR/readme.txt=readme.txt
+d none $VERDIR/build 0755 root bin
+f none $VERDIR/build/buildDoc.bat=build/buildDoc.bat 0755 root bin
+f none $VERDIR/build/.cvsignore=build/.cvsignore
+f none $VERDIR/build/build.xml=build/build.xml
+f none $VERDIR/build/readmebuild.txt=build/readmebuild.txt
+f none $VERDIR/build/buildJDK11.bat=build/buildJDK11.bat 0755 root bin
+f none $VERDIR/build/buildJDK12.bat=build/buildJDK12.bat 0755 root bin
+f none $VERDIR/build/buildJDK14.bat=build/buildJDK14.bat 0755 root bin
+f none $VERDIR/build/readmedocbook.txt=build/readmedocbook.txt
+f none $VERDIR/build/switchToJDK11.bat=build/switchToJDK11.bat 0755 root bin
+f none $VERDIR/build/switchToJDK12.bat=build/switchToJDK12.bat 0755 root bin
+f none $VERDIR/build/switchToJDK14.bat=build/switchToJDK14.bat 0755 root bin
+d none $VERDIR/build/templates 0755 root bin
+d none $VERDIR/build/templates/hsqldb-dev1 0755 root bin
+d none $VERDIR/build/templates/hsqldb-dev1/build 0755 root bin
+d none $VERDIR/build/templates/hsqldb-dev1/doc 0755 root bin
+d none $VERDIR/build/templates/hsqldb-dev1/src 0755 root bin
+d none $VERDIR/build/templates/hsqldb-dev1/src/org 0755 root bin
+d none $VERDIR/build/templates/hsqldb-dev1/src/org/hsqldb 0755 root bin
+d none $VERDIR/build/templates/hsqldb-dev1/src/org/hsqldb/index 0755 root bin
+d none $VERDIR/build/templates/hsqldb-dev1/src/org/hsqldb/jdbc 0755 root bin
+d none $VERDIR/build/templates/hsqldb-dev1/src/org/hsqldb/lib 0755 root bin
+d none $VERDIR/build/templates/hsqldb-dev1/src/org/hsqldb/persist 0755 root bin
+d none $VERDIR/build/templates/hsqldb-dev1/src/org/hsqldb/resources 0755 root bin
+d none $VERDIR/build/templates/hsqldb-dev1/src/org/hsqldb/rowio 0755 root bin
+d none $VERDIR/build/templates/hsqldb-dev1/src/org/hsqldb/sample 0755 root bin
+d none $VERDIR/build/templates/hsqldb-dev1/src/org/hsqldb/scriptio 0755 root bin
+d none $VERDIR/build/templates/hsqldb-dev1/src/org/hsqldb/store 0755 root bin
+d none $VERDIR/build/templates/hsqldb-dev1/src/org/hsqldb/test 0755 root bin
+d none $VERDIR/build/templates/hsqldb-dev1/src/org/hsqldb/types 0755 root bin
+d none $VERDIR/build/templates/hsqldb-dev1/src/org/hsqldb/util 0755 root bin
+d none $VERDIR/build/templates/hsqldb-dev2 0755 root bin
+d none $VERDIR/demo 0755 root bin
+f none $VERDIR/demo/runWebServer.sh=demo/runWebServer.sh 0755 root bin
+f none $VERDIR/demo/runUtil.sh=demo/runUtil.sh 0755 root bin
+f none $VERDIR/demo/localhost_clientserver.html=demo/localhost_clientserver.html
+f none $VERDIR/demo/memorydbmanager.html=demo/memorydbmanager.html
+f none $VERDIR/demo/memoryquery.html=demo/memoryquery.html
+f none $VERDIR/demo/runManager.bat=demo/runManager.bat 0755 root bin
+f none $VERDIR/demo/runManager.sh=demo/runManager.sh 0755 root bin
+f none $VERDIR/demo/runManagerSwing.bat=demo/runManagerSwing.bat 0755 root bin
+f none $VERDIR/demo/runServer.bat=demo/runServer.bat 0755 root bin
+f none $VERDIR/demo/runServer.sh=demo/runServer.sh 0755 root bin
+f none $VERDIR/demo/runUtil.bat=demo/runUtil.bat 0755 root bin
+f none $VERDIR/demo/runWebServer.bat=demo/runWebServer.bat 0755 root bin
+f none $VERDIR/demo/servletdemo.html=demo/servletdemo.html
+d none $VERDIR/devdoc 0755 root bin
+f none $VERDIR/devdoc/schemastrategy.txt=devdoc/schemastrategy.txt
+f none $VERDIR/devdoc/schemas.html=devdoc/schemas.html 0755 root bin
+d none $VERDIR/docsrc 0755 root bin
+d none $VERDIR/docsrc/guide 0755 root bin
+d none $VERDIR/docsrc/guide/navicons 0755 root bin
+f none $VERDIR/docsrc/guide/navicons/home.gif=docsrc/guide/navicons/home.gif
+f none $VERDIR/docsrc/guide/navicons/next.gif=docsrc/guide/navicons/next.gif
+f none $VERDIR/docsrc/guide/navicons/prev.gif=docsrc/guide/navicons/prev.gif
+f none $VERDIR/docsrc/guide/navicons/up.gif=docsrc/guide/navicons/up.gif
+f none $VERDIR/docsrc/guide/advancedtopics.xml=docsrc/guide/advancedtopics.xml
+f none $VERDIR/docsrc/guide/building.xml=docsrc/guide/building.xml
+f none $VERDIR/docsrc/guide/dbfiles.xml=docsrc/guide/dbfiles.xml
+f none $VERDIR/docsrc/guide/dbmanager.xml=docsrc/guide/dbmanager.xml
+f none $VERDIR/docsrc/guide/deployment.xml=docsrc/guide/deployment.xml 0755 root bin
+f none $VERDIR/docsrc/guide/guide.css=docsrc/guide/guide.css
+f none $VERDIR/docsrc/guide/guide.xml=docsrc/guide/guide.xml
+f none $VERDIR/docsrc/guide/openoffice.xml=docsrc/guide/openoffice.xml 0755 root bin
+f none $VERDIR/docsrc/guide/running.xml=docsrc/guide/running.xml
+f none $VERDIR/docsrc/guide/sqlissues.xml=docsrc/guide/sqlissues.xml 0755 root bin
+f none $VERDIR/docsrc/guide/sqlsyntax.xml=docsrc/guide/sqlsyntax.xml
+f none $VERDIR/docsrc/guide/sqltool.xml=docsrc/guide/sqltool.xml
+f none $VERDIR/docsrc/guide/testutility.xml=docsrc/guide/testutility.xml
+f none $VERDIR/docsrc/guide/texttables.xml=docsrc/guide/texttables.xml
+f none $VERDIR/docsrc/guide/tls.xml=docsrc/guide/tls.xml
+f none $VERDIR/docsrc/guide/transfertool.xml=docsrc/guide/transfertool.xml
+f none $VERDIR/docsrc/guide/unix.xml=docsrc/guide/unix.xml
+d none $VERDIR/docsrc/sqltool 0755 root bin
+f none $VERDIR/docsrc/formats-section.xml=docsrc/formats-section.xml
+f none $VERDIR/docsrc/readme-docauthors.txt=docsrc/readme-docauthors.txt
+d none $VERDIR/lib 0755 root bin
+f none $VERDIR/lib/servlet.jar=lib/servlet.jar
+f none $VERDIR/lib/.cvsignore=lib/.cvsignore
+f none $VERDIR/lib/functions=lib/functions 0755 root bin
+f none $VERDIR/lib/hsqldb.jar=lib/hsqldb.jar
+d none $VERDIR/src 0755 root bin
+d none $VERDIR/src/org 0755 root bin
+d none $VERDIR/src/org/hsqldb 0755 root bin
+f none $VERDIR/src/org/hsqldb/DatabaseScript.java=src/org/hsqldb/DatabaseScript.java
+f none $VERDIR/src/org/hsqldb/BaseMemoryNode.java=src/org/hsqldb/BaseMemoryNode.java
+f none $VERDIR/src/org/hsqldb/BaseTable.java=src/org/hsqldb/BaseTable.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/CachedDataRow.java=src/org/hsqldb/CachedDataRow.java
+f none $VERDIR/src/org/hsqldb/CachedRow.java=src/org/hsqldb/CachedRow.java
+f none $VERDIR/src/org/hsqldb/Collation.java=src/org/hsqldb/Collation.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/Column.java=src/org/hsqldb/Column.java
+f none $VERDIR/src/org/hsqldb/CompiledStatement.java=src/org/hsqldb/CompiledStatement.java
+f none $VERDIR/src/org/hsqldb/Constraint.java=src/org/hsqldb/Constraint.java
+f none $VERDIR/src/org/hsqldb/DITypeInfo.java=src/org/hsqldb/DITypeInfo.java
+f none $VERDIR/src/org/hsqldb/CompiledStatementExecutor.java=src/org/hsqldb/CompiledStatementExecutor.java
+f none $VERDIR/src/org/hsqldb/CompiledStatementManager.java=src/org/hsqldb/CompiledStatementManager.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/ConstraintCore.java=src/org/hsqldb/ConstraintCore.java
+f none $VERDIR/src/org/hsqldb/DINameSpace.java=src/org/hsqldb/DINameSpace.java
+f none $VERDIR/src/org/hsqldb/DIProcedureInfo.java=src/org/hsqldb/DIProcedureInfo.java
+f none $VERDIR/src/org/hsqldb/DITableInfo.java=src/org/hsqldb/DITableInfo.java
+f none $VERDIR/src/org/hsqldb/Database.java=src/org/hsqldb/Database.java
+f none $VERDIR/src/org/hsqldb/DatabaseCommandInterpreter.java=src/org/hsqldb/DatabaseCommandInterpreter.java
+f none $VERDIR/src/org/hsqldb/DatabaseInformation.java=src/org/hsqldb/DatabaseInformation.java
+f none $VERDIR/src/org/hsqldb/DatabaseInformationFull.java=src/org/hsqldb/DatabaseInformationFull.java
+f none $VERDIR/src/org/hsqldb/DatabaseInformationMain.java=src/org/hsqldb/DatabaseInformationMain.java
+f none $VERDIR/src/org/hsqldb/DatabaseManager.java=src/org/hsqldb/DatabaseManager.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/DatabaseObjectNames.java=src/org/hsqldb/DatabaseObjectNames.java
+f none $VERDIR/src/org/hsqldb/DatabaseURL.java=src/org/hsqldb/DatabaseURL.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/DiskNode.java=src/org/hsqldb/DiskNode.java
+f none $VERDIR/src/org/hsqldb/Expression.java=src/org/hsqldb/Expression.java
+f none $VERDIR/src/org/hsqldb/Function.java=src/org/hsqldb/Function.java
+f none $VERDIR/src/org/hsqldb/GrantConstants.java=src/org/hsqldb/GrantConstants.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/Grantee.java=src/org/hsqldb/Grantee.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/GranteeManager.java=src/org/hsqldb/GranteeManager.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/GroupedResult.java=src/org/hsqldb/GroupedResult.java
+f none $VERDIR/src/org/hsqldb/HSQLClientConnection.java=src/org/hsqldb/HSQLClientConnection.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/Library.java=src/org/hsqldb/Library.java
+f none $VERDIR/src/org/hsqldb/Index.java=src/org/hsqldb/Index.java
+f none $VERDIR/src/org/hsqldb/HTTPClientConnection.java=src/org/hsqldb/HTTPClientConnection.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/HsqlDateTime.java=src/org/hsqldb/HsqlDateTime.java
+f none $VERDIR/src/org/hsqldb/HsqlException.java=src/org/hsqldb/HsqlException.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/HsqlInternalException.java=src/org/hsqldb/HsqlInternalException.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/HsqlNameManager.java=src/org/hsqldb/HsqlNameManager.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/HsqlServerFactory.java=src/org/hsqldb/HsqlServerFactory.java
+f none $VERDIR/src/org/hsqldb/HsqlSocketFactory.java=src/org/hsqldb/HsqlSocketFactory.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/HsqlSocketFactorySecure.java=src/org/hsqldb/HsqlSocketFactorySecure.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/HsqlSocketRequestHandler.java=src/org/hsqldb/HsqlSocketRequestHandler.java
+f none $VERDIR/src/org/hsqldb/MemoryNode.java=src/org/hsqldb/MemoryNode.java
+f none $VERDIR/src/org/hsqldb/Like.java=src/org/hsqldb/Like.java
+f none $VERDIR/src/org/hsqldb/Parser.java=src/org/hsqldb/Parser.java
+f none $VERDIR/src/org/hsqldb/Node.java=src/org/hsqldb/Node.java
+f none $VERDIR/src/org/hsqldb/ResultBase.java=src/org/hsqldb/ResultBase.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/NumberSequence.java=src/org/hsqldb/NumberSequence.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/PointerNode.java=src/org/hsqldb/PointerNode.java
+f none $VERDIR/src/org/hsqldb/Record.java=src/org/hsqldb/Record.java
+f none $VERDIR/src/org/hsqldb/Result.java=src/org/hsqldb/Result.java
+f none $VERDIR/src/org/hsqldb/ServerConfiguration.java=src/org/hsqldb/ServerConfiguration.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/ResultConstants.java=src/org/hsqldb/ResultConstants.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/Row.java=src/org/hsqldb/Row.java
+f none $VERDIR/src/org/hsqldb/SchemaManager.java=src/org/hsqldb/SchemaManager.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/Select.java=src/org/hsqldb/Select.java
+f none $VERDIR/src/org/hsqldb/SequenceManager.java=src/org/hsqldb/SequenceManager.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/Server.java=src/org/hsqldb/Server.java
+f none $VERDIR/src/org/hsqldb/ServerConnection.java=src/org/hsqldb/ServerConnection.java
+f none $VERDIR/src/org/hsqldb/ServerConstants.java=src/org/hsqldb/ServerConstants.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/Servlet.java=src/org/hsqldb/Servlet.java
+f none $VERDIR/src/org/hsqldb/Session.java=src/org/hsqldb/Session.java
+f none $VERDIR/src/org/hsqldb/SessionInterface.java=src/org/hsqldb/SessionInterface.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/SessionManager.java=src/org/hsqldb/SessionManager.java
+f none $VERDIR/src/org/hsqldb/SetFunction.java=src/org/hsqldb/SetFunction.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/SubQuery.java=src/org/hsqldb/SubQuery.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/Table.java=src/org/hsqldb/Table.java
+f none $VERDIR/src/org/hsqldb/TableFilter.java=src/org/hsqldb/TableFilter.java
+f none $VERDIR/src/org/hsqldb/TriggerDef.java=src/org/hsqldb/TriggerDef.java
+f none $VERDIR/src/org/hsqldb/Trigger.java=src/org/hsqldb/Trigger.java
+f none $VERDIR/src/org/hsqldb/TableWorks.java=src/org/hsqldb/TableWorks.java
+f none $VERDIR/src/org/hsqldb/TextTable.java=src/org/hsqldb/TextTable.java
+f none $VERDIR/src/org/hsqldb/Token.java=src/org/hsqldb/Token.java
+f none $VERDIR/src/org/hsqldb/Tokenizer.java=src/org/hsqldb/Tokenizer.java
+f none $VERDIR/src/org/hsqldb/Trace.java=src/org/hsqldb/Trace.java
+f none $VERDIR/src/org/hsqldb/Transaction.java=src/org/hsqldb/Transaction.java
+f none $VERDIR/src/org/hsqldb/TransactionManager.java=src/org/hsqldb/TransactionManager.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/Types.java=src/org/hsqldb/Types.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/User.java=src/org/hsqldb/User.java
+f none $VERDIR/src/org/hsqldb/View.java=src/org/hsqldb/View.java
+f none $VERDIR/src/org/hsqldb/WebServerConnection.java=src/org/hsqldb/WebServerConnection.java
+f none $VERDIR/src/org/hsqldb/UserManager.java=src/org/hsqldb/UserManager.java
+f none $VERDIR/src/org/hsqldb/WebServer.java=src/org/hsqldb/WebServer.java
+d none $VERDIR/src/org/hsqldb/index 0755 root bin
+f none $VERDIR/src/org/hsqldb/index/RowIterator.java=src/org/hsqldb/index/RowIterator.java 0755 root bin
+d none $VERDIR/src/org/hsqldb/jdbc 0755 root bin
+f none $VERDIR/src/org/hsqldb/jdbc/jdbcBlob.java=src/org/hsqldb/jdbc/jdbcBlob.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/jdbc/Util.java=src/org/hsqldb/jdbc/Util.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/jdbc/jdbcCallableStatement.java=src/org/hsqldb/jdbc/jdbcCallableStatement.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/jdbc/jdbcClob.java=src/org/hsqldb/jdbc/jdbcClob.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/jdbc/jdbcColumnMetaData.java=src/org/hsqldb/jdbc/jdbcColumnMetaData.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/jdbc/jdbcConnection.java=src/org/hsqldb/jdbc/jdbcConnection.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/jdbc/jdbcDataSource.java=src/org/hsqldb/jdbc/jdbcDataSource.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/jdbc/jdbcDataSourceFactory.java=src/org/hsqldb/jdbc/jdbcDataSourceFactory.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/jdbc/jdbcDatabaseMetaData.java=src/org/hsqldb/jdbc/jdbcDatabaseMetaData.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/jdbc/jdbcParameterMetaData.java=src/org/hsqldb/jdbc/jdbcParameterMetaData.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/jdbc/jdbcPreparedStatement.java=src/org/hsqldb/jdbc/jdbcPreparedStatement.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/jdbc/jdbcResultSet.java=src/org/hsqldb/jdbc/jdbcResultSet.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/jdbc/jdbcResultSetMetaData.java=src/org/hsqldb/jdbc/jdbcResultSetMetaData.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/jdbc/jdbcSavepoint.java=src/org/hsqldb/jdbc/jdbcSavepoint.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/jdbc/jdbcStatement.java=src/org/hsqldb/jdbc/jdbcStatement.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/jdbc/jdbcStubs.java=src/org/hsqldb/jdbc/jdbcStubs.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/jdbcDriver.java=src/org/hsqldb/jdbcDriver.java
+d none $VERDIR/src/org/hsqldb/lib 0755 root bin
+f none $VERDIR/src/org/hsqldb/lib/ArrayCounter.java=src/org/hsqldb/lib/ArrayCounter.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/lib/ArrayUtil.java=src/org/hsqldb/lib/ArrayUtil.java
+f none $VERDIR/src/org/hsqldb/lib/BaseList.java=src/org/hsqldb/lib/BaseList.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/lib/HashMappedList.java=src/org/hsqldb/lib/HashMappedList.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/lib/FileUtil.java=src/org/hsqldb/lib/FileUtil.java
+f none $VERDIR/src/org/hsqldb/lib/AsciiStringInputStream.java=src/org/hsqldb/lib/AsciiStringInputStream.java
+f none $VERDIR/src/org/hsqldb/lib/BooleanConverter.java=src/org/hsqldb/lib/BooleanConverter.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/lib/Collection.java=src/org/hsqldb/lib/Collection.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/lib/DoubleIntIndex.java=src/org/hsqldb/lib/DoubleIntIndex.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/lib/FileAccess.java=src/org/hsqldb/lib/FileAccess.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/lib/HashMap.java=src/org/hsqldb/lib/HashMap.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/lib/HsqlArrayHeap.java=src/org/hsqldb/lib/HsqlArrayHeap.java
+f none $VERDIR/src/org/hsqldb/lib/HashSet.java=src/org/hsqldb/lib/HashSet.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/lib/HsqlArrayList.java=src/org/hsqldb/lib/HsqlArrayList.java
+f none $VERDIR/src/org/hsqldb/lib/MD5.java=src/org/hsqldb/lib/MD5.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/lib/HsqlByteArrayInputStream.java=src/org/hsqldb/lib/HsqlByteArrayInputStream.java
+d none $VERDIR/src/org/hsqldb/lib/enum 0755 root bin
+d none $VERDIR/src/org/hsqldb/lib/java 0755 root bin
+f none $VERDIR/src/org/hsqldb/lib/java/JavaSystem.java=src/org/hsqldb/lib/java/JavaSystem.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/lib/HsqlByteArrayOutputStream.java=src/org/hsqldb/lib/HsqlByteArrayOutputStream.java
+f none $VERDIR/src/org/hsqldb/lib/HsqlDeque.java=src/org/hsqldb/lib/HsqlDeque.java
+f none $VERDIR/src/org/hsqldb/lib/HsqlHeap.java=src/org/hsqldb/lib/HsqlHeap.java
+f none $VERDIR/src/org/hsqldb/lib/HsqlLinkedList.java=src/org/hsqldb/lib/HsqlLinkedList.java
+f none $VERDIR/src/org/hsqldb/lib/HsqlList.java=src/org/hsqldb/lib/HsqlList.java
+f none $VERDIR/src/org/hsqldb/lib/HsqlTaskQueue.java=src/org/hsqldb/lib/HsqlTaskQueue.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/lib/HsqlThreadFactory.java=src/org/hsqldb/lib/HsqlThreadFactory.java
+f none $VERDIR/src/org/hsqldb/lib/HsqlTimer.java=src/org/hsqldb/lib/HsqlTimer.java
+f none $VERDIR/src/org/hsqldb/lib/InOutUtil.java=src/org/hsqldb/lib/InOutUtil.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/lib/IntKeyHashMap.java=src/org/hsqldb/lib/IntKeyHashMap.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/lib/IntKeyIntValueHashMap.java=src/org/hsqldb/lib/IntKeyIntValueHashMap.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/lib/IntKeyLongValueHashMap.java=src/org/hsqldb/lib/IntKeyLongValueHashMap.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/lib/IntLookup.java=src/org/hsqldb/lib/IntLookup.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/lib/IntValueHashMap.java=src/org/hsqldb/lib/IntValueHashMap.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/lib/Iterator.java=src/org/hsqldb/lib/Iterator.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/lib/LongKeyIntValueHashMap.java=src/org/hsqldb/lib/LongKeyIntValueHashMap.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/lib/ObjectComparator.java=src/org/hsqldb/lib/ObjectComparator.java
+f none $VERDIR/src/org/hsqldb/lib/Set.java=src/org/hsqldb/lib/Set.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/lib/SimpleLog.java=src/org/hsqldb/lib/SimpleLog.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/lib/Sort.java=src/org/hsqldb/lib/Sort.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/lib/StopWatch.java=src/org/hsqldb/lib/StopWatch.java
+f none $VERDIR/src/org/hsqldb/lib/Storage.java=src/org/hsqldb/lib/Storage.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/lib/StringConverter.java=src/org/hsqldb/lib/StringConverter.java
+f none $VERDIR/src/org/hsqldb/lib/StringInputStream.java=src/org/hsqldb/lib/StringInputStream.java
+f none $VERDIR/src/org/hsqldb/lib/StringUtil.java=src/org/hsqldb/lib/StringUtil.java
+f none $VERDIR/src/org/hsqldb/lib/ThreadFactory.java=src/org/hsqldb/lib/ThreadFactory.java
+f none $VERDIR/src/org/hsqldb/lib/WrapperIterator.java=src/org/hsqldb/lib/WrapperIterator.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/lib/ZipUnzipFile.java=src/org/hsqldb/lib/ZipUnzipFile.java 0755 root bin
+d none $VERDIR/src/org/hsqldb/persist 0755 root bin
+f none $VERDIR/src/org/hsqldb/persist/Cache.java=src/org/hsqldb/persist/Cache.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/persist/LockFile.java=src/org/hsqldb/persist/LockFile.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/persist/NIOScaledRAFile.java=src/org/hsqldb/persist/NIOScaledRAFile.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/persist/CachedObject.java=src/org/hsqldb/persist/CachedObject.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/persist/DataFileBlockManager.java=src/org/hsqldb/persist/DataFileBlockManager.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/persist/DataFileCache.java=src/org/hsqldb/persist/DataFileCache.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/persist/DataFileDefrag.java=src/org/hsqldb/persist/DataFileDefrag.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/persist/HsqlDatabaseProperties.java=src/org/hsqldb/persist/HsqlDatabaseProperties.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/persist/HsqlProperties.java=src/org/hsqldb/persist/HsqlProperties.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/persist/Log.java=src/org/hsqldb/persist/Log.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/persist/Logger.java=src/org/hsqldb/persist/Logger.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/persist/NIOLockFile.java=src/org/hsqldb/persist/NIOLockFile.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/persist/PersistentStore.java=src/org/hsqldb/persist/PersistentStore.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/persist/ScaledRAFile.java=src/org/hsqldb/persist/ScaledRAFile.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/persist/ScaledRAFileInJar.java=src/org/hsqldb/persist/ScaledRAFileInJar.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/persist/ScriptRunner.java=src/org/hsqldb/persist/ScriptRunner.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/persist/TextCache.java=src/org/hsqldb/persist/TextCache.java 0755 root bin
+d none $VERDIR/src/org/hsqldb/resources 0755 root bin
+f none $VERDIR/src/org/hsqldb/resources/BundleHandler.java=src/org/hsqldb/resources/BundleHandler.java
+f none $VERDIR/src/org/hsqldb/resources/webserver.properties=src/org/hsqldb/resources/webserver.properties 0755 root bin
+f none $VERDIR/src/org/hsqldb/resources/column-remarks.properties=src/org/hsqldb/resources/column-remarks.properties
+f none $VERDIR/src/org/hsqldb/resources/content-types.properties=src/org/hsqldb/resources/content-types.properties
+f none $VERDIR/src/org/hsqldb/resources/data-type-create-parameters.properties=src/org/hsqldb/resources/data-type-create-parameters.properties
+f none $VERDIR/src/org/hsqldb/resources/data-type-names.properties=src/org/hsqldb/resources/data-type-names.properties
+f none $VERDIR/src/org/hsqldb/resources/data-type-remarks.properties=src/org/hsqldb/resources/data-type-remarks.properties
+f none $VERDIR/src/org/hsqldb/resources/java_lang_Math.properties=src/org/hsqldb/resources/java_lang_Math.properties
+f none $VERDIR/src/org/hsqldb/resources/org_hsqldb_DatabaseClassLoader.properties=src/org/hsqldb/resources/org_hsqldb_DatabaseClassLoader.properties
+f none $VERDIR/src/org/hsqldb/resources/org_hsqldb_Library.properties=src/org/hsqldb/resources/org_hsqldb_Library.properties
+f none $VERDIR/src/org/hsqldb/resources/org_hsqldb_Server_messages.properties=src/org/hsqldb/resources/org_hsqldb_Server_messages.properties 0755 root bin
+f none $VERDIR/src/org/hsqldb/resources/sql-error-messages.properties=src/org/hsqldb/resources/sql-error-messages.properties 0755 root bin
+f none $VERDIR/src/org/hsqldb/resources/sql-error-messages_it.properties=src/org/hsqldb/resources/sql-error-messages_it.properties 0755 root bin
+f none $VERDIR/src/org/hsqldb/resources/table-remarks.properties=src/org/hsqldb/resources/table-remarks.properties
+d none $VERDIR/src/org/hsqldb/rowio 0755 root bin
+f none $VERDIR/src/org/hsqldb/rowio/RowInputBinary.java=src/org/hsqldb/rowio/RowInputBinary.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/rowio/RowInputBase.java=src/org/hsqldb/rowio/RowInputBase.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/rowio/RowInputInterface.java=src/org/hsqldb/rowio/RowInputInterface.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/rowio/RowInputText.java=src/org/hsqldb/rowio/RowInputText.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/rowio/RowInputTextLog.java=src/org/hsqldb/rowio/RowInputTextLog.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/rowio/RowInputTextQuoted.java=src/org/hsqldb/rowio/RowInputTextQuoted.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/rowio/RowOutputBase.java=src/org/hsqldb/rowio/RowOutputBase.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/rowio/RowOutputBinary.java=src/org/hsqldb/rowio/RowOutputBinary.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/rowio/RowOutputInterface.java=src/org/hsqldb/rowio/RowOutputInterface.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/rowio/RowOutputText.java=src/org/hsqldb/rowio/RowOutputText.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/rowio/RowOutputTextLog.java=src/org/hsqldb/rowio/RowOutputTextLog.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/rowio/RowOutputTextQuoted.java=src/org/hsqldb/rowio/RowOutputTextQuoted.java 0755 root bin
+d none $VERDIR/src/org/hsqldb/sample 0755 root bin
+f none $VERDIR/src/org/hsqldb/sample/pl.sql=src/org/hsqldb/sample/pl.sql
+f none $VERDIR/src/org/hsqldb/sample/ConnectionTypesSample.java=src/org/hsqldb/sample/ConnectionTypesSample.java
+f none $VERDIR/src/org/hsqldb/sample/DatabaseManagerSample.java=src/org/hsqldb/sample/DatabaseManagerSample.java
+f none $VERDIR/src/org/hsqldb/sample/FindFile.java=src/org/hsqldb/sample/FindFile.java
+f none $VERDIR/src/org/hsqldb/sample/StartupParameters.plist=src/org/hsqldb/sample/StartupParameters.plist
+f none $VERDIR/src/org/hsqldb/sample/Testdb.java=src/org/hsqldb/sample/Testdb.java
+f none $VERDIR/src/org/hsqldb/sample/TriggerSample.java=src/org/hsqldb/sample/TriggerSample.java
+f none $VERDIR/src/org/hsqldb/sample/load_binding_lu.sql=src/org/hsqldb/sample/load_binding_lu.sql
+f none $VERDIR/src/org/hsqldb/sample/plsql.sql=src/org/hsqldb/sample/plsql.sql
+f none $VERDIR/src/org/hsqldb/sample/sample.sql=src/org/hsqldb/sample/sample.sql
+f none $VERDIR/src/org/hsqldb/sample/sample-hsqldb.cfg=src/org/hsqldb/sample/sample-hsqldb.cfg
+f none $VERDIR/src/org/hsqldb/sample/sample-server.properties=src/org/hsqldb/sample/sample-server.properties
+f none $VERDIR/src/org/hsqldb/sample/sampledata.sql=src/org/hsqldb/sample/sampledata.sql
+f none $VERDIR/src/org/hsqldb/sample/sqltool.rc=src/org/hsqldb/sample/sqltool.rc
+d none $VERDIR/src/org/hsqldb/scriptio 0755 root bin
+f none $VERDIR/src/org/hsqldb/scriptio/ScriptReaderBinary.java=src/org/hsqldb/scriptio/ScriptReaderBinary.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/scriptio/ScriptReaderBase.java=src/org/hsqldb/scriptio/ScriptReaderBase.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/scriptio/ScriptReaderText.java=src/org/hsqldb/scriptio/ScriptReaderText.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/scriptio/ScriptReaderZipped.java=src/org/hsqldb/scriptio/ScriptReaderZipped.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/scriptio/ScriptWriterBase.java=src/org/hsqldb/scriptio/ScriptWriterBase.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/scriptio/ScriptWriterBinary.java=src/org/hsqldb/scriptio/ScriptWriterBinary.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/scriptio/ScriptWriterText.java=src/org/hsqldb/scriptio/ScriptWriterText.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/scriptio/ScriptWriterZipped.java=src/org/hsqldb/scriptio/ScriptWriterZipped.java 0755 root bin
+d none $VERDIR/src/org/hsqldb/store 0755 root bin
+f none $VERDIR/src/org/hsqldb/store/ObjectCacheHashMap.java=src/org/hsqldb/store/ObjectCacheHashMap.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/store/BaseHashMap.java=src/org/hsqldb/store/BaseHashMap.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/store/BitMap.java=src/org/hsqldb/store/BitMap.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/store/HashIndex.java=src/org/hsqldb/store/HashIndex.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/store/ValuePool.java=src/org/hsqldb/store/ValuePool.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/store/ValuePoolHashMap.java=src/org/hsqldb/store/ValuePoolHashMap.java 0755 root bin
+d none $VERDIR/src/org/hsqldb/test 0755 root bin
+f none $VERDIR/src/org/hsqldb/test/ClearTests.java=src/org/hsqldb/test/ClearTests.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/test/AllTests.java=src/org/hsqldb/test/AllTests.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/test/TestBatchExecution.java=src/org/hsqldb/test/TestBatchExecution.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/test/ExecHarness.java=src/org/hsqldb/test/ExecHarness.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/test/JDBCBench.java=src/org/hsqldb/test/JDBCBench.java
+f none $VERDIR/src/org/hsqldb/test/SqlToolHarness.java=src/org/hsqldb/test/SqlToolHarness.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/test/TestAll.java=src/org/hsqldb/test/TestAll.java
+f none $VERDIR/src/org/hsqldb/test/TestAllTypes.java=src/org/hsqldb/test/TestAllTypes.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/test/TestBase.java=src/org/hsqldb/test/TestBase.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/test/TestBatchBug.java=src/org/hsqldb/test/TestBatchBug.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/test/TestBug778213.java=src/org/hsqldb/test/TestBug778213.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/test/TestBug785429.java=src/org/hsqldb/test/TestBug785429.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/test/TestBug808460.java=src/org/hsqldb/test/TestBug808460.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/test/TestBugBase.java=src/org/hsqldb/test/TestBugBase.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/test/TestCacheSize.java=src/org/hsqldb/test/TestCacheSize.java
+f none $VERDIR/src/org/hsqldb/test/TestCascade.java=src/org/hsqldb/test/TestCascade.java
+f none $VERDIR/src/org/hsqldb/test/TestLikePredicateOptimizations.java=src/org/hsqldb/test/TestLikePredicateOptimizations.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/test/TestCollation.java=src/org/hsqldb/test/TestCollation.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/test/TestDataStructures.java=src/org/hsqldb/test/TestDataStructures.java
+f none $VERDIR/src/org/hsqldb/test/TestDatabaseMetaData.java=src/org/hsqldb/test/TestDatabaseMetaData.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/test/TestDateTime.java=src/org/hsqldb/test/TestDateTime.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/test/TestGroupByHaving.java=src/org/hsqldb/test/TestGroupByHaving.java
+f none $VERDIR/src/org/hsqldb/test/TestHashStructures.java=src/org/hsqldb/test/TestHashStructures.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/test/TestInstantiation.java=src/org/hsqldb/test/TestInstantiation.java
+f none $VERDIR/src/org/hsqldb/test/TestJDBCSavepoints.java=src/org/hsqldb/test/TestJDBCSavepoints.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/test/TestINPredicateParameterizationAndCorrelation.java=src/org/hsqldb/test/TestINPredicateParameterizationAndCorrelation.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/test/TestLibSpeed.java=src/org/hsqldb/test/TestLibSpeed.java
+f none $VERDIR/src/org/hsqldb/test/TestMultipleConnections.java=src/org/hsqldb/test/TestMultipleConnections.java
+f none $VERDIR/src/org/hsqldb/test/TestObjectSize.java=src/org/hsqldb/test/TestObjectSize.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/test/TestPreparedSubQueries.java=src/org/hsqldb/test/TestPreparedSubQueries.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/test/TestQuotes.java=src/org/hsqldb/test/TestQuotes.java
+f none $VERDIR/src/org/hsqldb/test/TestSchemaParse.java=src/org/hsqldb/test/TestSchemaParse.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/test/TestScript.java=src/org/hsqldb/test/TestScript.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/test/TestSelf.java=src/org/hsqldb/test/TestSelf.java
+f none $VERDIR/src/org/hsqldb/test/TestSql.java=src/org/hsqldb/test/TestSql.java
+f none $VERDIR/src/org/hsqldb/test/TestSqlPersistent.java=src/org/hsqldb/test/TestSqlPersistent.java
+f none $VERDIR/src/org/hsqldb/test/TestSqlTool.java=src/org/hsqldb/test/TestSqlTool.java
+f none $VERDIR/src/org/hsqldb/test/TestStoredProcedure.java=src/org/hsqldb/test/TestStoredProcedure.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/test/TestSubselect.java=src/org/hsqldb/test/TestSubselect.java
+f none $VERDIR/src/org/hsqldb/test/TestTimestamp.java=src/org/hsqldb/test/TestTimestamp.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/test/TestSubQueriesInPreparedStatements.java=src/org/hsqldb/test/TestSubQueriesInPreparedStatements.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/test/TestUtil.java=src/org/hsqldb/test/TestUtil.java 0755 root bin
+d none $VERDIR/src/org/hsqldb/types 0755 root bin
+f none $VERDIR/src/org/hsqldb/types/JavaObject.java=src/org/hsqldb/types/JavaObject.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/types/Binary.java=src/org/hsqldb/types/Binary.java 0755 root bin
+d none $VERDIR/src/org/hsqldb/util 0755 root bin
+f none $VERDIR/src/org/hsqldb/util/CSVWriter.java=src/org/hsqldb/util/CSVWriter.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/util/Bold.gif=src/org/hsqldb/util/Bold.gif 0755 root bin
+f none $VERDIR/src/org/hsqldb/util/Clear.png=src/org/hsqldb/util/Clear.png 0755 root bin
+f none $VERDIR/src/org/hsqldb/util/Close.png=src/org/hsqldb/util/Close.png 0755 root bin
+f none $VERDIR/src/org/hsqldb/util/Colors.png=src/org/hsqldb/util/Colors.png 0755 root bin
+f none $VERDIR/src/org/hsqldb/util/ConnectionDialogCommon.java=src/org/hsqldb/util/ConnectionDialogCommon.java
+f none $VERDIR/src/org/hsqldb/util/CodeSwitcher.java=src/org/hsqldb/util/CodeSwitcher.java
+f none $VERDIR/src/org/hsqldb/util/CommonSwing.java=src/org/hsqldb/util/CommonSwing.java
+f none $VERDIR/src/org/hsqldb/util/ConnectionDialog.java=src/org/hsqldb/util/ConnectionDialog.java
+f none $VERDIR/src/org/hsqldb/util/DataAccessPointException.java=src/org/hsqldb/util/DataAccessPointException.java
+f none $VERDIR/src/org/hsqldb/util/ConnectionDialogSwing.java=src/org/hsqldb/util/ConnectionDialogSwing.java
+f none $VERDIR/src/org/hsqldb/util/ConnectionSetting.java=src/org/hsqldb/util/ConnectionSetting.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/util/DataAccessPoint.java=src/org/hsqldb/util/DataAccessPoint.java
+f none $VERDIR/src/org/hsqldb/util/DatabaseManagerCommon.java=src/org/hsqldb/util/DatabaseManagerCommon.java
+f none $VERDIR/src/org/hsqldb/util/DatabaseManager.java=src/org/hsqldb/util/DatabaseManager.java
+f none $VERDIR/src/org/hsqldb/util/InformixTransferHelper.java=src/org/hsqldb/util/InformixTransferHelper.java
+f none $VERDIR/src/org/hsqldb/util/DatabaseManagerSwing.java=src/org/hsqldb/util/DatabaseManagerSwing.java
+f none $VERDIR/src/org/hsqldb/util/FontDialogSwing.java=src/org/hsqldb/util/FontDialogSwing.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/util/GreenCircle.gif=src/org/hsqldb/util/GreenCircle.gif 0755 root bin
+f none $VERDIR/src/org/hsqldb/util/Grid.java=src/org/hsqldb/util/Grid.java
+f none $VERDIR/src/org/hsqldb/util/GridSwing.java=src/org/hsqldb/util/GridSwing.java
+f none $VERDIR/src/org/hsqldb/util/HelperFactory.java=src/org/hsqldb/util/HelperFactory.java
+f none $VERDIR/src/org/hsqldb/util/Hourglass.gif=src/org/hsqldb/util/Hourglass.gif 0755 root bin
+f none $VERDIR/src/org/hsqldb/util/HsqldbTransferHelper.java=src/org/hsqldb/util/HsqldbTransferHelper.java
+f none $VERDIR/src/org/hsqldb/util/JDBCTypes.java=src/org/hsqldb/util/JDBCTypes.java
+f none $VERDIR/src/org/hsqldb/util/Italic.gif=src/org/hsqldb/util/Italic.gif 0755 root bin
+f none $VERDIR/src/org/hsqldb/util/MainInvoker.java=src/org/hsqldb/util/MainInvoker.java
+f none $VERDIR/src/org/hsqldb/util/QueryTool.java=src/org/hsqldb/util/QueryTool.java
+f none $VERDIR/src/org/hsqldb/util/RCData.java=src/org/hsqldb/util/RCData.java
+f none $VERDIR/src/org/hsqldb/util/McKoiTransferHelper.java=src/org/hsqldb/util/McKoiTransferHelper.java
+f none $VERDIR/src/org/hsqldb/util/OracleTransferHelper.java=src/org/hsqldb/util/OracleTransferHelper.java
+f none $VERDIR/src/org/hsqldb/util/PostgresTransferHelper.java=src/org/hsqldb/util/PostgresTransferHelper.java
+f none $VERDIR/src/org/hsqldb/util/RedCircle.gif=src/org/hsqldb/util/RedCircle.gif 0755 root bin
+f none $VERDIR/src/org/hsqldb/util/SqlServerTransferHelper.java=src/org/hsqldb/util/SqlServerTransferHelper.java
+f none $VERDIR/src/org/hsqldb/util/SQLStatements.java=src/org/hsqldb/util/SQLStatements.java
+f none $VERDIR/src/org/hsqldb/util/ScriptTool.java=src/org/hsqldb/util/ScriptTool.java
+f none $VERDIR/src/org/hsqldb/util/ShutdownServer.java=src/org/hsqldb/util/ShutdownServer.java
+f none $VERDIR/src/org/hsqldb/util/SqlFile.java=src/org/hsqldb/util/SqlFile.java
+f none $VERDIR/src/org/hsqldb/util/SqlToolError.java=src/org/hsqldb/util/SqlToolError.java
+f none $VERDIR/src/org/hsqldb/util/SqlTool.java=src/org/hsqldb/util/SqlTool.java
+f none $VERDIR/src/org/hsqldb/util/ZaurusComponent.java=src/org/hsqldb/util/ZaurusComponent.java
+f none $VERDIR/src/org/hsqldb/util/SqlToolSprayer.java=src/org/hsqldb/util/SqlToolSprayer.java
+f none $VERDIR/src/org/hsqldb/util/TableSorter.java=src/org/hsqldb/util/TableSorter.java 0755 root bin
+f none $VERDIR/src/org/hsqldb/util/Traceable.java=src/org/hsqldb/util/Traceable.java
+f none $VERDIR/src/org/hsqldb/util/Transfer.java=src/org/hsqldb/util/Transfer.java
+f none $VERDIR/src/org/hsqldb/util/TransferCommon.java=src/org/hsqldb/util/TransferCommon.java
+f none $VERDIR/src/org/hsqldb/util/TransferDb.java=src/org/hsqldb/util/TransferDb.java
+f none $VERDIR/src/org/hsqldb/util/TransferHelper.java=src/org/hsqldb/util/TransferHelper.java
+f none $VERDIR/src/org/hsqldb/util/TransferResultSet.java=src/org/hsqldb/util/TransferResultSet.java
+f none $VERDIR/src/org/hsqldb/util/TransferSQLText.java=src/org/hsqldb/util/TransferSQLText.java
+f none $VERDIR/src/org/hsqldb/util/TransferTable.java=src/org/hsqldb/util/TransferTable.java
+f none $VERDIR/src/org/hsqldb/util/Tree.java=src/org/hsqldb/util/Tree.java
+f none $VERDIR/src/org/hsqldb/util/ZaurusChoice.java=src/org/hsqldb/util/ZaurusChoice.java
+f none $VERDIR/src/org/hsqldb/util/problems.gif=src/org/hsqldb/util/problems.gif 0755 root bin
+f none $VERDIR/src/org/hsqldb/util/hsqldb.gif=src/org/hsqldb/util/hsqldb.gif
+f none $VERDIR/src/org/hsqldb/util/ZaurusConnectionDialog.java=src/org/hsqldb/util/ZaurusConnectionDialog.java
+f none $VERDIR/src/org/hsqldb/util/ZaurusDatabaseManager.java=src/org/hsqldb/util/ZaurusDatabaseManager.java
+f none $VERDIR/src/org/hsqldb/util/ZaurusEditor.java=src/org/hsqldb/util/ZaurusEditor.java
+f none $VERDIR/src/org/hsqldb/util/ZaurusTableForm.java=src/org/hsqldb/util/ZaurusTableForm.java
+f none $VERDIR/src/org/hsqldb/util/ZaurusTextField.java=src/org/hsqldb/util/ZaurusTextField.java
+f none $VERDIR/src/org/hsqldb/util/run_exc.gif=src/org/hsqldb/util/run_exc.gif 0755 root bin
+f none $VERDIR/src/hsqlServlet.java=src/hsqlServlet.java
+d none $VERDIR/testrun 0755 root bin
+d none $VERDIR/testrun/hsqldb 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelf.txt=testrun/hsqldb/TestSelf.txt
+f none $VERDIR/testrun/hsqldb/TestSelfCreate.txt=testrun/hsqldb/TestSelfCreate.txt
+f none $VERDIR/testrun/hsqldb/TestSelfImmediateShutdown.txt=testrun/hsqldb/TestSelfImmediateShutdown.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfAlterColumn.txt=testrun/hsqldb/TestSelfAlterColumn.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfCasewhen.txt=testrun/hsqldb/TestSelfCasewhen.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfCheckConstraints.txt=testrun/hsqldb/TestSelfCheckConstraints.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfConstraints.txt=testrun/hsqldb/TestSelfConstraints.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfConversions.txt=testrun/hsqldb/TestSelfConversions.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfFKModes.txt=testrun/hsqldb/TestSelfFKModes.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfFieldLimits.txt=testrun/hsqldb/TestSelfFieldLimits.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfGrantees.txt=testrun/hsqldb/TestSelfGrantees.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/runTest.bat=testrun/hsqldb/runTest.bat 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfImmediateShutdownRecover.txt=testrun/hsqldb/TestSelfImmediateShutdownRecover.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfNot.txt=testrun/hsqldb/TestSelfNot.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfInPredicateReferencing.txt=testrun/hsqldb/TestSelfInPredicateReferencing.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfInsertDeleteQueries.txt=testrun/hsqldb/TestSelfInsertDeleteQueries.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfIssues.txt=testrun/hsqldb/TestSelfIssues.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfJoins.txt=testrun/hsqldb/TestSelfJoins.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfLeftJoin.txt=testrun/hsqldb/TestSelfLeftJoin.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfModify.txt=testrun/hsqldb/TestSelfModify.txt
+f none $VERDIR/testrun/hsqldb/TestSelfMultiGrants.txt=testrun/hsqldb/TestSelfMultiGrants.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfNameResolution.txt=testrun/hsqldb/TestSelfNameResolution.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfNameResolutionSchemas.txt=testrun/hsqldb/TestSelfNameResolutionSchemas.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfPrimaryKeys.txt=testrun/hsqldb/TestSelfPrimaryKeys.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfQueries.txt=testrun/hsqldb/TestSelfQueries.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfRightCaching.txt=testrun/hsqldb/TestSelfRightCaching.txt
+f none $VERDIR/testrun/hsqldb/TestSelfRoleNesting.txt=testrun/hsqldb/TestSelfRoleNesting.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfSchemaPerCachTbl1.txt=testrun/hsqldb/TestSelfSchemaPerCachTbl1.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfSubselects.txt=testrun/hsqldb/TestSelfSubselects.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfSchemaPerCachTbl2.txt=testrun/hsqldb/TestSelfSchemaPerCachTbl2.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfSchemaPersistA1.txt=testrun/hsqldb/TestSelfSchemaPersistA1.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfSchemaPersistA2.txt=testrun/hsqldb/TestSelfSchemaPersistA2.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfSchemaPersistB1.txt=testrun/hsqldb/TestSelfSchemaPersistB1.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfSchemaPersistB2.txt=testrun/hsqldb/TestSelfSchemaPersistB2.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfSchemaPersistC1.txt=testrun/hsqldb/TestSelfSchemaPersistC1.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfSchemaPersistC2.txt=testrun/hsqldb/TestSelfSchemaPersistC2.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfSysTables.txt=testrun/hsqldb/TestSelfSysTables.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfTempTable1.txt=testrun/hsqldb/TestSelfTempTable1.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfTempTable2.txt=testrun/hsqldb/TestSelfTempTable2.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfTransaction.txt=testrun/hsqldb/TestSelfTransaction.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfUnions.txt=testrun/hsqldb/TestSelfUnions.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfUserFunction.txt=testrun/hsqldb/TestSelfUserFunction.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfVerify.txt=testrun/hsqldb/TestSelfVerify.txt
+f none $VERDIR/testrun/hsqldb/TestSelfViews.txt=testrun/hsqldb/TestSelfViews.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/TestSelfViewSchemaResolve.txt=testrun/hsqldb/TestSelfViewSchemaResolve.txt 0755 root bin
+f none $VERDIR/testrun/hsqldb/runTest.sh=testrun/hsqldb/runTest.sh 0755 root bin
+d none $VERDIR/testrun/sqltool 0755 root bin
+f none $VERDIR/testrun/sqltool/annotated-file.sql=testrun/sqltool/annotated-file.sql
+f none $VERDIR/testrun/sqltool/annotated-raw.sql=testrun/sqltool/annotated-raw.sql
+f none $VERDIR/testrun/sqltool/edit-a.sql=testrun/sqltool/edit-a.sql
+f none $VERDIR/testrun/sqltool/annotated-interactive.sql=testrun/sqltool/annotated-interactive.sql
+f none $VERDIR/testrun/sqltool/args-noinput.sql=testrun/sqltool/args-noinput.sql
+f none $VERDIR/testrun/sqltool/args-sql.sql=testrun/sqltool/args-sql.sql
+f none $VERDIR/testrun/sqltool/args-sqlni.sql=testrun/sqltool/args-sqlni.sql
+f none $VERDIR/testrun/sqltool/comment-midline.sql=testrun/sqltool/comment-midline.sql
+f none $VERDIR/testrun/sqltool/pl-variable.sql=testrun/sqltool/pl-variable.sql
+f none $VERDIR/testrun/sqltool/edit-s-noswitches.sql=testrun/sqltool/edit-s-noswitches.sql
+f none $VERDIR/testrun/sqltool/edit-s-switches.sql=testrun/sqltool/edit-s-switches.sql
+f none $VERDIR/testrun/sqltool/hist-recall-19.sql=testrun/sqltool/hist-recall-19.sql
+f none $VERDIR/testrun/sqltool/hist-recall-runquery.sql=testrun/sqltool/hist-recall-runquery.sql
+f none $VERDIR/testrun/sqltool/readme.txt=testrun/sqltool/readme.txt
+f none $VERDIR/testrun/sqltool/special-d.sql=testrun/sqltool/special-d.sql
+f none $VERDIR/testrun/sqltool/special-q-arg.sql=testrun/sqltool/special-q-arg.sql
+f none $VERDIR/testrun/sqltool/special-q.sql=testrun/sqltool/special-q.sql
+f none $VERDIR/testrun/sqltool/sql-blankfile.sql=testrun/sqltool/sql-blankfile.sql
+f none $VERDIR/testrun/sqltool/sql-blankint.sql=testrun/sqltool/sql-blankint.sql
+f none $VERDIR/testrun/sqltool/testArgs.list=testrun/sqltool/testArgs.list
+f none $VERDIR/testrun/sqltool/testComments.list=testrun/sqltool/testComments.list
+f none $VERDIR/testrun/sqltool/testEditing.list=testrun/sqltool/testEditing.list
+f none $VERDIR/testrun/sqltool/testHistory.list=testrun/sqltool/testHistory.list
+f none $VERDIR/testrun/sqltool/testPL.list=testrun/sqltool/testPL.list
+f none $VERDIR/testrun/sqltool/testSQL.list=testrun/sqltool/testSQL.list
+f none $VERDIR/testrun/sqltool/testSpecials.list=testrun/sqltool/testSpecials.list
+d none $VERDIR/website 0755 root bin
+d none $VERDIR/website/images 0755 root bin
+f none $VERDIR/website/images/Thumbs.db=website/images/Thumbs.db 0755 root bin
+f none $VERDIR/website/images/line-1.gif=website/images/line-1.gif 0755 root bin
+f none $VERDIR/website/images/kattare-logo.jpg=website/images/kattare-logo.jpg 0755 root bin
+f none $VERDIR/website/images/logo.gif=website/images/logo.gif 0755 root bin
+f none $VERDIR/website/index.html=website/index.html 0755 root bin
+d none $VERDIR/website/templates 0755 root bin
+f none $VERDIR/website/templates/defaulttemplate.dwt=website/templates/defaulttemplate.dwt 0755 root bin
+d none $VERDIR/website/web 0755 root bin
+f none $VERDIR/website/web/hsqlDocIndex.html=website/web/hsqlDocIndex.html 0755 root bin
+f none $VERDIR/website/web/changelog.html=website/web/changelog.html 0755 root bin
+f none $VERDIR/website/web/hsqlDevelopment.html=website/web/hsqlDevelopment.html 0755 root bin
+f none $VERDIR/website/web/hsqlDocsFrame.html=website/web/hsqlDocsFrame.html 0755 root bin
+f none $VERDIR/website/web/hsqlFAQ.html=website/web/hsqlFAQ.html 0755 root bin
+f none $VERDIR/website/web/hsqlFeatures.html=website/web/hsqlFeatures.html 0755 root bin
+f none $VERDIR/website/web/hsqlHistory.html=website/web/hsqlHistory.html 0755 root bin
+f none $VERDIR/website/web/hsqlLicense.html=website/web/hsqlLicense.html 0755 root bin
+f none $VERDIR/website/web/hsqlSupport.html=website/web/hsqlSupport.html 0755 root bin
+f none $VERDIR/website/web/hsqlUsing.html=website/web/hsqlUsing.html
+f none $VERDIR/website/web/style.css=website/web/style.css 0755 root bin
+f none $VERDIR/website/web/topframe.html=website/web/topframe.html 0755 root bin

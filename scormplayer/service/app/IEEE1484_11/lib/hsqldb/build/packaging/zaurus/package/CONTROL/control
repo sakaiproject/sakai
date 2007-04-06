@@ -1,0 +1,9 @@
+Package: java-hsqldb 
+Installed-Size: 400k 
+Filename: ./java-hsqldb_1.0_arm.ipk 
+Section: java 
+Maintainer: ulrivo <hsqldb@ulrivo.de> 
+Architecture: arm 
+Version: 1.0 
+Priority: optional
+Description: 100% Java Database Engine with a Database Manager
