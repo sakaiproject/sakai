@@ -61,6 +61,7 @@
 		<input type="hidden" name="template-index" value="52" />
 	
 	#if ($isCourseSite)
+		#if ($!selectedProviderCourse)
 		$tlang.getString("sinfo.youare")
 		<ul>
 			#foreach ($item in $!selectedProviderCourse)
@@ -71,12 +72,27 @@
 				</li>
 			#end
 		</ul>
-		$tlang.getString("sinfo.requestedSections")
-		#if ($!cmRequestedSections || $!manualAddNumber)
+		#end
+
+		#if ($!cmAuthorizerSections || $!cmRequestedSections || $!manualAddNumber)
+			$tlang.getString("sinfo.requestedSections")
 			<ul>
 				#foreach ($sect in $!cmRequestedSections)
-				<li>$sect.eid</li>
+				<li>
+					$sect.eid: $sect.title, $sect.categoryDescription (Pending approval by $sect.authorizer)
+                                        <!-- Remove Section -->
+                                        (<a href="#" onclick="javascript:submitRemoveSection('$sect.eid');">Remove</a>)
+                                        <input type="hidden" id="removeSection$sect.eid" name="removeSection$sect.eid" value="" />
+				</li>
 				#end
+                                #foreach ($sect in $!cmAuthorizerSections)
+                                <li>
+                                        $sect.eid: $sect.title, $sect.categoryDescription (Pending approval by $sect.authorizer)
+                                        <!-- Remove Section -->
+                                        (<a href="#" onclick="javascript:submitRemoveSection('$sect.eid');">Remove</a>)
+                                        <input type="hidden" id="removeSection$sect.eid" name="removeSection$sect.eid" value="" />
+                                </li>
+                                #end
 				#foreach ($k in [0..$manualAddNumber])
 						#set($courseFieldValues = $!fieldValues.get($k))
 						#set($bound = $!form_requiredFields.size())

@@ -556,11 +556,17 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String STATE_CM_LEVEL_SELECTIONS = "site.cm.level.selections";
 
 	private static final String STATE_CM_SELECTED_SECTION = "site.cm.selectedSection";
-	
+
 	private static final String STATE_CM_REQUESTED_SECTIONS = "site.cm.requested";
-	
+
 	private static final String STATE_PROVIDER_SECTION_LIST = "site_provider_section_list";
-	
+
+	private static final String STATE_CM_CURRENT_USERID = "site_cm_current_userId";
+
+	private static final String STATE_CM_AUTHORIZER_LIST = "site_cm_authorizer_list";
+
+	private static final String STATE_CM_AUTHORIZER_SECTIONS = "site_cm_authorizer_sections";
+
 	private String cmSubjectCategory;
 
 	private boolean warnedNoSubjectCategory = false;
@@ -574,6 +580,11 @@ public class SiteAction extends PagedResourceActionII {
 	protected void initState(SessionState state, VelocityPortlet portlet,
 			JetspeedRunData rundata) {
 		super.initState(state, portlet, rundata);
+
+		// store current userId in state
+		User user = UserDirectoryService.getCurrentUser();
+		String userId = user.getEid();
+		state.setAttribute(STATE_CM_CURRENT_USERID, userId);
 
 		PortletConfig config = portlet.getPortletConfig();
 
@@ -733,6 +744,9 @@ public class SiteAction extends PagedResourceActionII {
 		state.removeAttribute(STATE_CM_LEVEL_SELECTIONS);
 		state.removeAttribute(STATE_CM_SELECTED_SECTION);
 		state.removeAttribute(STATE_CM_REQUESTED_SECTIONS);
+		state.removeAttribute(STATE_CM_CURRENT_USERID);
+		state.removeAttribute(STATE_CM_AUTHORIZER_LIST);
+		state.removeAttribute(STATE_CM_AUTHORIZER_SECTIONS);
 
 	} // cleanState
 
@@ -1094,18 +1108,24 @@ public class SiteAction extends PagedResourceActionII {
 					context.put("selectedProviderCourse", state
 							.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN));
 				}
-				
-				List<SectionObject>
-					cmRequestedList = (List<SectionObject>) state.
-							getAttribute(STATE_CM_REQUESTED_SECTIONS);
-							
-				if (cmRequestedList != null)
-				{
+
+				List<SectionObject> cmRequestedList = (List<SectionObject>) state
+						.getAttribute(STATE_CM_REQUESTED_SECTIONS);
+
+				if (cmRequestedList != null) {
 					context.put("cmRequestedSections", cmRequestedList);
 					context.put("back", "53");
 				}
 
-				
+				List<SectionObject> cmAuthorizerSectionList = (List<SectionObject>) state
+						.getAttribute(STATE_CM_AUTHORIZER_SECTIONS);
+				if (cmAuthorizerSectionList != null) {
+					context
+							.put("cmAuthorizerSections",
+									cmAuthorizerSectionList);
+					context.put("back", "36");
+				}
+
 				if (state.getAttribute(STATE_MANUAL_ADD_COURSE_NUMBER) != null) {
 					int number = ((Integer) state
 							.getAttribute(STATE_MANUAL_ADD_COURSE_NUMBER))
@@ -2409,7 +2429,8 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("isCourseSite", Boolean.TRUE);
 				context.put("currentTermId", site.getProperties().getProperty(
 						PROP_SITE_TERM));
-                setTermListForContext(context, state, true); // true => upcoming only
+				setTermListForContext(context, state, true); // true =>
+				// upcoming only
 			} else {
 				context.put("isCourseSite", Boolean.FALSE);
 			}
@@ -2422,7 +2443,7 @@ public class SiteAction extends PagedResourceActionII {
 			}
 
 			setTermListForContext(context, state, true);
-			
+
 			return (String) getContext(data).get("template") + TEMPLATE[29];
 		case 36:
 			/*
@@ -2469,10 +2490,35 @@ public class SiteAction extends PagedResourceActionII {
 				// step number used in UI
 				state.setAttribute(SITE_CREATE_CURRENT_STEP, new Integer("1"));
 			} else {
-				if (state.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN) != null) {
-					context.put("selectedProviderCourse", state
-							.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN));
+				// need to include both list 'cos STATE_CM_AUTHORIZER_SECTIONS
+				// contains sections that doens't belongs to current user and
+				// STATE_ADD_CLASS_PROVIDER_CHOSEN contains section that does -
+				// v2.4 daisyf
+				if (state.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN) != null
+						|| state.getAttribute(STATE_CM_AUTHORIZER_SECTIONS) != null) {
+					List<String> totalList = (List<String>) state
+							.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN);
+					List<SectionObject> authorizerSectionList = (List<SectionObject>) state
+							.getAttribute(STATE_CM_AUTHORIZER_SECTIONS);
+					ArrayList list = new ArrayList();
+					if (authorizerSectionList!=null){
+						for (int i=0; i<authorizerSectionList.size();i++){
+							SectionObject so = (SectionObject)authorizerSectionList.get(i);
+							list.add(so.getEid());
+						}
+					}
+					if (totalList == null) {
+						totalList = list;
+					} else {
+						totalList.addAll(list);
+					}
+					context.put("selectedProviderCourse", totalList);
 				}
+				/*
+				 * if (state.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN) !=
+				 * null) { context.put("selectedProviderCourse", state
+				 * .getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN)); }
+				 */
 				if (state.getAttribute(STATE_MANUAL_ADD_COURSE_NUMBER) != null) {
 					context.put("selectedManualCourse", Boolean.TRUE);
 				}
@@ -2480,6 +2526,11 @@ public class SiteAction extends PagedResourceActionII {
 						.getAttribute(STATE_TERM_SELECTED));
 				context.put("userId", (String) state
 						.getAttribute(STATE_INSTRUCTOR_SELECTED));
+				context.put("currentUserId", (String) state
+						.getAttribute(STATE_CM_CURRENT_USERID));
+				context.put("form_additional", (String) state
+						.getAttribute(FORM_ADDITIONAL));
+				context.put("authorizers", getAuthorizers(state));
 			}
 			if (((String) state.getAttribute(STATE_SITE_MODE))
 					.equalsIgnoreCase(SITE_MODE_SITESETUP)) {
@@ -3362,8 +3413,7 @@ public class SiteAction extends PagedResourceActionII {
 	/**
 	 * {@inheritDoc}
 	 */
-    protected List readResourcesPage(SessionState state, int first, int last)
-	{
+	protected List readResourcesPage(SessionState state, int first, int last) {
 		String search = StringUtil.trimToNull((String) state
 				.getAttribute(STATE_SEARCH));
 
@@ -3873,16 +3923,22 @@ public class SiteAction extends PagedResourceActionII {
 			setNewSiteType(state, type);
 
 			if (type.equalsIgnoreCase("course")) {
+				User user = UserDirectoryService.getCurrentUser();
+				String currentUserId = user.getEid();
+
 				String userId = params.getString("userId");
 				if (userId == null || "".equals(userId)) {
-					User user = UserDirectoryService.getCurrentUser();
-					userId = user.getEid();
-					/*
-					userId = StringUtil.trimToZero(SessionManager
-							.getCurrentSessionUserId());
-							*/
+					userId = currentUserId;
+				} else {
+					// implies we are trying to pick sections owned by other
+					// users. Currently "select section by user" page only
+					// take one user per sitte request - daisy's note 1
+					ArrayList<String> list = new ArrayList();
+					list.add(userId);
+					state.setAttribute(STATE_CM_AUTHORIZER_LIST, list);
 				}
 				state.setAttribute(STATE_INSTRUCTOR_SELECTED, userId);
+
 				String academicSessionEid = params.getString("selectTerm");
 				AcademicSession t = cms.getAcademicSession(academicSessionEid);
 				state.setAttribute(STATE_TERM_SELECTED, t);
@@ -4706,9 +4762,12 @@ public class SiteAction extends PagedResourceActionII {
 							.getAttribute(STATE_MANUAL_ADD_COURSE_NUMBER))
 							.intValue();
 				}
-				
-				List<SectionObject>
-					cmRequestedSections = (List<SectionObject>) state.getAttribute(STATE_CM_REQUESTED_SECTIONS);
+
+				List<SectionObject> cmRequestedSections = (List<SectionObject>) state
+						.getAttribute(STATE_CM_REQUESTED_SECTIONS);
+
+				List<SectionObject> cmAuthorizerSections = (List<SectionObject>) state
+						.getAttribute(STATE_CM_AUTHORIZER_SECTIONS);
 
 				String realm = SiteService.siteReference(siteId);
 
@@ -4747,8 +4806,7 @@ public class SiteAction extends PagedResourceActionII {
 					sendSiteNotification(state, providerCourseList);
 				}
 
-				if (manualAddNumber != 0) 
-				{
+				if (manualAddNumber != 0) {
 					// set the manual sections to the site property
 					String manualSections = "";
 
@@ -4776,10 +4834,15 @@ public class SiteAction extends PagedResourceActionII {
 					sendSiteRequest(state, "new", manualAddNumber,
 							manualCourseInputs);
 				}
-				
-				if (cmRequestedSections != null && cmRequestedSections.size() > 0)
-				{
+
+				if (cmRequestedSections != null
+						&& cmRequestedSections.size() > 0) {
 					sendSiteRequest(state, "new", cmRequestedSections);
+				}
+
+				if (cmAuthorizerSections != null
+						&& cmAuthorizerSections.size() > 0) {
+					sendSiteRequest(state, "new", cmAuthorizerSections);
 				}
 
 			}
@@ -5130,6 +5193,7 @@ public class SiteAction extends PagedResourceActionII {
 			EmailService.send(from, to, message_subject, content, headerTo,
 					replyTo, null);
 			state.setAttribute(REQUEST_SENT, new Boolean(true));
+
 		} // if
 
 	} // sendSiteRequest
@@ -5203,62 +5267,75 @@ public class SiteAction extends PagedResourceActionII {
 			}
 
 			// there is no offical instructor for future term sites
-			String requestId = (String) state
+			String requestUserId = (String) state
 					.getAttribute(STATE_SITE_QUEST_UNIQNAME);
-			if (!isFutureTerm) {
-				// To site quest account - the instructor of record's
-				if (requestId != null) {
-					try {
-						User instructor = UserDirectoryService
-								.getUser(requestId);
-						from = requestEmail;
-						to = instructor.getEmail();
-						headerTo = instructor.getEmail();
-						replyTo = requestEmail;
-						buf.append(rb.getString("java.hello") + " \n\n");
-						buf.append(rb.getString("java.receiv") + " "
-								+ sessionUserName + ", ");
-						buf.append(rb.getString("java.who") + "\n");
-						if (termExist) {
-							String dateString = term.getStartDate().toString();
-							String year = dateString.substring(dateString
-									.length() - 4);
-							buf.append(term.getTitle() + " " + year + "\n");
+			List<String> authorizerList = (List) state
+					.getAttribute(STATE_CM_AUTHORIZER_LIST);
+			if (authorizerList == null) {
+				authorizerList = new ArrayList();
+			}
+			if (requestUserId != null) {
+				authorizerList.add(requestUserId);
+			}
+			for (int j = 0; j < authorizerList.size(); j++) {
+				String requestId = (String) authorizerList.get(j);
+				if (!isFutureTerm) {
+					// To site quest account - the instructor of record's
+					if (requestId != null) {
+						try {
+							User instructor = UserDirectoryService
+									.getUser(requestId);
+							from = requestEmail;
+							to = instructor.getEmail();
+							headerTo = instructor.getEmail();
+							replyTo = requestEmail;
+							buf.append(rb.getString("java.hello") + " \n\n");
+							buf.append(rb.getString("java.receiv") + " "
+									+ sessionUserName + ", ");
+							buf.append(rb.getString("java.who") + "\n");
+							if (termExist) {
+								String dateString = term.getStartDate()
+										.toString();
+								String year = dateString.substring(dateString
+										.length() - 4);
+								buf.append(term.getTitle() + " " + year + "\n");
 
-						}
+							}
 
-						for (int i = 0; i < cmRequestedSections.size(); i++) {
-							SectionObject
-								so = (SectionObject)cmRequestedSections.get(i);
+							for (int i = 0; i < cmRequestedSections.size(); i++) {
+								SectionObject so = (SectionObject) cmRequestedSections
+										.get(i);
 
-							buf.append(so.getTitle() + "(" + so.getEid() + ")" + so.getCategory() + "\n");
-						}
+								buf.append(so.getTitle() + "(" + so.getEid()
+										+ ")" + so.getCategory() + "\n");
+							}
 
-						buf.append("\n" + rb.getString("java.sitetitle") + "\t"
-								+ title + "\n");
-						buf.append(rb.getString("java.siteid") + "\t" + id);
-						buf.append("\n\n" + rb.getString("java.according")
-								+ " " + sessionUserName + " "
-								+ rb.getString("java.record"));
-						buf.append(" " + rb.getString("java.canyou") + " "
-								+ sessionUserName + " "
-								+ rb.getString("java.assoc") + "\n\n");
-						buf.append(rb.getString("java.respond") + " "
-								+ sessionUserName
-								+ rb.getString("java.appoint") + "\n\n");
-						buf.append(rb.getString("java.thanks") + "\n");
-						buf.append(productionSiteName + " "
-								+ rb.getString("java.support"));
-						content = buf.toString();
+							buf.append("\n" + rb.getString("java.sitetitle")
+									+ "\t" + title + "\n");
+							buf.append(rb.getString("java.siteid") + "\t" + id);
+							buf.append("\n\n" + rb.getString("java.according")
+									+ " " + sessionUserName + " "
+									+ rb.getString("java.record"));
+							buf.append(" " + rb.getString("java.canyou") + " "
+									+ sessionUserName + " "
+									+ rb.getString("java.assoc") + "\n\n");
+							buf.append(rb.getString("java.respond") + " "
+									+ sessionUserName
+									+ rb.getString("java.appoint") + "\n\n");
+							buf.append(rb.getString("java.thanks") + "\n");
+							buf.append(productionSiteName + " "
+									+ rb.getString("java.support"));
+							content = buf.toString();
 
-						// send the email
-						EmailService.send(from, to, message_subject, content,
-								headerTo, replyTo, null);
+							// send the email
+							EmailService.send(from, to, message_subject,
+									content, headerTo, replyTo, null);
 
-						// email has been sent successfully
-						sendEmailToRequestee = true;
-					} catch (UserNotDefinedException ee) {
-					} // try
+							// email has been sent successfully
+							sendEmailToRequestee = true;
+						} catch (UserNotDefinedException ee) {
+						} // try
+					}
 				}
 			}
 
@@ -5297,18 +5374,17 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			if (cmRequestedSections != null && cmRequestedSections.size() > 1) {
 				buf.append(" " + rb.getString("java.forthese") + " "
-						+ cmRequestedSections.size() + " " + rb.getString("java.sections")
-						+ "\n\n");
+						+ cmRequestedSections.size() + " "
+						+ rb.getString("java.sections") + "\n\n");
 			} else {
 				buf.append(" " + rb.getString("java.forthis") + "\n\n");
 			}
-			
-			
-			for (int i = 0; i < cmRequestedSections.size(); i++) {
-				SectionObject
-					so = (SectionObject)cmRequestedSections.get(i);
 
-				buf.append(so.getTitle() + "(" + so.getEid() + ")" + so.getCategory() + "\n");
+			for (int i = 0; i < cmRequestedSections.size(); i++) {
+				SectionObject so = (SectionObject) cmRequestedSections.get(i);
+
+				buf.append(so.getTitle() + "(" + so.getEid() + ")"
+						+ so.getCategory() + "\n");
 			}
 
 			buf.append(rb.getString("java.name") + "\t" + sessionUserName
@@ -5322,11 +5398,11 @@ public class SiteAction extends PagedResourceActionII {
 
 			if (!isFutureTerm) {
 				if (sendEmailToRequestee) {
-					buf.append(rb.getString("java.authoriz") + " " + requestId
+					buf.append(rb.getString("java.authoriz") + " " + requestUserId
 							+ " " + rb.getString("java.asreq"));
 				} else {
 					buf.append(rb.getString("java.thesiteemail") + " "
-							+ requestId + " " + rb.getString("java.asreq"));
+							+ requestUserId + " " + rb.getString("java.asreq"));
 				}
 			}
 			content = buf.toString();
@@ -5351,6 +5427,7 @@ public class SiteAction extends PagedResourceActionII {
 		} // if
 
 	} // sendSiteRequest
+
 	/**
 	 * Notification sent when a course site is set up automatcally
 	 * 
@@ -7171,8 +7248,36 @@ public class SiteAction extends PagedResourceActionII {
 								.getStrings("providerCourseAdd"))); // list of
 						// course
 						// ids
-						state.setAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN,
-								providerChosenList);
+						String userId = (String) state
+								.getAttribute(STATE_INSTRUCTOR_SELECTED);
+						String currentUserId = (String) state
+								.getAttribute(STATE_CM_CURRENT_USERID);
+
+						if (userId.equals(currentUserId)) {
+							state.setAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN,
+									providerChosenList);
+							state.removeAttribute(STATE_CM_AUTHORIZER_SECTIONS);
+							state.removeAttribute(FORM_ADDITIONAL);
+							state.removeAttribute(STATE_CM_AUTHORIZER_LIST);
+						} else {
+							// STATE_CM_AUTHORIZER_SECTIONS are SectionObject,
+							// so need to prepare it
+							// also in this page, u can pick either section from
+							// current user OR
+							// sections from another users but not both. -
+							// daisy's note 1 for now
+							// till we are ready to add more complexity
+							List sectionObjectList = prepareSectionObject(
+									providerChosenList, userId);
+							state.setAttribute(STATE_CM_AUTHORIZER_SECTIONS,
+									sectionObjectList);
+							state
+									.removeAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN);
+							// set special instruction & we will keep STATE_CM_AUTHORIZER_LIST
+							String additional = StringUtil.trimToZero(params
+									.getString("additional"));
+							state.setAttribute(FORM_ADDITIONAL, additional);
+						}
 					}
 					collectNewSiteInfo(siteInfo, state, params,
 							providerChosenList);
@@ -7940,7 +8045,7 @@ public class SiteAction extends PagedResourceActionII {
 						}
 						if (tool.getTool().getId().equals(
 								"sakai.summary.calendar")) {
-							hadSchedule= true;
+							hadSchedule = true;
 							if (!hasSchedule) {
 								removeToolList.add(tool);// if Schedule
 								// tool isn't
@@ -8020,7 +8125,8 @@ public class SiteAction extends PagedResourceActionII {
 						addSynopticTool(page, "sakai.summary.calendar", rb
 								.getString("java.reccal"), "3,1");
 					}
-					if (hasAnnouncement || hasDiscussion || hasChat || hasSchedule) {
+					if (hasAnnouncement || hasDiscussion || hasChat
+							|| hasSchedule) {
 						page.setLayout(SitePage.LAYOUT_DOUBLE_COL);
 					} else {
 						page.setLayout(SitePage.LAYOUT_SINGLE_COL);
@@ -8581,7 +8687,8 @@ public class SiteAction extends PagedResourceActionII {
 					page.setTitle(rb.getString("java.home")); // the visible
 					// label on the
 					// tool menu
-					if (hasAnnouncement || hasDiscussion || hasChat || hasSchedule) {
+					if (hasAnnouncement || hasDiscussion || hasChat
+							|| hasSchedule) {
 						page.setLayout(SitePage.LAYOUT_DOUBLE_COL);
 					} else {
 						page.setLayout(SitePage.LAYOUT_SINGLE_COL);
@@ -11341,8 +11448,9 @@ public class SiteAction extends PagedResourceActionII {
 				courseOfferingHash, sectionHash);
 		// courseOfferingHash & sectionHash should now be filled with stuffs
 		// put section list in state for later use
-		
-		state.setAttribute(STATE_PROVIDER_SECTION_LIST, getSectionList(sectionHash));
+
+		state.setAttribute(STATE_PROVIDER_SECTION_LIST,
+				getSectionList(sectionHash));
 
 		ArrayList offeringList = new ArrayList();
 		Set keys = courseOfferingHash.keySet();
@@ -11354,7 +11462,7 @@ public class SiteAction extends PagedResourceActionII {
 
 		Collection offeringListSorted = sortOffering(offeringList);
 		ArrayList resultedList = new ArrayList();
-		
+
 		// use this to keep track of courseOffering that we have dealt with
 		// already
 		// this is important 'cos cross-listed offering is dealt with together
@@ -11400,29 +11508,27 @@ public class SiteAction extends PagedResourceActionII {
 	private Collection sortOffering(ArrayList offeringList) {
 		return sortCmObject(offeringList);
 		/*
-		List propsList = new ArrayList();
-		propsList.add("eid");
-		propsList.add("title");
-		SortTool sort = new SortTool();
-		return sort.sort(offeringList, propsList);
-		*/
+		 * List propsList = new ArrayList(); propsList.add("eid");
+		 * propsList.add("title"); SortTool sort = new SortTool(); return
+		 * sort.sort(offeringList, propsList);
+		 */
 	} // sortOffering
 
 	/**
-	 * sort any Cm object such as CourseOffering, CourseOfferingObject, SectionObject
-	 * provided object has getter & setter for eid & title
+	 * sort any Cm object such as CourseOffering, CourseOfferingObject,
+	 * SectionObject provided object has getter & setter for eid & title
+	 * 
 	 * @param list
 	 * @return
 	 */
 	private Collection sortCmObject(List list) {
-		if (list != null){
-		List propsList = new ArrayList();
-		propsList.add("eid");
-		propsList.add("title");
-		SortTool sort = new SortTool();
-		return sort.sort(list, propsList);
-		}
-		else{
+		if (list != null) {
+			List propsList = new ArrayList();
+			propsList.add("eid");
+			propsList.add("title");
+			SortTool sort = new SortTool();
+			return sort.sort(list, propsList);
+		} else {
 			return list;
 		}
 	} // sortCmObject
@@ -11432,12 +11538,20 @@ public class SiteAction extends PagedResourceActionII {
 	 */
 	public class SectionObject {
 		public Section section;
+
 		public String eid;
+
 		public String title;
+
 		public String category;
+
 		public String categoryDescription;
+
 		public boolean isLecture;
+
 		public boolean attached;
+
+		public String authorizer;
 
 		public SectionObject(Section section) {
 			this.section = section;
@@ -11486,6 +11600,15 @@ public class SiteAction extends PagedResourceActionII {
 		public boolean getAttached() {
 			return attached;
 		}
+
+		public String getAuthorizer() {
+			return authorizer;
+		}
+
+		public void setAuthorizer(String authorizer) {
+			this.authorizer = authorizer;
+		}
+
 	} // SectionObject constructor
 
 	/**
@@ -11592,26 +11715,23 @@ public class SiteAction extends PagedResourceActionII {
 					manualCourseList.remove(eid);
 			}
 		}
-		
+
 		List<SectionObject> requestedCMSections = (List<SectionObject>) state
 				.getAttribute(STATE_CM_REQUESTED_SECTIONS);
-		
-		if (requestedCMSections != null)
-		{
-			for (int i = 0; i < requestedCMSections.size(); i++)
-			{
-				SectionObject
-					so = (SectionObject)requestedCMSections.get(i);
-				
+
+		if (requestedCMSections != null) {
+			for (int i = 0; i < requestedCMSections.size(); i++) {
+				SectionObject so = (SectionObject) requestedCMSections.get(i);
+
 				String field = "removeSection" + so.getEid();
 				String toRemove = params.getString(field);
-				
+
 				if ("true".equals(toRemove)) {
 					requestedCMSections.remove(so);
 				}
-				
+
 			}
-			
+
 			if (requestedCMSections.size() == 0)
 				state.removeAttribute(STATE_CM_REQUESTED_SECTIONS);
 		}
@@ -11636,7 +11756,9 @@ public class SiteAction extends PagedResourceActionII {
 			// site title is the title of the 1st section selected -
 			// daisyf's note
 			if (providerChosenList != null && providerChosenList.size() >= 1) {
-				String title = prepareTitle((List)state.getAttribute(STATE_PROVIDER_SECTION_LIST), providerChosenList);
+				String title = prepareTitle((List) state
+						.getAttribute(STATE_PROVIDER_SECTION_LIST),
+						providerChosenList);
 				siteInfo.title = title;
 			}
 			state.setAttribute(STATE_SITE_INFO, siteInfo);
@@ -11730,7 +11852,7 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			Collection c = sortCmObject(returnList);
 
-			return (List)c;
+			return (List) c;
 		}
 
 		return new ArrayList(0);
@@ -11757,11 +11879,9 @@ public class SiteAction extends PagedResourceActionII {
 		return cmSubjectCategory;
 	}
 
-	private List<String> getCMLevelLabels() 
-	{
-		List<String>
-			cmLevels = new ArrayList(3);
-		
+	private List<String> getCMLevelLabels() {
+		List<String> cmLevels = new ArrayList(3);
+
 		String level = null;
 
 		cmLevels = new ArrayList<String>(3);
@@ -11796,8 +11916,8 @@ public class SiteAction extends PagedResourceActionII {
 	}
 
 	private void prepFindPage(SessionState state) {
-		final List cmLevels = getCMLevelLabels(), 
-			selections = (List) state.getAttribute(STATE_CM_LEVEL_SELECTIONS);
+		final List cmLevels = getCMLevelLabels(), selections = (List) state
+				.getAttribute(STATE_CM_LEVEL_SELECTIONS);
 		int lvlSz = 0;
 
 		if (cmLevels == null || (lvlSz = cmLevels.size()) < 1) {
@@ -11820,63 +11940,56 @@ public class SiteAction extends PagedResourceActionII {
 		state.setAttribute(STATE_TEMPLATE_INDEX, "53");
 	}
 
-	private void addRequestedSection (SessionState state)
-	{
-		SectionObject 
-			so = (SectionObject)state.getAttribute(STATE_CM_SELECTED_SECTION);
-		
+	private void addRequestedSection(SessionState state) {
+		SectionObject so = (SectionObject) state
+				.getAttribute(STATE_CM_SELECTED_SECTION);
+
 		if (so == null)
 			return;
-		
-		List<SectionObject>
-			requestedSections = (List<SectionObject>)state.getAttribute(STATE_CM_REQUESTED_SECTIONS);
-		
-		if (requestedSections == null)
-		{
+
+		List<SectionObject> requestedSections = (List<SectionObject>) state
+				.getAttribute(STATE_CM_REQUESTED_SECTIONS);
+
+		if (requestedSections == null) {
 			requestedSections = new ArrayList<SectionObject>();
 		}
-		
-		//don't add duplicates
+
+		// don't add duplicates
 		if (!requestedSections.contains(so))
 			requestedSections.add(so);
-		
-		//if the title has not yet been set and there is just
+
+		// if the title has not yet been set and there is just
 		// one section, set the title to that section's EID
-		if (requestedSections.size() == 1)
-		{
-			SiteInfo 
-				siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
-			
+		if (requestedSections.size() == 1) {
+			SiteInfo siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
+
 			if (siteInfo == null) {
 				siteInfo = new SiteInfo();
 			}
-		
-			if (siteInfo.title == null || 
-				siteInfo.title.trim().length() == 0)
-			{
+
+			if (siteInfo.title == null || siteInfo.title.trim().length() == 0) {
 				siteInfo.title = so.getEid();
 			}
 
 			state.setAttribute(STATE_SITE_INFO, siteInfo);
 		}
-		
+
 		state.setAttribute(STATE_CM_REQUESTED_SECTIONS, requestedSections);
-		
+
 		state.removeAttribute(STATE_CM_LEVEL_SELECTIONS);
 		state.removeAttribute(STATE_CM_SELECTED_SECTION);
 	}
-	
+
 	public void doFind_course(RunData data) {
 		final SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		final ParameterParser params = data.getParameters();
 		final String option = params.get("option");
-		
+
 		if (option != null) {
-			if ("continue".equals(option)) 
-			{
+			if ("continue".equals(option)) {
 				addRequestedSection(state);
-								
+
 				String uniqname = StringUtil.trimToNull(params
 						.getString("uniqname"));
 				state.setAttribute(STATE_SITE_QUEST_UNIQNAME, uniqname);
@@ -11918,31 +12031,24 @@ public class SiteAction extends PagedResourceActionII {
 
 				doContinue(data);
 				return;
-			}
-			else if ("back".equals(option)) {
+			} else if ("back".equals(option)) {
 				doBack(data);
 				return;
-			}
-			else if ("cancel".equals(option)) {
+			} else if ("cancel".equals(option)) {
 				doCancel_create(data);
 				return;
-			}
-			else if (option.equals("add"))
-			{
+			} else if (option.equals("add")) {
 				addRequestedSection(state);
 				return;
-			}
-			else if (option.equals("manual")) 
-			{
+			} else if (option.equals("manual")) {
 				// TODO: send to case 37
 				state.setAttribute(STATE_TEMPLATE_INDEX, "37");
 
-				state.setAttribute(STATE_MANUAL_ADD_COURSE_NUMBER, 
-									new Integer(1));
-				
+				state.setAttribute(STATE_MANUAL_ADD_COURSE_NUMBER, new Integer(
+						1));
+
 				return;
-			}
-			else if (option.equals("remove"))
+			} else if (option.equals("remove"))
 				removeAnyFlagedSection(state, params);
 		}
 
@@ -11950,16 +12056,17 @@ public class SiteAction extends PagedResourceActionII {
 
 		int cmLevel = 3;
 		String deptChanged = params.get("deptChanged");
-		if ("true".equals(deptChanged)){
-			// when dept changes, remove selection on courseOffering and courseSection
+		if ("true".equals(deptChanged)) {
+			// when dept changes, remove selection on courseOffering and
+			// courseSection
 			cmLevel = 1;
 		}
 		for (int i = 0; i < cmLevel; i++) {
 			String val = params.get("idField_" + i);
-			
+
 			if (val == null || val.trim().length() < 1) {
 				break;
-			}			
+			}
 			selections.add(val);
 		}
 
@@ -11967,43 +12074,46 @@ public class SiteAction extends PagedResourceActionII {
 
 		prepFindPage(state);
 	}
-	
+
 	/**
-	 * return the title of the 1st section in the chosen list that has
-	 * an enrollment set. No discrimination on section category
+	 * return the title of the 1st section in the chosen list that has an
+	 * enrollment set. No discrimination on section category
+	 * 
 	 * @param sectionList
 	 * @param chosenList
 	 * @return
 	 */
-	private String prepareTitle(List sectionList, List chosenList){
-		String title=null;
+	private String prepareTitle(List sectionList, List chosenList) {
+		String title = null;
 		HashMap map = new HashMap();
 		for (Iterator i = sectionList.iterator(); i.hasNext();) {
 			SectionObject o = (SectionObject) i.next();
 			map.put(o.getEid(), o.getSection());
 		}
-		for (int j=0; j<chosenList.size(); j++){
-			String eid = (String)chosenList.get(j);
+		for (int j = 0; j < chosenList.size(); j++) {
+			String eid = (String) chosenList.get(j);
 			Section s = (Section) map.get(eid);
-			// we will always has a title regardless but we prefer it to be the 
+			// we will always has a title regardless but we prefer it to be the
 			// 1st section on the chosen list that has an enrollment set
-			if (j==0){ 
+			if (j == 0) {
 				title = s.getTitle();
 			}
-			if (s.getEnrollmentSet()!=null){
+			if (s.getEnrollmentSet() != null) {
 				title = s.getTitle();
 				break;
 			}
-		}		
+		}
 		return title;
 	} // prepareTitle
 
 	/**
 	 * return an ArrayList of SectionObject
-	 * @param sectionHash contains an ArrayList collection of SectionObject
+	 * 
+	 * @param sectionHash
+	 *            contains an ArrayList collection of SectionObject
 	 * @return
 	 */
-	private ArrayList getSectionList(HashMap sectionHash){
+	private ArrayList getSectionList(HashMap sectionHash) {
 		ArrayList list = new ArrayList();
 		// values is an ArrayList of section
 		Collection c = sectionHash.values();
@@ -12013,4 +12123,35 @@ public class SiteAction extends PagedResourceActionII {
 		}
 		return list;
 	}
+
+	private String getAuthorizers(SessionState state) {
+		String authorizers = "";
+		ArrayList list = (ArrayList) state
+				.getAttribute(STATE_CM_AUTHORIZER_LIST);
+		if (list != null) {
+			for (int i = 0; i < list.size(); i++) {
+				if (i == 0) {
+					authorizers = (String) list.get(i);
+				} else {
+					authorizers = authorizers + ", " + list.get(i);
+				}
+			}
+		}
+		return authorizers;
+	}
+
+	private List prepareSectionObject(List sectionList, String userId) {
+		ArrayList list = new ArrayList();
+		if (sectionList != null) {
+			for (int i = 0; i < sectionList.size(); i++) {
+				String sectionEid = (String) sectionList.get(i);
+				Section s = cms.getSection(sectionEid);
+				SectionObject so = new SectionObject(s);
+				so.setAuthorizer(userId);
+				list.add(so);
+			}
+		}
+		return list;
+	}
+
 }
