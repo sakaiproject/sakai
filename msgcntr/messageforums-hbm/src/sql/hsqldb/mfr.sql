@@ -1,4 +1,40 @@
 -- insert types and default permissions for Author, Reviewer, Contributor, None
+
+-- insert permission level types
+-- owner type
+INSERT INTO CMN_TYPE_T VALUES (NULL, 0, '00000000-0000-0000-1111-000000000000', 'admin', 
+  SYSDATE, 'admin', SYSDATE, 'org.sakaiproject.component.app.messageforums', 'sakai_messageforums',
+  'Owner Permission Level', 'Owner Permission Level', 'Owner Permission Level');
+  
+-- author type  
+INSERT INTO CMN_TYPE_T VALUES (NULL, 0, '00000000-0000-0000-2222-000000000000', 'admin', 
+  SYSDATE, 'admin', SYSDATE, 'org.sakaiproject.component.app.messageforums', 'sakai_messageforums',
+  'Author Permission Level', 'Author Permission Level', 'Author Permission Level');
+  
+-- nonediting author type
+INSERT INTO CMN_TYPE_T VALUES (NULL, 0, '00000000-0000-0000-3333-000000000000', 'admin', 
+  SYSDATE, 'admin', SYSDATE, 'org.sakaiproject.component.app.messageforums', 'sakai_messageforums',
+  'Nonediting Author Permission Level', 'Nonediting Author Permission Level', 'Nonediting Author Permission Level');
+    
+-- contributor type    
+INSERT INTO CMN_TYPE_T VALUES (NULL, 0, '00000000-0000-0000-4444-000000000000', 'admin', 
+  SYSDATE, 'admin', SYSDATE, 'org.sakaiproject.component.app.messageforums', 'sakai_messageforums',
+  'Contributor Permission Level', 'Contributor Permission Level', 'Contributor Permission Level');  
+  
+-- reviewer type  
+INSERT INTO CMN_TYPE_T VALUES (NULL, 0, '00000000-0000-0000-5555-000000000000', 'admin', 
+  SYSDATE, 'admin', SYSDATE, 'org.sakaiproject.component.app.messageforums', 'sakai_messageforums',
+  'Reviewer Permission Level', 'Reviewer Permission Level', 'Reviewer Permission Level');
+  
+-- none type  
+INSERT INTO CMN_TYPE_T VALUES (NULL, 0, '00000000-0000-0000-6666-000000000000', 'admin', 
+  SYSDATE, 'admin', SYSDATE, 'org.sakaiproject.component.app.messageforums', 'sakai_messageforums',
+  'None Permission Level', 'None Permission Level', 'None Permission Level');      
+  
+-- custom type  
+INSERT INTO CMN_TYPE_T VALUES (NULL, 0, '00000000-0000-0000-7777-000000000000', 'admin', 
+  SYSDATE, 'admin', SYSDATE, 'org.sakaiproject.component.app.messageforums', 'sakai_messageforums',
+  'Custom Permission Level', 'Custom Permission Level', 'Custom Permission Level');  
   
 -- insert permission levels
 -- owner permission level

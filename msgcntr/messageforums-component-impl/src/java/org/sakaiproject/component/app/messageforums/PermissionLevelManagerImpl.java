@@ -49,7 +49,6 @@ import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl;
-import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -57,13 +56,11 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 public class PermissionLevelManagerImpl extends HibernateDaoSupport implements PermissionLevelManager {
 
 	private static final Log LOG = LogFactory.getLog(PermissionLevelManagerImpl.class);
-	private SqlService sqlService;
 	private EventTrackingService eventTrackingService;
 	private SessionManager sessionManager;
 	private IdManager idManager;
 	private MessageForumsTypeManager typeManager;
 	private AreaManager areaManager;
-	private Boolean autoDdl;
 	
 	private Map defaultPermissionsMap;
 	
@@ -220,20 +217,20 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 	 * @param uuid
 	 * @return
 	 */
-	private PermissionLevel createDefaultPermissionLevel(String name, String typeUuid, PermissionsMask mask, String uuid)
+	private PermissionLevel createDefaultPermissionLevel(String name, String typeUuid, PermissionsMask mask)
 	{
 		if (LOG.isDebugEnabled()){
-			LOG.debug("createPermissionLevel executing(" + name + "," + typeUuid + "," + mask + ")");
+			LOG.debug("createDefaultPermissionLevel executing(" + name + "," + typeUuid + "," + mask + ")");
 		}
 		
-		if (name == null || typeUuid == null || mask == null || uuid == null) {      
+		if (name == null || typeUuid == null || mask == null) {      
 			throw new IllegalArgumentException("Null Argument");
 		}
 								
 		PermissionLevel newPermissionLevel = new PermissionLevelImpl();
 		Date now = new Date();
 		newPermissionLevel.setName(name);
-		newPermissionLevel.setUuid(uuid);
+		newPermissionLevel.setUuid(idManager.createUuid());
 		newPermissionLevel.setCreated(now);
 		newPermissionLevel.setCreatedBy("admin");
 		newPermissionLevel.setModified(now);
@@ -355,11 +352,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		  mask.put(PermissionLevel.REVISE_OWN, new Boolean(false));
 		  mask.put(PermissionLevel.REVISE_ANY, new Boolean(true));
 
-		  // we need to add the default permission level to MFR_PERMISSION_LEVEL_T for future use
-		  PermissionLevel newLevel = createDefaultPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_OWNER, typeUuid, mask, "00000000-0000-0000-0000-111111111111");
-		  savePermissionLevel(newLevel);
-
-		  return newLevel;
+		  return createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_OWNER, typeUuid, mask);
 	  }
 	  else
 		  return level;
@@ -397,11 +390,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		  mask.put(PermissionLevel.REVISE_OWN, new Boolean(true));
 		  mask.put(PermissionLevel.REVISE_ANY, new Boolean(false));
 
-		  // we need to add the default permission level to MFR_PERMISSION_LEVEL_T for future use
-		  PermissionLevel newLevel = createDefaultPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_AUTHOR, typeUuid, mask, "00000000-0000-0000-0000-222222222222");
-		  savePermissionLevel(newLevel);
-
-		  return newLevel;
+		  return createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_AUTHOR, typeUuid, mask);
 	  }
 	  else
 		  return level;
@@ -438,11 +427,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		  mask.put(PermissionLevel.REVISE_OWN, new Boolean(true));
 		  mask.put(PermissionLevel.REVISE_ANY, new Boolean(false));
 
-		  // we need to add the default permission level to MFR_PERMISSION_LEVEL_T for future use
-		  PermissionLevel newLevel = createDefaultPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONEDITING_AUTHOR, typeUuid, mask, "00000000-0000-0000-0000-333333333333");
-		  savePermissionLevel(newLevel);
-
-		  return newLevel;
+		  return createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONEDITING_AUTHOR, typeUuid, mask);
 	  }
 	  else
 		  return level;
@@ -479,11 +464,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		  mask.put(PermissionLevel.REVISE_OWN, new Boolean(false));
 		  mask.put(PermissionLevel.REVISE_ANY, new Boolean(false));
 
-		  // we need to add the default permission level to MFR_PERMISSION_LEVEL_T for future use
-		  PermissionLevel newLevel = createDefaultPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_REVIEWER, typeUuid, mask, "00000000-0000-0000-0000-555555555555");
-		  savePermissionLevel(newLevel);
-		  
-		  return newLevel;
+		  return createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_REVIEWER, typeUuid, mask);
 	  }
 	  else
 		  return level;
@@ -521,12 +502,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		  mask.put(PermissionLevel.REVISE_OWN, new Boolean(false));
 		  mask.put(PermissionLevel.REVISE_ANY, new Boolean(false));
 		  
-		  // we need to add the default permission level to MFR_PERMISSION_LEVEL_T for future use
-		  PermissionLevel newLevel = createDefaultPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR, typeUuid, mask, "00000000-0000-0000-0000-444444444444");
-		  savePermissionLevel(newLevel);
-		  
-		  return newLevel;
-
+		  return createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR, typeUuid, mask);
 	  }
 	  else
 		  return level;	
@@ -563,11 +539,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		  mask.put(PermissionLevel.REVISE_OWN, new Boolean(false));
 		  mask.put(PermissionLevel.REVISE_ANY, new Boolean(false));
 
-		  // we need to add the default permission level to MFR_PERMISSION_LEVEL_T for future use
-		  PermissionLevel newLevel = createDefaultPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE, typeUuid, mask, "00000000-0000-0000-0000-666666666666");
-		  savePermissionLevel(newLevel);
-		  
-		  return newLevel;
+		  return createPermissionLevel(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE, typeUuid, mask);
 	  }
 	  else
 		  return level;
@@ -670,14 +642,6 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 
 	public void setTypeManager(MessageForumsTypeManager typeManager) {
 		this.typeManager = typeManager;
-	}
-
-	public void setAutoDdl(Boolean autoDdl) {
-		this.autoDdl = autoDdl;
-	}
-
-	public void setSqlService(SqlService sqlService) {
-		this.sqlService = sqlService;
 	}
 
 	public void setIdManager(IdManager idManager) {

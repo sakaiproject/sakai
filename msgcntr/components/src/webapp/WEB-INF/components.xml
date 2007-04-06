@@ -46,7 +46,13 @@
         class="org.sakaiproject.component.app.messageforums.MessageForumsTypeManagerImpl" init-method="init" singleton="true">
         <property name="typeManager">
             <ref bean="org.sakaiproject.api.common.type.TypeManager"/>
-        </property>          
+        </property>
+        <property name="autoDdl">
+      			<value>${auto.ddl}</value>
+		    </property>  
+		    <property name="sqlService">
+		     		<ref bean="org.sakaiproject.db.api.SqlService"/>
+		    </property>        
     </bean>
      
     <bean id="org.sakaiproject.api.app.messageforums.DummyDataHelperApi" class="org.sakaiproject.component.app.messageforums.DummyDataHelper">
@@ -178,12 +184,6 @@
 		        <property name="areaManager">
                     <ref bean="org.sakaiproject.api.app.messageforums.AreaManager"/>
                 </property>     
-		        <property name="autoDdl">
-      			    <value>${auto.ddl}</value>
-		        </property>
-		        <property name="sqlService">
-		            <ref bean="org.sakaiproject.db.api.SqlService"/>
-		        </property>
             </bean>            
         </property>
          <property name="transactionAttributes">
