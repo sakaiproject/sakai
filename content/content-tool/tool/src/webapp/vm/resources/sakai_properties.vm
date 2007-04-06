@@ -153,20 +153,17 @@
 	#if(!$dropboxMode && ! $model.isSiteCollection())
 		<div  class="labelindnt">
 		
-
+			<p class="instruction">$model.longAccessLabel</p>
 			#set ($listDisplay="none")
 			#if($model.isSiteOnly())
 				##Site has *NO* groups and public-view is *NOT* enabled on the server (no choices to be made, but we should report the access)
-				<p>$tlang.getFormattedMessage("access.site.nochoice", ["$model.parent.name"])</p>
 				<input type="hidden" name="access_mode${DOT}$i" id="access_mode_hidden${DOT}$i" value="$INHERITED_ACCESS" />
 			#elseif($model.isSingleGroupInherited())
 				##Grouped access is inherited; parent folder limited to a single group (report that grouped access limited to a single group is inherited from above)
-				<p class="instruction">$model.multiGroupLabel</p>
 				<input type="hidden" name="access_mode${DOT}$i" id="access_mode_hidden${DOT}$i" value="$INHERITED_ACCESS" />
 			#elseif($model.isGroupInherited() && "$model.accessMode" == "grouped")	
 				##Grouped access is inherited; parent folder limited to two or more groups (present choice among groups; table shows only groups inherited from parent)
 				#set ($listDisplay="block")
-				<p class="instruction">$model.multiGroupLabel</p>
 				<p>
 					<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherit" style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='none';" />
 					<label for="access_mode_inherited${DOT}$i">$tlang.getString("access.inherit")</label>
@@ -177,7 +174,6 @@
 				</p>
 			#elseif($model.isGroupInherited())	
 				##Grouped access is inherited; parent folder limited to two or more groups (present choice among groups; table shows only groups inherited from parent)
-				<p class="instruction">$model.multiGroupLabel</p>
 				<p>
 					<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherited" checked="checked"   style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='block';resizeFrame('grow');" />
 					<label for="access_mode_public${DOT}$i">$tlang.getString("access.inherit")</label>
@@ -188,17 +184,9 @@
 				</p>
 			#elseif($model.isPubviewInherited())
 				## Public access inherited from parent (report that to user)
-				<p>$tlang.getFormattedMessage("access.public.nochoice", ["$model.parent.name"])</p>
 				<input type="hidden" name="access_mode${DOT}$i" id="access_mode_hidden${DOT}$i" value="$INHERITED_ACCESS" />
 			#else
 				## Site is possible and either group or public is possible
-				<p class="instruction">
-					#if($model.isCollection())
-						$tlang.getString("edit.who.fldr")
-					#else
-						$tlang.getString("edit.who")
-					#end
-				</p>
 				<p>
 					<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherited" #if(!$model.isPubview() && "$!model.accessMode" != "$GROUP_ACCESS") checked="checked"#end style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='none';" />
 					<label for="access_mode_inherited${DOT}$i">#if($model.isCollection())$tlang.getString("access.site.choice")#else$tlang.getString("access.site.fldr")#end</label>

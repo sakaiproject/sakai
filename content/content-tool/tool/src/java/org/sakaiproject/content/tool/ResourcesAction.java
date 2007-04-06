@@ -4162,15 +4162,18 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		String template = "content/sakai_resources_cwiz_finish";
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
-		if(pipe.isActionCanceled())
+		if(pipe == null)
 		{
 			// go back to list view
-			
+		}
+		else if(pipe.isActionCanceled())
+		{
+			// go back to list view
 		}
 		else if(pipe.isErrorEncountered())
 		{
 			// report the error?
-			
+			// go back to list view
 		}
 		else
 		{
@@ -4741,6 +4744,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			if(pipe.isActionCanceled())
 			{
 				state.setAttribute(STATE_MODE, MODE_LIST);
+				toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
 			}
 			else if(pipe.isErrorEncountered())
 			{
@@ -4750,13 +4754,13 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					addAlert(state, msg);
 				}
 				state.setAttribute(STATE_MODE, MODE_LIST);
+				toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
 			}
 			else if(pipe.isActionCompleted())
 			{
 				finishAction(state, toolSession, pipe);
 			}
 			toolSession.removeAttribute(ResourceToolAction.DONE);
-			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
 		}
 
 		String template = null;

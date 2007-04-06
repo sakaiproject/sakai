@@ -43,6 +43,8 @@ import org.sakaiproject.cheftool.VelocityPortlet;
 import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
+import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.MultiFileUploadPipe;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
@@ -585,6 +587,23 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		
 		int lastIndex = params.getInt("lastIndex");
 		
+		ContentEntity entity = pipe.getContentEntity();
+		ListItem parent = null;
+		if(entity != null && entity instanceof ContentCollection)
+		{
+			ContentCollection containingCollection = (ContentCollection) entity;
+			
+			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+			if(preventPublicDisplay == null)
+			{
+				preventPublicDisplay = Boolean.FALSE;
+				state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+			}
+			
+			parent = new ListItem(entity);
+			parent.setPubviewPossible(! preventPublicDisplay);
+		}
+
 		List<ResourceToolActionPipe> pipes = pipe.getPipes();
 		
 		for(int i = 1, c = 0; i <= lastIndex && c < count; i++)
@@ -599,7 +618,27 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			
 			fp.setFileName(folderName);
 			
-			ListItem newFolder = new ListItem(folderName);
+			ListItem newFolder = (ListItem) fp.getRevisedListItem();
+			if(newFolder == null)
+			{
+				if(parent == null)
+				{
+					newFolder = new ListItem(folderName);
+				}
+				else
+				{
+					Time defaultRetractDate = (Time) state.getAttribute(STATE_DEFAULT_RETRACT_TIME);
+					if(defaultRetractDate == null)
+					{
+						defaultRetractDate = TimeService.newTime();
+						state.setAttribute(STATE_DEFAULT_RETRACT_TIME, defaultRetractDate);
+					}
+
+					newFolder = new ListItem(fp, parent, defaultRetractDate);
+					newFolder.setName(folderName);
+					newFolder.setId(folderName);
+				}
+			}
 			
 			// capture properties
 			newFolder.captureProperties(params, "." + i);
@@ -718,6 +757,23 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		
 		int lastIndex = params.getInt("lastIndex");
 		
+		ContentEntity entity = mfp.getContentEntity();
+		ListItem parent = null;
+		if(entity != null && entity instanceof ContentCollection)
+		{
+			ContentCollection containingCollection = (ContentCollection) entity;
+			
+			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+			if(preventPublicDisplay == null)
+			{
+				preventPublicDisplay = Boolean.FALSE;
+				state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+			}
+			
+			parent = new ListItem(entity);
+			parent.setPubviewPossible(! preventPublicDisplay);
+		}
+		
 		List<ResourceToolActionPipe> pipes = mfp.getPipes();
 		
 		int actualCount = 0;
@@ -754,7 +810,27 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
             pipe.setFileName(Validator.escapeResourceName(url));
             pipe.setRevisedMimeType(ResourceType.MIME_TYPE_URL);
             
-			ListItem newFile = new ListItem(pipe.getFileName());
+			ListItem newFile = (ListItem) mfp.getRevisedListItem();
+			if(newFile == null)
+			{
+				if(parent == null)
+				{
+					newFile = new ListItem(pipe.getFileName());
+				}
+				else
+				{
+					Time defaultRetractDate = (Time) state.getAttribute(STATE_DEFAULT_RETRACT_TIME);
+					if(defaultRetractDate == null)
+					{
+						defaultRetractDate = TimeService.newTime();
+						state.setAttribute(STATE_DEFAULT_RETRACT_TIME, defaultRetractDate);
+					}
+
+					newFile = new ListItem(mfp, parent, defaultRetractDate);
+					newFile.setName(pipe.getFileName());
+					newFile.setId(pipe.getFileName());
+				}
+			}
 			
 			// capture properties
 			newFile.captureProperties(params, "." + i);
@@ -792,6 +868,23 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		mfp.setFileCount(count);
 		
 		int lastIndex = params.getInt("lastIndex");
+		
+		ContentEntity entity = mfp.getContentEntity();
+		ListItem parent = null;
+		if(entity != null && entity instanceof ContentCollection)
+		{
+			ContentCollection containingCollection = (ContentCollection) entity;
+			
+			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
+			if(preventPublicDisplay == null)
+			{
+				preventPublicDisplay = Boolean.FALSE;
+				state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
+			}
+			
+			parent = new ListItem(entity);
+			parent.setPubviewPossible(! preventPublicDisplay);
+		}
 		
 		List<ResourceToolActionPipe> pipes = mfp.getPipes();
 		
@@ -870,7 +963,28 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
                 
                 pipe.setFileName(filename);
                 
-    			ListItem newFile = new ListItem(filename);
+    			ListItem newFile = (ListItem) pipe.getRevisedListItem();
+    			if(newFile == null)
+    			{
+    				if(parent == null)
+    				{
+    					newFile = new ListItem(filename);
+    				}
+    				else
+    				{
+    					Time defaultRetractDate = (Time) state.getAttribute(STATE_DEFAULT_RETRACT_TIME);
+    					if(defaultRetractDate == null)
+    					{
+    						defaultRetractDate = TimeService.newTime();
+    						state.setAttribute(STATE_DEFAULT_RETRACT_TIME, defaultRetractDate);
+    					}
+
+    					newFile = new ListItem(pipe, parent, defaultRetractDate);
+    					newFile.setName(filename);
+    					newFile.setId(filename);
+    				}
+    			}
+
     			
     			// capture properties
     			newFile.captureProperties(params, "." + i);

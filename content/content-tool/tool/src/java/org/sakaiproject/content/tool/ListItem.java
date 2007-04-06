@@ -918,7 +918,7 @@ public class ListItem
 		}
 		else if(ResourcesAction.PUBLIC_ACCESS.equals(access_mode))
 		{
-			if(isPubviewPossible && ! isPubviewInherited())
+			if(! isPubviewInherited())
 			{
 				setPubview(true);
 				setAccessMode(AccessMode.INHERITED);
@@ -1143,6 +1143,37 @@ public class ListItem
 		}
 		return groupRefs;
 
+	}
+	
+	public String getLongAccessLabel()
+	{
+		String label = "";
+		
+		if(isSiteOnly())
+		{
+			//Site has *NO* groups and public-view is *NOT* enabled on the server 
+			label = trb.getFormattedMessage("access.site.nochoice", new String[]{parent.getName()});
+		}
+		else if(isGroupInherited())
+		{
+			//Grouped access is inherited
+			label = getMultiGroupLabel();
+		}
+		else if(isPubviewInherited())
+		{
+			// Public access inherited from parent 
+			label = trb.getFormattedMessage("access.public.nochoice", new String[]{parent.getName()});
+		}
+		else if(isCollection())
+		{
+			label = rb.getString("edit.who.fldr");
+		}
+		else
+		{
+			label = rb.getString("edit.who");
+		}
+		
+		return label;
 	}
 	
 	/**
@@ -2484,5 +2515,10 @@ public class ListItem
 		
 		return site;
 	}
+
+	public ListItem getParent()
+    {
+	    return this.parent;
+    }
 }
 
