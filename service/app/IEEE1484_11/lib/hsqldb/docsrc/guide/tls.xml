@@ -1,0 +1,326 @@
+<!-- $Id: tls.xml,v 1.17 2006/07/27 21:08:21 fredt Exp $ -->
+
+<chapter id='tls-chapter'>
+    <title id='tls-title'>TLS</title>
+    <subtitle>TLS Support (a.k.a. SSL)</subtitle>
+    <chapterinfo>
+        <authorgroup>
+            <author>
+                <firstname>Blaine</firstname><surname>Simpson</surname>
+                <email>&blaineaddr;</email>
+                <affiliation>
+                    <orgname>HSQLDB Development Group</orgname>
+                </affiliation>
+            </author>
+        </authorgroup>
+        <edition>$Revision: 1.17 $</edition>
+        <pubdate>$Date: 2006/07/27 21:08:21 $</pubdate>
+        <keywordset>
+            <keyword>Hsqldb</keyword>
+            <keyword>TLS</keyword>
+            <keyword>SSL</keyword>
+            <keyword>JSSE</keyword>
+            <keyword>Security</keyword>
+        </keywordset>
+    </chapterinfo>
+    <para>
+        The instructions in this document are liable to change at any time.
+        In particular, we will be changing the method to supply the server-side
+        certificate password.
+    </para>
+    <section>
+        <title>Requirements</title>
+        <itemizedlist>
+            <title>Hsqldb TLS Support Requirements</title>
+            <listitem><para>
+                Sun Java 2.x and up.
+                (This is probably possible with IBM's Java, but I don't think
+                anybody has attempted to run HSQLDB with TLS under IBM's Java, 
+                and I'm sure that nobody in the HSQLDB Development Group has
+                documented how to set up the environment).
+            </para></listitem> <listitem><para>
+                If Java 2.x or 3.x, then you will need need to
+                <link linkend='jsse-section'>install JSSE</link>.
+                Your server and/or client will start up much slower than that 
+                of Java 4.x users.
+                Client-side users will not be able to use the https: JDBC 
+                protocol (because the https protocol handler is not implemented 
+                in 2.x/3.x Java JSSE;
+                if there is demand, we could work around this).
+            </para></listitem> <listitem><para>
+                A <link linkend='privatekey-section'>JKS keystore containing a 
+                private key</link>, in order to run a server.
+            </para></listitem> <listitem><para>
+                If you are running the server side, then you'll need to run a
+                HSQLDB Server or WebServer.
+                It doesn't matter if the underlying database instances are
+                new, and it doesn't matter if you are making a new Server 
+                configuration or encrypting an existing Server configuration.
+                (You can turn encryption on and off at will).
+            </para></listitem> <listitem><para>
+                You need a HSQLDB jar file that was built with JSSE present.
+                If you got your HSQLDB 1.7.2 distribution from us, you are
+                all set, because we build with Java 1.4 (which contains JSSE).
+                If you build your own jar file with Java 1.3, make sure to
+                install JSSE first.
+            </para></listitem>
+        </itemizedlist>
+    </section>
+        <section>
+        <title>Encrypting your JDBC connection</title>
+        <para>
+            At this time, only 1-way, server-cert encryption is tested.
+        </para>
+        <section>
+            <title>Client-Side</title>
+            <para>
+                Just use one of the following protocol prefixes.
+            </para>
+            <itemizedlist>
+                <title>Hsqldb TLS URL Prefixes</title>
+                <listitem><para><literal>
+                    jdbc:hsqldb:hsqls://
+                </literal></para></listitem>
+                <listitem><para><literal>
+                    jdbc:hsqldb:https://
+                </literal></para></listitem>
+            </itemizedlist>
+            <para>
+                At this time, the latter will only work for clients running 
+                with Java 1.4.
+            </para> <para>
+                If the server you wish to connect to is using a certificate 
+                approved by your default trust keystores, then there is nothing 
+                else to do.
+                If not, then you need to tell Java to "trust" the server cert.
+                (It's a slight over-simplification to say that if the server
+                certificate was purchased, then you are all set;
+                if somebody "signed their own" certificate by self-signing or
+                using a private ca certificate, then you need to set up trust).
+            </para> <para>
+                First, you need to obtain the cert (only the "public" part of 
+                it).
+                Since this cert is passed to all clients, you could obtain it 
+                by writing a java client that dumps it to file, or perhaps by 
+                using <emphasis>openssl s_client</emphasis>.
+                Since in most cases, if you want to trust a non-commercial 
+                cert, you probably have access to the server keystore, I'll 
+                show an example of how to get what you need from the 
+                server-side JKS keystore.
+            </para>
+                <para>
+                    You may already have an X509 cert for your server.
+                    If you have a server keystore, then you can generate a
+                    X509 cert like this.
+                <example>
+                <title>Exporting certificate from the server's keystore</title>
+                <screen>
+    keytool -export -keystore server.store -alias existing_alias -file server.cer</screen>
+                </example>
+                In this example, <filename>server.cer</filename> is the X509
+                certificate that you need for the next step.
+                </para><para>
+                Now, you need to add this cert to one of the system trust 
+                keystores or to a keystore of your own.
+                See <ulink url="http://java.sun.com/j2se/1.4.2/docs/guide/security/jsse/JSSERefGuide.html#CustomizingStores">
+                the Customizing Stores section in JSSERefGuide.html</ulink> to 
+                see where your system trust keystores are.
+                You can put private keystores anywhere you want to.
+                The following command will add the cert to an existing 
+                keystore, or create a new keystore if 
+                <filename>client.store</filename> doesn't exist.
+            </para><example>
+                <title>Adding a certificate to the client keystore</title>
+                <screen>
+keytool -import -trustcacerts -keystore trust.store -alias new_alias -file server.cer</screen>
+            </example>
+            <para>
+                If you are making a new keystore, you probably want to start
+                with a copy of your system default keystore which you can
+                find somewhere under your JAVA_HOME directory (typically
+                jre/lib/security/cacerts for a JDK, but I forget exactly
+                where it is for a JRE).
+            </para> <para>
+                Unless your OS can't stop other people from writing to your 
+                files, you probably do not want to set a password on the trust 
+                keystore.
+            </para> <para>
+                If you added the cert to a system trust store, then you are 
+                finished.
+                Otherwise you will need to specify your custom trust keystore
+                to your client program.
+                The generic way to set the trust keystore is to set the sytem 
+                property
+                <classname>javax.net.ssl.trustStore</classname> every time that 
+                you run your client program.
+                For example
+                <example>
+                <title>Specifying your own trust store to a JDBC client</title>
+                    <screen>
+    java -Djavax.net.ssl.trustStore=/home/blaine/trust.store -jar /path/to/hsqldb.jar dest-urlid</screen>
+                </example>
+                This example runs the program
+                <link linkend='unix-chapter'>SqlTool</link>.
+                SqlTool has built-in TLS support, however, so, for SqlTool
+                you can set <literal>truststore</literal> on a per-urlid
+                basis in the SqlTool configuration file.
+            </para>
+            <para>
+                N.b.  The hostname in your database URL must match the 
+                <emphasis>Common Name</emphasis> of the server's certificate 
+                exactly.
+                That means that if a site certificate is 
+                <literal>admc.com</literal>, you can not use
+                <literal>jdbc:hsqldb:hsqls://localhost</literal> or
+                <literal>jdbc:hsqldb:hsqls://www.admc.com:1100</literal> to 
+                connect to it.
+            </para> <para>
+                If you want more details on anything, see JSSERefGuide.html on
+                <ulink url= "http://java.sun.com/j2se/1.4.2/docs/guide/security/jsse/JSSERefGuide.html">
+                Sun's site</ulink>, or in the subdirectory 
+                <filename>docs/guide/security/jsse</filename> of your Java SE 
+                docs.
+            </para>
+        </section>
+        <section>
+            <title>Server-Side</title>
+            <para>
+                
+                Get yourself a <link linkend='privatekey-section'>JKS keystore 
+                containing a private key</link>.
+                Then set the system property javax.net.ssl.keyStore to the path 
+                to that file, and
+                <classname>javax.net.ssl.keyStorePassword</classname> to the 
+                password of the keystore (and to the private key-- they have 
+                to be the same).
+            </para>
+            <example>
+                <title>Running an Hsqldb server with TLS encryption</title>
+                <screen>
+    java -Djavax.net.ssl.keyStorePassword=secret  \
+        -Djavax.net.ssl.keyStore=/usr/hsqldb/db/db3/server.store  \
+        -cp /path/to/hsqldb.jar org.hsqldb.Server</screen>
+            </example>
+            <para>
+                (This is a single command that I have broken into 2 lines using
+                my shell's \ line-continuation feature.
+                In this example, I'm using a server.properties file so that I
+                don't need to give arguments to specify database instances or
+                the server endpoint).
+            </para>
+            <caution id='tlspassword-caution'><para>
+                Specifying a password on the command-line is definitely
+                <emphasis role='bold'>not secure</emphasis>.
+                It's really only appropriate when untrusted users do not have 
+                any access to your computer.
+            </para></caution>
+            <para>
+                If there is any user demand, we will have a more secure way to 
+                supply the password before long.
+            </para>
+        </section>
+    </section>
+
+    <section id='jsse-section'>
+        <title>JSSE</title>
+        <para>
+            If you are running Java 4.x, then you are all set.
+            Java 1.x users, you are on your own (Sun does not provide a JSSE 
+            that will work with 1.x).
+            Java 2.x and 3.x users continue...
+        </para> <para>
+            Go to
+            <ulink url="http://java.sun.com/products/jsse/index-103.html"/>.
+            If you agree to the terms and meet the requirements, download the 
+            domestic or global JSSE software.
+            All you need from the software distro is the three jar files.
+            If you have a JDK installation, then move the 3 jar files into the 
+            directory <filename>$JAVA_HOME/jre/lib/ext</filename>.
+            If you have a JRE installation, then move the 3 jar files into the 
+            directory <filename>$JAVA_HOME/lib/ext</filename>.
+        </para> <para>
+            Pretty painless.
+        </para>
+    </section>
+    <section id='privatekey-section'>
+        <title>Making a Private-key Keystore</title>
+        <para>
+            There are two main ways to do this.
+            Either you can use a certificate signed by a certificate authority,
+            or you can make your own.
+            One thing that you need to know in both cases is, the 
+            <emphasis>Common Name</emphasis> of the cert has to be the exact 
+            hostname that JDBC clients will use in their database URL.
+        </para>
+        <section>
+            <title>CA-Signed Cert</title>
+            <para>
+                I'm not going to tell you how to get a CA-signed SSL 
+                certificate.
+                That is well documented at many other places.
+            </para> <para>
+                Assuming that you have a standard pem-style private key 
+                certificate, here's how you can use
+                <ulink url="http://www.openssl.org">openssl</ulink> and the 
+                program <classname>DERImport</classname> to get it into a JKS 
+                keystore.
+            </para> <para>
+                Because I have spent a lot of time on this document already, I 
+                am just giving you an example.
+            </para><example>
+            <title>Getting a pem-style private key into a JKS keystore</title>
+                <screen>
+openssl pkcs8 -topk8 -outform DER -in Xpvk.pem -inform PEM -out Xpvk.pk8 -nocrypt
+
+openssl x509 -in Xcert.pem -out Xcert.der -outform DER
+
+java DERImport new.keystore NEWALIAS Xpvk.pk8 Xcert.der</screen>
+            </example>
+            <important><para>
+                Make sure to set the password of the key exactly the same as 
+                the password for the keystore!
+            </para></important>
+            <para>
+                You need the program <filename>DERImport.class</filename> of 
+                course.
+                Do some internet searches to find
+                <filename>DERImport.java</filename> or
+                <filename>DERImport.class</filename> and download it.
+            </para> <para>
+                If DERImport has become difficult to obtain, I can write a 
+                program to do the same thing-- just let me know.
+            </para>
+        </section>
+        <section>
+            <title>Non-CA-Signed Cert</title>
+            <para>
+                Run <literal>man keytool</literal> or see
+                <ulink url="http://java.sun.com/j2se/1.4.2/docs/guide/security/jsse/JSSERefGuide.html#CreateKeystore">
+                the Creating a Keystore section of JSSERefGuide.html</ulink>.
+            </para>
+        </section>
+    </section>
+    <section>
+        <title>Automatic Server or WebServer startup on UNIX</title>
+        <para>
+            If you are on UNIX and want to automatically start and stop a
+            Server or WebServer running with encryption, follow the 
+            instructions in the
+            <link linkend='unix-chapter' endterm='unix-title'/> chapter, and
+            remember to make the init script configuration file readable only
+            to root and to set the variables
+            <literal>TLS_PASSWORD</literal> and <literal>TLS_KEYSTORE</literal>.
+        </para>
+        <para>
+            If you are using a private server certificate, make sure to also
+            set the trust store filepath as shown in the sample init script 
+            configuration file.
+        </para>
+        <para>
+            The <link linkend='tlspassword-caution'>cautionary warning
+            above</link> still applies.
+            The password will be visible to any minimally competent local
+            UNIX user who wants to see it.
+        </para>
+    </section>
+</chapter>

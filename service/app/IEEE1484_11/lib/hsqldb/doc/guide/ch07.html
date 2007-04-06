@@ -1,0 +1,228 @@
+<html><head><META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"><title>Chapter&nbsp;7.&nbsp;TLS</title><link href="guide.css" rel="stylesheet" type="text/css"><meta content="DocBook XSL Stylesheets V1.65.1" name="generator"><meta name="keywords" content="Hsqldb, TLS, SSL, JSSE, Security"><meta name="keywords" content="Hsqldb, Hypersonic, Database, JDBC, Java"><link rel="home" href="index.html" title="Hsqldb User Guide"><link rel="up" href="index.html" title="Hsqldb User Guide"><link rel="previous" href="ch06.html" title="Chapter&nbsp;6.&nbsp;Text Tables"><link rel="next" href="ch08.html" title="Chapter&nbsp;8.&nbsp;SqlTool"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table summary="Navigation header" width="100%"><tr><th align="center" colspan="3">Chapter&nbsp;7.&nbsp;TLS</th></tr><tr><td align="left" width="20%"><a accesskey="p" href="ch06.html"><img src="navicons/prev.gif" alt="Prev"></a>&nbsp;</td><th align="center" width="60%">&nbsp;</th><td align="right" width="20%">&nbsp;<a accesskey="n" href="ch08.html"><img src="navicons/next.gif" alt="Next"></a></td></tr></table><hr></div><div class="chapter" lang="en"><div class="titlepage"><div><div><h2 class="title"><a name="tls-chapter"></a>Chapter&nbsp;7.&nbsp;TLS</h2></div><div><h3 class="subtitle"><i>TLS Support (a.k.a. SSL)</i></h3></div><div><div class="authorgroup"><div class="author"><h3 class="author"><span class="firstname">Blaine</span> <span class="surname">Simpson</span></h3><div class="affiliation"><span class="orgname">HSQLDB Development Group<br></span></div><tt class="email">&lt;<a href="mailto:blaine.simpson@admc.com">blaine.simpson@admc.com</a>&gt;</tt></div></div></div><div><p class="pubdate">$Date: 2005/11/06 20:03:37 $</p></div></div><div></div></div><div class="toc"><p><b>Table of Contents</b></p><dl><dt><span class="section"><a href="ch07.html#N110D1">Requirements</a></span></dt><dt><span class="section"><a href="ch07.html#N110EE">Encrypting your JDBC connection</a></span></dt><dd><dl><dt><span class="section"><a href="ch07.html#N110F3">Client-Side</a></span></dt><dt><span class="section"><a href="ch07.html#N1115E">Server-Side</a></span></dt></dl></dd><dt><span class="section"><a href="ch07.html#jsse-section">JSSE</a></span></dt><dt><span class="section"><a href="ch07.html#privatekey-section">Making a Private-key Keystore</a></span></dt><dd><dl><dt><span class="section"><a href="ch07.html#N1119A">CA-Signed Cert</a></span></dt><dt><span class="section"><a href="ch07.html#N111C3">Non-CA-Signed Cert</a></span></dt></dl></dd><dt><span class="section"><a href="ch07.html#N111D0">Automatic Server or WebServer startup on UNIX</a></span></dt></dl></div><p>
+        The instructions in this document are liable to change at any time.
+        In particular, we will be changing the method to supply the server-side
+        certificate password.
+    </p><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="N110D1"></a>Requirements</h2></div></div><div></div></div><div class="itemizedlist"><p class="title"><b>Hsqldb TLS Support Requirements</b></p><ul type="disc"><li><p>
+                Sun Java 2.x and up.
+                (This is probably possible with IBM's Java, but I don't think
+                anybody has attempted to run HSQLDB with TLS under IBM's Java, 
+                and I'm sure that nobody in the HSQLDB Development Group has
+                documented how to set up the environment).
+            </p></li><li><p>
+                If Java 2.x or 3.x, then you will need need to
+                <a href="ch07.html#jsse-section" title="JSSE">install JSSE</a>.
+                Your server and/or client will start up much slower than that 
+                of Java 4.x users.
+                Client-side users will not be able to use the https: JDBC 
+                protocol (because the https protocol handler is not implemented 
+                in 2.x/3.x Java JSSE;
+                if there is demand, we could work around this).
+            </p></li><li><p>
+                A <a href="ch07.html#privatekey-section" title="Making a Private-key Keystore">JKS keystore containing a 
+                private key</a>, in order to run a server.
+            </p></li><li><p>
+                If you are running the server side, then you'll need to run a
+                HSQLDB Server or WebServer.
+                It doesn't matter if the underlying database instances are
+                new, and it doesn't matter if you are making a new Server 
+                configuration or encrypting an existing Server configuration.
+                (You can turn encryption on and off at will).
+            </p></li><li><p>
+                You need a HSQLDB jar file that was built with JSSE present.
+                If you got your HSQLDB 1.7.2 distribution from us, you are
+                all set, because we build with Java 1.4 (which contains JSSE).
+                If you build your own jar file with Java 1.3, make sure to
+                install JSSE first.
+            </p></li></ul></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="N110EE"></a>Encrypting your JDBC connection</h2></div></div><div></div></div><p>
+            At this time, only 1-way, server-cert encryption is tested.
+        </p><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="N110F3"></a>Client-Side</h3></div></div><div></div></div><p>
+                Just use one of the following protocol prefixes.
+            </p><div class="itemizedlist"><p class="title"><b>Hsqldb TLS URL Prefixes</b></p><ul type="disc"><li><p><tt class="literal">
+                    jdbc:hsqldb:hsqls://
+                </tt></p></li><li><p><tt class="literal">
+                    jdbc:hsqldb:https://
+                </tt></p></li></ul></div><p>
+                At this time, the latter will only work for clients running 
+                with Java 1.4.
+            </p><p>
+                If the server you wish to connect to is using a certificate 
+                approved by your default trust keystores, then there is nothing 
+                else to do.
+                If not, then you need to tell Java to "trust" the server cert.
+                (It's a slight over-simplification to say that if the server
+                certificate was purchased, then you are all set;
+                if somebody "signed their own" certificate by self-signing or
+                using a private ca certificate, then you need to set up trust).
+            </p><p>
+                First, you need to obtain the cert (only the "public" part of 
+                it).
+                Since this cert is passed to all clients, you could obtain it 
+                by writing a java client that dumps it to file, or perhaps by 
+                using <span class="emphasis"><em>openssl s_client</em></span>.
+                Since in most cases, if you want to trust a non-commercial 
+                cert, you probably have access to the server keystore, I'll 
+                show an example of how to get what you need from the 
+                server-side JKS keystore.
+            </p><p>
+                    You may already have an X509 cert for your server.
+                    If you have a server keystore, then you can generate a
+                    X509 cert like this.
+                <div class="example"><a name="N11110"></a><p class="title"><b>Example&nbsp;7.1.&nbsp;Exporting certificate from the server's keystore</b></p><pre class="screen">
+    keytool -export -keystore server.store -alias existing_alias -file server.cer</pre></div>
+                In this example, <tt class="filename">server.cer</tt> is the X509
+                certificate that you need for the next step.
+                </p><p>
+                Now, you need to add this cert to one of the system trust 
+                keystores or to a keystore of your own.
+                See <a href="http://java.sun.com/j2se/1.4.2/docs/guide/security/jsse/JSSERefGuide.html#CustomizingStores" target="_top">
+                the Customizing Stores section in JSSERefGuide.html</a> to 
+                see where your system trust keystores are.
+                You can put private keystores anywhere you want to.
+                The following command will add the cert to an existing 
+                keystore, or create a new keystore if 
+                <tt class="filename">client.store</tt> doesn't exist.
+            </p><div class="example"><a name="N11125"></a><p class="title"><b>Example&nbsp;7.2.&nbsp;Adding a certificate to the client keystore</b></p><pre class="screen">
+keytool -import -trustcacerts -keystore trust.store -alias new_alias -file server.cer</pre></div><p>
+                If you are making a new keystore, you probably want to start
+                with a copy of your system default keystore which you can
+                find somewhere under your JAVA_HOME directory (typically
+                jre/lib/security/cacerts for a JDK, but I forget exactly
+                where it is for a JRE).
+            </p><p>
+                Unless your OS can't stop other people from writing to your 
+                files, you probably do not want to set a password on the trust 
+                keystore.
+            </p><p>
+                If you added the cert to a system trust store, then you are 
+                finished.
+                Otherwise you will need to specify your custom trust keystore
+                to your client program.
+                The generic way to set the trust keystore is to set the sytem 
+                property
+                <tt class="classname">javax.net.ssl.trustStore</tt> every time that 
+                you run your client program.
+                For example
+                <div class="example"><a name="N11134"></a><p class="title"><b>Example&nbsp;7.3.&nbsp;Specifying your own trust store to a JDBC client</b></p><pre class="screen">
+    java -Djavax.net.ssl.trustStore=/home/blaine/trust.store -jar /path/to/hsqldb.jar dest-urlid</pre></div>
+                This example runs the program
+                <a href="ch03.html" title="Chapter&nbsp;3.&nbsp;UNIX Quick Start">SqlTool</a>.
+                SqlTool has built-in TLS support, however, so, for SqlTool
+                you can set <tt class="literal">truststore</tt> on a per-urlid
+                basis in the SqlTool configuration file.
+            </p><p>
+                N.b.  The hostname in your database URL must match the 
+                <span class="emphasis"><em>Common Name</em></span> of the server's certificate 
+                exactly.
+                That means that if a site certificate is 
+                <tt class="literal">admc.com</tt>, you can not use
+                <tt class="literal">jdbc:hsqldb:hsqls://localhost</tt> or
+                <tt class="literal">jdbc:hsqldb:hsqls://www.admc.com:1100</tt> to 
+                connect to it.
+            </p><p>
+                If you want more details on anything, see JSSERefGuide.html on
+                <a href="http://java.sun.com/j2se/1.4.2/docs/guide/security/jsse/JSSERefGuide.html" target="_top">
+                Sun's site</a>, or in the subdirectory 
+                <tt class="filename">docs/guide/security/jsse</tt> of your Java SE 
+                docs.
+            </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="N1115E"></a>Server-Side</h3></div></div><div></div></div><p>
+                
+                Get yourself a <a href="ch07.html#privatekey-section" title="Making a Private-key Keystore">JKS keystore 
+                containing a private key</a>.
+                Then set the system property javax.net.ssl.keyStore to the path 
+                to that file, and
+                <tt class="classname">javax.net.ssl.keyStorePassword</tt> to the 
+                password of the keystore (and to the private key-- they have 
+                to be the same).
+            </p><div class="example"><a name="N1116A"></a><p class="title"><b>Example&nbsp;7.4.&nbsp;Running an Hsqldb server with TLS encryption</b></p><pre class="screen">
+    java -Djavax.net.ssl.keyStorePassword=secret  \
+        -Djavax.net.ssl.keyStore=/usr/hsqldb/db/db3/server.store  \
+        -cp /path/to/hsqldb.jar org.hsqldb.Server</pre></div><p>
+                (This is a single command that I have broken into 2 lines using
+                my shell's \ line-continuation feature.
+                In this example, I'm using a server.properties file so that I
+                don't need to give arguments to specify database instances or
+                the server endpoint).
+            </p><div class="caution" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title"><a name="tlspassword-caution"></a>Caution</h3><p>
+                Specifying a password on the command-line is definitely
+                <span class="bold"><b>not secure</b></span>.
+                It's really only appropriate when untrusted users do not have 
+                any access to your computer.
+            </p></div><p>
+                If there is any user demand, we will have a more secure way to 
+                supply the password before long.
+            </p></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="jsse-section"></a>JSSE</h2></div></div><div></div></div><p>
+            If you are running Java 4.x, then you are all set.
+            Java 1.x users, you are on your own (Sun does not provide a JSSE 
+            that will work with 1.x).
+            Java 2.x and 3.x users continue...
+        </p><p>
+            Go to
+            <a href="http://java.sun.com/products/jsse/index-103.html" target="_top">http://java.sun.com/products/jsse/index-103.html</a>.
+            If you agree to the terms and meet the requirements, download the 
+            domestic or global JSSE software.
+            All you need from the software distro is the three jar files.
+            If you have a JDK installation, then move the 3 jar files into the 
+            directory <tt class="filename">$JAVA_HOME/jre/lib/ext</tt>.
+            If you have a JRE installation, then move the 3 jar files into the 
+            directory <tt class="filename">$JAVA_HOME/lib/ext</tt>.
+        </p><p>
+            Pretty painless.
+        </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="privatekey-section"></a>Making a Private-key Keystore</h2></div></div><div></div></div><p>
+            There are two main ways to do this.
+            Either you can use a certificate signed by a certificate authority,
+            or you can make your own.
+            One thing that you need to know in both cases is, the 
+            <span class="emphasis"><em>Common Name</em></span> of the cert has to be the exact 
+            hostname that JDBC clients will use in their database URL.
+        </p><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="N1119A"></a>CA-Signed Cert</h3></div></div><div></div></div><p>
+                I'm not going to tell you how to get a CA-signed SSL 
+                certificate.
+                That is well documented at many other places.
+            </p><p>
+                Assuming that you have a standard pem-style private key 
+                certificate, here's how you can use
+                <a href="http://www.openssl.org" target="_top">openssl</a> and the 
+                program <tt class="classname">DERImport</tt> to get it into a JKS 
+                keystore.
+            </p><p>
+                Because I have spent a lot of time on this document already, I 
+                am just giving you an example.
+            </p><div class="example"><a name="N111AA"></a><p class="title"><b>Example&nbsp;7.5.&nbsp;Getting a pem-style private key into a JKS keystore</b></p><pre class="screen">
+openssl pkcs8 -topk8 -outform DER -in Xpvk.pem -inform PEM -out Xpvk.pk8 -nocrypt
+
+openssl x509 -in Xcert.pem -out Xcert.der -outform DER
+
+java DERImport new.keystore NEWALIAS Xpvk.pk8 Xcert.der</pre></div><div class="important" style="margin-left: 0.5in; margin-right: 0.5in;"><h3 class="title">Important</h3><p>
+                Make sure to set the password of the key exactly the same as 
+                the password for the keystore!
+            </p></div><p>
+                You need the program <tt class="filename">DERImport.class</tt> of 
+                course.
+                Do some internet searches to find
+                <tt class="filename">DERImport.java</tt> or
+                <tt class="filename">DERImport.class</tt> and download it.
+            </p><p>
+                If DERImport has become difficult to obtain, I can write a 
+                program to do the same thing-- just let me know.
+            </p></div><div class="section" lang="en"><div class="titlepage"><div><div><h3 class="title"><a name="N111C3"></a>Non-CA-Signed Cert</h3></div></div><div></div></div><p>
+                Run <tt class="literal">man keytool</tt> or see
+                <a href="http://java.sun.com/j2se/1.4.2/docs/guide/security/jsse/JSSERefGuide.html#CreateKeystore" target="_top">
+                the Creating a Keystore section of JSSERefGuide.html</a>.
+            </p></div></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="N111D0"></a>Automatic Server or WebServer startup on UNIX</h2></div></div><div></div></div><p>
+            If you are on UNIX and want to automatically start and stop a
+            Server or WebServer running with encryption, follow the 
+            instructions in the
+            <a href="ch03.html" title="Chapter&nbsp;3.&nbsp;UNIX Quick Start">UNIX Quick Start</a> chapter, and
+            remember to make the init script configuration file readable only
+            to root and to set the variables
+            <tt class="literal">TLS_PASSWORD</tt> and <tt class="literal">TLS_KEYSTORE</tt>.
+        </p><p>
+            If you are using a private server certificate, make sure to also
+            set the trust store filepath as shown in the sample init script 
+            configuration file.
+        </p><p>
+            The <a href="ch07.html#tlspassword-caution">cautionary warning
+            above</a> still applies.
+            The password will be visible to any minimally competent local
+            UNIX user who wants to see it.
+        </p></div></div><div class="navfooter"><hr><table summary="Navigation footer" width="100%"><tr><td align="left" width="40%"><a accesskey="p" href="ch06.html"><img src="navicons/prev.gif" alt="Prev"></a>&nbsp;</td><td align="center" width="20%"><a accesskey="u" href="index.html"><img src="navicons/up.gif" alt="Up"></a></td><td align="right" width="40%">&nbsp;<a accesskey="n" href="ch08.html"><img src="navicons/next.gif" alt="Next"></a></td></tr><tr><td valign="top" align="left" width="40%">Chapter&nbsp;6.&nbsp;Text Tables&nbsp;</td><td align="center" width="20%"><a accesskey="h" href="index.html"><img src="navicons/home.gif" alt="Home"></a></td><td valign="top" align="right" width="40%">&nbsp;Chapter&nbsp;8.&nbsp;SqlTool</td></tr></table></div></body></html>

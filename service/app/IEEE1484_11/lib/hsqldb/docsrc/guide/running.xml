@@ -1,0 +1,640 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id: running.xml,v 1.21 2005/09/19 00:03:12 unsaved Exp $ -->
+<chapter>
+  <title>Running and Using Hsqldb</title>
+
+  <chapterinfo>
+    <authorgroup>
+      <author>
+        <firstname>Fred</firstname>
+
+        <surname>Toussi</surname>
+
+        <affiliation>
+          <orgname>HSQLDB Development Group</orgname>
+        </affiliation>
+
+        <email>ft@cluedup.com</email>
+      </author>
+    </authorgroup>
+
+    <edition>$Revision: 1.21 $</edition>
+
+    <pubdate>$Date: 2005/09/19 00:03:12 $</pubdate>
+
+    <keywordset>
+      <keyword>Hsqldb</keyword>
+
+      <keyword>Guide</keyword>
+    </keywordset>
+
+    <legalnotice>
+      <para>Copyright 2002-2005 Fred Toussi. Permission is granted to
+      distribute this document without any alteration under the terms of the
+      HSQLDB license. Additional permission is granted to the HSQLDB
+      Development Group to distribute this document with or without
+      alterations under the terms of the HSQLDB license.</para>
+    </legalnotice>
+  </chapterinfo>
+
+  <section>
+    <title>Introduction</title>
+
+    <para>The HSQLDB jar package is located in the /lib directory and contains
+    several components and programs. Different commands are used to run each
+    program.</para>
+
+    <itemizedlist>
+      <title>Components of the Hsqldb jar package</title>
+
+      <listitem>
+        <para>HSQLDB RDBMS</para>
+      </listitem>
+
+      <listitem>
+        <para>HSQLDB JDBC Driver</para>
+      </listitem>
+
+      <listitem>
+        <para>Database Manager (Swing and AWT versions)</para>
+      </listitem>
+
+      <listitem>
+        <para>Query Tool (AWT)</para>
+      </listitem>
+
+      <listitem>
+        <para>Sql Tool (command line)</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>The HSQLDB RDBMS and JDBC Driver provide the core functionality. The
+    rest are general-purpose database tools that can be used with any database
+    engine that has a JDBC driver.</para>
+  </section>
+
+  <section>
+    <title>Running Tools</title>
+
+    <para>All tools can be run in the standard way for archived Java classes.
+    In the following example the AWT version of the Database Manager, the
+    <filename>hsqldb.jar</filename> is located in the directory
+    <filename>../lib</filename> relative to the current directory.</para>
+
+    <screen>
+    java -cp ../lib/hsqldb.jar org.hsqldb.util.DatabaseManager</screen>
+
+    <para>If <filename>hsqldb.jar</filename> is in the current directory, the
+    command would change to:</para>
+
+    <screen>
+    java -cp hsqldb.jar org.hsqldb.util.DatabaseManager</screen>
+
+    <itemizedlist>
+      <title>Main classes for the Hsqldb tools</title>
+
+      <listitem>
+        <para>
+          <classname>org.hsqldb.util.DatabaseManager</classname>
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+          <classname>org.hsqldb.util.DatabaseManagerSwing</classname>
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+          <classname>org.hsqldb.util.Transfer</classname>
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+          <classname>org.hsqldb.util.QueryTool</classname>
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+          <classname>org.hsqldb.util.SqlTool</classname>
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <para>Some tools, such as the Database Manager or SQL Tool, can use
+    command line arguments or entirely rely on them. You can add the command
+    line argument -? to get a list of available arguments for these tools.
+    Database Manager features a graphical user interface and
+    can be explored interactively.</para>
+  </section>
+
+  <section>
+    <title>Running Hsqldb</title>
+
+    <para>HSQLDB can be run in a number of different ways. In general these
+    are divided into Server Modes and In-Process Mode (also called Standalone
+    Mode). A different sub-program from the jar is used to run HSQLDB in each
+    mode.</para>
+
+    <para>Each HSQLDB database consists of between 2 to 5 files, all named the
+    same but with different extensions, located in the same directory. For
+    example, the database named "test" consists of the following files:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>
+          <filename>test.properties</filename>
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+          <filename>test.script</filename>
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+          <filename>test.log</filename>
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+          <filename>test.data</filename>
+        </para>
+      </listitem>
+
+      <listitem>
+        <para>
+          <filename>test.backup</filename>
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <para>The properties files contains general settings about the database.
+    The script file contains the definition of tables and other database
+    objects, plus the data for non-cached tables. The log file contains recent
+    changes to the database. The data file contains the data for cached tables
+    and the backup file is a zipped backup of the last known consistent state
+    of the data file. All these files are essential and should never be
+    deleted. If the database has no cached tables, the
+    <filename>test.data</filename> and <filename>test.backup</filename> files
+    will not be present. In addition to those files, HSQLDB database may link
+    to any formatted text files, such as CSV lists, anywhere on the
+    disk.</para>
+
+    <para>While the "test" database is operational, a
+    <filename>test.log</filename> file is used to write the changes made to
+    data. This file is removed at a normal SHUTDOWN. Otherwise (with abnormal
+    shutdown) this file is used at the next startup to redo the changes. A
+    <filename>test.lck </filename>file is also used to record the fact that
+    the database is open. This is deleted at a normal SHUTDOWN. In some
+    circumstances, a <filename>test.data.old</filename> is created and deleted
+    afterwards.</para>
+
+    <note>
+      <para>When the engine closes the database at a shutdown, it creates
+      temporary files with the extension <literal>.new</literal> which it then
+      renames to those listed above.</para>
+    </note>
+  </section>
+
+  <section>
+    <title>Server Modes</title>
+
+    <para>Server modes provide the maximum accessibility. The database engine
+    runs in a JVM and listens for connections from programs on the same
+    computer or other computers on the network. Several different programs can
+    connect to the server and retrieve or update information. Applications
+    programs (clients) connect to the server using the HSQLDB JDBC driver. In
+    most server modes, the server can serve up to 10 databases that are
+    specified at the time of running the server.</para>
+
+    <para>Server modes can use preset properties or command line arguments as
+    detailed in the <link endterm="advanced-title"
+    linkend="advanced-chapter" /> chapter. There are three server modes, based
+    on the protocol used for communications between the client and
+    server.</para>
+
+    <section>
+      <title>Hsqldb Server</title>
+
+      <para>This is the preferred way of running a database server and the
+      fastest one. A proprietary communications protocol is used for this
+      mode. A command similar to those used for running tools and described
+      above is used for running the server. The following example of the
+      command for starting the server starts the server with one (default)
+      database with files named "mydb.*".</para>
+
+      <informalexample>
+        <screen>
+    java -cp ../lib/hsqldb.jar org.hsqldb.Server -database.0 file:mydb -dbname.0 xdb</screen>
+      </informalexample>
+
+      <para>The command line argument <literal>-?</literal> can be used to get
+      a list of available arguments.</para>
+    </section>
+
+    <section>
+      <title>Hsqldb Web Server</title>
+
+      <para>This mode is used when access to the computer hosting the database
+      server is restricted to the HTTP protocol. The only reason for using the
+      Web Server mode is restrictions imposed by firewalls on the client or
+      server machines and it should not be used where there are no such
+      restrictions. The HSQLDB Web Server is a special web server that allows
+      JDBC clients to connect via HTTP. From 1.7.2 this mode also supports
+      transactions.</para>
+
+      <para>To run a web server, replace the main class for the server in the
+      example command line above with the following:</para>
+
+      <informalexample>
+        <screen>
+    org.hsqldb.WebServer</screen>
+      </informalexample>
+
+      <para>The command line argument <literal>-?</literal> can be used to get
+      a list of available arguments.</para>
+    </section>
+
+    <section>
+      <title>Hsqldb Servlet</title>
+
+      <para>This uses the same protocol as the Web Server. It is used when a
+      separate servlet engine (or application server) such as Tomcat or Resin
+      provides access to the database. The Servlet Mode cannot be started
+      independently from the servlet engine. The
+      <filename>hsqlServlet</filename> class, in the HSQLDB jar, should be
+      installed on the application server to provide the connection. The
+      database is specified using an application server property. Refer to the
+      source file <filename>hsqlServlet.java</filename> to see the
+      details.</para>
+
+      <para>Both Web Server and Servlet modes can only be accessed using the
+      JDBC driver at the client end. They do not provide a web front end to
+      the database. The Servlet mode can serve only a single database.</para>
+
+      <para>Please note that you do not normally use this mode if you are
+      using the database engine in an application server.</para>
+
+      <section>
+        <title>Connecting to a Database running as a Server</title>
+
+        <para>Once an HSQLDB server is running, client programs can connect to
+        it using the HSQLDB JDBC Driver contained in
+        <filename>hsqldb.jar</filename>. Full information on how to connect to
+        a server is provided in the Java Documentation for <ulink
+            url="../src/org/hsqldb/jdbc/jdbcConnection.html">
+            <classname>jdbcConnection</classname>
+          </ulink> (located in the <filename>/doc/src</filename> directory of
+        HSQLDB distribution. A common example is connection to the default
+        port (9001) used for the hsql protocol on the same machine:</para>
+
+        <example>
+          <title>Java code to connect to the local Server above</title>
+
+          <programlisting>
+    try {
+        Class.forName("org.hsqldb.jdbcDriver" );
+    } catch (Exception e) {
+        System.out.println("ERROR: failed to load HSQLDB JDBC driver.");
+        e.printStackTrace();
+        return;
+    }
+
+    Connection c = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/xdb", "sa", "");</programlisting>
+        </example>
+
+        <para>In some circumstances, you may have to use the following line to
+        get the driver.</para>
+
+        <informalexample>
+          <programlisting>
+    Class.forName("org.hsqldb.jdbcDriver").newInstance();</programlisting>
+        </informalexample>
+
+        <para>Note in the above connection URL, there is no mention of the
+        database file, as this was specified when running the server. Instead,
+        the value defined for dbname.0 is used. Also, see the <link
+        endterm="advanced-title" linkend="advanced-chapter" /> chapter for the
+        connection URL when there is more than one database per server
+        instance.</para>
+      </section>
+
+      <section>
+        <title>Security Considerations</title>
+
+        <para>When HSQLDB is run as a server, network access should be
+        adequately protected. Source IP addresses may be restricted by use of
+        TCP filtering or firewall programs, or standalone firewalls. If the
+        traffic will cross an unprotected network (such as the Internet), the
+        stream should be encrypted (for example by VPN, ssh tunneling, or
+        <link endterm="tls-title" linkend="tls-chapter" /> using the SSL
+        enabled HSQLS and HTTPS variants of the server and web server modes).
+        Only secure passwords should be used-- most importantly, the password
+        for the default system user should be changed from the default empty
+        string. If you are purposefully providing data to the public, then the
+        wide-open public network connection should be used exclusively to
+        access the public data via read-only accounts. (I.e., neither secure
+        data nor privileged accounts should use this connection). These
+        considerations also apply to HSQLDB servers run with the HTTP
+        protocol.</para>
+      </section>
+    </section>
+
+    <section>
+      <title>In-Process (Standalone) Mode</title>
+
+      <para>This mode runs the database engine as part of your application
+      program in the same Java Virtual Machine. For most applications this
+      mode can be faster, as the data is not converted and sent over the
+      network. The main drawback is that it is not possible by default to
+      connect to the database from outside your application. As a result you
+      cannot check the contents of the database with external tools such as
+      Database Manager while your application is running. In 1.8.0, you can
+      run a server instance in a thread from the same virtual machine as your
+      application and provide external access to your in-process
+      database.</para>
+
+      <para>The recommended way of using the in-process mode in an application
+      is to use an HSQLDB Server instance for the database while developing
+      the application and then switch to In-Process mode for
+      deployment.</para>
+
+      <para>An In-Process Mode database is started from JDBC, with the
+      database file path specified in the connection URL. For example, if the
+      database name is testdb and its files are located in the same directory
+      as where the command to run your application was issued, the following
+      code is used for the connection:</para>
+
+      <programlisting>
+    Connection c = DriverManager.getConnection("jdbc:hsqldb:file:testdb", "sa", "");</programlisting>
+
+      <para>The database file path format can be specified using forward
+      slashes in Windows hosts as well as Linux hosts. So relative paths or
+      paths that refer to the same directory on the same drive can be
+      identical. For example if your database path in Linux is
+      <filename>/opt/db/testdb</filename> and you create an identical
+      directory structure on the <literal>C:</literal> drive of a Windows
+      host, you can use the same URL in both Windows and Linux:</para>
+
+      <programlisting>
+    Connection c = DriverManager.getConnection("jdbc:hsqldb:file:/opt/db/testdb", "sa", "");</programlisting>
+
+      <para>When using relative paths, these paths will be taken relative to
+      the directory in which the shell command to start the Java Virtual
+      Machine was executed. Refer to Javadoc for <ulink
+          url="../src/org/hsqldb/jdbc/jdbcConnection.html">
+          <classname>jdbcConnection</classname>
+        </ulink> for more details.</para>
+    </section>
+
+    <section>
+      <title>Memory-Only Databases</title>
+
+      <para>It is possible to run HSQLDB in a way that the database is not
+      persistent and exists entirely in random access memory. As no
+      information is written to disk, this mode should be used only for
+      internal processing of application data, in applets or certain special
+      applications. This mode is specified by the mem: protocol.</para>
+
+      <programlisting>
+    Connection c = DriverManager.getConnection("jdbc:hsqldb:mem:aname", "sa", "");</programlisting>
+
+      <para>You can also run a memory-only server instance by specifying the
+      same URL in the <filename>server.properties</filename>. This usage is
+      not common and is limited to special applications where the database
+      server is used only for exchanging information between clients, or for
+      non-persistent data.</para>
+    </section>
+  </section>
+
+  <section>
+    <title>General</title>
+
+    <section>
+      <title>Closing the Database</title>
+
+      <para>All databases running in different modes can be closed with the
+      SHUTDOWN command, issued as an SQL query. From version 1.7.2, in-process
+      databases are no longer closed when the last connection to the database
+      is explicitly closed via JDBC, a SHUTDOWN is required. In 1.8.0, a
+      connection property, shutdown=true, can be specified on the first
+      connection to the database (the connection that opens the database) to
+      force a shutdown when the last connection closes.</para>
+
+      <para>When SHUTDOWN is issued, all active transactions are rolled back.
+      A special form of closing the database is via the SHUTDOWN COMPACT
+      command. This command rewrites the <literal>.data</literal> file that
+      contains the information stored in CACHED tables and compacts it to
+      size. This command should be issued periodically, especially when lots
+      of inserts, updates or deletes have been performed on the cached tables.
+      Changes to the structure of the database, such as dropping or modifying
+      populated CACHED tables or indexes also create large amounts of unused
+      file space that can be reclaimed using this command.</para>
+    </section>
+
+    <section>
+      <title>Using Multiple Databases in One JVM</title>
+
+      <para>In the above examples each server serves only one database and
+      only one in-memory database can be created. However, from version 1.7.2,
+      HSQLDB can serve several databases in multiple server modes and allow
+      simultaneous access to multiple in-process and memory-only databases.
+      These capabilities are covered in the <link endterm="advanced-title"
+      linkend="advanced-chapter" /> chapter.</para>
+    </section>
+
+    <section>
+      <title>Creating a New Database</title>
+
+      <para>When a server instance is started, or when a connection is made to
+      an in-process database, a new, empty database is created if no database
+      exists at the given path.</para>
+
+      <para>This feature has a side effect that can confuse new users. If a
+      mistake is made in specifying the path for connecting to an existing
+      database, a connection is nevertheless established to a new database.
+      For troubleshooting purposes, you can specify a connection property
+      <property>ifexists</property>=<literal>true</literal> to allow
+      connection to an existing database only and avoid creating a new
+      database. In this case, if the database does not exist, the
+      <literal>getConnection()</literal> method will throw an
+      exception.</para>
+    </section>
+  </section>
+
+  <section>
+    <title>Using the Database Engine</title>
+
+    <para>Once a connection is established to a database in any mode, JDBC
+    methods are used to interact with the database. The Javadoc for <ulink
+        url="../src/org/hsqldb/jdbc/jdbcConnection.html">
+        <classname>jdbcConnection</classname>
+      </ulink>, <ulink url="../src/org/hsqldb/jdbcDriver.html">
+        <classname>jdbcDriver</classname>
+      </ulink>, <ulink url="../src/org/hsqldb/jdbc/jdbcDatabaseMetaData.html">
+        <classname>jdbcDatabaseMetadata</classname>
+      </ulink>, <ulink url="../src/org/hsqldb/jdbc/jdbcResultSet.html">
+        <classname>jdbcResultSet</classname>
+      </ulink>, <ulink url="../src/org/hsqldb/jdbc/jdbcStatement.html">
+        <classname>jdbcStatement</classname>
+      </ulink>, and <ulink
+        url="../src/org/hsqldb/jdbc/jdbcPreparedStatement.html">
+        <classname>jdbcPreparedStatement</classname>
+      </ulink> list all the supported JDBC methods together with information
+    that is specific to HSQLDB. JDBC methods are broadly divided into:
+    connection related methods, metadata methods and database access methods.
+    The database access methods use SQL commands to perform actions on the
+    database and return the results either as a Java primitive type or as an
+    instance of the <classname>java.sql.ResultSet</classname> class.</para>
+
+    <para>You can use Database Manager or other Java database access tools to
+    explore your database and update it with SQL commands. These programs use
+    JDBC internally to submit your commands to the database engine and to
+    display the results in a human readable format.</para>
+
+    <para>The SQL dialect used in HSQLDB is as close to the SQL92 and SQL200n
+    standards as it has been possible to achieve so far in a small-footprint
+    database engine. The full list of SQL commands is in the <link
+    endterm="sqlsyntax-title" linkend="sqlsyntax-chapter" /> chapter.</para>
+
+    <section>
+      <title>Different Types of Tables</title>
+
+      <para>HSQLDB supports TEMP tables and three types of persistent
+      tables.</para>
+
+      <para>TEMP tables are not written to disk and last only for the lifetime
+      of the Connection object. The contents of each TEMP table is visible
+      only from the Connection that was used to populate it; other concurrent
+      connections to the database will have access to their own copies of the
+      table. Since 1.8.0 the definition of TEMP tables conforms to the GLOBAL
+      TEMPORARY type in the SQL standard. The definition of the table persists
+      but each new connections sees its own copy of the table, which is empty
+      at the beginning. When the connection commits, the contents of the table
+      are cleared by default. If the table definition statements includes ON
+      COMMIT PRESERVE ROWS, then the contents are kept when a commit takes
+      place.</para>
+
+      <para>The three types of persistent tables are MEMORY tables, CACHED
+      tables and TEXT tables.</para>
+
+      <para>Memory tables are the default type when the CREATE TABLE command
+      is used. Their data is held entirely in memory but any change to their
+      structure or contents is written to the
+      <filename>&lt;dbname&gt;.script</filename> file. The script file is read
+      the next time the database is opened, and the MEMORY tables are
+      recreated with all their contents. So unlike TEMP table, the default,
+      MEMORY tables are persistent.</para>
+
+      <para>CACHED tables are created with the CREATE CACHED TABLE command.
+      Only part of their data or indexes is held in memory, allowing large
+      tables that would otherwise take up to several hundred megabytes of
+      memory. Another advantage of cached tables is that the database engine
+      takes less time to start up when a cached table is used for large
+      amounts of data. The disadvantage of cached tables is a reduction in
+      speed. Do not use cached tables if your data set is relatively small. In
+      an application with some small tables and some large ones, it is better
+      to use the default, MEMORY mode for the small tables.</para>
+
+      <para>TEXT tables are supported since version 1.7.0 and use a CSV (Comma
+      Separated Value) or other delimited text file as the source of their
+      data. You can specify an existing CSV file, such as a dump from another
+      database or program, as the source of a TEXT table. Alternatively, you
+      can specify an empty file to be filled with data by the database engine.
+      TEXT tables are efficient in memory usage as they cache only part of the
+      text data and all of the indexes. The Text table data source can always
+      be reassigned to a different file if necessary. Two commands are needed
+      to set up a TEXT table as detailed in the <link
+      endterm="texttables-title" linkend="texttables-chapter" />
+      chapter.</para>
+
+      <para>With memory-only databases (see above), both MEMORY table and
+      CACHED table declarations are treated as declarations for non-persistent
+      memory tables. TEXT table declarations are not allowed in this
+      mode.</para>
+    </section>
+
+    <section>
+      <title>Constraints and Indexes</title>
+
+      <para>HSQLDB supports PRIMARY KEY, NOT NULL, UNIQUE, CHECK and FOREIGN
+      KEY constraints. In addition, it supports UNIQUE or ordinary indexes.
+      This support is fairly comprehensive and covers multi-column constraints
+      and indexes, plus cascading updates and deletes for foreign keys.</para>
+
+      <para>HSQLDB creates indexes internally to support PRIMARY KEY, UNIQUE
+      and FOREIGN KEY constraints: a unique index is created for each PRIMARY
+      KEY or UNIQUE constraint; an ordinary index is created for each FOREIGN
+      KEY constraint. Because of this, you should not create duplicate
+      user-defined indexes on the same column sets covered by these
+      constraints. This would result in unnecessary memory and speed
+      overheads. See the discussion in the <link endterm="sql_issues-title"
+      linkend="sql_issues-chapter" /> chapter for more information.</para>
+
+      <para>Indexes are crucial for adequate query speed. When queries joining
+      multiple tables are used, there must be an index on each joined column
+      of each table. When range or equality conditions are used e.g.
+      <literal>SELECT ... WHERE acol &gt;10 AND bcol = 0</literal>, an indexe
+      is required on the acol column used in the condition. Indexes have no
+      effect on ORDER BY clauses or some LIKE conditions.</para>
+
+      <para>As a rule of thumb, HSQLDB is capable of internal processing of
+      queries at over 100,000 rows per second. Any query that runs into
+      several seconds should be checked and indexes should be added to the
+      relevant columns of the tables if necessary.</para>
+    </section>
+
+    <section>
+      <title>SQL Support</title>
+
+      <para>The SQL syntax supported by HSQLDB is essentially that specified
+      by the SQL Standard (92 and 200n). Not all the features of the Standard
+      are supported and there are some proprietary extensions. In 1.8.0 the
+      behaviour of the engine is far more compliant with the Standards than
+      with older versions. The main changes are</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>correct treatment of NULL column values in joins, in UNIQUE
+          constraints and in query conditions</para>
+        </listitem>
+
+        <listitem>
+          <para>correct processing of selects with JOIN and LEFT OUTER
+          JOIN</para>
+        </listitem>
+
+        <listitem>
+          <para>correct processing of aggregate functions contained in
+          expressions or containing expression arguments</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>The supported commands are listed in the <link
+      endterm="sqlsyntax-title" linkend="sqlsyntax-chapter" /> chapter. For a
+      well written basic guide to SQL with examples you can consult <ulink
+      url="http://www.postgresql.org/files/documentation/books/aw_pgsql/index.html">
+      PostgreSQL: Introduction and Concepts</ulink> by Bruce Momjian, which is
+      available on the web. Most of the SQL coverage in the book applies also
+      to HSQLDB. There are some differences in keywords supported by one and
+      not the other engine (OUTER, OID's, etc.) or used differently
+      (IDENTITY/SERIAL, TRIGGER, SEQUENCE, etc.).</para>
+    </section>
+
+    <section>
+      <title>JDBC Support</title>
+
+      <para>Since 1.7.2, support for JDBC2 has been significantly extended and
+      some features of JDBC3 are also supported. The relevant classes are
+      thoroughly documented. See the JavaDoc for <ulink
+      url="../src/index.html">org.hsqldb.jdbcXXXX </ulink> classes.</para>
+    </section>
+  </section>
+</chapter>

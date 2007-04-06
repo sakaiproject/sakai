@@ -1,0 +1,12 @@
+-- bug 1479110
+-- logging and readback of nested creates in schema
+-- part 1 of 2 scripts
+create schema TESTSCHEMAD1 authorization DBA
+  create table TSD1T1(C VARCHAR(10))
+  create table TSD1T2(C VARCHAR(10));
+set schema TESTSCHEMAD1;
+insert into TSD1T2 values('test');
+insert into TSD1T1 values('test');
+select * from TESTSCHEMAD1.TSD1T2;
+select * from TESTSCHEMAD1.TSD1T1;
+shutdown immediately;

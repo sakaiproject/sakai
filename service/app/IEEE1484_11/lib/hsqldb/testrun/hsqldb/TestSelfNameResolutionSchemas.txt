@@ -1,0 +1,572 @@
+-- Tests for phase 1 of Schema implementation.
+-- PHASE 1 = on schemas PUBLIC and INFORMATION_SCHEMA; No "SET SCHEMA" cmd;
+--           Can't create INFORMATION_SCHEMA objects from normal Sessions.
+-- (Alter commands tested separately after because there are so many
+--  alter permutations to test)
+--                  ******************************       PHASE 1 Tables
+--DROP TABLE nosuch;
+DROP TABLE t1 IF exists;
+DROP TABLE t2 IF exists;
+DROP TABLE t3 IF exists;
+DROP TABLE t4 IF exists;
+DROP TABLE t5 IF exists;
+DROP TABLE t101 IF exists;
+DROP TABLE j1 IF exists;
+DROP TABLE other.t1 IF exists;
+DROP TABLE other.system_users IF exists;
+DROP TABLE system_users IF exists;
+/*u0*/CREATE TABLE t1 (i int);
+/*u0*/CREATE TABLE public.t2 (i int);
+/*u0*/CREATE TABLE t3 (i int);
+/*u0*/CREATE TABLE j1 (i int, vc varchar(10));
+/*u0*/CREATE CACHED TABLE public.t5 (i int);
+/*e*/CREATE TABLE information_schema.t101 (i int);
+/*e*/CREATE TABLE t1 (i int); -- Create existing object
+/*e*/CREATE TABLE public.t1 (i int); -- Create existing object
+/*e*/CREATE TABLE information_schema.system_users (i int); -- Existing object
+/*u1*/INSERT INTO t1 values(0);
+/*u1*/INSERT INTO t1 values(1);
+/*u1*/INSERT INTO j1 values(1, 'one');
+/*c2*/SELECT * FROM t1;
+/*c1*/SELECT * FROM t1 WHERE i = 0;
+/*c2*/SELECT * FROM t1 WHERE i in (0, 1, 11, 12);
+/*c1*/SELECT * FROM t1 WHERE i < 1;
+/*c1*/SELECT * FROM t1 WHERE t1.i = (SELECT i FROM j1);
+/*c1*/SELECT * FROM t1 WHERE t1.i in (SELECT i FROM j1);
+/*c0*/SELECT * FROM t1 WHERE t1.i = (SELECT i FROM j1 WHERE i = 0);
+/*c1*/SELECT * FROM public.t1 WHERE t1.i = (SELECT i FROM j1);
+/*c1*/SELECT * FROM public.t1 WHERE t1.i in (SELECT i FROM j1);
+/*c1*/SELECT * FROM public.t1 WHERE t1.i = (SELECT i FROM j1 WHERE i = 1);
+/*c1*/SELECT * FROM t1 WHERE t1.i = (SELECT i FROM public.j1);
+/*c1*/SELECT * FROM t1 WHERE t1.i in (SELECT i FROM public.j1);
+/*c1*/SELECT * FROM t1 WHERE t1.i = (SELECT i FROM public.j1 WHERE i = 1);
+/*c1*/SELECT * FROM t1 WHERE t1.i = (SELECT j1.i FROM public.j1);
+/*c1*/SELECT * FROM t1 WHERE t1.i in (SELECT j1.i FROM j1);
+/*c1*/SELECT * FROM t1 WHERE t1.i = (SELECT j1.i FROM j1 WHERE i = 1);
+/*c1*/SELECT * FROM t1 WHERE t1.i = (SELECT i FROM public.j1 WHERE j1.i = 1);
+/*c1*/SELECT * FROM t1 WHERE t1.i = (SELECT j1.i FROM j1 WHERE j1.i = 1);
+/*c1*/SELECT * FROM t1 WHERE i = (SELECT i FROM j1);
+/*c1*/SELECT * FROM t1 WHERE i in (SELECT i FROM j1);
+/*c1*/SELECT * FROM t1 WHERE i = (SELECT i FROM j1 WHERE i = 1);
+/*c1*/SELECT * FROM public.t1 WHERE i = (SELECT i FROM j1);
+/*c1*/SELECT * FROM public.t1 WHERE i in (SELECT i FROM j1);
+/*c0*/SELECT * FROM public.t1 WHERE i = (SELECT i FROM j1 WHERE i = 0);
+/*c1*/SELECT * FROM t1 WHERE i = (SELECT i FROM public.j1);
+/*c1*/SELECT * FROM t1 WHERE i in (SELECT i FROM public.j1);
+/*c0*/SELECT * FROM t1 WHERE i = (SELECT i FROM public.j1 WHERE i = 0);
+/*c1*/SELECT * FROM t1 WHERE i = (SELECT j1.i FROM public.j1);
+/*c1*/SELECT * FROM t1 WHERE i in (SELECT j1.i FROM j1);
+/*c0*/SELECT * FROM t1 WHERE i = (SELECT j1.i FROM j1 WHERE i = 0);
+/*c1*/SELECT * FROM t1 WHERE i = (SELECT i FROM public.j1 WHERE j1.i = 1);
+/*c1*/SELECT * FROM t1 WHERE i = (SELECT j1.i FROM j1 WHERE j1.i = 1);
+/*e*/SELECT * FROM system_users WHERE user = 'SA';
+/*e*/SELECT * FROM other.t1;
+/*e*/SELECT * FROM other.system_users;
+/*e*/SELECT * FROM information_schema.t1;
+/*e*/SELECT * FROM public.system_users;
+/*c2*/SELECT * FROM public.t1;
+/*c1*/SELECT * FROM information_schema.system_users WHERE user = 'SA';
+/*c1*/SELECT * FROM public.t1 WHERE i = 0;
+/*e*/SELECT * FROM other.t1 WHERE i = 0;
+/*e*/SELECT * FROM information_schema.t1 WHERE i = 0;
+/*u1*/SELECT * INTO public.t4 FROM public.t1 WHERE i = 0;
+/*c1*/SELECT * FROM public.t4;
+/*c1*/SELECT * FROM public.t1, public.j1 WHERE t1.i = j1.i;
+/*c1*/SELECT * FROM t1, public.j1 WHERE t1.i = j1.i;
+/*c1*/SELECT * FROM public.t1, j1 WHERE t1.i = j1.i;
+/*c1*/SELECT * FROM t1, j1 WHERE t1.i = j1.i;
+/*c1*/SELECT vc FROM public.t1, public.j1 WHERE t1.i = j1.i;
+/*c1*/SELECT vc FROM t1, public.j1 WHERE t1.i = j1.i;
+/*c1*/SELECT vc FROM public.t1, j1 WHERE t1.i = j1.i;
+/*c1*/SELECT vc FROM t1, j1 WHERE t1.i = j1.i;
+/*c1*/SELECT j1.vc FROM public.t1, public.j1 WHERE t1.i = j1.i;
+/*c1*/SELECT j1.vc FROM t1, public.j1 WHERE t1.i = j1.i;
+/*c1*/SELECT j1.vc FROM public.t1, j1 WHERE t1.i = j1.i;
+/*c1*/SELECT j1.vc FROM t1, j1 WHERE t1.i = j1.i;
+/*c1*/SELECT lbla.vc FROM t1, j1 lbla WHERE t1.i = lbla.i;
+/*c1*/SELECT j1.vc FROM t1 lblb, j1 WHERE lblb.i = j1.i;
+/*c1*/SELECT lbla.vc FROM t1 lblb, j1 lbla WHERE lblb.i = lbla.i;
+/*c1*/SELECT lbla.vc FROM public.t1, j1 lbla WHERE t1.i = lbla.i;
+/*c1*/SELECT j1.vc FROM public.t1 lblb, j1 WHERE lblb.i = j1.i;
+/*c1*/SELECT lbla.vc FROM public.t1 lblb, j1 lbla WHERE lblb.i = lbla.i;
+/*c1*/SELECT lbla.vc FROM t1, public.j1 lbla WHERE t1.i = lbla.i;
+/*c1*/SELECT j1.vc FROM t1 lblb, public.j1 WHERE lblb.i = j1.i;
+/*c1*/SELECT lbla.vc FROM t1 lblb, public.j1 lbla WHERE lblb.i = lbla.i;
+/*u0*/SET TABLE t1 READONLY true;
+/*u0*/SET TABLE public.t1 READONLY true;
+/*e*/SET TABLE information_schema.t1 READONLY true;
+/*e*/SET TABLE other.t1 READONLY true;
+/*u0*/SET TABLE t1 READONLY false;
+/*u0*/SET TABLE public.t1 READONLY false;
+/*u1*/UPDATE t1 set i = 11 WHERE i = 1;
+/*u1*/UPDATE t1 set t1.i = 12 WHERE i = 11;
+/*u1*/UPDATE t1 set t1.i = 13 WHERE t1.i = 12;
+/*u1*/UPDATE public.t1 set i = 14 WHERE i = 13;
+/*u1*/UPDATE public.t1 set t1.i = 15 WHERE i = 14;
+/*u1*/UPDATE public.t1 set t1.i = 16 WHERE t1.i = 15;
+/*e*/UPDATE other.t1 set t1.i = 17 WHERE t1.i = 16;
+/*e*/UPDATE information_schema.t1 set t1.i = 17 WHERE t1.i = 16;
+/*u1*/UPDATE t1 ali set i = 17 WHERE i = 16;
+/*u1*/UPDATE t1 ali set ali.i = 18 WHERE i = 17;
+/*u1*/UPDATE t1 ali set ali.i = 19 WHERE ali.i = 18;
+/*u1*/UPDATE t1 ali set i = 20 WHERE ali.i = 19;
+/*u1*/UPDATE public.t1 ali set i = 21 WHERE i = 20;
+/*u1*/UPDATE public.t1 ali set ali.i = 22 WHERE i = 21;
+/*u1*/UPDATE public.t1 ali set ali.i = 23 WHERE ali.i = 22;
+/*u1*/UPDATE public.t1 ali set i = 24 WHERE ali.i = 23;
+/*e*/UPDATE other.t1 ali set i = 25 WHERE ali.i = 24;
+/*e*/UPDATE other.t1 ali set i = 25 WHERE .i = 24;
+/*e*/UPDATE other.t1 set i = 25 WHERE i = 24;
+/*e*/DELETE FROM other.t1 ali WHERE ali.i = 24;
+/*e*/DELETE FROM other.t1 ali;
+/*e*/DELETE FROM other.t1 set WHERE i = 24;
+CREATE USER otheruser PASSWORD otheruser;
+/*u0*/GRANT ALL ON t1 TO otheruser;
+/*u0*/GRANT ALL ON public.t2 TO otheruser;
+/*e*/GRANT ALL ON other.t3 TO otheruser;
+/*e*/GRANT ALL ON information_schema.t3 TO otheruser;
+/*u0*/REVOKE ALL ON t1 FROM otheruser;
+/*u0*/REVOKE ALL ON public.t2 FROM otheruser;
+/*e*/REVOKE ALL ON other.t3 FROM otheruser;
+/*e*/REVOKE ALL ON information_schema.t3 FROM otheruser;
+DROP USER otheruser;
+/*u1*/DELETE FROM t1 WHERE i = 0;
+/*u1*/DELETE FROM public.t1 WHERE i = 24;
+/*u1*/DELETE FROM public.j1 WHERE j1.i = 1;
+/*u0*/DROP TABLE t1;
+/*e*/DROP TABLE t1;
+/*u0*/DROP TABLE t2;
+/*e*/DROP TABLE other.t3;
+/*u0*/DROP TABLE public.t3;
+/*e*/DROP TABLE information_schema.t4;
+/*u0*/DROP TABLE t4;
+/*u0*/DROP TABLE t5;
+/*u0*/DROP TABLE j1;
+/*e*/DROP TABLE t101;
+/*e*/DROP TABLE public.t101;
+--                  ******************************       PHASE 1 Views
+DROP VIEW v1 IF exists;
+DROP VIEW v2 IF exists;
+DROP VIEW v3 IF exists;
+DROP VIEW v4 IF exists;
+DROP VIEW v5 IF exists;
+DROP VIEW v6 IF exists;
+DROP VIEW v7 IF exists;
+DROP VIEW v8 IF exists;
+DROP VIEW v9 IF exists;
+DROP VIEW v10 IF exists;
+DROP VIEW v11 IF exists;
+DROP VIEW v12 IF exists;
+DROP VIEW v13 IF exists;
+DROP VIEW v14 IF exists;
+DROP VIEW v15 IF exists;
+DROP VIEW v16 IF exists;
+DROP VIEW v17 IF exists;
+DROP VIEW v18 IF exists;
+DROP VIEW v19 IF exists;
+DROP VIEW v20 IF exists;
+DROP VIEW v21 IF exists;
+DROP VIEW v22 IF exists;
+DROP VIEW v23 IF exists;
+DROP VIEW v24 IF exists;
+DROP VIEW v25 IF exists;
+DROP VIEW v26 IF exists;
+DROP VIEW v101 IF exists;
+DROP TABLE t1 IF exists;
+DROP TABLE t2 IF exists;
+DROP TABLE j1 IF exists;
+CREATE TABLE t1 (i int);
+CREATE TABLE j1 (i int, vc varchar(10));
+INSERT INTO t1 values(0);
+INSERT INTO t1 values(1);
+INSERT INTO j1 values(1, 'one');
+/*e*/CREATE VIEW information_schema.v101 AS
+    SELECT * FROM information_schema.system_users;
+/*e*/CREATE VIEW information_schema.v101 AS
+    SELECT * FROM t1;
+/*e*/CREATE VIEW information_schema.v4 AS
+    SELECT * FROM public.t1;
+/*e*/CREATE VIEW v101 AS SELECT * FROM other.t1;
+/*e*/CREATE VIEW public.v101 AS SELECT * FROM other.t1;
+/*e*/CREATE VIEW other.v101 AS SELECT *
+    FROM information_schema.system_users, j1
+    WHERE user = vc;
+/*e*/CREATE VIEW other.v101 AS SELECT *
+    FROM information_schema.system_users, public.j1 WHERE user = vc;
+/*e*/CREATE VIEW other.v101 AS SELECT *
+    FROM information_schema.system_users, j1
+    WHERE information_schema.user = vc;
+/*e*/CREATE VIEW other.v101 AS SELECT *
+    FROM information_schema.system_users, j1
+    WHERE information_schema.user = public.vc;
+/*e*/CREATE VIEW information_schema.v101 AS SELECT *
+    FROM information_schema.system_users, j1
+    WHERE user = vc;
+/*e*/CREATE VIEW information_schema.v101 AS SELECT *
+    FROM information_schema.system_users, public.j1 WHERE user = vc;
+/*e*/CREATE VIEW information_schema.v101 AS SELECT *
+    FROM information_schema.system_users, j1
+    WHERE information_schema.user = vc;
+/*e*/CREATE VIEW information_schema.v101 AS SELECT *
+    FROM information_schema.system_users, j1
+    WHERE information_schema.user = public.vc;
+/*e*/CREATE VIEW v101 AS SELECT *
+    FROM system_users, j1
+    WHERE user = vc;
+/*e*/CREATE VIEW v101 AS SELECT *
+    FROM information_schema.system_users, information_schema.j1
+    WHERE user = vc;
+/*e*/CREATE VIEW v101 AS SELECT *
+    FROM information_schema.system_users, j1
+    WHERE other.user = vc;
+/*e*/CREATE VIEW v101 AS SELECT *
+    FROM information_schema.system_users, j1
+    WHERE public.user = public.vc;
+/*u0*/CREATE VIEW v1 AS SELECT * FROM t1;
+/*e*/CREATE VIEW public.v1 AS SELECT * FROM t1; -- Create existing object
+/*e*/CREATE VIEW public.v1 AS SELECT * FROM public.t1; -- Existing object
+/*u0*/CREATE VIEW public.v2 AS SELECT * FROM t1;
+/*u0*/CREATE VIEW public.v3 AS SELECT * FROM public.t1;
+/*u0*/CREATE VIEW public.v4 AS SELECT * FROM t1 WHERE i = 0;
+/*u0*/CREATE VIEW public.v5 AS SELECT * FROM t1 WHERE i < 1;
+/*u0*/CREATE VIEW public.v6 AS SELECT * FROM information_schema.system_users
+    WHERE user = 'SA';
+/*u0*/CREATE VIEW v7 AS SELECT * FROM information_schema.system_users;
+/*u0*/CREATE VIEW v8 AS SELECT * FROM information_schema.system_users
+    WHERE user = 'SA';
+/*u0*/CREATE VIEW v9 AS SELECT * FROM information_schema.system_users, j1
+    WHERE user = vc;
+/*u0*/CREATE VIEW v10 AS SELECT *
+    FROM information_schema.system_users, public.j1 WHERE user = vc;
+/*u0*/CREATE VIEW v11 AS SELECT * FROM information_schema.system_users, j1
+    WHERE system_users.user = vc;
+/*e*/CREATE VIEW v12 AS SELECT * FROM information_schema.system_users, j1
+    WHERE system_users.user = public.vc;
+/*u0*/CREATE VIEW public.v13 AS SELECT *
+    FROM information_schema.system_users, j1
+    WHERE user = vc;
+/*u0*/CREATE VIEW public.v14 AS SELECT *
+    FROM information_schema.system_users, public.j1 WHERE user = vc;
+/*e*/CREATE VIEW public.v15 AS SELECT *
+    FROM information_schema.system_users, j1
+    WHERE information_schema.user = vc;
+/*e*/CREATE VIEW public.v16 AS SELECT *
+    FROM information_schema.system_users, j1
+    WHERE information_schema.user = public.vc;
+/*u0*/CREATE VIEW v17 AS SELECT * FROM information_schema.system_users, j1
+    WHERE user = vc;
+/*u0*/CREATE VIEW v18 AS SELECT *
+    FROM information_schema.system_users, public.j1 WHERE user = vc;
+/*u0*/CREATE VIEW v19 (v1, v2, v3) AS SELECT * FROM t1, j1 WHERE t1.i = j1.i;
+/*u0*/CREATE VIEW v20 (v1, v2, v3) AS SELECT * FROM public.t1, public.j1 WHERE t1.i = j1.i;
+/*u0*/CREATE VIEW v21 (v1, v2, v3) AS SELECT * FROM public.t1, j1 WHERE t1.i = j1.i;
+/*u0*/CREATE VIEW v22 (v1, v2, v3) AS SELECT * FROM t1, public.j1 WHERE t1.i = j1.i;
+/*u0*/CREATE VIEW public.v23 (v1, v2, v3) AS
+    SELECT * FROM t1, j1 WHERE t1.i = j1.i;
+/*u0*/CREATE VIEW public.v24 (v1, v2, v3) AS
+    SELECT * FROM public.t1, public.j1 WHERE t1.i = j1.i;
+/*u0*/CREATE VIEW public.v25 (v1, v2, v3) AS SELECT * FROM public.t1, j1 WHERE t1.i = j1.i;
+/*u0*/CREATE VIEW public.v26 (v1, v2, v3) AS SELECT * FROM t1, public.j1 WHERE t1.i = j1.i;
+/*u0*/CREATE VIEW v28 AS
+    SELECT * FROM t1 WHERE i in (0, 1, 11, 12);
+/*u0*/CREATE VIEW public.v29 AS
+    SELECT * FROM t1 WHERE i < 1;
+/*u0*/CREATE VIEW v30 AS
+    SELECT * FROM t1 WHERE t1.i = (SELECT i FROM j1);
+/*u0*/CREATE VIEW v31 AS
+    SELECT * FROM t1 WHERE t1.i in (SELECT i FROM j1);
+/*u0*/CREATE VIEW v32 AS
+    SELECT * FROM t1 WHERE t1.i = (SELECT i FROM j1 WHERE i = 0);
+/*u0*/CREATE VIEW v33 AS
+    SELECT * FROM public.t1 WHERE t1.i = (SELECT i FROM j1);
+/*u0*/CREATE VIEW PUBLIC.v34 AS
+    SELECT * FROM public.t1 WHERE t1.i in (SELECT i FROM j1);
+/*u0*/CREATE VIEW PUBLIC.v35 AS
+    SELECT * FROM public.t1 WHERE t1.i = (SELECT i FROM j1 WHERE i = 0);
+/*u0*/CREATE VIEW PUBLIC.v36 AS
+    SELECT * FROM t1 WHERE t1.i = (SELECT i FROM public.j1);
+/*u0*/CREATE VIEW PUBLIC.v37 AS
+    SELECT * FROM t1 WHERE t1.i in (SELECT i FROM public.j1);
+/*u0*/CREATE VIEW PUBLIC.v38 AS
+    SELECT * FROM t1 WHERE t1.i = (SELECT i FROM public.j1 WHERE i = 1);
+/*u0*/CREATE VIEW PUBLIC.v39 AS
+    SELECT * FROM t1 WHERE t1.i = (SELECT j1.i FROM public.j1);
+/*u0*/CREATE VIEW PUBLIC.v40 AS
+    SELECT * FROM t1 WHERE t1.i in (SELECT j1.i FROM j1);
+/*u0*/CREATE VIEW PUBLIC.v41 AS
+    SELECT * FROM t1 WHERE t1.i = (SELECT j1.i FROM j1 WHERE i = 1);
+/*u0*/CREATE VIEW PUBLIC.v42 AS
+    SELECT * FROM t1 WHERE t1.i = (SELECT i FROM public.j1 WHERE j1.i = 1);
+/*u0*/CREATE VIEW PUBLIC.v43 AS
+    SELECT * FROM t1 WHERE t1.i = (SELECT j1.i FROM j1 WHERE j1.i = 1);
+/*u0*/CREATE VIEW PUBLIC.v44 AS
+    SELECT * FROM t1 WHERE i = (SELECT i FROM j1);
+/*u0*/CREATE VIEW PUBLIC.v45 AS
+    SELECT * FROM t1 WHERE i in (SELECT i FROM j1);
+/*u0*/CREATE VIEW PUBLIC.v46 AS
+    SELECT * FROM t1 WHERE i = (SELECT i FROM j1 WHERE i = 1);
+/*u0*/CREATE VIEW PUBLIC.v47 AS
+    SELECT * FROM public.t1 WHERE i = (SELECT i FROM j1);
+/*u0*/CREATE VIEW PUBLIC.v48 AS
+    SELECT * FROM public.t1 WHERE i in (SELECT i FROM j1);
+/*u0*/CREATE VIEW PUBLIC.v49 AS
+    SELECT * FROM public.t1 WHERE i = (SELECT i FROM j1 WHERE i = 1);
+/*u0*/CREATE VIEW PUBLIC.v50 AS
+    SELECT * FROM t1 WHERE i = (SELECT i FROM public.j1);
+/*u0*/CREATE VIEW PUBLIC.v51 AS
+    SELECT * FROM t1 WHERE i in (SELECT i FROM public.j1);
+/*u0*/CREATE VIEW PUBLIC.v52 AS
+    SELECT * FROM t1 WHERE i = (SELECT i FROM public.j1 WHERE i = 0);
+/*u0*/CREATE VIEW PUBLIC.v53 AS
+    SELECT * FROM t1 WHERE i = (SELECT j1.i FROM public.j1);
+/*u0*/CREATE VIEW PUBLIC.v54 AS
+    SELECT * FROM t1 WHERE i in (SELECT j1.i FROM j1);
+/*u0*/CREATE VIEW PUBLIC.v55 AS
+    SELECT * FROM t1 WHERE i = (SELECT j1.i FROM j1 WHERE i = 1);
+/*u0*/CREATE VIEW PUBLIC.v56 AS
+    SELECT * FROM t1 WHERE i = (SELECT i FROM public.j1 WHERE j1.i = 1);
+/*u0*/CREATE VIEW PUBLIC.v57 AS
+    SELECT * FROM t1 WHERE i = (SELECT j1.i FROM j1 WHERE j1.i = 1);
+/*c2*/SELECT * FROM v1;
+/*c2*/SELECT * FROM public.v1;
+/*c2*/SELECT * FROM v2;
+/*c2*/SELECT * FROM v3;
+/*c1*/SELECT * FROM v4;
+/*c1*/SELECT * FROM v5;
+/*c1*/SELECT * FROM v8;
+/*c0*/SELECT * FROM v9;
+/*c0*/SELECT * FROM v10;
+/*c0*/SELECT * FROM v11;
+/*e*/SELECT * FROM v12;
+/*c0*/SELECT * FROM v13;
+/*c0*/SELECT * FROM v14;
+/*e*/SELECT * FROM v15;
+/*e*/SELECT * FROM v16;
+/*c0*/SELECT * FROM v17;
+/*c0*/SELECT * FROM v18;
+/*c1*/SELECT * FROM v19;
+/*c1*/SELECT * FROM v20;
+/*c1*/SELECT * FROM v21;
+/*c1*/SELECT * FROM v22;
+/*c1*/SELECT * FROM v23;
+/*c1*/SELECT * FROM v24;
+/*c1*/SELECT * FROM v25;
+/*c1*/SELECT * FROM v26;
+/*c2*/SELECT * FROM v28;
+/*c1*/SELECT * FROM v29;
+/*c1*/SELECT * FROM v30;
+/*c1*/SELECT * FROM v31;
+/*c0*/SELECT * FROM v32;
+/*c1*/SELECT * FROM v33;
+/*c1*/SELECT * FROM v34;
+/*c0*/SELECT * FROM v35;
+/*c1*/SELECT * FROM v36;
+/*c1*/SELECT * FROM v37;
+/*c1*/SELECT * FROM v38;
+/*c1*/SELECT * FROM v39;
+/*c1*/SELECT * FROM v40;
+/*c1*/SELECT * FROM v41;
+/*c1*/SELECT * FROM v42;
+/*c1*/SELECT * FROM v43;
+/*c1*/SELECT * FROM v44;
+/*c1*/SELECT * FROM v45;
+/*c1*/SELECT * FROM v46;
+/*c1*/SELECT * FROM v47;
+/*c1*/SELECT * FROM v48;
+/*c1*/SELECT * FROM v49;
+/*c1*/SELECT * FROM v50;
+/*c1*/SELECT * FROM v51;
+/*c0*/SELECT * FROM v52;
+/*c1*/SELECT * FROM v53;
+/*c1*/SELECT * FROM v54;
+/*c1*/SELECT * FROM v55;
+/*c1*/SELECT * FROM v56;
+/*c1*/SELECT * FROM v57;
+/*c1*/SELECT * FROM v1, j1 WHERE v1.i = j1.i;
+/*c1*/SELECT * FROM public.v1, public.j1 WHERE v1.i = j1.i;
+/*c2*/SELECT * FROM v1 WHERE i in (0, 1, 11, 12);
+/*c1*/SELECT * FROM v1 WHERE i < 1;
+/*c1*/SELECT * FROM v1 WHERE v1.i = (SELECT i FROM j1);
+/*c1*/SELECT * FROM v1 WHERE v1.i in (SELECT i FROM j1);
+/*c1*/SELECT * FROM v1 WHERE v1.i = (SELECT i FROM j1 WHERE i = 1);
+/*c1*/SELECT * FROM public.v1 WHERE v1.i in (SELECT i FROM j1);
+/*c1*/SELECT * FROM public.v1 WHERE v1.i = (SELECT i FROM j1 WHERE i = 1);
+/*c1*/SELECT * FROM v1 WHERE v1.i = (SELECT i FROM public.j1);
+/*c1*/SELECT * FROM v1 WHERE v1.i in (SELECT i FROM public.j1);
+/*c0*/SELECT * FROM v1 WHERE v1.i = (SELECT i FROM public.j1 WHERE i = 0);
+/*c1*/SELECT * FROM v1 WHERE v1.i = (SELECT j1.i FROM public.j1);
+/*c1*/SELECT * FROM v1 WHERE v1.i in (SELECT j1.i FROM j1);
+/*c1*/SELECT * FROM v1 WHERE v1.i = (SELECT j1.i FROM j1 WHERE i = 1);
+/*c0*/SELECT * FROM v1 WHERE v1.i = (SELECT i FROM public.j1 WHERE j1.i = 0);
+/*c0*/SELECT * FROM v1 WHERE v1.i = (SELECT j1.i FROM j1 WHERE j1.i = 0);
+/*c1*/SELECT * FROM v1 WHERE i = (SELECT i FROM j1);
+/*c1*/SELECT * FROM v1 WHERE i in (SELECT i FROM j1);
+/*c1*/SELECT * FROM v1 WHERE i = (SELECT i FROM j1 WHERE i = 1);
+/*c1*/SELECT * FROM public.v1 WHERE i = (SELECT i FROM j1);
+/*c1*/SELECT * FROM public.v1 WHERE i in (SELECT i FROM j1);
+/*c1*/SELECT * FROM public.v1 WHERE i = (SELECT i FROM j1 WHERE i = 1);
+/*c1*/SELECT * FROM v1 WHERE i = (SELECT i FROM public.j1);
+/*c1*/SELECT * FROM v1 WHERE i in (SELECT i FROM public.j1);
+/*c1*/SELECT * FROM v1 WHERE i = (SELECT i FROM public.j1 WHERE i = 1);
+/*c1*/SELECT * FROM v1 WHERE i = (SELECT j1.i FROM public.j1);
+/*c1*/SELECT * FROM v1 WHERE i in (SELECT j1.i FROM j1);
+/*c1*/SELECT * FROM v1 WHERE i = (SELECT j1.i FROM j1 WHERE i = 1);
+/*c1*/SELECT * FROM v1 WHERE i = (SELECT i FROM public.j1 WHERE j1.i = 1);
+/*c1*/SELECT * FROM v1 WHERE i = (SELECT j1.i FROM j1 WHERE j1.i = 1);
+/*c2*/SELECT * FROM v1;
+/*c1*/SELECT * FROM v1 WHERE i = 0;
+/*c2*/SELECT * FROM v1 WHERE i in (0, 1, 11, 12);
+/*c1*/SELECT * FROM v1 WHERE i < 1;
+/*c1*/SELECT * FROM v1 WHERE v1.i = (SELECT i FROM j1);
+/*c1*/SELECT * FROM v1 WHERE v1.i in (SELECT i FROM j1);
+/*c1*/SELECT * FROM v1 WHERE v1.i = (SELECT i FROM j1 WHERE i = 1);
+/*c1*/SELECT * FROM public.v1 WHERE v1.i = (SELECT i FROM j1);
+/*c1*/SELECT * FROM public.v1 WHERE v1.i in (SELECT i FROM j1);
+/*c1*/SELECT * FROM public.v1 WHERE v1.i = (SELECT i FROM j1 WHERE i = 1);
+/*c1*/SELECT * FROM v1 WHERE v1.i = (SELECT i FROM public.j1);
+/*c1*/SELECT * FROM v1 WHERE v1.i in (SELECT i FROM public.j1);
+/*c1*/SELECT * FROM v1 WHERE v1.i = (SELECT i FROM public.j1 WHERE i = 1);
+/*c1*/SELECT * FROM v1 WHERE v1.i = (SELECT j1.i FROM public.j1);
+/*c1*/SELECT * FROM v1 WHERE v1.i in (SELECT j1.i FROM j1);
+/*c1*/SELECT * FROM v1 WHERE v1.i = (SELECT j1.i FROM j1 WHERE i = 1);
+/*c1*/SELECT * FROM v1 WHERE v1.i = (SELECT i FROM public.j1 WHERE j1.i = 1);
+/*c1*/SELECT * FROM v1 WHERE v1.i = (SELECT j1.i FROM j1 WHERE j1.i = 1);
+/*c1*/SELECT * FROM v1 WHERE i = (SELECT i FROM j1);
+/*c1*/SELECT * FROM v1 WHERE i in (SELECT i FROM j1);
+/*c1*/SELECT * FROM v1 WHERE i = (SELECT i FROM j1 WHERE i = 1);
+/*c1*/SELECT * FROM public.v1 WHERE i = (SELECT i FROM j1);
+/*c1*/SELECT * FROM public.v1 WHERE i in (SELECT i FROM j1);
+/*c1*/SELECT * FROM public.v1 WHERE i = (SELECT i FROM j1 WHERE i = 1);
+/*c1*/SELECT * FROM v1 WHERE i = (SELECT i FROM public.j1);
+/*c1*/SELECT * FROM v1 WHERE i in (SELECT i FROM public.j1);
+/*c1*/SELECT * FROM v1 WHERE i = (SELECT i FROM public.j1 WHERE i = 1);
+/*c1*/SELECT * FROM v1 WHERE i = (SELECT j1.i FROM public.j1);
+/*c1*/SELECT * FROM v1 WHERE i in (SELECT j1.i FROM j1);
+/*c1*/SELECT * FROM v1 WHERE i = (SELECT j1.i FROM j1 WHERE i = 1);
+/*c1*/SELECT * FROM v1 WHERE i = (SELECT i FROM public.j1 WHERE j1.i = 1);
+/*c1*/SELECT * FROM v1 WHERE i = (SELECT j1.i FROM j1 WHERE j1.i = 1);
+/*e*/SELECT * FROM other.v1;
+/*e*/SELECT * FROM information_schema.v1;
+/*c2*/SELECT * FROM public.v1;
+/*c1*/SELECT * FROM public.v1 WHERE i = 0;
+/*e*/SELECT * FROM other.v1 WHERE i = 0;
+/*e*/SELECT * FROM information_schema.v1 WHERE i = 0;
+/*u1*/SELECT * INTO public.t2 FROM public.v1 WHERE i = 0;
+/*c1*/SELECT * FROM public.t2;
+/*c1*/SELECT * FROM public.v1, public.j1 WHERE v1.i = j1.i;
+/*c1*/SELECT * FROM v1, public.j1 WHERE v1.i = j1.i;
+/*c1*/SELECT * FROM public.v1, j1 WHERE v1.i = j1.i;
+/*c1*/SELECT * FROM v1, j1 WHERE v1.i = j1.i;
+/*c1*/SELECT vc FROM public.v1, public.j1 WHERE v1.i = j1.i;
+/*c1*/SELECT vc FROM v1, public.j1 WHERE v1.i = j1.i;
+/*c1*/SELECT vc FROM public.v1, j1 WHERE v1.i = j1.i;
+/*c1*/SELECT vc FROM v1, j1 WHERE v1.i = j1.i;
+/*c1*/SELECT j1.vc FROM public.v1, public.j1 WHERE v1.i = j1.i;
+/*c1*/SELECT j1.vc FROM v1, public.j1 WHERE v1.i = j1.i;
+/*c1*/SELECT j1.vc FROM public.v1, j1 WHERE v1.i = j1.i;
+/*c1*/SELECT j1.vc FROM v1, j1 WHERE v1.i = j1.i;
+/*c1*/SELECT lbla.vc FROM v1, j1 lbla WHERE v1.i = lbla.i;
+/*c1*/SELECT j1.vc FROM v1 lblb, j1 WHERE lblb.i = j1.i;
+/*c1*/SELECT lbla.vc FROM v1 lblb, j1 lbla WHERE lblb.i = lbla.i;
+/*c1*/SELECT lbla.vc FROM public.v1, j1 lbla WHERE v1.i = lbla.i;
+/*c1*/SELECT j1.vc FROM public.v1 lblb, j1 WHERE lblb.i = j1.i;
+/*c1*/SELECT lbla.vc FROM public.v1 lblb, j1 lbla WHERE lblb.i = lbla.i;
+/*c1*/SELECT lbla.vc FROM v1, public.j1 lbla WHERE v1.i = lbla.i;
+/*c1*/SELECT j1.vc FROM v1 lblb, public.j1 WHERE lblb.i = j1.i;
+/*c1*/SELECT lbla.vc FROM v1 lblb, public.j1 lbla WHERE lblb.i = lbla.i;
+CREATE USER otheruser PASSWORD otheruser;
+/*u0*/GRANT ALL ON v1 TO otheruser;
+/*u0*/GRANT ALL ON public.v2 TO otheruser;
+/*e*/GRANT ALL ON other.v3 TO otheruser;
+/*e*/GRANT ALL ON information_schema.v3 TO otheruser;
+/*u0*/REVOKE ALL ON v1 FROM otheruser;
+/*u0*/REVOKE ALL ON public.v2 FROM otheruser;
+/*e*/REVOKE ALL ON other.v3 FROM otheruser;
+/*e*/REVOKE ALL ON information_schema.v3 FROM otheruser;
+DROP USER otheruser;
+/*e*/DROP VIEW other.v1;
+/*u0*/DROP VIEW public.v1;
+/*e*/DROP VIEW information_schema.v2;
+/*u0*/DROP VIEW v2;
+/*e*/DROP VIEW v2;
+/*u0*/DROP VIEW v3;
+/*u0*/DROP VIEW v4;
+/*u0*/DROP VIEW v5;
+/*u0*/DROP VIEW v6;
+/*u0*/DROP VIEW v7;
+/*u0*/DROP VIEW v8;
+/*u0*/DROP VIEW v9;
+/*u0*/DROP VIEW v10;
+/*u0*/DROP VIEW v11;
+/*u0*/DROP VIEW v13;
+/*u0*/DROP VIEW v14;
+/*u0*/DROP VIEW v17;
+/*u0*/DROP VIEW v18;
+/*u0*/DROP VIEW v19;
+/*u0*/DROP VIEW v20;
+/*u0*/DROP VIEW v21;
+/*u0*/DROP VIEW v22;
+/*u0*/DROP VIEW v23;
+/*u0*/DROP VIEW v24;
+/*u0*/DROP VIEW v25;
+/*u0*/DROP VIEW v26;
+/*u0*/DROP VIEW v28;
+/*u0*/DROP VIEW v29;
+/*u0*/DROP VIEW v30;
+/*u0*/DROP VIEW v31;
+/*u0*/DROP VIEW v32;
+/*u0*/DROP VIEW v33;
+/*u0*/DROP VIEW v34;
+/*u0*/DROP VIEW v35;
+/*u0*/DROP VIEW v36;
+/*u0*/DROP VIEW v37;
+/*u0*/DROP VIEW v38;
+/*u0*/DROP VIEW v39;
+/*u0*/DROP VIEW v40;
+/*u0*/DROP VIEW v41;
+/*u0*/DROP VIEW v42;
+/*u0*/DROP VIEW v43;
+/*u0*/DROP VIEW v44;
+/*u0*/DROP VIEW v45;
+/*u0*/DROP VIEW v46;
+/*u0*/DROP VIEW v47;
+/*u0*/DROP VIEW v48;
+/*u0*/DROP VIEW v49;
+/*u0*/DROP VIEW v50;
+/*u0*/DROP VIEW v51;
+/*u0*/DROP VIEW v52;
+/*u0*/DROP VIEW v53;
+/*u0*/DROP VIEW v54;
+/*u0*/DROP VIEW v55;
+/*u0*/DROP VIEW v56;
+/*u0*/DROP VIEW v57;
+DROP TABLE t1;
+DROP TABLE t2;
+DROP TABLE j1;
+--                  ******************************       PHASE 1 Indexes
+drop view v1 if exists;
+drop view v2 if exists;
+drop table t1 if exists;
+drop table t3 if exists;
+drop table t4 if exists;
+/*u0*/CREATE TABLE t1 (i int);
+/*u0*/CREATE TABLE t3 (i int);
+/*u0*/CREATE TABLE t4 (i int);
+/*u0*/CREATE UNIQUE INDEX i1 ON t1(i);
+/*u0*/CREATE UNIQUE INDEX public.i2 on t3(i);
+/*e*/CREATE UNIQUE INDEX other.i3 on t4(i);
+/*e*/CREATE UNIQUE INDEX information_schema.i3 on t4(i int);
+/*e*/DROP INDEX other.i1;
+/*u0*/DROP INDEX public.i1;
+/*e*/DROP INDEX information_schema.i2;
+/*u0*/DROP INDEX i2;
+
+-- Objects created from Sessions are created as public.object for Phase 1
+/*e*/CREATE TABLE other.t2 (i int);  SHOULD FAIL since no such schema
+-- Create the schema "other"
+-- /*u0*/CREATE TABLE other.t2 (i int);
+-- /*u1*/INSERT INTO t2 values(0);
+-- /*u1*/INSERT INTO t2 values(0);
+-- /*e*/SELECT * FROM wrong.t2;
+-- /*c1*/SELECT * FROM other.t2;
+-- /*c2*/SELECT * FROM other.t1;  SHOULD FAIL since we created public.t1

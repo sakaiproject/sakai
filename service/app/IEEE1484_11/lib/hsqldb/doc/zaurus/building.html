@@ -1,0 +1,51 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>Building HSQLDB</title>
+  </head>
+
+<body bgcolor=#FFFFFF>
+<pre>
+<a href="index.html">Index</a></pre>
+<font face="Arial, Helvetica" size="2">
+
+<table border=0 cellspacing=10 cellpadding=0 >
+	<tr> 
+	  <td valign=CENTER> <img src="images/hsqldb.gif"></td>
+	  <td><h2><font face="Arial">Building HSQL Database for Sharp </font></h2></td>
+	  <td align=CENTER><img src="images/zaurus.jpeg"></td>
+	</tr>
+</table>
+
+
+<p>Get the actual version of HSQLDB at <a href="http://hsqldb.sourceforge.net">
+<img alt="sourceforge.net" src="images/sourceforge.gif" border=0>
+</a></p>
+
+<p>For version 1.7.1, you need <a href=http://jakarta.apache.org/ant/index.html>Ant <img
+alt="Ant" src="images/nicksant3.gif" border=0></a> and <a
+href=http://java.sun.com/products/archive/>a Java Development Kit
+<b>1.1</b></a>. Version 1.7.2 should be compiled with JKD 1.3.1.</p>
+
+
+<p> Go to the directory $HSQLDB/build/ and
+build the jar-file for Sharp Zaurus with the command
+
+<blockquote><tt>ant jarzaurus</tt></blockquote>
+
+
+
+<p>The directory subtree $HSQLDB/build/packaging/zaurus/package/ contains the necessary
+directories and files to build an ipkg-package for Sharp Zaurus on a
+<b>Linux</b> system. Make the ipkg-package by submitting the following
+command in the directory $HSQLDB/build/packaging/zaurus/
+
+<blockquote><tt>makePackage</tt></blockquote>
+
+
+    <hr>
+    <address><a href="mailto:hsqldb@ulrivo.de">Ulrich Vollert</a></address>
+<!-- Created: Mon Oct 14 22:58:55 CEST 2002 -->
+</font>
+  </body>
+</html>

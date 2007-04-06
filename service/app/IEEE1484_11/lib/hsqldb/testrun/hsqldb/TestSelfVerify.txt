@@ -1,0 +1,49 @@
+--
+-- TestSelfVerify.txt
+--
+-- This is part of a three part suite of scripts to test persistence in the same DB
+
+-- Correct handling of index creation for foreign keys
+-- check the consistency of foreign keys and primary keys
+/*e*/create table VEREIN(VCODE CHAR(10) not null);
+/*e*/create unique index VEREIN_PK on VEREIN (VCODE);
+/*e*/create table BEWERB(VCODE CHAR(10) not null, ID SMALLINT not null);
+/*e*/create unique index BEWERB_FK2 on BEWERB(ID);
+/*e*/create unique index BEWERB_FK1 on BEWERB(VCODE);
+/*e*/alter table BEWERB add constraint bv foreign key (VCODE) references VEREIN (VCODE);
+
+-- null value in not null column
+/*e*/insert into verein values (null);
+-- referential no matching row
+/*e*/insert into bewerb values ('aaaaaaa',18);
+-- duplicate row
+/*e*/insert into bewerb values ('hijklmn',7);
+-- referential integrity row has reference
+/*e*/delete from verein where vcode='opqrstu'
+
+--test identity increment
+INSERT INTO APP2 (VALUE) VALUES(13);
+INSERT INTO APP2 (VALUE) VALUES(14);
+
+/*r5,14*/ SELECT COUNT(ID), MAX(VALUE) FROM APP2
+
+--test persistence of insert into operations
+/*c2*/SELECT * FROM NEWAPP WHERE APP_NAME = 'Eran';
+/*c2*/SELECT * FROM NEWAPP WHERE APP_NAME = 'Shelly';
+/*c4*/SELECT * FROM NEWAPP;
+
+--test correct persistent of view defined in TestSelfCreate.txt
+/*r
+  14,newdir,NULL
+*/select * from "View"
+
+/*r
+  14,newdir,NULL
+*/select * from "View2"
+
+--test INSERT .. INTO and indexes
+select * into cached bewerb_copy from bewerb;
+create index idx_bewerb_copy on bewerb_copy(VCODE,ID);
+
+/*u0*/SHUTDOWN;
+

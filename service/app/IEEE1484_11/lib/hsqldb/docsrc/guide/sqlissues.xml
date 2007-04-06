@@ -1,0 +1,674 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id: sqlissues.xml,v 1.20 2005/07/01 17:06:32 fredt Exp $ -->
+<chapter id="sql_issues-chapter">
+  <title id="sql_issues-title">SQL Issues</title>
+
+  <chapterinfo>
+    <authorgroup>
+      <author>
+        <firstname>Fred</firstname>
+
+        <surname>Toussi</surname>
+
+        <affiliation>
+          <orgname>HSQLDB Development Group</orgname>
+        </affiliation>
+
+        <email>ft@cluedup.com</email>
+      </author>
+    </authorgroup>
+
+    <edition>$Revision: 1.20 $</edition>
+
+    <pubdate>$Date: 2005/07/01 17:06:32 $</pubdate>
+
+    <keywordset>
+      <keyword>Hsqldb</keyword>
+
+      <keyword>SQL</keyword>
+    </keywordset>
+
+    <legalnotice>
+      <para>Copyright 2002-2005 Fred Toussi. Permission is granted to
+      distribute this document without any alteration under the terms of the
+      HSQLDB license. Additional permission is granted to the HSQLDB
+      Development Group to distribute this document with or without
+      alterations under the terms of the HSQLDB license.</para>
+    </legalnotice>
+  </chapterinfo>
+
+  <section>
+    <title>Purpose</title>
+
+    <para>Many questions repeatedly asked in Forums and mailing lists are
+    answered in this guide. If you want to use HSQLDB with your application,
+    you should read this guide.</para>
+  </section>
+
+  <section>
+    <title>SQL Standard Support</title>
+
+    <para>HSQLDB 1.8.0 supports the dialect of SQL defined by SQL standards
+    92, 99 and 2003. This means where a feature of the standard is supported,
+    e.g. left outer join, the syntax is that specified by the standard text.
+    Many features of SQL92 and 99 up to Advanced Level are supported and there
+    is support for most of SQL 2003 Foundation and several optional features
+    of this standard. However, certain features of the Standards are not
+    supported so no claim is made for full support of any level of the
+    standards.</para>
+
+    <para>The SQL Syntax chapter of this guide <link endterm="sqlsyntax-title"
+    linkend="sqlsyntax-chapter" /> lists all the keywords and syntax that is
+    supported. When writing or converting existing SQL DDL (Data Definition
+    Language) and DML (Data Manipulation Language) statements for HSQLDB, you
+    should consult the supported syntax and modify the statements
+    accordingly.</para>
+
+    <para>Several words are reserved by the standard and cannot be used as
+    table or column names. For example, the word POSITION is reserved as it is
+    a function defined by the Standards with a similar role as
+    String.indexOf() in Java. HSQLDB does not currently prevent you from using
+    a reserved word if it does not support its use or can distinguish it. For
+    example BEGIN is a reserved words that is not currently supported by
+    HSQLDB and is allowed as a table or column name. You should avoid the use
+    of such words as future versions of HSQLDB are likely to support the words
+    and will reject your table definitions or queries. The full list of SQL
+    reserved words is in the source of the
+    <classname>org.hsqldb.Token</classname> class.</para>
+
+    <para>HSQLDB also supports some keywords and expressions that are not part
+    of the SQL standard as enhancements. Expressions such as <literal>SELECT
+    TOP 5 FROM ..</literal>, <literal>SELECT LIMIT 0 10 FROM ...</literal> or
+    <literal>DROP TABLE mytable IF EXISTS</literal> are among such
+    constructs.</para>
+
+    <para>All keywords, can be used for database objects if they are double
+    quoted.</para>
+  </section>
+
+  <section>
+    <title>Constraints and Indexes</title>
+
+    <section>
+      <title>Primary Key Constraints</title>
+
+      <para>Before 1.7.0, a<literal> CONSTRAINT &lt;name&gt; PRIMARY
+      KEY</literal> was translated internally to a unique index and, in
+      addition, a hidden column was added to the table with an extra unique
+      index. From 1.7.0 both single-column and multi-column PRIMARY KEY
+      constraints are supported. They are supported by a unique index on the
+      primary key column(s) specified and no extra hidden column is maintained
+      for these indexes.</para>
+    </section>
+
+    <section>
+      <title>Unique Constraints</title>
+
+      <para>According to the SQL standards, a unique constraint on a single
+      column means no two values are equal unless one of them is NULL. This
+      means you can have one or more rows where the column value is
+      NULL.</para>
+
+      <para>A unique constraint on multiple columns (c1, c2, c3, ..) means
+      that no two sets of values for the columns are equal unless at lease one
+      of them is NULL. Each single column taken by itself can have repeat
+      values. The following example satisfies a UNIQUE constraint on the two
+      columns:</para>
+
+      <example>
+        <title>Column values which satisfy a 2-column UNIQUE
+        constraint</title>
+
+        <simplelist columns="2" type="horiz">
+          <member>1,</member>
+
+          <member>2</member>
+
+          <member>2,</member>
+
+          <member>1</member>
+
+          <member>2,</member>
+
+          <member>2</member>
+
+          <member>NULL,</member>
+
+          <member>1</member>
+
+          <member>NULL,</member>
+
+          <member>1</member>
+
+          <member>1,</member>
+
+          <member>NULL</member>
+
+          <member>NULL,</member>
+
+          <member>NULL</member>
+
+          <member>NULL,</member>
+
+          <member>NULL</member>
+        </simplelist>
+      </example>
+
+      <para>Since version 1.7.2 the behaviour of UNIQUE constraints and
+      indexes with respect to NULL values has changed to conform to SQL
+      standards. A row, in which the value for any of the UNIQUE constraint
+      columns is NULL, can always be added to the table. So multiple rows can
+      contain the same values for the UNIQUE columns if one of the values is
+      NULL.</para>
+    </section>
+
+    <section>
+      <title>Unique Indexes</title>
+
+      <para>In 1.8.0, user defined UNIQUE indexes can still be declared but
+      they are deprecated. You should use a UNIQUE constraint instead.</para>
+
+      <para><literal>CONSTRAINT &lt;name&gt; UNIQUE</literal> always creates
+      internally a unique index on the columns, as with previous versions, so
+      it has exactly the same effect as the deprecated UNIQUE index
+      declaration.</para>
+    </section>
+
+    <section>
+      <title>FOREIGN KEYS</title>
+
+      <para>From version 1.7.0, HSQLDB features single and multiple column
+      foreign keys. A foreign key can also be specified to reference a target
+      table without naming the target column(s). In this case the primary key
+      column(s) of the target table is used as the referenced column(s). Each
+      pair of referencing and referenced columns in any foreign key should be
+      of identical type. When a foreign key is declared, a unique constraint
+      (or primary key) must exist on the referenced columns in the primary key
+      table. A non-unique index is automatically created on the referencing
+      columns. For example:</para>
+
+      <informalexample>
+        <programlisting>
+    CREATE TABLE child(c1 INTEGER, c2 VARCHAR, FOREIGN KEY (c1, c2) REFERENCES parent(p1, p2));</programlisting>
+      </informalexample>
+
+      <para>There must be a UNIQUE constraint on columns
+      <literal>(p1,p2)</literal> in the table named "parent". A non-unique
+      index is automatically created on columns <literal>(c1, c2)</literal> in
+      the table named "child". Columns <literal>p1</literal> and
+      <literal>c1</literal> must be of the same type (INTEGER). Columns
+      <literal>p2</literal> and <literal>c2</literal> must be of the same type
+      (VARCHAR).</para>
+    </section>
+
+    <section>
+      <title>Indexes and Query Speed</title>
+
+      <para>HSQLDB does not use indexes to improve sorting of query results.
+      But indexes have a crucial role in improving query speed. If no index is
+      used in a query on a single table, such as a DELETE query, then all the
+      rows of the table must be examined. With an index on one of the columns
+      that is in the WHERE clause, it is often possible to start directly from
+      the first candidate row and reduce the number of rows that are
+      examined.</para>
+
+      <para>Indexes are even more important in joins between multiple tables.
+      <literal>SELECT ... FROM t1 JOIN t2 ON t1.c1 = t2.c2 </literal> is
+      performed by taking rows of t1 one by one and finding a matching row in
+      t2. If there is no index index on t2.c2 then for each row of t1, all the
+      rows of t2 must be checked. Whereas with an index, a matching row can be
+      found in a fraction of the time. If the query also has a condition on
+      t1, e.g., <literal>SELECT ... FROM t1 JOIN t2 ON t1.c1 = t2.c2 WHERE
+      t1.c3 = 4</literal> then an index on t1.c3 would eliminate the need for
+      checking all the rows of t1 one by one, and will reduce query time to
+      less than a millisecond per returned row. So if t1 and t2 each contain
+      10,000 rows, the query without indexes involves checking 100,000,000 row
+      combinations. With an index on t2.c2, this is reduced to 10,000 row
+      checks and index lookups. With the additional index on t2.c2, only about
+      4 rows are checked to get the first result row.</para>
+
+      <para>Indexes are automatically created for primary key and unique
+      columns. Otherwise you should define an index using the CREATE INDEX
+      command.</para>
+
+      <para>Note that in HSQLDB a unique index on multiple columns can be used
+      internally as a non-unique index on the first column in the list. For
+      example: <literal>CONSTRAINT name1 UNIQUE (c1, c2, c3); </literal> means
+      there is the equivalent of <literal>CREATE INDEX name2 ON
+      atable(c1);</literal>. So you do not need to specify an extra index if
+      you require one on the first column of the list.</para>
+
+      <para>In 1.8.0, a multi-column index will speed up queries that contain
+      joins or values on ALL the columns. You need NOT declare additional
+      individual indexes on those columns unless you use queries that search
+      only on a subset of the columns. For example, rows of a table that has a
+      PRIMARY KEY or UNIQUE constraint on three columns or simply an ordinary
+      index on those columns can be found efficiently when values for all
+      three columns are specified in the WHERE clause. For example,
+      <literal>SELECT ... FROM t1 WHERE t1.c1 = 4 AND t1.c2 = 6 AND t1.c3 = 8
+      </literal>will use an index on <literal>t1(c1,c2,c3)</literal> if it
+      exists.</para>
+
+      <para>As a result of the improvements to multiple key indexes, the order
+      of declared columns of the index or constraint has less affect on the
+      speed of searches than before. If the column that contains more diverse
+      values appears first, the searches will be slightly faster.</para>
+
+      <para>A multi-column index will not speed up queries on the second or
+      third column only. The first column must be specified in the JOIN .. ON
+      or WHERE conditions.</para>
+
+      <para>Query speed depends a lot on the order of the tables in the JOIN
+      .. ON or FROM clauses. For example the second query below should be
+      faster with large tables (provided there is an index on
+      <literal>TB.COL3</literal>). The reason is that TB.COL3 can be evaluated
+      very quickly if it applies to the first table (and there is an index on
+      TB.COL3):</para>
+
+      <informalexample>
+        <programlisting>
+    (TB is a very large table with only a few rows where TB.COL3 = 4)
+
+    SELECT * FROM TA JOIN TB ON TA.COL1 = TB.COL2 AND TB.COL3 = 4;
+
+    SELECT * FROM TB JOIN TA ON TA.COL1 = TB.COL2 AND TB.COL3 = 4;</programlisting>
+      </informalexample>
+
+      <para>The general rule is to put first the table that has a narrowing
+      condition on one of its columns.</para>
+
+      <para>1.7.3 features automatic, on-the-fly indexes for views and
+      subselects that are used in a query. An index is added to a view when it
+      is joined to a table or another view.</para>
+    </section>
+
+    <section>
+      <title>Where Condition or Join</title>
+
+      <para>Using <literal>WHERE</literal> conditions to join tables is likely
+      to reduce execution speed. For example the following query will
+      generally be slow, even with indexes:</para>
+
+      <programlisting>
+    SELECT ... FROM TA, TB, TC WHERE TC.COL3 = TA.COL1 AND TC.COL3=TB.COL2 AND TC.COL4 = 1</programlisting>
+
+      <para>The query implies <literal>TA.COL1 = TB.COL2</literal> but does
+      not explicitly set this condition. If TA and TB each contain 100 rows,
+      10000 combinations will be joined with TC to apply the column
+      conditions, even though there may be indexes on the joined columns. With
+      the JOIN keyword, the <literal>TA.COL1 = TB.COL2</literal> condition has
+      to be explicit and will narrow down the combination of TA and TB rows
+      before they are joined with TC, resulting in much faster execution with
+      larger tables:</para>
+
+      <programlisting>
+    SELECT ... FROM TA JOIN TB ON TA.COL1 = TB.COL2 JOIN TC ON TB.COL2 = TC.COL3 WHERE TC.COL4 = 1</programlisting>
+
+      <para>The query can be speeded up a lot more if the order of tables in
+      joins are changed, so that <literal>TC.COL1 = 1</literal> is applied
+      first and a smaller set of rows are joined together:</para>
+
+      <programlisting>
+    SELECT ... FROM TC JOIN TB ON TC.COL3 = TB.COL2 JOIN TA ON TC.COL3 = TA.COL1 WHERE TC.COL4 = 1</programlisting>
+
+      <para>In the above example the engine automatically applies
+      <literal>TC.COL4 = 1</literal> to TC and joins only the set of rows that
+      satisfy this condition with other tables. Indexes on
+      <literal>TC.COL4</literal>, <literal>TB.COL2</literal> and
+      <literal>TA.COL1</literal> will be used if present and will speed up the
+      query.</para>
+    </section>
+
+    <section>
+      <title>Subqueries and Joins</title>
+
+      <para>Using joins and setting up the order of tables for maximum
+      performance applies to all areas. For example, the second query below
+      should generally be much faster if there are indexes on TA.COL1 and
+      TB.COL3:</para>
+
+      <example>
+        <title>Query comparison</title>
+
+        <programlisting>
+    SELECT ... FROM TA WHERE TA.COL1 = (SELECT MAX(TB.COL2) FROM TB WHERE TB.COL3 = 4)
+
+    SELECT ... FROM (SELECT MAX(TB.COL2) C1 FROM TB WHERE TB.COL3 = 4) T2 JOIN TA ON TA.COL1 = T2.C1</programlisting>
+      </example>
+
+      <para>The second query turns <literal>MAX(TB.COL2)</literal> into a
+      single row table then joins it with TA. With an index on
+      <literal>TA.COL1</literal>, this will be very fast. The first query will
+      test each row in TA and evaluate <literal>MAX(TB.COL2)</literal> again
+      and again.</para>
+    </section>
+  </section>
+
+  <section>
+    <title>Types and Arithmetic Operations</title>
+
+    <para>Table columns of all types supported by HSQLDB can be indexed and
+    can feature in comparisons. Types can be explicitly converted using the
+    CONVERT() library function, but in most cases they are converted
+    automatically. It is recommended not to use indexes on LONGVARBINARY,
+    LONGVARCHAR and OTHER columns, as these indexes will probably not be
+    allowed in future versions.</para>
+
+    <para>Previous versions of HSQLDB featured poor handling of arithmetic
+    operations. For example, it was not possible to insert
+    <literal>10/2.5</literal> into any DOUBLE or DECIMAL column. Since 1.7.0,
+    full operations are possible with the following rules:</para>
+
+    <para>TINYINT, SMALLINT, INTEGER, BIGINT, NUMERIC and DECIMAL (without a
+    decimal point) are supported integral types and map to byte, short, int,
+    long and BigDecimal in Java. The SQL type dictates the maximum and minimum
+    values that can be held in a field of each type. For example the value
+    range for TINYINT is -128 to +127, although the actual Java type used for
+    handling TINYINT is <classname>java.lang.Integer</classname>.</para>
+
+    <para>REAL, FLOAT, DOUBLE are all mapped to double in Java.</para>
+
+    <para>DECIMAL and NUMERIC are mapped to
+    <classname>java.math.BigDecimal</classname> and can have very large
+    numbers of digits.</para>
+
+    <section>
+      <title>Integral Types</title>
+
+      <para>TINYINT, SMALLINT, INTEGER, BIGINT, NUMERIC and DECIMAL (without a
+      decimal point) are fully interchangeable internally, and no data
+      narrowing takes place. Depending on the types of the operands, the
+      result of the operations is returned in a JDBC
+      <classname>ResultSet</classname> in any of related Java types:
+      <classname>Integer</classname>, <classname>Long</classname> or
+      <classname>BigDecimal</classname>. The
+      <literal>ResultSet.getXXXX()</literal> methods can be used to retrieve
+      the values so long as the returned value can be represented by the
+      resulting type. This type is deterministically based on the query, not
+      on the actual rows returned. The type does not change when the same
+      query that returned one row, returns many rows as a result of adding
+      more data to the tables.</para>
+
+      <para>If the SELECT statement refers to a simple column or function,
+      then the return type is the type corresponding to the column or the
+      return type of the function. For example:</para>
+
+      <informalexample>
+        <programlisting>
+    CREATE TABLE t(a INTEGER, b BIGINT); SELECT MAX(a), MAX(b) FROM t;</programlisting>
+      </informalexample>
+
+      <para>would return a result set where the type of the first column is
+      <filename>java.lang.Integer</filename> and the second column is
+      <filename>java.lang.Long</filename>. However,</para>
+
+      <informalexample>
+        <programlisting>
+    SELECT MAX(a) + 1, MAX(b) + 1 FROM t;</programlisting>
+      </informalexample>
+
+      <para>would return <filename>java.lang.Long</filename> and
+      <classname>BigDecimal</classname> values, generated as a result of
+      uniform type promotion for all the return values.</para>
+
+      <para>There is no built-in limit on the size of intermediate integral
+      values in expressions. As a result, you should check for the type of the
+      <classname>ResultSet</classname> column and choose an appropriate
+      <literal>getXXXX()</literal> method to retrieve it. Alternatively, you
+      can use the <literal>getObject()</literal> method, then cast the result
+      to <classname>java.lang.Number </classname> and use the
+      <literal>intValue()</literal> or <literal>longValue()</literal> methods
+      on the result.</para>
+
+      <para>When the result of an expression is stored in a column of a
+      database table, it has to fit in the target column, otherwise an error
+      is returned. For example when <literal>1234567890123456789012 /
+      12345687901234567890</literal> is evaluated, the result can be stored in
+      any integral type column, even a TINYINT column, as it is a small
+      value.</para>
+    </section>
+
+    <section>
+      <title>Other Numeric Types</title>
+
+      <para>In SQL statements, numbers with a decimal point are treated as
+      DECIMAL unless they are written with an exponent. Thus
+      <literal>0.2</literal> is considered a DECIMAL value but
+      <literal>0.2E0</literal> is considered a DOUBLE value.</para>
+
+      <para>When <literal>PreparedStatement.setDouble()</literal> or
+      <literal>setFloat()</literal> is used, the value is treated as a DOUBLE
+      automatically.</para>
+
+      <para>When a REAL, FLOAT or DOUBLE (all synonymous) is part of an
+      expression, the type of the result is DOUBLE.</para>
+
+      <para>Otherwise, when no DOUBLE value exists, if a DECIMAL or NUMERIC
+      value is part an expression, the type of the result is DECIMAL. The
+      result can be retrieved from a <classname>ResultSet</classname> in the
+      required type so long as it can be represented. This means DECIMAL
+      values can be converted to DOUBLE unless they are beyond the
+      <literal>Double.MIN_VALUE - Double.MAX_VALUE</literal> range. Similar to
+      integral values, when the result of an expression is stored in a table
+      column, it has to fit in the target column, otherwise an error is
+      returned.</para>
+
+      <para>The distinction between DOUBLE and DECIMAL is important when a
+      division takes place. When the terms are DECIMAL, the result is a value
+      with a scale (number of digits to the right of the decimal point) equal
+      to the larger of the scales of the two terms. With a DOUBLE term, the
+      scale will reflect the actual result of the operation. For example,
+      <literal>10.0/8.0</literal> (DECIMAL) equals <literal>1.2</literal> but
+      <literal>10.0E0/8.0E0</literal> (DOUBLE) equals <literal>1.25</literal>.
+      Without division operations, DECIMAL values represent exact arithmetic;
+      the resulting scale is the sum of the scales of the two terms when
+      multiplication is performed.</para>
+
+      <para>REAL, FLOAT and DOUBLE values are all stored in the database as
+      <classname>java.lang.Double</classname> objects. Special values such as
+      NaN and +-Infinity are also stored and supported. These values can be
+      submitted to the database via JDBC PreparedStatement methods and are
+      returned in ResultSet objects.</para>
+    </section>
+
+    <section>
+      <title>Bit and Boolean Types</title>
+
+      <para>Since 1.7.2, BIT is simply an alias for BOOLEAN. The primary
+      representation of BOOLEAN column is <literal>'true'</literal> or
+      <literal>'false'</literal> either as the boolean type or as strings when
+      used from JDBC. This type of column can also be initialised using values
+      of any numeric type. In this case <literal>0</literal> is translated to
+      <literal>false</literal> and any other value such as 1 is translated to
+      <literal>true</literal>.</para>
+
+      <para>Since 1.7.3 the BOOLEAN type conforms to the SQL standards and
+      supports the UNDEFINED state in addition to TRUE or FALSE. NULL values
+      are treated as undefined. This improvement affects queries that contain
+      NOT IN. See the test text file, TestSelfNot.txt, for examples of the
+      queries.</para>
+    </section>
+
+    <section>
+      <title>Storage and Handling of Java Objects</title>
+
+      <para>Since version 1.7.2 this support has improved and any serializable
+      JAVA Object can be inserted directly into a column of type OTHER using
+      any variation of <literal>PreparedStatement.setObject()</literal>
+      methods.</para>
+
+      <para>For comparison purposes and in indexes, any two Java Objects are
+      considered equal unless one of them is NULL. You cannot search for a
+      specific object or perform a join on a column of type OTHER.</para>
+
+      <para>Please note that HSQLDB is not an object-relational database. Java
+      Objects can simply be stored internally and no operations should be
+      performed on them other than assignment between columns of type OTHER or
+      tests for NULL. Tests such as <literal>WHERE object1 =
+      object2</literal>, or <literal>WHERE object1 = ? </literal>do not mean
+      what you might expect, as any non-null object would satisfy such a
+      tests. But <literal>WHERE object1 IS NOT NULL</literal> is perfectly
+      acceptable.</para>
+
+      <para>The engine does not return errors when normal column values are
+      assigned to Java Object columns (for example assigning an INTEGER or
+      STRING to such a column with an SQL statement such as <literal>UPDATE
+      mytable SET objectcol = intcol WHERE ...</literal>) but this is highly
+      likely to be disallowed in future. So please use columns of type OTHER
+      only to store your objects and nothing else.</para>
+    </section>
+
+    <section>
+      <title>Type Size, Precision and Scale</title>
+
+      <para>Prior to 1.7.2, all table column type definitions with a column
+      size, precision or scale qualifier were accepted and ignored.</para>
+
+      <para>In 1.8.0, such qualifiers must conform to the SQL standards. For
+      example INTEGER(8) is no longer acceptable. The qualifiers are still
+      ignored unless you set a database property. <literal>SET PROPERTY
+      "sql.enforce_strict_size" TRUE </literal>will enforce sizes for
+      CHARACTER or VARCHAR columns and pad any strings when inserting or
+      updating a CHARACTER column. The precision and scale qualifiers are also
+      enforced for DECIMAL and NUMERIC types. TIMESTAMP can be used with a
+      precision of 0 or 6 only.</para>
+
+      <para>Casting a value to a qualified CHARACTER type will result in
+      truncation or padding as you would expect. So a test such as
+      <literal>CAST (mycol AS VARCHAR(2)) = 'xy'</literal> will find the
+      values beginning with 'xy'. This is the equivalent of
+      <literal>SUBSTRING(mycol FROM 1 FOR 2)</literal> = 'xy'.</para>
+    </section>
+  </section>
+
+  <section>
+    <title>Sequences and Identity</title>
+
+    <para>The SEQUENCE keyword was introduced in 1.7.2 with a subset of the
+    SQL 200n standard syntax. Corresponding SQL 200n syntax for IDENTITY
+    columns has also been introduced.</para>
+
+    <section>
+      <title>Identity Auto-Increment Columns</title>
+
+      <para>Each table can contain one auto-increment column, known as the
+      IDENTITY column. An IDENTITY column is always treated as the primary key
+      for the table (as a result, multi-column primary keys are not possible
+      with an IDENTITY column present). Support has been added for
+      <literal>CREATE TABLE &lt;tablename&gt;(&lt;colname&gt; IDENTITY,
+      ...)</literal> as a shortcut.</para>
+
+      <para>Since 1.7.2, the SQL standard syntax is used by default, which
+      allows the initial value to be specified. The supported form
+      is<literal>(&lt;colname&gt; INTEGER GENERATED BY DEFAULT AS
+      IDENTITY(START WITH n, [INCREMENT BY m])PRIMARY KEY, ...)</literal>.
+      Support has also been added for <literal>BIGINT</literal> identity
+      columns. As a result, an IDENTITY column is simply an INTEGER or BIGINT
+      column with its default value generated by a sequence generator.</para>
+
+      <para>When you add a new row to such a table using an <literal>INSERT
+      INTO &lt;tablename&gt; ...; </literal>statement, you can use the NULL
+      value for the IDENTITY column, which results in an auto-generated value
+      for the column. The <literal>IDENTITY() </literal>function returns the
+      last value inserted into any IDENTITY column by this connection. Use
+      <literal>CALL IDENTITY(); </literal>as an SQL statement to retrieve this
+      value. If you want to use the value for a field in a child table, you
+      can use <literal>INSERT INTO &lt;childtable&gt; VALUES
+      (...,IDENTITY(),...);</literal>. Both types of call to<literal>
+      IDENTITY()</literal> must be made before any additional update or insert
+      statements are issued on the database.</para>
+
+      <para>The next IDENTITY value to be used can be set with the
+      <programlisting>ALTER TABLE ALTER COLUMN &lt;column name&gt; RESTART WITH &lt;new value&gt;;</programlisting></para>
+    </section>
+
+    <section>
+      <title>Sequences</title>
+
+      <para>The SQL 200n syntax and usage is different from what is supported
+      by many existing database engines. Sequences are created with the
+      <literal>CREATE SEQUENCE</literal> command and their current value can
+      be modified at any time with <literal>ALTER SEQUENCE</literal>. The next
+      value for a sequence is retrieved with the <literal>NEXT VALUE FOR
+      &lt;name&gt;</literal> expression. This expression can be used for
+      inserting and updating table rows. You can also use it in select
+      statements. For example, if you want to number the returned rows of a
+      SELECT in sequential order, you can use:</para>
+
+      <example>
+        <title>Numbering returned rows of a SELECT in sequential order</title>
+
+        <programlisting>
+    SELECT NEXT VALUE FOR mysequence, col1, col2 FROM mytable WHERE ...</programlisting>
+      </example>
+
+      <para>Please note that the semantics of sequences is not exactly the
+      same as defined by SQL 200n. For example if you use the same sequence
+      twice in the same row insert query, you will get two different values,
+      not the same value as required by the standard.</para>
+
+      <para>You can query the SYSTEM_SEQUENCES table for the next value that
+      will be returned from any of the defined sequences. The SEQUENCE_NAME
+      column contains the name and the NEXT_VALUE column contains the next
+      value to be returned.</para>
+    </section>
+  </section>
+
+  <section>
+    <title>Issues with Transactions</title>
+
+    <para>HSQLDB supports transactions at the READ_UNCOMMITTED level, also
+    known as level 0 transaction isolation. This means that during the
+    lifetime of a transaction, other connections to the database can see the
+    changes made to the data. Transaction support works well in general.
+    Reported bugs concerning transactions being committed if the database is
+    abruptly closed have been fixed. However, the following issues may be
+    encountered only with multiple connections to a database using
+    transactions:</para>
+
+    <para>If two transactions modify the same row, no exception is raised when
+    both transactions are committed. This can be avoided by designing your
+    database in such a way that application data consistency does not depend
+    on exclusive modification of data by one transaction. You can set a
+    database property to cause an exception when this happens.<programlisting>SET PROPERTY "sql.tx_no_multi_rewrite" TRUE</programlisting>When
+    an <literal>ALTER TABLE .. INSERT COLUMN</literal> or <literal>DROP
+    COLUMN</literal> command results in changes to the table structure, the
+    current session is committed. If an uncommitted transaction started by
+    another connections has changed the data in the affected table, it may not
+    be possible to roll it back after the <literal>ALTER TABLE</literal>
+    command. This may also apply to <literal>ADD INDEX</literal> or
+    <literal>ADD CONSTRAINT</literal> commands. It is recommended to use these
+    <literal>ALTER</literal> commands only when it is known that other
+    connections are not using transactions.</para>
+
+    <para>After a CHECKPOINT command is issued, uncommitted transactions can
+    be continued, committed, or rolled back. However, if the database is not
+    subsequently closed properly with the SHUTDOWN command, any such
+    transaction that still remains uncommitted at the time of shutdown, is
+    part committed (to the state at CHECKPOINT) at the next startup. It is
+    recommended to use the CHECKPOINT command either when no uncommitted
+    transactions is in progress, or it is known that any such transaction is
+    not likely to last for such a long time that an abnormal shutdown might
+    affect its data.</para>
+  </section>
+
+  <section>
+    <title>New Features and Changes</title>
+
+    <para>In recent versions leading to 1.8.0 many enhancements were made for
+    better SQL support. These are listed in the <link
+    endterm="sqlsyntax-title" linkend="sqlsyntax-chapter" /> chapter, in
+    <ulink url="../changelog_1_8_0.txt" /> and <ulink url="../changelog_1_7_2.txt" />.
+ Functions and expressions such as
+    POSITION(), SUBSTRING(), NULLIF(), COALESCE(), CASE ... WHEN .. ELSE, ANY,
+    ALL etc. are among them. Other enhancements may not be very obvious in the
+    documentation but can result in changes of behaviour from previous
+    versions. Most significant among these are handling of NULL values in
+    joins (null columns are no longer joined) and OUTER joins (the results are
+    now correct). You should test your applications with the new version to
+    ensure they do not rely on past incorrect behaviour of the engine. The
+    engine will continue to evolve in future versions towards full SQL
+    standard support, so it is best not to rely on any non-standard feature of
+    the current version.</para>
+  </section>
+</chapter>

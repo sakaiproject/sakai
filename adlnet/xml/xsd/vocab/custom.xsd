@@ -1,0 +1,127 @@
+<xs:schema targetNamespace="http://ltsc.ieee.org/xsd/LOM/vocab"
+           xmlns="http://ltsc.ieee.org/xsd/LOM/vocab"
+           xmlns:lom="http://ltsc.ieee.org/xsd/LOM"
+           xmlns:lx="http://ltsc.ieee.org/xsd/LOM/custom"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           version="IEEE LTSC LOM XML 1.0">
+
+   <xs:annotation>
+      <xs:documentation>
+         This work is licensed under the Creative Commons Attribution-ShareAlike
+         License.  To view a copy of this license, see the file license.txt,
+         visit http://creativecommons.org/licenses/by-sa/1.0 or send a letter to
+         Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+      </xs:documentation>
+
+      <xs:documentation>
+         This component schema provides simple type declarations for metadata
+         elements whose values are taken from a vocabulary datatype.
+
+         This component schema supports strict validation of both standard and custom
+         vocabulary values by checking that both the source and value are taken
+         from either the standard token set or from a custom token set.
+      </xs:documentation>
+   </xs:annotation>
+
+   <xs:import namespace="http://ltsc.ieee.org/xsd/LOM"/>
+   <xs:import namespace="http://ltsc.ieee.org/xsd/LOM/custom"/>
+  
+   <!-- Vocabulary type declarations -->
+
+   <!-- Source -->
+   <xs:simpleType name="source">
+      <xs:union memberTypes="lom:sourceValues lx:sourceValues"/>
+   </xs:simpleType>
+
+   <!-- 1.7 Structure -->
+   <xs:simpleType name="structure">
+      <xs:union memberTypes="lom:structureValues lx:structureValues"/>
+   </xs:simpleType>
+
+   <!-- 1.8 Aggregation Level -->
+   <xs:simpleType name="aggregationLevel">
+      <xs:union memberTypes="lom:aggregationLevelValues lx:aggregationLevelValues"/>
+   </xs:simpleType>
+
+   <!-- 2.2 Status -->
+   <xs:simpleType name="status">
+      <xs:union memberTypes="lom:statusValues lx:statusValues"/>
+   </xs:simpleType>
+
+   <!-- 2.3.1 Role -->
+   <xs:simpleType name="role">
+      <xs:union memberTypes="lom:roleValues lx:roleValues"/>
+   </xs:simpleType>
+
+   <!-- 3.2.1 Role -->
+   <xs:simpleType name="roleMeta">
+      <xs:union memberTypes="lom:roleMetaValues lx:roleMetaValues"/>
+   </xs:simpleType>
+
+   <!-- 4.4.1.1 Type -->
+   <xs:simpleType name="type">
+      <xs:union memberTypes="lom:typeValues lx:typeValues"/>
+   </xs:simpleType>
+
+   <!-- 4.4.1.2 Name -->
+   <xs:simpleType name="name">
+      <xs:union memberTypes="lom:nameValues lx:nameValues"/>
+   </xs:simpleType>
+
+   <!-- 5.1 Interactivity Type -->
+   <xs:simpleType name="interactivityType">
+      <xs:union memberTypes="lom:interactivityTypeValues lx:interactivityTypeValues"/>
+   </xs:simpleType>
+
+   <!-- 5.2 Learning Resource Type -->
+   <xs:simpleType name="learningResourceType">
+      <xs:union memberTypes="lom:learningResourceTypeValues lx:learningResourceTypeValues"/>
+   </xs:simpleType>
+
+   <!-- 5.3 Interactivity Level -->
+   <xs:simpleType name="interactivityLevel">
+      <xs:union memberTypes="lom:interactivityLevelValues lx:interactivityLevelValues"/>
+   </xs:simpleType>
+
+   <!-- 5.4 Semantic Density -->
+   <xs:simpleType name="semanticDensity">
+      <xs:union memberTypes="lom:semanticDensityValues lx:semanticDensityValues"/>
+   </xs:simpleType>
+
+   <!-- 5.5 Intended End User Role -->
+   <xs:simpleType name="intendedEndUserRole">
+      <xs:union memberTypes="lom:intendedEndUserRoleValues lx:intendedEndUserRoleValues"/>
+   </xs:simpleType>
+
+   <!-- 5.6 Context -->
+   <xs:simpleType name="context">
+      <xs:union memberTypes="lom:contextValues lx:contextValues"/>
+   </xs:simpleType>
+
+   <!-- 5.8 Difficulty -->
+   <xs:simpleType name="difficulty">
+      <xs:union memberTypes="lom:difficultyValues lx:difficultyValues"/>
+   </xs:simpleType>
+
+   <!-- 6.1 Cost -->
+   <xs:simpleType name="cost">
+      <xs:union memberTypes="lom:costValues lx:costValues"/>
+   </xs:simpleType>
+
+   <!-- 6.2 Copyright and Other Restrictions -->
+   <xs:simpleType name="copyrightAndOtherRestrictions">
+      <xs:union memberTypes="lom:copyrightAndOtherRestrictionsValues lx:copyrightAndOtherRestrictionsValues"/>
+   </xs:simpleType>
+
+   <!-- 7.1 Kind -->
+   <xs:simpleType name="kind">
+      <xs:union memberTypes="lom:kindValues lx:kindValues"/>
+   </xs:simpleType>
+
+   <!-- 9.1 Purpose -->
+   <xs:simpleType name="purpose">
+      <xs:union memberTypes="lom:purposeValues lx:purposeValues"/>
+   </xs:simpleType>
+
+</xs:schema>

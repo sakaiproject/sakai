@@ -1,0 +1,378 @@
+<xs:schema targetNamespace="http://ltsc.ieee.org/xsd/LOM/unique"
+           xmlns="http://ltsc.ieee.org/xsd/LOM/unique"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           version="IEEE LTSC LOM XML 1.0">
+
+  <xs:annotation>
+    <xs:documentation>
+       This work is licensed under the Creative Commons Attribution-ShareAlike
+       License.  To view a copy of this license, see the file license.txt,
+       visit http://creativecommons.org/licenses/by-sa/1.0 or send a letter to
+       Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+    </xs:documentation>
+
+    <xs:documentation>
+       This component schema provides attribute group declarations for metadata
+       elements to support strict validation of element uniqueness constraints,
+       by providing the attribute uniqueElementName for each metadata element
+       that should appear with multiplicity at most one.
+    </xs:documentation>
+  </xs:annotation>
+
+  <!-- Attribute group declarations -->
+
+  <!-- Duplicate declarations are included as comments. -->
+
+  <!-- For duplicate element names with different local multiplicities,
+       the unique declaration is used.  The non-unique instances use
+       local element declarations.  (<language>, <description>, <entity>)
+    -->
+
+  <!-- Learning Object Metadata -->
+  <xs:attributeGroup name="lom"/>
+
+  <!-- DateTime -->
+  <xs:attributeGroup name="DateTimeValue">
+    <xs:attribute name="uniqueElementName" fixed="dateTime"/>
+  </xs:attributeGroup>
+
+  <!-- Duration -->
+  <xs:attributeGroup name="DurationValue">
+    <xs:attribute name="uniqueElementName" fixed="duration"/>
+  </xs:attributeGroup>
+
+  <!-- Source -->
+  <xs:attributeGroup name="source">
+    <xs:attribute name="uniqueElementName" fixed="source"/>
+  </xs:attributeGroup>
+
+  <!-- Value -->
+  <xs:attributeGroup name="value">
+    <xs:attribute name="uniqueElementName" fixed="value"/>
+  </xs:attributeGroup>
+
+  <!-- 1 General -->
+  <xs:attributeGroup name="general">
+    <xs:attribute name="uniqueElementName" fixed="general"/>
+  </xs:attributeGroup>
+
+  <!-- 1.1 Identifier -->
+  <xs:attributeGroup name="identifier"/>
+
+  <!-- 1.1.1 Catalog -->
+  <xs:attributeGroup name="catalog">
+    <xs:attribute name="uniqueElementName" fixed="catalog"/>
+  </xs:attributeGroup>
+
+  <!-- 1.1.2 Entry -->
+  <xs:attributeGroup name="entry">
+    <xs:attribute name="uniqueElementName" fixed="entry"/>
+  </xs:attributeGroup>
+
+  <!-- 1.2 Title -->
+  <xs:attributeGroup name="title">
+    <xs:attribute name="uniqueElementName" fixed="title"/>
+  </xs:attributeGroup>
+
+  <!-- 1.3 Language
+  <xs:attributeGroup name="language"/> -->
+
+  <!-- 1.4 Description
+  <xs:attributeGroup name="description"/> -->
+
+  <!-- 1.5 Keyword -->
+  <xs:attributeGroup name="keyword"/>
+
+  <!-- 1.6 Coverage -->
+  <xs:attributeGroup name="coverage"/>
+
+  <!-- 1.7 Structure -->
+  <xs:attributeGroup name="structure">
+    <xs:attribute name="uniqueElementName" fixed="structure"/>
+  </xs:attributeGroup>
+
+  <!-- 1.8 Aggregation Level -->
+  <xs:attributeGroup name="aggregationLevel">
+    <xs:attribute name="uniqueElementName" fixed="aggregationLevel"/>
+  </xs:attributeGroup>
+
+  <!-- 2 Life Cycle -->
+  <xs:attributeGroup name="lifeCycle">
+    <xs:attribute name="uniqueElementName" fixed="lifeCycle"/>
+  </xs:attributeGroup>
+
+  <!-- 2.1 Version -->
+  <xs:attributeGroup name="version">
+    <xs:attribute name="uniqueElementName" fixed="version"/>
+  </xs:attributeGroup>
+
+  <!-- 2.2 Status -->
+  <xs:attributeGroup name="status">
+    <xs:attribute name="uniqueElementName" fixed="status"/>
+  </xs:attributeGroup>
+
+  <!-- 2.3 Contribute -->
+  <xs:attributeGroup name="contribute"/>
+
+  <!-- 2.3.1 Role -->
+  <xs:attributeGroup name="role">
+    <xs:attribute name="uniqueElementName" fixed="role"/>
+  </xs:attributeGroup>
+
+  <!-- 2.3.2 Entity
+  <xs:attributeGroup name="entity"/> -->
+
+  <!-- 2.3.3 Date -->
+  <xs:attributeGroup name="date">
+    <xs:attribute name="uniqueElementName" fixed="date"/>
+  </xs:attributeGroup>
+
+  <!-- 3 Meta-Metadata -->
+  <xs:attributeGroup name="metaMetadata">
+    <xs:attribute name="uniqueElementName" fixed="metaMetadata"/>
+  </xs:attributeGroup>
+
+  <!-- 3.1 Identifier
+  <xs:attributeGroup name="identifier"/> -->
+
+  <!-- 3.1.1 Catalog
+  <xs:attributeGroup name="catalog">
+    <xs:attribute name="uniqueElementName" fixed="catalog"/>
+  </xs:attributeGroup> -->
+
+  <!-- 3.1.2 Entry
+  <xs:attributeGroup name="entry">
+    <xs:attribute name="uniqueElementName" fixed="entry"/>
+  </xs:attributeGroup> -->
+
+  <!-- 3.2 Contribute
+  <xs:attributeGroup name="contribute"/> -->
+
+  <!-- 3.2.1 Role
+  <xs:attributeGroup name="role">
+    <xs:attribute name="uniqueElementName" fixed="role"/>
+  </xs:attributeGroup> -->
+
+  <!-- 3.2.2 Entity
+  <xs:attributeGroup name="entity"/> -->
+
+  <!-- 3.2.3 Date
+  <xs:attributeGroup name="date">
+    <xs:attribute name="uniqueElementName" fixed="date"/>
+  </xs:attributeGroup> -->
+
+  <!-- 3.3 Metadata Schema -->
+  <xs:attributeGroup name="metadataSchema"/>
+
+  <!-- 3.4 Language -->
+  <xs:attributeGroup name="language">
+    <xs:attribute name="uniqueElementName" fixed="language"/>
+  </xs:attributeGroup>
+
+  <!-- 4 Technical -->
+  <xs:attributeGroup name="technical">
+    <xs:attribute name="uniqueElementName" fixed="technical"/>
+  </xs:attributeGroup>
+
+  <!-- 4.1 Format -->
+  <xs:attributeGroup name="format"/>
+
+  <!-- 4.2 Size -->
+  <xs:attributeGroup name="size">
+    <xs:attribute name="uniqueElementName" fixed="size"/>
+  </xs:attributeGroup>
+
+  <!-- 4.3 Location -->
+  <xs:attributeGroup name="location"/>
+
+  <!-- 4.4 Requirement -->
+  <xs:attributeGroup name="requirement"/>
+
+  <!-- 4.4.1 OrComposite -->
+  <xs:attributeGroup name="orComposite"/>
+
+  <!-- 4.4.1.1 Type -->
+  <xs:attributeGroup name="type">
+    <xs:attribute name="uniqueElementName" fixed="type"/>
+  </xs:attributeGroup>
+
+  <!-- 4.4.1.2 Name -->
+  <xs:attributeGroup name="name">
+    <xs:attribute name="uniqueElementName" fixed="name"/>
+  </xs:attributeGroup>
+
+  <!-- 4.4.1.3 Minimum Version -->
+  <xs:attributeGroup name="minimumVersion">
+    <xs:attribute name="uniqueElementName" fixed="minimumVersion"/>
+  </xs:attributeGroup>
+
+  <!-- 4.4.1.4 Maximum Version -->
+  <xs:attributeGroup name="maximumVersion">
+    <xs:attribute name="uniqueElementName" fixed="maximumVersion"/>
+  </xs:attributeGroup>
+
+  <!-- 4.5 Installation Remarks -->
+  <xs:attributeGroup name="installationRemarks">
+    <xs:attribute name="uniqueElementName" fixed="installationRemarks"/>
+  </xs:attributeGroup>
+
+  <!-- 4.6 Other Platform Requirements -->
+  <xs:attributeGroup name="otherPlatformRequirements"/>
+
+  <!-- 4.7 Duration -->
+  <xs:attributeGroup name="duration">
+    <xs:attribute name="uniqueElementName" fixed="duration"/>
+  </xs:attributeGroup>
+
+  <!-- 5 Educational -->
+  <xs:attributeGroup name="educational"/>
+
+  <!-- 5.1 Interactivity Type -->
+  <xs:attributeGroup name="interactivityType">
+    <xs:attribute name="uniqueElementName" fixed="interactivityType"/>
+  </xs:attributeGroup>
+
+  <!-- 5.2 Learning Resource Type -->
+  <xs:attributeGroup name="learningResourceType"/>
+
+  <!-- 5.3 Interactivity Level -->
+  <xs:attributeGroup name="interactivityLevel">
+    <xs:attribute name="uniqueElementName" fixed="interactivityLevel"/>
+  </xs:attributeGroup>
+
+  <!-- 5.4 Semantic Density -->
+  <xs:attributeGroup name="semanticDensity">
+    <xs:attribute name="uniqueElementName" fixed="semanticDensity"/>
+  </xs:attributeGroup>
+
+  <!-- 5.5 Intended End User Role -->
+  <xs:attributeGroup name="intendedEndUserRole"/>
+
+  <!-- 5.6 Context -->
+  <xs:attributeGroup name="context"/>
+
+  <!-- 5.7 Typical Age Range -->
+  <xs:attributeGroup name="typicalAgeRange"/>
+
+  <!-- 5.8 Difficulty -->
+  <xs:attributeGroup name="difficulty">
+    <xs:attribute name="uniqueElementName" fixed="difficulty"/>
+  </xs:attributeGroup>
+
+  <!-- 5.9 Typical Learning Time -->
+  <xs:attributeGroup name="typicalLearningTime">
+    <xs:attribute name="uniqueElementName" fixed="typicalLearningTime"/>
+  </xs:attributeGroup>
+
+  <!-- 5.10 Description
+  <xs:attributeGroup name="description"/> -->
+
+  <!-- 5.11 Language
+  <xs:attributeGroup name="language"/> -->
+
+  <!-- 6 Rights -->
+  <xs:attributeGroup name="rights">
+    <xs:attribute name="uniqueElementName" fixed="rights"/>
+  </xs:attributeGroup>
+
+  <!-- 6.1 Cost -->
+  <xs:attributeGroup name="cost">
+    <xs:attribute name="uniqueElementName" fixed="cost"/>
+  </xs:attributeGroup>
+
+  <!-- 6.2 Copyright and Other Restrictions -->
+  <xs:attributeGroup name="copyrightAndOtherRestrictions">
+    <xs:attribute name="uniqueElementName" fixed="copyrightAndOtherRestrictions"/>
+  </xs:attributeGroup>
+
+  <!-- 6.3 Description -->
+  <xs:attributeGroup name="description">
+    <xs:attribute name="uniqueElementName" fixed="description"/>
+  </xs:attributeGroup>
+
+  <!-- 7 Relation -->
+  <xs:attributeGroup name="relation"/>
+
+  <!-- 7.1 Kind -->
+  <xs:attributeGroup name="kind">
+    <xs:attribute name="uniqueElementName" fixed="kind"/>
+  </xs:attributeGroup>
+
+  <!-- 7.2 Resource -->
+  <xs:attributeGroup name="resource">
+    <xs:attribute name="uniqueElementName" fixed="resource"/>
+  </xs:attributeGroup>
+
+  <!-- 7.2.1 Identifier
+  <xs:attributeGroup name="identifier"/> -->
+
+  <!-- 7.2.1.1 Catalog
+  <xs:attributeGroup name="catalog">
+    <xs:attribute name="uniqueElementName" fixed="catalog"/>
+  </xs:attributeGroup> -->
+
+  <!-- 7.2.1.2 Entry
+  <xs:attributeGroup name="entry">
+    <xs:attribute name="uniqueElementName" fixed="entry"/>
+  </xs:attributeGroup> -->
+
+  <!-- 7.2.2 Description
+  <xs:attributeGroup name="description"/> -->
+
+  <!-- 8 Annotation -->
+  <xs:attributeGroup name="annotation"/>
+
+  <!-- 8.1 Entity -->
+  <xs:attributeGroup name="entity">
+    <xs:attribute name="uniqueElementName" fixed="entity"/>
+  </xs:attributeGroup>
+
+  <!-- 8.2 Date
+  <xs:attributeGroup name="date">
+    <xs:attribute name="uniqueElementName" fixed="date"/>
+  </xs:attributeGroup> -->
+
+  <!-- 8.3 Description
+  <xs:attributeGroup name="description">
+    <xs:attribute name="uniqueElementName" fixed="description"/>
+  </xs:attributeGroup> -->
+
+  <!-- 9 Classification -->
+  <xs:attributeGroup name="classification"/>
+
+  <!-- 9.1 Purpose -->
+  <xs:attributeGroup name="purpose">
+    <xs:attribute name="uniqueElementName" fixed="purpose"/>
+  </xs:attributeGroup>
+
+  <!-- 9.2 Taxon Path -->
+  <xs:attributeGroup name="taxonPath"/>
+
+  <!-- 9.2.1 Source
+  <xs:attributeGroup name="source">
+    <xs:attribute name="uniqueElementName" fixed="source"/>
+  </xs:attributeGroup> -->
+
+  <!-- 9.2.2 Taxon -->
+  <xs:attributeGroup name="taxon"/>
+
+  <!-- 9.2.2.1 Id -->
+  <xs:attributeGroup name="id">
+    <xs:attribute name="uniqueElementName" fixed="id"/>
+  </xs:attributeGroup>
+
+  <!-- 9.2.2.2 Entry
+  <xs:attributeGroup name="entry">
+    <xs:attribute name="uniqueElementName" fixed="entry"/>
+  </xs:attributeGroup> -->
+
+  <!-- 9.3 Description
+  <xs:attributeGroup name="description">
+    <xs:attribute name="uniqueElementName" fixed="description"/>
+  </xs:attributeGroup> -->
+
+  <!-- 9.4 Keyword
+  <xs:attributeGroup name="keyword"/> -->
+
+</xs:schema>

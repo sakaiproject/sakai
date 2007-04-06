@@ -1,0 +1,159 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping default-cascade="all" default-access="field" package="org.adl.datamodels" default-lazy="false">
+	
+	<class name="org.adl.datamodels.DMDelimiterDescriptor" table="DM_DELIMITER_DESCRIPTOR_T">
+	
+		<id column="ID" type="long">
+            <generator class="native">
+                <param name="sequence">DM_DELIM_DESC_S</param>
+            </generator>
+        </id>
+        
+        <property name="mName" column="NAME" />
+	
+		<property name="mDefault" column="DEFAULT" />
+		
+		<property name="mValueSPM" column="VALUE_SPM" />
+		
+		<many-to-one name="mValidator" column="VALIDATOR" unique-key="ID" index="DM_DELIM_DESC_VAL_IDX" class="org.adl.datamodels.DMTypeValidator" />
+		
+	</class>
+	
+	<class name="org.adl.datamodels.DMDelimiter" table="DM_DELIMITER_T">
+	
+		<id column="ID" type="long">
+            <generator class="native">
+                <param name="sequence">DM_DELIM_S</param>
+            </generator>
+        </id>
+        
+        <many-to-one name="mDescription" column="DESCRIPTION" unique-key="ID" index="DM_DELIM_DESC_IDX" class="org.adl.datamodels.DMDelimiterDescriptor" />	
+        
+		<property name="mValue" column="VALUE" />
+	
+	</class>
+	
+	<class name="org.adl.datamodels.DMTypeValidator" table="DM_TYPE_VALIDATOR_T">
+		
+		<id column="ID" type="long">
+            <generator class="native">
+                <param name="sequence">DM_TYPE_VAL_S</param>
+            </generator>
+        </id>
+		
+		<property name="mType" column="TYPE" />
+	
+	</class>
+	
+	
+	<class name="org.adl.datamodels.DMElementDescriptor" table="DM_ELEMENT_DESCRIPTOR_T">
+	
+		<id column="ID" type="long">
+            <generator class="native">
+                <param name="sequence">DM_ELEM_DESC_S</param>
+            </generator>
+        </id>
+	
+		<property name="mBinding" column="BINDING" />
+	
+		<list name="mChildren" table="DM_ELEM_DESC_CHILD_LIST_T" inverse="true"
+			collection-type="org.sakaiproject.scorm.service.app.VectorType">
+			<key column="CHILDREN" />
+			<list-index column="CHILD_SORT_ORDER"/>
+			<many-to-many class="org.adl.datamodels.DMElementDescriptor" column="ID" />
+		</list>
+	
+		<property name="mIsReadable" column="IS_READABLE" />
+	
+		<property name="mIsWriteable" column="IS_WRITABLE" />
+	
+		<list name="mDelimiters" table="DM_DELIMITERS_CHILD_LIST_T" inverse="true">
+			<key column="DELIMITERS" />
+			<list-index column="DELIM_SORT_ORDER"/>
+			<many-to-many class="org.adl.datamodels.DMDelimiter" column="ID" />
+		</list>
+	
+		<property name="mInitial" column="INITIAL_VALUE" />
+		
+		<list name="mDependentOn" table="DM_ELEM_ORDER_DEP_LIST_T" inverse="true">
+			<key column="DEPENDENT_ON" />
+			<list-index column="DEPEND_SORT_ORDER"/>
+			<many-to-many class="org.adl.datamodels.DMElementDescriptor" column="ID" />
+		</list>
+	
+		<property name="mIsUnique" column="IS_UNIQUE" />
+		
+		<property name="mWriteOnce" column="IS_WRITE_ONCE" />
+	
+		<property name="mValueSPM" column="VALUE_SPM" />
+		
+		<property name="mSPM" column="SPM" />
+	
+		<property name="mOldSPM" column="OLD_SPM" />
+	
+		<property name="mMaximum" column="IS_MAXIMUM" />
+	
+		<property name="mShowChildren" column="IS_SHOW_CHILDREN" />
+	
+		<many-to-one name="mValidator" column="VALIDATOR" unique-key="ID" index="DM_ELEM_DESC_VAL_IDX" class="org.adl.datamodels.DMTypeValidator" />
+		
+	</class>
+	
+	<class name="org.adl.datamodels.DMElement" table="DM_ELEMENT_T" discriminator-value="0">
+	
+		<id column="ID" type="long">
+            <generator class="native">
+                <param name="sequence">DM_ELEMENT_S</param>
+            </generator>
+        </id>
+
+		<many-to-one name="mDescription" column="DESCRIPTION" unique-key="ID" index="DM_ELEMENT_PARENT_IDX" class="org.adl.datamodels.DMElementDescriptor" />	
+		
+		<many-to-one name="mParent" column="PARENT" unique-key="ID" index="DM_ELEMENT_PARENT_IDX" class="org.adl.datamodels.DMElement" />
+		
+		<list name="mChildrenBindings" table="DM_ELEM_CHILD_BIND_T" inverse="true">
+			<key column="CHILDREN_BINDINGS" />
+			<list-index column="CHILD_BINDING_SORT_ORDER"/>
+			<many-to-many class="org.adl.datamodels.DMElement" column="ID" />
+		</list>
+			
+		<map name="mChildren" 
+        	table="DM_ELEMENT_CHILDREN_T">
+    		<key column="CHILDREN"/>
+    		<map-key column="CHILD_NAME" type="string"/>
+    		<one-to-many class="org.adl.datamodels.DMElement"/>
+		</map>
+	
+		<list name="mRecords" table="DM_ELEM_RECORD_T" inverse="true">
+			<key column="RECORDS" />
+			<list-index column="RECORDS_SORT_ORDER"/>
+			<many-to-many class="org.adl.datamodels.DMElement" column="ID" />
+		</list>
+	
+		<property name="mValue" column="VALUE" />
+	
+		<list name="mDelimiters" table="DM_DELIMITERS_CHILD_LIST_T" inverse="true">
+			<key column="DELIMITERS" />
+			<list-index column="DELIM_SORT_ORDER"/>
+			<many-to-many class="org.adl.datamodels.DMDelimiter" column="ID" />
+		</list>
+		
+		<property name="mInitialized" column="IS_INITIALIZED" />
+		
+		<property name="mTruncSPM" column="DO_TRUNC_SPM" />
+
+		<joined-subclass name="org.adl.datamodels.ieee.SCORM_2004_DMElement" table="SCORM_2004_DM_ELEMENT_T">
+			<key column="ID"/>
+		</joined-subclass>
+
+	</class>
+	
+	
+	
+	
+	
+	
+	
+</hibernate-mapping>

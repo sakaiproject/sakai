@@ -1,0 +1,61 @@
+--
+-- TestSelfModify.txt
+--
+
+-- TestSelfModify.txt is used by TestSelf.java to test the database
+--
+-- This is part of a three part suite of scripts to test persistence in the same DB
+--
+-- Comment lines must start with -- and are ignored
+-- Lines starting with spaces belongs to last line
+-- Checked lines start with comments containing <tag> where <tag> is:
+--   c <rows>     ResultSet expects a with <row> columns
+--   r <string>   ResultSet expected with <string> result in first row/column
+--   u <count>    Update count <count> expected
+--   e            Exception must occur
+--
+--bug #824031 continued
+--scripting test for order of indexes
+/*c1*/SELECT * FROM APP WHERE APP_NAME = 'Eran';
+/*c1*/SELECT * FROM APP WHERE APP_NAME = 'Shelly';
+/*c2*/SELECT * FROM APP;
+--
+-- TEST 1
+-- Correct handling of index creation for foreign keys
+-- insert some values
+/*u1*/insert into verein values ('abcdefg');
+/*u1*/insert into verein values ('hijklmn');
+/*u1*/insert into verein values ('opqrstu');
+/*u1*/insert into verein values ('vwxyz');
+/*u1*/insert into bewerb values ('abcdefg',1);
+/*e*/insert into bewerb values ('abcdefg',2);
+/*u1*/insert into bewerb values ('hijklmn',5);
+/*e*/insert into bewerb values ('hijklmn',6);
+/*u1*/insert into bewerb values ('opqrstu',8);
+/*e*/insert into bewerb values ('opqrstu',9);
+/*u1*/insert into bewerb values ('vwxyz',10);
+
+--test identity increment
+INSERT INTO APP2 (VALUE) VALUES(11);
+INSERT INTO APP2 (VALUE) VALUES(12);
+
+--test result of update before previous shutdown
+/*r
+  14,newdir,NULL,NULL,NULL
+*/select * from file;
+
+--test insert into table
+
+SELECT * INTO NEWAPP FROM APP;
+/*c1*/SELECT * FROM NEWAPP WHERE APP_NAME = 'Eran';
+/*c1*/SELECT * FROM NEWAPP WHERE APP_NAME = 'Shelly';
+/*c2*/SELECT * FROM NEWAPP;
+
+INSERT INTO NEWAPP (SELECT * FROM APP)
+/*c2*/SELECT * FROM NEWAPP WHERE APP_NAME = 'Eran';
+/*c2*/SELECT * FROM NEWAPP WHERE APP_NAME = 'Shelly';
+/*c4*/SELECT * FROM NEWAPP;
+
+-- SHUTDOWN is necessary for test1
+/*u0*/SHUTDOWN;
+

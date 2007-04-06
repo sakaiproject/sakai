@@ -1,0 +1,239 @@
+<!-- $Id: dbfiles.xml,v 1.4 2005/07/01 17:06:32 fredt Exp $ -->
+
+<appendix>
+
+<title>Hsqldb Database Files and Recovery</title>
+<appendixinfo>
+    <edition>$Revision: 1.4 $</edition>
+    <pubdate>$Date: 2005/07/01 17:06:32 $</pubdate>
+    <keywordset>
+        <keyword>HSQLDB</keyword>
+        <keyword>Data</keyword>
+        <keyword>Files</keyword>
+    </keywordset>
+    <legalnotice><para>
+        This text is based on HypersonicSQL documentation, updated to reflect 
+        the latest version 1.8.0 of HSQLDB.
+    </para></legalnotice>
+</appendixinfo>
+
+<section>
+    <para>
+        The Standalone and Client/Server modes will in most cases use files to 
+        store all data to disk in a persistent and safe way.
+        This document describes the meaning of the files, the states and the 
+        procedures followed by the engine to recover the data.
+    </para> <para>
+        A database named 'test' is used in this description.
+        The database files will be as follows.
+    </para>
+</section>
+
+<variablelist>
+    <title>Database Files</title>
+    <varlistentry><term>test.properties</term><listitem><para>
+        Contains the entry 'modified'.
+        If the entry 'modified' is set to 'yes' then the database is either 
+        running or was not closed correctly (because the close algorithm sets 
+        'modified' to 'no' at the end).
+        </para></listitem>
+    </varlistentry>
+    <varlistentry><term>test.script</term><listitem><para>
+        This file contains the SQL statements that makes up the database up to 
+        the last checkpoint - it is in synch with
+        <filename>test.backup</filename>.
+        </para></listitem>
+    </varlistentry>
+    <varlistentry><term>test.data</term><listitem><para>
+        This file contains the (binary) data records for CACHED tables only.
+        </para></listitem>
+    </varlistentry>
+    <varlistentry><term>test.backup</term><listitem><para>
+        This is compressed file that contains the complete backup of the old 
+        <filename>test.data</filename> file at the time of last checkpoint.
+        </para></listitem>
+    </varlistentry>
+    <varlistentry><term>test.log</term><listitem><para>
+        This file contains the extra SQL statements that have modified the 
+        database since the last checkpoint (something like the 'Redo-log' or 
+        'Transaction-log', but just text).
+        </para><para>
+        In the above list, a checkpoint results from both a CHECKPOINT command 
+        and a SHUTDOWN command.
+        </para></listitem>
+    </varlistentry>
+</variablelist>
+
+<section>
+    <title>States</title>
+    <section>Database is closed correctly</section>
+    <itemizedlist>
+        <title>State after using the command <literal>SHUTDOWN</literal></title>
+        <listitem><para>
+            The <filename>test.data</filename> file is fully updated.
+        </para></listitem> <listitem><para>
+            The <filename>test.backup</filename> contains the compressed 
+            <filename>test.data</filename> file.
+        </para></listitem> <listitem><para>
+            The  <filename>test.script</filename> contains the information in 
+            the database, excluding data for CACHED and TEXT tables. 
+        </para></listitem> <listitem><para>
+            The <filename>test.properties</filename> contains the entry 
+            'modified'  set to 'no'.
+        </para></listitem> <listitem><para>
+            There is no <filename>test.log</filename> file.
+        </para></listitem>
+    </itemizedlist>
+    <section>Database is closed correctly with SHUTDOWN SCRIPT</section>
+    <itemizedlist>
+        <title>State after using the command <literal>SHUTDOWN SCRIPT</literal></title>
+        <listitem><para>
+            The <filename>test.data</filename> file does not exist; all CACHED 
+            table data is in the <filename>test.script</filename> file
+        </para></listitem> <listitem><para>
+            The <filename>test.backup</filename> does not exist.
+        </para></listitem> <listitem><para>
+            The  <filename>test.script</filename> contains the information in 
+            the database, including data for CACHED and TEXT tables.
+        </para></listitem> <listitem><para>
+            The <filename>test.properties</filename> contains the entry 
+            'modified'  set to 'no'.
+        </para></listitem> <listitem><para>
+            There is no <filename>test.log</filename> file.
+        </para></listitem>
+    </itemizedlist>
+    <section>Database is aborted</section>
+    <para>
+        This may happen by sudden power off, Ctrl+C in Windows, but may be 
+        simulated using the command SHUTDOWN IMMEDIATELY.
+    </para>
+    <itemizedlist>
+        <title>Aborted Database state</title>
+        <listitem><para>
+            The <filename>test.properties</filename> still containes 
+            'modified=yes'.
+        </para></listitem> <listitem><para>
+            The <filename>test.script</filename> contains a snapshot of the 
+            database at the last checkpoint and is OK.
+        </para></listitem> <listitem><para>
+            The <filename>test.data</filename> file may be corrupt because the 
+            cache in memory was not written out completely.
+        </para></listitem> <listitem><para>
+            The <filename>test.backup</filename> file contains a snapshot of 
+            <filename>test.data</filename> that corresponds to 
+            <filename>test.script</filename>.
+        </para></listitem> <listitem><para>
+            The  <filename>test.log</filename> file contain all information to 
+            re-do all changes since the snanapshot.
+            As a result of abnormal termination, this file may be partially 
+            corrupt.
+        </para></listitem>
+    </itemizedlist>
+</section>
+
+<section>
+    <title>Procedures</title>
+    <para>
+        The database engine performs the following procedures internally in 
+        different circumstances. 
+    </para>
+    <section><title>Clean Shutdown</title>
+        <procedure>
+            <title>Clean Hsqldb database shutdown</title>
+            <step><para>
+                The <filename>test.data</filename> file is written completely 
+                (all the modified cached table rows are witten out) and closed.
+            </para></step> <step><para>
+                The <filename>test.backup.new</filename> is created (containing 
+                the compressed <filename>test.data</filename> file)
+            </para></step> <step><para>
+                The file <filename>test.script.new</filename> is created using 
+                the information in the database (and thus shrinks because no 
+                UPDATE and DELETE statements; only INSERT).
+            </para></step> <step><para>
+                The entry 'modified' in the properties file is set to 
+                'yes-new-files'
+            </para></step> <step><para>
+                The file <filename>test.script</filename> is deleted
+            </para></step> <step><para>
+                The file <filename>test.script.new</filename> is renamed to 
+                <filename>test.script</filename>
+            </para></step> <step><para>
+                The file <filename>test.backup</filename> is deleted
+            </para></step> <step><para>
+                The file <filename>test.backup.new</filename> is renamed to 
+                <filename>test.backup</filename>
+            </para></step> <step><para>
+                The entry 'modified' in the properties file is set to 'no' 
+            </para></step> <step><para>
+                The file <filename>test.log</filename> is deleted
+            </para></step>
+        </procedure>
+    </section>
+    <section><title>Startup</title>
+        <procedure>
+            <title>Database is opened</title>
+            <step><para>
+                Check if the database files are in use (by checking a special 
+                <filename>test.lck</filename> file).
+            </para></step> <step><para>
+                See if the <filename>test.properties</filename> file exists,
+                otherwise create it.
+            </para></step> <step><para>
+                If the <filename>test.properties</filename> did not exist, then 
+                this is a new database.
+                Create the empty <filename>test.log</filename> to append new 
+                commands.
+            </para></step> <step><para>
+                If it is an existing database, check in the
+                <filename>test.properties</filename> file if 'modified=yes'.
+                This would mean last time it was not closed correctly, and thus 
+                the <filename>test.data</filename> file may be corrupted or 
+                incomplete.
+                In this case the 'REPAIR' algorithm is executed (see below), 
+                before the database is opened normally.
+            </para></step> <step><para>
+                Otherwise, if in the <filename>test.properties</filename> file
+                'modified=yes-new-files', then the (old) 
+                <filename>test.backup</filename> and 
+                <filename>test.script</filename> files are deleted and the new 
+                <filename>test.script.new</filename> file is renamed to 
+                <filename>test.script</filename>.
+                </para></step> <step><para>
+                Open the <filename>test.script</filename> file and execute the 
+                commands.
+            </para></step> <step><para>
+                Create the empty test.log to append new commands.
+            </para></step>
+        </procedure>
+    </section>
+    <section><title>Repair</title>
+        <para>
+            The current <filename>test.data</filename> file is corrupt, but 
+            with the old <filename>test.data</filename> (from the 
+            <filename>test.backup</filename> file and 
+            <filename>test.script</filename>) and the current 
+            <filename>test.log</filename>, the database is made up-to-date.
+            The database engine takes these steps:
+        </para>
+        <procedure>
+            <title>Database Repair</title>
+            <step><para>
+                    Restore the old <filename>test.data</filename> file from 
+                    the backup (uncompress the <filename>test.backup</filename>
+                    and overwrite <filename>test.data</filename>).
+            </para></step><step><para>
+                Execute all commands in the <filename>test.script</filename> 
+                file.
+            </para></step><step><para>
+                Execute all commands in the <filename>test.log</filename> file.
+                If due to corruption, an exception is thrown, the rest of the 
+                lines of command in the <filename>test.log</filename> file are 
+                ignored.
+            </para></step><step><para>
+                Close the database correctly (including a backup).
+            </para></step>
+        </procedure>
+    </section>
+</section>
+</appendix>

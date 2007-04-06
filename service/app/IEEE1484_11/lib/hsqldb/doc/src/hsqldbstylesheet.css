@@ -1,0 +1,91 @@
+/* Javadoc style sheet */
+
+/* Define colors, fonts and other style attributes here to override the defaults */
+
+/* Page background color, width % */
+body { background-color: #FFFFFF; padding-right: 1em; }
+
+/* Table colors */
+.TableHeadingColor     { background: #CCCCFF } /* Dark mauve */
+.TableSubHeadingColor  { background: #EEEEFF } /* Light mauve */
+.TableRowColor         { background: #FFFFFF } /* White */
+
+/* Font used in left-hand frame lists */
+.FrameTitleFont   { font-size: 10pts; font-family: Helvetica, Arial, san-serif }
+.FrameHeadingFont { font-size: 10pts; font-family: Helvetica, Arial, san-serif }
+.FrameItemFont    { font-size: 10pts; font-family: Helvetica, Arial, san-serif }
+
+/* Example of smaller, sans-serif font in frames */
+/* .FrameItemFont  { font-size: 10pt; font-family: Helvetica, Arial, sans-serif } */
+
+/* Navigation bar fonts and colors */
+.NavBarCell1    { background-color: #EEEEFF;}/* Light mauve */
+.NavBarCell1Rev { background-color: #00008B;}/* Dark Blue */
+.NavBarFont1    { font-family: Arial, Helvetica, sans-serif; color: #000000;}
+.NavBarFont1Rev { font-family: Arial, Helvetica, sans-serif; color: #FFFFFF;}
+
+.NavBarCell2    { font-family: Arial, Helvetica, sans-serif; background-color: #FFFFFF;}
+.NavBarCell3    { font-family: Arial, Helvetica, sans-serif; background-color: #FFFFFF;}
+
+.GenericDocumentation { color: #000000; }
+
+DIV.ReleaseSpecificDocumentation { 
+        color:              #006A00;
+        background-color:   #EEEEFF;
+        border:             2px ridge white;
+        padding-top:        5px;
+        padding-right:      10px;
+        padding-bottom:     5px;
+        padding-left:       10px;
+        text-align:         justify;
+}
+
+DIV.ReleaseSpecificDocumentation h3 {
+	margin-top:         0px;
+	margin-left:        0px;
+	margin-right:       0px;
+        padding-top:        14px;
+        padding-right:      0px;
+        padding-bottom:     15px;
+        padding-left:       50px;
+        border-top:         1px dashed rgb(120,172,255);
+	border-bottom:      1px dashed rgb(120,172,255);
+        background:         url(hsqldb.gif) #E6E6FF no-repeat left center;
+}
+
+PRE.JavaCodeExample   { 
+        color:              #000000; 
+        background-color:   #EEEEEE;
+        border:             1px ridge white;
+        padding-top:        1em;
+        padding-right:      1em;
+        padding-bottom:     0em;
+        padding-left:       1em;
+}
+
+.JavaStringLiteral { color: #99006B; }
+.JavaNumericLiteral { color: #780000; }
+.JavaKeyWord       { color: #000099; font-weight: bold; }
+
+PRE.SqlCodeExample   {
+        /*color:              #550022;*/
+        color:              #601030; 
+        background-color:   #EEEEEE; 
+        border:             1px ridge white;
+        font-weight:        bold;
+        padding-top:        1em;
+        padding-right:      1em;
+        padding-bottom:     0em;
+        padding-left:       1em;
+        line-height:        150%;
+}
+
+PRE.GeneralExample   {
+        color:              #000000; 
+        background-color:   #EEEEEE; 
+        border:             1px ridge white;
+        padding-top:        1em;
+        padding-right:      1em;
+        padding-bottom:     0em;
+        padding-left:       1em;
+}

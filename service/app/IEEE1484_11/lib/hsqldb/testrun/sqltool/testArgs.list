@@ -1,0 +1,13 @@
+# $Id: testArgs.list,v 1.1 2004/07/05 00:47:03 unsaved Exp $
+
+# List of SQL Test Files for JUnit test method with name corresponding
+# to this file name.
+
+# Empty lines and comment lines beginning with # are ok.
+
+# SYNTAX for each non-comment line:  filepath    Description string
+
+
+args-noinput.sql --noinput command-line switch
+args-sql.sql --sql command-line switch
+args-sqlni.sql --sql AND --noinput command-line switches

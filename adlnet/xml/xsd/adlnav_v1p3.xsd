@@ -1,0 +1,61 @@
+<?xml version = "1.0"?>
+<xs:schema targetNamespace = "http://www.adlnet.org/xsd/adlnav_v1p3"
+           xmlns:xs = "http://www.w3.org/2001/XMLSchema"
+           xmlns = "http://www.adlnet.org/xsd/adlnav_v1p3"
+           elementFormDefault = "qualified"
+           version = "1.0">
+
+   <xs:annotation>
+      <xs:documentation>
+          This file represents the W3C XML Schema Language Binding of the ADL namespaced elements for navigation controls.
+      </xs:documentation>
+   </xs:annotation>
+
+   <!-- *********************** -->
+   <!-- ** Change History ** -->
+   <!-- *********************** -->
+   <xs:annotation>
+      <xs:documentation>
+      *************************************************************************
+      *                          Change History                               *
+      *************************************************************************
+      2003-18-09  Initial creation.
+      2004-23-01  Final edits in preparation for release
+      2005-06-06  Added new hideLMSUI vocabulary token suspendAll, exitAll,
+                  and abandonAll
+      *************************************************************************
+      </xs:documentation>
+   </xs:annotation>
+
+   <xs:element name = "presentation" type = "presentationType"/>
+
+   <xs:element name = "navigationInterface" type = "navigationInterfaceType"/>
+
+   <xs:element name = "hideLMSUI" type = "hideLMSUIType"/>
+
+   <!-- Navigation Extension -->
+   <xs:complexType name = "presentationType">
+      <xs:sequence>
+         <xs:element ref = "navigationInterface" minOccurs = "0" maxOccurs = "1"/>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name = "navigationInterfaceType">
+      <xs:sequence>
+         <xs:element ref = "hideLMSUI" minOccurs = "0" maxOccurs = "unbounded"/>
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:simpleType name = "hideLMSUIType">
+      <xs:restriction base = "xs:token">
+         <xs:enumeration value = "abandon"/>
+         <xs:enumeration value = "continue"/>
+         <xs:enumeration value = "exit"/>
+         <xs:enumeration value = "previous"/>
+         <xs:enumeration value = "suspendAll"/>
+         <xs:enumeration value = "exitAll"/>
+         <xs:enumeration value = "abandonAll"/>
+      </xs:restriction>
+   </xs:simpleType>
+
+</xs:schema>

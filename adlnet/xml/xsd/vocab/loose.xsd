@@ -1,0 +1,124 @@
+<xs:schema targetNamespace="http://ltsc.ieee.org/xsd/LOM/vocab"
+           xmlns="http://ltsc.ieee.org/xsd/LOM/vocab"
+           xmlns:lom="http://ltsc.ieee.org/xsd/LOM"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           version="IEEE LTSC LOM XML 1.0">
+
+  <xs:annotation>
+    <xs:documentation>
+       This work is licensed under the Creative Commons Attribution-ShareAlike
+       License.  To view a copy of this license, see the file license.txt,
+       visit http://creativecommons.org/licenses/by-sa/1.0 or send a letter to
+       Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+    </xs:documentation>
+
+    <xs:documentation>
+       This component schema provides simple type declarations for metadata
+       elements whose values are taken from a vocabulary datatype.
+
+       This component schema supports loose validation of vocabulary value constraints
+       by allowing both the source and value to be arbitrary strings.
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:import namespace="http://ltsc.ieee.org/xsd/LOM"/>
+
+  <!-- Vocabulary type declarations -->
+
+  <!-- Source -->
+  <xs:simpleType name="source">
+    <xs:restriction base="lom:CharacterString"/>
+  </xs:simpleType>
+
+  <!-- 1.7 Structure -->
+  <xs:simpleType name="structure">
+    <xs:restriction base="lom:CharacterString"/>
+  </xs:simpleType>
+
+  <!-- 1.8 Aggregation Level -->
+  <xs:simpleType name="aggregationLevel">
+    <xs:restriction base="lom:CharacterString"/>
+  </xs:simpleType>
+
+  <!-- 2.2 Status -->
+  <xs:simpleType name="status">
+    <xs:restriction base="lom:CharacterString"/>
+  </xs:simpleType>
+
+  <!-- 2.3.1 Role -->
+  <xs:simpleType name="role">
+    <xs:restriction base="lom:CharacterString"/>
+  </xs:simpleType>
+
+  <!-- 3.2.1 Role -->
+  <xs:simpleType name="roleMeta">
+    <xs:restriction base="lom:CharacterString"/>
+  </xs:simpleType>
+
+  <!-- 4.4.1.1 Type -->
+  <xs:simpleType name="type">
+    <xs:restriction base="lom:CharacterString"/>
+  </xs:simpleType>
+
+  <!-- 4.4.1.2 Name -->
+  <xs:simpleType name="name">
+    <xs:restriction base="lom:CharacterString"/>
+  </xs:simpleType>
+
+  <!-- 5.1 Interactivity Type -->
+  <xs:simpleType name="interactivityType">
+    <xs:restriction base="lom:CharacterString"/>
+  </xs:simpleType>
+
+  <!-- 5.2 Learning Resource Type -->
+  <xs:simpleType name="learningResourceType">
+    <xs:restriction base="lom:CharacterString"/>
+  </xs:simpleType>
+
+  <!-- 5.3 Interactivity Level -->
+  <xs:simpleType name="interactivityLevel">
+    <xs:restriction base="lom:CharacterString"/>
+  </xs:simpleType>
+
+  <!-- 5.4 Semantic Density -->
+  <xs:simpleType name="semanticDensity">
+    <xs:restriction base="lom:CharacterString"/>
+  </xs:simpleType>
+
+  <!-- 5.5 Intended End User Role -->
+  <xs:simpleType name="intendedEndUserRole">
+    <xs:restriction base="lom:CharacterString"/>
+  </xs:simpleType>
+
+  <!-- 5.6 Context -->
+  <xs:simpleType name="context">
+    <xs:restriction base="lom:CharacterString"/>
+  </xs:simpleType>
+
+  <!-- 5.8 Difficulty -->
+  <xs:simpleType name="difficulty">
+    <xs:restriction base="lom:CharacterString"/>
+  </xs:simpleType>
+
+  <!-- 6.1 Cost -->
+  <xs:simpleType name="cost">
+    <xs:restriction base="lom:CharacterString"/>
+  </xs:simpleType>
+
+  <!-- 6.2 Copyright and Other Restrictions -->
+  <xs:simpleType name="copyrightAndOtherRestrictions">
+    <xs:restriction base="lom:CharacterString"/>
+  </xs:simpleType>
+
+  <!-- 7.1 Kind -->
+  <xs:simpleType name="kind">
+    <xs:restriction base="lom:CharacterString"/>
+  </xs:simpleType>
+
+  <!-- 9.1 Purpose -->
+  <xs:simpleType name="purpose">
+    <xs:restriction base="lom:CharacterString"/>
+  </xs:simpleType>
+
+</xs:schema>

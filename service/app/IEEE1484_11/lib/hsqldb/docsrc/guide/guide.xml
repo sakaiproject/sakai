@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- $Id: guide.xml,v 1.42 2005/07/25 23:02:52 unsaved Exp $ -->
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V4.2//EN"
+"http://www.oasis-open.org/docbook/xml/4.2CR1/docbookx.dtd" [
+    <!ENTITY revision "$Revision: 1.42 $">
+    <!ENTITY date "$Date: 2005/07/25 23:02:52 $">
+    <!ENTITY alts SYSTEM "../formats-section.xml">
+    <!ENTITY docbasename "guide">
+    <!ENTITY baseurl "http://hsqldb.org/doc/&docbasename;">
+    <!ENTITY blaineaddr "blaine.simpson@admc.com">
+    <!ENTITY fredaddr "ft@cluedup.com">
+
+    <!-- Component chapters and appendices -->
+    <!ENTITY running-chapter.xml SYSTEM "running.xml">
+    <!ENTITY sqlissues-chapter.xml SYSTEM "sqlissues.xml">
+    <!ENTITY unix-chapter.xml SYSTEM "unix.xml">
+    <!ENTITY advancedtopics-chapter.xml SYSTEM "advancedtopics.xml">
+    <!ENTITY deployment-chapter.xml SYSTEM "deployment.xml">
+    <!ENTITY texttables-chapter.xml SYSTEM "texttables.xml">
+    <!ENTITY tls-chapter.xml SYSTEM "tls.xml">
+    <!ENTITY sqltool-chapter.xml SYSTEM "sqltool.xml">
+    <!ENTITY sqlsyntax-chapter.xml SYSTEM "sqlsyntax.xml">
+    <!ENTITY building-appendix.xml SYSTEM "building.xml">
+    <!ENTITY dbfiles-appendix.xml SYSTEM "dbfiles.xml">
+    <!ENTITY openoffice-appendix.xml SYSTEM "openoffice.xml">
+    <!ENTITY testutility-appendix.xml SYSTEM "testutility.xml">
+    <!ENTITY dbmanager-appendix.xml SYSTEM "dbmanager.xml">
+    <!ENTITY transfertool-appendix.xml SYSTEM "transfertool.xml">
+
+    <!-- Imported cdata sandwich files -->
+    <!ENTITY Testdb.java-cdata SYSTEM "../../docwork/guide/cdata/Testdb.java">
+    <!ENTITY sample-server.properties-cdata
+             SYSTEM "../../docwork/guide/cdata/sample-server.properties">
+    <!ENTITY sqltool.rc-cdata SYSTEM "../../docwork/guide/cdata/sqltool.rc">
+    <!ENTITY plsql.sql-cdata SYSTEM "../../docwork/guide/cdata/plsql.sql">
+    <!ENTITY sample-hsqldb.cfg-cdata
+             SYSTEM "../../docwork/guide/cdata/sample-hsqldb.cfg">
+    <!ENTITY sample.sql-cdata
+             SYSTEM "../../docwork/guide/cdata/sample.sql">
+    <!ENTITY pl.sql-cdata
+             SYSTEM "../../docwork/guide/cdata/pl.sql">
+]>
+    
+<book>
+    <title>Hsqldb User Guide</title>
+    <bookinfo>
+        <authorgroup>
+            <corpauthor>The HSQLDB Development Group</corpauthor>
+            <editor>
+                <firstname>Blaine</firstname><surname>Simpson</surname>
+                <email>&blaineaddr;</email>
+                <affiliation>
+                    <orgname>HSQLDB Development Group</orgname>
+                </affiliation>
+            </editor>
+            <editor>
+                <firstname>Fred</firstname><surname>Toussi</surname>
+                <email>&fredaddr;</email>
+                <affiliation>
+                    <orgname>HSQLDB Development Group</orgname>
+                </affiliation>
+            </editor>
+        </authorgroup>
+        <edition>&revision;</edition>
+        <pubdate>&date;</pubdate>
+        <keywordset>
+            <keyword>Hsqldb</keyword>
+            <keyword>Hypersonic</keyword>
+            <keyword>Database</keyword>
+            <keyword>JDBC</keyword>
+            <keyword>Java</keyword>
+        </keywordset>
+        <legalnotice><para>
+            Copyright 2002-2005 HSQLDB Development Group.
+            Permission is granted to distribute this document without any 
+            alteration under the terms of the HSQLDB license.
+        </para></legalnotice>
+    </bookinfo>
+    <preface>
+        <title>Introduction</title>
+        <para>
+            If you notice any mistakes in this document, please email the
+            author listed at the beginning of the chapter.
+            If you have problems with the procedures themselves, please
+            use the HSQLDB support facilities which are listed at
+   <ulink url='http://hsqldb.org/web/hsqlSupport.html'/>.
+        </para>
+        &alts;
+    </preface>
+
+    <!-- Just re-order these lines to re-order chapters and appendixes -->
+    &running-chapter.xml;
+    &sqlissues-chapter.xml;
+    &unix-chapter.xml;
+    &advancedtopics-chapter.xml;
+    &deployment-chapter.xml;
+    &texttables-chapter.xml;
+    &tls-chapter.xml;
+    &sqltool-chapter.xml;
+    &sqlsyntax-chapter.xml;
+
+    &building-appendix.xml;
+    <appendix id='firstclient-appendix'>
+        <title id='firstclient-title'>First JDBC Client Example</title>
+        <para>
+            There is a copy of <filename>Testdb.java</filename> in the
+            directory <filename>src/org/hsqldb/sample</filename> of your
+            HSQLDB distribution.
+        </para>
+        <example>
+            <title>JDBC Client source code example</title>
+            <programlisting>&Testdb.java-cdata;</programlisting>
+        </example>
+    </appendix>
+    &dbfiles-appendix.xml;
+    &openoffice-appendix.xml;
+    &testutility-appendix.xml;
+    &dbmanager-appendix.xml;
+    &transfertool-appendix.xml;
+    
+    <!--
+        Indexes are still not working for indexterms in most locations.
+        Since this is a popular feature, it must have to do with the
+        Java DocBook components.
+    <index/>
+    -->
+</book>

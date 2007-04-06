@@ -1,0 +1,44 @@
+<xs:schema targetNamespace="http://ltsc.ieee.org/xsd/LOM"
+           xmlns="http://ltsc.ieee.org/xsd/LOM"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified"
+           version="IEEE LTSC LOM XML 1.0">
+
+   <xs:annotation>
+      <xs:documentation>
+         This work is licensed under the Creative Commons Attribution-ShareAlike
+         License.  To view a copy of this license, see the file license.txt,
+         visit http://creativecommons.org/licenses/by-sa/2.0 or send a letter to
+         Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+     </xs:documentation>
+      <xs:documentation>
+         This file represents a composite schema for validation of the following:
+         1) No validation of vocabularies values for those LOMv1.0 base
+            schema (i.e., 1484.12.1-2002) defined LOM data elements with a 
+            Vocabulary data type.
+         2) Uniqueness constraints defined by LOMv1.0 base scheam
+         3) The use of XML element/attribute extensions to the LOMv1.0 base schema
+      </xs:documentation>
+   </xs:annotation>
+
+  <!-- Learning Object Metadata -->
+
+  <xs:include schemaLocation="common/anyElement.xsd"/>
+
+  <xs:import namespace="http://ltsc.ieee.org/xsd/LOM/unique"
+             schemaLocation="unique/strict.xsd"/>
+
+  <xs:import namespace="http://ltsc.ieee.org/xsd/LOM/vocab"
+             schemaLocation="vocab/loose.xsd"/>
+
+  <xs:import namespace="http://ltsc.ieee.org/xsd/LOM/extend"
+             schemaLocation="extend/custom.xsd"/>
+
+  <xs:include schemaLocation="common/dataTypes.xsd"/>
+  <xs:include schemaLocation="common/elementNames.xsd"/>
+  <xs:include schemaLocation="common/elementTypes.xsd"/>
+  <xs:include schemaLocation="common/rootElement.xsd"/>
+  <xs:include schemaLocation="common/vocabValues.xsd"/>
+  <xs:include schemaLocation="common/vocabTypes.xsd"/>
+
+</xs:schema>

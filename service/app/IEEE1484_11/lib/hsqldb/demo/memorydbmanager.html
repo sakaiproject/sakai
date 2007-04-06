@@ -1,0 +1,28 @@
+<html>
+<head><title>HSQL Database Engine</title></head>
+<body bgcolor=#FFFFFF>
+<h2>In-Memory Applet: Database Manager</h2>
+<applet code="org.hsqldb.util.DatabaseManager" archive="hsqldb.jar" width="0" height="0" codebase="../lib/">
+<param name="database" value=".">
+</applet>
+<p>
+In this demo, all data is kept in memory.<br>
+The data will be lost if the program is closed.<br>
+The Database Manager and the database are running<br>
+inside the internet browser.
+<p>
+<h2>If it does not work</h2>
+On some browsers (Netscape 4.6?), the version compiled for
+JDK 1.2 does not work. In the Java Console (Communicator
+/ Extras / Java Console) you will get something like:
+<p>
+# Verifier error org/hsqldb/jdbcConnection.getTypeMap()Ljava/util/Map
+<p> This means the class java.util.Map was not found. In JDK 1.1, this class does 
+  not exist. When compiled for 1.2, there is a reference to this class required 
+  to conform to the JDBC 2.0 interface. This class itself is never used, but the 
+  reference is required anyway. It looks like most verifiers have no problem with 
+  this, but some have. 
+<p> The solution for this problem is to recompile (at least the client part) for 
+  JDK 1.1. You will need to install JDK 1.1 before you can do this, then see: 
+<p><a href="doc/hsqlBuild.html">Build / How to switch to JDK 1.1</a>
+</body></html>

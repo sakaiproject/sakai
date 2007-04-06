@@ -1,0 +1,287 @@
+
+HSQLDB 1.8.0 CHANGE LOG
+
+
+The development of 1.8.0 began in mid 2004 with a plan to release the new version in 2005. The main feature planned for this release was the ability to be used with OpenOffice.org 2.0 as the default database engine. Release candidate versions started to appear in January, culminating in RC10 in May. Several new and enhanced SQL commands have been introduced and new capabilities such as support for multiple SCHEMA objects in each database, database-wide collations and SQL ROLE objects have been added. Parts of the persistence engine have been rewritten for better performance and long-running online operation.
+
+
+I would like to thank all developers, testers and users who have contributed to this effort.
+
+
+June 2005
+
+Fred Toussi
+
+Maintainer, HSQLDB Project
+http://hsqldb.sourceforge.net
+
+
+SQL ENHANCEMENTS
+
+----------------
+
+SCHEMAS
+
+Support for SQL schemas. Each database can contain multiple schemas. The following commands have been introduced:
+
+CREATE SCHMEA <schema name> AUTHORIZATION DBA
+DROP SCHEMA <schema name> {CASCADE | RESTRICT}
+ALTER SCHEMA <schema name> RENAME TO <new name>
+SET SCHEMA <schema name>
+
+Initially, the default user schema will be created with the name PUBLIC. This schema can be renamed or dropped. When the last user schema has been dropped, an empty default schema with the name PUBLIC is created.
+
+System tables all belong to INFORMATION_SCHEMA. To access system tables, either SET SCHEMA INFORMATION_SCHEMA should be used once or they should be referred to by fully specified names, e.g. INFORMATION_SCHEMA.SYSTEM_TABLES
+
+Similarly all database objects apart from columns can be referenced with fully qualified schema names.
+
+The CREATE SCHEMA command can be followed by other CREATE and GRANT commands without an intervening semicolon. All such commands are executed in the context of the newly created schema. A semicolon terminates an extended CREATE SCHEMA command.
+
+----------------
+
+ROLES
+
+Support for SQL standard roles.
+
+CREATE ROLE <role name>
+GRANT ... TO <role name>
+REVOKE ... FROM <role name>
+GRANT <role name> TO <user name>
+DROP ROLE <role name>
+
+The GRANT and REVOKE commands are similar to those used for granting permissions on different objects to USER objects. A role can then be granted to or revoked from different users, simplifying permission management.
+
+----------------
+
+GLOBAL TEMPORARY TABLES
+
+The implementation of temporary tables has changed to conform to SQL standards.
+
+The definition of a GLOBAL TEMPORARY table persists with the database. When a session (JDBC Connection) is started, an empty instance of the table is created. Temporary tables can be created with (the default) ON COMMIT DELETE ROWS or ON COMMIT PRESERVE ROWS added to table definition. With ON COMMIT PRESERVE ROWS, the table contents are not cleared when the session commits. In both cases, the contents are cleared when the session is closed.
+
+----------------
+
+SCHEMA MANIPULATION COMMANDS
+
+Several schema manipulation commands have been enhanced. 
+
+Tables, views and sequences can be dropped with the CASCADE option. This silently drops all tables and views that reference the given database object.
+
+DROP TABLE <table name> [IF EXISTS] [CASCADE];
+DROP VIEW <view name> [IF EXISTS] [CASCADE];
+DROP SEQUENCE <sequence name> [IF EXISTS] [CASCADE];
+
+ALTER TABLE <table name> DROP [COLUMN] now silently drops any primary key or unique constraint declared on the column (excluding multi-column constraints).
+
+ALTER TABLE <table name> ADD [COLUMN] now accepts primary key and identity attributes.
+
+----------------
+
+COLUMN MANIPULATION
+
+Support for converting type, nullability and identity attributes of a column
+
+ALTER TABLE <table name> ALTER [COLUMN] <column name> <column definition>
+
+<column definition> has the same syntax as normal column definition. The new column definition replaces the old one, so it is possible to add/remove a DEFAULT expression, a NOT NULL constraint, or an IDENTITY definition. No change to the primary key is allowed with this command. 
+
+- The column must already be a PK column to accept an IDENTITY definition.
+- If the column is already an IDENTITY column and there is no IDENTITY definition, the existing IDENTITY attribute is removed.
+- The default expression will be that of the new definition, meaning an existing default can be dropped by omission, or a new default added.
+- The NOT NULL attribute will be that of the new definition, similar to above.
+- Depending on the conversion type, the table may have to be empty for the command to work. It always works when the conversion is possible in general and the individual existing values can all be converted.
+
+A different syntax can be used to change the next value from an IDENTITY column:
+
+ALTER TABLE <table name> ALTER [COLUMN] <column name> RESTART WITH <n>
+
+----------------
+
+ADDING AND DROPPING PRIMARY KEYS
+
+It is now possible to add or drop a primary key.
+
+An existing primary key that is to be removed should not be referenced in a FOREIGN KEY constraint. If a table has an IDENTITY column, removing a primary key will remove the identity attribute of the column but leave the actual data.
+
+When adding a primary key, a NOT NULL constraint is automatically added to the column definitions. The table data for the columns of a newly declared primary key should not contain null values. 
+
+ALTER TABLE <name> ADD CONSTRAINT <cname> PRIMARY KEY(collist);
+ALTER TABLE <name> DROP CONSTRAINT <cname>;
+ALTER TABLE <name> DROP PRIMARY KEY; // alternative syntax
+
+----------------
+
+SIZE ENFORCEMENT
+
+
+The database property sql.enforce_strict_size=true has now a wider effect.
+
+Previously CHAR /VARCHAR lengths could be checked and padding performed only when inserting / updating rows. Added support for CHAR(n), VARCHAR(n), NUMERIC(p,s) and DECIMAL(p,s) including SQL standard cast and convert semantics. CHAR and VARCHAR declarations now require a size parameter. A CHAR declaration without a size parameter is interpreted as CHAR(1). TIMESTAMP(0) and TIMESTAMP(6) are also supported, with the precision representing the sub-second resolution.
+
+Explicit CAST(c AS VARCHAR(2)) will always truncate the string. Explicit CAST(n AS NUMERIC(p)) will always perform the conversion or throw if n is out of bounds. All other implicit and explicit conversions to CHAR(n) and VARCHAR(n) are subject to SQL standard rules.
+
+----------------
+
+ALL and ANY expressions
+
+Full support for ALL(SELECT ....) and ANY(SELECT ....) with comparison operators: =, >, <, <>, >=, <=
+Example:
+
+SELECT ... WHERE <value expression> >= ALL(SELECT ...)
+
+LIMIT and OFFSET
+
+New alternative syntax for LIMIT at the end of the query:
+
+LIMIT L [OFFSET O]
+
+It is now possible to use LIMIT combined with ORDER BY in subqueries and SELECT statements in brackets that are terms of UNION or other set operations.
+
+An ORDER BY or LIMIT clause applies to the complete result of the UNION and other set operations or alternatively to one of its components depending on how parentheses are used. In the first example the scope is the second SELECT, while in the second query, the scope is the result of the UNION.
+
+SELECT ... FROM ... UNION 
+(SELECT ... FROM ... ORDER BY .. LIMIT)
+
+SELECT ... FROM ... UNION 
+SELECT ... FROM ... ORDER BY .. LIMIT
+
+
+Support for ORDER BY, LIMIT and OFFSET in CREATE VIEW statements
+
+----------------
+
+COLLATIONS
+
+Each database can have its own collation. The SQL command below sets the collation from the set of collations in the source for org.hsqldb.Collation:
+
+SET DATABASE COLLATION <double quoted collation name>
+
+The command has an effect only on an empty database. Once it has been issued, the database can be opened in any JVM locale and will retain its collation.
+
+The property sql.compare_in_locale=true is no longer supported. If the line exists in a .properties file, it will switch the database to the collation for the current default.  
+
+----------------
+
+NAME RESOLUTION IN QUERIES
+
+Parsing enhancements allow all reserved SQL words to be used as identifiers when double-quoted and then used in queries. E.g. CREATE TABLE "TABLE" ("INTEGER" INTEGER)
+
+Enhancements to resolve column and table aliases used in query conditions.
+
+----------------
+
+ENHANCEMENTS
+
+Since 1.7.3, the evaluation of BOOLEAN expressions has changed to conform to SQL standards. Any such expression can be TRUE, FALSE, or UNDEFINED. The UNDEFINED result is equivalent to NULL.
+
+Optional changed behaviour of transactions in the default READ UNCOMMITTED mode. When a database property, sql.tx_no_multi_write=true has been set, a transaction is no longer allowed to delete or update a row that has already been updated or added by another uncommitted transaction.
+
+Support for correct casting of TIME into TIMESTAMP, using CURRENT_DATE 
+
+
+----------------
+
+BUG FIXES
+
+Fixed reported bug with NOT LIKE and null values
+
+Fixed bug with OR conditions in OUTER JOIN
+
+Fixed bug with duplicated closing of prepared statements
+
+Fixed various parsing anomalies where SQL commands were accepted when quoted, double-quoted or prefixed with an identifier, or identifiers were accepted in single quotes. Example of a command that is no-longer tolerated: 
+
+Malformed query: MY. "SELECT" ID FROM 'CUSTOMER' IF.WHERE ID=0;   
+Actual query: SELECT ID FROM CUSTOMER WHERE ID=0;
+
+Fixed issue with illegal user names
+
+Fixed TEXT table implementation to maintain the commit status of rows during recovery from an abrupt shutdown. Uncommitted changes will not appear in TEXT tables.
+
+----------------
+
+STORAGE AND PERSISTENCE IMPROVEMENTS
+
+New connection property for setting the default table type when CREATE TABLE is used. The connection property, hsqldb.default_table_type=cached will set the default to CACHED tables, or the SET PROPERTY command can be used. Values, "cached" and "memory" are allowed.
+ 
+
+Improved support for text tables. Newline support in quoted fields is now complete. It is now possible to save and restore the first line header of a CSV file when ignore_first=true is specified. When a text table is created with a new source (CSV) file, and ignore_first=true has been specified the following command can be used to set a user defined string as the first line:
+SET TABLE <table name> SOURCE HEADER <double quoted string>.
+
+A new application log has been introduced as an optional feature. The property/value pair "hsqldb.applog=1" can be used in the first connection string to log some important messages. The default is "hsqldb.applog=0", meaning no logging. A file with the ending ".app.log" is generated alongside the rest of the database files for this purpose. 
+
+In the current version, only the classes used for file persistence, plus any error encountered while processing the .log file after an abnormal end, are logged.
+
+Note that the JDBC driver and the engine for 1.8.0 cannot be mixed with those of earlier versions in client/server setup. Check your classpaths and use the same version of the engine for both client and server.
+
+New property for larger data file limits is introduced. Once set, the limit will go up to 8GB. The property can be set with the following SQL command only when the database has no tables (new database).
+
+SET PROPERTY "hsqldb.cache_file_scale" 8
+
+To apply the change to an existing database, SHUTDOWN SCRIPT should be performed first, then the property=value line below should be added to the .properties file before reopening the database:
+
+hsqldb.cache_file_scale=8
+
+
+New property allows a CHECKPOINT DEFRAG to be performed automatically whenever CHECKPOINT is performed internally or via a user command.
+
+SET CHECKPOINT DEFRAG n
+
+The parameter n is the megabytes of abandoned space in the .data file. When a CHECKPOINT is performed either as a result of the .log file reaching the limit set by "SET LOGSIZE m", or by the user issuing a CHECKPOINT command, the amount of space abandoned during the session is checked and if it is larger than n, a CHECKPOINT DEFRAG is performed instead of a checkpoint.
+
+Rewrite of log and cache handling classes, including:
+New deleted block manager with more efficient deleted block reuse.
+Faster log processing after an abnormal termination.
+Better checks when maximum data file size is reached.
+Better recovery when maximum data file size is reached.
+
+Support for the res: connection protocol (database files in a jar) has been
+extended to allow CACHED tables.
+
+----------------
+
+JDBC AND OTHER ENHANCEMENTS
+
+ResultSetMetaData reports identical precision/scale in embedded and client/server modes
+
+When PreparedStatement.setTimestamp() and ResultSet.getTimestamp() are used with a Calendar parameter, the result is symmetrical if the time zones are equal.
+
+Added public shutdown() method to Server.
+
+Enhancements to DatabaseManagerSwing and SqlTool
+
+----------------
+
+BUG FIX
+
+Fixed bug where two indexes where switched, causing wrong results in some queries in the following circumstances:
+
+CREATE TABLE is executed.
+ALTER TABLE ADD FORIEGN KEY is used to create an FK on a different table that was already present when the first command was issued.
+CREATE INDEX is used to add an index.
+Data is added to the table.
+Database is shutdown.
+Database is restarted.
+At this point the indexes are switched and queries that use either of the indexes will not return the correct set of rows. If data is not added prior to the first shutdown, the database will works as normal.
+
+----------------
+
+UPGRADING DATABASES
+
+Databases that do not contain CACHED tables can be opened with the new version. For databases with CACHED tables, if they are created with versions 1.7.2 or 1.7.3, the SHUTDOWN SCRIPT command should be run once on the database prior to opening with the new version. For databases created with earlier versions, the instructions in the Advanced Topics section of The Guide should be followed.
+
+----------------
+
+OPEN OFFICE INTEGRATION
+
+When used in OpenOffice.org as the default database, several defaults and properties are set automatically:
+
+CREATE TABLE ... defaults to CREATE CACHED TABLE ...
+hsqldb.cache_scale=13
+hsqldb.cache_size_scale=8
+hsqldb.log_size=10
+SET WRITE DELAY 2
+sql.enforce_strict_size=true
+
+
+

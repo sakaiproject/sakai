@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id: testutility.xml,v 1.12 2005/05/27 12:41:50 fredt Exp $ -->
+<appendix>
+  <title>Hsqldb Test Utility</title>
+
+  <appendixinfo>
+    <edition>$Revision: 1.12 $</edition>
+
+    <pubdate>$Date: 2005/05/27 12:41:50 $</pubdate>
+
+    <keywordset>
+      <keyword>Hsqldb</keyword>
+
+      <keyword>Test</keyword>
+
+      <keyword>Utility</keyword>
+    </keywordset>
+  </appendixinfo>
+
+  <para>The <literal>org.hsqldb.test</literal> package contains a number of
+  tests for various functions of the database engine. Among these, the
+  <classname>TestSelf</classname> class performs the tests that are based on
+  scripts. To run the tests, you should compile the
+  <filename>hsqldbtest.jar</filename> target with Ant.</para>
+
+  <para>For <classname>TestSelf</classname>, a batch file is provided in the
+  testrun/hsqldb directory, together with a set of TestSelf*.txt files. To
+  start the application in Windows, change to the directory and type:</para>
+
+  <screen>
+    runtest TestSelf</screen>
+
+  <para>In Unix / Linux, type:</para>
+
+  <screen>
+    ./runTest.sh TestSelf</screen>
+
+  <para>The new version of <classname>TestSelf</classname> runs multiple SQL
+  test files to test different SQL operations of the database. All files in
+  the working directory with names matching TestSelf*.txt are processed in
+  alphabetical order.</para>
+
+  <para>You can add your own scripts to test different series of SQL queries.
+  The format of the TestSelf*.txt file is simple text, with some indentation
+  and prefixes in the form of Java-style comments. The prefixes indicate what
+  the expected result should be.</para>
+
+  <itemizedlist>
+    <listitem>
+      <para>Comment lines must start with -- and are ignored</para>
+    </listitem>
+
+    <listitem>
+      <para>Lines starting with spaces are the continuation of the previous
+      line</para>
+    </listitem>
+
+    <listitem>
+      <para>SQL statements with no prefix are simply executed.</para>
+    </listitem>
+
+    <listitem>
+      <para>
+        <emphasis>The remaining items in this list exemplify use of the
+        available command line-prefixes.</emphasis>
+      </para>
+    </listitem>
+
+    <listitem>
+      <informalexample>
+        <simpara>The /*s*/ option stands for silent. It is used for executing
+        quries regardless of results. Used for preparation of tests, not for
+        actual tests.</simpara>
+
+        <programlisting>
+/*s*/ Any SQL statement - errors are ignored</programlisting>
+      </informalexample>
+    </listitem>
+
+    <listitem>
+      <informalexample>
+        <simpara>The /*c&lt;rows&gt;*/ option is for SELECT queries and
+        asserts the number of rows in the result matches the given
+        count.</simpara>
+
+        <programlisting>
+/*c&lt;rows&gt;*/ SQL statement returning count of &lt;rows&gt;</programlisting>
+      </informalexample>
+    </listitem>
+
+    <listitem>
+      <informalexample>
+        <simpara>The /*u*/ option is for queries that return an update count,
+        such as DELETE and UPDATE. It asserts the update count
+        matches.</simpara>
+
+        <programlisting>
+/*u&lt;count&gt;*/ SQL statement returning an update count equal to &lt;count&gt;</programlisting>
+      </informalexample>
+    </listitem>
+
+    <listitem>
+      <informalexample>
+        <simpara>The /*e*/ option asserts that the given query results in an
+        erros. It is mainly used for testing the error detection capabilities
+        of the engine. It can also be used with syntactically valid queries to
+        assert a certain state in the database. For example a CREATE TABLE can
+        be used to assert the table of the same name already exists.</simpara>
+
+        <programlisting>
+/*e*/ SQL statement that should produce an error when executing</programlisting>
+      </informalexample>
+    </listitem>
+
+    <listitem>
+      <informalexample>
+        <simpara>The /*r....*/ option asserts the SELECT query returns a
+        single row containing the given set of field values.</simpara>
+
+        <programlisting>
+/*r&lt;string1&gt;,&lt;string2&gt;*/ SQL statement returning a single row ResultSet equal to the specified value</programlisting>
+      </informalexample>
+    </listitem>
+
+    <listitem>
+      <informalexample>
+        <simpara>The extended /*r...*/ option asserts the SELECT query returns
+        the given rows containing the given set of field values.</simpara>
+
+        <programlisting>
+/*r
+    &lt;string1&gt;,&lt;string2&gt;
+    &lt;string1&gt;,&lt;string2&gt;
+    &lt;string1&gt;,&lt;string2&gt;
+*/ SQL statement returning a multiple row ResultSet equal to the specified values</programlisting>
+      </informalexample>
+
+      <simpara>(note that the result set lines are indented).</simpara>
+    </listitem>
+
+    <listitem>
+      <para>All the options are lowercase letters. During development, an
+      uppercase can be used for a given test to exclude a test from the test
+      run. The utility will just report the test blocks that have been
+      excluded without running them. Once the code has been developed, the
+      option can be turned into lowercase to perform the actual test. </para>
+    </listitem>
+  </itemizedlist>
+
+  <para>See the TestSelf*.txt files in the /testrun/hsqldb/ directory for
+  actual examples.</para>
+</appendix>

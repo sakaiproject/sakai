@@ -1,0 +1,150 @@
+<!-- $Id: openoffice.xml,v 1.6 2005/06/08 16:02:34 fredt Exp $ -->
+
+<!--  TODO.
+      This should really be rewritten with DocBook procedure elements.
+      The original was paragraphs with single linebreaks in it, which
+      depends on browser width, etc. to look right, and the steps still
+      aren't clear in the best case.
+  -->
+
+<appendix>
+    <title>Running Hsqldb with OpenOffice.org 1.1.x</title>
+    <appendixinfo>
+        <author>
+            <firstname>Hermann</firstname><surname>Kienlein</surname>
+            <email>hermann@kienlein.com</email>
+            <affiliation>
+                <orgname>EDV - Systeme Kienlein</orgname>
+            </affiliation>
+        </author>
+        <edition>$Revision: 1.6 $</edition>
+        <pubdate>$Date: 2005/06/08 16:02:34 $</pubdate>
+        <keywordset>
+            <keyword>HSQLDB</keyword>
+            <keyword>OpenOffice</keyword>
+        </keywordset>
+        <legalnotice><para>
+            Copyright 2003-2004 Hermann Kienlein.
+            Permission is granted to distribute this document without any 
+            alteration under the terms of the HSQLDB license.
+            Additional permission is granted to the HSQLDB Development Group to 
+            distribute this document with or without alterations under the 
+            terms of the HSQLDB license.
+        </para></legalnotice>
+    </appendixinfo>
+
+    <section>
+        <title>Introduction</title>
+        <para>
+            HSQLDB can now act as a Database with OpenOffice.org.
+            This document is written to help you connecting and running HSQLDB 
+            out of OpenOffice.org in a simple way.
+            Without user-managment and only for your single-system.
+        </para> <para>
+            If you have problems read the other available documents, because I 
+            will not write them here again.
+            If you need a real DB-System with user-management and different 
+            rights for different users, read the other documents.
+        </para> <para>
+            HSQLDB is included with OpenOffice.org 2.0 and is used by default.
+            Please refer to standard OpenOffice.org 2.0 documentation on how 
+            to use HSQLDB with this version.
+        </para>
+    </section>
+
+    <section>
+        <title>Installing</title>
+        <para>
+            I assume you have a running OpenOffice.org (OOo) and a
+            JavaRuntimeEnvironment.
+            So place the hsqldb_*.zip file where you want on your disk 
+            and unpack it (I assume you have done this already).
+        </para>
+    </section>
+
+    <section>
+        <title>Setting up OpenOffice.org</title>
+        <para>
+            Start OOo with a text document and go to the Database-Explorer
+            (simply by pressing F4).
+            In the left frame you see a tree-view with all known databases in
+            OOo.
+        </para> <para>
+            A right mouse-click opens a menu where you can manage your
+            databases.
+            So click on <literal>New Database</literal> and choose a name that 
+            you want to have inside OOo.
+            I chose HSQLDB as name.
+        </para> <para>
+            As connection-type choose JDBC and then switch to the JDBC-tab.
+        </para> <para>
+            As Driver-Class insert <classname>org.hsqldb.jdbcDriver</classname> 
+            and as URL choose the following:
+        </para>
+        <section>
+            <title>On Windows</title>
+            <para>
+                You can specify a directory where HSQLDB should store the info 
+                and data. Something like 
+                <literal>jdbc:hsqldb:file:c:\javasrc\hsqldb-dev\databasename</literal>
+                (where jdbc: is written by OOo).
+                The string 
+                <filename>c:\javasrc\hsqldb-dev\databasename</filename>
+                works only on windows, but you can write this down as 
+                linux-path like
+                <filename>/javasrc/hsqldb-dev/databasename</filename> too.
+                Then HSQLDB takes the c:\ drive as root.
+                This means this works only on c:\ for you.
+            </para> <para>
+                The first is the directory-path and the databasename is the 
+                identifier for the database.
+            </para>
+        </section>
+        <section>
+            <title>On Linux</title>
+            <para>
+                Choose a path as said for windows like /opt/db/data
+            </para> <para>
+                As username take sa, this is the standard-administrator for 
+                HSQLDB.
+            </para> <para>
+                Now click the OK-Button
+            </para>
+        </section>
+        <para>
+            Now OOo has to find your <filename>hsqldb.jar</filename> file.
+            So go to options =&gt; security and insert the path to the .jar 
+            file.
+            If you have problems, search the Online-help for JDBC.
+            You then get help in your own language (this is generally quite 
+            better than my English, I think ;-)
+        </para> <para>
+            If you cannot write to your Tables, OOo thinks that you don't 
+            have permission to write to HSQLDB.
+            Then we tell OOo to ignore the DriverPrivileges because on our
+            single-user-system we do not need them.
+        </para> <para>
+            Because OOo is working on this, the next Step is only needed for 
+            systems without write - permission.
+        </para> <para>
+            So we go to http://dba.openoffice.org and look at the
+            <filename>IgnoreDriverPrivileges.html</filename> file in the 
+            HowTo-section.
+            You find here a macro-code.
+        </para> <para>
+            Open tools =&gt; macro in OOo to get the Basic-IDE.
+            Here simple copy and paste the code and run the macro.
+            You see a input-box where you only have to insert the name of your 
+            DB, in my example I have to insert HSQLDB, because I took this as 
+            name in OOo.
+        </para> <para>
+            Note that if you change your OOo-DB name, you have to run this 
+            macro again!
+        </para> <para>
+            Now we only have to stop and restart OOo.
+            Be sure that you exit Quickstarter and all running processes too.
+            On next OOo-Start you should have a running Database in 
+            OpenOffice.org.
+        </para>
+    </section>
+</appendix>
