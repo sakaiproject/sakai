@@ -14,7 +14,8 @@
 
   
       <h:form>
-      <h:panelGroup rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasNewPerm}" >
+      
+      <h:panelGroup rendered="#{podHomeBean.resourceToolExists && (podHomeBean.canUpdateSite || podHomeBean.hasNewPerm)}" >
         <sakai:tool_bar>
           <sakai:tool_bar_item action="podcastAdd" value="#{msgs.add}" rendered="#{podHomeBean.hasNewPerm || podHomeBean.canUpdateSite}" />
           <sakai:tool_bar_item action="podcastOptions" value="#{msgs.options}" rendered="#{podHomeBean.canUpdateSite}" />
@@ -28,33 +29,34 @@
  	  <f:verbatim><div></f:verbatim>
  	  	  <h:messages styleClass="alertMessage" id="errorMessages"/> 
  	      <f:verbatim><h3></f:verbatim>
- 	        <h:outputText value="#{msgs.podcast_home_title}" />
+ 	        <h:outputText value="#{msgs.podcast_home_title}" rendered="#{podHomeBean.resourceToolExists}" />
  	      <f:verbatim></h3></f:verbatim>
  	     
  	      <f:verbatim><div class="instruction indnt1"></f:verbatim>
-            <h:outputText value="#{msgs.podcast_home_sub}" />
+            <h:outputText value="#{msgs.podcast_home_sub} " rendered="#{podHomeBean.resourceToolExists}" />
  
             <f:verbatim><span onClick="showPopupHere(this,'podcatcher'); return false;"
                   onMouseOver="this.style.cursor='pointer'; return false;"
  	              onMouseOut="hidePopup('podcatcher');"></f:verbatim>
- 	          <h:outputLink styleClass="active" onclick="return false">
+ 	          <h:outputLink styleClass="active" onclick="return false" rendered="#{podHomeBean.resourceToolExists}" >
 	             <h:outputText value="#{msgs.podcatcher}#{msgs.colon}" />
 	          </h:outputLink>
  	        <f:verbatim></span>
 	     </div>
  	     <br /></f:verbatim>
 
- 	       <h:outputText value="#{podHomeBean.URL}" styleClass="indnt1" />
+ 	       <h:outputText value="#{podHomeBean.URL}" styleClass="indnt1" rendered="#{podHomeBean.resourceToolExists}" />
      
  		 <f:verbatim><a href="</f:verbatim>
  		   <h:outputText value="#{podHomeBean.URL}" />
  		   <f:verbatim>" class="active" target="</f:verbatim>
  		   <h:outputText value="_blank \" \>" />
- 	       <h:graphicImage value="images/rss-feed-icon.png" styleClass="indnt1 rssIcon" width="25px" height="25px" />
+ 	       <h:graphicImage value="images/rss-feed-icon.png" styleClass="indnt1 rssIcon" width="25px" height="25px" 
+ 	       						rendered="#{podHomeBean.resourceToolExists}" />
 		 <f:verbatim></a>
          <br /></f:verbatim>
  	     
- 	     <h:commandLink action="podfeedRevise" styleClass="indnt2" rendered="#{podHomeBean.canUpdateSite}" >
+ 	     <h:commandLink action="podfeedRevise" styleClass="indnt2" rendered="#{podHomeBean.resourceToolExists && podHomeBean.canUpdateSite}" >
  	         <h:outputText value="#{msgs.revise}" />
  	     </h:commandLink>
  	  <f:verbatim></div> 

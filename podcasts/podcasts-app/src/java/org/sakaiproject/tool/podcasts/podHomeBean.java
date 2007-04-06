@@ -885,6 +885,9 @@ public class podHomeBean {
 		if (podcastService.canUpdateSite()) {
 			return true;
 		}
+		else if (! getResourceToolExists()){
+			return false;
+		}
 		else {
 			boolean b = podcastService.hasPerm(PodcastService.READ_PERMISSIONS);
 			return b;
@@ -895,6 +898,9 @@ public class podHomeBean {
 		if (podcastService.canUpdateSite()) {
 			return true;
 		}
+		else if (! getResourceToolExists()){
+			return false;
+		}
 		else {
 			return podcastService.hasPerm(PodcastService.NEW_PERMISSIONS);
 		}
@@ -903,6 +909,9 @@ public class podHomeBean {
 	public boolean getHasReviseAnyPerm() {
 		if (podcastService.canUpdateSite()) {
 			return true;
+		}
+		else if (! getResourceToolExists()){
+			return false;
 		}
 		else {
 			return podcastService.hasPerm(PodcastService.REVISE_ANY_PERMISSIONS);
