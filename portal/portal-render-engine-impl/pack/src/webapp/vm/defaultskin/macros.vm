@@ -18,13 +18,13 @@
 
 
     <meta http-equiv="Content-Style-Type" content="text/css" />
-    <title>${pageTitle}</title>
-    <script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
-    
 #if ( ${bufferedResponse} && ${responseHead} ) 
-<!-- Head material from Tool -->
+<!-- Head material from Tool (will include title and headscripts) -->
 ${responseHead}
 <!-- End of Head material from Tool -->
+#else 
+    <title>${pageTitle}</title>
+    <script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
 #end
     
     

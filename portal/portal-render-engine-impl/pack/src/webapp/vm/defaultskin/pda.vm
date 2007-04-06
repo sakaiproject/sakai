@@ -19,7 +19,7 @@
 ##                    m.put("toolrefUrl", toolrefUrl);
 ##
 #start_response()
-<!-- portlet.vm -->
+<!-- pda.vm -->
 <div class="portlet">
 	<div id="pda-portlet-menu">
         <a href="${portalTopUrl}" title="need title here">Sites</a> 
@@ -141,5 +141,5 @@ ${responseBody}
 #includeBottom()
 -->
 </div>
-<!-- end portlet.vm -->
+<!-- end pda.vm -->
 #end_response()

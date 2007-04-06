@@ -184,7 +184,7 @@ public class PDAHandler extends PageHandler
 
 		ToolConfiguration siteTool = SiteService.findTool(toolId);
 		if (siteTool == null) return;
-		if ( ! tidAllow.equals("all") ) 
+		if ( tidAllow.indexOf(":all:") < 0 ) 
 		{
 			if( tidAllow.indexOf(siteTool.getToolId()) < 0 ) return;
 		}
@@ -215,14 +215,14 @@ public class PDAHandler extends PageHandler
 		bodyStart = findEndOfTag(responseStrLower,bodyStart);
 		int bodyEnd = responseStrLower.indexOf("</body");
 
-		if( tidAllow.indexOf("debug") >= 0 )
+		if( tidAllow.indexOf(":debug:") >= 0 )
 			log.info("Frameless HS="+headStart+" HE="+headEnd+" BS="+bodyStart+" BE="+bodyEnd);
 
 		if ( bodyEnd > bodyStart && bodyStart > headEnd && headEnd > headStart && headStart > 1 ) 
 		{
 			String headString = responseStr.substring(headStart+1, headEnd);
 			String bodyString = responseStr.substring(bodyStart+1, bodyEnd);
-			if( tidAllow.indexOf("debug") >= 0 )
+			if( tidAllow.indexOf(":debug:") >= 0 )
 			{
 				System.out.println(" ---- Head --- ");
 				System.out.println(headString);
