@@ -35,7 +35,7 @@
 
     <property name="osidImpl"><value>edu.indiana.lib.osid.base.repository.http</value></property>
 
-    <property name="googleBaseUrl"><value>http://scholar.google.com</value></property>
+    <property name="googleBaseUrl"><value>http://scholar.google.com/schhp</value></property>
     <property name="sakaiServerKey"><value>oncourse.indiana.edu</value></property>
 
     <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
@@ -75,7 +75,7 @@
     <property name="openUrlResolverAddress"><value>http://worldcatlibraries.org/registry/gateway</value></property>
 
 	<!-- google scholar parameters -->
-    <property name="googleBaseUrl"><value>http://libws.umdl.umich.edu/cgi-bin/gs.cgi</value></property>
+    <property name="googleBaseUrl"><value>http://scholar.google.com/schhp</value></property>
     <property name="sakaiServerKey"><value>ctools.umich.edu</value></property>
     
 	<!-- site-specific config/authentication/authorization implementation -->

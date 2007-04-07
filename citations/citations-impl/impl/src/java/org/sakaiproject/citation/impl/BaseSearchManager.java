@@ -1656,6 +1656,7 @@ public class BaseSearchManager implements SearchManager
 	public static final String SAKAI_SESSION = "sakai.session";
 	public static final String SAKAI_KEY = "sakai.key";
 	public static final String SAKAI_HOST = "sakai.host";
+	
 	public static final String SERVLET_NAME = "savecite";
 
 	// Our types (defined in setupTypes())
@@ -2251,7 +2252,7 @@ public class BaseSearchManager implements SearchManager
 		try
 		{
 			return ( m_configService.getSiteConfigGoogleBaseUrl()
-					+ "?" + SAKAI_HOST + "="
+					+ "?linkurl_base="
 					+ java.net.URLEncoder.encode( serverUrl +
 							Entity.SEPARATOR +
 							SERVLET_NAME +
@@ -2260,9 +2261,9 @@ public class BaseSearchManager implements SearchManager
 							"?" +
 							SAKAI_SESSION +
 							"=" +
-							sessionId, "UTF-8" )
-							+ "&" + SAKAI_KEY + "="
-							+ java.net.URLEncoder.encode( m_configService.getSiteConfigSakaiServerKey(), "UTF-8" ) );
+							sessionId + "&", "UTF-8" )
+					+ "&linkurl_id="
+					+ java.net.URLEncoder.encode( "sakai." + m_configService.getSiteConfigSakaiServerKey(), "UTF-8" ) );
 		}
 		catch( Exception e )
 		{
