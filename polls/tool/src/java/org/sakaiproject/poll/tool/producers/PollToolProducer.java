@@ -147,12 +147,12 @@ public class PollToolProducer implements ViewComponentProducer,
 	    	m_log.debug("User can add polls");
 	        //UIOutput.make(tofill, "poll-add", messageLocator
 	         //       .getMessage("action_add_poll"));
-	    	UIInternalLink.make(tofill,NAVIGATE_ADD,messageLocator.getMessage("action_add_poll"),
+	    	UIInternalLink.make(actions,NAVIGATE_ADD,messageLocator.getMessage("action_add_poll"),
 	    	        new EntityCentredViewParameters(AddPollProducer.VIEW_ID, new EntityID("Poll", "0"),
 	    	                EntityCentredViewParameters.MODE_NEW));
 	    } 
 	    if (this.isSiteOwner()) {
-	    	UIInternalLink.make(tofill, NAVIGATE_PERMISSIONS, messageLocator.getMessage("action_set_permissions"),new SimpleViewParameters(PermissionsProducer.VIEW_ID));
+	    	UIInternalLink.make(actions, NAVIGATE_PERMISSIONS, messageLocator.getMessage("action_set_permissions"),new SimpleViewParameters(PermissionsProducer.VIEW_ID));
 	    } 
     }
 
