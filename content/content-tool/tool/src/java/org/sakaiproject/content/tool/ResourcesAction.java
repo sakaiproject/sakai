@@ -4300,7 +4300,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 * @param state
 	 * @return
 	 */
-	private String buildDeleteFinishContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
+	public String buildDeleteFinishContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
 		context.put("tlang",trb);
 		context.put ("collectionId", state.getAttribute (STATE_COLLECTION_ID) );
@@ -4974,7 +4974,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 * @param state
 	 * @return
 	 */
-	private String buildReviseMetadataContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
+	public String buildReviseMetadataContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
 		context.put("tlang", trb);
 		

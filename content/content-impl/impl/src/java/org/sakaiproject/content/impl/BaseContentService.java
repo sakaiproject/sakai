@@ -4258,15 +4258,15 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				edit.setContent(thisResource.getContent());
 				edit.setResourceType(thisResource.getResourceType());
 				edit.setAvailability(thisResource.isHidden(), thisResource.getReleaseDate(), thisResource.getRetractDate());
-				Collection groups = thisResource.getGroups();
-				if(groups == null || groups.isEmpty())
-				{
-					// do nothing
-				}
-				else
-				{
-					edit.setGroupAccess(groups);
-				}
+//				Collection groups = thisResource.getGroups();
+//				if(groups == null || groups.isEmpty())
+//				{
+//					// do nothing
+//				}
+//				else
+//				{
+//					edit.setGroupAccess(groups);
+//				}
 				
 				ResourcePropertiesEdit props = edit.getPropertiesEdit();
 				addProperties(props, properties);
@@ -4495,15 +4495,15 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				
 				addProperties(newProps, properties);
 				newProps.addProperty(ResourceProperties.PROP_DISPLAY_NAME, new_displayName);
-				Collection groups = resource.getGroups();
-				if(groups == null || groups.isEmpty())
-				{
-					// do nothing
-				}
-				else
-				{
-					edit.setGroupAccess(groups);
-				}
+//				Collection groups = resource.getGroups();
+//				if(groups == null || groups.isEmpty())
+//				{
+//					// do nothing
+//				}
+//				else
+//				{
+//					edit.setGroupAccess(groups);
+//				}
 				edit.setAvailability(resource.isHidden(), resource.getReleaseDate(), resource.getRetractDate());
 				
 				commitResource(edit,NotificationService.NOTI_NONE);
