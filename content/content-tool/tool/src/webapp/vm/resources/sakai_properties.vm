@@ -233,7 +233,7 @@
 						<tr>
 							<td headers="selected${DOT}$i" style="padding-bottom:0;" style="width:2em">
 								#if(!$model.isLocal($group))
-									<input type="checkbox" name="access_groups${DOT}$i" id="access_groups_${group.Id}${DOT}$i" title="$group.title" value="$group.Id" #if($model.isGroupInherited()) checked="checked"#end />
+									<input type="checkbox" name="access_groups${DOT}$i" id="access_groups_${group.Id}${DOT}$i" title="$group.title" value="$group.Id" checked="checked" />
 								#elseif(!$model.isGroupInherited($group))
 									<input type="checkbox" name="access_groups${DOT}$i" id="access_groups_${group.Id}${DOT}$i" title="$group.title" value="$group.Id" />
 ##								#elseif($model.allowedRemove($group))

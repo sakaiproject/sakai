@@ -1166,11 +1166,11 @@ public class ListItem
 		}
 		else if(isCollection())
 		{
-			label = rb.getString("edit.who.fldr");
+			label = trb.getString("edit.who.fldr");
 		}
 		else
 		{
-			label = rb.getString("edit.who");
+			label = trb.getString("edit.who");
 		}
 		
 		return label;

@@ -305,6 +305,9 @@
 		
 		attachEventHandlers();
 		
+##		var debug_guy = document.getElementById("debug_guy");
+##		debug_guy.value = fileInputDiv.innerHTML;
+		
 		resizeFrame('grow');
 ##		focus_path = [ "content" + DOT + index ];
 ##		setFocus(focus_path);
@@ -534,6 +537,15 @@
 				var baseName = element.id.substr(0,dotPos);
 				newElement.setAttribute("id", baseName + DOT + index);
 				newElement.setAttribute("name", baseName + DOT + index);
+			}
+			if(element.name && element.name != element.id)
+			{
+				var dotPosInName = element.name.lastIndexOf(DOT);
+				if(dotPosInName >= 0)
+				{
+					var baseName2 = element.name.substr(0,dotPosInName);
+					newElement.setAttribute("name", baseName2 + DOT + index);
+				}
 			}
 		}
 		if(newElement && newElement.htmlFor)
