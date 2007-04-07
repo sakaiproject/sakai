@@ -123,8 +123,9 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 		rdfSearchService = (RDFSearchService) load(cm, RDFSearchService.class.getName(),
 				false);
 
-		enabled = "true".equals(ServerConfigurationService.getString( //$NON-NLS-1$
-				"search.experimental", "false")); //$NON-NLS-1$ //$NON-NLS-2$
+		enabled = "true".equals(ServerConfigurationService.getString(
+				"search.enable", "true"));
+
 		try
 		{
 			if (searchIndexBuilder == null)

@@ -93,8 +93,8 @@ public class MessageContentProducer implements EntityContentProducer
 
 		entityManager = (EntityManager) load(cm, EntityManager.class.getName());
 
-		if ("true".equals(ServerConfigurationService.getString( //$NON-NLS-1$
-				"search.experimental", "false"))) //$NON-NLS-1$ //$NON-NLS-2$
+		if ( "true".equals(ServerConfigurationService.getString(
+				"search.enable", "true")))
 		{
 			for (Iterator i = addEvents.iterator(); i.hasNext();)
 			{
