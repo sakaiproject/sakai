@@ -232,14 +232,17 @@
 					#if($model.isPossible($group))
 						<tr>
 							<td headers="selected${DOT}$i" style="padding-bottom:0;" style="width:2em">
-								#if(!$model.isLocal($group))
+								#if($model.isLocal($group) && $model.allowedRemove($group))
 									<input type="checkbox" name="access_groups${DOT}$i" id="access_groups_${group.Id}${DOT}$i" title="$group.title" value="$group.Id" checked="checked" />
-								#elseif(!$model.isGroupInherited($group))
-									<input type="checkbox" name="access_groups${DOT}$i" id="access_groups_${group.Id}${DOT}$i" title="$group.title" value="$group.Id" />
+								#elseif($model.isLocal($group))
+									<img src="#imageLink("sakai/checkon.gif")" border="0" width="17" height="13" align="top" />
+##								#elseif($model.isGroupInherited($group))
+##									<input type="checkbox" name="access_groups${DOT}$i" id="access_groups_${group.Id}${DOT}$i" title="$group.title" value="$group.Id" />
 ##								#elseif($model.allowedRemove($group))
 ##									<input type="checkbox" name="access_groups${DOT}$i" id="access_groups_${group.Id}${DOT}$i" title="$group.title" value="$group.Id" checked="checked" />
 								#else
-									<img src="#imageLink("sakai/checkon.gif")" border="0" width="17" height="13" align="top" />
+									<input type="checkbox" name="access_groups${DOT}$i" id="access_groups_${group.Id}${DOT}$i" title="$group.title" value="$group.Id" />
+##									<img src="#imageLink("sakai/checkon.gif")" border="0" width="17" height="13" align="top" />
 								#end
 							</td>
 							<td headers="groupname${DOT}$i" style="padding-bottom:0;" class="checkbox">
