@@ -163,26 +163,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	protected long m_siteQuota = 0;
 
-	/** The collection id for the attachments collection */
-	protected static final String ATTACHMENTS_COLLECTION = "/attachment/";
-
-	/** Collection id for the user sites. */
-	public static final String COLLECTION_USER = "/user/";
-
-	/** Collection id for the non-user sites. */
-	public static final String COLLECTION_SITE = "/group/";
-	
-	/** The content root collection for dropboxes. */
-	public static final String COLLECTION_DROPBOX = "/group-user/";
-
-	/** The content root collection for items that are public. */
-	public static final String COLLECTION_PUBLIC = "/public/";
-	
-	/** The content root collection for meleteDocs */
-	public static final String COLLECTION_MELETE_DOCS = "/meleteDocs/";
-
-	/** A "list" of all root-level collections */
-	protected static final Set ROOT_COLLECTIONS = new TreeSet();
 	static
 	{
 		ROOT_COLLECTIONS.add(COLLECTION_SITE);

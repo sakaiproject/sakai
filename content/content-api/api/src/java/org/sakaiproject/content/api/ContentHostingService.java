@@ -25,7 +25,9 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
+import java.util.TreeSet;
 
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
@@ -159,10 +161,30 @@ public interface ContentHostingService extends EntityProducer
 	 */
 	public static final int CONTENT_RESOURCE_PRIORITY_OFFSET = Integer.MAX_VALUE / 8;
 
+	/** The collection id for the attachments collection */
+    public static final String ATTACHMENTS_COLLECTION = "/attachment/";
+
+	/** Collection id for the user sites. */
+    public static final String COLLECTION_USER = "/user/";
+
+	/** Collection id for the non-user sites. */
+    public static final String COLLECTION_SITE = "/group/";
+
+	/** The content root collection for dropboxes. */
+    public static final String COLLECTION_DROPBOX = "/group-user/";
+
+	/** The content root collection for items that are public. */
+    public static final String COLLECTION_PUBLIC = "/public/";
+
+	/** The content root collection for meleteDocs */
+    public static final String COLLECTION_MELETE_DOCS = "/meleteDocs/";
+
+	/** A "list" of all root-level collections */
+    public static final Set<String> ROOT_COLLECTIONS = new TreeSet<String>();
+
 	/**
     * For a given id, return its UUID (creating it if it does not already exist)
     */
-
    public String getUuid(String id);
 
    /**

@@ -2124,19 +2124,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
 		// make sure the channedId is set
 		String currentCollectionId = (String) state.getAttribute (STATE_COLLECTION_ID);
-		if(! isStackEmpty(state))
-		{
-			Map current_stack_frame = peekAtStack(state);
-			String createCollectionId = (String) current_stack_frame.get(STATE_STACK_CREATE_COLLECTION_ID);
-			if(createCollectionId == null)
-			{
-				createCollectionId = (String) state.getAttribute(STATE_CREATE_COLLECTION_ID);
-			}
-			if(createCollectionId != null)
-			{
-				currentCollectionId = createCollectionId;
-			}
-		}
 		String homeCollectionId = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
 		String navRoot = (String) state.getAttribute(STATE_NAVIGATION_ROOT);
 
@@ -2144,21 +2131,22 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 		String previousCollectionId = "";
 		Vector pathitems = new Vector();
-		while ((currentCollectionId != null) && (!currentCollectionId.equals(navRoot)) && (!currentCollectionId.equals(previousCollectionId)) && (!contentService.isRootCollection(previousCollectionId)))
+		while ((currentCollectionId != null) && (!currentCollectionId.equals(navRoot)) && (!currentCollectionId.equals(previousCollectionId)) 
+				&& !(contentService.ROOT_COLLECTIONS.contains(currentCollectionId)) && (!contentService.isRootCollection(previousCollectionId)))
 		{
 			pathitems.add(currentCollectionId);
 			previousCollectionId = currentCollectionId;
 			currentCollectionId = contentService.getContainingCollectionId(currentCollectionId);
 		}
 		
-		if(navRoot != null)
+		if(navRoot != null && (pathitems.isEmpty() || (! navRoot.equals(previousCollectionId) && ! navRoot.equals(currentCollectionId))))
 		{
 			pathitems.add(navRoot);
 
-			if(!navRoot.equals(homeCollectionId))
-			{
-				pathitems.add(homeCollectionId);
-			}
+		}
+		if(homeCollectionId != null && (pathitems.isEmpty() || (!homeCollectionId.equals(navRoot) && ! homeCollectionId.equals(previousCollectionId) && ! homeCollectionId.equals(currentCollectionId))))
+		{
+			pathitems.add(homeCollectionId);
 		}
 
 		Iterator items = pathitems.iterator();
@@ -2169,6 +2157,22 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			{
 				ResourceProperties props = contentService.getProperties(id);
 				String name = props.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
+				String containingCollectionId = contentService.getContainingCollectionId(id);
+				if(contentService.COLLECTION_DROPBOX.equals(containingCollectionId))
+				{
+					Reference ref = EntityManager.newReference(contentService.getReference(id));
+					Site site = SiteService.getSite(ref.getContext());
+					String[] args = {site.getTitle()};
+					name = trb.getFormattedMessage("title.dropbox", args);
+				}
+				else if(contentService.COLLECTION_SITE.equals(containingCollectionId))
+				{
+					Reference ref = EntityManager.newReference(contentService.getReference(id));
+					Site site = SiteService.getSite(ref.getContext());
+					String[] args = {site.getTitle()};
+					name = trb.getFormattedMessage("title.resources", args);
+				}
+				
 				ChefPathItem item = new ChefPathItem(id, name);
 
 				boolean canRead = contentService.allowGetCollection(id) || contentService.allowGetResource(id);
@@ -4569,14 +4573,30 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				}
 			}
 			
-			if(atHome && dropboxMode)
+			String containingCollectionId = contentService.getContainingCollectionId(item.getId());
+			if(contentService.COLLECTION_DROPBOX.equals(containingCollectionId))
 			{
-				item.setName(siteTitle + " " + rb.getString("gen.drop"));
+				Reference ref = EntityManager.newReference(contentService.getReference(item.getId()));
+				Site site = SiteService.getSite(ref.getContext());
+				String[] args = {site.getTitle()};
+				item.setName(trb.getFormattedMessage("title.dropbox", args));
 			}
-			else if(atHome)
+			else if(contentService.COLLECTION_SITE.equals(containingCollectionId))
 			{
-				item.setName(siteTitle + " " + rb.getString("gen.reso"));
+				Reference ref = EntityManager.newReference(contentService.getReference(item.getId()));
+				Site site = SiteService.getSite(ref.getContext());
+				String[] args = {site.getTitle()};
+				item.setName(trb.getFormattedMessage("title.resources", args));
 			}
+			
+//			if(atHome && dropboxMode)
+//			{
+//				item.setName(siteTitle + " " + rb.getString("gen.drop"));
+//			}
+//			else if(atHome)
+//			{
+//				item.setName(siteTitle + " " + rb.getString("gen.reso"));
+//			}
 
 			context.put("site", items);
 
@@ -8083,17 +8103,17 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
                 catch (IdUnusedException e)
                 {
 	                // TODO Auto-generated catch block
-	                logger.warn("IdUnusedException ", e);
+	                logger.warn("IdUnusedException " + e);
                 }
                 catch (TypeException e)
                 {
 	                // TODO Auto-generated catch block
-	                logger.warn("TypeException ", e);
+	                logger.warn("TypeException " + e);
                 }
                 catch (PermissionException e)
                 {
 	                // TODO Auto-generated catch block
-	                logger.warn("PermissionException ", e);
+	                logger.warn("PermissionException " + e);
                 }
 			}
           }
