@@ -33,7 +33,6 @@ import javax.faces.context.ResponseWriter;
 import javax.faces.render.Renderer;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.cover.ToolManager; 
 import org.sakaiproject.content.cover.ContentHostingService; 
 import org.sakaiproject.util.FormattedText;
@@ -91,8 +90,10 @@ public class RichTextEditArea extends Renderer
 
     boolean valueHasRichText = false;
     	if((String) value != null){
+    		String valueNoNewLine = ((String) value).replaceAll("\\n", "").replaceAll("\\r", "");
     		//really simple regex to detect presence of any html tags in the value        
-    		valueHasRichText = Pattern.compile(".*(<)[^\n^<]+(>).*", Pattern.CASE_INSENSITIVE).matcher((String) value).matches();
+    		valueHasRichText = Pattern.compile(".*<.*?>.*", Pattern.CASE_INSENSITIVE).matcher(valueNoNewLine).matches();
+    		//valueHasRichText = Pattern.compile(".*(<)[^\n^<]+(>).*", Pattern.CASE_INSENSITIVE).matcher((String) value).matches();
     	}
     	String hasToggle = (String) component.getAttributes().get("hasToggle");
     
