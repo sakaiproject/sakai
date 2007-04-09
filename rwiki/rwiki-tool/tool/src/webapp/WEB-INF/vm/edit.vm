@@ -153,7 +153,7 @@
 					  			        <input type="checkbox" name="smallchange" value="smallchange" /> ${rlb.jsp_minor_change}<br />
 					  			      #end
 					 		        <input id="saveButton" type="submit" name="save" value="${rlb.jsp_button_save}"  /> 
-					  		       #if (( ( ${editBean.saveType} && ( "preview" == ${editBean.saveType}  || ${editBean.saveType.startsWith("attach")} ) ) && ${nameHelperBean.submittedContent} ) || ( ${editBean.saveType} && ${editBean.saveType} != "preview" ) && !${editBean.saveType.statsWith("attach")} ))
+					  		       #if (( ( ${editBean.saveType} && ( "preview" == ${editBean.saveType}  || ${editBean.saveType.startsWith("attach")} ) ) && ${nameHelperBean.submittedContent} ) || (( ${editBean.saveType} && ${editBean.saveType} != "preview" ) && !${editBean.saveType.statsWith("attach")} ))
 					 		        <input id="saveButton" type="submit" name="save" value="${rlb.jsp_button_overwrite}"  />
 					 		        #end 
 					 		        <input id="saveButton" type="submit" name="save" value="${rlb.jsp_button_cancel}"  />
@@ -179,7 +179,7 @@
 				        <div class="rwiki_editControl" id="editControl2">
 						         <p class="act">
 					 		        <input id="saveButton" type="submit" name="save" value="${rlb.jsp_button_save}"  /> 
-					  		       #if (( ( ${editBean.saveType} && ( "preview" == ${editBean.saveType}  || ${editBean.saveType.startsWith("attach")} ) ) && ${nameHelperBean.submittedContent} ) || ( ${editBean.saveType} && ${editBean.saveType} != "preview" ) && !${editBean.saveType.statsWith("attach")} ))
+					  		       #if ((( ${editBean.saveType} && ( "preview" == ${editBean.saveType}  || ${editBean.saveType.startsWith("attach")} )) && ${nameHelperBean.submittedContent} ) || (( ${editBean.saveType} && ${editBean.saveType} != "preview" ) && !${editBean.saveType.statsWith("attach")} ))
 					 		        <input id="saveButton" type="submit" name="save" value="${rlb.jsp_button_overwrite}"  />
 					 		        #end 
 					 		        <input id="saveButton" type="submit" name="save" value="${rlb.jsp_button_cancel}"  />
