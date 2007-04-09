@@ -38,6 +38,9 @@ public class UserDisplayHelper
 
 	public static String formatDisplayName(String name, String defaultName)
 	{
+		if ( name == null ) {
+			return defaultName;
+		}
 		User user;
 		try
 		{
