@@ -462,6 +462,7 @@ function togglePresence(target) {
 
 #macro( autosavetoolbar ) 
 <div class="autosaveToolBarContainer" >
+<nobr>
 <a class="autosaveToolBar" 
 			href="#" 
 			id="toolbarButtonRecover" 
@@ -473,9 +474,11 @@ function togglePresence(target) {
 			     alt="${rlb.jsp_button_restore_saved_edit}"
 								/></a>
 		 <label for="restoreVersion" >${rlb.jsp_auto_save_version}</label>
-		 <input id="restoreVersion" name="restoreVersion" value="${rlb.jsp_none}" readonly="readonly" />
+		 <input type="text" id="restoreVersion" name="restoreVersion" value="${rlb.jsp_none}" readonly="readonly" />
 		 <label for="restoreDate" >${rlb.jsp_auto_save_date}</label>
-		 <input id="restoreDate" name="restoreDate" value="${rlb.jsp_none}" />
+		 <input type="text" id="restoreDate" name="restoreDate" value="${rlb.jsp_none}"  readonly="readonly" />
 		 <input type="hidden" id="restoreTimestamp" name="restoreTimestamp" value="${rlb.jsp_none}" readonly="readonly"  />
+</nobr>
 </div>
+
 #end

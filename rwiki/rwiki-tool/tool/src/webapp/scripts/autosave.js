@@ -167,6 +167,7 @@ WikiAutoSave.prototype.restoreCallback = function() {
 	dateTS = parseInt(dateTS);
 	log("Date is "+dateTS);
 	restoreDate.value = new Date(dateTS);
+	restoreDate.size = restoreDate.value.length+1;
 	
 	if ( restoredContent && restoredContent != content && restoredContent != "no restored content" ) {
 		var restoreTab = document.getElementById(this.restoreTabId);
