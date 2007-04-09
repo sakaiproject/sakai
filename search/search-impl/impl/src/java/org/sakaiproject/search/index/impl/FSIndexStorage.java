@@ -269,9 +269,13 @@ public class FSIndexStorage implements IndexStorage
 	public void closeIndexSearcher(IndexSearcher indexSearcher)
 	{
 		IndexReader indexReader = indexSearcher.getIndexReader();
+		boolean closedAlready = false;
 		try
 		{
-			indexReader.close();
+			if ( indexReader != null ) {
+				indexReader.close();
+				closedAlready = true;
+			}
 		}
 		catch (Exception ex)
 		{
@@ -283,7 +287,11 @@ public class FSIndexStorage implements IndexStorage
 		}
 		catch (Exception ex)
 		{
-			log.error("Failed to close Index Searcher "+ex.getMessage());
+			if ( closedAlready )  {
+				log.debug("Failed to close Index Searcher "+ex.getMessage());
+			} else {
+				log.error("Failed to close Index Searcher "+ex.getMessage());
+			}
 
 		}
 	}
