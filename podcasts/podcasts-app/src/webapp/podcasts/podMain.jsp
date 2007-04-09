@@ -15,62 +15,68 @@
   
       <h:form>
       
-      <h:panelGroup rendered="#{podHomeBean.resourceToolExists && (podHomeBean.canUpdateSite || podHomeBean.hasNewPerm)}" >
-        <sakai:tool_bar>
-          <sakai:tool_bar_item action="podcastAdd" value="#{msgs.add}" rendered="#{podHomeBean.hasNewPerm || podHomeBean.canUpdateSite}" />
-          <sakai:tool_bar_item action="podcastOptions" value="#{msgs.options}" rendered="#{podHomeBean.canUpdateSite}" />
-        </sakai:tool_bar>
+      <%-- if Resources tool not exist, if instructor, display error message
+      		if student, display no podcasts exists --%>
+      <h:panelGroup rendered="#{! podHomeBean.resourceToolExists}" >
+      	<%@ include file="podNoResource.jsp" %>
       </h:panelGroup>
+
+	  <h:panelGroup rendered="#{podHomeBean.resourceToolExists}" >
+	  
+	    <h:panelGroup rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasNewPerm}" >
+    	  <sakai:tool_bar>
+        	  <sakai:tool_bar_item action="podcastAdd" value="#{msgs.add}" rendered="#{podHomeBean.hasNewPerm || podHomeBean.canUpdateSite}" />
+	          <sakai:tool_bar_item action="podcastOptions" value="#{msgs.options}" rendered="#{podHomeBean.canUpdateSite}" />
+    	  </sakai:tool_bar>
+    	</h:panelGroup>
       
-      <h:outputText value="#{msgs.no_access}" styleClass="validation" rendered="#{! podHomeBean.hasReadPerm}" />
+		<h:outputText value="#{msgs.no_access}" styleClass="validation" rendered="#{! podHomeBean.hasReadPerm}" />
       
-      <h:panelGroup rendered="#{podHomeBean.hasReadPerm}" >
+      	<h:panelGroup rendered="#{podHomeBean.hasReadPerm}" >
  	  
- 	  <f:verbatim><div></f:verbatim>
+ 	  	<f:verbatim><div></f:verbatim>
  	  	  <h:messages styleClass="alertMessage" id="errorMessages"/> 
  	      <f:verbatim><h3></f:verbatim>
- 	        <h:outputText value="#{msgs.podcast_home_title}" rendered="#{podHomeBean.resourceToolExists}" />
+ 	        <h:outputText value="#{msgs.podcast_home_title}" />
  	      <f:verbatim></h3></f:verbatim>
  	     
  	      <f:verbatim><div class="instruction indnt1"></f:verbatim>
-            <h:outputText value="#{msgs.podcast_home_sub} " rendered="#{podHomeBean.resourceToolExists}" />
+            <h:outputText value="#{msgs.podcast_home_sub} " />
  
             <f:verbatim><span onClick="showPopupHere(this,'podcatcher'); return false;"
                   onMouseOver="this.style.cursor='pointer'; return false;"
  	              onMouseOut="hidePopup('podcatcher');"></f:verbatim>
- 	          <h:outputLink styleClass="active" onclick="return false" rendered="#{podHomeBean.resourceToolExists}" >
+ 	          <h:outputLink styleClass="active" onclick="return false" >
 	             <h:outputText value="#{msgs.podcatcher}#{msgs.colon}" />
 	          </h:outputLink>
  	        <f:verbatim></span>
 	     </div>
  	     <br /></f:verbatim>
 
- 	       <h:outputText value="#{podHomeBean.URL}" styleClass="indnt1" rendered="#{podHomeBean.resourceToolExists}" />
+ 	     <h:outputText value="#{podHomeBean.URL}" styleClass="indnt1" />
      
  		 <f:verbatim><a href="</f:verbatim>
  		   <h:outputText value="#{podHomeBean.URL}" />
  		   <f:verbatim>" class="active" target="</f:verbatim>
  		   <h:outputText value="_blank \" \>" />
- 	       <h:graphicImage value="images/rss-feed-icon.png" styleClass="indnt1 rssIcon" width="25px" height="25px" 
- 	       						rendered="#{podHomeBean.resourceToolExists}" />
+ 	       <h:graphicImage value="images/rss-feed-icon.png" styleClass="indnt1 rssIcon" width="25px" height="25px" />
 		 <f:verbatim></a>
          <br /></f:verbatim>
  	     
- 	     <h:commandLink action="podfeedRevise" styleClass="indnt2" rendered="#{podHomeBean.resourceToolExists && podHomeBean.canUpdateSite}" >
+ 	     <h:commandLink action="podfeedRevise" styleClass="indnt2" rendered="#{podHomeBean.canUpdateSite}" >
  	         <h:outputText value="#{msgs.revise}" />
  	     </h:commandLink>
- 	  <f:verbatim></div> 
+ 	    <f:verbatim></div> 
 
-    <div class="indnt1">
-    	<br /></f:verbatim>
-        <h:outputText  styleClass="instruction" value="#{msgs.no_podcasts}" 
-               rendered="#{podHomeBean.podcastFolderExists && !podHomeBean.actPodcastsExist}" />
-    <f:verbatim></div>
+		<div class="indnt1">
+    	  <br /></f:verbatim>
+          <h:outputText  styleClass="instruction" value="#{msgs.no_podcasts}" rendered="#{!podHomeBean.actPodcastsExist}" />
+    	<f:verbatim></div>
  
 	<!-- if there are podcasts, display their information here -->
-    <div id="podcast_info" class="indnt1" ></f:verbatim>
-      <h:dataTable value="#{podHomeBean.contents}" var="eachPodcast" rendered="#{podHomeBean.actPodcastsExist}" >
-        <h:column>
+    	<div id="podcast_info" class="indnt1" ></f:verbatim>
+      	  <h:dataTable value="#{podHomeBean.contents}" var="eachPodcast" rendered="#{podHomeBean.actPodcastsExist}" >
+          <h:column>
             <h:outputText value="#{eachPodcast.displayDate}" styleClass="podDateFormat" />
 			<f:verbatim><br /></f:verbatim>
 
@@ -132,10 +138,12 @@
               <h:outputText value="#{eachPodcast.postedDate}" />
             <f:verbatim></div><br /></f:verbatim>
             
-        </h:column>
-      </h:dataTable>
-    </div>
+          </h:column>
+      	</h:dataTable>
+      </div>
  	</h:panelGroup>
+ 	
+   </h:panelGroup> 
  	
     </h:form>
    </sakai:view>

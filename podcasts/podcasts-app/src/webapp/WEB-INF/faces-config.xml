@@ -7,7 +7,7 @@
 
 <!-- add to allow internalization of the content messages -->
   <application>
-    <message-bundle>org.sakaiproject.tool.podcasts.bundle.Messages</message-bundle>
+    <message-bundle>org.sakaiproject.api.podcasts.bundle.Messages</message-bundle>
     <locale-config>
       <default-locale>en</default-locale>
       <supported-locale>de</supported-locale>
