@@ -512,11 +512,21 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     		throw new StaleObjectModificationException(e);
     	}
     }
-
+    
     public void removeCategory(final Long categoryId) throws StaleObjectModificationException{
     	HibernateCallback hc = new HibernateCallback() {
     		public Object doInHibernate(Session session) throws HibernateException {
     			Category persistentCat = (Category)session.load(Category.class, categoryId);
+
+    			List assigns = getAssignmentsForCategory(categoryId);
+    			for(Iterator iter = assigns.iterator(); iter.hasNext();)
+    			{
+    				Assignment assignment = (Assignment) iter.next();
+    				assignment.setCategory(null);
+    				assignment.setRemoved(true);
+    				updateAssignment(assignment, session);
+    			}
+
     			persistentCat.setRemoved(true);
     			session.update(persistentCat);
     			return null;
