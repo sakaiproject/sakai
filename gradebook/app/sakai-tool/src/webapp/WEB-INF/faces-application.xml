@@ -107,6 +107,11 @@
 			<renderer-type>org.apache.myfaces.SortHeader</renderer-type>
 			<renderer-class>org.sakaiproject.tool.gradebook.jsf.HtmlSortHeaderRenderer</renderer-class>
 		</renderer>
+    	<renderer>
+			<component-family>javax.faces.Data</component-family>
+			<renderer-type>SpreadsheetUIRenderer</renderer-type>
+			<renderer-class>org.sakaiproject.tool.gradebook.jsf.spreadsheetUI.SpreadsheetUIRenderer</renderer-class>
+		</renderer>
 	</render-kit>
 
 </faces-config>
