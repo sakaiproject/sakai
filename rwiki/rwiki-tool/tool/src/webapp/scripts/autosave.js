@@ -344,7 +344,7 @@ function WikiAutoSave_doAutoSave(saveID)
 			}
 			if ( autoSaver.runs == 0 ) 
 			{
-				alert("Auto Save Disabled, No FLash Support ");
+				window.status = "Auto Save Disabled, No Flash Support ";
 			}	 
 			else
 			{
