@@ -44,8 +44,7 @@ public class ByteArrayServletResponse extends HttpServletResponseWrapper
 	{
 		super(response);
 		// System.out.println("ByteArrayServletResponse "+response);
-      		outStream = new ServletByteOutputStream();
-		writer = new PrintWriter(outStream);
+		reset();
 	}
 
 	@Override
@@ -68,6 +67,27 @@ public class ByteArrayServletResponse extends HttpServletResponseWrapper
 		return outStream;
          }
 
+	@Override
+	public void setContentLength(int i)
+	{
+		// Suppress setContentLength calls as we have no idea
+		// how large the resulting output will be
+	}
+
+	@Override
+	public void flushBuffer()
+	{
+		// Do nothing
+	}
+
+	@Override
+	public void reset()
+	{
+		// System.out.println("reset()");
+      		outStream = new ServletByteOutputStream();
+		writer = new PrintWriter(outStream);
+	}
+
 	/**
 	 * Retrieve the buffer.
 	 * 
@@ -78,7 +98,15 @@ public class ByteArrayServletResponse extends HttpServletResponseWrapper
 		// System.out.println("---- baStream -----");
 		// System.out.println(outStream.getContent().toString());
 		// System.out.println("---- baStream -----");
-		return outStream.getContent().toString();
+
+		// TODO: Should we fall back to regular encoding or freak out?
+		try {
+			return outStream.getContent().toString("UTF-8");
+		}
+		catch (Exception e)
+		{
+			return outStream.getContent().toString();
+		}
 	}
 }
 

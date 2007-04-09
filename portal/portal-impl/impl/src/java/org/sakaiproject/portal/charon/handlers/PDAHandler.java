@@ -52,6 +52,8 @@ import org.sakaiproject.tool.cover.SessionManager;
 import java.io.IOException;
 import javax.servlet.ServletResponse;
 
+// import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+
 /**
  * @author ieb
  */
@@ -190,6 +192,9 @@ public class PDAHandler extends PageHandler
 		}
 
 		ByteArrayServletResponse bufferedResponse = new ByteArrayServletResponse(res);
+		// TODO: This should not be necessary - but I leave it here for testing
+		// until we are usre this is not an issue.  April 2007
+    		// ThreadLocalManager.set(CURRENT_HTTP_RESPONSE, bufferedResponse);
 
 		try 
 		{
