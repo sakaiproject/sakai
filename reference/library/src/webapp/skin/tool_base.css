@@ -736,10 +736,13 @@ placeholder till more standard way of doing it*/
 	float: right;
 }
 
+/*
+Buttons dont have hover anymore
 .loginform td #submit:hover{
-	border: 1px solid #888;
+	border: 1px solid #888; 
 	background-color: #eee;
 }
+*/
 
 /*SECTION 10 JSF HACKS*/
 /*Tools based on JSF have some unique rendering requirements dictated by the way jsf chooses to render standard html components*/
