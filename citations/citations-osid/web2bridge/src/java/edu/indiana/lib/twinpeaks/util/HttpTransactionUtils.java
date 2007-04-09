@@ -282,31 +282,6 @@ public class HttpTransactionUtils
 		return (index == -1) ? null : file.substring(index);
 	}
 
-  /**
-   * Make a "safe" base64 string for HTTP use
-   * @param text Original label text
-   * @return Encoded text suitable for use as an HTTP parameter
-   */
-  public static String encode(String text) {
-    String b64 = Base64Utils.encode(text);
-
-    b64  = b64.replace('=', '_');
-    b64  = b64.replace('+', '*');
-    return b64.replace('/', '|');
-  }
-
-  /**
-   * Given encoded text, restore the original
-   * @param encoded Text to decode
-   * @return Original, unencoded text
-   */
-  public static String decode(String encoded) throws IOException {
-    String b64 = encoded.replace('_', '=');
-
-    b64 = b64.replace('*', '+');
-    return Base64Utils.decodeToString(b64.replace('|', '/'));
-  }
-
 	/**
 	 * URLEncode parameter names and values
 	 * @param original Full URL specification (http://example.com/xxx?a=b&c=d)
