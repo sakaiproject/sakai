@@ -45,9 +45,9 @@ public class SpreadsheetUITag extends HtmlDataTableTag
 {
 	private String colLock;
 	private String rowLock;
-	private String renderHandle;
 	private String sortColumn;
 	private String sortAscending;
+	private String initialHeight;
 	private java.lang.String value;
 	private java.lang.String _var;
 	
@@ -66,12 +66,9 @@ public class SpreadsheetUITag extends HtmlDataTableTag
 		FacesContext context = getFacesContext();
 		TagUtil.setString(component, "colLock", colLock);
 		TagUtil.setString(component, "rowLock", rowLock);
-		TagUtil.setString(component, "renderHandle", renderHandle);
 		TagUtil.setString(component, "sortColumn", sortColumn);
 		TagUtil.setString(component, "sortAscending", sortAscending);
-		//if(value != null) {
-		//	data.setValue(value);
-		//}
+		TagUtil.setString(component, "initialHeight", initialHeight);
 		
 		TagUtil.setString(component, "value", value);
 		if (_var != null) {
@@ -97,14 +94,6 @@ public class SpreadsheetUITag extends HtmlDataTableTag
 	     this.rowLock = rowLock;
 	}
 	
-	public String getRenderHandle() {
-	    return renderHandle;
-	}
-	
-	public void setRenderHandle(String renderHandle) {
-	     this.renderHandle = renderHandle;
-	}
-	
 	public String getSortColumn() {
 	    return sortColumn;
 	}
@@ -119,6 +108,14 @@ public class SpreadsheetUITag extends HtmlDataTableTag
 	
 	public void setSortAscending(String sortAscending) {
 	     this.sortAscending = sortAscending;
+	}
+	
+	public String getInitialHeight(){
+		return initialHeight;
+	}
+	
+	public void setInitialHeight(String initialHeight){
+		this.initialHeight = initialHeight;
 	}
 	
 	public void setValue(java.lang.String value) {

@@ -304,19 +304,6 @@ public class SpreadsheetUIRenderer extends Renderer
 		writer.endElement("div");
 		writer.endElement("div");  //end <div id="q4">
 		
-		/*** COMMENTED OUT FOR NOW AS IT DOES NOT WORK WELL ************
-		//		write handle
-		String renderHandle = (String) data.getAttributes().get("renderHandle");
-		if(renderHandle == null){
-			renderHandle = "false";
-		}
-		if(renderHandle.equals("true")){
-			writer.startElement("div", null);
-			writer.writeAttribute("class", "handle", null);
-			writer.endElement("div");
-		}
-		****/
-		
 		writer.endElement("div");  //end <div id="content">
 		
 		// Clean up after ourselves

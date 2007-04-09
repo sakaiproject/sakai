@@ -193,11 +193,6 @@
 			<rtexprvalue>false</rtexprvalue>
 		</attribute>
 		<attribute>
-			<name>renderHandle</name>
-			<required>false</required>
-			<rtexprvalue>false</rtexprvalue>
-		</attribute>
-		<attribute>
 			<name>rendered</name>
 			<required>false</required>
 			<rtexprvalue>false</rtexprvalue>
@@ -216,6 +211,12 @@
 			<name>sortAscending</name>
 			<required>false</required>
 			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>initialHeight</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+			<description>Initial Height (in px) of the spreasheetUI scrolling viewport</description>
 		</attribute>
 	</tag>
 </taglib>
