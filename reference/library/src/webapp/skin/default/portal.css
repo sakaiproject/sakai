@@ -38,6 +38,7 @@ body{
 	width: 98%;
 	clear:both;
 	margin: 1em auto;
+	padding-top: 10px;
 }
 
 /*wrapper for #toolMenu - children are #worsiteLogo,#toolMenu*/
