@@ -163,6 +163,15 @@ public class SpreadsheetUIRenderer extends Renderer
 			colLock = "1";
 		}
 		int columnLock = Integer.parseInt(colLock);
+		
+		//get total column count
+		int totalCount = 0;
+		Iterator columns = getColumns(data);
+		while(columns.hasNext())
+		{
+			columns.next();
+			totalCount++;
+		}
 	
 		// Iterate over the rows of data that are provided
 		int processed = 0;
@@ -177,7 +186,11 @@ public class SpreadsheetUIRenderer extends Renderer
 		writer.writeAttribute("id", "q3", null);
 		
 		writer.startElement("div", data);
-		writer.writeAttribute("style", "height:" + (initHeight - 15) + "px;",null);
+		if(totalCount <= columnLock){
+			writer.writeAttribute("style", "overflow:auto;height:" + (initHeight - 15) + "px;",null);
+		} else {
+			writer.writeAttribute("style", "height:" + (initHeight - 15) + "px;",null);
+		}
 		
 		writer.startElement("table", data);
 		writer.writeAttribute("cellpadding", "0", null);
@@ -211,10 +224,6 @@ public class SpreadsheetUIRenderer extends Renderer
 			          UIComponent oKid = (UIComponent)oKids.next();  
 			          encodeRecursive(context,oKid);
 			        }
-				//column.encodeBegin(context);
-				//column.encodeChildren(context);
-				//column.encodeEnd(context);
-				//writer.writeText(column.toString(), null);
 								
 				//Render the ending of this cell
 				writer.endElement("td");
@@ -239,70 +248,75 @@ public class SpreadsheetUIRenderer extends Renderer
 		writer.endElement("div"); //end <div id="q3">
 		writer.writeText("\n", null);
 		
-		//render the body of the data
-		writer.startElement("div", data);
-		writer.writeAttribute("id", "q4", null);
-		
-		writer.startElement("div", data);
-		writer.writeAttribute("style", "height:" + initHeight + "px;", null);
-		
-		writer.startElement("table",data);
-		writer.writeAttribute("cellpadding", "0", null);
-		writer.writeAttribute("cellspacing", "0", null);
-		
-		writer.startElement("tbody", data);
-		
-		rowIndex = data.getFirst() - 1;
-		rows = data.getRows();
-		rowStyle = 0;
-		while (true) {
-			// Select the current row
-			data.setRowIndex(++rowIndex);
-			if (!data.isRowAvailable()) {
-				break; // Scrolled past the last row
+		//render the body of the data if we have any left over from the lock
+		if(totalCount > columnLock)
+		{
+				
+			writer.startElement("div", data);
+			writer.writeAttribute("id", "q4", null);
+			
+			writer.startElement("div", data);
+			writer.writeAttribute("style", "height:" + initHeight + "px;", null);
+			
+			writer.startElement("table",data);
+			writer.writeAttribute("cellpadding", "0", null);
+			writer.writeAttribute("cellspacing", "0", null);
+			
+			writer.startElement("tbody", data);
+			
+			rowIndex = data.getFirst() - 1;
+			rows = data.getRows();
+			rowStyle = 0;
+			while (true) {
+				// Select the current row
+				data.setRowIndex(++rowIndex);
+				if (!data.isRowAvailable()) {
+					break; // Scrolled past the last row
+				}
+				
+				writer.startElement("tr", data);
+				// Iterate through the childrens
+				kids = getColumns(data);
+				int count = 0;
+				//get only the columns from the start of the data to where the colLock is
+				while (kids.hasNext()){
+					//get column
+					UIColumn column = (UIColumn) kids.next();
+					if(count >= columnLock){
+					
+						//begin rendering cell
+						writer.startElement("td", data);
+						
+						//render the contents of this cell by iterating over
+						//the kids of our kids
+						Iterator oKids = getChildren(column);
+						for(; oKids.hasNext();){
+					          UIComponent oKid = (UIComponent)oKids.next();  
+					          encodeRecursive(context,oKid);
+					        }
+						//writer.writeText(column.toString(), null);
+						
+						//Render the ending of this cell
+						writer.endElement("td");
+						writer.writeText("\n", null);
+					}
+					count++;
+				}
+				//render the ending of this row
+				writer.endElement("tr");
+				writer.writeText("\n", null);
 			}
 			
-			writer.startElement("tr", data);
-			// Iterate through the childrens
-			kids = getColumns(data);
-			int count = 0;
-			//get only the columns from the start of the data to where the colLock is
-			while (kids.hasNext()){
-				//get column
-				UIColumn column = (UIColumn) kids.next();
-				if(count >= columnLock){
-				
-					//begin rendering cell
-					writer.startElement("td", data);
-					
-					//render the contents of this cell by iterating over
-					//the kids of our kids
-					Iterator oKids = getChildren(column);
-					for(; oKids.hasNext();){
-				          UIComponent oKid = (UIComponent)oKids.next();  
-				          encodeRecursive(context,oKid);
-				        }
-					//writer.writeText(column.toString(), null);
-					
-					//Render the ending of this cell
-					writer.endElement("td");
-					writer.writeText("\n", null);
-				}
-				count++;
-			}
-			//render the ending of this row
-			writer.endElement("tr");
+			writer.endElement("tbody");
 			writer.writeText("\n", null);
-		}
+			
+			writer.endElement("table");
+			writer.writeText("\n", null);
+			
+			writer.endElement("div");
+			writer.endElement("div");  //end <div id="q4">
 		
-		writer.endElement("tbody");
-		writer.writeText("\n", null);
-		
-		writer.endElement("table");
-		writer.writeText("\n", null);
-		
-		writer.endElement("div");
-		writer.endElement("div");  //end <div id="q4">
+		} //end IF totalCount > columnLock
 		
 		writer.endElement("div");  //end <div id="content">
 		

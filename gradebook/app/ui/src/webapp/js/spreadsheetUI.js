@@ -5,6 +5,11 @@ adjustScrolls = function(){
 }
 
 function gethandles(){
+   if($("div#q3 div").css("overflow") == "auto"){
+      $("div#mainwrap").css("width", "80%");
+      $("ul#q1").width($("div#mainwrap").width() - 15);
+      $("ul#q1 li").css("width", ($("ul#q1").width() / $("ul#q1 li").size()- parseInt($("ul#q1 li").css("padding-right")) - parseInt($("ul#q1 li").css("padding-left")) - 2) + "px");
+   }
    $("div#q3 div").width($("ul#q1").width());
    $("ul#q1 li").each(function(i){
       this_width = $(this).width() + parseInt($(this).css("padding-right")) *2;
@@ -14,7 +19,7 @@ function gethandles(){
          $(this).width($("div#q3 tr:first td:eq(" + i + ")").width() - parseInt($(this).css("padding-right")) - parseInt($(this).css("padding-left")) - 2);
       }
    });
-   $("div#q3 div").width($("ul#q1").width());
+   $("div#q3 div").width($("ul#q1").width() + ($("div#q3 div").css("overflow") == "auto" ? 15 : 0));
    total = 0; count = 0;
    $("div#q2 div ul li").each(function(c){
       total += $(this).width() + parseInt($(this).css("padding-right")) * 2; count=c+1;
