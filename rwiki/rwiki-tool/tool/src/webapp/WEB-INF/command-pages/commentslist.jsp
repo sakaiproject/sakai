@@ -36,6 +36,7 @@
   <c:set var="rlb" value="${requestScope.rsacMap.resourceLoaderBean}"/>
   
 <div class="rwiki_comments" >
+<nobr>
 <jsp:element name="a">
 	<jsp:attribute name="href">#</jsp:attribute>
 	<jsp:attribute name="onclick">ajaxRefPopup(this,'<c:out value="${renderBean.newCommentURL}" />',1); return false;</jsp:attribute>
@@ -43,12 +44,14 @@
 		<c:out value="${rlb.jsp_add_new_comment}"/>
 	</jsp:body>
 </jsp:element>
+</nobr>
 <c:forEach var="comment"
 		  items="${renderBean.comments}" >
   <jsp:element name="div" >
 			<jsp:attribute name="class">rwikicommentbody_<c:out value="${comment.commentLevel}" /></jsp:attribute>
 		
 	    <div class="rwikicommentheader">
+	        <nobr>
 	        <c:out value="${rlb.jsp_comment_by}"/>: <rwiki:formatDisplayName name="${(comment.rwikiObject.user)}" /> <c:out value="${rlb.jsp_on}"/> <c:out value="${comment.rwikiObject.version}" /> 
 			<jsp:element name="a">
 				<jsp:attribute name="href">#</jsp:attribute>
@@ -66,6 +69,7 @@
 					</jsp:body>
 				</jsp:element>
         	</c:if>
+        	</nobr>
         </div>
 		 <div class="rwikicomenttext" >
 				<c:out value="${comment.renderedPage}" escapeXml="false"/><br/>	    

@@ -28,12 +28,13 @@
 		 <div class="rwikicommentbody_<c:out value="${comment.commentLevel}" />">
 		
 	    <div class="rwikicommentheader">
-	    
+	    <nobr>
 	        <c:out value="${rlb.jsp_comment_by}" />: <rwiki:formatDisplayName name="${comment.rwikiObject.user}"/> <c:out value="${rlb.jsp_on}" /> <c:out value="${comment.rwikiObject.version}" /> 
         		<a href="#" onclick="ajaxRefPopup(this,'<c:out value="${comment.newCommentURL}" />',0); return false;" ><c:out value="${rlb.jsp_comment}" /></a>
         		<c:if test="${comment.canEdit}" >
         			<a href="#" onclick="ajaxRefPopup(this,'<c:out value="${comment.editCommentURL}" />',0); return false;" ><c:out value="${rlb.jsp_edit}" /></a>
         		</c:if>
+        </nobr>
         	</div>
 		 <div class="rwikicomenttext" />
 				<c:out value="${comment.renderedPage}" escapeXml="false"/><br/>	    
