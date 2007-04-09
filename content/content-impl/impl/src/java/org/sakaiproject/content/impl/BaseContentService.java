@@ -27,6 +27,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -45,9 +46,9 @@ import java.util.Vector;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -9606,7 +9607,15 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			String enc = StringUtil.trimToNull(el.getAttribute("body"));
 			if (enc != null)
 			{
-				byte[] decoded = Base64.decode(enc);
+				byte[] decoded = null;
+				try
+				{
+					decoded = Base64.decodeBase64(enc.getBytes("UTF-8"));
+				}
+				catch (UnsupportedEncodingException e)
+				{
+					M_log.error(e);
+				}
 				m_body = new byte[m_contentLength];
 				System.arraycopy(decoded, 0, m_body, 0, m_contentLength);
 			}
@@ -10001,7 +10010,15 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			// if there's no body bytes (len = 0?) m_body will still be null, so just skip it
 			if (m_body != null)
 			{
-				String enc = Base64.encode(m_body);
+				String enc = null;
+				try
+				{
+					enc = new String(Base64.encodeBase64(m_body),"UTF-8");
+				}
+				catch (UnsupportedEncodingException e)
+				{
+					M_log.error(e);
+				}
 				resource.setAttribute("body", enc);
 			}
 
