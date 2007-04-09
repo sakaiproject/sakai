@@ -191,4 +191,16 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 		}
 		autoCalculatedGrade = percentageEarned;
 	}
+
+	public void initNonpersistentFields(double totalPointsPossible, double totalPointsEarned, double literalTotalPointsEarned) {
+		Double percentageEarned;
+		//calculatedPointsEarned = totalPointsEarned;
+		calculatedPointsEarned = literalTotalPointsEarned;
+		if (totalPointsPossible <= 0.0) {
+			percentageEarned = null;
+		} else {
+			percentageEarned = new Double(totalPointsEarned / totalPointsPossible * 100);
+		}
+		autoCalculatedGrade = percentageEarned;
+	}
 }

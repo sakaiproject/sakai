@@ -289,7 +289,8 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 
 //for testing internal calculation
 //need add  public double getTotalPointsEarnedInternal(final Long gradebookId, final String studentId, Gradebook gradebook, List categories);
-//and public double getTotalPointsInternal(final Long gradebookId, final Gradebook gradebook, final List categories);
+//and public double getTotalPointsInternal(final Long gradebookId, final Gradebook gradebook, final List categories, final String studentId);
+//and public double getLiteralTotalPointsInternal(final Long gradebookId, final Gradebook gradebook, final List categories);
 //into GradebookManager API.
 //	public void testGetTotalPointsEarnedInternal() throws Exception{
 //		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
@@ -312,17 +313,17 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 ////		System.out.println(gradebookManager.getTotalPointsEarnedInternal(persistentGradebook.getId(), "studentId3", persistentGradebook, categories));
 ////		System.out.println(gradebookManager.getTotalPointsEarnedInternal(persistentGradebook.getId(), "studentId4", persistentGradebook, categories));
 ////		System.out.println(gradebookManager.getTotalPointsEarnedInternal(persistentGradebook.getId(), "studentId5", persistentGradebook, categories));
-//
+//		
 //		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsEarnedInternal(persistentGradebook.getId(), "studentId1", persistentGradebook, categories))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-//			(new BigDecimal( 1.0 / 15 * cate.getWeight().doubleValue() + 1.0 / 20 * 0.6)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//			(new BigDecimal( (1.0) / 5.0 * cate.getWeight().doubleValue() + (1.0) / 10.0 * 0.6)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 //		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsEarnedInternal(persistentGradebook.getId(), "studentId2", persistentGradebook, categories))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-//			(new BigDecimal(2.0 / 15 * cate.getWeight().doubleValue() + 2.0 / 20 * 0.6)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//			(new BigDecimal( (2.0) / 5.0 * cate.getWeight().doubleValue() + (2.0) / 10 * 0.6)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 //		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsEarnedInternal(persistentGradebook.getId(), "studentId3", persistentGradebook, categories))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-//			(new BigDecimal(3.0 / 15 * cate.getWeight().doubleValue() + 3.0 / 20 * 0.6)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//			(new BigDecimal( (3.0) / 5.0 * cate.getWeight().doubleValue() + (3.0) / 10 * 0.6)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 //		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsEarnedInternal(persistentGradebook.getId(), "studentId4", persistentGradebook, categories))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-//			(new BigDecimal( 4.0 / 15 * cate.getWeight().doubleValue() + 4.0 / 20 * 0.6)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//			(new BigDecimal( (4.0) / 5.0 * cate.getWeight().doubleValue() + (4.0) / 10 * 0.6)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 //		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsEarnedInternal(persistentGradebook.getId(), "studentId5", persistentGradebook, categories))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-//			(new BigDecimal( 5.0 / 15 * cate.getWeight().doubleValue() + 5.0 / 20 * 0.6)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//			(new BigDecimal( (5.0) / 5.0 * cate.getWeight().doubleValue() + (5.0) / 10 * 0.6)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 //
 //		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
 //		gradebookManager.updateGradebook(persistentGradebook);
@@ -350,14 +351,31 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 //		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsEarnedInternal(persistentGradebook.getId(), "studentId5", persistentGradebook, categories))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
 //			(new BigDecimal(5.0+5.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 //
+//		//test for setting studentId1's assignment1 to null
+//		((AssignmentGradeRecord)gradeRecords.get(0)).setPointsEarned(null);
+//		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords, GradebookService.GRADE_TYPE_POINTS);
+//		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
+//		gradebookManager.updateGradebook(persistentGradebook);
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsEarnedInternal(persistentGradebook.getId(), "studentId1", persistentGradebook, categories))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal( (0) / 15 * cate.getWeight().doubleValue() + (1.0) / 10.0 * 0.6)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
+//		gradebookManager.updateGradebook(persistentGradebook);
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsEarnedInternal(persistentGradebook.getId(), "studentId1", persistentGradebook, categories))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal( 1.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
+//		gradebookManager.updateGradebook(persistentGradebook);
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsEarnedInternal(persistentGradebook.getId(), "studentId1", persistentGradebook, categories))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(1.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//
+//
 //		gradebookManager.removeCategory(cate.getId());
 //		categories = gradebookManager.getCategories(persistentGradebook.getId());
 //		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
 //		gradebookManager.updateGradebook(persistentGradebook);
 //		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsEarnedInternal(persistentGradebook.getId(), "studentId1", persistentGradebook, categories))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-//			(new BigDecimal(1.0 / 20 * 0.6)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//			(new BigDecimal( (1.0) / 10 * 0.6)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 //		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsEarnedInternal(persistentGradebook.getId(), "studentId2", persistentGradebook, categories))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-//			(new BigDecimal(2.0 / 20 *0.6)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//			(new BigDecimal( (2.0) / 10 *0.6)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 //
 //		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
 //		gradebookManager.updateGradebook(persistentGradebook);
@@ -369,49 +387,206 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 //		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
 //		gradebookManager.updateGradebook(persistentGradebook);
 //		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsEarnedInternal(persistentGradebook.getId(), "studentId1", persistentGradebook, categories))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-//			(new BigDecimal(1.0+1.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//			(new BigDecimal(1.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 //		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsEarnedInternal(persistentGradebook.getId(), "studentId2", persistentGradebook, categories))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
 //			(new BigDecimal(2.0+2.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		
+//		//test for setting studentId1's assignment2 to null - studentId1 now hasn't taken any assignments now.
+//		((AssignmentGradeRecord)graderRecords2.get(0)).setPointsEarned(null);
+//		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords, GradebookService.GRADE_TYPE_POINTS);
+//		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
+//		gradebookManager.updateGradebook(persistentGradebook);
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsEarnedInternal(persistentGradebook.getId(), "studentId1", persistentGradebook, categories))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(-1).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()));
+//		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
+//		gradebookManager.updateGradebook(persistentGradebook);
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsEarnedInternal(persistentGradebook.getId(), "studentId1", persistentGradebook, categories))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(-1).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()));
+//		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
+//		gradebookManager.updateGradebook(persistentGradebook);
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsEarnedInternal(persistentGradebook.getId(), "studentId1", persistentGradebook, categories))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(-1).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()));
 //	}
 //
 //	public void testGetTotalPointsInternal() throws Exception{
 //		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
+//		Assignment assign = gradebookManager.getAssignment(assgn1Long);
+//		Assignment assign2 = gradebookManager.getAssignment(assgn3Long);
+//
 //		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
 //		gradebookManager.updateGradebook(persistentGradebook);
+//		assign.setPointsPossible(new Double(5));
+//		gradebookManager.updateAssignment(assign);
 //		List categories = gradebookManager.getCategories(persistentGradebook.getId());
-//		Category cate = gradebookManager.getCategory(cate1Long);
+//		Category cate = gradebookManager.getCategory(assign.getCategory().getId());
 //
-//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//		List gradeRecords = generateGradeRecords(assign, 5);
+//		List graderRecords2 = generateGradeRecords(assign2, 5);
+//
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId1"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(1.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId2"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(1.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId3"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(1.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId4"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(1.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId5"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
 //			(new BigDecimal(1.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 //
 //		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
 //		gradebookManager.updateGradebook(persistentGradebook);
-//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-//			(new BigDecimal(10.0 + 10.0 + 10.0 + 10.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId1"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(15.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId2"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(15.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId3"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(15.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId4"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(15.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId5"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(15.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 //
 //		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
 //		gradebookManager.updateGradebook(persistentGradebook);
-//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-//			(new BigDecimal(10.0 + 10.0 + 10.0 + 10.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId1"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(15.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId2"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(15.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId3"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(15.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId4"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(15.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId5"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(15.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//
+//		//test for setting studentId1's assignment1 to null
+//		((AssignmentGradeRecord)gradeRecords.get(0)).setPointsEarned(null);
+//		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords, GradebookService.GRADE_TYPE_POINTS);
+//		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
+//		gradebookManager.updateGradebook(persistentGradebook);
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId1"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(1.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId2"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(1.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 //
 //		gradebookManager.removeCategory(cate.getId());
 //		categories = gradebookManager.getCategories(persistentGradebook.getId());
 //		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
 //		gradebookManager.updateGradebook(persistentGradebook);
-//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId1"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(1.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId2"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(1.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId3"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(1.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId4"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(1.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId5"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
 //			(new BigDecimal(1.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 //
 //		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
 //		gradebookManager.updateGradebook(persistentGradebook);
-//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-//			(new BigDecimal(10.0 + 10.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId1"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(10.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId2"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(10.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId3"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(10.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId4"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(10.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId5"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(10.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 //
 //		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
 //		gradebookManager.updateGradebook(persistentGradebook);
-//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-//			(new BigDecimal(10.0 + 10.0 + 10.0 + 10.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());		
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId1"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(10.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId2"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(15.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId3"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(15.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId4"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(15.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId5"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(15.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		
+//		//test for setting studentId1's assignment2 to null - studentId1 now hasn't taken any assignments now.
+//		((AssignmentGradeRecord)graderRecords2.get(0)).setPointsEarned(null);
+//		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords, GradebookService.GRADE_TYPE_POINTS);
+//		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
+//		gradebookManager.updateGradebook(persistentGradebook);
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId1"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(-1)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
+//		gradebookManager.updateGradebook(persistentGradebook);
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId1"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(-1).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue()));
+//		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
+//		gradebookManager.updateGradebook(persistentGradebook);
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId1"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(-1)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 //	}
-
+//
+//	public void testGetLiteralTotalPointsInternal() throws Exception {
+//		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
+//		Assignment assign = gradebookManager.getAssignment(assgn1Long);
+//		Assignment assign2 = gradebookManager.getAssignment(assgn3Long);
+//
+//		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
+//		gradebookManager.updateGradebook(persistentGradebook);
+//		assign.setPointsPossible(new Double(5));
+//		gradebookManager.updateAssignment(assign);
+//		List categories = gradebookManager.getCategories(persistentGradebook.getId());
+//		Category cate = gradebookManager.getCategory(assign.getCategory().getId());
+//
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getLiteralTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(35.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//
+//		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
+//		gradebookManager.updateGradebook(persistentGradebook);
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getLiteralTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(35.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//
+//		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
+//		gradebookManager.updateGradebook(persistentGradebook);
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getLiteralTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(35.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		
+//		gradebookManager.removeCategory(cate.getId());
+//		categories = gradebookManager.getCategories(persistentGradebook.getId());
+//		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
+//		gradebookManager.updateGradebook(persistentGradebook);
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getLiteralTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(20.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//
+//		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
+//		gradebookManager.updateGradebook(persistentGradebook);
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getLiteralTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(35.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//
+//		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
+//		gradebookManager.updateGradebook(persistentGradebook);
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getLiteralTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(20.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//		
+//		gradebookManager.removeAssignment(assign.getId());
+//		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
+//		gradebookManager.updateGradebook(persistentGradebook);
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getLiteralTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(20.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//
+//		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
+//		gradebookManager.updateGradebook(persistentGradebook);
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getLiteralTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(30.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//
+//		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
+//		gradebookManager.updateGradebook(persistentGradebook);
+//		Assert.assertTrue((new BigDecimal(gradebookManager.getLiteralTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			(new BigDecimal(20.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//	}
+	
 	public void testGetPointsEarnedCourseGradeRecords() throws Exception{
 		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
 		Assignment assign = gradebookManager.getAssignment(assgn1Long);
@@ -455,10 +630,13 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		for(int i=0; i<courseGradeRecords.size(); i++)
 		{
 			CourseGradeRecord cgr = (CourseGradeRecord) courseGradeRecords.get(i);
+//			Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+//			new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId()))) * 0.4 / 5.0 + ((Double)studentIdMap.get(cgr.getStudentId())) * 0.6 / 10.0 ).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-				new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId()))) * 0.4 / 15.0 + ((Double)studentIdMap.get(cgr.getStudentId())) * 0.6 / 20.0 ).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId()))) * 2).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			Assert.assertTrue(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-				new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId()))) * 0.4 * 100 / 15.0 + ((Double)studentIdMap.get(cgr.getStudentId())) * 0.6 * 100 / 20.0 ).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId())) ) * 0.4 * 100 / 5.0 + ((Double)studentIdMap.get(cgr.getStudentId())) * 0.6 * 100 / 10.0 ).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+//System.out.println(cgr.getGradeAsPercentage() + "--" + cgr.getDisplayGrade());
 		}
 
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
@@ -468,9 +646,9 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		{
 			CourseGradeRecord cgr = (CourseGradeRecord) courseGradeRecords.get(i);
 			Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-				new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId())).doubleValue() * 2)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId())).doubleValue() * 2 )).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			Assert.assertTrue(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-				new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId())).doubleValue() * 2) * 100 / 35.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId())).doubleValue() * 2) * 100 / 15.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		}
 
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
@@ -482,8 +660,60 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 			Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
 				new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId())).doubleValue() * 2)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			Assert.assertTrue(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-				new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId()))) * 100 * 2 / 35.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				new BigDecimal(((((Double)studentIdMap.get(cgr.getStudentId()))) * 2 ) * 100/ 15.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		}
+
+		//test for setting studentId1's assignment1 to null
+		for(int i=0; i<gradeRecords.size(); i++)
+		{
+			AssignmentGradeRecord agr = (AssignmentGradeRecord)gradeRecords.get(i);
+			if(agr.getAssignment().getId().equals(assgn1Long) && agr.getStudentId().equals("studentId1"))
+				agr.setPointsEarned(null);
+		}
+		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords, GradebookService.GRADE_TYPE_POINTS);
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		courseGradeRecords = gradebookManager.getPointsEarnedCourseGradeRecords(courseGrade, uid, assignments, filteredGradesMap);
+		for(int i=0; i<courseGradeRecords.size(); i++)
+		{
+			CourseGradeRecord cgr = (CourseGradeRecord) courseGradeRecords.get(i);
+			if(cgr.getStudentId().equals("studentId1"))
+			{
+				Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal(((Double)studentIdMap.get(cgr.getStudentId()))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				Assert.assertTrue(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal(((Double)studentIdMap.get(cgr.getStudentId())) * 0.6 * 100 / 10.0 ).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			}
+		}
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		courseGradeRecords = gradebookManager.getPointsEarnedCourseGradeRecords(courseGrade, uid, assignments, filteredGradesMap);
+		for(int i=0; i<courseGradeRecords.size(); i++)
+		{
+			CourseGradeRecord cgr = (CourseGradeRecord) courseGradeRecords.get(i);
+			if(cgr.getStudentId().equals("studentId1"))
+			{
+				Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId())).doubleValue() )).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				Assert.assertTrue(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId())).doubleValue()) * 100 / 10.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			}
+		}
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		courseGradeRecords = gradebookManager.getPointsEarnedCourseGradeRecords(courseGrade, uid, assignments, filteredGradesMap);
+		for(int i=0; i<courseGradeRecords.size(); i++)
+		{
+			CourseGradeRecord cgr = (CourseGradeRecord) courseGradeRecords.get(i);
+			if(cgr.getStudentId().equals("studentId1"))
+			{
+				Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId())).doubleValue())).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				Assert.assertTrue(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId())).doubleValue() ) * 100 / 10.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			}
+		}
+
 
 		gradebookManager.removeCategory(cate.getId());
 		categories = gradebookManager.getCategories(persistentGradebook.getId());
@@ -495,9 +725,9 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		{
 			CourseGradeRecord cgr = (CourseGradeRecord) courseGradeRecords.get(i);
 			Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-				new BigDecimal(((Double)studentIdMap.get(cgr.getStudentId())) * 0.6 / 20.0 ).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				new BigDecimal(((Double)studentIdMap.get(cgr.getStudentId()))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			Assert.assertTrue(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-				new BigDecimal(((Double)studentIdMap.get(cgr.getStudentId())) * 0.6 * 100 / 20.0 ).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				new BigDecimal(((Double)studentIdMap.get(cgr.getStudentId())) * 0.6 * 100 / 10.0 ).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		}
 
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
@@ -507,9 +737,9 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		{
 			CourseGradeRecord cgr = (CourseGradeRecord) courseGradeRecords.get(i);
 			Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-				new BigDecimal(((Double)studentIdMap.get(cgr.getStudentId())) ).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				new BigDecimal(((Double)studentIdMap.get(cgr.getStudentId()))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			Assert.assertTrue(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-				new BigDecimal(((Double)studentIdMap.get(cgr.getStudentId())) * 100 / 20.0 ).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				new BigDecimal(((Double)studentIdMap.get(cgr.getStudentId())) * 100 / 10.0 ).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		}
 
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
@@ -518,10 +748,93 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		for(int i=0; i<courseGradeRecords.size(); i++)
 		{
 			CourseGradeRecord cgr = (CourseGradeRecord) courseGradeRecords.get(i);
-			Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-				new BigDecimal(((Double)studentIdMap.get(cgr.getStudentId())).doubleValue() * 2 ).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-			Assert.assertTrue(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-				new BigDecimal(((Double)studentIdMap.get(cgr.getStudentId())).doubleValue() * 2 * 100 / 35.0 ).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			if(!cgr.getStudentId().equals("studentId1"))
+			{
+				Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal(((Double)studentIdMap.get(cgr.getStudentId())).doubleValue() * 2).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				Assert.assertTrue(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId())).doubleValue() * 2) * 100 / 15.0 ).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			}
+			else
+			{
+				Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal(((Double)studentIdMap.get(cgr.getStudentId())).doubleValue()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				Assert.assertTrue(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId())).doubleValue()) * 100 / 10.0 ).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			}
+		}
+		
+		//test for setting studentId1's assignment2 to null - studentId1 now hasn't taken any assignments now.
+		for(int i=0; i<gradeRecords.size(); i++)
+		{
+			AssignmentGradeRecord agr = (AssignmentGradeRecord)gradeRecords.get(i);
+			if(agr.getAssignment().getId().equals(assgn3Long) && agr.getStudentId().equals("studentId1"))
+				agr.setPointsEarned(null);
+		}
+		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords, GradebookService.GRADE_TYPE_POINTS);
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		courseGradeRecords = gradebookManager.getPointsEarnedCourseGradeRecords(courseGrade, uid, assignments, filteredGradesMap);
+		for(int i=0; i<courseGradeRecords.size(); i++)
+		{
+			CourseGradeRecord cgr = (CourseGradeRecord) courseGradeRecords.get(i);
+			if(!cgr.getStudentId().equals("studentId1"))
+			{
+				Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal(((Double)studentIdMap.get(cgr.getStudentId())).doubleValue()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				Assert.assertTrue(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId())).doubleValue()) *0.6 * 100 / 10.0 ).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			}
+			else
+			{
+				Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				Assert.assertTrue(cgr.getGradeAsPercentage() == null);
+			}
+		}
+
+		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords, GradebookService.GRADE_TYPE_POINTS);
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		courseGradeRecords = gradebookManager.getPointsEarnedCourseGradeRecords(courseGrade, uid, assignments, filteredGradesMap);
+		for(int i=0; i<courseGradeRecords.size(); i++)
+		{
+			CourseGradeRecord cgr = (CourseGradeRecord) courseGradeRecords.get(i);
+			if(!cgr.getStudentId().equals("studentId1"))
+			{
+				Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal(((Double)studentIdMap.get(cgr.getStudentId())).doubleValue() * 2 ).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				Assert.assertTrue(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId())).doubleValue()) * 2 * 100 / 15.0 ).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			}
+			else
+			{
+				Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				Assert.assertTrue(cgr.getGradeAsPercentage() == null);
+			}
+		}
+
+		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords, GradebookService.GRADE_TYPE_POINTS);
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		courseGradeRecords = gradebookManager.getPointsEarnedCourseGradeRecords(courseGrade, uid, assignments, filteredGradesMap);
+		for(int i=0; i<courseGradeRecords.size(); i++)
+		{
+			CourseGradeRecord cgr = (CourseGradeRecord) courseGradeRecords.get(i);
+			if(!cgr.getStudentId().equals("studentId1"))
+			{
+				Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal(((Double)studentIdMap.get(cgr.getStudentId())).doubleValue()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				Assert.assertTrue(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId())).doubleValue()) * 100 / 10.0 ).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			}
+			else
+			{
+				Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				Assert.assertTrue(cgr.getGradeAsPercentage() == null);
+			}
 		}
 	}
 
@@ -560,83 +873,105 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 
 		CourseGrade courseGrade = gradebookManager.getCourseGrade(persistentGradebook.getId());
 		CourseGradeRecord cgr1 = (CourseGradeRecord) gradebookManager.getStudentCourseGradeRecord(persistentGradebook, "studentId1");
-		CourseGradeRecord cgr2 = (CourseGradeRecord) gradebookManager.getStudentCourseGradeRecord(persistentGradebook, "studentId1");
+		CourseGradeRecord cgr2 = (CourseGradeRecord) gradebookManager.getStudentCourseGradeRecord(persistentGradebook, "studentId2");
 		Assert.assertTrue(new BigDecimal(cgr1.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-			new BigDecimal((((Double)studentIdMap.get(cgr1.getStudentId()))) * 0.4 / 15 + (((Double)studentIdMap.get(cgr1.getStudentId()))) * 0.6 / 20).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			new BigDecimal((((Double)studentIdMap.get(cgr1.getStudentId()))) + (((Double)studentIdMap.get(cgr1.getStudentId())))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		Assert.assertTrue(new BigDecimal(cgr1.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-			new BigDecimal((((Double)studentIdMap.get(cgr1.getStudentId()))) * 0.4 * 100 / 15 + (((Double)studentIdMap.get(cgr1.getStudentId()))) * 0.6 * 100 / 20).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			new BigDecimal((((Double)studentIdMap.get(cgr1.getStudentId()))) * 0.4 * 100 / 5 + (((Double)studentIdMap.get(cgr1.getStudentId()))) * 0.6 * 100 / 10).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		Assert.assertTrue(new BigDecimal(cgr2.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-			new BigDecimal((((Double)studentIdMap.get(cgr2.getStudentId()))) * 0.4 / 15 + (((Double)studentIdMap.get(cgr2.getStudentId()))) * 0.6 / 20).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			new BigDecimal((((Double)studentIdMap.get(cgr2.getStudentId()))) + (((Double)studentIdMap.get(cgr2.getStudentId())))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		Assert.assertTrue(new BigDecimal(cgr2.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-			new BigDecimal((((Double)studentIdMap.get(cgr2.getStudentId()))) * 0.4 * 100 / 15 + (((Double)studentIdMap.get(cgr2.getStudentId()))) * 0.6 * 100 / 20).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			new BigDecimal((((Double)studentIdMap.get(cgr2.getStudentId()))) * 0.4 * 100 / 5 + (((Double)studentIdMap.get(cgr2.getStudentId()))) * 0.6 * 100 / 10).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
 		gradebookManager.updateGradebook(persistentGradebook);
 		cgr1 = (CourseGradeRecord) gradebookManager.getStudentCourseGradeRecord(persistentGradebook, "studentId1");
-		cgr2 = (CourseGradeRecord) gradebookManager.getStudentCourseGradeRecord(persistentGradebook, "studentId1");
+		cgr2 = (CourseGradeRecord) gradebookManager.getStudentCourseGradeRecord(persistentGradebook, "studentId2");
 		Assert.assertTrue(new BigDecimal(cgr1.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
 			new BigDecimal((((Double)studentIdMap.get(cgr1.getStudentId()))) * 2).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		Assert.assertTrue(new BigDecimal(cgr1.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-			new BigDecimal((((Double)studentIdMap.get(cgr1.getStudentId()))) * 100 * 2 / 35.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			new BigDecimal(((((Double)studentIdMap.get(cgr1.getStudentId()))) * 2) * 100/ 15.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		Assert.assertTrue(new BigDecimal(cgr2.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
 			new BigDecimal((((Double)studentIdMap.get(cgr2.getStudentId()))) * 2).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		Assert.assertTrue(new BigDecimal(cgr2.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-			new BigDecimal((((Double)studentIdMap.get(cgr2.getStudentId()))) * 100 * 2 / 35.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			new BigDecimal(((((Double)studentIdMap.get(cgr2.getStudentId()))) * 2) * 100/ 15.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
 		gradebookManager.updateGradebook(persistentGradebook);
 		cgr1 = (CourseGradeRecord) gradebookManager.getStudentCourseGradeRecord(persistentGradebook, "studentId1");
-		cgr2 = (CourseGradeRecord) gradebookManager.getStudentCourseGradeRecord(persistentGradebook, "studentId1");
+		cgr2 = (CourseGradeRecord) gradebookManager.getStudentCourseGradeRecord(persistentGradebook, "studentId2");
 		Assert.assertTrue(new BigDecimal(cgr1.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
 			new BigDecimal((((Double)studentIdMap.get(cgr1.getStudentId()))) * 2).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		Assert.assertTrue(new BigDecimal(cgr1.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-			new BigDecimal((((Double)studentIdMap.get(cgr1.getStudentId()))) * 100 * 2 / 35.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			new BigDecimal(((((Double)studentIdMap.get(cgr1.getStudentId()))) * 2) * 100/ 15.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		Assert.assertTrue(new BigDecimal(cgr2.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
 			new BigDecimal((((Double)studentIdMap.get(cgr2.getStudentId()))) * 2).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		Assert.assertTrue(new BigDecimal(cgr2.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-			new BigDecimal((((Double)studentIdMap.get(cgr2.getStudentId()))) * 100 * 2 / 35.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			new BigDecimal(((((Double)studentIdMap.get(cgr2.getStudentId()))) * 2) *100 / 15.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 
+		//test for setting studentId1's assignment1 to null
+		for(int i=0; i<gradeRecords.size(); i++)
+		{
+			AssignmentGradeRecord agr = (AssignmentGradeRecord)gradeRecords.get(i);
+			if(agr.getAssignment().getId().equals(assgn1Long) && agr.getStudentId().equals("studentId1"))
+				agr.setPointsEarned(null);
+		}
+		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords, GradebookService.GRADE_TYPE_POINTS);
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		cgr1 = (CourseGradeRecord) gradebookManager.getStudentCourseGradeRecord(persistentGradebook, "studentId1");
+		cgr2 = (CourseGradeRecord) gradebookManager.getStudentCourseGradeRecord(persistentGradebook, "studentId2");
+		Assert.assertTrue(new BigDecimal(cgr1.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+			new BigDecimal((((Double)studentIdMap.get(cgr1.getStudentId())))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+		Assert.assertTrue(new BigDecimal(cgr1.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+			new BigDecimal((((Double)studentIdMap.get(cgr1.getStudentId()))) * 0.6 * 100 / 10).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+		Assert.assertTrue(new BigDecimal(cgr2.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+			new BigDecimal((((Double)studentIdMap.get(cgr2.getStudentId()))) + (((Double)studentIdMap.get(cgr2.getStudentId())))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+		Assert.assertTrue(new BigDecimal(cgr2.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+			new BigDecimal((((Double)studentIdMap.get(cgr2.getStudentId()))) * 0.4 * 100 / 5 + (((Double)studentIdMap.get(cgr2.getStudentId()))) * 0.6 * 100 / 10).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+
+		
 		gradebookManager.removeCategory(cate.getId());
 		categories = gradebookManager.getCategories(persistentGradebook.getId());
 
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
 		gradebookManager.updateGradebook(persistentGradebook);
 		cgr1 = (CourseGradeRecord) gradebookManager.getStudentCourseGradeRecord(persistentGradebook, "studentId1");
-		cgr2 = (CourseGradeRecord) gradebookManager.getStudentCourseGradeRecord(persistentGradebook, "studentId1");
+		cgr2 = (CourseGradeRecord) gradebookManager.getStudentCourseGradeRecord(persistentGradebook, "studentId2");
 		Assert.assertTrue(new BigDecimal(cgr1.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-			new BigDecimal((((Double)studentIdMap.get(cgr1.getStudentId()))) * 0.6 / 20).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			new BigDecimal((((Double)studentIdMap.get(cgr1.getStudentId())) )).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		Assert.assertTrue(new BigDecimal(cgr1.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-			new BigDecimal((((Double)studentIdMap.get(cgr1.getStudentId()))) * 0.6 * 100 / 20).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			new BigDecimal((((Double)studentIdMap.get(cgr1.getStudentId()))) * 0.6 * 100 / 10).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		Assert.assertTrue(new BigDecimal(cgr2.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-			new BigDecimal((((Double)studentIdMap.get(cgr2.getStudentId()))) * 0.6 / 20).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			new BigDecimal((((Double)studentIdMap.get(cgr2.getStudentId())))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		Assert.assertTrue(new BigDecimal(cgr2.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-			new BigDecimal((((Double)studentIdMap.get(cgr2.getStudentId()))) * 0.6 * 100 / 20).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			new BigDecimal((((Double)studentIdMap.get(cgr2.getStudentId()))) * 0.6 * 100 / 10).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
 		gradebookManager.updateGradebook(persistentGradebook);
 		cgr1 = (CourseGradeRecord) gradebookManager.getStudentCourseGradeRecord(persistentGradebook, "studentId1");
-		cgr2 = (CourseGradeRecord) gradebookManager.getStudentCourseGradeRecord(persistentGradebook, "studentId1");
+		cgr2 = (CourseGradeRecord) gradebookManager.getStudentCourseGradeRecord(persistentGradebook, "studentId2");
 		Assert.assertTrue(new BigDecimal(cgr1.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
 			new BigDecimal((((Double)studentIdMap.get(cgr1.getStudentId())))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		Assert.assertTrue(new BigDecimal(cgr1.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-			new BigDecimal((((Double)studentIdMap.get(cgr1.getStudentId()))) * 100 / 20).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			new BigDecimal((((Double)studentIdMap.get(cgr1.getStudentId()))) * 100 / 10).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		Assert.assertTrue(new BigDecimal(cgr2.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
 			new BigDecimal((((Double)studentIdMap.get(cgr2.getStudentId())))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		Assert.assertTrue(new BigDecimal(cgr2.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-			new BigDecimal((((Double)studentIdMap.get(cgr2.getStudentId()))) * 100 / 20).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			new BigDecimal((((Double)studentIdMap.get(cgr2.getStudentId()))) * 100 / 10).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
 		gradebookManager.updateGradebook(persistentGradebook);
 		cgr1 = (CourseGradeRecord) gradebookManager.getStudentCourseGradeRecord(persistentGradebook, "studentId1");
-		cgr2 = (CourseGradeRecord) gradebookManager.getStudentCourseGradeRecord(persistentGradebook, "studentId1");
+		cgr2 = (CourseGradeRecord) gradebookManager.getStudentCourseGradeRecord(persistentGradebook, "studentId2");
 		Assert.assertTrue(new BigDecimal(cgr1.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-			new BigDecimal((((Double)studentIdMap.get(cgr1.getStudentId()))) * 2).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			new BigDecimal((((Double)studentIdMap.get(cgr1.getStudentId())))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		Assert.assertTrue(new BigDecimal(cgr1.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-			new BigDecimal((((Double)studentIdMap.get(cgr1.getStudentId()))) * 100.0 * 2 / 35.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			new BigDecimal(((((Double)studentIdMap.get(cgr1.getStudentId())))) * 100.0 / 10.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		Assert.assertTrue(new BigDecimal(cgr2.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-			new BigDecimal((((Double)studentIdMap.get(cgr2.getStudentId()))) * 2 ).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			new BigDecimal((((Double)studentIdMap.get(cgr2.getStudentId()))) * 2).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		Assert.assertTrue(new BigDecimal(cgr2.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-			new BigDecimal((((Double)studentIdMap.get(cgr1.getStudentId()))) * 100.0 * 2/ 35.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			new BigDecimal(((((Double)studentIdMap.get(cgr2.getStudentId()))) * 2.0)* 100.0/ 15.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 
 	}
 
@@ -682,9 +1017,9 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		{
 			CourseGradeRecord cgr = (CourseGradeRecord) courseGradeRecords.get(i);
 			Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-				new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId()))) * 0.4 / 15 + (((Double)studentIdMap.get(cgr.getStudentId()))) * 0.6 / 20).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId()))) + (((Double)studentIdMap.get(cgr.getStudentId())))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			Assert.assertTrue(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-				new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId()))) * 0.4 * 100 / 15 + (((Double)studentIdMap.get(cgr.getStudentId()))) * 0.6 * 100 / 20).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId()))) * 0.4 * 100 / 5 + (((Double)studentIdMap.get(cgr.getStudentId()))) * 0.6 * 100 / 10).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		}
 
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
@@ -696,7 +1031,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 			Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
 				new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId()))) * 2).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			Assert.assertTrue(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-				new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId()))) * 2 * 100 / 35.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				new BigDecimal(((((Double)studentIdMap.get(cgr.getStudentId()))) * 2) * 100 / 15.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		}
 
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
@@ -708,9 +1043,82 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 			Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
 				new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId()))) * 2 ).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			Assert.assertTrue(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-				new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId()))) * 100 * 2 / 35.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				new BigDecimal(((((Double)studentIdMap.get(cgr.getStudentId()))) * 2) * 100 / 15.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		}
 
+		//test for setting studentId1's assignment1 to null
+		for(int i=0; i<gradeRecords.size(); i++)
+		{
+			AssignmentGradeRecord agr = (AssignmentGradeRecord)gradeRecords.get(i);
+			if(agr.getAssignment().getId().equals(assgn1Long) && agr.getStudentId().equals("studentId1"))
+				agr.setPointsEarned(null);
+		}
+		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords, GradebookService.GRADE_TYPE_POINTS);
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		courseGradeRecords = gradebookManager.getPointsEarnedCourseGradeRecords(courseGrade, uid);
+		for(int i=0; i<courseGradeRecords.size(); i++)
+		{
+			CourseGradeRecord cgr = (CourseGradeRecord) courseGradeRecords.get(i);
+			if(!cgr.getStudentId().equals("studentId1"))
+			{
+				Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId()))) + (((Double)studentIdMap.get(cgr.getStudentId())))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				Assert.assertTrue(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId()))) * 0.4 * 100 / 5 + (((Double)studentIdMap.get(cgr.getStudentId()))) * 0.6 * 100 / 10).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			}
+			else
+			{
+				Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId())))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				Assert.assertTrue(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId()))) * 0.6 * 100 / 10).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			}
+		}
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		courseGradeRecords = gradebookManager.getPointsEarnedCourseGradeRecords(courseGrade, uid);
+		for(int i=0; i<courseGradeRecords.size(); i++)
+		{
+			CourseGradeRecord cgr = (CourseGradeRecord) courseGradeRecords.get(i);
+			if(!cgr.getStudentId().equals("studentId1"))
+			{
+				Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId()))) * 2).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				Assert.assertTrue(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal(((((Double)studentIdMap.get(cgr.getStudentId()))) * 2) * 100 / 15.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			}
+			else
+			{
+				Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal((Double)studentIdMap.get(cgr.getStudentId())).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				Assert.assertTrue(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal(((((Double)studentIdMap.get(cgr.getStudentId())))) * 100 / 10.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());				
+			}
+		}
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		courseGradeRecords = gradebookManager.getPointsEarnedCourseGradeRecords(courseGrade, uid);
+		for(int i=0; i<courseGradeRecords.size(); i++)
+		{
+			CourseGradeRecord cgr = (CourseGradeRecord) courseGradeRecords.get(i);
+			if(!cgr.getStudentId().equals("studentId1"))
+			{
+				Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId()))) * 2).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				Assert.assertTrue(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal(((((Double)studentIdMap.get(cgr.getStudentId()))) * 2) * 100 / 15.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			}
+			else
+			{
+				Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal((Double)studentIdMap.get(cgr.getStudentId())).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				Assert.assertTrue(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal(((((Double)studentIdMap.get(cgr.getStudentId())))) * 100 / 10.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());				
+			}
+		}
+
+		
 		gradebookManager.removeCategory(cate.getId());
 		categories = gradebookManager.getCategories(persistentGradebook.getId());
 
@@ -721,9 +1129,9 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		{
 			CourseGradeRecord cgr = (CourseGradeRecord) courseGradeRecords.get(i);
 			Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-				new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId()))) * 0.6 / 20).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId())))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			Assert.assertTrue(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-				new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId()))) * 0.6  * 100 / 20).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId()))) * 0.6  * 100 / 10).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		}
 
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
@@ -735,7 +1143,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 			Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
 				new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId())))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			Assert.assertTrue(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-				new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId()))) * 100 / 20).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId()))) * 100 / 10).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		}
 
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
@@ -744,10 +1152,49 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		for(int i=0; i<courseGradeRecords.size(); i++)
 		{
 			CourseGradeRecord cgr = (CourseGradeRecord) courseGradeRecords.get(i);
-			Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-				new BigDecimal((Double)studentIdMap.get(cgr.getStudentId()) * 2).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-			Assert.assertTrue(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-				new BigDecimal((Double)studentIdMap.get(cgr.getStudentId()) * 100 * 2 / 35.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			if(!cgr.getStudentId().equals("studentId1"))
+			{
+				Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal((Double)studentIdMap.get(cgr.getStudentId()) * 2).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				Assert.assertTrue(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal(((Double)studentIdMap.get(cgr.getStudentId()) * 2) * 100 / 15.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			}
+			else
+			{
+				Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal((Double)studentIdMap.get(cgr.getStudentId())).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				Assert.assertTrue(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal(((Double)studentIdMap.get(cgr.getStudentId())) * 100 / 10.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			}
+		}
+		
+		//test for setting studentId1's assignment2 to null - studentId1 now hasn't taken any assignments now.
+		for(int i=0; i<gradeRecords.size(); i++)
+		{
+			AssignmentGradeRecord agr = (AssignmentGradeRecord)gradeRecords.get(i);
+			if(agr.getAssignment().getId().equals(assgn3Long) && agr.getStudentId().equals("studentId1"))
+				agr.setPointsEarned(null);
+		}
+		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords, GradebookService.GRADE_TYPE_POINTS);
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		courseGradeRecords = gradebookManager.getPointsEarnedCourseGradeRecords(courseGrade, uid);
+		for(int i=0; i<courseGradeRecords.size(); i++)
+		{
+			CourseGradeRecord cgr = (CourseGradeRecord) courseGradeRecords.get(i);
+			if(!cgr.getStudentId().equals("studentId1"))
+			{
+				Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId())))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				Assert.assertTrue(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId()))) * 0.6 * 100 / 10).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			}
+			else
+			{
+				Assert.assertTrue(new BigDecimal(cgr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				Assert.assertTrue(cgr.getGradeAsPercentage() == null);
+			}
 		}
 	}
 
@@ -762,7 +1209,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 
 		Double total = gradebookManager.getTotalPoints(persistentGradebook.getId());
 		Assert.assertTrue(new BigDecimal(total).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-			new BigDecimal(1.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			new BigDecimal(35.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
 		gradebookManager.updateGradebook(persistentGradebook);
@@ -782,7 +1229,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		gradebookManager.updateGradebook(persistentGradebook);
 		total = gradebookManager.getTotalPoints(persistentGradebook.getId());
 		Assert.assertTrue(new BigDecimal(total).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-			new BigDecimal(1.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			new BigDecimal(20.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
 		gradebookManager.updateGradebook(persistentGradebook);
@@ -883,11 +1330,81 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		addUsersEnrollments(persistentGradebook, uid);
 		CourseGrade courseGrade = gradebookManager.getCourseGrade(persistentGradebook.getId());
 		List courseGradeRecords = gradebookManager.getPointsEarnedCourseGradeRecordsWithStats(courseGrade, uid);
-
 		Assert.assertTrue(new BigDecimal(courseGrade.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-			new BigDecimal(((1 + 2 + 3 + 4 + 5) * 0.4 / 15 / 5+ (1 + 2 + 3 + 4 + 5) * 0.6 / 20 / 5) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			new BigDecimal(((1 + 2 + 3 + 4 + 5) * 0.4 / 5 / 5+ (1 + 2 + 3 + 4 + 5) * 0.6 / 10 / 5) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+		
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
+		courseGradeRecords = gradebookManager.getPointsEarnedCourseGradeRecordsWithStats(courseGrade, uid);
+		Assert.assertTrue(new BigDecimal(courseGrade.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+			new BigDecimal(((1.0 + 2 + 3 + 4 + 5 + 1 + 2 + 3 + 4 + 5) / 15.0 / 5.0) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+		
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
+		courseGradeRecords = gradebookManager.getPointsEarnedCourseGradeRecordsWithStats(courseGrade, uid);
+		Assert.assertTrue(new BigDecimal(courseGrade.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+			new BigDecimal(((1.0 + 2 + 3 + 4 + 5 + 1 + 2 + 3 + 4 + 5) / 15.0 / 5.0) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+		
+		//test for setting studentId1's assignment1 to null
+		for(int i=0; i<gradeRecords.size(); i++)
+		{
+			AssignmentGradeRecord agr = (AssignmentGradeRecord)gradeRecords.get(i);
+			if(agr.getAssignment().getId().equals(assgn1Long) && agr.getStudentId().equals("studentId1"))
+				agr.setPointsEarned(null);
+		}
+		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords, GradebookService.GRADE_TYPE_POINTS);
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		courseGradeRecords = gradebookManager.getPointsEarnedCourseGradeRecordsWithStats(courseGrade, uid);
+		Assert.assertTrue(new BigDecimal(courseGrade.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+			new BigDecimal(((1.0/10.0 * 0.6) + (2.0/5.0*0.4 + 2.0/10.0*0.6) + (3.0/5.0*0.4 + 3.0/10.0*0.6) + (4.0/5.0*0.4 + 4.0/10.0*0.6) + (5.0/5.0*0.4 + 5.0/10.0*0.6)) / 5.0 * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+		
+		gradebookManager.removeCategory(cate.getId());
+		categories = gradebookManager.getCategories(persistentGradebook.getId());
+		
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		courseGradeRecords = gradebookManager.getPointsEarnedCourseGradeRecordsWithStats(courseGrade, uid);
+		Assert.assertTrue(new BigDecimal(courseGrade.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+			new BigDecimal(((1.0/10.0 * 0.6) + (2.0/10.0*0.6) + (3.0/10.0*0.6) + (4.0/10.0*0.6) + (5.0/10.0*0.6)) / 5.0 * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		courseGradeRecords = gradebookManager.getPointsEarnedCourseGradeRecordsWithStats(courseGrade, uid);
+		Assert.assertTrue(new BigDecimal(courseGrade.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+			new BigDecimal(((1.0/10.0) + (2.0/10.0) + (3.0/10.0) + (4.0/10.0) + (5.0/10.0)) / 5.0 * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		courseGradeRecords = gradebookManager.getPointsEarnedCourseGradeRecordsWithStats(courseGrade, uid);
+		Assert.assertTrue(new BigDecimal(courseGrade.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+			new BigDecimal(((1.0/10.0) + (4.0/15) + (6.0/15.0) + (8.0/15.0) + (10.0/15.0)) / 5.0 * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+
+		//test for setting studentId1's assignment2 to null - studentId1 now hasn't taken any assignments now.
+		for(int i=0; i<gradeRecords.size(); i++)
+		{
+			AssignmentGradeRecord agr = (AssignmentGradeRecord)gradeRecords.get(i);
+			if(agr.getAssignment().getId().equals(assgn3Long) && agr.getStudentId().equals("studentId1"))
+				agr.setPointsEarned(null);
+		}
+		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords, GradebookService.GRADE_TYPE_POINTS);
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		courseGradeRecords = gradebookManager.getPointsEarnedCourseGradeRecordsWithStats(courseGrade, uid);
+		Assert.assertTrue(new BigDecimal(courseGrade.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+			new BigDecimal(((2.0/10.0*0.6) + (3.0/10.0*0.6) + (4.0/10.0*0.6) + (5.0/10.0*0.6)) / 4.0 * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+		
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		courseGradeRecords = gradebookManager.getPointsEarnedCourseGradeRecordsWithStats(courseGrade, uid);
+		Assert.assertTrue(new BigDecimal(courseGrade.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+			new BigDecimal(((2.0/10.0) + (3.0/10.0) + (4.0/10.0) + (5.0/10.0)) / 4.0 * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		courseGradeRecords = gradebookManager.getPointsEarnedCourseGradeRecordsWithStats(courseGrade, uid);
+		Assert.assertTrue(new BigDecimal(courseGrade.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+			new BigDecimal(((4.0/15) + (6.0/15.0) + (8.0/15.0) + (10.0/15.0)) / 4.0 * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 	}
-	
+
 	public void testGetAssignmentsWithStats() throws Exception{
 		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
 		Assignment assign = gradebookManager.getAssignment(assgn1Long);
@@ -936,8 +1453,39 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 					new BigDecimal((1 + 2 + 3 + 4 + 5) / 5).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			}
 		}
+		
+		//test for setting studentId1's assignment1 to null
+		for(int i=0; i<gradeRecords.size(); i++)
+		{
+			AssignmentGradeRecord agr = (AssignmentGradeRecord)gradeRecords.get(i);
+			if(agr.getAssignment().getId().equals(assgn1Long) && agr.getStudentId().equals("studentId1"))
+				agr.setPointsEarned(null);
+		}
+		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords, GradebookService.GRADE_TYPE_POINTS);
+		assgnsWithStats = gradebookManager.getAssignmentsWithStats(persistentGradebook.getId(),  Assignment.DEFAULT_SORT, true);
+		for(int i=0; i<assgnsWithStats.size(); i++)
+		{
+			Assignment as = (Assignment) assgnsWithStats.get(i);
+			if(as.getMean() != null)
+			{
+				if(as.getId().equals(assgn1Long))
+				{
+					Assert.assertTrue(new BigDecimal(as.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+						new BigDecimal(((2.0 + 3 + 4 + 5) / as.getPointsPossible().doubleValue() / 4.0) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+					Assert.assertTrue(new BigDecimal(as.getAverageTotal()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+						new BigDecimal((2.0 + 3 + 4 + 5) / 4.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				}
+				else
+				{
+					Assert.assertTrue(new BigDecimal(as.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+						new BigDecimal(((1 + 2.0 + 3 + 4 + 5) / as.getPointsPossible().doubleValue() / 5.0) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+					Assert.assertTrue(new BigDecimal(as.getAverageTotal()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+						new BigDecimal((1 + 2.0 + 3 + 4 + 5) / 5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				}
+			}
+		}
 	}
-	
+
 	public void testGetAssignmentsAndCourseGradeWithStats() throws Exception{
 		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
 		Assignment assign = gradebookManager.getAssignment(assgn1Long);
@@ -981,16 +1529,125 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 			if(as.getMean() != null)
 			{
 				Assert.assertTrue(new BigDecimal(as.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-					new BigDecimal(((1 + 2 + 3 + 4 + 5) / as.getPointsPossible().doubleValue() / 5) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+					new BigDecimal(((1.0 + 2 + 3 + 4 + 5) / as.getPointsPossible().doubleValue() / 5.0) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 				Assert.assertTrue(new BigDecimal(as.getAverageTotal()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-					new BigDecimal((1 + 2 + 3 + 4 + 5) / 5).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+					new BigDecimal((1.0 + 2 + 3 + 4 + 5) / 5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			}
 		}
 		CourseGrade cg = (CourseGrade) assgnsWithStats.get(assgnsWithStats.size() - 1);
 		Assert.assertTrue(new BigDecimal(cg.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-			new BigDecimal(((1 + 2 + 3 + 4 + 5) * 0.4 / 15 / 5+ (1 + 2 + 3 + 4 + 5) * 0.6 / 20 / 5) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			new BigDecimal(((1.0 + 2 + 3 + 4 + 5) * 0.4 / 5.0 / 5.0 + (1.0 + 2 + 3 + 4 + 5) * 0.6 / 10.0 / 5.0 ) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+		
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		assgnsWithStats = gradebookManager.getAssignmentsAndCourseGradeWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true);
+		cg = (CourseGrade) assgnsWithStats.get(assgnsWithStats.size() - 1);
+		Assert.assertTrue(new BigDecimal(cg.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+			new BigDecimal(((1.0 + 2 + 3 + 4 + 5 + 1.0 + 2 + 3 + 4 + 5) / 15.0 / 5.0 ) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+		
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		assgnsWithStats = gradebookManager.getAssignmentsAndCourseGradeWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true);
+		cg = (CourseGrade) assgnsWithStats.get(assgnsWithStats.size() - 1);
+		Assert.assertTrue(new BigDecimal(cg.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+			new BigDecimal(((1.0 + 2 + 3 + 4 + 5 + 1.0 + 2 + 3 + 4 + 5) / 15.0 / 5.0 ) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+		
+		//test for setting studentId1's assignment1 to null
+		for(int i=0; i<gradeRecords.size(); i++)
+		{
+			AssignmentGradeRecord agr = (AssignmentGradeRecord)gradeRecords.get(i);
+			if(agr.getAssignment().getId().equals(assgn1Long) && agr.getStudentId().equals("studentId1"))
+				agr.setPointsEarned(null);
+		}
+		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords, GradebookService.GRADE_TYPE_POINTS);
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		assgnsWithStats = gradebookManager.getAssignmentsAndCourseGradeWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true);
+		for(int i=0; i<(assgnsWithStats.size() - 1); i++)
+		{
+			Assignment as = (Assignment) assgnsWithStats.get(i);
+			if(as.getMean() != null && !as.getId().equals(assgn1Long))
+			{
+				Assert.assertTrue(new BigDecimal(as.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal(((1.0 + 2 + 3 + 4 + 5) / as.getPointsPossible().doubleValue() / 5.0) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				Assert.assertTrue(new BigDecimal(as.getAverageTotal()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal((1.0 + 2 + 3 + 4 + 5) / 5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			}
+			else if(as.getMean() != null)
+			{
+				Assert.assertTrue(new BigDecimal(as.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal(((2.0 + 3 + 4 + 5) / as.getPointsPossible().doubleValue() / 4.0) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				Assert.assertTrue(new BigDecimal(as.getAverageTotal()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal((2.0 + 3 + 4 + 5) / 4.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			}
+		}
+		cg = (CourseGrade) assgnsWithStats.get(assgnsWithStats.size() - 1);
+		Assert.assertTrue(new BigDecimal(cg.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+			new BigDecimal(((1.0/10.0*0.6) + (2.0/5.0*0.4 + 2.0/10.0*0.6) + (3.0/5.0*0.4 + 3.0/10.0*0.6) + (4.0/5.0*0.4 + 4.0/10.0*0.6) + (5.0/5.0*0.4 + 5.0/10.0*0.6)) *100.0/ 5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		assgnsWithStats = gradebookManager.getAssignmentsAndCourseGradeWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true);
+		cg = (CourseGrade) assgnsWithStats.get(assgnsWithStats.size() - 1);
+		Assert.assertTrue(new BigDecimal(cg.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+			new BigDecimal(((1.0/10.0) + (4.0/15.0) + (6.0/15.0) + (8.0/15.0) + (10.0/15.0)) *100.0/ 5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		assgnsWithStats = gradebookManager.getAssignmentsAndCourseGradeWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true);
+		cg = (CourseGrade) assgnsWithStats.get(assgnsWithStats.size() - 1);
+		Assert.assertTrue(new BigDecimal(cg.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+			new BigDecimal(((1.0/10.0) + (4.0/15.0) + (6.0/15.0) + (8.0/15.0) + (10.0/15.0)) *100.0/ 5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+		
+		
+		//test for setting studentId1's assignment2 to null - studentId1 doesn't have any scores now
+		for(int i=0; i<gradeRecords.size(); i++)
+		{
+			AssignmentGradeRecord agr = (AssignmentGradeRecord)gradeRecords.get(i);
+			if(agr.getAssignment().getId().equals(assgn3Long) && agr.getStudentId().equals("studentId1"))
+				agr.setPointsEarned(null);
+		}
+		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords, GradebookService.GRADE_TYPE_POINTS);
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		assgnsWithStats = gradebookManager.getAssignmentsAndCourseGradeWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true);
+		for(int i=0; i<(assgnsWithStats.size() - 1); i++)
+		{
+			Assignment as = (Assignment) assgnsWithStats.get(i);
+			if(as.getMean() != null && !as.getId().equals(assgn1Long) && !as.getId().equals(assgn3Long))
+			{
+				Assert.assertTrue(new BigDecimal(as.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal(((1.0 + 2 + 3 + 4 + 5) / as.getPointsPossible().doubleValue() / 5.0) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				Assert.assertTrue(new BigDecimal(as.getAverageTotal()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal((1.0 + 2 + 3 + 4 + 5) / 5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			}
+			else if(as.getMean() != null)
+			{
+				Assert.assertTrue(new BigDecimal(as.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal(((2.0 + 3 + 4 + 5) / as.getPointsPossible().doubleValue() / 4.0) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				Assert.assertTrue(new BigDecimal(as.getAverageTotal()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal((2.0 + 3 + 4 + 5) / 4.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			}
+		}
+		cg = (CourseGrade) assgnsWithStats.get(assgnsWithStats.size() - 1);
+		Assert.assertTrue(new BigDecimal(cg.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+			new BigDecimal(((2.0/5.0*0.4 + 2.0/10.0*0.6) + (3.0/5.0*0.4 + 3.0/10.0*0.6) + (4.0/5.0*0.4 + 4.0/10.0*0.6) + (5.0/5.0*0.4 + 5.0/10.0*0.6)) *100.0/ 4.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		assgnsWithStats = gradebookManager.getAssignmentsAndCourseGradeWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true);
+		cg = (CourseGrade) assgnsWithStats.get(assgnsWithStats.size() - 1);
+		Assert.assertTrue(new BigDecimal(cg.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+			new BigDecimal(((4.0/15.0) + (6.0/15.0) + (8.0/15.0) + (10.0/15.0)) *100.0/ 4.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		assgnsWithStats = gradebookManager.getAssignmentsAndCourseGradeWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true);
+		cg = (CourseGrade) assgnsWithStats.get(assgnsWithStats.size() - 1);
+		Assert.assertTrue(new BigDecimal(cg.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+			new BigDecimal(((4.0/15.0) + (6.0/15.0) + (8.0/15.0) + (10.0/15.0)) *100.0/ 4.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 	}
-	
+
 	public void testGetAssignmentWithStats() throws Exception{
 		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
 		Assignment assign = gradebookManager.getAssignment(assgn1Long);
@@ -1031,25 +1688,53 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		if(as.getMean() != null)
 		{
 			Assert.assertTrue(new BigDecimal(as.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-				new BigDecimal(((1 + 2 + 3 + 4 + 5) / as.getPointsPossible().doubleValue() / 5) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				new BigDecimal(((1.0 + 2 + 3 + 4 + 5) / as.getPointsPossible().doubleValue() / 5.0) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			Assert.assertTrue(new BigDecimal(as.getAverageTotal()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-				new BigDecimal((1 + 2 + 3 + 4 + 5) / 5).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				new BigDecimal((1.0 + 2 + 3 + 4 + 5) / 5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		}
 		as = gradebookManager.getAssignmentWithStats(assign2.getId());
 		if(as.getMean() != null)
 		{
 			Assert.assertTrue(new BigDecimal(as.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-				new BigDecimal(((1 + 2 + 3 + 4 + 5) / as.getPointsPossible().doubleValue() / 5) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				new BigDecimal(((1.0 + 2 + 3 + 4 + 5) / as.getPointsPossible().doubleValue() / 5.0) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			Assert.assertTrue(new BigDecimal(as.getAverageTotal()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-				new BigDecimal((1 + 2 + 3 + 4 + 5) / 5).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				new BigDecimal((1.0 + 2 + 3 + 4 + 5) / 5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		}
+		
+		//test for setting studentId1's assignment1 to null
+		for(int i=0; i<gradeRecords.size(); i++)
+		{
+			AssignmentGradeRecord agr = (AssignmentGradeRecord)gradeRecords.get(i);
+			if(agr.getAssignment().getId().equals(assgn1Long) && agr.getStudentId().equals("studentId1"))
+				agr.setPointsEarned(null);
+		}
+		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords, GradebookService.GRADE_TYPE_POINTS);
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		as = gradebookManager.getAssignmentWithStats(assign.getId());
+		if(as.getMean() != null)
+		{
+			Assert.assertTrue(new BigDecimal(as.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+				new BigDecimal(((2.0 + 3 + 4 + 5) / as.getPointsPossible().doubleValue() / 4.0) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			Assert.assertTrue(new BigDecimal(as.getAverageTotal()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+				new BigDecimal((2.0 + 3 + 4 + 5) / 4.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+		}
+		as = gradebookManager.getAssignmentWithStats(assign2.getId());
+		if(as.getMean() != null)
+		{
+			Assert.assertTrue(new BigDecimal(as.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+				new BigDecimal(((1.0 + 2 + 3 + 4 + 5) / as.getPointsPossible().doubleValue() / 5.0) * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			Assert.assertTrue(new BigDecimal(as.getAverageTotal()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+				new BigDecimal((1.0 + 2 + 3 + 4 + 5) / 5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+		}
+
 	}
-	
+
 	public void testGetCategoriesWithStats() throws Exception{
 		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
 		Assignment assign = gradebookManager.getAssignment(assgn1Long);
 		Assignment assign2 = gradebookManager.getAssignment(assgn3Long);
-		
+
 		integrationSupport.createCourse(persistentGradebook.getUid(), persistentGradebook.getUid(), false, false, false);
 		gradebookManager.updateGradebook(persistentGradebook);
 		assign.setPointsPossible(new Double(5));
@@ -1073,18 +1758,55 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		addUsersEnrollments(persistentGradebook, uid);
 
 		List cateList = gradebookManager.getCategoriesWithStats(persistentGradebook.getId());
-		
+
 		for(int i=0; i<cateList.size(); i++)
 		{
 			Category cat = (Category) cateList.get(i);
-			Assert.assertTrue(new BigDecimal(cat.getAverageScore()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-				new BigDecimal((1.0 + 2 + 3 + 4 + 5) / 5.0 / 2.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			if(i == 0)
+			{
 				Assert.assertTrue(new BigDecimal(cat.getAverageTotalPoints()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
 					new BigDecimal((5.0 + 10) / 2.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				Assert.assertTrue(new BigDecimal(cat.getAverageScore()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal((1.0 + 2 + 3 + 4 + 5) / 5.0 / 2.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			}
 			else if(i == 1)
+			{
 				Assert.assertTrue(new BigDecimal(cat.getAverageTotalPoints()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
 					new BigDecimal((10.0 + 10.0) / 2.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				Assert.assertTrue(new BigDecimal(cat.getAverageScore()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal((1.0 + 2 + 3 + 4 + 5) / 5.0 / 2.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			}
+		}
+		
+		//test for setting studentId1's assignment1 to null
+		for(int i=0; i<gradeRecords.size(); i++)
+		{
+			AssignmentGradeRecord agr = (AssignmentGradeRecord)gradeRecords.get(i);
+			if(agr.getAssignment().getId().equals(assgn1Long) && agr.getStudentId().equals("studentId1"))
+				agr.setPointsEarned(null);
+		}
+		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords, GradebookService.GRADE_TYPE_POINTS);
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		cateList = gradebookManager.getCategoriesWithStats(persistentGradebook.getId());
+
+		for(int i=0; i<cateList.size(); i++)
+		{
+			Category cat = (Category) cateList.get(i);
+			if(i == 0)
+			{
+				Assert.assertTrue(new BigDecimal(cat.getAverageTotalPoints()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal((5.0 + 10) / 2.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				Assert.assertTrue(new BigDecimal(cat.getAverageScore()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal((2.0 + 3 + 4 + 5) / 4.0 / 2.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			}
+			else if(i == 1)
+			{
+				Assert.assertTrue(new BigDecimal(cat.getAverageTotalPoints()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal((10.0 + 10.0) / 2.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				Assert.assertTrue(new BigDecimal(cat.getAverageScore()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal((1.0 + 2.0 + 3 + 4 + 5) / 5.0 / 2.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			}
 		}
 	}
 }

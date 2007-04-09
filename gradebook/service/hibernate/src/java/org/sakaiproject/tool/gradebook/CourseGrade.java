@@ -72,8 +72,9 @@ public class CourseGrade extends GradableObject {
         	
         	if (score != null) {
         		total += score.doubleValue();
+          	numScored++;
         	}
-        	numScored++;
+//        	numScored++;
         }
         if (numScored == 0) {
         	mean = null;
