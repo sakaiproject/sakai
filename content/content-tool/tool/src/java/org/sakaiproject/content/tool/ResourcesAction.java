@@ -3254,7 +3254,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		Collection<ContentPermissions> permissions = new Vector<ContentPermissions>();
 		if(ContentHostingService.isCollection(id))
 		{
-			if((inheritedPermissions != null && inheritedPermissions.contains(ContentPermissions.CREATE)) || ContentHostingService.allowAddCollection(id))
+			if((inheritedPermissions != null && inheritedPermissions.contains(ContentPermissions.CREATE)) || ContentHostingService.allowAddCollection(id) && !ContentHostingService.isRootCollection(id))
 			{
 				permissions.add(ContentPermissions.CREATE);
 			}
@@ -3277,7 +3277,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		else
 		{
-			if((inheritedPermissions != null && inheritedPermissions.contains(ContentPermissions.CREATE)) || ContentHostingService.allowAddResource(id))
+			if((inheritedPermissions != null && inheritedPermissions.contains(ContentPermissions.CREATE)) || ContentHostingService.allowAddResource(id) && !ContentHostingService.isRootCollection(id))
 			{
 				permissions.add(ContentPermissions.CREATE);
 			}
