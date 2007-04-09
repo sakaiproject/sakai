@@ -13,11 +13,10 @@
 			<%@include file="/inc/filterPaging.jspf"%>
 		</t:aliasBean>
 
-		<t:dataTable cellpadding="0" cellspacing="0"
-			id="rosterTable"
-			styleClass="listHier"
-			value="#{rosterBean.studentRows}"
-			binding="#{rosterBean.rosterDataTable}"
+		<gbx:spreadsheetUI 
+			colLock="3"
+			value="#{rosterBean.studentRows}" 
+			binding="#{rosterBean.rosterDataTable}" 
 			sortColumn="#{rosterBean.sortColumn}"
             sortAscending="#{rosterBean.sortAscending}"
 			var="row">
@@ -38,7 +37,7 @@
 				<h:outputText value="#{row.displayId}"/>
 			</h:column>
 			<%/* Assignment columns will be dynamically appended, starting here. */%>
-		</t:dataTable>
+		</gbx:spreadsheetUI>
 
 		<p class="instruction">
 			<h:outputText value="#{msgs.roster_no_enrollments}" rendered="#{rosterBean.emptyEnrollments}" />

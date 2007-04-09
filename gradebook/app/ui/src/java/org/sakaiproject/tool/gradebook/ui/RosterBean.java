@@ -126,10 +126,10 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		List assignments = getGradebookManager().getAssignments(getGradebookId());
 		CourseGrade courseGrade = getGradebookManager().getCourseGrade(getGradebookId());
 		gradableObjectColumns = new ArrayList();
+		gradableObjectColumns.add(new GradableObjectColumn(courseGrade));
 		for (Iterator iter = assignments.iterator(); iter.hasNext(); ) {
 			gradableObjectColumns.add(new GradableObjectColumn((GradableObject)iter.next()));
 		}
-		gradableObjectColumns.add(new GradableObjectColumn(courseGrade));
 
         Map enrollmentMap = getOrderedEnrollmentMap();
 
