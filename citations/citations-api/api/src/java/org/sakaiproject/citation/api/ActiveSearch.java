@@ -107,6 +107,13 @@ public interface ActiveSearch
 	public String getSearchId();
 	
 	/**
+	 * Gets the thread that is handling the active search
+	 * 
+	 * @return Thread that is handling this active search
+	 */
+	public Thread getSearchThread();
+	
+	/**
 	 * 
 	 * @return
 	 */
@@ -168,11 +175,16 @@ public interface ActiveSearch
     public void prepareForNextPage();
 	
     /**
-     * 
-     * @param searchType
-     */
-    public void setSearchType( String searchType );
-    
+	 * 
+	 * @param advancedCriteria
+	 */
+	public void setAdvancedQuery(SearchQuery advancedCriteria);
+
+	/**
+	 * @param searchCriteria
+	 */
+	public void setBasicQuery(SearchQuery basicCriteria);
+
 	/**
 	 * @param firstPage
 	 */
@@ -228,15 +240,17 @@ public interface ActiveSearch
 	public void setRepositoryName(String repositoryName);
 
 	/**
-	 * @param searchCriteria
+	 * Sets the thread that is handling the active search
+	 * 
+	 * @param searchThread
 	 */
-	public void setBasicQuery(SearchQuery basicCriteria);
-
+	public void setSearchThread( Thread searchThread );
+	
 	/**
 	 * 
-	 * @param advancedCriteria
+	 * @param searchType
 	 */
-	public void setAdvancedQuery(SearchQuery advancedCriteria);
+	public void setSearchType( String searchType );
 
 	/**
 	 * @param sortBy

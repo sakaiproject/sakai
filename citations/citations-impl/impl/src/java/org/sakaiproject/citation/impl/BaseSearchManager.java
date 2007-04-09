@@ -146,8 +146,12 @@ public class BaseSearchManager implements SearchManager
 		protected int end = DEFAULT_PAGE_SIZE;
 		protected int m_viewPageSize = DEFAULT_PAGE_SIZE;
 		protected String statusMessage = null;
+		
+		// saves the thread that the current search is running in
+		protected Thread m_searchThread;
 
 		/**
+		 * Constructor
          */
         public BasicSearch()
         {
@@ -268,7 +272,8 @@ public class BaseSearchManager implements SearchManager
 	                }
 	                catch (SearchException e)
 	                {
-	                	m_log.warn("viewPage doSearch()");
+	                	m_log.debug("viewPage doSearch() " + e.getMessage());
+	                	return null;
 	                }
         		}
         		else if(end > this.m_pageOrder.size())
@@ -734,6 +739,14 @@ public class BaseSearchManager implements SearchManager
 
 		public void setAdvancedQuery(SearchQuery advancedQuery) {
 			m_advancedQuery = advancedQuery;
+		}
+
+		public Thread getSearchThread() {
+			return m_searchThread;
+		}
+
+		public void setSearchThread(Thread searchThread) {
+			m_searchThread = searchThread;
 		}
 
 	}
@@ -1865,7 +1878,7 @@ public class BaseSearchManager implements SearchManager
      */
 	public ActiveSearch doSearch(ActiveSearch search)
 		throws SearchException
-	{
+	{	
 		// search parameters
 		Repository repository     = hierarchy.getRepository();
 		Integer    pageSize       = search.getPageSize();
@@ -1994,12 +2007,8 @@ public class BaseSearchManager implements SearchManager
 	    					}
 	    					catch( InterruptedException ie )
 	    					{
-	    						search.setLastPage(true);
-
-	    						String message = getSearchStatusMessage(repository);
-
-	    						m_log.warn("doSearch -- InterruptedException: " + ie.getMessage());
-	    						throw new SearchException( message );
+	    						// search canceled
+	    						throw new SearchException( "search canceled" );
 	    					}
 	    				}
 	    			}

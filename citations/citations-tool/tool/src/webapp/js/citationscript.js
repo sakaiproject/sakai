@@ -371,21 +371,6 @@ function submitSearchForm( basicType, advancedType, formname ) {
   }
 }
 
-/*
- * Cancels a search (browser-only)
- */
-function cancelSearchForm( formname, baseUrl ) {
-  var sakai_action;
-  
-  if( formname == "searchForm" ) {
-    sakai_action = "doSearch";
-  } else if( formname == "resultsForm" ) {
-    sakai_action = "doBeginSearch";
-  }
-  
-  location.assign( baseUrl + "&sakai_action=" + sakai_action + "&cancelOp=cancel" );
-}
-
 function checkSearchSpinner( basicType, advancedType ) {
   // get the searchType value from the form
   var searchType = $( "#searchType" ).val();

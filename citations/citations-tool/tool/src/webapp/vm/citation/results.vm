@@ -21,7 +21,7 @@
       <input name="sakai_action" id="sakai_action" value="doBeginSearch" type="hidden" />
       <input name="searchType" id="searchType" value="$searchType" type="hidden" />
       <input name="pageSelector" id="pageSelector" value="" type="hidden" />
-      <input name="cancelOp" id="cancelOp" value="" type="hidden" />
+      <input name="cancelOp" id="cancelOp" value="$FORM_NAME" type="hidden" />
        
       #foreach( $databaseId in $selectedDatabases )
         <input type="checkbox" name="databasesSelected" checked="checked"

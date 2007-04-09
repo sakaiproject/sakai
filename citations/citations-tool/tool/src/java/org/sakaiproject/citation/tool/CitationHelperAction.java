@@ -2361,22 +2361,52 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	}	// doReviseCitation
 	
 	/**
+	 * 
+	 * @param data
+	 */
+	public void doCancelSearch( RunData data )
+	{
+		// get state and params
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		// cancel the running search
+		ActiveSearch search = ( ActiveSearch )state.getAttribute( STATE_SEARCH_INFO );
+		if( search != null )
+		{
+			Thread searchThread = search.getSearchThread();
+			if( searchThread != null )
+			{
+				try
+				{
+					searchThread.interrupt();
+				}
+				catch( SecurityException se )
+				{
+					// not able to interrupt search
+					logger.warn( "doSearch() [in ThreadGroup "
+							+ Thread.currentThread().getThreadGroup().getName()
+							+ "] unable to interrupt search Thread [name="
+							+ searchThread.getName()
+							+ ", id=" + searchThread.getId()
+							+ ", group=" + searchThread.getThreadGroup().getName()
+							+ "]");
+				}
+			}
+		}
+
+		// default return to search page
+		setMode(state, Mode.SEARCH);
+		
+	}  // doCancelSearch
+	
+	/**
 	* 
 	*/
 	public void doSearch ( RunData data)
 	{
 		// get the state object
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-		ParameterParser params = data.getParameters();
-		
-		// check for a cancel
-		String cancel = params.getString( "cancelOp" );
-		if( cancel != null && cancel.equals( "cancel" ) )
-		{
-			setMode(state, Mode.SEARCH);
-			return;
-		}
-		
+
 		// remove attributes from an old search session, if any
 		state.removeAttribute( STATE_SEARCH_RESULTS );
 		state.removeAttribute( STATE_CURRENT_RESULTS );
@@ -2416,15 +2446,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		// get state and params
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		ParameterParser params = data.getParameters();
-		
-		// check for a cancel
-		String cancel = params.getString( "cancelOp" );
-		if( cancel != null && cancel.equals( "cancel" ) )
-		{
-			setMode(state, Mode.RESULTS);
-			return;
-		}
-		
+
 		// get search object from state
 		ActiveSearch search = (ActiveSearch) state.getAttribute(STATE_SEARCH_INFO);
 		if(search == null)
@@ -2492,7 +2514,12 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		 * BEGIN SEARCH
 		 */
 		try
-	    {
+		{
+			// set search thread to the current thread
+			search.setSearchThread( Thread.currentThread() );
+			state.setAttribute( STATE_SEARCH_INFO, search );
+			
+			// initiate the search
 	        List latestResults = search.viewPage();
 	        String msg = search.getStatusMessage();
 	        if(msg != null)
@@ -2500,9 +2527,31 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	        	addAlert(state, msg);
 	        	search.setStatusMessage();
 	        }
-	        state.setAttribute(STATE_SEARCH_RESULTS, search);
-	        state.setAttribute(STATE_CURRENT_RESULTS, latestResults);
-	        setMode(state, Mode.RESULTS);
+	        
+	        if( latestResults != null )
+	        {
+	        	state.setAttribute(STATE_SEARCH_RESULTS, search);
+	        	state.setAttribute(STATE_CURRENT_RESULTS, latestResults);
+		        setMode(state, Mode.RESULTS);
+	        }
+	        else
+	        {
+	        	// the search has been canceled - determine which page should
+	        	// be reloaded
+	    		// check for a cancel
+	    		String cancel = params.getString( "cancelOp" );
+	        	if( cancel != null && !cancel.trim().equals("") )
+	        	{
+	        		if( cancel.equalsIgnoreCase( ELEMENT_ID_RESULTS_FORM ) )
+	        		{
+	        			setMode( state, Mode.RESULTS );
+	        		}
+	        		else
+	        		{
+	        			setMode( state, Mode.SEARCH );
+	        		}
+	        	}
+	        }
 	    }
 	    catch(Exception e)
 	    {
