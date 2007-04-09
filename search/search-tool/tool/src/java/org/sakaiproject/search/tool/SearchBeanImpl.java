@@ -763,23 +763,53 @@ public class SearchBeanImpl implements SearchBean
 
 				public String getSearchResult()
 				{
-
-					return sr.getSearchResult();
+					try
+					{
+						return sr.getSearchResult();
+					}
+					catch (Exception ex)
+					{
+						return "";
+					}
 				}
 
 				public String getTitle()
 				{
-					return FormattedText.escapeHtml(sr.getTitle(), false);
+					try
+					{
+						return FormattedText.escapeHtml(sr.getTitle(), false);
+					}
+					catch (Exception ex)
+					{
+						return "";
+					}
+
 				}
 
 				public String getTool()
 				{
-					return FormattedText.escapeHtml(sr.getTool(), false);
+					try
+					{
+						return FormattedText.escapeHtml(sr.getTool(), false);
+					}
+					catch (Exception ex)
+					{
+						return "";
+					}
+
 				}
 
 				public String getUrl()
 				{
-					return FormattedText.escapeHtml(sr.getUrl(), false);
+					try
+					{
+						return FormattedText.escapeHtml(sr.getUrl(), false);
+					}
+					catch (Exception ex)
+					{
+						return "";
+					}
+
 				}
 
 			});
