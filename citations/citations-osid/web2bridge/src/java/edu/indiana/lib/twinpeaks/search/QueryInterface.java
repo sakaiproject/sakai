@@ -38,12 +38,6 @@ public interface QueryInterface {
   public void doQuery();
 
 	/**
-	 * Do a pagination operation (previous or next page) - essentially a
-	 * specialized query
-	 */
-	public void doNewPage();
-
-	/**
 	 * Parse request parameters
 	 * @param parameterMap A map of request details (name=value pairs)
 	 */

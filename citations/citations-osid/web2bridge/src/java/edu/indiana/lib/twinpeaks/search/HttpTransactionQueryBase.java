@@ -67,7 +67,6 @@ public abstract class HttpTransactionQueryBase
   private String      		_url;
   private String      		_searchResult;
 	private SessionContext	_session;
-	private String 					_decodedPageParameter;
 
 	/**
 	 * Constructor
@@ -95,28 +94,6 @@ public abstract class HttpTransactionQueryBase
 		}
 		_transaction = new HttpTransaction();
 		_transaction.initialize((List) _session.get(COOKIELIST));
-	}
-
-	/**
-	 * Base implementation: Next/previous page - set up the "newPage" parameter
-	 */
-	public void doNewPage() {
-    /*
-     * Decode the "newPage" parameter
-     */
-    try {
-    	_decodedPageParameter = HttpTransactionUtils.decode(getRequestParameter("newPage"));
-    } catch (IOException exception) {
-    	throw new SearchException(exception.toString());
-    }
-	}
-
-	/**
-	 * Get the next/previous page parameter
-	 * @return The new page parameter value
-	 */
-	public String getNewPageParameter() {
-		return _decodedPageParameter;
 	}
 
 	/**
