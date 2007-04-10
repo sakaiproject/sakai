@@ -131,3 +131,55 @@ function divElement (x,y,w,h,col){
 	 lyr.style.padding= "0px 0px 0px 0px"
 	return lyr
 }
+
+function getTheElement(thisid)
+{
+  var thiselm = null;
+  if (document.getElementById) {
+    thiselm = document.getElementById(thisid);
+  } else if (document.all) {
+    thiselm = document.all[thisid];
+  } else if (document.layers) {
+    thiselm = document.layers[thisid];
+  }
+
+  if(thiselm) {
+    if(thiselm == null) {
+      return;
+    } else {
+      return thiselm;
+    }
+  }
+}
+
+// Update the running total
+function updateRunningTotal(thisForm) {
+	var runningTotal = 0.0;
+	
+  for (var i=0; i < thisForm.elements.length; ++i) {
+  	formElement = thisForm.elements[i];
+    elementName = formElement.name;
+    var elementNamePieces = elementName.split(":");
+    var highlightTotal = true;
+
+    if (elementNamePieces[3] == "weightInput") {
+        weight = parseInt(formElement.value);
+
+        if (weight >= 0) {
+            runningTotal += weight;
+        }
+    }
+  }
+  
+  var neededTotal = 100.0 - runningTotal;
+
+  var runningTotalValEl = getTheElement(thisForm.name + ":runningTotalVal");
+  var runningTotalEl = getTheElement(thisForm.name + ":runningTotal");
+  var neededTotalEl = getTheElement(thisForm.name + ":neededTotalVal");
+  runningTotalValEl.innerHTML = runningTotal;
+  neededTotalEl.innerHTML = neededTotal;
+  if (neededTotal == 0)
+  	runningTotalEl.className="unreadMsg";
+  else
+  	runningTotalEl.className = "highlight unreadMsg";
+}

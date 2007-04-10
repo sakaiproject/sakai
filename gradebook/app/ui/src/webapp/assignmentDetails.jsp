@@ -64,6 +64,11 @@
 				<h:outputText id="average" value="#{assignmentDetailsBean.assignment.formattedMean}" rendered="#{overviewBean.userAbleToGradeAll}">
 					<f:convertNumber type="percent" integerOnly="true" />
 				</h:outputText>
+				
+				<h:outputText id="categoryLabel" value="#{msgs.assignment_details_category}" rendered="#{assignmentDetailsBean.categoriesEnabled}" />
+				<h:panelGroup rendered="#{assignmentDetailsBean.categoriesEnabled}" >
+					<h:outputText id="category" value="#{assignmentDetailsBean.assignmentCategory}"  />
+				</h:panelGroup>
 
 				<h:outputText id="dueDateLabel" value="#{msgs.assignment_details_due_date}"/>
 				<h:outputText id="dueDate" value="#{assignmentDetailsBean.assignment.dueDate}" rendered="#{assignmentDetailsBean.assignment.dueDate != null}" >

@@ -122,3 +122,14 @@ td.gbMessageAboveNumber {vertical-align:top; text-align:right; padding-right:2em
 	text-align:right;
 	font-size:.9em;
 }
+
+.gbSection
+{
+	padding-top: 1.0em;
+}
+
+.alertMessageInline
+{
+	display: inline;
+	margin-left: 1.0em;
+}

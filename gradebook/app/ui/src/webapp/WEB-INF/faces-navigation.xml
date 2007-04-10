@@ -69,6 +69,11 @@
             <from-outcome>spreadsheetRemove</from-outcome>
             <to-view-id>/spreadsheetRemove.jsp</to-view-id>
         </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>gradebookSetup</from-outcome>
+            <to-view-id>/gradebookSetup.jsp</to-view-id>
+        </navigation-case>
 
     </navigation-rule>
 </faces-config>

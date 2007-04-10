@@ -105,7 +105,7 @@
 
 	<managed-bean>
 		<managed-bean-name>editAssignmentBean</managed-bean-name>
-		<managed-bean-class>org.sakaiproject.tool.gradebook.ui.EditAssignmentBean</managed-bean-class>
+		<managed-bean-class>org.sakaiproject.tool.gradebook.ui.AssignmentBean</managed-bean-class>
 		<managed-bean-scope>request</managed-bean-scope>
 		<managed-property>
 			<property-name>assignmentId</property-name>
@@ -114,6 +114,16 @@
 		<managed-property>
 			<property-name>pageName</property-name>
 			<value>editAssignment</value>
+		</managed-property>
+	</managed-bean>
+	
+	<managed-bean>
+		<managed-bean-name>addAssignmentBean</managed-bean-name>
+		<managed-bean-class>org.sakaiproject.tool.gradebook.ui.AssignmentBean</managed-bean-class>
+		<managed-bean-scope>request</managed-bean-scope>
+		<managed-property>
+			<property-name>pageName</property-name>
+			<value>addAssignment</value>
 		</managed-property>
 	</managed-bean>
 
@@ -142,16 +152,6 @@
 		<managed-property>
 			<property-name>courseGradesConverterPlugin</property-name>
 			<value>gradebook.coursegrades.converter</value>
-		</managed-property>
-	</managed-bean>
-
-	<managed-bean>
-		<managed-bean-name>addAssignmentBean</managed-bean-name>
-		<managed-bean-class>org.sakaiproject.tool.gradebook.ui.AddAssignmentBean</managed-bean-class>
-		<managed-bean-scope>request</managed-bean-scope>
-		<managed-property>
-			<property-name>pageName</property-name>
-			<value>addAssignment</value>
 		</managed-property>
 	</managed-bean>
 
@@ -203,6 +203,16 @@
             <value>roster</value>
         </managed-property>
     </managed-bean>
+    
+    <managed-bean>
+		<managed-bean-name>gradebookSetupBean</managed-bean-name>
+		<managed-bean-class>org.sakaiproject.tool.gradebook.ui.GradebookSetupBean</managed-bean-class>
+		<managed-bean-scope>request</managed-bean-scope>
+		<managed-property>
+			<property-name>pageName</property-name>
+			<value>gradebookSetup</value>
+		</managed-property>
+	</managed-bean>
 
 </faces-config>
 

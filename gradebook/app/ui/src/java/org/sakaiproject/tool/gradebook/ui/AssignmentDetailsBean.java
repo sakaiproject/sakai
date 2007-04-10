@@ -63,6 +63,9 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
     private Assignment assignment;
 	private Assignment previousAssignment;
 	private Assignment nextAssignment;
+	
+	private String assignmentCategory;
+	private String assignmentWeight;
 
 	private boolean isAllCommentsEditable;
 
@@ -232,6 +235,14 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 		            }
 
 					scoreRows.add(new ScoreRow(enrollment, gradeRecord, comment, allEvents.getEvents(studentUid)));
+				}
+				
+				if (assignment.getCategory() != null) {
+					assignmentWeight = assignment.getCategory().getWeight().toString();
+					assignmentCategory = assignment.getCategory().getName() + " " + getLocalizedString("cat_weight_display", new String[] {assignmentWeight});
+				}
+				else {
+					assignmentCategory = getLocalizedString("assignment_details_assign_category");
 				}
 
 			} else {
@@ -405,6 +416,18 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
     public void setPreviousAssignment(Assignment previousAssignment) {
         this.previousAssignment = previousAssignment;
     }
+	public String getAssignmentCategory() {
+		return assignmentCategory;
+	}
+	public void setAssignmentCategory(String assignmentCategory) {
+		this.assignmentCategory = assignmentCategory;
+	}
+	public String getAssignmentWeight() {
+		return assignmentWeight;
+	}
+	public void setAssignmentWeight(String assignmentWeight) {
+		this.assignmentWeight = assignmentWeight;
+	}
 
     public String getCommentsToggle() {
     	String messageKey = isAllCommentsEditable ?
@@ -416,4 +439,5 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 	public boolean isAllCommentsEditable() {
 		return isAllCommentsEditable;
 	}
+
 }

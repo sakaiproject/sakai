@@ -4,27 +4,44 @@
 */%>
 <%@include file="/inc/globalMessages.jspf"%>
 
-<h:panelGrid cellpadding="0" cellspacing="0" columns="3" columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext, itemSummaryLite" styleClass="itemSummaryLite">
+<h:panelGrid cellpadding="0" cellspacing="0" columns="2" columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext" styleClass="itemSummaryLite">
 	<h:outputLabel for="title" id="titleLabel" value="#{msgs.add_assignment_title}"/>
-	<h:inputText id="title" value="#{bean.assignment.name}" required="true" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
-		<f:validateLength minimum="1" maximum="255"/>
-	</h:inputText>
-	<h:message for="title" styleClass="validationEmbedded" />
+	<h:panelGroup>
+		<h:inputText id="title" value="#{bean.assignment.name}" required="true" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+			<f:validateLength minimum="1" maximum="255"/>
+		</h:inputText>
+		<h:message for="title" styleClass="alertMessageInline"/>
+	</h:panelGroup>
 
 	<h:outputLabel for="points" id="pointsLabel" value="#{msgs.add_assignment_points}"/>
-	<h:inputText id="points" value="#{bean.assignment.pointsPossible}" required="true" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
-		<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
-		<f:validateDoubleRange minimum="0.01" />
-		<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
-	</h:inputText>
-	<h:message for="points" styleClass="validationEmbedded" />
+	<h:panelGroup>
+		<h:inputText id="points" value="#{bean.assignment.pointsPossible}" required="true" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+			<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
+			<f:validateDoubleRange minimum="0.01" />
+			<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
+		</h:inputText>
+		<h:message for="points" styleClass="alertMessageInline" />
+	</h:panelGroup>
 
 	<h:panelGroup>
 		<h:outputLabel for="dueDate" id="dueDateLabel" value="#{msgs.add_assignment_due_date}"/>
 		<h:outputText style="font-weight:normal;" value=" #{msgs.date_entry_format_description}"/>
 	</h:panelGroup>
+	<h:panelGroup>
     <t:inputCalendar id="dueDate" value="#{bean.assignment.dueDate}" renderAsPopup="true" renderPopupButtonAsImage="true" popupTodayString="#{msgs.date_entry_today_is}" popupWeekString="#{msgs.date_entry_week_header}" />
-	<h:message for="dueDate" styleClass="validationEmbedded" />
+		<h:message for="dueDate" styleClass="alertMessageInline" />
+	</h:panelGroup>
+	
+	<h:outputLabel for="category" id="categoryLabel" value="#{msgs.add_assignment_category}" rendered="#{bean.categoriesEnabled}" />
+	<h:panelGroup rendered="#{bean.categoriesEnabled}">
+		<h:selectOneMenu id="selectCategory" value="#{bean.assignmentCategory}">
+			<f:selectItems value="#{bean.categoriesSelectList}" />
+		</h:selectOneMenu>
+		<f:verbatim><div class="instruction"></f:verbatim>
+			<h:outputText value="#{msgs.add_assignment_category_info}" />
+		<f:verbatim></div></f:verbatim>			
+	</h:panelGroup>
+	
 </h:panelGrid>
 
 <%/*

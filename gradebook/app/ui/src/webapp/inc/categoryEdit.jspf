@@ -1,0 +1,71 @@
+
+
+<h4><h:outputText value="#{msgs.cat_heading}" styleClass="gbSection" /></h4>
+
+<div class="indnt1">
+	<h:selectOneRadio value="#{gradebookSetupBean.categorySetting}" id="categorySetting" layout="pageDirection" 
+			valueChangeListener="#{gradebookSetupBean.processCategorySettingChange}" onclick="this.form.submit();">
+			<f:selectItem itemValue="noCategories" itemLabel="#{msgs.opt_no_categories}" />
+      <f:selectItem itemValue="onlyCategories" itemLabel="#{msgs.opt_categories_only}" />
+      <f:selectItem itemValue="categoriesAndWeighting" itemLabel="#{msgs.opt_categories_and_weighting}" />    
+	</h:selectOneRadio>
+	
+	<h:panelGroup rendered="#{gradebookSetupBean.displayCategories}">
+		<f:verbatim><div class="gbSection"></f:verbatim>
+			<h:outputText styleClass="instruction" value="#{msgs.categories_disclude_info}" rendered="#{gradebookSetupBean.displayWeighting}"/>
+		
+			<t:dataTable cellpadding="0" cellspacing="0"
+				id="categoriesTable"
+				value="#{gradebookSetupBean.categories}"
+				var="category"
+	      columnClasses="bogus,bogus,specialLink"
+				styleClass="listHier narrowTable"
+				rowIndexVar="rowIndex">
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="#{msgs.cat_list_category}"/>
+					</f:facet>
+					<h:inputText id="categoryName" value="#{category.name}"/>
+				</h:column>
+				<h:column rendered="#{gradebookSetupBean.displayWeighting}">
+					<f:facet name="header">
+						<h:outputText value="#{msgs.cat_list_weight}" />
+					</f:facet>
+					<h:inputText value="#{category.weight}" size="5" id="weightInput"
+							onchange="javascript:updateRunningTotal(this.form);" >
+						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
+						<f:validateDoubleRange minimum="0"/>
+						<f:validateDoubleRange maximum="100"/>
+						<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
+					</h:inputText>
+					<h:message for="weightInput" styleClass="alertMessageInline"/>
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="#{msgs.cat_list_remove}" />
+					</f:facet>
+					<h:commandLink value="" title="#{msgs.cat_remove}" actionListener="#{gradebookSetupBean.processRemoveCategory}" >
+						<h:outputText value="#{msgs.cat_remove}" />
+						<f:param name="rowIndex" value="#{rowIndex}"/>
+					</h:commandLink>
+				</h:column>
+			</t:dataTable> 
+			
+			<h:panelGrid columns="2" styleClass="indnt5" rendered="#{gradebookSetupBean.displayWeighting}">
+				<h:outputText value="#{msgs.running_total}" styleClass="unreadMsg"/>
+				<h:panelGroup id="runningTotal" styleClass="unreadMsg #{gradebookSetupBean.runningTotalStyle}">
+					<h:outputText id="runningTotalVal" value="#{gradebookSetupBean.runningTotal}" />
+					<h:outputText value="#{msgs.cat_percent}" />
+				</h:panelGroup>
+
+				<h:outputText value="#{msgs.needed_total}"/>
+				<h:panelGroup>
+					<h:outputText id="neededTotalVal" value="#{gradebookSetupBean.neededTotal}" />
+					<h:outputText value="#{msgs.cat_percent}"/>
+				</h:panelGroup>
+			</h:panelGrid>
+			
+		<f:verbatim></div></f:verbatim>
+	</h:panelGroup>
+</div>
+

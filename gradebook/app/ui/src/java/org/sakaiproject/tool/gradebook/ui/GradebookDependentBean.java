@@ -31,6 +31,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.section.api.SectionAwareness;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.facades.Authn;
@@ -248,5 +249,26 @@ public abstract class GradebookDependentBean extends InitializableBean {
     public String getAuthzLevel(){
          return (getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid())) ?"instructor" : "TA";
     }
-
+    
+    /**
+     * Returns whether the gb has enabled categories (with or without weighting)
+     */
+    private transient Boolean categoriesEnabled;
+    public boolean getCategoriesEnabled() {
+    	if (categoriesEnabled == null)
+    		categoriesEnabled = new Boolean(getGradebook().getCategory_type() != GradebookService.CATEGORY_TYPE_NO_CATEGORY);
+    	
+    	return categoriesEnabled.booleanValue();
+    }
+    
+    /**
+     * Returns whether the gb has enabled weighting
+     */
+    private transient Boolean weightingEnabled;
+    public boolean getWeightingEnabled() {
+    	if (weightingEnabled == null)
+    		weightingEnabled = new Boolean(getGradebook().getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
+    	
+    	return weightingEnabled.booleanValue();
+    }
 }
