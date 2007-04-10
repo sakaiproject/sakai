@@ -22,7 +22,6 @@ package org.sakaiproject.component.app.messageforums.dao.hibernate;
 
 import java.beans.PropertyDescriptor;
 
-import org.apache.commons.beanutils.PropertyUtils;
 import org.sakaiproject.api.app.messageforums.PermissionLevel;
 
 public class PermissionLevelImpl extends MutableEntityImpl 
@@ -199,26 +198,10 @@ public class PermissionLevelImpl extends MutableEntityImpl
 		buffer.append("," + read);
 		buffer.append("," + reviseAny);
 		buffer.append("," + reviseOwn);
-		buffer.append("," + moderatePostings);
+		//buffer.append("," + moderatePostings);
 		buffer.append("]");
 		
-				
-//		try{
-//      PropertyDescriptor[] propDescriptors = PropertyUtils.getPropertyDescriptors(this);
-//      for (int i = 0; i < propDescriptors.length; i++){
-//    	  if (propDescriptors[i].getPropertyType().equals(Boolean.class)){
-//          Boolean bThis = (Boolean) PropertyUtils.getProperty(this, propDescriptors[i].getName());          
-//          buffer.append((bThis.booleanValue()) ? "true" : "false");
-//          buffer.append(",");
-//    	  }
-//      }
-//    }
-//    catch(Exception e){
-//    	throw new Error(e);
-//    }
-//    // replace comma with right brace
-//    buffer.replace(buffer.length() - 1, buffer.length(), "]");   
-    return buffer.toString();
+		return buffer.toString();
 	}
 
 	/**
@@ -236,25 +219,64 @@ public class PermissionLevelImpl extends MutableEntityImpl
     PermissionLevelImpl obj = (PermissionLevelImpl) o;
         
     boolean returnValue = true;
-    
-    try{
-      PropertyDescriptor[] propDescriptors = PropertyUtils.getPropertyDescriptors(this);
-      for (int i = 0; i < propDescriptors.length; i++){
-    	  if (propDescriptors[i].getPropertyType().equals(Boolean.class)){
-          Boolean bThis = (Boolean) PropertyUtils.getProperty(this, propDescriptors[i].getName());
-          Boolean bObj = (Boolean) PropertyUtils.getProperty(obj, propDescriptors[i].getName());
-          boolean temp = (bThis == null) ? bObj == null : bThis.equals(bObj);
-          if (!temp){  
-          	returnValue = false;
-          	break;
-          }
-    	  }
-      }
-    }
-    catch(Exception e){
-    	throw new Error(e);
-    }
-    
+
+    Boolean bThis = this.getChangeSettings();         
+    returnValue = (bThis == null) ? obj.getChangeSettings() == null : bThis.equals(obj.getChangeSettings()); 
+    if(returnValue = false)
+    	return returnValue;
+	bThis = this.getDeleteAny();
+    returnValue = (bThis == null) ? obj.getDeleteAny() == null : bThis.equals(obj.getDeleteAny());
+    if(returnValue = false)
+    	return returnValue;
+	bThis = this.getDeleteOwn();         
+    returnValue = (bThis == null) ? obj.getDeleteOwn() == null : bThis.equals(obj.getDeleteOwn());
+    if(returnValue = false)
+    	return returnValue;
+	bThis = this.getMarkAsRead();         
+    returnValue = (bThis == null) ? obj.getMarkAsRead() == null : bThis.equals(obj.getMarkAsRead());
+    if(returnValue = false)
+    	return returnValue;
+	bThis = this.getMovePosting();         
+    returnValue = (bThis == null) ? obj.getMovePosting() == null : bThis.equals(obj.getMovePosting());
+    if(returnValue = false)
+    	return returnValue;
+	bThis = this.getNewForum();         
+    returnValue = (bThis == null) ? obj.getNewForum() == null : bThis.equals(obj.getNewForum());
+    if(returnValue = false)
+    	return returnValue;
+	bThis = this.getNewResponse();         
+    returnValue = (bThis == null) ? obj.getNewResponse() == null : bThis.equals(obj.getNewResponse());
+    if(returnValue = false)
+    	return returnValue;
+	bThis = this.getNewResponseToResponse();         
+    returnValue = (bThis == null) ? obj.getNewResponseToResponse() == null : bThis.equals(obj.getNewResponseToResponse());
+    if(returnValue = false)
+    	return returnValue;
+	bThis = this.getNewTopic();         
+    returnValue = (bThis == null) ? obj.getNewTopic() == null : bThis.equals(obj.getNewTopic());
+    if(returnValue = false)
+    	return returnValue;
+	bThis = this.getPostToGradebook();         
+    returnValue = (bThis == null) ? obj.getPostToGradebook() == null : bThis.equals(obj.getPostToGradebook());
+    if(returnValue = false)
+    	return returnValue;
+	bThis = this.getRead();         
+    returnValue = (bThis == null) ? obj.getRead() == null : bThis.equals(obj.getRead());
+    if(returnValue = false)
+    	return returnValue;
+	bThis = this.getReviseAny();         
+    returnValue = (bThis == null) ? obj.getReviseAny() == null : bThis.equals(obj.getReviseAny());
+    if(returnValue = false)
+    	return returnValue;
+	bThis = this.getReviseOwn();
+    returnValue = (bThis == null) ? obj.getReviseOwn() == null : bThis.equals(obj.getReviseOwn());
+    if(returnValue = false)
+    	return returnValue;
+	bThis = this.getModeratePostings();         
+    returnValue = (bThis == null) ? obj.getModeratePostings() == null : bThis.equals(obj.getModeratePostings());
+    if(returnValue = false)
+    	return returnValue;
+	
     return returnValue;   
   }
   
@@ -267,14 +289,6 @@ public class PermissionLevelImpl extends MutableEntityImpl
     int result = 17;
     
     try{
-//      PropertyDescriptor[] propDescriptors = PropertyUtils.getPropertyDescriptors(this);
-//      for (int i = 0; i < propDescriptors.length; i++){
-//    	  if (propDescriptors[i].getPropertyType().equals(Boolean.class)){
-//          Boolean bThis = (Boolean) PropertyUtils.getProperty(this, propDescriptors[i].getName());          
-//          int temp = (bThis == null) ? 0 : bThis.hashCode();
-//          result = result + temp;
-//    	  }
-//      }
     		Boolean bThis = this.getChangeSettings();         
     		int temp = (bThis == null) ? 0 : bThis.hashCode();
     		result = result + temp;
