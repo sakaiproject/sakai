@@ -204,7 +204,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 				.getName());
 
 		enabled = "true".equals(ServerConfigurationService.getString(
-				"search.enable", "true"));
+				"search.enable", "false"));
 
 		enabled = enabled & "true".equals(ServerConfigurationService.getString(
 				"search.indexbuild", "true"));

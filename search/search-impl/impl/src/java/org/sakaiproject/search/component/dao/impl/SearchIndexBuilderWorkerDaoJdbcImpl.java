@@ -124,7 +124,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 				false);
 
 		enabled = "true".equals(ServerConfigurationService.getString(
-				"search.enable", "true"));
+				"search.enable", "false"));
 
 		try
 		{

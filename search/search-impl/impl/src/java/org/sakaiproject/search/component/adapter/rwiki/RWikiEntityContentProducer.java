@@ -78,7 +78,7 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 			entityManager = (EntityManager) load(cm, EntityManager.class.getName());
 
 			if ( "true".equals(ServerConfigurationService.getString(
-					"search.enable", "true")))
+					"search.enable", "false")))
 			{
 
 				searchService.registerFunction(RWikiObjectService.EVENT_RESOURCE_ADD);
