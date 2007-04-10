@@ -213,21 +213,12 @@ function redirectBasedOnSelection(){
 					#foreach($courseOfferingObject in $courseObject.courseOfferingObjects)
 						#set($endKey = $courseNumber + $!courseOfferingObject.sections.size())
 						#if ($!courseOfferingObject.sections.size() > 1)
-							#if ($!crosslisted == 0)
-								<div id="selectAll$courseNumber">
-									<a href="#" onclick="javascript:selectAll($courseNumber, $endKey)" >Select All Sections</a>
-								</div>
-								<div id="unselectAll$courseNumber" class="displayNone">
-									<a href="#" onclick="javascript:unselectAll($courseNumber, $endKey)" >Unselect All Sections</a>
-								</div>
-							#else
-								<div id="selectAll$courseNumber">							
-									<a href="#" onclick="javascript:selectAll($courseNumber, $endKey)" >Select Group of Sections</a>
-								</div>
-								<div id="unselectAll$courseNumber" class="displayNone">
-									<a href="#" onclick="javascript:unselectAll($courseNumber, $endKey)" >Unselect Group Of Sections</a>
-								</div>
-							#end
+							<div id="selectAll$courseNumber">							
+								<a href="#" onclick="javascript:selectAll($courseNumber, $endKey)" >$tlang.getString("nscourse.select_group_sections")</a>
+							</div>
+							<div id="unselectAll$courseNumber" class="displayNone">
+								<a href="#" onclick="javascript:unselectAll($courseNumber, $endKey)" >$tlang.getString("nscourse.unselect_group_sections")</a>
+							</div>
 							<p></p>
 						#end
 						#foreach($sectionObject in $courseOfferingObject.sections)
