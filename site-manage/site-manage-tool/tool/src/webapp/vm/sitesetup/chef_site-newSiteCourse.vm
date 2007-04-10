@@ -211,6 +211,7 @@ function redirectBasedOnSelection(){
 					#end
 					</h4>
 					#foreach($courseOfferingObject in $courseObject.courseOfferingObjects)
+						<p>
 						#set($endKey = $courseNumber + $!courseOfferingObject.sections.size())
 						#if ($!courseOfferingObject.sections.size() > 1)
 							<div id="selectAll$courseNumber">							
@@ -219,7 +220,6 @@ function redirectBasedOnSelection(){
 							<div id="unselectAll$courseNumber" class="displayNone">
 								<a href="#" onclick="javascript:unselectAll($courseNumber, $endKey)" >$tlang.getString("nscourse.unselect_group_sections")</a>
 							</div>
-							<p></p>
 						#end
 						#foreach($sectionObject in $courseOfferingObject.sections)
 							<p class="checkbox">
@@ -243,7 +243,9 @@ function redirectBasedOnSelection(){
 							</p>
 							#set ($courseNumber = $courseNumber +1)
 						#end
+						</p>
 					#end
+					<p></p>
 				 #end
 			#end	
 				## instructor could choose to go to the manual creation page
