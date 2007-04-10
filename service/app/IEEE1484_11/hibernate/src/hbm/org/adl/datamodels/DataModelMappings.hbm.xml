@@ -7,7 +7,7 @@
 	
 		<id column="DELIM_DESC_ID" type="long">
             <generator class="native">
-                <param name="sequence">SCORM_DELIM_DESC_S</param>
+                <param name="sequence">SCORM_UID_S</param>
             </generator>
         </id>
         
@@ -17,7 +17,7 @@
 		
 		<property name="mValueSPM" column="VALUE_SPM" />
 		
-		<many-to-one name="mValidator" column="VALIDATOR" unique-key="ID" index="SCORM_DELIM_DESC_VAL_IDX" class="org.adl.datamodels.DMTypeValidator" />
+		<many-to-one name="mValidator" column="VALIDATOR" index="SCORM_DELIM_DESC_VAL_IDX" class="org.adl.datamodels.DMTypeValidator" />
 		
 	</class>
 	
@@ -25,7 +25,7 @@
 	
 		<id column="DELIM_ID" type="long">
             <generator class="native">
-                <param name="sequence">SCORM_DELIM_S</param>
+                <param name="sequence">SCORM_UID_S</param>
             </generator>
         </id>
         
@@ -39,7 +39,7 @@
 		
 		<id column="ID" type="long">
             <generator class="native">
-                <param name="sequence">SCORM_TYPE_VAL_S</param>
+                <param name="sequence">SCORM_UID_S</param>
             </generator>
         </id>
 		
@@ -111,7 +111,7 @@
 	
 		<id column="ELEM_DESC_ID" type="long">
             <generator class="native">
-                <param name="sequence">SCORM_ELEM_DESC_S</param>
+                <param name="sequence">SCORM_UID_S</param>
             </generator>
         </id>
 	
@@ -164,27 +164,22 @@
 	
 		<id column="ELEMENT_ID" type="long">
             <generator class="native">
-                <param name="sequence">SCORM_ELEMENT_S</param>
+                <param name="sequence">SCORM_UID_S</param>
             </generator>
         </id>
 
-		<many-to-one name="mDescription" column="DESCRIPTION" unique-key="ID" index="SCORM_ELEMENT_DESC_IDX" class="org.adl.datamodels.DMElementDescriptor" />	
+		<discriminator column="CLASS_TYPE" type="string"/>
+
+		<many-to-one name="mDescription" column="DESCRIPTION" index="SCORM_ELEMENT_DESC_IDX" class="org.adl.datamodels.DMElementDescriptor" />	
 		
-		<many-to-one name="mParent" column="PARENT" unique-key="ID" index="SCORM_ELEMENT_PARENT_IDX" class="org.adl.datamodels.DMElement" />
+		<many-to-one name="mParent" column="PARENT" index="SCORM_ELEMENT_PARENT_IDX" class="org.adl.datamodels.DMElement" />
 		
 		<list name="mChildrenBindings" table="SCORM_LIST_BINDINGS_T">
 			<key column="ELEMENT_ID" />
 			<list-index column="SORT_ORDER"/>
 			<element column="BINDING" type="string"/>
 		</list>
-			
-		<!--map name="mChildren" 
-        	table="SCORM_DM_EL_CHILDREN_T">
-    		<key column="CHILDREN"/>
-    		<map-key column="CHILD_NAME" type="string"/>
-    		<one-to-many class="org.adl.datamodels.DMElement"/>
-		</map-->
-		
+				
 		<map name="mChildren" table="SCORM_MAP_CHILDREN_T">
     		<key column="ELEMENT_ID"/>
     		<map-key column="CHILD_BINDING" type="string"/>
@@ -209,33 +204,169 @@
 		
 		<property name="mTruncSPM" column="TRUNC_SPM" />
 
-		<joined-subclass name="org.adl.datamodels.ieee.SCORM_2004_DMElement" table="SCORM_2004_ELEMENT_T">
-			<key column="ELEMENT_ID"/>
-		</joined-subclass>
+		<subclass name="org.adl.datamodels.ieee.SCORM_2004_DMElement" 
+			discriminator-value="org.adl.datamodels.ieee.SCORM_2004_DMElement">
+		</subclass>
 		
-		<joined-subclass name="org.adl.datamodels.ieee.Version" table="SCORM_VERSION_T">
-			<key column="ELEMENT_ID"/>
-		</joined-subclass>
+		<subclass name="org.adl.datamodels.nav.SCORM_2004_NAV_DMElement"
+			discriminator-value="org.adl.datamodels.nav.SCORM_2004_NAV_DMElement">
+			
+			<many-to-one name="mDM" column="NAVIGATION_DM" index="SCORM_ELEMENT_NAVDM_IDX" class="org.adl.datamodels.nav.SCORM_2004_NAV_DM" />
+		</subclass>
+		
+		<subclass name="org.adl.datamodels.Children"
+			discriminator-value="org.adl.datamodels.Children">
+			
+			<property name="mBinding" column="BINDING" />
+			
+			<list name="mChildrenList" table="SCORM_LIST_BINDINGS_T">
+				<key column="ELEMENT_ID" />
+				<list-index column="SORT_ORDER"/>
+				<element column="BINDING" type="string"/>
+			</list>
+			
+			<property name="mRandomize" column="IS_RANDOMIZED" />
+		</subclass>
+		
+		<subclass name="org.adl.datamodels.Count"
+			discriminator-value="org.adl.datamodels.Count">
+			
+			<property name="mBinding" column="BINDING" />
+			
+			<property name="mCount" column="COUNT" />
+			
+		</subclass>
+		
+		<subclass name="org.adl.datamodels.ieee.Version" 
+			discriminator-value="org.adl.datamodels.ieee.Version">
+		</subclass>
 
 	</class>
 	
-	<class name="org.adl.datamodels.ieee.SCORM_2004_DM" table="SCORM_2004_DATAMODEL_T" discriminator-value="0">
+	<class name="org.adl.datamodels.DMProcessingInfo" table="SCORM_PROCESSING_INFO_T">
 	
-		<id column="DATAMODEL_ID" type="long">
+		<id column="PROCESSING_ID" type="long">
             <generator class="native">
-                <param name="sequence">SCORM_DM_S</param>
+                <param name="sequence">SCORM_UID_S</param>
             </generator>
         </id>
 	
-		<property name="mBinding" column="BINDING" />
-
-		<map name="mElements" table="SCORM_MAP_ELEMENTS_T">
-    		<key column="DATAMODEL_ID"/>
-    		<map-key column="ELEMENT_BINDING" type="string"/>
-    		<many-to-many column="ELEMENT_ID" class="org.adl.datamodels.DMElement"/>
-		</map>
+		<property name="mValue" column="VALUE" />
+	
+		<many-to-one name="mElement" column="ELEMENT" index="SCORM_ELEMENT_PS_IDX" class="org.adl.datamodels.DMElement" />
+		
+		<list name="mRecords" table="SCORM_LIST_RECORDS_T">
+			<key column="PROCESSING_ID" />
+			<list-index column="SORT_ORDER"/>
+			<many-to-many column="ELEMENT_ID" class="org.adl.datamodels.DMElement"/>
+		</list>
 	
 	</class>
+		
+	<class name="org.adl.datamodels.DataModel" table="SCORM_DATAMODEL_T">
+	
+		<id column="DATAMODEL_ID" type="long">
+            <generator class="native">
+                <param name="sequence">SCORM_UID_S</param>
+            </generator>
+        </id>
+	
+		<discriminator column="CLASS_TYPE" type="string"/>
+	
+		<subclass name="org.adl.datamodels.ieee.SCORM_2004_DM" 
+			discriminator-value="org.adl.datamodels.ieee.SCORM_2004_DM">
+			
+			<property name="mBinding" column="BINDING" />
+
+			<map name="mElements" table="SCORM_MAP_ELEMENTS_T">
+    			<key column="DATAMODEL_ID"/>
+    			<map-key column="ELEMENT_BINDING" type="string"/>
+    			<many-to-many column="ELEMENT_ID" class="org.adl.datamodels.DMElement"/>
+			</map>
+			
+		</subclass>
+		
+		<subclass name="org.adl.datamodels.nav.SCORM_2004_NAV_DM" 
+			discriminator-value="org.adl.datamodels.nav.SCORM_2004_NAV_DM">
+		
+			<many-to-one name="mNavRequests" column="NAV_REQUESTS" index="SCORM_DM_NAV_REQS_IDX" class="org.adl.sequencer.ADLValidRequests" />
+				
+			<property name="mCurRequest" column="CURRENT_REQUEST" />
+		
+			<property name="mBinding" column="BINDING" />
+
+			<map name="mElements" table="SCORM_MAP_ELEMENTS_T">
+    			<key column="DATAMODEL_ID"/>
+    			<map-key column="ELEMENT_BINDING" type="string"/>
+    			<many-to-many column="ELEMENT_ID" class="org.adl.datamodels.DMElement"/>
+			</map>
+		
+		</subclass>
+		
+		
+		<subclass name="org.adl.datamodels.ssp.SSP_DataModel" 
+			discriminator-value="org.adl.datamodels.ssp.SSP_DataModel">
+			
+			<property name="mBinding" column="BINDING" />
+		
+			<property name="mLearnerID" column="LEARNER_ID" />
+			
+			<property name="mSCOID" column="SCO_ID" />
+			
+			<many-to-one name="mURL" column="URL" index="SCORM_SSP_URL_IDX" class="java.net.URL" />
+			
+			<property name="mCourseID" column="COURSE_ID" />
+		
+			<property name="mAttemptNum" column="ATTEMPT_NUMBER" />
+				
+			<list name="mManaged" table="SCORM_LIST_ELEMENTS_T">
+				<key column="DATAMODEL_ID" />
+				<list-index column="SORT_ORDER"/>
+				<many-to-many column="ELEMENT_ID" class="org.adl.datamodels.DMElement"/>
+			</list>
+
+		</subclass>
+		
+	</class>
+	
+	<class name="java.net.URL" table="SCORM_URL">
+	
+		<id column="URL_ID" type="long">
+            <generator class="native">
+                <param name="sequence">SCORM_UID_S</param>
+            </generator>
+        </id>
+		
+		<property name="protocol" column="PROTOCOL" />
+		
+		<property name="host" column="HOST" />
+	
+		<property name="port" column="PORT" />
+		
+		<property name="file" column="FILE_NAME" />
+		
+		<property name="authority" column="AUTHORITY" />
+		
+		<property name="ref" column="REF" />
+	
+	</class>
+	
+	<class name="org.adl.datamodels.SCODataManager" table="SCORM_DATAMANAGER_T">
+	
+		<id column="DATAMANAGER_ID" type="long">
+            <generator class="native">
+                <param name="sequence">SCORM_UID_S</param>
+            </generator>
+        </id>
+		
+		<map name="mDataModels" table="SCORM_MAP_DATAMODELS_T">
+    		<key column="DATAMANAGER_ID"/>
+    		<map-key column="DM_BINDING" type="string"/>
+    		<many-to-many column="DATAMODEL_ID" class="org.adl.datamodels.DataModel"/>
+		</map>
+
+	</class>
+	
 	
 	
 </hibernate-mapping>
