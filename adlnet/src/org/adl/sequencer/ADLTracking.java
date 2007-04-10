@@ -24,12 +24,14 @@
 
 package org.adl.sequencer;
 
-import org.adl.util.debug.DebugIndicator;
-
 import java.io.Serializable;
-import java.util.Hashtable;
-import java.util.Vector;
 import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.adl.util.debug.DebugIndicator;
 
 /**
  * Encapsulation of information tracked for each attempt at an activity.<br><br>
@@ -124,7 +126,7 @@ public class ADLTracking implements Serializable
    /**
     * The objectives associated with this activity
     */
-   public Hashtable mObjectives = null;
+   public Map mObjectives = null;
 
    /**
     * Describes the ID for the objective that contributes to rollup.
@@ -173,7 +175,7 @@ public class ADLTracking implements Serializable
     * 
     * @param iScopeID   Identifies the scope this tracking information applies
     */
-   ADLTracking(Vector iObjs, String iLearnerID, String iScopeID) 
+   ADLTracking(List iObjs, String iLearnerID, String iScopeID) 
    {
 
       if ( iObjs != null )
@@ -181,7 +183,7 @@ public class ADLTracking implements Serializable
 
          for ( int i = 0; i < iObjs.size(); i++ )
          {
-            SeqObjective obj = (SeqObjective)iObjs.elementAt(i);
+            SeqObjective obj = (SeqObjective)iObjs.get(i);
 
             if ( _Debug )
             {
@@ -268,11 +270,11 @@ public class ADLTracking implements Serializable
             System.out.println("\t  ::--> Objectives :       [" + 
                                mObjectives.size() + "]");
 
-            Enumeration theEnum = mObjectives.keys();
+            Iterator it = mObjectives.keySet().iterator();
 
-            while ( theEnum.hasMoreElements() )
+            while ( it.hasNext() )
             {
-               String key = (String)theEnum.nextElement();
+               String key = (String)it.next();
 
                System.out.println("\t\t  :: " + key + " ::");
 
@@ -315,11 +317,11 @@ public class ADLTracking implements Serializable
       if ( mObjectives != null )
       {
 
-         Enumeration theEnum = mObjectives.keys();
+         Iterator it = mObjectives.keySet().iterator();
 
-         while ( theEnum.hasMoreElements() )
+         while ( it.hasNext() )
          {
-            String key = (String)theEnum.nextElement();
+            String key = (String)it.next();
 
             SeqObjectiveTracking obj =
             (SeqObjectiveTracking)mObjectives.get(key);

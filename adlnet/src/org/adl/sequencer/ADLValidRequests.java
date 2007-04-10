@@ -27,6 +27,8 @@ package org.adl.sequencer;
 import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 /**
@@ -103,13 +105,13 @@ public class ADLValidRequests implements Serializable
    /**
     * Set of valid targets for a choice navigation request
     */
-   public Hashtable mChoice = null;
+   public Map mChoice = null;
 
    /**
     * The currently valid table of contents (list of <code>ADLTOC</code>) to be
     * provided during the current activity.
     */
-   public Vector mTOC = null;
+   public List mTOC = null;
 
 
    /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-

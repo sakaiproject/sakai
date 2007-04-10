@@ -24,6 +24,7 @@
 package org.adl.sequencer;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Vector;
 
 import org.adl.util.debug.DebugIndicator;
@@ -125,12 +126,12 @@ public class SeqObjectiveTracking implements Serializable
    /**
     * Indicates the set of global objectives that receive satisfied status
     */
-   private Vector mWriteStatus = null;
+   private List mWriteStatus = null;
 
    /**
     * Indicates the set of global objectives that receive measure
     */
-   private Vector mWriteMeasure = null;
+   private List mWriteMeasure = null;
 
 
    /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-

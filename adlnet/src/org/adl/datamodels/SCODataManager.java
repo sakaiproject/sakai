@@ -27,6 +27,9 @@ package org.adl.datamodels;
 import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -57,7 +60,7 @@ public class SCODataManager implements Serializable
    /**
     * Describes the set of run-time data models managed for the SCO.
     */
-   private Hashtable mDataModels = null;
+   private Map mDataModels = null;
 
    /**
     * Default constructor required for serialization support. Its only action
@@ -238,13 +241,9 @@ public class SCODataManager implements Serializable
    {
       if ( mDataModels != null )
       {
-         Enumeration theEnum = mDataModels.elements();
-
-         while ( theEnum.hasMoreElements() )
-         {
-            DataModel dm = (DataModel)theEnum.nextElement();
-
-            dm.initialize();
+    	 for (Iterator it = mDataModels.values().iterator();it.hasNext();) {
+    		 DataModel dm = (DataModel)it.next();
+    		 dm.initialize();
          }
       }
    }
@@ -307,14 +306,10 @@ public class SCODataManager implements Serializable
    {
       if ( mDataModels != null )
       {
-         Enumeration theEnum = mDataModels.elements();
-
-         while ( theEnum.hasMoreElements() )
-         {
-            DataModel dm = (DataModel)theEnum.nextElement();
-
-            dm.terminate();
-         }
+    	  for (Iterator it = mDataModels.values().iterator();it.hasNext();) {
+     		 DataModel dm = (DataModel)it.next();
+     		 dm.terminate();
+    	  }
       }
    }
 

@@ -27,6 +27,9 @@ package org.adl.sequencer;
 import org.adl.util.debug.DebugIndicator;
 import java.io.Serializable;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 import java.util.Enumeration;
 
@@ -123,18 +126,18 @@ public class SeqActivityTree implements Serializable
    /**
     * This is an internal 'quick' reference map of the activity tree's nodes
     */
-   private Hashtable mActivityMap = null;
+   private Map mActivityMap = null;
 
    /**
     * This is the set of global objective IDs used in this activity tree.
     */
-   private Vector mObjSet = null;
+   private List mObjSet = null;
 
    /**
     * This is a map of activities that read from each of the global shared
     * objectives.
     */
-   private Hashtable mObjMap = null;
+   private Map mObjMap = null;
 
    /**
     * This indicates if the global objective IDs have been determined for this 
@@ -226,11 +229,11 @@ public class SeqActivityTree implements Serializable
       if ( !(mActivityMap == null || iLearnerID == null) )
       {
 
-         Enumeration theEnum = mActivityMap.elements();
+         Iterator it = mActivityMap.values().iterator();
 
-         while ( theEnum.hasMoreElements() )
+         while ( it.hasNext() )
          {
-            SeqActivity act = (SeqActivity)theEnum.nextElement();
+            SeqActivity act = (SeqActivity)it.next();
 
             act.setLearnerID(iLearnerID);
          }
@@ -331,13 +334,13 @@ public class SeqActivityTree implements Serializable
          if ( mActivityMap != null )
          {
 
-            Enumeration theEnum = mActivityMap.elements();
+        	 Iterator it = mActivityMap.values().iterator();
 
-            while ( theEnum.hasMoreElements() )
-            {
-               SeqActivity act = (SeqActivity)theEnum.nextElement();
-
-               act.setScopeID(mScopeID);
+             while ( it.hasNext() )
+             {
+                SeqActivity act = (SeqActivity)it.next();
+                
+                act.setScopeID(mScopeID);
             }
          }
       }
@@ -399,7 +402,7 @@ public class SeqActivityTree implements Serializable
 
             for ( int i = 0; i < mObjSet.size(); i++ )
             {
-               System.out.println("\t" + (String)mObjSet.elementAt(i));
+               System.out.println("\t" + (String)mObjSet.get(i));
             }
          }
 
@@ -481,14 +484,14 @@ public class SeqActivityTree implements Serializable
                   if ( lookAt.size() != 0 )
                   {
                      // Remove the activity from the 'lookat' list
-                     walk = (SeqActivity)lookAt.elementAt(0);
+                     walk = (SeqActivity)lookAt.get(0);
                      lookAt.remove(0);
 
                      // Look at the activity's first child
-                     walk = (SeqActivity)(walk.getChildren(true)).elementAt(0);
+                     walk = (SeqActivity)(walk.getChildren(true)).get(0);
 
                      // Remember how deep we are in the tree
-                     depth = ((Long)(depthTrack.elementAt(0))).longValue();
+                     depth = ((Long)(depthTrack.get(0))).longValue();
                      depthTrack.remove(0);
                   }
                   else
@@ -984,7 +987,7 @@ public class SeqActivityTree implements Serializable
     * @return The set of global objective IDs <code>Vector</code> or <code>
     *         null</code> if none exist.
     */
-   public Vector getGlobalObjectives()
+   public List getGlobalObjectives()
    {
 
       if ( _Debug )
@@ -1092,15 +1095,15 @@ public class SeqActivityTree implements Serializable
                if ( lookAt.size() != 0 )
                {
                   // Remove the activity from the 'lookat' list
-                  walk = (SeqActivity)lookAt.elementAt(0);
+                  walk = (SeqActivity)lookAt.get(0);
                   lookAt.remove(0);
 
                   // Remove the depth of the new activity from the 'depths' list
-                  depth = ((Integer)depths.elementAt(0)).intValue();
+                  depth = ((Integer)depths.get(0)).intValue();
                   depths.remove(0);
 
                   // Start at the first child of the activity
-                  walk = (SeqActivity)(walk.getChildren(true).elementAt(0));
+                  walk = (SeqActivity)(walk.getChildren(true).get(0));
                }
             }
          }
@@ -1143,7 +1146,7 @@ public class SeqActivityTree implements Serializable
             {
                lookAt.add(walk);
 
-               walk = (SeqActivity)walk.getChildren(true).elementAt(0);
+               walk = (SeqActivity)walk.getChildren(true).get(0);
             }
             else
             {
@@ -1153,7 +1156,7 @@ public class SeqActivityTree implements Serializable
             while ( lookAt.size() != 0 && walk == null )
             {
                // Remove the activity from the 'lookat' list
-               walk = (SeqActivity)lookAt.elementAt(0);
+               walk = (SeqActivity)lookAt.get(0);
                lookAt.remove(0);
 
                walk = walk.getNextSibling(true);
@@ -1231,7 +1234,7 @@ public class SeqActivityTree implements Serializable
       // Make sure the node is not empty
       if ( iNode != null )
       {
-         Vector children = iNode.getChildren(true);
+         List children = iNode.getChildren(true);
          int i = 0;
 
          if ( _Debug )
@@ -1247,7 +1250,7 @@ public class SeqActivityTree implements Serializable
          {
             for ( i = 0; i < children.size(); i++ )
             {
-               addChildActivitiestoMap((SeqActivity)children.elementAt(i));
+               addChildActivitiestoMap((SeqActivity)children.get(i));
             }
          }
       }
@@ -1287,21 +1290,21 @@ public class SeqActivityTree implements Serializable
          }
 
          // Check if the activity references global objectives
-         Vector objs = walk.getObjectives();
+         List objs = walk.getObjectives();
 
          if ( objs != null )
          {
 
             for ( int i = 0; i < objs.size(); i++ )
             {
-               SeqObjective obj = (SeqObjective)objs.elementAt(i);
+               SeqObjective obj = (SeqObjective)objs.get(i);
 
                if ( obj.mMaps != null )
                {
                   for ( int j = 0; j < obj.mMaps.size(); j++ )
                   {
                      SeqObjectiveMap map = 
-                     (SeqObjectiveMap)obj.mMaps.elementAt(j);
+                     (SeqObjectiveMap)obj.mMaps.get(j);
                      String target = map.mGlobalObjID;
 
                      // Make sure we haven't already added this objective
@@ -1316,7 +1319,7 @@ public class SeqActivityTree implements Serializable
 
                         for ( int k = 0; k < mObjSet.size() && !found; k++ )
                         {
-                           String id = (String)mObjSet.elementAt(k);
+                           String id = (String)mObjSet.get(k);
                            found = id.equals(target);
                         }
 
@@ -1359,11 +1362,11 @@ public class SeqActivityTree implements Serializable
             if ( lookAt.size() != 0 )
             {
                // Remove the activity from the 'lookat' list
-               walk = (SeqActivity)lookAt.elementAt(0);
+               walk = (SeqActivity)lookAt.get(0);
                lookAt.remove(0);
 
                // Start at the first child of the activity
-               walk = (SeqActivity)(walk.getChildren(true).elementAt(0));
+               walk = (SeqActivity)(walk.getChildren(true).get(0));
             }
          }
       }

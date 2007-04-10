@@ -24,7 +24,7 @@
 
 package org.adl.sequencer;
 
-import java.util.Vector;
+import java.util.List;
 
 
 /**
@@ -500,7 +500,7 @@ interface SeqActivityStateAccess
     * @return The set (<code>Vector</code> of <code>ADLAuxiliaryResource</code>
     *         objects) of auxiliary resource assoiciated with the activity.
     */
-   Vector getAuxResources();
+   List getAuxResources();
 
    /**
     * Sets the value of the Auxiliary Resource Sequencing Definition
@@ -510,7 +510,7 @@ interface SeqActivityStateAccess
     *               (<code>ADLAuxiliaryResource</code>) associated with this
     *               activity.
     */
-   void setAuxResources(Vector iRes);
+   void setAuxResources(List iRes);
 
    /**
     * Retrieves the Rollup Rules, Sequencing Definiition Model Element
@@ -636,7 +636,7 @@ interface SeqActivityStateAccess
     *         objectivees are returned as a <code>Vector</code> of
     *         <code>SeqObjective</code> objects.
     */
-   Vector getObjectives();
+   List getObjectives();
 
    /**
     * Sets the value of the Objectives Resource Sequencing Definition
@@ -645,7 +645,7 @@ interface SeqActivityStateAccess
     * @param iObjs  The set (<code>Vector</code> of <code>SeqObjective</code>)
     *               of objectives(s) associated with this activity.
     */
-   void setObjectives(Vector iObjs);
+   void setObjectives(List iObjs);
 
    /**
     * Retrieves the value of the Rollup Objective Satisfied Sequencing

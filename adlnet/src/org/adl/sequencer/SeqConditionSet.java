@@ -24,6 +24,7 @@
 package org.adl.sequencer;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Vector;
 
 import org.adl.util.debug.DebugIndicator;
@@ -120,7 +121,7 @@ public class SeqConditionSet implements Serializable
     * Describes the set of conditions required for this rule's action to take
     * effect.
     */
-   public Vector mConditions = null;
+   public List mConditions = null;
 
    /**
     * Describes if the current condition evaluation is part of a 'retry' 

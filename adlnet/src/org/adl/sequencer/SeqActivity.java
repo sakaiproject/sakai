@@ -26,6 +26,9 @@ package org.adl.sequencer;
 import org.adl.util.debug.DebugIndicator;
 
 import java.io.Serializable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 import java.util.Hashtable;
 import java.util.Enumeration;
@@ -214,13 +217,13 @@ SeqActivityStateAccess, Serializable
    /**
     * This describes the set of children of this activity
     */
-   private Vector mChildren = null;
+   private List mChildren = null;
 
    /**
     * This describes the set of 'active' children of this activity -- these
     * are children that will be considered during sequencing.
     */
-   private Vector mActiveChildren = null;
+   private List mActiveChildren = null;
 
    /**
     * This describes the delivery mode of the activity
@@ -341,7 +344,7 @@ SeqActivityStateAccess, Serializable
    /**
     * This describes the sequencing definition model elements 4
     */
-   private Vector mAuxResources = null;
+   private List mAuxResources = null;
 
    /**
     * This describes the sequencing definition model elements 5
@@ -385,13 +388,13 @@ SeqActivityStateAccess, Serializable
    /**
     * This describes the sequencing definition model elements 6 and 7
     */
-   private Vector mObjectives = null;
+   private List mObjectives = null;
 
    /**
     * This describes the set of objective mappings defined for the activity's
     * objectives.
     */
-   private Hashtable mObjMaps = null;
+   private Map mObjMaps = null;
 
    /**
     * This describes the sequencing definition model element 8.1
@@ -468,7 +471,7 @@ SeqActivityStateAccess, Serializable
    /**
     * This records the tracking history
     */
-   private Vector mTracking = null;
+   private List mTracking = null;
 
    /**
     * This describes the tracking status model element 1.2.1 Element 4
@@ -1691,7 +1694,7 @@ SeqActivityStateAccess, Serializable
     *         objects) of auxiliary resource assoiciated with the activity.
     * 
     */
-   public Vector getAuxResources()
+   public List getAuxResources()
    {
 
       if ( _Debug )
@@ -1714,7 +1717,7 @@ SeqActivityStateAccess, Serializable
     *               activity.
     * 
     */
-   public void setAuxResources(Vector iRes)
+   public void setAuxResources(List iRes)
    {
 
       if ( _Debug )
@@ -2058,7 +2061,7 @@ SeqActivityStateAccess, Serializable
     *         <code>SeqObjective</code> objects.
     * 
     */
-   public Vector getObjectives()
+   public List getObjectives()
    {
 
       if ( _Debug )
@@ -2080,7 +2083,7 @@ SeqActivityStateAccess, Serializable
     *               of objectives(s) associated with this activity.
     * 
     */
-   public void setObjectives(Vector iObjs)
+   public void setObjectives(List iObjs)
    {
 
       if ( _Debug )
@@ -2103,7 +2106,7 @@ SeqActivityStateAccess, Serializable
       {
          for ( int i = 0; i < iObjs.size(); i++ )
          {
-            SeqObjective obj = (SeqObjective)iObjs.elementAt(i);
+            SeqObjective obj = (SeqObjective)iObjs.get(i);
 
             if ( obj.mMaps != null )
             {
@@ -3958,7 +3961,7 @@ SeqActivityStateAccess, Serializable
       {
          for ( int i = 0; i < mObjectives.size(); i++ )
          {
-            SeqObjective obj = (SeqObjective)mObjectives.elementAt(i);
+            SeqObjective obj = (SeqObjective)mObjectives.get(i);
 
             if ( iObjID.equals(obj.mObjID) )
             {
@@ -5083,7 +5086,7 @@ SeqActivityStateAccess, Serializable
 
          for ( int i = 0; i < mActiveChildren.size(); i++ )
          {
-            SeqActivity temp = (SeqActivity)mActiveChildren.elementAt(i);
+            SeqActivity temp = (SeqActivity)mActiveChildren.get(i);
 
             // Flag 'dirty' data if we are supposed to only use 'current attempt
             // status -- Set existing data to 'dirty'.  When a new attempt on a
@@ -5125,7 +5128,7 @@ SeqActivityStateAccess, Serializable
       {
          for ( int i = 0; i < mActiveChildren.size(); i++ )
          {
-            SeqActivity temp = (SeqActivity)mActiveChildren.elementAt(i);
+            SeqActivity temp = (SeqActivity)mActiveChildren.get(i);
       
             if ( mUseCurObj )
             {
@@ -5151,7 +5154,7 @@ SeqActivityStateAccess, Serializable
       {
          for ( int i = 0; i < mActiveChildren.size(); i++ )
          {
-            SeqActivity temp = (SeqActivity)mActiveChildren.elementAt(i);
+            SeqActivity temp = (SeqActivity)mActiveChildren.get(i);
       
             if ( mUseCurPro )
             {
@@ -5421,7 +5424,7 @@ SeqActivityStateAccess, Serializable
             for ( int i = 0; i < mTracking.size(); i++ )
             {
                System.out.println("");
-               ADLTracking track = (ADLTracking)mTracking.elementAt(i);
+               ADLTracking track = (ADLTracking)mTracking.get(i);
                track.dumpState();
             }
          }
@@ -5558,7 +5561,7 @@ SeqActivityStateAccess, Serializable
 
             for ( int i = 0; i < mAuxResources.size(); i++ )
             {
-               temp = (ADLAuxiliaryResource)mAuxResources.elementAt(i);
+               temp = (ADLAuxiliaryResource)mAuxResources.get(i);
 
                temp.dumpState();
             }
@@ -5599,7 +5602,7 @@ SeqActivityStateAccess, Serializable
 
             for ( int i = 0; i < mObjectives.size(); i++ )
             {
-               SeqObjective obj = (SeqObjective)mObjectives.elementAt(i);
+               SeqObjective obj = (SeqObjective)mObjectives.get(i);
 
                obj.dumpState();
             }
@@ -5707,7 +5710,7 @@ SeqActivityStateAccess, Serializable
       {
          for ( int i = 0; i < mChildren.size(); i++ )
          {
-            walk = (SeqActivity)mChildren.elementAt(i);
+            walk = (SeqActivity)mChildren.get(i);
 
             walk.setIsSelected(false);
          }
@@ -5741,7 +5744,7 @@ SeqActivityStateAccess, Serializable
     *         SeqActivity</code>), or <code>null</code> if the activity has no
     *         children.
     */
-   Vector getChildren(boolean iAll)
+   List getChildren(boolean iAll)
    {
 
       if ( _Debug )
@@ -5750,7 +5753,7 @@ SeqActivityStateAccess, Serializable
          System.out.println("  ::-->  " + iAll);
       }
 
-      Vector result = null;
+      List result = null;
 
       if ( iAll )
       {
@@ -5849,7 +5852,7 @@ SeqActivityStateAccess, Serializable
          // Make sure there is a 'next' sibling
          if ( target < mParent.getChildren(iAll).size() )
          {
-            next = (SeqActivity)mParent.getChildren(iAll).elementAt(target);
+            next = (SeqActivity)mParent.getChildren(iAll).get(target);
          }
       }
 
@@ -5914,7 +5917,7 @@ SeqActivityStateAccess, Serializable
          // Make sure there is a 'next' sibling
          if ( target >= 0 )
          {
-            prev = (SeqActivity)mParent.getChildren(iAll).elementAt(target);
+            prev = (SeqActivity)mParent.getChildren(iAll).get(target);
          }
       }
 
@@ -6037,10 +6040,10 @@ SeqActivityStateAccess, Serializable
       {
          objSet = new Vector();
 
-         Enumeration theEnum = mCurTracking.mObjectives.keys();
-         while ( theEnum.hasMoreElements() )
+         Iterator it = mCurTracking.mObjectives.keySet().iterator();
+         while ( it.hasNext() )
          {
-            String key = (String)theEnum.nextElement();
+            String key = (String)it.next();
 
             // Only include objectives with IDs
             if ( !key.equals("_primary_") )

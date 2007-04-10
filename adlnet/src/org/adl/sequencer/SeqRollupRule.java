@@ -25,6 +25,7 @@
 package org.adl.sequencer;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Vector;
 
 import org.adl.util.debug.DebugIndicator;
@@ -327,7 +328,7 @@ public class SeqRollupRule implements Serializable
     *         This value is a member of the <code>ROLLUP_ACTION_XXX</code>
     *         enumeration.
     */
-   public int evaluate(Vector iChildren)
+   public int evaluate(List iChildren)
    {
 
       if ( _Debug )
@@ -560,7 +561,7 @@ public class SeqRollupRule implements Serializable
     * @return <code>true</code> if the rollup rule evaluates to 'True',
     *         otherwise <code>false</code>.
     */
-   private boolean evaluateAll(Vector iChildren)
+   private boolean evaluateAll(List iChildren)
    {
       if ( _Debug )
       {
@@ -574,7 +575,7 @@ public class SeqRollupRule implements Serializable
       while ( result && i < iChildren.size() )
       {
          // Look at the next child for evaluation 
-         tempActivity = (SeqActivity)iChildren.elementAt(i);
+         tempActivity = (SeqActivity)iChildren.get(i);
 
          // Make sure the child is included in rollup 
          if ( isIncluded(tempActivity) )
@@ -606,7 +607,7 @@ public class SeqRollupRule implements Serializable
     * @return <code>true</code> if the rollup rule evaluates to 'True',
     *         otherwise <code>false</code>.
     */
-   private boolean evaluateAny(Vector iChildren)
+   private boolean evaluateAny(List iChildren)
    {
       if ( _Debug )
       {
@@ -620,7 +621,7 @@ public class SeqRollupRule implements Serializable
       while ( (!result) && i < iChildren.size() )
       {
          // Look at the next child for evaluation 
-         tempActivity = (SeqActivity)iChildren.elementAt(i);
+         tempActivity = (SeqActivity)iChildren.get(i);
 
          // Make sure the child is included in rollup 
          if ( isIncluded(tempActivity) )
@@ -652,7 +653,7 @@ public class SeqRollupRule implements Serializable
     * @return <code>true</code> if the rollup rule evaluates to 'True',
     *         otherwise <code>false</code>.
     */
-   private boolean evaluateNone(Vector iChildren)
+   private boolean evaluateNone(List iChildren)
    {
       if ( _Debug )
       {
@@ -667,7 +668,7 @@ public class SeqRollupRule implements Serializable
       while ( result && i < iChildren.size() )
       {
          // Look at the next child for evaluation 
-         tempActivity = (SeqActivity)iChildren.elementAt(i);
+         tempActivity = (SeqActivity)iChildren.get(i);
 
          // Make sure the child is included in rollup 
          if ( isIncluded(tempActivity) )
@@ -702,7 +703,7 @@ public class SeqRollupRule implements Serializable
     * @return <code>true</code> if the rollup rule evaluates to 'True',
     *         otherwise <code>false</code>.
     */
-   private boolean evaluateMinCount(Vector iChildren)
+   private boolean evaluateMinCount(List iChildren)
    {
 
       if ( _Debug )
@@ -717,7 +718,7 @@ public class SeqRollupRule implements Serializable
       while ( (count < mMinCount) && i < iChildren.size() )
       {
          // Look at the next child for evaluation 
-         tempActivity = (SeqActivity)iChildren.elementAt(i);
+         tempActivity = (SeqActivity)iChildren.get(i);
 
          // Make sure the child is included in rollup 
          if ( isIncluded(tempActivity) )
@@ -754,7 +755,7 @@ public class SeqRollupRule implements Serializable
     * @return <code>true</code> if the rollup rule evaluates to 'True',
     *         otherwise <code>false</code>.
     */
-   private boolean evaluateMinPercent(Vector iChildren)
+   private boolean evaluateMinPercent(List iChildren)
    {
       if ( _Debug )
       {
@@ -770,7 +771,7 @@ public class SeqRollupRule implements Serializable
       while ( i < iChildren.size() )
       {
          // Look at the next child for evaluation 
-         tempActivity = (SeqActivity)iChildren.elementAt(i);
+         tempActivity = (SeqActivity)iChildren.get(i);
 
          // Make sure the child is included in rollup 
          if ( isIncluded(tempActivity) )

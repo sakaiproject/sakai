@@ -25,6 +25,7 @@
 package org.adl.sequencer;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Vector;
 
 import org.adl.util.debug.DebugIndicator;
@@ -99,7 +100,7 @@ public class SeqObjective implements Serializable
    /**
     * Describes the mapping of local objective information to global objectives
     */
-   public Vector mMaps = null;
+   public List mMaps = null;
 
    /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
    
@@ -142,7 +143,7 @@ public class SeqObjective implements Serializable
          {
             for ( int i = 0 ; i < mMaps.size(); i++ )
             {
-               SeqObjectiveMap map = (SeqObjectiveMap)mMaps.elementAt(i);
+               SeqObjectiveMap map = (SeqObjectiveMap)mMaps.get(i);
 
                map.dumpState();
             }
