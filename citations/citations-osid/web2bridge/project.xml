@@ -53,15 +53,6 @@
     </dependency>
 
     <dependency>
-      <groupId>nekohtml</groupId>
-      <artifactId>nekohtml</artifactId>
-      <version>0.9.5</version>
-      <properties>
-        <deploy.target>shared</deploy.target>
-      </properties>
-    </dependency>
-
-    <dependency>
       <groupId>zing</groupId>
       <artifactId>cql-java</artifactId>
       <version>0.7</version>
@@ -80,16 +71,6 @@
         <directory>${basedir}/src/bundle</directory>
         <includes>
           <include>**/*.xml</include>
-        </includes>
-      </resource>
-    </resources>
-
-    <!-- other resources for the jar -->
-    <resources>
-      <resource>
-        <directory>${basedir}/src/java/edu/indiana/lib/twinpeaks/search/singlesearch/web2</directory>
-        <includes>
-          <include>**/*.xsl</include>
         </includes>
       </resource>
     </resources>
