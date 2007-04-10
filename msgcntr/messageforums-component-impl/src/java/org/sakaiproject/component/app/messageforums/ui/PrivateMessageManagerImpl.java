@@ -105,7 +105,6 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 
   public void init()
   {
-     LOG.info("init()");
     ;
   }
 
@@ -1076,7 +1075,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       String bodyString = body.toString();
       
       /** determines if default in sakai.properties is set, if not will make a reasonable default */
-      String defaultEmail = "notifications@" + ServerConfigurationService.getServerName();
+      String defaultEmail = "postmaster@" + ServerConfigurationService.getServerName();
       String systemEmail = ServerConfigurationService.getString("msgcntr.notification.from.address", defaultEmail);
       
       /** determine if current user is equal to recipient */
