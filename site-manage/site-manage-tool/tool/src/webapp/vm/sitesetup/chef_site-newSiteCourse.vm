@@ -203,15 +203,16 @@ function redirectBasedOnSelection(){
 				#set($crosslisted=0)	
 				#set($courseNumber=0)	
 				#foreach($courseObject in $termCourseList)
-					<h4>
+					<table>
+					<th align="left">
 					$courseObject.eid : $courseObject.title 
 					#if ($!courseObject.courseOfferingObjects.size() > 1)
 						(cross-listed)
 						#set($crosslisted=1)	
 					#end
-					</h4>
+					</th>
 					#foreach($courseOfferingObject in $courseObject.courseOfferingObjects)
-						<p>
+						<tr><td>
 						#set($endKey = $courseNumber + $!courseOfferingObject.sections.size())
 						#if ($!courseOfferingObject.sections.size() > 1)
 							<div id="selectAll$courseNumber">							
@@ -221,8 +222,9 @@ function redirectBasedOnSelection(){
 								<a href="#" onclick="javascript:unselectAll($courseNumber, $endKey)" >$tlang.getString("nscourse.unselect_group_sections")</a>
 							</div>
 						#end
+						</td></tr>
 						#foreach($sectionObject in $courseOfferingObject.sections)
-							<p class="checkbox">
+							<tr><td class="checkbox">
 							#if (!$sectionObject.isLecture)
 								&nbsp;&nbsp;
 							#end
@@ -240,11 +242,11 @@ function redirectBasedOnSelection(){
 							#if ($sectionObject.attached)
 								(Site already exists, <a href="#" onclick="javascript:enableCheckBox($!courseNumber)">select anyway?</a>)
 							#end
-							</p>
 							#set ($courseNumber = $courseNumber +1)
+							</td></tr>
 						#end
-						</p>
 					#end
+					</table>
 					<p></p>
 				 #end
 			#end	
