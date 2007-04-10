@@ -747,6 +747,7 @@ public class SiteAction extends PagedResourceActionII {
 		state.removeAttribute(STATE_CM_CURRENT_USERID);
 		state.removeAttribute(STATE_CM_AUTHORIZER_LIST);
 		state.removeAttribute(STATE_CM_AUTHORIZER_SECTIONS);
+		state.removeAttribute(FORM_ADDITIONAL); // don't we need to clena this too? -daisyf
 
 	} // cleanState
 
@@ -5242,11 +5243,18 @@ public class SiteAction extends PagedResourceActionII {
 
 			String sessionUserName = cUser.getDisplayName();
 			String additional = NULL_STRING;
+			
+			/* I don't understand the following logic, why isn't aditional info be
+			 * included when it is a new request? -daisyf
+			 */
+			/* So I am commented this out
 			if (request.equals("new")) {
 				additional = siteInfo.getAdditional();
 			} else {
 				additional = (String) state.getAttribute(FORM_ADDITIONAL);
 			}
+			*/
+			additional = (String) state.getAttribute(FORM_ADDITIONAL);
 
 			boolean isFutureTerm = false;
 			if (state.getAttribute(STATE_FUTURE_TERM_SELECTED) != null
@@ -5269,6 +5277,7 @@ public class SiteAction extends PagedResourceActionII {
 			// there is no offical instructor for future term sites
 			String requestUserId = (String) state
 					.getAttribute(STATE_SITE_QUEST_UNIQNAME);
+			// authorizerList is added by daisyf for v2.4
 			List<String> authorizerList = (List) state
 					.getAttribute(STATE_CM_AUTHORIZER_LIST);
 			if (authorizerList == null) {
@@ -5284,7 +5293,7 @@ public class SiteAction extends PagedResourceActionII {
 					if (requestId != null) {
 						try {
 							User instructor = UserDirectoryService
-									.getUser(requestId);
+									.getUserByEid(requestId); // v2.4 -daisyf
 							from = requestEmail;
 							to = instructor.getEmail();
 							headerTo = instructor.getEmail();
@@ -5334,6 +5343,7 @@ public class SiteAction extends PagedResourceActionII {
 							// email has been sent successfully
 							sendEmailToRequestee = true;
 						} catch (UserNotDefinedException ee) {
+							M_log.warn(ee.getMessage());
 						} // try
 					}
 				}

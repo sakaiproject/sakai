@@ -15,16 +15,37 @@ function toggle(toggleKey, begin, end) {
            checkboxes[i].checked = false;
 	}
     }
+    setContinueButton();
+}
+
+function setContinueButton(){
+    var selected = false;
+    var continueButton = document.getElementById("continueButton");
+    var checkboxes = document.getElementsByName("providerCourseAdd");
+    for (i=0; i<checkboxes.length; i++){
+        if (checkboxes[i].checked){
+          selected = true;
+          break;
+        }
+    }
+    if (!selected) {
+        continueButton.disabled = true;
+    }
+    else{
+        continueButton.disabled = false;
+    }
 }
 
 function selectAll(begin, end) {
     var checkboxes = document.getElementsByName("providerCourseAdd");
     for (i=begin; i<end; i++){
-		checkboxes[i].checked = true;
-		checkboxes[i].disabled = false;
+	checkboxes[i].checked = true;
+	checkboxes[i].disabled = false;
     }
-	document.getElementById("selectAll"+begin).style.display = "none";    
-	document.getElementById("unselectAll"+begin).style.display = "block";    
+    document.getElementById("selectAll"+begin).style.display = "none";    
+    document.getElementById("unselectAll"+begin).style.display = "block";    
+    var continueButton = document.getElementById("continueButton");
+    continueButton.disabled = false;
 }
 
 function unselectAll(begin, end) {
@@ -33,14 +54,17 @@ function unselectAll(begin, end) {
 		checkboxes[i].checked = false;
 		checkboxes[i].disabled = false;
     }
-	document.getElementById("unselectAll"+begin).style.display = "none";    
-	document.getElementById("selectAll"+begin).style.display = "block";    
+    document.getElementById("unselectAll"+begin).style.display = "none";    
+    document.getElementById("selectAll"+begin).style.display = "block";    
+    setContinueButton();
 }
 
 function enableCheckBox(index) {
     var checkboxes = document.getElementsByName("providerCourseAdd");
- 	checkboxes[index].disabled = false;
- 	checkboxes[index].checked = true;
+    checkboxes[index].disabled = false;
+    checkboxes[index].checked = true;
+    var continueButton = document.getElementById("continueButton");
+    continueButton.disabled = false;
 }
 
 function submitAddNotListed(){
@@ -218,6 +242,7 @@ function redirectBasedOnSelection(){
 							#if (!$!selectedProviderCourse.contains("$sectionObject.eid") && $sectionObject.attached)
 								disabled
 							#end
+							onclick="javascript:setContinueButton();"
 							/>
  							<label for="course$courseNumber">
 								$validator.escapeHtml($sectionObject.eid) : $sectionObject.title, $sectionObject.getCategoryDescription()</label>
@@ -267,7 +292,7 @@ function redirectBasedOnSelection(){
 				<a href="#" onclick="javascript:submitFindCourse();">$tlang.getString('nscourse.add_course_not_listed')</a>
 				<p></p>			
 				<input id="continueButton" type="submit" class="active" accesskey="s" name="eventSubmit_doContinue" 
-				value="$tlang.getString('gen.continue')" onclick="redirectBasedOnSelection();" />
+				value="$tlang.getString('gen.continue')" disabled="true" />
 				<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" />
 				<input type="submit" accesskey="x" name="eventSubmit_doCancel_create" value="$tlang.getString('gen.cancel')" />
 			#else
