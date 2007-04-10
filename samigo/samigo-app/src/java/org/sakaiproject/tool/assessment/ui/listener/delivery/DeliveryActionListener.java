@@ -1379,7 +1379,11 @@ public class DeliveryActionListener
       iter2 = shuffled.iterator();
 
       int i = 0;
-      choices.add(new SelectItem("0", "select", "")); // default value for choice
+      ResourceLoader rb = null;
+      if (rb == null) { 	 
+  		rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
+  	  }
+      choices.add(new SelectItem("0", rb.getString("matching_select"), "")); // default value for choice
       while (iter2.hasNext())
       {
         AnswerIfc answer = (AnswerIfc) iter2.next();
