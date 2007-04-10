@@ -1297,7 +1297,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     						for(int i=0; i<categories.size(); i++)
     						{
     							Category cate = (Category) categories.get(i);
-    							if(cate != null && !cate.isRemoved() && cate.getId().equals(asn.getCategory().getId()))
+    							if(cate != null && !cate.isRemoved() && asn.getCategory() != null && cate.getId().equals(asn.getCategory().getId()))
     							{
     								totalPointsPossible += pointsPossible.doubleValue();
     								break;
@@ -1334,7 +1334,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     				for(int i=0; i<categories.size(); i++)
     				{
     					Category cate = (Category) categories.get(i);
-    					if(cate != null && !cate.isRemoved() && cate.getId().equals(asn.getCategory().getId()))
+    					if(cate != null && !cate.isRemoved() && asn.getCategory() != null && cate.getId().equals(asn.getCategory().getId()))
     					{
     						totalPointsPossible += pointsPossible.doubleValue();
     						break;

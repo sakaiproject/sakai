@@ -523,7 +523,6 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     			{
     				Assignment assignment = (Assignment) iter.next();
     				assignment.setCategory(null);
-    				assignment.setRemoved(true);
     				updateAssignment(assignment, session);
     			}
 
