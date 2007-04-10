@@ -44,6 +44,8 @@ public class ContentReviewItem {
 	public static final String REPORT_ERROR_NO_RETRY = "Error occurred retrieving report - will not retry";
 	public static final Long REPORT_ERROR_NO_RETRY_CODE = new Long(8);
 	
+	public static final Long SUMBISSION_ERROR_RETRY_EXCEEDED = new Long(9);
+	
 	private long id; //hibernate uses this as a primary key
 	private String contentId; //Sakai contentId
 	private String userId; // Sakai userId
@@ -57,7 +59,7 @@ public class ContentReviewItem {
 	private Integer reviewScore;
 	private String lastError;
 	private String iconUrl;
-
+	private Long retryCount;
 	/**
 	 * Default constructor
 	 */
@@ -79,6 +81,7 @@ public class ContentReviewItem {
 		this.status = null;
 		this.reviewScore = null;
 		this.taskId = null;
+		this.retryCount = new Long(0);
 	}
 	
 	/**
@@ -228,5 +231,13 @@ public class ContentReviewItem {
 	
 	public String getIconUrl() {
 		return this.iconUrl;
+	}
+	
+	public Long getRetryCount() {
+		return this.retryCount;
+	}
+	
+	public void setRetryCount(Long l) {
+		this.retryCount = l;
 	}
 }
