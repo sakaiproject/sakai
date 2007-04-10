@@ -252,7 +252,7 @@ mc.default.Teaching\ Assisant=Contributor</screen>
                 <para>To turn on search indexing, add the following to
                     <filename>sakai.properties</filename>: </para>
                 <screen>
-search.experimental=true</screen>
+search.enable=true</screen>
                 <para>To make the tool available, unstealth the tool id
                     <command>sakai.search</command>.</para>
             </sect3>
