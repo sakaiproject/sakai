@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006, 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -329,8 +329,7 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 	 */
 	public String getDisplayId(User user)
 	{
-		// just a sample of what fun you can have here!
-		return "*" + user.getEid() + "*";
+		return user.getEid();
 	}
 
 	/**
