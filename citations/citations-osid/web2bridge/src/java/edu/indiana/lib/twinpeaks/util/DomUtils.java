@@ -21,13 +21,18 @@ package edu.indiana.lib.twinpeaks.util;
 
 import java.io.*;
 import java.util.*;
+
 import javax.xml.parsers.*;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
 
 import org.w3c.dom.*;
 import org.w3c.dom.html.*;
-import org.apache.html.dom.HTMLDocumentImpl;
-import org.apache.xml.serialize.*;
 import org.xml.sax.*;
+
+
 
 public class DomUtils {
 
@@ -441,15 +446,6 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(DomUtils.cl
   }
 
   /**
-   * Start a new HTML Document.
-   * @return the HTMLDocument
-   * @throws DomException
-   */
-  public static HTMLDocument createHtmlDocument() {
-    return new HTMLDocumentImpl();
-  }
-
-  /**
    * Start a new XML Document (with root name = xml)
    * @return the Document
    * @throws DomException
@@ -580,6 +576,17 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(DomUtils.cl
    *
    * @return The parser
    */
+
+/*******************************************************************************
+
+  * We originally used the Neko HTML parser here.  This was a boon as it
+  * gracefully handled both HTML and XML (which it wraped in HTML and
+  * BODY tags).  Sadly, it is closely tied to Xerces,
+  *
+  * At a future date, we'll look for an appropriate substitute.  At present,
+  * parsing only XML is good enough (the Sirsi Web2 Bridge is the only
+  * supported search source, and it's an XML API to SingleSearch).
+
   private static org.cyberneko.html.parsers.DOMParser newHtmlDomParser()
                  throws SAXNotRecognizedException, SAXNotSupportedException {
     org.cyberneko.html.parsers.DOMParser domParser;
@@ -590,16 +597,7 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(DomUtils.cl
     return domParser;
   }
 
-  /**
-   * Parse HTML from an InputStream
-   * @param  stream Input stream
-   * @return DOM Document
-   * @throws DomException
-   */
-  public static Document parseHtmlStream(InputStream stream)
-                                         throws DomException {
-    return parseHtmlFromInputSource(new InputSource(stream));
-  }
+*******************************************************************************/
 
   /**
    * Parse HTML from a Reader
@@ -607,9 +605,17 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(DomUtils.cl
    * @return DOM Document
    * @throws DomException
    */
+
+/*******************************************************************************
+  *
+  * See notes on Neko HTML (above)
+  *
+
   public static Document parseHtmlReader(Reader reader) throws DomException {
     return parseHtmlFromInputSource(new InputSource(reader));
   }
+
+*******************************************************************************/
 
   /**
    * Parse HTML from an InputSource
@@ -617,6 +623,12 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(DomUtils.cl
    * @return DOM Document
    * @throws DomException
    */
+
+/*******************************************************************************
+  *
+  * See notes on Neko HTML (above)
+  *
+
   public static Document parseHtmlFromInputSource(InputSource in) throws DomException {
     try {
       org.cyberneko.html.parsers.DOMParser domParser;
@@ -630,14 +642,19 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(DomUtils.cl
     }
   }
 
+*******************************************************************************/
+
   /**
    * Parse HTML text (from a raw byte array) into a Document.
    * @param html The HTML text
    * @return DOM Document
    * @throws DomException
+   *<p>
+   * The used to be:
+   *    <code>parseHtmlStream(new ByteArrayInputStream(html));</code>
    */
   public static Document parseHtmlBytes(byte[] html) throws DomException {
-    return parseHtmlStream(new ByteArrayInputStream(html));
+    return parseXmlStream(new ByteArrayInputStream(html));
   }
 
   /**
@@ -645,94 +662,25 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(DomUtils.cl
    * @param html The HTML text
    * @return DOM Document
    * @throws DomException
+   *<p>
+   * This used to be:
+   *    <code>return parseHtmlReader(new StringReader(html));</code>
    */
   public static Document parseHtmlString(String html) throws DomException {
-    return parseHtmlReader(new StringReader(html));
+    return parseXmlReader(new StringReader(html));
   }
 
   /**
-   * Parse an HTML file
-   * @param filename
-   * @return DOM Document
-   * @throws DomException
-   */
-  public static Document parseHtmlFile(String filename) throws DomException {
-    try {
-      org.cyberneko.html.parsers.DOMParser domParser;
-
-      domParser = newHtmlDomParser();
-      domParser.parse(filename);
-      return domParser.getDocument();
-
-    } catch (Exception e) {
-      throw new DomException(e.toString());
-    }
-  }
-
-  /**
-   * Get (and configure) an XML formatter.
-   * @return A Xerces OutputFormat object
-   */
-  public static OutputFormat getXmlFormatter() {
-    return getFormatter(Method.XML, ENCODING, true);
-  }
-
-  /**
-   * Get (and configure) an HTML formatter.
-   * @return A Xerces OutputFormat object
-   */
-  public static OutputFormat getHtmlFormatter() {
-    return getFormatter(Method.HTML, ENCODING, true);
-  }
-
-  /**
-   * Get a DOM formatter.
-   * @return A Xerces OutputFormat object
-   */
-  public static OutputFormat getFormatter(String type, String encoding, boolean doIndent) {
-    OutputFormat outputFormat;
-
-    outputFormat = new OutputFormat(type, encoding, doIndent);
-
-    if (doIndent) {
-      outputFormat.setPreserveSpace(false);
-      outputFormat.setIndent(2);
-    }
-
-    if (Method.HTML.equals(type)) {
-      outputFormat.setPreserveEmptyAttributes(true);
-    }
-    return outputFormat;
-  }
-
-  /**
-   * Write formatted HTML text to supplied OutputStream.
-   * @param document the Document to write
+   * Write formatted XML text to supplied OutputStream.
+   * @param node Node to write
    * @param target stream to write to
    * @throws DomException
    */
-  public static void serializeHtml(Document document, OutputStream target)
+  public static void serializeXml(Node node, OutputStream target)
       throws DomException {
     try {
-      HTMLSerializer htmlSerial = new HTMLSerializer(target, getHtmlFormatter());
-      htmlSerial.asDOMSerializer().serialize(document);
-
-    } catch (Exception e) {
-      throw new DomException(e.toString());
-    }
-  }
-
-  /**
-   * Write formatted HTML text to supplied Writer.
-   * @param document the Document to write
-   * @param target Output Writer
-   * @throws DomException
-   */
-  public static void serializeHtml(Document document, Writer target)
-      throws DomException {
-    try {
-      HTMLSerializer htmlSerial = new HTMLSerializer(target, getHtmlFormatter());
-      htmlSerial.asDOMSerializer().serialize(document);
+      Transformer transformer = TransformerFactory.newInstance().newTransformer();
+      transformer.transform(new DOMSource(node), new StreamResult(target));
 
     } catch (Exception e) {
       throw new DomException(e.toString());
@@ -741,65 +689,14 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(DomUtils.cl
 
   /**
    * Write formatted XML text to supplied Writer.
-   * @param element the Element to write
-   * @param target writer
-   * @throws DomException
-   */
-  public static void serializeXml(Element element, Writer target)
-      throws DomException {
-    try {
-      XMLSerializer xmlSerial = new XMLSerializer(target, getXmlFormatter());
-      xmlSerial.asDOMSerializer().serialize(element);
-
-    } catch (Exception e) {
-      throw new DomException(e.toString());
-    }
-  }
-
-  /**
-   * Write formatted XML text to supplied OutputStream.
-   * @param element the Element to write
-   * @param target stream to write
-   * @throws DomException
-   */
-  public static void serializeXml(Element element, OutputStream target)
-      throws DomException {
-    try {
-      XMLSerializer xmlSerial = new XMLSerializer(target, getXmlFormatter());
-      xmlSerial.asDOMSerializer().serialize(element);
-
-    } catch (Exception e) {
-      throw new DomException(e.toString());
-    }
-  }
-
-  /**
-   * Write formatted XML text to supplied OutputStream.
-   * @param document the Document to write
-   * @param target stream to write to
-   * @throws DomException
-   */
-  public static void serializeXml(Document document, OutputStream target)
-      throws DomException {
-    try {
-      XMLSerializer xmlSerial = new XMLSerializer(target, getXmlFormatter());
-      xmlSerial.asDOMSerializer().serialize(document);
-
-    } catch (Exception e) {
-      throw new DomException(e.toString());
-    }
-  }
-
-  /**
-   * Write formatted XML text to supplied Writer.
-   * @param document the Document to write
+   * @param node the Node to write
    * @param writer Writer the document is written to
    * @throws DomException
    */
-  public static void serializeXml(Document document, Writer writer) throws DomException {
+  public static void serializeXml(Node node, Writer writer) throws DomException {
     try {
-      XMLSerializer xmlSerial = new XMLSerializer(writer, getXmlFormatter());
-      xmlSerial.asDOMSerializer().serialize(document);
+      Transformer transformer = TransformerFactory.newInstance().newTransformer();
+      transformer.transform(new DOMSource(node), new StreamResult(writer));
 
     } catch (Exception e) {
       throw new DomException(e.toString());
@@ -807,32 +704,7 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(DomUtils.cl
   }
 
   /**
-   * Write formatted XML text to specified file.
-   * @param document the Document to write
-   * @param filename Filename the document is written to
-   * @throws DomException
-   */
-  public static void serializeXml(Document document, String filename) throws DomException {
-    FileOutputStream stream = null;
-    Writer writer = null;
-
-    try {
-      stream = new FileOutputStream(filename);
-      writer = new OutputStreamWriter(stream, ENCODING);
-
-      serializeXml(document, writer);
-
-    } catch (Exception e) {
-      throw new DomException(e.toString());
-
-    } finally {
-      try { if (writer != null) writer.close(); } catch (Exception ignore) { }
-      try { if (stream != null) stream.close(); } catch (Exception ignore) { }
-    }
-  }
-
-  /**
-   * Write formatted HTML or XML text to a String.
+   * Write formatted XML text to a String.
    * @param object The XML Document, HTML Document, or Element to write
    * @return String containing the formatted document text
    * @throws DomException
@@ -845,12 +717,10 @@ private static org.apache.commons.logging.Log	_log = LogUtils.getLog(DomUtils.cl
       stream = new ByteArrayOutputStream();
       writer = new OutputStreamWriter(stream, ENCODING);
 
-      if (object instanceof HTMLDocument) {
-        serializeHtml((HTMLDocument) object, writer);
-      } else if (object instanceof Document) {
-        serializeXml((Document) object, writer);
+      if (object instanceof Document) {
+        serializeXml((Node) ((Document) object).getDocumentElement(), writer);
       } else if (object instanceof Element) {
-        serializeXml((Element) object, writer);
+        serializeXml((Node) object, writer);
       } else {
       	throw new IllegalArgumentException("Unexpected object for serialzation: "
       																	+ 	object.toString());
