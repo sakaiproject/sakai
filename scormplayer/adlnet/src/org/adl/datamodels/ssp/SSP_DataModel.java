@@ -27,6 +27,7 @@ package org.adl.datamodels.ssp;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 import java.util.Vector;
 
 import org.adl.datamodels.DMElement;
@@ -98,7 +99,7 @@ public class SSP_DataModel extends DataModel implements Serializable
    /**
     * Describes the data model elements managed by this data model.
     */
-   private Vector mManaged = null;
+   private List mManaged = null;
 
    
 

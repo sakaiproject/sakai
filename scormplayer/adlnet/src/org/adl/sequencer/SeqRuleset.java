@@ -25,6 +25,7 @@
 package org.adl.sequencer;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Vector;
 
 import org.adl.util.debug.DebugIndicator;
@@ -132,7 +133,7 @@ public class SeqRuleset implements Serializable
    /**
     * This is the set of sequencing rules defined for an activity
     */
-   private Vector mRules = null;
+   private List mRules = null;
 
 
    /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -146,7 +147,7 @@ public class SeqRuleset implements Serializable
     * @param iRules      Set of preconstructed sequencing rules (<code>SeqRule
     *                    </code>).
     */
-   public SeqRuleset(Vector iRules)
+   public SeqRuleset(List iRules)
    {
 
       if ( _Debug )
@@ -155,7 +156,7 @@ public class SeqRuleset implements Serializable
 
          for ( int i = 0; i < iRules.size(); i++ )
          {
-            SeqRule temp = (SeqRule)iRules.elementAt(i);
+            SeqRule temp = (SeqRule)iRules.get(i);
 
             temp.dumpState();
          }
@@ -207,7 +208,7 @@ public class SeqRuleset implements Serializable
          for ( int i = 0; i < mRules.size() && cont; i++ )
          {
 
-            SeqRule rule = (SeqRule)mRules.elementAt(i);
+            SeqRule rule = (SeqRule)mRules.get(i);
             String result = rule.evaluate(iType, iThisActivity, iRetry);
 
             if ( !result.equals(SeqRule.SEQ_ACTION_NOACTION) )

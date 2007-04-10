@@ -25,6 +25,7 @@
 package org.adl.sequencer;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Vector;
 
 import org.adl.util.debug.DebugIndicator;
@@ -71,7 +72,7 @@ public class SeqRollupRuleset implements Serializable
    /**
     * This is the set of rollup rules applied to the activity.
     */
-   private Vector mRollupRules = null;
+   private List mRollupRules = null;
 
    /**
     * This is the result of evaluating the 'Satisfied' rollup rules
@@ -129,7 +130,7 @@ public class SeqRollupRuleset implements Serializable
          {
             for ( int i = 0; i < iRules.size(); i++ )
             {
-               SeqRollupRule temp = (SeqRollupRule)iRules.elementAt(i);
+               SeqRollupRule temp = (SeqRollupRule)iRules.get(i);
 
                temp.dumpState();
             }
@@ -198,7 +199,7 @@ public class SeqRollupRuleset implements Serializable
                for ( int i = 0; i < mRollupRules.size(); i++ )
                {
                   SeqRollupRule rule = (SeqRollupRule)mRollupRules.
-                                       elementAt(i);
+                                       get(i);
 
                   if ( rule.mAction == SeqRollupRule.
                        ROLLUP_ACTION_SATISFIED ||
@@ -334,7 +335,7 @@ public class SeqRollupRuleset implements Serializable
             // Evaluate all rollup rules.
             for ( int i = 0; i < mRollupRules.size(); i++ )
             {
-               SeqRollupRule rule = (SeqRollupRule)mRollupRules.elementAt(i);
+               SeqRollupRule rule = (SeqRollupRule)mRollupRules.get(i);
 
                if ( _Debug )
                {
@@ -505,12 +506,12 @@ public class SeqRollupRuleset implements Serializable
       double total = 0.0;
       double countedMeasure = 0.0;
 
-      Vector children = ioThisActivity.getChildren(false);
+      List children = ioThisActivity.getChildren(false);
 
       // Measure Rollup Behavior 
       for ( int i = 0; i < children.size(); i++ )
       {
-         SeqActivity child = (SeqActivity)children.elementAt(i);
+         SeqActivity child = (SeqActivity)children.get(i);
 
          if ( _Debug )
          {
