@@ -246,6 +246,8 @@ public class SiteAction extends PagedResourceActionII {
 	private final static String PROP_SITE_CONTACT_NAME = "contact-name";
 
 	private final static String PROP_SITE_TERM = "term";
+	
+	private final static String PROP_SITE_TERM_EID = "term_eid";
 
 	/**
 	 * Name of the state attribute holding the site list column list is sorted
@@ -4753,6 +4755,7 @@ public class SiteAction extends PagedResourceActionII {
 					term = (AcademicSession) state
 							.getAttribute(STATE_TERM_SELECTED);
 					rp.addProperty(PROP_SITE_TERM, term.getTitle());
+					rp.addProperty(PROP_SITE_TERM_EID, term.getEid());
 				}
 
 				List providerCourseList = (List) state
@@ -6008,9 +6011,8 @@ public class SiteAction extends PagedResourceActionII {
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		Site site = getStateSite(state);
-		state.setAttribute(STATE_TERM_SELECTED, cms.getAcademicSession(site
-				.getProperties().getProperty(PROP_SITE_TERM)));
-
+		String termEid = site.getProperties().getProperty(PROP_SITE_TERM_EID);		
+		state.setAttribute(STATE_TERM_SELECTED, cms.getAcademicSession(termEid));
 		state.setAttribute(STATE_TEMPLATE_INDEX, "36");
 
 	} // doMenu_siteInfo_addClass
