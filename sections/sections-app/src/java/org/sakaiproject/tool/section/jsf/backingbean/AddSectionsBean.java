@@ -218,7 +218,7 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 			// Ensure that this title isn't being used by another section
 			if(isDuplicateSectionTitle(sectionModel.getTitle(), existingSections)) {
 				if(log.isDebugEnabled()) log.debug("Failed to update section... duplicate title: " + sectionModel.getTitle());
-				String componentId = "addSectionsForm:sectionTable_" + sectionIndex + ":titleInput";
+				String componentId = "addSectionsForm:sectionTable:" + sectionIndex + ":titleInput";
 				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
 						"section_add_failure_duplicate_title", new String[] {sectionModel.getTitle()}), componentId);
 				validationFailure = true;
@@ -230,7 +230,7 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 			
 			// Ensure that the user didn't choose to limit the size of the section without specifying a max size
 			if(Boolean.TRUE.toString().equals(sectionModel.getLimitSize()) && sectionModel.getMaxEnrollments() == null) {
-				String componentId = "addSectionsForm:sectionTable_" + sectionIndex + ":maxEnrollmentInput";
+				String componentId = "addSectionsForm:sectionTable:" + sectionIndex + ":maxEnrollmentInput";
 				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
 						"sections_specify_limit"), componentId);
 				validationFailure = true;
@@ -242,7 +242,7 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 				if( ! meeting.isStartTimeDefault() && isInvalidTime(meeting.getStartTimeString())) {
 					if(log.isDebugEnabled()) log.debug("Failed to add section... meeting start time " + meeting.getStartTimeString() + " is invalid");
 
-					String componentId = "addSectionsForm:sectionTable_" + sectionIndex + ":meetingsTable_" + meetingIndex + ":startTime";
+					String componentId = "addSectionsForm:sectionTable:" + sectionIndex + ":meetingsTable:" + meetingIndex + ":startTime";
 
 					JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
 							"javax.faces.convert.DateTimeConverter.CONVERSION"), componentId);
@@ -252,7 +252,7 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 				
 				if( ! meeting.isEndTimeDefault() &&  isInvalidTime(meeting.getEndTimeString())) {
 					if(log.isDebugEnabled()) log.debug("Failed to add section... meeting end time " + meeting.getEndTimeString() + " is invalid");
-					String componentId = "addSectionsForm:sectionTable_" + sectionIndex + ":meetingsTable_" + meetingIndex + ":endTime";
+					String componentId = "addSectionsForm:sectionTable:" + sectionIndex + ":meetingsTable:" + meetingIndex + ":endTime";
 					JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
 							"javax.faces.convert.DateTimeConverter.CONVERSION"), componentId);
 					validationFailure = true;
@@ -262,7 +262,7 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 				// No need to check this if we already have invalid times
 				if(!invalidTimeEntered && isEndTimeWithoutStartTime(meeting)) {
 					if(log.isDebugEnabled()) log.debug("Failed to update section... start time without end time");
-					String componentId = "addSectionsForm:sectionTable_" + sectionIndex + ":meetingsTable_" + meetingIndex + ":startTime";
+					String componentId = "addSectionsForm:sectionTable:" + sectionIndex + ":meetingsTable:" + meetingIndex + ":startTime";
 					JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
 							"section_update_failure_end_without_start"), componentId);
 					validationFailure = true;
@@ -270,7 +270,7 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 				
 				if(isInvalidMaxEnrollments(sectionModel)) {
 					if(log.isDebugEnabled()) log.debug("Failed to update section... max enrollments is not valid");
-					String componentId = "addSectionsForm:sectionTable_" + sectionIndex + ":maxEnrollmentInput";
+					String componentId = "addSectionsForm:sectionTable:" + sectionIndex + ":maxEnrollmentInput";
 					JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
 							"javax.faces.validator.LongRangeValidator.MINIMUM", new String[] {"0"}), componentId);
 					validationFailure = true;
@@ -279,7 +279,7 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 				// Don't bother checking if the time values are invalid
 				if(!invalidTimeEntered && isEndTimeBeforeStartTime(meeting)) {
 					if(log.isDebugEnabled()) log.debug("Failed to update section... end time is before start time");
-					String componentId = "addSectionsForm:sectionTable_" + sectionIndex + ":meetingsTable_" + meetingIndex + ":endTime";
+					String componentId = "addSectionsForm:sectionTable:" + sectionIndex + ":meetingsTable:" + meetingIndex + ":endTime";
 					JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage(
 							"section_update_failure_end_before_start"), componentId);
 					validationFailure = true;
@@ -337,7 +337,16 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 				return true;
 			}
 		}
-		return false;
+
+        if(StringUtils.trimToNull(startTime) != null & StringUtils.trimToNull(endTime) != null) {
+			Time start = JsfUtil.convertStringToTime(startTime, startTimeAm);
+			Time end = JsfUtil.convertStringToTime(endTime, endTimeAm);
+			if(start.equals(end)) {
+				if(log.isDebugEnabled()) log.debug("You can not set an end time that same as start time.");
+				return true;
+			}
+		}
+        return false;
 	}
 	
 	/**
