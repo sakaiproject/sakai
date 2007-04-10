@@ -67,6 +67,7 @@
 			#set($hour = $current_value.breakdownLocal().hour)
 			#set($minute = $current_value.breakdownLocal().min)
 			
+			## TODO: need to add check to determine if am/pm is needed
 			#if($hour > 12)
 				#set($hour = $hour - 12)
 				#set($timeType = "pm")
@@ -411,8 +412,8 @@
 				</tr>
 				<tr>
 					<td colspan="3"></td>
-					<td><label for="release_year">Date:</label></td>
-					<td><label for="release_hour">Time:</label></td>
+					<td><label for="release_year">$tlang.getString("widget_date")</label></td>
+					<td><label for="release_hour">$tlang.getString("widget_time")</label></td>
 				</tr>
 
 				#set($yearX = $releaseDate.breakdownLocal().year)
@@ -440,12 +441,8 @@
 				</tr>
 				<tr>
 					<td colspan="3"></td>
-					<td>
-						<label for="retract_year">Date:</label>
-					</td>
-					<td>
-						<label for="retract_time">Time:</label>
-					</td>
+					<td><label for="retract_year">$tlang.getString("widget_date")</label></td>
+					<td><label for="retract_time">$tlang.getString("widget_time")</label></td>
 				</tr>
 
 				#set($yearX = $retractDate.breakdownLocal().year)
