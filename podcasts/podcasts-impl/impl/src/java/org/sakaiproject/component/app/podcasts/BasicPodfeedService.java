@@ -192,7 +192,7 @@ public class BasicPodfeedService implements PodfeedService {
 			/* For site where not added to folder upon creation
 			 * and has not been revised/updated */
 			if (feedTitle == null) {
-				feedTitle = getMessageBundleString(FEED_TITLE_STRING) + SiteService.getSite(siteId).getTitle();
+				feedTitle = SiteService.getSite(siteId).getTitle() + getMessageBundleString(FEED_TITLE_STRING);
 				LOG.info("No saved feed title found for site: " + siteId + ". Using " + feedTitle);
 
 			}

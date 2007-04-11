@@ -1180,7 +1180,7 @@ public class PodcastServiceImpl implements PodcastService {
 
 			// Set default feed title and description
 			resourceProperties.addProperty(PODFEED_TITLE,
-					getMessageBundleString(FEED_TITLE_STRING) + SiteService.getSite(siteId).getTitle());
+					SiteService.getSite(siteId).getTitle() + getMessageBundleString(FEED_TITLE_STRING));
 
 			final String feedDescription =  SiteService.getSite(siteId).getTitle()
 												+ getMessageBundleString(FEED_DESC1_STRING)
