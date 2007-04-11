@@ -28,9 +28,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 import org.sakaiproject.javax.Filter;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
@@ -336,6 +336,7 @@ public class BasicNewsService implements NewsService, EntityTransferrer
 	 */
 	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans, Set userListAllowImport)
 	{
+		Base64 codec = new Base64();
 		M_log.info("merge starts for News...");
 		if (siteId != null && siteId.trim().length() > 0)
 		{
@@ -369,7 +370,7 @@ public class BasicNewsService implements NewsService, EntityTransferrer
 											trimBody = trimToNull(toolTitle);
 											if (trimBody != null && trimBody.length() >0)
 											{
-												byte[] decoded = Base64.decode(trimBody);
+												byte[] decoded = codec.decode(trimBody.getBytes("UTF-8"));
 												toolTitle = new String(decoded, "UTF-8");
 											}
 										}
@@ -381,7 +382,7 @@ public class BasicNewsService implements NewsService, EntityTransferrer
 											trimBody = trimToNull(pageTitle);
 											if (trimBody != null && trimBody.length() >0)
 											{
-												byte[] decoded = Base64.decode(trimBody);
+												byte[] decoded = codec.decode(trimBody.getBytes("UTF-8"));
 												pageTitle = new String(decoded, "UTF-8");
 											}
 										}
@@ -393,7 +394,7 @@ public class BasicNewsService implements NewsService, EntityTransferrer
 											trimBody = trimToNull(contentUrl);
 											if (trimBody != null && trimBody.length() >0)
 											{
-												byte[] decoded = Base64.decode(trimBody);
+												byte[] decoded = codec.decode(trimBody.getBytes("UTF-8"));
 												contentUrl = new String(decoded, "UTF-8");
 											}
 										}
@@ -440,7 +441,7 @@ public class BasicNewsService implements NewsService, EntityTransferrer
 		      List attachments)
 	{
 		StringBuffer results = new StringBuffer();
-
+        Base64 codec = new Base64();
 		try
 		{
 			int count = 0;
@@ -492,7 +493,7 @@ public class BasicNewsService implements NewsService, EntityTransferrer
 
 								try 
 								{
-									String encoded = Base64.encode(newsUrl.getBytes());
+									String encoded = new String(codec.encode(newsUrl.getBytes("UTF-8")),"UTF-8");
 									newsData.setAttribute(NEWS_URL, encoded);
 								}
 								catch(Exception e) 
@@ -502,7 +503,7 @@ public class BasicNewsService implements NewsService, EntityTransferrer
 
 								try 
 								{
-									String encoded = Base64.encode(toolTitle.getBytes());
+									String encoded = new String(codec.encode(toolTitle.getBytes("UTF-8")),"UTF-8");
 									newsData.setAttribute(TOOL_TITLE, encoded);
 								}
 								catch(Exception e) 
@@ -512,7 +513,7 @@ public class BasicNewsService implements NewsService, EntityTransferrer
 								
 								try 
 								{
-									String encoded = Base64.encode(pageTitle.getBytes());
+									String encoded = new String(codec.encode(pageTitle.getBytes("UTF-8")),"UTF-8");
 									newsData.setAttribute(PAGE_TITLE, encoded);
 								}
 								catch(Exception e) 

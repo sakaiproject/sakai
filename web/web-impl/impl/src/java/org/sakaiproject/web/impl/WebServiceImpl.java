@@ -28,9 +28,9 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.HttpAccess;
@@ -89,6 +89,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 	{
 		StringBuffer results = new StringBuffer();
 
+		Base64 codec = new Base64();
 		try
 		{
 			int count = 0;
@@ -132,7 +133,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 								webContentData.setAttribute(NEW_WINDOW, new Boolean(currPage.isPopUp()).toString());
 
 								try {
-									String encoded = Base64.encode(contentUrl.getBytes());
+									String encoded = new String(codec.encode(contentUrl.getBytes("UTF-8")),"UTF-8");
 									webContentData.setAttribute(WEB_CONTENT_URL, encoded);
 								}
 								catch(Exception e) {
@@ -140,7 +141,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 								}
 
 								try {
-									String encoded = Base64.encode(toolTitle.getBytes());
+									String encoded = new String(codec.encode(toolTitle.getBytes("UTF-8")),"UTF-8");
 									webContentData.setAttribute(WEB_CONTENT_TITLE, encoded);
 								}
 								catch(Exception e) {
@@ -152,7 +153,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 								}
 
 								try {
-									String encoded = Base64.encode(pageTitle.getBytes());
+									String encoded = new String(codec.encode(pageTitle.getBytes("UTF-8")),"UTF-8");
 									webContentData.setAttribute(PAGE_TITLE, encoded);
 								}
 								catch(Exception e) {
@@ -241,6 +242,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans, Set userListAllowImport)
 	{
 		M_log.info("merge starts for Web Content...");
+		Base64 codec = new Base64();
 		if (siteId != null && siteId.trim().length() > 0)
 		{
 			try
@@ -273,7 +275,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 											trimBody = trimToNull(toolTitle);
 											if (trimBody != null && trimBody.length() >0)
 											{
-												byte[] decoded = Base64.decode(trimBody);
+												byte[] decoded = codec.decode(trimBody.getBytes("UTF-8"));
 												toolTitle = new String(decoded, "UTF-8");
 											}
 										}
@@ -285,7 +287,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 											trimBody = trimToNull(pageTitle);
 											if (trimBody != null && trimBody.length() >0)
 											{
-												byte[] decoded = Base64.decode(trimBody);
+												byte[] decoded = codec.decode(trimBody.getBytes("UTF-8"));
 												pageTitle = new String(decoded, "UTF-8");
 											}
 										}
@@ -303,7 +305,7 @@ public class WebServiceImpl implements WebService, EntityTransferrer
 											trimBody = trimToNull(contentUrl);
 											if (trimBody != null && trimBody.length() >0)
 											{
-												byte[] decoded = Base64.decode(trimBody);
+												byte[] decoded = codec.decode(trimBody.getBytes("UTF-8"));
 												contentUrl = new String(decoded, "UTF-8");
 											}
 										}
