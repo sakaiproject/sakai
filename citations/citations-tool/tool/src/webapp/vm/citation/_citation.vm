@@ -36,7 +36,10 @@
 			</td>
 			<td>
 			#foreach($urlId in $citation.customUrlIds)
-				<p style="margin-top: 0; padding-top: 0; margin-bottom: 0.3em; padding-bottom: 0;"><a href="$citation.getCustomUrl( "$urlId" )" target="_blank">$xilator.escapeHtml( $citation.getCustomUrlLabel( "$urlId" ) )</a>
+				<p style="margin-top: 0; padding-top: 0; margin-bottom: 0.3em; padding-bottom: 0;">
+					<a href="$citation.getCustomUrl( "$urlId" )" target="_blank">
+						#if( ! $citation.getCustomUrlLabel("$urlId") || $citation.getCustomUrlLabel("$urlId") == "" )
+					    $tlang.getString( "nullUrlLabel.view" )#else$xilator.escapeHtml( $citation.getCustomUrlLabel("$urlId") )#end</a>
 					($citation.getCustomUrl("$urlId"))
 				</p>
 			#end

@@ -11,8 +11,9 @@
 		<div class="itemAction">
 			#if($citation.hasCustomUrls())
 				#foreach($urlid in $citation.customUrlIds)
-					<a href="$citation.getCustomUrl("$urlid").toString()" target="_blank">$xilator.escapeHtml( $citation.getCustomUrlLabel("$urlid") )</a>
-			  			|
+					<a href="$citation.getCustomUrl("$urlid").toString()" target="_blank">
+					  #if( ! $citation.getCustomUrlLabel("$urlid") || $citation.getCustomUrlLabel("$urlid") == "" )
+					    $tlang.getString( "nullUrlLabel.view" )#else$xilator.escapeHtml( $citation.getCustomUrlLabel("$urlid") )#end</a> |
 			  	#end
 		  	#end
 			<a href="#toolLink("CitationHelperAction" "doView")&citationId=${citation.id}&collectionId=$collectionId">$tlang.getString( "action.view" )</a>
