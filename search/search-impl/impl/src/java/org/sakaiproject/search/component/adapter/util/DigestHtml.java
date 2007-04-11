@@ -41,7 +41,7 @@ public class DigestHtml
 		try
 		{
 			XMLReader reader = XMLReaderFactory
-					.createXMLReader("com.sun.org.apache.xerces.internal.parsers.SAXParser");
+					.createXMLReader("org.apache.xerces.parsers.SAXParser");
 			reader.setContentHandler(d);
 			reader.parse(new InputSource(new StringReader("<content>"
 					+ todigest + "</content>")));
