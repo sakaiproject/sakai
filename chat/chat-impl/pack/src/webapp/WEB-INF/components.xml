@@ -22,20 +22,7 @@
             <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
         </property>
         <property name="target">
-            <bean
-                class="org.sakaiproject.chat2.model.impl.ChatManagerImpl"
-                singleton="true" init-method="init" destroy-method="destroy">
-                <property name="sessionFactory">
-                    <ref
-                        bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
-                </property>
-			       <property name="toolManager">
-			          <ref bean="org.sakaiproject.tool.api.ActiveToolManager"/>
-			       </property>
-			       <property name="entityManager">
-			         <ref bean="org.sakaiproject.entity.api.EntityManager"/>
-			      </property>
-            </bean>
+            <ref bean="org.sakaiproject.chat2.model.impl.ChatManagerImpl" />
         </property>
         <property name="transactionAttributes">
             <props>
@@ -43,7 +30,43 @@
             </props>
         </property>
     </bean>
+
+    <bean id="org.sakaiproject.chat2.model.impl.ChatManagerImpl"
+    	class="org.sakaiproject.chat2.model.impl.ChatManagerImpl"
+    	singleton="true" init-method="init" destroy-method="destroy">
+    	<property name="sessionFactory">
+    		<ref
+    			bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+    	</property>
+    	<property name="toolManager">
+    		<ref bean="org.sakaiproject.tool.api.ActiveToolManager" />
+    	</property>
+    	<property name="entityManager">
+    		<ref bean="org.sakaiproject.entity.api.EntityManager" />
+    	</property>
+    </bean>
     
+   
+   <bean id="org.sakaiproject.chat2.model.impl.ChatDataMigration"
+      class="org.sakaiproject.chat2.model.impl.ChatDataMigration"
+      init-method="init"
+		destroy-method="destroy"
+		singleton="true">
+      <property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+      <property name="performChatMigration">
+    		<value>false</value>
+    	</property>
+    	<property name="chatMigrationExecuteImmediate">
+    		<value>true</value>
+    	</property>
+    	<property name="debug">
+    		<value>false</value>
+    	</property>
+    	<property name="outputFile">
+    		<value>${sakai.home}/chat-migration.sql</value>
+    	</property>
+   </bean>
+
     <bean id="org.sakaiproject.entity.api.EntityProducer.chat"
       class="org.sakaiproject.chat2.model.impl.ChatEntityProducer"
       init-method="init"

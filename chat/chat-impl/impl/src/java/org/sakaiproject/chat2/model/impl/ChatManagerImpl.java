@@ -35,8 +35,6 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.Properties;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -58,11 +56,9 @@ import org.sakaiproject.entity.api.Summary;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdInvalidException;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
 
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
@@ -122,27 +118,26 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
    {
       logger.info("init()");
       
-      //
-      EventTrackingService.addObserver(this);
-      
-      // register functions
-      if(FunctionManager.getRegisteredFunctions(ChatFunctions.CHAT_FUNCTION_PREFIX).size() == 0) {
-         FunctionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_READ);
-         FunctionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_NEW);
-         FunctionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_DELETE_ANY);
-         FunctionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_DELETE_OWN);
-         FunctionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_DELETE_CHANNEL);
-         FunctionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_NEW_CHANNEL);
-         FunctionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_EDIT_CHANNEL);
-      }
-      /*
       try {
-         getEntityManager().registerEntityProducer(this, Entity.SEPARATOR + REFERENCE_ROOT);
+         
+         EventTrackingService.addObserver(this);
+         
+         // register functions
+         if(FunctionManager.getRegisteredFunctions(ChatFunctions.CHAT_FUNCTION_PREFIX).size() == 0) {
+            FunctionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_READ);
+            FunctionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_NEW);
+            FunctionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_DELETE_ANY);
+            FunctionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_DELETE_OWN);
+            FunctionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_DELETE_CHANNEL);
+            FunctionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_NEW_CHANNEL);
+            FunctionManager.registerFunction(ChatFunctions.CHAT_FUNCTION_EDIT_CHANNEL);
+         }
+         
       }
       catch (Exception e) {
-         logger.warn("Error registering Chat Entity Producer", e);
+         logger.warn("Error with ChatManager.init()", e);
       }
-      */
+      
    }
    
    /**
@@ -447,6 +442,9 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
     */
    public ChatChannel getDefaultChannel(String contextId) {
       List channels = getHibernateTemplate().findByNamedQuery("findDefaultChannelsInContext", contextId);
+      if (channels.size() == 0) {
+         channels = getContextChannels(contextId, "");
+      }
       if (channels.size() >= 1)
          return (ChatChannel)channels.get(0);
       

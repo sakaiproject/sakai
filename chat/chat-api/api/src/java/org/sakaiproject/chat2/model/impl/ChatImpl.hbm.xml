@@ -8,8 +8,8 @@
 
 	<class name="ChatChannel" table="CHAT2_CHANNEL" lazy="true">
 		<comment>This table stores chat channels</comment>
-		<id name="id" length="36" column="CHANNEL_ID">
-			<generator class="uuid.hex" />
+		<id name="id" length="99" column="CHANNEL_ID">
+			<generator class="org.sakaiproject.id.hbm.IdGenerator"/>
 		</id>
 		<property name="context" column="CONTEXT" type="string"
 			length="36" not-null="true" index="CHAT_CHANNEL_CONTEXT_I"/>
@@ -32,14 +32,14 @@
 	
 	<class name="ChatMessage" table="CHAT2_MESSAGE" lazy="true">
 		<comment>This table stores chat messages</comment>
-		<id name="id" length="36" column="MESSAGE_ID">
-			<generator class="uuid.hex" />
+		<id name="id" length="99" column="MESSAGE_ID">
+			<generator class="org.sakaiproject.id.hbm.IdGenerator"/>
 		</id>
 		<many-to-one name="chatChannel" column="CHANNEL_ID"
 			class="ChatChannel" index="CHAT_MESSAGE_CHANNEL_I" />
 
 		<property name="owner" column="OWNER" type="string" length="96"
-			not-null="true" />
+			not-null="true" index="CHAT_MESSAGE_OWNER_I" />
 
 		<property name="messageDate" column="MESSAGE_DATE"
 			type="java.util.Date" index="CHAT_MESSAGE_DATE_I" />
