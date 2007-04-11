@@ -1083,6 +1083,15 @@ public class AssignmentAction extends PagedResourceActionII
 			context.put("view", state.getAttribute(STATE_SELECTED_VIEW));
 		}
 
+		GradebookService g = null;
+		String gradebookUid = null;
+		boolean gradebookDefined = AssignmentService.isGradebookDefined();
+		if (gradebookDefined)
+		{
+			g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+			gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
+		}
+			
 		List assignments = prepPage(state);
 		
 		// make sure for all non-electronic submission type of assignment, the submission number matches the number of site members
@@ -1105,6 +1114,12 @@ public class AssignmentAction extends PagedResourceActionII
 						Log.warn("chef", this + e.getMessage());
 					}
 				}
+			}
+			
+			// update externally maintained assignment entry in Gradebook
+			if (gradebookDefined)
+			{
+				updateExternalAssignmentInGB(a, g, gradebookUid);
 			}
 		}
 
@@ -3885,6 +3900,35 @@ public class AssignmentAction extends PagedResourceActionII
 		catch (Exception e)
 		{
 			Log.warn("chef", this + e.getMessage() + " authGroupId=" + authzGroupId);
+		}
+	}
+	
+	/**
+	 * Starting from Sakai 2.4, the linked assignment in GB will all be internal, instead of externally maintained.
+	 * Need to run the following method to update all the previously created externally maintained assignment
+	 * @param a
+	 */
+	private void updateExternalAssignmentInGB(Assignment a, GradebookService g, String gradebookUid)
+	{
+		ResourceProperties properties = a.getProperties();
+		if (properties.getProperty(AssignmentService.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK) != null)
+		{
+			String associateGradebookAssignment = StringUtil.trimToNull(properties.getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+			if (associateGradebookAssignment != null && g.isAssignmentDefined(gradebookUid, associateGradebookAssignment))
+			{
+				// add or remove external grades to gradebook
+				// a. if Gradebook does not exists, do nothing, 'cos setting should have been hidden
+				// b. if Gradebook exists, do updates
+				org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition = g.getAssignment(gradebookUid, associateGradebookAssignment);
+				if (assignmentDefinition != null && assignmentDefinition.isExternallyMaintained())
+				{
+					// those entries are created before Sakai2.4 as externally maintained accessment in Gradebook, need to update it to internal assignment
+					assignmentDefinition.setExternallyMaintained(false);
+					assignmentDefinition.setExternalId(null);
+					assignmentDefinition.setExternalAppName(null);
+					g.updateAssignment(gradebookUid, associateGradebookAssignment, assignmentDefinition);
+				}
+			}
 		}
 	}
 
