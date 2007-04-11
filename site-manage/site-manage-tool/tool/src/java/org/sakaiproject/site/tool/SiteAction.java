@@ -2517,11 +2517,7 @@ public class SiteAction extends PagedResourceActionII {
 					}
 					context.put("selectedProviderCourse", totalList);
 				}
-				/*
-				 * if (state.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN) !=
-				 * null) { context.put("selectedProviderCourse", state
-				 * .getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN)); }
-				 */
+
 				if (state.getAttribute(STATE_MANUAL_ADD_COURSE_NUMBER) != null) {
 					context.put("selectedManualCourse", Boolean.TRUE);
 				}
@@ -4681,6 +4677,7 @@ public class SiteAction extends PagedResourceActionII {
 		// Let actionForTemplate know to make any permanent changes before
 		// continuing to the next template
 		String direction = "continue";
+		String option = params.getString("option");
 
 		actionForTemplate(direction, index, params, state);
 		if (state.getAttribute(STATE_MESSAGE) == null) {
@@ -4693,6 +4690,9 @@ public class SiteAction extends PagedResourceActionII {
 				} else {
 					state.setAttribute(STATE_TEMPLATE_INDEX, "17");
 				}
+			} else if (index == 36 && ("add").equals(option)){
+				// this is the Add extra Roster(s) case after a site is created
+				state.setAttribute(STATE_TEMPLATE_INDEX, "44");	
 			} else if (params.getString("continue") != null) {
 				state.setAttribute(STATE_TEMPLATE_INDEX, params
 						.getString("continue"));
@@ -6041,10 +6041,6 @@ public class SiteAction extends PagedResourceActionII {
 			AcademicSession t = (AcademicSession) state
 					.getAttribute(STATE_TERM_SELECTED);
 			if (t != null) {
-				/*
-				 * Set courses = cms.findInstructingSections(userId,
-				 * t.getEid());
-				 */
 				List courses = prepareCourseAndSectionListing(userId, t
 						.getEid(), state);
 
@@ -6056,6 +6052,7 @@ public class SiteAction extends PagedResourceActionII {
 									"roster.available.weeks.before.term.start",
 									"0"));
 				} catch (Exception ignore) {
+					M_log.warn(ignore.getMessage());
 				}
 				if ((courses == null || courses != null && courses.size() == 0)
 						&& System.currentTimeMillis() + weeks * 7 * 24 * 60
@@ -7265,7 +7262,9 @@ public class SiteAction extends PagedResourceActionII {
 						String currentUserId = (String) state
 								.getAttribute(STATE_CM_CURRENT_USERID);
 
-						if (userId.equals(currentUserId)) {
+						// for Add extra Roster(s) case, userId == null -daisyf, Sigh...
+						// so many conditions here & there.
+						if (userId == null || (userId != null && userId.equals(currentUserId))) {
 							state.setAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN,
 									providerChosenList);
 							state.removeAttribute(STATE_CM_AUTHORIZER_SECTIONS);

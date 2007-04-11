@@ -20,7 +20,6 @@ function toggle(toggleKey, begin, end) {
 
 function setContinueButton(){
     var selected = false;
-    var continueButton = document.getElementById("continueButton");
     var checkboxes = document.getElementsByName("providerCourseAdd");
     for (i=0; i<checkboxes.length; i++){
         if (checkboxes[i].checked){
@@ -29,10 +28,32 @@ function setContinueButton(){
         }
     }
     if (!selected) {
-        continueButton.disabled = true;
+	disableContinueButton();
     }
     else{
-        continueButton.disabled = false;
+	enableContinueButton();
+    }
+}
+
+function enableContinueButton(){
+    var continueButton = document.getElementById("continueButton");
+    var addClassButton = document.getElementById("addClassButton");
+    if (continueButton != undefined){
+      continueButton.disabled = false;
+    }
+    if (addClassButton != undefined){
+      addClassButton.disabled = false;
+    }
+}
+
+function disableContinueButton(){
+    var continueButton = document.getElementById("continueButton");
+    var addClassButton = document.getElementById("addClassButton");
+    if (continueButton != undefined){
+      continueButton.disabled = true;
+    }
+    if (addClassButton != undefined){
+      addClassButton.disabled = true;
     }
 }
 
@@ -44,8 +65,7 @@ function selectAll(begin, end) {
     }
     document.getElementById("selectAll"+begin).style.display = "none";    
     document.getElementById("unselectAll"+begin).style.display = "block";    
-    var continueButton = document.getElementById("continueButton");
-    continueButton.disabled = false;
+    enableContinueButton();
 }
 
 function unselectAll(begin, end) {
@@ -63,8 +83,7 @@ function enableCheckBox(index) {
     var checkboxes = document.getElementsByName("providerCourseAdd");
     checkboxes[index].disabled = false;
     checkboxes[index].checked = true;
-    var continueButton = document.getElementById("continueButton");
-    continueButton.disabled = false;
+    enableContinueButton();
 }
 
 function submitAddNotListed(){
@@ -224,26 +243,28 @@ function redirectBasedOnSelection(){
 						#end
 						</td></tr>
 						#foreach($sectionObject in $courseOfferingObject.sections)
-							<tr><td class="checkbox">
-							#if (!$sectionObject.isLecture)
-								&nbsp;&nbsp;
+							#if (!$!providerCourseList.contains("$sectionObject.eid")) 
+								<tr><td class="checkbox">
+								#if (!$sectionObject.isLecture)
+									&nbsp;&nbsp;
+								#end
+								<input type="checkbox" name="providerCourseAdd" value="$sectionObject.eid" id="course$courseNumber"
+								#if ($!selectedProviderCourse.contains("$sectionObject.eid"))
+									checked
+								#end 
+								#if (!$!selectedProviderCourse.contains("$sectionObject.eid") && $sectionObject.attached)
+									disabled
+								#end
+								onclick="javascript:setContinueButton();"
+								/>
+ 								<label for="course$courseNumber">
+									$validator.escapeHtml($sectionObject.eid) : $sectionObject.title, $sectionObject.getCategoryDescription()</label>
+								#if ($sectionObject.attached)
+									(Site already exists, <a href="#" onclick="javascript:enableCheckBox($!courseNumber)">select anyway?</a>)
+								#end
+								#set ($courseNumber = $courseNumber +1)
+								</td></tr>
 							#end
-							<input type="checkbox" name="providerCourseAdd" value="$sectionObject.eid" id="course$courseNumber"
-							#if ($!selectedProviderCourse.contains("$sectionObject.eid"))
-								checked
-							#end 
-							#if (!$!selectedProviderCourse.contains("$sectionObject.eid") && $sectionObject.attached)
-								disabled
-							#end
-							onclick="javascript:setContinueButton();"
-							/>
- 							<label for="course$courseNumber">
-								$validator.escapeHtml($sectionObject.eid) : $sectionObject.title, $sectionObject.getCategoryDescription()</label>
-							#if ($sectionObject.attached)
-								(Site already exists, <a href="#" onclick="javascript:enableCheckBox($!courseNumber)">select anyway?</a>)
-							#end
-							#set ($courseNumber = $courseNumber +1)
-							</td></tr>
 						#end
 					#end
 					</table>
@@ -294,10 +315,11 @@ function redirectBasedOnSelection(){
 				<input type="hidden" name="option" value="x" />
 				<input type="hidden" name="eventSubmit_doAdd_class_select" value="x" />
 				<input
+					disabled="true"
 					type="button" 
 					accesskey="s"
 					name="AddClass" 
-					id="Add Class" 
+					id="addClassButton" 
 					value="$tlang.getString('gen.continue')"
 					onclick="document.addCourseForm.option.value='add'; document.addCourseForm.submit(); return false;"
 					/>
