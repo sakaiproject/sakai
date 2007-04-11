@@ -57,7 +57,7 @@
     		<value>false</value>
     	</property>
     	<property name="chatMigrationExecuteImmediate">
-    		<value>true</value>
+    		<value>false</value>
     	</property>
     	<property name="debug">
     		<value>false</value>
