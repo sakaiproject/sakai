@@ -126,7 +126,7 @@ public interface QuestionPoolServiceAPI
    * Copy a subpool to a pool.
    */
   public void copyPool(Tree tree, String agentId, Long sourceId,
-    Long destId);
+    Long destId, String prependString1, String prependString2);
 
 
   /**

@@ -197,7 +197,7 @@ public interface QuestionPoolFacadeQueriesAPI
   /**
    * Copy a pool to a new location.
    */
-  public void copyPool(Tree tree, String agentId, Long sourceId, Long destId);
+  public void copyPool(Tree tree, String agentId, Long sourceId, Long destId, String prependString1, String prependString2);
 
   public Long add();
 

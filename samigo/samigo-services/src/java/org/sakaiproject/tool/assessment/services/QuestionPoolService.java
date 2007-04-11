@@ -402,13 +402,13 @@ public class QuestionPoolService
    * Copy a subpool to a pool.
    */
   public void copyPool(Tree tree, String agentId, Long sourceId,
-    Long destId)
+    Long destId, String prependString1, String prependString2)
   {
     try
     {
       if (!isDescendantOf(destId, sourceId, agentId)) {
         PersistenceService.getInstance().getQuestionPoolFacadeQueries().copyPool
-        (tree, agentId, sourceId, destId);
+        (tree, agentId, sourceId, destId, prependString1, prependString2);
       }
       else {
         log.warn("Illegal Copy: Can not copy a pool to its descendant!" );

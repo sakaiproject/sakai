@@ -46,7 +46,6 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.ItemAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
@@ -59,7 +58,6 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
-import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 
 public class QuestionPoolFacadeQueries
     extends HibernateDaoSupport implements QuestionPoolFacadeQueriesAPI {
@@ -1022,7 +1020,7 @@ public class QuestionPoolFacadeQueries
    * Copy a pool to a new location.
    */
   public void copyPool(Tree tree, String agentId, Long sourceId,
-                       Long destId) {
+                       Long destId, String prependString1, String prependString2) {
     try {
       boolean haveCommonRoot = false;
       boolean duplicate = false;
@@ -1060,7 +1058,7 @@ public class QuestionPoolFacadeQueries
         // Copy to a Pool outside the same root
         // Copy *this* Pool first
         if (duplicate) 
-          resetTitle(destId, newPool, oldPoolName);
+          resetTitle(destId, newPool, oldPoolName, prependString1, prependString2);
         else 
           newPool.updateDisplayName(oldPoolName);
       }
@@ -1084,7 +1082,7 @@ public class QuestionPoolFacadeQueries
       Iterator citer = (tree.getChildList(sourceId)).iterator();
       while (citer.hasNext()) {
         Long childPoolId = (Long) citer.next();
-        copyPool(tree, agentId, childPoolId, newPool.getQuestionPoolId());
+        copyPool(tree, agentId, childPoolId, newPool.getQuestionPoolId(), prependString1, prependString2);
       }
     }
     catch (Exception e) {
@@ -1169,40 +1167,45 @@ public class QuestionPoolFacadeQueries
   }
   */
 
-  private void resetTitle(Long destId, QuestionPoolFacade newPool, String oldPoolName){
+  private void resetTitle(Long destId, QuestionPoolFacade newPool, String oldPoolName, String prependString1, String prependString2){
     //find name by loop through sibslings
     List siblings=getSubPools(destId);
-    boolean subVersion=true;
     int num=0;
-    int indexNum=0;
+    int startIndex = 0;
+    int endIndex = 0;
     int maxNum=0;
+	StringBuffer prependString = new StringBuffer(prependString1);
+	prependString.append(" ");
+	prependString.append(prependString2);
+	prependString.append(" ");
     for (int l = 0; l < siblings.size(); l++) {
        QuestionPoolData a = (QuestionPoolData)siblings.get(l);
        String n=a.getTitle();
-       if(n.startsWith("Copy of ")){
-         if(n.equals("Copy of "+oldPoolName)){
+       if(n.startsWith(prependString.toString())){
+         if(n.equals(prependString + oldPoolName)){
            if (maxNum<1) maxNum=1;
          }
        }
-       if(n.startsWith("Copy(")){
-         indexNum=n.indexOf(")",4);
-         if(indexNum>5){
-	   try{
-             num=Integer.parseInt(n.substring(5,indexNum));
-             if(oldPoolName.equals(n.substring(indexNum+5).trim())){
+       if(n.startsWith(prependString1 + "(")){
+    	 startIndex = n.indexOf("(");
+    	 endIndex=n.indexOf(")");
+    	 try{
+    		 String partialPoolName = n.substring(endIndex + 2).replaceFirst(prependString2 + " ", "").trim();
+    		 num = Integer.parseInt(n.substring(startIndex + 1, endIndex));
+             if(oldPoolName.equals(partialPoolName)){
                if (num>maxNum) maxNum=num;
              }
-	   }
-	   catch(NumberFormatException e){
+    	 }
+    	 catch(NumberFormatException e){
              log.warn("rename title of duplicate pool:"+ e.getMessage());
-	   }
+    	 }
        }
-     }
-   }
+    }
+ 
    if(maxNum==0)
-     newPool.updateDisplayName("Copy of "+oldPoolName);
+     newPool.updateDisplayName(prependString + oldPoolName);
    else
-     newPool.updateDisplayName("Copy("+(maxNum+1)+") of "+oldPoolName);
+     newPool.updateDisplayName(prependString1 + "(" + (maxNum+1) + ") " + prependString2 + " " + oldPoolName);
   }
   
   public Long copyItemFacade(ItemDataIfc itemData) {

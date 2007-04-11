@@ -1394,9 +1394,12 @@ public String getAddOrEdit()
 		    }
 		}
 
-              // if dest = source's parent,i.e copying to it's own parent ,  then if there is an existing pool with the same name, copyPool() will create a new pool with Copy prepended in the pool name
+        // if dest = source's parent,i.e copying to it's own parent ,  then if there is an existing pool with the same name, copyPool() will create a new pool with Copy prepended in the pool name
+		ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.QuestionPoolMessages");
+		String copy = rb.getString("prepend_copy");
+		String of = rb.getString("prepend_of");
 		delegate.copyPool(tree, AgentFacade.getAgentString(),
-				  sourceId, new Long(destId));
+				  sourceId, new Long(destId), copy, of);
 	    }
             catch(Exception e)
             {

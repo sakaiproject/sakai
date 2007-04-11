@@ -339,12 +339,12 @@ public class QuestionPoolServiceImpl
    * Copy a subpool to a pool.
    */
   public void copyPool(Tree tree, String agentId, Long sourceId,
-                       Long destId)
+                       Long destId, String prependString1, String prependString2)
   {
     try
     {
       QuestionPoolService service = new QuestionPoolService();
-      service.copyPool(tree, agentId, sourceId, destId);
+      service.copyPool(tree, agentId, sourceId, destId, prependString1, prependString2);
     }
     catch (Exception ex)
     {
