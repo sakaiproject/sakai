@@ -96,7 +96,7 @@
 
      <h:outputLabel value="#{assessmentSettingsMessages.submissions}" />
      <h:panelGroup>
-       <h:outputText value="Unlimited" rendered="#{assessmentSettings.unlimitedSubmissions eq '1'}" />
+       <h:outputText value="#{assessmentSettingsMessages.unlimited_submission}" rendered="#{assessmentSettings.unlimitedSubmissions eq '1'}" />
        <h:outputText value="#{assessmentSettings.submissionsAllowed}"
          rendered="#{assessmentSettings.unlimitedSubmissions eq '0'}" />
      </h:panelGroup>
@@ -104,9 +104,9 @@
 
      <h:outputLabel value="#{assessmentSettingsMessages.feedback_type}" />
      <h:panelGroup>
-       <h:outputText value="Immediate" rendered="#{assessmentSettings.feedbackDelivery eq '1'}" />
-       <h:outputText value="No Feedback" rendered="#{assessmentSettings.feedbackDelivery eq '3'}" />
-       <h:outputText value="Available on #{assessmentSettings.feedbackDate}"
+       <h:outputText value="#{assessmentSettingsMessages.immediate}" rendered="#{assessmentSettings.feedbackDelivery eq '1'}" />
+       <h:outputText value="#{assessmentSettingsMessages.no_feedback_short}" rendered="#{assessmentSettings.feedbackDelivery eq '3'}" />
+       <h:outputText value="#{assessmentSettingsMessages.available_on} #{assessmentSettings.feedbackDate}"
           rendered="#{assessmentSettings.feedbackDelivery eq '2'}" >
          <f:convertDateTime pattern="#{generalMessages.output_date_picker}" />
        </h:outputText>
