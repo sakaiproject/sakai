@@ -58,7 +58,10 @@ import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider.Sort;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.PermissionsHelper;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarService;
@@ -3913,6 +3916,15 @@ public class AssignmentAction extends PagedResourceActionII
 		ResourceProperties properties = a.getProperties();
 		if (properties.getProperty(AssignmentService.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK) != null)
 		{
+			// temporally allow the user update gradebook records
+			SecurityService.pushAdvisor(new SecurityAdvisor()
+				{
+					public SecurityAdvice isAllowed(String userId, String function, String reference)
+					{
+						return SecurityAdvice.ALLOWED;
+					}
+				});
+			
 			String associateGradebookAssignment = StringUtil.trimToNull(properties.getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
 			if (associateGradebookAssignment != null && g.isAssignmentDefined(gradebookUid, associateGradebookAssignment))
 			{
@@ -3927,8 +3939,14 @@ public class AssignmentAction extends PagedResourceActionII
 					assignmentDefinition.setExternalId(null);
 					assignmentDefinition.setExternalAppName(null);
 					g.updateAssignment(gradebookUid, associateGradebookAssignment, assignmentDefinition);
+					
+					// bulk add all grades for assignment into gradebook
+					AssignmentService.integrateGradebook(a.getReference(), associateGradebookAssignment, associateGradebookAssignment, null, null, null, -1, null, null, "update");
 				}
 			}
+			
+			// clear the permission
+			SecurityService.clearAdvisors();
 		}
 	}
 
