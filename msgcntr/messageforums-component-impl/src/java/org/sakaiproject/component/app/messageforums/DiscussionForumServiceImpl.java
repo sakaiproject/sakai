@@ -32,7 +32,7 @@ import java.util.ArrayList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
+import org.apache.commons.codec.binary.Base64;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
@@ -123,6 +123,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 
 	public String archive(String siteId, Document doc, Stack stack, String archivePath, List attachments)
 	{
+		Base64 base64Encoder = new Base64();
 		StringBuffer results = new StringBuffer();
 
 		try { 	
@@ -164,7 +165,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 
 
 								try {
-									String encoded = Base64.encode(forum.getExtendedDescription().getBytes());
+									String encoded = new String(base64Encoder.encode(forum.getExtendedDescription().getBytes()));
 									df_data.setAttribute(DISCUSSION_FORUM_DESC, encoded);
 								}
 								catch(Exception e) {
@@ -173,7 +174,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 								}
 
 								try {
-									String encoded = Base64.encode(forum.getShortDescription().getBytes());
+									String encoded = new String(base64Encoder.encode(forum.getShortDescription().getBytes()));
 									df_data.setAttribute(DISCUSSION_FORUM_SHORT_DESC, encoded);
 								}
 								catch(Exception e) {
@@ -235,7 +236,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 										Element topic_short_desc = doc.createElement(PROPERTY);
 
 										try {
-											String encoded = Base64.encode(topic.getShortDescription().getBytes());
+											String encoded = new String(base64Encoder.encode(topic.getShortDescription().getBytes()));
 											topic_short_desc.setAttribute(NAME, TOPIC_SHORT_DESC);
 											topic_short_desc.setAttribute(ENCODE, BASE64);
 											topic_short_desc.setAttribute(VALUE, encoded);
@@ -251,7 +252,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 										Element topic_long_desc = doc.createElement(PROPERTY);
 
 										try {
-											String encoded = Base64.encode(topic.getExtendedDescription().getBytes());
+											String encoded = new String(base64Encoder.encode(topic.getExtendedDescription().getBytes()));
 											topic_long_desc.setAttribute(NAME, TOPIC_LONG_DESC);
 											topic_long_desc.setAttribute(ENCODE, BASE64);
 											topic_long_desc.setAttribute(VALUE, encoded);
@@ -539,6 +540,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 
 	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans, Set userListAllowImport)
 	{
+		Base64 base64Encoder = new Base64();
 		StringBuffer results = new StringBuffer();
 		if (siteId != null && siteId.trim().length() > 0)
 		{
@@ -594,7 +596,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 											trimBody = trimToNull(forumDesc);
 											if (trimBody != null && trimBody.length() >0)
 											{
-												byte[] decoded = Base64.decode(trimBody);
+												byte[] decoded = base64Encoder.decode(trimBody.getBytes());
 												trimBody = new String(decoded, "UTF-8");
 											}
 										}
@@ -610,7 +612,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 											trimSummary = trimToNull(forumShortDesc);
 											if (trimSummary != null && trimSummary.length() >0)
 											{
-												byte[] decoded = Base64.decode(trimSummary);
+												byte[] decoded = base64Encoder.decode(trimSummary.getBytes());
 												trimSummary = new String(decoded, "UTF-8");
 											}
 										}
@@ -719,7 +721,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 																						trimDesc = trimToNull(topicDesc);
 																						if (trimDesc != null && trimDesc.length() >0)
 																						{
-																							byte[] decoded = Base64.decode(trimDesc);
+																							byte[] decoded = base64Encoder.decode(trimDesc.getBytes());
 																							trimDesc = new String(decoded, "UTF-8");
 																						}
 																					}
@@ -743,7 +745,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 																						trimDesc = trimToNull(topicDesc);
 																						if (trimDesc != null && trimDesc.length() >0)
 																						{
-																							byte[] decoded = Base64.decode(trimDesc);
+																							byte[] decoded = base64Encoder.decode(trimDesc.getBytes());
 																							trimDesc = new String(decoded, "UTF-8");
 																						}
 																					}
