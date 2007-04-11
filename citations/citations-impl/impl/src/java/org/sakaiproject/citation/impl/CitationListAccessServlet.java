@@ -240,8 +240,6 @@ public class CitationListAccessServlet implements HttpAccess
 
         try
         {
-        	String openUrlLabel = ConfigurationService.getSiteConfigOpenUrlLabel();
-        	
     		ContentResource resource = (ContentResource) ref.getEntity(); // ContentHostingService.getResource(ref.getId());
     		ResourceProperties properties = resource.getProperties();
    
@@ -307,16 +305,19 @@ public class CitationListAccessServlet implements HttpAccess
     			out.println("\t\t\t</td>");
     			
     			out.println("\t\t<td headers=\"details\">");
-    			out.println("\t\t\t<a href=\"" + citation.getOpenurl() + "\" target=\"_blank\">" + citation.getDisplayName() + "</a><br />");
-    			out.println("\t\t\t\t" + citation.getCreator() );
-    			out.println("\t\t\t\t" + citation.getSource() );
+    			out.println("\t\t\t<a href=\"" + citation.getOpenurl() + "\" target=\"_blank\">" + Validator.escapeHtml( citation.getDisplayName() ) + "</a><br />");
+    			out.println("\t\t\t\t" + Validator.escapeHtml( citation.getCreator() ) );
+    			out.println("\t\t\t\t" + Validator.escapeHtml( citation.getSource() ) );
     			out.println("\t\t\t<div class=\"itemAction\">");
     			if( citation.hasCustomUrls() )
     			{
     				List<String> customUrlIds = citation.getCustomUrlIds();
     				for( String urlId : customUrlIds )
     				{
-    					out.println("\t\t\t\t<a href=\"" + citation.getCustomUrl( urlId ).toString() + "\" target=\"_blank\">" + citation.getCustomUrlLabel(urlId) + "</a>");
+    					String urlLabel = ( citation.getCustomUrlLabel( urlId ) == null ||
+    							citation.getCustomUrlLabel( urlId ).trim().equals("") ) ? rb.getString( "nullUrlLabel.view" ) : Validator.escapeHtml( citation.getCustomUrlLabel( urlId ) );
+    					
+    					out.println("\t\t\t\t<a href=\"" + citation.getCustomUrl( urlId ).toString() + "\" target=\"_blank\">" + urlLabel + "</a>");
     				  	out.println("\t\t\t\t |");
     				}
     			}
@@ -359,11 +360,11 @@ public class CitationListAccessServlet implements HttpAccess
     								if(first)
     								{
     									String label = rb.getString(schema.getIdentifier() + "." + field.getIdentifier(), field.getIdentifier());
-    									out.println("\t\t\t\t<tr>\n\t\t\t\t\t<td class=\"attach\"><strong>" + label + "</strong></td>\n\t\t\t\t\t<td>" + value + "</td>\n\t\t\t\t</tr>");
+    									out.println("\t\t\t\t<tr>\n\t\t\t\t\t<td class=\"attach\"><strong>" + label + "</strong></td>\n\t\t\t\t\t<td>" + Validator.escapeHtml(value) + "</td>\n\t\t\t\t</tr>");
     								}
     								else
     								{
-    									out.println("\t\t\t\t<tr>\n\t\t\t\t\t<td class=\"attach\">&nbsp;</td>\n\t\t\t\t\t<td>" + value + "</td>\n\t\t\t\t</tr>\n");
+    									out.println("\t\t\t\t<tr>\n\t\t\t\t\t<td class=\"attach\">&nbsp;</td>\n\t\t\t\t\t<td>" + Validator.escapeHtml(value) + "</td>\n\t\t\t\t</tr>\n");
     								}
     							}	
     							first = false;
@@ -386,7 +387,7 @@ public class CitationListAccessServlet implements HttpAccess
  							// don't want to repeat titles
  							if( !Schema.TITLE.equals(field.getIdentifier()) )
  							{
- 								out.println("\t\t\t\t<tr>\n\t\t\t\t\t<td class=\"attach\"><strong>" + label + "</strong></td>\n\t\t\t\t\t<td>" + value + "</td>\n\t\t\t\t</tr>");
+ 								out.println("\t\t\t\t<tr>\n\t\t\t\t\t<td class=\"attach\"><strong>" + label + "</strong></td>\n\t\t\t\t\t<td>" + Validator.escapeHtml(value) + "</td>\n\t\t\t\t</tr>");
  							}
 
     					}
