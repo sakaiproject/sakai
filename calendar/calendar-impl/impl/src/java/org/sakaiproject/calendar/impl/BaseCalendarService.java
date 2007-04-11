@@ -5621,11 +5621,15 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			Source src = new DOMSource(doc);
 
 			// Kludge: Xalan does not properly interpret ResourceLoader object
-			// when passed as parameter, so here we fetch the locale-specific
-			// ResourceBundle.
-			ResourceBundle resbud = ResourceBundle.getBundle("calendarimpl",
-                                                          rb.getLocale() );
-			transformer.setParameter("rb", resbud);
+			// when passed as parameter, so here we fetch each of the localized strings
+			transformer.setParameter("sun", rb.getString("day.sun"));
+			transformer.setParameter("mon", rb.getString("day.mon"));
+			transformer.setParameter("tues", rb.getString("day.tues"));
+			transformer.setParameter("wed", rb.getString("day.wed"));
+			transformer.setParameter("thurs", rb.getString("day.thurs"));
+			transformer.setParameter("fri", rb.getString("day.fri"));
+			transformer.setParameter("sat", rb.getString("day.sat"));
+			transformer.setParameter("sched", rb.getString("sched.for"));
 			transformer.transform(src, new SAXResult(driver.getContentHandler()));
 		}
 

@@ -4,8 +4,16 @@
 	xmlns:fo="http://www.w3.org/1999/XSL/Format"
    xmlns:ResourceBundle="http://xml.apache.org/xalan/java/java.util.ResourceBundle"
 	version="1.0">
-   
-<xsl:param name="rb"/>
+
+<xsl:param name="sun"/>
+<xsl:param name="mon"/>
+<xsl:param name="tues"/>
+<xsl:param name="wed"/>
+<xsl:param name="thurs"/>
+<xsl:param name="fri"/>
+<xsl:param name="sat"/>
+<xsl:param name="sched"/>
+
 
 <!-- start scheduleUtil templates -->
 
@@ -433,13 +441,13 @@
 <xsl:param name="day"/>
 	
 	<xsl:choose>
-	<xsl:when test="$day=0"><xsl:value-of select="ResourceBundle:getString($rb, 'day.sun')"/></xsl:when>   
-   	<xsl:when test="$day=1"><xsl:value-of select="ResourceBundle:getString($rb, 'day.mon')"/></xsl:when>   
-   	<xsl:when test="$day=2"><xsl:value-of select="ResourceBundle:getString($rb, 'day.tues')"/></xsl:when>   
-   	<xsl:when test="$day=3"><xsl:value-of select="ResourceBundle:getString($rb, 'day.wed')"/></xsl:when>   
-    <xsl:when test="$day=4"><xsl:value-of select="ResourceBundle:getString($rb, 'day.thurs')"/></xsl:when>   
-    <xsl:when test="$day=5"><xsl:value-of select="ResourceBundle:getString($rb, 'day.fri')"/></xsl:when>   
-    <xsl:when test="$day=6"><xsl:value-of select="ResourceBundle:getString($rb, 'day.sat')"/></xsl:when>   
+	<xsl:when test="$day=0"><xsl:value-of select="$sun"/></xsl:when>   
+   	<xsl:when test="$day=1"><xsl:value-of select="$mon"/></xsl:when>   
+   	<xsl:when test="$day=2"><xsl:value-of select="$tues"/></xsl:when>   
+   	<xsl:when test="$day=3"><xsl:value-of select="$wed"/></xsl:when>   
+    <xsl:when test="$day=4"><xsl:value-of select="$thurs"/></xsl:when>   
+    <xsl:when test="$day=5"><xsl:value-of select="$fri"/></xsl:when>   
+    <xsl:when test="$day=6"><xsl:value-of select="$sat"/></xsl:when>   
 	<xsl:otherwise> </xsl:otherwise>
 	</xsl:choose>
    <xsl:text> </xsl:text>
@@ -591,7 +599,7 @@
             color="black"
             text-align="center"
             padding-top="0pt">
-        	<xsl:value-of select="ResourceBundle:getString($rb, 'sched.for')"/><xsl:text> </xsl:text><xsl:value-of select="uid"/> 
+        	<xsl:value-of select="$sched"/><xsl:text> </xsl:text><xsl:value-of select="uid"/> 
     	</fo:block>    	 
    </fo:static-content> 
 
