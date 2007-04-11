@@ -30,9 +30,9 @@ import java.util.TreeSet;
 import java.util.Stack;
 import java.util.Vector;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 import org.sakaiproject.api.app.syllabus.GatewaySyllabus;
 import org.sakaiproject.api.app.syllabus.SyllabusAttachment;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
@@ -428,7 +428,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
 
                       try
                       {
-                        String encoded = Base64.encode(syllabusData.getAsset().getBytes());
+                        String encoded = new String(Base64.encodeBase64(syllabusData.getAsset().getBytes()),"UTF-8");
                         asset.setAttribute("syllabus_body-html", encoded);
                       }
                       catch(Exception e)
@@ -603,7 +603,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer
                                       {
                                         try
                                         {
-                                          byte[] decoded = Base64.decode(body);
+                                          byte[] decoded = Base64.decodeBase64(body.getBytes("UTF-8"));
                                           body = new String(decoded, charset);
                                         }
                                         catch (Exception e)
