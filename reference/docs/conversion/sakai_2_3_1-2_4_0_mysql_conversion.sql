@@ -222,7 +222,7 @@ alter table MFR_TOPIC_T modify column MODERATED bit not null;
 ----------------------------------------------------------------------------------------------------------------------------------------
 --create new tables
 CREATE TABLE CHAT2_CHANNEL ( 
-    CHANNEL_ID           	varchar(36) NOT NULL,
+    CHANNEL_ID           	varchar(99) NOT NULL,
     CONTEXT              	varchar(36) NOT NULL,
     CREATION_DATE        	datetime NULL,
     title                	varchar(64) NULL,
@@ -234,8 +234,8 @@ CREATE TABLE CHAT2_CHANNEL (
 );
 
 CREATE TABLE CHAT2_MESSAGE ( 
-    MESSAGE_ID  	varchar(36) NOT NULL,
-    CHANNEL_ID  	varchar(36) NULL,
+    MESSAGE_ID  	varchar(99) NOT NULL,
+    CHANNEL_ID  	varchar(99) NULL,
     OWNER       	varchar(96) NOT NULL,
     MESSAGE_DATE	datetime NULL,
     BODY        	text NOT NULL,
@@ -264,6 +264,10 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where RE
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '/site/mercury'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.delete.channel'));
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '/site/mercury'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.new.channel'));
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '/site/mercury'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.revise.channel'));
+
+-- chat conversion prep
+alter table CHAT2_CHANNEL add column migratedChannelId varchar(99);
+alter table CHAT2_MESSAGE add column migratedMessageId varchar(99);
 
 ----------------------------------------------------------------------------------------------------------------------------------------
 -- New private folder (SAK-8759)

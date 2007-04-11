@@ -226,7 +226,7 @@ alter table MFR_TOPIC_T modify (MODERATED NUMBER(1,0) not null);
 --This is coming soon as soon as I can generate the ddl for Oracle...
 
 CREATE TABLE CHAT2_CHANNEL ( 
-    CHANNEL_ID           	VARCHAR2(36) NOT NULL,
+    CHANNEL_ID           	VARCHAR2(99) NOT NULL,
     CONTEXT              	VARCHAR2(36) NOT NULL,
     CREATION_DATE        	TIMESTAMP(6) NULL,
     TITLE                	VARCHAR2(64) NULL,
@@ -238,8 +238,8 @@ CREATE TABLE CHAT2_CHANNEL (
 );
 
 CREATE TABLE CHAT2_MESSAGE ( 
-    MESSAGE_ID  	VARCHAR2(36) NOT NULL,
-    CHANNEL_ID  	VARCHAR2(36) NULL,
+    MESSAGE_ID  	VARCHAR2(99) NOT NULL,
+    CHANNEL_ID  	VARCHAR2(99) NULL,
     OWNER       	VARCHAR2(96) NOT NULL,
     MESSAGE_DATE	TIMESTAMP(6) NULL,
     BODY        	CLOB NOT NULL,
@@ -271,6 +271,10 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where RE
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '/site/mercury'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.delete.channel'));
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '/site/mercury'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.new.channel'));
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '/site/mercury'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.revise.channel'));
+
+--chat conversion prep
+alter table CHAT2_CHANNEL add migratedChannelId varchar2(99);
+alter table CHAT2_MESSAGE add migratedMessageId varchar2(99);
 
 ----------------------------------------------------------------------------------------------------------------------------------------
 -- New private folder (SAK-8759)
