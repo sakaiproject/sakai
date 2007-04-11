@@ -5890,14 +5890,14 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				case REPLACE_CONTENT:
 					break;
 				case PASTE_MOVED:
-					sAction.initializeAction(reference);
+					//sAction.initializeAction(reference);
 					pasteItem(state, selectedItemId);
-					sAction.finalizeAction(reference);
+					//sAction.finalizeAction(reference);
 					break;
 				case PASTE_COPIED:
-					sAction.initializeAction(reference);
+					//sAction.initializeAction(reference);
 					pasteItem(state, selectedItemId);
-					sAction.finalizeAction(reference);
+					//sAction.finalizeAction(reference);
 					break;
 				case REVISE_ORDER:
 					sAction.initializeAction(reference);

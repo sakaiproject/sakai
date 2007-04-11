@@ -4236,9 +4236,12 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			{
 				ContentResourceEdit edit = addResource(new_id);
 				edit.setContentType(thisResource.getContentType());
-				edit.setContent(thisResource.getContent());
+				edit.setContent(thisResource.streamContent());
 				edit.setResourceType(thisResource.getResourceType());
 				edit.setAvailability(thisResource.isHidden(), thisResource.getReleaseDate(), thisResource.getRetractDate());
+				
+				((BaseResourceEdit) edit).m_filePath = ((BaseResourceEdit) thisResource).m_filePath;
+				((BaseResourceEdit) thisResource).m_filePath = null;
 //				Collection groups = thisResource.getGroups();
 //				if(groups == null || groups.isEmpty())
 //				{
@@ -4250,20 +4253,30 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 //				}
 				
 				ResourcePropertiesEdit props = edit.getPropertiesEdit();
-				addProperties(props, properties);
-				String creator = properties.getProperty(ResourceProperties.PROP_CREATOR);
-				if (creator != null && !creator.trim().equals(""))
+				Iterator<String> nameIt = properties.getPropertyNames();
+				while(nameIt.hasNext())
 				{
-					props.addProperty(ResourceProperties.PROP_CREATOR, creator);
+					String name = nameIt.next();
+					props.addProperty(name, properties.getProperty(name));
 				}
-				String created = properties.getProperty(ResourceProperties.PROP_CREATION_DATE);
-				if (created != null)
-				{
-					props.addProperty(ResourceProperties.PROP_CREATION_DATE, created);
-				}
-				m_storage.commitResource(edit);
+				//addProperties(props, properties);
+//				String creator = properties.getProperty(ResourceProperties.PROP_CREATOR);
+//				if (creator != null && !creator.trim().equals(""))
+//				{
+//					props.addProperty(ResourceProperties.PROP_CREATOR, creator);
+//				}
+//				String created = properties.getProperty(ResourceProperties.PROP_CREATION_DATE);
+//				if (created != null)
+//				{
+//					props.addProperty(ResourceProperties.PROP_CREATION_DATE, created);
+//				}
 				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, new_displayName);
 				
+				m_storage.commitResource(edit);
+
+				String oldUuid = getUuid(thisResource.getId());
+				setUuidInternal(new_id, oldUuid);
+
 				m_storage.removeResource(thisResource);
 
 				if (M_log.isDebugEnabled()) M_log.debug("moveResource successful");
@@ -4297,9 +4310,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			}
 		}
 
-		String oldUuid = getUuid(thisResource.getId());
-		setUuidInternal(new_id, oldUuid);
-		removeResource(thisResource);
+		//removeResource(thisResource);
 
 		return new_id;
 
