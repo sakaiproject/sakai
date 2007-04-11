@@ -84,7 +84,7 @@ and, if necessary, the value of the cachettl parameter in
 
 After deployment, you can also edit this file:
 
-$TOMCAT_HOME/components/sakai-legacy-providers/WEB-INF/components.xml 
+$TOMCAT_HOME/components/sakai-provider-pack/WEB-INF/components.xml 
 
 4) After deployment and startup, create a new Sakai account with your 
 Kerberos principal as the user id. You should then be able to login 
