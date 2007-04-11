@@ -68,6 +68,9 @@ public class UserPrefsTool
 	/** The string that Charon uses for preferences. */
 	private static final String CHARON_PREFS = "sakai:portal:sitenav";
 
+	/** The string to get whether privacy status should be visible */
+	private static final String ENABLE_PRIVACY_STATUS = "enable.privacy.status";
+	
 	/**
 	 * Represents a name value pair in a keyed preferences set.
 	 */
@@ -1800,5 +1803,14 @@ public class UserPrefsTool
 	public void setRefreshElement(String element)
 	{
 		m_refreshElement = element;
+	}
+	
+	/**
+	 * Pull whether privacy status should be enabled from sakai.properties
+	 * 
+	 */
+	public boolean isPrivacyEnabled()
+	{
+		return new Boolean(ServerConfigurationService.getString(ENABLE_PRIVACY_STATUS)).booleanValue();
 	}
 }
