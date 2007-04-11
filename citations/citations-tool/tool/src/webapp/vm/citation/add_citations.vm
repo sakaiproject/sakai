@@ -77,7 +77,7 @@ doubleDeep = true;
 				    />
 			      </div>
 			    </td>
-			    <td>$tlang.getFormattedMessage("description.google",$googleArgs)</td>
+			    <td>$tlang.getString("description.google")</td>
 			  </tr>
 			#end
 			
