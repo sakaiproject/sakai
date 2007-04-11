@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
+import org.apache.commons.codec.binary.Base64;
 import org.sakaiproject.api.app.podcasts.PodfeedService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.cover.ContentHostingService;
@@ -240,6 +240,8 @@ public class RSSPodfeedServlet extends HttpServlet {
 	 */
 	private IdPwEvidence getBasicAuthEvidence(final HttpServletRequest request) {
 
+		Base64 base64Encoder = new Base64();
+		
 		final String header = request.getHeader("Authorization");
 		String[] elements = null;
 
@@ -255,7 +257,7 @@ public class RSSPodfeedServlet extends HttpServlet {
 
 			LOG.debug("type: " + type + " hash: " + hash);
 
-			final String[] credential = (new String(Base64.decode(hash)))
+			final String[] credential = (new String(base64Encoder.decode(hash.getBytes())))
 					.split(":");
 
 			LOG.debug("credential: " + credential);
