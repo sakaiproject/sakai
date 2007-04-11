@@ -1,7 +1,7 @@
 #macro(showMultivalued $values)
 	#if(! $values.isEmpty())
 		#foreach($value in $values)
-			<p style="margin-top: 0; padding-top: 0; margin-bottom: 0.3em; padding-bottom: 0;">$!value</p>
+			<p style="margin-top: 0; padding-top: 0; margin-bottom: 0.3em; padding-bottom: 0;">$!{xilator.escapeHtml($!{value})}</p>
 		#end
 	#end
 #end

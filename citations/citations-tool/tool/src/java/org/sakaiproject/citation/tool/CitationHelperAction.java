@@ -932,6 +932,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		// always put appropriate bundle in velocity context
 		context.put("tlang", rb);
 		
+		// validator
+		context.put("xilator", new Validator());
+		
 		if( state.removeAttribute( STATE_LIST_NO_SCROLL ) == null )
 		{
 			context.put("sakai_onload", "setMainFrameHeight( window.name )");
@@ -1355,6 +1358,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		// always put appropriate bundle in velocity context
 		context.put("tlang", rb);
 		
+		// validator
+		context.put("xilator", new Validator());
+		
 		//context.put("sakai_onload", "setMainFrameHeight('" + CitationHelper.CITATION_FRAME_ID + "');");
 				
 		//context.put("mainFrameId", CitationHelper.CITATION_FRAME_ID);
@@ -1375,7 +1381,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		String collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
 		context.put("citationId", citationId);
 		context.put("collectionId", collectionId);
-
 		
 		List schemas = CitationService.getSchemas();
 		context.put("TEMPLATES", schemas);

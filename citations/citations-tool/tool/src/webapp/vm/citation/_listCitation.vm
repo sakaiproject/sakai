@@ -4,14 +4,14 @@
 		  value="$!{citation.id}" onclick="highlightCheckedSelections();" /> 
 	</td>
 	<td headers="details">
-		<a href="$citation.openurl" target="_blank">$citation.displayName</a>
+		<a href="$citation.openurl" target="_blank">$xilator.escapeHtml( $citation.displayName )</a>
 		<br />
-		$!{citation.creator}
-		$!{citation.source}
+		$!{xilator.escapeHtml( $!{citation.creator} )}
+		$!{xilator.escapeHtml( $!{citation.source} )}
 		<div class="itemAction">
 			#if($citation.hasCustomUrls())
 				#foreach($urlid in $citation.customUrlIds)
-					<a href="$citation.getCustomUrl("$urlid").toString()" target="_blank">$citation.getCustomUrlLabel("$urlid")</a>
+					<a href="$citation.getCustomUrl("$urlid").toString()" target="_blank">$xilator.escapeHtml( $citation.getCustomUrlLabel("$urlid") )</a>
 			  			|
 			  	#end
 		  	#end

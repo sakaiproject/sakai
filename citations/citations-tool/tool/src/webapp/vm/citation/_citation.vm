@@ -23,7 +23,7 @@
 					#if($field.isMultivalued())
 						#showMultivalued($!{currentValue})
 					#else
-						$!{currentValue}
+						$!{xilator.escapeHtml($!{currentValue})}
 					#end
 				</td>
 			</tr>
@@ -36,7 +36,7 @@
 			</td>
 			<td>
 			#foreach($urlId in $citation.customUrlIds)
-				<p style="margin-top: 0; padding-top: 0; margin-bottom: 0.3em; padding-bottom: 0;"><a href="$citation.getCustomUrl( "$urlId" )" target="_blank">$citation.getCustomUrlLabel( "$urlId" )</a>
+				<p style="margin-top: 0; padding-top: 0; margin-bottom: 0.3em; padding-bottom: 0;"><a href="$citation.getCustomUrl( "$urlId" )" target="_blank">$xilator.escapeHtml( $citation.getCustomUrlLabel( "$urlId" ) )</a>
 					($citation.getCustomUrl("$urlId"))
 				</p>
 			#end
