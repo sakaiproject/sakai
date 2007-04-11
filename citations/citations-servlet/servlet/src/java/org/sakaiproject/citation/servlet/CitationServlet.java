@@ -31,10 +31,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log; 
 import org.apache.commons.logging.LogFactory;
 
-import org.sakaiproject.cheftool.Context;
-import org.sakaiproject.cheftool.RunData;
-import org.sakaiproject.cheftool.VelocityPortlet;
-import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
 import org.sakaiproject.cheftool.VmServlet;
 import org.sakaiproject.citation.api.Citation;
 import org.sakaiproject.citation.api.CitationCollection;
@@ -60,9 +56,6 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.BasicAuth;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
@@ -284,11 +277,36 @@ public class CitationServlet extends VmServlet
 			citation = citationService.addCitation(genre);
 
 			String info = "New citation from Google Scholar:\n\t genre:\t\t" + genre;
+
+			// force a generic genre if we don't know any better
+			// UNKNOWN_TYPE needs to be imported from BaseCitationService
+			if (genre == null) {
+				genre = CitationService.UNKNOWN_TYPE;
+			}
+	
+			// Generally, only books have a title that's the actual title of the piece.
+			// We'll check to see if there's an atitle; if not, use the title as the 
+			// work's title. Otherwise, use the title as the source.
+			
 			if(title != null)
 			{
-				info += "\n\t title:\t\t" + title;
-				citation.addPropertyValue(Schema.TITLE, title);
+				if (atitle != null) 
+				{
+					info += "\n\t source title:\t\t" + title;
+					citation.addPropertyValue(Schema.SOURCE_TITLE, title);
+				} else 
+				{
+					info += "\n\t title:\t\t" + title;
+					citation.addPropertyValue(Schema.TITLE, title);
+				}
 			}
+			
+			if(atitle != null)
+			{
+				info += "\n\t title:\t\t" + atitle;
+				citation.addPropertyValue(Schema.TITLE, atitle);
+			}			
+			
 			if(authors != null && authors.length > 0)
 			{
 				for(int i = 0; i < authors.length; i++)
@@ -297,11 +315,7 @@ public class CitationServlet extends VmServlet
 					citation.addPropertyValue(Schema.CREATOR, authors[i]);
 				}
 			}
-			if(atitle != null)
-			{
-				info += "\n\t atitle:\t\t" + atitle;
-				citation.addPropertyValue(Schema.SOURCE_TITLE, atitle);
-			}
+
 			if(volume != null)
 			{
 				info += "\n\t volume:\t\t" + volume;

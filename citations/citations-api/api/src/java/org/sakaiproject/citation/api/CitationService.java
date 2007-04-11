@@ -49,6 +49,7 @@ public interface CitationService extends EntityProducer
 	
 	public static final String RIS_FORMAT = "RIS";
 
+	public static final String UNKNOWN_TYPE = "unknown";
 	
 	public static final String REF_TYPE_VIEW_LIST = "list";
 	

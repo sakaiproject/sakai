@@ -174,7 +174,7 @@ public abstract class BaseCitationService implements CitationService
 			m_temporary = true;
 			m_citationProperties = new Hashtable();
 			m_urls = new Hashtable();
-			setType(UNKNOWN_TYPE);
+			setType(CitationService.UNKNOWN_TYPE);
 		}
 
 		/**
@@ -1652,7 +1652,7 @@ public abstract class BaseCitationService implements CitationService
 			Schema schema = m_storage.getSchema(mediatype);
 			if (schema == null)
 			{
-				schema = m_storage.getSchema(UNKNOWN_TYPE);
+				schema = m_storage.getSchema(CitationService.UNKNOWN_TYPE);
 			}
 			setSchema(schema);
 
@@ -3225,8 +3225,6 @@ public abstract class BaseCitationService implements CitationService
 
 	public static final String SCHEMA_PREFIX = "schema.";
 
-	protected static final String UNKNOWN_TYPE = "unknown";
-
 	protected static Integer m_nextSerialNumber;
 
 	/*
@@ -3804,7 +3802,7 @@ public abstract class BaseCitationService implements CitationService
 			rb = new ResourceLoader("citations");
 	
 			BasicSchema unknown = new BasicSchema();
-			unknown.setIdentifier(UNKNOWN_TYPE);
+			unknown.setIdentifier(CitationService.UNKNOWN_TYPE);
 	
 			BasicSchema article = new BasicSchema();
 			article.setIdentifier("article");
