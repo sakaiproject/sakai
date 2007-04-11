@@ -31,9 +31,9 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.Vector;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import com.sun.org.apache.xerces.internal.impl.dv.util.Base64;
 import org.sakaiproject.archive.api.ArchiveService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
@@ -786,7 +786,7 @@ public class BasicArchiveService
 			
 		try
 		{
-		byte[] decoded = Base64.decode(desc);
+		byte[] decoded = Base64.decodeBase64(desc.getBytes("UTF-8"));
 		byte[] filteredDecoded = decoded;
 		for(int i=0; i<decoded.length;i++)
 		{
