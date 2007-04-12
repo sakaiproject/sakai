@@ -1,4 +1,11 @@
 /* access.css : Styles for access servlet (/access/) directory listings */
 .directoryIndex { padding:8px; }
-h2 { font-size:14pt; }
-td { padding-right: .5em; }
+body { font-family: Verdana, Arial, sans-serif; }
+h2 { font-size: 1.1em; }
+td { 
+     padding-right: .5em; 
+}
+tr { 
+     vertical-align: top; 
+}
+
