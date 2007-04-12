@@ -2543,7 +2543,12 @@ public class SiteAction extends PagedResourceActionII {
 
 			// added for 2.4 -daisyf
 			context.put("campusDirectory", getCampusDirectory());
-
+			/* for measuring how long it takes to load sections
+			java.util.Date date = new java.util.Date();
+			M_log.debug("***2. finish at: "+date);
+			M_log.debug("***3. userId:"+(String) state
+                                                .getAttribute(STATE_INSTRUCTOR_SELECTED));
+			*/
 			return (String) getContext(data).get("template") + TEMPLATE[36];
 		case 37:
 			/*
@@ -3904,6 +3909,10 @@ public class SiteAction extends PagedResourceActionII {
 	 * do called when "eventSubmit_do" is in the request parameters to c
 	 */
 	public void doSite_type(RunData data) {
+	    /* for measuring how long it takes to load sections
+	    java.util.Date date = new java.util.Date();
+	    M_log.debug("***1. start preparing section:"+date);
+	    */
 		SessionState state = ((JetspeedRunData) data)
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 

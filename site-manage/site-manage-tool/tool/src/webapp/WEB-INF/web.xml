@@ -11,6 +11,21 @@
         <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
     </filter>
 
+       <!-- Speeds up CM access for users with roles in many sites (when using the CM RI) -->
+    <filter>
+       <filter-name>hibernateFilter</filter-name>
+       <filter-class>org.springframework.orm.hibernate3.support.OpenSessionInViewFilter</filter-class>
+       <init-param>
+               <param-name>singleSession</param-name>
+               <param-value>true</param-value>
+       </init-param>
+       <init-param>
+               <param-name>sessionFactoryBeanName</param-name>
+               <param-value>org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory</param-value>
+       </init-param>
+    </filter>
+
+
     <filter-mapping>
         <filter-name>sakai.request</filter-name>
         <servlet-name>sakai.sitemanage</servlet-name>
@@ -46,6 +61,30 @@
     <filter-mapping>
         <filter-name>sakai.request</filter-name>
         <servlet-name>sakai.membership</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>hibernateFilter</filter-name>
+        <servlet-name>sakai.sitemanage</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>hibernateFilter</filter-name>
+        <servlet-name>sakai.siteinfo</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>hibernateFilter</filter-name>
+        <servlet-name>sakai.sitesetup</servlet-name>
         <dispatcher>REQUEST</dispatcher>
         <dispatcher>FORWARD</dispatcher>
         <dispatcher>INCLUDE</dispatcher>
@@ -138,6 +177,10 @@
 
     <listener>
         <listener-class>org.sakaiproject.util.ToolListener</listener-class>
+    </listener>
+
+    <listener>
+       <listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
     </listener>
 
 </web-app>
