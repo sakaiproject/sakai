@@ -49,6 +49,7 @@
              &nbsp;(<a accesskey="e" href="${currentPlacement.toolJSR168Edit}" title="${rloader.sit_edit}">*</a>)
 			#end
 			<div class="portletpresencebutton" >
+<!-- Comment out presense until we can get the div to not obscure buttons see (SAK-9457)
 				#if (${currentSite.sitePages.pageNavShowPresenceLoggedIn})
 					#if ($currentSite)
 						#if ( ! $currentSite.isMyWorkspace )
@@ -56,6 +57,7 @@
 						#end
 					#end
 				#end
+-->
 				#if ( $loggedIn ) 
 				<a href="${portalTopUrl}?force.logout=yes">Log Out</a>
 				#else
@@ -124,11 +126,15 @@ ${responseBody}
 			function showPresence()
 			{
 				window.document.getElementById('portletpresencewrapper').style.visibility = 'visible';
+				// It would be nice if this worked...
+				// window.document.getElementById('portletpresence').style.z-index = 2;
 			}
 			
 			function hidePresence()
 			{
 				window.document.getElementById('portletpresencewrapper').style.visibility = 'hidden';
+				// It would be nice if this worked...
+				// window.document.getElementById('portletpresence').style.z-index = -1;
 			}
 			</script>
 		#end
