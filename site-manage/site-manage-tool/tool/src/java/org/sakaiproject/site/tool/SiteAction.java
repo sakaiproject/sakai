@@ -6426,7 +6426,7 @@ public class SiteAction extends PagedResourceActionII {
 				// does the site has maintain type user(s) before updating
 				// participants?
 				String maintainRoleString = realmEdit.getMaintainRole();
-				boolean hadMaintainUser = realmEdit.getUsersHasRole(
+				boolean hadMaintainUser = !realmEdit.getUsersHasRole(
 						maintainRoleString).isEmpty();
 
 				// update participant roles
