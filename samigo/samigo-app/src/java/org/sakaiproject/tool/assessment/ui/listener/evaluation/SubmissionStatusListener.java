@@ -333,6 +333,7 @@ public class SubmissionStatusListener
 		//int totalSubmitted = allAssessmentGradingList.size();
 		AssessmentAccessControlIfc assessmentAccessControl = publishedAssessmentData.getAssessmentAccessControl();
 		Date currentDate = new Date();
+		Date startDate = assessmentAccessControl.getStartDate();
 		Date dueDate = assessmentAccessControl.getDueDate();
 		GradingService gradingService = new GradingService();
 		List studentGradingSummaryDataList = gradingService.getStudentGradingSummaryData(publishedAssessmentData.getPublishedAssessmentId(), agentId);
@@ -349,7 +350,7 @@ public class SubmissionStatusListener
 		}
 			
 		boolean acceptLateSubmission = AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.equals(assessmentAccessControl.getLateHandling());
-		if (acceptLateSubmission) {
+		if (acceptLateSubmission && (startDate == null || startDate.before(currentDate))) {
 			if (dueDate != null && dueDate.before(currentDate)) {
 				// no submission at all, there will be one more last chance for student to submit
 				// therefore, don't show the retake

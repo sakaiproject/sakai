@@ -444,6 +444,7 @@ public class SelectActionListener
     
       //2. time to go through all the criteria
     if (retractDate == null || retractDate.after(currentDate)) {
+    	if (startDate == null || startDate.before(currentDate)) {
 			if (dueDate != null && dueDate.before(currentDate)) {
 				if (acceptLateSubmission) {
 					if (totalSubmitted == 0) {
@@ -455,13 +456,14 @@ public class SelectActionListener
 						}
 					}
 				}
-			} 
+			}
 			else {
 				if (totalSubmitted < maxSubmissionsAllowed + numberRetake) {
 					returnValue = true;
 				}
 			}
-		}
+    	}
+    }
     
     return returnValue;
   }
