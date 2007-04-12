@@ -2047,8 +2047,6 @@ public class AssignmentAction extends PagedResourceActionII
 
 		add2ndToolbarFields(data, context);
 
-		pagingInfoToContext(state, context);
-
 		String template = (String) getContext(data).get("template");
 		return template + TEMPLATE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT;
 
