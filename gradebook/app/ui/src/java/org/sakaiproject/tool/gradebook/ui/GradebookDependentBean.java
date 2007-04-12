@@ -271,4 +271,37 @@ public abstract class GradebookDependentBean extends InitializableBean {
     	
     	return weightingEnabled.booleanValue();
     }
+    
+    /**
+     * Returns whether the gb grade entry is by points
+     */
+    private transient Boolean gradeEntryByPoints;
+    public boolean getGradeEntryByPoints() {
+    	if (gradeEntryByPoints == null)
+    		gradeEntryByPoints = new Boolean(getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_POINTS);
+    	
+    	return gradeEntryByPoints.booleanValue();
+    }
+    
+    /**
+     * Returns whether the gb grade entry is by percentage
+     */
+    private transient Boolean gradeEntryByPercent;
+    public boolean getGradeEntryByPercent() {
+    	if (gradeEntryByPercent == null)
+    		gradeEntryByPercent = new Boolean(getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE);
+    	
+    	return gradeEntryByPercent.booleanValue();
+    }
+    
+    /**
+     * Returns whether the gb grade entry is by letter
+     */
+    private transient Boolean gradeEntryByLetter;
+    public boolean getGradeEntryByLetter() {
+    	if (gradeEntryByLetter == null)
+    		gradeEntryByLetter = new Boolean(getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_LETTER);
+    	
+    	return gradeEntryByLetter.booleanValue();
+    }
 }
