@@ -189,7 +189,13 @@ public class SaveAssessmentSettings
     }
     if (assessmentSettings.getAnonymousGrading()!=null)
       evaluation.setAnonymousGrading(new Integer(assessmentSettings.getAnonymousGrading()));
-    evaluation.setToGradeBook(assessmentSettings.getToDefaultGradebook());
+    
+    // If there is value set for toDefaultGradebook, we reset it
+    // Otherwise, do nothing
+    if (assessmentSettings.getToDefaultGradebook() != null) {
+  	  evaluation.setToGradeBook(assessmentSettings.getToDefaultGradebook());
+    }
+
     if (assessmentSettings.getScoringType()!=null)
       evaluation.setScoringType(new Integer(assessmentSettings.getScoringType()));
     assessment.setEvaluationModel(evaluation);

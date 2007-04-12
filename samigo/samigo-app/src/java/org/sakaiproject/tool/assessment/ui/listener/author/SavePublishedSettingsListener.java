@@ -175,7 +175,11 @@ public class SavePublishedSettingsListener
         evaluation = new PublishedEvaluationModel();
         evaluation.setAssessmentBase(assessment.getData());
       }
-      evaluation.setToGradeBook(assessmentSettings.getToDefaultGradebook());
+      // If there is value set for toDefaultGradebook, we reset it
+      // Otherwise, do nothing
+      if (assessmentSettings.getToDefaultGradebook() != null) {
+    	  evaluation.setToGradeBook(assessmentSettings.getToDefaultGradebook());
+      }
       Integer scoringType = evaluation.getScoringType();
       if (evaluation.getToGradeBook()!=null && 
         evaluation.getToGradeBook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())){
