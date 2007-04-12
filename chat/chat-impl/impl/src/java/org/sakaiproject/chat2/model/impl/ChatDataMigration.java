@@ -27,6 +27,7 @@ package org.sakaiproject.chat2.model.impl;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -63,6 +64,30 @@ public class ChatDataMigration {
    private boolean chatMigrationExecuteImmediate = true;
    
    
+   /** init thread - so we don't wait in the actual init() call */
+   public class ChatDataMigrationThread extends Thread
+   {
+      /**
+       * construct and start the init activity
+       */
+      public ChatDataMigrationThread()
+      {
+         //m_ready = false;
+         start();
+      }
+
+      /**
+       * run the init
+       */
+      public void run()
+      {
+         try {
+            load();
+         } catch (Exception e) {
+            logger.warn("Error with ChatDataMigrationThread.run()", e);
+         }
+      }
+   }
    
    /**
     * Called on after the startup of the singleton.  This sets the global
@@ -75,7 +100,8 @@ public class ChatDataMigration {
       
       try {         
          if (performChatMigration) {
-            load();
+            new ChatDataMigrationThread();
+            //load();
          }         
       }
       catch (Exception e) {
@@ -94,7 +120,7 @@ public class ChatDataMigration {
    
    public void load() throws Exception {
       printDebug("*******outputDir: " + outputFile);
-
+      logger.info("Running Chat Migration; output file: " + outputFile + " immediate: " + chatMigrationExecuteImmediate);
       Connection connection = null;
       
       PrintWriter sqlFile = new PrintWriter(new BufferedWriter(new FileWriter(outputFile, false)), true);
@@ -132,6 +158,8 @@ public class ChatDataMigration {
          printDebug("*******BORROWED A CONNECTION");
          runChannelMigration(connection, sqlFile);
          
+         runMessageMigration(connection, sqlFile);
+         
       }
       catch (Exception e) {
          printDebug(e.toString());
@@ -148,10 +176,11 @@ public class ChatDataMigration {
             }
          }
       }
+      logger.info("Chat migration complete");
    }
    
    protected void runChannelMigration(Connection con, PrintWriter output) {
-      logger.info("runChannelMigration()");
+      logger.debug("runChannelMigration()");
       printDebug("*******GETTING CHANNELS");
       
       String sql = getMessageFromBundle("select.oldchannels");
@@ -173,14 +202,20 @@ public class ChatDataMigration {
                   printDebug("*******FOUND CHANNEL: " + oldId);
                   printDebug("*******FOUND CHANNEL: " + xml);
                   
-                  Document doc = Xml.readDocumentFromString((String)xml);
+                  Document doc = null;
+                  try {
+                     doc = Xml.readDocumentFromString((String)xml);
+                  }
+                  catch (ClassCastException cce) {
+                     Clob xmlClob = (Clob) xml;
+                     doc = Xml.readDocumentFromStream(xmlClob.getAsciiStream());
+                  }
 
                   // verify the root element
                   Element root = doc.getDocumentElement();
                   String context = root.getAttribute("context");
                   String title = root.getAttribute("id");
-                  String newChannelId = oldId;
-                  newChannelId = newChannelId.replaceAll("/", "_");
+                  String newChannelId = escapeSpecialChars(oldId);
                   
                   //TODO Chat lookup the config params?
                   String outputSql = getMessageFromBundle("insert.channel", new Object[]{
@@ -197,13 +232,13 @@ public class ChatDataMigration {
                    * migratedChannelId
                    */
                   
-                  output.println(outputSql);
+                  output.println(outputSql + ";");
                   if (chatMigrationExecuteImmediate) {
                      sqlService.dbWrite(null, outputSql, null);
                   }
                   
                   //Get the messages for each channel
-                  runMessageMigration(con, output, oldId, newChannelId);
+                  //runMessageMigration(con, output, oldId, newChannelId);
                   
                }
            } finally {
@@ -218,14 +253,15 @@ public class ChatDataMigration {
             } catch (Exception e) {
             }
         }
-        logger.info("Migration task fininshed: runChannelMigration()");
+        logger.debug("Migration task fininshed: runChannelMigration()");
    }
    
-   protected void runMessageMigration(Connection con, PrintWriter output, String oldChannelId, String newChannelId) {
-      logger.info("runMessageMigration()");
+   protected void runMessageMigration(Connection con, PrintWriter output) {
+      logger.debug("runMessageMigration()");
       printDebug("*******GETTING MESSAGES");
       
-      String sql = getMessageFromBundle("select.oldmessages", new Object[]{oldChannelId});
+      //String sql = getMessageFromBundle("select.oldmessages", new Object[]{oldChannelId});
+      String sql = getMessageFromBundle("select.oldmessages");
       //String sql = "select c.channel_id, c.xml from chat_channel c";
       
       try {
@@ -244,7 +280,7 @@ public class ChatDataMigration {
                    * XML
                    * 
                    */
-                  //String oldChannelId = rs.getString("CHANNEL_ID");
+                  String oldChannelId = rs.getString("CHANNEL_ID");
                   String oldMessageId = rs.getString("MESSAGE_ID");
                   String owner = rs.getString("OWNER");
                   Date messageDate = rs.getTimestamp("MESSAGE_DATE");
@@ -253,7 +289,14 @@ public class ChatDataMigration {
                   printDebug("*******FOUND MESSAGE: " + oldMessageId);
                   printDebug("*******FOUND MESSAGE: " + xml);
                   
-                  Document doc = Xml.readDocumentFromString((String)xml);
+                  Document doc = null;
+                  try {
+                     doc = Xml.readDocumentFromString((String)xml);
+                  }
+                  catch (ClassCastException cce) {
+                     Clob xmlClob = (Clob) xml;
+                     doc = Xml.readDocumentFromStream(xmlClob.getAsciiStream());
+                  }
 
                   // verify the root element
                   Element root = doc.getDocumentElement();
@@ -265,13 +308,13 @@ public class ChatDataMigration {
                   newMessageId = newMessageId.replaceAll("/", "_");
                   
                   String outputSql = getMessageFromBundle("insert.message", new Object[] {
-                        newMessageId, newChannelId, owner, messageDate, body, oldMessageId});
+                        newMessageId, escapeSpecialChars(oldChannelId), owner, messageDate, body, oldMessageId});
                   /*
                    * insert into CHAT2_MESSAGE (MESSAGE_ID, CHANNEL_ID, OWNER, MESSAGE_DATE, BODY) \
                         values ('{0}', '{1}', '{2}', '{3}', '{4}');
                   
                   */
-                  output.println(outputSql);
+                  output.println(outputSql + ";");
                   if (chatMigrationExecuteImmediate) {
                      sqlService.dbWrite(null, outputSql, null);
                   }
@@ -288,8 +331,21 @@ public class ChatDataMigration {
             } catch (Exception e) {
             }
         }
-        logger.info("Migration task fininshed: runMessageMigration()");
+        logger.debug("Migration task fininshed: runMessageMigration()");
       
+   }
+   
+   /**
+    * Escapes special characters that may be bad in sql statements
+    * -- "'" is replaced with "''"
+    * -- "/" is replaced with "_"
+    * @param input Original string to parse
+    * @return A string with any special characters escaped
+    */
+   protected String escapeSpecialChars(String input) {
+      String output = input.replaceAll("'", "''");
+      output = output.replaceAll("/", "_");
+      return output;
    }
    
    
