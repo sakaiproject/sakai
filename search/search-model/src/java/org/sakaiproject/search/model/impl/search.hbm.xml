@@ -55,11 +55,13 @@
           <!-- the action to perform add, update, delete -->
           <property name="searchaction" 
               column="searchaction" 
-              type="int" />
+              type="int" 
+              index="searchbuilderitem_searchaction_i" />
           <!-- the state of the record, pending, completed -->
           <property name="searchstate" 
               column="searchstate" 
-              type="int" />
+              type="int" 
+              index="searchbuilderitem_searchstate_i" />
       </class>
       
       <class name="org.sakaiproject.search.model.impl.SearchWriterLockImpl"
