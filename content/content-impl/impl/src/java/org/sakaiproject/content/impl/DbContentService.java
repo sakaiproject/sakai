@@ -1040,9 +1040,9 @@ public class DbContentService extends BaseContentService
 							}
 						}
 					}
+					m_resourceStore.commitResource(edit);
 				}
 				
-				m_resourceStore.commitResource(edit);
 			}
 			finally
 			{
