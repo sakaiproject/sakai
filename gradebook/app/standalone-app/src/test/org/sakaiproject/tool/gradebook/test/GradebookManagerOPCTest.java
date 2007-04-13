@@ -1778,6 +1778,27 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 				Assert.assertTrue(new BigDecimal(cat.getAverageScore()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
 					new BigDecimal((1.0 + 2 + 3 + 4 + 5) / 5.0 / 2.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			}
+			
+			List assignList = cat.getAssignmentList();
+			for(int j=0; j<assignList.size(); j++)
+			{
+				Assignment assi= (Assignment) assignList.get(j);
+				if(assi.getId().equals(assgn1Long))
+				{
+					Assert.assertTrue(new BigDecimal(assi.getAverageTotal()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+						new BigDecimal((1.0+2+3+4+5) / 5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+					Assert.assertTrue(new BigDecimal(assi.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+						new BigDecimal((1.0+2+3+4+5) / 5.0 / 5.0 * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				}
+				if(assi.getId().equals(assgn3Long))
+				{
+					Assert.assertTrue(new BigDecimal(assi.getAverageTotal()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+						new BigDecimal((1.0+2+3+4+5) / 5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+					Assert.assertTrue(new BigDecimal(assi.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+						new BigDecimal((1.0+2+3+4+5) / 5.0 / 10.0 * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				}
+				//System.out.println(assi.getAverageTotal() + "==" + assi.getMean());
+			}
 		}
 		
 		//test for setting studentId1's assignment1 to null
@@ -1809,6 +1830,27 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 				Assert.assertTrue(new BigDecimal(cat.getAverageScore()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
 					new BigDecimal((1.0 + 2.0 + 3 + 4 + 5) / 5.0 / 2.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			}
+			
+			List assignList = cat.getAssignmentList();
+			for(int j=0; j<assignList.size(); j++)
+			{
+				Assignment assi= (Assignment) assignList.get(j);
+				if(assi.getId().equals(assgn1Long))
+				{
+					Assert.assertTrue(new BigDecimal(assi.getAverageTotal()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+						new BigDecimal((2+3+4+5) / 4.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+					Assert.assertTrue(new BigDecimal(assi.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+						new BigDecimal((2+3+4+5) / 4.0 / 5.0 * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				}
+				if(assi.getId().equals(assgn3Long))
+				{
+					Assert.assertTrue(new BigDecimal(assi.getAverageTotal()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+						new BigDecimal((1.0+2+3+4+5) / 5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+					Assert.assertTrue(new BigDecimal(assi.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+						new BigDecimal((1.0+2+3+4+5) / 5.0 / 10.0 * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				}
+			}
+
 		}
 	}
 }

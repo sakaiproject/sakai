@@ -1668,6 +1668,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		if(cate != null && cateMap.get(cate.getId()) != null)
     		{
     			cate.calculateStatistics((List) cateMap.get(cate.getId()));
+    			cate.setAssignmentList((List)cateMap.get(cate.getId()));
     		}
     	}
   		return categories;

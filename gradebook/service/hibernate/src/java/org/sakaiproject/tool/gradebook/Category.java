@@ -14,6 +14,7 @@ public class Category implements Serializable
 	private boolean removed;
 	private Double averageTotalPoints;
 	private Double averageScore;
+	private List assignmentList;
 
 	public int getDrop_lowest()
 	{
@@ -141,5 +142,15 @@ public class Category implements Serializable
     	averageScore = new Double(total / numScored);
     	averageTotalPoints = new Double(totalPossible / numOfAssignments);
     }
+	}
+
+	public List getAssignmentList()
+	{
+		return assignmentList;
+	}
+
+	public void setAssignmentList(List assignmentList)
+	{
+		this.assignmentList = assignmentList;
 	}
 }
