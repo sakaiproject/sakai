@@ -183,7 +183,7 @@
 			<input
 				type="button"
 				class="active"
-				#if ($!isCourseSite && $!manualAddNumber)
+				#if (($!isCourseSite && $!manualAddNumber) || $!selectedAuthorizerCourse || $!selectedRequestedCourse )
 					#set($name = "$tlang.getString('newsc.reqsite')")
 				#else
 					#set($name="$tlang.getString('newsc.crsite')")

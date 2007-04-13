@@ -1475,6 +1475,14 @@ public class SiteAction extends PagedResourceActionII {
 					context.put("selectedProviderCourse", state
 							.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN));
 				}
+				if (state.getAttribute(STATE_CM_AUTHORIZER_SECTIONS) != null) {
+					context.put("selectedAuthorizerCourse", state
+							.getAttribute(STATE_CM_AUTHORIZER_SECTIONS));
+				}
+				if (state.getAttribute(STATE_CM_REQUESTED_SECTIONS) != null) {
+					context.put("selectedRequestedCourse", state
+							.getAttribute(STATE_CM_REQUESTED_SECTIONS));
+				}
 				if (state.getAttribute(STATE_MANUAL_ADD_COURSE_NUMBER) != null) {
 					int number = ((Integer) state
 							.getAttribute(STATE_MANUAL_ADD_COURSE_NUMBER))
@@ -2499,23 +2507,16 @@ public class SiteAction extends PagedResourceActionII {
 				// v2.4 daisyf
 				if (state.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN) != null
 						|| state.getAttribute(STATE_CM_AUTHORIZER_SECTIONS) != null) {
-					List<String> totalList = (List<String>) state
+					List<String> providerSectionList = (List<String>) state
 							.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN);
 					List<SectionObject> authorizerSectionList = (List<SectionObject>) state
 							.getAttribute(STATE_CM_AUTHORIZER_SECTIONS);
-					ArrayList list = new ArrayList();
-					if (authorizerSectionList!=null){
-						for (int i=0; i<authorizerSectionList.size();i++){
-							SectionObject so = (SectionObject)authorizerSectionList.get(i);
-							list.add(so.getEid());
-						}
-					}
-					if (totalList == null) {
-						totalList = list;
-					} else {
-						totalList.addAll(list);
-					}
-					context.put("selectedProviderCourse", totalList);
+					List list1 = prepareSectionObject(providerSectionList,(String)state
+							.getAttribute(STATE_CM_CURRENT_USERID));
+					List authorizerList = (List)state.getAttribute(STATE_CM_AUTHORIZER_LIST);
+					List list2 = prepareSectionObject(authorizerSectionList,(String)authorizerList.get(0));
+					context.put("selectedProviderCourse", list1);
+					context.put("selectedAuthorizerCourse", list2);
 				}
 
 				if (state.getAttribute(STATE_MANUAL_ADD_COURSE_NUMBER) != null) {
