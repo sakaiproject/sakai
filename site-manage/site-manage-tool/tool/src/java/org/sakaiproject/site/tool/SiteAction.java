@@ -4723,6 +4723,23 @@ public class SiteAction extends PagedResourceActionII {
 			}
 		}
 	}// doContinue
+	
+	/**
+	 * handle with continue add new course site options
+	 * 
+	 */
+	public void doContinue_new_course(RunData data) {
+		String option = data.getParameters().getString("option");
+		if (option.equals("continue")) {
+			doContinue(data);
+		} else if (option.equals("cancel")) {
+			doCancel_create(data);
+		} else if (option.equals("back")) {
+			doBack(data);
+		} else if (option.equals("cancel")) {
+			doCancel_create(data);
+		}
+	} // doContinue_new_course
 
 	/**
 	 * doBack is called when "eventSubmit_doBack" is in the request parameters

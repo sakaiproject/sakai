@@ -97,9 +97,8 @@ function submitAddNotListed(){
 function submitFindCourse(){
     find_course = document.getElementById("find_course");
     find_course.value="true";
-    //continueButton = document.getElementById("continueButton");
-    //continueButton.disabled = false;
-    //continueButton.click();
+    var option = document.getElementById("option");
+   	option.value='continue';
     document.addCourseForm.submit();
     return false;
 }
@@ -304,16 +303,39 @@ function redirectBasedOnSelection(){
 
 		<input id="index" type="hidden" name="template-index" value="36" />
 		<input type="hidden" name="back" value="1" />
+		<input type="hidden" name="option" id="option" value="x" />
 
 			#if (!$site)
 				<!-- Add Not Listed Courses -->
-		                <input type="hidden" name="eventSubmit_doContinue" value="$tlang.getString('gen.continue')" />
+				<input type="hidden" name="eventSubmit_doContinue_new_course" value="x" />
 				<a href="#" onclick="javascript:submitFindCourse();">$tlang.getString('nscourse.add_course_not_listed')</a>
 				<p class="act">
-				<input id="continueButton" type="submit" class="active" accesskey="s" name="eventSubmit_doContinue" 
-				value="$tlang.getString('gen.continue')" disabled="true" />
-				<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" />
-				<input type="submit" accesskey="x" name="eventSubmit_doCancel_create" value="$tlang.getString('gen.cancel')" />
+				<input
+					class="active"
+					disabled="true"
+					type="button" 
+					accesskey="s"
+					name="Continue" 
+					id="continueButton" 
+					value="$tlang.getString('gen.continue')"
+					onclick="document.addCourseForm.option.value='continue'; document.addCourseForm.submit(); return false;"
+					/>
+				<input
+					type="button" 
+					accesskey="s"
+					name="Back" 
+					id="backButton" 
+					value="$tlang.getString('gen.back')"
+					onclick="document.addCourseForm.option.value='back'; document.addCourseForm.submit(); return false;"
+					/>
+				<input
+					type="button" 
+					accesskey="s"
+					name="Cancel" 
+					id="cancelButton" 
+					value="$tlang.getString('gen.cancel')"
+					onclick="document.addCourseForm.option.value='cancel'; document.addCourseForm.submit(); return false;"
+					/>
 				</p>
 			#else
 				<p class="act">
