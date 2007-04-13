@@ -222,59 +222,59 @@ public class PermissionLevelImpl extends MutableEntityImpl
 
     Boolean bThis = this.getChangeSettings();         
     returnValue = (bThis == null) ? obj.getChangeSettings() == null : bThis.equals(obj.getChangeSettings()); 
-    if(returnValue = false)
+    if(!returnValue)
     	return returnValue;
 	bThis = this.getDeleteAny();
     returnValue = (bThis == null) ? obj.getDeleteAny() == null : bThis.equals(obj.getDeleteAny());
-    if(returnValue = false)
+    if(!returnValue)
     	return returnValue;
 	bThis = this.getDeleteOwn();         
     returnValue = (bThis == null) ? obj.getDeleteOwn() == null : bThis.equals(obj.getDeleteOwn());
-    if(returnValue = false)
+    if(!returnValue)
     	return returnValue;
 	bThis = this.getMarkAsRead();         
     returnValue = (bThis == null) ? obj.getMarkAsRead() == null : bThis.equals(obj.getMarkAsRead());
-    if(returnValue = false)
+    if(!returnValue)
     	return returnValue;
 	bThis = this.getMovePosting();         
     returnValue = (bThis == null) ? obj.getMovePosting() == null : bThis.equals(obj.getMovePosting());
-    if(returnValue = false)
+    if(!returnValue)
     	return returnValue;
 	bThis = this.getNewForum();         
     returnValue = (bThis == null) ? obj.getNewForum() == null : bThis.equals(obj.getNewForum());
-    if(returnValue = false)
+    if(!returnValue)
     	return returnValue;
 	bThis = this.getNewResponse();         
     returnValue = (bThis == null) ? obj.getNewResponse() == null : bThis.equals(obj.getNewResponse());
-    if(returnValue = false)
+    if(!returnValue)
     	return returnValue;
 	bThis = this.getNewResponseToResponse();         
     returnValue = (bThis == null) ? obj.getNewResponseToResponse() == null : bThis.equals(obj.getNewResponseToResponse());
-    if(returnValue = false)
+    if(!returnValue)
     	return returnValue;
 	bThis = this.getNewTopic();         
     returnValue = (bThis == null) ? obj.getNewTopic() == null : bThis.equals(obj.getNewTopic());
-    if(returnValue = false)
+    if(!returnValue)
     	return returnValue;
 	bThis = this.getPostToGradebook();         
     returnValue = (bThis == null) ? obj.getPostToGradebook() == null : bThis.equals(obj.getPostToGradebook());
-    if(returnValue = false)
+    if(!returnValue)
     	return returnValue;
 	bThis = this.getRead();         
     returnValue = (bThis == null) ? obj.getRead() == null : bThis.equals(obj.getRead());
-    if(returnValue = false)
+    if(!returnValue)
     	return returnValue;
 	bThis = this.getReviseAny();         
     returnValue = (bThis == null) ? obj.getReviseAny() == null : bThis.equals(obj.getReviseAny());
-    if(returnValue = false)
+    if(!returnValue)
     	return returnValue;
 	bThis = this.getReviseOwn();
     returnValue = (bThis == null) ? obj.getReviseOwn() == null : bThis.equals(obj.getReviseOwn());
-    if(returnValue = false)
+    if(!returnValue)
     	return returnValue;
 	bThis = this.getModeratePostings();         
     returnValue = (bThis == null) ? obj.getModeratePostings() == null : bThis.equals(obj.getModeratePostings());
-    if(returnValue = false)
+    if(!returnValue)
     	return returnValue;
 	
     return returnValue;   
