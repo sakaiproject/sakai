@@ -139,28 +139,8 @@ public class ControllerServlet2 extends HttpServlet
 	protected void doGet(final HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException
 	{
-		// GET doesnt do UTF-8 encoding even URL, take the default encoding of
-		// the machine
-		HttpServletRequestWrapper httprequest = new HttpServletRequestWrapper(request)
-		{
 
-			@Override
-			public String getParameter(String name)
-			{
-				String param = request.getParameter(name);
-				if (param == null) return null;
-				try
-				{
-					return new String(param.getBytes("ISO-8859-1"), "UTF-8");
-				}
-				catch (UnsupportedEncodingException e)
-				{
-					return param;
-				}
-			}
-		};
-
-		execute(httprequest, response);
+		execute(request, response);
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
