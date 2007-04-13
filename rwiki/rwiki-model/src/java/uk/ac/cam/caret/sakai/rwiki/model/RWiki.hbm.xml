@@ -51,7 +51,7 @@
 			<column name="id" length="36" not-null="true"/>
 			<generator class="uuid.hex" />
 		</id>
-		<property name="rwikiid" length="36" not-null="true" index="rwikicurrentcontent_rwikiid_i" />
+		<property name="rwikiid" length="36" not-null="true" index="irwikicurrentcontent_rwi" />
 		<property name="content" not-null="false" type="text" length="16777215"/>		
 	</class>
 	<!--
@@ -64,7 +64,7 @@
 			<column name="id" length="36" not-null="true"/>
 			<generator class="uuid.hex" />
 		</id>
-		<property name="rwikiid" length="36" not-null="true" index="rwikihistorycontent_rwikiid_i"/>
+		<property name="rwikiid" length="36" not-null="true" index="irwikihistorycontent_rwi"/>
 		<property name="content" not-null="false" type="text" length="16777215"/>		
 	</class>
 	
@@ -114,7 +114,7 @@
 		<property name="revision"  type="int"/>
 
 		<!-- additional properties not in RWiki Object -->		
-		<property name="rwikiobjectid" length="36" not-null="true" index="rwikihistoryobj_rwikobjiid_i"/>
+		<property name="rwikiobjectid" length="36" not-null="true" index="irwikihistoryobj_rwid"/>
 
 	</class>
 
