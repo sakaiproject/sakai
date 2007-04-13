@@ -98,6 +98,7 @@ function submitFindCourse(){
     find_course = document.getElementById("find_course");
     find_course.value="true";
     continueButton = document.getElementById("continueButton");
+    continueButton.disabled = false;
     continueButton.click();
     return false;
 }
@@ -158,7 +159,7 @@ function redirectBasedOnSelection(){
 						<input type="text" name="userId" value="$userId"/>
 						<input type="hidden" name="itemType" value="course" />
 						<input type="hidden" name="selectTerm" value="$term.eid" />
-						<input type="submit" accesskey="s"  class="active" name="eventSubmit_doChange_user" value="$tlang.getString("nscourse.change_button")"
+						<input type="submit" accesskey="s"  class="act" name="eventSubmit_doChange_user" value="$tlang.getString("nscourse.change_button")"
 					onsubmit="javascript:submitChangeUser()" />
 					</td>
 				</tr>
@@ -302,16 +303,18 @@ function redirectBasedOnSelection(){
 
 		<input id="index" type="hidden" name="template-index" value="36" />
 		<input type="hidden" name="back" value="1" />
-		<p class="act">
+
 			#if (!$site)
 				<!-- Add Not Listed Courses -->
 				<a href="#" onclick="javascript:submitFindCourse();">$tlang.getString('nscourse.add_course_not_listed')</a>
-				<p></p>			
+				<p class="act">
 				<input id="continueButton" type="submit" class="active" accesskey="s" name="eventSubmit_doContinue" 
 				value="$tlang.getString('gen.continue')" disabled="true" />
 				<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" />
 				<input type="submit" accesskey="x" name="eventSubmit_doCancel_create" value="$tlang.getString('gen.cancel')" />
+				</p>
 			#else
+				<p class="act">
 				<input type="hidden" name="option" value="x" />
 				<input type="hidden" name="eventSubmit_doAdd_class_select" value="x" />
 				<input
@@ -331,8 +334,8 @@ function redirectBasedOnSelection(){
 					value="$tlang.getString('gen.cancel')"
 					onclick="document.addCourseForm.option.value='cancel'; document.addCourseForm.submit(); return false;"
 				/>
+				</p>
 			#end
-		</p>
 
 	</form>
 </div>
