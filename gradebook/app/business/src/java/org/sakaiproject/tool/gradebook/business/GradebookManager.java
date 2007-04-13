@@ -258,7 +258,6 @@ public interface GradebookManager {
      */
     public Assignment getAssignmentWithStats(Long assignmentId);
 
-
    /**
      * Add a new assignment to a gradebook
      *

@@ -75,5 +75,15 @@
             <to-view-id>/gradebookSetup.jsp</to-view-id>
         </navigation-case>
 
+        <navigation-case>
+            <from-outcome>spreadsheetAll</from-outcome>
+            <to-view-id>/spreadsheetEntireGBImport.jsp</to-view-id>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>spreadsheetVerify</from-outcome>
+            <to-view-id>/spreadsheetEntireGBVerify.jsp</to-view-id>
+        </navigation-case>
+
     </navigation-rule>
 </faces-config>

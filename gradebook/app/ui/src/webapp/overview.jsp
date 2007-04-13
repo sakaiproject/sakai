@@ -23,7 +23,7 @@
 		
 		<sakai:tool_bar rendered="#{overviewBean.userAbleToEditAssessments}">
     	<sakai:tool_bar_item value="#{msgs.overview_add_item}" action="addAssignment" />
-    	<sakai:tool_bar_item value="#{msgs.overview_import_item}" action="" />
+    	<sakai:tool_bar_item value="#{msgs.overview_import_item}" action="spreadsheetListing" />
   	</sakai:tool_bar>
 
 		<%@include file="/inc/globalMessages.jspf"%>

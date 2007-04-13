@@ -42,6 +42,8 @@
                 <value>spreadsheetImport</value>
                 <value>spreadsheetListing</value>
                 <value>spreadsheetRemove</value>
+                <value>spreadsheetEntireGBImport</value>
+                <value>spreadsheetEntireGBVerify</value>
                 <value>gradebookSetup</value>
             </list>
 		</property>

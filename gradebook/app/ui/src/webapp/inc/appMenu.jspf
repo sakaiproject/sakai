@@ -25,11 +25,8 @@
      </h:commandLink>
      <h:outputText value="#{msgs.appmenu_feedback_options} &nbsp;" escape="false" rendered="#{bean.pageName eq 'feedbackOptions' && bean.userAbleToEditAssessments}" styleClass="currentView" />
 
-
-     <h:commandLink action="spreadsheetListing" immediate="true" rendered="#{bean ne spreadsheetUploadBean && bean.userAbleToEditAssessments}">
-         <h:outputText value="#{msgs.appmenu_import_upload}" />
-         <f:param name="pageName" value="spreadsheetListing"/>
-     </h:commandLink>
-     <h:outputText value="#{msgs.appmenu_import_upload} &nbsp;" escape="false" rendered="#{bean eq spreadsheetUploadBean && bean.userAbleToEditAssessments}" styleClass="currentView" />
-
+      <h:commandLink action="spreadsheetAll" immediate="true" rendered="#{bean.pageName ne 'spreadsheetAll' && bean.userAbleToEditAssessments}" styleClass="currentView">
+          <h:outputText value="#{msgs.appmenu_import_all}"  />
+      </h:commandLink>
+      <h:outputText value="#{msgs.appmenu_import_all}" rendered="#{bean.pageName eq 'spreadsheetAll'}" styleClass="currentView" />
 </sakai:tool_bar>

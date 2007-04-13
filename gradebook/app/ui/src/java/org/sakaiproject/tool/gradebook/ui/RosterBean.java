@@ -326,25 +326,50 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         gradableObjects.add(courseGrade);
     	return getSpreadsheetData(filteredEnrollments, filteredGradesMap, gradableObjects);
     }
-    
+ 
+    /**
+     * Creates the actual 'spreadsheet' List needed from gradebook objects
+     * Format:
+     * 	Header Row: Student id, Student Name, Assignment(s)
+     *  Points Possible Row
+     *  Student Rows
+     * 
+     * @param enrollments
+     * @param gradesMap
+     * @param gradableObjects
+     * @return
+     */
     private List<List<Object>> getSpreadsheetData(List enrollments, Map gradesMap, List gradableObjects) {
     	List<List<Object>> spreadsheetData = new ArrayList<List<Object>>();
 
-    	// Build column headers.
+    	// Build column headers and points possible rows.
         List<Object> headerRow = new ArrayList<Object>();
+        List<Object> pointsPossibleRow = new ArrayList<Object>();
+        
         headerRow.add(getLocalizedString("export_student_id"));
         headerRow.add(getLocalizedString("export_student_name"));
+        
+        // Student id and name rows have blank points possible
+        pointsPossibleRow.add(getLocalizedString("export_points_possible"));
+        pointsPossibleRow.add("");
+        
         for (Object gradableObject : gradableObjects) {
         	String colName = null;
-         	if (gradableObject instanceof Assignment) {
+        	Double ptsPossible = 0.0;
+
+        	if (gradableObject instanceof Assignment) {
          		colName = ((Assignment)gradableObject).getName();
+         		ptsPossible = new Double(((Assignment) gradableObject).getPointsPossible());
          	} else if (gradableObject instanceof CourseGrade) {
          		colName = getLocalizedString("roster_course_grade_column_name");
          	}
-        	headerRow.add(colName);
+
+         	headerRow.add(colName);
+        	pointsPossibleRow.add(ptsPossible);
         }
         spreadsheetData.add(headerRow);
-        
+        spreadsheetData.add(pointsPossibleRow);
+
         // Build student score rows.
         for (Object enrollment : enrollments) {
         	User student = ((EnrollmentRecord)enrollment).getUser();
