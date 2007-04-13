@@ -1069,3 +1069,65 @@ CREATE TABLE CITATION_SCHEMA_FIELD
 );
 
 
+------------------------------------------------------------------------
+--- SAK-9436 Missing indexes in rwiki 
+------------------------------------------------------------------------
+--- its ok to ignore the drop errors, 
+drop index rwikiproperties_name;
+drop index  rwikicurrentcontent_rwikiid_i;
+drop index  rwikihistorycontent_rwikiid_i;
+drop index  rwikipagepresence_sessionid_i;
+drop index  irwikihistory_name;
+drop index  irwikihistory_realm;
+drop index  irwikihistory_ref;
+drop index  rwikihistoryobj_rwikobjiid_i;
+drop index  irwikiobject_name;
+drop index  irwikiobject_realm;
+drop index  irwikiobject_ref;
+
+drop index  irwikipr_userid;
+drop index  irwikipm_sessionid;
+drop index  irwikipm_user;
+drop index  irwikipm_pagespace;
+drop index  irwikipm_pagename;
+drop index  irwikipt_user;
+drop index  irwikipt_pagespace;
+drop index  irwikipt_pavename;
+
+create index irwikiproperties_name on rwikiproperties (name);
+create index rwikicurrentcontent_rwikiid_i on  rwikicurrentcontent (rwikiid);
+create index rwikihistorycontent_rwikiid_i on  rwikihistorycontent (rwikiid); 
+create index rwikipagepresence_sessionid_i on  rwikipagepresence (sessionid);
+create index irwikihistory_name on  rwikihistory (name);
+create index irwikihistory_realm on  rwikihistory (realm);
+create index irwikihistory_ref on  rwikihistory (referenced(1024));
+create index rwikihistoryobj_rwikobjiid_i on  rwikihistory (rwikiobjectid);
+create index irwikiobject_name on  rwikiobject (name);
+create index irwikiobject_realm on  rwikiobject (realm);
+create index irwikiobject_ref on  rwikiobject (referenced(1024));
+
+create index irwikipr_userid on  rwikipreference (userid);
+create index irwikipm_sessionid on  rwikipagemessage (sessionid);
+create index irwikipm_user on  rwikipagemessage (userid);
+create index irwikipm_pagespace on  rwikipagemessage (pagespace);
+create index irwikipm_pagename on  rwikipagemessage (pagename);
+create index irwikipt_user on  rwikipagetrigger (userid);
+create index irwikipt_pagespace on  rwikipagetrigger (pagespace);
+create index irwikipt_pavename on  rwikipagetrigger (pagename);
+
+------------------------------------------------------------------------
+-- SAK-9439 Missing indexes in search
+------------------------------------------------------------------------
+drop index  isearchbuilderitem_name;
+drop index  isearchbuilderitem_context;
+drop index  searchbuilderitem_searchaction_i;
+drop index  searchbuilderitem_searchstate_i;
+drop index  isearchwriterlock_lockkey;
+
+
+create index isearchbuilderitem_name on  searchbuilderitem (name);
+create index isearchbuilderitem_context on  searchbuilderitem (context);
+create index searchbuilderitem_searchaction_i on  searchbuilderitem (searchaction);
+create index searchbuilderitem_searchstate_i on  searchbuilderitem (searchstate);
+create index isearchwriterlock_lockkey on  searchwriterlock (lockkey);
+

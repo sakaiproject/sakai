@@ -1059,3 +1059,68 @@ CREATE TABLE CITATION_SCHEMA_FIELD
 -- SAK-9398 -- Larger field to prevent Data truncation in CONTENT column
 -----------------------------------------------------------------------------
 ALTER TABLE GB_SPREADSHEET_T MODIFY COLUMN CONTENT MEDIUMTEXT; 
+
+
+
+------------------------------------------------------------------------
+--- SAK-9436 Missing indexes in rwiki 
+------------------------------------------------------------------------
+--- its ok to ignore the drop errors, 
+alter table rwikiproperties drop index irwikiproperties_name;
+alter table rwikicurrentcontent drop index rwikicurrentcontent_rwikiid_i;
+alter table rwikihistorycontent drop index rwikihistorycontent_rwikiid_i;
+alter table rwikipagepresence drop index rwikipagepresence_sessionid_i;
+alter table rwikihistory drop index irwikihistory_name;
+alter table rwikihistory drop index irwikihistory_realm;
+alter table rwikihistory drop index irwikihistory_ref;
+alter table rwikihistory drop index rwikihistoryobj_rwikobjiid_i;
+alter table rwikiobject drop index irwikiobject_name;
+alter table rwikiobject drop index irwikiobject_realm;
+alter table rwikiobject drop index irwikiobject_ref;
+
+alter table rwikipreference drop index irwikipr_userid;
+alter table rwikipagemessage drop index irwikipm_sessionid;
+alter table rwikipagemessage drop index irwikipm_user;
+alter table rwikipagemessage drop index irwikipm_pagespace;
+alter table rwikipagemessage drop index irwikipm_pagename;
+alter table rwikipagetrigger drop index irwikipt_user;
+alter table rwikipagetrigger drop index irwikipt_pagespace;
+alter table rwikipagetrigger drop index irwikipt_pavename;
+
+alter table rwikiproperties add index irwikiproperties_name (name);
+alter table rwikicurrentcontent add index rwikicurrentcontent_rwikiid_i (rwikiid);
+alter table rwikihistorycontent add index rwikihistorycontent_rwikiid_i (rwikiid); 
+alter table rwikipagepresence add index rwikipagepresence_sessionid_i (sessionid);
+alter table rwikihistory add index irwikihistory_name (name);
+alter table rwikihistory add index irwikihistory_realm (realm);
+alter table rwikihistory add index irwikihistory_ref (referenced(1024));
+alter table rwikihistory add index rwikihistoryobj_rwikobjiid_i (rwikiobjectid);
+alter table rwikiobject add index irwikiobject_name (name);
+alter table rwikiobject add index irwikiobject_realm (realm);
+alter table rwikiobject add index irwikiobject_ref (referenced(1024));
+
+alter table rwikipreference add index irwikipr_userid (userid);
+alter table rwikipagemessage add index irwikipm_sessionid (sessionid);
+alter table rwikipagemessage add index irwikipm_user (userid);
+alter table rwikipagemessage add index irwikipm_pagespace (pagespace);
+alter table rwikipagemessage add index irwikipm_pagename (pagename);
+alter table rwikipagetrigger add index irwikipt_user (userid);
+alter table rwikipagetrigger add index irwikipt_pagespace (pagespace);
+alter table rwikipagetrigger add index irwikipt_pavename (pagename);
+
+------------------------------------------------------------------------
+-- SAK-9439 Missing indexes in search
+------------------------------------------------------------------------
+alter table searchbuilderitem drop index isearchbuilderitem_name;
+alter table searchbuilderitem drop index isearchbuilderitem_context;
+alter table searchbuilderitem drop index searchbuilderitem_searchaction_i;
+alter table searchbuilderitem drop index searchbuilderitem_searchstate_i;
+alter table searchwriterlock drop index isearchwriterlock_lockkey;
+
+
+alter table searchbuilderitem add index isearchbuilderitem_name (name);
+alter table searchbuilderitem add index isearchbuilderitem_context (context);
+alter table searchbuilderitem add index searchbuilderitem_searchaction_i (searchaction);
+alter table searchbuilderitem add index searchbuilderitem_searchstate_i (searchstate);
+alter table searchwriterlock add index isearchwriterlock_lockkey (lockkey);
+
