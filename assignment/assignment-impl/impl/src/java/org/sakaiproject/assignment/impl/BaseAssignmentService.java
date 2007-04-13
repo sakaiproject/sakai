@@ -9663,6 +9663,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		// the return String
 		String rv = "";
 		
+		oAssociateGradebookAssignment = StringUtil.trimToNull(oAssociateGradebookAssignment);
 		associateGradebookAssignment = StringUtil.trimToNull(associateGradebookAssignment);
 
 		// add or remove external grades to gradebook
@@ -9710,6 +9711,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				 		assignmentDefinition.setDueDate(new Date(newAssignment_dueTime.getTime()));
 				 		assignmentDefinition.setReleased(true); // in order to let student gets his own score, has to set the assignment to be release by default
 				 		g.addAssignment(gradebookUid, assignmentDefinition);
+				 		
+				 		// update the associate gradebook assignments
+				 		associateGradebookAssignment = newAssignment_title;
 					}
 					else
 					{
@@ -9750,12 +9754,17 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					{
 						
 						// update attributes for existing assignment
-						org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition = new org.sakaiproject.service.gradebook.shared.Assignment();
+						org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition = g.getAssignment(gradebookUid, associateGradebookAssignment);
 				 		assignmentDefinition.setPoints(new Double(newAssignment_maxPoints/10.0));
 				 		assignmentDefinition.setDueDate(new Date(newAssignment_dueTime.getTime()));
-				 		assignmentDefinition.setReleased(false);
-				 		g.updateAssignment(gradebookUid, associateGradebookAssignment, assignmentDefinition);
-				 		
+				 		try
+				 		{
+				 			g.updateAssignment(gradebookUid, associateGradebookAssignment, assignmentDefinition);
+				 		}
+				 		catch (Exception e)
+				 		{
+				 			M_log.warn(this + newAssignment_title + e.getMessage());
+				 		}
 				 		// update the corresponding assignment property to the newly renamed gradebook entry
 				 		try
 				 		{
@@ -9881,7 +9890,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		User[] submitters = aSubmission.getSubmitters();
 		String submitterId = submitters[0].getId();
 		
-		String gradeString = StringUtil.trimToNull(aSubmission.getGrade());
+		String gradeString = StringUtil.trimToNull(aSubmission.getGradeDisplay());
 		String gradeComment = StringUtil.trimToNull(aSubmission.getFeedbackComment());
 		
 		try
@@ -9898,17 +9907,19 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				if (StringUtil.trimToNull(oAssociateGradebookAssignment) != null && !oAssociateGradebookAssignment.equals(associateGradebookAssignment))
 				{
 					// remove grades and comments from old entry
-					gradeString = g.getAssignmentScore(gradebookUid, oAssociateGradebookAssignment, submitterId).toString();
+					Double grade = g.getAssignmentScore(gradebookUid, oAssociateGradebookAssignment, submitterId);
+					gradeString = (grade != null)?grade.toString():null;
 					g.setAssignmentScore(gradebookUid, oAssociateGradebookAssignment, submitterId, null, assignmentToolTitle);
 					
 					gradeComment = g.getAssignmentScoreComment(gradebookUid, oAssociateGradebookAssignment, submitterId).getCommentText();
 					g.setAssignmentScoreComment(gradebookUid, oAssociateGradebookAssignment, submitterId, null);
 				}
-				SecurityService.clearAdvisors();
 				
 				// update the grade and comment inside gradebook entry
 				g.setAssignmentScore(gradebookUid, associateGradebookAssignment, submitterId, (gradeString != null && aSubmission.getGradeReleased()) ? Double.valueOf(gradeString) : null, assignmentToolTitle);
 				g.setAssignmentScoreComment(gradebookUid, associateGradebookAssignment, submitterId, gradeComment);
+				
+				SecurityService.clearAdvisors();
 		}
 		catch (Exception e)
 		{
