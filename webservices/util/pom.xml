@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>M2</version>
+    <relativePath>../../master/pom.xml</relativePath>
+  </parent>
+  <name>sakai-util-axis</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>sakai-util-axis</artifactId>
+  <organization>
+    <name>University of Michigan</name>
+    <url>http://sakaiproject.org/</url>
+  </organization>
+  <inceptionYear>2007</inceptionYear>
+  <packaging>jar</packaging>
+  <dependencies>
+    <!-- None -->
+  </dependencies>
+  <build>
+    
+    <resources/>
+    
+  </build>
+</project>

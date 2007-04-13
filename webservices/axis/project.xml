@@ -114,6 +114,15 @@
                         <version>${sakai.version}</version>
                 </dependency>
 
+                <dependency>
+                        <groupId>sakaiproject</groupId>
+                        <artifactId>sakai-util-axis</artifactId>
+      			<properties>
+        			<war.bundle>true</war.bundle>
+      			</properties>
+                        <version>${sakai.version}</version>
+                </dependency>
+
 	</dependencies>
 
 	<build>

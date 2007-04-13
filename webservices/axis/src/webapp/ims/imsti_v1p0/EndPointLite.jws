@@ -1,0 +1,207 @@
+
+import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.Iterator;
+import java.net.URLEncoder;
+
+import org.sakaiproject.util.Xml;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.cover.SessionManager;
+
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.user.cover.UserDirectoryService;
+
+import org.sakaiproject.axis.util.XMLMap;
+
+import org.sakaiproject.tool.api.ActiveTool;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+
+import org.apache.axis.AxisFault;
+
+import org.sakaiproject.javax.PagingPosition;
+
+/**
+ * class to support Sakai Login headers sent in request as a string array
+ */
+public class EndPointLite {
+
+    public String doLaunch(String xmlStr)
+	throws AxisFault 
+    {
+	System.out.println("Incoming="+xmlStr);
+        Map<String, String> tm = XMLMap.getMap(xmlStr);
+
+	String userEid = tm.get("/LaunchRequest/LaunchData/LaunchProfile/UserProfile/IMSSourcedid/SourceID");
+	String placementId = tm.get("/LaunchRequest/Deployment/ToolSettings/SettingsDefinition/instance/placementId");
+	System.out.println("Eid = "+userEid+" placement="+placementId);
+	
+	Map<String,String> retMap = new TreeMap();
+	retMap.put("/LaunchResponse/imsx_CodeMajor","success");  // failure
+	retMap.put("/LaunchResponse/imsx_CodeMinor","status");   // error
+	retMap.put("/LaunchResponse/LaunchDirective","redirect");
+	retMap.put("/LaunchResponse/LaunchAction","http://www.dr-chuck.com/");
+	retMap.put("/LaunchResponse/Ancillary/frame-height","500");
+	// To do Hack this properly
+	retMap.put("/LaunchResponse/Ancillary/sakai:frameid",placementId);
+        String ret = XMLMap.getXML(retMap);
+        // System.out.println("ret="+ret);
+	// throw new AxisFault("Trouble in paradise");
+	return ret;
+    }
+
+    public String getSitesDom(String id, String search, int first, int last) 
+	throws AxisFault 
+    {
+    	return getSitesDom(id, search,first, last, false);
+    }
+
+    public String getToolsDom(String id, String search, int first, int last) 
+	throws AxisFault 
+    {
+    	return getSitesDom(id, search,first, last, true);
+
+    }
+
+    private String getSitesDom(String id, String search, int first, int last, boolean doTools) 
+	throws AxisFault 
+    {
+	Session s = null;
+ 	List siteList = null;
+
+	Document dom = Xml.createDocument();
+	Node allSites = dom.createElement("sites");
+	dom.appendChild(allSites);
+
+	String portalUrl = ServerConfigurationService.getPortalUrl();
+	String serverUrl = ServerConfigurationService.getServerUrl();
+
+	Node portalNode = dom.createElement("portal");
+	allSites.appendChild(portalNode);
+	portalNode.appendChild(dom.createTextNode(portalUrl));
+
+	Node serverNode = dom.createElement("server");
+	allSites.appendChild(serverNode);
+	serverNode.appendChild(dom.createTextNode(serverUrl));
+
+	Node galleryNode = dom.createElement("gallery");
+	allSites.appendChild(galleryNode);
+	galleryNode.appendChild(dom.createTextNode(serverUrl+"/gallery"));
+
+	Site theSite;
+       	for(int i=-1;i<siteList.size();i++) {
+		if ( i == -1 ) {
+			theSite = null;
+		} else {
+			theSite = (Site) siteList.get(i);
+		}
+		if ( theSite == null ) continue;
+		
+	        Node siteNode = dom.createElement("site");
+		allSites.appendChild(siteNode);
+
+		Node titleNode = dom.createElement("title");
+		siteNode.appendChild(titleNode);
+		titleNode.appendChild(dom.createTextNode(theSite.getTitle()));
+
+		Node idNode  = dom.createElement("id");
+		siteNode.appendChild(idNode);
+		idNode.appendChild(dom.createTextNode(theSite.getId()));
+
+		Node urlNode  = dom.createElement("url");
+		siteNode.appendChild(urlNode);
+		urlNode.appendChild(dom.createTextNode(serverUrl+"/portal/worksite/"+theSite.getId()));
+
+		Node typeNode  = dom.createElement("type");
+		siteNode.appendChild(typeNode);
+		typeNode.appendChild(dom.createTextNode(theSite.getType()));
+ 
+		// Load up the pages
+		if ( doTools) scanPages(dom, theSite, siteNode, serverUrl);
+        }
+
+	String retVal = Xml.writeDocumentToString(dom);
+	// System.out.println("XML = "+retVal);
+        return retVal;
+    }
+
+    private void scanPages(Document dom, Site theSite, Node siteNode, String serverUrl)
+    {
+		// Node toolsNode = dom.createElement("tools");
+		// siteNode.appendChild(toolsNode);
+
+		Node pagesNode = dom.createElement("pages");
+		siteNode.appendChild(pagesNode);
+
+                // order the pages based on their tools and the tool order for the site type
+                List pages = theSite.getOrderedPages();
+
+                // gsilver - counter for tool accesskey attributes of <a>
+                int count = 0;
+
+                for (Iterator iPage = pages.iterator(); iPage.hasNext();)
+                {
+			SitePage p = (SitePage) iPage.next();
+
+			Node pageNode = dom.createElement("page");
+			pagesNode.appendChild(pageNode);
+
+			Node pageIdNode = dom.createElement("id");
+			pageNode.appendChild(pageIdNode);
+			pageIdNode.appendChild(dom.createTextNode(p.getId()));
+
+			Node pageTitle = dom.createElement("title");
+			pageNode.appendChild(pageTitle);
+			pageTitle.appendChild(dom.createTextNode(p.getTitle()));
+
+        		Node pageUrlNode = dom.createElement("url");
+        		pageNode.appendChild(pageUrlNode);
+        		pageUrlNode.appendChild(dom.createTextNode(serverUrl+"/portal/page/"+p.getId()));
+
+			Node pageTools = dom.createElement("tools");
+			pageNode.appendChild(pageTools);
+
+                	List tools = p.getTools(0);
+                	for (Iterator thePlace = tools.iterator(); thePlace.hasNext();)
+               		{
+                       		ToolConfiguration placement = (ToolConfiguration) thePlace.next();
+				Tool theTool = placement.getTool();
+
+				Node toolNode = dom.createElement("tool");
+				// toolsNode.appendChild(toolNode);
+				pageTools.appendChild(toolNode);
+
+				Node toolIdNode = dom.createElement("id");
+				toolNode.appendChild(toolIdNode);
+				toolIdNode.appendChild(dom.createTextNode(placement.getId()));
+
+				Node toolTitle = dom.createElement("title");
+				toolNode.appendChild(toolTitle);
+				toolTitle.appendChild(dom.createTextNode(placement.getTitle()));
+
+				Node toolHandle = dom.createElement("toolid");
+				toolNode.appendChild(toolHandle);
+				toolHandle.appendChild(dom.createTextNode(theTool.getId()));
+
+				// Do we need ?panel=Main here ??
+        			Node toolUrlNode = dom.createElement("url");
+        			toolNode.appendChild(toolUrlNode);
+        			toolUrlNode.appendChild(dom.createTextNode(serverUrl+"/portal/tool/"+placement.getId()));
+                	}
+		}
+
+    }
+
+}

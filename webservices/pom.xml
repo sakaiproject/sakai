@@ -13,5 +13,6 @@
   <packaging>pom</packaging>
   <modules>
     <module>axis</module>
+    <module>util</module>
   </modules>
 </project>

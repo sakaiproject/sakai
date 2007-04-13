@@ -93,6 +93,12 @@
       <artifactId>sakai-util</artifactId>
       <version>${sakai.version}</version>
     </dependency>
+
+    <dependency>
+       <groupId>org.sakaiproject</groupId>
+       <artifactId>sakai-util-axis</artifactId>
+       <version>${sakai.version}</version>
+    </dependency>
   </dependencies>
   <build>
     
