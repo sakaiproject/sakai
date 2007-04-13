@@ -48,7 +48,7 @@
               name="context" 
               column="context" 
               not-null="true" 
-              index="isearchbuilderitem_context" 
+              index="isearchbuilderitem_ctx" 
               type="string" 
               unique="false" 
               length="255" />
@@ -56,12 +56,12 @@
           <property name="searchaction" 
               column="searchaction" 
               type="int" 
-              index="searchbuilderitem_searchaction_i" />
+              index="isearchbuilderitem_act" />
           <!-- the state of the record, pending, completed -->
           <property name="searchstate" 
               column="searchstate" 
               type="int" 
-              index="searchbuilderitem_searchstate_i" />
+              index="isearchbuilderitem_sta" />
       </class>
       
       <class name="org.sakaiproject.search.model.impl.SearchWriterLockImpl"
@@ -78,7 +78,7 @@
               name="lockkey" 
               column="lockkey" 
               not-null="true" 
-              index="isearchwriterlock_lockkey" 
+              index="isearchwriterlock_lk" 
               type="string" 
               unique="true" 
               length="64" />
