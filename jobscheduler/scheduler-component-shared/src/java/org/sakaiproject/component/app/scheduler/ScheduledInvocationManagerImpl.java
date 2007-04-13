@@ -32,6 +32,9 @@ public class ScheduledInvocationManagerImpl implements ScheduledInvocationManage
 		LOG.info("init()");
 	}
 
+   public void destroy() {
+      LOG.info("destroy()");
+   }
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.api.app.scheduler.ScheduledInvocationManager#createDelayedInvocation(org.sakaiproject.time.api.Time, java.lang.String, java.lang.String)
