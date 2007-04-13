@@ -204,17 +204,20 @@ public class BasicNewsChannel implements NewsChannel
 			String iTitle = entry.getTitle();
 			iTitle = Validator.stripAllNewlines(iTitle);
 
-			String iDescription = entry.getDescription().getValue();
+			String iDescription = null;
 			try
 			{
-				iDescription = FormattedText.processEscapedHtml(iDescription);
+				if (entry.getDescription() != null)
+				{
+					iDescription = FormattedText.processEscapedHtml(
+						entry.getDescription().getValue());
+					iDescription = Validator.stripAllNewlines(iDescription);
+				}
 			}
 			catch (Exception e)
 			{
 				M_log.warn(e);
 			}
-
-			iDescription = Validator.stripAllNewlines(iDescription);
 
 			String iLink = entry.getLink();
 			iLink = Validator.stripAllNewlines(iLink);
@@ -228,7 +231,8 @@ public class BasicNewsChannel implements NewsChannel
 			List<NewsItemEnclosure> enclosures = new Vector<NewsItemEnclosure>();
 			List syndEnclosures = entry.getEnclosures();
 
-			for (int j = 0; j < syndEnclosures.size(); j++) {
+			for (int j = 0; j < syndEnclosures.size(); j++)
+			{
 				SyndEnclosure syndEnclosure = (SyndEnclosure) syndEnclosures.get(j);
 
 				enclosures.add(new BasicNewsItemEnclosure(syndEnclosure.getUrl(), 
