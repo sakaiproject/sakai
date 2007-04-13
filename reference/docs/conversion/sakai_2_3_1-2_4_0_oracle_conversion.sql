@@ -1074,13 +1074,13 @@ CREATE TABLE CITATION_SCHEMA_FIELD
 ------------------------------------------------------------------------
 --- its ok to ignore the drop errors, 
 drop index rwikiproperties_name;
-drop index  rwikicurrentcontent_rwikiid_i;
-drop index  rwikihistorycontent_rwikiid_i;
-drop index  rwikipagepresence_sessionid_i;
+drop index  irwikicurrentcontent_rwi;
+drop index  irwikihistorycontent_rwi;
+drop index  irwikipagepresence_sid;
 drop index  irwikihistory_name;
 drop index  irwikihistory_realm;
 drop index  irwikihistory_ref;
-drop index  rwikihistoryobj_rwikobjiid_i;
+drop index  irwikihistoryobj_rwid;
 drop index  irwikiobject_name;
 drop index  irwikiobject_realm;
 drop index  irwikiobject_ref;
@@ -1095,13 +1095,13 @@ drop index  irwikipt_pagespace;
 drop index  irwikipt_pavename;
 
 create index irwikiproperties_name on rwikiproperties (name);
-create index rwikicurrentcontent_rwikiid_i on  rwikicurrentcontent (rwikiid);
-create index rwikihistorycontent_rwikiid_i on  rwikihistorycontent (rwikiid); 
-create index rwikipagepresence_sessionid_i on  rwikipagepresence (sessionid);
+create index irwikicurrentcontent_rwi on  rwikicurrentcontent (rwikiid);
+create index irwikihistorycontent_rwi on  rwikihistorycontent (rwikiid); 
+create index irwikipagepresence_sid on  rwikipagepresence (sessionid);
 create index irwikihistory_name on  rwikihistory (name);
 create index irwikihistory_realm on  rwikihistory (realm);
 create index irwikihistory_ref on  rwikihistory (referenced(1024));
-create index rwikihistoryobj_rwikobjiid_i on  rwikihistory (rwikiobjectid);
+create index irwikihistoryobj_rwid on  rwikihistory (rwikiobjectid);
 create index irwikiobject_name on  rwikiobject (name);
 create index irwikiobject_realm on  rwikiobject (realm);
 create index irwikiobject_ref on  rwikiobject (referenced(1024));
@@ -1118,16 +1118,16 @@ create index irwikipt_pavename on  rwikipagetrigger (pagename);
 ------------------------------------------------------------------------
 -- SAK-9439 Missing indexes in search
 ------------------------------------------------------------------------
-drop index  isearchbuilderitem_name;
-drop index  isearchbuilderitem_context;
-drop index  searchbuilderitem_searchaction_i;
-drop index  searchbuilderitem_searchstate_i;
-drop index  isearchwriterlock_lockkey;
+drop index   isearchbuilderitem_name;
+drop index   isearchbuilderitem_ctx;
+drop index   isearchbuilderitem_act;
+drop index   isearchbuilderitem_sta;
+drop index   isearchwriterlock_lk;
 
 
 create index isearchbuilderitem_name on  searchbuilderitem (name);
-create index isearchbuilderitem_context on  searchbuilderitem (context);
-create index searchbuilderitem_searchaction_i on  searchbuilderitem (searchaction);
-create index searchbuilderitem_searchstate_i on  searchbuilderitem (searchstate);
-create index isearchwriterlock_lockkey on  searchwriterlock (lockkey);
+create index isearchbuilderitem_ctx on  searchbuilderitem (context);
+create index isearchbuilderitem_act on  searchbuilderitem (searchaction);
+create index isearchbuilderitem_sta on  searchbuilderitem (searchstate);
+create index isearchwriterlock_lk on  searchwriterlock (lockkey);
 
