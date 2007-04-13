@@ -126,6 +126,30 @@ public class ItemAddListener
     if(error)
 	return;
     
+    if(iType.equals(TypeFacade.MULTIPLE_CHOICE_SURVEY.toString()))
+    {   
+      String scaleName = item.getScaleName();
+      if (scaleName == null){
+	    err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","corrAnswer");
+	    context.addMessage(null,new FacesMessage(err));
+	    item.setOutcome("surveyItem");
+		item.setPoolOutcome("surveyItem");
+	    return;
+      }
+    }
+    
+    if(iType.equals(TypeFacade.TRUE_FALSE.toString()))
+    {   
+      String corrAnswer = item.getCorrAnswer();
+      if (corrAnswer == null){
+	    err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","corrAnswer");
+	    context.addMessage(null,new FacesMessage(err));
+	    item.setOutcome("trueFalseItem");
+		item.setPoolOutcome("trueFalseItem");
+	    return;
+      }
+    }
+    
     if(iType.equals(TypeFacade.FILL_IN_BLANK.toString())){
 	
     	if(isErrorFIB()){

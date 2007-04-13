@@ -82,10 +82,9 @@
   <h:outputLabel value="#{authorMessages.answer} " /></div>
    <div class="tier2">
   <h:selectOneRadio layout="lineDirection" id="TF" border="0"
-     value="#{itemauthor.currentItem.corrAnswer}" required="true">
+     value="#{itemauthor.currentItem.corrAnswer}">
      <f:selectItems value="#{itemauthor.trueFalseAnswerSelectList}" />
   </h:selectOneRadio>
-<h:message for="TF" styleClass="validate"/>
 </div>
 
     <!-- 4 RATIONALE -->

@@ -82,8 +82,7 @@
 <div class="longtext">
     <h:outputLabel value="#{authorMessages.answer} " /> </div>
    <div class="tier2">
-     <h:message for="selectscale" styleClass="validate"/>
-    <h:selectOneRadio layout="pageDirection" value="#{itemauthor.currentItem.scaleName}" id="selectscale" required="true">
+    <h:selectOneRadio layout="pageDirection" value="#{itemauthor.currentItem.scaleName}" id="selectscale">
      <f:selectItem itemValue="YES" itemLabel="#{authorMessages.yes_no}" />
      <f:selectItem itemValue="AGREE" itemLabel="#{authorMessages.disagree_agree}" />
      <f:selectItem itemValue="UNDECIDED" itemLabel="#{authorMessages.disagree_undecided}" />
