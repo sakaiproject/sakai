@@ -97,9 +97,9 @@ function submitAddNotListed(){
 function submitFindCourse(){
     find_course = document.getElementById("find_course");
     find_course.value="true";
-    continueButton = document.getElementById("continueButton");
-    continueButton.disabled = false;
-    continueButton.click();
+    //continueButton = document.getElementById("continueButton");
+    //continueButton.disabled = false;
+    //continueButton.click();
     document.addCourseForm.submit();
     return false;
 }
@@ -307,7 +307,7 @@ function redirectBasedOnSelection(){
 
 			#if (!$site)
 				<!-- Add Not Listed Courses -->
-				<input type="hidden" name="eventSubmit_doContinue" value="x" />
+		                <input type="hidden" name="eventSubmit_doContinue" value="$tlang.getString('gen.continue')" />
 				<a href="#" onclick="javascript:submitFindCourse();">$tlang.getString('nscourse.add_course_not_listed')</a>
 				<p class="act">
 				<input id="continueButton" type="submit" class="active" accesskey="s" name="eventSubmit_doContinue" 
