@@ -37,5 +37,6 @@ var placementid = "Main${sakai_tool_placement_id_js}";
 #end
 
 #macro (footer )
-
+</body>
+</html>
 #end
