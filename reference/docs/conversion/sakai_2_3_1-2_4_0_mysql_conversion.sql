@@ -1055,3 +1055,7 @@ CREATE TABLE CITATION_SCHEMA_FIELD
 ---    CONSTRAINT CITATION_SCHEMA_INDEX (SCHEMA_ID, FIELD_ID)
 );
 
+-----------------------------------------------------------------------------
+-- SAK-9398 -- Larger field to prevent Data truncation in CONTENT column
+-----------------------------------------------------------------------------
+ALTER TABLE GB_SPREADSHEET_T MODIFY COLUMN CONTENT MEDIUMTEXT; 
