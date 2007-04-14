@@ -215,6 +215,24 @@ public class ListItem
 	        	while(childIt.hasNext())
 	        	{
 	        		ContentEntity childEntity = childIt.next();
+	        		if(childEntity.getAccess() == AccessMode.GROUPED)
+	        		{
+	        			if(childEntity.isCollection())
+	        			{
+	        				if(! contentService.allowGetCollection(childEntity.getId()))
+	        				{
+		        				continue;
+	        				}
+	        			}
+	        			else
+	        			{
+	        				if(!contentService.allowGetResource(childEntity.getId()))
+	        				{
+	        					continue;
+	        				}
+	        			}
+	        		}
+	        		
 					if(isAvailabilityEnabled && ! contentService.isAvailable(childEntity.getId()))
 					{
 						continue;
