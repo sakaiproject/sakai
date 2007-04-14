@@ -750,7 +750,7 @@ public class SiteAction extends PagedResourceActionII {
 		state.removeAttribute(STATE_CM_AUTHORIZER_LIST);
 		state.removeAttribute(STATE_CM_AUTHORIZER_SECTIONS);
 		state.removeAttribute(FORM_ADDITIONAL); // don't we need to clena this
-												// too? -daisyf
+		// too? -daisyf
 
 	} // cleanState
 
@@ -2511,23 +2511,33 @@ public class SiteAction extends PagedResourceActionII {
 					List<String> providerSectionList = (List<String>) state
 							.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN);
 					if (providerSectionList != null) {
+						/*
 						List list1 = prepareSectionObject(providerSectionList,
 								(String) state
 										.getAttribute(STATE_CM_CURRENT_USERID));
-						context.put("selectedProviderCourse", list1);
+										*/
+						context.put("selectedProviderCourse", providerSectionList);
 					}
 
 					List<SectionObject> authorizerSectionList = (List<SectionObject>) state
-					.getAttribute(STATE_CM_AUTHORIZER_SECTIONS);
+							.getAttribute(STATE_CM_AUTHORIZER_SECTIONS);
 					if (authorizerSectionList != null) {
 						List authorizerList = (List) state
 								.getAttribute(STATE_CM_AUTHORIZER_LIST);
+						//authorizerList is a list of SectionObject
+						/*
 						String userId = null;
 						if (authorizerList != null) {
 							userId = (String) authorizerList.get(0);
 						}
 						List list2 = prepareSectionObject(
 								authorizerSectionList, userId);
+								*/
+						ArrayList list2 = new ArrayList();
+						for (int i=0; i<authorizerSectionList.size();i++){
+							SectionObject so = (SectionObject)authorizerSectionList.get(i);
+							list2.add(so.getEid());
+						}
 						context.put("selectedAuthorizerCourse", list2);
 					}
 				}
@@ -2537,8 +2547,6 @@ public class SiteAction extends PagedResourceActionII {
 				}
 				context.put("term", (AcademicSession) state
 						.getAttribute(STATE_TERM_SELECTED));
-				context.put("userId", (String) state
-						.getAttribute(STATE_INSTRUCTOR_SELECTED));
 				context.put("currentUserId", (String) state
 						.getAttribute(STATE_CM_CURRENT_USERID));
 				context.put("form_additional", (String) state
@@ -2557,6 +2565,8 @@ public class SiteAction extends PagedResourceActionII {
 
 			// added for 2.4 -daisyf
 			context.put("campusDirectory", getCampusDirectory());
+			context.put("userId", (String) state
+					.getAttribute(STATE_INSTRUCTOR_SELECTED));
 			/*
 			 * for measuring how long it takes to load sections java.util.Date
 			 * date = new java.util.Date(); M_log.debug("***2. finish at:
@@ -4717,6 +4727,10 @@ public class SiteAction extends PagedResourceActionII {
 			} else if (index == 36 && ("add").equals(option)) {
 				// this is the Add extra Roster(s) case after a site is created
 				state.setAttribute(STATE_TEMPLATE_INDEX, "44");
+			} else if (index == 36 && ("back").equals(option)) {
+				doBack(data);
+			} else if (index == 36 && ("cancel").equals(option)) {
+				doCancel(data);
 			} else if (params.getString("continue") != null) {
 				state.setAttribute(STATE_TEMPLATE_INDEX, params
 						.getString("continue"));
@@ -7304,9 +7318,6 @@ public class SiteAction extends PagedResourceActionII {
 						String currentUserId = (String) state
 								.getAttribute(STATE_CM_CURRENT_USERID);
 
-						// for Add extra Roster(s) case, userId == null -daisyf,
-						// Sigh...
-						// so many conditions here & there.
 						if (userId == null
 								|| (userId != null && userId
 										.equals(currentUserId))) {

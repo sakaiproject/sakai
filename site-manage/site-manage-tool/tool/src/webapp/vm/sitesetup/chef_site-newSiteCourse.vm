@@ -250,10 +250,10 @@ function redirectBasedOnSelection(){
 									&nbsp;&nbsp;
 								#end
 								<input type="checkbox" name="providerCourseAdd" value="$sectionObject.eid" id="course$courseNumber"
-								#if ($!selectedProviderCourse.contains("$sectionObject.eid"))
+								#if ($!selectedProviderCourse.contains("$sectionObject.eid") || $!selectedAuthorizerCourse.contains("$sectionObject.eid") )
 									checked
 								#end 
-								#if (!$!selectedProviderCourse.contains("$sectionObject.eid") && $sectionObject.attached)
+								#if ((!$!selectedProviderCourse.contains("$sectionObject.eid") || !$!selectedAuthorizerCourse.contains("$sectionObject.eid")) && $sectionObject.attached)
 									disabled
 								#end
 								onclick="javascript:setContinueButton();"
@@ -307,7 +307,7 @@ function redirectBasedOnSelection(){
 
 			#if (!$site)
 				<!-- Add Not Listed Courses -->
-				<input type="hidden" name="eventSubmit_doContinue_new_course" value="x" />
+				<input type="hidden" name="eventSubmit_doContinue" value="x" />
 				<a href="#" onclick="javascript:submitFindCourse();">$tlang.getString('nscourse.add_course_not_listed')</a>
 				<p class="act">
 				<input
