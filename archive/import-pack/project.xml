@@ -48,7 +48,7 @@
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
-<!--
+		
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-import-sam</artifactId>
@@ -57,8 +57,7 @@
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
--->
-<!--
+		
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-samigo-qti</artifactId>
@@ -67,7 +66,7 @@
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
--->
+		
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-archive-import</artifactId>

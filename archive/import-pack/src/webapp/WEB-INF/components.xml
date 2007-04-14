@@ -9,12 +9,10 @@
 			singleton="false">
 	</bean>
 	
-<!--
     <bean id="org.sakaiproject.importer.api.ImportFileParser-CommonCartridge"
 			class="org.sakaiproject.importer.impl.CommonCartridgeFileParser"
 			singleton="false">
 	</bean>
--->
 
 	<!-- Handlers -->
 <!--
@@ -26,18 +24,16 @@
 		</property>
 	</bean>
 -->
-<!--
+
 	<bean id="org.sakaiproject.importer.impl.handlers.ResourcesHandler"
 			class="org.sakaiproject.importer.impl.handlers.ResourcesHandler"
 			singleton="true">
 	</bean>
--->
-<!--
+	
 	<bean id="org.sakaiproject.importer.impl.handlers.SamigoHandler"
 			class="org.sakaiproject.importer.impl.handlers.SamigoHandler"
 			singleton="true">
 	</bean>
--->
 <!--
 	<bean id="org.sakaiproject.importer.impl.handlers.MessageCenterHandler"
 			class="org.sakaiproject.importer.impl.handlers.MessageCenterHandler"
@@ -52,13 +48,13 @@
 		<property name="parsers">
 			<list>
 				<ref bean="org.sakaiproject.importer.api.ImportFileParser-Sakai"/>
-				<!-- <ref bean="org.sakaiproject.importer.api.ImportFileParser-CommonCartridge"/> -->
+				<ref bean="org.sakaiproject.importer.api.ImportFileParser-CommonCartridge"/>
 			</list>
 		</property>
 		<property name="resourceHandlers">
 			<list>
-				<!-- <ref bean="org.sakaiproject.importer.impl.handlers.ResourcesHandler"/> -->
-				<!-- <ref bean="org.sakaiproject.importer.impl.handlers.SamigoHandler"/> -->
+				<ref bean="org.sakaiproject.importer.impl.handlers.ResourcesHandler"/>
+				<ref bean="org.sakaiproject.importer.impl.handlers.SamigoHandler"/>
 				<!-- <ref bean="org.sakaiproject.importer.impl.handlers.MessageCenterHandler"/> -->
 			</list>
 		</property>
