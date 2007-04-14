@@ -26,6 +26,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -44,6 +45,8 @@ import org.apache.commons.logging.LogFactory;
 
 import org.osid.repository.Repository;
 import org.osid.repository.RepositoryException;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.citation.util.api.SearchQuery;
 
 import org.sakaiproject.cheftool.Context;
@@ -1450,7 +1453,14 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
             {
 	            edit = contentService.editResource(temporaryResourceId);
 	            pipe.setRevisedContent(edit.getContent());
+	            pipe.setRevisedMimeType(ResourceType.MIME_TYPE_HTML);
+	            
+	            String currentUser = SessionManager.getCurrentSessionUserId();
+	            SecurityService.pushAdvisor(new CitationListSecurityAdviser(currentUser, ContentHostingService.AUTH_RESOURCE_REMOVE_ANY, edit.getReference()));
+	            SecurityService.pushAdvisor(new CitationListSecurityAdviser(currentUser, ContentHostingService.AUTH_RESOURCE_REMOVE_OWN, edit.getReference()));
 	            contentService.removeResource(edit);
+	            SecurityService.clearAdvisors();
+	            
 	            edit = null;
             }
             catch (PermissionException e)
@@ -3186,6 +3196,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			
 			CitationCollection collection = CitationService.addCollection();
 			newItem.setContent(collection.getId().getBytes());
+			newItem.setContentType(ResourceType.MIME_TYPE_HTML);
 			
 			contentService.commitResource(newItem, NotificationService.NOTI_NONE);
 			return newItem;
@@ -3356,6 +3367,32 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 				toolSession.removeAttribute(aName);
 			}
 		}
+		
+	}
+	
+	public class CitationListSecurityAdviser implements SecurityAdvisor
+	{
+		String userId;
+		String function;
+		String reference;
+
+		public CitationListSecurityAdviser(String userId, String function, String reference)
+        {
+	        super();
+	        this.userId = userId;
+	        this.function = function;
+	        this.reference = reference;
+        }
+
+		public SecurityAdvice isAllowed(String userId, String function, String reference)
+        {
+			SecurityAdvice advice = SecurityAdvice.PASS;
+			if((this.userId == null || this.userId.equals(userId)) && (this.function == null || this.function.equals(function)) || (this.reference == null || this.reference.equals(reference)))
+			{
+				advice = SecurityAdvice.ALLOWED;
+			}
+			return advice;
+        }
 		
 	}
 	
