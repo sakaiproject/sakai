@@ -260,8 +260,7 @@ public class ResourcesHandler implements HandlesImportable {
 		} catch (PermissionException e) {
 			m_log.error("ResourcesHandler.addContentResource: " + e.toString());
 		} catch (IdUsedException e) {
-//			TODO Auto-generated catch block
-            e.printStackTrace();
+			m_log.warn("ResourcesHandler.addContentResource IdUsedException: " + e.toString());
 		} catch (IdInvalidException e) {
 //			TODO Auto-generated catch block
             e.printStackTrace();

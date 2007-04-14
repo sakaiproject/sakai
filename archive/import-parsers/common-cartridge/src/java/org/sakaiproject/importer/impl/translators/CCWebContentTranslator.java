@@ -22,12 +22,17 @@
 package org.sakaiproject.importer.impl.translators;
 
 import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.InputStream;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.sakaiproject.importer.api.IMSResourceTranslator;
 import org.sakaiproject.importer.api.Importable;
 import org.sakaiproject.importer.impl.importables.HtmlDocument;
+import org.sakaiproject.importer.impl.importables.WebLink;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import org.sakaiproject.importer.impl.XPathHelper;
@@ -40,20 +45,19 @@ public class CCWebContentTranslator implements IMSResourceTranslator {
 
 	public Importable translate(Node resourceNode, Document descriptor,
 			String contextPath, String archiveBasePath) {
-		HtmlDocument rv = new HtmlDocument();
+		
+		WebLink rv = new WebLink();
 		String href = XPathHelper.getNodeValue("./@href", resourceNode);
-		String filename = href.substring(href.lastIndexOf("/"),href.length() - 1);
-		try {
-	        FileInputStream file = new FileInputStream (archiveBasePath + "/" + href);
-	        byte[] b = new byte[file.available()];
-	        file.read(b);
-	        file.close ();
-	        rv.setContent(new String (b));
-	        rv.setContextPath(contextPath);
-	        rv.setTitle(filename);
-		} catch (IOException e) {
-			return null;
-		}
+		Document factoryDocument = resourceNode.getOwnerDocument();
+		Element fileElement = factoryDocument.createElement("file");
+		fileElement.setAttribute("href", href);
+		resourceNode.appendChild(fileElement);
+		// String filename = href.substring(href.lastIndexOf("/"),href.length() - 1);
+		String title = ((Element)resourceNode).getAttribute("title");
+		rv.setAbsolute(false);
+		rv.setUrl(href);
+		rv.setContextPath(contextPath + title);
+		rv.setTitle(title);
 		return rv;
 	}
 

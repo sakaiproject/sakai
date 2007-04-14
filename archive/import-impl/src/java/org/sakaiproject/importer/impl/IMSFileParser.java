@@ -39,6 +39,7 @@ import org.sakaiproject.importer.api.IMSResourceTranslator;
 import org.sakaiproject.importer.impl.importables.FileResource;
 import org.sakaiproject.importer.impl.importables.Folder;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -189,6 +190,8 @@ public abstract class IMSFileParser extends ZipFileParser {
 			boolean processResourceChildren = true;
 			IMSResourceTranslator translator = (IMSResourceTranslator)translatorMap.get(resourceHelper.getType(node));
 			if (translator != null) {
+				String title = resourceHelper.getTitle(node);
+				((Element)node).setAttribute("title", title);
 				resource = translator.translate(node, resourceHelper.getDescriptor(node), contextPath, this.pathToData);
 				processResourceChildren = translator.processResourceChildren();
 			}
@@ -201,7 +204,7 @@ public abstract class IMSFileParser extends ZipFileParser {
 				parent = resource;
 			}
 			// processing the child nodes implies that their files can wind up in the Resources tool.
-			// this is not always desireable, such as the QTI files from assessments.
+			// this is not always desirable, such as the QTI files from assessments.
 			if (processResourceChildren) {
 				NodeList children = node.getChildNodes();
 		  		for (int i = 0;i < children.getLength();i++) {
