@@ -362,7 +362,7 @@ public class SearchBeanImpl implements SearchBean
 	{
 		SearchList sr = (SearchList) search();
 		if (sr == null) return "";
-		int npages = sr.getFullSize() / pagesize;
+		int npages = (sr.getFullSize()-1) / pagesize;
 		int cpage = requestPage - (nlistPages / 2);
 		if (cpage < 0)
 		{
@@ -684,7 +684,7 @@ public class SearchBeanImpl implements SearchBean
 		{
 			SearchList sr = (SearchList) search();
 			if (sr == null) return pages;
-			int npages = sr.getFullSize() / pagesize;
+			int npages = (sr.getFullSize()-1) / pagesize;
 			int cpage = requestPage - (nlistPages / 2);
 			if (cpage < 0)
 			{
