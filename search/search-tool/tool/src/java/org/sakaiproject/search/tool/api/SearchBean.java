@@ -197,4 +197,14 @@ public interface SearchBean
 	 * @return
 	 */
 	String getRequestUrl();
+
+	/**
+	 * @return
+	 */
+	int getNresults();
+
+	/**
+	 * @return
+	 */
+	boolean foundNoResults();
 }

@@ -649,6 +649,12 @@ public class SearchBeanImpl implements SearchBean
 			return (sr.size() > 0);
 		}
 	}
+	public boolean foundNoResults() {
+		if ( search == null || search.trim().length() == 0  ) {
+			return false;
+		}
+		return !hasResults();
+	}
 
 	public String getOpenSearchUrl()
 	{

@@ -92,6 +92,12 @@
 		     <a href="${page.url}" class="searchPage" >${page.name}</a></li>
   #end
     </div>
+  #else
+   #if ( ${searchModel.foundNoResults()} )
+    <div class="searchResultsContainer" >
+		     ${rlb.jsp_no_results} 
+    </div>
+   #end
  #end
 #else
     <p>
