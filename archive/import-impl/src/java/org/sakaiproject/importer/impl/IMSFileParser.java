@@ -92,22 +92,24 @@ public abstract class IMSFileParser extends ZipFileParser {
 			resourceMap.put(resourceHelper.getId(resourceNode), resourceNode);
 		}
 		Node itemNode;
+		int priority = 1;
 		for(Iterator i = itemNodes.iterator(); i.hasNext(); ) {
 			itemNode = (Node) i.next();
 			String title = itemHelper.getTitle(itemNode);
-			rv.addAll(translateFromNodeToImportables(itemNode, "", null));
+			rv.addAll(translateFromNodeToImportables(itemNode, "", priority, null));
+			priority++;
 		}
 		// the remainder of resources in the resourcesMap need to be processed
 		Object[] remainingRes = resourceMap.values().toArray();
 		for (int i = 0;i < remainingRes.length; i++) {
 			resourceNode = (Node)remainingRes[i];
-			rv.addAll(translateFromNodeToImportables(resourceNode, "", null));
+			rv.addAll(translateFromNodeToImportables(resourceNode, "",i+1, null));
 			resourceMap.remove(XPathHelper.getNodeValue("./attribute::identifier", resourceNode));
 		}
 		return rv;
 	}
 
-	protected Collection translateFromNodeToImportables(Node node, String contextPath, Importable parent) {
+	protected Collection translateFromNodeToImportables(Node node, String contextPath, int priority, Importable parent) {
 		Collection branchOfImportables = new ArrayList();
 		String tag = node.getNodeName();
 		String itemResourceId = null;
@@ -137,12 +139,14 @@ public abstract class IMSFileParser extends ZipFileParser {
 			// construct a new path and make sure we replace any forward slashes from the resource title
 			String folderPath = contextPath + folderTitle.replaceAll("/", "_") + "/";
 			if (isCompoundDocument(manifestHelper.getResourceForId(itemResourceId, archiveManifest),resourceDescriptor)) {
-				branchOfImportables.addAll(translateFromNodeToImportables(manifestHelper.getResourceForId(itemResourceId, archiveManifest), folderPath,folder));
+				branchOfImportables.addAll(translateFromNodeToImportables(manifestHelper.getResourceForId(itemResourceId, archiveManifest), folderPath, priority, folder));
 			} else {
 	  			List children = XPathHelper.selectNodes("./item", node);
+	  			int childPriority = 1;
 	  			for (Iterator i = children.iterator(); i.hasNext();) {
 	  				branchOfImportables.addAll(
-	  						translateFromNodeToImportables((Node)i.next(),folderPath, folder));
+	  						translateFromNodeToImportables((Node)i.next(),folderPath, childPriority, folder));
+	  				childPriority++;
 	  			}
 			}
   			resourceMap.remove(itemResourceId);
@@ -158,7 +162,7 @@ public abstract class IMSFileParser extends ZipFileParser {
   					parent.setLegacyGroup(itemHelper.getTitle(node));
   				}
   				branchOfImportables.addAll(
-  						translateFromNodeToImportables(resourceNode,contextPath, parent));
+  						translateFromNodeToImportables(resourceNode,contextPath, priority, parent));
   			}
 		} else if("file".equals(tag)) {
 			FileResource file = new FileResource();
@@ -192,6 +196,7 @@ public abstract class IMSFileParser extends ZipFileParser {
 			if (translator != null) {
 				String title = resourceHelper.getTitle(node);
 				((Element)node).setAttribute("title", title);
+				((Element)node).setAttribute("priority", Integer.toString(priority));
 				resource = translator.translate(node, resourceHelper.getDescriptor(node), contextPath, this.pathToData);
 				processResourceChildren = translator.processResourceChildren();
 			}
@@ -208,7 +213,7 @@ public abstract class IMSFileParser extends ZipFileParser {
 			if (processResourceChildren) {
 				NodeList children = node.getChildNodes();
 		  		for (int i = 0;i < children.getLength();i++) {
-		  			branchOfImportables.addAll(translateFromNodeToImportables(children.item(i), contextPath, parent));
+		  			branchOfImportables.addAll(translateFromNodeToImportables(children.item(i), contextPath, priority, parent));
 		  			}
 			}
 			resourceMap.remove(itemResourceId);

@@ -29,7 +29,14 @@ public abstract class AbstractImportable implements Importable {
 	protected String legacyGroup;
 	protected String contextPath;
 	protected Importable parent;
+	protected int sequenceNum;
 	
+	public int getSequenceNum() {
+		return sequenceNum;
+	}
+	public void setSequenceNum(int sequenceNum) {
+		this.sequenceNum = sequenceNum;
+	}
 	public Importable getParent() {
 		return parent;
 	}

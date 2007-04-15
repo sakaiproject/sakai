@@ -135,6 +135,8 @@ public class ResourcesHandler implements HandlesImportable {
 				}
 				resourceProps.put(ResourceProperties.PROP_DISPLAY_NAME, title);
 				resourceProps.put(ResourceProperties.PROP_DESCRIPTION, description);
+				resourceProps.put(ResourceProperties.PROP_HAS_CUSTOM_SORT, Boolean.TRUE.toString());
+				resourceProps.put(ResourceProperties.PROP_CONTENT_PRIORITY, Integer.toString(thing.getSequenceNum()));
 				if(m_log.isDebugEnabled()){ 
 					m_log.debug("import ResourcesHandler about to add web link entitled '" + title + "'");
 				}

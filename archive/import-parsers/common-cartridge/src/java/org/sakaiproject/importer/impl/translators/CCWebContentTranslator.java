@@ -53,11 +53,13 @@ public class CCWebContentTranslator implements IMSResourceTranslator {
 		fileElement.setAttribute("href", href);
 		resourceNode.appendChild(fileElement);
 		// String filename = href.substring(href.lastIndexOf("/"),href.length() - 1);
+		int priority = Integer.parseInt(((Element)resourceNode).getAttribute("priority"));
 		String title = ((Element)resourceNode).getAttribute("title");
 		rv.setAbsolute(false);
 		rv.setUrl(href);
 		rv.setContextPath(contextPath + title);
 		rv.setTitle(title);
+		rv.setSequenceNum(priority);
 		return rv;
 	}
 

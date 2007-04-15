@@ -26,6 +26,7 @@ import org.sakaiproject.importer.api.Importable;
 import org.sakaiproject.importer.impl.XPathHelper;
 import org.sakaiproject.importer.impl.importables.WebLink;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class CCWebLinkTranslator implements IMSResourceTranslator {
@@ -43,10 +44,12 @@ public class CCWebLinkTranslator implements IMSResourceTranslator {
 		WebLink rv = new WebLink();
 		String url = XPathHelper.getNodeValue("//url/@href", descriptor);
 		String title = XPathHelper.getNodeValue("//title", descriptor);
+		int priority = Integer.parseInt(((Element)resourceNode).getAttribute("priority"));
 		rv.setTitle(title);
 		rv.setUrl(url);
 		rv.setAbsolute(url.lastIndexOf("://") > 0);
 		rv.setContextPath(contextPath + title);
+		rv.setSequenceNum(priority);
 		return rv;
 	}
 

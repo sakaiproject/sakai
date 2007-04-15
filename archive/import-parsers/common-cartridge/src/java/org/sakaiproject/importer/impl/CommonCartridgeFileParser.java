@@ -51,6 +51,7 @@ import org.sakaiproject.importer.impl.importables.Folder;
 import org.sakaiproject.importer.impl.importables.WebLink;
 import org.sakaiproject.importer.impl.translators.CCAssessmentTranslator;
 import org.sakaiproject.importer.impl.translators.CCDiscussionTopicTranslator;
+import org.sakaiproject.importer.impl.translators.CCLearningApplicationResourceTranslator;
 import org.sakaiproject.importer.impl.translators.CCWebContentTranslator;
 import org.sakaiproject.importer.impl.translators.CCWebLinkTranslator;
 import org.w3c.dom.Document;
@@ -66,6 +67,7 @@ public class CommonCartridgeFileParser extends IMSFileParser {
 		addResourceTranslator(new CCWebLinkTranslator());
 		addResourceTranslator(new CCWebContentTranslator());
 		addResourceTranslator(new CCDiscussionTopicTranslator());
+		addResourceTranslator(new CCLearningApplicationResourceTranslator());
 		resourceHelper = new CCResourceHelper();
 		itemHelper = new CCItemHelper();
 		fileHelper = new CCFileHelper();
@@ -125,12 +127,13 @@ public class CommonCartridgeFileParser extends IMSFileParser {
 	
 	protected class CCResourceHelper extends ResourceHelper {
 		public String getTitle(Node resourceNode) {
-			Document descriptor = getDescriptor(resourceNode);
-			String title = XPathHelper.getNodeValue("/CONTENT/TITLE",descriptor);
+			String title = null;
+			Node itemNode = XPathHelper.selectNode("//item[@identifierref='" + this.getId(resourceNode) + "']", resourceNode.getOwnerDocument());
+			if (itemNode != null) {
+			title = XPathHelper.getNodeValue("./title", itemNode);
 			if (title == null || "".equals(title)) {
-				Node itemNode = XPathHelper.selectNode("//item[@identifierref='" + this.getId(resourceNode) + "']", resourceNode.getOwnerDocument());
-				if (itemNode != null) {
-					title = XPathHelper.getNodeValue("./title", itemNode);
+				Document descriptor = getDescriptor(resourceNode);
+				title = XPathHelper.getNodeValue("/CONTENT/TITLE",descriptor);
 				}
 			}
 			return title;
