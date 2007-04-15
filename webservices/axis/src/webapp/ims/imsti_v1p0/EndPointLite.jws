@@ -7,6 +7,9 @@ import java.util.TreeMap;
 import java.util.Iterator;
 import java.net.URLEncoder;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -19,8 +22,15 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.User;
+
+import org.sakaiproject.tool.api.ActiveTool;
+import org.sakaiproject.tool.cover.ActiveToolManager;
+
+import org.sakaiproject.util.Web;
 
 import org.sakaiproject.axis.util.XMLMap;
 
@@ -29,179 +39,209 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
+import org.apache.axis.MessageContext;
 import org.apache.axis.AxisFault;
+import org.apache.axis.Constants;
 
 import org.sakaiproject.javax.PagingPosition;
+
+// Necessary until code moves into UsageSessionServiceAdaptor.java
+import org.sakaiproject.event.api.UsageSession;
+import org.sakaiproject.event.cover.UsageSessionService;
+import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.event.cover.EventTrackingService;
 
 /**
  * class to support Sakai Login headers sent in request as a string array
  */
 public class EndPointLite {
 
+
+    private static final Log LOG = LogFactory.getLog(EndPointLite.class);
+
     public String doLaunch(String xmlStr)
 	throws AxisFault 
     {
+ 	String configSecret = ServerConfigurationService.getString("imsti.globalsecret");
+	if ( configSecret == null || configSecret.trim().length() < 1 ) 
+		throw new AxisFault("Sakai instance is not configured to support TI EndPoint");
+
 	System.out.println("Incoming="+xmlStr);
         Map<String, String> tm = XMLMap.getMap(xmlStr);
 
 	String userEid = tm.get("/LaunchRequest/LaunchData/LaunchProfile/UserProfile/IMSSourcedid/SourceID");
 	String placementId = tm.get("/LaunchRequest/Deployment/ToolSettings/SettingsDefinition/instance/placementId");
-	System.out.println("Eid = "+userEid+" placement="+placementId);
+	String secret = tm.get("/LaunchRequest/Deployment/SecurityProfile/SharedSecret");
+	String portalType = tm.get("/LaunchRequest/LaunchData/Ancillary/PortalType");
+	System.out.println("Eid = "+userEid+" placement="+placementId+" secret="+secret);
+
+	if ( ! configSecret.equals(secret) ) throw new AxisFault("Error in SecurityProfile");
+
+        User user = null ;
+
+        try {
+                user = UserDirectoryService.getUserByEid(userEid);
+        } catch (Exception e) {
+                user = null;
+        }
+	if ( user == null ) {
+		throw new AxisFault("User not found...");
+	}
+
+        MessageContext messageContext = MessageContext.getCurrentContext();
+        String ipAddress = messageContext.getStrProp(Constants.MC_REMOTE_ADDR);
+	System.out.println("ipAddress="+ipAddress);
+	String sessionId = null;
+	String siteId = null;
+	boolean skipSession = "sakai".equals(portalType) &&  "127.0.0.1".equals(ipAddress);
+	System.out.println("skipSession = "+skipSession);
+
+        if ( user != null ) {
+                System.out.println("Have User");
+                Session s = SessionManager.startSession();
+                SessionManager.setCurrentSession(s);
+                if (s == null)
+                {
+                        throw new AxisFault("Unable to establish session");
+                }
+                else 
+                {
+                        // We do not care too much on the off-chance that this fails - folks simply won't show up in presense
+                        // and events won't be trackable back to people / IP Addresses - but if it fails - there is nothing
+                        // we can do anyways.
+
+                        UsageSessionService_loginDirect(user.getId(), userEid, ipAddress, "EndPointLite.jws");
+
+                        try {
+                                siteId = SiteService.getUserSiteId(s.getUserId());
+                                System.out.println("Site exists..."+siteId);
+                        } catch(Exception e) {
+                                System.out.println("Site does not exist...");
+                                throw new AxisFault("Failed login");
+                        }
+                        sessionId = s.getId();
+                        System.out.println("Session established id="+userEid+" ip="+ipAddress+" session="+sessionId);
+                }
+        }
 	
+	String returnUrl = null;
 	Map<String,String> retMap = new TreeMap();
-	retMap.put("/LaunchResponse/imsx_CodeMajor","success");  // failure
-	retMap.put("/LaunchResponse/imsx_CodeMinor","status");   // error
-	retMap.put("/LaunchResponse/LaunchDirective","redirect");
-	retMap.put("/LaunchResponse/LaunchAction","http://www.dr-chuck.com/");
-	retMap.put("/LaunchResponse/Ancillary/frame-height","500");
-	// To do Hack this properly
-	retMap.put("/LaunchResponse/Ancillary/sakai:frameid",placementId);
-        String ret = XMLMap.getXML(retMap);
-        // System.out.println("ret="+ret);
-	// throw new AxisFault("Trouble in paradise");
+	if ( "portal".equals(placementId) ) {
+		// String portalUrl = ServerConfigurationService.getPortalUrl();
+		String serverUrl = ServerConfigurationService.getServerUrl();
+		returnUrl = serverUrl + "/portal/pda";
+	} else {
+		System.out.println("siteId="+siteId+" placement="+placementId);
+		placementId = getPlacement(siteId, placementId);
+		System.out.println("after siteId="+siteId+" placement="+placementId);
+          	String toolUrl = ServerConfigurationService.getToolUrl() + "/" + Web.escapeUrl(placementId);
+		System.out.println("toolUrl = "+toolUrl);
+                // find the tool from some site
+                ToolConfiguration siteTool = SiteService.findTool(placementId);
+		System.out.println("siteTool="+siteTool);
+		if ( siteTool != null ) {
+                	ActiveTool tool = ActiveToolManager.getActiveTool(siteTool.getToolId());
+			System.out.println("tool="+tool);
+			if ( tool == null ) toolUrl = null;
+		} else {
+			toolUrl = null;
+		}
+		returnUrl = toolUrl;
+	}
+
+	if ( returnUrl != null ) {
+		if ( sessionId != null && ! skipSession ) {
+			if ( returnUrl.indexOf("?") > 0 ) {
+				returnUrl = returnUrl + "&";
+			} else {
+				returnUrl = returnUrl + "?";
+			}
+			returnUrl = returnUrl + "sakai.session=" + sessionId;
+		}
+		retMap.put("/LaunchResponse/imsx_CodeMajor","success");  // failure
+		retMap.put("/LaunchResponse/imsx_CodeMinor","status");   // error
+		retMap.put("/LaunchResponse/Ancillary/frame-height","1200");
+		retMap.put("/LaunchResponse/LaunchDirective","redirect");
+		retMap.put("/LaunchResponse/LaunchAction",returnUrl);
+		retMap.put("/LaunchResponse/Ancillary/sakai:frameid",Web.escapeJavascript("Main"+placementId) );
+		retMap.put("/LaunchResponse/Ancillary/sakai:sessionid",sessionId);
+	} else {
+		retMap.put("/LaunchResponse/imsx_CodeMajor","failure");  // failure
+		retMap.put("/LaunchResponse/imsx_CodeMinor","error");   // error
+		retMap.put("/LaunchResponse/LaunchDirective","display");
+		retMap.put("/LaunchResponse/LaunchAction","Unable to resolve placement "+placementId);
+	}
+	String ret = XMLMap.getXML(retMap);
+	// System.out.println("ret="+ret);
 	return ret;
     }
 
-    public String getSitesDom(String id, String search, int first, int last) 
-	throws AxisFault 
-    {
-    	return getSitesDom(id, search,first, last, false);
-    }
+    // This code is adapted from the file:
+    // ./event-impl/impl/src/java/org/sakaiproject/event/impl/UsageSessionServiceAdaptor.java
+    // Method
+    // public boolean login(Authentication authn, HttpServletRequest req)
+    // We want to do exactly what this routine *does* but we do not have an HttpServletRequest
+    // to hand it
 
-    public String getToolsDom(String id, String search, int first, int last) 
-	throws AxisFault 
-    {
-    	return getSitesDom(id, search,first, last, true);
+        public boolean UsageSessionService_loginDirect(String userId, String userEid, String ipAddress, String userAgent)
+        {
+                // establish the user's session - this has been known to fail
+                UsageSession session = UsageSessionService.startSession(userId,ipAddress,userAgent);
+                if (session == null)
+                {
+                        return false;
+                }
 
-    }
+                // set the user information into the current session
+                Session sakaiSession = SessionManager.getCurrentSession();
+                sakaiSession.setUserId(userId);
+                sakaiSession.setUserEid(userEid);
 
-    private String getSitesDom(String id, String search, int first, int last, boolean doTools) 
-	throws AxisFault 
-    {
-	Session s = null;
- 	List siteList = null;
+                // update the user's externally provided realm definitions
+                AuthzGroupService.refreshUser(userId);
 
-	Document dom = Xml.createDocument();
-	Node allSites = dom.createElement("sites");
-	dom.appendChild(allSites);
+                String EVENT_LOGIN = "user.login";
 
-	String portalUrl = ServerConfigurationService.getPortalUrl();
-	String serverUrl = ServerConfigurationService.getServerUrl();
+                // post the login event
+                EventTrackingService.post(EventTrackingService.newEvent(EVENT_LOGIN, null, true));
 
-	Node portalNode = dom.createElement("portal");
-	allSites.appendChild(portalNode);
-	portalNode.appendChild(dom.createTextNode(portalUrl));
-
-	Node serverNode = dom.createElement("server");
-	allSites.appendChild(serverNode);
-	serverNode.appendChild(dom.createTextNode(serverUrl));
-
-	Node galleryNode = dom.createElement("gallery");
-	allSites.appendChild(galleryNode);
-	galleryNode.appendChild(dom.createTextNode(serverUrl+"/gallery"));
-
-	Site theSite;
-       	for(int i=-1;i<siteList.size();i++) {
-		if ( i == -1 ) {
-			theSite = null;
-		} else {
-			theSite = (Site) siteList.get(i);
-		}
-		if ( theSite == null ) continue;
-		
-	        Node siteNode = dom.createElement("site");
-		allSites.appendChild(siteNode);
-
-		Node titleNode = dom.createElement("title");
-		siteNode.appendChild(titleNode);
-		titleNode.appendChild(dom.createTextNode(theSite.getTitle()));
-
-		Node idNode  = dom.createElement("id");
-		siteNode.appendChild(idNode);
-		idNode.appendChild(dom.createTextNode(theSite.getId()));
-
-		Node urlNode  = dom.createElement("url");
-		siteNode.appendChild(urlNode);
-		urlNode.appendChild(dom.createTextNode(serverUrl+"/portal/worksite/"+theSite.getId()));
-
-		Node typeNode  = dom.createElement("type");
-		siteNode.appendChild(typeNode);
-		typeNode.appendChild(dom.createTextNode(theSite.getType()));
- 
-		// Load up the pages
-		if ( doTools) scanPages(dom, theSite, siteNode, serverUrl);
+                return true;
         }
 
-	String retVal = Xml.writeDocumentToString(dom);
-	// System.out.println("XML = "+retVal);
-        return retVal;
-    }
 
-    private void scanPages(Document dom, Site theSite, Node siteNode, String serverUrl)
-    {
-		// Node toolsNode = dom.createElement("tools");
-		// siteNode.appendChild(toolsNode);
+	/* 
+	 * Checks to see which form of tool or page placement we have. The normal
+	 * placement is a GUID. However when the parameter sakai.site is 
+	 * added to the request, the placement can be of the form 
+	 * sakai.resources. This routine determines which form of the
+	 * placement id, and if this is the second type, performs the lookup and
+	 * returns the GUID of the placement. If we cannot resolve the 
+	 * placement, we simply return the passed in placement ID. 
+	 * If we cannot visit the site, we send the user to login
+	 * processing and return null to the caller.
+	 */
 
-		Node pagesNode = dom.createElement("pages");
-		siteNode.appendChild(pagesNode);
+	public String getPlacement(String siteId, String placementId) 
+	{
+		if (siteId == null) return placementId; // Standard placement
 
-                // order the pages based on their tools and the tool order for the site type
-                List pages = theSite.getOrderedPages();
-
-                // gsilver - counter for tool accesskey attributes of <a>
-                int count = 0;
-
-                for (Iterator iPage = pages.iterator(); iPage.hasNext();)
-                {
-			SitePage p = (SitePage) iPage.next();
-
-			Node pageNode = dom.createElement("page");
-			pagesNode.appendChild(pageNode);
-
-			Node pageIdNode = dom.createElement("id");
-			pageNode.appendChild(pageIdNode);
-			pageIdNode.appendChild(dom.createTextNode(p.getId()));
-
-			Node pageTitle = dom.createElement("title");
-			pageNode.appendChild(pageTitle);
-			pageTitle.appendChild(dom.createTextNode(p.getTitle()));
-
-        		Node pageUrlNode = dom.createElement("url");
-        		pageNode.appendChild(pageUrlNode);
-        		pageUrlNode.appendChild(dom.createTextNode(serverUrl+"/portal/page/"+p.getId()));
-
-			Node pageTools = dom.createElement("tools");
-			pageNode.appendChild(pageTools);
-
-                	List tools = p.getTools(0);
-                	for (Iterator thePlace = tools.iterator(); thePlace.hasNext();)
-               		{
-                       		ToolConfiguration placement = (ToolConfiguration) thePlace.next();
-				Tool theTool = placement.getTool();
-
-				Node toolNode = dom.createElement("tool");
-				// toolsNode.appendChild(toolNode);
-				pageTools.appendChild(toolNode);
-
-				Node toolIdNode = dom.createElement("id");
-				toolNode.appendChild(toolIdNode);
-				toolIdNode.appendChild(dom.createTextNode(placement.getId()));
-
-				Node toolTitle = dom.createElement("title");
-				toolNode.appendChild(toolTitle);
-				toolTitle.appendChild(dom.createTextNode(placement.getTitle()));
-
-				Node toolHandle = dom.createElement("toolid");
-				toolNode.appendChild(toolHandle);
-				toolHandle.appendChild(dom.createTextNode(theTool.getId()));
-
-				// Do we need ?panel=Main here ??
-        			Node toolUrlNode = dom.createElement("url");
-        			toolNode.appendChild(toolUrlNode);
-        			toolUrlNode.appendChild(dom.createTextNode(serverUrl+"/portal/tool/"+placement.getId()));
-                	}
+		// find the site, for visiting
+		// Sites like the !gateway site allow visits by anonymous
+		Site site = null;
+		try
+		{
+			site = SiteService.getSiteVisit(siteId);
+System.out.println("SITE="+site);
+			if (site == null) return placementId;
+			ToolConfiguration toolConfig = site.getToolForCommonId(placementId);
+System.out.println("TC="+toolConfig);
+			if (toolConfig == null) return placementId;
+System.out.println("TCI="+toolConfig.getId());
+			return toolConfig.getId();
 		}
-
-    }
-
+		catch (Exception e)
+		{
+			return placementId;
+		}
+	}
 }
