@@ -30,5 +30,4 @@ public interface Importable {
 	void setParent(Importable parent);
 	void setLegacyGroup(String legacyGroup);
 	void setContextPath(String path);
-	int getSequenceNum();
 }

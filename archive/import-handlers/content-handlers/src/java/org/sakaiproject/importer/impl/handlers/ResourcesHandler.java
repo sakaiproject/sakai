@@ -61,7 +61,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.Log;
 
 public class ResourcesHandler implements HandlesImportable {
-	private static final String COPYRIGHT = "(c) 2006";
+	private static final String COPYRIGHT = "(c) 2007";
 	
 	private Log m_log = LogFactory.getLog(org.sakaiproject.importer.impl.handlers.ResourcesHandler.class);
 
@@ -136,7 +136,7 @@ public class ResourcesHandler implements HandlesImportable {
 				resourceProps.put(ResourceProperties.PROP_DISPLAY_NAME, title);
 				resourceProps.put(ResourceProperties.PROP_DESCRIPTION, description);
 				resourceProps.put(ResourceProperties.PROP_HAS_CUSTOM_SORT, Boolean.TRUE.toString());
-				resourceProps.put(ResourceProperties.PROP_CONTENT_PRIORITY, Integer.toString(thing.getSequenceNum()));
+				resourceProps.put(ResourceProperties.PROP_CONTENT_PRIORITY, Integer.toString(((WebLink)thing).getSequenceNum()));
 				if(m_log.isDebugEnabled()){ 
 					m_log.debug("import ResourcesHandler about to add web link entitled '" + title + "'");
 				}

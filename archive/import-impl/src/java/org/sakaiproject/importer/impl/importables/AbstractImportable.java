@@ -21,9 +21,10 @@
 
 package org.sakaiproject.importer.impl.importables;
 
+import org.sakaiproject.importer.api.HasSequence;
 import org.sakaiproject.importer.api.Importable;
 
-public abstract class AbstractImportable implements Importable {
+public abstract class AbstractImportable implements Importable, HasSequence {
 	
 	protected String guid;
 	protected String legacyGroup;
