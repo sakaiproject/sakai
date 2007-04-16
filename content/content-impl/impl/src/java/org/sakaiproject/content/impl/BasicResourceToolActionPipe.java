@@ -253,14 +253,15 @@ public class BasicResourceToolActionPipe
 		byte[] content = getContent();
 		if(content != null)
 		{
-			try
-			{
-				rv = new String( content, "UTF-8" );
-			}
-			catch(UnsupportedEncodingException e)
-			{
-				rv = new String( content );
-			}
+			rv = new String( content );
+//			try
+//			{
+//				rv = new String( content, "UTF-8" );
+//			}
+//			catch(UnsupportedEncodingException e)
+//			{
+//				rv = new String( content );
+//			}
 		}
 		return rv;
 	}
