@@ -21,7 +21,7 @@
 				</h3>
 				<p class="textPanelFooter">
 				</f:verbatim>
-					<h:outputText value="(#{message.owner} - #{message.dateTime})" />
+					<h:outputText value="(#{message.chatMessage.chatChannel.title} - #{message.owner} - #{message.dateTime})" />
 				<f:verbatim>
 				</p>
 				</f:verbatim>
