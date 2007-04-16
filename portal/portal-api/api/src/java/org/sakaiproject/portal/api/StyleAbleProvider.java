@@ -22,26 +22,32 @@
 package org.sakaiproject.portal.api;
 
 /**
+ * This interface should be implemented by a Stylable provider to control the portal in 
+ * the browser either by CSS or by javascript manipulation of the DOM in the browser.
  * 
  * @author ieb
- *
+ * @since Sakai 2.4
+ * @version $Rev$
+ * 
  */
 public interface StyleAbleProvider
 {
 
 	/**
 	 * Generate the javascript in the header for the user
+	 * 
 	 * @param userId
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	String generateJavaScript(String userId) throws Exception;
 
 	/**
 	 * Generate the StyleSheet in the header for the user
+	 * 
 	 * @param userId
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	String generateStyleSheet(String userId) throws Exception;
 

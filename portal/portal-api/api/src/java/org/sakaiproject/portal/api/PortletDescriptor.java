@@ -20,6 +20,13 @@
  **********************************************************************************/
 package org.sakaiproject.portal.api;
 
+/**
+ * Describes the Portlet
+ * 
+ * @author ieb
+ * @since Sakai 2.4
+ * @version $Rev$
+ */
 public interface PortletDescriptor
 {
 

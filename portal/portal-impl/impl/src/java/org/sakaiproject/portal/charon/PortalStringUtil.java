@@ -20,7 +20,14 @@
  **********************************************************************************/
 
 package org.sakaiproject.portal.charon;
-
+/**
+ * A Utitlity class to do string replacement prior to JDK 1.5
+ * 
+ * @author ieb
+ * @since Sakai 2.4
+ * @version $Rev$
+ * 
+ */
 public class PortalStringUtil
 {
 	/**

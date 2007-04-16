@@ -26,6 +26,12 @@ import javax.servlet.http.HttpServletRequest;
 import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.tool.api.Placement;
 
+/**
+ * @author ieb
+ * @since Sakai 2.4
+ * @version $Rev$
+ */
+
 public class StoredStateImpl implements StoredState
 {
 	private SessionRequestHolder requestHolder = null;

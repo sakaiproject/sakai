@@ -34,7 +34,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.announcement.cover.AnnouncementService;
 import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.chat.cover.ChatService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.discussion.cover.DiscussionService;
 import org.sakaiproject.entity.api.EntityProducer;
@@ -61,7 +60,10 @@ import org.sakaiproject.util.MapUtil;
 
 /**
  * @author ieb
+ * @since Sakai 2.4
+ * @version $Rev$
  */
+
 public class PortalSiteHelper
 {
 
@@ -106,7 +108,7 @@ public class PortalSiteHelper
 		if (gatewaySiteIds == null)
 		{
 			return mySites; // An empty list - deal with this higher up in the
-							// food chain
+			// food chain
 		}
 
 		// Loop throught the sites making sure they exist and are visitable
@@ -290,8 +292,8 @@ public class PortalSiteHelper
 
 		// Create a site-only placement
 		Placement placement = new org.sakaiproject.util.Placement("portal-temporary", /* toolId */
-				null, /* tool */null,
-				/* config */null, /* context */site.getId(), /* title */null);
+		null, /* tool */null,
+		/* config */null, /* context */site.getId(), /* title */null);
 
 		ThreadLocalManager.set(CURRENT_PLACEMENT, placement);
 
@@ -358,21 +360,12 @@ public class PortalSiteHelper
 			}
 		}
 		/*
-		else if ("sakai.chat".equals(toolIdentifier))
-		{
-         //This is now being done by the EntitySummary stuff - chmaurer 3/2007
-			try
-			{
-				String channel = ChatService.getInstance().channelReference(site.getId(),
-						SiteService.MAIN_CONTAINER);
-				newMap = ChatService.getSummary(channel, 5, 30);
-			}
-			catch (Exception e)
-			{
-				newMap = null;
-			}
-		}
-*/
+		 * else if ("sakai.chat".equals(toolIdentifier)) { //This is now being
+		 * done by the EntitySummary stuff - chmaurer 3/2007 try { String
+		 * channel = ChatService.getInstance().channelReference(site.getId(),
+		 * SiteService.MAIN_CONTAINER); newMap = ChatService.getSummary(channel,
+		 * 5, 30); } catch (Exception e) { newMap = null; } }
+		 */
 		else if ("sakai.discussion".equals(toolIdentifier))
 		{
 			try
@@ -399,35 +392,37 @@ public class PortalSiteHelper
 				newMap = null;
 			}
 		}
-      
-      
-      /* This is a new, cooler way to do this (I hope) chmaurer... 
-       * 
-       */
-      
-//  offer to all EntityProducers
-      for (Iterator i = EntityManager.getEntityProducers().iterator(); i.hasNext();)
-      {
-         EntityProducer ep = (EntityProducer) i.next();
-         if (ep instanceof EntitySummary)
-         {
-            try
-            {
-               EntitySummary es = (EntitySummary) ep;
 
-               // if this producer claims this tool id
-               if (ArrayUtil.contains(es.summarizableToolIds(), toolIdentifier))
-               {
-                  String summarizableReference = es.getSummarizableReference(site.getId());
-                  es.getSummary(summarizableReference, 5, 30);
-               }
-            }
-            catch (Throwable t)
-            {
-               log.warn("Error encountered while asking EntitySummary to getSummary() for: " + toolIdentifier, t);
-            }
-         }
-      }
+		/*
+		 * This is a new, cooler way to do this (I hope) chmaurer...
+		 */
+
+		// offer to all EntityProducers
+		for (Iterator i = EntityManager.getEntityProducers().iterator(); i.hasNext();)
+		{
+			EntityProducer ep = (EntityProducer) i.next();
+			if (ep instanceof EntitySummary)
+			{
+				try
+				{
+					EntitySummary es = (EntitySummary) ep;
+
+					// if this producer claims this tool id
+					if (ArrayUtil.contains(es.summarizableToolIds(), toolIdentifier))
+					{
+						String summarizableReference = es.getSummarizableReference(site
+								.getId());
+						es.getSummary(summarizableReference, 5, 30);
+					}
+				}
+				catch (Throwable t)
+				{
+					log.warn(
+							"Error encountered while asking EntitySummary to getSummary() for: "
+									+ toolIdentifier, t);
+				}
+			}
+		}
 
 		if (newMap != null)
 		{
@@ -539,10 +534,11 @@ public class PortalSiteHelper
 		// No way to render an opinion
 		if (placement == null || site == null) return true;
 
-                // The site owner sees all pages !
-                if ( SecurityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference())) {
-                        return true;
-                }
+		// The site owner sees all pages !
+		if (SecurityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference()))
+		{
+			return true;
+		}
 
 		boolean retval = true;
 
@@ -564,40 +560,41 @@ public class PortalSiteHelper
 	}
 
 	/*
-	 * Retrieve the list of pages in this site, checking to see if the user
-	 * has permission to see the page - by checking the permissions of tools
-	 * on the page.
+	 * Retrieve the list of pages in this site, checking to see if the user has
+	 * permission to see the page - by checking the permissions of tools on the
+	 * page.
 	 */
 
 	// TODO: Move this into Site
 	public List getPermittedPagesInOrder(Site site)
 	{
 		// Get all of the pages
-                List pages = site.getOrderedPages();
+		List pages = site.getOrderedPages();
 
 		// The site owner sees all pages !
-  		if ( SecurityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference())) {
+		if (SecurityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference()))
+		{
 			return pages;
 		}
 
 		List newPages = new ArrayList();
 
-                for (Iterator i = pages.iterator(); i.hasNext();)
-                {
-                        // check if current user has permission to see page
-                        SitePage p = (SitePage) i.next();
-                        List pTools = p.getTools();
-                        Iterator iPt = pTools.iterator();
+		for (Iterator i = pages.iterator(); i.hasNext();)
+		{
+			// check if current user has permission to see page
+			SitePage p = (SitePage) i.next();
+			List pTools = p.getTools();
+			Iterator iPt = pTools.iterator();
 
 			boolean allowPage = false;
-                        while (iPt.hasNext())
-                        {
-                                ToolConfiguration placement = (ToolConfiguration) iPt.next();
+			while (iPt.hasNext())
+			{
+				ToolConfiguration placement = (ToolConfiguration) iPt.next();
 
-                                boolean thisTool = allowTool(site, placement);
-                                if (thisTool) allowPage = true;
-                        }
-			if ( allowPage ) newPages.add(p);
+				boolean thisTool = allowTool(site, placement);
+				if (thisTool) allowPage = true;
+			}
+			if (allowPage) newPages.add(p);
 		}
 		return newPages;
 	}

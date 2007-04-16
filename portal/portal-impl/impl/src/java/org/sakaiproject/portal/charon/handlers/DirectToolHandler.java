@@ -44,7 +44,12 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.Web;
 
 /**
+ * Handler to process directtool urls including storing destination state
+ * 
  * @author ieb
+ * @since Sakai 2.4
+ * @version $Rev$
+ * 
  */
 public class DirectToolHandler extends BasePortalHandler
 {

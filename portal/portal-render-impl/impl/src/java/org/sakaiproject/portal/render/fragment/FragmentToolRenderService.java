@@ -1,3 +1,24 @@
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2005, 2006 The Sakai Foundation.
+ * 
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.opensource.org/licenses/ecl1.php
+ * 
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
+ *
+ **********************************************************************************/
+
 package org.sakaiproject.portal.render.fragment;
 
 import java.io.IOException;
@@ -32,6 +53,13 @@ import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.Web;
 
+/**
+ * Attempts to render a tool as a fragment rather than an Iframe.
+ * 
+ * @author ieb
+ * @since Sakai 2.4
+ * @version $Rev$
+ */
 public class FragmentToolRenderService implements ToolRenderService
 {
 
@@ -132,15 +160,15 @@ public class FragmentToolRenderService implements ToolRenderService
 					return Web.escapeHtml(toolConfiguration.getTitle());
 				}
 
-                        	public String getJSR168EditUrl()
-                        	{
-                                	return null;
-                        	}
+				public String getJSR168EditUrl()
+				{
+					return null;
+				}
 
-                        	public String getJSR168HelpUrl()
-                        	{
-                                	return null;
-                        	}
+				public String getJSR168HelpUrl()
+				{
+					return null;
+				}
 			};
 			// do a named dispatch to the active tool with a fragment set
 
@@ -229,7 +257,7 @@ public class FragmentToolRenderService implements ToolRenderService
 			}
 			else
 			{
-				log.debug("Restoring Fragment  StoredState ["+ss+"]");
+				log.debug("Restoring Fragment  StoredState [" + ss + "]");
 
 				HttpServletRequest sreq = ss.getRequest(req);
 				Placement splacement = ss.getPlacement();
@@ -239,7 +267,8 @@ public class FragmentToolRenderService implements ToolRenderService
 				String sskin = ss.getSkin();
 				req.setAttribute(ToolURL.MANAGER, new ToolURLManagerImpl(res));
 				stool.include(sreq, res, splacement, stoolContext, stoolPathInfo);
-				// this is correct as we have already checked the context path of the desitination
+				// this is correct as we have already checked the context path
+				// of the desitination
 				portal.setStoredState(null);
 			}
 		}

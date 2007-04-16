@@ -32,9 +32,15 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * @author ieb
+ * @since Sakai 2.4
+ * @version $Rev$
+ */
+
 public class SessionRequestHolder
 {
-	private Map<String,List> headers;
+	private Map<String, List> headers;
 
 	private String contextPath;
 
@@ -47,7 +53,7 @@ public class SessionRequestHolder
 	public SessionRequestHolder(HttpServletRequest request, String marker,
 			String replacement)
 	{
-		headers = new HashMap<String,List>();
+		headers = new HashMap<String, List>();
 		Enumeration e = request.getHeaderNames();
 		while (e.hasMoreElements())
 		{
@@ -108,7 +114,8 @@ public class SessionRequestHolder
 	public Enumeration getHeaderNames()
 	{
 		final Iterator<String> i = headers.keySet().iterator();
-		return new Enumeration() {
+		return new Enumeration()
+		{
 
 			public boolean hasMoreElements()
 			{
@@ -119,8 +126,8 @@ public class SessionRequestHolder
 			{
 				return i.next();
 			}
-			
-		}; 
+
+		};
 	}
 
 	public Enumeration getHeaders(String arg0)
@@ -128,7 +135,8 @@ public class SessionRequestHolder
 		try
 		{
 			final Iterator i = headers.get(arg0).iterator();
-			return new Enumeration() {
+			return new Enumeration()
+			{
 				public boolean hasMoreElements()
 				{
 					return i.hasNext();
@@ -138,7 +146,7 @@ public class SessionRequestHolder
 				{
 					return i.next();
 				}
-				
+
 			};
 		}
 		catch (Throwable t)

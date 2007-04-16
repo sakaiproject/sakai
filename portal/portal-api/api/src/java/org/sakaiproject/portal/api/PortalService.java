@@ -26,6 +26,14 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * Portal Service acts as a focus for all Portal based activities, the service implementation
+ * should act as a holder to enable the varous webapps to communicate with one annother.
+ * 
+ * @author ieb
+ * @since Sakai 2.4
+ * @version $Rev$
+ */
 public interface PortalService
 {
 	/**
@@ -224,6 +232,7 @@ public interface PortalService
 
 	/**
 	 * Get the implimentation of the StylableService from the portal impl
+	 * 
 	 * @return
 	 */
 	StyleAbleProvider getStylableService();

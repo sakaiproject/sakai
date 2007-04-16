@@ -22,11 +22,13 @@
 package org.sakaiproject.portal.charon.test;
 
 import junit.framework.TestCase;
+
 /**
- * A unit test that performs a template render test, checking for XMTML compliance. You should check the 
- * transcript for resutls. The test will not fail.
+ * A unit test that performs a template render test, checking for XMTML
+ * compliance. You should check the transcript for resutls. The test will not
+ * fail.
+ * 
  * @author ieb
- *
  */
 public class PortalRenderTest extends TestCase
 {
@@ -49,19 +51,24 @@ public class PortalRenderTest extends TestCase
 	{
 		super.tearDown();
 	}
-	public void testAllTemplates() throws Exception {
-		try {
-		MockCharonPortal mock = new MockCharonPortal();
-		//mock.doError();
-		mock.doGalleryTabs();
-		mock.doGallery();
-		mock.doNavLogin();
-		mock.doNavLoginGallery();
-		mock.doPage();
-		mock.doSite();
-		mock.doSiteTabs();
-		mock.doWorksite();
-		} catch ( Exception ex ) {
+
+	public void testAllTemplates() throws Exception
+	{
+		try
+		{
+			MockCharonPortal mock = new MockCharonPortal();
+			// mock.doError();
+			mock.doGalleryTabs();
+			mock.doGallery();
+			mock.doNavLogin();
+			mock.doNavLoginGallery();
+			mock.doPage();
+			mock.doSite();
+			mock.doSiteTabs();
+			mock.doWorksite();
+		}
+		catch (Exception ex)
+		{
 			ex.printStackTrace();
 		}
 	}

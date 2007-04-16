@@ -52,9 +52,11 @@ import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Web;
 
 /**
- * <p>
- * </p>
+ * @author ieb
+ * @since Sakai 2.4
+ * @version $Rev$
  */
+
 public class ToolPortal extends HttpServlet
 {
 	/** Our log (commons). */

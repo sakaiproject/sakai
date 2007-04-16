@@ -77,11 +77,13 @@ import org.sakaiproject.util.Web;
  * <p>
  * Charon is the Sakai Site based portal.
  * </p>
+ * @since Sakai 2.0
+ * @version $Rev$
+ * 
  */
 public class CharonPortal extends HttpServlet
 {
-	
-	
+
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(CharonPortal.class);
 
@@ -100,7 +102,6 @@ public class CharonPortal extends HttpServlet
 	 * making them log in (like worksite, site, and tool URLs).
 	 */
 	protected static final String PARAM_FORCE_LOGIN = "force.login";
-
 
 	/** Configuration option to enable/disable state reset on navigation change */
 	protected static final String CONFIG_AUTO_RESET = "portal.experimental.auto.reset";
@@ -136,7 +137,7 @@ public class CharonPortal extends HttpServlet
 
 	private PortalService portalService;
 
-    /**
+	/**
 	 * Shutdown the servlet.
 	 */
 	public void destroy()
@@ -158,22 +159,19 @@ public class CharonPortal extends HttpServlet
 			{
 				case ERROR_SITE:
 				{
-					doSite(req, res, session, "!error", null, req
-							.getContextPath()
+					doSite(req, res, session, "!error", null, req.getContextPath()
 							+ req.getServletPath());
 					break;
 				}
 				case ERROR_GALLERY:
 				{
-					doGallery(req, res, session, "!error", null, req
-							.getContextPath()
+					doGallery(req, res, session, "!error", null, req.getContextPath()
 							+ req.getServletPath());
 					break;
 				}
 				case ERROR_WORKSITE:
 				{
-					doWorksite(req, res, session, "!error", null, req
-							.getContextPath()
+					doWorksite(req, res, session, "!error", null, req.getContextPath()
 							+ req.getServletPath());
 					break;
 				}
@@ -184,8 +182,7 @@ public class CharonPortal extends HttpServlet
 		// error and we cannot use the error site...
 
 		// form a context sensitive title
-		String title = ServerConfigurationService.getString("ui.service")
-				+ " : Portal";
+		String title = ServerConfigurationService.getString("ui.service") + " : Portal";
 
 		// start the response
 		PrintWriter out = startResponse(res, title, null, false);
@@ -201,16 +198,16 @@ public class CharonPortal extends HttpServlet
 		endResponse(out);
 	}
 
-	protected void doThrowableError(HttpServletRequest req,
-			HttpServletResponse res, Throwable t)
+	protected void doThrowableError(HttpServletRequest req, HttpServletResponse res,
+			Throwable t)
 	{
 		ErrorReporter err = new ErrorReporter();
 		err.report(req, res, t);
 	}
 
 	protected void doGallery(HttpServletRequest req, HttpServletResponse res,
-			Session session, String siteId, String pageId,
-			String toolContextPath) throws ToolException, IOException
+			Session session, String siteId, String pageId, String toolContextPath)
+			throws ToolException, IOException
 	{
 		// check to default site id
 		if (siteId == null)
@@ -283,8 +280,8 @@ public class CharonPortal extends HttpServlet
 		session.setAttribute(ATTR_SITE_PAGE + siteId, page.getId());
 
 		// form a context sensitive title
-		String title = ServerConfigurationService.getString("ui.service")
-				+ " : " + site.getTitle() + " : " + page.getTitle();
+		String title = ServerConfigurationService.getString("ui.service") + " : "
+				+ site.getTitle() + " : " + page.getTitle();
 
 		// start the response
 		PrintWriter out = startResponse(res, title, site.getSkin(), true);
@@ -294,11 +291,9 @@ public class CharonPortal extends HttpServlet
 
 		String siteType = calcSiteType(siteId);
 		out.println("<div id=\"container\""
-				+ ((siteType != null) ? " class=\"" + siteType + "\"" : "")
-				+ ">");
+				+ ((siteType != null) ? " class=\"" + siteType + "\"" : "") + ">");
 
-		includeWorksite(req, res, session, site, page, toolContextPath,
-				"gallery");
+		includeWorksite(req, res, session, site, page, toolContextPath, "gallery");
 		out.println("<div>");
 
 		includeBottom(out);
@@ -307,9 +302,8 @@ public class CharonPortal extends HttpServlet
 		endResponse(out);
 	}
 
-	protected void doGalleryTabs(HttpServletRequest req,
-			HttpServletResponse res, Session session, String siteId)
-			throws IOException
+	protected void doGalleryTabs(HttpServletRequest req, HttpServletResponse res,
+			Session session, String siteId) throws IOException
 	{
 		String skin = SiteService.getSiteSkin(siteId);
 
@@ -341,7 +335,7 @@ public class CharonPortal extends HttpServlet
 	protected void doGet(HttpServletRequest req, HttpServletResponse res)
 			throws ServletException, IOException
 	{
-		boolean resetDone = false;	
+		boolean resetDone = false;
 		try
 		{
 			basicAuth.doLogin(req);
@@ -356,46 +350,40 @@ public class CharonPortal extends HttpServlet
 			{
 				if (session.getUserId() == null)
 				{
-					option = "/site/"
-							+ ServerConfigurationService.getGatewaySiteId();
+					option = "/site/" + ServerConfigurationService.getGatewaySiteId();
 				}
 				else
 				{
-					option = "/site/"
-							+ SiteService.getUserSiteId(session.getUserId());
+					option = "/site/" + SiteService.getUserSiteId(session.getUserId());
 				}
 			}
 
 			// get the parts (the first will be "")
 			String[] parts = option.split("/");
 
-            // recognize and dispatch the 'tool' option: [1] = "tool", [2] =
+			// recognize and dispatch the 'tool' option: [1] = "tool", [2] =
 			// placement id (of a site's tool placement), rest for the tool
 			if ((parts.length > 2) && (parts[1].equals("tool")))
 			{
-                // Resolve the placements of the form
+				// Resolve the placements of the form
 				// /portal/tool/sakai.resources?sakai.site=~csev
-				String toolPlacement = getPlacement(req, res, session,
-						parts[2], false);
+				String toolPlacement = getPlacement(req, res, session, parts[2], false);
 				if (toolPlacement == null)
 				{
 					return;
 				}
 				parts[2] = toolPlacement;
 
-
-
-                doTool(req, res, session, parts[2], req.getContextPath()
-						+ req.getServletPath() + Web.makePath(parts, 1, 3), Web
-						.makePath(parts, 3, parts.length));
+				doTool(req, res, session, parts[2], req.getContextPath()
+						+ req.getServletPath() + Web.makePath(parts, 1, 3), Web.makePath(
+						parts, 3, parts.length));
 			}
 			else if (enableDirect && (parts.length > 2)
 					&& (parts[1].equals("directtool")))
 			{
 				// Resolve the placements of the form
 				// /portal/tool/sakai.resources?sakai.site=~csev
-				String toolPlacement = getPlacement(req, res, session,
-						parts[2], false);
+				String toolPlacement = getPlacement(req, res, session, parts[2], false);
 				if (toolPlacement == null)
 				{
 					return;
@@ -403,48 +391,50 @@ public class CharonPortal extends HttpServlet
 				parts[2] = toolPlacement;
 
 				doDirectTool(req, res, session, parts[2], req.getContextPath()
-						+ req.getServletPath() + Web.makePath(parts, 1, 3), Web
-						.makePath(parts, 3, parts.length));
+						+ req.getServletPath() + Web.makePath(parts, 1, 3), Web.makePath(
+						parts, 3, parts.length));
 			}
 
-			// These reet urls simply set a session value to indicate to reset state and then redirect
-			// This is necessary os that hte URL is clean and we do not see resets on refresh
+			// These reet urls simply set a session value to indicate to reset
+			// state and then redirect
+			// This is necessary os that hte URL is clean and we do not see
+			// resets on refresh
 			else if ((parts.length > 2) && (parts[1].equals("tool-reset")))
 			{
-                               String toolUrl = req.getContextPath() + "/tool" + Web.makePath(parts, 2, parts.length);
-                               // Make sure to add the parameters such as panel=Main
-                               String queryString = req.getQueryString();
-                               if ( queryString != null )
-                               {
-                                       toolUrl = toolUrl + "?" + queryString;
-                               }
-                               portalService.setResetState("true");
-                               resetDone = true;
-                               res.sendRedirect(toolUrl);
+				String toolUrl = req.getContextPath() + "/tool"
+						+ Web.makePath(parts, 2, parts.length);
+				// Make sure to add the parameters such as panel=Main
+				String queryString = req.getQueryString();
+				if (queryString != null)
+				{
+					toolUrl = toolUrl + "?" + queryString;
+				}
+				portalService.setResetState("true");
+				resetDone = true;
+				res.sendRedirect(toolUrl);
 			}
 
-	                /**
-	                 * Title frames were no longer used in 2.3 and are not supported in 2.4
-	                 * so we emit a WARN message here to help people with derived classes figure
-		         * out the new way.
-                         */ 
+			/**
+			 * Title frames were no longer used in 2.3 and are not supported in
+			 * 2.4 so we emit a WARN message here to help people with derived
+			 * classes figure out the new way.
+			 */
 
 			// TODO: Remove after 2.4
 			else if ((parts.length > 2) && (parts[1].equals("title")))
 			{
-                                // Resolve the placements of the form
-                                // /portal/title/sakai.resources?sakai.site=~csev
-                                String toolPlacement = getPlacement(req, res, session,
-                                                parts[2], false);
-                                if (toolPlacement == null)
-                                {
-                                        return;
-                                }
-                                parts[2] = toolPlacement;
+				// Resolve the placements of the form
+				// /portal/title/sakai.resources?sakai.site=~csev
+				String toolPlacement = getPlacement(req, res, session, parts[2], false);
+				if (toolPlacement == null)
+				{
+					return;
+				}
+				parts[2] = toolPlacement;
 
-                                doTitle(req, res, session, parts[2], req.getContextPath()
-                                                + req.getServletPath() + Web.makePath(parts, 1, 3), Web
-                                                .makePath(parts, 3, parts.length));
+				doTitle(req, res, session, parts[2], req.getContextPath()
+						+ req.getServletPath() + Web.makePath(parts, 1, 3), Web.makePath(
+						parts, 3, parts.length));
 			}
 
 			// recognize a dispatch the 'page' option (tools on a page)
@@ -452,8 +442,7 @@ public class CharonPortal extends HttpServlet
 			{
 				// Resolve the placements of the form
 				// /portal/page/sakai.resources?sakai.site=~csev
-				String pagePlacement = getPlacement(req, res, session,
-						parts[2], true);
+				String pagePlacement = getPlacement(req, res, session, parts[2], true);
 				if (pagePlacement == null)
 				{
 					return;
@@ -475,8 +464,7 @@ public class CharonPortal extends HttpServlet
 					pageId = parts[4];
 				}
 
-				doWorksite(req, res, session, parts[2], pageId, req
-						.getContextPath()
+				doWorksite(req, res, session, parts[2], pageId, req.getContextPath()
 						+ req.getServletPath());
 			}
 
@@ -498,8 +486,7 @@ public class CharonPortal extends HttpServlet
 					siteId = parts[2];
 				}
 
-				doGallery(req, res, session, siteId, pageId, req
-						.getContextPath()
+				doGallery(req, res, session, siteId, pageId, req.getContextPath()
 						+ req.getServletPath());
 			}
 
@@ -544,8 +531,7 @@ public class CharonPortal extends HttpServlet
 			}
 
 			// recognize nav login for the gallery
-			else if ((parts.length == 3)
-					&& (parts[1].equals("nav_login_gallery")))
+			else if ((parts.length == 3) && (parts[1].equals("nav_login_gallery")))
 			{
 				doNavLoginGallery(req, res, session, parts[2]);
 			}
@@ -554,16 +540,15 @@ public class CharonPortal extends HttpServlet
 			else if ((parts.length >= 3) && (parts[1].equals("presence")))
 			{
 				doPresence(req, res, session, parts[2], req.getContextPath()
-						+ req.getServletPath() + Web.makePath(parts, 1, 3), Web
-						.makePath(parts, 3, parts.length));
+						+ req.getServletPath() + Web.makePath(parts, 1, 3), Web.makePath(
+						parts, 3, parts.length));
 			}
 
 			// recognize help
 			else if ((parts.length >= 2) && (parts[1].equals("help")))
 			{
-				doHelp(req, res, session, req.getContextPath()
-						+ req.getServletPath() + Web.makePath(parts, 1, 2), Web
-						.makePath(parts, 2, parts.length));
+				doHelp(req, res, session, req.getContextPath() + req.getServletPath()
+						+ Web.makePath(parts, 1, 2), Web.makePath(parts, 2, parts.length));
 			}
 
 			// recognize and dispatch the 'login' option
@@ -623,17 +608,19 @@ public class CharonPortal extends HttpServlet
 			doThrowableError(req, res, t);
 		}
 
-		// Make sure to clear any reset State at the end of the request unless we *just* set it
-		if ( !resetDone ) {
+		// Make sure to clear any reset State at the end of the request unless
+		// we *just* set it
+		if (!resetDone)
+		{
 			portalService.setResetState(null);
 		}
 
 	}
 
 	/**
-	 * Title frames were no longer used in 2.3 and are not supported in 2.4
-	 * so these methods are made private to notify derived classes.
-	 * they can be removed for 2.5  - csev
+	 * Title frames were no longer used in 2.3 and are not supported in 2.4 so
+	 * these methods are made private to notify derived classes. they can be
+	 * removed for 2.5 - csev
 	 */
 
 	protected void doTitle(HttpServletRequest req, HttpServletResponse res,
@@ -686,8 +673,8 @@ public class CharonPortal extends HttpServlet
 		// }
 		// }
 
-		includeTitle(tool, req, res, siteTool, siteTool.getSkin(),
-				toolContextPath, toolPathInfo);
+		includeTitle(tool, req, res, siteTool, siteTool.getSkin(), toolContextPath,
+				toolPathInfo);
 	}
 
 	/**
@@ -698,7 +685,8 @@ public class CharonPortal extends HttpServlet
 			String toolContextPath, String toolPathInfo) throws IOException
 	{
 
-		// TODO: After 2.3 and the background document is modified - this may no longer be needed
+		// TODO: After 2.3 and the background document is modified - this may no
+		// longer be needed
 		// as the title is simply in the background document
 
 		res.setContentType("text/html; charset=UTF-8");
@@ -720,8 +708,8 @@ public class CharonPortal extends HttpServlet
 		// for the reset button
 		String resetActionUrl = toolContextPath + "?reset=true";
 		boolean resetToolNow = "true".equals(req.getParameter("reset"));
-		boolean showResetButton = !"false".equals(placement.getConfig()
-				.getProperty(TOOLCONFIG_SHOW_RESET_BUTTON));
+		boolean showResetButton = !"false".equals(placement.getConfig().getProperty(
+				TOOLCONFIG_SHOW_RESET_BUTTON));
 
 		// for the help button
 		// get the help document ID from the tool config (tool registration
@@ -729,8 +717,8 @@ public class CharonPortal extends HttpServlet
 		// The help document ID defaults to the tool ID
 		boolean helpEnabledGlobally = ServerConfigurationService.getBoolean(
 				"display.help.icon", true);
-		boolean helpEnabledInTool = !"false".equals(placement.getConfig()
-				.getProperty(TOOLCONFIG_SHOW_HELP_BUTTON));
+		boolean helpEnabledInTool = !"false".equals(placement.getConfig().getProperty(
+				TOOLCONFIG_SHOW_HELP_BUTTON));
 		boolean showHelpButton = helpEnabledGlobally && helpEnabledInTool;
 
 		String helpActionUrl = "";
@@ -750,8 +738,7 @@ public class CharonPortal extends HttpServlet
 				{
 					helpDocId = tool.getId();
 				}
-				helpActionUrl = ServerConfigurationService
-						.getHelpUrl(helpDocId);
+				helpActionUrl = ServerConfigurationService.getHelpUrl(helpDocId);
 			}
 		}
 
@@ -786,11 +773,11 @@ public class CharonPortal extends HttpServlet
 		out.write("\t<div class=\"title\">\n");
 		if (showResetButton)
 		{
-			out.write("\t\t<a href=\""
-				+ resetActionUrl
-				+ "\" title=\"" + Web.escapeHtml(rb.getString("sit_reset")) 
-				+ "\"><img src=\"/library/image/transparent.gif\" alt=\"" 
-				+ Web.escapeHtml(rb.getString("sit_reset")) + "\" border=\"1\" /></a>");
+			out.write("\t\t<a href=\"" + resetActionUrl + "\" title=\""
+					+ Web.escapeHtml(rb.getString("sit_reset"))
+					+ "\"><img src=\"/library/image/transparent.gif\" alt=\""
+					+ Web.escapeHtml(rb.getString("sit_reset"))
+					+ "\" border=\"1\" /></a>");
 		}
 
 		out.write("<h2>" + toolTitle + "\n" + "\t</h2></div>\n");
@@ -798,7 +785,7 @@ public class CharonPortal extends HttpServlet
 		if (showHelpButton)
 		{
 			out.write(makeHelpButton(helpActionUrl));
- 		}
+		}
 
 		out.write("\t</div>\n");
 		out.write("</div>\n");
@@ -814,20 +801,20 @@ public class CharonPortal extends HttpServlet
 			ts.clearAttributes();
 
 			// redirect the main tool frame back to the initial tool URL.
-			String mainFrameId = Web.escapeJavascript("Main"
-					+ placement.getId());
+			String mainFrameId = Web.escapeJavascript("Main" + placement.getId());
 			String mainFrameUrl = ServerConfigurationService.getToolUrl() + "/"
 					+ Web.escapeUrl(placement.getId()) + "?panel=Main";
 
-			out
-					.write("<script type=\"text/javascript\" language=\"JavaScript\">\n");
+			out.write("<script type=\"text/javascript\" language=\"JavaScript\">\n");
 			out.write("try\n");
 			out.write("{\n");
-			out.write("	if (parent." + mainFrameId
-					+ ".location.toString().length > 1)\n");
+			out
+					.write("	if (parent." + mainFrameId
+							+ ".location.toString().length > 1)\n");
 			out.write("	{\n");
-			out.write("		parent." + mainFrameId + ".location = '"
-					+ mainFrameUrl + "';\n");
+			out
+					.write("		parent." + mainFrameId + ".location = '" + mainFrameUrl
+							+ "';\n");
 			out.write("	}\n");
 			out.write("}\n");
 			out.write("catch (e1)\n");
@@ -837,8 +824,8 @@ public class CharonPortal extends HttpServlet
 			out.write("		if (parent.parent." + mainFrameId
 					+ ".location.toString().length > 1)\n");
 			out.write("		{\n");
-			out.write("			parent.parent." + mainFrameId + ".location = '"
-					+ mainFrameUrl + "';\n");
+			out.write("			parent.parent." + mainFrameId + ".location = '" + mainFrameUrl
+					+ "';\n");
 			out.write("		}\n");
 			out.write("	}\n");
 			out.write("	catch (e2)\n");
@@ -850,17 +837,23 @@ public class CharonPortal extends HttpServlet
 
 		out.write(tailHtml);
 	}
+
 	private String makeHelpButton(String helpActionUrl)
 	{
 		return ("\t\t<a accesskey=\"h\""
-			+ " href=\"" + helpActionUrl + "\" "
- 			+ " title=\"" + Web.escapeHtml(rb.getString("sit_help")) + "\" "
-			+ " target=\"_blank\" "
-			+ " onclick=\"openWindow('" + helpActionUrl + "', 'Help'"
-			+ ", 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false\">"
-			+ "<img src=\"/library/image/transparent.gif\""
-			+ " alt=\"" + Web.escapeHtml(rb.getString("sit_help")) + "\""
-			+ " border=\"0\" /></a>\n");
+				+ " href=\""
+				+ helpActionUrl
+				+ "\" "
+				+ " title=\""
+				+ Web.escapeHtml(rb.getString("sit_help"))
+				+ "\" "
+				+ " target=\"_blank\" "
+				+ " onclick=\"openWindow('"
+				+ helpActionUrl
+				+ "', 'Help'"
+				+ ", 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false\">"
+				+ "<img src=\"/library/image/transparent.gif\"" + " alt=\""
+				+ Web.escapeHtml(rb.getString("sit_help")) + "\"" + " border=\"0\" /></a>\n");
 	}
 
 	protected void doLogin(HttpServletRequest req, HttpServletResponse res,
@@ -890,8 +883,7 @@ public class CharonPortal extends HttpServlet
 		if (returnPath != null)
 		{
 			// where to go after
-			session.setAttribute(Tool.HELPER_DONE_URL, Web.returnUrl(req,
-					returnPath));
+			session.setAttribute(Tool.HELPER_DONE_URL, Web.returnUrl(req, returnPath));
 		}
 
 		ActiveTool tool = ActiveToolManager.getActiveTool("sakai.login");
@@ -900,8 +892,7 @@ public class CharonPortal extends HttpServlet
 		// internaly, set the "extreme" login path
 		String loginPath = (skipContainer ? "/xlogin" : "/relogin");
 
-		String context = req.getContextPath() + req.getServletPath()
-				+ loginPath;
+		String context = req.getContextPath() + req.getServletPath() + loginPath;
 		tool.help(req, res, context, loginPath);
 	}
 
@@ -943,8 +934,7 @@ public class CharonPortal extends HttpServlet
 		}
 
 		ActiveTool tool = ActiveToolManager.getActiveTool("sakai.login");
-		String context = req.getContextPath() + req.getServletPath()
-				+ "/logout";
+		String context = req.getContextPath() + req.getServletPath() + "/logout";
 		tool.help(req, res, context, "/logout");
 	}
 
@@ -955,31 +945,28 @@ public class CharonPortal extends HttpServlet
 		PrintWriter out = startResponse(res, "Login", null, false);
 
 		includeLogo(out, req, session, siteId);
-		out
-				.println("<div class=\"divColor\" id=\"tabBottom\"><br /></div></div>");
+		out.println("<div class=\"divColor\" id=\"tabBottom\"><br /></div></div>");
 
 		// end the response
 		endResponse(out);
 	}
 
-	protected void doNavLoginGallery(HttpServletRequest req,
-			HttpServletResponse res, Session session, String siteId)
-			throws IOException
+	protected void doNavLoginGallery(HttpServletRequest req, HttpServletResponse res,
+			Session session, String siteId) throws IOException
 	{
 		// start the response
 		PrintWriter out = startResponse(res, "Login", null, false);
 
 		includeGalleryLogin(out, req, session, siteId);
-		out
-				.println("<div class=\"divColor\" id=\"tabBottom\"><br /></div></div>");
+		out.println("<div class=\"divColor\" id=\"tabBottom\"><br /></div></div>");
 
 		// end the response
 		endResponse(out);
 	}
 
 	protected void doPage(HttpServletRequest req, HttpServletResponse res,
-			Session session, String pageId, String toolContextPath)
-			throws ToolException, IOException
+			Session session, String pageId, String toolContextPath) throws ToolException,
+			IOException
 	{
 		// find the page from some site
 		SitePage page = SiteService.findPage(pageId);
@@ -1015,8 +1002,8 @@ public class CharonPortal extends HttpServlet
 		}
 
 		// form a context sensitive title
-		String title = ServerConfigurationService.getString("ui.service")
-				+ " : " + site.getTitle() + " : " + page.getTitle();
+		String title = ServerConfigurationService.getString("ui.service") + " : "
+				+ site.getTitle() + " : " + page.getTitle();
 
 		// start the response
 		PrintWriter out = startResponse(res, title, page.getSkin(), true);
@@ -1024,8 +1011,7 @@ public class CharonPortal extends HttpServlet
 		// div to wrap the works
 		String siteType = calcSiteType(site.getId());
 		out.println("<div id=\"container\""
-				+ ((siteType != null) ? " class=\"" + siteType + "\"" : "")
-				+ ">");
+				+ ((siteType != null) ? " class=\"" + siteType + "\"" : "") + ">");
 
 		includePage(req, res, page, toolContextPath, "contentFull");
 		out.println("</div>");
@@ -1071,16 +1057,15 @@ public class CharonPortal extends HttpServlet
 			if ((parts.length > 2) && (parts[1].equals("tool")))
 			{
 				doTool(req, res, session, parts[2], req.getContextPath()
-						+ req.getServletPath() + Web.makePath(parts, 1, 3), Web
-						.makePath(parts, 3, parts.length));
+						+ req.getServletPath() + Web.makePath(parts, 1, 3), Web.makePath(
+						parts, 3, parts.length));
 			}
 			else if (enableDirect && (parts.length > 2)
 					&& (parts[1].equals("directtool")))
 			{
 				// Resolve the placements of the form
 				// /portal/tool/sakai.resources?sakai.site=~csev
-				String toolPlacement = getPlacement(req, res, session,
-						parts[2], false);
+				String toolPlacement = getPlacement(req, res, session, parts[2], false);
 				if (toolPlacement == null)
 				{
 					return;
@@ -1088,28 +1073,27 @@ public class CharonPortal extends HttpServlet
 				parts[2] = toolPlacement;
 
 				doDirectTool(req, res, session, parts[2], req.getContextPath()
-						+ req.getServletPath() + Web.makePath(parts, 1, 3), Web
-						.makePath(parts, 3, parts.length));
+						+ req.getServletPath() + Web.makePath(parts, 1, 3), Web.makePath(
+						parts, 3, parts.length));
 			}
 
-	                /**
-	                 * Title frames were no longer used in 2.3 and are not supported in 2.4
-	                 * so we emit a WARN message here to help people with derived classes figure
-		         * out the new way.
-                         */ 
+			/**
+			 * Title frames were no longer used in 2.3 and are not supported in
+			 * 2.4 so we emit a WARN message here to help people with derived
+			 * classes figure out the new way.
+			 */
 
 			// TODO: Remove after 2.4
 			else if ((parts.length > 2) && (parts[1].equals("title")))
 			{
-                                doTitle(req, res, session, parts[2], req.getContextPath()
-                                                + req.getServletPath() + Web.makePath(parts, 1, 3), Web
-                                                .makePath(parts, 3, parts.length));
+				doTitle(req, res, session, parts[2], req.getContextPath()
+						+ req.getServletPath() + Web.makePath(parts, 1, 3), Web.makePath(
+						parts, 3, parts.length));
 			}
 
 			// recognize and dispatch the 'login' options
 			else if ((parts.length == 2)
-					&& ((parts[1].equals("login")
-							|| (parts[1].equals("xlogin")) || (parts[1]
+					&& ((parts[1].equals("login") || (parts[1].equals("xlogin")) || (parts[1]
 							.equals("relogin")))))
 			{
 				postLogin(req, res, session, parts[1]);
@@ -1118,9 +1102,8 @@ public class CharonPortal extends HttpServlet
 			// recognize help
 			else if ((parts.length >= 2) && (parts[1].equals("help")))
 			{
-				doHelp(req, res, session, req.getContextPath()
-						+ req.getServletPath() + Web.makePath(parts, 1, 2), Web
-						.makePath(parts, 2, parts.length));
+				doHelp(req, res, session, req.getContextPath() + req.getServletPath()
+						+ Web.makePath(parts, 1, 2), Web.makePath(parts, 2, parts.length));
 			}
 
 			// recognize error feedback
@@ -1142,8 +1125,8 @@ public class CharonPortal extends HttpServlet
 	}
 
 	protected void doPresence(HttpServletRequest req, HttpServletResponse res,
-			Session session, String siteId, String toolContextPath,
-			String toolPathInfo) throws ToolException, IOException
+			Session session, String siteId, String toolContextPath, String toolPathInfo)
+			throws ToolException, IOException
 	{
 		// permission check - visit the site
 		Site site = null;
@@ -1188,8 +1171,7 @@ public class CharonPortal extends HttpServlet
 		org.sakaiproject.util.Placement placement = new org.sakaiproject.util.Placement(
 				siteId + "-presence", tool.getId(), tool, null, siteId, null);
 
-		forwardTool(tool, req, res, placement, skin, toolContextPath,
-				toolPathInfo);
+		forwardTool(tool, req, res, placement, skin, toolContextPath, toolPathInfo);
 	}
 
 	protected void doHelp(HttpServletRequest req, HttpServletResponse res,
@@ -1215,8 +1197,7 @@ public class CharonPortal extends HttpServlet
 		org.sakaiproject.util.Placement placement = new org.sakaiproject.util.Placement(
 				"help", tool.getId(), tool, null, null, null);
 
-		forwardTool(tool, req, res, placement, skin, toolContextPath,
-				toolPathInfo);
+		forwardTool(tool, req, res, placement, skin, toolContextPath, toolPathInfo);
 	}
 
 	protected void doErrorReport(HttpServletRequest req, HttpServletResponse res)
@@ -1238,8 +1219,8 @@ public class CharonPortal extends HttpServlet
 	}
 
 	protected void doSite(HttpServletRequest req, HttpServletResponse res,
-			Session session, String siteId, String pageId,
-			String toolContextPath) throws ToolException, IOException
+			Session session, String siteId, String pageId, String toolContextPath)
+			throws ToolException, IOException
 	{
 		// default site if not set
 		if (siteId == null)
@@ -1305,8 +1286,8 @@ public class CharonPortal extends HttpServlet
 		session.setAttribute(ATTR_SITE_PAGE + siteId, page.getId());
 
 		// form a context sensitive title
-		String title = ServerConfigurationService.getString("ui.service")
-				+ " : " + site.getTitle() + " : " + page.getTitle();
+		String title = ServerConfigurationService.getString("ui.service") + " : "
+				+ site.getTitle() + " : " + page.getTitle();
 
 		// start the response
 		PrintWriter out = startResponse(res, title, site.getSkin(), true);
@@ -1316,8 +1297,7 @@ public class CharonPortal extends HttpServlet
 
 		String siteType = calcSiteType(siteId);
 		out.println("<div id=\"container\""
-				+ ((siteType != null) ? " class=\"" + siteType + "\"" : "")
-				+ ">");
+				+ ((siteType != null) ? " class=\"" + siteType + "\"" : "") + ">");
 
 		includeWorksite(req, res, session, site, page, toolContextPath, "site");
 		out.println("<div>");
@@ -1342,9 +1322,8 @@ public class CharonPortal extends HttpServlet
 	// to login
 	// processing and return null to the caller.
 
-	protected String getPlacement(HttpServletRequest req,
-			HttpServletResponse res, Session session, String placementId,
-			boolean doPage) throws ToolException
+	protected String getPlacement(HttpServletRequest req, HttpServletResponse res,
+			Session session, String placementId, boolean doPage) throws ToolException
 	{
 
 		String siteId = req.getParameter(PARAM_SAKAI_SITE);
@@ -1420,10 +1399,9 @@ public class CharonPortal extends HttpServlet
 	 * @throws ToolException
 	 * @throws IOException
 	 */
-	protected void doDirectTool(HttpServletRequest req,
-			HttpServletResponse res, Session session, String placementId,
-			String toolContextPath, String toolPathInfo) throws ToolException,
-			IOException
+	protected void doDirectTool(HttpServletRequest req, HttpServletResponse res,
+			Session session, String placementId, String toolContextPath,
+			String toolPathInfo) throws ToolException, IOException
 	{
 		if (redirectIfLoggedOut(res)) return;
 
@@ -1479,8 +1457,7 @@ public class CharonPortal extends HttpServlet
 					ss.setSkin(siteTool.getSkin());
 					portalService.setStoredState(ss);
 
-					doLogin(req, res, session, getPortalPageUrl(siteTool),
-							false);
+					doLogin(req, res, session, getPortalPageUrl(siteTool), false);
 				}
 				else
 				{
@@ -1498,8 +1475,8 @@ public class CharonPortal extends HttpServlet
 		ss.setSkin(siteTool.getSkin());
 		portalService.setStoredState(ss);
 
-		forwardPortal(tool, req, res, siteTool, siteTool.getSkin(),
-				toolContextPath, toolPathInfo);
+		forwardPortal(tool, req, res, siteTool, siteTool.getSkin(), toolContextPath,
+				toolPathInfo);
 
 	}
 
@@ -1507,7 +1484,7 @@ public class CharonPortal extends HttpServlet
 			Session session, String placementId, String toolContextPath,
 			String toolPathInfo) throws ToolException, IOException
 	{
-        if (redirectIfLoggedOut(res)) return;
+		if (redirectIfLoggedOut(res)) return;
 
 		// find the tool from some site
 		ToolConfiguration siteTool = SiteService.findTool(placementId);
@@ -1562,13 +1539,12 @@ public class CharonPortal extends HttpServlet
 			}
 		}
 
-		forwardTool(tool, req, res, siteTool, siteTool.getSkin(),
-				toolContextPath, toolPathInfo);
+		forwardTool(tool, req, res, siteTool, siteTool.getSkin(), toolContextPath,
+				toolPathInfo);
 	}
 
-	protected void setupForward(HttpServletRequest req,
-			HttpServletResponse res, Placement p, String skin)
-			throws ToolException
+	protected void setupForward(HttpServletRequest req, HttpServletResponse res,
+			Placement p, String skin) throws ToolException
 	{
 		// setup html information that the tool might need (skin, body on load,
 		// js includes, etc).
@@ -1578,10 +1554,7 @@ public class CharonPortal extends HttpServlet
 		String headCssToolBase = "<link href=\""
 				+ skinRepo
 				+ "/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
-		String headCssToolSkin = "<link href=\""
-				+ skinRepo
-				+ "/"
-				+ skin
+		String headCssToolSkin = "<link href=\"" + skinRepo + "/" + skin
 				+ "/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
 		String headCss = headCssToolBase + headCssToolSkin;
 		String headJs = "<script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/js/headscripts.js\"></script>\n";
@@ -1615,8 +1588,8 @@ public class CharonPortal extends HttpServlet
 	 * will render
 	 */
 	protected void forwardTool(ActiveTool tool, HttpServletRequest req,
-			HttpServletResponse res, Placement p, String skin,
-			String toolContextPath, String toolPathInfo) throws ToolException
+			HttpServletResponse res, Placement p, String skin, String toolContextPath,
+			String toolPathInfo) throws ToolException
 	{
 
 		// if there is a stored request state, and path, extract that from the
@@ -1639,14 +1612,13 @@ public class CharonPortal extends HttpServlet
 				Placement splacement = ss.getPlacement();
 				String stoolContext = ss.getToolContextPath();
 				String stoolPathInfo = ss.getToolPathInfo();
-				ActiveTool stool = ActiveToolManager.getActiveTool(p
-						.getToolId());
+				ActiveTool stool = ActiveToolManager.getActiveTool(p.getToolId());
 				String sskin = ss.getSkin();
 				setupForward(sreq, res, splacement, sskin);
 				req.setAttribute(ToolURL.MANAGER, new ToolURLManagerImpl(res));
-				stool.forward(sreq, res, splacement, stoolContext,
-						stoolPathInfo);
-				// This is correct as we have checked the context path of the target
+				stool.forward(sreq, res, splacement, stoolContext, stoolPathInfo);
+				// This is correct as we have checked the context path of the
+				// target
 				portalService.setStoredState(null);
 			}
 		}
@@ -1681,11 +1653,9 @@ public class CharonPortal extends HttpServlet
 		return "/site/" + p.getSiteId() + "/page/" + p.getPageId();
 	}
 
-
-
 	protected void doWorksite(HttpServletRequest req, HttpServletResponse res,
-			Session session, String siteId, String pageId,
-			String toolContextPath) throws ToolException, IOException
+			Session session, String siteId, String pageId, String toolContextPath)
+			throws ToolException, IOException
 	{
 		// if no page id, see if there was a last page visited for this site
 		if (pageId == null)
@@ -1738,19 +1708,17 @@ public class CharonPortal extends HttpServlet
 		session.setAttribute(ATTR_SITE_PAGE + siteId, page.getId());
 
 		// form a context sensitive title
-		String title = ServerConfigurationService.getString("ui.service")
-				+ " : " + site.getTitle() + " : " + page.getTitle();
+		String title = ServerConfigurationService.getString("ui.service") + " : "
+				+ site.getTitle() + " : " + page.getTitle();
 
 		// start the response
 		PrintWriter out = startResponse(res, title, site.getSkin(), true);
 
 		String siteType = calcSiteType(siteId);
 		out.println("<div id=\"container\""
-				+ ((siteType != null) ? " class=\"" + siteType + "\"" : "")
-				+ ">");
+				+ ((siteType != null) ? " class=\"" + siteType + "\"" : "") + ">");
 
-		includeWorksite(req, res, session, site, page, toolContextPath,
-				"worksite");
+		includeWorksite(req, res, session, site, page, toolContextPath, "worksite");
 		out.println("<div>");
 
 		// end the response
@@ -1780,22 +1748,16 @@ public class CharonPortal extends HttpServlet
 
 	protected void includeBottom(PrintWriter out)
 	{
-		String copyright = ServerConfigurationService
-				.getString("bottom.copyrighttext");
-		String service = ServerConfigurationService.getString("ui.service",
-				"Sakai");
-		String serviceVersion = ServerConfigurationService.getString(
-				"version.service", "?");
-		String sakaiVersion = ServerConfigurationService.getString(
-				"version.sakai", "?");
+		String copyright = ServerConfigurationService.getString("bottom.copyrighttext");
+		String service = ServerConfigurationService.getString("ui.service", "Sakai");
+		String serviceVersion = ServerConfigurationService.getString("version.service",
+				"?");
+		String sakaiVersion = ServerConfigurationService.getString("version.sakai", "?");
 		String server = ServerConfigurationService.getServerId();
 		String[] bottomNav = ServerConfigurationService.getStrings("bottomnav");
-		String[] poweredByUrl = ServerConfigurationService
-				.getStrings("powered.url");
-		String[] poweredByImage = ServerConfigurationService
-				.getStrings("powered.img");
-		String[] poweredByAltText = ServerConfigurationService
-				.getStrings("powered.alt");
+		String[] poweredByUrl = ServerConfigurationService.getStrings("powered.url");
+		String[] poweredByImage = ServerConfigurationService.getStrings("powered.img");
+		String[] poweredByAltText = ServerConfigurationService.getStrings("powered.alt");
 
 		out.println("<div id=\"footer\">");
 		out.println("	<div class=\"footerExtNav\" align=\"center\">");
@@ -1835,10 +1797,9 @@ public class CharonPortal extends HttpServlet
 							+ "<img border=\"0\" src=\"/library/image/sakai_powered.gif\" alt=\"Powered by Sakai\" /></a>");
 		}
 		out.println("	</div>");
-		out.println("		<div class=\"sakaiCopyrightInfo\">" + copyright
-				+ "<br />");
-		out.println("		" + service + " - " + serviceVersion + " - Sakai "
-				+ sakaiVersion + " - Server \"" + server + "\"</div>");
+		out.println("		<div class=\"sakaiCopyrightInfo\">" + copyright + "<br />");
+		out.println("		" + service + " - " + serviceVersion + " - Sakai " + sakaiVersion
+				+ " - Server \"" + server + "\"</div>");
 		out.println("	</div>");
 		out.println("</div>");
 		out.println("</div>");
@@ -1864,20 +1825,18 @@ public class CharonPortal extends HttpServlet
 			Session session, String siteId)
 	{
 		boolean loggedIn = session.getUserId() != null;
-		boolean topLogin = ServerConfigurationService.getBoolean("top.login",
-				true);
+		boolean topLogin = ServerConfigurationService.getBoolean("top.login", true);
 
 		String siteNavUrl = null;
 
 		if (loggedIn)
 		{
-			siteNavUrl = Web.returnUrl(req, "/gallery_tabs/"
-					+ Web.escapeUrl(siteId));
+			siteNavUrl = Web.returnUrl(req, "/gallery_tabs/" + Web.escapeUrl(siteId));
 		}
 		else
 		{
-			siteNavUrl = Web.returnUrl(req, "/nav_login_gallery/"
-					+ Web.escapeUrl(siteId));
+			siteNavUrl = Web
+					.returnUrl(req, "/nav_login_gallery/" + Web.escapeUrl(siteId));
 		}
 
 		// outer blocks and jump-to links
@@ -1888,20 +1847,16 @@ public class CharonPortal extends HttpServlet
 				.getString("accessibility.url");
 		if (accessibilityURL != null && accessibilityURL != "")
 		{
-			out.println("<a href=\"" + accessibilityURL
-					+ "\" class=\"skip\" title=\""
+			out.println("<a href=\"" + accessibilityURL + "\" class=\"skip\" title=\""
 					+ Web.escapeHtml(rb.getString("sit_accessibility"))
 					+ "\" accesskey=\"0\">"
-					+ Web.escapeHtml(rb.getString("sit_accessibility"))
-					+ "</a>");
+					+ Web.escapeHtml(rb.getString("sit_accessibility")) + "</a>");
 		}
 		out.println("	<a href=\"#tocontent\"  class=\"skip\" title=\""
-				+ Web.escapeHtml(rb.getString("sit_jumpcontent"))
-				+ "\" accesskey=\"c\">"
+				+ Web.escapeHtml(rb.getString("sit_jumpcontent")) + "\" accesskey=\"c\">"
 				+ Web.escapeHtml(rb.getString("sit_jumpcontent")) + "</a>");
 		out.println("	<a href=\"#totoolmenu\"  class=\"skip\" title=\""
-				+ Web.escapeHtml(rb.getString("sit_jumptools"))
-				+ "\" accesskey=\"l\">"
+				+ Web.escapeHtml(rb.getString("sit_jumptools")) + "\" accesskey=\"l\">"
 				+ Web.escapeHtml(rb.getString("sit_jumptools")) + "</a>");
 		out.println("	<a href=\"#sitetabs\" class=\"skip\" title=\""
 				+ Web.escapeHtml(rb.getString("sit_jumpworksite"))
@@ -1937,8 +1892,8 @@ public class CharonPortal extends HttpServlet
 		out.println("</div>");
 	}
 
-	protected void includeLogo(PrintWriter out, HttpServletRequest req,
-			Session session, String siteId) throws IOException
+	protected void includeLogo(PrintWriter out, HttpServletRequest req, Session session,
+			String siteId) throws IOException
 	{
 		String skin = SiteService.getSiteSkin(siteId);
 		if (skin == null)
@@ -1951,17 +1906,14 @@ public class CharonPortal extends HttpServlet
 		String banner = skinRepo + "/" + skin + "/images/banner_inst.gif";
 
 		String siteType = calcSiteType(siteId);
-		String cssClass = (siteType != null) ? siteType
-				: "undeterminedSiteType";
+		String cssClass = (siteType != null) ? siteType : "undeterminedSiteType";
 		out.println("<div id=\"siteNavWrapper\" class=\"" + cssClass + "\">");
 		out.println("<div id=\"mastHead\">");
 		out.println("	<div id=\"mastLogo\">");
-		out.println("		<img title=\"Logo\" alt=\"Logo\" src=\"" + logo
-				+ "\" />");
+		out.println("		<img title=\"Logo\" alt=\"Logo\" src=\"" + logo + "\" />");
 		out.println("	</div>");
 		out.println("	<div id=\"mastBanner\">");
-		out.println("		<img title=\"Banner\" alt=\"Banner\" src=\"" + banner
-				+ "\" />");
+		out.println("		<img title=\"Banner\" alt=\"Banner\" src=\"" + banner + "\" />");
 		out.println("	</div>");
 		out.println("	<div id=\"mastLogin\">");
 		includeLogin(out, req, session);
@@ -1969,8 +1921,7 @@ public class CharonPortal extends HttpServlet
 		out.println("</div>");
 	}
 
-	protected void includeLogin(PrintWriter out, HttpServletRequest req,
-			Session session)
+	protected void includeLogin(PrintWriter out, HttpServletRequest req, Session session)
 	{
 		// for the main login/out link
 		String logInOutUrl = Web.serverUrl(req);
@@ -1996,14 +1947,12 @@ public class CharonPortal extends HttpServlet
 			// we don't need any of this if we are doing top login
 			if (!topLogin)
 			{
-				logInOutUrl += ServerConfigurationService
-						.getString("portalPath")
+				logInOutUrl += ServerConfigurationService.getString("portalPath")
 						+ "/login";
 
 				// let the login url be overridden by configuration
 				String overrideLoginUrl = StringUtil
-						.trimToNull(ServerConfigurationService
-								.getString("login.url"));
+						.trimToNull(ServerConfigurationService.getString("login.url"));
 				if (overrideLoginUrl != null) logInOutUrl = overrideLoginUrl;
 
 				// check for a login text override
@@ -2024,8 +1973,7 @@ public class CharonPortal extends HttpServlet
 							.getString("xlogin.text"));
 					image2 = StringUtil.trimToNull(ServerConfigurationService
 							.getString("xlogin.icon"));
-					logInOutUrl2 = ServerConfigurationService
-							.getString("portalPath")
+					logInOutUrl2 = ServerConfigurationService.getString("portalPath")
 							+ "/xlogin";
 				}
 			}
@@ -2034,8 +1982,7 @@ public class CharonPortal extends HttpServlet
 		// if logged in they get logout
 		else
 		{
-			logInOutUrl += ServerConfigurationService.getString("portalPath")
-					+ "/logout";
+			logInOutUrl += ServerConfigurationService.getString("portalPath") + "/logout";
 
 			// check for a logout text override
 			message = StringUtil.trimToNull(ServerConfigurationService
@@ -2054,13 +2001,10 @@ public class CharonPortal extends HttpServlet
 		if (!topLogin)
 		{
 			out.println("<div id=\"loginLinks\">");
-			out.println("			<a href=\""
-					+ logInOutUrl
-					+ "\" target=\"_parent\" title=\""
-					+ message
-					+ "\">"
-					+ ((image1 == null) ? message : "<img src=\"" + image1
-							+ "\"/>") + "</a>");
+			out.println("			<a href=\"" + logInOutUrl + "\" target=\"_parent\" title=\""
+					+ message + "\">"
+					+ ((image1 == null) ? message : "<img src=\"" + image1 + "\"/>")
+					+ "</a>");
 			if (logInOutUrl2 != null)
 			{
 				out.println("			<a href=\""
@@ -2068,9 +2012,8 @@ public class CharonPortal extends HttpServlet
 						+ "\" target=\"_parent\" title=\""
 						+ message2
 						+ "\">"
-						+ ((image2 == null) ? message2 : "<img alt=\""
-								+ message2 + "\" src=\"" + image2 + "\"/>")
-						+ "</a>");
+						+ ((image2 == null) ? message2 : "<img alt=\"" + message2
+								+ "\" src=\"" + image2 + "\"/>") + "</a>");
 			}
 			out.println("</div>");
 		}
@@ -2091,30 +2034,22 @@ public class CharonPortal extends HttpServlet
 
 			out
 					.println("<form id=\"loginForm\" method=\"post\" action=\""
-							+ ServerConfigurationService
-									.getString("portalPath")
+							+ ServerConfigurationService.getString("portalPath")
 							+ "/xlogin\" enctype=\"application/x-www-form-urlencoded\" target=\"_parent\">");
-			out
-					.println("<label for=\"eid\">"
-							+ eidWording
-							+ "</label><input name=\"eid\" id=\"eid\" type=\"text\" />");
-			out
-					.println("<label for=\"pw\">"
-							+ pwWording
-							+ "</label><input name=\"pw\" type=\"password\" id=\"pw\" />");
-			out
-					.println("<input name=\"submit\" type=\"submit\" id=\"submit\" value=\""
-							+ loginWording + "\" /> </form>");
+			out.println("<label for=\"eid\">" + eidWording
+					+ "</label><input name=\"eid\" id=\"eid\" type=\"text\" />");
+			out.println("<label for=\"pw\">" + pwWording
+					+ "</label><input name=\"pw\" type=\"password\" id=\"pw\" />");
+			out.println("<input name=\"submit\" type=\"submit\" id=\"submit\" value=\""
+					+ loginWording + "\" /> </form>");
 
-                        out.println("<script type=\"text/javascript\" language=\"JavaScript\">");
-                        out.println("document.forms[0].eid.focus();");
-                        out.println("</script>");
-
-
+			out.println("<script type=\"text/javascript\" language=\"JavaScript\">");
+			out.println("document.forms[0].eid.focus();");
+			out.println("</script>");
 
 			// setup for the redirect after login
-			session.setAttribute(Tool.HELPER_DONE_URL,
-					ServerConfigurationService.getPortalUrl());
+			session.setAttribute(Tool.HELPER_DONE_URL, ServerConfigurationService
+					.getPortalUrl());
 		}
 	}
 
@@ -2122,8 +2057,8 @@ public class CharonPortal extends HttpServlet
 			SitePage page, String toolContextPath, String wrapperClass)
 			throws IOException
 	{
-		 PrintWriter out = res.getWriter();
-		 // divs to wrap the tools
+		PrintWriter out = res.getWriter();
+		// divs to wrap the tools
 
 		// divs to wrap the tools
 		out.println("<div id=\"" + wrapperClass + "\">");
@@ -2142,11 +2077,12 @@ public class CharonPortal extends HttpServlet
 		try
 		{
 			site = SiteService.getSite(page.getSiteId());
-		} 
-		catch (Exception ignoreMe )
+		}
+		catch (Exception ignoreMe)
 		{
 			// Non fatal - just assume null
-			if ( M_log.isTraceEnabled() ) M_log.trace("includePage unable to find site for page "+page.getId());
+			if (M_log.isTraceEnabled())
+				M_log.trace("includePage unable to find site for page " + page.getId());
 		}
 
 		List tools = page.getTools(0);
@@ -2154,11 +2090,12 @@ public class CharonPortal extends HttpServlet
 		{
 			ToolConfiguration placement = (ToolConfiguration) i.next();
 
-			if ( site != null ) 
+			if (site != null)
 			{
-				boolean thisTool = allowTool(site, placement) ;
-				// System.out.println(" Allow Tool Display -" + placement.getTitle() + " retval = " + thisTool);
-				if ( ! thisTool ) continue;  // Skip this tool if not allowed
+				boolean thisTool = allowTool(site, placement);
+				// System.out.println(" Allow Tool Display -" +
+				// placement.getTitle() + " retval = " + thisTool);
+				if (!thisTool) continue; // Skip this tool if not allowed
 			}
 
 			// for this tool invocation, form the servlet context and path info
@@ -2182,8 +2119,8 @@ public class CharonPortal extends HttpServlet
 
 				// for this tool invocation, form the servlet context and path
 				// info
-				String contextPath = ServerConfigurationService.getToolUrl()
-						+ "/" + Web.escapeUrl(placement.getId());
+				String contextPath = ServerConfigurationService.getToolUrl() + "/"
+						+ Web.escapeUrl(placement.getId());
 				String pathInfo = null;
 
 				// invoke the tool
@@ -2197,7 +2134,8 @@ public class CharonPortal extends HttpServlet
 
 	protected boolean allowTool(Site site, Placement placement)
 	{
-		if ( placement == null || site == null ) return true;  // No way to render an opinion
+		if (placement == null || site == null) return true; // No way to render
+															// an opinion
 
 		boolean retval = true;
 
@@ -2206,10 +2144,13 @@ public class CharonPortal extends HttpServlet
 		String roleList = roleConfig.getProperty(TOOL_CFG_FUNCTIONS);
 
 		// allow by default, when no config keys are present
-		if(roleList != null && roleList.trim().length() > 0 ) {
+		if (roleList != null && roleList.trim().length() > 0)
+		{
 			String[] result = roleConfig.getProperty(TOOL_CFG_FUNCTIONS).split("\\,");
-			for (int x=0; x<result.length; x++){
-				if ( ! SecurityService.unlock(result[x].trim(),site.getReference()) ) retval = false;
+			for (int x = 0; x < result.length; x++)
+			{
+				if (!SecurityService.unlock(result[x].trim(), site.getReference()))
+					retval = false;
 			}
 		}
 		return retval;
@@ -2219,10 +2160,10 @@ public class CharonPortal extends HttpServlet
 			Session session, Site site, SitePage page, String toolContextPath,
 			String portalPrefix) throws IOException
 	{
-        PrintWriter out = res.getWriter();
-        // If we have turned on auto-state reset on navigation, we generate the
+		PrintWriter out = res.getWriter();
+		// If we have turned on auto-state reset on navigation, we generate the
 		// "site-reset" "worksite-reset" and "gallery-reset" urls
-		if ( "true".equals(ServerConfigurationService.getString(CONFIG_AUTO_RESET) ) )
+		if ("true".equals(ServerConfigurationService.getString(CONFIG_AUTO_RESET)))
 		{
 			portalPrefix = portalPrefix + "-reset";
 		}
@@ -2232,8 +2173,8 @@ public class CharonPortal extends HttpServlet
 		String pagePopupUrl = Web.returnUrl(req, "/page/");
 		boolean showPresence = ServerConfigurationService.getBoolean(
 				"display.users.present", true);
-		boolean showHelp = ServerConfigurationService.getBoolean(
-				"display.help.menu", true);
+		boolean showHelp = ServerConfigurationService.getBoolean("display.help.menu",
+				true);
 		boolean loggedIn = session.getUserId() != null;
 		String iconUrl = site.getIconUrlFull();
 		boolean published = site.isPublished();
@@ -2259,8 +2200,7 @@ public class CharonPortal extends HttpServlet
 		out.println("	</div>");
 
 		// target of "jump to tools" link, header
-		out
-				.println("	<a id=\"totoolmenu\" class=\"skip\" name=\"totoolmenu\"></a>");
+		out.println("	<a id=\"totoolmenu\" class=\"skip\" name=\"totoolmenu\"></a>");
 		out.println("	<h1 class=\"skip\">"
 				+ Web.escapeHtml(rb.getString("sit_toolshead")) + "</h1>");
 
@@ -2279,21 +2219,23 @@ public class CharonPortal extends HttpServlet
 			SitePage p = (SitePage) i.next();
 
 			// check if current user has permission to see page
-			// will draw page button if it have permission to see at least one tool
+			// will draw page button if it have permission to see at least one
+			// tool
 			List pTools = p.getTools();
 			Iterator iPt = pTools.iterator();
 
 			boolean allowPage = false;
-			while( iPt.hasNext() ) 
+			while (iPt.hasNext())
 			{
 				ToolConfiguration placement = (ToolConfiguration) iPt.next();
 
-				boolean thisTool = allowTool(site, placement) ;
-				if ( thisTool ) allowPage = true;
-				// System.out.println(" Allow Tool -" + tool.getTitle() + " retval = " + thisTool + " page=" + allowPage);
+				boolean thisTool = allowTool(site, placement);
+				if (thisTool) allowPage = true;
+				// System.out.println(" Allow Tool -" + tool.getTitle() + "
+				// retval = " + thisTool + " page=" + allowPage);
 			}
 
-			if ( !allowPage ) continue;
+			if (!allowPage) continue;
 
 			boolean current = (p.getId().equals(page.getId()) && !p.isPopUp());
 
@@ -2337,8 +2279,7 @@ public class CharonPortal extends HttpServlet
 				String pagerefUrl = pageUrl + Web.escapeUrl(p.getId());
 				out.print(pagerefUrl);
 			}
-			out.println("\"><span>" + Web.escapeHtml(p.getTitle())
-					+ "</span></a></li>");
+			out.println("\"><span>" + Web.escapeHtml(p.getTitle()) + "</span></a></li>");
 
 			// count++;
 		}
@@ -2349,14 +2290,14 @@ public class CharonPortal extends HttpServlet
 			out.println("			<li>");
 
 			// help gets its own accesskey - 6
-			out .println("				<a  accesskey=\"6\" href=\""
+			out
+					.println("				<a  accesskey=\"6\" href=\""
 							+ helpUrl
 							+ "\" target=\"_blank\" "
 							+ "onclick=\"openWindow('"
 							+ helpUrl
 							+ "', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false\">"
-							+ "<span>" + rb.getString("sit_help")
-							+ "</span></a>");
+							+ "<span>" + rb.getString("sit_help") + "</span></a>");
 
 			out.println("			</li>");
 		}
@@ -2365,18 +2306,17 @@ public class CharonPortal extends HttpServlet
 		out.println("	</div>");
 		if (showPresence && loggedIn)
 		{
-            String presenceUrl = Web.returnUrl(req, "/presence/"
-				+ Web.escapeUrl(site.getId()));
-            out.println("	<div id=\"presenceWrapper\">");
+			String presenceUrl = Web.returnUrl(req, "/presence/"
+					+ Web.escapeUrl(site.getId()));
+			out.println("	<div id=\"presenceWrapper\">");
 			out.println("		<div id=\"presenceTitle\">");
 			out.println(Web.escapeHtml(rb.getString("sit_presencetitle")));
 			out.println("	</div>");
-                    out.println("	<iframe ");
+			out.println("	<iframe ");
 			out.println("		name=\"presenceIframe\"");
 			out.println("		id=\"presenceIframe\"");
 			out.println("		title=\""
-					+ Web.escapeHtml(rb.getString("sit_presenceiframetit"))
-					+ "\"");
+					+ Web.escapeHtml(rb.getString("sit_presenceiframetit")) + "\"");
 			out.println("		frameborder=\"0\"");
 			out.println("		marginwidth=\"0\"");
 			out.println("		marginheight=\"0\"");
@@ -2392,8 +2332,7 @@ public class CharonPortal extends HttpServlet
 
 		out.println("	<h1 class=\"skip\">"
 				+ Web.escapeHtml(rb.getString("sit_contentshead")) + "</h1>");
-		out
-				.println("	<a id=\"tocontent\" class=\"skip\" name=\"tocontent\"></a>");
+		out.println("	<a id=\"tocontent\" class=\"skip\" name=\"tocontent\"></a>");
 
 	}
 
@@ -2401,8 +2340,7 @@ public class CharonPortal extends HttpServlet
 			Session session, String siteId)
 	{
 		boolean loggedIn = session.getUserId() != null;
-		boolean topLogin = ServerConfigurationService.getBoolean("top.login",
-				true);
+		boolean topLogin = ServerConfigurationService.getBoolean("top.login", true);
 
 		String siteNavUrl = null;
 		int height = 0;
@@ -2410,15 +2348,13 @@ public class CharonPortal extends HttpServlet
 
 		if (loggedIn)
 		{
-			siteNavUrl = Web.returnUrl(req, "/site_tabs/"
-					+ Web.escapeUrl(siteId));
+			siteNavUrl = Web.returnUrl(req, "/site_tabs/" + Web.escapeUrl(siteId));
 			height = 104;
 			siteNavClass = "sitenav-max";
 		}
 		else
 		{
-			siteNavUrl = Web.returnUrl(req, "/nav_login/"
-					+ Web.escapeUrl(siteId));
+			siteNavUrl = Web.returnUrl(req, "/nav_login/" + Web.escapeUrl(siteId));
 			height = 80;
 			siteNavClass = "sitenav-log";
 		}
@@ -2432,20 +2368,16 @@ public class CharonPortal extends HttpServlet
 				.getString("accessibility.url");
 		if (accessibilityURL != null && accessibilityURL != "")
 		{
-			out.println("<a href=\"" + accessibilityURL
-					+ "\" class=\"skip\" title=\""
+			out.println("<a href=\"" + accessibilityURL + "\" class=\"skip\" title=\""
 					+ Web.escapeHtml(rb.getString("sit_accessibility"))
 					+ "\" accesskey=\"0\">"
-					+ Web.escapeHtml(rb.getString("sit_accessibility"))
-					+ "</a>");
+					+ Web.escapeHtml(rb.getString("sit_accessibility")) + "</a>");
 		}
 		out.println("<a href=\"#tocontent\"  class=\"skip\" title=\""
-				+ Web.escapeHtml(rb.getString("sit_jumpcontent"))
-				+ "\" accesskey=\"c\">"
+				+ Web.escapeHtml(rb.getString("sit_jumpcontent")) + "\" accesskey=\"c\">"
 				+ Web.escapeHtml(rb.getString("sit_jumpcontent")) + "</a>");
 		out.println("<a href=\"#totoolmenu\"  class=\"skip\" title=\""
-				+ Web.escapeHtml(rb.getString("sit_jumptools"))
-				+ "\" accesskey=\"l\">"
+				+ Web.escapeHtml(rb.getString("sit_jumptools")) + "\" accesskey=\"l\">"
 				+ Web.escapeHtml(rb.getString("sit_jumptools")) + "</a>");
 		out.println("<a href=\"#sitetabs\" class=\"skip\" title=\""
 				+ Web.escapeHtml(rb.getString("sit_jumpworksite"))
@@ -2482,16 +2414,15 @@ public class CharonPortal extends HttpServlet
 		out.println("</div>");
 	}
 
-	protected void includeTabs(PrintWriter out, HttpServletRequest req,
-			Session session, String siteId, String prefix, boolean addLogout)
-			throws IOException
+	protected void includeTabs(PrintWriter out, HttpServletRequest req, Session session,
+			String siteId, String prefix, boolean addLogout) throws IOException
 	{
 		// for skinning
 		String siteType = calcSiteType(siteId);
 
 		// If we have turned on auto-state reset on navigation, we generate the
 		// "site-reset" "worksite-reset" and "gallery-reset" urls
-		if ( "true".equals(ServerConfigurationService.getString(CONFIG_AUTO_RESET) ) )
+		if ("true".equals(ServerConfigurationService.getString(CONFIG_AUTO_RESET)))
 		{
 			prefix = prefix + "-reset";
 		}
@@ -2510,10 +2441,9 @@ public class CharonPortal extends HttpServlet
 			{
 			}
 		}
-		boolean curMyWorkspace = ((siteId == null) || (SiteService
-				.isUserSite(siteId) && ((SiteService.getSiteUserId(siteId)
-				.equals(curUserId) || SiteService.getSiteUserId(siteId).equals(
-				curUserEid)))));
+		boolean curMyWorkspace = ((siteId == null) || (SiteService.isUserSite(siteId) && ((SiteService
+				.getSiteUserId(siteId).equals(curUserId) || SiteService.getSiteUserId(
+				siteId).equals(curUserEid)))));
 
 		// if this is a My Workspace, it gets its own tab and should not be
 		// considered in the other tab logic
@@ -2521,9 +2451,8 @@ public class CharonPortal extends HttpServlet
 
 		// collect the user's sites
 		List mySites = SiteService.getSites(
-				org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
-				null, null, null,
-				org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null);
+				org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null, null,
+				null, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null);
 
 		// collect the user's preferences
 		int prefTabs = 4;
@@ -2531,10 +2460,8 @@ public class CharonPortal extends HttpServlet
 		List prefOrder = new Vector();
 		if (session.getUserId() != null)
 		{
-			Preferences prefs = PreferencesService.getPreferences(session
-					.getUserId());
-			ResourceProperties props = prefs
-					.getProperties("sakai:portal:sitenav");
+			Preferences prefs = PreferencesService.getPreferences(session.getUserId());
+			ResourceProperties props = prefs.getProperties("sakai:portal:sitenav");
 			try
 			{
 				prefTabs = (int) props.getLongProperty("tabs");
@@ -2640,17 +2567,15 @@ public class CharonPortal extends HttpServlet
 						String userEid = SiteService.getSiteUserId(siteId);
 						try
 						{
-							String userId = UserDirectoryService
-									.getUserId(userEid);
+							String userId = UserDirectoryService.getUserId(userEid);
 							Site site = SiteService.getSite(SiteService
 									.getUserSiteId(userId));
 							extraTitle = site.getTitle();
 						}
 						catch (UserNotDefinedException ee)
 						{
-							M_log
-									.warn("includeTabs: cur site not found (not ~eid): "
-											+ siteId);
+							M_log.warn("includeTabs: cur site not found (not ~eid): "
+									+ siteId);
 						}
 						catch (IdUnusedException ee)
 						{
@@ -2661,16 +2586,13 @@ public class CharonPortal extends HttpServlet
 					}
 					else
 					{
-						M_log
-								.warn("includeTabs: cur site not found: "
-										+ siteId);
+						M_log.warn("includeTabs: cur site not found: " + siteId);
 					}
 				}
 			}
 		}
 
-		String cssClass = (siteType != null) ? "siteNavWrap " + siteType
-				: "siteNavWrap";
+		String cssClass = (siteType != null) ? "siteNavWrap " + siteType : "siteNavWrap";
 		out.println("<div class=\"" + cssClass + "\">");
 		out.println("	<div id=\"siteNav\">");
 		// out.println(" <tr>");
@@ -2678,8 +2600,7 @@ public class CharonPortal extends HttpServlet
 
 		// target for "jump to tabs" link and header
 
-		out
-				.println("				<a id=\"sitetabs\" class=\"skip\" name=\"sitetabs\"></a>");
+		out.println("				<a id=\"sitetabs\" class=\"skip\" name=\"sitetabs\"></a>");
 		out.println("				<h1 class=\"skip\">"
 				+ Web.escapeHtml(rb.getString("sit_worksiteshead")) + "</h1>");
 
@@ -2694,11 +2615,12 @@ public class CharonPortal extends HttpServlet
 		else
 		{
 			String siteUrl = Web.serverUrl(req)
-					+ ServerConfigurationService.getString("portalPath") + "/"
-					+ prefix + "/"
-					+ Web.escapeUrl(getUserEidBasedSiteId(session.getUserId()));
-			out.println("						<li><a href=\"" + siteUrl + "\" target=\"_parent\" title=\""
-					+ Web.escapeHtml(rb.getString("sit_mywor")) + "\"><span>" + Web.escapeHtml(rb.getString("sit_mywor")) + "</span></a></li>");
+					+ ServerConfigurationService.getString("portalPath") + "/" + prefix
+					+ "/" + Web.escapeUrl(getUserEidBasedSiteId(session.getUserId()));
+			out.println("						<li><a href=\"" + siteUrl
+					+ "\" target=\"_parent\" title=\""
+					+ Web.escapeHtml(rb.getString("sit_mywor")) + "\"><span>"
+					+ Web.escapeHtml(rb.getString("sit_mywor")) + "</span></a></li>");
 		}
 
 		// first n tabs
@@ -2707,16 +2629,21 @@ public class CharonPortal extends HttpServlet
 			Site s = (Site) i.next();
 			if (s.getId().equals(siteId))
 			{
-				out
-						.println("							<li class=\"selectedTab\"><a href=\"#\"><span>"
-								+ Web.escapeHtml(s.getTitle())
-								+ "</span></a></li>");
+				out.println("							<li class=\"selectedTab\"><a href=\"#\"><span>"
+						+ Web.escapeHtml(s.getTitle()) + "</span></a></li>");
 			}
 			else
 			{
-				String siteUrl = Web.serverUrl(req) + ServerConfigurationService.getString("portalPath") + "/" + prefix + "/" + Web.escapeUrl(getSiteEffectiveId(s));
-				out.println("							<li><a href=\"" + siteUrl + "\" target=\"_parent\" title=\"" + Web.escapeHtml(s.getTitle())
-						+ " " + Web.escapeHtml(rb.getString("sit_worksite")) + "\"><span>" + Web.escapeHtml(s.getTitle()) + "</span></a></li>");
+				String siteUrl = Web.serverUrl(req)
+						+ ServerConfigurationService.getString("portalPath") + "/"
+						+ prefix + "/" + Web.escapeUrl(getSiteEffectiveId(s));
+				out
+						.println("							<li><a href=\"" + siteUrl
+								+ "\" target=\"_parent\" title=\""
+								+ Web.escapeHtml(s.getTitle()) + " "
+								+ Web.escapeHtml(rb.getString("sit_worksite"))
+								+ "\"><span>" + Web.escapeHtml(s.getTitle())
+								+ "</span></a></li>");
 			}
 		}
 
@@ -2727,9 +2654,8 @@ public class CharonPortal extends HttpServlet
 					+ Web.escapeHtml(extraTitle) + "</span></a></li>");
 		}
 
-		out
-				.println("					<li style=\"display:none;border-width:0\" class=\"fixTabsIE\">"
-						+ "<a href=\"javascript:void(0);\">#x20;</a></li>");
+		out.println("					<li style=\"display:none;border-width:0\" class=\"fixTabsIE\">"
+				+ "<a href=\"javascript:void(0);\">#x20;</a></li>");
 		out.println("				</ul>");
 		out.println("			</div>");
 
@@ -2737,8 +2663,7 @@ public class CharonPortal extends HttpServlet
 		if (moreSites.size() > 0)
 		{
 			out.println("			<div id=\"selectNav\"><span class=\"skip\">"
-					+ Web.escapeHtml(rb.getString("sit_selectmessage"))
-					+ "</span>");
+					+ Web.escapeHtml(rb.getString("sit_selectmessage")) + "</span>");
 			out.println("				<select ");
 			out
 					.println("						onchange=\"if (this.options[this.selectedIndex].value != '')"
@@ -2750,13 +2675,11 @@ public class CharonPortal extends HttpServlet
 			{
 				Site s = (Site) i.next();
 				String siteUrl = Web.serverUrl(req)
-						+ ServerConfigurationService.getString("portalPath")
-						+ "/" + prefix + "/" + getSiteEffectiveId(s);
-				out.println("						<option title=\""
-						+ Web.escapeHtml(s.getTitle()) + " "
-						+ Web.escapeHtml(rb.getString("sit_worksite"))
-						+ "\" value=\"" + siteUrl + "\">"
-						+ Web.escapeHtml(s.getTitle()) + "</option> ");
+						+ ServerConfigurationService.getString("portalPath") + "/"
+						+ prefix + "/" + getSiteEffectiveId(s);
+				out.println("						<option title=\"" + Web.escapeHtml(s.getTitle()) + " "
+						+ Web.escapeHtml(rb.getString("sit_worksite")) + "\" value=\""
+						+ siteUrl + "\">" + Web.escapeHtml(s.getTitle()) + "</option> ");
 			}
 
 			out.println("				</select>");
@@ -2788,11 +2711,10 @@ public class CharonPortal extends HttpServlet
 	protected void includeTool(HttpServletRequest req, HttpServletResponse res,
 			ToolConfiguration placement) throws IOException
 	{
-        PrintWriter out = res.getWriter();
+		PrintWriter out = res.getWriter();
 
-        // find the tool registered for this
-		ActiveTool tool = ActiveToolManager
-				.getActiveTool(placement.getToolId());
+		// find the tool registered for this
+		ActiveTool tool = ActiveToolManager.getActiveTool(placement.getToolId());
 		if (tool == null)
 		{
 			// doError(req, res, session);
@@ -2818,8 +2740,8 @@ public class CharonPortal extends HttpServlet
 		// emit title information
 
 		// for the reset button
-		boolean showResetButton = !"false".equals(placement.getConfig()
-				.getProperty(TOOLCONFIG_SHOW_RESET_BUTTON));
+		boolean showResetButton = !"false".equals(placement.getConfig().getProperty(
+				TOOLCONFIG_SHOW_RESET_BUTTON));
 
 		// for the help button
 		// get the help document ID from the tool config (tool registration
@@ -2827,8 +2749,8 @@ public class CharonPortal extends HttpServlet
 		// The help document ID defaults to the tool ID
 		boolean helpEnabledGlobally = ServerConfigurationService.getBoolean(
 				"display.help.icon", true);
-		boolean helpEnabledInTool = !"false".equals(placement.getConfig()
-				.getProperty(TOOLCONFIG_SHOW_HELP_BUTTON));
+		boolean helpEnabledInTool = !"false".equals(placement.getConfig().getProperty(
+				TOOLCONFIG_SHOW_HELP_BUTTON));
 		boolean showHelpButton = helpEnabledGlobally && helpEnabledInTool;
 
 		String helpActionUrl = "";
@@ -2848,32 +2770,38 @@ public class CharonPortal extends HttpServlet
 				{
 					helpDocId = tool.getId();
 				}
-				helpActionUrl = ServerConfigurationService
-						.getHelpUrl(helpDocId);
+				helpActionUrl = ServerConfigurationService.getHelpUrl(helpDocId);
 			}
 		}
 
 		out.write("<div class=\"portletTitle\">\n");
 		out.write("\t<div class=\"title\">\n");
-        
-        RenderResult result = ToolRenderService.render(placement, req, res, getServletContext());
 
-		// This is a new-style reset where the button is in the background document
+		RenderResult result = ToolRenderService.render(placement, req, res,
+				getServletContext());
+
+		// This is a new-style reset where the button is in the background
+		// document
 		if (showResetButton)
 		{
-                       // Note: This is somewhat brittle code as it assumes that the url will
-                       // always be /tool/ - as an example - one thing that might fail would
-                       // be if the /portal/ string were /tool/ so the right tool url would be
-                       // http://localhost:8080/tool/tool/ - then this code would break
+			// Note: This is somewhat brittle code as it assumes that the url
+			// will
+			// always be /tool/ - as an example - one thing that might fail
+			// would
+			// be if the /portal/ string were /tool/ so the right tool url would
+			// be
+			// http://localhost:8080/tool/tool/ - then this code would break
 
-                       // Send the reset url through a redirect step so that any future
-                       // refresh of the tool's iframe do not cause a reset
-                       String resetUrl = PortalStringUtil.replaceFirst(toolUrl,"/tool/","/tool-reset/");
-                       out.write("\t\t<a href=\"" + resetUrl + "?panel=Main\" "
-					+ " target=\"" + Web.escapeJavascript("Main" + placement.getId()) + "\""
-					+ " title=\"" + Web.escapeHtml(rb.getString("sit_reset")) 
-					+ "\"><img src=\"/library/image/transparent.gif\" alt=\"" 
-					+ Web.escapeHtml(rb.getString("sit_reset")) + "\" border=\"1\" /></a>");
+			// Send the reset url through a redirect step so that any future
+			// refresh of the tool's iframe do not cause a reset
+			String resetUrl = PortalStringUtil.replaceFirst(toolUrl, "/tool/",
+					"/tool-reset/");
+			out.write("\t\t<a href=\"" + resetUrl + "?panel=Main\" " + " target=\""
+					+ Web.escapeJavascript("Main" + placement.getId()) + "\""
+					+ " title=\"" + Web.escapeHtml(rb.getString("sit_reset"))
+					+ "\"><img src=\"/library/image/transparent.gif\" alt=\""
+					+ Web.escapeHtml(rb.getString("sit_reset"))
+					+ "\" border=\"1\" /></a>");
 		}
 		out.write("<h2>" + result.getTitle() + "\n" + "\t</h2></div>\n");
 		out.write("\t<div class=\"action\">\n");
@@ -2888,9 +2816,10 @@ public class CharonPortal extends HttpServlet
 		// Output the iframe for the tool content
 		out.println("<div class=\"portletMainWrap\">");
 
-        out.println(result.getContent());
+		out.println(result.getContent());
 
-        out.println("</div><!--gsilver end of the portletMainWrap--></div><!--gsilver end of the portlet-->");
+		out
+				.println("</div><!--gsilver end of the portletMainWrap--></div><!--gsilver end of the portlet-->");
 	}
 
 	protected void includeWorksite(HttpServletRequest req, HttpServletResponse res,
@@ -2898,8 +2827,7 @@ public class CharonPortal extends HttpServlet
 			String portalPrefix) throws IOException
 	{
 		// add the page navigation with presence
-		includePageNav(req, res, session, site, page, toolContextPath,
-				portalPrefix);
+		includePageNav(req, res, session, site, page, toolContextPath, portalPrefix);
 
 		// add the page
 		includePage(req, res, page, toolContextPath, "content");
@@ -2915,9 +2843,8 @@ public class CharonPortal extends HttpServlet
 	public void init(ServletConfig config) throws ServletException
 	{
 		super.init(config);
-		 portalService = org.sakaiproject.portal.api.cover.PortalService.getInstance();
+		portalService = org.sakaiproject.portal.api.cover.PortalService.getInstance();
 
-		
 		M_log.info("init()");
 
 		basicAuth = new BasicAuth();
@@ -2925,7 +2852,7 @@ public class CharonPortal extends HttpServlet
 
 		enableDirect = "true".equals(ServerConfigurationService.getString(
 				"charon.directurl", "true"));
-    }
+	}
 
 	/**
 	 * Send the POST request to login
@@ -2939,8 +2866,7 @@ public class CharonPortal extends HttpServlet
 			Session session, String loginPath) throws ToolException
 	{
 		ActiveTool tool = ActiveToolManager.getActiveTool("sakai.login");
-		String context = req.getContextPath() + req.getServletPath() + "/"
-				+ loginPath;
+		String context = req.getContextPath() + req.getServletPath() + "/" + loginPath;
 		tool.help(req, res, context, "/" + loginPath);
 	}
 
@@ -2970,12 +2896,11 @@ public class CharonPortal extends HttpServlet
 					+ " enterprise id: "
 					+ s.getUserEid()
 					+ " started: "
-					+ DateFormat.getDateInstance().format(
-							new Date(s.getCreationTime()))
+					+ DateFormat.getDateInstance().format(new Date(s.getCreationTime()))
 					+ " accessed: "
 					+ DateFormat.getDateInstance().format(
-							new Date(s.getLastAccessedTime()))
-					+ " inactive after: " + s.getMaxInactiveInterval());
+							new Date(s.getLastAccessedTime())) + " inactive after: "
+					+ s.getMaxInactiveInterval());
 			if (html) out.println("<br />");
 		}
 
@@ -2990,8 +2915,7 @@ public class CharonPortal extends HttpServlet
 			out.println("tool session: "
 					+ ts.getId()
 					+ " started: "
-					+ DateFormat.getDateInstance().format(
-							new Date(ts.getCreationTime()))
+					+ DateFormat.getDateInstance().format(new Date(ts.getCreationTime()))
 					+ " accessed: "
 					+ DateFormat.getDateInstance().format(
 							new Date(ts.getLastAccessedTime())));
@@ -3030,30 +2954,21 @@ public class CharonPortal extends HttpServlet
 		}
 		String skinRepo = ServerConfigurationService.getString("skin.repo");
 
-		out
-				.println("    <link href=\""
-						+ skinRepo
-						+ "/"
-						+ skin
-						+ "/portal.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />");
-		out
-				.println("    <meta http-equiv=\"Content-Style-Type\" content=\"text/css\" />"
-						+ "    <title>"
-						+ Web.escapeHtml(title)
-						+ "</title>"
-						+ "    <script type=\"text/javascript\" language=\"JavaScript\" src=\""
-						+ getScriptPath()
-						+ "headscripts.js\"></script>"
-						+ "  </head>");
+		out.println("    <link href=\"" + skinRepo + "/" + skin
+				+ "/portal.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />");
+		out.println("    <meta http-equiv=\"Content-Style-Type\" content=\"text/css\" />"
+				+ "    <title>" + Web.escapeHtml(title) + "</title>"
+				+ "    <script type=\"text/javascript\" language=\"JavaScript\" src=\""
+				+ getScriptPath() + "headscripts.js\"></script>" + "  </head>");
 
 		// start the body
-		out.println("<body class=\"portalBody\" onload=\"document.forms[0].eid.focus();\">");
+		out
+				.println("<body class=\"portalBody\" onload=\"document.forms[0].eid.focus();\">");
 
 		// if top, mark this as the portal window
 		if (top)
 		{
-			out
-					.println("<script type=\"text/javascript\" language=\"JavaScript\">");
+			out.println("<script type=\"text/javascript\" language=\"JavaScript\">");
 			out.println("var sakaiPortalWindow = \"\";");
 			out.println("</script>");
 		}
@@ -3121,8 +3036,7 @@ public class CharonPortal extends HttpServlet
 	 * 
 	 * @return true if we redirected, false if not
 	 */
-	protected boolean redirectIfLoggedOut(HttpServletResponse res)
-			throws IOException
+	protected boolean redirectIfLoggedOut(HttpServletResponse res) throws IOException
 	{
 		// if we are in a newly created session where we had an invalid
 		// (presumed timed out) session in the request,
@@ -3147,8 +3061,7 @@ public class CharonPortal extends HttpServlet
 			throws IOException
 	{
 		PrintWriter out = startResponse(res, null, null, false);
-		out
-				.println("<script type=\"text/javascript\" language=\"JavaScript\">");
+		out.println("<script type=\"text/javascript\" language=\"JavaScript\">");
 		out.println("portalWindowRefresh('" + url + "');");
 		out.println("</script>");
 		endResponse(out);
@@ -3172,8 +3085,7 @@ public class CharonPortal extends HttpServlet
 		}
 		catch (UserNotDefinedException e)
 		{
-			M_log.warn("getUserEidBasedSiteId: user id not found for eid: "
-					+ userId);
+			M_log.warn("getUserEidBasedSiteId: user id not found for eid: " + userId);
 			return SiteService.getUserSiteId(userId);
 		}
 	}
@@ -3198,9 +3110,8 @@ public class CharonPortal extends HttpServlet
 			}
 			catch (UserNotDefinedException e)
 			{
-				M_log
-						.warn("getSiteEffectiveId: user eid not found for user site: "
-								+ site.getId());
+				M_log.warn("getSiteEffectiveId: user eid not found for user site: "
+						+ site.getId());
 			}
 		}
 

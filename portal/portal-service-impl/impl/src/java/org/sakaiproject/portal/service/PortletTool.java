@@ -44,6 +44,10 @@ import org.sakaiproject.tool.cover.ActiveToolManager;
  * <p>
  * Tool is a utility class that implements the Tool interface.
  * </p>
+ * 
+ * @author ieb
+ * @since Sakai 2.4
+ * @version $Rev$
  */
 public class PortletTool implements org.sakaiproject.tool.api.Tool, Comparable
 {

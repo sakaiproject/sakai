@@ -21,6 +21,12 @@
 
 package org.sakaiproject.portal.service;
 
+/**
+ * @author ieb
+ * @since Sakai 2.4
+ * @version $Rev$
+ */
+
 public class PortalStringUtil
 {
 	/**

@@ -37,6 +37,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpSession;
 
+/**
+ * @author ieb
+ * @since Sakai 2.4
+ * @version $Rev$
+ */
+
 public class RecoveredServletRequest extends HttpServletRequestWrapper
 {
 

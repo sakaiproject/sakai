@@ -31,7 +31,11 @@ import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.tool.api.Session;
 
 /**
+ * 
  * @author ieb
+ * @since Sakai 2.4
+ * @version $Rev$
+ * 
  */
 public class NavLoginHandler extends SiteHandler
 {

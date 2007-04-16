@@ -41,8 +41,9 @@ import org.w3c.tidy.Tidy;
 
 /**
  * <p>
- * This class operates as Mock portal to enable testing of a set of templates. It can be used to drive
- * any render engine, but is setup for the default render engine. It is run as a unit test.
+ * This class operates as Mock portal to enable testing of a set of templates.
+ * It can be used to drive any render engine, but is setup for the default
+ * render engine. It is run as a unit test.
  * </p>
  */
 public class MockCharonPortal extends HttpServlet
@@ -55,15 +56,15 @@ public class MockCharonPortal extends HttpServlet
 
 	private PortalRenderEngine rengine;
 
-	public MockCharonPortal() throws Exception 
+	public MockCharonPortal() throws Exception
 	{
 		String renderEngineClass = "THIS NEEDS FIXING";
-			//VelocityPortalRenderEngine.class.getName();
+		// VelocityPortalRenderEngine.class.getName();
 
 		Class c = Class.forName(renderEngineClass);
 		rengine = (PortalRenderEngine) c.newInstance();
 		rengine.init();
-			
+
 	}
 
 	public void doError() throws IOException
@@ -165,8 +166,7 @@ public class MockCharonPortal extends HttpServlet
 		rcontext.put("pageTop", Boolean.valueOf(true));
 		rcontext.put("pageSiteType", "class=\"siteType\" ");
 		rcontext.put("toolParamResetState", "PARM_STATE_RESET");
-		rcontext.put("rloader",rloader);
-
+		rcontext.put("rloader", rloader);
 
 		return rcontext;
 	}
@@ -247,22 +247,20 @@ public class MockCharonPortal extends HttpServlet
 		rcontext.put("bottomNavServer", "server");
 	}
 
-	protected void includeGalleryLogin(PortalRenderContext rcontext)
-			throws IOException
+	protected void includeGalleryLogin(PortalRenderContext rcontext) throws IOException
 	{
 		includeLogin(rcontext);
 	}
 
-	protected void includeGalleryNav(PortalRenderContext rcontext)
-			throws IOException
+	protected void includeGalleryNav(PortalRenderContext rcontext) throws IOException
 	{
 		rcontext.put("galleryHasAccessibilityURL", Boolean.valueOf(true));
 
 		rcontext.put("galleryAccessibilityURL", "accessibilityURL");
-//		rcontext.put("gallarySitAccessibility", "sit_accessibility");
-//		rcontext.put("gallarySitJumpcontent", "sit_jumpcontent");
-//		rcontext.put("gallarySitJumptools", "sit_jumptools");
-//		rcontext.put("gallarySitJumpworksite", "sit_jumpworksite");
+		// rcontext.put("gallarySitAccessibility", "sit_accessibility");
+		// rcontext.put("gallarySitJumpcontent", "sit_jumpcontent");
+		// rcontext.put("gallarySitJumptools", "sit_jumptools");
+		// rcontext.put("gallarySitJumpworksite", "sit_jumpworksite");
 		rcontext.put("gallaryLoggedIn", Boolean.valueOf(true));
 		includeTabs(rcontext);
 
@@ -284,13 +282,12 @@ public class MockCharonPortal extends HttpServlet
 		rcontext.put("loginLogInOutUrl", "logInOutUrl");
 		rcontext.put("loginMessage", "message");
 		rcontext.put("loginImage1", "image1");
-		rcontext.put("image1HasImage1",Boolean.valueOf(true));
+		rcontext.put("image1HasImage1", Boolean.valueOf(true));
 		rcontext.put("loginLogInOutUrl2", "logInOutUrl2");
 		rcontext.put("loginHasLogInOutUrl2", Boolean.valueOf(true));
 		rcontext.put("loginMessage2", "message2");
 		rcontext.put("loginImage2", "image2");
-		rcontext.put("image1HasImage2",Boolean.valueOf(true));
-
+		rcontext.put("image1HasImage2", Boolean.valueOf(true));
 
 		rcontext.put("loginPortalPath", "portalPath");
 		rcontext.put("loginEidWording", "eidWording");
@@ -302,7 +299,7 @@ public class MockCharonPortal extends HttpServlet
 	{
 		// divs to wrap the tools
 		rcontext.put("pageWrapperClass", "wrapperClass");
-		rcontext.put("pageColumnLayout", "col1of2" );
+		rcontext.put("pageColumnLayout", "col1of2");
 		{
 			List toolList = new ArrayList();
 			toolList.add(includeTool());
@@ -318,13 +315,12 @@ public class MockCharonPortal extends HttpServlet
 		}
 	}
 
-	protected void includePageNav(PortalRenderContext rcontext)
-			throws IOException
+	protected void includePageNav(PortalRenderContext rcontext) throws IOException
 	{
 		rcontext.put("pageNavPublished", Boolean.valueOf(true));
 		rcontext.put("pageNavType", "type");
 		rcontext.put("pageNavIconUrl", "iconUrl");
-//		rcontext.put("pageNavSitToolsHead", "sit_toolshead");
+		// rcontext.put("pageNavSitToolsHead", "sit_toolshead");
 
 		List l = new ArrayList();
 		Map m = new HashMap();
@@ -348,25 +344,25 @@ public class MockCharonPortal extends HttpServlet
 
 		rcontext.put("pageNavShowHelp", Boolean.valueOf(true));
 		rcontext.put("pageNavHelpUrl", "helpUrl");
-//		rcontext.put("pageNavSitHelp", "sit_help");
+		// rcontext.put("pageNavSitHelp", "sit_help");
 
-//		rcontext.put("pageNavSitPresenceTitle", "sit_presencetitle");
-//		rcontext.put("pageNavSitPresenceFrameTitle", "sit_presenceiframetit");
+		// rcontext.put("pageNavSitPresenceTitle", "sit_presencetitle");
+		// rcontext.put("pageNavSitPresenceFrameTitle",
+		// "sit_presenceiframetit");
 		rcontext.put("pageNavShowPresenceLoggedIn", Boolean.valueOf(true));
 		rcontext.put("pageNavPresenceUrl", "presenceUrl");
-//		rcontext.put("pageNavSitContentshead", "sit_contentshead");
+		// rcontext.put("pageNavSitContentshead", "sit_contentshead");
 
 	}
 
-	protected void includeSiteNav(PortalRenderContext rcontext)
-			throws IOException
+	protected void includeSiteNav(PortalRenderContext rcontext) throws IOException
 	{
 		rcontext.put("siteNavHasAccessibilityURL", Boolean.valueOf((true)));
 		rcontext.put("siteNavAccessibilityURL", "accessibilityURL");
-//		rcontext.put("siteNavSitAccessability", "sit_accessibility");
-//		rcontext.put("siteNavSitJumpContent", "sit_jumpcontent");
-//		rcontext.put("siteNavSitJumpTools", "sit_jumptools");
-//		rcontext.put("siteNavSitJumpWorksite", "sit_jumpworksite");
+		// rcontext.put("siteNavSitAccessability", "sit_accessibility");
+		// rcontext.put("siteNavSitJumpContent", "sit_jumpcontent");
+		// rcontext.put("siteNavSitJumpTools", "sit_jumptools");
+		// rcontext.put("siteNavSitJumpWorksite", "sit_jumpworksite");
 
 		rcontext.put("siteNavLoggedIn", Boolean.valueOf(true));
 
@@ -378,11 +374,11 @@ public class MockCharonPortal extends HttpServlet
 	{
 
 		rcontext.put("tabsCssClass", "cssClass");
-//		rcontext.put("tabsSitWorksiteHead", "sit_worksiteshead");
+		// rcontext.put("tabsSitWorksiteHead", "sit_worksiteshead");
 		rcontext.put("tabsCurMyWorkspace", Boolean.valueOf(true));
-//		rcontext.put("tabsSitMyWorkspace", "sit_mywor");
+		// rcontext.put("tabsSitMyWorkspace", "sit_mywor");
 		rcontext.put("tabsSiteUrl", "mySiteUrl");
-//		rcontext.put("tabsSitWorksite", "sit_worksite");
+		// rcontext.put("tabsSitWorksite", "sit_worksite");
 
 		List l = new ArrayList();
 		{
@@ -400,8 +396,8 @@ public class MockCharonPortal extends HttpServlet
 
 		rcontext.put("tabsExtraTitle", "Web.escapeHtml(extraTitle)");
 		rcontext.put("tabsMoreSitesShow", Boolean.valueOf(true));
-//		rcontext.put("tabsSitSelectMessage", "sit_selectmessage");
-//		rcontext.put("tabsSitMode", "sit_more");
+		// rcontext.put("tabsSitSelectMessage", "sit_selectmessage");
+		// rcontext.put("tabsSitMode", "sit_more");
 		{
 			Map m = new HashMap();
 
@@ -414,15 +410,14 @@ public class MockCharonPortal extends HttpServlet
 
 		rcontext.put("tabsAddLogout", Boolean.valueOf(true));
 		rcontext.put("tabsLogoutUrl", "logoutUrl");
-//		rcontext.put("tabsSitLog", "sit_log");
+		// rcontext.put("tabsSitLog", "sit_log");
 	}
 
 	protected Map includeTool() throws IOException
 	{
 		Map toolMap = new HashMap();
 		toolMap.put("toolUrl", "toolUrl");
-		toolMap.put("toolPlacementIDJS",
-				"Main_"+System.currentTimeMillis());
+		toolMap.put("toolPlacementIDJS", "Main_" + System.currentTimeMillis());
 		toolMap.put("toolTitle", "titleString");
 		toolMap.put("toolShowResetButton", Boolean.valueOf(true));
 		toolMap.put("toolShowHelpButton", Boolean.valueOf(true));
@@ -430,8 +425,7 @@ public class MockCharonPortal extends HttpServlet
 		return toolMap;
 	}
 
-	protected void includeWorksite(PortalRenderContext rcontext)
-			throws IOException
+	protected void includeWorksite(PortalRenderContext rcontext) throws IOException
 	{
 		// add the page navigation with presence
 		includePageNav(rcontext);
@@ -459,13 +453,12 @@ public class MockCharonPortal extends HttpServlet
 	{
 		// get the writer
 		FileWriter f = new FileWriter(template + ".html");
-		
-		log.info("Context Dump is "+rcontext.dump())
-		;
+
+		log.info("Context Dump is " + rcontext.dump());
 
 		try
 		{
-			log.info("Rendering "+rcontext+" to "+template);
+			log.info("Rendering " + rcontext + " to " + template);
 			rengine.render(template, rcontext, f);
 		}
 		catch (Exception e)
@@ -473,12 +466,12 @@ public class MockCharonPortal extends HttpServlet
 			throw new RuntimeException("Failed to render template ", e);
 		}
 		f.close();
-		
+
 		Tidy t = new Tidy();
-		FileOutputStream fo = new FileOutputStream(template+".html.tidy.txt");
+		FileOutputStream fo = new FileOutputStream(template + ".html.tidy.txt");
 		t.setIndentContent(true);
 		t.setXHTML(true);
-		t.parse(new FileInputStream(template+".html"),fo);
+		t.parse(new FileInputStream(template + ".html"), fo);
 
 	}
 

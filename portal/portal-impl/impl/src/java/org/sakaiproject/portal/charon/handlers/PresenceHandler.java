@@ -40,7 +40,11 @@ import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.util.Web;
 
 /**
+ * 
  * @author ieb
+ * @since Sakai 2.4
+ * @version $Rev$
+ * 
  */
 public class PresenceHandler extends BasePortalHandler
 {

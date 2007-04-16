@@ -41,7 +41,12 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
 
 /**
+ * Handler for the gallery parts of the portal
+ * 
  * @author ieb
+ * @since Sakai 2.4
+ * @version $Rev$
+ * 
  */
 public class GalleryHandler extends SiteHandler
 {
@@ -154,7 +159,7 @@ public class GalleryHandler extends SiteHandler
 		if (page == null)
 		{
 			// List pages = site.getOrderedPages();
- 			List pages = siteHelper.getPermittedPagesInOrder(site);
+			List pages = siteHelper.getPermittedPagesInOrder(site);
 			if (!pages.isEmpty())
 			{
 				page = (SitePage) pages.get(0);

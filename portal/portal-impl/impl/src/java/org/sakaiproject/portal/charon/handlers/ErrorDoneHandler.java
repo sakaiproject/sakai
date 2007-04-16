@@ -32,7 +32,12 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
 
 /**
+ * Handler for final part of the Error Processing Flow
+ * 
  * @author ieb
+ * @since Sakai 2.4
+ * @version $Rev$
+ * 
  */
 public class ErrorDoneHandler extends BasePortalHandler
 {

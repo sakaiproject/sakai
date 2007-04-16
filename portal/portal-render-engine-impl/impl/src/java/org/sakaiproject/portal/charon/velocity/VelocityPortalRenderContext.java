@@ -36,7 +36,10 @@ import org.sakaiproject.portal.api.PortalRenderEngine;
  * A render context based on the velocity context
  * 
  * @author ieb
+ * @since Sakai 2.4
+ * @version $Rev$
  */
+
 public class VelocityPortalRenderContext implements PortalRenderContext
 {
 	private static final Log log = LogFactory.getLog(VelocityPortalRenderContext.class);

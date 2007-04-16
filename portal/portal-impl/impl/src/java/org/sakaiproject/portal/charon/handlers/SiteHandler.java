@@ -23,8 +23,6 @@ package org.sakaiproject.portal.charon.handlers;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -54,7 +52,11 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.Web;
 
 /**
+ * 
  * @author ieb
+ * @since Sakai 2.4
+ * @version $Rev$
+ * 
  */
 public class SiteHandler extends WorksiteHandler
 {
@@ -202,7 +204,8 @@ public class SiteHandler extends WorksiteHandler
 		// end the response
 		portal.sendResponse(rcontext, res, "site", null);
 		StoredState ss = portalService.getStoredState();
-		if (ss != null && toolContextPath.equals(ss.getToolContextPath())) {
+		if (ss != null && toolContextPath.equals(ss.getToolContextPath()))
+		{
 			// This request is the destination of the request
 			portalService.setStoredState(null);
 		}
@@ -277,7 +280,7 @@ public class SiteHandler extends WorksiteHandler
 		{
 
 			String skin = getSiteSkin(siteId);
-			
+
 			if (skin == null)
 			{
 				skin = ServerConfigurationService.getString("skin.default");
@@ -292,7 +295,7 @@ public class SiteHandler extends WorksiteHandler
 			portal.includeLogin(rcontext, req, session);
 		}
 	}
-	
+
 	private String getSiteSkin(String siteId)
 	{
 		// First, try to get the skin the default way
@@ -313,7 +316,7 @@ public class SiteHandler extends WorksiteHandler
 			}
 		}
 		return skin;
-	} 
+	}
 
 	public void includeTabs(PortalRenderContext rcontext, HttpServletRequest req,
 			Session session, String siteId, String prefix, boolean addLogout)
@@ -336,18 +339,18 @@ public class SiteHandler extends WorksiteHandler
 			}
 
 			boolean loggedIn = session.getUserId() != null;
-           		// Get the user's My WorkSpace and its ID
-                	Site myWorkspaceSite = siteHelper.getMyWorkspace(session);
-                	String myWorkspaceSiteId = null;
-                	if (myWorkspaceSite != null)
-                	{
-                        	myWorkspaceSiteId = siteHelper.getSiteEffectiveId(myWorkspaceSite);
-                	}
+			// Get the user's My WorkSpace and its ID
+			Site myWorkspaceSite = siteHelper.getMyWorkspace(session);
+			String myWorkspaceSiteId = null;
+			if (myWorkspaceSite != null)
+			{
+				myWorkspaceSiteId = siteHelper.getSiteEffectiveId(myWorkspaceSite);
+			}
 
 			int prefTabs = 4;
 			int tabsToDisplay = prefTabs;
 
-			// Get the list of sites in the right order, 
+			// Get the list of sites in the right order,
 			// My WorkSpace will be the first in the list
 			List<Site> mySites = siteHelper.getAllSites(req, session, true);
 			if (!loggedIn)
@@ -357,10 +360,9 @@ public class SiteHandler extends WorksiteHandler
 			}
 			else
 			{
-				Preferences prefs = PreferencesService.getPreferences(session
-							.getUserId());
-				ResourceProperties props = prefs
-							.getProperties("sakai:portal:sitenav");
+				Preferences prefs = PreferencesService
+						.getPreferences(session.getUserId());
+				ResourceProperties props = prefs.getProperties("sakai:portal:sitenav");
 				try
 				{
 					prefTabs = (int) props.getLongProperty("tabs");
@@ -368,28 +370,29 @@ public class SiteHandler extends WorksiteHandler
 				catch (Exception any)
 				{
 				}
-			} 
+			}
 
 			// Note that if there are exactly one more site
 			// than tabs allowed - simply put the site on
 			// instead of a dropdown with one site
 			List<Site> moreSites = new ArrayList<Site>();
-			if (mySites.size() > (tabsToDisplay+1))
+			if (mySites.size() > (tabsToDisplay + 1))
 			{
 				// Check to see if the selected site is in the first
 				// "tabsToDisplay" tabs
 				boolean found = false;
-				for(int i=0; i < tabsToDisplay && i < mySites.size(); i++)
+				for (int i = 0; i < tabsToDisplay && i < mySites.size(); i++)
 				{
 					Site site = mySites.get(i);
-                        		String effectiveId = siteHelper.getSiteEffectiveId(site);
-					if (site.getId().equals(siteId) || effectiveId.equals(siteId)) found = true;
+					String effectiveId = siteHelper.getSiteEffectiveId(site);
+					if (site.getId().equals(siteId) || effectiveId.equals(siteId))
+						found = true;
 				}
 
 				// Save space for the current site
-				if ( !found ) tabsToDisplay = tabsToDisplay - 1;
-				if ( tabsToDisplay < 2 ) tabsToDisplay = 2;
-	
+				if (!found) tabsToDisplay = tabsToDisplay - 1;
+				if (tabsToDisplay < 2) tabsToDisplay = 2;
+
 				// Create the list of "additional sites"- but do not
 				// include the currently selected set in the list
 				Site currentSelectedSite = null;
@@ -403,8 +406,8 @@ public class SiteHandler extends WorksiteHandler
 					Site site = mySites.get(tabsToDisplay);
 					mySites.remove(tabsToDisplay);
 
-                        		String effectiveId = siteHelper.getSiteEffectiveId(site);
-					if (site.getId().equals(siteId) || effectiveId.equals(siteId)) 
+					String effectiveId = siteHelper.getSiteEffectiveId(site);
+					if (site.getId().equals(siteId) || effectiveId.equals(siteId))
 					{
 						currentSelectedSite = site;
 					}
@@ -415,7 +418,8 @@ public class SiteHandler extends WorksiteHandler
 				}
 
 				// check to see if we need to re-add the current site
-				if ( currentSelectedSite != null ) {
+				if (currentSelectedSite != null)
+				{
 					mySites.add(currentSelectedSite);
 				}
 			}
@@ -440,11 +444,11 @@ public class SiteHandler extends WorksiteHandler
 			if (moreSites.size() > 0)
 			{
 				List<Map> m = portal.convertSitesToMaps(req, moreSites, prefix, siteId,
-					myWorkspaceSiteId,
-					/* includeSummary */false, /* expandSite */false,
-					/* resetTools */"true".equals(ServerConfigurationService
-							.getString(Portal.CONFIG_AUTO_RESET)),
-					/* doPages */true, /* toolContextPath */null, loggedIn);
+						myWorkspaceSiteId,
+						/* includeSummary */false, /* expandSite */false,
+						/* resetTools */"true".equals(ServerConfigurationService
+								.getString(Portal.CONFIG_AUTO_RESET)),
+						/* doPages */true, /* toolContextPath */null, loggedIn);
 
 				rcontext.put("tabsMoreSites", m);
 			}

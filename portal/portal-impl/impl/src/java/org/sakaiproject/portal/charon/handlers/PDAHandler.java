@@ -21,27 +21,22 @@
 
 package org.sakaiproject.portal.charon.handlers;
 
+import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.util.Web;
-
-import org.sakaiproject.portal.charon.handlers.ToolHandler;
-import org.sakaiproject.portal.charon.handlers.ByteArrayServletResponse;
-import org.sakaiproject.component.cover.ServerConfigurationService;
-
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
@@ -49,19 +44,24 @@ import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
-import java.io.IOException;
-import javax.servlet.ServletResponse;
+import org.sakaiproject.util.Web;
 
-// import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 
 /**
- * @author ieb
+ * 
+ * @author csev
+ * @since Sakai 2.4
+ * @version $Rev$
+ * 
  */
 public class PDAHandler extends PageHandler
 {
 
-        /** Key in the ThreadLocalManager for access to the current http response object. */
-        public final static String CURRENT_HTTP_RESPONSE = "org.sakaiproject.util.RequestFilter.http_response";
+	/**
+	 * Key in the ThreadLocalManager for access to the current http response
+	 * object.
+	 */
+	public final static String CURRENT_HTTP_RESPONSE = "org.sakaiproject.util.RequestFilter.http_response";
 
 	private ToolHandler toolHandler = new ToolHandler();
 
@@ -109,8 +109,8 @@ public class PDAHandler extends PageHandler
 						&& (parts[3].equals("tool-reset")))
 				{
 					toolId = parts[4];
-					String toolUrl = req.getContextPath() + "/pda/" + siteId
-							+ "/tool" + Web.makePath(parts, 4, parts.length);
+					String toolUrl = req.getContextPath() + "/pda/" + siteId + "/tool"
+							+ Web.makePath(parts, 4, parts.length);
 					String queryString = req.getQueryString();
 					if (queryString != null)
 					{
@@ -171,37 +171,39 @@ public class PDAHandler extends PageHandler
 	}
 
 	/*
-	 * Optionally actually grab the tool's output and include  it in the same frame
- 	 */
-	public void bufferContent(HttpServletRequest req, HttpServletResponse res, 
- 		Session session, String[] parts, String toolId, 
-		PortalRenderContext rcontext)
+	 * Optionally actually grab the tool's output and include it in the same
+	 * frame
+	 */
+	public void bufferContent(HttpServletRequest req, HttpServletResponse res,
+			Session session, String[] parts, String toolId, PortalRenderContext rcontext)
 	{
 
-		if ( toolId == null ) return;
+		if (toolId == null) return;
 
- 		String tidAllow = ServerConfigurationService.getString("portal.pda.experimental.iframesuppress");
+		String tidAllow = ServerConfigurationService
+				.getString("portal.pda.experimental.iframesuppress");
 
-		if ( tidAllow == null ) return;
+		if (tidAllow == null) return;
 
 		ToolConfiguration siteTool = SiteService.findTool(toolId);
 		if (siteTool == null) return;
-		if ( tidAllow.indexOf(":all:") < 0 ) 
+		if (tidAllow.indexOf(":all:") < 0)
 		{
-			if( tidAllow.indexOf(siteTool.getToolId()) < 0 ) return;
+			if (tidAllow.indexOf(siteTool.getToolId()) < 0) return;
 		}
 
 		ByteArrayServletResponse bufferedResponse = new ByteArrayServletResponse(res);
 		// TODO: This should not be necessary - but I leave it here for testing
-		// until we are usre this is not an issue.  April 2007
-    		// ThreadLocalManager.set(CURRENT_HTTP_RESPONSE, bufferedResponse);
+		// until we are usre this is not an issue. April 2007
+		// ThreadLocalManager.set(CURRENT_HTTP_RESPONSE, bufferedResponse);
 
-		try 
+		try
 		{
-                	boolean retval = doToolBuffer(req, bufferedResponse, session, parts[4], 
-				req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 5), 
-				Web.makePath(parts, 5, parts.length));
-			if ( ! retval ) return;
+			boolean retval = doToolBuffer(req, bufferedResponse, session, parts[4], req
+					.getContextPath()
+					+ req.getServletPath() + Web.makePath(parts, 1, 5), Web.makePath(
+					parts, 5, parts.length));
+			if (!retval) return;
 		}
 		catch (Exception e)
 		{
@@ -209,25 +211,28 @@ public class PDAHandler extends PageHandler
 		}
 
 		String responseStr = bufferedResponse.getInternalBuffer();
-		// System.out.println("bufferedResponse.getInternalBuffer()\n"+ responseStr);
-		if ( responseStr == null && responseStr.length() < 1 ) return;
+		// System.out.println("bufferedResponse.getInternalBuffer()\n"+
+		// responseStr);
+		if (responseStr == null && responseStr.length() < 1) return;
 
 		String responseStrLower = responseStr.toLowerCase();
 		int headStart = responseStrLower.indexOf("<head");
-		headStart = findEndOfTag(responseStrLower,headStart);
+		headStart = findEndOfTag(responseStrLower, headStart);
 		int headEnd = responseStrLower.indexOf("</head");
 		int bodyStart = responseStrLower.indexOf("<body");
-		bodyStart = findEndOfTag(responseStrLower,bodyStart);
+		bodyStart = findEndOfTag(responseStrLower, bodyStart);
 		int bodyEnd = responseStrLower.indexOf("</body");
 
-		if( tidAllow.indexOf(":debug:") >= 0 )
-			log.info("Frameless HS="+headStart+" HE="+headEnd+" BS="+bodyStart+" BE="+bodyEnd);
+		if (tidAllow.indexOf(":debug:") >= 0)
+			log.info("Frameless HS=" + headStart + " HE=" + headEnd + " BS=" + bodyStart
+					+ " BE=" + bodyEnd);
 
-		if ( bodyEnd > bodyStart && bodyStart > headEnd && headEnd > headStart && headStart > 1 ) 
+		if (bodyEnd > bodyStart && bodyStart > headEnd && headEnd > headStart
+				&& headStart > 1)
 		{
-			String headString = responseStr.substring(headStart+1, headEnd);
-			String bodyString = responseStr.substring(bodyStart+1, bodyEnd);
-			if( tidAllow.indexOf(":debug:") >= 0 )
+			String headString = responseStr.substring(headStart + 1, headEnd);
+			String bodyString = responseStr.substring(bodyStart + 1, bodyEnd);
+			if (tidAllow.indexOf(":debug:") >= 0)
 			{
 				System.out.println(" ---- Head --- ");
 				System.out.println(headString);
@@ -235,24 +240,24 @@ public class PDAHandler extends PageHandler
 				System.out.println(bodyString);
 			}
 			rcontext.put("bufferedResponse", Boolean.TRUE);
-      			rcontext.put("responseHead", headString);
-      			rcontext.put("responseBody", bodyString);
+			rcontext.put("responseHead", headString);
+			rcontext.put("responseBody", bodyString);
 		}
 	}
 
 	private int findEndOfTag(String string, int startPos)
 	{
-		if ( startPos < 1 ) return -1;
-		for ( int i = startPos; i < string.length(); i++ )
+		if (startPos < 1) return -1;
+		for (int i = startPos; i < string.length(); i++)
 		{
-			if ( string.charAt(i) == '>' ) return i;
+			if (string.charAt(i) == '>') return i;
 		}
 		return -1;
 	}
 
-	public boolean doToolBuffer(HttpServletRequest req, HttpServletResponse res, Session session,
-			String placementId, String toolContextPath, String toolPathInfo)
-			throws ToolException, IOException
+	public boolean doToolBuffer(HttpServletRequest req, HttpServletResponse res,
+			Session session, String placementId, String toolContextPath,
+			String toolPathInfo) throws ToolException, IOException
 	{
 
 		if (portal.redirectIfLoggedOut(res)) return false;
@@ -300,7 +305,8 @@ public class PDAHandler extends PageHandler
 			}
 		}
 
-		// System.out.println("portal.forwardTool siteTool="+siteTool+" TCP="+toolContextPath+" TPI="+toolPathInfo);
+		// System.out.println("portal.forwardTool siteTool="+siteTool+"
+		// TCP="+toolContextPath+" TPI="+toolPathInfo);
 		portal.forwardTool(tool, req, res, siteTool, siteTool.getSkin(), toolContextPath,
 				toolPathInfo);
 

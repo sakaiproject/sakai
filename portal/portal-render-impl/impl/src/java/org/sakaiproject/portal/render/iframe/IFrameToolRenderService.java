@@ -1,3 +1,24 @@
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2005, 2006 The Sakai Foundation.
+ * 
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.opensource.org/licenses/ecl1.php
+ * 
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
+ *
+ **********************************************************************************/
+
 package org.sakaiproject.portal.render.iframe;
 
 import java.io.IOException;
@@ -19,11 +40,18 @@ import org.sakaiproject.portal.util.URLUtils;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.util.Web;
 
+/**
+ * I Frame tool renderer, renders the iframe header to contain the tool content
+ * 
+ * @author ddwolf
+ * @since Sakai 2.4
+ * @version $Rev$
+ */
 public class IFrameToolRenderService implements ToolRenderService
 {
 
 	private static final Log LOG = LogFactory.getLog(IFrameToolRenderService.class);
-	
+
 	private PortalService portalService;
 
 	// private static ResourceLoader rb = new ResourceLoader("sitenav");
@@ -44,12 +72,12 @@ public class IFrameToolRenderService implements ToolRenderService
 		String toolUrl = ServerConfigurationService.getToolUrl() + "/"
 				+ Web.escapeUrl(configuration.getId());
 		StoredState ss = portalService.getStoredState();
-		LOG.debug("Restoring Iframe ["+ss+"]");
+		LOG.debug("Restoring Iframe [" + ss + "]");
 
 		Map parametermap = ss == null ? request.getParameterMap() : ss
 				.getRequest(request).getParameterMap();
-		String URLstub = portalService.decodeToolState(parametermap,
-				configuration.getId());
+		String URLstub = portalService.decodeToolState(parametermap, configuration
+				.getId());
 		if (URLstub != null)
 		{
 			toolUrl += URLstub;
@@ -117,7 +145,8 @@ public class IFrameToolRenderService implements ToolRenderService
 	}
 
 	/**
-	 * @param portalService the portalService to set
+	 * @param portalService
+	 *        the portalService to set
 	 */
 	public void setPortalService(PortalService portalService)
 	{

@@ -1,20 +1,39 @@
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
+ *
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.opensource.org/licenses/ecl1.php
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+
 package org.sakaiproject.portal.charon.handlers;
 
+import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
-import javax.servlet.ServletOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.Writer;
-
 /**
- * ServletResponse instance used to buffer content. This buffering allows for the
- * portlets title to be captured prior to rendering and other similar features.
- * <p/> NOTE: Access the output stream for this response had undertermined
- * results. It is expected that in most situations an IllegalArgumentException
- * will be thrown.
+ * ServletResponse instance used to buffer content. This buffering allows for
+ * the portlets title to be captured prior to rendering and other similar
+ * features. <p/> NOTE: Access the output stream for this response had
+ * undertermined results. It is expected that in most situations an
+ * IllegalArgumentException will be thrown.
  * 
  * @since Sakai 2.2.4
  * @version $Rev$
@@ -62,10 +81,11 @@ public class ByteArrayServletResponse extends HttpServletResponseWrapper
 	}
 
 	@Override
-       public ServletOutputStream getOutputStream() throws java.io.IOException {
+	public ServletOutputStream getOutputStream() throws java.io.IOException
+	{
 		// System.out.println("getOutputStream()");
 		return outStream;
-         }
+	}
 
 	@Override
 	public void setContentLength(int i)
@@ -84,7 +104,7 @@ public class ByteArrayServletResponse extends HttpServletResponseWrapper
 	public void reset()
 	{
 		// System.out.println("reset()");
-      		outStream = new ServletByteOutputStream();
+		outStream = new ServletByteOutputStream();
 		writer = new PrintWriter(outStream);
 	}
 
@@ -100,7 +120,8 @@ public class ByteArrayServletResponse extends HttpServletResponseWrapper
 		// System.out.println("---- baStream -----");
 
 		// TODO: Should we fall back to regular encoding or freak out?
-		try {
+		try
+		{
 			return outStream.getContent().toString("UTF-8");
 		}
 		catch (Exception e)
@@ -110,44 +131,45 @@ public class ByteArrayServletResponse extends HttpServletResponseWrapper
 	}
 }
 
-class ServletByteOutputStream extends ServletOutputStream {
-	       private ByteArrayOutputStream baStream;
+class ServletByteOutputStream extends ServletOutputStream
+{
+	private ByteArrayOutputStream baStream;
 
-               public ServletByteOutputStream()
-		{
-                        // System.out.println("Making a ServletByteOutputStream");
-                        baStream = new ByteArrayOutputStream();
-                }
+	public ServletByteOutputStream()
+	{
+		// System.out.println("Making a ServletByteOutputStream");
+		baStream = new ByteArrayOutputStream();
+	}
 
-		public ByteArrayOutputStream getContent()
-		{
-			return baStream;
-		}
-                public void write(int i) throws java.io.IOException 
-		{
-                        // System.out.println("Writing an int");
-                        baStream.write(i);
-                }
+	public ByteArrayOutputStream getContent()
+	{
+		return baStream;
+	}
 
-                public void write(byte[] data) throws java.io.IOException
-                {
-                        write(data,0,data.length);
-                }
+	public void write(int i) throws java.io.IOException
+	{
+		// System.out.println("Writing an int");
+		baStream.write(i);
+	}
 
-                public void write(byte[] data, int start, int end)
-                        throws java.io.IOException
-                {
-                        // System.out.println("Writing an array");
-                        baStream.write(data, start, end);
-                }
+	public void write(byte[] data) throws java.io.IOException
+	{
+		write(data, 0, data.length);
+	}
 
-                public void close() throws java.io.IOException
-                {
-                        // System.out.println("Close");
-                }
+	public void write(byte[] data, int start, int end) throws java.io.IOException
+	{
+		// System.out.println("Writing an array");
+		baStream.write(data, start, end);
+	}
 
-           	public void flush() throws java.io.IOException 
-		{
-                        // System.out.println("Flush");
-                }
+	public void close() throws java.io.IOException
+	{
+		// System.out.println("Close");
+	}
+
+	public void flush() throws java.io.IOException
+	{
+		// System.out.println("Flush");
+	}
 }

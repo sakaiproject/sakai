@@ -1,3 +1,24 @@
+/**********************************************************************************
+ * $URL$
+ * $Id$
+ ***********************************************************************************
+ *
+ * Copyright (c) 2005, 2006 The Sakai Foundation.
+ * 
+ * Licensed under the Educational Community License, Version 1.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.opensource.org/licenses/ecl1.php
+ * 
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License.
+ *
+ **********************************************************************************/
+
 package org.sakaiproject.portal.service;
 
 import java.util.ConcurrentModificationException;
@@ -31,9 +52,16 @@ import org.sakaiproject.portal.api.StyleAbleProvider;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 
+/**
+ * @author ieb
+ * @since Sakai 2.4
+ * @version $Rev$
+ */
+
 public class PortalServiceImpl implements PortalService
 {
 	private static final Log log = LogFactory.getLog(PortalServiceImpl.class);
+
 	/**
 	 * Parameter to force state reset
 	 */
@@ -45,35 +73,44 @@ public class PortalServiceImpl implements PortalService
 
 	private Map<String, Portal> portals = new HashMap<String, Portal>();
 
-
 	private StyleAbleProvider stylableServiceProvider;
 
-	
-	public void init() {
-		try {
-			try {
-				// configure the parser for castor.. before anything else get a chance
+	public void init()
+	{
+		try
+		{
+			try
+			{
+				// configure the parser for castor.. before anything else get a
+				// chance
 				Properties castorProperties = LocalConfiguration.getDefault();
-				String parser = ServerConfigurationService.getString("sakai.xml.sax.parser","com.sun.org.apache.xerces.internal.parsers.SAXParser");
-				log.info("Configured Castor to use SAX Parser "+parser);
-				castorProperties.put(Property.Parser, parser );
-				} catch ( Exception ex ) {
-					log.error("Failed to configure Castor",ex);
-				}			
-			stylableServiceProvider = (StyleAbleProvider) ComponentManager.get(StyleAbleProvider.class.getName());
-		} catch ( Exception ex ) {
+				String parser = ServerConfigurationService.getString(
+						"sakai.xml.sax.parser",
+						"com.sun.org.apache.xerces.internal.parsers.SAXParser");
+				log.info("Configured Castor to use SAX Parser " + parser);
+				castorProperties.put(Property.Parser, parser);
+			}
+			catch (Exception ex)
+			{
+				log.error("Failed to configure Castor", ex);
+			}
+			stylableServiceProvider = (StyleAbleProvider) ComponentManager
+					.get(StyleAbleProvider.class.getName());
 		}
-		if ( stylableServiceProvider == null ) {
+		catch (Exception ex)
+		{
+		}
+		if (stylableServiceProvider == null)
+		{
 			log.info("No Styleable Provider found, the portal will not be stylable");
 		}
 	}
-	
-	
+
 	public StoredState getStoredState()
 	{
 		Session s = SessionManager.getCurrentSession();
 		StoredState ss = (StoredState) s.getAttribute("direct-stored-state");
-		log.debug("Got Stored State as ["+ss+"]");
+		log.debug("Got Stored State as [" + ss + "]");
 		return ss;
 	}
 
@@ -83,14 +120,15 @@ public class PortalServiceImpl implements PortalService
 		if (s.getAttribute("direct-stored-state") == null || ss == null)
 		{
 			StoredState ssx = (StoredState) s.getAttribute("direct-stored-state");
-			log.debug("Removing Stored state "+ssx);
-			if ( ssx != null ) {
+			log.debug("Removing Stored state " + ssx);
+			if (ssx != null)
+			{
 				Exception ex = new Exception("traceback");
-				log.debug("Removing active Stored State Traceback gives location ",ex);
+				log.debug("Removing active Stored State Traceback gives location ", ex);
 			}
-			
+
 			s.setAttribute("direct-stored-state", ss);
-			log.debug(" Set StoredState as ["+ss+"]");
+			log.debug(" Set StoredState as [" + ss + "]");
 		}
 	}
 
@@ -136,9 +174,9 @@ public class PortalServiceImpl implements PortalService
 
 	public boolean isEnableDirect()
 	{
-		boolean directEnable = "true".equals(ServerConfigurationService.getString("charon.directurl",
-				"true"));
-		log.debug("Direct Enable is "+directEnable);
+		boolean directEnable = "true".equals(ServerConfigurationService.getString(
+				"charon.directurl", "true"));
+		log.debug("Direct Enable is " + directEnable);
 		return directEnable;
 	}
 
@@ -156,7 +194,8 @@ public class PortalServiceImpl implements PortalService
 
 	public StoredState newStoredState(String marker, String replacement)
 	{
-		log.debug("Storing State for Marker=["+marker+"] replacement=["+replacement+"]");
+		log.debug("Storing State for Marker=[" + marker + "] replacement=[" + replacement
+				+ "]");
 		return new StoredStateImpl(marker, replacement);
 	}
 
@@ -457,7 +496,9 @@ public class PortalServiceImpl implements PortalService
 		safePut(portals, portalContext, null);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.portal.api.PortalService#getStylableService()
 	 */
 	public StyleAbleProvider getStylableService()

@@ -50,7 +50,10 @@ import org.sakaiproject.tool.cover.SessionManager;
  * A velocity render engine adapter
  * 
  * @author ieb
+ * @since Sakai 2.4
+ * @version $Rev$
  */
+
 public class VelocityPortalRenderEngine implements PortalRenderEngine
 {
 	private static final Log log = LogFactory.getLog(VelocityPortalRenderEngine.class);
@@ -72,8 +75,9 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 	public void init() throws Exception
 	{
 		styleAble = ServerConfigurationService.getBoolean("portal.styleable", false);
-		styleAbleContentSummary = ServerConfigurationService.getBoolean("portal.styleable.contentSummary", false);
-		
+		styleAbleContentSummary = ServerConfigurationService.getBoolean(
+				"portal.styleable.contentSummary", false);
+
 		vengine = new VelocityEngine();
 
 		vengine.setApplicationAttribute(ServletContext.class.getName(), context);
@@ -85,16 +89,14 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		p.load(this.getClass().getResourceAsStream("portalvelocity.config"));
 		vengine.init(p);
 		availablePortalSkins = new ArrayList();
- 		Map m = new HashMap();
+		Map m = new HashMap();
 		m.put("name", "defaultskin");
 		m.put("display", "Default");
 		availablePortalSkins.add(m);
-/*		
-		m = new HashMap();
-		m.put("name", "skintwo");
-		m.put("display", "Skin Two");
-		availablePortalSkins.add(m);
-*/
+		/*
+		 * m = new HashMap(); m.put("name", "skintwo"); m.put("display", "Skin
+		 * Two"); availablePortalSkins.add(m);
+		 */
 		vengine.getTemplate("/vm/defaultskin/macros.vm");
 
 	}
@@ -168,7 +170,8 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		{
 			skin = "defaultskin";
 		}
-		if ( !"defaultskin".equals(skin) ) {
+		if (!"defaultskin".equals(skin))
+		{
 			vengine.getTemplate("/vm/" + skin + "/macros.vm");
 		}
 		vengine.mergeTemplate("/vm/" + skin + "/" + template + ".vm",
@@ -181,20 +184,22 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		if (styleAble)
 		{
 			StyleAbleProvider sp = portalService.getStylableService();
-			if ( sp != null ) {
-			String userId = getCurrentUserId();
-			try
+			if (sp != null)
 			{
-				
-				return sp.generateStyleSheet(userId);
-//				ca.utoronto.atrc.transformable.common.prefs.Preferences prefsForUser = TransformAblePrefsService
-//						.getTransformAblePreferences(userId);
-//				return StyleAbleService.generateStyleSheet(prefsForUser);
-			}
-			catch (Exception e)
-			{
-				return null;
-			}
+				String userId = getCurrentUserId();
+				try
+				{
+
+					return sp.generateStyleSheet(userId);
+					// ca.utoronto.atrc.transformable.common.prefs.Preferences
+					// prefsForUser = TransformAblePrefsService
+					// .getTransformAblePreferences(userId);
+					// return StyleAbleService.generateStyleSheet(prefsForUser);
+				}
+				catch (Exception e)
+				{
+					return null;
+				}
 			}
 		}
 		return null;
@@ -206,22 +211,24 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 	private String generateStyleAbleJavaScript()
 	{
 		// Enable / disable StyleAble javascript based on property flag.
-		if ( styleAble && styleAbleContentSummary)
+		if (styleAble && styleAbleContentSummary)
 		{
 			StyleAbleProvider sp = portalService.getStylableService();
-			if ( sp != null ) {
-			String userId = getCurrentUserId();
-			try
+			if (sp != null)
 			{
-				return sp.generateJavaScript(userId);
-//				ca.utoronto.atrc.transformable.common.prefs.Preferences prefsForUser = TransformAblePrefsService
-//						.getTransformAblePreferences(userId);
-//				return StyleAbleService.generateJavaScript(prefsForUser);
-			}
-			catch (Exception e)
-			{
-				return null;
-			}
+				String userId = getCurrentUserId();
+				try
+				{
+					return sp.generateJavaScript(userId);
+					// ca.utoronto.atrc.transformable.common.prefs.Preferences
+					// prefsForUser = TransformAblePrefsService
+					// .getTransformAblePreferences(userId);
+					// return StyleAbleService.generateJavaScript(prefsForUser);
+				}
+				catch (Exception e)
+				{
+					return null;
+				}
 			}
 		}
 		return null;
@@ -279,7 +286,9 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		{
 			customUserCss = "<style type=\"text/css\" title=\"StyleAble\">\n"
 					+ customUserCss + "</style>\n";
-		} else {
+		}
+		else
+		{
 			customUserCss = "";
 		}
 		String styleAbleJs = generateStyleAbleJavaScript();
@@ -294,7 +303,7 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 		headCssToolSkin = headCssToolSkin + customUserCss;
 		String headCss = headCssToolBase + headCssToolSkin + customUserCss;
 		String head = headCss + headJs;
-		
+
 		req.setAttribute("sakai.html.head", head);
 		req.setAttribute("sakai.html.head.css", headCss);
 		req.setAttribute("sakai.html.head.js", headJs);
@@ -327,7 +336,7 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 	public void setPortalService(PortalService instance)
 	{
 		this.portalService = instance;
-		
+
 	}
 
 }

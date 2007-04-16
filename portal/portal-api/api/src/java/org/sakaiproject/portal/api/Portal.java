@@ -37,10 +37,12 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
 
 /**
- * This interface represents a portal and is used mainly by portal handlers that 
+ * This interface represents a portal and is used mainly by portal handlers that
  * will not know the details of the portal implimentation.
  * 
  * @author ieb
+ * @since Sakai 2.4
+ * @version $Rev$
  */
 public interface Portal
 {
@@ -55,8 +57,8 @@ public interface Portal
 	public static final int ERROR_WORKSITE = 2;
 
 	/**
-	 * Parameter value to allow anonymous users of gallery mode to be 
-	 * sent to the gateway site as anonymous user (like the /portal URL) instead of 
+	 * Parameter value to allow anonymous users of gallery mode to be sent to
+	 * the gateway site as anonymous user (like the /portal URL) instead of
 	 * making them log in (like worksite, site, and tool URLs).
 	 */
 	public static final String PARAM_FORCE_LOGIN = "force.login";
@@ -69,7 +71,8 @@ public interface Portal
 	public static final String ATTR_ERROR = "org.sakaiproject.portal.error";
 
 	/**
-	 * Session attribute root for storing a site's last page visited - just append the site id.
+	 * Session attribute root for storing a site's last page visited - just
+	 * append the site id.
 	 */
 	public static final String ATTR_SITE_PAGE = "sakai.portal.site.";
 
@@ -84,7 +87,8 @@ public interface Portal
 	public static final String CONFIG_AUTO_RESET = "portal.experimental.auto.reset";
 
 	/**
-	 * Names of tool config/registration attributes that control the rendering of the tool's titlebar
+	 * Names of tool config/registration attributes that control the rendering
+	 * of the tool's titlebar
 	 */
 	public static final String TOOLCONFIG_SHOW_RESET_BUTTON = "reset.button";
 
@@ -143,8 +147,9 @@ public interface Portal
 	 * @param session
 	 *        Current session
 	 * @param returnPath
-	 *        if not null, the path to use for the end-user browser redirect after 
-	 *        the logout is complete. Leave null to use the configured logged out URL.
+	 *        if not null, the path to use for the end-user browser redirect
+	 *        after the logout is complete. Leave null to use the configured
+	 *        logged out URL.
 	 * @throws ToolException
 	 */
 	void doLogout(HttpServletRequest req, HttpServletResponse res, Session session,
@@ -347,11 +352,11 @@ public interface Portal
 			ToolConfiguration placement) throws IOException;
 
 	/**
-	 * Get the context name of the portal. This is the name used to identify the 
-	 * portal implimentation in the portal service and to other parts of the system.
-	 * Typically portals will be registered with the portal service using a name 
-	 * and render engines and
-	 * PortalHandlers will connect to named portals.
+	 * Get the context name of the portal. This is the name used to identify the
+	 * portal implimentation in the portal service and to other parts of the
+	 * system. Typically portals will be registered with the portal service
+	 * using a name and render engines and PortalHandlers will connect to named
+	 * portals.
 	 * 
 	 * @return
 	 */

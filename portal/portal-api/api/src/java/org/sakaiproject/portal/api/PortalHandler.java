@@ -31,11 +31,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.sakaiproject.tool.api.Session;
 
 /**
- * Tools that want to add handlers into the portal URL space may impliment this 
- * interface. The once injected into the portal the portal will invoke the 
+ * Tools that want to add handlers into the portal URL space may impliment this
+ * interface. The once injected into the portal the portal will invoke the
  * register and deregister methods as part of the life cycle.
  * 
  * @author ieb
+ * @since Sakai 2.4
+ * @version $Rev$
  */
 public interface PortalHandler
 {
@@ -61,8 +63,8 @@ public interface PortalHandler
 	public static final int RESET_DONE = 3;
 
 	/**
-	 * Perform a get, the method should inspect parts[] and other parameters to 
-	 * determin if it should perform the operation, returning one of the above 
+	 * Perform a get, the method should inspect parts[] and other parameters to
+	 * determin if it should perform the operation, returning one of the above
 	 * codes
 	 * 
 	 * @param parts
@@ -78,8 +80,8 @@ public interface PortalHandler
 			Session session) throws PortalHandlerException;
 
 	/**
-	 * get the fragment of the URL that represents part[1] and is used to register 
-	 * the handler in the portal.
+	 * get the fragment of the URL that represents part[1] and is used to
+	 * register the handler in the portal.
 	 * 
 	 * @return
 	 */

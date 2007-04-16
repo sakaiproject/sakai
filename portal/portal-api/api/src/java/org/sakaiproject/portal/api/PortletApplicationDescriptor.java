@@ -22,7 +22,15 @@
 package org.sakaiproject.portal.api;
 
 import java.util.Iterator;
-
+/**
+ * Describes a Portlet application when it is loaded into the Web Container
+ * 
+ * @author ieb
+ * @since Sakai 2.4
+ * @version $Rev$
+ * 
+ *
+ */
 public interface PortletApplicationDescriptor
 {
 

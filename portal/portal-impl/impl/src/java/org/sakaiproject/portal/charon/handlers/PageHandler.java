@@ -48,7 +48,11 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
 
 /**
+ * 
  * @author ieb
+ * @since Sakai 2.4
+ * @version $Rev$
+ * 
  */
 public class PageHandler extends BasePortalHandler
 {
@@ -131,7 +135,7 @@ public class PageHandler extends BasePortalHandler
 			// if not logged in, give them a chance
 			if (session.getUserId() == null)
 			{
-				
+
 				StoredState ss = portalService.newStoredState("", "");
 				ss.setRequest(req);
 				ss.setToolContextPath(toolContextPath);
@@ -158,7 +162,8 @@ public class PageHandler extends BasePortalHandler
 
 		portal.sendResponse(rcontext, res, "page", null);
 		StoredState ss = portalService.getStoredState();
-		if (ss != null && toolContextPath.equals(ss.getToolContextPath())) {
+		if (ss != null && toolContextPath.equals(ss.getToolContextPath()))
+		{
 			// This request is the destination of the request
 			portalService.setStoredState(null);
 		}

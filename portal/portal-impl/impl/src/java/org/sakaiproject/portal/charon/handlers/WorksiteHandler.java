@@ -45,7 +45,11 @@ import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.util.Web;
 
 /**
+ * 
  * @author ieb
+ * @since Sakai 2.4
+ * @version $Rev$
+ * 
  */
 public class WorksiteHandler extends PageHandler
 {
@@ -182,7 +186,7 @@ public class WorksiteHandler extends PageHandler
 			// add the page
 			includePage(rcontext, res, req, page, toolContextPath, "content");
 		}
-		
+
 	}
 
 	public void includePageNav(PortalRenderContext rcontext, HttpServletRequest req,
@@ -254,8 +258,10 @@ public class WorksiteHandler extends PageHandler
 				boolean current = (page != null && p.getId().equals(page.getId()) && !p
 						.isPopUp());
 				String pagerefUrl = pageUrl + Web.escapeUrl(p.getId());
-				if ( resetTools ) {
-					pagerefUrl = pagerefUrl.replaceFirst("/"+portalPrefix+"/","/"+portalPrefix+"-reset/");
+				if (resetTools)
+				{
+					pagerefUrl = pagerefUrl.replaceFirst("/" + portalPrefix + "/", "/"
+							+ portalPrefix + "-reset/");
 				}
 
 				if (doPages || p.isPopUp())

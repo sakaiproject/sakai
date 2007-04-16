@@ -22,21 +22,23 @@
 package org.sakaiproject.portal.api;
 
 /**
- * This interface represent the Render Context, it allows the portal implementation 
- * to put values into the render context. There is a utility dump method to dump 
- * the context. Instances of this class should be created per request via an 
- * Implimention of the
- * RenderContextEngine
+ * This interface represent the Render Context, it allows the portal
+ * implementation to put values into the render context. There is a utility dump
+ * method to dump the context. Instances of this class should be created per
+ * request via an Implimention of the RenderContextEngine
  * 
  * @author ieb
+ * @since Sakai 2.4
+ * @version $Rev$
+ * 
  */
 public interface PortalRenderContext
 {
 
 	/**
-	 * Set a value agaaisnt a Key, normally a value might be a String, Collection or 
-	 * a Map, but depending on the render engine technology other objects may be 
-	 * acceptable.
+	 * Set a value agaaisnt a Key, normally a value might be a String,
+	 * Collection or a Map, but depending on the render engine technology other
+	 * objects may be acceptable.
 	 * 
 	 * @param string
 	 * @param value
@@ -44,8 +46,8 @@ public interface PortalRenderContext
 	void put(String string, Object value);
 
 	/**
-	 * Convert the render context to a string suitable for dumping to a log file or 
-	 * console.
+	 * Convert the render context to a string suitable for dumping to a log file
+	 * or console.
 	 * 
 	 * @return
 	 */

@@ -30,7 +30,11 @@ import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.cover.PortalService;
 
 /**
+ * Context Listener for the render engine.
+ * 
  * @author ieb
+ * @since Sakai 2.4
+ * @version $Rev$
  */
 public class PortalRenderEngineContextListener implements ServletContextListener
 {

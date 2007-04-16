@@ -32,7 +32,12 @@ import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.tool.api.Session;
 
 /**
+ * Abstract class to hold common base methods for portal handlers.
+ * 
  * @author ieb
+ * @since Sakai 2.4
+ * @version $Rev$
+ * 
  */
 public abstract class BasePortalHandler implements PortalHandler
 {
@@ -53,7 +58,8 @@ public abstract class BasePortalHandler implements PortalHandler
 	public abstract int doGet(String[] parts, HttpServletRequest req,
 			HttpServletResponse res, Session session) throws PortalHandlerException;
 
-	// TODO: Go through and make sure to remove and test the mistaken code that simply
+	// TODO: Go through and make sure to remove and test the mistaken code that
+	// simply
 	// calls doGet in doPost()
 	public int doPost(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException

@@ -38,6 +38,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -61,8 +62,8 @@ import org.sakaiproject.portal.charon.handlers.LogoutHandler;
 import org.sakaiproject.portal.charon.handlers.NavLoginGalleryHandler;
 import org.sakaiproject.portal.charon.handlers.NavLoginHandler;
 import org.sakaiproject.portal.charon.handlers.OpmlHandler;
-import org.sakaiproject.portal.charon.handlers.PageHandler;
 import org.sakaiproject.portal.charon.handlers.PDAHandler;
+import org.sakaiproject.portal.charon.handlers.PageHandler;
 import org.sakaiproject.portal.charon.handlers.PresenceHandler;
 import org.sakaiproject.portal.charon.handlers.ReLoginHandler;
 import org.sakaiproject.portal.charon.handlers.RssHandler;
@@ -97,7 +98,6 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.util.BasicAuth;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
@@ -106,6 +106,10 @@ import org.sakaiproject.util.Web;
 /**
  * <p/> Charon is the Sakai Site based portal.
  * </p>
+ * 
+ * @since Sakai 2.4
+ * @version $Rev$
+ * 
  */
 public class SkinnableCharonPortal extends HttpServlet implements Portal
 {
@@ -452,7 +456,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			return null;
 		}
 
-		// Get the Site - we could change the API call in the future to 
+		// Get the Site - we could change the API call in the future to
 		// pass site in, but that would break portals that extend Charon
 		// so for now we simply look this up here.
 		String siteId = placement.getSiteId();
@@ -543,17 +547,19 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		RenderResult result = ToolRenderService.render(placement, req, res,
 				getServletContext());
 
-		if ( result.getJSR168HelpUrl() != null ) 
+		if (result.getJSR168HelpUrl() != null)
 		{
-			toolMap.put("toolJSR168Help",Web.serverUrl(req)+result.getJSR168HelpUrl());
+			toolMap.put("toolJSR168Help", Web.serverUrl(req) + result.getJSR168HelpUrl());
 		}
 
 		// Must have site.upd to see the Edit button
-		if ( result.getJSR168EditUrl() != null && site != null ) 
+		if (result.getJSR168EditUrl() != null && site != null)
 		{
-			if ( SecurityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference()))
+			if (SecurityService.unlock(SiteService.SECURE_UPDATE_SITE, site
+					.getReference()))
 			{
-				toolMap.put("toolJSR168Edit",Web.serverUrl(req)+result.getJSR168EditUrl());
+				toolMap.put("toolJSR168Edit", Web.serverUrl(req)
+						+ result.getJSR168EditUrl());
 			}
 		}
 
@@ -589,7 +595,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			Site s = (Site) i.next();
 
 			// The first site is the current site
-			if ( currentSiteId == null ) currentSiteId = s.getId();
+			if (currentSiteId == null) currentSiteId = s.getId();
 
 			Map m = convertSiteToMap(req, s, prefix, currentSiteId, myWorkspaceSiteId,
 					includeSummary, expandSite, resetTools, doPages, toolContextPath,
@@ -624,9 +630,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		// In case the effective is different than the actual site
 		String effectiveSite = siteHelper.getSiteEffectiveId(s);
 		m.put("isCurrentSite", Boolean.valueOf(currentSiteId != null
-		    && (s.getId().equals(currentSiteId) || effectiveSite.equals(currentSiteId))));
+				&& (s.getId().equals(currentSiteId) || effectiveSite
+						.equals(currentSiteId))));
 		m.put("isMyWorkspace", Boolean.valueOf(myWorkspaceSiteId != null
-		    && (s.getId().equals(myWorkspaceSiteId) || effectiveSite.equals(myWorkspaceSiteId))));
+				&& (s.getId().equals(myWorkspaceSiteId) || effectiveSite
+						.equals(myWorkspaceSiteId))));
 		m.put("siteTitle", Web.escapeHtml(s.getTitle()));
 		m.put("siteDescription", Web.escapeHtml(s.getDescription()));
 		String siteUrl = Web.serverUrl(req)
@@ -675,7 +683,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// Check to see if the pre-process step has redirected us - if so,
 			// our work is done here - we will likely come back again to finish
 			// our
-			// work. 
+			// work.
 			if (res.isCommitted())
 			{
 				return;
@@ -708,11 +716,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			if (ph != null)
 			{
 				stat = ph.doGet(parts, req, res, session);
-				if ( res.isCommitted() ) {
-                                        if (stat != PortalHandler.RESET_DONE)
-                                        {
-                                                portalService.setResetState(null);
-                                        }
+				if (res.isCommitted())
+				{
+					if (stat != PortalHandler.RESET_DONE)
+					{
+						portalService.setResetState(null);
+					}
 					return;
 				}
 			}
@@ -725,11 +734,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				{
 					ph = i.next();
 					stat = ph.doGet(parts, req, res, session);
-					if ( res.isCommitted() ) {
-                                                if (stat != PortalHandler.RESET_DONE)
-                                                {
-                                                        portalService.setResetState(null);
-                                                }
+					if (res.isCommitted())
+					{
+						if (stat != PortalHandler.RESET_DONE)
+						{
+							portalService.setResetState(null);
+						}
 						return;
 					}
 					// this should be
@@ -894,7 +904,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			basicAuth.doLogin(req);
 			if (!ToolRenderService.preprocess(req, res, getServletContext()))
 			{
-				//System.err.println("POST FAILED, REDIRECT ?");
+				// System.err.println("POST FAILED, REDIRECT ?");
 				return;
 			}
 
@@ -902,8 +912,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// our work is done here - we will likely come back again to finish
 			// our
 			// work. T
-	
-			if (res.isCommitted() )
+
+			if (res.isCommitted())
 			{
 				return;
 			}
@@ -930,7 +940,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			if (ph != null)
 			{
 				stat = ph.doPost(parts, req, res, session);
-				if ( res.isCommitted() ) {
+				if (res.isCommitted())
+				{
 					return;
 				}
 			}
@@ -943,7 +954,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				{
 					ph = i.next();
 					stat = ph.doPost(parts, req, res, session);
-					if ( res.isCommitted() ) {
+					if (res.isCommitted())
+					{
 						return;
 					}
 					// this should be
@@ -951,7 +963,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 					{
 						break;
 					}
-					
+
 				}
 			}
 			if (stat == PortalHandler.NEXT)
@@ -966,16 +978,14 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 	}
 
-
-	/* 
+	/*
 	 * Checks to see which form of tool or page placement we have. The normal
-	 * placement is a GUID. However when the parameter sakai.site is 
-	 * added to the request, the placement can be of the form 
-	 * sakai.resources. This routine determines which form of the
-	 * placement id, and if this is the second type, performs the lookup and
-	 * returns the GUID of the placement. If we cannot resolve the 
-	 * placement, we simply return the passed in placement ID. 
-	 * If we cannot visit the site, we send the user to login
+	 * placement is a GUID. However when the parameter sakai.site is added to
+	 * the request, the placement can be of the form sakai.resources. This
+	 * routine determines which form of the placement id, and if this is the
+	 * second type, performs the lookup and returns the GUID of the placement.
+	 * If we cannot resolve the placement, we simply return the passed in
+	 * placement ID. If we cannot visit the site, we send the user to login
 	 * processing and return null to the caller.
 	 */
 
@@ -1090,7 +1100,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			}
 			else
 			{
-				M_log.debug("Restoring StoredState ["+ss+"]");
+				M_log.debug("Restoring StoredState [" + ss + "]");
 				HttpServletRequest sreq = ss.getRequest(req);
 				Placement splacement = ss.getPlacement();
 				String stoolContext = ss.getToolContextPath();
@@ -1100,7 +1110,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				setupForward(sreq, res, splacement, sskin);
 				req.setAttribute(ToolURL.MANAGER, new ToolURLManagerImpl(res));
 				stool.forward(sreq, res, splacement, stoolContext, stoolPathInfo);
-				// this is correct as we have checked the context path of the tool
+				// this is correct as we have checked the context path of the
+				// tool
 				portalService.setStoredState(null);
 			}
 		}

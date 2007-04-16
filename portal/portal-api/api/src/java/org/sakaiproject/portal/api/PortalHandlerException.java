@@ -25,6 +25,8 @@ package org.sakaiproject.portal.api;
  * Throw when a portal handler fails to handle a request
  * 
  * @author ieb
+ * @since Sakai 2.4
+ * @version $Rev$
  */
 public class PortalHandlerException extends Exception
 {
@@ -34,7 +36,6 @@ public class PortalHandlerException extends Exception
 	 */
 	public PortalHandlerException()
 	{
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -43,7 +44,6 @@ public class PortalHandlerException extends Exception
 	public PortalHandlerException(String arg0)
 	{
 		super(arg0);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -52,7 +52,6 @@ public class PortalHandlerException extends Exception
 	public PortalHandlerException(Throwable arg0)
 	{
 		super(arg0);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -62,7 +61,6 @@ public class PortalHandlerException extends Exception
 	public PortalHandlerException(String arg0, Throwable arg1)
 	{
 		super(arg0, arg1);
-		// TODO Auto-generated constructor stub
 	}
 
 }

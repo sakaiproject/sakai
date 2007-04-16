@@ -34,7 +34,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
+ * Handler to process static content with an internal, in memory cache.
+ * Care should be taken not to put large volumes of static content within the 
+ * portal space that is handled by this Handler as it will lead to increased
+ * memory usage.
+ * 
  * @author ieb
+ * @since Sakai 2.4
+ * @version $Rev$
+ * 
  */
 public abstract class StaticHandler extends BasePortalHandler
 {
@@ -56,8 +64,7 @@ public abstract class StaticHandler extends BasePortalHandler
 		catch (IOException e)
 		{
 			throw new RuntimeException(
-					"Failed to load Static Content Types (staticcontenttypes.config) ",
-					e);
+					"Failed to load Static Content Types (staticcontenttypes.config) ", e);
 		}
 
 	}
