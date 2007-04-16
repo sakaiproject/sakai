@@ -184,7 +184,7 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 
 		// get the URL and resource name.
 		// StringBuffer buf = new StringBuffer();
-		String url = ServerConfigurationService.getAccessUrl() + ref.getUrl() + "html"; //$NON-NLS-1$
+		String url = ref.getUrl() + "html"; //$NON-NLS-1$
 
 		String pageName = props.getProperty(RWikiEntity.RP_NAME);
 		String realm = props.getProperty(RWikiEntity.RP_REALM);
@@ -217,6 +217,8 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 				+ ")  " + " \n" + " \n" + Messages.getString("SiteEmailNotificationRWiki.13") + title + "\" > Wiki  > " + localName + "\n" + Messages.getString("SiteEmailNotificationRWiki.16") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$
 				+ moddate + "\n" + Messages.getString("SiteEmailNotificationRWiki.18") + user + "\n" + " \n" + " 	Page: " + localName + " " + url + " \n" + " \n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
 				+ Messages.getString("SiteEmailNotificationRWiki.4") + content + "\n"; //$NON-NLS-1$ //$NON-NLS-2$
+		
+		log.error("Message is "+message);
 
 		return message;
 	}
