@@ -564,6 +564,10 @@
       <from-outcome>discrepancyInData</from-outcome>
       <to-view-id>/jsf/delivery/discrepancyInData.jsp</to-view-id>
     </navigation-case>
+    <navigation-case>
+      <from-outcome>assessmentNotAvailable</from-outcome>
+      <to-view-id>/jsf/delivery/assessmentNotAvailable.jsp</to-view-id>
+    </navigation-case>
   </navigation-rule>
 
   <!-- INDEX -->

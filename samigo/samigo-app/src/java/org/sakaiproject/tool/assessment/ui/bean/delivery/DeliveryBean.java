@@ -2481,6 +2481,12 @@ public class DeliveryBean
                           getPublishedAssessment().getPublishedAssessmentId().toString())).intValue();
     log.debug("***totalSubmitted="+totalSubmitted);
 
+    log.debug("check 0");
+    // check 0: check for start date
+    if (!isAvailable()){
+      return ("assessmentNotAvailable");
+    }
+    
     log.debug("check 1");
     // check 1: check for multiple window & browser trick 
     if (assessmentGrading!=null && !checkDataIntegrity(assessmentGrading)){
@@ -2549,6 +2555,16 @@ public class DeliveryBean
     return hasSubmissionLeft;
   }
 
+  private boolean isAvailable(){
+	  boolean isAvailable = true;
+	  Date currentDate = new Date();
+	  Date startDate = publishedAssessment.getAssessmentAccessControl().getStartDate();
+	  if (startDate != null && startDate.after(currentDate)){
+		  isAvailable = false;
+	  }
+	  return isAvailable;
+  }
+  
   private boolean pastDueDate(){
     boolean pastDue = true;
     Date currentDate = new Date();
