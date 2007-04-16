@@ -188,8 +188,7 @@ function redirectBasedOnSelection(){
 				#end
 			</select> 
 		</p>
-		#end
-
+		#else
 		<table>
 			<tr>
 			<td>
@@ -214,7 +213,7 @@ function redirectBasedOnSelection(){
 			</td>
 			</tr>
 		</table>
-
+		#end
 
 
 			#if ($!termCourseList)
