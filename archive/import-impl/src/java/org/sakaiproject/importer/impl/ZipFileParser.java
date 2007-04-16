@@ -100,6 +100,10 @@ public abstract class ZipFileParser implements ImportFileParser {
 	      while (entry != null)
 	      {
 	        String zipName = entry.getName();
+	        // figure out if the manifest file is buried somewhere below the top of the archive
+	        if (zipName.endsWith("imsmanifest.xml") && !zipName.startsWith("imsmanifest.xml")) {
+	        	localArchiveLocation += "/" + zipName.substring(0, zipName.lastIndexOf("/"));
+	        }
 	        
 	        //for attachment type files
 	            // Get the directory part.
@@ -153,7 +157,7 @@ public abstract class ZipFileParser implements ImportFileParser {
 			entry = (ZipEntry) zipStream.getNextEntry();
 		    while (entry != null) {
 		    	entryName = entry.getName();
-		    	if (entryName.equals(pathAndFilename)) return true;
+		    	if (entryName.endsWith(pathAndFilename)) return true;
 		    	entry = (ZipEntry) zipStream.getNextEntry();
 		    }
 		    return false;
@@ -175,7 +179,7 @@ public abstract class ZipFileParser implements ImportFileParser {
 			entry = (ZipEntry) zipStream.getNextEntry();
 		    while (entry != null) {
 		    	entryName = entry.getName();
-		    	if (entryName.equals(pathAndFilename)) {
+		    	if (entryName.endsWith(pathAndFilename)) {
 		            return (Document) docBuilder.parse(zipStream);
 		    	}
 		    	entry = (ZipEntry) zipStream.getNextEntry();

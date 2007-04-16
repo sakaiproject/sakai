@@ -46,6 +46,7 @@ import org.w3c.dom.NodeList;
 public abstract class IMSFileParser extends ZipFileParser {
 	protected Map resourceMap = new HashMap();
 	protected Map translatorMap = new HashMap();
+	protected Map dependencies = new HashMap();
 	protected Document archiveManifest;
 	protected ResourceHelper resourceHelper;
 	protected ItemHelper itemHelper;
@@ -201,7 +202,15 @@ public abstract class IMSFileParser extends ZipFileParser {
 				processResourceChildren = translator.processResourceChildren();
 			}
 			if (resource != null) {
-				if (parent != null) {
+				// make a note of a dependency if there is one.
+				String dependency = resourceHelper.getDependency(node);
+				if (!"".equals(dependency)) {
+					dependencies.put(resourceHelper.getId(node), dependency);
+				}
+//				 find out if something depends on this.
+				if (dependencies.containsValue(resourceHelper.getId(node))) {
+					resource.setLegacyGroup("mandatory");
+				} else if (parent != null) {
 					resource.setParent(parent);
 					resource.setLegacyGroup(parent.getLegacyGroup());
 				} else resource.setLegacyGroup(resourceHelper.getTitle(node));
@@ -244,7 +253,12 @@ public abstract class IMSFileParser extends ZipFileParser {
 		translatorMap.put(t.getTypeName(), t);
 	}
 	
-	protected abstract class ResourceHelper implements ManifestResource {}
+	protected abstract class ResourceHelper implements ManifestResource {
+
+		public String getDependency(Node node) {
+			return XPathHelper.getNodeValue("./dependency/@identifierref", node);
+		}
+	}
 	
 	protected abstract class ItemHelper implements ManifestItem {
 		

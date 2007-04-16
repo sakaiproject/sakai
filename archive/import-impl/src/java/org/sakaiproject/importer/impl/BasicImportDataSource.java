@@ -56,7 +56,7 @@ public class BasicImportDataSource implements ImportDataSource {
 		Importable item;
 		for(Iterator iter = items.iterator(); iter.hasNext();) {
 			item = (Importable)iter.next();
-			if("".equals(item.getLegacyGroup()) || selectedCategories.contains(item.getLegacyGroup())) {
+			if("mandatory".equals(item.getLegacyGroup()) || "".equals(item.getLegacyGroup()) || selectedCategories.contains(item.getLegacyGroup())) {
 				rv.add(item);
 			}
 		}

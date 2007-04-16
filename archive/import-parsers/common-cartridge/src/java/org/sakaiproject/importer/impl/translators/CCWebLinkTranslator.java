@@ -43,7 +43,7 @@ public class CCWebLinkTranslator implements IMSResourceTranslator {
 			String contextPath, String archiveBasePath) {
 		WebLink rv = new WebLink();
 		String url = XPathHelper.getNodeValue("//url/@href", descriptor);
-		String title = XPathHelper.getNodeValue("//title", descriptor);
+		String title = ((Element)resourceNode).getAttribute("title");
 		int priority = Integer.parseInt(((Element)resourceNode).getAttribute("priority"));
 		rv.setTitle(title);
 		rv.setUrl(url);

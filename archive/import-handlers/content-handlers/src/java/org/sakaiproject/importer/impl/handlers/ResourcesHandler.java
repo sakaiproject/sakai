@@ -252,12 +252,10 @@ public class ResourcesHandler implements HandlesImportable {
 				String value = (String)properties.get(key);
 				resourceProps.addProperty(key, value);
 			}
-//			String enclosingDirectory = id.substring(0, id.lastIndexOf('/', id.length() - 2) + 1);
-//			if(!existsDirectory(enclosingDirectory)) {
-//				Map props = new HashMap();
-//				props.put(ResourceProperties.PROP_DISPLAY_NAME, enclosingDirectory.substring(enclosingDirectory.lastIndexOf('/') + 1, enclosingDirectory.length()));
-//				addContentCollection(enclosingDirectory, props);
-//			}
+			String enclosingDirectory = id.substring(0, id.lastIndexOf('/', id.length() - 2) + 1);
+			if(existsDirectory(enclosingDirectory)) {
+				ContentHostingService.addProperty(enclosingDirectory, ResourceProperties.PROP_HAS_CUSTOM_SORT, Boolean.TRUE.toString());
+			}
 			ContentHostingService.addResource(id, contentType, contents, resourceProps, notifyOption);
 		} catch (PermissionException e) {
 			m_log.error("ResourcesHandler.addContentResource: " + e.toString());
@@ -275,6 +273,15 @@ public class ResourcesHandler implements HandlesImportable {
 		} catch (ServerOverloadException e) {
 //			TODO Auto-generated catch block
             e.printStackTrace();
+		} catch (IdUnusedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TypeException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InUseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		
 	}
