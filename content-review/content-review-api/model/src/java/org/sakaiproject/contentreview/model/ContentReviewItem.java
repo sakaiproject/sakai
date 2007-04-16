@@ -44,7 +44,7 @@ public class ContentReviewItem {
 	public static final String REPORT_ERROR_NO_RETRY = "Error occurred retrieving report - will not retry";
 	public static final Long REPORT_ERROR_NO_RETRY_CODE = new Long(8);
 	
-	public static final Long SUMBISSION_ERROR_RETRY_EXCEEDED = new Long(9);
+	public static final Long SUBMISSION_ERROR_RETRY_EXCEEDED = new Long(9);
 	
 	private long id; //hibernate uses this as a primary key
 	private String contentId; //Sakai contentId
