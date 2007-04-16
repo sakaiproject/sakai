@@ -5,7 +5,7 @@
    xmlns:ResourceBundle="http://xml.apache.org/xalan/java/java.util.ResourceBundle"
 	version="1.0">
 
-<xsl:param name="rb"/>
+<xsl:param name="sched"/>
         
 <xsl:template match="schedule">
 <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
@@ -40,7 +40,7 @@
             color="black"
             text-align="left"
             padding-top="0pt">
-		<xsl:value-of select="ResourceBundle:getString($rb, 'sched.for')"/><xsl:text> </xsl:text><xsl:value-of select="uid"/> - <fo:page-number/> 
+		<xsl:value-of select="$sched"/><xsl:text> </xsl:text><xsl:value-of select="uid"/> - <fo:page-number/> 
     	</fo:block>    	
    </fo:static-content> 
 	  

@@ -5,7 +5,29 @@
    xmlns:ResourceBundle="http://xml.apache.org/xalan/java/java.util.ResourceBundle"
 	version="1.0">
 
-<xsl:param name="rb"/>
+<xsl:param name="sun"/>
+<xsl:param name="mon"/>
+<xsl:param name="tues"/>
+<xsl:param name="wed"/>
+<xsl:param name="thurs"/>
+<xsl:param name="fri"/>
+<xsl:param name="sat"/>
+
+<xsl:param name="jan"/>
+<xsl:param name="feb"/>
+<xsl:param name="mar"/>
+<xsl:param name="apr"/>
+<xsl:param name="may"/>
+<xsl:param name="jun"/>
+<xsl:param name="jul"/>
+<xsl:param name="aug"/>
+<xsl:param name="sep"/>
+<xsl:param name="oct"/>
+<xsl:param name="nov"/>
+<xsl:param name="dec"/>
+
+<xsl:param name="sched"/>
+
 <xsl:variable name="initday" select="schedule/month/@startdayweek"/>
 <xsl:variable name="cols" select="7"/>
 <xsl:template match="/">
@@ -43,7 +65,7 @@
             color="black"
             text-align="center"
             padding-top="0pt">      
-         <xsl:value-of select="ResourceBundle:getString($rb, 'sched.for')"/><xsl:text> </xsl:text><xsl:value-of select="schedule/uid"/> 
+         <xsl:value-of select="$sched"/><xsl:text> </xsl:text><xsl:value-of select="schedule/uid"/> 
            - <xsl:call-template name="prMonth">
            	 <xsl:with-param name="dt" select="schedule/list[1]/@dt"/>
            </xsl:call-template>
@@ -72,13 +94,13 @@
 		<fo:table-column column-width="proportional-column-width(1)" number-columns-repeated="{$cols}"/>
 		<fo:table-body>
       	 <fo:table-row line-height="10pt" >
-    		<fo:table-cell><fo:block text-align="center"><xsl:value-of select="ResourceBundle:getString($rb, 'day.sun')"/> </fo:block></fo:table-cell>
-     		<fo:table-cell><fo:block text-align="center"><xsl:value-of select="ResourceBundle:getString($rb, 'day.mon')"/> </fo:block></fo:table-cell>
-     		<fo:table-cell><fo:block text-align="center"><xsl:value-of select="ResourceBundle:getString($rb, 'day.tues')"/> </fo:block></fo:table-cell>
-    		<fo:table-cell><fo:block text-align="center"><xsl:value-of select="ResourceBundle:getString($rb, 'day.wed')"/> </fo:block></fo:table-cell>
-    		<fo:table-cell><fo:block text-align="center"><xsl:value-of select="ResourceBundle:getString($rb, 'day.thurs')"/> </fo:block></fo:table-cell>
-     		<fo:table-cell><fo:block text-align="center"><xsl:value-of select="ResourceBundle:getString($rb, 'day.fri')"/> </fo:block></fo:table-cell>
-    		<fo:table-cell><fo:block text-align="center"><xsl:value-of select="ResourceBundle:getString($rb, 'day.sat')"/> </fo:block></fo:table-cell>
+    		<fo:table-cell><fo:block text-align="center"><xsl:value-of select="$sun"/> </fo:block></fo:table-cell>
+     		<fo:table-cell><fo:block text-align="center"><xsl:value-of select="$mon"/> </fo:block></fo:table-cell>
+     		<fo:table-cell><fo:block text-align="center"><xsl:value-of select="$tues"/> </fo:block></fo:table-cell>
+    		<fo:table-cell><fo:block text-align="center"><xsl:value-of select="$wed"/> </fo:block></fo:table-cell>
+    		<fo:table-cell><fo:block text-align="center"><xsl:value-of select="$thurs"/> </fo:block></fo:table-cell>
+     		<fo:table-cell><fo:block text-align="center"><xsl:value-of select="$fri"/> </fo:block></fo:table-cell>
+    		<fo:table-cell><fo:block text-align="center"><xsl:value-of select="$sat"/> </fo:block></fo:table-cell>
           </fo:table-row>
    		  <!-- set table height to keep most monthly calendar in  one page -->
    		  <xsl:variable name="lineHeight">
@@ -268,18 +290,18 @@
 	<xsl:variable name="yy" select="substring-after(substring-after($dt, '/'), '/')"/>
 	
 	<xsl:choose>
-	<xsl:when test="$mm=1"><xsl:value-of select="ResourceBundle:getString($rb, 'month.jan')"/></xsl:when>   
-   	<xsl:when test="$mm=2"><xsl:value-of select="ResourceBundle:getString($rb, 'month.feb')"/></xsl:when>    
-   	<xsl:when test="$mm=3"><xsl:value-of select="ResourceBundle:getString($rb, 'month.mar')"/></xsl:when>   
-    <xsl:when test="$mm=4"><xsl:value-of select="ResourceBundle:getString($rb, 'month.apr')"/></xsl:when>   
-    <xsl:when test="$mm=5"><xsl:value-of select="ResourceBundle:getString($rb, 'month.may')"/></xsl:when>   
-    <xsl:when test="$mm=6"><xsl:value-of select="ResourceBundle:getString($rb, 'month.jun')"/></xsl:when>
-    <xsl:when test="$mm=7"><xsl:value-of select="ResourceBundle:getString($rb, 'month.jul')"/></xsl:when>
-   	<xsl:when test="$mm=8"><xsl:value-of select="ResourceBundle:getString($rb, 'month.aug')"/></xsl:when>
-   	<xsl:when test="$mm=9"><xsl:value-of select="ResourceBundle:getString($rb, 'month.sep')"/></xsl:when>
-  	<xsl:when test="$mm=10"><xsl:value-of select="ResourceBundle:getString($rb, 'month.oct')"/></xsl:when>
-   	<xsl:when test="$mm=11"><xsl:value-of select="ResourceBundle:getString($rb, 'month.nov')"/></xsl:when>
-   	<xsl:when test="$mm=12"><xsl:value-of select="ResourceBundle:getString($rb, 'month.dec')"/></xsl:when>	
+	<xsl:when test="$mm=1"><xsl:value-of select="$jan"/></xsl:when>	  
+	<xsl:when test="$mm=2"><xsl:value-of select="$feb"/></xsl:when>		
+	<xsl:when test="$mm=3"><xsl:value-of select="$mar"/></xsl:when>	  
+	<xsl:when test="$mm=4"><xsl:value-of select="$apr"/></xsl:when>	
+	<xsl:when test="$mm=5"><xsl:value-of select="$may"/></xsl:when>	
+	<xsl:when test="$mm=6"><xsl:value-of select="$jun"/></xsl:when>
+	<xsl:when test="$mm=7"><xsl:value-of select="$jul"/></xsl:when>
+	<xsl:when test="$mm=8"><xsl:value-of select="$aug"/></xsl:when>
+	<xsl:when test="$mm=9"><xsl:value-of select="$sep"/></xsl:when>
+	<xsl:when test="$mm=10"><xsl:value-of select="$oct"/></xsl:when>
+	<xsl:when test="$mm=11"><xsl:value-of select="$nov"/></xsl:when>
+	<xsl:when test="$mm=12"><xsl:value-of select="$dec"/></xsl:when>	
 	<xsl:otherwise> </xsl:otherwise>
 	</xsl:choose>
    <xsl:text> </xsl:text>

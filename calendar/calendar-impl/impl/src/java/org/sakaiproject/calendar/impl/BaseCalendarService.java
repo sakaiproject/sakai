@@ -5620,8 +5620,9 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 			Source src = new DOMSource(doc);
 
-			// Kludge: Xalan does not properly interpret ResourceLoader object
+			// Kludge: Xalan in JDK 1.4/1.5 does not properly resolve java.util.ResourceBundle
 			// when passed as parameter, so here we fetch each of the localized strings
+         // Should be able to clean this up in JDK 1.6 and just pass correct ResourceBundle
 			transformer.setParameter("sun", rb.getString("day.sun"));
 			transformer.setParameter("mon", rb.getString("day.mon"));
 			transformer.setParameter("tues", rb.getString("day.tues"));
@@ -5629,6 +5630,20 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			transformer.setParameter("thurs", rb.getString("day.thurs"));
 			transformer.setParameter("fri", rb.getString("day.fri"));
 			transformer.setParameter("sat", rb.getString("day.sat"));
+         
+			transformer.setParameter("jan", rb.getString("month.jan"));
+			transformer.setParameter("feb", rb.getString("month.feb"));
+			transformer.setParameter("mar", rb.getString("month.mar"));
+			transformer.setParameter("apr", rb.getString("month.apr"));
+			transformer.setParameter("may", rb.getString("month.may"));
+			transformer.setParameter("jun", rb.getString("month.jun"));
+			transformer.setParameter("jul", rb.getString("month.jul"));
+			transformer.setParameter("aug", rb.getString("month.aug"));
+			transformer.setParameter("sep", rb.getString("month.sep"));
+			transformer.setParameter("oct", rb.getString("month.oct"));
+			transformer.setParameter("nov", rb.getString("month.nov"));
+			transformer.setParameter("dec", rb.getString("month.dec"));
+         
 			transformer.setParameter("sched", rb.getString("sched.for"));
 			transformer.transform(src, new SAXResult(driver.getContentHandler()));
 		}
