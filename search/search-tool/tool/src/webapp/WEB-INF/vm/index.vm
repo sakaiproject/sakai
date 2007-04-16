@@ -46,7 +46,7 @@
  #if ( ${searchModel.hasResults()} ) 
     <div class="searchPageContainer" >
   #foreach ( $page in ${searchModel.pages} )
-							<a href="${page.url}" class="searchPage" >${page.name}</a></li>
+							<a href="${page.url}" class="searchPage" >${page.name}</a>
   #end
     </div>
     <div class="searchTabsContainer" >
@@ -89,7 +89,7 @@
     </div>
     <div class="searchPageContainer" >
   #foreach ( $page in ${searchModel.pages} )
-		     <a href="${page.url}" class="searchPage" >${page.name}</a></li>
+		     <a href="${page.url}" class="searchPage" >${page.name}</a>
   #end
     </div>
   #else
