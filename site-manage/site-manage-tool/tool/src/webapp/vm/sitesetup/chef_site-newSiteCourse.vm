@@ -149,74 +149,70 @@ function redirectBasedOnSelection(){
 	</p>
 	<form name = "addCourseForm" method="post" action="#toolForm($action)">
 
-		<h4>		
-			$tlang.getString("nscourse.cinfo")
-		</h4>	
-		$tlang.getString("nscourse.already")
-		<ul>
-			#foreach($id in $!providerCourseList)
-				<li>
-					<label for = "$id">
-						$id
-					</label>
-				</li>
-			#end
-			#foreach($id in $!requestedCourseList)
-				<li>
-					<label for = "$id">
-						$id
-					</label>
-				</li>
-			#end
-		</ul>
-
-		 #if ($site)
-		<p class="shorttext  required">
-			<span class ="reqStar">*</span>
-			<label for="selectTerm">
-				$tlang.getString("nscourse.acad2")
-			</label>	
-			<select name="selectTerm" id="selectTerm" onchange="javascript:document.addCourseForm.option.value='change';document.addCourseForm.submit();">
-				#foreach($t in $termList)
-					<option value ="$t.eid"
-						#if($t.eid == $term.eid)
-							selected="selected"
+			#if (!$site)
+				<table>
+				<tr>
+					<td>
+						<b>$tlang.getString("nscourse.current_displaying_courses_sections_for_id")</b>
+					</td>
+					<td>
+						<input type="text" name="userId" value="$userId"/>
+						<input type="hidden" name="itemType" value="course" />
+						<input type="hidden" name="selectTerm" value="$term.eid" />
+						<input type="submit" accesskey="s"  class="act" name="eventSubmit_doChange_user" value="$tlang.getString("nscourse.change_button")"
+					onsubmit="javascript:submitChangeUser()" />
+					</td>
+				</tr>
+				<tr>
+					<td></td>
+					<td>
+						<small>$tlang.getString("nscourse.change_this_ID")</br>
+								#if ($campusDirectory)
+							   		<p><a href="#" onclick="javascript:window.open('$campusDirectory','new_window'); return false;">$tlang.getString("nscourse.look_up_an_username")...</a></p>
+								#end
+						</small>
+					</td>
+				</tr>
+				</table>
+			#else
+			<h4>		
+				$tlang.getString("nscourse.cinfo")
+			</h4>	
+				$tlang.getString("nscourse.already")
+				<ul>
+					#foreach($id in $!providerCourseList)
+						<li>
+							<label for = "$id">
+								$id
+							</label>
+						</li>
+					#end
+					#foreach($id in $!requestedCourseList)
+						<li>
+							<label for = "$id">
+								$id
+							</label>
+						</li>
+					#end
+				</ul>
+				<p class="shorttext  required">
+					<span class ="reqStar">*</span>
+					<label for="selectTerm">
+						$tlang.getString("nscourse.acad2")
+					</label>	
+					<select name="selectTerm" id="selectTerm" onchange="javascript:document.addCourseForm.option.value='change';document.addCourseForm.submit();">
+						#foreach($t in $termList)
+							<option value ="$t.eid"
+								#if($t.eid == $term.eid)
+									selected="selected"
+								#end
+							>
+							$t.title
+							</option>
 						#end
-					>
-					$t.title
-					</option>
-				#end
-			</select> 
-		</p>
-		#end
-
-		<table>
-			<tr>
-			<td>
-				<b>$tlang.getString("nscourse.current_displaying_courses_sections_for_id")</b>
-			</td>
-			<td>
-				<input type="text" name="userId" value="$userId"/>
-				<input type="hidden" name="itemType" value="course" />
-				<input type="hidden" name="selectTerm" value="$term.eid" />
-				<input type="submit" accesskey="s"  class="act" name="eventSubmit_doChange_user" value="$tlang.getString("nscourse.change_button")"
-				onsubmit="javascript:submitChangeUser()" />
-			</td>
-			</tr>
-			<tr>
-			<td></td>
-			<td>
-				<small>$tlang.getString("nscourse.change_this_ID")</br>
-				#if ($campusDirectory)
-			   		<p><a href="#" onclick="javascript:window.open('$campusDirectory','new_window'); return false;">$tlang.getString("nscourse.look_up_an_username")...</a></p>
-				#end
-				</small>
-			</td>
-			</tr>
-		</table>
-
-
-
+					</select> 
+				</p>
+			#end
 			#if ($!termCourseList)
 				#if ($!providerCourseList.size() != 0 || $!requestedCourseList.size() != 0)
 					<p class="instruction">$tlang.getString("nscourse.youmay")</p>
@@ -254,10 +250,10 @@ function redirectBasedOnSelection(){
 									&nbsp;&nbsp;
 								#end
 								<input type="checkbox" name="providerCourseAdd" value="$sectionObject.eid" id="course$courseNumber"
-								#if ($!selectedProviderCourse.contains("$sectionObject.eid") || $!selectedAuthorizerCourse.contains("$sectionObject.eid") )
+								#if ($!selectedProviderCourse.contains("$sectionObject.eid"))
 									checked
 								#end 
-								#if ((!$!selectedProviderCourse.contains("$sectionObject.eid") || !$!selectedAuthorizerCourse.contains("$sectionObject.eid")) && $sectionObject.attached)
+								#if (!$!selectedProviderCourse.contains("$sectionObject.eid") && $sectionObject.attached)
 									disabled
 								#end
 								onclick="javascript:setContinueButton();"
