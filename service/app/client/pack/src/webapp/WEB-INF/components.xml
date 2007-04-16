@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="org.sakaiproject.scorm.client.api.ScormClientService" 
+		  class="org.sakaiproject.scorm.client.impl.ScormClientServiceImpl"
+		  singleton="true">
+		  <lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" />	  
+	</bean>
+
+</beans>

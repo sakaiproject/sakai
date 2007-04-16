@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="api/src/java"/>
+	<classpathentry kind="src" path="impl/src/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="/user-api"/>
+	<classpathentry kind="var" path="MAVEN_REPO/wicket/jars/wicket-1.2.5.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
