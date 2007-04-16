@@ -1853,4 +1853,16 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 
 		}
 	}
+	
+	public void testGetAssignmentsWithNoCategory() throws Exception
+	{
+		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
+		Long assignId1 = gradebookManager.createAssignment(persistentGradebook.getId(), "no_cate_1", new Double(10), new Date(), new Boolean(false), new Boolean(true));
+		Long assignId2 = gradebookManager.createAssignment(persistentGradebook.getId(), "no_cate_2", new Double(10), new Date(), new Boolean(false), new Boolean(true));
+		List assigns = gradebookManager.getAssignmentsWithNoCategory(persistentGradebook.getId());
+		
+		Assert.assertTrue(assigns.size() == 2);
+		Assert.assertTrue(assignId1.longValue() == ((Assignment)assigns.get(0)).getId().longValue());
+		Assert.assertTrue(assignId2.longValue() == ((Assignment)assigns.get(1)).getId().longValue());
+	}
 }

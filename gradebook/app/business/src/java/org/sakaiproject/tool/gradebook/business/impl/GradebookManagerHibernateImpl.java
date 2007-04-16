@@ -1673,4 +1673,18 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	}
   		return categories;
     }
+    
+    public List getAssignmentsWithNoCategory(final Long gradebookId)
+    {
+    	HibernateCallback hc = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException {
+    			List assignments = session.createQuery(
+    					"from Assignment as asn where asn.gradebook.id=? and asn.removed=false and asn.category is null").
+    					setLong(0, gradebookId.longValue()).
+    					list();
+    			return assignments;
+    		}
+    	};
+    	return (List)getHibernateTemplate().execute(hc);
+    }
 }

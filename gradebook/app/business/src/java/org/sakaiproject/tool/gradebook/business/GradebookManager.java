@@ -454,4 +454,13 @@ public interface GradebookManager {
      * @return Category list
      */
     public List getCategoriesWithStats(Long gradebookId);
+    
+    
+    /**
+     * Get all assignments with no categories
+     *  
+     * @param gradebookId
+     * @return Assignment list
+     */
+    public List getAssignmentsWithNoCategory(final Long gradebookId);
 }

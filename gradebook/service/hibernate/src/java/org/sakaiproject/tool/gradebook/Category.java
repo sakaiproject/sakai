@@ -12,9 +12,9 @@ public class Category implements Serializable
 	private Double weight;
 	private int drop_lowest;
 	private boolean removed;
-	private Double averageTotalPoints;
-	private Double averageScore;
-	private List assignmentList;
+	private Double averageTotalPoints; //average total points possible for this category
+	private Double averageScore; //average scores that students got for this category
+	private List assignmentList; 
 
 	public int getDrop_lowest()
 	{
