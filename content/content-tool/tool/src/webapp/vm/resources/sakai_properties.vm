@@ -151,9 +151,8 @@
 	
 	######### begin access section ##########
 	#if(!$dropboxMode && ! $model.isSiteCollection())
+		<p class="instruction">$model.longAccessLabel</p>
 		<div  class="labelindnt">
-		
-			<p class="instruction">$model.longAccessLabel</p>
 			#set ($listDisplay="none")
 			#if($model.isSiteOnly())
 				##Site has *NO* groups and public-view is *NOT* enabled on the server (no choices to be made, but we should report the access)

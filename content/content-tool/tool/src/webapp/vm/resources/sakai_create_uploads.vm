@@ -8,8 +8,8 @@
 		<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
 		<div style="display:block;clear:both" ></div>
 	#end
-	<p class="instr">
-		$tlang.getString("instr.upload")
+	<p class="instruction">
+		$tlang.getString("instr.uploads")
 	</p>
 	<div class="breadCrumb">
 		$tlang.getString("gen.location")
@@ -74,6 +74,11 @@
 			<input type="button" name="cancel" onclick="javascript:document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
 			<span id="submitnotif" style="visibility:hidden">$tlang.getString("label.proces")</span>
 		</p>
+		#if($upload_limit)
+			<p class="instruction">
+				$upload_limit
+			</p>
+		#end
 	</form>
 </div>
 #parse("/vm/resources/sakai_properties_scripts.vm")

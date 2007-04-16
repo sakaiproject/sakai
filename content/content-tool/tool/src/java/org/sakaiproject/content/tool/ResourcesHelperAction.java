@@ -122,6 +122,9 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	
 	private static final String STATE_DEFAULT_COPYRIGHT_ALERT = PREFIX + "default_copyright_alert";
 	
+	/** state attribute for the maximum size for file upload */
+	static final String STATE_FILE_UPLOAD_MAX_SIZE = PREFIX + "file_upload_max_size";
+	
 	/** The user copyright string */
 	private static final String	STATE_MY_COPYRIGHT = PREFIX + "mycopyright";
 	
@@ -431,6 +434,28 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	{
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 
+		String max_file_size_mb = (String) state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
+		if(max_file_size_mb == null)
+		{
+			max_file_size_mb = "20";
+		}
+		String upload_limit = rb.getFormattedMessage("upload.limit", new String[]{ max_file_size_mb });
+		context.put("upload_limit", upload_limit);
+		
+//		int max_bytes = 1024 * 1024;
+//		try
+//		{
+//			max_bytes = Integer.parseInt(max_file_size_mb) * 1024 * 1024;
+//		}
+//		catch(Exception e)
+//		{
+//			// if unable to parse an integer from the value
+//			// in the properties file, use 1 MB as a default
+//			max_file_size_mb = "1";
+//			max_bytes = 1024 * 1024;
+//		}
+
+		
 		MultiFileUploadPipe pipe = (MultiFileUploadPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 		
 		List<ResourceToolActionPipe> pipes = pipe.getPipes();
@@ -1080,6 +1105,11 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			}
 		}
 
+		if (state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE) == null)
+		{
+			state.setAttribute(STATE_FILE_UPLOAD_MAX_SIZE, ServerConfigurationService.getString("content.upload.max", "1"));
+		}
+		
 		state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, Boolean.FALSE);
 		String[] siteTypes = ServerConfigurationService.getStrings("prevent.public.resources");
 		String siteType = null;

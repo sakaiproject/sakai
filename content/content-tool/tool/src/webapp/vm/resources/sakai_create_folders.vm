@@ -8,8 +8,8 @@
 		<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
 		<div style="display:block;clear:both" ></div>
 	#end
-	<p class="instr">
-		$tlang.getString("instr.folder")
+	<p class="instruction">
+		$tlang.getString("instr.folders")
 	</p>
 	<div class="breadCrumb">
 		<h4>

@@ -7,7 +7,7 @@
 		<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
 		<div style="display:block;clear:both" ></div>
 	#end
-	<p class="instr">
+	<p class="instruction">
 		$tlang.getString("instr.html")
 	</p>
 	<form name="addContentForm" id="addContentForm" method="post" action="#toolForm("ResourcesHelperAction")" >
