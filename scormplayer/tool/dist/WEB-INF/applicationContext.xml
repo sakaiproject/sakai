@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- setup wicket application -->
+	<bean id="wicketApplication" class="org.sakaiproject.scorm.client.ScormWicketApplication">
+		<property name="scormClientService">
+			<ref bean="org.sakaiproject.scorm.client.api.ScormClientService"/>
+		</property>
+		<!-- property name="scormClientService">
+			<ref bean="org.sakaiproject.scorm.client.api.ScormClientService"/>
+		</property-->
+    	<!-- lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" /-->
+    	<!-- property name="userName"><value>James</value></property-->
+    </bean>
+
+	<!-- bean id="org.sakaiproject.scorm.client.api.ScormClientService" 
+		  class="org.sakaiproject.scorm.client.impl.ScormClientServiceImpl"
+		  singleton="true">
+	</bean-->
+    
+    <!-- bean id="myBean" class="org.sakaiproject.scorm.client.SimpleBean">
+    	<property name="value"><value>This is it!</value></property>
+    	<property name="scormClientService">
+			<ref bean="org.sakaiproject.scorm.client.api.ScormClientService"/>
+		</property>
+    </bean-->
+
+</beans>

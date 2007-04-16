@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+	<pomVersion>3</pomVersion>
+	<extend>../project.xml</extend>
+	<id>sakai-scorm-service-app-client-impl</id>
+	<name>sakai-scorm-service-app-client-impl</name>
+	<shortDescription>Sakai Scorm Application Client Implementation</shortDescription>
+
+   	<properties>
+		<deploy.type>jar</deploy.type>
+	</properties>
+
+	<dependencies>
+		<!-- SCORM dependencies -->
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-scorm-service-app-client-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		
+		<!-- Sakai dependencies -->
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-entity-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-user-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+    </dependencies>
+
+</project>
+

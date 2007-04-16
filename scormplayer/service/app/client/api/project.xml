@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+	<pomVersion>3</pomVersion>
+	<extend>../project.xml</extend>
+	<id>sakai-scorm-service-app-client-api</id>
+	<name>sakai-scorm-service-app-client-api</name>
+	<shortDescription>Sakai Scorm Application Client API</shortDescription>
+
+	<properties>
+    	<deploy.type>jar</deploy.type>
+    	<deploy.target>shared</deploy.target>
+  	</properties>
+
+	<dependencies>
+
+    </dependencies>
+
+</project>
+

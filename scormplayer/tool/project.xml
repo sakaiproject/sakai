@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+	<pomVersion>3</pomVersion>
+	<extend>../project.xml</extend>
+	<id>sakai-scorm-tool</id>
+	<name>sakai-scorm-tool</name>
+	<shortDescription>SCORM Player Tool</shortDescription>
+
+	<properties>
+		<deploy.type>war</deploy.type>
+	</properties>
+
+	<dependencies>
+		<!--dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-scorm-service-app-navigation</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-scorm-service-app-IEEE1484_11</artifactId>
+			<version>${sakai.version}</version>
+		</dependency-->
+		
+		<!-- SCORM dependencies -->
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-scorm-service-app-client-api</artifactId>
+			<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>false</war.bundle>
+			</properties>
+		</dependency>
+		
+		<!-- dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-scorm-service-app-client-impl</artifactId>
+			<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency-->
+
+		<!-- Sakai dependencies -->
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-entity-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-user-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-util</artifactId>
+			<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+
+
+		<!-- Needed for unit testing with Hibernate 3. -->
+		<dependency>
+			<groupId>antlr</groupId>
+			<artifactId>antlr</artifactId>
+			<version>2.7.6rc1</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+  	        <version>2.1</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+  	        <version>2.0</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+  	        <version>1.0.4</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>${sakai.spring.groupId}</groupId>
+			<artifactId>${sakai.spring.artifactId}</artifactId>
+			<version>${sakai.spring.version}</version>
+			<properties>
+				<war.bundle>false</war.bundle>
+			</properties>
+		</dependency>
+		
+		<dependency>
+			<groupId>servletapi</groupId>
+			<artifactId>servletapi</artifactId>
+  	        <version>2.4</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>wicket</groupId>
+			<artifactId>wicket</artifactId>
+  	        <version>1.2.5</version>
+  	        <properties>
+			    <deploy.type>jar</deploy.type>
+				<deploy.target>shared</deploy.target>
+			</properties>
+  	        <!-- properties>
+  	        	<war.bundle>true</war.bundle>
+			</properties-->
+		</dependency>
+
+		<dependency>
+			<groupId>wicket</groupId>
+			<artifactId>wicket-extensions</artifactId>
+  	        <version>1.2.5</version>
+  	        <properties>
+			    <deploy.type>jar</deploy.type>
+				<deploy.target>shared</deploy.target>
+			</properties>
+  	        <!-- properties>
+				<war.bundle>true</war.bundle>
+			</properties-->
+		</dependency>
+		
+		<dependency>
+			<groupId>wicket</groupId>
+			<artifactId>wicket-spring</artifactId>
+  	        <version>1.2.5</version>
+  	        <properties>
+			    <deploy.type>jar</deploy.type>
+				<deploy.target>shared</deploy.target>
+			</properties>
+  	        <!-- properties>
+  	        	<war.bundle>true</war.bundle>
+			</properties-->
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<sourceDirectory>src/java</sourceDirectory>
+		<resources>
+			<resource>
+				<directory>${basedir}/src/java</directory>
+				<includes>
+					<include>**/*.html</include>
+				</includes>
+			</resource>
+		</resources>
+	</build>
+</project>
