@@ -1562,6 +1562,11 @@ public class DiscussionForumTool
 	    Boolean foundHead = false;
 	    Boolean foundAfterHead = false;
 	    
+	    //determine to make sure that selectedThreadHead does exist!
+	    if(selectedThreadHead == null){
+	    	return MAIN;
+	    }
+	    
 	    for(int i=0; i<msgsList.size(); i++){
 	    	if(((DiscussionMessageBean)msgsList.get(i)).getMessage().getId().equals(selectedThreadHead.getMessage().getId())){
 	    		((DiscussionMessageBean) msgsList.get(i)).setDepth(0);
@@ -2987,6 +2992,16 @@ public class DiscussionForumTool
     this.attachments.clear();
 
     //return ALL_MESSAGES;
+    //check selectedThreadHead exists
+    if(selectedThreadHead == null){
+    	selectedThreadHead = new DiscussionMessageBean(selectedMessage.getMessage(), messageManager);
+	    //make sure we have the thread head of depth 0
+	    while(selectedThreadHead.getMessage().getInReplyTo() != null){
+	    	selectedThreadHead = new DiscussionMessageBean(
+	    			messageManager.getMessageByIdWithAttachments(selectedThreadHead.getMessage().getInReplyTo().getId()), 
+	    			messageManager);
+	    }
+    }
     return processActionGetDisplayThread();
   }
 
