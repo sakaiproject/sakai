@@ -81,7 +81,7 @@ public class ContentReviewItem {
 		this.status = null;
 		this.reviewScore = null;
 		this.taskId = null;
-		this.retryCount = new Long(0);
+		this.retryCount = null;
 	}
 	
 	/**
