@@ -1488,6 +1488,22 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				{
 					((ListItem) obj).updateContentResourceEdit(resource);
 				}
+				
+				ResourcePropertiesEdit resourceProperties = resource.getPropertiesEdit();
+				Map values = pipe.getRevisedResourceProperties(); 	 
+				Iterator valueIt = values.keySet().iterator(); 	 
+				while(valueIt.hasNext()) 	 
+				{ 	 
+					String pname = (String) valueIt.next(); 	 
+					String pvalue = (String) values.get(pname); 	 
+					resourceProperties.addProperty(pname, pvalue);
+				}
+				
+//				if(MIME_TYPE_DOCUMENT_HTML.equals(fp.getRevisedMimeType()) || MIME_TYPE_DOCUMENT_PLAINTEXT.equals(fp.getRevisedMimeType()))
+//				{
+//					resourceProperties.addProperty(ResourceProperties.PROP_CONTENT_ENCODING, UTF_8_ENCODING);
+//				}
+				
 				ContentHostingService.commitResource(resource, NotificationService.NOTI_NONE);
 				item_added = true;
 				new_resources.add(resource);

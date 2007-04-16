@@ -977,14 +977,15 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
                 String contentType = fileitem.getContentType();
                 //pipe.setRevisedContent(bytes);
                 pipe.setRevisedMimeType(contentType);
-                if(ResourceType.MIME_TYPE_HTML.equals(contentType) || ResourceType.MIME_TYPE_TEXT.equals(contentType))
-                {
-                	pipe.setRevisedResourceProperty(ResourceProperties.PROP_CONTENT_ENCODING, ResourcesAction.UTF_8_ENCODING);
-                }
-                else if(pipe.getPropertyValue(ResourceProperties.PROP_CONTENT_ENCODING) != null)
-                {
-                	pipe.setRevisedResourceProperty(ResourceProperties.PROP_CONTENT_ENCODING, (String) pipe.getPropertyValue(ResourceProperties.PROP_CONTENT_ENCODING));
-                }
+                
+//                if(ResourceType.MIME_TYPE_HTML.equals(contentType) || ResourceType.MIME_TYPE_TEXT.equals(contentType))
+//                {
+//                	pipe.setRevisedResourceProperty(ResourceProperties.PROP_CONTENT_ENCODING, ResourcesAction.UTF_8_ENCODING);
+//                }
+//                else if(pipe.getPropertyValue(ResourceProperties.PROP_CONTENT_ENCODING) != null)
+//                {
+//                	pipe.setRevisedResourceProperty(ResourceProperties.PROP_CONTENT_ENCODING, (String) pipe.getPropertyValue(ResourceProperties.PROP_CONTENT_ENCODING));
+//                }
                 
                 pipe.setFileName(filename);
                 
