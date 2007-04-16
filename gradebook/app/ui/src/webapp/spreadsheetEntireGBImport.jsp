@@ -1,10 +1,10 @@
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
 <f:view>
     <div class="portletBody">
-        <h:form id="gbExportForm">
         <%--TODO: determine how to make menu option unlinked not using this hack --%>
         <h:inputHidden id="pageName" value="#{spreadsheetUploadBean.unknownSize}#{spreadsheetUploadBean.pageName}" />
         
+        <h:form>
  		<%-- This form ends after step 1 since want to bypass validation of Step 3 --%>
               <t:aliasBean alias="#{bean}" value="#{spreadsheetUploadBean}">
                 <%@include file="/inc/appMenu.jspf"%>
@@ -31,15 +31,18 @@
              	<h:outputText value="#{msgs.import_entire_bad_ids_alert_end}" rendered="#{spreadsheetUploadBean.unknownSize > 1}" />
             	<h:outputText value="#{msgs.import_entire_bad_ids_alert_end}" rendered="#{spreadsheetUploadBean.unknownSize == 1}" />
             </h:panelGrid> 
-            
+			
+		</h:form>            
+
             <%-- Step 1: Download template --%>
  	            <h4>1. <h:outputText value="#{msgs.import_entire_template}"/></h4>
  	            <br />
- 	            <h:graphicImage value="images/silk/page_white.png" />
-    	        <h:commandLink actionListener="#{rosterBean.exportCsv}">
-        	        <h:outputText value="#{msgs.import_entire_template}"/>
- 	        	</h:commandLink>
-		</h:form> <%-- End of download csv file form --%>
+		        <h:form id="gbExportForm">
+ 	    	        <h:graphicImage value="images/silk/page_white.png" />
+    	    	    <h:commandLink actionListener="#{rosterBean.exportCsv}">
+        	    	    <h:outputText value="#{msgs.import_entire_template}"/>
+ 	        		</h:commandLink>
+				</h:form> <%-- End of download csv file form --%>
 			
 			<%-- Step 2: Edit Spreadsheet --%>
 			<br />

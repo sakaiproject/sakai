@@ -483,7 +483,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             FacesUtil.addErrorMessage(getLocalizedString("upload_view_filecontent_error"));
             return null;
         }
-        
+
    		return "spreadsheetVerify";
     }
         
@@ -902,21 +902,35 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 			final String user = (String) aRow.get(0);
 			final String userid = (String) aRow.get(aRow.size()-1);
 			
-			final AssignmentGradeRecord gr = findGradeRecord(gbGrades, userid);
+			AssignmentGradeRecord gr = findGradeRecord(gbGrades, userid);
 			
-			final Double pointsEarned = new Double((String) aRow.get(index));
-			final Double gbPointsEarned = gr.getPointsEarned();
-			
-			// 3 ways points earned different: 1 null other not (both ways) or actual
-			// values different
-			if ((gbPointsEarned == null && pointsEarned != null) || 
-				(gbPointsEarned != null && pointsEarned == null) || 
-				gbPointsEarned.doubleValue() != pointsEarned.doubleValue()) {
+			String points = (String) aRow.get(index);
+			Double pointsEarned = null;
+			if (points != null && !"".equals(points)) {
+				pointsEarned = new Double((String) aRow.get(index));
+			}
 				
-				gr.setPointsEarned(pointsEarned);
+			if (gr == null) {
+				if (pointsEarned != null) {
+					gr = new AssignmentGradeRecord(assignment,userid,pointsEarned);
+                
+					updatedGradeRecords.add(gr);
+				}
+			}
+			else {
+				final Double gbPointsEarned = gr.getPointsEarned();
 				
-				updatedGradeRecords.add(gr);
-			}			
+				// 3 ways points earned different: 1 null other not (both ways) or actual
+				// values different
+				if ((gbPointsEarned == null && pointsEarned != null) || 
+					(gbPointsEarned != null && pointsEarned == null) || 
+					gbPointsEarned.doubleValue() != pointsEarned.doubleValue()) {
+				
+					gr.setPointsEarned(pointsEarned);
+					
+					updatedGradeRecords.add(gr);
+				}			
+			}
 		}
 		
 		return updatedGradeRecords;
@@ -968,6 +982,11 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     	}
     	
     	return null;
+    }
+    
+    public String processImportAllCancel() {
+    	// TODO: clear error messages.
+    	return "spreadsheetAll";
     }
 
     //save grades and comments

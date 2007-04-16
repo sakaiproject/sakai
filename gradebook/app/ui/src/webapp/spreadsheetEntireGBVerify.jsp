@@ -72,7 +72,7 @@
 
                 <h:commandButton
                         value="#{msgs.import_verify_back}"
-                        action="spreadsheetAll" immediate="true"/>
+                        action="#{spreadSheetUploadBean.processImportAllCancel}" immediate="true"/>
 
             </p>
         </h:form>
