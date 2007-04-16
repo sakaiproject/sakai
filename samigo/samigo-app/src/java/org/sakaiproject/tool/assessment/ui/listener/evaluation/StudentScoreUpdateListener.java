@@ -72,12 +72,12 @@ public class StudentScoreUpdateListener
   public void processAction(ActionEvent ae) throws
     AbortProcessingException
   {
-    log.info("Student Score Update LISTENER.");
+    log.debug("Student Score Update LISTENER.");
     StudentScoresBean bean = (StudentScoresBean) cu.lookupBean("studentScores");
     TotalScoresBean tbean = (TotalScoresBean) cu.lookupBean("totalScores");
     tbean.setAssessmentGradingHash(tbean.getPublishedAssessment().getPublishedAssessmentId());
     DeliveryBean delivery = (DeliveryBean) cu.lookupBean("delivery");
-    log.info("Calling saveStudentScores.");
+    log.debug("Calling saveStudentScores.");
     try {
       if (!saveStudentScores(bean, tbean, delivery))
       {
@@ -115,8 +115,8 @@ public class StudentScoreUpdateListener
         {
           ItemContentsBean question = (ItemContentsBean) iter2.next();
           ArrayList gradingarray = question.getItemGradingDataArray();
-          log.info("****1. pub questionId = " + question.getItemData().getItemId());
-          log.info("****2. Gradingarray length = " + gradingarray.size());
+          log.debug("****1. pub questionId = " + question.getItemData().getItemId());
+          log.debug("****2. Gradingarray length = " + gradingarray.size());
           // Create a new one if we need it.
           if (gradingarray.isEmpty() && (question.getExactPoints() > 0  ||
               (question.getGradingComment() != null &&
@@ -127,8 +127,8 @@ public class StudentScoreUpdateListener
             gradingarray = question.getItemGradingDataArray();
           }
 
-          log.info("****3a Gradingarray length2 = " + gradingarray.size());
-          log.info("****3b set points = " + question.getExactPoints() + ", comments to " + question.getGradingComment());
+          log.debug("****3a Gradingarray length2 = " + gradingarray.size());
+          log.debug("****3b set points = " + question.getExactPoints() + ", comments to " + question.getGradingComment());
           Iterator iter3 = gradingarray.iterator();
           while (iter3.hasNext())
           {
@@ -145,8 +145,8 @@ public class StudentScoreUpdateListener
               (new Float(question.getExactPoints()).floatValue()
                / (float) gradingarray.size()));
             data.setComments(question.getGradingComment());
-            log.info("****4 itemGradingId="+data.getItemGradingId());
-            log.info("****5 set points = " + data.getAutoScore() + ", comments to " + data.getComments());
+            log.debug("****4 itemGradingId="+data.getItemGradingId());
+            log.debug("****5 set points = " + data.getAutoScore() + ", comments to " + data.getComments());
             itemGradingSet.add(data);
           }
         }
@@ -163,7 +163,7 @@ public class StudentScoreUpdateListener
         return true; // Nothing to save.
 
       adata.setComments(bean.getComments());
-      //log.info("Got total comments: " + adata.getComments());
+      //log.debug("Got total comments: " + adata.getComments());
 
       // Some of the itemgradingdatas may be new.
       iter = itemGradingSet.iterator();
@@ -175,7 +175,7 @@ public class StudentScoreUpdateListener
 
       delegate.updateAssessmentGradingScore(adata, tbean.getPublishedAssessment());
 
-      log.info("Saved student scores.");
+      log.debug("Saved student scores.");
 
     } catch (GradebookServiceException ge) {
        FacesContext context = FacesContext.getCurrentInstance();
