@@ -236,7 +236,12 @@ function redirectBasedOnSelection(){
 					</th>
 					#foreach($courseOfferingObject in $courseObject.courseOfferingObjects)
 						<tr><td>
-						#set($endKey = $courseNumber + $!courseOfferingObject.sections.size())
+						#if ($providerCourseList) 
+							#set($endKey = $courseNumber + $!courseOfferingObject.sections.size() - $!providerCourseList.size())
+						#else
+							#set($endKey = $courseNumber + $!courseOfferingObject.sections.size())
+						#end
+
 						#if ($!courseOfferingObject.sections.size() > 1)
 							<div id="selectAll$courseNumber">							
 								<a href="#" onclick="javascript:selectAll($courseNumber, $endKey)" >$tlang.getString("nscourse.select_group_sections")</a>
