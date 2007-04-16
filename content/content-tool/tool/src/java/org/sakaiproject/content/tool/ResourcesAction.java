@@ -6994,10 +6994,12 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		// current sorting sequence
 		String asc = NULL_STRING;
+		boolean bValue = true;
 		if (!criteria.equals (state.getAttribute (sortBy_attribute)))
 		{
 			state.setAttribute (sortBy_attribute, criteria);
 			asc = Boolean.TRUE.toString();
+			bValue = true;
 			state.setAttribute (sortAsc_attribute, asc);
 		}
 		else
@@ -7008,18 +7010,19 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			//toggle between the ascending and descending sequence
 			if (asc.equals (Boolean.TRUE.toString()))
 			{
-				asc = Boolean.FALSE.toString();
+				bValue = false;
 			}
 			else
 			{
-				asc = Boolean.TRUE.toString();
+				bValue = true;
 			}
+			asc = Boolean.toString(bValue);
 			state.setAttribute (sortAsc_attribute, asc);
 		}
 
 		if (state.getAttribute(STATE_MESSAGE) == null)
 		{
-			Comparator comparator = ContentHostingService.newContentHostingComparator(criteria, Boolean.getBoolean(asc));
+			Comparator comparator = ContentHostingService.newContentHostingComparator(criteria, bValue);
 			state.setAttribute(comparator_attribute, comparator);
 			
 			// sort sucessful

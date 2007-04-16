@@ -111,6 +111,15 @@ public class ContentHostingComparator implements Comparator
 		{
 			return (m_ascending ? 1 : -1);
 		}
+		
+		if(property.equals(ResourceProperties.PROP_CONTENT_LENGTH) && o1 instanceof ContentCollection)
+		{
+			int size1 = ((ContentCollection) o1).getMemberCount();
+			int size2 = ((ContentCollection) o2).getMemberCount();
+			int rv = ((size1 < size2) ? -1 : ((size1 > size2) ? 1 : 0));
+			if (!m_ascending) rv = -rv;
+			return rv;
+		}
 
 		// ok, they are both the same: resources or collections
 
