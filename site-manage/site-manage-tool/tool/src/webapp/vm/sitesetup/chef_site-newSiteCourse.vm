@@ -342,7 +342,7 @@ function redirectBasedOnSelection(){
 				</p>
 			#else
 				<p class="act">
-				<input type="hidden" name="option" value="x" />
+				<input type="hidden" name="option" id="option" value="x" />
 				<input type="hidden" name="eventSubmit_doAdd_class_select" value="x" />
 				<input
 					disabled="true"
@@ -351,7 +351,7 @@ function redirectBasedOnSelection(){
 					name="AddClass" 
 					id="addClassButton" 
 					value="$tlang.getString('gen.continue')"
-					onclick="document.addCourseForm.option.value='add'; document.addCourseForm.submit(); return false;"
+					onclick="document.getElementById('option').value='add'; document.addCourseForm.submit(); return false;"
 					/>
 				<input
 					type="button" 
@@ -359,7 +359,7 @@ function redirectBasedOnSelection(){
 					name="Cancel" 
 					id="Cancel" 
 					value="$tlang.getString('gen.cancel')"
-					onclick="document.addCourseForm.option.value='cancel'; document.addCourseForm.submit(); return false;"
+					onclick="document.getElementById('option').value='cancel'; document.addCourseForm.submit(); return false;"
 				/>
 				</p>
 			#end
