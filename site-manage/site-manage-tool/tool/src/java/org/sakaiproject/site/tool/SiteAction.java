@@ -4729,7 +4729,7 @@ public class SiteAction extends PagedResourceActionII {
 				state.setAttribute(STATE_TEMPLATE_INDEX, "44");
 			} else if (index == 36 && ("back").equals(option)) {
 				doBack(data);
-			} else if (index == 36 && ("cancel").equals(option)) {
+			} else if (("cancel").equals(option)) {
 				doCancel(data);
 			} else if (params.getString("continue") != null) {
 				state.setAttribute(STATE_TEMPLATE_INDEX, params
