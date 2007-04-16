@@ -305,12 +305,11 @@ public class SiteHandler extends WorksiteHandler
 		{
 			try
 			{
-				String userEid = SiteService.getSiteUserId(siteId);
-				String userId = UserDirectoryService.getUserId(userEid);
+				String userId = SiteService.getSiteUserId(siteId);
 				String alternateSiteId = SiteService.getUserSiteId(userId);
 				skin = SiteService.getSiteSkin(alternateSiteId);
 			}
-			catch (UserNotDefinedException e)
+			catch (Exception e)
 			{
 				// Ignore
 			}
