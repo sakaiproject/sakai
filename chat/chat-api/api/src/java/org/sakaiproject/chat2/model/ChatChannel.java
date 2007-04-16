@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
 
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.w3c.dom.Document;
@@ -191,23 +192,20 @@ public class ChatChannel implements Entity {
     * @see org.sakaiproject.entity.api.Entity#getReference(java.lang.String)
     */
    public String getReference(String rootProperty) {
-      // TODO Auto-generated method stub
-      return null;
+      return getReference();
    }
 
    /* (non-Javadoc)
     * @see org.sakaiproject.entity.api.Entity#getUrl()
     */
    public String getUrl() {
-      // TODO Auto-generated method stub
-      return null;
+      return ServerConfigurationService.getAccessUrl() + getReference();
    }
 
    /* (non-Javadoc)
     * @see org.sakaiproject.entity.api.Entity#getUrl(java.lang.String)
     */
    public String getUrl(String rootProperty) {
-      // TODO Auto-generated method stub
-      return null;
+      return getUrl();
    }
 }

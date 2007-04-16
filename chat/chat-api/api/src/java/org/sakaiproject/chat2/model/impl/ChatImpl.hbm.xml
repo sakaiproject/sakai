@@ -36,7 +36,7 @@
 			<generator class="org.sakaiproject.id.hbm.IdGenerator"/>
 		</id>
 		<many-to-one name="chatChannel" column="CHANNEL_ID"
-			class="ChatChannel" index="CHAT_MESSAGE_CHANNEL_I" />
+			class="ChatChannel" index="CHAT_MESSAGE_CHANNEL_I" lazy="false" />
 
 		<property name="owner" column="OWNER" type="string" length="96"
 			not-null="true" index="CHAT_MESSAGE_OWNER_I" />

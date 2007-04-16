@@ -24,6 +24,9 @@
  */
 package org.sakaiproject.chat2.model.impl;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -32,13 +35,19 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.chat2.model.ChatChannel;
 import org.sakaiproject.chat2.model.ChatManager;
 import org.sakaiproject.chat2.model.ChatMessage;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.EntityNotDefinedException;
+import org.sakaiproject.entity.api.EntityPermissionException;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.HttpAccess;
@@ -49,7 +58,10 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.StringUtil;
+import org.sakaiproject.util.Web;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -303,20 +315,167 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
       return null;
    }
 
-   /* (non-Javadoc)
-    * @see org.sakaiproject.entity.api.EntityProducer#getEntityUrl(org.sakaiproject.entity.api.Reference)
+   /**
+    * {@inheritDoc}
     */
-   public String getEntityUrl(Reference ref) {
-      // TODO Auto-generated method stub
-      return null;
+   public String getEntityUrl(Reference ref)
+   {
+      // we could check that the type is one of the message services, but lets just assume it is so we don't need to know them here -ggolden
+
+      String url = null;
+
+      try
+      {
+         // if this is a channel
+         if (ChatManager.REF_TYPE_CHANNEL.equals(ref.getSubType()))
+         {
+            ChatChannel channel = getChannel(ref);
+            url = channel.getUrl();
+         }
+
+         // otherwise a message
+         else if (ChatManager.REF_TYPE_MESSAGE.equals(ref.getSubType()))
+         {
+            ChatMessage message = getMessage(ref);
+            url = message.getUrl();
+         }
+
+         else
+            logger.warn("getUrl(): unknown message ref subtype: " + ref.getSubType() + " in ref: " + ref.getReference());
+      }
+      catch (PermissionException e)
+      {
+         logger.warn("getUrl(): " + e);
+      }
+      catch (IdUnusedException e)
+      {
+         logger.warn("getUrl(): " + e);
+      }
+      catch (NullPointerException e)
+      {
+         logger.warn("getUrl(): " + e);
+      }
+
+      return url;
    }
 
-   /* (non-Javadoc)
-    * @see org.sakaiproject.entity.api.EntityProducer#getHttpAccess()
+   /**
+    * {@inheritDoc}
     */
-   public HttpAccess getHttpAccess() {
-      // TODO Auto-generated method stub
-      return null;
+   public HttpAccess getHttpAccess()
+   {
+      return new HttpAccess()
+      {
+
+         public void handleAccess(HttpServletRequest req, HttpServletResponse res, Reference ref,
+               Collection copyrightAcceptedRefs) throws EntityPermissionException, EntityNotDefinedException
+         {
+            try
+            {
+               //TODO: Isn't there a better way to do this than build out the whole page here??
+               
+               // We need to write to a temporary stream for better speed, plus
+               // so we can get a byte count. Internet Explorer has problems
+               // if we don't make the setContentLength() call.
+               ByteArrayOutputStream outByteStream = new ByteArrayOutputStream();
+               OutputStreamWriter sw = new OutputStreamWriter(outByteStream);
+
+               String skin = ServerConfigurationService.getString("skin.default");
+               String skinRepo = ServerConfigurationService.getString("skin.repo");
+
+               ChatMessage message = getMessage(ref);
+               String title = ref.getDescription();
+               //MessageHeader messageHead = message.getHeader();
+               //String date = messageHead.getDate().toStringLocalFullZ();
+               String date = TimeService.newTime(message.getMessageDate().getTime()).toStringLocalFullZ();
+               String from = UserDirectoryService.getUser(message.getOwner()).getDisplayName();
+               //String from = messageHead.getFrom().getDisplayName();
+               String groups = "";
+               //Collection gr = messageHead.getGroups();
+               //for (Iterator i = gr.iterator(); i.hasNext();)
+               //{
+               //   groups += "<li>" + i.next() + "</li>";
+               //}
+               String body = Web.escapeHtml(message.getBody());
+
+               sw
+                     .write("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
+                           + "<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">\n"
+                           + "<head>\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n"
+                           + "<link href=\"");
+               sw.write(skinRepo);
+               sw.write("/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" + "<link href=\"");
+               sw.write(skinRepo);
+               sw.write("/");
+               sw.write(skin);
+               sw.write("/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n"
+                     + "<meta http-equiv=\"Content-Style-Type\" content=\"text/css\" />\n" + "<title>");
+               sw.write(title);
+               sw.write("</title></head><body><div class=\"portletBody\">\n" + "<h2>");
+               sw.write(title);
+               sw.write("</h2><ul><li>Date ");
+               sw.write(date);
+               sw.write("</li>");
+               sw.write("<li>From ");
+               sw.write(from);
+               sw.write("</li>");
+               sw.write(groups);
+               sw.write("<ul><p>");
+               sw.write(body);
+               sw.write("</p></div></body></html> ");
+
+               sw.flush();
+               res.setContentType("text/html");
+               res.setContentLength(outByteStream.size());
+
+               if (outByteStream.size() > 0)
+               {
+                  // Increase the buffer size for more speed.
+                  res.setBufferSize(outByteStream.size());
+               }
+
+               OutputStream out = null;
+               try
+               {
+                  out = res.getOutputStream();
+                  if (outByteStream.size() > 0)
+                  {
+                     outByteStream.writeTo(out);
+                  }
+                  out.flush();
+                  out.close();
+               }
+               catch (Throwable ignore)
+               {
+               }
+               finally
+               {
+                  if (out != null)
+                  {
+                     try
+                     {
+                        out.close();
+                     }
+                     catch (Throwable ignore)
+                     {
+                     }
+                  }
+               }
+            }
+            catch (PermissionException e)
+            {
+               throw new EntityPermissionException(e.getUser(), e.getLocalizedMessage(), e.getResource());
+            }
+            catch (IdUnusedException e)
+            {
+               throw new EntityNotDefinedException(e.getId());
+            }
+            catch (Throwable t)
+            {
+               throw new RuntimeException("Faied to find message ", t);
+            }
+         }
+      };
    }
 
    /**
