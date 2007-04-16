@@ -2560,6 +2560,7 @@ public class SiteAction extends PagedResourceActionII {
 					.equalsIgnoreCase(SITE_MODE_SITEINFO)) {
 				context.put("backIndex", "");
 			}
+			List ll = (List) state.getAttribute(STATE_TERM_COURSE_LIST);
 			context.put("termCourseList", state
 					.getAttribute(STATE_TERM_COURSE_LIST));
 
@@ -4727,10 +4728,6 @@ public class SiteAction extends PagedResourceActionII {
 			} else if (index == 36 && ("add").equals(option)) {
 				// this is the Add extra Roster(s) case after a site is created
 				state.setAttribute(STATE_TEMPLATE_INDEX, "44");
-			} else if (index == 36 && ("back").equals(option)) {
-				doBack(data);
-			} else if (("cancel").equals(option)) {
-				doCancel(data);
 			} else if (params.getString("continue") != null) {
 				state.setAttribute(STATE_TEMPLATE_INDEX, params
 						.getString("continue"));
