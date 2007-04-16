@@ -4830,10 +4830,9 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				state.setAttribute(NEW_ASSIGNMENT_RANGE, "groups");
 			}
-
+				
+			state.setAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, properties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null?properties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER):"0");
 			
-			
-
 			// set whether we use the review service or not
 			state.setAttribute(NEW_ASSIGNMENT_USE_REVIEW_SERVICE, new Boolean(a.getContent().getAllowReviewService()).toString());
 			
