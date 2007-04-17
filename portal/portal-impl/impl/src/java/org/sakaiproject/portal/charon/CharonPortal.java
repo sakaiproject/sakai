@@ -764,7 +764,7 @@ public class CharonPortal extends HttpServlet
 				+ toolTitle
 				+ "</title>\n"
 				+ "  </head>\n"
-				+ "  <body onload=\"document.forms[0].eid.focus();\">\n";
+				+ "  <body>\n";
 		final String tailHtml = "</body></html>\n";
 
 		out.write(headHtml);
@@ -2963,7 +2963,7 @@ public class CharonPortal extends HttpServlet
 
 		// start the body
 		out
-				.println("<body class=\"portalBody\" onload=\"document.forms[0].eid.focus();\">");
+				.println("<body class=\"portalBody\">");
 
 		// if top, mark this as the portal window
 		if (top)
