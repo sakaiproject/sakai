@@ -84,7 +84,7 @@ public class TextFragment
 	public String toString()
 	{
 		// make certain we dont truncate entities.
-		return markedUpText.substring(textStartPos, textEndPos+1);
+		return markedUpText.substring(textStartPos, Math.min(textEndPos+1,markedUpText.length()));
 	}
 
 }

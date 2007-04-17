@@ -916,8 +916,17 @@ public class SearchBeanImpl implements SearchBean
 
 				public String getUrl()
 				{
-					return FormattedText
-							.escapeHtml("?panel=Main&search=" + t.term, false);
+					try
+					{
+						return FormattedText
+								.escapeHtml("?panel=Main&search=" + URLEncoder.encode(t.term,"UTF-8"), false);
+					}
+					catch (UnsupportedEncodingException e)
+					{
+						return FormattedText
+						.escapeHtml("?panel=Main&search=" + URLEncoder.encode(t.term), false);
+
+					}
 				}
 
 				public String getWeight()
