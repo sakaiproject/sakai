@@ -3187,6 +3187,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			ContentResourceEdit newItem = contentService.addResource(pipe.getContentEntity().getId(), "New Citation List", null, ContentHostingService.MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 			newItem.setResourceType(CitationService.CITATION_LIST_ID);
 			newItem.setContentType( ResourceType.MIME_TYPE_HTML );
+			newItem.setHidden();
 			
 			ResourcePropertiesEdit props = newItem.getPropertiesEdit();
 			
