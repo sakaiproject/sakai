@@ -4,17 +4,17 @@
  ***********************************************************************************
  *
  * Copyright (c) 2005, 2006 The Sakai Foundation.
- * 
- * Licensed under the Educational Community License, Version 1.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
+ *
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.opensource.org/licenses/ecl1.php
- * 
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  *
  **********************************************************************************/
@@ -71,7 +71,7 @@ public class LoginTool extends HttpServlet
 
 	/**
 	 * Access the Servlet's information display.
-	 * 
+	 *
 	 * @return servlet information.
 	 */
 	public String getServletInfo()
@@ -81,7 +81,7 @@ public class LoginTool extends HttpServlet
 
 	/**
 	 * Initialize the servlet.
-	 * 
+	 *
 	 * @param config
 	 *        The servlet config.
 	 * @throws ServletException
@@ -105,7 +105,7 @@ public class LoginTool extends HttpServlet
 
 	/**
 	 * Respond to requests.
-	 * 
+	 *
 	 * @param req
 	 *        The servlet request.
 	 * @param res
@@ -185,7 +185,7 @@ public class LoginTool extends HttpServlet
 
 	/**
 	 * Send the login form
-	 * 
+	 *
 	 * @param req
 	 *        Servlet request.
 	 * @param res
@@ -306,7 +306,7 @@ public class LoginTool extends HttpServlet
 
 	/**
 	 * Respond to data posting requests.
-	 * 
+	 *
 	 * @param req
 	 *        The servlet request.
 	 * @param res
@@ -324,7 +324,9 @@ public class LoginTool extends HttpServlet
 
 		// here comes the data back from the form... these fields will be present, blank if not filled in
 		String eid = req.getParameter("eid").trim();
-		String pw = req.getParameter("pw").trim();
+
+		// Do NOT trim the password, since many authentication systems allow whitespace.
+		String pw = req.getParameter("pw");
 
 		// one of these will be there, one null, depending on how the submit was done
 		String submit = req.getParameter("submit");
@@ -383,7 +385,7 @@ public class LoginTool extends HttpServlet
 
 	/**
 	 * Cleanup and redirect when we have a successful login / logout
-	 * 
+	 *
 	 * @param session
 	 * @param tool
 	 * @param res
