@@ -21,6 +21,7 @@
 
 package org.sakaiproject.search.component.dao.impl;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.sql.Connection;
@@ -45,6 +46,7 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.store.Directory;
 import org.hibernate.HibernateException;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -123,8 +125,8 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 		rdfSearchService = (RDFSearchService) load(cm, RDFSearchService.class.getName(),
 				false);
 
-		enabled = "true".equals(ServerConfigurationService.getString(
-				"search.enable", "false"));
+		enabled = "true".equals(ServerConfigurationService.getString("search.enable",
+				"false"));
 
 		try
 		{
@@ -258,9 +260,11 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 				try
 				{
 					SearchBuilderItem sbi = (SearchBuilderItem) tditer.next();
-					// only add adds, that have been deleted
+					// only add adds, that have been deleted or are locked
 					// sucessfully
-					if (!SearchBuilderItem.STATE_PENDING_2.equals(sbi.getSearchstate()))
+					if (!SearchBuilderItem.STATE_PENDING_2.equals(sbi.getSearchstate())
+							&& !SearchBuilderItem.STATE_LOCKED.equals(sbi
+									.getSearchstate()))
 					{
 						continue;
 					}
@@ -504,10 +508,29 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 			worker.setNowIndexing(Messages
 					.getString("SearchIndexBuilderWorkerDaoJdbcImpl.33")); //$NON-NLS-1$
 		}
+		catch (Exception ex)
+		{
+			log.error("Failed to Add Documents ", ex);
+			throw new Exception(ex);
+		}
 		finally
 		{
 			if (indexWrite != null)
 			{
+				if (log.isDebugEnabled())
+				{
+					log.debug("Closing Index Writer With " + indexWrite.docCount()
+							+ " documents");
+					Directory d = indexWrite.getDirectory();
+					String[] s = d.list();
+					log.debug("Directory Contains ");
+					for (int i = 0; i < s.length; i++)
+					{
+						File f = new File(s[i]);
+						log.debug("\t" + String.valueOf(f.length()) + "\t"
+								+ new Date(f.lastModified()) + "\t" + s[i]);
+					}
+				}
 				indexStorage.closeIndexWriter(indexWrite);
 			}
 		}
@@ -626,7 +649,6 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 					log.error("Failed to do Post Index Update", e); //$NON-NLS-1$
 				}
 				// release lock
-
 
 			}
 

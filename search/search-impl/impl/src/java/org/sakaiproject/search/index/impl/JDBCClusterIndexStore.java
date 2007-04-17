@@ -115,8 +115,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	public void init()
 	{
 		log.info(this + ":init() ");
-		clusterStorage = new ClusterSegmentsStorage(searchService, searchIndexDirectory, this,
-				localStructuredStorage, debug);
+		clusterStorage = new ClusterSegmentsStorage(searchService, searchIndexDirectory,
+				this, localStructuredStorage, debug);
 
 		// TODO: We should migrate to the correct storage format, on the local
 		// and shared space, by looking at the DB and then checking what is
@@ -855,25 +855,33 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			segmentInsert = connection
 					.prepareStatement("insert into search_segments (packet_, name_, version_, size_ ) values ( ?,?,?,?)");
 			packetFile = clusterStorage.packPatch();
-			packetStream = new FileInputStream(packetFile);
-			segmentUpdate.clearParameters();
-			segmentUpdate.setBinaryStream(1, packetStream, (int) packetFile.length());
-			segmentUpdate.setLong(2, newVersion);
-			segmentUpdate.setLong(3, packetFile.length());
-			segmentUpdate.setString(4, INDEX_PATCHNAME);
-			if (segmentUpdate.executeUpdate() != 1)
+			if (packetFile.exists())
 			{
-				segmentInsert.clearParameters();
-				segmentInsert.setBinaryStream(1, packetStream, (int) packetFile.length());
-				segmentInsert.setString(2, INDEX_PATCHNAME);
-				segmentInsert.setLong(3, newVersion);
-				segmentInsert.setLong(4, packetFile.length());
-				if (segmentInsert.executeUpdate() != 1)
+				packetStream = new FileInputStream(packetFile);
+				segmentUpdate.clearParameters();
+				segmentUpdate.setBinaryStream(1, packetStream, (int) packetFile.length());
+				segmentUpdate.setLong(2, newVersion);
+				segmentUpdate.setLong(3, packetFile.length());
+				segmentUpdate.setString(4, INDEX_PATCHNAME);
+				if (segmentUpdate.executeUpdate() != 1)
 				{
-					throw new SQLException(" Failed to insert patch  ");
+					segmentInsert.clearParameters();
+					segmentInsert.setBinaryStream(1, packetStream, (int) packetFile
+							.length());
+					segmentInsert.setString(2, INDEX_PATCHNAME);
+					segmentInsert.setLong(3, newVersion);
+					segmentInsert.setLong(4, packetFile.length());
+					if (segmentInsert.executeUpdate() != 1)
+					{
+						throw new SQLException(" Failed to insert patch  ");
+					}
 				}
+				if (log.isDebugEnabled()) log.debug("DB Updated Patch ");
 			}
-			if (log.isDebugEnabled()) log.debug("DB Updated Patch ");
+			else
+			{
+				log.warn(" Packed Patch does not exist " + packetFile.getPath());
+			}
 		}
 		finally
 		{
@@ -933,37 +941,44 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			sharedFinalFile = new File(getSharedFileName(INDEX_PATCHNAME,
 					sharedStructuredStorage));
 			packetFile = clusterStorage.packPatch();
-			packetStream = new FileInputStream(packetFile).getChannel();
-			sharedTempFile.getParentFile().mkdirs();
-			sharedStream = new FileOutputStream(sharedTempFile).getChannel();
-
-			sharedStream.transferFrom(packetStream, 0, packetStream.size());
-
-			packetStream.close();
-			sharedStream.close();
-
-			segmentUpdate = connection
-					.prepareStatement("update search_segments set  version_ = ?, size_ = ? where name_ = ? ");
-			segmentInsert = connection
-					.prepareStatement("insert into search_segments ( name_, version_, size_ ) values ( ?,?,?)");
-
-			segmentUpdate.clearParameters();
-			segmentUpdate.setLong(1, newVersion);
-			segmentUpdate.setLong(2, packetFile.length());
-			segmentUpdate.setString(3, INDEX_PATCHNAME);
-			if (segmentUpdate.executeUpdate() != 1)
+			if (packetFile.exists())
 			{
-				segmentInsert.clearParameters();
-				segmentInsert.setString(1, INDEX_PATCHNAME);
-				segmentInsert.setLong(2, newVersion);
-				segmentInsert.setLong(3, packetFile.length());
-				if (segmentInsert.executeUpdate() != 1)
+				packetStream = new FileInputStream(packetFile).getChannel();
+				sharedTempFile.getParentFile().mkdirs();
+				sharedStream = new FileOutputStream(sharedTempFile).getChannel();
+
+				sharedStream.transferFrom(packetStream, 0, packetStream.size());
+
+				packetStream.close();
+				sharedStream.close();
+
+				segmentUpdate = connection
+						.prepareStatement("update search_segments set  version_ = ?, size_ = ? where name_ = ? ");
+				segmentInsert = connection
+						.prepareStatement("insert into search_segments ( name_, version_, size_ ) values ( ?,?,?)");
+
+				segmentUpdate.clearParameters();
+				segmentUpdate.setLong(1, newVersion);
+				segmentUpdate.setLong(2, packetFile.length());
+				segmentUpdate.setString(3, INDEX_PATCHNAME);
+				if (segmentUpdate.executeUpdate() != 1)
 				{
-					throw new SQLException(" Failed to add patch packet  ");
+					segmentInsert.clearParameters();
+					segmentInsert.setString(1, INDEX_PATCHNAME);
+					segmentInsert.setLong(2, newVersion);
+					segmentInsert.setLong(3, packetFile.length());
+					if (segmentInsert.executeUpdate() != 1)
+					{
+						throw new SQLException(" Failed to add patch packet  ");
+					}
 				}
+				sharedTempFile.renameTo(sharedFinalFile);
+				if (log.isDebugEnabled()) log.debug("DB Patch ");
 			}
-			sharedTempFile.renameTo(sharedFinalFile);
-			if (log.isDebugEnabled()) log.debug("DB Patch ");
+			else
+			{
+				log.warn("Packet file does not exist " + packetFile.getPath());
+			}
 
 		}
 		finally
@@ -1057,47 +1072,56 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			segmentInsert = connection
 					.prepareStatement("insert into search_segments (packet_, name_, version_, size_ ) values ( ?,?,?,?)");
 			packetFile = clusterStorage.packSegment(addsi, newVersion);
-			packetStream = new FileInputStream(packetFile);
-			if (addsi.isInDb())
+			if (packetFile.exists())
 			{
-				segmentUpdate.clearParameters();
-				segmentUpdate.setBinaryStream(1, packetStream, (int) packetFile.length());
-				segmentUpdate.setLong(2, newVersion);
-				segmentUpdate.setLong(3, packetFile.length());
-				segmentUpdate.setString(4, addsi.getName());
-				segmentUpdate.setLong(5, addsi.getVersion());
-				if (segmentUpdate.executeUpdate() != 1)
+				packetStream = new FileInputStream(packetFile);
+				if (addsi.isInDb())
 				{
-					throw new SQLException(" ant Find packet to update " + addsi);
+					segmentUpdate.clearParameters();
+					segmentUpdate.setBinaryStream(1, packetStream, (int) packetFile
+							.length());
+					segmentUpdate.setLong(2, newVersion);
+					segmentUpdate.setLong(3, packetFile.length());
+					segmentUpdate.setString(4, addsi.getName());
+					segmentUpdate.setLong(5, addsi.getVersion());
+					if (segmentUpdate.executeUpdate() != 1)
+					{
+						throw new SQLException(" ant Find packet to update " + addsi);
+					}
+				}
+				else
+				{
+					segmentInsert.clearParameters();
+					segmentInsert.setBinaryStream(1, packetStream, (int) packetFile
+							.length());
+					segmentInsert.setString(2, addsi.getName());
+					segmentInsert.setLong(3, newVersion);
+					segmentInsert.setLong(4, packetFile.length());
+					if (segmentInsert.executeUpdate() != 1)
+					{
+						throw new SQLException(" Failed to insert packet  " + addsi);
+					}
+				}
+				addsi.setVersion(newVersion);
+				if (log.isDebugEnabled()) log.debug("DB Updated " + addsi);
+				try
+				{
+					packetStream.close();
+				}
+				catch (Exception ex)
+				{
+				}
+				try
+				{
+					packetFile.delete();
+				}
+				catch (Exception ex)
+				{
 				}
 			}
 			else
 			{
-				segmentInsert.clearParameters();
-				segmentInsert.setBinaryStream(1, packetStream, (int) packetFile.length());
-				segmentInsert.setString(2, addsi.getName());
-				segmentInsert.setLong(3, newVersion);
-				segmentInsert.setLong(4, packetFile.length());
-				if (segmentInsert.executeUpdate() != 1)
-				{
-					throw new SQLException(" Failed to insert packet  " + addsi);
-				}
-			}
-			addsi.setVersion(newVersion);
-			if (log.isDebugEnabled()) log.debug("DB Updated " + addsi);
-			try
-			{
-				packetStream.close();
-			}
-			catch (Exception ex)
-			{
-			}
-			try
-			{
-				packetFile.delete();
-			}
-			catch (Exception ex)
-			{
+				log.warn("Packet file does not exist " + packetFile.getPath());
 			}
 
 		}
@@ -1670,9 +1694,16 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 					long version = resultSet.getLong(1);
 					File f = new File(getSharedFileName(INDEX_PATCHNAME,
 							sharedStructuredStorage));
-					packetStream = new FileInputStream(f);
-					clusterStorage.unpackPatch(packetStream);
-					if (log.isDebugEnabled()) log.debug("Updated Patch ");
+					if (f.exists())
+					{
+						packetStream = new FileInputStream(f);
+						clusterStorage.unpackPatch(packetStream);
+						if (log.isDebugEnabled()) log.debug("Updated Patch ");
+					}
+					else
+					{
+						log.warn("Shared Segment File does not exist " + f.getPath());
+					}
 				}
 				finally
 				{
@@ -1778,7 +1809,6 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 		return f.getName();
 	}
 
-
 	/**
 	 * @return Returns the validate.
 	 */
@@ -1820,47 +1850,54 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			sharedFinalFile = new File(getSharedFileName(addsi.getName(),
 					sharedStructuredStorage));
 			packetFile = clusterStorage.packSegment(addsi, newVersion);
-			packetStream = new FileInputStream(packetFile).getChannel();
-			sharedTempFile.getParentFile().mkdirs();
-			sharedStream = new FileOutputStream(sharedTempFile).getChannel();
-
-			// Copy file contents from source to destination
-			sharedStream.transferFrom(packetStream, 0, packetStream.size());
-
-			packetStream.close();
-			sharedStream.close();
-
-			segmentUpdate = connection
-					.prepareStatement("update search_segments set  version_ = ?, size_ = ? where name_ = ? and version_ = ?");
-			segmentInsert = connection
-					.prepareStatement("insert into search_segments ( name_, version_, size_ ) values ( ?,?,?)");
-			if (addsi.isInDb())
+			if (packetFile.exists())
 			{
-				segmentUpdate.clearParameters();
-				segmentUpdate.setLong(1, newVersion);
-				segmentUpdate.setLong(2, packetFile.length());
-				segmentUpdate.setString(3, addsi.getName());
-				segmentUpdate.setLong(4, addsi.getVersion());
-				if (segmentUpdate.executeUpdate() != 1)
+				packetStream = new FileInputStream(packetFile).getChannel();
+				sharedTempFile.getParentFile().mkdirs();
+				sharedStream = new FileOutputStream(sharedTempFile).getChannel();
+
+				// Copy file contents from source to destination
+				sharedStream.transferFrom(packetStream, 0, packetStream.size());
+
+				packetStream.close();
+				sharedStream.close();
+
+				segmentUpdate = connection
+						.prepareStatement("update search_segments set  version_ = ?, size_ = ? where name_ = ? and version_ = ?");
+				segmentInsert = connection
+						.prepareStatement("insert into search_segments ( name_, version_, size_ ) values ( ?,?,?)");
+				if (addsi.isInDb())
 				{
-					throw new SQLException(" ant Find packet to update " + addsi);
+					segmentUpdate.clearParameters();
+					segmentUpdate.setLong(1, newVersion);
+					segmentUpdate.setLong(2, packetFile.length());
+					segmentUpdate.setString(3, addsi.getName());
+					segmentUpdate.setLong(4, addsi.getVersion());
+					if (segmentUpdate.executeUpdate() != 1)
+					{
+						throw new SQLException(" ant Find packet to update " + addsi);
+					}
 				}
+				else
+				{
+					segmentInsert.clearParameters();
+					segmentInsert.setString(1, addsi.getName());
+					segmentInsert.setLong(2, newVersion);
+					segmentInsert.setLong(3, packetFile.length());
+					if (segmentInsert.executeUpdate() != 1)
+					{
+						throw new SQLException(" Failed to insert packet  " + addsi);
+					}
+				}
+				addsi.setVersion(newVersion);
+				sharedFinalFile.getParentFile().mkdirs();
+				sharedTempFile.renameTo(sharedFinalFile);
+				log.info("DB Updated " + addsi);
 			}
 			else
 			{
-				segmentInsert.clearParameters();
-				segmentInsert.setString(1, addsi.getName());
-				segmentInsert.setLong(2, newVersion);
-				segmentInsert.setLong(3, packetFile.length());
-				if (segmentInsert.executeUpdate() != 1)
-				{
-					throw new SQLException(" Failed to insert packet  " + addsi);
-				}
+				log.warn("Packet file does not exist " + packetFile.getPath());
 			}
-			addsi.setVersion(newVersion);
-			sharedFinalFile.getParentFile().mkdirs();
-			sharedTempFile.renameTo(sharedFinalFile);
-			log.info("DB Updated " + addsi);
 
 		}
 		finally
@@ -1978,10 +2015,17 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 					long version = resultSet.getLong(1);
 					File f = new File(getSharedFileName(addsi.getName(),
 							sharedStructuredStorage));
-					packetStream = new FileInputStream(f);
-					addsi.setForceValidation(); // force revalidation
-					clusterStorage.unpackSegment(addsi, packetStream, version);
-					if (log.isDebugEnabled()) log.debug("Updated Local " + addsi);
+					if (f.exists())
+					{
+						packetStream = new FileInputStream(f);
+						addsi.setForceValidation(); // force revalidation
+						clusterStorage.unpackSegment(addsi, packetStream, version);
+						if (log.isDebugEnabled()) log.debug("Updated Local " + addsi);
+					}
+					else
+					{
+						log.warn("Shared Segment file is missing " + f.getPath());
+					}
 				}
 				finally
 				{
@@ -2370,7 +2414,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	}
 
 	/**
-	 * @param searchService the searchService to set
+	 * @param searchService
+	 *        the searchService to set
 	 */
 	public void setSearchService(SearchService searchService)
 	{

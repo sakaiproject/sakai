@@ -128,6 +128,12 @@ public interface SearchBuilderItem
 	public static final Integer STATE_COMPLETED = new Integer(2);
 
 	public static final Integer STATE_PENDING_2 = new Integer(3);
+	
+	/**
+	 * Locked for processng
+	 */
+	public static final Integer STATE_LOCKED = new Integer(5);
+
 
 	/**
 	 * The last update to the record
@@ -166,7 +172,8 @@ public interface SearchBuilderItem
 		"Unknown",
 		"Pending",
 		"Complete",
-		"Pending2"
+		"Pending2",
+		"Locked"
 	};
 	public static final String[] actions = new String[] {
 		"Unknown",
@@ -183,7 +190,6 @@ public interface SearchBuilderItem
 		"Rebuild"
 	};
 
-	public static final Integer STATE_LOCKED = new Integer(5);
 	
 
 }
