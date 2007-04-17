@@ -24,10 +24,10 @@
 				<sakai:tool_bar_item value="#{msgs.cdfm_container_title_thread}" action="#{ForumTool.processAddMessage}" id="df_compose_message_dfAllMessages"
 		  			rendered="#{ForumTool.selectedTopic.isNewResponse}" />
       			
-      			<sakai:tool_bar_item value="#{msgs.cdfm_flat_view}" action="#{ForumTool.processActionDisplayFlatView}" />
+      	<sakai:tool_bar_item value="#{msgs.cdfm_flat_view}" action="#{ForumTool.processActionDisplayFlatView}" />
       			
-        		<sakai:tool_bar_item action="#{ForumTool.processActionTopicSettings}" id="topic_setting" value="#{msgs.cdfm_topic_settings}" 
-					rendered="#{ForumTool.instructor}" />
+        <sakai:tool_bar_item action="#{ForumTool.processActionTopicSettings}" id="topic_setting" value="#{msgs.cdfm_topic_settings}" 
+							rendered="#{ForumTool.selectedTopic.changeSettings}" />
 					
 				<h:outputLink id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyUrl}');">
 					<h:graphicImage url="/images/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
@@ -53,14 +53,14 @@
 				 <h:panelGroup styleClass="itemNav">
 				   <h:outputText   value="#{msgs.cdfm_previous_topic}"  rendered="#{!ForumTool.selectedTopic.hasPreviousTopic}" />
 					 <h:commandLink action="#{ForumTool.processActionDisplayPreviousTopic}" value="#{msgs.cdfm_previous_topic}"  rendered="#{ForumTool.selectedTopic.hasPreviousTopic}" 
-					                title=" #{msgs.cdfm_topic_settings}">
+					                title=" #{msgs.cdfm_previous_topic}">
 						 <f:param value="#{ForumTool.selectedTopic.previousTopicId}" name="previousTopicId"/>
 						 <f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 					 </h:commandLink>
 					 <f:verbatim><h:outputText  id="blankSpace1" value=" |  " /></f:verbatim>				
 					 <h:outputText   value="#{msgs.cdfm_next_topic}" rendered="#{!ForumTool.selectedTopic.hasNextTopic}" />
 					 <h:commandLink action="#{ForumTool.processActionDisplayNextTopic}" value="#{msgs.cdfm_next_topic}" rendered="#{ForumTool.selectedTopic.hasNextTopic}" 
-					                title=" #{msgs.cdfm_topic_settings}">
+					                title=" #{msgs.cdfm_next_topic}">
 						<f:param value="#{ForumTool.selectedTopic.nextTopicId}" name="nextTopicId"/>
 						<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 					 </h:commandLink>
