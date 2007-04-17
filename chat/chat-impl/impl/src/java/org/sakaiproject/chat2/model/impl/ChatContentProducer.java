@@ -74,7 +74,7 @@ public class ChatContentProducer implements EntityContentProducer {
       logger.info("init()");
       
       if ("true".equals(ServerConfigurationService.getString( //$NON-NLS-1$
-            "search.experimental", "false"))) //$NON-NLS-1$ //$NON-NLS-2$
+            "search.enable", "false"))) //$NON-NLS-1$ //$NON-NLS-2$
       {
          for (Iterator i = addEvents.iterator(); i.hasNext();)
          {
