@@ -23,7 +23,7 @@
 
 	  <h:panelGroup rendered="#{podHomeBean.resourceToolExists}" >
 	  
-	    <h:panelGroup rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasNewPerm}" >
+	    <h:panelGroup styleClass="podMenuPosition" rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasNewPerm}" >
     	  <sakai:tool_bar>
         	  <sakai:tool_bar_item action="podcastAdd" value="#{msgs.add}" rendered="#{podHomeBean.hasNewPerm || podHomeBean.canUpdateSite}" />
 	          <sakai:tool_bar_item action="podcastOptions" value="#{msgs.options}" rendered="#{podHomeBean.canUpdateSite}" />
@@ -58,7 +58,8 @@
  		 <f:verbatim><a href="</f:verbatim>
  		   <h:outputText value="#{podHomeBean.URL}" />
  		   <f:verbatim>" class="active" target="</f:verbatim>
- 		   <h:outputText value="_blank \" \>" />
+ 		   <h:outputText value="_blank \" " />
+ 		   <f:verbatim> > </f:verbatim>
  	       <h:graphicImage value="images/rss-feed-icon.png" styleClass="indnt1 rssIcon" width="25px" height="25px" />
 		 <f:verbatim></a>
          <br /></f:verbatim>
