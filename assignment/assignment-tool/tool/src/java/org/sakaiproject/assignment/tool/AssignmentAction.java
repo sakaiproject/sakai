@@ -6094,6 +6094,9 @@ public class AssignmentAction extends PagedResourceActionII
 
 		// remove the edit assignment id if any
 		state.removeAttribute(EDIT_ASSIGNMENT_ID);
+		
+		// remove the resubmit number
+		state.removeAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
 
 	} // resetNewAssignment
 
