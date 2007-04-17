@@ -39,8 +39,8 @@ public class SimpleHTMLFormatter implements Formatter
 	 */
 	public SimpleHTMLFormatter()
 	{
-		this.preTag = "<B>";
-		this.postTag = "</B>";
+		this.preTag = "<strong>";
+		this.postTag = "</strong>";
 	}
 
 	/*

@@ -373,7 +373,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 				COMMAND_REFRESHINSTANCE, Messages.getString("searchadmin_cmd_refreshind"),"" }));
 			sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
 				COMMAND_REMOVELOCK, Messages.getString("searchadmin_cmd_removelock"), 
-				"onClick=\"return confirm('"+Messages.getString("searchadmin_cmd_removelockconfirm")+"');\"" }));
+				"onclick=\"return confirm('"+Messages.getString("searchadmin_cmd_removelockconfirm")+"');\"" }));
 			sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
 					COMMAND_RELOADINDEX, Messages.getString("searchadmin_cmd_reloadind"),"" }));
 		}
@@ -457,7 +457,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 			o.add(new AdminOptionImpl(COMMAND_REBUILDINSTANCE, Messages.getString("searchadmin_cmd_rebuildind"),"" ));
 			o.add(new AdminOptionImpl(COMMAND_REFRESHINSTANCE, Messages.getString("searchadmin_cmd_refreshind"),"" ));
 			o.add(new AdminOptionImpl(COMMAND_REMOVELOCK, Messages.getString("searchadmin_cmd_removelock"), 
-				"onClick=\"return confirm('"+Messages.getString("searchadmin_cmd_removelockconfirm")+"');\"" ));
+				"onclick=\"return confirm('"+Messages.getString("searchadmin_cmd_removelockconfirm")+"');\"" ));
 			o.add(new AdminOptionImpl(COMMAND_RELOADINDEX, Messages.getString("searchadmin_cmd_reloadind"),"" ));
 		}
 		return o;

@@ -109,10 +109,10 @@
     </div>
     <div class="searchTabsContainer" >
 	   <span id="results" class="tabHeadOn" >        	
-		  <p class="tabhead" title="Results" ><a href="#" onClick="selectTabs('tagsTab','tabOn','tabOff','resultsTab','tabOff','tabOn','tags','tabHeadOn','tabHeadOff','results','tabHeadOff','tabHeadOn'); setMainFrameHeightNoScroll('<%= request.getAttribute("sakai.tool.placement.id") %>'); return false;" ><%= org.sakaiproject.search.tool.Messages.getString("jsp_results") %></a></p>
+		  <p class="tabhead" title="Results" ><a href="#" onclick="selectTabs('tagsTab','tabOn','tabOff','resultsTab','tabOff','tabOn','tags','tabHeadOn','tabHeadOff','results','tabHeadOff','tabHeadOn'); setMainFrameHeightNoScroll('<%= request.getAttribute("sakai.tool.placement.id") %>'); return false;" ><%= org.sakaiproject.search.tool.Messages.getString("jsp_results") %></a></p>
        </span>
 	   <span id="tags" class="tabHeadOff" >        	
-		  <p class="tabhead" title="Tags" ><a href="#" onClick="selectTabs('tagsTab','tabOff','tabOn','resultsTab','tabOn','tabOff','tags','tabHeadOff','tabHeadOn','results','tabHeadOn','tabHeadOff'); setMainFrameHeightNoScroll('<%= request.getAttribute("sakai.tool.placement.id") %>'); return false;" ><%= org.sakaiproject.search.tool.Messages.getString("jsp_tags") %></a></p>
+		  <p class="tabhead" title="Tags" ><a href="#" onclick="selectTabs('tagsTab','tabOff','tabOn','resultsTab','tabOn','tabOff','tags','tabHeadOff','tabHeadOn','results','tabHeadOn','tabHeadOff'); setMainFrameHeightNoScroll('<%= request.getAttribute("sakai.tool.placement.id") %>'); return false;" ><%= org.sakaiproject.search.tool.Messages.getString("jsp_tags") %></a></p>
     	</span>
     </div>
     <div class="searchResultsContainer" >
