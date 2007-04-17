@@ -54,6 +54,8 @@ import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Xml;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -561,7 +563,13 @@ public class BaseSite implements Site
 	 */
 	public String getUrl()
 	{
-		return ((BaseSiteService) (SiteService.getInstance())).serverConfigurationService().getPortalUrl() + "/site/" + m_id;
+                Session s = SessionManager.getCurrentSession();
+                String controllingPortal = (String) s.getAttribute("sakai-controlling-portal");
+                String siteString  = "/site/";
+                if ( controllingPortal != null ) {
+                        siteString = "/" + controllingPortal + "/" ;
+                }
+		return ((BaseSiteService) (SiteService.getInstance())).serverConfigurationService().getPortalUrl() + siteString + m_id;
 	}
 
 	/**
