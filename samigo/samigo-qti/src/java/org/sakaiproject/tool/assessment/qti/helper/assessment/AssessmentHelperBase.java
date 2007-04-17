@@ -332,7 +332,8 @@ public abstract class AssessmentHelperBase
     // submissions
     if (submissionMessage != null)
     {
-      assessmentXml.setFieldentry("SUBMISSION_MESSAGE", submissionMessage);
+      String wrappedSubmissionMessage = "<![CDATA[" + submissionMessage + "]]>";
+      assessmentXml.setFieldentry("SUBMISSION_MESSAGE", wrappedSubmissionMessage, true);
     }
     if (finalPageUrl != null)
     {

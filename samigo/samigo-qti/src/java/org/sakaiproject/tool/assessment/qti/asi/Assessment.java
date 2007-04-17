@@ -118,12 +118,23 @@ public class Assessment  extends ASIBaseClass
   }
 
   /**
+  *
+  *
+  * @param fieldlabel
+  * @param setValue
+  * @param noEscapeXML
+  */
+  public void setFieldentry(String fieldlabel, String setValue)
+  {
+	setFieldentry(fieldlabel, setValue, false);
+  }
+  /**
    *
    *
    * @param fieldlabel
    * @param setValue
    */
-  public void setFieldentry(String fieldlabel, String setValue)
+  public void setFieldentry(String fieldlabel, String setValue, boolean noEscapeXML)
   {
     if(log.isDebugEnabled())
     {
@@ -134,7 +145,7 @@ public class Assessment  extends ASIBaseClass
     String xpath =
       "questestinterop/assessment/qtimetadata/qtimetadatafield/fieldlabel[text()='" +
       fieldlabel + "']/following-sibling::fieldentry";
-    super.setFieldentry(xpath, setValue);
+    super.setFieldentry(xpath, setValue, noEscapeXML);
   }
   /**
    * Add a section ref with section Id sectionId.

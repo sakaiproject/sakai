@@ -200,8 +200,26 @@ public abstract class ASIBaseClass
    */
   protected void setFieldentry(String xpath, String value)
   {
-    String setValue = escapeXml(value);
-
+	setFieldentry(xpath, value, false);
+  }
+  /**
+   * Set field entry.
+   *
+   * @param xpath
+   * @param setValue
+   * @param noEscapeXML
+   */
+  protected void setFieldentry(String xpath, String value, boolean noEscapeXML)
+  {
+	String setValue = null;
+	
+	if (noEscapeXML) {  
+      setValue = value;
+	}
+	else {
+	  setValue = escapeXml(value);
+	}
+	
     if(log.isDebugEnabled())
     {
       log.debug("setFieldentry(String " + xpath + ", String " + setValue + ")");
