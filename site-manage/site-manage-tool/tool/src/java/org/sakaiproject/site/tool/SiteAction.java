@@ -23,6 +23,7 @@ package org.sakaiproject.site.tool;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -10453,12 +10454,15 @@ public class SiteAction extends PagedResourceActionII {
 				.setAttribute(STATE_SELECTED_PARTICIPANTS,
 						selectedParticipantList);
 
-	} // setSelectedParticipantRoles
+	} // setSelectedParticipantRol3es
 
 	/**
 	 * the SiteComparator class
 	 */
 	private class SiteComparator implements Comparator {
+		
+		Collator collator = Collator.getInstance();
+		
 		/**
 		 * the criteria
 		 */
@@ -10551,8 +10555,9 @@ public class SiteAction extends PagedResourceActionII {
 				if (o2.getClass().equals(Participant.class)) {
 					s2 = ((Participant) o2).getName();
 				}
-
+				
 				result = compareString(s1, s2);
+
 			} else if (m_criterion.equals(SORTED_BY_PARTICIPANT_UNIQNAME)) {
 				// sort by whether the site is joinable or not
 				String s1 = null;
@@ -10695,7 +10700,7 @@ public class SiteAction extends PagedResourceActionII {
 			} else if (s1 == null) {
 				result = -1;
 			} else {
-				result = s1.compareToIgnoreCase(s2);
+				result = collator.compare(s1, s2);
 			}
 			return result;
 		}
