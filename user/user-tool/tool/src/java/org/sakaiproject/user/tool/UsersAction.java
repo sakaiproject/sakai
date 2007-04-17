@@ -42,6 +42,7 @@ import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.Authentication;
 import org.sakaiproject.user.api.AuthenticationException;
 import org.sakaiproject.user.api.Evidence;
@@ -150,8 +151,17 @@ public class UsersAction extends PagedResourceActionII
 		if (state.getAttribute("redirect") != null)
 		{
 			state.removeAttribute("redirect");
+			Session s = SessionManager.getCurrentSession();
+			// TODO: Decide if this should be in "getPortalUrl"
+			// I don't think so but could be convinced - /chuck
+			String controllingPortal = (String) s.getAttribute("sakai-controlling-portal");
+			String portalUrl = ServerConfigurationService.getPortalUrl();
+			if ( controllingPortal != null ) {
+				portalUrl = portalUrl + "/" + controllingPortal;
+			}
+ 
 			sendParentRedirect((HttpServletResponse) ThreadLocalManager.get(RequestFilter.CURRENT_HTTP_RESPONSE),
-					ServerConfigurationService.getPortalUrl());
+					portalUrl);
 			return template;
 		}
 
