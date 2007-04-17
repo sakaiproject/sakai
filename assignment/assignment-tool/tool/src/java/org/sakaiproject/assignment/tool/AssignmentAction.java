@@ -6915,7 +6915,7 @@ public class AssignmentAction extends PagedResourceActionII
 							}
 							else
 							{
-								result = (new Integer(grade1)).intValue() > (new Integer(grade2)).intValue() ? 1 : -1;
+								result = (new Double(grade1)).doubleValue() > (new Double(grade2)).doubleValue() ? 1 : -1;
 
 							}
 						}
