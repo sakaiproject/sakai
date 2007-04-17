@@ -127,13 +127,12 @@
 				  #end
 				  <option value="">$tlang.getString("nscourse.findCourse.select")</option>
 				  #if ($i < $cmLevelOptions.size())
+					#if ($i < $cmLevelSelections.size())
+						#set ($selectedItem = $cmLevelSelections.get($i))
+					#end
 				      #foreach ($coursething in $cmLevelOptions.get($i))
-				        #if ($i < $cmLevelSelections.size())
-					        #set ($selectedItem = $cmLevelSelections.get($i))
-					    #end
-					    <!-- selected: $selectedItem -->
 					    <option value="$coursething.eid" 
-					    #if ($coursething.eid == $selectedItem) 
+					    #if ($i < $cmLevelSelections.size() && $coursething.eid == $selectedItem) 
 					    	selected="true" 
 					    #end
 					    >
