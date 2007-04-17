@@ -73,6 +73,7 @@ public abstract class ComponentServlet extends HttpServlet
 			out.println("<html><head></head><body>");
 			out.println("<script type=\"text/javascript\" language=\"JavaScript\">");
 			out.println("if (parent)\n" + "{\n\tparent.location.replace('" + url + "');\n}\n");
+			out.println("else\n" + "{\n\tlocation.replace('" + url + "');\n}\n");
 			out.println("</script>");
 			out.println("</body></html>");
 			resp.flushBuffer();
