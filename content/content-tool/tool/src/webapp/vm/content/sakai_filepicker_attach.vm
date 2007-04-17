@@ -64,8 +64,9 @@
 					<tr>
 						<td headers="item">
 							<h4>
-								<img src="#imageLink($contentTypeImageService.getContentTypeImage($att_item.type))" border= "0" alt ="$contentTypeImageService.getContentTypeDisplayName($att_item.type) icon" hspace="0" />
-								<a href="$att_item.accessUrl" target="_blank" title="$tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($att_item.type)   [$tlang.getString('gen.newwin')]">$att_item.displayName</a>
+								<img src="#imageLink($att_item.iconLocation)" border= "0" alt="$att_item.hoverText" hspace="0" />
+								##<img src="#imageLink($contentTypeImageService.getContentTypeImage($att_item.type))" border= "0" alt ="$contentTypeImageService.getContentTypeDisplayName($att_item.type) icon" hspace="0" />
+								<a href="$att_item.accessUrl" target="_blank" title="$tlang.getString('gen.type'): $att_item.hoverText   [$tlang.getString('gen.newwin')]">$att_item.displayName</a>
 							</h4>	
 						</td>
 						<td  headers="action">
@@ -201,19 +202,20 @@
 									#if ($item.hasCopyrightAlert())
 										## if there is a copyright alert, show the alert page first
 										<a href="" 
-										title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($item.type)  [$tlang.getString('gen.newwin')]"
+										title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $item.hoverText  [$tlang.getString('gen.newwin')]"
 										onclick="openCopyrightWindow('${item.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false" >
 										#else
 										<a href="${item.url}" target="${item.target}"
-											title="$tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($item.type)  [$tlang.getString('gen.newwin')]"
+											title="$tlang.getString('gen.type'): $item.hoverText  [$tlang.getString('gen.newwin')]"
 										>
 									#end
-									<img src = "#imageLink($contentTypeImageService.getContentTypeImage($item.type))" border= "0" alt ="" hspace="0" />
+									<img src="#imageLink($item.iconLocation)" border= "0" alt="$item.hoverText" hspace="0" />
+									##<img src = "#imageLink($contentTypeImageService.getContentTypeImage($item.type))" border= "0" alt ="" hspace="0" />
 									</a>
 									#if ($item.hasCopyrightAlert())
 										## if there is a copyright alert, show the alert page first
 										<a href=""
-										title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($item.type)  [$tlang.getString('gen.newwin')]"
+										title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $item.hoverText  [$tlang.getString('gen.newwin')]"
 										onclick="openCopyrightWindow('${item.accessUrl}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false;" 
 										>
 											$validator.escapeHtml($item.name)
@@ -221,13 +223,14 @@
 										&#169;
 									#else
 										<a href="$item.accessUrl" target="$item.target"
-										title="$tlang.getString('gen.type'): $contentTypeImageService.getContentTypeDisplayName($item.type)  [$tlang.getString('gen.newwin')]"
+										title="$tlang.getString('gen.type'): $item.hoverText  [$tlang.getString('gen.newwin')]"
 										>
 											$validator.escapeHtml($item.name)
 										</a>
 									#end
 								#else
-									 <img src = "#imageLink($contentTypeImageService.getContentTypeImage($item.type))" border="0" alt ="" hspace="0" />
+									<img src="#imageLink($item.iconLocation)" border= "0" alt="$item.hoverText" hspace="0" />
+									## <img src = "#imageLink($contentTypeImageService.getContentTypeImage($item.type))" border="0" alt ="" hspace="0" />
 									$validator.escapeHtml($item.name)
 									#if ($item.hasCopyrightAlert())
 										&#169;
@@ -317,18 +320,19 @@
 					#end
 					################################################################ End Paging widgets
 					#foreach($root in $other_sites)
+<!-- attach $root $root.class.name $root.id -->
 						#set($itemcount = $itemcount + 1)
-						#set ($width = "$!{item.depth}${unit}")
-						#if ($item.depth==0)	
+						#set ($width = "$!{root.depth}${unit}")
+						#if ($root.depth==0)	
 							#set ($margin="margin-left:0")
 						#else
 							#set ($margin="margin-left:2em")
 							#set ($marginAction="margin-left:4.7em")
 						#end
-						#if ($item.depth > 3)
+						#if ($root.depth > 3)
 							#set($headerDepth = 6)
 						#else
-							#set($headerDepth = $item.depth + 3)
+							#set($headerDepth = $root.depth + 3)
 						#end
 						############################### Show top level folder #################
 						<tr>
@@ -356,23 +360,62 @@
 											$validator.escapeHtml(${root.name})
 										#end
 									</h$headerDepth>	
+								#else
+									#if ($root.canRead())
+										#if ($root.hasCopyrightAlert())
+											## if there is a copyright alert, show the alert page first
+											<a href="" 
+											title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $item.hoverText  [$tlang.getString('gen.newwin')]"
+											onclick="openCopyrightWindow('${root.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false" >
+											#else
+											<a href="${root.url}" target="${root.target}"
+												title="$tlang.getString('gen.type'):  $item.hoverText  [$tlang.getString('gen.newwin')]"
+											>
+										#end
+										<img src="#imageLink($root.iconLocation)" border= "0" alt="$root.hoverText" hspace="0" />
+										##<img src = "#imageLink($contentTypeImageService.getContentTypeImage($root.type))" border= "0" alt ="" hspace="0" />
+										</a>
+										#if ($root.hasCopyrightAlert())
+											## if there is a copyright alert, show the alert page first
+											<a href=""
+											title="$tlang.getString('gen.copycomf') $tlang.getString('gen.type'): $item.hoverText  [$tlang.getString('gen.newwin')]"
+											onclick="openCopyrightWindow('${root.accessUrl}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false;" 
+											>
+												$validator.escapeHtml($root.name)
+											</a>
+											&#169;
+										#else
+											<a href="$root.accessUrl" target="$root.target"
+											title="$tlang.getString('gen.type'): $item.hoverText  [$tlang.getString('gen.newwin')]"
+											>
+												$validator.escapeHtml($root.name)
+											</a>
+										#end
+									#else
+										<img src="#imageLink($root.iconLocation)" border= "0" alt="$root.hoverText" hspace="0" />
+										##<img src = "#imageLink($contentTypeImageService.getContentTypeImage($root.type))" border="0" alt ="" hspace="0" />
+										$validator.escapeHtml($root.name)
+										#if ($item.hasCopyrightAlert())
+											&#169;
+										#end
+									#end
 								#end	
 							</td>
 							<td headers="actions">
 								#if($can_attach_more)
-									<div class="itemAction">
-										#if($item.isCollection())
+									<div class="rootAction">
+										#if($root.isCollection())
 										#else
 											#set ($itemsOnLine = 0)
 											####### deal with attaching item
-											#if ($item.canRead())
+											#if ($root.canRead())
 												#if($disable_attach_links)
 												#else
 													#if ($itemsOnLine > 0)
 														|
 													#end
 													#set ($itemsOnLine = $itemsOnLine + 1)
-													<a href="#toolLinkParam("FilePickerAction" "doAttachitem" "itemId=$validator.escapeUrl(${item.id})")" title ="$tlang.getString('att.copy')">$tlang.getString("att.copy").trim()</a>
+													<a href="#toolLinkParam("FilePickerAction" "doAttachitem" "itemId=$validator.escapeUrl(${root.id})")" title ="$tlang.getString('att.copy')">$tlang.getString("att.copy").trim()</a>
 												#end
 											#end
 										#end
@@ -396,7 +439,7 @@
 			#end
 			############################################# end of "Other sites" section 
 
-			</table>
+		</table>
 		
 		<p class="act" >
 			<input type="button" name="attachButton" id="attachButton"  accesskey="s"

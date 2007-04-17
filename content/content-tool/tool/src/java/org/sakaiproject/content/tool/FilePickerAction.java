@@ -387,6 +387,13 @@ public class FilePickerAction extends PagedResourceHelperAction
 	 */
 	protected void finishAction(SessionState state, ToolSession toolSession, ResourceToolActionPipe pipe)
 	{
+		ResourceTypeRegistry registry = (ResourceTypeRegistry) toolSession.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+		if(registry == null)
+		{
+			registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+			toolSession.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
+		}
+		
 		ResourceToolAction action = pipe.getAction();
 		// use ActionType for this
 		switch(action.getActionType())
@@ -410,7 +417,13 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 				for(ContentResource resource : resources)
 				{
-					new_items.add(new AttachItem(resource));
+					AttachItem item = new AttachItem(resource);
+					String typeId = resource.getResourceType();
+					item.setResourceType(typeId);
+					ResourceType typedef = registry.getType(typeId);
+					item.setHoverText(typedef.getLocalizedHoverText(resource));
+					item.setIconLocation(typedef.getIconLocation(resource));
+					new_items.add(item);
 				}
 				toolSession.setAttribute(STATE_HELPER_CHANGED, Boolean.TRUE.toString());
 			}
@@ -959,6 +972,10 @@ public class FilePickerAction extends PagedResourceHelperAction
 		toolSession.setAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE, ComponentManager.get("org.sakaiproject.content.api.ContentTypeImageService"));
 		toolSession.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry"));
 		
+		ResourceTypeRegistry registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+		toolSession.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
+		
+		//ResourceType type = registry.getType(typeId); 
 		// start with a copy of the original attachment list
 		List attachments = (List) toolSession.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
 		if (attachments == null)
@@ -1003,7 +1020,11 @@ public class FilePickerAction extends PagedResourceHelperAction
 	
 				AttachItem item = new AttachItem(ref.getId(), displayName, containerId, accessUrl);
 				item.setContentType(res.getContentType());
-				item.setResourceType(res.getResourceType());
+				String typeId = res.getResourceType();
+				item.setResourceType(typeId);
+				ResourceType typedef = registry.getType(typeId);
+				item.setHoverText(typedef.getLocalizedHoverText(res));
+				item.setIconLocation(typedef.getIconLocation(res));
 				
 				new_items.add(item);
             }
@@ -1163,6 +1184,14 @@ public class FilePickerAction extends PagedResourceHelperAction
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		ParameterParser params = data.getParameters ();
 
+		ResourceTypeRegistry registry = (ResourceTypeRegistry) toolSession.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+		if(registry == null)
+		{
+			registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+			toolSession.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
+		}
+		//ResourceType type = registry.getType(typeId); 
+		
 		String max_file_size_mb = (String) toolSession.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE);
 		int max_bytes = 1024 * 1024;
 		try
@@ -1243,8 +1272,12 @@ public class FilePickerAction extends PagedResourceHelperAction
 					String accessUrl = attachment.getUrl();
 
 					AttachItem item = new AttachItem(attachment.getId(), filename, containerId, accessUrl);
-					item.setResourceType(ResourceType.TYPE_UPLOAD);
 					item.setContentType(contentType);
+					String typeId = ResourceType.TYPE_UPLOAD;
+					item.setResourceType(typeId);
+					ResourceType typedef = registry.getType(typeId);
+					item.setHoverText(typedef.getLocalizedHoverText(attachment));
+					item.setIconLocation(typedef.getIconLocation(attachment));
 					new_items.add(item);
 					
 					toolSession.setAttribute(STATE_HELPER_CHANGED, Boolean.TRUE.toString());
@@ -1298,6 +1331,14 @@ public class FilePickerAction extends PagedResourceHelperAction
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		ParameterParser params = data.getParameters ();
 
+		ResourceTypeRegistry registry = (ResourceTypeRegistry) toolSession.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+		if(registry == null)
+		{
+			registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+			toolSession.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
+		}
+		//ResourceType type = registry.getType(typeId); 
+		
 		String url = params.getCleanString("url");
 
 		ContentHostingService contentService = (ContentHostingService) toolSession.getAttribute (STATE_CONTENT_SERVICE);
@@ -1336,8 +1377,12 @@ public class FilePickerAction extends PagedResourceHelperAction
 			String accessUrl = attachment.getUrl();
 
 			AttachItem item = new AttachItem(attachment.getId(), url, containerId, accessUrl);
-			item.setResourceType(ResourceType.TYPE_URL);
 			item.setContentType(ResourceProperties.TYPE_URL);
+			String typeId = ResourceType.TYPE_URL;
+			item.setResourceType(typeId);
+			ResourceType typedef = registry.getType(typeId);
+			item.setHoverText(typedef.getLocalizedHoverText(attachment));
+			item.setIconLocation(typedef.getIconLocation(attachment));
 			new_items.add(item);
 			toolSession.setAttribute(STATE_HELPER_CHANGED, Boolean.TRUE.toString());
 		}
@@ -1580,6 +1625,13 @@ public class FilePickerAction extends PagedResourceHelperAction
 	{
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		ContentHostingService contentService = (ContentHostingService) toolSession.getAttribute (STATE_CONTENT_SERVICE);
+		ResourceTypeRegistry registry = (ResourceTypeRegistry) toolSession.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+		if(registry == null)
+		{
+			registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+			toolSession.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
+		}
+		//ResourceType type = registry.getType(typeId); 
 
 		List<AttachItem> new_items = (List<AttachItem>) toolSession.getAttribute(STATE_ADDED_ITEMS);
 		if(new_items == null)
@@ -1629,7 +1681,11 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 				AttachItem item = new AttachItem(attachment.getId(), displayName, containerId, accessUrl);
 				item.setContentType(contentType);
-				item.setResourceType(res.getResourceType());
+				String typeId = res.getResourceType();
+				item.setResourceType(typeId);
+				ResourceType typedef = registry.getType(typeId);
+				item.setHoverText(typedef.getLocalizedHoverText(res));
+				item.setIconLocation(typedef.getIconLocation(res));
 				new_items.add(item);
 				toolSession.setAttribute(STATE_HELPER_CHANGED, Boolean.TRUE.toString());
 			}
@@ -1682,6 +1738,13 @@ public class FilePickerAction extends PagedResourceHelperAction
 	{
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) toolSession.getAttribute (STATE_CONTENT_SERVICE);
+		ResourceTypeRegistry registry = (ResourceTypeRegistry) toolSession.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+		if(registry == null)
+		{
+			registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+			toolSession.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
+		}
+		//ResourceType type = registry.getType(typeId); 
 
 		List<AttachItem> new_items = (List<AttachItem>) toolSession.getAttribute(STATE_ADDED_ITEMS);
 		if(new_items == null)
@@ -1727,7 +1790,11 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 				AttachItem item = new AttachItem(itemId, displayName, containerId, accessUrl);
 				item.setContentType(res.getContentType());
-				item.setResourceType(res.getResourceType());
+				String typeId = res.getResourceType();
+				item.setResourceType(typeId);
+				ResourceType typedef = registry.getType(typeId);
+				item.setHoverText(typedef.getLocalizedHoverText(res));
+				item.setIconLocation(typedef.getIconLocation(res));
 				
 				new_items.add(item);
 				toolSession.setAttribute(STATE_HELPER_CHANGED, Boolean.TRUE.toString());
@@ -1833,6 +1900,14 @@ public class FilePickerAction extends PagedResourceHelperAction
 		// find the ContentHosting service
 		ContentHostingService contentService = (ContentHostingService) toolSession.getAttribute (STATE_CONTENT_SERVICE);
 
+		ResourceTypeRegistry registry = (ResourceTypeRegistry) toolSession.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+		if(registry == null)
+		{
+			registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+			toolSession.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
+		}
+		//ResourceType type = registry.getType(typeId); 
+		
 		ResourcesItem item = (ResourcesItem) toolSession.getAttribute(STATE_NEW_ATTACHMENT);
 		
 		// get the parameter-parser
@@ -2094,7 +2169,11 @@ public class FilePickerAction extends PagedResourceHelperAction
 				{
 					AttachItem new_item = new AttachItem(resource.getId(), displayName, collectionId, resource.getUrl());
 					new_item.setContentType(resource.getContentType());
-					new_item.setResourceType(resourceType);
+					String typeId = resource.getResourceType();
+					new_item.setResourceType(typeId);
+					ResourceType typedef = registry.getType(typeId);
+					new_item.setHoverText(typedef.getLocalizedHoverText(resource));
+					new_item.setIconLocation(typedef.getIconLocation(resource));
 					
 					List new_items = (List) toolSession.getAttribute(STATE_ADDED_ITEMS);
 					if(new_items == null)
@@ -2607,6 +2686,8 @@ public class FilePickerAction extends PagedResourceHelperAction
 		protected String m_collectionId;
 		protected String m_contentType;
 		protected String m_resourceType;
+		protected String hoverText;
+		protected String iconLocation;
 
 		/**
 		 * @param id
@@ -2636,6 +2717,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 				m_contentType = ((ContentResource) entity).getContentType();
 			}
 			m_resourceType = entity.getResourceType();
+
        }
 
 		/**
@@ -2737,6 +2819,26 @@ public class FilePickerAction extends PagedResourceHelperAction
         public String getResourceType()
         {
         	return m_resourceType;
+        }
+
+		public String getHoverText()
+        {
+        	return hoverText;
+        }
+
+		public void setHoverText(String hoverText)
+        {
+        	this.hoverText = hoverText;
+        }
+
+		public String getIconLocation()
+        {
+        	return iconLocation;
+        }
+
+		public void setIconLocation(String iconLocation)
+        {
+        	this.iconLocation = iconLocation;
         }
 
 	}	// Inner class AttachItem
