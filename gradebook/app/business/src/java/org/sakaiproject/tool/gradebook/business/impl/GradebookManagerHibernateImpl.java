@@ -1631,10 +1631,14 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	return null;
     }
     
-    public List getCategoriesWithStats(Long gradebookId) {
+    public List getCategoriesWithStats(Long gradebookId, String assignmentSort, boolean assignAscending) {
     	List categories = getCategories(gradebookId);
     	Set allStudentUids = getAllStudentUids(getGradebookUid(gradebookId));
-    	List allAssignments = getAssignmentsWithStats(gradebookId, Assignment.DEFAULT_SORT, true);
+    	List allAssignments;
+    	if(assignmentSort != null)
+    		allAssignments = getAssignmentsWithStats(gradebookId, assignmentSort, assignAscending);
+    	else
+    		allAssignments = getAssignmentsWithStats(gradebookId, Assignment.DEFAULT_SORT, assignAscending);
 
     	List gradeRecords = getAllAssignmentGradeRecords(gradebookId, allStudentUids);
     	Map cateMap = new HashMap();

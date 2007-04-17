@@ -1759,7 +1759,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 
 		addUsersEnrollments(persistentGradebook, uid);
 
-		List cateList = gradebookManager.getCategoriesWithStats(persistentGradebook.getId());
+		List cateList = gradebookManager.getCategoriesWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true);
 
 		for(int i=0; i<cateList.size(); i++)
 		{
@@ -1811,7 +1811,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords, GradebookService.GRADE_TYPE_POINTS);
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
 		gradebookManager.updateGradebook(persistentGradebook);
-		cateList = gradebookManager.getCategoriesWithStats(persistentGradebook.getId());
+		cateList = gradebookManager.getCategoriesWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true);
 
 		for(int i=0; i<cateList.size(); i++)
 		{
