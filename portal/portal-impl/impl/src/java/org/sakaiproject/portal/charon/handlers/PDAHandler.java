@@ -46,7 +46,6 @@ import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.Web;
 
-
 /**
  * 
  * @author csev
@@ -78,6 +77,8 @@ public class PDAHandler extends PageHandler
 	{
 		if ((parts.length >= 2) && (parts[1].equals("pda")))
 		{
+			// Indicate that we are the controlling portal
+			session.setAttribute("sakai-controlling-portal",urlFragment);
 			try
 			{
 
@@ -193,17 +194,13 @@ public class PDAHandler extends PageHandler
 		}
 
 		ByteArrayServletResponse bufferedResponse = new ByteArrayServletResponse(res);
-		// TODO: This should not be necessary - but I leave it here for testing
-		// until we are usre this is not an issue. April 2007
-		// ThreadLocalManager.set(CURRENT_HTTP_RESPONSE, bufferedResponse);
 
 		try
 		{
-			boolean retval = doToolBuffer(req, bufferedResponse, session, parts[4], req
-					.getContextPath()
-					+ req.getServletPath() + Web.makePath(parts, 1, 5), Web.makePath(
-					parts, 5, parts.length));
-			if (!retval) return;
+                	boolean retval = doToolBuffer(req, bufferedResponse, session, parts[4], 
+				req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 5), 
+				Web.makePath(parts, 5, parts.length));
+			if ( ! retval ) return;
 		}
 		catch (Exception e)
 		{
@@ -211,8 +208,6 @@ public class PDAHandler extends PageHandler
 		}
 
 		String responseStr = bufferedResponse.getInternalBuffer();
-		// System.out.println("bufferedResponse.getInternalBuffer()\n"+
-		// responseStr);
 		if (responseStr == null && responseStr.length() < 1) return;
 
 		String responseStrLower = responseStr.toLowerCase();
@@ -221,11 +216,19 @@ public class PDAHandler extends PageHandler
 		int headEnd = responseStrLower.indexOf("</head");
 		int bodyStart = responseStrLower.indexOf("<body");
 		bodyStart = findEndOfTag(responseStrLower, bodyStart);
-		int bodyEnd = responseStrLower.indexOf("</body");
 
-		if (tidAllow.indexOf(":debug:") >= 0)
-			log.info("Frameless HS=" + headStart + " HE=" + headEnd + " BS=" + bodyStart
-					+ " BE=" + bodyEnd);
+		// Some tools (Blogger for example) have multiple 
+		// head-body pairs - browsers seem to not care much about
+		// this so we will do the same - so tht we can be
+		// somewhat clean - we search for the "last" end
+		// body tag - for the normal case there will only be one
+		int bodyEnd = responseStrLower.lastIndexOf("</body");
+		// If there is no body end at all or it is before the body 
+		// start tag we simply - take the rest of the response
+		if ( bodyEnd < bodyStart ) bodyEnd = responseStrLower.length() - 1;
+
+		if( tidAllow.indexOf(":debug:") >= 0 )
+			log.info("Frameless HS="+headStart+" HE="+headEnd+" BS="+bodyStart+" BE="+bodyEnd);
 
 		if (bodyEnd > bodyStart && bodyStart > headEnd && headEnd > headStart
 				&& headStart > 1)

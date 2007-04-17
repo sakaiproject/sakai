@@ -82,6 +82,8 @@ public class SiteHandler extends WorksiteHandler
 	{
 		if ((parts.length >= 2) && (parts[1].equals("site")))
 		{
+			// This is part of the main portal so we simply remove the attribute
+			session.setAttribute("sakai-controlling-portal",null);
 			try
 			{
 				// recognize an optional page/pageid

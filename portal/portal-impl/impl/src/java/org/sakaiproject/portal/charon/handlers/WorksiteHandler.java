@@ -75,6 +75,8 @@ public class WorksiteHandler extends PageHandler
 	{
 		if ((parts.length >= 3) && (parts[1].equals("worksite")))
 		{
+			// Indicate that we are the controlling portal
+			session.setAttribute("sakai-controlling-portal",urlFragment);
 			try
 			{
 				// recognize an optional page/pageid

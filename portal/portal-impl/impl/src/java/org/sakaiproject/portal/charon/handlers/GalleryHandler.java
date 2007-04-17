@@ -68,6 +68,8 @@ public class GalleryHandler extends SiteHandler
 	{
 		if ((parts.length >= 2) && (parts[1].equals("gallery")))
 		{
+			// Indicate that we are the controlling portal
+			session.setAttribute("sakai-controlling-portal",urlFragment);
 			try
 			{
 				// recognize an optional page/pageid
