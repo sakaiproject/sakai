@@ -80,4 +80,5 @@
 		#end
 	</form>
 </div>
+##<textarea id="debugger" rows="80" cols="100"></textarea>
 #parse("/vm/resources/sakai_properties_scripts.vm")

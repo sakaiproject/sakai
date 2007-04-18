@@ -67,21 +67,21 @@
 				tag.onclick = handleSetToHidden;
 			}
 #if($model.isGroupPossible())
-			else if(tag.id && tag.id.match(/^access_mode_groups${DOT}\d+$/))
-			{
-				tag.onchange = handleAccessIsGroup;
-			}
 			else if(tag.id && tag.id.match(/^access_mode_inherited${DOT}\d+$/))
 			{
-				tag.onchange = handleAccessNotGroup;
+				tag.onclick = handleAccessNotGroup;
 			}
 			else if(tag.id && tag.id.match(/^access_mode_public${DOT}\d+$/))
 			{
-				tag.onchange = handleAccessNotGroup;
+				tag.onclick = handleAccessNotGroup;
+			}
+			else if(tag.id && tag.id.match(/^access_mode_groups${DOT}\d+$/))
+			{
+				tag.onclick = handleAccessIsGroup;
 			}
 			else if(tag.id && tag.id.match(/^selectall${DOT}\d+$/))
 			{
-				tag.onchange = handleSelectAllChange;
+				tag.onclick = handleSelectAllChange;
 			}
 #end
 		}
@@ -273,6 +273,20 @@
 				var newText = document.createTextNode("$tlang.getString("edit.show")");
 				addDetailsLink.appendChild(newText);
 			}
+			var inheritedChoice = document.getElementById("access_mode_inherited${DOT}" + index);
+			if(inheritedChoice)
+			{
+				inheritedChoice.checked = true;
+				var selectAllGroups = document.getElementById("selectall${DOT}" + index);
+				if(selectAllGroups)
+				{
+					if(selectAllGroups.checked)
+					{
+						toggleAllGroups(index);
+					}
+					hideGroupsTable(index);
+				}
+			}
 		}
 		
 		var prevNext = document.getElementById("next$DOT" + prevIndex);
@@ -288,7 +302,13 @@
 		}
 		
 		attachEventHandlers();
-		
+#*
+		var debug_guy = document.getElementById("debugger");
+		if(debug_guy)
+		{
+			debug_guy.value = fileInputDiv.innerHTML;
+		}
+*#
 		resizeFrame('grow');
 	}
 	function removeFileItem(index)
@@ -519,16 +539,16 @@
 			if(dotPos >= 0)
 			{
 				var baseName = element.id.substr(0,dotPos);
-				newElement.setAttribute("id", baseName + DOT + index);
-				newElement.setAttribute("name", baseName + DOT + index);
+				newElement.id = baseName + DOT + index;
+				newElement.name = baseName + DOT + index;
 			}
-			if(element.name && element.name != element.id)
+			if(element.name)
 			{
 				var dotPosInName = element.name.lastIndexOf(DOT);
 				if(dotPosInName >= 0)
 				{
 					var baseName2 = element.name.substr(0,dotPosInName);
-					newElement.setAttribute("name", baseName2 + DOT + index);
+					newElement.name = baseName2 + DOT + index;
 				}
 			}
 		}
@@ -749,7 +769,7 @@
 		evt = (evt) ? evt : ((event) ? event : null);
 		if(evt)
 		{
-			evt.cancelBubble = true;
+			//evt.cancelBubble = true;
 			var element = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null)
 			if(element)
 			{
@@ -769,7 +789,7 @@
 	function hideGroupsTable(index)
 	{
 		var element = document.getElementById("groupTable$DOT" + index);
-		if(element && element.style)
+		if(element)
 		{
 			element.style.display = "none";
 		}		
@@ -926,6 +946,7 @@
 		var selectAll = document.getElementById("selectall${DOT}" + index);
 		var newSetting = selectAll.checked;
 		var checkboxes = document.getElementsByName("access_groups$DOT" + index);
+alert("toggleAllGroups(" + index + ") checkboxes.length == " + checkboxes.length);
 		for(var i = 0; i < checkboxes.length; i++)
 		{
 			checkboxes[i].checked = newSetting;
