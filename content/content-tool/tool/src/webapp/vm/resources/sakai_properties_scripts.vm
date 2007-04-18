@@ -29,6 +29,8 @@
 			{
 				if(link.id.match(/^propsTrigger${DOT}\d+$/))
 				{
+					link.onclick = togglePropertiesDiv;
+#*
 					if(link.attachEvent)
 					{
 						link.attachEvent("onclick", togglePropertiesDiv);
@@ -37,6 +39,7 @@
 					{
 						link.addEventListener("click", togglePropertiesDiv, true);
 					}
+*#
 				}
 				else if(link.id.match(/^removeTrigger${DOT}\d+$/))
 				{
@@ -206,6 +209,7 @@
 		evt = (evt) ? evt : ((event) ? event : null);
 		if(evt)
 		{
+			evt.cancelBubble = true;
 			var elem = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null)
 			if(elem)
 			{
@@ -228,6 +232,7 @@
 				toggleProperties(elem);
 			}
 		}
+		return false;
 	}
 	function seedDisplayNameValue(evt)
 	{
@@ -259,7 +264,6 @@
 	}
 	function addFileInput()
 	{
-//alert("addFileInput");
 		var counter = document.getElementById("fileCount");
 		var indexer = document.getElementById("lastIndex");
 		var fileInputDiv = document.getElementById("fileInputDiv");
@@ -304,9 +308,6 @@
 		}
 		
 		attachEventHandlers();
-		
-##		var debug_guy = document.getElementById("debug_guy");
-##		debug_guy.value = fileInputDiv.innerHTML;
 		
 		resizeFrame('grow');
 ##		focus_path = [ "content" + DOT + index ];
