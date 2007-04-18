@@ -416,6 +416,12 @@ public class MailboxAction extends PagedResourceActionII
 		List messages = (List) state.getAttribute(STATE_ALL_MESSAGES);
 		int pos = ((Integer) state.getAttribute(STATE_VIEW_ID)).intValue();
 		message = (MailArchiveMessage) messages.get(pos);
+		
+		// fix for SAK-5879
+		// make sure STATE_MSG_VIEW_ID is updated so that Confirm mode will have access to the correct message id
+		state.setAttribute(STATE_MSG_VIEW_ID, message.getId());
+		//
+		
 
 		boolean goNext = state.getAttribute(STATE_NEXT_EXISTS) != null;
 		boolean goPrev = state.getAttribute(STATE_PREV_EXISTS) != null;
