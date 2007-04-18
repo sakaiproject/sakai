@@ -1712,7 +1712,11 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		}
     	}
   		
-  		sortCategories(categories, categorySort, categoryAscending);
+  		if(categorySort != null)
+  			sortCategories(categories, categorySort, categoryAscending);
+  		else
+  			sortCategories(categories, Category.SORT_BY_NAME, categoryAscending);
+  			
   		
   		return categories;
     }
