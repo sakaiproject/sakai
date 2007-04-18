@@ -30,6 +30,8 @@
 			document.getElementById("deptChanged").value="false";
 		}
 	}
+
+
 // -->
 </SCRIPT>
 
@@ -167,7 +169,7 @@
 		  </tr>
 		</table>
 		
-		#if ($selectedCourse || $requestedSections)
+		#if ($selectedCourse)
 					<div class="shorttext required">
 						<span class="reqStar">*</span>						
 						<label for="uniqname">		
@@ -198,7 +200,11 @@
 		<input type="hidden" name="eventSubmit_doFind_course" value="x" />
 		<input type="hidden" name="option" value="find"/>
 		<p class="act">
-			<input id="continueButton" type="submit" class="active" accesskey="s" name="eventSubmit_doContinue" 
+			<input id="continueButton" 
+#if (!$selectedCourse && !$requestedSections)
+  disabled="true"
+#end
+			 type="submit" class="active" accesskey="s" name="eventSubmit_doContinue" 
 				value="$tlang.getString('gen.continue')" onclick="resetOption('continue');" />
 			<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" 
 				onclick="resetOption('back');" />
