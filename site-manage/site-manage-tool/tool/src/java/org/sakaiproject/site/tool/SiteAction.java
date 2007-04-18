@@ -2614,6 +2614,12 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("size", new Integer(l.size() - 1));
 			}
 
+			if (state.getAttribute(STATE_CM_REQUESTED_SECTIONS) != null) {
+				List l = (List) state
+						.getAttribute(STATE_CM_REQUESTED_SECTIONS);
+				context.put("requestedSections", l);
+			}
+			
 			// v2.4 - added & modified by daisyf
 			if (courseManagementIsImplemented()) {
 				context.put("back", "36");
@@ -11771,7 +11777,7 @@ public class SiteAction extends PagedResourceActionII {
 		if (manualCourseList != null) {
 			all.addAll(manualCourseList);
 		}
-
+		
 		for (int i = 0; i < all.size(); i++) {
 			String eid = (String) all.get(i);
 			String field = "removeSection" + eid;
@@ -12032,6 +12038,10 @@ public class SiteAction extends PagedResourceActionII {
 	private void addRequestedSection(SessionState state) {
 		SectionObject so = (SectionObject) state
 				.getAttribute(STATE_CM_SELECTED_SECTION);
+		String uniqueName = (String) state
+				.getAttribute(STATE_SITE_QUEST_UNIQNAME);
+
+		so.setAuthorizer(uniqueName);
 
 		if (so == null)
 			return;
@@ -12075,10 +12085,10 @@ public class SiteAction extends PagedResourceActionII {
 		final ParameterParser params = data.getParameters();
 		final String option = params.get("option");
 
-		if (option != null) {
-			if ("continue".equals(option)) {
-				addRequestedSection(state);
-
+		if (option != null) 
+		{
+			if ("continue".equals(option)) 
+			{
 				String uniqname = StringUtil.trimToNull(params
 						.getString("uniqname"));
 				state.setAttribute(STATE_SITE_QUEST_UNIQNAME, uniqname);
@@ -12086,19 +12096,27 @@ public class SiteAction extends PagedResourceActionII {
 				if (state.getAttribute(STATE_FUTURE_TERM_SELECTED) != null
 						&& !((Boolean) state
 								.getAttribute(STATE_FUTURE_TERM_SELECTED))
-								.booleanValue()) {
+								.booleanValue()) 
+				{
 					// if a future term is selected, do not check authorization
 					// uniqname
-					if (uniqname == null) {
+					if (uniqname == null) 
+					{
 						addAlert(state, rb.getString("java.author")
 								+ " "
 								+ ServerConfigurationService
 										.getString("noEmailInIdAccountName")
 								+ ". ");
-					} else {
-						try {
+					} 
+					else 
+					{
+						try 
+						{
 							UserDirectoryService.getUserByEid(uniqname);
-						} catch (UserNotDefinedException e) {
+							addRequestedSection(state);
+						} 
+						catch (UserNotDefinedException e) 
+						{
 							addAlert(
 									state,
 									rb.getString("java.validAuthor1")
@@ -12109,6 +12127,10 @@ public class SiteAction extends PagedResourceActionII {
 											+ rb.getString("java.validAuthor2"));
 						}
 					}
+				}
+				else
+				{
+					addRequestedSection(state);
 				}
 				if (state.getAttribute(STATE_MESSAGE) == null) {
 					if (getStateSite(state) == null) {

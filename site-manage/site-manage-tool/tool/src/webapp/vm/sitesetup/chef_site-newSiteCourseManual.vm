@@ -49,8 +49,8 @@
 						<input type="hidden" id="removeSection$id" name="removeSection$item" value="" />
 					</p>
 				#end
+				
 			#end
-
 				#if ($!selectedProviderCourse)
 				<p class="instruction">$tlang.getString("man.sofar") #if($!site) $tlang.getString("man.toaddto") #else $tlang.getString("java.for") #end $tlang.getString("man.this")</p> 
 				<ul>
@@ -60,6 +60,16 @@
 							(<a href="#" onclick="javascript:submitRemoveSection('$item');">Remove</a>)
 							<input type="hidden" id="removeSection$item" name="removeSection$item" value="" />
 						</li>
+					#end
+				</ul>
+				<ul>
+					#foreach($section in $!requestedSections)
+					<li class="indnt2">
+							$section.title ($section.eid)
+							<!-- Remove Section -->
+							(<a href="#" onclick="javascript:submitRemoveSection('$section.eid');">Remove</a>)
+							<input type="hidden" id="removeSection$section.eid" name="removeSection$section.eid" value="" />
+					</li>
 					#end
 				</ul>
 				#end
