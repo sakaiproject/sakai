@@ -57,21 +57,6 @@ ${responseHead}
 
 </head>
 <body class="portalBody">
-<!--
-<div class="skinselection" >
-<form id="skinselect" action="#" method="GET" name="skinselect">
-	<select name="portalskin" id="portalskin" onchange="skinselect.submit();" >
-#foreach ($skin in $pageSkins) 
-#if (  ${skin.name} == $pageCurrentSkin )
-   		<option value="${skin.name}" selected="selected" >${skin.display}</option>
-#else
-   		<option value="${skin.name}" >${skin.display}</option>
-#end
-#end
-	</select>
-</form>
-</div>
--->
 #if ( $pageTop )
 	<script type="text/javascript" language="JavaScript">
 	var sakaiPortalWindow = "";

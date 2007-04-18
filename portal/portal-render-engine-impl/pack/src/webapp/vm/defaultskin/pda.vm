@@ -49,15 +49,13 @@
              &nbsp;(<a accesskey="e" href="${currentPlacement.toolJSR168Edit}" title="${rloader.sit_edit}">*</a>)
 			#end
 			<div class="portletpresencebutton" >
-<!-- Comment out presense until we can get the div to not obscure buttons see (SAK-9457)
 				#if (${currentSite.sitePages.pageNavShowPresenceLoggedIn})
 					#if ($currentSite)
 						#if ( ! $currentSite.isMyWorkspace )
-							<a href-"#" onMouseOver="showPresence();" onMouseOut="hidePresence();">Users Present</a> | 
+							<a href="#" onClick="hidePresense();" onMouseOver="showPresence();" onMouseOut="hidePresence();">Users Present</a> | 
 						#end
 					#end
 				#end
--->
 				#if ( $loggedIn ) 
 				<a href="${portalTopUrl}?force.logout=yes">Log Out</a>
 				#else
@@ -83,7 +81,7 @@ ${responseBody}
 						<a href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
 							${page.pageTitle}
 						</a>
-				</li>
+					</li>
 				#else
 					<li>
 						<a href="${page.toolrefUrl}" title="${page.toolTitle}">${page.toolTitle}</a>
@@ -105,7 +103,24 @@ ${responseBody}
 	#end
 	#if ($currentSite)
 		#if (${currentSite.sitePages.pageNavShowPresenceLoggedIn})
-			<div class="portletpresence" id="portletletprecense" >
+			<script type="text/javascript" language="JavaScript">
+                        function showPresence()
+                        {
+                                window.document.getElementById('presdiv').style.position = 'absolute';
+                                window.document.getElementById('presdiv').style.top = '20px';
+                                window.document.getElementById('presdiv').style.right = '5px';
+                                window.document.getElementById('presdiv').style.left = 'auto';
+                        }
+
+                        function hidePresence()
+                        {
+                                window.document.getElementById('presdiv').style.position = 'absolute';
+                                window.document.getElementById('presdiv').style.top = '20px';
+                                window.document.getElementById('presdiv').style.right = 'auto';
+                                window.document.getElementById('presdiv').style.left = '-4000px';
+                        }
+			</script>
+			<div class="portletpresence" id="presdiv" >
 				 <div class="portletpresencewrapper" id="portletpresencewrapper">
 					<iframe name="presenceIframe" id="presenceIframe" 
 						frameborder="0" marginwidth="0" marginheight="0" scrolling="auto" 
@@ -113,39 +128,8 @@ ${responseBody}
 					</iframe>
 				 </div>
 			 </div>
-			<script>
-			function togglePresence()
-			{
-				 if ( window.document.getElementById('portletpresencewrapper').style.visibility == 'hidden' ) {
-				showPresence();
-				 } else {
-				hodePresence();
-				 }
-			}
-			
-			function showPresence()
-			{
-				window.document.getElementById('portletpresencewrapper').style.visibility = 'visible';
-				// It would be nice if this worked...
-				// window.document.getElementById('portletpresence').style.z-index = 2;
-			}
-			
-			function hidePresence()
-			{
-				window.document.getElementById('portletpresencewrapper').style.visibility = 'hidden';
-				// It would be nice if this worked...
-				// window.document.getElementById('portletpresence').style.z-index = -1;
-			}
-			</script>
 		#end
 	#end
-
-##
-## Bottom takes up a lot of space - we leave it in comments - perhaps a smaller version is better
-##
-<!--
-#includeBottom()
--->
 </div>
 <!-- end pda.vm -->
 #end_response()

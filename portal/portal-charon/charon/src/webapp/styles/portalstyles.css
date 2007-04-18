@@ -45,8 +45,8 @@ div.skinselection {
 div.portletpresence {
     position: absolute;
     top: 20px;
-    right: 5px;
-    z-index: -1;
+    left: -4000px;
+    z-index: 2;
 }
 
 #presenceTitle{
@@ -57,7 +57,6 @@ div.portletpresencewrapper {
 	background-color:#F0F0F0; 
 	border:1px solid #bbb;
     layer-background-color:F0F0F0;
-    visibility: hidden;
 }
 
 div.portletpresencebutton {
