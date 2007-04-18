@@ -178,7 +178,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		}
 		if(selectedCategoryUid == null){
 			//get Assignments with no category
-			List unassignedAssignments = getGradebookManager().getAssignmentsWithNoCategory(getGradebookId());
+			List unassignedAssignments = getGradebookManager().getAssignmentsWithNoCategory(getGradebookId(), Assignment.DEFAULT_SORT, true);
 			int unassignedAssignmentCount = unassignedAssignments.size();
 			for (Iterator assignmentsIter = unassignedAssignments.iterator(); assignmentsIter.hasNext(); ){
 				gradableObjectColumns.add(new GradableObjectColumn((GradableObject) assignmentsIter.next()));
