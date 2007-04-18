@@ -50,13 +50,6 @@
       <version>2005-10-19</version>
     </dependency>
     <dependency>
-      <groupId>nekohtml</groupId>
-      <artifactId>nekohtml</artifactId>
-      <version>0.9.5</version>
-      <scope>provided</scope>
-<!--properties:  deploy.target: shared -->
-    </dependency>
-    <dependency>
       <groupId>zing</groupId>
       <artifactId>cql-java</artifactId>
       <version>0.7</version>
