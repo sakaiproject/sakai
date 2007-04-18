@@ -1759,7 +1759,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 
 		addUsersEnrollments(persistentGradebook, uid);
 
-		List cateList = gradebookManager.getCategoriesWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true);
+		List cateList = gradebookManager.getCategoriesWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
 
 		for(int i=0; i<cateList.size(); i++)
 		{
@@ -1811,7 +1811,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords, GradebookService.GRADE_TYPE_POINTS);
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
 		gradebookManager.updateGradebook(persistentGradebook);
-		cateList = gradebookManager.getCategoriesWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true);
+		cateList = gradebookManager.getCategoriesWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
 
 		for(int i=0; i<cateList.size(); i++)
 		{
@@ -1864,5 +1864,98 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		Assert.assertTrue(assigns.size() == 2);
 		Assert.assertTrue(assignId1.longValue() == ((Assignment)assigns.get(0)).getId().longValue());
 		Assert.assertTrue(assignId2.longValue() == ((Assignment)assigns.get(1)).getId().longValue());
+	}
+	
+	public void testGetCategoriesWithSorting() throws Exception
+	{
+		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
+		List cateList = gradebookManager.getCategoriesWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
+		for(int i=0; i<cateList.size(); i++)
+		{
+			Category cat = (Category) cateList.get(i);
+			if(i == 0)
+				Assert.assertTrue(cat.getName().equals("cate 1"));
+			if(i == 1)
+				Assert.assertTrue(cat.getName().equals("cate 2"));
+		}
+
+		cateList = gradebookManager.getCategoriesWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, false);
+		for(int i=0; i<cateList.size(); i++)
+		{
+			Category cat = (Category) cateList.get(i);
+			if(i == 0)
+				Assert.assertTrue(cat.getName().equals("cate 2"));
+			if(i == 1)
+				Assert.assertTrue(cat.getName().equals("cate 1"));
+		}
+		
+		Assignment assign = gradebookManager.getAssignment(assgn1Long);
+		Assignment assign2 = gradebookManager.getAssignment(assgn3Long);
+		integrationSupport.createCourse(persistentGradebook.getUid(), persistentGradebook.getUid(), false, false, false);
+		gradebookManager.updateGradebook(persistentGradebook);
+		assign.setPointsPossible(new Double(5));
+		gradebookManager.updateAssignment(assign);
+		List categories = gradebookManager.getCategories(persistentGradebook.getId());
+		List gradeRecords = generateGradeRecords(assign, 5);
+		List gradeRecords2 = generateGradeRecords(assign2, 5);
+		for(int i=0; i<gradeRecords2.size(); i++)
+		{
+			gradeRecords.add(gradeRecords2.get(i));
+		}
+		List uid = new ArrayList();
+		uid.add("studentId1");
+		uid.add("studentId2");
+		uid.add("studentId3");
+		uid.add("studentId4");
+		uid.add("studentId5");
+		addUsersEnrollments(persistentGradebook, uid);
+		for(int i=0; i<gradeRecords.size(); i++)
+		{
+			AssignmentGradeRecord agr = (AssignmentGradeRecord)gradeRecords.get(i);
+			if(agr.getAssignment().getId().equals(assgn1Long) && agr.getStudentId().equals("studentId1"))
+				agr.setPointsEarned(null);
+		}
+		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords, GradebookService.GRADE_TYPE_POINTS);
+		cateList = gradebookManager.getCategoriesWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_AVERAGE_SCORE, true);
+		for(int i=0; i<cateList.size(); i++)
+		{
+			Category cat = (Category) cateList.get(i);
+			if(i == 0)
+				Assert.assertTrue(cat.getAverageScore().equals((double)1.5));
+			if(i == 1)
+				Assert.assertTrue(cat.getAverageScore().equals((double)1.75));
+		}
+		
+		cateList = gradebookManager.getCategoriesWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_AVERAGE_SCORE, false);
+		for(int i=0; i<cateList.size(); i++)
+		{
+			Category cat = (Category) cateList.get(i);
+			if(i == 0)
+				Assert.assertTrue(cat.getAverageScore().equals((double)1.75));
+			if(i == 1)
+				Assert.assertTrue(cat.getAverageScore().equals((double)1.5));
+		}
+		
+		cateList = gradebookManager.getCategoriesWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_WEIGHT, true);
+		for(int i=0; i<cateList.size(); i++)
+		{
+			Category cat = (Category) cateList.get(i);
+			if(i == 0)
+				Assert.assertTrue(cat.getWeight().equals((double)0.4));
+			if(i == 1)
+				Assert.assertTrue(cat.getWeight().equals((double)0.6));
+	
+		}
+		
+		cateList = gradebookManager.getCategoriesWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_WEIGHT, false);
+		for(int i=0; i<cateList.size(); i++)
+		{
+			Category cat = (Category) cateList.get(i);
+			if(i == 0)
+				Assert.assertTrue(cat.getWeight().equals((double)0.6));
+			if(i == 1)
+				Assert.assertTrue(cat.getWeight().equals((double)0.4));
+	
+		}
 	}
 }

@@ -455,7 +455,7 @@ public interface GradebookManager {
      * @param assignment sorting ascending/descending
      * @return Category list
      */
-    public List getCategoriesWithStats(Long gradebookId, String assignmentSort, boolean assignAscending);
+    public List getCategoriesWithStats(Long gradebookId, String assignmentSort, boolean assignAscending, String categorySort, boolean categoryAscending);
     
     
     /**

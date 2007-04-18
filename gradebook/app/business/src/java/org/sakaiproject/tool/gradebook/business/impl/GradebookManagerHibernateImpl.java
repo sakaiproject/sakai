@@ -1631,7 +1631,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	return null;
     }
     
-    public List getCategoriesWithStats(Long gradebookId, String assignmentSort, boolean assignAscending) {
+    public List getCategoriesWithStats(Long gradebookId, String assignmentSort, boolean assignAscending, String categorySort, boolean categoryAscending) {
     	List categories = getCategories(gradebookId);
     	Set allStudentUids = getAllStudentUids(getGradebookUid(gradebookId));
     	List allAssignments;
@@ -1675,9 +1675,38 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     			cate.setAssignmentList((List)cateMap.get(cate.getId()));
     		}
     	}
+  		
+  		sortCategories(categories, categorySort, categoryAscending);
+  		
   		return categories;
     }
-    
+
+    private void sortCategories(List categories, String sortBy, boolean ascending) 
+    {
+    	Comparator comp;
+    	if(Category.SORT_BY_NAME.equals(sortBy)) 
+    	{
+    		comp = Category.nameComparator;
+    	}
+    	else if(Category.SORT_BY_AVERAGE_SCORE.equals(sortBy))
+    	{
+    		comp = Category.averageScoreComparator;
+    	}
+    	else if(Category.SORT_BY_WEIGHT.equals(sortBy))
+    	{
+    		comp = Category.weightComparator;
+    	}
+    	else
+    	{
+    		comp = Category.nameComparator;
+    	}
+    	Collections.sort(categories, comp);
+    	if(!ascending) 
+    	{
+    		Collections.reverse(categories);
+    	}
+    }
+
     public List getAssignmentsWithNoCategory(final Long gradebookId)
     {
     	HibernateCallback hc = new HibernateCallback() {

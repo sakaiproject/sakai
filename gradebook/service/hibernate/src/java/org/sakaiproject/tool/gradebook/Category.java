@@ -1,6 +1,7 @@
 package org.sakaiproject.tool.gradebook;
 
 import java.io.Serializable;
+import java.util.Comparator;
 import java.util.List;
 
 public class Category implements Serializable
@@ -14,7 +15,86 @@ public class Category implements Serializable
 	private boolean removed;
 	private Double averageTotalPoints; //average total points possible for this category
 	private Double averageScore; //average scores that students got for this category
-	private List assignmentList; 
+	private List assignmentList;
+	
+	public static Comparator nameComparator;
+	public static Comparator averageScoreComparator;
+	public static Comparator weightComparator;
+	
+  public static String SORT_BY_NAME = "name";
+  public static String SORT_BY_AVERAGE_SCORE = "averageScore";
+  public static String SORT_BY_WEIGHT = "weight";
+  
+	static
+	{
+		nameComparator = new Comparator() 
+		{
+			public int compare(Object o1, Object o2) 
+			{
+				return ((Category)o1).getName().toLowerCase().compareTo(((Category)o2).getName().toLowerCase());
+			}
+		};
+		averageScoreComparator = new Comparator() 
+		{
+			public int compare(Object o1, Object o2) 
+			{
+				Category one = (Category)o1;
+				Category two = (Category)o2;
+
+				if(one.getAverageScore() == null && two.getAverageScore() == null) 
+				{
+					return one.getName().compareTo(two.getName());
+				}
+
+				if(one.getAverageScore() == null) {
+					return -1;
+				}
+				if(two.getAverageScore() == null) {
+					return 1;
+				}
+
+				int comp = (one.getAverageScore().compareTo(two.getAverageScore()));
+				if(comp == 0) 
+				{
+					return one.getName().compareTo(two.getName());
+				} 
+				else 
+				{
+					return comp;
+				}
+			}
+		};
+		weightComparator = new Comparator() 
+		{
+			public int compare(Object o1, Object o2) 
+			{
+				Category one = (Category)o1;
+				Category two = (Category)o2;
+
+				if(one.getWeight() == null && two.getWeight() == null) 
+				{
+					return one.getName().compareTo(two.getName());
+				}
+
+				if(one.getWeight() == null) {
+					return -1;
+				}
+				if(two.getWeight() == null) {
+					return 1;
+				}
+
+				int comp = (one.getWeight().compareTo(two.getWeight()));
+				if(comp == 0) 
+				{
+					return one.getName().compareTo(two.getName());
+				} 
+				else 
+				{
+					return comp;
+				}
+			}
+		};
+	}
 
 	public int getDrop_lowest()
 	{
