@@ -33,7 +33,6 @@
 					<input type="hidden" name="exists${DOT}$i" id="exists${DOT}$i" value="true" />
 					<p class="shorttext">
 						<label for="content${DOT}$i">$tlang.getString("label.upload")</label>
-						## TODO add onchange event handler to seed file-name into displayName field
 						<input type="file" name="content${DOT}$i" id="content${DOT}$i" class="upload" />
 					</p>
 					<p class="shorttext"> 

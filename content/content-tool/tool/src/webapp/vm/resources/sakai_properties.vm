@@ -1,7 +1,7 @@
 <!-- sakai_properties.vm -->
-#macro (custom_dateselectionwidget $yearselect_id $monthselect_id $dayselect_id $earliestYear $latestYear $yearSelected $monthSelected $daySelected $onChangeAction)
+#macro (custom_dateselectionwidget $yearselect_id $monthselect_id $dayselect_id $earliestYear $latestYear $yearSelected $monthSelected $daySelected)
 	#set($yearList = [$earliestYear .. $latestYear])
-    <select name="$monthselect_id" id="$monthselect_id" onchange="blur(); $onChangeAction">  
+    <select name="$monthselect_id" id="$monthselect_id">  
       #if ($monthSelected == 1) <option value="1" selected="selected">$tlang.getString("month.jan")</option> #else <option value="1">$tlang.getString("month.jan")</option> #end
  		#if ($monthSelected == 2) <option value="2" selected="selected">$tlang.getString("month.feb")</option> #else <option value="2">$tlang.getString("month.feb")</option> #end
 		#if ($monthSelected == 3) <option value="3" selected="selected">$tlang.getString("month.mar")</option> #else <option value="3">$tlang.getString("month.mar")</option> #end
@@ -15,7 +15,7 @@
 		#if ($monthSelected == 11) <option value="11" selected="selected">$tlang.getString("month.nov")</option> #else <option value="11">$tlang.getString("month.nov")</option> #end
 		#if ($monthSelected == 12) <option value="12" selected="selected">$tlang.getString("month.dec")</option> #else <option value="12">$tlang.getString("month.dec")</option> #end
     </select>
-    <select name="$dayselect_id" id="$dayselect_id" onchange="blur(); $onChangeAction">
+    <select name="$dayselect_id" id="$dayselect_id">
 	    #foreach($d in [1..31])
 	        #if($d == $daySelected)
 	            <option value="$d" selected="selected">$d</option>
@@ -24,7 +24,7 @@
 	        #end
 		#end
     </select>
-    <select name="$yearselect_id" id="$yearselect_id" onchange="blur(); $onChangeAction">
+    <select name="$yearselect_id" id="$yearselect_id">
         #foreach ($y in $yearList)
             #if ($y == $yearSelected)
                     <option value="$y" selected="selected">$y</option>
@@ -36,7 +36,7 @@
 	#chef_dateselectionwidgetpopup($yearselect_id $monthselect_id $dayselect_id)
 #end
 
-#macro(custom_timeSelectionWidget $prefix $suffix $current_value $onChangeAction)
+#macro(custom_timeSelectionWidget $prefix $suffix $current_value)
 			#set($time = $current_value.toStringLocalFull())
 			#set($hour = $current_value.breakdownLocal().hour)
 			#set($minute = $current_value.breakdownLocal().min)
@@ -49,7 +49,7 @@
 				#set($timeType = "am")
 			#end
 			
-			<select name="${prefix}_hour${DOT}${suffix}" id="${prefix}_hour${DOT}${suffix}" onchange="hourChange('${prefix}_hour${DOT}${suffix}'); $!onChangeAction return false;">
+			<select name="${prefix}_hour${DOT}${suffix}" id="${prefix}_hour${DOT}${suffix}">
 				#if($hour == 1) <option selected="selected" value="1">1</option> #else <option value="1">1</option> #end
 				#if($hour == 2) <option selected="selected" value="2">2</option> #else <option value="2">2</option> #end
 				#if($hour == 3) <option selected="selected" value="3">3</option> #else <option value="3">3</option> #end
@@ -63,7 +63,7 @@
 				#if($hour == 11) <option selected="selected" value="11">11</option> #else <option value="11">11</option> #end
 				#if($hour == 12) <option selected="selected" value="12">12</option> #else <option value="12">12</option> #end
 			</select>
-			<select name="${prefix}_minute${DOT}${suffix}" id="${prefix}_minute${DOT}${suffix}" onchange="hourChange('${prefix}_minute${DOT}${suffix}'); $!onChangeAction return false;">
+			<select name="${prefix}_minute${DOT}${suffix}" id="${prefix}_minute${DOT}${suffix}">
 				#if($minute == 0) <option selected="selected" value="0">00</option> #else <option value="0">00</option> #end
 				#if($minute == 5) <option selected="selected" value="5">05</option> #else <option value="5">05</option> #end
 				#if($minute == 10) <option selected="selected" value="10">10</option> #else <option value="10">10</option> #end
@@ -77,7 +77,7 @@
 				#if($minute == 50) <option selected="selected" value="50">50</option> #else <option value="50">50</option> #end
 				#if($minute == 55) <option selected="selected" value="55">55</option> #else <option value="55">55</option> #end
 			</select>
-			<select name="${prefix}_ampm${DOT}${suffix}" id="${prefix}_ampm${DOT}${suffix}" onchange="ampmChange('${prefix}_ampm${DOT}${suffix}'); $!onChangeAction return false;">
+			<select name="${prefix}_ampm${DOT}${suffix}" id="${prefix}_ampm${DOT}${suffix}">
 				#if($timeType =="am") <option selected="selected">am</option> #else <option>am</option> #end
 				#if($timeType =="pm") <option selected="selected">pm</option> #else <option>pm</option> #end
 			</select>
@@ -108,7 +108,7 @@
 				<label for="copyright${DOT}$i">
 					$tlang.getString("cright.status")
 				</label>	
-				<select name="copyright${DOT}$i" id ="copyright${DOT}$i" onchange="javascript:updateCopyright(this, '$i');">
+				<select name="copyright${DOT}$i" id ="copyright${DOT}$i">
 					#foreach ($copyright in $copyrightTypes)
 						<option value="$copyright"#if($model.copyrightStatus == $copyright) selected="selected"#end>$copyright</option>
 					#end
@@ -164,22 +164,22 @@
 				##Grouped access is inherited; parent folder limited to two or more groups (present choice among groups; table shows only groups inherited from parent)
 				#set ($listDisplay="block")
 				<p>
-					<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherit" style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='none';" />
+					<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherit" style="border:none" />
 					<label for="access_mode_inherited${DOT}$i">$tlang.getString("access.inherit")</label>
 				</p>
 				<p>
-					<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS" checked="checked"    style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='block';resizeFrame('grow');" />
-					<label for="access_mode_group${DOT}$i">$tlang.getString("access.groups.choice")</label>
+					<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS" checked="checked"    style="border:none" />
+					<label for="access_mode_groups${DOT}$i">$tlang.getString("access.groups.choice")</label>
 				</p>
 			#elseif($model.isGroupInherited())	
 				##Grouped access is inherited; parent folder limited to two or more groups (present choice among groups; table shows only groups inherited from parent)
 				<p>
-					<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherited" checked="checked"   style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='block';resizeFrame('grow');" />
-					<label for="access_mode_public${DOT}$i">$tlang.getString("access.inherit")</label>
+					<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherited" checked="checked"   style="border:none" />
+					<label for="access_mode_inherited${DOT}$i">$tlang.getString("access.inherit")</label>
 				</p>
 				<p>
-					<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS"   style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='block';resizeFrame('grow');" />
-					<label for="access_mode_public${DOT}$i">$tlang.getString("access.groups.choice")</label>
+					<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS"   style="border:none" />
+					<label for="access_mode_groups${DOT}$i">$tlang.getString("access.groups.choice")</label>
 				</p>
 			#elseif($model.isPubviewInherited())
 				## Public access inherited from parent (report that to user)
@@ -187,13 +187,13 @@
 			#else
 				## Site is possible and either group or public is possible
 				<p>
-					<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherited" #if(!$model.isPubview() && "$!model.accessMode" != "$GROUP_ACCESS") checked="checked"#end style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='none';" />
+					<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherited" #if(!$model.isPubview() && "$!model.accessMode" != "$GROUP_ACCESS") checked="checked"#end style="border:none" />
 					<label for="access_mode_inherited${DOT}$i">#if($model.isCollection())$tlang.getString("access.site.choice")#else$tlang.getString("access.site.fldr")#end</label>
 				</p>
 				#if($model.isPubviewPossible())
 					## Public is possible
 					<p>
-						<input type="radio" name="access_mode${DOT}$i" id="access_mode_public${DOT}$i" value="public" #if($!model.isPubview()) checked="checked"#end style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='none';" />
+						<input type="radio" name="access_mode${DOT}$i" id="access_mode_public${DOT}$i" value="public" #if($!model.isPubview()) checked="checked"#end style="border:none" />
 						<label for="access_mode_public${DOT}$i">#if($model.isCollection())$tlang.getString("access.public.choice")#else$tlang.getString("access.public.fldr")#end</label>
 					</p>
 				#end
@@ -205,7 +205,7 @@
 						#set ($listDisplay="none")
 					#end
 					<p>
-						<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS" #if("$!model.accessMode" == "$GROUP_ACCESS") checked="checked"#end style="border:none" onclick="javascript:document.getElementById('groupTable${DOT}$i').style.display='block';resizeFrame('grow');" />
+						<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS" #if("$!model.accessMode" == "$GROUP_ACCESS") checked="checked"#end style="border:none" />
 						<label for="access_mode_groups${DOT}$i">#if($model.isCollection())$tlang.getString("access.groups.choice")#else$tlang.getString("access.groups.fldr")#end</label>
 					</p>
 				#end
@@ -217,7 +217,7 @@
 				<caption class="skip" style="display:none">$tlang.getString("edit.access4")</caption>
 				<tr>
 					<th id="selected${DOT}$i" style="width:2em;padding-left:.4em">
-						<input type="checkbox" id="selectall${DOT}$i" title="toggle select all" onclick="javascript:toggleSelectAll(this, 'access_groups')"  />
+						<input type="checkbox" id="selectall${DOT}$i" title="toggle select all" />
 					</th>
 					<th id="groupname${DOT}$i">
 						$tlang.getString("edit.group1")
@@ -235,13 +235,8 @@
 									<input type="checkbox" name="access_groups${DOT}$i" id="access_groups_${group.Id}${DOT}$i" title="$group.title" value="$group.Id" checked="checked" />
 								#elseif($model.isLocal($group))
 									<img src="#imageLink("sakai/checkon.gif")" border="0" width="17" height="13" align="top" />
-##								#elseif($model.isGroupInherited($group))
-##									<input type="checkbox" name="access_groups${DOT}$i" id="access_groups_${group.Id}${DOT}$i" title="$group.title" value="$group.Id" />
-##								#elseif($model.allowedRemove($group))
-##									<input type="checkbox" name="access_groups${DOT}$i" id="access_groups_${group.Id}${DOT}$i" title="$group.title" value="$group.Id" checked="checked" />
 								#else
 									<input type="checkbox" name="access_groups${DOT}$i" id="access_groups_${group.Id}${DOT}$i" title="$group.title" value="$group.Id" />
-##									<img src="#imageLink("sakai/checkon.gif")" border="0" width="17" height="13" align="top" />
 								#end
 							</td>
 							<td headers="groupname${DOT}$i" style="padding-bottom:0;" class="checkbox">
@@ -329,10 +324,10 @@
 					<td>
 					</td>
 					<td>
-						#custom_dateselectionwidget("release_year${DOT}$i" "release_month${DOT}$i" "release_day${DOT}$i" $year0 $yearN $yearX $monthX $dayX "document.getElementById('hidden_true${DOT}${i}').checked=false;document.getElementById('hidden_false${DOT}${i}').checked=true;document.getElementById('use_start_date${DOT}${i}').checked=true;")
+						#custom_dateselectionwidget("release_year${DOT}$i" "release_month${DOT}$i" "release_day${DOT}$i" $year0 $yearN $yearX $monthX $dayX )
 					</td>
 					<td>
-						#custom_timeSelectionWidget("release" "$i" $model.releaseDate "document.getElementById('hidden_true${DOT}${i}').checked=false;document.getElementById('hidden_false${DOT}${i}').checked=true;document.getElementById('use_start_date${DOT}${i}').checked=true;")
+						#custom_timeSelectionWidget("release" "$i" $model.releaseDate)
 					</td>
 				</tr>
 				<tr>
@@ -374,10 +369,10 @@
 					<td>
 					</td>
 					<td>
-						#custom_dateselectionwidget("retract_year${DOT}$i" "retract_month${DOT}$i" "retract_day${DOT}$i" $year0 $yearN $yearX $monthX $dayX "document.getElementById('hidden_true${DOT}${i}').checked=false;document.getElementById('hidden_false${DOT}${i}').checked=true;document.getElementById('use_end_date${DOT}${i}').checked=true;")
+						#custom_dateselectionwidget("retract_year${DOT}$i" "retract_month${DOT}$i" "retract_day${DOT}$i" $year0 $yearN $yearX $monthX $dayX)
 					</td>
 					<td>
-						#custom_timeSelectionWidget("retract" "$i" $model.retractDate "document.getElementById('hidden_true${DOT}${i}').checked=false;document.getElementById('hidden_false${DOT}${i}').checked=true;document.getElementById('use_end_date${DOT}${i}').checked=true;")
+						#custom_timeSelectionWidget("retract" "$i" $model.retractDate)
 					</td>
 				</tr>
 				<tr>
