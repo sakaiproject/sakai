@@ -15,8 +15,7 @@ import net.sf.ehcache.Element;
  */
 public class MetasearchSessionManager implements java.io.Serializable {
   /* constants */
-  private static final String EHCACHE_CONFIG_XML = "/ehcache/ehcache.xml";
-  private static final String CACHE_NAME = "metasearchSessionCache";
+  private static final String CACHE_NAME = "org.sakaibrary.xserver.session.MetasearchSession";
   private static final org.apache.commons.logging.Log LOG =
 		org.apache.commons.logging.LogFactory.getLog(
 				"org.sakaibrary.osid.repository.xserver.session.MetasearchSessionManager" );
@@ -32,24 +31,26 @@ public class MetasearchSessionManager implements java.io.Serializable {
    * and Cache.
    */
   private MetasearchSessionManager() {
-    // get a static CacheManager, configured using EHCACHE_CONFIG_XML file
-    java.io.InputStream is = this.getClass().getResourceAsStream( EHCACHE_CONFIG_XML );
-
     try {
-      cacheManager = CacheManager.create( is );
-      is.close();
+      cacheManager = CacheManager.create();
 
       // add the cache to the CacheManager if it doesn't already exist
       if( !cacheManager.cacheExists( CACHE_NAME ) ) {
-        // create a cache using ehcache 1.1 constructor
-        Cache temp = new Cache( CACHE_NAME,
-            50,
-            true,
-            false,
-            0L,
-            900L,
-            false,
-            120L );
+        // create a cache using ehcache 1.2.4 constructor
+        Cache temp = new Cache( 
+        	CACHE_NAME,    // cache name
+            50,            // maxElementsInMemory
+            net.sf.ehcache.store.MemoryStoreEvictionPolicy.LRU,
+            true,          // overflowToDisk
+            "ignored",     // disk store path - ignored, CacheManager sets it using setter injection
+            false,         // eternal
+            0L,            // time to live (seconds)
+            900L,          // time to idle (seconds)
+            false,         // diskPersistent
+            120L,          // diskExpiryThreadIntervalSeconds
+            null,          // registeredEventListeners
+            null           // bootstrapCacheLoader
+        );
         cacheManager.addCache( temp );
       }
 
@@ -57,8 +58,6 @@ public class MetasearchSessionManager implements java.io.Serializable {
       cache = cacheManager.getCache( CACHE_NAME );
     } catch( CacheException ce ) {
       LOG.warn( "MetasearchSessionManager() failed to create CacheManager or Cache", ce );
-    } catch( java.io.IOException ioe ) {
-      LOG.warn( "MetasearchSessionManager() failed to close ehcache input stream" );
     }
 
     LOG.info( "ehcache session initiated properly." );
