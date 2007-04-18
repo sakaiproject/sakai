@@ -176,6 +176,41 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 		}
     }
     
+    public void addToCategoryResultMap(Map categoryResultMap, List categories, Map gradeRecordMap, Map enrollmentMap) {
+    	
+    	for (Iterator stuIter = enrollmentMap.keySet().iterator(); stuIter.hasNext(); ){
+    		String studentUid = (String) stuIter.next();
+    		Map studentMap = (Map) gradeRecordMap.get(studentUid);
+    		
+    		for (Iterator iter = categories.iterator(); iter.hasNext(); ){
+    			Category category = (Category) iter.next();   		
+    			double total = 0;
+        		double studentTotal = 0;
+	    		
+	    		List categoryAssignments = category.getAssignmentList();
+	    		for (Iterator assignmentsIter = categoryAssignments.iterator(); assignmentsIter.hasNext(); ){
+	    			Assignment assignment = (Assignment) assignmentsIter.next();
+	    			if (!assignment.isCounted()) {
+	    				continue;
+	    			}
+	    			AbstractGradeRecord gradeRecord = (AbstractGradeRecord) studentMap.get(assignment.getId());
+	    			total += assignment.getPointsPossible();
+	    			studentTotal += (gradeRecord != null ? gradeRecord.getPointsEarned() : 0);
+	    		}
+	    		Map studentCategoryMap = (Map) categoryResultMap.get(studentUid);
+		    	if (studentCategoryMap == null) {
+		    		studentCategoryMap = new HashMap();
+		    		categoryResultMap.put(studentUid, studentCategoryMap);
+		    	}
+		    	Map stats = new HashMap();
+		    	stats.put("studentPoints", studentTotal);
+		    	stats.put("categoryPoints", total);
+		    	studentCategoryMap.put(category.getId(), stats);
+	    	}  	
+    	}
+    	int var =1; var++;
+    }
+    
 //    public List getPointsEarnedCourseGradeRecords(final CourseGrade courseGrade, final Collection studentUids, final Collection assignments, final Map gradeRecordMap) {
 //    	HibernateCallback hc = new HibernateCallback() {
 //    		public Object doInHibernate(Session session) throws HibernateException {

@@ -164,6 +164,10 @@ public abstract class GradebookDependentBean extends InitializableBean {
 	public List getAvailableSections() {
 		return getGradebookBean().getAuthzService().getAvailableSections(getGradebookUid());
 	}
+	
+	public List getAvailableCategories() {
+		return getGradebookManager().getCategories(getGradebookId());
+	}
 
 	public List getSectionEnrollments(String sectionUid) {
 		return getGradebookBean().getAuthzService().getSectionEnrollments(getGradebookUid(), sectionUid);

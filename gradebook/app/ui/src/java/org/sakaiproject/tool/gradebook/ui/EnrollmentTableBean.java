@@ -35,6 +35,7 @@ import java.util.Map;
 
 import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
+import javax.faces.event.ValueChangeEvent;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -42,6 +43,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.service.gradebook.shared.UnknownUserException;
+import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
@@ -85,6 +87,7 @@ public abstract class EnrollmentTableBean
     };
 
 	private static final int ALL_SECTIONS_SELECT_VALUE = -1;
+	private static final int ALL_CATEGORIES_SELECT_VALUE = -1;
 
     private static Map columnSortMap;
     private String searchString;
@@ -100,6 +103,13 @@ public abstract class EnrollmentTableBean
 	private List sectionFilterSelectItems;
 	private List availableSections;	// The real sections accessible by this user
 
+	// The category selection menu will include some choices that aren't
+	// real categories (e.g., "All Categories") and will only be rendered if
+	// categories exists.
+    private Integer selectedCategoryFilterValue = new Integer(ALL_CATEGORIES_SELECT_VALUE);
+    private List availableCategories;
+    private List categoryFilterSelectItems;  
+	
 	// We only store grader UIDs in the grading event history, but the
 	// log displays grader names instead. This map cuts down on possibly expensive
 	// calls to the user directory service.
@@ -267,6 +277,23 @@ public abstract class EnrollmentTableBean
 			if (log.isInfoEnabled()) log.info("selectedSectionFilterValue=" + selectedSectionFilterValue.intValue() + " but available sections=" + availableSections.size());
 			selectedSectionFilterValue = new Integer(ALL_SECTIONS_SELECT_VALUE);
 		}
+
+		// Category filtering
+		availableCategories = getAvailableCategories();
+		categoryFilterSelectItems = new ArrayList();
+		
+		// The first choice is always "All Categories"
+		categoryFilterSelectItems.add(new SelectItem(new Integer(ALL_CATEGORIES_SELECT_VALUE), FacesUtil.getLocalizedString("search_categories_all")));
+		
+		// Add available categories
+		for (int i=0; i < availableCategories.size(); i++){
+			Category cat = (Category) availableCategories.get(i);
+			categoryFilterSelectItems.add(new SelectItem(new Integer(cat.getId().intValue()), cat.getName()));
+		}
+		
+		// If the selected value now falls out of legal range due to categories
+		// being deleted, throw it back to the default value (meaning all categories)
+		int selectedCategoryVal = selectedCategoryFilterValue.intValue();
 	}
 
 	public boolean isAllSectionsSelected() {
@@ -295,6 +322,57 @@ public abstract class EnrollmentTableBean
 
 	public List getSectionFilterSelectItems() {
 		return sectionFilterSelectItems;
+	}
+	
+	public boolean isAllCategoriesSelected() {
+		return (selectedCategoryFilterValue.intValue() == ALL_CATEGORIES_SELECT_VALUE);
+	}
+	
+	public String getSelectedCategoryUid() {
+		int filterValue = selectedCategoryFilterValue.intValue();
+		if (filterValue == ALL_CATEGORIES_SELECT_VALUE) {
+			return null;
+		} else {
+			return Integer.toString(filterValue);
+			//Category cat = (Category) availableCategories.get(filterValue);
+			//return cat.getId().toString();
+		}
+	}
+	
+	public String getCategoryUid(String uid){
+		if (uid == null) {
+			return null;
+		}
+		Integer Uid = new Integer(uid);
+		if (Uid == ALL_CATEGORIES_SELECT_VALUE) {
+			return null;
+		} else {
+			return uid;
+		}
+		
+	}
+	
+	public Integer getSelectedCategoryFilterValue() {
+		return selectedCategoryFilterValue;
+	}
+	
+	public void setSelectedCategoryFilterValue(Integer selectedCategoryFilterValue) {
+		if (!selectedCategoryFilterValue.equals(this.selectedCategoryFilterValue)) {
+			this.selectedCategoryFilterValue = selectedCategoryFilterValue;
+			setFirstRow(0); // clear the paging when we update the search
+		}
+	}
+	
+	public void setSelectedCategoryFilterValue(ValueChangeEvent event){
+		Integer newValue = (Integer) event.getNewValue();
+		if (!newValue.equals(this.selectedCategoryFilterValue)) {
+			this.selectedCategoryFilterValue = newValue;
+			setFirstRow(0); // clear the paging when we update the search
+		}
+	}
+	
+	public List getCategoryFilterSelectItems() {
+		return categoryFilterSelectItems;
 	}
 
     public boolean isEmptyEnrollments() {

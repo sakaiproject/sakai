@@ -121,6 +121,7 @@ public interface GradebookManager {
     
     public List<CourseGradeRecord> getPointsEarnedCourseGradeRecords(CourseGrade courseGrade, Collection studentUids, Collection assignments, Map scoreMap);
     public void addToGradeRecordMap(Map gradeRecordMap, List gradeRecords);
+    public void addToCategoryResultMap(Map categoryResultMap, List categories, Map gradeRecordMap, Map enrollmentMap);
    
     /**
      * Gets all grade records that belong to a collection of enrollments in a
