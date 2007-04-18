@@ -255,7 +255,9 @@ function toggleCitation( baseUrl, citationButton, collectionId, spinnerId, addLa
           document.getElementById( citationButton.id ).id = document.getElementById( "addedCitationId" ).value;
           
           // update the citation list count using the value from the AJAX response
-          $( "#citationCountDisplay" ).html( document.getElementById( "citationCount" ).value );
+          if( document.getElementById( "citationCountDisplay" ) && document.getElementById( "citationCount" ) ) {
+            $( "#citationCountDisplay" ).html( document.getElementById( "citationCount" ).value );
+          }
           
           // hide the spinner
           $( "#" + spinnerId ).hide();
@@ -277,8 +279,10 @@ function toggleCitation( baseUrl, citationButton, collectionId, spinnerId, addLa
       $( "#messageDiv" ).load( baseUrl + "&sakai_action=doMessageFrame&collectionId=" + collectionId + "&citationId=" + citationButton.id + "&operation=remove",
         function() {
           // update the citation list count using the value from the AJAX response
-          $( "#citationCountDisplay" ).html( document.getElementById( "citationCount" ).value );
-
+          if( document.getElementById( "citationCountDisplay" ) && document.getElementById( "citationCount" ) ) {
+            $( "#citationCountDisplay" ).html( document.getElementById( "citationCount" ).value );
+          }
+          
           // hide the spinner
           $( "#" + spinnerId ).hide();
           $( "#" + citationButton.id ).show();
@@ -419,8 +423,8 @@ function checkedDatabases () {
  * Returns the number of databases checked
  */
 function numCheckedDatabases() {
-  //return checkedDatabases().length;
-  return $( "#dbSelectedCount" ).html();
+  return checkedDatabases().length;
+  //return $( "#dbSelectedCount" ).html();
 }
 
 /*
