@@ -1850,7 +1850,24 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 						new BigDecimal((1.0+2+3+4+5) / 5.0 / 10.0 * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 				}
 			}
-
+		}
+		
+		//test for non-released assignment
+		Category cateWithNonRleased = (Category)cateList.get(0);
+		gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cateWithNonRleased.getId(), 
+				cateWithNonRleased.getName() + "_assignment_non_released", new Double(10.0), new Date(), new Boolean(false), new Boolean(false));
+		cateList = gradebookManager.getCategoriesWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
+		List assignListWithNonReleased = cateWithNonRleased.getAssignmentList();
+		Assert.assertTrue(new BigDecimal(cateWithNonRleased.getAverageTotalPoints()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+			new BigDecimal((5.0 + 10) / 2.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+		Assert.assertTrue(new BigDecimal(cateWithNonRleased.getAverageScore()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+			new BigDecimal((2.0 + 3 + 4 + 5) / 4.0 / 2.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+		Assert.assertTrue(assignListWithNonReleased.size() == 3);
+		for(int i=0; i<assignListWithNonReleased.size(); i++)
+		{
+			Assignment testAsignmentNonReleased = (Assignment)assignListWithNonReleased.get(i);
+			if(i == 2)
+				Assert.assertTrue(testAsignmentNonReleased.getName().equals(cateWithNonRleased.getName() + "_assignment_non_released"));
 		}
 	}
 	
@@ -1955,7 +1972,6 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 				Assert.assertTrue(cat.getWeight().equals((double)0.6));
 			if(i == 1)
 				Assert.assertTrue(cat.getWeight().equals((double)0.4));
-	
 		}
 	}
 }

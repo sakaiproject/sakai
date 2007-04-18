@@ -1645,9 +1645,10 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	for (Iterator iter = allAssignments.iterator(); iter.hasNext(); )
     	{
     		Assignment assign = (Assignment) iter.next();
-    		if(assign != null && assign.isReleased())
+    		if(assign != null)
     		{
-    			assign.calculateStatistics(gradeRecords);
+    			if(assign.isReleased())
+    				assign.calculateStatistics(gradeRecords);
     			if(assign.getCategory() != null && cateMap.get(assign.getCategory().getId()) == null)
     			{
     				List assignList = new ArrayList();

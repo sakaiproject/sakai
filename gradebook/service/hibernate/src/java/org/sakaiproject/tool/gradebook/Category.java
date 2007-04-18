@@ -196,19 +196,22 @@ public class Category implements Serializable
     for (Assignment assign : assignmentsWithStats) 
     {
     	Double score = assign.getAverageTotal();
-    	if(assign.getPointsPossible() != null)
+    	if(assign.isReleased())
     	{
-    		totalPossible += assign.getPointsPossible().doubleValue();
-    		numOfAssignments ++;
-    	}
-    	if (score == null) 
-    	{
-    		numScored++;
-    	} 
-    	else 
-    	{
-    		total += score.doubleValue();
-    		numScored++;
+    		if(assign.getPointsPossible() != null)
+    		{
+    			totalPossible += assign.getPointsPossible().doubleValue();
+    			numOfAssignments ++;
+    		}
+    		if (score == null) 
+    		{
+    			numScored++;
+    		} 
+    		else 
+    		{
+    			total += score.doubleValue();
+    			numScored++;
+    		}
     	}
     }
 
