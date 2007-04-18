@@ -1124,3 +1124,7 @@ alter table searchbuilderitem add index isearchbuilderitem_act (searchaction);
 alter table searchbuilderitem add index isearchbuilderitem_sta (searchstate);
 alter table searchwriterlock add index isearchwriterlock_lk (lockkey);
 
+------------------------------------------------------------------------
+-- SAK-8447 Increase syllabus date column size in mysql
+------------------------------------------------------------------------
+ALTER TABLE SAKAI_SYLLABUS_DATA MODIFY COLUMN asset MEDIUMTEXT; 
