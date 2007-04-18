@@ -4,13 +4,13 @@
 ##
 #macro(getFieldValue $field $oneValue $index)
 	#if("shorttext" == "$!{field.valueType}")
-		<input name="$!{field.identifier}$index" id="$!{field.identifier}$index" value="$!{oneValue}" type="text" size="50" />
+		<input name="$!{field.identifier}$index" id="$!{field.identifier}$index" value="$!{xilator.escapeHtml($oneValue)}" type="text" size="50" />
 	#elseif("number" == "$!{field.valueType}")
-		<input name="$!{field.identifier}$index" id="$!{field.identifier}$index" value="$!{oneValue}" type="text" size="20" />
+		<input name="$!{field.identifier}$index" id="$!{field.identifier}$index" value="$!{xilator.escapeHtml($oneValue)}" type="text" size="20" />
 	#elseif("longtext" == "$!{field.valueType}")
 		<textarea name="$!{field.identifier}$index" id="$!{field.identifier}$index" cols="50" rows="4">$!{oneValue}</textarea>
 	#elseif("date" == "$!{field.valueType}")
-		<input name="$!{field.identifier}$index" id="$!{field.identifier}$index" value="$!{oneValue}" type="text" size="20" />
+		<input name="$!{field.identifier}$index" id="$!{field.identifier}$index" value="$!{xilator.escapeHtml($oneValue)}" type="text" size="20" />
 	#end	
 #end
 #macro(getMultivalued $field $multiValues $count)
@@ -150,7 +150,7 @@
 									</label>
 								</td>
 								<td>
-									<input name="label_$count" id="label_$count" value="$!{citation.getCustomUrlLabel("$urlId")}" type="text" size="20" />
+									<input name="label_$count" id="label_$count" value="$!{xilator.escapeHtml( $citation.getCustomUrlLabel("$urlId") )}" type="text" size="20" />
 								</td>
 							</tr>
 							<tr>
@@ -297,7 +297,8 @@
 					+ templates[type][t].identifier + index + '" type="text" size="50" ';
 			if(currentValues[templates[type][t].identifier + index])
 			{
-				html += 'value="' + currentValues[templates[type][t].identifier + index] + '" ';
+				var str = jsEscapeHtml( currentValues[templates[type][t].identifier + index] );
+				html += 'value="' + str + '" ';
 			}
 			html += '/>\n';
 		}
@@ -307,7 +308,8 @@
 					+ templates[type][t].identifier + index + '" type="text" size="20" ';
 			if(currentValues[templates[type][t].identifier])
 			{
-				html += 'value="' + currentValues[templates[type][t].identifier + index] + '" ';
+				var str = jsEscapeHtml( currentValues[templates[type][t].identifier + index] );
+				html += 'value="' + str + '" ';
 			}
 			html += '/>\n</p>\n';
 		}
@@ -358,7 +360,8 @@
 			var oldElement = document.getElementById(identifier + i);
 			if(oldElement && oldElement.value)
 			{
-				currentValues[templates[type][t].identifier + i] = oldElement.value;
+			    var str = jsEscapeHtml( oldElement.value );
+				currentValues[templates[type][t].identifier + i] = str;
 			}
 			html += "<tr>\n<td>\n" + getValue(type, t, i) + "</td>\n</tr>\n";
 		}
@@ -386,7 +389,8 @@
 			
 			if(label && label.value)
 			{
-				currentValues["label_" + i] = label.value;
+				var str = jsEscapeHtml( label.value );
+				currentValues["label_" + i] = str;
 			}
 			else
 			{
@@ -428,6 +432,17 @@
 		
 		return false;
 	}
+	
+	function jsEscapeHtml( rawString )
+	{
+	  var str = new String( rawString );
+	  //str = str.replace(/&/g, "&amp;");
+      str = str.replace(/</g, "&lt;");
+      str = str.replace(/>/g, "&gt;");
+      str = str.replace(/"/g, "&quot;");
+      return str;
+	}
+	
 </script>
 <script type="text/javascript">	
 	function submitform(id)

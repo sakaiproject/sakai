@@ -796,6 +796,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	{
 		// always put appropriate bundle in velocity context
 		context.put("tlang", rb);
+
+		// validator
+		context.put("xilator", new Validator());
 		
 		//context.put("sakai_onload", "setPopupHeight('create');checkinWithOpener('create');");
 		//context.put("sakai_onunload", "window.opener.parent.popups['create']=null;");
@@ -875,6 +878,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
     {
 		// always put appropriate bundle in velocity context
 		context.put("tlang", rb);
+		
+		// validator
+		context.put("xilator", new Validator());
 		
 		context.put("sakai_onload", "setMainFrameHeight( window.name ); heavyResize();");
 		//context.put("sakai_onunload", "window.opener.parent.popups['edit']=null;");
