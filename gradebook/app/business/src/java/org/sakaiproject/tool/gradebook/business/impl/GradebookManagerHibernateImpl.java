@@ -1708,7 +1708,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	}
     }
 
-    public List getAssignmentsWithNoCategory(final Long gradebookId)
+    public List getAssignmentsWithNoCategory(final Long gradebookId, String assignmentSort, boolean assignAscending)
     {
     	HibernateCallback hc = new HibernateCallback() {
     		public Object doInHibernate(Session session) throws HibernateException {
@@ -1719,6 +1719,13 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     			return assignments;
     		}
     	};
-    	return (List)getHibernateTemplate().execute(hc);
+    	
+    	List assignList = (List)getHibernateTemplate().execute(hc);
+    	if(assignmentSort != null)
+    		sortAssignments(assignList, assignmentSort, assignAscending);
+    	else
+    		sortAssignments(assignList, Assignment.DEFAULT_SORT, assignAscending);
+    	
+    	return assignList;
     }
 }

@@ -451,8 +451,10 @@ public interface GradebookManager {
      * Get all categories with stats
      *  
      * @param gradebookId
-     * @param assignment sorting string
-     * @param assignment sorting ascending/descending
+     * @param assignmentSort assignment sorting string
+     * @param assignAscending assignment sorting ascending/descending
+     * @param categorySort category sorting string
+     * @param categoryAscending category sorting ascending/descending
      * @return Category list
      */
     public List getCategoriesWithStats(Long gradebookId, String assignmentSort, boolean assignAscending, String categorySort, boolean categoryAscending);
@@ -462,7 +464,9 @@ public interface GradebookManager {
      * Get all assignments with no categories
      *  
      * @param gradebookId
+     * @param assignmentSort assignment sorting string
+     * @param assignAscending assignment sorting ascending/descending
      * @return Assignment list
      */
-    public List getAssignmentsWithNoCategory(final Long gradebookId);
+    public List getAssignmentsWithNoCategory(final Long gradebookId, String assignmentSort, boolean assignAscending);
 }
