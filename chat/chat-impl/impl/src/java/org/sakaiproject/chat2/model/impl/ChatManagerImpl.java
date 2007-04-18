@@ -672,12 +672,15 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
    protected void resetContextDefaultChannel(String context) {
       Session session = null;
       Connection conn = null;
-      ResultSet rs = null;
+      PreparedStatement statement = null;
+      
+      String query="update CHAT2_CHANNEL c set c.contextDefaultChannel=false WHERE c.context=?";
+      
       try{
-        session = getSessionFactory().openSession();
+        session = getSession();
         conn = session.connection();
-        String query="update CHAT2_CHANNEL c set c.contextDefaultChannel=false WHERE c.context=?";
-        PreparedStatement statement = conn.prepareStatement(query);
+        
+        statement = conn.prepareStatement(query);
         statement.setString(1, context);
         statement.executeUpdate();
       }
@@ -685,10 +688,19 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
         logger.warn(e.getMessage());
       }
       finally{
+         if (statement != null) {
+            //ensure the statement is closed
+            try {
+               statement.close();
+            } 
+            catch (Exception e) {
+               if (logger.isDebugEnabled()) {
+                  logger.debug(e);
+               }
+            }
+         }
         try{
-          if (session !=null) session.close();
           if (conn !=null) conn.close();
-          if (rs !=null) rs.close();
         }
         catch(Exception ex){
           logger.warn(ex.getMessage());
