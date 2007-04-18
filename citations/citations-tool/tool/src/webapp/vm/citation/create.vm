@@ -1,44 +1,3 @@
-#macro(getFieldValue $field $currentValue $index)
-	#if("shorttext" == "$!{field.valueType}")
-		<input name="$!{field.identifier}$index" id="$!{field.identifier}$index" value="$!{xilator.escapeHtml( $currentValue )}" type="text" size="50" />
-	#elseif("number" == "$!{field.valueType}")
-		<input name="$!{field.identifier}$index" id="$!{field.identifier}$index" value="$!{xilator.escapeHtml( $currentValue )}" type="text" size="20" />
-	#elseif("longtext" == "$!{field.valueType}")
-		<textarea name="$!{field.identifier}$index" id="$!{field.identifier}$index" cols="50" rows="4">$!{currentValue}</textarea>
-	#elseif("date" == "$!{field.valueType}")
-		<input name="$!{field.identifier}$index" id="$!{field.identifier}$index" value="$!{xilator.escapeHtml( $currentValue )}" type="text" size="20" />
-	#end	
-#end
-#macro(getMultivalued $field $values $count)
-	<div id="div_$!{field.identifier}">
-		<table>
-			#if($multiValues && ($multiValues.size() > 0))
-				#set($index = 0)
-				#foreach($value in $values)
-					<tr>
-						<td>
-							#getFieldValue($!field "$!value" $!index)
-						</td>
-					</tr>
-					#set($index = $index + 1)
-				#end
-			#else
-				#set($index = 1)
-				<tr>
-					<td>
-						#getFieldValue($field "" "0")
-					</td>
-				</tr>
-			#end
-			<tr>
-				<td>
-					<a href="#" onclick="javascript:getAnother('${DEFAULT_TEMPLATE.identifier}', ${count});">Add another</a>
-				</td>
-			</tr>
-		</table>
-	</div>
-	<input type="hidden" name="$!{field.identifier}_count" id="$!{field.identifier}_count" value="$index" />
-#end
 
 #set($default = "")
 #if($!DEFAULT_TEMPLATE)#set($default = "$!DEFAULT_TEMPLATE.identifier")#end
@@ -96,12 +55,7 @@
 			<div id="div_$!FORM_NAME">
 				#set($count = 0)
 				#foreach($field in $DEFAULT_TEMPLATE.fields)
-					#set($currentValue = "")
-					#if($!{citation.getCitationProperty("$field.identifier")})
-						#set($currentValue = $!{citation.getCitationProperty("$field.identifier")} )
-					##elseif($!{field.defaultValue})
-						##set($currentValue = $!{field.defaultValue})
-					#end
+					#set( $currentValue = $!{citation.getCitationProperty("$field.identifier")} )
 					<p class="shorttext">
 						#if ($field.isRequired())						 
 							<span class="reqStar">*</span>
@@ -369,6 +323,10 @@
 		
 		div.innerHTML = html;
 		counter.value = count;
+
+		// focus the newly added item
+		var focusNum = String( count-1 );
+		document.getElementById( identifier + focusNum ).focus();
 		
 		resizeFrame();
 		
@@ -427,7 +385,11 @@
 
 		div.innerHTML = html;
 		counter.value = count;
-		
+
+		// focus the newly added item
+		var focusNum = String( count-1 );
+		document.getElementById( "url_" + focusNum ).focus();
+				
 		resizeFrame();
 		
 		return false;

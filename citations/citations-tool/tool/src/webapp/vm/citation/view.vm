@@ -1,11 +1,3 @@
-#macro(showMultivalued $values)
-	#if(! $values.isEmpty())
-		#foreach($value in $values)
-			<p style="margin-top: 0; padding-top: 0; margin-bottom: 0.3em; padding-bottom: 0;">$!{xilator.escapeHtml($!{value})}</p>
-		#end
-	#end
-#end
-
 <script type="text/javascript" src="/sakai-citations-tool/js/citationscript.js">	
 </script>
 
