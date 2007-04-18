@@ -25,8 +25,8 @@ package uk.ac.cam.caret.sakai.rwiki.component.macros;
 import java.io.IOException;
 import java.io.Writer;
 
+import org.radeox.api.macro.MacroParameter;
 import org.radeox.macro.BaseMacro;
-import org.radeox.macro.parameter.MacroParameter;
 
 import uk.ac.cam.caret.sakai.rwiki.component.Messages;
 

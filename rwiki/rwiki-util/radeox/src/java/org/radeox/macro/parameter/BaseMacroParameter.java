@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.radeox.api.engine.context.RenderContext;
+import org.radeox.api.macro.MacroParameter;
 
 /**
  * @author

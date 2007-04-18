@@ -30,6 +30,8 @@ import java.io.Writer;
 import org.radeox.api.engine.RenderEngine;
 import org.radeox.api.engine.WikiRenderEngine;
 import org.radeox.api.engine.context.RenderContext;
+import org.radeox.api.macro.Macro;
+import org.radeox.macro.MacroRepository;
 import org.radeox.util.Encoder;
 
 public class MockWikiRenderEngine implements RenderEngine, WikiRenderEngine
@@ -81,4 +83,9 @@ public class MockWikiRenderEngine implements RenderEngine, WikiRenderEngine
 	{
 		return null;
 	}
+	public void addMacro(Macro macro) {
+		MacroRepository mr = MacroRepository.getInstance();
+		mr.put(macro.getName(), macro);
+	}
+
 }

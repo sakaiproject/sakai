@@ -27,8 +27,8 @@ import java.io.IOException;
 import java.io.Writer;
 
 import org.radeox.Messages;
+import org.radeox.api.macro.MacroParameter;
 import org.radeox.macro.api.ApiDoc;
-import org.radeox.macro.parameter.MacroParameter;
 
 /*
  * Macro that replaces {api} with external URLS to api documentation @author

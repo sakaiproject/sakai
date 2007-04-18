@@ -28,6 +28,7 @@ import java.io.Reader;
 import java.io.Writer;
 
 import org.radeox.api.engine.context.RenderContext;
+import org.radeox.api.macro.Macro;
 
 /**
  * Interface for RenderEngines. A RenderEngine renders a input string to an
@@ -86,6 +87,14 @@ public interface RenderEngine
 	 *        information
 	 */
 	public String render(Reader in, RenderContext context) throws IOException;
+
+	/**
+	 * Add a macro to the render engine, this can be performed from a component or a webapp and will
+	 * be keyed on its name. If the webapp is reloaded, the macro will be replaced. When a webapp is unloaded
+	 * it will be removed from the engine.
+	 * @param macro
+	 */
+	void addMacro(Macro macro);
 
 	// public void render(Writer out, Reader in, RenderContext context);
 }

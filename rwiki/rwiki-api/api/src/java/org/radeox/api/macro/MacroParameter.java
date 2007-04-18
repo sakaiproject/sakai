@@ -21,7 +21,7 @@
  * --LICENSE NOTICE--
  */
 
-package org.radeox.macro.parameter;
+package org.radeox.api.macro;
 
 import java.util.Map;
 

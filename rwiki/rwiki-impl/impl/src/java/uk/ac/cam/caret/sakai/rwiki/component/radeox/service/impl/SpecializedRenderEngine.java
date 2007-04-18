@@ -29,6 +29,8 @@ import org.radeox.api.engine.ImageRenderEngine;
 import org.radeox.api.engine.RenderEngine;
 import org.radeox.api.engine.WikiRenderEngine;
 import org.radeox.api.engine.context.RenderContext;
+import org.radeox.api.macro.Macro;
+import org.radeox.macro.MacroRepository;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.PageLinkRenderer;
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
@@ -149,6 +151,10 @@ public class SpecializedRenderEngine implements ImageRenderEngine,
 	public PageLinkRenderer getPageLinkRenderer()
 	{
 		return plr;
+	}
+	public void addMacro(Macro macro) {
+		MacroRepository mr = MacroRepository.getInstance();
+		mr.put(macro.getName(), macro);
 	}
 
 }

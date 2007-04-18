@@ -24,8 +24,8 @@
 package org.radeox.filter.context;
 
 import org.radeox.api.engine.context.RenderContext;
+import org.radeox.api.macro.MacroParameter;
 import org.radeox.macro.parameter.BaseMacroParameter;
-import org.radeox.macro.parameter.MacroParameter;
 
 /**
  * Base impementation for FilterContext

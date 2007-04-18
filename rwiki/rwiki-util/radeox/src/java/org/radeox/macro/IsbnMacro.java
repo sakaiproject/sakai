@@ -27,8 +27,8 @@ import java.io.IOException;
 import java.io.Writer;
 
 import org.radeox.Messages;
+import org.radeox.api.macro.MacroParameter;
 import org.radeox.macro.book.BookServices;
-import org.radeox.macro.parameter.MacroParameter;
 
 /*
  * Macro for displaying links to external book services, book dealers or

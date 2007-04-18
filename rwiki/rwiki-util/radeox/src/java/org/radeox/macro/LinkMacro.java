@@ -29,7 +29,7 @@ import org.radeox.Messages;
 import org.radeox.api.engine.ImageRenderEngine;
 import org.radeox.api.engine.RenderEngine;
 import org.radeox.api.engine.context.RenderContext;
-import org.radeox.macro.parameter.MacroParameter;
+import org.radeox.api.macro.MacroParameter;
 import org.radeox.util.Encoder;
 
 /*

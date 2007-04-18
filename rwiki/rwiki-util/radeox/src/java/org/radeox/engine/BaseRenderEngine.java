@@ -35,11 +35,13 @@ import org.radeox.EngineManager;
 import org.radeox.api.engine.RenderEngine;
 import org.radeox.api.engine.context.InitialRenderContext;
 import org.radeox.api.engine.context.RenderContext;
+import org.radeox.api.macro.Macro;
 import org.radeox.engine.context.BaseInitialRenderContext;
 import org.radeox.filter.Filter;
 import org.radeox.filter.FilterPipe;
 import org.radeox.filter.context.BaseFilterContext;
 import org.radeox.filter.context.FilterContext;
+import org.radeox.macro.MacroRepository;
 import org.radeox.util.Service;
 
 /**
@@ -150,4 +152,10 @@ public class BaseRenderEngine implements RenderEngine
 	{
 		out.write(render(content, context));
 	}
+	
+	public void addMacro(Macro macro) {
+		MacroRepository mr = MacroRepository.getInstance();
+		mr.put(macro.getName(), macro);
+	}
+
 }

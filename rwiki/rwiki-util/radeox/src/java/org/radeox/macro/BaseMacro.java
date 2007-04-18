@@ -28,7 +28,8 @@ import java.io.Writer;
 
 import org.radeox.Messages;
 import org.radeox.api.engine.context.InitialRenderContext;
-import org.radeox.macro.parameter.MacroParameter;
+import org.radeox.api.macro.Macro;
+import org.radeox.api.macro.MacroParameter;
 
 /*
  * Class that implements base functionality to write macros @author stephan

@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.io.Writer;
 
 import org.radeox.Messages;
-import org.radeox.macro.parameter.MacroParameter;
+import org.radeox.api.macro.MacroParameter;
 
 /*
  * Macro to easily link to RFCs. The website to link to is currently hard wired.

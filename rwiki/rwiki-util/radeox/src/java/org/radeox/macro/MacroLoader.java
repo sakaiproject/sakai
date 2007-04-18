@@ -25,6 +25,7 @@ package org.radeox.macro;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.radeox.api.macro.Macro;
 
 /**
  * Plugin loader for macros

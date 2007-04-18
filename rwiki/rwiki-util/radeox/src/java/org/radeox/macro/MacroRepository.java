@@ -32,6 +32,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.radeox.api.engine.context.InitialRenderContext;
+import org.radeox.api.macro.Macro;
 
 /**
  * Repository for plugins

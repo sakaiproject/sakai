@@ -36,10 +36,10 @@ import org.apache.commons.logging.LogFactory;
 import org.radeox.Messages;
 import org.radeox.api.engine.context.InitialRenderContext;
 import org.radeox.api.engine.context.RenderContext;
+import org.radeox.api.macro.MacroParameter;
 import org.radeox.filter.context.BaseFilterContext;
 import org.radeox.filter.context.FilterContext;
 import org.radeox.macro.code.SourceCodeFormatter;
-import org.radeox.macro.parameter.MacroParameter;
 import org.radeox.util.Service;
 
 /*

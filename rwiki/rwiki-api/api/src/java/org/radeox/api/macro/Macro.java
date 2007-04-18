@@ -21,13 +21,12 @@
  * --LICENSE NOTICE--
  */
 
-package org.radeox.macro;
+package org.radeox.api.macro;
 
 import java.io.IOException;
 import java.io.Writer;
 
 import org.radeox.api.engine.context.InitialRenderContext;
-import org.radeox.macro.parameter.MacroParameter;
 
 /*
  * Class that implements base functionality to write macros @author stephan

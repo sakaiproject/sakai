@@ -24,7 +24,7 @@
 package org.radeox.filter.context;
 
 import org.radeox.api.engine.context.RenderContext;
-import org.radeox.macro.parameter.MacroParameter;
+import org.radeox.api.macro.MacroParameter;
 
 /**
  * FilterContext stores basic data for the context filters are called in.

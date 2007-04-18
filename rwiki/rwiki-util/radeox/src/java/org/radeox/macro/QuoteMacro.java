@@ -29,7 +29,7 @@ import java.io.Writer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.radeox.Messages;
-import org.radeox.macro.parameter.MacroParameter;
+import org.radeox.api.macro.MacroParameter;
 
 /*
  * Macro to display quotations from other sources. The output is wrapped usually

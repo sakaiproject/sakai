@@ -28,8 +28,8 @@ import java.io.Writer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.radeox.api.macro.MacroParameter;
 import org.radeox.macro.api.ApiDoc;
-import org.radeox.macro.parameter.MacroParameter;
 
 /*
  * Lists all known API documentation repositories and mappings @author stephan

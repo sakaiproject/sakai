@@ -31,12 +31,12 @@ import org.radeox.Messages;
 import org.radeox.api.engine.IncludeRenderEngine;
 import org.radeox.api.engine.RenderEngine;
 import org.radeox.api.engine.context.InitialRenderContext;
+import org.radeox.api.macro.Macro;
+import org.radeox.api.macro.MacroParameter;
 import org.radeox.filter.context.FilterContext;
 import org.radeox.filter.regex.RegexTokenFilter;
-import org.radeox.macro.Macro;
 import org.radeox.macro.MacroRepository;
 import org.radeox.macro.Repository;
-import org.radeox.macro.parameter.MacroParameter;
 import org.radeox.regex.MatchResult;
 import org.radeox.util.StringBufferWriter;
 

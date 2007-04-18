@@ -52,11 +52,6 @@
   <dependencies>
     <dependency>
       <groupId>sakaiproject</groupId>
-      <artifactId>sakai-radeox</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>sakaiproject</groupId>
       <artifactId>sakai-entity-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>

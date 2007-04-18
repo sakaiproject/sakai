@@ -26,8 +26,8 @@ package org.radeox.macro;
 import java.io.IOException;
 import java.io.Writer;
 
+import org.radeox.api.macro.MacroParameter;
 import org.radeox.filter.interwiki.InterWiki;
-import org.radeox.macro.parameter.MacroParameter;
 
 /*
  * Macro that shows all know interwiki mappings. @author stephan @team sonicteam

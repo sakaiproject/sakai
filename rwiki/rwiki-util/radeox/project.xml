@@ -60,6 +60,12 @@
       <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-rwiki-api</artifactId>
+      <version>${sakai.version}</version>
+      <type>jar</type>
+    </dependency>
     
       <dependency>
       <groupId>sakaiproject</groupId>

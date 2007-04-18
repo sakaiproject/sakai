@@ -29,7 +29,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.radeox.Messages;
-import org.radeox.macro.parameter.MacroParameter;
+import org.radeox.api.macro.Macro;
+import org.radeox.api.macro.MacroParameter;
 
 /*
  * MacroListMacro displays a list of all known macros of the EngineManager with

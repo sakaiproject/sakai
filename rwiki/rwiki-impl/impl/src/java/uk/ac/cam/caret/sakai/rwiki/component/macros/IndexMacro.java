@@ -25,8 +25,8 @@ import java.io.Writer;
 import java.util.Iterator;
 import java.util.List;
 
+import org.radeox.api.macro.MacroParameter;
 import org.radeox.macro.BaseMacro;
-import org.radeox.macro.parameter.MacroParameter;
 
 import uk.ac.cam.caret.sakai.rwiki.component.Messages;
 import uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.SpecializedRenderContext;

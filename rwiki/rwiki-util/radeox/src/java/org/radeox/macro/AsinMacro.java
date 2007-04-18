@@ -29,8 +29,8 @@ import java.io.Writer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.radeox.Messages;
+import org.radeox.api.macro.MacroParameter;
 import org.radeox.macro.book.AsinServices;
-import org.radeox.macro.parameter.MacroParameter;
 
 /*
  * Macro for displaying links to external DVD/CD services or dealers. AsinMacro

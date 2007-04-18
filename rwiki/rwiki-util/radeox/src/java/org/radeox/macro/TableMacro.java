@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.io.Writer;
 
 import org.radeox.Messages;
-import org.radeox.macro.parameter.MacroParameter;
+import org.radeox.api.macro.MacroParameter;
 import org.radeox.macro.table.Table;
 import org.radeox.macro.table.TableBuilder;
 
