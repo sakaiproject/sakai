@@ -4687,13 +4687,25 @@ public class AssignmentAction extends PagedResourceActionII
 				Iterator submissions = AssignmentService.getSubmissions(a).iterator();
 				if (submissions.hasNext())
 				{
+					// any submitted?
 					boolean anySubmitted = false;
 					for (;submissions.hasNext() && !anySubmitted;)
 					{
 						AssignmentSubmission s = (AssignmentSubmission) submissions.next();
-						if (s.getSubmitted())
+						if (s.getSubmitted() && s.getTimeSubmitted() != null)
 						{
 							anySubmitted = true;
+						}
+					}
+					
+					// any draft submission
+					boolean anyDraft = false;
+					for (;submissions.hasNext() && !anyDraft;)
+					{
+						AssignmentSubmission s = (AssignmentSubmission) submissions.next();
+						if (!s.getSubmitted())
+						{
+							anyDraft = true;
 						}
 					}
 					if (anySubmitted)
@@ -4701,7 +4713,8 @@ public class AssignmentAction extends PagedResourceActionII
 						// if there is any submitted submission to this assignment, show alert
 						addAlert(state, rb.getString("assig1") + " " + a.getTitle() + " " + rb.getString("hassum"));
 					}
-					else
+					
+					if (anyDraft)
 					{
 						// otherwise, show alert about someone has started working on the assignment, not necessarily submitted
 						addAlert(state, rb.getString("hasDraftSum"));
