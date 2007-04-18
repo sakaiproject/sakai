@@ -1,5 +1,4 @@
 <!-- resources/sakai_create_uploads.vm, use with org.sakaiproject.tool.content.ResourcesHelperAction.java -->
-#set($DOT = ".")
 <div class="portletBody">
 	<h4>
 		$tlang.getString("create.uploads")
@@ -80,5 +79,5 @@
 		#end
 	</form>
 </div>
-##<textarea id="debugger" rows="80" cols="100"></textarea>
+##<textarea id="debugger" rows="40" cols="100"></textarea>
 #parse("/vm/resources/sakai_properties_scripts.vm")

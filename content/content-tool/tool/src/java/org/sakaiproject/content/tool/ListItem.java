@@ -100,7 +100,7 @@ public class ListItem
 	/** A long representing the number of milliseconds in one week.  Used for date calculations */
 	protected static final long ONE_WEEK = 1000L * 60L * 60L * 24L * 7L;
 
-	public static final String DOT = ".";
+	public static final String DOT = "_";
 
 	/**
 	 * @param entity

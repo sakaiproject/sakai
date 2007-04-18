@@ -194,6 +194,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		
 		context.put("validator", new Validator());
 		context.put("copyright_alert_url", COPYRIGHT_ALERT_URL);
+		context.put("DOT", ListItem.DOT);
 		
 		if(state.getAttribute(ResourcesAction.STATE_MESSAGE) != null)
 		{
@@ -633,13 +634,13 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		
 		for(int i = 1, c = 0; i <= lastIndex && c < count; i++)
 		{
-			String exists = params.getString("exists." + i);
+			String exists = params.getString("exists" + ListItem.DOT + i);
 			if(exists == null || exists.equals(""))
 			{
 				continue;
 			}
 			ResourceToolActionPipe fp = pipes.get(c);
-			String folderName = params.getString("content." + i);
+			String folderName = params.getString("content" + ListItem.DOT + i);
 			
 			fp.setFileName(folderName);
 			
@@ -666,7 +667,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			}
 			
 			// capture properties
-			newFolder.captureProperties(params, "." + i);
+			newFolder.captureProperties(params, ListItem.DOT + i);
 			
 			fp.setRevisedListItem(newFolder);
 			
@@ -804,7 +805,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		int actualCount = 0;
 		for(int i = 1; i <= lastIndex && actualCount < count; i++)
 		{
-			String exists = params.getString("exists." + i);
+			String exists = params.getString("exists" + ListItem.DOT + i);
 			if(exists == null || exists.equals(""))
 			{
 				continue;
@@ -812,7 +813,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			
 			ResourceToolActionPipe pipe = pipes.get(actualCount);
 			
-			String url = params.getString("content." + i );
+			String url = params.getString("content" + ListItem.DOT + i );
             if(url == null)
             {
             	continue;
@@ -858,7 +859,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			}
 			
 			// capture properties
-			newFile.captureProperties(params, "." + i);
+			newFile.captureProperties(params, ListItem.DOT + i);
 			            
 			pipe.setRevisedListItem(newFile);
     			
@@ -917,7 +918,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		
 		for(int i = 1, c = 0; i <= lastIndex && c < count; i++)
 		{
-			String exists = params.getString("exists." + i);
+			String exists = params.getString("exists" + ListItem.DOT + i);
 			if(exists == null || exists.equals(""))
 			{
 				continue;
@@ -928,7 +929,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			FileItem fileitem = null;
 			try
 			{
-				fileitem = params.getFileItem("content." + i );
+				fileitem = params.getFileItem("content" + ListItem.DOT + i );
 			}
 			catch(Exception e)
 			{
@@ -1013,7 +1014,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
     			
     			// capture properties
-    			newFile.captureProperties(params, "." + i);
+    			newFile.captureProperties(params, ListItem.DOT + i);
     			
     			pipe.setRevisedListItem(newFile);
     			

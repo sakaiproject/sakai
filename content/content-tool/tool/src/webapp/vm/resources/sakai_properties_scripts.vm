@@ -107,7 +107,7 @@
 				tag.onchange = handleRetractDateChange;
 			}
 		}
-		
+	  return false;
 	}
 	function handleEnterKey (field, event) 
 	{
@@ -141,6 +141,7 @@
 				}
 			}
 		}
+		return false;
 	}
 	function handleMimeCategoryChange(evt)
 	{
@@ -195,6 +196,7 @@
 				deleteFileItem(element);
 			}
 		}
+		return false;
 	}
 	function togglePropertiesDiv(evt)
 	{
@@ -239,6 +241,7 @@
 				}
 			}
 		}
+		return false;
 	}
 	
 	
@@ -310,6 +313,7 @@
 		}
 *#
 		resizeFrame('grow');
+		return false;
 	}
 	function removeFileItem(index)
 	{
@@ -392,6 +396,7 @@
 		}
 		
 		resizeFrame('grow');
+		return false;
 	}
 	function removeTree(nodeRef)
 	{
@@ -403,6 +408,7 @@
 				nodeRef.removeChild(nodeRef.childNodes[i]);
 			}
 		}
+		return false;
 	}
 	function deleteFileItem(element)
 	{
@@ -419,6 +425,7 @@
 		{
 			deleteFileItem(element.parentNode);
 		}
+		return false;
 	}
 	function toggleProperties(element)
 	{
@@ -434,6 +441,7 @@
 				}
 			}
 		}
+		return false;
 	}
 	function showHide(element, index)
 	{
@@ -472,8 +480,31 @@
 	function deepCopy(element, index)
 	{
 		var newElement = element.cloneNode(false);
+		if(newElement && element.childNodes)
+		{
+			for(var i = 0; i < element.childNodes.length; i++)
+			{
+				var newChild = deepCopy(element.childNodes[i], index);
+				newElement.appendChild(newChild);
+			}
+		}
+		if(newElement && newElement.name)
+		{
+			var dotPos = newElement.name.lastIndexOf(DOT);
+			if(dotPos >= 0)
+			{
+				var baseName = newElement.name.substr(0,dotPos);
+				newElement.name = baseName + DOT + index;
+			}
+		}
 		if(newElement && newElement.id)
 		{
+			var dotPos = element.id.lastIndexOf(DOT);
+			if(dotPos >= 0)
+			{
+				var baseName = element.id.substr(0,dotPos);
+				newElement.id = baseName + DOT + index;
+			}
 			if(element.id.match(/^displayName${DOT}\d+$/))
 			{
 				newElement.value = "";
@@ -511,6 +542,10 @@
 					}
 				}
 			}
+			else if(element.id.match(/^description${DOT}\d+$/))
+			{
+				newElement.value = "";
+			}
 			else if(element.id.match(/^hidden_true${DOT}\d+$/))
 			{
 				newElement.checked = false;
@@ -535,22 +570,6 @@
 			{
 				newElement.selectedIndex = 4;
 			}
-			var dotPos = element.id.lastIndexOf(DOT);
-			if(dotPos >= 0)
-			{
-				var baseName = element.id.substr(0,dotPos);
-				newElement.id = baseName + DOT + index;
-				newElement.name = baseName + DOT + index;
-			}
-			if(element.name)
-			{
-				var dotPosInName = element.name.lastIndexOf(DOT);
-				if(dotPosInName >= 0)
-				{
-					var baseName2 = element.name.substr(0,dotPosInName);
-					newElement.name = baseName2 + DOT + index;
-				}
-			}
 		}
 		if(newElement && newElement.htmlFor)
 		{
@@ -561,12 +580,13 @@
 				newElement.htmlFor = baseName + DOT + index;
 			}
 		}
-		if(newElement && element.childNodes)
+		if(newElement && newElement.headers)
 		{
-			for(var i = 0; i < element.childNodes.length; i++)
+			var dotPos = element.headers.lastIndexOf(DOT);
+			if(dotPos >= 0)
 			{
-				var newChild = deepCopy(element.childNodes[i], index);
-				newElement.appendChild(newChild);
+				var baseName = element.headers.substr(0,dotPos);
+				newElement.htmlFor = baseName + DOT + index;
 			}
 		}
 		
@@ -574,6 +594,7 @@
 	}
 	function seedValue(src_element, target_element, trim)
 	{
+##alert("seedValue(" + src_element + ", " + target_element + ", " + trim + ")");
 		if(target_element && src_element && src_element.value)
 		{
 			var nonWhitespaceChar = /\S/;
@@ -619,7 +640,6 @@
 				}
 			}
 		}
-		
 	}
 	function changeMimeType(index)
 	{
@@ -680,7 +700,6 @@
 		{
 			select_category.addEventListener("change", handleMimeCategoryChange, true);
 		}
-		
 	}
 	function changeMimeCategory(index)
 	{
@@ -769,7 +788,7 @@
 		evt = (evt) ? evt : ((event) ? event : null);
 		if(evt)
 		{
-			//evt.cancelBubble = true;
+			evt.cancelBubble = true;
 			var element = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null)
 			if(element)
 			{
@@ -946,7 +965,6 @@
 		var selectAll = document.getElementById("selectall${DOT}" + index);
 		var newSetting = selectAll.checked;
 		var checkboxes = document.getElementsByName("access_groups$DOT" + index);
-alert("toggleAllGroups(" + index + ") checkboxes.length == " + checkboxes.length);
 		for(var i = 0; i < checkboxes.length; i++)
 		{
 			checkboxes[i].checked = newSetting;
