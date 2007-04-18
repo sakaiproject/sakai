@@ -33,7 +33,7 @@
 
 		<property name="name" column="NAME" type="string" not-null="true"/>
 
-		<property name="content" column="CONTENT" type="text" not-null="true"/>
+		<property name="content" column="CONTENT" type="text" not-null="true" length="16777215"/>
 
         <property name="dateCreated" column="DATE_CREATED" type="timestamp" not-null="true"/>
 
