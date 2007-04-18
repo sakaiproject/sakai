@@ -198,7 +198,7 @@ public class PermissionLevelImpl extends MutableEntityImpl
 		buffer.append("," + read);
 		buffer.append("," + reviseAny);
 		buffer.append("," + reviseOwn);
-		//buffer.append("," + moderatePostings);
+		buffer.append("," + moderatePostings);
 		buffer.append("]");
 		
 		return buffer.toString();
@@ -338,5 +338,35 @@ public class PermissionLevelImpl extends MutableEntityImpl
         
     return result;    
   }
+  
+	public PermissionLevel clone()
+	{
+		PermissionLevelImpl pli = new PermissionLevelImpl();
+		pli.setChangeSettings(this.getChangeSettings());
+		pli.setCreated(this.getCreated());
+		pli.setCreatedBy(this.getCreatedBy());
+		pli.setDeleteAny(this.getDeleteAny());
+		pli.setDeleteOwn(this.getDeleteOwn());
+		pli.setId(this.getId());
+		pli.setMarkAsRead(this.getMarkAsRead());
+		pli.setModeratePostings(this.getModeratePostings());
+		pli.setModified(this.getModified());
+		pli.setModifiedBy(this.getModifiedBy());
+		pli.setMovePosting(this.getMovePosting());
+		pli.setName(this.getName());
+		pli.setNewForum(this.getNewForum());
+		pli.setNewResponse(this.getNewResponse());
+		pli.setNewResponseToResponse(this.getNewResponseToResponse());
+		pli.setNewTopic(this.getNewTopic());
+		pli.setPostToGradebook(this.getPostToGradebook());
+		pli.setRead(this.getRead());
+		pli.setReviseAny(this.getReviseAny());
+		pli.setReviseOwn(this.getReviseOwn());
+		pli.setTypeUuid(this.getTypeUuid());
+		pli.setUuid(this.getUuid());
+		pli.setVersion(this.getVersion());
+		
+		return pli;
+	}
 	
 }

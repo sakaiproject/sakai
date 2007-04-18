@@ -556,7 +556,7 @@ public class PermissionLevelManagerImpl extends HibernateDaoSupport implements P
 		}
 		
 		if(defaultPermissionsMap != null && defaultPermissionsMap.get(typeUuid) != null)
-			return (PermissionLevel)defaultPermissionsMap.get(typeUuid);
+			return ((PermissionLevel)defaultPermissionsMap.get(typeUuid)).clone();
 		
 		HibernateCallback hcb = new HibernateCallback() {
       public Object doInHibernate(Session session) throws HibernateException, SQLException {

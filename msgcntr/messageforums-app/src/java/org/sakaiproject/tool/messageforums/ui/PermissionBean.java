@@ -28,9 +28,12 @@ import java.util.ResourceBundle;
 import javax.faces.model.SelectItem;
 
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
+import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.PermissionLevel;
 import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.api.app.messageforums.PermissionsMask;
 
 public class PermissionBean {
   
@@ -80,6 +83,15 @@ public class PermissionBean {
      {
        PermissionLevel permLevel= permissionLevelManager.getPermissionLevelByName(selectedLevel);
        this.item.setPermissionLevel(permLevel);
+     }
+     else
+     {
+    	 MessageForumsTypeManager typeManager = (MessageForumsTypeManager) ComponentManager.get("org.sakaiproject.api.app.messageforums.MessageForumsTypeManager");
+    	 if(!this.item.getPermissionLevel().getTypeUuid().equals(typeManager.getCustomLevelType()))
+    	 {
+    		 PermissionLevel permLevel = permissionLevelManager.createPermissionLevel(selectedLevel, typeManager.getCustomLevelType(), new PermissionsMask());
+    		 this.item.setPermissionLevel(permLevel);
+    	 }
      }
     }
   }
@@ -349,7 +361,7 @@ public class PermissionBean {
     if(revisePostings.equals(getResourceBundleString(ALL)))
     {
       setReviseAny(true);
-      setReviseOwn(true);
+      setReviseOwn(false);
     }
     else if(revisePostings.equals(getResourceBundleString(OWN)))
     {

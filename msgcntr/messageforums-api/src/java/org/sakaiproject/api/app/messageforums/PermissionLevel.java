@@ -100,5 +100,7 @@ public interface PermissionLevel extends MutableEntity{
 	public Boolean getReviseOwn();
 
 	public void setReviseOwn(Boolean reviseOwn);
+	
+	public PermissionLevel clone();
 
 }
