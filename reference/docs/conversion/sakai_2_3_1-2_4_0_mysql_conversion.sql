@@ -398,7 +398,7 @@ CREATE INDEX SCHEDULER_DI_TIME_INDEX ON SCHEDULER_DELAYED_INVOCATION (INVOCATION
 
 CREATE TABLE osp_report_def_xml (
   reportDefId varchar(36) NOT NULL,
-  xmlFile long blob NOT NULL,
+  xmlFile longblob NOT NULL,
   PRIMARY KEY  (reportDefId)
 );
 
