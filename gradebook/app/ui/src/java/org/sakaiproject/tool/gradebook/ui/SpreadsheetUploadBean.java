@@ -834,10 +834,12 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             getGradebookBean().getEventTrackingService().postEvent("gradebook.importEntire","/gradebook/"+getGradebookId()+"/"+assignment.getName()+"/"+getAuthzLevel());
        }
 
+        // just in case previous attempt had unknown users
+        hasUnknownUser = false;
         if (gbUpdated) {
-        	FacesUtil.addMessage(getLocalizedString(IMPORT_SUCCESS_STRING));
+        	FacesUtil.addRedirectSafeMessage(getLocalizedString(IMPORT_SUCCESS_STRING));
         } else {
-        	FacesUtil.addMessage(getLocalizedString(IMPORT_NO_CHANGES));
+        	FacesUtil.addRedirectSafeMessage(getLocalizedString(IMPORT_NO_CHANGES));
         }
 
         this.setPageName("spreadsheetAll");
@@ -985,7 +987,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     }
     
     public String processImportAllCancel() {
-    	// TODO: clear error messages.
+    	hasUnknownUser = false;
     	return "spreadsheetAll";
     }
 

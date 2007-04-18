@@ -149,7 +149,7 @@ public class FacesUtil {
         // We only send informational messages across pages.
         mb.addMessage(new FacesMessage(FacesMessage.SEVERITY_INFO, message, null));
     }
-
+    
     /**
      * JSF 1.1 provides no way to cleanly discard input fields from a table when
      * we know we won't use them. Ideally in such circumstances we'd specify an
