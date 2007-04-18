@@ -525,3 +525,39 @@ function changePageSize( action, location, formname ) {
   document.getElementById( 'pageSelector' ).value = location;
   submitform( formname );
 }
+
+/**
+ * Check required fields on create and edit pages
+ *
+ */
+function checkRequiredFields( alertMsg ) {
+  // check the inputs of all single-value requiredFields
+  var returnVal = true;
+  $( "input:visible", ".requiredField" ).each( function() {
+    if( !this.value || this.value == "" ) {
+      alert( alertMsg );
+      returnVal = false;
+    }
+  } );
+  
+  if( returnVal == false ) {
+    return false;
+  }
+  
+  // check the inputs of all multi-value requiredFields
+  var multiAlert = true;
+  var showMultiAlert = false;
+  $( "input:visible", ".requiredField_multi" ).each( function() {
+    showMultiAlert = true;
+    if( this.value && this.value != "" ) {
+      multiAlert = false;
+    }
+  } );
+  
+  if( multiAlert && showMultiAlert ) {
+    alert( alertMsg );
+    return false;
+  }
+  
+  return true;
+}

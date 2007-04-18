@@ -75,7 +75,7 @@
 		<p class="act">
 			<input class="active" type="button" name="Save" id="Save"
 			 value="$tlang.getString("submit.edit")"
-			 onclick="document.getElementById('sakai_action').value='doReviseCitation'; submitform('$FORM_NAME');"
+			 onclick="javascript: if( checkRequiredFields( '$tlang.getString( "required.alert" )' ) ) { document.getElementById('sakai_action').value='doReviseCitation'; submitform('$FORM_NAME'); }"
 			/>
 			<input type="button" name="Cancel" id="Cancel"
 			  value="$tlang.getString("cancel.edit")"
@@ -107,8 +107,13 @@
 						##set($currentValue = $!{field.defaultValue})
 					#end
 					<p class="shorttext">
-						#if ($field.isRequired())
+						#if ($field.isRequired())						 
 							<span class="reqStar">*</span>
+							#if( $field.isMultivalued() )
+								<span class="requiredField_multi">
+							#else
+								<span class="requiredField">
+							#end
 						#end
 						#if($field.isMultivalued())
 							<label for="${field.identifier}0">
@@ -120,7 +125,10 @@
 								<strong>$tlang.getString("$!{DEFAULT_TEMPLATE.identifier}.$!{field.identifier}")</strong>
 							</label>
 							#getFieldValue($field "$!currentValue" "")
-						#end						
+						#end
+						#if ($field.isRequired())						 
+							</span>
+						#end
 					</p>
 					#set($count = $count + 1)
 				#end
@@ -201,7 +209,7 @@
 	 		<p class="act">
 				<input class="active" type="button" name="Save" id="Save"
 				  value="$tlang.getString("submit.edit")"
-				  onclick="document.getElementById('sakai_action').value='doReviseCitation'; submitform('$FORM_NAME');"
+				  onclick="javascript: if( checkRequiredFields( '$tlang.getString( "required.alert" )' ) ) { document.getElementById('sakai_action').value='doReviseCitation'; submitform('$FORM_NAME'); }"
 				/>
 				<input type="button" name="Cancel" id="Cancel"
 				  value="$tlang.getString("cancel.edit")"
@@ -273,20 +281,33 @@
 			if(templates[type][t].isRequired)
 			{						 
 				html += '<span class="reqStar">*</span>\n';
+				if(templates[type][t].maxCardinality > 1)
+				{
+					html += '<span class="requiredField_multi">\n';
+				}
+				else
+				{
+					html += '<span class="requiredField">\n';
+				}
 			}
 			if(templates[type][t].maxCardinality > 1)
 			{
-				html += '<label for="' + templates[type][t].identifier + '0">\n' + templates[type][t].label + '\n</label>\n';
+				html += '<label for="' + templates[type][t].identifier + '0">\n<strong>' + templates[type][t].label + '</strong>\n</label>\n';
 				html += getMultivalued(type, t);
 			}
 			else
 			{
-				html += '<label for="' + templates[type][t].identifier + '">\n' + templates[type][t].label + '\n</label>\n';
+				html += '<label for="' + templates[type][t].identifier + '">\n<strong>' + templates[type][t].label + '</strong>\n</label>\n';
 				html += getValue(type, t, "");
+			}
+			if(templates[type][t].isRequired)
+			{
+				html += "</span>\n";
 			}
 			html += "</p>\n";
 		}
 		form_div.innerHTML = html;
+		resizeFrame();
 	}
 	function getValue(type, t, index)
 	{
