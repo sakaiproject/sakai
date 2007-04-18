@@ -696,7 +696,7 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
         </h:outputText>
 
         <h:outputText styleClass="red" value="#{evaluationMessages.all_late}" escape="false"
-          rendered="#{description.isLate}"/>
+          rendered="#{description.isLate && totalScores.isTimedAssessment eq 'false'}"/>
     </h:column>
 
     <h:column rendered="#{questionScores.sortType eq 'submittedDate' && questionScores.sortAscending}">

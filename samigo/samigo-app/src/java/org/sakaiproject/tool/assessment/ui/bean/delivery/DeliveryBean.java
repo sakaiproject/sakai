@@ -1132,7 +1132,7 @@ public class DeliveryBean
 
   public void setTimeLimit(String timeLimit)
   {
-    this.timeLimit = timeLimit;
+	  this.timeLimit = timeLimit;
   }
 
   public int getTimeLimit_hour()
@@ -2515,7 +2515,11 @@ public class DeliveryBean
         ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling());
 
     log.debug("check 5");
-    // check 5: has dueDate arrived? if so, does it allow late submission? 
+    // check 5: has dueDate arrived? if so, does it allow late submission?
+    // If it is a timed assessment, always go through. Because a timed assessment will be auto-submitted anyway - when time is up or
+    // when current date reaches due date if the time limited is longer than due date, for either case, we 
+    // want to redirect to the normal "submision successful page" after submitting.
+    if (!this.isTimedAssessment()) {
     if (pastDueDate()){
     	if (acceptLateSubmission) {
     		if (totalSubmitted != 0) {
@@ -2528,7 +2532,7 @@ public class DeliveryBean
     	}
     	else return "noLateSubmission";
     }
-
+    }
     log.debug("check 6");
     // check 6: is it still available?
     if (isRetracted()){
@@ -2702,7 +2706,23 @@ public class DeliveryBean
 	    this.assessmentGradingId = assessmentGradingId;
 	  }
 
-
-	
-
+	  // This is for SAK-9505
+	  // We reset the time limit to the smaller one of
+	  // 1. assessment "time limit" and 2. the difference of due date and current. 
+	  public String updateTimeLimit(String timeLimit) {
+		if (this.dueDate != null) {  
+			int timeBeforeDue  = Math.round((this.dueDate.getTime() - (new Date()).getTime())/1000); //in sec
+			if (timeBeforeDue < Integer.parseInt(timeLimit)) {
+				return String.valueOf(timeBeforeDue);
+			}
+		}
+		return timeLimit;
+	  }
+	  
+	  public boolean isTimedAssessment() {
+		  if (this.getPublishedAssessment().getAssessmentAccessControl().getTimeLimit().equals("0")) {
+			  return false;
+		  }
+		  return true;
+	  }
 }

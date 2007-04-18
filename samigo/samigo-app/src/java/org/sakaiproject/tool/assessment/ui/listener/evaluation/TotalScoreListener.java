@@ -115,7 +115,7 @@ public class TotalScoreListener
     PublishedAssessmentService pubAssessmentService = new PublishedAssessmentService();
     PublishedAssessmentFacade pubAssessment = pubAssessmentService.
                                               getPublishedAssessment(publishedId);
-
+    
     // reset scoringType based on evaluationModel,scoringType if coming from authorIndex
     if (ae != null && ae.getComponent().getId().startsWith("authorIndexToScore")) {
     	log.debug("coming from authorIndex");
@@ -272,6 +272,13 @@ public class TotalScoreListener
       // any subsequent click on 'totalscores' link.
       bean.setPublishedAssessment(p);
 
+      PublishedAccessControl ac = (PublishedAccessControl) p.getAssessmentAccessControl();
+      if (ac.getTimeLimit().equals(Integer.valueOf(0))) {
+    	  bean.setIsTimedAssessment(false);
+      }
+      else {
+    	  bean.setIsTimedAssessment(true);
+      }
       //#1 - prepareAgentResultList prepare a list of AssesmentGradingData and set it as
       // bean.agents later in step #4
       // scores is a filtered list contains last AssessmentGradingData submitted for grade

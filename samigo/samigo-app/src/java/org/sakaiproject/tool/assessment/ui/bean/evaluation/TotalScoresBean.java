@@ -114,6 +114,7 @@ public class TotalScoresBean
   private String defaultSearchString;
   
   private boolean multipleSubmissionsAllowed = false;
+  private boolean isTimedAssessment = false;
   
   private static Log log = LogFactory.getLog(TotalScoresBean.class);
 
@@ -988,6 +989,13 @@ public class TotalScoresBean
 	public void setMultipleSubmissionsAllowed(boolean multipleSubmissionsAllowed) {
 		this.multipleSubmissionsAllowed = multipleSubmissionsAllowed;
 	}
-
+	
+	public boolean getIsTimedAssessment() {
+		return isTimedAssessment;
+	}
+	
+	public void setIsTimedAssessment(boolean isTimedAssessment) {
+		this.isTimedAssessment = isTimedAssessment;
+	}
 
 }

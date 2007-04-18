@@ -1946,7 +1946,7 @@ public class DeliveryActionListener
     int timeLimit = 0;
     AssessmentAccessControlIfc control = publishedAssessment.getAssessmentAccessControl();
     if (control != null && control.getTimeLimit()!=null) 
-      timeLimit = publishedAssessment.getAssessmentAccessControl().getTimeLimit().intValue();
+      timeLimit = Integer.parseInt(delivery.updateTimeLimit(publishedAssessment.getAssessmentAccessControl().getTimeLimit().toString()));
     if (timeLimit==0) 
       delivery.setTimeRunning(false);
     else{

@@ -278,7 +278,7 @@ public class BeginDeliveryActionListener implements ActionListener
 
     try {
       if (control.getTimeLimit() != null) {
-        delivery.setTimeLimit(control.getTimeLimit().toString());
+        delivery.setTimeLimit(delivery.updateTimeLimit(control.getTimeLimit().toString()));
         int seconds = control.getTimeLimit().intValue();
         int hour = 0;
         int minute = 0;
