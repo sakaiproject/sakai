@@ -788,6 +788,9 @@ table.hierItemBlock td h4,table.hierItemBlock td h5,table.hierItemBlock td h6,
 	width: 83%;
 	padding-bottom: .5em;
 	float: left;
+}
+
+.chatListMonitor {
 	height: 300px;
 	overflow-y: auto;
 	overflow-x: visible;
