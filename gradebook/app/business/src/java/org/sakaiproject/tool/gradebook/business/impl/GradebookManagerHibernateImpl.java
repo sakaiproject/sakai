@@ -1674,7 +1674,8 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		allAssignments = getAssignmentsWithStats(gradebookId, assignmentSort, assignAscending);
     	else
     		allAssignments = getAssignmentsWithStats(gradebookId, Assignment.DEFAULT_SORT, assignAscending);
-
+    	
+    	List releasedAssignments = new ArrayList();
     	List gradeRecords = getAllAssignmentGradeRecords(gradebookId, allStudentUids);
     	Map cateMap = new HashMap();
     	for (Iterator iter = allAssignments.iterator(); iter.hasNext(); )
@@ -1683,7 +1684,10 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		if(assign != null)
     		{
     			if(assign.isReleased())
+    			{
     				assign.calculateStatistics(gradeRecords);
+    				releasedAssignments.add(assign);
+    			}
     			if(assign.getCategory() != null && cateMap.get(assign.getCategory().getId()) == null)
     			{
     				List assignList = new ArrayList();
@@ -1717,6 +1721,14 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
   		else
   			sortCategories(categories, Category.SORT_BY_NAME, categoryAscending);
   			
+      Set studentUids = getAllStudentUids(getGradebookUid(gradebookId));
+      CourseGrade courseGrade = getCourseGrade(gradebookId);
+      Map gradeRecordMap = new HashMap();
+      addToGradeRecordMap(gradeRecordMap, gradeRecords);
+      List<CourseGradeRecord> courseGradeRecords = getPointsEarnedCourseGradeRecords(courseGrade, studentUids, releasedAssignments, gradeRecordMap);
+      courseGrade.calculateStatistics(courseGradeRecords, studentUids.size());
+
+      categories.add(courseGrade);
   		
   		return categories;
     }

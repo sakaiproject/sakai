@@ -1593,6 +1593,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		cg = (CourseGrade) assgnsWithStats.get(assgnsWithStats.size() - 1);
 		Assert.assertTrue(new BigDecimal(cg.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
 			new BigDecimal(((1.0/10.0) + (4.0/15.0) + (6.0/15.0) + (8.0/15.0) + (10.0/15.0)) *100.0/ 5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+System.out.println("*****" + new BigDecimal(((1.0/10.0) + (4.0/15.0) + (6.0/15.0) + (8.0/15.0) + (10.0/15.0)) *100.0/ 5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() + ";;" + new BigDecimal(cg.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
 		gradebookManager.updateGradebook(persistentGradebook);
@@ -1760,44 +1761,55 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		addUsersEnrollments(persistentGradebook, uid);
 
 		List cateList = gradebookManager.getCategoriesWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
+		List tempList = gradebookManager.getAssignmentsAndCourseGradeWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true);
+		CourseGrade cg1 = (CourseGrade) tempList.get(tempList.size() - 1);
 
 		for(int i=0; i<cateList.size(); i++)
 		{
-			Category cat = (Category) cateList.get(i);
-			if(i == 0)
+			if(i == (cateList.size() -1))
 			{
-				Assert.assertTrue(new BigDecimal(cat.getAverageTotalPoints()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-					new BigDecimal((5.0 + 10) / 2.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-				Assert.assertTrue(new BigDecimal(cat.getAverageScore()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-					new BigDecimal((1.0 + 2 + 3 + 4 + 5) / 5.0 / 2.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+				CourseGrade cg = (CourseGrade) cateList.get(i); 
+				Assert.assertTrue(new BigDecimal(cg.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal(((2.0 / 15.0 ) + (4.0 / 15.0) + (6.0/15.0) + (8.0/15.0) + (10.0/ 15.0)) * 100 / 5).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			}
-			else if(i == 1)
+			else
 			{
-				Assert.assertTrue(new BigDecimal(cat.getAverageTotalPoints()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-					new BigDecimal((10.0 + 10.0) / 2.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-				Assert.assertTrue(new BigDecimal(cat.getAverageScore()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-					new BigDecimal((1.0 + 2 + 3 + 4 + 5) / 5.0 / 2.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-			}
-			
-			List assignList = cat.getAssignmentList();
-			for(int j=0; j<assignList.size(); j++)
-			{
-				Assignment assi= (Assignment) assignList.get(j);
-				if(assi.getId().equals(assgn1Long))
+				Category cat = (Category) cateList.get(i);
+				if(i == 0)
 				{
-					Assert.assertTrue(new BigDecimal(assi.getAverageTotal()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-						new BigDecimal((1.0+2+3+4+5) / 5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-					Assert.assertTrue(new BigDecimal(assi.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-						new BigDecimal((1.0+2+3+4+5) / 5.0 / 5.0 * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+					Assert.assertTrue(new BigDecimal(cat.getAverageTotalPoints()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+						new BigDecimal((5.0 + 10) / 2.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+					Assert.assertTrue(new BigDecimal(cat.getAverageScore()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+						new BigDecimal((1.0 + 2 + 3 + 4 + 5) / 5.0 / 2.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 				}
-				if(assi.getId().equals(assgn3Long))
+				else if(i == 1)
 				{
-					Assert.assertTrue(new BigDecimal(assi.getAverageTotal()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-						new BigDecimal((1.0+2+3+4+5) / 5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-					Assert.assertTrue(new BigDecimal(assi.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
-						new BigDecimal((1.0+2+3+4+5) / 5.0 / 10.0 * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+					Assert.assertTrue(new BigDecimal(cat.getAverageTotalPoints()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+						new BigDecimal((10.0 + 10.0) / 2.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+					Assert.assertTrue(new BigDecimal(cat.getAverageScore()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+						new BigDecimal((1.0 + 2 + 3 + 4 + 5) / 5.0 / 2.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 				}
-				//System.out.println(assi.getAverageTotal() + "==" + assi.getMean());
+
+				List assignList = cat.getAssignmentList();
+				for(int j=0; j<assignList.size(); j++)
+				{
+					Assignment assi= (Assignment) assignList.get(j);
+					if(assi.getId().equals(assgn1Long))
+					{
+						Assert.assertTrue(new BigDecimal(assi.getAverageTotal()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+							new BigDecimal((1.0+2+3+4+5) / 5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+						Assert.assertTrue(new BigDecimal(assi.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+							new BigDecimal((1.0+2+3+4+5) / 5.0 / 5.0 * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+					}
+					if(assi.getId().equals(assgn3Long))
+					{
+						Assert.assertTrue(new BigDecimal(assi.getAverageTotal()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+							new BigDecimal((1.0+2+3+4+5) / 5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+						Assert.assertTrue(new BigDecimal(assi.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+							new BigDecimal((1.0+2+3+4+5) / 5.0 / 10.0 * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+					}
+					//System.out.println(assi.getAverageTotal() + "==" + assi.getMean());
+				}
 			}
 		}
 		
@@ -1813,7 +1825,11 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		gradebookManager.updateGradebook(persistentGradebook);
 		cateList = gradebookManager.getCategoriesWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
 
-		for(int i=0; i<cateList.size(); i++)
+		CourseGrade cg = (CourseGrade) cateList.get(cateList.size() - 1);
+		Assert.assertTrue(new BigDecimal(cg.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+			new BigDecimal(((1.0/10.0 * 0.6 ) + (2.0/5.0 * 0.4 + 2.0 / 10.0 * 0.6) + (3.0/5.0 * 0.4 + 3.0 / 10.0 * 0.6) + (4.0/5.0 * 0.4 + 4.0 / 10.0 * 0.6) + (5.0/5.0 * 0.4 + 5.0 / 10.0 * 0.6)) * 100 / 5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+		
+		for(int i=0; i<(cateList.size() - 1); i++)
 		{
 			Category cat = (Category) cateList.get(i);
 			if(i == 0)
@@ -1869,6 +1885,10 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 			if(i == 2)
 				Assert.assertTrue(testAsignmentNonReleased.getName().equals(cateWithNonRleased.getName() + "_assignment_non_released"));
 		}
+		
+		cg = (CourseGrade) cateList.get(cateList.size() - 1);
+		Assert.assertTrue(new BigDecimal(cg.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+			new BigDecimal(((1.0/10.0 * 0.6 ) + (2.0/5.0 * 0.4 + 2.0 / 10.0 * 0.6) + (3.0/5.0 * 0.4 + 3.0 / 10.0 * 0.6) + (4.0/5.0 * 0.4 + 4.0 / 10.0 * 0.6) + (5.0/5.0 * 0.4 + 5.0 / 10.0 * 0.6)) * 100 / 5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 	}
 	
 	public void testGetAssignmentsWithNoCategory() throws Exception
@@ -1895,7 +1915,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 	{
 		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
 		List cateList = gradebookManager.getCategoriesWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
-		for(int i=0; i<cateList.size(); i++)
+		for(int i=0; i<(cateList.size() - 1); i++)
 		{
 			Category cat = (Category) cateList.get(i);
 			if(i == 0)
@@ -1905,7 +1925,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		}
 
 		cateList = gradebookManager.getCategoriesWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, false);
-		for(int i=0; i<cateList.size(); i++)
+		for(int i=0; i<(cateList.size() - 1); i++)
 		{
 			Category cat = (Category) cateList.get(i);
 			if(i == 0)
@@ -1942,7 +1962,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		}
 		gradebookManager.updateAssignmentGradeRecords(assign, gradeRecords, GradebookService.GRADE_TYPE_POINTS);
 		cateList = gradebookManager.getCategoriesWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_AVERAGE_SCORE, true);
-		for(int i=0; i<cateList.size(); i++)
+		for(int i=0; i<(cateList.size() - 1); i++)
 		{
 			Category cat = (Category) cateList.get(i);
 			if(i == 0)
@@ -1952,7 +1972,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		}
 		
 		cateList = gradebookManager.getCategoriesWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_AVERAGE_SCORE, false);
-		for(int i=0; i<cateList.size(); i++)
+		for(int i=0; i<(cateList.size() - 1); i++)
 		{
 			Category cat = (Category) cateList.get(i);
 			if(i == 0)
@@ -1962,7 +1982,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		}
 		
 		cateList = gradebookManager.getCategoriesWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_WEIGHT, true);
-		for(int i=0; i<cateList.size(); i++)
+		for(int i=0; i<(cateList.size() - 1); i++)
 		{
 			Category cat = (Category) cateList.get(i);
 			if(i == 0)
@@ -1973,7 +1993,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		}
 		
 		cateList = gradebookManager.getCategoriesWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_WEIGHT, false);
-		for(int i=0; i<cateList.size(); i++)
+		for(int i=0; i<(cateList.size() - 1); i++)
 		{
 			Category cat = (Category) cateList.get(i);
 			if(i == 0)
