@@ -516,13 +516,17 @@ public class SegmentInfoImpl implements SegmentInfo
 					else
 					{
 						files[i].delete();
-						log.info("Deleting file "+files[i].getPath()+" Sucess=["+files[i].exists()+"]");
+						if ( files[i].exists() ) {
+							log.warn("Failed to delete  "+files[i].getPath());
+						}
 					}
 				}
 			}
 		}
 		f.delete();
-		log.info("Deleting file "+f.getPath()+" Sucess=["+f.exists()+"]");
+		if ( f.exists() ) {
+			log.warn("Failed to delete  "+f.getPath());
+		}
 	}
 
 

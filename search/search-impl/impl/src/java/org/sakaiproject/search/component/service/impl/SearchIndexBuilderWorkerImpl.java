@@ -154,7 +154,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 
 	private String lastIndexing;
 
-	private boolean soakTest = true;
+	private boolean soakTest = false;
 
 	private static HashMap nodeIDList = new HashMap();;
 
@@ -171,7 +171,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 			+ "( id,nodename,lockkey, expires ) values ( ?, ?, ?, ? )";
 
 	private static String COUNT_WORK_SQL = " select count(*) "
-			+ "from searchbuilderitem where searchstate = ? and searchaction <> ? ";
+			+ "from searchbuilderitem where searchstate = ? ";
 
 	private static String CLEAR_LOCK_SQL = "update searchwriterlock "
 			+ "set nodename = ?, expires = ? where nodename = ? and lockkey = ? ";
@@ -812,18 +812,19 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 			if (takelock)
 			{
 				// any work ?
-				countWork.clearParameters();
-				countWork.setInt(1, SearchBuilderItem.STATE_PENDING.intValue());
-				countWork
-						.setInt(2, SearchBuilderItem.ACTION_UNKNOWN.intValue());
-				resultSet = countWork.executeQuery();
 				int nitems = 0;
-				if (resultSet.next())
+				if (!checklock)
 				{
-					nitems = resultSet.getInt(1);
+					countWork.clearParameters();
+					countWork.setInt(1, SearchBuilderItem.STATE_PENDING.intValue());
+					resultSet = countWork.executeQuery();
+					if (resultSet.next())
+					{
+						nitems = resultSet.getInt(1);
+					}
+					resultSet.close();
+					resultSet = null;
 				}
-				resultSet.close();
-				resultSet = null;
 				if (nitems > 0 || checklock)
 				{
 					try
@@ -1633,7 +1634,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 	/**
 	 * @return the soakTest
 	 */
-	public boolean isSoakTest()
+	public boolean getSoakTest()
 	{
 		return soakTest;
 	}
@@ -1645,7 +1646,11 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 	 */
 	public void setSoakTest(boolean soakTest)
 	{
+		
 		this.soakTest = soakTest;
+		if ( soakTest ) {
+			log.warn("SOAK TEST ACTIVE ======================DONT USE FOR PRODUCTION ");
+		}
 	}
 
 }

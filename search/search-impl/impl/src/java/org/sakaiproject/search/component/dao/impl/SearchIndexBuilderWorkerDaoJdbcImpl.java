@@ -253,6 +253,8 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 			{
 				indexWrite = indexStorage.getIndexWriter(false);
 			}
+			long last = System.currentTimeMillis();
+			
 			for (Iterator tditer = runtimeToDo.iterator(); worker.isRunning()
 					&& tditer.hasNext();)
 			{
@@ -482,10 +484,15 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 					// update this node lock to indicate its
 					// still alove, no document should
 					// take more than 2 mins to process
-					if (!worker.getLockTransaction(15L * 60L * 1000L, true))
-					{
-						throw new Exception("Transaction Lock Expired while indexing " //$NON-NLS-1$
+					// ony do this check once every minute
+					long now = System.currentTimeMillis();
+					if ( (now-last) > (60L*1000L) ) {
+						last = System.currentTimeMillis();
+						if (!worker.getLockTransaction(15L * 60L * 1000L, true))
+						{
+							throw new Exception("Transaction Lock Expired while indexing " //$NON-NLS-1$
 								+ ref);
+						}
 					}
 
 				}

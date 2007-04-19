@@ -73,7 +73,6 @@ public class ClusterFSIndexStorage implements IndexStorage
 	 * Maximum size of a segment on write
 	 */
 	private long segmentThreshold = 1024 * 1024 * 20; // Maximum Segment size
-	//private long segmentThreshold = 1024 * 200; // 1024 * 20; // Maximum Segment size
 
 	// is 20M
 
@@ -82,13 +81,11 @@ public class ClusterFSIndexStorage implements IndexStorage
 	// maximum size of a segment during merge
 
 	private long maxSegmentSize = 1024L * 1024L * 1500L; // just short of
-	//private long maxSegmentSize = 1024L * 1500L; //1024L * 1500L; // just short of
 
 	// 1.5G
 
 	// maximum size of a segment considered for merge operations
 	private long maxMegeSegmentSize = 1024L * 1024L * 1200L; // 1.2G
-	//private long maxMegeSegmentSize = 1024L * 1200L; // 1024L * 1200L; // 1.2G
 
 	public void init()
 	{
@@ -834,6 +831,57 @@ public class ClusterFSIndexStorage implements IndexStorage
 			}
 
 		}
+	}
+
+	/**
+	 * @return the maxMegeSegmentSize
+	 */
+	public long getMaxMegeSegmentSize()
+	{
+		return maxMegeSegmentSize;
+	}
+
+	/**
+	 * @param maxMegeSegmentSize the maxMegeSegmentSize to set
+	 */
+	public void setMaxMegeSegmentSize(long maxMegeSegmentSize)
+	{
+		log.info("Max Segment Merge Size set to "+maxMegeSegmentSize);
+		this.maxMegeSegmentSize = maxMegeSegmentSize;
+	}
+
+	/**
+	 * @return the maxSegmentSize
+	 */
+	public long getMaxSegmentSize()
+	{
+		return maxSegmentSize;
+	}
+
+	/**
+	 * @param maxSegmentSize the maxSegmentSize to set
+	 */
+	public void setMaxSegmentSize(long maxSegmentSize)
+	{
+		log.info("Max Segment Size set to "+maxSegmentSize);
+		this.maxSegmentSize = maxSegmentSize;
+	}
+
+	/**
+	 * @return the segmentThreshold
+	 */
+	public long getSegmentThreshold()
+	{
+		return segmentThreshold;
+	}
+
+	/**
+	 * @param segmentThreshold the segmentThreshold to set
+	 */
+	public void setSegmentThreshold(long segmentThreshold)
+	{
+		log.info("New Segment Size threshold set to "+segmentThreshold);
+		this.segmentThreshold = segmentThreshold;
 	}
 
 }
