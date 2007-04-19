@@ -173,6 +173,12 @@ public class MessageForumSynopticBean {
 
 /* =========== End of DecoratedCompiledMessageStats =========== */
 
+	// transient only persists in request scope
+	private transient Boolean myWorkspace = null;
+	private transient Boolean pmEnabled = null;
+	private transient Boolean anyMFToolInSite = null;
+	private transient List contents = null;
+
 	/** Used to determine if MessageCenter tool part of site */
 	private final String MESSAGE_CENTER_ID = "sakai.messagecenter";
 	private final String FORUMS_TOOL_ID = "sakai.forums";
@@ -182,13 +188,11 @@ public class MessageForumSynopticBean {
 	private final String CONTEXTID="contextId";
 
 	/** Used to retrieve non-notification sites for MyWorkspace page */
-//	private final String SYNMC_OPTIONS_PREFS = "synmc_hidden_sites";
 	private static final String TABS_EXCLUDED_PREFS = "sakai:portal:sitenav";
 	private final String TAB_EXCLUDED_SITES = "exclude";
 	
 	/** Preferences service (injected dependency) */
 	protected PreferencesService preferencesService = null;
-
 
 	/** =============== Main page bean values =============== */
 	/** Used to determine if there are sites to display on page */
@@ -243,7 +247,7 @@ public class MessageForumSynopticBean {
 	public void setPreferencesService(PreferencesService preferencesService) {
 		this.preferencesService = preferencesService;
 	}
-
+	
 	/**
 	 * Returns TRUE if on MyWorkspace, FALSE if on a specific site
 	 * 
@@ -251,17 +255,20 @@ public class MessageForumSynopticBean {
 	 * 		TRUE if on MyWorkspace, FALSE if on a specific site
 	 */
 	public boolean isMyWorkspace() {
-		// get context id
-		final String siteId = getContext();
+		// myWorkspace is a transient variable
+		if (myWorkspace == null) {
+			// get context id
+			final String siteId = getContext();
 
-		if (SiteService.getUserSiteId("admin").equals(siteId))
-			return false;
+			if (SiteService.getUserSiteId("admin").equals(siteId))
+				return false;
 
-		final boolean where = SiteService.isUserSite(siteId);
+			myWorkspace = SiteService.isUserSite(siteId);
 
-		LOG.debug("Result of determining if My Workspace: " + where);
-
-		return where;
+			LOG.debug("Result of determining if My Workspace: " + myWorkspace);
+		}
+		
+		return myWorkspace.booleanValue();
 	}
 
 	/**
@@ -286,9 +293,13 @@ public class MessageForumSynopticBean {
 	 * 		TRUE if (Private) Messages enabled, FALSE otherwise
 	 */
 	public boolean isPmEnabled() {
-		final Area area = pvtMessageManager.getPrivateMessageArea();
+		if (pmEnabled == null) {
+			final Area area = pvtMessageManager.getPrivateMessageArea();
 		
-		return (area != null) && area.getEnabled().booleanValue();
+			pmEnabled =  (area != null) && area.getEnabled().booleanValue();
+		}
+		
+		return pmEnabled;
 	}
 
 	/**
@@ -729,23 +740,29 @@ public class MessageForumSynopticBean {
 
 				// ************ checking for unread private messages for this site ************  
 				if (siteId.equals(pmCounts[0])) {
-					// check if not enabled
-					final Area area = areaManager.getAreaByContextIdAndTypeId(siteId, 
+					if (isMessagesPageInSite(site)) {
+						dcms.setUnreadPrivateAmt(((Integer) pmCounts[1]).intValue());
+						hasPrivate = true;						
+					}
+					else {
+						// check if not enabled
+						final Area area = areaManager.getAreaByContextIdAndTypeId(siteId, 
 													typeManager.getPrivateMessageAreaType());
 
-					if (area != null) {
-						if (area.getEnabled().booleanValue()) {
-							dcms.setUnreadPrivateAmt(((Integer) pmCounts[1]).intValue());
-							hasPrivate = true;
+						if (area != null) {
+							if (area.getEnabled().booleanValue()) {
+								dcms.setUnreadPrivateAmt(((Integer) pmCounts[1]).intValue());
+								hasPrivate = true;
+							}
+							else {
+								dcms.setUnreadPrivateAmt(0);
+								hasPrivate = true;
+							}
 						}
 						else {
 							dcms.setUnreadPrivateAmt(0);
 							hasPrivate = true;
 						}
-					}
-					else {
-						dcms.setUnreadPrivateAmt(0);
-						hasPrivate = true;
 					}
 				}
 				else {
@@ -757,16 +774,16 @@ public class MessageForumSynopticBean {
 			if (isMessageForumsPageInSite(site) || isForumsPageInSite(site)) {
 				// ************ check for unread discussion forum messages on this site ************
 				if (siteId.equals(unreadDFCount[0])) {
+					// counts exist, so put it in decorated bean
 					dcms.setUnreadForumsAmt(((Integer) unreadDFCount[1]).intValue());
 
 					hasDF = true;
 				} 
 				else {
-					if (areaManager.getDiscusionArea().getEnabled().booleanValue()) {
-						dcms.setUnreadForumsAmt(0);
-						hasDF = true;
+					// no unread counts, so set to zero
+					dcms.setUnreadForumsAmt(0);
+					hasDF = true;
 					}
-				}
 			}
 
 			// ************ get the page URL for Message Center************
@@ -899,7 +916,11 @@ public class MessageForumSynopticBean {
 	}
 
 	public boolean isAnyMFToolInSite() {
-		return isMessageForumsPageInSite() || isMessagesPageInSite() || isForumsPageInSite();
+		if (anyMFToolInSite == null) {
+			anyMFToolInSite = isMessageForumsPageInSite() || isMessagesPageInSite() || isForumsPageInSite();
+		}
+		
+		return anyMFToolInSite;
 	}
 	
 	/**
@@ -915,7 +936,12 @@ public class MessageForumSynopticBean {
 		if (isMyWorkspace()) {
 			// Get stats for "all" sites this user is a member of
 			// and has not turned displaying info off
-			return getMyWorkspaceContents();
+			if (contents == null) {
+				contents = getMyWorkspaceContents();
+			}
+			
+			return contents;
+			
 		}
 		else {
 			// refactored to not use dataTable 12/12/06
@@ -1205,6 +1231,9 @@ public class MessageForumSynopticBean {
 					pvtMessageManager.markMessageAsReadForUser(
 											(PrivateMessage) iter.next(), contextId);
 				}
+				
+				// Need to null out contents variable to get new values
+				contents = null;
 			}
 		} 
 		else {

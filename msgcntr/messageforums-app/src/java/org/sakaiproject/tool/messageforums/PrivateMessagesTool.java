@@ -2611,6 +2611,7 @@ public class PrivateMessagesTool
 	    moveToNewTopic="";
 	    
 	    // Return to Messages & Forums page or Messages page
+	    // TODO: once message moved, where to return to?
 	    if (isMessagesandForums()) {
 	    	return MAIN_PG;
 	    }

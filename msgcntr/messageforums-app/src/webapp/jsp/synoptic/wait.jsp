@@ -177,7 +177,7 @@
 		<table cellpadding="0" cellspacing="0" width="16%">
 		<tr>
 		  <td>
-		  	<h:graphicImage id="waitImg" value="images/wait_img.gif" />
+		  	<h:graphicImage value="#{msgs.wait_icon}" />
 		  </td>
 		  <td>&nbsp;&nbsp;</td>
 		  <td align="right" width="50">
