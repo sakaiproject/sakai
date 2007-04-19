@@ -36,6 +36,9 @@ import javax.faces.application.Application;
 import javax.faces.component.UIColumn;
 import javax.faces.component.html.HtmlOutputText;
 import javax.faces.component.UIComponent;
+import javax.faces.component.html.HtmlPanelGroup;
+import javax.faces.component.html.HtmlCommandLink;
+import javax.faces.component.UIParameter;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
@@ -77,6 +80,8 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		private Long id;
 		private String name;
 		private Boolean categoryColumn = false;
+		private Boolean assignmentColumn = false;
+		private Long assignmentId;
 
 		public GradableObjectColumn() {
 		}
@@ -84,6 +89,8 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 			id = gradableObject.getId();
 			name = getColumnHeader(gradableObject);
 			categoryColumn = false;
+			assignmentId = getColumnHeaderAssignmentId(gradableObject);
+			assignmentColumn = !gradableObject.isCourseGrade();
 		}
 
 		public Long getId() {
@@ -103,6 +110,18 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		}
 		public void setCategoryColumn(Boolean categoryColumn){
 			this.categoryColumn = categoryColumn;
+		}
+		public Long getAssignmentId() {
+			return assignmentId;
+		}
+		public void setAssignmentId(Long assignmentId) {
+			this.assignmentId = assignmentId;
+		}
+		public Boolean getAssignmentColumn() {
+			return assignmentColumn;
+		}
+		public void setAssignmentColumn(Boolean assignmentColumn) {
+			this.assignmentColumn = assignmentColumn;
 		}
 	}
 
@@ -159,7 +178,11 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		int categoryCount = categories.size();
 		
 		for (Iterator iter = categories.iterator(); iter.hasNext(); ){
-			Category cat = (Category) iter.next();
+			Object obj = iter.next();
+			if(!(obj instanceof Category)){
+				continue;
+			}
+			Category cat = (Category) obj;
 
 			if(selectedCategoryUid == null || selectedCategoryUid.equals(cat.getId().toString())){
 			
@@ -270,6 +293,14 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 			return ((Assignment)gradableObject).getName();
 		}
 	}
+	
+	private Long getColumnHeaderAssignmentId(GradableObject gradableObject) {
+		if (gradableObject.isCourseGrade()) {
+			return new Long(-1);
+		} else {
+			return ((Assignment)gradableObject).getId();
+		}
+	}
 
 	// The roster table uses assignments as columns, and therefore the component
 	// model needs to have those columns added dynamically, based on the current
@@ -346,7 +377,41 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 					headerText.setValue(columnData.getName());
 	
 	                sortHeader.getChildren().add(headerText);
-	                col.setHeader(sortHeader);
+	                
+	                if(columnData.getAssignmentColumn()){
+		                //<h:commandLink action="assignmentDetails">
+						//	<h:outputText value="Details" />
+						//	<f:param name="assignmentId" value="#{gradableObject.id}"/>
+		                //</h:commandLink>
+		                
+		                //get details link
+		                HtmlCommandLink detailsLink = new HtmlCommandLink();
+		                detailsLink.setAction(app.createMethodBinding("#{rosterBean.assignmentDetails}", new Class[] {}));
+		                detailsLink.setId(ASSIGNMENT_COLUMN_PREFIX + "hdr_link_" + colpos);
+		                HtmlOutputText detailsText = new HtmlOutputText();
+		                detailsText.setId(ASSIGNMENT_COLUMN_PREFIX + "hdr_details_" + colpos);
+		                detailsText.setValue("Details");
+		                detailsLink.getChildren().add(detailsText);
+		                
+		                UIParameter param = new UIParameter();
+		                param.setName("assignmentId");
+		                param.setValue(columnData.getAssignmentId());
+		                detailsLink.getChildren().add(param);
+		                
+		                HtmlOutputText br = new HtmlOutputText();
+		                br.setValue("<br />");
+		                br.setEscape(false);
+		                
+		                //make a panel group to add link 
+		                HtmlPanelGroup pg = new HtmlPanelGroup();
+		                pg.getChildren().add(sortHeader);
+		                pg.getChildren().add(br);
+		                pg.getChildren().add(detailsLink);
+		                
+		                col.setHeader(pg);
+	                } else {
+	                	col.setHeader(sortHeader);	
+	                }
 				} else {
 					//if we are dealing with a category
 					HtmlOutputText headerText = new HtmlOutputText();
@@ -512,5 +577,9 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         }
     	
     	return spreadsheetData;
+    }
+    
+    public String assignmentDetails(){
+    	return "assignmentDetails";
     }
 }

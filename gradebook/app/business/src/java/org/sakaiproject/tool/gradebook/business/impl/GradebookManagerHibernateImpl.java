@@ -183,7 +183,11 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		Map studentMap = (Map) gradeRecordMap.get(studentUid);
     		
     		for (Iterator iter = categories.iterator(); iter.hasNext(); ){
-    			Category category = (Category) iter.next();   		
+    			Object obj = iter.next();
+    			if(!(obj instanceof Category)){
+    				continue;
+    			}
+    			Category category = (Category) obj; 		
     			double total = 0;
         		double studentTotal = 0;
 	    		
