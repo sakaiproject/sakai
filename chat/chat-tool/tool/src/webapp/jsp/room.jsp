@@ -20,27 +20,31 @@
             </h:commandLink>
          </sakai:tool_bar>
             	
-          <sakai:view_title value="#{ChatTool.viewingChatRoomText}"/>  	
-            	
-            	<h:outputText value="#{msgs.view}" />
-	         <h:selectOneMenu id="viewOptions" value="#{ChatTool.viewOptions}" 
-	         		onchange="this.form.submit();">
-	            <f:selectItem itemValue="1" itemLabel="#{msgs.timeOnly}" />
-	            <f:selectItem itemValue="3" itemLabel="#{msgs.timeAndDate}" />
-	            <f:selectItem itemValue="2" itemLabel="#{msgs.dateOnly}" />
-	            <f:selectItem itemValue="0" itemLabel="#{msgs.neitherDateOrTime}" />
-	         </h:selectOneMenu>
-	         <h:selectOneMenu id="messageOptions" value="#{ChatTool.messageOptions}"
-	         		onchange="this.form.submit();">
-	            <f:selectItem itemValue="-1" itemLabel="#{msgs.allMessages}" />
-	            <f:selectItem itemValue="0" itemLabel="#{ChatTool.past3DaysText}" />
-	         </h:selectOneMenu>
-	     <div id="chatListWrapper" class="chatListWrapper">
+         <sakai:view_title value="#{ChatTool.viewingChatRoomText}"/>
+			<div class="navPanel">
+				<div class="viewNav">
+					<h:outputLabel for="viewOptions"	value="#{msgs.view}" />
+					<h:selectOneMenu id="viewOptions" value="#{ChatTool.viewOptions}" 
+							onchange="this.form.submit();">
+						<f:selectItem itemValue="1" itemLabel="#{msgs.timeOnly}" />
+						<f:selectItem itemValue="3" itemLabel="#{msgs.timeAndDate}" />
+						<f:selectItem itemValue="2" itemLabel="#{msgs.dateOnly}" />
+						<f:selectItem itemValue="0" itemLabel="#{msgs.neitherDateOrTime}" />
+					</h:selectOneMenu> 
+					<h:selectOneMenu id="messageOptions"
+							value="#{ChatTool.messageOptions}" 
+							onchange="this.form.submit();">
+						<f:selectItem itemValue="-1" itemLabel="#{msgs.allMessages}" />
+						<f:selectItem itemValue="0" itemLabel="#{ChatTool.past3DaysText}" />
+					</h:selectOneMenu>
+				</div>
+			</div>
+			<div id="chatListWrapper" class="chatListWrapper">
 				<div  class="chatListHeadWrapper">
 					<h:outputText value="#{msgs.lay_note}" />
 				</div>
 				<sakai:messages />
-				<div id="Monitor">
+				<div id="Monitor" class="chatListMonitor">
 					<%@include file="roomMonitor.jspf" %>
 				</div>
 			</div>	
