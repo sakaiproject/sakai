@@ -1,5 +1,4 @@
 <!-- resources/sakai_create_folders.vm, use with org.sakaiproject.tool.content.ResourcesHelperAction.java -->
-#set($DOT = ".")
 <div class="portletBody">
 	<h3>
 		$tlang.getString("create.folder")

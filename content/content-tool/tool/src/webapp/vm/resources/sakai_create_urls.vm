@@ -1,5 +1,4 @@
 <!-- resources/sakai_create_uploads.vm, use with org.sakaiproject.tool.content.ResourcesHelperAction.java -->
-#set($DOT = ".")
 <div class="portletBody">
 	<h4>
 		$tlang.getString("create.urls")

@@ -1,6 +1,5 @@
 ## version: $Id$
 <!-- chef_resources_cwiz_finish.vm, use with org.sakaiproject.tool.content.ResourcesAction.java -->
-#set($DOT = ".")
 <div class="portletBody">
 	<h3>
 		$title 

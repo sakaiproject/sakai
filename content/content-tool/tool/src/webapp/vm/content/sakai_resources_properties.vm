@@ -1,6 +1,5 @@
 ## version: $Id$
 <!-- sakai_resources_properties.vm, use with org.sakaiproject.tool.content.ResourcesAction.java -->
-#set($DOT = ".")
 <div class="portletBody">
 	<h3>
 		$tlang.getString("action.props") 
