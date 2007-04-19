@@ -452,6 +452,11 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       return PAGE_SYNOPTIC;
    }
    
+   
+   public String processActionBackToRoom() {
+      return PAGE_ENTER_ROOM;
+   }
+   
    public String getChatFunctionPrefix()
    {
       return ChatFunctions.CHAT_FUNCTION_PREFIX;

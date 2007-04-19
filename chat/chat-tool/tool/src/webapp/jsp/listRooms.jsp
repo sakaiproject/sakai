@@ -69,6 +69,12 @@
 				</h:column>
 
 			</h:dataTable>
+			
+			<sakai:button_bar>
+				<sakai:button_bar_item id="back"
+					action="#{ChatTool.processActionBackToRoom}"
+					value="#{msgs.back_to_room}" />
+			</sakai:button_bar>
 
 		</h:form>
 	</sakai:view>
