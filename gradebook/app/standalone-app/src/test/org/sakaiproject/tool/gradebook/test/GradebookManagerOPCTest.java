@@ -1593,7 +1593,6 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		cg = (CourseGrade) assgnsWithStats.get(assgnsWithStats.size() - 1);
 		Assert.assertTrue(new BigDecimal(cg.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
 			new BigDecimal(((1.0/10.0) + (4.0/15.0) + (6.0/15.0) + (8.0/15.0) + (10.0/15.0)) *100.0/ 5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-System.out.println("*****" + new BigDecimal(((1.0/10.0) + (4.0/15.0) + (6.0/15.0) + (8.0/15.0) + (10.0/15.0)) *100.0/ 5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() + ";;" + new BigDecimal(cg.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
 		gradebookManager.updateGradebook(persistentGradebook);
@@ -2002,4 +2001,58 @@ System.out.println("*****" + new BigDecimal(((1.0/10.0) + (4.0/15.0) + (6.0/15.0
 				Assert.assertTrue(cat.getWeight().equals((double)0.4));
 		}
 	}
+	
+	public void testGetAssignmentsWithNoCategoryWithStats() throws Exception
+	{
+		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
+		
+		Long assignId1 = gradebookManager.createAssignment(persistentGradebook.getId(), "no_cate_1", new Double(10), new Date(), new Boolean(false), new Boolean(true));
+		Long assignId2 = gradebookManager.createAssignment(persistentGradebook.getId(), "no_cate_2", new Double(9), new Date(), new Boolean(false), new Boolean(true));
+
+		Assignment assign = gradebookManager.getAssignment(assgn1Long);
+		Assignment assign2 = gradebookManager.getAssignment(assgn3Long);
+		integrationSupport.createCourse(persistentGradebook.getUid(), persistentGradebook.getUid(), false, false, false);
+		gradebookManager.updateGradebook(persistentGradebook);
+		assign.setPointsPossible(new Double(5));
+		gradebookManager.updateAssignment(assign);
+		List categories = gradebookManager.getCategories(persistentGradebook.getId());
+		List gradeRecords = generateGradeRecords(assign, 5);
+		List gradeRecords2 = generateGradeRecords(assign2, 5);
+		for(int i=0; i<gradeRecords2.size(); i++)
+		{
+			gradeRecords.add(gradeRecords2.get(i));
+		}		
+		gradeRecords2 = generateGradeRecords(gradebookManager.getAssignment(assignId1), 5);
+		for(int i=0; i<gradeRecords2.size(); i++)
+		{
+			gradeRecords.add(gradeRecords2.get(i));
+		}
+		gradeRecords2 = generateGradeRecords(gradebookManager.getAssignment(assignId2), 5);
+		for(int i=0; i<gradeRecords2.size(); i++)
+		{
+			gradeRecords.add(gradeRecords2.get(i));
+		}
+		List uid = new ArrayList();
+		uid.add("studentId1");
+		uid.add("studentId2");
+		uid.add("studentId3");
+		uid.add("studentId4");
+		uid.add("studentId5");
+		addUsersEnrollments(persistentGradebook, uid);
+		
+		List assignWithStatsWithNoCategory = gradebookManager.getAssignmentsWithNoCategoryWithStats(persistentGradebook.getId(), Assignment.DEFAULT_SORT, true);
+		for(int i=0; i<assignWithStatsWithNoCategory.size(); i++)
+		{
+			Assignment assginment = (Assignment) assignWithStatsWithNoCategory.get(i);
+			Assert.assertTrue(assginment.getId().equals(assignId1) || assginment.getId().equals(assignId2));
+			if(assginment.getId().equals(assignId1))
+				Assert.assertTrue(new BigDecimal(assginment.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal((1.0 + 2.0 +3 +4 +5) / 5.0 / 10.0 * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			if(assginment.getId().equals(assignId2))
+				Assert.assertTrue(new BigDecimal(assginment.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+					new BigDecimal((1.0 + 2.0 +3 +4 +5) / 5.0 / 9.0 * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+		}
+		
+	}
+	
 }

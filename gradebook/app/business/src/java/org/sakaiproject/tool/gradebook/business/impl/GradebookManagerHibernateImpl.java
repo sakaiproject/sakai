@@ -1779,4 +1779,18 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	
     	return assignList;
     }
+
+    public List getAssignmentsWithNoCategoryWithStats(Long gradebookId, String assignmentSort, boolean assignAscending)
+    {
+    	Set studentUids = getAllStudentUids(getGradebookUid(gradebookId));
+    	List assignments = getAssignmentsWithNoCategory(gradebookId, assignmentSort, assignAscending);
+    	List<AssignmentGradeRecord> gradeRecords = getAllAssignmentGradeRecords(gradebookId, studentUids);
+    	for (Iterator iter = assignments.iterator(); iter.hasNext(); ) {
+    		Assignment assignment = (Assignment)iter.next();
+    		assignment.calculateStatistics(gradeRecords);
+    	}
+
+    	return assignments;
+    }
+
 }
