@@ -144,26 +144,26 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		//get array to hold columns
 		gradableObjectColumns = new ArrayList();
 		
-		//first add Cumulative
+		//get the selected categoryUID 
+		String selectedCategoryUid = getSelectedCategoryUid();
+
 		CourseGrade courseGrade = getGradebookManager().getCourseGrade(getGradebookId());
-		gradableObjectColumns.add(new GradableObjectColumn(courseGrade));
+		//first add Cumulative if not a selected category
+		if(selectedCategoryUid == null){
+			gradableObjectColumns.add(new GradableObjectColumn(courseGrade));
+		}
 		
 		
 		//next get all of the categories
 		List categories = getGradebookManager().getCategoriesWithStats(getGradebookId(),Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
 		int categoryCount = categories.size();
-		String selectedCategoryUid = getSelectedCategoryUid();
+		
 		for (Iterator iter = categories.iterator(); iter.hasNext(); ){
 			Category cat = (Category) iter.next();
 
 			if(selectedCategoryUid == null || selectedCategoryUid.equals(cat.getId().toString())){
 			
-				List assignments = getGradebookManager().getAssignmentsForCategory(cat.getId());
-				for (Iterator assignmentsIter = assignments.iterator(); assignmentsIter.hasNext();){
-					gradableObjectColumns.add(new GradableObjectColumn((GradableObject)assignmentsIter.next()));
-				}
-				
-				//now add Category Column
+				//get the category column
 				GradableObjectColumn categoryColumn = new GradableObjectColumn();
 				String name = cat.getName();
 				if(getWeightingEnabled()){
@@ -173,7 +173,21 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 				categoryColumn.setName(name);
 				categoryColumn.setId(cat.getId());
 				categoryColumn.setCategoryColumn(true);
-				gradableObjectColumns.add(categoryColumn);
+				
+				//if selectedCategoryUID, then we want the category first, otherwise after
+				if(selectedCategoryUid != null) {
+					gradableObjectColumns.add(categoryColumn);
+				}
+				
+				//add assignments
+				List assignments = getGradebookManager().getAssignmentsForCategory(cat.getId());
+				for (Iterator assignmentsIter = assignments.iterator(); assignmentsIter.hasNext();){
+					gradableObjectColumns.add(new GradableObjectColumn((GradableObject)assignmentsIter.next()));
+				}
+				//if not selectedCategoryUID, then add category field after
+				if(selectedCategoryUid == null) {
+					gradableObjectColumns.add(categoryColumn);
+				}
 			}
 		}
 		if(selectedCategoryUid == null){
