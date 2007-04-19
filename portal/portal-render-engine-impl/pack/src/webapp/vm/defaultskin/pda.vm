@@ -52,7 +52,7 @@
 				#if (${currentSite.sitePages.pageNavShowPresenceLoggedIn})
 					#if ($currentSite)
 						#if ( ! $currentSite.isMyWorkspace )
-							<a href="#" onclick="hidePresense();" onmouseover="showPresence();" onmouseout="hidePresence();">Users Present</a> | 
+							<a href="#" onclick="hidePresence();" onmouseover="showPresence();" onmouseout="hidePresence();">Users Present</a> | 
 						#end
 					#end
 				#end
