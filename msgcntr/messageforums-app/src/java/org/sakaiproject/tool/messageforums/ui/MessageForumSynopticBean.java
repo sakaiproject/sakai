@@ -854,9 +854,18 @@ public class MessageForumSynopticBean {
 
 			// Get private message area so we can get the private messasge forum so we can get the
 			// List of topics so we can get the Received topic to finally determine number of unread messages
+			// only check if Messages & Forums in site, just Messages is on by default
+			boolean isEnabled;
 			final Area area = pvtMessageManager.getPrivateMessageArea();
 			
-			if (area.getEnabled().booleanValue()) {
+			if (isMessageForumsPageInSite()) {
+				isEnabled = area.getEnabled().booleanValue();
+			}
+			else {
+				isEnabled = true;
+			}
+			
+			if (isEnabled) {
 				pvtMessageManager.initializePrivateMessageArea(area);
 				
 				unreadPrivate = pvtMessageManager.findUnreadMessageCount(
@@ -915,6 +924,12 @@ public class MessageForumSynopticBean {
 		return dcms;
 	}
 
+	/**
+	 * Determines if any MF tool in site. variable is transient to be per request.
+	 * 
+	 * @return
+	 * 		TRUE if Messages & Forums, Messages, or Forums tool in site
+	 */
 	public boolean isAnyMFToolInSite() {
 		if (anyMFToolInSite == null) {
 			anyMFToolInSite = isMessageForumsPageInSite() || isMessagesPageInSite() || isForumsPageInSite();
@@ -1169,11 +1184,11 @@ public class MessageForumSynopticBean {
 	    	if (isMessageForumsPageInSite(site)) {
 	    		toolId = MESSAGE_CENTER_ID;
 	    	}
-	    	else if (isMessagesPageInSite(site)) {
-	    		toolId = MESSAGES_TOOL_ID;
-	    	}
 	    	else if (isForumsPageInSite(site)) {
 	    		toolId = FORUMS_TOOL_ID;
+	    	}
+	    	else if (isMessagesPageInSite(site)) {
+	    		toolId = MESSAGES_TOOL_ID;
 	    	}
 
     		mcTool = site.getToolForCommonId(toolId);
@@ -1183,13 +1198,13 @@ public class MessageForumSynopticBean {
 	    			url = ServerConfigurationService.getPortalUrl() + "/directtool/"
 	    							+ mcTool.getId() + "/sakai.messageforums.helper.helper/main";
 	    		}
-	    		else if (toolId == MESSAGES_TOOL_ID) {
-	    			url = ServerConfigurationService.getPortalUrl() + "/directtool/"
-	    							+ mcTool.getId() + "/sakai.messageforums.helper.helper/privateMsg/pvtMsgHpView";
-	    		}
 	    		else if (toolId == FORUMS_TOOL_ID) {
 	    			url = ServerConfigurationService.getPortalUrl() + "/directtool/"
 	    							+ mcTool.getId() + "/sakai.messageforums.helper.helper/discussionForum/forumsOnly/dfForums";
+	    		}
+	    		else if (toolId == MESSAGES_TOOL_ID) {
+	    			url = ServerConfigurationService.getPortalUrl() + "/directtool/"
+	    							+ mcTool.getId() + "/sakai.messageforums.helper.helper/privateMsg/pvtMsgHpView";
 	    		}
 	    	}
 		}
@@ -1231,9 +1246,6 @@ public class MessageForumSynopticBean {
 					pvtMessageManager.markMessageAsReadForUser(
 											(PrivateMessage) iter.next(), contextId);
 				}
-				
-				// Need to null out contents variable to get new values
-				contents = null;
 			}
 		} 
 		else {
@@ -1254,6 +1266,9 @@ public class MessageForumSynopticBean {
 				}
 			}
 		}
+		
+		// Need to null out contents variable to get new values
+		contents = null;
 	}
 
 	/**

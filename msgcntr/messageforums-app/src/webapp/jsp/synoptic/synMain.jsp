@@ -108,15 +108,8 @@
 		rendered="#{(! mfSynopticBean.myWorkspace) && mfSynopticBean.anyMFToolInSite}" >
 		
 		<h:panelGroup rendered="#{mfSynopticBean.messageForumsPageInSite || mfSynopticBean.messagesPageInSite}" >
-			<h:panelGroup rendered="#{mfSynopticBean.pmEnabled}" >
-				<f:verbatim><a href="#" onclick="javascript:window.parent.location.href='</f:verbatim>
-				<h:outputText escape="false" value="#{mfSynopticBean.siteInfo.privateMessagesUrl}';\">" />
-			</h:panelGroup>
-			
-			<h:outputText  value="#{msgs.syn_private_heading}" title="#{msgs.syn_goto_messages}" />
-			<h:panelGroup rendered="#{mfSynopticBean.pmEnabled}" >
-				<f:verbatim></a></f:verbatim>
-			</h:panelGroup>
+			<h:outputText value="#{msgs.syn_tool_link_begin}#{mfSynopticBean.siteInfo.privateMessagesUrl}';\">#{msgs.syn_private_heading}</a>"
+							escape="false" title="#{msgs.syn_goto_messages}" />
 		</h:panelGroup>
 		
 		<h:panelGroup rendered="#{mfSynopticBean.messageForumsPageInSite || mfSynopticBean.messagesPageInSite}" >
@@ -138,28 +131,19 @@
 		</h:panelGroup>
 		
 		<h:panelGroup rendered="#{mfSynopticBean.messageForumsPageInSite || mfSynopticBean.forumsPageInSite}">
-			<f:verbatim><a href="#" onclick="javascript:window.parent.location.href='</f:verbatim>
-			<h:outputText escape="false" value="#{mfSynopticBean.siteInfo.mcPageURL}';\">" />
-
-			<h:outputText  value="#{msgs.syn_discussion_heading}" title="#{msgs.syn_goto_forums}" />
-			<f:verbatim></a></f:verbatim>
+			<h:outputText 
+				value="#{msgs.syn_tool_link_begin}#{mfSynopticBean.siteInfo.mcPageURL}';\">#{msgs.syn_discussion_heading}</a>"
+				escape="false" title="#{msgs.syn_goto_forums}" />
 		</h:panelGroup>
 
 		<h:panelGroup rendered="#{mfSynopticBean.messageForumsPageInSite || mfSynopticBean.forumsPageInSite}">
 			<h:outputText value="#{msgs.syn_no_messages}" rendered="#{mfSynopticBean.siteInfo.unreadForumsAmt == 0}" />
 			
-			<h:panelGroup rendered="#{mfSynopticBean.siteInfo.unreadForumsAmt > 0}" >
-				<f:verbatim><a href="#" onclick="javascript:window.parent.location.href='</f:verbatim>
-				<h:outputText escape="false" value="#{mfSynopticBean.siteInfo.mcPageURL}';\">" />
+			<h:outputText value="#{msgs.syn_tool_link_begin}#{mfSynopticBean.siteInfo.mcPageURL}';\">#{mfSynopticBean.siteInfo.unreadForumsAmt}</a>" 
+							escape="false" title="#{msgs.syn_goto_forums}" rendered="#{mfSynopticBean.siteInfo.unreadForumsAmt > 0}"/>
+			<h:outputText value="  " rendered="true" />
 
-				<h:outputText value="#{mfSynopticBean.siteInfo.unreadForumsAmt}" title="#{msgs.syn_goto_forums}"  />
-				<f:verbatim></a></f:verbatim>
-					<h:outputText value="#{msgs.syn_tool_link_begin}#{eachSite.mcPageURL}';\">#{eachSite.unreadForumsAmt}</a>" 
-							escape="false" title="#{msgs.syn_goto_forums}" rendered="#{eachSite.unreadForumsAmt > 0}"/>
-				<h:outputText value="  " rendered="true" />
-
-				<h:graphicImage url="/images/silk/email.png" />
-			</h:panelGroup>
+			<h:graphicImage url="/images/silk/email.png" />
 		</h:panelGroup>
 	</h:panelGrid>
 
