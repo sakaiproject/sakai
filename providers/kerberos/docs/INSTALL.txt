@@ -64,14 +64,15 @@ Authentication succeeded.
 
 If authentication fails, contact your local administrator for help.
 
-3) Uncommment the configuration information in
+3) Uncommment the required dependency shown near "Needed for the
+Kerberos Provider" in the "<dependency>" section of:
 
-    ../../component/project.xml
+    providers/component/project.xml
 
 Then, change the domain parameter from "mydomain.edu" to your domain 
 and, if necessary, the value of the cachettl parameter in
 
-    ../../component/src/webapp/WEB-INF/components.xml
+    providers/component/src/webapp/WEB-INF/components.xml
 
 After deployment, you can also edit this file:
 
@@ -175,7 +176,11 @@ In this case, we'll use "Integrity check on decrypted field failed" as
 the string to compare (the provider compares the first part of the 
 string).
 
-2) In the components.xml file, add these two lines:
+2) In
+
+    providers/component/src/webapp/WEB-INF/components.xml
+
+add these two lines:
 
 <property name="requireLocalAccount"><value>false</value></property> 
 <property name="knownUserMsg"><value>STRING</value></property>
