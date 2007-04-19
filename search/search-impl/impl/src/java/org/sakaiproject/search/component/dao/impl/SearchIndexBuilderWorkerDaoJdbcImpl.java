@@ -661,7 +661,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 				{
 					float docspersec = 1000 * ndocs / totalTime;
 					log.info("Completed Process List of " + totalDocs + " at " //$NON-NLS-1$ //$NON-NLS-2$
-							+ docspersec + " documents/per second"); //$NON-NLS-1$
+							+ docspersec + " documents/per second "); //$NON-NLS-1$
 				}
 			}
 		}

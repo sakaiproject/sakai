@@ -154,6 +154,8 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 
 	private String lastIndexing;
 
+	private boolean soakTest = true;
+
 	private static HashMap nodeIDList = new HashMap();;
 
 	private static String lockedTo = null;
@@ -420,6 +422,10 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 					{
 						runThreads = false;
 						break;
+					}
+					if ( soakTest  && (searchService.getPendingDocs() == 0) ) {
+						log.error("SOAK TEST---SOAK TEST---SOAK TEST. Index Rebuild Started");
+						searchService.rebuildInstance();
 					}
 				}
 				catch (InterruptedException e)
@@ -1622,6 +1628,24 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * @return the soakTest
+	 */
+	public boolean isSoakTest()
+	{
+		return soakTest;
+	}
+
+	/**
+	 * Puts the index builder into a Soak test, when there are no pending items, it starts
+	 * building again.
+	 * @param soakTest the soakTest to set
+	 */
+	public void setSoakTest(boolean soakTest)
+	{
+		this.soakTest = soakTest;
 	}
 
 }

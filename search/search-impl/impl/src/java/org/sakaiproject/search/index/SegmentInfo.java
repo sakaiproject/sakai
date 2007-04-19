@@ -62,10 +62,6 @@ public interface SegmentInfo
 	 */
 	File getSegmentLocation();
 
-	/**
-	 * For validation of the segment and checksum
-	 */
-	void setForceValidation();
 
 	/**
 	 * Mark the segment as deleted for later deletion
@@ -126,12 +122,6 @@ public interface SegmentInfo
 	 */
 	void setCreated();
 
-	/**
-	 * Get the check sum of segment
-	 * @return
-	 * @throws IOException 
-	 */
-	String getCheckSum() throws IOException;
 
 	/**
 	 * Check the validity of the segment
@@ -171,5 +161,11 @@ public interface SegmentInfo
 	 * @return
 	 */
 	long getSize();
+
+	/**
+	 * Perform a final delete removing all files from the local disk
+	 */
+	void doFinalDelete();
+
 
 }

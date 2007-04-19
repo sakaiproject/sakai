@@ -501,6 +501,7 @@ public class SearchServiceImpl implements SearchService
 					}
 
 					reloadEnd = System.currentTimeMillis();
+					log.info("Index Reloaded containing "+getNDocs()+" active documents and  "+getPendingDocs()+" pending documents in "+(reloadEnd-reloadStart)+"ms");
 				}
 				catch (IOException e)
 				{

@@ -22,13 +22,7 @@
 package org.sakaiproject.search.index.impl;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.Hashtable;
 
@@ -85,6 +79,10 @@ public class SegmentInfoImpl implements SegmentInfo
 	public static final int STATE_CREATED = 1;
 
 	public static final int STATE_DELETED = 2;
+	
+	private SegmentState storedSegmentState = null;
+	
+	private SegmentState liveSegmentState = null;
 
 	private static Hashtable<String, String> checked = new Hashtable<String, String>();
 
@@ -93,8 +91,27 @@ public class SegmentInfoImpl implements SegmentInfo
 		return name + ":" + version + ":" + indb + ": State:" + states[getState()]
 				+ ":Created:" + name + ": Update" + new Date(version);
 	}
+	
+	public static SegmentInfo newSharedSegmentInfo(String name, long version,
+			boolean localStructuredStorage, String searchIndexDirectory) {
+		return new SegmentInfoImpl(name,version,true,localStructuredStorage,searchIndexDirectory);
+	}
+	public static SegmentInfo newLocalSegmentInfo(File file, boolean localStructuredStorage,
+			String searchIndexDirectory) {
+		return new SegmentInfoImpl(file, false, localStructuredStorage,
+				 searchIndexDirectory);
+	}
 
-	public SegmentInfoImpl(String name, long version, boolean indb,
+	/**
+	 * Create  Segment Info and set the version number explicity, 
+	 * normally as a result of the Segment vomming from the DB
+	 * @param name
+	 * @param version
+	 * @param indb
+	 * @param localStructuredStorage
+	 * @param searchIndexDirectory
+	 */
+	private  SegmentInfoImpl(String name, long version, boolean indb,
 			boolean localStructuredStorage, String searchIndexDirectory)
 	{
 		this.searchIndexDirectory = searchIndexDirectory;
@@ -107,10 +124,35 @@ public class SegmentInfoImpl implements SegmentInfo
 		this.indb = indb;
 		this.version = version;
 		this.name = name;
+		
+		try
+		{
+			storedSegmentState = new SegmentState(this,timestampFile);
+		}
+		catch (IOException e)
+		{
+			log.debug("Cant Load Stored Segment State");
+		}
+		try
+		{
+			liveSegmentState = new SegmentState(this,null);
+			liveSegmentState.setTimeStamp(version);
+		}
+		catch (IOException e)
+		{
+			log.debug("Cant Load Live Segment State");
+		}
 	}
 
-	public SegmentInfoImpl(File file, boolean indb, boolean localStructuredStorage,
-			String searchIndexDirectory) throws IOException
+	/**
+	 * Initialize a local segment
+	 * @param file
+	 * @param indb
+	 * @param localStructuredStorage
+	 * @param searchIndexDirectory
+	 */
+	private SegmentInfoImpl(File file, boolean indb, boolean localStructuredStorage,
+			String searchIndexDirectory)
 	{
 		this.searchIndexDirectory = searchIndexDirectory;
 		this.localStructuredStorage = localStructuredStorage;
@@ -119,8 +161,29 @@ public class SegmentInfoImpl implements SegmentInfo
 		newFile = new File(segmentLocation, NEW_FILE);
 		deletedFile = new File(segmentLocation, DELETED_FILE);
 		this.indb = indb;
-		this.version = getTimeStamp();
 		this.name = file.getName();
+		/*
+		 * The stored segment state is null, hence we have a potentially broken segment.
+		 * We should set the version to -1 and let it update from the database if it can.
+		 */
+		this.version = -1;
+		try
+		{
+			storedSegmentState = new SegmentState(this,timestampFile);
+			this.version = storedSegmentState.getTimeStamp();
+		}
+		catch (IOException e)
+		{
+			log.debug("Cant Load Stored Segment State");
+		}
+		try
+		{
+			liveSegmentState = new SegmentState(this,null);
+		}
+		catch (IOException e)
+		{
+			log.debug("Cant Load Live Segment State");
+		}
 	}
 
 	public void setInDb(boolean b)
@@ -277,188 +340,14 @@ public class SegmentInfoImpl implements SegmentInfo
 	{
 		return (getState() == STATE_DELETED);
 	}
+	
+	
+	
+	
 
-	public String getNewCheckSum(boolean logging, String message, long after) throws NoSuchAlgorithmException,
-			IOException
-	{
-		File[] files = segmentLocation.listFiles();
-		MessageDigest md5 = MessageDigest.getInstance("MD5");
-		String ignore = ":" + SegmentInfoImpl.TIMESTAMP_FILE + ":";
-		// Only include files modified before the checksum file
-		
-		File timeStampFile = new File(segmentLocation,SegmentInfoImpl.TIMESTAMP_FILE);
-		byte[] buffer = new byte[4096];
-		for (int i = 0; i < files.length; i++)
-		{
-			// only perform the md5 on the index, not the segments or del tables
-			// if (files[i].getName().endsWith(".cfs") )
-			String fname = files[i].getName();
-			if (!SegmentInfoImpl.DELETED_FILE.equals(fname)
-					&& !SegmentInfoImpl.NEW_FILE.equals(fname)
-					&& !SegmentInfoImpl.TIMESTAMP_FILE.equals(fname)
-					&& (files[i].lastModified() < after) )
-			{
-				if (logging)
-				{
-					log.info(message+"      Adding " + fname + " to checksum");
-				}
-				else
-				{
-					log.debug(message+"      Adding " + fname + " to checksum");
 
-				}
-				InputStream fin = new FileInputStream(files[i]);
-				int len = 0;
-				while ((len = fin.read(buffer)) > 0)
-				{
-					md5.update(buffer, 0, len);
-				}
-				fin.close();
-			}
-		}
-		char[] encoding = "0123456789ABCDEF".toCharArray();
-		byte[] checksum = md5.digest();
-		char[] hexchecksum = new char[checksum.length * 2];
-		for (int i = 0; i < checksum.length; i++)
-		{
-			int lo = checksum[i] & 0x0f;
-			int hi = (checksum[i] >> 4) & 0x0f;
-			hexchecksum[i * 2] = encoding[lo];
-			hexchecksum[i * 2 + 1] = encoding[hi];
-		}
-		String echecksum = new String(hexchecksum);
 
-		if (logging)
-		{
-			log.info(message+"Checksum " + name + " is " + echecksum);
-		}
-		else
-		{
-			log.debug(message+"Checksum " + name + " is " + echecksum);
 
-		}
-		return echecksum;
-	}
-
-	/**
-	 * set the checksum file up
-	 * 
-	 * @param segmentdir
-	 * @throws IOException
-	 */
-	private void setCheckSum() throws IOException
-	{
-		String[] fields = getTimeStampFields();
-		if (fields == null || fields.length < 2)
-		{
-			long after = System.currentTimeMillis();
-			String[] newfields = new String[2];
-			try
-			{
-				newfields[1] = getNewCheckSum(false,"setting ", after);
-			}
-			catch (Exception ex)
-			{
-				log.debug("Failed to get checksum ");
-				newfields[1] = "none";
-			}
-			if (fields == null || fields.length < 1)
-			{
-				newfields[0] = String.valueOf(after);
-			}
-			else
-			{
-				newfields[0] = fields[0];
-			}
-			fields = newfields;
-		}
-		else
-		{
-			try
-			{
-				fields[1] = getNewCheckSum(false,"setting ", Long.parseLong(fields[0]));
-			}
-			catch (Exception ex)
-			{
-				log.debug("Failed to get checksum ");
-				fields[1] = "none";
-			}
-
-		}
-		setTimeStampFields(fields);
-		// update the cache
-		checked.put(name, fields[1]);
-	}
-
-	/**
-	 * set the timestamp fields
-	 * 
-	 * @param fields
-	 * @throws IOException
-	 */
-	private void setTimeStampFields(String[] fields) throws IOException
-	{
-		FileWriter fw = new FileWriter(timestampFile);
-		for (int i = 0; i < fields.length; i++)
-		{
-			fw.write(fields[i]);
-			fw.write(":");
-		}
-		fw.close();
-	}
-
-	/**
-	 * get the timestamp fields
-	 * 
-	 * @return
-	 * @throws IOException
-	 */
-	private String[] getTimeStampFields() throws IOException
-	{
-		if (!timestampFile.exists())
-		{
-			return null;
-		}
-		else
-		{
-			FileReader fr = new FileReader(timestampFile);
-			char[] c = new char[4096];
-			int len = fr.read(c);
-			fr.close();
-			String tsContents = new String(c, 0, len);
-			return tsContents.split(":");
-		}
-	}
-
-	/**
-	 * 
-	 */
-	public void setForceValidation()
-	{
-		checked.remove(name);
-
-	}
-
-	/**
-	 * get the checksum using the segment name as a File
-	 * 
-	 * @param segmentdir
-	 * @return
-	 * @throws IOException
-	 */
-	public String getCheckSum() throws IOException
-	{
-
-		String[] field = getTimeStampFields();
-		if (field != null && field.length >= 2)
-		{
-			return field[1];
-		}
-		else
-		{
-			return "none";
-		}
-	}
 
 	/**
 	 * set the timestamp in the segment
@@ -468,46 +357,10 @@ public class SegmentInfoImpl implements SegmentInfo
 	 */
 	public void setTimeStamp(long l) throws IOException
 	{
-
-		String[] fields = getTimeStampFields();
-		if (fields == null || fields.length < 1)
-		{
-			fields = new String[2];
-		}
-		try
-		{
-			fields[1] = getNewCheckSum(false,"timestamp ",l);
-		}
-		catch (Exception ex)
-		{
-			log.debug("Failed to get checksum ");
-			fields[1] = "none";
-		}
-		fields[0] = String.valueOf(l);
-		setTimeStampFields(fields);
+		liveSegmentState.analyze(this);
+		liveSegmentState.setTimeStamp(l);
+		liveSegmentState.save(timestampFile);
 		timestampFile.setLastModified(l);
-	}
-
-	/**
-	 * get the timestam associated with the segment dir
-	 * 
-	 * @return
-	 * @throws IOException
-	 */
-	private long getTimeStamp() throws IOException
-	{
-
-		long ts = -1;
-		String[] field = getTimeStampFields();
-		if (field != null && field.length >= 1)
-		{
-			ts = Long.parseLong(field[0]);
-		}
-		else
-		{
-			ts = timestampFile.lastModified();
-		}
-		return ts;
 	}
 
 	public boolean isClusterSegment()
@@ -529,122 +382,11 @@ public class SegmentInfoImpl implements SegmentInfo
 	 * localStructuredStorage, searchIndexDirectory); return
 	 * getCheckSum(segmentLocation); }
 	 */
-	public boolean checkSegmentValidity(boolean logging, String message) throws Exception
+	public boolean checkSegmentValidity(boolean logging, String message) 
 	{
-		return checkSegmentValidityInternal(logging, message, true, true);
+		return liveSegmentState.checkValidity(logging,message,storedSegmentState);
 	}
 
-	private boolean checkSegmentValidityInternal(boolean logging, String message, boolean force,
-			boolean validate) throws Exception
-	{
-		if (!force && !validate)
-		{
-			return true;
-		}
-		String liveCheckSum = null;
-		boolean cached = false;
-		if (force || checked.get(name) == null)
-		{
-
-			String[] f = getTimeStampFields();
-			long after = System.currentTimeMillis();
-			if ( f != null && f.length >= 2 ) {
-				after = Long.parseLong(f[0]);
-			} 
-			liveCheckSum = getNewCheckSum(logging,message,after);
-
-		}
-		else
-		{
-			cached = true;
-			liveCheckSum = (String) checked.get(name);
-		}
-
-		String storedCheckSum = getCheckSum();
-		if ("none".equals(storedCheckSum))
-		{
-			if (logging)
-			{
-				log.info(message+"No Checksum Present in segment " + name);
-			}
-			else
-			{
-				log.debug(message+"No Checksum Present in segment " + name);
-			}
-			checked.put(name, liveCheckSum);
-			return true;
-		}
-		else if (liveCheckSum.equals(storedCheckSum))
-		{
-			if (logging)
-			{
-				log.info(message+"Checksum is correct " + name);
-			}
-			else
-			{
-				log.debug(message+"Checksum is correct " + name);
-			}
-			return true;
-		}
-		else
-		{
-			checked.remove(name);
-			boolean check = false;
-			if (cached)
-			{
-
-				if (logging)
-				{
-					log.info(message+"Performing Retry " + name);
-				}
-				else
-				{
-					log.debug(message+"Performing Retry " + name);
-				}
-				check = checkSegmentValidityInternal(logging,message, true, validate);
-			}
-			else
-			{
-				if (logging)
-				{
-					log.info(message+" No Retry " + name);
-				}
-				else
-				{
-					log.debug(message+" No Retry " + name);
-				}
-			}
-			if (!check)
-			{
-				if (!force)
-				{
-					if (logging)
-					{
-						log.info(message+" Checksum Failed Live(" + name + ") = " + liveCheckSum);
-						log.info(message+" Checksum Failed Stor(" + name + ") = "
-										+ storedCheckSum);
-					}
-					else
-					{
-						log.debug(message+" Checksum Failed Live(" + name + ") = " + liveCheckSum);
-						log.debug(message+" Checksum Failed Stor(" + name + ") = "
-								+ storedCheckSum);
-
-					}
-				}
-			}
-			if (logging)
-			{
-				log.info(message+" Valid " + name + " " + check);
-			}
-			else
-			{
-				log.debug(message+" Valid " + name + " " + check);
-			}
-			return check;
-		}
-
-	}
 
 	public long getLocalSegmentLastModified()
 	{
@@ -725,7 +467,6 @@ public class SegmentInfoImpl implements SegmentInfo
 	 */
 	public long getSize()
 	{
-		// TODO Auto-generated method stub
 		return segmentSize;
 	}
 
@@ -739,4 +480,50 @@ public class SegmentInfoImpl implements SegmentInfo
 		segmentSize = getTotalSize();
 
 	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.index.SegmentInfo#doFinalDelete()
+	 */
+	public void doFinalDelete()
+	{
+		if ( isDeleted() ) {
+			File f = getSegmentLocation();
+			deleteAll(f);
+		} else {
+			log.error("Attempt to delete current Segment Data "+this);
+		}
+		
+	}
+	
+	/**
+	 * delete all files under this file and including this file
+	 * 
+	 * @param f
+	 */
+	public static void deleteAll(File f)
+	{
+		if (f.isDirectory())
+		{
+			File[] files = f.listFiles();
+			if (files != null)
+			{
+				for (int i = 0; i < files.length; i++)
+				{
+					if (files[i].isDirectory())
+					{
+						deleteAll(files[i]);
+					}
+					else
+					{
+						files[i].delete();
+						log.info("Deleting file "+files[i].getPath()+" Sucess=["+files[i].exists()+"]");
+					}
+				}
+			}
+		}
+		f.delete();
+		log.info("Deleting file "+f.getPath()+" Sucess=["+f.exists()+"]");
+	}
+
+
 }
