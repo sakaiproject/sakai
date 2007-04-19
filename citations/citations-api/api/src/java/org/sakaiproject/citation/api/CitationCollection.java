@@ -38,7 +38,8 @@ import org.sakaiproject.exception.IdUnusedException;
 public interface CitationCollection extends Entity
 {
 	public final static String SORT_BY_AUTHOR = "author";
-	public final static String SORT_BY_TITLE = "title";
+	public final static String SORT_BY_TITLE  = "title";
+	public final static String SORT_BY_UUID   = "uuid";
 	public final static String SORT_BY_DEFAULT_ORDER = "default";
 	
 	public String getSaveUrl();

@@ -108,17 +108,20 @@ public abstract class BaseCitationService implements CitationService
 {
 	protected boolean attemptToMatchSchema = false;
 	
-	protected static final List AUTHOR_AS_KEY = new Vector();
+	protected static final List<String> AUTHOR_AS_KEY = new Vector<String>();
 	static 
 	{ 
-		AUTHOR_AS_KEY.add( CitationCollection.SORT_BY_AUTHOR ); 
+		AUTHOR_AS_KEY.add( CitationCollection.SORT_BY_AUTHOR );
+		AUTHOR_AS_KEY.add( CitationCollection.SORT_BY_UUID );
 	};
 
-	protected static final List TITLE_AS_KEY = new Vector();
+	protected static final List<String> TITLE_AS_KEY = new Vector<String>();
 
 	static 
-	{ 
-		TITLE_AS_KEY.add( CitationCollection.SORT_BY_TITLE ); 
+	{
+		TITLE_AS_KEY.add( CitationCollection.SORT_BY_TITLE );
+		TITLE_AS_KEY.add( CitationCollection.SORT_BY_AUTHOR );
+		TITLE_AS_KEY.add( CitationCollection.SORT_BY_UUID );
 	};
 
 	public static final Map<String, String> GS_TAGS = new Hashtable<String, String>();
@@ -1749,11 +1752,11 @@ public abstract class BaseCitationService implements CitationService
 		
 		public class MultipleKeyComparator implements Comparator
 		{
-			protected List m_keys = new Vector();
+			protected List<String> m_keys = new Vector<String>();
 			
 			protected boolean m_ascending = true;
 
-			public MultipleKeyComparator(List keys, boolean ascending)
+			public MultipleKeyComparator(List<String> keys, boolean ascending)
 			{
 				m_keys.addAll(keys);
 				
@@ -1790,40 +1793,43 @@ public abstract class BaseCitationService implements CitationService
 	            while(rv == 0 && keyIt.hasNext())
 	            {
 	            	String key = (String) keyIt.next();
-	            	String str0 = "";
-	            	String str1 = "";
 	            	if(CitationCollection.SORT_BY_TITLE.equalsIgnoreCase(key))
 	            	{
-	    				String title0 = cit0.getDisplayName();
-	    				String title1 = cit1.getDisplayName();
+	            		String title0 = cit0.getDisplayName().toLowerCase();
+	            		String title1 = cit1.getDisplayName().toLowerCase();
 
-	    				if (title0 == null)
-	    				{
-	    					title0 = "";
-	    				}
+	            		if (title0 == null)
+	            		{
+	            			title0 = "";
+	            		}
 
-	    				if (title1 == null)
-	    				{
-	    					title1 = "";
-	    				}
-	    				
-	    				rv = m_ascending ? title0.compareTo(title1) : title1.compareTo(title0); 
+	            		if (title1 == null)
+	            		{
+	            			title1 = "";
+	            		}
+
+	            		rv = m_ascending ? title0.compareTo(title1) : title1.compareTo(title0); 
 	            	}
 	            	else if(CitationCollection.SORT_BY_AUTHOR.equalsIgnoreCase(key))
 	            	{
-				String author0 = cit0.getCreator();
-				String author1 = cit1.getCreator();
+	            		String author0 = cit0.getCreator().toLowerCase();
+	            		String author1 = cit1.getCreator().toLowerCase();
 
-				if (author0 == null)
-				{
-					author0 = "";
-				}
+	            		if (author0 == null)
+	            		{
+	            			author0 = "";
+	            		}
 
-				if (author1 == null)
-				{
-					author1 = "";
-				}
-	    				rv = m_ascending ? author0.compareTo(author1) : author1.compareTo(author0);
+	            		if (author1 == null)
+	            		{
+	            			author1 = "";
+	            		}
+	            		rv = m_ascending ? author0.compareTo(author1) : author1.compareTo(author0);
+	            	}
+	            	else if( CitationCollection.SORT_BY_UUID.equalsIgnoreCase( key ) )
+	            	{
+	            		// not considering m_ascending for ids because they are random alpha-numeric strings
+	            		rv = cit0.getId().compareTo(cit1.getId());
 	            	}
 	            }
 	            return rv;
