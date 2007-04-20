@@ -25,6 +25,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.MessageFormat;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -36,7 +37,9 @@ import org.sakaiproject.search.dao.SearchBuilderItemDao;
 import org.sakaiproject.search.model.SearchBuilderItem;
 import org.sakaiproject.search.model.impl.SearchBuilderItemImpl;
 import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
  * @author ieb
@@ -65,7 +68,9 @@ public class SearchBuilderItemDaoImpl extends HibernateDaoSupport implements
 	 */
 	public void update(SearchBuilderItem sb)
 	{
-		getHibernateTemplate().saveOrUpdate(sb);
+		HibernateTemplate ht = getHibernateTemplate();
+		ht.saveOrUpdate(sb);
+		ht.flush();
 
 	}
 
