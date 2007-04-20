@@ -847,7 +847,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
             pipe.setFileName(Validator.escapeResourceName(url));
             pipe.setRevisedMimeType(ResourceType.MIME_TYPE_URL);
             
-			ListItem newFile = (ListItem) mfp.getRevisedListItem();
+			ListItem newFile = (ListItem) pipe.getRevisedListItem();
 			if(newFile == null)
 			{
 				if(parent == null)

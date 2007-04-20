@@ -527,7 +527,7 @@
 							var newAttr = document.createAttribute(element.attributes[a].name);
 							newAttr.value = element.attributes[a].value;
 							newElement.setAttributeNode(newAttr);
-alert("adding attribute " + newAttr.name + " == " + newAttr.value);
+##alert("adding attribute " + newAttr.name + " == " + newAttr.value);
 						}
 						catch(e)
 						{
