@@ -1623,11 +1623,11 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	Gradebook gradebook = getGradebook(assign.getGradebook().getId());
     	if(gradeRecordFromCall.getPointsEarned() != null)
     	{
-    		if(gradeRecordFromCall.getPointsEarned().doubleValue() < 0 || gradeRecordFromCall.getPointsEarned().doubleValue() > 1)
+    		if(gradeRecordFromCall.getPointsEarned().doubleValue() / 100.0 < 0 || gradeRecordFromCall.getPointsEarned().doubleValue() / 100.0 > 1)
     		{
-    			throw new IllegalArgumentException("point for record is greater than 1 or less than 1 for percentage points in GradebookManagerHibernateImpl.calculateDoublePointForRecord");
+    			throw new IllegalArgumentException("point for record is greater than 1 or less than 0 for percentage points in GradebookManagerHibernateImpl.calculateDoublePointForRecord");
     		}
-    		return new Double(assign.getPointsPossible().doubleValue() * gradeRecordFromCall.getPointsEarned().doubleValue());
+    		return new Double(assign.getPointsPossible().doubleValue() * (gradeRecordFromCall.getPointsEarned().doubleValue() / 100.0));
     	}
     	else
     		return null;
@@ -1660,7 +1660,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     			agr.setGraderId(agr.getGraderId());
     			if(agr != null && agr.getPointsEarned() != null)
     			{
-    				agr.setPointsEarned(new Double((agr.getPointsEarned().doubleValue())/pointPossible));
+    				agr.setPointsEarned(new Double((agr.getPointsEarned().doubleValue() * 100.0)/pointPossible));
     				percentageList.add(agr);
     			}
     			else if(agr != null)

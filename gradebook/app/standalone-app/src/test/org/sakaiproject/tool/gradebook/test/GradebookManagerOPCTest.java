@@ -230,7 +230,8 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		{
 			AssignmentGradeRecord agr = (AssignmentGradeRecord)returnGradeRecords.get(i);
 //			System.out.println("student::" + agr.getStudentId() + "--assign::" + agr.getAssignment() + "--grade::" + agr.getPointsEarned());
-			agr.setPointsEarned(new Double((agr.getPointsEarned().doubleValue() * 0.9) / assign.getPointsPossible()));
+			//agr.setPointsEarned(new Double((agr.getPointsEarned().doubleValue() * 0.9) / assign.getPointsPossible()));
+			agr.setPointsEarned(new Double(90.0));
 			convertGradeRecords.add(agr);
 		}
 		gradebookManager.updateAssignmentGradeRecords(assign, convertGradeRecords, GradebookService.GRADE_TYPE_PERCENTAGE);
@@ -239,7 +240,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		for(int i=0; i<returnGradeRecords.size(); i++)
 		{
 			AssignmentGradeRecord agr = (AssignmentGradeRecord)returnGradeRecords.get(i);
-			Assert.assertTrue((new BigDecimal(agr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP)).doubleValue() == (0.9 * (i+1)));
+			Assert.assertTrue((new BigDecimal(agr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP)).doubleValue() == (0.9 * (assign.getPointsPossible())));
 //			System.out.println("student::" + agr.getStudentId() + "--assign::" + agr.getAssignment() + "--grade::" + agr.getPointsEarned());
 //			System.out.println(new BigDecimal(agr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP));			
 		}		
@@ -283,7 +284,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		for(int i=0; i<returnGradeRecords.size(); i++)
 		{
 			AssignmentGradeRecord agr = (AssignmentGradeRecord)returnGradeRecords.get(i);
-			Assert.assertTrue((new BigDecimal(agr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP)).doubleValue() == new BigDecimal(((double)(i+1))/assign.getPointsPossible().doubleValue()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			Assert.assertTrue((new BigDecimal(agr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP)).doubleValue() == new BigDecimal(((double)(i+1))/assign.getPointsPossible().doubleValue() * 100.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 //			System.out.println(new BigDecimal(((double)(i+1))/assign.getPointsPossible().doubleValue()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 //			System.out.println("student::" + agr.getStudentId() + "--assign::" + agr.getAssignment() + "--point possible::" + agr.getAssignment().getPointsPossible() + "--grade::" + agr.getPointsEarned());
 		}
@@ -1267,7 +1268,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		for(int i=0; i<returnGradeRecords.size(); i++)
 		{
 			AssignmentGradeRecord agr = (AssignmentGradeRecord)returnGradeRecords.get(i);
-			agr.setPointsEarned(new Double((agr.getPointsEarned().doubleValue() * 0.9) / assign.getPointsPossible()));
+			agr.setPointsEarned(90.0);
 			convertGradeRecords.add(agr);
 		}
 		Collection comments = new ArrayList();
@@ -1287,7 +1288,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		for(int i=0; i<returnGradeRecords.size(); i++)
 		{
 			AssignmentGradeRecord agr = (AssignmentGradeRecord)returnGradeRecords.get(i);
-			Assert.assertTrue((new BigDecimal(agr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP)).doubleValue() == (0.9 * (i+1)));
+			Assert.assertTrue((new BigDecimal(agr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP)).doubleValue() == (0.9 * agr.getAssignment().getPointsPossible().doubleValue()));
 			Assert.assertTrue((((Comment)commentReturned.get(i)).getCommentText()).equals("comment--" + (i+1)));
 //			System.out.println((((Comment)commentReturned.get(i)).getCommentText()));
 		}
