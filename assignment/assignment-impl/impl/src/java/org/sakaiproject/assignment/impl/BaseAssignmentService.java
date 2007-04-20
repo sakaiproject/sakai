@@ -3428,8 +3428,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 								{
 									submittersString = submittersString.concat("; ");
 								}
-								submittersString = submittersString.concat(submitters[i].getSortName());
-								gradesBuffer.append(submitters[i].getDisplayId() + "," + submitters[i].getLastName() + "," + submitters[i].getFirstName() + "," + s.getGradeDisplay() + "\n");
+								String fullName = submitters[i].getLastName() + "," + submitters[i].getFirstName();
+								submittersString = submittersString.concat(fullName);
+								gradesBuffer.append(submitters[i].getDisplayId() + "," + fullName + "," + s.getGradeDisplay() + "\n");
 							}
 							
 							if (StringUtil.trimToNull(submittersString) != null)
