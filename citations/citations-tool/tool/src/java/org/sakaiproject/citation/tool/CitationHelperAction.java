@@ -2367,7 +2367,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	    		updateCitationFromParams(citation, params);
 	            
 	       		// add citation to current collection
-	    		// collection.saveCitation(citation);
+	    		collection.saveCitation(citation);
 	        }
             catch (IdUnusedException e)
             {
