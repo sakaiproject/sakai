@@ -1493,7 +1493,11 @@ public class UserPrefsTool
 		m_preferencesService.commit(m_edit);
 
 		TimeService.clearLocalTimeZone(getUserId()); // clear user's cached timezone
-      
+	    
+		//Save the preference in the session also      
+		ResourceLoader rl = new ResourceLoader();
+		Locale loc = rl.setContextLocale(null);		
+		
 		locUpdated = true; // set for display of text massage
 		return "locale";
 	}
