@@ -41,6 +41,7 @@ import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
 import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.api.ContentCollection;
@@ -49,6 +50,7 @@ import org.sakaiproject.content.api.MultiFileUploadPipe;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.content.api.ResourceType;
+import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.entity.api.Entity;
@@ -225,6 +227,12 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		context.put("SITE_ACCESS", AccessMode.SITE);
 		context.put("INHERITED_ACCESS", AccessMode.INHERITED);
 		
+		context.put("TYPE_FOLDER", ResourceType.TYPE_FOLDER);
+		context.put("TYPE_HTML", ResourceType.TYPE_HTML);
+		context.put("TYPE_TEXT", ResourceType.TYPE_TEXT);
+		context.put("TYPE_UPLOAD", ResourceType.TYPE_UPLOAD);
+		context.put("TYPE_URL", ResourceType.TYPE_URL);
+		
 		String template = "";
 
 		switch(pipe.getAction().getActionType())
@@ -283,6 +291,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		// model.setPubviewPossible(! preventPublicDisplay);
 				
 		context.put("model", model);
+		context.put("type", model.getResourceTypeDef());
 		
 		context.put("pipes", pipes);
 		
@@ -335,9 +344,10 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		// model.setPubviewPossible(! preventPublicDisplay);
 		
 		context.put("model", model);
+		context.put("type", model.getResourceTypeDef());
 		
 		context.put("pipes", pipes);
-		
+				
 		if(ContentHostingService.isAvailabilityEnabled())
 		{
 			context.put("availability_is_enabled", Boolean.TRUE);
@@ -481,6 +491,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		// model.setPubviewPossible(! preventPublicDisplay);
 				
 		context.put("model", model);
+		context.put("type", model.getResourceTypeDef());
 		
 		context.put("pipes", pipes);
 		

@@ -32,7 +32,8 @@
 					<input type="hidden" name="exists${DOT}$i" id="exists${DOT}$i" value="true" />
 					<p class="shorttext">
 						<label for="content${DOT}$i">$tlang.getString("label.folder")</label>
-						<input type="text" name="content${DOT}$i" id="content${DOT}$i"  onkeypress="return handleEnterKey(this, event)" />
+						<input type="text" name="content${DOT}$i" id="content${DOT}$i" />
+						##  onkeypress="return handleEnterKey(this, event)"
 						<a class="indnt2" href="#" id="propsTrigger${DOT}$i">$tlang.getString("edit.show")</a>
 						<a class="indnt2" href="#" id="removeTrigger${DOT}$i" >
 							<img src="#imageLink("sakai/cross.png")" title="$tlang.getString("edit.remove")" />
@@ -50,6 +51,7 @@
 		<p class="act">
 			<a href="#" onclick="javascript:addFileInput();">$tlang.getString("label.addFolder")</a>
 		</p>
+#*
 		#if ($model.resourceTypeDef.hasNotificationDialog())
 			<p class="shorttext">
 				<label for="notify${DOT}$i">
@@ -62,12 +64,13 @@
 				</select>
 			</p>	
 		#end
+*#
 		<p class="act">
 			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="javascript:showNotif('submitnotif03','saveChanges','addFolderForm');document.getElementById('addFolderForm').action='#toolLink("ResourcesHelperAction" "doCreateFolders")&flow=save';submitform('addFolderForm');" value="$tlang.getString("label.finfldr")" accesskey="s" />
 			<input type="button" name="cancel" onclick="javascript:document.getElementById('addFolderForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addFolderForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
 			<span class="submitnotif" id="submitnotif03" style="visibility:hidden">$tlang.getString("label.proces")</span>
 		</p>
 	</form>
-##	<textarea id="debug_guy" rows="50" cols="100"></textarea>
+	##<textarea id="debugger" rows="50" cols="100"></textarea>
 </div>
 #parse("/vm/resources/sakai_properties_scripts.vm")

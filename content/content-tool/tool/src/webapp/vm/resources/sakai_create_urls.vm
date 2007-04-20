@@ -74,5 +74,6 @@
 			<span id="submitnotif" style="visibility:hidden">$tlang.getString("label.proces")</span>
 		</p>
 	</form>
+	##<textarea id="debugger" rows="50" cols="100"></textarea>
 </div>
 #parse("/vm/resources/sakai_properties_scripts.vm")

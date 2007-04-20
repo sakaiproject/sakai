@@ -1,5 +1,6 @@
 <script type="text/javascript" src="#libraryLink('js/jquery-1.1.2.js')">
 </script>
+<!-- $type.id == $TYPE_FOLDER -- >
 <script type="text/javascript" language="JavaScript">
 	<!--
 	var DOT = "$DOT";
@@ -50,9 +51,15 @@
 		for(var i = 0; i < inputTags.length; i++)
 		{
 			var tag = inputTags[i];
-			if(tag.id && hasDisplayNameTag && tag.id.match(/^content${DOT}\d+$/))
+			if(tag.id && tag.id.match(/^content${DOT}\d+$/))
 			{
-				tag.onchange = seedDisplayNameValue;
+#if("$type.id" != "$TYPE_FOLDER")
+				tag.onkeypress = handleEnterKey;
+#end
+				if(hasDisplayNameTag)
+				{
+					tag.onchange = seedDisplayNameValue;
+				}
 			}
 			else if(tag.id && tag.id.match(/^changeMimetype${DOT}\d+$/))
 			{
@@ -109,16 +116,21 @@
 		}
 	  return false;
 	}
-	function handleEnterKey (field, event) 
+	function handleEnterKey(evt) 
 	{
-		var keyCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode;
-		if (keyCode == 13) 
+		evt = (evt) ? evt : ((event) ? event : null);
+		if(evt)
 		{
-			return false;
-		} 
-		else
-		{
-			return true;
+			evt.cancelBubble = true;
+			var keyCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode;
+			if (keyCode == 13) 
+			{
+				return false;
+			} 
+			else
+			{
+				return true;
+			}
 		}
 	}      
 	function handleCopyrightChange(evt)
@@ -127,7 +139,7 @@
 		if(evt)
 		{
 			evt.cancelBubble = true;
-			var element = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null)
+			var element = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
 			if(element)
 			{
 				//element = (element.nodeType == 1 || element.nodeType == 9) ? element : element.parentNode;
@@ -305,13 +317,13 @@
 		}
 		
 		attachEventHandlers();
-#*
+
 		var debug_guy = document.getElementById("debugger");
 		if(debug_guy)
 		{
 			debug_guy.value = fileInputDiv.innerHTML;
 		}
-*#
+
 		resizeFrame('grow');
 		return false;
 	}
@@ -488,23 +500,8 @@
 				newElement.appendChild(newChild);
 			}
 		}
-		if(newElement && newElement.name)
-		{
-			var dotPos = newElement.name.lastIndexOf(DOT);
-			if(dotPos >= 0)
-			{
-				var baseName = newElement.name.substr(0,dotPos);
-				newElement.name = baseName + DOT + index;
-			}
-		}
 		if(newElement && newElement.id)
 		{
-			var dotPos = element.id.lastIndexOf(DOT);
-			if(dotPos >= 0)
-			{
-				var baseName = element.id.substr(0,dotPos);
-				newElement.id = baseName + DOT + index;
-			}
 			if(element.id.match(/^displayName${DOT}\d+$/))
 			{
 				newElement.value = "";
@@ -512,9 +509,14 @@
 			else if(element.id.match(/^content${DOT}\d+$/))
 			{
 				newElement = document.createElement(element.tagName);
+#if("$type.id" == "$TYPE_FOLDER" || "$type.id" == "$TYPE_URL")
+				newElement.type = element.type;
+				newElement.id = "content${DOT}" + index;
+				newElement.name = "content${DOT}" + index;
+#end
 				for(var a = 0; a < element.attributes.length; a++)
 				{
-					if(element.attributes[a].name == "value" || element.attributes[a].name == "type")
+					if(element.attributes[a].name == "value" || element.attributes[a].name == "type" || element.attributes[a].name == "name" || element.attributes[a].name == "id"  )
 					{
 						// skip
 					}
@@ -522,7 +524,10 @@
 					{
 						try
 						{
-							newElement.setAttributeNode(element.attributes[a]);
+							var newAttr = document.createAttribute(element.attributes[a].name);
+							newAttr.value = element.attributes[a].value;
+							newElement.setAttributeNode(newAttr);
+alert("adding attribute " + newAttr.name + " == " + newAttr.value);
 						}
 						catch(e)
 						{
@@ -569,6 +574,21 @@
 			else if(element.id.match(/^copyright${DOT}\d+$/))
 			{
 				newElement.selectedIndex = 4;
+			}
+			var dotPos = element.id.lastIndexOf(DOT);
+			if(dotPos >= 0)
+			{
+				var baseName = element.id.substr(0,dotPos);
+				newElement.id = baseName + DOT + index;
+			}
+		}
+		if(newElement && newElement.name)
+		{
+			var dotPos = newElement.name.lastIndexOf(DOT);
+			if(dotPos >= 0)
+			{
+				var baseName = newElement.name.substr(0,dotPos);
+				newElement.name = baseName + DOT + index;
 			}
 		}
 		if(newElement && newElement.htmlFor)

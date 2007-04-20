@@ -4774,6 +4774,12 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		context.put("ACTION_DELIMITER", ResourceToolAction.ACTION_DELIMITER);
 		context.put("DOT", ListItem.DOT);
 		
+		context.put("TYPE_FOLDER", ResourceType.TYPE_FOLDER);
+		context.put("TYPE_HTML", ResourceType.TYPE_HTML);
+		context.put("TYPE_TEXT", ResourceType.TYPE_TEXT);
+		context.put("TYPE_UPLOAD", ResourceType.TYPE_UPLOAD);
+		context.put("TYPE_URL", ResourceType.TYPE_URL);
+		
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 		if(pipe != null)
