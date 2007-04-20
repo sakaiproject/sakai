@@ -258,6 +258,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 			for (Iterator tditer = runtimeToDo.iterator(); worker.isRunning()
 					&& tditer.hasNext();)
 			{
+				
 				Reader contentReader = null;
 				try
 				{

@@ -108,7 +108,7 @@ public class ClusterSegmentsStorage
 
 			try
 			{
-				addsi.checkSegmentValidity(false,"Unpack Segment");
+				addsi.checkSegmentValidity(searchService.hasDiagnostics(),"Unpack Segment");
 			}
 			catch (Exception ex)
 			{

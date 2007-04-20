@@ -663,7 +663,9 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	protected void updateLocalSegment(Connection connection, SegmentInfo addsi)
 			throws SQLException, IOException
 	{
-		log.info("\tUpdate Local Segment from Database " + addsi);
+		if ( searchService.hasDiagnostics() ) {
+			log.info("\tUpdate Local Segment from Database " + addsi);
+		}
 		if (localSegmentsOnly)
 		{
 			log.warn("Update Local Segment Requested with inactive Shared Storage "
@@ -759,7 +761,9 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	{
 
 		rmsi.setDeleted();
-		log.info("\tMarked Local Segment for deletion " + rmsi);
+		if ( searchService.hasDiagnostics() ){
+			log.info("\tMarked Local Segment for deletion " + rmsi);
+		}
 	}
 
 	/**
@@ -1030,7 +1034,9 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	protected void updateDBSegment(Connection connection, SegmentInfo addsi)
 			throws SQLException, IOException
 	{
-		log.info("\tUpdate Database Segment from Local " + addsi);
+		if ( searchService.hasDiagnostics() ) {
+			log.info("\tUpdate Database Segment from Local " + addsi);
+		}
 		if (localSegmentsOnly)
 		{
 			if (log.isDebugEnabled())
@@ -1183,8 +1189,10 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 						f.delete();
 					}
 				}
-
-				log.info("\tRemoved Segment From Database [" + rmsi + "]");
+				
+				if ( searchService.hasDiagnostics() ) {
+					log.info("\tRemoved Segment From Database [" + rmsi + "]");
+				}
 			}
 		}
 		finally
@@ -2386,4 +2394,6 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	{
 		this.searchService = searchService;
 	}
+	
+	
 }

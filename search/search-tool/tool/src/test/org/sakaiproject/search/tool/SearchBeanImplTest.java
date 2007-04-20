@@ -2,18 +2,14 @@ package org.sakaiproject.search.tool;
 
 
 //import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+import org.jmock.Mock;
+import org.jmock.cglib.MockObjectTestCase;
 import org.sakaiproject.search.api.SearchService;
-import org.sakaiproject.search.tool.*;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
-
-import org.jmock.*;
-import org.jmock.builder.NameMatchBuilder;
-import org.jmock.cglib.MockObjectTestCase;
 
 //import junit.framework.TestCase;
 

@@ -87,6 +87,8 @@ public class ClusterFSIndexStorage implements IndexStorage
 	// maximum size of a segment considered for merge operations
 	private long maxMegeSegmentSize = 1024L * 1024L * 1200L; // 1.2G
 
+	private boolean diagnostics;
+
 	public void init()
 	{
 	}
@@ -130,7 +132,7 @@ public class ClusterFSIndexStorage implements IndexStorage
 					}
 				}
 
-				if (!segment.checkSegmentValidity(false, "getIndexReader "))
+				if (!segment.checkSegmentValidity(diagnostics, "getIndexReader "))
 				{
 					log.warn("Checksum Failed on  " + segment);
 					segment.checkSegmentValidity(true, "getIndexReader Failed");
@@ -389,10 +391,16 @@ public class ClusterFSIndexStorage implements IndexStorage
 							|| (currentSegment.getTotalSize() > segmentThreshold)
 							|| currentSegment.isDeleted())
 					{
-						log.info("Current Segment not suitable, generating new segment "+
-								(currentSegment.isDeleted()?"deleted,":"")+
-								(!currentSegment.isClusterSegment()?"non-cluster,":"")+
-								((currentSegment.getTotalSize() > segmentThreshold)?"toobig,":""));
+						if ( diagnostics ) {
+							log
+									.info("Current Segment not suitable, generating new segment "
+											+ (currentSegment.isDeleted() ? "deleted,"
+													: "")
+											+ (!currentSegment.isClusterSegment() ? "non-cluster,"
+													: "")
+											+ ((currentSegment.getTotalSize() > segmentThreshold) ? "toobig,"
+													: ""));
+						}
 						currentSegment = null;
 					}
 				}
@@ -641,11 +649,15 @@ public class ClusterFSIndexStorage implements IndexStorage
 								}
 							}
 							// merge in the list of segments that we have waiting to be merged
-							log.info("Merging \n" + status);
+							if ( diagnostics ) {
+								log.info("Merging \n" + status);
+							}
 							mergeIndexWriter.addIndexes((Directory[]) indexes
 									.toArray(new Directory[indexes.size()]));
 							mergeIndexWriter.optimize();
-							log.info("Merged Segment contians "+mergeIndexWriter.docCount()+" documents ");
+							if ( diagnostics ) {
+								log.info("Merged Segment contians "+mergeIndexWriter.docCount()+" documents ");
+							}
 							
 							mergeIndexWriter.close();
 							// mark the segment as create and ready of upload
@@ -884,4 +896,27 @@ public class ClusterFSIndexStorage implements IndexStorage
 		this.segmentThreshold = segmentThreshold;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.Diagnosable#disableDiagnostics()
+	 */
+	public void disableDiagnostics()
+	{
+		diagnostics = false;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.Diagnosable#enableDiagnostics()
+	 */
+	public void enableDiagnostics()
+	{
+		diagnostics = true;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.Diagnosable#hasDiagnostics()
+	 */
+	public boolean hasDiagnostics()
+	{
+		return diagnostics;
+	}
 }

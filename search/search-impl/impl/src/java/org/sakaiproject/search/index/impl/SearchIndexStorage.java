@@ -226,6 +226,28 @@ public class SearchIndexStorage implements IndexStorage
 		runningIndexStorage.closeIndexSearcher(indexSearcher);
 		
 	}
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.Diagnosable#disableDiagnostics()
+	 */
+	public void disableDiagnostics()
+	{
+		runningIndexStorage.disableDiagnostics();
+	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.Diagnosable#enableDiagnostics()
+	 */
+	public void enableDiagnostics()
+	{
+		runningIndexStorage.enableDiagnostics();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.Diagnosable#hasDiagnostics()
+	 */
+	public boolean hasDiagnostics()
+	{
+		return runningIndexStorage.hasDiagnostics();
+	}
 
 }

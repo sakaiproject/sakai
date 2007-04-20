@@ -26,19 +26,22 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.event.api.NotificationAction;
+import org.sakaiproject.search.api.Diagnosable;
 import org.sakaiproject.search.api.SearchService;
 import org.w3c.dom.Element;
 
 /**
  * @author ieb
  */
-public class SearchReloadNotificationAction implements NotificationAction
+public class SearchReloadNotificationAction implements NotificationAction, Diagnosable
 {
 
 	private static Log dlog = LogFactory
 			.getLog(SearchReloadNotificationAction.class);
 
 	private SearchService searchService;
+
+	private boolean diagnostics;
 
 	private SearchReloadNotificationAction()
 	{
@@ -105,8 +108,32 @@ public class SearchReloadNotificationAction implements NotificationAction
 		// this is done so that if we want to persist the events, we can do so
 		// without
 		// being forced to keep a reference to the SearchService
-		dlog.info("Search Index Reloading ");
+		if ( diagnostics ) {
+			dlog.info("Search Index Reloading ");
+		}
 		searchService.reload();
 	}
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.Diagnosable#disableDiagnostics()
+	 */
+	public void disableDiagnostics()
+	{
+		diagnostics = false;
+	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.Diagnosable#enableDiagnostics()
+	 */
+	public void enableDiagnostics()
+	{
+		diagnostics = true;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.Diagnosable#hasDiagnostics()
+	 */
+	public boolean hasDiagnostics()
+	{
+		return diagnostics;
+	}
 }

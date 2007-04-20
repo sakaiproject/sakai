@@ -130,7 +130,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 
 	private EventTrackingService eventTrackingService;
 
-	private boolean runThreads = true;
+	private boolean runThreads = false;
 
 	private ThreadLocal nodeIDHolder = new ThreadLocal();
 
@@ -155,6 +155,10 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 	private String lastIndexing;
 
 	private boolean soakTest = false;
+
+	private boolean diagnostics;
+
+	private boolean started = false;
 
 	private static HashMap nodeIDList = new HashMap();;
 
@@ -191,6 +195,16 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 
 	public void init()
 	{
+		if ( started  && !runThreads  ) {
+			log.warn("JVM Shutdown in progress, will not startup");
+			return;
+		}
+		if ( org.sakaiproject.component.cover.ComponentManager.hasBeenClosed() ) {
+			log.warn("Component manager Shutdown in progress, will not startup");
+			return;
+		}
+		started = true;
+		runThreads =  true;
 		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
 				.getInstance();
 		eventTrackingService = (EventTrackingService) load(cm,
@@ -249,6 +263,22 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 						+ this.getClass().getName());
 				indexBuilderThread[i].start();
 			}
+			
+			/*
+			 * Capture shutdown 
+			 */
+			Runtime.getRuntime().addShutdownHook(new Thread(){
+				/* (non-Javadoc)
+				 * @see java.lang.Thread#run()
+				 */
+				@Override
+				public void run()
+				{
+					runThreads = false;
+				}
+			});
+			
+			
 		}
 		catch (Throwable t)
 		{
@@ -1651,6 +1681,31 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 		if ( soakTest ) {
 			log.warn("SOAK TEST ACTIVE ======================DONT USE FOR PRODUCTION ");
 		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.Diagnosable#disableDiagnostics()
+	 */
+	public void disableDiagnostics()
+	{
+		diagnostics = false;
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.Diagnosable#enableDiagnostics()
+	 */
+	public void enableDiagnostics()
+	{
+		diagnostics = true;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.Diagnosable#hasDiagnostics()
+	 */
+	public boolean hasDiagnostics()
+	{
+		return diagnostics;
 	}
 
 }

@@ -140,11 +140,20 @@ public class SearchServiceImpl implements SearchService
 	private boolean searchServer = false;
 
 	private ThreadLocal localSearch = new ThreadLocal();
-	
+
 	private HttpClient httpClient;
+
 	private HttpConnectionManagerParams httpParams = new HttpConnectionManagerParams();
+
 	private HttpConnectionManager httpConnectionManager = new MultiThreadedHttpConnectionManager();
 
+	private boolean diagnostics;
+
+	private long lastGet;
+
+	private Object reloadObjectSemaphore = new Object();
+
+	private boolean inreload = false;
 
 	/**
 	 * Register a notification action to listen to events and modify the search
@@ -155,16 +164,15 @@ public class SearchServiceImpl implements SearchService
 
 		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
 				.getInstance();
-		notificationService = (NotificationService) load(cm,
-				NotificationService.class.getName());
-		searchIndexBuilder = (SearchIndexBuilder) load(cm,
-				SearchIndexBuilder.class.getName());
-		eventTrackingService = (EventTrackingService) load(cm,
-				EventTrackingService.class.getName());
-		sessionManager = (SessionManager) load(cm, SessionManager.class
+		notificationService = (NotificationService) load(cm, NotificationService.class
 				.getName());
-		userDirectoryService = (UserDirectoryService) load(cm,
-				UserDirectoryService.class.getName());
+		searchIndexBuilder = (SearchIndexBuilder) load(cm, SearchIndexBuilder.class
+				.getName());
+		eventTrackingService = (EventTrackingService) load(cm, EventTrackingService.class
+				.getName());
+		sessionManager = (SessionManager) load(cm, SessionManager.class.getName());
+		userDirectoryService = (UserDirectoryService) load(cm, UserDirectoryService.class
+				.getName());
 
 		try
 		{
@@ -192,8 +200,7 @@ public class SearchServiceImpl implements SearchService
 			if (eventTrackingService == null)
 			{
 				log.error("Event Tracking Service was not found"); //$NON-NLS-1$
-				throw new RuntimeException(
-						"Event Tracking Service was not found"); //$NON-NLS-1$
+				throw new RuntimeException("Event Tracking Service was not found"); //$NON-NLS-1$
 			}
 			if (sessionManager == null)
 			{
@@ -203,8 +210,7 @@ public class SearchServiceImpl implements SearchService
 			if (userDirectoryService == null)
 			{
 				log.error("User Directory Service was not found"); //$NON-NLS-1$
-				throw new RuntimeException(
-						"User Directory Service was not found"); //$NON-NLS-1$
+				throw new RuntimeException("User Directory Service was not found"); //$NON-NLS-1$
 			}
 
 			// register a transient notification for resources
@@ -231,26 +237,22 @@ public class SearchServiceImpl implements SearchService
 			notification.setResourceFilter("/"); //$NON-NLS-1$
 
 			// set the action
-			notification.setAction(new SearchNotificationAction(
-					searchIndexBuilder));
-			
-			
-			
-//			 Configure params for the Connection Manager
-			httpParams.setDefaultMaxConnectionsPerHost( 20 );
-			httpParams.setMaxTotalConnections( 30 );
+			notification.setAction(new SearchNotificationAction(searchIndexBuilder));
 
-//			 This next line may not be necessary since we specified default 2 lines ago, but here it is anyway
-			httpParams.setMaxConnectionsPerHost( HostConfiguration.ANY_HOST_CONFIGURATION, 20 );
+			// Configure params for the Connection Manager
+			httpParams.setDefaultMaxConnectionsPerHost(20);
+			httpParams.setMaxTotalConnections(30);
 
-//			 Set up the connection manager
-			httpConnectionManager.setParams( httpParams );
+			// This next line may not be necessary since we specified default 2
+			// lines ago, but here it is anyway
+			httpParams.setMaxConnectionsPerHost(HostConfiguration.ANY_HOST_CONFIGURATION,
+					20);
 
-//			 Finally set up the static multithreaded HttpClient
-			httpClient = new HttpClient( httpConnectionManager );
-			
+			// Set up the connection manager
+			httpConnectionManager.setParams(httpParams);
 
-			
+			// Finally set up the static multithreaded HttpClient
+			httpClient = new HttpClient(httpConnectionManager);
 
 			initComplete = true;
 			if (log.isDebugEnabled())
@@ -312,15 +314,13 @@ public class SearchServiceImpl implements SearchService
 	 * 
 	 * @param indexFilter
 	 */
-	public SearchList search(String searchTerms, List contexts, int start,
-			int end)
+	public SearchList search(String searchTerms, List contexts, int start, int end)
 	{
-		return search(searchTerms, contexts, start, end, defaultFilter,
-				defaultSorter);
+		return search(searchTerms, contexts, start, end, defaultFilter, defaultSorter);
 	}
 
-	public SearchList search(String searchTerms, List contexts, int start,
-			int end, String filterName, String sorterName)
+	public SearchList search(String searchTerms, List contexts, int start, int end,
+			String filterName, String sorterName)
 	{
 		try
 		{
@@ -330,17 +330,16 @@ public class SearchServiceImpl implements SearchService
 			{
 				// Setup query so that it will allow results from any
 				// included site, not all included sites.
-				contextQuery.add(new TermQuery(new Term(
-				SearchService.FIELD_SITEID, (String) i.next())),
-				BooleanClause.Occur.SHOULD);
+				contextQuery.add(new TermQuery(new Term(SearchService.FIELD_SITEID,
+						(String) i.next())), BooleanClause.Occur.SHOULD);
 				// This would require term to be in all sites :-(
-//				contextQuery.add(new TermQuery(new Term(
-//						SearchService.FIELD_SITEID, (String) i.next())),
-//						BooleanClause.Occur.MUST);
+				// contextQuery.add(new TermQuery(new Term(
+				// SearchService.FIELD_SITEID, (String) i.next())),
+				// BooleanClause.Occur.MUST);
 			}
 
-			QueryParser qp = new QueryParser(SearchService.FIELD_CONTENTS,
-					indexStorage.getAnalyzer());
+			QueryParser qp = new QueryParser(SearchService.FIELD_CONTENTS, indexStorage
+					.getAnalyzer());
 			Query textQuery = qp.parse(searchTerms);
 			query.add(contextQuery, BooleanClause.Occur.MUST);
 			query.add(textQuery, BooleanClause.Occur.MUST);
@@ -359,24 +358,23 @@ public class SearchServiceImpl implements SearchService
 						sb.append(ci.next()).append(";"); //$NON-NLS-1$
 					}
 					String contextParam = sb.toString();
-					post.setParameter(REST_CHECKSUM, digestCheck(userId,
-							searchTerms));
+					post.setParameter(REST_CHECKSUM, digestCheck(userId, searchTerms));
 					post.setParameter(REST_CONTEXTS, contextParam);
 					post.setParameter(REST_END, String.valueOf(end));
 					post.setParameter(REST_START, String.valueOf(start));
 					post.setParameter(REST_TERMS, searchTerms);
 					post.setParameter(REST_USERID, userId);
-					
-					
+
 					int status = httpClient.executeMethod(post);
-					if ( status != 200  ) {
-						throw new RuntimeException("Failed to perform remote search, http status was "+status); //$NON-NLS-1$
+					if (status != 200)
+					{
+						throw new RuntimeException(
+								"Failed to perform remote search, http status was " + status); //$NON-NLS-1$
 					}
 
 					String response = post.getResponseBodyAsString();
-					return new SearchListResponseImpl(response, textQuery,
-							start, end, indexStorage.getAnalyzer(), filter,
-							searchIndexBuilder, this);
+					return new SearchListResponseImpl(response, textQuery, start, end,
+							indexStorage.getAnalyzer(), filter, searchIndexBuilder, this);
 				}
 				catch (Exception ex)
 				{
@@ -403,8 +401,7 @@ public class SearchServiceImpl implements SearchService
 					}
 					if (indexFilter != null && indexSorter != null)
 					{
-						h = indexSearcher.search(query, indexFilter,
-								indexSorter);
+						h = indexSearcher.search(query, indexFilter, indexSorter);
 					}
 					else if (indexFilter != null)
 					{
@@ -422,13 +419,11 @@ public class SearchServiceImpl implements SearchService
 					{
 						log.debug("Got " + h.length() + " hits"); //$NON-NLS-1$ //$NON-NLS-2$
 					}
-					eventTrackingService.post(eventTrackingService.newEvent(
-							EVENT_SEARCH, EVENT_SEARCH_REF
-									+ textQuery.toString(), true,
+					eventTrackingService.post(eventTrackingService.newEvent(EVENT_SEARCH,
+							EVENT_SEARCH_REF + textQuery.toString(), true,
 							NotificationService.PREF_IMMEDIATE));
-					return new SearchListImpl(h, textQuery, start, end,
-							indexStorage.getAnalyzer(), filter, 
-							searchIndexBuilder, this);
+					return new SearchListImpl(h, textQuery, start, end, indexStorage
+							.getAnalyzer(), filter, searchIndexBuilder, this);
 				}
 				else
 				{
@@ -463,49 +458,149 @@ public class SearchServiceImpl implements SearchService
 
 	public IndexSearcher getIndexSearcher(boolean reload)
 	{
-		if (runningIndexSearcher == null || ( reload && !searchIndexBuilder.isLocalLock() ) )
+		long reloadWaitEnd = System.currentTimeMillis() + 10L * 1000L;
+		if (inreload)
+		{
+			long waitStart = System.currentTimeMillis();
+			log.info("Waiting for Index Reload to complete");
+			while (inreload && (System.currentTimeMillis() < reloadWaitEnd))
+			{
+				/*
+				 * When a reload is in progress we must wait here on a timeout
+				 * for it to have some chance of finishing. If it doesnt finish,
+				 * we will just grab the index searcher anyway It may cause
+				 * problems, but we cant throttle request threads for more than
+				 * 10 seconds.
+				 */
+				Thread.yield();
+			}
+			log.info("Reload Complete, request paused for "
+					+ (System.currentTimeMillis() - waitStart) + "ms");
+			if (System.currentTimeMillis() > reloadWaitEnd)
+			{
+				log.warn(" Index Reload Timeout, trying old Index ");
+			}
+		}
+		if (runningIndexSearcher == null || (reload && !searchIndexBuilder.isLocalLock()))
 		{
 
 			long lastUpdate = indexStorage.getLastUpdate();
-			
-			if (lastUpdate > reloadStart)
+
+			if (lastUpdate > reloadStart || runningIndexSearcher == null)
 			{
-				if (log.isDebugEnabled())
+				synchronized (reloadObjectSemaphore)
 				{
-					log.debug("Reloading Index, force=" + reload); //$NON-NLS-1$
-				}
-				try
-				{
-					reloadStart = System.currentTimeMillis();
+					/*
+					 * If we just go for reload, tehn there is a chance that
+					 * there will be an active search request depending on
+					 * search segments that are about to be deleted. on the
+					 * basis that a search typically < 100ms to complete and
+					 * release retrieve the results in fact it often takes <
+					 * 20ms, we should not try and reload if an index searcher
+					 * was retrieved in the last 100ms. That will prevent us
+					 * removing search index files from form an active search
+					 * load. The next problem that will happen is that searchers
+					 * will come in here when the index is being reloaded. This
+					 * is less of a problem, but we should probably throttle
+					 * while the load is going on to prevent a index sercher
+					 * that is in the process of being reloaded get into a
+					 * request cycle.
+					 */
 
-					// dont leave closing the index searcher to the GC. It may
-					// not happen fast enough.
-
-					IndexSearcher newRunningIndexSearcher = indexStorage
-							.getIndexSearcher();
-
-					IndexSearcher oldRunningIndexSearcher = runningIndexSearcher;
-					runningIndexSearcher = newRunningIndexSearcher;
-
-					if (oldRunningIndexSearcher != null)
+					long endWait = System.currentTimeMillis() + 20L * 1000L;
+					while ((System.currentTimeMillis() < endWait)
+							&& (System.currentTimeMillis() < lastGet + 100L))
 					{
-						try
-						{
-							indexStorage
-									.closeIndexSearcher(oldRunningIndexSearcher);
-						}
-						catch (Exception ex)
-						{
-							log.error("Failed to close old searcher ", ex); //$NON-NLS-1$
-						}
+						Thread.yield();
 					}
 
-					reloadEnd = System.currentTimeMillis();
-					log.info("Index Reloaded containing "+getNDocs()+" active documents and  "+getPendingDocs()+" pending documents in "+(reloadEnd-reloadStart)+"ms");
-				}
-				catch (IOException e)
-				{
-					reloadStart = reloadEnd;
+					/*
+					 * Danger Zone, if something gets in here it may loose
+					 * segments.
+					 */
+					inreload = true;
+					try
+					{
+						/**
+						 * check again if we really need to reload, annother
+						 * thread could have been in progress
+						 */
+						lastUpdate = indexStorage.getLastUpdate();
+						if (lastUpdate > reloadStart || runningIndexSearcher == null)
+						{
+							reloadStart = System.currentTimeMillis();
+							/*
+							 * Did we fail to get a reload lock, if so we just
+							 * have to ignore the reload request and wait for
+							 * the next one ?
+							 */
+							if (System.currentTimeMillis() < endWait)
+							{
+
+								if (log.isDebugEnabled())
+								{
+									log.debug("Reloading Index, force=" + reload); //$NON-NLS-1$
+								}
+								try
+								{
+
+									// dont leave closing the index searcher to
+									// the
+									// GC.
+									// It
+									// may
+									// not happen fast enough.
+
+									IndexSearcher newRunningIndexSearcher = indexStorage
+											.getIndexSearcher();
+
+									IndexSearcher oldRunningIndexSearcher = runningIndexSearcher;
+									runningIndexSearcher = newRunningIndexSearcher;
+
+									if (oldRunningIndexSearcher != null)
+									{
+										try
+										{
+											indexStorage
+													.closeIndexSearcher(oldRunningIndexSearcher);
+										}
+										catch (Exception ex)
+										{
+											log
+													.error(
+															"Failed to close old searcher ", ex); //$NON-NLS-1$
+										}
+									}
+
+									reloadEnd = System.currentTimeMillis();
+									if (diagnostics)
+									{
+										log.info("Index Reloaded containing "
+												+ getNDocs() + " active documents and  "
+												+ getPendingDocs()
+												+ " pending documents in "
+												+ (reloadEnd - reloadStart) + "ms");
+									}
+								}
+								catch (IOException e)
+								{
+									reloadStart = reloadEnd;
+								}
+							}
+							else
+							{
+								log
+										.warn("Unable to reload index, there was too much search "
+												+ "activity on this node, will try again on the next "
+												+ "index reload event ");
+							}
+						}
+					}
+					finally
+					{
+						inreload = false;
+					}
+
 				}
 			}
 			else
@@ -519,6 +614,7 @@ public class SearchServiceImpl implements SearchService
 			}
 		}
 
+		lastGet = System.currentTimeMillis();
 		return runningIndexSearcher;
 	}
 
@@ -548,8 +644,7 @@ public class SearchServiceImpl implements SearchService
 	{
 
 		String lastLoad = (new Date(reloadEnd)).toString();
-		String loadTime = String
-				.valueOf((double) (0.001 * (reloadEnd - reloadStart)));
+		String loadTime = String.valueOf((double) (0.001 * (reloadEnd - reloadStart)));
 		SearchWriterLock lock = searchIndexBuilder.getCurrentLock();
 		List lockNodes = searchIndexBuilder.getNodeStatus();
 
@@ -560,7 +655,7 @@ public class SearchServiceImpl implements SearchService
 	{
 		try
 		{
-			return getIndexSearcher(false).maxDoc();
+			return getIndexSearcher(false).getIndexReader().numDocs();
 		}
 		catch (Exception e)
 		{
@@ -625,24 +720,19 @@ public class SearchServiceImpl implements SearchService
 			{
 				if (SecurityService.isSuperUser())
 				{
-					return MessageFormat
-							.format(
-									Messages.getString("SearchServiceImpl.35"), //$NON-NLS-1$
-									new Object[] {
-											lock.getExpires(),
-											searchIndexBuilder
-													.getLastDocument(),
-											searchIndexBuilder.getLastElapsed(),
-											searchIndexBuilder
-													.getCurrentDocument(),
-											searchIndexBuilder
-													.getCurrentElapsed(),
-											ServerConfigurationService
-													.getServerIdInstance() });
+					return MessageFormat.format(Messages
+							.getString("SearchServiceImpl.35"), //$NON-NLS-1$
+							new Object[] { lock.getExpires(),
+									searchIndexBuilder.getLastDocument(),
+									searchIndexBuilder.getLastElapsed(),
+									searchIndexBuilder.getCurrentDocument(),
+									searchIndexBuilder.getCurrentElapsed(),
+									ServerConfigurationService.getServerIdInstance() });
 				}
 				else
 				{
-					return MessageFormat.format(Messages.getString("SearchServiceImpl.39"), new Object[] { lock //$NON-NLS-1$
+					return MessageFormat.format(Messages
+							.getString("SearchServiceImpl.39"), new Object[] { lock //$NON-NLS-1$
 							.getExpires() });
 				}
 			}
@@ -805,7 +895,8 @@ public class SearchServiceImpl implements SearchService
 		{
 			public String[] getTerms()
 			{
-				if ( tf != null ) {
+				if (tf != null)
+				{
 					return tf.getTerms();
 				}
 				return new String[0];
@@ -813,7 +904,8 @@ public class SearchServiceImpl implements SearchService
 
 			public int[] getFrequencies()
 			{
-				if ( tf != null ) {
+				if (tf != null)
+				{
 					return tf.getTermFrequencies();
 				}
 				return new int[0];
@@ -833,8 +925,7 @@ public class SearchServiceImpl implements SearchService
 		{
 			if (!searchServer)
 			{
-				throw new Exception(
-						Messages.getString("SearchServiceImpl.49")); //$NON-NLS-1$
+				throw new Exception(Messages.getString("SearchServiceImpl.49")); //$NON-NLS-1$
 			}
 			String[] useridA = (String[]) parameterMap.get(REST_USERID);
 			String[] searchTermsA = (String[]) parameterMap.get(REST_TERMS);
@@ -957,9 +1048,12 @@ public class SearchServiceImpl implements SearchService
 			sb.append("<request>"); //$NON-NLS-1$
 			sb.append("<![CDATA["); //$NON-NLS-1$
 			sb.append(" userid = ").append(StringUtils.xmlEscape(userid)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
-			sb.append(" searchTerms = ").append(StringUtils.xmlEscape(searchTerms)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
-			sb.append(" checksum = ").append(StringUtils.xmlEscape(checksum)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
-			sb.append(" contexts = ").append(StringUtils.xmlEscape(contexts)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+			sb
+					.append(" searchTerms = ").append(StringUtils.xmlEscape(searchTerms)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+			sb
+					.append(" checksum = ").append(StringUtils.xmlEscape(checksum)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
+			sb
+					.append(" contexts = ").append(StringUtils.xmlEscape(contexts)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
 			sb.append(" ss = ").append(StringUtils.xmlEscape(ss)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
 			sb.append(" se = ").append(StringUtils.xmlEscape(se)).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$
 			sb.append("]]>"); //$NON-NLS-1$
@@ -1061,6 +1155,58 @@ public class SearchServiceImpl implements SearchService
 	public void setSearchServer(boolean searchServer)
 	{
 		this.searchServer = searchServer;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.search.api.Diagnosable#disableDiagnostics()
+	 */
+	public void disableDiagnostics()
+	{
+		diagnostics = false;
+		indexStorage.disableDiagnostics();
+		searchIndexBuilder.disableDiagnostics();
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.search.api.Diagnosable#enableDiagnostics()
+	 */
+	public void enableDiagnostics()
+	{
+		diagnostics = true;
+		indexStorage.enableDiagnostics();
+		searchIndexBuilder.enableDiagnostics();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.search.api.Diagnosable#hasDiagnostics()
+	 */
+	public boolean hasDiagnostics()
+	{
+		return diagnostics;
+	}
+
+	public boolean getDiagnostics()
+	{
+		return diagnostics;
+	}
+
+	public void setDiagnostics(boolean diagnostics)
+	{
+		if (diagnostics)
+		{
+			enableDiagnostics();
+		}
+		else
+		{
+			disableDiagnostics();
+		}
 	}
 
 }

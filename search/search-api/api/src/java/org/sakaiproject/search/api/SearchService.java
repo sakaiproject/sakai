@@ -31,7 +31,7 @@ import java.util.Map;
  * 
  * @author ieb
  */
-public interface SearchService
+public interface SearchService extends Diagnosable
 {
 	public static final String REST_USERID = "u";
 
@@ -267,7 +267,6 @@ public interface SearchService
 	 * @return
 	 */
 	String searchXML(Map parameterMap);
-
 
 
 }

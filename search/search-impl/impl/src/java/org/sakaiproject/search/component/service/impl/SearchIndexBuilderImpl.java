@@ -55,6 +55,7 @@ import org.sakaiproject.site.cover.SiteService;
 public class SearchIndexBuilderImpl implements SearchIndexBuilder
 {
 
+	
 	private static Log log = LogFactory.getLog(SearchIndexBuilderImpl.class);
 
 	private SearchBuilderItemDao searchBuilderItemDao = null;
@@ -64,6 +65,8 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 	private List producers = new ArrayList();
 
 	private boolean onlyIndexSearchToolSites = false;
+	
+	private boolean diagnostics = false;
 
 	public void init()
 	{
@@ -514,4 +517,29 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 		return searchIndexBuilderWorker.isLocalLock();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.Diagnosable#disableDiagnostics()
+	 */
+	public void disableDiagnostics()
+	{
+		diagnostics = false;
+		searchIndexBuilderWorker.enableDiagnostics();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.Diagnosable#enableDiagnostics()
+	 */
+	public void enableDiagnostics()
+	{
+		diagnostics = true;
+		searchIndexBuilderWorker.disableDiagnostics();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.Diagnosable#hasDiagnostics()
+	 */
+	public boolean hasDiagnostics()
+	{
+		return diagnostics;
+	}
 }

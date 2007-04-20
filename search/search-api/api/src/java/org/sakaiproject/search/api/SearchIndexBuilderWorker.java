@@ -26,7 +26,7 @@ import java.util.List;
 
 import org.sakaiproject.search.model.SearchWriterLock;
 
-public interface SearchIndexBuilderWorker
+public interface SearchIndexBuilderWorker extends Diagnosable
 {
 
 
@@ -148,7 +148,6 @@ public interface SearchIndexBuilderWorker
 		 * @return
 		 */
 		boolean isLocalLock();
-
 
 
 }

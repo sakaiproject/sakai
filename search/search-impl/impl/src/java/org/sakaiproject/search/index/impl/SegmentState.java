@@ -323,7 +323,9 @@ public class SegmentState
 				sb.append("   Dropped ").append(fr).append("\n");
 			}
 		}
-		log.info("Checked "+name+"\n"+sb.toString());
+		if ( logging ) {
+			log.info("Checked "+name+"\n"+sb.toString());
+		}
 		return true;
 	}
 

@@ -60,6 +60,8 @@ public class FSIndexStorage implements IndexStorage
 
 	private long lastUpdate = System.currentTimeMillis();
 
+	private boolean diagnostics;
+
 	public void init() {
 		
 	}
@@ -132,8 +134,11 @@ public class FSIndexStorage implements IndexStorage
 
 			}
 			long reloadEnd = System.currentTimeMillis();
-			log.info("Reload Complete " + indexSearcher.maxDoc() + " in "
-					+ (reloadEnd - reloadStart));
+			if (  diagnostics )
+			{
+				log.info("Reload Complete " + indexSearcher.getIndexReader().numDocs()
+						+ " in " + (reloadEnd - reloadStart));
+			}
 
 		}
 		catch (FileNotFoundException e)
@@ -295,7 +300,29 @@ public class FSIndexStorage implements IndexStorage
 
 		}
 	}
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.Diagnosable#disableDiagnostics()
+	 */
+	public void disableDiagnostics()
+	{
+		diagnostics = false;
+	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.Diagnosable#enableDiagnostics()
+	 */
+	public void enableDiagnostics()
+	{
+		diagnostics = true;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.api.Diagnosable#hasDiagnostics()
+	 */
+	public boolean hasDiagnostics()
+	{
+		return diagnostics;
+	}
 
 
 }

@@ -89,6 +89,16 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 	private static final String COMMAND_RELOADINDEX = "?" + COMMAND + "="
 	+ RELOADINDEX;
 
+	private static final String DISABLEDIAGNOSTICS = "disablediag";
+	
+	private static final String COMMAND_DISABLEDIAGNOSTICS = "?" + COMMAND + "="
+	+ DISABLEDIAGNOSTICS;
+
+	private static final String ENABLEDIAGNOSTICS = "enablediag";
+	
+	private static final String COMMAND_ENABLEDIAGNOSTICS = "?" + COMMAND + "="
+	+ ENABLEDIAGNOSTICS;
+
 	
 	
 
@@ -181,7 +191,12 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 		}
 		else if ( internCommand == RELOADINDEX ) {
 			doReloadIndex();
+		} else if ( internCommand == DISABLEDIAGNOSTICS ) {
+			searchService.disableDiagnostics();
+		} else if ( internCommand == ENABLEDIAGNOSTICS ) {
+			searchService.enableDiagnostics();
 		}
+		
 		internCommand = null;
 
 	}
@@ -376,6 +391,14 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 				"onclick=\"return confirm('"+Messages.getString("searchadmin_cmd_removelockconfirm")+"');\"" }));
 			sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
 					COMMAND_RELOADINDEX, Messages.getString("searchadmin_cmd_reloadind"),"" }));
+			if ( searchService.hasDiagnostics() ) {
+				sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
+						COMMAND_DISABLEDIAGNOSTICS, Messages.getString("searchadmin_cmd_disablediagnostics"),""} ));
+			} else {
+				sb.append(MessageFormat.format(adminOptionsFormat, new Object[] {
+						COMMAND_ENABLEDIAGNOSTICS, Messages.getString("searchadmin_cmd_enablediagnostics"),"" }));
+				
+			}
 		}
 		return sb.toString();
 	}
@@ -459,6 +482,12 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 			o.add(new AdminOptionImpl(COMMAND_REMOVELOCK, Messages.getString("searchadmin_cmd_removelock"), 
 				"onclick=\"return confirm('"+Messages.getString("searchadmin_cmd_removelockconfirm")+"');\"" ));
 			o.add(new AdminOptionImpl(COMMAND_RELOADINDEX, Messages.getString("searchadmin_cmd_reloadind"),"" ));
+			if ( searchService.hasDiagnostics() ) {
+				o.add(new AdminOptionImpl(COMMAND_DISABLEDIAGNOSTICS, Messages.getString("searchadmin_cmd_disablediagnostics"),"" ));
+			} else {
+				o.add(new AdminOptionImpl(COMMAND_ENABLEDIAGNOSTICS, Messages.getString("searchadmin_cmd_enablediagnostics"),"" ));
+				
+			}
 		}
 		return o;
 	}

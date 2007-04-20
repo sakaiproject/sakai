@@ -25,8 +25,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.lucene.store.Directory;
-
 /**
  * ClusterFilesystem provides the mechanism by which the local search index is
  * syncronsed with the clustered file system

@@ -384,7 +384,13 @@ public class SegmentInfoImpl implements SegmentInfo
 	 */
 	public boolean checkSegmentValidity(boolean logging, String message) 
 	{
-		return liveSegmentState.checkValidity(logging,message,storedSegmentState);
+		/**
+		 * Dont check new segments, there will not be any state to check
+		 */
+		if ( isCreated() ) {
+			return liveSegmentState.checkValidity(logging,message,storedSegmentState);
+		}
+		return true;
 	}
 
 

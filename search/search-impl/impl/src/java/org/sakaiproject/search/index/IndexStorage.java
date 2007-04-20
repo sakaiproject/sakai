@@ -28,13 +28,14 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.search.IndexSearcher;
+import org.sakaiproject.search.api.Diagnosable;
 
 /**
  * Defines the IndexStorage mechanism used
  * @author ieb
  *
  */
-public interface IndexStorage
+public interface IndexStorage extends Diagnosable
 {
 	
 	/**

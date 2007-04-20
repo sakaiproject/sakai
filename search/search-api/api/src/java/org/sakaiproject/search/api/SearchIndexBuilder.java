@@ -33,7 +33,7 @@ import org.sakaiproject.search.model.SearchWriterLock;
  * 
  * @author ieb
  */
-public interface SearchIndexBuilder
+public interface SearchIndexBuilder extends Diagnosable
 {
 
 	/**
@@ -166,8 +166,6 @@ public interface SearchIndexBuilder
 	 * @return
 	 */
 	boolean isLocalLock();
-
-
 
 	
 

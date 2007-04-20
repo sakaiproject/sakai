@@ -20,12 +20,10 @@
  **********************************************************************************/
 package org.sakaiproject.search.component.adapter.contenthosting;
 
-import java.io.Reader;
 import java.util.HashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.content.api.ContentResource;
 
 /**
  * @author ieb
