@@ -37,6 +37,8 @@ public class CourseGrade extends GradableObject {
     public static String SORT_BY_OVERRIDE_GRADE = "override";
     public static String SORT_BY_CALCULATED_GRADE = "autoCalc";
     public static String SORT_BY_POINTS_EARNED = "pointsEarned";
+    
+    private Double averageScore;
 
     public CourseGrade() {
     	setName(COURSE_GRADE_NAME);
@@ -75,6 +77,7 @@ public class CourseGrade extends GradableObject {
         // Ungraded but enrolled students count as if they have 0% in the course.
         int numScored = numEnrollments - gradeRecords.size();
         double total = 0;
+        double average = 0;
 
         for (CourseGradeRecord record : gradeRecords) {
             Double score = record.getGradeAsPercentage();
@@ -84,7 +87,8 @@ public class CourseGrade extends GradableObject {
         		continue;
         	}
         	
-        	if (score != null) {
+        	if (score != null && record.getPointsEarned() != null) {
+        		average += record.getPointsEarned().doubleValue();
         		total += score.doubleValue();
           	numScored++;
         	}
@@ -92,8 +96,20 @@ public class CourseGrade extends GradableObject {
         }
         if (numScored == 0) {
         	mean = null;
+        	averageScore = null;
         } else {
         	mean = new Double(total / numScored);
+        	averageScore = new Double(average / numScored);
         }
     }
+
+		public Double getAverageScore()
+		{
+			return averageScore;
+		}
+
+		public void setAverageScore(Double averageScore)
+		{
+			this.averageScore = averageScore;
+		}
 }

@@ -15,6 +15,7 @@ public class Category implements Serializable
 	private boolean removed;
 	private Double averageTotalPoints; //average total points possible for this category
 	private Double averageScore; //average scores that students got for this category
+	private Double mean; //mean value of percentage for this category
 	private List assignmentList;
 	
 	public static Comparator nameComparator;
@@ -198,18 +199,17 @@ public class Category implements Serializable
     	Double score = assign.getAverageTotal();
     	if(assign.isReleased())
     	{
-    		if(assign.getPointsPossible() != null)
-    		{
-    			totalPossible += assign.getPointsPossible().doubleValue();
-    			numOfAssignments ++;
-    		}
     		if (score == null) 
     		{
-    			numScored++;
     		} 
     		else 
     		{
     			total += score.doubleValue();
+    			if(assign.getPointsPossible() != null)
+      		{
+      			totalPossible += assign.getPointsPossible().doubleValue();
+      			numOfAssignments ++;
+      		}
     			numScored++;
     		}
     	}
@@ -219,11 +219,13 @@ public class Category implements Serializable
     {
     	averageScore = null;
     	averageTotalPoints = null;
+    	mean = null;
     } 
     else 
     {
     	averageScore = new Double(total / numScored);
     	averageTotalPoints = new Double(totalPossible / numOfAssignments);
+    	mean = new Double(total / numScored / (totalPossible / numOfAssignments) * 100) ;
     }
 	}
 
@@ -249,5 +251,15 @@ public class Category implements Serializable
 	}
 	public boolean isAssignment() {
 		return false;
+	}
+
+	public Double getMean()
+	{
+		return mean;
+	}
+
+	public void setMean(Double mean)
+	{
+		this.mean = mean;
 	}
 }
