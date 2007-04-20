@@ -52,8 +52,8 @@
 			</t:dataTable> 
 			
 			<h:panelGrid columns="2" styleClass="indnt5" rendered="#{gradebookSetupBean.displayWeighting}">
-				<h:outputText value="#{msgs.running_total}" styleClass="unreadMsg"/>
-				<h:panelGroup id="runningTotal" styleClass="unreadMsg #{gradebookSetupBean.runningTotalStyle}">
+				<h:outputText value="#{msgs.running_total}" styleClass="courseGrade"/>
+				<h:panelGroup id="runningTotal" styleClass="courseGrade #{gradebookSetupBean.runningTotalStyle}">
 					<h:outputText id="runningTotalVal" value="#{gradebookSetupBean.runningTotal}" />
 					<h:outputText value="#{msgs.cat_percent}" />
 				</h:panelGroup>

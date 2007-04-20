@@ -179,7 +179,124 @@ function updateRunningTotal(thisForm) {
   runningTotalValEl.innerHTML = runningTotal;
   neededTotalEl.innerHTML = neededTotal;
   if (neededTotal == 0)
-  	runningTotalEl.className="unreadMsg";
+  	runningTotalEl.className="courseGrade";
   else
-  	runningTotalEl.className = "highlight unreadMsg";
+  	runningTotalEl.className = "highlight courseGrade";
+}
+
+// for toggling display of gradebook items associated with a category
+function showHideDiv(hideDivisionNo, context, expandAlt, collapseAlt, expandTitle, collapseTitle)
+{
+  var tmpdiv = hideDivisionNo + "__hide_division_";
+  var tmpimg = hideDivisionNo + "__img_hide_division_";
+  var divisionNo = getTheElement(tmpdiv);
+  var imgNo = getTheElement(tmpimg);
+
+  if(divisionNo)
+  {
+    if(divisionNo.style.display =="block" || divisionNo.style.display =="table-row")
+    {
+      divisionNo.style.display="none";
+      if (imgNo)
+      {
+        imgNo.src = context + "/images/collapse.gif";
+        imgNo.alt = collapseAlt;
+        imgNo.title = collapseTitle;
+      }
+    }
+    else
+    {
+      if(navigator.product == "Gecko")
+      {
+        divisionNo.style.display="table-row";
+      }
+      else
+      {
+        divisionNo.style.display="block";
+      }
+      if(imgNo)
+      {
+        imgNo.src = context + "/images/expand.gif";
+        imgNo.alt = expandAlt;
+        imgNo.title = expandTitle;
+      }
+    }
+  }
+}
+
+// for toggling all gradebook items displayed within a category
+function showHideAll(numToggles, context, expandAlt, collapseAlt, expandTitle, collapseTitle)
+{
+  var allimg = "expandCollapseAll";
+  var imgAll = getTheElement(allimg);
+  var imgAllSrcPieces = imgAll.src.split("/");
+
+  var expanded = false;
+	if (imgAllSrcPieces[(imgAllSrcPieces.length - 1)] == "expand.gif")
+	 	expanded = true;
+	 	
+	for (var i=0; i < numToggles; i++) {
+	  var tmpdiv = "_id_" + i + "__hide_division_";
+	  var tmpimg = "_id_" + i + "__img_hide_division_";
+	  var divisionNo = getTheElement(tmpdiv);
+	  var imgNo = getTheElement(tmpimg);
+	
+	  if(divisionNo)
+	  {
+	  	if (expanded) {
+		    divisionNo.style.display="none";
+		    
+		    if (imgNo) {
+		      imgNo.src = context + "/images/collapse.gif";
+		      imgNo.alt =  collapseAlt;
+		      imgNo.title = collapseTitle;
+		    }
+		    if (imgAll) {
+		      imgAll.src = context + "/images/collapse.gif";
+		      imgAll.alt =  collapseAlt;
+		      imgAll.title = collapseTitle;
+		    }
+		  }
+		  else {
+		    if(navigator.product == "Gecko")
+      	{
+        	divisionNo.style.display="table-row";
+      	}
+      	else
+      	{
+        	divisionNo.style.display="block";
+     	 	}
+		    
+		    if (imgNo) {
+		      imgNo.src = context + "/images/expand.gif";
+		      imgNo.alt =  expandAlt;
+		      imgNo.title = expandTitle;
+		    }
+
+		    if (imgAll) {
+		    	imgAll.src = context + "/images/expand.gif";
+		    	imgAll.alt =  expandAlt;
+		      imgAll.title = expandTitle;
+		    }
+		  }
+	  }
+  }
+}
+
+// if user set the category to "unassigned", the checkbox for counting the
+// assignment must be unchecked and disabled. Once he/she assigns category,
+// counted will be enabled
+function assignmentCategoryChange(myForm, categoriesEnabled) {
+	if (categoriesEnabled != true)
+		return;
+	var categorySelectionEl = getTheElement(myForm.name + ':selectCategory');
+	var countedCheckboxEl = getTheElement(myForm.name + ':countAssignment');
+	
+	if (categorySelectionEl.value == 'unassigned') {
+		countedCheckboxEl.checked = false;
+		countedCheckboxEl.disabled = true;
+	}	
+	else {
+		countedCheckboxEl.disabled = false;
+	}
 }

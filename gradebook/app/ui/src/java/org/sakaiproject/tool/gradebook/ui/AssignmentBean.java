@@ -59,6 +59,9 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 				// it is a new assignment
 				assignment = new Assignment();
 				assignment.setReleased(true);
+				// can't count assignment until category has been assigned
+				if (getCategoriesEnabled())
+					assignment.setCounted(false);
 			}
 		}
 
@@ -109,6 +112,11 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 		try {
 			Category category = retrieveSelectedCategory();
 			assignment.setCategory(category);
+			// if the user did not set a category and categories were enabled,
+			// this assignment will not be counted
+			if (getCategoriesEnabled() && category == null) {
+				assignment.setCounted(false);
+			}
 			getGradebookManager().updateAssignment(assignment);
 			String messageKey = getGradebookManager().isEnteredAssignmentScores(assignmentId) ?
 				"edit_assignment_save_scored" :

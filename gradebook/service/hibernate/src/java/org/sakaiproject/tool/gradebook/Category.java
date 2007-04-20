@@ -236,4 +236,18 @@ public class Category implements Serializable
 	{
 		this.assignmentList = assignmentList;
 	}
+	
+	/*
+	 * The methods below are used with the GradableObjects because all three
+	 * are displayed in a dataTable together
+	 */
+	public boolean isCategory() {
+		return true;
+	}
+	public boolean isCourseGrade() {
+		return false;
+	}
+	public boolean isAssignment() {
+		return false;
+	}
 }

@@ -40,6 +40,8 @@ public class Assignment extends GradableObject {
     public static String SORT_BY_MEAN = "mean";
     public static String SORT_BY_POINTS = "pointsPossible";
     public static String SORT_BY_RELEASED ="released";
+    public static String SORT_BY_COUNTED = "counted";
+    public static String SORT_BY_EDITOR = "gradeEditor";
     public static String DEFAULT_SORT = SORT_BY_DATE;
 
     public static Comparator dateComparator;
@@ -47,6 +49,8 @@ public class Assignment extends GradableObject {
     public static Comparator pointsComparator;
     public static Comparator meanComparator;
     public static Comparator releasedComparator;
+    public static Comparator countedComparator;
+    public static Comparator gradeEditorComparator;
 
     private Double pointsPossible;
     private Date dueDate;
@@ -148,6 +152,36 @@ public class Assignment extends GradableObject {
                 }
             }
         };
+        
+        countedComparator = new Comparator() {
+            public int compare(Object o1, Object o2) {
+                if(log.isDebugEnabled()) log.debug("Comparing assignment + " + o1 + " to " + o2 + " by counted");
+                Assignment one = (Assignment)o1;
+                Assignment two = (Assignment)o2;
+
+                int comp = String.valueOf(one.isCounted()).compareTo(String.valueOf(two.isCounted()));
+                if(comp == 0) {
+                    return one.getName().compareTo(two.getName());
+                } else {
+                    return comp;
+                }
+            }
+        };
+        
+        gradeEditorComparator = new Comparator() {
+            public int compare(Object o1, Object o2) {
+                if(log.isDebugEnabled()) log.debug("Comparing assignment + " + o1 + " to " + o2 + " by grade editor");
+                Assignment one = (Assignment)o1;
+                Assignment two = (Assignment)o2;
+
+                int comp = String.valueOf(one.getExternalAppName()).compareTo(String.valueOf(two.getExternalAppName()));
+                if(comp == 0) {
+                    return one.getName().compareTo(two.getName());
+                } else {
+                    return comp;
+                }
+            }
+        };
     }
 
     public Assignment(Gradebook gradebook, String name, Double pointsPossible, Date dueDate) {
@@ -182,6 +216,18 @@ public class Assignment extends GradableObject {
 	/**
      */
     public boolean isCourseGrade() {
+        return false;
+    }
+    /**
+     * @see org.sakaiproject.tool.gradebook.GradableObject#isAssignment()
+     */
+    public boolean isAssignment() {
+        return true;
+    }
+    /**
+     * @see org.sakaiproject.tool.gradebook.GradableObject#isCategory()
+     */
+    public boolean isCategory() {
         return false;
     }
 

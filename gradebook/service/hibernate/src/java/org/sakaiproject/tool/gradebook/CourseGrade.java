@@ -48,6 +48,20 @@ public class CourseGrade extends GradableObject {
     public boolean isCourseGrade() {
         return true;
     }
+    
+    /**
+     * @see org.sakaiproject.tool.gradebook.GradableObject#isAssignment()
+     */
+    public boolean isAssignment() {
+        return false;
+    }
+    
+    /**
+     * @see org.sakaiproject.tool.gradebook.GradableObject#isCategory()
+     */
+    public boolean isCategory() {
+        return false;
+    }
 
 	//// Bean getters and setters ////
 

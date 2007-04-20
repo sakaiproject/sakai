@@ -112,6 +112,11 @@
 			<renderer-type>SpreadsheetUIRenderer</renderer-type>
 			<renderer-class>org.sakaiproject.tool.gradebook.jsf.spreadsheetUI.SpreadsheetUIRenderer</renderer-class>
 		</renderer>
+		<renderer>
+			<component-family>javax.faces.Data</component-family>
+			<renderer-type>GradbookItemTableRenderer</renderer-type>
+			<renderer-class>org.sakaiproject.tool.gradebook.jsf.gradebookItemTable.GradebookItemTableRenderer</renderer-class>
+		</renderer>
 	</render-kit>
 
 </faces-config>

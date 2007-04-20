@@ -33,6 +33,7 @@ import javax.faces.event.ValueChangeEvent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
@@ -190,6 +191,22 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 			FacesUtil.addRedirectSafeMessage(getLocalizedString("gb_save_msg"));
 
 			return null;
+		}
+		
+		// if we are going from no categories to having categories, we need to set
+		// counted = false for all existing assignments b/c the category will
+		// now be "unassigned"
+		if (localGradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY &&
+				(categorySetting.equals(CATEGORY_OPT_CAT_ONLY) || categorySetting.equals(CATEGORY_OPT_CAT_AND_WEIGHT))) {
+			List assignmentsInGb = getGradebookManager().getAssignments(getGradebookId(), Assignment.DEFAULT_SORT, true);
+			if (assignmentsInGb != null && !assignmentsInGb.isEmpty()) {
+				Iterator assignIter = assignmentsInGb.iterator();
+				while (assignIter.hasNext()) {
+					Assignment assignment = (Assignment) assignIter.next();
+					assignment.setCounted(false);
+					getGradebookManager().updateAssignment(assignment);
+				}
+			}
 		}
 
 		if (categorySetting.equals(CATEGORY_OPT_CAT_ONLY))

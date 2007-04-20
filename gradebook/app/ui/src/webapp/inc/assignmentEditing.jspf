@@ -34,7 +34,7 @@
 	
 	<h:outputLabel for="category" id="categoryLabel" value="#{msgs.add_assignment_category}" rendered="#{bean.categoriesEnabled}" />
 	<h:panelGroup rendered="#{bean.categoriesEnabled}">
-		<h:selectOneMenu id="selectCategory" value="#{bean.assignmentCategory}">
+		<h:selectOneMenu id="selectCategory" value="#{bean.assignmentCategory}" onchange="javascript:assignmentCategoryChange(this.form, #{bean.categoriesEnabled} );">
 			<f:selectItems value="#{bean.categoriesSelectList}" />
 		</h:selectOneMenu>
 		<f:verbatim><div class="instruction"></f:verbatim>

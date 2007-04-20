@@ -133,3 +133,11 @@ td.gbMessageAboveNumber {vertical-align:top; text-align:right; padding-right:2em
 	display: inline;
 	margin-left: 1.0em;
 }
+
+.categoryHeading {
+	font-size: 1.1em;
+}
+
+.gradebookItem {
+	padding-left: 1.2em;
+}

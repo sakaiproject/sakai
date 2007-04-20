@@ -29,86 +29,144 @@
 		<%@include file="/inc/globalMessages.jspf"%>
 
 		<h4><h:outputText value="#{msgs.overview_assignments_title}"/></h4>
-		<t:dataTable cellpadding="0" cellspacing="0"
-			id="assignmentsTable"
-			value="#{overviewBean.gradableObjects}"
-			var="gradableObject"
+		<gbx:gradebookItemTable cellpadding="0" cellspacing="0"
+			value="#{overviewBean.gradebookItemList}"
+			var="gradebookItem"
 			sortColumn="#{overviewBean.assignmentSortColumn}"
-            sortAscending="#{overviewBean.assignmentSortAscending}"
-            columnClasses="left,left,center,rightpadded,rightpadded,external"
-            rowClasses="#{overviewBean.rowStyles}"
-			styleClass="listHier narrowTable">
-			<h:column>
+      sortAscending="#{overviewBean.assignmentSortAscending}"
+      columnClasses="attach,left,center,center,center,left,center,center,external"
+			styleClass="listHier"
+			expanded="true"
+			rowClasses="#{overviewBean.rowStyles}">
+			
+			<h:column id="_toggle" rendered="#{overviewBean.categoriesEnabled}">
 				<f:facet name="header">
-		            <t:commandSortHeader columnName="name" immediate="true" arrow="true">
-		                <h:outputText value="#{msgs.overview_assignments_header_name}" />
-		            </t:commandSortHeader>
-		        </f:facet>
+					<h:outputText value="" />
+				</f:facet>
+			</h:column>
+			
+			<h:column id="_title">
+				<f:facet name="header">
+		    	<t:commandSortHeader columnName="name" immediate="true" arrow="true">
+		      	<h:outputText value="#{msgs.overview_assignments_header_name}" />
+		      	<h:outputText value="#{msgs.overview_footnote_symbol1}" />
+		      </t:commandSortHeader>
+		    </f:facet>
 
 				<!-- Assignment / Assessment link -->
-				<h:commandLink action="assignmentDetails" rendered="#{!gradableObject.courseGrade}">
-					<h:outputText value="#{gradableObject.name}" />
-					<f:param name="assignmentId" value="#{gradableObject.id}"/>
-				</h:commandLink>
+				
+				<h:panelGroup rendered="#{gradebookItem.assignment}">
+					<h:commandLink action="assignmentDetails" rendered="#{gradebookItem.released}">
+						<h:outputText value="#{gradebookItem.name}" />
+						<f:param name="assignmentId" value="#{gradebookItem.id}"/>
+					</h:commandLink>
+					<h:commandLink action="assignmentDetails" rendered="#{!gradebookItem.released}" styleClass="inactive">
+						<h:outputText value="#{gradebookItem.name}" />
+						<f:param name="assignmentId" value="#{gradebookItem.id}"/>
+					</h:commandLink>
+				</h:panelGroup>
+				
+				<h:outputText value="#{gradebookItem.name}" styleClass="categoryHeading" rendered="#{gradebookItem.category}" />
 
 				<!-- Course grade link -->
-				<h:commandLink action="courseGradeDetails" rendered="#{gradableObject.courseGrade}"  styleClass="courseGrade">
+				<h:commandLink action="courseGradeDetails" rendered="#{gradebookItem.courseGrade}"  styleClass="courseGrade">
 					<h:outputText value="#{msgs.course_grade_name}" />
 				</h:commandLink>
 			</h:column>
 			<h:column>
 				<f:facet name="header">
-		            <t:commandSortHeader columnName="dueDate" immediate="true" arrow="true">
-						<h:outputText value="#{msgs.overview_assignments_header_due_date}"/>
-		            </t:commandSortHeader>
-		        </f:facet>
-
-				<h:outputText value="#{gradableObject.dueDate}" rendered="#{! gradableObject.courseGrade && gradableObject.dueDate != null}">
-                    <gbx:convertDateTime/>
-                </h:outputText>
-				<h:outputText value="#{msgs.score_null_placeholder}" rendered="#{! gradableObject.courseGrade && gradableObject.dueDate == null}"/>
+		    	<h:outputText value="" />
+		    </f:facet>
+				<h:commandLink action="editAssignment" rendered="#{gradebookItem.assignment}">
+					<h:outputText value="#{msgs.overview_edit}" />
+					<f:param name="assignmentId" value="#{gradebookItem.id}"/>
+				</h:commandLink>
 			</h:column>
-
-            <h:column>
+			
+			<h:column rendered="#{overviewBean.userAbleToGradeAll}">
 				<f:facet name="header">
-                    <t:commandSortHeader columnName="released" immediate="true" arrow="true">
-                        <h:outputText value="#{msgs.overview_released}"/>
-                    </t:commandSortHeader>
-                </f:facet>
-				<h:outputText value="#{msgs.overview_released_true}" rendered="#{!gradableObject.courseGrade && gradableObject.released == true }"/>
-				<h:outputText value="#{msgs.overview_released_false}" rendered="#{!gradableObject.courseGrade && gradableObject.released == false}"/>
-
-			</h:column>
-
-            <h:column rendered="#{overviewBean.userAbleToGradeAll}">
-				<f:facet name="header">
-		            <t:commandSortHeader columnName="mean" immediate="true" arrow="true">
+		    	<t:commandSortHeader columnName="mean" immediate="true" arrow="true">
 						<h:outputText value="#{msgs.overview_assignments_header_average}"/>
-		            </t:commandSortHeader>
-		        </f:facet>
+		      </t:commandSortHeader>
+		    </f:facet>
 
-				<h:outputText value="#{gradableObject.formattedMean}">
+				<h:outputText value="#{gradebookItem.formattedMean}" rendered="#{!gradebookItem.category}">
 					<f:convertNumber type="percent" integerOnly="true" />
 				</h:outputText>
+				<h:outputText value="#{msgs.score_null_placeholder}" rendered="#{!gradebookItem.category && gradebookItem.formattedMean == null}"/>
 			</h:column>
+			
+			<h:column rendered="#{overviewBean.weightingEnabled}">
+				<f:facet name="header">
+		    	<t:commandSortHeader columnName="weight" immediate="true" arrow="true">
+						<h:outputText value="#{msgs.overview_weight}"/>
+		      </t:commandSortHeader>
+		    </f:facet>
+
+				<h:outputText value="#{gradebookItem.weight}" rendered="#{gradebookItem.category}" />
+			</h:column>
+			
 			<h:column>
 				<f:facet name="header">
-		            <t:commandSortHeader columnName="pointsPossible" immediate="true" arrow="true">
-						<h:outputText value="#{msgs.overview_assignments_header_points}"/>
-		            </t:commandSortHeader>
-		        </f:facet>
-				<h:outputText value="#{gradableObject}" escape="false" rendered="#{!gradableObject.courseGrade}">
-					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.ASSIGNMENT_POINTS"/>
-				</h:outputText>
-				<h:outputText value="#{overviewBean.totalPoints}" escape="false" rendered="#{gradableObject.courseGrade}">
-					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS"/>
-				</h:outputText>
+		    	<t:commandSortHeader columnName="dueDate" immediate="true" arrow="true">
+						<h:outputText value="#{msgs.overview_assignments_header_due_date}"/>
+		      </t:commandSortHeader>
+		    </f:facet>
+
+				<h:outputText value="#{gradebookItem.dueDate}" rendered="#{gradebookItem.assignment && gradebookItem.dueDate != null}">
+        	<gbx:convertDateTime/>
+        </h:outputText>
+				<h:outputText value="#{msgs.score_null_placeholder}" rendered="#{gradebookItem.assignment && gradebookItem.dueDate == null}"/>
 			</h:column>
+			
 			<h:column>
-				<h:outputText value="from #{gradableObject.externalAppName}" rendered="#{! gradableObject.courseGrade && ! empty gradableObject.externalAppName}"/>
+				<f:facet name="header">
+        	<t:commandSortHeader columnName="released" immediate="true" arrow="true">
+          	<h:outputText value="#{msgs.overview_released}"/>
+          </t:commandSortHeader>
+        </f:facet>
+				<h:outputText value="#{msgs.overview_released_true}" rendered="#{gradebookItem.assignment && gradebookItem.released == true }"/>
+				<h:outputText value="#{msgs.overview_released_false}" rendered="#{gradebookItem.assignment && gradebookItem.released == false}"/>
 			</h:column>
-		</t:dataTable>
+			
+			<h:column>
+				<f:facet name="header">
+        	<t:commandSortHeader columnName="counted" immediate="true" arrow="true">
+          	<h:outputText value="#{msgs.overview_included_in_cum}"/>
+          </t:commandSortHeader>
+        </f:facet>
+				<h:outputText value="#{msgs.overview_included_in_cum_true}" rendered="#{gradebookItem.assignment && gradebookItem.counted == true }"/>
+				<h:outputText value="#{msgs.overview_included_in_cum_false}" rendered="#{gradebookItem.assignment && gradebookItem.counted == false}"/>
+			</h:column>
+			
+			<h:column>
+				<f:facet name="header">
+        	<t:commandSortHeader columnName="gradeEditor" immediate="true" arrow="true">
+          	<h:outputText value="#{msgs.overview_grade_editor}" />
+						<h:outputText value="#{msgs.overview_footnote_symbol3}" />
+          </t:commandSortHeader>
+        </f:facet>
+				<h:outputText value="from #{gradebookItem.externalAppName}" rendered="#{gradebookItem.assignment && ! empty gradebookItem.externalAppName}"/>
+			</h:column>
+		</gbx:gradebookItemTable>
 
 	  </h:form>
 	</div>
+	
+	<h:panelGrid styleClass="instruction" cellpadding="0" cellspacing="0" columns="1">
+		<h:outputText value="#{msgs.overview_legend_title}" />
+		<h:panelGroup>
+			<h:outputText value="#{msgs.overview_footnote_symbol1}" />
+			<h:outputText value="#{msgs.overview_footnote_legend1}" />
+		</h:panelGroup>
+		<h:panelGroup>
+			<h:outputText value="#{msgs.overview_footnote_symbol2}" />
+			<h:outputText value="#{msgs.overview_footnote_legend2}" />
+		</h:panelGroup>
+		<h:panelGroup>
+			<h:outputText value="#{msgs.overview_footnote_symbol3}" />
+			<h:outputText value="#{msgs.overview_footnote_legend3}" />
+		</h:panelGroup>
+	</h:panelGrid>
+	
 </f:view>

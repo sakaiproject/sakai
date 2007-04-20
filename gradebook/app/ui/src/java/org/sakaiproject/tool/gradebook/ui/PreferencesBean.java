@@ -23,6 +23,7 @@
 package org.sakaiproject.tool.gradebook.ui;
 
 import org.sakaiproject.tool.gradebook.Assignment;
+import org.sakaiproject.tool.gradebook.Category;
 
 /**
  * Session-scoped preferences for the sakai gradebook.  These are currently
@@ -37,6 +38,9 @@ public class PreferencesBean {
 
     private String assignmentSortColumn;
     private boolean assignmentSortAscending;
+    
+    private String categorySortColumn;
+    private boolean categorySortAscending;
 
     private String rosterTableSortColumn;
     private boolean rosterTableSortAscending;
@@ -59,6 +63,9 @@ public class PreferencesBean {
 	protected void loadPreferences() {
         assignmentSortAscending = true;
         assignmentSortColumn = Assignment.SORT_BY_DATE;
+        
+        categorySortAscending = true;
+        categorySortColumn = Category.SORT_BY_NAME;
 
         rosterTableSortAscending = true;
         rosterTableSortColumn = SORT_BY_NAME;
@@ -90,7 +97,21 @@ public class PreferencesBean {
     public void setAssignmentSortColumn(String assignmentSortColumn) {
         this.assignmentSortColumn = assignmentSortColumn;
     }
-
+    
+    //Category sorting
+    public boolean isCategorySortAscending() {
+        return categorySortAscending;
+    }
+    public void setCategorySortAscending(boolean categorySortAscending) {
+        this.categorySortAscending = categorySortAscending;
+    }
+    public String getCategorySortColumn() {
+        return categorySortColumn;
+    }
+    public void setCategorySortColumn(String categorySortColumn) {
+        this.categorySortColumn = categorySortColumn;
+    }
+    
     // Roster table sorting
     public boolean isRosterTableSortAscending() {
 		return rosterTableSortAscending;

@@ -23,6 +23,8 @@
 package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -31,6 +33,9 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.gradebook.Assignment;
+import org.sakaiproject.tool.gradebook.Category;
+import org.sakaiproject.tool.gradebook.CourseGrade;
+import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
@@ -43,7 +48,7 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 
     private static final Map columnSortMap;
 
-	private List gradableObjects;
+	private List gradebookItemList;
 	private double totalPoints;
 
     static {
@@ -53,33 +58,96 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
         columnSortMap.put(Assignment.SORT_BY_RELEASED,Assignment.releasedComparator);
         columnSortMap.put(Assignment.SORT_BY_MEAN, Assignment.meanComparator);
         columnSortMap.put(Assignment.SORT_BY_POINTS, Assignment.pointsComparator);
+        columnSortMap.put(Assignment.SORT_BY_COUNTED, Assignment.countedComparator);
+        columnSortMap.put(Assignment.SORT_BY_EDITOR, Assignment.gradeEditorComparator);
 
     }
 
-	public List getGradableObjects() {
-		return gradableObjects;
+	public List getGradebookItemList() {
+		return gradebookItemList;
 	}
-	public void setGradableObjects(List gradableObjects) {
-		this.gradableObjects = gradableObjects;
+	public void setGradebookItemList(List gradebookItemList) {
+		this.gradebookItemList = gradebookItemList;
 	}
 
 	protected void init() {
-		// Get the list of assignments for this gradebook, sorted as defined in the overview page.
-        gradableObjects = getGradebookManager().getAssignmentsAndCourseGradeWithStats(getGradebookId(),
-        		getAssignmentSortColumn(), isAssignmentSortAscending());
-        
-        totalPoints = 0;
-        for(Iterator iter = gradableObjects.iterator(); iter.hasNext();) {
-            GradableObject go = (GradableObject)iter.next();
-            if(go.isCourseGrade()) {
-                continue;
-            }
-            Assignment asn = (Assignment)go;
-            if (asn.isNotCounted()) {
-            	continue;
-            }
-            totalPoints+=asn.getPointsPossible().doubleValue();
-        }
+
+		gradebookItemList = new ArrayList();
+		totalPoints = 0;
+
+		if (getCategoriesEnabled()) {
+			/* if categories are enabled, we need to display a table that includes
+			 * categories, assignments, and possibly the course grade. Thus,
+			 * we use a generic DecoratedGradebookItem
+			 */
+			CourseGrade courseGrade = new CourseGrade();
+			List categoryList = getGradebookManager().getCategoriesWithStats(getGradebookId(), getAssignmentSortColumn(), isAssignmentSortAscending(), getCategorySortColumn(), isCategorySortAscending());
+			if (categoryList != null && !categoryList.isEmpty()) {
+				Iterator catIter = categoryList.iterator();
+				while (catIter.hasNext()) {
+					Object catOrCourseGrade = catIter.next();
+					if (catOrCourseGrade instanceof Category) {
+						Category myCat = (Category) catOrCourseGrade;
+						gradebookItemList.add(myCat);
+						List assignmentList = myCat.getAssignmentList();
+						if (assignmentList != null && !assignmentList.isEmpty()) {
+							Iterator assignIter = assignmentList.iterator();
+							while (assignIter.hasNext()) {
+								Assignment assign = (Assignment) assignIter.next();
+								gradebookItemList.add(assign);
+								if (assign.isCounted()) {
+									totalPoints += assign.getPointsPossible().doubleValue();
+								}
+							}
+						}
+					}
+					else if (catOrCourseGrade instanceof CourseGrade) {
+						courseGrade = (CourseGrade) catOrCourseGrade;
+					}
+				}
+
+			}
+			List unassignedList = getGradebookManager().getAssignmentsWithNoCategoryWithStats(getGradebookId(), getAssignmentSortColumn(), isAssignmentSortAscending());
+			if (unassignedList != null && !unassignedList.isEmpty()) {
+				Category unassignedCat = new Category();
+				unassignedCat.setAverageScore(new Double(0));
+				unassignedCat.setName(getLocalizedString("cat_unassigned"));
+				unassignedCat.setAssignmentList(unassignedList);
+				unassignedCat.calculateStatistics(unassignedList);
+				gradebookItemList.add(unassignedCat);
+
+				Iterator unassignedIter = unassignedList.iterator();
+				while (unassignedIter.hasNext()) {
+					Assignment assignWithNoCat = (Assignment) unassignedIter.next();
+					gradebookItemList.add(assignWithNoCat);
+				}
+			}
+			
+			// finally, append the course grade to the list
+			if (courseGrade != null) {
+				gradebookItemList.add(courseGrade);
+			}
+	        
+		} else {
+			// Get the list of assignments for this gradebook, sorted as defined in the overview page.
+			List goList = getGradebookManager().getAssignmentsAndCourseGradeWithStats(getGradebookId(),
+					getAssignmentSortColumn(), isAssignmentSortAscending());
+			if (goList != null && !goList.isEmpty()) {
+				Iterator goIter = goList.iterator();
+				while (goIter.hasNext()) {
+					GradableObject go = (GradableObject) goIter.next();
+					if (go.isCourseGrade())
+						gradebookItemList.add((CourseGrade)go);
+					else {
+						Assignment assign = (Assignment) go;
+						gradebookItemList.add(assign);
+						if (assign.isCounted()) {
+							totalPoints += assign.getPointsPossible().doubleValue();
+						}
+					}
+				}
+			}
+		}
 	}
 
     // Delegated sort methods
@@ -95,27 +163,45 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
     public void setAssignmentSortAscending(boolean sortAscending) {
         getPreferencesBean().setAssignmentSortAscending(sortAscending);
     }
+    public String getCategorySortColumn() {
+        return getPreferencesBean().getCategorySortColumn();
+	}
+	public void setCategorySortColumn(String categorySortColumn) {
+        getPreferencesBean().setCategorySortColumn(categorySortColumn);
+    }
+    public boolean isCategorySortAscending() {
+        return getPreferencesBean().isCategorySortAscending();
+	}
+    public void setCategorySortAscending(boolean sortAscending) {
+        getPreferencesBean().setCategorySortAscending(sortAscending);
+    }
 
 	/**
      * @return The comma-separated list of css styles to use in displaying the rows
      */
     public String getRowStyles() {
-        StringBuffer sb = new StringBuffer();
-        for(Iterator iter = gradableObjects.iterator(); iter.hasNext();) {
-            GradableObject go = (GradableObject)iter.next();
-            if(go.isCourseGrade()) {
-               sb.append("internal");
-               break;
-            } else {
-                Assignment asn = (Assignment)go;
-                if(asn.isExternallyMaintained()) {
-                    sb.append("external,");
-                } else {
-                    sb.append("internal,");
-                }
-            }
-        }
-        return sb.toString();
+    	StringBuffer sb = new StringBuffer();
+    	for(Iterator iter = gradebookItemList.iterator(); iter.hasNext();) {
+    		Object gradebookItem = iter.next();
+    		if (gradebookItem instanceof GradableObject) {
+    			GradableObject go = (GradableObject)gradebookItem;
+    			if(go.isCourseGrade()) {
+    				sb.append("internal");
+    				break;
+    			} else {
+    				Assignment asn = (Assignment)go;
+    				if(asn.isExternallyMaintained()) {
+    					sb.append("external,");
+    				} else {
+    					sb.append("internal,");
+    				}
+    			}
+    		} else {
+    			sb.append("internal,");
+    		}
+    		
+    	}
+    	return sb.toString();
     }
 
     public String getGradeOptionSummary() {

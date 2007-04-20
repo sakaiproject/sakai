@@ -56,6 +56,16 @@ public abstract class GradableObject implements Serializable {
      * @return Whether this gradable object is a course grade
      */
     public abstract boolean isCourseGrade();
+    
+    /**
+     * @return Whether this gradable object is an assignment
+     */
+    public abstract boolean isAssignment();
+    
+    /**
+     * @return Whether this gradable object is a category
+     */
+    public abstract boolean isCategory();
 
 	/**
 	 * @return Returns the id.
