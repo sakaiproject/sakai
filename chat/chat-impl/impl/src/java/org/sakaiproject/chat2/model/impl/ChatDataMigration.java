@@ -192,9 +192,8 @@ public class ChatDataMigration {
             try {
                while (rs.next()) {
                   /* 
-                   * CHANNEL_ID                                               
-                   * NEXT_ID     
-                   * XML 
+                   * CHANNEL_ID
+                   * XML
                    */
                   String oldId = rs.getString("CHANNEL_ID");
                   Object xml = rs.getObject("XML");
@@ -271,20 +270,17 @@ public class ChatDataMigration {
             try {
                while (rs.next()) {
                   /*
-                   * CHANNEL_ID                                               
-                   * MESSAGE_ID                            
-                   * DRAFT     
-                   * PUBVIEW     
-                   * OWNER                                 
-                   * MESSAGE_DATE          
+                   * MESSAGE_ID
+                   * CHANNEL_ID                            
                    * XML
-                   * 
+                   * OWNER                          
+                   * MESSAGE_DATE
                    */
-                  String oldChannelId = rs.getString("CHANNEL_ID");
                   String oldMessageId = rs.getString("MESSAGE_ID");
+                  String oldChannelId = rs.getString("CHANNEL_ID");
+                  Object xml = rs.getObject("XML");
                   String owner = rs.getString("OWNER");
                   Date messageDate = rs.getTimestamp("MESSAGE_DATE");
-                  Object xml = rs.getObject("XML");
                   
                   printDebug("*******FOUND MESSAGE: " + oldMessageId);
                   printDebug("*******FOUND MESSAGE: " + xml);
