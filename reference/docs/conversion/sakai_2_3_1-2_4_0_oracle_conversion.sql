@@ -1100,11 +1100,11 @@ create index irwikihistorycontent_rwi on  rwikihistorycontent (rwikiid);
 create index irwikipagepresence_sid on  rwikipagepresence (sessionid);
 create index irwikihistory_name on  rwikihistory (name);
 create index irwikihistory_realm on  rwikihistory (realm);
-create index irwikihistory_ref on  rwikihistory (referenced(1024));
+create index irwikihistory_ref on  rwikihistory (referenced);
 create index irwikihistoryobj_rwid on  rwikihistory (rwikiobjectid);
 create index irwikiobject_name on  rwikiobject (name);
 create index irwikiobject_realm on  rwikiobject (realm);
-create index irwikiobject_ref on  rwikiobject (referenced(1024));
+create index irwikiobject_ref on  rwikiobject (referenced);
 
 create index irwikipr_userid on  rwikipreference (userid);
 create index irwikipm_sessionid on  rwikipagemessage (sessionid);
