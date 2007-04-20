@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -54,6 +55,20 @@ public class CollectionAccessFormatter
 	public static void format(ContentCollection x, Reference ref, HttpServletRequest req, HttpServletResponse res,
 			String accessPointTrue, String accessPointFalse)
 	{
+		// do not allow directory listings for /attachments and its subfolders  
+		if(ContentHostingService.isAttachmentResource(x.getId()))
+		{
+			try
+			{
+				res.sendError(HttpServletResponse.SC_NOT_FOUND);
+				return;
+			} 
+			catch ( java.io.IOException e ) 
+			{
+				return;
+			}
+		}
+		
 		PrintWriter out = null;
 		// don't set the writer until we verify that
 		// getallresources is going to work.
