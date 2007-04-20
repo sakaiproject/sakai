@@ -23,7 +23,6 @@ package org.sakaiproject.announcement.impl;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.Vector;
 
 import org.apache.commons.logging.Log;
@@ -56,6 +55,7 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.util.SiteEmailNotification;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * <p>
@@ -65,7 +65,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 public class SiteEmailNotificationAnnc extends SiteEmailNotification 
 				implements ScheduledInvocationCommand
 {
-	private static ResourceBundle rb = ResourceBundle.getBundle("siteemaanc");
+	private ResourceLoader rb = new ResourceLoader("siteemaanc");
 
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(SiteEmailNotificationAnnc.class);
