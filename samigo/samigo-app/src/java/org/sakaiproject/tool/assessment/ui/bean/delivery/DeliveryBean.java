@@ -1274,6 +1274,9 @@ public class DeliveryBean
 
   public String submitForGrade()
   {
+	if (this.actionMode == PREVIEW_ASSESSMENT) {
+	  return "editAssessment";
+	}	  
     String nextAction = checkBeforeProceed();
     log.debug("***** next Action="+nextAction);
     if (!("safeToProceed").equals(nextAction)){
