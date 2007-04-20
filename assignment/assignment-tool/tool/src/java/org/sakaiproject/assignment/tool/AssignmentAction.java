@@ -2877,56 +2877,53 @@ public class AssignmentAction extends PagedResourceActionII
 	
 							// for resubmissions
 							// when resubmit, keep the Returned flag on till the instructor grade again.
-							if (sEdit.getReturned())
+							ResourcePropertiesEdit sPropertiesEdit = sEdit.getPropertiesEdit();
+							if (sEdit.getGraded())
 							{
-								ResourcePropertiesEdit sPropertiesEdit = sEdit.getPropertiesEdit();
-								if (sEdit.getGraded())
+								// add the current grade into previous grade histroy
+								String previousGrades = (String) sEdit.getProperties().getProperty(
+										ResourceProperties.PROP_SUBMISSION_SCALED_PREVIOUS_GRADES);
+								if (previousGrades == null)
 								{
-									// add the current grade into previous grade histroy
-									String previousGrades = (String) sEdit.getProperties().getProperty(
-											ResourceProperties.PROP_SUBMISSION_SCALED_PREVIOUS_GRADES);
-									if (previousGrades == null)
+									previousGrades = (String) sEdit.getProperties().getProperty(
+											ResourceProperties.PROP_SUBMISSION_PREVIOUS_GRADES);
+									if (previousGrades != null)
 									{
-										previousGrades = (String) sEdit.getProperties().getProperty(
-												ResourceProperties.PROP_SUBMISSION_PREVIOUS_GRADES);
-										if (previousGrades != null)
+										int typeOfGrade = a.getContent().getTypeOfGrade();
+										if (typeOfGrade == 3)
 										{
-											int typeOfGrade = a.getContent().getTypeOfGrade();
-											if (typeOfGrade == 3)
+											// point grade assignment type
+											// some old unscaled grades, need to scale the number and remove the old property
+											String[] grades = StringUtil.split(previousGrades, " ");
+											String newGrades = "";
+											for (int jj = 0; jj < grades.length; jj++)
 											{
-												// point grade assignment type
-												// some old unscaled grades, need to scale the number and remove the old property
-												String[] grades = StringUtil.split(previousGrades, " ");
-												String newGrades = "";
-												for (int jj = 0; jj < grades.length; jj++)
+												String grade = grades[jj];
+												if (grade.indexOf(".") == -1)
 												{
-													String grade = grades[jj];
-													if (grade.indexOf(".") == -1)
-													{
-														// show the grade with decimal point
-														grade = grade.concat(".0");
-													}
-													newGrades = newGrades.concat(grade + " ");
+													// show the grade with decimal point
+													grade = grade.concat(".0");
 												}
-												previousGrades = newGrades;
+												newGrades = newGrades.concat(grade + " ");
 											}
-											sPropertiesEdit.removeProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_GRADES);
+											previousGrades = newGrades;
 										}
-										else
-										{
-											previousGrades = "";
-										}
+										sPropertiesEdit.removeProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_GRADES);
 									}
-									previousGrades = previousGrades.concat(sEdit.getGradeDisplay() + " ");
-	
-									sPropertiesEdit.addProperty(ResourceProperties.PROP_SUBMISSION_SCALED_PREVIOUS_GRADES,
-											previousGrades);
-	
-									// clear the current grade and make the submission ungraded
-									sEdit.setGraded(false);
-									sEdit.setGrade("");
-									sEdit.setGradeReleased(false);
+									else
+									{
+										previousGrades = "";
+									}
 								}
+								previousGrades = previousGrades.concat(sEdit.getGradeDisplay() + " ");
+
+								sPropertiesEdit.addProperty(ResourceProperties.PROP_SUBMISSION_SCALED_PREVIOUS_GRADES,
+										previousGrades);
+
+								// clear the current grade and make the submission ungraded
+								sEdit.setGraded(false);
+								sEdit.setGrade("");
+								sEdit.setGradeReleased(false);
 	
 								// keep the history of assignment feed back text
 								String feedbackTextHistory = sPropertiesEdit
@@ -5212,7 +5209,7 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			AssignmentSubmission s = AssignmentService.getSubmission((String) state.getAttribute(GRADE_SUBMISSION_SUBMISSION_ID));
 
-			if ((s.getFeedbackText() != null) && (s.getFeedbackText().length() == 0))
+			if ((s.getFeedbackText() == null) || (s.getFeedbackText().length() == 0))
 			{
 				state.setAttribute(GRADE_SUBMISSION_FEEDBACK_TEXT, s.getSubmittedText());
 			}
