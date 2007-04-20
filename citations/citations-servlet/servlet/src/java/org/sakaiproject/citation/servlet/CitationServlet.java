@@ -274,16 +274,22 @@ public class CitationServlet extends VmServlet
 			String date = params.getString("date");
 			String id = params.getString("id");
 
+			// do we have enough info for a meaningful citation?
+			if( ( title == null || title.trim().equals("") ) &&
+					( atitle == null || atitle.trim().equals("") ) ) {
+				// both title AND atitle are null
+				return null;
+			}
+			
+			// force a generic genre if we don't know any better
+			if (genre == null || genre.trim().equals("")) {
+				genre = CitationService.UNKNOWN_TYPE;
+			}
+			
 			citation = citationService.addCitation(genre);
 
 			String info = "New citation from Google Scholar:\n\t genre:\t\t" + genre;
-
-			// force a generic genre if we don't know any better
-			// UNKNOWN_TYPE needs to be imported from BaseCitationService
-			if (genre == null) {
-				genre = CitationService.UNKNOWN_TYPE;
-			}
-	
+			
 			// Generally, only books have a title that's the actual title of the piece.
 			// We'll check to see if there's an atitle; if not, use the title as the 
 			// work's title. Otherwise, use the title as the source.
