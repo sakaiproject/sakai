@@ -1,6 +1,6 @@
+##<textarea id="debugger" rows="50" cols="100"></textarea>
 <script type="text/javascript" src="#libraryLink('js/jquery-1.1.2.js')">
 </script>
-<!-- $type.id == $TYPE_FOLDER -- >
 <script type="text/javascript" language="JavaScript">
 	<!--
 	var DOT = "$DOT";
@@ -122,7 +122,7 @@
 		if(evt)
 		{
 			evt.cancelBubble = true;
-			var keyCode = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode;
+			var keyCode = event.keyCode ? evt.keyCode : evt.which ? evt.which : evt.charCode;
 			if (keyCode == 13) 
 			{
 				return false;
@@ -271,14 +271,14 @@
 		var modelContentDiv = document.getElementById("contentDiv$DOT" + prevIndex);
 		if(modelContentDiv)
 		{
-			var newContentDiv = deepCopy(modelContentDiv, index);
+			var newContentDiv = copyTree(modelContentDiv, index);
 			fileInputDiv.appendChild(newContentDiv);
 		}
 		
 		var modelPropertiesDiv = document.getElementById("propertiesDiv$DOT" + prevIndex);
 		if(modelPropertiesDiv)
 		{
-			var newPropertiesDiv = deepCopy(modelPropertiesDiv, index);
+			var newPropertiesDiv = copyTree(modelPropertiesDiv, index);
 			newPropertiesDiv.style.display = "none";
 			fileInputDiv.appendChild(newPropertiesDiv);
 			var addDetailsLink = document.getElementById("propsTrigger${DOT}" + index);
@@ -489,6 +489,258 @@
 			}
 		}
 	}
+	function createNamedElement(type, name) 
+	{
+		var element = null;
+		// Try the IE way; this fails on standards-compliant browsers
+		try 
+		{
+			element = document.createElement('<'+type+' name="'+name+'">');
+		} 
+		catch (e) 
+		{}
+		if (!element || element.nodeName != type.toUpperCase()) 
+		{
+			// Non-IE browser; use canonical method to create named element
+			element = document.createElement(type);
+			element.name = name;
+		}
+		return element;
+	}
+	function copyTree(root, index)
+	{
+		var newElement;
+		if(!root || typeof root == "undefined")
+		{
+			return null;
+		}
+		var newName = "";
+		if(root && root.name)
+		{
+			newName = updateId(root.name, index);
+		}
+		if(root && root.nodeName)
+		{
+			if(newName == "" || newName == root.name)
+			{
+				newElement = root.cloneNode(false);
+				updateAttributes(newElement, index);
+			}
+			else
+			{
+				newElement = createNamedElement(root.nodeName, newName);
+				copyAttributes(root, newElement);
+			}
+			
+			if(root.id && root.id != "")
+			{
+				newElement.id = updateId(root.id, index);
+			}
+								
+			if(root && root.childNodes)
+			{
+				for(var i = 0; i < root.childNodes.length; i++)
+				{
+					var newChild = copyTree(root.childNodes[i], index);
+					if(newChild)
+					{
+						newElement.appendChild(newChild);
+					}
+				}
+			}
+		}
+		if(root.id)
+		{
+			if(root.id.match(/^exists${DOT}\d+$/))
+			{
+				newElement.value = "true";
+			}
+			else if(root.id.match(/^hidden_true${DOT}\d+$/))
+			{
+				newElement.checked = false;
+			}
+			else if(root.id.match(/^hidden_false${DOT}\d+$/))
+			{
+				newElement.checked = true;
+			}
+			else if(root.id.match(/^use_start_date${DOT}\d+$/))
+			{
+				newElement.checked = false;
+			}
+			else if(root.id.match(/^use_end_date${DOT}\d+$/))
+			{
+				newElement.checked = false;
+			}
+			else if(root.id.match(/^copyright_status${DOT}\d+$/))
+			{
+				newElement.style.display = "none";
+			}
+			else if(root.id.match(/^copyright${DOT}\d+$/))
+			{
+				newElement.selectedIndex = 4;
+			}
+		}
+		return newElement;
+	}
+	function updateId(old_id, index)
+	{
+		if(old_id)
+		{
+			var dotPos = old_id.lastIndexOf(DOT);
+			if(dotPos >= 0)
+			{
+				var baseName = old_id.substr(0,dotPos);
+				if(baseName)
+				{
+					return baseName + DOT + index;
+				}
+			}
+		}
+		return old_id;
+	}
+	function copyAttributes(oldElement, newElement)
+	{
+		if(oldElement.nodeType == 1)
+		{
+			if(oldElement.accesskey)
+			{
+				newElement.accesskey = oldElement.accesskey;
+			}
+			if(oldElement.className)
+			{
+				newElement.className = oldElement.className;
+			}
+			#*
+			if(oldElement.style)
+			{
+				newElement.style = oldElement.style;
+			}
+			*#
+			if(oldElement.title)
+			{
+				newElement.title = oldElement.title;
+			}
+			if(oldElement.nodeName.toLowerCase() == "input")
+			{
+				newElement.type = oldElement.type;
+				if(oldElement.type == "text")
+				{
+					if(oldElement.size)
+					{
+						newElement.size = oldElement.size;
+					}
+					if(oldElement.defaultValue)
+					{
+						newElement.defaultValue = oldElement.defaultValue;
+					}
+					if(oldElement.maxLength)
+					{
+						newElement.maxLength = oldElement.maxLength;
+					}
+				}
+				else if(oldElement.type == "file")
+				{
+					if(oldElement.accept)
+					{
+						newElement.accept = oldElement.accept;
+					}
+					if(oldElement.size)
+					{
+						newElement.size = oldElement.size;
+					}
+				}
+				else if(oldElement.type == "radio")
+				{
+					newElement.defaultChecked = oldElement.defaultChecked;
+					newElement.value = oldElement.value;
+				}
+				else if(oldElement.type == "checkbox")
+				{
+					newElement.defaultChecked = oldElement.defaultChecked;
+					newElement.value = oldElement.value;
+				}
+				else if(oldElement.type == "button")
+				{
+				}
+				else if(oldElement.type == "submit")
+				{
+				}
+				else if(oldElement.type == "reset")
+				{
+				}
+				else if(oldElement.type == "hidden")
+				{
+				}
+				else if(oldElement.type == "image")
+				{
+					if(oldElement.alt)
+					{
+						newElement.alt = oldElement.alt;
+					}
+					if(oldElement.src)
+					{
+						newElement.src = oldElement.src;
+					}
+					if(oldElement.useMap)
+					{
+						newElement.useMap = oldElement.useMap;
+					}
+					
+				}
+				else if(oldElement.type == "password")
+				{
+				}
+				
+			}
+			else if(oldElement.nodeName.toLowerCase() == "select")
+			{
+				newElement.multiple = oldElement.multiple;
+				newElement.selectedIndex = 0;
+			}
+			else if(oldElement.nodeName.toLowerCase() == "option")
+			{
+				newElement.defaultSelected = oldElement.defaultSelected;
+				newElement.text = oldElement.text;
+				newElement.value = oldElement.value;
+			}
+			else if(oldElement.nodeName.toLowerCase() == "textarea")
+			{
+				if(oldElement.cols && oldElement.cols >= 0)
+				{
+					newElement.cols = oldElement.cols;
+				}
+				if(oldElement.rows && oldElement.rows >= 0)
+				{
+					newElement.rows = oldElement.rows;
+				}
+				if(oldElement.defaultValue)
+				{
+					newElement.defaultValue = oldElement.defaultValue;
+				}
+				if(oldElement.wrap)
+				{
+					newElement.wrap = oldElement.wrap;
+				}
+			}
+			
+		}
+	}
+	function updateAttributes(newElement, index)
+	{
+		if(newElement && newElement.nodeType == 1)
+		{
+			if(newElement.headers)
+			{
+				newElement.headers = updateId(newElement.headers, index);
+			}
+			
+			if(newElement.htmlFor)
+			{
+				newElement.htmlFor = updateId(newElement.htmlFor, index);
+			}
+		}
+	}
+	
 	function deepCopy(element, index)
 	{
 		var newElement = element.cloneNode(false);
@@ -525,9 +777,12 @@
 						try
 						{
 							var newAttr = document.createAttribute(element.attributes[a].name);
-							newAttr.value = element.attributes[a].value;
-							newElement.setAttributeNode(newAttr);
+							if(typeof element.attributes[a].value != "undefined")
+							{
+								newAttr.value = element.attributes[a].value;
+								newElement.setAttributeNode(newAttr);
 ##alert("adding attribute " + newAttr.name + " == " + newAttr.value);
+							}
 						}
 						catch(e)
 						{
