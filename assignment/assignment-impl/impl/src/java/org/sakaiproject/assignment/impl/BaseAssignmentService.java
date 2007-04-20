@@ -9766,17 +9766,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				 		{
 				 			M_log.warn(this + newAssignment_title + e.getMessage());
 				 		}
-				 		// update the corresponding assignment property to the newly renamed gradebook entry
-				 		try
-				 		{
-					 		AssignmentEdit aEdit = editAssignment(assignmentRef);
-							aEdit.getPropertiesEdit().addProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, newAssignment_title);
-							commitEdit(aEdit);
-				 		}
-				 		catch (Exception ignore)
-				 		{
-				 			M_log.warn(this + assignmentRef + ignore.getMessage());
-				 		}
 					}
 					
 				}	// addUpdateRemove != null
