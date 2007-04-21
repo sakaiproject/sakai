@@ -2394,6 +2394,32 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 	{
 		this.searchService = searchService;
 	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.index.ClusterFilesystem#centralIndexExists()
+	 */
+	public boolean centralIndexExists()
+	{
+		Connection connection = null;
+		try
+		{
+			connection = dataSource.getConnection();
+			List l = getDBSegments(connection);
+			if ( l != null && l.size() > 0 ) {
+				return true;
+			}
+			return false;
+		}
+		catch (SQLException e)
+		{
+			return false;
+		} finally {
+			try {
+				connection.close();
+			} catch ( Exception ex ) {
+			}
+		}
+	}
 	
 	
 }

@@ -53,8 +53,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 
-public class SearchIndexBuilderWorkerImpl implements Runnable,
-		SearchIndexBuilderWorker
+public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilderWorker
 {
 
 	/**
@@ -68,8 +67,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 
 	private static final String NODE_LOCK = "nodelockkey";
 
-	private static Log log = LogFactory
-			.getLog(SearchIndexBuilderWorkerImpl.class);
+	private static Log log = LogFactory.getLog(SearchIndexBuilderWorkerImpl.class);
 
 	private final int numThreads = 2;
 
@@ -77,11 +75,11 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 	 * The maximum sleep time for the wait/notify semaphore
 	 */
 	public long sleepTime = 5L * 60000L;
-	
+
 	/**
-	 * A load factor 1 is full load, 100 is normal
-	 * The load factor controlls the backoff of the indexer threads.
-	 * If the load Factor is high, the search threads back off more.
+	 * A load factor 1 is full load, 100 is normal The load factor controlls the
+	 * backoff of the indexer threads. If the load Factor is high, the search
+	 * threads back off more.
 	 */
 	private long loadFactor = 1000L;
 
@@ -156,9 +154,11 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 
 	private boolean soakTest = false;
 
-	private boolean diagnostics;
+	private boolean diagnostics = false;
 
 	private boolean started = false;
+
+	private boolean indexExists = false;
 
 	private static HashMap nodeIDList = new HashMap();;
 
@@ -181,8 +181,8 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 			+ "set nodename = ?, expires = ? where nodename = ? and lockkey = ? ";
 
 	private static String SELECT_NODE_LOCK_SQL = "select id, nodename, "
-			+ "lockkey, expires from searchwriterlock where lockkey like '"
-			+ NODE_LOCK + "%'";
+			+ "lockkey, expires from searchwriterlock where lockkey like '" + NODE_LOCK
+			+ "%'";
 
 	private static String UPDATE_NODE_LOCK_SQL = "update searchwriterlock set "
 			+ "expires = ? where nodename = ? and lockkey = ? ";
@@ -195,35 +195,37 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 
 	public void init()
 	{
-		if ( started  && !runThreads  ) {
+		if (started && !runThreads)
+		{
 			log.warn("JVM Shutdown in progress, will not startup");
 			return;
 		}
-		if ( org.sakaiproject.component.cover.ComponentManager.hasBeenClosed() ) {
+		if (org.sakaiproject.component.cover.ComponentManager.hasBeenClosed())
+		{
 			log.warn("Component manager Shutdown in progress, will not startup");
 			return;
 		}
 		started = true;
-		runThreads =  true;
+		runThreads = true;
 		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
 				.getInstance();
-		eventTrackingService = (EventTrackingService) load(cm,
-				EventTrackingService.class.getName());
+		eventTrackingService = (EventTrackingService) load(cm, EventTrackingService.class
+				.getName());
 		entityManager = (EntityManager) load(cm, EntityManager.class.getName());
-		userDirectoryService = (UserDirectoryService) load(cm,
-				UserDirectoryService.class.getName());
-		searchIndexBuilder = (SearchIndexBuilderImpl) load(cm,
-				SearchIndexBuilder.class.getName());
+		userDirectoryService = (UserDirectoryService) load(cm, UserDirectoryService.class
+				.getName());
+		searchIndexBuilder = (SearchIndexBuilderImpl) load(cm, SearchIndexBuilder.class
+				.getName());
 		searchService = (SearchService) load(cm, SearchService.class.getName());
 
-		sessionManager = (SessionManager) load(cm, SessionManager.class
-				.getName());
+		sessionManager = (SessionManager) load(cm, SessionManager.class.getName());
 
-		enabled = "true".equals(ServerConfigurationService.getString(
-				"search.enable", "false"));
+		enabled = "true".equals(ServerConfigurationService.getString("search.enable",
+				"false"));
 
-		enabled = enabled & "true".equals(ServerConfigurationService.getString(
-				"search.indexbuild", "true"));
+		enabled = enabled
+				& "true".equals(ServerConfigurationService.getString("search.indexbuild",
+						"true"));
 		try
 		{
 			if (searchIndexBuilder == null)
@@ -236,8 +238,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 			}
 			if (searchIndexBuilderWorkerDao == null)
 			{
-				log
-						.error("Search Index Worker needs SearchIndexBuilderWorkerDao ");
+				log.error("Search Index Worker needs SearchIndexBuilderWorkerDao ");
 			}
 			if (eventTrackingService == null)
 			{
@@ -259,16 +260,18 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 			for (int i = 0; i < indexBuilderThread.length; i++)
 			{
 				indexBuilderThread[i] = new Thread(this);
-				indexBuilderThread[i].setName(String.valueOf(i) + "::"
-						+ this.getClass().getName());
+				indexBuilderThread[i].setName("SearchBuilder_"+String.valueOf(i));
 				indexBuilderThread[i].start();
 			}
-			
+
 			/*
-			 * Capture shutdown 
+			 * Capture shutdown
 			 */
-			Runtime.getRuntime().addShutdownHook(new Thread(){
-				/* (non-Javadoc)
+			Runtime.getRuntime().addShutdownHook(new Thread()
+			{
+				/*
+				 * (non-Javadoc)
+				 * 
 				 * @see java.lang.Thread#run()
 				 */
 				@Override
@@ -277,8 +280,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 					runThreads = false;
 				}
 			});
-			
-			
+
 		}
 		catch (Throwable t)
 		{
@@ -302,8 +304,9 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 	public void run()
 	{
 		if (!enabled) return;
+	
 		String threadName = Thread.currentThread().getName();
-		String tn = threadName.substring(0, 1);
+		String tn = threadName.substring("SearchBuilder_".length());
 		log.debug("Index Builder Run " + tn + "_" + threadName);
 		int threadno = Integer.parseInt(tn);
 
@@ -331,36 +334,58 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 					sessionManager.setCurrentSession(s);
 					try
 					{
-						int totalDocs = searchIndexBuilder
-								.getPendingDocuments();
+						int totalDocs = searchIndexBuilder.getPendingDocuments();
 						long lastEvent = getLastEventTime();
 						int activity = getActivity();
 						long now = System.currentTimeMillis();
 						long interval = now - lastEvent;
-
-						// if activity == totalDocs and interval > 10
 						boolean process = false;
-						if (totalDocs < 20 && interval > (20*loadFactor))
+						boolean createIndex = false;
+						if (!indexExists)
 						{
-							process = true;
+							if (!searchIndexBuilderWorkerDao.indexExists())
+							{
+								process = true;
+								createIndex = true;
+								log
+										.debug("No cluster Index exists, creating for the first time");
+							} else {
+								indexExists = true;
+							}
 						}
-						else if (totalDocs >= 20 && totalDocs < 50
-								&& interval > (10*loadFactor))
+						else
 						{
-							process = true;
-						}
-						else if (totalDocs >= 50 && totalDocs < 90
-								&& interval > (5*loadFactor))
-						{
-							process = true;
-						}
-						else if (totalDocs > ((90*loadFactor)/1000))
-						{
-							process = true;
-						}
-						if (process)
-						{
-							resetActivity();
+
+							// if activity == totalDocs and interval > 10
+							if ( totalDocs > 200 ) {
+								loadFactor = 10L;
+							} else {
+								loadFactor = 1000L;
+							}
+							if ( totalDocs == 0 ) {
+								process = false;
+							} else if (totalDocs < 20 && interval > (20 * loadFactor))
+							{
+								process = true;
+							}
+							else if (totalDocs >= 20 && totalDocs < 50
+									&& interval > (10 * loadFactor))
+							{
+								process = true;
+							}
+							else if (totalDocs >= 50 && totalDocs < 90
+									&& interval > (5 * loadFactor))
+							{
+								process = true;
+							}
+							else if (totalDocs > ((90 * loadFactor) / 1000))
+							{
+								process = true;
+							}
+							if (process)
+							{
+								resetActivity();
+							}
 						}
 
 						// should this node consider taking the lock ?
@@ -374,15 +399,16 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 						//
 
 						// make certain that we are alive
+						log.debug("Activity "+(lastLockMetric > (10000L * loadFactor))+" "+(lastLockInterval > (60L * loadFactor))+" "+createIndex);
 
-						if (lastLockMetric > (10000L*loadFactor)
-								|| lastLockInterval > (60L*loadFactor))
+						if (lastLockMetric > (10000L * loadFactor)
+								|| lastLockInterval > (60L * loadFactor) || createIndex)
 						{
-							if (process && getLockTransaction(2L * 60L * 1000L))
+							log.debug("===" + process + "=============PROCESSING ");
+							if (process && getLockTransaction(2L * 60L * 1000L,createIndex))
 							{
 
-								log.debug("===" + nodeID
-										+ "=============PROCESSING ");
+								log.debug("===" + nodeID + "=============PROCESSING ");
 								if (lockedTo != null && lockedTo.equals(nodeID))
 								{
 									log
@@ -392,9 +418,32 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 
 								lastLock = System.currentTimeMillis();
 
-								searchIndexBuilderWorkerDao
-										.processToDoListTransaction(this);
-					
+								if (createIndex)
+								{
+									log
+											.info("=======================Search Index being created for the first time");
+									searchIndexBuilderWorkerDao
+											.createIndexTransaction(this);
+									indexExists = true;
+									log
+											.info("=======================Done creating Search Index for the first time");
+
+								}
+								else
+								{
+									int batchSize = 100;
+									if ( totalDocs > 500 ) {
+										batchSize = 200;
+									} else if ( totalDocs > 1000 ) {
+										batchSize = 500;
+									} else if ( totalDocs > 10000 ) {
+										batchSize = 1000;
+									}
+									searchIndexBuilderWorkerDao
+											.processToDoListTransaction(this, batchSize);
+
+								}
+
 								lastLock = System.currentTimeMillis();
 
 								if (lockedTo.equals(nodeID))
@@ -406,9 +455,8 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 									log
 											.error("+++++++++++++++++++++++++++Lost Local Lock+++++++++++");
 								}
-								log.debug("===" + nodeID
-										+ "=============COMPLETED ");
-								
+								log.debug("===" + nodeID + "=============COMPLETED ");
+
 							}
 							else
 							{
@@ -429,8 +477,20 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 					}
 				}
 				// this is here force cluster members
-				// this will not reload the index on this node as 
-				searchService.reload();
+				// this will not reload the index on this node as
+				if (indexExists)
+				{
+					try
+					{
+						searchService.reload();
+					}
+					catch (Exception ex)
+					{
+						log
+								.info("No Search Segment exists at present, this is Ok on first start :"
+										+ ex.getMessage());
+					}
+				}
 				if (!runThreads)
 				{
 					break;
@@ -447,14 +507,15 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 					}
 					log.debug("Wakey Wakey Processing Thread");
 
-					if (org.sakaiproject.component.cover.ComponentManager
-							.hasBeenClosed())
+					if (org.sakaiproject.component.cover.ComponentManager.hasBeenClosed())
 					{
 						runThreads = false;
 						break;
 					}
-					if ( soakTest  && (searchService.getPendingDocs() == 0) ) {
-						log.error("SOAK TEST---SOAK TEST---SOAK TEST. Index Rebuild Started");
+					if (soakTest && (searchService.getPendingDocs() == 0))
+					{
+						log
+								.error("SOAK TEST---SOAK TEST---SOAK TEST. Index Rebuild Started");
 						searchService.rebuildInstance();
 					}
 				}
@@ -528,10 +589,8 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 			connection.setAutoCommit(false);
 
 			updateNodeLock = connection.prepareStatement(UPDATE_NODE_LOCK_SQL);
-			deleteExpiredNodeLock = connection
-					.prepareStatement(DELETE_LOCKNODE_SQL);
-			selectExpiredNodeLock = connection
-					.prepareStatement(SELECT_EXPIRED_NODES_SQL);
+			deleteExpiredNodeLock = connection.prepareStatement(DELETE_LOCKNODE_SQL);
+			selectExpiredNodeLock = connection.prepareStatement(SELECT_EXPIRED_NODES_SQL);
 			insertLock = connection.prepareStatement(INSERT_LOCK_SQL);
 			int retries = 5;
 			boolean updated = false;
@@ -547,11 +606,9 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 						insertLock.setString(2, nodeID); // nodename
 						insertLock.setString(3, NODE_LOCK + nodeID); // lockkey
 						insertLock.setTimestamp(4, nodeExpired); // expires
-						log
-								.debug(threadID + " Doing " + INSERT_LOCK_SQL
-										+ ":{" + "Node:" + nodeID + "}{"
-										+ nodeID + "}{" + NODE_LOCK + nodeID
-										+ "}{" + nodeExpired + "}");
+						log.debug(threadID + " Doing " + INSERT_LOCK_SQL + ":{" + "Node:"
+								+ nodeID + "}{" + nodeID + "}{" + NODE_LOCK + nodeID
+								+ "}{" + nodeExpired + "}");
 						insertLock.executeUpdate();
 					}
 					catch (SQLException ex)
@@ -560,13 +617,12 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 						updateNodeLock.setTimestamp(1, nodeExpired); // expires
 						updateNodeLock.setString(2, nodeID); // nodename
 						updateNodeLock.setString(3, NODE_LOCK + nodeID); // lockkey
-						log.debug(threadID + " Doing " + UPDATE_NODE_LOCK_SQL
-								+ ":{" + nodeExpired + "}{" + nodeID + "}{"
-								+ NODE_LOCK + nodeID + "}");
+						log.debug(threadID + " Doing " + UPDATE_NODE_LOCK_SQL + ":{"
+								+ nodeExpired + "}{" + nodeID + "}{" + NODE_LOCK + nodeID
+								+ "}");
 						if (updateNodeLock.executeUpdate() != 1)
 						{
-							log.warn("Failed to update node heartbeat "
-									+ nodeID);
+							log.warn("Failed to update node heartbeat " + nodeID);
 						}
 					}
 					log.debug(threadID + " Doing Commit ");
@@ -612,8 +668,8 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 				{
 					selectExpiredNodeLock.clearParameters();
 					selectExpiredNodeLock.setTimestamp(1, now);
-					log.debug(threadID + " Doing " + SELECT_EXPIRED_NODES_SQL
-							+ ":{" + now + "}");
+					log.debug(threadID + " Doing " + SELECT_EXPIRED_NODES_SQL + ":{"
+							+ now + "}");
 
 					resultSet = selectExpiredNodeLock.executeQuery();
 					while (resultSet.next())
@@ -749,20 +805,28 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 	 * @return
 	 * @throws HibernateException
 	 */
-	public boolean getLockTransaction(long nodeLifetime, boolean checklock)
+	public boolean getLockTransaction(long nodeLifetime, boolean forceLock)
 	{
-		if (searchIndexBuilderWorkerDao.isLockRequired() ) {
-			return getHardLock(nodeLifetime,checklock);
-		} else {
-			try {
+		if (searchIndexBuilderWorkerDao.isLockRequired())
+		{
+			return getHardLock(nodeLifetime, forceLock);
+		}
+		else
+		{
+			try
+			{
 				updateNodeLock(nodeLifetime);
-			} catch ( SQLException e) {
-				log.warn("Failed to update node lock "+e.getClass().getName()+" :"+e.getMessage());
+			}
+			catch (SQLException e)
+			{
+				log.warn("Failed to update node lock " + e.getClass().getName() + " :"
+						+ e.getMessage());
 			}
 			return true;
 		}
 	}
-	public boolean getHardLock(long nodeLifetime, boolean checklock)
+
+	public boolean getHardLock(long nodeLifetime, boolean forceLock)
 	{
 		String nodeID = getNodeID();
 		Connection connection = null;
@@ -775,8 +839,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 
 		ResultSet resultSet = null;
 		Timestamp now = new Timestamp(System.currentTimeMillis());
-		Timestamp expiryDate = new Timestamp(now.getTime()
-				+ (10L * 60L * 1000L));
+		Timestamp expiryDate = new Timestamp(now.getTime() + (10L * 60L * 1000L));
 
 		try
 		{
@@ -809,8 +872,8 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 				swl.setNodename(resultSet.getString(2));
 				swl.setLockkey(resultSet.getString(3));
 				swl.setExpires(resultSet.getTimestamp(4));
-				log.debug("GOT Lock Record " + swl.getId() + "::"
-						+ swl.getNodename() + "::" + swl.getExpires());
+				log.debug("GOT Lock Record " + swl.getId() + "::" + swl.getNodename()
+						+ "::" + swl.getExpires());
 
 			}
 
@@ -843,7 +906,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 			{
 				// any work ?
 				int nitems = 0;
-				if (!checklock)
+				if (!forceLock)
 				{
 					countWork.clearParameters();
 					countWork.setInt(1, SearchBuilderItem.STATE_PENDING.intValue());
@@ -855,7 +918,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 					resultSet.close();
 					resultSet = null;
 				}
-				if (nitems > 0 || checklock)
+				if (nitems > 0 || forceLock)
 				{
 					try
 					{
@@ -869,8 +932,8 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 
 							if (insertLock.executeUpdate() == 1)
 							{
-								log.debug("INSERT Lock Record " + nodeID + "::"
-										+ nodeID + "::" + expiryDate);
+								log.debug("INSERT Lock Record " + nodeID + "::" + nodeID
+										+ "::" + expiryDate);
 
 								locked = true;
 							}
@@ -886,8 +949,8 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 							updateLock.setString(5, swl.getLockkey());
 							if (updateLock.executeUpdate() == 1)
 							{
-								log.debug("UPDATED Lock Record " + swl.getId()
-										+ "::" + nodeID + "::" + expiryDate);
+								log.debug("UPDATED Lock Record " + swl.getId() + "::"
+										+ nodeID + "::" + expiryDate);
 								locked = true;
 							}
 
@@ -1013,11 +1076,13 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 
 	private void clearLockTransaction()
 	{
-		if (searchIndexBuilderWorkerDao.isLockRequired() ) {
+		if (searchIndexBuilderWorkerDao.isLockRequired())
+		{
 			clearHardLock();
-		} 
+		}
 	}
-	public void clearHardLock() 
+
+	public void clearHardLock()
 	{
 		String nodeID = getNodeID();
 
@@ -1030,8 +1095,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 			clearLock = connection.prepareStatement(CLEAR_LOCK_SQL);
 			clearLock.clearParameters();
 			clearLock.setString(1, NO_NODE);
-			clearLock
-					.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
+			clearLock.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
 			clearLock.setString(3, nodeID);
 			clearLock.setString(4, LOCKKEY);
 			if (clearLock.executeUpdate() == 1)
@@ -1224,8 +1288,8 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 				swl.setNodename(resultSet.getString(2));
 				swl.setLockkey(resultSet.getString(3));
 				swl.setExpires(resultSet.getTimestamp(4));
-				log.debug("GOT Lock Record " + swl.getId() + "::"
-						+ swl.getNodename() + "::" + swl.getExpires());
+				log.debug("GOT Lock Record " + swl.getId() + "::" + swl.getNodename()
+						+ "::" + swl.getExpires());
 
 			}
 
@@ -1324,8 +1388,8 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 				swl.setNodename(resultSet.getString(2));
 				swl.setLockkey(resultSet.getString(3));
 				swl.setExpires(resultSet.getTimestamp(4));
-				log.debug("GOT Lock Record " + swl.getId() + "::"
-						+ swl.getNodename() + "::" + swl.getExpires());
+				log.debug("GOT Lock Record " + swl.getId() + "::" + swl.getNodename()
+						+ "::" + swl.getExpires());
 				locks.add(swl);
 			}
 
@@ -1443,8 +1507,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 
 			clearLock.clearParameters();
 			clearLock.setString(1, NO_NODE);
-			clearLock
-					.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
+			clearLock.setTimestamp(2, new Timestamp(System.currentTimeMillis()));
 			clearLock.setString(3, swl.getNodename());
 			clearLock.setString(4, LOCKKEY);
 			if (clearLock.executeUpdate() == 1)
@@ -1605,8 +1668,7 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 		long l = lastIndex;
 		long h = l / 3600000L;
 		l = l - (3600000L * h);
-		long m = l / 600000L;
-		;
+		long m = l / 600000L;;
 		l = l - (60000L * m);
 		long s = l / 1000;
 		l = l - (1000L * s);
@@ -1639,23 +1701,27 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 	}
 
 	/**
-	 * @param loadFactor the loadFactor to set
+	 * @param loadFactor
+	 *        the loadFactor to set
 	 */
 	public void setLoadFactor(long loadFactor)
 	{
 		this.loadFactor = loadFactor;
 	}
-	
+
 	/**
-	 * Is the lock on this node, but not this thread
-	 * lockedTo == null, localloc == false
-	 * lockedTo == this node, locallock = false;
-	 * lockedTo != this node, localLock = true
+	 * Is the lock on this node, but not this thread lockedTo == null, localloc ==
+	 * false lockedTo == this node, locallock = false; lockedTo != this node,
+	 * localLock = true
 	 */
-	public boolean isLocalLock() {
-		if ( lockedTo == null ) {
+	public boolean isLocalLock()
+	{
+		if (lockedTo == null)
+		{
 			return false;
-		} else if ( getNodeID().equals(lockedTo) ) {
+		}
+		else if (getNodeID().equals(lockedTo))
+		{
 			return false;
 		}
 		return true;
@@ -1670,29 +1736,36 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 	}
 
 	/**
-	 * Puts the index builder into a Soak test, when there are no pending items, it starts
-	 * building again.
-	 * @param soakTest the soakTest to set
+	 * Puts the index builder into a Soak test, when there are no pending items,
+	 * it starts building again.
+	 * 
+	 * @param soakTest
+	 *        the soakTest to set
 	 */
 	public void setSoakTest(boolean soakTest)
 	{
-		
+
 		this.soakTest = soakTest;
-		if ( soakTest ) {
+		if (soakTest)
+		{
 			log.warn("SOAK TEST ACTIVE ======================DONT USE FOR PRODUCTION ");
 		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.api.Diagnosable#disableDiagnostics()
 	 */
 	public void disableDiagnostics()
 	{
 		diagnostics = false;
-		
+
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.api.Diagnosable#enableDiagnostics()
 	 */
 	public void enableDiagnostics()
@@ -1700,7 +1773,9 @@ public class SearchIndexBuilderWorkerImpl implements Runnable,
 		diagnostics = true;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.api.Diagnosable#hasDiagnostics()
 	 */
 	public boolean hasDiagnostics()

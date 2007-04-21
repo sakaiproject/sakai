@@ -126,4 +126,12 @@ public interface IndexStorage extends Diagnosable
 
 	void closeIndexSearcher(IndexSearcher oldRunningIndexSearcher);
 
+	/**
+	 * A fast method that checks if the index exists in the cluster 
+	 * without opening or loading the index. Is local, looking on local 
+	 * disk is enough.
+	 * @return
+	 */
+	boolean centralIndexExists();
+
 }

@@ -34,10 +34,11 @@ public interface SearchIndexBuilderWorkerDao
 	 * @param worker 
 	 * 
 	 * @param runtimeToDo
+	 * @param indexBatchSize
 	 * @throws IOException
 	 * @throws HibernateException
 	 */
-	void processToDoListTransaction(SearchIndexBuilderWorker worker);
+	void processToDoListTransaction(SearchIndexBuilderWorker worker, int indexBatchSize);
 
 	/**
 	 * If the implementation of the SearchIndexBuilder requires that the call aquires a lock
@@ -45,6 +46,20 @@ public interface SearchIndexBuilderWorkerDao
 	 * @return true is a lock should be taken prior to processToDoTransaction
 	 */
 	boolean isLockRequired();
+
+	/**
+	 * check if the index exists
+	 * @return
+	 */
+	boolean indexExists();
+
+	/**
+	 * create the index with a minimal profile
+	 * @param impl
+	 */
+	void createIndexTransaction(SearchIndexBuilderWorker worker);
+
+	
 
 
 }

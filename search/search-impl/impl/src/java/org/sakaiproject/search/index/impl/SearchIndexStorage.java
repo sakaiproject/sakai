@@ -250,4 +250,12 @@ public class SearchIndexStorage implements IndexStorage
 		return runningIndexStorage.hasDiagnostics();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.index.IndexStorage#centralIndexExists()
+	 */
+	public boolean centralIndexExists()
+	{
+		return runningIndexStorage.centralIndexExists();
+	}
+
 }

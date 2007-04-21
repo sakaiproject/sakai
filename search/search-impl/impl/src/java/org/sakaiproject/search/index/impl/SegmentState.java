@@ -297,8 +297,10 @@ public class SegmentState
 	{
 		if (storedSegmentState == null)
 		{
-			log
+			if ( logging ) {
+				log
 					.info(" The segment has no stored state, it may be new or it could be dammaged ");
+			}
 			return true;
 		}
 		StringBuilder sb = new StringBuilder();

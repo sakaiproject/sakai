@@ -93,10 +93,6 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 	 */
 	private SearchIndexBuilder searchIndexBuilder = null;
 
-	/**
-	 * The number of items to process in a batch, default = 100
-	 */
-	private int indexBatchSize = 100;
 
 	private boolean enabled = false;
 
@@ -254,11 +250,11 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 				indexWrite = indexStorage.getIndexWriter(false);
 			}
 			long last = System.currentTimeMillis();
-			
+
 			for (Iterator tditer = runtimeToDo.iterator(); worker.isRunning()
 					&& tditer.hasNext();)
 			{
-				
+
 				Reader contentReader = null;
 				try
 				{
@@ -487,12 +483,14 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 					// take more than 2 mins to process
 					// ony do this check once every minute
 					long now = System.currentTimeMillis();
-					if ( (now-last) > (60L*1000L) ) {
+					if ((now - last) > (60L * 1000L))
+					{
 						last = System.currentTimeMillis();
 						if (!worker.getLockTransaction(15L * 60L * 1000L, true))
 						{
-							throw new Exception("Transaction Lock Expired while indexing " //$NON-NLS-1$
-								+ ref);
+							throw new Exception(
+									"Transaction Lock Expired while indexing " //$NON-NLS-1$
+											+ ref);
 						}
 					}
 
@@ -601,7 +599,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 	 * 
 	 * @see org.sakaiproject.search.component.dao.impl.SearchIndexBuilderWorkerDao#processToDoListTransaction()
 	 */
-	public void processToDoListTransaction(SearchIndexBuilderWorker worker)
+	public void processToDoListTransaction(SearchIndexBuilderWorker worker, int indexBatchSize)
 	{
 		Connection connection = null;
 		try
@@ -689,6 +687,111 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 			}
 		}
 
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.search.dao.SearchIndexBuilderWorkerDao#createIndexTransaction(org.sakaiproject.search.api.SearchIndexBuilderWorker)
+	 */
+	public void createIndexTransaction(SearchIndexBuilderWorker worker)
+	{
+		Connection connection = null;
+		try
+		{
+			connection = dataSource.getConnection();
+			long startTime = System.currentTimeMillis();
+			int totalDocs = 0;
+
+			log.debug("Preupdate Start");
+			indexStorage.doPreIndexUpdate();
+			log.debug("Preupdate End");
+
+			createIndex(worker, connection);
+
+			// get lock
+			try
+			{
+				log.debug("Post update Start");
+				indexStorage.doPostIndexUpdate();
+				log.debug("Post update End");
+			}
+			catch (IOException e)
+			{
+				log.error("Failed to do Post Index Update", e); //$NON-NLS-1$
+			}
+			log.info("Created Index"); //$NON-NLS-1$
+		}
+		catch (Exception ex)
+		{
+			log.warn("Failed to create Index " + ex.getMessage()); //$NON-NLS-1$
+			log.debug("Traceback is ", ex); //$NON-NLS-1$
+		}
+		finally
+		{
+			try
+			{
+				connection.close();
+			}
+			catch (Exception ex)
+			{
+			}
+		}
+	}
+
+	/**
+	 * @param worker
+	 * @param connection
+	 * @throws Exception
+	 */
+	private void createIndex(SearchIndexBuilderWorker worker, Connection connection)
+			throws Exception
+	{
+		IndexWriter indexWrite = null;
+		try
+		{
+			if (worker.isRunning())
+			{
+				indexWrite = indexStorage.getIndexWriter(false);
+			}
+			long last = System.currentTimeMillis();
+
+			Document doc = new Document();
+			doc
+					.add(new Field(SearchService.DATE_STAMP, String.valueOf(System
+							.currentTimeMillis()), Field.Store.COMPRESS,
+							Field.Index.UN_TOKENIZED));
+			doc.add(new Field(SearchService.FIELD_ID, "---INDEX-CREATED---",
+					Field.Store.COMPRESS, Field.Index.UN_TOKENIZED));
+			indexWrite.addDocument(doc);
+
+		}
+		catch (Exception ex)
+		{
+			log.error("Failed to Add Documents ", ex);
+			throw new Exception(ex);
+		}
+		finally
+		{
+			if (indexWrite != null)
+			{
+				if (log.isDebugEnabled())
+				{
+					log.debug("Closing Index Writer With " + indexWrite.docCount()
+							+ " documents");
+					Directory d = indexWrite.getDirectory();
+					String[] s = d.list();
+					log.debug("Directory Contains ");
+					for (int i = 0; i < s.length; i++)
+					{
+						File f = new File(s[i]);
+						log.debug("\t" + String.valueOf(f.length()) + "\t"
+								+ new Date(f.lastModified()) + "\t" + s[i]);
+					}
+				}
+				indexStorage.closeIndexWriter(indexWrite);
+			}
+		}
 	}
 
 	private void processRDF(EntityContentProducer sep) throws RDFIndexException
@@ -1361,5 +1464,17 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 	{
 		return !indexStorage.isMultipleIndexers();
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.search.dao.SearchIndexBuilderWorkerDao#indexExists()
+	 */
+	public boolean indexExists()
+	{
+		return indexStorage.centralIndexExists();
+	}
+
+	
 
 }

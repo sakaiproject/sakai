@@ -93,7 +93,13 @@ public interface SearchIndexBuilderWorker extends Diagnosable
 	 * @return
 	 */
 	boolean getLockTransaction(long lifetime);
-	boolean getLockTransaction(long nodeLifetime, boolean checklock);
+	/**
+	 * 
+	 * @param nodeLifetime
+	 * @param forceLock force the lock to be taken even if there are no items in the queue
+	 * @return
+	 */
+	boolean getLockTransaction(long nodeLifetime, boolean forceLock);
 
 	/**
 	 * 

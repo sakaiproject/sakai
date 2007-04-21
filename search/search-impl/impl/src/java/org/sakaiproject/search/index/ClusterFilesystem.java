@@ -167,4 +167,10 @@ public interface ClusterFilesystem
 	 */
 	SegmentInfo saveTemporarySegment() throws IOException;
 
+	/**
+	 * A low cost reliable mechanism for determining if an index exists in the cluster
+	 * @return
+	 */
+	boolean centralIndexExists();
+
 }

@@ -919,4 +919,12 @@ public class ClusterFSIndexStorage implements IndexStorage
 	{
 		return diagnostics;
 	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.index.IndexStorage#centralIndexExists()
+	 */
+	public boolean centralIndexExists()
+	{
+		return clusterFS.centralIndexExists();
+	}
 }
