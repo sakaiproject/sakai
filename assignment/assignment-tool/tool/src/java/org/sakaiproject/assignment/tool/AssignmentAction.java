@@ -1623,6 +1623,8 @@ public class AssignmentAction extends PagedResourceActionII
 			a = AssignmentService.getAssignment((String) state.getAttribute(GRADE_SUBMISSION_ASSIGNMENT_ID));
 			context.put("assignment", a);
 			gradeType = a.getContent().getTypeOfGrade();
+			
+			context.put("isGBEntryReleased", Boolean.valueOf(isGBEntryReleased(a)));
 		}
 		catch (IdUnusedException e)
 		{
@@ -1748,6 +1750,50 @@ public class AssignmentAction extends PagedResourceActionII
 
 	} // build_instructor_grade_submission_context
 
+
+	/**
+	 * Check if the assignment has associated gradebook entry and if yes, is this entry marked as released to student?
+	 * @param a
+	 */
+	private boolean isGBEntryReleased(Assignment a) 
+	{
+		boolean gbReleased = false;
+		boolean gradebookExists = AssignmentService.isGradebookDefined();
+		if (gradebookExists)
+		{
+			GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+			String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
+			
+			String associateGradebookAssignment = StringUtil.trimToNull(a.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+			if (associateGradebookAssignment != null)
+			{
+				// check the release grades setting
+				SecurityService.pushAdvisor(new SecurityAdvisor()
+					{
+						public SecurityAdvice isAllowed(String userId, String function, String reference)
+						{
+							return SecurityAdvice.ALLOWED;
+						}
+					});
+				
+				if (g.isAssignmentDefined(gradebookUid, associateGradebookAssignment))
+				{
+					org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition = g.getAssignment(gradebookUid, associateGradebookAssignment);
+					if (assignmentDefinition != null && assignmentDefinition.isReleased())
+					{
+						// the assignment is set to be releasedd
+						gbReleased = true;
+					}
+				}
+				
+				// clear the permission
+				SecurityService.clearAdvisors();
+			}
+		}
+		
+		return gbReleased;
+	}
+
 	private List getPrevFeedbackAttachments(ResourceProperties p) {
 		String attachmentsString = p.getProperty(PROP_SUBMISSION_PREVIOUS_FEEDBACK_ATTACHMENTS);
 		String[] attachmentsReferences = attachmentsString.split(",");
@@ -1773,6 +1819,9 @@ public class AssignmentAction extends PagedResourceActionII
 			Assignment a = AssignmentService.getAssignment((String) state.getAttribute(GRADE_SUBMISSION_ASSIGNMENT_ID));
 			context.put("assignment", a);
 			gradeType = a.getContent().getTypeOfGrade();
+			
+			// check the gradebook settting, if any
+			context.put("isGBEntryReleased", Boolean.valueOf(isGBEntryReleased(a)));
 		}
 		catch (IdUnusedException e)
 		{
@@ -1869,6 +1918,9 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				context.put("noSubmissionDefaultGrade", noSubmissionDefaultGrade);
 			}
+			
+			// check the gradebook setting, if any
+			context.put("isGBEntryReleased", Boolean.valueOf(isGBEntryReleased(assignment)));
 		}
 		catch (IdUnusedException e)
 		{
