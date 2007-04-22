@@ -69,7 +69,7 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
-
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 
 /**
  * <p>
@@ -279,6 +279,14 @@ public class TotalScoreListener
       else {
     	  bean.setIsTimedAssessment(true);
       }
+      
+      if (ac.getLateHandling().equals(AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION)) {
+    	  bean.setAcceptLateSubmission(true);
+      }
+      else {
+    	  bean.setAcceptLateSubmission(false);
+      }
+      
       //#1 - prepareAgentResultList prepare a list of AssesmentGradingData and set it as
       // bean.agents later in step #4
       // scores is a filtered list contains last AssessmentGradingData submitted for grade

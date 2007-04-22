@@ -2519,10 +2519,10 @@ public class DeliveryBean
 
     log.debug("check 5");
     // check 5: has dueDate arrived? if so, does it allow late submission?
-    // If it is a timed assessment, always go through. Because a timed assessment will be auto-submitted anyway - when time is up or
-    // when current date reaches due date if the time limited is longer than due date, for either case, we 
+    // If it is a timed assessment and "No Late Submission", always go through. Because in this case the 
+    // assessment will be auto-submitted anyway - when time is up or
+    // when current date reaches due date (if the time limited is longer than due date,) for either case, we 
     // want to redirect to the normal "submision successful page" after submitting.
-    if (!this.isTimedAssessment()) {
     if (pastDueDate()){
     	if (acceptLateSubmission) {
     		if (totalSubmitted != 0) {
@@ -2533,9 +2533,13 @@ public class DeliveryBean
     			}
     		}
     	}
-    	else return "noLateSubmission";
+    	else {
+    		if (!this.isTimedAssessment()) {
+    			return "noLateSubmission";
+    		}
+    	}
     }
-    }
+
     log.debug("check 6");
     // check 6: is it still available?
     if (isRetracted()){
@@ -2713,7 +2717,9 @@ public class DeliveryBean
 	  // We reset the time limit to the smaller one of
 	  // 1. assessment "time limit" and 2. the difference of due date and current. 
 	  public String updateTimeLimit(String timeLimit) {
-		if (this.dueDate != null) {  
+  	    boolean acceptLateSubmission = AssessmentAccessControlIfc.
+	        ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling());
+		if (this.dueDate != null && !acceptLateSubmission) {  
 			int timeBeforeDue  = Math.round((this.dueDate.getTime() - (new Date()).getTime())/1000); //in sec
 			if (timeBeforeDue < Integer.parseInt(timeLimit)) {
 				return String.valueOf(timeBeforeDue);
@@ -2722,7 +2728,7 @@ public class DeliveryBean
 		return timeLimit;
 	  }
 	  
-	  public boolean isTimedAssessment() {
+	  private boolean isTimedAssessment() {
 		  if (this.getPublishedAssessment().getAssessmentAccessControl().getTimeLimit().equals("0")) {
 			  return false;
 		  }

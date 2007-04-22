@@ -115,6 +115,7 @@ public class TotalScoresBean
   
   private boolean multipleSubmissionsAllowed = false;
   private boolean isTimedAssessment = false;
+  private boolean acceptLateSubmission = false;
   
   private static Log log = LogFactory.getLog(TotalScoresBean.class);
 
@@ -998,4 +999,12 @@ public class TotalScoresBean
 		this.isTimedAssessment = isTimedAssessment;
 	}
 
+	public boolean getAcceptLateSubmission() {
+		return acceptLateSubmission;
+	}
+	
+	public void setAcceptLateSubmission(boolean acceptLateSubmission) {
+		this.acceptLateSubmission = acceptLateSubmission;
+	}
+	
 }

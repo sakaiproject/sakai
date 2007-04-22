@@ -553,7 +553,8 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
           <f:convertDateTime pattern="#{generalMessages.output_data_picker_w_sec}"/>
         </h:outputText>
 		<h:panelGroup rendered="#{description.isLate == 'true' && description.attemptDate != null
-                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1') && totalScores.isTimedAssessment eq 'false'}">
+                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1')
+					&& !(totalScores.isTimedAssessment eq 'true' && totalScores.acceptLateSubmission eq 'false')}">
 			<f:verbatim><br/></f:verbatim>
 			<h:outputText style="color:red" value="#{evaluationMessages.late}"/>
 		</h:panelGroup>
@@ -576,7 +577,8 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
           <f:convertDateTime pattern="#{generalMessages.output_data_picker_w_sec}"/>
         </h:outputText>
 		<h:panelGroup rendered="#{description.isLate == 'true' && description.attemptDate != null
-                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1') && totalScores.isTimedAssessment eq 'false'}">
+                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1') 
+					&& !(totalScores.isTimedAssessment eq 'true' && totalScores.acceptLateSubmission eq 'false')}">
 			<f:verbatim><br/></f:verbatim>
 			<h:outputText style="color:red" value="#{evaluationMessages.late}"/>
 		</h:panelGroup>
@@ -600,7 +602,8 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
           <f:convertDateTime pattern="#{generalMessages.output_data_picker_w_sec}"/>
         </h:outputText>
 		<h:panelGroup rendered="#{description.isLate eq 'true' && description.attemptDate != null
-                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1') && totalScores.isTimedAssessment eq 'false'}">
+                    && (totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1') 
+					&& !(totalScores.isTimedAssessment eq 'true' && totalScores.acceptLateSubmission eq 'false')}">
 			<f:verbatim><br/></f:verbatim>
 			<h:outputText style="color:red" value="#{evaluationMessages.late}"/>
 		</h:panelGroup>

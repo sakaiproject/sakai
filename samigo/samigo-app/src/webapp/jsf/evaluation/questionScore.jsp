@@ -696,7 +696,7 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
         </h:outputText>
 
         <h:outputText styleClass="red" value="#{evaluationMessages.all_late}" escape="false"
-          rendered="#{description.isLate && totalScores.isTimedAssessment eq 'false'}"/>
+          rendered="#{description.isLate && !(totalScores.isTimedAssessment eq 'true' && totalScores.acceptLateSubmission eq 'false')}"/>
     </h:column>
 
     <h:column rendered="#{questionScores.sortType eq 'submittedDate' && questionScores.sortAscending}">
@@ -715,7 +715,7 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
          <f:convertDateTime pattern="#{generalMessages.output_date_picker}"/>
         </h:outputText>
         <h:outputText styleClass="red" value="#{evaluationMessages.all_late}" escape="false"
-          rendered="#{description.isLate && totalScores.isTimedAssessment eq 'false'}"/>
+          rendered="#{description.isLate && !(totalScores.isTimedAssessment eq 'true' && totalScores.acceptLateSubmission eq 'false')}"/>
     </h:column>    
     
     <h:column rendered="#{questionScores.sortType eq 'submittedDate' && !questionScores.sortAscending}">
@@ -734,7 +734,7 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
          <f:convertDateTime pattern="#{generalMessages.output_date_picker}"/>
         </h:outputText>
         <h:outputText styleClass="red" value="#{evaluationMessages.all_late}" escape="false"
-          rendered="#{description.isLate && totalScores.isTimedAssessment eq 'false'}"/>
+          rendered="#{description.isLate && !(totalScores.isTimedAssessment eq 'true' && totalScores.acceptLateSubmission eq 'false')}"/>
     </h:column>    
 
 
