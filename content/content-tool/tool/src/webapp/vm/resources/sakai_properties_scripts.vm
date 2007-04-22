@@ -633,7 +633,7 @@
 					{
 						newElement.defaultValue = oldElement.defaultValue;
 					}
-					if(oldElement.maxLength)
+					if(oldElement.maxLength && oldElement.maxLength > 0)
 					{
 						newElement.maxLength = oldElement.maxLength;
 					}

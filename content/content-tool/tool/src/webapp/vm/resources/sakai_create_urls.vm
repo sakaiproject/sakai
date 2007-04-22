@@ -33,7 +33,7 @@
 					<p class="shorttext">
 						<label for="content${DOT}$i">$tlang.getString("label.urls")</label>
 						## TODO add onchange event handler to seed file-name into displayName field
-						<input type="text" name="content${DOT}$i" id="content${DOT}$i" class="upload" size="60" />
+						<input type="text" name="content${DOT}$i" id="content${DOT}$i" size="60" />
 					</p>
 					<p class="shorttext"> 
 						<label for="displayName${DOT}$i">$tlang.getString("label.website")</label> 
