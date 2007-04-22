@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wurfl_patch>
+  <devices>
+	<!-- An Empty patch file to eliminate log messages -->
+  </devices>
+</wurfl_patch>
