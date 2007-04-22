@@ -14,6 +14,8 @@ import java.io.*;
 import java.util.*;
 import nu.xom.*;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * @author Luca Passani (passani@eunet.no)
@@ -51,7 +53,8 @@ class Wurfl {
     private boolean patchfile_present = false;
     private boolean patchfile_found = false;
     private Element patch_root = null;
-    
+
+    private static Log log = LogFactory.getLog(Wurfl.class);
 
     /**
      * Initializes the WURFL fields.
@@ -241,15 +244,15 @@ class Wurfl {
                     }
                     
                 } catch (Exception e) {
-                    System.out.println(e.getMessage());
+                    log.info(e.getMessage());
                     patch_successful = false;
                 }
                 if (patch_successful) {
-                    System.out.println("Patching OK. Applied");
+                    log.info("Patching OK. Applied");
 		    //try {toPrettyXML(patchedWurflDocument,System.out);} catch (Exception e) {}
                     wurflDocument = patchedWurflDocument;
                 } else  {
-                    System.out.println("Patching failed; reverting to origional wurfl");
+                    log.info("Patching failed; reverting to origional wurfl");
                 }
             } //end of 'if (patchstream != null)'
 
@@ -308,7 +311,7 @@ class Wurfl {
             
             // optimization to speed things up later: look-up in O(1) NOT O(n)
             setOfCapabilityNames = new HashSet(listOfCapabilities);
-            System.out.println("WURFL has been initialized");
+            log.info("WURFL has been initialized");
             
         } catch (ValidityException ex) {
             System.err.println("WURFL is not valid");
@@ -349,7 +352,7 @@ class Wurfl {
             InputStream patch = new FileInputStream(patchFile);
             init(wurfl,patch);
         } catch(Exception e) {
-            System.out.println(e.getMessage());
+            log.info(e.getMessage());
 	    throw new WurflException(e.getMessage());
         }
     }
@@ -365,7 +368,7 @@ class Wurfl {
 	    //in case patchfile is empty, have a look if wurfl_patch.xml
 	    //is in the same directory as wurfl.xml
 	    if (patchfile == null || patchfile.equals("")) {
-		System.out.println("trying to see if we can figure out the patch file");
+		log.info("trying to see if we can figure out the patch file");
 		if (fileName.matches("(.*)wurfl\\.xml$")) {
 		    int fc = fileName.indexOf("wurfl.xml");
 		    String dir = fileName.substring(0, fc);
@@ -373,10 +376,10 @@ class Wurfl {
 		    
 		    File f = new File(_patchfile);
 		    if(f.exists() && f.canRead()) {
-			System.out.println("potential patchfile: " + _patchfile);
+			log.info("potential patchfile: " + _patchfile);
 			patchfile = _patchfile;
 		    } else {
-			System.out.println("potential patchfile: " + _patchfile +" does not exist, or is not readable");
+			log.info("potential patchfile: " + _patchfile +" does not exist, or is not readable");
 		    }
 		}
 	    }
@@ -388,8 +391,8 @@ class Wurfl {
 	    init(wurfl,patch);
 	    
 	} catch(Exception e) {
-	    System.out.println(e.getMessage());
-	    System.out.println("Unable to prepare WURFL");
+	    log.info(e.getMessage());
+	    log.info("Unable to prepare WURFL");
 	}
     }
 
@@ -415,7 +418,7 @@ class Wurfl {
     String getFallBackForDevice(String devID) {
       
 	if (!isDeviceIn(devID)) {
-            System.out.println("ERROR: device *"+devID+"* does not exist in WURFL");
+            log.info("ERROR: device *"+devID+"* does not exist in WURFL");
 	    return "generic";   
 	}   else {
 	    if (devID.equals("generic")) {
@@ -423,7 +426,7 @@ class Wurfl {
 	    } else {
 		String fb_str = ((Element)deviceElementsList.get(devID)).getAttributeValue("fall_back");
 		if (fb_str == null || fb_str.equals("")) {
-		    System.out.println("ERROR: wurfl data is not valid. \"fall_back\" for device *"+devID+"* non-existent or not found.");
+		    log.info("ERROR: wurfl data is not valid. \"fall_back\" for device *"+devID+"* non-existent or not found.");
 		    return "generic";
 		}
 		return fb_str;
@@ -455,7 +458,7 @@ class Wurfl {
         }
      
 	if (!isDeviceIn(devID)) { 
-	    System.out.println("ERROR: Device ID "+devID+" not defined in WURFL (getFallBackPathToRoot()).");
+	    log.info("ERROR: Device ID "+devID+" not defined in WURFL (getFallBackPathToRoot()).");
 	    return al;   
 	}
      
@@ -472,11 +475,11 @@ class Wurfl {
     boolean isCapabilityDefinedInDevice(String devID,String capaName) {
       
 	if (!isDeviceIn(devID)) {
-	    System.out.println("ERROR: Device ID "+devID+" not defined in WURFL.(isCapabilityDefinedInDevice())");
+	    log.info("ERROR: Device ID "+devID+" not defined in WURFL.(isCapabilityDefinedInDevice())");
 	    return false;
 	}
 	if (!isCapabilityIn(capaName)) {
-	    System.out.println("ERROR: capability "+capaName+" not defined in WURFL.(isCapabilityDefinedInDevice())");
+	    log.info("ERROR: capability "+capaName+" not defined in WURFL.(isCapabilityDefinedInDevice())");
 	    return false;
 	}
        
@@ -500,11 +503,11 @@ class Wurfl {
     String getDeviceWhereCapabilityIsDefined(String devID,String capaName) {
 
 	if (!isDeviceIn(devID)) {
-	    System.out.println("ERROR: Device ID "+devID+" not defined in WURFL.(getDeviceWhereCapabilityIsDefined())");
+	    log.info("ERROR: Device ID "+devID+" not defined in WURFL.(getDeviceWhereCapabilityIsDefined())");
 	    return "";
 	}
 	if (!isCapabilityIn(capaName)) {
-	    System.out.println("ERROR: capability "+capaName+" not defined in WURFL.(getDeviceWhereCapabilityIsDefined())");
+	    log.info("ERROR: capability "+capaName+" not defined in WURFL.(getDeviceWhereCapabilityIsDefined())");
 	    return "";
 	}
        
@@ -523,8 +526,8 @@ class Wurfl {
 	    i++;
 	    fb_path.add(looper);
 	    if (i > 100) {
-		System.out.println("ERROR: WURFL file is probably not valid. Infinite-loop detected:");
-		System.out.println("loop of device IDs: "+fb_path.toString());
+		log.info("ERROR: WURFL file is probably not valid. Infinite-loop detected:");
+		log.info("loop of device IDs: "+fb_path.toString());
 		return "generic";
 	    }
 	}
@@ -535,11 +538,11 @@ class Wurfl {
     String getCapabilityValueForDeviceAndCapability(String devID,String capaName) {
 
 	if (!isDeviceIn(devID)) {
-	    System.out.println("ERROR: Device ID "+devID+" not defined in WURFL.(isCapabilityDefinedInDevice())");
+	    log.info("ERROR: Device ID "+devID+" not defined in WURFL.(isCapabilityDefinedInDevice())");
 	    return "";
 	}
 	if (!isCapabilityIn(capaName)) {
-	    System.out.println("ERROR: capability "+capaName+" not defined in WURFL.(isCapabilityDefinedInDevice())");
+	    log.info("ERROR: capability "+capaName+" not defined in WURFL.(isCapabilityDefinedInDevice())");
 	    return "";
 	}
        
@@ -565,7 +568,7 @@ class Wurfl {
 	}
       
 	//we should never get there if WURFL is correct
-	System.out.println("WURFL is not VALID! Unfortunately, the library was unable to determine the origin of the error.");
+	log.info("WURFL is not VALID! Unfortunately, the library was unable to determine the origin of the error.");
 	return "";
     }
    
@@ -581,6 +584,22 @@ class Wurfl {
 	}
     }
    
+    private String reduceText(String str)
+    {
+        StringBuffer sb = new StringBuffer();
+
+	String sl1 = str.toLowerCase();
+
+        for(int i=0; i<sl1.length(); i++ )
+        {
+            char ch = sl1.charAt(i);
+            if ( ch == ' ' || ch == '.' ) continue;
+            if ( ch >= '0' && ch <= '9' ) continue;
+            sb.append(ch);
+        }
+	return sb.toString();
+    }
+
     //Retrieve Device ID through UA (loose: longest match)
     //for ex: "MOT-T720/G_05.01.43R" will match
     //  "MOT-T720/G_05.01.43R MIB/2.0 Profile/MIDP-1.0 Configuration/CLDC-1.0"
@@ -593,6 +612,7 @@ class Wurfl {
     public String getDeviceIDFromUALoose(String ua) {
       
 	String key;
+        Iterator keys;
       
 	if (ua.length() == 0) {
 	    return "generic";   
@@ -603,28 +623,24 @@ class Wurfl {
 	if (strictUA != null) {
 	    return (String)strictUA;   
 	}
+
+	// Lets try to throw away numbers, spaces and dots from the 
+	// Agent in case this is a simple version change
+	String shortUA = reduceText(ua);
+	// System.out.println("ua="+ua+" shortUA="+shortUA);
+	keys = listOfUAWithDeviceID.keySet().iterator();
+	while( keys.hasNext() )  {
+	    key = (String )keys.next();
+            String shortKey = reduceText(key);
+	    if ( shortKey.equals(shortUA) ) {
+		// System.out.println("Found = "+key);
+                return (String)listOfUAWithDeviceID.get(key);           
+            }   
+        }
       
 	String uaSub = ua;
       
-	//let's try to match on progressively shorter UAs
-	while (uaSub.length() > 5) {
-	    Iterator keys = listOfUAWithDeviceID.keySet().iterator();
-	    while( keys.hasNext() )  {
-		key = (String )keys.next();
-		if (key.indexOf(uaSub) != -1) {
-		    return (String)listOfUAWithDeviceID.get(key);           
-		}   
-            }
-            uaSub = uaSub.substring(0,uaSub.length()-1);
-	}
-
-	//Nasty habit by Vodafone to add their f***ing brand
-        //everwhere. Fix it and make sure that sys-admins know that
-        //Voda sucks 
 	if ( ua.startsWith("Vodafone/") ) {
-	    System.out.println("Voda added their f***ing brand to the "+
-			       "following user-agent string: "+ ua );
-	    //System.out.println("***** Vodafone sucks! *******");
 	    String clean_ua = ua.substring(9,ua.length());
 	    String temp_res = getDeviceIDFromUALoose(clean_ua);
 	    if (!"generic".equals(temp_res)) {
@@ -664,8 +680,8 @@ class Wurfl {
    
     //patch utility methods
     private void patch_parse_error(String msg) {
-	System.out.println("Fatal error in parsing wurfl patch file ");
-	System.out.println(msg);
+	log.info("Fatal error in parsing wurfl patch file ");
+	log.info(msg);
 	throw new WurflException(msg);
     }
 

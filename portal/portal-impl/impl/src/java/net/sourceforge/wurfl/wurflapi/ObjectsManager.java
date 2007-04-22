@@ -15,6 +15,9 @@ import java.util.*;
 //import javax.servlet.http.*;
 import javax.servlet.*;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * @author <b>Luca Passani</b>, passani at eunet dot no
  * <br><br>
@@ -33,6 +36,7 @@ public class ObjectsManager {
     private static CapabilityMatrix capabilityMatrixInstance = null;
     private static UAManager UAManagerInstance = null;
     private static ListManager ListManagerInstance = null;
+    private static Log log = LogFactory.getLog(ObjectsManager.class);
     
     /**
      * You are not allowed to manipulate a Wurfl object directly through
@@ -95,7 +99,7 @@ public class ObjectsManager {
 	//have a look at the wurfl.properties file. It may exist
 	Properties locations = new Properties(); 
 	if (fileExists("wurfl.properties")) {
-	    System.out.println("wurfl.properties file found. Lemme have a look...");
+	    log.info("wurfl.properties file found. Lemme have a look...");
 	    try {
 		fis = new FileInputStream("wurfl.properties"); 
 		locations.load(fis);
@@ -109,7 +113,7 @@ public class ObjectsManager {
 	    
 	    param = locations.getProperty("wurflpath");
 	    if (param == null) {
-		System.out.println("Expected wurflpath property not found in wurfl.properties file");
+		log.info("Expected wurflpath property not found in wurfl.properties file");
 		param = "";
 	    }
 	    if (param.indexOf("file://") != -1) {
@@ -119,50 +123,50 @@ public class ObjectsManager {
 	    }
 	    //param 2 is used to get rid of 'file://'
 	    if (fileExists(param) || fileExists(param2)) {
-		System.out.println("using "+param+" file found in wurfl.properties");
+		log.info("using "+param+" file found in wurfl.properties");
 		return param;
 	    } else {
-		System.out.println("file '"+param + "' (found in wurfl.properties)  does not exist");	
+		log.info("file '"+param + "' (found in wurfl.properties)  does not exist");	
 	    }
 	}
 	
 	
-	System.out.println("Last try. Looking for wurfl.xml in temp directory");
+	log.info("Last try. Looking for wurfl.xml in temp directory");
 	if (System.getProperty("os.name").indexOf("Windows") != -1) {
 	    param = "C:\\temp\\wurfl.xml";
 	    if (fileExists(param)) {
-		System.out.println(param+" found! I'll use this");
+		log.info(param+" found! I'll use this");
 		return param;
 	    }
 	} else {
 	    param = "/tmp/wurfl.xml";	
 	    if (fileExists(param)) {
-		System.out.println(param+" found! I'll use this");
+		log.info(param+" found! I'll use this");
                 return param;
 	    }
 	}
 
 	String sys_prop = System.getProperty("wurflpath");
 	if (sys_prop != null) {
-		System.out.println(sys_prop+" found! I'll use this");	    
+		log.info(sys_prop+" found! I'll use this");	    
 		return sys_prop;
 	}
 	
 	//no wurfl found!
-	System.out.println("WURFL not found anywhere");
-	System.out.println("You have 3 possibilities:");
-	System.out.println("- define wurfl.properties in the same directory");
-	System.out.println("  as your application and provide the wurfl.xml path");
-	System.out.println("  ex: wurflpath = file://C:\\projects\\wurfl\\resources\\wurfl.xml");
-	System.out.println("");
-	System.out.println("- place wurfl.xml in either C:\\temp (Windows) or /tmp (Unix)");
-	System.out.println("");
-	System.out.println("In a servlet environment, initFromWebApplication() can be used to initialize");
-	System.out.println("using the wurfl at /WEB-INF/wurfl.xml");
-	System.out.println("");
+	log.info("WURFL not found anywhere");
+	log.info("You have 3 possibilities:");
+	log.info("- define wurfl.properties in the same directory");
+	log.info("  as your application and provide the wurfl.xml path");
+	log.info("  ex: wurflpath = file://C:\\projects\\wurfl\\resources\\wurfl.xml");
+	log.info("");
+	log.info("- place wurfl.xml in either C:\\temp (Windows) or /tmp (Unix)");
+	log.info("");
+	log.info("In a servlet environment, initFromWebApplication() can be used to initialize");
+	log.info("using the wurfl at /WEB-INF/wurfl.xml");
+	log.info("");
 
-	System.out.println("- the API will also look at the 'wurflpath' System property");
-	System.out.println("");
+	log.info("- the API will also look at the 'wurflpath' System property");
+	log.info("");
 	
 	throw new WurflException("Cannot find WURFL file (wurfl.xml)");
     }
@@ -264,35 +268,35 @@ public class ObjectsManager {
 		InputStream in1 = sc.getResourceAsStream(warpath);
 		InputStream in2 = sc.getResourceAsStream(warpathpatch);
 		if (in1 != null) {
-		    System.out.println("Initializing web-app from stream with "+warpath);
+		    log.info("Initializing web-app from stream with "+warpath);
 		    wurflInstance = new Wurfl(in1,in2);			
 		} else {
-			System.out.println("initFromWebApplication(ServletContext): "+
+			log.info("initFromWebApplication(ServletContext): "+
 					   "\nCannot initialize Wurfl. no "+warpath+" found!");
 		}
 		/*
 		String path = sc.getRealPath("/WEB-INF/wurfl.xml");
 		File file = new File(path);
 		if (file.exists()) {
-		    System.out.println(path+" file exists");
+		    log.info(path+" file exists");
 		    String path2 = sc.getRealPath("/WEB-INF/wurfl_patch.xml");
 		    File file2 = new File(path2);
 		    if (file2.exists()) {
-			System.out.println("Initializing web-app with "+file+" and "+file2);
+			log.info("Initializing web-app with "+file+" and "+file2);
 			wurflInstance = new Wurfl(path,path2);
 		    } else {
-			System.out.println("Initializing web-app with "+file);
+			log.info("Initializing web-app with "+file);
 			wurflInstance = new Wurfl(path);
 		    }
 		} else {
-		    System.out.println(path+" file DOES NOT exist");
+		    log.info(path+" file DOES NOT exist");
 		    //could be a WAR file. Let's give it a try with getResourceAsStream(). No patch file
 		    String warpath = "/WEB-INF/wurfl.xml";
 		    String warpath_patch = "/WEB-INF/wurfl_patch.xml";
 		    InputStream in = sc.getResourceAsStream(warpath);
 		    InputStream in_patch = sc.getResourceAsStream(warpath_patch);
 		    if (in != null) {
-			System.out.println("Initializing web-app from stream with "+warpath);
+			log.info("Initializing web-app from stream with "+warpath);
 			wurflInstance = new Wurfl(in,in_patch);			
 		    }
 		}
@@ -314,9 +318,9 @@ public class ObjectsManager {
 		File file = new File(path);
 		if (file.exists()) {
 		    wurflInstance = new Wurfl(path);
-		    System.out.println("Initializing web-app with "+path);
+		    log.info("Initializing web-app with "+path);
 		} else {
-		    System.out.println("WARNING: initialization failed. Could not find a "+
+		    log.info("WARNING: initialization failed. Could not find a "+
 				       "WURFL file at "+path);
 		}
 	    }
@@ -336,15 +340,15 @@ public class ObjectsManager {
 		    File file2 = new File(pathToPatch);
 		    if (file2.exists()) {
 			wurflInstance = new Wurfl(path,pathToPatch);
-			System.out.println("Initializing web-app with "+ path +
+			log.info("Initializing web-app with "+ path +
 					   " and "+ pathToPatch);
 		    } else{ 
 			wurflInstance = new Wurfl(path);
-			System.out.println("Initializing web-app with "+path);
-			//System.out.println("WARNING: patch file not found at "+pathToPatch);
+			log.info("Initializing web-app with "+path);
+			//log.info("WARNING: patch file not found at "+pathToPatch);
 		    }
 		} else {
-		    System.out.println("WARNING: initialization failed. Could not find a "+
+		    log.info("WARNING: initialization failed. Could not find a "+
 				       "WURFL file at "+path);
 		}
 	    }
@@ -365,15 +369,15 @@ public class ObjectsManager {
 		InputStream in1 = ws.getWurflInputStream();
 		InputStream in2 = ws.getWurflPatchInputStream();
 		if (in1 != null) {
-		    System.out.println("Initializing web-app from stream with InputStream.");
+		    log.info("Initializing web-app from stream with InputStream.");
 		    wurflInstance = new Wurfl(in1,in2);			
 		} else {
-			System.out.println("initMyWay(WurflSource): "+
+			log.info("initMyWay(WurflSource): "+
 					   "\nCannot initialize Wurfl. InputStream is empty!");
 		}
 		
 	    } else {
-		System.out.println("WARNING: initMyWay() failed. Wurfl was already initialized ");
+		log.info("WARNING: initMyWay() failed. Wurfl was already initialized ");
 	    }
 	}
     }
