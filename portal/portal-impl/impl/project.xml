@@ -129,6 +129,12 @@
 		<version>1.4</version>
 	</dependency>
 
+        <dependency>
+                 <groupId>xom</groupId>
+                 <artifactId>xom</artifactId>
+                 <version>1.1</version>
+        </dependency>
+
 <!-- required for unit tests -->
 	<dependency>
 		<groupId>commons-collections</groupId>
