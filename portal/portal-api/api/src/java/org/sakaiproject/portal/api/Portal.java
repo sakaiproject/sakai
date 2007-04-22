@@ -369,4 +369,10 @@ public interface Portal
 	 */
 	ServletContext getServletContext();
 
+	/**
+         * Look at the user agent and add Mobile Browser related material to 
+	 * the context.
+	 */
+ 	void setupMobileDevice(HttpServletRequest req, PortalRenderContext rcontext);
+
 }

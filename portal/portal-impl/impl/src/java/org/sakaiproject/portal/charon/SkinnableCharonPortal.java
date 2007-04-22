@@ -103,6 +103,8 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Web;
 
+import net.sourceforge.wurfl.wurflapi.*;
+
 /**
  * <p/> Charon is the Sakai Site based portal.
  * </p>
@@ -154,6 +156,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	private SiteHandler siteHandler;
 
 	private String portalContext;
+
+        // http://wurfl.sourceforge.net/
+	private boolean wurflLoaded = false;
+	public CapabilityMatrix cm = null;
+	public UAManager uam = null;
 
 	public String getPortalContext()
 	{
@@ -848,6 +855,76 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		String context = req.getContextPath() + req.getServletPath() + "/logout";
 		tool.help(req, res, context, "/logout");
 	}
+
+        /** Set up the WURFL objects - to use most classes will
+         *  extend the register method and call this setup.
+         */
+        public void setupWURFL()
+        {
+		// Only do this once
+		if ( wurflLoaded ) return;
+		wurflLoaded = true;
+                try {
+                        ObjectsManager.initFromWebApplication(getServletContext());
+                        uam = ObjectsManager.getUAManagerInstance();
+                        cm = ObjectsManager.getCapabilityMatrixInstance();
+                        if ( cm == null ) uam = null;
+                        if ( uam == null ) cm = null;
+                        if ( cm == null )
+                        {
+                                M_log.info("WURFL Initialization failed - PDA support may be limited");
+                        }
+                        else
+                        {
+                                M_log.info("WURFL Initialization cm="+cm+" uam="+uam);
+                        }
+                }
+                catch (Exception e)
+                {
+                        M_log.info("WURFL Initialization failed - PDA support may be limited "+e);
+                }
+        }
+
+        // Read the Wireless Universal Resource File and determine the display size
+        // http://wurfl.sourceforge.net/
+        public void setupMobileDevice(HttpServletRequest req, PortalRenderContext rcontext)
+        {
+		setupWURFL();
+                if ( cm == null || uam == null ) return;
+
+                String userAgent = req.getHeader("user-agent");
+                String device = uam.getDeviceIDFromUALoose(userAgent);
+		// System.out.println("device="+device+" agent="+userAgent);
+
+                // Not a mobile device
+                if ( device == null || device.length() < 1 || device.startsWith("generic") ) return;
+                rcontext.put("wurflDevice",device);
+
+                // Check to see if we have too few columns of text
+                String columns = cm.getCapabilityForDevice(device,"columns");
+                {
+                        int icol = -1;
+                        try { icol = Integer.parseInt(columns); } catch (Throwable t) { icol = -1; }
+                        if ( icol > 1 && icol < 50 )
+                        {
+                                rcontext.put("wurflSmallDisplay",Boolean.TRUE);
+                                return;
+                        }
+                }
+                // Check if we have too few pixels
+                String width = cm.getCapabilityForDevice(device,"resolution_width");
+                if ( width != null && width.length() > 1 )
+                {
+                        int iwidth = -1;
+                        try { iwidth = Integer.parseInt(width); } catch (Throwable t) { iwidth = -1; }
+                        if ( iwidth > 1 && iwidth < 400 )
+                        {
+                                rcontext.put("wurflSmallDisplay",Boolean.TRUE);
+                                return;
+                        }
+                }
+        }
+
 
 	public PortalRenderContext startPageContext(String siteType, String title,
 			String skin, HttpServletRequest request)
