@@ -15,24 +15,19 @@
     <link href="/portal/styles/portalstyles-ie5.css" type="text/css" rel="stylesheet" media="all" />
 <![endif]><![endif]-->
 
-
-
     <meta http-equiv="Content-Style-Type" content="text/css" />
+
 #if ( ${bufferedResponse} && ${responseHead} ) 
 <!-- Head material from Tool (will include title and headscripts) -->
 ${responseHead}
 <!-- End of Head material from Tool -->
 #else 
     <title>${pageTitle}</title>
-    <script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
+     <script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
 #end
-    
-    
-    
-    <script type="text/javascript" language="JavaScript" src="/portal/scripts/portalscripts.js"></script>
+<script type="text/javascript" language="JavaScript" src="/portal/scripts/portalscripts.js"></script>
 
 #if ( ${styleable} )
-
 <script type="text/javascript" 
     	language="JavaScript" 
     	src="/sakai-preferable-tool/js/styleable.js" >
@@ -42,19 +37,15 @@ ${responseHead}
             language="JavaScript">
     window.onload = insertStyleAbleStyles;
     </script>
-    
-#if ( ${styleableStyleSheet} )
+    #if ( ${styleableStyleSheet} )
 	<style type="text/css" title="StyleAble">${styleableStyleSheet}</style>
-#end
-
-#if ( ${styleableJS} )
+    #end
+    #if ( ${styleableJS} )
 	<script type="text/javascript" language="JavaScript">
 	${styleableJS} 
 	</script>
+    #end
 #end
-
-#end
-
 </head>
 <body class="portalBody">
 #if ( $pageTop )

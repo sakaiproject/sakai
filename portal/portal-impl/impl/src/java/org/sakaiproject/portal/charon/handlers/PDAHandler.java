@@ -25,6 +25,7 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.ServletContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,6 +33,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.Portal;
+import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.site.api.Site;
@@ -46,6 +48,8 @@ import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.Web;
 
+import net.sourceforge.wurfl.wurflapi.*;
+
 /**
  * 
  * @author csev
@@ -55,7 +59,6 @@ import org.sakaiproject.util.Web;
  */
 public class PDAHandler extends PageHandler
 {
-
 	/**
 	 * Key in the ThreadLocalManager for access to the current http response
 	 * object.
@@ -64,7 +67,7 @@ public class PDAHandler extends PageHandler
 
 	private ToolHandler toolHandler = new ToolHandler();
 
-	private static final Log log = LogFactory.getLog(PageHandler.class);
+	private static final Log log = LogFactory.getLog(PDAHandler.class);
 
 	public PDAHandler()
 	{
@@ -75,6 +78,7 @@ public class PDAHandler extends PageHandler
 	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
 	{
+
 		if ((parts.length >= 2) && (parts[1].equals("pda")))
 		{
 			// Indicate that we are the controlling portal
@@ -153,6 +157,9 @@ public class PDAHandler extends PageHandler
 						"pda",
 						/* doPages */false, /* resetTools */true,
 						/* includeSummary */false, /* expandSite */false);
+
+				// Add any device specific information to the context
+				portal.setupMobileDevice(req, rcontext);
 
 				// Optionally buffer tool content to eliminate iFrames
 				bufferContent(req, res, session, parts, toolId, rcontext);

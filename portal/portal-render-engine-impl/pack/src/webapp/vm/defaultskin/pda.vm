@@ -20,9 +20,12 @@
 ##
 #start_response()
 <!-- pda.vm -->
+#if ( ${wurflSmallDisplay} ) 
+<!-- Mobile Device ${wurflDevice} -->
+#end
 <div class="portlet">
 	<div id="pda-portlet-menu">
-        <a href="${portalTopUrl}" title="need title here">Sites</a> 
+        <a href="${portalTopUrl}" title="Back to Site List">Sites</a> 
 		  #if ($currentSite)
 			 	> <a href="${currentSite.siteUrl}" title="${currentSite.siteTitle}">
 				<span>${currentSite.siteTitle}</span>
@@ -48,6 +51,16 @@
 			#if (${currentPlacement.toolJSR168Edit} )
              &nbsp;(<a accesskey="e" href="${currentPlacement.toolJSR168Edit}" title="${rloader.sit_edit}">*</a>)
 			#end
+#if ( ${wurflSmallDisplay} ) 
+<!-- WURFL Small Display -->
+&nbsp; | &nbsp;
+				#if ( $loggedIn ) 
+				<a href="${portalTopUrl}?force.logout=yes">Log Out</a>
+				#else
+				<a href="${portalTopUrl}?force.login=yes">Log In</a>
+				#end
+<!-- End WURFL Small Display -->
+#else
 			<div class="portletpresencebutton" >
 				#if (${currentSite.sitePages.pageNavShowPresenceLoggedIn})
 					#if ($currentSite)
@@ -62,6 +75,7 @@
 				<a href="${portalTopUrl}?force.login=yes">Log In</a>
 				#end
 			</div>
+#end
 		</div> <!--end of menu bar -->
 	#if ($currentPlacement)
 #if ( ${bufferedResponse} && ${responseBody} ) 
@@ -102,6 +116,7 @@ ${responseBody}
 		#end
 	#end
 	#if ($currentSite)
+           #if ( ! ${wurflSmallDisplay} ) 
 		#if (${currentSite.sitePages.pageNavShowPresenceLoggedIn})
 			<script type="text/javascript" language="JavaScript">
                         function showPresence()
@@ -129,6 +144,7 @@ ${responseBody}
 				 </div>
 			 </div>
 		#end
+           #end
 	#end
 </div>
 <!-- end pda.vm -->
