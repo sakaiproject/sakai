@@ -9710,7 +9710,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				 		assignmentDefinition.setName(newAssignment_title);
 				 		assignmentDefinition.setPoints(new Double(newAssignment_maxPoints/10.0));
 				 		assignmentDefinition.setDueDate(new Date(newAssignment_dueTime.getTime()));
-				 		assignmentDefinition.setReleased(true); // in order to let student gets his own score, has to set the assignment to be release by default
+				 		assignmentDefinition.setReleased(false);
 				 		g.addAssignment(gradebookUid, assignmentDefinition);
 				 		
 				 		// update the associate gradebook assignments
