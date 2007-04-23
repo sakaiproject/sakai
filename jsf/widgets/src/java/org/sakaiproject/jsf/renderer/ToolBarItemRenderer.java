@@ -52,7 +52,7 @@ public class ToolBarItemRenderer extends JSFDepends.CommandLinkRenderer
     {
         // setup to render the disabled link ourselves
       ResponseWriter writer = context.getResponseWriter();
-      writer.write("<span class=\"chefToolBarDisabled\">");
+      writer.write("<span class=\"inactive\">");
     }
   }
 
