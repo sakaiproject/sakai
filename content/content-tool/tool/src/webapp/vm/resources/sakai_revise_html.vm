@@ -1,8 +1,8 @@
 <!-- resources/sakai_edit_text.vm, use with org.sakaiproject.tool.content.ResourcesHelperAction.java -->
 <div class="portletBody">
-	<h4>
+	<h3>
 		$tlang.getString("revise.html")
-	</h4>
+	</h3>
 	#if ($itemAlertMessage)
 		<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
 		<div style="display:block;clear:both" ></div>
@@ -23,8 +23,8 @@
 			</table>
 		</p>
 		<p class="act">
-			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="javascript:showNotif('submitnotif','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doContinue")';submitform('addContentForm');" value="$tlang.getString("label.continue")" />
-			<input type="button" name="cancel" onclick="javascript:document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("label.cancel")" />
+			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="javascript:showNotif('submitnotif','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doContinue")';submitform('addContentForm');" value="$tlang.getString("label.continue")" accesskey="s" />
+			<input type="button" name="cancel" onclick="javascript:document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
 			<span id="submitnotif" style="visibility:hidden">$tlang.getString("label.proces")</span>
 		</p>
 	</form>

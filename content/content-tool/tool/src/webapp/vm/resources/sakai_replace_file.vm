@@ -1,8 +1,8 @@
 <!-- resources/sakai_create_text.vm, use with org.sakaiproject.tool.content.ResourcesHelperAction.java -->
 <div class="portletBody">
-	<h4>
+	<h3>
 		$tlang.getString("action.replace")
-	</h4>
+	</h3>
 	#if ($itemAlertMessage)
 		<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
 		<div style="display:block;clear:both" ></div>
@@ -21,20 +21,20 @@
 			<input type="file" name="content" id="content" />
 		</p>
 		
-		<table class="itemSummary" border="0" style="clear:both;margin:left:.7em">
+		<table class="itemSummary" border="0" style="clear:both;margin-left:1em">
 			<tr> 
-				<td style="width:180px;padding-left:.7em"> 
+				<td style="width:180px;padding-left:0"> 
 					<label>$tlang.getString("label.name")</label>
 				</td>
-				<td>
+				<td style="width:180px;padding-left:0"> 
 					$item.name
 				</td>
 			</tr>
 			<tr> 
-				<td style="width:180px;padding-left:.7em"> 
+				<td style="width:180px;padding-left:0">  
 					<label>$tlang.getString("props.mime")</label>
 				</td>
-				<td>
+				<td style="width:180px;padding-left:0"> 
 					$item.mimetype
 				</td>
 			</tr>

@@ -1,8 +1,8 @@
 <!-- resources/sakai_create_text.vm, use with org.sakaiproject.tool.content.ResourcesHelperAction.java -->
 <div class="portletBody">
-	<h4>
+	<h3>
 		$tlang.getString("create.text")
-	</h4>
+	</h3>
 	#if ($itemAlertMessage)
 		<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
 		<div style="display:block;clear:both" ></div>

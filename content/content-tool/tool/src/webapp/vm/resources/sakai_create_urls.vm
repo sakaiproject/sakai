@@ -1,8 +1,8 @@
 <!-- resources/sakai_create_uploads.vm, use with org.sakaiproject.tool.content.ResourcesHelperAction.java -->
 <div class="portletBody">
-	<h4>
+	<h3>
 		$tlang.getString("create.urls")
-	</h4>
+	</h3>
 	#if ($itemAlertMessage)
 		<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
 		<div style="display:block;clear:both" ></div>
@@ -11,11 +11,13 @@
 		$tlang.getString("instr.urls")
 	</p>
 	<div class="breadCrumb">
+		<h4>
 		$tlang.getString("gen.location")
 		##<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0"  alt="folder" />
 		#foreach ($folder in $model.collectionPath)
 			$folder.name /
 		#end
+		</h4>
 	</div>
 	<form name="addContentForm" id="addContentForm" method="post" action="#toolForm("ResourcesHelperAction")"  enctype="multipart/form-data">
 		<input type="hidden" name="fileCount" id="fileCount" value="$pipes.size()" />
