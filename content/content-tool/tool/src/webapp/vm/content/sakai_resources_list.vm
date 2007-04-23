@@ -8,10 +8,15 @@ ul.makeMenu li {  /* the behaviour to mimic the li:hover rules in IE 5+ */
 	behavior: url( /library/js/IEmen.htc );
   }
 ul.makeMenu ul {  /* copy of above declaration without the > selector */                                                                      
-  display: none; position: absolute; top: 15px; left: 20px; background-image:none; background-color:#ffffff;width: 15em; z-index:3;border:1px solid  #666  	
+  display: none; position: absolute; top: 18px; left: 0px; background-image:none; background-color:#ffffff;width: 15em; z-index:3;border:1px solid  #666  	
 }
 </style>
 <![endif]><![endif]-->
+<!--[if gt IE 6.0]>
+<style type="text/css">
+ul.makeMenu ul{top: 15px !important}
+</style>
+<![endif]-->
 #set($num = 0)
 #set($removeCount = 0)
 #set($moveCount = 0)
