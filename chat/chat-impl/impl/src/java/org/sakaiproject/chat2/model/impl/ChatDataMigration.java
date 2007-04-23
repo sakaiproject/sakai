@@ -304,7 +304,7 @@ public class ChatDataMigration {
                   newMessageId = newMessageId.replaceAll("/", "_");
                   
                   String outputSql = getMessageFromBundle("insert.message", new Object[] {
-                        newMessageId, escapeSpecialChars(oldChannelId), owner, messageDate, body, oldMessageId});
+                        newMessageId, escapeSpecialChars(oldChannelId), owner, messageDate, escapeSingleQuotes(body), oldMessageId});
                   /*
                    * insert into CHAT2_MESSAGE (MESSAGE_ID, CHANNEL_ID, OWNER, MESSAGE_DATE, BODY) \
                         values ('{0}', '{1}', '{2}', '{3}', '{4}');
@@ -333,14 +333,25 @@ public class ChatDataMigration {
    
    /**
     * Escapes special characters that may be bad in sql statements
-    * -- "'" is replaced with "''"
     * -- "/" is replaced with "_"
+    * See also escapeSingleQuotes(String input)
     * @param input Original string to parse
     * @return A string with any special characters escaped
     */
    protected String escapeSpecialChars(String input) {
-      String output = input.replaceAll("'", "''");
+      String output = escapeSingleQuotes(input);
       output = output.replaceAll("/", "_");
+      return output;
+   }
+   
+   /**
+    * Escapes single quotes
+    * -- "'" is replaced with "''"
+    * @param input Original string to parse
+    * @return A string with any special characters escaped
+    */
+   protected String escapeSingleQuotes(String input) {
+      String output = input.replaceAll("'", "''");
       return output;
    }
    
