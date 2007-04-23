@@ -1075,7 +1075,7 @@ ul.makeMenu li > ul {
   display: none;
   position: absolute;
   top: 4px;
-  left: 13px;
+  left: 0;
 }
 ul.makeMenu li:hover, ul.makeMenu li.CSStoHighlight {
   color: #000;
@@ -1090,6 +1090,7 @@ ul.makeMenu li:hover > ul {
 	background-image:none;
 	position:absolute;
 	border:1px solid #666;
+	margin-top:9px;
  	z-index:3
 }
 ul.makeMenu li a { display: block; width: 100%; text-decoration: underline;   padding:6px; }
