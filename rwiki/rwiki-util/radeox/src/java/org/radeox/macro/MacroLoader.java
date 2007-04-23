@@ -25,7 +25,6 @@ package org.radeox.macro;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.radeox.api.macro.Macro;
 
 /**
  * Plugin loader for macros
@@ -51,14 +50,14 @@ public class MacroLoader extends PluginLoader
 	 */
 	public void add(Repository repository, Object plugin)
 	{
-		if (plugin instanceof Macro)
+		if (plugin instanceof org.radeox.api.macro.Macro)
 		{
-			repository.put(((Macro) plugin).getName(), plugin);
+			repository.put(((org.radeox.api.macro.Macro) plugin).getName(), plugin);
 		}
 		else
 		{
-			log.debug("MacroLoader: " + plugin.getClass() + " not of Type "
-					+ getLoadClass());
+			log.warn("MacroLoader: " + plugin.getClass() + " not of Type "
+					+ org.radeox.api.macro.Macro.class);
 		}
 	}
 

@@ -23,6 +23,8 @@
 
 package org.radeox.api.engine;
 
+import org.radeox.api.engine.context.RenderContext;
+
 /**
  * Interface for RenderEngines that allow to include content like wiki pages or
  * snips, e.g. with {!includeWiki} in MacroFilter
@@ -40,7 +42,8 @@ public interface IncludeRenderEngine
 	 * 
 	 * @param name
 	 *        Name of the object to include, e.g. wiki page name
+	 * @param context 
 	 * @return result A string representation of the included object
 	 */
-	public String include(String name);
+	public String include(String name, RenderContext context);
 }

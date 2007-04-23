@@ -153,4 +153,5 @@ public class RWikiBaseRenderEngine implements RenderEngine
 		MacroRepository mr = MacroRepository.getInstance();
 		mr.put(macro.getName(), macro);
 	}
+
 }

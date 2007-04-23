@@ -132,7 +132,7 @@ public class MacroFilter extends RegexTokenFilter
 						if (engine instanceof IncludeRenderEngine)
 						{
 							String include = ((IncludeRenderEngine) engine)
-									.include(command.substring(1));
+									.include(command.substring(1),context.getRenderContext());
 							if (null != include)
 							{
 								// Filter paramFilter = new

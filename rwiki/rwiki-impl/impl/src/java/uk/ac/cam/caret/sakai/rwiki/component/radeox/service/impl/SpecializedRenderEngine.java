@@ -26,6 +26,7 @@ import java.io.Reader;
 import java.io.Writer;
 
 import org.radeox.api.engine.ImageRenderEngine;
+import org.radeox.api.engine.IncludeRenderEngine;
 import org.radeox.api.engine.RenderEngine;
 import org.radeox.api.engine.WikiRenderEngine;
 import org.radeox.api.engine.context.RenderContext;
@@ -34,13 +35,14 @@ import org.radeox.macro.MacroRepository;
 
 import uk.ac.cam.caret.sakai.rwiki.service.api.PageLinkRenderer;
 import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
+import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
 
 /**
  * @author andrew
  */
 // FIXME: Component
 public class SpecializedRenderEngine implements ImageRenderEngine,
-		WikiRenderEngine, RenderEngine
+		WikiRenderEngine, RenderEngine, IncludeRenderEngine
 {
 
 	// FIXME make this an ImageRenderEngine and an IncludeRenderEngine
@@ -155,6 +157,16 @@ public class SpecializedRenderEngine implements ImageRenderEngine,
 	public void addMacro(Macro macro) {
 		MacroRepository mr = MacroRepository.getInstance();
 		mr.put(macro.getName(), macro);
+	}
+
+
+	/* (non-Javadoc)
+	 * @see org.radeox.api.engine.IncludeRenderEngine#include(java.lang.String, org.radeox.api.engine.context.RenderContext)
+	 */
+	public String include(String name, RenderContext context)
+	{
+		RWikiObject rwo = objectService.getRWikiObject(name, space);			
+		return render(rwo.getContent(), context);
 	}
 
 }
