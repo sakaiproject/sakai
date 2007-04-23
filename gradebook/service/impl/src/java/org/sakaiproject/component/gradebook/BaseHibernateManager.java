@@ -388,11 +388,15 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     			if(numNameConflicts > 0) {
     				throw new ConflictingCategoryNameException("You can not save multiple catetories in a gradebook with the same name");
     			}
+    			if(weight / 100.0 > 1 || weight / 100.0 < 0)
+    			{
+    				throw new IllegalArgumentException("weight for category is greater than 1 or less than 0 in createCategory of BaseHibernateManager");
+    			}
 
     			Category ca = new Category();
     			ca.setGradebook(gb);
     			ca.setName(name);
-    			ca.setWeight(weight);
+    			ca.setWeight(weight / 100.0);
     			ca.setDrop_lowest(drop_lowest);
     			ca.setRemoved(false);
 
@@ -501,6 +505,11 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     			if(numNameConflicts > 0) {
     				throw new ConflictingCategoryNameException("You can not save multiple category in a gradebook with the same name");
     			}
+    			if(category.getWeight().doubleValue() / 100.0 > 1 || category.getWeight().doubleValue() / 100.0 < 0)
+    			{
+    				throw new IllegalArgumentException("weight for category is greater than 1 or less than 0 in updateCategory of BaseHibernateManager");
+    			}
+    			category.setWeight(new Double(category.getWeight().doubleValue() / 100.0));
     			session.evict(persistentCat);
     			session.update(category);
     			return null;

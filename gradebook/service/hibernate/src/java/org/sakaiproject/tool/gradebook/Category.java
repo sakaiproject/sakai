@@ -197,8 +197,8 @@ public class Category implements Serializable
     for (Assignment assign : assignmentsWithStats) 
     {
     	Double score = assign.getAverageTotal();
-    	if(assign.isReleased())
-    	{
+//    	if(assign.isReleased())
+//    	{
     		if (score == null) 
     		{
     		} 
@@ -212,7 +212,7 @@ public class Category implements Serializable
       		}
     			numScored++;
     		}
-    	}
+//    	}
     }
 
     if (numScored == 0 || numOfAssignments == 0) 

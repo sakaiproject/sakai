@@ -37,8 +37,8 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		String className = this.getClass().getName();
 		gradebookFrameworkService.addGradebook(className, className);
 		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
-		cate1Long = gradebookManager.createCategory(persistentGradebook.getId(), "cate 1", new Double(0.40), 0);
-		cate2Long = gradebookManager.createCategory(persistentGradebook.getId(), "cate 2", new Double(0.60), 0);
+		cate1Long = gradebookManager.createCategory(persistentGradebook.getId(), "cate 1", new Double(40), 0);
+		cate2Long = gradebookManager.createCategory(persistentGradebook.getId(), "cate 2", new Double(60), 0);
 
 		List list = (List) gradebookManager.getCategories(persistentGradebook.getId());
 
@@ -204,7 +204,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		for(int i=0; i<list.size(); i++)
 		{
 			Category cat = (Category) list.get(i);
-			cat.setWeight(1.0/list.size());
+			cat.setWeight(1.0/list.size() * 100.0);
 			gradebookManager.updateCategory(cat);
 //			System.out.println(cat.getWeight().doubleValue());
 		}
@@ -642,7 +642,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 				new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId()))) * 2).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 			Assert.assertTrue(new BigDecimal(cgr.getGradeAsPercentage()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
 				new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId())) ) * 0.4 * 100 / 5.0 + ((Double)studentIdMap.get(cgr.getStudentId())) * 0.6 * 100 / 10.0 ).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-//System.out.println(cgr.getGradeAsPercentage() + "--" + cgr.getDisplayGrade());
+//System.out.println(cgr.getGradeAsPercentage() + "--" + cgr.getDisplayGrade() + "--" + new BigDecimal((((Double)studentIdMap.get(cgr.getStudentId())) ) * 0.4 * 100 / 5.0 + ((Double)studentIdMap.get(cgr.getStudentId())) * 0.6 * 100 / 10.0 ).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		}
 
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
