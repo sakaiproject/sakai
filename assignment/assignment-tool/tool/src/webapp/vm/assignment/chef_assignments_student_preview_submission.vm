@@ -1,7 +1,7 @@
 <div class="portletBody">
 
 	<h3>
-		$tlang.getString("assig1")<span class="highlight"> - $tlang.getString("gen.pre")
+		$tlang.getString("assig1")<span class="highlight"> - $tlang.getString("gen.pre")</span>
 	</h3>	
 
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
