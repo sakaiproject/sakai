@@ -31,17 +31,17 @@ public class GradebookTestSuite extends TestCase {
 
 		// This test must run first to be useful, since
 		// it tests automatic updating of a blank database.
-		suite.addTestSuite(GradeMappingConfigTest.class);
-		suite.addTestSuite(AssignmentSortingTest.class);
-		suite.addTestSuite(CalculationsTest.class);
-		suite.addTestSuite(GradableObjectManagerTest.class);
-		suite.addTestSuite(GradeManagerTest.class);
-		suite.addTestSuite(GradebookManagerTest.class);
-		suite.addTestSuite(GradebookServiceInternalTest.class);
-		suite.addTestSuite(GradebookServiceTest.class);
-		suite.addTestSuite(GradeMappingTest.class);
-		suite.addTestSuite(SpreadsheetTest.class);
-		suite.addTestSuite(GradeCommentTest.class);
+//		suite.addTestSuite(GradeMappingConfigTest.class);
+//		suite.addTestSuite(AssignmentSortingTest.class);
+//		suite.addTestSuite(CalculationsTest.class);
+//		suite.addTestSuite(GradableObjectManagerTest.class);
+//		suite.addTestSuite(GradeManagerTest.class);
+//		suite.addTestSuite(GradebookManagerTest.class);
+//		suite.addTestSuite(GradebookServiceInternalTest.class);
+//		suite.addTestSuite(GradebookServiceTest.class);
+//		suite.addTestSuite(GradeMappingTest.class);
+//		suite.addTestSuite(SpreadsheetTest.class);
+//		suite.addTestSuite(GradeCommentTest.class);
 		suite.addTestSuite(GradebookManagerOPCTest.class);
 		return suite;
 	}
