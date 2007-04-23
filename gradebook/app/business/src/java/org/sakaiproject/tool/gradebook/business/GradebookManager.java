@@ -480,4 +480,14 @@ public interface GradebookManager {
      * @return Assignment list
      */
     public List getAssignmentsWithNoCategoryWithStats(Long gradebookId, String assignmentSort, boolean assignAscending);
+    
+    /**
+     * Convert grading events to percentage value if grade_type is set to percentage inputs. 
+     *  
+     * @param assign Assignment
+     * @param events GradingEvents
+     * @param studentUids List of student ids
+     * @param grade_type gradebook's grade_type
+     */
+    public void convertGradingEventsConverted(Assignment assign, GradingEvents events, List studentUids, int grade_type);
 }

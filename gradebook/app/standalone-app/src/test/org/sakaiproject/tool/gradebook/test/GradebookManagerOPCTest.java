@@ -8,7 +8,10 @@ import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Comment;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
+import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.GradingEvent;
+import org.sakaiproject.tool.gradebook.GradingEvents;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -2072,7 +2075,35 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 				Assert.assertTrue(new BigDecimal(assginment.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
 					new BigDecimal((1.0 + 2.0 +3 +4 +5) / 5.0 / 9.0 * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		}
-		
 	}
 	
+	public void testConvertGradingEventsConverted() throws Exception
+	{
+		Assignment assign = gradebookManager.getAssignment(assgn1Long);
+		GradingEvent ge1 = new GradingEvent(assign, "admin", "studentId1", new Double(1.0));
+		GradingEvent ge2 = new GradingEvent(assign, "admin", "studentId2", new Double(2.0));
+		GradingEvents ges = new GradingEvents();
+		ges.addEvent(ge1);
+		ges.addEvent(ge2);
+		List uid = new ArrayList();
+		uid.add("studentId1");
+		uid.add("studentId2");
+		
+		gradebookManager.convertGradingEventsConverted(assign, ges, uid, GradebookService.GRADE_TYPE_PERCENTAGE);
+
+		List events = ges.getEvents((String)uid.get(0));
+		for(Iterator iter = events.iterator(); iter.hasNext(); )
+		{
+			GradingEvent converted = (GradingEvent) iter.next();
+			Assert.assertTrue(new BigDecimal(new Double(converted.getGrade())).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+				new BigDecimal(1.0 / assign.getPointsPossible().doubleValue() * 100.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+		}
+		events = ges.getEvents((String)uid.get(1));
+		for(Iterator iter = events.iterator(); iter.hasNext(); )
+		{
+			GradingEvent converted = (GradingEvent) iter.next();
+			Assert.assertTrue(new BigDecimal(new Double(converted.getGrade())).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
+				new BigDecimal(2.0 / assign.getPointsPossible().doubleValue() * 100.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+		}
+	}
 }

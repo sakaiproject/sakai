@@ -1801,4 +1801,20 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	return assignments;
     }
 
+    public void convertGradingEventsConverted(Assignment assign, GradingEvents events, List studentUids, int grade_type)
+    {
+    	for(Iterator iter = studentUids.iterator(); iter.hasNext();)
+    	{
+    		List gradingEvents = events.getEvents((String)iter.next());
+    		for(Iterator eventIter = gradingEvents.iterator(); eventIter.hasNext();)
+    		{
+    			GradingEvent ge = (GradingEvent) eventIter.next();
+    			if(grade_type == GradebookService.GRADE_TYPE_PERCENTAGE)
+    			{
+    				ge.setGrade(new Double((new Double(ge.getGrade()).doubleValue()  * 100.0) / assign.getPointsPossible().doubleValue()).toString());
+    			}
+    			//TODO letter grading type?
+    		}
+    	}
+    }
 }
