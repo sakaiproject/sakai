@@ -175,7 +175,11 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 				// Set up score rows.
 				Map enrollmentMap = getOrderedEnrollmentMap();
 				List studentUids = new ArrayList(enrollmentMap.keySet());
-				List gradeRecords = getGradebookManager().getAssignmentGradeRecords(assignment, studentUids);
+				List gradeRecords = new ArrayList();
+				if (getGradeEntryByPoints())
+					gradeRecords = getGradebookManager().getAssignmentGradeRecords(assignment, studentUids);
+				else if (getGradeEntryByPercent())
+					gradeRecords = getGradebookManager().getAssignmentGradeRecordsConverted(assignment, studentUids);
 
 				if (!isEnrollmentSort()) {
 					// Need to sort and page based on a scores column.
@@ -233,16 +237,48 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 		            if (comment == null) {
 		            	comment = new Comment(studentUid, null, assignment);
 		            }
+		            
+		            // if the grade entry is not by points, we need to adjust the
+		            // log display to represent the grade entry method
+		            List studentGradeEvents = allEvents.getEvents(studentUid);
+		            if (!getGradeEntryByPoints() && studentGradeEvents != null) {
+		            	if (getGradeEntryByPercent()) {
+		            		Iterator eventIter = studentGradeEvents.iterator();
+		            		while (eventIter.hasNext()) {
+		            			GradingEvent studentEvent = (GradingEvent) eventIter.next();
+		            			String gradeAsString = studentEvent.getGrade();
+		            			if (gradeAsString != null) {
+		            				// try to convert the string grade to a double
+		            				try {
+		            					Double gradeAsDouble = new Double(gradeAsString);
+		            					if (assignment.getPointsPossible().doubleValue() > 0) {
+		            						double gradeAsPercent = gradeAsDouble.doubleValue() / assignment.getPointsPossible().doubleValue() * 100;
+		            						gradeAsPercent = FacesUtil.getRoundDown(gradeAsPercent, 2);
+		            						studentEvent.setGrade(gradeAsPercent + "");
+		            					}
+		            				} catch (NumberFormatException nfe) {
+		            					continue;
+		            				}
+		            			}
+		            		}
+		            	}
+		            }
 
 					scoreRows.add(new ScoreRow(enrollment, gradeRecord, comment, allEvents.getEvents(studentUid)));
 				}
 				
-				if (assignment.getCategory() != null) {
-					assignmentWeight = assignment.getCategory().getWeight().toString();
-					assignmentCategory = assignment.getCategory().getName() + " " + getLocalizedString("cat_weight_display", new String[] {assignmentWeight});
-				}
-				else {
-					assignmentCategory = getLocalizedString("assignment_details_assign_category");
+				if (getCategoriesEnabled()) {
+					if (assignment.getCategory() != null) {
+						if (getWeightingEnabled()) {
+							assignmentWeight = assignment.getCategory().getWeight().toString();
+							assignmentCategory = assignment.getCategory().getName() + " " + getLocalizedString("cat_weight_display", new String[] {assignmentWeight});
+						} else {
+							assignmentCategory = assignment.getCategory().getName();
+						}
+					}
+					else {
+						assignmentCategory = getLocalizedString("assignment_details_assign_category");
+					}
 				}
 
 			} else {

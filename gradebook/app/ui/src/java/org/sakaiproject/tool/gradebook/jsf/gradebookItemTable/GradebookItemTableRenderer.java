@@ -296,7 +296,7 @@ public class GradebookItemTableRenderer extends Renderer {
 					}
 				}
 				else {
-					throw new IOException("Invalid class passed to renderer: " + gbItem.getClass());
+					throw new IllegalArgumentException("Invalid class passed to renderer: " + gbItem.getClass());
 				}
 			}
 			
