@@ -41,6 +41,24 @@
       <property name="name"><value>View Resource Metadata</value></property>
       <property name="location"><value>/sakai_resources/arfd.html</value></property>
    </bean>
+
+   <bean id="webDavOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqyy</value></property>
+      <property name="name"><value>WebDAV Overview</value></property>
+      <property name="location"><value>/sakai_resources/aqyy.html</value></property>
+   </bean>
+
+   <bean id="winxpAccess" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>araf</value></property>
+      <property name="name"><value>Using WebDAV with Windows XP or Vista</value></property>
+      <property name="location"><value>/sakai_resources/araf.html</value></property>
+   </bean>
+
+   <bean id="macAccess" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqyi</value></property>
+      <property name="name"><value>Using WebDAV with Mac OS X</value></property>
+      <property name="location"><value>/sakai_resources/aqyi.html</value></property>
+   </bean>
    
     <bean id="org.sakaiproject.api.app.help.TableOfContents" 
           class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
@@ -58,6 +76,9 @@
                       <ref bean="moveResource"/>
                       <ref bean="sortResource"/>
                      <ref bean="deleteResource"/>
+                     <ref bean="webDavOverview"/>
+                     <ref bean="winxpAccess"/>
+                     <ref bean="macAccess"/>
                   </list>
                </property>
             </bean>
