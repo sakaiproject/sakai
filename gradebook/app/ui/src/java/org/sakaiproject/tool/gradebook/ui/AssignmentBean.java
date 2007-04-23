@@ -35,6 +35,7 @@ import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameExcept
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.Category;
+import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 
@@ -175,6 +176,11 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
     public void setAssignmentCategory(String assignmentCategory) {
     	this.assignmentCategory = assignmentCategory;
     }
+	
+	public Gradebook getLocalGradebook()
+	{
+		return getGradebook();
+	}
     
     /**
      * Returns the Category associated with assignmentCategory

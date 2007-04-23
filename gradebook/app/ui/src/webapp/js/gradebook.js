@@ -289,14 +289,16 @@ function showHideAll(numToggles, context, expandAlt, collapseAlt, expandTitle, c
 function assignmentCategoryChange(myForm, categoriesEnabled) {
 	if (categoriesEnabled != true)
 		return;
-	var categorySelectionEl = getTheElement(myForm.name + ':selectCategory');
-	var countedCheckboxEl = getTheElement(myForm.name + ':countAssignment');
+	var categorySelectionEl = getTheElement(myForm + ':selectCategory');
+	var releasedCheckboxEl =  getTheElement(myForm + ':released');
+	var countedCheckboxEl =   getTheElement(myForm + ':countAssignment');
 	
-	if (categorySelectionEl.value == 'unassigned') {
+	if (categorySelectionEl.value == 'unassigned' || releasedCheckboxEl.checked == false) {
 		countedCheckboxEl.checked = false;
 		countedCheckboxEl.disabled = true;
 	}	
-	else {
+	else if (categorySelectionEl.value != 'unassigned' && releasedCheckboxEl.checked == true ){
 		countedCheckboxEl.disabled = false;
+		countedCheckboxEl.checked = true;
 	}
 }

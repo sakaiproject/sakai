@@ -34,7 +34,7 @@
 	
 	<h:outputLabel for="category" id="categoryLabel" value="#{msgs.add_assignment_category}" rendered="#{bean.categoriesEnabled}" />
 	<h:panelGroup rendered="#{bean.categoriesEnabled}">
-		<h:selectOneMenu id="selectCategory" value="#{bean.assignmentCategory}" onchange="javascript:assignmentCategoryChange(this.form, #{bean.categoriesEnabled} );">
+		<h:selectOneMenu id="selectCategory" value="#{bean.assignmentCategory}" onchange="javascript:assignmentCategoryChange(this.form.name, #{bean.categoriesEnabled} );">
 			<f:selectItems value="#{bean.categoriesSelectList}" />
 		</h:selectOneMenu>
 		<f:verbatim><div class="instruction"></f:verbatim>
@@ -49,11 +49,26 @@
 	only JSF supported "colspan"....
 */%>
 <h:panelGrid columns="2" columnClasses="prefixedCheckbox">
-	<h:selectBooleanCheckbox id="countAssignment" value="#{bean.assignment.counted}"
-		onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
-	<h:outputLabel for="countAssignment" value="#{msgs.add_assignment_counted}" />
-
-   <h:selectBooleanCheckbox id="released" value="#{bean.assignment.released}"
+    <h:selectBooleanCheckbox id="released" value="#{bean.assignment.released}" onclick="assignmentCategoryChange(this.form.name, #{bean.categoriesEnabled} );"
 		onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
 	<h:outputLabel for="released" value="#{msgs.add_assignment_released}" />
+	
+	<h:outputText escape="false" value="&nbsp;" rendered="#{!bean.localGradebook.assignmentsDisplayed}" />
+	<h:outputText styleClass="instruction" value="#{msgs.add_assignment_released_conditional}" rendered="#{!bean.localGradebook.assignmentsDisplayed}" />
+
+	<h:outputText escape="false" value="&nbsp;" />
+	
+	<h:panelGrid columns="2" columnClasses="prefixedCheckbox">
+		<h:selectBooleanCheckbox id="countAssignment" value="#{bean.assignment.counted}"
+			onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
+		<h:outputLabel for="countAssignment" value="#{msgs.add_assignment_counted}" />
+		
+		<h:outputText escape="false" value="&nbsp;" />
+		<h:outputText styleClass="instruction" value="#{msgs.add_assignment_counted_detail}" />
+	</h:panelGrid>
 </h:panelGrid>
+<h:outputText escape="false" value="<script type='text/javascript'>cat = #{bean.categoriesEnabled};</script>" />
+
+<script type="text/javascript">
+	assignmentCategoryChange('gbForm', cat);
+</script>
