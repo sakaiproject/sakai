@@ -398,6 +398,11 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		                param.setValue(columnData.getAssignmentId());
 		                detailsLink.getChildren().add(param);
 		                
+		                UIParameter param2 = new UIParameter();
+		                param2.setName("breadcrumbPage");
+		                param2.setValue("roster");
+		                detailsLink.getChildren().add(param2);
+		                
 		                HtmlOutputText br = new HtmlOutputText();
 		                br.setValue("<br />");
 		                br.setEscape(false);
