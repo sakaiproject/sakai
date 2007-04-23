@@ -209,10 +209,11 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 		    	Map stats = new HashMap();
 		    	stats.put("studentPoints", studentTotal);
 		    	stats.put("categoryPoints", total);
+		    	stats.put("category", category);
 		    	studentCategoryMap.put(category.getId(), stats);
-	    	}  	
+	    	}
     	}
-    	int var =1; var++;
+    	
     }
     
 //    public List getPointsEarnedCourseGradeRecords(final CourseGrade courseGrade, final Collection studentUids, final Collection assignments, final Map gradeRecordMap) {

@@ -29,6 +29,11 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
+import org.sakaiproject.tool.gradebook.GradableObject;
+import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.Category;
 
 /**
  * This formatting-only converver consolidates the rather complex formatting
@@ -47,17 +52,27 @@ public class CategoryPointsConverter extends PointsConverter {
 		boolean notCounted = false;
 		Double studentPoints = 0.0;
 		Double categoryPoints = 0.0;
-
+		Category cat = null;
+		
 		if (value != null) {
 			if (value instanceof Map) {
 				studentPoints = (Double) ((Map)value).get("studentPoints");
 				categoryPoints = (Double) ((Map)value).get("categoryPoints");
+				cat = (Category) ((Map)value).get("category");
 			}
 		}
-		formattedScore = 
-			super.getAsString(context, component, studentPoints) + "/" +
-			super.getAsString(context, component, categoryPoints);
-
+		//if Category is null, then this is "Unassigned" therefore n/a
+		if( cat == null){
+			formattedScore = "n/a";
+		} else if( cat.getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_POINTS){
+			//if grade by points 
+			formattedScore = 
+				super.getAsString(context, component, studentPoints) + "/" +
+				super.getAsString(context, component, categoryPoints);
+		} else {
+			//display percentage
+			formattedScore = super.getAsString(context, component,((studentPoints / categoryPoints) * 100)) + "%";
+		}
 		return formattedScore;
 	}
 }

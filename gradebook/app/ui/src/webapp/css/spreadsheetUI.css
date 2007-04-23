@@ -96,6 +96,12 @@ div#q3 {
    border-right: 2px solid #a3a3a3;
    float: left;
 }
+   div#q3 td span {
+	  display: block;
+      text-align:center;
+      width: 100%;
+   }
+   
    div#q3 div {
       float: left;
       overflow: hidden;

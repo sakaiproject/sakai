@@ -27,9 +27,11 @@ import javax.faces.context.FacesContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
+import org.sakaiproject.tool.gradebook.GradableObject;
 
 /**
  * This formatting-only converver consolidates the rather complex formatting
@@ -47,14 +49,26 @@ public class AssignmentPointsConverter extends PointsConverter {
 		String formattedScore;
 		boolean notCounted = false;
 		Object workingValue = value;
-
+		boolean percentage = false;
+		
 		if (value != null) {
 			if (value instanceof Assignment) {
 				Assignment assignment = (Assignment)value;
 				workingValue = assignment.getPointsPossible();
 				notCounted = assignment.isNotCounted();
 			} else if (value instanceof AbstractGradeRecord) {
-				workingValue = ((AbstractGradeRecord)value).getPointsEarned();
+				if(((GradableObject)((AbstractGradeRecord)value).getGradableObject()).getGradebook().getGrade_type() 
+						== GradebookService.GRADE_TYPE_POINTS 
+						&&
+				   ((GradableObject)((AbstractGradeRecord)value).getGradableObject()).getGradebook().getCategory_type() 
+				   		== GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY){
+					//if grade by points and no category weighting
+					workingValue = ((AbstractGradeRecord)value).getPointsEarned();
+				} else {
+					//display percentage
+					percentage = true;
+					workingValue = ((AbstractGradeRecord)value).getGradeAsPercentage();
+				}
 				if (value instanceof AssignmentGradeRecord) {
 					notCounted = ((AssignmentGradeRecord)value).getAssignment().isNotCounted();
 				}
@@ -64,6 +78,9 @@ public class AssignmentPointsConverter extends PointsConverter {
 		if (notCounted) {
 			formattedScore = FacesUtil.getLocalizedString("score_not_counted",
 					new String[] {formattedScore, FacesUtil.getLocalizedString("score_not_counted_tooltip")});
+		}
+		if(percentage){
+			formattedScore += "%";
 		}
 		return formattedScore;
 	}

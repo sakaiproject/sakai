@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.text.NumberFormat;
 
 import javax.faces.application.Application;
 import javax.faces.component.UIColumn;
@@ -60,6 +61,7 @@ import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.jsf.AssignmentPointsConverter;
 import org.sakaiproject.tool.gradebook.jsf.CategoryPointsConverter;
+import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
 /**
  * Backing bean for the visible list of assignments in the gradebook.
@@ -191,7 +193,9 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 				String name = cat.getName();
 				if(getWeightingEnabled()){
 					//if weighting is enabled, then add "(weight)" to column
-					name = name + " (" + Integer.toString(cat.getWeight().intValue()) + "%)";
+					Double value = (Double) ((Number)cat.getWeight());
+					name = name + " (" +  NumberFormat.getNumberInstance().format(value * 100.0) + "%)";
+					//name = name + " (" + Integer.toString(cat.getWeight() * 100) + "%)";
 				}
 				categoryColumn.setName(name);
 				categoryColumn.setId(cat.getId());
@@ -443,7 +447,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
                 // Distinguish the "Cumulative" score for the course, which, by convention,
                 // is always the first column.
                 if (colpos == 0) {
-                	contents.setStyleClass("courseGrade");
+                	contents.setStyleClass("courseGrade center");
                 }
 
 				col.getChildren().add(contents);
