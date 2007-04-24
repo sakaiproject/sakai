@@ -130,28 +130,28 @@ limitations under the License.
 
         <!-- RSF dependencies -->
         <dependency>
-            <groupId>ponderutilcore</groupId>
+            <groupId>uk.org.ponder</groupId>
             <artifactId>ponderutilcore</artifactId>
             <version>1.2</version>
             <type>jar</type>
         </dependency>
 		
         <dependency>
-            <groupId>j-servletutil</groupId>
+            <groupId>uk.org.ponder</groupId>
             <artifactId>j-servletutil</artifactId>
             <version>1.2</version>
             <type>jar</type>
         </dependency>
 	
         <dependency>
-            <groupId>rsfutil</groupId>
+            <groupId>uk.org.ponder.rsfutil</groupId>
             <artifactId>rsfutil</artifactId>
             <version>0.7</version>
             <type>jar</type>
         </dependency>
 
         <dependency>
-            <groupId>sakairsf</groupId>
+            <groupId>uk.org.ponder.sakairsf</groupId>
             <artifactId>sakairsf</artifactId>
             <version>0.7-sakai_2.2.x</version>
             <type>jar</type>
