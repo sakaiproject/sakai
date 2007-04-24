@@ -203,6 +203,13 @@ public abstract class BaseAliasService implements AliasService, StorageUser
 			return siteService().allowUpdateSite(ref.getContext());
 		}
 
+		// TODO: fake this dependency (CalendarService.APPLICATION_ID) to keep the calendar dependencies away 
+		else if (ref.getType().equals("sakai:calendar"))
+		{
+			// base this on site update, too
+			return siteService().allowUpdateSite(ref.getContext());
+		}
+
 		return false;
 
 	} // unlockTargetCheck
