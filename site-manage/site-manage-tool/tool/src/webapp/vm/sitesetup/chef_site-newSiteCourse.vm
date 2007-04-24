@@ -1,9 +1,5 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-newSiteCourse.vm,v 1.3 2005/05/25 17:42:01 gsilver.umich.edu Exp $ -->
-<style type="text/css">
-.displayNone{display:none;}
-</style>
-
-<SCRIPT LANGUAGE=JAVASCRIPT>
+<script type="text/javascript">
 <!-- hide from non-JS browsers
 function toggle(toggleKey, begin, end) {
     var checkboxes = document.getElementsByName("providerCourseAdd");
@@ -128,7 +124,7 @@ function redirectBasedOnSelection(){
 }
 
 // -->
-</SCRIPT>
+</script>
 
 <div class="portletBody">
 	#if (!$!site)
@@ -156,16 +152,12 @@ function redirectBasedOnSelection(){
 		<ul>
 			#foreach($id in $!providerCourseList)
 				<li>
-					<label for = "$id">
 						$id
-					</label>
 				</li>
 			#end
 			#foreach($id in $!requestedCourseList)
 				<li>
-					<label for = "$id">
 						$id
-					</label>
 				</li>
 			#end
 		</ul>
@@ -199,17 +191,18 @@ function redirectBasedOnSelection(){
 				<input type="hidden" name="itemType" value="course" />
 				<input type="hidden" name="selectTerm" value="$term.eid" />
 				<input type="submit" accesskey="s" name="eventSubmit_doChange_user" value="$tlang.getString("nscourse.change_button")"
-				onsubmit="javascript:submitChangeUser()" />
+				onclick="javascript:submitChangeUser()" 
+				/>
 			</td>
 			</tr>
 			<tr>
 			<td></td>
 			<td>
-				<small>$tlang.getString("nscourse.change_this_ID")</br>
+				<div class="textPanelFooter">$tlang.getString("nscourse.change_this_ID")
 				#if ($campusDirectory)
 			   		<p><a href="#" onclick="javascript:window.open('$campusDirectory','new_window'); return false;">$tlang.getString("nscourse.look_up_an_username")...</a></p>
 				#end
-				</small>
+				</div>
 			</td>
 			</tr>
 		</table>
@@ -226,16 +219,18 @@ function redirectBasedOnSelection(){
 				#set($crosslisted=0)	
 				#set($courseNumber=0)	
 				#foreach($courseObject in $termCourseList)
-					<table>
-					<th align="left">
+					<table class="listHier lines nolines specialLink" cellpadding="0" cellspacing="0" >
+					<tr>	
+					<th colspan="2">
 					$courseObject.eid : $courseObject.title 
 					#if ($!courseObject.courseOfferingObjects.size() > 1)
 						(cross-listed)
 						#set($crosslisted=1)	
 					#end
 					</th>
+					</tr>
 					#foreach($courseOfferingObject in $courseObject.courseOfferingObjects)
-						<tr><td>
+						<tr class="exclude"><td colspan="2">
 						#if ($providerCourseList) 
 							#set($endKey = $courseNumber + $!courseOfferingObject.sections.size() - $!providerCourseList.size())
 						#else
@@ -246,17 +241,18 @@ function redirectBasedOnSelection(){
 							<div id="selectAll$courseNumber">							
 								<a href="#" onclick="javascript:selectAll($courseNumber, $endKey)" >$tlang.getString("nscourse.select_group_sections")</a>
 							</div>
-							<div id="unselectAll$courseNumber" class="displayNone">
+							<div id="unselectAll$courseNumber" style="display:none">
 								<a href="#" onclick="javascript:unselectAll($courseNumber, $endKey)" >$tlang.getString("nscourse.unselect_group_sections")</a>
 							</div>
 						#end
 						</td></tr>
 						#foreach($sectionObject in $courseOfferingObject.sections)
 							#if (!$!providerCourseList.contains("$sectionObject.eid")) 
-								<tr><td class="checkbox">
+								<tr><td class="attach"
 								#if (!$sectionObject.isLecture)
-									&nbsp;&nbsp;
+									style="padding-left:1em"
 								#end
+								>
 								<input type="checkbox" name="providerCourseAdd" value="$sectionObject.eid" id="course$courseNumber"
 								#if ($!selectedProviderCourse.contains("$sectionObject.eid") || $!selectedAuthorizerCourse.contains("$sectionObject.eid") )
 									checked
@@ -266,10 +262,12 @@ function redirectBasedOnSelection(){
 								#end
 								onclick="javascript:setContinueButton();"
 								/>
+								</td>
+								<td>
  								<label for="course$courseNumber">
 									$validator.escapeHtml($sectionObject.eid) : $sectionObject.title, $sectionObject.getCategoryDescription()</label>
 								#if ($sectionObject.attached)
-									(Site already exists, <a href="#" onclick="javascript:enableCheckBox($!courseNumber)">select anyway?</a>)
+									<span class="instruction">($tlang.getString("nscourse.site_exists") <a href="#" onclick="javascript:enableCheckBox($!courseNumber)">$tlang.getString("nscourse.select_anyways")</a>)</span>
 								#end
 								#set ($courseNumber = $courseNumber +1)
 								</td></tr>
