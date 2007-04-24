@@ -66,27 +66,7 @@
     </property>
     <property name="messageService" ><ref bean="org.sakaiproject.discussion.api.DiscussionService"/></property>
   </bean>
-  
-  <bean id="chatMessageAdapter" 
-    class="org.sakaiproject.search.component.adapter.message.MessageContentProducer"
-    singleton="true"
-    init-method="init" >
-    <property name="toolName" ><value>chat</value></property>
-    <property name="addEvents" >
-      <list>
-        <value>chat.new</value>
-        <value>chat.revise.own</value>
-        <value>chat.revise.any</value>
-      </list>
-    </property>
-    <property name="removeEvents" >
-      <list>
-        <value>chat.delete.own</value>
-        <value>chat.delete.any</value>
-      </list>
-    </property>
-    <property name="messageService" ><ref bean="org.sakaiproject.chat.api.ChatService"/></property>
-  </bean>
+
   <bean id="announcementMessageAdapter" 
     class="org.sakaiproject.search.component.adapter.message.MessageContentProducer"
     singleton="true"
