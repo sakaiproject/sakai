@@ -9452,6 +9452,12 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		public ContentEntity getMember(String nextId)
 		{
+			ContentEntity ce  = m_storage.getCollection(nextId);
+			if ( ce == null ) {
+				ce = m_storage.getResource(nextId);
+			}
+			return ce;
+			/*
 			List l = getMemberResources();
 			for ( Iterator li = l.iterator(); li.hasNext(); ) {
 				ContentEntity ce = (ContentEntity) li.next();
@@ -9460,6 +9466,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				}
 			}
 			return null;
+			*/
 		}
 
 	} // class BaseCollectionEdit

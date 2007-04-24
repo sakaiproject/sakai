@@ -543,7 +543,7 @@ public class DbContentService extends BaseContentService
 		public DbStorage(StorageUser collectionUser, StorageUser resourceUser, boolean bodyInFile,
 				BaseContentHostingHandlerResolver resolver)
 		{
-			this.resolver = resolver;
+			this.resolver = resolver; 
 			this.resolver.setResourceUser(resourceUser);
 			this.resolver.setCollectionUser(collectionUser);
 
@@ -626,6 +626,9 @@ public class DbContentService extends BaseContentService
 
 		public boolean checkCollection(String id)
 		{
+			if ( id == null || id.trim().length() == 0 ) {
+				return false;
+			}
 			boolean goin = in();
 			try
 			{
@@ -646,6 +649,9 @@ public class DbContentService extends BaseContentService
 
 		public ContentCollection getCollection(String id)
 		{
+			if ( id == null || id.trim().length() == 0 ) {
+				return null;
+			}
 			boolean goin = in();
 			try
 			{
@@ -704,6 +710,9 @@ public class DbContentService extends BaseContentService
 
 		public ContentCollectionEdit putCollection(String id)
 		{
+			if ( id == null || id.trim().length() == 0 ) {
+				return null;
+			}
 			boolean goin = in();
 			try
 			{
@@ -724,6 +733,9 @@ public class DbContentService extends BaseContentService
 
 		public ContentCollectionEdit editCollection(String id)
 		{
+			if ( id == null || id.trim().length() == 0 ) {
+				return null;
+			}
 			boolean goin = in();
 			try
 			{
@@ -838,6 +850,9 @@ public class DbContentService extends BaseContentService
 
 		public boolean checkResource(String id)
 		{
+			if ( id == null || id.trim().length() == 0 ) {
+				return false;
+			}
 			boolean goin = in();
 			try
 			{
@@ -858,6 +873,9 @@ public class DbContentService extends BaseContentService
 
 		public ContentResource getResource(String id)
 		{
+			if ( id == null || id.trim().length() == 0 ) {
+				return null;
+			}
 			boolean goin = in();
 			try
 			{
@@ -934,6 +952,9 @@ public class DbContentService extends BaseContentService
 
 		public ContentResourceEdit putResource(String id)
 		{
+			if ( id == null || id.trim().length() == 0 ) {
+				return null;
+			}
 			boolean goin = in();
 			try
 			{
@@ -954,6 +975,9 @@ public class DbContentService extends BaseContentService
 
 		public ContentResourceEdit editResource(String id)
 		{
+			if ( id == null || id.trim().length() == 0 ) {
+				return null;
+			}
 			boolean goin = in();
 			try
 			{
@@ -1612,6 +1636,9 @@ public class DbContentService extends BaseContentService
 
 		public int getMemberCount(String collectionId)
 		{
+			if ( collectionId == null || collectionId.trim().length() == 0 ) {
+				return 0;
+			}
 			boolean goin = in();
 			try
 			{
