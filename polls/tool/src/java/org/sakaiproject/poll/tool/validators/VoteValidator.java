@@ -136,18 +136,18 @@ public class VoteValidator implements Validator {
 		
 	  
 	  if (poll.getMaxOptions() == poll.getMinOptions() && options.size() != poll.getMaxOptions()){
-		  logger.warn("exact match failure!");
+		  logger.debug("exact match failure!");
 		  String errStr = new Integer(poll.getMinOptions()).toString();
 		  errors.reject("error_exact_required", new Object[] {errStr}, "exact required");
 	  }
 	  if (options.size() > poll.getMaxOptions()) {
-		  logger.warn("votes are for more than allowed!");
+		  logger.debug("votes are for more than allowed!");
 		  String errStr = new Integer(poll.getMaxOptions()).toString();
 		  errors.reject("error_tomany_votes", new Object[] {errStr}, "to many votes");
 	  }
 	  
 	  if (options.size() < poll.getMinOptions()) {
-		  logger.warn("votes are for fewer than required!");
+		  logger.debug("votes are for fewer than required!");
 		  String errStr = new Integer(poll.getMinOptions()).toString();
 		  errors.reject("error_tofew_votes", new Object[] {errStr}, "to few");
 	  }
