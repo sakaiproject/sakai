@@ -37,6 +37,14 @@ function gethandles(){
          + parseInt($(this).css("padding-right")) * 2);
    });   
 
+   $("div#q3 tr").each(function(i){
+      if($(this).height() > $("div#q4 tr:eq(" + i + ")").height()){
+         $("div#q4 tr:eq(" + i + ")").height($(this).height());
+      } else {
+         $(this).height($("div#q4 tr:eq(" + i + ")").height());
+      }
+   });
+
    el1 = $("div#q2 div ul").get(0);
    el2 = $("div#q3 div table").get(0);
    els = $("div#q4 div").get(0);
