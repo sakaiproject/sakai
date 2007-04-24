@@ -22,6 +22,7 @@ function gethandles(){
    $("div#q3 div").width($("ul#q1").width() + ($("div#q3 div").css("overflow") == "auto" ? 15 : 0));
    total = 0; count = 0;
    $("div#q2 div ul li").each(function(c){
+   	  if($(this).width() < 50) $(this).css("width", "45px"); 
       total += $(this).width() + parseInt($(this).css("padding-right")) * 2; count=c+1;
    });
    total += count * 2;     

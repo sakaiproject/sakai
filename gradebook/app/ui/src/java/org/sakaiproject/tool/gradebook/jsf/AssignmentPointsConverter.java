@@ -61,7 +61,7 @@ public class AssignmentPointsConverter extends PointsConverter {
 						== GradebookService.GRADE_TYPE_POINTS 
 						&&
 				   ((GradableObject)((AbstractGradeRecord)value).getGradableObject()).getGradebook().getCategory_type() 
-				   		== GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY){
+				   		!= GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY){
 					//if grade by points and no category weighting
 					workingValue = ((AbstractGradeRecord)value).getPointsEarned();
 				} else {
