@@ -41,6 +41,7 @@ import org.sakaiproject.service.gradebook.shared.StaleObjectModificationExceptio
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
+import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Comment;
 import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.GradingEvents;
@@ -153,14 +154,39 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 			assignment = getGradebookManager().getAssignmentWithStats(assignmentId);
 			if (assignment != null) {
                 // Get the list of assignments.  If we are sorting by mean, we
-                // need to fetch the assignment statistics as well.
+                // need to fetch the assignment statistics as well. If categories
+				// are enabled, we need to retrieve the categories and extract the assignments
+				// b/c the assignments will be grouped by category
 				List assignments;
-                if(Assignment.SORT_BY_MEAN.equals(getAssignmentSortColumn())) {
+                if(!getCategoriesEnabled() && Assignment.SORT_BY_MEAN.equals(getAssignmentSortColumn())) {
                     assignments = getGradebookManager().getAssignmentsWithStats(getGradebookId(),
                             getAssignmentSortColumn(), isAssignmentSortAscending());
-                } else {
+                } else if (!getCategoriesEnabled()){
                     assignments = getGradebookManager().getAssignments(getGradebookId(),
                             getAssignmentSortColumn(), isAssignmentSortAscending());
+                } else {
+                	// Categories are enabled, so the assignments are grouped by category
+                	assignments = new ArrayList();
+                	List categories = getGradebookManager().getCategoriesWithStats(getGradebookId(), getAssignmentSortColumn(), isAssignmentSortAscending(), getCategorySortColumn(), isCategorySortAscending());
+                	if (categories != null) {
+                		Iterator catIter = categories.iterator();
+                		while (catIter.hasNext()) {
+                			Object myObj = catIter.next();
+                			if (myObj instanceof Category) {
+                				Category myCat = (Category) myObj;
+                				List catAssigns = myCat.getAssignmentList();
+                				if (catAssigns != null) {
+                					assignments.addAll(catAssigns);
+                				}
+                			}
+                		}
+                	}
+                	// we also need to retrieve all of the assignments that have not
+                	// yet been assigned a category
+                	List assignNoCategory = getGradebookManager().getAssignmentsWithNoCategory(getGradebookId(), getAssignmentSortColumn(), isAssignmentSortAscending());
+                	if (assignNoCategory != null) {
+                		assignments.addAll(assignNoCategory);
+                	}
                 }
 
                 // Set up next and previous links, if any.
@@ -200,7 +226,8 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 
                 // Get all of the grading events for these enrollments on this assignment
                 GradingEvents allEvents = getGradebookManager().getGradingEvents(assignment, studentUids);
-
+                getGradebookManager().convertGradingEventsConverted(assignment, allEvents, studentUids, getGradebook().getGrade_type());
+                
                 Map gradeRecordMap = new HashMap();
                 for (Iterator iter = gradeRecords.iterator(); iter.hasNext(); ) {
 					AssignmentGradeRecord gradeRecord = (AssignmentGradeRecord)iter.next();
@@ -233,35 +260,15 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 		                gradeRecord = new AssignmentGradeRecord(assignment, studentUid, null);
 		                gradeRecords.add(gradeRecord);
 		            }
+		            // we may have some decimals with more than 2 places from the % conversion from points
+		            if (gradeRecord != null && gradeRecord.getPointsEarned() != null && getGradeEntryByPercent()) {
+		            	double pointsEarned = gradeRecord.getPointsEarned().doubleValue();
+		            	pointsEarned = FacesUtil.getRoundDown(pointsEarned, 2);
+		            	gradeRecord.setPointsEarned(new Double(pointsEarned));
+		            }
 		            Comment comment = (Comment)commentMap.get(studentUid);
 		            if (comment == null) {
 		            	comment = new Comment(studentUid, null, assignment);
-		            }
-		            
-		            // if the grade entry is not by points, we need to adjust the
-		            // log display to represent the grade entry method
-		            List studentGradeEvents = allEvents.getEvents(studentUid);
-		            if (!getGradeEntryByPoints() && studentGradeEvents != null) {
-		            	if (getGradeEntryByPercent()) {
-		            		Iterator eventIter = studentGradeEvents.iterator();
-		            		while (eventIter.hasNext()) {
-		            			GradingEvent studentEvent = (GradingEvent) eventIter.next();
-		            			String gradeAsString = studentEvent.getGrade();
-		            			if (gradeAsString != null) {
-		            				// try to convert the string grade to a double
-		            				try {
-		            					Double gradeAsDouble = new Double(gradeAsString);
-		            					if (assignment.getPointsPossible().doubleValue() > 0) {
-		            						double gradeAsPercent = gradeAsDouble.doubleValue() / assignment.getPointsPossible().doubleValue() * 100;
-		            						gradeAsPercent = FacesUtil.getRoundDown(gradeAsPercent, 2);
-		            						studentEvent.setGrade(gradeAsPercent + "");
-		            					}
-		            				} catch (NumberFormatException nfe) {
-		            					continue;
-		            				}
-		            			}
-		            		}
-		            	}
 		            }
 
 					scoreRows.add(new ScoreRow(enrollment, gradeRecord, comment, allEvents.getEvents(studentUid)));
@@ -289,12 +296,18 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 		}
 	}
 
-	// Delegated sort methods for read-only assignment sort order
+	// Delegated sort methods for read-only assignment & category sort order
     public String getAssignmentSortColumn() {
         return getPreferencesBean().getAssignmentSortColumn();
     }
     public boolean isAssignmentSortAscending() {
         return getPreferencesBean().isAssignmentSortAscending();
+    }
+    public String getCategorySortColumn() {
+        return getPreferencesBean().getCategorySortColumn();
+    }
+    public boolean isCategorySortAscending() {
+        return getPreferencesBean().isCategorySortAscending();
     }
 
 	/**

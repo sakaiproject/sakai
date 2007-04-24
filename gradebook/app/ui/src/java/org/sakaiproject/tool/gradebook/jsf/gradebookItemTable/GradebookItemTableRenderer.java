@@ -87,6 +87,11 @@ public class GradebookItemTableRenderer extends Renderer {
 			writer.writeAttribute("cellpadding", cellpadding, null);
 		}
 		
+		String headerClasses[] = getHeaderClasses(data);
+		int headerStyle = 0;
+		int headerStyles = headerClasses.length;
+		
+		
 		writer.writeText("\n", null);
 		
 		String expandedValue = (String) data.getAttributes().get("expanded");
@@ -118,7 +123,6 @@ public class GradebookItemTableRenderer extends Renderer {
 		// Render the header facets (if any)
 		UIComponent header = data.getFacet("header");
 		int headerFacets = getFacetCount(data, "header");
-		String headerClass = (String) data.getAttributes().get("headerClass");
 		if ((header != null) || (headerFacets > 0)) {
 			writer.startElement("thead", data);
 			writer.writeText("\n", null);
@@ -126,9 +130,6 @@ public class GradebookItemTableRenderer extends Renderer {
 		if (header != null) {
 			writer.startElement("tr", header);
 			writer.startElement("th", header);
-			if (headerClass != null) {
-				writer.writeAttribute("class", headerClass, "headerClass");
-			}
 			writer.writeAttribute("colspan", "" + getColumnCount(data), null);
 			writer.writeAttribute("scope", "colgroup", null);
 			encodeRecursive(context, header);
@@ -144,8 +145,8 @@ public class GradebookItemTableRenderer extends Renderer {
 			while (columns.hasNext()) {
 				UIColumn column = (UIColumn) columns.next();
 				writer.startElement("th", column);
-				if (headerClass != null) {
-					writer.writeAttribute("class", headerClass, "headerClass");
+				if (headerStyles > 0 && headerStyle < headerStyles) {
+					writer.writeAttribute("class", headerClasses[headerStyle++], "headerClass");
 				}
 				writer.writeAttribute("scope", "col", null);
 				if (column.getId().endsWith("_toggle")) {
@@ -153,7 +154,6 @@ public class GradebookItemTableRenderer extends Renderer {
 					int numItems = getNumDataItemsForToggle(context, component);
 					String onclickText = "javascript:showHideAll('" + numItems + "', '" +  path + "', '" + imgExpandAlt  + "', '" + imgCollapseAlt  + "', '" + imgExpandTitle + "', '" + imgCollapseTitle + "');";
 					
-					writer.writeAttribute("class", "attach", null);
 					writer.startElement(HTML.IMG_ELEM, image);
 					writer.writeURIAttribute("src", image.getValue(), null);
 					writer.writeURIAttribute("onclick", onclickText, null);
@@ -552,6 +552,8 @@ public class GradebookItemTableRenderer extends Renderer {
 		// columns that aren't rendered
 		List columns = data.getChildren();
 		for (int i=0; i < columns.size(); i++) {
+			if (i >= list.size())
+				break;
 			UIComponent kid = (UIComponent) columns.get(i);
 			if ((kid instanceof UIColumn) && !kid.isRendered()) {
 				list.remove(i);
@@ -561,7 +563,48 @@ public class GradebookItemTableRenderer extends Renderer {
 		String results[] = new String[list.size()];
 		return ((String[]) list.toArray(results));
 	}
+	
+	/**
+	 * <p>Return an array of stylesheet classes to be applied to
+	 * each header in the table in the order specified. Every column may or
+	 * may not have a class.</p>
+	 *
+	 * @param data {@link UIData} component being rendered
+	 */
+	private String[] getHeaderClasses(UIData data) {
 
+		String values = (String) data.getAttributes().get("headerClasses");
+		if (values == null) {
+			return (new String[0]);
+		}
+		values = values.trim();
+		ArrayList list = new ArrayList();
+		while (values.length() > 0) {
+			int comma = values.indexOf(",");
+			if (comma >= 0) {
+				list.add(values.substring(0, comma).trim());
+				values = values.substring(comma + 1);
+			} else {
+				list.add(values.trim());
+				values = "";
+			}
+		}
+		
+		// now iterate through the columns and remove the class for any
+		// columns that aren't rendered
+		List columns = data.getChildren();
+		for (int i=0; i < columns.size(); i++) {
+			if (i >= list.size())
+				break;
+			UIComponent kid = (UIComponent) columns.get(i);
+			if ((kid instanceof UIColumn) && !kid.isRendered()) {
+				list.remove(i);
+			}
+		}
+		
+		String results[] = new String[list.size()];
+		return ((String[]) list.toArray(results));
+	}
 
 	/**
 	 * <p>Return the number of child <code>UIColumn</code> components

@@ -110,10 +110,10 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 			List unassignedList = getGradebookManager().getAssignmentsWithNoCategoryWithStats(getGradebookId(), getAssignmentSortColumn(), isAssignmentSortAscending());
 			if (unassignedList != null && !unassignedList.isEmpty()) {
 				Category unassignedCat = new Category();
+				unassignedCat.setGradebook(getGradebook());
 				unassignedCat.setAverageScore(new Double(0));
 				unassignedCat.setName(getLocalizedString("cat_unassigned"));
 				unassignedCat.setAssignmentList(unassignedList);
-				unassignedCat.calculateStatistics(unassignedList);
 				gradebookItemList.add(unassignedCat);
 
 				Iterator unassignedIter = unassignedList.iterator();

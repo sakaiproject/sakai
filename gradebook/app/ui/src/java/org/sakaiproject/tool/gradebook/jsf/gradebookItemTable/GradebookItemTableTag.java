@@ -17,6 +17,7 @@ public class GradebookItemTableTag extends HtmlDataTableTag {
 	private String cellpadding;
 	private String cellspacing;
 	private String columnClasses;
+	private String headerClasses;
 	private String rowClasses;
 	private String styleClass;
 	
@@ -39,6 +40,7 @@ public class GradebookItemTableTag extends HtmlDataTableTag {
 		TagUtil.setString(component, "cellpadding", cellpadding);
 		TagUtil.setString(component, "cellspacing", cellspacing);
 		TagUtil.setString(component, "columnClasses", columnClasses);
+		TagUtil.setString(component, "headerClasses", headerClasses);
 		TagUtil.setString(component, "rowClasses", rowClasses);
 		TagUtil.setString(component, "styleClass", styleClass);
 		
@@ -98,6 +100,15 @@ public class GradebookItemTableTag extends HtmlDataTableTag {
 	public String getRowClasses() {
 		return rowClasses;
 	}
+	
+	public void setHeaderClasses(String headerClasses) {
+		this.headerClasses = headerClasses;
+	}
+	
+	public String getHeaderClasses() {
+		return headerClasses;
+	}
+	
 	
 	public void setStyleClass(String styleClass) {
 		this.styleClass = styleClass;

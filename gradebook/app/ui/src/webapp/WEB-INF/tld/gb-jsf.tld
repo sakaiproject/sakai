@@ -345,6 +345,16 @@
           as the "class" attribute on generated markup.
       </description>
     </attribute>
+    
+    <attribute>
+      <name>headerClasses</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Comma-delimited list of CSS style class(es) to be applied to the
+          headers of this table.
+      </description>
+    </attribute>
 	</tag>
 </taglib>
 

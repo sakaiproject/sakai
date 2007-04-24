@@ -61,9 +61,15 @@
 				</h:outputText>
 
 				<h:outputText id="averageLabel" value="#{msgs.assignment_details_average}" rendered="#{overviewBean.userAbleToGradeAll}"/>
-				<h:outputText id="average" value="#{assignmentDetailsBean.assignment.formattedMean}" rendered="#{overviewBean.userAbleToGradeAll}">
-					<f:convertNumber type="percent" integerOnly="true" />
-				</h:outputText>
+				<h:panelGroup rendered="#{overviewBean.userAbleToGradeAll}">
+					<h:outputText id="averagePercent" value="#{assignmentDetailsBean.assignment.formattedMean}" rendered="#{assignmentDetailsBean.gradeEntryByPercent}">
+						<f:convertNumber type="percent" integerOnly="true" />
+					</h:outputText>
+					<h:outputText id="averagePoints" value="#{assignmentDetailsBean.assignment.averageTotal}" rendered="#{assignmentDetailsBean.gradeEntryByPoints}">
+						<f:convertNumber type="number" maxFractionDigits="0" />
+					</h:outputText>
+					<h:outputText id="averagePlaceholder" value="#{msgs.score_null_placeholder}" rendered="#{assignmentDetailsBean.assignment.formattedMean == null || assignmentDetailsBean.assignment.averageTotal == null}" />
+				</h:panelGroup>
 				
 				<h:outputText id="categoryLabel" value="#{msgs.assignment_details_category}" rendered="#{assignmentDetailsBean.categoriesEnabled}" />
 				<h:panelGroup rendered="#{assignmentDetailsBean.categoriesEnabled}" >

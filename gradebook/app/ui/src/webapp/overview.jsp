@@ -37,7 +37,8 @@
       columnClasses="attach,left,center,center,center,left,center,center,external"
 			styleClass="listHier"
 			expanded="true"
-			rowClasses="#{overviewBean.rowStyles}">
+			rowClasses="#{overviewBean.rowStyles}"
+			headerClasses="attach">
 			
 			<h:column id="_toggle" rendered="#{overviewBean.categoriesEnabled}">
 				<f:facet name="header">
@@ -86,14 +87,13 @@
 			<h:column rendered="#{overviewBean.userAbleToGradeAll}">
 				<f:facet name="header">
 		    	<t:commandSortHeader columnName="mean" immediate="true" arrow="true">
-						<h:outputText value="#{msgs.overview_assignments_header_average}"/>
+						<h:outputText value="#{msgs.overview_assignments_header_average}" />
 		      </t:commandSortHeader>
 		    </f:facet>
 
-				<h:outputText value="#{gradebookItem.formattedMean}" rendered="#{!gradebookItem.category}">
-					<f:convertNumber type="percent" integerOnly="true" />
+				<h:outputText value="#{gradebookItem}" escape="false">
+					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER" />
 				</h:outputText>
-				<h:outputText value="#{msgs.score_null_placeholder}" rendered="#{!gradebookItem.category && gradebookItem.formattedMean == null}"/>
 			</h:column>
 			
 			<h:column rendered="#{overviewBean.weightingEnabled}">
@@ -122,7 +122,7 @@
 			<h:column>
 				<f:facet name="header">
         	<t:commandSortHeader columnName="released" immediate="true" arrow="true">
-          	<h:outputText value="#{msgs.overview_released}"/>
+          	<h:outputText value="#{msgs.overview_released}" escape="false"/>
           </t:commandSortHeader>
         </f:facet>
 				<h:outputText value="#{msgs.overview_released_true}" rendered="#{gradebookItem.assignment && gradebookItem.released == true }"/>
@@ -132,7 +132,7 @@
 			<h:column>
 				<f:facet name="header">
         	<t:commandSortHeader columnName="counted" immediate="true" arrow="true">
-          	<h:outputText value="#{msgs.overview_included_in_cum}"/>
+          	<h:outputText value="#{msgs.overview_included_in_cum}" escape="false"/>
           </t:commandSortHeader>
         </f:facet>
 				<h:outputText value="#{msgs.overview_included_in_cum_true}" rendered="#{gradebookItem.assignment && gradebookItem.counted == true }"/>
