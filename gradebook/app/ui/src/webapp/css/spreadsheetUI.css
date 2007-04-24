@@ -44,7 +44,8 @@ ul#q1 {
    }
 
 div#q2 {
-   display:inline;
+   display:block;
+   *display:inline;
    left: 0;
    position: relative;
    width: 100%;
@@ -76,7 +77,8 @@ div#q2 {
          }
 
 div#q4 {
-   display: inline;
+   display:block;
+   *display: inline;
    left: 0;
    position: relative;
    width:100%;
