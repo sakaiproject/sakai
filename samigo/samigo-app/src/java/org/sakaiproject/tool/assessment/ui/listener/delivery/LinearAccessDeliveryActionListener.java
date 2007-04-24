@@ -102,7 +102,12 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
       //ag can't be null beyond this point and must have persisted to DB
       // version 2.1.1 requirement
       setFeedbackMode(delivery);
-      setTimer(delivery, publishedAssessment);
+      if (ae != null && ae.getComponent().getId().startsWith("beginAssessment")) {
+    	  setTimer(delivery, publishedAssessment, true);
+      }
+      else {
+    	  setTimer(delivery, publishedAssessment, false);
+      }
 
       // extend session time out
       SessionUtil.setSessionTimeout(FacesContext.getCurrentInstance(), delivery, true);

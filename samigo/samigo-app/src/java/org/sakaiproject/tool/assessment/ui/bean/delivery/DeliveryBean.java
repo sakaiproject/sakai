@@ -2288,30 +2288,7 @@ public class DeliveryBean
     }
   }
 
-
   public void syncTimeElapsedWithServer(){
-    if (("takeAssessment").equals(actionString) || ("takeAssessmentViaUrl").equals(actionString)){
-      TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
-      TimedAssessmentGradingModel timedAG = queue.get(adata.getAssessmentGradingId());
-      if (timedAG != null){
-        int timeElapsed  = Math.round(((new Date()).getTime() - timedAG.getBeginDate().getTime())/1000); //in sec
-        // this is to cover the scenerio when user took an assessment, Save & Exit, Then returned at a
-        // later time, we need to account for the time taht he used before
-        int timeTakenBefore = Math.round(timedAG.getTimeLimit() - timedAG.getTimeLeft()); // in sec
-        //log.debug("***time passed afer saving answer to DB="+timeElapsed+timeTakenBefore);
-        adata.setTimeElapsed(new Integer(timeElapsed+timeTakenBefore));
-        GradingService gradingService = new GradingService();
-        gradingService.saveOrUpdateAssessmentGrading(adata);
-        setTimeElapse(adata.getTimeElapsed().toString());
-      }
-    }
-    else{ 
-      // if we are in other mode, timer need not be accurate
-      // Anyway, we don't have adata, so we haven't been using the TimerTask to keep track of it.
-    }
-  } 
-  
-  public void syncTimeElapsedWithServerLinear(){
 	    if (("takeAssessment").equals(actionString) || ("takeAssessmentViaUrl").equals(actionString)){
 	      TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
 	      TimedAssessmentGradingModel timedAG = queue.get(adata.getAssessmentGradingId());
@@ -2323,7 +2300,7 @@ public class DeliveryBean
 	        //log.debug("***time passed afer saving answer to DB="+timeElapsed+timeTakenBefore);
 	        adata.setTimeElapsed(new Integer(timeElapsed+timeTakenBefore));
 	        GradingService gradingService = new GradingService();
-	        gradingService.saveOrUpdateAssessmentGradingOnly(adata);
+	        gradingService.saveOrUpdateAssessmentGrading(adata);
 	        setTimeElapse(adata.getTimeElapsed().toString());
 	      }
 	    }
@@ -2331,7 +2308,29 @@ public class DeliveryBean
 	      // if we are in other mode, timer need not be accurate
 	      // Anyway, we don't have adata, so we haven't been using the TimerTask to keep track of it.
 	    }
-  }
+	  } 
+	  
+	  public void syncTimeElapsedWithServerLinear(){
+		    if (("takeAssessment").equals(actionString) || ("takeAssessmentViaUrl").equals(actionString)){
+		      TimedAssessmentQueue queue = TimedAssessmentQueue.getInstance();
+		      TimedAssessmentGradingModel timedAG = queue.get(adata.getAssessmentGradingId());
+		      if (timedAG != null){
+		        int timeElapsed  = Math.round(((new Date()).getTime() - timedAG.getBeginDate().getTime())/1000); //in sec
+		        // this is to cover the scenerio when user took an assessment, Save & Exit, Then returned at a
+		        // later time, we need to account for the time taht he used before
+		        int timeTakenBefore = Math.round(timedAG.getTimeLimit() - timedAG.getTimeLeft()); // in sec
+		        //log.debug("***time passed afer saving answer to DB="+timeElapsed+timeTakenBefore);
+		        adata.setTimeElapsed(new Integer(timeElapsed+timeTakenBefore));
+		        GradingService gradingService = new GradingService();
+		        gradingService.saveOrUpdateAssessmentGradingOnly(adata);
+		        setTimeElapse(adata.getTimeElapsed().toString());
+		      }
+		    }
+		    else{ 
+		      // if we are in other mode, timer need not be accurate
+		      // Anyway, we don't have adata, so we haven't been using the TimerTask to keep track of it.
+		    }
+	  }
 
   private String timeElapseAfterFileUpload;
   public String getTimeElapseAfterFileUpload()
@@ -2719,7 +2718,7 @@ public class DeliveryBean
 	  public String updateTimeLimit(String timeLimit) {
   	    boolean acceptLateSubmission = AssessmentAccessControlIfc.
 	        ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling());
-		if (this.dueDate != null && !acceptLateSubmission) {  
+		if (this.dueDate != null && !acceptLateSubmission) {
 			int timeBeforeDue  = Math.round((this.dueDate.getTime() - (new Date()).getTime())/1000); //in sec
 			if (timeBeforeDue < Integer.parseInt(timeLimit)) {
 				return String.valueOf(timeBeforeDue);
@@ -2729,7 +2728,7 @@ public class DeliveryBean
 	  }
 	  
 	  private boolean isTimedAssessment() {
-		  if (this.getPublishedAssessment().getAssessmentAccessControl().getTimeLimit().equals("0")) {
+		  if (this.getPublishedAssessment().getAssessmentAccessControl().getTimeLimit().equals(Integer.valueOf(0))) {
 			  return false;
 		  }
 		  return true;
