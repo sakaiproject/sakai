@@ -1,4 +1,6 @@
-div#mainwrap {}
+div#mainwrap {
+   position: relative;
+}
 div#headers {
    background-color: #ddd;
    border: 1px solid #afafaf;
@@ -42,8 +44,8 @@ ul#q1 {
    }
 
 div#q2 {
+   display:inline;
    left: 0;
-   *left: -4px;
    position: relative;
    width: 100%;
    overflow: hidden;
@@ -74,8 +76,8 @@ div#q2 {
          }
 
 div#q4 {
+   display: inline;
    left: 0;
-   *left: -4px;
    position: relative;
    width:100%;
 }

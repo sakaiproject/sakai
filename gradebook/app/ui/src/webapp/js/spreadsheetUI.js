@@ -5,11 +5,7 @@ adjustScrolls = function(){
 }
 
 function gethandles(){
-   if($("div#q3 div").css("overflow") == "auto"){
-      $("div#mainwrap").css("width", "80%");
-      $("ul#q1").width($("div#mainwrap").width() - 15);
-      $("ul#q1 li").css("width", ($("ul#q1").width() / $("ul#q1 li").size()- parseInt($("ul#q1 li").css("padding-right")) - parseInt($("ul#q1 li").css("padding-left")) - 2) + "px");
-   }
+   ie = ($("ul#q1 li").css("height") == "45px") ? true : false;
    $("div#q3 div").width($("ul#q1").width());
    $("ul#q1 li").each(function(i){
       this_width = $(this).width() + parseInt($(this).css("padding-right")) *2;
@@ -31,7 +27,6 @@ function gethandles(){
    }else{
       $("div#q4 table").width(total);
    }
-
    $("div#q2 ul li").each(function(i){
       $("div#q4 tr:first td:eq(" + i + ")").width($(this).width() - parseInt($("div#q4 tr:first td:eq(" + i + ")").css("padding-right")) * 2
          + parseInt($(this).css("padding-right")) * 2);
@@ -39,12 +34,13 @@ function gethandles(){
 
    $("div#q3 tr").each(function(i){
       if($(this).height() > $("div#q4 tr:eq(" + i + ")").height()){
-         $("div#q4 tr:eq(" + i + ")").height($(this).height());
+         ie ? $("div#q4 tr:eq(" + i + ")").height($(this).height() - 12) 
+            : $("div#q4 tr:eq(" + i + ")").height($(this).height());
       } else {
-         $(this).height($("div#q4 tr:eq(" + i + ")").height());
+         ie ? $(this).css("height", $("div#q4 tr:eq(" + i + ")").height() - 12 + "px") 
+            :$(this).css("height", $("div#q4 tr:eq(" + i + ")").height() + "px");
       }
    });
-
    el1 = $("div#q2 div ul").get(0);
    el2 = $("div#q3 div table").get(0);
    els = $("div#q4 div").get(0);
