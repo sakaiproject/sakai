@@ -11,7 +11,7 @@ div#headers {
    padding: 0;
 }
 	div#headers img {
-		width: 11px;
+		width: 12px;
 	}
 
 div#contents {
@@ -40,7 +40,7 @@ ul#q1 {
       list-style: none;
       padding: 5px 5px 0 5px;
       text-align: center;
-      white-space: normal;
+      white-space: nowrap;
    }
 
 div#q2 {
