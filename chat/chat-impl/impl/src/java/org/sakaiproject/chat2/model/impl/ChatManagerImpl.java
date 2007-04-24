@@ -23,7 +23,6 @@ package org.sakaiproject.chat2.model.impl;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -674,14 +673,15 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
       Connection conn = null;
       PreparedStatement statement = null;
       
-      String query="update CHAT2_CHANNEL c set c.contextDefaultChannel=false WHERE c.context=?";
+      String query="update CHAT2_CHANNEL c set c.contextDefaultChannel=? WHERE c.context=?";
       
       try{
         session = getSession();
         conn = session.connection();
         
         statement = conn.prepareStatement(query);
-        statement.setString(1, context);
+        statement.setBoolean(1, false);
+        statement.setString(2, context);
         statement.executeUpdate();
       }
       catch(Exception e){
