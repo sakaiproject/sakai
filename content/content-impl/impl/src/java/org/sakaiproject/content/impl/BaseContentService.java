@@ -6640,6 +6640,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		if ((id == null) || (id.length() == 0)) id = "/";
 
 		ref.set(APPLICATION_ID, null, id, null, context);
+		
+		// because short refs or id/eid or alias processing may recognize a reference that is not the real reference,
+		// update the ref's string to reflect the real reference
+		ref.updateReference(REFERENCE_ROOT + id);
 
 		return true;
 	}
