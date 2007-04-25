@@ -643,6 +643,11 @@ textarea:focus{
 	left: -.5em;
 	position: relative;
 }
+.navIntraTool span.inactive {
+	margin-right:1em;
+	white-space: nowrap;
+	display:inline-block
+}
 
 /*SECTION 9 MESSAGES*/
 /*see: create any item*/
