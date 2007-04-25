@@ -1,0 +1,45 @@
+ 
+
+<script type="text/javascript">
+	focus_path = [ "$form-pagesize" ];
+</script>
+
+#if($optSize) #set($sizeValue=$optSize) #else #set($sizeValue=$pagesize) #end
+#if($optOpen) #set($openValue=$optOpen) #else #set($openValue=$channel.Open) #end
+#if($optAlias)
+	#set($aliasValue=$optAlias)
+#else
+	#if ($alias)
+		#set($aliasValue=$alias.Id)
+	#else
+		#set($aliasValue="")
+	#end
+#end
+
+<div class="portletBody">
+	<h3>
+		$tlang.getString("ical.customize")
+	</h3>
+
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	<form action="#toolForm($action)" method="post">
+		<h4 class="indnt1">
+			$tlang.getString("ical.schedname.title")
+		</h4>	
+		<p class="shorttext indnt2">
+			<label for ="$form-alias">
+				$tlang.getString("ical.schedname")
+			</label>
+			<input type="text" name="$form-alias" id="$form-alias" value="$!alias" /> .ics
+		</p>
+      
+		<p class="shorttext indnt2">
+				$tlang.getString("ical.help")<br/>
+            <a href="$!icalUrl" target="_new_">$icalUrl</a>
+		</p>
+		<p class="act">
+			<input type="submit" accesskey="s" class="active" name="$form-submit" value="$tlang.getString("gen.save")" />
+			<input type="submit" accesskey="x" name="$form-cancel" value="$tlang.getString("gen.cancel")" />
+		</p>
+	</form>
+</div>

@@ -134,6 +134,18 @@
 			<version>2.4</version>
 		</dependency>
 
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-alias-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-site-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		
 		<!-- fop: fop, avalon-framework, xercesImpl, xmlParserAPIs, batik -->
 		<dependency>
 			<groupId>fop</groupId>
@@ -149,6 +161,13 @@
 			<groupId>batik</groupId>
 			<artifactId>batik</artifactId>
 			<version>1.5-fop-0.20-5</version>
+		</dependency>
+		
+		<!-- ical implementation -->
+		<dependency>
+			<groupId>ical4j</groupId>
+			<artifactId>ical4j</artifactId>
+			<version>0.9.20</version>
 		</dependency>
 
 	</dependencies>

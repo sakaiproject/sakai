@@ -90,6 +90,16 @@
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
+		
+		<!-- ical implementation -->
+		<dependency>
+			<groupId>ical4j</groupId>
+			<artifactId>ical4j</artifactId>
+			<version>0.9.20</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
 
 	</dependencies>
 

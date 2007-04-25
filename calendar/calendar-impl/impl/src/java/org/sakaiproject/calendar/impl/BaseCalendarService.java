@@ -60,6 +60,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.fop.apps.Driver;
 import org.apache.fop.messaging.MessageHandler;
+import org.sakaiproject.alias.cover.AliasService;
+import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.cover.AuthzGroupService;
@@ -127,6 +129,21 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import net.fortuna.ical4j.model.Property;
+import net.fortuna.ical4j.model.property.CalScale;
+import net.fortuna.ical4j.model.property.Version;
+import net.fortuna.ical4j.model.property.ProdId;
+import net.fortuna.ical4j.model.property.Uid;
+import net.fortuna.ical4j.model.property.TzId;
+import net.fortuna.ical4j.model.parameter.Value;
+import net.fortuna.ical4j.model.DateTime;
+import net.fortuna.ical4j.model.TimeZoneRegistry;
+import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
+import net.fortuna.ical4j.model.component.VEvent;
+import net.fortuna.ical4j.data.CalendarOutputter;
+import net.fortuna.ical4j.model.ValidationException;
+import net.fortuna.ical4j.util.CompatibilityHints;
 
 /**
  * <p>
@@ -252,6 +269,25 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 				+ DAILY_START_TIME_PARAMETER_NAME + "=" + Validator.escapeHtml(dailyTimeRange.toString());
 	}
 
+	/**
+	 * @inheritDoc
+	 */
+	public String calendarICalReference(Reference ref)
+	{
+      String context = ref.getContext();
+      String id = ref.getId();
+      String alias = null;
+      List aliasList =  AliasService.getAliases( ref.getReference() );
+      
+      if ( ! aliasList.isEmpty() )
+         alias = ((Alias)aliasList.get(0)).getId();
+         
+      if ( alias != null)
+   		return getAccessPoint(true) + Entity.SEPARATOR + REF_TYPE_CALENDAR_ICAL + Entity.SEPARATOR + alias;
+      else
+   		return getAccessPoint(true) + Entity.SEPARATOR + REF_TYPE_CALENDAR_ICAL + Entity.SEPARATOR + context + Entity.SEPARATOR + id;
+	}
+	
 	/**
 	 * Access the internal reference which can be used to access the event from within the system.
 	 * 
@@ -431,6 +467,23 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	public void setServerConfigurationService(ServerConfigurationService service)
 	{
 		m_serverConfigurationService = service;
+	}
+	
+	/** Dependency: AliasService. */
+	protected AliasService m_aliasService = null;
+	
+	/** Dependency: SiteService. */
+	protected SiteService m_siteService = null;
+	
+	/**
+	 * Dependency: AliasService.
+	 * 
+	 * @param service
+	 *        The AliasService.
+	 */
+	public void setAliasService(AliasService service)
+	{
+		m_aliasService = service;
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -1013,8 +1066,10 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 					Collection copyrightAcceptedRefs) throws EntityPermissionException, EntityNotDefinedException,
 					EntityAccessOverloadException, EntityCopyrightException
 			{
-				// we only access the pdf reference
-				if (!REF_TYPE_CALENDAR_PDF.equals(ref.getSubType())) throw new EntityNotDefinedException(ref.getReference());
+				// we only access the pdf & ical reference
+				if ( !REF_TYPE_CALENDAR_PDF.equals(ref.getSubType()) &&
+						  !REF_TYPE_CALENDAR_ICAL.equals(ref.getSubType()) ) 
+						throw new EntityNotDefinedException(ref.getReference());
 
 				// TODO: permissions?
 
@@ -1047,10 +1102,22 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 					ByteArrayOutputStream outByteStream = new ByteArrayOutputStream();
 					StringBuffer contentType = new StringBuffer();
 
-					printSchedule(options, contentType, outByteStream);
-
-					// Set the mime type for a PDF
-					res.addHeader("Content-Disposition", "inline; filename=\"schedule.pdf\"");
+					//	 Check if PDF document requested
+					if ( REF_TYPE_CALENDAR_PDF.equals(ref.getSubType()) )
+					{
+						printSchedule(options, contentType, outByteStream);
+						res.addHeader("Content-Disposition", "inline; filename=\"schedule.pdf\"");
+					}
+					else
+					{
+						printICalSchedule(options, contentType, res.getOutputStream());
+                  List alias =  AliasService.getAliases( ref.getReference() );
+                  String aliasName = "schedule.ics";
+                  if ( ! alias.isEmpty() )
+                     aliasName =  ((Alias)alias.get(0)).getId();
+						res.addHeader("Content-Disposition", "inline; filename=\"" + aliasName + "\"");
+					}
+					
 					res.setContentType(contentType.toString());
 					res.setContentLength(outByteStream.size());
 
@@ -1114,14 +1181,16 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			if (parts.length > 2)
 			{
 				subType = parts[2];
-				if (REF_TYPE_CALENDAR.equals(subType) || REF_TYPE_CALENDAR_PDF.equals(subType))
+				if (REF_TYPE_CALENDAR.equals(subType) || 
+						 REF_TYPE_CALENDAR_PDF.equals(subType) || 
+						 REF_TYPE_CALENDAR_ICAL.equals(subType))
 				{
 					// next is the context id
 					if (parts.length > 3)
 					{
 						context = parts[3];
 
-						// next is the calendar id
+						// next is the optional calendar id
 						if (parts.length > 4)
 						{
 							id = parts[4];
@@ -1142,6 +1211,31 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 					M_log.warn(".parseEntityReference(): unknown calendar subtype: " + subType + " in ref: " + reference);
 			}
 
+			// Translate context alias into site id if necessary
+			if ((context != null) && (context.length() > 0))
+			{
+				if (!m_siteService.siteExists(context))
+				{
+					try
+					{
+						Calendar calendarObj = getCalendar(m_aliasService.getTarget(context));
+						context = calendarObj.getContext();
+					}
+					catch (Exception e)
+					{
+                  M_log.warn(".parseEntityReference(): ", e);
+                  return false;
+					}
+				}
+			}
+
+         // if context still isn't valid, then no valid alias or site was specified
+			if (!m_siteService.siteExists(context))
+			{
+            M_log.warn(".parseEntityReference() no valid site or alias: " + context);
+            return false;
+			}
+         
 			ref.set(APPLICATION_ID, subType, id, container, context);
 
 			return true;
@@ -4859,6 +4953,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 	// Mime Types
 	protected final static String PDF_MIME_TYPE = "application/pdf";
+	protected final static String ICAL_MIME_TYPE = "text/calendar";
 
 	// Constants for time calculations
 	protected static long MILLISECONDS_IN_DAY = (60 * 60 * 24 * 1000);
@@ -5969,6 +6064,127 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	}
 
 	/**
+	 * @param ical
+	 *        iCal object
+	 * @param calendarReferenceList
+	 *        This is the name of the user whose schedule is being printed.
+	 * @return Number of events generated in ical object
+	 */
+	protected int generateICal(net.fortuna.ical4j.model.Calendar ical,
+			 List calendarReferenceList)
+	{
+		int numEvents = 0;
+		
+		// This list will have an entry for every week day that we care about.
+		TimeRange currentTimeRange = getICalTimeRange();
+
+		// Get a list of merged events.
+		CalendarEventVector calendarEventVector = getEvents(calendarReferenceList, currentTimeRange);
+		Iterator itEvent = calendarEventVector.iterator();
+
+		// Generate XML for all the events.
+		while (itEvent.hasNext())
+		{
+			CalendarEvent event = (CalendarEvent) itEvent.next();
+
+			java.util.Calendar jcalStart = java.util.Calendar.getInstance();
+			TimeBreakdown startTime = event.getRange().firstTime().breakdownLocal();
+			
+			jcalStart.set(java.util.Calendar.YEAR, startTime.getYear());
+			jcalStart.set(java.util.Calendar.MONTH, startTime.getMonth() -1);
+			jcalStart.set(java.util.Calendar.DAY_OF_MONTH, startTime.getDay());
+			jcalStart.set(java.util.Calendar.HOUR, startTime.getHour());
+			jcalStart.set(java.util.Calendar.MINUTE, startTime.getMin());
+			jcalStart.set(java.util.Calendar.SECOND, startTime.getSec());
+			
+			DateTime icalStartDate = new DateTime(jcalStart.getTime());
+			
+			long seconds = event.getRange().duration() / 1000;
+			String timeString = "PT" + String.valueOf(seconds) + "S";
+			net.fortuna.ical4j.model.Dur duration = new net.fortuna.ical4j.model.Dur( timeString );
+			
+			VEvent icalEvent = new VEvent(icalStartDate, duration, event.getDisplayName() );
+			
+			net.fortuna.ical4j.model.parameter.TzId tzId = new net.fortuna.ical4j.model.parameter.TzId( TimeService.getLocalTimeZone().getID() );
+			icalEvent.getProperty(Property.DTSTART).getParameters().add(tzId);
+			icalEvent.getProperty(Property.DTSTART).getParameters().add(Value.DATE_TIME);
+			icalEvent.getProperties().add(new Uid(event.getId()));
+			
+			ical.getComponents().add( icalEvent );
+			numEvents++;
+			
+			/* TBD: add to VEvent: recurring schedule, ...
+			String x = getSiteName(event);
+			String x = event.getCreator();
+			String x = event.getDisplayName();
+			String x = event.getType();
+			String x = event.getLocation();
+			RecurenceRUle x = event.getRecurrenceRule();
+			String x = event.getDescription();
+			*/
+		}
+		
+		return numEvents;
+	}
+	
+	/* Given a current date via the calendarUtil paramter, returns a TimeRange for the year,
+	 * 6 months either side of the current date.
+	 */
+	public TimeRange getICalTimeRange()
+	{
+		int days = 0;
+		CalendarUtil today = new CalendarUtil();
+
+		int tempPastDay = today.getDayOfMonth();
+		int tempPastMonth = today.getMonthInteger() -6;
+		int tempPastYear = today.getYear();
+		
+		if(tempPastMonth < 0)
+		{
+			tempPastMonth = tempPastMonth + 12;
+			tempPastYear = tempPastYear - 1;
+		}
+		
+		CalendarUtil pastDate = new CalendarUtil();
+		pastDate.setDay(tempPastYear, tempPastMonth, tempPastDay);
+		
+		//get the index of the number of days in the current month
+		days = pastDate.getNumberOfDays();
+		
+		if (days < tempPastDay)
+		{
+			pastDate.setDayOfMonth(days);
+		}
+		
+		Time startTime = TimeService.newTimeLocal(pastDate.getYear(),pastDate.getMonthInteger(),pastDate.getDayOfMonth(),00,00,00,000);
+		
+		int tempFutDay = today.getDayOfMonth();
+		int tempFutMonth = today.getMonthInteger() +6;
+		int tempFutYear = today.getYear();
+		
+		if(tempPastMonth > 12)
+		{
+			tempFutMonth = tempFutMonth - 12;
+			tempFutYear = tempFutYear + 1;
+		}
+		
+		CalendarUtil futDate = new CalendarUtil();
+		pastDate.setDay(tempFutYear, tempFutMonth, tempFutDay);
+		
+		//get the index of the number of days in the current month
+		days = futDate.getNumberOfDays();
+		
+		if (days < tempFutDay)
+		{
+			futDate.setDayOfMonth(days);
+		}
+		
+		Time endTime = TimeService.newTimeLocal(futDate.getYear(),futDate.getMonthInteger(),futDate.getDayOfMonth(),23,00,00,000);
+		
+		return TimeService.newTimeRange(startTime,endTime,true,true);
+	}
+	
+	/**
 	 * Trim the range that is passed in to the containing time range.
 	 */
 	protected TimeRange trimTimeRange(TimeRange containingRange, TimeRange rangeToTrim)
@@ -6319,8 +6535,9 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	}
 
 	/**
-	 * This routine is used to round the end time. The time is stored at one minute less than the actual end time, but the user will expect to see the end time on the hour. For example, an event that ends at 10:00 is actually stored at 9:59. This code
-	 * should really be in a central place so that the velocity template can see it as well.
+	 * This routine is used to round the end time. The time is stored at one minute less than the actual end time, 
+	 * but the user will expect to see the end time on the hour. For example, an event that ends at 10:00 is 
+	 * actually stored at 9:59. This code should really be in a central place so that the velocity template can see it as well.
 	 */
 	protected Time performEndMinuteKludge(TimeBreakdown breakDown)
 	{
@@ -6344,17 +6561,12 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 				.getSec(), breakDown.getMs());
 	}
 
-	/**
-	 * Called by the servlet to service a get/post requesting a calendar in PDF format.
-	 */
-	protected void printSchedule(Properties parameters, StringBuffer contentType, OutputStream os) throws PermissionException
+	protected List getCalendarReferenceList()
+	throws PermissionException
 	{
-		// Get the user name.
-		String userName = (String) parameters.get(USER_NAME_PARAMETER_NAME);
-
 		// Get the list of calendars.from user session
 		List calendarReferenceList = (List)SessionManager.getCurrentSession().getAttribute(SESSION_CALENDAR_LIST);
-
+	
 		// check if there is any calendar to which the user has acces
 		Iterator it = calendarReferenceList.iterator();
 		int permissionCount = calendarReferenceList.size();
@@ -6365,12 +6577,12 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			{
 				getCalendar(calendarReference);
 			}
-
+	
 			catch (IdUnusedException e)
 			{
 				continue;
 			}
-
+	
 			catch (PermissionException e)
 			{
 				permissionCount--;
@@ -6383,27 +6595,75 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		{
 			throw new PermissionException("", "", "");
 		}
-		else
+		
+		return calendarReferenceList;
+	}
+
+	protected void printICalSchedule(Properties parameters, StringBuffer contentType, OutputStream os) 
+		throws PermissionException
+	{
+		// Get the list of calendars.from user session
+		List calendarReferenceList = getCalendarReferenceList();
+		
+		// generate iCal text file 
+		net.fortuna.ical4j.model.Calendar ical = new net.fortuna.ical4j.model.Calendar();
+		ical.getProperties().add(new ProdId("-//SakaiProject//iCal4j 1.0//EN"));
+		ical.getProperties().add(Version.VERSION_2_0);
+		ical.getProperties().add(CalScale.GREGORIAN);
+		
+		TimeZoneRegistry registry = TimeZoneRegistryFactory.getInstance().createRegistry(); 
+		TzId tzId = new TzId( TimeService.getLocalTimeZone().getID() ); 
+		ical.getComponents().add(registry.getTimeZone(tzId.getValue()).getVTimeZone());
+		
+		// Return the content type so that it can be set in the response.
+		if (contentType != null)
 		{
-			// Get the type of schedule (daily, weekly, etc.)
-			int scheduleType = getScheduleTypeFromParameterList(parameters);
-
-			// Now get the time range.
-			TimeRange timeRange = getTimeRangeFromParameters(parameters);
-
-			Document document = docBuilder.newDocument();
-
-			generateXMLDocument(scheduleType, document, timeRange, getDailyStartTimeFromParameters(parameters),
-					calendarReferenceList, userName);
-
-			generatePDF(document, getXSLFileNameForScheduleType(scheduleType), os);
-
-			// Return the content type so that it can be set in the response.
-			if (contentType != null)
+			contentType.setLength( ical.toString().length() );
+			contentType.append(ICAL_MIME_TYPE);
+			CalendarOutputter icalOut = new CalendarOutputter();
+			int numEvents = generateICal(ical, calendarReferenceList);
+			
+			try 
 			{
-				contentType.setLength(0);
-				contentType.append(PDF_MIME_TYPE);
+				if ( numEvents > 0 )
+					icalOut.output( ical, os );
 			}
+			catch (Exception e)
+			{
+            M_log.warn(".printICalSchedule(): ", e);
+			}
+		}
+	}
+	
+	/**
+	 * Called by the servlet to service a get/post requesting a calendar in PDF format.
+	 */
+	protected void printSchedule(Properties parameters, StringBuffer contentType, OutputStream os) throws PermissionException
+	{
+      //		 Get the user name.
+		String userName = (String) parameters.get(USER_NAME_PARAMETER_NAME);
+
+		// Get the list of calendars.from user session
+		List calendarReferenceList = getCalendarReferenceList();
+		
+		// Get the type of schedule (daily, weekly, etc.)
+		int scheduleType = getScheduleTypeFromParameterList(parameters);
+
+		// Now get the time range.
+		TimeRange timeRange = getTimeRangeFromParameters(parameters);
+
+		Document document = docBuilder.newDocument();
+
+		generateXMLDocument(scheduleType, document, timeRange, getDailyStartTimeFromParameters(parameters),
+				calendarReferenceList, userName);
+
+		generatePDF(document, getXSLFileNameForScheduleType(scheduleType), os);
+
+		// Return the content type so that it can be set in the response.
+		if (contentType != null)
+		{
+			contentType.setLength(0);
+			contentType.append(PDF_MIME_TYPE);
 		}
 	}
 

@@ -37,6 +37,8 @@ import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.alias.cover.AliasService;
+import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
@@ -146,6 +148,8 @@ extends VelocityPortletStateAction
 	private final static String TIME_FILTER_SETTING_CUSTOM_END_MONTH = "customEndMonth";
 	private final static String TIME_FILTER_SETTING_CUSTOM_START_DAY = "customStartDay";
 	private final static String TIME_FILTER_SETTING_CUSTOM_END_DAY = "customEndDay";
+	
+	private static final String FORM_ALIAS = "alias";
 	
 	/** state selected view */
 	private static final String STATE_SELECTED_VIEW = "state_selected_view";
@@ -2073,6 +2077,10 @@ extends VelocityPortletStateAction
 			// build the context to display the property list
 			buildNewContext(portlet, context, runData, state);
 		}
+		else if (stateName.equals("icalEx"))
+		{
+			buildIcalExportPanelContext(portlet, context, runData, state);
+		}
 		else if (stateName.equals("delete"))
 		{
 			// build the context to display the property list
@@ -3557,6 +3565,55 @@ extends VelocityPortletStateAction
 		
 	} // buildNewContext
 	
+	/**
+	 * Setup for iCal Export.
+	 */
+	public String buildIcalExportPanelContext(VelocityPortlet portlet, Context context, RunData rundata, CalendarActionState state)
+	{
+		String calId = state.getPrimaryCalendarReference();
+		Calendar calendarObj = null;
+      
+      try
+      {
+         calendarObj = CalendarService.getCalendar(calId);
+      }
+      catch ( Exception e )
+      {
+			M_log.debug(".buildIcalExportPanelContext: " + e);
+      }
+
+		context.put("tlang", rb);
+
+		// provide form names
+		context.put("form-alias", FORM_ALIAS);
+		context.put("form-submit", BUTTON + "doIcalExport");
+		context.put("form-cancel", BUTTON + "doCancel");
+
+      if ( calendarObj != null )
+      {
+         List aliasList =  AliasService.getAliases( calendarObj.getReference() );
+         if ( ! aliasList.isEmpty() )
+         {
+            String alias[] = ((Alias)aliasList.get(0)).getId().split("\\.");
+            context.put("alias", alias[0] );
+         }
+      }
+
+		context.put("serverName", ServerConfigurationService.getServerName());
+      
+			
+		// Add iCal Export URL
+		Reference calendarRef = EntityManager.newReference(state.getPrimaryCalendarReference());
+		String icalUrl = ServerConfigurationService.getAccessUrl()
+         + CalendarService.calendarICalReference(calendarRef);
+			
+      context.put("icalUrl", icalUrl );
+
+		// pick the "export" template based on the standard template name
+		String template = (String) getContext(rundata).get("template");
+		return template + "_icalexport";
+
+	} // buildIcalExportPanelContext
 	
 	/**
 	 * Build the context for showing delete view
@@ -4108,8 +4165,7 @@ extends VelocityPortletStateAction
 			{
 				String eventId = state.getCalendarEventId();
 				// get the edit object, and lock the event for the furthur revise
-				CalendarEventEdit edit = calendarObj.getEditEvent(eventId,
-																				  org.sakaiproject.calendar.api.CalendarService.EVENT_MODIFY_CALENDAR);
+				CalendarEventEdit edit = calendarObj.getEditEvent(eventId, org.sakaiproject.calendar.api.CalendarService.EVENT_MODIFY_CALENDAR);
 				state.setEdit(edit);
 				state.setPrimaryCalendarEdit(edit);
 				calendarEventObj = calendarObj.getEvent(eventId);
@@ -5196,8 +5252,79 @@ extends VelocityPortletStateAction
 	}   // doImport
 
 	/**
-	 * Action doNew is requested when the user click on New in the menu
+	 * Action doIcalExportName is requested when the user click on Export
 	 */
+	
+	public void doIcalExportName(RunData data, Context context)
+	{
+		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
+		String peid = ((JetspeedRunData)data).getJs_peid();
+		SessionState sstate = ((JetspeedRunData)data).getPortletSessionState(peid);
+		
+		sstate.removeAttribute(STATE_SCHEDULE_TO);
+		sstate.removeAttribute(STATE_SCHEDULE_TO_GROUPS);
+		
+      //	 store the state coming from
+		String returnState = state.getState();
+		if (returnState.equals("description"))
+		{
+		}
+		else
+		{
+			state.setReturnState(returnState);
+		}
+		
+		state.clearData();
+		state.setAttachments(null);
+		state.setPrevState(state.getState());
+		state.setState("icalEx");
+	}   // doIcalExportName
+	
+	public void doIcalExport(RunData data, Context context)
+	{
+		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
+		String peid = ((JetspeedRunData)data).getJs_peid();
+		SessionState sstate = ((JetspeedRunData)data).getPortletSessionState(peid);
+		
+		String alias = StringUtil.trimToNull(data.getParameters().getString(FORM_ALIAS));
+		
+		String calId = state.getPrimaryCalendarReference();
+		Calendar calendarObj = null;
+		StringBuffer exceptionMessage = new StringBuffer();
+		try
+		{
+			calendarObj = CalendarService.getCalendar(calId);
+			
+			// then add the desired alias
+			if (alias != null)
+			{
+            alias += ".ics";
+				AliasService.setAlias(alias, calendarObj.getReference());
+			}
+		}
+		catch (IdUnusedException ie)
+		{
+			exceptionMessage.append(rb.getString("java.alert.theresisno"));
+			M_log.debug(".doIcalExport() Other: " + ie);
+		}
+		catch (IdUsedException ue)
+		{
+			M_log.debug(".doIcalExport() Other: " + ue);
+		}
+		catch (PermissionException pe)
+		{
+			exceptionMessage.append(rb.getString("java.alert.youdont"));
+			M_log.debug(".doIcalExport() Other: " + pe);
+		}
+		catch (IdInvalidException e)
+		{
+			M_log.debug(".doIcalExport() Other: " + e);
+		}
+		
+		String returnState = state.getReturnState();
+		state.setState(returnState);
+		
+	}   // doIcalExport
 	
 	public void doNew(RunData data, Context context)
 	{
@@ -6788,60 +6915,17 @@ extends VelocityPortletStateAction
 
 	}   // buildListContext
 	
-	/**
-	 * Build the menu.
-	 */
-	private void buildMenu( VelocityPortlet portlet,
-	Context context,
-	RunData runData,
-	CalendarActionState state,
-	boolean allow_new,
-	boolean allow_delete,
-	boolean allow_revise,
-	boolean allow_merge_calendars,
-	boolean allow_modify_calendar_properties,
-	boolean allow_import)
+	private void buildPrintMenu( VelocityPortlet portlet,
+			  					 RunData runData,
+			  					 CalendarActionState state,
+			  					 Menu bar_print )
 	{
-		Menu bar = new MenuImpl(portlet, runData, "CalendarAction");
-		
-		String status = state.getState();
-		
-		
-		if ((status.equals("day"))
-		||(status.equals("week"))
-		||(status.equals("month"))
-		||(status.equals("year"))
-		||(status.equals("list")))
-		{
-			allow_revise = false;
-			allow_delete = false;
-		}
-		
-		bar.add( new MenuEntry(rb.getString("java.new"), null, allow_new, MenuItem.CHECKED_NA, "doNew") );
-		
-		//
-		// Don't allow the user to customize the "My Workspace" tab.
-		//
-		if ( !isOnWorkspaceTab() )
-		{
-			bar.add( new MenuEntry(mergedCalendarPage.getButtonText(), null, allow_merge_calendars, MenuItem.CHECKED_NA, mergedCalendarPage.getButtonHandlerID()) );
-		}
-
-		// See if we are allowed to import items.
-		if ( allow_import )
-		{
-			bar.add( new MenuEntry(rb.getString("java.import"), null, allow_new, MenuItem.CHECKED_NA, "doImport") );
-		}
-		
-		// 2nd menu bar for the PDF print only
-		Menu bar_PDF = new MenuImpl(portlet, runData, "CalendarAction");
-		
 		String stateName = state.getState();
 		
 		if (stateName.equals("month")
-		|| stateName.equals("day")
-		|| stateName.equals("week")
-		|| stateName.equals("list"))
+		 || stateName.equals("day")
+		 || stateName.equals("week")
+		 || stateName.equals("list"))
 		{
 			int printType = CalendarService.UNKNOWN_VIEW;
 			String timeRangeString = "";
@@ -6933,7 +7017,7 @@ extends VelocityPortletStateAction
 				if (stateName.equals("day"))
 				{
 					printType = CalendarService.DAY_VIEW;
-					
+			
 					timeRangeString =
 					getDayTimeRange(
 					calObj.getYear(),
@@ -6951,36 +7035,87 @@ extends VelocityPortletStateAction
 						if (stateName.equals("list"))
 						{
 							printType = CalendarService.LIST_VIEW;
-							
+			
 							timeRangeString =
 								TimeService
-									.newTimeRange(
-									state.getCalendarFilter().getListViewStartingTime(),
-									state.getCalendarFilter().getListViewEndingTime())
-									.toString();
+								.newTimeRange(
+										state.getCalendarFilter().getListViewStartingTime(),
+										state.getCalendarFilter().getListViewEndingTime())
+										.toString();
 						}
-			
-			Reference calendarRef = EntityManager.newReference(state.getPrimaryCalendarReference());
-
-				
-			String accessPointUrl = ServerConfigurationService.getAccessUrl()
-					+ CalendarService.calendarPdfReference(calendarRef.getContext(), calendarRef.getId(),
-			printType,
-			timeRangeString,
-			UserDirectoryService.getCurrentUser().getDisplayName(),
-			dailyStartTime);
 			
 			// set the actual list of calendars into the user's session:
 			List calRefList = getCalendarReferenceList(
-					portlet,
-					state.getPrimaryCalendarReference(),
-					isOnWorkspaceTab());
+			portlet,
+			state.getPrimaryCalendarReference(),
+			isOnWorkspaceTab());
 			
 			SessionManager.getCurrentSession().setAttribute(CalendarService.SESSION_CALENDAR_LIST,calRefList);
 			
-			bar_PDF.add(new MenuEntry(rb.getString("java.print"), "").setUrl(accessPointUrl));
+			Reference calendarRef = EntityManager.newReference(state.getPrimaryCalendarReference());
+			
+			// Add PDF print menu option				
+			String accessPointUrl = ServerConfigurationService.getAccessUrl()
+			+ CalendarService.calendarPdfReference(calendarRef.getContext(), 
+														calendarRef.getId(),
+														printType,
+														timeRangeString,
+														UserDirectoryService.getCurrentUser().getDisplayName(),
+														dailyStartTime);
+			
+			bar_print.add(new MenuEntry(rb.getString("java.print"), "").setUrl(accessPointUrl));
+		}
+	}
+	/**
+	 * Build the menu.
+	 */
+	private void buildMenu( VelocityPortlet portlet,
+	Context context,
+	RunData runData,
+	CalendarActionState state,
+	boolean allow_new,
+	boolean allow_delete,
+	boolean allow_revise,
+	boolean allow_merge_calendars,
+	boolean allow_modify_calendar_properties,
+	boolean allow_import)
+	{
+		Menu bar = new MenuImpl(portlet, runData, "CalendarAction");
+		
+		String status = state.getState();
+		
+		
+		if ((status.equals("day"))
+		||(status.equals("week"))
+		||(status.equals("month"))
+		||(status.equals("year"))
+		||(status.equals("list")))
+		{
+			allow_revise = false;
+			allow_delete = false;
 		}
 		
+		bar.add( new MenuEntry(rb.getString("java.new"), null, allow_new, MenuItem.CHECKED_NA, "doNew") );
+		
+		//
+		// Don't allow the user to customize the "My Workspace" tab.
+		//
+		if ( !isOnWorkspaceTab() )
+		{
+			bar.add( new MenuEntry(mergedCalendarPage.getButtonText(), null, allow_merge_calendars, MenuItem.CHECKED_NA, mergedCalendarPage.getButtonHandlerID()) );
+		}
+
+		// See if we are allowed to import items.
+		if ( allow_import )
+		{
+			bar.add( new MenuEntry(rb.getString("java.import"), null, allow_new, MenuItem.CHECKED_NA, "doImport") );
+			bar.add( new MenuEntry(rb.getString("java.export"), null, allow_new, MenuItem.CHECKED_NA, "doIcalExportName") );
+		}
+		
+		//2nd menu bar for the PDF/iCal print only
+		Menu bar_print = new MenuImpl(portlet, runData, "CalendarAction");
+		buildPrintMenu( portlet, runData, state, bar_print );	
+					
 		bar.add( new MenuEntry(customizeCalendarPage.getButtonText(), null, allow_modify_calendar_properties, MenuItem.CHECKED_NA, customizeCalendarPage.getButtonHandlerID()) );
 		
 		// add permissions, if allowed
@@ -6994,7 +7129,7 @@ extends VelocityPortletStateAction
 		stateForMenus.setAttribute(MenuItem.STATE_MENU, bar);
 		context.put("tlang",rb);
 		context.put(Menu.CONTEXT_MENU, bar);
-		context.put("menu_PDF", bar_PDF);
+		context.put("menu_PDF", bar_print);
 		context.put(Menu.CONTEXT_ACTION, "CalendarAction");
 		
 	}   // buildMenu

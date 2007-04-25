@@ -32,6 +32,7 @@ import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
+import org.sakaiproject.entity.api.Reference;
 
 /**
 * <p>CalendarService is the interface for the Calendar service.</p>
@@ -84,6 +85,9 @@ public interface CalendarService
 
 	/** The Reference type for a calendar pdf. */
 	public static final String REF_TYPE_CALENDAR_PDF = "calpdf";
+
+	/** The Reference type for a calendar pdf. */
+	public static final String REF_TYPE_CALENDAR_ICAL = "ical";
 
 	/** The Reference type for an event. */
 	public static final String REF_TYPE_EVENT = "event";
@@ -235,6 +239,13 @@ public interface CalendarService
 	public String calendarPdfReference(String context, String id, int scheduleType, String timeRangeString,
 			String userName, TimeRange dailyTimeRange);
 
+	/**
+	* Access the internal reference which can be used to access the calendar-in-ical format from within the system.
+	* @param ref The calendar reference
+	* @return The the internal reference which can be used to access the calendar-in-pdf format from within the system.
+	*/
+	public String calendarICalReference(Reference ref);
+                                       
 	/**
 	 * Access the internal reference which can be used to access the event from within the system.
 	 * 

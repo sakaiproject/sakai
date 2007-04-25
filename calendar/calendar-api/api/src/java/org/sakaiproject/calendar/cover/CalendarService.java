@@ -87,6 +87,15 @@ public class CalendarService
 		return service.calendarPdfReference(param0, param1, param2, param3, param4, param5);
 	}
 
+	public static java.lang.String calendarICalReference(org.sakaiproject.entity.api.Reference param0)
+	{
+		org.sakaiproject.calendar.api.CalendarService service = getInstance();
+		if (service == null)
+			return null;
+
+		return service.calendarICalReference(param0);
+	}
+                                       
 	public static java.util.List getCalendars()
 	{
 		org.sakaiproject.calendar.api.CalendarService service = getInstance();

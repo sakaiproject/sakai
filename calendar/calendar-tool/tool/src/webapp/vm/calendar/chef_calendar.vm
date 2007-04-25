@@ -8,6 +8,8 @@ calendar Portlet
 
 #if ($message=='new')
         #parse("/vm/calendar/chef_calendar_new.vm")
+#elseif ($message=='icalEx')
+        #parse("/vm/calendar/chef_calendar_icalexport.vm")
 #elseif ($message=='scheduleImport')
         #parse("/vm/calendar/chef_calendar_import_wizard.vm")
 #elseif ($message=='month')
