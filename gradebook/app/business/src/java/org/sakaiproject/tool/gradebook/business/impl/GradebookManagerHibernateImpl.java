@@ -192,6 +192,9 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         		double studentTotal = 0;
 	    		
 	    		List categoryAssignments = category.getAssignmentList();
+	    		if (categoryAssignments == null){
+	    			continue;
+	    		}
 	    		for (Iterator assignmentsIter = categoryAssignments.iterator(); assignmentsIter.hasNext(); ){
 	    			Assignment assignment = (Assignment) assignmentsIter.next();
 	    			if (!assignment.isCounted()) {
