@@ -1025,7 +1025,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		CitationIterator oldIterator = (CitationIterator) state.getAttribute(STATE_LIST_ITERATOR);
 		if(oldIterator != null)
 		{
+			System.out.println( "\nsetting pagesize to " + listPageSize );
 			newIterator.setPageSize(listPageSize.intValue());
+			System.out.println( "\nsetting page to " + oldIterator.getPage() );
 			newIterator.setPage(oldIterator.getPage());
 		}
 		context.put("citations", newIterator);

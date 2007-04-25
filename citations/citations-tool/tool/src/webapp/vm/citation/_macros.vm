@@ -42,7 +42,7 @@
 			#end
 			<tr>
 				<td>
-					<a href="#" onclick="javascript:getAnother('${DEFAULT_TEMPLATE.identifier}', ${count})">Add another</a>
+					<a href="#" onclick="javascript:getAnother('${DEFAULT_TEMPLATE.identifier}', ${count})">$tlang.getString( "addanother.create" )</a>
 				</td>
 			</tr>
 		</table>

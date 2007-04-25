@@ -142,7 +142,7 @@
 					#end
 					<tr>
 						<td>
-							<input type="button" id="add_url" onclick="javascript:addUrl();" value="Add another" />
+							<input type="button" id="add_url" onclick="javascript:addUrl();" value="$tlang.getString( "addanother.create" )" />
 						</td>
 					</tr>
 				</table>
@@ -295,7 +295,7 @@
 		{
 			html += "<tr>\n<td>\n" + getValue(type, t, i) + "</td>\n</tr>\n";
 		}
-		html += "<tr>\n<td>\n<a href=\"#\" onclick=\"javascript:getAnother('" + type + "', '" + t + "');\">Add another</a>\n</td>\n</tr>\n</table>\n</div>\n"
+		html += "<tr>\n<td>\n<a href=\"#\" onclick=\"javascript:getAnother('" + type + "', '" + t + "');\">$tlang.getString( "addanother.create" )</a>\n</td>\n</tr>\n</table>\n</div>\n"
 				+ "<input type=\"hidden\" name=\"" + identifier + "_count\" id=\"" + identifier 
 				+ "_count\" value=\"" + count + "\" />\n";
 		
@@ -319,7 +319,7 @@
 			}
 			html += "<tr>\n<td>\n" + getValue(type, t, i) + "</td>\n</tr>\n";
 		}
-		html += '<tr>\n<td>\n<a href="#" onclick="javascript:getAnother(\'' + type + '\', \'' + t + '\')">Add another</a>\n</td>\n</tr>\n</table>\n';
+		html += '<tr>\n<td>\n<a href="#" onclick="javascript:getAnother(\'' + type + '\', \'' + t + '\')">$tlang.getString( "addanother.create" )</a>\n</td>\n</tr>\n</table>\n';
 		
 		div.innerHTML = html;
 		counter.value = count;
@@ -381,7 +381,7 @@
 						+ "<input name=\"urlid_" + i + "\" id=\"urlid_" + i + "\" value=\"" + currentValues["urlid_" + i] + "\" type=\"hidden\" />\n"
 						+ "</td>\n</tr>\n";
 		}
-		html += '<tr>\n<td>\n<input type="button" id="add_url" onclick="javascript:addUrl();" value="Add another" />\n</td>\n</tr>\n</table>\n';
+		html += '<tr>\n<td>\n<input type="button" id="add_url" onclick="javascript:addUrl();" value="$tlang.getString( "addanother.create" )" />\n</td>\n</tr>\n</table>\n';
 
 		div.innerHTML = html;
 		counter.value = count;
