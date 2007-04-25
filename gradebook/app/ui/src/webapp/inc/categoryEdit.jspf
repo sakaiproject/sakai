@@ -43,6 +43,12 @@
 				</h:column>
 				<h:column>
 					<f:facet name="header">
+						<h:outputText value="#{msgs.cat_list_num_items}" />
+					</f:facet>
+					<h:outputText value="#{category.assignmentCount} #{msgs.cat_items}" />
+				</h:column>
+				<h:column>
+					<f:facet name="header">
 						<h:outputText value="#{msgs.cat_list_remove}" />
 					</f:facet>
 					<h:commandLink value="" title="#{msgs.cat_remove}" actionListener="#{gradebookSetupBean.processRemoveCategory}" >

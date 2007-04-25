@@ -17,6 +17,7 @@ public class Category implements Serializable
 	private Double averageScore; //average scores that students got for this category
 	private Double mean; //mean value of percentage for this category
 	private List assignmentList;
+	private int assignmentCount;
 	
 	public static Comparator nameComparator;
 	public static Comparator averageScoreComparator;
@@ -261,5 +262,13 @@ public class Category implements Serializable
 	public void setMean(Double mean)
 	{
 		this.mean = mean;
+	}
+	
+	public int getAssignmentCount(){
+		return assignmentCount;
+	}
+	
+	public void setAssignmentCount(int assignmentCount){
+		this.assignmentCount = assignmentCount;
 	}
 }

@@ -70,7 +70,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		if (localGradebook == null)
 		{
 			localGradebook = getGradebook();
-			categories = getGradebookManager().getCategories(getGradebookId());
+			categories = getGradebookManager().getCategoriesWithStats(getGradebookId(),Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
 			convertWeightsFromDecimalsToPercentages();
 			intializeGradeEntryAndCategorySettings();
 			categoriesToRemove = new ArrayList();
@@ -244,7 +244,12 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		while (catIter.hasNext())
 		{
 			try {
-				Category uiCategory = (Category)catIter.next();
+				Object obj = catIter.next();
+				if(!(obj instanceof Category)){
+					continue;
+				}
+				
+				Category uiCategory = (Category) obj;
 				Long categoryId = uiCategory.getId();
 				String categoryName = uiCategory.getName();
 
@@ -373,7 +378,17 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		//first, iterate through the list and remove blank lines
 		for (int i=0; i < categories.size(); i++)
 		{
+			Object obj = categories.get(i);
+			if(!(obj instanceof Category)){
+				categories.remove(i);
+				continue;
+			}
 			Category cat = (Category)categories.get(i);
+			int assignmentCount = 0;
+			if(cat.getAssignmentList() != null){
+				assignmentCount = cat.getAssignmentList().size();
+			}
+			cat.setAssignmentCount(assignmentCount);
 			if (cat.getName() == null || cat.getName().trim().length() == 0)
 			{
 				if (cat.getId() != null) 
@@ -402,6 +417,10 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		StringBuffer rowClasses = new StringBuffer();
 		//first add the row class "bogus" for current categories
 		for (int i=0; i<categories.size(); i++){
+			Object obj = categories.get(i);
+			if(!(obj instanceof Category)){
+				continue;
+			}
 			Category cat = (Category)categories.get(i);
 			if (cat.getName() != null && cat.getName().trim().length() != 0)
 			{
@@ -414,9 +433,10 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		
 		//add row class "bogus_hide" for blank categories
 		for (int i=0; i < NUM_EXTRA_CAT_ENTRIES; i++){
-			if(!(i == 0 && categories.size() == 0)){
-				rowClasses.append(",");
+			if(i == 0 && categories.size() == 0){
+				rowClasses.append("bogus");
 			}
+			rowClasses.append(",");
 			rowClasses.append("bogus hide");
 		}
 		
@@ -493,7 +513,11 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 			Iterator catIter = categories.iterator();
 			while (catIter.hasNext())
 			{
-				Category cat = (Category) catIter.next();
+				Object obj = catIter.next();
+				if(!(obj instanceof Category)){
+					continue;
+				}
+				Category cat = (Category) obj;
 				if (cat.getWeight() != null)
 				{
 					double weight = cat.getWeight().doubleValue();
@@ -517,7 +541,11 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		if (categories != null && !categories.isEmpty()) {
 			Iterator iter = categories.iterator();
 			while (iter.hasNext()) {
-				Category myCat = (Category) iter.next();
+				Object obj = iter.next();
+				if(!(obj instanceof Category)){
+					continue;
+				}
+				Category myCat = (Category) obj;
 				Double weight = myCat.getWeight();
 				if (weight != null && weight.doubleValue() > 0) {
 					myCat.setWeight(new Double(weight.doubleValue() * 100));
