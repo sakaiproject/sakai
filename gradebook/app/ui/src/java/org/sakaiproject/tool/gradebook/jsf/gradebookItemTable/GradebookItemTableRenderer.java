@@ -375,7 +375,7 @@ public class GradebookItemTableRenderer extends Renderer {
 								"', '" +  path + "', '" + imgExpandAlt  + "', '" + imgCollapseAlt  + "', '" + imgExpandTitle + "', '" + imgCollapseTitle + "');";
 						}
 						
-						hideTr += "setMainFrameHeight('Main" + ToolManager.getCurrentPlacement().getId().replace('-','x') + "');";
+						hideTr += "mySetMainFrameHeight('Main" + ToolManager.getCurrentPlacement().getId().replace('-','x') + "');";
 
 						writer.startElement(HTML.IMG_ELEM, image);
 						writer.writeURIAttribute("src", image.getValue(), null);

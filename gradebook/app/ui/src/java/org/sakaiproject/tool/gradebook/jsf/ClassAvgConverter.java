@@ -76,7 +76,8 @@ public class ClassAvgConverter extends PointsConverter {
 				gradebook = category.getGradebook();
 				pointsPossible = category.getAverageTotalPoints();
 				
-				if (pointsPossible == null) {
+				// Unassigned category won't have avg
+				if (category.getId() == null) {
 					return FacesUtil.getLocalizedString("overview_unassigned_cat_avg");
 				}
 				else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS) {

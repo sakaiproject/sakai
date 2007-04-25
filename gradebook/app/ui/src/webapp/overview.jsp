@@ -103,7 +103,9 @@
 		      </t:commandSortHeader>
 		    </f:facet>
 
-				<h:outputText value="#{gradebookItem.weight}" rendered="#{gradebookItem.category}" />
+				<h:outputText value="#{gradebookItem.weight}" rendered="#{gradebookItem.category}">
+					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.PERCENTAGE" />
+				</h:outputText>
 			</h:column>
 			
 			<h:column>

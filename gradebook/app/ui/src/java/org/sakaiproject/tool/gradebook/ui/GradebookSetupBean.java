@@ -71,6 +71,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		{
 			localGradebook = getGradebook();
 			categories = getGradebookManager().getCategories(getGradebookId());
+			convertWeightsFromDecimalsToPercentages();
 			intializeGradeEntryAndCategorySettings();
 			categoriesToRemove = new ArrayList();
 		}
@@ -262,13 +263,22 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 
 					if (categoryId == null) {
 						// must be a new or blank category
-						getGradebookManager().createCategory(localGradebook.getId(), categoryName.trim(), uiCategory.getWeight(), 0);
+						if (uiCategory.getWeight() != null && uiCategory.getWeight().doubleValue() > 0) {
+							getGradebookManager().createCategory(localGradebook.getId(), categoryName.trim(), new Double(uiCategory.getWeight().doubleValue()/100), 0);
+						} else {
+							getGradebookManager().createCategory(localGradebook.getId(), categoryName.trim(), uiCategory.getWeight(), 0);
+						}
 					}
 					else {
 						// we are updating an existing category
 						Category updatedCategory = getGradebookManager().getCategory(categoryId);
 						updatedCategory.setName(categoryName.trim());
-						updatedCategory.setWeight(uiCategory.getWeight());
+						if (uiCategory.getWeight() != null && uiCategory.getWeight().doubleValue() > 0) {
+							updatedCategory.setWeight(new Double (uiCategory.getWeight().doubleValue()/100));
+						} else {
+							updatedCategory.setWeight(uiCategory.getWeight());
+						}
+						
 						getGradebookManager().updateCategory(updatedCategory);
 					}
 				}
@@ -296,6 +306,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		getGradebookManager().updateGradebook(localGradebook);
 
 		FacesUtil.addRedirectSafeMessage(getLocalizedString("gb_save_msg"));
+		reset();
 		return null;
 	}
 
@@ -494,6 +505,25 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		runningTotal = total;
 		neededTotal = 100 - total;
 	}
-
+	
+	/**
+	 * Because we display input as "percentage" to user but store it as
+	 * decimal, we need a way to convert our weights from decimal to %
+	 */
+	private void convertWeightsFromDecimalsToPercentages() {
+		if (!getWeightingEnabled())
+			return;
+		
+		if (categories != null && !categories.isEmpty()) {
+			Iterator iter = categories.iterator();
+			while (iter.hasNext()) {
+				Category myCat = (Category) iter.next();
+				Double weight = myCat.getWeight();
+				if (weight != null && weight.doubleValue() > 0) {
+					myCat.setWeight(new Double(weight.doubleValue() * 100));
+				}
+			}
+		}
+	}
 
 }
