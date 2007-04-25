@@ -25,4 +25,4 @@
 			src="${pageContext.request.contextPath}/js/sections.js">
 		</script>
 	</head>
-	<body onload="<%=request.getAttribute("sakai.html.body.onload")%>;prepForms();setSectionPageFocus()">
+	<body onload="<%=request.getAttribute("sakai.html.body.onload")%>prepForms();setTimeout('setSectionPageFocus()',1);">
