@@ -1,5 +1,5 @@
 
-
+<script type="text/javascript" src="/library/js/jquery-1.1.2.js"></script>
 <h4><h:outputText value="#{msgs.cat_heading}" styleClass="gbSection" /></h4>
 
 <div class="indnt1">
@@ -19,6 +19,7 @@
 				value="#{gradebookSetupBean.categories}"
 				var="category"
 	      columnClasses="bogus,bogus,specialLink"
+	      		rowClasses="#{gradebookSetupBean.rowClasses}"
 				styleClass="listHier narrowTable"
 				rowIndexVar="rowIndex">
 				<h:column>
@@ -65,7 +66,27 @@
 				</h:panelGroup>
 			</h:panelGrid>
 			
+			<h:outputLink value="#" styleClass="more_categories">
+				<h:outputText value="#{msgs.cat_list_more}" />
+			</h:outputLink>
+			
 		<f:verbatim></div></f:verbatim>
 	</h:panelGroup>
 </div>
-
+<%
+  String thisId = request.getParameter("panel");
+  if (thisId == null) 
+  {
+    thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
+  }
+%>
+<script type="text/javascript">
+	$("tr.hide").hide();
+	$("a.more_categories").click(function(event){
+	   $("tr.hide:first").removeClass("hide").show();
+	   mySetMainFrameHeight('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
+	   if(!$("tr.hide").size()){
+	      $(event.target).hide();
+	   }
+	});
+</script>

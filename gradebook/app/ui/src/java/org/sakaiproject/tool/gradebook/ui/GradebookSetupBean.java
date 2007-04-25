@@ -53,7 +53,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	private double runningTotal;
 	private double neededTotal;
 
-	private static final int NUM_EXTRA_CAT_ENTRIES = 5;
+	private static final int NUM_EXTRA_CAT_ENTRIES = 50;
 	private static final String ENTRY_OPT_POINTS = "points";
 	private static final String ENTRY_OPT_PERCENT = "percent";
 	private static final String ENTRY_OPT_LETTER = "letterGrade";
@@ -384,6 +384,32 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		}
 
 		return categories;
+	}
+	
+	public String getRowClasses()
+	{
+		StringBuffer rowClasses = new StringBuffer();
+		//first add the row class "bogus" for current categories
+		for (int i=0; i<categories.size(); i++){
+			Category cat = (Category)categories.get(i);
+			if (cat.getName() != null && cat.getName().trim().length() != 0)
+			{
+				if(i != 0){
+					rowClasses.append(",");
+				}
+				rowClasses.append("bogus");
+			}
+		}
+		
+		//add row class "bogus_hide" for blank categories
+		for (int i=0; i < NUM_EXTRA_CAT_ENTRIES; i++){
+			if(!(i == 0 && categories.size() == 0)){
+				rowClasses.append(",");
+			}
+			rowClasses.append("bogus hide");
+		}
+		
+		return rowClasses.toString();
 	}
 
 	/**
