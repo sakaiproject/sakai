@@ -243,7 +243,7 @@
 						#if($can_attach_more)
 							<div class="itemAction">
 								#if($item.isCollection())
-								#else
+								#elseif($item.canSelect())
 									#set ($itemsOnLine = 0)
 									####### deal with attaching item
 									#if ($item.canRead())

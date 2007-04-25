@@ -408,15 +408,28 @@ public class FilePickerAction extends PagedResourceHelperAction
 				// expand folder
 				SortedSet<String> expandedCollections = (SortedSet<String>) toolSession.getAttribute(STATE_EXPANDED_COLLECTIONS);
 				expandedCollections.add(resources.get(0).getContainingCollection().getId());
+								
 				List<AttachItem> new_items = (List<AttachItem>) toolSession.getAttribute(STATE_ADDED_ITEMS);
 				if(new_items == null)
 				{
 					new_items = new Vector<AttachItem>();
 					toolSession.setAttribute(STATE_ADDED_ITEMS, new_items);
 				}
+				
+				ContentResourceFilter filter = (ContentResourceFilter) state.getAttribute(STATE_ATTACHMENT_FILTER);
 
 				for(ContentResource resource : resources)
 				{
+					if(filter != null)
+					{
+						if(! filter.allowSelect(resource))
+						{
+							ResourceProperties props = resource.getProperties();
+							String displayName = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+							addAlert(state, (String) rb.getFormattedMessage("filter", new Object[]{displayName}));
+							continue;
+						}
+					}
 					AttachItem item = new AttachItem(resource);
 					String typeId = resource.getResourceType();
 					item.setResourceType(typeId);
@@ -924,9 +937,10 @@ public class FilePickerAction extends PagedResourceHelperAction
 	    for(ListItem item : items)
 	    {
 	    	ContentEntity entity = item.getEntity();
-	    	if(entity.isCollection() || filter.allowSelect((ContentResource) entity))
+	    	if(entity.isCollection() || filter.allowView((ContentResource) entity)) 
 	    	{
 	    		rv.add(item);
+	    		item.setCanSelect(entity.isResource() && filter.allowSelect((ContentResource) entity));
 	    	}
 	    }
 	    return rv;
@@ -1260,6 +1274,13 @@ public class FilePickerAction extends PagedResourceHelperAction
 					}
 
 					ContentResource attachment = contentService.addAttachmentResource(resourceId, siteId, toolName, contentType, bytes, props);
+					
+					ContentResourceFilter filter = (ContentResourceFilter) state.getAttribute(STATE_ATTACHMENT_FILTER);
+					if(! filter.allowSelect(attachment))
+					{
+						addAlert(state, (String) rb.getFormattedMessage("filter", new Object[]{name}));
+						return;
+					}
 
 					List<AttachItem> new_items = (List<AttachItem>) toolSession.getAttribute(STATE_ADDED_ITEMS);
 					if(new_items == null)
@@ -1653,10 +1674,21 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 		if(!found)
 		{
+			ContentResourceFilter filter = (ContentResourceFilter) state.getAttribute(STATE_ATTACHMENT_FILTER);
+			
 			try
 			{
 				ContentResource res = contentService.getResource(itemId);
 				ResourceProperties props = res.getProperties();
+				if(filter != null)
+				{
+					if(! filter.allowSelect(res))
+					{
+						String displayName = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+						addAlert(state, (String) rb.getFormattedMessage("filter", new Object[]{displayName}));
+						return;
+					}
+				}
 
 				ResourcePropertiesEdit newprops = contentService.newResourceProperties();
 				newprops.set(props);
@@ -1784,6 +1816,18 @@ public class FilePickerAction extends PagedResourceHelperAction
 				ContentResource res = contentService.getResource(itemId);
 				
 				ResourceProperties props = res.getProperties();
+				
+				ContentResourceFilter filter = (ContentResourceFilter) state.getAttribute(STATE_ATTACHMENT_FILTER);
+				if(filter != null)
+				{
+					if(! filter.allowSelect(res))
+					{
+						String displayName = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+						addAlert(state, (String) rb.getFormattedMessage("filter", new Object[]{displayName}));
+						return;
+					}
+				}
+
 				String displayName = props.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
 				String containerId = contentService.getContainingCollectionId (itemId);
 				String accessUrl = res.getUrl();
@@ -3216,4 +3260,31 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 	}	// findResourceInList
 	
+	protected static boolean checkItemFilter(ContentResource resource, ListItem newItem, ContentResourceFilter filter) 
+	{
+	      if (filter != null) 
+	      {
+	    	  	if (newItem != null) 
+	    	  	{
+	    	  		newItem.setCanSelect(filter.allowSelect(resource));
+	    	  	}
+	    	  	return filter.allowView(resource);
+	      }
+	      else if (newItem != null) 
+	      {
+	    	  	newItem.setCanSelect(true);
+	      }
+
+	      return true;
+	}
+
+	protected static boolean checkSelctItemFilter(ContentResource resource, ContentResourceFilter filter) 
+	{
+		if (filter != null)
+		{
+			return filter.allowSelect(resource);
+		}
+		return true;
+	}
+
 }	// class FilePickerAction 

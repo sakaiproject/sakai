@@ -242,8 +242,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 						</h$headerDepth>
 					</td>
 					<td headers="actions">
-					#set ($actionCount=($actionCount - 1))
-
+						#set ($actionCount=($actionCount - 1))
 						#if($can_attach_more)
 							#if($item.isCollection())
 								#if($item.addActions && !$item.addActions.isEmpty())
@@ -259,7 +258,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 										</ul>
 									</span>
 								#end
-							#else
+							#elseif($item.canSelect())
 								<div class="itemAction">
 									<a href="#toolLinkParam("ResourcesAction" "doAttachitem" "itemId=$validator.escapeUrl(${item.id})")" title ="$tlang.getString('att.select')">$tlang.getString("att.select").trim()</a>
 								</div>
