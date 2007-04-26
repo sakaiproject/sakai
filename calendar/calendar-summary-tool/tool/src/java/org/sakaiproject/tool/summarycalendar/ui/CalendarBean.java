@@ -97,6 +97,7 @@ public class CalendarBean {
 	private MonthWeek								week5					= new MonthWeek();
 	private MonthWeek								week6					= new MonthWeek();
 	private List									calendarReferences		= new ArrayList();
+	private CalendarEventVector						calendarEventVector		= null;
 	private String									siteId					= null;
 	private String[]								months					= { "mon_jan", "mon_feb", "mon_mar", "mon_apr", "mon_may", "mon_jun", "mon_jul", "mon_aug", "mon_sep", "mon_oct",
 			"mon_nov", "mon_dec"											};
@@ -133,6 +134,10 @@ public class CalendarBean {
 		long lastModified = PrefsBean.getPreferenceLastModified();
 		if(lastModifiedPrefs != lastModified)
 			readPreferences();
+		
+		// re-read events from API for selected month/week
+		calendarEventVector = null;
+		
 		return "";
 	}
 
@@ -208,20 +213,114 @@ public class CalendarBean {
 		}
 		return siteId;
 	}
-
-	private CalendarEventVector getDayEventsVector(Calendar c) {
-		c.set(Calendar.HOUR_OF_DAY, 0);
-		c.set(Calendar.MINUTE, 0);
-		c.set(Calendar.SECOND, 0);
-		c.set(Calendar.MILLISECOND, 0);
-		long startOfDay = c.getTimeInMillis();
-		Time iTime = M_ts.newTime(startOfDay);
-		long one_day = 86400000 - 1;
-		Time fTime = M_ts.newTime(startOfDay + one_day);
 	
-		TimeRange range = M_ts.newTimeRange(iTime, fTime);
-		return M_ca.getEvents(getCalendarReferences(), range);
+	private CalendarEventVector getEventsFromSchedule() {
+		if(calendarEventVector == null) {
+			Calendar firstDay;
+			Calendar lastDay;
+			
+			if(viewMode.equals(MODE_WEEKVIEW)){
+				// WEEK VIEW
+				
+				// select first day
+				firstDay = Calendar.getInstance();
+				firstDay.setTime(getViewingDate());
+				firstDay.set(Calendar.HOUR_OF_DAY, 0);
+				firstDay.set(Calendar.MINUTE, 0);
+				firstDay.set(Calendar.SECOND, 0);
+				firstDay.set(Calendar.MILLISECOND, 0);
+				int dayOfWeek = firstDay.get(Calendar.DAY_OF_WEEK);
+				// TODO Allow dynamic choice of first day of week
+				while(dayOfWeek != Calendar.SUNDAY){
+					firstDay.add(Calendar.DAY_OF_WEEK, -1);
+					dayOfWeek = firstDay.get(Calendar.DAY_OF_WEEK);
+				}
+				
+				// select last day
+				lastDay = (Calendar) firstDay.clone();
+				lastDay.add(Calendar.DAY_OF_WEEK, 6);
+				lastDay.set(Calendar.HOUR_OF_DAY, 23);
+				lastDay.set(Calendar.MINUTE, 59);
+				lastDay.set(Calendar.SECOND, 59);
+				lastDay.set(Calendar.MILLISECOND, 999);
+			}else{
+				// MONTH VIEW
+				
+				// select first day
+				firstDay = Calendar.getInstance();
+				firstDay.setTime(getViewingDate());
+				int selYear = firstDay.get(Calendar.YEAR);
+				int selMonth = firstDay.get(Calendar.MONTH);
+				firstDay.set(Calendar.YEAR, selYear);
+				firstDay.set(Calendar.DAY_OF_MONTH, 1);
+				firstDay.set(Calendar.HOUR_OF_DAY, 0);
+				firstDay.set(Calendar.MINUTE, 0);
+				firstDay.set(Calendar.SECOND, 0);
+				firstDay.set(Calendar.MILLISECOND, 0);
+				int dayOfWeek = firstDay.get(Calendar.DAY_OF_WEEK);
+				// TODO Allow dynamic choice of first day of week
+				while(dayOfWeek != Calendar.SUNDAY){
+					firstDay.add(Calendar.DAY_OF_WEEK, -1);
+					dayOfWeek = firstDay.get(Calendar.DAY_OF_WEEK);
+				}
+				
+				// select last day
+				lastDay = (Calendar) firstDay.clone();
+				lastDay.set(Calendar.YEAR, selYear);
+				lastDay.set(Calendar.MONTH, selMonth);
+				lastDay.set(Calendar.DAY_OF_MONTH, lastDay.getActualMaximum(Calendar.DAY_OF_MONTH));
+				lastDay.set(Calendar.HOUR_OF_DAY, 23);
+				lastDay.set(Calendar.MINUTE, 59);
+				lastDay.set(Calendar.SECOND, 59);
+				lastDay.set(Calendar.MILLISECOND, 999);
+				dayOfWeek = lastDay.get(Calendar.DAY_OF_WEEK);
+				// TODO Allow dynamic choice of first day of week
+				while(dayOfWeek != Calendar.SATURDAY){
+					lastDay.add(Calendar.DAY_OF_WEEK, 1);
+					dayOfWeek = lastDay.get(Calendar.DAY_OF_WEEK);
+				}
+			}
+			
+			
+			Time firstTime = M_ts.newTime(firstDay.getTimeInMillis());
+			Time lastTime = M_ts.newTime(lastDay.getTimeInMillis());
+			TimeRange range = M_ts.newTimeRange(firstTime, lastTime);
+			calendarEventVector = M_ca.getEvents(getCalendarReferences(), range);
+		}
+		return calendarEventVector;
 	}
+	
+	
+	private CalendarEventVector getScheduleEventsForDay(Calendar c) {
+		CalendarEventVector cev = new CalendarEventVector();
+		
+		// find start and end of day
+		Calendar startOfDay = (Calendar) c.clone();
+		startOfDay.set(Calendar.HOUR_OF_DAY, 0);
+		startOfDay.set(Calendar.MINUTE, 0);
+		startOfDay.set(Calendar.SECOND, 0);
+		startOfDay.set(Calendar.MILLISECOND, 0);
+		Time sod = M_ts.newTime(startOfDay.getTimeInMillis());
+		Calendar endOfDay = (Calendar) c.clone();
+		endOfDay.set(Calendar.HOUR_OF_DAY, 23);
+		endOfDay.set(Calendar.MINUTE, 59);
+		endOfDay.set(Calendar.SECOND, 59);
+		endOfDay.set(Calendar.MILLISECOND, 999);
+		Time eod = M_ts.newTime(endOfDay.getTimeInMillis());
+		TimeRange range = M_ts.newTimeRange(sod, eod);
+		
+		Iterator i = getEventsFromSchedule().iterator();
+		while(i.hasNext()){
+			CalendarEvent ce = (CalendarEvent) i.next();
+			TimeRange tr = ce.getRange();
+			if(range.contains(tr.firstTime()) || range.contains(tr.lastTime())){
+				cev.add(ce);
+			}
+		}
+		return cev;
+	}
+
+//	}
 	
 	private List getDayEvents(CalendarEventVector dayEventVector) {
 		ListIterator i = dayEventVector.listIterator();
@@ -407,10 +506,10 @@ public class CalendarBean {
 
 	public List getCalendar() {
 		if(viewMode.equals(MODE_WEEKVIEW)){
-			// week view
+			// WEEK VIEW
 			return getWeek();
 		}else{
-			// month view
+			// MONTH VIEW
 			return getWeeks();
 		}
 	}
@@ -458,14 +557,14 @@ public class CalendarBean {
 						int nDay = prevMonthLastDay - dayOfWeek + 2 + i;
 						c.set(Calendar.MONTH, selMonth - 1);
 						c.set(Calendar.DAY_OF_MONTH, nDay);
-						CalendarEventVector vector = getDayEventsVector(c);
+						CalendarEventVector vector = getScheduleEventsForDay(c);
 						day = new Day(c.getTime(), getDayEventCount(vector) > 0);
 						day.setOccursInOtherMonth(true);
 						day.setBackgroundCSSProperty(getDayPriorityCSSProperty(vector));
 					}else if(currDay > lastDay){
 						c.set(Calendar.MONTH, selMonth + 1);
 						c.set(Calendar.DAY_OF_MONTH, nextMonthDay++);
-						CalendarEventVector vector = getDayEventsVector(c);
+						CalendarEventVector vector = getScheduleEventsForDay(c);
 						day = new Day(c.getTime(), getDayEventCount(vector) > 0);
 						day.setOccursInOtherMonth(true);
 						day.setBackgroundCSSProperty(getDayPriorityCSSProperty(vector));
@@ -473,7 +572,7 @@ public class CalendarBean {
 						c.set(Calendar.YEAR, selYear);
 						c.set(Calendar.MONTH, selMonth);
 						c.set(Calendar.DAY_OF_MONTH, currDay++);
-						CalendarEventVector vector = getDayEventsVector(c);
+						CalendarEventVector vector = getScheduleEventsForDay(c);
 						day = new Day(c.getTime(), getDayEventCount(vector) > 0);
 						day.setOccursInOtherMonth(false);
 						day.setBackgroundCSSProperty(getDayPriorityCSSProperty(vector));
@@ -521,7 +620,7 @@ public class CalendarBean {
 				boolean sameMonth = (selMonth == c.get(Calendar.MONTH));
 				boolean selected = (selectedDay != null) && (sameDay(c, selectedDay));
 
-				CalendarEventVector vector = getDayEventsVector(c);
+				CalendarEventVector vector = getScheduleEventsForDay(c);
 				day = new Day(c.getTime(), getDayEventCount(vector) > 0);
 				day.setOccursInOtherMonth(!sameMonth);
 				day.setBackgroundCSSProperty(getDayPriorityCSSProperty(vector));
@@ -575,7 +674,7 @@ public class CalendarBean {
 		if(selectedDay != null){
 			Calendar t = Calendar.getInstance();
 			t.setTime(selectedDay);
-			selectedDayHasEvents = getDayEventCount(getDayEventsVector(t)) > 0;
+			selectedDayHasEvents = getScheduleEventsForDay(t).size() > 0;
 		}
 		
 		/*return selectedDayHasEvents && selectedDay != null && selectedEventRef == null;*/
@@ -587,14 +686,14 @@ public class CalendarBean {
 	}
 
 	public String getSelectedDayAsString() {
-		SimpleDateFormat formatter = new SimpleDateFormat("MMM dd, yyyy");
+		SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
 		return formatter.format(selectedDay);
 	}
 
 	public List getSelectedDayEvents() {
 		Calendar c = Calendar.getInstance();
 		c.setTime(selectedDay);
-		return getDayEvents(getDayEventsVector(c));
+		return getDayEvents(getScheduleEventsForDay(c));
 	}
 
 	public EventSummary getSelectedEvent() {
