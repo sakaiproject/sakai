@@ -25,6 +25,18 @@
     	<sakai:tool_bar_item value="#{msgs.overview_add_item}" action="addAssignment" />
     	<sakai:tool_bar_item value="#{msgs.overview_import_item}" action="spreadsheetListing" />
   	</sakai:tool_bar>
+  	
+  	<h:panelGrid cellpadding="0" cellspacing="0" columns="2"
+			columnClasses="itemName"
+			styleClass="itemSummary">
+			<h:outputText id="cumLabel" value="#{msgs.overview_avg_cum_score}" rendered="#{overviewBean.userAbleToGradeAll}"/>
+			<h:outputText id="cumScore" value="#{overviewBean.courseGrade.formattedMean}" rendered="#{overviewBean.userAbleToGradeAll}">
+				<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.PERCENTAGE" />
+			</h:outputText>
+
+			<h:outputText id="avgGradeLabel" value="#{msgs.overview_avg_course_grade}" rendered="#{overviewBean.userAbleToGradeAll}"/>
+			<h:outputText id="avgGrade" value="#{overviewBean.avgCourseGradeLetter}" rendered="#{overviewBean.userAbleToGradeAll}" />
+		</h:panelGrid>
 
 		<%@include file="/inc/globalMessages.jspf"%>
 
@@ -62,7 +74,7 @@
 						<f:param name="assignmentId" value="#{gradebookItem.id}"/>
 					</h:commandLink>
 					<h:commandLink action="assignmentDetails" rendered="#{!gradebookItem.released}" styleClass="inactive">
-						<h:outputText value="#{gradebookItem.name}" />
+						<h:outputText value="#{gradebookItem.name}"/>
 						<f:param name="assignmentId" value="#{gradebookItem.id}"/>
 					</h:commandLink>
 				</h:panelGroup>
@@ -74,9 +86,9 @@
 					<h:outputText value="#{msgs.course_grade_name}" />
 				</h:commandLink>
 			</h:column>
-			<h:column>
+			<h:column rendered="#{overviewBean.userAbleToEditAssessments}">
 				<f:facet name="header">
-		    	<h:outputText value="" />
+		    	<h:outputText escape="false" value="&nbsp;" />
 		    </f:facet>
 				<h:commandLink action="editAssignment" rendered="#{gradebookItem.assignment}">
 					<h:outputText value="#{msgs.overview_edit}" />

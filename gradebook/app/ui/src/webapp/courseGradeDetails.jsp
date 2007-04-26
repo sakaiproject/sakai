@@ -20,8 +20,8 @@
 		<h:panelGrid cellpadding="0" cellspacing="0" columns="2"
 			columnClasses="itemName"
 			styleClass="itemSummary">
-			<h:outputText id="pointsLabel" value="#{msgs.course_grade_details_points}"/>
-			<h:outputText id="points" value="#{courseGradeDetailsBean.totalPoints}">
+			<h:outputText id="pointsLabel" value="#{msgs.course_grade_details_points}" rendered="#{!courseDetailsBean.weightingEnabled}"/>
+			<h:outputText id="points" value="#{courseGradeDetailsBean.totalPoints}" rendered="#{!courseDetailsBean.weightingEnabled}">
 				<f:convertNumber maxFractionDigits="2"/>
 			</h:outputText>
 

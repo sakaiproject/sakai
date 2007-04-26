@@ -21,6 +21,7 @@ import org.apache.myfaces.shared_impl.renderkit.html.HTML;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.GradableObject;
+import org.sakaiproject.tool.gradebook.ui.AssignmentGradeRow;
 import org.sakaiproject.tool.cover.ToolManager;
 
 public class GradebookItemTableRenderer extends Renderer {
@@ -269,10 +270,11 @@ public class GradebookItemTableRenderer extends Renderer {
 		int hideDivNo = 0;
 		while (true) {
 			Category gbCategory = null;
-			GradableObject go = null;
+
 			boolean isCategory = false;
 			boolean isAssignment = false;
 			boolean isCourseGrade = false;
+			boolean isGradeRow = false;
 			
 			if(gbItemList !=null && gbItemList.size() > (rowIndex+1) && rowIndex > -2)
 			{
@@ -285,7 +287,7 @@ public class GradebookItemTableRenderer extends Renderer {
 				}
 				else if (gbItem instanceof GradableObject){
 					isCategory = false;
-					go = (GradableObject) gbItem;
+					GradableObject go = (GradableObject) gbItem;
 					if (go.isAssignment()) {
 						isAssignment = true;
 						isCourseGrade = true;
@@ -295,21 +297,40 @@ public class GradebookItemTableRenderer extends Renderer {
 						isCourseGrade = true;
 					}
 				}
+				else if (gbItem instanceof AssignmentGradeRow) {
+					isCategory = false;
+					isCourseGrade = false;
+					isAssignment = false;
+					isGradeRow = true;
+				}
 				else {
 					throw new IllegalArgumentException("Invalid class passed to renderer: " + gbItem.getClass());
 				}
 			}
 			
 			boolean hasChildBoolean = false;
+			int childNo = 0;
 			if(isCategory && gbCategory != null && gbItemList.size() > rowIndex + 2)
 			{
-				Object nextItem = gbItemList.get(rowIndex+2);
-				if (nextItem instanceof GradableObject) {
-					GradableObject nextGo = (GradableObject) nextItem;
-					if (nextGo.isAssignment())
+				for (int i=rowIndex+2; i < gbItemList.size(); i++) {
+					Object nextItem = gbItemList.get(i);
+					if (nextItem instanceof GradableObject) {
+						GradableObject nextGo = (GradableObject) nextItem;
+						if (nextGo.isAssignment()) {
+							hasChildBoolean = true;
+							childNo++;
+						} else {
+							break;
+						}
+					} 
+					else if (nextItem instanceof AssignmentGradeRow) {
 						hasChildBoolean = true;
+						childNo++;
+					} else if (nextItem instanceof Category) {
+						break;
+					}
 				}
-			}
+			} 
 
 			// Have we displayed the requested number of rows?
 			if ((rows > 0) && (++processed > rows)) {
@@ -323,7 +344,7 @@ public class GradebookItemTableRenderer extends Renderer {
 
 			// Render the beginning of this row
 			writer.startElement("tr", data);
-			if(isAssignment)
+			if(isAssignment || isGradeRow)
 			{
 				String assignId = "_id_" + new Integer(hideDivNo).toString() + "__hide_division_";
 				writer.writeAttribute("id", assignId, null);
@@ -358,15 +379,11 @@ public class GradebookItemTableRenderer extends Renderer {
 					}
 				}
 
-				if((isAssignment || isCourseGrade || isCategory) && column.getId().endsWith("_toggle"))
+				if((isAssignment || isCourseGrade || isCategory || isGradeRow) 
+						&& column.getId().endsWith("_toggle"))
 				{
 					if(hasChildBoolean && isCategory)
 					{
-						List assignList = gbCategory.getAssignmentList();
-						int childNo = 0;
-						if (assignList != null && !assignList.isEmpty())
-							childNo = assignList.size();
-		
 						String imgId = "_id_" + new Integer(hideDivNo).toString() + "__img_hide_division_";
 						String hideTr = "";
 						for(int i=0; i<childNo; i++)
@@ -409,7 +426,7 @@ public class GradebookItemTableRenderer extends Renderer {
 			writer.endElement("tr");
 			writer.writeText("\n", null);
 
-			if(isAssignment)
+			if(isAssignment || isGradeRow)
 			{
 				if(expanded)
 				{

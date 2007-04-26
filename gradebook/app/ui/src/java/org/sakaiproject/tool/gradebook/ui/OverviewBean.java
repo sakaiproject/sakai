@@ -49,7 +49,7 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
     private static final Map columnSortMap;
 
 	private List gradebookItemList;
-	private double totalPoints;
+	private CourseGrade courseGrade;
 
     static {
         columnSortMap = new HashMap();
@@ -69,18 +69,36 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 	public void setGradebookItemList(List gradebookItemList) {
 		this.gradebookItemList = gradebookItemList;
 	}
+	
+	public CourseGrade getCourseGrade() {
+		return courseGrade;
+	}
+	public void setCourseGrade(CourseGrade courseGrade) {
+		this.courseGrade = courseGrade;
+	}
+	
+	public String getAvgCourseGradeLetter() {
+		String letterGrade = "";
+		if (courseGrade != null) {
+			letterGrade = getGradebook().getSelectedGradeMapping().getGrade(courseGrade.getMean());
+		}
+		
+		if (letterGrade == null || letterGrade.trim().length() < 1) {
+			letterGrade = getLocalizedString("score_null_placeholder");
+		}
+		
+		return letterGrade;
+	}
 
 	protected void init() {
 
 		gradebookItemList = new ArrayList();
-		totalPoints = 0;
+		courseGrade = new CourseGrade();
 
 		if (getCategoriesEnabled()) {
 			/* if categories are enabled, we need to display a table that includes
-			 * categories, assignments, and possibly the course grade. Thus,
-			 * we use a generic DecoratedGradebookItem
+			 * categories, assignments, and the course grade.
 			 */
-			CourseGrade courseGrade = new CourseGrade();
 			List categoryList = getGradebookManager().getCategoriesWithStats(getGradebookId(), getAssignmentSortColumn(), isAssignmentSortAscending(), getCategorySortColumn(), isCategorySortAscending());
 			if (categoryList != null && !categoryList.isEmpty()) {
 				Iterator catIter = categoryList.iterator();
@@ -95,9 +113,6 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 							while (assignIter.hasNext()) {
 								Assignment assign = (Assignment) assignIter.next();
 								gradebookItemList.add(assign);
-								if (assign.isCounted()) {
-									totalPoints += assign.getPointsPossible().doubleValue();
-								}
 							}
 						}
 					}
@@ -136,14 +151,12 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 				Iterator goIter = goList.iterator();
 				while (goIter.hasNext()) {
 					GradableObject go = (GradableObject) goIter.next();
-					if (go.isCourseGrade())
+					if (go.isCourseGrade()) {
 						gradebookItemList.add((CourseGrade)go);
-					else {
+						courseGrade = (CourseGrade) go;
+					} else {
 						Assignment assign = (Assignment) go;
 						gradebookItemList.add(assign);
-						if (assign.isCounted()) {
-							totalPoints += assign.getPointsPossible().doubleValue();
-						}
 					}
 				}
 			}
@@ -221,9 +234,5 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
     	}
     	return gradeOptionSummary;
     }
-    
-	public Double getTotalPoints() {
-		return new Double(totalPoints);
-	}
 
 }

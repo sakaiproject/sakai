@@ -277,7 +277,10 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 				if (getCategoriesEnabled()) {
 					if (assignment.getCategory() != null) {
 						if (getWeightingEnabled()) {
-							assignmentWeight = assignment.getCategory().getWeight().toString();
+							Double weight = assignment.getCategory().getWeight();
+							if (weight != null && weight.doubleValue() > 0)
+								weight = new Double(weight.doubleValue() * 100);
+							assignmentWeight = weight.toString();
 							assignmentCategory = assignment.getCategory().getName() + " " + getLocalizedString("cat_weight_display", new String[] {assignmentWeight});
 						} else {
 							assignmentCategory = assignment.getCategory().getName();

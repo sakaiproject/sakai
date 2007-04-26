@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006 The Regents of the University of California
+ * Copyright (c) 2006, 2007 The Regents of the University of California
  *
  *  Licensed under the Educational Community License, Version 1.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -31,9 +31,12 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.service.gradebook.shared.UnknownUserException;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
+import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Comment;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
+import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.ui.AssignmentGradeRow;
 
 /**
  * Provides data for the student view of the gradebook.
@@ -59,7 +62,7 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
 
 
     // Controller fields - transient.
-    private transient List assignmentGradeRows;
+    private transient List gradebookItems;
 
     private static final Map columnSortMap;
     private static final String SORT_BY_NAME = "name";
@@ -76,17 +79,17 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
     static {
         nameComparator = new Comparator() {
             public int compare(Object o1, Object o2) {
-                return Assignment.nameComparator.compare(((AssignmentGradeRow)o1).getAssignment(), ((AssignmentGradeRow)o2).getAssignment());
+                return Assignment.nameComparator.compare(((AssignmentGradeRow)o1).getAssociatedAssignment(), ((AssignmentGradeRow)o2).getAssociatedAssignment());
             }
         };
         dateComparator = new Comparator() {
             public int compare(Object o1, Object o2) {
-                return Assignment.dateComparator.compare(((AssignmentGradeRow)o1).getAssignment(), ((AssignmentGradeRow)o2).getAssignment());
+                return Assignment.dateComparator.compare(((AssignmentGradeRow)o1).getAssociatedAssignment(), ((AssignmentGradeRow)o2).getAssociatedAssignment());
             }
         };
         pointsPossibleComparator = new Comparator() {
             public int compare(Object o1, Object o2) {
-                return Assignment.pointsComparator.compare(((AssignmentGradeRow)o1).getAssignment(), ((AssignmentGradeRow)o2).getAssignment());
+                return Assignment.pointsComparator.compare(((AssignmentGradeRow)o1).getAssociatedAssignment(), ((AssignmentGradeRow)o2).getAssociatedAssignment());
             }
         };
 
@@ -145,168 +148,139 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
         sortColumn = SORT_BY_DATE;
     }
 
-    public class AssignmentGradeRow implements Serializable {
-        private Assignment assignment;
-        private AssignmentGradeRecord gradeRecord;
-        private List comments;
-
-        public AssignmentGradeRow(Assignment assignment) {
-        	this.assignment = assignment;
-            this.comments = new ArrayList();
-        }
-        public void setGradeRecord(AssignmentGradeRecord gradeRecord) {
-        	this.gradeRecord = gradeRecord;
-        }
-        public Assignment getAssignment() {
-        	return assignment;
-        }
-        public AssignmentGradeRecord getGradeRecord() {
-        	return gradeRecord;
-        }
-
-        Double getPointsEarned() {
-        	if (gradeRecord == null) {
-        		return null;
-        	} else {
-        		return gradeRecord.getPointsEarned();
-        	}
-        }
-        Double getGradeAsPercentage() {
-        	if (gradeRecord == null) {
-        		return null;
-        	} else {
-        		return gradeRecord.getGradeAsPercentage();
-        	}
-        }
-
-        public List getComments() {
-            return comments;
-        }
-
-        public void setComments(List comments) {
-            this.comments = comments;
-        }
-
-    }
-
     /**
      * @see org.sakaiproject.tool.gradebook.ui.InitializableBean#init()
      */
     public void init() {
-        // Get the active gradebook
-        Gradebook gradebook = getGradebook();
+    	// Get the active gradebook
+    	Gradebook gradebook = getGradebook();
 
-        // Set the display name
-        try {
-            userDisplayName = getUserDirectoryService().getUserDisplayName(getUserUid());
-        } catch (UnknownUserException e) {
-            if(logger.isErrorEnabled())logger.error("User " + getUserUid() + " is unknown but logged in as student in gradebook " + gradebook.getUid());
-            userDisplayName = "";
-        }
-        courseGradeReleased = gradebook.isCourseGradeDisplayed();
-        assignmentsReleased = gradebook.isAssignmentsDisplayed();
+    	// Set the display name
+    	try {
+    		userDisplayName = getUserDirectoryService().getUserDisplayName(getUserUid());
+    	} catch (UnknownUserException e) {
+    		if(logger.isErrorEnabled())logger.error("User " + getUserUid() + " is unknown but logged in as student in gradebook " + gradebook.getUid());
+    		userDisplayName = "";
+    	}
+    	courseGradeReleased = gradebook.isCourseGradeDisplayed();
+    	assignmentsReleased = gradebook.isAssignmentsDisplayed();
 
-        // Reset the row styles
-        rowStyles = new StringBuffer();
+    	// Reset the row styles
+    	rowStyles = new StringBuffer();
 
-        // Display course grade if we've been instructed to.
-        if (gradebook.isCourseGradeDisplayed()) {
-            CourseGradeRecord gradeRecord = getGradebookManager().getStudentCourseGradeRecord(gradebook, getUserUid());
-            if (gradeRecord != null) {
-                courseGrade = gradeRecord.getDisplayGrade();
-                // Note that the percentage will be null for a manual-only grade
-                // code (such as "I" for incomplete).
-                percent = gradeRecord.getGradeAsPercentage();
-            }
-        }
-        //get grade comments and load them into a map assignmentId->comment
-        commentMap = new HashMap();
-        List assignmentComments = getGradebookManager().getStudentAssignmentComments(getUserUid(),getGradebookId());
-        logger.debug("number of comments "+assignmentComments.size());
-        Iterator iteration = assignmentComments.iterator();
-        while (iteration.hasNext()){
-            Comment comment = (Comment)iteration.next();
-            commentMap.put(comment.getGradableObject().getId(),comment);
-        }
+    	// Display course grade if we've been instructed to.
+    	CourseGradeRecord gradeRecord = getGradebookManager().getStudentCourseGradeRecord(gradebook, getUserUid());
+    	if (gradeRecord != null) {
+    		if (courseGradeReleased) {
+    			courseGrade = gradeRecord.getDisplayGrade();
+    		}
+			// Note that the percentage will be null for a manual-only grade
+			// code (such as "I" for incomplete).
+			percent = gradeRecord.getGradeAsPercentage();
+    	}
 
-        // Don't display any assignments if they have not been released
-        if(!gradebook.isAssignmentsDisplayed()) {
-            assignmentGradeRows = new ArrayList();
-        } else {
-            List assignments = getGradebookManager().getAssignments(gradebook.getId());
-            if(logger.isDebugEnabled())logger.debug(assignments.size() + " total assignments");
-            List gradeRecords = getGradebookManager().getStudentGradeRecords(gradebook.getId(), getUserUid());
-            if(logger.isDebugEnabled())logger.debug(gradeRecords.size()  +"  grade records");
+    	// do not retrieve assignments if not displayed for students
+    	if (assignmentsReleased) {
 
-            // Create a map of assignments to assignment grade rows
-            Map asnMap = new HashMap();
-            for(Iterator iter = assignments.iterator(); iter.hasNext();) {
+    		//get grade comments and load them into a map assignmentId->comment
+    		commentMap = new HashMap();
+    		List assignmentComments = getGradebookManager().getStudentAssignmentComments(getUserUid(),getGradebookId());
+    		logger.debug("number of comments "+assignmentComments.size());
+    		Iterator iteration = assignmentComments.iterator();
+    		while (iteration.hasNext()){
+    			Comment comment = (Comment)iteration.next();
+    			commentMap.put(comment.getGradableObject().getId(),comment);
+    		}
 
-                Assignment asn = (Assignment)iter.next();
-                asnMap.put(asn, new AssignmentGradeRow(asn));
+    		// get the student grade records
+    		List gradeRecords = getGradebookManager().getStudentGradeRecords(gradebook.getId(), getUserUid());
 
-                if (asn.isNotCounted()) {
-                    anyNotCounted = true;
-                }
+    		// The display may include categories and assignments, so we need a generic list
+    		gradebookItems = new ArrayList();
 
-            }
+    		if (getCategoriesEnabled()) {
+    			// we will also have to determine the student's category avg - the category stats
+    			// are for class avg
+    			List categoryList = new ArrayList();
+    			if (sortColumn.equals(Category.SORT_BY_WEIGHT))
+    				categoryList = getGradebookManager().getCategoriesWithStats(getGradebookId(), Assignment.DEFAULT_SORT, true, sortColumn, sortAscending);
+    			else
+    				categoryList = getGradebookManager().getCategoriesWithStats(getGradebookId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
+    			
+    			// first, we deal with the categories and their associated assignments
+    			if (categoryList != null && !categoryList.isEmpty()) {
+    				Iterator catIter = categoryList.iterator();
+    				while (catIter.hasNext()) {
+    					Object catObject = catIter.next();
+    					if (catObject instanceof Category) {
+    						Category category = (Category) catObject;
+    						gradebookItems.add(category);
+    						List catAssign = category.getAssignmentList();
+    						if (catAssign != null && !catAssign.isEmpty()) {
+    							// we want to create the grade rows for these assignments
+    							List gradeRows = retrieveGradeRows(catAssign, gradeRecords, gradebook);
+								calculateCategoryAverages(category, gradeRows);
+    							if (gradeRows != null && !gradeRows.isEmpty()) {
+    								gradebookItems.addAll(gradeRows);
+    							}
+    						}
+    					}
+    				}
+    			}
+    			// now we need to grab all of the assignments w/o a category
+    			List assignNoCat = getGradebookManager().getAssignmentsWithNoCategory(getGradebookId(), Assignment.DEFAULT_SORT, true);
+    			if (assignNoCat != null && !assignNoCat.isEmpty()) {
+    				Category unassignedCat = new Category();
+    				unassignedCat.setGradebook(gradebook);
+    				unassignedCat.setName(getLocalizedString("cat_unassigned"));
+    				unassignedCat.setAssignmentList(assignNoCat);
+    				//add this category to our list
+    				gradebookItems.add(unassignedCat);
 
-            for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
-                AssignmentGradeRecord asnGr = (AssignmentGradeRecord)iter.next();
-                if(logger.isDebugEnabled()) logger.debug("Adding " + asnGr.getPointsEarned() + " to totalPointsEarned");
-                // Update the AssignmentGradeRow in the map
-                AssignmentGradeRow asnGradeRow = (AssignmentGradeRow)asnMap.get(asnGr.getAssignment());
-                asnGradeRow.setGradeRecord(asnGr);
+    				// now create grade rows for the unassigned assignments
+    				List gradeRows = retrieveGradeRows(assignNoCat, gradeRecords, gradebook);
+    				if (gradeRows != null && !gradeRows.isEmpty()) {
+    					gradebookItems.addAll(gradeRows);
+    				}
+    			}
 
-            }
+    		} else {
+    			// there are no categories, so we will be returning a list of grade rows
+    			List assignList = getGradebookManager().getAssignments(getGradebookId());
+    			if (assignList != null && !assignList.isEmpty()) {
+    				List gradeRows = retrieveGradeRows(assignList, gradeRecords, gradebook);
+    				if (gradeRows != null && !gradeRows.isEmpty()) {
+    					gradebookItems.addAll(gradeRows);
+    				}
+    			}
+    		}
 
-            //iterate through the assignments and update the comments
-            Iterator assignmentIterator = assignments.iterator();
-            while(assignmentIterator.hasNext()){
-                Assignment assignment = (Assignment) assignmentIterator.next();
-                AssignmentGradeRow asnGradeRow = (AssignmentGradeRow)asnMap.get(assignment);
-                try{
-                    Comment comment = (Comment)commentMap.get(asnGradeRow.getAssignment().getId());
-                    if(comment.getCommentText().length() > 0)asnGradeRow.getComments().add(comment);
-                }catch(NullPointerException npe){
-                    if(logger.isDebugEnabled())logger.debug("assignment has no associated comment");
-                }
-            }
+    		for(Iterator iter = gradebookItems.iterator(); iter.hasNext();) {
+    			Object gradebookItem = iter.next();
+    			if (gradebookItem instanceof AssignmentGradeRow) {
+    				AssignmentGradeRow gr = (AssignmentGradeRow)gradebookItem;
+    				if(gr.getAssociatedAssignment().isExternallyMaintained()) {
+    					rowStyles.append("external");
+    				} else {
+    					rowStyles.append("internal");
+    				}
+    			} 
 
-            assignmentGradeRows = new ArrayList(asnMap.values());
+    			if(iter.hasNext()) {
+    				rowStyles.append(",");
+    			}
 
-            //remove assignments that are not released
-            Iterator i = assignmentGradeRows.iterator();
-            while(i.hasNext()){
-                AssignmentGradeRow assignmentGradeRow = (AssignmentGradeRow)i.next();
-                if(!(assignmentGradeRow.getAssignment().isReleased())) i.remove();
-            }
+    		}
+    	}
 
-            Collections.sort(assignmentGradeRows, (Comparator)columnSortMap.get(sortColumn));
-            if(!sortAscending) {
-                Collections.reverse(assignmentGradeRows);
-            }
-
-            // Set the row css classes
-            for(Iterator iter = assignmentGradeRows.iterator(); iter.hasNext();) {
-                AssignmentGradeRow gr = (AssignmentGradeRow)iter.next();
-                if(gr.getAssignment().isExternallyMaintained()) {
-                    rowStyles.append("external");
-                } else {
-                    rowStyles.append("internal");
-                }
-                if(iter.hasNext()) {
-                    rowStyles.append(",");
-                }
-            }
-        }
     }
 
+
     /**
-     * @return Returns the assignmentGradeRows.
+     * @return Returns the gradebookItems. Can include AssignmentGradeRows and Categories
      */
-    public List getAssignmentGradeRows() {
-        return assignmentGradeRows;
+    public List getGradebookItems() {
+        return gradebookItems;
     }
     /**
      * @return Returns the courseGrade.
@@ -392,6 +366,136 @@ public class StudentViewBean extends GradebookDependentBean implements Serializa
      */
     public boolean isAnyNotCounted() {
         return anyNotCounted;
+    }
+    
+    /**
+     * Create the AssignmentGradeRows for the passed assignments list
+     * @param assignments
+     * @param gradeRecords
+     * @param gradebook
+     * @return
+     */
+    private List retrieveGradeRows(List assignments, List gradeRecords, Gradebook gradebook) {
+    	List gradeRows = new ArrayList();
+
+    	// Don't display any assignments if they have not been released
+    	if(!gradebook.isAssignmentsDisplayed()) 
+    		return gradeRows;
+    	
+    	if (assignments == null)
+    		return gradeRows;
+
+    	if(logger.isDebugEnabled()) {
+    		logger.debug(assignments.size() + " total assignments");
+    		logger.debug(gradeRecords.size()  +"  grade records");
+    	}
+
+    	// Create a map of assignments to assignment grade rows
+    	Map asnMap = new HashMap();
+    	for(Iterator iter = assignments.iterator(); iter.hasNext();) {
+
+    		Assignment asn = (Assignment)iter.next();
+    		asnMap.put(asn, new AssignmentGradeRow(asn, gradebook));
+    	}
+
+    	for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
+    		AssignmentGradeRecord asnGr = (AssignmentGradeRecord)iter.next();
+    		if(logger.isDebugEnabled()) 
+    			logger.debug("Adding " + asnGr.getPointsEarned() + " to totalPointsEarned");
+    		
+    		// leave the grade display blank if the assignment is not counted toward
+    		// course grade
+    		if (asnGr.getAssignment().isCounted()) {
+    			// Update the AssignmentGradeRow in the map
+    			AssignmentGradeRow asnGradeRow = (AssignmentGradeRow)asnMap.get(asnGr.getAssignment());
+    			if (asnGradeRow != null)
+    				asnGradeRow.setGradeRecord(asnGr);
+    		}
+    	}
+
+    	//iterate through the assignments and update the comments
+    	Iterator assignmentIterator = assignments.iterator();
+    	while(assignmentIterator.hasNext()){
+    		Assignment assignment = (Assignment) assignmentIterator.next();
+    		AssignmentGradeRow asnGradeRow = (AssignmentGradeRow)asnMap.get(assignment);
+    		try{
+    			Comment comment = (Comment)commentMap.get(asnGradeRow.getAssociatedAssignment().getId());
+    			if(comment.getCommentText().length() > 0)
+    				asnGradeRow.setCommentText(comment.getCommentText());
+    		}catch(NullPointerException npe){
+    			if(logger.isDebugEnabled())
+    				logger.debug("assignment has no associated comment");
+    		}
+    	}
+
+    	gradeRows = new ArrayList(asnMap.values());
+
+    	//remove assignments that are not released
+    	Iterator i = gradeRows.iterator();
+    	while(i.hasNext()){
+    		AssignmentGradeRow assignmentGradeRow = (AssignmentGradeRow)i.next();
+    		if(!(assignmentGradeRow.getAssociatedAssignment().isReleased())) i.remove();
+    	}
+    	
+    	if (!sortColumn.equals(Category.SORT_BY_WEIGHT)) {
+	    	Collections.sort(gradeRows, (Comparator)columnSortMap.get(sortColumn));
+	    	if(!sortAscending) {
+	    		Collections.reverse(gradeRows);
+	    	}
+    	}
+    	
+    	return gradeRows;	
+    }
+    
+    /**
+     * Calculates and sets averageScore, averageTotalPoints, and mean for this
+     * category for this student
+     * @param category
+     * @param gradeRows
+     */
+    private void calculateCategoryAverages(Category category, List gradeRows) {
+    	if (category == null)
+    		return;
+    	
+    	if (gradeRows == null || gradeRows.isEmpty()) {
+    		category.setAverageScore(null);
+        	category.setAverageTotalPoints(null);
+        	category.setMean(null);
+        	return;
+    	}
+    	
+    	int numScored = 0;
+        int numOfAssignments = 0;
+        double total = 0;
+        double totalPossible = 0;
+
+        Iterator gradeRowIter = gradeRows.iterator();
+        while (gradeRowIter.hasNext()) {
+        	AssignmentGradeRow gradeRow = (AssignmentGradeRow) gradeRowIter.next();
+        	AssignmentGradeRecord gradeRecord = gradeRow.getGradeRecord();
+        	Assignment assignment = gradeRow.getAssociatedAssignment();
+        	if (gradeRecord != null) {
+        		Double score = gradeRecord.getPointsEarned();
+        		if (score != null) {
+        			total += score.doubleValue();
+        			if (assignment.getPointsPossible() != null) {
+        				totalPossible += assignment.getPointsPossible().doubleValue();
+        				numOfAssignments++;
+        			}
+        			numScored++;
+        		}	
+        	}
+        }
+        if (numScored == 0 || numOfAssignments == 0) {
+        	category.setAverageScore(null);
+        	category.setAverageTotalPoints(null);
+        	category.setMean(null);
+        } 
+        else {
+        	category.setAverageScore(new Double(total / numScored));
+        	category.setAverageTotalPoints(new Double(totalPossible / numOfAssignments));
+        	category.setMean(new Double(total / numScored / (totalPossible / numOfAssignments) * 100));
+        }
     }
 }
 
