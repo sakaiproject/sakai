@@ -110,7 +110,6 @@ ul.makeMenu ul{top: 15px !important}
 		#end
 		#set ($actionCount=2000)
 		#set ($actionCount2=1000)
-		#set ($darnRow=0)
 		######################  Heirarchical list of resource folders/items  ##############
 		<table class="listHier lines" cellspacing="0" border="0"  summary="$tlang.getString("sh.listsum")">
 			######################  Column labels, sort controls, expand/collapse all  ##############
