@@ -17,6 +17,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 ul.makeMenu ul{top: 15px !important}
 </style>
 <![endif]-->
+
 #set($num = 0)
 #set($removeCount = 0)
 #set($moveCount = 0)
@@ -109,12 +110,13 @@ ul.makeMenu ul{top: 15px !important}
 		#end
 		#set ($actionCount=2000)
 		#set ($actionCount2=1000)
+		#set ($darnRow=0)
 		######################  Heirarchical list of resource folders/items  ##############
-		<table class="listHier lines" cellspacing="0" border="0"  summary="$tlang.getString("sh.listsum")">
+		<table class="listHier lines nolines" cellspacing="0" border="0"  summary="$tlang.getString("sh.listsum")">
 			######################  Column labels, sort controls, expand/collapse all  ##############
 			<caption class="skip"  style="display:none">$tlang.getString("sh.listcap")</caption>
 			<tr>
-				<th id="expansion">
+				<th id="expansion" style="border:none">
 					#if ($expandallflag && "$expandallflag" == "$TRUE")
 						<a href="#" onclick="javascript:document.getElementById('sakai_action').value='doUnexpandall';document.getElementById('collectionId').value='$collectionId';document.getElementById('showForm').submit();"
 							title= "$tlang.getString('collapseall')">
@@ -128,11 +130,11 @@ ul.makeMenu ul{top: 15px !important}
 						</a>								 
 					#end
 				</th>
-				<th id="checkboxes">
+				<th id="checkboxes"  style="border:none">
 						<input type="checkbox" name="selectall" id="selectall" disabled="disabled" title="$tlang.getString("list.select")"
 							onclick="javascript:toggleSelectAll(this, 'selectedMembers')" value="" />
 				</th>
-				<th id="title">
+				<th id="title"  style="border:none">
 					<a href="#"
 						onclick="javascript:document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='title';document.getElementById('showForm').submit();"
 						title= "$tlang.getString('sh.sorttit')">
@@ -146,13 +148,19 @@ ul.makeMenu ul{top: 15px !important}
 						#end 
 					</a>
 				</th>
-				<th id="actions"  style="white-space:nowrap">
+				<th id="actions1" class="attach"  style="border:none">
 					##$tlang.getString("gen.actions")
 				</th>
-				<th id="access">
+				<th id="actions2"    style="border:none">
+					##$tlang.getString("gen.actions")
+				</th>
+				<th id="actions3"    style="border:none">
+					##$tlang.getString("gen.actions")
+				</th>
+				<th id="access"  style="border:none">
 					$tlang.getString("gen.access")
 				</th>
-				<th id="creator">
+				<th id="creator"  style="border:none">
 					<a href="#"
 						onclick="javascript:document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='created by';document.getElementById('showForm').submit();"
 						title= "$tlang.getString('sh.sortaut')">
@@ -166,7 +174,7 @@ ul.makeMenu ul{top: 15px !important}
 						#end 
 					</a>
 				</th>
-				<th id="modified">
+				<th id="modified"  style="border:none">
 					<a href="#"
 						onclick="javascript:document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='last modified';document.getElementById('showForm').submit();"
 						title= "$tlang.getString('sh.sortdate')">
@@ -180,7 +188,7 @@ ul.makeMenu ul{top: 15px !important}
 						#end 
 					</a>
 				</th>
-				<th id="size">
+				<th id="size"  style="border:none">
 					<a href="#"
 						onclick="javascript:document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='size';document.getElementById('showForm').submit();"
 						title= "$tlang.getString('sh.sortsize')">
@@ -212,7 +220,12 @@ ul.makeMenu ul{top: 15px !important}
 					#set($headerDepth = $item.depth + 3)
 				#end
 				############################### Show top level folder #################
-				<tr>
+				<tr
+					#if ($itemcount % 2==0)
+						class="odd"
+					#else
+						class="even	"
+					#end>
 					<td headers="expansion">
 					</td>
 					<td headers="checkboxes">
@@ -298,7 +311,7 @@ ul.makeMenu ul{top: 15px !important}
 							#end
 						</h$headerDepth>	
 					</td>
-					<td headers="actions"  name="enabledActionLinks" style="text-align:right;padding:5px;vertical-align:middle;white-space:nowrap">
+					<td headers="actions1"  name="enabledActionLinks" style="white-space:nowrap;vertical-align:middle"  class="attach">
 						#if($item.pasteActions && !$item.pasteActions.isEmpty())
 							#set ($itemsOnLine = 0)
 								#foreach($action in $item.pasteActions)
@@ -309,11 +322,12 @@ ul.makeMenu ul{top: 15px !important}
 						#else
 							<img src = "#imageLink("sakai/s.gif")" border="0" width="16"  alt="$labeler.getLabel($action)"/>
 						#end
-						
+						</td>
 						#set ($actionCount=($actionCount - 1))
 						#set ($actionCount2=($actionCount2 - 1))
+						<td headers="actions2"  name="enabledActionLinks" class="attach">
 						#if($item.addActions && !$item.addActions.isEmpty())
-							<ul style="z-index:$actionCount" class="makeMenu">
+							<ul style="z-index:$actionCount;margin:0;display:block" class="makeMenu">
 								<li>
 									<img src = "#imageLink("sakai/icon-dropdn.gif")" border="0"  alt="Add" /> 
 									$tlang.getString("button.add")
@@ -327,8 +341,10 @@ ul.makeMenu ul{top: 15px !important}
 							  	</li>
 							</ul>
 						#end
+					</td>
+					<td headers="actions3"  name="enabledActionLinks" class="attach">
 						#if($item.otherActions && !$item.otherActions.isEmpty())
-							<ul style="z-index:$actionCount2" class="makeMenu" >
+							<ul style="z-index:$actionCount2;margin:0;display:block" class="makeMenu" >
 								<li>
 									<img src = "#imageLink("sakai/icon-dropdn.gif")" border="0"   alt="Actions" />
 									$tlang.getString("button.actions")
@@ -344,6 +360,7 @@ ul.makeMenu ul{top: 15px !important}
 							  	</li>
 							</ul>
 						#end
+
 					</td>
 					#if($item.depth > 0)
 						<td headers="access" title="$item.effectiveGroupsLabel">
@@ -378,7 +395,7 @@ ul.makeMenu ul{top: 15px !important}
 			#if($allowed_to_see_other_sites)
 				#if("$!show_other_sites" == "true")
 					<tr>
-						<th colspan="8">
+						<th colspan="10"  style="border:none">
 						<h3>
 							<a href="#"
 								onclick="javascript:document.getElementById('sakai_action').value='doHideOtherSites';document.getElementById('showForm').submit();"
@@ -393,7 +410,7 @@ ul.makeMenu ul{top: 15px !important}
 					################################################################ Begin Paging widgets
 					#if($!allMsgNumber && $allMsgNumberInt && $allMsgNumberInt > 5)
 						<tr class="exclude">
-							<td colspan="8">
+							<td colspan="10">
 								<div class="navPanel">
 								<div class="listNav">
 									<div class="instruction" style="margin-bottom:.3em;">Viewing $topMsgPos - $btmMsgPos of $allMsgNumber items</div>
@@ -451,7 +468,13 @@ ul.makeMenu ul{top: 15px !important}
 							#set($headerDepth = $item.depth + 3)
 						#end
 						############################### Show top level folder #################
-						<tr>
+					<tr
+					#if ($itemcount % 2==0)
+						class="odd"
+					#else
+						class="even	"
+					#end>
+
 							<td headers="expansion">
 							</td>
 							<td headers="checkboxes">
@@ -537,7 +560,7 @@ ul.makeMenu ul{top: 15px !important}
 									#end
 								</h$headerDepth>	
 							</td>
-							<td headers="actions"  name="enabledActionLinks" style="text-align:right;padding:5px;vertical-align:middle;white-space:nowrap">
+							<td headers="actions1"  name="enabledActionLinks" class="attach" style="white-space:nowrap;vertical-align:middle">
 								#if($item.pasteActions && !$item.pasteActions.isEmpty())
 									#set ($itemsOnLine = 0)
 										#foreach($action in $item.pasteActions)
@@ -548,10 +571,12 @@ ul.makeMenu ul{top: 15px !important}
 								#else
 									<img src = "#imageLink("sakai/s.gif")" border="0" width="16"  alt="$labeler.getLabel($action)"/>
 								#end
+								</td>
+								<td headers="actions2"  name="enabledActionLinks" class="attach">
 								#set ($actionCount=($actionCount - 1))
 								#set ($actionCount2=($actionCount2 - 1))
 								#if($item.addActions && !$item.addActions.isEmpty())
-									<ul style="z-index:$actionCount" class="makeMenu">
+									<ul style="z-index:$actionCount;margin:0;display:block" class="makeMenu">
 										<li>
 											<img src = "#imageLink("sakai/icon-dropdn.gif")" border="0"  alt="Add" /> 
 											$tlang.getString("button.add")
@@ -565,8 +590,10 @@ ul.makeMenu ul{top: 15px !important}
 									  	</li>
 									</ul>
 								#end
+								</td>
+								<td headers="actions3"  name="enabledActionLinks" class="attach">
 								#if($item.otherActions && !$item.otherActions.isEmpty())
-									<ul style="z-index:$actionCount2" class="makeMenu" >
+									<ul style="z-index:$actionCount2;margin:0;display:block" class="makeMenu" >
 										<li>
 											<img src = "#imageLink("sakai/icon-dropdn.gif")" border="0"   alt="Actions" />
 											$tlang.getString("button.actions")
@@ -613,7 +640,7 @@ ul.makeMenu ul{top: 15px !important}
 	
 				#else
 					<tr>
-						<th colspan="8">
+						<th colspan="10"  style="border:none">
 						<h3>
 							<a href="#" onclick="javascript:document.getElementById('sakai_action').value='doShowOtherSites';document.getElementById('showForm').submit();"
 								onclick="javascript:document.getElementById('sakai_action').value='doShowOtherSites';document.getElementById('showForm').submit();"
