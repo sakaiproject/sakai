@@ -42,6 +42,7 @@ import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeSet;
 import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -3658,6 +3659,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		// close the edit object
 		((BaseResourceEdit) edit).closeEdit();
+		
+		removeSizeCache(edit);
 
 		((BaseResourceEdit) edit).setRemoved();
 
@@ -3684,6 +3687,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				NotificationService.NOTI_NONE));
 
 	} // removeResource
+
 
 	/**
 	 * Store the resource in a separate delete table
@@ -4765,6 +4769,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		}
 
 		commitResourceEdit(edit, priority);
+		
+		addSizeCache(edit);
 
 	} // commitResource
 
@@ -7180,6 +7186,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		// complete the edit
 		m_storage.commitResource(edit);
+		
+		addSizeCache(edit);
 
 		// track it
 		EventTrackingService.post(EventTrackingService.newEvent(((BaseResourceEdit) edit).getEvent(), edit.getReference(), true,
@@ -7288,6 +7296,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 *        The proposed resource edit.
 	 * @return true if this change would palce the "account" over quota, false if not.
 	 */
+	
 	protected boolean overQuota(ContentResourceEdit edit)
 	{
 		// Note: This implementation is hard coded to just check for a quota in the "/user/"
@@ -7326,9 +7335,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		{
 			return false;
 		}
+      
+        long size = getCachedBodySizeK((BaseCollectionEdit)collection);
 
-		// get the content size of all resources in this hierarchy
-		long size = ((BaseCollectionEdit) collection).getBodySizeK();
 
 		// find the resource being edited
 		ContentResource inThere = null;
@@ -7352,6 +7361,167 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		return (size >= quota);
 
 	} // overQuota
+	/**
+	 * @param collection
+	 * @return
+	 */
+
+	
+	/*
+	 * Size Cache.
+	 * This caches the size of the collection and all children for 10 miutes from first 
+	 * created, keeping a track of addtions and removals to the collection.
+	 * 
+	 * It only works where the same collection id is supplied and does not 
+	 * consider the size under nested collections or update modifcations 
+	 * on all nested collections.
+	 * 
+	 * It is a temporary fix to eliminate GC collection issues with the size calculations
+	 */
+	
+	protected class SizeHolder {
+
+		public long ttl = System.currentTimeMillis()+600000L;
+		public long size = 0;
+		
+	}
+  	private Map<String, SizeHolder> quotaMap = new ConcurrentHashMap<String, SizeHolder>();
+
+	private long getCachedBodySizeK(BaseCollectionEdit collection) {
+		return getCachedSizeHolder(collection,true).size;
+	}
+	private void addCachedBodySizeK(BaseCollectionEdit collection, long increment) {
+		SizeHolder sh = getCachedSizeHolder(collection,false);
+		if ( sh != null ) {
+			sh.size += increment;
+		}
+	}
+
+	
+
+	/**
+	 * @param collection
+	 * @return
+	 */
+	
+	private SizeHolder getCachedSizeHolder(BaseCollectionEdit collection,boolean create)
+	{
+      	String id = collection.getId();
+        SizeHolder sh = quotaMap.get(id);
+        boolean scan = false;
+        long now = System.currentTimeMillis();
+        if ( sh != null ) {
+        	M_log.debug("Cache Hit ["+id+"] size=["+sh.size+"] ttl=["+(sh.ttl-now)+"]");
+        	if ( sh.ttl < now ) {
+        		M_log.debug("Cache Expire ["+id+"]");
+        		quotaMap.remove(id);
+        		sh = null;
+        		scan = true;
+        	}
+        } else {
+        	M_log.debug("Cache Miss ["+id+"]");
+            
+        }
+        
+        if ( create && sh == null  ) {
+        	M_log.debug("Cache Create ["+id+"]");
+               	// get the content size of all resources in this hierarchy
+        	long size = collection.getBodySizeK();
+        	// the above can take a long time, just check that annother thread
+        	// hasnt just done the same, if it has then sh != null so we should not
+        	// add a new one in, and will have waisted our time.
+        	sh = quotaMap.get(id);
+        	if ( sh == null ) {
+        		sh = new SizeHolder();
+        		quotaMap.put(id,sh);
+        		sh.size  = size;
+        		scan = true;
+        	}
+        } 
+        if ( scan ) {
+    		// when we remove one, scan for old ones.
+    		for ( Iterator<String> i = quotaMap.keySet().iterator(); i.hasNext(); ) {
+    			String k = i.next();
+    			SizeHolder s = quotaMap.get(k);
+    			if ( s.ttl < now ) {
+    				M_log.debug("Cache Scan Expire ["+id+"]");
+    				quotaMap.remove(k);
+    			}
+    		}
+
+        }
+        return sh;
+	}
+	protected void removeSizeCache(ContentResourceEdit edit)
+	{
+		// Note: This implementation is hard coded to just check for a quota in the "/user/"
+		// or "/group/" area. -ggolden
+
+		// Note: this does NOT count attachments (/attachments/*) nor dropbox (/group-user/<site id>/<user id>/*) -ggolden
+
+		// quick exits if we are not doing site quotas
+		// if (m_siteQuota == 0)
+		// return false;
+
+		// some quick exits, if we are not doing user quota, or if this is not a user or group resource
+		// %%% These constants should be from somewhere else -ggolden
+		if (!((edit.getId().startsWith("/user/")) || (edit.getId().startsWith("/group/")))) return;
+
+		// expect null, "user" | "group", user/groupid, rest...
+		String[] parts = StringUtil.split(edit.getId(), Entity.SEPARATOR);
+		if (parts.length <= 2) return;
+
+		// get this collection
+		String id = Entity.SEPARATOR + parts[1] + Entity.SEPARATOR + parts[2] + Entity.SEPARATOR;
+		ContentCollection collection = null;
+		try
+		{
+			collection = findCollection(id);
+		}
+		catch (TypeException ignore)
+		{
+		}
+
+		if (collection == null) return;
+
+		addCachedBodySizeK((BaseCollectionEdit)collection, -bytes2k(edit.getContentLength()));
+     
+	} // updateSizeCache();
+	protected void addSizeCache(ContentResourceEdit edit)
+	{
+		// Note: This implementation is hard coded to just check for a quota in the "/user/"
+		// or "/group/" area. -ggolden
+
+		// Note: this does NOT count attachments (/attachments/*) nor dropbox (/group-user/<site id>/<user id>/*) -ggolden
+
+		// quick exits if we are not doing site quotas
+		// if (m_siteQuota == 0)
+		// return false;
+
+		// some quick exits, if we are not doing user quota, or if this is not a user or group resource
+		// %%% These constants should be from somewhere else -ggolden
+		if (!((edit.getId().startsWith("/user/")) || (edit.getId().startsWith("/group/")))) return;
+
+		// expect null, "user" | "group", user/groupid, rest...
+		String[] parts = StringUtil.split(edit.getId(), Entity.SEPARATOR);
+		if (parts.length <= 2) return;
+
+		// get this collection
+		String id = Entity.SEPARATOR + parts[1] + Entity.SEPARATOR + parts[2] + Entity.SEPARATOR;
+		ContentCollection collection = null;
+		try
+		{
+			collection = findCollection(id);
+		}
+		catch (TypeException ignore)
+		{
+		}
+
+		if (collection == null) return;
+
+		addCachedBodySizeK((BaseCollectionEdit)collection, bytes2k(edit.getContentLength()));
+     
+	} // updateSizeCache();
 
 	/**
 	 * Convert bytes to Kbytes, rounding up, and counting even 0 bytes as 1 k.
