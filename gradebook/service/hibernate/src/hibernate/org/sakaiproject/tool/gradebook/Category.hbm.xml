@@ -15,7 +15,7 @@
 
 		<version name="version" type="integer" column="VERSION"/>
 
-		<many-to-one name="gradebook" column="GRADEBOOK_ID" not-null="true"/>
+		<many-to-one name="gradebook" column="GRADEBOOK_ID" class="org.sakaiproject.tool.gradebook.Gradebook" not-null="true"/>
 
 		<property name="name" column="NAME" type="string" not-null="true"/>
 
