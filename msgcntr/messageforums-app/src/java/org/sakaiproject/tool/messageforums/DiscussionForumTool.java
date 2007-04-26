@@ -261,6 +261,7 @@ public class DiscussionForumTool
   private MessageForumsTypeManager typeManager;
   private MembershipManager membershipManager;
   private PermissionLevelManager permissionLevelManager;  
+  
   /**
    * 
    */
@@ -5502,7 +5503,7 @@ public class DiscussionForumTool
 		
 		if (messages != null && !messages.isEmpty())
 			messages = filterModeratedMessages(messages, selectedTopic.getTopic(), selectedForum.getForum());
-		
+
 		return messages;
 	}
 

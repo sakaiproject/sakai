@@ -2,7 +2,13 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/messageforums" prefix="mf" %>
-                 
+
+<%
+// hack in attempt to fix navigation quirk
+org.sakaiproject.tool.cover.SessionManager.getCurrentToolSession().
+	removeAttribute(org.sakaiproject.jsf.util.JsfTool.LAST_VIEW_VISITED);
+%>
+
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
    <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.api.app.messagecenter.bundle.Messages"/>
 </jsp:useBean>

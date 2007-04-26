@@ -1348,7 +1348,7 @@ public class MessageForumSynopticBean {
 	    Area area = areaManager.getAreaByContextIdAndTypeId(contextId, typeManager.getPrivateMessageAreaType());
         
 	    if (area != null) {
-	    	if (area.getEnabled().booleanValue() || pvtMessageManager.isInstructor()){
+	    	if (isMessagesPageInSite() || area.getEnabled().booleanValue() || pvtMessageManager.isInstructor()){
 	    		PrivateForum pf = pvtMessageManager.initializePrivateMessageArea(area);
 	    		pf = pvtMessageManager.initializationHelper(pf, area);
 	    		List pvtTopics = pf.getTopics();

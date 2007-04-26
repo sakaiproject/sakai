@@ -83,7 +83,7 @@ public class MessageForumsFilePickerServlet extends JsfTool {
             ToolSession session = SessionManager.getCurrentToolSession();
 
             if (target == null || "/".equals(target)) {
-                target = computeDefaultTarget();
+                target = computeDefaultTarget(true);
 
                 // make sure it's a valid path
                 if (!target.startsWith("/")) {
