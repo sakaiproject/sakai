@@ -201,9 +201,6 @@
 			 	  </div> <!-- endof autosave tab -->	
 	  </div>
 	  </form>
-	  <script type="text/javascript" >
-	  logInfo = true;
-	  </script>
 	  
 	  
 	  

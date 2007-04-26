@@ -65,8 +65,9 @@ FlashBridge.prototype.doUpdate = function(command,args) {
 * sent the message by advancing to frame 1
 */
 FlashBridge.prototype.doFunction = function(flashObj,frame,args) {
+	log("Flash Obj is ["+flashObj+"]");
 	for(i = 0; i < args.length; i++ ){
-//	    log("Setting "+args[i].name+" to "+args[i].value);
+	    log("Setting "+args[i].name+" to "+args[i].value);
 		flashObj.SetVariable(args[i].name,args[i].value);
 	}	
 	log("Going to frame "+frame);

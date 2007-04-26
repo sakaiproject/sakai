@@ -91,7 +91,9 @@ function WikiAutoSave_doRestore(saveID)
 function WikiAutoSave_autoSaveClear(siteId,pageName) {
     try {
 	    var autoSaver = new WikiAutoSave(0,siteId,pageName,"none");
-	    autoSaver.deleteContent();
+	    log("Deleting Content siteId=["+siteId+"] page=["+pageName+"]");
+	    autoSaver.startClear();
+	    log("Deleted Content siteId=["+siteId+"] page=["+pageName+"]")
     } catch (e) {
 	   log("Failed to delete AutoSave Content for "+pageName+": problem "+e);
     }
@@ -276,6 +278,21 @@ WikiAutoSave.prototype.restoreContent = function ()
 	// the call back is async, the results will go into the 
 }
 
+WikiAutoSave.prototype.startClear = function() 
+{
+		if ( ! this.running ) 
+		{
+			this.running = true;
+			WikiAutoSave_doClear(this.autoSaveObjectID);
+		}
+};
+WikiAutoSave.prototype.stopClear = function() 
+{
+		if ( ! this.running ) 
+		{
+			this.running = false;
+		}
+};
 
 
 WikiAutoSave.prototype.startAutosave = function() 
@@ -361,5 +378,59 @@ function WikiAutoSave_doAutoSave(saveID)
 	   log("Autosave failed, none found "+saveID);
 	}
 }
+
+
+function WikiAutoSave_doClear(saveID) 
+{
+	var autoSaver = WikiAutoSave_autoSaveObjects[saveID];
+	if ( autoSaver != null && autoSaver.running  ) 
+	{
+		try 
+		{
+			try 
+			{
+				if ( autoSaver.clearLog ) 
+				{
+				    clearLog();
+				}
+				else 
+				{
+					autoSaver.clearLog = true;
+				}
+			   if ( autoSaver.state == 0 ) {
+				 // let the dom settle down
+				 var InternetExplorer = navigator.appName.indexOf("Microsoft") != -1;
+	             var flashObj = InternetExplorer ? localstore : document.localstore;
+				 if ( flashObj ) {
+				 	autoSaver.state = 1;
+				 } else {
+					autoSaver.runs--;
+				 }
+			   } else {
+				autoSaver.deleteContent();
+				autoSaver.runs = 0;
+			   	log("Deleted Content");
+			   }
+			} 
+			catch (e)  
+			{ 
+				log("Error "+e);
+			}
+			if ( autoSaver.runs != 0 ) 
+			{
+				window.setTimeout("WikiAutoSave_doClear("+saveID+")",autoSaver.interval);			
+			}
+		} 
+		catch (e)  
+		{ 
+			log("Error "+e);
+			autoSaver.runs = 0;
+		}
+		
+	} else {
+	   log("Autosave failed, none found "+saveID);
+	}
+}
+
 
 	
