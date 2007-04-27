@@ -42,6 +42,8 @@ public class ToolURLManagerImpl implements ToolURLManager
 
 	private HttpServletResponse m_response;
 
+	private static final String PARAM_AMP = "&amp;";
+
 	/**
 	 * Constructor for ToolURLComponent
 	 * 
@@ -145,7 +147,7 @@ public class ToolURLManagerImpl implements ToolURLManager
 			// Since we allow pre-formatted query strings to be added to the
 			// path, it may already contain
 			// some parameters
-			char c = (path.indexOf('?') == -1) ? '?' : '&';
+			String c = (path.indexOf('?') == -1) ? "?" : PARAM_AMP;
 			if (parameters.size() > 0)
 			{
 				for (Iterator iEntries = parameters.entrySet().iterator(); iEntries
@@ -160,13 +162,13 @@ public class ToolURLManagerImpl implements ToolURLManager
 						for (int i = 0; i < values.length; i++)
 						{
 							rv.append(c).append(key).append("=").append(values[i]);
-							c = '&';
+							c = PARAM_AMP;
 						}
 					}
 					else
 					{
 						rv.append(c).append(key).append("=").append((String) val);
-						c = '&';
+						c = PARAM_AMP;
 					}
 				}
 			}
