@@ -937,10 +937,10 @@ public class FilePickerAction extends PagedResourceHelperAction
 	    for(ListItem item : items)
 	    {
 	    	ContentEntity entity = item.getEntity();
-	    	if(entity.isCollection() || filter.allowView((ContentResource) entity)) 
+	    	if(entity.isCollection() || filter == null || filter.allowView((ContentResource) entity)) 
 	    	{
 	    		rv.add(item);
-	    		item.setCanSelect(entity.isResource() && filter.allowSelect((ContentResource) entity));
+	    		item.setCanSelect(entity.isResource() && (filter == null || filter.allowSelect((ContentResource) entity)));
 	    	}
 	    }
 	    return rv;
@@ -3223,17 +3223,17 @@ public class FilePickerAction extends PagedResourceHelperAction
                 catch (IdUnusedException e)
                 {
 	                // TODO Auto-generated catch block
-	                logger.warn("IdUnusedException ", e);
+	                logger.warn("IdUnusedException (FilePickerAction.readAllResources()) collId == " + collId + " --> " + e);
                 }
                 catch (TypeException e)
                 {
 	                // TODO Auto-generated catch block
-	                logger.warn("TypeException ", e);
+	                logger.warn("TypeException (FilePickerAction.readAllResources()) collId == " + collId + " --> " + e);
                 }
                 catch (PermissionException e)
                 {
 	                // TODO Auto-generated catch block
-	                logger.warn("PermissionException ", e);
+	                logger.warn("PermissionException (FilePickerAction.readAllResources()) collId == " + collId + " --> " + e);
                 }
 			}
           }

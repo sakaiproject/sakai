@@ -285,7 +285,7 @@ public class ListItem
 
 	protected Map<String, ResourceToolAction> multipleItemActions = new HashMap<String, ResourceToolAction>();
 
-	protected boolean canSelect = false;
+	protected boolean canSelect = true;
 
 	/** 
 	 * Access settings
