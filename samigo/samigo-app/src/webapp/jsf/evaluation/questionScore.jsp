@@ -42,6 +42,12 @@ $Id$
 <%@ include file="/js/delivery.js" %>
 
 <script>
+function toPoint(id)
+{
+  var x=document.getElementById(id).value
+  document.getElementById(id).value=x.replace(',','.')
+}
+
 function clickEmailLink(field){
 var emaillinkid= field.id.replace("createEmail", "hiddenlink");
 
@@ -751,7 +757,7 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
         <f:param name="sortAscending" value="true" />
         </h:commandLink>
       </f:facet>
-      <h:inputText value="#{description.totalAutoScore}" size="5" id="qscore" required="false">
+      <h:inputText value="#{description.totalAutoScore}" size="5" id="qscore" required="false" onchange="toPoint(this.id);">
 <f:validateDoubleRange/>
 </h:inputText>
 <br />
@@ -771,7 +777,7 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
           </h:commandLink>    
       </f:facet>
-	  <h:inputText value="#{description.totalAutoScore}" size="5"  id="qscore2" required="false">
+	  <h:inputText value="#{description.totalAutoScore}" size="5"  id="qscore2" required="false" onchange="toPoint(this.id);">
 	  	<f:validateDoubleRange/>
 	  </h:inputText>
 	  <h:message for="qscore2" style="color:red"/>
@@ -789,7 +795,7 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
           </h:commandLink>    
       </f:facet>
-	  <h:inputText value="#{description.totalAutoScore}" size="5"  id="qscore3" required="false">
+	  <h:inputText value="#{description.totalAutoScore}" size="5"  id="qscore3" required="false" onchange="toPoint(this.id);">
 	  	<f:validateDoubleRange/>
 	  </h:inputText>
 	  <h:message for="qscore2" style="color:red"/>

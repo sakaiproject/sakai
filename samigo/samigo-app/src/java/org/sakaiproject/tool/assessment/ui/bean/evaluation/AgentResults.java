@@ -190,57 +190,86 @@ private Long assessmentGradingId;
   }
   
   public String getExactTotalAutoScore() {
-	    return Validator.check(totalAutoScore, "0");
+	    return Validator.check(totalAutoScore, "0").replace(',', '.');
   }
 
   public String getRoundedTotalAutoScore() {
-   try {
-      String newscore = ContextUtil.getRoundedValue(totalAutoScore, 2);
-      return Validator.check(newscore, "N/A");
+   if (totalAutoScore!= null){	  
+	   try {
+		   String newscore = ContextUtil.getRoundedValue(totalAutoScore.replace(',', '.'), 2);
+		   return Validator.check(newscore, "N/A").replace(',', '.');
+	   }
+	   catch (Exception e) {
+		   // encountered some weird number format/locale
+		   return Validator.check(totalAutoScore, "0").replace(',', '.');
+	   }
     }
-    catch (Exception e) {
-      // encountered some weird number format/locale
-      return Validator.check(totalAutoScore, "0");
-    }
-
+   else {
+	   return Validator.check(totalAutoScore, "0").replace(',', '.');
+   }
   }
+  
   public void setTotalAutoScore(String totalAutoScore) {
-    this.totalAutoScore = totalAutoScore;
+	  if (totalAutoScore!= null){
+		  this.totalAutoScore = totalAutoScore.replace(',', '.');
+	  }
+	  else {
+		  this.totalAutoScore = null;
+	  }
   }
+  
   public String getTotalOverrideScore() {
-    return Validator.check(totalOverrideScore, "0");
+    return Validator.check(totalOverrideScore, "0").replace(',', '.');
   }
 
   public String getRoundedTotalOverrideScore() {
-   try {
-      String newscore = ContextUtil.getRoundedValue(totalOverrideScore, 2);
-      return Validator.check(newscore, "N/A");
-    }
-    catch (Exception e) {
-      // encountered some weird number format/locale
-      return Validator.check(totalOverrideScore, "0");
-    }
-
-  }
+		if (totalOverrideScore != null) {
+			try {
+				String newscore = ContextUtil.getRoundedValue(
+						totalOverrideScore.replace(',', '.'), 2);
+				return Validator.check(newscore, "N/A").replace(',', '.');
+			} catch (Exception e) {
+				// encountered some weird number format/locale
+				return Validator.check(totalOverrideScore, "0").replace(',', '.');
+			}
+		} else {
+			return Validator.check(totalOverrideScore, "0").replace(',', '.');
+		}
+	}
+  
   public void setTotalOverrideScore(String totalOverrideScore) {
-    this.totalOverrideScore = totalOverrideScore;
+    if (totalOverrideScore!= null){
+    	this.totalOverrideScore = totalOverrideScore.replace(',', '.');
+    } else {
+    	this.totalOverrideScore = null;
+    }
   }
+
   public String getFinalScore() {
-    return Validator.check(finalScore, "0");
+	  return Validator.check(finalScore, "0").replace(',', '.');
   }
   public String getRoundedFinalScore() {
-   try {
-      String newscore = ContextUtil.getRoundedValue(finalScore, 2);
-      return Validator.check(newscore, "N/A");
-    }
-    catch (Exception e) {
-      // encountered some weird number format/locale
-      return Validator.check(finalScore, "0");
-    }
-
+	  if (finalScore!= null){
+		  try {
+			  String newscore = ContextUtil.getRoundedValue(finalScore.replace(',', '.'), 2);
+			  return Validator.check(newscore, "N/A").replace(',', '.');
+		  }
+		  catch (Exception e) {
+			  // encountered some weird number format/locale
+			  return Validator.check(finalScore, "0").replace(',', '.');
+		  }
+	  }
+	  else {
+    	return Validator.check(finalScore, "0").replace(',', '.');
+	  }
   }
   public void setFinalScore(String finalScore) {
-    this.finalScore = finalScore;
+	  if (finalScore!= null){
+		  this.finalScore = finalScore.replace(',', '.');
+	  }
+	  else {
+		    this.finalScore = null;
+	  }
   }
   public String getAnswer() {
     return Validator.check(answer, "N/A");

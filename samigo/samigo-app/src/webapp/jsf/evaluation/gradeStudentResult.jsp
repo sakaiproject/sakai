@@ -40,6 +40,12 @@ $Id$
 <!-- $Id:  -->
 <!-- content... -->
 <script>
+function toPoint(id)
+{
+  var x=document.getElementById(id).value
+  document.getElementById(id).value=x.replace(',','.')
+}
+
 function clickEmailLink(field){
 var emaillinkid= field.id.replace("createEmail", "hiddenlink");
 
@@ -168,7 +174,7 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
           <f:verbatim><h4 class="tier2"></f:verbatim>
             <h:outputText value="#{deliveryMessages.q} #{question.number} #{deliveryMessages.of} " />
             <h:outputText value="#{part.questions}#{deliveryMessages.column}  " />
-            <h:inputText id="adjustedScore" value="#{question.pointsForEdit}" >
+            <h:inputText id="adjustedScore" value="#{question.pointsForEdit}" onchange="toPoint(this.id);" >
 <f:validateDoubleRange/>
 <%--SAK-3776    <f:convertNumber maxFractionDigits="2"/> --%>
             </h:inputText>

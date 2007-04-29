@@ -527,6 +527,12 @@
       <value>#{xml}</value>
     </managed-property>
   </managed-bean>
+    <managed-bean>
+    <description>Contain informaion of FCK's image files.</description>
+    <managed-bean-name>fckImageBean</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.qti.FCKImageBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
   <managed-bean>
     <description>For media: Media bean.</description>
     <managed-bean-name>mediaBean</managed-bean-name>

@@ -41,6 +41,12 @@
 <%@ include file="/js/delivery.js" %>
 
 <script>
+function toPoint(id)
+{
+  var x=document.getElementById(id).value
+  document.getElementById(id).value=x.replace(',','.')
+}
+
 function clickEmailLink(field){
 var emaillinkid= field.id.replace("createEmail", "hiddenlink");
 
@@ -719,7 +725,7 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
 	        <f:param name="sortAscending" value="true"/>
         </h:commandLink>
       </f:facet>
-      <h:inputText value="#{description.totalOverrideScore}" size="5" id="adjustTotal" required="false" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}" >
+      <h:inputText value="#{description.totalOverrideScore}" size="5" id="adjustTotal" required="false" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"  onchange="toPoint(this.id);" >
 		<f:validateDoubleRange/>
 	 </h:inputText>
      <h:message for="adjustTotal" style="color:red"/>
@@ -736,7 +742,7 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
           </h:commandLink>    
       </f:facet>
-      <h:inputText value="#{description.totalOverrideScore}" size="5" id="adjustTotal2" required="false" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}" >
+      <h:inputText value="#{description.totalOverrideScore}" size="5" id="adjustTotal2" required="false" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"  onchange="toPoint(this.id);" >
 		<f:validateDoubleRange/>
 	 </h:inputText>
      <h:message for="adjustTotal2" style="color:red"/>
@@ -752,7 +758,7 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
       </h:commandLink> 
       </f:facet>
-      <h:inputText value="#{description.totalOverrideScore}" size="5" id="adjustTotal3" required="false" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}" >
+      <h:inputText value="#{description.totalOverrideScore}" size="5" id="adjustTotal3" required="false" rendered="#{totalScores.anonymous eq 'false'  || description.assessmentGradingId ne '-1'}"  onchange="toPoint(this.id);" >
 		<f:validateDoubleRange/>
 	 </h:inputText>
      <h:message for="adjustTotal3" style="color:red"/>
