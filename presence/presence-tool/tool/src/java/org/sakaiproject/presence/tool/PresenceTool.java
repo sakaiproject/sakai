@@ -340,6 +340,8 @@ public class PresenceTool extends HttpServlet
 				+ "<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">" + "  <head>"
 				+ "    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />");
 
+		out.println("<title>" + rb.getString("insite") + "</title>");
+		
 		// send the portal set-up head
 		String head = (String) req.getAttribute("sakai.html.head");
 		if (head != null)
