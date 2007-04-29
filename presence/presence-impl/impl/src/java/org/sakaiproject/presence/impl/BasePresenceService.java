@@ -287,6 +287,29 @@ public abstract class BasePresenceService implements PresenceService
 	/**
 	 * {@inheritDoc}
 	 */
+	public void removeSessionPresence(String sessionId)
+	{
+		List presence = m_storage.removeSessionPresence(sessionId); 
+		
+		// get the session
+        UsageSession session = m_usageSessionService.getSession(sessionId);
+		
+		// send presence end events for these
+		for (Iterator iPresence = presence.iterator(); iPresence.hasNext();)
+		{
+			String locationId = (String) iPresence.next();
+
+			Event event = m_eventTrackingService.newEvent(PresenceService.EVENT_ABSENCE, 
+					presenceReference(locationId), true);
+			m_eventTrackingService.post(event, session);
+		}
+
+	}
+
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	public List getPresence(String locationId)
 	{
 		// get the sessions at this location
@@ -468,6 +491,16 @@ public abstract class BasePresenceService implements PresenceService
 		 */
 		void removePresence(String sessionId, String locationId);
 
+		/**
+		 * Remove presence for all locations for this session id.
+		 * 
+		 * @param sessionId
+		 *        The session id.
+		 * @param locationId
+		 *        The location id.
+		 */
+		List removeSessionPresence(String sessionId);
+		
 		/**
 		 * Access the List of UsageSessions present at this location.
 		 * 

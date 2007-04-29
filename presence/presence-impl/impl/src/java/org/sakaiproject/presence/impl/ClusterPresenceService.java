@@ -21,11 +21,15 @@
 
 package org.sakaiproject.presence.impl;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.UsageSession;
+import org.sakaiproject.presence.api.PresenceService;
 
 /**
  * <p>
@@ -147,6 +151,29 @@ public class ClusterPresenceService extends BasePresenceService
 			}
 		}
 
+		/**
+		 * {@inheritDoc}
+		 */
+		public List removeSessionPresence(String sessionId)
+		{
+			Object[] fields = new Object[1];
+			
+			// get all the presence for this session
+			String statement = "select LOCATION_ID from SAKAI_PRESENCE where SESSION_ID = ?";
+			fields[0] = sessionId;
+			List presence = m_sqlService.dbRead(statement, fields, null);
+	
+			// remove all the presence for this session
+			statement = "delete from SAKAI_PRESENCE where SESSION_ID = ?";
+			boolean ok = m_sqlService.dbWrite(statement, fields);
+			if (!ok)
+			{
+				M_log.warn("run(): dbWrite failed: " + statement);
+			}
+	
+			return presence;
+		}
+		
 		/**
 		 * {@inheritDoc}
 		 */
