@@ -92,7 +92,17 @@ public interface PresenceService
 	 *        A presence location id.
 	 */
 	void removePresence(String locationId);
-
+	
+	/**
+	 * Remove presence in all locations for the given session.
+	 * 
+	 * @param session
+	 *        The session object.
+	 * @param sessionId
+	 *        A session id.
+	 */
+	void removeSessionPresence(String sessionId);
+	
 	/**
 	 * Access a List of sessions (UsageSession) now present in a location.
 	 * 

@@ -99,6 +99,14 @@ public class PresenceService
 		service.removePresence(param0);
 	}
 
+	public static void removeSessionPresence(java.lang.String param0)
+	{
+		org.sakaiproject.presence.api.PresenceService service = getInstance();
+		if (service == null) return;
+
+		service.removeSessionPresence(param0);
+	}
+	
 	public static java.util.List getPresence(java.lang.String param0)
 	{
 		org.sakaiproject.presence.api.PresenceService service = getInstance();
