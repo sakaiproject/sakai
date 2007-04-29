@@ -153,7 +153,16 @@
       <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
-
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-event-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-user-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
     <dependency>
       <groupId>jsf</groupId>
       <artifactId>jsf-impl</artifactId>
@@ -164,6 +173,15 @@
       <artifactId>jsf-api</artifactId>
       <version>1.1.01</version>
     </dependency>
+    <dependency>      
+      <groupId>javax.activation</groupId>
+      <artifactId>activation</artifactId>
+      <version>1.0.2</version>
+      <!--properties:  war.bundle: standalone -->
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+
   </dependencies>
   <build>
     

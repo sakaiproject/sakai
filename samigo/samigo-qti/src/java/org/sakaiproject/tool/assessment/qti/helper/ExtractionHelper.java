@@ -33,14 +33,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
+import javax.activation.MimetypesFileTypeMap;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
@@ -74,6 +74,9 @@ import org.sakaiproject.tool.assessment.qti.util.Iso8601TimeInterval;
 import org.sakaiproject.tool.assessment.qti.util.XmlMapper;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -103,7 +106,8 @@ public class ExtractionHelper
   private int qtiVersion = QTIVersion.VERSION_1_2;
   private String overridePath = null; // override defaults and settings
   private String FIB_BLANK_INDICATOR = " {} ";
-  private String FIN_NUMERIC_INDICATOR = " {} ";
+  
+  private String unzipLocation;
 
   // versioning title string that it will look for/use, followed by a number
   private static final String VERSION_START = "  - ";
@@ -658,7 +662,7 @@ public class ExtractionHelper
     }
       if (submissionMsg != null)
     {
-      control.setSubmissionMessage(submissionMsg);
+      control.setSubmissionMessage(makeFCKAttachment(submissionMsg));
     }
 
   }
@@ -982,8 +986,12 @@ public class ExtractionHelper
    * the ip address is in a newline delimited string
    * @param assessment
    */
-  public void makeAssessmentAttachmentSet(AssessmentFacade assessment, String unzipLocation)
+  public void makeAssessmentAttachmentSet(AssessmentFacade assessment)
   {
+    // if unzipLocation is null, there is no assessment attachment - no action is needed
+    if (unzipLocation == null) {
+    	return;
+    }
 	// first check if there is any attachment
 	// if no attachment - no action is needed
 	String attachment = assessment.getAssessmentAttachmentMetaData();
@@ -1017,8 +1025,12 @@ public class ExtractionHelper
    * the ip address is in a newline delimited string
    * @param assessment
    */
-  public void makeSectionAttachmentSet(SectionFacade section, Map sectionMap, String unzipLocation)
+  public void makeSectionAttachmentSet(SectionFacade section, Map sectionMap)
   {
+    // if unzipLocation is null, there is no assessment attachment - no action is needed
+	if (unzipLocation == null) {
+		return;
+	}  
 	// first check if there is any attachment
 	// if no attachment - no action is needed
 	String attachment = (String) sectionMap.get("attachment");
@@ -1052,8 +1064,12 @@ public class ExtractionHelper
    * the ip address is in a newline delimited string
    * @param assessment
    */
-  public void makeItemAttachmentSet(ItemFacade item, String unzipLocation)
+  public void makeItemAttachmentSet(ItemFacade item)
   {
+    // if unzipLocation is null, there is no assessment attachment - no action is needed
+	if (unzipLocation == null) {
+		return;
+	}  
 	// first check if there is any attachment
 	// if no attachment - no action is needed
 	String attachment = item.getItemAttachmentMetaData();
@@ -1081,6 +1097,68 @@ public class ExtractionHelper
     	set.add(itemAttachment);
     }
     item.setItemAttachmentSet(set);
+  }
+  
+  /**
+   * the ip address is in a newline delimited string
+   * @param assessment
+   */
+  public String makeFCKAttachment(String text) {
+	    // if unzipLocation is null, there is no assessment attachment - no action is needed
+		if (unzipLocation == null) {
+			return text;
+		}  
+	    // first check if there is any content resource attachment
+		// if no - no action is needed
+		String accessURL = ServerConfigurationService.getAccessUrl();
+		String referenceRoot = ContentHostingService.REFERENCE_ROOT;
+		String prependString = accessURL + referenceRoot;
+		if (text == null || text.indexOf(prependString) == -1) {
+			return text;
+		} else {
+			String[] splittedString = text.split(prependString);
+			String userCollection = "user";
+			String groupCollection = "group";
+			int endIndex = 0;
+			String filename = null;
+			String contentType = null;
+			String fullFilePath = null;
+			String oldResourceId = null;
+			String resourceId = null;
+			ContentResource contentResource = null;
+			StringBuffer updatedText = new StringBuffer(splittedString[0]);
+			for (int i = 1; i < splittedString.length; i++) {
+				log.debug("splittedString[" + i + "] = " + splittedString[i]);
+				// Here is an example, splittedString will be something like:
+				// /group/b917f0b9-e21d-4819-80ee-35feac91c9eb/Blue Hill.jpg" alt="...  or
+				// /user/ktsao/Blue Hill.jpg" alt="...
+				// oldResourceId = /group/b917f0b9-e21d-4819-80ee-35feac91c9eb/Blue Hill.jpg or /user/ktsao/Blue Hill.jpg
+				// oldSplittedResourceId[0] = ""
+				// oldSplittedResourceId[1] = group or user
+				// oldSplittedResourceId[2] = b917f0b9-e21d-4819-80ee-35feac91c9eb or ktsao
+				// oldSplittedResourceId[3] = Blue Hill.jpg
+				endIndex = splittedString[i].indexOf("\"");
+				oldResourceId = splittedString[i].substring(0, endIndex);
+				String[] oldSplittedResourceId = oldResourceId.split("/");
+				fullFilePath = unzipLocation + "/" + oldResourceId.replace(" ", "");
+				filename = oldSplittedResourceId[3];
+				MimetypesFileTypeMap mimetypesFileTypeMap = new MimetypesFileTypeMap();
+				contentType = mimetypesFileTypeMap.getContentType(filename);
+				AttachmentHelper attachementHelper = new AttachmentHelper();
+				contentResource = attachementHelper.createContentResource(fullFilePath, filename, contentType);
+				
+				if (contentResource != null) {
+					resourceId = contentResource.getId();
+					updatedText.append(prependString);
+					updatedText.append(resourceId);
+					updatedText.append(splittedString[i].substring(endIndex));
+				}
+				else {
+					throw new RuntimeException("resourceId is null");
+				}
+			}
+			return updatedText.toString();
+		}
   }
   
   /**
@@ -1118,7 +1196,7 @@ public class ExtractionHelper
   public void updateSection(SectionFacade section, Map sectionMap)
   {
     section.setTitle( (String) sectionMap.get("title"));
-    section.setDescription( (String) sectionMap.get("description"));
+    section.setDescription(makeFCKAttachment((String) sectionMap.get("description")));
     section.setLastModifiedBy("Sakai Import");
     section.setLastModifiedDate(new Date());
   }
@@ -1301,15 +1379,15 @@ public class ExtractionHelper
 
     if (notNullOrEmpty(correctItemFeedback))
     {
-      item.setCorrectItemFeedback(correctItemFeedback);
+      item.setCorrectItemFeedback(makeFCKAttachment(correctItemFeedback));
     }
     if (notNullOrEmpty(incorrectItemFeedback))
     {
-      item.setInCorrectItemFeedback(incorrectItemFeedback);
+      item.setInCorrectItemFeedback(makeFCKAttachment(incorrectItemFeedback));
     }
     if (notNullOrEmpty(generalItemFeedback))
     {
-      item.setGeneralItemFeedback(generalItemFeedback);
+      item.setGeneralItemFeedback(makeFCKAttachment(generalItemFeedback));
     }
 
   }
@@ -1349,7 +1427,7 @@ public class ExtractionHelper
       text=text.replaceAll("\\?\\?"," ");//SAK-2298
       log.debug("text: " + text);
 
-      itemText.setText(text);
+      itemText.setText(makeFCKAttachment(text));
       itemText.setItem(item.getData());
       itemText.setSequence(new Long(i + 1));
       List answerList = new ArrayList();
@@ -1404,7 +1482,7 @@ public class ExtractionHelper
           log.debug("setting answer" + label + " score to:" + score);
           answer.setScore(new Float(score));
 
-          answer.setText(answerText);
+          answer.setText(makeFCKAttachment(answerText));
           answer.setItemText(itemText);
           answer.setItem(item.getData());
           int sequence = a + 1;
@@ -1420,8 +1498,8 @@ public class ExtractionHelper
             answerFeedback.setTypeId(AnswerFeedbackIfc.GENERAL_FEEDBACK);
             if (answerFeedbackList.get(sequence - 1) != null)
             {
-              answerFeedback.setText( (String) answerFeedbackList.get(sequence -
-                  1));
+              answerFeedback.setText(makeFCKAttachment((String) answerFeedbackList.get(sequence -
+                  1)));
               set.add(answerFeedback);
               answer.setAnswerFeedbackSet(set);
             }
@@ -1529,7 +1607,7 @@ public class ExtractionHelper
     }
     itemTextString=itemTextString.replaceAll("\\?\\?"," ");//SAK-2298
     log.debug("itemTextString="+itemTextString);
-    itemText.setText(itemTextString);
+    itemText.setText(makeFCKAttachment(itemTextString));
     itemText.setItem(item.getData());
     itemText.setSequence(new Long(0));
     HashSet answerSet = new HashSet();
@@ -1546,7 +1624,7 @@ public class ExtractionHelper
 
         String label = "" + answerLabel++;
         answer.setLabel(label); // up to 26, is this a problem?
-        answer.setText(answerText);
+        answer.setText(makeFCKAttachment(answerText));
         answer.setItemText(itemText);
 
         // correct answer and score
@@ -1570,8 +1648,8 @@ public class ExtractionHelper
           answerFeedback.setTypeId(AnswerFeedbackIfc.GENERAL_FEEDBACK);
           if (answerFeedbackList.get(sequence - 1) != null)
           {
-            answerFeedback.setText( (String) answerFeedbackList.get(
-                sequence - 1));
+            answerFeedback.setText(makeFCKAttachment((String) answerFeedbackList.get(
+                sequence - 1)));
             set.add(answerFeedback);
             answer.setAnswerFeedbackSet(set);
           }
@@ -1671,7 +1749,7 @@ public class ExtractionHelper
       log.debug("sourceText: " + sourceText);
 
       ItemText sourceItemText = new ItemText();
-      sourceItemText.setText(sourceText);
+      sourceItemText.setText(makeFCKAttachment(sourceText));
       sourceItemText.setItem(item.getData());
       sourceItemText.setSequence(new Long(i + 1));
 
@@ -1727,7 +1805,7 @@ public class ExtractionHelper
 
         String label = "" + answerLabel++;
         target.setLabel(label); // up to 26, is this a problem?
-        target.setText(targetString);
+        target.setText(makeFCKAttachment(targetString));
         target.setItemText(sourceItemText);
         target.setItem(item.getData());
         target.setSequence(new Long(a + 1));
@@ -1765,7 +1843,7 @@ public class ExtractionHelper
           }
           if (targetFeedback.length()>0)
           {
-            tAnswerFeedback.setText( targetFeedback);
+            tAnswerFeedback.setText(makeFCKAttachment(targetFeedback));
             targetFeedbackSet.add(tAnswerFeedback);
             target.setAnswerFeedbackSet(targetFeedbackSet);
           }
@@ -1903,5 +1981,9 @@ public class ExtractionHelper
   {
     this.overridePath = overridePath;
   }
-
+  
+  public void setUnzipLocation(String unzipLocation)
+  {
+    this.unzipLocation = unzipLocation;
+  }
 }

@@ -62,6 +62,26 @@
       <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-component-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-component</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-user-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>sakaiproject</groupId>
+        <artifactId>sakai-tool-api</artifactId>
+        <version>${sakai.version}</version>
+    </dependency>
     <dependency>      
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>

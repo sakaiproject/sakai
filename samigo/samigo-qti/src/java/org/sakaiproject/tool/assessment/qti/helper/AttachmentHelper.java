@@ -40,6 +40,9 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.event.cover.NotificationService;
 
 public class AttachmentHelper {
 	private static Log log = LogFactory.getLog(AttachmentHelper.class);
@@ -76,24 +79,24 @@ public class AttachmentHelper {
 			// props.addProperty(ResourceProperties.PROP_DESCRIPTION, name);
 
 			contentResource = ContentHostingService.addAttachmentResource(
-					fullFilePath.substring(fullFilePath.lastIndexOf("/") + 1), ToolManager.getCurrentPlacement().getContext(), 
-					ToolManager.getTool("sakai.samigo").getTitle(), mimeType, content, props);
+						filename, ToolManager.getCurrentPlacement().getContext(), 
+						ToolManager.getTool("sakai.samigo").getTitle(), mimeType, content, props);
 		} catch (IdInvalidException e) {
-			log.error(e.getMessage());
+			log.error("IdInvalidException:" + e.getMessage());
 		} catch (PermissionException e) {
-			log.error(e.getMessage());
+			log.error("PermissionException:" + e.getMessage());
 		} catch (InconsistentException e) {
-			log.error(e.getMessage());
+			log.error("InconsistentException:" + e.getMessage());
 		} catch (IdUsedException e) {
-			log.error(e.getMessage());
+			log.error("IdUsedException:" + e.getMessage());
 		} catch (OverQuotaException e) {
-			log.error(e.getMessage());
+			log.error("OverQuotaException:" + e.getMessage());
 		} catch (ServerOverloadException e) {
-			log.error(e.getMessage());
+			log.error("ServerOverloadException:" + e.getMessage());
 		} catch (FileNotFoundException e) {
-			log.error(e.getMessage());
+			log.error("FileNotFoundException:" + e.getMessage());
 		} catch (IOException e) {
-			log.error(e.getMessage());
+			log.error("IOException:" + e.getMessage());
 		}
 		finally {
 			if (bufInputStream != null) {

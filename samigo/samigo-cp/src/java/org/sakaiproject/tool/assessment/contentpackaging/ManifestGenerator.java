@@ -37,21 +37,28 @@ import org.dom4j.Element;
 import org.dom4j.Namespace;
 import org.dom4j.QName;
 import org.dom4j.io.DOMWriter;
+import org.sakaiproject.component.cover.ServerConfigurationService; 
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemFeedback;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.xml.sax.SAXException;
 
 /**
@@ -135,6 +142,7 @@ public class ManifestGenerator {
 		resourcesElement.add(resourceElement);
 
 		getAttachments();
+		getFCKAttachments();
 		Iterator iter = contentMap.keySet().iterator();
 		Element fileElement = null;
 		String filename = null;
@@ -214,6 +222,147 @@ public class ManifestGenerator {
 				}
 			}
 
+		} catch (PermissionException e) {
+			log.error(e.getMessage());
+			e.printStackTrace();
+		} catch (IdUnusedException e) {
+			log.error(e.getMessage());
+			e.printStackTrace();
+		} catch (TypeException e) {
+			log.error(e.getMessage());
+			e.printStackTrace();
+		} catch (ServerOverloadException e) {
+			log.error(e.getMessage());
+			e.printStackTrace();
+		}
+	}
+	
+	private void getFCKAttachments() {
+		AssessmentService assessmentService = new AssessmentService();
+		AssessmentFacade assessment = assessmentService
+				.getAssessment(assessmentId);
+
+		// Assessment FCK attachment
+		AssessmentData assessmentData = (AssessmentData) assessment.getData();
+		processDescription(assessmentData.getDescription());
+		processDescription(assessmentData.getAssessmentAccessControl().getSubmissionMessage());
+		
+		// Section FCK attachment
+		Set sectionSet = assessment.getSectionSet();
+		Iterator sectionIter = sectionSet.iterator();
+		SectionData sectionData = null;
+		Set itemSet = null;
+		ItemData itemData = null;
+
+		while (sectionIter.hasNext()) {
+			sectionData = (SectionData) ((SectionFacade) sectionIter.next())
+					.getData();
+			processDescription(sectionData.getDescription());
+
+			itemSet = sectionData.getItemSet();
+			Iterator itemIter = itemSet.iterator();
+			while (itemIter.hasNext()) {
+				itemData = (ItemData) itemIter.next();
+				// Question Text
+				Set itemTextSet = itemData.getItemTextSet();
+				ItemText itemText = null;
+				Iterator itemTextIter = itemTextSet.iterator();
+				while (itemTextIter.hasNext()) {
+					itemText = (ItemText) itemTextIter.next();
+					processDescription(itemText.getText());
+					
+					// Answer
+					Set answerSet = itemText.getAnswerSet();
+					Answer answer = null;
+					Iterator answerIter = answerSet.iterator();
+					while (answerIter.hasNext()) {
+						answer = (Answer) answerIter.next();
+						processDescription(answer.getText());
+						
+						// Answer Feedback
+						Set answerFeedbackSet = answer.getAnswerFeedbackSet();
+						AnswerFeedback answerFeedback = null;
+						Iterator answerFeedbackIter = answerFeedbackSet.iterator();
+						while (answerFeedbackIter.hasNext()) {
+							answerFeedback = (AnswerFeedback) answerFeedbackIter.next();
+							processDescription(answerFeedback.getText());
+						}
+					}
+				}
+				
+				// Feedback
+				Set itemFeedbackSet = itemData.getItemFeedbackSet();
+				ItemFeedback itemFeedback = null;
+				Iterator itemFeedbackIter = itemFeedbackSet.iterator();
+				while (itemFeedbackIter.hasNext()) {
+					itemFeedback = (ItemFeedback) itemFeedbackIter.next();
+					processDescription(itemFeedback.getText());
+				}
+			}
+		}
+	}
+
+	private void processDescription(String description) {
+		String prependString = ServerConfigurationService.getAccessUrl()
+				+ ContentHostingService.REFERENCE_ROOT;
+		
+		// Hardcode here for now because I cannot find the API to get them
+		// Also, it is hardcoded in BaseContentService.java
+		String siteCollection = "/group/";
+		String userCollection = "/user/";
+		String attachment = "/attachment/";
+		User user = UserDirectoryService.getCurrentUser();
+		String userId = user.getId();
+		String eid = user.getEid();
+
+		try {
+			if (description != null && description.indexOf("<img ") > -1) {
+				byte[] content = null;
+				int srcStartIndex = 0;
+				int srcEndIndex = 0;
+				String src = null;
+				String resourceId = null;
+				String eidResourceId = null;
+				
+				String[] splittedString = description.split("<img ");
+				for (int i = 0; i < splittedString.length; i++) {
+					log.debug("splittedString[" + i + "] = "
+							+ splittedString[i]);
+					if (splittedString[i].indexOf(prependString) > -1) {
+						srcStartIndex = splittedString[i].indexOf("src=\"");
+						srcEndIndex = splittedString[i].indexOf("\"",
+								srcStartIndex + 5);
+						src = splittedString[i].substring(srcStartIndex + 5,
+								srcEndIndex);
+						
+						if (src.indexOf(siteCollection) > -1) {
+							resourceId = src.replace(prependString, "");
+							content = ContentHostingService.getResource(resourceId).getContent();
+							if (content != null) {
+								contentMap.put(resourceId.replace(" ", ""), content);
+							}
+						}
+						else if (src.indexOf(userCollection) > -1) {
+							eidResourceId = src.replace(prependString, "");
+							resourceId = eidResourceId.replace(eid, userId);
+							content = ContentHostingService.getResource(resourceId).getContent();
+							if (content != null) {
+								contentMap.put(eidResourceId.replace(" ", ""), content);
+							}
+						}
+						else if (src.indexOf(attachment) > -1) {
+							resourceId = src.replace(prependString, "");
+							content = ContentHostingService.getResource(resourceId).getContent();
+							if (content != null) {
+								contentMap.put(resourceId.replace(" ", ""), content);
+							}
+						}
+						else {
+							log.error("Neither group nor user");
+						}
+					}
+				}
+			}
 		} catch (PermissionException e) {
 			log.error(e.getMessage());
 			e.printStackTrace();

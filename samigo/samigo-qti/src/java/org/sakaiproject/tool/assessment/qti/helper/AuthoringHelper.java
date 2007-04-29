@@ -483,13 +483,14 @@ public class AuthoringHelper
 
       // create the assessment
       ExtractionHelper exHelper = new ExtractionHelper(this.qtiVersion);
+      exHelper.setUnzipLocation(unzipLocation);
       ItemService itemService = new ItemService();
       Assessment assessmentXml = new Assessment(document);
       Map assessmentMap = exHelper.mapAssessment(assessmentXml);
       String description = (String) assessmentMap.get("description");
       String title = (String) assessmentMap.get("title");
       assessment = assessmentService.createAssessmentWithoutDefaultSection(
-        title, description, null, templateId);
+        title, exHelper.makeFCKAttachment(description), null, templateId);
 
       // now make sure we have a unique name for the assessment
       String baseId = assessment.getAssessmentBaseId().toString();
@@ -584,21 +585,19 @@ public class AuthoringHelper
           item.setSequence(new Integer(itm + 1));
           // add item to section
           item.setSection(section); // one to many
-// update metadata with PARTID
-	  item.addItemMetaData(ItemMetaData.PARTID, section.getSectionId().toString());
+          // update metadata with PARTID
+          item.addItemMetaData(ItemMetaData.PARTID, section.getSectionId().toString());
+           
+          // Item Attachment
+          exHelper.makeItemAttachmentSet(item);
           
-          // if unzipLocation is not null, there might be item attachment
-          if (unzipLocation != null) {
-        	  exHelper.makeItemAttachmentSet(item, unzipLocation);
-          }
           section.addItem(item); // many to one
           itemService.saveItem(item);
         } // ... end for each item
         
-        // if unzipLocation is not null, there might be section attachment
-        if (unzipLocation != null) {
-      	  exHelper.makeSectionAttachmentSet(section, sectionMap, unzipLocation);
-        }
+        // Section Attachment
+      	exHelper.makeSectionAttachmentSet(section, sectionMap);
+
         assessmentService.saveOrUpdateSection(section);
       } // ... end for each section
 
@@ -612,10 +611,9 @@ public class AuthoringHelper
         exHelper.makeSecuredIPAddressSet(assessment, allowIp);
       }
       
-      // if unzipLocation is not null, there might be assessment attachment
-      if (unzipLocation != null) {
-    	  exHelper.makeAssessmentAttachmentSet(assessment, unzipLocation);
-      }
+      // Assessment Attachment
+      exHelper.makeAssessmentAttachmentSet(assessment);
+
       assessmentService.saveAssessment(assessment);
       return assessment;
     }

@@ -18,16 +18,16 @@
     <xsl:value-of select="//section/qtimetadata/qtimetadatafield[1]/fieldentry"/>
     </description>
     <objective>
-    <xsl:value-of select="//section/qtimetadata/qtimetadatafield[1]/fieldentry"/>
+    <xsl:value-of select="//section/qtimetadata/qtimetadatafield[2]/fieldentry"/>
     </objective>
     <keyword>
-    <xsl:value-of select="//section/qtimetadata/qtimetadatafield[2]/fieldentry"/>
+    <xsl:value-of select="//section/qtimetadata/qtimetadatafield[3]/fieldentry"/>
     </keyword>
     <rubric>
-    <xsl:value-of select="//section/qtimetadata/qtimetadatafield[3]/fieldentry"/>
+    <xsl:value-of select="//section/qtimetadata/qtimetadatafield[4]/fieldentry"/>
     </rubric>
     <attachment>
-    <xsl:value-of select="//section/qtimetadata/qtimetadatafield[4]/fieldentry"/>
+    <xsl:value-of select="//section/qtimetadata/qtimetadatafield[5]/fieldentry"/>
     </attachment>
   </sectionData>
 </xsl:template>

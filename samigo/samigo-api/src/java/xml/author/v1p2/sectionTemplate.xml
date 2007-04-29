@@ -3,6 +3,10 @@
     <!--metadata for Section new UI -->
      
     <qtimetadatafield>
+      <fieldlabel>SECTION_INFORMATION</fieldlabel>
+      <fieldentry/>
+    </qtimetadatafield>
+    <qtimetadatafield>
       <fieldlabel>SECTION_OBJECTIVE</fieldlabel>
       <fieldentry/>
     </qtimetadatafield>

@@ -142,6 +142,7 @@ public class Section extends ASIBaseClass
 
     // well, we can add metadata from users' input - lydial 
     
+    setFieldentry("SECTION_INFORMATION", section.getDescription());
     setFieldentry("SECTION_OBJECTIVE", section.getSectionMetaDataByLabel(SectionMetaDataIfc.OBJECTIVES));
     setFieldentry("SECTION_KEYWORD", section.getSectionMetaDataByLabel(SectionMetaDataIfc.KEYWORDS));
     setFieldentry("SECTION_RUBRIC", section.getSectionMetaDataByLabel(SectionMetaDataIfc.RUBRICS));
