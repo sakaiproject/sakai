@@ -22,6 +22,7 @@
 
 package org.sakaiproject.tool.gradebook.business.impl;
 
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -1631,7 +1632,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		{
     			throw new IllegalArgumentException("point for record is greater than 1 or less than 0 for percentage points in GradebookManagerHibernateImpl.calculateDoublePointForRecord");
     		}
-    		return new Double(assign.getPointsPossible().doubleValue() * (gradeRecordFromCall.getPointsEarned().doubleValue() / 100.0));
+    		return new Double(new BigDecimal(assign.getPointsPossible().doubleValue() * (gradeRecordFromCall.getPointsEarned().doubleValue() / 100.0)).setScale(2, BigDecimal.ROUND_DOWN).doubleValue());
     	}
     	else
     		return null;
