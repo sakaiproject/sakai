@@ -793,14 +793,14 @@ public class PrivateMessagesTool
   public void processChangeSelectView(ValueChangeEvent eve)
   {
     String currentValue = (String) eve.getNewValue();
-  	if (currentValue == null || !currentValue.equalsIgnoreCase(THREADED_VIEW))
+  	if (!currentValue.equalsIgnoreCase(THREADED_VIEW) && selectView != null && selectView.equals(THREADED_VIEW))
   	{
   		selectView = "";
   		viewChanged = true;
   		getDecoratedPvtMsgs();
   		return;
     }
-  	else
+  	else if (currentValue.equalsIgnoreCase(THREADED_VIEW))
   	{
   		selectView = THREADED_VIEW;
   		if (searchPvtMsgs != null && !searchPvtMsgs.isEmpty())
