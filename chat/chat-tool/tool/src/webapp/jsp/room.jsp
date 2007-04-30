@@ -21,8 +21,8 @@
          </sakai:tool_bar>
             	
          <sakai:view_title value="#{ChatTool.viewingChatRoomText}"/>
-			<div class="navPanel">
-				<div class="viewNav">
+			<h:panelGrid styleClass="navPanel" columns="1" border="0" columnClasses="viewNav">
+				<h:column> 
 					<h:outputLabel for="viewOptions"	value="#{msgs.view}" />
 					<h:selectOneMenu id="viewOptions" value="#{ChatTool.viewOptions}" 
 							onchange="this.form.submit();">
@@ -37,8 +37,8 @@
 						<f:selectItem itemValue="-1" itemLabel="#{msgs.allMessages}" />
 						<f:selectItem itemValue="0" itemLabel="#{ChatTool.past3DaysText}" />
 					</h:selectOneMenu>
-				</div>
-			</div>
+				</h:column> 
+			</h:panelGrid> 
 			<div id="chatListWrapper" class="chatListWrapper">
 				<div  class="chatListHeadWrapper">
 					<h:outputText value="#{msgs.lay_note}" />
