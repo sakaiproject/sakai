@@ -1113,12 +1113,11 @@ public class ExtractionHelper
 		String accessURL = ServerConfigurationService.getAccessUrl();
 		String referenceRoot = ContentHostingService.REFERENCE_ROOT;
 		String prependString = accessURL + referenceRoot;
-		if (text == null || text.indexOf(prependString) == -1) {
+		String importedPrependString = getImportedPrependString(text);
+		if (text == null || importedPrependString == null) {
 			return text;
 		} else {
-			String[] splittedString = text.split(prependString);
-			String userCollection = "user";
-			String groupCollection = "group";
+			String[] splittedString = text.split(importedPrependString);
 			int endIndex = 0;
 			String filename = null;
 			String contentType = null;
@@ -1160,6 +1159,22 @@ public class ExtractionHelper
 			return updatedText.toString();
 		}
   }
+  
+  private String getImportedPrependString(String text) {
+		String accessPath = ServerConfigurationService.getAccessPath();
+		String referenceRoot = ContentHostingService.REFERENCE_ROOT;
+		String importedPrependString = accessPath + referenceRoot;
+
+		String[] splittedString = text.split("src=\"");
+		for (int i = 0; i < splittedString.length; i ++) {
+			if (splittedString[i].indexOf(importedPrependString) > -1) {
+				int length = importedPrependString.length();
+				return splittedString[i].substring(0, splittedString[i].indexOf(importedPrependString) + length);
+			}
+		}
+		return null;
+  }
+
   
   /**
    * Update questionpool from the extracted properties.
