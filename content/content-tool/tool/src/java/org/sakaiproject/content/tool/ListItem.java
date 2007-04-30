@@ -333,6 +333,8 @@ public class ListItem
 	protected boolean canSetQuota = false;
 	protected String quota;
 
+	protected boolean nameIsMissing = false;
+
 
 	
 	/**
@@ -2544,5 +2546,16 @@ public class ListItem
     {
 	    return this.parent;
     }
+
+	public void setNameIsMissing(boolean nameIsMissing)
+    {
+	    this.nameIsMissing = nameIsMissing;
+    }
+
+	public boolean isNameMissing()
+    {
+    	return nameIsMissing;
+    }
+	
 }
 

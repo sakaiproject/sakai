@@ -619,7 +619,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	private static final String STATE_DELETE_ITEMS_NOT_EMPTY = PREFIX + "delete_items_not_empty";
 
 	protected static final String STATE_DELETE_SET = PREFIX + "delete_set";
-
+	
 	/** The name of the state attribute indicating whether the hierarchical list is expanded */
 	private static final String STATE_EXPAND_ALL_FLAG = PREFIX + "expand_all_flag";
 
@@ -5043,7 +5043,34 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		
 		context.put("required", trb.getFormattedMessage("instr.require", new String[]{"<span class=\"reqStarInline\">*</span>"}));
 		
-		// complete the create wizard
+		ListItem item = (ListItem) state.getAttribute(STATE_REVISE_PROPERTIES_ITEM);
+		if(item == null)
+		{
+			item = getListItem(state);
+			state.setAttribute(STATE_REVISE_PROPERTIES_ITEM, item);
+		}
+		context.put("item", item);
+		
+		if(ContentHostingService.isAvailabilityEnabled())
+		{
+			context.put("availability_is_enabled", Boolean.TRUE);
+		}
+		
+		context.put("SITE_ACCESS", AccessMode.SITE.toString());
+		context.put("GROUP_ACCESS", AccessMode.GROUPED.toString());
+		context.put("INHERITED_ACCESS", AccessMode.INHERITED.toString());
+		context.put("PUBLIC_ACCESS", PUBLIC_ACCESS);
+		
+		return TEMPLATE_REVISE_METADATA;
+	}
+
+	/**
+     * @param state
+     * @return
+     */
+    protected ListItem getListItem(SessionState state)
+    {
+	    // complete the create wizard
 		String defaultCopyrightStatus = (String) state.getAttribute(STATE_DEFAULT_COPYRIGHT);
 		if(defaultCopyrightStatus == null || defaultCopyrightStatus.trim().equals(""))
 		{
@@ -5080,22 +5107,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			item.setRetractDate(defaultRetractDate);
 		}
 		item.setPubviewPossible(! preventPublicDisplay);
-		
-		context.put("item", item);
-		state.setAttribute(STATE_REVISE_PROPERTIES_ITEM, item);
-		
-		if(ContentHostingService.isAvailabilityEnabled())
-		{
-			context.put("availability_is_enabled", Boolean.TRUE);
-		}
-		
-		context.put("SITE_ACCESS", AccessMode.SITE.toString());
-		context.put("GROUP_ACCESS", AccessMode.GROUPED.toString());
-		context.put("INHERITED_ACCESS", AccessMode.INHERITED.toString());
-		context.put("PUBLIC_ACCESS", PUBLIC_ACCESS);
-		
-		return TEMPLATE_REVISE_METADATA;
-	}
+	    return item;
+    }
 
 	/**
 	* Build the context for add display
@@ -5893,11 +5906,13 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				case VIEW_METADATA:
 					break;
 				case REVISE_METADATA:
-					sAction.initializeAction(reference);
+					// sAction.initializeAction(reference);
 					state.setAttribute(STATE_REVISE_PROPERTIES_ENTITY_ID, selectedItemId);
 					state.setAttribute(STATE_REVISE_PROPERTIES_ACTION, action);
 					state.setAttribute (STATE_MODE, MODE_REVISE_METADATA);
-					sAction.finalizeAction(reference);
+					ListItem item = getListItem(state);
+					state.setAttribute(STATE_REVISE_PROPERTIES_ITEM, item);
+					// sAction.finalizeAction(reference);
 					break;
 				case CUSTOM_TOOL_ACTION:
 					// do nothing
@@ -6546,114 +6561,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			item.captureProperties(params, ListItem.DOT + "0");
 			
-//			String name = params.getString("name");
-//			String description = params.getString("description");
-//			String resourceType = action.getTypeId();
-//			// rights
-//			String copyrightStatus = params.getString("copyrightStatus");
-//			String copyrightInfo = params.getString("copyrightInfo");
-//			boolean copyrightAlert = params.getBoolean("copyrightAlert");
-//			
-//			// availability
-//			boolean hidden = params.getBoolean("hidden");
-//			boolean use_start_date = params.getBoolean("use_start_date");
-//			boolean use_end_date = params.getBoolean("use_end_date");
-//			Time releaseDate = null;
-//			Time retractDate = null;
-//			
-//			if(use_start_date)
-//			{
-//				int begin_year = params.getInt("release_year");
-//				int begin_month = params.getInt("release_month");
-//				int begin_day = params.getInt("release_day");
-//				int begin_hour = params.getInt("release_hour");
-//				int begin_min = params.getInt("release_min");
-//				String release_ampm = params.getString("release_ampm");
-//				if("pm".equals(release_ampm))
-//				{
-//					begin_hour += 12;
-//				}
-//				else if(begin_hour == 12)
-//				{
-//					begin_hour = 0;
-//				}
-//				releaseDate = TimeService.newTimeLocal(begin_year, begin_month, begin_day, begin_hour, begin_min, 0, 0);
-//			}
-//			
-//			if(use_end_date)
-//			{
-//				int end_year = params.getInt("retract_year");
-//				int end_month = params.getInt("retract_month");
-//				int end_day = params.getInt("retract_day");
-//				int end_hour = params.getInt("retract_hour");
-//				int end_min = params.getInt("retract_min");
-//				String retract_ampm = params.getString("retract_ampm");
-//				if("pm".equals(retract_ampm))
-//				{
-//					end_hour += 12;
-//				}
-//				else if(end_hour == 12)
-//				{
-//					end_hour = 0;
-//				}
-//				retractDate = TimeService.newTimeLocal(end_year, end_month, end_day, end_hour, end_min, 0, 0);
-//			}
-//			
-//			// access
-//			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
-//			if(preventPublicDisplay == null)
-//			{
-//				preventPublicDisplay = Boolean.FALSE;
-//				state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
-//			}
-//			
-//			String access_mode = params.getString("access_mode");
-//			SortedSet groups = new TreeSet();
-//			
-//			if(access_mode == null || AccessMode.GROUPED.toString().equals(access_mode))
-//			{
-//				// we inherit more than one group and must check whether group access changes at this item
-//				String[] access_groups = params.getStrings("access_groups");
-//				
-//				SortedSet<String> new_groups = new TreeSet<String>();
-//				if(access_groups != null)
-//				{
-//					new_groups.addAll(Arrays.asList(access_groups));
-//				}
-//				new_groups = item.convertToRefs(new_groups);
-//				
-//				Collection inh_grps = item.getInheritedGroupRefs();
-//				boolean groups_are_inherited = (new_groups.size() == inh_grps.size()) && inh_grps.containsAll(new_groups);
-//				
-//				if(groups_are_inherited)
-//				{
-//					new_groups.clear();
-//					item.setGroupsById(new_groups);
-//					item.setAccessMode(AccessMode.INHERITED);
-//				}
-//				else
-//				{
-//					item.setGroupsById(new_groups);
-//					item.setAccessMode(AccessMode.GROUPED);
-//				}
-//				
-//				item.setPubview(false);
-//			}
-//			else if(PUBLIC_ACCESS.equals(access_mode))
-//			{
-//				if(! preventPublicDisplay.booleanValue() && ! item.isPubviewInherited())
-//				{
-//					item.setPubview(true);
-//					item.setAccessMode(AccessMode.INHERITED);
-//				}
-//			}
-//			else if(AccessMode.INHERITED.toString().equals(access_mode))
-//			{
-//				item.setAccessMode(AccessMode.INHERITED);
-//				item.setGroupsById(null);
-//				item.setPubview(false);
-//			}
-
 			// notification
 			int noti = NotificationService.NOTI_NONE;
 			// %%STATE_MODE_RESOURCES%%
@@ -6676,93 +6583,61 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				}
 			}
 			
-
-//			// set to public access if allowed and requested
-//			if(!preventPublicDisplay.booleanValue() && PUBLIC_ACCESS.equals(access_mode))
-//			{
-//				ContentHostingService.setPubView(entityId, true);
-//			}
-//			
-
-			try 
+			List<String> alerts = checkRequiredProperties(item);
+			
+			if(alerts.isEmpty())
 			{
-				if(item.isCollection())
+				try 
 				{
-					ContentCollectionEdit entity = ContentHostingService.editCollection(entityId);
-					item.updateContentCollectionEdit(entity);
-					
-//					ResourcePropertiesEdit resourceProperties = entity.getPropertiesEdit();
-//					resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
-//					resourceProperties.addProperty(ResourceProperties.PROP_DESCRIPTION, description);
-//					entity.setAvailability(hidden, releaseDate, retractDate);
-					
-					ContentHostingService.commitCollection(entity);
-				}
-				else
-				{
-					ContentResourceEdit entity = ContentHostingService.editResource(entityId);
-					item.updateContentResourceEdit(entity);
-//					entity.setResourceType(resourceType);
-//					ResourcePropertiesEdit resourceProperties = entity.getPropertiesEdit();
-//					resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
-//					resourceProperties.addProperty(ResourceProperties.PROP_DESCRIPTION, description);
-//					entity.setAvailability(hidden, releaseDate, retractDate);
-//					
-//					if(copyrightStatus == null || copyrightStatus.trim().length() == 0)
-//					{
-//						resourceProperties.removeProperty(ResourceProperties.PROP_COPYRIGHT_CHOICE);
-//					}
-//					else
-//					{
-//						resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT_CHOICE, copyrightStatus);
-//					}
-//					if(copyrightInfo == null || copyrightInfo.trim().length() == 0)
-//					{
-//						resourceProperties.removeProperty(ResourceProperties.PROP_COPYRIGHT);
-//					}
-//					else
-//					{
-//						resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT, copyrightInfo);
-//					}
-//					if (copyrightAlert)
-//					{
-//						resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT_ALERT, Boolean.TRUE.toString());
-//					}
-//					else
-//					{
-//						resourceProperties.removeProperty (ResourceProperties.PROP_COPYRIGHT_ALERT);
-//					}
-//					
-					ContentHostingService.commitResource(entity, noti);
-				}
+					if(item.isCollection())
+					{
+						ContentCollectionEdit entity = ContentHostingService.editCollection(entityId);
+						item.updateContentCollectionEdit(entity);
+						
+						ContentHostingService.commitCollection(entity);
+					}
+					else
+					{
+						ContentResourceEdit entity = ContentHostingService.editResource(entityId);
+						item.updateContentResourceEdit(entity);
+						ContentHostingService.commitResource(entity, noti);
+					}
 
-				state.setAttribute(STATE_MODE, MODE_LIST);
-			} 
-			catch (IdUnusedException e) 
-			{
-				logger.warn("IdUnusedException", e);
-			} 
-			catch (TypeException e) 
-			{
-				logger.warn("TypeException", e);
-			} 
-			catch (PermissionException e) 
-			{
-				logger.warn("PermissionException", e);
-			} 
-			catch (ServerOverloadException e) 
-			{
-				logger.warn("ServerOverloadException", e);
+					state.setAttribute(STATE_MODE, MODE_LIST);
+				} 
+				catch (IdUnusedException e) 
+				{
+					logger.warn("IdUnusedException", e);
+				} 
+				catch (TypeException e) 
+				{
+					logger.warn("TypeException", e);
+				} 
+				catch (PermissionException e) 
+				{
+					logger.warn("PermissionException", e);
+				} 
+				catch (ServerOverloadException e) 
+				{
+					logger.warn("ServerOverloadException", e);
+				}
+				catch (OverQuotaException e)
+				{
+					// TODO Auto-generated catch block
+					logger.warn("OverQuotaException ", e);
+				}
+				catch (InUseException e)
+				{
+					// TODO Auto-generated catch block
+					logger.warn("InUseException ", e);
+				}
 			}
-			catch (OverQuotaException e)
+			else
 			{
-				// TODO Auto-generated catch block
-				logger.warn("OverQuotaException ", e);
-			}
-			catch (InUseException e)
-			{
-				// TODO Auto-generated catch block
-				logger.warn("InUseException ", e);
+				for(String alert : alerts)
+				{
+					addAlert(state, alert);
+				}
 			}
 			
 		}
@@ -6771,6 +6646,18 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			state.setAttribute(STATE_MODE, MODE_LIST);
 		}
 	}
+
+	protected List<String> checkRequiredProperties(ListItem item)
+    {
+		List<String> alerts = new Vector<String>();
+		String name = item.getName();
+		if(name == null || name.trim().equals(""))
+		{
+			item.setNameIsMissing(true);
+			alerts.add(rb.getString("edit.missing"));
+		}
+	    return alerts;
+    }
 
 	/**
 	* Sort based on the given property

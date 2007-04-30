@@ -15,7 +15,7 @@
 		<input type="hidden" name="sakai_action" id="sakai_action" value="doReviseProperties" />
 		<input type="hidden" name="user_action" id="user_action" value="save" />
 		<div id="propertiesDiv${DOT}$i" style="display:block;">
-			<p class="shorttext">
+			<p class="shorttext#if($item.isNameMissing()) validation#end">
 				<span class="reqStar">*</span>
 				<label for="displayName${DOT}$i">
 					$tlang.getString("title.name") 
