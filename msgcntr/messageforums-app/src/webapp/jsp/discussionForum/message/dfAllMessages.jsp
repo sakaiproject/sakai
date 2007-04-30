@@ -188,7 +188,7 @@
 				<%-- Rendered to view current thread only --%>
 				<h:commandLink action="#{ForumTool.processActionDisplayThread}" immediate="true" title="#{message.message.title}"
 					rendered="#{message.depth == 0}">
-				   	<h:outputText value="#{message.message.title}" rendered="#{message.read}" />
+				   	<h:outputText escape="false" value="#{message.message.title}" rendered="#{message.read}" />
     	        	<h:outputText styleClass="unreadMsg" value="#{message.message.title}" rendered="#{!message.read}"/>
         	    	<f:param value="#{message.message.id}" name="messageId"/>
         	    	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>

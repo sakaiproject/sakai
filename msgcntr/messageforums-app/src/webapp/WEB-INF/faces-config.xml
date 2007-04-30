@@ -57,6 +57,14 @@
       <renderer-class>org.sakaiproject.tool.messageforums.jsf.HierPvtMsgDataTableRender</renderer-class>
     </renderer>
     </render-kit>
+    <!-- =================== Validators ============== -->
+    <validator>
+    	<description>Required Validator that trims first</description>
+    	<validator-id>MessageTitle</validator-id>
+    	<validator-class>
+    		org.sakaiproject.tool.messageforums.jsf.MessageTitleValidator
+    	</validator-class>
+    </validator>
     <!-- =================== Navigation ============== -->
     <navigation-rule>
         <from-view-id>/jsp/*</from-view-id>

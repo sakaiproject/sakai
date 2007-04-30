@@ -53,7 +53,9 @@
 					   <h:outputLabel for="df_compose_title"><h:outputText value="#{msgs.cdfm_title}" /></h:outputLabel>
 				   </h:panelGroup>
             <h:panelGroup styleClass="shorttext">
-					   <h:inputText value="#{ForumTool.composeTitle}" style="width:30em;" required="true" id="df_compose_title" />
+					   <h:inputText value="#{ForumTool.composeTitle}" style="width:30em;" required="true" id="df_compose_title">
+					     <f:validator validatorId="MessageTitle" />
+					   </h:inputText>
 				   </h:panelGroup>
           </h:panelGrid>
 
