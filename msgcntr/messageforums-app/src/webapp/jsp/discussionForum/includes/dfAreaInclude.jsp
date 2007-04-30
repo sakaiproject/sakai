@@ -46,7 +46,6 @@
 			  </h:outputLink>
 			  
 			  <h:outputLink id="forum_extended_hide" value="#" title="#{msgs.cdfm_hide_full_description}" style="display:none" styleClass="hide" 
-	                rendered="#{topic.topic.extendedDescription != '' && topic.topic.extendedDescription != null}"
 			  		onclick="resize();$(this).prev('.show').toggle(); $('div.toggle', $(this).parents('div:first')).slideToggle(resize);$(this).toggle();">
 			  		<h:outputText value="#{msgs.cdfm_hide_full_description}" />
 			  </h:outputLink>
