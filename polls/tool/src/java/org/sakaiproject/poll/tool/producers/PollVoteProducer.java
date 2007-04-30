@@ -44,6 +44,7 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 import uk.org.ponder.beanutil.BeanGetter;
 import uk.org.ponder.beanutil.entity.EntityID;
 import uk.org.ponder.rsf.components.UIELBinding;
+import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UISelectChoice;
 import uk.org.ponder.rsf.components.UISelectLabel;
@@ -229,7 +230,8 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 			   sub.parameters.add(new UIELBinding("#{voteCollection.submissionStatus}", "sub"));
 			   UICommand cancel = UICommand.make(voteForm, "cancel",messageLocator.getMessage("vote_cancel"),"#{pollToolBean.cancel}");
 			   cancel.parameters.add(new UIELBinding("#{voteCollection.submissionStatus}", "cancel"));
-					   
+			  UIInternalLink.make(voteForm, "reset", "vote_reset");
+					  
 		} 
 		catch (Exception e)
 		{
