@@ -180,8 +180,6 @@
       <!--properties:  war.bundle: standalone -->
       <scope>provided</scope>
     </dependency>
-    <dependency>
-
   </dependencies>
   <build>
     
