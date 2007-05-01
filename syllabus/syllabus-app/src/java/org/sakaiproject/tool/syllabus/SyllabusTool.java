@@ -1796,7 +1796,12 @@ public class SyllabusTool
    */
   public String getPrintFriendlyUrl()
   {
-	  return ServerConfigurationService.getToolUrl() + Entity.SEPARATOR
+	  if (currentRediredUrl != null && !"".equals(currentRediredUrl)) {
+		  return currentRediredUrl;
+	  }
+	  else {
+		  return ServerConfigurationService.getToolUrl() + Entity.SEPARATOR
 					+ ToolManager.getCurrentPlacement().getId() + Entity.SEPARATOR + "printFriendly";
+	  }
   }
 }
