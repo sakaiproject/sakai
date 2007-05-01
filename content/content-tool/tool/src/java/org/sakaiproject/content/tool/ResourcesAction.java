@@ -7952,7 +7952,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		boolean showCopyAction = showCopy != null && showCopy.booleanValue();
 		
 		Set highlightedItems = (Set) state.getAttribute(STATE_HIGHLIGHTED_ITEMS);
-		
 
 		// add user's personal workspace
 		User user = UserDirectoryService.getCurrentUser();

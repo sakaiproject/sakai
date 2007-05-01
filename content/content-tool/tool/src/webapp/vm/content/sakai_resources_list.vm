@@ -221,9 +221,9 @@ ul.makeMenu ul{top: 15px !important}
 				############################### Show top level folder #################
 				<tr
 					#if ($itemcount % 2==0)
-						class="odd"
+						class="odd#if($item.isSelectedForCopy()) selectedCopy#end#if($item.isSelectedForMove()) selectedMove#end#if(!$item.isAvailable()) inactive#end"
 					#else
-						class="even"
+						class="even#if($item.isSelectedForCopy()) selectedCopy#end#if($item.isSelectedForMove()) selectedMove#end#if(!$item.isAvailable()) inactive#end"
 					#end>
 					#set ($num=$num + 1)
 					<td headers="expansion">
@@ -470,9 +470,9 @@ ul.makeMenu ul{top: 15px !important}
 						############################### Show top level folder #################
 					<tr
 					#if ($itemcount % 2==0)
-						class="odd"
+						class="odd#if($item.isSelectedForCopy()) selectedCopy#end#if($item.isSelectedForMove()) selectedMove#end#if(!$item.isAvailable()) inactive#end"
 					#else
-						class="even"
+						class="even#if($item.isSelectedForCopy()) selectedCopy#end#if($item.isSelectedForMove()) selectedMove#end#if(!$item.isAvailable()) inactive#end"
 					#end>
 
 							<td headers="expansion">

@@ -239,6 +239,14 @@ public class ListItem
 					}
 
 	        		ListItem child = getListItem(childEntity, item, registry, expandAll, expandedFolders, items_to_be_moved, items_to_be_copied, depth + 1, userSelectedSort, preventPublicDisplay);
+	        		if(items_to_be_copied != null && items_to_be_copied.contains(child.id))
+	        		{
+	        			child.setSelectedForCopy(true);
+	        		}
+	        		if(items_to_be_moved != null && items_to_be_moved.contains(child.id))
+	        		{
+	        			child.setSelectedForMove(true);
+	        		}
 	        		item.addMember(child);
 	        	}
 			}
@@ -254,6 +262,10 @@ public class ListItem
 		
 		return item;
 	}
+
+	protected boolean selectedForMove = false;
+
+	protected boolean selectedForCopy = false;
 	
 	protected String name;
 	protected String id;
@@ -2209,6 +2221,16 @@ public class ListItem
 		this.selected = selected;
 	}
 
+	public void setSelectedForCopy(boolean selectedForCopy)
+    {
+	    this.selectedForCopy = selectedForCopy;
+    }
+
+	public void setSelectedForMove(boolean selectedForMove)
+    {
+	    this.selectedForMove = selectedForMove;
+    }
+
 	/**
      * @param string
      */
@@ -2555,6 +2577,16 @@ public class ListItem
 	public boolean isNameMissing()
     {
     	return nameIsMissing;
+    }
+
+	public boolean isSelectedForCopy()
+    {
+    	return selectedForCopy;
+    }
+
+	public boolean isSelectedForMove()
+    {
+    	return selectedForMove;
     }
 	
 }
