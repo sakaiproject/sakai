@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Placement;
@@ -375,4 +376,20 @@ public interface Portal
 	 */
  	void setupMobileDevice(HttpServletRequest req, PortalRenderContext rcontext);
 
+	/**
+	 * Iterate through the pages in a site and return information in a 
+	 * Map.
+	 * @param res
+	 * @param loggedIn
+	 * @param site
+	 * @param page
+	 * @param toolContextPath
+	 * @param portalPrefix
+	 * @param doPages
+	 * @param resetTools
+	 * @param includeSummary
+	 */
+	Map pageListToMap(HttpServletRequest req, boolean loggedIn, Site site,
+                        SitePage page, String toolContextPath, String portalPrefix, boolean doPages,
+                        boolean resetTools, boolean includeSummary);
 }

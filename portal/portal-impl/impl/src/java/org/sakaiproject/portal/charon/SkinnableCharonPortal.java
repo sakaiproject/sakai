@@ -1435,8 +1435,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 	}
 
-	// TODO: Refactor code in other functions to use this code rather than doing
-	// it inline
 	/*
 	 * Produce a page and/or a tool list doPage = true is best for the
 	 * tabs-based portal and for RSS - these think in terms of pages doPage =
@@ -1444,8 +1442,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	 * a page is marked as a popup. If the page is a popup - it is left a page
 	 * and marked as such. restTools = true - generate resetting tool URLs.
 	 */
-
-	protected Map pageListToMap(HttpServletRequest req, boolean loggedIn, Site site,
+	public Map pageListToMap(HttpServletRequest req, boolean loggedIn, Site site,
 			SitePage page, String toolContextPath, String portalPrefix, boolean doPages,
 			boolean resetTools, boolean includeSummary)
 	{

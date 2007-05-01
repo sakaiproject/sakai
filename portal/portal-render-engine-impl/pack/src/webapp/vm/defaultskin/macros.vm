@@ -345,26 +345,26 @@ ${responseHead}
 ##
 ##		rcontext.put("pageNavPresenceUrk",presenceUrl);
 ##		
-#macro( includePageNav   )
-#if (  $pageNavToolsCount > 1 || ! $pageMaxIfSingle ) 
+#macro( includePageNav )
+#if ( $sitePages.pageNavToolsCount > 1 || ! $sitePages.pageMaxIfSingle ) 
 <!-- start includePageNav -->
 	<div class="divColor" id="toolMenuWrap">
 		<div id="worksiteLogo">
-#if (!${pageNavPublished})
+#if (!${sitePages.pageNavPublished})
 			<p id="siteStatus">unpublished site</p>
 #end
-#if ($pageNavType && $pageNavType != "project" )
-			<p id="siteType">$pageNavType</p>
+#if ($sitePages.pageNavType && $sitePages.pageNavType != "project" )
+			<p id="siteType">$sitePages.pageNavType</p>
 #end
-#if ($pageNavIconUrl && $pageNavIconUrl != "")
-			<img src="$pageNavIconUrl" border="0" alt="Worksite Logo" />
+#if ($sitePages.pageNavIconUrl && $sitePages.pageNavIconUrl != "")
+			<img src="$sitePages.pageNavIconUrl" border="0" alt="Worksite Logo" />
 #end
 		</div>
 		<a id="totoolmenu" class="skip" name="totoolmenu"></a>
 		<h1 class="skip">${rloader.sit_toolshead}</h1>
 		<div id="toolMenu">
 			<ul>
-#foreach( $page in $pageNavTools )
+#foreach( $page in $sitePages.pageNavTools )
   #if (${page.current})
 				<li class="selectedTool">
 				<span>${page.pageTitle}</span>
@@ -383,10 +383,10 @@ ${responseHead}
    #end
   #end
 #end
-#if (${pageNavShowHelp})
+#if (${sitePages.pageNavShowHelp})
 				<li>
-				<a  accesskey="6" href="${pageNavHelpUrl}" target="_blank" 
-					onclick="openWindow('${pageNavHelpUrl}', 
+				<a  accesskey="6" href="${sitePages.pageNavHelpUrl}" target="_blank" 
+					onclick="openWindow('${sitePages.pageNavHelpUrl}', 
 					'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); 
 					return false">
 					<span>${rloader.sit_help}</span>
@@ -395,11 +395,11 @@ ${responseHead}
 #end
 			</ul>
 		</div>
-#if (${pageNavShowPresenceLoggedIn})
+#if (${sitePages.pageNavShowPresenceLoggedIn})
 		<div id="presenceWrapper">
 			<div id="presenceTitle">${rloader.sit_presencetitle}</div>
 			<iframe name="presenceIframe" id="presenceIframe" title="${rloader.sit_presencetitle}"
-				frameborder="0" marginwidth="0" marginheight="0" scrolling="auto" src="${pageNavPresenceUrl}" >
+				frameborder="0" marginwidth="0" marginheight="0" scrolling="auto" src="${sitePages.pageNavPresenceUrl}" >
 			</iframe>
 		</div>
 #end
@@ -421,8 +421,8 @@ ${responseHead}
 ##------------------------------------------------------------------------------------------
 #macro( includePageBody ) 	
 <!-- start includePageBody -->		
-#if ( $pageMaxIfSingle )
-#if ( $pageNavToolsCount > 1 ) 
+#if ( $sitePages.pageMaxIfSingle )
+#if ( $sitePages.pageNavToolsCount > 1 ) 
 	<div id="$pageWrapperClass">
 #end
 #else
@@ -447,8 +447,8 @@ ${responseHead}
 	</div>
 	<div>
 #includeBottom()
-#if ( $pageMaxIfSingle )
-#if ( $pageNavToolsCount > 1 ) 
+#if ( $sitePages.pageMaxIfSingle )
+#if ( $sitePages.pageNavToolsCount > 1 ) 
 	</div>
 #end
 #else
