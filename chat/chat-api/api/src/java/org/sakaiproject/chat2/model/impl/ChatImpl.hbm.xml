@@ -21,6 +21,7 @@
 		<property name="filterType" type="string" length="25" />
 		<property name="filterParam" type="int" />
 		<property name="contextDefaultChannel" type="boolean" index="CHAT_CHANNEL_DEFAULT_I"/>
+		<property name="enableUserOverride" type="boolean" column="ENABLE_USER_OVERRIDE" not-null="false"/>
 
 		<set name="messages" cascade="all-delete-orphan" inverse="false"
 			lazy="true">

@@ -33,15 +33,22 @@
 					</h:selectOneMenu> 
 					<h:selectOneMenu id="messageOptions"
 							value="#{ChatTool.messageOptions}" 
-							onchange="this.form.submit();">
+							onchange="this.form.submit();"
+							rendered="#{ChatTool.canRenderMessageOptions}">
 						<f:selectItem itemValue="-1" itemLabel="#{msgs.allMessages}" />
-						<f:selectItem itemValue="0" itemLabel="#{ChatTool.past3DaysText}" />
+						<f:selectItems value="#{ChatTool.messageOptionsList}" />
 					</h:selectOneMenu>
 				</h:column> 
 			</h:panelGrid> 
 			<div id="chatListWrapper" class="chatListWrapper">
 				<div  class="chatListHeadWrapper">
-					<h:outputText value="#{msgs.lay_note}" />
+					<h:outputText value="#{msgs.lay_note}" rendered="#{ChatTool.canRenderAllMessages}" />
+					<h:outputFormat value="#{msgs.lay_restricted_note_days}" rendered="#{ChatTool.canRenderDateMessages}" >
+						<f:param value="#{ChatTool.currentChannel.chatChannel.filterParam}" />
+					</h:outputFormat>
+					<h:outputFormat value="#{msgs.lay_restricted_note_messages}" rendered="#{ChatTool.canRenderNumberMessages}" >
+						<f:param value="#{ChatTool.currentChannel.chatChannel.filterParam}" />
+					</h:outputFormat>
 				</div>
 				<sakai:messages />
 				<div id="Monitor" class="chatListMonitor">

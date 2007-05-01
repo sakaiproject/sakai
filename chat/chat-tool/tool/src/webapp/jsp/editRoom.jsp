@@ -48,6 +48,10 @@
 	            		value="#{ChatTool.currentChannelEdit.filterParamPast}" />
 	            	<h:outputLabel value="#{msgs['custom.days']}" />
 	            </h:panelGroup>
+	            <h:panelGroup>
+	            	<h:selectBooleanCheckbox id="enableUserOverride" value="#{ChatTool.currentChannelEdit.chatChannel.enableUserOverride}" />
+						<h:outputLabel for="enableUserOverride" value="#{msgs.channel_enable_override_description}" />
+	            </h:panelGroup>
 	         </h:panelGrid>
 					
 				

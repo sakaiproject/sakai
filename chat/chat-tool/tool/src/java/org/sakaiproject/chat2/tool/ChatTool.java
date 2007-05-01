@@ -93,7 +93,6 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    private static final String IFRAME_ROOM_USERS = "Presence";
    
    /* various pages that we can go to within the tool */
-   //private static final String PAGE_SELECT_A_ROOM = "selectRoom";
    private static final String PAGE_EDIT_A_ROOM = "editRoom";
    private static final String PAGE_LIST_ROOMS = "listRooms";
    private static final String PAGE_ENTER_ROOM = "room";
@@ -107,8 +106,10 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    private static final String PERMISSION_ERROR = "perm_error";
    private static final String PRESENCE_PREPEND = "chat_room_";
    
-   private static final int DISPLAY_ALL_MESSAGES = -1;
-   private static final int DISPLAY_PAST_3_DAYS_MESSAGES = 0;
+   private static final int MESSAGEOPTIONS_NULL = -99;
+   private static final int MESSAGEOPTIONS_ALL_MESSAGES = -1;
+   private static final int MESSAGEOPTIONS_MESSAGES_BY_DATE = 0;
+   private static final int MESSAGEOPTIONS_MESSAGES_BY_NUMBER = 1;
    
    private static final int DATETIME_DISPLAY_NONE = 0;
    private static final int DATETIME_DISPLAY_TIME = 1;
@@ -155,7 +156,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    private int viewOptions = DATETIME_DISPLAY_DATETIME;
    
    /** display all messages (-1), past 3 days (0) */
-   private int messageOptions = DISPLAY_PAST_3_DAYS_MESSAGES;
+   private int messageOptions = MESSAGEOPTIONS_NULL;
    
    /** The id of the session. needed for adding messages to the courier because that runs in the notification thread */
    private String sessionId = "";
@@ -543,7 +544,13 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       if (validateChannel(channel))
          try {
             getChatManager().updateChannel(channel, true);
+            
+            if (getCurrentChannel().getChatChannel().getId().equals(channel.getId())) {
+               setCurrentChannel(new DecoratedChatChannel(this, channel));
+            }
+            //setCurrentChannel(channel);
             setCurrentChannelEdit(null);
+            
          }
          catch (PermissionException e) {
             setErrorMessage(PERMISSION_ERROR, new String[] {ChatFunctions.CHAT_FUNCTION_EDIT_CHANNEL});
@@ -803,7 +810,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
     */
    public List getChatRoomsSelectItems()
    {
-      List items = new ArrayList();
+      List<SelectItem> items = new ArrayList<SelectItem>();
       
       for(Iterator i = getSiteChannels().iterator(); i.hasNext(); ) {
          ChatChannel channel = (ChatChannel)i.next();
@@ -820,7 +827,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
     */
    public List getChatChannels()
    {
-      List items = new ArrayList();
+      List<DecoratedChatChannel> items = new ArrayList<DecoratedChatChannel>();
       
       for(Iterator i = getSiteChannels().iterator(); i.hasNext(); ) {
          ChatChannel channel = (ChatChannel)i.next();
@@ -845,10 +852,27 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       viewOptions = Integer.parseInt(d);
    }
    
+   protected int initMessageOptions() {
+      
+      int result = MESSAGEOPTIONS_ALL_MESSAGES;
+      if (getCurrentChannel().getChatChannel().getFilterType().equals(ChatChannel.FILTER_ALL)) {
+         result = MESSAGEOPTIONS_ALL_MESSAGES;
+      }
+      else if (getCurrentChannel().getChatChannel().getFilterType().equals(ChatChannel.FILTER_BY_NUMBER)) {
+         result = MESSAGEOPTIONS_MESSAGES_BY_NUMBER;
+      }
+      else if (getCurrentChannel().getChatChannel().getFilterType().equals(ChatChannel.FILTER_BY_TIME)) {
+         result = MESSAGEOPTIONS_MESSAGES_BY_DATE;
+      }
+      return result;
+   }
+   
    /**
     * @return the messageOptions
     */
    public String getMessageOptions() {
+      if (messageOptions == MESSAGEOPTIONS_NULL)
+         messageOptions = initMessageOptions();
       return Integer.toString(messageOptions);
    }
 
@@ -908,6 +932,67 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       //return true;
    }
    
+   public boolean getCanRenderAllMessages() {
+      return getCanRenderMessageOptions() ||
+         getCurrentChannel().getChatChannel().getFilterType().equals(ChatChannel.FILTER_ALL);
+   }
+
+   public boolean getCanRenderDateMessages() {
+      return !getCanRenderMessageOptions() && 
+         getCurrentChannel().getChatChannel().getFilterType().equals(ChatChannel.FILTER_BY_TIME);
+   }
+   
+   public boolean getCanRenderNumberMessages() {
+      return !getCanRenderMessageOptions() && 
+         getCurrentChannel().getChatChannel().getFilterType().equals(ChatChannel.FILTER_BY_NUMBER);
+   }
+   
+   public List getMessageOptionsList() {
+      List<SelectItem> messageOptions = new ArrayList<SelectItem>();
+      String filterType = getCurrentChannel().getChatChannel().getFilterType();
+      int filterParam = getCurrentChannel().getChatChannel().getFilterParam();
+      SelectItem item = new SelectItem(getCustomOptionValue(filterType), getCustomOptionText(filterType, filterParam));
+      messageOptions.add(item);
+      
+      return messageOptions;
+   }
+   
+   /**
+    * Determins if the message option display dropdown gets rendered or not
+    * @return
+    */
+   public boolean getCanRenderMessageOptions() {
+      return getCurrentChannel().getChatChannel().isEnableUserOverride();
+   }
+   
+   protected String getCustomOptionValue(String filterType) {
+      int val = MESSAGEOPTIONS_MESSAGES_BY_DATE;
+      //String filterType = getCurrentChannel().getChatChannel().getFilterType(); 
+      if (filterType.equals(ChatChannel.FILTER_BY_TIME)) {
+         val = MESSAGEOPTIONS_MESSAGES_BY_DATE;
+      }
+      else if (filterType.equals(ChatChannel.FILTER_BY_NUMBER)) {
+         val = MESSAGEOPTIONS_MESSAGES_BY_NUMBER;
+      }
+      //val = getCurrentChannel().getChatChannel().getFilterParam();
+      return Integer.toString(val);
+   }
+   
+   protected String getCustomOptionText(String filterType, int filterParam) {
+      //int x = 3;
+      String result = getPastXDaysText(filterParam);
+      
+      //x= getCurrentChannel().getChatChannel().getFilterParam();
+      //String filterType = getCurrentChannel().getChatChannel().getFilterType(); 
+      if (filterType.equals(ChatChannel.FILTER_BY_TIME)) {
+         result = getPastXDaysText(filterParam);
+      }
+      else if (filterType.equals(ChatChannel.FILTER_BY_NUMBER)) {
+         result = getPastXMessagesText(filterParam);
+      }
+      return result;
+   }
+   
    public boolean getSoundAlert()
    {
       return true;
@@ -915,11 +1000,19 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    
    public List getRoomMessages()
    {
-      Date threeDaysOld = null;
-      if (Integer.parseInt(getMessageOptions()) == DISPLAY_PAST_3_DAYS_MESSAGES) {
-         threeDaysOld = getChatManager().calculateDateByOffset(3);
+      Date xDaysOld = null;
+      int maxMessages = 0;
+      int x = getCurrentChannel().getChatChannel().getFilterParam();
+      if (Integer.parseInt(getMessageOptions()) == MESSAGEOPTIONS_MESSAGES_BY_DATE) {
+         xDaysOld = getChatManager().calculateDateByOffset(x);
       }
-      return getMessages(getContext(), threeDaysOld, 0, true);
+      else if (Integer.parseInt(getMessageOptions()) == MESSAGEOPTIONS_MESSAGES_BY_NUMBER) {
+         maxMessages = x;
+      }
+      else if (Integer.parseInt(getMessageOptions()) == MESSAGEOPTIONS_ALL_MESSAGES) {
+         maxMessages = -999;
+      }
+      return getMessages(getContext(), xDaysOld, maxMessages, true);
    }
    
    public List getSynopticMessages()
@@ -929,12 +1022,20 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       return getMessages(getContext(), date, dso.getItems(), false);
    }
    
+   /**
+    * 
+    * @param context
+    * @param limitDate
+    * @param numMessages
+    * @param sortAsc
+    * @return
+    */
    protected List getMessages(String context, Date limitDate, int numMessages, boolean sortAsc)
    {
       List messages = new ArrayList();
       try {
          ChatChannel channel = (currentChannel==null) ? null : currentChannel.getChatChannel();
-         messages = getChatManager().getChannelMessages(channel, context, limitDate, numMessages, sortAsc);         
+         messages = getChatManager().getChannelMessages(channel, context, limitDate, numMessages, sortAsc);
       }
       catch (PermissionException e) {
          setErrorMessage(PERMISSION_ERROR, new String[] {ChatFunctions.CHAT_FUNCTION_READ});
@@ -994,13 +1095,12 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       return sender.getDisplayName();
    }
 
-   
-   public String getPast3DaysText() {
-      return getPastXDaysText(3);
-   }
-   
    protected String getPastXDaysText(int x) {
       return getMessageFromBundle("past_x_days", new Object[]{x});
+   }
+   
+   protected String getPastXMessagesText(int x) {
+      return getMessageFromBundle("past_x_messages", new Object[]{x});
    }
    
    public String getViewingChatRoomText() {
@@ -1070,7 +1170,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    
    private ResourceLoader toolBundle;
 
-   public Object createSelect(Object id, String description) {
+   public SelectItem createSelect(Object id, String description) {
       SelectItem item = new SelectItem(id, description);
       return item;
    }

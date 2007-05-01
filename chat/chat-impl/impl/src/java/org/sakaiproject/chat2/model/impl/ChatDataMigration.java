@@ -218,7 +218,7 @@ public class ChatDataMigration {
                   
                   //TODO Chat lookup the config params?
                   String outputSql = getMessageFromBundle("insert.channel", new Object[]{
-                        newChannelId, context, null, title, "", "SelectMessagesByTime", 3, 0, oldId});
+                        newChannelId, context, null, title, "", "SelectMessagesByTime", 3, 0, oldId, 1});
                   /* 
                    * CHANNEL_ID, 
                    * CONTEXT, 
@@ -228,7 +228,8 @@ public class ChatDataMigration {
                    * filterType, 
                    * filterParam, 
                    * contextDefaultChannel, 
-                   * migratedChannelId
+                   * migratedChannelId,
+                   * ENABLE_USER_OVERRIDE
                    */
                   
                   output.println(outputSql + ";");

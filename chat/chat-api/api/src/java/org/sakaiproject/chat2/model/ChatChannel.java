@@ -48,10 +48,21 @@ public class ChatChannel implements Entity {
    private String filterType = FILTER_BY_TIME;
    private int filterParam = 3;
    private boolean contextDefaultChannel = false;
+   private boolean enableUserOverride = true;
    private Set messages = new HashSet();
    
    
    public ChatChannel() {
+   }
+
+   /**
+    * Set up a new ChatChannel with the set defaults
+    * @param defaults
+    */
+   public ChatChannel(ChatChannel defaults) {
+      this.filterType = defaults.getFilterType();
+      this.filterParam = defaults.getFilterParam();
+      this.enableUserOverride = defaults.isEnableUserOverride();
    }
    
    public String getContext() {
@@ -107,8 +118,17 @@ public class ChatChannel implements Entity {
    }
    public void setContextDefaultChannel(boolean contextDefaultChannel) {
       this.contextDefaultChannel = contextDefaultChannel;
+   }   
+   public boolean isEnableUserOverride() {
+      return enableUserOverride;
    }
-   
+   public void setEnableUserOverride(boolean enableUserOverride) {
+      this.enableUserOverride = enableUserOverride;
+   }
+   public void setEnabledUserOverride(String enableUserOverride) {
+      new Boolean(enableUserOverride).booleanValue();
+   }
+
    /**
     * Serialize the resource into XML, adding an element to the doc under the top of the stack element.
     * 

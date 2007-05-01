@@ -95,6 +95,8 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
    
    private EntityManager entityManager;
    
+   private ChatChannel defaultChannelSettings;
+   
    
    static Comparator channelComparatorAsc = new Comparator() {
       public int compare(Object o1, Object o2) {
@@ -156,7 +158,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
       if (checkAuthz)
          checkPermission(ChatFunctions.CHAT_FUNCTION_NEW_CHANNEL);
       
-      ChatChannel channel = new ChatChannel();
+      ChatChannel channel = new ChatChannel(getDefaultChannelSettings());
       
       channel.setCreationDate(new Date());
       channel.setContext(context);
@@ -244,13 +246,16 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
       // Find out which values to use.
       // If the settings of the channel have more strict values then the passed info, use them instead.
       if (channel.getFilterType().equals(ChatChannel.FILTER_BY_NUMBER)) {
-         if (localItems == 0) localItems = Integer.MAX_VALUE;
-         localItems = Math.min(localItems, channel.getFilterParam());
+         if (localItems < 0) localItems = Integer.MAX_VALUE;
+         if (!channel.isEnableUserOverride()) {
+            localItems = Math.min(localItems, channel.getFilterParam());
+         }
       }
       else if (channel.getFilterType().equals(ChatChannel.FILTER_BY_TIME)) {
          int days = channel.getFilterParam();
          Date tmpDate = calculateDateByOffset(days);
-         long minDate = (localDate == null) ? tmpDate.getTime() : Math.min(localDate.getTime(), tmpDate.getTime());
+         long tmpLong = (channel.isEnableUserOverride()) ? localDate.getTime() : Math.min(localDate.getTime(), tmpDate.getTime());
+         long minDate = (localDate == null) ? tmpDate.getTime() : tmpLong;
          localDate = new Date(minDate);
       }
       
@@ -265,11 +270,12 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
       // reorder after we get the final list
       c.addOrder(Order.desc("messageDate"));
       
-      if (localItems > 0)
+      List messages = new ArrayList();
+      
+      if (localItems > 0) {
          c.setMaxResults(localItems);
-      
-      List messages = c.list();
-      
+         messages = c.list();
+      }
       //Reorder the list
       if (sortAsc)
          Collections.sort(messages, channelComparatorAsc);
@@ -892,6 +898,14 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
    
    public String serviceName() {
       return ChatManager.class.getName();
+   }
+
+   public ChatChannel getDefaultChannelSettings() {
+      return defaultChannelSettings;
+   }
+
+   public void setDefaultChannelSettings(ChatChannel defaultChannelSettings) {
+      this.defaultChannelSettings = defaultChannelSettings;
    }
 
 }

@@ -44,6 +44,21 @@
     	<property name="entityManager">
     		<ref bean="org.sakaiproject.entity.api.EntityManager" />
     	</property>
+    	<property name="defaultChannelSettings">
+    		<ref bean="defaultChatChannelSettings" />
+    	</property>
+    </bean>
+    
+    <bean id="defaultChatChannelSettings" 
+    		class="org.sakaiproject.chat2.model.ChatChannel"
+    		singleton="true">
+    	<property name="filterType">
+    		<bean id="org.sakaiproject.chat2.model.ChatChannel.FILTER_BY_TIME"
+               class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+         </bean>
+      </property>
+    	<property name="filterParam"><value>3</value></property>
+    	<property name="enableUserOverride"><value>true</value></property>
     </bean>
     
    
