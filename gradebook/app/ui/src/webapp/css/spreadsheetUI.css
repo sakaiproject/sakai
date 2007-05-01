@@ -47,9 +47,9 @@ div#q2 {
    display:block;
    *display:inline;
    left: 0;
+   overflow: hidden;
    position: relative;
    width: 100%;
-   overflow: hidden;
 }
 
    div#q2 div {
@@ -80,8 +80,8 @@ div#q4 {
    display:block;
    *display: inline;
    left: 0;
+   overflow: hidden;
    position: relative;
-   width:100%;
 }
  
    div#q4 div{
