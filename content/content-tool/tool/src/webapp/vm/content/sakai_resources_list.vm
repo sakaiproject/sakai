@@ -14,7 +14,9 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 <![endif]><![endif]-->
 <!--[if gt IE 6.0]>
 <style type="text/css">
-ul.makeMenu ul{top: 15px !important}
+	 ul.makeMenu ul{top: 10px !important}
+	 ul.makeMenu {border:none }
+	 ul.makeMenu:hover {border:none }
 </style>
 <![endif]-->
 
@@ -334,7 +336,7 @@ ul.makeMenu ul{top: 15px !important}
 									<ul class="">
 										#foreach($action in $item.addActions)
 											<li>
-												<a href="#" onclick="document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a>
+												<a  href="javascript:document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a>
 											</li>
 										#end
 									</ul>
@@ -351,7 +353,7 @@ ul.makeMenu ul{top: 15px !important}
 									<ul class="">
 										#foreach($action in $item.otherActions)
 											<li>
-												<a href="#" onclick="document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
+												<a  href="javascript:document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
 													$labeler.getLabel($action)
 												</a>
 											</li>
@@ -583,7 +585,7 @@ ul.makeMenu ul{top: 15px !important}
 											<ul class="">
 												#foreach($action in $item.addActions)
 													<li>
-														<a href="#" onclick="document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a>
+														<a  href="javascript:document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a>
 													</li>
 												#end
 											</ul>
@@ -600,7 +602,7 @@ ul.makeMenu ul{top: 15px !important}
 											<ul class="">
 												#foreach($action in $item.otherActions)
 													<li>
-														<a href="#" onclick="document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
+														<a  href="javascript:document.getElementById('selectedItemId').value='$item.id';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
 															$labeler.getLabel($action)
 														</a>
 													</li>
