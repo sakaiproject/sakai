@@ -1051,6 +1051,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		// back to search results button control
 		context.put("searchResults", state.getAttribute(STATE_SEARCH_RESULTS) );
 		
+		// constant schema identifier
+		context.put( "titleProperty", Schema.TITLE );
+		
 		/*
 		 * Object arrays for formatted messages
 		 */

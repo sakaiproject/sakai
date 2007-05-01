@@ -308,7 +308,7 @@ public class CitationListAccessServlet implements HttpAccess
     			out.println("\t\t\t</td>");
     			
     			out.println("\t\t<td headers=\"details\">");
-    			out.println("\t\t\t<a href=\"" + citation.getOpenurl() + "\" target=\"_blank\">" + Validator.escapeHtml( citation.getDisplayName() ) + "</a><br />");
+    			out.println("\t\t\t<a href=\"" + citation.getOpenurl() + "\" target=\"_blank\">" + Validator.escapeHtml( (String)citation.getCitationProperty( Schema.TITLE ) ) + "</a><br />");
     			out.println("\t\t\t\t" + Validator.escapeHtml( citation.getCreator() ) );
     			out.println("\t\t\t\t" + Validator.escapeHtml( citation.getSource() ) );
     			out.println("\t\t\t<div class=\"itemAction\">");

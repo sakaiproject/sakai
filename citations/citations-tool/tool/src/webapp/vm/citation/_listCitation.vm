@@ -4,7 +4,7 @@
 		  value="$!{citation.id}" onclick="highlightCheckedSelections();" /> 
 	</td>
 	<td headers="details">
-		<a href="$citation.openurl" target="_blank">$xilator.escapeHtml( $citation.displayName )</a>
+		<a href="$citation.openurl" target="_blank">$xilator.escapeHtml( $citation.getCitationProperty( $titleProperty ) )</a>
 		<br />
 		$!{xilator.escapeHtml( $!{citation.creator} )}
 		$!{xilator.escapeHtml( $!{citation.source} )}
