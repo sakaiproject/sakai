@@ -14,7 +14,7 @@
 		<div class="indnt1">
 
 <!-- Grade Display -->
-		<h4><h:outputText value="#{msgs.feedback_options_grade_display}"/></h4>
+		<!-- <h4><h:outputText value="#{msgs.feedback_options_grade_display}"/></h4>
 		<h:panelGrid columns="2" columnClasses="prefixedCheckbox">
 			<h:selectBooleanCheckbox id="displayAssignmentGrades" value="#{feedbackOptionsBean.localGradebook.assignmentsDisplayed}"
 				onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
@@ -23,7 +23,7 @@
 			<h:selectBooleanCheckbox id="displayCourseGrades" value="#{feedbackOptionsBean.localGradebook.courseGradeDisplayed}"
 				onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
 			<h:outputLabel for="displayCourseGrades" value="#{msgs.feedback_options_grade_display_course_grades}" />
-		</h:panelGrid>
+		</h:panelGrid>  moved to gb setup page-->
 
 <!-- Grade Conversion -->
 		<h4><h:outputText value="#{msgs.feedback_options_grade_conversion}"/></h4>
