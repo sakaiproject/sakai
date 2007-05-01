@@ -230,6 +230,7 @@ CREATE TABLE CHAT2_CHANNEL (
     filterType           	varchar(25) NULL,
     filterParam          	int(11) NULL,
     contextDefaultChannel	tinyint(1) NULL,
+    ENABLE_USER_OVERRIDE	tinyint(1) NULL,
     PRIMARY KEY(CHANNEL_ID)
 );
 
