@@ -12,6 +12,10 @@ alter table GB_GRADABLE_OBJECT_T add constraint FK759996A7F09DEFAE foreign key (
 
 create sequence GB_CATEGORY_S;
 
+create index GB_CATEGORY_GB_IDX on GB_CATEGORY_T (GRADEBOOK_ID);
+
+create index GB_GRADABLE_OBJ_CT_IDX on GB_GRADABLE_OBJECT_T (CATEGORY_ID);
+
 update GB_GRADEBOOK_T set GRADE_TYPE = 1, CATEGORY_TYPE = 1;
 
 alter table GB_GRADEBOOK_T modify ( GRADE_TYPE number(10,0) not null, CATEGORY_TYPE number(10,0) not null );

@@ -25,4 +25,11 @@
 		
 		<property name="removed" column="REMOVED" type="boolean" />
   </class>
+  
+ 	<database-object>
+		<create>create index GB_CATEGORY_GB_IDX on GB_CATEGORY_T (GRADEBOOK_ID)</create>
+		<drop></drop>
+		<dialect-scope name="org.hibernate.dialect.Oracle9Dialect"/>
+		<dialect-scope name="org.hibernate.dialect.OracleDialect"/>
+	</database-object>
 </hibernate-mapping>

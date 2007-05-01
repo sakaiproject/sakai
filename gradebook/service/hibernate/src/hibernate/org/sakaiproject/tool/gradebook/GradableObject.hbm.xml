@@ -51,4 +51,8 @@
 		<!-- <drop>drop index GB_GRADABLE_OBJECT_T.GB_GRADABLE_OBJ_ASN_IDX</drop> -->
 		<drop></drop>
 	</database-object>
+	<database-object>
+		<create>create index GB_GRADABLE_OBJ_CT_IDX on GB_GRADABLE_OBJECT_T (CATEGORY_ID)</create>
+		<drop></drop>
+	</database-object>
 </hibernate-mapping>
