@@ -256,6 +256,8 @@ public class BaseSearchManager implements SearchManager
         		page = 0;
         	}
 
+          	int oldStart = this.start;
+          	int oldEnd   = this.end;
         	this.start = page * m_viewPageSize;
          	this.end = start + m_viewPageSize;
         	if(start > this.m_pageOrder.size() + 1)
@@ -266,15 +268,7 @@ public class BaseSearchManager implements SearchManager
         	{
         		if(this.m_pageOrder.isEmpty())
         		{
-	        		try
-	                {
-		                doSearch(this);
-	                }
-	                catch (SearchException e)
-	                {
-	                	m_log.debug("viewPage doSearch() " + e.getMessage());
-	                	return null;
-	                }
+        			doSearch(this);
         		}
         		else if(end > this.m_pageOrder.size())
         		{
@@ -284,9 +278,10 @@ public class BaseSearchManager implements SearchManager
 	                }
 	                catch (SearchException e)
 	                {
-	                	m_log.warn("viewPage doNextPage() " + e.getMessage());
-	                	// need to get the message from the exception and return it to tool.
+        				this.start = oldStart;
+        				this.end   = oldEnd;
 	                	setStatusMessage(m_repository);
+	                	throw new SearchException(e.getMessage());
 	                }
         		}
         	}

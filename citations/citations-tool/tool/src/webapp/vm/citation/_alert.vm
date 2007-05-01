@@ -1,6 +1,6 @@
 <br />
 <div class="alertMessage">
   $tlang.getString("gen.alert")
-  $validator.escapeHtml($alertMessage)
+  $xilator.escapeHtml($alertMessages)
 </div>
 <div class="clear"></div>

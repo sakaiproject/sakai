@@ -268,7 +268,10 @@ public class CitationListAccessServlet implements HttpAccess
     		
     		out.println("<div class=\"portletBody\">\n\t<div class=\"indnt1\">");
     		out.println("\t<h3>" + rb.getString("list.title") + ": " + title + "</h3>");
-    		out.println("\t<p>" + description + "</p>");
+    		if( description != null && !description.trim().equals("") )
+    		{
+    			out.println("\t<p>" + description + "</p>");
+    		}
     		if( citations.size() > 0 )
     		{
     			out.println("\t<p class=\"instruction\">" + rb.getString("cite.subtitle") + "</p>");

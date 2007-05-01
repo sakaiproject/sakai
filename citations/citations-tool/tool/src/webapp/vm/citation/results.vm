@@ -7,13 +7,17 @@
 
 <div class="portletBody">
   <div class="indnt1">
-  
+    #if($alertMessages)
+      #parse( "vm/citation/_alert.vm" )
+    #end
     <h3 id="advancedSearchHeader" #if( $basicSearch ) style="display: none;" #end>$tlang.getString("title.adv.search")</h3>
     <h3 id="basicSearchHeader" #if( !$basicSearch ) style="display: none;" #end>$tlang.getString("title.basic.search")</h3>
 
 	#parse( "vm/citation/_details.vm" )
 		
-    <p class="instruction">$tlang.getFormattedMessage("instr.results.main", $instrMainArgs)</p>
+    #if( ! $noResults )
+      <p class="instruction">$tlang.getFormattedMessage("instr.results.main", $instrMainArgs)</p>
+    #end
     <p class="instruction">$tlang.getFormattedMessage("instr.results.sub", $instrSubArgs)</p>
 
     <form name="$FORM_NAME" id="$FORM_NAME" method="post"
@@ -22,7 +26,7 @@
       <input name="searchType" id="searchType" value="$searchType" type="hidden" />
       <input name="pageSelector" id="pageSelector" value="" type="hidden" />
       <input name="cancelOp" id="cancelOp" value="$FORM_NAME" type="hidden" />
-       
+
       #foreach( $databaseId in $selectedDatabases )
         <input type="checkbox" name="databasesSelected" checked="checked"
           id="$databaseId" value="$databaseId" style="display: none;"
@@ -37,11 +41,9 @@
         <h3>$tlang.getString("no.terms.search")</h3>
       #elseif( $noDatabases )
         <h3>$tlang.getString("no.databases.search")</h3>
-      #elseif($searchResults && $searchResults.searchResults && $searchResults.searchResults.citations)
-        #if($alertMessages)
-          #parse( "vm/citation/_alert.vm" )
-        #end
-        
+      #elseif( $noResults )
+        <h3>$tlang.getString("no.results")</h3>
+      #elseif($searchResults && $searchResults.searchResults && $searchResults.searchResults.citations)        
         #if($searchResults.searchResults.citations.isEmpty())
           <h3>$tlang.getString("no.results")</h3>
         #else

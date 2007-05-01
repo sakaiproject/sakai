@@ -510,6 +510,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	protected static final String STATE_LIST_NO_SCROLL = CitationHelper.CITATION_PREFIX + "list_no_scroll";
 	protected static final String STATE_NO_KEYWORDS = CitationHelper.CITATION_PREFIX + "no_search_criteria";
 	protected static final String STATE_NO_DATABASES = CitationHelper.CITATION_PREFIX + "no_databases";
+	protected static final String STATE_NO_RESULTS = CitationHelper.CITATION_PREFIX + "no_results";
 	protected static final String STATE_SEARCH_HIERARCHY = CitationHelper.CITATION_PREFIX + "search_hierarchy";
 	protected static final String STATE_SELECTED_CATEGORY = CitationHelper.CITATION_PREFIX + "selected_category";
 	protected static final String STATE_DEFAULT_CATEGORY = CitationHelper.CITATION_PREFIX + "default_category";
@@ -1044,7 +1045,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			Integer[] position = { new Integer(start) , new Integer(end), new Integer(totalSize)};
 			String showing = (String) rb.getFormattedMessage("showing.results", position);
 			context.put("showing", showing);
-
 		}
 		state.setAttribute(STATE_LIST_ITERATOR, newIterator);
 		
@@ -1220,30 +1220,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		{
 			context.put( "searchType", ActiveSearch.ADVANCED_SEARCH_TYPE );
 		}
-		
-		/*
-		 * ERROR CHECKING
-		 */
-		String alertMessages = (String) state.removeAttribute(STATE_MESSAGE);
-		if(alertMessages != null)
-		{
-			context.put("alertMessages", alertMessages);
-			return TEMPLATE_RESULTS;
-		}
-		
-		Object noSearch = state.removeAttribute(STATE_NO_KEYWORDS);
-		if(noSearch != null)
-		{
-			context.put("noSearch", noSearch);
-			return TEMPLATE_RESULTS;
-		}
-		
-		Object noDatabases = state.removeAttribute( STATE_NO_DATABASES );
-		if( noDatabases != null )
-		{
-			context.put( "noDatabases", noDatabases );
-			return TEMPLATE_RESULTS;
-		}
 
 		/*
 		 * SEARCH RESULTS
@@ -1286,6 +1262,33 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		
 		Object[] instrSubArgs = { rb.getString( "label.new.search" ) };
 		context.put( "instrSubArgs", instrSubArgs );
+		
+		/*
+		 * ERROR CHECKING
+		 */
+		String alertMessages = (String) state.removeAttribute(STATE_MESSAGE);
+		if(alertMessages != null)
+		{
+			context.put("alertMessages", alertMessages);
+		}
+
+		Object noResults = state.removeAttribute( STATE_NO_RESULTS );
+		if( noResults != null )
+		{
+			context.put( "noResults", noResults );
+		}
+		
+		Object noSearch = state.removeAttribute(STATE_NO_KEYWORDS);
+		if(noSearch != null)
+		{
+			context.put("noSearch", noSearch);
+		}
+		
+		Object noDatabases = state.removeAttribute( STATE_NO_DATABASES );
+		if( noDatabases != null )
+		{
+			context.put( "noDatabases", noDatabases );
+		}
 
     	return TEMPLATE_RESULTS;
     	
@@ -2559,7 +2562,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	        {
 	        	// the search has been canceled - determine which page should
 	        	// be reloaded
-	    		// check for a cancel
 	    		String cancel = params.getString( "cancelOp" );
 	        	if( cancel != null && !cancel.trim().equals("") )
 	        	{
@@ -2577,6 +2579,9 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	    catch(Exception e)
 	    {
 	    	logger.warn("doBeginSearch() caught Exception", e);
+	    	state.setAttribute( STATE_NO_RESULTS, Boolean.TRUE );
+			setMode(state, Mode.RESULTS);
+			return;
 	    }
 	    
 	    ActiveSearch newSearch = SearchManager.newSearch();
@@ -2857,13 +2862,13 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
         }
         catch (SearchException e)
         {
-        	logger.warn("doNextPage", e);
-        	addAlert(state, e.getMessage());
-    		// state.setAttribute (CitationHelper.STATE_HELPER_MODE, Mode.ERROR);
+        	logger.warn("doNextSearchPage: " + e.getMessage());
+        	addAlert(state, rb.getString( "error.search" ) );
+			setMode(state, Mode.RESULTS);
         }
         catch(Exception e)
         {
-        	logger.warn("doNextPage", e);
+        	logger.warn("doNextSearchPage: " + e.getMessage());
         }
         
  	}	// doSearch
@@ -2898,13 +2903,13 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
         }
         catch (SearchException e)
         {
-        	logger.warn("doNextPage", e);
-        	addAlert(state, e.getMessage());
-    		//state.setAttribute (CitationHelper.STATE_HELPER_MODE, Mode.ERROR);
+        	logger.warn("doPrevSearchPage: " + e.getMessage());
+        	addAlert(state, rb.getString( "error.search" ) );
+			setMode(state, Mode.RESULTS);
         }
         catch(Exception e)
         {
-        	logger.warn("doNextPage", e);
+        	logger.warn("doPrevSearchPage: " + e.getMessage());
         }
                 
  	}	// doSearch
@@ -2939,13 +2944,13 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
         }
         catch (SearchException e)
         {
-        	logger.warn("doNextPage", e);
-        	addAlert(state, e.getMessage());
-    		//state.setAttribute (CitationHelper.STATE_HELPER_MODE, Mode.ERROR);
+        	logger.warn("doFirstSearchPage: " + e.getMessage());
+        	addAlert(state, rb.getString( "error.search" ) );
+			setMode(state, Mode.RESULTS);
         }
         catch(Exception e)
         {
-        	logger.warn("doNextPage", e);
+        	logger.warn("doFirstSearchPage: " + e.getMessage());
         }
                 
  	}	// doSearch
@@ -3009,16 +3014,16 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
         }
         catch (SearchException e)
         {
-        	logger.warn("doNextPage", e);
-        	addAlert(state, e.getMessage());
-    		//state.setAttribute (CitationHelper.STATE_HELPER_MODE, Mode.ERROR);
+        	logger.warn("doChangeSearchPageSize: " + e.getMessage());
+        	addAlert(state, rb.getString( "error.search" ) );
+			setMode(state, Mode.RESULTS);
         }
         catch(Exception e)
         {
-        	logger.warn("doNextPage", e);
+        	logger.warn("doChangeSearchPageSize: " + e.getMessage());
         }
                 
- 	}	// doSearch
+ 	}	// doChangeSearchPageSize
 
 	/**
 	* 
