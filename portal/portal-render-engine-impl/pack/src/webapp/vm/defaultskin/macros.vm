@@ -346,6 +346,7 @@ ${responseHead}
 ##		rcontext.put("pageNavPresenceUrk",presenceUrl);
 ##		
 #macro( includePageNav   )
+#if (  $pageNavToolsCount > 1 || ! $pageMaxIfSingle ) 
 <!-- start includePageNav -->
 	<div class="divColor" id="toolMenuWrap">
 		<div id="worksiteLogo">
@@ -406,6 +407,9 @@ ${responseHead}
 	<h1 class="skip">${rloader.sit_contentshead}</h1>
 	<a id="tocontent" class="skip" name="tocontent"></a>
 <!-- end includePageNav -->
+#else
+<!-- Page Navigation Suppressed because only one tool is active -->
+#end
 #end		
 ##------------------------------------------------------------------------------------------
 ##
@@ -417,7 +421,13 @@ ${responseHead}
 ##------------------------------------------------------------------------------------------
 #macro( includePageBody ) 	
 <!-- start includePageBody -->		
+#if ( $pageMaxIfSingle )
+#if ( $pageNavToolsCount > 1 ) 
 	<div id="$pageWrapperClass">
+#end
+#else
+	<div id="$pageWrapperClass">
+#end
 		<div id="$pageColumnLayout">
 #foreach ( $tool in $pageColumn0Tools ) 
 #if ( $tool ) 
@@ -437,7 +447,13 @@ ${responseHead}
 	</div>
 	<div>
 #includeBottom()
+#if ( $pageMaxIfSingle )
+#if ( $pageNavToolsCount > 1 ) 
 	</div>
+#end
+#else
+	</div>
+#end
 <!-- end includePageBody -->
 #end
 ##------------------------------------------------------------------------------------------

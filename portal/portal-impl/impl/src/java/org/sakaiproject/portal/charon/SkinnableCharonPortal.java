@@ -1491,6 +1491,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			SitePage p = (SitePage) i.next();
 			// check if current user has permission to see page
 			// we will draw page button if it have permission to see at least
+			// one tool on the page
 			List pTools = p.getTools();
 			String toolsOnPage = null;
 
@@ -1538,6 +1539,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		}
 		theMap.put("pageNavTools", l);
+		theMap.put("pageMaxIfSingle",ServerConfigurationService.getBoolean("portal.experimental.maximizesinglepage", false));
+		theMap.put("pageNavToolsCount", Integer.valueOf(l.size()));
 
 		String helpUrl = ServerConfigurationService.getHelpUrl(null);
 		theMap.put("pageNavShowHelp", Boolean.valueOf(showHelp));

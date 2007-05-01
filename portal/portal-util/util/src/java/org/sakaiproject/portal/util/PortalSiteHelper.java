@@ -598,4 +598,36 @@ public class PortalSiteHelper
 		}
 		return newPages;
 	}
+
+	/*
+	 * Make sure that we have a proper page selected in the site
+	 * pageid is generally the last page used in the site.
+	 * pageId must be in the site and the user must have 
+	 * permission for the page as well.
+         */
+
+	public SitePage lookupSitePage(String pageId, Site site)
+	{
+		// Make sure we have some permitted pages
+                List pages = getPermittedPagesInOrder(site);
+		if (pages.isEmpty() ) return null;
+                SitePage page = site.getPage(pageId);
+		if ( page == null ) 
+		{
+			page = (SitePage) pages.get(0);
+			return page;
+		}
+
+		// Make sure that they user has permission for the page.
+		// If the page is not in the permitted list go to the first
+		// page.
+		boolean found = false;
+  		for (Iterator i = pages.iterator(); i.hasNext();)
+                {
+                        SitePage p = (SitePage) i.next();
+			if (p.getId().equals(page.getId()) ) return page;
+		}
+
+		return (SitePage) pages.get(0);
+	}
 }

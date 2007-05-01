@@ -136,17 +136,9 @@ public class WorksiteHandler extends PageHandler
 			return;
 		}
 
-		// find the page, or use the first page if pageId not found
-		SitePage page = site.getPage(pageId);
-		if (page == null)
-		{
-			// List pages = site.getOrderedPages();
-			List pages = siteHelper.getPermittedPagesInOrder(site);
-			if (!pages.isEmpty())
-			{
-				page = (SitePage) pages.get(0);
-			}
-		}
+		// Lookup the page in the site - enforcing access control
+		// business rules
+		SitePage page = siteHelper.lookupSitePage(pageId, site);
 		if (page == null)
 		{
 			portal.doError(req, res, session, Portal.ERROR_WORKSITE);
@@ -305,6 +297,8 @@ public class WorksiteHandler extends PageHandler
 
 			}
 			rcontext.put("pageNavTools", l);
+			rcontext.put("pageMaxIfSingle",ServerConfigurationService.getBoolean("portal.experimental.maximizesinglepage", false));
+			rcontext.put("pageNavToolsCount", Integer.valueOf(l.size()));
 
 			String helpUrl = ServerConfigurationService.getHelpUrl(null);
 			rcontext.put("pageNavShowHelp", Boolean.valueOf(showHelp));
