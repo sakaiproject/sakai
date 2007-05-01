@@ -28,8 +28,12 @@
 		            <t:commandSortHeader columnName="studentSortName" immediate="true" arrow="true" actionListener="#{rosterBean.sort}">
 		                <h:outputText value="#{msgs.roster_student_name}"/>
 		            </t:commandSortHeader>
-		        </f:facet>
-				<h:outputText value="#{row.sortName}"/>
+		    </f:facet>
+				<h:commandLink action="instructorView">
+					<h:outputText value="#{row.sortName}"/>
+					<f:param name="studentUid" value="#{row.studentUid}"/>
+					<f:param name="returnToPage" value="roster" />
+				</h:commandLink>
 			</h:column>
 			<h:column id="studentIdData">
 				<f:facet name="header">

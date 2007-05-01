@@ -93,6 +93,14 @@
 			org.sakaiproject.tool.gradebook.jsf.ClassAvgConverter
 		</converter-class>
 	</converter>
+	<converter>
+		<converter-id>
+			org.sakaiproject.gradebook.jsf.converter.SCORE_CONVERTER
+		</converter-id>
+		<converter-class>
+			org.sakaiproject.tool.gradebook.jsf.ScoreConverter
+		</converter-class>
+	</converter>
 
 	<validator>
 		<validator-id>

@@ -88,6 +88,29 @@
 			<value>studentView</value>
 		</managed-property>
 	</managed-bean>
+	
+	<managed-bean>
+		<description>Instructor's view of student's grades</description>
+		<managed-bean-name>instructorViewBean</managed-bean-name>
+		<managed-bean-class>org.sakaiproject.tool.gradebook.ui.InstructorViewBean</managed-bean-class>
+		<managed-bean-scope>request</managed-bean-scope>
+		<managed-property>
+			<property-name>pageName</property-name>
+			<value>instructorView</value>
+		</managed-property>
+		<managed-property>
+			<property-name>studentUid</property-name>
+			<value>#{param.studentUid}</value>
+		</managed-property>
+		<managed-property>
+			<property-name>returnToPage</property-name>
+			<value>#{param.returnToPage}</value>
+		</managed-property>
+		<managed-property>
+			<property-name>assignmentId</property-name>
+			<value>#{param.assignmentId}</value>
+		</managed-property>
+	</managed-bean>
 
 	<managed-bean>
 		<managed-bean-name>assignmentDetailsBean</managed-bean-name>

@@ -36,69 +36,28 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 
 /**
  * This formatting-only converver consolidates the rather complex formatting
- * logic for the display of class avg. If the avg is null,
- * it should be displayed in a special way. If the avg belongs to an
- * assignment which doesn't count toward the final grade, it should be
- * displayed in a special way with a tooltip "title" attribute. The display
- * also changes based upon the grade entry method.
+ * logic for the display of a student's score. The display
+ * changes based upon the grade entry method.
  */
-public class ClassAvgConverter extends PointsConverter {
-	private static final Log log = LogFactory.getLog(ClassAvgConverter.class);
+public class ScoreConverter extends PointsConverter {
+	private static final Log log = LogFactory.getLog(ScoreConverter.class);
 
 	public String getAsString(FacesContext context, UIComponent component, Object value) {
 		if (log.isDebugEnabled()) log.debug("getAsString(" + context + ", " + component + ", " + value + ")");
 
-		String formattedAvg;
 		String formattedPtsPossible;
-		boolean notCounted = false;
+		String formattedScore;
 		boolean isPoints = false;
 		boolean isPercent = false;
-		Object avg = null;
+		Object score = null;
 		Object pointsPossible = null;
 		Gradebook gradebook;
 
 		if (value != null) {
-			if (value instanceof Assignment) {
-				Assignment assignment = (Assignment)value;
-				gradebook = assignment.getGradebook();
-				pointsPossible = assignment.getPointsPossible();
-
-				if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS) {
-					isPoints = true;
-					avg = assignment.getAverageTotal();
-				} else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
-					isPercent = true;
-					avg = assignment.getMean();
-				}
-				notCounted = assignment.isNotCounted();
-				
-			} else if (value instanceof Category) {
-				Category category = (Category) value;
-				gradebook = category.getGradebook();
-				pointsPossible = category.getAverageTotalPoints();
-				
-				// Unassigned category won't have avg
-				if (category.getId() == null) {
-					return FacesUtil.getLocalizedString("overview_unassigned_cat_avg");
-				}
-				else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS) {
-					isPoints = true;
-					avg = category.getAverageScore();
-				} else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
-					isPercent = true;
-					avg = category.getMean();
-				}
-		
-			} else if (value instanceof CourseGrade) {
-				// course grade is always displayed as %
-				isPercent = true;
-				CourseGrade courseGrade = (CourseGrade) value;
-				avg = courseGrade.getMean();	
-				
-			} else if (value instanceof AssignmentGradeRow) {
+			if (value instanceof AssignmentGradeRow) {
 				AssignmentGradeRow gradeRow = (AssignmentGradeRow) value;
 				gradebook = gradeRow.getGradebook();
-				avg = gradeRow.getScore();
+				score = gradeRow.getScore();
 				if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS) {
 					isPoints = true;
 					pointsPossible = gradeRow.getAssociatedAssignment().getPointsPossible();
@@ -108,22 +67,17 @@ public class ClassAvgConverter extends PointsConverter {
 			}
 		}
 		
-		formattedAvg = getFormattedValue(context, component, avg);
+		formattedScore = getFormattedValue(context, component, score);
 		formattedPtsPossible = getFormattedValue(context, component, pointsPossible);
 		
-		if (avg != null) {
+		if (score != null) {
 			if (isPoints) {
-				formattedAvg = FacesUtil.getLocalizedString("overview_avg_display_points", new String[] {formattedAvg, formattedPtsPossible} );
+				formattedScore = FacesUtil.getLocalizedString("overview_avg_display_points", new String[] {formattedScore, formattedPtsPossible} );
 			} else if (isPercent) {
-				formattedAvg = FacesUtil.getLocalizedString("overview_avg_display_percent", new String[] {formattedAvg} );
-			}
-
-			if (notCounted) {
-				formattedAvg = FacesUtil.getLocalizedString("score_not_counted",
-						new String[] {formattedAvg, FacesUtil.getLocalizedString("score_not_counted_tooltip")});
+				formattedScore = FacesUtil.getLocalizedString("overview_avg_display_percent", new String[] {formattedScore} );
 			}
 		}
-		return formattedAvg;
+		return formattedScore;
 	}
 	
 	private String getFormattedValue(FacesContext context, UIComponent component, Object value) {
@@ -133,7 +87,7 @@ public class ClassAvgConverter extends PointsConverter {
 		} else {
 			if (value instanceof Number) {
 				// Truncate to 2 decimal places.
-				value = new Double(FacesUtil.getRoundDown(((Number)value).doubleValue(), 0));
+				value = new Double(FacesUtil.getRoundDown(((Number)value).doubleValue(), 2));
 			}
 			formattedValue = super.getAsString(context, component, value);
 		}

@@ -23,6 +23,7 @@
 package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
+import java.util.List;
 
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
@@ -33,6 +34,9 @@ public class AssignmentGradeRow implements Serializable {
     private AssignmentGradeRecord gradeRecord;
     private String commentText;
     private Gradebook gradebook;
+    private Double score;
+    private List eventRows;
+    private String eventsLogTitle;
 
     public AssignmentGradeRow(Assignment assignment, Gradebook gradebook) {
     	this.assignment = assignment;
@@ -75,6 +79,27 @@ public class AssignmentGradeRow implements Serializable {
     public void setCommentText(String commentText) {
         this.commentText = commentText;
     }
+    
+    public Double getScore() {   	
+    	return score;
+	}
+	public void setScore(Double score) {
+		this.score = score;
+	}
+	
+	public List getEventRows() {
+		return eventRows;
+	}
+	public void setEventRows(List eventRows) {
+		this.eventRows = eventRows;
+	}
+	
+	public String getEventsLogTitle() {
+    	return eventsLogTitle;
+    }
+	public void setEventsLogTitle(String eventsLogTitle) {
+		this.eventsLogTitle = eventsLogTitle;
+	}
     
     /**
      * Used by GradebookItemTable

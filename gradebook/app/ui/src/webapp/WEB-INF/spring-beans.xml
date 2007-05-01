@@ -53,6 +53,7 @@
 				<value>courseGradeDetails</value>
 				<value>overview</value>
 				<value>roster</value>
+				<value>instructorView</value>
 			</list>
 		</property>
 		<property name="userAbleToViewOwnGradesPages">

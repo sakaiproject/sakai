@@ -20,6 +20,7 @@ public class GradebookItemTableTag extends HtmlDataTableTag {
 	private String headerClasses;
 	private String rowClasses;
 	private String styleClass;
+	private String rowIndexVar;
 	
 	
 	public String getRendererType() { return "GradebookItemTableRenderer"; }
@@ -43,6 +44,7 @@ public class GradebookItemTableTag extends HtmlDataTableTag {
 		TagUtil.setString(component, "headerClasses", headerClasses);
 		TagUtil.setString(component, "rowClasses", rowClasses);
 		TagUtil.setString(component, "styleClass", styleClass);
+		TagUtil.setString(component, "rowIndexVar", rowIndexVar);
 		
 		TagUtil.setString(component, "value", value);
 		if (_var != null) {
@@ -124,5 +126,13 @@ public class GradebookItemTableTag extends HtmlDataTableTag {
 	
 	public String getExpanded() {
 		return expanded;
+	}
+	
+	public void setRowIndexVar(String rowIndexVar) {
+		this.rowIndexVar = rowIndexVar;
+	}
+	
+	public String getRowIndexVar() {
+		return rowIndexVar;
 	}
 }

@@ -22,7 +22,6 @@
 
 package org.sakaiproject.tool.gradebook.business.impl;
 
-import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -203,7 +202,13 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 	    			}
 	    			AbstractGradeRecord gradeRecord = (AbstractGradeRecord) studentMap.get(assignment.getId());
 	    			total += assignment.getPointsPossible();
-	    			studentTotal += (gradeRecord != null ? gradeRecord.getPointsEarned() : 0);
+	    			
+	    			if (gradeRecord != null) {
+	    				Double pointsEarned = gradeRecord.getPointsEarned();
+	    				if (pointsEarned != null)
+	    					studentTotal += pointsEarned.doubleValue();
+	    			}
+	    				
 	    		}
 	    		Map studentCategoryMap = (Map) categoryResultMap.get(studentUid);
 		    	if (studentCategoryMap == null) {
@@ -515,6 +520,67 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         if (logData.isDebugEnabled()) logData.debug("END: Update " + gradeRecordsFromCall.size() + " scores for gradebook=" + assignment.getGradebook().getUid() + ", assignment=" + assignment.getName());
         return studentsWithExcessiveScores;
     }
+    
+    /**
+     * 
+     * @return Returns set of Assignments given scores higher than the assignment's value.
+     */
+    private Set updateStudentGradeRecords(final Collection gradeRecordsFromCall)
+            throws StaleObjectModificationException {
+        // If no grade records are sent, don't bother doing anything with the db
+        if(gradeRecordsFromCall.size() == 0) {
+            log.debug("updateStudentGradeRecords called for zero grade records");
+            return new HashSet();
+        }
+
+        if (logData.isDebugEnabled()) logData.debug("BEGIN: Update " + gradeRecordsFromCall.size());
+
+        HibernateCallback hc = new HibernateCallback() {
+            public Object doInHibernate(Session session) throws HibernateException {
+                Date now = new Date();
+                String graderId = authn.getUserUid();
+
+                Set studentsWithUpdatedAssignmentGradeRecords = new HashSet();
+                Set assignmentsWithExcessiveScores = new HashSet();
+
+                for(Iterator iter = gradeRecordsFromCall.iterator(); iter.hasNext();) {
+                	AssignmentGradeRecord gradeRecordFromCall = (AssignmentGradeRecord)iter.next();
+                	Assignment assignment = gradeRecordFromCall.getAssignment();
+                	Double pointsPossible = assignment.getPointsPossible();
+                	
+                	gradeRecordFromCall.setGraderId(graderId);
+                	gradeRecordFromCall.setDateRecorded(now);
+                	try {
+                		session.saveOrUpdate(gradeRecordFromCall);
+                	} catch (TransientObjectException e) {
+                		// It's possible that a previously unscored student
+                		// was scored behind the current user's back before
+                		// the user saved the new score. This translates
+                		// that case into an optimistic locking failure.
+                		if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to add a new assignment grade record");
+                		throw new StaleObjectModificationException(e);
+                	}
+
+                	// Check for excessive (AKA extra credit) scoring.
+                	if (gradeRecordFromCall.getPointsEarned() != null &&
+                			gradeRecordFromCall.getPointsEarned().compareTo(pointsPossible) > 0) {
+                		assignmentsWithExcessiveScores.add(assignment);
+                	}
+
+                	// Log the grading event, and keep track of the students with saved/updated grades
+                	session.save(new GradingEvent(assignment, graderId, gradeRecordFromCall.getStudentId(), gradeRecordFromCall.getPointsEarned()));
+                	studentsWithUpdatedAssignmentGradeRecords.add(gradeRecordFromCall.getStudentId());
+                }
+				if (logData.isDebugEnabled()) logData.debug("Updated " + studentsWithUpdatedAssignmentGradeRecords.size() + " assignment score records");
+
+                return assignmentsWithExcessiveScores;
+            }
+        };
+
+        Set assignmentsWithExcessiveScores = (Set)getHibernateTemplate().execute(hc);
+        if (logData.isDebugEnabled()) logData.debug("END: Update " + gradeRecordsFromCall.size());
+        return assignmentsWithExcessiveScores;
+    }
 
 	public Set updateAssignmentGradesAndComments(Assignment assignment, Collection gradeRecords, Collection comments) throws StaleObjectModificationException {
 		//Set studentsWithExcessiveScores = updateAssignmentGradeRecords(assignment, gradeRecords);
@@ -644,6 +710,19 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
             }
         };
         return (List)getHibernateTemplate().execute(hc);
+    }
+    
+    public List getStudentGradeRecordsConverted(final Long gradebookId, final String studentId) {
+    	List studentGradeRecsFromDB = getStudentGradeRecords(gradebookId, studentId);
+    	Gradebook gradebook = getGradebook(gradebookId);
+    	if(gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS)
+    		return studentGradeRecsFromDB;
+    	else if(gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE)
+    	{
+    		return convertPointsToPercentage(gradebook, studentGradeRecsFromDB);
+    	}
+    	//TODO letter grading type?
+    	return null;
     }
     
     private double getTotalPointsEarnedInternal(final Long gradebookId, final String studentId, final Session session) {
@@ -1621,6 +1700,44 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		return null;
     	//TODO letter grade type conversion
     }
+    
+    /**
+     * Updates student grade records based upon the grade entry type -
+     * grade will be converted appropriately before update
+     * 
+     * @param studentUid
+     * @param gradeRecords
+     * @param grade_type
+     * @return
+     */
+    public Set updateStudentGradeRecords(Collection gradeRecords, int grade_type)
+    {
+    	if(grade_type == GradebookService.GRADE_TYPE_POINTS)
+    		return updateStudentGradeRecords(gradeRecords);
+    	else if(grade_type == GradebookService.GRADE_TYPE_PERCENTAGE)
+    	{
+    		Collection convertList = new ArrayList();
+    		for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) 
+    		{
+    			AssignmentGradeRecord agr = (AssignmentGradeRecord) iter.next();
+    			Double doubleValue = calculateDoublePointForRecord(agr);
+    			if(agr != null && doubleValue != null)
+    			{
+    				agr.setPointsEarned(doubleValue);
+    				convertList.add(agr);
+    			}
+    			else if(agr != null)
+    			{
+    				agr.setPointsEarned(null);
+    				convertList.add(agr);
+    			}
+    		}
+    		return updateStudentGradeRecords(convertList);
+    	}
+    	else
+    		return null;
+    	//TODO letter grade type conversion
+    }
 
     private Double calculateDoublePointForRecord(AssignmentGradeRecord gradeRecordFromCall)
     {
@@ -1632,7 +1749,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		{
     			throw new IllegalArgumentException("point for record is greater than 1 or less than 0 for percentage points in GradebookManagerHibernateImpl.calculateDoublePointForRecord");
     		}
-    		return new Double(new BigDecimal(assign.getPointsPossible().doubleValue() * (gradeRecordFromCall.getPointsEarned().doubleValue() / 100.0)).setScale(2, BigDecimal.ROUND_DOWN).doubleValue());
+    		return new Double(assign.getPointsPossible().doubleValue() * (gradeRecordFromCall.getPointsEarned().doubleValue() / 100.0));
     	}
     	else
     		return null;
@@ -1677,6 +1794,35 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		return percentageList;
     	}
     	return null;
+    }
+    
+    /**
+     * Converts points to percentage for all assignments for a single student
+     * @param gradebook
+     * @param studentRecordsFromDB
+     * @return
+     */
+    private List convertPointsToPercentage(Gradebook gradebook, List studentRecordsFromDB)
+    {
+		List percentageList = new ArrayList();
+		for(int i=0; i < studentRecordsFromDB.size(); i++)
+		{
+			AssignmentGradeRecord agr = (AssignmentGradeRecord) studentRecordsFromDB.get(i);
+			double pointsPossible = agr.getAssignment().getPointsPossible().doubleValue();
+			agr.setDateRecorded(agr.getDateRecorded());
+			agr.setGraderId(agr.getGraderId());
+			if(agr != null && agr.getPointsEarned() != null)
+			{
+				agr.setPointsEarned(new Double((agr.getPointsEarned().doubleValue() * 100.0)/pointsPossible));
+				percentageList.add(agr);
+			}
+			else if(agr != null)
+			{
+				agr.setPointsEarned(null);
+				percentageList.add(agr);
+			}
+		}
+		return percentageList;
     }
     
     public List getCategoriesWithStats(Long gradebookId, String assignmentSort, boolean assignAscending, String categorySort, boolean categoryAscending) {
@@ -1815,11 +1961,13 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		for(Iterator eventIter = gradingEvents.iterator(); eventIter.hasNext();)
     		{
     			GradingEvent ge = (GradingEvent) eventIter.next();
-    			if(grade_type == GradebookService.GRADE_TYPE_PERCENTAGE)
-    			{
-    				ge.setGrade(new Double((new Double(ge.getGrade()).doubleValue()  * 100.0) / assign.getPointsPossible().doubleValue()).toString());
+    			if (ge.getGrade() != null) {
+	    			if(grade_type == GradebookService.GRADE_TYPE_PERCENTAGE)
+	    			{
+	    				ge.setGrade(new Double((new Double(ge.getGrade()).doubleValue()  * 100.0) / assign.getPointsPossible().doubleValue()).toString());
+	    			}
+	    			//TODO letter grading type?
     			}
-    			//TODO letter grading type?
     		}
     	}
     }

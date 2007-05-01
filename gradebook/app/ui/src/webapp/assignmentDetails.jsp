@@ -63,7 +63,7 @@
 				<h:outputText id="averageLabel" value="#{msgs.assignment_details_average}" rendered="#{overviewBean.userAbleToGradeAll}"/>
 				<h:panelGroup rendered="#{overviewBean.userAbleToGradeAll}">
 					<h:outputText id="averagePercent" value="#{assignmentDetailsBean.assignment.formattedMean}" rendered="#{assignmentDetailsBean.gradeEntryByPercent}">
-						<f:convertNumber type="percent" integerOnly="true" />
+						<f:convertNumber type="percent" maxFractionDigits="0" />
 					</h:outputText>
 					<h:outputText id="averagePoints" value="#{assignmentDetailsBean.assignment.averageTotal}" rendered="#{assignmentDetailsBean.gradeEntryByPoints}">
 						<f:convertNumber type="number" maxFractionDigits="0" />
@@ -152,14 +152,19 @@
 		            </t:commandSortHeader>
 				</f:facet>
 				<t:div styleClass="gbTextOnRow">
+				<h:commandLink action="instructorView">
 					<h:outputText value="#{scoreRow.enrollment.user.sortName}"/>
+					<f:param name="studentUid" value="#{scoreRow.enrollment.user.userUid}"/>
+					<f:param name="returnToPage" value="assignmentDetails" />
+					<f:param name="assignmentId" value="#{assignmentDetailsBean.assignmentId}" />
+				</h:commandLink>
 				</t:div>
 			</h:column>
 			<h:column>
 				<f:facet name="header">
-		            <t:commandSortHeader columnName="studentDisplayId" arrow="true" immediate="false" actionListener="#{assignmentDetailsBean.sort}">
+		      <t:commandSortHeader columnName="studentDisplayId" arrow="true" immediate="false" actionListener="#{assignmentDetailsBean.sort}">
 						<h:outputText value="#{msgs.assignment_details_student_id}" styleClass="tier0"/>
-		            </t:commandSortHeader>
+		      </t:commandSortHeader>
 				</f:facet>
 				<t:div styleClass="gbTextOnRow">
 					<h:outputText value="#{scoreRow.enrollment.user.displayId}"/>

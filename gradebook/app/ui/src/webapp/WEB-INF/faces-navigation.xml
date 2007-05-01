@@ -84,6 +84,16 @@
             <from-outcome>spreadsheetVerify</from-outcome>
             <to-view-id>/spreadsheetEntireGBVerify.jsp</to-view-id>
         </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>instructorView</from-outcome>
+            <to-view-id>/instructorView.jsp</to-view-id>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>studentView</from-outcome>
+            <to-view-id>/studentView.jsp</to-view-id>
+        </navigation-case>
 
     </navigation-rule>
 </faces-config>

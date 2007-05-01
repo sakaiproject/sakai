@@ -142,3 +142,9 @@ td.gbMessageAboveNumber {vertical-align:top; text-align:right; padding-right:2em
 .gradebookItem {
 	padding-left: 1.2em;
 }
+
+/* for some reason the main css version of this class is not working... */
+.inactive 
+{
+	color: #999 !important;
+}

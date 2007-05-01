@@ -96,6 +96,10 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 		}
 		public void setScore(Double score) {
 			Double originalScore = gradeRecord.getPointsEarned();
+			if (originalScore != null) {
+				// truncate to two decimals for more accurate comparison
+				originalScore = new Double(FacesUtil.getRoundDown(originalScore.doubleValue(), 2));
+			}
 			if ( (originalScore != null && !originalScore.equals(score)) ||
 					(originalScore == null && score != null) ) {
 				gradeRecord.setPointsEarned(score);
@@ -260,12 +264,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 		                gradeRecord = new AssignmentGradeRecord(assignment, studentUid, null);
 		                gradeRecords.add(gradeRecord);
 		            }
-		            // we may have some decimals with more than 2 places from the % conversion from points
-		            if (gradeRecord != null && gradeRecord.getPointsEarned() != null && getGradeEntryByPercent()) {
-		            	double pointsEarned = gradeRecord.getPointsEarned().doubleValue();
-		            	pointsEarned = FacesUtil.getRoundDown(pointsEarned, 2);
-		            	gradeRecord.setPointsEarned(new Double(pointsEarned));
-		            }
+
 		            Comment comment = (Comment)commentMap.get(studentUid);
 		            if (comment == null) {
 		            	comment = new Comment(studentUid, null, assignment);

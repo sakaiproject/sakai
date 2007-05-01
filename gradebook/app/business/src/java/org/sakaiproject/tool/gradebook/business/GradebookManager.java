@@ -187,6 +187,16 @@ public interface GradebookManager {
      * @return A List of all of this student's grade records in the gradebook
      */
     public List getStudentGradeRecords(Long gradebookId, String studentId);
+    
+    /**
+     * Get all assignment score records for the given student UID.
+     * This method will convert the points in DB to percentage values if 
+     * gradebook's grading type is GRADE_TYPE_PERCENTAGE 
+     * @param gradebookId
+     * @param studentId
+     * @return
+     */
+    public List getStudentGradeRecordsConverted(Long gradebookId, String studentId);
 
     /**
      * Gets the course grade for a single student.
@@ -437,6 +447,21 @@ public interface GradebookManager {
      */
     public Set updateAssignmentGradeRecords(Assignment assignment, Collection gradeRecords, int grade_type);
 
+    /**
+     * Updates the grade records in the GradeRecordSet for a student.
+     * This method calls public Set updateStudentGradeRecords(Assignment assignment, Collection gradeRecords) for DB udpates.
+     * Method of public Set updateStudentGradeRecords(Assignment assignment, Collection gradeRecords) should not be 
+     * called outside of impl of GradebookManager anymore later.
+     *
+     * @param assignment
+     * @param Collection gradeRecords
+     * @param grade_type
+     * @return The set of student UIDs who were given scores higher than the
+     * assignment's value.
+     */
+    public Set updateStudentGradeRecords(Collection gradeRecords, int grade_type);
+
+    
     /**
      * Get all assignment score records for the given set of student UIDs.
      * This method will convert the points in DB to percentage values if 

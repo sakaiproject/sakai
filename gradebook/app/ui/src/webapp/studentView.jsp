@@ -83,9 +83,13 @@
 							<h:outputText value="#{msgs.student_view_grade}"/>
 						</t:commandSortHeader>
 					</f:facet>
-
-          <h:outputText value="#{row}" escape="false">
+					
+					<h:outputText value="#{row}" escape="false" rendered="#{row.category}">
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER"/>
+					</h:outputText>
+
+          <h:outputText value="#{row}" escape="false" rendered="#{row.assignment}">
+						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.SCORE_CONVERTER"/>
 					</h:outputText>
         </h:column>
         
@@ -108,7 +112,7 @@
 	        <h:outputText value="#{row.commentText}" rendered="#{row.assignment && row.commentText != null}" />
 		    </h:column>
 		    
-		    <h:column>
+		    <h:column rendered="#{studentViewBean.anyExternallyMaintained}">
 		       <h:outputText value="#{row.associatedAssignment.externalAppName}" rendered="#{row.assignment}" />
 		    </h:column>
 		  </gbx:gradebookItemTable>

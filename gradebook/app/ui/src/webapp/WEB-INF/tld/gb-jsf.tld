@@ -355,6 +355,16 @@
           headers of this table.
       </description>
     </attribute>
+    
+    <attribute>
+      <name>rowIndexVar</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          A parameter name, under which the current rowIndex is set in request scope
+          similar to the var parameter.
+      </description>
+	  </attribute>
 	</tag>
 </taglib>
 
