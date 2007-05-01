@@ -1738,7 +1738,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			catch(IdUniquenessException e)
 			{
-				addAlert(state, "Could not add this item to this folder");
+				addAlert(state, trb.getFormattedMessage("paste.error", new Object[]{itemId}));
 			}
 			catch(ServerOverloadException e)
 			{
@@ -1804,6 +1804,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		String originalDisplayName = NULL_STRING;
 
 		String newId = null;
+		String displayName = "";
 		try
 		{
 			ResourceProperties properties = ContentHostingService.getProperties (itemId);
@@ -1824,7 +1825,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				ContentResource resource = ContentHostingService.getResource (itemId);
 				ResourceProperties p = ContentHostingService.getProperties(itemId);
 				String[] args = { p.getProperty(ResourceProperties.PROP_DISPLAY_NAME) };
-				String displayName = rb.getFormattedMessage("copy.name", args);
+				displayName = rb.getFormattedMessage("copy.name", args);
 
 				String newItemId = ContentHostingService.copyIntoFolder(itemId, collectionId);
 
@@ -1854,7 +1855,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		catch(IdUniquenessException e)
 		{
-			addAlert(state, "Could not add this item to this folder");
+            addAlert(state, trb.getFormattedMessage("paste.error", new Object[]{originalDisplayName}));
 		}
 		catch (InconsistentException ee)
 		{
@@ -5620,8 +5621,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
             catch (IdUniquenessException e)
             {
-	            // TODO Auto-generated catch block
-	            logger.warn("IdUniquenessException ", e);
+	            addAlert(state, trb.getFormattedMessage("paste.error", new Object[]{name}));
             }
             catch (IdLengthException e)
             {
@@ -7655,6 +7655,26 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				}
 				
 				ref = null;
+			}
+			catch(IdUniquenessException e)
+			{
+				String name = isolateName(entityId);
+				if(slAction != null && ref != null)
+				{
+					slAction.cancelAction(ref);
+					name  = ref.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+				}
+				addAlert(state, trb.getFormattedMessage("paste.error", new Object[]{name}));
+			}
+			catch(IdUsedException e)
+			{
+				String name = isolateName(entityId);
+				if(slAction != null && ref != null)
+				{
+					slAction.cancelAction(ref);
+					name  = ref.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+				}
+				addAlert(state, trb.getFormattedMessage("paste.error", new Object[]{name}));
 			}
 			catch (Exception e)
 			{
