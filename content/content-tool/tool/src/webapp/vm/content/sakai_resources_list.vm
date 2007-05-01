@@ -223,8 +223,9 @@ ul.makeMenu ul{top: 15px !important}
 					#if ($itemcount % 2==0)
 						class="odd"
 					#else
-						class="even	"
+						class="even"
 					#end>
+					#set ($num=$num + 1)
 					<td headers="expansion">
 					</td>
 					<td headers="checkboxes">
@@ -310,7 +311,7 @@ ul.makeMenu ul{top: 15px !important}
 							#end
 						</h$headerDepth>	
 					</td>
-					<td headers="actions1"  name="enabledActionLinks" style="white-space:nowrap;vertical-align:middle"  class="attach">
+					<td headers="actions1"  style="white-space:nowrap;vertical-align:middle"  class="attach">
 						#if($item.pasteActions && !$item.pasteActions.isEmpty())
 							#set ($itemsOnLine = 0)
 								#foreach($action in $item.pasteActions)
@@ -324,7 +325,7 @@ ul.makeMenu ul{top: 15px !important}
 						</td>
 						#set ($actionCount=($actionCount - 1))
 						#set ($actionCount2=($actionCount2 - 1))
-						<td headers="actions2"  name="enabledActionLinks" class="attach">
+						<td headers="actions2"   class="attach">
 						#if($item.addActions && !$item.addActions.isEmpty())
 							<ul style="z-index:$actionCount;margin:0;display:block" class="makeMenu">
 								<li>
@@ -341,7 +342,7 @@ ul.makeMenu ul{top: 15px !important}
 							</ul>
 						#end
 					</td>
-					<td headers="actions3"  name="enabledActionLinks" class="attach">
+					<td headers="actions3"   class="attach">
 						#if($item.otherActions && !$item.otherActions.isEmpty())
 							<ul style="z-index:$actionCount2;margin:0;display:block" class="makeMenu" >
 								<li>
@@ -471,7 +472,7 @@ ul.makeMenu ul{top: 15px !important}
 					#if ($itemcount % 2==0)
 						class="odd"
 					#else
-						class="even	"
+						class="even"
 					#end>
 
 							<td headers="expansion">
@@ -559,7 +560,7 @@ ul.makeMenu ul{top: 15px !important}
 									#end
 								</h$headerDepth>	
 							</td>
-							<td headers="actions1"  name="enabledActionLinks" class="attach" style="white-space:nowrap;vertical-align:middle">
+							<td headers="actions1"  class="attach" style="white-space:nowrap;vertical-align:middle">
 								#if($item.pasteActions && !$item.pasteActions.isEmpty())
 									#set ($itemsOnLine = 0)
 										#foreach($action in $item.pasteActions)
@@ -571,7 +572,7 @@ ul.makeMenu ul{top: 15px !important}
 									<img src = "#imageLink("sakai/s.gif")" border="0" width="16"  alt="$labeler.getLabel($action)"/>
 								#end
 								</td>
-								<td headers="actions2"  name="enabledActionLinks" class="attach">
+								<td headers="actions2"   class="attach">
 								#set ($actionCount=($actionCount - 1))
 								#set ($actionCount2=($actionCount2 - 1))
 								#if($item.addActions && !$item.addActions.isEmpty())
@@ -590,7 +591,7 @@ ul.makeMenu ul{top: 15px !important}
 									</ul>
 								#end
 								</td>
-								<td headers="actions3"  name="enabledActionLinks" class="attach">
+								<td headers="actions3"   class="attach">
 								#if($item.otherActions && !$item.otherActions.isEmpty())
 									<ul style="z-index:$actionCount2;margin:0;display:block" class="makeMenu" >
 										<li>
@@ -641,8 +642,7 @@ ul.makeMenu ul{top: 15px !important}
 					<tr>
 						<th colspan="10"  style="border:none">
 						<h3>
-							<a href="#" onclick="javascript:document.getElementById('sakai_action').value='doShowOtherSites';document.getElementById('showForm').submit();"
-								onclick="javascript:document.getElementById('sakai_action').value='doShowOtherSites';document.getElementById('showForm').submit();"
+							<a href="#"  		onclick="javascript:document.getElementById('sakai_action').value='doShowOtherSites';document.getElementById('showForm').submit();"
 								title= "$tlang.getString('list.show')">
 								<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString('list.show')" border="0" align="top" />
 								$validator.escapeHtml("$tlang.getString('list.show')")
@@ -656,7 +656,7 @@ ul.makeMenu ul{top: 15px !important}
 			############################################# end of "Other sites" section 
 		
 		</table>
-		<div id="paddingfromhell" style="height:10em"> 
+		<div id="bottompadding" style="height:12em"> </div> 
 		
 		#foreach($key in $listActions.keySet())
 			<input type="hidden" id="${key}-count" value="$counter.getValue("${key}selected")" />
