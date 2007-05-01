@@ -61,6 +61,6 @@ deleteMsg = "<h:outputText value="#{msgs['list.del']}" />";
 		var display_time = <c:out value="${ChatTool.displayTime}" />;
 		var sound_alert = <c:out value="${ChatTool.soundAlert}" />;
 		
-		var objDiv = document.getElementById("chatListWrapper");
+		var objDiv = document.getElementById("Monitor");
    	objDiv.scrollTop = objDiv.scrollHeight;
 	</script>

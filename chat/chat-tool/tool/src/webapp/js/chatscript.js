@@ -72,7 +72,7 @@ function appendMessage(uname, uid, removeable, pdate, ptime, msg, msgId)
 	transcript.appendChild(newDiv);
 
 	// adjust scroll
-	var objDiv = document.getElementById("chatListWrapper");
+	var objDiv = document.getElementById("Monitor");
    objDiv.scrollTop = objDiv.scrollHeight;
 
 	//Force a refresh of the content (doesn't actually reload the page)
