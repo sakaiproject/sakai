@@ -1276,7 +1276,11 @@ public class FilePickerAction extends PagedResourceHelperAction
 					ContentResource attachment = contentService.addAttachmentResource(resourceId, siteId, toolName, contentType, bytes, props);
 					
 					ContentResourceFilter filter = (ContentResourceFilter) state.getAttribute(STATE_ATTACHMENT_FILTER);
-					if(! filter.allowSelect(attachment))
+					if(filter == null || filter.allowSelect(attachment))
+					{
+						// do nothing
+					}
+					else
 					{
 						addAlert(state, (String) rb.getFormattedMessage("filter", new Object[]{name}));
 						return;
