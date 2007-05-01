@@ -21,6 +21,7 @@
 
 package org.sakaiproject.provider.user;
 
+import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -50,7 +51,7 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/** how many students to recognize (1.. this). */
-	protected int m_courseStudents = 500;
+	protected int m_courseStudents = 1000;
 
 	/**
 	 * Set how many students to recognize.
@@ -63,15 +64,32 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 		m_courseStudents = Integer.parseInt(count);
 	}
 
-	/**********************************************************************************************************************************************************************************************************************************************************
+	/***************************************************************************
 	 * Init and Destroy
-	 *********************************************************************************************************************************************************************************************************************************************************/
+	 **************************************************************************/
 
 	/**
 	 * Final initialization, once all dependencies are set.
 	 */
 	public void init()
 	{
+		DecimalFormat df = new DecimalFormat("0000");
+		Info[] realNames = new Info[] {
+				new Info("Victor", "van Dijk", "vvd@local.host"),
+				new Info("Peter", "van Keken", "pvk@local.host"),
+				new Info("Ben van", "der Pluijm", "bvdp@local.host"),
+				new Info("Rob", "van der Voo", "rvdv@local.host"),
+				new Info("Aimee", "de L'Aigle", "adlg@local.host"),
+				new Info("Wong", "Kar-Wai", "wkw@local.host"),
+				new Info("John", "Fitz Gerald", "jfg@local.host"),
+				new Info("El", "Niño", "warmPacificWater@local.host"),
+				new Info("Ângeolo", "Haslip", "ah@local.host"),
+				new Info("Albert", "Zimmerman", "az@local.host"),
+				new Info("Albert", "Albertson", "aa@local.host"),
+				new Info("Zachary", "Anderson", "za@local.host"),
+				new Info("Zachary", "Zurawik", "zz@local.host"),
+				new Info("Bhaktavatsalam", "Bhayakridbhayanashanachar", "bb@local.host"),
+		};
 		try
 		{
 			// fill a set of users
@@ -84,7 +102,15 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 			{
 				for (int i = 1; i <= m_courseStudents; i++)
 				{
-					m_info.put("student" + i, new Info("student" + i, "" + i, "Student", "student" + i + "@local.host"));
+					String zeroPaddedId = df.format(i);
+					// Use the realistic names if possible.
+					if(i <= realNames.length) {
+						m_info.put("student" + zeroPaddedId, new Info("student" + zeroPaddedId,
+								realNames[i-1].firstName, realNames[i-1].lastName, realNames[i-1].email));
+					} else {
+						m_info.put("student" + zeroPaddedId, new Info("student" + zeroPaddedId,
+								zeroPaddedId, "Student", "student" + zeroPaddedId + "@local.host"));
+					}
 				}
 			}
 
@@ -101,7 +127,7 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 			M_log.warn(".init(): ", t);
 		}
 	}
-
+	
 	/**
 	 * Returns to uninitialized state. You can use this method to release resources thet your Service allocated when Turbine shuts down.
 	 */
@@ -132,6 +158,13 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 		public Info(String id, String firstName, String lastName, String email)
 		{
 			this.id = id;
+			this.firstName = firstName;
+			this.lastName = lastName;
+			this.email = email;
+		}
+
+		public Info(String firstName, String lastName, String email)
+		{
 			this.firstName = firstName;
 			this.lastName = lastName;
 			this.email = email;
