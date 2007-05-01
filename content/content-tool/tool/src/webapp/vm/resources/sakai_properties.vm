@@ -188,13 +188,13 @@
 				## Site is possible and either group or public is possible
 				<p>
 					<input type="radio" name="access_mode${DOT}$i" id="access_mode_inherited${DOT}$i" value="inherited" #if(!$model.isPubview() && "$!model.accessMode" != "$GROUP_ACCESS") checked="checked"#end style="border:none" />
-					<label for="access_mode_inherited${DOT}$i">#if($model.isCollection())$tlang.getString("access.site.choice")#else$tlang.getString("access.site.fldr")#end</label>
+					<label for="access_mode_inherited${DOT}$i">#if($model.isCollection())$tlang.getString("access.site.fldr")#else$tlang.getString("access.site.choice")#end</label>
 				</p>
 				#if($model.isPubviewPossible())
 					## Public is possible
 					<p>
 						<input type="radio" name="access_mode${DOT}$i" id="access_mode_public${DOT}$i" value="public" #if($!model.isPubview()) checked="checked"#end style="border:none" />
-						<label for="access_mode_public${DOT}$i">#if($model.isCollection())$tlang.getString("access.public.choice")#else$tlang.getString("access.public.fldr")#end</label>
+						<label for="access_mode_public${DOT}$i">#if($model.isCollection())$tlang.getString("access.public.fldr")#else$tlang.getString("access.public.choice")#end</label>
 					</p>
 				#end
 				#if($model.isGroupPossible())
@@ -206,7 +206,7 @@
 					#end
 					<p>
 						<input type="radio" name="access_mode${DOT}$i" id="access_mode_groups${DOT}$i" value="$GROUP_ACCESS" #if("$!model.accessMode" == "$GROUP_ACCESS") checked="checked"#end style="border:none" />
-						<label for="access_mode_groups${DOT}$i">#if($model.isCollection())$tlang.getString("access.groups.choice")#else$tlang.getString("access.groups.fldr")#end</label>
+						<label for="access_mode_groups${DOT}$i">#if($model.isCollection())$tlang.getString("access.groups.fldr")#else$tlang.getString("access.groups.choice")#end</label>
 					</p>
 				#end
 			#end
@@ -396,14 +396,18 @@
 	
 	#if($showItemSummary)
 		<h4>
-			$tlang.getString("props.file")
+			#if($item.isCollection())
+				$tlang.getString("props.fldr")
+			#else
+				$tlang.getString("props.file")
+			#end
 		</h4>
 	
 		<table class="itemSummary" border="0" style="clear:both;margin:left:.7em">
 			#if (!($dropboxMode && $collectionId==$homeCollectionId))
 				<tr> 
 					<td style="width:180px;padding-left:.7em"> 
-						<label>$tlang.getString("props.creator")</label>
+						<label>#if("$!TYPE_UPLOAD" == "$!{type.id}")$tlang.getString("props.creator.upl")#else$tlang.getString("props.creator")#end</label>
 					</td>
 					<td>
 						$validator.escapeHtml("$model.createdBy")
@@ -411,7 +415,7 @@
 				</tr>
 				<tr> 
 					<td style="width:180px;padding-left:.7em"> 
-						<label>$tlang.getString("props.creatime")</label>
+						<label>#if("$!TYPE_UPLOAD" == "$!{type.id}")$tlang.getString("props.creatime.upl")#else$tlang.getString("props.creatime")#end</label>
 					</td>
 					<td>
 						$validator.escapeHtml("$model.createdTime")
@@ -442,14 +446,16 @@
 					<a href="$model.accessUrl" target="$model.target">$model.accessUrl</a>
 				</td>
 			</tr>
-			<tr> 
-				<td  style="width:180px;padding-left:.7em"> 
-					<label>$tlang.getString("props.size")</label>
-				</td>
-				<td>
-					$model.sizzle 
-				</td>
-			</tr>
+			#if(! $item.isCollection())
+				<tr> 
+					<td  style="width:180px;padding-left:.7em"> 
+						<label>$tlang.getString("props.size")</label>
+					</td>
+					<td>
+						$model.sizzle 
+					</td>
+				</tr>
+			#end
 			#if(! $model.isUrl() && ! $model.isCollection() && "$!{model.mimetype}" != "")
 				<tr> 
 					<td style="width:180px;padding-left:.7em"> 
