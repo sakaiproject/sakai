@@ -87,6 +87,14 @@
 			<property-name>pageName</property-name>
 			<value>studentView</value>
 		</managed-property>
+		<managed-property>
+			<property-name>studentUidToView</property-name>
+			<value>#{param.studentUidToView}</value>
+		</managed-property>
+		<managed-property>
+			<property-name>instViewReturnToPage</property-name>
+			<value>#{param.instViewReturnToPage}</value>
+		</managed-property>
 	</managed-bean>
 	
 	<managed-bean>

@@ -7,11 +7,26 @@
 	<div class="portletBody">
 	  <h:form id="gbForm">
 		<sakai:flowState bean="#{studentViewBean}" />
-
-		<h2>
-			<h:outputFormat value="#{msgs.student_view_page_title}"/>
-			<h:outputFormat value="#{studentViewBean.userDisplayName}"/>
-		</h2>
+		
+		<h:panelGrid columns="2" width="99%" columnClasses="bogus,right">
+			<h:panelGroup>
+				<f:verbatim><h2></f:verbatim>
+					<h:outputFormat value="#{msgs.student_view_page_title}">
+						<f:param value="#{studentViewBean.userDisplayName}"/>
+					</h:outputFormat>
+				<f:verbatim></h2></f:verbatim>
+			</h:panelGroup>
+			<h:panelGroup>
+				<h:commandLink action="instructorView" 
+						rendered="#{studentViewBean.userAbleToGradeAll}">
+					<h:outputFormat value="#{msgs.student_view_return_to_inst_view}">
+						<f:param value="#{studentViewBean.userDisplayName}" />
+					</h:outputFormat>
+					<f:param name="studentUid" value="#{studentViewBean.studentUidToView}" />
+					<f:param name="returnToPage" value="#{studentViewBean.instViewReturnToPage}" />
+				</h:commandLink>
+			</h:panelGroup>
+		</h:panelGrid>
 
 		<h:panelGrid cellpadding="0" cellspacing="0"
 			columns="2"

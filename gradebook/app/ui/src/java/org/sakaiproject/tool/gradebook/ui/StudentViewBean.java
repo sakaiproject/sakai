@@ -29,17 +29,44 @@ import org.apache.commons.logging.LogFactory;
  */
 public class StudentViewBean extends ViewByStudentBean implements Serializable {
 	private static Log logger = LogFactory.getLog(StudentViewBean.class);
+	
+	private String studentUidToView;
+	private String instViewReturnToPage;
 
 	public void init() {
 
 		setIsInstructorView(false);
-		if (getStudentUid() != null && isUserAbleToGradeAll()){
+		if (studentUidToView != null && isUserAbleToGradeAll()){
 			// we came to this page as an instructor "previewing" the student's view
+			setStudentUid(studentUidToView);
 		} else {
 			setStudentUid(getUserUid());
 		}
 
 		super.init();
+	}
+	
+	/**
+	 * If an instructor wants to see "student's view of her grades", this
+	 * param will be passed
+	 * @param studentUidToView
+	 */
+	public void setStudentUidToView(String studentUidToView) {
+		this.studentUidToView = studentUidToView;
+	}
+	public String getStudentUidToView() {
+		return studentUidToView;
+	}
+	/**
+	 * To return to the inst view, we need to keep track of the original
+	 * returnToPage parameter
+	 * @param instViewReturnToPage
+	 */
+	public void setInstViewReturnToPage(String instViewReturnToPage) {
+		this.instViewReturnToPage = instViewReturnToPage;
+	}
+	public String getInstViewReturnToPage() {
+		return instViewReturnToPage;
 	}
 }
 

@@ -54,6 +54,7 @@
 				<value>overview</value>
 				<value>roster</value>
 				<value>instructorView</value>
+				<value>studentView</value>
 			</list>
 		</property>
 		<property name="userAbleToViewOwnGradesPages">

@@ -12,7 +12,7 @@
 
 		<sakai:flowState bean="#{instructorViewBean}" />
 		
-		<h:panelGrid columns="2" width="90%">
+		<h:panelGrid columns="2" width="99%" columnClasses="bogus,right">
 			<h:panelGroup>
 				<f:verbatim><h2></f:verbatim>
 					<h:outputFormat value="#{msgs.inst_view_page_title}">
@@ -24,7 +24,8 @@
 				<h:outputFormat value="#{msgs.inst_view_students_grades}">
 					<f:param value="#{instructorViewBean.userDisplayName}" />
 				</h:outputFormat>
-				<f:param name="studentUid" value="#{instructorViewBean.studentUid}" />
+				<f:param name="studentUidToView" value="#{instructorViewBean.studentUid}" />
+				<f:param name="instViewReturnToPage" value="#{instructorViewBean.returnToPage}" />
 			</h:commandLink>
 		</h:panelGrid>
 		
