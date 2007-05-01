@@ -523,6 +523,7 @@ below they are contextually defined depending on the column as an example,as you
 
 .portletTitle .title a{
 	background: url(images/reload.gif) center left no-repeat;
+	text-decoration: none !important;
 }
 
 .portletTitle .title a:hover{
@@ -544,6 +545,7 @@ below they are contextually defined depending on the column as an example,as you
 
 .portletTitle .action a{
 	background: url(images/help.gif) center right no-repeat;
+	text-decoration: none !important;
 }
 
 .portletTitle .action a:hover{
