@@ -56,6 +56,7 @@ public class DiscussionTopicBean
   private ArrayList accessorList = new ArrayList();
   private String gradeAssign;
   private boolean nonePermission = true;
+  private boolean sorted = false;
   
 
   private List messages = new ArrayList();
@@ -711,5 +712,15 @@ public class DiscussionTopicBean
 			}
 		}
 		return decoAttachList;
+	}
+
+	public boolean isSorted()
+	{
+		return sorted;
+	}
+
+	public void setSorted(boolean sorted)
+	{
+		this.sorted = sorted;
 	}
 }
