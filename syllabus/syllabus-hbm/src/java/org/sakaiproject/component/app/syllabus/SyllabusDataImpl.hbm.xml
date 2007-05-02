@@ -20,7 +20,7 @@
         <version name="lockId" />               
 
         <property name="asset" type="text">
-            <column name="asset" not-null="false"/>
+            <column name="asset" not-null="false" length="16777215"/>
         </property>
 
         <property name="position">
