@@ -1451,24 +1451,36 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		if(pipe.getAction().getActionType() == ResourceToolAction.ActionType.CREATE)
 		{
 			SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-			
+
 	    	// delete the temporary resource
 			String temporaryResourceId = (String) state.getAttribute(CitationHelper.RESOURCE_ID);
 			ContentHostingService contentService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
-			ContentResourceEdit edit = null;
+			ContentResource tempResource = null;
 			try
             {
-	            edit = contentService.editResource(temporaryResourceId);
-	            pipe.setRevisedContent(edit.getContent());
-	            pipe.setRevisedMimeType(ResourceType.MIME_TYPE_HTML);
+				// get the temp resource
+	            tempResource = contentService.getResource(temporaryResourceId);
 	            
-	            String currentUser = SessionManager.getCurrentSessionUserId();
-	            SecurityService.pushAdvisor(new CitationListSecurityAdviser(currentUser, ContentHostingService.AUTH_RESOURCE_REMOVE_ANY, edit.getReference()));
-	            SecurityService.pushAdvisor(new CitationListSecurityAdviser(currentUser, ContentHostingService.AUTH_RESOURCE_REMOVE_OWN, edit.getReference()));
-	            contentService.removeResource(edit);
-	            SecurityService.clearAdvisors();
+	            // use the temp resource to 'create' the real resource
+	            pipe.setRevisedContent(tempResource.getContent());
 	            
-	            edit = null;
+	            // remove the temp resource
+	            if( CitationService.allowRemoveCitationList( temporaryResourceId ) )
+	            {
+	            	// setup a SecurityAdvisor
+		            SecurityService.pushAdvisor( new CitationListSecurityAdviser(
+		            		SessionManager.getCurrentSessionUserId(),
+		            		ContentHostingService.AUTH_RESOURCE_REMOVE_ANY,
+		            		tempResource.getReference() ) );
+		            
+		            // remove temp resource
+		            contentService.removeResource(temporaryResourceId);
+		            
+		            // clear advisors
+		            SecurityService.clearAdvisors();
+		            
+		            tempResource = null;
+	            }
             }
             catch (PermissionException e)
             {
@@ -1494,11 +1506,6 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
             {
 	            // TODO Auto-generated catch block
 	            logger.warn("ServerOverloadException ", e);
-            }
-            
-            if(edit != null)
-            {
-            	contentService.cancelResource(edit);
             }
 		}
 
