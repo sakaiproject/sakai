@@ -43,6 +43,13 @@
       <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
+<!-- ToolManager -->
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-tool-api</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
 <!-- Section Awareness -->
     <dependency>
 

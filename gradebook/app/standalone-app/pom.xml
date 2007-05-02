@@ -118,7 +118,7 @@
 	</dependency>
 	
 		<dependency>
-			<groupId>sakaiproject</groupId>
+			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-tool-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
