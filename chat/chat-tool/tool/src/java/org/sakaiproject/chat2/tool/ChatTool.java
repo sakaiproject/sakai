@@ -1005,12 +1005,13 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       int x = getCurrentChannel().getChatChannel().getFilterParam();
       if (Integer.parseInt(getMessageOptions()) == MESSAGEOPTIONS_MESSAGES_BY_DATE) {
          xDaysOld = getChatManager().calculateDateByOffset(x);
+         maxMessages = ChatChannel.MAX_MESSAGES;
       }
       else if (Integer.parseInt(getMessageOptions()) == MESSAGEOPTIONS_MESSAGES_BY_NUMBER) {
          maxMessages = x;
       }
       else if (Integer.parseInt(getMessageOptions()) == MESSAGEOPTIONS_ALL_MESSAGES) {
-         maxMessages = -999;
+         maxMessages = ChatChannel.MAX_MESSAGES;
       }
       return getMessages(getContext(), xDaysOld, maxMessages, true);
    }
