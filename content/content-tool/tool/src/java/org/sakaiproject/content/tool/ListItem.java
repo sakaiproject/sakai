@@ -2588,6 +2588,18 @@ public class ListItem
     {
     	return selectedForMove;
     }
+
+	public List<String> checkRequiredProperties()
+    {
+		List<String> alerts = new Vector<String>();
+		String name = getName();
+		if(name == null || name.trim().equals(""))
+		{
+			setNameIsMissing(true);
+			alerts.add(rb.getString("edit.missing"));
+		}
+	    return alerts;
+    }
 	
 }
 

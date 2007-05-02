@@ -811,6 +811,8 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			parent.setPubviewPossible(! preventPublicDisplay);
 		}
 		
+		List<String> alerts = new Vector<String>();
+		
 		List<ResourceToolActionPipe> pipes = mfp.getPipes();
 		
 		int actualCount = 0;
@@ -871,12 +873,22 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			
 			// capture properties
 			newFile.captureProperties(params, ListItem.DOT + i);
+			
+			//alerts.addAll(newFile.checkRequiredProperties());
 			            
 			pipe.setRevisedListItem(newFile);
     			
 			actualCount++;
 			
 		}
+		if(! alerts.isEmpty())
+		{
+			for(String alert: alerts)
+			{
+				addAlert(state, alert);
+			}
+		}
+
 		if(actualCount < 1)
 		{
 			addAlert(state, rb.getString("url.noinput"));
@@ -905,6 +917,8 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		mfp.setFileCount(count);
 		
 		int lastIndex = params.getInt("lastIndex");
+		
+		List<String> allAlerts = new Vector<String>();
 		
 		ContentEntity entity = mfp.getContentEntity();
 		ListItem parent = null;
@@ -1023,9 +1037,10 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
     				}
     			}
 
-    			
     			// capture properties
     			newFile.captureProperties(params, ListItem.DOT + i);
+    			
+    			// allAlerts.addAll(newFile.checkRequiredProperties());
     			
     			pipe.setRevisedListItem(newFile);
     			
@@ -1038,7 +1053,48 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		
 		if(uploadCount < 1 && state.getAttribute(ResourcesAction.STATE_MESSAGE) == null)
 		{
-			addAlert(state, rb.getString("choosefile7"));
+			HttpServletRequest req = data.getRequest();
+			String status = (String) req.getAttribute("upload.status");
+			if(status == null)
+			{
+				logger.warn("No files uploaded; upload.status == null");
+			}
+			else if(status.equals("ok"))
+			{
+				logger.warn("No files uploaded; upload.status == ok");
+			}
+			else if(status.equals("size_limit_exceeded"))
+			{
+				String max_file_size_mb = (String) state.getAttribute(ResourcesAction.STATE_FILE_UPLOAD_MAX_SIZE);
+				int max_bytes = 1024 * 1024;
+				try
+				{
+					max_bytes = Integer.parseInt(max_file_size_mb) * 1024 * 1024;
+				}
+				catch(Exception e)
+				{
+					// if unable to parse an integer from the value
+					// in the properties file, use 1 MB as a default
+					max_file_size_mb = "1";
+					max_bytes = 1024 * 1024;
+				}
+				
+				String max_bytes_string = ResourcesAction.getFileSizeString(max_bytes, rb);
+				
+				addAlert(state, rb.getFormattedMessage("size.exceeded", new Object[]{ max_bytes_string }));
+			}
+			else if(status.equals("exception"))
+			{
+				logger.warn("No files uploaded; upload.status == exception");
+				addAlert(state, rb.getString("choosefile7"));
+			}
+		}
+		if(! allAlerts.isEmpty())
+		{
+			for(String alert: allAlerts)
+			{
+				addAlert(state, alert);
+			}
 		}
 
 		if(state.getAttribute(ResourcesAction.STATE_MESSAGE) == null)

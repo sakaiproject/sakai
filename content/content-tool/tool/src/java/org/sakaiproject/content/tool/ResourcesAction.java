@@ -5588,15 +5588,28 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					}
 				}
 				
-				ContentHostingService.commitResource(resource, noti);
+				List<String> alerts = item.checkRequiredProperties();
 				
-				toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
-
-				// show folder if in hierarchy view
-				SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
-				expandedCollections.add(collectionId);
-
-				state.setAttribute(STATE_MODE, MODE_LIST);
+				if(alerts.isEmpty())
+				{
+				
+					ContentHostingService.commitResource(resource, noti);
+					
+					toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
+	
+					// show folder if in hierarchy view
+					SortedSet expandedCollections = (SortedSet) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+					expandedCollections.add(collectionId);
+	
+					state.setAttribute(STATE_MODE, MODE_LIST);
+				}
+				else
+				{
+					for(String alert : alerts)
+					{
+						addAlert(state, alert);
+					}
+				}
 			} 
 			catch (IdUnusedException e) 
 			{
@@ -6583,7 +6596,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				}
 			}
 			
-			List<String> alerts = checkRequiredProperties(item);
+			List<String> alerts = item.checkRequiredProperties();
 			
 			if(alerts.isEmpty())
 			{
@@ -6646,18 +6659,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			state.setAttribute(STATE_MODE, MODE_LIST);
 		}
 	}
-
-	protected List<String> checkRequiredProperties(ListItem item)
-    {
-		List<String> alerts = new Vector<String>();
-		String name = item.getName();
-		if(name == null || name.trim().equals(""))
-		{
-			item.setNameIsMissing(true);
-			alerts.add(rb.getString("edit.missing"));
-		}
-	    return alerts;
-    }
 
 	/**
 	* Sort based on the given property
