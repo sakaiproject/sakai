@@ -231,7 +231,7 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 			   sub.parameters.add(new UIELBinding("#{voteCollection.submissionStatus}", "sub"));
 			   UICommand cancel = UICommand.make(voteForm, "cancel",messageLocator.getMessage("vote_cancel"),"#{pollToolBean.cancel}");
 			   cancel.parameters.add(new UIELBinding("#{voteCollection.submissionStatus}", "cancel"));
-			  UIInternalLink.make(voteForm, "reset", "vote_reset");
+			  UIOutput.make(voteForm, "reset", messageLocator.getMessage("vote_reset"));
 					  
 		} 
 		catch (Exception e)
