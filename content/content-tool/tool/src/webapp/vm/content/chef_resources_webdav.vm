@@ -106,7 +106,7 @@
 		frameborder="0"
 		onload="javascript:setFrameHeight(this);">
 	</iframe>
-	<div style="margin:2em .3em .3em .3em;text-align:left">
-		<a href="#toolLink("ResourcesAction" "doCancel")" style="background-color:#DDDCD7;border:1px solid #4A5573;color:#4A5573;padding:1px 3px 1px 3px;text-decoration:none">$tlang.getString("dav.cancel")</a>
+	<div class="act">
+		<input type="button" class="active" value="$tlang.getString("dav.cancel")" onclick="window.location='#toolLink("ResourcesAction" "doCancel")'" />
 	</div>
 </div>
