@@ -39,7 +39,7 @@ import org.sakaiproject.citation.api.CitationService;
 import org.sakaiproject.citation.api.Schema;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.Reference;
@@ -254,14 +254,19 @@ public class CitationServlet extends VmServlet
 		try
         {
 			String resourceId = contentService.resolveUuid(resourceUuid);
-			// edit the collection to verify "content.revise" permission
-			// and to get the CitationCollection's id
-			ContentResourceEdit edit = contentService.editResource(resourceId);
 			
-			String collectionId = new String(edit.getContent());
+			// check to see if user has revise permission
+			if( !citationService.allowReviseCitationList( resourceId ) )
+			{
+				// revise permission denied
+				return null;
+			}
+			
+			// revise permission granted
+			ContentResource resource = contentService.getResource(resourceId);
+			
+			String collectionId = new String(resource.getContent());
 			collection = citationService.getCollection(collectionId);
-			
-			contentService.cancelResource(edit);
 
 			String genre = params.getString("genre");
 			String[] authors = params.getStrings("au");
@@ -380,12 +385,6 @@ public class CitationServlet extends VmServlet
         {
 	        // TODO Auto-generated catch block
 	        M_log.warn("TypeException ", e);
-        	return null;
-        }
-        catch (InUseException e)
-        {
-	        // TODO Auto-generated catch block
-        	M_log.warn("InUseException", e);
         	return null;
         }
         catch (ServerOverloadException e)
