@@ -57,8 +57,12 @@
 					</h:commandLink>
 				</h:column>
 			</t:dataTable> 
+
+			<h:outputLink value="#" styleClass="more_categories">
+				<h:outputText value="#{msgs.cat_list_more}" />
+			</h:outputLink>
 			
-			<h:panelGrid columns="2" styleClass="indnt5" rendered="#{gradebookSetupBean.displayWeighting}">
+			<h:panelGrid columns="2" styleClass="indnt10" rendered="#{gradebookSetupBean.displayWeighting}">
 				<h:outputText value="#{msgs.running_total}" styleClass="courseGrade"/>
 				<h:panelGroup id="runningTotal" styleClass="courseGrade #{gradebookSetupBean.runningTotalStyle}">
 					<h:outputText id="runningTotalVal" value="#{gradebookSetupBean.runningTotal}" />
@@ -71,11 +75,7 @@
 					<h:outputText value="#{msgs.cat_percent}"/>
 				</h:panelGroup>
 			</h:panelGrid>
-			
-			<h:outputLink value="#" styleClass="more_categories">
-				<h:outputText value="#{msgs.cat_list_more}" />
-			</h:outputLink>
-			
+		
 		<f:verbatim></div></f:verbatim>
 	</h:panelGroup>
 </div>
