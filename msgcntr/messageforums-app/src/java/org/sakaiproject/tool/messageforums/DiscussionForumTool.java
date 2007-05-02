@@ -154,6 +154,7 @@ public class DiscussionForumTool
   private static final String FORUM_ID = "forumId";
   private static final String MESSAGE_ID = "messageId";
   private static final String REDIRECT_PROCESS_ACTION = "redirectToProcessAction";
+  private static final String FROMPAGE = "fromPage";
 
   private static final String MESSAGECENTER_TOOL_ID = "sakai.messagecenter";
   private static final String FORUMS_TOOL_ID = "sakai.forums";
@@ -205,6 +206,7 @@ public class DiscussionForumTool
   private static final String MSG_REPLY_PREFIX = "cdfm_reply_prefix";
   private static final String NO_GRADE_PTS = "cdfm_no_points_for_grade";
   private static final String NO_ASSGN = "cdfm_no_assign_for_grade";
+  private static final String CONFIRM_DELETE_MESSAGE="cdfm_delete_msg";
   
   private static final String FROM_PAGE = "msgForum:mainOrForumOrTopic";
   private String fromPage = null; // keep track of originating page for common functions
@@ -1506,6 +1508,23 @@ public class DiscussionForumTool
 	  return selectedThreadHead;
   }
   
+  public List getPFSelectedThread() 
+  {
+	List results = new ArrayList();
+	List messages = getSelectedThread();
+	
+	for (Iterator iter = messages.iterator(); iter.hasNext();)
+	{
+		DiscussionMessageBean message = (DiscussionMessageBean) iter.next();
+		
+		if (! message.getDeleted())
+		{
+			results.add(message);
+		}
+	}
+	
+	return results;
+  }
   /**
    * @return Returns an array of Messages for the current selected thread
    */
@@ -2525,6 +2544,7 @@ public class DiscussionForumTool
       aMsg.setAuthor(getUserNameOrEid());
       
       aMsg.setDraft(Boolean.FALSE);
+      aMsg.setDeleted(Boolean.FALSE);
 
       // if the topic is moderated, we want to leave approval null.
 	  // if the topic is not moderated, all msgs are approved
@@ -2596,7 +2616,7 @@ public class DiscussionForumTool
       }
       return MESSAGE_COMPOSE;
     }
-    if (redirectTo.equals("dfViewMessage"))
+    if (redirectTo.equals(MESSAGE_VIEW))
     {
       if ((expand != null) && (expand.equalsIgnoreCase("true")))
       {
@@ -2941,11 +2961,37 @@ public class DiscussionForumTool
 
     return null;
   }
+  
+  /**
+   * If deleting, the parameter determines where to navigate back to
+   */
+  public void setFromPage(String fromPage) {
+	  this.fromPage = fromPage;
+  }
+  
+  /**
+   * Since delete message can be called from 2 places, this
+   * parameter determines where to navigate back to
+   */
+  public String getFromPage() 
+  {
+	  return (fromPage != null) ? fromPage : "";
+  }
 
+  /**
+   * Set detail screen for Delete confirmation view
+   */
   public String processDfMsgDeleteConfirm()
   {
+	  // if coming from thread view, need to set message info
+    if (getExternalParameterByKey(FROMPAGE) != null) {
+    	processActionDisplayMessage();
+    	fromPage = getExternalParameterByKey(FROMPAGE);
+    }
+
     deleteMsg = true;
-    return null;
+    setErrorMessage(getResourceBundleString(CONFIRM_DELETE_MESSAGE));
+    return MESSAGE_VIEW;
   }
 
   public String processDfReplyMsgPost()
@@ -3417,73 +3463,64 @@ public class DiscussionForumTool
     return ALL_MESSAGES;
   }
 
+  /**
+   * Is the detail view normal or delete screen?
+   */
   public boolean getDeleteMsg()
   {
     return deleteMsg;
   }
 
+  /**
+   * Deletes the message by setting boolean deleted switch to TRUE.
+   */
   public String processDfMsgDeleteConfirmYes()
   {
-    List delList = new ArrayList();
-    messageManager.getChildMsgs(selectedMessage.getMessage().getId(), delList);
-    
-    if(delList.size() > 0)
-    {
-    	if(!selectedTopic.getIsDeleteAny())
-    	{
-    		errorSynch = true;
-    		return null;
-    	}
-    }
+	Message message = selectedMessage.getMessage();
+	
+	// 'delete' this message
+	message.setDeleted(true);
 
-    selectedTopic.removeMessage(selectedMessage);
-    Topic tempTopic = forumManager.getTopicByIdWithMessages(selectedTopic
-        .getTopic().getId());
-    tempTopic.removeMessage(selectedMessage.getMessage());
-    // selectedTopic.getTopic().removeMessage(selectedMessage.getMessage());
-    for (int i = 0; i < delList.size(); i++)
-    {
-      selectedTopic.removeMessage(new DiscussionMessageBean((Message) delList
-          .get(i), messageManager));
-      // tempTopic.removeMessage((Message) delList.get(i));
-      // selectedTopic.getTopic().removeMessage((Message) delList.get(i));
-    }
+	// reload topic for this message so we can save it
+    message.setTopic((DiscussionTopic) forumManager
+                .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
 
-    messageManager.deleteMsgWithChild(selectedMessage.getMessage().getId());
+    // does the actual save to 'delete' this message
+    forumManager.saveMessage(message);
 
-    try
-    {
-      DiscussionTopic topic = null;
-      try
-      {
-        topic = forumManager.getTopicById(selectedTopic.getTopic().getId());
-      }
-      catch (NumberFormatException e)
-      {
-        LOG.error(e.getMessage(), e);
-      }
-      setSelectedForumForCurrentTopic(topic);
-      selectedTopic = getDecoratedTopic(topic);
-    }
-    catch (Exception e)
-    {
-      LOG.error(e.getMessage(), e);
-      setErrorMessage(e.getMessage());
-      this.deleteMsg = false;
-      return gotoMain();
-    }
+    // reload the topic, forum and reset the topic's base forum
+    selectedTopic = getDecoratedTopic(selectedTopic.getTopic());
+    setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
+            .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));   
+    selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
 
     this.deleteMsg = false;
 
-    return ALL_MESSAGES;
+    // go to thread view or all messages depending on
+    // where come from
+    if (!"".equals(fromPage)) {
+    	final String where = fromPage;
+    	fromPage = null;
+    	return where;
+    }
+    else {
+    	return ALL_MESSAGES;
+    }
   }
 
   public String processDfMsgDeleteCancel()
   {
     this.deleteMsg = false;
     this.errorSynch = false;
-
-    return null;
+    
+    if (!"".equals(fromPage)) {
+    	final String where = fromPage;
+    	fromPage = null;
+    	return where;
+    }
+    else {
+    	return null;
+    }
   }
   
   /**
@@ -4193,8 +4230,13 @@ public class DiscussionForumTool
          * dmb.setDepth(currentMsg.getDepth() + 1); returnList.add(dmb);
          * this.recursiveGetThreadedMsgsFromList(msgsList, returnList, dmb);
          */
-    	childCount[0]++;
-    	if(!thisMsgBean.isRead()){
+    	if (!thisMsgBean.getDeleted())
+    	{
+    		childCount[0]++;
+    	}
+    	
+    	if(!thisMsgBean.isRead() && !thisMsgBean.getDeleted())
+    	{
     		childUnread[0]++;
     	}
         thisMsgBean.setDepth(currentMsg.getDepth() + 1);
@@ -5495,7 +5537,33 @@ public class DiscussionForumTool
 			return true;
 	}
 	
-	public List getMessages() {
+	/**
+	 * With ability to delete messages, need to filter out
+	 * messages that are from print friendly view so we don't
+	 * need to do it within the UI rendering.
+	 */
+	public List getpFMessages() 
+	{
+		List results = new ArrayList();
+		List messages = getMessages();
+		
+		for (Iterator iter = messages.iterator(); iter.hasNext();)
+		{
+			DiscussionMessageBean message = (DiscussionMessageBean) iter.next();
+			
+			if (!message.getDeleted()) {
+				results.add(message);
+			}
+		}
+		
+		return results;
+	}
+
+	/**
+	 * Returns list of DecoratedMessageBean objects, ie, the messages
+	 */
+	public List getMessages() 
+	{
 		List messages = new ArrayList();
 		
 		//if(displayUnreadOnly) 
@@ -5522,6 +5590,11 @@ public class DiscussionForumTool
 		List viewableMsgs = new ArrayList();
 		if (messages != null || messages.size() > 0)
 		{
+			if (forum == null) 
+			{
+				forum = selectedForum.getForum();
+			}
+
 			boolean hasModeratePerm = uiPermissionsManager.isModeratePostings(topic, forum);
 			
 			if (hasModeratePerm)

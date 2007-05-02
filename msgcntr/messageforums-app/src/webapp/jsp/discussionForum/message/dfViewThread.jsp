@@ -96,18 +96,20 @@
 		</mf:hierDataTable>
 				
 		<h:inputHidden id="mainOrForumOrTopic" value="dfViewThread" />
-		<%
-  String thisId = request.getParameter("panel");
-  if (thisId == null) 
-  {
-    thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
-  }
-%>
-			<script type="text/javascript">
-			function resize(){
-  				mySetMainFrameHeight('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
-  			}
-			</script> 
+
+	<%
+	  	String thisId = request.getParameter("panel");
+  		if (thisId == null) 
+  		{
+    		thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
+  		}
+	%>
+	<script type="text/javascript">
+		function resize(){
+  			mySetMainFrameHeight('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
+  		}
+	</script> 
+	
 	</h:form>
 </sakai:view>
 </f:view>

@@ -32,6 +32,8 @@ import java.util.Set;
 
 public interface Message extends MutableEntity {
 
+	public Boolean getDeleted();
+	public void setDeleted(Boolean deleted);
     public Boolean getDraft();
     public void setDraft(Boolean draft);
     public Boolean getApproved();

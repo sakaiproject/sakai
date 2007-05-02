@@ -52,6 +52,7 @@ public class MessageImpl extends MutableEntityImpl implements Message
   private Boolean hasAttachments = Boolean.FALSE;
   private String gradeComment;
   private String gradeAssignmentName; 
+  private Boolean deleted;
 
   public static Comparator ATTACHMENT_COMPARATOR;
   public static Comparator SUBJECT_COMPARATOR;
@@ -209,6 +210,15 @@ public class MessageImpl extends MutableEntityImpl implements Message
   public void setTypeUuid(String typeUuid)
   {
     this.typeUuid = typeUuid;
+  }
+
+  public Boolean getDeleted() {
+	  return deleted;
+  }
+
+  public void setDeleted(Boolean deleted) 
+  {
+	this.deleted = deleted;
   }
 
   public String toString()

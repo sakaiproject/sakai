@@ -177,7 +177,6 @@ public class MessageForumSynopticBean {
 	private transient Boolean myWorkspace = null;
 	private transient Boolean pmEnabled = null;
 	private transient Boolean anyMFToolInSite = null;
-	private transient List contents = null;
 
 	/** Used to determine if MessageCenter tool part of site */
 	private final String MESSAGE_CENTER_ID = "sakai.messagecenter";
@@ -951,12 +950,7 @@ public class MessageForumSynopticBean {
 		if (isMyWorkspace()) {
 			// Get stats for "all" sites this user is a member of
 			// and has not turned displaying info off
-			if (contents == null) {
-				contents = getMyWorkspaceContents();
-			}
-			
-			return contents;
-			
+			return getMyWorkspaceContents();			
 		}
 		else {
 			// refactored to not use dataTable 12/12/06
@@ -1266,9 +1260,6 @@ public class MessageForumSynopticBean {
 				}
 			}
 		}
-		
-		// Need to null out contents variable to get new values
-		contents = null;
 	}
 
 	/**

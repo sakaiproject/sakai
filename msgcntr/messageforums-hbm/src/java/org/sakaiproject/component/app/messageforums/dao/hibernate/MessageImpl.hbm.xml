@@ -83,6 +83,11 @@
     <property name="draft">
       <column name="DRAFT" not-null="true" />
     </property>
+ 	<!-- added implementing delete from threaded view -->
+	<property name="deleted">
+		<column name="DELETED" not-null="true" />
+	</property> 
+	
     
     <many-to-one name="topic" column="surrogateKey"
       class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"
@@ -148,20 +153,21 @@
   </query>
   
   <query name="findMessageCountByTopicId">
-    <![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message where message.topic.id = :topicId and message.draft = false]]>
+    <![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message where message.topic.id = :topicId and message.draft = false and message.deleted=false]]>
   </query>
   
   <query name="findViewableMessageCountByTopicIdByUserId">
     <![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message 
     				where message.topic.id = :topicId and 
-    				message.draft = false and 
+    				message.draft = false and
+    				message.deleted = false and
     				(message.approved = true or
     				message.createdBy = :userId) 
     ]]>
   </query>
 
   <query name="findReadMessageCountByTopicId">
-    <![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message, org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us where message.topic.id = :topicId and us.userId = :userId and message.id = us.messageId and us.read = true and message.draft = false]]>
+    <![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message, org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us where message.topic.id = :topicId and us.userId = :userId and message.id = us.messageId and us.read = true and message.draft = false and message.deleted = false]]>
   </query>
   
   <query name="findReadViewableMessageCountByTopicIdByUserId">
@@ -172,12 +178,13 @@
     				 message.id = us.messageId and 
     				 us.read = true and 
     				 message.draft = false and 
+    				 message.deleted = false and
     				 (message.approved = true or
     				 message.createdBy = :userId)]]>
   </query>
   
   <query name="findAuhtoredMessageCountByTopicId">
-  	<![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message where message.topic.id = :topicId and message.draft = false and message.createdBy = :userId]]>
+  	<![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message where message.topic.id = :topicId and message.draft = false and message.deleted = false and message.createdBy = :userId]]>
   </query>
 
   <query name="findMessagesByTopicId">
@@ -216,7 +223,9 @@
              from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message
              left join message.recipients recipient
              where recipient.userId = :userId and
-                   recipient.read = false
+                   recipient.read = false and
+                   message.draft = false and
+                   message.deleted = false
              group by recipient.contextId
     ]]>
   </query>
@@ -229,7 +238,9 @@
              join f.area as a
              where a.contextId in ( :siteList ) and
              f.draft = false and
-             topic.draft = false
+             topic.draft = false and
+             messages.draft = false and
+             messages.deleted = false
              group by a.contextId
     ]]>
  
@@ -268,6 +279,7 @@
              join f.area as a
              where us.userId = :userId and
              messages.id = us.messageId and
+             messages.deleted = false and
              f.draft = false and
              topic.draft = false
              group by a.contextId
@@ -287,6 +299,7 @@
              join f.area as a
              where us.userId = :userId and
              messages.id = us.messageId and
+             messages.deleted = false and
              ((pl.typeUuid != '00000000-0000-0000-7777-000000000000' and 
                pl.name = membershipItem.permissionLevelName) or
               membershipItem.permissionLevel = pl.id) and

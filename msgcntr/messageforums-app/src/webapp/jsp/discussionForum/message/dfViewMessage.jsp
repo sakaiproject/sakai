@@ -10,6 +10,7 @@
 <sakai:view>
 	<h:form id="msgForum">
 <!--jsp/discussionForum/message/dfViewMessage.jsp-->
+		
 		  <h:panelGrid columns="2" summary="layout" width="100%" styleClass="navPanel">
 		    <h:panelGroup styleClass="breadCrumb">
 				<f:verbatim><h3></f:verbatim>
@@ -52,24 +53,8 @@
 						<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 					 </h:commandLink>
 			 </h:panelGroup>
-				 <%--
-			 <h:panelGroup styleClass="itemNav">
-			   <h:outputText   value="#{msgs.cdfm_previous_topic}   "  rendered="#{!ForumTool.selectedTopic.hasPreviousTopic}" />
-				 <h:commandLink action="#{ForumTool.processActionDisplayPreviousTopic}" value="#{msgs.cdfm_previous_topic}   "  
-				                rendered="#{ForumTool.selectedTopic.hasPreviousTopic}" title=" #{msgs.cdfm_previous_topic}">
-					<f:param value="#{ForumTool.selectedTopic.previousTopicId}" name="previousTopicId"/>
-					<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
-				 </h:commandLink>
-				 <f:verbatim><h:outputText value=" | " /></f:verbatim>
-				 <h:outputText   value="#{msgs.cdfm_next_topic}   " rendered="#{!ForumTool.selectedTopic.hasNextTopic}" />
-				 <h:commandLink action="#{ForumTool.processActionDisplayNextTopic}" value="#{msgs.cdfm_next_topic}   " 
-				                rendered="#{ForumTool.selectedTopic.hasNextTopic}" title=" #{msgs.cdfm_next_topic}">
-					<f:param value="#{ForumTool.selectedTopic.nextTopicId}" name="nextTopicId"/>
-					<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
-				 </h:commandLink>
-			 </h:panelGroup>
-			 --%>
 		  </h:panelGrid>
+
 		<p class="textPanel">
 		  <h:outputText value="#{ForumTool.selectedTopic.topic.shortDescription}" />
 		  </p>
@@ -99,102 +84,73 @@
 	
 	  <h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" />
 	
-		<sakai:tool_bar>
+		<sakai:tool_bar rendered="#{!ForumTool.deleteMsg && !ForumTool.selectedMessage.message.deleted}">
 			<h:panelGrid columns="2" width="100%" summary="layout">
-			<h:panelGroup styleClass="specialLink">
-				<h:commandLink title="#{msgs.cdfm_button_bar_reply_to_msg}" action="#{ForumTool.processDfMsgReplyMsg}" 
-		  			rendered="#{ForumTool.selectedTopic.isNewResponseToResponse && ForumTool.selectedMessage.msgApproved}">
-		  			<h:graphicImage value="/images/silk/email_go.png" alt="#{msgs.cdfm_button_bar_reply_to_msg}" rendered="#{ForumTool.selectedTopic.isNewResponseToResponse}" />
-		  			<h:outputText value=" #{msgs.cdfm_button_bar_reply_to_msg}" />
-		  		</h:commandLink>
+				<h:panelGroup styleClass="specialLink">
+					<h:commandLink title="#{msgs.cdfm_button_bar_reply_to_msg}" action="#{ForumTool.processDfMsgReplyMsg}" 
+		  				rendered="#{ForumTool.selectedTopic.isNewResponseToResponse && ForumTool.selectedMessage.msgApproved}">
+		  				<h:graphicImage value="/images/silk/email_go.png" alt="#{msgs.cdfm_button_bar_reply_to_msg}" rendered="#{ForumTool.selectedTopic.isNewResponseToResponse}" />
+		  				<h:outputText value=" #{msgs.cdfm_button_bar_reply_to_msg}" />
+		  			</h:commandLink>
       			
-      		<h:commandLink title="#{msgs.cdfm_button_bar_reply_to_thread}" action="#{ForumTool.processDfMsgReplyThread}" 
-		  			rendered="#{ForumTool.selectedTopic.isNewResponse && ForumTool.selectedThreadHead.msgApproved}">
-		  			<h:graphicImage value="/images/silk/folder_go.png" alt="#{msgs.cdfm_button_bar_reply_to_thread}" />
-		  			<h:outputText value=" #{msgs.cdfm_button_bar_reply_to_thread}" />
-		  		</h:commandLink>
+		      		<h:commandLink title="#{msgs.cdfm_button_bar_reply_to_thread}" action="#{ForumTool.processDfMsgReplyThread}" 
+			  			rendered="#{ForumTool.selectedTopic.isNewResponse && ForumTool.selectedThreadHead.msgApproved}">
+		  				<h:graphicImage value="/images/silk/folder_go.png" alt="#{msgs.cdfm_button_bar_reply_to_thread}" />
+		  				<h:outputText value=" #{msgs.cdfm_button_bar_reply_to_thread}" />
+		  			</h:commandLink>
 		  		
-		  		<h:commandLink title="#{msgs.cdfm_button_bar_delete_msg}" action="#{ForumTool.processDfMsgDeleteConfirm}" 
-		  			rendered="#{!ForumTool.selectedTopic.isDeleteAny && ForumTool.selectedTopic.isDeleteOwn && ForumTool.selectedMessage.isOwn}" >
-		  			<h:graphicImage value="/images/silk/email_delete.png" alt="#{msgs.cdfm_button_bar_delete_msg}" />
-		  			<h:outputText value=" #{msgs.cdfm_button_bar_delete_msg}" />
-		  		</h:commandLink>
+			  		<h:commandLink title="#{msgs.cdfm_button_bar_delete_msg}" action="#{ForumTool.processDfMsgDeleteConfirm}" 
+			  			rendered="#{ForumTool.selectedTopic.isDeleteAny || ForumTool.selectedTopic.isDeleteOwn || ForumTool.selectedMessage.isOwn}" >
+		  				<h:graphicImage value="/images/silk/email_delete.png" alt="#{msgs.cdfm_button_bar_delete_msg}" />
+		  				<h:outputText value=" #{msgs.cdfm_button_bar_delete_msg}" />
+		  			</h:commandLink>
 		  		
-		  		<h:commandLink title="#{msgs.cdfm_button_bar_revise}" action="#{ForumTool.processDfMsgRvs}" 
-		  			rendered="#{ForumTool.selectedMessage.revise}">
-		  			<h:graphicImage value="/images/silk/email_edit.png" alt="#{msgs.cdfm_button_bar_revise}" />
-		  			<h:outputText value=" #{msgs.cdfm_button_bar_revise}" />
-		  		</h:commandLink>
+			  		<h:commandLink title="#{msgs.cdfm_button_bar_revise}" action="#{ForumTool.processDfMsgRvs}" 
+			  			rendered="#{ForumTool.selectedMessage.revise}">
+			  			<h:graphicImage value="/images/silk/email_edit.png" alt="#{msgs.cdfm_button_bar_revise}" />
+		  				<h:outputText value=" #{msgs.cdfm_button_bar_revise}" />
+		  			</h:commandLink>
 		  		
-		  		<h:commandLink title="#{msgs.cdfm_button_bar_grade}" action="#{ForumTool.processDfMsgGrd}" 
-		  			rendered="#{ForumTool.selectedTopic.isPostToGradebook && ForumTool.gradebookExist}">
-		  			<h:graphicImage value="/images/silk/award_star_gold_1.png" alt="#{msgs.cdfm_button_bar_grade}" />
-		  			<h:outputText value=" #{msgs.cdfm_button_bar_grade}" />
-		  		</h:commandLink>
-		  	</h:panelGroup>
-		  	<h:panelGroup styleClass="specialLink" style="text-align:right;float:right;">
-		  		<h:commandLink title="#{msgs.cdfm_button_bar_deny}" action="#{ForumTool.processDfMsgDeny}" 
-		  			rendered="#{ForumTool.allowedToDenyMsg}">
-		  			<h:graphicImage value="/images/silk/cross.png" alt="#{msgs.cdfm_button_bar_deny}" />
-		  			<h:outputText value=" #{msgs.cdfm_button_bar_deny}" />
-		  		</h:commandLink>
-		  		<h:commandLink title="#{msgs.cdfm_button_bar_add_comment}" action="#{ForumTool.processDfMsgAddComment}" 
-		  			rendered="#{ForumTool.allowedToApproveMsg && ForumTool.selectedMessage.msgDenied}">
-		  			<h:graphicImage value="/images/silk/comment.png" alt="#{msgs.cdfm_button_bar_add_comment}" />
-		  			<h:outputText value=" #{msgs.cdfm_button_bar_add_comment}" />
-		  		</h:commandLink>
+			  		<h:commandLink title="#{msgs.cdfm_button_bar_grade}" action="#{ForumTool.processDfMsgGrd}" 
+			  			rendered="#{ForumTool.selectedTopic.isPostToGradebook && ForumTool.gradebookExist}">
+			  			<h:graphicImage value="/images/silk/award_star_gold_1.png" alt="#{msgs.cdfm_button_bar_grade}" />
+		  				<h:outputText value=" #{msgs.cdfm_button_bar_grade}" />
+		  			</h:commandLink>
+			  	</h:panelGroup>
+			  	<h:panelGroup styleClass="specialLink" style="text-align:right;float:right;">
+			  		<h:commandLink title="#{msgs.cdfm_button_bar_deny}" action="#{ForumTool.processDfMsgDeny}" 
+		  							rendered="#{ForumTool.allowedToDenyMsg}">
+			  			<h:graphicImage value="/images/silk/cross.png" alt="#{msgs.cdfm_button_bar_deny}" />
+			  			<h:outputText value=" #{msgs.cdfm_button_bar_deny}" />
+			  		</h:commandLink>
+		  			<h:commandLink title="#{msgs.cdfm_button_bar_add_comment}" action="#{ForumTool.processDfMsgAddComment}" 
+		  				rendered="#{ForumTool.allowedToApproveMsg && ForumTool.selectedMessage.msgDenied}">
+			  			<h:graphicImage value="/images/silk/comment.png" alt="#{msgs.cdfm_button_bar_add_comment}" />
+			  			<h:outputText value=" #{msgs.cdfm_button_bar_add_comment}" />
+			  		</h:commandLink>
 		  		
-		  		<h:commandLink title="#{msgs.cdfm_button_bar_approve}" action="#{ForumTool.processDfMsgApprove}" 
-		  			rendered="#{ForumTool.allowedToApproveMsg}">
-		  			<h:graphicImage value="/images/silk/tick.png" alt="#{msgs.cdfm_button_bar_approve}" />
-		  			<h:outputText value=" #{msgs.cdfm_button_bar_approve}" />
-		  		</h:commandLink>
-		  	</h:panelGroup>
+		  			<h:commandLink title="#{msgs.cdfm_button_bar_approve}" action="#{ForumTool.processDfMsgApprove}" 
+		  				rendered="#{ForumTool.allowedToApproveMsg}">
+		  				<h:graphicImage value="/images/silk/tick.png" alt="#{msgs.cdfm_button_bar_approve}" />
+			  			<h:outputText value=" #{msgs.cdfm_button_bar_approve}" />
+			  		</h:commandLink>
+			  	</h:panelGroup>
 		  	</h:panelGrid>
- 		</sakai:tool_bar>
-		
-			
-		<%--
-		<sakai:button_bar rendered="#{!ForumTool.deleteMsg}">
-		
-	    <sakai:button_bar_item action="#{ForumTool.processDfMsgReplyMsg}" value="#{msgs.cdfm_button_bar_reply_to_msg}" 
-	                           rendered="#{ForumTool.selectedTopic.isNewResponseToResponse}" />
-	                           
-	    <sakai:button_bar_item action="#{ForumTool.processDfMsgReplyThread}" value="#{msgs.cdfm_button_bar_reply_to_thread}" 
-		                         rendered="#{ForumTool.selectedTopic.isNewResponse}" />
-		                         
-      <sakai:button_bar_item action="#{ForumTool.processDfMsgGrd}" value="#{msgs.cdfm_button_bar_grade}" 
-                             rendered="#{ForumTool.selectedTopic.isPostToGradebook && ForumTool.gradebookExist}"  /> 
-                             
-      <sakai:button_bar_item action="#{ForumTool.processDfMsgRvs}" value="#{msgs.cdfm_button_bar_revise}"
-		                         rendered="#{ForumTool.selectedTopic.isReviseAny}" accesskey="r" />
-		                         
-      <sakai:button_bar_item action="#{ForumTool.processDfMsgRvs}" value="#{msgs.cdfm_button_bar_revise}"
-		    rendered="#{!ForumTool.selectedTopic.isReviseAny && 
-		    	ForumTool.selectedTopic.isReviseOwn && ForumTool.selectedMessage.isOwn}" accesskey="r" />
-		    	--%>
-<%--      <sakai:button_bar_item action="#{ForumTool.processDfMsgMove}" value="Move" rendered="#{ForumTool.fullAccess}"/>--%>
-<%--      <sakai:button_bar_item action="#{ForumTool.processDfMsgDeleteConfirm}" value="Delete" 
-      	rendered="#{ForumTool.selectedTopic.isDeleteAny}"/>
-      <sakai:button_bar_item action="#{ForumTool.processDfMsgDeleteConfirm}" value="Delete" 
-      	rendered="#{!ForumTool.selectedTopic.isDeleteAny && 
-      		ForumTool.selectedTopic.isDeleteOwn && ForumTool.selectedMessage.isOwn
-      		&& !ForumTool.selectedMessage.hasChild}"/>
-      <sakai:button_bar_item action="#{ForumTool.processDfMsgDeleteConfirm}" 
-        value="Delete Unavailable" disabled="true"
-      	rendered="#{!ForumTool.selectedTopic.isDeleteAny && 
-      		ForumTool.selectedTopic.isDeleteOwn && ForumTool.selectedMessage.isOwn
-      		&& ForumTool.selectedMessage.hasChild}"/>--%>
-      		<%--
-    </sakai:button_bar>
-    --%>
-    
+  		</sakai:tool_bar>
+
 	<f:verbatim><div class="hierItemBlock" style="padding-bottom:0"></f:verbatim>
 	<f:verbatim><h4 class="textPanelHeader" style="margin-bottom:0"></f:verbatim>
 	
     <h:panelGrid columns="3" styleClass="itemSummary" style="width: 100%;">
     	<h:outputText value="#{msgs.cdfm_subject}"/>
-    	<h:outputText value="#{ForumTool.selectedMessage.message.title}"/>
+    	<h:panelGroup rendered="#{ForumTool.selectedMessage.message.deleted}">
+ 	    	<h:outputText value="#{msgs.cdfm_msg_deleted_label}: &nbsp; " escape="false" styleClass="highlight" />
+ 		</h:panelGroup>
+ 		
+  		<h:panelGroup rendered="#{!ForumTool.selectedMessage.message.deleted}" >
+    		<h:outputText value="#{ForumTool.selectedMessage.message.title}" 
+    				rendered="#{!ForumTool.selectedMessage.message.deleted || ForumTool.instructor}" />
+    	</h:panelGroup>
     	<h:panelGroup styleClass="msgNav">
     		<h:commandLink action="#{ForumTool.processDisplayPreviousMsg}" rendered="#{ForumTool.selectedMessage.hasPre}" 
                        title=" #{msgs.cdfm_prev_msg}">
@@ -209,16 +165,16 @@
 			    <h:outputText value="#{msgs.cdfm_next_msg}" rendered="#{!ForumTool.selectedMessage.hasNext}" />
     	</h:panelGroup>
     	
-    	<h:outputText value="#{msgs.cdfm_authoredby}"/>
-    	<h:panelGroup>
-	      <h:outputText value="#{ForumTool.selectedMessage.message.author}" />
-	      <h:outputText value=" #{msgs.cdfm_openb}" />
-	      <h:outputText value="#{ForumTool.selectedMessage.message.created}" >
-          <f:convertDateTime pattern="#{msgs.date_format}" />  
-        </h:outputText>
-        <h:outputText value=" #{msgs.cdfm_closeb}" />
+    	<h:outputText value="#{msgs.cdfm_authoredby}" rendered="#{!ForumTool.selectedMessage.message.deleted}" />
+    	<h:panelGroup rendered="#{!ForumTool.selectedMessage.message.deleted}" >
+	    	<h:outputText value="#{ForumTool.selectedMessage.message.author}" />
+	    	<h:outputText value=" #{msgs.cdfm_openb}" />
+	      	<h:outputText value="#{ForumTool.selectedMessage.message.created}" >
+          		<f:convertDateTime pattern="#{msgs.date_format}" />  
+        	</h:outputText>
+        	<h:outputText value=" #{msgs.cdfm_closeb}" />
 	    </h:panelGroup>
-	<h:outputText value="" />
+		<h:outputText value="" />
       
       <h:outputText value="#{msgs.cdfm_att}" rendered="#{!empty ForumTool.selectedMessage.attachList}" />
       <h:panelGroup rendered="#{!empty ForumTool.selectedMessage.attachList}">
@@ -241,52 +197,32 @@
 					  </h:column>
 
 					</h:dataTable>
-      </h:panelGroup>
       <h:outputText value="" rendered="#{!empty ForumTool.selectedMessage.attachList}" />
-      
-      
+      </h:panelGroup>
     </h:panelGrid>
-    
 		
 		<%-- <hr class="itemSeparator" /> --%>
 		<f:verbatim></h4></f:verbatim>
     	<f:verbatim><div style="width:100%;height:150px;overflow:auto;"></f:verbatim>
-			<h:outputText escape="false" value="#{ForumTool.selectedMessage.message.body}" />
+			<h:outputText escape="false" value="#{ForumTool.selectedMessage.message.body}" 
+						rendered="#{!ForumTool.selectedMessage.message.deleted}" />
 		<f:verbatim></div></f:verbatim>
 			
 	<f:verbatim></div></f:verbatim>
 
-		<h:panelGroup rendered="#{!ForumTool.errorSynch && ForumTool.deleteMsg && ForumTool.selectedTopic.isDeleteOwn && ForumTool.selectedMessage.isOwn}">
-			<h:outputText styleClass="alertMessage" 
-			value="#{msgs.cdfm_delete_msg}" />
-		</h:panelGroup>
-		<h:panelGroup rendered="#{!ForumTool.errorSynch && ForumTool.deleteMsg && ForumTool.selectedTopic.isDeleteAny && !ForumTool.selectedMessage.isOwn}">
-			<h:outputText styleClass="alertMessage" 
-			value="#{msgs.cdfm_delete_msg}" />
-		</h:panelGroup>
-		<h:panelGroup rendered="#{ForumTool.deleteMsg && ForumTool.errorSynch}">
-			<h:outputText styleClass="alertMessage" 
-			value="#{msgs.cdfm_msg_del_has_reply}" />
-		</h:panelGroup>
-		
-    <sakai:button_bar rendered="#{ForumTool.deleteMsg && ForumTool.selectedTopic.isDeleteOwn && ForumTool.selectedMessage.isOwn}" > 
-      <sakai:button_bar_item action="#{ForumTool.processDfMsgDeleteConfirmYes}" value="#{msgs.cdfm_button_bar_delete}" accesskey="x"/>
-      <sakai:button_bar_item action="#{ForumTool.processDfMsgDeleteCancel}" value="#{msgs.cdfm_button_bar_cancel}" accesskey="c"/>
+	<h:panelGroup rendered="#{ForumTool.deleteMsg && ForumTool.errorSynch}">
+		<h:outputText styleClass="alertMessage" 
+		value="#{msgs.cdfm_msg_del_has_reply}" />
+	</h:panelGroup>
+	
+	<%-- If deleting, tells where to go back to --%>	
+	<h:inputHidden value="#{ForumTool.fromPage}" />
+	
+    <sakai:button_bar rendered="#{ForumTool.deleteMsg}" > 
+      <sakai:button_bar_item action="#{ForumTool.processDfMsgDeleteConfirmYes}" value="#{msgs.cdfm_button_bar_delete}" accesskey="x" />
+      <sakai:button_bar_item action="#{ForumTool.processDfMsgDeleteCancel}" value="#{msgs.cdfm_button_bar_cancel}" accesskey="c" />
     </sakai:button_bar>
-    <sakai:button_bar rendered="#{ForumTool.deleteMsg && ForumTool.selectedTopic.isDeleteAny && !ForumTool.selectedMessage.isOwn}"> 
-      <sakai:button_bar_item action="#{ForumTool.processDfMsgDeleteConfirmYes}" value="#{msgs.cdfm_button_bar_delete}" accesskey="x"/>
-      <sakai:button_bar_item action="#{ForumTool.processDfMsgDeleteCancel}" value="#{msgs.cdfm_button_bar_cancel}" accesskey="c"/>
-    </sakai:button_bar>
-    
-<%--    <sakai:group_box>
-      <sakai:panel_edit>
-        <sakai:doc_section>            
-         <h:inputTextarea value="#{ForumTool.selectedMessage.message.body}" cols="100" rows="5" />--%>
-			
-<%--        </sakai:doc_section>    
-      </sakai:panel_edit>
-    </sakai:group_box>--%>
-		
+
  	</h:form>
 </sakai:view>
 </f:view>

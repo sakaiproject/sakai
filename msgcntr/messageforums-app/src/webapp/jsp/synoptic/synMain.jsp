@@ -118,15 +118,15 @@
 			<h:panelGroup rendered="#{mfSynopticBean.siteInfo.unreadPrivateAmt > 0}" >
 				<h:outputText 
 					value="#{msgs.syn_tool_link_begin}#{mfSynopticBean.siteInfo.privateMessagesUrl}';\">#{mfSynopticBean.siteInfo.unreadPrivateAmt}</a>"
-					escape="false" title="#{msgs.syn_goto_messages}" rendered="#{mfSynopticBean.siteInfo.unreadPrivateAmt > 0}"/>
+					escape="false" title="#{msgs.syn_goto_messages}" rendered="#{mfSynopticBean.siteInfo.unreadPrivateAmt > 0}" />
 				<h:outputText value="  " rendered="true" />
 
-	 			<h:commandLink action="synMain" actionListener="#{mfSynopticBean.processReadAll}" styleClass="active">
+	 			<h:commandLink action="synMain" actionListener="#{mfSynopticBean.processReadAll}" styleClass="active" >
 					<h:graphicImage url="/images/silk/email_edit.png" title="#{msgs.syn_mark_as_read}" 
 						onmouseover="ImageRollOver(this, '/sakai-messageforums-tool/images/silk/email_open.png');"
 						onmouseout="ImageRollOver(this, '/sakai-messageforums-tool/images/silk/email_edit.png');" />
 					<f:param name="contextId" value="#{eachSite.siteId}" />
-			</h:commandLink>
+				</h:commandLink>
 			</h:panelGroup>
 		</h:panelGroup>
 		
@@ -143,7 +143,7 @@
 							escape="false" title="#{msgs.syn_goto_forums}" rendered="#{mfSynopticBean.siteInfo.unreadForumsAmt > 0}"/>
 			<h:outputText value="  " rendered="true" />
 
-			<h:graphicImage url="/images/silk/email.png" />
+			<h:graphicImage url="/images/silk/email.png" rendered="#{mfSynopticBean.siteInfo.unreadForumsAmt > 0}" />
 		</h:panelGroup>
 	</h:panelGrid>
 

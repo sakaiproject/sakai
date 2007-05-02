@@ -254,7 +254,8 @@ public abstract class TopicImpl extends MutableEntityImpl implements Topic {
         if (message == null) {
             throw new IllegalArgumentException("Illegal message argument passed!");
         }
-        
+
+        // TODO: instead of this, set deleted field to true
         message.setTopic(null);
         messagesSet.remove(message);
     }
