@@ -273,17 +273,16 @@ public class SiteListBean {
 		userSitesRows = new ArrayList();
 		try{
 			Connection c = M_sql.borrowConnection();
-			String sql = "select distinct(SAKAI_SITE.SITE_ID),TITLE,TYPE,PUBLISHED,ROLE_NAME,ACTIVE,VALUE as TERM " +
-						"from SAKAI_SITE,SAKAI_REALM,SAKAI_REALM_RL_GR,SAKAI_REALM_ROLE " +
-						"left join SAKAI_SITE_PROPERTY on SAKAI_SITE.SITE_ID=SAKAI_SITE_PROPERTY.SITE_ID " +
-						"and NAME='term' " +
-						"where SAKAI_REALM.REALM_ID=CONCAT('/site/',SAKAI_SITE.SITE_ID) " +
-						"and SAKAI_REALM.REALM_KEY=SAKAI_REALM_RL_GR.REALM_KEY " +
-						"and SAKAI_REALM_RL_GR.ROLE_KEY=SAKAI_REALM_ROLE.ROLE_KEY " +
-						"and SAKAI_REALM_RL_GR.USER_ID=? " +
-						"and IS_USER=0 " + 
-						"and IS_SPECIAL=0 " +
-						"ORDER BY TITLE";
+			String sql = "select ss.SITE_ID, ss.TITLE, ss.TYPE, ss.PUBLISHED, srr.ROLE_NAME, srrg.ACTIVE, "+
+						" (select VALUE from SAKAI_SITE_PROPERTY ssp where ss.SITE_ID = ssp.SITE_ID and ssp.NAME = 'term') TERM " +
+						"from SAKAI_SITE ss, SAKAI_REALM sr, SAKAI_REALM_RL_GR srrg, SAKAI_REALM_ROLE srr " +
+						"where sr.REALM_ID = CONCAT('/site/',ss.SITE_ID) " +
+						"and sr.REALM_KEY = srrg.REALM_KEY " +
+						"and srrg.ROLE_KEY = srr.ROLE_KEY " +
+						"and srrg.USER_ID = ? " +
+						"and ss.IS_USER = 0 " + 
+						"and ss.IS_SPECIAL = 0 " +
+						"ORDER BY ss.TITLE";
 			PreparedStatement pst = c.prepareStatement(sql);
 			pst.setString(1, userId);
 			ResultSet rs = pst.executeQuery();
@@ -296,7 +295,7 @@ public class SiteListBean {
 				String grps = getGroups(userId, id);
 				String active = rs.getString("ACTIVE").trim().equals("1")? msgs.getString("site_user_status_active") : msgs.getString("site_user_status_inactive");
 				String term = rs.getString("TERM");
-				term = term == null? "" : term;// || term.equals("NULL")
+				term = term == null? "" : term;
 				UserSitesRow row = new UserSitesRow(id, t, tp, grps, rn, pv, active, term);
 				userSitesRows.add(row);
 			}
