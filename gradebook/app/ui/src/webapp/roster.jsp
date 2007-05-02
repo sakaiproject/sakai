@@ -12,7 +12,7 @@
 		<h2><h:outputText value="#{msgs.roster_page_title}"/></h2>
 
 		<t:aliasBean alias="#{bean}" value="#{rosterBean}">
-			<%@include file="/inc/filterPaging.jspf"%>
+			<%@include file="/inc/filterPagingRoster.jspf"%>
 		</t:aliasBean>
 
 		<gbx:spreadsheetUI 
