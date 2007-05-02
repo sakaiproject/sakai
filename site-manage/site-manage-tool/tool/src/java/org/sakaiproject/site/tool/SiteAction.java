@@ -2768,7 +2768,7 @@ public class SiteAction extends PagedResourceActionII {
 					.getAttribute(STATE_ACTION));
 			if (SiteService.allowUpdateSite(site.getId())
 					|| SiteService.allowUpdateGroupMembership(site.getId())) {
-				bar.add(new MenuEntry(rb.getString("java.new"), "doGroup_new"));
+				bar.add(new MenuEntry(rb.getString("java.newgroup"), "doGroup_new"));
 			}
 			context.put("menu", bar);
 
