@@ -16,11 +16,7 @@
 </jsp:useBean>
 
 <f:view>
-<sakai:view title="#{msgs.tool_title}" id="sakaiview">
-
-	<style type="text/css">
-		@import url("summary-calendar/css/cal.css");
-	</style>	
+<sakai:view title="#{msgs.tool_title}" id="sakaiview" toolCssHref="/sakai-calendar-summary-tool/summary-calendar/css/cal.css">
 	
 	<h:outputText value="#{CalBean.initValues}"/>
 
