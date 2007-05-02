@@ -520,6 +520,7 @@ below they are contextually defined depending on the column as an example,as you
 
 .portletTitle .title a{
 	background: url(images/reload.gif) center left no-repeat;
+	text-decoration: none;
 }
 
 .portletTitle .title a:hover{

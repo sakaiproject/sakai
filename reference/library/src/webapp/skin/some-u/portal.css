@@ -309,6 +309,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	width:auto;
 	list-style: none;
 	margin: 0;
+	font-size: .9em;
 	padding-right: 0;
 }
 
@@ -319,8 +320,10 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	padding: 0;
 	border: 1px solid #fff;
 	text-align: right;
+	border-left:1px solid #CB2DCC}
+#toolMenu li.selectedTool{
+	padding-left:4px
 }
-
 /*span shim for fine grained manipulation of link display (decorative)
 */
 #toolMenu li span{
@@ -341,7 +344,7 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 	text-decoration: none;
 	color: #000;
 	cursor: text;
-	padding: 2px 0px 2px 4px;
+	padding: 2px 0px 2px 8px;
 }
 
 #toolMenu li a.selected:hover{
@@ -478,6 +481,8 @@ below they are contextually defined depending on the column as an example,as you
 
 .portletTitle .title a{
 	background: url(images/reload.gif) center left no-repeat;
+	text-decoration: none;
+	
 }
 
 .portletTitle .title a:hover{
@@ -499,6 +504,7 @@ below they are contextually defined depending on the column as an example,as you
 
 .portletTitle .action a{
 	background: url(images/help.gif) center right no-repeat;
+		text-decoration: none;
 }
 
 .portletTitle .action a:hover{

@@ -13,7 +13,6 @@ body{
 hr.itemSeparator{
 	height: 1px;
 	border-color: #27d;
-		border-color: #27d;
 	border-style: solid;
 	border-width: 1px 0 0 0;
 }
@@ -21,12 +20,12 @@ hr.itemSeparator{
 /*SECTION 2 LINKS*/
 a:link{
 	color: #35b;
-	text-decoration: none;
+	text-decoration: underline !important;
 }
 
 a:visited{
 	color: #53b;
-	text-decoration: none;
+	text-decoration: underline !important;
 }
 
 a:hover,a:active{
@@ -353,6 +352,7 @@ table.calendar .event{
 /*skinned header of standard tab. data table*/
 .listHier th{
 	background-color: #ddd;
+	border: 1px solid #999;
 }
 /*skinned cell of standard tab. data table*/
 .listHier td{
@@ -408,6 +408,10 @@ tr.selectedMove td{
 /*see announcement 3rd view option*/
 tr.highLightRow{
 	background:#ddd;
+}
+/*highlight a row representing an item that has been added*/
+tr.highLightAdded{
+	background:#afa;
 }
 
 tr.highLightRow:hover{
@@ -564,6 +568,23 @@ textarea:focus{
 	border: 1px solid #000;
 }
 
+/* select element for actions on items in resources tool's list view */
+.actionmenu{
+	font-size: 85%;
+}
+
+/* optgroup element for actions on items in resources tool's list view */
+.actiongroup{
+	background-color: #fca;
+	padding: .3em 0em 0em 0em;
+}
+
+/* option element for actions on items in resources tool's list view */
+.actionitem{
+	background-color: #ffc;
+	padding: .3em;
+}
+
 
 /*SECTION 8 TOOLBAR*/
 /*see: any tool*/
@@ -618,6 +639,16 @@ textarea:focus{
 	cursor: pointer;
 }
 
+.navIntraTool span.separator {
+	left: -.5em;
+	position: relative;
+}
+.navIntraTool span.inactive {
+	margin-right:1em;
+	white-space: nowrap;
+	display:inline-block
+}
+
 /*SECTION 9 MESSAGES*/
 /*see: create any item*/
 .instruction{
@@ -662,13 +693,12 @@ textarea:focus{
 /*inline blob used to indicate progress (see: upload a resource say)
 visibility gets toggled*/
 #submitnotif{
-	background: #fff url(../images/warn.gif) .3em .3em no-repeat;
+	background: #fff url(../images/warn-a.gif) .3em .3em no-repeat;
 	border: 1px solid #b11;
 	font-family: Verdana,Arial,Helvetica,sans-serif;
 	clear: none;
 	color: #b11;
 	font-size: small;
-	text-decoration: blink;
 	vertical-align: text-top;
 	margin: 0;
 	padding: 5px 5px 5px 25px;
@@ -684,6 +714,9 @@ you loose the native buttonishness affordance of the os/browser */
 /*create any item - like an announcement*/
 .act .active {
 	color:#27d
+}
+.act .active[disabled="disabled"] {
+	color:gray
 }
 
 /*SECTION 10 DATA PANELS*/
@@ -749,39 +782,45 @@ table.hierItemBlock td h4,table.hierItemBlock td h5,table.hierItemBlock td h6,
 	border-bottom: 1px dotted silver;
 }
 
-#chatPresenceHeadWrapper{
+#chatPresenceHeadWrapper, .chatPresenceHeadWrapper{
 	margin-bottom: .5em;
 	padding: 0 0  .2em .2em;
 	border-bottom: 1px dotted silver;
 }
 
-#chatListWrapper{
+#chatListWrapper, .chatListWrapper{
 	width: 83%;
 	padding-bottom: .5em;
 	float: left;
 }
 
-#chatPresenceWrapper{
+.chatListMonitor {
+	height: 300px;
+	overflow-y: auto;
+	overflow-x: visible;
+}
+
+#chatPresenceWrapper, .chatPresenceWrapper{
 	width: 16%;
 	float: left;
 	border-left: 1px dotted silver;
 }
 
-#chatList{
+#chatList, .chatList{
 	margin: 0;
 	padding-left: 1.2em;
 	list-style: none;
 	width: 96%;
 }
 
-#chatList li {
+#chatList li, .chatList li {
 	margin: .2em 0 0 2em;
 	padding: .2em 0;
 	text-indent: -3em;
 	line-height: 1.2em;
 }
 
-#chatList li .chatDate{
+#chatList li .chatDate, .chatList li .chatDate {
 	font-size: .8em;
 }
 
@@ -978,7 +1017,6 @@ width:auto !important
 	width: 11em;
 	background:#fff url(images/logo_inst.gif) 1em 1em no-repeat
 }
-
 /*temp work for mneme - will incorporate later to the rest 
 tables will be of various types according to their function and meaning - tableFlat, tableAction, tableHierarchical, tableItemSummary 
 right now "namespaced" for mneme only to avoid any possible conflicts*/
@@ -994,3 +1032,72 @@ right now "namespaced" for mneme only to avoid any possible conflicts*/
 	padding:0 3px;
 	background: #ddd;
 }
+.samSection{
+	margin-left: 4em;
+	margin-right: 4em;
+	margin-top:2em;
+	margin-bottom:2em;
+}
+.samSectionHeader{
+	margin-left: -2em;
+	margin-right: -2em;
+}
+
+/* Make a list based css menu */
+
+
+ul.makeMenu, ul.makeMenu ul {
+  width: auto;
+  border: 1px solid #ddd;
+  background:#fff; 
+  padding: 3px;
+  padding-left: 6px;
+  margin-right: 3px;
+  cursor: default;
+  margin-left: 0px;
+	display:inline;
+	position: relative;
+	text-align: left;
+	white-space: nowrap;
+}
+ul.makeMenu:hover{
+	border:1px solid #666;
+}	
+.listHier ul.makeMenu img{
+	margin-right: 0;
+	vertical-align: middle;
+}
+
+ul.makeMenu li {
+  list-style-type: none;
+  margin: 0px;
+  position: relative;
+  color: #000000;
+ display:inline;
+}
+ul.makeMenu li > ul {
+  display: none;
+  position: absolute;
+  top: 4px;
+  left: 0;
+}
+ul.makeMenu li:hover, ul.makeMenu li.CSStoHighlight {
+  color: #000;
+}
+ul.makeMenu ul.CSStoShow {
+  display: block;
+}
+ul.makeMenu li:hover > ul {
+	display: block;
+  	width: 14em;
+	background-color:#ffffff;
+	background-image:none;
+	position:absolute;
+	border:1px solid #666;
+	margin-top:9px;
+ 	z-index:3
+}
+ul.makeMenu li a { display: block; width: 100%; text-decoration: underline;   padding:6px; }
+ul.makeMenu li a:hover, ul.makeMenu li a.CSStoHighLink { color: #000; }
+ul.makeMenu li:hover > a { color: #000; }
+

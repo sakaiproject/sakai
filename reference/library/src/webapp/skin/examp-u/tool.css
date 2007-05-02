@@ -13,24 +13,23 @@ body{
 hr.itemSeparator{
 	height: 1px;
 	border-color: #27d;
-		border-color: #27d;
 	border-style: solid;
 	border-width: 1px 0 0 0;
 }
 
 /*SECTION 2 LINKS*/
 a:link{
-	color: #069;
-	text-decoration: none;
+	color: #35b;
+	text-decoration: underline !important;
 }
 
 a:visited{
-	color: #069;
-	text-decoration: none;
+	color: #53b;
+	text-decoration: underline !important;
 }
 
 a:hover,a:active{
-	color: #069;
+	color: #33f;
 	text-decoration: underline !important;
 }
 
@@ -43,28 +42,27 @@ a:focus{
 table.calendar td a:hover{
 	text-decoration: underline;
 }
-
 /*links inside the <th>  of the standard list table*/
 .listHier th a:link,.listHier th a:visited{
-	color: #069;
+	color: #35b;
 	text-decoration: underline;
 	border: none;
 }
 
 .listHier th a:hover{
-	color: #069;
+	color: #33f;
 	text-decoration: underline;
 }
 
 /*some links are jscripted so the href is the same - cannot provide visited functionality - so make both the same*/
 /*see: list of assignments - the cells are classed with "specialLink" */ 
 .specialLink a:link,.specialLink a:visited{
-	color: #069;
+	color: #35b;
 	text-decoration: none;
 }
 
 .specialLink a:hover{
-	color: #069;
+	color: #33f;
 	text-decoration: underline;
 }
 /*links in resources - selected for move*/
@@ -75,25 +73,25 @@ tr.selectedMove a:link,tr.selectedMove a:visited{
 /*links associated with an item in alist*/
 /*see links below announcement title in ann list*/
 .itemAction  a,.itemAction  a:link{
-	color: #004D73;
+	color: #27d;
 	padding: .2em .3em 1px 0;
 	white-space: nowrap;
 	border-bottom: none;
 }
 
 .itemAction  a:visited{
-	color: #004D73;
+	color: #27d;
 	text-decoration: none;
 	border-bottom: 1px solid #fff;
 }
 
 .itemAction  a:hover{
-	color: #004D73; /*for ie*/
+	color: #27d; /*for ie*/
 	text-decoration: underline !important; 
 }
 
 html>body .itemAction  a:hover{
-	color: #004D73;
+	color: #27d;
 	text-decoration: none !important; /*for other browsers*/
 	border-bottom: 1px solid #27d;
 }
@@ -112,8 +110,8 @@ tr.selectedMove .itemAction a:link,tr.selectedMove .itemAction a:visited{
 
 /*links for the generic toolbar  - inline-block is there to make IE behave
 see: http://www.quirksmode.org/bugreports/archives/2005/07/Wrapped_inlinenowrap_elements_lose_padding_left_in.html*/
-.navIntraTool a,.navIntraTool a:link{
-	margin: 0 .5em;
+.navIntraTool a, .navIntraTool a:link{
+	margin-right:1em;
 	text-decoration: underline;
 	white-space: nowrap;
 	display:inline-block
@@ -144,10 +142,12 @@ see: http://www.quirksmode.org/bugreports/archives/2005/07/Wrapped_inlinenowrap_
 }
 
 .breadCrumb a:link,.breadCrumb a:visited{
+	color: #35b;
 	text-decoration: none;
 }
 
 .breadCrumb a:hover{
+	color: #33f;
 	text-decoration: underline;
 }
 
@@ -352,6 +352,7 @@ table.calendar .event{
 /*skinned header of standard tab. data table*/
 .listHier th{
 	background-color: #ddd;
+	border: 1px solid #999;
 }
 /*skinned cell of standard tab. data table*/
 .listHier td{
@@ -383,12 +384,6 @@ table.nolines td{
 	border-bottom: 0px solid #bbb;
 	border-top: 0px solid #eee;
 }
-/*ie (via tan hack) gets some lines because it cannot get a hover*/
-* html body table.nolines td{
-	border-bottom: 1px solid #eee;
-	border-top: 1px solid #eee;
-}
-
 /*when an item has been copied - signal this*/
 /*see resources*/
 tr.selectedCopy{
@@ -414,6 +409,10 @@ tr.selectedMove td{
 tr.highLightRow{
 	background:#ddd;
 }
+/*highlight a row representing an item that has been added*/
+tr.highLightAdded{
+	background:#afa;
+}
 
 tr.highLightRow:hover{
 	background:#ddd !important;
@@ -430,6 +429,47 @@ tr.lightHighLightRow{
 /*see: discussion*/
 tr.selectedFound{
 	background: #cff;
+}
+
+
+
+/*when a row contained a searched for item has been found*/
+
+/*see: discussion*/
+
+tr.selectedFound{
+	background: #cff;
+}
+/*a row that is being sorted - see resources in Sakai 2.3*/
+tr#selectedReorder{
+	color: #000;
+	background: #fe6;
+}
+
+tr#selectedReorder:hover{
+	color: #000 !important;
+	background: #fe6 !important;
+}
+tr#selectedReorder h4{
+	font-weight:bold;
+}
+
+tr td.arrowHere{
+	width: 14px
+}
+
+tr#selectedReorder td.arrowHere{
+/*	can give this an image if needed*/
+/*	background: url(images/arrowhere.gif) center .5em no-repeat*/
+}
+
+.moveUp, .moveDown{
+	width:14px;
+}
+.moveUp img, .moveDown img{
+	vertical-align: bottom;
+	padding-top:.5em;
+	width:13px
 }
 /*skinned info for disclosure toggle*/
 /*see: assignment*/
@@ -470,6 +510,7 @@ h3,h4,h5{
 	margin: 1em 0 0 0; 
 	background-color: transparent !important; 
 } 
+
 /*headers when they occur in a table*/
 /*want to make them look like normal text - but structure the content*/
 /*see: resources, any legacy list*/
@@ -527,6 +568,23 @@ textarea:focus{
 	border: 1px solid #000;
 }
 
+/* select element for actions on items in resources tool's list view */
+.actionmenu{
+	font-size: 85%;
+}
+
+/* optgroup element for actions on items in resources tool's list view */
+.actiongroup{
+	background-color: #fca;
+	padding: .3em 0em 0em 0em;
+}
+
+/* option element for actions on items in resources tool's list view */
+.actionitem{
+	background-color: #ffc;
+	padding: .3em;
+}
+
 
 /*SECTION 8 TOOLBAR*/
 /*see: any tool*/
@@ -541,14 +599,14 @@ textarea:focus{
 	font-size: .9em;
 	font-family: Verdana,Geneva,Arial,Helvetica,sans-serif;
 }
-.navIntraTool:hover{
-		border-bottom:1px solid silver;
-}
+
 /*ie does not understand font sizing well - so fix here with the star hack*/
 * html .navIntraTool{
 	font-size:.85em;
 }
-
+.navIntraTool:hover{
+	border-bottom:1px solid silver;
+}
 .navIntraTool .searchField{
 	border:1px solid silver;
 	font-family: Verdana,Geneva,Arial,Helvetica,sans-serif;
@@ -576,7 +634,20 @@ textarea:focus{
 	background: transparent;
 }
 
+.navIntraToolLink input.enabled:hover{
+	color:#33f;
+	cursor: pointer;
+}
 
+.navIntraTool span.separator {
+	left: -.5em;
+	position: relative;
+}
+.navIntraTool span.inactive {
+	margin-right:1em;
+	white-space: nowrap;
+	display:inline-block
+}
 
 /*SECTION 9 MESSAGES*/
 /*see: create any item*/
@@ -622,13 +693,12 @@ textarea:focus{
 /*inline blob used to indicate progress (see: upload a resource say)
 visibility gets toggled*/
 #submitnotif{
-	background: #fff url(../images/warn.gif) .3em .3em no-repeat;
+	background: #fff url(../images/warn-a.gif) .3em .3em no-repeat;
 	border: 1px solid #b11;
 	font-family: Verdana,Arial,Helvetica,sans-serif;
 	clear: none;
 	color: #b11;
 	font-size: small;
-	text-decoration: blink;
 	vertical-align: text-top;
 	margin: 0;
 	padding: 5px 5px 5px 25px;
@@ -644,6 +714,9 @@ you loose the native buttonishness affordance of the os/browser */
 /*create any item - like an announcement*/
 .act .active {
 	color:#006194
+}
+.act .active[disabled="disabled"] {
+	color:gray
 }
 
 /*SECTION 10 DATA PANELS*/
@@ -662,17 +735,44 @@ you loose the native buttonishness affordance of the os/browser */
 	color: #ffd;
 }
 /*see: topic content in discussion*/
-.hierItemBlock{
+.hierItemBlock, .hierItemBlockWrapper{
 	padding: 0 .5em .5em .5em;
 	border: 1px solid silver;
 	margin-top: .5em;
+	margin-bottom: .5em;
+	width:auto;
+	background: #fff;
+}
+
+table.hierItemBlock td{
+	width:100%;
+}
+table.hierItemBlock td h4,table.hierItemBlock td h5,table.hierItemBlock td h6,
+.hierItemBlockChild h4,.hierItemBlockChild h5,.hierItemBlockChild h6{
+	display:inline;
+}
+
+.hierItemBlockWrapper {
+	background: #FFFFF1;
+	padding-top: 0.5em;
 }
 
 .hierItemBlock h4.textPanelHeader, .hierItemBlock h5.textPanelHeader, .hierItemBlock h6.textPanelHeader{
-	border-bottom: 1px solid silver;
-	margin: 0 -.4em;
+	border-bottom: 1px solid silver;	
+	margin: 0 -.4em 1.0em -.4em;
 	padding:.5em;
 	background: #ffd !important;
+}
+
+.hierItemBlockChild{
+	margin:.5em 0;
+	margin-left:0.5em;
+	padding:.5em;
+	border-top:1px solid silver;
+}
+
+.hierItemBlockChild td{
+	padding:.3em;
 }
 
 /*SECTION 11 LAYOUT REQUIRED IN SPECIFIC TOOLS*/
@@ -682,39 +782,45 @@ you loose the native buttonishness affordance of the os/browser */
 	border-bottom: 1px dotted silver;
 }
 
-#chatPresenceHeadWrapper{
+#chatPresenceHeadWrapper, .chatPresenceHeadWrapper{
 	margin-bottom: .5em;
 	padding: 0 0  .2em .2em;
 	border-bottom: 1px dotted silver;
 }
 
-#chatListWrapper{
+#chatListWrapper, .chatListWrapper{
 	width: 83%;
 	padding-bottom: .5em;
 	float: left;
 }
 
-#chatPresenceWrapper{
+.chatListMonitor {
+	height: 300px;
+	overflow-y: auto;
+	overflow-x: visible;
+}
+
+#chatPresenceWrapper, .chatPresenceWrapper{
 	width: 16%;
 	float: left;
 	border-left: 1px dotted silver;
 }
 
-#chatList{
+#chatList, .chatList{
 	margin: 0;
 	padding-left: 1.2em;
 	list-style: none;
 	width: 96%;
 }
 
-#chatList li {
+#chatList li, .chatList li {
 	margin: .2em 0 0 2em;
 	padding: .2em 0;
 	text-indent: -3em;
 	line-height: 1.2em;
 }
 
-#chatList li .chatDate{
+#chatList li .chatDate, .chatList li .chatDate {
 	font-size: .8em;
 }
 
@@ -770,7 +876,8 @@ tr.selectedFound td{
 
 .rosterImage{
 	border:1px solid #bbb;
-	height: 75px;
+/* no height - so no distortion - adjust to a specific size if size known - otherwise leave as is
+height: 75px;*/
 	width:75px
 }
 
@@ -827,8 +934,62 @@ width:auto !important
 
 
 
-/*SECTION 12 PORTAL THINGS*/
+/*SECTION 12 TOOL TITLE SELECTORS and other PORTAL THINGS*/
+.portletTitle{
+	width: 100%;
+}
 
+.portletTitle .title img{
+	margin: 0;
+/*	vertical-align: text-bottom;*/
+	width: 18px;
+	height: 16px;
+}
+
+.portletTitle .title{
+	padding: 2px 4px 6px 4px;
+	height: 1em;
+	font-size: 120%;
+	float: left;
+	color: #000;
+}
+
+.portletTitle .title h2{
+	display: inline;
+	margin: 0 0 0 .2em;
+	padding: 0;
+	color: #555;
+	font-weight: bold;
+	font-size: 1em;
+}
+
+.portletTitle .title a{
+	background: url(images/reload.gif) center left no-repeat;
+}
+
+.portletTitle .title a:hover{
+	background: url(images/reload_h.gif) center left no-repeat;
+}
+
+.portletTitle .action{
+	padding: 2px 4px 6px 2px;
+	text-align: right;
+	vertical-align: middle;
+}
+
+.portletTitle .action img{
+	margin: 0;
+	vertical-align: text-bottom;
+	width: 16px !important;
+}
+
+.portletTitle .action a{
+	background: url(images/help.gif) center right no-repeat;
+}
+
+.portletTitle .action a:hover{
+	background: url(images/help_h.gif) center right no-repeat;
+}
 
 /*below for "presence in chat" functionality*/
 .presenceList{
@@ -847,50 +1008,96 @@ width:auto !important
 .presenceList li.inChat {
 	background: url(images/chatpresicon.gif) -.1em center no-repeat;
 }
-/*external login form formatting*/
-.login{
-	margin: 5em auto;
-	border: 1px solid #555;
-	width: auto;
-}
 
-.login th{
-	background-color:#eee;
-	padding: .5em;
-	border-bottom: 1px solid #555;
-}
-
-.login td.logo{
-	width: 13em;
-	background:#fff url(images/logo_inst.gif) 2em 1em no-repeat
-}
-
-.login td.form{
-	padding: .5em;
-}
-
-.loginform{
-	color: #000;
-}
-
+/*some definitions overriding tool_base.css for the external xlogin screen*/
 .loginform label{
 	color: #000;
 }
-
-.loginform td{
-	padding: .3em;
-	color: #fff;
+.login td.logo{
+	width: 11em;
+	background:#fff url(images/logo_inst.gif) 1em 1em no-repeat
+}
+/*temp work for mneme - will incorporate later to the rest 
+tables will be of various types according to their function and meaning - tableFlat, tableAction, tableHierarchical, tableItemSummary 
+right now "namespaced" for mneme only to avoid any possible conflicts*/
+.samSection .tableAction td {
+	vertical-align:middle
+}
+.samSection .tableAction td input{
+	margin: 0 5px 1px 1px;
+	vertical-align:top;
+}
+.samSection .tableAction td label{
+	border:1px solid #bbb;
+	padding:0 3px;
+	background: #ddd;
+}
+.samSection{
+	margin-left: 4em;
+	margin-right: 4em;
+	margin-top:2em;
+	margin-bottom:2em;
+}
+.samSectionHeader{
+	margin-left: -2em;
+	margin-right: -2em;
 }
 
-.loginform td #eid{
-	width: 10.6em;
+/* Make a list based css menu */
+
+
+ul.makeMenu, ul.makeMenu ul {
+  width: auto;
+  border: 1px solid #ddd;
+  background:#fff; 
+  padding: 3px;
+  padding-left: 6px;
+  margin-right: 3px;
+  cursor: default;
+  margin-left: 0px;
+	display:inline;
+	position: relative;
+	text-align: left;
+	white-space: nowrap;
+}
+ul.makeMenu:hover{
+	border:1px solid #666;
+}	
+.listHier ul.makeMenu img{
+	margin-right: 0;
+	vertical-align: middle;
 }
 
-.loginform td #pwd{
-	width: 10em;
+ul.makeMenu li {
+  list-style-type: none;
+  margin: 0px;
+  position: relative;
+  color: #000000;
+ display:inline;
 }
-
-.loginform td #submit{
-	float: right;
+ul.makeMenu li > ul {
+  display: none;
+  position: absolute;
+  top: 4px;
+  left: 0;
 }
+ul.makeMenu li:hover, ul.makeMenu li.CSStoHighlight {
+  color: #000;
+}
+ul.makeMenu ul.CSStoShow {
+  display: block;
+}
+ul.makeMenu li:hover > ul {
+	display: block;
+  	width: 14em;
+	background-color:#ffffff;
+	background-image:none;
+	position:absolute;
+	border:1px solid #666;
+	margin-top:9px;
+ 	z-index:3
+}
+ul.makeMenu li a { display: block; width: 100%; text-decoration: underline;   padding:6px; }
+ul.makeMenu li a:hover, ul.makeMenu li a.CSStoHighLink { color: #000; }
+ul.makeMenu li:hover > a { color: #000; }
 
