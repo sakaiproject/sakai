@@ -3370,7 +3370,7 @@ public abstract class BaseCitationService implements CitationService
 	 */
 	public boolean allowAddCitationList(String contentCollectionId)
 	{
-		return true;
+		return m_contentHostingService.allowAddResource(contentCollectionId + "testing");
 	}
 	
 	/**
@@ -3388,7 +3388,30 @@ public abstract class BaseCitationService implements CitationService
 	 */
 	public boolean allowReviseCitationList(String contentResourceId)
 	{
-		return true;
+		boolean allowed = m_contentHostingService.allowUpdateResource(contentResourceId);
+		if(!allowed)
+		{
+			try
+			{
+				ResourceProperties props = m_contentHostingService.getProperties(contentResourceId);
+				String temp_res = props.getProperty(CitationService.PROP_TEMPORARY_CITATION_LIST);
+				String creator = props.getProperty(ResourceProperties.PROP_CREATOR);
+				String contentCollectionId = m_contentHostingService.getContainingCollectionId(contentResourceId);
+	     		SessionManager sessionManager = (SessionManager) ComponentManager.get("org.sakaiproject.tool.api.SessionManager");
+				String currentUser = sessionManager.getCurrentSessionUserId();
+				
+				allowed = this.allowAddCitationList(contentCollectionId) && (temp_res != null) && currentUser.equals(creator);
+			}
+			catch(PermissionException e)
+			{
+				// do nothing: return false
+			}
+            catch (IdUnusedException e)
+            {
+				// do nothing: return false
+            }
+		}
+		return allowed;
 	}
 	
 	/**
@@ -3397,7 +3420,30 @@ public abstract class BaseCitationService implements CitationService
 	 */
 	public boolean allowRemoveCitationList(String contentResourceId)
 	{
-		return true;
+		boolean allowed = m_contentHostingService.allowUpdateResource(contentResourceId);
+		if(!allowed)
+		{
+			try
+			{
+				ResourceProperties props = m_contentHostingService.getProperties(contentResourceId);
+				String temp_res = props.getProperty(CitationService.PROP_TEMPORARY_CITATION_LIST);
+				String creator = props.getProperty(ResourceProperties.PROP_CREATOR);
+				String contentCollectionId = m_contentHostingService.getContainingCollectionId(contentResourceId);
+	     		SessionManager sessionManager = (SessionManager) ComponentManager.get("org.sakaiproject.tool.api.SessionManager");
+				String currentUser = sessionManager.getCurrentSessionUserId();
+				
+				allowed = this.allowAddCitationList(contentCollectionId) && (temp_res != null) && currentUser.equals(creator);
+			}
+			catch(PermissionException e)
+			{
+				// do nothing: return false
+			}
+            catch (IdUnusedException e)
+            {
+				// do nothing: return false
+            }
+		}
+		return allowed;
 	}
 
 
