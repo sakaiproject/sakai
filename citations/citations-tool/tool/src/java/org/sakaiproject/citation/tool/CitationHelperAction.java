@@ -26,7 +26,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -42,13 +41,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.osid.repository.Repository;
-import org.osid.repository.RepositoryException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.citation.util.api.SearchQuery;
-
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.RunData;
@@ -60,13 +54,14 @@ import org.sakaiproject.citation.api.CitationCollection;
 import org.sakaiproject.citation.api.CitationHelper;
 import org.sakaiproject.citation.api.CitationIterator;
 import org.sakaiproject.citation.api.Schema;
-import org.sakaiproject.citation.api.Schema.Field;
-import org.sakaiproject.citation.api.SearchDatabaseHierarchy;
 import org.sakaiproject.citation.api.SearchCategory;
+import org.sakaiproject.citation.api.SearchDatabaseHierarchy;
+import org.sakaiproject.citation.api.Schema.Field;
 import org.sakaiproject.citation.cover.CitationService;
 import org.sakaiproject.citation.cover.ConfigurationService;
 import org.sakaiproject.citation.cover.SearchManager;
 import org.sakaiproject.citation.util.api.SearchException;
+import org.sakaiproject.citation.util.api.SearchQuery;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -3214,6 +3209,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			newItem.setContentType(ResourceType.MIME_TYPE_HTML);
 			
 			contentService.commitResource(newItem, NotificationService.NOTI_NONE);
+			
 			return newItem;
         }
         catch (PermissionException e)
