@@ -100,6 +100,7 @@
 				<f:facet name="header">
 		    	<t:commandSortHeader columnName="mean" immediate="true" arrow="true">
 						<h:outputText value="#{msgs.overview_assignments_header_average}" />
+						<h:outputText value="#{msgs.overview_footnote_symbol2}" />
 		      </t:commandSortHeader>
 		    </f:facet>
 
@@ -153,7 +154,7 @@
 				<h:outputText value="#{msgs.overview_included_in_cum_false}" rendered="#{gradebookItem.assignment && gradebookItem.counted == false}"/>
 			</h:column>
 			
-			<h:column>
+			<h:column rendered="#{overviewBean.displayGradeEditorCol}">
 				<f:facet name="header">
         	<t:commandSortHeader columnName="gradeEditor" immediate="true" arrow="true">
           	<h:outputText value="#{msgs.overview_grade_editor}" />

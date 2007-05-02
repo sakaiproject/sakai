@@ -81,13 +81,16 @@ public class ClassAvgConverter extends PointsConverter {
 				if (category.getId() == null) {
 					return FacesUtil.getLocalizedString("overview_unassigned_cat_avg");
 				}
-				else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS) {
+				/*else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS) {
 					isPoints = true;
 					avg = category.getAverageScore();
 				} else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
 					isPercent = true;
 					avg = category.getMean();
-				}
+				}*/
+				// always display category avgs as %
+				isPercent = true;
+				avg = category.getMean();
 		
 			} else if (value instanceof CourseGrade) {
 				// course grade is always displayed as %

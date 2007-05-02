@@ -50,6 +50,8 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 
 	private List gradebookItemList;
 	private CourseGrade courseGrade;
+	
+	private boolean displayGradeEditorCol = false;
 
     static {
         columnSortMap = new HashMap();
@@ -112,6 +114,8 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 							Iterator assignIter = assignmentList.iterator();
 							while (assignIter.hasNext()) {
 								Assignment assign = (Assignment) assignIter.next();
+								if (assign.isExternallyMaintained())
+									displayGradeEditorCol = true;
 								gradebookItemList.add(assign);
 							}
 						}
@@ -134,6 +138,8 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 				Iterator unassignedIter = unassignedList.iterator();
 				while (unassignedIter.hasNext()) {
 					Assignment assignWithNoCat = (Assignment) unassignedIter.next();
+					if (assignWithNoCat.isExternallyMaintained())
+						displayGradeEditorCol = true;
 					gradebookItemList.add(assignWithNoCat);
 				}
 			}
@@ -156,6 +162,8 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 						courseGrade = (CourseGrade) go;
 					} else {
 						Assignment assign = (Assignment) go;
+						if (assign.isExternallyMaintained())
+							displayGradeEditorCol = true;
 						gradebookItemList.add(assign);
 					}
 				}
@@ -233,6 +241,10 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
     		gradeOptionSummary = FacesUtil.getLocalizedString("overview_grade_option_none_viewable");
     	}
     	return gradeOptionSummary;
+    }
+    
+    public boolean isDisplayGradeEditorCol() {
+    	return displayGradeEditorCol;
     }
 
 }

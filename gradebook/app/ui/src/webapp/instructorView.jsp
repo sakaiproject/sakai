@@ -199,16 +199,9 @@
 							<h:outputText value="#{msgs.inst_view_not_counted_close}" rendered="#{!row.associatedAssignment.counted}" />
 						</h:panelGroup>
 						
-						<h:panelGroup rendered="#{row.category}">
-							<h:outputText value="#{row.averageScore}" rendered="#{instructorViewBean.gradeEntryByPoints}">
-								<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
-								<f:convertNumber maxFractionDigits="0" />
-							</h:outputText>
-							<h:outputText value="#{row.mean}" rendered="#{instructorViewBean.gradeEntryByPercent}">
-								<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
-								<f:convertNumber maxFractionDigits="0" />
-							</h:outputText>
-						</h:panelGroup>
+						<h:outputText value="#{row}" escape="false" rendered="#{row.category}">
+							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER"/>
+						</h:outputText>
         </h:column>
         
         <h:column rendered="#{instructorViewBean.gradeEntryByPoints}">

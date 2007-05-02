@@ -31,11 +31,6 @@
 						<h:outputText styleClass="instruction" value="#{msgs.display_released_items_info}" />
 					</div>
 				</div>
-				
-				<div class="gbSection">
-					<h:selectBooleanCheckbox id="displayCumScore" value="#{gradebookSetupBean.localGradebook.courseGradeDisplayed}"/>
-					<h:outputLabel for="displayCumScore" value="#{msgs.display_cum_score}" />
-				</div>
 			
 			</div>
 	 
