@@ -51,6 +51,7 @@ import uk.org.ponder.rsf.components.UISelectLabel;
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UIOutputMany;
+import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
 import uk.org.ponder.messageutil.TargettedMessageList;
@@ -165,7 +166,7 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 		 UIOutput.make(tofill,"poll-text",poll.getText());
 		 if (poll.getDetails() != null)
 		 {
-			 UIOutput.make(tofill,"poll-description",poll.getDetails());
+			 UIVerbatim.make(tofill,"poll-description",poll.getDetails());
 		 }
 		 
 		 m_log.debug("this poll has " + poll.getPollOptions().size()+ " options");
