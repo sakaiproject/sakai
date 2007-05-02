@@ -3203,6 +3203,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 			// set the alternative_reference to point to reference_root for CitationService
 			props.addProperty(contentService.PROP_ALTERNATE_REFERENCE, org.sakaiproject.citation.api.CitationService.REFERENCE_ROOT);
 			props.addProperty(ResourceProperties.PROP_CONTENT_TYPE, ResourceType.MIME_TYPE_HTML);
+			props.addProperty(CitationService.PROP_TEMPORARY_CITATION_LIST, Boolean.TRUE.toString());
 			
 			CitationCollection collection = CitationService.addCollection();
 			newItem.setContent(collection.getId().getBytes());

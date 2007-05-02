@@ -34,6 +34,7 @@ public class CitationService
 	public static final String REF_TYPE_EXPORT_RIS_ALL = org.sakaiproject.citation.api.CitationService.REF_TYPE_EXPORT_RIS_ALL;
 	public static final String REF_TYPE_VIEW_LIST = org.sakaiproject.citation.api.CitationService.REF_TYPE_VIEW_LIST;
 	public static final String CITATION_LIST_ID = org.sakaiproject.citation.api.CitationService.CITATION_LIST_ID;
+	public static final String PROP_TEMPORARY_CITATION_LIST = org.sakaiproject.citation.api.CitationService.PROP_TEMPORARY_CITATION_LIST;
 	
 	private static org.sakaiproject.citation.api.CitationService m_instance;
 
