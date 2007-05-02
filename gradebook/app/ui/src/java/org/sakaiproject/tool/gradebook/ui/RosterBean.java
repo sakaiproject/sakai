@@ -76,6 +76,8 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 	private List gradableObjectColumns;	// Needed to build table columns
     private List workingEnrollments;
     
+    private CourseGrade avgCourseGrade;
+    
     private HtmlDataTable originalRosterDataTable = null;
 
     public class GradableObjectColumn implements Serializable {
@@ -165,6 +167,8 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		//get array to hold columns
 		gradableObjectColumns = new ArrayList();
 		
+		avgCourseGrade = new CourseGrade();
+		
 		//get the selected categoryUID 
 		String selectedCategoryUid = getSelectedCategoryUid();
 
@@ -182,6 +186,9 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		for (Iterator iter = categories.iterator(); iter.hasNext(); ){
 			Object obj = iter.next();
 			if(!(obj instanceof Category)){
+				if(obj instanceof CourseGrade){
+					avgCourseGrade = (CourseGrade) obj;
+				}
 				continue;
 			}
 			Category cat = (Category) obj;
@@ -481,6 +488,26 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
     public void setSortColumn(String sortColumn) {
         getPreferencesBean().setRosterTableSortColumn(sortColumn);
     }
+    
+    public CourseGrade getAvgCourseGrade() {
+		return avgCourseGrade;
+	}
+	public void setAvgCourseGrade(CourseGrade courseGrade) {
+		this.avgCourseGrade = courseGrade;
+	}
+    
+    public String getAvgCourseGradeLetter() {
+		String letterGrade = "";
+		if (avgCourseGrade != null) {
+			letterGrade = getGradebook().getSelectedGradeMapping().getGrade(avgCourseGrade.getMean());
+		}
+		
+		if (letterGrade == null || letterGrade.trim().length() < 1) {
+			letterGrade = getLocalizedString("score_null_placeholder");
+		}
+		
+		return letterGrade;
+	}
 
     public void exportCsv(ActionEvent event){
         if(logger.isInfoEnabled()) logger.info("exporting roster as CSV for gradebook " + getGradebookUid());

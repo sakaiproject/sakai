@@ -11,6 +11,13 @@
 
 		<h2><h:outputText value="#{msgs.roster_page_title}"/></h2>
 
+  	<h:panelGrid cellpadding="0" cellspacing="0" columns="2"
+			columnClasses="itemName"
+			styleClass="itemSummary">
+			<h:outputText id="avgGradeLabel" value="#{msgs.overview_avg_course_grade}" rendered="#{overviewBean.userAbleToGradeAll}"/>
+			<h:outputText id="avgGrade" value="#{rosterBean.avgCourseGradeLetter}" rendered="#{overviewBean.userAbleToGradeAll}" />
+		</h:panelGrid>
+
 		<t:aliasBean alias="#{bean}" value="#{rosterBean}">
 			<%@include file="/inc/filterPagingRoster.jspf"%>
 		</t:aliasBean>

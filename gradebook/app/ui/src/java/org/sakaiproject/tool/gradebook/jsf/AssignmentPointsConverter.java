@@ -57,20 +57,25 @@ public class AssignmentPointsConverter extends PointsConverter {
 				workingValue = assignment.getPointsPossible();
 				notCounted = assignment.isNotCounted();
 			} else if (value instanceof AbstractGradeRecord) {
-				if(((GradableObject)((AbstractGradeRecord)value).getGradableObject()).getGradebook().getGrade_type() 
-						== GradebookService.GRADE_TYPE_POINTS 
+				 if(
+					value instanceof AssignmentGradeRecord
 						&&
-				   ((GradableObject)((AbstractGradeRecord)value).getGradableObject()).getGradebook().getCategory_type() 
-				   		!= GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY){
+			       ((GradableObject)((AbstractGradeRecord)value).getGradableObject()).getGradebook().getGrade_type() 
+						== GradebookService.GRADE_TYPE_POINTS 
+//						&&
+//				   ((GradableObject)((AbstractGradeRecord)value).getGradableObject()).getGradebook().getCategory_type() 
+//				   		!= GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY
+				   			){
 					//if grade by points and no category weighting
 					workingValue = ((AbstractGradeRecord)value).getPointsEarned();
 				} else {
 					//display percentage
 					percentage = true;
 					workingValue = ((AbstractGradeRecord)value).getGradeAsPercentage();
-				}
-				if (value instanceof AssignmentGradeRecord) {
-					notCounted = ((AssignmentGradeRecord)value).getAssignment().isNotCounted();
+
+					if (value instanceof AssignmentGradeRecord) {
+						notCounted = ((AssignmentGradeRecord)value).getAssignment().isNotCounted();
+					}
 				}
 			}
 		}
