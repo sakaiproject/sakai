@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observer;
 import java.util.Properties;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
@@ -86,6 +85,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.ResourceLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -100,7 +100,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	private static Log M_log = LogFactory.getLog(BaseSiteService.class);
 
 	/** The layouts in human readable form (localized) */
-	static ResourceBundle rb = ResourceBundle.getBundle("site-impl");
+	protected ResourceLoader rb = new ResourceLoader("site-impl");
 
 	/** Storage manager for this service. */
 	protected Storage m_storage = null;
