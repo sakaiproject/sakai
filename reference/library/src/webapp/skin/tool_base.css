@@ -454,7 +454,7 @@ ie - site creation*/
 .information{
 	background-color: transparent;
 	background-image: url('images/info.gif');
-	background-position: .3em;
+	background-position: 5px 5px;
 	background-repeat: no-repeat;
 	border: 1px solid #888;
 	display: block;
@@ -471,7 +471,7 @@ ie - site creation*/
 .success{
 	background-color: #fff;
 	background-image: url('images/check.gif');
-	background-position: .3em;
+	background-position: 5px 5px;
 	background-repeat: no-repeat;
 	border: 1px solid #4a4;
 	display: block;
@@ -487,7 +487,7 @@ ie - site creation*/
 /*TODO: consolidate - validationEmbedded used in gradebook, validation in many places, alertMessage legacy*/
 /*see: create an announcement but "forget" to give it a title*/
 .validationEmbedded,.validation,.alertMessage{
-	background: #fff url(images/warn.gif) .3em center no-repeat;
+	background: #fff url(images/warn.gif) 5px 5px no-repeat;
 	border: 1px solid #b11;
 	display: block;
 	width: 80%;
@@ -506,7 +506,7 @@ ie - site creation*/
 
 /*when displaying a validaiton failure inline (used with a span)*/
 .alertMessageInline{
-	background: #fff url(images/warn.gif) .3em .3em no-repeat;
+	background: #fff url(images/warn.gif) 5px 5px no-repeat;
 	border: 1px solid #b11;
 	width: 80%;
 	font-size: 1em;
