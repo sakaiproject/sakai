@@ -1,0 +1,35 @@
+<%/*
+	Search filter and paging controls for enrollment tables.
+	Accessed via <t:aliasBean alias="#{bean}" value="#{realPageBean}">...</t:aliasBean> .
+*/%>
+<h:panelGrid styleClass="gbContainerNav" columns="2" columnClasses="gbLeftNav,gbRightNav">
+	<t:div>
+		<t:div styleClass="gbListView">
+			<h:outputText value="#{msgs.search_sections_filter} "/>
+			<h:selectOneMenu id="selectSectionFilter" value="#{bean.selectedSectionFilterValue}" onchange="this.form.submit()">
+				<f:selectItems value="#{bean.sectionFilterSelectItems}" />
+			</h:selectOneMenu>
+			
+			<h:outputText value="#{msgs.search_categories_filter} " />
+			<h:selectOneMenu id="selectCategoryFilter" immediate="true" value="#{bean.selectedCategoryFilterValue}" onchange="this.form.submit()"
+				valueChangeListener="#{bean.setSelectedCategoryFilterValue}" >
+				<f:selectItems value="#{bean.categoryFilterSelectItems}" />
+			</h:selectOneMenu>
+		</t:div>
+		<t:div styleClass="shorttext">
+			<h:inputText
+				id="searchString"
+				value="#{bean.searchString}"
+				onfocus="clearIfDefaultString(this, '#{msgs.search_default_student_search_string}')"
+				onkeypress="return submitOnEnter(event, 'gbForm:searchSubmitButton');"
+			/><f:verbatim> </f:verbatim>
+			<h:commandButton actionListener="#{bean.search}" value="#{msgs.search_find}" id="searchSubmitButton" />
+			<f:verbatim> </f:verbatim>
+			<h:commandButton actionListener="#{bean.clear}" value="#{msgs.search_clear}"/>
+		</t:div>
+	</t:div>
+
+	<t:div styleClass="shorttext">
+	<sakai:pager id="pager" totalItems="#{bean.dataRows}" firstItem="#{bean.firstRow}" pageSize="#{bean.maxDisplayedRows}" textStatus="#{msgs.paging_status_students}" />
+	</t:div>
+</h:panelGrid>
