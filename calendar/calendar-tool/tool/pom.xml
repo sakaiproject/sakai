@@ -103,6 +103,13 @@
     <dependency>
       
       <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-alias-api</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-mergedlist-util</artifactId>
       <version>${sakai.version}</version>
     </dependency>
