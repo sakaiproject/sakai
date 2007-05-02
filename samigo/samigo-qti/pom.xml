@@ -58,14 +58,14 @@
 
     <dependency>
       <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util-api</artifactId>
+      <artifactId>sakai-tool-api</artifactId>
       <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-tool-api</artifactId>
+      <artifactId>sakai-util-api</artifactId>
       <version>${sakai.version}</version>
       <scope>provided</scope>
     </dependency>
@@ -154,12 +154,12 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>sakaiproject</groupId>
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-event-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>sakaiproject</groupId>
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-user-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
