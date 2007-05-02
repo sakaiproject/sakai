@@ -125,7 +125,7 @@
 	<!-- Dispatcher for Messages tool -->    
     <servlet>
         <servlet-name>sakai.messages</servlet-name>
- 	    <servlet-class>org.sakaiproject.jsf.util.JsfTool</servlet-class>
+ 	    <servlet-class>org.sakaiproject.tool.messageforums.MessageForumsFilePickerServlet</servlet-class>
         <init-param>
             <param-name>default</param-name>
             	<param-value>privateMsg/pvtMsgHpView</param-value>
@@ -144,7 +144,7 @@
 	<!-- Dispatcher for Forums tool -->    
     <servlet>
         <servlet-name>sakai.forums</servlet-name>
- 	    <servlet-class>org.sakaiproject.jsf.util.JsfTool</servlet-class>
+ 	    <servlet-class>org.sakaiproject.tool.messageforums.MessageForumsFilePickerServlet</servlet-class>
         <init-param>
             <param-name>default</param-name>
             	<param-value>discussionForum/forumsOnly/dfForums</param-value>
