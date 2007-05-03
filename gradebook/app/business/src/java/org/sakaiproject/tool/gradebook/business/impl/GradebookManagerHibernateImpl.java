@@ -1971,4 +1971,71 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		}
     	}
     }
+    
+    public boolean checkStuendsNotSubmitted(Gradebook gradebook)
+    {
+    	Set studentUids = getAllStudentUids(getGradebookUid(gradebook.getId()));
+    	if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY)
+    	{
+    		List records = getAllAssignmentGradeRecords(gradebook.getId(), studentUids);
+    		List assigns = getAssignments(gradebook.getId(), Assignment.DEFAULT_SORT, true);
+    		List filteredAssigns = new ArrayList();
+    		for(Iterator iter = assigns.iterator(); iter.hasNext();)
+    		{
+    			Assignment assignment = (Assignment)iter.next();
+    			if(assignment.isCounted())
+    				filteredAssigns.add(assignment);
+    		}
+    		List filteredRecords = new ArrayList();
+    		for(Iterator iter = records.iterator(); iter.hasNext();)
+    		{
+    			AssignmentGradeRecord agr = (AssignmentGradeRecord)iter.next();
+    			if(!agr.isCourseGradeRecord() && agr.getAssignment().isCounted())
+    			{
+    				if(agr.getPointsEarned() == null)
+    					return true;
+    				filteredRecords.add(agr);
+    			}
+    		}
+
+    		if(filteredRecords.size() < (filteredAssigns.size() * studentUids.size()))
+    			return true;
+    		
+    		return false;
+    	}
+    	else
+    	{
+      	List assigns = getAssignments(gradebook.getId(), Assignment.DEFAULT_SORT, true);
+      	List records = getAllAssignmentGradeRecords(gradebook.getId(), studentUids);
+      	Set filteredAssigns = new HashSet();
+      	for (Iterator iter = assigns.iterator(); iter.hasNext(); )
+      	{
+      		Assignment assign = (Assignment) iter.next();
+      		if(assign != null && assign.isCounted())
+      		{
+      			if(assign.getCategory() != null && !assign.getCategory().isRemoved())
+      			{
+      				filteredAssigns.add(assign.getId());
+      			}
+      		}
+      	}
+      	
+    		List filteredRecords = new ArrayList();
+    		for(Iterator iter = records.iterator(); iter.hasNext();)
+    		{
+    			AssignmentGradeRecord agr = (AssignmentGradeRecord)iter.next();
+    			if(filteredAssigns.contains(agr.getAssignment().getId()) && !agr.isCourseGradeRecord())
+    			{
+    				if(agr.getPointsEarned() == null)
+    					return true;
+    				filteredRecords.add(agr);
+    			}
+    		}
+    		
+    		if(filteredRecords.size() < filteredAssigns.size() * studentUids.size())
+    			return true;
+    		
+    		return false;
+    	}
+    }
 }

@@ -515,4 +515,13 @@ public interface GradebookManager {
      * @param grade_type gradebook's grade_type
      */
     public void convertGradingEventsConverted(Assignment assign, GradingEvents events, List studentUids, int grade_type);
+    
+    /**
+     * Check if there's any students that haven't submit their assignment(s) - null value for points or 
+     * AssignmentGradeRecord doesn't exist for student(s). 
+     *  
+     * @param gradebook
+     * @return boolean yes - there are students that haven't submit for some assignments.
+     */
+    public boolean checkStuendsNotSubmitted(Gradebook gradebook);
 }

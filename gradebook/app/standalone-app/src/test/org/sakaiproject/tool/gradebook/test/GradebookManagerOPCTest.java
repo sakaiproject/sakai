@@ -2106,4 +2106,99 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 				new BigDecimal(2.0 / assign.getPointsPossible().doubleValue() * 100.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		}
 	}
+	
+	public void testCheckStuendsNotSubmitted() throws Exception
+	{
+		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
+		Assignment assign = gradebookManager.getAssignment(assgn1Long);
+		Assignment assign2 = gradebookManager.getAssignment(assgn3Long);
+
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
+  	integrationSupport.createCourse(persistentGradebook.getUid(), persistentGradebook.getUid(), false, false, false);
+		gradebookManager.updateGradebook(persistentGradebook);
+		assign.setPointsPossible(new Double(5));
+		gradebookManager.updateAssignment(assign);
+		List categories = gradebookManager.getCategories(persistentGradebook.getId());
+		Category cate = gradebookManager.getCategory(assign.getCategory().getId());
+		List assignments = gradebookManager.getAssignments(persistentGradebook.getId());
+
+		List gradeRecords = generateGradeRecords(assign, 5);
+		List gradeRecords2 = generateGradeRecords(assign2, 5);
+		for(int i=0; i<gradeRecords2.size(); i++)
+		{
+			gradeRecords.add(gradeRecords2.get(i));
+		}
+
+		List uid = new ArrayList();
+		uid.add("studentId1");
+		uid.add("studentId2");
+		uid.add("studentId3");
+		uid.add("studentId4");
+		uid.add("studentId5");
+		Map studentIdMap = new HashMap();
+		studentIdMap.put("studentId1", new Double(1.0));
+		studentIdMap.put("studentId2", new Double(2.0));
+		studentIdMap.put("studentId3", new Double(3.0));
+		studentIdMap.put("studentId4", new Double(4.0));
+		studentIdMap.put("studentId5", new Double(5.0));
+
+		gradeRecords = gradebookManager.getAllAssignmentGradeRecords(persistentGradebook.getId(), uid);
+
+		addUsersEnrollments(persistentGradebook, uid);
+
+		Assert.assertTrue(gradebookManager.checkStuendsNotSubmitted(persistentGradebook));
+		
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		Assert.assertTrue(gradebookManager.checkStuendsNotSubmitted(persistentGradebook));
+		
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		Assert.assertTrue(gradebookManager.checkStuendsNotSubmitted(persistentGradebook));
+
+		List allAssigns = gradebookManager.getAssignments(persistentGradebook.getId());
+		for(Iterator iter = allAssigns.iterator(); iter.hasNext();)
+		{
+			Assignment assignment = (Assignment) iter.next();
+			if(!assignment.getId().equals(assgn1Long))
+			{
+				assignment.setCounted(false);
+				gradebookManager.updateAssignment(assignment);
+			}
+		}
+		
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		Assert.assertTrue(!gradebookManager.checkStuendsNotSubmitted(persistentGradebook));
+
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		Assert.assertTrue(!gradebookManager.checkStuendsNotSubmitted(persistentGradebook));
+		
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		Assert.assertTrue(!gradebookManager.checkStuendsNotSubmitted(persistentGradebook));
+
+		
+		//test for setting studentId1's assignment1 to null
+		for(int i=0; i<gradeRecords.size(); i++)
+		{
+			AssignmentGradeRecord agr = (AssignmentGradeRecord)gradeRecords.get(i);
+			if(agr.getAssignment().getId().equals(assgn1Long) && agr.getStudentId().equals("studentId1"))
+				agr.setPointsEarned(null);
+		}
+
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		Assert.assertTrue(gradebookManager.checkStuendsNotSubmitted(persistentGradebook));
+
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		Assert.assertTrue(gradebookManager.checkStuendsNotSubmitted(persistentGradebook));
+		
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		Assert.assertTrue(gradebookManager.checkStuendsNotSubmitted(persistentGradebook));
+	
+	}
 }
