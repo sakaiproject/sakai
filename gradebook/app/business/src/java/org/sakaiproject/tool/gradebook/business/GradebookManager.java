@@ -524,4 +524,12 @@ public interface GradebookManager {
      * @return boolean yes - there are students that haven't submit for some assignments.
      */
     public boolean checkStuendsNotSubmitted(Gradebook gradebook);
+    
+    /**
+     * Insert AssignmentGradeRecord with point of 0 for students that don't have a record
+     * for counted assignments. Or set point of null to 0 for counted assignments.
+     *  
+     * @param gradebook
+     */
+    public void fillInZeroForNullGradeRecrods(Gradebook gradebook);
 }

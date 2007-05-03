@@ -2038,4 +2038,42 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		return false;
     	}
     }
+    
+    public void fillInZeroForNullGradeRecrods(Gradebook gradebook)
+    {
+    	Set studentUids = getAllStudentUids(getGradebookUid(gradebook.getId()));
+    	List assigns = getAssignments(gradebook.getId(), Assignment.DEFAULT_SORT, true);
+    	for(Iterator iter = assigns.iterator(); iter.hasNext();)
+    	{
+    		Assignment assignment = (Assignment)iter.next();
+    		if(assignment.isCounted())
+    		{
+    			List records = getAssignmentGradeRecords(assignment, studentUids);
+    			Map recordsMap = new HashMap();
+    			for(Iterator recordsIter = records.iterator(); recordsIter.hasNext();)
+    			{
+    				AssignmentGradeRecord agr = (AssignmentGradeRecord)recordsIter.next();
+    				recordsMap.put(agr.getStudentId(), agr);
+    			}
+    			List updateAssignmentRecord = new ArrayList();
+    			for(Iterator studentsIter = studentUids.iterator(); studentsIter.hasNext();)
+    			{
+    				String studentUid = (String)studentsIter.next();
+    				if(recordsMap.get(studentUid) != null && 
+    						((AssignmentGradeRecord)recordsMap.get(studentUid)).getPointsEarned() == null)
+    				{
+    					AssignmentGradeRecord agr = (AssignmentGradeRecord)recordsMap.get(studentUid);
+    					agr.setPointsEarned(new Double(0));
+    					updateAssignmentRecord.add(agr);
+    				}
+    				else if(recordsMap.get(studentUid) == null)
+    				{
+    					AssignmentGradeRecord gradeRecord = new AssignmentGradeRecord(assignment, studentUid, new Double(0));
+    					updateAssignmentRecord.add(gradeRecord);
+    				}
+    			}
+    			updateAssignmentGradeRecords(assignment, updateAssignmentRecord);
+    		}
+    	}
+    }
 }
