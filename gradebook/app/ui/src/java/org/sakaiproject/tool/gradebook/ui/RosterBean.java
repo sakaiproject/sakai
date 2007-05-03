@@ -86,6 +86,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		private Boolean categoryColumn = false;
 		private Boolean assignmentColumn = false;
 		private Long assignmentId;
+		private Boolean inactive = false;
 
 		public GradableObjectColumn() {
 		}
@@ -95,6 +96,10 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 			categoryColumn = false;
 			assignmentId = getColumnHeaderAssignmentId(gradableObject);
 			assignmentColumn = !gradableObject.isCourseGrade();
+			inactive = (!gradableObject.isCourseGrade() && !((Assignment)gradableObject).isReleased() ? true : false);
+			if (1 == 1){ 
+				inactive = inactive;
+			}
 		}
 
 		public Long getId() {
@@ -126,6 +131,12 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		}
 		public void setAssignmentColumn(Boolean assignmentColumn) {
 			this.assignmentColumn = assignmentColumn;
+		}
+		public Boolean getInactive() {
+			return this.inactive;
+		}
+		public void setInactive(Boolean inactive) {
+			this.inactive = inactive;
 		}
 	}
 
@@ -378,9 +389,12 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 	                sortHeader.setArrow(true);
 	                sortHeader.setColumnName(columnData.getName());
 	                sortHeader.setActionListener(app.createMethodBinding("#{rosterBean.sort}", new Class[] {ActionEvent.class}));
-	
 	                // Allow word-wrapping on assignment name columns.
-	                sortHeader.setStyleClass("allowWrap");
+	                if(columnData.getInactive()){
+	                	sortHeader.setStyleClass("inactive-column allowWrap");
+	                } else {
+	                	sortHeader.setStyleClass("allowWrap");
+	                }
 	
 					HtmlOutputText headerText = new HtmlOutputText();
 					headerText.setId(ASSIGNMENT_COLUMN_PREFIX + "hdr_" + colpos);
@@ -401,7 +415,9 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		                detailsLink.setId(ASSIGNMENT_COLUMN_PREFIX + "hdr_link_" + colpos);
 		                HtmlOutputText detailsText = new HtmlOutputText();
 		                detailsText.setId(ASSIGNMENT_COLUMN_PREFIX + "hdr_details_" + colpos);
-		                detailsText.setValue("Details");
+		                detailsText.setValue("<em>Details</em>");
+		                detailsText.setEscape(false);
+		                detailsText.setStyle("font-size: 80%");
 		                detailsLink.getChildren().add(detailsText);
 		                
 		                UIParameter param = new UIParameter();

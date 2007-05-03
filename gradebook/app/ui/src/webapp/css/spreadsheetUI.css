@@ -94,6 +94,10 @@ div#q4 {
          position: absolute;
          text-align: center;
       }
+      
+      	div#q4 div table td.inactive-column {
+      		background-color: #eee;
+      	}
 
 div#q3 {
    border-left: 1px solid #ddd;

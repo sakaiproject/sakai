@@ -36,6 +36,7 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 import javax.faces.el.ValueBinding;
 import javax.faces.render.Renderer;
+import org.apache.myfaces.custom.sortheader.HtmlCommandSortHeader;
 
 /**
  * <p>This does not render children, but can deal with children by surrounding them in a comment.</p>
@@ -284,9 +285,13 @@ public class SpreadsheetUIRenderer extends Renderer
 					UIColumn column = (UIColumn) kids.next();
 					if(count >= columnLock){
 					
-						//begin rendering cell
+     					//begin rendering cell
 						writer.startElement("td", data);
-						
+	
+						UIComponent facet = column.getFacet("header");
+						if (foundInactiveInChildren(facet)){
+							writer.writeAttribute("class", "inactive-column", null);
+						}
 						//render the contents of this cell by iterating over
 						//the kids of our kids
 						Iterator oKids = getChildren(column);
@@ -415,6 +420,20 @@ public class SpreadsheetUIRenderer extends Renderer
 	       }
 	       oComponent.encodeEnd(oContext);
 	    }
+	
+	private Boolean foundInactiveInChildren(UIComponent component) {
+		for (Iterator iter = component.getChildren().iterator(); iter.hasNext();){
+			UIComponent child = (UIComponent) iter.next();
+			if (child instanceof HtmlCommandSortHeader){
+				HtmlCommandSortHeader hcsh = (HtmlCommandSortHeader)child;
+				if(hcsh.getStyleClass().contains("inactive-column")){
+					return true;
+				}
+			}
+			return foundInactiveInChildren(child);
+		}
+		return false;
+	}
 }
 
 

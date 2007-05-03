@@ -72,5 +72,16 @@
 				/>
 		</p>
 	  </h:form>
+	  	<h:panelGrid styleClass="instruction" cellpadding="0" cellspacing="0" columns="1">
+		<h:outputText value="#{msgs.overview_legend_title}" />
+		<h:panelGroup>
+			<h:outputText value="#{msgs.roster_footnote_symbol1}" />
+			<h:outputText value="#{msgs.roster_footnote_legend1}" />
+		</h:panelGroup>
+		<h:panelGroup>
+			<h:outputText value="#{msgs.roster_footnote_symbol2}" />
+			<h:outputText value="#{msgs.roster_footnote_legend2}" />
+		</h:panelGroup>
+	</h:panelGrid>
 	</div>
 </f:view>
