@@ -417,7 +417,8 @@
 						<input type="hidden" name="$name_allowResubmitNumber" id="allowResubmitNumber" value="0" />
 					#else
 					##show it only for those assignments not of type non-electronic submission
-					<p class="shorttext">
+					## for 2.4 - hide the select below and toggle its values between 0 and 1 via the checkbox below it
+					<p class="shorttext skip">
 						<label for="allowResubmitNumber">
 							$tlang.getString("allow.resubmit.number")
 						</label>
@@ -432,6 +433,10 @@
 								</option>
 							#end
 						</select>
+					</p>
+					<p class="checkbox">
+						<input type="checkbox" id="tempAllowResToggle" #if($!value_allowResubmitNumber==0) #else checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitNumber').selectedIndex='2';document.getElementById('closeTime').style.display = 'block';
+						}else{document.getElementById('allowResubmitNumber').selectedIndex='1';document.getElementById('closeTime').style.display = 'none'}" /> <label for="tempAllowResToggle">$tlang.getString("allowResubmit")</label>
 					</p>
 					#if($!value_allowResubmitNumber==0)
 						#set($closeTimeStyle="display:none")
