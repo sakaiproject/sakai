@@ -9,7 +9,16 @@
 
 		<sakai:flowState bean="#{rosterBean}" />
 
-		<h2><h:outputText value="#{msgs.roster_page_title}"/></h2>
+		<h2>
+			<h:outputText value="#{msgs.roster_page_title}"/>
+			<h:commandButton
+				id="exportCsv"
+				value="#{msgs.roster_export_csv}"
+				actionListener="#{rosterBean.exportCsv}"
+				rendered="#{!rosterBean.emptyEnrollments}"
+				style="right: 0;position: absolute;"
+				/>
+		</h2>
 
   	<h:panelGrid cellpadding="0" cellspacing="0" columns="2"
 			columnClasses="itemName"
@@ -57,20 +66,6 @@
 			<h:outputText value="#{msgs.roster_no_enrollments}" rendered="#{rosterBean.emptyEnrollments}" />
 		</p>
 
-		<p class="act">
-			<h:commandButton
-				id="exportExcel"
-				value="#{msgs.roster_export_excel}"
-				actionListener="#{rosterBean.exportExcel}"
-				rendered="#{!rosterBean.emptyEnrollments}"
-				/>
-			<h:commandButton
-				id="exportCsv"
-				value="#{msgs.roster_export_csv}"
-				actionListener="#{rosterBean.exportCsv}"
-				rendered="#{!rosterBean.emptyEnrollments}"
-				/>
-		</p>
 	  </h:form>
 	  	<h:panelGrid styleClass="instruction" cellpadding="0" cellspacing="0" columns="1">
 		<h:outputText value="#{msgs.overview_legend_title}" />
