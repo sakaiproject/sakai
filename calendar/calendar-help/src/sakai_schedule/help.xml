@@ -16,13 +16,28 @@
 			<value>sakai.schedule</value>
 		</property>
 	</bean>
+	<bean id="scheduleSummary"
+		class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>avaz</value>
+		</property>
+		<property name="name">
+			<value>Schedule summary</value>
+		</property>
+		<property name="location">
+			<value>/sakai_schedule/avaz.html</value>
+		</property>
+		<property name="defaultForTool">
+			<value>sakai.summary.calendar</value>
+		</property>
+	</bean>
 	<bean id="addActivity"
 		class="org.sakaiproject.component.app.help.model.ResourceBean">
 		<property name="docId">
 			<value>aqyn</value>
 		</property>
 		<property name="name">
-			<value>Add Activity</value>
+			<value>Add, edit or delete item</value>
 		</property>
 		<property name="location">
 			<value>/sakai_schedule/aqyn.html</value>
@@ -34,7 +49,7 @@
 			<value>argn</value>
 		</property>
 		<property name="name">
-			<value>Add Attachment to Activity</value>
+			<value>Add attachment to item</value>
 		</property>
 		<property name="location">
 			<value>/sakai_schedule/argn.html</value>
@@ -46,22 +61,10 @@
 			<value>aqzh</value>
 		</property>
 		<property name="name">
-			<value>View Activity Detail</value>
+			<value>View item details</value>
 		</property>
 		<property name="location">
 			<value>/sakai_schedule/aqzh.html</value>
-		</property>
-	</bean>
-	<bean id="deleteActivity"
-		class="org.sakaiproject.component.app.help.model.ResourceBean">
-		<property name="docId">
-			<value>aqzc</value>
-		</property>
-		<property name="name">
-			<value>Edit/Delete Activity</value>
-		</property>
-		<property name="location">
-			<value>/sakai_schedule/aqzc.html</value>
 		</property>
 	</bean>
 
@@ -71,10 +74,23 @@
 			<value>aqyp</value>
 		</property>
 		<property name="name">
-			<value>Change Schedule View</value>
+			<value>Change view</value>
 		</property>
 		<property name="location">
 			<value>/sakai_schedule/aqyp.html</value>
+		</property>
+	</bean>
+
+	<bean id="addCalendarFields"
+		class="org.sakaiproject.component.app.help.model.ResourceBean">
+		<property name="docId">
+			<value>aqzc</value>
+		</property>
+		<property name="name">
+			<value>Add or delete calendar fields</value>
+		</property>
+		<property name="location">
+			<value>/sakai_schedule/aqzc.html</value>
 		</property>
 	</bean>
 
@@ -84,7 +100,7 @@
 			<value>arfe</value>
 		</property>
 		<property name="name">
-			<value>Add field to calendar</value>
+			<value>Print calendar</value>
 		</property>
 		<property name="location">
 			<value>/sakai_schedule/arfe.html</value>
@@ -97,7 +113,7 @@
 			<value>aqyl</value>
 		</property>
 		<property name="name">
-			<value>Merge Calendars</value>
+			<value>Merge calendars</value>
 		</property>
 		<property name="location">
 			<value>/sakai_schedule/aqyl.html</value>
@@ -110,7 +126,7 @@
 			<value>argo</value>
 		</property>
 		<property name="name">
-			<value>Import Calendars</value>
+			<value>Import a calendar</value>
 		</property>
 		<property name="location">
 			<value>/sakai_schedule/argo.html</value>
@@ -133,10 +149,11 @@
 					<property name="resources">
 						<list>
 							<ref bean="scheduleOverview" />
+							<ref bean="scheduleSummary" />
 							<ref bean="addActivity" />
 							<ref bean="addActivityAttachment" />
 							<ref bean="viewSchedule" />
-							<ref bean="deleteActivity" />
+							<ref bean="addCalendarFields" />
 							<ref bean="changeScheduleView" />
 							<ref bean="printCalendar" />
 							<ref bean="mergeCalendar" />
