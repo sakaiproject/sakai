@@ -20,6 +20,8 @@
 **********************************************************************************/
 package org.sakaiproject.jsf.util;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.jsf.util.JsfTool;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Tool;
@@ -28,7 +30,6 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.Web;
-//import org.sakaiproject.metaobj.shared.control.ToolFinishedView;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -45,6 +46,8 @@ import java.util.Enumeration;
  * To change this template use File | Settings | File Templates.
  */
 public class HelperAwareJsfTool extends JsfTool {
+
+  private static Log M_log = LogFactory.getLog(HelperAwareJsfTool.class);
 
   private static final String HELPER_EXT = ".helper";
 
@@ -161,8 +164,8 @@ public class HelperAwareJsfTool extends JsfTool {
       res.addHeader("Pragma", "no-cache");
 
       // dispatch to the target
-      /*M_log.debug("dispatching path: " + req.getPathInfo() + " to: " + target + " context: "
-              + getServletContext().getServletContextName());*/
+      M_log.debug("dispatching path: " + req.getPathInfo() + " to: " + target + " context: "
+              + getServletContext().getServletContextName());
       RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(target);
       dispatcher.forward(req, res);
 
