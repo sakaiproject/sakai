@@ -22,7 +22,7 @@
 				<label for="name${DOT}$i">
 					$tlang.getString("title.name") 
 				</label>
-				<input type="text" size="40" id="name${DOT}$i" name="name${DOT}$i" value="$validator.escapeHtml("$!item.name")" />
+				<input type="text" size="40" id="displayName${DOT}$i" name="displayName${DOT}$i" value="$validator.escapeHtml("$!item.name")" />
 			</p>
 			#parse("/vm/resources/sakai_properties.vm")
 			<hr class="itemSeparator" />
@@ -55,10 +55,10 @@
 </div>
 #parse("/vm/resources/sakai_properties_scripts.vm")
 <script type="text/javascript">
-	focus_path = [ "name${DOT}$i" ];
+	focus_path = [ "displayName${DOT}$i" ];
 	function focusOnNameElement()
 	{
-		var nameElement = document.getElementById("name${DOT}$i");
+		var nameElement = document.getElementById("displayName${DOT}$i");
 		nameElement.focus();
 		nameElement.select();
 	}

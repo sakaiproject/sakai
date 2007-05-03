@@ -206,6 +206,8 @@ public class FilePickerAction extends PagedResourceHelperAction
 	public String buildMainPanelContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
 		initState(state, portlet, data);
+		
+		context.put("DOT", ListItem.DOT);
 
 		// if we are in edit attachments...
 		String mode = (String) state.getAttribute(ResourcesAction.STATE_MODE);
@@ -339,12 +341,13 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 			ContentEntity collection = pipe.getContentEntity();
 
+			ListItem parent = new ListItem(collection);
+			parent.setPubviewPossible(! preventPublicDisplay);
+			ListItem item = new ListItem(pipe, parent, defaultRetractDate);
+
 			String typeId = pipe.getAction().getTypeId();
 			//List items = newEditItems(collection.getId(), typeId, encoding, defaultCopyrightStatus, preventPublicDisplay.booleanValue(), defaultRetractDate, new Integer(1));
 
-			ResourcesItem item = new ResourcesItem("", collection.getId(), typeId, pipe);
-			item.setContent(pipe.getContent());
-			item.setContentType(pipe.getMimeType());
 			context.put("item", item);
 
 			toolSession.setAttribute(STATE_NEW_ATTACHMENT, item);
@@ -1709,6 +1712,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 					toolName = ToolManager.getCurrentPlacement().getTitle();
 				}
 			
+				// TODO: we're making a copy, so we need to invoke the copy methods related to the resource-type registration 
 				ContentResource attachment = contentService.addAttachmentResource(resourceId, siteId, toolName, contentType, bytes, props);
 
 				String displayName = newprops.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
@@ -1956,7 +1960,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 		}
 		//ResourceType type = registry.getType(typeId); 
 		
-		ResourcesItem item = (ResourcesItem) toolSession.getAttribute(STATE_NEW_ATTACHMENT);
+		ListItem item = (ListItem) toolSession.getAttribute(STATE_NEW_ATTACHMENT);
 		
 		// get the parameter-parser
 		ParameterParser params = data.getParameters();
@@ -1973,11 +1977,15 @@ public class FilePickerAction extends PagedResourceHelperAction
 		}
 		else if(user_action.equals("save"))
 		{
+			
+			item.captureProperties(params, ListItem.DOT + "0");
 			String collectionId = pipe.getContentEntity().getId();
 			try 
 			{
 				// title
-				displayName = params.getString("name");
+				displayName = item.getName();
+					
+					//params.getString("name" + ListItem.DOT + "0");
 				String basename = displayName.trim();
 				String extension = "";
 				if(displayName.contains("."))
@@ -1997,6 +2005,8 @@ public class FilePickerAction extends PagedResourceHelperAction
 				
 				// create resource
 				ContentResourceEdit resource = contentService.addResource(collectionId, basename, extension, MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
+				
+				item.updateContentResourceEdit(resource);
 				
 				String resourceType = null;
 				if(pipe != null)
@@ -2051,141 +2061,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 					resourceProperties.addProperty(pname, pvalue);
 				}
 				
-				// description
-				String description = params.getString("description");
-				resourceProperties.addProperty(ResourceProperties.PROP_DESCRIPTION, description);
-				
-				// rights
-				String copyright = params.getString("copyright");
-				String newcopyright = params.getString("newcopyright");
-				boolean copyrightAlert = params.getBoolean("copyrightAlert");
-				
-				if(copyright == null || copyright.trim().length() == 0)
-				{
-					resourceProperties.removeProperty(ResourceProperties.PROP_COPYRIGHT_CHOICE);
-				}
-				else
-				{
-					resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT_CHOICE, copyright);
-				}
-				if(newcopyright == null || newcopyright.trim().length() == 0)
-				{
-					resourceProperties.removeProperty(ResourceProperties.PROP_COPYRIGHT);
-				}
-				else
-				{
-					resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT, newcopyright);
-				}
-				if (copyrightAlert)
-				{
-					resourceProperties.addProperty (ResourceProperties.PROP_COPYRIGHT_ALERT, Boolean.TRUE.toString());
-				}
-				else
-				{
-					resourceProperties.removeProperty (ResourceProperties.PROP_COPYRIGHT_ALERT);
-				}
-				
-				// availability
-				boolean hidden = params.getBoolean("hidden");
-				boolean use_start_date = params.getBoolean("use_start_date");
-				boolean use_end_date = params.getBoolean("use_end_date");
-				Time releaseDate = null;
-				Time retractDate = null;
-				
-				if(use_start_date)
-				{
-					int begin_year = params.getInt("release_year");
-					int begin_month = params.getInt("release_month");
-					int begin_day = params.getInt("release_day");
-					int begin_hour = params.getInt("release_hour");
-					int begin_min = params.getInt("release_min");
-					String release_ampm = params.getString("release_ampm");
-					if("pm".equals(release_ampm))
-					{
-						begin_hour += 12;
-					}
-					else if(begin_hour == 12)
-					{
-						begin_hour = 0;
-					}
-					releaseDate = TimeService.newTimeLocal(begin_year, begin_month, begin_day, begin_hour, begin_min, 0, 0);
-				}
-				
-				if(use_end_date)
-				{
-					int end_year = params.getInt("retract_year");
-					int end_month = params.getInt("retract_month");
-					int end_day = params.getInt("retract_day");
-					int end_hour = params.getInt("retract_hour");
-					int end_min = params.getInt("retract_min");
-					String retract_ampm = params.getString("retract_ampm");
-					if("pm".equals(retract_ampm))
-					{
-						end_hour += 12;
-					}
-					else if(end_hour == 12)
-					{
-						end_hour = 0;
-					}
-					retractDate = TimeService.newTimeLocal(end_year, end_month, end_day, end_hour, end_min, 0, 0);
-				}
-				
-				resource.setAvailability(hidden, releaseDate, retractDate);
-				
-				// access
-				Boolean preventPublicDisplay = (Boolean) toolSession.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
-				if(preventPublicDisplay == null)
-				{
-					preventPublicDisplay = Boolean.FALSE;
-					toolSession.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, preventPublicDisplay);
-				}
-				
-				String access_mode = params.getString("access_mode");
-				SortedSet groups = new TreeSet();
-				
-				if(access_mode == null || AccessMode.GROUPED.toString().equals(access_mode))
-				{
-					// we inherit more than one group and must check whether group access changes at this item
-					String[] access_groups = params.getStrings("access_groups");
-					
-//					SortedSet new_groups = new TreeSet();
-//					if(access_groups != null)
-//					{
-//						new_groups.addAll(Arrays.asList(access_groups));
-//					}
-//					new_groups = item.convertToRefs(new_groups);
-//					
-//					Collection inh_grps = item.getInheritedGroupRefs();
-//					boolean groups_are_inherited = (new_groups.size() == inh_grps.size()) && inh_grps.containsAll(new_groups);
-//					
-//					if(groups_are_inherited)
-//					{
-//						new_groups.clear();
-//						item.setEntityGroupRefs(new_groups);
-//						item.setAccess(AccessMode.INHERITED.toString());
-//					}
-//					else
-//					{
-//						item.setEntityGroupRefs(new_groups);
-//						item.setAccess(AccessMode.GROUPED.toString());
-//					}
-//					
-//					item.setPubview(false);
-				}
-				else if(ResourcesAction.PUBLIC_ACCESS.equals(access_mode))
-				{
-//					if(! preventPublicDisplay.booleanValue() && ! item.isPubviewInherited())
-//					{
-//						item.setPubview(true);
-//						item.setAccess(AccessMode.INHERITED.toString());
-//					}
-				}
-				else if(AccessMode.INHERITED.toString().equals(access_mode))
-				{
-				}
-				
-				// update resource with access info
-
 				// notification
 				int noti = NotificationService.NOTI_NONE;
 				// read the notification options
@@ -2203,12 +2078,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 				
 				toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
 
-				// set to public access if allowed and requested
-				if(!preventPublicDisplay.booleanValue() && ResourcesAction.PUBLIC_ACCESS.equals(access_mode))
-				{
-					contentService.setPubView(resource.getId(), true);
-				}
-				
 				// show folder if in hierarchy view
 				SortedSet expandedCollections = (SortedSet) toolSession.getAttribute(STATE_EXPANDED_COLLECTIONS);
 				expandedCollections.add(collectionId);
@@ -2886,6 +2755,18 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 		public void setIconLocation(String iconLocation)
         {
+			if(iconLocation == null)
+			{
+				ContentTypeImageService imageService = (ContentTypeImageService) ComponentManager.get("org.sakaiproject.content.api.ContentTypeImageService");
+				if(this.m_contentType == null)
+				{
+					iconLocation = imageService.getContentTypeImage("application/binary");
+				}
+				else
+				{
+					iconLocation = imageService.getContentTypeImage(this.m_contentType);
+				}
+			}
         	this.iconLocation = iconLocation;
         }
 
