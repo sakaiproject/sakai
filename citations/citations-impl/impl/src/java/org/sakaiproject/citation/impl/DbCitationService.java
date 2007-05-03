@@ -1295,26 +1295,25 @@ public class DbCitationService extends BaseCitationService
 
 	public void init()
 	{
-		if(m_configService.isCitationsEnabledByDefault() ||
-				m_configService.isAllowSiteBySiteOverride() )
+		try
 		{
-			try
+			// if we are auto-creating our schema, check and create
+			if (m_autoDdl)
 			{
-				// if we are auto-creating our schema, check and create
-				if (m_autoDdl)
-				{
-					m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_citation");
-				}
-	
-				super.init();
-	
-				M_log.info("init(): tables: " + m_collectionTableName + ", " + m_citationTableName + ", " + m_schemaTableName + ", " + m_schemaFieldTableName);
-	
+				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_citation");
 			}
-			catch (Throwable t)
-			{
-				M_log.warn("init(): ", t);
-			}
+
+			// TODO: Separate initialization of schemas and registration of CitationList resource-type into discreet methods.
+			// TODO: Call method to initialize schemas only if they are not yet initialized.
+			// TODO: Call method to register CitationList resource-type only if it's not yet registered.
+			super.init();
+
+			M_log.info("init(): tables: " + m_collectionTableName + ", " + m_citationTableName + ", " + m_schemaTableName + ", " + m_schemaFieldTableName);
+
+		}
+		catch (Throwable t)
+		{
+			M_log.warn("init(): ", t);
 		}
 
 	}	// init
