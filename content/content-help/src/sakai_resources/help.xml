@@ -9,6 +9,12 @@
       <property name="defaultForTool"><value>sakai.resources</value></property>      
    </bean>
 
+   <bean id="usingFolders" class="org.sakaiproject.component.app.help.model.ResourceBean">
+         <property name="docId"><value>avbw</value></property>
+      <property name="name"><value>Working with folders</value></property>
+      <property name="location"><value>/sakai_resources/avbw.html</value></property>
+   </bean>
+
    <bean id="createResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
          <property name="docId"><value>arcg</value></property>
       <property name="name"><value>Create/Add/Edit/Delete Resource</value></property>
@@ -70,6 +76,7 @@
                <property name="resources">
                   <list>
                      <ref bean="resourceOverview"/>
+                     <ref bean="usingFolders"/>
                      <ref bean="createResource"/>
                      <ref bean="reviseResource"/>
                       <ref bean="replaceResource"/>
