@@ -44,26 +44,16 @@
       <artifactId>sakai-import-content</artifactId>
       <version>${sakai.version}</version>
     </dependency>
-<!--
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-import-sam</artifactId>
 			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
 		</dependency>
--->
-<!--
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-samigo-qti</artifactId>
 			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
 		</dependency>
--->
     <dependency>
       
       <groupId>org.sakaiproject</groupId>
