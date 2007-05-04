@@ -8,7 +8,7 @@
 
 ----------------------------------------------------------------------------------------------------------------------------------------
 
--- OSP conversion
+-- OSP conversion (note first 2 alters may be unnecessary for 2.3.x
 alter table osp_presentation_template add propertyFormType varchar2(36);
 alter table osp_presentation add property_form varchar2(36);
 alter table osp_scaffolding add preview number(1,0) DEFAULT 0 not null;
