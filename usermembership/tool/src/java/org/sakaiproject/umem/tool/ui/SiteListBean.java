@@ -425,7 +425,7 @@ public class SiteListBean {
 		String siteReference = M_site.siteReference(siteId);
 		try{
 			Connection c = M_sql.borrowConnection();
-			String sql = "select SS.GROUP_ID, SS.TITLE, SS.DESCRIPTION " 
+			String sql = "select SS.GROUP_ID, SS.TITLE TITLE, SS.DESCRIPTION " 
 					+ "from SAKAI_SITE_GROUP SS, SAKAI_REALM R, SAKAI_REALM_RL_GR RRG " 
 					+ "where R.REALM_ID = concat(concat('"+siteReference+"','/group/'), SS.GROUP_ID) "
 					+ "and R.REALM_KEY = RRG.REALM_KEY " 
@@ -437,7 +437,7 @@ public class SiteListBean {
 			pst.setString(2, siteId);
 			ResultSet rs = pst.executeQuery();
 			while (rs.next()){
-				String t = rs.getString("SS.TITLE");
+				String t = rs.getString("TITLE");
 				if(groups.length() != 0) groups.append(", ");
 				groups.append(t);
 			}
