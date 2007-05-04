@@ -3959,6 +3959,8 @@ public abstract class BaseCitationService implements CitationService
 	    typedef.addAction(reviseAction);
 	    typedef.addAction(new CitationListDeleteAction());
 	    typedef.addAction(new CitationListCopyAction());
+	    typedef.addAction(new CitationListPasteCopyAction());
+	    typedef.addAction(new CitationListPasteMoveAction());
 	    typedef.addAction(new CitationListDuplicateAction());
 	    typedef.addAction(revisePropsAction);
 	    typedef.addAction(moveAction);
@@ -4410,42 +4412,39 @@ public abstract class BaseCitationService implements CitationService
 		@Override
 		public void finalizeAction(Reference reference) 
 		{
-			ContentHostingService contentService = (ContentHostingService) ComponentManager.get(ContentHostingService.class);
-			try
-			{
-				ContentResourceEdit edit = contentService.editResource(reference.getId());
-				String collectionId = new String(edit.getContent());
-				CitationCollection oldCollection = getCollection(collectionId);
-				BasicCitationCollection newCollection = new BasicCitationCollection();
-				newCollection.copy((BasicCitationCollection) oldCollection);
-				save(newCollection);
-				edit.setContent(newCollection.getId().getBytes());
-				contentService.commitResource(edit);
-			}
-			catch(IdUnusedException e)
-			{
-				M_log.warn("IdUnusedException ", e);
-			}
-			catch(ServerOverloadException e)
-			{
-				M_log.warn("ServerOverloadException ", e);
-			} 
-			catch (PermissionException e) 
-			{
-				M_log.warn("PermissionException ", e);
-			} 
-			catch (TypeException e) 
-			{
-				M_log.warn("TypeException ", e);
-			} 
-			catch (InUseException e) 
-			{
-				M_log.warn("InUseException ", e);
-			} 
-			catch (OverQuotaException e) 
-			{
-				M_log.warn("OverQuotaException ", e);
-			}
+			copyCitationCollection(reference);
+		}
+
+	}
+
+	public class CitationListPasteMoveAction extends BaseServiceLevelAction
+	{
+
+		public CitationListPasteMoveAction() 
+		{
+			super(ResourceToolAction.PASTE_COPIED, ResourceToolAction.ActionType.PASTE_MOVED, CitationService.CITATION_LIST_ID, true);
+		}
+
+		@Override
+		public void finalizeAction(Reference reference) 
+		{
+			copyCitationCollection(reference);
+		}
+
+	}
+
+	public class CitationListPasteCopyAction extends BaseServiceLevelAction
+	{
+
+		public CitationListPasteCopyAction() 
+		{
+			super(ResourceToolAction.PASTE_COPIED, ResourceToolAction.ActionType.PASTE_COPIED, CitationService.CITATION_LIST_ID, true);
+		}
+
+		@Override
+		public void finalizeAction(Reference reference) 
+		{
+			copyCitationCollection(reference);
 		}
 
 	}
@@ -4461,42 +4460,7 @@ public abstract class BaseCitationService implements CitationService
 		@Override
 		public void finalizeAction(Reference reference) 
 		{
-			ContentHostingService contentService = (ContentHostingService) ComponentManager.get(ContentHostingService.class);
-			try
-			{
-				ContentResourceEdit edit = contentService.editResource(reference.getId());
-				String collectionId = new String(edit.getContent());
-				CitationCollection oldCollection = getCollection(collectionId);
-				BasicCitationCollection newCollection = new BasicCitationCollection();
-				newCollection.copy((BasicCitationCollection) oldCollection);
-				save(newCollection);
-				edit.setContent(newCollection.getId().getBytes());
-				contentService.commitResource(edit);
-			}
-			catch(IdUnusedException e)
-			{
-				M_log.warn("IdUnusedException ", e);
-			}
-			catch(ServerOverloadException e)
-			{
-				M_log.warn("ServerOverloadException ", e);
-			} 
-			catch (PermissionException e) 
-			{
-				M_log.warn("PermissionException ", e);
-			} 
-			catch (TypeException e) 
-			{
-				M_log.warn("TypeException ", e);
-			} 
-			catch (InUseException e) 
-			{
-				M_log.warn("InUseException ", e);
-			} 
-			catch (OverQuotaException e) 
-			{
-				M_log.warn("OverQuotaException ", e);
-			}
+			copyCitationCollection(reference);
 		}
 
 	}
@@ -4786,6 +4750,49 @@ public abstract class BaseCitationService implements CitationService
     public void setAttemptToMatchSchema(boolean attemptToMatchSchema)
     {
     	this.attemptToMatchSchema = attemptToMatchSchema;
+    }
+
+	/**
+     * @param reference
+     */
+    private void copyCitationCollection(Reference reference)
+    {
+        ContentHostingService contentService = (ContentHostingService) ComponentManager.get(ContentHostingService.class);
+		try
+		{
+			ContentResourceEdit edit = contentService.editResource(reference.getId());
+			String collectionId = new String(edit.getContent());
+			CitationCollection oldCollection = getCollection(collectionId);
+			BasicCitationCollection newCollection = new BasicCitationCollection();
+			newCollection.copy((BasicCitationCollection) oldCollection);
+			save(newCollection);
+			edit.setContent(newCollection.getId().getBytes());
+			contentService.commitResource(edit);
+		}
+		catch(IdUnusedException e)
+		{
+			M_log.warn("IdUnusedException ", e);
+		}
+		catch(ServerOverloadException e)
+		{
+			M_log.warn("ServerOverloadException ", e);
+		} 
+		catch (PermissionException e) 
+		{
+			M_log.warn("PermissionException ", e);
+		} 
+		catch (TypeException e) 
+		{
+			M_log.warn("TypeException ", e);
+		} 
+		catch (InUseException e) 
+		{
+			M_log.warn("InUseException ", e);
+		} 
+		catch (OverQuotaException e) 
+		{
+			M_log.warn("OverQuotaException ", e);
+		}
     }
 
 } // BaseCitationService
