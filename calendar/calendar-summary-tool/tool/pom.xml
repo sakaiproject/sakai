@@ -192,6 +192,7 @@
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
+      <scope>provided</scope>
     </dependency>
 <!-- removing transitive dependency to match maven 1 build -->
  <dependency>
