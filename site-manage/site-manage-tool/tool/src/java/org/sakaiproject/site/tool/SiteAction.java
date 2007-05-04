@@ -2462,6 +2462,11 @@ public class SiteAction extends PagedResourceActionII {
 			/*
 			 * buildContextForTemplate chef_site-newSiteCourse.vm
 			 */
+						
+			// SAK-9824
+			Boolean enableCourseCreationForUser = ServerConfigurationService.getBoolean("site.enableCreateAnyUser", Boolean.FALSE);
+			context.put("enableCourseCreationForUser", enableCourseCreationForUser);
+				
 			if (site != null) {
 				context.put("site", site);
 				context.put("siteTitle", site.getTitle());
