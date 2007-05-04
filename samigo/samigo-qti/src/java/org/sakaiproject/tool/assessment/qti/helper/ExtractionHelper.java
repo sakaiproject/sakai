@@ -1140,7 +1140,7 @@ public class ExtractionHelper
 				oldResourceId = splittedString[i].substring(0, endIndex);
 				String[] oldSplittedResourceId = oldResourceId.split("/");
 				fullFilePath = unzipLocation + "/" + oldResourceId.replace(" ", "");
-				filename = oldSplittedResourceId[3];
+				filename = oldSplittedResourceId[oldSplittedResourceId.length - 1];
 				MimetypesFileTypeMap mimetypesFileTypeMap = new MimetypesFileTypeMap();
 				contentType = mimetypesFileTypeMap.getContentType(filename);
 				AttachmentHelper attachementHelper = new AttachmentHelper();
