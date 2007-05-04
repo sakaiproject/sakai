@@ -13,7 +13,7 @@
 			to do this -->
 		<id name="id" type="long" column="OPTION_ID">
 	    	<generator class="native">
-                <param name="sequence">OPTION_OPTION_ID_SEQ</param>
+                <param name="sequence">POLL_OPTION_ID_SEQ</param>
 	    	</generator>
 		</id>
 		<!-- The remaining properties should just match the properties
