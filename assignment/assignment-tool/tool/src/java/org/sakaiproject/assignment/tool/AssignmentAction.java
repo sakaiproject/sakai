@@ -3984,15 +3984,28 @@ public class AssignmentAction extends PagedResourceActionII
 						}
 					});
 				
-				String associateGradebookAssignment = StringUtil.trimToNull(properties.getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+				// check the property name used in 2.3
+				String associateGradebookAssignment = StringUtil.trimToNull(properties.getProperty("new_assignment_associate_gradebook_assignment"));
 				if (associateGradebookAssignment != null)
 				{
 					// add or remove external grades to gradebook
 					// a. if Gradebook does not exists, do nothing, 'cos setting should have been hidden
 					// b. if Gradebook exists, do updates
-					org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition = g.getAssignment(gradebookUid, associateGradebookAssignment);
-					if (assignmentDefinition != null && assignmentDefinition.isExternallyMaintained())
+					if (g.isExternalAssignmentDefined(gradebookUid, associateGradebookAssignment))
 					{
+						// find the entry in the gb that has this external
+						List gbAssignments = g.getAssignments(gradebookUid);
+						org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition = null;
+						for (Iterator i = gbAssignments.iterator(); i.hasNext();)
+						{
+							org.sakaiproject.service.gradebook.shared.Assignment gbA = (org.sakaiproject.service.gradebook.shared.Assignment) i.next();
+							if (associateGradebookAssignment.equals(gbA.getExternalId()))
+							{
+								assignmentDefinition = gbA;
+								break;
+							}
+						}
+
 						// those entries are created before Sakai2.4 as externally maintained accessment in Gradebook, need to update it to internal assignment
 						org.sakaiproject.service.gradebook.shared.Assignment nAssignmentDefinition = new org.sakaiproject.service.gradebook.shared.Assignment();
 				 		nAssignmentDefinition.setName(assignmentDefinition.getName());
@@ -4005,10 +4018,19 @@ public class AssignmentAction extends PagedResourceActionII
 				 		nAssignmentDefinition.setExternalId(null);
 				 		
 				 		// remove the old external one and add a new internal assignment
-						g.removeExternalAssessment(gradebookUid, AssignmentService.assignmentReference(a.getContext(), a.getId()));
+						g.removeExternalAssessment(gradebookUid, associateGradebookAssignment);
 						
 				 		g.addAssignment(gradebookUid, nAssignmentDefinition);
 				 		
+				 		// switch from the external id to the title for association
+				 		associateGradebookAssignment = assignmentDefinition.getName();
+
+						// update the assignment
+						AssignmentEdit aEdit = AssignmentService.editAssignment(a.getReference());
+						aEdit.getPropertiesEdit().removeProperty("new_assignment_associate_gradebook_assignment");
+						aEdit.getPropertiesEdit().addProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, associateGradebookAssignment);
+						AssignmentService.commitEdit(aEdit);
+
 						// bulk add all grades for assignment into gradebook
 						AssignmentService.integrateGradebook(a.getReference(), associateGradebookAssignment, associateGradebookAssignment, null, null, null, -1, null, null, "update");
 					}
