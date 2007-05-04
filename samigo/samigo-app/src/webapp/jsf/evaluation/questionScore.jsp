@@ -591,22 +591,22 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
 
 
    <!-- STUDENT ID -->
-    <h:column rendered="#{questionScores.anonymous eq 'false' && questionScores.sortType!='idString'}" >
+    <h:column rendered="#{questionScores.anonymous eq 'false' && questionScores.sortType!='agentEid'}" >
      <f:facet name="header">
-       <h:commandLink title="#{evaluationMessages.t_sortUserId}" id="idString" action="questionScores" >
+       <h:commandLink title="#{evaluationMessages.t_sortUserId}" id="agentEid" action="questionScores" >
           <h:outputText value="#{evaluationMessages.uid}" />
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
-        <f:param name="sortBy" value="idString" />
+        <f:param name="sortBy" value="agentEid" />
         <f:param name="sortAscending" value="true" />
         </h:commandLink>
      </f:facet>
         <h:outputText value="#{description.agentEid}" />
     </h:column>
 
-    <h:column rendered="#{questionScores.anonymous eq 'false' && questionScores.sortType eq 'idString' && questionScores.sortAscending}">
+    <h:column rendered="#{questionScores.anonymous eq 'false' && questionScores.sortType eq 'agentEid' && questionScores.sortAscending}">
       <f:facet name="header">
         <h:commandLink title="#{evaluationMessages.t_sortUserId}" action="questionScores">
           <h:outputText value="#{evaluationMessages.uid}" />
@@ -621,7 +621,7 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
         <h:outputText value="#{description.agentEid}" />
     </h:column>    
     
-    <h:column rendered="#{questionScores.anonymous eq 'false' && questionScores.sortType eq 'idString' && !questionScores.sortAscending}">
+    <h:column rendered="#{questionScores.anonymous eq 'false' && questionScores.sortType eq 'agentEid' && !questionScores.sortAscending}">
       <f:facet name="header">
         <h:commandLink title="#{evaluationMessages.t_sortUserId}" action="questionScores">
           <h:outputText value="#{evaluationMessages.uid}" />

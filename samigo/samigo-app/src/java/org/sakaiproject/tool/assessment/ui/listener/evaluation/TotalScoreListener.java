@@ -665,6 +665,7 @@ log.debug("testing agent getEid agent.geteid = " + agent.getEidString());
 
     if ((sortProperty).equals("lastName")) bs.toStringSort();
     if ((sortProperty).equals("idString")) bs.toStringSort();
+    if ((sortProperty).equals("agentEid")) bs.toStringSort();
     if ((sortProperty).equals("role")) bs.toStringSort();
     if ((sortProperty).equals("comments")) bs.toStringSort();
     if ((sortProperty).equals("submittedDate")) bs.toDateSort();

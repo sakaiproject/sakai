@@ -460,20 +460,20 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
  
 
    <!-- STUDENT ID -->
-    <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType!='idString'}" >
+    <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType!='agentEid'}" >
      <f:facet name="header">
-       <h:commandLink title="#{evaluationMessages.t_sortUserId}" id="idString" action="totalScores" >
+       <h:commandLink title="#{evaluationMessages.t_sortUserId}" id="agentEid" action="totalScores" >
           <h:outputText value="#{evaluationMessages.uid}" />
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
-        <f:param name="sortBy" value="idString" />
+        <f:param name="sortBy" value="agentEid" />
         <f:param name="sortAscending" value="true"/>
         </h:commandLink>
      </f:facet>
         <h:outputText value="#{description.agentEid}" />
     </h:column>
 
-    <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType eq 'idString' && totalScores.sortAscending}">
+    <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType eq 'agentEid' && totalScores.sortAscending}">
       <f:facet name="header">
         <h:commandLink title="#{evaluationMessages.t_sortUserId}" action="totalScores">
           <h:outputText value="#{evaluationMessages.uid}" />
@@ -486,7 +486,7 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
         <h:outputText value="#{description.agentEid}" />
     </h:column>
     
-    <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType eq 'idString' && !totalScores.sortAscending}">
+    <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType eq 'agentEid' && !totalScores.sortAscending}">
       <f:facet name="header">
       <h:commandLink title="#{evaluationMessages.t_sortUserId}" action="totalScores">
         <h:outputText value="#{evaluationMessages.uid}" />

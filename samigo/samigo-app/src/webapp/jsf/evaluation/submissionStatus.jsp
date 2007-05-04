@@ -301,20 +301,20 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
 
 
    <!-- STUDENT ID -->
-    <h:column  rendered="#{submissionStatus.sortType ne 'idString'}" >
+    <h:column  rendered="#{submissionStatus.sortType ne 'agentEid'}" >
      <f:facet name="header">
-       <h:commandLink title="#{evaluationMessages.t_sortUserId}" id="idString" action="submissionStatus" >
+       <h:commandLink title="#{evaluationMessages.t_sortUserId}" id="agentEid" action="submissionStatus" >
           <h:outputText value="#{evaluationMessages.uid}" />
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
-        <f:param name="sortBy" value="idString" />
+        <f:param name="sortBy" value="agentEid" />
         <f:param name="sortAscending" value="true"/>
         </h:commandLink>
      </f:facet>
         <h:outputText value="#{description.agentEid}" />
     </h:column>
 
-	<h:column rendered="#{submissionStatus.sortType eq 'idString' && submissionStatus.sortAscending}">
+	<h:column rendered="#{submissionStatus.sortType eq 'agentEid' && submissionStatus.sortAscending}">
       <f:facet name="header">
         <h:commandLink title="#{evaluationMessages.t_sortUserId}" action="submissionStatus">
           <h:outputText value="#{evaluationMessages.uid}" />
@@ -327,7 +327,7 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
        <h:outputText value="#{description.agentEid}" />
     </h:column>
 
-	<h:column rendered="#{submissionStatus.sortType eq 'idString' && !submissionStatus.sortAscending}">
+	<h:column rendered="#{submissionStatus.sortType eq 'agentEid' && !submissionStatus.sortAscending}">
       <f:facet name="header">
         <h:commandLink title="#{evaluationMessages.t_sortUserId}" action="submissionStatus">
           <h:outputText value="#{evaluationMessages.uid}" />

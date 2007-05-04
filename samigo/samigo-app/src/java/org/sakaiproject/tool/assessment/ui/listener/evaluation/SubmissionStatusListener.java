@@ -202,7 +202,7 @@ public class SubmissionStatusListener
 
       if (bean.getSortType() == null)
       {
-          bean.setSortType("idString");
+          bean.setSortType("agentEid");
       }
 
 
