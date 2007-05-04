@@ -68,6 +68,12 @@
       <artifactId>batik</artifactId>
       <version>1.5-fop-0.20-5</version>
     </dependency>
+    <dependency>
+      <groupId>ical4j</groupId>
+      <artifactId>ical4j</artifactId>
+      <version>0.9.20</version>
+    </dependency>
+
 <!-- override to prevent fop from including the following 3 -->
     <dependency>
       <groupId>xml-apis</groupId>
