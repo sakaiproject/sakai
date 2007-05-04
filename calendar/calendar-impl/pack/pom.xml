@@ -72,6 +72,20 @@
       <groupId>ical4j</groupId>
       <artifactId>ical4j</artifactId>
       <version>0.9.20</version>
+      <exclusions>
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>log4j</groupId>
+          <artifactId>log4j</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>javax.servlet</groupId>
+          <artifactId>servlet-api</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
 <!-- override to prevent fop from including the following 3 -->
