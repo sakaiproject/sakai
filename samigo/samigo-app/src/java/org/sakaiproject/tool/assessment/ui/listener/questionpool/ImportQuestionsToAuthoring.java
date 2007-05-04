@@ -88,7 +88,8 @@ public class ImportQuestionsToAuthoring implements ActionListener
       int itempos= 0;
       SectionFacade section = null;
       ItemFacade itemfacade = null;
-
+      boolean newSectionCreated = false;
+      
       String itemId= "";
 
       ArrayList destItems= ContextUtil.paramArrayValueLike("importCheckbox");
@@ -113,25 +114,33 @@ public class ImportQuestionsToAuthoring implements ActionListener
         //AssessmentFacade assessment = assessdelegate.getAssessment(assessmentBean.getAssessmentId());
 
           if ("-1".equals(qpoolbean.getSelectedSection())) {
-// add a new section
-            section = assessdelegate.addSection(assessmentBean.getAssessmentId());
+        	  if (!newSectionCreated) {
+        		  // add a new section
+        		  section = assessdelegate.addSection(assessmentBean.getAssessmentId());
+        		  newSectionCreated = true;
+        	  }
           }
-	else {
-	section = sectiondelegate.getSection(new Long(qpoolbean.getSelectedSection()), AgentFacade.getAgentString());
-        }
+          else {
+        	  section = sectiondelegate.getSection(new Long(qpoolbean.getSelectedSection()), AgentFacade.getAgentString());
+          }
 
         if (section!=null) {
           itemfacade.setSection(section);
 
 
           if ( (itemauthor.getInsertPosition() ==null) || ("".equals(itemauthor.getInsertPosition())) ) {
-                // if adding to the end
-              if (section.getItemSet() != null) {
-                itemfacade.setSequence(new Integer(section.getItemSet().size() + 1));
+              if (newSectionCreated) {
+           		  itemfacade.setSequence(Integer.valueOf(itempos + 1));
               }
               else {
-                // this is a new part 
-                itemfacade.setSequence(new Integer(1));
+            	  // if adding to the end
+            	  if (section.getItemSet() != null) {
+            		  itemfacade.setSequence(new Integer(section.getItemSet().size() + 1));
+            	  }
+            	  else {
+            		  // this is a new part 
+            		  itemfacade.setSequence(new Integer(1));
+            	  }
               }
            }
            else {
@@ -153,7 +162,7 @@ public class ImportQuestionsToAuthoring implements ActionListener
           delegate.addItemMetaData(itemfacade.getItemId(), ItemMetaData.PARTID,section.getSectionId().toString(),  AgentFacade.getAgentString());
 
         }
-	itempos= itempos+1;   // for next item in the destItem.
+        itempos= itempos+1;   // for next item in the destItem.
       }
 
       // reset InsertPosition
