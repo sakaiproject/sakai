@@ -22,11 +22,13 @@
 package org.sakaiproject.portal.service;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Iterator;
 
 import javax.servlet.ServletContext;
 
@@ -90,22 +92,46 @@ public class PortletTool implements org.sakaiproject.tool.api.Tool, Comparable
 	public PortletTool(PortletDD pdd, InternalPortletContext portlet,
 			ServletContext portalContext)
 	{
+
 		String portletSupport = ServerConfigurationService.getString("portlet.support");
 
 		String portletName = pdd.getPortletName();
 		String appName = portlet.getApplicationId();
-		String homePath = ServerConfigurationService.getSakaiHomePath() + "/portlets/";
-		String portletReg = homePath + appName + "/" + portletName + ".xml";
 
-		File toolRegFile = new File(portletReg);
-		if (!toolRegFile.canRead())
+		List<Tool> toolRegs = null;
+
+		// See if we have a registration in the portlet itself
+		String webappRegPath = "/WEB-INF/sakai/"+portletName+".xml";
+		InputStream is = portalContext.getResourceAsStream(webappRegPath);
+		if ( is != null ) 
 		{
-			portletReg = homePath + portletName + ".xml";
-			toolRegFile = new File(portletReg);
+			toolRegs = ActiveToolManager.parseTools(is);
+			if ( toolRegs != null ) 
+			{
+				M_log.info("Found Portlet Registration="+webappRegPath);
+			}
 		}
+		
+		// If not there - do we have one in Sakai Home?
+		if ( toolRegs == null )
+		{
+			String homePath = ServerConfigurationService.getSakaiHomePath() + "/portlets/";
+			String portletReg = homePath + appName + "/" + portletName + ".xml";
+	
+			File toolRegFile = new File(portletReg);
+			if (!toolRegFile.canRead())
+			{
+				portletReg = homePath + portletName + ".xml";
+				toolRegFile = new File(portletReg);
+			}
 
-		// Attempt to read and parse the registraiton file
-		List<Tool> toolRegs = ActiveToolManager.parseTools(new File(portletReg));
+			// Attempt to read and parse the registraiton file
+			toolRegs = ActiveToolManager.parseTools(new File(portletReg));
+			if ( toolRegs != null ) 
+			{
+				M_log.info("Found Portlet Registration="+homePath);
+			}
+		}
 
 		// We ignore the tool registrations other than the first
 		if (toolRegs != null && toolRegs.size() > 0)

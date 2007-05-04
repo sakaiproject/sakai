@@ -353,6 +353,18 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
 						// System.out.println("newPref = "+newPref);
 						prefArray.add(newPref);
 					}
+					else if ( propertyName != null ) 
+					{
+						String propertyValue = props.getProperty(propertyName);
+						String internalName = "sakai:" + propertyName;
+						String[] propertyList = new String[1];
+						propertyList[0] = propertyValue;
+						// System.out.println("internalName="+internalName+"propertyList="+propertyList);
+						InternalPortletPreference newPref = new PortletPreferenceImpl(
+								internalName, propertyList, readOnly);
+						// System.out.println("newPref = "+newPref);
+						prefArray.add(newPref);
+					}
 				}
 			}
 
@@ -431,7 +443,7 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
 				for (Enumeration e = props.propertyNames(); e.hasMoreElements();)
 				{
 					String propertyName = (String) e.nextElement();
-					// System.out.println("Property name = "+propertyName);
+					// System.out.println("Checking Sakai property name = "+propertyName);
 					if (propertyName != null && propertyName.startsWith("javax.portlet:")
 							&& propertyName.length() > 14)
 					{
@@ -459,20 +471,54 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
 							props.remove(propertyName);
 							changed = true;
 						}
-					}
+					// A sakai direct property
+					} else {
+						boolean found = false;
+						for (int i = 0; i < preferences.length; i++)
+						{
+							if (preferences[i] != null)
+							{
+								String propName = "sakai:"+preferences[i].getName();
+								if (propertyName.equals(propName))
+								{
+									found = true;
+									break;
+								}
+							}
+						}
+						if (!found)
+						{
+							// System.out.println("Removing "+propertyName);
+							props.remove(propertyName);
+							changed = true;
+						}
+                                        }
 				}
 			}
 
 			// System.out.println("props after cleanup= "+props);
 
-			// Add / up date property values
+			// Add / up date which are still there 
 			for (int i = 0; i < preferences.length; i++)
 			{
 				// System.out.println("Store["+i+"] ="+preferences[i]);
 				if (preferences[i] != null && props != null)
 				{
-					String propKey = "javax.portlet:" + preferences[i].getName();
+					String propName = preferences[i].getName();
+					if ( propName == null || propName.length() < 1 ) continue;
+					// System.out.println("Property Name="+propName);
+
+					String propKey = "javax.portlet:" + propName;
 					String storeString = serializeStringArray(preferences[i].getValues());
+
+					// Write directly to the Sakai properties
+					if ( propName.startsWith("sakai:") && propName.length() > 6 )
+					{
+						propKey = propName.substring(6);
+						storeString = preferences[i].getValues()[0];
+					}
+
+					// Grab the property to see if it changed
 					String oldString = props.getProperty(propKey);
 
 					// System.out.println("propKey = "+propKey);
@@ -512,7 +558,7 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
 			for (int i = 0; i < input.length; i++)
 			{
 				if (i > 0) retval = retval + "!";
-				retval += URLEncoder.encode(input[i]);
+				if ( input[i] != null ) retval += URLEncoder.encode(input[i]);
 			}
 			return retval;
 		}
@@ -524,6 +570,8 @@ public class SakaiOptionalPortletContainerServices implements OptionalContainerS
 			// System.out.println("Found "+retval.length+" items.");
 			for (int i = 0; i < retval.length; i++)
 			{
+				// System.out.println("retval["+i+"]="+retval[i]);
+				if ( retval[i] == null ) continue;
 				retval[i] = URLDecoder.decode(retval[i]);
 			}
 			return retval;
