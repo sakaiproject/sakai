@@ -115,7 +115,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
  
     wait="#{delivery.timeLimit}"
     elapsed="#{delivery.timeElapse}"
-    expireMessage="Your session has expired."
+    expireMessage="#{deliveryMessages.session_expired}"
     expireScript="document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=loaded; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:outoftime'].value='true'; clickSubmitForGrade();" />
 </h:panelGroup>
 
@@ -123,7 +123,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 <samigo:timerBar height="15" width="300"
     wait="#{delivery.timeLimit}"
     elapsed="#{delivery.timeElapseAfterFileUpload}"
-    expireMessage="Your session has expired."
+    expireMessage="#{deliveryMessages.session_expired}"
     expireScript="document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=loaded; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:outoftime'].value='true'; clickSubmitForGrade();" />
 </h:panelGroup>
 
@@ -132,7 +132,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 <!-- HIDE / SHOW TIMER BAR -->
 <h:commandButton type="button" onclick="document.getElementById('remText').style.display=document.getElementById('remText').style.display=='none' ? '': 'none';document.getElementById('timer').style.display=document.getElementById('timer').style.display=='none' ? '': 'none';document.getElementById('bar').style.display=document.getElementById('bar').style.display=='none' ? '': 'none'"
 onkeypress="document.getElementById('remText').style.display=document.getElementById('remText').style.display=='none' ? '': 'none';document.getElementById('timer').style.display=document.getElementById('timer').style.display=='none' ? '': 'none';document.getElementById('bar').style.display=document.getElementById('bar').style.display=='none' ? '': 'none'"
- value="Hide/Show Time Remaining" />
+ value="#{deliveryMessages.hide_show}" />
 <!-- END OF TIMER -->
 
 <h:inputHidden id="elapsed" value="#{delivery.timeElapse}" />
