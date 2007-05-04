@@ -23,6 +23,7 @@ package org.sakaiproject.tool.cover;
 
 import java.util.List;
 import java.io.File;
+import java.io.InputStream;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.api.Tool;
@@ -149,6 +150,14 @@ public class ActiveToolManager
 	}
 
         public static List<Tool> parseTools(Document param0)
+	{
+		org.sakaiproject.tool.api.ActiveToolManager manager = getInstance();
+		if (manager == null) return null;
+
+		return manager.parseTools(param0);
+	}
+
+        public static List<Tool> parseTools(InputStream param0)
 	{
 		org.sakaiproject.tool.api.ActiveToolManager manager = getInstance();
 		if (manager == null) return null;

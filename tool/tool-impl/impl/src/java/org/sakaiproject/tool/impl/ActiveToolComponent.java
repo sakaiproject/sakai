@@ -199,6 +199,24 @@ public abstract class ActiveToolComponent extends ToolComponent implements Activ
 	/**
 	 * @inheritDoc
 	 */
+	public List<Tool> parseTools(InputStream toolXmlStream)
+	{
+		Document doc = Xml.readDocumentFromStream(toolXmlStream);
+		try
+		{
+			toolXmlStream.close();
+		}
+		catch (Exception e)
+		{
+		}
+
+		if ( doc == null ) return null;
+		return parseTools(doc);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public List<Tool> parseTools(Document toolXml)
 	{
 

@@ -74,6 +74,12 @@ public interface ActiveToolManager extends ToolManager
 	List<Tool> parseTools(Document toolXml);
 
 	/**
+	 * Parse a registration file and return a list of Tool Registrations
+	 * @param toolXmlFile The file of Tool schema XML in which tools to be added to the registry are to be found.
+	 */
+	List<Tool> parseTools(InputStream toolXmlStream);
+
+	/**
 	 * Find a tool with this well known id in the registry.
 	 * @param id The tool's well known id.
 	 * @return The Tool object that has this id, or null if not found.
