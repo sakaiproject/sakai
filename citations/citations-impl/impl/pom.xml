@@ -112,11 +112,13 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-velocity-tool</artifactId>
       <version>${sakai.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-user-util</artifactId>
       <version>${sakai.version}</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
   <build>
