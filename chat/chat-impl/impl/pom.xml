@@ -95,14 +95,9 @@
            <groupId>org.sakaiproject</groupId>
            <artifactId>sakai-search-api</artifactId>
            <version>${sakai.version}</version>
+      <scope>provided</scope>
        </dependency>
 
-		<dependency>
-           <groupId>org.sakaiproject</groupId>
-           <artifactId>sakai-search-impl</artifactId>
-           <version>${sakai.version}</version>
-       </dependency>
-       
     <dependency>
       
       <groupId>org.sakaiproject</groupId>
@@ -179,12 +174,14 @@
          <groupId>${sakai.hibernate.groupId}</groupId>
          <artifactId>${sakai.hibernate.artifactId}</artifactId>
          <version>${sakai.hibernate.version}</version>
+      <scope>provided</scope>
      </dependency>
 	  	 
      <dependency>
          <groupId>${sakai.spring.groupId}</groupId>
          <artifactId>${sakai.spring.artifactId}</artifactId>
          <version>${sakai.spring.version}</version>
+      <scope>provided</scope>
      </dependency>
 
   </dependencies>
