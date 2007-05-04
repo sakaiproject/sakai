@@ -1331,6 +1331,11 @@ public class PrivateMessagesTool
       aMsg.setApproved(Boolean.FALSE);     
       aMsg.setLabel(getSelectedLabel());
       
+      // this property added so can delete forum messages
+      // since that and PM share same message object and
+      // delete is not null....
+      aMsg.setDeleted(Boolean.FALSE);
+      
       // Add the recipientList as String for display in Sent folder
       // Any hidden users will be tacked on at the end
       String sendToString="";
