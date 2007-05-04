@@ -36,16 +36,18 @@
       <artifactId>sakai-gradebook-service-impl</artifactId>
       <version>${sakai.version}</version>
     </dependency>
+<!--
 	<dependency>
 		<groupId>com.thoughtworks.xstream</groupId>
 		<artifactId>xstream</artifactId>
 		<version>1.2.1</version>
 	</dependency>
+-->
 	<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-import-api</artifactId>
 			<version>${sakai.version}</version>
-      <scope>provided</scope>
+             <scope>provided</scope>
 	</dependency>
   </dependencies>
   <build>
