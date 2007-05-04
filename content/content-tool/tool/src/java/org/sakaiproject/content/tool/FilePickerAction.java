@@ -1164,7 +1164,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 		if(attach_links == null)
 		{
-			attachItem(itemId, state);
+			attachCopy(itemId, state);
 		}
 		else
 		{
@@ -1649,7 +1649,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	 * @param itemId
 	 * @param state
 	 */
-	public void attachItem(String itemId, SessionState state)
+	public void attachCopy(String itemId, SessionState state)
 	{
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		ContentHostingService contentService = (ContentHostingService) toolSession.getAttribute (STATE_CONTENT_SERVICE);
@@ -1683,13 +1683,41 @@ public class FilePickerAction extends PagedResourceHelperAction
 		{
 			ContentResourceFilter filter = (ContentResourceFilter) state.getAttribute(STATE_ATTACHMENT_FILTER);
 			
+			ContentResource resource = null;
+			ResourceToolAction copyAction = null;
+			ContentResource attachment = null;
 			try
 			{
-				ContentResource res = contentService.getResource(itemId);
-				ResourceProperties props = res.getProperties();
+				resource = contentService.getResource(itemId);
+				
+				String typeId = resource.getResourceType();
+				ResourceType typedef = registry.getType(typeId);
+				copyAction = typedef.getAction(ResourceToolAction.PASTE_COPIED);
+				if(copyAction == null)
+				{
+					List<ResourceToolAction> actions = typedef.getActions(ResourcesAction.PASTE_COPIED_ACTIONS);
+					if(actions != null && actions.size() > 0)
+					{
+						copyAction = actions.get(0);
+					}
+				}
+				if(copyAction == null)
+				{
+					addAlert(state, "TODO: Unable to attach this item");
+					return;
+				}
+				else if(! (copyAction instanceof ServiceLevelAction))
+				{
+					addAlert(state, "TODO: Unable to attach this item");
+					return;
+				}
+				
+				((ServiceLevelAction) copyAction).initializeAction(EntityManager.newReference(resource.getReference()));
+				
+				ResourceProperties props = resource.getProperties();
 				if(filter != null)
 				{
-					if(! filter.allowSelect(res))
+					if(! filter.allowSelect(resource))
 					{
 						String displayName = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 						addAlert(state, (String) rb.getFormattedMessage("filter", new Object[]{displayName}));
@@ -1700,8 +1728,8 @@ public class FilePickerAction extends PagedResourceHelperAction
 				ResourcePropertiesEdit newprops = contentService.newResourceProperties();
 				newprops.set(props);
 
-				byte[] bytes = res.getContent();
-				String contentType = res.getContentType();
+				byte[] bytes = resource.getContent();
+				String contentType = resource.getContentType();
 				String filename = Validator.getFileName(itemId);
 				String resourceId = Validator.escapeResourceName(filename);
 
@@ -1713,7 +1741,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 				}
 			
 				// TODO: we're making a copy, so we need to invoke the copy methods related to the resource-type registration 
-				ContentResource attachment = contentService.addAttachmentResource(resourceId, siteId, toolName, contentType, bytes, props);
+				attachment = contentService.addAttachmentResource(resourceId, siteId, toolName, contentType, bytes, props);
 
 				String displayName = newprops.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
 				String containerId = contentService.getContainingCollectionId (attachment.getId());
@@ -1721,11 +1749,9 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 				AttachItem item = new AttachItem(attachment.getId(), displayName, containerId, accessUrl);
 				item.setContentType(contentType);
-				String typeId = res.getResourceType();
 				item.setResourceType(typeId);
-				ResourceType typedef = registry.getType(typeId);
-				item.setHoverText(typedef.getLocalizedHoverText(res));
-				item.setIconLocation(typedef.getIconLocation(res));
+				item.setHoverText(typedef.getLocalizedHoverText(resource));
+				item.setIconLocation(typedef.getIconLocation(resource));
 				new_items.add(item);
 				toolSession.setAttribute(STATE_HELPER_CHANGED, Boolean.TRUE.toString());
 			}
@@ -1765,6 +1791,24 @@ public class FilePickerAction extends PagedResourceHelperAction
 			{
 				logger.debug("ResourcesAction.attachItem ***** Unknown Exception ***** " + e.getMessage());
 				addAlert(state, rb.getString("failed"));
+			}
+			finally
+			{
+				if(copyAction == null)
+				{
+					// do nothing
+				}
+				else if(copyAction instanceof ServiceLevelAction)
+				{
+					if(attachment == null)
+					{
+						((ServiceLevelAction) copyAction).cancelAction(EntityManager.newReference(resource.getReference()));
+					}
+					else
+					{
+						((ServiceLevelAction) copyAction).finalizeAction(EntityManager.newReference(attachment.getReference()));
+					}
+				}
 			}
 		}
 		toolSession.setAttribute(STATE_ADDED_ITEMS, new_items);
