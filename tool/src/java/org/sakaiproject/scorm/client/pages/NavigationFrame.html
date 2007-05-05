@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>SCORM Navigation</title>
+    <style>
+		div.my-tree div.wicket-tree {
+			height: 100%;
+			width: 100%;
+			border: 0px;
+		}
+		
+		div.scormNavPanel {
+			height: 100%;
+			width: 100%;
+			float: left;
+			border: 0px;
+		}
+	</style>
+</head>
+<body>
+    Navigation frame
+    <div class="scormNavPanel">
+		<a wicket:id="expandAll">Expand</a>&nbsp;&nbsp;
+		<a wicket:id="collapseAll">Collapse</a>&nbsp;&nbsp;
+		<a wicket:id="switchRootless">Mode</a>
+		<div wicket:id="tree" class="my-tree"></div>
+	</div>
+</body>
+</html>
