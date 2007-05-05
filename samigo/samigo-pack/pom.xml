@@ -20,6 +20,12 @@
     <deploy.target>components</deploy.target>
   </properties>
   <dependencies>
+       <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-util</artifactId>
+        <version>${sakai.version}</version>
+       </dependency>
+
     <dependency>
       
       <groupId>commons-logging</groupId>
