@@ -102,6 +102,7 @@ limitations under the License.
       <artifactId>sakai-util-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       
@@ -139,7 +140,6 @@ limitations under the License.
       <type>jar</type>
     </dependency>
     <dependency>
-      
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <version>1.2</version>
@@ -289,6 +289,14 @@ limitations under the License.
       <groupId>xml-apis</groupId>
       <artifactId>xmlParserAPIs</artifactId>
       <version>2.0.2</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <!-- this will precent the dependency creeping in -->
+    <dependency>
+      <groupId>xml-apis</groupId>
+      <artifactId>xml-apis</artifactId>
+      <version>1.0.b2</version>
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
