@@ -12,7 +12,22 @@
   	</properties>
 
 	<dependencies>
-
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-scorm-adlnet</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+	
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-content-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-entity-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
     </dependencies>
 
 </project>

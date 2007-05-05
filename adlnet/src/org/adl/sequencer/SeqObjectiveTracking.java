@@ -185,7 +185,7 @@ public class SeqObjectiveTracking implements Serializable
 
             for ( int i = 0; i < mObj.mMaps.size(); i++ )
             {
-               SeqObjectiveMap map = (SeqObjectiveMap)mObj.mMaps.elementAt(i);
+               SeqObjectiveMap map = (SeqObjectiveMap)mObj.mMaps.get(i);
 
                if ( map.mReadStatus )
                {
@@ -299,7 +299,7 @@ public class SeqObjectiveTracking implements Serializable
          {
             for ( int i = 0; i < mWriteStatus.size(); i++ )
             {
-               String objID = (String)mWriteStatus.elementAt(i);
+               String objID = (String)mWriteStatus.get(i);
 
                ADLSeqUtilities.setGlobalObjSatisfied(objID, 
                                                      mLearnerID,
@@ -367,7 +367,7 @@ public class SeqObjectiveTracking implements Serializable
             {
                for ( int i = 0; i < mWriteStatus.size(); i++ )
                {
-                  String objID = (String)mWriteStatus.elementAt(i);
+                  String objID = (String)mWriteStatus.get(i);
 
                   ADLSeqUtilities.setGlobalObjSatisfied(objID, 
                                                         mLearnerID,
@@ -432,7 +432,7 @@ public class SeqObjectiveTracking implements Serializable
             {
                for ( int i = 0; i < mWriteStatus.size(); i++ )
                {
-                  String objID = (String)mWriteStatus.elementAt(i);
+                  String objID = (String)mWriteStatus.get(i);
 
                   ADLSeqUtilities.
                   setGlobalObjSatisfied(objID, 
@@ -488,7 +488,7 @@ public class SeqObjectiveTracking implements Serializable
          {
             for ( int i = 0; i < mWriteMeasure.size(); i++ )
             {
-               String objID = (String)mWriteMeasure.elementAt(i);
+               String objID = (String)mWriteMeasure.get(i);
 
                ADLSeqUtilities.setGlobalObjMeasure(objID, 
                                                    mLearnerID,
@@ -560,7 +560,7 @@ public class SeqObjectiveTracking implements Serializable
          {
             for ( int i = 0; i < mWriteMeasure.size(); i++ )
             {
-               String objID = (String)mWriteMeasure.elementAt(i);
+               String objID = (String)mWriteMeasure.get(i);
 
                ADLSeqUtilities.
                setGlobalObjMeasure(objID, 

@@ -66,7 +66,7 @@ import org.adl.util.debug.DebugIndicator;
  */           
 public class SeqRuleset implements Serializable
 {
-
+	static final long serialVersionUID = -1546682264123089317L;
 
 
    /**

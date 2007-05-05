@@ -216,7 +216,7 @@ public class SSP_DataModel extends DataModel implements Serializable
             // than the current number of buckets
             if( idx < mManaged.size() )
             {
-               ManagedBucket tempBucket = (ManagedBucket)mManaged.elementAt(idx);
+               ManagedBucket tempBucket = (ManagedBucket)mManaged.get(idx);
                int tempBucketStatus = tempBucket.getSuccessStatus();
                String tempBucketID = tempBucket.getBucketID();
                tok = iRequest.getNextToken();
@@ -602,7 +602,7 @@ public class SSP_DataModel extends DataModel implements Serializable
             // than the current number of Buckets
             if( idx < mManaged.size() )
             {
-               ManagedBucket tempBucket = (ManagedBucket)mManaged.elementAt(idx);
+               ManagedBucket tempBucket = (ManagedBucket)mManaged.get(idx);
 
                int tempBucketStatus = tempBucket.getSuccessStatus();
                String tempBucketID = tempBucket.getBucketID();
@@ -807,7 +807,7 @@ public class SSP_DataModel extends DataModel implements Serializable
                         // Check to see if bucket info is already listed
                         for( int i = 0; i < mManaged.size(); i++ )
                         {
-                           ManagedBucket vecMB = (ManagedBucket)mManaged.elementAt(i);
+                           ManagedBucket vecMB = (ManagedBucket)mManaged.get(i);
                            String vecbuckID = vecMB.getBucketID();
 
                            if( tempID.equals(vecbuckID) )
@@ -842,7 +842,7 @@ public class SSP_DataModel extends DataModel implements Serializable
 
                         if( tempIdx > -1 )
                         {
-                           ManagedBucket vecMB = (ManagedBucket)mManaged.elementAt(tempIdx);
+                           ManagedBucket vecMB = (ManagedBucket)mManaged.get(tempIdx);
                            ManagedBucket rMB = response.mManagedBucketInfo;
                            vecMB.setSuccessStatus(rMB.getSuccessStatus());
                         }

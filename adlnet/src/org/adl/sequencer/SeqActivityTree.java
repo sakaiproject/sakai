@@ -65,6 +65,7 @@ import java.util.Enumeration;
  */
 public class SeqActivityTree implements Serializable
 {
+	static final long serialVersionUID = 1802091880012820747L;
 
    /**
     * This controls display of log messages to the java console

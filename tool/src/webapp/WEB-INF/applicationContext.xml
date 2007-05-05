@@ -4,27 +4,16 @@
 <beans>
 
 	<!-- setup wicket application -->
-	<bean id="wicketApplication" class="org.sakaiproject.scorm.client.ScormWicketApplication">
-		<property name="scormClientService">
-			<ref bean="org.sakaiproject.scorm.client.api.ScormClientService"/>
+	<bean id="toolWicketApplication" class="org.sakaiproject.scorm.client.ScormTool">
+		<property name="clientFacade">
+			<ref bean="org.sakaiproject.scorm.client.api.ScormClientFacade"/>
 		</property>
-		<!-- property name="scormClientService">
-			<ref bean="org.sakaiproject.scorm.client.api.ScormClientService"/>
-		</property-->
-    	<!-- lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" /-->
-    	<!-- property name="userName"><value>James</value></property-->
     </bean>
-
-	<!-- bean id="org.sakaiproject.scorm.client.api.ScormClientService" 
-		  class="org.sakaiproject.scorm.client.impl.ScormClientServiceImpl"
-		  singleton="true">
-	</bean-->
     
-    <!-- bean id="myBean" class="org.sakaiproject.scorm.client.SimpleBean">
-    	<property name="value"><value>This is it!</value></property>
-    	<property name="scormClientService">
-			<ref bean="org.sakaiproject.scorm.client.api.ScormClientService"/>
+    <bean id="helperWicketApplication" class="org.sakaiproject.scorm.client.ScormHelper">
+		<property name="clientFacade">
+			<ref bean="org.sakaiproject.scorm.client.api.ScormClientFacade"/>
 		</property>
-    </bean-->
+    </bean>
 
 </beans>

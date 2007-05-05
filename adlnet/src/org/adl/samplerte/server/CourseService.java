@@ -605,7 +605,7 @@ public class CourseService
 
                   // Get any global objectives identified in the manifest
                   // from the activity tree.
-                  Vector theGobalObjectiveList = mySeqActivityTree.getGlobalObjectives();
+                  Vector theGobalObjectiveList = (Vector)mySeqActivityTree.getGlobalObjectives();
 
                   if( theGobalObjectiveList != null )
                   {

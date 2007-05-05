@@ -181,7 +181,7 @@ public class LMSCourseAdmin extends HttpServlet
       try
       {
          iRequest.setCharacterEncoding("utf-8");
-         oResponse.setCharacterEncoding("utf-8");
+         //oResponse.setCharacterEncoding("utf-8");
       }
       catch (Exception e)
       {

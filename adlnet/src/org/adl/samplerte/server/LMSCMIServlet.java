@@ -657,7 +657,7 @@ public class LMSCMIServlet extends HttpServlet
                   boolean sesPrimaryObjScore = false;
 
                   // Find the primary objective ID
-                  Vector objs = act.getObjectives();
+                  Vector objs = (Vector)act.getObjectives();
 
                   if( objs != null )
                   {

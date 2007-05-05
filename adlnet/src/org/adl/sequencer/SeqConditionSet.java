@@ -63,6 +63,8 @@ import org.adl.util.debug.DebugIndicator;
 public class SeqConditionSet implements Serializable
 {
 
+	static final long serialVersionUID = -8248834341813485224L;
+	
    /**
     * Enumeration of possible evaluation results.
     * <br>unknown
@@ -178,7 +180,7 @@ public class SeqConditionSet implements Serializable
 
             for ( int i = 0; i < mConditions.size(); i++ )
             {
-               SeqCondition cond = (SeqCondition)mConditions.elementAt(i);
+               SeqCondition cond = (SeqCondition)mConditions.get(i);
 
                cond.dumpState();
             }
@@ -344,7 +346,7 @@ public class SeqConditionSet implements Serializable
       if ( iIndex < mConditions.size() )
       {
 
-         SeqCondition cond = (SeqCondition)mConditions.elementAt(iIndex);
+         SeqCondition cond = (SeqCondition)mConditions.get(iIndex);
 
          if ( _Debug )
          {

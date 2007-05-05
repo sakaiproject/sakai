@@ -75,6 +75,8 @@ import java.util.Enumeration;
 public class SeqActivity extends SeqActivityTrackingAccess implements 
 SeqActivityStateAccess, Serializable
 {
+	static final long serialVersionUID = -9042106858362436153L;
+	
    /**
     * Enumeration of the possible times for application of the Selection and
     * Randomization Processes.

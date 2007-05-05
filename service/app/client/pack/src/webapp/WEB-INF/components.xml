@@ -3,10 +3,19 @@
 
 <beans>
 
-	<bean id="org.sakaiproject.scorm.client.api.ScormClientService" 
-		  class="org.sakaiproject.scorm.client.impl.ScormClientServiceImpl"
-		  singleton="true">
-		  <lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" />	  
+	<bean id="org.sakaiproject.scorm.client.api.ScormClientFacade" 
+		  class="org.sakaiproject.scorm.client.impl.ScormClientFacadeImpl"
+		  singleton="true"
+		  init-method="init">
+		  
+		
+		<lookup-method name="contentService" bean="org.sakaiproject.content.api.ContentHostingService" /> 
+		<lookup-method name="entityManager" bean="org.sakaiproject.entity.api.EntityManager" />  
+		<lookup-method name="sessionManager" bean="org.sakaiproject.tool.api.SessionManager" />
+		<lookup-method name="toolManager" bean="org.sakaiproject.tool.api.ToolManager" />
+		<lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" />	  
+		
+		<property name="resourceTypeRegistry"><ref bean="org.sakaiproject.content.api.ResourceTypeRegistry"/></property>
 	</bean>
 
 </beans>

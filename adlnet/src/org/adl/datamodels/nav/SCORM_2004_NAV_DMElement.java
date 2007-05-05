@@ -123,7 +123,7 @@ public class SCORM_2004_NAV_DMElement extends DMElement implements Serializable
          for ( int i = 0; i < mDescription.mChildren.size(); i++ )
          {
             DMElementDescriptor desc = 
-               (DMElementDescriptor)mDescription.mChildren.elementAt(i);
+               (DMElementDescriptor)mDescription.mChildren.get(i);
 
             mChildrenBindings.add(desc.mBinding);
 
@@ -154,7 +154,7 @@ public class SCORM_2004_NAV_DMElement extends DMElement implements Serializable
             for ( int i = 0; i < mDescription.mDelimiters.size(); i++ )
             {
                DMDelimiterDescriptor desc = 
-                  (DMDelimiterDescriptor)mDescription.mDelimiters.elementAt(i);
+                  (DMDelimiterDescriptor)mDescription.mDelimiters.get(i);
 
                // Create the child element
                DMDelimiter delimit = new DMDelimiter(desc);
@@ -244,13 +244,13 @@ public class SCORM_2004_NAV_DMElement extends DMElement implements Serializable
                   for ( int j = 0; j < mDelimiters.size(); j++ )
                   {
                      DMDelimiter toCheck = 
-                        (DMDelimiter)mDelimiters.elementAt(j);
+                        (DMDelimiter)mDelimiters.get(j);
 
                      if ( toCheck.mDescription.mName.equals(del.getName()) )
                      {
                         // Make sure we haven't already checked this delimter
                         boolean alreadyChecked = 
-                           ((Boolean)checked.elementAt(j)).booleanValue();
+                           ((Boolean)checked.get(j)).booleanValue();
 
                         if ( !alreadyChecked )
                         {
@@ -315,12 +315,12 @@ public class SCORM_2004_NAV_DMElement extends DMElement implements Serializable
                   for ( int j = 0; j < mDelimiters.size() && equal; j++ )
                   {
                      boolean check = 
-                        !((Boolean)checked.elementAt(j)).booleanValue();
+                        !((Boolean)checked.get(j)).booleanValue();
 
                      if ( check )
                      {
                         DMDelimiter toCheck =
-                           (DMDelimiter)mDelimiters.elementAt(j);
+                           (DMDelimiter)mDelimiters.get(j);
 
                         if ( toCheck.mValue != null )
                         {
@@ -461,7 +461,7 @@ public class SCORM_2004_NAV_DMElement extends DMElement implements Serializable
             {
                if ( mDelimiters != null )
                {
-                  DMDelimiter del = (DMDelimiter)mDelimiters.elementAt(0);
+                  DMDelimiter del = (DMDelimiter)mDelimiters.get(0);
 
                   oInfo.mValue += del.getDotNotation(iDelimiters);
                }
@@ -664,7 +664,7 @@ public class SCORM_2004_NAV_DMElement extends DMElement implements Serializable
                                   i++ )
                               {
                                  String check = (String)
-                                 desc.mDependentOn.elementAt(i);
+                                 desc.mDependentOn.get(i);
 
                                  // Ensure the dependent element is initializ
                                  DMElement e = (DMElement)mChildren.get(check);
@@ -726,7 +726,7 @@ public class SCORM_2004_NAV_DMElement extends DMElement implements Serializable
                if ( idx < mRecords.size() )
                {
                   // Provide the requested record
-                  oInfo.mElement = (DMElement)mRecords.elementAt(idx);
+                  oInfo.mElement = (DMElement)mRecords.get(idx);
                }
                else
                {
@@ -768,7 +768,7 @@ public class SCORM_2004_NAV_DMElement extends DMElement implements Serializable
                         {
                            desc =
                               (DMElementDescriptor)
-                           mDescription.mChildren.elementAt(i);
+                           mDescription.mChildren.get(i);
 
                            if ( desc.mBinding.equals(lookAt.getValue()) )
                            {
@@ -859,7 +859,7 @@ public class SCORM_2004_NAV_DMElement extends DMElement implements Serializable
                else
                {
                   // Provide the record requested
-                  oInfo.mElement = (DMElement)mRecords.elementAt(idx);
+                  oInfo.mElement = (DMElement)mRecords.get(idx);
                }
             }
          }
@@ -938,7 +938,7 @@ public class SCORM_2004_NAV_DMElement extends DMElement implements Serializable
             // Set all delimiters to their defaults
             for ( int j = 0; j < mDelimiters.size(); j++ )
             {
-               DMDelimiter del = (DMDelimiter)mDelimiters.elementAt(j);
+               DMDelimiter del = (DMDelimiter)mDelimiters.get(j);
 
                del.mValue = null;
 
@@ -957,13 +957,13 @@ public class SCORM_2004_NAV_DMElement extends DMElement implements Serializable
                // Check if this element includes the specified delimiter
                for ( int j = 0; j < mDelimiters.size(); j++ )
                {
-                  DMDelimiter toSet = (DMDelimiter)mDelimiters.elementAt(j);
+                  DMDelimiter toSet = (DMDelimiter)mDelimiters.get(j);
 
                   if ( toSet.mDescription.mName.equals(del.getName()) )
                   {
                      // Make sure we haven't set this delimiter yet
                      boolean setAlready =
-                        ((Boolean)set.elementAt(j)).booleanValue();
+                        ((Boolean)set.get(j)).booleanValue();
 
                      if ( !setAlready )
                      {
@@ -1020,7 +1020,7 @@ public class SCORM_2004_NAV_DMElement extends DMElement implements Serializable
             if ( mValue.equals("choice") )
             {
                // Find the 'target' delimiter -- there should be only one
-               DMDelimiter target = (DMDelimiter)mDelimiters.elementAt(0);
+               DMDelimiter target = (DMDelimiter)mDelimiters.get(0);
 
                mDM.mCurRequest = (target.mValue);
             }
@@ -1072,7 +1072,7 @@ public class SCORM_2004_NAV_DMElement extends DMElement implements Serializable
             for ( int j = 0; j < mDescription.mDelimiters.size(); j++ )
             {
                DMDelimiterDescriptor desc =
-                  (DMDelimiterDescriptor)mDescription.mDelimiters.elementAt(j);
+                  (DMDelimiterDescriptor)mDescription.mDelimiters.get(j);
 
                if ( desc.mName.equals(del.getName()) )
                {
