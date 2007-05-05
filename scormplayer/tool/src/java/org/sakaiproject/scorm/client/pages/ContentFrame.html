@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Content Frame</title>
+</head>
+<body>
+    Content frame
+    <p/>
+    <a href="#" onclick="alert(API_1484_11.GetDiagnostic(document.getElementById('form_value').value));">Test me first!</a>
+    <p/>
+    <a href="#" onclick="alert(API_1484_11.GetErrorString(document.getElementById('form_value').value));">Test me second!</a>
+    <p/>
+    
+    <div wicket:id="feedback">[[ feedback ]]</div>
+	<p/>
+    <form wicket:id="form">
+    	Argument: <input type="text" wicket:id="value"/>
+    
+        <input type="hidden" wicket:id="arg1"/>
+        <input type="hidden" wicket:id="arg2"/>
+        <input type="hidden" wicket:id="result"/>
+     	<br/>
+        <br/>
+		<!-- input type="submit" value="submit via ajax" wicket:id="ajax-submit-button"/-->
+	</form>
+    
+</body>
+</html>

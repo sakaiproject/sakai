@@ -1,0 +1,32 @@
+<html>
+<head>
+	<title>SCORM</title>
+	<style>
+		div.my-tree div.wicket-tree {
+			height: 90%;
+			width: 250px;
+		}
+		
+		div.scormNavPanel {
+			height: 100%;
+			width: 270px;
+			float: left;
+			border: 1px;
+		}
+	</style>
+</head>
+<body>
+
+	<div class="scormNavPanel">
+		<a wicket:id="expandAll">Expand all nodes</a>&nbsp;&nbsp;
+		<a wicket:id="collapseAll">Collapse all nodes</a>&nbsp;&nbsp;
+		<a wicket:id="switchRootless">Switch rootless mode</a>
+		<div wicket:id="tree" class="my-tree"></div>
+	</div>
+	
+	<span wicket:id="contentpanel"/>
+
+</body>
+</html>
+
+
