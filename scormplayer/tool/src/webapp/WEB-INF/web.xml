@@ -8,19 +8,10 @@
 	<description>Sakai SCORM Player</description>
 
 	<distributable />
-  
-<!--  
-      There are three means to configure Wickets configuration mode and they are
-      tested in the order given. 
-      1) A system property: -Dwicket.configuration
-      2) servlet specific <init-param>
-      3) context specific <context-param>
-      The value might be either "development" (reloading when templates change)
-      or "deployment". If no configuration is found, "deployment" is the default.
--->
+
 	<context-param>
-	  <param-name>configuration</param-name>
-	  <param-value>development</param-value>
+	  <param-name>CONFIGURATION</param-name>
+	  <param-value>DEPLOYMENT</param-value>
 	</context-param>
 	<!-- context-param>
 		<param-name>contextConfigLocation</param-name>
@@ -28,12 +19,20 @@
 			/WEB-INF/applicationContext.xml
 		</param-value>
 	</context-param-->
-	
 
 	<filter>
 	    <filter-name>sakai.request</filter-name>
 	    <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
 	</filter>
+		
+	<filter-mapping>
+	    <filter-name>sakai.request</filter-name>
+	    <servlet-name>sakai.scorm.helper</servlet-name>
+	    <dispatcher>REQUEST</dispatcher>
+	    <dispatcher>FORWARD</dispatcher>
+	    <dispatcher>INCLUDE</dispatcher>
+	</filter-mapping>
+		
 	<filter-mapping>
 	    <filter-name>sakai.request</filter-name>
 	    <servlet-name>sakai.scorm.tool</servlet-name>
@@ -43,20 +42,33 @@
 	</filter-mapping>
 
 	<servlet>
-		<servlet-name>sakai.scorm.tool</servlet-name>
-		<!-- servlet-class>org.sakaiproject.scorm.client.SpringServlet</servlet-class-->
+		<servlet-name>sakai.scorm.helper</servlet-name>
 		<servlet-class>wicket.protocol.http.WicketServlet</servlet-class>
 		<init-param>
 			<param-name>applicationFactoryClassName</param-name>
         	<param-value>wicket.spring.SpringWebApplicationFactory</param-value>
 		</init-param>
-		<!-- init-param>
-		  <param-name>applicationClassName</param-name>
-		  <param-value>org.sakaiproject.scorm.client.ScormWicketApplication</param-value>
-		</init-param -->
+		<init-param>
+			<param-name>applicationBean</param-name>
+			<param-value>helperWicketApplication</param-value>
+		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
-		
+
+	<servlet>
+		<servlet-name>sakai.scorm.tool</servlet-name>
+		<servlet-class>wicket.protocol.http.WicketServlet</servlet-class>
+		<init-param>
+			<param-name>applicationFactoryClassName</param-name>
+        	<param-value>wicket.spring.SpringWebApplicationFactory</param-value>
+		</init-param>
+		<init-param>
+			<param-name>applicationBean</param-name>
+			<param-value>toolWicketApplication</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+			
 	<!-- servlet>
 		<servlet-name>simpleWicket</servlet-name>
 		<servlet-class>org.sakaiproject.scorm.client.SimpleServlet</servlet-class>
@@ -65,7 +77,7 @@
 	
 	<servlet-mapping>
 		<servlet-name>sakai.scorm.tool</servlet-name>
-		<url-pattern>/</url-pattern>
+		<url-pattern>/*</url-pattern>
 	</servlet-mapping>
 
 	<!--  The ToolListener causes this tool to be registered with Sakai.  -->

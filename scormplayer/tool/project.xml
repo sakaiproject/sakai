@@ -10,19 +10,16 @@
 		<deploy.type>war</deploy.type>
 	</properties>
 
-	<dependencies>
-		<!--dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-scorm-service-app-navigation</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
+	<dependencies>	
+		<!-- SCORM dependencies -->
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-scorm-service-app-IEEE1484_11</artifactId>
+			<artifactId>sakai-scorm-adlnet</artifactId>
 			<version>${sakai.version}</version>
-		</dependency-->
-		
-		<!-- SCORM dependencies -->
+			<properties>
+				<war.bundle>false</war.bundle>
+			</properties>
+		</dependency>
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-scorm-service-app-client-api</artifactId>
@@ -32,22 +29,19 @@
 			</properties>
 		</dependency>
 		
-		<!-- dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-scorm-service-app-client-impl</artifactId>
-			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
-		</dependency-->
-
 		<!-- Sakai dependencies -->
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-content-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-entity-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
-		
+						
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-user-api</artifactId>
@@ -94,8 +88,12 @@
 			<artifactId>${sakai.spring.artifactId}</artifactId>
 			<version>${sakai.spring.version}</version>
 			<properties>
-				<war.bundle>false</war.bundle>
+			    <deploy.type>jar</deploy.type>
+				<deploy.target>shared</deploy.target>
 			</properties>
+			<!-- properties>
+				<war.bundle>false</war.bundle>
+			</properties-->
 		</dependency>
 		
 		<dependency>
@@ -107,7 +105,7 @@
 		<dependency>
 			<groupId>wicket</groupId>
 			<artifactId>wicket</artifactId>
-  	        <version>1.2.5</version>
+  	        <version>1.2.6</version>
   	        <properties>
 			    <deploy.type>jar</deploy.type>
 				<deploy.target>shared</deploy.target>
@@ -120,7 +118,7 @@
 		<dependency>
 			<groupId>wicket</groupId>
 			<artifactId>wicket-extensions</artifactId>
-  	        <version>1.2.5</version>
+  	        <version>1.2.6</version>
   	        <properties>
 			    <deploy.type>jar</deploy.type>
 				<deploy.target>shared</deploy.target>
@@ -133,7 +131,7 @@
 		<dependency>
 			<groupId>wicket</groupId>
 			<artifactId>wicket-spring</artifactId>
-  	        <version>1.2.5</version>
+  	        <version>1.2.6</version>
   	        <properties>
 			    <deploy.type>jar</deploy.type>
 				<deploy.target>shared</deploy.target>
@@ -152,6 +150,7 @@
 				<directory>${basedir}/src/java</directory>
 				<includes>
 					<include>**/*.html</include>
+					<include>**/*.js</include>
 				</includes>
 			</resource>
 		</resources>

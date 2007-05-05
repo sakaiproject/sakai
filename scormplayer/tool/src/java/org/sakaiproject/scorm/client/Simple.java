@@ -1,5 +1,7 @@
 package org.sakaiproject.scorm.client;
 
+import org.sakaiproject.scorm.client.pages.Index;
+
 import wicket.markup.html.AjaxServerAndClientTimeFilter;
 import wicket.protocol.http.WebApplication;
 

@@ -385,12 +385,12 @@ SeqReportActivityStatus, Serializable
 
          if ( valid.mTOC != null )
          {
-            oValid.mTOC = (Vector)valid.mTOC.clone();
+            oValid.mTOC = (Vector)(((Vector)(valid.mTOC)).clone());
          }
 
          if ( valid.mChoice != null )
          {
-            oValid.mChoice = (Hashtable)valid.mChoice.clone();
+            oValid.mChoice = (Hashtable)(((Hashtable)(valid.mChoice)).clone());
          }
       }
       else
@@ -2200,7 +2200,7 @@ SeqReportActivityStatus, Serializable
          {
             Vector newTOC = new Vector();
 
-            valid.mChoice = getChoiceSet(valid.mTOC, newTOC);
+            valid.mChoice = getChoiceSet((Vector)valid.mTOC, newTOC);
 
             if ( newTOC.size() > 0 )
             {
@@ -2333,7 +2333,7 @@ SeqReportActivityStatus, Serializable
          {
             Vector newTOC = new Vector();
 
-            valid.mChoice = getChoiceSet(valid.mTOC, newTOC);
+            valid.mChoice = getChoiceSet((Vector)valid.mTOC, newTOC);
 
             if ( newTOC.size() > 0 )
             {
@@ -3316,7 +3316,7 @@ private String doTerminationRequest(String iRequest, boolean iTentative)
                if ( lookAt.size() != 0 )
                {
                   walk = (SeqActivity)lookAt.elementAt(0);
-                  walk = (SeqActivity)walk.getChildren(false).elementAt(0);
+                  walk = (SeqActivity)walk.getChildren(false).get(0);
 
                   lookAt.remove(0);
                }
@@ -3359,7 +3359,7 @@ private String doTerminationRequest(String iRequest, boolean iTentative)
          Random gen = new Random();
 
          int count = ioCluster.getSelectCount();
-         Vector all = ioCluster.getChildren(true);
+         Vector all = (Vector)ioCluster.getChildren(true);
 
          if ( _Debug )
          {
@@ -3480,7 +3480,7 @@ private String doTerminationRequest(String iRequest, boolean iTentative)
       {
 
          Random gen = new Random();
-         Vector all = ioCluster.getChildren(false);
+         Vector all = (Vector)ioCluster.getChildren(false);
 
          if ( _Debug )
          {
@@ -3516,7 +3516,7 @@ private String doTerminationRequest(String iRequest, boolean iTentative)
                   if ( lookUp == -1 )
                   {
                      set.add(new Integer(num));
-                     reorder.add(all.elementAt(num));
+                     reorder.add(all.get(num));
 
                      if ( _Debug )
                      {
@@ -4520,7 +4520,7 @@ private String doTerminationRequest(String iRequest, boolean iTentative)
                direction = ADLSequencer.FLOW_BACKWARD;
 
                // Move our starting point
-               iFrom = (SeqActivity)(parent.getChildren(false).elementAt(0));
+               iFrom = (SeqActivity)(parent.getChildren(false).get(0));
 
                reversed = true;
 
@@ -4611,7 +4611,7 @@ private String doTerminationRequest(String iRequest, boolean iTentative)
             else
             {
                // Return the first child activity
-               next = (SeqActivity)(iFrom.getChildren(false).elementAt(0));
+               next = (SeqActivity)(iFrom.getChildren(false).get(0));
             }
          }
       }
@@ -4672,7 +4672,7 @@ private String doTerminationRequest(String iRequest, boolean iTentative)
                {
                   // Return the first child activity
                   next = (SeqActivity)
-                         (iFrom.getChildren(false).elementAt(0));
+                         (iFrom.getChildren(false).get(0));
 
                   // And switch direction
                   direction = ADLSequencer.FLOW_FORWARD;
@@ -4683,7 +4683,7 @@ private String doTerminationRequest(String iRequest, boolean iTentative)
 
                   // Return the last child activity
                   next = (SeqActivity)
-                         (iFrom.getChildren(false).elementAt(size - 1));
+                         (iFrom.getChildren(false).get(size - 1));
                }
             }
          }
@@ -5466,7 +5466,7 @@ private String doTerminationRequest(String iRequest, boolean iTentative)
          // Starting at the target activity, walk up the tree adding services
          while ( walk != null )
          {
-            Vector curSet = walk.getAuxResources();
+            Vector curSet = (Vector)walk.getAuxResources();
 
             if ( curSet != null )
             {
@@ -5559,7 +5559,7 @@ private String doTerminationRequest(String iRequest, boolean iTentative)
             {
                act.setIsSuspended(false);
 
-               Vector children = act.getChildren(false);
+               Vector children = (Vector)act.getChildren(false);
 
                if ( children != null )
                {
@@ -5746,7 +5746,7 @@ private String doTerminationRequest(String iRequest, boolean iTentative)
 
       if ( iTarget != null )
       {
-         Vector children = iTarget.getChildren(false);
+         Vector children = (Vector)iTarget.getChildren(false);
 
          // Is the activity a tracked leaf
          if ( children == null && iTarget.getIsTracked() )
@@ -6304,7 +6304,7 @@ private String doTerminationRequest(String iRequest, boolean iTentative)
             }
 
             // Go to the first child
-            walk = (SeqActivity)(walk.getChildren(false)).elementAt(0);
+            walk = (SeqActivity)(walk.getChildren(false)).get(0);
             parentTOC = toc.size() - 1;
             depth++;
 
@@ -6626,7 +6626,7 @@ private String doTerminationRequest(String iRequest, boolean iTentative)
          }
 
          String lookFor = "";
-         list = walkCon.at.getChildren(false);
+         list = (Vector)walkCon.at.getChildren(false);
          if ( list != null )
          {
             int size = list.size();
