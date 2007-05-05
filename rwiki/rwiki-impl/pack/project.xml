@@ -81,9 +81,6 @@
       <artifactId>sakai-util-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
     </dependency>
     <dependency>
       <groupId>sakaiproject</groupId>
@@ -134,11 +131,8 @@
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-      <version>1.1</version>
+      <version>1.2</version>
       <type>jar</type>
-      <properties>
-        <war.bundle>true</war.bundle>
-      </properties>
     </dependency>
     
     
