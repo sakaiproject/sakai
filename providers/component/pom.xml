@@ -71,6 +71,7 @@
 <!--
 			Needed for the (new as of Sakai 2.3) CM-based
 			AuthzGroupProvider and legacy CourseManagementProvider
+		-->
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-coursemanagement-authz-provider-impl</artifactId>
@@ -82,7 +83,6 @@
 			<artifactId>sakai-coursemanagement-cm-provider-impl</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
-		-->
 
 <!-- Needed for the Federated provider
 		<dependency>
