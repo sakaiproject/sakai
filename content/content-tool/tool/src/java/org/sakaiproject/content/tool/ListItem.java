@@ -1189,8 +1189,12 @@ public class ListItem
 		
 		if(isSiteOnly())
 		{
+			checkParent();
 			//Site has *NO* groups and public-view is *NOT* enabled on the server 
-			label = trb.getFormattedMessage("access.site.nochoice", new String[]{parent.getName()});
+			if(this.parent != null)
+			{
+				label = trb.getFormattedMessage("access.site.nochoice", new String[]{parent.getName()});
+			}
 		}
 		else if(isGroupInherited())
 		{
@@ -1199,8 +1203,11 @@ public class ListItem
 		}
 		else if(isPubviewInherited())
 		{
-			// Public access inherited from parent 
-			label = trb.getFormattedMessage("access.public.nochoice", new String[]{parent.getName()});
+			checkParent();
+			if(parent != null)
+			{
+				label = trb.getFormattedMessage("access.public.nochoice", new String[]{parent.getName()});
+			}
 		}
 		else if(isCollection())
 		{
@@ -1213,6 +1220,40 @@ public class ListItem
 		
 		return label;
 	}
+
+	/**
+     * 
+     */
+    protected void checkParent()
+    {
+	    // Public access inherited from parent 
+	    if(parent == null)
+	    {
+	    	if(this.containingCollectionId == null)
+	    	{
+	    		this.containingCollectionId = ContentHostingService.getContainingCollectionId(this.id);
+	    	}
+	    	try
+	        {
+	            parent = new ListItem(ContentHostingService.getCollection(this.containingCollectionId));
+	        }
+	        catch (IdUnusedException e)
+	        {
+	            // TODO Auto-generated catch block
+	            logger.warn("IdUnusedException ", e);
+	        }
+	        catch (TypeException e)
+	        {
+	            // TODO Auto-generated catch block
+	            logger.warn("TypeException ", e);
+	        }
+	        catch (PermissionException e)
+	        {
+	            // TODO Auto-generated catch block
+	            logger.warn("PermissionException ", e);
+	        }
+	    }
+    }
 	
 	/**
      * @return the accessMode
@@ -2566,6 +2607,7 @@ public class ListItem
 
 	public ListItem getParent()
     {
+		checkParent();
 	    return this.parent;
     }
 
