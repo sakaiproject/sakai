@@ -450,7 +450,20 @@ public class FolderType extends BaseResourceType
          */
         public boolean available(ContentEntity entity)
         {
-	        return true;
+        	boolean ok = true;
+        	if(entity == null || ContentHostingService.ROOT_COLLECTIONS.contains(entity.getId()))
+    		{
+    			ok = false;
+    		}
+    		else
+    		{
+    			ContentCollection parent = entity.getContainingCollection();
+    			if(parent == null || ContentHostingService.ROOT_COLLECTIONS.contains(parent.getId()))
+    			{
+    				ok = false;
+    			}
+    		}
+ 	        return ok;
         }
 		
 		/* (non-Javadoc)
@@ -582,12 +595,24 @@ public class FolderType extends BaseResourceType
          */
         public boolean available(ContentEntity entity)
         {
-        	boolean rv = true;
-        	if(entity instanceof ContentCollection)
+        	boolean ok = true;
+        	if(entity == null || ContentHostingService.ROOT_COLLECTIONS.contains(entity.getId()))
+    		{
+    			ok = false;
+    		}
+    		else
+    		{
+    			ContentCollection parent = entity.getContainingCollection();
+    			if(parent == null || ContentHostingService.ROOT_COLLECTIONS.contains(parent.getId()))
+    			{
+    				ok = false;
+    			}
+    		}
+        	if(ok && entity instanceof ContentCollection)
         	{
-        		rv = (((ContentCollection) entity).getMemberCount() == 0);
+        		ok = (((ContentCollection) entity).getMemberCount() == 0);
         	}
-	        return rv;
+	        return ok;
         }
         
 		/* (non-Javadoc)
@@ -654,7 +679,20 @@ public class FolderType extends BaseResourceType
          */
         public boolean available(ContentEntity entity)
         {
-	        return true;
+        	boolean ok = true;
+        	if(entity == null || ContentHostingService.ROOT_COLLECTIONS.contains(entity.getId()))
+    		{
+    			ok = false;
+    		}
+    		else
+    		{
+    			ContentCollection parent = entity.getContainingCollection();
+    			if(parent == null || ContentHostingService.ROOT_COLLECTIONS.contains(parent.getId()))
+    			{
+    				ok = false;
+    			}
+    		}
+ 	        return ok;
         }
         
 		/* (non-Javadoc)
@@ -800,7 +838,20 @@ public class FolderType extends BaseResourceType
          */
         public boolean available(ContentEntity entity)
         {
-	        return true;
+        	boolean ok = true;
+        	if(entity == null || ContentHostingService.ROOT_COLLECTIONS.contains(entity.getId()))
+    		{
+    			ok = false;
+    		}
+    		else
+    		{
+    			ContentCollection parent = entity.getContainingCollection();
+    			if(parent == null || ContentHostingService.ROOT_COLLECTIONS.contains(parent.getId()))
+    			{
+    				ok = false;
+    			}
+    		}
+ 	        return ok;
         }
 		
 		/* (non-Javadoc)
