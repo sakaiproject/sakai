@@ -231,7 +231,10 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 			   sub.parameters.add(new UIELBinding("#{voteCollection.submissionStatus}", "sub"));
 			   UICommand cancel = UICommand.make(voteForm, "cancel",messageLocator.getMessage("vote_cancel"),"#{pollToolBean.cancel}");
 			   cancel.parameters.add(new UIELBinding("#{voteCollection.submissionStatus}", "cancel"));
-			  UIOutput.make(voteForm, "reset", messageLocator.getMessage("vote_reset"));
+			 
+			   //o9nly show reset in !(min=max=1)
+			   if(!(poll.getMaxOptions()==1 && poll.getMinOptions()==1))
+				   UIOutput.make(voteForm, "reset", messageLocator.getMessage("vote_reset"));
 					  
 		} 
 		catch (Exception e)
