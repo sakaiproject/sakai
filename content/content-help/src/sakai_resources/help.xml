@@ -9,42 +9,87 @@
       <property name="defaultForTool"><value>sakai.resources</value></property>      
    </bean>
 
+   <bean id="createResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arcg</value></property>
+      <property name="name"><value>Create/Add/Edit/Delete item</value></property>
+      <property name="location"><value>/sakai_resources/arcg.html</value></property>
+   </bean>
+
    <bean id="usingFolders" class="org.sakaiproject.component.app.help.model.ResourceBean">
-         <property name="docId"><value>avbw</value></property>
+      <property name="docId"><value>avbw</value></property>
       <property name="name"><value>Working with folders</value></property>
       <property name="location"><value>/sakai_resources/avbw.html</value></property>
    </bean>
 
-   <bean id="createResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
-         <property name="docId"><value>arcg</value></property>
-      <property name="name"><value>Create/Add/Edit/Delete Resource</value></property>
-      <property name="location"><value>/sakai_resources/arcg.html</value></property>
+   <bean id="usingFiles" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>avby</value></property>
+      <property name="name"><value>Working with files</value></property>
+      <property name="location"><value>/sakai_resources/avby.html</value></property>
    </bean>
-      <bean id="moveResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
-         <property name="docId"><value>arex</value></property>
-      <property name="name"><value>Move Resource</value></property>
+
+   <bean id="usingLinks" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>avbz</value></property>
+      <property name="name"><value>Working with web links</value></property>
+      <property name="location"><value>/sakai_resources/avbz.html</value></property>
+   </bean>
+
+   <bean id="usingHtml" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>avcb</value></property>
+      <property name="name"><value>Working with HTML pages</value></property>
+      <property name="location"><value>/sakai_resources/avcb.html</value></property>
+   </bean>
+
+   <bean id="usingText" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>avcc</value></property>
+      <property name="name"><value>Working with text documents</value></property>
+      <property name="location"><value>/sakai_resources/avcc.html</value></property>
+   </bean>
+
+   <bean id="usingCitation" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>avcd</value></property>
+      <property name="name"><value>Working with citation lists</value></property>
+      <property name="location"><value>/sakai_resources/avcd.html</value></property>
+   </bean>
+
+   <bean id="makePublic" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>atkh</value></property>
+      <property name="name"><value>Make resources publicly accessible</value></property>
+      <property name="location"><value>/sakai_resources/atkh.html</value></property>
+   </bean>
+
+   <bean id="moveResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arex</value></property>
+      <property name="name"><value>Move item</value></property>
       <property name="location"><value>/sakai_resources/arex.html</value></property>
    </bean>
-      <bean id="reviseResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
-         <property name="docId"><value>arbe</value></property>
-      <property name="name"><value>View/Open Resource</value></property>
+
+   <bean id="viewResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arbe</value></property>
+      <property name="name"><value>View/open item</value></property>
       <property name="location"><value>/sakai_resources/arbe.html</value></property>
    </bean>
-      <bean id="deleteResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
-         <property name="docId"><value>aqyf</value></property>
-      <property name="name"><value>Copy Resource</value></property>
-      <property name="location"><value>/sakai_resources/aqyf.html</value></property>
-      </bean>
 
-      <bean id="sortResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
-         <property name="docId"><value>aukb</value></property>
-      <property name="name"><value>Reorder Resources</value></property>
+   <bean id="copyResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aqyf</value></property>
+      <property name="name"><value>Copy item</value></property>
+      <property name="location"><value>/sakai_resources/aqyf.html</value></property>
+   </bean>
+
+   <bean id="deleteResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>avcg</value></property>
+      <property name="name"><value>Delete item</value></property>
+      <property name="location"><value>/sakai_resources/avcg.html</value></property>
+   </bean>
+
+   <bean id="sortResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aukb</value></property>
+      <property name="name"><value>Reorder items</value></property>
       <property name="location"><value>/sakai_resources/aukb.html</value></property>
-      </bean>
+   </bean>
     
-          <bean id="replaceResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
-         <property name="docId"><value>arfd</value></property>
-      <property name="name"><value>View Resource Metadata</value></property>
+   <bean id="itemDetails" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arfd</value></property>
+      <property name="name"><value>View item details</value></property>
       <property name="location"><value>/sakai_resources/arfd.html</value></property>
    </bean>
 
@@ -76,13 +121,20 @@
                <property name="resources">
                   <list>
                      <ref bean="resourceOverview"/>
-                     <ref bean="usingFolders"/>
+                     <ref bean="viewResource"/>
+                     <ref bean="itemDetails"/>
                      <ref bean="createResource"/>
-                     <ref bean="reviseResource"/>
-                      <ref bean="replaceResource"/>
-                      <ref bean="moveResource"/>
-                      <ref bean="sortResource"/>
+                     <ref bean="usingFolders"/>
+                     <ref bean="usingFiles"/>
+                     <ref bean="usingLinks"/>
+                     <ref bean="usingHtml"/>
+                     <ref bean="usingText"/>
+                     <ref bean="usingCitation"/>
+                     <ref bean="makePublic"/>
+                     <ref bean="moveResource"/>
+                     <ref bean="copyResource"/>
                      <ref bean="deleteResource"/>
+                     <ref bean="sortResource"/>
                      <ref bean="webDavOverview"/>
                      <ref bean="winxpAccess"/>
                      <ref bean="macAccess"/>
