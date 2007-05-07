@@ -2,11 +2,13 @@
 	<div class="portletBody">
 	  <h:form id="gbForm">
 
+		<sakai:flowState bean="#{editAssignmentBean}" />
+
 		<t:aliasBean alias="#{bean}" value="#{editAssignmentBean}">
 			<%@include file="/inc/appMenu.jspf"%>
-		</t:aliasBean>
 
-		<sakai:flowState bean="#{editAssignmentBean}" />
+			<%@include file="/inc/breadcrumb.jspf" %>
+		</t:aliasBean>
 
 		<h2><h:outputText value="#{msgs.edit_assignment_page_title}"/></h2>
 
@@ -30,7 +32,7 @@
 				action="#{editAssignmentBean.updateAssignment}"/>
 			<h:commandButton
 				value="#{msgs.add_assignment_cancel}"
-				action="#{editAssignmentBean.cancelToAssignmentDetails}"
+				action="#{editAssignmentBean.navigateToAssignmentDetails}"
 				immediate="true"/>
 		</p>
 	  </h:form>

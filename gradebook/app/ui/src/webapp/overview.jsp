@@ -22,9 +22,9 @@
 		</div>
 		
 		<sakai:tool_bar rendered="#{overviewBean.userAbleToEditAssessments}">
-    	<sakai:tool_bar_item value="#{msgs.overview_add_item}" action="addAssignment" />
-    	<sakai:tool_bar_item value="#{msgs.overview_import_item}" action="spreadsheetListing" />
-  	</sakai:tool_bar>
+    	<sakai:tool_bar_item value="#{msgs.overview_add_item}"    action="#{overviewBean.navigateToAddAssignment}" />
+   		<sakai:tool_bar_item value="#{msgs.overview_import_item}" action="#{overviewBean.navigateToSpreadsheet}" />
+  		</sakai:tool_bar>
   	
   	<h:panelGrid cellpadding="0" cellspacing="0" columns="2"
 			columnClasses="itemName"
@@ -69,11 +69,11 @@
 				<!-- Assignment / Assessment link -->
 				
 				<h:panelGroup rendered="#{gradebookItem.assignment}">
-					<h:commandLink action="assignmentDetails" rendered="#{gradebookItem.released}">
+					<h:commandLink action="#{overviewBean.navigateToAssignmentDetails}" rendered="#{gradebookItem.released}">
 						<h:outputText value="#{gradebookItem.name}" />
 						<f:param name="assignmentId" value="#{gradebookItem.id}"/>
 					</h:commandLink>
-					<h:commandLink action="assignmentDetails" rendered="#{!gradebookItem.released}" styleClass="inactive">
+					<h:commandLink action="#{overviewBean.navigateToAssignmentDetails}" rendered="#{!gradebookItem.released}" styleClass="inactive">
 						<h:outputText value="#{gradebookItem.name}"/>
 						<f:param name="assignmentId" value="#{gradebookItem.id}"/>
 					</h:commandLink>
@@ -90,7 +90,7 @@
 				<f:facet name="header">
 		    	<h:outputText escape="false" value="&nbsp;" />
 		    </f:facet>
-				<h:commandLink action="editAssignment" rendered="#{gradebookItem.assignment}">
+				<h:commandLink action="#{overviewBean.navigateToEdit}" rendered="#{gradebookItem.assignment}">
 					<h:outputText value="#{msgs.overview_edit}" />
 					<f:param name="assignmentId" value="#{gradebookItem.id}"/>
 				</h:commandLink>

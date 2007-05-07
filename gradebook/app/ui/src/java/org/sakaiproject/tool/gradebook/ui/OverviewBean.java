@@ -32,6 +32,8 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.CourseGrade;
@@ -169,6 +171,13 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 				}
 			}
 		}
+		
+		// Set up navigation
+		ToolSession session = SessionManager.getCurrentToolSession();
+		session.setAttribute("breadcrumbPage", "overview");
+		session.removeAttribute("adding");
+		session.removeAttribute("editing");
+		session.removeAttribute("middle");
 	}
 
     // Delegated sort methods
@@ -247,4 +256,44 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
     	return displayGradeEditorCol;
     }
 
+	public String navigateToEdit() {
+		ToolSession session = SessionManager.getCurrentToolSession();
+
+		session.setAttribute("breadcrumbPage", "overview");
+		session.setAttribute("middle","false");
+		session.setAttribute("add", "false");
+		session.setAttribute("editing", "true");
+		
+		return "editAssignment";
+	}
+	
+	public String navigateToAddAssignment() {
+		ToolSession session = SessionManager.getCurrentToolSession();
+
+		session.setAttribute("breadcrumbPage", "overview");
+		session.setAttribute("middle","false");
+		session.setAttribute("adding", "true");
+		session.setAttribute("editing", "false");
+				
+		return "addAssignment";
+	}
+	
+	public String navigateToAssignmentDetails() {
+		ToolSession session = SessionManager.getCurrentToolSession();
+
+		session.setAttribute("breadcrumbPage", "overview");
+		session.setAttribute("middle","false");
+		session.setAttribute("adding", "false");
+		session.setAttribute("editing", "false");
+				
+		return "assignmentDetails";		
+	}
+	
+	public String navigateToSpreadsheet() {
+		ToolSession session = SessionManager.getCurrentToolSession();
+
+		session.setAttribute("breadcrumbPage", "overview");
+
+		return "spreadsheetListing";
+	}
 }

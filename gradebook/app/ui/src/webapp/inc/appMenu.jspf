@@ -3,15 +3,17 @@
 	Accessed via <t:aliasBean alias="#{bean}" value="#{realPageBean}">...</t:aliasBean> .
 */%>
 <sakai:tool_bar separator="|">
-	<h:commandLink action="overview" immediate="true" rendered="#{bean.pageName ne 'overview'}">
+	<h:commandLink action="overview" immediate="true" rendered="#{bean.pageName ne 'overview' && bean.breadcrumbPage ne 'overview'}">
 		<h:outputText value="#{msgs.appmenu_overview}"/>
+		<f:param name="breadcrumbPage" value="overview" />
 	</h:commandLink>
-	<h:outputText value="#{msgs.appmenu_overview} &nbsp;" escape="false" rendered="#{bean.pageName eq 'overview'}" styleClass="currentView" />
+	<h:outputText value="#{msgs.appmenu_overview} &nbsp;" escape="false" rendered="#{bean.pageName eq 'overview' || bean.breadcrumbPage eq 'overview'}" styleClass="currentView" />
 
-	<h:commandLink action="roster" immediate="true" rendered="#{bean.pageName ne 'roster'}">
+	<h:commandLink action="roster" immediate="true" rendered="#{bean.pageName ne 'roster' && bean.breadcrumbPage ne 'roster'}">
 		<h:outputText value="#{msgs.appmenu_roster}"/>
+		<f:param name="breadcrumbPage" value="roster" />
 	</h:commandLink>
-    <h:outputText value="#{msgs.appmenu_roster} &nbsp;" escape="false" rendered="#{bean.pageName eq 'roster'}" styleClass="currentView" />
+    <h:outputText value="#{msgs.appmenu_roster} &nbsp;" escape="false" rendered="#{bean.pageName eq 'roster' || bean.breadcrumbPage eq 'roster'}" styleClass="currentView" />
   
 
      <h:commandLink action="gradebookSetup" immediate="true" rendered="#{bean.pageName ne 'gradebookSetup' && bean.userAbleToEditAssessments}">

@@ -4,6 +4,8 @@
 
 		<t:aliasBean alias="#{bean}" value="#{addAssignmentBean}">
 			<%@include file="/inc/appMenu.jspf"%>
+			
+			<%@include file="/inc/breadcrumb.jspf" %>
 		</t:aliasBean>
 
 		<sakai:flowState bean="#{addAssignmentBean}" />

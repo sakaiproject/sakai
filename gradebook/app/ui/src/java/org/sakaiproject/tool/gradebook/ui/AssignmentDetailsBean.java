@@ -38,6 +38,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
@@ -142,12 +144,24 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 			// present. The next time the user does anything, the form will be
 			// refreshed from the database.
 			workInProgress = false;
+			ToolSession session = SessionManager.getCurrentToolSession();
+			final String fromPage = (String) session.getAttribute("fromPage");
+			if (fromPage != null) {
+				setBreadcrumbPage(fromPage);
+			}
+
 			return;
 		}
 		
 		// set the filter value for this page
 		super.setSelectedSectionFilterValue(this.getSelectedSectionFilterValue());
 		super.init();
+
+		ToolSession session = SessionManager.getCurrentToolSession();
+		final String fromPage = (String) session.getAttribute("breadcrumbPage");
+		if (fromPage != null) {
+			setBreadcrumbPage(fromPage);
+		}
 
         // Clear view state.
         previousAssignment = null;
@@ -418,6 +432,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 	public boolean isLast() {
 		return (nextAssignment == null);
 	}
+	
 	public String getNextTitle() {
 		return (nextAssignment != null) ? nextAssignment.getName() : "";
 	}
@@ -502,4 +517,46 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 		return isAllCommentsEditable;
 	}
 
+	/** added in attempt to return to proper location upon cancel */
+	public String processCancel() {
+		final String breadcrumbPage = getBreadcrumbPage();
+		if (breadcrumbPage != null && !"".equals(breadcrumbPage)) {
+			return breadcrumbPage;
+		}
+		else {
+			String where = (String) SessionManager.getCurrentToolSession().getAttribute("breadcrumbPage");
+			
+			if ("assignmentDetails".equals(where)) {
+				where = (String) SessionManager.getCurrentToolSession().getAttribute("fromPage");
+				SessionManager.getCurrentToolSession().removeAttribute("fromPage");
+			}
+
+			return where;
+		}
+	}
+	
+	/** added to set values when navigate from here to editAssignment page */
+	public String navigateToEdit() {
+		final String fromPage = (String) SessionManager.getCurrentToolSession().getAttribute("breadcrumbPage");
+		setNav("assignmentDetails","false","false","true", fromPage);
+
+//		SessionManager.getCurrentToolSession().setAttribute("fromPage", fromPage);
+//		SessionManager.getCurrentToolSession().setAttribute("breadcrumbPage", "assignmentDetails");
+//		SessionManager.getCurrentToolSession().setAttribute("middle", "true");
+		
+		return "editAssignment";
+	}
+	
+	public String getReturnString() {
+		final String breadcrumbPage = getBreadcrumbPage();
+		if (breadcrumbPage != null && !"".equals(breadcrumbPage)) {
+			return ("overview".equals(breadcrumbPage)) ? getLocalizedString("assignment_details_return_to_overview")
+													   : getLocalizedString("assignment_details_return_to_roster");
+		}
+		else {
+			final String where = (String) SessionManager.getCurrentToolSession().getAttribute("fromPage");
+			return ("overview".equals(where)) ? getLocalizedString("assignment_details_return_to_overview")
+					  						  : getLocalizedString("assignment_details_return_to_roster");
+		}
+	}
 }

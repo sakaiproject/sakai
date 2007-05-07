@@ -53,6 +53,8 @@ import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterXls;
 import org.sakaiproject.jsf.spreadsheet.SpreadsheetUtil;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.coursemanagement.User;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.Category;
@@ -308,6 +310,9 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
             studentRows.add(new StudentRow(enrollment));
         }
 
+        // set breadcrumb page for navigation
+//		SessionManager.getCurrentToolSession().setAttribute("breadcrumbPage", "roster");
+		
 	}
 	
 	private String getColumnHeader(GradableObject gradableObject) {
@@ -413,7 +418,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		                
 		                //get details link
 		                HtmlCommandLink detailsLink = new HtmlCommandLink();
-		                detailsLink.setAction(app.createMethodBinding("#{rosterBean.assignmentDetails}", new Class[] {}));
+		                detailsLink.setAction(app.createMethodBinding("#{rosterBean.navigateToAssignmentDetails}", new Class[] {}));
 		                detailsLink.setId(ASSIGNMENT_COLUMN_PREFIX + "hdr_link_" + colpos);
 		                HtmlOutputText detailsText = new HtmlOutputText();
 		                detailsText.setId(ASSIGNMENT_COLUMN_PREFIX + "hdr_details_" + colpos);
@@ -427,11 +432,11 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		                param.setValue(columnData.getAssignmentId());
 		                detailsLink.getChildren().add(param);
 		                
-		                UIParameter param2 = new UIParameter();
+/*		                UIParameter param2 = new UIParameter();
 		                param2.setName("breadcrumbPage");
 		                param2.setValue("roster");
 		                detailsLink.getChildren().add(param2);
-		                
+*/		                
 		                HtmlOutputText br = new HtmlOutputText();
 		                br.setValue("<br />");
 		                br.setEscape(false);
@@ -645,4 +650,15 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
     public String assignmentDetails(){
     	return "assignmentDetails";
     }
+
+	/**
+	 * Empty string since breadcrumb trail starts here so this is used by menu to determine
+	 * if display link or not. Since bean only used at top level page, pageName will determine
+	 * so can just return blank.
+	 */
+	public String navigateToAssignmentDetails() {
+		setNav("roster","false","false","false",null);
+		
+		return "assignmentDetails";
+	}
 }

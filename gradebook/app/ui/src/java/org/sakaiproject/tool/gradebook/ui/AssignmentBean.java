@@ -33,6 +33,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Gradebook;
@@ -46,7 +47,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
     private Assignment assignment;
     private List categoriesSelectList;
     private String assignmentCategory;
-    
+
     private static final String UNASSIGNED_CATEGORY = "unassigned";
 
 	protected void init() {
@@ -139,11 +140,22 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 		return navigateToAssignmentDetails();
 	}
 
-	private String navigateToAssignmentDetails() {
-		// Go back to the Assignment Details page for this assignment.
-		AssignmentDetailsBean assignmentDetailsBean = (AssignmentDetailsBean)FacesUtil.resolveVariable("assignmentDetailsBean");
-		assignmentDetailsBean.setAssignmentId(assignmentId);
-		return "assignmentDetails";
+	public String navigateToAssignmentDetails() {
+		String breadcrumbPage = getBreadcrumbPage();
+		final Boolean middle = new Boolean((String) SessionManager.getCurrentToolSession().getAttribute("middle"));
+		if (breadcrumbPage == null || middle) {
+			AssignmentDetailsBean assignmentDetailsBean = (AssignmentDetailsBean)FacesUtil.resolveVariable("assignmentDetailsBean");
+			assignmentDetailsBean.setAssignmentId(assignmentId);
+			assignmentDetailsBean.setBreadcrumbPage(breadcrumbPage);
+			
+			SessionManager.getCurrentToolSession().removeAttribute("middle");
+			SessionManager.getCurrentToolSession().setAttribute("middle", "false");
+			
+			return "assignmentDetails";
+		}
+		else {
+			return breadcrumbPage;
+		}
 	}
 
 	/**
@@ -207,8 +219,6 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 		}
 		
 		return category;
-    }
+    }    
 }
-
-
 

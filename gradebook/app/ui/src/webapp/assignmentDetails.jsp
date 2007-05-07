@@ -3,17 +3,16 @@
 <script src="js/dynamicSizeCheck.js" type="text/javascript"></script>
 
 <f:view>
-
-
-
   <div class="portletBody">
 	<h:form id="gbForm">
 
+		<sakai:flowState bean="#{assignmentDetailsBean}" />
+
 		<t:aliasBean alias="#{bean}" value="#{assignmentDetailsBean}">
 			<%@include file="/inc/appMenu.jspf"%>
-		</t:aliasBean>
-
-		<sakai:flowState bean="#{assignmentDetailsBean}" />
+		
+			<%@include file="/inc/breadcrumb.jspf" %>
+		</t:aliasBean> 
 
 		<h2><h:outputText value="#{assignmentDetailsBean.assignment.name}"/></h2>
 
@@ -31,8 +30,8 @@
 					<f:param name="assignmentId" value="#{assignmentDetailsBean.previousAssignment.id}"/>
 			</h:commandButton>
 			<h:commandButton
-				action="overview"
-				value="#{msgs.assignment_details_return_to_overview}"
+				action="#{assignmentDetailsBean.processCancel}"
+				value="#{assignmentDetailsBean.returnString}"
 				accesskey="l"
 				tabindex="6"/>
 			<h:commandButton
@@ -89,13 +88,15 @@
 						rendered="#{assignmentDetailsBean.assignment.notCounted}"
 					/>
 					<h:commandLink
-						action="editAssignment"
+						action="#{assignmentDetailsBean.navigateToEdit}"
 						rendered="#{!assignmentDetailsBean.assignment.externallyMaintained}"
 						accesskey="e"
 						tabindex="7"
 						title="#{msgs.assignment_details_edit}">
 						<h:outputFormat id="editAssignment" value="#{msgs.assignment_details_edit}" />
 						<f:param name="assignmentId" value="#{assignmentDetailsBean.assignment.id}"/>
+						<f:param name="breadcrumbPage" value="#{assignmentDetailsBean.breadcrumbPage}" />
+						<f:param name="middle" value="true" />
 					</h:commandLink>
 					<h:commandLink
 						action="removeAssignment"
@@ -262,13 +263,14 @@
 				title="#{msgs.assignment_details_submit}"/>
 			<h:commandButton
 				value="#{msgs.assignment_details_cancel}"
-				action="overview"
-				immediate="true"
+				action="#{assignmentDetailsBean.processCancel}"
 				disabled="#{assignmentDetailsBean.assignment.externallyMaintained}"
 				rendered="#{!assignmentDetailsBean.emptyEnrollments}"
 				accesskey="c"
 				tabindex="9999"
-				title="#{msgs.assignment_details_cancel}"/>
+				title="#{msgs.assignment_details_cancel}">
+					<f:param name="breadcrumbPage" value="#{assignmentDetailsBean.breadcrumbPage}" />
+			</h:commandButton>
 		</p>
 	</h:form>
   </div>

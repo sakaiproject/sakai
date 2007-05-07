@@ -32,6 +32,8 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.facades.Authn;
@@ -40,6 +42,13 @@ import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
 public abstract class GradebookDependentBean extends InitializableBean {
 	private String pageName;
+    
+    /** Used by breadcrumb display */
+    private String breadcrumbPage;
+    private Boolean editing;
+    private Boolean adding;
+    private Boolean middle;
+    
 
 	/**
 	 * Marked transient to allow serializable subclasses.
@@ -223,8 +232,146 @@ public abstract class GradebookDependentBean extends InitializableBean {
     	this.pageName = pageName;
     }
 
+    /**
+     * Saves state for menu and breadcrumb trail.
+     *  
+     * @param breadcrumbPage
+     * 			Top level page to return to
+     * @param editing
+     * 			If navigating TO edit page.
+     * @param adding
+     * 			If navigating TO add page.
+     * @param middle
+     * 			If navigating TO 2nd level down.
+     * @param fromPage
+     * 			currently, when navigating from details page down.
+     */
+    protected void setNav(String breadcrumbPage, String editing, String adding, String middle,
+    		 				String fromPage) {
+ 		ToolSession session = SessionManager.getCurrentToolSession();
+		
+ 		session.setAttribute("breadcrumbPage", breadcrumbPage);
+		session.setAttribute("editing", editing);
+		session.setAttribute("adding", adding);
+		session.setAttribute("middle", middle);
+		
+		if (fromPage != null) {
+			session.setAttribute("fromPage", fromPage);
+		}
+    }
 
-   	/**
+    /**
+	 * Used to determine where details page called from
+	 */
+	public String getBreadcrumbPage() {
+		ToolSession session = SessionManager.getCurrentToolSession();
+		final String breadcrumbPage = (String) session.getAttribute("breadcrumbPage");
+
+		if ("assignmentDetails".equals(breadcrumbPage)) {
+			return (String) SessionManager.getCurrentToolSession().getAttribute("fromPage");
+		}
+		else {
+			return breadcrumbPage;
+		}
+	}
+
+	/**
+	 * Used to set where details page called from
+	 */
+	public void setBreadcrumbPage(String breadcrumbPage) {
+		this.breadcrumbPage = breadcrumbPage;
+	}
+
+	/**
+	 * In IE (but not Mozilla/Firefox) empty request parameters may be returned
+	 * to JSF as the string "null". JSF always "restores" some idea of the
+	 * last view, even if that idea is always going to be null because a redirect
+	 * has occurred. Put these two things together, and you end up with
+	 * a class cast exception when redirecting from this request-scoped
+	 * bean to a static page.
+	 */
+	public void setBreadcrumbPageParam(String breadcrumbPageParam) {
+		if (SessionManager.getCurrentToolSession().getAttribute("breadcrumbPage") != null) {
+			if ((breadcrumbPageParam != null) && !breadcrumbPageParam.equals("null")) {
+				setBreadcrumbPage(breadcrumbPageParam);
+				SessionManager.getCurrentToolSession().setAttribute("breadcrumbPage", breadcrumbPageParam);
+			}
+			else {
+				ToolSession session = SessionManager.getCurrentToolSession();
+				final String fromPage = (String) session.getAttribute("breadcrumbPage");
+				if (fromPage != null) {
+					setBreadcrumbPage(fromPage);
+				}
+			}
+		}
+	}
+
+    /**
+     * Set adding variable - use for breadcrumb display
+     */
+	public void setEditing(Boolean editing) {
+		this.editing = editing;
+	}
+	
+	/**
+     * Return if breadcrumb will display 'Edit' piece
+     */
+    public Boolean getEditing() {
+    	if (editing == null) {
+    		final ToolSession session = SessionManager.getCurrentToolSession();
+    		editing = new Boolean((String) session.getAttribute("editing"));
+    	}
+    	
+    	return editing;
+    }
+    
+    /**
+     * Return if breadcrumb will display 'Add' piece
+     */
+    public Boolean getAdding() {
+    	if (adding == null) {
+    		final ToolSession session = SessionManager.getCurrentToolSession();
+    		adding = new Boolean((String) session.getAttribute("adding"));
+    	}
+    	
+    	return adding;
+    }
+    
+   /**
+     * Set adding variable - use for breadcrumb display
+     */
+    public void setAdding(Boolean adding) {
+    	if (adding == null) {
+    		final ToolSession session = SessionManager.getCurrentToolSession();
+    		adding = new Boolean((String) session.getAttribute("adding"));
+    	}
+    	this.adding = adding;
+    }
+
+    /**
+     * Set adding variable - use for breadcrumb display
+     */
+	public void setMiddle(Boolean middle) {
+		if (middle == null) {
+			final ToolSession session = SessionManager.getCurrentToolSession();
+			middle = new Boolean((String) session.getAttribute("middle"));
+		}
+		this.middle = middle;
+	}
+	
+	/**
+     * Return if breadcrumb trail needs to display the middle section
+     */
+    public Boolean getMiddle() {
+		if (middle == null) {
+			final ToolSession session = SessionManager.getCurrentToolSession();
+			middle = new Boolean((String) session.getAttribute("middle"));
+		}
+		
+    	return middle;
+    }
+    
+  	/**
      * Generates a default filename (minus the extension) for a download from this Gradebook. 
      *
 	 * @param   prefix for filename
@@ -308,4 +455,42 @@ public abstract class GradebookDependentBean extends InitializableBean {
     	
     	return gradeEntryByLetter.booleanValue();
     }
+    
+    /**
+     * Return back to overview page. State is kept in
+     * tool session, hence attribute setting.
+     */
+    public String navigateToOverview() {
+		SessionManager.getCurrentToolSession().setAttribute("breadcrumbPage", "overview");
+		SessionManager.getCurrentToolSession().setAttribute("middle", "false");
+
+		return "overview";
+    }
+    
+    /**
+     * Return back to roster page. State is kept in
+     * tool session, hence attribute setting.
+     */
+    public String navigateToRoster() {
+		SessionManager.getCurrentToolSession().setAttribute("breadcrumbPage", "roster");
+		SessionManager.getCurrentToolSession().setAttribute("middle", "false");
+
+		return "roster";
+   }    
+
+    /**
+     * Go to edit assignment page. State is kept in
+     * tool session, hence attribute setting.
+     * TODO: move this to assignmentDetialsBean since this is the
+     * navigation method to go from assignmentDetials page to
+     * ediAssignment page.
+     */
+	public String navigateToEdit() {
+		final String fromPage = (String) SessionManager.getCurrentToolSession().getAttribute("breadcrumbPage");
+		SessionManager.getCurrentToolSession().setAttribute("fromPage", fromPage);
+		SessionManager.getCurrentToolSession().setAttribute("breadcrumbPage", "assignmentDetails");
+		SessionManager.getCurrentToolSession().setAttribute("middle", "true");
+		
+		return "editAssignment";
+	}
 }

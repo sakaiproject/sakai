@@ -1,0 +1,30 @@
+<%-- For assignment details, generate the breadcrumb trail --%>
+<%-- TODO: determine if all breadcrumb cases can be covered by this page --%>
+
+<div class="breadcrumb"><h3>
+
+	<%--  The root of the breadcrumb rendered here --%>
+	<h:commandLink action="#{bean.navigateToOverview}" value="#{msgs.breadcrumb_overview}" immediate="true" rendered="#{bean.breadcrumbPage eq 'overview'}" />
+	<h:commandLink action="#{bean.navigateToRoster}"   value="#{msgs.breadcrumb_roster}"   immediate="true" rendered="#{bean.breadcrumbPage eq 'roster'}"   />
+		
+	<%-- if we are 2 levels down, render the middle location --%>
+	<h:panelGroup rendered="#{bean.middle}">
+		<h:outputText value="&nbsp; > &nbsp;" escape="false" />
+		<h:commandLink action="#{bean.navigateToAssignmentDetails}"  immediate="true">
+			<h:outputText value="#{bean.assignment.name}" />
+			<f:param name="assignmentId" value="#{bean.assignmentId}" />
+		</h:commandLink>
+	</h:panelGroup>
+
+	<h:outputText value="&nbsp; > &nbsp;" escape="false" />
+
+	<%-- Here we are at the bottom, render final spot --%>
+	<h:outputText value="#{msgs.breadcrumb_add}" rendered="#{bean.adding}" />
+
+	<h:outputText value="#{msgs.breadcrumb_edit}" rendered="#{bean.editing}" />
+	
+	<%-- if adding, will render as blank, if editing, will display assignment name
+		 since this is the behavior we want, no rendering tag needed --%>
+	<h:outputText value="#{bean.assignment.name}" />
+
+</h3></div>
