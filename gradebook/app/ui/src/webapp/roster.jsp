@@ -9,6 +9,7 @@
 
 		<sakai:flowState bean="#{rosterBean}" />
 
+
 		<h2>
 			<h:outputText value="#{msgs.roster_page_title}"/>
 			<h:commandButton
@@ -16,7 +17,7 @@
 				value="#{msgs.roster_export_csv}"
 				actionListener="#{rosterBean.exportCsv}"
 				rendered="#{!rosterBean.emptyEnrollments}"
-				style="right: 0;position: absolute;"
+				style="float: right"
 				/>
 		</h2>
 
