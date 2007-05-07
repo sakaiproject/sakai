@@ -88,6 +88,8 @@ public class SiteService
 
 	public static java.lang.String TOOL_SUBTYPE = org.sakaiproject.site.api.SiteService.TOOL_SUBTYPE;
 
+	public static java.lang.String PROP_PARENT_ID = org.sakaiproject.site.api.SiteService.PROP_PARENT_ID;
+
 	public static boolean allowAccessSite(java.lang.String param0)
 	{
 		org.sakaiproject.site.api.SiteService service = getInstance();

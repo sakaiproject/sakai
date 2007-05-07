@@ -104,6 +104,9 @@ public interface SiteService extends EntityProducer
 	/** The name of a special site that is used if the requested url is not understood. */
 	static final String URL_ERROR = "!urlError";
 
+	/** The property to indicate a parent site's id */
+	public static final String PROP_PARENT_ID = "sakai:parent-id";
+
 	/**
 	 * <p>
 	 * SelectionType enumerates different supported types of selection criteria for getting / counting sites.
