@@ -92,6 +92,17 @@
             <value>/sakai_forums/augf.html</value>
         </property>
     </bean>
+    <bean id="mcStats" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>avai</value>
+        </property>
+        <property name="name">
+            <value>Participation Statistics</value>
+        </property>
+        <property name="location">
+            <value>/sakai_forums/avai.html</value>
+        </property>
+    </bean>
     <bean id="mcNotification" class="org.sakaiproject.component.app.help.model.ResourceBean">
         <property name="docId">
             <value>auut</value>
@@ -127,6 +138,7 @@
                             <ref bean="mcView"/>
                             <ref bean="mcPost"/>
                             <ref bean="mcGrade" />
+                            <ref bean="mcStats" />
                             <ref bean="mcNotification" />
                         </list>
                     </property>
