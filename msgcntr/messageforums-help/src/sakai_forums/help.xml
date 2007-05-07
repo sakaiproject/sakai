@@ -9,10 +9,10 @@
             <value>Message Center Overview</value>
         </property>
         <property name="location">
-            <value>/sakai_messagecenter/asax.html</value>
+            <value>/sakai_forums/asax.html</value>
         </property>
 		<property name="defaultForTool">
-			<value>sakai.messagecenter</value>
+			<value>sakai.forums</value>
 		</property>
     </bean>
     <bean id="mcCreateForumTopic" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -23,7 +23,18 @@
             <value>Create forums and topics in Discussion Forums</value>
         </property>
         <property name="location">
-            <value>/sakai_messagecenter/asci.html</value>
+            <value>/sakai_forums/asci.html</value>
+        </property>
+    </bean>
+    <bean id="mcChangeOrder" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>ausz</value>
+        </property>
+        <property name="name">
+            <value>Change the order of forums and topics</value>
+        </property>
+        <property name="location">
+            <value>/sakai_forums/ausz.html</value>
         </property>
     </bean>
     <bean id="mcPermissions" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -34,7 +45,7 @@
             <value>Modify Discussion Forum permissions</value>
         </property>
         <property name="location">
-            <value>/sakai_messagecenter/atdt.html</value>
+            <value>/sakai_forums/atdt.html</value>
         </property>
     </bean>
     <bean id="mcRevise" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -45,7 +56,7 @@
             <value>Revise or delete a forum or topic</value>
         </property>
         <property name="location">
-            <value>/sakai_messagecenter/atdk.html</value>
+            <value>/sakai_forums/atdk.html</value>
         </property>
     </bean>
     <bean id="mcView" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -56,7 +67,7 @@
             <value>View Discussion Forums</value>
         </property>
         <property name="location">
-            <value>/sakai_messagecenter/asbe.html</value>
+            <value>/sakai_forums/asbe.html</value>
         </property>
     </bean>
     <bean id="mcPost" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -67,7 +78,7 @@
             <value>Post and respond to Discussion Forum messages</value>
         </property>
         <property name="location">
-            <value>/sakai_messagecenter/asyy.html</value>
+            <value>/sakai_forums/asyy.html</value>
         </property>
     </bean>
     <bean id="mcGrade" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -78,51 +89,18 @@
             <value>Grade responses in Discussion Forums</value>
         </property>
         <property name="location">
-            <value>/sakai_messagecenter/augf.html</value>
+            <value>/sakai_forums/augf.html</value>
         </property>
     </bean>
-    <bean id="mcActivatePm" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <bean id="mcNotification" class="org.sakaiproject.component.app.help.model.ResourceBean">
         <property name="docId">
-            <value>atzf</value>
+            <value>auut</value>
         </property>
         <property name="name">
-            <value>Activate Private Messages</value>
+            <value>Message notifications</value>
         </property>
         <property name="location">
-            <value>/sakai_messagecenter/atzf.html</value>
-        </property>
-    </bean>
-    <bean id="mcSendPm" class="org.sakaiproject.component.app.help.model.ResourceBean">
-        <property name="docId">
-            <value>augw</value>
-        </property>
-        <property name="name">
-            <value>Send and reply to Private Messages</value>
-        </property>
-        <property name="location">
-            <value>/sakai_messagecenter/augw.html</value>
-        </property>
-    </bean>
-    <bean id="mcViewPm" class="org.sakaiproject.component.app.help.model.ResourceBean">
-        <property name="docId">
-            <value>augv</value>
-        </property>
-        <property name="name">
-            <value>View and manage Private Messages</value>
-        </property>
-        <property name="location">
-            <value>/sakai_messagecenter/augv.html</value>
-        </property>
-    </bean>
-    <bean id="mcSearchPm" class="org.sakaiproject.component.app.help.model.ResourceBean">
-        <property name="docId">
-            <value>atrg</value>
-        </property>
-        <property name="name">
-            <value>Search Private Messages</value>
-        </property>
-        <property name="location">
-            <value>/sakai_messagecenter/atrg.html</value>
+            <value>/sakai_forums/auut.html</value>
         </property>
     </bean>
     
@@ -134,21 +112,19 @@
             <list>
                 <bean id="massageForumsCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
                     <property name="name">
-                        <value>Message Center</value>
+                        <value>Forums</value>
                     </property>
                     <property name="resources">
                         <list>
                             <ref bean="mcOverview"/>
                             <ref bean="mcCreateForumTopic"/>
+                            <ref bean="mcChangeOrder"/>
                             <ref bean="mcPermissions"/>
                             <ref bean="mcRevise"/>
                             <ref bean="mcView"/>
                             <ref bean="mcPost"/>
                             <ref bean="mcGrade" />
-                            <ref bean="mcActivatePm" />
-                            <ref bean="mcSendPm" />
-                            <ref bean="mcViewPm" />
-                            <ref bean="mcSearchPm" />
+                            <ref bean="mcNotification" />
                         </list>
                     </property>
                 </bean>
