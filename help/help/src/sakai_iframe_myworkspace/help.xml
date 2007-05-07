@@ -9,6 +9,12 @@
       <property name="defaultForTool"><value>sakai.iframe.myworkspace</value></property>
    </bean>
    
+   <bean id="customizeTabs" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arox</value></property>
+      <property name="name"><value>Show, hide and order sites</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/arox.html</value></property>
+   </bean>
+   
    <bean id="changeNotificationPreferences" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>aqzv</value></property>
       <property name="name"><value>Change Notification Preferences</value></property>
@@ -127,6 +133,8 @@
                   <list>
                      <ref bean="workspaceOverview"/>
                      <ref bean="clickBackButton"/>
+                     <ref bean="modifyProfile"/>
+                     <ref bean="searchUserProfile"/>
                      <ref bean="setMOD"/>
                      <ref bean="changeWorkspace"/>
                      <ref bean="membershipOverview"/>
@@ -139,10 +147,9 @@
                      <ref bean="worksiteSetupPublish"/>
                      <ref bean="worksiteSetupChangeRoles"/>
                      <ref bean="worksiteSetupEditInfo"/>
-                     <ref bean="modifyProfile"/>
-                     <ref bean="searchUserProfile"/>
                      <ref bean="preferencesOverview"/>
                      <ref bean="changeNotificationPreferences"/>
+                     <ref bean="customizeTabs"/>
                   </list>
                </property>
             </bean>
