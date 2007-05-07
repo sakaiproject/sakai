@@ -102,6 +102,9 @@
         <property name="location">
             <value>/sakai_forums/auut.html</value>
         </property>
+	<property name="defaultForTool">
+		<value>sakai.synoptic.messagecenter</value>
+	</property>
     </bean>
     
     <bean id="org.sakaiproject.api.app.help.TableOfContents" class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
