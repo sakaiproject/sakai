@@ -348,6 +348,15 @@
 				<war.bundle>false</war.bundle>
 			</properties>
 		</dependency>
+		
+		<dependency>
+			<id>sakaiproject</id>
+			<artifactId>sakai-user-api</artifactId>
+			<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>false</war.bundle>
+			</properties>
+		</dependency>
 
 		<!-- Sakai tag library -->
 		<dependency>
