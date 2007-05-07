@@ -15,10 +15,10 @@
 </jsp:useBean>
 
 <f:view>
-<sakai:script contextBase="/sakai-jsf-resource/" path="/inputColor/inputColor.js"/>
-<sakai:script contextBase="/sakai-jsf-resource" path="/hideDivision/hideDivision.js"/>
-<sakai:script path="/summary-calendar/js/calendar-summary.js"/>
 <sakai:view title="#{msgs.tool_title}">
+	<sakai:script contextBase="/sakai-jsf-resource/" path="/inputColor/inputColor.js"/>
+	<sakai:script contextBase="/sakai-jsf-resource" path="/hideDivision/hideDivision.js"/>
+	<sakai:script path="/summary-calendar/js/calendar-summary.js"/>
 
 	<h3><h:outputText value="#{msgs.menu_prefs}"/></h3>
 	<sakai:instruction_message value="#{msgs.instructions_preferences}" />
