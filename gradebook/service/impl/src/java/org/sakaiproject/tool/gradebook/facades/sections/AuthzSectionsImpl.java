@@ -27,10 +27,12 @@ import java.util.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
+import org.sakaiproject.site.api.Group;
 
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.Authz;
@@ -178,6 +180,31 @@ public class AuthzSectionsImpl implements Authz {
 		}
 
 		return enrollments;
+	}
+	
+	public List findStudentSectionMemberships(String gradebookUid, String studentUid) {
+		List sectionMemberships = new ArrayList();
+		try {
+			sectionMemberships = (List)org.sakaiproject.site.cover.SiteService.getSite(gradebookUid).getGroupsWithMember(studentUid);
+    	} catch (IdUnusedException e) {
+    		log.error("No site with id = " + gradebookUid);
+    	}
+    	
+    	return sectionMemberships;
+	}
+	
+	public List getStudentSectionMembershipNames(String gradebookUid, String studentUid) {
+		List sectionNames = new ArrayList();
+		List sections = findStudentSectionMemberships(gradebookUid, studentUid);
+		if (sections != null && !sections.isEmpty()) {
+			Iterator sectionIter = sections.iterator();
+			while (sectionIter.hasNext()) {
+				Group myGroup = (Group) sectionIter.next();
+				sectionNames.add(myGroup.getTitle());
+			}
+		}
+		
+		return sectionNames;
 	}
 
 	public Authn getAuthn() {

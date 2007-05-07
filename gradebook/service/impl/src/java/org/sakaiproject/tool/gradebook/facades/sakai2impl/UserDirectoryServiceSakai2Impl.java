@@ -45,4 +45,14 @@ public class UserDirectoryServiceSakai2Impl implements UserDirectoryService {
             throw new UnknownUserException("Unknown uid: " + userUid);
         }
     }
+    
+    public String getUserEmailAddress(String userUid) throws UnknownUserException {
+    	try {
+            org.sakaiproject.user.api.User sakaiUser =
+            	org.sakaiproject.user.cover.UserDirectoryService.getUser(userUid);
+            return sakaiUser.getEmail();
+        } catch (UserNotDefinedException e) {
+            throw new UnknownUserException("Unknown uid: " + userUid);
+        }
+    }
 }

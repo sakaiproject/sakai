@@ -75,4 +75,20 @@ public interface Authz {
 	 *  an EnrollmentRecord list for all matching available students.
 	 */
 	public List findMatchingEnrollments(String gradebookUid, String searchString, String optionalSectionUid);
+	
+	/**
+	 * 
+	 * @param gradebookUid
+	 * @param studentUid
+	 * @return a list of all section memberships for the given studentUid
+	 */
+	public List findStudentSectionMemberships(String gradebookUid, String studentUid);
+	
+	/**
+	 * 
+	 * @param gradebookUid
+	 * @param studentUid
+	 * @return a list of the section membership names for the give studentUid
+	 */
+	public List getStudentSectionMembershipNames(String gradebookUid, String studentUid);
 }

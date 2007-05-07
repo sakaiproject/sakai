@@ -28,6 +28,7 @@ import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.component.section.support.UserManager;
 import org.sakaiproject.service.gradebook.shared.UnknownUserException;
 import org.sakaiproject.tool.gradebook.facades.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 
 public class UserDirectoryServiceStandaloneSectionsImpl implements UserDirectoryService {
     private static final Log log = LogFactory.getLog(UserDirectoryServiceStandaloneSectionsImpl.class);
@@ -39,6 +40,17 @@ public class UserDirectoryServiceStandaloneSectionsImpl implements UserDirectory
     		throw new UnknownUserException("Unknown uid: " + userUid);
     	}
     	return user.getDisplayName();
+    }
+    
+    public String getUserEmailAddress(final String userUid) throws UnknownUserException {
+    	// the CourseManagement User does not include email address, so retrieve Sakai user
+    	try {
+            org.sakaiproject.user.api.User sakaiUser =
+            	org.sakaiproject.user.cover.UserDirectoryService.getUser(userUid);
+            return sakaiUser.getEmail();
+        } catch (UserNotDefinedException e) {
+            throw new UnknownUserException("Unknown uid: " + userUid);
+        }
     }
 
 	public UserManager getUserManager() {

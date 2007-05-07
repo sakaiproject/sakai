@@ -86,8 +86,8 @@ public abstract class EnrollmentTableBean
         }
     };
 
-	private static final int ALL_SECTIONS_SELECT_VALUE = -1;
-	private static final int ALL_CATEGORIES_SELECT_VALUE = -1;
+	public static final int ALL_SECTIONS_SELECT_VALUE = -1;
+	public static final int ALL_CATEGORIES_SELECT_VALUE = -1;
 
     private static Map columnSortMap;
     private String searchString;
@@ -305,6 +305,8 @@ public abstract class EnrollmentTableBean
 		if (filterValue == ALL_SECTIONS_SELECT_VALUE) {
 			return null;
 		} else {
+			if (availableSections == null) 
+				availableSections = getAvailableSections();
 			CourseSection section = (CourseSection)availableSections.get(filterValue);
 			return section.getUuid();
 		}
@@ -381,6 +383,8 @@ public abstract class EnrollmentTableBean
 
     // Map grader UIDs to grader names for the grading event log.
     public String getGraderNameForId(String graderId) {
+    	if (graderIdToNameMap == null)
+    		graderIdToNameMap = new HashMap();
 		String graderName = (String)graderIdToNameMap.get(graderId);
 		if (graderName == null) {
 			try {
@@ -411,6 +415,15 @@ public abstract class EnrollmentTableBean
 		}
 
 		public String getGrade() {
+			if (grade != null) {
+				try {
+					Double gradeDouble = new Double(grade);
+					// we may have gained decimal places in the conversion from points to %
+					grade = FacesUtil.getRoundDown(gradeDouble.doubleValue(), 2) + "";
+				} catch (NumberFormatException nfe) {
+					// ignore b/c may be letter grade
+				}
+			}
 			return grade;
 		}
 

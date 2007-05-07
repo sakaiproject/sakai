@@ -50,6 +50,9 @@ public class PreferencesBean {
 
     private String courseGradeDetailsTableSortColumn;
     private boolean courseGradeDetailsTableSortAscending;
+    
+    private Integer assignmentDetailsTableSelectedSectionFilter;  
+    private Integer rosterTableSelectedSectionFilter;
 
     private int defaultMaxDisplayedScoreRows;
 
@@ -75,6 +78,10 @@ public class PreferencesBean {
 
         courseGradeDetailsTableSortAscending = true;
         courseGradeDetailsTableSortColumn = SORT_BY_NAME;
+        
+        assignmentDetailsTableSelectedSectionFilter = new Integer(EnrollmentTableBean.ALL_SECTIONS_SELECT_VALUE);
+        
+        rosterTableSelectedSectionFilter = new Integer(EnrollmentTableBean.ALL_SECTIONS_SELECT_VALUE);
 
         defaultMaxDisplayedScoreRows = 50;
     }
@@ -156,6 +163,23 @@ public class PreferencesBean {
     public void setCourseGradeDetailsTableSortColumn(
             String courseGradeDetailsTableSortColumn) {
         this.courseGradeDetailsTableSortColumn = courseGradeDetailsTableSortColumn;
+    }
+    
+    // Assignment details table filter by section
+    public Integer getAssignmentDetailsTableSectionFilter() {
+        return assignmentDetailsTableSelectedSectionFilter;
+    }
+    public void setAssignmentDetailsTableSectionFilter(
+            Integer assignmentDetailsTableSelectedSectionFilter) {
+        this.assignmentDetailsTableSelectedSectionFilter = assignmentDetailsTableSelectedSectionFilter;
+    }
+    
+    // Roster table filter by section
+    public Integer getRosterTableSectionFilter() {
+        return rosterTableSelectedSectionFilter;
+    }
+    public void setRosterTableSectionFilter(Integer rosterTableSelectedSectionFilter) {
+        this.rosterTableSelectedSectionFilter = rosterTableSelectedSectionFilter;
     }
 }
 

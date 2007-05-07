@@ -44,5 +44,7 @@ public interface UserDirectoryService {
      *    getCurrentUserDisplayName() method.
      */
     public String getUserDisplayName(String userUid) throws UnknownUserException;
+    
+    public String getUserEmailAddress(String userUid) throws UnknownUserException;
 }
 

@@ -53,7 +53,7 @@ public class NontrailingDoubleConverter extends NumberConverter {
 		Object number = super.getAsObject(context, component, value);
 		if (number != null) {
 			if (number instanceof Long) {
-				number = new Double(((Long)number).doubleValue());
+				number = new Double(FacesUtil.getRoundDown(((Long)number).doubleValue(), 2));
 			}
 		}
 		return number;

@@ -174,6 +174,8 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 	}
 
 	protected void init() {
+		// set the roster filter
+		super.setSelectedSectionFilterValue(this.getSelectedSectionFilterValue());
 		super.init();
 		//get array to hold columns
 		gradableObjectColumns = new ArrayList();
@@ -503,6 +505,15 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
     }
     public void setSortColumn(String sortColumn) {
         getPreferencesBean().setRosterTableSortColumn(sortColumn);
+    }
+    
+    // Filtering
+    public Integer getSelectedSectionFilterValue() {
+        return getPreferencesBean().getRosterTableSectionFilter();
+    }
+    public void setSelectedSectionFilterValue(Integer rosterTableSectionFilter) {
+        getPreferencesBean().setRosterTableSectionFilter(rosterTableSectionFilter);
+        super.setSelectedSectionFilterValue(rosterTableSectionFilter);
     }
     
     public CourseGrade getAvgCourseGrade() {

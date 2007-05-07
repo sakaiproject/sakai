@@ -49,7 +49,7 @@ import org.sakaiproject.tool.gradebook.ui.AssignmentGradeRow;
  * instructor and student views. Based upon original StudentViewBean
  *
  */
-public class ViewByStudentBean extends GradebookDependentBean implements Serializable {
+public class ViewByStudentBean extends EnrollmentTableBean implements Serializable {
 	private static Log logger = LogFactory.getLog(ViewByStudentBean.class);
 
     // View maintenance fields - serializable.
@@ -68,7 +68,6 @@ public class ViewByStudentBean extends GradebookDependentBean implements Seriali
 
     private StringBuffer rowStyles;
     private Map commentMap;
-    private Map graderIdToNameMap;
 
     private List gradebookItems;
     private String studentUid;
@@ -76,11 +75,11 @@ public class ViewByStudentBean extends GradebookDependentBean implements Seriali
 
     private static final Map columnSortMap;
     private static final String SORT_BY_NAME = "name";
-    private static final String SORT_BY_DATE = "dueDate";
-    private static final String SORT_BY_POINTS_POSSIBLE = "pointsPossible";
-    private static final String SORT_BY_POINTS_EARNED = "pointsEarned";
-    private static final String SORT_BY_GRADE = "grade";
-    private static final String SORT_BY_ITEM_VALUE = "itemValue";
+    protected static final String SORT_BY_DATE = "dueDate";
+    protected static final String SORT_BY_POINTS_POSSIBLE = "pointsPossible";
+    protected static final String SORT_BY_POINTS_EARNED = "pointsEarned";
+    protected static final String SORT_BY_GRADE = "grade";
+    protected static final String SORT_BY_ITEM_VALUE = "itemValue";
     public static Comparator nameComparator;
     public static Comparator dateComparator;
     public static Comparator pointsPossibleComparator;
@@ -188,8 +187,6 @@ public class ViewByStudentBean extends GradebookDependentBean implements Seriali
     	
     	courseGradeReleased = gradebook.isCourseGradeDisplayed();
     	assignmentsReleased = gradebook.isAssignmentsDisplayed();
-    	
-    	graderIdToNameMap = new HashMap();
 
     	// Reset the row styles
     	rowStyles = new StringBuffer();
@@ -259,20 +256,6 @@ public class ViewByStudentBean extends GradebookDependentBean implements Seriali
      */
     public void setUserDisplayName(String userDisplayName) {
     	this.userDisplayName = userDisplayName;
-    }
-
-    // Delegated sort methods
-    public String getAssignmentSortColumn() {
-        return getPreferencesBean().getAssignmentSortColumn();
-    }
-    public void setAssignmentSortColumn(String assignmentSortColumn) {
-        getPreferencesBean().setAssignmentSortColumn(assignmentSortColumn);
-    }
-    public boolean isAssignmentSortAscending() {
-        return getPreferencesBean().isAssignmentSortAscending();
-    }
-    public void setAssignmentSortAscending(boolean sortAscending) {
-        getPreferencesBean().setAssignmentSortAscending(sortAscending);
     }
 
     // Sorting
@@ -602,47 +585,6 @@ public class ViewByStudentBean extends GradebookDependentBean implements Seriali
     			}
     		}
     	}
-    }
-    
-    //  Support grading event logs. - from EnrollmentTableBean but didn't want to
-    // 	initialize filtering
-    public class GradingEventRow implements Serializable {
-		private Date date;
-		private String graderName;
-		private String grade;
-
-		public GradingEventRow(GradingEvent gradingEvent) {
-			date = gradingEvent.getDateGraded();
-			grade = gradingEvent.getGrade();
-			graderName = getGraderNameForId(gradingEvent.getGraderId());
-		}
-
-		public Date getDate() {
-			return date;
-		}
-
-		public String getGrade() {
-			return grade;
-		}
-
-		public String getGraderName() {
-			return graderName;
-		}
-    }
-    
-    //  Map grader UIDs to grader names for the grading event log.
-    public String getGraderNameForId(String graderId) {
-		String graderName = (String)graderIdToNameMap.get(graderId);
-		if (graderName == null) {
-			try {
-				graderName = getUserDirectoryService().getUserDisplayName(graderId);
-			} catch (UnknownUserException e) {
-				logger.warn("Unable to find grader with uid=" + graderId);
-				graderName = graderId;
-			}
-			graderIdToNameMap.put(graderId, graderName);
-		}
-		return graderName;
     }
 }
 

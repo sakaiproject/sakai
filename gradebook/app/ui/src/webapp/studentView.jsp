@@ -24,6 +24,7 @@
 					</h:outputFormat>
 					<f:param name="studentUid" value="#{studentViewBean.studentUidToView}" />
 					<f:param name="returnToPage" value="#{studentViewBean.instViewReturnToPage}" />
+					<f:param name="assignmentId" value="#{studentViewBean.instViewAssignmentId}" />
 				</h:commandLink>
 			</h:panelGroup>
 		</h:panelGrid>

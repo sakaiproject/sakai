@@ -144,7 +144,9 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 			workInProgress = false;
 			return;
 		}
-
+		
+		// set the filter value for this page
+		super.setSelectedSectionFilterValue(this.getSelectedSectionFilterValue());
 		super.init();
 
         // Clear view state.
@@ -310,6 +312,15 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
     }
     public boolean isCategorySortAscending() {
         return getPreferencesBean().isCategorySortAscending();
+    }
+    
+    //  Filtering
+    public Integer getSelectedSectionFilterValue() {
+        return getPreferencesBean().getAssignmentDetailsTableSectionFilter();
+    }
+    public void setSelectedSectionFilterValue(Integer assignmentDetailsTableSectionFilter) {
+        getPreferencesBean().setAssignmentDetailsTableSectionFilter(assignmentDetailsTableSectionFilter);
+        super.setSelectedSectionFilterValue(assignmentDetailsTableSectionFilter);
     }
 
 	/**

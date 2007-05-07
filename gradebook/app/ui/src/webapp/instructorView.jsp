@@ -26,6 +26,7 @@
 				</h:outputFormat>
 				<f:param name="studentUidToView" value="#{instructorViewBean.studentUid}" />
 				<f:param name="instViewReturnToPage" value="#{instructorViewBean.returnToPage}" />
+				<f:param name="instViewAssignmentId" value="#{instructorViewBean.assignmentId}" />
 			</h:commandLink>
 		</h:panelGrid>
 		
@@ -45,13 +46,11 @@
 					<f:param name="studentUid" value="#{instructorViewBean.previousStudent.user.userUid}"/>
 				</h:commandButton>
 			
-			<h:commandLink
-				action="#{instructorViewBean.getReturnToPage}"
-				value="#{instructorViewBean.returnToPageName}"
+			<h:commandButton
+				action="roster"
+				value="#{msgs.inst_view_return_to}"
 				accesskey="l"
-				tabindex="6" >
-					<f:param name="assignmentId" value="#{instructorViewBean.assignmentId}"/>
-				</h:commandLink>
+				tabindex="6" />
 			
 			<h:commandButton
 				disabled="#{instructorViewBean.last}"
@@ -63,6 +62,25 @@
 					<f:param name="studentUid" value="#{instructorViewBean.nextStudent.user.userUid}"/>
 			</h:commandButton>
 		</div>
+		
+		<h:panelGrid cellpadding="0" cellspacing="0"
+			columns="2"
+			columnClasses="itemName"
+			styleClass="itemSummary gbSection">	
+			<h:outputText value="#{msgs.inst_view_name}" />
+			<h:outputText value="#{instructorViewBean.userDisplayName}" />
+			
+			<h:outputText value="#{msgs.inst_view_email}" />
+			<h:outputText value="#{instructorViewBean.studentEmailAddress}" />
+			
+			<h:outputText value="#{msgs.inst_view_id}" />
+			<h:outputText value="#{instructorViewBean.currentStudent.user.displayId}" />
+			
+			<h:outputText value="#{msgs.inst_view_sections}"/>
+			<h:outputText value="#{instructorViewBean.studentSections}"/>
+		</h:panelGrid>
+		
+		<hr/>
 		
 		<h:panelGrid cellpadding="0" cellspacing="0"
 			columns="2"
@@ -92,7 +110,7 @@
 				var="row"
         sortColumn="#{instructorViewBean.sortColumn}"
 				sortAscending="#{instructorViewBean.sortAscending}"
-				columnClasses="attach,left,left,center,center,center,center,center,external"
+				columnClasses="attach,left,left,center,center,center,center,center,left,external"
 				rowClasses="#{instructorViewBean.rowStyles}"
 				headerClasses="attach,gbHeader,gbHeader,gbHeader,gbHeader,gbHeader,gbHeader,gbHeader,gbHeader"
 				styleClass="listHier narrowerTable"
@@ -211,7 +229,9 @@
 						</t:commandSortHeader>
         	</f:facet>
         	
-        	<h:outputText value="#{row.associatedAssignment.pointsPossible}" rendered="#{row.assignment}" />
+        	<h:outputText value="#{row.associatedAssignment.pointsPossible}" rendered="#{row.assignment}">
+        		<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS"/>
+        	</h:outputText>
         </h:column>
         
         <h:column rendered="#{instructorViewBean.gradeEntryByPercent}">

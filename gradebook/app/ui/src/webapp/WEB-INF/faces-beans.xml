@@ -95,6 +95,10 @@
 			<property-name>instViewReturnToPage</property-name>
 			<value>#{param.instViewReturnToPage}</value>
 		</managed-property>
+		<managed-property>
+			<property-name>instViewAssignmentId</property-name>
+			<value>#{param.instViewAssignmentId}</value>
+		</managed-property>
 	</managed-bean>
 	
 	<managed-bean>

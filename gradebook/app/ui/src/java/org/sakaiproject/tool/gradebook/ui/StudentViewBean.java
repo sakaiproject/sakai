@@ -32,6 +32,7 @@ public class StudentViewBean extends ViewByStudentBean implements Serializable {
 	
 	private String studentUidToView;
 	private String instViewReturnToPage;
+	private String instViewAssignmentId;
 
 	public void init() {
 
@@ -67,6 +68,17 @@ public class StudentViewBean extends ViewByStudentBean implements Serializable {
 	}
 	public String getInstViewReturnToPage() {
 		return instViewReturnToPage;
+	}
+	/**
+	 * To return to the inst view, we need to keep track of the original
+	 * assignmentId parameter
+	 * @param instViewReturnToPage
+	 */
+	public void setInstViewAssignmentId(String instViewAssignmentId) {
+		this.instViewAssignmentId = instViewAssignmentId;
+	}
+	public String getInstViewAssignmentId() {
+		return instViewAssignmentId;
 	}
 }
 
