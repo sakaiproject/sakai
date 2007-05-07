@@ -31,7 +31,7 @@ public class SherlockSearchBeanImpl implements SherlockSearchBean
 
 	private static final String IMAGE_ICON = "/images/sherlock.gif";
 
-	private static final String UPDATE_URL = "/sakai.scr";
+	private static final String UPDATE_URL = "/sakai.src";
 
 	private static final String UPDATE_IMAGE = "/sakai.gif";
 
