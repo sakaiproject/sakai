@@ -57,6 +57,12 @@
       <property name="location"><value>/sakai_resources/atkh.html</value></property>
    </bean>
 
+   <bean id="findURL" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>auen</value></property>
+      <property name="name"><value>Find the URL of an item</value></property>
+      <property name="location"><value>/sakai_resources/auen.html</value></property>
+   </bean>
+
    <bean id="moveResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>arex</value></property>
       <property name="name"><value>Move item</value></property>
@@ -91,6 +97,18 @@
       <property name="docId"><value>arfd</value></property>
       <property name="name"><value>View item details</value></property>
       <property name="location"><value>/sakai_resources/arfd.html</value></property>
+   </bean>
+
+   <bean id="changePermissions" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>audh</value></property>
+      <property name="name"><value>Change folder permissions</value></property>
+      <property name="location"><value>/sakai_resources/audh.html</value></property>
+   </bean>
+
+   <bean id="unHide" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>auta</value></property>
+      <property name="name"><value>Make an item visible again</value></property>
+      <property name="location"><value>/sakai_resources/auta.html</value></property>
    </bean>
 
    <bean id="webDavOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -131,10 +149,13 @@
                      <ref bean="usingText"/>
                      <ref bean="usingCitation"/>
                      <ref bean="makePublic"/>
+                     <ref bean="findURL"/>
                      <ref bean="moveResource"/>
                      <ref bean="copyResource"/>
                      <ref bean="deleteResource"/>
                      <ref bean="sortResource"/>
+                     <ref bean="changePermissions"/>
+                     <ref bean="unHide"/>
                      <ref bean="webDavOverview"/>
                      <ref bean="winxpAccess"/>
                      <ref bean="macAccess"/>
