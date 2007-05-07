@@ -15,6 +15,19 @@
       <property name="location"><value>/sakai_siteinfo/araw.html</value></property>
    </bean>
    
+   <bean id="editTools" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ardx</value></property>
+      <property name="name"><value>Add or remove tools</value></property>
+      <property name="location"><value>/sakai_siteinfo/ardx.html</value></property>
+   </bean>
+   
+   <bean id="manageGroups" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>atcs</value></property>
+      <property name="name"><value>Manage Groups</value></property>
+      <property name="location"><value>/sakai_siteinfo/atcs.html</value></property>
+   </bean>
+   
+   <bean id="addRemoveParticipant" class="org.sakaiproject.component.app.help.model.ResourceBean">
    <bean id="grantGlobalAccess" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>arci</value></property>
       <property name="name"><value>Control Access</value></property>
@@ -93,6 +106,8 @@
                   <list>
                      <ref bean="siteInfo"/>
                      <ref bean="editASite"/>
+                     <ref bean="editTools"/>
+                     <ref bean="manageGroups"/>
                      <ref bean="grantGlobalAccess"/>
                      <ref bean="addRemoveParticipant"/>
                      <ref bean="permissionRoleOverview"/>
