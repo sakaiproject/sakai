@@ -6,7 +6,7 @@
             <value>asax</value>
         </property>
         <property name="name">
-            <value>Message Center Overview</value>
+            <value>Forums Overview</value>
         </property>
         <property name="location">
             <value>/sakai_forums/asax.html</value>
@@ -20,7 +20,7 @@
             <value>asci</value>
         </property>
         <property name="name">
-            <value>Create forums and topics in Discussion Forums</value>
+            <value>Create forums and topics in Forums</value>
         </property>
         <property name="location">
             <value>/sakai_forums/asci.html</value>
@@ -42,7 +42,7 @@
             <value>atdt</value>
         </property>
         <property name="name">
-            <value>Modify Discussion Forum permissions</value>
+            <value>Control access to Forums</value>
         </property>
         <property name="location">
             <value>/sakai_forums/atdt.html</value>
@@ -64,7 +64,7 @@
             <value>asbe</value>
         </property>
         <property name="name">
-            <value>View Discussion Forums</value>
+            <value>View Forums</value>
         </property>
         <property name="location">
             <value>/sakai_forums/asbe.html</value>
@@ -75,7 +75,7 @@
             <value>asyy</value>
         </property>
         <property name="name">
-            <value>Post and respond to Discussion Forum messages</value>
+            <value>Post and respond to Forum messages</value>
         </property>
         <property name="location">
             <value>/sakai_forums/asyy.html</value>
@@ -86,7 +86,7 @@
             <value>augf</value>
         </property>
         <property name="name">
-            <value>Grade responses in Discussion Forums</value>
+            <value>Grade messages in Forums</value>
         </property>
         <property name="location">
             <value>/sakai_forums/augf.html</value>
@@ -110,7 +110,7 @@
         </property>
         <property name="categories">
             <list>
-                <bean id="massageForumsCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+                <bean id="forumsCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
                     <property name="name">
                         <value>Forums</value>
                     </property>
