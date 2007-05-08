@@ -569,7 +569,8 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
     	}
 
 		Map filteredGradesMap = new HashMap();
-    	List gradeRecords = getGradebookManager().getAllAssignmentGradeRecords(getGradebookId(), studentUids);
+		List gradeRecords = getGradebookManager().getAllAssignmentGradeRecordsConverted(getGradebookId(), studentUids);
+
         getGradebookManager().addToGradeRecordMap(filteredGradesMap, gradeRecords);
         
 		List gradableObjects = getGradebookManager().getAssignments(getGradebookId());
@@ -636,9 +637,15 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         		if (studentMap != null) {
         			AbstractGradeRecord gradeRecord = (AbstractGradeRecord)studentMap.get(((GradableObject)gradableObject).getId()); 
         			if (gradeRecord != null) {
-        				score = gradeRecord.getPointsEarned();
+        				if (gradeRecord.isCourseGradeRecord() && getGradeEntryByPercent()) {
+        					score = gradeRecord.getGradeAsPercentage();
+        				} else {
+        					score = gradeRecord.getPointsEarned();
+        				}
         			}
         		}
+        		if (score != null)
+        			score = new Double(FacesUtil.getRoundDown(score.doubleValue(), 2));
     			row.add(score);
         	}
         	spreadsheetData.add(row);

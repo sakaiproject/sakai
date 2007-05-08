@@ -463,6 +463,20 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         };
         return (List)getHibernateTemplate().execute(hc);
     }
+    
+    public List getAllAssignmentGradeRecordsConverted(Long gradebookId, Collection studentUids)
+    {
+    	List allAssignRecordsFromDB = getAllAssignmentGradeRecords(gradebookId, studentUids);
+    	Gradebook gradebook = getGradebook(gradebookId);
+    	if(gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS)
+    		return allAssignRecordsFromDB;
+    	else if(gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE)
+    	{
+    		return convertPointsToPercentage(gradebook, allAssignRecordsFromDB);
+    	}
+    	//TODO letter grading type?
+    	return null;
+    }
 
     /**
      * @return Returns set of student UIDs who were given scores higher than the assignment's value.
@@ -1745,9 +1759,9 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	Gradebook gradebook = getGradebook(assign.getGradebook().getId());
     	if(gradeRecordFromCall.getPointsEarned() != null)
     	{
-    		if(gradeRecordFromCall.getPointsEarned().doubleValue() / 100.0 < 0 || gradeRecordFromCall.getPointsEarned().doubleValue() / 100.0 > 1)
+    		if(gradeRecordFromCall.getPointsEarned().doubleValue() / 100.0 < 0)
     		{
-    			throw new IllegalArgumentException("point for record is greater than 1 or less than 0 for percentage points in GradebookManagerHibernateImpl.calculateDoublePointForRecord");
+    			throw new IllegalArgumentException("point for record is less than 0 for percentage points in GradebookManagerHibernateImpl.calculateDoublePointForRecord");
     		}
     		return new Double(assign.getPointsPossible().doubleValue() * (gradeRecordFromCall.getPointsEarned().doubleValue() / 100.0));
     	}

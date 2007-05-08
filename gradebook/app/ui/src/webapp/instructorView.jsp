@@ -134,10 +134,12 @@
 							<h:outputText value="#{row.associatedAssignment.name}" />
 							<f:param name="assignmentId" value="#{row.associatedAssignment.id}"/>
 						</h:commandLink>
-						<h:commandLink action="assignmentDetails" rendered="#{!row.associatedAssignment.released}" styleClass="inactive">
-							<h:outputText value="#{row.associatedAssignment.name}"/>
-							<f:param name="assignmentId" value="#{row.associatedAssignment.id}"/>
-						</h:commandLink>
+						<h:panelGroup rendered="#{!row.associatedAssignment.released}" styleClass="inactive" >
+							<h:commandLink action="assignmentDetails" >
+								<h:outputText value="#{row.associatedAssignment.name}"/>
+								<f:param name="assignmentId" value="#{row.associatedAssignment.id}"/>
+							</h:commandLink>
+						</h:panelGroup>
 					</h:panelGroup>
 					
 					<h:outputText value="#{row.name}" styleClass="categoryHeading" rendered="#{row.category}"/>
@@ -191,20 +193,11 @@
 						<h:panelGroup rendered="#{row.assignment}">
 							<h:outputText value="#{msgs.inst_view_not_counted_open}" rendered="#{!row.associatedAssignment.counted}" />
 							
-							<h:inputText id="ScorePoints" value="#{row.score}" size="4" 
-								 rendered="#{!row.associatedAssignment.externallyMaintained && instructorViewBean.gradeEntryByPoints}"
+							<h:inputText id="Score" value="#{row.score}" size="4" 
+								 rendered="#{!row.associatedAssignment.externallyMaintained}"
 								 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 								<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
 								<f:validateDoubleRange minimum="0"/>
-								<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
-							</h:inputText>
-							
-							<h:inputText id="ScorePercent" value="#{row.score}" size="4" 
-								rendered="#{!row.associatedAssignment.externallyMaintained && instructorViewBean.gradeEntryByPercent}" 
-								style="text-align:right;"	onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
-								<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
-								<f:validateDoubleRange minimum="0"/>
-								<f:validateDoubleRange maximum="100"/>
 								<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
 							</h:inputText>
 							
@@ -244,8 +237,7 @@
 	        <f:facet name="header">
 	        	<h:outputText value="#{msgs.inst_view_comments}"/>
 	        </f:facet>
-	        <h:message for="ScorePoints" styleClass="validationEmbedded gbMessageAdjustForContent"/>
-					<h:message for="ScorePercent" styleClass="validationEmbedded gbMessageAdjustForContent"/>
+	        <h:message for="Score" styleClass="validationEmbedded gbMessageAdjustForContent"/>
 	        <h:outputText value="#{row.commentText}" rendered="#{row.assignment && row.commentText != null}" />
 		    </h:column>
 		    

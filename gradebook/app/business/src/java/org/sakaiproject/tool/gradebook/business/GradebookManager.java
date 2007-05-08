@@ -131,6 +131,15 @@ public interface GradebookManager {
      * @param studentUids
      */
     public List getAllAssignmentGradeRecords(Long gradebookId, Collection studentUids);
+    
+    /**
+     * Gets all grade records that belong to a collection of enrollments in a gradebook and
+     * converts the grade returned based upon the grade entry type.
+     * @param gradebookId
+     * @param studentUids
+     * @return
+     */
+    public List getAllAssignmentGradeRecordsConverted(Long gradebookId, Collection studentUids);
 
     /**
      * Gets whether there are explicitly entered course grade records in a gradebook.

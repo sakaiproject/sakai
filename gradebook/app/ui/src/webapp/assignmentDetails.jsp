@@ -195,19 +195,11 @@
 				</f:facet>
 
 				<t:div styleClass="shorttext">
-					<h:inputText id="ScorePoints" value="#{scoreRow.score}" size="4" 
-						 rendered="#{!assignmentDetailsBean.assignment.externallyMaintained && assignmentDetailsBean.gradeEntryByPoints}"
+					<h:inputText id="Score" value="#{scoreRow.score}" size="4" 
+						 rendered="#{!assignmentDetailsBean.assignment.externallyMaintained}"
 						 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
 						<f:validateDoubleRange minimum="0"/>
-						<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
-					</h:inputText>
-					<h:inputText id="ScorePercent" value="#{scoreRow.score}" size="4" 
-						rendered="#{!assignmentDetailsBean.assignment.externallyMaintained && assignmentDetailsBean.gradeEntryByPercent}" 
-						style="text-align:right;"	onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
-						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
-						<f:validateDoubleRange minimum="0"/>
-						<f:validateDoubleRange maximum="100"/>
 						<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
 					</h:inputText>
 
@@ -230,8 +222,7 @@
 							styleClass="tier0"/>
 					</h:panelGroup>
 				</f:facet>
-				<h:message for="ScorePoints" styleClass="validationEmbedded gbMessageAdjustForContent"/>
-				<h:message for="ScorePercent" styleClass="validationEmbedded gbMessageAdjustForContent"/>
+				<h:message for="Score" styleClass="validationEmbedded gbMessageAdjustForContent"/>
 				<t:div styleClass="gbTextOnRow" rendered="#{!scoreRow.commentEditable}">
 					<h:outputText value="#{scoreRow.commentText}"/>
 				</t:div>

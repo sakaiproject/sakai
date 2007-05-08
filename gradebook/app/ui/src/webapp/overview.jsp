@@ -28,14 +28,15 @@
   	
   	<h:panelGrid cellpadding="0" cellspacing="0" columns="2"
 			columnClasses="itemName"
-			styleClass="itemSummary">
-			<h:outputText id="cumLabel" value="#{msgs.overview_avg_cum_score}" rendered="#{overviewBean.userAbleToGradeAll}"/>
-			<h:outputText id="cumScore" value="#{overviewBean.courseGrade.formattedMean}" rendered="#{overviewBean.userAbleToGradeAll}">
-				<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.PERCENTAGE" />
+			styleClass="itemSummary"
+			rendered="#{overviewBean.userAbleToGradeAll}">
+			<h:outputText id="cumLabel" value="#{msgs.overview_avg_cum_score}" />
+			<h:outputText id="cumScore" value="#{overviewBean.courseGrade}">
+				<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER" />
 			</h:outputText>
 
-			<h:outputText id="avgGradeLabel" value="#{msgs.overview_avg_course_grade}" rendered="#{overviewBean.userAbleToGradeAll}"/>
-			<h:outputText id="avgGrade" value="#{overviewBean.avgCourseGradeLetter}" rendered="#{overviewBean.userAbleToGradeAll}" />
+			<h:outputText id="avgGradeLabel" value="#{msgs.overview_avg_course_grade}"/>
+			<h:outputText id="avgGrade" value="#{overviewBean.avgCourseGradeLetter}" />
 		</h:panelGrid>
 
 		<%@include file="/inc/globalMessages.jspf"%>
@@ -73,10 +74,12 @@
 						<h:outputText value="#{gradebookItem.name}" />
 						<f:param name="assignmentId" value="#{gradebookItem.id}"/>
 					</h:commandLink>
-					<h:commandLink action="#{overviewBean.navigateToAssignmentDetails}" rendered="#{!gradebookItem.released}" styleClass="inactive">
-						<h:outputText value="#{gradebookItem.name}"/>
-						<f:param name="assignmentId" value="#{gradebookItem.id}"/>
-					</h:commandLink>
+					<h:panelGroup rendered="#{!gradebookItem.released}" styleClass="inactive">
+						<h:commandLink action="#{overviewBean.navigateToAssignmentDetails}">
+							<h:outputText value="#{gradebookItem.name}"/>
+							<f:param name="assignmentId" value="#{gradebookItem.id}"/>
+						</h:commandLink>
+					</h:panelGroup>
 				</h:panelGroup>
 				
 				<h:outputText value="#{gradebookItem.name}" styleClass="categoryHeading" rendered="#{gradebookItem.category}" />
