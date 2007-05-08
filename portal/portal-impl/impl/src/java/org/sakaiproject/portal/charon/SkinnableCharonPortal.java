@@ -27,6 +27,9 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Vector;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 
@@ -81,6 +84,7 @@ import org.sakaiproject.portal.render.cover.ToolRenderService;
 import org.sakaiproject.portal.util.ErrorReporter;
 import org.sakaiproject.portal.util.PortalSiteHelper;
 import org.sakaiproject.portal.util.ToolURLManagerImpl;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -156,6 +160,14 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	private SiteHandler siteHandler;
 
 	private String portalContext;
+
+        private String PROP_PARENT_ID = SiteService.PROP_PARENT_ID;
+        // 2.3 back port
+        // public String String PROP_PARENT_ID = "sakai:parent-id";
+
+        private String PROP_SHOW_SUBSITES  = SiteService.PROP_SHOW_SUBSITES ;
+        // 2.3 back port
+ 	// public String PROP_SHOW_SUBSITES = "sakai:show-subsites";
 
         // http://wurfl.sourceforge.net/
 	private boolean wurflLoaded = false;
@@ -319,6 +331,57 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	}
 
 	/*
+	 * Include the children of a site
+	 */
+
+    	public void includeSubSites(PortalRenderContext rcontext, HttpServletRequest req,
+			Session session, String siteId, String toolContextPath, 
+			String prefix, boolean resetTools) 
+		// throws ToolException, IOException
+	{
+		if ( siteId == null || rcontext == null ) return;
+
+		// Check the setting as to whether we are to do this
+		String pref = ServerConfigurationService.getString("portal.experimental.includesubsites");
+		if ( "never".equals(pref) ) return;
+
+		Site site = null;
+		try
+		{
+			site = siteHelper.getSiteVisit(siteId);
+		}
+		catch (Exception e)
+		{
+			return;
+		}
+		if ( site == null ) return;
+
+		ResourceProperties rp = site.getProperties();
+		String showSub = rp.getProperty(PROP_SHOW_SUBSITES);
+               	// System.out.println("Checking subsite pref:"+site.getTitle()+" pref="+pref+" show="+showSub);
+		if ( "false".equals(showSub) ) return;
+
+		if ( "false".equals(pref) )
+		{
+			if ( ! "true".equals(showSub) ) return;
+		}
+	
+		List<Site> mySites = siteHelper.getSubSites(site);
+		if ( mySites == null || mySites.size() < 1 ) return;
+
+		List l = convertSitesToMaps(req, mySites, prefix, siteId, 
+				/* myWorkspaceSiteId */ null,
+				/* includeSummary */ false, 
+				/* expandSite */ false, 
+				resetTools, 
+				/* doPages */ false, 
+				toolContextPath,
+				(session.getUserId() != null ));
+		rcontext.put("subSites", l);
+
+	}
+
+	/*
 	 * Produce a portlet like view with the navigation all at the top with
 	 * implicit reset
 	 */
@@ -368,8 +431,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			}
 
 			boolean thisTool = siteHelper.allowTool(site, placement);
-			// System.out.println(" Allow Tool Display -" +
-			// placement.getTitle() + " retval = " + thisTool);
 			if (!thisTool)
 			{
 				errorMessage = "No permission to view tool placement " + toolId;
@@ -596,6 +657,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			boolean doPages, String toolContextPath, boolean loggedIn)
 	{
 		List<Map> l = new ArrayList<Map>();
+		Map<String,Integer> depthChart = new HashMap<String,Integer>();
 		boolean motdDone = false;
 		for (Iterator i = mySites.iterator(); i.hasNext();)
 		{
@@ -604,9 +666,27 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// The first site is the current site
 			if (currentSiteId == null) currentSiteId = s.getId();
 
+			ResourceProperties rp = s.getProperties();
+			String ourParent = rp.getProperty(PROP_PARENT_ID);
+                	// System.out.println("Depth Site:"+s.getTitle()+" parent="+ourParent);
+			Integer cDepth = new Integer(0);
+			if ( ourParent != null ) 
+			{
+				Integer pDepth = depthChart.get(ourParent);
+				if ( pDepth != null ) 
+				{
+					cDepth = pDepth + 1;
+				}
+			}
+			// System.out.println("Depth = "+cDepth);
+			depthChart.put(s.getId(),cDepth);
+
 			Map m = convertSiteToMap(req, s, prefix, currentSiteId, myWorkspaceSiteId,
 					includeSummary, expandSite, resetTools, doPages, toolContextPath,
 					loggedIn);
+
+			// Add the Depth of the site
+			m.put("depth",cDepth);
 
 			if (includeSummary && m.get("rssDescription") == null)
 			{
@@ -636,9 +716,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		// In case the effective is different than the actual site
 		String effectiveSite = siteHelper.getSiteEffectiveId(s);
-		m.put("isCurrentSite", Boolean.valueOf(currentSiteId != null
-				&& (s.getId().equals(currentSiteId) || effectiveSite
-						.equals(currentSiteId))));
+
+		boolean isCurrentSite = currentSiteId != null
+                                && (s.getId().equals(currentSiteId) || effectiveSite
+                                                .equals(currentSiteId));
+		m.put("isCurrentSite", Boolean.valueOf(isCurrentSite));
 		m.put("isMyWorkspace", Boolean.valueOf(myWorkspaceSiteId != null
 				&& (s.getId().equals(myWorkspaceSiteId) || effectiveSite
 						.equals(myWorkspaceSiteId))));
@@ -647,8 +729,34 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		String siteUrl = Web.serverUrl(req)
 				+ ServerConfigurationService.getString("portalPath") + "/";
 		if (prefix != null) siteUrl = siteUrl + prefix + "/";
-		siteUrl = siteUrl + Web.escapeUrl(siteHelper.getSiteEffectiveId(s));
-		m.put("siteUrl", siteUrl);
+		// siteUrl = siteUrl + Web.escapeUrl(siteHelper.getSiteEffectiveId(s));
+		m.put("siteUrl", siteUrl + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)));
+
+		ResourceProperties rp = s.getProperties();
+		String ourParent = rp.getProperty(PROP_PARENT_ID);
+		boolean isChild = ourParent != null;
+		m.put("isChild",Boolean.valueOf(isChild) ) ;
+		m.put("parentSite",ourParent);
+
+		// Get the current site hierarchy
+		if ( isChild && isCurrentSite )
+		{
+			List<Site> pwd = getPwd(s,ourParent);
+			if ( pwd != null )
+			{
+ 				List<Map> l = new ArrayList<Map>();
+				for(int i=0;i<pwd.size(); i++ )
+				{
+					Site site = pwd.get(i);
+					// System.out.println("PWD["+i+"]="+site.getId()+" "+site.getTitle());
+					Map<String, Object> pm = new HashMap<String, Object>();
+					pm.put("siteTitle", Web.escapeHtml(site.getTitle()));
+					pm.put("siteUrl", siteUrl + Web.escapeUrl(siteHelper.getSiteEffectiveId(site)));
+					l.add(pm);
+				}
+				m.put("pwd",l);
+			}
+		}
 
 		if (includeSummary)
 		{
@@ -662,6 +770,49 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 
 		return m;
+	}
+
+	public List<Site> getPwd(Site s,String ourParent)
+	{
+		if ( ourParent == null ) return null;
+
+		// System.out.println("Getting Current Working Directory for "+s.getId()+" "+s.getTitle());
+
+		int depth = 0;
+		Vector<Site> pwd = new Vector<Site>();
+		Set<String> added = new HashSet<String>();
+
+		// Add us to the list at the top (will become the end)
+		pwd.add(s);  
+		added.add(s.getId());
+
+		// Make sure we don't go on forever
+		while( ourParent != null && depth < 8 ) 
+		{
+			depth++;
+			Site site = null;
+			try
+			{
+				site = SiteService.getSiteVisit(ourParent);
+			}
+			catch (Exception e)
+			{
+				break; 
+			}
+			// We have no patience with loops
+			if ( added.contains(site.getId()) ) break; 
+
+			// System.out.println("Adding Parent "+site.getId()+" "+site.getTitle());
+			pwd.insertElementAt(site,0);  // Push down stack
+			added.add(site.getId());
+
+			ResourceProperties rp = site.getProperties();
+			ourParent = rp.getProperty(PROP_PARENT_ID);
+		}
+
+		// PWD is only defined for > 1 site
+		if ( pwd.size() < 2 ) return null;
+		return pwd;
 	}
 
 	/**

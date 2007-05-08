@@ -313,6 +313,26 @@ ${responseHead}
 	</div>
 #end	
 </div>
+<ul id="siteHierarchy"> 
+#foreach ( $site in $tabsSites)
+  #if (${site.isCurrentSite})
+    #if ( $site.isChild )
+      <!-- Experimental breadcrumbs - need formatting -->
+      #set ($tabCountBread =0)
+      #foreach ( $pwd in $site.pwd )
+          #set ($tabCountBread =$tabCountBread + 1)       
+          <li>
+          #if ($tabCountBread > 1)
+                <span class="breadSeparator">${rloader.bread_separator}</span>
+          #end
+          ## note: keep all the tags in this block in the same line 
+                <a href="${pwd.siteUrl}" title="${pwd.siteTitle}"><span>${pwd.siteTitle}</span></a>
+                  </li>
+      #end
+    #end
+  #end
+#end
+</ul>
 <!-- end includeTabs -->
 #end
 ##------------------------------------------------------------------------------------------
@@ -383,6 +403,15 @@ ${responseHead}
    #end
   #end
 #end
+    #if ( $subSites ) 
+        #foreach ( $site in $subSites ) 
+          <li>
+             <a href="${site.siteUrl}" title="${site.siteTitle}">
+             <span>${site.siteTitle}</span>
+             </a>
+         </li>
+       #end
+    #end
 #if (${sitePages.pageNavShowHelp})
 				<li>
 				<a  accesskey="6" href="${sitePages.pageNavHelpUrl}" target="_blank" 

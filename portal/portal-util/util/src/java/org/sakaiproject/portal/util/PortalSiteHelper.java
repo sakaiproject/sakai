@@ -25,7 +25,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Vector;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
@@ -68,6 +72,10 @@ public class PortalSiteHelper
 {
 
 	private static final Log log = LogFactory.getLog(PortalSiteHelper.class);
+
+	private final String PROP_PARENT_ID = SiteService.PROP_PARENT_ID;
+	// 2.3 back port
+	// private final String PROP_PARENT_ID = "sakai:parent-id";
 
 	// Determine if we are to do multiple tabs for the anonymous view (Gateway)
 	public boolean doGatewaySiteList()
@@ -145,9 +153,27 @@ public class PortalSiteHelper
 	}
 
 	/*
+	 * Get All Sites which indicate the current site as their parent
+	 */
+	// TODO: Move into Site
+
+	public List<Site> getSubSites(Site site)
+	{
+		if ( site == null ) return null;
+		Map<String,String> propMap = new HashMap<String,String>();
+		propMap.put(PROP_PARENT_ID,site.getId());
+		List<Site> mySites = SiteService.getSites(
+					org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null,
+					null, propMap, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC,
+					null);
+		return mySites;
+	}
+
+	/*
 	 * Get All Sites for the current user. If the user is not logged in we
-	 * return the list of publically viewable gateway sites. @param
-	 * includeMyWorkspace When this is true - include the user's My Workspace as
+	 * return the list of publically viewable gateway sites. 
+	 *
+	 * @param includeMyWorkspace When this is true - include the user's My Workspace as
 	 * the first parameter. If false, do not include the MyWorkspace anywhere in
 	 * the list. Some uses - such as the portlet styled portal or the rss styled
 	 * portal simply want all of the sites with the MyWorkspace first. Other
@@ -160,91 +186,178 @@ public class PortalSiteHelper
 	{
 
 		boolean loggedIn = session.getUserId() != null;
-
-		// Get the list of sites in the right order
 		List<Site> mySites;
+
+		// collect the Publically Viewable Sites
 		if (!loggedIn)
 		{
-			// collect the Publically Viewable Sites
 			mySites = getGatewaySites();
+			return mySites;
 		}
-		else
+	
+		// collect the user's sites
+		mySites = SiteService.getSites(
+				org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null,
+				null, null, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC,
+				null);
+
+		// collect the user's preferences
+		List prefExclude = new ArrayList();
+		List prefOrder = new ArrayList();
+		if (session.getUserId() != null)
 		{
-			// collect the user's sites
-			mySites = SiteService.getSites(
-					org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null,
-					null, null, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC,
-					null);
+			Preferences prefs = PreferencesService
+					.getPreferences(session.getUserId());
+			ResourceProperties props = prefs.getProperties("sakai:portal:sitenav");
 
-			// collect the user's preferences
-			List prefExclude = new ArrayList();
-			List prefOrder = new ArrayList();
-			if (session.getUserId() != null)
+			List l = props.getPropertyList("exclude");
+			if (l != null)
 			{
-				Preferences prefs = PreferencesService
-						.getPreferences(session.getUserId());
-				ResourceProperties props = prefs.getProperties("sakai:portal:sitenav");
-
-				List l = props.getPropertyList("exclude");
-				if (l != null)
-				{
-					prefExclude = l;
-				}
-
-				l = props.getPropertyList("order");
-				if (l != null)
-				{
-					prefOrder = l;
-				}
+				prefExclude = l;
 			}
 
-			// remove all in exclude from mySites
-			mySites.removeAll(prefExclude);
-
-			// Prepare to put sites in the right order
-			List<Site> ordered = new ArrayList<Site>();
-
-			// First, place or remove MyWorkspace as requested
-			Site myWorkspace = getMyWorkspace(session);
-			if (myWorkspace != null)
+			l = props.getPropertyList("order");
+			if (l != null)
 			{
-				if (includeMyWorkspace)
-				{
-					ordered.add(myWorkspace);
-				}
-				else
-				{
-					int pos = listIndexOf(myWorkspace.getId(), mySites);
-					if (pos != -1) mySites.remove(pos);
-				}
+				prefOrder = l;
 			}
+		}
 
-			// re-order mySites to have order first, the rest later
-			for (Iterator i = prefOrder.iterator(); i.hasNext();)
+		// remove all in exclude from mySites
+		mySites.removeAll(prefExclude);
+
+		// Prepare to put sites in the right order
+		Vector<Site> ordered = new Vector<Site>();
+		Set<String> added = new HashSet<String>();
+
+		// First, place or remove MyWorkspace as requested
+		Site myWorkspace = getMyWorkspace(session);
+		if (myWorkspace != null)
+		{
+			if (includeMyWorkspace)
 			{
-				String id = (String) i.next();
+				ordered.add(myWorkspace);
+				added.add(myWorkspace.getId());
+			}
+			else
+			{
+				int pos = listIndexOf(myWorkspace.getId(), mySites);
+				if (pos != -1) mySites.remove(pos);
+			}
+		}
 
-				// find this site in the mySites list
-				int pos = listIndexOf(id, mySites);
-				if (pos != -1)
+		// re-order mySites to have order first, the rest later
+		for (Iterator i = prefOrder.iterator(); i.hasNext();)
+		{
+			String id = (String) i.next();
+
+			// find this site in the mySites list
+			int pos = listIndexOf(id, mySites);
+			if (pos != -1)
+			{
+				// move it from mySites to order, ignoring child sites
+				Site s = mySites.get(pos);
+				ResourceProperties rp = s.getProperties();
+				String ourParent = rp.getProperty(PROP_PARENT_ID);
+				// System.out.println("Pref Site:"+s.getTitle()+" parent="+ourParent);
+				if ( ourParent == null && ! added.contains(s.getId()) )
 				{
-					// move it from mySites to order
-					Site s = mySites.get(pos);
 					ordered.add(s);
-					mySites.remove(pos);
+					added.add(s.getId());
 				}
 			}
+		}
 
-			// pick up the rest of the sites
-			ordered.addAll(mySites);
-			mySites = ordered;
-		} // End if ( loggedIn )
+		// We only do the child processing if we have less than 200 sites
+		boolean haveChildren = false;
+		int siteCount = mySites.size();
 
-		/*
-		 * for (Iterator i = mySites.iterator(); i.hasNext();) { Site s = (Site)
-		 * i.next(); System.out.println("Site:"+Web.escapeHtml(s.getTitle())+"
-		 * id="+s.getId()); }
-		 */
+		// pick up the rest of the top-level-sites
+		for(int i=0; i< mySites.size(); i++) 
+		{
+			Site s = mySites.get(i);
+			if ( added.contains(s.getId()) ) continue;
+			ResourceProperties rp = s.getProperties();
+			String ourParent = rp.getProperty(PROP_PARENT_ID);
+			// System.out.println("Top Site:"+s.getTitle()+" parent="+ourParent);
+			if ( siteCount > 200 || ourParent == null ) 
+			{
+				// System.out.println("Added at root");
+				ordered.add(s);
+				added.add(s.getId());
+			}
+			else
+			{
+				haveChildren = true;
+			}
+		}
+
+		// If and only if we have some child nodes, we repeatedly 
+		// pull up children nodes to be behind their parents
+		// This is O N**2 - so if we had thousands of sites it
+		// it would be costly - hence we only do it for < 200 sites
+		// and limited depth - that makes it O(N) not O(N**2)
+		boolean addedSites = true;
+		int depth = 0;
+		while ( depth < 20 && addedSites && haveChildren ) 
+		{
+			depth++;
+			addedSites = false;
+			haveChildren = false;
+			for(int i=mySites.size()-1; i>=0; i--)
+			{
+				Site s = mySites.get(i);
+				if ( added.contains(s.getId()) ) continue;
+				ResourceProperties rp = s.getProperties();
+				String ourParent = rp.getProperty(PROP_PARENT_ID);
+				if ( ourParent == null ) continue;
+				haveChildren = true;
+				// System.out.println("Child Site:"+s.getTitle()+" parent="+ourParent);
+				// Search the already added pages for a parent 
+				// or sibling node
+				boolean found = false;
+				int j = -1;
+				for (j=ordered.size()-1; j>=0; j--) {
+					Site ps = ordered.get(j);
+					// See if this site is our parent
+					if ( ourParent.equals(ps.getId()) )
+					{
+						found = true;
+						break;
+					}
+					// See if this site is our sibling
+					rp = ps.getProperties();
+					String peerParent = rp.getProperty(PROP_PARENT_ID);
+					if ( ourParent.equals(peerParent) ) 
+					{
+						found = true;
+						break;
+					}
+					}
+	
+				// We want to insert *after* the identified node
+				j = j + 1; 
+				if ( found && j >= 0 && j < ordered.size()) 
+				{
+					// System.out.println("Added after parent");
+					ordered.insertElementAt(s,j);
+					added.add(s.getId());
+					addedSites = true;  // Worth going another level deeper
+				}
+			}
+		} // End while depth
+
+		// If we still have children drop them at the end
+		if ( haveChildren ) for(int i=0; i<mySites.size(); i++)
+		{
+			Site s = mySites.get(i);
+			if ( added.contains(s.getId()) ) continue;
+			// System.out.println("Orphan Site:"+s.getId()+" "+s.getTitle());
+			ordered.add(s);
+		}
+
+		// All done	
+		mySites = ordered;
 		return mySites;
 	}
 

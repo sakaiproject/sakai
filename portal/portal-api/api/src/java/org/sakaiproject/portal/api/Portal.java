@@ -379,7 +379,7 @@ public interface Portal
 	/**
 	 * Iterate through the pages in a site and return information in a 
 	 * Map.
-	 * @param res
+	 * @param req
 	 * @param loggedIn
 	 * @param site
 	 * @param page
@@ -392,4 +392,18 @@ public interface Portal
 	Map pageListToMap(HttpServletRequest req, boolean loggedIn, Site site,
                         SitePage page, String toolContextPath, String portalPrefix, boolean doPages,
                         boolean resetTools, boolean includeSummary);
+
+	/**
+	 * Return the sub sites below a particular site
+	 * Map.
+	 * @param rcontext
+	 * @param req
+	 * @param siteId
+	 * @param toolContextPath
+	 * @param prefix
+	 * @param loggedIn
+	 */
+ 	void includeSubSites(PortalRenderContext rcontext, HttpServletRequest req,
+			Session session, String siteId, String toolContextPath, 
+			String prefix, boolean resetTools );
 }

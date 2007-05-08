@@ -158,6 +158,12 @@ public class PDAHandler extends PageHandler
 						/* doPages */false, /* resetTools */true,
 						/* includeSummary */false, /* expandSite */false);
 
+				//  TODO: Should this be a property?  Probably because it does cause an 
+				// uncached SQL query
+				portal.includeSubSites(rcontext, req, session,
+                        		siteId,  req.getContextPath() + req.getServletPath(), "pda",
+                        		/* resetTools */ true );
+
 				// Add any device specific information to the context
 				portal.setupMobileDevice(req, rcontext);
 

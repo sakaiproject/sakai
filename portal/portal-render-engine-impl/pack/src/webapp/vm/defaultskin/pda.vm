@@ -24,128 +24,150 @@
 <!-- Mobile Device ${wurflDevice} -->
 #end
 <div class="portlet">
-	<div id="pda-portlet-menu">
-        <a href="${portalTopUrl}" title="Back to Site List">Sites</a> 
-		  #if ($currentSite)
-			 	> <a href="${currentSite.siteUrl}" title="${currentSite.siteTitle}">
-				<span>${currentSite.siteTitle}</span>
-				</a>
-			#end
-			#if ($currentPlacement)
-#if ( ${bufferedResponse} && ${responseBody} ) 
-          > ${currentPlacement.toolTitle}
-#else
-          > <a href="${currentPlacement.toolResetActionUrl}" target="${currentPlacement.toolPlacementIDJS}" 
-		>${currentPlacement.toolTitle}</a>
+  <div id="pda-portlet-menu">
+  <a href="${portalTopUrl}" title="Back to Site List">Sites</a> 
+#if ($currentSite)
+  #if ( $currentSite.isChild )
+    #foreach ( $site in $currentSite.pwd ) 
+ 	> <a href="${site.siteUrl}" title="${site.siteTitle}">
+	<span>${site.siteTitle}</span>
+	</a>
+    #end
+  #else
+    > <a href="${currentSite.siteUrl}" title="${currentSite.siteTitle}">
+    <span>${currentSite.siteTitle}</span>
+    </a>
+  #end
 #end
-			#end
-			#if (${currentPlacement.toolShowHelpButton})
-				#if (${currentPlacement.toolJSR168Help} )
-             &nbsp;(<a accesskey="h" href="${currentPlacement.toolJSR168Help}" title="${rloader.sit_help}">?</a>)
-				#else
-             &nbsp;(<a accesskey="h" href="${currentPlacement.toolHelpActionUrl}" title="${rloader.sit_help}"
-                target="_blank" onclick="openWindow('${currentPlacement.toolHelpActionUrl}', 'Help',
-                'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">?</a>)
-				#end
-			#end
-			#if (${currentPlacement.toolJSR168Edit} )
-             &nbsp;(<a accesskey="e" href="${currentPlacement.toolJSR168Edit}" title="${rloader.sit_edit}">*</a>)
-			#end
+#if ($currentPlacement)
+  #if ( ${bufferedResponse} && ${responseBody} ) 
+    > ${currentPlacement.toolTitle}
+  #else
+    > <a href="${currentPlacement.toolResetActionUrl}" target="${currentPlacement.toolPlacementIDJS}" 
+    >${currentPlacement.toolTitle}</a>
+  #end
+#end
+#if (${currentPlacement.toolShowHelpButton})
+  #if (${currentPlacement.toolJSR168Help} )
+    &nbsp;(<a accesskey="h" href="${currentPlacement.toolJSR168Help}" title="${rloader.sit_help}">?</a>)
+  #else
+    &nbsp;(<a accesskey="h" href="${currentPlacement.toolHelpActionUrl}" title="${rloader.sit_help}"
+      target="_blank" onclick="openWindow('${currentPlacement.toolHelpActionUrl}', 'Help',
+      'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">?</a>)
+  #end
+#end
+#if (${currentPlacement.toolJSR168Edit} )
+  &nbsp;(<a accesskey="e" href="${currentPlacement.toolJSR168Edit}" title="${rloader.sit_edit}">*</a>)
+#end
 #if ( ${wurflSmallDisplay} ) 
-<!-- WURFL Small Display -->
-&nbsp; | &nbsp;
-				#if ( $loggedIn ) 
-				<a href="${portalTopUrl}?force.logout=yes">Log Out</a>
-				#else
-				<a href="${portalTopUrl}?force.login=yes">Log In</a>
-				#end
-<!-- End WURFL Small Display -->
+  <!-- WURFL Small Display -->
+  &nbsp; | &nbsp;
+  #if ( $loggedIn ) 
+    <a href="${portalTopUrl}?force.logout=yes">Log Out</a>
+  #else
+    <a href="${portalTopUrl}?force.login=yes">Log In</a>
+  #end
+  <!-- End WURFL Small Display -->
 #else
-			<div class="portletpresencebutton" >
-				#if (${currentSite.sitePages.pageNavShowPresenceLoggedIn})
-					#if ($currentSite)
-						#if ( ! $currentSite.isMyWorkspace )
-							<a href="#" onclick="hidePresence();" onmouseover="showPresence();" onmouseout="hidePresence();">Users Present</a> | 
-						#end
-					#end
-				#end
-				#if ( $loggedIn ) 
-				<a href="${portalTopUrl}?force.logout=yes">Log Out</a>
-				#else
-				<a href="${portalTopUrl}?force.login=yes">Log In</a>
-				#end
-			</div>
+  <div class="portletpresencebutton" >
+  #if (${currentSite.sitePages.pageNavShowPresenceLoggedIn})
+    #if ($currentSite)
+      #if ( ! $currentSite.isMyWorkspace )
+        <a href="#" onclick="hidePresence();" onmouseover="showPresence();" onmouseout="hidePresence();">Users Present</a> | 
+      #end
+    #end
+  #end
+  #if ( $loggedIn ) 
+    <a href="${portalTopUrl}?force.logout=yes">Log Out</a>
+  #else
+    <a href="${portalTopUrl}?force.login=yes">Log In</a>
+  #end
+  </div>
 #end
-		</div> <!--end of menu bar -->
-	#if ($currentPlacement)
-#if ( ${bufferedResponse} && ${responseBody} ) 
+</div> <!--end of menu bar -->
+#if ($currentPlacement)
+  #if ( ${bufferedResponse} && ${responseBody} ) 
 <!-- Buffered Body Tool Content -->
 ${responseBody}
 <!-- End Buffered Body Tool Content -->
+  #else
+    #includeToolBody ( $currentPlacement )
+  #end
 #else
-		#includeToolBody ( $currentPlacement )
+  #if ($currentSite)
+    <ul id="pda-portlet-page-menu"> 
+    #foreach ( $page in $currentSite.sitePages.pageNavTools ) 
+      #if ($page.isPage)
+        ## This must be a popup - so we treat it as a popup
+        <li>
+          <a href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
+            ${page.pageTitle}
+        </a>
+        </li>
+      #else
+        <li>
+          <a href="${page.toolrefUrl}" title="${page.toolTitle}">${page.toolTitle}</a>
+        </li>
+      #end
+    #end
+    #if ( $subSites ) 
+    	#foreach ( $site in $subSites ) 
+          <li>
+             <a href="${site.siteUrl}" title="${site.siteTitle}">
+             <span>${site.siteTitle}</span>
+             </a>
+         </li>
+       #end
+    #end
+    </ul>
+  #else
+    <ul id="pda-portlet-site-menu"> 
+    #foreach ( $site in $allSites ) 
+      <li>
+      #if ( $site.isChild ) 
+	#foreach ($i in [0..$site.depth] )
+        	&nbsp;
+	#end
+      #end
+        <a href="${site.siteUrl}" title="${site.siteTitle}">
+          <span>${site.siteTitle}</span>
+        </a>
+      </li>
+    #end 
+    </ul>
+  #end
 #end
-	#else
-		#if ($currentSite)
-			<ul id="pda-portlet-page-menu"> 
-  			#foreach ( $page in $currentSite.sitePages.pageNavTools ) 
-				#if ($page.isPage)
-					## This must be a popup - so we treat it as a popup
-					<li>
-						<a href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
-							${page.pageTitle}
-						</a>
-					</li>
-				#else
-					<li>
-						<a href="${page.toolrefUrl}" title="${page.toolTitle}">${page.toolTitle}</a>
-					</li>
-				#end
-			#end
-			</ul>
-		#else
-			<ul id="pda-portlet-site-menu"> 
-			#foreach ( $site in $allSites ) 
-			  <li>
-					<a href="${site.siteUrl}" title="${site.siteTitle}">
-						<span>${site.siteTitle}</span>
-				  </a>
-			  </li>
-			#end 
-		</ul>
-		#end
-	#end
-	#if ($currentSite)
-           #if ( ! ${wurflSmallDisplay} ) 
-		#if (${currentSite.sitePages.pageNavShowPresenceLoggedIn})
-			<script type="text/javascript" language="JavaScript">
-                        function showPresence()
-                        {
-                                window.document.getElementById('presdiv').style.position = 'absolute';
-                                window.document.getElementById('presdiv').style.top = '20px';
-                                window.document.getElementById('presdiv').style.right = '5px';
-                                window.document.getElementById('presdiv').style.left = 'auto';
-                        }
+#if ($currentSite)
+  #if ( ! ${wurflSmallDisplay} ) 
+    #if (${currentSite.sitePages.pageNavShowPresenceLoggedIn})
+	<script type="text/javascript" language="JavaScript">
+	function showPresence()
+	{
+		window.document.getElementById('presdiv').style.position = 'absolute';
+		window.document.getElementById('presdiv').style.top = '20px';
+		window.document.getElementById('presdiv').style.right = '5px';
+		window.document.getElementById('presdiv').style.left = 'auto';
+	}
 
-                        function hidePresence()
-                        {
-                                window.document.getElementById('presdiv').style.position = 'absolute';
-                                window.document.getElementById('presdiv').style.top = '20px';
-                                window.document.getElementById('presdiv').style.right = 'auto';
-                                window.document.getElementById('presdiv').style.left = '-4000px';
-                        }
-			</script>
-			<div class="portletpresence" id="presdiv" >
-				 <div class="portletpresencewrapper" id="portletpresencewrapper">
-					<iframe name="presenceIframe" id="presenceIframe" 
-						frameborder="0" marginwidth="0" marginheight="0" scrolling="auto" 
-						src="${currentSite.sitePages.pageNavPresenceUrl}" >
-					</iframe>
-				 </div>
-			 </div>
-		#end
-           #end
-	#end
+	function hidePresence()
+	{
+		window.document.getElementById('presdiv').style.position = 'absolute';
+		window.document.getElementById('presdiv').style.top = '20px';
+		window.document.getElementById('presdiv').style.right = 'auto';
+		window.document.getElementById('presdiv').style.left = '-4000px';
+	}
+	</script>
+	<div class="portletpresence" id="presdiv" >
+		<div class="portletpresencewrapper" id="portletpresencewrapper">
+			<iframe name="presenceIframe" id="presenceIframe" 
+				frameborder="0" marginwidth="0" marginheight="0" scrolling="auto" 
+				src="${currentSite.sitePages.pageNavPresenceUrl}" >
+			</iframe>
+		</div>
+	</div>
+    #end
+  #end
+#end
 </div>
 <!-- end pda.vm -->
 #end_response()

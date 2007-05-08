@@ -193,6 +193,12 @@ public class SiteHandler extends WorksiteHandler
 
 		includeWorksite(rcontext, res, req, session, site, page, toolContextPath, "site");
 
+		// Include sub-sites if appropriate
+		// TODO: Thing through whether we want reset tools or not
+		portal.includeSubSites(rcontext, req, session,
+			siteId,  req.getContextPath() + req.getServletPath(), "site",
+			/* resetTools */ false );
+
 		portal.includeBottom(rcontext);
 
 		// end the response
