@@ -75,6 +75,12 @@
       <property name="location"><value>/sakai_resources/aqyf.html</value></property>
    </bean>
 
+   <bean id="renameResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>arsl</value></property>
+      <property name="name"><value>Rename item</value></property>
+      <property name="location"><value>/sakai_resources/arsl.html</value></property>
+   </bean>
+
    <bean id="deleteResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>avcg</value></property>
       <property name="name"><value>Delete item</value></property>
@@ -91,6 +97,12 @@
       <property name="docId"><value>arfd</value></property>
       <property name="name"><value>View item details</value></property>
       <property name="location"><value>/sakai_resources/arfd.html</value></property>
+   </bean>
+
+   <bean id="groupFolders" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aude</value></property>
+      <property name="name"><value>Create group folders</value></property>
+      <property name="location"><value>/sakai_resources/aude.html</value></property>
    </bean>
 
    <bean id="changePermissions" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -158,8 +170,10 @@
                      <ref bean="findURL"/>
                      <ref bean="moveResource"/>
                      <ref bean="copyResource"/>
+                     <ref bean="renameResource"/>
                      <ref bean="deleteResource"/>
                      <ref bean="sortResource"/>
+                     <ref bean="groupFolders"/>
                      <ref bean="changePermissions"/>
                      <ref bean="unHide"/>
                      <ref bean="unsupportedChars"/>
