@@ -46,6 +46,17 @@
             <value>/sakai_gradebook_tool/araj.html</value>
         </property>
     </bean>
+    <bean id="gradebookComment" class="org.sakaiproject.component.app.help.model.ResourceBean">
+        <property name="docId">
+            <value>auus</value>
+        </property>
+        <property name="name">
+            <value>Commenting on grades</value>
+        </property>
+        <property name="location">
+            <value>/sakai_gradebook_tool/auus.html</value>
+        </property>
+    </bean>
     <bean id="gradebookUploadingScores" class="org.sakaiproject.component.app.help.model.ResourceBean">
         <property name="docId">
             <value>aukf</value>
@@ -139,6 +150,7 @@
                             <ref bean="gradebookAddAssignment"/>
                             <ref bean="gradebookAssignmentDetails"/>
                             <ref bean="gradebookEnteringScores"/>
+                            <ref bean="gradebookComment"/>
                             <ref bean="gradebookUploadingScores"/>
                             <ref bean="gradebookSorting"/>
                             <ref bean="gradebookRoster"/>
