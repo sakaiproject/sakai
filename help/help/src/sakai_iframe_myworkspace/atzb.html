@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head>
+<title>Problems pasting text into FCKeditor 
+in Firefox</title>
+<style type="text/css">
+		/* Style for specific inline images */
+		
+		/* Style for specific ordered lists */
+		
+		/* Style for specific table cells */
+		</style>
+<link type="text/css" href="/library/skin/tool_base.css" media="all" rel="stylesheet" />
+<link type="text/css" href="/library/skin/default/tool.css" media="all" rel="stylesheet" />
+</head>
+<body>
+<div class="helpBody">
+<h2>Problems pasting text into FCKeditor 
+in Firefox</h2><p>Due to certain security settings in Firefox, you may have trouble
+pasting text into FCKeditor when you try to
+right-click and select <strong><code>Paste</code></strong>. Earlier versions of Firefox may
+not allow you to paste using <code>Ctrl-v</code> either.  To resolve
+these problems, choose one of the solutions below:</p>
+
+<ul><li>From the <strong><code>Edit</code></strong> menu, select <strong><code>Paste</code></strong>.
+
+<br /><br /></li><li>Press <code>Ctrl-v</code>. If this
+does not work, upgrade to the latest version of Firefox.
+
+<br /><br /> </li><li>Change your security settings so that Firefox will let
+you paste by right-clicking. To do this in Windows, follow the
+directions below:
+<br /><br />
+<ol><li>Close all Firefox windows.  
+<br /><br /></li><li>Navigate to the directory below, where <code>username</code> is
+your username and <code>ProfileName</code> is either your full name or
+a string followed by ".default":
+
+<span class="example">  C:\Documents and Settings\username\Application Data\Mozilla\Firefox\Profiles\ProfileName</span>
+
+</li><li>Using a text editor, create a file named
+<code>user.js</code> in that directory.
+
+<p><strong>Note:</strong> Be sure your text editor <strong>does
+not</strong> add a <code>.txt</code> extension to the end of the
+filename. The file needs to have <code>.js</code> as the extension.</p>
+</li><li>In this file, enter the following:
+
+<span class="example">  user_pref("capability.policy.policynames", "allowclipboard");
+  user_pref("capability.policy.allowclipboard.sites", "https://www.samplesite.com");
+  user_pref("capability.policy.allowclipboard.Clipboard.cutcopy", "allAccess");
+  user_pref("capability.policy.allowclipboard.Clipboard.paste", "allAccess");</span>
+
+<p>Replace <code>https://www.samplesite.com</code> with the name of the
+site for which you wish to allow pasting. Do <strong>not</strong> use
+a trailing <code>/</code> (slash). </p>
+
+
+
+
+</li><li>Restart Firefox.
+</li></ol>
+
+</li></ul>
+
+
+</div>
+</body></html>

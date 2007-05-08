@@ -120,7 +120,30 @@
       <property name="location"><value>/sakai_iframe_myworkspace/arce.html</value></property>
       <property name="defaultForTool"><value>sakai.preferences</value></property>
    </bean>
+
+   <bean id="privacyStatus" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>ausi</value></property>
+      <property name="name"><value>Privacy Status</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/ausi.html</value></property>
+   </bean>
    
+   <bean id="whichBrowser" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>asxg</value></property>
+      <property name="name"><value>Supported browsers</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/asxg.html</value></property>
+   </bean>
+   
+   <bean id="pastingFF" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>atzb</value></property>
+      <property name="name"><value>Pasting text in Firefox</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/atzb.html</value></property>
+   </bean>
+   
+   <bean id="optionsAttach" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aupf</value></property>
+      <property name="name"><value>Options for adding attachments</value></property>
+      <property name="location"><value>/sakai_iframe_myworkspace/aupf.html</value></property>
+   </bean>
    
     <bean id="org.sakaiproject.api.app.help.TableOfContents" 
           class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
@@ -150,6 +173,10 @@
                      <ref bean="preferencesOverview"/>
                      <ref bean="changeNotificationPreferences"/>
                      <ref bean="customizeTabs"/>
+                     <ref bean="privacyStatus"/>
+                     <ref bean="whichBrowser"/>
+                     <ref bean="pastingFF"/>
+                     <ref bean="optionsAttach"/>
                   </list>
                </property>
             </bean>
