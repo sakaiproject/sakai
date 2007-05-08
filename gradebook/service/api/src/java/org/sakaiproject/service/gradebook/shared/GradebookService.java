@@ -280,4 +280,9 @@ public interface GradebookService {
 	public boolean isExternalAssignmentDefined(String gradebookUid,
 			String externalId) throws GradebookNotFoundException;
 
+	public Map getImportCourseGrade(String gradebookUid);
+	  
+	/**return Object to avoid circular dependency with sakai-gradebook-tool */
+	public Object getGradebook(String uid) throws GradebookNotFoundException;
+
 }
