@@ -140,10 +140,9 @@
 				rendered="#{!courseGradeDetailsBean.emptyEnrollments}"
 				/>
 			<h:commandButton
-				value="#{msgs.course_grade_details_export_excel}"
-				actionListener="#{courseGradeDetailsBean.exportExcel}"
-				rendered="#{!courseGradeDetailsBean.emptyEnrollments}"
-				/>
+				value="#{msgs.course_grade_details_calculate_course_grade}"
+				action="calculateCourseGrades"
+			/>
 			<h:commandButton
 				value="#{msgs.course_grade_details_export_csv}"
 				actionListener="#{courseGradeDetailsBean.exportCsv}"

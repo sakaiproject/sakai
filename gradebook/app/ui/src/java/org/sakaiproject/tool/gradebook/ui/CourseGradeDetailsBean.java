@@ -213,12 +213,30 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
             FacesUtil.addErrorMessage(getLocalizedString("course_grade_details_locking_failure"));
 		}
 	}
+	
+	/**
+	 * Action to calculate course grades
+	 */
+	public String processCalculateCourseGrades() {
+		try {
+			calculateCourseGrades();
+		} catch (StaleObjectModificationException e) {
+			logger.error(e);
+			FacesUtil.addErrorMessage(getLocalizedString("course_grade_details_locking_failure"));
+		}
+		return "courseGradeDetails";
+	}
 
 	private void saveGrades() throws StaleObjectModificationException {
 		getGradebookManager().updateCourseGradeRecords(courseGrade, updatedGradeRecords);
         getGradebookBean().getEventTrackingService().postEvent("gradebook.updateCourseGrades","/gradebook/"+getGradebookId()+"/"+updatedGradeRecords.size()+"/"+getAuthzLevel());
         // Let the user know.
 		FacesUtil.addMessage(getLocalizedString("course_grade_details_grades_saved"));
+	}
+	
+	private void calculateCourseGrades() {
+		getGradebookManager().fillInZeroForNullGradeRecords(getGradebook());
+		FacesUtil.addMessage(getLocalizedString("calculate_course_grade_done"));
 	}
 	
 	// Download spreadsheet of course grades. It's very likely that insitutions will

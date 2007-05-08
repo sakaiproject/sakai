@@ -531,5 +531,5 @@ public interface GradebookManager {
      *  
      * @param gradebook
      */
-    public void fillInZeroForNullGradeRecrods(Gradebook gradebook);
+    public void fillInZeroForNullGradeRecords(Gradebook gradebook);
 }

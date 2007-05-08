@@ -27,6 +27,10 @@
 			<to-view-id>/courseGradeDetails.jsp</to-view-id>
 		</navigation-case>
 		<navigation-case>
+			<from-outcome>calculateCourseGrades</from-outcome>
+			<to-view-id>/calculateCourseGrades.jsp</to-view-id>
+		</navigation-case>
+		<navigation-case>
 			<from-outcome>editAssignment</from-outcome>
             <to-view-id>/editAssignment.jsp</to-view-id>
         </navigation-case>

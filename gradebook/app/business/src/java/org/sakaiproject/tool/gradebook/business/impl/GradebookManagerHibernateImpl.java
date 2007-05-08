@@ -2039,7 +2039,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	}
     }
     
-    public void fillInZeroForNullGradeRecrods(Gradebook gradebook)
+    public void fillInZeroForNullGradeRecords(Gradebook gradebook)
     {
     	Set studentUids = getAllStudentUids(getGradebookUid(gradebook.getId()));
     	List assigns = getAssignments(gradebook.getId(), Assignment.DEFAULT_SORT, true);
