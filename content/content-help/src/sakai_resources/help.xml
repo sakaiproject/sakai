@@ -9,12 +9,6 @@
       <property name="defaultForTool"><value>sakai.resources</value></property>      
    </bean>
 
-   <bean id="createResource" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>arcg</value></property>
-      <property name="name"><value>Create/Add/Edit/Delete item</value></property>
-      <property name="location"><value>/sakai_resources/arcg.html</value></property>
-   </bean>
-
    <bean id="usingFolders" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>avbw</value></property>
       <property name="name"><value>Working with folders</value></property>
@@ -29,7 +23,7 @@
 
    <bean id="usingLinks" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>avbz</value></property>
-      <property name="name"><value>Working with web links</value></property>
+      <property name="name"><value>Working with web links (URLs)</value></property>
       <property name="location"><value>/sakai_resources/avbz.html</value></property>
    </bean>
 
@@ -154,7 +148,6 @@
                      <ref bean="resourceOverview"/>
                      <ref bean="viewResource"/>
                      <ref bean="itemDetails"/>
-                     <ref bean="createResource"/>
                      <ref bean="usingFolders"/>
                      <ref bean="usingFiles"/>
                      <ref bean="usingLinks"/>
