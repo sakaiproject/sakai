@@ -22,8 +22,8 @@
 		</div>
 		
 		<sakai:tool_bar rendered="#{overviewBean.userAbleToEditAssessments}">
-    	<sakai:tool_bar_item value="#{msgs.overview_add_item}"    action="#{overviewBean.navigateToAddAssignment}" />
-   		<sakai:tool_bar_item value="#{msgs.overview_import_item}" action="#{overviewBean.navigateToSpreadsheet}" />
+    		<sakai:tool_bar_item value="#{msgs.overview_add_item}"    action="#{overviewBean.navigateToAddAssignment}" />
+   			<sakai:tool_bar_item value="#{msgs.overview_import_item}" action="#{overviewBean.navigateToSpreadsheet}" />
   		</sakai:tool_bar>
   	
   	<h:panelGrid cellpadding="0" cellspacing="0" columns="2"

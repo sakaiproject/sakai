@@ -652,12 +652,11 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
     }
 
 	/**
-	 * Empty string since breadcrumb trail starts here so this is used by menu to determine
-	 * if display link or not. Since bean only used at top level page, pageName will determine
-	 * so can just return blank.
+	 * Set Tool session navigation values when navigating
+	 * to assignment details page.
 	 */
 	public String navigateToAssignmentDetails() {
-		setNav("roster","false","false","false",null);
+		setNav("roster", "false", "false", "false", null);
 		
 		return "assignmentDetails";
 	}

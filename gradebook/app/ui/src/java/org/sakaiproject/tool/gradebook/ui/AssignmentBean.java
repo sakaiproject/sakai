@@ -140,6 +140,11 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 		return navigateToAssignmentDetails();
 	}
 
+	/**
+	 * Go to assignment details page. InstructorViewBean contains duplicate
+	 * of this method, cannot migrate up to GradebookDependentBean since
+	 * needs assignmentId, which is defined here.
+	 */
 	public String navigateToAssignmentDetails() {
 		String breadcrumbPage = getBreadcrumbPage();
 		final Boolean middle = new Boolean((String) SessionManager.getCurrentToolSession().getAttribute("middle"));
@@ -148,8 +153,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			assignmentDetailsBean.setAssignmentId(assignmentId);
 			assignmentDetailsBean.setBreadcrumbPage(breadcrumbPage);
 			
-			SessionManager.getCurrentToolSession().removeAttribute("middle");
-			SessionManager.getCurrentToolSession().setAttribute("middle", "false");
+			setNav(null, null, null, "false", null);
 			
 			return "assignmentDetails";
 		}

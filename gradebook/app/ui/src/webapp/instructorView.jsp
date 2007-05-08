@@ -6,19 +6,17 @@
 	<div class="portletBody">
 	  <h:form id="gbForm">
 
-		<t:aliasBean alias="#{bean}" value="#{instructorViewBean}">
-			<%@include file="/inc/appMenu.jspf"%>
-		</t:aliasBean>
-
 		<sakai:flowState bean="#{instructorViewBean}" />
 		
+		<t:aliasBean alias="#{bean}" value="#{instructorViewBean}">
+			<%@include file="/inc/appMenu.jspf" %>
+		</t:aliasBean>
+
 		<h:panelGrid columns="2" width="99%" columnClasses="bogus,right">
 			<h:panelGroup>
-				<f:verbatim><h2></f:verbatim>
-					<h:outputFormat value="#{msgs.inst_view_page_title}">
-						<f:param value="#{instructorViewBean.userDisplayName}" />
-					</h:outputFormat>
-				<f:verbatim></h2></f:verbatim>
+				<t:aliasBean alias="#{bean}" value="#{instructorViewBean}">
+					<%@include file="/inc/breadcrumbInstructor.jspf" %>
+				</t:aliasBean>
 			</h:panelGroup>
 			<h:commandLink action="studentView" style="text-align: right;">
 				<h:outputFormat value="#{msgs.inst_view_students_grades}">
@@ -47,10 +45,10 @@
 				</h:commandButton>
 			
 			<h:commandButton
-				action="roster"
-				value="#{msgs.inst_view_return_to}"
+				action="#{instructorViewBean.processCancel}"
+				value="#{instructorViewBean.returnToPageName}"
 				accesskey="l"
-				tabindex="6" />
+				tabindex="6"/>
 			
 			<h:commandButton
 				disabled="#{instructorViewBean.last}"
@@ -132,7 +130,7 @@
 					</f:facet>
 					
 					<h:panelGroup rendered="#{row.assignment}">
-						<h:commandLink action="assignmentDetails" rendered="#{row.associatedAssignment.released}">
+						<h:commandLink action="#{instructorViewBean.navigateToAssignmentDetails}" rendered="#{row.associatedAssignment.released}">
 							<h:outputText value="#{row.associatedAssignment.name}" />
 							<f:param name="assignmentId" value="#{row.associatedAssignment.id}"/>
 						</h:commandLink>

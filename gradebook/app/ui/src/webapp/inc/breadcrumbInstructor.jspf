@@ -1,6 +1,6 @@
-<%-- For assignment details, generate the breadcrumb trail --%>
+<%-- For instructor view, generate the breadcrumb trail --%>
 
-<div class="breadcrumb"><h3>
+<f:verbatim><span class="breadcrumb"><h3></f:verbatim>
 
 	<%--  The root of the breadcrumb rendered here --%>
 	<h:commandLink action="#{bean.navigateToOverview}" value="#{msgs.breadcrumb_overview}" immediate="true" rendered="#{bean.breadcrumbPage eq 'overview'}" />
@@ -10,20 +10,17 @@
 	<h:panelGroup rendered="#{bean.middle}">
 		<h:outputText value="&nbsp; > &nbsp;" escape="false" />
 		<h:commandLink action="#{bean.navigateToAssignmentDetails}">
-			<h:outputText value="#{bean.assignment.name}" />
+			<h:outputText value="#{bean.returnToPageName}" />
 			<f:param name="assignmentId" value="#{bean.assignmentId}" />
 		</h:commandLink>
 	</h:panelGroup>
 
 	<h:outputText value="&nbsp; > &nbsp;" escape="false" />
 
-	<%-- Here we are at the bottom, render final spot --%>
-	<h:outputText value="#{msgs.breadcrumb_add}" rendered="#{bean.adding}" />
-
-	<h:outputText value="#{msgs.breadcrumb_edit}" rendered="#{bean.editing}" />
-	
 	<%-- if adding, will render as blank, if editing, will display assignment name
 		 since this is the behavior we want, no rendering tag needed --%>
-	<h:outputText value="#{bean.assignment.name}" />
+	<h:outputFormat value="#{msgs.inst_view_page_title}">
+		<f:param value="#{bean.userDisplayName}" />
+	</h:outputFormat>
 
-</h3></div>
+<f:verbatim></h3></span></f:verbatim>

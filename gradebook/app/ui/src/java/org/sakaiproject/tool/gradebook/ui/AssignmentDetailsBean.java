@@ -517,46 +517,13 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 		return isAllCommentsEditable;
 	}
 
-	/** added in attempt to return to proper location upon cancel */
-	public String processCancel() {
-		final String breadcrumbPage = getBreadcrumbPage();
-		if (breadcrumbPage != null && !"".equals(breadcrumbPage)) {
-			return breadcrumbPage;
-		}
-		else {
-			String where = (String) SessionManager.getCurrentToolSession().getAttribute("breadcrumbPage");
-			
-			if ("assignmentDetails".equals(where)) {
-				where = (String) SessionManager.getCurrentToolSession().getAttribute("fromPage");
-				SessionManager.getCurrentToolSession().removeAttribute("fromPage");
-			}
-
-			return where;
-		}
-	}
-	
-	/** added to set values when navigate from here to editAssignment page */
-	public String navigateToEdit() {
-		final String fromPage = (String) SessionManager.getCurrentToolSession().getAttribute("breadcrumbPage");
-		setNav("assignmentDetails","false","false","true", fromPage);
-
-//		SessionManager.getCurrentToolSession().setAttribute("fromPage", fromPage);
-//		SessionManager.getCurrentToolSession().setAttribute("breadcrumbPage", "assignmentDetails");
-//		SessionManager.getCurrentToolSession().setAttribute("middle", "true");
+	/**
+	 * Go to instructor view. State saved in tool
+	 * session so need this method.
+	 */
+	public String navigateToInstructorView() {
+		setNav(null,"","","true",null);
 		
-		return "editAssignment";
-	}
-	
-	public String getReturnString() {
-		final String breadcrumbPage = getBreadcrumbPage();
-		if (breadcrumbPage != null && !"".equals(breadcrumbPage)) {
-			return ("overview".equals(breadcrumbPage)) ? getLocalizedString("assignment_details_return_to_overview")
-													   : getLocalizedString("assignment_details_return_to_roster");
-		}
-		else {
-			final String where = (String) SessionManager.getCurrentToolSession().getAttribute("fromPage");
-			return ("overview".equals(where)) ? getLocalizedString("assignment_details_return_to_overview")
-					  						  : getLocalizedString("assignment_details_return_to_roster");
-		}
+		return "instructorView";
 	}
 }

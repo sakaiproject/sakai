@@ -3,32 +3,34 @@
 	Accessed via <t:aliasBean alias="#{bean}" value="#{realPageBean}">...</t:aliasBean> .
 */%>
 <sakai:tool_bar separator="|">
-	<h:commandLink action="overview" immediate="true" rendered="#{bean.pageName ne 'overview' && bean.breadcrumbPage ne 'overview'}">
+	<h:commandLink action="#{bean.navigateToOverview}" immediate="true" rendered="#{bean.pageName ne 'overview' && bean.breadcrumbPage ne 'overview'}">
 		<h:outputText value="#{msgs.appmenu_overview}"/>
-		<f:param name="breadcrumbPage" value="overview" />
+		<f:param name="pageName" value="overview" />
 	</h:commandLink>
 	<h:outputText value="#{msgs.appmenu_overview} &nbsp;" escape="false" rendered="#{bean.pageName eq 'overview' || bean.breadcrumbPage eq 'overview'}" styleClass="currentView" />
 
-	<h:commandLink action="roster" immediate="true" rendered="#{bean.pageName ne 'roster' && bean.breadcrumbPage ne 'roster'}">
+	<h:commandLink action="#{bean.navigateToRoster}" immediate="true" rendered="#{bean.pageName ne 'roster' && bean.breadcrumbPage ne 'roster'}">
 		<h:outputText value="#{msgs.appmenu_roster}"/>
-		<f:param name="breadcrumbPage" value="roster" />
+		<f:param name="pageName" value="roster" />
 	</h:commandLink>
     <h:outputText value="#{msgs.appmenu_roster} &nbsp;" escape="false" rendered="#{bean.pageName eq 'roster' || bean.breadcrumbPage eq 'roster'}" styleClass="currentView" />
   
 
-     <h:commandLink action="gradebookSetup" immediate="true" rendered="#{bean.pageName ne 'gradebookSetup' && bean.userAbleToEditAssessments}">
+     <h:commandLink action="#{bean.navigateToGradebookSetup}" immediate="true" rendered="#{bean.pageName ne 'gradebookSetup' && bean.userAbleToEditAssessments}">
          <h:outputText value="#{msgs.appmenu_gb_setup}" />
          <f:param name="pageName" value="gradebookSetup"/>
      </h:commandLink>
      <h:outputText value="#{msgs.appmenu_gb_setup} &nbsp;" escape="false" rendered="#{bean.pageName eq 'gradebookSetup' && bean.userAbleToEditAssessments}" styleClass="currentView" />
 
-     <h:commandLink action="feedbackOptions" immediate="true" rendered="#{bean.pageName ne 'feedbackOptions' && bean.userAbleToEditAssessments}">
+     <h:commandLink action="#{bean.navigateToFeedbackOptions}" immediate="true" rendered="#{bean.pageName ne 'feedbackOptions' && bean.userAbleToEditAssessments}">
          <h:outputText value="#{msgs.appmenu_feedback_options}"/>
+         <f:param name="pageName" value="feedbackOptions" />
      </h:commandLink>
      <h:outputText value="#{msgs.appmenu_feedback_options} &nbsp;" escape="false" rendered="#{bean.pageName eq 'feedbackOptions' && bean.userAbleToEditAssessments}" styleClass="currentView" />
 
-      <h:commandLink action="spreadsheetAll" immediate="true" rendered="#{bean.pageName ne 'spreadsheetAll' && bean.userAbleToEditAssessments}" styleClass="currentView">
+      <h:commandLink action="#{bean.navigateToImportGrades}" immediate="true" rendered="#{bean.pageName ne 'spreadsheetAll' && bean.userAbleToEditAssessments}" styleClass="currentView">
           <h:outputText value="#{msgs.appmenu_import_all}"  />
+          <f:param name="pageName" value="spreadsheetAll" />
       </h:commandLink>
       <h:outputText value="#{msgs.appmenu_import_all}" rendered="#{bean.pageName eq 'spreadsheetAll'}" styleClass="currentView" />
 </sakai:tool_bar>

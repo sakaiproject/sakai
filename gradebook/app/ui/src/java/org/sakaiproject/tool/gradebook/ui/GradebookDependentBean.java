@@ -246,29 +246,27 @@ public abstract class GradebookDependentBean extends InitializableBean {
      * @param fromPage
      * 			currently, when navigating from details page down.
      */
-    protected void setNav(String breadcrumbPage, String editing, String adding, String middle,
+    public void setNav(String breadcrumbPage, String editing, String adding, String middle,
     		 				String fromPage) {
  		ToolSession session = SessionManager.getCurrentToolSession();
 		
- 		session.setAttribute("breadcrumbPage", breadcrumbPage);
-		session.setAttribute("editing", editing);
-		session.setAttribute("adding", adding);
-		session.setAttribute("middle", middle);
+ 		if (breadcrumbPage != null) session.setAttribute("breadcrumbPage", breadcrumbPage);
+ 		
+ 		if (editing != null) session.setAttribute("editing", editing);
+ 		
+ 		if (adding != null) session.setAttribute("adding", adding);
+ 		
+ 		if (middle != null)	session.setAttribute("middle", middle);
 		
-		if (fromPage != null) {
-			session.setAttribute("fromPage", fromPage);
-		}
+		if (fromPage != null) session.setAttribute("fromPage", fromPage);
     }
 
     /**
 	 * Used to determine where details page called from
 	 */
 	public String getBreadcrumbPage() {
-		ToolSession session = SessionManager.getCurrentToolSession();
-		final String breadcrumbPage = (String) session.getAttribute("breadcrumbPage");
-
-		if ("assignmentDetails".equals(breadcrumbPage)) {
-			return (String) SessionManager.getCurrentToolSession().getAttribute("fromPage");
+		if (breadcrumbPage == null) {
+			return (String) SessionManager.getCurrentToolSession().getAttribute("breadcrumbPage");
 		}
 		else {
 			return breadcrumbPage;
@@ -294,11 +292,12 @@ public abstract class GradebookDependentBean extends InitializableBean {
 		if (SessionManager.getCurrentToolSession().getAttribute("breadcrumbPage") != null) {
 			if ((breadcrumbPageParam != null) && !breadcrumbPageParam.equals("null")) {
 				setBreadcrumbPage(breadcrumbPageParam);
-				SessionManager.getCurrentToolSession().setAttribute("breadcrumbPage", breadcrumbPageParam);
+				if (!"".equals(breadcrumbPageParam)) SessionManager.getCurrentToolSession().setAttribute("breadcrumbPage", breadcrumbPageParam);
 			}
 			else {
 				ToolSession session = SessionManager.getCurrentToolSession();
 				final String fromPage = (String) session.getAttribute("breadcrumbPage");
+				
 				if (fromPage != null) {
 					setBreadcrumbPage(fromPage);
 				}
@@ -306,7 +305,7 @@ public abstract class GradebookDependentBean extends InitializableBean {
 		}
 	}
 
-    /**
+	/**
      * Set adding variable - use for breadcrumb display
      */
 	public void setEditing(Boolean editing) {
@@ -461,19 +460,17 @@ public abstract class GradebookDependentBean extends InitializableBean {
      * tool session, hence attribute setting.
      */
     public String navigateToOverview() {
-		SessionManager.getCurrentToolSession().setAttribute("breadcrumbPage", "overview");
-		SessionManager.getCurrentToolSession().setAttribute("middle", "false");
+    	setNav("overview", "false", "false", "false", null);
 
 		return "overview";
     }
     
     /**
-     * Return back to roster page. State is kept in
+     * Go to roster page. State is kept in
      * tool session, hence attribute setting.
      */
     public String navigateToRoster() {
-		SessionManager.getCurrentToolSession().setAttribute("breadcrumbPage", "roster");
-		SessionManager.getCurrentToolSession().setAttribute("middle", "false");
+    	setNav("roster", "false", "false", "false", null);
 
 		return "roster";
    }    
@@ -481,16 +478,78 @@ public abstract class GradebookDependentBean extends InitializableBean {
     /**
      * Go to edit assignment page. State is kept in
      * tool session, hence attribute setting.
-     * TODO: move this to assignmentDetialsBean since this is the
-     * navigation method to go from assignmentDetials page to
-     * ediAssignment page.
      */
 	public String navigateToEdit() {
-		final String fromPage = (String) SessionManager.getCurrentToolSession().getAttribute("breadcrumbPage");
-		SessionManager.getCurrentToolSession().setAttribute("fromPage", fromPage);
-		SessionManager.getCurrentToolSession().setAttribute("breadcrumbPage", "assignmentDetails");
-		SessionManager.getCurrentToolSession().setAttribute("middle", "true");
+		setNav(null, "false", "false", "true", null);
 		
 		return "editAssignment";
+	}
+
+	/**
+	 * Go to gradebook setup. State is kept in
+	 * tool session, hence attribute setting.
+	 */
+	public String navigateToGradebookSetup() {
+		setNav("other","","","",null);
+		
+		return "gradebookSetup";
+	}
+	
+	/**
+	 * Go to gradebook course grade setup. State is kept in
+	 * tool session, hence attribute setting.
+	 */
+	public String navigateToFeedbackOptions() {
+		setNav("other","","","",null);
+		
+		return "feedbackOptions";
+	}
+	
+	/**
+	 * Go to spreadsheet (csv) export/bulk import. State is kept in
+	 * tool session, hence attribute setting.
+	 */
+	public String navigateToImportGrades() {
+		setNav("other","","","",null);
+		
+		return "spreadsheetAll";
+	}
+
+	/** 
+	 * Determine where to return to. Used by both Assignmenet Details and
+	 * Instructor View pages, so put here in super class. 
+	 */
+	public String processCancel() {
+		final String breadcrumbPage = getBreadcrumbPage();
+		if (breadcrumbPage != null && !"".equals(breadcrumbPage)) {
+			return breadcrumbPage;
+		}
+		else {
+			String where = (String) SessionManager.getCurrentToolSession().getAttribute("breadcrumbPage");
+			
+			if ("assignmentDetails".equals(where)) {
+				where = (String) SessionManager.getCurrentToolSession().getAttribute("fromPage");
+				SessionManager.getCurrentToolSession().removeAttribute("fromPage");
+			}
+
+			return where;
+		}
+	}
+
+	/**
+	 * Set proper text for navigation button on assignment detials and
+	 * instructor view pages.
+	 */
+	public String getReturnString() {
+		final String breadcrumbPage = getBreadcrumbPage();
+		if (breadcrumbPage != null && !"".equals(breadcrumbPage)) {
+			return ("overview".equals(breadcrumbPage)) ? getLocalizedString("assignment_details_return_to_overview")
+													   : getLocalizedString("assignment_details_return_to_roster");
+		}
+		else {
+			final String where = (String) SessionManager.getCurrentToolSession().getAttribute("fromPage");
+			return ("overview".equals(where)) ? getLocalizedString("assignment_details_return_to_overview")
+					  						  : getLocalizedString("assignment_details_return_to_roster");
+		}
 	}
 }

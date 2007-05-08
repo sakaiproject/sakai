@@ -153,7 +153,7 @@
 		            </t:commandSortHeader>
 				</f:facet>
 				<t:div styleClass="gbTextOnRow">
-				<h:commandLink action="instructorView">
+				<h:commandLink action="#{assignmentDetailsBean.navigateToInstructorView}">
 					<h:outputText value="#{scoreRow.enrollment.user.sortName}"/>
 					<f:param name="studentUid" value="#{scoreRow.enrollment.user.userUid}"/>
 					<f:param name="returnToPage" value="assignmentDetails" />

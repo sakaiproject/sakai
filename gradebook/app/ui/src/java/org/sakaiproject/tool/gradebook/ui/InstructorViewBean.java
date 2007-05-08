@@ -32,6 +32,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
@@ -402,7 +403,6 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 	/**
 	 * View maintenance methods.
 	 */
-
 	public String getReturnToPage() {
 		if (returnToPage == null)
 			returnToPage = ROSTER_PAGE;
@@ -431,7 +431,39 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 
 		return id;
 	}
+
+	/**
+	 * Go to assignment details page. AssignmentBean contains duplicate
+	 * of this method, cannot migrate up to GradebookDependentBean since
+	 * needs assignmentId, which is defined here.
+	 */
+	public String navigateToAssignmentDetails() {
+		String breadcrumbPage = getBreadcrumbPage();
+		final Boolean middle = new Boolean((String) SessionManager.getCurrentToolSession().getAttribute("middle"));
+		if (breadcrumbPage == null || middle) {
+			AssignmentDetailsBean assignmentDetailsBean = (AssignmentDetailsBean)FacesUtil.resolveVariable("assignmentDetailsBean");
+			assignmentDetailsBean.setAssignmentId(new Long(assignmentId));
+			assignmentDetailsBean.setBreadcrumbPage(breadcrumbPage);
+			
+			setNav(null, null, null, "false", null);
+			
+			return "assignmentDetails";
+		}
+		else {
+			return breadcrumbPage;
+		}
+	}
+	
+	/**
+	 * Go to either Roster or Assignment Details page.
+	 */
+	public String processCancel() {
+		if (new Boolean((String) SessionManager.getCurrentToolSession().getAttribute("middle")).booleanValue()) {
+			return navigateToAssignmentDetails();
+		}
+		else {
+			return getBreadcrumbPage();
+		}
+
+	}
 }
-
-
-

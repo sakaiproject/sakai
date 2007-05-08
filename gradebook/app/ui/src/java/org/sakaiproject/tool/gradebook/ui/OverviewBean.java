@@ -256,43 +256,38 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
     	return displayGradeEditorCol;
     }
 
+    /**
+     * Set state when navigating to edit page directly from overview page.
+     */
 	public String navigateToEdit() {
-		ToolSession session = SessionManager.getCurrentToolSession();
-
-		session.setAttribute("breadcrumbPage", "overview");
-		session.setAttribute("middle","false");
-		session.setAttribute("add", "false");
-		session.setAttribute("editing", "true");
+		setNav("overview","true","false","false", null);
 		
 		return "editAssignment";
 	}
 	
+    /**
+     * Set state when navigating to add page directly from overview page
+     */
 	public String navigateToAddAssignment() {
-		ToolSession session = SessionManager.getCurrentToolSession();
-
-		session.setAttribute("breadcrumbPage", "overview");
-		session.setAttribute("middle","false");
-		session.setAttribute("adding", "true");
-		session.setAttribute("editing", "false");
+		setNav("overview", "false", "true", "false", null);
 				
 		return "addAssignment";
 	}
 	
+    /**
+     * Set state when navigating to assignment details page directly from overview page
+     */
 	public String navigateToAssignmentDetails() {
-		ToolSession session = SessionManager.getCurrentToolSession();
-
-		session.setAttribute("breadcrumbPage", "overview");
-		session.setAttribute("middle","false");
-		session.setAttribute("adding", "false");
-		session.setAttribute("editing", "false");
+		setNav("overview", "false", "false", "false", null);
 				
 		return "assignmentDetails";		
 	}
 	
+    /**
+     * Set state when navigating to spreadsheet dock page directly from overview page.
+     */
 	public String navigateToSpreadsheet() {
-		ToolSession session = SessionManager.getCurrentToolSession();
-
-		session.setAttribute("breadcrumbPage", "overview");
+		setNav("spreadsheet", "false", "false", "false", null);
 
 		return "spreadsheetListing";
 	}

@@ -111,6 +111,10 @@
 			<value>instructorView</value>
 		</managed-property>
 		<managed-property>
+			<property-name>returnToPage</property-name>
+			<value>#{param.returnToPage}</value>
+		</managed-property>
+		<managed-property>
 			<property-name>studentUid</property-name>
 			<value>#{param.studentUid}</value>
 		</managed-property>
@@ -132,10 +136,6 @@
 			<property-name>assignmentIdParam</property-name>
 			<value>#{param.assignmentId}</value>
 		</managed-property>
-<!-- 		<managed-property>
-			<property-name>breadcrumbPageParam</property-name>
-			<value>#{param.breadcrumbPage}</value>
-		</managed-property> -->
 		<managed-property>
 			<property-name>pageName</property-name>
 			<value>assignmentDetails</value>
@@ -150,22 +150,6 @@
 			<property-name>assignmentId</property-name>
 			<value>#{param.assignmentId}</value>
 		</managed-property>
-<!-- 		<managed-property>
-			<property-name>breadcrumbPageParam</property-name>
-			<value>#{param.breadcrumbPage}</value>
-		</managed-property>
-		<managed-property>
-			<property-name>editing</property-name>
-			<value>#{param.editing}</value>
-		</managed-property>
-		<managed-property>
-			<property-name>adding</property-name>
-			<value>#{param.adding}</value>
-		</managed-property>
-		<managed-property>
-			<property-name>middle</property-name>
-			<value>#{param.middle}</value>
-		</managed-property> -->
 		<managed-property>
 			<property-name>pageName</property-name>
 			<value>editAssignment</value>
@@ -179,26 +163,6 @@
 		<managed-property>
 			<property-name>pageName</property-name>
 			<value>addAssignment</value>
-		</managed-property>
-<!-- 		<managed-property>
-			<property-name>breadcrumbPageParam</property-name>
-			<value>#{param.breadcrumbPage}</value>
-		</managed-property>
-		<managed-property>
-			<property-name>editing</property-name>
-			<value>#{param.editing}</value>
-		</managed-property>
-		<managed-property>
-			<property-name>adding</property-name>
-			<value>#{param.adding}</value>
-		</managed-property>
-		<managed-property>
-			<property-name>middle</property-name>
-			<value>#{param.middle}</value>
-		</managed-property> -->
-		<managed-property>
-			<property-name>pageName</property-name>
-			<value>editAssignment</value>
 		</managed-property>
 	</managed-bean>
 
@@ -234,22 +198,10 @@
 		<managed-bean-name>overviewBean</managed-bean-name>
 		<managed-bean-class>org.sakaiproject.tool.gradebook.ui.OverviewBean</managed-bean-class>
 		<managed-bean-scope>request</managed-bean-scope>
-<!-- 		<managed-property>
+ 		<managed-property>
 			<property-name>breadcrumbPageParam</property-name>
 			<value>#{param.breadcrumbPage}</value>
 		</managed-property>
-		<managed-property>
-			<property-name>editing</property-name>
-			<value>#{param.editing}</value>
-		</managed-property>
-		<managed-property>
-			<property-name>adding</property-name>
-			<value>#{param.adding}</value>
-		</managed-property>
-		<managed-property>
-			<property-name>middle</property-name>
-			<value>#{param.middle}</value>
-		</managed-property> -->
 		<managed-property>
 			<property-name>pageName</property-name>
 			<value>overview</value>
@@ -289,22 +241,10 @@
         <managed-bean-name>rosterBean</managed-bean-name>
         <managed-bean-class>org.sakaiproject.tool.gradebook.ui.RosterBean</managed-bean-class>
         <managed-bean-scope>request</managed-bean-scope>
- 		<managed-property>
+  		<managed-property>
 			<property-name>breadcrumbPageParam</property-name>
 			<value>#{param.breadcrumbPage}</value>
 		</managed-property>
-<!-- 		<managed-property>
-			<property-name>editing</property-name>
-			<value>#{param.editing}</value>
-		</managed-property>
-		<managed-property>
-			<property-name>adding</property-name>
-			<value>#{param.adding}</value>
-		</managed-property>
-		<managed-property>
-			<property-name>middle</property-name>
-			<value>#{param.middle}</value>
-		</managed-property> -->
         <managed-property>
             <property-name>pageName</property-name>
             <value>roster</value>
