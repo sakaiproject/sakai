@@ -83,23 +83,8 @@
 					  		onclick="resize();$(this).prev('.show').toggle(); $('div.toggle', $(this).parents(2)).slideToggle(resize);$(this).toggle();">
 					  		<h:outputText value="#{msgs.cdfm_hide_full_description}" />
 					  </h:outputLink>
-		
 				    
 				</p>
-<%--
-				<p class="textPanelFooter specialLink">
-					<h:commandLink immediate="true" action="#{ForumTool.processActionToggleDisplayExtendedDescription}" rendered="#{ForumTool.selectedTopic.hasExtendedDesciption}"
-						id="topic_extended_show" value="#{msgs.cdfm_read_full_description}" title="#{msgs.cdfm_read_full_description}">
-						<f:param value="#{topic.topic.id}" name="topicId"/>
-						<f:param value="processActionDisplayTopic" name="redirectToProcessAction"/>
-					</h:commandLink>
-					<h:commandLink immediate="true" action="#{ForumTool.processActionToggleDisplayExtendedDescription}" id="topic_extended_hide"
-						 value="#{msgs.cdfm_hide_full_description}" rendered="#{ForumTool.selectedTopic.readFullDesciption}" title="#{msgs.cdfm_hide_full_description}">
-						<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
-						<f:param value="processActionDisplayTopic" name="redirectToProcessAction"/>
-					</h:commandLink>
-				</p>	
-				--%>
 				<br />
 				<f:verbatim><div class="toggle" style="display:none"></f:verbatim>
 					<mf:htmlShowArea  id="forum_fullDescription" hideBorder="false"	 value="#{ForumTool.selectedTopic.topic.extendedDescription}"/> 
@@ -111,62 +96,6 @@
 			Also the threading seems off. Finnaly - the threading indent shoud be done with a 1em padding per indent instead of by use of &nbsp;--%>
 		<mf:hierDataTable styleClass="hierItemBlockWrapper listHier lines nolines" id="messagesInHierDataTable" value="#{ForumTool.messages}" var="message" expanded="#{ForumTool.expanded}"
 		                  columnClasses="attach,bogus,bogus,bogus" cellspacing="0" cellpadding="0">
-	<%--
-			<h:column>
-				<f:facet name="header">
-					<h:commandLink action="#{ForumTool.processCheckAll}" value="#{msgs.cdfm_checkall}" title="#{msgs.cdfm_checkall}"/>
-				</f:facet>
-				<h:selectBooleanCheckbox value="#{message.selected}"  rendered="#{message.read && !ForumTool.displayUnreadOnly}"/>
-				<h:selectBooleanCheckbox value="#{message.selected}"  rendered="#{!message.read}"/>
-			</h:column>
-	--%>
-	<%--
-			<h:column>
-				<f:facet name="header">
-					<h:graphicImage value="/images/attachment.gif" alt="#{msgs.msg_has_attach}" />
-				</f:facet>
-				<h:graphicImage value="/images/attachment.gif" rendered="#{message.hasAttachment}" alt="#{msgs.msg_has_attach}"/>
-			</h:column>
-	--%>
-	<%--
-			<h:column>
-				<f:facet name="header">
-					<h:graphicImage value="/images/silk/email.png" alt="#{msgs.msg_is_unread}" />
-				</f:facet>
-				<h:commandLink action="#{ForumTool.processDfMsgMarkMsgAsRead}">
-	                <f:param value="#{message.message.id}" name="messageId"/>
-        	    	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
-        	    	<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
-	   	        	<h:graphicImage value="/images/silk/email.png" alt="#{msgs.msg_is_unread}" rendered="#{!message.read}" />
-               	</h:commandLink>
-			</h:column>
-	--%>
-			<%--
-			<h:column rendered="#{message.depth == 0}" id="_thread_line">
-					<f:verbatim><div class="hierItemBlockWrapper" style="padding-top:0;margin-top:0;"></f:verbatim>
-							<h:commandLink action="#{ForumTool.processActionDisplayThread}" immediate="true" title="#{message.message.title}"
-								rendered="#{message.depth == 0}">
-							   	<h:outputText value="#{message.message.title}" rendered="#{message.read}" />
-			    	        	<h:outputText styleClass="unreadMsg" value="#{message.message.title}" rendered="#{!message.read}"/>
-			        	    	<f:param value="#{message.message.id}" name="messageId"/>
-			        	    	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
-			        	    	<f:param value="#{ForumTool.selectedTopic.topic.baseForum.id}" name="forumId"/>
-				          	</h:commandLink>
-								
-				   	    	<f:verbatim> &nbsp; &ndash; &nbsp; </f:verbatim>
-				   	    	<h:outputText value="#{message.message.author}" rendered="#{message.read}" />
-				   	    	<h:outputText styleClass="unreadMsg" value="#{message.message.author}" rendered="#{!message.read }" />
-				   	        <f:verbatim>&nbsp; (</f:verbatim>
-				   	        	<h:outputText value="#{message.message.created}" rendered="#{message.read}">
-				   	        		<f:convertDateTime pattern="#{msgs.date_format}" />
-				   	       		</h:outputText>
-				   	       		<h:outputText styleClass="unreadMsg" value="#{message.message.created}" rendered="#{!message.read}">
-				   	        		<f:convertDateTime pattern="#{msgs.date_format}" />
-				   	       		</h:outputText>
-				   	        <f:verbatim>) &nbsp; </f:verbatim>
-				   	 <f:verbatim></div></f:verbatim>
-			</h:column>
-			--%>
 			<h:column id="_toggle">
 				<f:facet name="header">
 					<h:commandLink action="#{ForumTool.processActionToggleExpanded}" immediate="true" title="#{msgs.cdfm_collapse_expand_all}">
@@ -182,7 +111,16 @@
 				</f:facet>
 				<h:outputText escape="false" value="<a id=\"#{message.message.id}\" name=\"#{message.message.id}\"></a>" />
 				
-				<h:outputText value="#{msgs.cdfm_msg_deleted_label} " styleClass="highlight" style="color: red" rendered="#{message.deleted}" />
+				<%-- Display deleted message linked if any child messages (not deleted) --%>
+				<h:panelGroup styleClass="inactive" rendered="#{message.deleted && message.depth == 0 && message.childCount > 0}" >
+					<h:commandLink action="#{ForumTool.processActionDisplayThread}" immediate="true" title="#{msgs.cdfm_msg_deleted_label}" >
+						<h:outputText value="#{msgs.cdfm_msg_deleted_label}" />
+
+       	    			<f:param value="#{message.message.id}" name="messageId"/>
+   	    		    	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+    			    	<f:param value="#{ForumTool.selectedTopic.topic.baseForum.id}" name="forumId"/>
+					</h:commandLink>
+				</h:panelGroup>
 				
 				<h:panelGroup rendered="#{!message.deleted}">
 					<h:outputText value="#{msgs.cdfm_msg_pending_label} " styleClass="highlight" rendered="#{message.msgPending}" />
@@ -190,37 +128,46 @@
 				
 					<%-- Rendered to view current thread only --%>
 					<h:commandLink action="#{ForumTool.processActionDisplayThread}" immediate="true" title="#{message.message.title}"
-							rendered="#{message.depth == 0}">
+						rendered="#{message.depth == 0}">
 				   		<h:outputText escape="false" value="#{message.message.title}" rendered="#{message.read}" />
     	        		<h:outputText styleClass="unreadMsg" value="#{message.message.title}" rendered="#{!message.read}"/>
 
-        	    		<f:param value="#{message.message.id}" name="messageId"/>
-	        	    	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
-    	    	    	<f:param value="#{ForumTool.selectedTopic.topic.baseForum.id}" name="forumId"/>
+	       	    		<f:param value="#{message.message.id}" name="messageId"/>
+    	    	    	<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+   	    		    	<f:param value="#{ForumTool.selectedTopic.topic.baseForum.id}" name="forumId"/>
 	    	      	</h:commandLink>
+				</h:panelGroup>
 
 
-					<%-- Rendered to view current message only --%>
+				<%-- Rendered to view current message only --%>
+				<h:panelGroup styleClass="inactive" rendered="#{message.deleted && (message.depth != 0 || message.childCount == 0)}" >
+					<f:verbatim><span></f:verbatim>
+						<h:outputText value="#{msgs.cdfm_msg_deleted_label}" />
+					<f:verbatim></span></f:verbatim>
+				</h:panelGroup>
+
+				<h:panelGroup rendered="#{!message.deleted}">	          	
 					<h:commandLink action="#{ForumTool.processActionDisplayMessage}" immediate="true" title=" #{message.message.title}"
-							rendered="#{message.depth != 0}" >
+						rendered="#{message.depth != 0}" >
 					   	<h:outputText value="#{message.message.title}" rendered="#{message.read}" />
     	    	    	<h:outputText styleClass="unreadMsg" value="#{message.message.title}" rendered="#{!message.read}"/>
-        	    		<f:param value="#{message.message.id}" name="messageId"/>
-        	    		<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
-	        	    	<f:param value="#{ForumTool.selectedTopic.topic.baseForum.id}" name="forumId"/>
-		          	</h:commandLink>
-	          	
+
+    	   	    		<f:param value="#{message.message.id}" name="messageId"/>
+       		    		<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+        		    	<f:param value="#{ForumTool.selectedTopic.topic.baseForum.id}" name="forumId"/>
+	          		</h:commandLink>
+
 		          	<h:outputText value="  " />
 				
 					<h:graphicImage value="/images/silk/email.png" alt="#{msgs.msg_is_unread}" rendered="#{!message.read}" style="cursor:pointer"
-      								onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id}, this);"
-				   	        		onmouseover="this.src=this.src.replace(/email\.png/, 'email_open.png');"
-				   	        		onmouseout="this.src=this.src.replace(/email_open\.png/, 'email.png');" />
-               	
-    	           	<h:outputText escape="false" value="<br />&nbsp;" rendered="#{message.depth == 0 }" />
-        	       	<h:outputText escape="false" styleClass="textPanelFooter" rendered="#{message.depth == 0 && message.childCount > 0}"
-            	   		value="#{msgs.cdfm_openb} #{message.childCount} #{msgs.cdfm_lowercase_msg} - #{message.childUnread} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" />
+   							onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id}, this);"
+			   	       		onmouseover="this.src=this.src.replace(/email\.png/, 'email_open.png');"
+			   	       		onmouseout="this.src=this.src.replace(/email_open\.png/, 'email.png');" />
 				</h:panelGroup>
+               	
+   	       		<h:outputText escape="false" value="<br />&nbsp;" rendered="#{message.depth == 0}" />
+    	   		<h:outputText escape="false" styleClass="textPanelFooter" rendered="#{message.depth == 0 && message.childCount > 0}"
+           	   			value="#{msgs.cdfm_openb} #{message.childCount} #{msgs.cdfm_lowercase_msg} - #{message.childUnread} #{msgs.cdfm_unread} #{msgs.cdfm_closeb}" />
 			</h:column>
 
 			<h:column>

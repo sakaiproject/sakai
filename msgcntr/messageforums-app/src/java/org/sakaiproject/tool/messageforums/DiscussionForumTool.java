@@ -3496,6 +3496,8 @@ public class DiscussionForumTool
 
     this.deleteMsg = false;
 
+    LOG.info("Forum message" + message.getTitle() + "(" + message.getId() + ") has been deleted by " + getUserNameOrEid());
+
     // go to thread view or all messages depending on
     // where come from
     if (!"".equals(fromPage)) {

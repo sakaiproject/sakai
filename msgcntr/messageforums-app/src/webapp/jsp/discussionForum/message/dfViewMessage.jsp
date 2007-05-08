@@ -61,10 +61,10 @@
 		<p class="textPanelFooter">
 			<h:commandLink immediate="true" 
 		                   action="#{ForumTool.processDfComposeToggle}" 
-				               onmousedown="document.forms[0].onsubmit();"
-			                 rendered="#{ForumTool.selectedTopic.hasExtendedDesciption}" 
-			                 value="#{msgs.cdfm_read_full_description}"
-			                 title="#{msgs.cdfm_read_full_description}">
+				           onmousedown="document.forms[0].onsubmit();"
+			               rendered="#{ForumTool.selectedTopic.hasExtendedDesciption}" 
+			               value="#{msgs.cdfm_read_full_description}"
+			               title="#{msgs.cdfm_read_full_description}">
 			  <f:param value="dfViewMessage" name="redirectToProcessAction"/>
 			  <f:param value="true" name="composeExpand"/>
 		  </h:commandLink>
@@ -143,13 +143,16 @@
 	
     <h:panelGrid columns="3" styleClass="itemSummary" style="width: 100%;">
     	<h:outputText value="#{msgs.cdfm_subject}"/>
-    	<h:panelGroup rendered="#{ForumTool.selectedMessage.message.deleted}">
- 	    	<h:outputText value="#{msgs.cdfm_msg_deleted_label}: &nbsp; " escape="false" styleClass="highlight" />
+
+		<%-- Display if message deleted. need to wrap text since inactive class styles children tags only --%>
+    	<h:panelGroup styleClass="inactive" rendered="#{ForumTool.selectedMessage.message.deleted}">
+			<f:verbatim><span></f:verbatim>
+				<h:outputText value="#{msgs.cdfm_msg_deleted_label}" />
+			<f:verbatim></span></f:verbatim>
  		</h:panelGroup>
  		
   		<h:panelGroup rendered="#{!ForumTool.selectedMessage.message.deleted}" >
-    		<h:outputText value="#{ForumTool.selectedMessage.message.title}" 
-    				rendered="#{!ForumTool.selectedMessage.message.deleted || ForumTool.instructor}" />
+    		<h:outputText value="#{ForumTool.selectedMessage.message.title}" />
     	</h:panelGroup>
     	<h:panelGroup styleClass="msgNav">
     		<h:commandLink action="#{ForumTool.processDisplayPreviousMsg}" rendered="#{ForumTool.selectedMessage.hasPre}" 
