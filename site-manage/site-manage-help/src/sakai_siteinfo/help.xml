@@ -77,7 +77,7 @@
    
    <bean id="importToSite" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>arao</value></property>
-      <property name="name"><value>Import to Site</value></property>
+      <property name="name"><value>Import from Site</value></property>
       <property name="location"><value>/sakai_siteinfo/arao.html</value></property>
    </bean>
    
