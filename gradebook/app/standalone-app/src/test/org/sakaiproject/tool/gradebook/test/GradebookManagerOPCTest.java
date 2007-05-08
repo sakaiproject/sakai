@@ -2202,7 +2202,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 	
 	}
 	
-	public void testFillInZeroForNullGradeRecrods() throws Exception
+	public void testfillInZeroForNullGradeRecords() throws Exception
 	{
 		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
 		Assignment assign = gradebookManager.getAssignment(assgn1Long);
@@ -2243,7 +2243,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 	
 		Assert.assertTrue(gradebookManager.checkStuendsNotSubmitted(persistentGradebook));
 		Assert.assertTrue(gradebookManager.getAllAssignmentGradeRecords(persistentGradebook.getId(), uid).size() == 10);
-		gradebookManager.fillInZeroForNullGradeRecrods(persistentGradebook);
+		gradebookManager.fillInZeroForNullGradeRecords(persistentGradebook);
 		Assert.assertTrue(!gradebookManager.checkStuendsNotSubmitted(persistentGradebook));
 		Assert.assertTrue(gradebookManager.getAllAssignmentGradeRecords(persistentGradebook.getId(), uid).size() == 20);
 		
@@ -2256,7 +2256,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		}
 		
 		Assert.assertTrue(gradebookManager.checkStuendsNotSubmitted(persistentGradebook));
-		gradebookManager.fillInZeroForNullGradeRecrods(persistentGradebook);
+		gradebookManager.fillInZeroForNullGradeRecords(persistentGradebook);
 		Assert.assertTrue(!gradebookManager.checkStuendsNotSubmitted(persistentGradebook));
 	}
 }
