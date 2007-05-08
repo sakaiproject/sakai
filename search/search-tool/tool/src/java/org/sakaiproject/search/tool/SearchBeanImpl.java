@@ -661,10 +661,26 @@ public class SearchBeanImpl implements SearchBean
 		return ServerConfigurationService.getPortalUrl() + "/tool/" + placementId
 				+ "/opensearch";
 	}
+	
+	
+	public String getSherlockIconUrl()
+	{
+		return FormattedText.escapeHtml(getBaseUrl() + SherlockSearchBeanImpl.UPDATE_IMAGE,false);
+	}
+
+	public String getSherlockUpdateUrl()
+	{
+		return FormattedText.escapeHtml(getBaseUrl() + SherlockSearchBeanImpl.UPDATE_URL,false);
+	}
 
 	public String getBaseUrl()
 	{
 		return ServerConfigurationService.getPortalUrl() + "/tool/" + placementId;
+	}
+	
+	public String getPortalBaseUrl()
+	{
+		return ServerConfigurationService.getPortalUrl() + "/directtool/" + placementId;
 	}
 
 	public String getSiteTitle()

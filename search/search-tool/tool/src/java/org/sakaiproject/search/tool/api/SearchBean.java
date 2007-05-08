@@ -207,4 +207,19 @@ public interface SearchBean
 	 * @return
 	 */
 	boolean foundNoResults();
+
+	/**
+	 * @return
+	 */
+	String getSherlockIconUrl();
+
+	/**
+	 * @return
+	 */
+	String getSherlockUpdateUrl();
+
+	/**
+	 * @return
+	 */
+	String getPortalBaseUrl();
 }

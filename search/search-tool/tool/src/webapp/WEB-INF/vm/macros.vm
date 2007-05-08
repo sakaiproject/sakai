@@ -22,7 +22,8 @@
         	addSherlockButton(
         	    "${searchModel.siteTitle}",
         		"${rlb.jsp_sakai_search}",
-        		"${searchModel.baseUrl}");
+        		"${searchModel.sherlockUpdateUrl}",
+        		"${searchModel.sherlockIconUrl}");
         }
         appendLoader(searchLocalAddSherlock);
     </script>

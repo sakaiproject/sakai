@@ -31,9 +31,9 @@ public class SherlockSearchBeanImpl implements SherlockSearchBean
 
 	private static final String IMAGE_ICON = "/images/sherlock.gif";
 
-	private static final String UPDATE_URL = "/sakai.src";
+	static final String UPDATE_URL = "/sakai.src";
 
-	private static final String UPDATE_IMAGE = "/sakai.gif";
+	static final String UPDATE_IMAGE = "/sakai.gif";
 
 	private HttpServletRequest request;
 
@@ -52,6 +52,8 @@ public class SherlockSearchBeanImpl implements SherlockSearchBean
 	private Site currentSite;
 
 	private String baseURL;
+	
+	private String portalBaseURL;
 
 	private ServletContext context;
 
@@ -70,9 +72,15 @@ public class SherlockSearchBeanImpl implements SherlockSearchBean
 		this.currentSite = this.siteService.getSite(this.siteId);
 		String siteCheck = currentSite.getReference();
 		baseURL = getBaseURL();
+		portalBaseURL = getPortalBaseURL();
 	}
 
 	private String getBaseURL()
+	{
+		return ServerConfigurationService.getPortalUrl() + "/tool/"
+				+ placementId;
+	}
+	private String getPortalBaseURL()
 	{
 		return ServerConfigurationService.getPortalUrl() + "/directtool/"
 				+ placementId;
@@ -80,7 +88,7 @@ public class SherlockSearchBeanImpl implements SherlockSearchBean
 
 	public String getSearchURL()
 	{
-		return baseURL + "/index";
+		return portalBaseURL + "/index";
 	}
 
 	public String getSiteName()

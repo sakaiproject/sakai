@@ -169,25 +169,25 @@ function getAnchorPosition( anchorName){
     return coords;
   }
 }
-function installSherlock(name,cat,baseURL) {
+function installSherlock(name,cat,updateURL,iconURL) {
   if ((typeof window.sidebar == "object") && (typeof
   window.sidebar.addSearchEngine == "function"))
   {
     window.sidebar.addSearchEngine(
-    	baseURL+"/sakai.src",
-    	baseURL+"/sakai.gif",
+    	updateURL,
+    	iconURL,
     	name,
 		cat); 
   }
 	
 }
 
-function addSherlockButton(name,cat,baseURL)
+function addSherlockButton(name,cat,updateURL,iconURL)
 {
   if ((typeof window.sidebar == "object") && (typeof
   window.sidebar.addSearchEngine == "function"))
   {
-    var functionCall="installSherlock('"+name+"','"+cat+"','"+baseURL+"' ); return false; ";
+    var functionCall="installSherlock('"+name+"','"+cat+"','"+updateURL+"','"+iconURL+"' ); return false; ";
     var tag="<a href=\"#\" id=\"addSherlockButton\" onclick=\""+
     	functionCall+
     	"\" ><img src=\"/library/image/transparent.gif\" "+

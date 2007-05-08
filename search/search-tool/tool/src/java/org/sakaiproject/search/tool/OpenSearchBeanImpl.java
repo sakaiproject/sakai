@@ -57,7 +57,7 @@ public class OpenSearchBeanImpl implements OpenSearchBean
 	private Placement placement;
 
 	private String baseURL;
-
+	
 	public OpenSearchBeanImpl(HttpServletRequest request,
 			SearchService searchService, SiteService siteService,
 			ToolManager toolManager) throws IdUnusedException
@@ -76,7 +76,7 @@ public class OpenSearchBeanImpl implements OpenSearchBean
 
 	private String getBaseURL()
 	{
-		return ServerConfigurationService.getPortalUrl()+"/directtool/"+placementId;
+		return ServerConfigurationService.getPortalUrl()+"/tool/"+placementId;
 	}
 
 	public String getAdultContent()
