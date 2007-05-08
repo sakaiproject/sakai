@@ -33,7 +33,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
+import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.faces.event.ValueChangeEvent;
 
@@ -159,11 +161,30 @@ public abstract class EnrollmentTableBean
     public abstract void setSortColumn(String sortColumn);
 
     // Paging.
+    
+    /**
+     * This method more or less turns a JSF input component (namely the Sakai Pager tag)
+     * into a JSF command component. We want the Pager to cause immediate pseudo-navigation
+     * to a new state, throwing away any score input values without bothering to
+     * validate them. But because the Pager is a UIInput component, it doesn't
+     * have an action method that will be called before full validation is done.
+     * Instead, we declare our Pager input tag to be immediate, set this
+     * valueChangeListener, and explicitly jump over all other intervening
+     * phases directly to the rendering phase, which should then pick up the new paging
+     * values.  
+     */
+    public void changePagingState(ValueChangeEvent valueChange) {
+    	if (log.isDebugEnabled()) log.debug("changePagingState: old=" + valueChange.getOldValue() + ", new=" + valueChange.getNewValue());
+    	FacesContext.getCurrentInstance().renderResponse();
+    }
+        
     public int getFirstRow() {
-        return firstScoreRow;
+    	if (log.isDebugEnabled()) log.debug("getFirstRow " + firstScoreRow);
+    	return firstScoreRow;
     }
     public void setFirstRow(int firstRow) {
-        firstScoreRow = firstRow;
+    	if (log.isDebugEnabled()) log.debug("setFirstRow from " + firstScoreRow + " to " + firstRow);
+    	firstScoreRow = firstRow;
     }
     public int getMaxDisplayedRows() {
         return maxDisplayedScoreRows;

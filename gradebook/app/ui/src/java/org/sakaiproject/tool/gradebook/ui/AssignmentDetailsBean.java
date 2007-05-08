@@ -137,7 +137,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 
 	protected void init() {
 		if (logger.isDebugEnabled()) logger.debug("loadData assignment=" + assignment + ", previousAssignment=" + previousAssignment + ", nextAssignment=" + nextAssignment);
-		
+		if (logger.isDebugEnabled()) logger.debug("isNotValidated()=" + isNotValidated());
 		if (logger.isDebugEnabled()) logger.debug("workInProgress=" + workInProgress);
 		if (workInProgress) {			
 			// Keeping the current form values in memory is a one-shot deal at

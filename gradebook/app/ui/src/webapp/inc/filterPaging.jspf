@@ -24,6 +24,7 @@
 	</t:div>
 
 	<t:div styleClass="shorttext">
-	<sakai:pager id="pager" totalItems="#{bean.dataRows}" firstItem="#{bean.firstRow}" pageSize="#{bean.maxDisplayedRows}" textStatus="#{msgs.paging_status_students}" />
+	<sakai:pager id="pager" totalItems="#{bean.dataRows}" firstItem="#{bean.firstRow}" pageSize="#{bean.maxDisplayedRows}" textStatus="#{msgs.paging_status_students}" 
+		valueChangeListener="#{bean.changePagingState}" immediate="true"/>
 	</t:div>
 </h:panelGrid>
