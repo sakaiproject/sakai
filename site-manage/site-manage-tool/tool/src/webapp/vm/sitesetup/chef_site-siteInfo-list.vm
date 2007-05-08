@@ -364,17 +364,13 @@
 								<label class="skip" for="role$uniqname">$tlang.getString("sitegen.siteinfolist.role.select")  $participant.getDisplayId()</label>
 								<select id="role$uniqname" name="role$uniqname">
 									#foreach($r in $roles)
-										#if($r.Id == $uRole)
-										<option value ="$r.Id" selected>
+										<option value ="$r.Id"
+											#if($r.Id == $uRole)
+												selected="selected"
+											#end
+										>
 											$r.Id
 										</option>
-										#else
-											#if(!$!r.isProviderOnly())
-											<option value ="$r.Id">
-												$r.Id 
-											</option>
-											#end
-										#end
 									#end
 								</select>
 							#else
