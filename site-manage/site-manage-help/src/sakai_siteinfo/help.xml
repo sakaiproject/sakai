@@ -94,7 +94,12 @@
       <property name="location"><value>/sakai_siteinfo/aral.html</value></property>
    </bean>
 
-   
+   <bean id="emailTools" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>aueu</value></property>
+      <property name="name"><value>Tools for managing email</value></property>
+      <property name="location"><value>/sakai_siteinfo/aueu.html</value></property>
+   </bean>
+
     <bean id="org.sakaiproject.api.app.help.TableOfContents" 
           class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
       <property name="name"><value>root</value></property>
@@ -119,6 +124,7 @@
                      <ref bean="importToSite"/>
                      <ref bean="viewSiteInfo"/>
                      <ref bean="duplicateSite"/>
+                     <ref bean="emailTools"/>
                   </list>
                </property>
             </bean>
