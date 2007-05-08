@@ -30,7 +30,16 @@ public class ResourceTypeLabeler
 {
 	public String getLabel(ResourceToolAction action)
 	{
-		String label = action.getLabel();
+		String label = null;
+		if(action == null)
+		{
+			ResourcesAction.logger.info("Null action passed to labeler ");
+			label = "";
+		}
+		else
+		{
+			label = action.getLabel();
+		}
 		if(label == null)
 		{
 			switch(action.getActionType())

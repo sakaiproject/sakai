@@ -258,7 +258,7 @@ public class ListItem
         
 		item.setOtherActions(ResourcesAction.getActions(entity, item.getPermissions(), registry));
 		
-		item.setPasteActions(ResourcesAction.getPasteActions(entity, item.getPermissions(), registry,items_to_be_moved, items_to_be_copied));
+		item.setPasteActions(ResourcesAction.getPasteActions(entity, item.getPermissions(), registry, items_to_be_moved, items_to_be_copied));
 		
 		return item;
 	}

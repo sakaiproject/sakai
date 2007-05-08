@@ -2009,11 +2009,13 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	    
 	    List<ResourceToolAction> actions = new Vector<ResourceToolAction>();
 	    
+	    Set<String> memberIds = new TreeSet<String>();
 	    if(permissions.contains(ContentPermissions.CREATE))
 	    {
 		    if(selectedItem.isCollection())
 		    {
 		    	resourceType = ResourceType.TYPE_FOLDER;
+		    	memberIds.addAll(((ContentCollection) selectedItem).getMembers());
 		    }
 		    else
 		    {
@@ -2021,13 +2023,32 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		    	// String mimetype = resource.getContentType();
 		    	resourceType = resource.getResourceType();
 		    }
+		    // add the selectedItem's id so we never try to paste an item into itself
+		    memberIds.add(selectedItem.getId());
 		    
 		    // get the registration for the current item's type 
 		    ResourceType typeDef = registry.getType(resourceType);
 		    if(items_to_be_moved != null && ! items_to_be_moved.isEmpty())
 		    {
+		    	// check items_to_be_moved to ensure there's at least one item that can be pasted here (SAK-9837)
+	    		String slash1 = selectedItem.getId().endsWith("/") ? "" : "/";
+		    	boolean movable = false;
+		    	for(String itemId : items_to_be_moved)
+		    	{
+		    		if(! itemId.equals(selectedItem.getId()))
+		    		{
+			    		String name = isolateName(itemId);
+			    		String slash2 = itemId.endsWith("/") ? "/" : "";
+			    		if(! memberIds.contains(selectedItem.getId() + slash1 + name + slash2))
+			    		{
+			    			movable = true;
+			    			break;
+			    		}
+		    		}
+		    	}
+		    	
 		    	List<ResourceToolAction> conditionalContentNewActions = typeDef.getActions(PASTE_MOVED_ACTIONS);
-		    	if(conditionalContentNewActions != null)
+		    	if(movable && conditionalContentNewActions != null)
 		    	{
 		    		actions.addAll(conditionalContentNewActions);
 		    	}
@@ -2035,8 +2056,25 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	
 		    if(items_to_be_copied != null && ! items_to_be_copied.isEmpty())
 		    {
+		    	// check items_to_be_copied to ensure there's at least one item that can be pasted here (SAK-9837)
+	    		String slash1 = selectedItem.getId().endsWith("/") ? "" : "/";
+		    	boolean copyable = false;
+		    	for(String itemId : items_to_be_copied)
+		    	{
+		    		if(! itemId.equals(selectedItem.getId()))
+		    		{
+			    		String name = isolateName(itemId);
+			    		String slash2 = itemId.endsWith("/") ? "/" : "";
+			    		if(! memberIds.contains(selectedItem.getId() + slash1 + name + slash2))
+			    		{
+			    			copyable = true;
+			    			break;
+			    		}
+			    	}
+	    		}
+		    	
 		    	List<ResourceToolAction> conditionalContentNewActions = typeDef.getActions(PASTE_COPIED_ACTIONS);
-		    	if(conditionalContentNewActions != null)
+		    	if(copyable && conditionalContentNewActions != null)
 		    	{
 		    		actions.addAll(conditionalContentNewActions);
 		    	}
@@ -7668,6 +7706,16 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				addAlert(state, trb.getFormattedMessage("paste.error", new Object[]{name}));
 			}
 			catch(IdUsedException e)
+			{
+				String name = isolateName(entityId);
+				if(slAction != null && ref != null)
+				{
+					slAction.cancelAction(ref);
+					name  = ref.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+				}
+				addAlert(state, trb.getFormattedMessage("paste.error", new Object[]{name}));
+			}
+			catch(InconsistentException e)
 			{
 				String name = isolateName(entityId);
 				if(slAction != null && ref != null)
