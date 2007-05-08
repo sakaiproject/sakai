@@ -466,10 +466,12 @@ public class DbCitationService extends BaseCitationService
 				{
 					((BasicField) field).setOrder(i);
 				}
-				insertSchemaField(field, schemaId);
 				fields[2] = field.getIdentifier();
 				ok = m_sqlService.dbWrite(statement, fields);
-
+				if(ok)
+				{
+					insertSchemaField(field, schemaId);
+				}
 			}
 
 
