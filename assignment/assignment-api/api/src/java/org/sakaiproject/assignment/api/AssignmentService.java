@@ -742,28 +742,4 @@ public interface AssignmentService extends EntityProducer
 	 *  Is Gradebook defined for the site?
 	 */
 	public boolean isGradebookDefined();
-	
-	/**
-	 * integration with gradebook
-	 *
-	 * @param assignmentRef Assignment reference
-	 * @param associateGradebookAssignment The title for the associated GB assignment
-	 * @param oAssociateGradebookAssignment The title for the old associated GB assignment
-	 * @param addUpdateRemoveAssignment "add" for adding the assignment; "update" for updating the assignment; "remove" for remove assignment
-	 * @param oldAssignment_title The original assignment title
-	 * @param newAssignment_title The updated assignment title
-	 * @param newAssignment_maxPoints The maximum point of the assignment
-	 * @param newAssignment_dueTime The due time of the assignment
-	 * @param submissionRef Any submission grade need to be updated? Do bulk update if null
-	 * @param updateRemoveSubmission "update" for update submission;"remove" for remove submission
-	 * @param the result String
-	 */
-	public String integrateGradebook (String assignmentRef, String associateGradebookAssignment, String oAssociateGradebookAssignment,  String addUpdateRemoveAssignment, String oldAssignment_title, String newAssignment_title, int newAssignment_maxPoints, Time newAssignment_dueTime, String submissionRef, String updateRemoveSubmission);
-
-	/**
-	 * release the associated Gradebook assignment to student or not
-	 * @param assignmentTitle The title of Gradebook assignment
-	 * @param release true if releasing the assignment;false otherwise
-	 */
-	public void releaseGradebookAssignment(String assignmentTitle, boolean release);
 }

@@ -697,27 +697,11 @@ public class AssignmentService {
 		return service.canSubmit(param0, param1);
 	}
 	
-	public static String integrateGradebook (String param0, String param1, String param2, String param3, String param4, String param5, int param6, Time param7, String param8, String param9){
-		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null)
-			return "";
-
-		return service.integrateGradebook(param0, param1, param2, param3, param4, param5, param6, param7, param8, param9);
-	}
-	
 	public static boolean isGradebookDefined(){
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
 		if (service == null)
 			return false;
 
 		return service.isGradebookDefined();
-	}
-	
-	public static void releaseGradebookAssignment(String param0, boolean param1){
-		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null)
-			return;
-
-		service.releaseGradebookAssignment(param0, param1);
-	}
+	}	
 }
