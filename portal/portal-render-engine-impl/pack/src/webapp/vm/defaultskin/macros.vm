@@ -313,11 +313,10 @@ ${responseHead}
 	</div>
 #end	
 </div>
-<ul id="siteHierarchy"> 
 #foreach ( $site in $tabsSites)
   #if (${site.isCurrentSite})
     #if ( $site.isChild )
-      <!-- Experimental breadcrumbs - need formatting -->
+      <ul id="siteHierarchy"> 
       #set ($tabCountBread =0)
       #foreach ( $pwd in $site.pwd )
           #set ($tabCountBread =$tabCountBread + 1)       
@@ -329,10 +328,10 @@ ${responseHead}
                 <a href="${pwd.siteUrl}" title="${pwd.siteTitle}"><span>${pwd.siteTitle}</span></a>
                   </li>
       #end
+      </ul>
     #end
   #end
 #end
-</ul>
 <!-- end includeTabs -->
 #end
 ##------------------------------------------------------------------------------------------
