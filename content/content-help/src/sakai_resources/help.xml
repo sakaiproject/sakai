@@ -111,6 +111,12 @@
       <property name="location"><value>/sakai_resources/auta.html</value></property>
    </bean>
 
+   <bean id="unsupportedChars" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>auze</value></property>
+      <property name="name"><value>Unsupported characters</value></property>
+      <property name="location"><value>/sakai_resources/auze.html</value></property>
+   </bean>
+
    <bean id="webDavOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>aqyy</value></property>
       <property name="name"><value>WebDAV Overview</value></property>
@@ -128,6 +134,13 @@
       <property name="name"><value>Using WebDAV with Mac OS X</value></property>
       <property name="location"><value>/sakai_resources/aqyi.html</value></property>
    </bean>
+
+   <bean id="siteId" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>atla</value></property>
+      <property name="name"><value>Finding your siteID</value></property>
+      <property name="location"><value>/sakai_resources/atla.html</value></property>
+   </bean>
+   
    
     <bean id="org.sakaiproject.api.app.help.TableOfContents" 
           class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
@@ -156,9 +169,11 @@
                      <ref bean="sortResource"/>
                      <ref bean="changePermissions"/>
                      <ref bean="unHide"/>
+                     <ref bean="unsupportedChars"/>
                      <ref bean="webDavOverview"/>
                      <ref bean="winxpAccess"/>
                      <ref bean="macAccess"/>
+                     <ref bean="siteId"/>
                   </list>
                </property>
             </bean>
