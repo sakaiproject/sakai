@@ -2023,8 +2023,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		    	// String mimetype = resource.getContentType();
 		    	resourceType = resource.getResourceType();
 		    }
-		    // add the selectedItem's id so we never try to paste an item into itself
-		    memberIds.add(selectedItem.getId());
 		    
 		    // get the registration for the current item's type 
 		    ResourceType typeDef = registry.getType(resourceType);
@@ -2037,9 +2035,16 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		    	{
 		    		if(! itemId.equals(selectedItem.getId()))
 		    		{
-			    		String name = isolateName(itemId);
-			    		String slash2 = itemId.endsWith("/") ? "/" : "";
-			    		if(! memberIds.contains(selectedItem.getId() + slash1 + name + slash2))
+		    			if(itemId.endsWith("/"))
+		    			{
+		    				String name = isolateName(itemId) + "/";
+				    		if(! memberIds.contains(selectedItem.getId() + slash1 + name))
+				    		{
+				    			movable = true;
+				    			break;
+				    		}
+		    			}
+			    		else
 			    		{
 			    			movable = true;
 			    			break;
@@ -2063,14 +2068,21 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		    	{
 		    		if(! itemId.equals(selectedItem.getId()))
 		    		{
-			    		String name = isolateName(itemId);
-			    		String slash2 = itemId.endsWith("/") ? "/" : "";
-			    		if(! memberIds.contains(selectedItem.getId() + slash1 + name + slash2))
+		    			if(itemId.endsWith("/"))
+		    			{
+		    				String name = isolateName(itemId) + "/";
+				    		if(! memberIds.contains(selectedItem.getId() + slash1 + name))
+				    		{
+				    			copyable = true;
+				    			break;
+				    		}
+		    			}
+			    		else
 			    		{
 			    			copyable = true;
 			    			break;
 			    		}
-			    	}
+		    		}
 	    		}
 		    	
 		    	List<ResourceToolAction> conditionalContentNewActions = typeDef.getActions(PASTE_COPIED_ACTIONS);
