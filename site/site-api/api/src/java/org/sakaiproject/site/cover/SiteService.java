@@ -90,6 +90,8 @@ public class SiteService
 
 	public static java.lang.String PROP_PARENT_ID = org.sakaiproject.site.api.SiteService.PROP_PARENT_ID;
 
+	public static java.lang.String PROP_SHOW_SUBSITES = org.sakaiproject.site.api.SiteService.PROP_SHOW_SUBSITES;
+
 	public static boolean allowAccessSite(java.lang.String param0)
 	{
 		org.sakaiproject.site.api.SiteService service = getInstance();

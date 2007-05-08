@@ -107,6 +107,9 @@ public interface SiteService extends EntityProducer
 	/** The property to indicate a parent site's id */
 	public static final String PROP_PARENT_ID = "sakai:parent-id";
 
+	/** The property to indicate whether or not subsites are to be added to the tool list */
+	public static final String PROP_SHOW_SUBSITES = "sakai:show-subsites";
+
 	/**
 	 * <p>
 	 * SelectionType enumerates different supported types of selection criteria for getting / counting sites.
