@@ -32,6 +32,7 @@ import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.javax.Filter;
 import org.sakaiproject.time.api.TimeRange;
+import org.sakaiproject.time.api.Time;
 import org.w3c.dom.Element;
 
 /**
@@ -46,6 +47,28 @@ public interface Calendar
 	* @return The context.
 	*/
 	public String getContext();
+
+	/**
+	 ** check if this calendar enables ical exports
+	 ** @return true if the calender allows exports; false if not
+	 **/
+	public boolean getExportEnabled();
+
+	/**
+	 ** set if this calendar enables ical exports
+	 **/
+	public void setExportEnabled( boolean enable );
+
+	/**
+	 ** Get the time of the last modify to this calendar
+	 ** @return String representation of current time
+	 **/
+	public Time getModified();
+
+	/**
+	 ** Set the time of the last modify for this calendar to now
+	 **/
+	public void setModified();
 
 	/**
 	* check permissions for getEvents() and getEvent() on a SITE / calendar level.

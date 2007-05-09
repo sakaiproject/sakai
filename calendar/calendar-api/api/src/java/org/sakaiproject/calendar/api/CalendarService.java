@@ -89,6 +89,10 @@ public interface CalendarService
 	/** The Reference type for a calendar pdf. */
 	public static final String REF_TYPE_CALENDAR_ICAL = "ical";
 
+	/** Calendar property to enable ical export */
+	//(tbd: move to ResourceProperties) 
+	public static final String PROP_ICAL_ENABLE = "ICAL:enable";
+	
 	/** The Reference type for an event. */
 	public static final String REF_TYPE_EVENT = "event";
 
@@ -245,7 +249,21 @@ public interface CalendarService
 	* @return The the internal reference which can be used to access the calendar-in-pdf format from within the system.
 	*/
 	public String calendarICalReference(Reference ref);
-                                       
+
+	/**
+	 ** Determine if public ical export for this calendar is enabled
+	 ** @param ref the calendar reference
+	 ** @return true if allowed, otherwise false
+	 **/
+ 	public boolean getExportEnabled(String ref);
+	
+	/**
+	 ** Enable public ical export for this calendar
+	 ** @param ref the calendar reference
+	 ** @param enable true to enable, otherwise false
+	 **/
+ 	public void setExportEnabled(String ref, boolean enable);
+	
 	/**
 	 * Access the internal reference which can be used to access the event from within the system.
 	 * 

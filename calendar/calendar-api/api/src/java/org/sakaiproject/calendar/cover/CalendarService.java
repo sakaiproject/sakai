@@ -96,6 +96,24 @@ public class CalendarService
 		return service.calendarICalReference(param0);
 	}
                                        
+	public static boolean getExportEnabled(String param0)
+	{
+		org.sakaiproject.calendar.api.CalendarService service = getInstance();
+		if (service == null)
+			return false;
+
+		return service.getExportEnabled(param0);
+	}
+                                       
+	public static void setExportEnabled(String param0, boolean param1)
+	{
+		org.sakaiproject.calendar.api.CalendarService service = getInstance();
+		if (service == null)
+			return;
+
+		service.setExportEnabled(param0, param1);
+	}
+                                       
 	public static java.util.List getCalendars()
 	{
 		org.sakaiproject.calendar.api.CalendarService service = getInstance();

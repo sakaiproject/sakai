@@ -149,7 +149,8 @@ extends VelocityPortletStateAction
 	private final static String TIME_FILTER_SETTING_CUSTOM_START_DAY = "customStartDay";
 	private final static String TIME_FILTER_SETTING_CUSTOM_END_DAY = "customEndDay";
 	
-	private static final String FORM_ALIAS = "alias";
+	private static final String FORM_ALIAS       = "alias";
+	private static final String FORM_ICAL_ENABLE = "icalEnable";
 	
 	/** state selected view */
 	private static final String STATE_SELECTED_VIEW = "state_selected_view";
@@ -1870,7 +1871,8 @@ extends VelocityPortletStateAction
 		}
 
 		/**
-		 * Returns true if the use is allowed to import events into the calendar.
+		 * Returns true if the use is allowed to import (and export) events 
+       * into the calendar.
 		 */
 		static public boolean allowImport(String calendarReference)
 		{
@@ -1923,7 +1925,7 @@ extends VelocityPortletStateAction
 	// for detailed event view navigator
 	private final static String STATE_PREV_ACT = "toPrevActivity";
 	private final static String STATE_NEXT_ACT = "toNextActivity";
-	private final static Object STATE_CURRENT_ACT = "toCurrentActivity";
+	private final static String STATE_CURRENT_ACT = "toCurrentActivity";
 	private final static String STATE_EVENTS_LIST ="eventIds";
 	private final static String STATE_NAV_DIRECTION = "navigationDirection";
 	
@@ -3586,6 +3588,7 @@ extends VelocityPortletStateAction
 
 		// provide form names
 		context.put("form-alias", FORM_ALIAS);
+		context.put("form-ical-enable", FORM_ICAL_ENABLE);
 		context.put("form-submit", BUTTON + "doIcalExport");
 		context.put("form-cancel", BUTTON + "doCancel");
 
@@ -3603,11 +3606,16 @@ extends VelocityPortletStateAction
       
 			
 		// Add iCal Export URL
-		Reference calendarRef = EntityManager.newReference(state.getPrimaryCalendarReference());
+		Reference calendarRef = EntityManager.newReference(calId);
 		String icalUrl = ServerConfigurationService.getAccessUrl()
          + CalendarService.calendarICalReference(calendarRef);
-			
       context.put("icalUrl", icalUrl );
+		
+		boolean exportAllowed = CalendarPermissions.allowImport(	calId );
+      context.put("allow_export", String.valueOf(exportAllowed) );
+		
+		boolean exportEnabled = CalendarService.getExportEnabled(calId);
+      context.put("enable_export", String.valueOf(exportEnabled) );
 
 		// pick the "export" template based on the standard template name
 		String template = (String) getContext(rundata).get("template");
@@ -5252,9 +5260,8 @@ extends VelocityPortletStateAction
 	}   // doImport
 
 	/**
-	 * Action doIcalExportName is requested when the user click on Export
+	 * Action doIcalExportName acts on a "Export" request
 	 */
-	
 	public void doIcalExportName(RunData data, Context context)
 	{
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
@@ -5266,10 +5273,7 @@ extends VelocityPortletStateAction
 		
       //	 store the state coming from
 		String returnState = state.getState();
-		if (returnState.equals("description"))
-		{
-		}
-		else
+		if ( ! returnState.equals("description") )
 		{
 			state.setReturnState(returnState);
 		}
@@ -5280,6 +5284,9 @@ extends VelocityPortletStateAction
 		state.setState("icalEx");
 	}   // doIcalExportName
 	
+	/**
+	 * Action doIcalExport acts on a "Submit" request in the icalexport form
+	 */
 	public void doIcalExport(RunData data, Context context)
 	{
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
@@ -5287,16 +5294,27 @@ extends VelocityPortletStateAction
 		SessionState sstate = ((JetspeedRunData)data).getPortletSessionState(peid);
 		
 		String alias = StringUtil.trimToNull(data.getParameters().getString(FORM_ALIAS));
+		String enable = StringUtil.trimToNull(data.getParameters().getString(FORM_ICAL_ENABLE));
 		
 		String calId = state.getPrimaryCalendarReference();
 		Calendar calendarObj = null;
-		StringBuffer exceptionMessage = new StringBuffer();
+		
+  		boolean oldExportEnabled = CalendarService.getExportEnabled(calId);
+		
 		try
 		{
 			calendarObj = CalendarService.getCalendar(calId);
-			
-			// then add the desired alias
-			if (alias != null)
+		
+			List aliasList =	AliasService.getAliases( calendarObj.getReference() );
+			String oldAlias = null;
+			if ( ! aliasList.isEmpty() )
+			{
+				String aliasSplit[] = ((Alias)aliasList.get(0)).getId().split("\\.");
+				oldAlias =  aliasSplit[0];
+			}
+		
+			// Add the desired alias (if changed)
+			if ( alias != null && (oldAlias == null || !oldAlias.equals(alias)) )
 			{
             alias += ".ics";
 				AliasService.setAlias(alias, calendarObj.getReference());
@@ -5304,23 +5322,33 @@ extends VelocityPortletStateAction
 		}
 		catch (IdUnusedException ie)
 		{
-			exceptionMessage.append(rb.getString("java.alert.theresisno"));
+			addAlert(sstate, rb.getString("java.alert.noexist"));
 			M_log.debug(".doIcalExport() Other: " + ie);
+			return;
 		}
 		catch (IdUsedException ue)
 		{
-			M_log.debug(".doIcalExport() Other: " + ue);
+			addAlert(sstate, rb.getString("java.alert.dupalias"));
+			return;
 		}
 		catch (PermissionException pe)
 		{
-			exceptionMessage.append(rb.getString("java.alert.youdont"));
-			M_log.debug(".doIcalExport() Other: " + pe);
+			addAlert(sstate, rb.getString("java.alert.youdont"));
+			return;
 		}
 		catch (IdInvalidException e)
 		{
+			addAlert(sstate, rb.getString("java.alert.unknown"));
 			M_log.debug(".doIcalExport() Other: " + e);
+			return;
 		}
 		
+		// enable/disable export (if changed)
+		if ( enable != null && !oldExportEnabled )
+			CalendarService.setExportEnabled( calId, true );
+		else if ( enable == null && oldExportEnabled )
+			CalendarService.setExportEnabled( calId, false );
+			
 		String returnState = state.getReturnState();
 		state.setState(returnState);
 		
@@ -5338,10 +5366,7 @@ extends VelocityPortletStateAction
 		
 		// store the state coming from
 		String returnState = state.getState();
-		if (returnState.equals("description"))
-		{
-		}
-		else
+		if ( ! returnState.equals("description") )
 		{
 			state.setReturnState(returnState);
 		}
@@ -7078,7 +7103,7 @@ extends VelocityPortletStateAction
 	boolean allow_revise,
 	boolean allow_merge_calendars,
 	boolean allow_modify_calendar_properties,
-	boolean allow_import)
+	boolean allow_import_export)
 	{
 		Menu bar = new MenuImpl(portlet, runData, "CalendarAction");
 		
@@ -7106,13 +7131,19 @@ extends VelocityPortletStateAction
 		}
 
 		// See if we are allowed to import items.
-		if ( allow_import )
+		if ( allow_import_export )
 		{
 			bar.add( new MenuEntry(rb.getString("java.import"), null, allow_new, MenuItem.CHECKED_NA, "doImport") );
+		}
+		
+		// See if we are allowed to export items.
+		String calId = state.getPrimaryCalendarReference();
+		if ( allow_import_export || CalendarService.getExportEnabled(calId) )
+		{
 			bar.add( new MenuEntry(rb.getString("java.export"), null, allow_new, MenuItem.CHECKED_NA, "doIcalExportName") );
 		}
 		
-		//2nd menu bar for the PDF/iCal print only
+		//2nd menu bar for the PDF print only
 		Menu bar_print = new MenuImpl(portlet, runData, "CalendarAction");
 		buildPrintMenu( portlet, runData, state, bar_print );	
 					

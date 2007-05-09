@@ -17,11 +17,25 @@
 #end
 
 <div class="portletBody">
+
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	
+#if ($enable_export == "true")
+	<h3>
+		$tlang.getString("ical.title")
+	</h3>
+	
+	<p class="shorttext indnt2">
+		$tlang.getString("ical.help")<br/>
+		<a href="$!icalUrl" target="_new_">$icalUrl</a>
+	</p>
+#end
+
+#if ($allow_export == "true")
 	<h3>
 		$tlang.getString("ical.customize")
 	</h3>
 
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	<form action="#toolForm($action)" method="post">
 		<h4 class="indnt1">
 			$tlang.getString("ical.schedname.title")
@@ -32,14 +46,27 @@
 			</label>
 			<input type="text" name="$form-alias" id="$form-alias" value="$!alias" /> .ics
 		</p>
-      
+		
 		<p class="shorttext indnt2">
-				$tlang.getString("ical.help")<br/>
-            <a href="$!icalUrl" target="_new_">$icalUrl</a>
+			<label for ="$form-alias">
+				$tlang.getString("ical.option")
+			</label>
+			<input type="checkbox" name="$form-ical-enable" id="$form-ical-enable" 
+					#if ($enable_export == "true") checked #end />
 		</p>
+      
 		<p class="act">
 			<input type="submit" accesskey="s" class="active" name="$form-submit" value="$tlang.getString("gen.save")" />
 			<input type="submit" accesskey="x" name="$form-cancel" value="$tlang.getString("gen.cancel")" />
 		</p>
 	</form>
+#else
+	<form action="#toolForm($action)" method="post">
+
+		<p class="act">
+			<input type="submit" accesskey="x" name="$form-cancel" value="$tlang.getString("gen.back")" />
+		</p>
+	</form>
+#end
+	
 </div>

@@ -234,10 +234,13 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	 */
 	protected void unlock(String lock, String reference) throws PermissionException
 	{
-		if (!SecurityService.unlock(lock, reference))
-		{
+		// check if publicly accessible via export
+		if ( getExportEnabled(reference) && lock.equals(AUTH_READ_CALENDAR) )
+			return;
+			
+		// otherwise check permissions
+		else if (!SecurityService.unlock(lock, reference))
 			throw new PermissionException(SessionManager.getCurrentSessionUserId(), lock, reference);
-		}
 
 	} // unlock
 
@@ -269,6 +272,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 				+ DAILY_START_TIME_PARAMETER_NAME + "=" + Validator.escapeHtml(dailyTimeRange.toString());
 	}
 
+   
 	/**
 	 * @inheritDoc
 	 */
@@ -286,6 +290,35 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
    		return getAccessPoint(true) + Entity.SEPARATOR + REF_TYPE_CALENDAR_ICAL + Entity.SEPARATOR + alias;
       else
    		return getAccessPoint(true) + Entity.SEPARATOR + REF_TYPE_CALENDAR_ICAL + Entity.SEPARATOR + context + Entity.SEPARATOR + id;
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public boolean getExportEnabled(String ref)
+	{
+		Calendar cal = findCalendar(ref);
+		if ( cal == null )
+			return false;
+		else
+			return cal.getExportEnabled();
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	public void setExportEnabled(String ref, boolean enable)
+	{
+		try
+		{
+			CalendarEdit cal = editCalendar(ref);
+			cal.setExportEnabled(enable);
+			commitCalendar(cal);
+		}
+		catch ( Exception e)
+		{
+			M_log.warn("setExportEnabled(): ", e);
+		}
 	}
 	
 	/**
@@ -883,14 +916,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		// check for closed edit
 		if (!edit.isActiveEdit())
 		{
-			try
-			{
-				throw new Exception();
-			}
-			catch (Exception e)
-			{
-				M_log.warn("commitCalendar(): closed CalendarEdit", e);
-			}
+			M_log.warn("commitCalendar(): closed CalendarEdit " + edit.getContext());
 			return;
 		}
 
@@ -916,14 +942,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		// check for closed edit
 		if (!edit.isActiveEdit())
 		{
-			try
-			{
-				throw new Exception();
-			}
-			catch (Exception e)
-			{
-				M_log.warn("cancelCalendar(): closed CalendarEventEdit", e);
-			}
+			M_log.warn("cancelCalendar(): closed CalendarEventEdit " + edit.getContext());
 			return;
 		}
 
@@ -1066,12 +1085,17 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 					Collection copyrightAcceptedRefs) throws EntityPermissionException, EntityNotDefinedException,
 					EntityAccessOverloadException, EntityCopyrightException
 			{
+				String calRef = calendarReference(ref.getContext(), SiteService.MAIN_CONTAINER);
+				
 				// we only access the pdf & ical reference
 				if ( !REF_TYPE_CALENDAR_PDF.equals(ref.getSubType()) &&
-						  !REF_TYPE_CALENDAR_ICAL.equals(ref.getSubType()) ) 
+					  !REF_TYPE_CALENDAR_ICAL.equals(ref.getSubType()) ) 
 						throw new EntityNotDefinedException(ref.getReference());
 
-				// TODO: permissions?
+				// check if ical export is enabled
+				if ( REF_TYPE_CALENDAR_ICAL.equals(ref.getSubType()) &&
+					  !getExportEnabled(calRef) )
+						throw new EntityNotDefinedException(ref.getReference());
 
 				try
 				{
@@ -1100,27 +1124,34 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 					// so we can get a byte count. Internet Explorer has problems
 					// if we don't make the setContentLength() call.
 					ByteArrayOutputStream outByteStream = new ByteArrayOutputStream();
-					StringBuffer contentType = new StringBuffer();
 
 					//	 Check if PDF document requested
 					if ( REF_TYPE_CALENDAR_PDF.equals(ref.getSubType()) )
 					{
-						printSchedule(options, contentType, outByteStream);
 						res.addHeader("Content-Disposition", "inline; filename=\"schedule.pdf\"");
+						res.setContentType(PDF_MIME_TYPE);
+						printSchedule(options, outByteStream);
 					}
 					else
 					{
-						printICalSchedule(options, contentType, res.getOutputStream());
-                  List alias =  AliasService.getAliases( ref.getReference() );
+                  List alias =  AliasService.getAliases(calRef);
                   String aliasName = "schedule.ics";
                   if ( ! alias.isEmpty() )
                      aliasName =  ((Alias)alias.get(0)).getId();
+						
+						// update date/time reference
+						Time modDate = findCalendar(calRef).getModified();
+						if ( modDate == null )
+							modDate = TimeService.newTime(0);
+							
 						res.addHeader("Content-Disposition", "inline; filename=\"" + aliasName + "\"");
+						res.setContentType(ICAL_MIME_TYPE);
+						res.setDateHeader("Last-Modified", modDate.getTime() );
+						
+						printICalSchedule(calRef, res.getOutputStream());
 					}
 					
-					res.setContentType(contentType.toString());
 					res.setContentLength(outByteStream.size());
-
 					if (outByteStream.size() > 0)
 					{
 						// Increase the buffer size for more speed.
@@ -1235,7 +1266,8 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
             M_log.warn(".parseEntityReference() no valid site or alias: " + context);
             return false;
 			}
-         
+
+			// build updated reference          
 			ref.set(APPLICATION_ID, subType, id, container, context);
 
 			return true;
@@ -2192,6 +2224,50 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		} // getProperties
 
 		/**
+		 ** check if this calendar allows ical exports
+		 ** @return true if the calender allows exports; false if not
+		 **/
+		public boolean getExportEnabled()
+		{
+			String enable = m_properties.getProperty(CalendarService.PROP_ICAL_ENABLE);
+			return Boolean.valueOf(enable);
+		}
+
+		/**
+		 ** set if this calendar allows ical exports
+		 ** @return true if the calender allows exports; false if not
+		 **/
+		public void setExportEnabled( boolean enable )
+		{
+			m_properties.addProperty(CalendarService.PROP_ICAL_ENABLE, String.valueOf(enable));
+		}
+
+		/**
+		 ** Get the time of the last modify to this calendar
+		 ** @return String representation of current time (may be null if not initialized)
+		 **/
+		public Time getModified()
+		{
+			String timeStr = m_properties.getProperty(ResourceProperties.PROP_MODIFIED_DATE);
+			if ( timeStr == null )
+				return null;
+			else
+				return TimeService.newTimeGmt(timeStr);
+		}
+
+		/**
+		 ** Set the time of the last modify for this calendar to now
+		 ** @return true if successful; false if not
+		 **/
+		public void setModified()
+		{
+ 			String currentUser = SessionManager.getCurrentSessionUserId();
+			String now = TimeService.newTime().toString();
+			m_properties.addProperty(ResourceProperties.PROP_MODIFIED_BY, currentUser);
+			m_properties.addProperty(ResourceProperties.PROP_MODIFIED_DATE, now);
+		}
+	
+		/**
 		 * check permissions for getEvents() and getEvent().
 		 * 
 		 * @return true if the user is allowed to get events from the calendar, false if not.
@@ -2889,14 +2965,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			// check for closed edit
 			if (!edit.isActiveEdit())
 			{
-				try
-				{
-					throw new Exception();
-				}
-				catch (Exception e)
-				{
-					M_log.warn("commitEvent(): closed CalendarEventEdit", e);
-				}
+				M_log.warn("commitEvent(): closed CalendarEventEdit " + edit.getId());
 				return;
 			}
 
@@ -2906,7 +2975,8 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
          if ( edit.getCreator() == null || edit.getCreator().equals("") )
             edit.setCreator(); 
          
-         edit.setModifiedBy();  // update modified-by properties
+			// update modified-by properties for event
+         edit.setModifiedBy(); 
 
 			// if the id has a time range encoded, as for one of a sequence of recurring events, separate that out
 			TimeRange timeRange = null;
@@ -2979,6 +3049,10 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 			// close the edit object
 			bedit.closeEdit();
+			
+			// Update modify time on calendar
+			this.setModified();
+			m_storage.commitCalendar(this);
 
 			// restore this one's range etc so it can be further referenced
 			if (timeRange != null)
@@ -6071,15 +6145,17 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	 * @return Number of events generated in ical object
 	 */
 	protected int generateICal(net.fortuna.ical4j.model.Calendar ical,
-			 List calendarReferenceList)
+										String calendarReference)
 	{
 		int numEvents = 0;
 		
 		// This list will have an entry for every week day that we care about.
 		TimeRange currentTimeRange = getICalTimeRange();
 
-		// Get a list of merged events.
-		CalendarEventVector calendarEventVector = getEvents(calendarReferenceList, currentTimeRange);
+		// Get a list of events.
+		List calList = new ArrayList();
+		calList.add(calendarReference);
+		CalendarEventVector calendarEventVector = getEvents(calList, currentTimeRange);
 		Iterator itEvent = calendarEventVector.iterator();
 
 		// Generate XML for all the events.
@@ -6087,17 +6163,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		{
 			CalendarEvent event = (CalendarEvent) itEvent.next();
 
-			java.util.Calendar jcalStart = java.util.Calendar.getInstance();
-			TimeBreakdown startTime = event.getRange().firstTime().breakdownLocal();
-			
-			jcalStart.set(java.util.Calendar.YEAR, startTime.getYear());
-			jcalStart.set(java.util.Calendar.MONTH, startTime.getMonth() -1);
-			jcalStart.set(java.util.Calendar.DAY_OF_MONTH, startTime.getDay());
-			jcalStart.set(java.util.Calendar.HOUR, startTime.getHour());
-			jcalStart.set(java.util.Calendar.MINUTE, startTime.getMin());
-			jcalStart.set(java.util.Calendar.SECOND, startTime.getSec());
-			
-			DateTime icalStartDate = new DateTime(jcalStart.getTime());
+			DateTime icalStartDate = new DateTime(event.getRange().firstTime().getTime());
 			
 			long seconds = event.getRange().duration() / 1000;
 			String timeString = "PT" + String.valueOf(seconds) + "S";
@@ -6128,58 +6194,15 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	}
 	
 	/* Given a current date via the calendarUtil paramter, returns a TimeRange for the year,
-	 * 6 months either side of the current date.
+	 * 6 months either side of the current date. (calculate milleseconds in 6 months)
 	 */
+   private static long SIX_MONTHS = (long)1000 * (long)60 * (long)60 * (long)24 * (long)183;
+	
 	public TimeRange getICalTimeRange()
 	{
-		int days = 0;
-		CalendarUtil today = new CalendarUtil();
-
-		int tempPastDay = today.getDayOfMonth();
-		int tempPastMonth = today.getMonthInteger() -6;
-		int tempPastYear = today.getYear();
-		
-		if(tempPastMonth < 0)
-		{
-			tempPastMonth = tempPastMonth + 12;
-			tempPastYear = tempPastYear - 1;
-		}
-		
-		CalendarUtil pastDate = new CalendarUtil();
-		pastDate.setDay(tempPastYear, tempPastMonth, tempPastDay);
-		
-		//get the index of the number of days in the current month
-		days = pastDate.getNumberOfDays();
-		
-		if (days < tempPastDay)
-		{
-			pastDate.setDayOfMonth(days);
-		}
-		
-		Time startTime = TimeService.newTimeLocal(pastDate.getYear(),pastDate.getMonthInteger(),pastDate.getDayOfMonth(),00,00,00,000);
-		
-		int tempFutDay = today.getDayOfMonth();
-		int tempFutMonth = today.getMonthInteger() +6;
-		int tempFutYear = today.getYear();
-		
-		if(tempPastMonth > 12)
-		{
-			tempFutMonth = tempFutMonth - 12;
-			tempFutYear = tempFutYear + 1;
-		}
-		
-		CalendarUtil futDate = new CalendarUtil();
-		pastDate.setDay(tempFutYear, tempFutMonth, tempFutDay);
-		
-		//get the index of the number of days in the current month
-		days = futDate.getNumberOfDays();
-		
-		if (days < tempFutDay)
-		{
-			futDate.setDayOfMonth(days);
-		}
-		
-		Time endTime = TimeService.newTimeLocal(futDate.getYear(),futDate.getMonthInteger(),futDate.getDayOfMonth(),23,00,00,000);
+		Time now = TimeService.newTime();
+		Time startTime = TimeService.newTime( now.getTime() - SIX_MONTHS );
+		Time endTime = TimeService.newTime( now.getTime() + SIX_MONTHS );
 		
 		return TimeService.newTimeRange(startTime,endTime,true,true);
 	}
@@ -6599,12 +6622,9 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		return calendarReferenceList;
 	}
 
-	protected void printICalSchedule(Properties parameters, StringBuffer contentType, OutputStream os) 
+	protected void printICalSchedule(String calRef, OutputStream os) 
 		throws PermissionException
 	{
-		// Get the list of calendars.from user session
-		List calendarReferenceList = getCalendarReferenceList();
-		
 		// generate iCal text file 
 		net.fortuna.ical4j.model.Calendar ical = new net.fortuna.ical4j.model.Calendar();
 		ical.getProperties().add(new ProdId("-//SakaiProject//iCal4j 1.0//EN"));
@@ -6615,30 +6635,24 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		TzId tzId = new TzId( TimeService.getLocalTimeZone().getID() ); 
 		ical.getComponents().add(registry.getTimeZone(tzId.getValue()).getVTimeZone());
 		
-		// Return the content type so that it can be set in the response.
-		if (contentType != null)
-		{
-			contentType.setLength( ical.toString().length() );
-			contentType.append(ICAL_MIME_TYPE);
-			CalendarOutputter icalOut = new CalendarOutputter();
-			int numEvents = generateICal(ical, calendarReferenceList);
+		CalendarOutputter icalOut = new CalendarOutputter();
+		int numEvents = generateICal(ical, calRef);
 			
-			try 
-			{
-				if ( numEvents > 0 )
-					icalOut.output( ical, os );
-			}
-			catch (Exception e)
-			{
-            M_log.warn(".printICalSchedule(): ", e);
-			}
+		try 
+		{
+			if ( numEvents > 0 )
+				icalOut.output( ical, os );
+		}
+		catch (Exception e)
+		{
+           M_log.warn(".printICalSchedule(): ", e);
 		}
 	}
 	
 	/**
 	 * Called by the servlet to service a get/post requesting a calendar in PDF format.
 	 */
-	protected void printSchedule(Properties parameters, StringBuffer contentType, OutputStream os) throws PermissionException
+	protected void printSchedule(Properties parameters, OutputStream os) throws PermissionException
 	{
       //		 Get the user name.
 		String userName = (String) parameters.get(USER_NAME_PARAMETER_NAME);
@@ -6658,13 +6672,6 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 				calendarReferenceList, userName);
 
 		generatePDF(document, getXSLFileNameForScheduleType(scheduleType), os);
-
-		// Return the content type so that it can be set in the response.
-		if (contentType != null)
-		{
-			contentType.setLength(0);
-			contentType.append(PDF_MIME_TYPE);
-		}
 	}
 
 	/**
