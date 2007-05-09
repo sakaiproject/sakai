@@ -1096,11 +1096,11 @@ alter table rwikihistorycontent add index irwikihistorycontent_rwi (rwikiid);
 alter table rwikipagepresence add index irwikipagepresence_sid (sessionid);
 alter table rwikihistory add index irwikihistory_name (name);
 alter table rwikihistory add index irwikihistory_realm (realm);
-alter table rwikihistory add index irwikihistory_ref (referenced(1024));
+alter table rwikihistory add index irwikihistory_ref (referenced(255));
 alter table rwikihistory add index irwikihistoryobj_rwid (rwikiobjectid);
 alter table rwikiobject add index irwikiobject_name (name);
 alter table rwikiobject add index irwikiobject_realm (realm);
-alter table rwikiobject add index irwikiobject_ref (referenced(1024));
+alter table rwikiobject add index irwikiobject_ref (referenced(255));
 
 alter table rwikipreference add index irwikipr_userid (userid);
 alter table rwikipagemessage add index irwikipm_sessionid (sessionid);
