@@ -1,4 +1,5 @@
-<%-- For assignment details, generate the breadcrumb trail --%>
+<%-- Generate a breadcrumb trail for all pages except Instructor View --%>
+<%-- NOTE: Hierarchical trail, not an activity trail --%>
 
 <div class="breadcrumb"><h3>
 
@@ -24,6 +25,7 @@
 	
 	<%-- if adding, will render as blank, if editing, will display assignment name
 		 since this is the behavior we want, no rendering tag needed --%>
-	<h:outputText value="#{bean.assignment.name}" />
+	<h:outputText value="#{bean.assignment.name}" rendered="#{bean.fromPage ne 'courseGrade'}" />
 
+	<h:outputText value="#{msgs.breadcrumb_courseGrade}" rendered="#{bean.fromPage eq 'courseGrade'}" />
 </h3></div>

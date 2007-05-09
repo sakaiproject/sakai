@@ -133,11 +133,12 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
             FacesUtil.addErrorMessage(getLocalizedString("edit_assignment_locking_failure"));
             return "failure";
 		}
-		return navigateToAssignmentDetails();
+		
+		return navigateBack();
 	}
 
-	public String cancelToAssignmentDetails() {
-		return navigateToAssignmentDetails();
+	public String navigateToAssignmentDetails() {
+		return navigateBack();
 	}
 
 	/**
@@ -145,21 +146,23 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 	 * of this method, cannot migrate up to GradebookDependentBean since
 	 * needs assignmentId, which is defined here.
 	 */
-	public String navigateToAssignmentDetails() {
+	public String navigateBack() {
 		String breadcrumbPage = getBreadcrumbPage();
 		final Boolean middle = new Boolean((String) SessionManager.getCurrentToolSession().getAttribute("middle"));
+		
 		if (breadcrumbPage == null || middle) {
 			AssignmentDetailsBean assignmentDetailsBean = (AssignmentDetailsBean)FacesUtil.resolveVariable("assignmentDetailsBean");
 			assignmentDetailsBean.setAssignmentId(assignmentId);
 			assignmentDetailsBean.setBreadcrumbPage(breadcrumbPage);
 			
-			setNav(null, null, null, "false", null);
-			
-			return "assignmentDetails";
+			breadcrumbPage = "assignmentDetails";
 		}
-		else {
-			return breadcrumbPage;
-		}
+
+		// wherever we go, we're not editing, and middle section
+		// does not need to be shown.
+		setNav(null, "false", null, "false", null);
+		
+		return breadcrumbPage;
 	}
 
 	/**

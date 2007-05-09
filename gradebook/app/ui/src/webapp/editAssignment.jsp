@@ -28,7 +28,7 @@
 				action="#{editAssignmentBean.updateAssignment}"/>
 			<h:commandButton
 				value="#{msgs.add_assignment_cancel}"
-				action="#{editAssignmentBean.navigateToAssignmentDetails}"
+				action="#{editAssignmentBean.navigateBack}"
 				immediate="true"/>
 		</p>
 	  </h:form>

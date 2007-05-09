@@ -433,25 +433,15 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 	}
 
 	/**
-	 * Go to assignment details page. AssignmentBean contains duplicate
-	 * of this method, cannot migrate up to GradebookDependentBean since
-	 * needs assignmentId, which is defined here.
+	 * Go to assignment details page. Need to override here
+	 * because on other pages, may need to return to where
+	 * called from while here we want to go directly to
+	 * assignment details.
 	 */
 	public String navigateToAssignmentDetails() {
-		String breadcrumbPage = getBreadcrumbPage();
-		final Boolean middle = new Boolean((String) SessionManager.getCurrentToolSession().getAttribute("middle"));
-		if (breadcrumbPage == null || middle) {
-			AssignmentDetailsBean assignmentDetailsBean = (AssignmentDetailsBean)FacesUtil.resolveVariable("assignmentDetailsBean");
-			assignmentDetailsBean.setAssignmentId(new Long(assignmentId));
-			assignmentDetailsBean.setBreadcrumbPage(breadcrumbPage);
+		setNav(null, null, null, "false", null);
 			
-			setNav(null, null, null, "false", null);
-			
-			return "assignmentDetails";
-		}
-		else {
-			return breadcrumbPage;
-		}
+		return "assignmentDetails";
 	}
 	
 	/**
@@ -459,6 +449,9 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 	 */
 	public String processCancel() {
 		if (new Boolean((String) SessionManager.getCurrentToolSession().getAttribute("middle")).booleanValue()) {
+			AssignmentDetailsBean assignmentDetailsBean = (AssignmentDetailsBean)FacesUtil.resolveVariable("assignmentDetailsBean");
+			assignmentDetailsBean.setAssignmentId(new Long(assignmentId));
+
 			return navigateToAssignmentDetails();
 		}
 		else {

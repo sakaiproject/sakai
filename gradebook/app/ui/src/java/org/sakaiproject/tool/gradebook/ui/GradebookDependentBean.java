@@ -233,7 +233,8 @@ public abstract class GradebookDependentBean extends InitializableBean {
     }
 
     /**
-     * Saves state for menu and breadcrumb trail.
+     * Saves state for menu and breadcrumb trail. Pass in NULL to keep
+     * current value.
      *  
      * @param breadcrumbPage
      * 			Top level page to return to
@@ -248,7 +249,7 @@ public abstract class GradebookDependentBean extends InitializableBean {
      */
     public void setNav(String breadcrumbPage, String editing, String adding, String middle,
     		 				String fromPage) {
- 		ToolSession session = SessionManager.getCurrentToolSession();
+ 		final ToolSession session = SessionManager.getCurrentToolSession();
 		
  		if (breadcrumbPage != null) session.setAttribute("breadcrumbPage", breadcrumbPage);
  		
@@ -306,22 +307,10 @@ public abstract class GradebookDependentBean extends InitializableBean {
 	}
 
 	/**
-     * Set adding variable - use for breadcrumb display
-     */
-	public void setEditing(Boolean editing) {
-		this.editing = editing;
-	}
-	
-	/**
      * Return if breadcrumb will display 'Edit' piece
      */
     public Boolean getEditing() {
-    	if (editing == null) {
-    		final ToolSession session = SessionManager.getCurrentToolSession();
-    		editing = new Boolean((String) session.getAttribute("editing"));
-    	}
-    	
-    	return editing;
+   		return new Boolean((String) SessionManager.getCurrentToolSession().getAttribute("editing"));
     }
     
     /**
@@ -336,28 +325,6 @@ public abstract class GradebookDependentBean extends InitializableBean {
     	return adding;
     }
     
-   /**
-     * Set adding variable - use for breadcrumb display
-     */
-    public void setAdding(Boolean adding) {
-    	if (adding == null) {
-    		final ToolSession session = SessionManager.getCurrentToolSession();
-    		adding = new Boolean((String) session.getAttribute("adding"));
-    	}
-    	this.adding = adding;
-    }
-
-    /**
-     * Set adding variable - use for breadcrumb display
-     */
-	public void setMiddle(Boolean middle) {
-		if (middle == null) {
-			final ToolSession session = SessionManager.getCurrentToolSession();
-			middle = new Boolean((String) session.getAttribute("middle"));
-		}
-		this.middle = middle;
-	}
-	
 	/**
      * Return if breadcrumb trail needs to display the middle section
      */
@@ -454,13 +421,39 @@ public abstract class GradebookDependentBean extends InitializableBean {
     	
     	return gradeEntryByLetter.booleanValue();
     }
-    
+
+	/**
+	 * Set proper text for navigation button on assignment detials and
+	 * instructor view pages.
+	 */
+	public String getReturnString() {
+		final String breadcrumbPage = getBreadcrumbPage();
+		if (breadcrumbPage != null && !"".equals(breadcrumbPage)) {
+			return ("overview".equals(breadcrumbPage)) ? getLocalizedString("assignment_details_return_to_overview")
+													   : getLocalizedString("assignment_details_return_to_roster");
+		}
+		else {
+			final String where = (String) SessionManager.getCurrentToolSession().getAttribute("fromPage");
+			return ("overview".equals(where)) ? getLocalizedString("assignment_details_return_to_overview")
+					  						  : getLocalizedString("assignment_details_return_to_roster");
+		}
+	}
+
+	/**
+	 * Return fromPage property within tool session - used for breadcrumb trail.
+	 */
+	public String getFromPage() {
+		final String fp = (String) SessionManager.getCurrentToolSession().getAttribute("fromPage");
+		
+		return fp;
+	}
+	
     /**
      * Return back to overview page. State is kept in
      * tool session, hence attribute setting.
      */
     public String navigateToOverview() {
-    	setNav("overview", "false", "false", "false", null);
+    	setNav("overview", "false", "false", "false", "");
 
 		return "overview";
     }
@@ -470,7 +463,7 @@ public abstract class GradebookDependentBean extends InitializableBean {
      * tool session, hence attribute setting.
      */
     public String navigateToRoster() {
-    	setNav("roster", "false", "false", "false", null);
+    	setNav("roster", "false", "false", "false", "");
 
 		return "roster";
    }    
@@ -480,7 +473,7 @@ public abstract class GradebookDependentBean extends InitializableBean {
      * tool session, hence attribute setting.
      */
 	public String navigateToEdit() {
-		setNav(null, "false", "false", "true", null);
+		setNav(null, "true", "false", "true", null);
 		
 		return "editAssignment";
 	}
@@ -490,7 +483,7 @@ public abstract class GradebookDependentBean extends InitializableBean {
 	 * tool session, hence attribute setting.
 	 */
 	public String navigateToGradebookSetup() {
-		setNav("other","","","",null);
+		setNav("other","false","false","false","");
 		
 		return "gradebookSetup";
 	}
@@ -500,7 +493,7 @@ public abstract class GradebookDependentBean extends InitializableBean {
 	 * tool session, hence attribute setting.
 	 */
 	public String navigateToFeedbackOptions() {
-		setNav("other","","","",null);
+		setNav("other","false","false","false","");
 		
 		return "feedbackOptions";
 	}
@@ -510,7 +503,7 @@ public abstract class GradebookDependentBean extends InitializableBean {
 	 * tool session, hence attribute setting.
 	 */
 	public String navigateToImportGrades() {
-		setNav("other","","","",null);
+		setNav("other","false","false","false","");
 		
 		return "spreadsheetAll";
 	}
@@ -533,23 +526,6 @@ public abstract class GradebookDependentBean extends InitializableBean {
 			}
 
 			return where;
-		}
-	}
-
-	/**
-	 * Set proper text for navigation button on assignment detials and
-	 * instructor view pages.
-	 */
-	public String getReturnString() {
-		final String breadcrumbPage = getBreadcrumbPage();
-		if (breadcrumbPage != null && !"".equals(breadcrumbPage)) {
-			return ("overview".equals(breadcrumbPage)) ? getLocalizedString("assignment_details_return_to_overview")
-													   : getLocalizedString("assignment_details_return_to_roster");
-		}
-		else {
-			final String where = (String) SessionManager.getCurrentToolSession().getAttribute("fromPage");
-			return ("overview".equals(where)) ? getLocalizedString("assignment_details_return_to_overview")
-					  						  : getLocalizedString("assignment_details_return_to_roster");
 		}
 	}
 }

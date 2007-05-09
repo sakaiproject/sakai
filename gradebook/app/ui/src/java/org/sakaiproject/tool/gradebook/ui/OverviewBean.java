@@ -291,4 +291,10 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 
 		return "spreadsheetListing";
 	}
+	
+	public String navigateToCourseGrades() {
+		setNav(null,"false","false","false","courseGrade");
+		
+		return "courseGradeDetails";
+	}
 }

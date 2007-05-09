@@ -96,8 +96,6 @@
 						title="#{msgs.assignment_details_edit}">
 						<h:outputFormat id="editAssignment" value="#{msgs.assignment_details_edit}" />
 						<f:param name="assignmentId" value="#{assignmentDetailsBean.assignment.id}"/>
-						<f:param name="breadcrumbPage" value="#{assignmentDetailsBean.breadcrumbPage}" />
-						<f:param name="middle" value="true" />
 					</h:commandLink>
 					<h:commandLink
 						action="removeAssignment"

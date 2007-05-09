@@ -135,7 +135,7 @@
 							<f:param name="assignmentId" value="#{row.associatedAssignment.id}"/>
 						</h:commandLink>
 						<h:panelGroup rendered="#{!row.associatedAssignment.released}" styleClass="inactive" >
-							<h:commandLink action="assignmentDetails" >
+							<h:commandLink action="#{instructorViewBean.navigateToAssignmentDetails}" >
 								<h:outputText value="#{row.associatedAssignment.name}"/>
 								<f:param name="assignmentId" value="#{row.associatedAssignment.id}"/>
 							</h:commandLink>

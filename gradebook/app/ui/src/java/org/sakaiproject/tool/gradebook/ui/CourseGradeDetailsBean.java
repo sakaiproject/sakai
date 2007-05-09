@@ -43,6 +43,7 @@ import org.sakaiproject.jsf.spreadsheet.SpreadsheetDataFileWriterXls;
 import org.sakaiproject.jsf.spreadsheet.SpreadsheetUtil;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
+import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGradesToSpreadsheetConverter;
@@ -61,6 +62,9 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
     private GradeMapping gradeMapping;
     private double totalPoints;
     private String courseGradesConverterPlugin;
+    
+    // dummy property added for breadcrumb trail
+    private Assignment assignment = new Assignment();
 
 	public class ScoreRow implements Serializable {
         private EnrollmentRecord enrollment;
@@ -201,6 +205,10 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
     public double getTotalPoints() {
         return totalPoints;
     }
+	public Assignment getAssignment() {
+		return assignment;
+	}
+
 	/**
 	 * Action listener to update grades.
 	 * NOTE: No transient fields are available yet.

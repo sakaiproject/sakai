@@ -85,7 +85,7 @@
 				<h:outputText value="#{gradebookItem.name}" styleClass="categoryHeading" rendered="#{gradebookItem.category}" />
 
 				<!-- Course grade link -->
-				<h:commandLink action="courseGradeDetails" rendered="#{gradebookItem.courseGrade}"  styleClass="courseGrade">
+				<h:commandLink action="#{overviewBean.navigateToCourseGrades}" rendered="#{gradebookItem.courseGrade}"  styleClass="courseGrade">
 					<h:outputText value="#{msgs.course_grade_name}" />
 				</h:commandLink>
 			</h:column>

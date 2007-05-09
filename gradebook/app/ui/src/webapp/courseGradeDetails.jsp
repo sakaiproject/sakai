@@ -11,8 +11,11 @@
 		<!-- Course Grade Summary -->
 		<sakai:flowState bean="#{courseGradeDetailsBean}" />
 
-		<h2><h:outputText value="#{msgs.course_grade_name}"/></h2>
+		<t:aliasBean alias="#{bean}" value="#{courseGradeDetailsBean}">
+			<%@include file="/inc/breadcrumb.jspf"%>
+		</t:aliasBean>
 
+		<br /><br />
 		<div class="instruction"><h:outputText value="#{msgs.course_grade_details_instruction}" escape="false"/></div>
 
 		<h4><h:outputText value="#{msgs.course_grade_details_page_title}"/></h4>
