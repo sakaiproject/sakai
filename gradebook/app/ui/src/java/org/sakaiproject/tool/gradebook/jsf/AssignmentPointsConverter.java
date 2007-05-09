@@ -84,7 +84,7 @@ public class AssignmentPointsConverter extends PointsConverter {
 			formattedScore = FacesUtil.getLocalizedString("score_not_counted",
 					new String[] {formattedScore, FacesUtil.getLocalizedString("score_not_counted_tooltip")});
 		}
-		if(percentage){
+		if(percentage && workingValue != null){
 			formattedScore += "%";
 		}
 		return formattedScore;
