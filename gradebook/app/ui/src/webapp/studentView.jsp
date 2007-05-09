@@ -35,7 +35,7 @@
 			styleClass="itemSummary">	
 			<h:outputText value="#{msgs.student_view_cum_score}" />
 			<h:panelGroup>
-				<h:outputFormat value=" #{msgs.student_view_cum_score_details}" rendered="#{studentViewBean.percent != null && studentViewBean.assignmentsReleased}">
+				<h:outputFormat value=" #{msgs.student_view_cum_score_details}" rendered="#{studentViewBean.percent != null && studentViewBean.courseGradeReleased}">
 					<f:param value="#{studentViewBean.percent}" />
 				</h:outputFormat>
 				<h:outputText value="#{msgs.student_view_not_released}" rendered="#{!studentViewBean.courseGradeReleased}"/>
