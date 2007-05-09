@@ -128,12 +128,15 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 		else
 			m_log.debug("bean poll is " + poll.getPollId());
 		
-		
-		UIOutput.make(tofill,"new-option-title",messageLocator.getMessage("new_option_title"));
-		
+
 		Option option = null;
 		EntityCentredViewParameters ecvp = (EntityCentredViewParameters) viewparams;
-		
+		if (ecvp.mode.equals(EntityCentredViewParameters.MODE_NEW) ) {
+			UIOutput.make(tofill,"new-option-title",messageLocator.getMessage("new_option_title"));
+		} else {
+			UIOutput.make(tofill,"new-option-title",messageLocator.getMessage("edit_option_title"));
+		}
+	
 		
 		if (ecvp != null && ecvp.mode!=null && !ecvp.mode.equals(EntityCentredViewParameters.MODE_NEW)){
 			//check the ecvp
@@ -185,10 +188,11 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 		 UICommand save =  UICommand.make(form, "submit-new-option", messageLocator.getMessage("new_poll_submit"),
 		  "#{pollToolBean.proccessActionAddOption}");
 		 save.parameters.add(new UIELBinding("#{pollToolBean.submissionStatus}", "save"));
-		  UICommand saveAdd = UICommand.make(form, "submit-option-add", messageLocator.getMessage("new_poll_saveoption"),
-		  "#{pollToolBean.proccessActionAddOption}");
-		  saveAdd.parameters.add(new UIELBinding("#{pollToolBean.submissionStatus}", "option"));
-		  
+		 if (ecvp.mode.equals(EntityCentredViewParameters.MODE_NEW)) {
+			 UICommand saveAdd = UICommand.make(form, "submit-option-add", messageLocator.getMessage("new_poll_saveoption"),
+			 "#{pollToolBean.proccessActionAddOption}");
+			 saveAdd.parameters.add(new UIELBinding("#{pollToolBean.submissionStatus}", "option"));
+		 }
 		  UICommand cancel = UICommand.make(form, "cancel",messageLocator.getMessage("new_poll_cancel"),"#{pollToolBean.cancel}");
 		   cancel.parameters.add(new UIELBinding("#{option.status}", "cancel"));
 		   
