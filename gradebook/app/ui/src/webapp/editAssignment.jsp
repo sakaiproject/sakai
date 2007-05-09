@@ -10,13 +10,9 @@
 			<%@include file="/inc/breadcrumb.jspf" %>
 		</t:aliasBean>
 
-		<h2><h:outputText value="#{msgs.edit_assignment_page_title}"/></h2>
-
-		<div class="instruction"><h:outputText value="#{msgs.edit_assignment_instruction}" escape="false"/></div>
-		<p class="instruction"><h:outputText value="#{msgs.flag_required}"/></p>
+		<p class="instruction gbSection"><h:outputText value="#{msgs.flag_required}"/></p>
 
 		<div class="indnt1">
-		<h4><h:outputText value="#{msgs.edit_assignment_header}"/></h4>
 
 		<t:aliasBean alias="#{bean}" value="#{editAssignmentBean}">
 			<%@include file="/inc/assignmentEditing.jspf"%>

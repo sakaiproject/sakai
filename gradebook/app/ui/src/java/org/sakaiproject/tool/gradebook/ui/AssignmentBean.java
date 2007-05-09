@@ -48,7 +48,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
     private List categoriesSelectList;
     private String assignmentCategory;
 
-    private static final String UNASSIGNED_CATEGORY = "unassigned";
+    public static final String UNASSIGNED_CATEGORY = "unassigned";
 
 	protected void init() {
 		if (logger.isDebugEnabled()) logger.debug("init assignment=" + assignment);

@@ -14,9 +14,7 @@
 			<%@include file="/inc/breadcrumb.jspf" %>
 		</t:aliasBean> 
 
-		<h2><h:outputText value="#{assignmentDetailsBean.assignment.name}"/></h2>
-
-		<h4><h:outputText value="#{msgs.assignment_details_page_title}"/></h4>
+		<h3><h:outputText value="#{msgs.assignment_details_page_title}"/></h3>
 		<div class="indnt1">
 
 		<p class="nav">

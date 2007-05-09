@@ -50,9 +50,11 @@ import org.sakaiproject.service.gradebook.shared.ConflictingSpreadsheetNameExcep
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
+import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Comment;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.GradableObject;
+import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 
 public class SpreadsheetUploadBean extends GradebookDependentBean implements Serializable {
@@ -77,6 +79,9 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     private Assignment assignment;
     private Long assignmentId;
     private Integer selectedCommentsColumnId = 0;
+    private List categoriesSelectList;
+    private String selectedCategory;
+    private Gradebook localGradebook;
 
     // Added during IU gradebook enhancing 3-07
     private List unknownUsers = new ArrayList();
@@ -87,7 +92,8 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     private static final String IMPORT_NO_CHANGES = "import_entire_no_changes";
     
     public SpreadsheetUploadBean() {
-
+    	
+    	localGradebook = getGradebook();
 
         //initialize rosteMap which is map of displayid and user objects
         rosterMap = new HashMap();
@@ -102,6 +108,21 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             if(logger.isDebugEnabled()) logger.debug("displayid "+enr.getUser().getDisplayId() + "  userid "+enr.getUser().getUserUid());
             rosterMap.put(enr.getUser().getDisplayId(),enr.getUser());
         }
+        
+        selectedCategory = AssignmentBean.UNASSIGNED_CATEGORY;
+        categoriesSelectList = new ArrayList();
+
+		// The first choice is always "Unassigned"
+		categoriesSelectList.add(new SelectItem(AssignmentBean.UNASSIGNED_CATEGORY, FacesUtil.getLocalizedString("cat_unassigned")));
+		List gbCategories = getAvailableCategories();
+		if (gbCategories != null && gbCategories.size() > 0)
+		{
+			Iterator catIter = gbCategories.iterator();
+			while (catIter.hasNext()) {
+				Category cat = (Category) catIter.next();
+				categoriesSelectList.add(new SelectItem(cat.getId().toString(), cat.getName()));
+			}
+		}
 
     }
 
@@ -238,16 +259,18 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
 
     public String getRowStyles() {
-        StringBuffer sb = new StringBuffer();
-        for(Iterator iter = studentRows.iterator(); iter.hasNext();){
-            SpreadsheetRow row = (SpreadsheetRow)iter.next();
-            if(row.isKnown()){
-                sb.append("internal,");
-            }else{
-                sb.append("external,");
-            }
-        }
-        if(logger.isDebugEnabled())logger.debug(sb.toString());
+    	StringBuffer sb = new StringBuffer();
+    	if (studentRows != null) {
+    		for(Iterator iter = studentRows.iterator(); iter.hasNext();){
+    			SpreadsheetRow row = (SpreadsheetRow)iter.next();
+    			if(row.isKnown()){
+    				sb.append("internal,");
+    			}else{
+    				sb.append("external,");
+    			}
+    		}
+    	}
+    	if(logger.isDebugEnabled())logger.debug(sb.toString());
         return sb.toString();
     }
 
@@ -303,6 +326,49 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 		this.setPageName("spreadsheetAll");
 		return unknownUsers.size();
 	}
+	
+	public List getCategoriesSelectList() {
+    	return categoriesSelectList;
+    }
+    
+    public String getSelectedCategory() {
+    	return selectedCategory;
+    }
+    
+    public void setSelectedCategory(String selectedCategory) {
+    	this.selectedCategory = selectedCategory;
+    }
+    
+    public Gradebook getLocalGradebook() {
+    	return localGradebook;
+    }
+    
+    /**
+     * Returns the Category associated with selectedCategory
+     * If unassigned or not found, returns null
+     * @return
+     */
+    private Category retrieveSelectedCategory() {
+    	Long catId = null;
+    	Category category = null;
+    	
+		if (selectedCategory != null && !selectedCategory.equals(AssignmentBean.UNASSIGNED_CATEGORY)) {
+			try {
+				catId = new Long(selectedCategory);
+			}
+			catch (Exception e) {
+				catId = null;
+			}
+			
+			if (catId != null)
+			{
+				// check to make sure there is a corresponding category
+				category = getGradebookManager().getCategory(catId);
+			}
+		}
+		
+		return category;
+    }    
 
 	//view file from db
     public String viewItem(){
@@ -730,6 +796,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         if(assignment == null) {
             assignment = new Assignment();
             assignment.setReleased(true);
+            assignment.setNotCounted(true);
         }
 
         try{
@@ -1168,7 +1235,13 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         }
 
         try {
-            assignmentId = getGradebookManager().createAssignment(getGradebookId(), assignment.getName(), assignment.getPointsPossible(), assignment.getDueDate(), new Boolean(assignment.isNotCounted()),new Boolean(assignment.isReleased()));
+        	Category newCategory = retrieveSelectedCategory();
+        	if (newCategory != null) {
+        		assignmentId = getGradebookManager().createAssignmentForCategory(getGradebookId(), newCategory.getId(), assignment.getName(), assignment.getPointsPossible(), assignment.getDueDate(), new Boolean(assignment.isNotCounted()),new Boolean(assignment.isReleased()));
+        	} else {
+        		assignmentId = getGradebookManager().createAssignment(getGradebookId(), assignment.getName(), assignment.getPointsPossible(), assignment.getDueDate(), new Boolean(assignment.isNotCounted()),new Boolean(assignment.isReleased()));
+        	}
+        	
             FacesUtil.addRedirectSafeMessage(getLocalizedString("add_assignment_save", new String[] {assignment.getName()}));
 
             assignment = getGradebookManager().getAssignment(assignmentId);
@@ -1204,7 +1277,13 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             if(logger.isDebugEnabled())logger.debug("persist grade records to database");
             getGradebookManager().updateAssignmentGradesAndComments(assignment,gradeRecords,comments);
             getGradebookBean().getEventTrackingService().postEvent("gradebook.importItem","/gradebook/"+getGradebookId()+"/"+assignment.getName()+"/"+getAuthzLevel());
-            return  "spreadsheetPreview";
+            
+            AssignmentDetailsBean assignmentDetailsBean = (AssignmentDetailsBean)FacesUtil.resolveVariable("assignmentDetailsBean");
+    		assignmentDetailsBean.setAssignmentId(assignmentId);
+    		setNav("overview", null, null, "false", null);
+    		
+    		return "assignmentDetails";
+            
         } catch (ConflictingAssignmentNameException e) {
             if(logger.isErrorEnabled())logger.error(e);
             FacesUtil.addErrorMessage(getLocalizedString("add_assignment_name_conflict_failure"));
