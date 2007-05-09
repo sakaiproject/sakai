@@ -866,7 +866,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 					}
 
 					newFile = new ListItem(mfp, parent, defaultRetractDate);
-					newFile.setName(pipe.getFileName());
+					newFile.setName(new String(pipe.getRevisedContent()));
 					newFile.setId(pipe.getFileName());
 				}
 			}
