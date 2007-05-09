@@ -1049,7 +1049,12 @@ public class ItemBean
 			}
 		}
 		this.setCorrAnswers(corrAnswers);
-
+		if (corrAnswers.length == 0) {
+			this.setCorrAnswer("");
+		}
+		else {
+			this.setCorrAnswer(corrAnswers[0]);
+		}
 		return null;
 	}
 
