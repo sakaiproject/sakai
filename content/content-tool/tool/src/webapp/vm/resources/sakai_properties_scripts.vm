@@ -114,6 +114,20 @@
 				tag.onchange = handleRetractDateChange;
 			}
 		}
+		var imageTags = document.getElementsByTagName("img");
+
+		for(var i = 0; i < imageTags.length; i++)
+		{
+			var tag = imageTags[i];
+			if(tag.id && tag.id.match(/^release_calendar${DOT}\d+$/))
+			{
+				tag.onclick = handleReleaseDatePopupRequest;
+			}
+			else if(tag.id && tag.id.match(/^retract_calendar${DOT}\d+$/))
+			{
+				tag.onclick = handleRetractDatePopupRequest;
+			}
+		}
 	  return false;
 	}
 	function handleEnterKey(evt) 
@@ -133,6 +147,54 @@
 			}
 		}
 	}      
+	function handleReleaseDatePopupRequest(evt)
+	{
+		evt = (evt) ? evt : ((event) ? event : null);
+		if(evt)
+		{
+			evt.cancelBubble = true;
+			var element = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
+			if(element)
+			{
+				//element = (element.nodeType == 1 || element.nodeType == 9) ? element : element.parentNode;
+				element = (element.id && element.id.lastIndexOf(DOT) >= 0) ? element : element.parentNode;
+				
+				var dot = element.id.lastIndexOf("$DOT");
+				if(dot >= 0)
+				{
+					var index = element.id.substr(dot + 1);
+					var number = parseInt(index) * 2;
+					popupCalendar("chef_calendarhiddenfield" + number);
+					selectReleaseDate(index);
+				}
+			}
+		}
+		return false;
+	}
+	function handleRetractDatePopupRequest(evt)
+	{
+		evt = (evt) ? evt : ((event) ? event : null);
+		if(evt)
+		{
+			evt.cancelBubble = true;
+			var element = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
+			if(element)
+			{
+				//element = (element.nodeType == 1 || element.nodeType == 9) ? element : element.parentNode;
+				element = (element.id && element.id.lastIndexOf(DOT) >= 0) ? element : element.parentNode;
+				
+				var dot = element.id.lastIndexOf("$DOT");
+				if(dot >= 0)
+				{
+					var index = element.id.substr(dot + 1);
+					var number = parseInt(index) * 2 + 1;
+					popupCalendar("chef_calendarhiddenfield" + number);
+					selectRetractDate(index);
+				}
+			}
+		}
+		return false;
+	}
 	function handleCopyrightChange(evt)
 	{
 		evt = (evt) ? evt : ((event) ? event : null);
@@ -323,7 +385,7 @@
 		{
 			debug_guy.value = fileInputDiv.innerHTML;
 		}
-
+		
 		resizeFrame('grow');
 		return false;
 	}
@@ -579,6 +641,24 @@
 			{
 				newElement.selectedIndex = 4;
 			}
+			else if(root.id.match(/^chef_calendarhiddenfield\d+$/))
+			{
+				var calcount = document.calendarcounter++;
+				newElement.id = "chef_calendarhiddenfield" + calcount;
+				newElement.name = "chef_calendarhiddenfield" + calcount;
+			}
+			if( root.id.match( /^release_year${DOT}\d+$/ ) )
+			{
+				## This depends on the year selection element coming before the corresponding hidden input element
+				var calcount = document.calendarcounter;
+				document.calendars[calcount] = new Array("release_year${DOT}" + index, "release_month${DOT}" + index, "release_day${DOT}" + index, "chef_calendarhiddenfield" + calcount);
+			}
+			else if(root.id.match(/^retract_year${DOT}\d+$/))
+			{
+				## This depends on the year selection element coming before the corresponding hidden input element
+				var calcount = document.calendarcounter;
+				document.calendars[calcount] = new Array("retract_year${DOT}" + index, "retract_month${DOT}" + index, "retract_day${DOT}" + index, "chef_calendarhiddenfield" + calcount);
+			}
 		}
 		return newElement;
 	}
@@ -752,7 +832,7 @@
 				newElement.appendChild(newChild);
 			}
 		}
-		if(newElement && newElement.id)
+		if(newElement && element.id)
 		{
 			if(element.id.match(/^displayName${DOT}\d+$/))
 			{
@@ -781,7 +861,6 @@
 							{
 								newAttr.value = element.attributes[a].value;
 								newElement.setAttributeNode(newAttr);
-##alert("adding attribute " + newAttr.name + " == " + newAttr.value);
 							}
 						}
 						catch(e)
@@ -869,7 +948,6 @@
 	}
 	function seedValue(src_element, target_element, trim)
 	{
-##alert("seedValue(" + src_element + ", " + target_element + ", " + trim + ")");
 		if(target_element && src_element && src_element.value)
 		{
 			var nonWhitespaceChar = /\S/;
@@ -1247,6 +1325,21 @@
 	}
 	
 	attachEventHandlers();
+	
+#if($calendarcounter)	
+	document.calendars = new Array();
+	document.calendarcounter = $calendarcounter;
+#set($n = $calendarcounter - 1)
+#foreach($i in [0 .. $n])
+#set($caldata = $calendarMap.get("$i"))
+#if($caldata)
+	document.calendars[$i] = new Array('$caldata.get(0)', '$caldata.get(1)', '$caldata.get(2)', '$caldata.get(3)');
+#end
+#end
+#end
 -->
 </script>
-
+#if($calendarcounter)
+<script type="text/javascript" src="/library/calendar/sakai-calendar.js"></script>	
+<script type="text/javascript" src="/library/calendar/js/calendar2.js"></script>
+#end

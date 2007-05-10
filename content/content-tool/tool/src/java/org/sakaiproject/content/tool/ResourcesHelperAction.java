@@ -27,6 +27,7 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -197,6 +198,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		context.put("validator", new Validator());
 		context.put("copyright_alert_url", COPYRIGHT_ALERT_URL);
 		context.put("DOT", ListItem.DOT);
+		context.put("calendarMap", new HashMap());
 		
 		if(state.getAttribute(ResourcesAction.STATE_MESSAGE) != null)
 		{
@@ -643,7 +645,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 		List<ResourceToolActionPipe> pipes = pipe.getPipes();
 		
-		for(int i = 1, c = 0; i <= lastIndex && c < count; i++)
+		for(int i = 0, c = 0; i <= lastIndex && c < count; i++)
 		{
 			String exists = params.getString("exists" + ListItem.DOT + i);
 			if(exists == null || exists.equals(""))
@@ -816,7 +818,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		List<ResourceToolActionPipe> pipes = mfp.getPipes();
 		
 		int actualCount = 0;
-		for(int i = 1; i <= lastIndex && actualCount < count; i++)
+		for(int i = 0; i <= lastIndex && actualCount < count; i++)
 		{
 			String exists = params.getString("exists" + ListItem.DOT + i);
 			if(exists == null || exists.equals(""))
@@ -941,7 +943,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		
 		int uploadCount = 0;
 		
-		for(int i = 1, c = 0; i <= lastIndex && c < count; i++)
+		for(int i = 0, c = 0; i <= lastIndex && c < count; i++)
 		{
 			String exists = params.getString("exists" + ListItem.DOT + i);
 			if(exists == null || exists.equals(""))

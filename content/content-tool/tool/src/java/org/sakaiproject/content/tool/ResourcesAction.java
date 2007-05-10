@@ -4824,6 +4824,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		context.put("copyright_alert_url", COPYRIGHT_ALERT_URL);
 		context.put("ACTION_DELIMITER", ResourceToolAction.ACTION_DELIMITER);
 		context.put("DOT", ListItem.DOT);
+		context.put("calendarMap", new HashMap());
 		
 		context.put("TYPE_FOLDER", ResourceType.TYPE_FOLDER);
 		context.put("TYPE_HTML", ResourceType.TYPE_HTML);

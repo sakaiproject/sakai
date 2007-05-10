@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -208,6 +209,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 		initState(state, portlet, data);
 		
 		context.put("DOT", ListItem.DOT);
+		context.put("calendarMap", new HashMap());
 
 		// if we are in edit attachments...
 		String mode = (String) state.getAttribute(ResourcesAction.STATE_MODE);
