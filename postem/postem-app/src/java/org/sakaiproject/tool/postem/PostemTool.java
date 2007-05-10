@@ -107,6 +107,7 @@ public class PostemTool {
 	
 	private static final int TEMPLATE_MAX_LENGTH = 4000;
 	private static final int TITLE_MAX_LENGTH = 255;
+	private static final int HEADING_MAX_LENGTH = 500;
 	
 	private static final String COMMA_DELIM_STR = "comma";
 	private static final String TAB_DELIM_STR = "tab";
@@ -559,13 +560,19 @@ public class PostemTool {
 				
 				if (withHeader == true) {
 					if (grades.getHeaders() != null) {
-						// Make sure there are no blank headings
+
 						List headingList = grades.getHeaders();
 						for(int col=0; col < headingList.size(); col++) {
-							String heading = (String)headingList.get(col).toString().trim();			
+							String heading = (String)headingList.get(col).toString().trim();	
+							// Make sure there are no blank headings
 							if(heading.equals("") || heading == null) {
 								PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
 										"blank_headings", new Object[] {});
+								return "create_gradebook";
+							}
+							// Make sure the headings don't exceed max limit
+							if (heading.length() > HEADING_MAX_LENGTH) {
+								PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR, "heading_too_long", new Object[] {new Integer(HEADING_MAX_LENGTH)});
 								return "create_gradebook";
 							}
 						}
@@ -592,12 +599,12 @@ public class PostemTool {
 				
 				if (withHeader == true) {
 					if (grades.getHeaders() != null) {	
-						PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
+						PostemTool.populateMessage(FacesMessage.SEVERITY_INFO,
 								"has_headers", new Object[] {});
 					}
 				}
 				if (grades.getStudents() != null) {	
-					PostemTool.populateMessage(FacesMessage.SEVERITY_ERROR,
+					PostemTool.populateMessage(FacesMessage.SEVERITY_INFO,
 							"has_students", new Object[] { new Integer(grades.getStudents()
 									.size()) });
 				}

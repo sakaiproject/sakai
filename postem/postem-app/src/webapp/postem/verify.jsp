@@ -9,9 +9,11 @@
 		<sakai:view_content>
 			<h:form>
 			
+		 <sakai:tool_bar_message value="#{msgs.title_verify}" />
+			
 			<h:messages globalOnly="true" />
 				
-		  	<sakai:tool_bar_message value="#{msgs.title_verify}" />
+
 		  	<h:outputText value="#{msgs.just_uploaded}"/>
 		  	<br />
 		  	<br />

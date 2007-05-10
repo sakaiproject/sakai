@@ -61,7 +61,7 @@
 		<list name="headings" lazy="false" table="SAKAI_POSTEM_HEADINGS">
 			<key column="gradebook_id" />
 			<index column="location" />
-			<element type="string" column="heading" not-null="true" />
+			<element type="string" column="heading" not-null="true" length="500" />
 		</list>
 
 

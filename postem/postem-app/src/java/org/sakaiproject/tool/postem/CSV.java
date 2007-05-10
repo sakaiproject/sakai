@@ -27,6 +27,9 @@ import java.util.List;
 import java.util.zip.DataFormatException;
 
 import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
+
+import org.apache.myfaces.util.MessageUtils;
 
 public class CSV {
 
@@ -38,6 +41,8 @@ public class CSV {
 
 	private String csv;
 	
+	private static boolean truncatingWarningDisplayed;
+	
 	public static final char COMMA_DELIM = ',';
 	public static final char TAB_DELIM = '\t';
 	
@@ -46,6 +51,7 @@ public class CSV {
 	// private boolean withHeaders = true;
 
 	public CSV(String csv, boolean withHeader) throws DataFormatException {
+		truncatingWarningDisplayed = false;
 		contents = retrieveContents(csv, COMMA_DELIM);
 		headers = retrieveHeaders(contents);
 		students = retrieveStudents(contents, withHeader);
@@ -53,6 +59,7 @@ public class CSV {
 	}
 	
 	public CSV(String csv, boolean withHeader, char delimiter) throws DataFormatException {
+		truncatingWarningDisplayed = false;
 		contents = retrieveContents(csv, delimiter);
 		headers = retrieveHeaders(contents);
 		students = retrieveStudents(contents, withHeader);
@@ -60,6 +67,7 @@ public class CSV {
 	}
 
 	public CSV(List contents, boolean withHeader) {
+		truncatingWarningDisplayed = false;
 		headers = retrieveHeaders(contents);
 		students = retrieveStudents(contents, withHeader);
 		csv = createFromContents(contents);
@@ -263,6 +271,15 @@ public class CSV {
 			String truncatedString = buffer.substring(0, MAX_COL_LENGTH);
 			buffer = new StringBuffer();
 			buffer.append(truncatedString);
+			
+			if (!truncatingWarningDisplayed) {
+				truncatingWarningDisplayed = true;
+				FacesContext.getCurrentInstance().addMessage(
+						null,
+						MessageUtils.getMessage(FacesMessage.SEVERITY_INFO,
+								"data_truncated_warning", (new Object[] { new Integer(MAX_COL_LENGTH) }), FacesContext
+										.getCurrentInstance()));
+			}
 		}
 		
 		return buffer;
