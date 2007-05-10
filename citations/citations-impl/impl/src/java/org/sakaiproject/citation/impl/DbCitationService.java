@@ -52,7 +52,7 @@ import org.sakaiproject.time.cover.TimeService;
 public class DbCitationService extends BaseCitationService
 {
 	/**
-	 *
+	 * 
 	 */
 	public class DbCitationStorage implements Storage
 	{
@@ -1301,15 +1301,10 @@ public class DbCitationService extends BaseCitationService
 			if (m_autoDdl)
 			{
 				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_citation");
+				M_log.info("init(): tables: " + m_collectionTableName + ", " + m_citationTableName + ", " + m_schemaTableName + ", " + m_schemaFieldTableName);
 			}
 
-			// TODO: Separate initialization of schemas and registration of CitationList resource-type into discreet methods.
-			// TODO: Call method to initialize schemas only if they are not yet initialized.
-			// TODO: Call method to register CitationList resource-type only if it's not yet registered.
 			super.init();
-
-			M_log.info("init(): tables: " + m_collectionTableName + ", " + m_citationTableName + ", " + m_schemaTableName + ", " + m_schemaFieldTableName);
-
 		}
 		catch (Throwable t)
 		{

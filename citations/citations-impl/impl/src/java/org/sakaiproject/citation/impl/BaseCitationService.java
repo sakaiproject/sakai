@@ -3896,7 +3896,8 @@ public abstract class BaseCitationService implements CitationService
 	
 			rb = new ResourceLoader("citations");
 	
-			initializeSchemas();
+			//initializeSchemas();
+		    m_defaultSchema = "article";
 			
 			registerResourceType();
 		}
@@ -4347,7 +4348,6 @@ public abstract class BaseCitationService implements CitationService
 	    	m_storage.addSchema(report);
 	    }
 
-	    m_defaultSchema = article.getIdentifier();
     }
 	
 	public class CitationListDeleteAction extends BaseServiceLevelAction
