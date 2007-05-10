@@ -12,12 +12,12 @@
     singleton="true">
 
 	<!-- enable/disable entire helper -->
-    <property name="citationsEnabledByDefault"><value>false</value></property>
-	<property name="allowSiteBySiteOverride"><value>false</value></property>
+    <property name="citationsEnabledByDefault"><value>true</value></property>
+	<property name="allowSiteBySiteOverride"><value>true</value></property>
 	
 	<!-- enable/disable helper features -->
-	<property name="googleSearchEnabled"><value>false</value></property>
-  	<property name="librarySearchEnabled"><value>false</value></property>
+	<property name="googleSearchEnabled"><value>true</value></property>
+  	<property name="librarySearchEnabled"><value>true</value></property>
   	
 	<!-- configuration XML file location -->
     <property name="databaseXml"><value>${sakai.home}sakai/org.sakaiproject.citation/categories.xml</value></property>
