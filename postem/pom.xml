@@ -17,6 +17,7 @@
     <module>postem-app</module>
     <module>postem-hbm</module>
     <module>postem-impl</module>
+    <module>postem-help</module>
     <module>postem-shared-deploy</module>
   </modules>
 </project>
