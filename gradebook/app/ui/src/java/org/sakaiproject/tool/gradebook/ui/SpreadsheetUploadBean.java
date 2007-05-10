@@ -796,7 +796,6 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         if(assignment == null) {
             assignment = new Assignment();
             assignment.setReleased(true);
-            assignment.setNotCounted(true);
         }
 
         try{
