@@ -158,7 +158,6 @@ public abstract class BaseCitationService implements CitationService
 		protected Map m_citationProperties = null;
 		protected Map m_urls;
 		protected String m_citationUrl = null;
-		protected String m_displayName = null;
 		protected String m_fullTextUrl = null;
 		protected String m_id = null;
 		protected String m_imageUrl = null;
@@ -202,10 +201,10 @@ public abstract class BaseCitationService implements CitationService
 			// assetId = asset.getId().getIdString();
 			try
 			{
-				m_displayName = asset.getDisplayName();
-				if (this.m_displayName != null)
+				String title = asset.getDisplayName();
+				if (title != null)
 				{
-					m_citationProperties.put(Schema.TITLE, this.m_displayName);
+					m_citationProperties.put(Schema.TITLE, title);
 				}
 
 				description = asset.getDescription();
@@ -535,7 +534,6 @@ public abstract class BaseCitationService implements CitationService
 			BasicCitation other = (BasicCitation) citation;
 
 			m_citationUrl = other.m_citationUrl;
-			m_displayName = other.m_displayName;
 			m_fullTextUrl = other.m_fullTextUrl;
 			m_imageUrl = other.m_imageUrl;
 			m_searchSourceUrl = other.m_searchSourceUrl;
@@ -927,14 +925,11 @@ public abstract class BaseCitationService implements CitationService
 
 		public String getDisplayName()
 		{
-			String displayName = m_displayName;
+			String displayName = (String) getCitationProperty(Schema.TITLE);
 			if (displayName == null || displayName.trim() == "")
 			{
-				displayName = (String) getCitationProperty(Schema.TITLE);
-			}
-			if (displayName == null)
-			{
-				displayName = "";
+				displayName = "untitled";
+				setCitationProperty(Schema.TITLE, "untitled");
 			}
 			displayName = displayName.trim();
 			if (displayName.length() > 0 && !displayName.endsWith(".") && !displayName.endsWith("?") && !displayName.endsWith("!") && !displayName.endsWith(","))
@@ -1092,9 +1087,16 @@ public abstract class BaseCitationService implements CitationService
 					}
 				}
 				// atitle <journal:article title; book: chapter title>
+				/*
 				if( m_displayName != null )
 				{
 					openUrl.append("&rft.atitle=" + URLEncoder.encode(m_displayName, "utf8"));
+				}
+				*/
+				String title = (String) m_citationProperties.get( Schema.TITLE );
+				if( title != null )
+				{
+					openUrl.append("&rft.atitle=" + URLEncoder.encode(title.trim(), "utf8"));
 				}
 				else
 				{
@@ -1102,8 +1104,7 @@ public abstract class BaseCitationService implements CitationService
 					String sourceTitle = (String) m_citationProperties.get(Schema.SOURCE_TITLE);
 					if (sourceTitle != null && !sourceTitle.trim().equals(""))
 					{
-						m_displayName = sourceTitle;
-						openUrl.append("&rft.atitle=" + URLEncoder.encode(m_displayName, "utf8"));
+						openUrl.append("&rft.atitle=" + URLEncoder.encode(sourceTitle, "utf8"));
 					}
 					// could add other else ifs for fields to borrow from...
 				}
@@ -1629,13 +1630,14 @@ public abstract class BaseCitationService implements CitationService
 
 		public void setDisplayName(String name)
 		{
-			String title = (String) this.m_citationProperties.get(Schema.TITLE);
-			if (title == null || title.trim().equals(""))
+			if (name == null || name.trim().equals(""))
+			{
+				setCitationProperty(Schema.TITLE, "untitled");
+			}
+			else
 			{
 				setCitationProperty(Schema.TITLE, name);
 			}
-			m_displayName = name;
-
 		}
 
 		/*
@@ -1795,9 +1797,13 @@ public abstract class BaseCitationService implements CitationService
 	            	String key = (String) keyIt.next();
 	            	if(CitationCollection.SORT_BY_TITLE.equalsIgnoreCase(key))
 	            	{
+	            		/*
 	            		String title0 = cit0.getDisplayName().toLowerCase();
 	            		String title1 = cit1.getDisplayName().toLowerCase();
-
+	            		*/
+	            		String title0 = ((String)cit0.getCitationProperty( Schema.TITLE )).toLowerCase();;
+	            		String title1 = ((String)cit1.getCitationProperty( Schema.TITLE )).toLowerCase();;
+	            		
 	            		if (title0 == null)
 	            		{
 	            			title0 = "";
