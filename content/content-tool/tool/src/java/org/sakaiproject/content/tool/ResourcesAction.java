@@ -5534,16 +5534,30 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			item.captureProperties(params, ListItem.DOT + "0");
 			String name = params.getString("name" + ListItem.DOT + "0");
-			if(name != null)
+			if(name == null)
+			{
+				name = item.getName();
+			}
+			else
 			{
 				item.setName(name);
+			}
+			if(name == null)
+			{
+				item.setNameIsMissing(true);
+				addAlert(state, rb.getString("edit.missing"));
+				return;
+			}
+			else
+			{
+				name = name.trim();
 			}
 			
 			String collectionId = (String) state.getAttribute(STATE_CREATE_WIZARD_COLLECTION_ID);
 			try 
 			{
 				// title
-				String basename = name.trim();
+				String basename = name;
 				String extension = "";
 				if(name.contains("."))
 				{
