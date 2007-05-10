@@ -10,7 +10,6 @@
 		<h2><h:outputText value="#{msgs.appmenu_overview}"/></h2>
 
 		<div class="instruction">
-			<h:outputText value="#{msgs.overview_instruction}" escape="false"/>
 			<h:panelGroup rendered="#{overviewBean.userAbleToEditAssessments}">
 				<f:verbatim><p></f:verbatim>
 				<h:outputText value="#{overviewBean.gradeOptionSummary} "/>
@@ -42,6 +41,9 @@
 		<%@include file="/inc/globalMessages.jspf"%>
 
 		<h4><h:outputText value="#{msgs.overview_assignments_title}"/></h4>
+		<div class="instruction">
+			<h:outputText value="#{msgs.overview_instruction}" escape="false"/>
+		</div>
 		<gbx:gradebookItemTable cellpadding="0" cellspacing="0"
 			value="#{overviewBean.gradebookItemList}"
 			var="gradebookItem"
