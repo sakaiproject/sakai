@@ -1,0 +1,198 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>M2</version>
+    <relativePath>../../../master/pom.xml</relativePath>
+  </parent>
+  <name>sakai-site-pageorder-helper</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>sakai-site-pageorder-helper</artifactId>
+  <organization>
+    <name>The Sakai Foundation</name>
+    <url>http://sakaiproject.org/</url>
+  </organization>
+  <inceptionYear>2003</inceptionYear>
+  <packaging>war</packaging>
+
+  <dependencies>
+    <dependency>
+      <groupId>sakairsf</groupId>
+      <artifactId>sakairsf</artifactId>
+      <version>0.7-sakai_2.2.x</version>
+      <type>jar</type>
+    </dependency>
+    <!-- begin standard RSF dependencies here -->
+    <dependency>
+      <groupId>ponderutilcore</groupId>
+      <artifactId>ponderutilcore</artifactId>
+      <version>1.2</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>j-servletutil</groupId>
+      <artifactId>j-servletutil</artifactId>
+      <version>1.2</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>rsfutil</groupId>
+      <artifactId>rsfutil</artifactId>
+      <version>0.7</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>2.4</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.9</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring</artifactId>
+      <version>1.2.8</version>
+      <type>jar</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <!-- Doug Lea's Oswego concurrency package. The forerunner of JSR 166
+        java.util.concurrent -->
+      <groupId>concurrent</groupId>
+      <artifactId>concurrent</artifactId>
+      <version>1.3.4</version>
+      <type>jar</type>
+    </dependency>
+    <!-- Aleksander Slominski's (U Indiana) lightning-fast XML pull parser -->
+    <dependency>
+      <groupId>xpp3</groupId>
+      <artifactId>xpp3</artifactId>
+      <version>1.1.3.4-RC8_min</version>
+      <type>jar</type>
+    </dependency>
+
+    
+    <!-- Spring and Hibernate dependencies. -->
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate</artifactId>
+      <version>3.1.3</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- Various Sakai dependencies -->
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-authz-api</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- this is needed to use the ServerConfigurationService -->
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-component-api</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- this is needed to access the SqlService -->
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-db-api</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-entity-api</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-event-api</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-site-api</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-tool-api</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-user-api</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+ <!-- Sakai Util is required to resolve user's Locale -->
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-util</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-util-api</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- Commons JARS put in shared/lib by Sakai -->
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.1</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
+      <scope>provided</scope>
+    </dependency>
+
+
+  </dependencies>
+  <build>
+    <sourceDirectory>src/java</sourceDirectory>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/bundle</directory>
+        <includes>
+          <include>**/*.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/java</directory>
+        <includes>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+    </resources>
+  </build>
+</project>

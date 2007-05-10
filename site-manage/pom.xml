@@ -18,5 +18,6 @@
     <module>site-manage-impl/pack</module>
     <module>site-manage-tool/tool</module>
     <module>site-manage-util/util</module>
+    <module>pageorder/tool</module>
   </modules>
 </project>
