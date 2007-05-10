@@ -9,3 +9,6 @@
 --metaobj conversion
 alter TABLE metaobj_form_def add column alternateCreateXslt	varchar(36) NULL;
 alter TABLE metaobj_form_def add column alternateViewXslt  	varchar(36) NULL;
+
+--Post'em SAK-8232
+ALTER TABLE SAKAI_POSTEM_HEADINGS MODIFY heading VARCHAR(500);
