@@ -4304,7 +4304,7 @@ public abstract class BaseCitationService implements CitationService
 
 	    if (m_storage.checkSchema(unknown.getIdentifier()))
 	    {
-	    	//m_storage.updateSchema(unknown);
+	    	m_storage.updateSchema(unknown);
 	    }
 	    else
 	    {
@@ -4313,7 +4313,7 @@ public abstract class BaseCitationService implements CitationService
 
 	    if (m_storage.checkSchema(article.getIdentifier()))
 	    {
-	    	//m_storage.updateSchema(article);
+	    	m_storage.updateSchema(article);
 	    }
 	    else
 	    {
@@ -4322,7 +4322,7 @@ public abstract class BaseCitationService implements CitationService
 
 	    if (m_storage.checkSchema(book.getIdentifier()))
 	    {
-	    	//m_storage.updateSchema(book);
+	    	m_storage.updateSchema(book);
 	    }
 	    else
 	    {
@@ -4331,7 +4331,7 @@ public abstract class BaseCitationService implements CitationService
 
 	    if (m_storage.checkSchema(chapter.getIdentifier()))
 	    {
-	    	//m_storage.updateSchema(chapter);
+	    	m_storage.updateSchema(chapter);
 	    }
 	    else
 	    {
@@ -4340,7 +4340,7 @@ public abstract class BaseCitationService implements CitationService
 
 	    if (m_storage.checkSchema(report.getIdentifier()))
 	    {
-	    	//article.m_storage.updateSchema(report);
+	    	m_storage.updateSchema(report);
 	    }
 	    else
 	    {
