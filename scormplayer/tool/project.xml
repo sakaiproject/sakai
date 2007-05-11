@@ -28,14 +28,22 @@
 				<war.bundle>false</war.bundle>
 			</properties>
 		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-scorm-service-sequencing-api</artifactId>
+			<version>${sakai.version}</version>
+			<properties>
+				<war.bundle>false</war.bundle>
+			</properties>
+		</dependency>
 		
-		<!-- Sakai dependencies -->
+		<!-- Sakai dependencies -->	
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-content-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-entity-api</artifactId>
@@ -141,6 +149,19 @@
 			</properties-->
 		</dependency>
 
+		<dependency>
+			<groupId>wicket</groupId>
+			<artifactId>wicket-spring-annot</artifactId>
+  	        <version>1.2.6</version>
+  	        <properties>
+			    <deploy.type>jar</deploy.type>
+				<deploy.target>shared</deploy.target>
+			</properties>
+  	        <!-- properties>
+  	        	<war.bundle>true</war.bundle>
+			</properties-->
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -151,6 +172,7 @@
 				<includes>
 					<include>**/*.html</include>
 					<include>**/*.js</include>
+					<include>**/*.properties</include>
 				</includes>
 			</resource>
 		</resources>

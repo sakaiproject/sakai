@@ -1,0 +1,55 @@
+<wicket:panel>
+<div id="propertiesDiv_1" style="display:none;">
+					<!-- sakai_properties.vm -->
+
+	<p class="shorttext">
+		<label for="description_1">
+			Description 
+		</label>
+		<textarea id="description_1" name="description_1" rows="5" cols="80" wrap="virtual"></textarea>
+	</p>
+							<p class="shorttext">
+				<span class="reqStar">*</span>
+
+				<label for="copyright_1">
+					Copyright Status
+				</label>	
+				<select name="copyright_1" id ="copyright_1">
+											<option value="Material is in public domain.">Material is in public domain.</option>
+											<option value="I hold copyright.">I hold copyright.</option>
+											<option value="Material is subject to fair use exception.">Material is subject to fair use exception.</option>
+											<option value="I have obtained permission to use this material.">I have obtained permission to use this material.</option>
+
+											<option value="Copyright status is not yet determined.">Copyright status is not yet determined.</option>
+											<option value="Use copyright below.">Use copyright below.</option>
+									</select>
+									(<a href="http://fairuse.stanford.edu" target="_blank" title="[New window]"><span class="skip"> [New window]</span>more info</a>)
+							</p>
+			<div id="copyright_status_1" style="display:none;">
+
+				<p class="shorttext">
+					<span class="reqStar">*</span>
+					<label for="newcopyright_1">
+						Copyright Information
+					</label>	
+					<textarea name="newcopyright_1" id="newcopyright_1" rows="2" cols="40" wrap="virtual" ></textarea>
+				</p>	
+			</div>
+			<table border="0">
+
+				<tr>
+					<td style="width:180px;padding-left:1em;vertical-align:top">
+						<label for="copyrightAlert_1">
+							Copyright Alert
+						</label>
+					</td>
+					<td style="vertical-align:top">
+						<input type="checkbox" name="copyrightAlert_1" id ="copyrightAlert_1" value="true"  style="border:none" />
+						Display copyright alert and require acknowledgement when accessed by others. 
+						(<a href="#" onclick="javascript:openSampleCopyrightWindow();" title="[New window]"><span class="skip">[New window]</span>what's this?</a>)
+					</td>
+
+				</tr>
+			</table>
+</div>
+</wicket:panel>

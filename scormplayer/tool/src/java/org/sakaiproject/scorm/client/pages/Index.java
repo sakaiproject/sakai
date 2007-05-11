@@ -22,32 +22,21 @@
 package org.sakaiproject.scorm.client.pages;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
 import java.util.TimeZone;
-import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
-import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.scorm.client.Clock;
-import org.sakaiproject.scorm.client.ScormTool;
 import org.sakaiproject.scorm.client.api.ScormClientFacade;
+import org.sakaiproject.scorm.tool.ScormTool;
 
 import wicket.ajax.AjaxSelfUpdatingTimerBehavior;
-import wicket.markup.html.BodyContainer;
 import wicket.markup.html.WebPage;
 import wicket.markup.html.basic.Label;
 import wicket.markup.html.link.ExternalLink;
-import wicket.markup.html.link.Link;
 import wicket.util.time.Duration;
 
 public class Index extends WebPage 

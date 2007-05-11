@@ -15,7 +15,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.sakaiproject.scorm.client.pages;
+package org.sakaiproject.scorm.tool;
 
 import java.io.Serializable;
 
@@ -30,6 +30,8 @@ public final class FrameTarget implements Serializable
 
 	/** the class of the bookmarkable page. */
 	private Class frameClass;
+	
+	private String url;
 
 	/**
 	 * Construct.
@@ -68,4 +70,13 @@ public final class FrameTarget implements Serializable
 	{
 		this.frameClass = frameClass;
 	}
+	
+	public String getUrl() {
+		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}	
+	
 }

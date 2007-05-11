@@ -13,12 +13,6 @@
 	  <param-name>CONFIGURATION</param-name>
 	  <param-value>DEPLOYMENT</param-value>
 	</context-param>
-	<!-- context-param>
-		<param-name>contextConfigLocation</param-name>
-		<param-value>
-			/WEB-INF/applicationContext.xml
-		</param-value>
-	</context-param-->
 
 	<filter>
 	    <filter-name>sakai.request</filter-name>
@@ -68,12 +62,6 @@
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
-			
-	<!-- servlet>
-		<servlet-name>simpleWicket</servlet-name>
-		<servlet-class>org.sakaiproject.scorm.client.SimpleServlet</servlet-class>
-		<load-on-startup>2</load-on-startup>
-	</servlet-->
 	
 	<servlet-mapping>
 		<servlet-name>sakai.scorm.tool</servlet-name>

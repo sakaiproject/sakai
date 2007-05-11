@@ -17,11 +17,14 @@
 	<classpathentry kind="var" path="MAVEN_REPO/org.springframework/jars/spring-1.2.8.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/wicket/jars/wicket-1.2.5.jar" sourcepath="/WICKET_SRC"/>
 	<classpathentry kind="var" path="MAVEN_REPO/wicket/jars/wicket-extensions-1.2.5.jar" sourcepath="/WICKET_EXT_SRC"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/scorm-service-app-client"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/content-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/entity-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/tool-api"/>
 	<classpathentry kind="var" path="MAVEN_REPO/wicket/jars/wicket-spring-1.2.5.jar" sourcepath="/WICKET_SPRING_SRC"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/scorm-adlnet"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/scorm-service-app-client"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/scorm-sequencing-service"/>
+	<classpathentry kind="var" path="MAVEN_REPO/wicket/jars/wicket-spring-annot-1.2.6.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/component-api"/>
 	<classpathentry kind="output" path="dist"/>
 </classpath>
