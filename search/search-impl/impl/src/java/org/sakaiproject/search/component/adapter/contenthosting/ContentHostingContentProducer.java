@@ -419,7 +419,9 @@ public class ContentHostingContentProducer implements EntityContentProducer
 			{
 				log.debug("ContentHosting.getAction" + event + ":add");
 			}
-			return SearchBuilderItem.ACTION_ADD;
+			if ( isForIndex(event.getResource())) {
+				return SearchBuilderItem.ACTION_ADD;
+			}
 		}
 		if (ContentHostingService.EVENT_RESOURCE_REMOVE.equals(eventName))
 		{
@@ -427,7 +429,9 @@ public class ContentHostingContentProducer implements EntityContentProducer
 			{
 				log.debug("ContentHosting.getAction" + event + ":delete");
 			}
-			return SearchBuilderItem.ACTION_DELETE;
+			if ( isForIndex(event.getResource())) {
+				return SearchBuilderItem.ACTION_DELETE;
+			}
 		}
 		if (debug)
 		{
@@ -582,11 +586,16 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		ContentResource contentResource;
 		try
 		{
+			// nasty hack to not index dropbox without loading an entity from the DB
+			if ( ref.length() > "/content".length() && contentHostingService.isInDropbox(ref.substring("/content".length())) ) {
+					return false;
+			}
+			
 			Reference reference = entityManager.newReference(ref);
+			
 
 			contentResource = contentHostingService.getResource(reference.getId());
-			if (contentResource == null || contentResource.isCollection()
-					|| reference.getId().startsWith("/group-user"))
+			if (contentResource == null || contentResource.isCollection() )
 			{
 				return false;
 			}
