@@ -74,13 +74,14 @@ import org.sakaiproject.site.cover.SiteService;
 public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWorkerDao
 {
 
-	private static final String SEARCH_BUILDER_ITEM_FIELDS = " name, context,  searchaction, searchstate, version, id "; //$NON-NLS-1$
+	// TODO Fix columns
+	private static final String SEARCH_BUILDER_ITEM_FIELDS = " name, context,  searchaction, searchstate, version, itemscope, id "; //$NON-NLS-1$
 
 	private static final String SEARCH_BUILDER_ITEM_T = "searchbuilderitem"; //$NON-NLS-1$
 
-	private static final String SEARCH_BUILDER_ITEM_FIELDS_PARAMS = " ?, ?, ?,  ?, ?, ? "; //$NON-NLS-1$
+	private static final String SEARCH_BUILDER_ITEM_FIELDS_PARAMS = " ?, ?, ?,  ?, ?, ?, ? "; //$NON-NLS-1$
 
-	private static final String SEARCH_BUILDER_ITEM_FIELDS_UPDATE = " name = ?, context = ?,  searchaction = ?, searchstate = ?, version = ? where id = ? "; //$NON-NLS-1$
+	private static final String SEARCH_BUILDER_ITEM_FIELDS_UPDATE = " name = ?, context = ?,  searchaction = ?, searchstate = ?, version = ?, itemscope = ? where id = ? "; //$NON-NLS-1$
 
 	private static Log log = LogFactory.getLog(SearchIndexBuilderWorkerDaoJdbcImpl.class);
 
@@ -92,7 +93,6 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 	 * dependency: the search index builder that is accepting new items
 	 */
 	private SearchIndexBuilder searchIndexBuilder = null;
-
 
 	private boolean enabled = false;
 
@@ -149,6 +149,90 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 				log
 						.warn("Experimental RDF Search Service is enabled using implementation " //$NON-NLS-1$
 								+ rdfSearchService);
+			}
+
+			if (enabled)
+			{
+				Connection con = null;
+				Statement stmt = null;
+				ResultSet rs = null;
+				try
+				{
+					con = dataSource.getConnection();
+					stmt = con.createStatement();
+					int nglobal = 0;
+					try
+					{
+						rs = stmt.executeQuery("select count(*) from "
+								+ SEARCH_BUILDER_ITEM_T + " where itemscope = "
+								+ SearchBuilderItem.ITEM_GLOBAL_MASTER);
+						if (rs.next())
+						{
+							nglobal = rs.getInt(1);
+						}
+					}
+					catch (Exception ex)
+					{
+						log
+								.error("Schema Has not been updated to include itemscope column, please run SAK-9865.sql script on this database ");
+						System.exit(-1);
+					}
+					if (nglobal == 0)
+					{
+						// no global items found, almost certainly because data
+						// has not been indexed with itemscope
+						stmt.execute("update searchbuilderitem set itemscope= "
+								+ SearchBuilderItem.ITEM);
+						stmt.execute("update searchbuilderitem set itemscope= "
+								+ SearchBuilderItem.ITEM_SITE_MASTER
+								+ " where name like '"
+								+ SearchBuilderItem.SITE_MASTER_PATTERN + "'");
+						stmt.execute("update searchbuilderitem set itemscope= "
+								+ SearchBuilderItem.ITEM_GLOBAL_MASTER
+								+ " where context = '" + SearchBuilderItem.GLOBAL_CONTEXT
+								+ "'");
+						log.info("Exiting search item builder records have been optimized for itemscope access ");
+					}
+					con.commit();
+				}
+				catch (Exception ex)
+				{
+					try
+					{
+						con.rollback();
+					}
+					catch (Exception e)
+					{
+
+					}
+					log
+							.error("Failed to migrate indexes to itemscope based storage, search cant startup, please investigate immediately ");
+					System.exit(-1);
+				}
+				finally
+				{
+					try
+					{
+						rs.close();
+					}
+					catch (Exception e)
+					{
+					}
+					try
+					{
+						stmt.close();
+					}
+					catch (Exception e)
+					{
+					}
+					try
+					{
+						con.close();
+					}
+					catch (Exception e)
+					{
+					}
+				}
 			}
 
 		}
@@ -599,7 +683,8 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 	 * 
 	 * @see org.sakaiproject.search.component.dao.impl.SearchIndexBuilderWorkerDao#processToDoListTransaction()
 	 */
-	public void processToDoListTransaction(SearchIndexBuilderWorker worker, int indexBatchSize)
+	public void processToDoListTransaction(SearchIndexBuilderWorker worker,
+			int indexBatchSize)
 	{
 		Connection connection = null;
 		try
@@ -812,13 +897,12 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 		ResultSet rst = null;
 		try
 		{
+			// TODO Fix Columns
 			pst = connection.prepareStatement("select " //$NON-NLS-1$
 					+ SEARCH_BUILDER_ITEM_FIELDS + " from " //$NON-NLS-1$
-					+ SEARCH_BUILDER_ITEM_T + " where name like  ?  " //$NON-NLS-1$
-					+ "   and   context <> ?  "); //$NON-NLS-1$
+					+ SEARCH_BUILDER_ITEM_T + " where itemscope =   ?  "); //$NON-NLS-1$
 			pst.clearParameters();
-			pst.setString(1, SearchBuilderItem.SITE_MASTER_PATTERN);
-			pst.setString(2, SearchBuilderItem.GLOBAL_CONTEXT);
+			pst.setInt(1, SearchBuilderItem.ITEM_SITE_MASTER.intValue());
 			rst = pst.executeQuery();
 			ArrayList a = new ArrayList();
 			while (rst.next())
@@ -862,11 +946,12 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 		ResultSet rst = null;
 		try
 		{
+			// TODO Fix Columns
 			pst = connection.prepareStatement("select " //$NON-NLS-1$
 					+ SEARCH_BUILDER_ITEM_FIELDS + " from " //$NON-NLS-1$
-					+ SEARCH_BUILDER_ITEM_T + " where name = ? "); //$NON-NLS-1$
+					+ SEARCH_BUILDER_ITEM_T + " where itemscope = ? "); //$NON-NLS-1$
 			pst.clearParameters();
-			pst.setString(1, SearchBuilderItem.GLOBAL_MASTER);
+			pst.setInt(1, SearchBuilderItem.ITEM_GLOBAL_MASTER.intValue());
 			rst = pst.executeQuery();
 			SearchBuilderItemImpl sbi = new SearchBuilderItemImpl();
 			if (rst.next())
@@ -879,6 +964,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 				sbi.setContext(SearchBuilderItem.GLOBAL_CONTEXT);
 				sbi.setSearchaction(SearchBuilderItem.ACTION_UNKNOWN);
 				sbi.setSearchstate(SearchBuilderItem.STATE_UNKNOWN);
+				sbi.setItemscope(SearchBuilderItem.ITEM_GLOBAL_MASTER);
 			}
 			return sbi;
 		}
@@ -909,7 +995,8 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 		sbi.setSearchaction(new Integer(rst.getInt(3)));
 		sbi.setSearchstate(new Integer(rst.getInt(4)));
 		sbi.setVersion(rst.getDate(5));
-		sbi.setId(rst.getString(6));
+		sbi.setItemscope(new Integer(rst.getInt(6)));
+		sbi.setId(rst.getString(7));
 	}
 
 	private int populateStatement(PreparedStatement pst, SearchBuilderItem sbi)
@@ -920,8 +1007,9 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 		pst.setInt(3, sbi.getSearchaction().intValue());
 		pst.setInt(4, sbi.getSearchstate().intValue());
 		pst.setDate(5, new Date(sbi.getVersion().getTime()));
-		pst.setString(6, sbi.getId());
-		return 6;
+		pst.setInt(6, sbi.getItemscope().intValue());
+		pst.setString(7, sbi.getId());
+		return 7;
 
 	}
 
@@ -937,7 +1025,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 			}
 			catch (SQLException sqlex)
 			{
-
+				// TODO Fix columns
 				pst = connection.prepareStatement("update " //$NON-NLS-1$
 						+ SEARCH_BUILDER_ITEM_T + " set " //$NON-NLS-1$
 						+ SEARCH_BUILDER_ITEM_FIELDS_UPDATE);
@@ -967,6 +1055,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 		PreparedStatement pst = null;
 		try
 		{
+			// TODO Fix Columns
 			pst = connection.prepareStatement(" insert into " //$NON-NLS-1$
 					+ SEARCH_BUILDER_ITEM_T + " ( " //$NON-NLS-1$
 					+ SEARCH_BUILDER_ITEM_FIELDS + " ) values ( " //$NON-NLS-1$
@@ -1136,19 +1225,17 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 			ResultSet rst = null;
 			try
 			{
+				// TODO Fix columns
 				pst = connection.prepareStatement("select " //$NON-NLS-1$
-						+ SEARCH_BUILDER_ITEM_FIELDS
-						+ " from " //$NON-NLS-1$
-						+ SEARCH_BUILDER_ITEM_T
-						+ " where searchstate = ? and    searchaction <> ? and " //$NON-NLS-1$
-						+ "        not ( name like ? )  order by version "); //$NON-NLS-1$
+						+ SEARCH_BUILDER_ITEM_FIELDS + " from " //$NON-NLS-1$
+						+ SEARCH_BUILDER_ITEM_T + " where searchstate = ? and     " //$NON-NLS-1$
+						+ "        itemscope = ?  order by version "); //$NON-NLS-1$
 				lockedPst = connection.prepareStatement("update " //$NON-NLS-1$
 						+ SEARCH_BUILDER_ITEM_T + " set searchstate = ? " //$NON-NLS-1$
 						+ " where id = ?  and  searchstate = ? "); //$NON-NLS-1$
 				pst.clearParameters();
 				pst.setInt(1, SearchBuilderItem.STATE_PENDING.intValue());
-				pst.setInt(2, SearchBuilderItem.ACTION_UNKNOWN.intValue());
-				pst.setString(3, SearchBuilderItem.SITE_MASTER_PATTERN);
+				pst.setInt(2, SearchBuilderItem.ITEM.intValue());
 				rst = pst.executeQuery();
 				ArrayList a = new ArrayList();
 				while (rst.next() && a.size() < batchSize)
@@ -1156,16 +1243,19 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 
 					SearchBuilderItemImpl sbi = new SearchBuilderItemImpl();
 					populateSearchBuilderItem(rst, sbi);
-					lockedPst.clearParameters();
-					lockedPst.setInt(1, SearchBuilderItem.STATE_LOCKED.intValue());
-					lockedPst.setString(2, sbi.getId());
-					lockedPst.setInt(3, SearchBuilderItem.STATE_PENDING.intValue());
-					if (lockedPst.executeUpdate() == 1)
+					if (!SearchBuilderItem.ACTION_UNKNOWN.equals(sbi.getSearchaction()))
 					{
-						sbi.setSearchstate(SearchBuilderItem.STATE_LOCKED);
-						a.add(sbi);
+						lockedPst.clearParameters();
+						lockedPst.setInt(1, SearchBuilderItem.STATE_LOCKED.intValue());
+						lockedPst.setString(2, sbi.getId());
+						lockedPst.setInt(3, SearchBuilderItem.STATE_PENDING.intValue());
+						if (lockedPst.executeUpdate() == 1)
+						{
+							sbi.setSearchstate(SearchBuilderItem.STATE_LOCKED);
+							a.add(sbi);
+						}
+						connection.commit();
 					}
-					connection.commit();
 
 				}
 				return a;
@@ -1203,12 +1293,11 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 		ResultSet rst = null;
 		try
 		{
+
 			pst = connection.prepareStatement("select count(*) from " //$NON-NLS-1$
-					+ SEARCH_BUILDER_ITEM_T
-					+ " where searchstate = ? and searchaction <> ?"); //$NON-NLS-1$
+					+ SEARCH_BUILDER_ITEM_T + " where searchstate = ? "); //$NON-NLS-1$
 			pst.clearParameters();
 			pst.setInt(1, SearchBuilderItem.STATE_PENDING.intValue());
-			pst.setInt(2, SearchBuilderItem.ACTION_UNKNOWN.intValue());
 			rst = pst.executeQuery();
 			if (rst.next())
 			{
@@ -1246,11 +1335,14 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 			stm = connection.createStatement();
 			if (SearchBuilderItem.GLOBAL_CONTEXT.equals(controlItem.getContext()))
 			{
-				stm.execute("delete from searchbuilderitem where name <> '" //$NON-NLS-1$
-						+ SearchBuilderItem.GLOBAL_MASTER + "' "); //$NON-NLS-1$
+				stm.execute("delete from searchbuilderitem where itemscope = "
+						+ SearchBuilderItem.ITEM
+						+ " or itemscope = " + SearchBuilderItem.ITEM_SITE_MASTER); //$NON-NLS-1$
 			}
 			else
 			{
+				stm.execute("delete from searchbuilderitem where itemscope = "
+						+ SearchBuilderItem.ITEM);
 				stm.execute("delete from searchbuilderitem where context = '" //$NON-NLS-1$
 						+ controlItem.getContext() + "' and name <> '" //$NON-NLS-1$
 						+ controlItem.getName() + "' "); //$NON-NLS-1$
@@ -1333,6 +1425,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 						sbi.setSearchstate(SearchBuilderItem.STATE_PENDING);
 						sbi.setId(idgenerator.nextIdentifier().toString());
 						sbi.setVersion(new Date(System.currentTimeMillis()));
+						sbi.setItemscope(SearchBuilderItem.ITEM);
 						String context = null;
 						try
 						{
@@ -1396,18 +1489,16 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 			{
 				stm.execute("update searchbuilderitem set searchstate = " //$NON-NLS-1$
 						+ SearchBuilderItem.STATE_PENDING
-						+ " where name not like '" //$NON-NLS-1$
-						+ SearchBuilderItem.SITE_MASTER_PATTERN
-						+ "' and name <> '" + SearchBuilderItem.GLOBAL_MASTER //$NON-NLS-1$
-						+ "' "); //$NON-NLS-1$
+						+ " where itemscope = " + SearchBuilderItem.ITEM); //$NON-NLS-1$
 
 			}
 			else
 			{
-				stm.execute("update searchbuilderitem set searchstate = " //$NON-NLS-1$
-						+ SearchBuilderItem.STATE_PENDING
-						+ " where context = '" + controlItem.getContext() //$NON-NLS-1$
-						+ "' and name <> '" + controlItem.getName() + "'"); //$NON-NLS-1$ //$NON-NLS-2$
+				stm
+						.execute("update searchbuilderitem set searchstate = " //$NON-NLS-1$
+								+ SearchBuilderItem.STATE_PENDING
+								+ " where itemscope = " + SearchBuilderItem.ITEM_SITE_MASTER + " and context = '" + controlItem.getContext() //$NON-NLS-1$
+								+ "' and name <> '" + controlItem.getName() + "'"); //$NON-NLS-1$ //$NON-NLS-2$
 
 			}
 			controlItem.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
@@ -1474,7 +1565,5 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 	{
 		return indexStorage.centralIndexExists();
 	}
-
-	
 
 }

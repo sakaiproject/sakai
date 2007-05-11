@@ -62,6 +62,10 @@
               column="searchstate" 
               type="int" 
               index="isearchbuilderitem_sta" />
+          <property name="itemscope" 
+              column="itemscope" 
+              type="int" 
+              index="isearchbuilderitem_sco" />
       </class>
       
       <class name="org.sakaiproject.search.model.impl.SearchWriterLockImpl"

@@ -38,8 +38,10 @@ public class SearchBuilderItemImpl implements SearchBuilderItem
 
 	private Integer searchstate = SearchBuilderItem.STATE_UNKNOWN;
 
+	private Integer itemscope = SearchBuilderItem.ITEM;
+
 	private Date version = null;
-	
+
 	private String context = null;
 
 	/**
@@ -135,20 +137,43 @@ public class SearchBuilderItemImpl implements SearchBuilderItem
 	public void setContext(String context)
 	{
 		this.context = context;
-		
 	}
-	public String toString() {
-		
+
+
+	public String toString()
+	{
+
 		String action = "invalid";
-		if ( searchaction != null && searchaction.intValue() >= 0 && searchaction.intValue() < SearchBuilderItem.actions.length ) {
+		if (searchaction != null && searchaction.intValue() >= 0
+				&& searchaction.intValue() < SearchBuilderItem.actions.length)
+		{
 			action = SearchBuilderItem.actions[searchaction.intValue()];
-		} 
-		String state = "invalid";
-		if ( searchstate != null && searchstate.intValue() >= 0 && searchstate.intValue() < SearchBuilderItem.states.length ) {
-			state =  SearchBuilderItem.states[searchstate.intValue()];
 		}
-		
-		return "Action:"+action+" State:"+state+" Resource:"+name;
+		String state = "invalid";
+		if (searchstate != null && searchstate.intValue() >= 0
+				&& searchstate.intValue() < SearchBuilderItem.states.length)
+		{
+			state = SearchBuilderItem.states[searchstate.intValue()];
+		}
+
+		return "Action:" + action + " State:" + state + " Resource:" + name;
 	}
-	
+
+	/**
+	 * @return the itemscope
+	 */
+	public Integer getItemscope()
+	{
+		return itemscope;
+	}
+
+	/**
+	 * @param itemscope
+	 *        the itemscope to set
+	 */
+	public void setItemscope(Integer itemscope)
+	{
+		this.itemscope = itemscope;
+	}
+
 }

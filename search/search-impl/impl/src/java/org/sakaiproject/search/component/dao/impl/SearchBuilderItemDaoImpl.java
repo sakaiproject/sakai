@@ -25,7 +25,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.MessageFormat;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -39,7 +38,6 @@ import org.sakaiproject.search.model.impl.SearchBuilderItemImpl;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
  * @author ieb
@@ -133,10 +131,9 @@ public class SearchBuilderItemDaoImpl extends HibernateDaoSupport implements
 		ResultSet rst = null;
 		try
 		{
-			pst = connection.prepareStatement("select count(*) from searchbuilderitem where searchstate = ? and searchaction <> ?");
+			pst = connection.prepareStatement("select count(*) from searchbuilderitem where searchstate = ? ");
 			pst.clearParameters();
 			pst.setInt(1, SearchBuilderItem.STATE_PENDING.intValue());
-			pst.setInt(2, SearchBuilderItem.ACTION_UNKNOWN.intValue());
 			rst = pst.executeQuery();
 			if (rst.next())
 			{
@@ -184,7 +181,7 @@ public class SearchBuilderItemDaoImpl extends HibernateDaoSupport implements
 					throws HibernateException
 			{
 				return session.createCriteria(SearchBuilderItemImpl.class).add(
-						Expression.eq("name", SearchBuilderItem.GLOBAL_MASTER))
+						Expression.eq("itemscope", SearchBuilderItem.ITEM_GLOBAL_MASTER))
 						.list();
 			}
 		};
@@ -200,10 +197,7 @@ public class SearchBuilderItemDaoImpl extends HibernateDaoSupport implements
 					throws HibernateException
 			{
 				return session.createCriteria(SearchBuilderItemImpl.class).add(
-						Expression.like("name",
-								SearchBuilderItem.SITE_MASTER_PATTERN)).add(
-						Expression.not(Expression.eq("context",
-								SearchBuilderItem.GLOBAL_CONTEXT))).list();
+						Expression.eq("itemscope", SearchBuilderItem.ITEM_SITE_MASTER)).list();
 			}
 		};
 

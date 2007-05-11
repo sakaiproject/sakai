@@ -135,6 +135,12 @@ public interface SearchBuilderItem
 	public static final Integer STATE_LOCKED = new Integer(5);
 
 
+	public static final Integer ITEM = new Integer(0);
+	
+	public static final Integer ITEM_GLOBAL_MASTER = new Integer(1);
+	
+	public static final Integer ITEM_SITE_MASTER = new Integer(2);
+
 	/**
 	 * The last update to the record
 	 * 
@@ -160,6 +166,17 @@ public interface SearchBuilderItem
 	 */
 	void setContext(String context);
 	
+	/**
+	 * @return the itemscope
+	 */
+	Integer getItemscope();
+
+	/**
+	 * @param itemscope
+	 *        the itemscope to set
+	 */
+	void setItemscope(Integer itemscope);
+
 	public static final String GLOBAL_CONTEXT = "global";
 
 	public static final String GLOBAL_MASTER = SearchBuilderItem.INDEX_MASTER+"_"+SearchBuilderItem.GLOBAL_CONTEXT;
@@ -189,6 +206,12 @@ public interface SearchBuilderItem
 		"Refresh",
 		"Rebuild"
 	};
+	public static final String[] scope = new String[] {
+		"Queue Item",
+		"Global Master",
+		"Site Master"
+	};
+
 
 	
 

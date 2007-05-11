@@ -45,9 +45,14 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 
 /**
- * Search index builder is expected to be registered in spring as org.sakaiproject.search.api.SearchIndexBuilder as a singleton. It receives resources which it adds to its list of pending documents to be indexed. A seperate thread then runs thtough the
- * list of entities to be indexed, updating the index. Each time the index is updates an event is posted to force the Search components that are using the index to reload. Incremental updates to the Lucene index require that the searchers reload the index
- * once the idex writer has been built.
+ * Search index builder is expected to be registered in spring as
+ * org.sakaiproject.search.api.SearchIndexBuilder as a singleton. It receives
+ * resources which it adds to its list of pending documents to be indexed. A
+ * seperate thread then runs thtough the list of entities to be indexed,
+ * updating the index. Each time the index is updates an event is posted to
+ * force the Search components that are using the index to reload. Incremental
+ * updates to the Lucene index require that the searchers reload the index once
+ * the idex writer has been built.
  * 
  * @author ieb
  */
@@ -55,7 +60,6 @@ import org.sakaiproject.site.cover.SiteService;
 public class SearchIndexBuilderImpl implements SearchIndexBuilder
 {
 
-	
 	private static Log log = LogFactory.getLog(SearchIndexBuilderImpl.class);
 
 	private SearchBuilderItemDao searchBuilderItemDao = null;
@@ -65,13 +69,15 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 	private List producers = new ArrayList();
 
 	private boolean onlyIndexSearchToolSites = false;
-	
+
 	private boolean diagnostics = false;
 
 	public void init()
 	{
-		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager.getInstance();
-		searchIndexBuilderWorker = (SearchIndexBuilderWorker) load(cm, SearchIndexBuilderWorker.class.getName());
+		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
+				.getInstance();
+		searchIndexBuilderWorker = (SearchIndexBuilderWorker) load(cm,
+				SearchIndexBuilderWorker.class.getName());
 		try
 		{
 
@@ -94,7 +100,8 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 	}
 
 	/**
-	 * register an entity content producer to provide content to the search engine {@inheritDoc}
+	 * register an entity content producer to provide content to the search
+	 * engine {@inheritDoc}
 	 */
 	public void registerEntityContentProducer(EntityContentProducer ecp)
 	{
@@ -116,7 +123,9 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 		}
 		if (resourceName.length() > 255)
 		{
-			log.warn("Entity Reference is longer than 255 characters, not indexing. Reference=" + resourceName);
+			log
+					.warn("Entity Reference is longer than 255 characters, not indexing. Reference="
+							+ resourceName);
 			return;
 		}
 		EntityContentProducer ecp = newEntityContentProducer(event);
@@ -125,7 +134,7 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 			log.debug("Not indexing " + resourceName + " as it has no context");
 			return;
 		}
-		if (onlyIndexSearchToolSites )
+		if (onlyIndexSearchToolSites)
 		{
 			try
 			{
@@ -141,8 +150,7 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 			}
 			catch (Exception ex)
 			{
-				log.debug("Not indexing  " + resourceName
-						+ " as it has no site", ex);
+				log.debug("Not indexing  " + resourceName + " as it has no site", ex);
 				return;
 
 			}
@@ -165,6 +173,8 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 				}
 				sb.setContext(siteId);
 				sb.setSearchstate(SearchBuilderItem.STATE_PENDING);
+				sb.setItemscope(SearchBuilderItem.ITEM);
+
 			}
 			else
 			{
@@ -178,13 +188,15 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 				sb.setContext(siteId);
 				sb.setName(resourceName);
 				sb.setSearchstate(SearchBuilderItem.STATE_PENDING);
+				sb.setItemscope(SearchBuilderItem.ITEM);
 			}
 			searchBuilderItemDao.update(sb);
 			log.debug("SEARCHBUILDER: Added Resource " + action + " " + sb.getName());
 		}
 		catch (Throwable t)
 		{
-			log.debug("In trying to register resource " + resourceName + " in search engine this resource will"
+			log.debug("In trying to register resource " + resourceName
+					+ " in search engine this resource will"
 					+ " not be indexed untill it is modified");
 		}
 		searchIndexBuilderWorker.incrementActivity();
@@ -197,7 +209,8 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 	public void refreshIndex()
 	{
 
-		SearchBuilderItem sb = searchBuilderItemDao.findByName(SearchBuilderItem.GLOBAL_MASTER);
+		SearchBuilderItem sb = searchBuilderItemDao
+				.findByName(SearchBuilderItem.GLOBAL_MASTER);
 		if (sb == null)
 		{
 			log.debug("Created NEW " + SearchBuilderItem.GLOBAL_MASTER);
@@ -213,13 +226,16 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 			sb.setName(SearchBuilderItem.GLOBAL_MASTER);
 			sb.setContext(SearchBuilderItem.GLOBAL_CONTEXT);
 			sb.setSearchstate(SearchBuilderItem.STATE_PENDING);
+			sb.setItemscope(SearchBuilderItem.ITEM_GLOBAL_MASTER);
 			searchBuilderItemDao.update(sb);
-			log.debug("SEARCHBUILDER: REFRESH ALL " + sb.getSearchaction() + " " + sb.getName());
+			log.debug("SEARCHBUILDER: REFRESH ALL " + sb.getSearchaction() + " "
+					+ sb.getName());
 			restartBuilder();
 		}
 		else
 		{
-			log.debug("SEARCHBUILDER: REFRESH ALL IN PROGRESS " + sb.getSearchaction() + " " + sb.getName());
+			log.debug("SEARCHBUILDER: REFRESH ALL IN PROGRESS " + sb.getSearchaction()
+					+ " " + sb.getName());
 		}
 	}
 
@@ -229,9 +245,17 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 	}
 
 	/*
-	 * List l = searchBuilderItemDao.getAll(); for (Iterator i = l.iterator(); i.hasNext();) { SearchBuilderItemImpl sbi = (SearchBuilderItemImpl) i.next(); sbi.setSearchstate(SearchBuilderItem.STATE_PENDING);
-	 * sbi.setSearchaction(SearchBuilderItem.ACTION_ADD); try { log.info(" Updating " + sbi.getName()); searchBuilderItemDao.update(sbi); } catch (Exception ex) { try { sbi = (SearchBuilderItemImpl) searchBuilderItemDao .findByName(sbi.getName()); if (sbi !=
-	 * null) { sbi.setSearchstate(SearchBuilderItem.STATE_PENDING); sbi.setSearchaction(SearchBuilderItem.ACTION_ADD); searchBuilderItemDao.update(sbi); } } catch (Exception e) { log.warn("Failed to update on second attempt " + e.getMessage()); } } }
+	 * List l = searchBuilderItemDao.getAll(); for (Iterator i = l.iterator();
+	 * i.hasNext();) { SearchBuilderItemImpl sbi = (SearchBuilderItemImpl)
+	 * i.next(); sbi.setSearchstate(SearchBuilderItem.STATE_PENDING);
+	 * sbi.setSearchaction(SearchBuilderItem.ACTION_ADD); try { log.info("
+	 * Updating " + sbi.getName()); searchBuilderItemDao.update(sbi); } catch
+	 * (Exception ex) { try { sbi = (SearchBuilderItemImpl) searchBuilderItemDao
+	 * .findByName(sbi.getName()); if (sbi != null) {
+	 * sbi.setSearchstate(SearchBuilderItem.STATE_PENDING);
+	 * sbi.setSearchaction(SearchBuilderItem.ACTION_ADD);
+	 * searchBuilderItemDao.update(sbi); } } catch (Exception e) {
+	 * log.warn("Failed to update on second attempt " + e.getMessage()); } } }
 	 * restartBuilder(); }
 	 */
 	/**
@@ -242,7 +266,8 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 
 		try
 		{
-			SearchBuilderItem sb = searchBuilderItemDao.findByName(SearchBuilderItem.GLOBAL_MASTER);
+			SearchBuilderItem sb = searchBuilderItemDao
+					.findByName(SearchBuilderItem.GLOBAL_MASTER);
 			if (sb == null)
 			{
 				sb = searchBuilderItemDao.create();
@@ -251,8 +276,10 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 			sb.setName(SearchBuilderItem.GLOBAL_MASTER);
 			sb.setContext(SearchBuilderItem.GLOBAL_CONTEXT);
 			sb.setSearchstate(SearchBuilderItem.STATE_PENDING);
+			sb.setItemscope(SearchBuilderItem.ITEM_GLOBAL_MASTER);
 			searchBuilderItemDao.update(sb);
-			log.debug("SEARCHBUILDER: REBUILD ALL " + sb.getSearchaction() + " " + sb.getName());
+			log.debug("SEARCHBUILDER: REBUILD ALL " + sb.getSearchaction() + " "
+					+ sb.getName());
 
 		}
 		catch (Exception ex)
@@ -263,11 +290,15 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 	}
 
 	/*
-	 * for (Iterator i = producers.iterator(); i.hasNext();) { EntityContentProducer ecp = (EntityContentProducer) i.next(); List contentList = ecp.getAllContent(); for (Iterator ci = contentList.iterator(); ci.hasNext();) { String resourceName = (String)
+	 * for (Iterator i = producers.iterator(); i.hasNext();) {
+	 * EntityContentProducer ecp = (EntityContentProducer) i.next(); List
+	 * contentList = ecp.getAllContent(); for (Iterator ci =
+	 * contentList.iterator(); ci.hasNext();) { String resourceName = (String)
 	 * ci.next(); } } }
 	 */
 	/**
-	 * This adds and event to the list and if necessary starts a processing thread The method is syncronised with removeFromList
+	 * This adds and event to the list and if necessary starts a processing
+	 * thread The method is syncronised with removeFromList
 	 * 
 	 * @param e
 	 */
@@ -313,7 +344,8 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 			EntityContentProducer ecp = (EntityContentProducer) i.next();
 			if (ecp.matches(event))
 			{
-				log.debug(" Matched Entity Content Producer for event " + event + " with " + ecp);
+				log.debug(" Matched Entity Content Producer for event " + event
+						+ " with " + ecp);
 				return ecp;
 			}
 			else
@@ -355,7 +387,8 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 	}
 
 	/**
-	 * get all the producers registerd, as a clone to avoid concurrent modification exceptions
+	 * get all the producers registerd, as a clone to avoid concurrent
+	 * modification exceptions
 	 * 
 	 * @return
 	 */
@@ -370,7 +403,8 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 	}
 
 	/**
-	 * Rebuild the index from the entities own stored state {@inheritDoc}, just the supplied siteId
+	 * Rebuild the index from the entities own stored state {@inheritDoc}, just
+	 * the supplied siteId
 	 */
 	public void rebuildIndex(String currentSiteId)
 	{
@@ -381,7 +415,8 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 			{
 				currentSiteId = "none";
 			}
-			String siteMaster = MessageFormat.format(SearchBuilderItem.SITE_MASTER_FORMAT, new Object[] { currentSiteId });
+			String siteMaster = MessageFormat.format(
+					SearchBuilderItem.SITE_MASTER_FORMAT, new Object[] { currentSiteId });
 			SearchBuilderItem sb = searchBuilderItemDao.findByName(siteMaster);
 			if (sb == null)
 			{
@@ -391,8 +426,10 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 			sb.setName(siteMaster);
 			sb.setContext(currentSiteId);
 			sb.setSearchstate(SearchBuilderItem.STATE_PENDING);
+			sb.setItemscope(SearchBuilderItem.ITEM_SITE_MASTER);
 			searchBuilderItemDao.update(sb);
-			log.debug("SEARCHBUILDER: REBUILD CONTEXT " + sb.getSearchaction() + " " + sb.getName());
+			log.debug("SEARCHBUILDER: REBUILD CONTEXT " + sb.getSearchaction() + " "
+					+ sb.getName());
 
 		}
 		catch (Exception ex)
@@ -411,7 +448,8 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 		{
 			currentSiteId = "none";
 		}
-		String siteMaster = MessageFormat.format(SearchBuilderItem.SITE_MASTER_FORMAT, new Object[] { currentSiteId });
+		String siteMaster = MessageFormat.format(SearchBuilderItem.SITE_MASTER_FORMAT,
+				new Object[] { currentSiteId });
 		SearchBuilderItem sb = searchBuilderItemDao.findByName(siteMaster);
 		if (sb == null)
 		{
@@ -421,6 +459,7 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 			sb.setName(siteMaster);
 			sb.setSearchstate(SearchBuilderItem.STATE_COMPLETED);
 			sb.setSearchaction(SearchBuilderItem.ACTION_REFRESH);
+			sb.setItemscope(SearchBuilderItem.ITEM_SITE_MASTER);
 		}
 		if ((SearchBuilderItem.STATE_COMPLETED.equals(sb.getSearchstate()))
 				|| (!SearchBuilderItem.ACTION_REBUILD.equals(sb.getSearchaction())
@@ -431,14 +470,17 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 			sb.setName(siteMaster);
 			sb.setContext(currentSiteId);
 			sb.setSearchstate(SearchBuilderItem.STATE_PENDING);
+			sb.setItemscope(SearchBuilderItem.ITEM_SITE_MASTER);
 			searchBuilderItemDao.update(sb);
-			log.debug("SEARCHBUILDER: REFRESH CONTEXT " + sb.getSearchaction() + " " + sb.getName());
+			log.debug("SEARCHBUILDER: REFRESH CONTEXT " + sb.getSearchaction() + " "
+					+ sb.getName());
 
 			restartBuilder();
 		}
 		else
 		{
-			log.debug("SEARCHBUILDER: REFRESH CONTEXT IN PROGRESS " + sb.getSearchaction() + " " + sb.getName());
+			log.debug("SEARCHBUILDER: REFRESH CONTEXT IN PROGRESS "
+					+ sb.getSearchaction() + " " + sb.getName());
 		}
 	}
 
@@ -502,14 +544,17 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 	}
 
 	/**
-	 * @param onlyIndexSearchToolSites the onlyIndexSearchToolSites to set
+	 * @param onlyIndexSearchToolSites
+	 *        the onlyIndexSearchToolSites to set
 	 */
 	public void setOnlyIndexSearchToolSites(boolean onlyIndexSearchToolSites)
 	{
 		this.onlyIndexSearchToolSites = onlyIndexSearchToolSites;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.api.SearchIndexBuilder#isLocalLock()
 	 */
 	public boolean isLocalLock()
@@ -517,7 +562,9 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 		return searchIndexBuilderWorker.isLocalLock();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.api.Diagnosable#disableDiagnostics()
 	 */
 	public void disableDiagnostics()
@@ -526,7 +573,9 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 		searchIndexBuilderWorker.enableDiagnostics();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.api.Diagnosable#enableDiagnostics()
 	 */
 	public void enableDiagnostics()
@@ -535,7 +584,9 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 		searchIndexBuilderWorker.disableDiagnostics();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.sakaiproject.search.api.Diagnosable#hasDiagnostics()
 	 */
 	public boolean hasDiagnostics()
