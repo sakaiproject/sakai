@@ -12,11 +12,15 @@
 			<%@include file="/inc/appMenu.jspf" %>
 		</t:aliasBean>
 
+		<t:aliasBean alias="#{bean}" value="#{instructorViewBean}">
+			<%@include file="/inc/breadcrumbInstructor.jspf" %>
+		</t:aliasBean>
+
 		<h:panelGrid columns="2" width="99%" columnClasses="bogus,right">
 			<h:panelGroup>
-				<t:aliasBean alias="#{bean}" value="#{instructorViewBean}">
-					<%@include file="/inc/breadcrumbInstructor.jspf" %>
-				</t:aliasBean>
+				<f:verbatim><h3></f:verbatim>
+					<h:outputText value="#{msgs.inst_view_student_summary}" />
+				<f:verbatim></h3></f:verbatim>
 			</h:panelGroup>
 			<h:commandLink action="studentView" style="text-align: right;">
 				<h:outputFormat value="#{msgs.inst_view_students_grades}">
@@ -27,10 +31,6 @@
 				<f:param name="instViewAssignmentId" value="#{instructorViewBean.assignmentId}" />
 			</h:commandLink>
 		</h:panelGrid>
-		
-		<h3>
-			<h:outputText value="#{msgs.inst_view_student_summary}" />
-		</h3>
 		
 		
 		<div class="nav indnt3 gbSection">
@@ -108,9 +108,9 @@
 				var="row"
         sortColumn="#{instructorViewBean.sortColumn}"
 				sortAscending="#{instructorViewBean.sortAscending}"
-				columnClasses="attach,left,left,center,center,center,center,center,left,external"
+				columnClasses="attach,left,center,center,center,center,center,center,center,external"
 				rowClasses="#{instructorViewBean.rowStyles}"
-				headerClasses="attach,gbHeader,gbHeader,gbHeader,gbHeader,gbHeader,gbHeader,gbHeader,gbHeader"
+				headerClasses="attach,left,center,center,center,center,center,center,center comments,bogus"
 				styleClass="listHier narrowerTable"
 				expanded="true"
 				rowIndexVar="rowIndex">
@@ -190,7 +190,7 @@
 						</t:commandSortHeader>
 					</f:facet>
 
-						<h:panelGroup rendered="#{row.assignment}">
+						<h:panelGroup rendered="#{row.assignment}" style="white-space:nowrap;">
 							<h:outputText value="#{msgs.inst_view_not_counted_open}" rendered="#{!row.associatedAssignment.counted}" />
 							
 							<h:inputText id="Score" value="#{row.score}" size="4" 

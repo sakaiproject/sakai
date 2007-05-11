@@ -49,11 +49,11 @@
 			var="gradebookItem"
 			sortColumn="#{overviewBean.assignmentSortColumn}"
       sortAscending="#{overviewBean.assignmentSortAscending}"
-      columnClasses="attach,left,center,center,center,left,center,center,external"
+      columnClasses="attach,left,center,center,center,center,center,center,external"
 			styleClass="listHier"
 			expanded="true"
 			rowClasses="#{overviewBean.rowStyles}"
-			headerClasses="attach">
+			headerClasses="attach,left,center,center,center,center,center,center,external">
 			
 			<h:column id="_toggle" rendered="#{overviewBean.categoriesEnabled}">
 				<f:facet name="header">

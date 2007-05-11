@@ -45,10 +45,15 @@ td.external {
 
 /* Number fields are right-aligned with a bit of padding. */
 
-td.left {text-align:left; vertical-align:bottom;}
-td.center {text-align:center; vertical-align:bottom;}
+td.left {text-align:left; vertical-align:bottom; padding-right: 2.0em !important;}
+td.center {text-align:center; vertical-align:bottom; padding-right:1.0em; padding-left:1.0em;}
 td.right {text-align:right; vertical-align:bottom; padding-right:2em !important;}
 td.rightpadded {text-align:right; vertical-align:bottom; padding-right:5em !important;}
+
+th.left {white-space:nowrap; text-align:left; padding-right: 2.0em !important;}
+th.center {white-space:nowrap; text-align:center !important; padding-left: 1.0em !important; padding-right: 1.0em !important;}
+th.right {white-space:nowrap; text-align: right;}
+th.comments {width: 16em;}
 
 /* Most but not all tables are shown 100% width in the spec. */
 table.wideTable {

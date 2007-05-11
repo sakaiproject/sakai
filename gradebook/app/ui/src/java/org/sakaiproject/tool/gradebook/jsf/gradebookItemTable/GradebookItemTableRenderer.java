@@ -568,12 +568,15 @@ public class GradebookItemTableRenderer extends Renderer {
 		// now iterate through the columns and remove the class for any
 		// columns that aren't rendered
 		List columns = data.getChildren();
+		int listIndex = 0;
 		for (int i=0; i < columns.size(); i++) {
 			if (i >= list.size())
 				break;
 			UIComponent kid = (UIComponent) columns.get(i);
 			if ((kid instanceof UIColumn) && !kid.isRendered()) {
-				list.remove(i);
+				list.remove(listIndex);
+			} else {
+				listIndex++;
 			}
 		}
 		
@@ -610,12 +613,16 @@ public class GradebookItemTableRenderer extends Renderer {
 		// now iterate through the columns and remove the class for any
 		// columns that aren't rendered
 		List columns = data.getChildren();
+		int listIndex = 0;
 		for (int i=0; i < columns.size(); i++) {
 			if (i >= list.size())
 				break;
 			UIComponent kid = (UIComponent) columns.get(i);
 			if ((kid instanceof UIColumn) && !kid.isRendered()) {
-				list.remove(i);
+				list.remove(listIndex);
+				
+			} else {
+				listIndex++;
 			}
 		}
 		
