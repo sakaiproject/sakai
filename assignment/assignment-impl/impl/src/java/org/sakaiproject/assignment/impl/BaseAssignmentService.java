@@ -9564,6 +9564,14 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	} // isGradebookDefined()
 
 	/**
+	 *  {@inheritDoc}
+	 */
+	public void assureGradebookCreated(Assignment a)
+	{
+		isGradesInGb(a);
+	}
+
+	/**
 	 * Check if this assignment's grades are set to be in a valid GB item.
 	 * 
 	 * @param a
@@ -9847,6 +9855,38 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		finally
 		{
 			SecurityService.popAdvisor();
+		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public void releaseGradebookAssignment(String gbAssignmentName, boolean release)
+	{
+		boolean gradebookExists = isGradebookDefined();
+
+		if (gradebookExists)
+		{
+			GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+			String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
+			
+			if (g.isAssignmentDefined(gradebookUid, gbAssignmentName))
+			{
+				// find the right assignment
+				List assignments = g.getAssignments(gradebookUid);
+				for (Iterator i = assignments.iterator(); i.hasNext();)
+				{
+					org.sakaiproject.service.gradebook.shared.Assignment a = (org.sakaiproject.service.gradebook.shared.Assignment) i.next();
+					if (a.getName().equals(gbAssignmentName))
+					{
+						//set the release status
+						a.setReleased(release);
+						g.updateAssignment(gradebookUid, gbAssignmentName, a);
+						
+						return;
+					}
+				}
+			}
 		}
 	}
 

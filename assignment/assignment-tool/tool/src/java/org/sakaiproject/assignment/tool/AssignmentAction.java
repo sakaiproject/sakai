@@ -4047,7 +4047,6 @@ public class AssignmentAction extends PagedResourceActionII
 
 	/**
 	 * called from postOrSaveAssignment function to do integration
-	 * 
 	 * @param state
 	 * @param siteId
 	 * @param aOldTitle
@@ -4061,13 +4060,11 @@ public class AssignmentAction extends PagedResourceActionII
 	 * @param associateGradebookAssignment
 	 * @param range
 	 */
-	private void integrateWithGradebook(SessionState state, String siteId, String aOldTitle, String oAssociateGradebookAssignment, AssignmentEdit a, String title, Time dueTime, int gradeType, String gradePoints, String addtoGradebook, String associateGradebookAssignment, String range) {
+	private void integrateWithGradebook(SessionState state, String siteId, String aOldTitle, String oAssociateGradebookAssignment, AssignmentEdit a, String title, Time dueTime, int gradeType, String gradePoints, String addtoGradebook, String associateGradebookAssignment, String range)
+	{
 		String aReference = a.getReference();
 		if (!addtoGradebook.equals(AssignmentService.GRADEBOOK_INTEGRATION_NO))
 		{
-			// Note: the GB will be automatically created when accessed in our service,
-			// so no need to create it here -ggolden
-
 			// if grouped assignment is not allowed to add into Gradebook
 			if (!AssignmentService.getAllowGroupAssignmentsInGradebook() && (range.equals("groups")))
 			{
@@ -4086,6 +4083,12 @@ public class AssignmentAction extends PagedResourceActionII
 					// ignore the exception
 					Log.warn("chef", rb.getString("cannotfin2") + ref);
 				}
+			}
+			
+			else
+			{
+				// make sure there is a gradebook if we need one
+				AssignmentService.assureGradebookCreated(a);
 			}
 		}
 	}
@@ -5374,16 +5377,12 @@ public class AssignmentAction extends PagedResourceActionII
 
 			} // while
 
-//			// add grades into Gradebook
-//			String integrateWithGradebook = a.getProperties().getProperty(AssignmentService.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
-//			if (integrateWithGradebook != null && !integrateWithGradebook.equals(AssignmentService.GRADEBOOK_INTEGRATION_NO))
-//			{
-//				// integrate with Gradebook
-//				String associateGradebookAssignment = StringUtil.trimToNull(a.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
-//				AssignmentService.integrateGradebook(aReference, associateGradebookAssignment, null, null, a.getTitle(), a.getTitle(), -1, null, null, "update");
-//				// set the gradebook assignment to be released to student
-//				AssignmentService.releaseGradebookAssignment(associateGradebookAssignment, true);
-//			}
+			// if we are linked to the gradebook, release the gradebook item
+			String associateGradebookAssignment = StringUtil.trimToNull(a.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+			if (associateGradebookAssignment != null)
+			{
+				AssignmentService.releaseGradebookAssignment(associateGradebookAssignment, true);
+			}
 		}
 		catch (IdUnusedException e)
 		{

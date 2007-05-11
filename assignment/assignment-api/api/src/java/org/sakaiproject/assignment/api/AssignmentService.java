@@ -742,4 +742,17 @@ public interface AssignmentService extends EntityProducer
 	 *  Is Gradebook defined for the site?
 	 */
 	public boolean isGradebookDefined();
+
+	/**
+	 * Set the release of the associated Gradebook assignment.
+	 * @param gbAssignmentName The GB assignment name.
+	 * @param the release setting (true, false).
+	 */
+	public void releaseGradebookAssignment(String gbAssignmentName, boolean release);
+	
+	/**
+	 *  If the assignment is set to be storing grades in the gradebook, make sure that the gradebook entry is created.
+	 *  @param a The assignment.
+	 */
+	public void assureGradebookCreated(Assignment a);
 }
