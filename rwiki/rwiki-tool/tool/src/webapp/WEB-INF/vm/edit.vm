@@ -209,7 +209,12 @@
   </div>
 </div>
 <script type="text/javascript" >
+#if ( ${editBean.saveType} && ("preview" ==  ${editBean.saveType}|| ${editBean.saveType.startsWith("attach")}) )
+## If we have a preview or attach, then dont set the restore
+WikiAutoSave_autoSaveOn('realm', 'pageName','pageVersion','restoreTimestamp','content','restoreContent','restoreVersion','restoreDate','autosave','autoSaveOffClass');
+#else
 WikiAutoSave_autoSaveOn('realm', 'pageName','pageVersion','restoreTimestamp','content','restoreContent','restoreVersion','restoreDate','autosave','tabHeadOff');
+#end
 </script>
 
 #footer()
