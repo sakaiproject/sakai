@@ -218,7 +218,7 @@ public class ChatDataMigration {
                   
                   //TODO Chat lookup the config params?
                   String outputSql = getMessageFromBundle("insert.channel", new Object[]{
-                        newChannelId, context, null, title, "", "SelectMessagesByTime", 3, 0, oldId, 1});
+                        newChannelId, context, null, escapeConfiguredCharacters(title), "", "SelectMessagesByTime", 3, 0, oldId, 1});
                   /* 
                    * CHANNEL_ID, 
                    * CONTEXT, 
@@ -305,7 +305,7 @@ public class ChatDataMigration {
                   newMessageId = newMessageId.replaceAll("/", "_");
                   
                   String outputSql = getMessageFromBundle("insert.message", new Object[] {
-                        newMessageId, escapeSpecialChars(oldChannelId), owner, messageDate, escapeCharactersInBody(body), oldMessageId});
+                        newMessageId, escapeSpecialChars(oldChannelId), owner, messageDate, escapeConfiguredCharacters(body), oldMessageId});
                   /*
                    * insert into CHAT2_MESSAGE (MESSAGE_ID, CHANNEL_ID, OWNER, MESSAGE_DATE, BODY) \
                         values ('{0}', '{1}', '{2}', '{3}', '{4}');
@@ -340,8 +340,8 @@ public class ChatDataMigration {
     * @return A string with any special characters escaped
     */
    protected String escapeSpecialChars(String input) {
-      String output = escapeSingleQuotes(input);
-      output = output.replaceAll("/", "_");
+      String output = input.replaceAll("/", "_");
+      output = escapeConfiguredCharacters(output);
       return output;
    }
    
@@ -361,7 +361,7 @@ public class ChatDataMigration {
     * @param input
     * @return
     */
-   protected String escapeCharactersInBody(String input) {
+   protected String escapeConfiguredCharacters(String input) {
       String output = escapeSingleQuotes(input);
       String escapeChar = getMessageFromBundle("escapeChar");
       String[] escapedChars = getMessagesFromBundle("escapedChars");
