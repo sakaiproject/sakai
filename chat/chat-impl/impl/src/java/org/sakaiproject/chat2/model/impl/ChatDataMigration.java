@@ -305,7 +305,7 @@ public class ChatDataMigration {
                   newMessageId = newMessageId.replaceAll("/", "_");
                   
                   String outputSql = getMessageFromBundle("insert.message", new Object[] {
-                        newMessageId, escapeSpecialChars(oldChannelId), owner, messageDate, escapeSingleQuotes(body), oldMessageId});
+                        newMessageId, escapeSpecialChars(oldChannelId), owner, messageDate, escapeCharactersInBody(body), oldMessageId});
                   /*
                    * insert into CHAT2_MESSAGE (MESSAGE_ID, CHANNEL_ID, OWNER, MESSAGE_DATE, BODY) \
                         values ('{0}', '{1}', '{2}', '{3}', '{4}');
@@ -356,6 +356,22 @@ public class ChatDataMigration {
       return output;
    }
    
+   /**
+    * Does all of the escaping for the message body
+    * @param input
+    * @return
+    */
+   protected String escapeCharactersInBody(String input) {
+      String output = escapeSingleQuotes(input);
+      String escapeChar = getMessageFromBundle("escapeChar");
+      String[] escapedChars = getMessagesFromBundle("escapedChars");
+      
+      for (String theChar : escapedChars) {
+         output = output.replaceAll(theChar, escapeChar.concat(theChar));
+      }
+      return output;
+   }
+   
    
    protected void printDebug(String message) {
       if (debug) {
@@ -384,6 +400,19 @@ public class ChatDataMigration {
          toolBundle = new ResourceLoader("chat-sql");
       
       return toolBundle.getString(getDbPrefix().concat("." + key));
+   }
+   
+   /**
+    * Looks up the sql statements defined in chat-sql.properties.  Appends the db
+    * vendor key to the beginning of the message (oracle.select.channel, mysql.select.channel, etc)
+    * @param key
+    * @return
+    */
+   private String[] getMessagesFromBundle(String key) {
+      if (toolBundle == null)
+         toolBundle = new ResourceLoader("chat-sql");
+      
+      return toolBundle.getStrings(getDbPrefix().concat("." + key));
    }
    
    private String getMessageFromBundle(String key, Object[] args) {
