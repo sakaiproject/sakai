@@ -132,47 +132,47 @@ limitations under the License.
         <dependency>
             <groupId>uk.org.ponder</groupId>
             <artifactId>ponderutilcore</artifactId>
-            <version>1.2</version>
+            <version>${ponderutilcore.version}</version>
             <type>jar</type>
         </dependency>
 		
         <dependency>
             <groupId>uk.org.ponder</groupId>
             <artifactId>j-servletutil</artifactId>
-            <version>1.2</version>
+            <version>${jservletutil.version}</version>
             <type>jar</type>
         </dependency>
 	
         <dependency>
             <groupId>uk.org.ponder.rsfutil</groupId>
             <artifactId>rsfutil</artifactId>
-            <version>0.7</version>
+            <version>${rsfutil.version}</version>
             <type>jar</type>
         </dependency>
 
         <dependency>
             <groupId>uk.org.ponder.sakairsf</groupId>
             <artifactId>sakairsf</artifactId>
-            <version>0.7-sakai_2.2.x</version>
+            <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>rsfutil</groupId>
             <artifactId>RSFComponents-evolvers</artifactId>
-            <version>0.7</version>
+            <version>${rsfutil.version}</version>
             <type>jar</type>
          </dependency>
     
          <dependency>
           <groupId>sakairsf</groupId>
           <artifactId>SakaiRSFComponents-evolvers</artifactId>
-          <version>0.7-sakai_2.2.x</version>
+          <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
           <type>jar</type>
         </dependency>
           <dependency>
            <groupId>sakairsf</groupId>
            <artifactId>SakaiRSFComponents-templates</artifactId>
-           <version>0.7.1RC1-sakai_2.2.x</version>
+           <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
            <type>war</type>
          </dependency>
 

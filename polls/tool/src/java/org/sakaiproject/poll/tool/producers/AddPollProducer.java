@@ -164,7 +164,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 			List options = poll.getPollOptions();
 			for (int i = 0; i <options.size();i++){
 				Option o = (Option)options.get(i);
-				UIBranchContainer oRow = UIBranchContainer.make(newPoll,"options-row:");
+				UIBranchContainer oRow = UIBranchContainer.make(newPoll,"options-row:",o.getId().toString());
 				UIOutput.make(oRow,"options-name",o.getOptionText());
 				UIInternalLink.make(oRow,"option-edit",messageLocator.getMessage("new_poll_option_edit"),
 						new EntityCentredViewParameters(PollOptionProducer.VIEW_ID, 

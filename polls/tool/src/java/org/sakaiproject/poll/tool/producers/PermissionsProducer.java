@@ -129,7 +129,7 @@ public class PermissionsProducer implements ViewComponentProducer,NavigationCase
 		for (int i =0; i < perms.length;i++){
 			String thisPerm = (String)perms[i];
 			thisPerm = thisPerm.substring(thisPerm.indexOf('.') + 1);
-			UIBranchContainer b = UIBranchContainer.make(tofill,"head-row:");
+			UIBranchContainer b = UIBranchContainer.make(tofill,"head-row:", new Integer(i).toString());
 			UIOutput.make(b,"perm-name",thisPerm);
 		}
 		

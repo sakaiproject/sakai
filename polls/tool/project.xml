@@ -122,7 +122,7 @@
 		<dependency>
 			<groupId>ponderutilcore</groupId>
 			<artifactId>ponderutilcore</artifactId>
-			<version>1.2</version>
+			<version>${ponderutilcore.version}</version>
 			<type>jar</type>
 			<properties>
 				<war.bundle>true</war.bundle>
@@ -132,7 +132,7 @@
 		<dependency>
 			<groupId>j-servletutil</groupId>
 			<artifactId>j-servletutil</artifactId>
-			<version>1.2</version>
+			<version>${jservletutil.version}</version>
 			<type>jar</type>
 			<properties>
 				<war.bundle>true</war.bundle>
@@ -142,7 +142,7 @@
 		<dependency>
 			<groupId>rsfutil</groupId>
 			<artifactId>rsfutil</artifactId>
-			<version>0.7</version>
+			<version>${rsfutil.version}</version>
 			<type>jar</type>
 			<properties>
 				<war.bundle>true</war.bundle>
@@ -152,7 +152,7 @@
 		<dependency>
 			<groupId>sakairsf</groupId>
 			<artifactId>sakairsf</artifactId>
-			<version>0.7-sakai_2.2.x</version>
+			<version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
 			<type>jar</type>
 			<properties>
 				<war.bundle>true</war.bundle>
@@ -161,7 +161,7 @@
     <dependency>
       <groupId>rsfutil</groupId>
       <artifactId>RSFComponents-evolvers</artifactId>
-      <version>0.7</version>
+      <version>${rsfutil.version}</version>
       <type>jar</type>
       <properties>
         <war.bundle>true</war.bundle>
@@ -171,7 +171,7 @@
       <dependency>
       <groupId>sakairsf</groupId>
       <artifactId>SakaiRSFComponents-evolvers</artifactId>
-      <version>0.7-sakai_2.2.x</version>
+      <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
       <type>jar</type>
       <properties>
         <war.bundle>true</war.bundle>
@@ -180,7 +180,7 @@
       <dependency>
        <groupId>sakairsf</groupId>
        <artifactId>SakaiRSFComponents-templates</artifactId>
-       <version>0.7.1RC1-sakai_2.2.x</version>
+       <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
        <type>war</type>
        <properties>
          <explode>true</explode>
