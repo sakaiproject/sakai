@@ -18,7 +18,7 @@
  * limitations under the License.
  *
  **********************************************************************************/
-package org.sakaiproject.scorm.client.pages;
+package org.sakaiproject.scorm.tool.pages;
 
 import java.io.Serializable;
 import java.util.Iterator;
@@ -26,8 +26,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.scorm.client.ScormTool;
 import org.sakaiproject.scorm.client.api.ScormClientFacade;
+import org.sakaiproject.scorm.tool.ScormTool;
+import org.sakaiproject.scorm.tool.pages.LaunchFrameset;
 
 import wicket.Response;
 import wicket.ajax.AjaxEventBehavior;
@@ -37,6 +38,7 @@ import wicket.ajax.calldecorator.AjaxPostprocessingCallDecorator;
 import wicket.ajax.calldecorator.CancelEventIfNoAjaxDecorator;
 import wicket.behavior.AbstractAjaxBehavior;
 import wicket.extensions.markup.html.repeater.data.IDataProvider;
+import wicket.markup.html.WebPage;
 import wicket.markup.html.basic.Label;
 import wicket.markup.html.link.ExternalLink;
 import wicket.markup.html.link.Link;
@@ -48,17 +50,11 @@ import wicket.model.Model;
 import wicket.model.PropertyModel;
 import wicket.util.string.JavascriptUtils;
 
-public class ManageContent extends SakaiWicketPage {
+public class ManageContent extends WebPage {
 	private static final String BODY_ONLOAD_ADDTL="setMainFrameHeight( window.name );";
-	
-	//public static final String API_JSCLASS_BEGIN = "if (typeof(window.API_1484_11) == 'undefined') \n" 
-	//	+ " window.API_1484_11 = {  \n";
-	//public static final String API_TESTMETHOD1_BEGIN = " window.API_1484_11.TestMethod1 { \n";
-	//public static final String API_TESTMETHOD2_BEGIN = " window.API_1484_11.TestMethod2 { \n";
 	
 	public static final String API_METHOD_BEGIN = " { \n";
 	public static final String API_METHOD_END = " }\n	}; \n";
-	//public static final String API_JSCLASS_END = " }; \n";
 	
 	private String message;
 	private Label contentLabel;

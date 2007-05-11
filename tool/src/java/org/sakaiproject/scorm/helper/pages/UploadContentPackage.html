@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html  
+      xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.sourceforge.net/"  
+      xml:lang="en"  
+      lang="en">
+<head>
+	<title>SCORM Upload Helper</title>
+</head>
+<body onload="">
+	<wicket:extend>
+	<h4>Upload SCORM Content Packages</h4>
+	
+	<form wicket:id="uploadForm">
+	 	<div id="fileInputDiv">
+	 		<span wicket:id="uploadFeedback" class="instruction"/>
+	 		
+	 		<div id="contentDiv_1" class="highlightPanel">
+	 			<p class="shorttext">
+			    	<label for="uploadFile" wicket:id="fileToUploadLabel">File</label>
+			    	<input wicket:id="contentPackageFile" id="uploadFile" class="upload" type="file"/>
+			    </p>
+			    <p class="shorttext"> 
+					<label wicket:id="displayNameLabel" for="displayName">Display Name</label> 
+					<input wicket:id="displayName" id="displayName" type="text"/> 
+					<a wicket:id="showDetails" class="indnt2">Add details for this item</a>
+					<!-- a class="indnt2" href="#" id="removeTrigger_1" >
+						<img src="/library/image/sakai/cross.png" title="Remove this item" />
+					</a-->
+				</p>
+				<span wicket:id="details">[Details]</span>
+				 
+			    <!-- span wicket:id="progress">[[ajax upload progressbar]]</span-->
+	    	</div>
+	    </div>
+	    
+	    <input wicket:id="submitButton" class="active" type="submit" values="Upload Files Now"/>
+    </form>
+	
+	</wicket:extend>
+</body>
+</html>	

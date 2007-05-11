@@ -33,6 +33,8 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.Enumeration;
 
+import javax.swing.tree.TreeModel;
+
 /**
  * Implementation of an activity tree.<br><br>
  * 
@@ -206,7 +208,7 @@ public class SeqActivityTree implements Serializable
    Public Methods
    
    -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*/
-
+   
    /**
     * Sets the ID of the learner associated with this activity tree.
     * 

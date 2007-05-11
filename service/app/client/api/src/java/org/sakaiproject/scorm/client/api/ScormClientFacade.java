@@ -8,6 +8,7 @@ import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.HttpAccess;
+import org.sakaiproject.sequencing.api.Sequencer;
 
 public interface ScormClientFacade extends EntityProducer {
 	public static final String REFERENCE_ROOT = Entity.SEPARATOR + "scorm";
@@ -37,5 +38,7 @@ public interface ScormClientFacade extends EntityProducer {
 	public List getTableOfContents();
 	
 	public ADLSequencer getSequencer();
+	
+	public String getConfigurationString(String key, String defaultValue);
 	
 }

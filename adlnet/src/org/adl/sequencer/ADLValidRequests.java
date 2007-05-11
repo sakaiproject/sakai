@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import javax.swing.tree.TreeModel;
+
 /**
  * Encapsulation of information required for delivery.<br><br>
  * 
@@ -114,6 +116,8 @@ public class ADLValidRequests implements Serializable
    public List mTOC = null;
 
 
+   public TreeModel mTreeModel = null;
+   
    /*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
    
     Public Methods

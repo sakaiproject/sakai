@@ -18,15 +18,17 @@
  * limitations under the License.
  *
  **********************************************************************************/
-package org.sakaiproject.scorm.client;
+package org.sakaiproject.scorm.tool;
 
 import org.adl.api.ecmascript.APIErrorManager;
 import org.sakaiproject.scorm.client.api.ScormClientFacade;
-import org.sakaiproject.scorm.client.pages.ContentFrame;
-import org.sakaiproject.scorm.client.pages.ManageContent;
+import org.sakaiproject.scorm.client.pages.BlankPage;
+import org.sakaiproject.scorm.tool.pages.ContentFrame;
+import org.sakaiproject.scorm.tool.pages.ManageContent;
 
 import wicket.markup.html.AjaxServerAndClientTimeFilter;
 import wicket.protocol.http.WebApplication;
+import wicket.spring.injection.annot.SpringComponentInjector;
 
 public class ScormTool extends WebApplication {
 	
@@ -36,10 +38,12 @@ public class ScormTool extends WebApplication {
 	
 	protected void init()
 	{
+		addComponentInstantiationListener(new SpringComponentInjector(this));
 		getResourceSettings().setThrowExceptionOnMissingResource(false);
 		getRequestCycleSettings().addResponseFilter(new AjaxServerAndClientTimeFilter());
 		getDebugSettings().setAjaxDebugModeEnabled(true);
 		this.mountBookmarkablePage("/content", ContentFrame.class);
+		this.mountBookmarkablePage("/blank", BlankPage.class);
 		errorManager = new APIErrorManager(APIErrorManager.SCORM_2004_API);
 	}
 

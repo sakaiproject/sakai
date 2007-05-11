@@ -20,10 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.scorm.client.impl;
 
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -33,15 +30,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-import org.adl.datamodels.SCODataManager;
-import org.adl.samplerte.util.RTEFileHandler;
 import org.adl.sequencer.ADLSequencer;
 import org.adl.sequencer.ADLValidRequests;
-import org.adl.sequencer.SeqActivity;
 import org.adl.sequencer.SeqActivityTree;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
@@ -57,8 +51,8 @@ import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.scorm.client.api.ScormClientFacade;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -72,6 +66,8 @@ public class ScormClientFacadeImpl implements ScormClientFacade {
 	protected SessionManager sessionManager() { return null; }
 	protected UserDirectoryService userDirectoryService() { return null; }
 	protected ToolManager toolManager() { return null; }
+	protected ServerConfigurationService serverConfigurationService() { return null; }
+	
 	// Dependency injected properties
 	protected ResourceTypeRegistry resourceTypeRegistry;
 	
@@ -205,12 +201,9 @@ public class ScormClientFacadeImpl implements ScormClientFacade {
         	log.error("Unable to read serialize.obj from file", ioe);
         }
         
-        // Create the sequencer and set the tree
+        // Create the sequencer and set the tree		
         ADLSequencer sequencer = new ADLSequencer();
         sequencer.setActivityTree(seqActivityTree);
-		
-        //ADLValidRequests validRequests = new ADLValidRequests();
-        //sequencer.getValidRequests(validRequests);
         
         return sequencer;
 	}
@@ -243,6 +236,10 @@ public class ScormClientFacadeImpl implements ScormClientFacade {
 		return null;
 	}
 	
+	
+	public String getConfigurationString(String key, String defaultValue) {
+		return serverConfigurationService().getString(key, defaultValue);
+	}
 	
 	
 	/**

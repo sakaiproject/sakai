@@ -22,11 +22,26 @@
 			<artifactId>sakai-scorm-service-app-client-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-scorm-service-sequencing-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-scorm-service-sequencing-impl</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
 		
 		<!-- Sakai dependencies -->
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-entity-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-component-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 		<dependency>

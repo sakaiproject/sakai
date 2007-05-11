@@ -6,9 +6,11 @@
 <body>
     Content frame
     <p/>
-    <a href="#" onclick="alert(API_1484_11.GetDiagnostic(document.getElementById('form_value').value));">Test me first!</a>
+    <a href="#" onclick="alert(API_1484_11.GetDiagnostic('101'));">GetDiagnostic</a>
     <p/>
-    <a href="#" onclick="alert(API_1484_11.GetErrorString(document.getElementById('form_value').value));">Test me second!</a>
+    <a href="#" onclick="alert(API_1484_11.GetErrorString('101'));">GetErrorString!</a>
+    <p/>
+    <a href="#" onclick="alert(API_1484_11.GetLastError());">GetLastError!</a>
     <p/>
     
     <div wicket:id="feedback">[[ feedback ]]</div>
@@ -21,7 +23,7 @@
         <input type="hidden" wicket:id="result"/>
      	<br/>
         <br/>
-		<!-- input type="submit" value="submit via ajax" wicket:id="ajax-submit-button"/-->
+		<!--input type="submit" value="submit via ajax" wicket:id="ajax-submit-button"/-->
 	</form>
     
 </body>

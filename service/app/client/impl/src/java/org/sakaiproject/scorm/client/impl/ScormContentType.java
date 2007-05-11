@@ -52,7 +52,7 @@ public class ScormContentType implements ResourceType {
 	public static final String SCORM_LAUNCH_LABEL="Launch";
 	public static final String SCORM_REMOVE_LABEL="Remove";
 
-	public static final String SCORM_UPLOAD_HELPER_ID="sakai.resource.type.helper";
+	public static final String SCORM_UPLOAD_HELPER_ID="sakai.scorm.helper";
 	public static final String SCORM_LAUNCH_TOOL_ID="sakai.scorm.helper";
 	
 	
@@ -68,20 +68,25 @@ public class ScormContentType implements ResourceType {
 	    requiredKeys.add(ResourceProperties.PROP_STRUCTOBJ_TYPE);
 	    //requiredKeys.add(ContentHostingService.PROP_ALTERNATE_REFERENCE);
 	      
-	    ResourceToolAction create = new BaseInteractionAction(ResourceToolAction.CREATE, ResourceToolAction.ActionType.NEW_UPLOAD, SCORM_CONTENT_TYPE_ID, SCORM_UPLOAD_HELPER_ID, requiredKeys);   
+	    ResourceToolAction create = new BaseInteractionAction(ResourceToolAction.CREATE, ResourceToolAction.ActionType.NEW_UPLOAD, SCORM_CONTENT_TYPE_ID, SCORM_UPLOAD_HELPER_ID, requiredKeys) {
+	    	public String getLabel() 
+			{
+				return SCORM_UPLOAD_LABEL; 
+			}
+	    };   
 	    ResourceToolAction launch = new ScormLaunchAction();
 	    ResourceToolAction remove = new BaseServiceLevelAction(ResourceToolAction.DELETE, ResourceToolAction.ActionType.DELETE, SCORM_CONTENT_TYPE_ID, false);
-	    ResourceToolAction intercept = new BaseInteractionAction(ResourceToolAction.INTERCEPT_CONTENT, ResourceToolAction.ActionType.INTERCEPT_CONTENT, SCORM_CONTENT_TYPE_ID, SCORM_LAUNCH_TOOL_ID, requiredKeys);   
-	    
+	    //ResourceToolAction intercept = new BaseInteractionAction(ResourceToolAction.INTERCEPT_CONTENT, ResourceToolAction.ActionType.INTERCEPT_CONTENT, SCORM_CONTENT_TYPE_ID, SCORM_LAUNCH_TOOL_ID, requiredKeys);   
+
 	    actionMap.put(create.getActionType(), makeList(create));
 	    actionMap.put(launch.getActionType(), makeList(launch));
 	    actionMap.put(remove.getActionType(), makeList(remove));
-	    actionMap.put(intercept.getActionType(), makeList(intercept));
+	    //actionMap.put(intercept.getActionType(), makeList(intercept));
 	    
 	    actions.put(create.getId(), create);
 	    actions.put(launch.getId(), launch);
 	    actions.put(remove.getId(), remove);
-	    actions.put(intercept.getId(), intercept);
+	    //actions.put(intercept.getId(), intercept);
 	}
 	
 	public ResourceToolAction getAction(String actionId) {
