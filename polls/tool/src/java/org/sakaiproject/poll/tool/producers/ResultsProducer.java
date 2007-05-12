@@ -168,7 +168,7 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 		 
 		 for (int i=0; i <collation.size(); i++ ) {
 			 CollatedVote cv = (CollatedVote)collation.get(i);
-			 UIBranchContainer resultRow = UIBranchContainer.make(tofill,"answer-row:");
+			 UIBranchContainer resultRow = UIBranchContainer.make(tofill,"answer-row:",cv.getoptionId().toString());
 			 UIOutput.make(resultRow,"answer-option",cv.getOptionText());
 			 UIOutput.make(resultRow,"answer-numVotes",new Long(cv.getVotes()).toString());
 			 m_log.debug("about to do the calc: (" + cv.getVotes()+"/"+ totalVotes +")*100");
