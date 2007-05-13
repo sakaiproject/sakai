@@ -6,7 +6,7 @@
 <hibernate-mapping>
 	<!-- put your value object in the class name, the table name is optional
 		but it is a good idea to specify it -->
-	<class name="org.sakaiproject.poll.model.VoteImpl"
+	<class name="org.sakaiproject.poll.model.Vote"
 		table="POLL_VOTE">
 
 		<!-- create the primary key id, using native is typically the best way

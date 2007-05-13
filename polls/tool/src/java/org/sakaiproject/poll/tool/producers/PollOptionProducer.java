@@ -42,7 +42,7 @@ import uk.org.ponder.rsf.viewstate.ViewParameters;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Option;
-import org.sakaiproject.poll.model.OptionImpl;
+import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.tool.params.VoteBean;
 //import org.sakaiproject.tool.poll.impl.PollListManagerDaoImpl;
 
@@ -162,7 +162,7 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 		//if the option bean is null set it
 		if (optionBean == null) {
 			m_log.debug("setting the option bean");
-			optionBean = new OptionImpl();
+			optionBean = new Option();
 			//make sure the option is null
 			
 		}

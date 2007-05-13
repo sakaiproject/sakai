@@ -33,12 +33,12 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.poll.model.Option;
-import org.sakaiproject.poll.model.OptionImpl;
+import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
-import org.sakaiproject.poll.model.PollImpl;
+import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
 import org.sakaiproject.poll.model.VoteCollection;
-import org.sakaiproject.poll.model.VoteImpl;
+import org.sakaiproject.poll.model.Vote;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.exception.PermissionException;
@@ -53,7 +53,7 @@ import uk.org.ponder.localeutil.LocaleGetter;
 
 public class PollToolBean {
   /** A holder for the single new task that may be in creation **/
-  public Poll newPoll = new PollImpl();
+  public Poll newPoll = new Poll();
   public String siteID;
   
   
@@ -311,8 +311,8 @@ public class PollToolBean {
 	  for (int i = 0; i < options.size(); i++){
 		  //create a new vote
 		 m_log.info("this vote is for option " + options.get(i));
-		 Option opt = new OptionImpl(new Long((String)options.get(i)));  
-		 Vote vote = new VoteImpl(poll,opt,votes.getId());
+		 Option opt = new Option(new Long((String)options.get(i)));  
+		 Vote vote = new Vote(poll,opt,votes.getId());
 		 if (vote.getIp() == null) {
 			 m_log.warn("IP is null");
 			 vote.setIp("Nothing");

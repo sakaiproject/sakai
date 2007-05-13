@@ -21,20 +21,57 @@
 
 package org.sakaiproject.poll.model;
 
-public interface Option {
+
+
+public class Option {
 
 	
-	public void setId(Long getId);
+	private Long pollId;
+	private Long id;
+	private String text;
+	private String status;
 	
-	public Long getId();
+	public Option(){
+		
+	}	
+	public Option(Long oId){
+		this.id = oId;
+	}
 	
-	public void setOptionText(String option);
+	public void setId(Long value) {
+		// TODO Auto-generated method stub
+		id = value;
+	}
+
+	public Long getId() {
+		
+		return id;
+	}
+
+	public void setOptionText(String option) {
+		
+		text = option;
+
+	}
+
+	public String getOptionText() {
+		
+		return text;
+	}
+
+	public Long getPollId(){
+		return pollId;
+	}
 	
-	public String getOptionText();
+	public void setPollId(Long pollid) {
+		this.pollId = pollid;
+	}
 	
-	public Long getPollId();
-	public void setPollId(Long pollId);
+	public void setStatus(String s) {
+		this.status = s;
+	}
 	
-	public void setStatus(String status);
-	public String getStatus();
+	public String getStatus() {
+		return this.status;
+	}
 }

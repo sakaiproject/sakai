@@ -11,6 +11,7 @@
 		lazy-init="true" init-method="init">
 				<property name="sessionFactory" 
 			ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+			<property name="idManager" ref="org.sakaiproject.id.api.IdManager" />
 	</bean>
 	
 	<bean id="org.sakaiproject.tool.poll.api.PollVoteManagerDaoTarget"

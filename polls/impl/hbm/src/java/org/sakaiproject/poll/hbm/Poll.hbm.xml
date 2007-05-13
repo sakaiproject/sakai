@@ -6,7 +6,7 @@
 <hibernate-mapping>
 	<!-- put your value object in the class name, the table name is optional
 		but it is a good idea to specify it -->
-	<class name="org.sakaiproject.poll.model.PollImpl"
+	<class name="org.sakaiproject.poll.model.Poll"
 		table="POLL_POLL">
 
 		<!-- create the primary key id, using native is typically the best way
@@ -56,6 +56,9 @@
        <property name="limitVoting" type="boolean" not-null="true">
         	<column name="POLL_LIMIT_VOTE" />
         </property>        
+       <property name="id" type="string" length="255" not-null="true">
+        	<column name="POLL_UUID" />
+        </property>
 	</class>
 	
 </hibernate-mapping>

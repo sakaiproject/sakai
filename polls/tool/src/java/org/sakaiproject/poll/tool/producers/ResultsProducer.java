@@ -25,7 +25,7 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
-import org.sakaiproject.poll.model.OptionImpl;
+import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Vote;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -135,7 +135,7 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 		 m_log.debug("got a list of " + pollOptions.size() + " options");
 		 //appeng an option for no votes
 		 if (poll.getMinOptions()==0) {
-			 Option noVote = new OptionImpl(new Long(0));
+			 Option noVote = new Option(new Long(0));
 			 noVote.setOptionText(messageLocator.getMessage("result_novote"));
 			 noVote.setPollId(poll.getPollId());
 			 pollOptions.add(noVote);

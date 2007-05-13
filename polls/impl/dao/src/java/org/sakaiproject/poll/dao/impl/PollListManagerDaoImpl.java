@@ -31,6 +31,8 @@ import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.hibernate.Query;
+import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
@@ -52,6 +54,7 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.id.api.IdManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -89,12 +92,18 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
 		
 	}
 	
-
+	private IdManager idManager;
+	
+	public void setIdManager(IdManager idm) {
+		idManager = idm;
+	}
 	
 	public boolean savePoll(Poll t) {
 		boolean newPoll = false;
-		if (t.getId() == null)
+		if (t.getId() == null) {
 			newPoll = true;
+			t.setId(idManager.createUuid());
+		}
 		
 		try {
 			getHibernateTemplate().saveOrUpdate(t);
@@ -105,7 +114,7 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
 			e.printStackTrace();
 			return false;
 		}
-		log.info(" Poll  " + t.toString() + "successfuly saved");
+		log.debug(" Poll  " + t.toString() + "successfuly saved");
 		 if (newPoll)
 			 
 	    	  EventTrackingService.post(EventTrackingService.newEvent("poll.add", "poll/site/" + t.getSiteId() +"/poll/" +  t.getId(), true));
@@ -162,7 +171,7 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
 	
 	public Poll getPollById(Long pollId) {
 		DetachedCriteria d = DetachedCriteria.forClass(Poll.class)
-		.add( Restrictions.eq("id", pollId));
+		.add( Restrictions.eq("pollId", pollId));
 		Poll poll =  (Poll)PollUtil.pollCollectionToList(getHibernateTemplate().findByCriteria(d)).get(0);
 		
 		//we need to get the options here
@@ -343,6 +352,8 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
 			return (String[]) rv.toArray(new String[rv.size()]);
 
 		} // split
+		
+
 	  
 }
 

@@ -110,6 +110,6 @@
 			ref="org.sakaiproject.tool.poll.api.PollVoteManagerDao" />
 </bean>
 
-	<bean id="voteCollection" class="org.sakaiproject.poll.model.VoteCollectionImpl" />
- 	<bean id="option" class="org.sakaiproject.poll.model.OptionImpl" />
+	<bean id="voteCollection" class="org.sakaiproject.poll.model.VoteCollection" />
+ 	<bean id="option" class="org.sakaiproject.poll.model.Option" />
 </beans>
