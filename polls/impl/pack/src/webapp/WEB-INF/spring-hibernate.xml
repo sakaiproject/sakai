@@ -8,7 +8,7 @@
 	<!-- create a DAO bean, use the hibernate implementation -->
 		<bean id="org.sakaiproject.tool.poll.api.PollListManagerDaoTarget"
 		class="org.sakaiproject.poll.dao.impl.PollListManagerDaoImpl"
-		lazy-init="true">
+		lazy-init="true" init-method="init">
 				<property name="sessionFactory" 
 			ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 	</bean>
