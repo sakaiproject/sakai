@@ -24,6 +24,7 @@ package org.sakaiproject.poll.logic;
 import java.util.List;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.entity.api.EntityProducer;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
 
@@ -45,6 +46,7 @@ public interface PollListManager extends EntityProducer {
 	  public static final String PERMISSION_EDIT_ANY = "poll.editAny";
 	  public static final String PERMISSION_EDIT_OWN = "poll.editOwn";
 	
+	  public static final String REF_POLL_TYPE ="poll";
 	/**
 	 *  Save a poll
 	 * @param t - the poll object to save
@@ -80,6 +82,12 @@ public interface PollListManager extends EntityProducer {
 	 * @param pollId
 	 * @return a poll object
 	 */
+	
+	/**
+	 *  get a poll by its Entity  Reference  
+	 */
+	public Poll getPoll(String ref);
+	
 	public Poll getPollWithVotes(Long pollId);
 
 	/**

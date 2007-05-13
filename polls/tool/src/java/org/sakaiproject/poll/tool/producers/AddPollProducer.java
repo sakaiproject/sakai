@@ -160,18 +160,19 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 					new EntityCentredViewParameters(PollOptionProducer.VIEW_ID, 
 		                      new EntityID("Poll", "Poll_" + poll.getPollId().toString()),EntityCentredViewParameters.MODE_NEW));
 					
-					//new SimpleViewParameters(PollOptionProducer.VIEW_ID));
+			//new SimpleViewParameters(PollOptionProducer.VIEW_ID));
 			List options = poll.getPollOptions();
+			m_log.debug("got this many options: " + options.size());
 			for (int i = 0; i <options.size();i++){
 				Option o = (Option)options.get(i);
-				UIBranchContainer oRow = UIBranchContainer.make(newPoll,"options-row:",o.getId().toString());
+				UIBranchContainer oRow = UIBranchContainer.make(newPoll,"options-row:",o.getOptionId().toString());
 				UIOutput.make(oRow,"options-name",o.getOptionText());
 				UIInternalLink.make(oRow,"option-edit",messageLocator.getMessage("new_poll_option_edit"),
 						new EntityCentredViewParameters(PollOptionProducer.VIEW_ID, 
-			                      new EntityID("Option", "Option_" + o.getId().toString()), EntityCentredViewParameters.MODE_EDIT));
+			                      new EntityID("Option", "Option_" + o.getOptionId().toString()), EntityCentredViewParameters.MODE_EDIT));
 				UIInternalLink.make(oRow,"option-delete",messageLocator.getMessage("new_poll_option_delete"),
 						new EntityCentredViewParameters(PollOptionDeleteProducer.VIEW_ID, 
-								new EntityID("Option", "Option_" + o.getId().toString())));
+								new EntityID("Option", "Option_" + o.getOptionId().toString())));
 			}
 	    }
 	    

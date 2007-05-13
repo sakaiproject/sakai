@@ -11,7 +11,7 @@
 
 		<!-- create the primary key id, using native is typically the best way
 			to do this -->
-		<id name="id" type="long" column="OPTION_ID">
+		<id name="optionId" type="long" column="OPTION_ID">
 	    	<generator class="native">
                 <param name="sequence">POLL_OPTION_ID_SEQ</param>
 	    	</generator>
@@ -28,6 +28,9 @@
         </property>
 		<property name="optionText" type="text" length="255" not-null="true">
             <column name="OPTION_TEXT"/>
+        </property>
+        <property name="id" type="string" length="255" not-null="true">
+        	<column name="OPTION_UUID" />
         </property>
      </class>
     

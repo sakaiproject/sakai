@@ -22,6 +22,7 @@
 package org.sakaiproject.poll.dao.impl;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.List;
 import java.util.Set;
@@ -53,6 +54,7 @@ import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.id.api.IdManager;
 import org.w3c.dom.Document;
@@ -126,6 +128,12 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
 	}
 
 	public boolean saveOption(Option t) {
+		
+		boolean newOption = false;
+		if (t.getId() == null || t.getId().trim().length() == 0) {
+			newOption = true;
+			t.setId(idManager.createUuid());
+		}
 		
 		
 		try {
@@ -205,7 +213,11 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
 		DetachedCriteria d = DetachedCriteria.forClass(Option.class)
 		.add( Restrictions.eq("id", optionId));
 		Option option =  (Option)getHibernateTemplate().findByCriteria(d).get(0);
-				
+		//if the id is null set it
+		if (option.getId() == null) {
+			option.setId(idManager.createUuid());
+			saveOption(option);
+		}
 		return option;
 	}
 	
@@ -249,13 +261,55 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
 		}
 
 		public boolean willArchiveMerge() {
-			return false;
+			return true;
 		}
 
-		public String archive(String arg0, Document arg1, Stack arg2, String arg3,
-				List arg4) {
-			// TODO Auto-generated method stub
-			return null;
+		public String archive(String siteId, Document doc, Stack stack, String archivePath,
+				List attachments) {
+			 log.debug("archive: poll " + siteId);
+			// prepare the buffer for the results log
+			StringBuffer results = new StringBuffer();
+
+			// String assignRef = assignmentReference(siteId, SiteService.MAIN_CONTAINER);
+			results.append("archiving " + getLabel() + " context " + Entity.SEPARATOR + siteId + Entity.SEPARATOR
+					+ SiteService.MAIN_CONTAINER + ".\n");
+
+			// start with an element with our very own (service) name
+			Element element = doc.createElement(PollListManager.class.getName());
+			((Element) stack.peek()).appendChild(element);
+			stack.push(element);
+
+			List pollsList = findAllPolls(siteId);
+			log.debug("got list of " + pollsList.size() + " polls");	
+			for (int i = 0; pollsList.size()> i; i ++)
+			{
+				try {
+					Poll poll = (Poll)pollsList.get(i);
+					log.info("got poll " + poll.getId());
+				
+				// archive this assignment
+					Element el = poll.toXml(doc, stack);
+				
+					//get theoptions
+					List options = getOptionsForPoll(poll);
+					
+					for (int q = 0 ; options.size()>q;q++) {
+						Option opt = (Option)options.get(q);
+						Element el2 = opt.toXml(doc, stack);
+						el.appendChild(el2);
+					}
+					
+					element.appendChild(el);
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+				}
+
+			} // while
+
+			stack.pop();
+
+			return results.toString();
 		}
 
 		public String merge(String arg0, Element arg1, String arg2, String arg3,
@@ -305,9 +359,17 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
 			return null;
 		}
 
-		public Entity getEntity(Reference arg0) {
+		public Entity getEntity(Reference ref) {
 			// TODO Auto-generated method stub
-			return null;
+			Entity rv = null;
+			
+			
+			if (REF_POLL_TYPE.equals(ref.getSubType()))
+			{
+				rv = getPoll(ref.getReference());
+			}
+			
+			return rv;
 		}
 
 		public String getEntityUrl(Reference arg0) {
@@ -352,6 +414,20 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
 			return (String[]) rv.toArray(new String[rv.size()]);
 
 		} // split
+
+		public Poll getPoll(String ref) {
+			//we need to get the options here
+			DetachedCriteria d = DetachedCriteria.forClass(Poll.class)
+			.add( Restrictions.eq("id", ref));
+			List optionList = PollUtil.optionCollectionToList(getHibernateTemplate().findByCriteria(d));
+			Poll poll = (Poll)optionList.get(0);
+			//if the id is null set it
+			if (poll.getId() == null) {
+				poll.setId(idManager.createUuid());
+				savePoll(poll);
+			}
+			return poll;
+		}
 		
 
 	  

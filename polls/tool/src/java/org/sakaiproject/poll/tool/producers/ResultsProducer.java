@@ -149,7 +149,7 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 		 for (int i=0; i <pollOptions.size(); i++ ) {
 			 CollatedVote collatedVote = new CollatedVote();
 			 Option option = (Option) pollOptions.get(i);
-			 collatedVote.setoptionId(option.getId());
+			 collatedVote.setoptionId(option.getOptionId());
 			 collatedVote.setOptionText(option.getOptionText());
 			 for (int q=0; q <votes.size(); q++ ) {
 				 Vote vote = (Vote)votes.get(q);

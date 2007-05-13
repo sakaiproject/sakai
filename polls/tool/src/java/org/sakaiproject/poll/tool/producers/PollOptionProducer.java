@@ -178,8 +178,8 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 		} else {
 			m_log.debug("mode is " + ecvp.mode);
 			UIInput.make(form,"opt-text","#{option.optionText}",option.getOptionText());
-			form.parameters.add(new UIELBinding("#{option.id}",
-			           option.getId()));
+			form.parameters.add(new UIELBinding("#{option.optionId}",
+			           option.getOptionId()));
 		}
 		
 		

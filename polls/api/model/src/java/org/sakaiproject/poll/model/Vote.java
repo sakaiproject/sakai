@@ -46,7 +46,7 @@ public class Vote {
 	public Vote(Poll poll, Option option, String subId) {
 		
 		this.pollId = poll.getPollId();
-		this.optionid = option.getId();
+		this.optionid = option.getOptionId();
 		this.submissionId = subId;
 		
 		// the date can default to now

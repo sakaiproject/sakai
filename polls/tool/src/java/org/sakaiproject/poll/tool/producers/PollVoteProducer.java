@@ -178,7 +178,7 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 		    String[] values= new String[pollOptions.size()];
 		    for (int i = 0;i <pollOptions.size(); i++ ) {
 		    	Option po = (Option)pollOptions.get(i);
-		    	values[i]= po.getId().toString();
+		    	values[i]= po.getOptionId().toString();
 		    }
 		                                 
 		    
