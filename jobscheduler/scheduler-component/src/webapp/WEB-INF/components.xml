@@ -47,17 +47,19 @@
         <property name="idManager">
         	<ref bean="org.sakaiproject.id.api.IdManager"/>
         </property>
-        
-    </bean>    
+        <property name="schedulerManager">
+        	<ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+        </property>
+        <property name="serverConfigurationService">
+        	<ref bean="org.sakaiproject.component.api.ServerConfigurationService"/>
+        </property>
+    </bean>   
+    
+    
+    <!-- Testers for ScheduledInvocationManager  
     
     <bean id="scheduledInvocationRunner"
       class="org.sakaiproject.component.app.scheduler.jobs.ScheduledInvocationRunner">
-      <property name="sqlService">
-        	<ref bean="org.sakaiproject.db.api.SqlService"/>
-      </property> 
-      <property name="timeService">
-        	<ref bean="org.sakaiproject.time.api.TimeService"/>
-      </property>	
    </bean>   
     
      <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.ScheduledInvocationRunner"
@@ -84,10 +86,6 @@
       </property>	
    </bean>   
    
-   
-   
-   
-   <!-- Tester for ScheduledInvocationManager
    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.ScheduledInvocationTestJob"
       class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
       singleton="true" init-method="init">
@@ -104,8 +102,8 @@
     
    <bean id="scheduledInvocationTestCommand" class="org.sakaiproject.component.app.scheduler.test.ScheduledInvocationTestCommand">
    </bean>
-   
    -->
+  
    
    <!-- sample bean job... this sample shows how to install a bean into quartz for scheduling -->
 

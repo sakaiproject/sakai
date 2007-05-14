@@ -1,11 +1,20 @@
 package org.sakaiproject.component.app.scheduler;
 
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.quartz.Job;
+import org.quartz.JobDetail;
+import org.quartz.SchedulerException;
+import org.quartz.SimpleTrigger;
+import org.quartz.Trigger;
 import org.sakaiproject.api.app.scheduler.DelayedInvocation;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
+import org.sakaiproject.api.app.scheduler.SchedulerManager;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.app.scheduler.jobs.ScheduledInvocationRunner;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.time.api.Time;
@@ -14,6 +23,11 @@ public class ScheduledInvocationManagerImpl implements ScheduledInvocationManage
 
 	private static final Log LOG = LogFactory.getLog(ScheduledInvocationManagerImpl.class);
 
+	private static final String SCHEDULED_INVOCATION_RUNNER_DEFAULT_INTERVAL_PROPERTY = "jobscheduler.invocation.interval";
+
+	private static final int SCHEDULED_INVOCATION_RUNNER_DEFAULT_INTERVAL = 600; //default: time in seconds, run every 10 mins
+
+	
 	/** Dependency: IdManager */
 	protected IdManager m_idManager = null;
 
@@ -27,15 +41,65 @@ public class ScheduledInvocationManagerImpl implements ScheduledInvocationManage
 	public void setSqlService(SqlService service) {
 		m_sqlService = service;
 	}
+	
+
+	/** Dependency: SchedulerManager */
+	protected SchedulerManager m_schedulerManager = null;
+
+	public void setSchedulerManager(SchedulerManager service) {
+		m_schedulerManager = service;
+	}
+	
+	
+	/** Dependency: ServerConfigurationService */
+	protected ServerConfigurationService m_serverConfigurationService = null;
+
+	public void setServerConfigurationService(ServerConfigurationService service) {
+		m_serverConfigurationService = service;
+	}
+	
+
+	
+	
 
 	public void init() {
 		LOG.info("init()");
-	}
+	      try {
+	          registerScheduledInvocationRunner();
+	       } catch (SchedulerException e) {
+	          LOG.error("failed to schedule ScheduledInvocationRunner job", e);
+	       }
+	    }
+
+	  
 
    public void destroy() {
       LOG.info("destroy()");
    }
 
+   protected void registerScheduledInvocationRunner() throws SchedulerException {
+	   
+	   //trigger will not start immediately, wait until interval has passed before 1st run
+	   long startTime = System.currentTimeMillis() + getScheduledInvocationRunnerInterval();
+	   
+       JobDetail detail = new JobDetail("org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl.runner",
+          "org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl", ScheduledInvocationRunner.class);
+
+       Trigger trigger = new SimpleTrigger("org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl.runner",
+          "org.sakaiproject.component.app.scheduler.ScheduledInvocationManagerImpl", new Date(startTime), null, SimpleTrigger.REPEAT_INDEFINITELY,
+          getScheduledInvocationRunnerInterval());
+
+       m_schedulerManager.getScheduler().unscheduleJob(trigger.getName(), trigger.getGroup());
+       m_schedulerManager.getScheduler().scheduleJob(detail, trigger);
+    }
+   
+   protected int getScheduledInvocationRunnerInterval() {
+	   
+	   // convert seconds to millis
+	   return 1000 * m_serverConfigurationService.getInt(SCHEDULED_INVOCATION_RUNNER_DEFAULT_INTERVAL_PROPERTY, SCHEDULED_INVOCATION_RUNNER_DEFAULT_INTERVAL);
+	   
+   }
+   
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.api.app.scheduler.ScheduledInvocationManager#createDelayedInvocation(org.sakaiproject.time.api.Time, java.lang.String, java.lang.String)
 	 */
