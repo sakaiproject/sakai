@@ -2093,22 +2093,22 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 
     public void convertGradePointsForUpdatedTotalPoints(Gradebook gradebook, Assignment assignment, Double newTotal, List studentUids)
     {
+  		if(newTotal == null || assignment == null || gradebook == null)
+  		{
+  			throw new IllegalArgumentException("null values found in convertGradePointsForUpdatedTotalPoints.");
+  		}
     	if(gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE && assignment.getPointsPossible() != null)
     	{
-    		double pointPossible = assignment.getPointsPossible().doubleValue();
-    		if(pointPossible > 0)
+    		List records = getAssignmentGradeRecordsConverted(assignment, studentUids);
+    		for(Iterator iter = records.iterator(); iter.hasNext(); )
     		{
-    			List records = getAssignmentGradeRecordsConverted(assignment, studentUids);
-    			for(Iterator iter = records.iterator(); iter.hasNext(); )
+    			AssignmentGradeRecord agr = (AssignmentGradeRecord) iter.next();
+    			if(agr != null && agr.getPointsEarned() != null)
     			{
-    				AssignmentGradeRecord agr = (AssignmentGradeRecord) iter.next();
-    				if(agr != null && agr.getPointsEarned() != null)
-    				{
-    					agr.setPointsEarned(new Double(agr.getPointsEarned().doubleValue() * newTotal.doubleValue() / 100.0));
-    				}
+    				agr.setPointsEarned(new Double(agr.getPointsEarned().doubleValue() * newTotal.doubleValue() / 100.0));
     			}
-    			updateAssignmentGradeRecords(assignment, records);
     		}
+    		updateAssignmentGradeRecords(assignment, records);
     	}
     }
 }
