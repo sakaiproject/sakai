@@ -2259,4 +2259,48 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		gradebookManager.fillInZeroForNullGradeRecords(persistentGradebook);
 		Assert.assertTrue(!gradebookManager.checkStuendsNotSubmitted(persistentGradebook));
 	}
+	
+	public void testConvertGradePointsForUpdatedTotalPoints() throws Exception
+	{
+		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
+		Assignment assign = gradebookManager.getAssignment(assgn1Long);
+		Assignment assign2 = gradebookManager.getAssignment(assgn3Long);
+
+		
+		persistentGradebook.setGrade_type(GradebookService.GRADE_TYPE_PERCENTAGE);
+		gradebookManager.updateGradebook(persistentGradebook);
+		assign.setPointsPossible(new Double(5));
+		gradebookManager.updateAssignment(assign);
+
+		List studentUids = new ArrayList();
+		studentUids.add("studentId1");
+		studentUids.add("studentId2");
+		studentUids.add("studentId3");
+		studentUids.add("studentId4");
+		studentUids.add("studentId5");
+		Map studentIdMap = new HashMap();
+		studentIdMap.put("studentId1", new Double(1.0));
+		studentIdMap.put("studentId2", new Double(2.0));
+		studentIdMap.put("studentId3", new Double(3.0));
+		studentIdMap.put("studentId4", new Double(4.0));
+		studentIdMap.put("studentId5", new Double(5.0));
+
+  	integrationSupport.createCourse(persistentGradebook.getUid(), persistentGradebook.getUid(), false, false, false);
+		gradebookManager.updateGradebook(persistentGradebook);
+		addUsersEnrollments(persistentGradebook, studentUids);
+
+		generateGradeRecords(assign, 5);
+		gradebookManager.convertGradePointsForUpdatedTotalPoints(persistentGradebook, assign, new Double(10), studentUids);
+		assign.setPointsPossible(new Double(10));
+		gradebookManager.updateAssignment(assign);
+		List records = gradebookManager.getAllAssignmentGradeRecordsConverted(persistentGradebook.getId(), studentUids);
+		for(int i=0; i<records.size(); i++)
+		{
+			AssignmentGradeRecord agr = (AssignmentGradeRecord) records.get(i);
+			if(agr.getAssignment().getCategory().getName().equals("cate 1"))
+				Assert.assertTrue(agr.getPointsEarned().doubleValue() == ((Double)studentIdMap.get(agr.getStudentId())).doubleValue() * 2.0 / 10.0 * 100.0);
+			
+//				System.out.println(agr.getAssignment().getName() + "-----" + agr.getStudentId() + "---" + agr.getPointsEarned());
+		}
+	}
 }

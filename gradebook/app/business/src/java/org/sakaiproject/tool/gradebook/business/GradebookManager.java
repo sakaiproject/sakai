@@ -541,4 +541,14 @@ public interface GradebookManager {
      * @param gradebook
      */
     public void fillInZeroForNullGradeRecords(Gradebook gradebook);
+    
+    /**
+     * Update grade points in DB for assignment when total point is changed by users for grade_type of GRADE_TYPE_PERCENTAGE. 
+     *  
+     * @param gradebook
+     * @param Assignment old assignment with old total point value
+     * @param Double newTotal the old total point for assignment
+     * @param studentUids List of student uid.
+     */
+    public void convertGradePointsForUpdatedTotalPoints(Gradebook gradebook, Assignment assignment, Double newTotal, List studentUids);
 }
