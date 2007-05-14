@@ -108,9 +108,9 @@
 				var="row"
         sortColumn="#{instructorViewBean.sortColumn}"
 				sortAscending="#{instructorViewBean.sortAscending}"
-				columnClasses="attach,left,center,center,center,center,center,center,center,external"
+				columnClasses="attach,left,center,center,center,center,center,center,external"
 				rowClasses="#{instructorViewBean.rowStyles}"
-				headerClasses="attach,left,center,center,center,center,center,center,center comments,bogus"
+				headerClasses="attach,left,center,center,center,center,center,center comments,bogus"
 				styleClass="listHier narrowerTable"
 				expanded="true"
 				rowIndexVar="rowIndex">
@@ -213,9 +213,9 @@
 						</h:outputText>
         </h:column>
         
-        <h:column rendered="#{instructorViewBean.gradeEntryByPoints}">
+        <h:column>
         	<f:facet name="header" >
-        		<t:commandSortHeader columnName="itemValue" immediate="true" arrow="true" rendered="#{instructorViewBean.gradeEntryByPoints}">
+        		<t:commandSortHeader columnName="itemValue" immediate="true" arrow="true">
 							<h:outputText value="#{msgs.inst_view_item_value}"/>
 						</t:commandSortHeader>
         	</f:facet>
@@ -223,14 +223,6 @@
         	<h:outputText value="#{row.associatedAssignment.pointsPossible}" rendered="#{row.assignment}">
         		<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS"/>
         	</h:outputText>
-        </h:column>
-        
-        <h:column rendered="#{instructorViewBean.gradeEntryByPercent}">
-        	<f:facet name="header" >
-						<h:outputText value="#{msgs.inst_view_item_value}" rendered="#{!instructorViewBean.gradeEntryByPoints}" />
-        	</f:facet>
-        	
-        	<h:outputText value="#{msgs.inst_view_percent_value}" rendered="#{row.assignment}" />
         </h:column>
 	    
 		    <h:column>
