@@ -62,6 +62,8 @@ public class ChatDataMigration {
    
    private boolean performChatMigration = false;
    private boolean chatMigrationExecuteImmediate = true;
+   private boolean escapeSpecialCharactersInArchive = true;
+   private boolean escapeSpecialCharactersInLive = false;
    
    
    /** init thread - so we don't wait in the actual init() call */
@@ -214,11 +216,11 @@ public class ChatDataMigration {
                   Element root = doc.getDocumentElement();
                   String context = root.getAttribute("context");
                   String title = root.getAttribute("id");
-                  String newChannelId = escapeSpecialChars(oldId);
+                  String newChannelId = escapeSpecialCharsForId(oldId);
                   
                   //TODO Chat lookup the config params?
                   String outputSql = getMessageFromBundle("insert.channel", new Object[]{
-                        newChannelId, context, null, escapeConfiguredCharacters(title), "", "SelectMessagesByTime", 3, 0, oldId, 1});
+                        newChannelId, context, null, escapeSingleQuotes(title), "", "SelectMessagesByTime", 3, 0, escapeSingleQuotes(oldId), 1});
                   /* 
                    * CHANNEL_ID, 
                    * CONTEXT, 
@@ -232,9 +234,13 @@ public class ChatDataMigration {
                    * ENABLE_USER_OVERRIDE
                    */
                   
-                  output.println(outputSql + ";");
+                  String escapedSql = escapeConfiguredCharactersOptional(outputSql);
+                  String sqlToRun = (isEscapeSpecialCharactersInLive()) ? escapedSql : outputSql;
+                  String sqlToWrite = (isEscapeSpecialCharactersInArchive()) ? escapedSql : outputSql;
+                  
+                  output.println(sqlToWrite + ";");
                   if (chatMigrationExecuteImmediate) {
-                     sqlService.dbWrite(null, outputSql, null);
+                     sqlService.dbWrite(null, sqlToRun, null);
                   }
                   
                   //Get the messages for each channel
@@ -302,18 +308,23 @@ public class ChatDataMigration {
                   //String body = "test";
 
                   String newMessageId = oldMessageId;
-                  newMessageId = newMessageId.replaceAll("/", "_");
+                  //newMessageId = escapeSpecialCharsForId(newMessageId);
                   
                   String outputSql = getMessageFromBundle("insert.message", new Object[] {
-                        newMessageId, escapeSpecialChars(oldChannelId), owner, messageDate, escapeConfiguredCharacters(body), oldMessageId});
+                        escapeSpecialCharsForId(newMessageId), escapeSpecialCharsForId(oldChannelId), owner, messageDate, escapeSingleQuotes(body), oldMessageId});
                   /*
                    * insert into CHAT2_MESSAGE (MESSAGE_ID, CHANNEL_ID, OWNER, MESSAGE_DATE, BODY) \
                         values ('{0}', '{1}', '{2}', '{3}', '{4}');
                   
                   */
-                  output.println(outputSql + ";");
+                  
+                  String escapedSql = escapeConfiguredCharactersOptional(outputSql);
+                  String sqlToRun = (isEscapeSpecialCharactersInLive()) ? escapedSql : outputSql;
+                  String sqlToWrite = (isEscapeSpecialCharactersInArchive()) ? escapedSql : outputSql;
+                  
+                  output.println(sqlToWrite + ";");
                   if (chatMigrationExecuteImmediate) {
-                     sqlService.dbWrite(null, outputSql, null);
+                     sqlService.dbWrite(null, sqlToRun, null);
                   }
                }
            } finally {
@@ -331,17 +342,16 @@ public class ChatDataMigration {
         logger.debug("Migration task fininshed: runMessageMigration()");
       
    }
-   
+
    /**
     * Escapes special characters that may be bad in sql statements
     * -- "/" is replaced with "_"
-    * See also escapeSingleQuotes(String input)
     * @param input Original string to parse
     * @return A string with any special characters escaped
     */
-   protected String escapeSpecialChars(String input) {
+   protected String escapeSpecialCharsForId(String input) {
       String output = input.replaceAll("/", "_");
-      output = escapeConfiguredCharacters(output);
+      output = escapeSingleQuotes(output);
       return output;
    }
    
@@ -361,8 +371,9 @@ public class ChatDataMigration {
     * @param input
     * @return
     */
-   protected String escapeConfiguredCharacters(String input) {
-      String output = escapeSingleQuotes(input);
+   protected String escapeConfiguredCharactersOptional(String input) {
+      //String output = escapeSingleQuotes(input);
+      String output = input;
       String escapeChar = getMessageFromBundle("escapeChar");
       String[] escapedChars = getMessagesFromBundle("escapedChars");
       
@@ -458,6 +469,24 @@ public class ChatDataMigration {
 
    public void setSqlService(SqlService sqlService) {
       this.sqlService = sqlService;
+   }
+
+   public boolean isEscapeSpecialCharactersInArchive() {
+      return escapeSpecialCharactersInArchive;
+   }
+
+   public void setEscapeSpecialCharactersInArchive(
+         boolean escapeSpecialCharactersInArchive) {
+      this.escapeSpecialCharactersInArchive = escapeSpecialCharactersInArchive;
+   }
+
+   public boolean isEscapeSpecialCharactersInLive() {
+      return escapeSpecialCharactersInLive;
+   }
+
+   public void setEscapeSpecialCharactersInLive(
+         boolean escapeSpecialCharactersInLive) {
+      this.escapeSpecialCharactersInLive = escapeSpecialCharactersInLive;
    }
    
 }
