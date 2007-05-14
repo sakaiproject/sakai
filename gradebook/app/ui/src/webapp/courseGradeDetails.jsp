@@ -31,6 +31,9 @@
 			<h:outputText id="average" value="#{courseGradeDetailsBean.courseGrade.formattedMean}" rendered="#{overviewBean.userAbleToGradeAll}">
 				<f:convertNumber type="percent" integerOnly="true" />
 			</h:outputText>
+			
+			<h:outputText id="averageCourseGradeLabel" value="#{msgs.course_grade_details_average_course_grade}" rendered="#{overviewBean.userAbleToGradeAll}"/>
+			<h:outputText id="averageCourseGrade" value="#{courseGradeDetailsBean.averageCourseGrade}" rendered="#{overviewBean.userAbleToGradeAll}"/>
 		</h:panelGrid>
 		</div>
 

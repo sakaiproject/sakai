@@ -202,6 +202,9 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
     public CourseGrade getCourseGrade() {
         return courseGrade;
     }
+    public String getAverageCourseGrade() {
+    	return gradeMapping.getGrade(courseGrade.getMean());
+    }
     public double getTotalPoints() {
         return totalPoints;
     }
