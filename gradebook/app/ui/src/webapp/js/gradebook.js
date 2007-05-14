@@ -287,11 +287,22 @@ function showHideAll(numToggles, context, expandAlt, collapseAlt, expandTitle, c
 // assignment must be unchecked and disabled. Once he/she assigns category,
 // counted will be enabled
 function assignmentCategoryChange(myForm, categoriesEnabled) {
-	if (categoriesEnabled != true)
-		return;
-	var categorySelectionEl = getTheElement(myForm + ':selectCategory');
 	var releasedCheckboxEl =  getTheElement(myForm + ':released');
 	var countedCheckboxEl =   getTheElement(myForm + ':countAssignment');
+	//Case for categories Disabled
+	if (categoriesEnabled != true) {
+		if (releasedCheckboxEl.checked == false) {
+			countedCheckboxEl.checked = false;
+			countedCheckboxEl.disabled = true;
+		} else if (releasedCheckboxEl.checked == true) {
+			countedCheckboxEl.disabled = false;
+			countedCheckboxEl.checked = true;
+		}
+		return;
+	}
+	
+	//Case for categories Enabled.
+	var categorySelectionEl = getTheElement(myForm + ':selectCategory');
 	
 	if (categorySelectionEl.value == 'unassigned' || releasedCheckboxEl.checked == false) {
 		countedCheckboxEl.checked = false;
