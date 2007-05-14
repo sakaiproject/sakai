@@ -146,7 +146,7 @@
 				action="calculateCourseGrades"
 			/>
 			<h:commandButton
-				value="#{msgs.course_grade_details_export_csv}"
+				value="#{msgs.course_grade_details_export_course_grades}"
 				actionListener="#{courseGradeDetailsBean.exportCsv}"
 				rendered="#{!courseGradeDetailsBean.emptyEnrollments}"
 				/>
