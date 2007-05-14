@@ -24,6 +24,11 @@
   	<h:panelGrid cellpadding="0" cellspacing="0" columns="2"
 			columnClasses="itemName"
 			styleClass="itemSummary">
+			<h:outputText id="cumLabel" value="#{msgs.overview_avg_cum_score}" />
+			<h:outputText id="cumScore" value="#{rosterBean.avgCourseGrade}">
+				<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER" />
+			</h:outputText>
+			
 			<h:outputText id="avgGradeLabel" value="#{msgs.overview_avg_course_grade}" rendered="#{overviewBean.userAbleToGradeAll}"/>
 			<h:outputText id="avgGrade" value="#{rosterBean.avgCourseGradeLetter}" rendered="#{overviewBean.userAbleToGradeAll}" />
 		</h:panelGrid>
