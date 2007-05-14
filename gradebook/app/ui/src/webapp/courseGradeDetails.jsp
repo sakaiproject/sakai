@@ -142,18 +142,20 @@
 				rendered="#{!courseGradeDetailsBean.emptyEnrollments}"
 				/>
 			<h:commandButton
+				value="#{msgs.assignment_details_cancel}"
+				action="overview"
+				immediate="true"
+				rendered="#{!courseGradeDetailsBean.emptyEnrollments}"
+				/>
+				
+			&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+			<h:commandButton
 				value="#{msgs.course_grade_details_calculate_course_grade}"
 				action="calculateCourseGrades"
 			/>
 			<h:commandButton
 				value="#{msgs.course_grade_details_export_course_grades}"
 				actionListener="#{courseGradeDetailsBean.exportCsv}"
-				rendered="#{!courseGradeDetailsBean.emptyEnrollments}"
-				/>
-			<h:commandButton
-				value="#{msgs.assignment_details_cancel}"
-				action="overview"
-				immediate="true"
 				rendered="#{!courseGradeDetailsBean.emptyEnrollments}"
 				/>
 		</p>
