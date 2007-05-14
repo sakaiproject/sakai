@@ -10,6 +10,7 @@
 
 		<sakai:flowState bean="#{addAssignmentBean}" />
 
+		<p class="instruction"><h:outputText value="#{msgs.add_assignment_instruction}" /></p>
 		<p class="instruction gbSection"><h:outputText value="#{msgs.flag_required}"/></p>
 
 		<t:aliasBean alias="#{bean}" value="#{addAssignmentBean}">
