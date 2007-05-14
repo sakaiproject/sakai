@@ -54,7 +54,7 @@
 			rowIndexVar="scoreRowIndex"
 			sortColumn="#{courseGradeDetailsBean.sortColumn}"
             sortAscending="#{courseGradeDetailsBean.sortAscending}"
-            columnClasses="left,left,right,left,right"
+            columnClasses="left,left,left,left,left"
 			styleClass="listHier">
 			<h:column>
 				<f:facet name="header">
