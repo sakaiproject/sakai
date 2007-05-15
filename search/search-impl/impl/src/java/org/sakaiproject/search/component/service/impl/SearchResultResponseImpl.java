@@ -187,8 +187,10 @@ public class SearchResultResponseImpl implements SearchResult
 
 			EntityContentProducer sep = searchIndexBuilder
 					.newEntityContentProducer(getReference());
-			sb.append(sep.getContent(getReference()));
-
+			if (sep != null)
+			{
+				sb.append(sep.getContent(getReference()));
+			}
 			String text = StringUtils.escapeHtml(sb.toString(), false);
 			TokenStream tokenStream = analyzer.tokenStream(
 					SearchService.FIELD_CONTENTS, new StringReader(text));

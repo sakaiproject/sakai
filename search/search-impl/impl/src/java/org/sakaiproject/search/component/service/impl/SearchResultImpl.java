@@ -183,7 +183,9 @@ public class SearchResultImpl implements SearchResult
 				{
 					EntityContentProducer sep = searchIndexBuilder
 							.newEntityContentProducer(references[i]);
-					sb.append(sep.getContent(references[i]));
+					if ( sep != null ) {
+					    sb.append(sep.getContent(references[i]));
+					}
 				}
 			}
 
