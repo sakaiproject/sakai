@@ -30,16 +30,16 @@
 			singleton="true">
 	</bean>
 	
-	<bean id="org.sakaiproject.importer.impl.handlers.SamigoHandler"
-			class="org.sakaiproject.importer.impl.handlers.SamigoHandler"
-			singleton="true">
-	</bean>
-<!--
-	<bean id="org.sakaiproject.importer.impl.handlers.MessageCenterHandler"
-			class="org.sakaiproject.importer.impl.handlers.MessageCenterHandler"
-			singleton="true">
-	</bean>
--->
+	<!-- <bean id="org.sakaiproject.importer.impl.handlers.SamigoHandler" -->
+	<!-- 		class="org.sakaiproject.importer.impl.handlers.SamigoHandler" -->
+	<!-- 		singleton="true"> -->
+	<!-- </bean> -->
+	<!--  -->
+	<!-- <bean id="org.sakaiproject.importer.impl.handlers.ForumsHandler" -->
+	<!-- 		class="org.sakaiproject.importer.impl.handlers.ForumsHandler" -->
+	<!-- 		singleton="true"> -->
+	<!-- </bean> -->
+	
 	<!-- Import service -->
 	<!-- Add your handlers to the property list -->
 	<bean id="org.sakaiproject.importer.api.ImportService"
@@ -54,8 +54,8 @@
 		<property name="resourceHandlers">
 			<list>
 				<ref bean="org.sakaiproject.importer.impl.handlers.ResourcesHandler"/>
-				<ref bean="org.sakaiproject.importer.impl.handlers.SamigoHandler"/>
-				<!-- <ref bean="org.sakaiproject.importer.impl.handlers.MessageCenterHandler"/> -->
+				<!-- <ref bean="org.sakaiproject.importer.impl.handlers.SamigoHandler"/> -->
+				<!-- <ref bean="org.sakaiproject.importer.impl.handlers.ForumsHandler"/> -->
 			</list>
 		</property>
 	</bean>
