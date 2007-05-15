@@ -88,12 +88,17 @@ public class SessionContext
 			{
 				cache = new Cache(CACHENAME,							// Name
 													CACHE_MEMORY_ELEMENTS, 	// Elements held in memory
+													                        // Eviction policy
+													net.sf.ehcache.store.MemoryStoreEvictionPolicy.LRU,
 													true, 									// Overflow to disk?
+                          "ignored",              // Disk store - ignored, CacheManager sets it using injection
 													false, 									// Disk elements live forever?
 													CACHE_TTL, 							// Element maximum time to live
 													CACHE_IDLE_TIME, 				// Element idle time removal
 													false, 									// Disk content exists across VM restart?
-													240);										// Disk content idle check frequency
+													240L,										// Disk content idle check frequency
+													null,                   // Event listeners
+													null);                  // Bootstrap cache loader
 
 				cacheManager.addCache(cache);
 				_log.debug("Cache created: " + CACHENAME);
@@ -107,7 +112,7 @@ public class SessionContext
 			_log.debug("cache.get(" + id + ") finds " + element);
 
 			if (element == null)
-			{
+		{
 				element = new Element(id, new HashMap());
 				cache.put(element);
 
