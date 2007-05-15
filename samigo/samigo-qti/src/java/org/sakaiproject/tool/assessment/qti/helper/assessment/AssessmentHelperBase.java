@@ -311,6 +311,7 @@ public abstract class AssessmentHelperBase
     Integer bookmarking = accessControl.getBookMarkingItem();
     Integer itemNavigation = accessControl.getItemNavigation();
     Integer itemNumbering = accessControl.getItemNumbering();
+    Integer assessmentFormat = accessControl.getAssessmentFormat();
     Integer lateHandling = accessControl.getLateHandling();
     Integer retryAllowed = accessControl.getRetryAllowed();
     Integer submissionsSaved = accessControl.getSubmissionsSaved();
@@ -340,15 +341,15 @@ public abstract class AssessmentHelperBase
       assessmentXml.setFieldentry("FINISH_URL", finalPageUrl);
     }
 
-    if (accessControl.BY_QUESTION.equals(itemNumbering))
+    if (accessControl.BY_QUESTION.equals(assessmentFormat))
     {
       assessmentXml.setFieldentry("QUESTION_LAYOUT", "I");
     }
-    else if (accessControl.BY_PART.equals(itemNumbering))
+    else if (accessControl.BY_PART.equals(assessmentFormat))
     {
       assessmentXml.setFieldentry("QUESTION_LAYOUT", "S");
     }
-    else if (accessControl.BY_ASSESSMENT.equals(itemNumbering))
+    else if (accessControl.BY_ASSESSMENT.equals(assessmentFormat))
     {
       assessmentXml.setFieldentry("QUESTION_LAYOUT", "A");
     }

@@ -373,6 +373,14 @@
       <!--True, False -->
 
       <qtimetadatafield>
+        <fieldlabel>FEEDBACK_SHOW_STUDENT_QUESTIONSCORE</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+
+
+      <qtimetadatafield>
         <fieldlabel>FEEDBACK_SHOW_ITEM_LEVEL</fieldlabel>
         <fieldentry>True</fieldentry>
       </qtimetadatafield>
