@@ -62,11 +62,8 @@
 
 				<h:outputText id="averageLabel" value="#{msgs.assignment_details_average}" rendered="#{overviewBean.userAbleToGradeAll}"/>
 				<h:panelGroup rendered="#{overviewBean.userAbleToGradeAll}">
-					<h:outputText id="averagePercent" value="#{assignmentDetailsBean.assignment.formattedMean}" rendered="#{assignmentDetailsBean.gradeEntryByPercent}">
-						<f:convertNumber type="percent" maxFractionDigits="0" />
-					</h:outputText>
-					<h:outputText id="averagePoints" value="#{assignmentDetailsBean.assignment.averageTotal}" rendered="#{assignmentDetailsBean.gradeEntryByPoints}">
-						<f:convertNumber type="number" maxFractionDigits="0" />
+					<h:outputText id="average" value="#{assignmentDetailsBean.assignment}">
+						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_BASIC" />
 					</h:outputText>
 					<h:outputText id="averagePlaceholder" value="#{msgs.score_null_placeholder}" rendered="#{assignmentDetailsBean.assignment.formattedMean == null || assignmentDetailsBean.assignment.averageTotal == null}" />
 				</h:panelGroup>

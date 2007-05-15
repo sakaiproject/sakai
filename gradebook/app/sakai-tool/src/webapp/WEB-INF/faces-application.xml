@@ -101,6 +101,14 @@
 			org.sakaiproject.tool.gradebook.jsf.ScoreConverter
 		</converter-class>
 	</converter>
+	<converter>
+		<converter-id>
+			org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_BASIC
+		</converter-id>
+		<converter-class>
+			org.sakaiproject.tool.gradebook.jsf.ClassAvgConverterBasicDisplay
+		</converter-class>
+	</converter>
 
 	<validator>
 		<validator-id>

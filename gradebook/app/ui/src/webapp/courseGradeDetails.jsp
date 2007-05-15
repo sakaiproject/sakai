@@ -24,12 +24,12 @@
 			styleClass="itemSummary">
 			<h:outputText id="pointsLabel" value="#{msgs.course_grade_details_points}" rendered="#{!courseDetailsBean.weightingEnabled}"/>
 			<h:outputText id="points" value="#{courseGradeDetailsBean.totalPoints}" rendered="#{!courseDetailsBean.weightingEnabled}">
-				<f:convertNumber maxFractionDigits="2"/>
+				<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
 			</h:outputText>
 
 			<h:outputText id="averageLabel" value="#{msgs.course_grade_details_average}" rendered="#{overviewBean.userAbleToGradeAll}"/>
 			<h:outputText id="average" value="#{courseGradeDetailsBean.courseGrade.formattedMean}" rendered="#{overviewBean.userAbleToGradeAll}">
-				<f:convertNumber type="percent" integerOnly="true" />
+				<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.PERCENTAGE" />
 			</h:outputText>
 			
 			<h:outputText id="averageCourseGradeLabel" value="#{msgs.course_grade_details_average_course_grade}" rendered="#{overviewBean.userAbleToGradeAll}"/>
