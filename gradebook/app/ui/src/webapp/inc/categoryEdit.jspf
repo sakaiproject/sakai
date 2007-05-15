@@ -2,7 +2,7 @@
 <script type="text/javascript" src="/library/js/jquery-1.1.2.js"></script>
 <h4><h:outputText value="#{msgs.cat_heading}" styleClass="gbSection" /></h4>
 
-<div class="indnt1">
+<div class="indnt1 gbSection">
 	<h:selectOneRadio value="#{gradebookSetupBean.categorySetting}" id="categorySetting" layout="pageDirection" 
 			valueChangeListener="#{gradebookSetupBean.processCategorySettingChange}" onclick="this.form.submit();">
 			<f:selectItem itemValue="noCategories" itemLabel="#{msgs.opt_no_categories}" />

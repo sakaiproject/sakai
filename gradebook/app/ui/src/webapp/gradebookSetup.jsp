@@ -23,7 +23,11 @@
 					<f:selectItem itemValue="points" itemLabel="#{msgs.entry_opt_points}" />
 	        <f:selectItem itemValue="percent" itemLabel="#{msgs.entry_opt_percent}" /> 
 				</h:selectOneRadio>
-	
+			</div>
+				
+			<h4><h:outputText value="#{msgs.gb_setup_items_display}"/></h4>
+			
+			<div class="indnt1">
 				<div class="gbSection">
 					<h:selectBooleanCheckbox id="releaseItems" value="#{gradebookSetupBean.localGradebook.assignmentsDisplayed}"	/>
 					<h:outputLabel for="releaseItems" value="#{msgs.display_released_items}" />
@@ -31,7 +35,6 @@
 						<h:outputText styleClass="instruction" value="#{msgs.display_released_items_info}" />
 					</div>
 				</div>
-			
 			</div>
 	 
 		  <t:aliasBean alias="#{bean}" value="#{gradebookSetupBean}">
