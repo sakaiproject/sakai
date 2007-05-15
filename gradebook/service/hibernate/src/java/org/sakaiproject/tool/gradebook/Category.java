@@ -200,6 +200,8 @@ public class Category implements Serializable
     	Double score = assign.getAverageTotal();
 //    	if(assign.isReleased())
 //    	{
+    	if(assign.isCounted())
+    	{
     		if (score == null) 
     		{
     		} 
@@ -207,12 +209,13 @@ public class Category implements Serializable
     		{
     			total += score.doubleValue();
     			if(assign.getPointsPossible() != null)
-      		{
-      			totalPossible += assign.getPointsPossible().doubleValue();
-      			numOfAssignments ++;
-      		}
+    			{
+    				totalPossible += assign.getPointsPossible().doubleValue();
+    				numOfAssignments ++;
+    			}
     			numScored++;
     		}
+    	}
 //    	}
     }
 
