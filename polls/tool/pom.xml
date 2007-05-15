@@ -132,55 +132,55 @@ limitations under the License.
         <dependency>
             <groupId>uk.org.ponder</groupId>
             <artifactId>ponderutilcore</artifactId>
-            <version>${ponderutilcore.version}</version>
+            <version>1.2.1</version>
             <type>jar</type>
         </dependency>
 		
         <dependency>
             <groupId>uk.org.ponder</groupId>
             <artifactId>j-servletutil</artifactId>
-            <version>${jservletutil.version}</version>
+            <version>1.2.1</version>
             <type>jar</type>
         </dependency>
 	
         <dependency>
             <groupId>uk.org.ponder.rsfutil</groupId>
             <artifactId>rsfutil</artifactId>
-            <version>${rsfutil.version}</version>
+            <version>0.7.1</version>
             <type>jar</type>
         </dependency>
 
         <dependency>
             <groupId>uk.org.ponder.sakairsf</groupId>
-            <artifactId>sakairsf</artifactId>
-            <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
+            <artifactId>SakaiRSF</artifactId>
+            <version>0.7.1-sakai_2.2.x</version>
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>rsfutil</groupId>
+            <groupId>uk.org.ponder.rsfutil</groupId>
             <artifactId>RSFComponents-evolvers</artifactId>
-            <version>${rsfutil.version}</version>
+            <version>0.7.1</version>
             <type>jar</type>
          </dependency>
     
          <dependency>
-          <groupId>sakairsf</groupId>
+          <groupId>uk.org.ponder.sakairsf</groupId>
           <artifactId>SakaiRSFComponents-evolvers</artifactId>
-          <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
+          <version>0.7.1-sakai_2.2.x</version>
           <type>jar</type>
         </dependency>
           <dependency>
-           <groupId>sakairsf</groupId>
+           <groupId>uk.org.ponder.sakairsf</groupId>
            <artifactId>SakaiRSFComponents-templates</artifactId>
-           <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
+           <version>0.7.1-sakai_2.2.x</version>
            <type>war</type>
          </dependency>
 
         <!-- XML pull parser - required for RSF -->
         <dependency>
             <groupId>xpp3</groupId>
-            <artifactId>xpp3</artifactId>
-            <version>1.1.3.4-RC8_min</version>
+            <artifactId>xpp3_min</artifactId>
+            <version>1.1.3.4.O</version>
             <type>jar</type>
         </dependency>
         <dependency>
