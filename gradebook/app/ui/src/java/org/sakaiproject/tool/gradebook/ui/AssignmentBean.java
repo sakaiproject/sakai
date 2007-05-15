@@ -31,6 +31,8 @@ import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -119,11 +121,38 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			if (getCategoriesEnabled() && category == null) {
 				assignment.setCounted(false);
 			}
+			
+			Assignment originalAssignment = getGradebookManager().getAssignment(assignmentId);
+			Double origPointsPossible = originalAssignment.getPointsPossible();
+			Double newPointsPossible = assignment.getPointsPossible();
+			boolean scoresEnteredForAssignment = getGradebookManager().isEnteredAssignmentScores(assignmentId);
+			
+			/* If grade entry by percentage and the points possible has changed for this assignment,
+			 * we need to convert all of the stored point values to retain the same percentage value
+			 */
+			if (getGradeEntryByPercent() && scoresEnteredForAssignment) {
+				if (newPointsPossible != origPointsPossible) {
+					List enrollments = getSectionAwareness().getSiteMembersInRole(getGradebookUid(), Role.STUDENT);
+			        List studentUids = new ArrayList();
+			        for(Iterator iter = enrollments.iterator(); iter.hasNext();) {
+			            studentUids.add(((EnrollmentRecord)iter.next()).getUser().getUserUid());
+			        }
+					getGradebookManager().convertGradePointsForUpdatedTotalPoints(getGradebook(), originalAssignment, assignment.getPointsPossible(), studentUids);
+				}
+			}
+			
 			getGradebookManager().updateAssignment(assignment);
-			String messageKey = getGradebookManager().isEnteredAssignmentScores(assignmentId) ?
-				"edit_assignment_save_scored" :
-				"edit_assignment_save";
-            FacesUtil.addRedirectSafeMessage(getLocalizedString(messageKey, new String[] {assignment.getName()}));
+			
+			if ((origPointsPossible != newPointsPossible) && scoresEnteredForAssignment) {
+				if (getGradeEntryByPercent())
+					FacesUtil.addRedirectSafeMessage(getLocalizedString("edit_assignment_save_converted", new String[] {assignment.getName()}));
+				else
+					FacesUtil.addRedirectSafeMessage(getLocalizedString("edit_assignment_save_scored", new String[] {assignment.getName()}));
+
+			} else {
+				FacesUtil.addRedirectSafeMessage(getLocalizedString("edit_assignment_save", new String[] {assignment.getName()}));
+			}
+
 		} catch (ConflictingAssignmentNameException e) {
 			logger.error(e);
             FacesUtil.addErrorMessage(getLocalizedString("edit_assignment_name_conflict_failure"));
