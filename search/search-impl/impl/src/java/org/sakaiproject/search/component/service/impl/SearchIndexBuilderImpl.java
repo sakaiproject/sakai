@@ -129,7 +129,7 @@ public class SearchIndexBuilderImpl implements SearchIndexBuilder
 			return;
 		}
 		EntityContentProducer ecp = newEntityContentProducer(event);
-		if (ecp.getSiteId(resourceName) == null)
+		if ( ecp == null || ecp.getSiteId(resourceName) == null)
 		{
 			log.debug("Not indexing " + resourceName + " as it has no context");
 			return;
