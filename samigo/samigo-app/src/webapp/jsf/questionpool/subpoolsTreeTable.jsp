@@ -181,7 +181,7 @@
      </h:panelGroup>
      </f:facet>
      <h:panelGroup id="fourthcolumn">
-        <h:outputText value="#{pool.questionSize}"/>
+        <h:outputText value="#{pool.data.questionPoolItemSize}"/>
      </h:panelGroup>
     </h:column>
 

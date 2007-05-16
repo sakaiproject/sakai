@@ -147,8 +147,9 @@ public class QuestionPoolFacadeQueries
         // I really wish we don't need to populate  the questionpool size & subpool size for JSF
         // watch this for performance. hope Hibernate is smart enough not to load the entire question
         // - daisy, 10/04/04
-        populateQuestionPoolItemDatas(qpp);
-
+        // populateQuestionPoolItemDatas(qpp);
+        qpp.setSubPoolSize(new Integer(getSubPoolSize(qpp.getQuestionPoolId())));
+        
         qpList.add(getQuestionPool(qpp));
 /*
         QuestionPoolAccessData qpa = (QuestionPoolAccessData) h.get(qpp.

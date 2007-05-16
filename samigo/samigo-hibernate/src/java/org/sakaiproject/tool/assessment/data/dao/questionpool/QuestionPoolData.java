@@ -470,5 +470,9 @@ public class QuestionPoolData
     newQ.setQuestionPoolItems(s);
     return newQ;
   }
-
+  
+  public Integer getQuestionPoolItemSize()
+  {
+	  return new Integer(questionPoolItems.size());
+  }
 }
