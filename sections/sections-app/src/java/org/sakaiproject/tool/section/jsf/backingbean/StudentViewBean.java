@@ -28,6 +28,9 @@ import java.util.List;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
+import javax.faces.component.UIViewRoot;
+import javax.faces.application.Application;
+import javax.faces.application.ViewHandler;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -138,7 +141,8 @@ public class StudentViewBean extends EditStudentSectionsBean implements Serializ
 	}
 
 	public void processJoinSection(ActionEvent event) {
-		String sectionUuid = (String)FacesContext.getCurrentInstance().getExternalContext()
+
+        String sectionUuid = (String)FacesContext.getCurrentInstance().getExternalContext()
 		.getRequestParameterMap().get("sectionUuid");
 		//is this section still joinable?
 		CourseSection section = getSectionManager().getSection(sectionUuid);
@@ -148,8 +152,8 @@ public class StudentViewBean extends EditStudentSectionsBean implements Serializ
 			// There's nothing we can do in the UI, really.
 			return;
 		}
-
-		//check that there are still places available
+        refresh();
+        //check that there are still places available
 		int maxEnrollments = Integer.MAX_VALUE;
 		if(section.getMaxEnrollments() != null) {
 			maxEnrollments = section.getMaxEnrollments().intValue();
@@ -223,14 +227,24 @@ public class StudentViewBean extends EditStudentSectionsBean implements Serializ
 	}
 
 	public void setSortColumn(String sortColumn) {
-		this.sortColumn = sortColumn;
-	}
+        this.sortColumn = sortColumn;
+    }
 
-	public String getFilter() {
-		return filter;
-	}
+    public String getFilter() {
+        return filter;
+    }
 
-	public void setFilter(String filter) {
-		this.filter = filter;
-	}
+    public void setFilter(String filter) {
+        this.filter = filter;
+    }
+
+    public void refresh() {
+        FacesContext context = FacesContext.getCurrentInstance();
+        Application application = context.getApplication();
+        ViewHandler viewHandler = application.getViewHandler();
+        UIViewRoot viewRoot = viewHandler.createView(context, context
+                .getViewRoot().getViewId());
+        context.setViewRoot(viewRoot);
+        context.renderResponse(); //Optional
+    }
 }
