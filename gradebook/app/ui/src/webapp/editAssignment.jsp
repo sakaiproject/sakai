@@ -24,7 +24,7 @@
 			<h:commandButton
 				id="saveButton"
 				styleClass="active"
-				value="#{msgs.add_assignment_submit}"
+				value="#{msgs.edit_assignment_save}"
 				action="#{editAssignmentBean.updateAssignment}"/>
 			<h:commandButton
 				value="#{msgs.add_assignment_cancel}"
