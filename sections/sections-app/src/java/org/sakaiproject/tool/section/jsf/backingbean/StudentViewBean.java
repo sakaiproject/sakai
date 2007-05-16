@@ -40,7 +40,7 @@ import org.sakaiproject.tool.section.jsf.JsfUtil;
 
 /**
  * Controls the student view page.
- * 
+ *
  * @author <a href="mailto:jholtzman@berkeley.edu">Josh Holtzman</a>
  *
  */
@@ -49,33 +49,33 @@ public class StudentViewBean extends EditStudentSectionsBean implements Serializ
 	private static final long serialVersionUID = 1L;
 
 	private static final Log log = LogFactory.getLog(StudentViewBean.class);
-	
+
 	private boolean externallyManaged;
 	private boolean joinAllowed;
 	private boolean switchAllowed;
-	
+
 	private String instructions;
 	private String filter;
-	
+
 	// Students don't need a full preferences bean, so we just store the sorting as fields
 	private String sortColumn;
 	private boolean sortAscending;
-	
+
 	public StudentViewBean() {
 		super();
 		showNegativeSpots = false;
-		sortColumn = "studentName";
+		sortColumn = "title";
 		sortAscending = true;
 	}
-	
+
 	public void init() {
 		// Initialize the sections using the current user's uid
 		studentUid = getUserUid();
 		super.init();
-		
+
 		// Determine whether this course is externally managed
 		externallyManaged = getSectionManager().isExternallyManaged(getCourse().getUuid());
-		
+
 		// Determine whether the sections are joinable and/or switchable
 		joinAllowed = getSectionManager().isSelfRegistrationAllowed(getCourse().getUuid());
 		switchAllowed = getSectionManager().isSelfSwitchingAllowed(getCourse().getUuid());
@@ -85,10 +85,10 @@ public class StudentViewBean extends EditStudentSectionsBean implements Serializ
 
 		// Keep track of whether there are switchable Sections
 		boolean switchableSectionsExist = false;
-		
+
 		List<SectionDecorator> sectionCopy = new ArrayList<SectionDecorator>(sections);
 		for(Iterator<SectionDecorator> iter = sectionCopy.iterator(); iter.hasNext();) {
-			StudentSectionDecorator decoratedSection = (StudentSectionDecorator)iter.next(); 
+			StudentSectionDecorator decoratedSection = (StudentSectionDecorator)iter.next();
 
 			// Filter sections
 			if(StringUtils.trimToNull(filter) != null) {
@@ -99,7 +99,7 @@ public class StudentViewBean extends EditStudentSectionsBean implements Serializ
 					sections.remove(decoratedSection);
 				}
 			}
-			
+
 			if(decoratedSection.isJoinable()) {
 				joinableSectionsExist = true;
 			} else if (decoratedSection.isSwitchable()) {
@@ -122,12 +122,12 @@ public class StudentViewBean extends EditStudentSectionsBean implements Serializ
 		if(switchAllowed && switchableSectionsExist && joinAllowed && joinableSectionsExist) {
 			return JsfUtil.getLocalizedMessage("student_view_instructions_join_or_switch");
 		}
-		
+
 		// Joining is possible, but switching is not
 		if(joinAllowed && joinableSectionsExist && !(switchAllowed && switchableSectionsExist)) {
 			return JsfUtil.getLocalizedMessage("student_view_instructions_join");
 		}
-		
+
 		// Switching is possible, but joining is not
 		if(switchAllowed && switchableSectionsExist && !(joinAllowed && joinableSectionsExist)) {
 			return JsfUtil.getLocalizedMessage("student_view_instructions_switch");
@@ -142,13 +142,13 @@ public class StudentViewBean extends EditStudentSectionsBean implements Serializ
 		.getRequestParameterMap().get("sectionUuid");
 		//is this section still joinable?
 		CourseSection section = getSectionManager().getSection(sectionUuid);
-		
+
 		// The section might have been deleted
 		if(section == null) {
 			// There's nothing we can do in the UI, really.
 			return;
 		}
-	
+
 		//check that there are still places available
 		int maxEnrollments = Integer.MAX_VALUE;
 		if(section.getMaxEnrollments() != null) {
@@ -166,11 +166,11 @@ public class StudentViewBean extends EditStudentSectionsBean implements Serializ
 			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("role_config_error"));
 		}
 	}
-	
+
 	public void processSwitchSection(ActionEvent event) {
 		String sectionUuid = (String)FacesContext.getCurrentInstance().getExternalContext()
 		.getRequestParameterMap().get("sectionUuid");
-		
+
 		// Does the section still exist, and is it still joinable?
 		CourseSection section = getSectionManager().getSection(sectionUuid);
 		
