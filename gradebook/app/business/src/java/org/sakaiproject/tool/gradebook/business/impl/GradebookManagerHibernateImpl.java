@@ -66,6 +66,11 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
 
+/** synchronize from external application*/
+import org.sakaiproject.tool.gradebook.business.GbSynchronizer;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+
+
 /**
  * Manages Gradebook persistence via hibernate.
  */
@@ -77,6 +82,9 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     // Special logger for data contention analysis.
     private static final Log logData = LogFactory.getLog(GradebookManagerHibernateImpl.class.getName() + ".GB_DATA");
 
+    /** synchronize from external application*/
+    GbSynchronizer synchronizer = null;
+
     public void removeAssignment(final Long assignmentId) throws StaleObjectModificationException {
         HibernateCallback hc = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
@@ -84,6 +92,11 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
                 Gradebook gradebook = asn.getGradebook();
                 asn.setRemoved(true);
                 session.update(asn);
+                /** synchronize from external application*/
+                if ( (synchronizer != null) && (!synchronizer.isProjectSite()))
+                {
+                	synchronizer.deleteLegacyAssignment(asn.getName());
+                }
                 if(log.isInfoEnabled()) log.info("Assignment " + asn.getName() + " has been removed from " + gradebook);
                 return null;
             }
@@ -498,33 +511,137 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 
                 Set studentsWithUpdatedAssignmentGradeRecords = new HashSet();
                 Set studentsWithExcessiveScores = new HashSet();
+                
+                /** synchronize from external application*/
+                if(synchronizer != null)
+                {
+                	boolean isUpdateAll = Boolean.TRUE.equals(ThreadLocalManager.get("iquiz_update_all"));
+                	boolean isIquizCall = Boolean.TRUE.equals(ThreadLocalManager.get("iquiz_call"));
+                	boolean isStudentView = Boolean.TRUE.equals(ThreadLocalManager.get("iquiz_student_view"));
 
-                for(Iterator iter = gradeRecordsFromCall.iterator(); iter.hasNext();) {
-                	AssignmentGradeRecord gradeRecordFromCall = (AssignmentGradeRecord)iter.next();
-                	gradeRecordFromCall.setGraderId(graderId);
-                	gradeRecordFromCall.setDateRecorded(now);
-                	try {
-                		session.saveOrUpdate(gradeRecordFromCall);
-                	} catch (TransientObjectException e) {
-                		// It's possible that a previously unscored student
-                		// was scored behind the current user's back before
-                		// the user saved the new score. This translates
-                		// that case into an optimistic locking failure.
-                		if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to add a new assignment grade record");
-                		throw new StaleObjectModificationException(e);
+                	Map iquizAssignmentMap = new HashMap();            
+                	List legacyUpdates = new ArrayList();            
+                	Map convertedEidUidRecordMap = new HashMap();
+
+                	convertedEidUidRecordMap = synchronizer.convertEidUid(gradeRecordsFromCall);
+                	if (!isUpdateAll && synchronizer !=null && !synchronizer.isProjectSite()){
+                		iquizAssignmentMap = synchronizer.getLegacyAssignmentWithStats(assignment.getName());
+                	}
+                	Map recordsFromCLDb = null;
+                	if(synchronizer != null && isIquizCall && isUpdateAll)
+                	{
+                		recordsFromCLDb = synchronizer.getPersistentRecords(assignment.getId());
                 	}
 
-                	// Check for excessive (AKA extra credit) scoring.
-                	if (gradeRecordFromCall.getPointsEarned() != null &&
-                			gradeRecordFromCall.getPointsEarned().compareTo(assignment.getPointsPossible()) > 0) {
-                 		studentsWithExcessiveScores.add(gradeRecordFromCall.getStudentId());
+                	for(Iterator iter = gradeRecordsFromCall.iterator(); iter.hasNext();) {
+                		AssignmentGradeRecord gradeRecordFromCall = (AssignmentGradeRecord)iter.next();
+
+                		boolean updated = false;
+                		if(isIquizCall && synchronizer != null)
+                		{
+                			gradeRecordFromCall = synchronizer.convertIquizRecordToUid(gradeRecordFromCall, convertedEidUidRecordMap, isUpdateAll, graderId);
+                		}
+                		else
+                		{
+                			gradeRecordFromCall.setGraderId(graderId);
+                			gradeRecordFromCall.setDateRecorded(now);
+                		}
+                		try {
+                			/** sychronize - add condition for null value */
+                			if(gradeRecordFromCall != null)
+                			{
+                				if(gradeRecordFromCall.getId() == null && isIquizCall && isUpdateAll && recordsFromCLDb != null)
+                				{
+                					AssignmentGradeRecord returnedPersistentItem = (AssignmentGradeRecord) recordsFromCLDb.get(gradeRecordFromCall.getStudentId());
+                					if(returnedPersistentItem != null && returnedPersistentItem.getPointsEarned() != null && gradeRecordFromCall.getPointsEarned() != null
+                							&& !returnedPersistentItem.getPointsEarned().equals(gradeRecordFromCall.getPointsEarned()))
+                					{
+                						graderId = gradeRecordFromCall.getGraderId();
+                						updated = true;
+                						returnedPersistentItem.setGraderId(gradeRecordFromCall.getGraderId());
+                						returnedPersistentItem.setPointsEarned(gradeRecordFromCall.getPointsEarned());
+                						returnedPersistentItem.setDateRecorded(gradeRecordFromCall.getDateRecorded());
+                						session.saveOrUpdate(returnedPersistentItem);
+                					}
+                					else if(returnedPersistentItem == null)
+                					{
+                						graderId = gradeRecordFromCall.getGraderId();
+                						updated = true;
+                						session.saveOrUpdate(gradeRecordFromCall);
+                					}
+                				}
+                				else
+                				{
+                					updated = true;
+                					session.saveOrUpdate(gradeRecordFromCall);
+                				}
+                			}
+                			if (!isUpdateAll && !isStudentView && synchronizer != null && !synchronizer.isProjectSite())
+                			{
+                				Object updateIquizRecord = synchronizer.getNeededUpdateIquizRecord(assignment, gradeRecordFromCall);
+                				if(updateIquizRecord != null)
+                					legacyUpdates.add(updateIquizRecord);
+                			}
+                		} catch (TransientObjectException e) {
+                			// It's possible that a previously unscored student
+                			// was scored behind the current user's back before
+                			// the user saved the new score. This translates
+                			// that case into an optimistic locking failure.
+                			if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to add a new assignment grade record");
+                			throw new StaleObjectModificationException(e);
+                		}
+
+                		// Check for excessive (AKA extra credit) scoring.
+                		/** synchronize - add condition for null value*/
+                		if(gradeRecordFromCall != null && updated == true)
+                		{
+                			if (gradeRecordFromCall.getPointsEarned() != null &&
+                					gradeRecordFromCall.getPointsEarned().compareTo(assignment.getPointsPossible()) > 0) {
+                				studentsWithExcessiveScores.add(gradeRecordFromCall.getStudentId());
+                			}
+
+                			// Log the grading event, and keep track of the students with saved/updated grades
+                			session.save(new GradingEvent(assignment, graderId, gradeRecordFromCall.getStudentId(), gradeRecordFromCall.getPointsEarned()));
+                			studentsWithUpdatedAssignmentGradeRecords.add(gradeRecordFromCall.getStudentId());
+                		}
+
+                		/** synchronize external records */
+                		if (legacyUpdates.size() > 0 && synchronizer != null)
+                		{
+                			synchronizer.updateLegacyGradeRecords(assignment.getName(), legacyUpdates);
+                		}
                 	}
 
-                	// Log the grading event, and keep track of the students with saved/updated grades
-                	session.save(new GradingEvent(assignment, graderId, gradeRecordFromCall.getStudentId(), gradeRecordFromCall.getPointsEarned()));
-                	studentsWithUpdatedAssignmentGradeRecords.add(gradeRecordFromCall.getStudentId());
                 }
-				if (logData.isDebugEnabled()) logData.debug("Updated " + studentsWithUpdatedAssignmentGradeRecords.size() + " assignment score records");
+                else
+                {
+                	for(Iterator iter = gradeRecordsFromCall.iterator(); iter.hasNext();) {
+                		AssignmentGradeRecord gradeRecordFromCall = (AssignmentGradeRecord)iter.next();
+                		gradeRecordFromCall.setGraderId(graderId);
+                		gradeRecordFromCall.setDateRecorded(now);
+                		try {
+                			session.saveOrUpdate(gradeRecordFromCall);
+                		} catch (TransientObjectException e) {
+                			// It's possible that a previously unscored student
+                			// was scored behind the current user's back before
+                			// the user saved the new score. This translates
+                			// that case into an optimistic locking failure.
+                			if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to add a new assignment grade record");
+                			throw new StaleObjectModificationException(e);
+                		}
+
+                		// Check for excessive (AKA extra credit) scoring.
+                		if (gradeRecordFromCall.getPointsEarned() != null &&
+                				gradeRecordFromCall.getPointsEarned().compareTo(assignment.getPointsPossible()) > 0) {
+                			studentsWithExcessiveScores.add(gradeRecordFromCall.getStudentId());
+                		}
+
+                		// Log the grading event, and keep track of the students with saved/updated grades
+                		session.save(new GradingEvent(assignment, graderId, gradeRecordFromCall.getStudentId(), gradeRecordFromCall.getPointsEarned()));
+                		studentsWithUpdatedAssignmentGradeRecords.add(gradeRecordFromCall.getStudentId());
+                	}
+                }
+                if (logData.isDebugEnabled()) logData.debug("Updated " + studentsWithUpdatedAssignmentGradeRecords.size() + " assignment score records");
 
                 return studentsWithExcessiveScores;
             }
@@ -1068,6 +1185,16 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
         return (List)getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
                 List assignments = getAssignments(gradebookId, session);
+                
+                /** synchronize from external application*/
+                if (synchronizer != null)
+                {
+                	synchronizer.synchrornizeAssignments(assignments);
+
+                    assignments = getAssignments(gradebookId, session);
+                }
+                /** end synchronize from external application*/
+
                 sortAssignments(assignments, sortBy, ascending);
                 return assignments;
             }
@@ -2111,4 +2238,104 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		updateAssignmentGradeRecords(assignment, records);
     	}
     }
+    
+    /** synchronize from external application - override createAssignment method in BaseHibernateManager.*/
+    public Long createAssignment(final Long gradebookId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased) throws ConflictingAssignmentNameException, StaleObjectModificationException {
+
+    	HibernateCallback hc = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException {
+    			Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
+    			int numNameConflicts = ((Integer)session.createQuery(
+    					"select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
+    					setString(0, name).
+    					setEntity(1, gb).
+    					uniqueResult()).intValue();
+    			if(numNameConflicts > 0) {
+    				throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
+    			}
+
+    			Assignment asn = new Assignment();
+    			asn.setGradebook(gb);
+    			asn.setName(name);
+    			asn.setPointsPossible(points);
+    			asn.setDueDate(dueDate);
+    			if (isNotCounted != null) {
+    				asn.setNotCounted(isNotCounted.booleanValue());
+    			}
+
+    			if(isReleased!=null){
+    				asn.setReleased(isReleased.booleanValue());
+    			}
+
+    			/** synchronize from external application */
+    			if (synchronizer != null && !synchronizer.isProjectSite())
+    			{
+    				synchronizer.addLegacyAssignment(name);
+    			}  
+
+    			// Save the new assignment
+    			Long id = (Long)session.save(asn);
+
+    			return id;
+    		}
+    	};
+    	return (Long)getHibernateTemplate().execute(hc);
+    }
+
+    /** synchronize from external application - override createAssignmentForCategory method in BaseHibernateManager.*/
+    public Long createAssignmentForCategory(final Long gradebookId, final Long categoryId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased)
+    throws ConflictingAssignmentNameException, StaleObjectModificationException, IllegalArgumentException
+    {
+    	if(gradebookId == null || categoryId == null)
+    	{
+    		throw new IllegalArgumentException("gradebookId or categoryId is null in BaseHibernateManager.createAssignmentForCategory");
+    	}
+
+    	HibernateCallback hc = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException {
+    			Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
+    			Category cat = (Category)session.load(Category.class, categoryId);
+    			int numNameConflicts = ((Integer)session.createQuery(
+    			"select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
+    			setString(0, name).
+    			setEntity(1, gb).
+    			uniqueResult()).intValue();
+    			if(numNameConflicts > 0) {
+    				throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
+    			}
+
+    			Assignment asn = new Assignment();
+    			asn.setGradebook(gb);
+    			asn.setCategory(cat);
+    			asn.setName(name);
+    			asn.setPointsPossible(points);
+    			asn.setDueDate(dueDate);
+    			if (isNotCounted != null) {
+    				asn.setNotCounted(isNotCounted.booleanValue());
+    			}
+
+    			if(isReleased!=null){
+    				asn.setReleased(isReleased.booleanValue());
+    			}
+
+    			/** synchronize from external application */
+    			if (synchronizer != null && !synchronizer.isProjectSite())
+    			{
+    				synchronizer.addLegacyAssignment(name);
+    			}  
+
+    			Long id = (Long)session.save(asn);
+
+    			return id;
+    		}
+    	};
+
+    	return (Long)getHibernateTemplate().execute(hc);
+    }
+
+    /** synchronize from external application */
+    public void setSynchronizer(GbSynchronizer synchronizer) 
+    {
+		this.synchronizer = synchronizer;
+	}
 }
