@@ -996,6 +996,10 @@ public class ListItem
 			}
 			this.releaseDate = TimeService.newTimeLocal(begin_year, begin_month, begin_day, begin_hour, begin_min, 0, 0);
 		}
+		else
+		{
+			this.releaseDate = null;
+		}
 		
 		this.useRetractDate = use_end_date;
 		if(use_end_date)
@@ -1015,6 +1019,10 @@ public class ListItem
 				end_hour = 0;
 			}
 			this.retractDate = TimeService.newTimeLocal(end_year, end_month, end_day, end_hour, end_min, 0, 0);
+		}
+		else
+		{
+			this.retractDate = null;
 		}
 		
 	}
