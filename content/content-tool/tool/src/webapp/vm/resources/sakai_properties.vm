@@ -64,13 +64,15 @@
 	#set($time = $current_value.toStringLocalFull())
 	#set($hour = $current_value.breakdownLocal().hour)
 	#set($minute = $current_value.breakdownLocal().min)
+	#set($timeType = "am")
 	
 	#if($hour > 12)
 		#set($hour = $hour - 12)
 		#set($timeType = "pm")
+	#elseif($hour == 12)
+		#set($timeType = "pm")
 	#elseif ($hour == 0)
 		#set($hour = 12)
-		#set($timeType = "am")
 	#end
 	
 	<select name="${prefix}_hour${DOT}${suffix}" id="${prefix}_hour${DOT}${suffix}">

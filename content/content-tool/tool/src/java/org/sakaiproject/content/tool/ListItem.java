@@ -988,7 +988,10 @@ public class ListItem
 			String release_ampm = params.getString("release_ampm" + index);
 			if("pm".equals(release_ampm))
 			{
-				begin_hour += 12;
+				if( begin_hour < 12)
+				{
+					begin_hour += 12;
+				}
 			}
 			else if(begin_hour == 12)
 			{
@@ -1012,7 +1015,10 @@ public class ListItem
 			String retract_ampm = params.getString("retract_ampm" + index);
 			if("pm".equals(retract_ampm))
 			{
-				end_hour += 12;
+				if(end_hour < 12)
+				{
+					end_hour += 12;
+				}
 			}
 			else if(end_hour == 12)
 			{
