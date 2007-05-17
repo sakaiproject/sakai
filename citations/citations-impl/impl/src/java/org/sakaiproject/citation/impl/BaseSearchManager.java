@@ -2267,7 +2267,7 @@ public class BaseSearchManager implements SearchManager
 							"=" +
 							sessionId + "&", "UTF-8" )
 					+ "&linkurl_id="
-					+ java.net.URLEncoder.encode( "sakai." + m_configService.getSiteConfigSakaiServerKey(), "UTF-8" ) );
+					+ java.net.URLEncoder.encode( m_configService.getSiteConfigSakaiServerKey(), "UTF-8" ) );
 		}
 		catch( Exception e )
 		{
