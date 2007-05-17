@@ -264,7 +264,18 @@ public class FilePickerAction extends PagedResourceHelperAction
 			helper_mode = MODE_ATTACHMENT_EDIT_ITEM_INIT;
 		}
 
-
+		String helper_title = (String) state.getAttribute(STATE_ATTACH_TITLE);
+		if(helper_title != null)
+		{
+			context.put("helper_title", helper_title);
+		}
+		
+		String helper_instruction = (String) state.getAttribute(STATE_ATTACH_INSTRUCTION);
+		if(helper_instruction != null)
+		{
+			context.put("helper_instruction", helper_instruction);
+		}
+		
 		String template = null;
 		if(MODE_ATTACHMENT_SELECT_INIT.equals(helper_mode))
 		{
