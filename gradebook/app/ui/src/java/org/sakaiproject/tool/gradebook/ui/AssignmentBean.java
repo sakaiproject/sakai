@@ -131,7 +131,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			 * we need to convert all of the stored point values to retain the same percentage value
 			 */
 			if (getGradeEntryByPercent() && scoresEnteredForAssignment) {
-				if (newPointsPossible != origPointsPossible) {
+				if (!newPointsPossible.equals(origPointsPossible)) {
 					List enrollments = getSectionAwareness().getSiteMembersInRole(getGradebookUid(), Role.STUDENT);
 			        List studentUids = new ArrayList();
 			        for(Iterator iter = enrollments.iterator(); iter.hasNext();) {
@@ -143,7 +143,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			
 			getGradebookManager().updateAssignment(assignment);
 			
-			if ((origPointsPossible != newPointsPossible) && scoresEnteredForAssignment) {
+			if ((!origPointsPossible.equals(newPointsPossible)) && scoresEnteredForAssignment) {
 				if (getGradeEntryByPercent())
 					FacesUtil.addRedirectSafeMessage(getLocalizedString("edit_assignment_save_converted", new String[] {assignment.getName()}));
 				else

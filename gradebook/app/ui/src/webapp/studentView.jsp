@@ -59,8 +59,8 @@
 				var="row"
         sortColumn="#{studentViewBean.sortColumn}"
 				sortAscending="#{studentViewBean.sortAscending}"
-				columnClasses="attach,left,center,center,center,left comments,external"
-				headerClasses="attach,left,center,center,center,left,bogus"
+				columnClasses="attach,left,center,center,center,center,external"
+				headerClasses="attach,left,center,center,center,center comments,bogus"
 				rowClasses="#{studentViewBean.rowStyles}"
 				styleClass="listHier wideTable lines"
 				rendered="#{studentViewBean.assignmentsReleased}"
@@ -131,7 +131,7 @@
 		    </h:column>
 		    
 		    <h:column rendered="#{studentViewBean.anyExternallyMaintained}">
-		       <h:outputText value="#{row.associatedAssignment.externalAppName}" rendered="#{row.assignment}" />
+		       <h:outputText value="#{msgs.overview_from} #{row.associatedAssignment.externalAppName}" rendered="#{row.assignment}" />
 		    </h:column>
 		  </gbx:gradebookItemTable>
 

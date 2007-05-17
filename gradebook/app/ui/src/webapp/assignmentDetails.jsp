@@ -87,7 +87,6 @@
 					/>
 					<h:commandLink
 						action="#{assignmentDetailsBean.navigateToEdit}"
-						rendered="#{!assignmentDetailsBean.assignment.externallyMaintained}"
 						accesskey="e"
 						tabindex="7"
 						title="#{msgs.assignment_details_edit}">

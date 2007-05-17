@@ -2,19 +2,30 @@
 	Assignment creation and editing.
 	Accessed via <t:aliasBean alias="#{bean}" value="#{realPageBean}">...</t:aliasBean> .
 */%>
+
+
+<div class="instruction gbSection">
+	<h:outputText value="#{msgs.flag_required}" rendered="#{!bean.assignment.externallyMaintained}"/>
+	<h:outputFormat value="#{msgs.edit_assignment_external_items}" rendered="#{bean.assignment.externallyMaintained}">
+		<f:param value="#{bean.assignment.externalAppName}"/>
+	</h:outputFormat>
+</div>
+
 <%@include file="/inc/globalMessages.jspf"%>
 
 <h:panelGrid cellpadding="0" cellspacing="0" columns="2" columnClasses="itemSummaryLite itemName, itemSummaryLite shorttext" styleClass="itemSummaryLite">
-	<h:outputLabel for="title" id="titleLabel" value="#{msgs.add_assignment_title}"/>
-	<h:panelGroup>
+	<h:outputLabel for="title" id="titleLabel" value="#{msgs.add_assignment_title}" rendered="#{!bean.assignment.externallyMaintained}"/>
+	<h:panelGroup rendered="#{!bean.assignment.externallyMaintained}">
 		<h:inputText id="title" value="#{bean.assignment.name}" required="true" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 			<f:validateLength minimum="1" maximum="255"/>
 		</h:inputText>
 		<h:message for="title" styleClass="alertMessageInline"/>
 	</h:panelGroup>
+	<h:outputText value="#{msgs.add_assignment_title}" rendered="#{bean.assignment.externallyMaintained}" />
+	<h:outputText value="#{bean.assignment.name}" rendered="#{bean.assignment.externallyMaintained}" />
 
-	<h:outputLabel for="points" id="pointsLabel" value="#{msgs.add_assignment_points}"/>
-	<h:panelGroup>
+	<h:outputLabel for="points" id="pointsLabel" value="#{msgs.add_assignment_points}" rendered="#{!bean.assignment.externallyMaintained}"/>
+	<h:panelGroup rendered="#{!bean.assignment.externallyMaintained}">
 		<h:inputText id="points" value="#{bean.assignment.pointsPossible}" required="true" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 			<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
 			<f:validateDoubleRange minimum="0.01" />
@@ -23,14 +34,23 @@
 		<h:message for="points" styleClass="alertMessageInline" />
 	</h:panelGroup>
 
-	<h:panelGroup>
+	<h:outputText value="#{msgs.add_assignment_points}" rendered="#{bean.assignment.externallyMaintained}" />
+	<h:outputText value="#{bean.assignment.pointsPossible}" rendered="#{bean.assignment.externallyMaintained}" />
+
+
+	<h:panelGroup rendered="#{!bean.assignment.externallyMaintained}">
 		<h:outputLabel for="dueDate" id="dueDateLabel" value="#{msgs.add_assignment_due_date}"/>
 		<h:outputText style="font-weight:normal;" value=" #{msgs.date_entry_format_description}"/>
 	</h:panelGroup>
-	<h:panelGroup>
+	<h:panelGroup rendered="#{!bean.assignment.externallyMaintained}">
     <t:inputCalendar id="dueDate" value="#{bean.assignment.dueDate}" renderAsPopup="true" renderPopupButtonAsImage="true" popupTodayString="#{msgs.date_entry_today_is}" popupWeekString="#{msgs.date_entry_week_header}" />
 		<h:message for="dueDate" styleClass="alertMessageInline" />
 	</h:panelGroup>
+	
+	<h:outputText value="#{msgs.edit_assignment_due_date_external}" rendered="#{bean.assignment.externallyMaintained}" />
+	<h:outputText value="#{bean.assignment.dueDate}" rendered="#{bean.assignment.externallyMaintained}">
+   	<gbx:convertDateTime/>
+  </h:outputText>
 	
 	<h:outputLabel for="category" id="categoryLabel" value="#{msgs.add_assignment_category}" rendered="#{bean.categoriesEnabled}" />
 	<h:panelGroup rendered="#{bean.categoriesEnabled}">

@@ -166,7 +166,7 @@
 						<h:outputText value="#{msgs.overview_footnote_symbol3}" />
           </t:commandSortHeader>
         </f:facet>
-				<h:outputText value="from #{gradebookItem.externalAppName}" rendered="#{gradebookItem.assignment && ! empty gradebookItem.externalAppName}"/>
+				<h:outputText value="#{msgs.overview_from} #{gradebookItem.externalAppName}" rendered="#{gradebookItem.assignment && ! empty gradebookItem.externalAppName}"/>
 			</h:column>
 		</gbx:gradebookItemTable>
 

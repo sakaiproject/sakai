@@ -10,8 +10,6 @@
 			<%@include file="/inc/breadcrumb.jspf" %>
 		</t:aliasBean>
 
-		<p class="instruction gbSection"><h:outputText value="#{msgs.flag_required}"/></p>
-
 		<div class="indnt1">
 
 		<t:aliasBean alias="#{bean}" value="#{editAssignmentBean}">

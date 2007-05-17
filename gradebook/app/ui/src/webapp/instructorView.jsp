@@ -234,8 +234,14 @@
 		    </h:column>
 		    
 		    <h:column rendered="#{instructorViewBean.anyExternallyMaintained}">
-		       <h:outputText value="#{row.associatedAssignment.externalAppName}" rendered="#{row.assignment}" />
-		    </h:column>
+					<f:facet name="header">
+	        	<t:commandSortHeader columnName="gradeEditor" immediate="true" arrow="true">
+	          	<h:outputText value="#{msgs.inst_view_grade_editor}" />
+	          </t:commandSortHeader>
+	        </f:facet>
+					<h:outputText value="#{msgs.overview_from} #{row.associatedAssignment.externalAppName}" rendered="#{row.assignment && row.associatedAssignment.externallyMaintained}"/>
+				</h:column>
+		    
 		  </gbx:gradebookItemTable>
 		  
 		  <t:aliasBean alias="#{bean}" value="#{instructorViewBean}">

@@ -87,6 +87,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     public static Comparator gradeAsPercentageComparator;
     private static Comparator doubleOrNothingComparator;
     private static Comparator itemValueComparator;
+    private static Comparator gradeEditorComparator;
     static {
         nameComparator = new Comparator() {
             public int compare(Object o1, Object o2) {
@@ -151,6 +152,11 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
 				}
             }
         };
+        gradeEditorComparator = new Comparator() {
+        	public int compare(Object o1, Object o2) {
+        		return Assignment.gradeEditorComparator.compare(((AssignmentGradeRow)o1).getAssociatedAssignment(), ((AssignmentGradeRow)o2).getAssociatedAssignment());
+        	}
+        };
 
         columnSortMap = new HashMap();
         columnSortMap.put(SORT_BY_NAME, ViewByStudentBean.nameComparator);
@@ -159,6 +165,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
         columnSortMap.put(SORT_BY_POINTS_EARNED, ViewByStudentBean.pointsEarnedComparator);
         columnSortMap.put(SORT_BY_GRADE, ViewByStudentBean.gradeAsPercentageComparator);
         columnSortMap.put(SORT_BY_ITEM_VALUE, ViewByStudentBean.itemValueComparator);
+        columnSortMap.put(Assignment.SORT_BY_EDITOR, ViewByStudentBean.gradeEditorComparator);
     }
     
     /**
