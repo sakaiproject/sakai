@@ -78,6 +78,8 @@ public class FolderType extends BaseResourceType
 		actions.put(ResourceToolAction.REVISE_METADATA, new FolderPropertiesAction());
 		//actions.put(ResourceToolAction.DUPLICATE, new FolderDuplicateAction());
 		actions.put(ResourceToolAction.COPY, new FolderCopyAction());
+		actions.put(ResourceToolAction.PASTE_COPIED, new FolderPasteCopyAction());
+		actions.put(ResourceToolAction.PASTE_MOVED, new FolderPasteMoveAction());
 		actions.put(ResourceToolAction.MOVE, new FolderMoveAction());
 		actions.put(ResourceToolAction.DELETE, new FolderDeleteAction());
 		actions.put(ResourceToolAction.REORDER, new FolderReorderAction());
@@ -107,6 +109,106 @@ public class FolderType extends BaseResourceType
 
 	}
 	
+	public class FolderPasteCopyAction implements ServiceLevelAction
+	{
+
+		public void cancelAction(Reference reference)
+        {
+	        // no activity required
+        }
+
+		public void finalizeAction(Reference reference)
+        {
+	        // no activity required
+        }
+
+		public void initializeAction(Reference reference)
+        {
+	        // no activity required
+        }
+
+		public boolean isMultipleItemAction()
+        {
+	        return false;
+        }
+
+		public boolean available(ContentEntity entity)
+        {
+	        return true;
+        }
+
+		public ActionType getActionType()
+        {
+	        return ActionType.PASTE_COPIED;
+        }
+
+		public String getId()
+        {
+	        return ResourceToolAction.PASTE_COPIED;
+        }
+
+		public String getLabel()
+        {
+	        return null;
+        }
+
+		public String getTypeId()
+        {
+	        return typeId;
+        }
+		
+	}
+
+	public class FolderPasteMoveAction implements ServiceLevelAction
+	{
+
+		public void cancelAction(Reference reference)
+        {
+	        // no activity required
+        }
+
+		public void finalizeAction(Reference reference)
+        {
+	        // no activity required
+        }
+
+		public void initializeAction(Reference reference)
+        {
+	        // no activity required
+        }
+
+		public boolean isMultipleItemAction()
+        {
+	        return false;
+        }
+
+		public boolean available(ContentEntity entity)
+        {
+	        return true;
+        }
+
+		public ActionType getActionType()
+        {
+	        return ActionType.PASTE_MOVED;
+        }
+
+		public String getId()
+        {
+	        return ResourceToolAction.PASTE_MOVED;
+        }
+
+		public String getLabel()
+        {
+	        return null;
+        }
+
+		public String getTypeId()
+        {
+	        return typeId;
+        }
+		
+	}
+
 	public class FolderPermissionsAction implements InteractionAction
 	{
 

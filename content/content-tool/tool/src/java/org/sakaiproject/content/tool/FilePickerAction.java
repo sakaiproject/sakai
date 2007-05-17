@@ -1705,6 +1705,8 @@ public class FilePickerAction extends PagedResourceHelperAction
 				}
 				if(copyAction == null)
 				{
+					// TODO: why would the copy action be null?
+					logger.warn("copyAction null. typeId == " + typeId + " itemId == " + itemId);
 					//addAlert(state, "TODO: Unable to attach this item");
 					//return;
 				}

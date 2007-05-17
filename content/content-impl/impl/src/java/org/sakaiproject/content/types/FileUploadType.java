@@ -176,7 +176,7 @@ public class FileUploadType extends BaseResourceType
         }
 		
 	}
-
+	
 	public class FileUploadCopyAction implements ServiceLevelAction
 	{
 		/* (non-Javadoc)
