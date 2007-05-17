@@ -336,17 +336,9 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     								}
     								else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY && categories != null)
     	     					{
-    	        				for(int i=0; i<categories.size(); i++)
-    	        				{
-    	        					Category cate = (Category) categories.get(i);
-    	        					if(cate != null && !cate.isRemoved() && agr.getAssignment().getCategory() != null && cate.getId().equals(agr.getAssignment().getCategory().getId()))
-    	        					{
-    	        						totalPointsEarned += pointsEarned.doubleValue();
-        						    	literalTotalPointsEarned += pointsEarned.doubleValue();
-    	            				assignmentsTaken.add(agr.getAssignment().getId());
-    	        						break;
-    	        					}
-    	        				}
+    									totalPointsEarned += pointsEarned.doubleValue();
+    									literalTotalPointsEarned += pointsEarned.doubleValue();
+    									assignmentsTaken.add(agr.getAssignment().getId());
     	     					}
     			    			else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY && categories != null)
     			    			{
@@ -432,17 +424,9 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     							{
     	    					totalPointsPossible += pointsPossible.doubleValue();
     							}
-    							else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY && categories != null && assignmentsTaken.contains(assignment.getId()))
+    							else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY && assignmentsTaken.contains(assignment.getId()))
     							{
-    								for(int i=0; i<categories.size(); i++)
-    								{
-    									Category cate = (Category) categories.get(i);
-    									if(cate != null && !cate.isRemoved() && assignment.getCategory() != null && cate.getId().equals(assignment.getCategory().getId()))
-    									{
-        	    					totalPointsPossible += pointsPossible.doubleValue();
-    										break;
-    									}
-    								}
+    								totalPointsPossible += pointsPossible.doubleValue();
     							}
     						}
     					}
@@ -903,19 +887,11 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     				literalTotalPointsEarned += pointsEarned.doubleValue();
     				assignmentsTaken.add(go.getId());
     			}
-    			else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY && go != null && categories != null)
+    			else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY && go != null)
     			{
-    				for(int i=0; i<categories.size(); i++)
-    				{
-    					Category cate = (Category) categories.get(i);
-    					if(cate != null && !cate.isRemoved() && go.getCategory() != null && cate.getId().equals(go.getCategory().getId()))
-    					{
-    						totalPointsEarned += pointsEarned.doubleValue();
-    						literalTotalPointsEarned += pointsEarned.doubleValue();
-    						assignmentsTaken.add(go.getId());
-    						break;
-    					}
-    				}
+    				totalPointsEarned += pointsEarned.doubleValue();
+    				literalTotalPointsEarned += pointsEarned.doubleValue();
+    				assignmentsTaken.add(go.getId());
     			}
     			else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY && go != null && categories != null)
     			{
@@ -1021,18 +997,10 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     						totalPointsEarned += pointsEarned.doubleValue();
         				assignmentsTaken.add(go.getId());
     					}
-    					else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY && go != null && categories != null)
+    					else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY && go != null)
     					{
-    						for(int i=0; i<categories.size(); i++)
-    						{
-    							Category cate = (Category) categories.get(i);
-    							if(cate != null && !cate.isRemoved() && go.getCategory() != null && cate.getId().equals(go.getCategory().getId()))
-    							{
-    								totalPointsEarned += pointsEarned.doubleValue();
-            				assignmentsTaken.add(go.getId());
-    								break;
-    							}
-    						}
+    						totalPointsEarned += pointsEarned.doubleValue();
+    						assignmentsTaken.add(go.getId());
     					}
     					else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY && go != null && categories != null)
     					{
@@ -1383,17 +1351,9 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     					{
         				assignmentsTaken.add(go.getId());
     					}
-    					else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY && go != null && categories != null)
+    					else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY && go != null)
     					{
-    						for(int i=0; i<categories.size(); i++)
-    						{
-    							Category cate = (Category) categories.get(i);
-    							if(cate != null && !cate.isRemoved() && go.getCategory() != null && cate.getId().equals(go.getCategory().getId()))
-    							{
-            				assignmentsTaken.add(go.getId());
-    								break;
-    							}
-    						}
+    						assignmentsTaken.add(go.getId());
     					}
     					else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY && go != null && categories != null)
     					{
@@ -1427,17 +1387,9 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     						{
     							totalPointsPossible += pointsPossible.doubleValue();
     						}
-    						else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY && categories != null && assignmentsTaken.contains(asn.getId()))
+    						else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY && assignmentsTaken.contains(asn.getId()))
     						{
-    							for(int i=0; i<categories.size(); i++)
-    							{
-    								Category cate = (Category) categories.get(i);
-    								if(cate != null && !cate.isRemoved() && asn.getCategory() != null && cate.getId().equals(asn.getCategory().getId()))
-    								{
-    									totalPointsPossible += pointsPossible.doubleValue();
-    									break;
-    								}
-    							}
+    							totalPointsPossible += pointsPossible.doubleValue();
     						}
     					}
     				}
@@ -1475,17 +1427,9 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     			{
     				assignmentsTaken.add(go.getId());
     			}
-    			else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY && go != null && categories != null)
+    			else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY && go != null)
     			{
-    				for(int i=0; i<categories.size(); i++)
-    				{
-    					Category cate = (Category) categories.get(i);
-    					if(cate != null && !cate.isRemoved() && go.getCategory() != null && cate.getId().equals(go.getCategory().getId()))
-    					{
-    						assignmentsTaken.add(go.getId());
-    						break;
-    					}
-    				}
+    				assignmentsTaken.add(go.getId());
     			}
     			else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY && go != null && categories != null)
     			{
@@ -1519,17 +1463,9 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     				{
     					totalPointsPossible += pointsPossible.doubleValue();
     				}
-    				else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY && categories != null && assignmentsTaken.contains(asn.getId()))
+    				else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY && assignmentsTaken.contains(asn.getId()))
     				{
-    					for(int i=0; i<categories.size(); i++)
-    					{
-    						Category cate = (Category) categories.get(i);
-    						if(cate != null && !cate.isRemoved() && asn.getCategory() != null && cate.getId().equals(asn.getCategory().getId()))
-    						{
-    							totalPointsPossible += pointsPossible.doubleValue();
-    							break;
-    						}
-    					}
+    					totalPointsPossible += pointsPossible.doubleValue();
     				}
     			}
     		}
@@ -1560,7 +1496,11 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     					{
     						totalPointsPossible += pointsPossible.doubleValue();
     					}
-    					else if((gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY || gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY) && categories != null)
+    					else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY )
+    					{
+    						totalPointsPossible += pointsPossible.doubleValue();    						
+    					}
+    					else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY && categories != null)
     					{
     						for(int i=0; i<categories.size(); i++)
     						{
@@ -1597,7 +1537,11 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     			{
     				totalPointsPossible += pointsPossible.doubleValue();
     			}
-    			else if((gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY || gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY) && categories != null)
+    			else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY)
+ 					{
+    				totalPointsPossible += pointsPossible.doubleValue();
+ 					}
+    			else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY && categories != null)
     			{
     				for(int i=0; i<categories.size(); i++)
     				{
@@ -2116,7 +2060,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     public boolean checkStuendsNotSubmitted(Gradebook gradebook)
     {
     	Set studentUids = getAllStudentUids(getGradebookUid(gradebook.getId()));
-    	if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY)
+    	if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY || gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY)
     	{
     		List records = getAllAssignmentGradeRecords(gradebook.getId(), studentUids);
     		List assigns = getAssignments(gradebook.getId(), Assignment.DEFAULT_SORT, true);
