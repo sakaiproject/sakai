@@ -1705,16 +1705,18 @@ public class FilePickerAction extends PagedResourceHelperAction
 				}
 				if(copyAction == null)
 				{
-					addAlert(state, "TODO: Unable to attach this item");
-					return;
+					//addAlert(state, "TODO: Unable to attach this item");
+					//return;
 				}
-				else if(! (copyAction instanceof ServiceLevelAction))
+				else if(copyAction instanceof ServiceLevelAction)
+				{
+					((ServiceLevelAction) copyAction).initializeAction(EntityManager.newReference(resource.getReference()));
+				}
+				else
 				{
 					addAlert(state, "TODO: Unable to attach this item");
 					return;
 				}
-				
-				((ServiceLevelAction) copyAction).initializeAction(EntityManager.newReference(resource.getReference()));
 				
 				ResourceProperties props = resource.getProperties();
 				if(filter != null)

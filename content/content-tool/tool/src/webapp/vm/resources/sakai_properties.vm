@@ -313,7 +313,7 @@
 					<td>
 					</td>
 					<td>
-						<input type="checkbox" name="use_start_date${DOT}$i" id="use_start_date${DOT}$i" value="true" #if($model.useReleaseDate())checked="checked" #end/>
+						<input type="checkbox" name="use_start_date${DOT}$i" id="use_start_date${DOT}$i" value="true" #if($!model.useReleaseDate())checked="checked" #end/>
 					</td>
 					<td colspan="3">
 						<label for="use_start_date${DOT}$i">
