@@ -74,6 +74,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     private String columnCount;
     private String rowCount;
     private boolean hasUnknownUser;
+    private boolean hasUnknownAssignments;
     private Long spreadsheetId;
     private Map scores;
     private Assignment assignment;
@@ -83,13 +84,18 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     private String selectedCategory;
     private Gradebook localGradebook;
 
-    // Added during IU gradebook enhancing 3-07
+    // Used for bulk upload of gradebook items
+    // Holds list of unknown user ids
     private List unknownUsers = new ArrayList();
-
+    private List unknownAssignments = new ArrayList();
+    
     private static final String POINTS_POSSIBLE_STRING = "export_points_possible";
     private static final String CUMULATIVE_GRADE_STRING = "roster_course_grade_column_name";
     private static final String IMPORT_SUCCESS_STRING = "import_entire_success";
+    private static final String IMPORT_SOME_SUCCESS_STRING = "import_entire_some_success";
     private static final String IMPORT_NO_CHANGES = "import_entire_no_changes";
+    private static final String IMPORT_ASSIGNMENT_NOTSUPPORTED= "import_assignment_entire_notsupported";
+    private static final String IMPORT_ASSIGNMENT_NEG_VALUE = "import_assignment_entire_negative_score";
     
     public SpreadsheetUploadBean() {
     	
@@ -319,6 +325,22 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 		this.unknownUsers = unknownUsers;
 	}
 
+	public boolean isHasUnknownAssignments() {
+		return hasUnknownAssignments;
+	}
+
+	public void setHasUnknownAssignments(boolean hasUnknownAssignments) {
+		this.hasUnknownAssignments = hasUnknownAssignments;
+	}
+
+	public List getUnknownAssignments() {
+		return unknownAssignments;
+	}
+
+	public void setUnknownAssignments(List unknownAssignments) {
+		this.unknownAssignments = unknownAssignments;
+	}
+
 	/**
 	 * Returns the count of unknown users
 	 */
@@ -449,7 +471,13 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     }
 
 
-    //process file and preview
+    /**
+     * Bulk import of grades from a freshly imported spreadsheet
+     * 
+     * @return String for navigation
+     * 
+     * @throws Exception
+     */
     public String processFileEntire() throws Exception {
         if(logger.isDebugEnabled()) logger.debug("check if upFile is intialized");
         if(upFile == null){
@@ -467,16 +495,12 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             FacesUtil.addErrorMessage(getLocalizedString("import_entire_filetype_error",new String[] {upFile.getName()}));
             return null;
         }
-        /**
-         logger.debug("check that file content type");
+        
+        // reset error lists
+        unknownUsers = new ArrayList();
+        unknownAssignments = new ArrayList();
 
-         logger.debug("check the file content type");
-         if(!upFile.getContentType().equalsIgnoreCase("application/vnd.ms-excel")){
-         FacesUtil.addErrorMessage(getLocalizedString("upload_view_filetype_error",new String[] {upFile.getName()}));
-         return null;
-         }
-         **/
-
+        // process file to set up objects
         InputStream inputStream = new BufferedInputStream(upFile.getInputStream());
         List contents;
         contents = csvtoArray(inputStream);
@@ -489,8 +513,6 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         assignmentList = new ArrayList();
         studentRows = new ArrayList();
         assignmentColumnSelectItems = new ArrayList();
-        //
-        // assignmentHeaders = new ArrayList();
 
         SpreadsheetHeader header;
         try{
@@ -590,15 +612,6 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             FacesUtil.addErrorMessage(getLocalizedString("upload_view_filetype_error",new String[] {upFile.getName()}));
             return null;
         }
-        /**
-         logger.debug("check that file content type");
-
-         logger.debug("check the file content type");
-         if(!upFile.getContentType().equalsIgnoreCase("application/vnd.ms-excel")){
-         FacesUtil.addErrorMessage(getLocalizedString("upload_view_filetype_error",new String[] {upFile.getName()}));
-         return null;
-         }
-         **/
 
         InputStream inputStream = new BufferedInputStream(upFile.getInputStream());
         List contents;
@@ -813,23 +826,15 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
      */
     public String importDataAndSaveAll(){
     	boolean gbUpdated = false;
+    	hasUnknownAssignments = false;
     	
         if(logger.isDebugEnabled())logger.debug("importDataAll()");
 
-        // TODO: Plan of attack:
-        //   1. get all assignments from Gradebook
-        //   2. use spreadsheet headers to see if assignment already exists
-        //		a. if exists, use update assignment
-        //      b. if does not, create new assignment
-        
         // first, verify imported data is valid
         if (!verifyImportedNumericData())
         	return "spreadsheetVerify";
         
         List grAssignments = getGradebookManager().getAssignments(getGradebook().getId());
-        
-        List pointsPossibleRow = ((SpreadsheetRow) studentRows.get(0)).getRowcontent();
-        
         Iterator assignIter = assignmentHeaders.iterator();
         
         // since the first two columns are user ids and name, skip over
@@ -838,6 +843,16 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         
         while (assignIter.hasNext()) {
         	String assignmentName = (String) assignIter.next();
+        	String pointsPossibleAsString = null;
+        	
+        	String [] parsedAssignmentName = assignmentName.split(" \\["); // 5B == '['
+        	
+        	assignmentName = parsedAssignmentName[0];
+        	if (parsedAssignmentName.length > 1) {
+        		String [] parsedPointsPossible = parsedAssignmentName[1].split("\\]"); // 5D == ']'
+        		pointsPossibleAsString = parsedPointsPossible[0];
+        	}
+        	
         	index++;
 
         	// probably last column but not sure, so continue
@@ -848,25 +863,33 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         	// Get Assignment object from assignment name
         	Assignment assignment = getAssignmentByName(grAssignments, assignmentName);
             List gradeRecords = new ArrayList();
-      		        	
+      		
         	// if assignment == null, need to create a new one plus all the grade records
         	// if exists, need find those that are changed and only apply those
         	if (assignment == null) {
-
-        		String pointsPossibleAsString = (String) pointsPossibleRow.get(index+1);
-        		Double pointsPossible = new Double(pointsPossibleAsString);
-        		if (pointsPossible != null)
-        			pointsPossible = new Double(FacesUtil.getRoundDown(pointsPossible.doubleValue(), 2));
         		
-                assignmentId = getGradebookManager().createAssignment(getGradebookId(), assignmentName, pointsPossible, null, Boolean.TRUE, Boolean.TRUE);
-                assignment = getGradebookManager().getAssignment(assignmentId);
+        		if (pointsPossibleAsString != null) {
+        			Double pointsPossible = new Double(pointsPossibleAsString);
+        			if (pointsPossible != null)
+        				pointsPossible = new Double(FacesUtil.getRoundDown(pointsPossible.doubleValue(), 2));
+        		
+        			assignmentId = getGradebookManager().createAssignment(getGradebookId(), assignmentName, pointsPossible, null, Boolean.TRUE, Boolean.TRUE);
+        			assignment = getGradebookManager().getAssignment(assignmentId);
+        		}
+        		else {
+            		// for this version, display error message saying non-match between import
+            		// and current gradebook assignments
+            		hasUnknownAssignments = true;
+            		unknownAssignments.add(assignmentName);
+
+        			continue;
+        		}
  
                 // set name and released properties
                 assignment.setReleased(true);
        			assignment.setName(assignmentName);
        			
            		Iterator it = studentRows.iterator();
-           		it.next(); // skip over points possible row
            		
            		if(logger.isDebugEnabled())logger.debug("number of student rows "+studentRows.size() );
            		int i = 1;
@@ -901,7 +924,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
            			if(logger.isDebugEnabled())logger.debug("user "+user + " userid " + userid +" points "+points);
            			
-           			if(!"".equals(points) && (!"".equals(userid))){
+           			if(!"".equals(points) && (!"".equals(userid))){ 
                         AssignmentGradeRecord asnGradeRecord = new AssignmentGradeRecord(assignment,userid, new Double(points));
                         gradeRecords.add(asnGradeRecord);
                         if(logger.isDebugEnabled())logger.debug("added grades for " + userid + " - points scored " +points);
@@ -917,27 +940,36 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         		
         		if (gradeRecords.size() == 0)
         			continue; // no changes to current grade record so go to next one
-        		else
+        		else {
         			gbUpdated = true;
+
+        		}
         	}
-        	            
-            getGradebookManager().updateAssignmentGradeRecords(assignment, gradeRecords, getGradebook().getGrade_type());
-            getGradebookBean().getEventTrackingService().postEvent("gradebook.importEntire","/gradebook/"+getGradebookId()+"/"+assignment.getName()+"/"+getAuthzLevel());
+
+			getGradebookManager().updateAssignmentGradeRecords(assignment, gradeRecords, getGradebook().getGrade_type());
+			getGradebookBean().getEventTrackingService().postEvent("gradebook.importEntire","/gradebook/"+getGradebookId()+"/"+assignment.getName()+"/"+getAuthzLevel());        	
        }
 
         // just in case previous attempt had unknown users
         hasUnknownUser = false;
-        if (gbUpdated) {
-        	FacesUtil.addRedirectSafeMessage(getLocalizedString(IMPORT_SUCCESS_STRING));
-        } else {
+       	if (gbUpdated) {
+       		if (! hasUnknownAssignments) {
+               	FacesUtil.addRedirectSafeMessage(getLocalizedString(IMPORT_SUCCESS_STRING));
+            }
+            else {
+               	FacesUtil.addRedirectSafeMessage(getLocalizedString(IMPORT_SOME_SUCCESS_STRING));
+            }
+        } 
+        else if (! hasUnknownAssignments) {
         	FacesUtil.addRedirectSafeMessage(getLocalizedString(IMPORT_NO_CHANGES));
         }
-
+       	
         this.setPageName("spreadsheetAll");
         return "spreadsheetAll";
     }
     
     /**
+     * Returns TRUE if specific value imported from spreadsheet is numeric
      * 
      * @return false if the spreadsheet contains a non-numeric points possible or
      * score value, else return true
@@ -957,7 +989,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     	for (int row=0; row < studentRows.size(); row++) {
 
     		// first, check for valid entries in the points possible row
-    		if (row == 0) {
+ /*   		if (row == 0) {
     			SpreadsheetRow pointsPossibleRow = (SpreadsheetRow) studentRows.get(row);
     			List pointsPossibleValues = pointsPossibleRow.getRowcontent();
     			if (pointsPossibleValues != null && pointsPossibleValues.size() > 2) {
@@ -987,7 +1019,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     				}
     			}
     		} else {
-    			SpreadsheetRow scoreRow = (SpreadsheetRow) studentRows.get(row);
+   */ 			SpreadsheetRow scoreRow = (SpreadsheetRow) studentRows.get(row);
     			List studentScores = scoreRow.getRowcontent();
 
     			// start with col 2 b/c the first two are eid and name
@@ -1007,21 +1039,21 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 	    						// check for negative values
 	        					if (scoreAsDouble.doubleValue() < 0) {
 	        						if(logger.isDebugEnabled()) logger.debug(scoreAsString + " is not a positive value");
-	        						FacesUtil.addErrorMessage(getLocalizedString("import_assignment_entire_negative_score"));
+	        						FacesUtil.addErrorMessage(getLocalizedString(IMPORT_ASSIGNMENT_NEG_VALUE));
 
 	        						return false;
 	        					}
 	
 	    					} catch(NumberFormatException e){
 	    						if(logger.isDebugEnabled()) logger.debug(scoreAsString + " is not a numeric value");
-	    						FacesUtil.addErrorMessage(getLocalizedString("import_assignment_entire_notsupported"));
+	    						FacesUtil.addErrorMessage(getLocalizedString(IMPORT_ASSIGNMENT_NOTSUPPORTED));
 	
 	    						return false;
 	    					}
     					}
     				}
     			}
-    		}
+//    		}
     	}
     	
     	return true;
@@ -1049,23 +1081,23 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     	
    		Iterator it = fromSpreadsheet.iterator();
    		// check to see if the points possible has changed
-   		SpreadsheetRow pointsPossibleRow = (SpreadsheetRow) it.next(); 
-   		List pointsPossibleContent = pointsPossibleRow.getRowcontent();
-   		if (index < pointsPossibleContent.size()) {
-   			String pointsPossibleAsString = ((String)pointsPossibleContent.get(index)).trim();
-   			Double pointsPossibleAsDouble = new Double(pointsPossibleAsString);
+//   		SpreadsheetRow pointsPossibleRow = (SpreadsheetRow) it.next(); 
+//   		List pointsPossibleContent = pointsPossibleRow.getRowcontent();
+//   		if (index < pointsPossibleContent.size()) {
+//   			String pointsPossibleAsString = ((String)pointsPossibleContent.get(index)).trim();
+//   			Double pointsPossibleAsDouble = new Double(pointsPossibleAsString);
    			// truncate points possible to 2 decimal places
-   			if (pointsPossibleAsDouble != null)
-   				pointsPossibleAsDouble = new Double(FacesUtil.getRoundDown(pointsPossibleAsDouble.doubleValue(), 2));
+//   			if (pointsPossibleAsDouble != null)
+//   				pointsPossibleAsDouble = new Double(FacesUtil.getRoundDown(pointsPossibleAsDouble.doubleValue(), 2));
    			// if the points possible is different, update the assignment's points possible value
    			// points possible stored in db should only have up to 2 decimals, unlike scores
-   			if (pointsPossibleAsDouble.doubleValue() != assignment.getPointsPossible().doubleValue()) {
+/*   			if (pointsPossibleAsDouble.doubleValue() != assignment.getPointsPossible().doubleValue()) {
    				assignment.setPointsPossible(pointsPossibleAsDouble);
    				getGradebookManager().updateAssignment(assignment);
    				FacesUtil.addRedirectSafeMessage(getLocalizedString("import_assignment_entire_pointsPossibleChanged"));
    			}
    		}
-   		
+*/   		
   		while(it.hasNext()) {
    			final SpreadsheetRow row = (SpreadsheetRow) it.next();
    			List line = row.getRowcontent();
@@ -1196,9 +1228,15 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     	
     	return null;
     }
-    
+
+    /**
+     * Cancel import and return to Import Grades page.
+     * 
+     * @return String to navigate to Import Grades page.
+     */
     public String processImportAllCancel() {
     	hasUnknownUser = false;
+    	hasUnknownAssignments = false;
     	return "spreadsheetAll";
     }
 

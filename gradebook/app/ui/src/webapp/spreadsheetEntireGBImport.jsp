@@ -18,20 +18,9 @@
             <p/>
             <%@include file="/inc/globalMessages.jspf"%>
             
-            <%-- Display unknown user names. --%>
-            <h:panelGrid rendered="#{spreadsheetUploadBean.hasUnknownUser}" styleClass="alertMessage">
-            	<h:outputText value="#{msgs.import_entire_bad_ids_alert}" />
-            	
-            	<h:dataTable id="unknownUsers" value="#{spreadsheetUploadBean.unknownUsers}" var="unknownUserId">
-            		<h:column>
-            			<h:outputText value="#{unknownUserId}" />
-            		</h:column>
-           		</h:dataTable>
-
-             	<h:outputText value="#{msgs.import_entire_bad_ids_alert_end}" rendered="#{spreadsheetUploadBean.unknownSize > 1}" />
-            	<h:outputText value="#{msgs.import_entire_bad_ids_alert_end}" rendered="#{spreadsheetUploadBean.unknownSize == 1}" />
-            </h:panelGrid> 
-			
+            <%-- To display formatted error messages that occured during import --%>
+            <%@include file="/inc/importErrorMessages.jspf" %>
+ 			
 		</h:form>            
 
             <%-- Step 1: Download template --%>
@@ -39,7 +28,7 @@
  	            <br />
 		        <h:form id="gbExportForm">
  	    	        <h:graphicImage value="images/silk/page_white.png" />
-    	    	    <h:commandLink actionListener="#{rosterBean.exportCsv}">
+    	    	    <h:commandLink actionListener="#{rosterBean.exportCsvNoCourseGrade}">
         	    	    <h:outputText value="#{msgs.import_entire_template}"/>
  	        		</h:commandLink>
 				</h:form> <%-- End of download csv file form --%>

@@ -540,11 +540,19 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		
 		return letterGrade;
 	}
+    
+    public void exportCsvNoCourseGrade(ActionEvent event){
+        if(logger.isInfoEnabled()) logger.info("exporting gradebook " + getGradebookUid() + " as CSV");
+        getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadRoster","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
+        SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(false), 
+        		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
+        		new SpreadsheetDataFileWriterCsv());
+    }
 
     public void exportCsv(ActionEvent event){
         if(logger.isInfoEnabled()) logger.info("exporting roster as CSV for gradebook " + getGradebookUid());
         getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadRoster","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
-        SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(), 
+        SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(true), 
         		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
         		new SpreadsheetDataFileWriterCsv());
     }
@@ -553,12 +561,12 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         if(logger.isInfoEnabled()) logger.info("exporting roster as Excel for gradebook " + getGradebookUid());
         String authzLevel = (getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid())) ?"instructor" : "TA";
         getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadRoster","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
-        SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(), 
+        SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(true), 
         		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
         		new SpreadsheetDataFileWriterXls());
     }
     
-    private List<List<Object>> getSpreadsheetData() {
+    private List<List<Object>> getSpreadsheetData(boolean includeCourseGrade) {
     	// Get the full list of filtered enrollments and scores (not just the current page's worth).
     	List filteredEnrollments = getWorkingEnrollments();
     	Collections.sort(filteredEnrollments, ENROLLMENT_NAME_COMPARATOR);
@@ -578,22 +586,24 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		List courseGradeRecords = getGradebookManager().getPointsEarnedCourseGradeRecords(courseGrade, studentUids, gradableObjects, filteredGradesMap);
         getGradebookManager().addToGradeRecordMap(filteredGradesMap, courseGradeRecords);
         gradableObjects.add(courseGrade);
-    	return getSpreadsheetData(filteredEnrollments, filteredGradesMap, gradableObjects);
+    	return getSpreadsheetData(filteredEnrollments, filteredGradesMap, gradableObjects, includeCourseGrade);
     }
  
     /**
      * Creates the actual 'spreadsheet' List needed from gradebook objects
+     * Modified to export without Course Grade column if desired
      * Format:
-     * 	Header Row: Student id, Student Name, Assignment(s)
-     *  Points Possible Row
+     * 	Header Row: Student id, Student Name, Assignment(s) (with [points possible] after title)
      *  Student Rows
      * 
      * @param enrollments
      * @param gradesMap
      * @param gradableObjects
+     * @param includeCourseGrade
      * @return
      */
-    private List<List<Object>> getSpreadsheetData(List enrollments, Map gradesMap, List gradableObjects) {
+    private List<List<Object>> getSpreadsheetData(List enrollments, Map gradesMap, List gradableObjects,
+    												boolean includeCourseGrade) {
     	List<List<Object>> spreadsheetData = new ArrayList<List<Object>>();
 
     	// Build column headers and points possible rows.
@@ -603,26 +613,20 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         headerRow.add(getLocalizedString("export_student_id"));
         headerRow.add(getLocalizedString("export_student_name"));
         
-        // Student id and name rows have blank points possible
-        pointsPossibleRow.add(getLocalizedString("export_points_possible"));
-        pointsPossibleRow.add("");
-        
         for (Object gradableObject : gradableObjects) {
         	String colName = null;
         	Double ptsPossible = 0.0;
 
         	if (gradableObject instanceof Assignment) {
-         		colName = ((Assignment)gradableObject).getName();
          		ptsPossible = new Double(((Assignment) gradableObject).getPointsPossible());
-         	} else if (gradableObject instanceof CourseGrade) {
+         		colName = ((Assignment)gradableObject).getName() + " [" + ptsPossible.toString() + "]";
+         	} else if (gradableObject instanceof CourseGrade && includeCourseGrade) {
          		colName = getLocalizedString("roster_course_grade_column_name");
          	}
 
          	headerRow.add(colName);
-        	pointsPossibleRow.add(ptsPossible);
         }
         spreadsheetData.add(headerRow);
-        spreadsheetData.add(pointsPossibleRow);
 
         // Build student score rows.
         for (Object enrollment : enrollments) {
@@ -637,8 +641,14 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         		if (studentMap != null) {
         			AbstractGradeRecord gradeRecord = (AbstractGradeRecord)studentMap.get(((GradableObject)gradableObject).getId()); 
         			if (gradeRecord != null) {
-        				if (gradeRecord.isCourseGradeRecord() && getGradeEntryByPercent()) {
-        					score = gradeRecord.getGradeAsPercentage();
+        				if (gradeRecord.isCourseGradeRecord()) { 
+        					if (includeCourseGrade) {
+        						if (getGradeEntryByPercent()) {
+        							score = gradeRecord.getGradeAsPercentage();
+        						} else {
+        							score = gradeRecord.getPointsEarned();
+        						}
+        					}
         				} else {
         					score = gradeRecord.getPointsEarned();
         				}
