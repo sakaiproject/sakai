@@ -384,7 +384,21 @@ so for example <div class="tabHolder workspace"> so that different site types ca
 also hide if are going to be using icon links (as background of <a> nad <li>
 */
 
+#toolMenu li.selectedTool span{
+	display: block;
+	padding-bottom : 2px;
+    padding-left : 18px !important;
+    padding-right : 0px;
+    padding-top : 2px;
+    margin-bottom : 0px;
+    margin-left : 0px;
+    margin-right : 0px;
+    margin-top : 0px;
+    background-position : center left !important;
+    background-repeat : no-repeat !important;
+}
 #toolMenu li span{
+
 /*comment this line for a return to sanity
 display:none*/
 }
@@ -395,7 +409,17 @@ display:none*/
 	display: block;
 	text-decoration: underline;
 	color: #09c;
-	padding: 2px 0px 2px 4px;
+	padding-bottom : 2px;
+    padding-left : 18px !important;
+    padding-right : 0px;
+    padding-top : 2px;
+    margin-bottom : 0px;
+    margin-left : 0px;
+    margin-right : 0px;
+    margin-top : 0px;
+    background-position : center left !important;
+    background-repeat : no-repeat !important;
+    
 
 }
 #toolMenu li a:hover{
@@ -414,6 +438,8 @@ display:none*/
 	color: #000;
 	cursor: text;
 }
+
+
 
 /*PART 6 - SITE AFFILIATION,SITE TYPE/STATUS AND PRESENCE - children of #toolMenuWrap	*/
 /*site logo wrapper*/
@@ -642,4 +668,152 @@ below they are contextually defined depending on the column as an example,as you
 	left: -999px;
 	height: 0;
 
+}
+
+/* PART 9 - Tool Icons */
+
+.icon-sakai-profile {
+	background-image : url(../../image/silk/vcard_edit.png);
+}
+
+.icon-sakai-search {
+	background-image : url(../../image/silk/find.png);
+}
+
+.icon-sakai-dropbox {
+	background-image : url(../../image/silk/folder_page.png);
+}
+
+.icon-sakai-discussion {
+	background-image : url(../../image/silk/comments.png);
+}
+
+.icon-sakai-presentation {
+	background-image : url(../../image/silk/monitor.png);
+}
+
+.icon-sakai-sitestats {
+	background-image : url(../../image/silk/chart_bar.png);
+}
+
+.icon-sakai-news {
+	background-image : url(../../image/silk/rss.png);
+}
+
+.icon-sakai-mailbox {
+	background-image : url(../../image/silk/email.png);
+}
+
+.icon-sakai-iframe-site {
+	background-image : url(../../image/silk/house.png);
+}
+
+.icon-sakai-iframe {
+	background-image : url(../../image/silk/page_world.png);
+}
+	
+.icon-sakai-rwiki {
+	background-image : url(../../image/silk/page_white_edit.png);
+}
+
+.icon-sakai-siteinfo {
+	background-image : url(../../image/silk/wrench.png);
+}
+
+.icon-sakai-announcements {
+	background-image : url(../../image/silk/flag_blue.png);
+}
+
+.icon-sakai-assignment-grades {
+	background-image : url(../../image/silk/hourglass.png);
+}
+
+.icon-sakai-site-roster {
+	background-image : url(../../image/silk/vcard.png);
+}
+
+.icon-sakai-schedule {
+	background-image : url(../../image/silk/calendar.png);
+}
+
+.icon-sakai-chat {
+	background-image : url(../../image/silk/user_comment.png);
+}
+
+.icon-sakai-resources {
+	background-image : url(../../image/silk/folder.png);
+}
+
+.icon-sakai-samigo {
+	background-image : url(../../image/silk/pencil.png);
+}
+
+.icon-sakai-help {
+	background-image : url(../../image/silk/help.png);
+}
+
+
+
+.icon-sakai-syllabus {
+	background-image : url(../../image/silk/new.png);
+} 
+.icon-sakai-assignment-grades {
+	background-image : url(../../image/silk/new.png);
+}
+.icon-sakai-gradebook-tool {
+	background-image : url(../../image/silk/new.png);
+}
+.icon-sakai-sections {
+	background-image : url(../../image/silk/new.png);
+}
+.icon-blogger {
+	background-image : url(../../image/silk/new.png);
+}
+.icon-osp-evaluation {
+	background-image : url(../../image/silk/new.png);
+}
+.icon-sakai-metaobj {
+	background-image : url(../../image/silk/new.png);
+}
+.icon-sakai-forums {
+	background-image : url(../../image/silk/new.png);
+}
+.icon-osp-glossary {
+	background-image : url(../../image/silk/new.png);
+}
+.icon-sakai-rutgers-linktool {
+	background-image : url(../../image/silk/new.png);
+}
+.icon-sakai-mailtool {
+	background-image : url(../../image/silk/new.png);
+}
+.icon-osp-matrix {
+	background-image : url(../../image/silk/new.png);
+}
+.icon-sakai-messages {
+	background-image : url(../../image/silk/new.png);
+}
+.icon-sakai-podcasts {
+	background-image : url(../../image/silk/new.png);
+}
+.icon-sakai-poll {
+	background-image : url(../../image/silk/new.png);
+}
+.icon-osp-presLayout {
+	background-image : url(../../image/silk/new.png);
+}
+.icon-osp-presTemplate {
+	background-image : url(../../image/silk/new.png);
+}
+.icon-sakai-postem {
+	background-image : url(../../image/silk/new.png);
+}
+.icon-osp-reports {
+	background-image : url(../../image/silk/new.png);
+}
+.icon-osp-style {
+	background-image : url(../../image/silk/new.png);
+}
+.icon-osp-wizard {
+	background-image : url(../../image/silk/new.png);
 }
