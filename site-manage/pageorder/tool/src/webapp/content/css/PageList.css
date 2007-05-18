@@ -15,6 +15,10 @@ ul.sortable
 	margin: 4px;
 	padding: 6px;
 }
+ul.sortable a
+{
+	text-decoration: none !important;
+} 
 li.sortable_item
 {
 	cursor: move;
