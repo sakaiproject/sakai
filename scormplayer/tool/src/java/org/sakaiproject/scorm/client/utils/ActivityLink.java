@@ -2,21 +2,21 @@ package org.sakaiproject.scorm.client.utils;
 
 import javax.swing.tree.TreeNode;
 
-import org.sakaiproject.scorm.tool.panels.ActivityTree;
+import org.sakaiproject.scorm.tool.components.ActivityTree;
 
-import wicket.MarkupContainer;
-import wicket.ajax.AjaxEventBehavior;
-import wicket.ajax.AjaxRequestTarget;
-import wicket.ajax.IAjaxCallDecorator;
-import wicket.ajax.calldecorator.CancelEventIfNoAjaxDecorator;
-import wicket.ajax.markup.html.AjaxFallbackLink;
-import wicket.ajax.markup.html.AjaxLink;
-import wicket.ajax.markup.html.IAjaxLink;
-import wicket.markup.ComponentTag;
-import wicket.markup.html.link.ExternalLink;
-import wicket.markup.html.link.Link;
-import wicket.markup.html.tree.Tree;
-import wicket.util.string.Strings;
+import org.apache.wicket.MarkupContainer;
+import org.apache.wicket.ajax.AjaxEventBehavior;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.IAjaxCallDecorator;
+import org.apache.wicket.ajax.calldecorator.CancelEventIfNoAjaxDecorator;
+import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.ajax.markup.html.IAjaxLink;
+import org.apache.wicket.markup.ComponentTag;
+import org.apache.wicket.markup.html.link.ExternalLink;
+import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.markup.html.tree.Tree;
+import org.apache.wicket.util.string.Strings;
 
 public class ActivityLink extends ExternalLink implements IAjaxLink {
 	private static final long serialVersionUID = 1L;

@@ -1,7 +1,7 @@
 package org.sakaiproject.scorm.client.utils;
 
-import wicket.ajax.IAjaxCallDecorator;
-import wicket.ajax.calldecorator.AjaxPostprocessingCallDecorator;
+import org.apache.wicket.ajax.IAjaxCallDecorator;
+import org.apache.wicket.ajax.calldecorator.AjaxPostprocessingCallDecorator;
 
 public final class ActivityCallDecorator extends AjaxPostprocessingCallDecorator {
 	private static final long serialVersionUID = 1L;

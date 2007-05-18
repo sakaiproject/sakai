@@ -1,69 +1,36 @@
 package org.sakaiproject.scorm.tool.pages;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 
 import org.adl.sequencer.ADLLaunch;
 import org.adl.sequencer.ADLSequencer;
-import org.adl.sequencer.ADLTOC;
 import org.adl.sequencer.ADLValidRequests;
 import org.adl.sequencer.SeqActivity;
-import org.adl.sequencer.SeqActivityTree;
 import org.adl.sequencer.SeqNavRequests;
-import org.sakaiproject.scorm.client.pages.BlankPage;
-import org.sakaiproject.scorm.client.pages.Index;
-import org.sakaiproject.scorm.tool.ScormTool;
-import org.sakaiproject.scorm.tool.pages.LaunchFrameset;
-import org.sakaiproject.scorm.tool.panels.ActivityTree;
-import org.sakaiproject.sequencing.api.Sequencer;
+import org.apache.wicket.PageParameters;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.html.tree.ITreeState;
+import org.apache.wicket.markup.html.tree.Tree;
+import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.scorm.client.api.ScormClientFacade;
+import org.sakaiproject.scorm.tool.components.ActivityTree;
 
-import wicket.AttributeModifier;
-import wicket.Component;
-import wicket.IRequestTarget;
-import wicket.MarkupContainer;
-import wicket.PageMap;
-import wicket.PageParameters;
-import wicket.ajax.AjaxRequestTarget;
-import wicket.ajax.markup.html.AjaxLink;
-import wicket.behavior.AbstractBehavior;
-import wicket.extensions.markup.html.tree.AbstractTree;
-import wicket.extensions.markup.html.tree.DefaultTreeState;
-import wicket.extensions.markup.html.tree.ITreeState;
-import wicket.extensions.markup.html.tree.Tree;
-import wicket.markup.ComponentTag;
-import wicket.markup.html.WebMarkupContainer;
-import wicket.markup.html.WebPage;
-import wicket.markup.html.basic.Label;
-import wicket.markup.html.link.ExternalLink;
-import wicket.markup.html.link.Link;
-import wicket.model.AbstractReadOnlyModel;
-import wicket.model.IModel;
-import wicket.model.Model;
-import wicket.request.target.basic.RedirectRequestTarget;
-
-public class NavigationFrame extends WebPage {
-
+public class NavigationFrame extends WebPage {	
 	private static final long serialVersionUID = 1L;
 
-	private Tree tree;
+	@SpringBean
+	ScormClientFacade clientFacade;
+	
+	/*private Tree tree;
 	
 	protected AbstractTree getTree()
 	{
 		return tree;
-	}
+	}*/
 	
 	/**
 	 * Link that, when clicked, changes the frame target's frame class (and as
@@ -99,42 +66,12 @@ public class NavigationFrame extends WebPage {
 		}
 	}*/
 
-	public NavigationFrame() {
-		super();
-	}
 	
-	public NavigationFrame(final LaunchFrameset frameset) {
+	public NavigationFrame(PageParameters pageParams) {
 		super();
-	
-		add(new AjaxLink("expandAll") 
-		{
-			public void onClick(AjaxRequestTarget target)
-			{
-				getTree().getTreeState().expandAll();
-				getTree().updateTree(target);
-			}
-		});
 		
-		add(new AjaxLink("collapseAll") 
-		{
-			public void onClick(AjaxRequestTarget target)
-			{
-				getTree().getTreeState().collapseAll();
-				getTree().updateTree(target);
-			}
-		});
-		
-		add(new AjaxLink("switchRootless") 
-		{
-			public void onClick(AjaxRequestTarget target)
-			{
-				getTree().setRootLess(!getTree().isRootLess());
-				getTree().updateTree(target);
-			}
-		});
-
 		TreeModel treeModel = createTreeModel();
-		tree = new ActivityTree("tree", treeModel)
+		final Tree tree = new ActivityTree("tree", treeModel)
 		{
 			protected void onNodeLinkClicked(AjaxRequestTarget target, TreeNode node)
 			{
@@ -146,6 +83,33 @@ public class NavigationFrame extends WebPage {
 			}
 		};
 		add(tree);
+		
+		add(new AjaxLink("expandAll") 
+		{
+			public void onClick(AjaxRequestTarget target)
+			{
+				tree.getTreeState().expandAll();
+				tree.updateTree(target);
+			}
+		});
+		
+		add(new AjaxLink("collapseAll") 
+		{
+			public void onClick(AjaxRequestTarget target)
+			{
+				tree.getTreeState().collapseAll();
+				tree.updateTree(target);
+			}
+		});
+		
+		add(new AjaxLink("switchRootless") 
+		{
+			public void onClick(AjaxRequestTarget target)
+			{
+				tree.setRootLess(!tree.isRootLess());
+				tree.updateTree(target);
+			}
+		});
 		
 		ITreeState treeState = tree.getTreeState();	
 		
@@ -202,7 +166,8 @@ public class NavigationFrame extends WebPage {
 	}*/
 	
 	protected TreeModel createTreeModel() {
-		ADLSequencer sequencer = ((ScormTool)getApplication()).getClientFacade().getSequencer();
+		ADLSequencer sequencer = clientFacade.getSequencer();
+			//((ScormTool)getApplication()).getClientFacade().getSequencer();
 		
 		ADLValidRequests validRequests = new ADLValidRequests();
         

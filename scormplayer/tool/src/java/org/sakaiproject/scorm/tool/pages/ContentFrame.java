@@ -9,27 +9,27 @@ import org.sakaiproject.scorm.client.utils.ApiAjaxCallDecorator;
 import org.sakaiproject.scorm.client.utils.ApiAjaxMethod;
 import org.sakaiproject.scorm.tool.ScormTool;
 
-import wicket.PageParameters;
-import wicket.ResourceReference;
-import wicket.Response;
-import wicket.ajax.AjaxRequestTarget;
-import wicket.ajax.IAjaxCallDecorator;
-import wicket.ajax.form.AjaxFormSubmitBehavior;
-import wicket.ajax.markup.html.form.AjaxSubmitButton;
-import wicket.behavior.AbstractAjaxBehavior;
-import wicket.markup.ComponentTag;
-import wicket.markup.html.WebPage;
-import wicket.markup.html.form.Button;
-import wicket.markup.html.form.Form;
-import wicket.markup.html.form.FormComponent;
-import wicket.markup.html.form.HiddenField;
-import wicket.markup.html.form.SubmitLink;
-import wicket.markup.html.form.TextField;
-import wicket.markup.html.panel.FeedbackPanel;
-import wicket.markup.html.resources.CompressedResourceReference;
-import wicket.model.CompoundPropertyModel;
-import wicket.util.string.AppendingStringBuffer;
-import wicket.util.string.JavascriptUtils;
+import org.apache.wicket.PageParameters;
+import org.apache.wicket.ResourceReference;
+import org.apache.wicket.Response;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.IAjaxCallDecorator;
+import org.apache.wicket.ajax.form.AjaxFormSubmitBehavior;
+import org.apache.wicket.ajax.markup.html.form.AjaxSubmitButton;
+import org.apache.wicket.behavior.AbstractAjaxBehavior;
+import org.apache.wicket.markup.ComponentTag;
+import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.html.form.Button;
+import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.FormComponent;
+import org.apache.wicket.markup.html.form.HiddenField;
+import org.apache.wicket.markup.html.form.SubmitLink;
+import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
+import org.apache.wicket.markup.html.resources.CompressedResourceReference;
+import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.util.string.AppendingStringBuffer;
+import org.apache.wicket.util.string.JavascriptUtils;
 
 public class ContentFrame extends WebPage {
 	private static final ResourceReference API = new CompressedResourceReference(
@@ -42,8 +42,7 @@ public class ContentFrame extends WebPage {
 	private ApiAjaxBean bean = new ApiAjaxBean();
 	
 	public ContentFrame() {
-		super();
-		init();
+		this(null);
 	}
 	
 	public ContentFrame(PageParameters params) {

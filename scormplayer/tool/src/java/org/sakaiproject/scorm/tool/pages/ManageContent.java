@@ -21,51 +21,49 @@
 package org.sakaiproject.scorm.tool.pages;
 
 import java.io.Serializable;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.adl.api.ecmascript.APIErrorManager;
+import org.apache.wicket.PageParameters;
+import org.apache.wicket.ResourceReference;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.FormComponent;
+import org.apache.wicket.markup.html.form.HiddenField;
+import org.apache.wicket.markup.html.link.ExternalLink;
+import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.markup.html.link.PopupSettings;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.resources.CompressedResourceReference;
+import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.scorm.client.ClientPage;
 import org.sakaiproject.scorm.client.api.ScormClientFacade;
+import org.sakaiproject.scorm.client.utils.ApiAjaxBean;
+import org.sakaiproject.scorm.client.utils.ApiAjaxMethod;
 import org.sakaiproject.scorm.tool.ScormTool;
-import org.sakaiproject.scorm.tool.pages.LaunchFrameset;
 
-import wicket.Response;
-import wicket.ajax.AjaxEventBehavior;
-import wicket.ajax.AjaxRequestTarget;
-import wicket.ajax.IAjaxCallDecorator;
-import wicket.ajax.calldecorator.AjaxPostprocessingCallDecorator;
-import wicket.ajax.calldecorator.CancelEventIfNoAjaxDecorator;
-import wicket.behavior.AbstractAjaxBehavior;
-import wicket.extensions.markup.html.repeater.data.IDataProvider;
-import wicket.markup.html.WebPage;
-import wicket.markup.html.basic.Label;
-import wicket.markup.html.link.ExternalLink;
-import wicket.markup.html.link.Link;
-import wicket.markup.html.link.PopupSettings;
-import wicket.markup.html.list.ListItem;
-import wicket.markup.html.list.ListView;
-import wicket.model.IModel;
-import wicket.model.Model;
-import wicket.model.PropertyModel;
-import wicket.util.string.JavascriptUtils;
-
-public class ManageContent extends WebPage {
-	private static final String BODY_ONLOAD_ADDTL="setMainFrameHeight( window.name );";
+public class ManageContent extends ClientPage {
+	private static final long serialVersionUID = 1L;
+	private static final ResourceReference API = new CompressedResourceReference(ManageContent.class, "API.js");
 	
-	public static final String API_METHOD_BEGIN = " { \n";
-	public static final String API_METHOD_END = " }\n	}; \n";
-	
+	private ApiAjaxBean bean = new ApiAjaxBean();
 	private String message;
 	private Label contentLabel;
 	
 	private int numberOfClicks = 0;
 	
-	@SuppressWarnings("serial")
-	public ManageContent() {		
-		ScormClientFacade clientFacade = ((ScormTool)getApplication()).getClientFacade();
-
+	@SpringBean
+	ScormClientFacade clientFacade;
+	
+	public ManageContent(final PageParameters pageParams) {
 		final String contextId = clientFacade.getContext();
+			
+		add(newResourceLabel("title", this));
 		
 		List<ContentResource> contentPackages = clientFacade.getContentPackages();
 		List<ContentResourceWrapper> contentPackageWrappers = new LinkedList<ContentResourceWrapper>();
@@ -83,25 +81,51 @@ public class ManageContent extends WebPage {
 		 		
 		 		final String fileName = parts[parts.length - 1];
 		 		
-		 		StringBuffer url = new StringBuffer();
+		 		/*StringBuffer url = new StringBuffer();
 		 		url.append("/portal/directtool/sakai.scorm.tool")
 		 			.append("?package=").append(fileName)
 		 			.append("&sakai.site=")
-		 			.append(contextId);
+		 			.append(contextId);*/
 		 		
 		 		if (null != parts && parts.length > 0) {
-		 			item.add(new ExternalLink("url", url.toString(), fileName));
+		 			//item.add(new ExternalLink("url", url.toString(), fileName));
+		 			item.add(new Label("packageName", fileName));
 		 			
 		 			item.add(new Link("launch") {
 		 				public void onClick() {
-		 					//setResponsePage(new LaunchPackage(fileName));
-		 					//setResponsePage(new SimpleTreePage());
-		 					setResponsePage(new LaunchFrameset());
+		 					setResponsePage(LaunchFrameset.class, new PageParameters());
 		 				}
-		 			}.setPopupSettings(new PopupSettings(PopupSettings.RESIZABLE | PopupSettings.SCROLLBARS)));
+		 			}.setPopupSettings(new PopupSettings(PopupSettings.RESIZABLE | PopupSettings.SCROLLBARS).setWindowName("SCORMPlayer")));
 		 		}
 		 	}
 		});
+		
+		/*final ResourceReference[] references = new ResourceReference[] { API };
+		final Form form = new Form("form", new CompoundPropertyModel(bean));
+		add(form);
+		form.setOutputMarkupId(true);
+		
+		FormComponent arg1 = new HiddenField("arg1");		
+		arg1.setOutputMarkupId(true);
+		form.add(arg1);
+		
+		FormComponent arg2 = new HiddenField("arg2");		
+		arg2.setOutputMarkupId(true);
+		form.add(arg2);
+		
+		FormComponent resultComponent = new HiddenField("result");
+		resultComponent.setOutputMarkupId(true);
+		form.add(resultComponent);
+		
+		form.add(new ApiAjaxMethod(form, "GetDiagnostic", references, 1, bean) {
+			private static final long serialVersionUID = 1L;
+
+			protected String callMethod(List<String> argumentValues) {
+				APIErrorManager errorManager = ((ScormTool)getApplication()).getErrorManager();
+				String arg = getFirstArg(argumentValues);
+				return errorManager.getErrorDiagnostic(arg);
+			}
+		});*/
 		
 		/*this.add(new AbstractAjaxBehavior()
 		{
@@ -129,27 +153,11 @@ public class ManageContent extends WebPage {
 		//addScormJavascriptAPI();
 	}
 	
-	public void onAttach() {
-		getBodyContainer().addOnLoadModifier(BODY_ONLOAD_ADDTL, null);
-	}
-		
-	public void onTestMethod1(final AjaxRequestTarget target) {
-		System.out.println("TEST 1 CLICKED!");
-		numberOfClicks++;
-		this.message = "hello new world!!! " + numberOfClicks + " times!";
-		target.addComponent(contentLabel);
-		//target.appendJavascript("return 'Hello new world';");
-	}
-	
-	public void onTestMethod2(final AjaxRequestTarget target) {
-		System.out.println("TEST 2 CLICKED!");
-	}
-	
 	public String getMessage() {
 		return message;
 	}
 	
-	private void addScormJavascriptAPI() {
+	/*private void addScormJavascriptAPI() {
 		contentLabel = new Label("SCORM_API", new PropertyModel(this, "message"));
 		
 		contentLabel.add(new ScormActionBehavior("SCORM_API","onTestMethod1", "API_1484_11 = { TestMethod1: function() ") {
@@ -160,45 +168,19 @@ public class ManageContent extends WebPage {
 			}
 		});
 		
-		/*contentLabel.add(new ScormActionBehavior("SCORM_API","onTestMethod2", "window.API_1484_11 = { TestMethod2: function() ") {
-			private static final long serialVersionUID = 2L;
-			protected void onEvent(AjaxRequestTarget target)
-			{
-				onTestMethod2(target);
-			}
-		});*/
-				
-		/*contentLabel.add(new AjaxEventBehavior("API_1484_11")
-		{
-			private static final long serialVersionUID = 1L;
-
-			protected void onEvent(AjaxRequestTarget target)
-			{
-				onTestApiRequest(target);
-			}
-
-			protected IAjaxCallDecorator getAjaxCallDecorator()
-			{
-				return new CancelEventIfNoAjaxDecorator();
-			}
-			
-			protected void onRenderHeadInitContribution(Response response)
-			{
-				super.onRenderHeadInitContribution(response);
-				
-				StringBuffer script = new StringBuffer().append(API_JSCLASS_BEGIN)
-					.append(getCallbackScript()).append(API_JSCLASS_END);
-				
-				JavascriptUtils.writeJavascript(response, script.toString(), "API_1484_11_JAVASCRIPT");
-			}
-
-		});*/
 		
 		add(contentLabel);		
+	}*/
+	
+	private String getFirstArg(List<String> argumentValues) {
+		if (null == argumentValues || argumentValues.size() <= 0)
+			return "";
+		
+		return argumentValues.get(0);
 	}
 	
 	
-	public final class ScormActionAjaxCallDecorator extends AjaxPostprocessingCallDecorator {
+	/*public final class ScormActionAjaxCallDecorator extends AjaxPostprocessingCallDecorator {
 		private static final long serialVersionUID = 1L;
 		private String componentId;
 		
@@ -237,22 +219,16 @@ public class ManageContent extends WebPage {
 			return new ScormActionAjaxCallDecorator(componentId);
 		}
 		
-		protected void onRenderHeadInitContribution(Response response)
-		{
-			super.onRenderHeadInitContribution(response);
-			
-			//StringBuffer successScript = new StringBuffer()
-			//	.append("\n return document.getElementById(").append(componentId).append(").outerHTML;");
-			
-			StringBuffer script = new StringBuffer().append(methodName).append(API_METHOD_BEGIN)
-				.append(getCallbackScript())
-				//.append(getCallbackScript("wicketAjaxGet('" + getCallbackUrl(true, false) + "'", successScript.toString(), null))
-				//.append("\n return document.getElementById(").append(componentId).append(").")
-				.append(API_METHOD_END);
-			
-			JavascriptUtils.writeJavascript(response, script.toString(), methodName);
+		public void renderHead(IHeaderResponse response) {
+		    super.renderHead(response);
+		    
+		    StringBuffer script = new StringBuffer().append(methodName).append(API_METHOD_BEGIN)
+			.append(getCallbackScript())
+			.append(API_METHOD_END);
+		
+		    response.renderJavascript(script.toString(), methodName);
 		}
-	}
+	}*/
 	
 	
 	public class ContentResourceWrapper implements Serializable {

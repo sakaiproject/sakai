@@ -21,9 +21,9 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-import wicket.Component;
-import wicket.markup.html.basic.Label;
-import wicket.model.AbstractReadOnlyModel;
+import org.apache.wicket.Component;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.model.AbstractReadOnlyModel;
 
 /**
  * A simple component that displays current time
@@ -65,12 +65,15 @@ public class Clock extends Label
 			df.setTimeZone(tz);
 		}
 
-		/**
-		 * @see wicket.model.AbstractReadOnlyModel#getObject(wicket.Component)
-		 */
-		public Object getObject(Component component)
+		/*public Object getObject(Component component)
 		{
 			return df.format(new Date());
+		}*/
+
+		@Override
+		public Object getObject() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 	}
 }
