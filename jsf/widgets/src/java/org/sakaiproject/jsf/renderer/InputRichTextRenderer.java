@@ -19,9 +19,10 @@
 *
 **********************************************************************************/
 
-
-
 package org.sakaiproject.jsf.renderer;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.cover.ContentHostingService;
@@ -77,19 +78,18 @@ public class InputRichTextRenderer extends Renderer
   private static final String TOOLBAR_SCRIPT_SMALL;
   private static final String TOOLBAR_SCRIPT_MEDIUM;
   
-  
-  
   private static final String TOOLBAR_SCRIPT_LARGE;
   private static final int DEFAULT_WIDTH_PX;
   private static final int DEFAULT_HEIGHT_PX;
   private static final int DEFAULT_COLUMNS;
   private static final int DEFAULT_ROWS;
   private static final String INSERT_IMAGE_LOC;
-   private static final MessageFormat LIST_ITEM_FORMAT_HTML =
+  private static final MessageFormat LIST_ITEM_FORMAT_HTML =
      new MessageFormat("\"{0}\" : \"<a href=''{1}''>{0}</a>\"");
-   private static final MessageFormat LIST_ITEM_FORMAT_FCK =
+  private static final MessageFormat LIST_ITEM_FORMAT_FCK =
      new MessageFormat("[\"{0}\", \"{1}\"]");
 
+  private static final Log log = LogFactory.getLog(InputRichTextRenderer.class);
 
   // we have static resources for our script path and built-in toolbars etc.
   static {
@@ -174,18 +174,20 @@ public class InputRichTextRenderer extends Renderer
       if (cols != null) textareaColumns = cols.intValue();
       if (rows != null) textareaRows = rows.intValue();
       
-//    Width of the widget (in pixel units).
-//    If this attribute is not specified, the width is controlled by the 'cols' attribute.
-      String width = (String) RendererUtil.getAttribute(context, component, "width");
-      if (width != null) widthPx = Integer.parseInt(width);
-//    Height of the widget (in pixel units).
-//    If this attribute is not specified, the width is controlled by the 'rows' attribute.
-      String height = (String) RendererUtil.getAttribute(context, component, "height");
-      if (height != null) heightPx = Integer.parseInt(height);
+      // Width of the widget (in pixel units).
+      // If this attribute is not specified, the width is controlled by the 'cols' attribute.
+      Integer width = (Integer) RendererUtil.getAttribute(context, component, "width");
+      if (width != null) widthPx = width.intValue();
+
+      // Height of the widget (in pixel units).
+      // If this attribute is not specified, the width is controlled by the 'rows' attribute.
+      Integer height = (Integer) RendererUtil.getAttribute(context, component, "height");
+      if (height != null) heightPx = height.intValue();
     }
     catch (Exception ex)
     {
       //default, whatever goes awry
+      if (log.isDebugEnabled()) log.debug(ex);  
     }
 
     if (widthPx == DEFAULT_WIDTH_PX && textareaColumns != DEFAULT_COLUMNS)
