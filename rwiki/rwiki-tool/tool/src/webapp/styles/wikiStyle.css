@@ -125,33 +125,33 @@ li.autoSaveOffClass {
 
 
 #homeLink {
-	background: url(/sakai-rwiki-tool/images/silk/icons/application_home.png) center left no-repeat;
+	background: url(/library/image/silk/application_home.png) center left no-repeat;
 }
 
 #rssLink {
 	float: right;
-	background: url(/sakai-rwiki-tool/images/feed.png) center right no-repeat;
+	background: url(/library/image/feed.png) center right no-repeat;
 }
 #printerFriendlyLink {
 	float: right;
-	background: url(/sakai-rwiki-tool/images/printer.png) center right no-repeat;
+	background: url(/library/image/printer.png) center right no-repeat;
 }
 
 #viewLink {
-	background: url(/sakai-rwiki-tool/images/silk/icons/application_view_detail.png) center left no-repeat;
+	background: url(/library/image/silk/application_view_detail.png) center left no-repeat;
 }
 #editLink {
-	background: url(/sakai-rwiki-tool/images/silk/icons/application_edit.png) center left no-repeat;
+	background: url(/library/image/silk/application_edit.png) center left no-repeat;
 }
 #infoLink {
-	background: url(/sakai-rwiki-tool/images/silk/icons/information.png) center left no-repeat;
+	background: url(/library/image/silk/information.png) center left no-repeat;
 }
 
 #historyLink {
-	background: url(/sakai-rwiki-tool/images/silk/icons/time.png) center left no-repeat;
+	background: url(/library/image/silk/time.png) center left no-repeat;
 }
 #watchLink {
-	background: url(/sakai-rwiki-tool/images/silk/icons/email_go.png) center left no-repeat;
+	background: url(/library/image/silk/email_go.png) center left no-repeat;
 }
 
 
@@ -178,40 +178,40 @@ placeholder till more standard way of doing it*/
 
 
 #toolbarButtonSave  {
-    background: url(/sakai-rwiki-tool/images/silk/icons/page_save.png) center center no-repeat;
+    background: url(/library/image/silk/page_save.png) center center no-repeat;
 }
 
 
 
 #toolbarButtonBold {
-	background: url(/sakai-rwiki-tool/images/silk/icons/text_bold.png) center center no-repeat;
+	background: url(/library/image/silk/text_bold.png) center center no-repeat;
 }
 
 #toolbarButtonItalic { 
-	background: url(/sakai-rwiki-tool/images/silk/icons/text_italic.png) center center no-repeat;
+	background: url(/library/image/silk/text_italic.png) center center no-repeat;
 }
 
 #toolbarButtonSuper {
-	background: url(/sakai-rwiki-tool/images/silk/icons/text_superscript.png) center center no-repeat;
+	background: url(/library/image/silk/text_superscript.png) center center no-repeat;
 }
 
 #toolbarButtonSub  {
-	background: url(/sakai-rwiki-tool/images/silk/icons/text_subscript.png) center center no-repeat;
+	background: url(/library/image/silk/text_subscript.png) center center no-repeat;
 }
 
 #toolbarButtonHeading {
 }
 
 #toolbarButtonTable {
-	background: url(/sakai-rwiki-tool/images/silk/icons/table.png) center center no-repeat;
+	background: url(/library/image/silk/table.png) center center no-repeat;
 }
 
 #toolbarButtonLink {
-	background: url(/sakai-rwiki-tool/images/silk/icons/page_link.png) center center no-repeat;
+	background: url(/library/image/silk/page_link.png) center center no-repeat;
 }
 
 #toolbarButtonImage {
-	background: url(/sakai-rwiki-tool/images/silk/icons/picture.png) center center no-repeat;
+	background: url(/library/image/silk/picture.png) center center no-repeat;
 }
 
 a.editToolBar, 
@@ -294,7 +294,7 @@ a:hover.previewToolBar,
 }
 
 #toolbarButtonRecover {
-	background: url(/sakai-rwiki-tool/images/silk/icons/arrow_undo.png) center center no-repeat;
+	background: url(/library/image/silk/arrow_undo.png) center center no-repeat;
 }
 
 a.autosaveToolBar, 
@@ -442,14 +442,14 @@ I dont think these are needed any more
         float: right;
         padding-right: 18px;
 	display: none;
-	background: url(/sakai-rwiki-tool/images/silk/icons/arrow_left.png) center right no-repeat;
+	background: url(/library/image/silk/arrow_left.png) center right no-repeat;
 
 }
 #sidebar_switch_off { 
         float: right;
         padding-right: 18px;
 	display: block;
-	background: url(/sakai-rwiki-tool/images/silk/icons/arrow_right.png) center right no-repeat;
+	background: url(/library/image/silk/arrow_right.png) center right no-repeat;
 }
 /*
 Not needed any more

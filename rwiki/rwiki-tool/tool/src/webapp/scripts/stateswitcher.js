@@ -591,7 +591,7 @@ function previewContent(contentId,previewId,pageVersionId,realmId,pageNameId,url
 	 	previewDiv.innerHTML = "<img src=\"/sakai-rwiki-tool/images/ajaxload.gif\" />";
 	 	myLoader.fullLoadXMLDoc(url,"divReplaceCallback","POST",formContent);
  	} catch  (e) {
-	 	previewDiv.innerHTML = "<img src=\"/sakai-rwiki-tool/images/silk/icons/error.png\" />";
+	 	previewDiv.innerHTML = "<img src=\"/library/image/silk/error.png\" />";
  		alert("Failed to Load preview "+e);
  	}
 }
