@@ -70,9 +70,12 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.Validator;
 
@@ -127,9 +130,11 @@ public class podHomeBean {
 		private String fileURL;
 		private String newWindow;
 		private String fileContentType;
+		private String styleClass;
+		private boolean hidden;
 
 		public DecoratedPodcastBean() {
-
+			styleClass = "";
 		}
 
 		public String getDescription() {
@@ -315,6 +320,22 @@ public class podHomeBean {
 			this.fileContentType = fileContentType;
 		}
 
+		public String getStyleClass() {
+			return styleClass;
+		}
+
+		public void setStyleClass(String styleClass) {
+			this.styleClass = styleClass;
+		}
+
+		public boolean isHidden() {
+			return hidden;
+		}
+
+		public void setHidden(boolean hidden) {
+			this.hidden = hidden;
+		}
+
 	} // end of DecoratedPodcastBean
 
 // ====================== End of DecoratedPodcastBean ====================== // 
@@ -330,6 +351,9 @@ public class podHomeBean {
 	private static final String MB_NUMBER_FORMAT = "#.#";
 	private static final String BYTE_NUMBER_FORMAT = "#,###";
 
+	// Permissions prefix
+	private final String CONTENT = "content";
+	
 	// For date String conversion
 	private static final Map monStrings; 
 	
@@ -491,6 +515,42 @@ public class podHomeBean {
 				+ FEED_URL_MIDDLE + podcastService.getSiteId();
 		return URL;
 	}
+	
+	public String getResourcesPermissionsUrl() {
+		String url = "";
+
+		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+	       
+		try {
+		   ToolSession currentToolSession = SessionManager.getCurrentToolSession();
+		   currentToolSession.setAttribute(PermissionsHelper.DESCRIPTION, "Set permissions for " + podcastService.getUserId() + " in worksite "
+				   + SiteService.getSiteDisplay(podcastService.getSiteId()) );
+		   currentToolSession.setAttribute(PermissionsHelper.TARGET_REF, podcastService.retrievePodcastFolderId(podcastService.getSiteId()) );
+		   currentToolSession.setAttribute(PermissionsHelper.PREFIX, CONTENT);
+
+		   ToolConfiguration resourcesTool = SiteService.getSite(podcastService.getSiteId()).getToolForCommonId("sakai.resources");	    	
+
+		   /*
+		    *  Navigates you to Podcast folder permissions page within Resources
+		    *  QueryString:
+		    *    panel=Main  	- so repaints entire screen
+		    *    collectionId	- what collection to display permissions for
+		    *    doPermissions	- what vm template to build (ie, what page to display)
+		    */
+		   url = ServerConfigurationService.getPortalUrl() + "/directtool/" + resourcesTool.getId() 
+							+ "?panel=Main&collectionId=" + podcastService.retrievePodcastFolderId(podcastService.getSiteId()) 
+							+ "&sakai_action=doPermissions";
+		}
+		catch (PermissionException e) {
+			LOG.error("PermissionException while generating reference for permission helper");
+		} 
+		catch (IdUnusedException e) {
+			// Weirdness since within a site to do this
+			LOG.error("IdUnusedException attempting to get Site object while attempting to display Podcast folder permissions within Podcasts tool");
+		}
+
+		return url;
+	}
 
 	/**
 	 * Used to inject the podcast service into this bean.
@@ -500,6 +560,24 @@ public class podHomeBean {
 	 */
 	public void setPodcastService(PodcastService podcastService) {
 		this.podcastService = podcastService;
+	}
+
+	/**
+	 * Returns whether podcast should be 'hidden' in UI. Conditions:
+	 * 	Hidden property set
+	 *  Release date is in future
+	 *  Retract date is in past
+	 *  
+	 * @param podcastResource
+	 * 			The actual podcast to check
+	 * @param tempDate
+	 * 			Release date (if exists) or display date (older version)
+	 */
+	private boolean hiddenInUI(ContentResource podcastResource, Date tempDate) {
+		return podcastResource.isHidden() 
+				|| (podcastResource.getRetractDate() != null 
+						&& podcastResource.getRetractDate().getTime() <= TimeService.newTime().getTime())
+				|| tempDate.getTime() >= TimeService.newTime().getTime();
 	}
 
 	/**
@@ -518,54 +596,66 @@ public class podHomeBean {
 	 * @throws EntityPropertyTypeException
 	 * 			The property (Date/Time) was not a valid one
 	 */
-	public DecoratedPodcastBean getAPodcast(
-			ResourceProperties podcastProperties, String resourceId)
+	public DecoratedPodcastBean getAPodcast(ContentResource podcastResource)
 			throws EntityPropertyNotDefinedException,
 			EntityPropertyTypeException {
+
+		ResourceProperties podcastProperties = podcastResource.getProperties();
 
 		DecoratedPodcastBean podcastInfo = new DecoratedPodcastBean();
 
 		// store resourceId
-		podcastInfo.setResourceId(resourceId);
+		podcastInfo.setResourceId(podcastResource.getId());
 
 		// store Title and Description
 		podcastInfo.setTitle(podcastProperties
-				.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME));
+								.getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME));
 		podcastInfo.setDescription(podcastProperties
-				.getPropertyFormatted(ResourceProperties.PROP_DESCRIPTION));
+								.getPropertyFormatted(ResourceProperties.PROP_DESCRIPTION));
 
 		Date tempDate = null;
-		final SimpleDateFormat formatter = new SimpleDateFormat(
-									getErrorMessageString(PUBLISH_DATE_FORMAT));
+		final SimpleDateFormat formatter = new SimpleDateFormat(getErrorMessageString(PUBLISH_DATE_FORMAT));
 		formatter.setTimeZone(TimeService.getLocalTimeZone());
-		
-		tempDate = podcastService.getGMTdate(podcastProperties.getTimeProperty(
-				PodcastService.DISPLAY_DATE).getTime());
-		
+
+		// get release/publish date - else part needed for podcasts created before release/retract dates
+		// feature implemented
+		if (podcastResource.getReleaseDate() == null) {
+			tempDate = podcastService.getGMTdate(podcastProperties
+													.getTimeProperty(PodcastService.DISPLAY_DATE).getTime());
+		} 
+		else {
+			tempDate = new Date(podcastResource.getReleaseDate().getTime());
+		}
+
 		podcastInfo.setDisplayDate(formatter.format(tempDate));
 
-		final String filename = podcastProperties
-				.getProperty(ResourceProperties.PROP_ORIGINAL_FILENAME);
+		// store result of hidden property OR after retract date OR before release date
+		final boolean uiHidden = hiddenInUI(podcastResource, tempDate);
+		podcastInfo.setHidden(uiHidden);
 
-		// if user puts URL instead of file, this is result
-		// of retrieving filename
+		// if podcast should be hidden, set style class to 'inactive'
+		if (uiHidden) {
+			podcastInfo.setStyleClass("inactive");
+		}
+
+		final String filename = podcastProperties.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+
+		// if user puts URL instead of file, this is result of retrieving filename
 		if (filename == null)
 			return null;
-		
+
 		podcastInfo.setFilename(filename);
 
 		// get content type
-		podcastInfo.setFileContentType(podcastProperties
-				.getProperty(ResourceProperties.PROP_CONTENT_TYPE));
+		podcastInfo.setFileContentType(podcastProperties.getProperty(ResourceProperties.PROP_CONTENT_TYPE));
 
 		// store actual and formatted file size
 		// determine whether to display filesize as bytes or MB
-		long size = Long.parseLong(podcastProperties
-				.getProperty(ResourceProperties.PROP_CONTENT_LENGTH));
+		final long size = Long.parseLong(podcastProperties.getProperty(ResourceProperties.PROP_CONTENT_LENGTH));
 		podcastInfo.setFileSize(size);
 
-		double sizeMB = size / (1024.0 * 1024.0);
-		DecimalFormat df = new DecimalFormat(MB_NUMBER_FORMAT);
+		final double sizeMB = size / (1024.0 * 1024.0);
+		final DecimalFormat df = new DecimalFormat(MB_NUMBER_FORMAT);
 		String sizeString;
 		if (sizeMB > 0.3) {
 			sizeString = df.format(sizeMB) + MB;
@@ -578,32 +668,27 @@ public class podHomeBean {
 		final String extn = Validator.getFileExtension(filename);
 		if (extn != "") {
 			podcastInfo.setType(Validator.getFileExtension(filename).toUpperCase());
-
 		}
 		else {
 			podcastInfo.setType("UNK");
-
 		}
 
 		// get and format last modified time
 		formatter.applyPattern(LAST_MODIFIED_TIME_FORMAT);
 
-		tempDate = new Date(podcastProperties.getTimeProperty(
-				ResourceProperties.PROP_MODIFIED_DATE).getTime());
-		
+		tempDate = new Date(podcastProperties.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE).getTime());
+
 		podcastInfo.setPostedTime(formatter.format(tempDate));
 
 		// get and format last modified date
 		formatter.applyPattern(LAST_MODIFIED_DATE_FORMAT);
-		
-		tempDate = new Date(podcastProperties.getTimeProperty(
-				ResourceProperties.PROP_MODIFIED_DATE).getTime());
-		
+
+		tempDate = new Date(podcastProperties.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE).getTime());
+
 		podcastInfo.setPostedDate(formatter.format(tempDate));
 
 		// get author
-		podcastInfo.setAuthor(podcastProperties
-				.getPropertyFormatted(ResourceProperties.PROP_CREATOR));
+		podcastInfo.setAuthor(podcastProperties.getPropertyFormatted(ResourceProperties.PROP_CREATOR));
 
 		return podcastInfo;
 	}
@@ -616,6 +701,11 @@ public class podHomeBean {
 	 */
 	public List getContents() {
 		try {
+			// TODO: if podcasts folder is hidden
+			// 			if canupdatesite
+			//				set flag so all podcasts are grey
+			//			else
+			//				act like podcasts are empty
 			contents = podcastService.getPodcasts();
 
 			// if cannot update site (ie, student) only display published
@@ -675,8 +765,7 @@ public class podHomeBean {
 							.getProperties();
 
 					// Create a new decorated bean to store the info
-					DecoratedPodcastBean podcastInfo = getAPodcast(
-							podcastProperties, podcastResource.getId());
+					DecoratedPodcastBean podcastInfo = getAPodcast(podcastResource);
 
 					// add it to the List to send to the page
 					// if URL, will return null so skip it
@@ -776,8 +865,9 @@ public class podHomeBean {
 						.next();
 
 				if (podcastResource.getId().equals(resourceId)) {
-					selectedPodcast = getAPodcast(podcastResource
-							.getProperties(), podcastResource.getId());
+					selectedPodcast = getAPodcast(podcastResource);
+//							.getProperties(), podcastResource.getId(),
+//							podcastResource.getReleaseDate());
 					break; // found and filled, get out of loop
 				}
 
@@ -942,6 +1032,24 @@ public class podHomeBean {
 		}
 		else {
 			return podcastService.hasPerm(PodcastService.DELETE_OWN_PERMISSIONS);
+		}
+	}
+
+	public boolean getHasAllGroups() {
+		if (podcastService.canUpdateSite()) {
+			return true;
+		}
+		else {
+			return podcastService.hasPerm(PodcastService.ALL_GROUPS_PERMISSIONS);
+		}
+	}
+	
+	public boolean getHasHidden() {
+		if (podcastService.canUpdateSite()) {
+			return true;
+		}
+		else {
+			return podcastService.hasPerm(PodcastService.HIDDEN_PERMISSIONS);
 		}
 	}
 	

@@ -40,6 +40,7 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.api.ToolManager;
 
 // import org.sakaiproject.entity.api.EntityProducer;
@@ -78,6 +79,8 @@ public interface PodcastService // extends EntityProducer
 	public static final String REVISE_OWN_PERMISSIONS = "content.revise.own";
 	public static final String DELETE_ANY_PERMISSIONS = "content.delete.any";
 	public static final String DELETE_OWN_PERMISSIONS = "content.delete.own";
+	public static final String ALL_GROUPS_PERMISSIONS = "content.all.groups";
+	public static final String HIDDEN_PERMISSIONS = "content.hidden";
 
 	/**
 	 * Determines if podcast folder is part of Resources of site.
@@ -187,7 +190,7 @@ public interface PodcastService // extends EntityProducer
 	 * 
 	 * @param rp The ResourceProperties of the podcast to set 
 	 */
-	public void setDISPLAY_DATE(ResourceProperties rp);
+	public void setDISPLAY_DATE(ResourceProperties rp, Time releaseDate);
 
 	/**
 	 * Does the actual adding of podcast to Resources
@@ -235,10 +238,27 @@ public interface PodcastService // extends EntityProducer
 	/**
 	 * Determines if user has the function (permission) passed in
 	 * 
+	 * @param function
+	 * 			The permission to check
+	 *
 	 * @return boolean true if user has function (permission), false otherwise.
 	 */
 	public boolean hasPerm(String function);
 
+	/**
+	 * Determines if user has the function (permission) passed in
+	 * Used by feed since there is no site id in context
+	 * 
+	 * @param function
+	 * 			The permission to check
+	 * 
+	 * @param siteId
+	 * 			The site id
+	 * 
+	 * @return boolean true if user has function (permission), false otherwise.
+	 */
+	public boolean hasPerm(String function, String siteId);
+	
 	/**
 	 * Returns the ContentCollection that contains the podcasts.
 	 * 
@@ -266,12 +286,14 @@ public interface PodcastService // extends EntityProducer
 
 	/**
 	 * Only add podcast resources whose DISPLAY_DATE is today or earlier
+	 * 2 parameter for filtering podcasts for feed
 	 * 
 	 * @param resourcesList List of podcasts
 	 * 
 	 * @return List of podcasts whose DISPLAY_DATE is today or before
 	 */
 	public List filterPodcasts(List resourcesList);
+	public List filterPodcasts(List resourcesList, String siteId);
 
 	/**
 	 * Gets whether the podcast folder is Publicly viewable or not.
