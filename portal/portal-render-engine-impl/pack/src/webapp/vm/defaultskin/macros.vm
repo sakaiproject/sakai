@@ -386,18 +386,18 @@ ${responseHead}
 #foreach( $page in $sitePages.pageNavTools )
   #if (${page.current})
 				<li class="selectedTool">
-				<span>${page.pageTitle}</span>
+				<span class="${page.menuClass}" >${page.pageTitle}</span>
 				</li>
   #else
    #if (${page.ispopup})
 				<li>
-				<a href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
+				<a class="${page.menuClass}" href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
 				<span>${page.pageTitle}</span>
 				</a>
 				</li>
    #else
 			<li>
-			<a href="${page.pageRefUrl}" ><span>${page.pageTitle}</span></a>
+			<a class="${page.menuClass}" href="${page.pageRefUrl}" ><span>${page.pageTitle}</span></a>
 			</li>
    #end
   #end
@@ -405,7 +405,7 @@ ${responseHead}
     #if ( $subSites ) 
         #foreach ( $site in $subSites ) 
           <li>
-             <a href="${site.siteUrl}" title="${site.siteTitle}">
+             <a class="${sitePages.subsiteClass}" href="${site.siteUrl}" title="${site.siteTitle}">
              <span>${site.siteTitle}</span>
              </a>
          </li>
@@ -413,7 +413,7 @@ ${responseHead}
     #end
 #if (${sitePages.pageNavShowHelp})
 				<li>
-				<a  accesskey="6" href="${sitePages.pageNavHelpUrl}" target="_blank" 
+				<a  class="${sitePages.helpMenuClass}" accesskey="6" href="${sitePages.pageNavHelpUrl}" target="_blank" 
 					onclick="openWindow('${sitePages.pageNavHelpUrl}', 
 					'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); 
 					return false">

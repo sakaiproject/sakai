@@ -1641,6 +1641,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// we will draw page button if it have permission to see at least
 			// one tool on the page
 			List pTools = p.getTools();
+			ToolConfiguration firstTool = null;
+			if ( pTools != null && pTools.size() > 0 ) {
+				firstTool = (ToolConfiguration) pTools.get(0);
+			}
 			String toolsOnPage = null;
 
 			boolean current = (page != null && p.getId().equals(page.getId()) && !p
@@ -1661,6 +1665,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				m.put("pageRefUrl", pagerefUrl);
 				if (toolsOnPage != null) m.put("toolsOnPage", toolsOnPage);
 				if (includeSummary) siteHelper.summarizePage(m, site, p);
+				if ( firstTool != null ) {
+					String menuClass = firstTool.getToolId();
+					menuClass = "icon-"+menuClass.replace('.','-');
+					m.put("menuClass", menuClass);
+				} else {
+					m.put("menuClass", "icon-default-tool" );					
+				}
 				l.add(m);
 				continue;
 			}
@@ -1682,6 +1693,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				m.put("toolTitle", Web.escapeHtml(placement.getTitle()));
 				m.put("jsToolTitle", Web.escapeJavascript(placement.getTitle()));
 				m.put("toolrefUrl", toolrefUrl);
+				String menuClass = placement.getToolId();
+				menuClass = "icon-"+menuClass.replace('.', '-');
+				m.put("menuClass", menuClass);
 				l.add(m);
 			}
 
@@ -1693,6 +1707,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		String helpUrl = ServerConfigurationService.getHelpUrl(null);
 		theMap.put("pageNavShowHelp", Boolean.valueOf(showHelp));
 		theMap.put("pageNavHelpUrl", helpUrl);
+		theMap.put("helpMenuClass", "icon-sakai-help");
+		theMap.put("subsiteClass", "icon-sakai-subsite");
+		
 
 		// theMap.put("pageNavSitContentshead",
 		// Web.escapeHtml(rb.getString("sit_contentshead")));
