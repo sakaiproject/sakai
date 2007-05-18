@@ -56,27 +56,29 @@ public class PodcastComparator implements Comparator {
 	public int compare(Object o1, Object o2) {
 		int rv = 0;
 
-		try {
-			Time t1 = ((ContentResource) o1).getProperties().getTimeProperty(
-							m_property);
-			Time t2 = ((ContentResource) o2).getProperties().getTimeProperty(
-							m_property);
-
+//		try {
+//			Time t1 = ((ContentResource) o1).getProperties().getTimeProperty(
+//							m_property);
+//			Time t2 = ((ContentResource) o2).getProperties().getTimeProperty(
+//							m_property);
+			Time t1 = ((ContentResource) o1).getReleaseDate();
+			Time t2 = ((ContentResource) o2).getReleaseDate();
+			
 			rv = t1.compareTo(t2);
 
 			if (!m_ascending)
 				rv = -rv;
 			
-		} catch (EntityPropertyTypeException ignore) {
+/*		} 
+		catch (EntityPropertyTypeException ignore) {
 			LOG.warn("EntityPropertyTypeException while comparing podcast dates. "
 							+ ignore.getMessage());
-
-		} catch (EntityPropertyNotDefinedException ignore) {
+		}
+		catch (EntityPropertyNotDefinedException ignore) {
 			LOG.warn("EntityPropertyNotDefinedException while comparing podcast dates. "
 							+ ignore.getMessage());
-
 		}
-
+*/
 		return rv;
 	}
 }
