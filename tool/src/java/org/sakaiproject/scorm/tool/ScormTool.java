@@ -24,11 +24,15 @@ import org.adl.api.ecmascript.APIErrorManager;
 import org.sakaiproject.scorm.client.api.ScormClientFacade;
 import org.sakaiproject.scorm.client.pages.BlankPage;
 import org.sakaiproject.scorm.tool.pages.ContentFrame;
+import org.sakaiproject.scorm.tool.pages.LaunchFrameset;
 import org.sakaiproject.scorm.tool.pages.ManageContent;
+import org.sakaiproject.scorm.tool.pages.NavigationFrame;
 
-import wicket.markup.html.AjaxServerAndClientTimeFilter;
-import wicket.protocol.http.WebApplication;
-import wicket.spring.injection.annot.SpringComponentInjector;
+import org.apache.wicket.markup.html.AjaxServerAndClientTimeFilter;
+import org.apache.wicket.protocol.http.WebApplication;
+import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
+import org.apache.wicket.util.io.IObjectStreamFactory;
+import org.apache.wicket.util.lang.Objects;
 
 public class ScormTool extends WebApplication {
 	
@@ -39,12 +43,17 @@ public class ScormTool extends WebApplication {
 	protected void init()
 	{
 		addComponentInstantiationListener(new SpringComponentInjector(this));
-		getResourceSettings().setThrowExceptionOnMissingResource(false);
-		getRequestCycleSettings().addResponseFilter(new AjaxServerAndClientTimeFilter());
+		getResourceSettings().setThrowExceptionOnMissingResource(true);
+		//getRequestCycleSettings().addResponseFilter(new AjaxServerAndClientTimeFilter());
 		getDebugSettings().setAjaxDebugModeEnabled(true);
-		this.mountBookmarkablePage("/content", ContentFrame.class);
-		this.mountBookmarkablePage("/blank", BlankPage.class);
+		this.mountBookmarkablePage("/pages/navigate", "nav", NavigationFrame.class);
+		this.mountBookmarkablePage("/pages/content", "content", ContentFrame.class);
+		this.mountBookmarkablePage("/pages/blank", BlankPage.class);
+		this.mountBookmarkablePage("/pages/manage", "content", ManageContent.class);
+		this.mountBookmarkablePage("/pages/launch", "launch", LaunchFrameset.class);
+		//this.mount("/pages", PackageName.forPackage(LaunchFrameset.class.getPackage()));
 		errorManager = new APIErrorManager(APIErrorManager.SCORM_2004_API);
+		Objects.setObjectStreamFactory(new IObjectStreamFactory.DefaultObjectStreamFactory());
 	}
 
 	@Override

@@ -2,50 +2,104 @@ package org.sakaiproject.scorm.tool.pages;
 
 import java.io.Serializable;
 
-import org.sakaiproject.scorm.tool.FrameTarget;
-import org.sakaiproject.scorm.tool.pages.ContentFrame;
-import org.sakaiproject.scorm.tool.pages.NavigationFrame;
-
-import wicket.AttributeModifier;
-import wicket.Component;
-import wicket.RequestCycle;
-import wicket.ajax.AjaxRequestTarget;
-import wicket.markup.html.WebComponent;
-import wicket.markup.html.WebPage;
-import wicket.markup.html.pages.RedirectPage;
-import wicket.model.Model;
-import wicket.request.IRequestCodingStrategy;
-import wicket.request.target.basic.RedirectRequestTarget;
-import wicket.request.target.component.BookmarkablePageRequestTarget;
-import wicket.request.target.component.PageRequestTarget;
+import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.PageParameters;
+import org.apache.wicket.RequestCycle;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.markup.html.WebComponent;
+import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.request.IRequestCodingStrategy;
+import org.apache.wicket.request.target.component.BookmarkablePageRequestTarget;
+import org.apache.wicket.request.target.component.PageRequestTarget;
 
 public class LaunchFrameset extends WebPage {
+	private static final long serialVersionUID = 1L;
 	private final FrameTarget frameTarget = new FrameTarget(ContentFrame.class);
 	public WebComponent contentFrameTag;
 	
 	private final class FrameModel extends Model
 	{
-		public Object getObject(Component component)
+		private static final long serialVersionUID = 1L;
+
+		public Object getObject()
 		{
 			RequestCycle cycle = getRequestCycle();
 			IRequestCodingStrategy encoder = cycle.getProcessor().getRequestCodingStrategy();
 			
 			//if (frameTarget.getUrl() == null)
 			return encoder.encode(cycle, new BookmarkablePageRequestTarget("contentFrame",
-					frameTarget.getFrameClass()));
+					frameTarget.getFrameClass(), new PageParameters()));
 			//else
 			//	return encoder.encode(cycle, new RedirectRequestTarget(frameTarget.getUrl()));
 		}
 	}
 	
-	public LaunchFrameset() {	
+	public final class FrameTarget implements Serializable
+	{
+		private static final long serialVersionUID = 1L;
+
+		/** the class of the bookmarkable page. */
+		private Class frameClass;
+		
+		private String url;
+
+		/**
+		 * Construct.
+		 */
+		public FrameTarget()
+		{
+		}
+
+		/**
+		 * Construct.
+		 * 
+		 * @param frameClass
+		 */
+		public FrameTarget(Class frameClass)
+		{
+			this.frameClass = frameClass;
+		}
+
+		/**
+		 * Gets frame class.
+		 * 
+		 * @return lefFrameClass
+		 */
+		public Class getFrameClass()
+		{
+			return frameClass;
+		}
+
+		/**
+		 * Sets frame class.
+		 * 
+		 * @param frameClass
+		 *            lefFrameClass
+		 */
+		public void setFrameClass(Class frameClass)
+		{
+			this.frameClass = frameClass;
+		}
+		
+		public String getUrl() {
+			return url;
+		}
+
+		public void setUrl(String url) {
+			this.url = url;
+		}	
+		
+	}
+	
+	public LaunchFrameset(PageParameters pageParams) {	
 		RequestCycle cycle = getRequestCycle();
 
-		NavigationFrame navFrame = new NavigationFrame(this);
+		//NavigationFrame navFrame = new NavigationFrame(pageParams);
 		
 		IRequestCodingStrategy encoder = cycle.getProcessor().getRequestCodingStrategy();
-		
-		CharSequence navFrameSrc = encoder.encode(cycle, new PageRequestTarget(navFrame));
+		CharSequence navFrameSrc = encoder.encode(cycle, new BookmarkablePageRequestTarget("navFrame", NavigationFrame.class,  new PageParameters()));
+		//CharSequence navFrameSrc = encoder.encode(cycle, new PageRequestTarget(navFrame));
 		WebComponent navFrameTag = new WebComponent("navFrame");
 		navFrameTag.add(new AttributeModifier("src", new Model((Serializable)navFrameSrc)));
 		add(navFrameTag);

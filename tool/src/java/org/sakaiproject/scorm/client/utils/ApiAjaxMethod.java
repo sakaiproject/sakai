@@ -3,16 +3,17 @@ package org.sakaiproject.scorm.client.utils;
 import java.util.LinkedList;
 import java.util.List;
 
-import wicket.ResourceReference;
-import wicket.Response;
-import wicket.ajax.AjaxRequestTarget;
-import wicket.ajax.IAjaxCallDecorator;
-import wicket.ajax.form.AjaxFormSubmitBehavior;
-import wicket.markup.ComponentTag;
-import wicket.markup.html.form.Form;
-import wicket.markup.html.form.FormComponent;
-import wicket.util.string.AppendingStringBuffer;
-import wicket.util.string.JavascriptUtils;
+import org.apache.wicket.ResourceReference;
+import org.apache.wicket.Response;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.IAjaxCallDecorator;
+import org.apache.wicket.ajax.form.AjaxFormSubmitBehavior;
+import org.apache.wicket.markup.ComponentTag;
+import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.FormComponent;
+import org.apache.wicket.util.string.AppendingStringBuffer;
+import org.apache.wicket.util.string.JavascriptUtils;
 
 public abstract class ApiAjaxMethod extends AjaxFormSubmitBehavior {
 	private static final String APIClass = "API_1484_11";
@@ -55,10 +56,10 @@ public abstract class ApiAjaxMethod extends AjaxFormSubmitBehavior {
 		target.addComponent(resultComponent);
 	}
 	
-	@Override
+	/*@Override
 	protected String getImplementationId() {
 		return getEvent();
-	}
+	}*/
 	
 	@Override
 	protected void onComponentTag(final ComponentTag tag) {
@@ -75,7 +76,7 @@ public abstract class ApiAjaxMethod extends AjaxFormSubmitBehavior {
 	@Override
 	public CharSequence getCallbackUrl()
 	{
-		return getCallbackUrl(true, false);
+		return getCallbackUrl(false);
 	}
 	
 	@Override
@@ -91,15 +92,15 @@ public abstract class ApiAjaxMethod extends AjaxFormSubmitBehavior {
 	}
 	
 	@Override
-	protected void onRenderHeadInitContribution(Response response)
-	{
-		super.onRenderHeadInitContribution(response);
-		if (null != references) {
+	public void renderHead(IHeaderResponse response) {
+	    super.renderHead(response);
+	    
+	    if (null != references) {
 			for (int i=0;i<references.length;i++) 
-				writeJsReference(response, references[i]);
+				response.renderJavascriptReference(references[i]);
 		}
-
-		StringBuffer script = new StringBuffer().append(APIClass)
+	    
+	    StringBuffer script = new StringBuffer().append(APIClass)
 			.append(".")
 			.append(getEvent())
 			.append(" = function(");
@@ -124,9 +125,10 @@ public abstract class ApiAjaxMethod extends AjaxFormSubmitBehavior {
 		script.append(getEventHandler())
 			.append("};");
 		
-		JavascriptUtils.writeJavascript(response, script.toString(), getEvent());
+		response.renderJavascript(script.toString(), getEvent());
+	    
 	}
-	
+		
 	
 	/*@Override
 	protected void onSubmit(AjaxRequestTarget target) {

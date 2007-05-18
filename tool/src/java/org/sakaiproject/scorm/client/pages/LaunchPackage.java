@@ -1,7 +1,7 @@
 package org.sakaiproject.scorm.client.pages;
 
-import wicket.markup.html.WebPage;
-import wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.html.basic.Label;
 
 public class LaunchPackage extends WebPage {
 	private static final String BODY_ONLOAD_ADDTL="setMainFrameHeight( window.name );";

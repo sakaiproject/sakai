@@ -33,39 +33,42 @@ import org.sakaiproject.scorm.client.Clock;
 import org.sakaiproject.scorm.client.api.ScormClientFacade;
 import org.sakaiproject.scorm.tool.ScormTool;
 
-import wicket.ajax.AjaxSelfUpdatingTimerBehavior;
-import wicket.markup.html.WebPage;
-import wicket.markup.html.basic.Label;
-import wicket.markup.html.link.ExternalLink;
-import wicket.util.time.Duration;
+import org.apache.wicket.ajax.AjaxSelfUpdatingTimerBehavior;
+import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.ExternalLink;
+import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.wicket.util.time.Duration;
 
 public class Index extends WebPage 
 {
 	private static final String BODY_ONLOAD_START="setMainFrameHeight('Main";
 	private static final String BODY_ONLOAD_END="');setFocus(focus_path);";
 		
+	@SpringBean
+	ScormClientFacade scormClientFacade;
+	
 	/**
 	 * Constructor.
 	 */
 	public Index()
 	{
-		ScormClientFacade clientService = ((ScormTool)getApplication()).getClientFacade();
 		String placementId = ""; //clientService.getPlacementId();
 		
-		String bodyOnloadText = new StringBuffer().append(BODY_ONLOAD_START).append(placementId).append(BODY_ONLOAD_END).toString();
-		if (null != getBodyContainer())
-			getBodyContainer().addOnLoadModifier(bodyOnloadText, this);
+		//String bodyOnloadText = new StringBuffer().append(BODY_ONLOAD_START).append(placementId).append(BODY_ONLOAD_END).toString();
+		//if (null != getBodyContainer())
+		//	getBodyContainer().addOnLoadModifier(bodyOnloadText, this);
 		
 		// add the clock component
 		Clock clock = new Clock("clock", TimeZone.getTimeZone("America/Los_Angeles"));
 		add(clock);
 		clock.add(new AjaxSelfUpdatingTimerBehavior(Duration.seconds(1)));		
 	
-		String userName = clientService.getUserName();
+		String userName = scormClientFacade.getUserName();
 		
 		add(new Label("user", userName));
 	
-		ResourceToolActionPipe pipe = clientService.getResourceToolActionPipe();		
+		ResourceToolActionPipe pipe = scormClientFacade.getResourceToolActionPipe();		
 	
 		String rtLabel = "";
 		
@@ -96,7 +99,7 @@ public class Index extends WebPage
 		          System.err.println(e);     
 		    }
 			
-			clientService.closePipe(pipe);
+			scormClientFacade.closePipe(pipe);
 			
 		}
 		add(new Label("resourceLabel", rtLabel));	

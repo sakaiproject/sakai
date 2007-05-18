@@ -1,4 +1,4 @@
-package org.sakaiproject.scorm.tool.panels;
+package org.sakaiproject.scorm.tool.components;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
@@ -8,10 +8,10 @@ import org.adl.sequencer.SeqActivity;
 import org.sakaiproject.scorm.client.utils.ActivityLink;
 import org.sakaiproject.scorm.client.utils.IActivityLinkCallback;
 
-import wicket.MarkupContainer;
-import wicket.ajax.AjaxRequestTarget;
-import wicket.extensions.markup.html.tree.Tree;
-import wicket.model.IModel;
+import org.apache.wicket.MarkupContainer;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.markup.html.tree.Tree;
+import org.apache.wicket.model.IModel;
 
 public class ActivityTree extends Tree {
 	private static final long serialVersionUID = 1L;
