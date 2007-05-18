@@ -128,7 +128,7 @@
 #rssLink {
     block: inline;
 	float: right;
-	background: url(/sakai-rwiki-tool/images/feed.png) center right no-repeat;
+	background: url(/library/image/feed.png) center right no-repeat;
 }
 
 #rssLink img {
@@ -141,7 +141,7 @@
 #addSherlockButton {
     block: inline;
 	float: right;
-	background: url(/sakai-rwiki-tool/images/silk/icons/zoom.png) center right no-repeat;
+	background: url(/library/image/silk/zoom.png) center right no-repeat;
 }
 
 #addSherlockButton img {
