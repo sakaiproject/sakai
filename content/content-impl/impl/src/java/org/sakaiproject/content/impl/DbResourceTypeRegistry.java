@@ -37,6 +37,7 @@ import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.SiteSpecificResourceType;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 
 public class DbResourceTypeRegistry extends ResourceTypeRegistryImpl 
 {
@@ -146,6 +147,7 @@ public class DbResourceTypeRegistry extends ResourceTypeRegistryImpl
 	{
 		//super.setMapOfResourceTypesForContext(context, enabled);
 		//Replace in teh db
+		
 
 		m_sqlService.transact(new Runnable()
 		{
@@ -154,7 +156,8 @@ public class DbResourceTypeRegistry extends ResourceTypeRegistryImpl
 				saveMap(context, enabled);					
 			}
 		}, "DbResourceTypeRegistry.setMapOfResourceTypesForContext: " + context);
-
+		
+		ThreadLocalManager.set("getMapOfResourceTypesForContext@" + context, new HashMap<String, Boolean>(enabled));
 	}
 	
 	protected void saveMap(String context, Map<String, Boolean> enabled) 
@@ -169,48 +172,54 @@ public class DbResourceTypeRegistry extends ResourceTypeRegistryImpl
 	 */
 	public Map<String, Boolean> getMapOfResourceTypesForContext(String context) 
 	{
-		Map<String, Boolean> enabled = new HashMap<String, Boolean>();
-		
-		Object fields[] = new Object[1];
-		fields[0] = context;
-		
-		List results = m_sqlService.dbRead(GET_RESOURCEID_MAP, fields, new SqlReader()
-		{
-			public Object readSqlResultRecord(ResultSet result)
-			{
-				try
-				{
-					return new Entry(result.getString(2), "e".equals(result.getString(3)));
-				}
-				catch (SQLException ignore)
-				{
-					return null;
-				}
-			}
-		});
+		Map<String, Boolean> enabled = (Map<String, Boolean>) ThreadLocalManager.get("getMapOfResourceTypesForContext@" + context);
 			
-		for(Object result : results)
+		if(enabled == null)
 		{
-			if(result instanceof Entry)
+			enabled = new HashMap<String, Boolean>();
+			Object fields[] = new Object[1];
+			fields[0] = context;
+			
+			List results = m_sqlService.dbRead(GET_RESOURCEID_MAP, fields, new SqlReader()
 			{
-				Entry entry = (Entry) result;
-				
-				enabled.put(entry.getTypeId(), new Boolean(entry.isEnabled()));
-			}
-		}
-		
-		if(enabled.isEmpty())
-		{
-			for(ResourceType type : this.typeIndex.values())
-			{
-				if(type instanceof SiteSpecificResourceType)
+				public Object readSqlResultRecord(ResultSet result)
 				{
-					enabled.put(type.getId(), new Boolean(((SiteSpecificResourceType) type).isEnabledByDefault()));
+					try
+					{
+						return new Entry(result.getString(2), "e".equals(result.getString(3)));
+					}
+					catch (SQLException ignore)
+					{
+						return null;
+					}
+				}
+			});
+				
+			for(Object result : results)
+			{
+				if(result instanceof Entry)
+				{
+					Entry entry = (Entry) result;
+					
+					enabled.put(entry.getTypeId(), new Boolean(entry.isEnabled()));
 				}
 			}
+			
+			if(enabled.isEmpty())
+			{
+				for(ResourceType type : this.typeIndex.values())
+				{
+					if(type instanceof SiteSpecificResourceType)
+					{
+						enabled.put(type.getId(), new Boolean(((SiteSpecificResourceType) type).isEnabledByDefault()));
+					}
+				}
+			}
+			
+			ThreadLocalManager.set("getMapOfResourceTypesForContext@" + context, enabled);
 		}
 
-		return enabled;
+		return new HashMap<String, Boolean>(enabled);
 	} 
 
 
