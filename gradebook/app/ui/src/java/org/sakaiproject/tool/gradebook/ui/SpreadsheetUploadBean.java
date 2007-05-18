@@ -854,10 +854,10 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         	
         	String [] parsedAssignmentName = assignmentName.split(" \\["); // 5B == '['
         	
-        	assignmentName = parsedAssignmentName[0];
+        	assignmentName = parsedAssignmentName[0].trim();
         	if (parsedAssignmentName.length > 1) {
         		String [] parsedPointsPossible = parsedAssignmentName[1].split("\\]"); // 5D == ']'
-        		pointsPossibleAsString = parsedPointsPossible[0];
+        		pointsPossibleAsString = parsedPointsPossible[0].trim();
         	}
         	
         	index++;
@@ -892,8 +892,9 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         			continue;
         		}
  
-                // set name and released properties
+                // set name, released, and counted properties
                 assignment.setReleased(true);
+                assignment.setCounted(true);
        			assignment.setName(assignmentName);
        			
            		Iterator it = studentRows.iterator();
@@ -943,6 +944,12 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
            		gbUpdated = true;
          	}
         	else {
+        		if (! assignment.getPointsPossible().toString().equals(pointsPossibleAsString)) {
+        			assignment.setPointsPossible(new Double(pointsPossibleAsString));
+        			getGradebookManager().updateAssignment(assignment);
+        			gbUpdated = true;
+        		}
+        		
         		gradeRecords = gradeChanges(assignment, studentRows, index);
         		
         		if (gradeRecords.size() == 0)
