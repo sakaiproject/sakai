@@ -232,10 +232,10 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     }
 
     /**
-     * Returns formatted string with count of assignments imported (columns - 2 {student id, student name})
+     * Returns formatted string with count of assignments imported (columns - 1 {student name})
      */
     public String getVerifyColumnCount() {
-    	final int intColumnCount = new Integer(columnCount).intValue() - 2;
+    	final int intColumnCount = new Integer(columnCount).intValue() - 1;
         return FacesUtil.getLocalizedString("import_verify_column_count",new String[] {Integer.toString(intColumnCount)});
     }
 
@@ -517,7 +517,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         SpreadsheetHeader header;
         try{
             header = new SpreadsheetHeader((String) spreadsheet.getLineitems().get(0));
-            assignmentHeaders = header.getHeaderWithoutUser();
+            assignmentHeaders = header.getHeaderWithoutUserAndCumulativeGrade();
         }
         catch(IndexOutOfBoundsException ioe) {
             if(logger.isDebugEnabled())logger.debug(ioe + " there is a problem with the uploaded spreadsheet");
@@ -541,15 +541,22 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         Iterator it = spreadsheet.getLineitems().iterator();
         int rowcount = 0;
         int unknownusers = 0;
+        int headerCount = assignmentHeaders.size();
         while(it.hasNext()){
             String line = (String) it.next();
             if(rowcount > 0){
                 SpreadsheetRow  row = new SpreadsheetRow(line);
+
+                List rowData = row.getRowcontent();
+                
+                // if Cumulative column was in spreadsheet, need to filter it out
+                // here
+                if (header.isHasCumulative()) rowData.remove(rowData.size()-1);
+
                 // if the number of cols in the student row is less than the # headers, 
                 // we need to append blank placeholders
-                List rowData = row.getRowcontent();
-                if (rowData.size() < assignmentHeaders.size() + 1) {
-                	while (rowData.size() < (assignmentHeaders.size() + 1)) {
+                if (rowData.size() < headerCount) {
+                	while (rowData.size() < (headerCount)) {
                 		rowData.add("");
                 	}
                 }
@@ -563,7 +570,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             }
             rowcount++;
         }
-        rowCount = String.valueOf(rowcount - 2); // subtract header and points possible rows
+        rowCount = String.valueOf(rowcount - 1); // subtract header
         if(unknownusers > 0){
             this.hasUnknownUser = true;            
             return null;
@@ -572,11 +579,11 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         //create a numeric list of assignment headers
 
         if(logger.isDebugEnabled())logger.debug("creating assignment List ---------");
-        for(int i = 0;i<assignmentHeaders.size();i++){
+        for(int i = 0;i<assignmentHeaders.size()-1;i++){
             assignmentList.add(new Integer(i));
             if(logger.isDebugEnabled()) logger.debug("col added" + i);
         }
-        columnCount = String.valueOf(assignmentHeaders.size());
+        columnCount = String.valueOf(assignmentHeaders.size()); 
 
         for(int i = 0;i<assignmentHeaders.size();i++){
             SelectItem item = new  SelectItem(new Integer(i + 1),(String)assignmentHeaders.get(i));
@@ -1502,6 +1509,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
         private List header;
         private int columnCount;
+        private boolean hasCumulative;
 
         public List getHeader() {
             return header;
@@ -1520,12 +1528,30 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         }
 
 
-        public List getHeaderWithoutUser() {
+        public boolean isHasCumulative() {
+			return hasCumulative;
+		}
+
+		public void setHasCumulative(boolean hasCumulative) {
+			this.hasCumulative = hasCumulative;
+		}
+
+		public List getHeaderWithoutUser() {
             List head = header;
             head.remove(0);
             return head;
         }
 
+        public List getHeaderWithoutUserAndCumulativeGrade() {
+        	List head = getHeaderWithoutUser();
+        	// If CSV from Roster page, last column will be Cumulative Grade
+        	// so remove from header list
+        	if (head.get(head.size()-1).equals("Cumulative")) {
+        		head.remove(head.size()-1);
+        	}
+        
+        	return head;
+        }
 
         public SpreadsheetHeader(String source) {
 
@@ -1535,7 +1561,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
             CSV csv = new CSV();
             header = csv.parse(source);
             columnCount = header.size();
-
+            hasCumulative = header.get(columnCount-1).equals("Cumulative");
         }
 
     }
@@ -1565,14 +1591,10 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
                 //userDisplayName = getUserDirectoryService().getUserDisplayName(tokens[0]);
                 userId = (String) rowcontent.get(0);
                 
-                if (userId.equals(getLocalizedString(POINTS_POSSIBLE_STRING))) {
-                	isKnown = true; // Points Possible row which is second row of file needs this
-                } else {
-                	userDisplayName = ((User)rosterMap.get(userId)).getDisplayName();
-                	userUid = ((User)rosterMap.get(userId)).getUserUid();
-                	isKnown  = true;
-                	if(logger.isDebugEnabled())logger.debug("get userid "+ rowcontent.get(0) + "username is "+userDisplayName);
-                }
+               	userDisplayName = ((User)rosterMap.get(userId)).getDisplayName();
+               	userUid = ((User)rosterMap.get(userId)).getUserUid();
+               	isKnown  = true;
+               	if(logger.isDebugEnabled())logger.debug("get userid "+ rowcontent.get(0) + "username is "+userDisplayName);
             } catch (NullPointerException e) {
               	logger.error("User " + rowcontent.get(0) + " is unknown to this gradebook: " + e);
                	userDisplayName = "unknown student";
