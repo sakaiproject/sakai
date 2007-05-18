@@ -56,7 +56,6 @@ public class InputRichTextTag
   extends UIComponentTag
 {
   private String value;
-  private String columns;
   private String rows;
   private String justArea;
   private String cols;
@@ -96,16 +95,6 @@ public class InputRichTextTag
     return value;
   }
 
-  public void setColumns(String newC)
-  {
-    columns = newC;
-  }
-
-  public String getColumns()
-  {
-    return columns;
-  }
-
   public void setRows(String newRows)
   {
     rows = newRows;
@@ -139,7 +128,7 @@ public class InputRichTextTag
   protected void setProperties(UIComponent component)
   {
     super.setProperties(component);
-    TagUtil.setInteger(component, "columns", columns);
+    TagUtil.setInteger(component, "cols", cols);
     TagUtil.setInteger(component, "rows", rows);
     TagUtil.setInteger(component, "width", width);
     TagUtil.setInteger(component, "height", height);
@@ -175,7 +164,6 @@ public class InputRichTextTag
     super.release();
 
     value = null;
-    columns = null;
     rows = null;
     justArea = null;
     cols = null;
