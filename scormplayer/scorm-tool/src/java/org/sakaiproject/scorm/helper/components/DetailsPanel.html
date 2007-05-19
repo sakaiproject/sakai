@@ -1,0 +1,37 @@
+<wicket:panel>
+<div>
+	<p class="shorttext">
+		<label wicket:id="descriptionLabel" for="description">
+			[Description]
+		</label>
+		<textarea wicket:id="description" name="description" rows="5" cols="80" wrap="virtual"></textarea>
+	</p>
+						
+	<p class="shorttext">
+		<span class="reqStar">*</span>
+		<label wicket:id="copyrightLabel" for="copyright">
+			[Copyright Status]
+		</label>
+		<select wicket:id ="copyright" name="copyright"></select>
+		(<a href="http://fairuse.stanford.edu" target="_blank" title="[New window]"><span class="skip"> [New window]</span>more info</a>)
+	</p>
+	
+	<span wicket:id="includeCopyright">[Include Copyright]</span>
+	
+	<table border="0">
+	<tr>
+		<td style="width:180px;padding-left:1em;vertical-align:top">
+			<label wicket:id="copyrightAlertLabel" for="copyrightAlert">
+				Copyright Alert
+			</label>
+		</td>
+		<td style="vertical-align:top">
+			<input wicket:id="copyrightAlert" name="copyrightAlert" type="checkbox" value="true"  style="border:none" />
+				<span wicket:id="copyrightAlertCaption">Display copyright alert and require acknowledgement when accessed by others.</span>
+				(<a href="#" onclick="javascript:openSampleCopyrightWindow();" title="[New window]"><span class="skip">[New window]</span>what's this?</a>)
+		</td>
+
+	</tr>
+	</table>
+</div>
+</wicket:panel>
