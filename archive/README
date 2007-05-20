@@ -46,3 +46,4 @@ All configuration is in archive/archive-impl/pack/src/webapp/WEB-INF/components.
 	These properties mimic the properties in 3, in that they control that only merges created by XYZ Roles
 	are merged. Note: Some testing needs to be done to make sure this is really observed in all Services. 
 
+TODO: describe the import architecture
