@@ -157,4 +157,12 @@ public interface AssignmentEdit extends Assignment, Edit
 	 *        The AssignmentAccess access mode for the message.
 	 */
 	void setAccess(AssignmentAccess access);
+	
+    /**
+	 * Set the position order field for the assignment.
+	 *
+	 * @param position_order -
+	 *        The Assignment's order.
+	 */
+	public void setPosition_order(int position_order);
 }

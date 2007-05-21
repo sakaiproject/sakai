@@ -124,6 +124,14 @@ public class AssignmentService {
 
 		return service.allowAddSiteAssignment(param0);
 	}
+	
+	public static boolean allowAllGroups(java.lang.String param0) {
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null)
+		    return false;
+		
+		return service.allowAllGroups(param0);
+	}
 
 	public static java.util.Collection getGroupsAllowAddAssignment(
 			java.lang.String param0) {

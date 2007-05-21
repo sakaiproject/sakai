@@ -198,8 +198,16 @@ public interface Assignment extends Entity, Comparable, TaggableActivity
 	 * @return The Assignment's title.
 	 */
 	public String getTitle();
+	
+	/**
+	 * Access the position order field for the assignment.
+     *
+     * @return The Assignment's order.
+     */
+    public int getPosition_order();
 
 	/**
+	 * 
 	 * Access the groups defined for this assignment.
 	 * 
 	 * @return A Collection (String) of group refs (authorization group ids) defined for this message; empty if none are defined.

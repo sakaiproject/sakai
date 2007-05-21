@@ -138,6 +138,15 @@ public interface AssignmentService extends EntityProducer, TaggableActivityProdu
 	 * @return true if the user has permission to add a channel-wide (not grouped) assignment.
 	 */
 	boolean allowAddSiteAssignment(String context);
+	
+	/**
+	 * Check permissions for all.groups.
+	 *
+	 * @param context -
+	 *        Describes the portlet context - generated with DefaultId.getChannel().
+	 * @return True if the current User is allowed all.groups, false if not.
+	 */
+	public boolean allowAllGroups(String context);
 
 	/**
 	 * Check permissions for reading an Assignment.
