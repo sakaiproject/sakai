@@ -52,6 +52,8 @@ import org.sakaiproject.assignment.taggable.api.TaggingProvider;
 import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider;
 import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider.Pager;
 import org.sakaiproject.assignment.taggable.tool.DecoratedTaggingProvider.Sort;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.PermissionsHelper;
@@ -150,6 +152,9 @@ public class AssignmentAction extends PagedResourceActionII
 
 	/** state sort ascendingly * */
 	private static final String SORTED_ASC = "Assignment.sorted_asc";
+	
+	/** default sorting */
+	private static final String SORTED_BY_DEFAULT = "default";
 
 	/** sort by assignment title */
 	private static final String SORTED_BY_TITLE = "title";
@@ -322,6 +327,9 @@ public class AssignmentAction extends PagedResourceActionII
 
 	/** ****************** instructor's new assignment ****************************** */
 	private static final String NEW_ASSIGNMENT_TITLE = "new_assignment_title";
+	
+	// assignment order for default view
+	private static final String NEW_ASSIGNMENT_ORDER = "new_assignment_order";
 
 	// open date
 	private static final String NEW_ASSIGNMENT_OPENMONTH = "new_assignment_openmonth";
@@ -436,6 +444,9 @@ public class AssignmentAction extends PagedResourceActionII
 
 	/** The instructor view of creating a new assignment or editing an existing one */
 	private static final String MODE_INSTRUCTOR_NEW_EDIT_ASSIGNMENT = "Assignment.mode_instructor_new_edit_assignment";
+	
+	/** The instructor view to reorder assignments */
+	private static final String MODE_INSTRUCTOR_REORDER_ASSIGNMENT = "reorder";
 
 	/** The instructor view to delete an assignment */
 	private static final String MODE_INSTRUCTOR_DELETE_ASSIGNMENT = "Assignment.mode_instructor_delete_assignment";
@@ -482,6 +493,9 @@ public class AssignmentAction extends PagedResourceActionII
 
 	/** The instructor view to create a new assignment or edit an existing one */
 	private static final String TEMPLATE_INSTRUCTOR_NEW_EDIT_ASSIGNMENT = "_instructor_new_edit_assignment";
+	
+	/** The instructor view to reorder the default assignments */
+	private static final String TEMPLATE_INSTRUCTOR_REORDER_ASSIGNMENT = "_instructor_reorder_assignment";
 
 	/** The instructor view to edit assignment */
 	private static final String TEMPLATE_INSTRUCTOR_DELETE_ASSIGNMENT = "_instructor_delete_assignment";
@@ -578,6 +592,15 @@ public class AssignmentAction extends PagedResourceActionII
 		// allow update site?
 		context.put("allowUpdateSite", Boolean
 						.valueOf(SiteService.allowUpdateSite((String) state.getAttribute(STATE_CONTEXT_STRING))));
+		
+		// allow all.groups?
+		boolean allowAllGroups = AssignmentService.allowAllGroups(contextString);
+		context.put("allowAllGroups", Boolean.valueOf(allowAllGroups));
+		
+		// this is a check for seeing if there are any assignments.  The check is used to see if we display a Reorder link in the vm files
+		Vector assignments = iterator_to_vector(AssignmentService.getAssignmentsForContext((String) state.getAttribute(STATE_CONTEXT_STRING)));
+		boolean assignmentscheck = (assignments.size() > 0) ? true : false;
+		context.put("assignmentscheck", Boolean.valueOf(assignmentscheck));
 
 		// grading option
 		context.put("withGrade", state.getAttribute(WITH_GRADES));
@@ -703,6 +726,14 @@ public class AssignmentAction extends PagedResourceActionII
 				// if allowed for grading, build the context for the instructor's view of report submissions
 				template = build_instructor_report_submissions(portlet, context, data, state);
 			}
+		}
+		else if (mode.equals(MODE_INSTRUCTOR_REORDER_ASSIGNMENT))
+		{
+			// disable auto-updates while leaving the list view
+			justDelivered(state);
+
+			// build the context for the instructor's create new assignment view
+			template = build_instructor_reorder_assignment_context(portlet, context, data, state);
 		}
 
 		if (template == null)
@@ -1065,6 +1096,7 @@ public class AssignmentAction extends PagedResourceActionII
 	{
 		// put the names and values into vm file
 		context.put("name_title", NEW_ASSIGNMENT_TITLE);
+		context.put("name_order", NEW_ASSIGNMENT_ORDER);
 
 		context.put("name_OpenMonth", NEW_ASSIGNMENT_OPENMONTH);
 		context.put("name_OpenDay", NEW_ASSIGNMENT_OPENDAY);
@@ -1114,6 +1146,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 		// set the values
 		context.put("value_title", state.getAttribute(NEW_ASSIGNMENT_TITLE));
+		context.put("value_position_order", state.getAttribute(NEW_ASSIGNMENT_ORDER));
 		context.put("value_OpenMonth", state.getAttribute(NEW_ASSIGNMENT_OPENMONTH));
 		context.put("value_OpenDay", state.getAttribute(NEW_ASSIGNMENT_OPENDAY));
 		context.put("value_OpenYear", state.getAttribute(NEW_ASSIGNMENT_OPENYEAR));
@@ -1268,6 +1301,8 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("user", UserDirectoryService.getCurrentUser());
 
 		context.put("value_Title", (String) state.getAttribute(NEW_ASSIGNMENT_TITLE));
+		context.put("name_order", NEW_ASSIGNMENT_ORDER);
+		context.put("value_position_order", (String) state.getAttribute(NEW_ASSIGNMENT_ORDER));
 
 		Time openTime = getOpenTime(state);
 		context.put("value_OpenDate", openTime);
@@ -1744,6 +1779,43 @@ public class AssignmentAction extends PagedResourceActionII
 	} // build_instructor_view_assignment_context
 
 	/**
+	 * build the instructor view of reordering assignments
+	 */
+	protected String build_instructor_reorder_assignment_context(VelocityPortlet portlet, Context context, RunData data, SessionState state)
+	{
+		context.put("context", state.getAttribute(STATE_CONTEXT_STRING));
+		
+		List assignments = prepPage(state);
+		
+		context.put("assignments", assignments.iterator());
+		context.put("assignmentsize", assignments.size());
+		
+		String sortedBy = (String) state.getAttribute(SORTED_BY);
+		String sortedAsc = (String) state.getAttribute(SORTED_ASC);
+		context.put("sortedBy", sortedBy);
+		context.put("sortedAsc", sortedAsc);
+		
+		//		 put site object into context
+		try
+		{
+			// get current site
+			Site site = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
+			context.put("site", site);
+		}
+		catch (Exception ignore)
+		{
+		}
+	
+		context.put("contentTypeImageService", state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE));
+		context.put("gradeTypeTable", gradeTypeTable());
+		context.put("userDirectoryService", UserDirectoryService.getInstance());
+	
+		String template = (String) getContext(data).get("template");
+		return template + TEMPLATE_INSTRUCTOR_REORDER_ASSIGNMENT;
+	
+	} // build_instructor_reorder_assignment_context
+
+	/**
 	 * build the instructor view to view the list of students for an assignment
 	 */
 	protected String build_instructor_view_students_assignment_context(VelocityPortlet portlet, Context context, RunData data,
@@ -2162,7 +2234,7 @@ public class AssignmentAction extends PagedResourceActionII
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
-		state.setAttribute(SORTED_BY, SORTED_BY_DUEDATE);
+		state.setAttribute(SORTED_BY, SORTED_BY_DEFAULT);
 		state.setAttribute(SORTED_ASC, Boolean.TRUE.toString());
 
 	} // doView_instructor
@@ -2175,7 +2247,7 @@ public class AssignmentAction extends PagedResourceActionII
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		// to the student list of assignment view
-		state.setAttribute(SORTED_BY, SORTED_BY_DUEDATE);
+		state.setAttribute(SORTED_BY, SORTED_BY_DEFAULT);
 		state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
 
 	} // doView_student
@@ -2428,6 +2500,18 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_SUBMISSION);
 
 	} // doCancel_preview_grade_submission
+	
+	/**
+	 * Action is to cancel the reorder process
+	 */
+	public void doCancel_reorder(RunData data)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		
+		// back to the list view of assignments
+		state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+
+	} // doCancel_reorder
 
 	/**
 	 * Action is to return to the view of list assignments
@@ -2438,7 +2522,8 @@ public class AssignmentAction extends PagedResourceActionII
 
 		// back to the student list view of assignments
 		state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
-		state.setAttribute(SORTED_BY, SORTED_BY_DUEDATE);
+		state.setAttribute(SORTED_BY, SORTED_BY_DEFAULT);
+		state.setAttribute(SORTED_ASC, Boolean.TRUE.toString());
 
 	} // doList_assignments
 
@@ -3121,6 +3206,35 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 
 	} // doNew_Assignment
+	
+	/**
+	 * Action is to show the reorder assignment screen
+	 */
+	public void doReorder(RunData data)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		
+		// this insures the default order is loaded into the reordering tool
+		state.setAttribute(SORTED_BY, SORTED_BY_DEFAULT);
+		state.setAttribute(SORTED_ASC, Boolean.TRUE.toString());
+
+		if (!alertGlobalNavigation(state, data))
+		{
+			if (AssignmentService.allowAllGroups((String) state.getAttribute(STATE_CONTEXT_STRING)))
+			{
+				resetAssignment(state);
+				
+				state.setAttribute(ATTACHMENTS, EntityManager.newReferenceList());
+				state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_REORDER_ASSIGNMENT);
+			}
+			else
+			{
+				addAlert(state, rb.getString("youarenot19"));
+				state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+			}
+		}
+
+	} // doReorder
 
 	/**
 	 * Action is to save the input infos for assignment fields
@@ -3137,6 +3251,9 @@ public class AssignmentAction extends PagedResourceActionII
 		// put the input value into the state attributes
 		String title = params.getString(NEW_ASSIGNMENT_TITLE);
 		state.setAttribute(NEW_ASSIGNMENT_TITLE, title);
+		
+		String order = params.getString(NEW_ASSIGNMENT_ORDER);
+		state.setAttribute(NEW_ASSIGNMENT_ORDER, order);
 
 		if (title.length() == 0)
 		{
@@ -3699,6 +3816,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 			// put the names and values into vm file
 			String title = (String) state.getAttribute(NEW_ASSIGNMENT_TITLE);
+			String order = (String) state.getAttribute(NEW_ASSIGNMENT_ORDER);
 
 			// open time
 			Time openTime = getOpenTime(state);
@@ -4357,6 +4475,48 @@ public class AssignmentAction extends PagedResourceActionII
 		// commit the changes
 		AssignmentService.commitEdit(ac);
 	}
+	
+	/**
+	 * reorderAssignments
+	 */
+	private void reorderAssignments(RunData data)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		ParameterParser params = data.getParameters();
+		
+		List assignments = prepPage(state);
+		
+		Iterator it = assignments.iterator();
+		
+		// temporarily allow the user to read and write from assignments (asn.revise permission)
+        SecurityService.pushAdvisor(new SecurityAdvisor()
+            {
+                public SecurityAdvice isAllowed(String userId, String function, String reference)
+                {
+                    return SecurityAdvice.ALLOWED;
+                }
+            });
+        
+        while (it.hasNext()) // reads and writes the parameter for default ordering
+        {
+            Assignment a = (Assignment) it.next();
+            String assignmentid = a.getId();
+            String assignmentposition = params.getString("position_" + assignmentid);
+            AssignmentEdit ae = getAssignmentEdit(state, assignmentid);
+            ae.setPosition_order(new Long(assignmentposition).intValue());
+            AssignmentService.commitEdit(ae);
+        }
+        
+        // clear the permission
+        SecurityService.clearAdvisors();
+		
+		if (state.getAttribute(STATE_MESSAGE) == null)
+		{
+			state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+			state.setAttribute(ATTACHMENTS, EntityManager.newReferenceList());
+			//resetAssignment(state);
+		}
+	} // reorderAssignments
 
 	private AssignmentEdit getAssignmentEdit(SessionState state, String assignmentId) 
 	{
@@ -4524,6 +4684,14 @@ public class AssignmentAction extends PagedResourceActionII
 		postOrSaveAssignment(data, "save");
 
 	} // doSave_assignment
+	
+	/**
+	 * Action is to reorder assignments
+	 */
+	public void doReorder_assignment(RunData data)
+	{
+		reorderAssignments(data);
+	} // doReorder_assignments
 
 	/**
 	 * Action is to preview the selected assignment
@@ -4648,6 +4816,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 			// put the names and values into vm file
 			state.setAttribute(NEW_ASSIGNMENT_TITLE, a.getTitle());
+			state.setAttribute(NEW_ASSIGNMENT_ORDER, a.getPosition_order());
 			TimeBreakdown openTime = a.getOpenTime().breakdownLocal();
 			state.setAttribute(NEW_ASSIGNMENT_OPENMONTH, new Integer(openTime.getMonth()));
 			state.setAttribute(NEW_ASSIGNMENT_OPENDAY, new Integer(openTime.getDay()));
@@ -5355,7 +5524,7 @@ public class AssignmentAction extends PagedResourceActionII
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_REPORT_SUBMISSIONS);
-		state.setAttribute(SORTED_BY, SORTED_SUBMISSION_BY_LASTNAME);
+		state.setAttribute(SORTED_BY, SORTED_BY_DEFAULT);
 		state.setAttribute(SORTED_ASC, Boolean.TRUE.toString());
 
 	} // doReport_submissions
@@ -5380,6 +5549,11 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				// save assignment
 				doSave_assignment(data);
+			}
+			else if (option.equals("reorder"))
+			{
+				// reorder assignments
+				doReorder_assignment(data);
 			}
 			else if (option.equals("preview"))
 			{
@@ -5430,6 +5604,11 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				// cancel grading
 				doCancel_grade_submission(data);
+			}
+			else if (option.equals("cancelreorder"))
+			{
+				// cancel reordering
+				doCancel_reorder(data);
 			}
 			else if (option.equals("sortbygrouptitle"))
 			{
@@ -5802,12 +5981,12 @@ public class AssignmentAction extends PagedResourceActionII
 
 		if (state.getAttribute(SORTED_BY) == null)
 		{
-			state.setAttribute(SORTED_BY, SORTED_BY_DUEDATE);
+			state.setAttribute(SORTED_BY, SORTED_BY_DEFAULT);
 		}
 
 		if (state.getAttribute(SORTED_ASC) == null)
 		{
-			state.setAttribute(SORTED_ASC, Boolean.FALSE.toString());
+			state.setAttribute(SORTED_ASC, Boolean.TRUE.toString());
 		}
 
 		if (state.getAttribute(SORTED_GRADE_SUBMISSION_BY) == null)
@@ -6399,7 +6578,48 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			int result = -1;
 
-			/** *********** fo sorting assignments ****************** */
+			/** *********** for sorting assignments ****************** */
+			if (m_criteria.equals(SORTED_BY_DEFAULT))
+			{
+				int s1 = ((Assignment) o1).getPosition_order();
+				int s2 = ((Assignment) o2).getPosition_order();
+				
+				if ( s1 == s2 ) // we either have 2 assignments with no existing postion_order or a numbering error, so sort by duedate
+				{
+					// sorted by the assignment due date
+					Time t1 = ((Assignment) o1).getDueTime();
+					Time t2 = ((Assignment) o2).getDueTime();
+
+					if (t1 == null)
+					{
+						result = -1;
+					}
+					else if (t2 == null)
+					{
+						result = 1;
+					}
+					else if (t1.before(t2))
+					{
+						result = -1;
+					}
+					else
+					{
+						result = 1;
+					}
+				}				
+				else if ( s1 == 0 && s2 > 0 ) // order has not been set on this object, so put it at the bottom of the list
+				{
+					result = 1;
+				}
+				else if ( s2 == 0 && s1 > 0 ) // making sure assignments with no position_order stay at the bottom
+				{
+					result = -1;
+				}
+				else // 2 legitimate postion orders
+				{
+					result = (s1 < s2) ? -1 : 1;
+				}
+			}
 			if (m_criteria.equals(SORTED_BY_TITLE))
 			{
 				// sorted by the assignment title
@@ -7278,6 +7498,11 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 			}
 		}
+		else if (mode.equalsIgnoreCase(MODE_INSTRUCTOR_REORDER_ASSIGNMENT))
+		{
+			returnResources = AssignmentService.getListAssignmentsForContext((String) state
+					.getAttribute(STATE_CONTEXT_STRING));
+		}
 		else if (mode.equalsIgnoreCase(MODE_INSTRUCTOR_REPORT_SUBMISSIONS))
 		{
 			Vector submissions = new Vector();
@@ -7860,7 +8085,7 @@ public class AssignmentAction extends PagedResourceActionII
 				|| mode.equals(MODE_STUDENT_VIEW_GRADE) || mode.equals(MODE_INSTRUCTOR_NEW_EDIT_ASSIGNMENT)
 				|| mode.equals(MODE_INSTRUCTOR_DELETE_ASSIGNMENT) || mode.equals(MODE_INSTRUCTOR_GRADE_SUBMISSION)
 				|| mode.equals(MODE_INSTRUCTOR_PREVIEW_GRADE_SUBMISSION) || mode.equals(MODE_INSTRUCTOR_PREVIEW_ASSIGNMENT)
-				|| mode.equals(MODE_INSTRUCTOR_VIEW_ASSIGNMENT))
+				|| mode.equals(MODE_INSTRUCTOR_VIEW_ASSIGNMENT) || mode.equals(MODE_INSTRUCTOR_REORDER_ASSIGNMENT))
 		{
 			if (state.getAttribute(ALERT_GLOBAL_NAVIGATION) == null)
 			{

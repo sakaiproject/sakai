@@ -10,6 +10,9 @@
 			#if ($allowAddAssignment)
 				| <a href="#toolLinkParam("$action" "doView" "view=stuvie")" title="$!tlang.getString("gen.stuvie")">$!tlang.getString("gen.stuvie")</a>
 			#end
+			#if (($allowAllGroups) && ($assignmentscheck))
+				| <a href="#toolLink("$action" "doReorder")" title="$tlang.getString('gen.reorder')">$tlang.getString('gen.reorder')</a>
+			#end
 			#if ($allowUpdateSite)
 				| <a href="#toolLink("$action" "doPermissions")" title="$tlang.getString('permis')">$tlang.getString('permis')</a>
 			#end

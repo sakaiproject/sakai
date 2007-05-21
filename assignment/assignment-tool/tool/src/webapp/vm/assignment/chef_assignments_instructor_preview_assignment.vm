@@ -8,6 +8,9 @@
 			#end
 			| <a href="#toolLinkParam("$action" "doView" "view=stuvie")" title="$!tlang.getString("gen.stuvie")">$!tlang.getString("gen.stuvie")</a>
 		#end
+		#if (($allowAllGroups) && ($assignmentscheck))
+			| <a href="#toolLink("$action" "doReorder")" title="$tlang.getString('gen.reorder')">$tlang.getString('gen.reorder')</a>
+		#end
 		#if ($allowUpdateSite)
 			| <a href="#toolLink("$action" "doPermissions")" title="$tlang.getString('permis')">$tlang.getString('permis')</a>
 		#end
@@ -21,6 +24,7 @@
 		<form name="previewAssignmentsForm" action="#toolForm("AssignmentAction")" method="post">
 			<input type="hidden" name="assignmentId" value="$!value_assignment_id" />
 			<input type="hidden" name="assignmentContentId" value="$!value_assignmentcontent_id" />
+			<input type="hidden" name="$name_order" id="$name_order" value="$!value_position_order" />
 			#if (!$preview_assignment_assignment_hide_flag)
 					<p class="discTria">
 						<a href="#toolLink("$action" "doHide_preview_assignment_assignment")" title="$tlang.getString("prevassig.hidass")">

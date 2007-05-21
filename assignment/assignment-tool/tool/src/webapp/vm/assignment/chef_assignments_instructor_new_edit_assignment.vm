@@ -55,6 +55,9 @@
 			#end
 			| <a href="#" title="$!tlang.getString('gen.stuvie')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='view';document.getElementById('view').value='stuvie';document.newAssignmentForm.submit();return false;">$!tlang.getString("gen.stuvie")</a>
 		#end
+		#if (($allowAllGroups) && ($assignmentscheck))
+			| <a href="#toolLink("$action" "doReorder")" title="$tlang.getString('gen.reorder')">$tlang.getString('gen.reorder')</a>
+		#end
 		#if ($allowUpdateSite)
 			| <a href="#" title="$tlang.getString('permis')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='permissions';document.newAssignmentForm.submit();return false;">$tlang.getString('permis')</a>
 		#end
@@ -74,6 +77,7 @@
 		<input type="hidden" name="eventSubmit_doAssignment_form" value="" />
 		<input type="hidden" name="option" id="option" value="" />
 		<input type="hidden" name="view" id="view" value="" />
+		<input type="hidden" name="$name_order" id="$name_order" value="$!value_position_order" />
 		<h4>$tlang.getString("gen.assig")</h4>
 		<p class="shorttext">
 			<span class="reqStar">*</span>
