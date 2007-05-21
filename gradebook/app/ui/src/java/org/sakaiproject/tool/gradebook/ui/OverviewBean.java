@@ -135,6 +135,8 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 				unassignedCat.setAverageScore(new Double(0));
 				unassignedCat.setName(getLocalizedString("cat_unassigned"));
 				unassignedCat.setAssignmentList(unassignedList);
+				if (!getWeightingEnabled())
+					unassignedCat.calculateStatistics(unassignedList);
 				gradebookItemList.add(unassignedCat);
 
 				Iterator unassignedIter = unassignedList.iterator();

@@ -54,11 +54,11 @@
 	
 	<h:outputLabel for="category" id="categoryLabel" value="#{msgs.add_assignment_category}" rendered="#{bean.categoriesEnabled}" />
 	<h:panelGroup rendered="#{bean.categoriesEnabled}">
-		<h:selectOneMenu id="selectCategory" value="#{bean.assignmentCategory}" onchange="javascript:assignmentCategoryChange(this.form.name, #{bean.categoriesEnabled} );">
+		<h:selectOneMenu id="selectCategory" value="#{bean.assignmentCategory}">
 			<f:selectItems value="#{bean.categoriesSelectList}" />
 		</h:selectOneMenu>
 		<f:verbatim><div class="instruction"></f:verbatim>
-			<h:outputText value="#{msgs.add_assignment_category_info}" />
+			<h:outputText value="#{msgs.add_assignment_category_info}" rendered="#{bean.weightingEnabled}"/>
 		<f:verbatim></div></f:verbatim>			
 	</h:panelGroup>
 	
@@ -69,7 +69,7 @@
 	only JSF supported "colspan"....
 */%>
 <h:panelGrid columns="2" columnClasses="prefixedCheckbox">
-    <h:selectBooleanCheckbox id="released" value="#{bean.assignment.released}" onclick="assignmentCategoryChange(this.form.name, #{bean.categoriesEnabled} );"
+    <h:selectBooleanCheckbox id="released" value="#{bean.assignment.released}" onclick="assignmentReleased(this.form.name, true);"
 		onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
 	<h:outputLabel for="released" value="#{msgs.add_assignment_released}" />
 	
@@ -90,5 +90,5 @@
 <h:outputText escape="false" value="<script type='text/javascript'>cat = #{bean.categoriesEnabled};</script>" />
 
 <script type="text/javascript">
-	assignmentCategoryChange('gbForm', cat);
+	assignmentReleased('gbForm', false);
 </script>

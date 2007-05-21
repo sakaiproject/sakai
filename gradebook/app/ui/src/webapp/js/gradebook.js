@@ -283,34 +283,19 @@ function showHideAll(numToggles, context, expandAlt, collapseAlt, expandTitle, c
   }
 }
 
-// if user set the category to "unassigned", the checkbox for counting the
-// assignment must be unchecked and disabled. Once he/she assigns category,
-// counted will be enabled
-function assignmentCategoryChange(myForm, categoriesEnabled) {
+// if user unchecks box to release items, we must uncheck
+// and disable the option to include item in cumulative score
+function assignmentReleased(myForm, releasedChanged) {
 	var releasedCheckboxEl =  getTheElement(myForm + ':released');
 	var countedCheckboxEl =   getTheElement(myForm + ':countAssignment');
-	//Case for categories Disabled
-	if (categoriesEnabled != true) {
-		if (releasedCheckboxEl.checked == false) {
-			countedCheckboxEl.checked = false;
-			countedCheckboxEl.disabled = true;
-		} else if (releasedCheckboxEl.checked == true) {
-			countedCheckboxEl.disabled = false;
-			countedCheckboxEl.checked = true;
-		}
-		return;
-	}
-	
-	//Case for categories Enabled.
-	var categorySelectionEl = getTheElement(myForm + ':selectCategory');
-	
-	if (categorySelectionEl.value == 'unassigned' || releasedCheckboxEl.checked == false) {
+
+	if (releasedCheckboxEl.checked == false) {
 		countedCheckboxEl.checked = false;
 		countedCheckboxEl.disabled = true;
-	}	
-	else if (categorySelectionEl.value != 'unassigned' && releasedCheckboxEl.checked == true ){
+	} else if (releasedCheckboxEl.checked == true) {
 		countedCheckboxEl.disabled = false;
-		countedCheckboxEl.checked = true;
+		if (releasedChanged)
+			countedCheckboxEl.checked = true;
 	}
 }
 

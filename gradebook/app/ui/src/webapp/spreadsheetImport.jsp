@@ -43,11 +43,11 @@
 					
 					<h:outputLabel for="category" id="categoryLabel" value="#{msgs.add_assignment_category}" rendered="#{spreadsheetUploadBean.categoriesEnabled}" />
 					<h:panelGroup rendered="#{spreadsheetUploadBean.categoriesEnabled}">
-						<h:selectOneMenu id="selectCategory" value="#{spreadsheetUploadBean.selectedCategory}" onchange="javascript:assignmentCategoryChange(this.form.name, #{spreadsheetUploadBean.categoriesEnabled} );">
+						<h:selectOneMenu id="selectCategory" value="#{spreadsheetUploadBean.selectedCategory}">
 							<f:selectItems value="#{spreadsheetUploadBean.categoriesSelectList}" />
 						</h:selectOneMenu>
 						<f:verbatim><div class="instruction"></f:verbatim>
-							<h:outputText value="#{msgs.add_assignment_category_info}" />
+							<h:outputText value="#{msgs.add_assignment_category_info}" rendered="#{spreadsheetUploadBean.weightingEnabled}"/>
 						<f:verbatim></div></f:verbatim>			
 					</h:panelGroup>
 					
@@ -64,7 +64,7 @@
 					only JSF supported "colspan"....
 				*/%>
 				<h:panelGrid columns="2" columnClasses="prefixedCheckbox">
-				    <h:selectBooleanCheckbox id="released" value="#{spreadsheetUploadBean.assignment.released}" onclick="assignmentCategoryChange(this.form.name, #{spreadsheetUploadBean.categoriesEnabled} );"
+				    <h:selectBooleanCheckbox id="released" value="#{spreadsheetUploadBean.assignment.released}" onclick="assignmentReleased(this.form.name, true);"
 						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
 					<h:outputLabel for="released" value="#{msgs.add_assignment_released}" />
 					
@@ -85,7 +85,7 @@
 				<h:outputText escape="false" value="<script type='text/javascript'>cat = #{spreadsheetUploadBean.categoriesEnabled};</script>" />
 				
 				<script type="text/javascript">
-					assignmentCategoryChange('gbForm', cat);
+					assignmentReleased('gbForm', false);
 				</script>
 
        <p class="act calendarPadding">

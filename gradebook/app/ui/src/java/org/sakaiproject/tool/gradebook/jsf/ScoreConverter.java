@@ -28,9 +28,6 @@ import javax.faces.context.FacesContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.gradebook.ui.AssignmentGradeRow;
-import org.sakaiproject.tool.gradebook.Assignment;
-import org.sakaiproject.tool.gradebook.Category;
-import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 

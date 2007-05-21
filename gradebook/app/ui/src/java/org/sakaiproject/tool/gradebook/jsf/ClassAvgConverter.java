@@ -71,14 +71,19 @@ public class ClassAvgConverter extends PointsConverter {
 					avg = assignment.getMean();
 				}
 				notCounted = assignment.isNotCounted();
+				// if weighting enabled, item is not counted if not assigned
+				// a category
+				if (!notCounted && gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY) {
+					notCounted = assignment.getCategory() == null;
+				}
 				
 			} else if (value instanceof Category) {
 				Category category = (Category) value;
 				gradebook = category.getGradebook();
 				pointsPossible = category.getAverageTotalPoints();
 				
-				// Unassigned category won't have avg
-				if (category.getId() == null) {
+				// Unassigned category in weighted gb won't have avg
+				if (category.getId() == null && gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY) {
 					return FacesUtil.getLocalizedString("overview_unassigned_cat_avg");
 				}
 				/*else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS) {

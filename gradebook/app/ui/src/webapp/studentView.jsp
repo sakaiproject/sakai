@@ -131,7 +131,7 @@
 		    </h:column>
 		    
 		    <h:column rendered="#{studentViewBean.anyExternallyMaintained}">
-		       <h:outputText value="#{msgs.overview_from} #{row.associatedAssignment.externalAppName}" rendered="#{row.assignment}" />
+		       <h:outputText value="#{msgs.overview_from} #{row.associatedAssignment.externalAppName}" rendered="#{row.assignment && row.associatedAssignment.externallyMaintained}" />
 		    </h:column>
 		  </gbx:gradebookItemTable>
 

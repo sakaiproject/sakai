@@ -250,7 +250,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 			if (getCategoriesEnabled() && unassignedAssignmentCount > 0){
 				//add Unassigned column
 				GradableObjectColumn unassignedCategoryColumn = new GradableObjectColumn();
-				unassignedCategoryColumn.setName("Unassigned");
+				unassignedCategoryColumn.setName(FacesUtil.getLocalizedString("cat_unassigned"));
 				unassignedCategoryColumn.setCategoryColumn(true);
 				gradableObjectColumns.add(unassignedCategoryColumn);
 			}

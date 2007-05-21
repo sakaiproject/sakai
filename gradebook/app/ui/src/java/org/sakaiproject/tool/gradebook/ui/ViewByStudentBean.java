@@ -365,9 +365,20 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     		// Update the AssignmentGradeRow in the map
     		AssignmentGradeRow asnGradeRow = (AssignmentGradeRow)asnMap.get(asnGr.getAssignment());
     		if (asnGradeRow != null) {
+    			Assignment asnGrAssignment = asnGr.getAssignment();
+    			
+    			// if weighted gb and no category for assignment,
+    			// it is not counted toward course grade
+    			boolean counted = asnGrAssignment.isCounted();
+    			if (counted && getWeightingEnabled()) {
+    				Category assignCategory = asnGrAssignment.getCategory();
+    				if (assignCategory == null)
+    					counted = false;
+    			}
+    			
     			// leave the grade display blank if the assignment is not counted toward
     			// course grade
-    			if (!asnGr.getAssignment().isCounted() && !isInstructorView) {
+    			if (!counted && !isInstructorView) {
     				asnGr.setPointsEarned(null);
     			}
     			asnGradeRow.setGradeRecord(asnGr);
@@ -466,18 +477,26 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
         	AssignmentGradeRow gradeRow = (AssignmentGradeRow) gradeRowIter.next();
         	AssignmentGradeRecord gradeRecord = gradeRow.getGradeRecord();
         	Assignment assignment = gradeRow.getAssociatedAssignment();
-        	if (gradeRecord != null) {
-        		if (isInstructorView || assignment.isCounted()) {
-        			Double score = gradeRecord.getPointsEarned();
-        			if (score != null) {
-        				total += score.doubleValue();
-        				if (assignment.getPointsPossible() != null) {
-        					totalPossible += assignment.getPointsPossible().doubleValue();
-        					numOfAssignments++;
-        				}
-        				numScored++;
-        			}	
-        		}
+        	
+        	// if weighted gb and no category for assignment,
+        	// it is not counted toward course grade
+        	boolean counted = assignment.isCounted();
+        	if (counted && getWeightingEnabled()) {
+        		Category assignCategory = assignment.getCategory();
+        		if (assignCategory == null)
+        			counted = false;
+        	}
+
+        	if (gradeRecord != null && counted) {
+        		Double score = gradeRecord.getPointsEarned();
+        		if (score != null) {
+        			total += score.doubleValue();
+        			if (assignment.getPointsPossible() != null) {
+        				totalPossible += assignment.getPointsPossible().doubleValue();
+        				numOfAssignments++;
+        			}
+        			numScored++;
+        		}	
         	}
         }
         if (numScored == 0 || numOfAssignments == 0) {
@@ -554,11 +573,14 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     				unassignedCat.setGradebook(gradebook);
     				unassignedCat.setName(getLocalizedString("cat_unassigned"));
     				unassignedCat.setAssignmentList(assignNoCat);
+
     				//add this category to our list
     				gradebookItems.add(unassignedCat);
 
     				// now create grade rows for the unassigned assignments
     				List gradeRows = retrieveGradeRows(assignNoCat, gradeRecords);
+    				if (!getWeightingEnabled())
+    					calculateCategoryAverages(unassignedCat, gradeRows);
     				if (gradeRows != null && !gradeRows.isEmpty()) {
     					gradebookItems.addAll(gradeRows);
     				}

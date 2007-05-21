@@ -67,8 +67,8 @@ public class ClassAvgConverterBasicDisplay extends PointsConverter {
 				Category category = (Category) value;
 				gradebook = category.getGradebook();
 				
-				// Unassigned category won't have avg
-				if (category.getId() == null) {
+				// Unassigned category in weighted gb won't have avg
+				if (category.getId() == null && gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY) {
 					return FacesUtil.getLocalizedString("overview_unassigned_cat_avg");
 				}
 				isPercent = true;

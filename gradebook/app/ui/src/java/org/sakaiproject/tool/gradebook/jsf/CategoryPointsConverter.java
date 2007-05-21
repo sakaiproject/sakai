@@ -63,7 +63,7 @@ public class CategoryPointsConverter extends PointsConverter {
 		}
 		//if Category is null, then this is "Unassigned" therefore n/a
 		if( cat == null){
-			formattedScore = "n/a";
+			formattedScore = FacesUtil.getLocalizedString("overview_unassigned_cat_avg");
 		} else if( cat.getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_POINTS){
 			//if grade by points 
 			formattedScore = 

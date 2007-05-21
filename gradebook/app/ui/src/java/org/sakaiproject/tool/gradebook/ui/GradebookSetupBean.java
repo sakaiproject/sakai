@@ -197,7 +197,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		// if we are going from no categories to having categories, we need to set
 		// counted = false for all existing assignments b/c the category will
 		// now be "unassigned"
-		if (localGradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY &&
+		/*if (localGradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY &&
 				(categorySetting.equals(CATEGORY_OPT_CAT_ONLY) || categorySetting.equals(CATEGORY_OPT_CAT_AND_WEIGHT))) {
 			List assignmentsInGb = getGradebookManager().getAssignments(getGradebookId(), Assignment.DEFAULT_SORT, true);
 			if (assignmentsInGb != null && !assignmentsInGb.isEmpty()) {
@@ -208,7 +208,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 					getGradebookManager().updateAssignment(assignment);
 				}
 			}
-		}
+		} */
 
 		if (categorySetting.equals(CATEGORY_OPT_CAT_ONLY))
 		{
