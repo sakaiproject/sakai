@@ -5047,11 +5047,8 @@ public class SiteAction extends PagedResourceActionII {
 		StringBuffer buf = new StringBuffer();
 
 		// get the request email from configuration
-		String requestEmail = ServerConfigurationService.getString(
-				"setup.request", null);
-		if (requestEmail == null) {
-			M_log.warn(this + " - no 'setup.request' in configuration");
-		} else {
+		String requestEmail = getSetupRequestEmailAddress();
+		if (requestEmail != null) {
 			String noEmailInIdAccountName = ServerConfigurationService
 					.getString("noEmailInIdAccountName", "");
 
@@ -5276,11 +5273,8 @@ public class SiteAction extends PagedResourceActionII {
 		StringBuffer buf = new StringBuffer();
 
 		// get the request email from configuration
-		String requestEmail = ServerConfigurationService.getString(
-				"setup.request", null);
-		if (requestEmail == null) {
-			M_log.warn(this + " - no 'setup.request' in configuration");
-		} else {
+		String requestEmail = getSetupRequestEmailAddress();
+		if (requestEmail != null) {
 			String noEmailInIdAccountName = ServerConfigurationService
 					.getString("noEmailInIdAccountName", "");
 
@@ -5513,11 +5507,8 @@ public class SiteAction extends PagedResourceActionII {
 	 */
 	private void sendSiteNotification(SessionState state, List notifySites) {
 		// get the request email from configuration
-		String requestEmail = ServerConfigurationService.getString(
-				"setup.request", null);
-		if (requestEmail == null) {
-			M_log.warn(this + " - no 'setup.request' in configuration");
-		} else {
+		String requestEmail = getSetupRequestEmailAddress();
+		if (requestEmail != null) {
 			// send emails
 			Site site = getStateSite(state);
 			String id = site.getId();
@@ -9374,13 +9365,7 @@ public class SiteAction extends PagedResourceActionII {
 	 */
 	private void notifyNewUserEmail(String userName, String newUserEmail,
 			String newUserPassword, String siteTitle) {
-		String from = ServerConfigurationService.getString("setup.request",
-				null);
-		if (from == null) {
-			M_log.warn(this + " - no 'setup.request' in configuration");
-			from = "postmaster@".concat(ServerConfigurationService
-					.getServerName());
-		}
+		String from = getSetupRequestEmailAddress();
 		String productionSiteName = ServerConfigurationService.getString(
 				"ui.service", "");
 		String productionSiteUrl = ServerConfigurationService.getPortalUrl();
@@ -9414,16 +9399,24 @@ public class SiteAction extends PagedResourceActionII {
 		}
 	} // notifyNewUserEmail
 
+	private String getSetupRequestEmailAddress() {
+		String from = ServerConfigurationService.getString("setup.request",
+				null);
+		if (from == null) {
+			M_log.warn(this + " - no 'setup.request' in configuration");
+			from = "postmaster@".concat(ServerConfigurationService
+					.getServerName());
+		}
+		return from;
+	}
+
 	/**
 	 * send email notification to added participant
 	 */
 	private void notifyAddedParticipant(boolean newEmailInIdAccount,
 			String emailId, String userName, String siteTitle) {
-		String from = ServerConfigurationService.getString("setup.request",
-				null);
-		if (from == null) {
-			M_log.warn(this + " - no 'setup.request' in configuration");
-		} else {
+		String from = getSetupRequestEmailAddress();
+		if (from != null) {
 			String productionSiteName = ServerConfigurationService.getString(
 					"ui.service", "");
 			String productionSiteUrl = ServerConfigurationService
