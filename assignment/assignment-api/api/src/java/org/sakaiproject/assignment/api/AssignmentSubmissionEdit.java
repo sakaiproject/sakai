@@ -207,9 +207,4 @@ public interface AssignmentSubmissionEdit extends AssignmentSubmission, Edit
 	 *        The Time at which the Submission was last modified.
 	 */
 	public void setTimeLastModified(Time lastmod);
-	
-	
-	
-	// post an attachment
-	public void postAttachment(Reference attachment);
 }

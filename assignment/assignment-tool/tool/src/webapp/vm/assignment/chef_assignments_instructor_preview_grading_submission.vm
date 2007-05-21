@@ -214,12 +214,10 @@
 				</p>
 			#end
 			<p class="act">
-				<input accesskey="d" name="eventSubmit_doSave_preview_grade_submission" type="submit" value="$tlang.getString("gen.sav")" title="$tlang.getString("gen.savdratit")" class="active" />
-				#if(!$!externalGrades)
-					<input accesskey="s" name="eventSubmit_doReturn_preview_grade_submission" type="submit" value="$tlang.getString("gen.retustud")" title="$tlang.getString("gen.retustudtit")" />
-				#end
+				<input accesskey="s" name="eventSubmit_doReturn_preview_grade_submission" type="submit" value="$tlang.getString("gen.retustud")" title="$tlang.getString("gen.retustudtit")" class="active" />
+				<input accesskey="d" name="eventSubmit_doSave_preview_grade_submission" type="submit" value="$tlang.getString("gen.sav")" />
 				<input accesskey="r" name="eventSubmit_doCancel_preview_grade_submission" type="submit" value="$tlang.getString("gen.revi")" />
-				<input accesskey="x" name="eventSubmit_doCancel_preview_to_list_submission" type="submit" value="$tlang.getString("gen.can")" />
+				<input accesskey="d" name="eventSubmit_doSave_preview_grade_submission" type="submit" value="$tlang.getString("gen.savdra")" />				
 			</p>											
 		</form>
 </div>

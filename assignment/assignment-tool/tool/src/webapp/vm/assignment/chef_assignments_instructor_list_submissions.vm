@@ -63,22 +63,17 @@
 			#else
 				<a href="#toolLinkParam("$action" "doRelease_grades" "assignmentId=$validator.escapeUrl($!assignment.Reference)")" title="$!tlang.getString('relcommented')">$!tlang.getString('relcommented')</a>
 			#end
-			| 
-			## upload all
-			<a href="#toolLinkParam("$action" "doPrep_upload_all" "assignmentId=$validator.escapeUrl($!assignment.Reference)")" title="$!tlang.getString('uploadall.title')">$!tlang.getString('uploadall.title')</a>
 			#if ($taggable)
 				#foreach ($provider in $providers)
 					#set ($helperInfo = false)
-					#set ($helperInfo = $provider.provider.getItemsHelperInfo($activity.Reference))
+					#set ($helperInfo = $provider.getItemsHelperInfo($assignment.reference))
 					#if ($helperInfo)
-						| <a href="#toolLinkParam("$action" "doHelp_items" "activityRef=$validator.escapeUrl($activity.Reference)&providerId=$validator.escapeUrl($provider.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
+						| <a href="#toolLinkParam("$action" "doHelp_items" "activityRef=$validator.escapeUrl($assignment.Reference)&providerId=$validator.escapeUrl($provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
 					#end
 				#end
 			#end
 		</div>
 		<div class="navPanel">
-			## only show this for not "non-electronic" type of assignments
-			#if ($submissionType != 4)
 			<div class="viewNav">
 				#set ($gradeType = $assignment.getContent().TypeOfGrade)
 				<form name="defaultGradeForm" class="inlineForm" method="post" action="#toolForm($action)">
@@ -106,10 +101,8 @@
 						## instructor needs to type in default points in point-based-grading
 						<input type="text" id="defaultGrade_2" name="defaultGrade" value="$!noSubmissionDefaultGrade" size="5" onchange="blur();document.defaultGradeForm.submit();"/>
 					#end
-					<input type="button" accesskey="a" class="active"  name="apply" value="$tlang.getString('gen.applygrade')" onclick="blur();document.defaultGradeForm.submit();" title="$tlang.getString("gen.applygrade")" />
 				</form>
 			</div>
-			#end
 			<div class="listNav">
 				<div class="instruction">
 					$tlang.getString("gen.viewing") $topMsgPos - $btmMsgPos $tlang.getString("gen.of") $allMsgNumber $tlang.getString("gen.items")
@@ -223,20 +216,6 @@
 							</a>
 						</th>
 					#end	
-					#if ($allowReviewService && $assignment.getContent().AllowReviewService)
-						<th id="reviewService">
-							<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitReview")'; return false;" onkeypress="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitReview")'; return false;" title="$tlang.getString("gen.sorbyreview")">
-								$tlang.getString("gen.rev")
-								#if ($sortedBy.equals($!sort_submitReview)) 
-									#if ($sortedAsc.equals("true")) 
-										<img id="sort_ascending_review" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
-									#else 
-										<img id="sort_descending_review" src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("gen.sordes")" /> 
-									#end 
-								#end 
-							</a>
-						</td>
-					#end
 					<th id="gradereleased">
 						<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitReleased")'; return false;"  title="$tlang.getString("listsub.sorbyrel")">
 							$tlang.getString("gen.relea")
@@ -253,8 +232,6 @@
 				#foreach ($userSubmission in $userSubmissions)
 					#set($submission=false)
 					#set($submission = $userSubmission.Submission)
-					#set($gradeDisplay = false)
-					#set($gradeDisplay=$submission.getGradeDisplay())
 					#set($siteUser=false)
 					#set($siteUser = $userSubmission.User)
 					#set($submitTime=false)
@@ -284,11 +261,11 @@
 									<div class="itemAction">
 										<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignment.Reference)&submissionId=$validator.escapeUrl($submission.Reference)")" title="$tlang.getString("listsub.grasub")">$!tlang.getString("listsub.grade")</a>
 										#foreach ($provider in $providers)
-											#set ($item = $producer.getItem($submission, $siteUser.getId()))
+											#set ($item = $submission.getTaggableSubmission($siteUser.getId()))
 											#set ($helperInfo = false)
-											#set ($helperInfo = $provider.provider.getItemHelperInfo($item.reference))
+											#set ($helperInfo = $provider.getItemHelperInfo($item.reference))
 											#if ($helperInfo)
-												| <a href="#toolLinkParam("$action" "doHelp_item" "itemRef=$validator.escapeUrl($item.reference)&providerId=$validator.escapeUrl($provider.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
+												| <a href="#toolLinkParam("$action" "doHelp_item" "itemRef=$validator.escapeUrl($item.reference)&providerId=$validator.escapeUrl($provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
 											#end
 										#end
 									</div>
@@ -319,25 +296,9 @@
 								#if ($returned)
 									#if ($!submitTime && $!returnedTime)
 										#if ($returnedTime.before($submitTime))
-											#if ($submission.getGraded() && $submission.TimeLastModified.after($submitTime))
-												## instructor has graded the resubmission
-												#if ($!withGrade)
-													$tlang.getString("grad3")
-												#else
-													$tlang.getString("gen.commented")
-												#end
-											#else
-												## the resubmission hasn't been graded yet
-												$tlang.getString("listsub.resubmi")
-											#end
+											$tlang.getString("listsub.resubmi") 
 										#else
 											$tlang.getString("gen.returned")
-										#end
-									#else
-										#if ($!withGrade)
-											$tlang.getString("grad3")
-										#else
-											$tlang.getString("gen.commented")
 										#end
 									#end
 								#elseif ($submission.getGraded())
@@ -352,21 +313,9 @@
 							</td>
 							#if ($withGrade)
 								<td headers="grade">
-									$!gradeDisplay
+									$submission.getGradeDisplay()
 								</td>
 							#end	
-							#if ($allowReviewService && $assignment.getContent().AllowReviewService)
-								<td headers="reviewService">
-								 #if ($submission.getReviewScore() == -1 || $submission.getReviewScore() == -2)
-								 	$tlang.getString("review.noreport")
-								 #else
-								 <a href="$submission.getReviewReport()" target="_blank" title="View report: score $submission.getReviewScore()">
-								 <img src="$submission.getReviewIconUrl()" alt="$submission.getReviewScore()">
-								 </a>
-								 #end
-									
-								</td>
-							#end
 							<td headers="gradereleased">
 								#if ($submission.getGradeReleased())
 									<img src="#imageLink("sakai/checkon.gif")" alt="$tlang.getString("gen.opecli")" border="0" width="17" height="13" align="top" />
@@ -394,7 +343,7 @@
 								<td headers="grade">
 									&nbsp;
 								</td>
-							#end
+							#end	
 							<td headers="gradereleased">
 								&nbsp;
 							</td>
@@ -529,8 +478,5 @@
 				#end
 			#end
 		</ul>
-	#end
-	#if ($taggable)
-	   	#parse ("/vm/assignment/chef_assignments_tags_list.vm")
 	#end	
 </div>

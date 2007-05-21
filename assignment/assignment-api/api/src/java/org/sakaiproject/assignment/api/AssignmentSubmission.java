@@ -23,6 +23,7 @@ package org.sakaiproject.assignment.api;
 
 import java.util.List;
 
+import org.sakaiproject.assignment.taggable.api.TaggableItem;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
@@ -34,12 +35,6 @@ import org.sakaiproject.user.api.User;
  */
 public interface AssignmentSubmission extends Entity
 {
-	/** number of times that the submission is allowed to resubmit */
-	public static final String ALLOW_RESUBMIT_NUMBER = "allow_resubmit_number";
-	
-	/** submission level of close time*/
-	public static final String ALLOW_RESUBMIT_CLOSETIME = "allow_resubmit_closeTime";
-	
 	/**
 	 * Access the context at the time of creation.
 	 * 
@@ -187,35 +182,20 @@ public interface AssignmentSubmission extends Entity
 	 */
 	public String getStatus();
 
-	/**
-	 * Method to get the number of allowed resubmission
+    /**
+	 * Method to get a list of taggable submission items for this assignment
+	 * submission.
+	 *
+	 * @return A list of taggable submission items.
 	 */
-	public int getResubmissionNum();
-	
-	/**
-	 * Method to return the close time for the submission
-	 */
-	public Time getCloseTime();
+	public List<TaggableItem> getTaggableSubmissions();
 
 	/**
-	* Method to return the score from ContentReview Service
-	*/
-	public int getReviewScore();
-
-	/**
-	* Method to get the URL to the content Review Report
-	*/
-	public String getReviewReport();
-
-	/**
-	* Method to get the status of the review
-	*/
-	public String getReviewStatus();
- 	
-	/**
-	 *  the URL of the content review Icon associated with this submission
-	 * @return
+	 * Method to get a taggable submission item for a submitter.
+	 *
+	 * @param submitterId
+	 *            The identifier of the submitter.
+	 * @return The taggable submission item.
 	 */
-	public String getReviewIconUrl();
-	
+	public TaggableItem getTaggableSubmission(String submitterId);
 }

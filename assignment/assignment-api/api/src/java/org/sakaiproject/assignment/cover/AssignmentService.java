@@ -21,12 +21,14 @@
 
 package org.sakaiproject.assignment.cover;
 
-import java.io.OutputStream;
+import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
+import org.sakaiproject.assignment.taggable.api.TaggableActivity;
+import org.sakaiproject.assignment.taggable.api.TaggableItem;
+import org.sakaiproject.assignment.taggable.api.TaggingProvider;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.time.api.Time;
 
 /**
  * <p>
@@ -60,9 +62,7 @@ public class AssignmentService {
 	public static java.lang.String REFERENCE_ROOT = org.sakaiproject.assignment.api.AssignmentService.REFERENCE_ROOT;
 
 	public static java.lang.String SECURE_ALL_GROUPS = org.sakaiproject.assignment.api.AssignmentService.SECURE_ALL_GROUPS;
-	
-	public static java.lang.String SECURE_ASSIGNMENT_RECEIVE_NOTIFICATIONS = org.sakaiproject.assignment.api.AssignmentService.SECURE_ASSIGNMENT_RECEIVE_NOTIFICATIONS;
-	
+
 	public static java.lang.String SECURE_ADD_ASSIGNMENT = org.sakaiproject.assignment.api.AssignmentService.SECURE_ADD_ASSIGNMENT;
 
 	public static java.lang.String SECURE_ADD_ASSIGNMENT_CONTENT = org.sakaiproject.assignment.api.AssignmentService.SECURE_ADD_ASSIGNMENT_CONTENT;
@@ -107,34 +107,8 @@ public class AssignmentService {
 
 	public static java.lang.String GRADEBOOK_INTEGRATION_ASSOCIATE = org.sakaiproject.assignment.api.AssignmentService.GRADEBOOK_INTEGRATION_ASSOCIATE;
 
-	public static java.lang.String NEW_ASSIGNMENT_ADD_TO_GRADEBOOK = org.sakaiproject.assignment.api.AssignmentService.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK;
-
 	public static java.lang.String PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT = org.sakaiproject.assignment.api.AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT;
 
-	public static java.lang.String ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE= org.sakaiproject.assignment.api.Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE;
-	
-	public static java.lang.String ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_NONE = org.sakaiproject.assignment.api.Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_NONE;
-	
-	public static java.lang.String ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_EACH = org.sakaiproject.assignment.api.Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_EACH;
-	
-	public static java.lang.String ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DIGEST = org.sakaiproject.assignment.api.Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DIGEST;
-	
-	public static boolean allowReceiveSubnissionNotification(java.lang.String param0) {
-		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null)
-			return false;
-
-		return service.allowReceiveSubmissionNotification(param0);
-	}
-	
-	public static java.util.List allowReceiveSubmissionNotificationUsers(java.lang.String param0) {
-		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null)
-			return null;
-
-		return service.allowReceiveSubmissionNotificationUsers(param0);
-	}
-	
 	public static boolean allowAddAssignment(java.lang.String param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
 		if (service == null)
@@ -573,7 +547,7 @@ public class AssignmentService {
 		return service.getListAssignmentsForContext(param0);
 	}
 
-	public static java.util.List getSubmissions(
+	public static java.util.Iterator getSubmissions(
 			org.sakaiproject.assignment.api.Assignment param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
 		if (service == null)
@@ -591,11 +565,15 @@ public class AssignmentService {
 
 		return service.getGradesSpreadsheet(param0);
 	}
-	public static void getSubmissionsZip(OutputStream param0, java.lang.String param1) throws org.sakaiproject.exception.IdUnusedException,
-		org.sakaiproject.exception.PermissionException{
+
+	public static byte[] getSubmissionsZip(java.lang.String param0)
+			throws org.sakaiproject.exception.IdUnusedException,
+			org.sakaiproject.exception.PermissionException {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service != null)
-		service.getSubmissionsZip(param0, param1);
+		if (service == null)
+			return null;
+
+		return service.getSubmissionsZip(param0);
 	}
 
 	public static java.lang.String assignmentReference(java.lang.String param0,
@@ -673,6 +651,64 @@ public class AssignmentService {
 		return service.archive(param0, param1, param2, param3, param4);
 	}
 
+	public static String getId() {
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null)
+			return null;
+
+		return service.getId();
+	}
+
+	public static String getName() {
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null)
+			return null;
+
+		return service.getName();
+	}
+
+	public static List<TaggableActivity> getActivities(String context,
+			TaggingProvider provider) {
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null)
+			return null;
+
+		return service.getActivities(context, provider);
+	}
+
+	public static TaggableActivity getActivity(String activityRef,
+			TaggingProvider provider) {
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null)
+			return null;
+
+		return service.getActivity(activityRef, provider);
+	}
+
+	public static boolean checkReference(String ref) {
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null)
+			return false;
+
+		return service.checkReference(ref);
+	}
+
+	public static String getContext(String ref) {
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null)
+			return null;
+
+		return service.getContext(ref);
+	}
+
+	public static TaggableItem getItem(String itemRef, TaggingProvider provider) {
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null)
+			return null;
+
+		return service.getItem(itemRef, provider);
+	}
+
 	public static boolean getAllowGroupAssignments() {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
 		if (service == null)
@@ -687,37 +723,5 @@ public class AssignmentService {
 			return false;
 
 		return service.getAllowGroupAssignmentsInGradebook();
-	}
-	
-	public static boolean canSubmit(String param0, org.sakaiproject.assignment.api.Assignment param1) {
-		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null)
-			return false;
-
-		return service.canSubmit(param0, param1);
-	}
-	
-	public static boolean isGradebookDefined(){
-		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null)
-			return false;
-
-		return service.isGradebookDefined();
-	}	
-
-	public static void releaseGradebookAssignment(String param0, boolean param1){
-		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null)
-			return;
-
-		service.releaseGradebookAssignment(param0, param1);
-	}
-
-	public static void assureGradebookCreated(org.sakaiproject.assignment.api.Assignment param0) {
-		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
-		if (service == null)
-			return;
-
-		service.assureGradebookCreated(param0);
 	}
 }

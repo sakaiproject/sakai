@@ -5,10 +5,10 @@
 				#set ($first = true)
 				#foreach ($helperInfo in $activityHelpers)
 					#if (!$first)
-						| <a href="#toolLinkParam("$action" "doHelp_activity" "activityRef=$validator.escapeUrl($activity.reference)&providerId=$validator.escapeUrl($helperInfo.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
+						| <a href="#toolLinkParam("$action" "doHelp_activity" "activityRef=$validator.escapeUrl($assignment.Reference)&providerId=$validator.escapeUrl($helperInfo.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
 					#else
 						#set ($first = false)
-						<a href="#toolLinkParam("$action" "doHelp_activity" "activityRef=$validator.escapeUrl($activity.reference)&providerId=$validator.escapeUrl($helperInfo.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
+						<a href="#toolLinkParam("$action" "doHelp_activity" "activityRef=$validator.escapeUrl($assignment.Reference)&providerId=$validator.escapeUrl($helperInfo.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
 					#end
 				#end
 			</div>
@@ -146,6 +146,9 @@
 				</td>
 			</tr>
 		</table>
+		#if ($taggable)
+        	#parse ("/vm/assignment/chef_assignments_tags_list.vm")
+		#end
 		<h4>
 			$tlang.getString("gen.assinf")
 		</h4>
@@ -189,10 +192,7 @@
 					#end
 				#end
 			</ul>
-		#end
-		#if ($taggable)
-   	    	#parse ("/vm/assignment/chef_assignments_tags_list.vm")
-		#end
+		#end	
 		#elseif ($allowAddAssignment && $hideAssignmentFlag)
 			## hide the assignment content
 			<p class="discTria">

@@ -122,22 +122,6 @@ public interface AssignmentContentEdit extends AssignmentContent, AttachmentCont
 	public void setAllowAttachments(boolean allow);
 
 	/**
-	 * Does this Assignment allow using the review service?
-	 * 
-	 * @param allow -
-	 *        true if the Assignment allows review service, false otherwise?
-	 */
-	public void setAllowReviewService(boolean allow);
-	
-	/**
-	 * Set whether this sssignment allow students to view review service reports?
-	 * 
-	 * @param allow -
-	 *        true if the Assignment allows review service, false otherwise?
-	 */
-	public void setAllowStudentViewReport(boolean allow);
-	
-	/**
 	 * Add an author to the author list.
 	 * 
 	 * @param author -

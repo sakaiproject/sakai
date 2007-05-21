@@ -22,12 +22,12 @@
 package org.sakaiproject.assignment.impl;
 
 import java.io.BufferedInputStream;
-import java.io.IOException;
 import java.io.InputStream;
+import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -57,25 +57,21 @@ import org.sakaiproject.assignment.api.AssignmentEdit;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentSubmission;
 import org.sakaiproject.assignment.api.AssignmentSubmissionEdit;
-import org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer;
+import org.sakaiproject.assignment.taggable.api.TaggableActivity;
+import org.sakaiproject.assignment.taggable.api.TaggableActivityProducer;
+import org.sakaiproject.assignment.taggable.api.TaggableItem;
 import org.sakaiproject.assignment.taggable.api.TaggingManager;
 import org.sakaiproject.assignment.taggable.api.TaggingProvider;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
-import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.cover.ContentHostingService;
-import org.sakaiproject.contentreview.exception.QueueException;
-import org.sakaiproject.contentreview.service.ContentReviewService;
-import org.sakaiproject.email.cover.DigestService;
-import org.sakaiproject.email.cover.EmailService;
 import org.sakaiproject.entity.api.AttachmentContainer;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
@@ -107,10 +103,6 @@ import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
-import org.sakaiproject.service.gradebook.shared.CommentDefinition;
-import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -138,7 +130,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
 
 
 /**
@@ -227,18 +218,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	/** Event for grading an assignment submission. */
 	public static final String EVENT_GRADE_ASSIGNMENT_SUBMISSION = "asn.grade.submission";
 
-	
-
-//	spring service injection
-	
-	
-	protected ContentReviewService contentReviewService;
-	public void setContentReviewService(ContentReviewService contentReviewService) {
-		this.contentReviewService = contentReviewService;
-	}
-	
-
-	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Abstractions, etc.
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -467,8 +446,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 * Dependencies and their setter methods
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-
-	
 	/** Dependency: MemoryService. */
 	protected MemoryService m_memoryService = null;
 
@@ -537,20 +514,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	public void setTaggingManager(TaggingManager manager)
 	{
 		m_taggingManager = manager;
-	}
-
-	/** Dependency: AssignmentActivityProducer. */
-	protected AssignmentActivityProducer m_assignmentActivityProducer = null;
-
-	/**
-	 * Dependency: AssignmentActivityProducer.
-	 * 
-	 * @param assignmentActivityProducer
-	 *        The AssignmentActivityProducer.
-	 */
-	public void setAssignmentActivityProducer(AssignmentActivityProducer assignmentActivityProducer)
-	{
-		m_assignmentActivityProducer = assignmentActivityProducer;
 	}
 
 	/** Dependency: allowGroupAssignments setting */
@@ -637,13 +600,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		FunctionManager.registerFunction(SECURE_ACCESS_ASSIGNMENT);
 		FunctionManager.registerFunction(SECURE_UPDATE_ASSIGNMENT);
 		FunctionManager.registerFunction(SECURE_GRADE_ASSIGNMENT_SUBMISSION);
-		FunctionManager.registerFunction(SECURE_ASSIGNMENT_RECEIVE_NOTIFICATIONS);
 		
- 		//if no contentReviewService was set try discovering it
- 		if (contentReviewService == null)
- 		{
- 			contentReviewService = (ContentReviewService) ComponentManager.get(ContentReviewService.class.getName());
- 		}
+		// register as a linkable activity producer
+		m_taggingManager.registerProducer(this);
+
 	} // init
 
 	/**
@@ -714,12 +674,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		while (badId);
 
 		String key = assignmentReference(context, assignmentId);
-		
-		// security check
-		if (!allowAddAssignment(context))
-		{
-			throw new PermissionException(SessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT, key);
-		}
+
+		unlock(SECURE_ADD_ASSIGNMENT, key);
 
 		// storage
 		AssignmentEdit assignment = m_assignmentStorage.put(assignmentId, context);
@@ -1283,11 +1239,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		}
 		while (badId);
 
-		// security check
-		if (!allowAddAssignmentContent(context))
-		{
-			throw new PermissionException(SessionManager.getCurrentSessionUserId(), SECURE_ADD_ASSIGNMENT_CONTENT, contentId);
-		}
+		unlock(SECURE_ADD_ASSIGNMENT_CONTENT, contentReference(context, contentId));
 
 		AssignmentContentEdit content = m_contentStorage.put(contentId, context);
 
@@ -1900,9 +1852,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		try
 		{
 			AssignmentSubmission s = getSubmission(submissionRef);
-			
-			Assignment a = s.getAssignment();
-			
 			Time returnedTime = s.getTimeReturned();
 			Time submittedTime = s.getTimeSubmitted();
 			
@@ -1929,16 +1878,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			{
 				// submitting a submission
 				EventTrackingService.post(EventTrackingService.newEvent(EVENT_SUBMIT_ASSIGNMENT_SUBMISSION, submissionRef, true));
-			
-				// only doing the notification for real online submissions
-				if (a.getContent().getTypeOfSubmission() != Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
-				{
-					// instructor notification
-					notificationToInstructors(s, a);
-					
-					// student notification, whether the student gets email notification once he submits an assignment
-					notificationToStudent(s);
-				}
 			}
 				
 			
@@ -1953,139 +1892,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		}
 
 	} // commitEdit(Submission)
-
-	/**
-	 * send notification to instructor type of users if necessary
-	 * @param s
-	 * @param a
-	 */
-	private void notificationToInstructors(AssignmentSubmission s, Assignment a) 
-	{
-		String notiOption = a.getProperties().getProperty(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE);
-		if (notiOption != null && !notiOption.equals(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_NONE))
-		{
-			// need to send notification email
-			String context = s.getContext();
-			
-			List receivers = allowReceiveSubmissionNotificationUsers(context);
-			
-			List headers = new Vector();
-			headers.add(rb.getString("noti.subject.label") + rb.getString("noti.subject.content"));
-			
-			String messageBody = getNotificationMessage(s);
-			
-			if (notiOption.equals(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_EACH))
-			{
-				// send the message immidiately
-				EmailService.sendToUsers(receivers, headers, messageBody);
-			}
-			else if (notiOption.equals(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DIGEST))
-			{
-				// digest the message to each user
-				for (Iterator iReceivers = receivers.iterator(); iReceivers.hasNext();)
-				{
-					User user = (User) iReceivers.next();
-					DigestService.digest(user.getId(), rb.getString("noti.subject.label") + rb.getString("noti.subject.content")/*the subject*/, messageBody);
-				}
-			}
-		}
-	}
-
-	/**
-	 * send notification to student if necessary
-	 * @param s
-	 */
-	private void notificationToStudent(AssignmentSubmission s) 
-	{
-		if (m_serverConfigurationService.getBoolean("assignment.submission.confirmation.email", true))
-		{
-			//send notification
-			User u = UserDirectoryService.getCurrentUser();
-			List receivers = new Vector();
-			receivers.add(u);
-			List headers = new Vector();
-			headers.add(rb.getString("noti.subject.label") + rb.getString("noti.subject.content"));
-			
-			String messageBody = getNotificationMessage(s);
-			EmailService.sendToUsers(receivers, headers, messageBody);
-		}
-	}
-
-	private String getNotificationMessage(AssignmentSubmission s) 
-	{
-		Assignment a = s.getAssignment();
-		
-		String context = s.getContext();
-		
-		String siteTitle = "";
-		String siteId = "";
-		try
-		{
-			Site site = SiteService.getSite(context);
-			siteTitle = site.getTitle();
-			siteId = site.getId();
-		}
-		catch (Exception ee)
-		{
-			M_log.warn("commitEdit(), site id =" + context, ee);
-		}
-		
-		StringBuffer buffer = new StringBuffer();
-		// site title and id
-		buffer.append(rb.getString("noti.site.title") + " " + siteTitle +"\n");
-		buffer.append(rb.getString("noti.site.id") + " " + siteId +"\n\n");
-		// assignment title and due date
-		buffer.append(rb.getString("noti.assignment") + " " + a.getTitle()+"\n");
-		buffer.append(rb.getString("noti.assignment.duedate") + " " + a.getDueTime().toStringLocalFull()+"\n\n");
-		// submitter name and id
-		User[] submitters = s.getSubmitters();
-		String submitterNames = "";
-		String submitterIds = "";
-		for (int i = 0; i<submitters.length; i++)
-		{
-			User u = (User) submitters[i];
-			if (i>0)
-			{
-				submitterNames = submitterNames.concat("; ");
-				submitterIds = submitterIds.concat("; ");
-			}
-			submitterNames = submitterNames.concat(u.getDisplayName());
-			submitterIds = submitterIds.concat(u.getDisplayId());
-		}
-		buffer.append(rb.getString("noti.student") + " " + submitterNames);
-		if (submitterIds.length() != 0)
-		{
-			buffer.append("( " + submitterIds + " )");
-		}
-		buffer.append("\n\n");
-		
-		// submit time
-		buffer.append(rb.getString("noti.submit.id") + " " + s.getId() + "\n");
-		
-		// submit time 
-		buffer.append(rb.getString("noti.submit.time") + " " + s.getTimeSubmitted().toStringLocalFull() + "\n\n");
-		
-		// submit text
-		String text = StringUtil.trimToNull(s.getSubmittedText());
-		if ( text != null)
-		{
-			buffer.append(rb.getString("noti.submit.text") + "\n\n" + text + "\n\n");
-		}
-		
-		// attachment if any
-		List attachments = s.getSubmittedAttachments();
-		if (attachments != null && attachments.size() >0)
-		{
-			buffer.append(rb.getString("noti.submit.attachments") + "\n\n");
-			for (int j = 0; j<attachments.size(); j++)
-			{
-				Reference r = (Reference) attachments.get(j);
-				buffer.append(r.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME) + "(" + r.getProperties().getPropertyFormatted(ResourceProperties.PROP_CONTENT_LENGTH)+ ")\n");
-			}
-		}
-		
-		return buffer.toString();
-	}
 
 	/**
 	 * Cancel the changes made to a AssignmentSubmissionEdit object, and release the lock.
@@ -2170,21 +1976,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		}
 	}// removeSubmission
 
-	/**
-	 *@inheritDoc
-	 */
-	public int getSubmissionsSize(String context)
-	{
-		int size = 0;
-		
-		List submissions = getSubmissions(context);
-		if (submissions != null)
-		{
-			size = submissions.size();
-		}
-		return size;
-	}
-	
 	/**
 	 * Access all AssignmentSubmission objects - known to us (not from external providers).
 	 * 
@@ -2538,7 +2329,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 *        the Assignment who's submissions you would like.
 	 * @return Iterator over all the submissions for an Assignment.
 	 */
-	public List getSubmissions(Assignment assignment)
+	public Iterator getSubmissions(Assignment assignment)
 	{
 		List retVal = new Vector();
 
@@ -2546,8 +2337,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		{
 			retVal = getSubmissions(assignment.getId());
 		}
-		
-		return retVal;
+
+		if (retVal.isEmpty())
+			return new EmptyIterator();
+		else
+			return retVal.iterator();
 	}
 
 	/**
@@ -2674,40 +2468,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	} // allowAddGroupAssignment
 
 	/**
-	 * @inheritDoc
-	 */
-	public boolean allowReceiveSubmissionNotification(String context)
-	{
-		String resourceString = getAccessPoint(true) + Entity.SEPARATOR + "a" + Entity.SEPARATOR + context + Entity.SEPARATOR;
-
-		if (M_log.isDebugEnabled())
-		{
-			M_log.debug("Entering allowReceiveSubmissionNotification with resource string : " + resourceString);
-		}
-
-		// checking allow at the site level
-		if (unlockCheck(SECURE_ASSIGNMENT_RECEIVE_NOTIFICATIONS, resourceString)) return true;
-		
-		return false;
-	}
-	
-	/**
-	 * @inheritDoc
-	 */
-	public List allowReceiveSubmissionNotificationUsers(String context)
-	{
-		String resourceString = getAccessPoint(true) + Entity.SEPARATOR + "a" + Entity.SEPARATOR + context + Entity.SEPARATOR;
-		if (M_log.isDebugEnabled())
-		{
-			M_log.debug("Entering allowReceiveSubmissionNotificationUsers with resource string : " + resourceString);
-			M_log.debug("                                   				 	context string : " + context);
-		}
-		return SecurityService.unlockUsers(SECURE_ASSIGNMENT_RECEIVE_NOTIFICATIONS, resourceString);
-
-	} // allowAddAssignmentUsers
-	
-	/**
-	 * @inheritDoc
+	 * Check permissions for adding an Assignment.
+	 * 
+	 * @param context -
+	 *        Describes the portlet context - generated with DefaultId.getChannel().
+	 * @return True if the current User is allowed to add an Assignment, false if not.
 	 */
 	public boolean allowAddAssignment(String context)
 	{
@@ -2931,10 +2696,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		if (M_log.isDebugEnabled()) M_log.debug("Entering allow add AssignmentContent with resource string : " + resourceString);
 
 		// check security (throws if not permitted)
-		if (unlockCheck(SECURE_ADD_ASSIGNMENT_CONTENT, resourceString)) return true;
-		
-		// if not, see if the user has any groups to which adds are allowed
-		return (!getGroupsAllowAddAssignment(context).isEmpty());
+		return unlockCheck(SECURE_ADD_ASSIGNMENT_CONTENT, resourceString);
 	}
 
 	/**
@@ -3242,7 +3004,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						}
 	
 						// begin to populate the column for this assignment, iterating through student list
-						for (Iterator sIterator=getSubmissions(a).iterator(); sIterator.hasNext();)
+						for (Iterator sIterator=getSubmissions(a); sIterator.hasNext();)
 						{
 							AssignmentSubmission submission = (AssignmentSubmission) sIterator.next();
 							
@@ -3252,8 +3014,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							{	
 								// find right row
 								row = sheet.getRow(((Integer)user_row.get(userId)).intValue());
-
-								if (submission.getGraded() /*&& submission.getGradeReleased()*/ && submission.getGrade() != null)
+							
+								if (submission.getGraded() && submission.getGradeReleased() && submission.getGrade() != null)
 								{
 									// graded and released
 									if (assignmentType == 3)
@@ -3338,8 +3100,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 * @throws PermissionException
 	 *         if the current user is not allowed to access this.
 	 */
-	public void getSubmissionsZip(OutputStream outputStream, String ref) throws IdUnusedException, PermissionException
- 	{
+	public byte[] getSubmissionsZip(String ref) throws IdUnusedException, PermissionException
+	{
 		if (M_log.isDebugEnabled()) M_log.debug(this + ": getSubmissionsZip reference=" + ref);
 
 		byte[] rv = null;
@@ -3347,13 +3109,14 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		try
 		{
 			Assignment a = getAssignment(assignmentReferenceFromSubmissionsZipReference(ref));
-			Iterator submissions = getSubmissions(a).iterator();
+			Iterator submissions = getSubmissions(a);
 
+			Blob b = new Blob();
 			StringBuffer exceptionMessage = new StringBuffer();
 
 			if (allowGradeSubmission(a.getReference()))
 			{
-				zipSubmissions(a.getReference(), a.getTitle(), a.getContent().getTypeOfGradeString(a.getContent().getTypeOfGrade()), a.getContent().getTypeOfSubmission(), submissions, outputStream, exceptionMessage);
+				zipSubmissions(a.getTitle(), a.getContent().getTypeOfSubmission(), submissions, b, exceptionMessage);
 
 				if (exceptionMessage.length() > 0)
 				{
@@ -3361,6 +3124,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					if (M_log.isDebugEnabled())
 						M_log.debug(this + ref + exceptionMessage.toString());
 				}
+				// return zip file content
+				rv = b.getBytes();
 			}
 		}
 		catch (IdUnusedException e)
@@ -3375,13 +3140,15 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			throw new PermissionException(SessionManager.getCurrentSessionUserId(), SECURE_ACCESS_ASSIGNMENT, ref);
 		}
 
+		return rv;
+
 	} // getSubmissionsZip
 
-	protected void zipSubmissions(String assignmentReference, String assignmentTitle, String gradeTypeString, int typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuffer exceptionMessage) 
+	protected void zipSubmissions(String assignmentTitle, int typeOfSubmission, Iterator submissions, Blob b, StringBuffer exceptionMessage) 
 	{
 		try
 		{
-			ZipOutputStream out = new ZipOutputStream(outputStream);
+			ZipOutputStream out = new ZipOutputStream(b.outputStream());
 
 			// create the folder structor - named after the assignment's title
 			String root = Validator.escapeZipEntry(assignmentTitle) + Entity.SEPARATOR;
@@ -3391,166 +3158,133 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			{
 				exceptionMessage.append("There is no submission yet. ");
 			}
-			
-			// the buffer used to store grade information
-			StringBuffer gradesBuffer = new StringBuffer(assignmentTitle + "," + gradeTypeString + "\n\n");
-			gradesBuffer.append(rb.getString("grades.id") + "," + rb.getString("grades.lastname") + "," + rb.getString("grades.firstname") + "," + rb.getString("grades.grade") + "\n");
 
-			// allow add assignment members
-			List allowAddSubmissionUsers = allowAddSubmissionUsers(assignmentReference);
-			
 			// Create the ZIP file
 			String submittersName = "";
 			int count = 1;
 			while (submissions.hasNext())
 			{
+				count = 1;
+				submittersName = root;
 				AssignmentSubmission s = (AssignmentSubmission) submissions.next();
-				
+
 				if (s.getSubmitted())
 				{
-					// get the submission user id and see if the user is still in site
-					String userId = (String) s.getSubmitterIds().get(0);
-					try
+					User[] submitters = s.getSubmitters();
+					String submittersString = "";
+					for (int i = 0; i < submitters.length; i++)
 					{
-						User u = UserDirectoryService.getUser(userId);
-						if (allowAddSubmissionUsers.contains(u))
+						if (i > 0)
 						{
-							count = 1;
-							submittersName = root;
-							
-							User[] submitters = s.getSubmitters();
-							String submittersString = "";
-							for (int i = 0; i < submitters.length; i++)
+							submittersString = submittersString.concat("; ");
+						}
+						submittersString = submittersString.concat(submitters[i].getLastName()+","+submitters[i].getFirstName());
+					}
+					
+					if (StringUtil.trimToNull(submittersString) != null)
+					{
+						submittersName = submittersName.concat(StringUtil.trimToNull(submittersString));
+						submittedText = s.getSubmittedText();
+
+						boolean added = false;
+						while (!added)
+						{
+							try
 							{
-								if (i > 0)
+								submittersName = submittersName.concat("/");
+								// create the folder structure - named after the submitter's name
+								if (typeOfSubmission != Assignment.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION)
 								{
-									submittersString = submittersString.concat("; ");
+									// create the text file only when a text submission is allowed
+									String entryName = submittersName + submittersString + "_submissionText.html";
+									ZipEntry textEntry = new ZipEntry(entryName);
+									out.putNextEntry(textEntry);
+									out.write(FormattedText.encodeUnicode(submittedText).getBytes());
+									out.closeEntry();
 								}
-								String fullName = submitters[i].getLastName() + "," + submitters[i].getFirstName();
-								submittersString = submittersString.concat(fullName);
-								gradesBuffer.append(submitters[i].getDisplayId() + "," + fullName + "," + s.getGradeDisplay() + "\n");
-							}
-							
-							if (StringUtil.trimToNull(submittersString) != null)
-							{
-								submittersName = submittersName.concat(StringUtil.trimToNull(submittersString));
-								submittedText = s.getSubmittedText();
-		
-								boolean added = false;
-								while (!added)
+
+								// create the attachment file(s)
+								List attachments = s.getSubmittedAttachments();
+								int attachedUrlCount = 0;
+								for (int j = 0; j < attachments.size(); j++)
 								{
+									Reference r = (Reference) attachments.get(j);
 									try
 									{
-										submittersName = submittersName.concat("/");
-										// create the folder structure - named after the submitter's name
-										if (typeOfSubmission != Assignment.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION)
-										{
-											// create the text file only when a text submission is allowed
-											String entryName = submittersName + submittersString + "_submissionText.html";
-											ZipEntry textEntry = new ZipEntry(entryName);
-											out.putNextEntry(textEntry);
-											out.write(FormattedText.encodeUnicode(submittedText).getBytes());
-											out.closeEntry();
-										}
+										ContentResource resource = ContentHostingService.getResource(r.getId());
+
+										String contentType = resource.getContentType();
 										
-										// the comments.txt file to show instructor's comments
-										ZipEntry textEntry = new ZipEntry(submittersName + "comments.txt");
-										out.putNextEntry(textEntry);
-										out.write(FormattedText.encodeUnicode(s.getFeedbackComment()).getBytes());
-										out.closeEntry();
-		
-										// create the attachment file(s)
-										List attachments = s.getSubmittedAttachments();
-										int attachedUrlCount = 0;
-										for (int j = 0; j < attachments.size(); j++)
+										ResourceProperties props = r.getProperties();
+										String displayName = props.getPropertyFormatted(props.getNamePropDisplayName());
+
+										// for URL content type, encode a redirect to the body URL
+										if (contentType.equalsIgnoreCase(ResourceProperties.TYPE_URL))
 										{
-											Reference r = (Reference) attachments.get(j);
-											try
-											{
-												ContentResource resource = ContentHostingService.getResource(r.getId());
-		
-												String contentType = resource.getContentType();
-												
-												ResourceProperties props = r.getProperties();
-												String displayName = props.getPropertyFormatted(props.getNamePropDisplayName());
-		
-												// for URL content type, encode a redirect to the body URL
-												if (contentType.equalsIgnoreCase(ResourceProperties.TYPE_URL))
-												{
-													displayName = "attached_URL_" + attachedUrlCount;
-													attachedUrlCount++;
-												}
-		
-												// buffered stream input
-												InputStream content = resource.streamContent();
-												byte data[] = new byte[1024 * 10];
-												BufferedInputStream bContent = new BufferedInputStream(content, data.length);
-												
-												ZipEntry attachmentEntry = new ZipEntry(submittersName + displayName);
-												out.putNextEntry(attachmentEntry);
-												int bCount = -1;
-												while ((bCount = bContent.read(data, 0, data.length)) != -1) 
-												{
-													out.write(data, 0, bCount);
-												}
-												out.closeEntry();
-												content.close();
-											}
-											catch (PermissionException e)
-											{
-												M_log.debug(this + ": getSubmissionsZip--PermissionException submittersName="
-														+ submittersName + " attachment reference=" + r);
-											}
-											catch (IdUnusedException e)
-											{
-												M_log.debug(this + ": getSubmissionsZip--IdUnusedException submittersName="
-														+ submittersName + " attachment reference=" + r);
-											}
-											catch (TypeException e)
-											{
-												M_log.debug(this + ": getSubmissionsZip--TypeException: submittersName="
-														+ submittersName + " attachment reference=" + r);
-											}
-											catch (IOException e)
-											{
-												M_log.debug(this + ": getSubmissionsZip--IOException: Problem in creating the attachment file: submittersName="
-																+ submittersName + " attachment reference=" + r);
-											}
-											catch (ServerOverloadException e)
-											{
-												M_log.debug(this + ": getSubmissionsZip--ServerOverloadException: submittersName="
-														+ submittersName + " attachment reference=" + r);
-											}
-										} // for
-		
-										added = true;
+											displayName = "attached_URL_" + attachedUrlCount;
+											attachedUrlCount++;
+										}
+
+										// buffered stream input
+										InputStream content = resource.streamContent();
+										byte data[] = new byte[1024 * 10];
+										BufferedInputStream bContent = new BufferedInputStream(content, data.length);
+										
+										ZipEntry attachmentEntry = new ZipEntry(submittersName + displayName);
+										out.putNextEntry(attachmentEntry);
+										int bCount = -1;
+										while ((bCount = bContent.read(data, 0, data.length)) != -1) 
+										{
+											out.write(data, 0, bCount);
+										}
+										out.closeEntry();
+										content.close();
+									}
+									catch (PermissionException e)
+									{
+										M_log.debug(this + ": getSubmissionsZip--PermissionException submittersName="
+												+ submittersName + " attachment reference=" + r);
+									}
+									catch (IdUnusedException e)
+									{
+										M_log.debug(this + ": getSubmissionsZip--IdUnusedException submittersName="
+												+ submittersName + " attachment reference=" + r);
+									}
+									catch (TypeException e)
+									{
+										M_log.debug(this + ": getSubmissionsZip--TypeException: submittersName="
+												+ submittersName + " attachment reference=" + r);
 									}
 									catch (IOException e)
 									{
-										exceptionMessage.append("Can not establish the IO to create zip file for user "
-												+ submittersName);
-										M_log.debug(this + ": getSubmissionsZip--IOException unable to create the zip file for user"
-												+ submittersName);
-										submittersName = submittersName.substring(0, submittersName.length() - 1) + "_" + count++;
+										M_log
+												.debug(this
+														+ ": getSubmissionsZip--IOException: Problem in creating the attachment file: submittersName="
+														+ submittersName + " attachment reference=" + r);
 									}
-								}	//while
-							} // if
-						}
-					}
-					catch (Exception e)
-					{
-						M_log.warn(this + e.getMessage() + " userId = " + userId);
-					}
-				} // if the user is still in site
+									catch (ServerOverloadException e)
+									{
+										M_log.debug(this + ": getSubmissionsZip--ServerOverloadException: submittersName="
+												+ submittersName + " attachment reference=" + r);
+									}
+								} // for
+
+								added = true;
+							}
+							catch (IOException e)
+							{
+								exceptionMessage.append("Can not establish the IO to create zip file for user "
+										+ submittersName);
+								M_log.debug(this + ": getSubmissionsZip--IOException unable to create the zip file for user"
+										+ submittersName);
+								submittersName = submittersName.substring(0, submittersName.length() - 1) + "_" + count++;
+							}
+						} // while
+					}	// if
+				} // submitted
 
 			} // while -- there is submission
 
-			// create a grades.csv file into zip
-			ZipEntry gradesCSVEntry = new ZipEntry(root + "grades.csv");
-			out.putNextEntry(gradesCSVEntry);
-			out.write(gradesBuffer.toString().getBytes());
-			out.closeEntry();
-			
 			// Complete the ZIP file
 			out.finish();
 			out.flush();
@@ -3658,36 +3392,38 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					{
 						if (REF_TYPE_SUBMISSIONS.equals(ref.getSubType()))
 						{
-							res.setContentType("application/zip");
-							res.setHeader("Content-Disposition", "attachment; filename = bulk_download.zip");
-							 
-							OutputStream out = null;
-							try
+							// get the submissions zip blob
+							byte[] zip = getSubmissionsZip(ref.getReference());
+	
+							if (zip != null)
 							{
-							    out = res.getOutputStream();
-							    
-							    // get the submissions zip blob
-							    getSubmissionsZip(out, ref.getReference());
-							    
-							    out.flush();
-							    out.close();
-							}
-							catch (Throwable ignore)
-							{
-							    M_log.error(ignore.getMessage(), ignore);
-							}
-							finally
-							{
-							    if (out != null)
-							    {
-							        try
-							        {
-							            out.close();
-							        }
-							        catch (Throwable ignore)
-							        {
-							        }
-							    }
+								res.setContentType("application/zip");
+								res.setHeader("Content-Disposition", "attachment; filename = bulk_download.zip");
+	
+								OutputStream out = null;
+								try
+								{
+									out = res.getOutputStream();
+									out.write(zip);
+									out.flush();
+									out.close();
+								}
+								catch (Throwable ignore)
+								{
+								}
+								finally
+								{
+									if (out != null)
+									{
+										try
+										{
+											out.close();
+										}
+										catch (Throwable ignore)
+										{
+										}
+									}
+								}
 							}
 						}
 	
@@ -3799,42 +3535,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public Entity getEntity(Reference ref)
 	{
-		Entity rv = null;
-
-		try
-		{
-			// is it an AssignmentContent object
-			if (REF_TYPE_CONTENT.equals(ref.getSubType()))
-			{
-				rv = getAssignmentContent(ref.getReference());
-			}
-			// is it an Assignment object
-			else if (REF_TYPE_ASSIGNMENT.equals(ref.getSubType()))
-			{
-				rv = getAssignment(ref.getReference());
-			}
-			// is it an AssignmentSubmission object
-			else if (REF_TYPE_SUBMISSION.equals(ref.getSubType()))
-			{
-				rv = getSubmission(ref.getReference());
-			}
-			else
-				M_log.warn("getEntity(): unknown message ref subtype: " + ref.getSubType() + " in ref: " + ref.getReference());
-		}
-		catch (PermissionException e)
-		{
-			M_log.warn("getEntity(): " + e);
-		}
-		catch (IdUnusedException e)
-		{
-			M_log.warn("getEntity(): " + e);
-		}
-		catch (NullPointerException e)
-		{
-			M_log.warn("getEntity(): " + e);
-		}
-
-		return rv;
+		return null;
 	}
 
 	/**
@@ -3911,45 +3612,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public String getEntityUrl(Reference ref)
 	{
-		String rv = null;
-
-		try
-		{
-			// is it an AssignmentContent object
-			if (REF_TYPE_CONTENT.equals(ref.getSubType()))
-			{
-				AssignmentContent c = getAssignmentContent(ref.getReference());
-				rv = c.getUrl();
-			}
-			// is it an Assignment object
-			else if (REF_TYPE_ASSIGNMENT.equals(ref.getSubType()))
-			{
-				Assignment a = getAssignment(ref.getReference());
-				rv = a.getUrl();
-			}
-			// is it an AssignmentSubmission object
-			else if (REF_TYPE_SUBMISSION.equals(ref.getSubType()))
-			{
-				AssignmentSubmission s = getSubmission(ref.getReference());
-				rv = s.getUrl();
-			}
-			else
-				M_log.warn("getEntityUrl(): unknown message ref subtype: " + ref.getSubType() + " in ref: " + ref.getReference());
-		}
-		catch (PermissionException e)
-		{
-			M_log.warn("getEntityUrl(): " + e);
-		}
-		catch (IdUnusedException e)
-		{
-			M_log.warn("getEntityUrl(): " + e);
-		}
-		catch (NullPointerException e)
-		{
-			M_log.warn("getEntityUrl(): " + e);
-		}
-
-		return rv;
+		return null;
 	}
 
 	/**
@@ -4021,7 +3684,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				// make the content a childnode of the assignment node
 				el.appendChild(contentEl);
 
-				Iterator submissionsIterator = getSubmissions(assignment).iterator();
+				Iterator submissionsIterator = getSubmissions(assignment);
 				while (submissionsIterator.hasNext())
 				{
 					AssignmentSubmission submission = (AssignmentSubmission) submissionsIterator.next();
@@ -4511,31 +4174,22 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							p.clear();
 							p.addAll(oAssignment.getProperties());
 							
+							// one more touch on the gradebook-integration link
+							if (p.getProperty(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT).equals(GRADEBOOK_INTEGRATION_ASSOCIATE))
+							{
+								// assignments are imported as drafts;
+								// mark the integration with "add" for now, later when user posts the assignment, the corresponding assignment will be created in gradebook.
+								p.addProperty(PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, GRADEBOOK_INTEGRATION_ADD);
+							}
+							
 							// update live properties
 							addLiveProperties(p);
 							// complete the edit
 							m_assignmentStorage.commit(nAssignment);
 							((BaseAssignmentEdit) nAssignment).closeEdit();
-							
-							try {
-								if (m_taggingManager.isTaggable()) {
-									for (TaggingProvider provider : m_taggingManager
-											.getProviders()) {
-										provider
-												.transferCopyTags(
-														m_assignmentActivityProducer
-																.getActivity(oAssignment),
-														m_assignmentActivityProducer
-																.getActivity(nAssignment));
-									}
-								}
-							} catch (PermissionException pe) {
-								M_log.error(pe.getMessage(), pe);
-							}
 						}
 						catch (Exception ee)
 						{
-							M_log.error(ee.getMessage(), ee);
 						}
 					}
 				} // if-else
@@ -4548,45 +4202,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public String getEntityDescription(Reference ref)
 	{
-		String rv = "Assignment: " + ref.getReference();
-		
-		try
-		{
-			// is it an AssignmentContent object
-			if (REF_TYPE_CONTENT.equals(ref.getSubType()))
-			{
-				AssignmentContent c = getAssignmentContent(ref.getReference());
-				rv = "AssignmentContent: " + c.getId() + " (" + c.getContext() + ")";
-			}
-			// is it an Assignment object
-			else if (REF_TYPE_ASSIGNMENT.equals(ref.getSubType()))
-			{
-				Assignment a = getAssignment(ref.getReference());
-				rv = "Assignment: " + a.getId() + " (" + a.getContext() + ")";
-			}
-			// is it an AssignmentSubmission object
-			else if (REF_TYPE_SUBMISSION.equals(ref.getSubType()))
-			{
-				AssignmentSubmission s = getSubmission(ref.getReference());
-				rv = "AssignmentSubmission: " + s.getId() + " (" + s.getContext() + ")";
-			}
-			else
-				M_log.warn("getEntityDescription(): unknown message ref subtype: " + ref.getSubType() + " in ref: " + ref.getReference());
-		}
-		catch (PermissionException e)
-		{
-			M_log.warn("getEntityDescription(): " + e);
-		}
-		catch (IdUnusedException e)
-		{
-			M_log.warn("getEntityDescription(): " + e);
-		}
-		catch (NullPointerException e)
-		{
-			M_log.warn("getEntityDescription(): " + e);
-		}
-
-		return rv;
+		return null;
 	}
 
 	/**
@@ -4594,131 +4210,130 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public ResourceProperties getEntityResourceProperties(Reference ref)
 	{
-		ResourceProperties rv = null;
+		return null;
+	}
 
-		try
-		{
-			// is it an AssignmentContent object
-			if (REF_TYPE_CONTENT.equals(ref.getSubType()))
-			{
-				AssignmentContent c = getAssignmentContent(ref.getReference());
-				rv = c.getProperties();
-			}
-			// is it an Assignment object
-			else if (REF_TYPE_ASSIGNMENT.equals(ref.getSubType()))
-			{
-				Assignment a = getAssignment(ref.getReference());
-				rv = a.getProperties();
-			}
-			// is it an AssignmentSubmission object
-			else if (REF_TYPE_SUBMISSION.equals(ref.getSubType()))
-			{
-				AssignmentSubmission s = getSubmission(ref.getReference());
-				rv = s.getProperties();
-			}
-			else
-				M_log.warn("getEntityProperties: unknown message ref subtype: " + ref.getSubType() + " in ref: " + ref.getReference());
-		}
-		catch (PermissionException e)
-		{
-			M_log.warn("getEntityProperties(): " + e);
-		}
-		catch (IdUnusedException e)
-		{
-			M_log.warn("getEntityProperties(): " + e);
-		}
-		catch (NullPointerException e)
-		{
-			M_log.warn("getEntityProperties(): " + e);
-		}
+	/***************************************************************************
+	 * TaggableActivityProducer Implementation
+	 **************************************************************************/
 
-		return rv;
+	public String getId() {
+		return APPLICATION_ID;
+	}
+
+	public String getName() {
+		return rb.getString("service_name");
+	}
+
+	public List<TaggableActivity> getActivities(String context,
+			TaggingProvider provider) {
+		// We aren't picky about the provider, so ignore that argument.
+		List<TaggableActivity> activities = new ArrayList<TaggableActivity>();
+		List<BaseAssignment> assignments = getAssignments(context);
+		for (BaseAssignment assignment : assignments) {
+			assignment.setProducer(this);
+			TaggableActivity activity = (TaggableActivity) assignment;
+			activities.add(activity);
+		}
+		return activities;
+	}
+
+	public TaggableActivity getActivity(String activityRef,
+			TaggingProvider provider) {
+		// We aren't picky about the provider, so ignore that argument.
+		TaggableActivity activity = null;
+		if (checkReference(activityRef)) {
+			try {
+				BaseAssignment assignment = (BaseAssignment) getAssignment(activityRef);
+				assignment.setProducer(this);
+				activity = (TaggableActivity) assignment;
+			} catch (IdUnusedException iue) {
+				M_log.error(iue.getMessage(), iue);
+			} catch (PermissionException pe) {
+				M_log.error(pe.getMessage(), pe);
+			}
+		}
+		return activity;
+	}
+
+	public List getItems(TaggableActivity activity, TaggingProvider provider) {
+		// We aren't picky about the provider, so ignore that argument.
+		List items = new ArrayList();
+		Assignment assignment = (Assignment) activity.getObject();
+		for (Iterator<AssignmentSubmission> i = getSubmissions(assignment); i
+				.hasNext();) {
+			AssignmentSubmission submission = i.next();
+			for (Object submitterId : submission.getSubmitterIds()) {
+				items.add(new BaseTaggableSubmission(submission,
+						(String) submitterId));
+			}
+		}
+		return items;
+	}
+
+	public List getItems(TaggableActivity activity, String userId,
+			TaggingProvider provider) {
+		// We aren't picky about the provider, so ignore that argument.
+		List returned = new ArrayList();
+		try {
+			Assignment assignment = (Assignment) activity.getObject();
+			AssignmentSubmission submission = getSubmission(assignment
+					.getReference(), UserDirectoryService.getUser(userId));
+			if (submission != null) {
+				TaggableItem item = new BaseTaggableSubmission(submission,
+						userId);
+				returned.add(item);
+			}
+		} catch (IdUnusedException iue) {
+			M_log.error(iue.getMessage(), iue);
+		} catch (PermissionException pe) {
+			M_log.error(pe.getMessage(), pe);
+		} catch (UserNotDefinedException unde) {
+			M_log.error(unde.getMessage(), unde);
+		}
+		return returned;
+	}
+
+	public TaggableItem getItem(String itemRef, TaggingProvider provider) {
+		// We aren't picky about the provider, so ignore that argument.
+		TaggableItem item = null;
+		if (checkReference(itemRef)) {
+			try {
+				item = new BaseTaggableSubmission(
+						getSubmission(parseSubmissionRef(itemRef)),
+						parseAuthor(itemRef));
+			} catch (IdUnusedException iue) {
+				M_log.error(iue.getMessage(), iue);
+			} catch (PermissionException pe) {
+				M_log.error(pe.getMessage(), pe);
+			}
+		}
+		return item;
+	}
+
+	public boolean checkReference(String ref) {
+		return ref.startsWith(REFERENCE_ROOT);
+	}
+
+	public String getContext(String ref) {
+		return m_entityManager.newReference(ref).getContext();
+	}
+
+	protected static final String ITEM_REF_SEPARATOR = "@";
+
+	protected String parseSubmissionRef(String itemRef) {
+		return itemRef.split(ITEM_REF_SEPARATOR)[0];
+	}
+
+	protected String parseAuthor(String itemRef) {
+		return itemRef.split(ITEM_REF_SEPARATOR)[1];
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
-	public boolean canSubmit(String context, Assignment a)
-	{
-		// return false if not allowed to submit at all
-		if (!allowAddSubmission(context)) return false;
-		
-		String userId = SessionManager.getCurrentSessionUserId();
-		try
-		{
-			// get user
-			User u = UserDirectoryService.getUser(userId);
-			
-			Time currentTime = TimeService.newTime();
-			
-			// return false if the assignment is draft or is not open yet
-			Time openTime = a.getOpenTime();
-			if (a.getDraft() || (openTime != null && openTime.after(currentTime)))
-			{
-				return false;
-			}
-			
-			// get user's submission
-			AssignmentSubmission submission = null;
-			
-			try
-			{
-				submission = getSubmission(a.getReference(), u);
-			}
-			catch (IdUnusedException e)
-			{
-				M_log.warn(e.getMessage(), e);
-			}
-			catch (PermissionException e)
-			{
-				M_log.warn(e.getMessage(), e);
-			}
-			
-			if (submission == null || (submission != null && submission.getTimeSubmitted() == null))
-			{
-				// return false if the current time has passed the assignment close time, and student hasn't make a submission yet
-				Time closeTime = a.getCloseTime();
-				if (closeTime != null && currentTime.after(closeTime))
-					return false;
-				else
-					return true;
-			}
-			else
-			{
-				if (!submission.getSubmitted())
-				{
-					// return true for drafted submissions
-					return true;
-				}
-				else
-				{
-					// returned 
-					if (submission.getResubmissionNum()!=0 && currentTime.before(submission.getCloseTime()))
-					{
-						// return true for returned submission but allow for resubmit and before the close time
-						return true;
-					}
-					else
-					{
-						// return false otherwise
-						return false;
-					}
-				}
-			}
-		}
-		catch (UserNotDefinedException e)
-		{
-			// cannot find user
-			M_log.warn(e.getMessage(), e);
-			return false;
-		}
-	}
-
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Assignment Implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	public class BaseAssignment implements Assignment
+	public class BaseAssignment implements Assignment, TaggableActivity
 	{
 		protected ResourcePropertiesEdit m_properties;
 
@@ -5306,6 +4921,28 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		} // compareTo
 
+		/***********************************************************************
+		 * TaggableActivity implementation
+		 **********************************************************************/
+
+		protected TaggableActivityProducer producer;
+
+		protected void setProducer(TaggableActivityProducer producer) {
+			this.producer = producer;
+		}
+
+		public TaggableActivityProducer getProducer() {
+			return producer;
+		}
+
+		public String getDescription() {
+			return "";
+		}
+		
+		public Object getObject() {
+			return this;
+		}
+
 	} // BaseAssignment
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -5727,13 +5364,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		protected boolean m_releaseGrades;
 
-		
-		
 		protected boolean m_allowAttachments;
-		
-		protected boolean m_allowReviewService;
-		
-		protected boolean m_allowStudentViewReport;
 
 		protected Time m_timeCreated;
 
@@ -5790,9 +5421,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			m_individuallyGraded = getBool(el.getAttribute("indivgraded"));
 			m_releaseGrades = getBool(el.getAttribute("releasegrades"));
 			m_allowAttachments = getBool(el.getAttribute("allowattach"));
-			m_allowReviewService = getBool(el.getAttribute("allowreview"));
-			m_allowStudentViewReport = getBool(el.getAttribute("allowstudentview"));
-			
 			m_timeCreated = getTimeObject(el.getAttribute("datecreated"));
 			m_timeLastModified = getTimeObject(el.getAttribute("lastmod"));
 
@@ -5966,10 +5594,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			content.setAttribute("indivgraded", getBoolString(m_individuallyGraded));
 			content.setAttribute("releasegrades", getBoolString(m_releaseGrades));
 			content.setAttribute("allowattach", getBoolString(m_allowAttachments));
-		
-			content.setAttribute("allowreview", getBoolString(m_allowReviewService));
-			content.setAttribute("allowstudentview", getBoolString(m_allowStudentViewReport));
-			
 			content.setAttribute("honorpledge", String.valueOf(m_honorPledge));
 			content.setAttribute("submissiontype", String.valueOf(m_typeOfSubmission));
 			content.setAttribute("typeofgrade", String.valueOf(m_typeOfGrade));
@@ -6034,10 +5658,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				m_individuallyGraded = content.individuallyGraded();
 				m_releaseGrades = content.releaseGrades();
 				m_allowAttachments = content.getAllowAttachments();
-				//Uct
-				m_allowReviewService = content.getAllowReviewService();
-				m_allowStudentViewReport = content.getAllowStudentViewReport();
-				
 				m_timeCreated = content.getTimeCreated();
 				m_timeLastModified = content.getTimeLastModified();
 				m_properties = new BaseResourcePropertiesEdit();
@@ -6308,22 +5928,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		{
 			return m_allowAttachments;
 		}
-		
-		/**
-		 * Does this Assignment allow review service?
-		 * 
-		 * @return true if the Assignment allows review service, false otherwise?
-		 */
-		public boolean getAllowReviewService()
-		{
-			return m_allowReviewService;
-		}
-		
-		public boolean getAllowStudentViewReport() {
-			return m_allowStudentViewReport;
-		}
-		
-		
+
 		/**
 		 * Access the time that this object was created.
 		 * 
@@ -6638,28 +6243,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			m_honorPledge = pledgeType;
 		}
 
-		
-		/**
-		 * Does this Assignment allow using the review service?
-		 * 
-		 * @param allow -
-		 *        true if the Assignment allows review service, false otherwise?
-		 */
-		public void setAllowReviewService(boolean allow)
-		{
-			m_allowReviewService = allow;
-		}
-		
-		/**
-		 * Does this Assignment allow students to view the report?
-		 * 
-		 * @param allow -
-		 *        true if the Assignment allows students to view the report, false otherwise?
-		 */
-		public void setAllowStudentViewReport(boolean allow) {
-			m_allowStudentViewReport = allow;
-		}
-		
 		/**
 		 * Does this Assignment allow attachments?
 		 * 
@@ -6851,90 +6434,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		protected boolean m_honorPledgeFlag;
 
-		
-		//The score given by the review service
-		protected int m_reviewScore;
-		// The report given by the content review service
-		protected String m_reviewReport;
-		// The status of the review service
-		protected String m_reviewStatus;
-		
-		protected String m_reviewIconUrl;
-		
-		// return the variables
-		// Get new values from review service if defaults
-		public int getReviewScore() {
-			// Code to get updated score if default
-		
-			if (m_submittedAttachments.isEmpty())
-			{
-				// M_log.debug("No attachments submitted.");
-			}
-			else
-			{
-				try {
-					String contentId = ((Reference) m_submittedAttachments.get(0)).getId();
-					return contentReviewService.getReviewScore(contentId);
-						
-				} 
-				catch (QueueException cie) {
-					//should we add the item
-					try {
-						if (this.getAssignment().getContent().getAllowReviewService())
-						{
-							String contentId = ((Reference) m_submittedAttachments.get(0)).getId();
-							String userId = (String)this.getSubmitterIds().get(0);
-							contentReviewService.queueContent(userId, null, getAssignment().getReference(), contentId);
-						}
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-					return -1;
-					
-				}
-				catch (Exception e) {
-					
-					return -1;
-				}
-					
-			}
-			//No assignment available
-			return -2;
-			
-		}
-		
-		public String getReviewReport() {
-//			 Code to get updated report if default
-			if (m_submittedAttachments.isEmpty()) 
-			{
-				// M_log.warn("No attachments submitted.");
-			}
-			else
-			{
-				try {
-					String contentId = ((Reference) m_submittedAttachments.get(0)).getId();
-					return contentReviewService.getReviewReport(contentId);
-					
-				} catch (Exception e) {
-					//e.printStackTrace();
-					return "Error";
-				}
-					
-			}
-			return "Error";
-		}
-		
-		public String getReviewStatus() {
-			return m_reviewStatus;
-		}
-		
-		public String getReviewIconUrl() {
-			if (m_reviewIconUrl == null )
-				m_reviewIconUrl = contentReviewService.getIconUrlforScore(new Long(this.getReviewScore()));
-				
-			return m_reviewIconUrl;
-		}
-		
 		/**
 		 * Copy constructor.
 		 */
@@ -6948,12 +6447,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 */
 		public BaseAssignmentSubmission(String id, String context, String assignId)
 		{
-			
-			// must set initial review status
-			m_reviewStatus = "";
-			m_reviewScore = -1;
-			m_reviewReport = "Not available yet";
-			
 			m_id = id;
 			m_context = context;
 			m_assignment = assignId;
@@ -6977,8 +6470,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			m_submitters.add(currentUser);
 		}
 
-		
-		// todo work out what this does
 		/**
 		 * Reads the AssignmentSubmission's attribute values from xml.
 		 * 
@@ -6987,35 +6478,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 */
 		public BaseAssignmentSubmission(Element el)
 		{
-			
-			
-			try {
-				if (el.getAttribute("reviewScore")!=null)
-					m_reviewScore = Integer.parseInt(el.getAttribute("reviewScore"));
-				else
-					m_reviewScore = -1;
-			}
-			catch (NumberFormatException nfe) {
-				m_reviewScore = -1;
-			}
-			try {
-			// The report given by the content review service
-				if (el.getAttribute("reviewReport")!=null)
-					m_reviewReport = el.getAttribute("reviewReport");
-				else 
-					m_reviewReport = "no report available";
-				
-			// The status of the review service
-				if (el.getAttribute("reviewStatus")!=null)
-					m_reviewStatus = el.getAttribute("reviewStatus");
-				else 
-					m_reviewStatus = "";
-			}
-			catch (Exception e) {
-				M_log.error("error constructing Submission: " + e);
-			}
-			
-			
 			int numAttributes = 0;
 			String intString = null;
 			String attributeString = null;
@@ -7209,7 +6671,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		}// storage constructor
 
-		
 		/**
 		 * Takes the AssignmentContent's attribute values and puts them into the xml document.
 		 * 
@@ -7239,12 +6700,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			String itemString = null;
 			Reference tempReference = null;
 
-			
-			submission.setAttribute("reviewScore",Integer.toString(m_reviewScore));
-			submission.setAttribute("reviewReport",m_reviewReport);
-			submission.setAttribute("reviewStatus",m_reviewStatus);
-			
-			
 			submission.setAttribute("id", m_id);
 			submission.setAttribute("context", m_context);
 			submission.setAttribute("scaled_grade", m_grade);
@@ -7315,22 +6770,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		}// toXml
 
-		
 		protected void setAll(AssignmentSubmission submission)
 		{
-			
-			
-			m_reviewScore = submission.getReviewScore();
-			// The report given by the content review service
-			m_reviewReport = submission.getReviewReport();
-			// The status of the review service
-			m_reviewStatus = submission.getReviewStatus();
-			
-			
 			m_id = submission.getId();
 			m_context = submission.getContext();
 			m_assignment = submission.getAssignmentId();
-			m_grade = ((BaseAssignmentSubmission) submission).m_grade;
+			m_grade = submission.getGrade();
 			m_submitters = submission.getSubmitterIds();
 			m_submitted = submission.getSubmitted();
 			m_timeSubmitted = submission.getTimeSubmitted();
@@ -7339,11 +6784,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			m_submittedAttachments = submission.getSubmittedAttachments();
 			m_feedbackAttachments = submission.getFeedbackAttachments();
 			m_submittedText = submission.getSubmittedText();
-			m_feedbackComment = ((BaseAssignmentSubmission) submission).m_feedbackComment;
+			m_feedbackComment = submission.getFeedbackComment();
 			m_feedbackText = submission.getFeedbackText();
-			m_returned = ((BaseAssignmentSubmission) submission).m_returned;
-			m_graded = ((BaseAssignmentSubmission) submission).m_graded;
-			m_gradeReleased = ((BaseAssignmentSubmission) submission).m_gradeReleased;
+			m_returned = submission.getReturned();
+			m_graded = submission.getGraded();
+			m_gradeReleased = submission.getGradeReleased();
 			m_honorPledgeFlag = submission.getHonorPledgeFlag();
 			m_properties = new BaseResourcePropertiesEdit();
 			m_properties.addAll(submission.getProperties());
@@ -7516,14 +6961,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 */
 		public boolean getGradeReleased()
 		{
-			// check for external grades
-			Assignment a = getAssignment();
-			if (isGradesInGb(a))
-			{
-				return isGradesInGbReleased(a);
-			}
-
-			// internal grades
 			return m_gradeReleased;
 		}
 
@@ -7534,15 +6971,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 */
 		public String getGrade()
 		{
-			// check for external grades
-			Assignment a = getAssignment();
-			if (isGradesInGb(a))
-			{
-				String externalGrade = getGradeFromGb(a, this);
-				return externalGrade == null ? "" : externalGrade;
-			}
-
-			// else internal grade
 			return m_grade;
 		}
 
@@ -7553,31 +6981,30 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 */
 		public String getGradeDisplay()
 		{
-			String grade = getGrade();
 			Assignment m = getAssignment();
 			if (m.getContent().getTypeOfGrade() == Assignment.SCORE_GRADE_TYPE)
 			{
-				if (grade != null && grade.length() > 0)
+				if (m_grade != null && m_grade.length() > 0)
 				{
 					try
 					{
-						Integer.parseInt(grade);
+						Integer.parseInt(m_grade);
 						// if point grade, display the grade with one decimal place
-						return grade.substring(0, grade.length() - 1) + "." + grade.substring(grade.length() - 1);
+						return m_grade.substring(0, m_grade.length() - 1) + "." + m_grade.substring(m_grade.length() - 1);
 					}
 					catch (Exception e)
 					{
-						return grade;
+						return m_grade;
 					}
 				}
 				else
 				{
-					return "";
+					return StringUtil.trimToZero(m_grade);
 				}
 			}
 			else
 			{
-				return StringUtil.trimToZero(grade);
+				return StringUtil.trimToZero(m_grade);
 			}
 		}
 
@@ -7618,13 +7045,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 */
 		public String getFeedbackComment()
 		{
-			// check for external grades
-			Assignment a = getAssignment();
-			if (isGradesInGb(a))
-			{
-				return getCommentFromGb(a, this);
-			}
-			
 			return m_feedbackComment;
 		}
 
@@ -7649,19 +7069,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		}
 
 		/**
-		 * Get whether this Submission was returned to the submitter.
+		 * Get whether this Submission was rejected by the grader.
 		 * 
-		 * @return True if this response was returned to the submitter, false otherwise.
+		 * @return True if this response was rejected by the grader, false otherwise.
 		 */
 		public boolean getReturned()
 		{
-			// check for external grades
-			Assignment a = getAssignment();
-			if (isGradesInGb(a))
-			{
-				return isGradesInGbReleased(a);
-			}
-			
 			return m_returned;
 		}
 
@@ -7672,15 +7085,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 */
 		public boolean getGraded()
 		{
-			// check for external grades
-			Assignment a = getAssignment();
-			if (isGradesInGb(a))
-			{
-				String externalGrade = getGradeFromGb(a, this);
-				return externalGrade != null;
-			}
-
-			// internal grades
 			return m_graded;
 		}
 
@@ -7715,9 +7119,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 			if (m_submitted)
 			{
-				if (getGraded() && getGradeReleased())
+				if (m_graded && m_gradeReleased)
 					retVal = STATUS_GRADED;
-				else if (getReturned())
+				else if (m_returned)
 					retVal = STATUS_RETURNED;
 				else
 					retVal = STATUS_SUBMITTED;
@@ -7775,36 +7179,80 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		} // compareTo
 		
-		/**
-		 * {@inheritDoc}
-		 */
-		public int getResubmissionNum()
-		{
-			String numString = StringUtil.trimToNull(m_properties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER));
-			return numString != null?Integer.valueOf(numString).intValue():0;
+		public List<TaggableItem> getTaggableSubmissions() {
+			List<TaggableItem> list = new ArrayList<TaggableItem>();
+			for (Iterator i = m_submitters.iterator(); i.hasNext();) {
+				String submitterId = (String) i.next();
+				list.add(new BaseTaggableSubmission(this, submitterId));
+			}
+			return list;
 		}
-		
-		/**
-		 * {@inheritDoc}
-		 */
-		public Time getCloseTime()
-		{
-			String closeTimeString = StringUtil.trimToNull(m_properties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME));
-			if (closeTimeString != null)
-			{
-				// return the close time if it is set
-				return TimeService.newTime(Long.parseLong(closeTimeString));
-			}
-			else
-			{
-				// else use the assignment close time setting
-				Assignment a = getAssignment();
-				return a!=null?a.getCloseTime():null;	
-			}
+
+		public TaggableItem getTaggableSubmission(String submitterId) {
+			TaggableItem taggableSub = null;
+			if (m_submitters.contains(submitterId))
+				taggableSub = new BaseTaggableSubmission(this, submitterId);
+			return taggableSub;
 		}
 		
 	} // AssignmentSubmission
 	
+	/***************************************************************************
+	 * TaggableItem implementation
+	 **************************************************************************/
+
+	public class BaseTaggableSubmission implements TaggableItem {
+
+		protected AssignmentSubmission submission;
+
+		protected String userId;
+
+		public BaseTaggableSubmission(AssignmentSubmission submission,
+				String userId) {
+			this.submission = submission;
+			this.userId = userId;
+		}
+
+		public String getReference() {
+			StringBuffer sb = new StringBuffer();
+			sb.append(submission.getReference());
+			sb.append(ITEM_REF_SEPARATOR);
+			sb.append(userId);
+			return sb.toString();
+		}
+
+		public String getTitle() {
+			StringBuffer sb = new StringBuffer();
+			try {
+				User user = UserDirectoryService.getUser(userId);
+				sb.append(user.getFirstName());
+				sb.append(' ');
+				sb.append(user.getLastName());
+				sb.append(' ');
+				sb.append(rb.getString("gen.submission"));
+			} catch (UserNotDefinedException unde) {
+				M_log.error(unde.getMessage(), unde);
+			}
+			return sb.toString();
+		}
+
+		public String getContent() {
+			return submission.getSubmittedText();
+		}
+
+		public String getUserId() {
+			return userId;
+		}
+
+		public TaggableActivity getActivity() {
+			return (TaggableActivity) submission.getAssignment();
+		}
+
+		public Object getObject() {
+			return submission;
+		}
+	}
+
 	/***************************************************************************
 	 * AssignmentSubmissionEdit implementation
 	 **************************************************************************/
@@ -7961,13 +7409,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 */
 		public void setGradeReleased(boolean released)
 		{
-			// check for external grades - ignore if so
-			Assignment a = getAssignment();
-			if (isGradesInGb(a))
-			{
-				return;
-			}
-
 			m_gradeReleased = released;
 		}
 
@@ -7979,16 +7420,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 */
 		public void setGrade(String grade)
 		{
-			// check for external grades
-			Assignment a = getAssignment();
-			if (isGradesInGb(a))
-			{
-				// adjust grade scale to actual number
-				grade = grade.substring(0, grade.length() - 1) + "." + grade.substring(grade.length() - 1);
-				setGradeIntoGb(a, this, grade);
-			}
-
-			// internal grades
 			m_grade = grade;
 		}
 
@@ -8039,17 +7470,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 * @param comment -
 		 *        the text of the grader's comments; may be null.
 		 */
-		public void setFeedbackComment(String comment)
+		public void setFeedbackComment(String value)
 		{
-			// check for external grades
-			Assignment a = getAssignment();
-			if (isGradesInGb(a))
-			{
-				setCommentIntoGb(a, this, comment);
-			}
-
-			// internal grade
-			m_feedbackComment = comment;
+			m_feedbackComment = value;
 		}
 
 		/**
@@ -8101,13 +7524,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 */
 		public void setReturned(boolean value)
 		{
-			// check for external grades - ignore if so
-			Assignment a = getAssignment();
-			if (isGradesInGb(a))
-			{
-				return;
-			}
-
 			m_returned = value;
 		}
 
@@ -8119,13 +7535,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 */
 		public void setGraded(boolean value)
 		{
-			// check for external grades - ignore if so
-			Assignment a = getAssignment();
-			if (isGradesInGb(a))
-			{
-				return;
-			}
-
 			m_graded = value;
 		}
 
@@ -8160,21 +7569,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		public void setTimeLastModified(Time lastmod)
 		{
 			if (lastmod != null) m_timeLastModified = lastmod;
-		}
-		
-		
-		
-		public void postAttachment(Reference attachment){
-			//Send the attachment to the review service
-
-			try {
-				Assignment ass = this.getAssignment();
-				contentReviewService.queueContent(null, null, ass.getReference(), attachment.getId());
-				
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-
 		}
 
 		/**
@@ -9524,369 +8918,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				result = -result;
 			}
 			return result;
-		}
-	}
-	
-	/**
-	 *  {@inheritDoc}
-	 */
-	public boolean isGradebookDefined()
-	{
-		boolean rv = false;
-		SecurityService.pushAdvisor(new SecurityAdvisor()
-		{
-			public SecurityAdvice isAllowed(String userId, String function, String reference)
-			{
-				return SecurityAdvice.ALLOWED;
-			}
-		});
-		try
-		{
-			GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager
-					.get("org.sakaiproject.service.gradebook.GradebookService");
-			String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
-			if (g.isGradebookDefined(gradebookUid))
-			{
-				rv = true;
-			}
-		}
-		catch (Exception e)
-		{
-			// M_log.warn("isGradebookDefined: " + e);
-		}
-		finally
-		{
-			SecurityService.popAdvisor();
-		}
-
-		return rv;
-
-	} // isGradebookDefined()
-
-	/**
-	 *  {@inheritDoc}
-	 */
-	public void assureGradebookCreated(Assignment a)
-	{
-		isGradesInGb(a);
-	}
-
-	/**
-	 * Check if this assignment's grades are set to be in a valid GB item.
-	 * 
-	 * @param a
-	 *        The assignment
-	 * @return true if the assignment is set to store grades in a valid GB item, false if not.
-	 */
-	protected boolean isGradesInGb(Assignment a)
-	{
-		if (a == null) return false;
-
-		// check the gb item title property
-		ResourceProperties props = a.getProperties();
-		String gbGradeSet = StringUtil.trimToNull(props.getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
-		if (gbGradeSet == null) return false;
-
-		// check that the gb and the item exist
-		GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager
-				.get("org.sakaiproject.service.gradebook.GradebookService");
-		SecurityService.pushAdvisor(new SecurityAdvisor()
-		{
-			public SecurityAdvice isAllowed(String userId, String function, String reference)
-			{
-				return SecurityAdvice.ALLOWED;
-			}
-		});
-		try
-		{
-			if (!g.isAssignmentDefined(a.getContext(), gbGradeSet))
-			{
-				// create it
-		 		org.sakaiproject.service.gradebook.shared.Assignment assignmentDefinition = new org.sakaiproject.service.gradebook.shared.Assignment();
-		 		assignmentDefinition.setName(gbGradeSet);
-		 		assignmentDefinition.setPoints(new Double(a.getContent().getMaxGradePointDisplay()));
-		 		assignmentDefinition.setDueDate(new Date(a.getDueTime().getTime()));
-		 		assignmentDefinition.setReleased(false);
-		 		assignmentDefinition.setCounted(true);
-		 		g.addAssignment(a.getContext(), assignmentDefinition);
-
-		 		return true;
-			}
-		}
-		catch (GradebookNotFoundException e)
-		{
-			return false;
-		}
-		catch (Exception e)
-		{
-			// M_log.warn("isGradesInGb: " + e);
-			return false;
-		}
-		finally
-		{
-			SecurityService.popAdvisor();
-		}
-
-		return true;
-	}
-
-	/**
-	 * Check if this assignment's grades which are known to be in the GB are released.
-	 * 
-	 * @param a
-	 *        The assignment
-	 * @return true if the assignment grades are released, false if not.
-	 */
-	protected boolean isGradesInGbReleased(Assignment a)
-	{
-		GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager
-				.get("org.sakaiproject.service.gradebook.GradebookService");
-		SecurityService.pushAdvisor(new SecurityAdvisor()
-		{
-			public SecurityAdvice isAllowed(String userId, String function, String reference)
-			{
-				return SecurityAdvice.ALLOWED;
-			}
-		});
-		try
-		{
-			org.sakaiproject.service.gradebook.shared.Assignment gbA = g.getAssignment(a.getContext(), a.getProperties().getProperty(
-					AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
-			return gbA.isReleased();
-		}
-		catch (GradebookNotFoundException e)
-		{
-		}
-		catch (AssessmentNotFoundException e)
-		{
-		}
-		catch (SecurityException e)
-		{
-			// M_log.warn("isGradesInGbReleased: " + e);
-		}
-		finally
-		{
-			SecurityService.popAdvisor();
-		}
-
-		return false;
-	}
-
-	/**
-	 * Get the grade from the GB for an assignment known to be storing grades in the gb for this submission.
-	 * 
-	 * @param a
-	 *        The assignment.
-	 * @param s
-	 *        The submission.
-	 * @return The grade, converted to a string, from the GB, or null if there is none defined.
-	 */
-	protected String getGradeFromGb(Assignment a, AssignmentSubmission s)
-	{
-		// if an attempt is made to read one's own score and the gb is not released, short circut to avoid a stupid GB error message in the logs -ggolden
-		String submitter = (String) s.getSubmitterIds().get(0);
-		if (submitter.equals(SessionManager.getCurrentSessionUserId()))
-		{
-			if (!isGradesInGbReleased(a))
-			{
-				return null;
-			}
-		}
-
-		String grade = null;
-		GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager
-				.get("org.sakaiproject.service.gradebook.GradebookService");
-		SecurityService.pushAdvisor(new SecurityAdvisor()
-		{
-			public SecurityAdvice isAllowed(String userId, String function, String reference)
-			{
-				return SecurityAdvice.ALLOWED;
-			}
-		});
-
-		try
-		{
-			Double dGrade = g.getAssignmentScore(a.getContext(), a.getProperties().getProperty(
-					AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT), submitter);
-			if (dGrade != null) grade = dGrade.toString();
-		}
-		catch (GradebookNotFoundException e)
-		{
-		}
-		catch (AssessmentNotFoundException e)
-		{
-		}
-		catch (SecurityException e)
-		{
-		}
-		finally
-		{
-			SecurityService.popAdvisor();
-		}
-
-		return grade;
-	}
-	
-	/**
-	 * Set the grade into the GB for an assignment known to be storing grades in the gb for this submission.
-	 * 
-	 * @param a
-	 *        The assignment.
-	 * @param s
-	 *        The submission.
-	 * @param grade
-	 *        The grade.
-	 */
-	protected void setGradeIntoGb(Assignment a, AssignmentSubmission s, String grade)
-	{
-		GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager
-				.get("org.sakaiproject.service.gradebook.GradebookService");
-		SecurityService.pushAdvisor(new SecurityAdvisor()
-		{
-			public SecurityAdvice isAllowed(String userId, String function, String reference)
-			{
-				return SecurityAdvice.ALLOWED;
-			}
-		});
-
-		try
-		{
-			g.setAssignmentScore(a.getContext(), a.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT),
-					(String) s.getSubmitterIds().get(0), Double.valueOf(grade), ToolManager.getInstance().getCurrentPlacement().getTitle());
-		}
-		catch (GradebookNotFoundException e)
-		{
-		}
-		catch (AssessmentNotFoundException e)
-		{
-		}
-		catch (SecurityException e)
-		{
-		}
-		finally
-		{
-			SecurityService.popAdvisor();
-		}
-	}
-
-	/**
-	 * Get the comment from the GB for an assignment known to be storing grades in the gb for this submission.
-	 * 
-	 * @param a
-	 *        The assignment.
-	 * @param s
-	 *        The submission.
-	 * @return The comment string, from the GB, or null if there is none defined.
-	 */
-	protected String getCommentFromGb(Assignment a, AssignmentSubmission s)
-	{
-		String comment = null;
-
-		// if the assignment is associated with Gradebook entry, get the score from Gradebook
-		GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager
-				.get("org.sakaiproject.service.gradebook.GradebookService");
-		SecurityService.pushAdvisor(new SecurityAdvisor()
-		{
-			public SecurityAdvice isAllowed(String userId, String function, String reference)
-			{
-				return SecurityAdvice.ALLOWED;
-			}
-		});
-
-		try
-		{
-			CommentDefinition commentDef = g.getAssignmentScoreComment(a.getContext(), a.getProperties().getProperty(
-					AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT), (String) s.getSubmitterIds().get(0));
-			if (commentDef != null) comment = commentDef.getCommentText();
-		}
-		catch (GradebookNotFoundException e)
-		{
-		}
-		catch (AssessmentNotFoundException e)
-		{
-		}
-		catch (SecurityException e)
-		{
-		}
-		finally
-		{
-			SecurityService.popAdvisor();
-		}
-
-		return comment;
-	}
-
-	/**
-	 * Set the comment into the GB for an assignment known to be storing grades in the gb for this submission.
-	 * 
-	 * @param a
-	 *        The assignment.
-	 * @param s
-	 *        The submission.
-	 * @param comment
-	 *        The comment.
-	 */
-	protected void setCommentIntoGb(Assignment a, AssignmentSubmission s, String comment)
-	{
-		GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager
-				.get("org.sakaiproject.service.gradebook.GradebookService");
-		SecurityService.pushAdvisor(new SecurityAdvisor()
-		{
-			public SecurityAdvice isAllowed(String userId, String function, String reference)
-			{
-				return SecurityAdvice.ALLOWED;
-			}
-		});
-
-		try
-		{
-			g.setAssignmentScoreComment(a.getContext(), a.getProperties().getProperty(
-					AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT), (String) s.getSubmitterIds().get(0), comment);
-		}
-		catch (GradebookNotFoundException e)
-		{
-		}
-		catch (AssessmentNotFoundException e)
-		{
-		}
-		catch (SecurityException e)
-		{
-		}
-		finally
-		{
-			SecurityService.popAdvisor();
-		}
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public void releaseGradebookAssignment(String gbAssignmentName, boolean release)
-	{
-		boolean gradebookExists = isGradebookDefined();
-
-		if (gradebookExists)
-		{
-			GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
-			String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
-			
-			if (g.isAssignmentDefined(gradebookUid, gbAssignmentName))
-			{
-				// find the right assignment
-				List assignments = g.getAssignments(gradebookUid);
-				for (Iterator i = assignments.iterator(); i.hasNext();)
-				{
-					org.sakaiproject.service.gradebook.shared.Assignment a = (org.sakaiproject.service.gradebook.shared.Assignment) i.next();
-					if (a.getName().equals(gbAssignmentName))
-					{
-						//set the release status
-						a.setReleased(release);
-						g.updateAssignment(gradebookUid, gbAssignmentName, a);
-						
-						return;
-					}
-				}
-			}
 		}
 	}
 

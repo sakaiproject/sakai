@@ -21,18 +21,17 @@
 
 package org.sakaiproject.assignment.api;
 
-import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.sakaiproject.assignment.taggable.api.TaggableActivityProducer;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 import org.w3c.dom.Element;
 
@@ -44,7 +43,7 @@ import org.w3c.dom.Element;
  * Each Assignment has an associated AssignmentContent (an AssignmentContent can belong to more the one Assignment) and a list of AssignmentSubmission (the student responses to the Assignment).
  * </p>
  */
-public interface AssignmentService extends EntityProducer
+public interface AssignmentService extends EntityProducer, TaggableActivityProducer
 {
 	/** The type string for this application: should not change over time as it may be stored in various parts of persistent entities. */
 	static final String APPLICATION_ID = "sakai:assignment";
@@ -52,9 +51,6 @@ public interface AssignmentService extends EntityProducer
 	/** This string starts the references to resources in this service. */
 	public static final String REFERENCE_ROOT = "/assignment";
 
-	/** Security function giving the user permission to receive assignment submission email */
-	public static final String SECURE_ASSIGNMENT_RECEIVE_NOTIFICATIONS = "asn.receive.notifications";
-	
 	/** Security lock for adding an assignment. */
 	public static final String SECURE_ADD_ASSIGNMENT = "asn.new";
 
@@ -122,29 +118,9 @@ public interface AssignmentService extends EntityProducer
 	public static final String GRADEBOOK_INTEGRATION_NO = "no";
 	public static final String GRADEBOOK_INTEGRATION_ADD = "add";
 	public static final String GRADEBOOK_INTEGRATION_ASSOCIATE = "associate";
-	public static final String NEW_ASSIGNMENT_ADD_TO_GRADEBOOK = "new_assignment_add_to_gradebook";
-
 	// and the prop name
-	public static final String PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT = "prop_new_assignment_add_to_gradebook";
-	
-	/**
-	 * Check permissions for receiving assignment submission notification email
-	 * 
-	 * @param context -
-	 *        Describes the portlet context - generated with DefaultId.getChannel().
-	 * @return True if the current User is allowed to receive the email, false if not.
-	 */
-	public boolean allowReceiveSubmissionNotification(String context);
-	
-	/**
-	 * Get the List of Users who can add assignment
-	 * 
-	 * @param assignmentReference -
-	 *        a reference to an assignment
-	 * @return the List (User) of users who can addSubmission() for this assignment.
-	 */
-	public List allowReceiveSubmissionNotificationUsers(String context);
-	
+	public static final String PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT = "new_assignment_add_to_gradebook";
+
 	/**
 	 * Check permissions for adding an Assignment.
 	 * 
@@ -644,9 +620,9 @@ public interface AssignmentService extends EntityProducer
 	 * 
 	 * @param assignment -
 	 *        the Assignment who's submissions you would like.
-	 * @return List over all the submissions for an Assignment.
+	 * @return Iterator over all the submissions for an Assignment.
 	 */
-	public List getSubmissions(Assignment assignment);
+	public Iterator getSubmissions(Assignment assignment);
 
 	/**
 	 * Access the grades spreadsheet for the reference, either for an assignment or all assignments in a context.
@@ -666,16 +642,14 @@ public interface AssignmentService extends EntityProducer
 	 * 
 	 * @param ref
 	 *        The assignment reference.
-	 * @param out
-	 * 		  	The outputStream to stream the zip file into
 	 * @return The submissions zip bytes.
 	 * @throws IdUnusedException
 	 *         if there is no object with this id.
 	 * @throws PermissionException
 	 *         if the current user is not allowed to access this.
 	 */
-	public void getSubmissionsZip(OutputStream out, String ref) throws IdUnusedException, PermissionException;
-	
+	public byte[] getSubmissionsZip(String ref) throws IdUnusedException, PermissionException;
+
 	/**
 	 * Access the internal reference which can be used to assess security clearance.
 	 * 
@@ -733,26 +707,4 @@ public interface AssignmentService extends EntityProducer
 	 */
 	public boolean getAllowGroupAssignmentsInGradebook();
 	
-	/**
-	 * Whether the current user can submit
-	 */
-	public boolean canSubmit(String context, Assignment a);
-	
-	/**
-	 *  Is Gradebook defined for the site?
-	 */
-	public boolean isGradebookDefined();
-
-	/**
-	 * Set the release of the associated Gradebook assignment.
-	 * @param gbAssignmentName The GB assignment name.
-	 * @param the release setting (true, false).
-	 */
-	public void releaseGradebookAssignment(String gbAssignmentName, boolean release);
-	
-	/**
-	 *  If the assignment is set to be storing grades in the gradebook, make sure that the gradebook entry is created.
-	 *  @param a The assignment.
-	 */
-	public void assureGradebookCreated(Assignment a);
 }

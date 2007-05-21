@@ -106,7 +106,7 @@
 			<label for="new_assignment_openmonth">
 				$tlang.getString("newassig.opedat")
 			</label>	
-			#chef_dateselectionwidget($name_OpenYear $name_OpenMonth $name_OpenDay $!value_year_from $!value_year_to $value_OpenYear $value_OpenMonth $value_OpenDay)
+			#chef_dateselectionwidget($name_OpenYear $name_OpenMonth $name_OpenDay 2002 2007 $value_OpenYear $value_OpenMonth $value_OpenDay)
 			$tlang.getString("gen.at") 
 			<select name="$name_OpenHour" id="$name_OpenHour">
 				#foreach ($i in [1..12])
@@ -140,7 +140,7 @@
 			<label for="new_assignment_duemonth">
 				$tlang.getString("gen.duedat")
 			</label>
-			#chef_dateselectionwidget($name_DueYear $name_DueMonth $name_DueDay $!value_year_from $!value_year_to $value_DueYear $value_DueMonth $value_DueDay)
+			#chef_dateselectionwidget($name_DueYear $name_DueMonth $name_DueDay 2002 2007 $value_DueYear $value_DueMonth $value_DueDay)
 				$tlang.getString("gen.at") 
 			<select name="$name_DueHour" id="$name_DueHour">
 				#foreach ($i in [1..12])
@@ -172,7 +172,7 @@
 				$tlang.getString("gen.acesubunt")
 			</label>
 			#if ($value_EnableCloseDate)
-				#chef_dateselectionwidget($name_CloseYear $name_CloseMonth $name_CloseDay $!value_year_from $!value_year_to $value_CloseYear $value_CloseMonth $value_CloseDay)
+				#chef_dateselectionwidget($name_CloseYear $name_CloseMonth $name_CloseDay 2002 2007 $value_CloseYear $value_CloseMonth $value_CloseDay)
 				$tlang.getString("gen.at") 
 				<select name="$name_CloseHour" id="$name_CloseHour">
 					#foreach ($i in [1..12])
@@ -217,7 +217,7 @@
 					#end
 				</select>
 				<select name="$name_CloseYear" id="$name_CloseYear" disabled="disabled">
-					#foreach ($i in [$!value_year_from..$!value_year_to])
+					#foreach ($i in [2002..2007])
 						#if ($i == $value_CloseYear)
 							<option value="$i" selected="selected">$i</option>
 						#else
@@ -269,7 +269,6 @@
 				#end
 			</select>
 		</p>
-#* comment out this option for 2.4 - will default to "0"
 		<p class="shorttext">
 			<label for="allowResubmitNumber">
 				$tlang.getString("allow.resubmit.number")
@@ -286,7 +285,6 @@
 				#end
 			</select>
 		</p>
-*#
 		#if ($withGrade)
 			<p class="shorttext">
 				<span class="reqStar">*</span>
@@ -324,7 +322,7 @@
 					</td></tr></table>
 			</div>
 		#if ($!name_CheckAddDueDate)
-				<p class="checkbox indnt2">
+				<p class="checkbox indnt1">
 					#if ($value_CheckAddDueDate.equals("true"))
 						<input id="$name_CheckAddDueDate" name="$name_CheckAddDueDate" type="checkbox" value="true" checked="checked" />
 					#else
@@ -335,8 +333,7 @@
 					</label>
 				</p>
 			#end
-			#if ($!name_CheckAutoAnnounce)
-			<p class="checkbox  indnt2">
+			<p class="checkbox  indnt1">
 				#if ($value_CheckAutoAnnounce.equals("true"))
 					<input id="$name_CheckAutoAnnounce" name="$name_CheckAutoAnnounce" type="checkbox" value="true" checked="checked" />
 				#else
@@ -346,8 +343,7 @@
 					$tlang.getString("gen.anntheope") 
 				</label>
 			</p>
-			#end
-			<p class="checkbox  indnt2">
+			<p class="checkbox  indnt1">
 				#if (!$!value_CheckAddHonorPledge.equals("1"))
 					<input id="$name_CheckAddHonorPledge" name="$name_CheckAddHonorPledge" type="checkbox" value="2" checked="checked" />
 				#else
@@ -357,31 +353,6 @@
 					$tlang.getString("gen.addhonple")
 				</label>
 			</p>
-			#if ($allowReviewService)
-				<p style="display:block">
-				$!tlang.getString('review.title')
-					<div class="checkbox  indnt2">
-						#if ($!value_UseReviewService.equals("true"))
-							<input id="$name_UseReviewService" name="$name_UseReviewService" type="checkbox" value="true" checked="checked" />
-						#else
-							<input id="$name_UseReviewService" name="$name_UseReviewService" type="checkbox" value="true" />
-						#end
-						<label for="$name_UseReviewService">
-							$tlang.getString("review.use") 
-						</label>
-					</div>
-					<div class="checkbox  indnt2">
-						#if ($!value_AllowStudentView.equals("true"))
-							<input id="$name_AllowStudentView" name="$name_AllowStudentView" type="checkbox" value="true" checked="checked" />
-						#else
-							<input id="$name_AllowStudentView" name="$name_AllowStudentView" type="checkbox" value="true" />
-						#end
-						<label for="$name_AllowStudentView">
-							$tlang.getString("review.allow") 
-						</label>
-					</div>
-				</p>
-			#end
 			#if ($!withGrade && $!withGradebook)
 				## show the "Add to Gradebook" choices or not
 				#if(!$!allowGroupAssignmentsInGradebook)
@@ -390,9 +361,7 @@
 					#set ($addToGBDisplay="block")
 				#end
 				<p style="display:$!addToGBDisplay">
-					<h4>
-						$!tlang.getString('grading')
-					</h4>
+					$!tlang.getString('grading')
 					<div class="checkbox  indnt2" style="display:$!addToGBDisplay">
 						## hide the assignment list from Gradebook when clicked
 						<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_no" value="$!gradebookChoice_no" #if($!gradebookChoice.equals("$!gradebookChoice_no"))checked#end onclick="if (document.getElementById('gradebookList')) document.getElementById('gradebookList').style.display = 'none';" >
@@ -419,22 +388,26 @@
 						#set ($gbListDisplay="none")
 					#end
 					<p id="gradebookList" class="checkbox  indnt2" style="display:$gbListDisplay">
-					 <select name="$!name_AssociateGradebookAssignment" >
+						<select name="$!name_AssociateGradebookAssignment" >
 							<option  value="">$tlang.getString("grading.select")</option>
 							#foreach ($aAssignment in $!gradebookAssignments)
-								## for internal assignment
-								<option  value="$aAssignment.Name" #if($!associateGradebookAssignment.equals($aAssignment.Name))selected="selected"#end)>$aAssignment.Name</option>
+								#if ($aAssignment.isExternallyMaintained())
+									## for external assignment
+									<option  value="$aAssignment.getExternalId()" #if($!associateGradebookAssignment.equals($aAssignment.getExternalId()))selected="selected"#end)>$aAssignment.Name</option>
+								#else
+									## for internal assignment
+									<option  value="$aAssignment.Name" #if($!associateGradebookAssignment.equals($aAssignment.Name))selected="selected"#end)>$aAssignment.Name</option>
+								#end
 							#end
 						</select>
 					</p>
 				#end
 			#end
 			## group/section support
+			<br />
 			#if ($allowAddSiteAssignment)
 				#if ($!groups)
-					<h4>
-						$!tlang.getString('access')
-					</h4>
+					$!tlang.getString('access')
 					<p class="checkbox  indnt2">
 						#if (!$!allowGroupAssignmentsInGradebook)
 							<input type="radio" name="range" id="site" value="site" #if($!range == "site")checked="checked"#end onclick="if (document.getElementById('addToGradebook') !=null){document.getElementById('addToGradebook').style.display = 'block'};document.getElementById('groupTable').style.display = 'none';" />
@@ -448,9 +421,7 @@
 					<input type="hidden" name="range" id="site" value="site" />
 				#end
 			#elseif ($allowAddAssignment)
-				<h4>
-					$!tlang.getString('access')
-				</h4>
+				$!tlang.getString('access')
 				#if ($!groups.size() >1)
 					<label for="$tlang.getString('groups')">$tlang.getString("groups")</label>
 				#else
@@ -511,23 +482,6 @@
 						#end
 					</table>
 			#end
-			## whether to show the instructor notification choices
-			#if ($!name_assignment_instructor_notifications)
-				<h4>
-					$tlang.getString("receive.confirm.submission.email.options")
-				</h4>
-				<p class="checkbox  indnt2">
-					<input type="radio" name="$!name_assignment_instructor_notifications" id="$tlang.getString('receive.confirm.submission.email.none')" value="$!value_assignment_instructor_notifications_none" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_none))checked="checked" #end >
-					<label for="$tlang.getString('receive.confirm.submission.email.none')">$tlang.getString('receive.confirm.submission.email.none')</label>
-					<br/>
-					<input type="radio" name="$!name_assignment_instructor_notifications" id="$tlang.getString('receive.confirm.submission.email.each')" value="$!value_assignment_instructor_notifications_each" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_each))checked="checked" #end >
-					<label for="$tlang.getString('receive.confirm.submission.email.each')">$tlang.getString('receive.confirm.submission.email.each')</label>
-					<br/>
-					<input type="radio" name="$!name_assignment_instructor_notifications" id="$tlang.getString('receive.confirm.submission.email.digest')" value="$!value_assignment_instructor_notifications_digest" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_digest))checked="checked" #end >
-					<label for="$tlang.getString('receive.confirm.submission.email.digest')">$tlang.getString('receive.confirm.submission.email.digest')</label>
-				</p>
-			#end
-			## attachments
 			<h4>
 				$tlang.getString("gen.addres")
 			</h4>
@@ -540,7 +494,7 @@
 				#end
 			#end
 			#if ($size == 0)
-				<p class="instruction">$tlang.getString("gen.noatt")</p>
+				$tlang.getString("gen.noatt")
 
 				<div class="act">
 					<input type="button" name="attach" value="$tlang.getString('gen.addatt')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='attach';document.newAssignmentForm.submit();return false;"/>

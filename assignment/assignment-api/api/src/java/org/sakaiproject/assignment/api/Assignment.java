@@ -24,6 +24,7 @@ package org.sakaiproject.assignment.api;
 import java.util.Collection;
 import java.util.List;
 
+import org.sakaiproject.assignment.taggable.api.TaggableActivity;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.time.api.Time;
 
@@ -32,7 +33,7 @@ import org.sakaiproject.time.api.Time;
  * Assignment is an interface for the Sakai assignments module. It represents a specific assignment (as for a specific section or class).
  * </p>
  */
-public interface Assignment extends Entity, Comparable
+public interface Assignment extends Entity, Comparable, TaggableActivity
 {
 	/** Grade type not set */
 	public static final int GRADE_TYPE_NOT_SET = -1;
@@ -92,18 +93,6 @@ public interface Assignment extends Entity, Comparable
 
 	/** Honor Pledge not yet set */
 	public static final int HONOR_PLEDGE_ENGINEERING = 2;
-	
-	// the option setting per assignment
-	public static final String ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE= "assignment_instructor_notifications_value";
-	
-	// no email to instructor
-	public static final String ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_NONE = "assignment_instructor_notifications_none";
-	
-	// send every email to instructor
-	public static final String ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_EACH = "assignment_instructor_notifications_each";
-	
-	// send email in digest form
-	public static final String ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DIGEST = "assignment_instructor_notifications_digest";
 
 	/**
 	 * Access the AssignmentContent of this Assignment.

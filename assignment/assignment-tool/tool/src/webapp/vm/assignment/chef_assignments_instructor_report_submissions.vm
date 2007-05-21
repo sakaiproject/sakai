@@ -191,7 +191,7 @@
 							</td>
 							<td headers="grade">
 								#if ($!submission)
-									#if ($submission.Graded)
+									#if ($submission.Graded && ($submission.GradeReleased || $!submission.Returned))
 										#if ($assignment.getContent().TypeOfGrade == 1)
 											$tlang.getString("gen.nograd")
 										#else

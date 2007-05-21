@@ -19,24 +19,6 @@
 	</properties>
 
 	<dependencies>
-		
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-email-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		
-	    	<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-component</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-gradebook-service-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
 
 		<dependency>
 			<groupId>sakaiproject</groupId>
@@ -55,11 +37,7 @@
 			<artifactId>sakai-component-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-component</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
+
 		<dependency>
 			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-content-api</artifactId>
@@ -138,18 +116,6 @@
 			<version>${sakai.version}</version>
 		</dependency>
 
- 		<dependency>
- 			<groupId>sakaiproject</groupId>
- 			<artifactId>sakai-contentreview-service-api</artifactId>
- 			<version>${sakai.version}</version>
- 		</dependency>
- 		
- 		<dependency>
- 			<groupId>sakaiproject</groupId>
- 			<artifactId>sakai-contentreview-model-api</artifactId>
- 			<version>${sakai.version}</version>
- 		</dependency>
- 		
 		<dependency>
 			<groupId>poi</groupId>
 			<artifactId>poi</artifactId>
