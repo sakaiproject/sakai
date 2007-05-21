@@ -2513,6 +2513,25 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	/**
 	 * @inheritDoc
 	 */
+	public boolean allowAllGroups(String context)
+	{
+		String resourceString = getAccessPoint(true) + Entity.SEPARATOR + "a" + Entity.SEPARATOR + context + Entity.SEPARATOR;
+
+		if (M_log.isDebugEnabled())
+		{
+			M_log.debug("Entering allow add Assignment with resource string : " + resourceString);
+		}
+
+		// checking all.groups
+		if (unlockCheck(SECURE_ALL_GROUPS, resourceString)) return true;
+
+		// if not
+		return false;
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
 	public Collection getGroupsAllowAddAssignment(String context)
 	{
 		return getGroupsAllowFunction(SECURE_ADD_ASSIGNMENT, context, null);
@@ -4358,6 +4377,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		protected List m_authors;
 
 		protected boolean m_draft;
+		
+		protected int m_position_order;
 
 		/** The Collection of groups (authorization group id strings). */
 		protected Collection m_groups = new Vector();
@@ -4388,6 +4409,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			m_authors = new Vector();
 			m_draft = true;
 			m_groups = new Vector();
+			m_position_order = 0;
 		}
 
 		/**
@@ -4426,6 +4448,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			m_dropDeadTime = getTimeObject(el.getAttribute("dropdeaddate"));
 			m_closeTime = getTimeObject(el.getAttribute("closedate"));
 			m_context = el.getAttribute("context");
+			m_position_order = 0; // prevents null pointer if there is no position_order defined as well as helps with the sorting
+			try
+			{
+				m_position_order = new Long(el.getAttribute("position_order")).intValue();
+			}
+			catch (Exception e){}
 
 			// READ THE AUTHORS
 			m_authors = new Vector();
@@ -4529,6 +4557,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			assignment.setAttribute("duedate", getTimeString(m_dueTime));
 			assignment.setAttribute("dropdeaddate", getTimeString(m_dropDeadTime));
 			assignment.setAttribute("closedate", getTimeString(m_closeTime));
+			assignment.setAttribute("position_order", new Long(m_position_order).toString().trim());
 
 			if (M_log.isDebugEnabled())
 				M_log.debug("ASSIGNMENT : BASE SERVICE : BASE ASSIGNMENT : TOXML : saved regular properties");
@@ -4592,6 +4621,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				m_closeTime = assignment.getCloseTime();
 				m_dropDeadTime = assignment.getDropDeadTime();
 				m_draft = assignment.getDraft();
+				m_position_order = 0;
+				try
+				{
+					m_position_order = assignment.getPosition_order();
+				}
+				catch (Exception e)
+				{}
 				m_properties = new BaseResourcePropertiesEdit();
 				m_properties.addAll(assignment.getProperties());
 				m_groups = assignment.getGroups();
@@ -4857,6 +4893,16 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		{
 			return m_draft;
 		}
+		
+		/**
+		 * Access the position order.
+		 * 
+		 * @return The Assignment's positionorder.
+		 */
+		public int getPosition_order()
+		{
+			return m_position_order;
+		}
 
 		/**
 		 * @inheritDoc
@@ -5121,6 +5167,17 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		public void setDraft(boolean draft)
 		{
 			m_draft = draft;
+		}
+		
+		/**
+		 * Set the position order field for the an assignment.
+		 * 
+		 * @param position_order - 
+		 *        The position order.
+		 */
+		public void setPosition_order(int position_order)
+		{
+			m_position_order = position_order;
 		}
 
 		/**
