@@ -3861,6 +3861,9 @@ public class SiteAction extends PagedResourceActionII {
 			state.setAttribute(SORTED_BY, SORTED_BY_PARTICIPANT_NAME);
 			state.setAttribute(SORTED_ASC, Boolean.TRUE.toString());
 		}
+		
+		// reset the paging info
+		resetPaging(state);
 
 		if (((String) state.getAttribute(STATE_SITE_MODE))
 				.equalsIgnoreCase(SITE_MODE_SITESETUP)) {
