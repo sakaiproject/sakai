@@ -93,7 +93,10 @@ public class AuthorSettingsListener implements ActionListener
     assessmentSettings.setAssessment(assessment);
     assessmentSettings.setAssessmentId(assessment.getAssessmentId());
     assessmentSettings.setAttachmentList(((AssessmentIfc)assessment.getData()).getAssessmentAttachmentList());
-
+    assessmentSettings.setDisplayFormat(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_data_picker_w_sec"));
+    assessmentSettings.resetIsValidDate();
+    assessmentSettings.resetOriginalDateString();
+    
     // else throw error
 
     // #1c - get question size

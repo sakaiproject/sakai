@@ -37,6 +37,7 @@ import javax.faces.render.Renderer;
 import org.sakaiproject.util.ResourceLoader;
 
 import org.sakaiproject.tool.assessment.jsf.renderer.util.RendererUtil;
+import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 /**
  * <p>Description: </p>
@@ -146,10 +147,22 @@ public class DatePickerRenderer extends Renderer
 
       // script creates unique calendar object with input object
     }
+    
+    String display_dateFormat= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_data_picker_w_sec");
+    String genDate = null;
+    String prsDate = null;
+    if (display_dateFormat.toLowerCase().startsWith("dd")) {
+    	genDate = "cal_gen_date2_dm";
+    	prsDate = "cal_prs_date2_dm";
+    }
+    else {
+    	genDate = "cal_gen_date2_md";
+    	prsDate = "cal_prs_date2_md";
+    }
     String calRand = "cal" + ("" + Math.random()).substring(2);
     String calScript =
       "var " + calRand + " = new calendar2(" +
-      "document.getElementById('" + id + "'));" +
+      "document.getElementById('" + id + "'), " + genDate + ", " + prsDate + ");" +
       "" + calRand + ".year_scroll = true;" +
       "" + calRand + ".time_comp = true;";
 

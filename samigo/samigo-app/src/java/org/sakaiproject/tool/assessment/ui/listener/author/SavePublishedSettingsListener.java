@@ -103,6 +103,26 @@ public class SavePublishedSettingsListener
       control.setAssessmentBase(assessment.getData());
     }
     
+    boolean error = false;
+    // check if start date is valid
+    if(!assessmentSettings.getIsValidStartDate()){
+    	String startDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_start_date");
+    	context.addMessage(null,new FacesMessage(startDateErr));
+    	error=true;
+    }
+    // check if due date is valid
+    if(!assessmentSettings.getIsValidDueDate()){
+    	String dueDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_due_date");
+    	context.addMessage(null,new FacesMessage(dueDateErr));
+    	error=true;
+    }
+    // check if retract date is valid
+    if(!assessmentSettings.getIsValidRetractDate()){
+    	String retractDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_retrack_date");
+    	context.addMessage(null,new FacesMessage(retractDateErr));
+    	error=true;
+    }
+    
     String id = ae.getComponent().getId();
     // Check if the action is clicking the the Retract button on Assessment Retract Confirmation button
     if (id.equals("retract")) {
@@ -114,8 +134,23 @@ public class SavePublishedSettingsListener
    	// a. LATER set dueDate, startDate, releaseTo
    	control.setStartDate(assessmentSettings.getStartDate());
    	control.setDueDate(assessmentSettings.getDueDate());
+   	
+    //check feedback - if at specific time then time should be defined.
+    if((assessmentSettings.getFeedbackDelivery()).equals("2")) {
+    	if (assessmentSettings.getFeedbackDateString()==null || assessmentSettings.getFeedbackDateString().equals("")) {
+    		error=true;
+    		String  date_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","date_error");
+    		context.addMessage(null,new FacesMessage(date_err));
+    	}
+    	else if(!assessmentSettings.getIsValidFeedbackDate()){
+        	String feedbackDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_feedback_date");
+        	context.addMessage(null,new FacesMessage(feedbackDateErr));
+        	error=true;
+        }
+    }
    	control.setFeedbackDate(assessmentSettings.getFeedbackDate());
 
+   	
     //#3 Feedback
    	AssessmentFeedbackIfc feedback = (AssessmentFeedbackIfc) assessment.getAssessmentFeedback();
     if (feedback == null){
@@ -136,9 +171,14 @@ public class SavePublishedSettingsListener
     feedback.setShowStatistics(Boolean.valueOf(assessmentSettings.getShowStatistics()));
     assessment.setAssessmentFeedback(feedback);
 
+    if (error){
+        assessmentSettings.setOutcome("editPublishedAssessmentSettings");
+        return;
+    }
+    
     // check if the score is > 0, Gradebook doesn't allow assessments with total
 	// point = 0.
-		boolean error = false;
+		boolean gbError = false;
 
 		if (assessmentSettings.getToDefaultGradebook() != null && assessmentSettings.getToDefaultGradebook().equals("1")) {
 			if (assessment.getTotalScore().floatValue() <= 0) {
@@ -146,11 +186,11 @@ public class SavePublishedSettingsListener
 				String gb_err = (String) ContextUtil.getLocalizedString(
 								"org.sakaiproject.tool.assessment.bundle.AuthorMessages","gradebook_exception_min_points");
 				context.addMessage(null, new FacesMessage(gb_err));
-				error = true;
+				gbError = true;
 			}
 		}
 
-		   if (error){
+		   if (gbError){
 			      assessmentSettings.setOutcome("editPublishedAssessmentSettings");
 			      return;
 			    }

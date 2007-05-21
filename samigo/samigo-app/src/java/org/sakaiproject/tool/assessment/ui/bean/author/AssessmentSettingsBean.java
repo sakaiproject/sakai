@@ -178,8 +178,19 @@ public class AssessmentSettingsBean
   private String alias;
   private static boolean error;
 
-    private List attachmentList;
+  private List attachmentList;
 
+  private boolean isValidDate = true;;
+  private boolean isValidStartDate = true;
+  private boolean isValidDueDate = true;
+  private boolean isValidRetractDate = true;
+  private boolean isValidFeedbackDate = true;
+  
+  private String originalStartDateString;
+  private String originalDueDateString;
+  private String originalRetractDateString;
+  private String originalFeedbackDateString;
+  
   /**
    *  we use the calendar widget which uses 'MM/dd/yyyy hh:mm:ss a'
    *  used to take the internal format from calendar picker and move it
@@ -187,10 +198,10 @@ public class AssessmentSettingsBean
    *
    */
   //private static final String DISPLAY_DATEFORMAT = "MM/dd/yyyy hh:mm:ss a";
-
-  private String display_dateFormat= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_data_picker_w_sec");
-
-  private SimpleDateFormat displayFormat = new SimpleDateFormat(display_dateFormat);
+  //private String displayDateFormat= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_data_picker_w_sec");
+  //private SimpleDateFormat displayFormat = new SimpleDateFormat(displayDateFormat);
+  private String displayDateFormat;
+  private SimpleDateFormat displayFormat;
 
   /*
    * Creates a new AssessmentBean object.
@@ -989,10 +1000,15 @@ public class AssessmentSettingsBean
    */
   private Date getDateFromDisplayFormat(String dateString) {
     Date date = null;
+    this.isValidDate = true;
     if (dateString == null || dateString.trim().equals("")) {
       return date;
     }
 
+    if (!dateValidation(dateString)) {
+    	this.isValidDate = false;
+    	return null;
+    }
     try {
       //Date date= (Date) displayFormat.parse(dateString);
 // dateString is in client timezone, change it to server time zone
@@ -1005,50 +1021,197 @@ public class AssessmentSettingsBean
       error=true;
       ex.printStackTrace();
     }
-
     return date;
   }
-
-
-   public String getStartDateString()
-    {
-
-      return getDisplayFormatFromDate(startDate);
-
-
-    }
+  
+  private boolean dateValidation(String dateString) {
+	  int date = 0;
+	  int month = 0;
+	  int year = 0;
+	  int hour = 0;
+	  int minute = 0;
+	  int second = 0;
+	  String amPM = "";
+	  
+	  String [] splittedDateString = dateString.split(" ");
+	  if (splittedDateString.length != 3) {
+		  return false;
+	  }
+	  // Verify for MM/dd/yyyy format or dd/MM/yyyy format
+	  String [] dateArray = splittedDateString[0].split("/");
+	  if (dateArray.length != 3) {
+		  return false;
+	  }
+	  try {
+		  if (displayDateFormat.toLowerCase().startsWith("dd")) {
+			  date = Integer.parseInt(dateArray[0]);
+			  month = Integer.parseInt(dateArray[1]);
+			  year = Integer.parseInt(dateArray[2].substring(0, 4));
+		  }
+		  else {
+			  date = Integer.parseInt(dateArray[1]);
+			  month = Integer.parseInt(dateArray[0]);
+			  year = Integer.parseInt(dateArray[2].substring(0, 4));
+		  }
+	  }
+	  catch(NumberFormatException  ne){
+		  log.error("NumberFormatException: " + ne.getMessage());
+		  return false;
+	  }
+	  catch(IndexOutOfBoundsException ie) {
+		  log.error("IndexOutOfBoundsException: " + ie.getMessage());
+		  return false;
+	  }
+	  if (month > 12 || month < 1) {
+		  return false;
+	  }
+	  if ((month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) && (date > 31 || date < 1)) {
+		  return false;
+	  }
+	  if ((month == 4 || month == 6 || month == 9 || month == 11) && (date > 30 || date < 1)) {
+		  return false;
+	  }
+	  if (month == 2) {
+		  if (date < 1) {
+			  return false;
+		  }
+		  if (isLeapYear(year) == true) {
+			  if (date > 29) {
+				  return false;
+			  }
+		  }
+		  else {
+			  if (date > 28) {
+				  return false;
+			  }
+		  }
+	  }  
+	  
+	  // Verify for hh:mm:ss format
+	  String [] time = splittedDateString[1].split(":");
+	  if (splittedDateString.length != 3) {
+		  return false;
+	  }
+	  hour = Integer.parseInt(time[0]);
+	  minute = Integer.parseInt(time[1]);
+	  second = Integer.parseInt(time[2]);
+	  if (hour < 0 || hour > 24) {
+		  return false;
+	  }
+	  if (minute < 0 || minute > 60) {
+		  return false;
+	  }
+	  if (second < 0 || second > 60) {
+		  return false;
+	  }
+	  
+	  // Verify for AM or PM format
+	  amPM = splittedDateString[2];
+	  if (!(amPM.toUpperCase().equals("AM") || amPM.toUpperCase().equals("PM"))) {
+		  return false;
+	  }
+	  return true;
+  }
+  
+  private boolean isLeapYear(int year) {
+	  if (year % 100 == 0) {
+		  if (year % 400 == 0) { 
+			  return true; 
+		  }
+	  }
+	  else {
+		  if ((year % 4) == 0) { 
+			  return true; 
+		  }
+	  }
+	  return false;
+  }
+  
+  public String getStartDateString()
+  {
+	if (!this.isValidStartDate) {
+		return this.originalStartDateString;
+	}
+	else {
+		return getDisplayFormatFromDate(startDate);
+	}
+  }
+   
   public void setStartDateString(String startDateString)
-     {
-   this.startDate= getDateFromDisplayFormat(startDateString);
-     }
+  {
+	this.isValidStartDate = true;  
+	Date tempDate = getDateFromDisplayFormat(startDateString);
+	if (!this.isValidDate) {
+		this.isValidStartDate = false;
+		this.originalStartDateString = startDateString;
+	}
+	else {
+		this.startDate= tempDate;
+	}
+  }
 
   public String getDueDateString()
   {
-    return getDisplayFormatFromDate(dueDate);
+    if (!this.isValidDueDate) {
+		return this.originalDueDateString;
+	}
+	else {
+		return getDisplayFormatFromDate(dueDate);
+	}	  
   }
   public void setDueDateString(String dueDateString)
   {
-    this.dueDate  = getDateFromDisplayFormat(dueDateString);
-
+	this.isValidDueDate = true;
+	Date tempDate = getDateFromDisplayFormat(dueDateString);
+	if (!this.isValidDate) {
+		this.isValidDueDate = false;
+		this.originalDueDateString = dueDateString;
+	}
+	else {
+		this.dueDate= tempDate;
+	}
   }
   public String getRetractDateString()
   {
-    return getDisplayFormatFromDate(retractDate);
-
+    if (!this.isValidRetractDate) {
+		return this.originalRetractDateString;
+	}
+	else {
+		return getDisplayFormatFromDate(retractDate);
+	}	  	  
   }
   public void setRetractDateString(String retractDateString)
   {
-
-    this.retractDate  = getDateFromDisplayFormat(retractDateString);
-
+	this.isValidRetractDate = true;
+	Date tempDate = getDateFromDisplayFormat(retractDateString);
+	if (!this.isValidDate) {
+		this.isValidRetractDate = false;
+		this.originalRetractDateString = retractDateString;
+	}
+	else {
+		this.retractDate= tempDate;
+	}
   }
   public String getFeedbackDateString()
   {
-    return getDisplayFormatFromDate(feedbackDate);
+    if (!this.isValidFeedbackDate) {
+		return this.originalFeedbackDateString;
+	}
+	else {
+		return getDisplayFormatFromDate(feedbackDate);
+	}	  	  	  
   }
   public void setFeedbackDateString(String feedbackDateString)
   {
-    this.feedbackDate  = getDateFromDisplayFormat(feedbackDateString);
+	this.isValidFeedbackDate = true;
+	Date tempDate = getDateFromDisplayFormat(feedbackDateString);
+	if (!this.isValidDate) {
+		this.isValidFeedbackDate = false;
+		this.originalFeedbackDateString = feedbackDateString;
+	}
+	else {
+		this.feedbackDate= tempDate;
+	}	  
   }
 
   public String getTemplateTitle() {
@@ -1282,5 +1445,45 @@ public class AssessmentSettingsBean
   public void setResourceHash(HashMap resourceHash)
   {
       this.resourceHash = resourceHash;
+  }
+  
+  public void setDisplayFormat(String displayDateFormat)
+  {
+	  this.displayDateFormat = displayDateFormat;
+      this.displayFormat = new SimpleDateFormat(displayDateFormat);
+  }
+  
+  public boolean getIsValidStartDate()
+  {
+	  return this.isValidStartDate;
+  }
+  
+  public boolean getIsValidDueDate()
+  {
+	  return this.isValidDueDate;
+  }
+  
+  public boolean getIsValidRetractDate()
+  {
+	  return this.isValidRetractDate;
+  }
+  
+  public boolean getIsValidFeedbackDate()
+  {
+	  return this.isValidFeedbackDate;
+  }
+  
+  public void resetIsValidDate() {
+	  this.isValidStartDate = true;
+	  this.isValidDueDate = true;
+	  this.isValidRetractDate = true;
+	  this.isValidFeedbackDate = true;
+  }
+  
+  public void resetOriginalDateString() {
+	  this.originalStartDateString = "";
+	  this.originalDueDateString = "";
+	  this.originalRetractDateString = "";
+	  this.originalFeedbackDateString = "";
   }
 }

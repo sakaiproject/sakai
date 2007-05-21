@@ -24,6 +24,7 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -84,26 +85,26 @@ public class SaveAssessmentSettingsListener
 	context.addMessage(null,new FacesMessage(nameUnique_err));
 	error=true;
     }
-    // Huong's fix for assessment Settings - Save Assessment Settings should not be checked for duplication with the gradebook.(see bug)
-    // check if gradebook exist, if so, if assessment title already exists in GB
-    // GradebookService g = null;
-    //  if (integrated){
-    //  g = (GradebookService) SpringBeanLocator.getInstance().
-    //	    getBean("org.sakaiproject.service.gradebook.GradebookService");
-    //  }
-    //  String toGradebook = assessmentSettings.getToDefaultGradebook();
-    // try{
-    //  if (toGradebook!=null && toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString()) &&
-    //      gbsHelper.isAssignmentDefined(assessmentName, g)){
-    //    String gbConflict_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","gbConflict_error");
-    //	context.addMessage(null,new FacesMessage(gbConflict_err));
-    //	error=true;
-    // }
-    //  }
-    //catch(Exception e){
-    //  log.warn("external assessment in GB has the same title:"+e.getMessage());
-    // }
-
+    
+    // check if start date is valid
+    if(!assessmentSettings.getIsValidStartDate()){
+    	String startDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_start_date");
+    	context.addMessage(null,new FacesMessage(startDateErr));
+    	error=true;
+    }
+    // check if due date is valid
+    if(!assessmentSettings.getIsValidDueDate()){
+    	String dueDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_due_date");
+    	context.addMessage(null,new FacesMessage(dueDateErr));
+    	error=true;
+    }
+    // check if retract date is valid
+    if(!assessmentSettings.getIsValidRetractDate()){
+    	String retractDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_retrack_date");
+    	context.addMessage(null,new FacesMessage(retractDateErr));
+    	error=true;
+    }
+    
     //  if timed assessment, does it has value for time
     Object time=assessmentSettings.getValueMap().get("hasTimeAssessment");
     boolean isTime=false;
@@ -125,55 +126,7 @@ public class SaveAssessmentSettingsListener
 	context.addMessage(null,new FacesMessage(time_err));
         error=true;
     }
-    /** Rempove IP address and Username/password checkboxes
-    Object userName=assessmentSettings.getValueMap().get("hasUsernamePassword");
-    boolean hasUserName=false;
-    try
-    {
-      if (userName != null)
-      {
-	  hasUserName = ( (Boolean) userName).booleanValue();
-      }
-    }
-    catch (Exception ex)
-    {
-      // keep default
-      log.warn("Expecting Boolean hasUswerNamePassword, got: " + userName);
-
-    }
-
-    // check username for high security
-    if((hasUserName) &&((assessmentSettings.getUsername().trim()).equals(""))){
-	String userName_err=cu.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","userName_error");
-	context.addMessage(null,new FacesMessage(userName_err));
-        error=true;
-    }
     
-   // check ip address not empty if only allow specific IP addresses
-    Object ip=assessmentSettings.getValueMap().get("hasSpecificIP");
-    boolean hasIp=false;
-    try
-    {
-      if (ip != null)
-      {
-	  hasIp = ( (Boolean) ip).booleanValue();
-      }
-    }
-    catch (Exception ex)
-    {
-      // keep default
-      log.warn("Expecting Boolean hasSpecificIP, got: " + ip);
-
-    }
-   
-    // check valid ip addresses
- 
-    String ipString = assessmentSettings.getIpAddresses().trim();    
-     if(hasIp){
-         if(ipString.equals(""))
-	   ipErr=true;
-     }
-    */
     String ipString = assessmentSettings.getIpAddresses().trim();  
      String[]arraysIp=(ipString.split("\n"));
      boolean ipErr=false;
@@ -213,11 +166,17 @@ public class SaveAssessmentSettingsListener
 	}
 	
     //check feedback - if at specific time then time should be defined.
-    if((assessmentSettings.getFeedbackDelivery()).equals("2") && ((assessmentSettings.getFeedbackDateString()==null) || (assessmentSettings.getFeedbackDateString().equals("")))){
-	error=true;
-	String  date_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","date_error");
-	context.addMessage(null,new FacesMessage(date_err));
-
+    if((assessmentSettings.getFeedbackDelivery()).equals("2")) {
+    	if (assessmentSettings.getFeedbackDateString()==null || assessmentSettings.getFeedbackDateString().equals("")) {
+    		error=true;
+    		String  date_err=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","date_error");
+    		context.addMessage(null,new FacesMessage(date_err));
+    	}
+    	else if(!assessmentSettings.getIsValidFeedbackDate()){
+        	String feedbackDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_feedback_date");
+        	context.addMessage(null,new FacesMessage(feedbackDateErr));
+        	error=true;
+        }
     }
 
     if (error){

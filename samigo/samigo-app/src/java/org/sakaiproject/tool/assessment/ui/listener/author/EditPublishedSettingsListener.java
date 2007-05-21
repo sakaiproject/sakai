@@ -79,6 +79,9 @@ public class EditPublishedSettingsListener
       return;
     }
     assessmentSettings.setAssessment(assessment);
+    assessmentSettings.setDisplayFormat(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_data_picker_w_sec"));
+    assessmentSettings.resetIsValidDate();
+    assessmentSettings.resetOriginalDateString();
   }
 
   public boolean passAuthz(FacesContext context, String ownerId){

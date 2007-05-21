@@ -25,13 +25,23 @@ var ampm = "AM";
 var calendars = [];
 var RE_NUM = /^\-?\d+$/;
 
-function calendar2(obj_target) {
+function calendar2(obj_target, gen_date_option, prs_date_option) {
 
 	// assing methods
-	this.gen_date = cal_gen_date2;
+	if (gen_date_option != undefined && gen_date_option != null) {
+		this.gen_date = gen_date_option;
+	}
+	else {
+		this.gen_date = cal_gen_date2;
+	}
 	this.gen_time = cal_gen_time2;
 	this.gen_tsmp = cal_gen_tsmp2;
-	this.prs_date = cal_prs_date2;
+	if (prs_date_option != undefined && prs_date_option != null) {
+		this.prs_date = prs_date_option;
+	}
+	else {
+		this.prs_date = cal_prs_date2;
+	}
 	this.prs_time = cal_prs_time2;
 	this.prs_tsmp = cal_prs_tsmp2;
 	this.popup    = cal_popup2;
@@ -73,7 +83,7 @@ function cal_gen_tsmp2 (dt_datetime) {
          );
 }
 
-// date generating function, --sakai modified to use dashes
+// date generating function - MM/dd/yyyy
 function cal_gen_date2 (dt_datetime) {
 	return (
 		(dt_datetime.getMonth() < 9 ? '0' : '') + (dt_datetime.getMonth() + 1) + "/"
@@ -82,6 +92,23 @@ function cal_gen_date2 (dt_datetime) {
 	);
 }
 
+// date generating function - dd/MM/yyyy, --sakai modified to use dashes
+function cal_gen_date2_dm (dt_datetime) {
+	return (
+		 (dt_datetime.getDate() < 10 ? '0' : '') + dt_datetime.getDate() + "/"
+		+ (dt_datetime.getMonth() < 9 ? '0' : '') + (dt_datetime.getMonth() + 1) + "/"
+		+ dt_datetime.getFullYear()
+	);
+}
+
+// date generating function - MM/dd/yyyy
+function cal_gen_date2_md (dt_datetime) {
+	return (
+		(dt_datetime.getMonth() < 9 ? '0' : '') + (dt_datetime.getMonth() + 1) + "/"
+		+ (dt_datetime.getDate() < 10 ? '0' : '') + dt_datetime.getDate() + "/"
+		+ dt_datetime.getFullYear()
+	);
+}
 
 // time generating function
 function cal_gen_time2 (dt_datetime) {
@@ -152,6 +179,64 @@ function cal_prs_date2 (str_date) {
 	var dt_numdays = new Date(arr_date[2], arr_date[0], 0);
 	dt_date.setDate(arr_date[1]);
 	if (dt_date.getMonth() != (arr_date[0]-1)) return alert ("Invalid day of month value: '" + arr_date[1] + "'.\nAllowed range is 01-"+dt_numdays.getDate()+".");
+
+	return (dt_date)
+}
+
+// date parsing function
+function cal_prs_date2_md (str_date) {
+
+	var arr_date = str_date.split('/');// sakai mod from '/'
+
+	if (arr_date.length != 3) return alert ("Invalid date format: '" + str_date + "'.\nFormat accepted is mm/dd/yyyy hh:mm:ss a.");
+	if (!arr_date[1]) return alert ("Invalid date format: '" + str_date + "'.\nNo day of month value can be found.");
+	if (!RE_NUM.exec(arr_date[1])) return alert ("Invalid day of month value: '" + arr_date[1] + "'.\nAllowed values are unsigned integers.");
+	if (!arr_date[0]) return alert ("Invalid date format: '" + str_date + "'.\nNo month value can be found.");
+	if (!RE_NUM.exec(arr_date[0])) return alert ("Invalid month value: '" + arr_date[0] + "'.\nAllowed values are unsigned integers.");
+	if (!arr_date[2]) return alert ("Invalid date format: '" + str_date + "'.\nNo year value can be found.");
+	if (!RE_NUM.exec(arr_date[2])) return alert ("Invalid year value: '" + arr_date[2] + "'.\nAllowed values are unsigned integers.");
+
+	var dt_date = new Date();
+	dt_date.setDate(1);
+
+	if (arr_date[0] < 1 || arr_date[0] > 12) return alert ("Invalid month value: '" + arr_date[0] + "'.\nAllowed range is 01-12.");
+	dt_date.setMonth(arr_date[0]-1);
+
+	if (arr_date[2] < 100) arr_date[2] = Number(arr_date[2]) + (arr_date[2] < NUM_CENTYEAR ? 2000 : 1900);
+	dt_date.setFullYear(arr_date[2]);
+
+	var dt_numdays = new Date(arr_date[2], arr_date[0], 0);
+	dt_date.setDate(arr_date[1]);
+	if (dt_date.getMonth() != (arr_date[0]-1)) return alert ("Invalid day of month value: '" + arr_date[1] + "'.\nAllowed range is 01-"+dt_numdays.getDate()+".");
+
+	return (dt_date)
+}
+
+// date parsing function
+function cal_prs_date2_dm (str_date) {
+
+	var arr_date = str_date.split('/');// sakai mod from '/'
+
+	if (arr_date.length != 3) return alert ("Invalid date format: '" + str_date + "'.\nFormat accepted is mm/dd/yyyy hh:mm:ss a.");
+	if (!arr_date[0]) return alert ("Invalid date format: '" + str_date + "'.\nNo day of month value can be found.");
+	if (!RE_NUM.exec(arr_date[0])) return alert ("Invalid day of month value: '" + arr_date[0] + "'.\nAllowed values are unsigned integers.");
+	if (!arr_date[1]) return alert ("Invalid date format: '" + str_date + "'.\nNo month value can be found.");
+	if (!RE_NUM.exec(arr_date[1])) return alert ("Invalid month value: '" + arr_date[1] + "'.\nAllowed values are unsigned integers.");
+	if (!arr_date[2]) return alert ("Invalid date format: '" + str_date + "'.\nNo year value can be found.");
+	if (!RE_NUM.exec(arr_date[2])) return alert ("Invalid year value: '" + arr_date[2] + "'.\nAllowed values are unsigned integers.");
+
+	var dt_date = new Date();
+	dt_date.setDate(1);
+
+	if (arr_date[1] < 1 || arr_date[1] > 12) return alert ("Invalid month value: '" + arr_date[1] + "'.\nAllowed range is 01-12.");
+	dt_date.setMonth(arr_date[1]-1);
+
+	if (arr_date[2] < 100) arr_date[2] = Number(arr_date[2]) + (arr_date[2] < NUM_CENTYEAR ? 2000 : 1900);
+	dt_date.setFullYear(arr_date[2]);
+
+	var dt_numdays = new Date(arr_date[2], arr_date[1], 0);
+	dt_date.setDate(arr_date[0]);
+	if (dt_date.getMonth() != (arr_date[1]-1)) return alert ("Invalid day of month value: '" + arr_date[0] + "'.\nAllowed range is 01-"+dt_numdays.getDate()+".");
 
 	return (dt_date)
 }
