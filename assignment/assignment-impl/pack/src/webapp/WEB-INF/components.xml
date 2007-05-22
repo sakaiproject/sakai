@@ -13,6 +13,7 @@
 		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
 		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
 		<property name="taggingManager"><ref bean="org.sakaiproject.assignment.taggable.api.TaggingManager"/></property>
+		<property name="assignmentActivityProducer"><ref bean="org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer"/></property>
  		<property name="assignmentTableName"><value>ASSIGNMENT_ASSIGNMENT</value></property>
  		<property name="contentTableName"><value>ASSIGNMENT_CONTENT</value></property>
  		<property name="submissionTableName"><value>ASSIGNMENT_SUBMISSION</value></property>
@@ -33,4 +34,25 @@
 	      init-method="init"
 	      singleton="true"/>
 
+	<bean id="org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer"
+    	  class="org.sakaiproject.assignment.taggable.impl.AssignmentActivityProducerImpl"
+    	  init-method="init"
+    	  singleton="true">
+		<property name="assignmentService">
+			<ref bean="org.sakaiproject.assignment.api.AssignmentService" />
+		</property>
+		<property name="entityManager">
+			<ref bean="org.sakaiproject.entity.api.EntityManager"/>
+		</property>
+		<property name="taggingManager">
+			<ref bean="org.sakaiproject.assignment.taggable.api.TaggingManager" />
+		</property>
+		<property name="siteService">
+			<ref bean="org.sakaiproject.site.api.SiteService" />
+		</property>
+		<property name="securityService">
+			<ref bean="org.sakaiproject.authz.api.SecurityService" />
+		</property>
+	</bean>
+  
 </beans>

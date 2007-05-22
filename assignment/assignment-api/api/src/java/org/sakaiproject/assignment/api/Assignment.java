@@ -24,7 +24,6 @@ package org.sakaiproject.assignment.api;
 import java.util.Collection;
 import java.util.List;
 
-import org.sakaiproject.assignment.taggable.api.TaggableActivity;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.time.api.Time;
 
@@ -33,7 +32,7 @@ import org.sakaiproject.time.api.Time;
  * Assignment is an interface for the Sakai assignments module. It represents a specific assignment (as for a specific section or class).
  * </p>
  */
-public interface Assignment extends Entity, Comparable, TaggableActivity
+public interface Assignment extends Entity, Comparable
 {
 	/** Grade type not set */
 	public static final int GRADE_TYPE_NOT_SET = -1;

@@ -326,14 +326,15 @@
 											#if ($taggable)
 												#foreach ($provider in $providers)
 													#set ($helperInfo = false)
-													#set ($helperInfo = $provider.getActivityHelperInfo($assignment.reference))
+													#set ($activity = $producer.getActivity($assignment))
+													#set ($helperInfo = $provider.getActivityHelperInfo($activity.reference))
 													#if ($helperInfo)
 														#if($prevAction)
 															| 
 														#else
 															#set($prevAction=true)
 														#end
-															<a href="#toolLinkParam("$action" "doHelp_activity" "activityRef=$validator.escapeUrl($assignment.reference)&providerId=$validator.escapeUrl($provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
+															<a href="#toolLinkParam("$action" "doHelp_activity" "activityRef=$validator.escapeUrl($activity.reference)&providerId=$validator.escapeUrl($provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
 													#end
 												#end
 											#end
@@ -390,7 +391,7 @@
 															<div class="itemAction">
 																<a href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submission.Reference)")">$!tlang.getString("viewsubmission")</a>
 																#foreach ($provider in $providers)
-																	#set ($item = $submission.getTaggableSubmission($user.getId()))
+																	#set ($item = $producer.getItem($submission, $user.getId()))
 																	#set ($helperInfo = false)
 																	#set ($helperInfo = $provider.getItemHelperInfo($item.reference))
 																	#if ($helperInfo)

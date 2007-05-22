@@ -74,9 +74,9 @@
 			#if ($taggable)
 				#foreach ($provider in $providers)
 					#set ($helperInfo = false)
-					#set ($helperInfo = $provider.getItemsHelperInfo($assignment.reference))
+					#set ($helperInfo = $provider.provider.itemsHelperInfo($activity.reference))
 					#if ($helperInfo)
-						| <a href="#toolLinkParam("$action" "doHelp_items" "activityRef=$validator.escapeUrl($assignment.Reference)&providerId=$validator.escapeUrl($provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
+						| <a href="#toolLinkParam("$action" "doHelp_items" "activityRef=$validator.escapeUrl($activity.Reference)&providerId=$validator.escapeUrl($provider.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
 					#end
 				#end
 			#end
@@ -269,11 +269,11 @@
 									<div class="itemAction">
 										<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignment.Reference)&submissionId=$validator.escapeUrl($submission.Reference)")" title="$tlang.getString("listsub.grasub")">$!tlang.getString("listsub.grade")</a>
 										#foreach ($provider in $providers)
-											#set ($item = $submission.getTaggableSubmission($siteUser.getId()))
+											#set ($item = $producer.item($submission, $siteUser.getId()))
 											#set ($helperInfo = false)
-											#set ($helperInfo = $provider.getItemHelperInfo($item.reference))
+											#set ($helperInfo = $provider.provider.itemHelperInfo($item.reference))
 											#if ($helperInfo)
-												| <a href="#toolLinkParam("$action" "doHelp_item" "itemRef=$validator.escapeUrl($item.reference)&providerId=$validator.escapeUrl($provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
+												| <a href="#toolLinkParam("$action" "doHelp_item" "itemRef=$validator.escapeUrl($item.reference)&providerId=$validator.escapeUrl($provider.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
 											#end
 										#end
 									</div>
@@ -486,5 +486,8 @@
 				#end
 			#end
 		</ul>
+	#end
+	#if ($taggable)
+	   	#parse ("/vm/assignment/chef_assignments_tags_list.vm")
 	#end	
 </div>
