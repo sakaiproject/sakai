@@ -64,6 +64,13 @@ public class AssignmentActivityProducerImpl implements
 
 	protected UserDirectoryService userDirectoryService;
 
+	public boolean allowGetItems(TaggableActivity activity,
+			TaggingProvider provider) {
+		// We aren't picky about the provider, so ignore that argument.
+		// Only allow this if the user can grade submissions
+		return assignmentService.allowGradeSubmission(activity.getReference());
+	}
+
 	public boolean allowRemoveTags(TaggableActivity activity) {
 		return securityService.unlock(
 				AssignmentService.SECURE_REMOVE_ASSIGNMENT, activity
