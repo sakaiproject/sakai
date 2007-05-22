@@ -84,6 +84,9 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.archive.api.ImportMetadata;
+import org.sakaiproject.importer.api.ImportDataSource;
+import org.sakaiproject.importer.api.ImportService;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
@@ -101,6 +104,7 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.FileItem;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
@@ -468,13 +472,16 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String MODE_INSTRUCTOR_VIEW_ASSIGNMENT = "Assignment.mode_instructor_view_assignments";
 
 	/** The instructor view to list students of an assignment */
-   private static final String MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT = "lisofass2"; // set in velocity template
+	private static final String MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT = "lisofass2"; // set in velocity template
 
 	/** The instructor view of assignment submission report */
-   private static final String MODE_INSTRUCTOR_REPORT_SUBMISSIONS = "grarep"; // set in velocity template
+	private static final String MODE_INSTRUCTOR_REPORT_SUBMISSIONS = "grarep"; // set in velocity template
+	
+	/** The instructor view of uploading all from archive file */
+	private static final String MODE_INSTRUCTOR_UPLOAD_ALL = "uploadAll"; 
 
 	/** The student view of assignment submission report */
-   private static final String MODE_STUDENT_VIEW = "stuvie"; // set in velocity template
+	private static final String MODE_STUDENT_VIEW = "stuvie"; // set in velocity template
 
 	/** ************************* vm names ************************** */
 	/** The list view of assignments */
@@ -525,6 +532,9 @@ public class AssignmentAction extends PagedResourceActionII
 	/** The instructor view to assignment submission report */
 	private static final String TEMPLATE_INSTRUCTOR_REPORT_SUBMISSIONS = "_instructor_report_submissions";
 
+	/** The instructor view to upload all information from archive file */
+	private static final String TEMPLATE_INSTRUCTOR_UPLOAD_ALL = "_instructor_uploadAll";
+
 	/** The opening mark comment */
 	private static final String COMMENT_OPEN = "{{";
 
@@ -570,6 +580,9 @@ public class AssignmentAction extends PagedResourceActionII
 	
 	// default for whether or how the instructor receive submission notification emails, none(default)|each|digest
 	private static final String ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DEFAULT = "assignment.instructor.notifications.default";
+	
+	// the import service
+	private ImportService importService = org.sakaiproject.importer.cover.ImportService.getInstance();
 	
 	/**
 	 * central place for dispatching the build routines based on the state name
@@ -731,6 +744,14 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				// if allowed for grading, build the context for the instructor's view of report submissions
 				template = build_instructor_report_submissions(portlet, context, data, state);
+			}
+		}
+		else if (mode.equals(MODE_INSTRUCTOR_UPLOAD_ALL))
+		{
+			if ( allowGradeSubmission != null && ((Boolean) allowGradeSubmission).booleanValue())
+			{
+				// if allowed for grading, build the context for the instructor's view of uploading all info from archive file
+				template = build_instructor_upload_all(portlet, context, data, state);
 			}
 		}
 		else if (mode.equals(MODE_INSTRUCTOR_REORDER_ASSIGNMENT))
@@ -2020,7 +2041,7 @@ public class AssignmentAction extends PagedResourceActionII
 		return template + TEMPLATE_INSTRUCTOR_REPORT_SUBMISSIONS;
 
 	} // build_instructor_report_submissions
-
+	
 	// Is Gradebook defined for the site?
 	protected boolean isGradebookDefined()
 	{
@@ -2043,7 +2064,17 @@ public class AssignmentAction extends PagedResourceActionII
 		return rv;
 
 	} // isGradebookDefined()
+	
+	/**
+	 * build the instructor view to upload information from archive file
+	 */
+	protected String build_instructor_upload_all(VelocityPortlet portlet, Context context, RunData data, SessionState state)
+	{
+		String template = (String) getContext(data).get("template");
+		return template + TEMPLATE_INSTRUCTOR_UPLOAD_ALL;
 
+	} // build_instructor_upload_all
+	
    /**
     ** Retrieve tool title from Tool configuration file or use default
     ** (This should return i18n version of tool title if available)
@@ -8491,6 +8522,109 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		
 	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public void doUpload_all(RunData data)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		    
+		    List allzipList = new Vector();
+		    List finalzipList = new Vector();
+		    List directcopyList = new Vector();
+
+	    // see if the user uploaded a file
+	    FileItem fileFromUpload = null;
+	    String fileName = null;
+	    fileFromUpload = data.getParameters().getFileItem("file");
+		    
+	    String max_file_size_mb = ServerConfigurationService.getString("content.upload.max", "1");
+	    int max_bytes = 1024 * 1024;
+	    try
+	    {
+	    		max_bytes = Integer.parseInt(max_file_size_mb) * 1024 * 1024;
+	    	}
+		catch(Exception e)
+		{
+			// if unable to parse an integer from the value
+			// in the properties file, use 1 MB as a default
+			max_file_size_mb = "1";
+			max_bytes = 1024 * 1024;
+		}
+		
+		if(fileFromUpload == null)
+		{
+			// "The user submitted a file to upload but it was too big!"
+			addAlert(state, rb.getString("uploadall.size") + " " + max_file_size_mb + "MB " + rb.getString("uploadall.exceeded"));
+		}
+		else if (fileFromUpload.getFileName() == null || fileFromUpload.getFileName().length() == 0)
+		{
+			// no file
+			addAlert(state, rb.getString("uploadall.alert.zipFile"));
+		}
+		else
+		{
+			byte[] fileData = fileFromUpload.get();
+			    
+			if(fileData.length >= max_bytes)
+			{
+				addAlert(state, rb.getString("uploadall.size") + " " + max_file_size_mb + "MB " + rb.getString("uploadall.exceeded"));
+			}
+			else if(fileData.length > 0)
+			{
+				  if (importService.isValidArchive(fileData)) 
+				  {
+					  ImportDataSource importDataSource = importService.parseFromFile(fileData);
+					  
+					  List lst = importDataSource.getItemCategories();
+					  if (lst != null && lst.size() > 0)
+					  {
+						  Iterator iter = lst.iterator();
+						  while (iter.hasNext())
+						  {
+							  ImportMetadata importdata = (ImportMetadata) iter.next();
+							  if ((!importdata.isMandatory()) && (importdata.getFileName().endsWith(".xml")))
+							  {
+								  allzipList.add(importdata);
+							  }
+							  else
+					          {
+								  directcopyList.add(importdata);
+					          }
+						  }
+					  }
+				  }
+				  else 
+				  { 
+					  // uploaded file is not a valid archive
+					  addAlert(state, rb.getString("uploadall.alert.zipFile"));
+				  }
+			}
+		}
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public void doCancel_upload_all(RunData data)
+	{
+		
+	}
+	
+
+	/**
+	 * Action is to preparing to go to the upload files
+	 */
+	public void doPrep_upload_all(RunData data)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		ParameterParser params = data.getParameters();
+		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_UPLOAD_ALL);
+
+	} // doPrep_upload_all
 	
 	private List<DecoratedTaggingProvider> initDecoratedProviders() {
 		TaggingManager taggingManager = (TaggingManager) ComponentManager

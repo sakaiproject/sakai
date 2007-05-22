@@ -71,6 +71,8 @@
 			#else
 				<a href="#toolLinkParam("$action" "doRelease_grades" "assignmentId=$validator.escapeUrl($!assignment.Reference)")" title="$!tlang.getString('relcommented')">$!tlang.getString('relcommented')</a>
 			#end
+			## upload all
+			| <a href="#toolLinkParam("$action" "doPrep_upload_all" "assignmentId=$validator.escapeUrl($!assignment.Reference)")" title="$!tlang.getString('uploadall.title')">$!tlang.getString('uploadall.title')</a>
 			#if ($taggable)
 				#foreach ($provider in $providers)
 					#set ($helperInfo = false)
