@@ -163,7 +163,7 @@ function updateRunningTotal(thisForm) {
     var highlightTotal = true;
 
     if (elementNamePieces[3] == "weightInput") {
-        weight = parseInt(formElement.value);
+        weight = parseFloat(formElement.value);
 
         if (weight >= 0) {
             runningTotal += weight;
