@@ -52,6 +52,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	private List categoriesToRemove;
 	private double runningTotal;
 	private double neededTotal;
+	private String pageName;
 
 	private static final int NUM_EXTRA_CAT_ENTRIES = 50;
 	private static final String ENTRY_OPT_POINTS = "points";
@@ -473,6 +474,18 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 
 		return "";
 	}
+	
+	/**
+	 * For retaining the pageName variable upon save or cancel
+	 */
+	public String getPageName() {
+        return pageName;
+    }
+
+    public void setPageName(String pageName) {
+        this.pageName = pageName;
+    }
+
 
 	/**
 	 * Set gradeEntryType and categorySetting

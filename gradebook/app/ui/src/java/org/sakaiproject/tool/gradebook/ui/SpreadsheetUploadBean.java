@@ -97,6 +97,8 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     private static final String IMPORT_ASSIGNMENT_NOTSUPPORTED= "import_assignment_entire_notsupported";
     private static final String IMPORT_ASSIGNMENT_NEG_VALUE = "import_assignment_entire_negative_score";
     
+    private String pageName;
+    
     public SpreadsheetUploadBean() {
     	
     	localGradebook = getGradebook();
@@ -363,6 +365,17 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     
     public Gradebook getLocalGradebook() {
     	return localGradebook;
+    }
+    
+    /**
+	 * For retaining the pageName variable throughout import process
+	 */
+	public String getPageName() {
+        return pageName;
+    }
+
+    public void setPageName(String pageName) {
+        this.pageName = pageName;
     }
     
     /**
