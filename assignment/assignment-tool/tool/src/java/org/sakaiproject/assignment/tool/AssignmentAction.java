@@ -2517,7 +2517,19 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
 
 	} // doCancel_reorder
+	
+	/**
+	 * Action is to cancel the preview grade process
+	 */
+	public void doCancel_preview_to_list_submission(RunData data)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		
+		// back to the instructor view of grading a submission
+		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_ASSIGNMENT);
 
+	} // doCancel_preview_to_list_submission
+	
 	/**
 	 * Action is to return to the view of list assignments
 	 */
