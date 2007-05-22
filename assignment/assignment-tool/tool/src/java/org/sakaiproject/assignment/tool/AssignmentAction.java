@@ -21,6 +21,8 @@
 
 package org.sakaiproject.assignment.tool;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -35,6 +37,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
@@ -70,8 +74,10 @@ import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.content.api.FilePickerHelper;
+import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -84,9 +90,6 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.archive.api.ImportMetadata;
-import org.sakaiproject.importer.api.ImportDataSource;
-import org.sakaiproject.importer.api.ImportService;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
@@ -581,8 +584,11 @@ public class AssignmentAction extends PagedResourceActionII
 	// default for whether or how the instructor receive submission notification emails, none(default)|each|digest
 	private static final String ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DEFAULT = "assignment.instructor.notifications.default";
 	
-	// the import service
-	private ImportService importService = org.sakaiproject.importer.cover.ImportService.getInstance();
+	/****************************** Upload all screen ***************************/
+	private static final String UPLOAD_ALL_HAS_SUBMISSIONS = "upload_all_has_submissions";
+	private static final String UPLOAD_ALL_HAS_GRADEFILE = "upload_all_has_gradefile";
+	private static final String UPLOAD_ALL_HAS_COMMENTS= "upload_all_has_comments";
+	private static final String UPLOAD_ALL_RELEASE_GRADES = "upload_all_release_grades";
 	
 	/**
 	 * central place for dispatching the build routines based on the state name
@@ -2070,6 +2076,11 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	protected String build_instructor_upload_all(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
+		context.put("hasSubmissions", state.getAttribute(UPLOAD_ALL_HAS_SUBMISSIONS));
+		context.put("hasGradeFile", state.getAttribute(UPLOAD_ALL_HAS_GRADEFILE));
+		context.put("hasComments", state.getAttribute(UPLOAD_ALL_HAS_COMMENTS));
+		context.put("releaseGrades", state.getAttribute(UPLOAD_ALL_RELEASE_GRADES));
+		
 		String template = (String) getContext(data).get("template");
 		return template + TEMPLATE_INSTRUCTOR_UPLOAD_ALL;
 
@@ -8530,79 +8541,299 @@ public class AssignmentAction extends PagedResourceActionII
 	public void doUpload_all(RunData data)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		    
-		    List allzipList = new Vector();
-		    List finalzipList = new Vector();
-		    List directcopyList = new Vector();
-
-	    // see if the user uploaded a file
-	    FileItem fileFromUpload = null;
-	    String fileName = null;
-	    fileFromUpload = data.getParameters().getFileItem("file");
-		    
-	    String max_file_size_mb = ServerConfigurationService.getString("content.upload.max", "1");
-	    int max_bytes = 1024 * 1024;
-	    try
-	    {
-	    		max_bytes = Integer.parseInt(max_file_size_mb) * 1024 * 1024;
-	    	}
-		catch(Exception e)
+		ParameterParser params = data.getParameters();
+		String flow = params.getString("flow");
+		if (flow.equals("upload"))
 		{
-			// if unable to parse an integer from the value
-			// in the properties file, use 1 MB as a default
-			max_file_size_mb = "1";
-			max_bytes = 1024 * 1024;
+			// upload
+			doUpload_all_upload(data);
 		}
+		else if (flow.equals("cancel"))
+		{
+			// cancel
+			doCancel_upload_all(data);
+		}
+	}
+	
+	public void doUpload_all_upload(RunData data)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		ParameterParser params = data.getParameters();
 		
-		if(fileFromUpload == null)
+		String contextString = ToolManager.getCurrentPlacement().getContext();
+		String toolTitle = ToolManager.getTool("sakai.assignment").getTitle();
+		
+		boolean hasSubmissions = false;
+		boolean hasGradeFile = false;
+		boolean hasComments = false;
+		boolean releaseGrades = false;
+		
+		// check against the content elements selection
+		if (params.getString("studentSubmission") != null)
 		{
-			// "The user submitted a file to upload but it was too big!"
-			addAlert(state, rb.getString("uploadall.size") + " " + max_file_size_mb + "MB " + rb.getString("uploadall.exceeded"));
+			// should contain student submission information
+			hasSubmissions = true;
 		}
-		else if (fileFromUpload.getFileName() == null || fileFromUpload.getFileName().length() == 0)
+		if (params.getString("gradeFile") != null)
 		{
-			// no file
-			addAlert(state, rb.getString("uploadall.alert.zipFile"));
+			// should contain grade file
+			hasGradeFile = true;	
+		}
+		if (params.getString("instructorComments") != null)
+		{
+			// comments.xml should be available
+			hasComments = true;
+		}
+		if (params.getString("release") != null)
+		{
+			// comments.xml should be available
+			releaseGrades = params.getBoolean("release");
+		}
+		state.setAttribute(UPLOAD_ALL_HAS_SUBMISSIONS, Boolean.valueOf(hasSubmissions));
+		state.setAttribute(UPLOAD_ALL_HAS_GRADEFILE, Boolean.valueOf(hasGradeFile));
+		state.setAttribute(UPLOAD_ALL_HAS_COMMENTS, Boolean.valueOf(hasComments));
+		state.setAttribute(UPLOAD_ALL_RELEASE_GRADES, Boolean.valueOf(releaseGrades));
+		
+		if (!hasSubmissions && !hasGradeFile && !hasComments)
+		{
+			// has to choose one upload feature
+			addAlert(state, rb.getString("uploadall.alert.choose.element"));
 		}
 		else
 		{
-			byte[] fileData = fileFromUpload.get();
-			    
-			if(fileData.length >= max_bytes)
+			// constructor the hashtable for all submission objects
+			Hashtable submissionTable = new Hashtable();
+			Assignment assignment = null;
+			try
 			{
+				assignment = AssignmentService.getAssignment((String) state.getAttribute(EXPORT_ASSIGNMENT_REF));
+				
+				Iterator sIterator = AssignmentService.getSubmissions(assignment);
+				while (sIterator.hasNext())
+				{
+					AssignmentSubmission s = (AssignmentSubmission) sIterator.next();
+					User[] users = s.getSubmitters();
+					String uName = users[0].getSortName();
+					submissionTable.put(uName, new UploadGradeWrapper("", "", new Vector()));
+				}
+			}
+			catch (Exception e)
+			{
+				Log.warn("chef", e.toString());
+			}
+			
+			// see if the user uploaded a file
+		    FileItem fileFromUpload = null;
+		    String fileName = null;
+		    fileFromUpload = params.getFileItem("file");
+			    
+		    String max_file_size_mb = ServerConfigurationService.getString("content.upload.max", "1");
+		    int max_bytes = 1024 * 1024;
+		    try
+		    {
+		    		max_bytes = Integer.parseInt(max_file_size_mb) * 1024 * 1024;
+		    	}
+			catch(Exception e)
+			{
+				// if unable to parse an integer from the value
+				// in the properties file, use 1 MB as a default
+				max_file_size_mb = "1";
+				max_bytes = 1024 * 1024;
+			}
+			
+			if(fileFromUpload == null)
+			{
+				// "The user submitted a file to upload but it was too big!"
 				addAlert(state, rb.getString("uploadall.size") + " " + max_file_size_mb + "MB " + rb.getString("uploadall.exceeded"));
 			}
-			else if(fileData.length > 0)
+			else if (fileFromUpload.getFileName() == null || fileFromUpload.getFileName().length() == 0)
 			{
-				  if (importService.isValidArchive(fileData)) 
-				  {
-					  ImportDataSource importDataSource = importService.parseFromFile(fileData);
-					  
-					  List lst = importDataSource.getItemCategories();
-					  if (lst != null && lst.size() > 0)
-					  {
-						  Iterator iter = lst.iterator();
-						  while (iter.hasNext())
-						  {
-							  ImportMetadata importdata = (ImportMetadata) iter.next();
-							  if ((!importdata.isMandatory()) && (importdata.getFileName().endsWith(".xml")))
-							  {
-								  allzipList.add(importdata);
-							  }
-							  else
-					          {
-								  directcopyList.add(importdata);
-					          }
-						  }
-					  }
-				  }
-				  else 
-				  { 
-					  // uploaded file is not a valid archive
-					  addAlert(state, rb.getString("uploadall.alert.zipFile"));
-				  }
+				// no file
+				addAlert(state, rb.getString("uploadall.alert.zipFile"));
+			}
+			else
+			{
+				byte[] fileData = fileFromUpload.get();
+				    
+				if(fileData.length >= max_bytes)
+				{
+					addAlert(state, rb.getString("uploadall.size") + " " + max_file_size_mb + "MB " + rb.getString("uploadall.exceeded"));
+				}
+				else if(fileData.length > 0)
+				{	
+					ZipInputStream zin = new ZipInputStream(new ByteArrayInputStream(fileData));
+					ZipEntry entry;
+					
+					try
+					{
+						while ((entry=zin.getNextEntry()) != null)
+						{
+							if (!entry.isDirectory())
+							{
+								String entryName = entry.getName();
+								if (entryName.endsWith("grades.csv"))
+								{
+									if (hasGradeFile)
+									{
+										// read grades.cvs from zip
+								        String result = StringUtil.trimToZero(readIntoString(zin));
+								        String[] lines=null;
+								        if (result.indexOf("\r") != -1)
+								        		lines = result.split("\r");
+								        else if (result.indexOf("\n") != -1)
+							        			lines = result.split("\n");
+								        for (int i = 3; i<lines.length; i++)
+								        {
+								        		// escape the first three header lines
+								        		String[] items = lines[i].split(",");
+								        		if (items.length > 3)
+								        		{
+								        			// has grade information
+									        		try
+									        		{
+									        			User u = UserDirectoryService.getUserByEid(items[0]/*user id*/);
+									        			UploadGradeWrapper w = (UploadGradeWrapper) submissionTable.get(u.getSortName());
+									        			if (w != null)
+									        			{
+									        				w.setGrade(assignment.getContent().getTypeOfGrade() == Assignment.SCORE_GRADE_TYPE?scalePointGrade(state, items[3]):items[3]);
+									        				submissionTable.put(u.getSortName(), w);
+									        			}
+									        		}
+									        		catch (Exception e )
+									        		{
+									        			Log.warn("chef", e.toString());
+									        		}
+								        		}
+								        }
+									}
+								}
+								else 
+								{
+									// get user sort name
+									String userName = "";
+									if (entryName.indexOf("/") != -1)
+									{
+										userName = entryName.substring(0, entryName.lastIndexOf("/"));
+										if (userName.indexOf("/") != -1)
+										{
+											userName = userName.substring(userName.lastIndexOf("/")+1, userName.length());
+										}
+									}
+									if (hasComments && entryName.endsWith("comments.txt"))
+									{
+										// read the comments file
+								        String comment = StringUtil.trimToNull(readIntoString(zin));
+								        if (submissionTable.containsKey(userName) && comment != null)
+								        {
+								        		UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userName);
+								        		r.setComment(comment);
+								        		submissionTable.put(userName, r);
+								        }
+									}
+									else if (hasSubmissions)
+									{
+										// upload all the files as instuctor attachments to the submission for grading purpose
+										String fName = entryName.substring(entryName.lastIndexOf("/") + 1, entryName.length());
+										ContentTypeImageService iService = (ContentTypeImageService) state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE);
+										try
+										{
+											if (submissionTable.containsKey(userName))
+									        {
+												// add the file as attachment
+												ResourceProperties properties = ContentHostingService.newResourceProperties();
+												properties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, fName);
+												ContentResource attachment = ContentHostingService.addAttachmentResource(
+																			fName, 
+																			contextString, 
+																			toolTitle, 
+																			iService.getContentType(fName.substring(fName.lastIndexOf(".") + 1)),
+																			readIntoString(zin).getBytes(), 
+																			properties);
+									        		UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userName);
+									        		List attachments = r.getAttachments();
+									        		attachments.add(EntityManager.newReference(attachment.getReference()));
+									        		r.setAttachments(attachments);
+									        }
+										}
+										catch (Exception ee)
+										{
+											Log.warn("chef", ee.toString());
+										}
+									}
+								}
+							}
+						}
+					}
+					catch (IOException e) 
+					{
+						// uploaded file is not a valid archive
+						addAlert(state, rb.getString("uploadall.alert.zipFile"));
+						
+					}
+				}
+			}
+			
+			if (state.getAttribute(STATE_MESSAGE) == null)
+			{
+				// update related submissions
+				if (assignment != null)
+				{
+					Iterator sIterator = AssignmentService.getSubmissions(assignment);
+					while (sIterator.hasNext())
+					{
+						AssignmentSubmission s = (AssignmentSubmission) sIterator.next();
+						User[] users = s.getSubmitters();
+						String uName = users[0].getSortName();
+						if (submissionTable.containsKey(uName))
+						{
+							// update the AssignmetnSubmission record
+							try
+							{
+								AssignmentSubmissionEdit sEdit = AssignmentService.editSubmission(s.getReference());
+								
+								UploadGradeWrapper w = (UploadGradeWrapper) submissionTable.get(uName);
+								// add all attachment
+								for (Iterator attachments = w.getAttachments().iterator(); attachments.hasNext();)
+								{
+									sEdit.addFeedbackAttachment((Reference) attachments.next());
+								}
+								// add comment
+								sEdit.setFeedbackComment(w.getComment());
+								// set grade
+								sEdit.setGrade(w.getGrade());
+								sEdit.setGraded(true);
+								// release or not
+								sEdit.setGradeReleased(releaseGrades);
+								sEdit.setReturned(releaseGrades);
+								// commit
+								AssignmentService.commitEdit(sEdit);
+							}
+							catch (Exception ee)
+							{
+								Log.debug("chef", ee.toString());
+							}
+						}	
+					}
+				}
 			}
 		}
+		
+		if (state.getAttribute(STATE_MESSAGE) == null)
+		{
+			// go back to the list of submissions view
+			cleanUploadAllContext(state);
+			state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_ASSIGNMENT);
+		}
+	}
+
+	private String readIntoString(ZipInputStream zin) throws IOException {
+		byte[] buf = new byte[1024];
+		int len;
+		StringBuffer b = new StringBuffer();
+		while ((len = zin.read(buf)) > 0) {
+		    b.append(new String(buf));
+		}
+		return b.toString();
 	}
 	
 	/**
@@ -8611,6 +8842,20 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doCancel_upload_all(RunData data)
 	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_ASSIGNMENT);
+		cleanUploadAllContext(state);
+	}
+	
+	/**
+	 * clean the state variabled used by upload all process
+	 */
+	private void cleanUploadAllContext(SessionState state)
+	{
+		state.removeAttribute(UPLOAD_ALL_HAS_SUBMISSIONS);
+		state.removeAttribute(UPLOAD_ALL_HAS_GRADEFILE);
+		state.removeAttribute(UPLOAD_ALL_HAS_COMMENTS);
+		state.removeAttribute(UPLOAD_ALL_RELEASE_GRADES);
 		
 	}
 	
@@ -8625,6 +8870,82 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_UPLOAD_ALL);
 
 	} // doPrep_upload_all
+	
+	/**
+	 * the UploadGradeWrapper class to be used for the "upload all" feature
+	 */
+	public class UploadGradeWrapper
+	{
+		/**
+		 * the grade 
+		 */
+		String m_grade = null;
+		
+		/**
+		 * the comment
+		 */
+		String m_comment = "";
+		
+		/**
+		 * the attachment list
+		 */
+		List m_attachments = EntityManager.newReferenceList();
+
+		public UploadGradeWrapper(String grade, String comment, List attachments)
+		{
+			m_grade = grade;
+			m_comment = comment;
+			m_attachments = attachments;
+		}
+
+		/**
+		 * Returns grade string
+		 */
+		public String getGrade()
+		{
+			return m_grade;
+		}
+
+		/**
+		 * Returns the comment string
+		 */
+		public String getComment()
+		{
+			return m_comment;
+		}
+		
+		/**
+		 * Returns the attachment list
+		 */
+		public List getAttachments()
+		{
+			return m_attachments;
+		}
+		
+		/**
+		 * set the grade string
+		 */
+		public void setGrade(String grade)
+		{
+			m_grade = grade;
+		}
+		
+		/**
+		 * set the comment string
+		 */
+		public void setComment(String comment)
+		{
+			m_comment = comment;
+		}
+		
+		/**
+		 * set the attachment list
+		 */
+		public void setAttachments(List attachments)
+		{
+			m_attachments = attachments;
+		}
+	}
 	
 	private List<DecoratedTaggingProvider> initDecoratedProviders() {
 		TaggingManager taggingManager = (TaggingManager) ComponentManager
