@@ -94,7 +94,7 @@ function saveChanges(formName, textAreaId) {
 					#foreach ($tag in $tagList)
 						<tr>
 							#foreach ($column in $columns)
-								<td>$tag.getField($column)</td>
+								<td>$!tag.getField($column)</td>
 							#end
 						</tr>
 					#end
