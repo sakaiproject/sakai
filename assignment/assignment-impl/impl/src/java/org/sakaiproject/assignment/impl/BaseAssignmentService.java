@@ -3734,7 +3734,42 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public Entity getEntity(Reference ref)
 	{
-		return null;
+		Entity rv = null;
+
+		try
+		{
+			// is it an AssignmentContent object
+			if (REF_TYPE_CONTENT.equals(ref.getSubType()))
+			{
+				rv = getAssignmentContent(ref.getReference());
+			}
+			// is it an Assignment object
+			else if (REF_TYPE_ASSIGNMENT.equals(ref.getSubType()))
+			{
+				rv = getAssignment(ref.getReference());
+			}
+			// is it an AssignmentSubmission object
+			else if (REF_TYPE_SUBMISSION.equals(ref.getSubType()))
+			{
+				rv = getSubmission(ref.getReference());
+			}
+			else
+				M_log.warn("getEntity(): unknown message ref subtype: " + ref.getSubType() + " in ref: " + ref.getReference());
+		}
+		catch (PermissionException e)
+		{
+			M_log.warn("getEntity(): " + e);
+		}
+		catch (IdUnusedException e)
+		{
+			M_log.warn("getEntity(): " + e);
+		}
+		catch (NullPointerException e)
+		{
+			M_log.warn("getEntity(): " + e);
+		}
+
+		return rv;
 	}
 
 	/**
@@ -3811,7 +3846,45 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public String getEntityUrl(Reference ref)
 	{
-		return null;
+		String rv = null;
+
+		try
+		{
+			// is it an AssignmentContent object
+			if (REF_TYPE_CONTENT.equals(ref.getSubType()))
+			{
+				AssignmentContent c = getAssignmentContent(ref.getReference());
+				rv = c.getUrl();
+			}
+			// is it an Assignment object
+			else if (REF_TYPE_ASSIGNMENT.equals(ref.getSubType()))
+			{
+				Assignment a = getAssignment(ref.getReference());
+				rv = a.getUrl();
+			}
+			// is it an AssignmentSubmission object
+			else if (REF_TYPE_SUBMISSION.equals(ref.getSubType()))
+			{
+				AssignmentSubmission s = getSubmission(ref.getReference());
+				rv = s.getUrl();
+			}
+			else
+				M_log.warn("getEntityUrl(): unknown message ref subtype: " + ref.getSubType() + " in ref: " + ref.getReference());
+		}
+		catch (PermissionException e)
+		{
+			M_log.warn("getEntityUrl(): " + e);
+		}
+		catch (IdUnusedException e)
+		{
+			M_log.warn("getEntityUrl(): " + e);
+		}
+		catch (NullPointerException e)
+		{
+			M_log.warn("getEntityUrl(): " + e);
+		}
+
+		return rv;
 	}
 
 	/**
@@ -4418,7 +4491,45 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public String getEntityDescription(Reference ref)
 	{
-		return null;
+		String rv = "Assignment: " + ref.getReference();
+		
+		try
+		{
+			// is it an AssignmentContent object
+			if (REF_TYPE_CONTENT.equals(ref.getSubType()))
+			{
+				AssignmentContent c = getAssignmentContent(ref.getReference());
+				rv = "AssignmentContent: " + c.getId() + " (" + c.getContext() + ")";
+			}
+			// is it an Assignment object
+			else if (REF_TYPE_ASSIGNMENT.equals(ref.getSubType()))
+			{
+				Assignment a = getAssignment(ref.getReference());
+				rv = "Assignment: " + a.getId() + " (" + a.getContext() + ")";
+			}
+			// is it an AssignmentSubmission object
+			else if (REF_TYPE_SUBMISSION.equals(ref.getSubType()))
+			{
+				AssignmentSubmission s = getSubmission(ref.getReference());
+				rv = "AssignmentSubmission: " + s.getId() + " (" + s.getContext() + ")";
+			}
+			else
+				M_log.warn("getEntityDescription(): unknown message ref subtype: " + ref.getSubType() + " in ref: " + ref.getReference());
+		}
+		catch (PermissionException e)
+		{
+			M_log.warn("getEntityDescription(): " + e);
+		}
+		catch (IdUnusedException e)
+		{
+			M_log.warn("getEntityDescription(): " + e);
+		}
+		catch (NullPointerException e)
+		{
+			M_log.warn("getEntityDescription(): " + e);
+		}
+
+		return rv;
 	}
 
 	/**
@@ -4426,7 +4537,45 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public ResourceProperties getEntityResourceProperties(Reference ref)
 	{
-		return null;
+		ResourceProperties rv = null;
+
+		try
+		{
+			// is it an AssignmentContent object
+			if (REF_TYPE_CONTENT.equals(ref.getSubType()))
+			{
+				AssignmentContent c = getAssignmentContent(ref.getReference());
+				rv = c.getProperties();
+			}
+			// is it an Assignment object
+			else if (REF_TYPE_ASSIGNMENT.equals(ref.getSubType()))
+			{
+				Assignment a = getAssignment(ref.getReference());
+				rv = a.getProperties();
+			}
+			// is it an AssignmentSubmission object
+			else if (REF_TYPE_SUBMISSION.equals(ref.getSubType()))
+			{
+				AssignmentSubmission s = getSubmission(ref.getReference());
+				rv = s.getProperties();
+			}
+			else
+				M_log.warn("getEntityProperties: unknown message ref subtype: " + ref.getSubType() + " in ref: " + ref.getReference());
+		}
+		catch (PermissionException e)
+		{
+			M_log.warn("getEntityProperties(): " + e);
+		}
+		catch (IdUnusedException e)
+		{
+			M_log.warn("getEntityProperties(): " + e);
+		}
+		catch (NullPointerException e)
+		{
+			M_log.warn("getEntityProperties(): " + e);
+		}
+
+		return rv;
 	}
 	
 	/**
