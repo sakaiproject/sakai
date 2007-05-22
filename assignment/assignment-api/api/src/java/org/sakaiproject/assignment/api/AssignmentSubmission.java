@@ -196,14 +196,4 @@ public interface AssignmentSubmission extends Entity
 	 * Method to return the close time for the submission
 	 */
 	public Time getCloseTime();
-	
-	/**
-	 * Method to get the number of allowed resubmission
-	 */
-	public int getResubmissionNum();
-	
-	/**
-	 * Method to return the close time for the submission
-	 */
-	public Time getCloseTime();
 }

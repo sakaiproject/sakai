@@ -50,6 +50,9 @@ public interface AssignmentService extends EntityProducer
 	/** This string starts the references to resources in this service. */
 	public static final String REFERENCE_ROOT = "/assignment";
 
+	/** Security function giving the user permission to receive assignment submission email */
+	public static final String SECURE_ASSIGNMENT_RECEIVE_NOTIFICATIONS = "asn.receive.notifications";
+	
 	/** Security lock for adding an assignment. */
 	public static final String SECURE_ADD_ASSIGNMENT = "asn.new";
 
@@ -117,9 +120,29 @@ public interface AssignmentService extends EntityProducer
 	public static final String GRADEBOOK_INTEGRATION_NO = "no";
 	public static final String GRADEBOOK_INTEGRATION_ADD = "add";
 	public static final String GRADEBOOK_INTEGRATION_ASSOCIATE = "associate";
+	public static final String NEW_ASSIGNMENT_ADD_TO_GRADEBOOK = "new_assignment_add_to_gradebook";
+	
 	// and the prop name
-	public static final String PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT = "new_assignment_add_to_gradebook";
-
+	public static final String PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT = "prop_new_assignment_add_to_gradebook";
+	
+	/**
+	 * Check permissions for receiving assignment submission notification email
+	 * 
+	 * @param context -
+	 *        Describes the portlet context - generated with DefaultId.getChannel().
+	 * @return True if the current User is allowed to receive the email, false if not.
+	 */
+	public boolean allowReceiveSubmissionNotification(String context);
+	
+	/**
+	 * Get the List of Users who can add assignment
+	 * 
+	 * @param assignmentReference -
+	 *        a reference to an assignment
+	 * @return the List (User) of users who can addSubmission() for this assignment.
+	 */
+	public List allowReceiveSubmissionNotificationUsers(String context);
+	
 	/**
 	 * Check permissions for adding an Assignment.
 	 * 

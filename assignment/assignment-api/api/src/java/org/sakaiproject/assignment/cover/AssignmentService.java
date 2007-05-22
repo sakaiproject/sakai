@@ -58,7 +58,9 @@ public class AssignmentService {
 	public static java.lang.String REFERENCE_ROOT = org.sakaiproject.assignment.api.AssignmentService.REFERENCE_ROOT;
 
 	public static java.lang.String SECURE_ALL_GROUPS = org.sakaiproject.assignment.api.AssignmentService.SECURE_ALL_GROUPS;
-
+	
+	public static java.lang.String SECURE_ASSIGNMENT_RECEIVE_NOTIFICATIONS = org.sakaiproject.assignment.api.AssignmentService.SECURE_ASSIGNMENT_RECEIVE_NOTIFICATIONS;
+	
 	public static java.lang.String SECURE_ADD_ASSIGNMENT = org.sakaiproject.assignment.api.AssignmentService.SECURE_ADD_ASSIGNMENT;
 
 	public static java.lang.String SECURE_ADD_ASSIGNMENT_CONTENT = org.sakaiproject.assignment.api.AssignmentService.SECURE_ADD_ASSIGNMENT_CONTENT;
@@ -105,6 +107,32 @@ public class AssignmentService {
 
 	public static java.lang.String PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT = org.sakaiproject.assignment.api.AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT;
 
+	public static java.lang.String ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE= org.sakaiproject.assignment.api.Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE;
+	
+	public static java.lang.String ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_NONE = org.sakaiproject.assignment.api.Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_NONE;
+	
+	public static java.lang.String ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_EACH = org.sakaiproject.assignment.api.Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_EACH;
+	
+	public static java.lang.String ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DIGEST = org.sakaiproject.assignment.api.Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DIGEST;
+	
+	public static java.lang.String NEW_ASSIGNMENT_ADD_TO_GRADEBOOK = org.sakaiproject.assignment.api.AssignmentService.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK;
+	 
+	public static boolean allowReceiveSubnissionNotification(java.lang.String param0) {
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null)
+			return false;
+
+		return service.allowReceiveSubmissionNotification(param0);
+	}
+	
+	public static java.util.List allowReceiveSubmissionNotificationUsers(java.lang.String param0) {
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null)
+			return null;
+
+		return service.allowReceiveSubmissionNotificationUsers(param0);
+	}
+	
 	public static boolean allowAddAssignment(java.lang.String param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
 		if (service == null)
