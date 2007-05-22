@@ -7048,8 +7048,8 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 				else
 				{
-					String lName1 = u1.getUser().getLastName();
-					String lName2 = u2.getUser().getLastName();
+					String lName1 = u1.getUser().getSortName();
+					String lName2 = u2.getUser().getSortName();
 					result = lName1.toLowerCase().compareTo(lName2.toLowerCase());
 				}
 			}
