@@ -34,6 +34,12 @@ import org.sakaiproject.user.api.User;
  */
 public interface AssignmentSubmission extends Entity
 {
+	/** number of times that the submission is allowed to resubmit */
+	public static final String ALLOW_RESUBMIT_NUMBER = "allow_resubmit_number";
+	
+	/** submission level of close time*/
+	public static final String ALLOW_RESUBMIT_CLOSETIME = "allow_resubmit_closeTime";
+	
 	/**
 	 * Access the context at the time of creation.
 	 * 
@@ -181,6 +187,16 @@ public interface AssignmentSubmission extends Entity
 	 */
 	public String getStatus();
 
+	/**
+	 * Method to get the number of allowed resubmission
+	 */
+	public int getResubmissionNum();
+	
+	/**
+	 * Method to return the close time for the submission
+	 */
+	public Time getCloseTime();
+	
 	/**
 	 * Method to get the number of allowed resubmission
 	 */
