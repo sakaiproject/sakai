@@ -181,12 +181,19 @@ public class AssignmentActivityProducerImpl implements
 		// We aren't picky about the provider, so ignore that argument.
 		List<TaggableItem> items = new ArrayList<TaggableItem>();
 		Assignment assignment = (Assignment) activity.getObject();
-		for (Iterator<AssignmentSubmission> i = assignmentService
-				.getSubmissions(assignment); i.hasNext();) {
-			AssignmentSubmission submission = i.next();
-			for (Object submitterId : submission.getSubmitterIds()) {
-				items.add(new AssignmentItemImpl(submission,
-						(String) submitterId, activity));
+		/*
+		 * If you're not allowed to grade submissions, you shouldn't be able to
+		 * look at submission items. It seems that anybody is allowed to get any
+		 * submissions.
+		 */
+		if (assignmentService.allowGradeSubmission(assignment.getReference())) {
+			for (Iterator<AssignmentSubmission> i = assignmentService
+					.getSubmissions(assignment); i.hasNext();) {
+				AssignmentSubmission submission = i.next();
+				for (Object submitterId : submission.getSubmitterIds()) {
+					items.add(new AssignmentItemImpl(submission,
+							(String) submitterId, activity));
+				}
 			}
 		}
 		return items;
