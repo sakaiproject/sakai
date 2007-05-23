@@ -3342,8 +3342,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 * @throws PermissionException
 	 *         if the current user is not allowed to access this.
 	 */
-	public byte[] getSubmissionsZip(String ref) throws IdUnusedException, PermissionException
-	{
+	public void getSubmissionsZip(OutputStream outputStream, String ref) throws IdUnusedException, PermissionException
+ 	{
 		if (M_log.isDebugEnabled()) M_log.debug(this + ": getSubmissionsZip reference=" + ref);
 
 		byte[] rv = null;
@@ -3353,12 +3353,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			Assignment a = getAssignment(assignmentReferenceFromSubmissionsZipReference(ref));
 			Iterator submissions = getSubmissions(a).iterator();
 
-			Blob b = new Blob();
 			StringBuffer exceptionMessage = new StringBuffer();
 
 			if (allowGradeSubmission(a.getReference()))
 			{
-				zipSubmissions(a.getReference(), a.getTitle(), a.getContent().getTypeOfGradeString(a.getContent().getTypeOfGrade()), a.getContent().getTypeOfSubmission(), submissions, b, exceptionMessage);
+				zipSubmissions(a.getReference(), a.getTitle(), a.getContent().getTypeOfGradeString(a.getContent().getTypeOfGrade()), a.getContent().getTypeOfSubmission(), submissions, outputStream, exceptionMessage);
 
 				if (exceptionMessage.length() > 0)
 				{
@@ -3366,8 +3365,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					if (M_log.isDebugEnabled())
 						M_log.debug(this + ref + exceptionMessage.toString());
 				}
-				// return zip file content
-				rv = b.getBytes();
 			}
 		}
 		catch (IdUnusedException e)
@@ -3382,15 +3379,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			throw new PermissionException(SessionManager.getCurrentSessionUserId(), SECURE_ACCESS_ASSIGNMENT, ref);
 		}
 
-		return rv;
-
 	} // getSubmissionsZip
 
-	protected void zipSubmissions(String assignmentReference, String assignmentTitle, String gradeTypeString, int typeOfSubmission, Iterator submissions, Blob b, StringBuffer exceptionMessage) 
+	protected void zipSubmissions(String assignmentReference, String assignmentTitle, String gradeTypeString, int typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuffer exceptionMessage) 
 	{
 		try
 		{
-			ZipOutputStream out = new ZipOutputStream(b.outputStream());
+			ZipOutputStream out = new ZipOutputStream(outputStream);
 
 			// create the folder structor - named after the assignment's title
 			String root = Validator.escapeZipEntry(assignmentTitle) + Entity.SEPARATOR;
@@ -3666,38 +3661,36 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					{
 						if (REF_TYPE_SUBMISSIONS.equals(ref.getSubType()))
 						{
-							// get the submissions zip blob
-							byte[] zip = getSubmissionsZip(ref.getReference());
-	
-							if (zip != null)
+							res.setContentType("application/zip");
+							res.setHeader("Content-Disposition", "attachment; filename = bulk_download.zip");
+							 
+							OutputStream out = null;
+							try
 							{
-								res.setContentType("application/zip");
-								res.setHeader("Content-Disposition", "attachment; filename = bulk_download.zip");
-	
-								OutputStream out = null;
-								try
-								{
-									out = res.getOutputStream();
-									out.write(zip);
-									out.flush();
-									out.close();
-								}
-								catch (Throwable ignore)
-								{
-								}
-								finally
-								{
-									if (out != null)
-									{
-										try
-										{
-											out.close();
-										}
-										catch (Throwable ignore)
-										{
-										}
-									}
-								}
+							    out = res.getOutputStream();
+							    
+							    // get the submissions zip blob
+							    getSubmissionsZip(out, ref.getReference());
+							    
+							    out.flush();
+							    out.close();
+							}
+							catch (Throwable ignore)
+							{
+							    M_log.error(ignore.getMessage(), ignore);
+							}
+							finally
+							{
+							    if (out != null)
+							    {
+							        try
+							        {
+							            out.close();
+							        }
+							        catch (Throwable ignore)
+							        {
+							        }
+							    }
 							}
 						}
 	

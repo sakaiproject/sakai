@@ -21,6 +21,7 @@
 
 package org.sakaiproject.assignment.api;
 
+import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -673,14 +674,16 @@ public interface AssignmentService extends EntityProducer
 	 * 
 	 * @param ref
 	 *        The assignment reference.
+	 * @param out
+	 * 		  	The outputStream to stream the zip file into
 	 * @return The submissions zip bytes.
 	 * @throws IdUnusedException
 	 *         if there is no object with this id.
 	 * @throws PermissionException
 	 *         if the current user is not allowed to access this.
 	 */
-	public byte[] getSubmissionsZip(String ref) throws IdUnusedException, PermissionException;
-
+	public void getSubmissionsZip(OutputStream out, String ref) throws IdUnusedException, PermissionException;
+	
 	/**
 	 * Access the internal reference which can be used to assess security clearance.
 	 * 
