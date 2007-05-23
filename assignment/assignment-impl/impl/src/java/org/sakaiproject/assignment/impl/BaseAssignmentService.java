@@ -7036,11 +7036,32 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		{
 			
 			
-			m_reviewScore = Integer.parseInt(el.getAttribute("reviewScore"));
+			try {
+				if (el.getAttribute("reviewScore")!=null)
+					m_reviewScore = Integer.parseInt(el.getAttribute("reviewScore"));
+				else
+					m_reviewScore = -1;
+			}
+			catch (NumberFormatException nfe) {
+				m_reviewScore = -1;
+			}
+			try {
 			// The report given by the content review service
-			m_reviewReport = el.getAttribute("reviewReport");
+				if (el.getAttribute("reviewReport")!=null)
+					m_reviewReport = el.getAttribute("reviewReport");
+				else 
+					m_reviewReport = "no report available";
+				
 			// The status of the review service
-			m_reviewStatus = el.getAttribute("reviewStatus");
+				if (el.getAttribute("reviewStatus")!=null)
+					m_reviewStatus = el.getAttribute("reviewStatus");
+				else 
+					m_reviewStatus = "";
+			}
+			catch (Exception e) {
+				M_log.error("error constructing Submission: " + e);
+			}
+			
 			
 			int numAttributes = 0;
 			String intString = null;
