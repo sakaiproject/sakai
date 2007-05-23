@@ -18,7 +18,13 @@
   <packaging>war</packaging>
   <dependencies>
     <dependency>
-      
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-contentreview-service-api</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    
+    <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-announcement-api</artifactId>
       <version>${sakai.version}</version>
