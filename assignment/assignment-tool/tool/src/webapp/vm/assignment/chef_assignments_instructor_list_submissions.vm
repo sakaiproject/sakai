@@ -111,6 +111,7 @@
 						## instructor needs to type in default points in point-based-grading
 						<input type="text" id="defaultGrade_2" name="defaultGrade" value="$!noSubmissionDefaultGrade" size="5" onchange="blur();document.defaultGradeForm.submit();"/>
 					#end
+					<input type="button" accesskey="a" class="active"  name="apply" value="$tlang.getString('gen.applygrade')" onclick="blur();document.defaultGradeForm.submit();" title="$tlang.getString("gen.applygrade")" />
 				</form>
 			</div>
 			<div class="listNav">
