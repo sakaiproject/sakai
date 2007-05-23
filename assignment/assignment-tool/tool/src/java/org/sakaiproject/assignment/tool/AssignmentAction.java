@@ -4047,15 +4047,18 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				Site site = SiteService.getSite(siteId);
 				Collection groupChoice = (Collection) state.getAttribute(NEW_ASSIGNMENT_GROUPS);
-				for (Iterator iGroups = groupChoice.iterator(); iGroups.hasNext();)
+				if (groupChoice != null)
 				{
-					String groupId = (String) iGroups.next();
-					groups.add(site.getGroup(groupId));
+					for (Iterator iGroups = groupChoice.iterator(); iGroups.hasNext();)
+					{
+						String groupId = (String) iGroups.next();
+						groups.add(site.getGroup(groupId));
+					}
 				}
 			}
 			catch (Exception e)
 			{
-				Log.warn("chef", this + "cannot find site with id "+ siteId);
+				Log.warn("chef", this + e.getMessage());
 			}
 
 
@@ -4078,44 +4081,56 @@ public class AssignmentAction extends PagedResourceActionII
 				// in case of non-electronic submission, create submissions for all students and mark it as submitted
 				if (ac.getTypeOfSubmission()== Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
 				{
-					String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
-					String authzGroupId = SiteService.siteReference(contextString);
-					List allowAddSubmissionUsers = AssignmentService.allowAddSubmissionUsers(a.getReference());
 					try
 					{
-						AuthzGroup group = AuthzGroupService.getAuthzGroup(authzGroupId);
-						Set grants = group.getUsers();
-						for (Iterator iUserIds = grants.iterator(); iUserIds.hasNext();)
+						Iterator sList = AssignmentService.getSubmissions(a);
+						if (sList == null || !sList.hasNext())
 						{
-							String userId = (String) iUserIds.next();
+							// add non-electronic submissions if there is none yet
+							String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
+							String authzGroupId = SiteService.siteReference(contextString);
+							List allowAddSubmissionUsers = AssignmentService.allowAddSubmissionUsers(a.getReference());
 							try
 							{
-								User u = UserDirectoryService.getUser(userId);
-								// only include those users that can submit to this assignment
-								if (u != null && allowAddSubmissionUsers.contains(u))
+								AuthzGroup group = AuthzGroupService.getAuthzGroup(authzGroupId);
+								Set grants = group.getUsers();
+								for (Iterator iUserIds = grants.iterator(); iUserIds.hasNext();)
 								{
-									if (AssignmentService.getSubmission(a.getReference(), u) == null)
+									String userId = (String) iUserIds.next();
+									try
 									{
-										// construct fake submissions for grading purpose
-										AssignmentSubmissionEdit submission = AssignmentService.addSubmission(contextString, a.getId());
-										submission.removeSubmitter(UserDirectoryService.getCurrentUser());
-										submission.addSubmitter(u);
-										submission.setTimeSubmitted(TimeService.newTime());
-										submission.setSubmitted(true);
-										submission.setAssignment(a);
-										AssignmentService.commitEdit(submission);
+										User u = UserDirectoryService.getUser(userId);
+										// only include those users that can submit to this assignment
+										if (u != null && allowAddSubmissionUsers.contains(u))
+										{
+											if (AssignmentService.getSubmission(a.getReference(), u) == null)
+											{
+												// construct fake submissions for grading purpose
+												AssignmentSubmissionEdit submission = AssignmentService.addSubmission(contextString, a.getId());
+												submission.removeSubmitter(UserDirectoryService.getCurrentUser());
+												submission.addSubmitter(u);
+												submission.setTimeSubmitted(TimeService.newTime());
+												submission.setSubmitted(true);
+												submission.setAssignment(a);
+												AssignmentService.commitEdit(submission);
+											}
+										}
+									}
+									catch (Exception e)
+									{
+										Log.warn("chef", this + e.toString() + " here userId = " + userId);
 									}
 								}
 							}
 							catch (Exception e)
 							{
-								Log.warn("chef", this + e.toString() + " here userId = " + userId);
+								Log.warn("chef", this + e.getMessage() + " authGroupId=" + authzGroupId);
 							}
 						}
 					}
-					catch (Exception e)
+					catch (Exception ee)
 					{
-						Log.warn("chef", e.getMessage() + " authGroupId=" + authzGroupId);
+						Log.warn("chef", this + ee.getMessage());
 					}
 				}
 				
@@ -4254,8 +4269,8 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		else
 		{
-			// remove assignment entry from Gradebook
-			integrateGradebook(state, aReference, oAssociateGradebookAssignment, "remove", null, null, -1, null, null, "remove");
+			// no need to do anything here, if the assignment is chosen to not hook up with GB. 
+			// user can go to GB and delete the entry there manually
 		}
 	}
 
