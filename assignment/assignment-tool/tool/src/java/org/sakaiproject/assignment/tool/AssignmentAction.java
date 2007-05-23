@@ -4417,111 +4417,91 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				String openDateAnnounced = a.getProperties().getProperty(NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED);
 
-				// open date has been announced or title has been changed?
-				boolean openDateMessageModified = false;
-				if (openDateAnnounced != null && openDateAnnounced.equalsIgnoreCase(Boolean.TRUE.toString()))
+				// announcement channel is in place
+				try
 				{
-					if (oldOpenTime != null
-							&& (!oldOpenTime.toStringLocalFull().equals(openTime.toStringLocalFull())) // open time changes
-							|| !aOldTitle.equals(title)) // assignment title changes
+					AnnouncementMessageEdit message = channel.addAnnouncementMessage();
+					AnnouncementMessageHeaderEdit header = message.getAnnouncementHeaderEdit();
+					header.setDraft(/* draft */false);
+					header.replaceAttachments(/* attachment */EntityManager.newReferenceList());
+
+					if (openDateAnnounced == null)
 					{
-						// need to change message
-						openDateMessageModified = true;
+						// making new announcement
+						header.setSubject(/* subject */rb.getString("assig6") + " " + title);
+						message.setBody(/* body */rb.getString("opedat") + " "
+								+ FormattedText.convertPlaintextToFormattedText(title) + " " + rb.getString("is") + " "
+								+ openTime.toStringLocalFull() + ". ");
+					}
+					else
+					{
+						// revised announcement
+						header.setSubject(/* subject */rb.getString("assig5") + " " + title);
+						message.setBody(/* body */rb.getString("newope") + " "
+								+ FormattedText.convertPlaintextToFormattedText(title) + " " + rb.getString("is") + " "
+								+ openTime.toStringLocalFull() + ". ");
+					}
+
+					// group information
+					if (a.getAccess().equals(Assignment.AssignmentAccess.GROUPED))
+					{
+						try
+						{
+							// get the group ids selected
+							Collection groupRefs = a.getGroups();
+
+							// make a collection of Group objects
+							Collection groups = new Vector();
+
+							//make a collection of Group objects from the collection of group ref strings
+							Site site = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
+							for (Iterator iGroupRefs = groupRefs.iterator(); iGroupRefs.hasNext();)
+							{
+								String groupRef = (String) iGroupRefs.next();
+								groups.add(site.getGroup(groupRef));
+							}
+
+							// set access
+							header.setGroupAccess(groups);
+						}
+						catch (Exception exception)
+						{
+							// log
+							Log.warn("chef", exception.getMessage());
+						}
+					}
+					else
+					{
+						// site announcement
+						header.clearGroupAccess();
+					}
+
+
+					channel.commitMessage(message, NotificationService.NOTI_NONE);
+
+					// commit related properties into Assignment object
+					String ref = "";
+					try
+					{
+						ref = a.getReference();
+						AssignmentEdit aEdit = AssignmentService.editAssignment(ref);
+						aEdit.getPropertiesEdit().addProperty(NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED, Boolean.TRUE.toString());
+						if (message != null)
+						{
+							aEdit.getPropertiesEdit().addProperty(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID, message.getId());
+						}
+						AssignmentService.commitEdit(aEdit);
+					}
+					catch (Exception ignore)
+					{
+						// ignore the exception
+						Log.warn("chef", rb.getString("cannotfin2") + ref);
 					}
 
 				}
-
-				// add the open date to annoucement
-				if (openDateAnnounced == null // no announcement yet
-						|| (openDateAnnounced != null
-								&& openDateAnnounced.equalsIgnoreCase(Boolean.TRUE.toString()) && openDateMessageModified)) // announced, but open date or announcement title changes
+				catch (PermissionException ee)
 				{
-					// announcement channel is in place
-					try
-					{
-						AnnouncementMessageEdit message = channel.addAnnouncementMessage();
-						AnnouncementMessageHeaderEdit header = message.getAnnouncementHeaderEdit();
-						header.setDraft(/* draft */false);
-						header.replaceAttachments(/* attachment */EntityManager.newReferenceList());
-
-						if (openDateAnnounced == null)
-						{
-							// making new announcement
-							header.setSubject(/* subject */rb.getString("assig6") + " " + title);
-							message.setBody(/* body */rb.getString("opedat") + " "
-									+ FormattedText.convertPlaintextToFormattedText(title) + " " + rb.getString("is")
-									+ openTime.toStringLocalFull() + ". ");
-						}
-						else
-						{
-							// revised announcement
-							header.setSubject(/* subject */rb.getString("assig5") + " " + title);
-							message.setBody(/* body */rb.getString("newope") + " "
-									+ FormattedText.convertPlaintextToFormattedText(title) + rb.getString("is")
-									+ openTime.toStringLocalFull() + ". ");
-						}
-
-						// group information
-						if (a.getAccess().equals(Assignment.AssignmentAccess.GROUPED))
-						{
-							try
-							{
-								// get the group ids selected
-								Collection groupRefs = a.getGroups();
-
-								// make a collection of Group objects
-								Collection groups = new Vector();
-
-								//make a collection of Group objects from the collection of group ref strings
-								Site site = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
-								for (Iterator iGroupRefs = groupRefs.iterator(); iGroupRefs.hasNext();)
-								{
-									String groupRef = (String) iGroupRefs.next();
-									groups.add(site.getGroup(groupRef));
-								}
-
-								// set access
-								header.setGroupAccess(groups);
-							}
-							catch (Exception exception)
-							{
-								// log
-								Log.warn("chef", exception.getMessage());
-							}
-						}
-						else
-						{
-							// site announcement
-							header.clearGroupAccess();
-						}
-
-
-						channel.commitMessage(message, NotificationService.NOTI_NONE);
-
-						// commit related properties into Assignment object
-						String ref = "";
-						try
-						{
-							ref = a.getReference();
-							AssignmentEdit aEdit = AssignmentService.editAssignment(ref);
-							aEdit.getPropertiesEdit().addProperty(NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED, Boolean.TRUE.toString());
-							if (message != null)
-							{
-								aEdit.getPropertiesEdit().addProperty(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID, message.getId());
-							}
-							AssignmentService.commitEdit(aEdit);
-						}
-						catch (Exception ignore)
-						{
-							// ignore the exception
-							Log.warn("chef", rb.getString("cannotfin2") + ref);
-						}
-
-					}
-					catch (PermissionException ee)
-					{
-						Log.warn("chef", rb.getString("cannotmak"));
-					}
+					Log.warn("chef", rb.getString("cannotmak"));
 				}
 			}
 		} // if
