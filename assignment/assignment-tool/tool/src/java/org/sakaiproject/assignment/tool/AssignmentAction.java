@@ -1684,6 +1684,9 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("assignment_expand_flag", state.getAttribute(GRADE_SUBMISSION_ASSIGNMENT_EXPAND_FLAG));
 		context.put("gradingAttachments", state.getAttribute(ATTACHMENTS));
 
+		// is this a non-electronic submission type of assignment
+		context.put("nonElectronic", (a!=null && a.getContent().getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)?Boolean.TRUE:Boolean.FALSE);
+		
 		String template = (String) getContext(data).get("template");
 		return template + TEMPLATE_INSTRUCTOR_GRADE_SUBMISSION;
 

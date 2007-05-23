@@ -399,6 +399,11 @@
 								#end
 						</div>	
 						#end
+					#if ($nonElectronic)
+						## hidden value for non-electronic submission
+						<input type="hidden" name="$name_allowResubmitNumber" id="allowResubmitNumber" value="0" />
+					#else
+					##show it only for those assignments not of type non-electronic submission
 					<p class="shorttext">
 						<label for="allowResubmitNumber">
 							$tlang.getString("allow.resubmit.number")
@@ -451,6 +456,7 @@
 							#end
 						</select>
 					</p>	
+			#end
 			<p class="act">
 				<input type="button" accesskey="d" class="active"  name="save" value="$tlang.getString('gen.savdragra')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='savegrade';document.gradeForm.submit();return false;" title="$tlang.getString("gen.savdratit")" />
 				<input type="button" accesskey="s" name="return" value="$tlang.getString('gen.retustud')" onclick="javascript:document.gradeForm.onsubmit();document.getElementById('option').value='returngrade';document.gradeForm.submit();return false;" title="$tlang.getString("gen.retustudtit")" />
