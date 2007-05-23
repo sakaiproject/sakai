@@ -226,7 +226,7 @@
 							</a>
 						</th>
 					#end	
-					#if ($allowReviewService)
+					#if ($allowReviewService && $assignment.getContent().AllowReviewService)
 						<th id="reviewService">
 							<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitReview")'; return false;" onkeypress="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitReview")'; return false;" title="$tlang.getString("gen.sorbyreview")">
 								$tlang.getString("gen.rev")
