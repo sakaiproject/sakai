@@ -4697,7 +4697,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				M_log.warn(e.getMessage(), e);
 			}
 			
-			if (submission == null)
+			if (submission == null || (submission != null && submission.getTimeSubmitted() == null))
 			{
 				// return true if there is no submission yet
 				return true;
