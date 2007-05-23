@@ -24,18 +24,22 @@
     		<sakai:tool_bar_item value="#{msgs.overview_add_item}"    action="#{overviewBean.navigateToAddAssignment}" />
    			<sakai:tool_bar_item value="#{msgs.overview_import_item}" action="#{overviewBean.navigateToSpreadsheet}" />
   		</sakai:tool_bar>
+  		
+  						
   	
   	<h:panelGrid cellpadding="0" cellspacing="0" columns="2"
 			columnClasses="itemName"
-			styleClass="itemSummary"
+			styleClass="itemSummary gbSection"
 			rendered="#{overviewBean.userAbleToGradeAll}">
-			<h:outputText id="cumLabel" value="#{msgs.overview_avg_cum_score}" />
-			<h:outputText id="cumScore" value="#{overviewBean.courseGrade}">
-				<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER" />
-			</h:outputText>
-
-			<h:outputText id="avgGradeLabel" value="#{msgs.overview_avg_course_grade}"/>
-			<h:outputText id="avgGrade" value="#{overviewBean.avgCourseGradeLetter}" />
+			<h:commandLink action="#{overviewBean.navigateToCourseGrades}" styleClass="courseGrade">
+				<h:outputText value="#{msgs.course_grade_name}" />
+			</h:commandLink>
+			<h:panelGroup>
+				<h:outputText id="letterGrade" value="#{overviewBean.avgCourseGradeLetter} " />
+				<h:outputText id="cumScore" value="#{overviewBean.courseGrade}">
+					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER" />
+				</h:outputText>
+			</h:panelGroup>	
 		</h:panelGrid>
 
 		<%@include file="/inc/globalMessages.jspf"%>
@@ -86,10 +90,6 @@
 				
 				<h:outputText value="#{gradebookItem.name}" styleClass="categoryHeading" rendered="#{gradebookItem.category}" />
 
-				<!-- Course grade link -->
-				<h:commandLink action="#{overviewBean.navigateToCourseGrades}" rendered="#{gradebookItem.courseGrade}"  styleClass="courseGrade">
-					<h:outputText value="#{msgs.course_grade_name}" />
-				</h:commandLink>
 			</h:column>
 			<h:column rendered="#{overviewBean.userAbleToEditAssessments}">
 				<f:facet name="header">

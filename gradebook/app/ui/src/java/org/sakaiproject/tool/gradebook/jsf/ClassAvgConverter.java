@@ -31,6 +31,7 @@ import org.sakaiproject.tool.gradebook.ui.AssignmentGradeRow;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.CourseGrade;
+import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 
@@ -55,6 +56,7 @@ public class ClassAvgConverter extends PointsConverter {
 		boolean isPercent = false;
 		Object avg = null;
 		Object pointsPossible = null;
+		int numDecimalPlaces = 0;
 		Gradebook gradebook;
 
 		if (value != null) {
@@ -113,11 +115,16 @@ public class ClassAvgConverter extends PointsConverter {
 				} else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
 					isPercent = true;
 				}
+			} else if (value instanceof CourseGradeRecord) {
+				CourseGradeRecord gradeRecord = (CourseGradeRecord) value;
+				numDecimalPlaces = 2;
+				isPercent = true;
+				avg = gradeRecord.getGradeAsPercentage();
 			}
 		}
-		
-		formattedAvg = getFormattedValue(context, component, avg);
-		formattedPtsPossible = getFormattedValue(context, component, pointsPossible);
+
+		formattedAvg = getFormattedValue(context, component, avg, numDecimalPlaces);
+		formattedPtsPossible = getFormattedValue(context, component, pointsPossible, 2);
 		
 		if (avg != null) {
 			if (isPoints) {
@@ -129,19 +136,22 @@ public class ClassAvgConverter extends PointsConverter {
 			if (notCounted) {
 				formattedAvg = FacesUtil.getLocalizedString("score_not_counted",
 						new String[] {formattedAvg, FacesUtil.getLocalizedString("score_not_counted_tooltip")});
+			} else if (value instanceof CourseGrade || value instanceof CourseGradeRecord) {
+				formattedAvg = FacesUtil.getLocalizedString("course_grade_percent_display", new String[] {formattedAvg});
 			}
+			
 		}
 		return formattedAvg;
 	}
 	
-	private String getFormattedValue(FacesContext context, UIComponent component, Object value) {
+	private String getFormattedValue(FacesContext context, UIComponent component, Object value, int numDecimals) {
 		String formattedValue;
-		if (value == null) {
+		if (value == null || numDecimals < 0) {
 			formattedValue = FacesUtil.getLocalizedString("score_null_placeholder");
 		} else {
 			if (value instanceof Number) {
-				// Truncate to 2 decimal places.
-				value = new Double(FacesUtil.getRoundDown(((Number)value).doubleValue(), 0));
+				// Truncate to given # decimal places.
+				value = new Double(FacesUtil.getRoundDown(((Number)value).doubleValue(), numDecimals));
 			}
 			formattedValue = super.getAsString(context, component, value);
 		}

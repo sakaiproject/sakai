@@ -26,14 +26,15 @@
 			<h:outputText id="points" value="#{courseGradeDetailsBean.totalPoints}" rendered="#{!courseDetailsBean.weightingEnabled}">
 				<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
 			</h:outputText>
-
-			<h:outputText id="averageLabel" value="#{msgs.course_grade_details_average}" rendered="#{overviewBean.userAbleToGradeAll}"/>
-			<h:outputText id="average" value="#{courseGradeDetailsBean.courseGrade.formattedMean}" rendered="#{overviewBean.userAbleToGradeAll}">
-				<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.PERCENTAGE" />
-			</h:outputText>
 			
-			<h:outputText id="averageCourseGradeLabel" value="#{msgs.course_grade_details_average_course_grade}" rendered="#{overviewBean.userAbleToGradeAll}"/>
-			<h:outputText id="averageCourseGrade" value="#{courseGradeDetailsBean.averageCourseGrade}" rendered="#{overviewBean.userAbleToGradeAll}"/>
+			<h:outputText id="courseGradeLabel" value="#{msgs.course_grade_name}" rendered="#{courseGradeDetailsBean.userAbleToGradeAll}" />
+			<h:panelGroup rendered="#{courseGradeDetailsBean.userAbleToGradeAll}">
+				<h:outputText id="letterGrade" value="#{courseGradeDetailsBean.averageCourseGrade} " />
+				<h:outputText id="cumScore" value="#{courseGradeDetailsBean.courseGrade}">
+					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER" />
+				</h:outputText>
+			</h:panelGroup>	
+
 		</h:panelGrid>
 		</div>
 

@@ -54,9 +54,9 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
 
     // View maintenance fields - serializable.
     private String userDisplayName;
-    private Double percent;
     private boolean courseGradeReleased;
-    private String courseGrade;
+    private CourseGradeRecord courseGrade;
+    private String courseGradeLetter;
     private boolean assignmentsReleased;
     private boolean anyNotCounted;
     private boolean anyExternallyMaintained = false;
@@ -202,11 +202,9 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     	CourseGradeRecord gradeRecord = getGradebookManager().getStudentCourseGradeRecord(gradebook, studentUid);
     	if (gradeRecord != null) {
     		if (courseGradeReleased || isInstructorView) {
-    			courseGrade = gradeRecord.getDisplayGrade();
+    			courseGrade = gradeRecord;
+    			courseGradeLetter = gradeRecord.getDisplayGrade();
     		}
-			// Note that the percentage will be null for a manual-only grade
-			// code (such as "I" for incomplete).
-			percent = gradeRecord.getGradeAsPercentage();
     	}
     	
     	initializeStudentGradeData();
@@ -220,10 +218,17 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
         return gradebookItems;
     }
     /**
-     * @return Returns the courseGrade.
+     * @return Returns the CourseGradeRecord for this student
      */
-    public String getCourseGrade() {
+    public CourseGradeRecord getCourseGrade() {
         return courseGrade;
+    }
+    /**
+     * 
+     * @return letter representation of course grade
+     */
+    public String getCourseGradeLetter() {
+    	return courseGradeLetter;
     }
     /**
      * @return Returns the courseGradeReleased.
@@ -231,24 +236,9 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     public boolean isCourseGradeReleased() {
         return courseGradeReleased;
     }
-    public boolean isCourseGradePercentageShown() {
-    	return courseGradeReleased && (percent != null);
-    }
+
     public boolean isAssignmentsReleased() {
         return assignmentsReleased;
-    }
-    /**
-     * @return Returns the percent.
-     */
-    public Double getPercent() {
-    	if (percent == null) {
-    		return null;
-    	}
-        double pct = 0;
-        BigDecimal bd = new BigDecimal(percent);
-        bd = bd.setScale(2,BigDecimal.ROUND_DOWN);
-        pct = bd.doubleValue();
-        return pct;
     }
 
     /**

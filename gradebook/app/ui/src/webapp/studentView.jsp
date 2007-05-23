@@ -33,19 +33,15 @@
 			columns="2"
 			columnClasses="itemName"
 			styleClass="itemSummary">	
-			<h:outputText value="#{msgs.student_view_cum_score}" />
+			<h:outputText value="#{msgs.course_grade_name}" />
 			<h:panelGroup>
-				<h:outputFormat value=" #{msgs.student_view_cum_score_details}" rendered="#{studentViewBean.percent != null && studentViewBean.courseGradeReleased}">
-					<f:param value="#{studentViewBean.percent}" />
-				</h:outputFormat>
+				<h:outputText id="letterGrade" value="#{studentViewBean.courseGradeLetter} " rendered="#{studentViewBean.courseGradeReleased}"/>
+				<h:outputText id="cumScore" value="#{studentViewBean.courseGrade}" rendered="#{studentViewBean.courseGradeReleased}">
+					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER" />
+				</h:outputText>
 				<h:outputText value="#{msgs.student_view_not_released}" rendered="#{!studentViewBean.courseGradeReleased}"/>
 			</h:panelGroup>
 			
-			<h:outputText value="#{msgs.student_view_course_grade}" />
-			<h:panelGroup>
-				<h:outputText value="#{msgs.student_view_not_released}" rendered="#{!studentViewBean.courseGradeReleased}"/>
-				<h:outputText value="#{studentViewBean.courseGrade}" rendered="#{studentViewBean.courseGradeReleased}"/>	
-			</h:panelGroup>
 		</h:panelGrid>
 
       <h:panelGroup rendered="#{studentViewBean.assignmentsReleased}">

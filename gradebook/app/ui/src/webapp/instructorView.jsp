@@ -80,21 +80,16 @@
 		
 		<hr/>
 		
-		<h:panelGrid cellpadding="0" cellspacing="0"
-			columns="2"
+		<h:panelGrid cellpadding="0" cellspacing="0" columns="2"
 			columnClasses="itemName"
-			styleClass="itemSummary gbSection">	
-			<h:outputText value="#{msgs.inst_view_cum_score}" />
+			styleClass="itemSummary gbSection">
+			<h:outputText value="#{msgs.course_grade_name}" />
 			<h:panelGroup>
-				<h:outputFormat value=" #{msgs.inst_view_cum_score_details}" rendered="#{instructorViewBean.percent != null}">
-					<f:param value="#{instructorViewBean.percent}" />
-				</h:outputFormat>
-			</h:panelGroup>
-			
-			<h:outputText value="#{msgs.inst_view_course_grade}" />
-			<h:panelGroup>
-				<h:outputText value="#{instructorViewBean.courseGrade}" />	
-			</h:panelGroup>
+				<h:outputText id="letterGrade" value="#{instructorViewBean.courseGradeLetter} " />
+				<h:outputText id="cumScore" value="#{instructorViewBean.courseGrade}">
+					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER" />
+				</h:outputText>
+			</h:panelGroup>	
 		</h:panelGrid>
 		
 		<h4>

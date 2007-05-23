@@ -87,10 +87,6 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 			letterGrade = getGradebook().getSelectedGradeMapping().getGrade(courseGrade.getMean());
 		}
 		
-		if (letterGrade == null || letterGrade.trim().length() < 1) {
-			letterGrade = getLocalizedString("score_null_placeholder");
-		}
-		
 		return letterGrade;
 	}
 
@@ -146,11 +142,6 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 						displayGradeEditorCol = true;
 					gradebookItemList.add(assignWithNoCat);
 				}
-			}
-			
-			// finally, append the course grade to the list
-			if (courseGrade != null) {
-				gradebookItemList.add(courseGrade);
 			}
 	        
 		} else {
