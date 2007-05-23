@@ -126,6 +126,7 @@ public class CalendarBean {
 	// Main methods
 	// ######################################################################################
 	public CalendarBean(){		
+		readPreferences();
 		// go to today events it is first time loading
 		selectedDay = getToday();
 	}
