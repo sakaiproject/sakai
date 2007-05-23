@@ -651,9 +651,9 @@ public interface AssignmentService extends EntityProducer
 	 * 
 	 * @param assignment -
 	 *        the Assignment who's submissions you would like.
-	 * @return Iterator over all the submissions for an Assignment.
+	 * @return List over all the submissions for an Assignment.
 	 */
-	public Iterator getSubmissions(Assignment assignment);
+	public List getSubmissions(Assignment assignment);
 
 	/**
 	 * Access the grades spreadsheet for the reference, either for an assignment or all assignments in a context.

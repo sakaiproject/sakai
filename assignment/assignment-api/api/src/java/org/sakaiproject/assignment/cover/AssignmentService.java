@@ -579,7 +579,7 @@ public class AssignmentService {
 		return service.getListAssignmentsForContext(param0);
 	}
 
-	public static java.util.Iterator getSubmissions(
+	public static java.util.List getSubmissions(
 			org.sakaiproject.assignment.api.Assignment param0) {
 		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
 		if (service == null)

@@ -358,9 +358,9 @@
 												#else
 													<a href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submission.Reference)")">
 												#end
-												<h4>$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</h4></a>
+												$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</a>
 											#else
-												<h4>$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</h4>
+												$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)
 												#if ($!allowSubmit)
 													<div class="itemAction">
 														<a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">
@@ -509,13 +509,14 @@
 							#if ($!allowGradeSubmission)
 								#if ($!view.equals('lisofass1'))
 								<td headers="num_submissions" class="specialLink">
-									#set ($totalSubmission = $service.getSubmissions($assignment))
+							#set ($totalSubmission = $service.getSubmissions($assignment))
 									#set ($totalNumber = 0)
 									#set ($ungradedNumber = 0)
 									#foreach ($s in $totalSubmission)
 										#set($returnedTime=false)
 										#set ($returnedTime = $s.getTimeReturned())
 										## if the submitter is a current active user in the site
+										#set($submitterIdList=false)
 										#set($submitterIdList = $s.getSubmitterIds())
 										#set($existUser=false)
 										#foreach($submitterId in $submitterIdList)

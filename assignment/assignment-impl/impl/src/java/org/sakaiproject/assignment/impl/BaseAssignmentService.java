@@ -2159,6 +2159,21 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	}// removeSubmission
 
 	/**
+	 *@inheritDoc
+	 */
+	public int getSubmissionsSize(String context)
+	{
+		int size = 0;
+		
+		List submissions = getSubmissions(context);
+		if (submissions != null)
+		{
+			size = submissions.size();
+		}
+		return size;
+	}
+	
+	/**
 	 * Access all AssignmentSubmission objects - known to us (not from external providers).
 	 * 
 	 * @return A list of AssignmentSubmission objects.
@@ -2511,7 +2526,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 *        the Assignment who's submissions you would like.
 	 * @return Iterator over all the submissions for an Assignment.
 	 */
-	public Iterator getSubmissions(Assignment assignment)
+	public List getSubmissions(Assignment assignment)
 	{
 		List retVal = new Vector();
 
@@ -2519,11 +2534,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		{
 			retVal = getSubmissions(assignment.getId());
 		}
-
-		if (retVal.isEmpty())
-			return new EmptyIterator();
-		else
-			return retVal.iterator();
+		
+		return retVal;
 	}
 
 	/**
@@ -3234,7 +3246,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						}
 	
 						// begin to populate the column for this assignment, iterating through student list
-						for (Iterator sIterator=getSubmissions(a); sIterator.hasNext();)
+						for (Iterator sIterator=getSubmissions(a).iterator(); sIterator.hasNext();)
 						{
 							AssignmentSubmission submission = (AssignmentSubmission) sIterator.next();
 							
@@ -3339,7 +3351,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		try
 		{
 			Assignment a = getAssignment(assignmentReferenceFromSubmissionsZipReference(ref));
-			Iterator submissions = getSubmissions(a);
+			Iterator submissions = getSubmissions(a).iterator();
 
 			Blob b = new Blob();
 			StringBuffer exceptionMessage = new StringBuffer();
@@ -4019,7 +4031,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				// make the content a childnode of the assignment node
 				el.appendChild(contentEl);
 
-				Iterator submissionsIterator = getSubmissions(assignment);
+				Iterator submissionsIterator = getSubmissions(assignment).iterator();
 				while (submissionsIterator.hasNext())
 				{
 					AssignmentSubmission submission = (AssignmentSubmission) submissionsIterator.next();

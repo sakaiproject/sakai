@@ -1119,6 +1119,29 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 
 		List assignments = prepPage(state);
+		
+		// make sure for all non-electronic submission type of assignment, the submission number matches the number of site members
+		for (int i = 0; i < assignments.size(); i++)
+		{
+			Assignment a = (Assignment) assignments.get(i);
+			if (a.getContent().getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
+			{
+				List allowAddSubmissionUsers = AssignmentService.allowAddSubmissionUsers(a.getReference());
+				List submissions = AssignmentService.getSubmissions(a);
+				if (submissions != null && allowAddSubmissionUsers != null && allowAddSubmissionUsers.size() != submissions.size())
+				{
+					// if there is any newly added user who doesn't have a submission object yet, add the submission
+					try
+					{
+						addSubmissionsForNonElectronicAssignment(state, AssignmentService.editAssignment(a.getReference())); 
+					}
+					catch (Exception e)
+					{
+						Log.warn("chef", this + e.getMessage());
+					}
+				}
+			}
+		}
 
 		context.put("assignments", assignments.iterator());
 
@@ -1568,7 +1591,7 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				Assignment a = AssignmentService.getAssignment((String) assignmentIds.get(i));
 
-				Iterator submissions = AssignmentService.getSubmissions(a);
+				Iterator submissions = AssignmentService.getSubmissions(a).iterator();
 				if (submissions.hasNext())
 				{
 					// if there is submission to the assignment, show the alert
@@ -2298,7 +2321,7 @@ public class AssignmentAction extends PagedResourceActionII
 						if (submissionRef == null)
 						{
 							// bulk add all grades for assignment into gradebook
-							Iterator submissions = AssignmentService.getSubmissions(a);
+							Iterator submissions = AssignmentService.getSubmissions(a).iterator();
 
 							Map m = new HashMap();
 
@@ -2326,7 +2349,7 @@ public class AssignmentAction extends PagedResourceActionII
 									else if (isAssignmentDefined)
 									{
 										// the associated assignment is internal one, update records one by one
-										submissions = AssignmentService.getSubmissions(a);
+										submissions = AssignmentService.getSubmissions(a).iterator();
 										while (submissions.hasNext())
 										{
 											AssignmentSubmission aSubmission = (AssignmentSubmission) submissions.next();
@@ -2387,7 +2410,7 @@ public class AssignmentAction extends PagedResourceActionII
 						if (submissionRef == null)
 						{
 							// remove all submission grades (when changing the associated entry in Gradebook)
-							Iterator submissions = AssignmentService.getSubmissions(a);
+							Iterator submissions = AssignmentService.getSubmissions(a).iterator();
 
 							// any score to copy over? get all the assessmentGradingData and copy over
 							while (submissions.hasNext())
@@ -4178,49 +4201,11 @@ public class AssignmentAction extends PagedResourceActionII
 				{
 					try
 					{
-						Iterator sList = AssignmentService.getSubmissions(a);
+						Iterator sList = AssignmentService.getSubmissions(a).iterator();
 						if (sList == null || !sList.hasNext())
 						{
 							// add non-electronic submissions if there is none yet
-							String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
-							String authzGroupId = SiteService.siteReference(contextString);
-							List allowAddSubmissionUsers = AssignmentService.allowAddSubmissionUsers(a.getReference());
-							try
-							{
-								AuthzGroup group = AuthzGroupService.getAuthzGroup(authzGroupId);
-								Set grants = group.getUsers();
-								for (Iterator iUserIds = grants.iterator(); iUserIds.hasNext();)
-								{
-									String userId = (String) iUserIds.next();
-									try
-									{
-										User u = UserDirectoryService.getUser(userId);
-										// only include those users that can submit to this assignment
-										if (u != null && allowAddSubmissionUsers.contains(u))
-										{
-											if (AssignmentService.getSubmission(a.getReference(), u) == null)
-											{
-												// construct fake submissions for grading purpose
-												AssignmentSubmissionEdit submission = AssignmentService.addSubmission(contextString, a.getId());
-												submission.removeSubmitter(UserDirectoryService.getCurrentUser());
-												submission.addSubmitter(u);
-												submission.setTimeSubmitted(TimeService.newTime());
-												submission.setSubmitted(true);
-												submission.setAssignment(a);
-												AssignmentService.commitEdit(submission);
-											}
-										}
-									}
-									catch (Exception e)
-									{
-										Log.warn("chef", this + e.toString() + " here userId = " + userId);
-									}
-								}
-							}
-							catch (Exception e)
-							{
-								Log.warn("chef", this + e.getMessage() + " authGroupId=" + authzGroupId);
-							}
+							addSubmissionsForNonElectronicAssignment(state, a);
 						}
 					}
 					catch (Exception ee)
@@ -4257,6 +4242,54 @@ public class AssignmentAction extends PagedResourceActionII
 
 	} // doPost_assignment
 
+	/**
+	 * Add submission objects if necessary for non-electronic type of assignment
+	 * @param state
+	 * @param a
+	 */
+	private void addSubmissionsForNonElectronicAssignment(SessionState state, Assignment a) 
+	{
+		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
+		String authzGroupId = SiteService.siteReference(contextString);
+		List allowAddSubmissionUsers = AssignmentService.allowAddSubmissionUsers(a.getReference());
+		try
+		{
+			AuthzGroup group = AuthzGroupService.getAuthzGroup(authzGroupId);
+			Set grants = group.getUsers();
+			for (Iterator iUserIds = grants.iterator(); iUserIds.hasNext();)
+			{
+				String userId = (String) iUserIds.next();
+				try
+				{
+					User u = UserDirectoryService.getUser(userId);
+					// only include those users that can submit to this assignment
+					if (u != null && allowAddSubmissionUsers.contains(u))
+					{
+						if (AssignmentService.getSubmission(a.getReference(), u) == null)
+						{
+							// construct fake submissions for grading purpose
+							AssignmentSubmissionEdit submission = AssignmentService.addSubmission(contextString, a.getId());
+							submission.removeSubmitter(UserDirectoryService.getCurrentUser());
+							submission.addSubmitter(u);
+							submission.setTimeSubmitted(TimeService.newTime());
+							submission.setSubmitted(true);
+							submission.setAssignment(a);
+							AssignmentService.commitEdit(submission);
+						}
+					}
+				}
+				catch (Exception e)
+				{
+					Log.warn("chef", this + e.toString() + " here userId = " + userId);
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			Log.warn("chef", this + e.getMessage() + " authGroupId=" + authzGroupId);
+		}
+	}
+	
 	private void initIntegrateWithGradebook(SessionState state, String siteId, String aOldTitle, String oAssociateGradebookAssignment, AssignmentEdit a, String title, Time dueTime, int gradeType, String gradePoints, String addtoGradebook, String associateGradebookAssignment, String range) {
 		String aReference = a.getReference();
 		String addUpdateRemoveAssignment = "remove";
@@ -5081,7 +5114,7 @@ public class AssignmentAction extends PagedResourceActionII
 			// don't need to go through the following checkings.
 			if (a.getContent().getTypeOfSubmission() != Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
 			{
-				Iterator submissions = AssignmentService.getSubmissions(a);
+				Iterator submissions = AssignmentService.getSubmissions(a).iterator();
 				if (submissions.hasNext())
 				{
 					boolean anySubmitted = false;
@@ -5324,7 +5357,7 @@ public class AssignmentAction extends PagedResourceActionII
 					removeCalendarEvent(state, aEdit, pEdit, title);
 				} // if-else
 
-				if (!AssignmentService.getSubmissions(aEdit).hasNext())
+				if (!AssignmentService.getSubmissions(aEdit).iterator().hasNext())
 				{
 					// there is no submission to this assignment yet, delete the assignment record completely
 					try
@@ -5666,7 +5699,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 			String aReference = a.getReference();
 
-			Iterator submissions = AssignmentService.getSubmissions(a);
+			Iterator submissions = AssignmentService.getSubmissions(a).iterator();
 			while (submissions.hasNext())
 			{
 				AssignmentSubmission s = (AssignmentSubmission) submissions.next();
@@ -7058,14 +7091,14 @@ public class AssignmentAction extends PagedResourceActionII
 				int subNum1 = 0;
 				int subNum2 = 0;
 
-				Iterator submissions1 = AssignmentService.getSubmissions((Assignment) o1);
+				Iterator submissions1 = AssignmentService.getSubmissions((Assignment) o1).iterator();
 				while (submissions1.hasNext())
 				{
 					AssignmentSubmission submission1 = (AssignmentSubmission) submissions1.next();
 					if (submission1.getSubmitted()) subNum1++;
 				}
 
-				Iterator submissions2 = AssignmentService.getSubmissions((Assignment) o2);
+				Iterator submissions2 = AssignmentService.getSubmissions((Assignment) o2).iterator();
 				while (submissions2.hasNext())
 				{
 					AssignmentSubmission submission2 = (AssignmentSubmission) submissions2.next();
@@ -7083,14 +7116,14 @@ public class AssignmentAction extends PagedResourceActionII
 				int ungraded1 = 0;
 				int ungraded2 = 0;
 
-				Iterator submissions1 = AssignmentService.getSubmissions((Assignment) o1);
+				Iterator submissions1 = AssignmentService.getSubmissions((Assignment) o1).iterator();
 				while (submissions1.hasNext())
 				{
 					AssignmentSubmission submission1 = (AssignmentSubmission) submissions1.next();
 					if (submission1.getSubmitted() && !submission1.getGraded()) ungraded1++;
 				}
 
-				Iterator submissions2 = AssignmentService.getSubmissions((Assignment) o2);
+				Iterator submissions2 = AssignmentService.getSubmissions((Assignment) o2).iterator();
 				while (submissions2.hasNext())
 				{
 					AssignmentSubmission submission2 = (AssignmentSubmission) submissions2.next();
@@ -7917,7 +7950,7 @@ public class AssignmentAction extends PagedResourceActionII
 				{
 					try
 					{
-						Vector assignmentSubmissions = iterator_to_vector(AssignmentService.getSubmissions(a));
+						List assignmentSubmissions = AssignmentService.getSubmissions(a);
 						for (int k = 0; k < assignmentSubmissions.size(); k++)
 						{
 							AssignmentSubmission s = (AssignmentSubmission) assignmentSubmissions.get(k);
@@ -7942,7 +7975,7 @@ public class AssignmentAction extends PagedResourceActionII
 			try
 			{
 				Assignment a = AssignmentService.getAssignment((String) state.getAttribute(EXPORT_ASSIGNMENT_REF));
-				Iterator submissionsIterator = AssignmentService.getSubmissions(a);
+				Iterator submissionsIterator = AssignmentService.getSubmissions(a).iterator();
 				List submissions = new Vector();
 				while (submissionsIterator.hasNext())
 				{
@@ -8764,7 +8797,7 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				assignment = AssignmentService.getAssignment((String) state.getAttribute(EXPORT_ASSIGNMENT_REF));
 				
-				Iterator sIterator = AssignmentService.getSubmissions(assignment);
+				Iterator sIterator = AssignmentService.getSubmissions(assignment).iterator();
 				while (sIterator.hasNext())
 				{
 					AssignmentSubmission s = (AssignmentSubmission) sIterator.next();
@@ -8934,7 +8967,7 @@ public class AssignmentAction extends PagedResourceActionII
 				// update related submissions
 				if (assignment != null)
 				{
-					Iterator sIterator = AssignmentService.getSubmissions(assignment);
+					Iterator sIterator = AssignmentService.getSubmissions(assignment).iterator();
 					while (sIterator.hasNext())
 					{
 						AssignmentSubmission s = (AssignmentSubmission) sIterator.next();
