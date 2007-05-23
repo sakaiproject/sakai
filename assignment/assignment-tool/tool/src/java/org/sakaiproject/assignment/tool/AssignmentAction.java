@@ -2764,6 +2764,7 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
 		state.setAttribute(SORTED_BY, SORTED_BY_DEFAULT);
 		state.setAttribute(SORTED_ASC, Boolean.TRUE.toString());
+		state.setAttribute(SORTED_ASC, Boolean.FALSE.toString());
 
 	} // doList_assignments
 
