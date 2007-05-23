@@ -1678,6 +1678,42 @@ public class DbContentService extends BaseContentService
 			}
 		}
 
+		public Collection<String> getMemberCollectionIds(String collectionId)
+        {
+			List list = null;
+			try
+			{
+				String sql = "select COLLECTION_ID from " + m_collectionTableName + " where IN_COLLECTION = ?";
+				Object[] fields = new Object[1];
+				fields[0] = collectionId;
+
+				list = m_sqlService.dbRead(sql, fields, null);
+			}
+			catch (Throwable t)
+			{
+				M_log.warn("getMemberCollectionIds: failed: " + t);
+			}
+			return (Collection<String>) list;
+        }
+
+		public Collection<String> getMemberResourceIds(String collectionId)
+        {
+			List list = null;
+			try
+			{
+				String sql = "select RESOURCE_ID from " + m_resourceTableName + " where IN_COLLECTION = ?";
+				Object[] fields = new Object[1];
+				fields[0] = collectionId;
+
+				list = m_sqlService.dbRead(sql, fields, null);
+			}
+			catch (Throwable t)
+			{
+				M_log.warn("getMemberResourceIds: failed: " + t);
+			}
+			return (Collection<String>) list;
+        }
+
 	} // DbStorage
 
 	/**

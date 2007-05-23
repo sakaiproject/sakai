@@ -9175,20 +9175,21 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		public List getMembers()
 		{
 			// get the objects
-			List memberResources = getMemberResources();
+			Collection<String> memberResourceIds = m_storage.getMemberResourceIds(this.m_id);
+			Collection<String> memberCollectionIds = m_storage.getMemberCollectionIds(this.m_id);
 
 			// form the list of just ids
-			List mbrs = new Vector();
-			for (int i = 0; i < memberResources.size(); i++)
+			List<String> mbrs = new Vector<String>();
+			if(memberResourceIds != null)
 			{
-				Entity res = (Entity) memberResources.get(i);
-				if (res != null)
-				{
-					mbrs.add(res.getId());
-				}
+				mbrs.addAll(memberResourceIds);
+			}
+			if(memberCollectionIds != null)
+			{
+				mbrs.addAll(memberCollectionIds);
 			}
 
-			if (mbrs.size() == 0) return mbrs;
+			//if (mbrs.size() == 0) return mbrs;
 
 			// sort? %%%
 			// Collections.sort(mbrs);
@@ -9245,73 +9246,106 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		 */
 		public List getMemberResources()
 		{
-			List mbrs = new Vector();
-
-			// if not caching
-			if ((!m_caching) || (m_cache == null) || (m_cache.disabled()))
+			List mbrs = (List) ThreadLocalManager.get("members@" + this.m_id);
+			if(mbrs == null)
 			{
-				// TODO: current service caching
-				mbrs = m_storage.getCollections(this);
-				mbrs.addAll(m_storage.getResources(this));
-			}
+				mbrs = new Vector();
 
-			else
-			{
-				// if the cache is complete for this collection, use it
-				if (m_cache.isComplete(getReference()))
+				// if not caching
+				if ((!m_caching) || (m_cache == null) || (m_cache.disabled()))
 				{
-					// get just this collection's members
-					mbrs = m_cache.getAll(getReference());
+					// TODO: current service caching
+					mbrs = m_storage.getCollections(this);
+					mbrs.addAll(m_storage.getResources(this));
 				}
-
-				// otherwise get all the members from storage
+	
 				else
 				{
-					// Note: while we are getting from storage, storage might change. These can be processed
-					// after we get the storage entries, and put them in the cache, and mark the cache complete.
-					// -ggolden
-					synchronized (m_cache)
+					// if the cache is complete for this collection, use it
+					if (m_cache.isComplete(getReference()))
 					{
-						// if we were waiting and it's now complete...
-						if (m_cache.isComplete(getReference()))
+						// get just this collection's members
+						mbrs = m_cache.getAll(getReference());
+					}
+	
+					// otherwise get all the members from storage
+					else
+					{
+						// Note: while we are getting from storage, storage might change. These can be processed
+						// after we get the storage entries, and put them in the cache, and mark the cache complete.
+						// -ggolden
+						synchronized (m_cache)
 						{
-							// get just this collection's members
-							mbrs = m_cache.getAll(getReference());
-						}
-						else
-						{
-							// save up any events to the cache until we get past this load
-							m_cache.holdEvents();
-
-							// read from storage - resources and collections, but just those
-							// whose path is this's path (i.e. just mine!)
-							mbrs = m_storage.getCollections(this);
-							mbrs.addAll(m_storage.getResources(this));
-
-							// update the cache, and mark it complete
-							for (int i = 0; i < mbrs.size(); i++)
+							// if we were waiting and it's now complete...
+							if (m_cache.isComplete(getReference()))
 							{
-								Entity mbr = (Entity) mbrs.get(i);
-								m_cache.put(mbr.getReference(), mbr);
+								// get just this collection's members
+								mbrs = m_cache.getAll(getReference());
 							}
-
-							m_cache.setComplete(getReference());
-
-							// now we are complete, process any cached events
-							m_cache.processEvents();
+							else
+							{
+								// save up any events to the cache until we get past this load
+								m_cache.holdEvents();
+	
+								// read from storage - resources and collections, but just those
+								// whose path is this's path (i.e. just mine!)
+								mbrs = m_storage.getCollections(this);
+								mbrs.addAll(m_storage.getResources(this));
+	
+								// update the cache, and mark it complete
+								for (int i = 0; i < mbrs.size(); i++)
+								{
+									Entity mbr = (Entity) mbrs.get(i);
+									m_cache.put(mbr.getReference(), mbr);
+								}
+	
+								m_cache.setComplete(getReference());
+	
+								// now we are complete, process any cached events
+								m_cache.processEvents();
+							}
 						}
 					}
 				}
+				
+				ThreadLocalManager.set("members@" + this.m_id, mbrs);
 			}
 
-			if (mbrs.size() == 0) return mbrs;
+			//if (mbrs.size() == 0) return mbrs;
 
 			// sort %%%
 			// Collections.sort(mbrs);
 
-			return mbrs;
+			return copyEntityList(mbrs);
 
 		} // getMemberResources
+
+		private List copyEntityList(List entities)
+        {
+			List list = new Vector();
+			
+			for(ContentEntity entity : (List<ContentEntity>)entities)
+			{
+				String ref = entity.getReference();
+				ContentEntity copy = null;
+				if(entity instanceof ContentResource)
+				{
+					copy = new BaseResourceEdit((ContentResource) entity);
+					ThreadLocalManager.set("findResource@" + ref, new BaseResourceEdit((ContentResource) entity));
+				}
+				else if(entity instanceof ContentCollection)
+				{
+					copy = new BaseCollectionEdit((ContentCollection) entity);
+					ThreadLocalManager.set("findCollection@" + ref, new BaseCollectionEdit((ContentCollection) entity));
+				}
+				if(copy != null)
+				{
+					list.add(copy);
+				}
+			}
+			
+	        return list;
+        }
 
 		/**
 		 * Access the collection's properties.
@@ -10406,6 +10440,22 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		 * identified by the parameter.
 		 */
 		public int getMemberCount(String collectionId);
+		
+		/** 
+		 * Access a collection of string identifiers for all ContentResource entities
+		 * that are members of the ContentCollection identified by the parameter.
+		 * @param collectionId
+		 * @return
+		 */
+		public Collection<String> getMemberResourceIds(String collectionId);
+		
+		/** 
+		 * Access a collection of string identifiers for all ContentCollection entities
+		 * that are members of the ContentCollection identified by the parameter.
+		 * @param collectionId
+		 * @return
+		 */
+		public Collection<String> getMemberCollectionIds(String collectionId);
 
 		/**
 		 * Close.
