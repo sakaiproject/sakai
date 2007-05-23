@@ -154,7 +154,24 @@ public interface AssignmentContent extends Entity, AttachmentContainer
 	 * @return true if the AssignmentContent allows attachments, false otherwise.
 	 */
 	public boolean getAllowAttachments();
+	
+	
+	
+	/**
+	 * Access whether this AssignmentContent allows review service.
+	 * 
+	 * @return true if the AssignmentContent allows review service, false otherwise.
+	 */
+	public boolean getAllowReviewService();
 
+	/**
+	 * Access whether this AssignmentContent allows students to view review service reports.
+	 * 
+	 * @return true if the AssignmentContent allows students to view review service reports, false otherwise.
+	 */
+	
+	public boolean getAllowStudentViewReport();
+	
 	/**
 	 * Access the list of authors.
 	 * 

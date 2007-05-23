@@ -196,4 +196,26 @@ public interface AssignmentSubmission extends Entity
 	 * Method to return the close time for the submission
 	 */
 	public Time getCloseTime();
+
+	/**
+	* Method to return the score from ContentReview Service
+	*/
+	public int getReviewScore();
+
+	/**
+	* Method to get the URL to the content Review Report
+	*/
+	public String getReviewReport();
+
+	/**
+	* Method to get the status of the review
+	*/
+	public String getReviewStatus();
+ 	
+	/**
+	 *  the URL of the content review Icon associated with this submission
+	 * @return
+	 */
+	public String getReviewIconUrl();
+	
 }

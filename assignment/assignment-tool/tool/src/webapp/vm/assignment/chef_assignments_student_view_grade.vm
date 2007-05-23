@@ -96,8 +96,29 @@
 						(max $assignment.getContent().getMaxGradePointDisplay())
 					#end
 				</td>
-			</tr>
-		</table>
+				</tr>
+				#if($allowReviewService && $assignment.getContent().AllowReviewService && $assignment.getContent().AllowStudentViewReport)
+					<tr>
+						<th>
+							$tlang.getString("review.report")
+						</th>
+							<td>
+							#if ($submission.getReviewReport().equals("Error"))
+								$tlang.getString("review.notavail")
+							#else
+								<img src="$submission.getReviewIconUrl()" alt="$submission.getReviewScore()">
+							
+								<a href="$submission.getReviewReport()" target="_blank">$tlang.getString("review.viewreport")</a>
+							#end
+							</td>
+				
+					</tr>
+				#end
+			
+			</table>
+		#if($assignment.getContent().AllowReviewService && $assignment.getContent().AllowStudentViewReport)
+			<div id="report" style='display:none'>$submission.getReviewReport()</div>
+		#end
 		<h4>
 			$tlang.getString("gen.instr")
 		</h4>				
@@ -247,3 +268,15 @@
 			</div>
 		</form>
 	</div>
+	
+	<script type="text/javascript">
+		<!--
+			function display_item(id) {
+				var item = document.getElementById(id);
+				if(item.style.display == 'none')
+				item.style.display = 'block';
+				else
+				item.style.display = 'none';
+			}
+		//-->
+	</script>
