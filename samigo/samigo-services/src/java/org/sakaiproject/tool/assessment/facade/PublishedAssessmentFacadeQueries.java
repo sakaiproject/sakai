@@ -1176,11 +1176,12 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		String query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
 				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate, "
 				+ " c.feedbackDate, f.feedbackDelivery,  f.feedbackAuthoring, c.lateHandling, "
-				+ " c.unlimitedSubmissions, c.submissionsAllowed) "
+				+ " c.unlimitedSubmissions, c.submissionsAllowed, em.scoringType) "
 				+ " from PublishedAssessmentData as p, PublishedAccessControl as c,"
-				+ " PublishedFeedback as f, AuthorizationData as az"
+				+ " PublishedFeedback as f, AuthorizationData as az, PublishedEvaluationModel as em"
 				+ " where c.assessment.publishedAssessmentId=p.publishedAssessmentId "
 				+ " and p.publishedAssessmentId = f.assessment.publishedAssessmentId "
+				+ " and p.publishedAssessmentId = em.assessment.publishedAssessmentId "
 				+ " and p.status=? and az.agentIdString=? "
 				+ " and az.functionId='TAKE_PUBLISHED_ASSESSMENT' and az.qualifierId=p.publishedAssessmentId"
 				+ " order by ";
@@ -1220,7 +1221,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 							.getRetractDate(), p.getFeedbackDate(), p
 							.getFeedbackDelivery(), p.getFeedbackAuthoring(), p
 							.getLateHandling(), p.getUnlimitedSubmissions(), p
-							.getSubmissionsAllowed());
+							.getSubmissionsAllowed(), p.getScoringType());
 			pubList.add(f);
 		}
 		return pubList;
@@ -1802,12 +1803,49 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		// this list is sorted by finalScore desc.
 
 		List highest_list = getHibernateTemplate().executeFind(hcb_highest);
+		
+		//getEvaluationModel();
+		String query = "select a.publishedAssessmentId, e.scoringType, ac.submissionsAllowed  " +
+		"from PublishedEvaluationModel e, PublishedAccessControl ac, PublishedAssessmentData a " +
+		"where e.assessment.publishedAssessmentId = a.publishedAssessmentId " +
+		"and ac.assessment.publishedAssessmentId = a.publishedAssessmentId ";
 
+		List l = getHibernateTemplate().find(query);
+		HashMap scoringTypeMap = new HashMap();
+		HashMap subissionAllowedMap = new HashMap();
+		Iterator iter = l.iterator();
+		while (iter.hasNext()) {
+			Object o[] = (Object[]) iter.next(); 
+			scoringTypeMap.put(o[0], o[1]);
+			subissionAllowedMap.put(o[0], o[2]);
+		}
+
+		// just for debuging
+		/*
+		Set keySet = scoringTypeMap.keySet();
+		iter = keySet.iterator();
+		Long asssessmentId = null;
+		Integer scoringType = null;
+		while (iter.hasNext()) {
+			asssessmentId = (Long) iter.next();
+			scoringType = (Integer) scoringTypeMap.get(asssessmentId);
+			log.debug("(asssessmentId, scoringType) = (" + asssessmentId + "," + scoringType + ")");
+		}
+		keySet = subissionAllowedMap.keySet();
+		iter = keySet.iterator();
+		Integer assessmentAllowed = null;
+		while (iter.hasNext()) {
+			asssessmentId = (Long) iter.next();
+			assessmentAllowed = (Integer) subissionAllowedMap.get(asssessmentId);
+			log.debug("(asssessmentId, assessmentAllowed) = (" + asssessmentId + "," + assessmentAllowed + ")");
+		}
+		*/
+		
 		// The sorting for each column will be done in the action listener.
-
 		ArrayList assessmentList = new ArrayList();
 		Long currentid = new Long("0");
 		Integer scoringOption = EvaluationModelIfc.LAST_SCORE; // use Last as
+		Integer submissionAllowed = null;
 		boolean multiSubmissionAllowed = false;
 
 		// now go through the last_list, and get the first entry in the list for
@@ -1818,6 +1856,26 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			AssessmentGradingData a = (AssessmentGradingData) last_list.get(i);
 
 			// get the scoring option
+			if (scoringTypeMap.get(a.getPublishedAssessmentId()) != null) {
+				scoringOption = (Integer) scoringTypeMap.get(a.getPublishedAssessmentId());
+			}
+			else {
+				// I use Last as default because it is what set above
+				scoringOption = EvaluationModelIfc.LAST_SCORE; 
+			}
+			if (subissionAllowedMap.get(a.getPublishedAssessmentId()) != null) {
+				submissionAllowed = (Integer) subissionAllowedMap.get(a.getPublishedAssessmentId());
+			}
+			else {
+				submissionAllowed = null;
+			}
+			if (submissionAllowed != null) {
+				if (submissionAllowed.intValue() == 1) {
+					scoringOption = EvaluationModelIfc.LAST_SCORE;
+				}
+			}
+			
+			/*
 			PublishedAssessmentFacade paf = getPublishedAssessment(a
 					.getPublishedAssessmentId());
 			multiSubmissionAllowed = false;
@@ -1831,21 +1889,9 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 						scoringOption = EvaluationModelIfc.LAST_SCORE;
 					}
 				}
-					/*
-					if (ac.getSubmissionsAllowed().intValue() > 1) {
-						multiSubmissionAllowed = true;
-					} else {
-						multiSubmissionAllowed = false;
-						// When number of submission allowed is 1, always display the last one, that is, order by last
-						scoringOption = EvaluationModelIfc.LAST_SCORE;
-					}
-				} else {
-					multiSubmissionAllowed = true;
-				}
-				*/
-
 			}
-
+			*/
+			
 			if (EvaluationModelIfc.LAST_SCORE.equals(scoringOption) && !a.getPublishedAssessmentId().equals(currentid)) {
 				currentid = a.getPublishedAssessmentId();
 				AssessmentGradingFacade f = new AssessmentGradingFacade(a);
@@ -1860,8 +1906,33 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		for (int i = 0; i < highest_list.size(); i++) {
 			AssessmentGradingData a = (AssessmentGradingData) highest_list
 					.get(i);
-
+			
 			// get the scoring option
+			if (scoringTypeMap.get(a.getPublishedAssessmentId()) != null) {
+				scoringOption = (Integer) scoringTypeMap.get(a.getPublishedAssessmentId());
+			}
+			else {
+				// I use Last as default because it is what set above
+				scoringOption = EvaluationModelIfc.LAST_SCORE; 
+			}
+			if (subissionAllowedMap.get(a.getPublishedAssessmentId()) != null) {
+				submissionAllowed = (Integer) subissionAllowedMap.get(a.getPublishedAssessmentId());
+			}
+			else {
+				submissionAllowed = null;
+			}
+			if (submissionAllowed != null) {
+				if (submissionAllowed.intValue() > 1) {
+					multiSubmissionAllowed = true;
+				}
+				else {
+					multiSubmissionAllowed = false;
+				}
+			}
+			else {
+				multiSubmissionAllowed = true;
+			}
+			/*
 			PublishedAssessmentFacade paf = getPublishedAssessment(a
 					.getPublishedAssessmentId());
 			multiSubmissionAllowed = false;
@@ -1879,8 +1950,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				} else {
 					multiSubmissionAllowed = true;
 				}
-
 			}
+			*/
 			if ((multiSubmissionAllowed)
 					&& (EvaluationModelIfc.HIGHEST_SCORE.equals(scoringOption))
 					&& (!a.getPublishedAssessmentId().equals(currentid))) {
@@ -1893,7 +1964,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 
 		return assessmentList;
 	}
-
+	  
 	public PublishedAssessmentData getBasicInfoOfPublishedAssessment(
 			final Long publishedId) {
 		String query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title, "

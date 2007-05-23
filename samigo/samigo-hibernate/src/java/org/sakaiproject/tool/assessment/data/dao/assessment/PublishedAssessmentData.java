@@ -87,7 +87,8 @@ public class PublishedAssessmentData
   private Date feedbackDate;
   //private String ownerSiteName;
   private Set assessmentAttachmentSet;
-
+  private Integer scoringType;
+  
   public PublishedAssessmentData() {}
   /**
    * "Convenient Constructor"
@@ -126,22 +127,22 @@ public class PublishedAssessmentData
                                  Boolean unlimitedSubmissions,
                                  Integer submissionsAllowed)
  {
-    this.assessmentBaseId = id;
-    this.title = title;
-    this.releaseTo = releaseTo;
-    this.startDate = startDate;
-    this.dueDate = dueDate;
-    this.retractDate = retractDate;
-    this.lateHandling = lateHandling;
-    if (unlimitedSubmissions != null)
-      this.unlimitedSubmissions = unlimitedSubmissions;
-    else
-      this.unlimitedSubmissions = Boolean.TRUE;
-    if (submissionsAllowed == null)
-      this.submissionsAllowed = new Integer(0);
-    else
-      this.submissionsAllowed = submissionsAllowed;
-  }
+		this.assessmentBaseId = id;
+		this.title = title;
+		this.releaseTo = releaseTo;
+		this.startDate = startDate;
+		this.dueDate = dueDate;
+		this.retractDate = retractDate;
+		this.lateHandling = lateHandling;
+		if (unlimitedSubmissions != null)
+			this.unlimitedSubmissions = unlimitedSubmissions;
+		else
+			this.unlimitedSubmissions = Boolean.TRUE;
+		if (submissionsAllowed == null)
+			this.submissionsAllowed = new Integer(0);
+		else
+			this.submissionsAllowed = submissionsAllowed;
+	}
 
   public PublishedAssessmentData(Long id, String title,
                                  PublishedAccessControl assessmentAccessControl) {
@@ -149,13 +150,23 @@ public class PublishedAssessmentData
     this.title = title;
     this.assessmentAccessControl = assessmentAccessControl;
   }
+  
+  public PublishedAssessmentData(Long id, String title, String releaseTo,
+          Date startDate, Date dueDate, Date retractDate,
+          Date feedbackDate, Integer feedbackDelivery,  Integer feedbackAuthoring,
+          Integer lateHandling,
+          Boolean unlimitedSubmissions,
+          Integer submissionsAllowed) {
+	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
+			  feedbackDelivery, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, null);
+  }
 
   public PublishedAssessmentData(Long id, String title, String releaseTo,
                                  Date startDate, Date dueDate, Date retractDate,
                                  Date feedbackDate, Integer feedbackDelivery,  Integer feedbackAuthoring,
                                  Integer lateHandling,
                                  Boolean unlimitedSubmissions,
-                                 Integer submissionsAllowed) {
+                                 Integer submissionsAllowed, Integer scoringType) {
     this.assessmentBaseId = id;
     this.title = title;
     this.releaseTo = releaseTo;
@@ -174,6 +185,7 @@ public class PublishedAssessmentData
       this.submissionsAllowed = new Integer(0);
     else
       this.submissionsAllowed = submissionsAllowed;
+    this.scoringType = scoringType;
   }
 
   public PublishedAssessmentData(Long id, int submissionSize) {
@@ -543,6 +555,10 @@ public class PublishedAssessmentData
 
   public Integer getSubmissionsAllowed() {
     return submissionsAllowed;
+  }
+  
+  public Integer getScoringType() {
+	    return scoringType;
   }
 
   public Integer getFeedbackDelivery()

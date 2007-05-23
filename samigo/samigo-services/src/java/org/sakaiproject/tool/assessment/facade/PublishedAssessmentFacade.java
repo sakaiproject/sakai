@@ -86,6 +86,7 @@ public class PublishedAssessmentFacade
   private Integer lateHandling;
   private Boolean unlimitedSubmissions;
   private Integer submissionsAllowed;
+  private Integer scoringType;
   private Integer feedbackDelivery;
   private Integer feedbackAuthoring;
   private Date feedbackDate;
@@ -111,25 +112,37 @@ public class PublishedAssessmentFacade
                                  Date feedbackDate, Integer feedbackDelivery, Integer feedbackAuthoring,
                                  Integer lateHandling, Boolean unlimitedSubmissions,
                                  Integer submissionsAllowed){
-    this.publishedAssessmentId = id;
-    this.title = title;
-    this.releaseTo = releaseTo;
-    this.startDate = startDate;
-    this.dueDate = dueDate;
-    this.retractDate = retractDate;
-    this.feedbackDelivery = feedbackDelivery; //=publishedFeedback.feedbackDelivery
- this.feedbackAuthoring = feedbackAuthoring; //=publishedFeedback.feedbackAuthoring
-    this.feedbackDate = feedbackDate;
-    this.lateHandling = lateHandling;
-    if (unlimitedSubmissions != null)
-      this.unlimitedSubmissions = unlimitedSubmissions;
-    else
-      this.unlimitedSubmissions = Boolean.TRUE;
-    if (submissionsAllowed == null)
-      this.submissionsAllowed = new Integer(0);
-    else
-      this.submissionsAllowed = submissionsAllowed;
+    
+	  this(id, title, releaseTo, startDate, dueDate, retractDate, feedbackDate,
+			  feedbackDelivery, feedbackAuthoring, lateHandling, unlimitedSubmissions, submissionsAllowed, null);  
   }
+  
+  public PublishedAssessmentFacade(Long id, String title, String releaseTo,
+			Date startDate, Date dueDate, Date retractDate, Date feedbackDate,
+			Integer feedbackDelivery, Integer feedbackAuthoring,
+			Integer lateHandling, Boolean unlimitedSubmissions,
+			Integer submissionsAllowed, Integer scoringType) {
+		this.publishedAssessmentId = id;
+		this.title = title;
+		this.releaseTo = releaseTo;
+		this.startDate = startDate;
+		this.dueDate = dueDate;
+		this.retractDate = retractDate;
+		this.feedbackDelivery = feedbackDelivery; // =publishedFeedback.feedbackDelivery
+		this.feedbackAuthoring = feedbackAuthoring; // =publishedFeedback.feedbackAuthoring
+		this.feedbackDate = feedbackDate;
+		this.lateHandling = lateHandling;
+		if (unlimitedSubmissions != null)
+			this.unlimitedSubmissions = unlimitedSubmissions;
+		else
+			this.unlimitedSubmissions = Boolean.TRUE;
+		if (submissionsAllowed == null)
+			this.submissionsAllowed = new Integer(0);
+		else
+			this.submissionsAllowed = submissionsAllowed;
+		this.scoringType = scoringType;
+	}
+
 
   public PublishedAssessmentFacade(Long id, String title, AssessmentAccessControlIfc publishedAccessControl){
     this.publishedAssessmentId = id;
@@ -531,6 +544,11 @@ public class PublishedAssessmentFacade
   public Integer getSubmissionsAllowed()
   {
     return submissionsAllowed;
+  }
+  
+  public Integer getScoringType()
+  {
+    return scoringType;
   }
 
   public Date getRetractDate() {

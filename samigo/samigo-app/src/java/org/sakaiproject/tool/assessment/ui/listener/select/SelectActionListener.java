@@ -181,6 +181,24 @@ public class SelectActionListener
 
         DeliveryBeanie delivery = new DeliveryBeanie();
         delivery.setAssessmentId(g.getPublishedAssessmentId().toString());
+        
+        Integer submissionAllowed = getSubmissionAllowed(g.getPublishedAssessmentId(), publishedAssessmentHash);
+        if (submissionAllowed.intValue() == 0) { // unlimited submissions
+          delivery.setMultipleSubmissions(true);
+      	  hasMultipleSubmission=true;
+        }
+        else if (submissionAllowed.intValue() == 1) {
+       		delivery.setMultipleSubmissions(false);
+       		hasMultipleSubmission=false;
+       	}
+        else if (submissionAllowed.intValue() > 1) {
+       		delivery.setMultipleSubmissions(true);
+       		hasMultipleSubmission=true;
+       	}
+        
+        delivery.setScoringOption(getScoringType(g.getPublishedAssessmentId(), publishedAssessmentHash));
+        
+        /*
         PublishedAssessmentIfc pub = publishedAssessmentService.getPublishedAssessment(delivery.getAssessmentId());
         AssessmentAccessControlIfc ac = pub.getAssessmentAccessControl();
          
@@ -197,9 +215,10 @@ public class SelectActionListener
         	  delivery.setMultipleSubmissions(true);
         	  hasMultipleSubmission=true;
           }
-        
-         
+                
         delivery.setScoringOption(pub.getEvaluationModel().getScoringType().toString());
+        */
+        
         if ((EvaluationModelIfc.HIGHEST_SCORE.toString()).equals(delivery.getScoringOption())){
         	hasHighest=true;
         }
@@ -522,6 +541,27 @@ public class SelectActionListener
     return showScore;
   }
 
+  private String getScoringType(Long publishedAssessmentId, HashMap publishedAssessmentHash){
+	    PublishedAssessmentFacade p = (PublishedAssessmentFacade)publishedAssessmentHash.
+	        get(publishedAssessmentId);
+	    if (p!=null) {
+	    	if (p.getScoringType() != null) {
+	    		return p.getScoringType().toString();
+	    	}
+	    }
+        return null;
+  }
+  
+
+  private Integer getSubmissionAllowed(Long publishedAssessmentId, HashMap publishedAssessmentHash){
+	    PublishedAssessmentFacade p = (PublishedAssessmentFacade)publishedAssessmentHash.
+	        get(publishedAssessmentId);
+	    if (p!=null)
+	      return p.getSubmissionsAllowed();
+	    else
+	      return null;
+  }
+  
   private Date getFeedbackDate(Long publishedAssessmentId, HashMap publishedAssessmentHash){
     PublishedAssessmentFacade p = (PublishedAssessmentFacade)publishedAssessmentHash.
         get(publishedAssessmentId);
