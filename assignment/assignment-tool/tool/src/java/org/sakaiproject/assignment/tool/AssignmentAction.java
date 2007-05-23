@@ -8568,7 +8568,11 @@ public class AssignmentAction extends PagedResourceActionII
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ()); 
 		ParameterParser params = data.getParameters();
 		
-		String grade = params.getString("defaultGrade");
+		String grade = StringUtil.trimToNull(params.getString("defaultGrade"));
+		if (grade == null)
+		{
+			addAlert(state, rb.getString("plespethe2"));
+		}
 		
 		String assignmentId = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
 		try
