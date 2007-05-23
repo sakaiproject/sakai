@@ -176,6 +176,9 @@ public interface ContentHostingService extends EntityProducer
 	/** The content root collection for items that are public. */
     public static final String COLLECTION_PUBLIC = "/public/";
 
+	/** The content root collection for items that are hidden. */
+    public static final String COLLECTION_PRIVATE = "/private/";
+
 	/** The content root collection for meleteDocs */
     public static final String COLLECTION_MELETE_DOCS = "/meleteDocs/";
 

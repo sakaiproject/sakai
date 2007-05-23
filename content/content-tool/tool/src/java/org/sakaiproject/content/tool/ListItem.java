@@ -607,7 +607,7 @@ public class ListItem
 		{
 			groupsWithRemovePermission = contentService.getGroupsWithRemovePermission(ref.getContainer());
 		}
-		else if(contentService.getSiteCollection(ref.getContext()) != null)
+		else if(ref.getContext() != null && contentService.getSiteCollection(ref.getContext()) != null)
 		{
 			groupsWithRemovePermission = contentService.getGroupsWithRemovePermission(contentService.getSiteCollection(ref.getContext()));
 		}

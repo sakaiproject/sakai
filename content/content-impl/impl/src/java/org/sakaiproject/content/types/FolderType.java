@@ -879,22 +879,22 @@ public class FolderType extends BaseResourceType
         public boolean available(ContentEntity entity)
         {
            	boolean ok = true;
-        	if(entity == null || ContentHostingService.ROOT_COLLECTIONS.contains(entity.getId()))
-    		{
-    			ok = false;
-    		}
-        	else if(entity.getId().startsWith(ContentHostingService.COLLECTION_DROPBOX))
-        	{
-        		ok = false;
-        	}
-        	else
-    		{
-    			ContentCollection parent = entity.getContainingCollection();
-    			if(parent == null || ContentHostingService.ROOT_COLLECTIONS.contains(parent.getId()))
-    			{
-    				ok = false;
-    			}
-    		}
+//        	if(entity == null || ContentHostingService.ROOT_COLLECTIONS.contains(entity.getId()))
+//    		{
+//    			ok = false;
+//    		}
+//        	else if(entity.getId().startsWith(ContentHostingService.COLLECTION_DROPBOX))
+//        	{
+//        		ok = false;
+//        	}
+//        	else
+//    		{
+//    			ContentCollection parent = entity.getContainingCollection();
+//    			if(parent == null || ContentHostingService.ROOT_COLLECTIONS.contains(parent.getId()))
+//    			{
+//    				ok = false;
+//    			}
+//    		}
  	        return ok;
         }
 
