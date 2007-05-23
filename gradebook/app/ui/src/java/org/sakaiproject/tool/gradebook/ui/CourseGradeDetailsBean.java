@@ -62,9 +62,6 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
     private GradeMapping gradeMapping;
     private double totalPoints;
     private String courseGradesConverterPlugin;
-    
-    // dummy property added for breadcrumb trail
-    private Assignment assignment = new Assignment();
 
 	public class ScoreRow implements Serializable {
         private EnrollmentRecord enrollment;
@@ -208,9 +205,6 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
     public double getTotalPoints() {
         return totalPoints;
     }
-	public Assignment getAssignment() {
-		return assignment;
-	}
 
 	/**
 	 * Action listener to update grades.

@@ -13,7 +13,7 @@
 			<h:panelGroup rendered="#{overviewBean.userAbleToEditAssessments}">
 				<f:verbatim><p></f:verbatim>
 				<h:outputText value="#{overviewBean.gradeOptionSummary} "/>
-				<h:commandLink action="feedbackOptions" immediate="true">
+				<h:commandLink action="#{overviewBean.navigateToFeedbackOptions}" immediate="true">
 					<h:outputText value="#{msgs.overview_grade_option_change}"/>
 				</h:commandLink>
 				<f:verbatim></p></f:verbatim>
@@ -31,9 +31,7 @@
 			columnClasses="itemName"
 			styleClass="itemSummary gbSection"
 			rendered="#{overviewBean.userAbleToGradeAll}">
-			<h:commandLink action="#{overviewBean.navigateToCourseGrades}" styleClass="courseGrade">
-				<h:outputText value="#{msgs.course_grade_name}" />
-			</h:commandLink>
+			<h:outputText value="#{msgs.avg_course_grade_name}" styleClass="courseGrade"/>
 			<h:panelGroup>
 				<h:outputText id="letterGrade" value="#{overviewBean.avgCourseGradeLetter} " />
 				<h:outputText id="cumScore" value="#{overviewBean.courseGrade}">

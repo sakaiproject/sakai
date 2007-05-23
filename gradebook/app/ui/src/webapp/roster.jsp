@@ -25,7 +25,7 @@
 			columnClasses="itemName"
 			styleClass="itemSummary"
 			rendered="#{roster.userAbleToGradeAll}">
-			<h:outputText id="courseGradeLabel" value="#{msgs.course_grade_name}"  />
+			<h:outputText id="courseGradeLabel" value="#{msgs.avg_course_grade_name}"  />
 			<h:panelGroup>
 				<h:outputText id="letterGrade" value="#{rosterBean.avgCourseGradeLetter} " />
 				<h:outputText id="cumScore" value="#{rosterBean.avgCourseGrade}">

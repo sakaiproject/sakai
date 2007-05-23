@@ -15,7 +15,12 @@
 	</h:commandLink>
     <h:outputText value="#{msgs.appmenu_roster} &nbsp;" escape="false" rendered="#{bean.pageName eq 'roster' || bean.breadcrumbPage eq 'roster'}" styleClass="currentView" />
   
-
+	  <h:commandLink action="#{bean.navigateToCourseGrades}" immediate="true" rendered="#{bean.pageName ne 'courseGradeDetails' && bean.breadcrumbPage ne 'courseGradeDetails'}">
+			<h:outputText value="#{msgs.appmenu_course_grades}"/>
+			<f:param name="pageName" value="courseGradeDetails" />
+		</h:commandLink>
+		<h:outputText value="#{msgs.appmenu_course_grades} &nbsp;" escape="false" rendered="#{bean.pageName eq 'courseGradeDetails' || bean.breadcrumbPage eq 'courseGradeDetails'}" styleClass="currentView" />
+	  
      <h:commandLink action="#{bean.navigateToGradebookSetup}" immediate="true" rendered="#{bean.pageName ne 'gradebookSetup' && bean.userAbleToEditAssessments}">
          <h:outputText value="#{msgs.appmenu_gb_setup}" />
          <f:param name="pageName" value="gradebookSetup"/>

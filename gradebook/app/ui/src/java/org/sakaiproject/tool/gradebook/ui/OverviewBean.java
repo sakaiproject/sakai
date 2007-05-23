@@ -153,7 +153,6 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 				while (goIter.hasNext()) {
 					GradableObject go = (GradableObject) goIter.next();
 					if (go.isCourseGrade()) {
-						gradebookItemList.add((CourseGrade)go);
 						courseGrade = (CourseGrade) go;
 					} else {
 						Assignment assign = (Assignment) go;
@@ -285,9 +284,4 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 		return "spreadsheetListing";
 	}
 	
-	public String navigateToCourseGrades() {
-		setNav(null,"false","false","false","courseGrade");
-		
-		return "courseGradeDetails";
-	}
 }

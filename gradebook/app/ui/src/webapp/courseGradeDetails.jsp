@@ -10,10 +10,8 @@
 
 		<!-- Course Grade Summary -->
 		<sakai:flowState bean="#{courseGradeDetailsBean}" />
-
-		<t:aliasBean alias="#{bean}" value="#{courseGradeDetailsBean}">
-			<%@include file="/inc/breadcrumb.jspf"%>
-		</t:aliasBean>
+		
+		<h2><h:outputText value="#{msgs.course_grade_details_title}"/></h2>
 
 		<div class="instruction"><h:outputText value="#{msgs.course_grade_details_instruction}" escape="false"/></div>
 
@@ -27,7 +25,7 @@
 				<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
 			</h:outputText>
 			
-			<h:outputText id="courseGradeLabel" value="#{msgs.course_grade_name}" rendered="#{courseGradeDetailsBean.userAbleToGradeAll}" />
+			<h:outputText id="courseGradeLabel" value="#{msgs.avg_course_grade_name}" rendered="#{courseGradeDetailsBean.userAbleToGradeAll}" />
 			<h:panelGroup rendered="#{courseGradeDetailsBean.userAbleToGradeAll}">
 				<h:outputText id="letterGrade" value="#{courseGradeDetailsBean.averageCourseGrade} " />
 				<h:outputText id="cumScore" value="#{courseGradeDetailsBean.courseGrade}">

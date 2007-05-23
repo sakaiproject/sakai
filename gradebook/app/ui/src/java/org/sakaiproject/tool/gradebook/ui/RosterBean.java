@@ -534,10 +534,6 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 			letterGrade = getGradebook().getSelectedGradeMapping().getGrade(avgCourseGrade.getMean());
 		}
 		
-		if (letterGrade == null || letterGrade.trim().length() < 1) {
-			letterGrade = getLocalizedString("score_null_placeholder");
-		}
-		
 		return letterGrade;
 	}
     

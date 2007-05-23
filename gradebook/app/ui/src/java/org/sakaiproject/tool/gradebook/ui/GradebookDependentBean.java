@@ -507,6 +507,16 @@ public abstract class GradebookDependentBean extends InitializableBean {
 		
 		return "spreadsheetAll";
 	}
+	
+	/**
+	 * Go to course grade details pg. State is kept in
+	 * tool session, hence attribute setting.
+	 */
+	public String navigateToCourseGrades() {
+		setNav("courseGradeDetails","false","false","false","");
+		
+		return "courseGradeDetails";
+	}
 
 	/** 
 	 * Determine where to return to. Used by both Assignmenet Details and
