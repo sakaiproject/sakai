@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 
 import javax.faces.event.AbortProcessingException;
@@ -36,6 +37,7 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
@@ -46,6 +48,7 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
 //import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
@@ -160,8 +163,9 @@ public class SelectActionListener
         Boolean.getBoolean( (String) ContextUtil.lookupParam("reviewAscending")));
         */
 
+    List containRandomPartAssessmentIds = publishedAssessmentService.getContainRandomPartAssessmentIds();
+    
     // 1. get the most recent submission, or the highest submissions of each assessment for a user, depending on grading option
-     
     ArrayList recentSubmittedList =
         publishedAssessmentService.getBasicInfoOfLastOrHighestSubmittedAssessmentsByScoringOption(
 			  AgentFacade.getAgentString(), AgentFacade.getCurrentSiteId());
@@ -260,7 +264,12 @@ public class SelectActionListener
         // check is feedback is available
         String hasFeedback = hasFeedback(g, publishedAssessmentHash);
         delivery.setFeedback(hasFeedback);
-
+        if (containRandomPartAssessmentIds.contains(g.getPublishedAssessmentId())) {
+        	delivery.setHasRandomDrawPart(true);
+        }
+        else {
+        	delivery.setHasRandomDrawPart(false);
+        }
         // check if score is available
         HashMap feedbackHash = publishedAssessmentService.getFeedbackHash();
         delivery.setShowScore(showScore(g, hasFeedback, feedbackHash));
@@ -603,5 +612,5 @@ public class SelectActionListener
     }
     return h;
   }
-
+  
 }

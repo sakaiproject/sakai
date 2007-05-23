@@ -343,6 +343,11 @@ public class PublishedAssessmentService {
     return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
 	  hasRandomPart(new Long(publishedAssessmentId));
   }
+  
+  public List getContainRandomPartAssessmentIds(){
+	    return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
+	    getContainRandomPartAssessmentIds();
+  }
 
   public PublishedItemData getFirstPublishedItem(String publishedAssessmentId){
     return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().

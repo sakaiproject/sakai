@@ -225,7 +225,7 @@ sorting actions for table:
 
   <f:verbatim><br /></f:verbatim>
        <h:commandLink title="#{selectIndexMessages.t_histogram}" action="histogramScores" immediate="true"  
-        rendered="#{reviewable.feedback ne 'false' && reviewable.statistics}">
+        rendered="#{reviewable.feedback ne 'false' && reviewable.statistics && !reviewable.hasRandomDrawPart}">
         <f:param name="publishedId" value="#{reviewable.assessmentId}" />
         <f:param name="hasNav" value="false"/>
         <f:param name="allSubmissions" value="true" />

@@ -83,7 +83,8 @@ private static Log log = LogFactory.getLog(DeliveryBeanie.class);
   //private String display_dateFormat= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_date_no_sec");
   private String display_dateFormat= "yyyy-MMM-dd hh:mm aaa";
   private SimpleDateFormat displayFormat = new SimpleDateFormat(display_dateFormat);
-
+  private boolean hasRandomDrawPart;
+  
   /**
    * Creates a new DeliveryBean object.
    */
@@ -360,32 +361,42 @@ private static Log log = LogFactory.getLog(DeliveryBeanie.class);
     return dateString;
   }
 
-/**
- * @return Returns the multipleSubmissions.
- */
-public boolean isMultipleSubmissions() {
-	return multipleSubmissions;
-}
+  /**
+	 * @return Returns the multipleSubmissions.
+	 */
+	public boolean isMultipleSubmissions() {
+		return multipleSubmissions;
+	}
 
-/**
- * @param multipleSubmissions The multipleSubmissions to set.
- */
-public void setMultipleSubmissions(boolean multipleSubmissions) {
-	this.multipleSubmissions = multipleSubmissions;
-}
+	/**
+	 * @param multipleSubmissions
+	 *            The multipleSubmissions to set.
+	 */
+	public void setMultipleSubmissions(boolean multipleSubmissions) {
+		this.multipleSubmissions = multipleSubmissions;
+	}
 
-/**
- * @return Returns the scoringOption.
- */
-public String getScoringOption() {
-	return scoringOption;
-}
+	/**
+	 * @return Returns the scoringOption.
+	 */
+	public String getScoringOption() {
+		return scoringOption;
+	}
 
-/**
- * @param scoringOption The scoringOption to set.
- */
-public void setScoringOption(String scoringOption) {
-	this.scoringOption = scoringOption;
-}
+	/**
+	 * @param scoringOption
+	 *            The scoringOption to set.
+	 */
+	public void setScoringOption(String scoringOption) {
+		this.scoringOption = scoringOption;
+	}
+
+	public boolean getHasRandomDrawPart() {
+		return this.hasRandomDrawPart;
+	}
+
+	public void setHasRandomDrawPart(boolean param) {
+		this.hasRandomDrawPart = param;
+	}
 
 }

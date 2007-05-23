@@ -93,16 +93,18 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
       <h:outputText value="#{evaluationMessages.title_total}" />
     </h:commandLink>
 
-    <h:outputText value=" | " />
-      <h:outputText value="#{evaluationMessages.q_view}" />
+    <h:outputText value=" #{evaluationMessages.separator} " />
+    <h:outputText value="#{evaluationMessages.q_view}" />
 
-    <h:outputText value=" | " />
-    <h:commandLink title="#{evaluationMessages.t_histogram}" action="histogramScores" immediate="true">
+	<h:outputText value=" #{evaluationMessages.separator} " rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}" />
+    <h:commandLink title="#{evaluationMessages.t_histogram}" action="histogramScores" immediate="true"
+      rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}" >
       <h:outputText value="#{evaluationMessages.stat_view}" />
       <f:param name="hasNav" value="true"/>
       <f:actionListener
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
     </h:commandLink>
+
   </p>
 <div class="tier1">
   <h:messages styleClass="validation"/>

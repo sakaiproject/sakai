@@ -282,6 +282,8 @@ public interface PublishedAssessmentFacadeQueriesAPI
 
   public boolean hasRandomPart(Long publishedAssessmentId);
 
+  public List getContainRandomPartAssessmentIds();
+  
   public PublishedItemData getFirstPublishedItem(Long publishedAssessmentId);
 
   public List getPublishedItemIds(Long publishedAssessmentId);
