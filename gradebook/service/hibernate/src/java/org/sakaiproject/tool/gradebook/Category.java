@@ -1,6 +1,7 @@
 package org.sakaiproject.tool.gradebook;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
 
@@ -229,7 +230,8 @@ public class Category implements Serializable
     {
     	averageScore = new Double(total / numScored);
     	averageTotalPoints = new Double(totalPossible / numOfAssignments);
-    	mean = new Double(total / numScored / (totalPossible / numOfAssignments) * 100) ;
+    	double roundValue = total / numScored / (totalPossible / numOfAssignments) * 100;
+    	mean = new Double(new BigDecimal(roundValue).setScale(0, BigDecimal.ROUND_HALF_UP).doubleValue()) ;
     }
 	}
 
