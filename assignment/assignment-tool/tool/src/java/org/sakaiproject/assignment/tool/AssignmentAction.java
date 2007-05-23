@@ -8822,7 +8822,7 @@ public class AssignmentAction extends PagedResourceActionII
 					AssignmentSubmission s = (AssignmentSubmission) sIterator.next();
 					User[] users = s.getSubmitters();
 					String uName = users[0].getSortName();
-					submissionTable.put(uName, new UploadGradeWrapper("", "", new Vector()));
+					submissionTable.put(uName, new UploadGradeWrapper("", "", "", new Vector()));
 				}
 			}
 			catch (Exception e)
@@ -8940,32 +8940,46 @@ public class AssignmentAction extends PagedResourceActionII
 									}
 									else if (hasSubmissions)
 									{
-										// upload all the files as instuctor attachments to the submission for grading purpose
-										String fName = entryName.substring(entryName.lastIndexOf("/") + 1, entryName.length());
-										ContentTypeImageService iService = (ContentTypeImageService) state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE);
-										try
+										if (entryName.endsWith("_submissionText.html"))
 										{
-											if (submissionTable.containsKey(userName))
+											// upload the student submission text along with the feedback text
+											String text = StringUtil.trimToNull(readIntoString(zin));
+											if (submissionTable.containsKey(userName) && text != null)
 									        {
-												// add the file as attachment
-												ResourceProperties properties = ContentHostingService.newResourceProperties();
-												properties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, fName);
-												ContentResource attachment = ContentHostingService.addAttachmentResource(
-																			fName, 
-																			contextString, 
-																			toolTitle, 
-																			iService.getContentType(fName.substring(fName.lastIndexOf(".") + 1)),
-																			readIntoString(zin).getBytes(), 
-																			properties);
 									        		UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userName);
-									        		List attachments = r.getAttachments();
-									        		attachments.add(EntityManager.newReference(attachment.getReference()));
-									        		r.setAttachments(attachments);
+									        		r.setText(text);
+									        		submissionTable.put(userName, r);
 									        }
 										}
-										catch (Exception ee)
+										else
 										{
-											Log.warn("chef", ee.toString());
+											// upload all the files as instuctor attachments to the submission for grading purpose
+											String fName = entryName.substring(entryName.lastIndexOf("/") + 1, entryName.length());
+											ContentTypeImageService iService = (ContentTypeImageService) state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE);
+											try
+											{
+												if (submissionTable.containsKey(userName))
+										        {
+													// add the file as attachment
+													ResourceProperties properties = ContentHostingService.newResourceProperties();
+													properties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, fName);
+													ContentResource attachment = ContentHostingService.addAttachmentResource(
+																				fName, 
+																				contextString, 
+																				toolTitle, 
+																				iService.getContentType(fName.substring(fName.lastIndexOf(".") + 1)),
+																				readIntoString(zin).getBytes(), 
+																				properties);
+										        		UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userName);
+										        		List attachments = r.getAttachments();
+										        		attachments.add(EntityManager.newReference(attachment.getReference()));
+										        		r.setAttachments(attachments);
+										        }
+											}
+											catch (Exception ee)
+											{
+												Log.warn("chef", ee.toString());
+											}
 										}
 									}
 								}
@@ -9001,18 +9015,34 @@ public class AssignmentAction extends PagedResourceActionII
 								
 								UploadGradeWrapper w = (UploadGradeWrapper) submissionTable.get(uName);
 								// add all attachment
-								for (Iterator attachments = w.getAttachments().iterator(); attachments.hasNext();)
+								if (hasSubmissions)
 								{
-									sEdit.addFeedbackAttachment((Reference) attachments.next());
+									
+									sEdit.clearFeedbackAttachments();
+									for (Iterator attachments = w.getAttachments().iterator(); attachments.hasNext();)
+									{
+										sEdit.addFeedbackAttachment((Reference) attachments.next());
+									}
+									sEdit.setFeedbackText(w.getText());
 								}
-								// add comment
-								sEdit.setFeedbackComment(w.getComment());
-								// set grade
-								sEdit.setGrade(w.getGrade());
-								sEdit.setGraded(true);
+								
+								if (hasComments)
+								{
+									// add comment
+									sEdit.setFeedbackComment(w.getComment());
+								}
+								
+								if (hasGradeFile)
+								{
+									// set grade
+									sEdit.setGrade(w.getGrade());
+									sEdit.setGraded(true);
+								}
+								
 								// release or not
 								sEdit.setGradeReleased(releaseGrades);
 								sEdit.setReturned(releaseGrades);
+								
 								// commit
 								AssignmentService.commitEdit(sEdit);
 							}
@@ -9090,6 +9120,11 @@ public class AssignmentAction extends PagedResourceActionII
 		String m_grade = null;
 		
 		/**
+		 * the text
+		 */
+		String m_text = null;
+		
+		/**
 		 * the comment
 		 */
 		String m_comment = "";
@@ -9099,9 +9134,10 @@ public class AssignmentAction extends PagedResourceActionII
 		 */
 		List m_attachments = EntityManager.newReferenceList();
 
-		public UploadGradeWrapper(String grade, String comment, List attachments)
+		public UploadGradeWrapper(String grade, String text, String comment, List attachments)
 		{
 			m_grade = grade;
+			m_text = text;
 			m_comment = comment;
 			m_attachments = attachments;
 		}
@@ -9112,6 +9148,14 @@ public class AssignmentAction extends PagedResourceActionII
 		public String getGrade()
 		{
 			return m_grade;
+		}
+		
+		/**
+		 * Returns the text
+		 */
+		public String getText()
+		{
+			return m_text;
 		}
 
 		/**
@@ -9136,6 +9180,14 @@ public class AssignmentAction extends PagedResourceActionII
 		public void setGrade(String grade)
 		{
 			m_grade = grade;
+		}
+		
+		/**
+		 * set the text
+		 */
+		public void setText(String text)
+		{
+			m_text = text;
 		}
 		
 		/**
