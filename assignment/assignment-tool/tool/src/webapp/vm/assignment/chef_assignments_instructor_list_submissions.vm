@@ -93,7 +93,7 @@
 					<label for="gradeList">$tlang.getString("non.submission.grade")</label>
 					##for non-point-based grading, choose the default grade from drop-down
 					#if ($!gradeType != 3)
-						<select id="defaultGrade_1" name="defaultGrade" size="1" onchange="blur();document.defaultGradeForm.submit();">
+						<select id="defaultGrade_1" name="defaultGrade" size="1" >
 							<option value="">$tlang.getString("non.submission.grade.select")</option>
 							#if ($!gradeType == 1)
 								<option value="ungraded" #if($!noSubmissionDefaultGrade && $!noSubmissionDefaultGrade.equals("ungraded"))selected="selected"#end>$tlang.getString("gen.nograd")</option>
@@ -111,7 +111,7 @@
 						</select>
 					#else
 						## instructor needs to type in default points in point-based-grading
-						<input type="text" id="defaultGrade_2" name="defaultGrade" value="$!noSubmissionDefaultGrade" size="5" onchange="blur();document.defaultGradeForm.submit();"/>
+						<input type="text" id="defaultGrade_2" name="defaultGrade" value="$!noSubmissionDefaultGrade" size="5" />
 					#end
 					<input type="button" accesskey="a" class="active"  name="apply" value="$tlang.getString('gen.applygrade')" onclick="blur();document.defaultGradeForm.submit();" title="$tlang.getString("gen.applygrade")" />
 				</form>
