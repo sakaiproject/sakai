@@ -72,18 +72,9 @@
     		<value>false</value>
     	</property>
     	<property name="chatMigrationExecuteImmediate">
-    		<value>false</value>
-    	</property>
-    	<property name="debug">
-    		<value>false</value>
-    	</property>
-    	<property name="outputFile">
-    		<value>${sakai.home}/chat-migration.sql</value>
-    	</property>
-    	<property name="escapeSpecialCharactersInArchive">
     		<value>true</value>
     	</property>
-    	<property name="escapeSpecialCharactersInLive">
+    	<property name="debug">
     		<value>false</value>
     	</property>
    </bean>

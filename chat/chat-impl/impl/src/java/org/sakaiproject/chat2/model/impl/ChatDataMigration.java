@@ -24,14 +24,10 @@
  */
 package org.sakaiproject.chat2.model.impl;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.PrintWriter;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.text.MessageFormat;
 import java.util.Date;
 
 import org.apache.commons.logging.Log;
@@ -52,7 +48,6 @@ public class ChatDataMigration {
    protected final transient Log logger = LogFactory.getLog(getClass());
    
    private boolean debug = false;
-   private String outputFile = "/chat-migration.sql";
    
    private SqlService sqlService = null;
    
@@ -62,8 +57,6 @@ public class ChatDataMigration {
    
    private boolean performChatMigration = false;
    private boolean chatMigrationExecuteImmediate = true;
-   private boolean escapeSpecialCharactersInArchive = true;
-   private boolean escapeSpecialCharactersInLive = false;
    
    
    /** init thread - so we don't wait in the actual init() call */
@@ -74,7 +67,6 @@ public class ChatDataMigration {
        */
       public ChatDataMigrationThread()
       {
-         //m_ready = false;
          start();
       }
 
@@ -121,46 +113,16 @@ public class ChatDataMigration {
    }
    
    public void load() throws Exception {
-      printDebug("*******outputDir: " + outputFile);
-      logger.info("Running Chat Migration; output file: " + outputFile + " immediate: " + chatMigrationExecuteImmediate);
+      logger.info("Running Chat Migration; immediate: " + chatMigrationExecuteImmediate);
       Connection connection = null;
       
-      PrintWriter sqlFile = new PrintWriter(new BufferedWriter(new FileWriter(outputFile, false)), true);
-
       try {
-         
-         sqlFile.println("--" + getDbPrefix());
-         /*
-         //Add a new columns for us to keep track
-         String alterChannelTable = getMessageFromBundle("alter.channel");
-         String alterMessageTable = getMessageFromBundle("alter.message");
-         
-         sqlFile.println(alterChannelTable);
-         sqlFile.println(alterMessageTable);
-         
-         if (chatMigrationExecuteImmediate) {
-            try {
-               sqlService.dbWrite(null, alterChannelTable, null);
-            }
-            catch (Exception e) {
-               logger.warn("Channel table has already been modified to accept migration data.");
-            }
-            try {
-               sqlService.dbWrite(null, alterMessageTable, null);
-            }
-            catch (Exception e) {
-               logger.warn("Message table has already been modified to accept migration data.");
-            }
-         }
-         */
-         
-         sqlFile.println();
          
          connection = sqlService.borrowConnection();
          printDebug("*******BORROWED A CONNECTION");
-         runChannelMigration(connection, sqlFile);
+         runChannelMigration(connection);
          
-         runMessageMigration(connection, sqlFile);
+         runMessageMigration(connection);
          
       }
       catch (Exception e) {
@@ -181,7 +143,7 @@ public class ChatDataMigration {
       logger.info("Chat migration complete");
    }
    
-   protected void runChannelMigration(Connection con, PrintWriter output) {
+   protected void runChannelMigration(Connection con) {
       logger.debug("runChannelMigration()");
       printDebug("*******GETTING CHANNELS");
       
@@ -219,8 +181,11 @@ public class ChatDataMigration {
                   String newChannelId = escapeSpecialCharsForId(oldId);
                   
                   //TODO Chat lookup the config params?
-                  String outputSql = getMessageFromBundle("insert.channel", new Object[]{
-                        newChannelId, context, null, escapeSingleQuotes(title), "", "SelectMessagesByTime", 3, 0, escapeSingleQuotes(oldId), 1});
+                  
+                  String runSql = getMessageFromBundle("insert.channel");
+                  Object[] fields = new Object[] {newChannelId, context, null, title, "", "SelectMessagesByTime", 3, 0, 1, oldId, oldId};
+                  
+                  
                   /* 
                    * CHANNEL_ID, 
                    * CONTEXT, 
@@ -234,18 +199,9 @@ public class ChatDataMigration {
                    * ENABLE_USER_OVERRIDE
                    */
                   
-                  String escapedSql = escapeConfiguredCharactersOptional(outputSql);
-                  String sqlToRun = (isEscapeSpecialCharactersInLive()) ? escapedSql : outputSql;
-                  String sqlToWrite = (isEscapeSpecialCharactersInArchive()) ? escapedSql : outputSql;
-                  
-                  output.println(sqlToWrite + ";");
                   if (chatMigrationExecuteImmediate) {
-                     sqlService.dbWrite(null, sqlToRun, null);
+                     sqlService.dbWrite(null, runSql, fields);
                   }
-                  
-                  //Get the messages for each channel
-                  //runMessageMigration(con, output, oldId, newChannelId);
-                  
                }
            } finally {
                rs.close();
@@ -262,13 +218,11 @@ public class ChatDataMigration {
         logger.debug("Migration task fininshed: runChannelMigration()");
    }
    
-   protected void runMessageMigration(Connection con, PrintWriter output) {
+   protected void runMessageMigration(Connection con) {
       logger.debug("runMessageMigration()");
       printDebug("*******GETTING MESSAGES");
       
-      //String sql = getMessageFromBundle("select.oldmessages", new Object[]{oldChannelId});
       String sql = getMessageFromBundle("select.oldmessages");
-      //String sql = "select c.channel_id, c.xml from chat_channel c";
       
       try {
             stmt = con.createStatement();
@@ -304,27 +258,21 @@ public class ChatDataMigration {
                   // verify the root element
                   Element root = doc.getDocumentElement();
                   String body = Xml.decodeAttribute(root, "body");
-                  //String body = root.getAttribute("body");
-                  //String body = "test";
-
-                  String newMessageId = oldMessageId;
-                  //newMessageId = escapeSpecialCharsForId(newMessageId);
                   
-                  String outputSql = getMessageFromBundle("insert.message", new Object[] {
-                        escapeSpecialCharsForId(newMessageId), escapeSpecialCharsForId(oldChannelId), owner, messageDate, escapeSingleQuotes(body), oldMessageId});
+                  String newMessageId = oldMessageId;
+                  String runSql = getMessageFromBundle("insert.message");
+                  
+                  Object[] fields = new Object[] {
+                        escapeSpecialCharsForId(newMessageId), escapeSpecialCharsForId(oldChannelId), owner, messageDate, body, oldMessageId, oldMessageId};
+                  
                   /*
                    * insert into CHAT2_MESSAGE (MESSAGE_ID, CHANNEL_ID, OWNER, MESSAGE_DATE, BODY) \
                         values ('{0}', '{1}', '{2}', '{3}', '{4}');
                   
                   */
                   
-                  String escapedSql = escapeConfiguredCharactersOptional(outputSql);
-                  String sqlToRun = (isEscapeSpecialCharactersInLive()) ? escapedSql : outputSql;
-                  String sqlToWrite = (isEscapeSpecialCharactersInArchive()) ? escapedSql : outputSql;
-                  
-                  output.println(sqlToWrite + ";");
                   if (chatMigrationExecuteImmediate) {
-                     sqlService.dbWrite(null, sqlToRun, null);
+                     sqlService.dbWrite(null, runSql, fields);
                   }
                }
            } finally {
@@ -351,35 +299,6 @@ public class ChatDataMigration {
     */
    protected String escapeSpecialCharsForId(String input) {
       String output = input.replaceAll("/", "_");
-      output = escapeSingleQuotes(output);
-      return output;
-   }
-   
-   /**
-    * Escapes single quotes
-    * -- "'" is replaced with "''"
-    * @param input Original string to parse
-    * @return A string with any special characters escaped
-    */
-   protected String escapeSingleQuotes(String input) {
-      String output = input.replaceAll("'", "''");
-      return output;
-   }
-   
-   /**
-    * Does all of the escaping for the message body
-    * @param input
-    * @return
-    */
-   protected String escapeConfiguredCharactersOptional(String input) {
-      //String output = escapeSingleQuotes(input);
-      String output = input;
-      String escapeChar = getMessageFromBundle("escapeChar");
-      String[] escapedChars = getMessagesFromBundle("escapedChars");
-      
-      for (String theChar : escapedChars) {
-         output = output.replaceAll(theChar, escapeChar.concat(theChar));
-      }
       return output;
    }
    
@@ -392,17 +311,9 @@ public class ChatDataMigration {
       }
    }
    
-   /**
-    * Looks up the db vendor from the SqlService
-    * @return The string for the db vendor (mysql, oracle, hsqldb, etc)
-    */
-   protected String getDbPrefix() {
-      return sqlService.getVendor();
-   }
    
    /**
-    * Looks up the sql statements defined in chat-sql.properties.  Appends the db
-    * vendor key to the beginning of the message (oracle.select.channel, mysql.select.channel, etc)
+    * Looks up the sql statements defined in chat-sql.properties.  
     * @param key
     * @return
     */
@@ -410,26 +321,9 @@ public class ChatDataMigration {
       if (toolBundle == null)
          toolBundle = new ResourceLoader("chat-sql");
       
-      return toolBundle.getString(getDbPrefix().concat("." + key));
+      return toolBundle.getString(key);
    }
-   
-   /**
-    * Looks up the sql statements defined in chat-sql.properties.  Appends the db
-    * vendor key to the beginning of the message (oracle.select.channel, mysql.select.channel, etc)
-    * @param key
-    * @return
-    */
-   private String[] getMessagesFromBundle(String key) {
-      if (toolBundle == null)
-         toolBundle = new ResourceLoader("chat-sql");
       
-      return toolBundle.getStrings(getDbPrefix().concat("." + key));
-   }
-   
-   private String getMessageFromBundle(String key, Object[] args) {
-      return MessageFormat.format(getMessageFromBundle(key), args);
-   }
-   
    public boolean isChatMigrationExecuteImmediate() {
       return chatMigrationExecuteImmediate;
    }
@@ -455,38 +349,12 @@ public class ChatDataMigration {
       this.debug = debug;
    }
 
-   public String getOutputFile() {
-      return outputFile;
-   }
-
-   public void setOutputFile(String outputFile) {
-      this.outputFile = outputFile;
-   }
-
    public SqlService getSqlService() {
       return sqlService;
    }
 
    public void setSqlService(SqlService sqlService) {
       this.sqlService = sqlService;
-   }
-
-   public boolean isEscapeSpecialCharactersInArchive() {
-      return escapeSpecialCharactersInArchive;
-   }
-
-   public void setEscapeSpecialCharactersInArchive(
-         boolean escapeSpecialCharactersInArchive) {
-      this.escapeSpecialCharactersInArchive = escapeSpecialCharactersInArchive;
-   }
-
-   public boolean isEscapeSpecialCharactersInLive() {
-      return escapeSpecialCharactersInLive;
-   }
-
-   public void setEscapeSpecialCharactersInLive(
-         boolean escapeSpecialCharactersInLive) {
-      this.escapeSpecialCharactersInLive = escapeSpecialCharactersInLive;
    }
    
 }
