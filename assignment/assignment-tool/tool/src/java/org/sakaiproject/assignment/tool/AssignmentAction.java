@@ -1298,8 +1298,10 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("name_Description", NEW_ASSIGNMENT_DESCRIPTION);
 		// do not show the choice when there is no Schedule tool yet
 		if (state.getAttribute(CALENDAR) != null)
-		context.put("name_CheckAddDueDate", ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE);
-		context.put("name_CheckAutoAnnounce", ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE);
+			context.put("name_CheckAddDueDate", ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE);
+		//don't show the choice when there is no Announcement tool yet
+		if (state.getAttribute(ANNOUNCEMENT_CHANNEL) != null)
+			context.put("name_CheckAutoAnnounce", ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE);
 		context.put("name_CheckAddHonorPledge", NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE);
 
 		// offer the gradebook integration choice only in the Assignments with Grading tool
@@ -1357,7 +1359,11 @@ public class AssignmentAction extends PagedResourceActionII
 		// don't show the choice when there is no Schedule tool yet
 		if (state.getAttribute(CALENDAR) != null)
 		context.put("value_CheckAddDueDate", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE));
-		context.put("value_CheckAutoAnnounce", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE));
+		
+		// don't show the choice when there is no Announcement tool yet
+		if (state.getAttribute(ANNOUNCEMENT_CHANNEL) != null)
+				context.put("value_CheckAutoAnnounce", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE));
+		
 		String s = (String) state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE);
 		if (s == null) s = "1";
 		context.put("value_CheckAddHonorPledge", s);
@@ -6315,27 +6321,7 @@ public class AssignmentAction extends PagedResourceActionII
 				catch (IdUnusedException e)
 				{
 					Log.warn("chef", "No announcement channel found. ");
-					// the announcement channel is not created yet; go create
-					try
-					{
-						aService.addAnnouncementChannel(channelId);
-					}
-					catch (PermissionException ee)
-					{
-						Log.warn("chef", "Can not create announcement channel. ");
-					}
-					catch (IdUsedException ee)
-					{
-
-					}
-					catch (IdInvalidException ee)
-					{
-						Log.warn("chef", "The announcement channel could not be created because the Id is invalid. ");
-					}
-					catch (Exception ex)
-					{
-						Log.warn("chef", "Assignment : Action : init state : announcement exception : " + ex);
-					}
+					state.removeAttribute(ANNOUNCEMENT_CHANNEL);
 				}
 				catch (PermissionException e)
 				{
