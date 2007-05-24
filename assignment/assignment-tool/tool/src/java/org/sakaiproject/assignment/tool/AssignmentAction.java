@@ -5934,7 +5934,7 @@ public class AssignmentAction extends PagedResourceActionII
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_REPORT_SUBMISSIONS);
-		state.setAttribute(SORTED_BY, SORTED_BY_DEFAULT);
+		state.setAttribute(SORTED_BY, SORTED_SUBMISSION_BY_LASTNAME);
 		state.setAttribute(SORTED_ASC, Boolean.TRUE.toString());
 
 	} // doReport_submissions
