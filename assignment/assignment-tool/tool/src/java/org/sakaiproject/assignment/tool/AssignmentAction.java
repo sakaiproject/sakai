@@ -1434,24 +1434,18 @@ public class AssignmentAction extends PagedResourceActionII
 		if (AssignmentService.getAllowGroupAssignments())
 		{
 			Collection groupsAllowAddAssignment = AssignmentService.getGroupsAllowAddAssignment(contextString);
-			if (range != null && range.length() != 0)
+			
+			if (AssignmentService.allowAddSiteAssignment(contextString))
 			{
-				context.put("range", range);
+				// default to make site selection
+				context.put("range", "site");
 			}
-			else
+			else if (groupsAllowAddAssignment.size() > 0)
 			{
-				if (AssignmentService.allowAddSiteAssignment(contextString))
-				{
-					// default to make site selection
-					context.put("range", "site");
-				}
-				else if (groupsAllowAddAssignment.size() > 0)
-				{
-					// to group otherwise
-					context.put("range", "groups");
-				}
+				// to group otherwise
+				context.put("range", "groups");
 			}
-
+			
 			// group list which user can add message to
 			if (groupsAllowAddAssignment.size() > 0)
 			{
@@ -4175,7 +4169,12 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				Site site = SiteService.getSite(siteId);
 				Collection groupChoice = (Collection) state.getAttribute(NEW_ASSIGNMENT_GROUPS);
-				if (groupChoice != null)
+				if (range.equals(Assignment.AssignmentAccess.GROUPED) && (groupChoice == null || groupChoice.size() == 0))
+				{
+					// show alert if no group is selected for the group access assignment
+					addAlert(state, rb.getString("java.alert.youchoosegroup"));
+				}
+				else if (groupChoice != null)
 				{
 					for (Iterator iGroups = groupChoice.iterator(); iGroups.hasNext();)
 					{
