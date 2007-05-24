@@ -1139,7 +1139,7 @@ public class AssignmentAction extends PagedResourceActionII
 					// if there is any newly added user who doesn't have a submission object yet, add the submission
 					try
 					{
-						addSubmissionsForNonElectronicAssignment(state, AssignmentService.editAssignment(a.getReference())); 
+						addSubmissionsForNonElectronicAssignment(state, AssignmentService.getAssignment(a.getReference())); 
 					}
 					catch (Exception e)
 					{
