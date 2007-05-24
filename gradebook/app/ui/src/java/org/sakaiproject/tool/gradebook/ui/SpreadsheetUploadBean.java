@@ -902,7 +902,8 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         			if (pointsPossible != null)
         				pointsPossible = new Double(FacesUtil.getRoundDown(pointsPossible.doubleValue(), 2));
         		
-        			assignmentId = getGradebookManager().createAssignment(getGradebookId(), assignmentName, pointsPossible, null, Boolean.TRUE, Boolean.TRUE);
+        			// params: gradebook id, name of assignment, points possible, due date, NOT counted, is released
+        			assignmentId = getGradebookManager().createAssignment(getGradebookId(), assignmentName, pointsPossible, null, Boolean.FALSE, Boolean.TRUE);
         			assignment = getGradebookManager().getAssignment(assignmentId);
         		}
         		else {
@@ -913,13 +914,8 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
         			continue;
         		}
- 
-                // set name, released, and counted properties
-                assignment.setReleased(true);
-                assignment.setCounted(true);
-       			assignment.setName(assignmentName);
-       			
-           		Iterator it = studentRows.iterator();
+
+        		Iterator it = studentRows.iterator();
            		
            		if(logger.isDebugEnabled())logger.debug("number of student rows "+studentRows.size() );
            		int i = 1;
@@ -1027,39 +1023,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     	}
 
     	for (int row=0; row < studentRows.size(); row++) {
-
-    		// first, check for valid entries in the points possible row
- /*   		if (row == 0) {
-    			SpreadsheetRow pointsPossibleRow = (SpreadsheetRow) studentRows.get(row);
-    			List pointsPossibleValues = pointsPossibleRow.getRowcontent();
-    			if (pointsPossibleValues != null && pointsPossibleValues.size() > 2) {
-    				for (int k=2; k < pointsPossibleValues.size(); k++) {
-    					if (k == indexOfCumColumn)
-    						continue;
-    					Double pointsPossible;
-    					String pointsPossibleAsString = (String)pointsPossibleValues.get(k);
-    					if (pointsPossibleAsString == null || pointsPossibleAsString.trim().length() == 0) {
-    						if(logger.isDebugEnabled()) logger.debug("points possible is null");
-    						FacesUtil.addErrorMessage(getLocalizedString("import_assignment_pointsPossibleNull"));
-    						return false;
-    					}
-    					try {
-    						pointsPossible = new Double(pointsPossibleAsString.trim());
-    						
-    						if (pointsPossible.doubleValue() <= 0) {
-    							if(logger.isDebugEnabled()) logger.debug(pointsPossibleAsString + " is <= 0");
-        						FacesUtil.addErrorMessage(getLocalizedString("import_assignment_pointsPossibleNegative"));
-        						return false;
-    						}
-    					} catch (NumberFormatException e){
-    						if(logger.isDebugEnabled()) logger.debug(pointsPossibleAsString + " is not a numeric value");
-    						FacesUtil.addErrorMessage(getLocalizedString("import_assignment_pointsPossibleNotSupported"));
-    						return false;
-    					}
-    				}
-    			}
-    		} else {
-   */ 			SpreadsheetRow scoreRow = (SpreadsheetRow) studentRows.get(row);
+ 			SpreadsheetRow scoreRow = (SpreadsheetRow) studentRows.get(row);
     			List studentScores = scoreRow.getRowcontent();
 
     			// start with col 2 b/c the first two are eid and name
@@ -1120,25 +1084,8 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     	List studentRowsWithUids = new ArrayList();
     	
    		Iterator it = fromSpreadsheet.iterator();
-   		// check to see if the points possible has changed
-//   		SpreadsheetRow pointsPossibleRow = (SpreadsheetRow) it.next(); 
-//   		List pointsPossibleContent = pointsPossibleRow.getRowcontent();
-//   		if (index < pointsPossibleContent.size()) {
-//   			String pointsPossibleAsString = ((String)pointsPossibleContent.get(index)).trim();
-//   			Double pointsPossibleAsDouble = new Double(pointsPossibleAsString);
-   			// truncate points possible to 2 decimal places
-//   			if (pointsPossibleAsDouble != null)
-//   				pointsPossibleAsDouble = new Double(FacesUtil.getRoundDown(pointsPossibleAsDouble.doubleValue(), 2));
-   			// if the points possible is different, update the assignment's points possible value
-   			// points possible stored in db should only have up to 2 decimals, unlike scores
-/*   			if (pointsPossibleAsDouble.doubleValue() != assignment.getPointsPossible().doubleValue()) {
-   				assignment.setPointsPossible(pointsPossibleAsDouble);
-   				getGradebookManager().updateAssignment(assignment);
-   				FacesUtil.addRedirectSafeMessage(getLocalizedString("import_assignment_entire_pointsPossibleChanged"));
-   			}
-   		}
-*/   		
-  		while(it.hasNext()) {
+
+   		while(it.hasNext()) {
    			final SpreadsheetRow row = (SpreadsheetRow) it.next();
    			List line = row.getRowcontent();
 
