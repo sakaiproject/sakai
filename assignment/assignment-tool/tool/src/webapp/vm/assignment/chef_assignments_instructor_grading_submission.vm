@@ -92,8 +92,7 @@
 						$tlang.getString("gen.subm5")
 					</th>	
 					<td>
-				 	$tlang.getString("nonelec")
-						## get submission time
+				 	## get submission time
 						#set($timeSubmitted=false)
 						#set($timeSubmitted=$submission.TimeSubmitted)
 						#if ($!timeSubmitted)
