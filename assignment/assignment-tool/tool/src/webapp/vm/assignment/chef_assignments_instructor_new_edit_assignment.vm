@@ -273,6 +273,7 @@
 				#end
 			</select>
 		</p>
+#* comment out this option for 2.4 - will default to "0"
 		<p class="shorttext">
 			<label for="allowResubmitNumber">
 				$tlang.getString("allow.resubmit.number")
@@ -289,6 +290,7 @@
 				#end
 			</select>
 		</p>
+*#
 		#if ($withGrade)
 			<p class="shorttext">
 				<span class="reqStar">*</span>
@@ -326,7 +328,7 @@
 					</td></tr></table>
 			</div>
 		#if ($!name_CheckAddDueDate)
-				<p class="checkbox indnt1">
+				<p class="checkbox indnt2">
 					#if ($value_CheckAddDueDate.equals("true"))
 						<input id="$name_CheckAddDueDate" name="$name_CheckAddDueDate" type="checkbox" value="true" checked="checked" />
 					#else
@@ -338,7 +340,7 @@
 				</p>
 			#end
 			#if ($!name_CheckAutoAnnounce)
-			<p class="checkbox  indnt1">
+			<p class="checkbox  indnt2">
 				#if ($value_CheckAutoAnnounce.equals("true"))
 					<input id="$name_CheckAutoAnnounce" name="$name_CheckAutoAnnounce" type="checkbox" value="true" checked="checked" />
 				#else
@@ -349,7 +351,7 @@
 				</label>
 			</p>
 			#end
-			<p class="checkbox  indnt1">
+			<p class="checkbox  indnt2">
 				#if (!$!value_CheckAddHonorPledge.equals("1"))
 					<input id="$name_CheckAddHonorPledge" name="$name_CheckAddHonorPledge" type="checkbox" value="2" checked="checked" />
 				#else
@@ -437,7 +439,6 @@
 				#end
 			#end
 			## group/section support
-			<br />
 			#if ($allowAddSiteAssignment)
 				#if ($!groups)
 					<h4>
@@ -548,7 +549,7 @@
 				#end
 			#end
 			#if ($size == 0)
-				$tlang.getString("gen.noatt")
+				<p class="instruction">$tlang.getString("gen.noatt")</p>
 
 				<div class="act">
 					<input type="button" name="attach" value="$tlang.getString('gen.addatt')" onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='attach';document.newAssignmentForm.submit();return false;"/>
