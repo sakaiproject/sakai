@@ -398,9 +398,9 @@
 					<td colspan="4">
 						<label for="hidden_true${DOT}$i">
 							#if($model.isCollection())
-								$tlang.getString("avail.hide2")
+								$tlang.getString("avail.hide20")
 							#else
-								$tlang.getString("avail.hide1")
+								$tlang.getString("avail.hide10")
 							#end
 						</label>
 					</td>
