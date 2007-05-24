@@ -5,8 +5,9 @@
         <h:form id="gbForm">
             <t:aliasBean alias="#{bean}" value="#{spreadsheetUploadBean}">
                 <%@include file="/inc/appMenu.jspf"%>
+           		<%@include file="/inc/breadcrumb.jspf" %>
             </t:aliasBean>
-            <h2><h:outputText value="#{msgs.loading_dock_page_title}"/></h2>
+ <%--           <h2><h:outputText value="#{msgs.loading_dock_page_title}"/></h2> --%>
             <div class="instruction">
                 <h:outputText value="#{msgs.loading_dock_instructions}" escape="false"/>
             </div>

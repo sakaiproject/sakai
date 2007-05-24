@@ -279,7 +279,7 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
      * Set state when navigating to spreadsheet dock page directly from overview page.
      */
 	public String navigateToSpreadsheet() {
-		setNav("overview", "false", "false", "false", null);
+		setNav("overview", "false", "false", "false", "spreadsheetListing");
 
 		return "spreadsheetListing";
 	}
