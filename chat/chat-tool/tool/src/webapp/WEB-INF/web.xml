@@ -27,9 +27,11 @@
         <dispatcher>INCLUDE</dispatcher>
     </filter-mapping>
 
-    <listener>
+<!-- 
+   <listener>
         <listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
     </listener>
+-->
     <listener>
         <listener-class>org.sakaiproject.util.ToolListener</listener-class>
     </listener>
@@ -73,11 +75,12 @@
         <param-name>com.sun.faces.verifyObjects</param-name>
         <param-value>true</param-value>
     </context-param>
-
+<!-- 
     <context-param>
        <param-name>contextConfigLocation</param-name>
        <param-value>/WEB-INF/faces-config.xml</param-value>
     </context-param>
+-->
     <servlet>
         <servlet-name>Faces Servlet</servlet-name>
         <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>

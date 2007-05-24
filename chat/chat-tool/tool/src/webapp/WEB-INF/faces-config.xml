@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE faces-config PUBLIC
   "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.0//EN"
-  "WEB-INF/dtd/web-facesconfig_1_0.dtd">
+  "dtd/web-facesconfig_1_0.dtd">
 
 <faces-config>
 
