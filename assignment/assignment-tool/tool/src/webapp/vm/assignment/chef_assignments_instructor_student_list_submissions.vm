@@ -29,8 +29,6 @@
 			<p class="instruction" style="clear:both">
 				$tlang.getString("stulistsunbm.chotri")
 			</p>
-		#end	
-
 		<div class="navPanel">
 			<div class="viewNav">
 				<form name="viewForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
@@ -42,62 +40,6 @@
 						<option value="lisofass2" selected="selected" >$!tlang.getString('lisofass2')</option>
 					</select>
 				</form>
-			</div>	
-			#if ($!studentMembers.size() == 0)
-			#else
-			<div class="listNav">
-				<div class="instruction">
-					$tlang.getString("gen.viewing") $topMsgPos - $btmMsgPos $tlang.getString("gen.of") $allMsgNumber $tlang.getString("gen.items")
-				</div>
-				#if ($pagesize != 0)
-					#if ($goFPButton == "true")
-						<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-							<input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("gen.first")" />
-						</form>
-					#else
-						<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-							<input type="submit" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" />
-						</form>
-					#end
-					#if ($goPPButton == "true")
-						<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-							<input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('gen.previous') $pagesize" accesskey="p" />
-						</form>
-					#else
-						<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-							<input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" />
-						</form>
-					#end
-				#end	
-				<form name="pagesizeForm" class="inlineForm" method="post" action="#toolForm("$action")">
-					<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
-					<label for="selectPageSize" class="skip">$tlang.getString("newassig.selectmessage")</label>
-					<select id="selectPageSize" name="selectPageSize" onchange="blur();document.pagesizeForm.submit();">
-						#foreach ($i in $!pagesizes)
-							<option value="$i" #if($pagesize == $i) selected="selected" #end>$tlang.getString("list.show") $i $tlang.getString("list.itemsper")</option>
-						#end
-					</select>
-				</form>
-				#if ($pagesize != 0)
-					#if ($goNPButton == "true")
-						<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-							<input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString('gen.next') $pagesize" accesskey="p" />
-						</form>
-					#else
-						<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-							<input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" />
-						</form>
-					#end
-					#if ($goLPButton == "true")
-						<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-							<input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString('gen.last')" />
-						</form>
-					#else
-						<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-							<input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" />
-						</form>
-					#end
-				#end
 			</div>
 		</div>	
 		<form name="studentAssignmentForm" action="#toolForm("AssignmentAction")" method="post">
@@ -131,9 +73,9 @@
 							<td headers="studentname" class="specialLink">	
 								<h4>
 								#if (!$studentListShowSet.contains($member.Id))
-									<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doShow_student_submission" "studentId=$validator.escapeUrl($member.Id)")'; return false;" title="$tlang.getString("stulistsunbm.shostuass")"><img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("stulistsunbm.shostuass")" width="13" height="13" border="0" />$member.DisplayName</a>
+									<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doShow_student_submission" "studentId=$validator.escapeUrl($member.Id)")'; return false;" title="$tlang.getString("stulistsunbm.shostuass")"><img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("stulistsunbm.shostuass")" width="13" height="13" border="0" /></a>$member.SortName
 								#else 
-									<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doHide_student_submission" "studentId=$validator.escapeUrl($member.Id)")'; return false;" title="$tlang.getString("stulistsunbm.hidstuass")"><img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("stulistsunbm.hidstuass")" width="13" height="13" border="0" />$member.DisplayName</a>
+									<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doHide_student_submission" "studentId=$validator.escapeUrl($member.Id)")'; return false;" title="$tlang.getString("stulistsunbm.hidstuass")"><img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("stulistsunbm.hidstuass")" width="13" height="13" border="0" /></a>$member.SortName
 								#end
 								</h4>
 							</td>
