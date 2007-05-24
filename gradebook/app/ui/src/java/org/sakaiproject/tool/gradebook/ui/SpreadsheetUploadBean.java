@@ -83,6 +83,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     private List categoriesSelectList;
     private String selectedCategory;
     private Gradebook localGradebook;
+    private StringBuffer externallyMaintainedImportMsg;
 
     // Used for bulk upload of gradebook items
     // Holds list of unknown user ids
@@ -376,6 +377,13 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
     public void setPageName(String pageName) {
         this.pageName = pageName;
+    }
+    
+    public String getExternallyMaintainedImportMsg() {
+    	if (externallyMaintainedImportMsg == null || externallyMaintainedImportMsg.length() < 1)
+    		return null;
+    	
+    	return externallyMaintainedImportMsg.toString();
     }
     
     /**
@@ -847,6 +855,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     public String importDataAndSaveAll(){
     	boolean gbUpdated = false;
     	hasUnknownAssignments = false;
+    	externallyMaintainedImportMsg = new StringBuffer();
     	
         if(logger.isDebugEnabled())logger.debug("importDataAll()");
 
@@ -958,18 +967,22 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
          	}
         	else {
         		if (! assignment.getPointsPossible().toString().equals(pointsPossibleAsString)) {
-        			assignment.setPointsPossible(new Double(pointsPossibleAsString));
-        			getGradebookManager().updateAssignment(assignment);
-        			gbUpdated = true;
+        			if (assignment.isExternallyMaintained()) {
+        				externallyMaintainedImportMsg.append(getLocalizedString("import_assignment_externally_maintained_settings",
+        						new String[] {assignment.getName(), assignment.getExternalAppName()}) + "<br />");
+        			} else {
+        				assignment.setPointsPossible(new Double(pointsPossibleAsString));
+        				getGradebookManager().updateAssignment(assignment);
+        				gbUpdated = true;
+        			}
         		}
-        		
+
         		gradeRecords = gradeChanges(assignment, studentRows, index);
-        		
+
         		if (gradeRecords.size() == 0)
         			continue; // no changes to current grade record so go to next one
         		else {
         			gbUpdated = true;
-
         		}
         	}
 
@@ -1160,6 +1173,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 		// now do the actual comparison
 		it = studentRowsWithUids.iterator();
 		
+		boolean updatingExternalGrade = false;
 		while(it.hasNext()) {
 			final List aRow = (List) it.next();
 
@@ -1179,9 +1193,13 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 				
 			if (gr == null) {
 				if (pointsEarned != null) {
-					gr = new AssignmentGradeRecord(assignment,userid,pointsEarned);
-                
-					updatedGradeRecords.add(gr);
+					if (!assignment.isExternallyMaintained()) {
+						gr = new AssignmentGradeRecord(assignment,userid,pointsEarned);
+	                
+						updatedGradeRecords.add(gr);
+					} else {
+						updatingExternalGrade = true;
+					}
 				}
 			}
 			else {
@@ -1199,11 +1217,17 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 					(gbPointsEarned != null && pointsEarned != null && gbPointsEarned.doubleValue() != pointsEarned.doubleValue())) {
 				
 					gr.setPointsEarned(pointsEarned);
-					
-					updatedGradeRecords.add(gr);
+					if (!assignment.isExternallyMaintained())
+						updatedGradeRecords.add(gr);
+					else
+						updatingExternalGrade = true;
 				}			
 			}
 		}
+		
+		if (updatingExternalGrade)
+			externallyMaintainedImportMsg.append(getLocalizedString("import_assignment_externally_maintained_grades",
+					new String[] {assignment.getName(), assignment.getExternalAppName()}) + "<br/>");
 		
 		return updatedGradeRecords;
     }
