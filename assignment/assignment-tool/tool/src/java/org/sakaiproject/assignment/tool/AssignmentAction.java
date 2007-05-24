@@ -1307,16 +1307,6 @@ public class AssignmentAction extends PagedResourceActionII
 		if (state.getAttribute(ANNOUNCEMENT_CHANNEL) != null)
 			context.put("name_CheckAutoAnnounce", ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE);
 		context.put("name_CheckAddHonorPledge", NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE);
-
-		// offer the gradebook integration choice only in the Assignments with Grading tool
-		boolean withGrade = ((Boolean) state.getAttribute(WITH_GRADES)).booleanValue();
-		if (withGrade)
-		{
-			context.put("name_Addtogradebook", NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
-			context.put("name_AssociateGradebookAssignment", AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-		}
-		// gradebook integration
-		context.put("withGradebook", Boolean.valueOf(isGradebookDefined()));
 		
 		// number of resubmissions allowed
 		context.put("name_allowResubmitNumber", AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
@@ -1391,29 +1381,53 @@ public class AssignmentAction extends PagedResourceActionII
 			GradebookService g = (GradebookService) (org.sakaiproject.service.gradebook.shared.GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
 			String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
 
-			// get all assignments in Gradebook
-			List gradebookAssignments = g.getAssignments(gradebookUid);
-			List gradebookAssignmentsExceptSamigo = new Vector();
-
-			// filtering out those from Samigo
-			for (Iterator i=gradebookAssignments.iterator(); i.hasNext();)
+			try
 			{
-				org.sakaiproject.service.gradebook.shared.Assignment gAssignment = (org.sakaiproject.service.gradebook.shared.Assignment) i.next();
-				if (!gAssignment.isExternallyMaintained() || gAssignment.isExternallyMaintained() && gAssignment.getExternalAppName().equals(getToolTitle()))
+				// get all assignments in Gradebook
+				List gradebookAssignments = g.getAssignments(gradebookUid);
+				List gradebookAssignmentsExceptSamigo = new Vector();
+	
+				// filtering out those from Samigo
+				for (Iterator i=gradebookAssignments.iterator(); i.hasNext();)
 				{
-					gradebookAssignmentsExceptSamigo.add(gAssignment);
+					org.sakaiproject.service.gradebook.shared.Assignment gAssignment = (org.sakaiproject.service.gradebook.shared.Assignment) i.next();
+					if (!gAssignment.isExternallyMaintained() || gAssignment.isExternallyMaintained() && gAssignment.getExternalAppName().equals(getToolTitle()))
+					{
+						gradebookAssignmentsExceptSamigo.add(gAssignment);
+					}
 				}
+				context.put("gradebookAssignments", gradebookAssignmentsExceptSamigo);
+				if (StringUtil.trimToNull((String) state.getAttribute(AssignmentService.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK)) == null)
+				{
+					state.setAttribute(AssignmentService.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, AssignmentService.GRADEBOOK_INTEGRATION_NO);
+				}
+				
+				context.put("withGradebook", Boolean.TRUE);
+				
+				// offer the gradebook integration choice only in the Assignments with Grading tool
+				boolean withGrade = ((Boolean) state.getAttribute(WITH_GRADES)).booleanValue();
+				if (withGrade)
+				{
+					context.put("name_Addtogradebook", AssignmentService.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
+					context.put("name_AssociateGradebookAssignment", AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+				}
+				
+				context.put("gradebookChoice", state.getAttribute(AssignmentService.NEW_ASSIGNMENT_ADD_TO_GRADEBOOK));
+				context.put("gradebookChoice_no", AssignmentService.GRADEBOOK_INTEGRATION_NO);
+				context.put("gradebookChoice_add", AssignmentService.GRADEBOOK_INTEGRATION_ADD);
+				context.put("gradebookChoice_associate", AssignmentService.GRADEBOOK_INTEGRATION_ASSOCIATE);
+				context.put("associateGradebookAssignment", state.getAttribute(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
 			}
-			context.put("gradebookAssignments", gradebookAssignmentsExceptSamigo);
+			catch (Exception e)
+			{
+				// not able to link to Gradebook
+				Log.warn("chef", this + e.getMessage());
+			}
+			
 			if (StringUtil.trimToNull((String) state.getAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK)) == null)
 			{
 				state.setAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, AssignmentService.GRADEBOOK_INTEGRATION_NO);
 			}
-			context.put("gradebookChoice", state.getAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK));
-			context.put("gradebookChoice_no", AssignmentService.GRADEBOOK_INTEGRATION_NO);
-			context.put("gradebookChoice_add", AssignmentService.GRADEBOOK_INTEGRATION_ADD);
-			context.put("gradebookChoice_associate", AssignmentService.GRADEBOOK_INTEGRATION_ASSOCIATE);
-			context.put("associateGradebookAssignment", state.getAttribute(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
 		}
 
 		context.put("monthTable", monthTable());
