@@ -381,30 +381,52 @@
 															#set($allowResubmitCloseTime=$!TimeService.newTime($!LongObject.parseLong($!allowResubmitCloseTimeString)))
 														#end
 													#end
-													## if not submitted or returned and still allowed to submit within the due time
-													#if (($!submissionReturned && !$!allowResubmitNumber.equals("0") && $!allowResubmitCloseTime && $currentTime.before($!allowResubmitCloseTime)) || !$!submissionSubmitted)
-														## go to view submission page when (1) submission has been returned and allow for resubmit;(2)submission has not been posted yet.
-														<h4><a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</a></h4>
-													#else
-														#if ($taggable)
-															$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)
-															<div class="itemAction">
+												#end
+												#if ($taggable)
+													$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)
+													<div class="itemAction">
+														## for those who can submit
+														#if ($!submission && $!submitTime)
+															## if not submitted or returned and still allowed to submit within the due time
+															#if (($!submissionReturned && !$!allowResubmitNumber.equals("0") && $!allowResubmitCloseTime && $currentTime.before($!allowResubmitCloseTime)) || !$!submissionSubmitted)
+																## go to view submission page when (1) submission has been returned and allow for resubmit;(2)submission has not been posted yet.
+																<a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">$!tlang.getString("viewsubmission")</a>
+															#else
 																<a href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submission.Reference)")">$!tlang.getString("viewsubmission")</a>
-																#foreach ($provider in $providers)
-																	#set ($item = $producer.getItem($submission, $user.getId()))
-																	#set ($helperInfo = false)
-																	#set ($helperInfo = $provider.getItemHelperInfo($item.reference))
-																	#if ($helperInfo)
-																		| <a href="#toolLinkParam("$action" "doHelp_item" "itemRef=$validator.escapeUrl($item.reference)&providerId=$validator.escapeUrl($provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
-																	#end
+															#end
+														#else
+															<a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">$!tlang.getString("viewsubmission")</a>
+														#end
+														#foreach ($provider in $providers)
+															#set ($activityHelperInfo = false)
+															#set ($activity = $producer.getActivity($assignment))
+															#set ($activityHelperInfo = $provider.getActivityHelperInfo($activity.reference))
+															#if ($activityHelperInfo)
+																| <a href="#toolLinkParam("$action" "doHelp_activity" "activityRef=$validator.escapeUrl($activity.reference)&providerId=$validator.escapeUrl($provider.id)")" title="$!activityHelperInfo.description">$!activityHelperInfo.name</a>
+															#end
+															#if ($!submission)
+																#set ($itemHelperInfo = false)
+																#set ($item = $producer.getItem($submission, $user.getId()))
+																#set ($itemHelperInfo = $provider.getItemHelperInfo($item.reference))
+																#if ($itemHelperInfo)
+																	| <a href="#toolLinkParam("$action" "doHelp_item" "itemRef=$validator.escapeUrl($item.reference)&providerId=$validator.escapeUrl($provider.id)")" title="$!itemHelperInfo.description">$!itemHelperInfo.name</a>
 																#end
-															</div>
+															#end
+														#end
+													</div>
+												#else
+													## for those who can submit
+													#if ($!submission && $!submitTime)
+														## if not submitted or returned and still allowed to submit within the due time
+														#if (($!submissionReturned && !$!allowResubmitNumber.equals("0") && $!allowResubmitCloseTime && $currentTime.before($!allowResubmitCloseTime)) || !$!submissionSubmitted)
+															## go to view submission page when (1) submission has been returned and allow for resubmit;(2)submission has not been posted yet.
+															<h4><a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</a></h4>
 														#else
 															<h4><a href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submission.Reference)")">$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</a></h4>														
 														#end
+													#else
+														<h4><a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</a></h4>
 													#end
-												#else
-													<h4><a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</a></h4>
 												#end
 											#else
 												<a href="#toolLinkParam("AssignmentAction" "doView_assignment_as_student" "assignmentId=$assignment.Reference")">$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</a></h4>
