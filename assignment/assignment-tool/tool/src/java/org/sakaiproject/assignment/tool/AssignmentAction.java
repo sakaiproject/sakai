@@ -3798,8 +3798,8 @@ public class AssignmentAction extends PagedResourceActionII
 				{
 					if ((gradePoints.length() == 0))
 					{
-						// in case of releasing grade, user must specify a grade
-						addAlert(state, rb.getString("plespethe2"));
+						// in case of point grade assignment, user must specify maximum grade point
+						addAlert(state, rb.getString("plespethe3"));
 					}
 					else
 					{
@@ -6124,7 +6124,7 @@ public class AssignmentAction extends PagedResourceActionII
 				{
 					if ((grade.length() == 0))
 					{
-						if (gradeOption.equals("release"))
+						if (gradeOption.equals("release") || gradeOption.equals("return"))
 						{
 							// in case of releasing grade, user must specify a grade
 							addAlert(state, rb.getString("plespethe2"));
