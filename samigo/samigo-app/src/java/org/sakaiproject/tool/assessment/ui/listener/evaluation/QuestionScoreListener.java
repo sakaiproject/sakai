@@ -557,7 +557,7 @@ public class QuestionScoreListener implements ActionListener,
 						if (answerText.equals("true")) {
 							answerText = rb.getString("true_msg");
 						}
-						else {
+						else if (answerText.equals("false")) {
 							answerText = rb.getString("false_msg");
 						}
 					}
