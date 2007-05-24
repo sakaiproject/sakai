@@ -303,20 +303,9 @@
 							$cheffeedbackhelper.escapeAssignmentFeedback($feedbackText)
 						</div>
 						#end
-<<<<<<< .working
-						<table border="0" summary="layout"><tr><td>
-						<textarea cols="80" rows="30" wrap="virtual" name="$name_submission_text" id="$name_submission_text" #if(!$allowSubmit)disabled="disabled"#end >#if($!value_submission_text)$validator.escapeHtmlFormattedTextarea($!value_submission_text)#end</textarea>						
-						#chef_setupformattedtextarea($name_submission_text)
-						</td></tr></table>
-					#end
-				#elseif ($returned)
-						#if ($!timeSubmitted && $!timeReturned && $!timeReturned.after($!timeSubmitted))
-							<h4>$tlang.getString("gen.orisub2")</h4>
-=======
 						## for returned submission, show the instructor commented text as well
 						#if ($!prevFeedbackText)
 							<h4>$tlang.getString("gradingsub.prefeetex")</h4>
->>>>>>> .merge-right.r28153
 							<div class="textPanel">
 								$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackText))
 							</div>

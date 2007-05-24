@@ -1130,7 +1130,7 @@ public class AssignmentAction extends PagedResourceActionII
 		for (int i = 0; i < assignments.size(); i++)
 		{
 			Assignment a = (Assignment) assignments.get(i);
-			if (a.getContent().getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
+			if (a.getContent() != null && a.getContent().getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
 			{
 				List allowAddSubmissionUsers = AssignmentService.allowAddSubmissionUsers(a.getReference());
 				List submissions = AssignmentService.getSubmissions(a);
