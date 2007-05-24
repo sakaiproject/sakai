@@ -565,10 +565,10 @@
 							<input
 								type="button"
 								class="active"
-								#if (!$submitted)
-									#set($name = $tlang.getString("gen.subm3"))
-								#else
+								#if ($submitted && $!timeSubmitted)
 									#set($name=$tlang.getString("resubmit"))
+								#else
+									#set($name=$tlang.getString("gen.subm3"))
 								#end
 								name="post"
 								accesskey="s"
