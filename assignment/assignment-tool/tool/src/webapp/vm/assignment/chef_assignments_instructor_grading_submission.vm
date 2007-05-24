@@ -446,7 +446,7 @@
 						<label for="new_assignment_closemonth">
 							$tlang.getString("gen.acesubunt")
 						</label>
-						#chef_dateselectionwidget($name_CloseYear $name_CloseMonth $name_CloseDay 2002 2007 $value_CloseYear $value_CloseMonth $value_CloseDay)
+						#chef_dateselectionwidget($name_CloseYear $name_CloseMonth $name_CloseDay $!value_year_from $!value_year_to $value_CloseYear $value_CloseMonth $value_CloseDay)
 						$tlang.getString("gen.at") 
 						<select name="$name_CloseHour" id="$name_CloseHour">
 							#foreach ($i in [1..12])

@@ -431,6 +431,10 @@ public class AssignmentAction extends PagedResourceActionII
 
 	private static final String NEW_ASSIGNMENT_GROUPS = "new_assignment_groups";
 	
+	/**************************** assignment year range *************************/
+	private static final String NEW_ASSIGNMENT_YEAR_RANGE_FROM = "new_assignment_year_range_from";
+	private static final String NEW_ASSIGNMENT_YEAR_RANGE_TO = "new_assignment_year_range_to";
+	
 	// submission level of resubmit due time
 	private static final String ALLOW_RESUBMIT_CLOSEMONTH = "allow_resubmit_closeMonth";
 	private static final String ALLOW_RESUBMIT_CLOSEDAY = "allow_resubmit_closeDay";
@@ -1318,6 +1322,8 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("name_allowResubmitNumber", AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
 		
 		// set the values
+		context.put("value_year_from", state.getAttribute(NEW_ASSIGNMENT_YEAR_RANGE_FROM));
+		context.put("value_year_to", state.getAttribute(NEW_ASSIGNMENT_YEAR_RANGE_TO));
 		context.put("value_title", state.getAttribute(NEW_ASSIGNMENT_TITLE));
 		context.put("value_position_order", state.getAttribute(NEW_ASSIGNMENT_ORDER));
 		context.put("value_OpenMonth", state.getAttribute(NEW_ASSIGNMENT_OPENMONTH));
@@ -1732,6 +1738,8 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("name_allowResubmitNumber", AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
 
 		// values
+		context.put("value_year_from", state.getAttribute(NEW_ASSIGNMENT_YEAR_RANGE_FROM));
+		context.put("value_year_to", state.getAttribute(NEW_ASSIGNMENT_YEAR_RANGE_TO));
 		context.put("value_grade_assignment_id", state.getAttribute(GRADE_SUBMISSION_ASSIGNMENT_ID));
 		context.put("value_feedback_comment", state.getAttribute(GRADE_SUBMISSION_FEEDBACK_COMMENT));
 		context.put("value_feedback_text", state.getAttribute(GRADE_SUBMISSION_FEEDBACK_TEXT));
@@ -6437,6 +6445,16 @@ public class AssignmentAction extends PagedResourceActionII
 		if (state.getAttribute(ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DEFAULT) == null)
 		{
 			state.setAttribute(ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DEFAULT, ServerConfigurationService.getString(ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_DEFAULT, Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_NONE));
+		}
+		
+		if (state.getAttribute(NEW_ASSIGNMENT_YEAR_RANGE_FROM) == null)
+		{
+			state.setAttribute(NEW_ASSIGNMENT_YEAR_RANGE_FROM, new Integer(2002));
+		}
+		
+		if (state.getAttribute(NEW_ASSIGNMENT_YEAR_RANGE_TO) == null)
+		{
+			state.setAttribute(NEW_ASSIGNMENT_YEAR_RANGE_TO, new Integer(2012));
 		}
 	} // initState
 
