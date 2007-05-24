@@ -4,11 +4,12 @@
         <%--TODO: determine how to make menu option unlinked not using this hack --%>
         <h:inputHidden id="pageName" value="#{spreadsheetUploadBean.unknownSize}#{spreadsheetUploadBean.pageName}" />
         
-        <h:form>
  		<%-- This form ends after step 1 since want to bypass validation of Step 3 --%>
+        <h:form>
               <t:aliasBean alias="#{bean}" value="#{spreadsheetUploadBean}">
                 <%@include file="/inc/appMenu.jspf"%>
             </t:aliasBean>
+
             <sakai:flowState bean="#{spreadsheetUploadBean}" />
  
            <h2><h:outputText value="#{msgs.import_entire_main_title}"/></h2>

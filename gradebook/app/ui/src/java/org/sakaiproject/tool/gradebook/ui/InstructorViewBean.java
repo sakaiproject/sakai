@@ -148,7 +148,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 		else
 			pageTitle = getLocalizedString("roster_page_title");
 
-		return getLocalizedString("inst_view_return_to", new String[] {pageTitle});
+		return pageTitle;
 	}
 	
 	/**

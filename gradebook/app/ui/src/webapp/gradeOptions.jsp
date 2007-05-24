@@ -86,11 +86,15 @@
 				id="saveButton"
 				styleClass="active"
 				value="#{msgs.feedback_options_submit}"
-				action="#{feedbackOptionsBean.save}" />
+				action="#{feedbackOptionsBean.save}" >
+				<f:param name="pageName" value="gradebookSetup" />
+			</h:commandButton>
 			<h:commandButton
 				value="#{msgs.feedback_options_cancel}"
 				action="#{feedbackOptionsBean.cancel}"
-				immediate="true" />
+				immediate="true" >
+				<f:param name="pageName" value="gradebookSetup" />
+			</h:commandButton>
 		</p>
 
 	</h:form>
