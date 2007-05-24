@@ -649,7 +649,7 @@ public class UserPrefsTool
 		if (values.length < 1)
 		{
 			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage("Please select a site to add to Sites Visible in Tabs."));
+					new FacesMessage(msgs.getString("add_to_sites_msg")));
 			return "tab";
 		}
 
@@ -674,7 +674,7 @@ public class UserPrefsTool
 		if (values.length < 1)
 		{
 			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage("Please select a site to remove from Sites Visible in Tabs."));
+					new FacesMessage(msgs.getString("remove_from_sites_msg")));
 			return "tab";
 		}
 
@@ -728,7 +728,7 @@ public class UserPrefsTool
 		String[] selvalues = getSelectedOrderItems();
 		if (!(selvalues.length == 1))
 		{
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Please select one site to move up."));
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(msgs.getString("move_up_msg")));
 			return "tab";
 		}
 		int itmPos = 0;
@@ -772,7 +772,7 @@ public class UserPrefsTool
 		String[] values = getSelectedOrderItems();
 		if (!(values.length == 1))
 		{
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Please select one site to move down."));
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(msgs.getString("move_down_msg")));
 			return "tab";
 		}
 		SelectItem swapDataSite = null;
@@ -812,7 +812,7 @@ public class UserPrefsTool
 
 		if (!hasValue(getUserId()))
 		{
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("UserId is missing."));
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(msgs.getString("user_missing")));
 			return null;
 		}
 		tabUpdated = false; // Reset display of text message on JSP
