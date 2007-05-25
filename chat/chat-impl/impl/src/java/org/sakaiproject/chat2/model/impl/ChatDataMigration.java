@@ -33,6 +33,8 @@ import java.util.Date;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
@@ -241,7 +243,8 @@ public class ChatDataMigration {
                   String oldChannelId = rs.getString("CHANNEL_ID");
                   Object xml = rs.getObject("XML");
                   String owner = rs.getString("OWNER");
-                  Date messageDate = rs.getTimestamp("MESSAGE_DATE");
+                  // Date messageDate = rs.getTimestamp("MESSAGE_DATE");
+                  Time messageDate = TimeService.newTime(rs.getTimestamp("MESSAGE_DATE").getTime());
                   
                   printDebug("*******FOUND MESSAGE: " + oldMessageId);
                   printDebug("*******FOUND MESSAGE: " + xml);
