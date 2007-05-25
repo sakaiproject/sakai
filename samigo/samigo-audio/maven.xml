@@ -22,4 +22,18 @@
   </copy>
 </preGoal >
 
+<!--replace the storepass and keystore location -->
+<!--
+<postGoal name="jar:jar">
+  <ant:signjar 
+	alias="coursework" 
+        keystore="/afs/ir/dev/sakai/java/your.keystore" 
+	storepass="yourpassword">
+        <ant:fileset dir="target"> 
+          <ant:include name="*.jar" />
+        </ant:fileset>
+  </ant:signjar>
+</postGoal>
+-->
+
 </project>
