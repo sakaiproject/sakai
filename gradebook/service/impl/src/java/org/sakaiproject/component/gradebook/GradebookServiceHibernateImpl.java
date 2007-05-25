@@ -583,6 +583,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   	list().iterator();
 
   	Set assignmentsTaken = new HashSet();
+  	Set categoryTaken = new HashSet();
   	while (scoresIter.hasNext()) {
   		Object[] returned = (Object[])scoresIter.next();
   		Double pointsEarned = (Double)returned[0];
@@ -604,6 +605,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   					if(cate != null && !cate.isRemoved() && go.getCategory() != null && cate.getId().equals(go.getCategory().getId()))
   					{
   						assignmentsTaken.add(go.getId());
+  						categoryTaken.add(cate.getId());
   						break;
   					}
   				}
@@ -615,7 +617,15 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   	{
   		if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY)
   		{
-  			return 1.0;
+    		for(int i=0; i<categories.size(); i++)
+    		{
+    			Category cate = (Category) categories.get(i);
+    			if(cate != null && !cate.isRemoved() && categoryTaken.contains(cate.getId()) )
+    			{
+    				totalPointsPossible += cate.getWeight().doubleValue();
+    			}
+    		}
+    		return totalPointsPossible;
   		}
   		Iterator assignmentIter = assgnsList.iterator();
   		while (assignmentIter.hasNext()) {
