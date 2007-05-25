@@ -92,11 +92,34 @@
 			</h:panelGroup>	
 		</h:panelGrid>
 		
-		<h4>
-			<h:outputText value="#{msgs.inst_view_grading_table}" />
-		</h4>
-		
 		<%@include file="/inc/globalMessages.jspf"%>
+		
+		<div>
+			<div class="act" style="display: inline;float: left;">
+			<h4 >
+				<h:outputText value="#{msgs.inst_view_grading_table}" />
+			</h4>
+			</div>
+			<div class="act gbButtonBar">
+					<h:commandButton
+						id="saveButton2"
+						styleClass="active"
+						value="#{msgs.inst_view_save}"
+						action="#{instructorViewBean.processUpdateScores}"
+						accesskey="s"
+						tabindex="9998"
+						title="#{msgs.inst_view_save}"/>
+					<h:commandButton
+						id="clearButton2"
+						value="#{msgs.inst_view_clear}"
+						action=""
+						immediate="true"
+						accesskey="c"
+						tabindex="9999"
+						title="#{msgs.inst_view_clear}"/>
+				</div>
+			</div>
+
 		
 		<gbx:gradebookItemTable cellpadding="0" cellspacing="0"
 				value="#{instructorViewBean.gradebookItems}"
@@ -244,9 +267,9 @@
 		  </t:aliasBean>
 		
 		
-			<div class="act">
+			<div class="act gbButtonBar">
 				<h:commandButton
-					id="saveButton"
+					id="saveButton1"
 					styleClass="active"
 					value="#{msgs.inst_view_save}"
 					action="#{instructorViewBean.processUpdateScores}"
@@ -254,6 +277,7 @@
 					tabindex="9998"
 					title="#{msgs.inst_view_save}"/>
 				<h:commandButton
+					id="clearButton1"
 					value="#{msgs.inst_view_clear}"
 					action=""
 					immediate="true"

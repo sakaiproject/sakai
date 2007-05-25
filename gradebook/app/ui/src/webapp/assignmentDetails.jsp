@@ -130,6 +130,31 @@
 		<t:aliasBean alias="#{bean}" value="#{assignmentDetailsBean}">
 			<%@include file="/inc/filterPaging.jspf"%>
 		</t:aliasBean>
+		
+		<div class="act gbButtonBar">
+			<h:commandButton
+				id="saveButton1"
+				styleClass="active"
+				value="#{msgs.assignment_details_submit}"
+				actionListener="#{assignmentDetailsBean.processUpdateScores}"
+				disabled="#{assignmentDetailsBean.assignment.externallyMaintained}"
+				rendered="#{!assignmentDetailsBean.emptyEnrollments}"
+				accesskey="s"
+				tabindex="9998"
+				title="#{msgs.assignment_details_submit}"/>
+			<h:commandButton
+				id="cancelButton1"
+				value="#{msgs.assignment_details_cancel}"
+				action="assignmentDetails"
+				disabled="#{assignmentDetailsBean.assignment.externallyMaintained}"
+				rendered="#{!assignmentDetailsBean.emptyEnrollments}"
+				accesskey="c"
+				immediate="true"
+				tabindex="9999"
+				title="#{msgs.assignment_details_cancel}">
+					<f:param name="breadcrumbPage" value="#{assignmentDetailsBean.breadcrumbPage}" />
+			</h:commandButton>
+		</div>
 
 		<t:dataTable cellpadding="0" cellspacing="0"
 			id="gradingTable"
@@ -233,31 +258,33 @@
 		<p class="instruction">
 			<h:outputText value="#{msgs.assignment_details_no_enrollments}" rendered="#{assignmentDetailsBean.emptyEnrollments}" />
 		</p>
-
-		</div> <!-- END OF INDNT1 -->
-
-		<p class="act">
+		
+		<div class="act gbButtonBar">
 			<h:commandButton
-				id="saveButton"
+				id="saveButton2"
 				styleClass="active"
 				value="#{msgs.assignment_details_submit}"
 				actionListener="#{assignmentDetailsBean.processUpdateScores}"
 				disabled="#{assignmentDetailsBean.assignment.externallyMaintained}"
 				rendered="#{!assignmentDetailsBean.emptyEnrollments}"
-				accesskey="s"
 				tabindex="9998"
 				title="#{msgs.assignment_details_submit}"/>
 			<h:commandButton
+				id="cancelButton2"
 				value="#{msgs.assignment_details_cancel}"
-				action="#{assignmentDetailsBean.processCancel}"
+				action="assignmentDetails"
+				immediate="true"
 				disabled="#{assignmentDetailsBean.assignment.externallyMaintained}"
 				rendered="#{!assignmentDetailsBean.emptyEnrollments}"
-				accesskey="c"
 				tabindex="9999"
 				title="#{msgs.assignment_details_cancel}">
 					<f:param name="breadcrumbPage" value="#{assignmentDetailsBean.breadcrumbPage}" />
 			</h:commandButton>
-		</p>
+		</div>
+
+		</div> <!-- END OF INDNT1 -->
+
+		
 	</h:form>
   </div>
 </f:view>
