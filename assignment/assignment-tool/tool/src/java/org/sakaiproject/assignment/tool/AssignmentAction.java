@@ -106,7 +106,9 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FileItem;
@@ -8633,6 +8635,11 @@ public class AssignmentAction extends PagedResourceActionII
 		else if (option.equals("attach"))
 		{
 			// attach
+			ToolSession toolSession = SessionManager.getCurrentToolSession();
+			String userId = SessionManager.getCurrentSessionUserId();
+			String siteId = SiteService.getUserSiteId(userId);
+	        String collectionId = ContentHostingService.getSiteCollection(siteId);
+	        toolSession.setAttribute(FilePickerHelper.DEFAULT_COLLECTION_ID, collectionId);
 			doAttachments(data);
 		}
 	}
