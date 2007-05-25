@@ -25,7 +25,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.sakaiproject.entity.api.EntitySummary;
-import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.exception.PermissionException;
 
 
@@ -195,5 +194,12 @@ public interface ChatManager extends EntitySummary {
    public String serviceName();
    
    public String getLabel();
+   
+   /**
+    * Insert migrated message data
+    * @param sql sql statement to run
+    * @param values Object[] of data to bind into the sql statement
+    */
+   public void migrateMessage(String sql, Object[] values);
    
 }

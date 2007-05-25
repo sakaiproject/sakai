@@ -23,6 +23,7 @@ package org.sakaiproject.chat2.model.impl;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -38,6 +39,7 @@ import java.util.Observer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
@@ -310,6 +312,62 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
    public void updateMessage(ChatMessage message)
    {
       getHibernateTemplate().saveOrUpdate(message);
+   }
+   
+   /**
+    * {@inheritDoc}
+    */
+   public void migrateMessage(String sql, Object[] values) {
+      Connection connection = null;
+      PreparedStatement stmt = null;
+      Session session = getSession();
+      //String statement = "insert into CHAT2_MESSAGE (MESSAGE_ID, CHANNEL_ID, OWNER, MESSAGE_DATE, BODY, migratedMessageId) " +
+      //   "select ?, ?, ?, ?, ?, ? from dual where not exists " +  
+      //   "(select * from CHAT2_MESSAGE m2 where m2.migratedMessageId=?)";
+      try {
+         connection = session.connection();
+         stmt = connection.prepareStatement(sql);
+         stmt.setString(1, (String)values[0]);
+         stmt.setString(2, (String)values[1]);
+         stmt.setString(3, (String)values[2]);
+         stmt.setObject(4, (Date)values[3]);
+         stmt.setString(5, (String)values[4]);
+         stmt.setString(6, (String)values[5]);
+         stmt.setString(7, (String)values[5]);
+         
+         
+         stmt.execute();
+      } catch (SQLException e) {
+         logger.error("",e);
+         //throw new OspException(e);
+      } catch (HibernateException e) {
+         logger.error("",e);
+         //throw new OspException(e);
+      } finally {
+         if (stmt != null) {
+            //ensure the statement is closed
+            try {
+               stmt.close();
+            } 
+            catch (Exception e) {
+               if (logger.isDebugEnabled()) {
+                  logger.debug(e);
+               }
+            }
+         }
+         if (connection != null) {
+            //ensure the connection is closed
+            //as of hibernate 3.1 we are responsible for this here
+            try {
+                connection.close();  
+            } 
+            catch (Exception e) {
+               if (logger.isDebugEnabled()) {
+                  logger.debug(e);
+               }
+            }
+         }         
+      }
    }
    
    /**

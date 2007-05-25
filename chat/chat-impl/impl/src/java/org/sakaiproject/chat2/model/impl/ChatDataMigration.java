@@ -32,9 +32,8 @@ import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.chat2.model.ChatManager;
 import org.sakaiproject.db.api.SqlService;
-import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
@@ -52,6 +51,7 @@ public class ChatDataMigration {
    private boolean debug = false;
    
    private SqlService sqlService = null;
+   private ChatManager chatManager = null;
    
    private Statement stmt;
    
@@ -243,8 +243,7 @@ public class ChatDataMigration {
                   String oldChannelId = rs.getString("CHANNEL_ID");
                   Object xml = rs.getObject("XML");
                   String owner = rs.getString("OWNER");
-                  // Date messageDate = rs.getTimestamp("MESSAGE_DATE");
-                  Time messageDate = TimeService.newTime(rs.getTimestamp("MESSAGE_DATE").getTime());
+                  Date messageDate = rs.getTimestamp("MESSAGE_DATE");
                   
                   printDebug("*******FOUND MESSAGE: " + oldMessageId);
                   printDebug("*******FOUND MESSAGE: " + xml);
@@ -266,7 +265,7 @@ public class ChatDataMigration {
                   String runSql = getMessageFromBundle("insert.message");
                   
                   Object[] fields = new Object[] {
-                        escapeSpecialCharsForId(newMessageId), escapeSpecialCharsForId(oldChannelId), owner, messageDate, body, oldMessageId, oldMessageId};
+                        escapeSpecialCharsForId(newMessageId), escapeSpecialCharsForId(oldChannelId), owner, messageDate, body, oldMessageId};
                   
                   /*
                    * insert into CHAT2_MESSAGE (MESSAGE_ID, CHANNEL_ID, OWNER, MESSAGE_DATE, BODY) \
@@ -274,8 +273,8 @@ public class ChatDataMigration {
                   
                   */
                   
-                  if (chatMigrationExecuteImmediate) {
-                     sqlService.dbWrite(null, runSql, fields);
+                  if (chatMigrationExecuteImmediate) {                
+                     getChatManager().migrateMessage(runSql, fields);                     
                   }
                }
            } finally {
@@ -358,6 +357,14 @@ public class ChatDataMigration {
 
    public void setSqlService(SqlService sqlService) {
       this.sqlService = sqlService;
+   }
+
+   public ChatManager getChatManager() {
+      return chatManager;
+   }
+
+   public void setChatManager(ChatManager chatManager) {
+      this.chatManager = chatManager;
    }
    
 }

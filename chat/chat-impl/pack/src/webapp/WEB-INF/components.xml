@@ -68,6 +68,7 @@
 		destroy-method="destroy"
 		singleton="true">
       <property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+      <property name="chatManager"><ref bean="org.sakaiproject.chat2.model.ChatManager"/></property>
       <property name="performChatMigration">
     		<value>false</value>
     	</property>
