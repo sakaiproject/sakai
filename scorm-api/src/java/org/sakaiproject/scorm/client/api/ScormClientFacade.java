@@ -27,11 +27,14 @@ import java.util.List;
 import org.adl.api.ecmascript.IErrorManager;
 import org.adl.sequencer.ISequencer;
 import org.adl.validator.IValidatorOutcome;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.MultiFileUploadPipe;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.HttpAccess;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.scorm.model.api.ContentPackageManifest;
 
 public interface ScormClientFacade extends EntityProducer, Serializable {
 	public static final String REFERENCE_ROOT = Entity.SEPARATOR + "scorm";
@@ -39,6 +42,17 @@ public interface ScormClientFacade extends EntityProducer, Serializable {
 	public static final String SCORM_HELPER_ID="sakai.helper.tool";
 	
 	public List getContentPackages();
+	
+	//public String addContentPackage(File contentPackage, String mimeType);
+	
+	public IValidatorOutcome validateContentPackage(File contentPackage, boolean doValidateSchema);
+
+	public ContentResource addManifest(ContentPackageManifest manifest, String id);
+	
+	public ISequencer getSequencer(ContentPackageManifest manifest);
+	
+	
+	public ContentPackageManifest getManifest(String id);
 	
 	//public String getContext();
 	
@@ -67,8 +81,5 @@ public interface ScormClientFacade extends EntityProducer, Serializable {
 	public String getConfigurationString(String key, String defaultValue);
 	
 	public IErrorManager getErrorManager();
-	
-	public IValidatorOutcome validateContentPackage(File contentPackage);
-	
 	
 }
