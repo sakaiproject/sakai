@@ -74,6 +74,11 @@ public class ScormContentType implements ResourceType {
 			{
 				return SCORM_UPLOAD_LABEL; 
 			}
+	    	
+	    	public void finalizeAction(Reference reference, String initializationId) 
+			{
+	    		log.warn("Finalizing upload action for scorm content!");
+			}
 	    };   
 	    ResourceToolAction launch = new ScormLaunchAction();
 	    ResourceToolAction remove = new BaseServiceLevelAction(ResourceToolAction.DELETE, ResourceToolAction.ActionType.DELETE, SCORM_CONTENT_TYPE_ID, false);
@@ -145,7 +150,7 @@ public class ScormContentType implements ResourceType {
 	}
 
 	public boolean hasGroupsDialog() {
-		return false;
+		return true;
 	}
 
 	public boolean hasNotificationDialog() {

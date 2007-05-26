@@ -60,8 +60,9 @@ import java.io.Serializable;
  */
 public class SeqRule implements Serializable, ISeqRule
 {
+	private static final long serialVersionUID = -8090230866628470772L;
 
-   /**
+/**
     * Enumeration of possible sequencing rule actions -- 
     *    This value is only as a place holder.
     * <br>No Action 

@@ -2,6 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="adl/src/java"/>
 	<classpathentry kind="src" path="client/src/java"/>
+	<classpathentry kind="src" path="model/src/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="MAVEN_REPO/joda-time/jars/joda-time-1.4.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/plugin/jars/plugin.jar"/>
@@ -19,5 +20,6 @@
 	<classpathentry kind="src" path="/user-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/util-api"/>
 	<classpathentry kind="src" path="/content-util"/>
+	<classpathentry kind="var" path="MAVEN_REPO/xstream/jars/xstream-1.2.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
