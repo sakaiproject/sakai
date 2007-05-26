@@ -222,6 +222,11 @@ public class ADLLaunch implements ILaunch
    public IValidRequests getNavState() {
 	   return mNavState;
    }
+
+   public String getSco() {
+	   return mStateID;
+   }
+   
    
    
    /**

@@ -20,10 +20,15 @@
  **********************************************************************************/
 package org.sakaiproject.scorm.client.impl;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.LinkedList;
@@ -34,8 +39,11 @@ import java.util.Stack;
 
 import org.adl.api.ecmascript.APIErrorManager;
 import org.adl.api.ecmascript.IErrorManager;
+import org.adl.parsers.dom.DOMTreeUtility;
+import org.adl.sequencer.ADLSeqUtilities;
 import org.adl.sequencer.ADLSequencer;
 import org.adl.sequencer.ADLValidRequests;
+import org.adl.sequencer.ISeqActivityTree;
 import org.adl.sequencer.ISequencer;
 import org.adl.sequencer.SeqActivityTree;
 import org.adl.validator.IValidatorOutcome;
@@ -43,6 +51,9 @@ import org.adl.validator.contentpackage.CPValidator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentEntity;
+import org.sakaiproject.content.api.ContentHostingHandlerResolver;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
@@ -56,7 +67,10 @@ import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.scorm.client.api.ScormClientFacade;
+import org.sakaiproject.scorm.model.ContentPackageManifestImpl;
+import org.sakaiproject.scorm.model.api.ContentPackageManifest;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
@@ -64,6 +78,11 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.DomDriver;
 
 public class ScormClientFacadeImpl implements ScormClientFacade {
 	private static Log log = LogFactory.getLog(ScormClientFacadeImpl.class);
@@ -85,20 +104,7 @@ public class ScormClientFacadeImpl implements ScormClientFacade {
 		entityManager().registerEntityProducer(this, REFERENCE_ROOT);
 	}
 	
-	public List getContentPackages() {
-		/*List<ContentCollection> collections = new LinkedList<ContentCollection>();
-		Map<String, String> collectionMap = contentService().getCollectionMap();
-		
-		for (String collectionId : collectionMap.keySet()) {
-			try {
-				ContentCollection collection = contentService().getCollection(collectionId);
-		
-				collections.add(collection);
-			} catch (Exception e) {
-				log.error("Unable to retrieve the content collection for " + collectionId, e);
-			}
-		}*/
-		
+	public List getContentPackages() {		
 		List<ContentResource> allResources = contentService().findResources(null, null, null);
 		List<ContentResource> contentPackages = new LinkedList<ContentResource>();
 		
@@ -109,6 +115,251 @@ public class ScormClientFacadeImpl implements ScormClientFacade {
 		
 		return contentPackages;
 	}
+	
+	public String addContentPackage(File contentPackage, CPValidator validator, IValidatorOutcome outcome) {
+		// Grab the pipe
+		ToolSession toolSession = sessionManager().getCurrentToolSession();	
+		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+		
+		InputStream stream = null;
+		//try {
+			//stream = new FileInputStream(contentPackage);
+			//pipe.setRevisedContentStream(stream);
+			byte[] content = getFileAsBytes(contentPackage);
+			
+            pipe.setRevisedContent(content);
+			pipe.setRevisedMimeType("application/zip");
+            pipe.setFileName(contentPackage.getName());
+            
+            ContentPackageManifest manifest = createManifest(outcome.getDocument(), validator);
+            ContentResource manifestResource = addManifest(manifest, pipe.getContentEntity().getId());
+            String manifestResourceId = manifestResource.getId();
+            
+            pipe.setRevisedResourceProperty(ContentHostingHandlerResolver.CHH_BEAN_NAME, "org.sakaiproject.scorm.client.api.ContentHostingHandler");
+            pipe.setRevisedResourceProperty("MANIFEST_RESOURCE_ID", manifestResourceId);
+            
+            pipe.setActionCanceled(false);
+            pipe.setErrorEncountered(false);
+            pipe.setActionCompleted(true); 
+           
+            toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
+		/*} catch (IOException ioe) {
+			if (null != pipe) {
+				pipe.setActionCanceled(true);
+				pipe.setErrorEncountered(true);
+				pipe.setActionCompleted(false);
+			}
+			log.error("Caught an io exception trying to upload file!", ioe);
+		} finally {
+			if (null != stream)
+				try { 
+					stream.close();
+				} catch (IOException nioe) {
+					log.info("Caught an io exception trying to close stream!", nioe);
+				}
+		}*/
+		
+		/*Object done = toolSession.getAttribute(ResourceToolAction.DONE);
+		if (done != null)
+		{
+			toolSession.removeAttribute(ResourceToolAction.STARTED);
+			Tool tool = toolManager().getCurrentTool();
+		
+			String url = (String) sessionManager().getCurrentToolSession().getAttribute(tool.getId() + Tool.HELPER_DONE_URL);
+		
+			sessionManager().getCurrentToolSession().removeAttribute(tool.getId() + Tool.HELPER_DONE_URL);
+		
+			return url;
+		}*/
+		
+		return pipe.getContentEntity().getId();
+	}
+	
+	public IValidatorOutcome validateContentPackage(File contentPackage, boolean doValidateSchema) {
+		String directoryPath = contentPackage.getParent();
+		CPValidator validator = new CPValidator(directoryPath);
+		validator.setSchemaLocation(directoryPath);
+		validator.setPerformValidationToSchema(doValidateSchema);
+		boolean isValid = validator.validate(contentPackage.getPath(), "pif", "contentaggregation", false);
+
+		IValidatorOutcome outcome = validator.getADLValidatorOutcome();
+		
+		if (isValid) {
+			//ContentPackageManifest manifest = createManifest(outcome.getDocument(), validator);
+			
+			addContentPackage(contentPackage, validator, outcome);
+			
+			//addManifest(manifest, id);
+		}
+		
+		return outcome;
+	}
+	
+
+	
+
+	
+	public ContentResource addManifest(ContentPackageManifest manifest, String id) {
+		
+		ContentResource resource = null;
+		
+		String name = "manifest.obj"; // + manifest.getTitle();
+		String site = getContext();
+		String tool = "scorm";
+		String type = "application/octet-stream";
+		
+		//XStream xstream = new XStream();
+
+		/*try {
+			FileOutputStream outFile = new FileOutputStream("/home/jrenfro/manifest.obj");
+	        ObjectOutputStream s = new ObjectOutputStream(outFile);
+	        s.writeObject(manifest);
+	        s.flush();
+	        s.close();
+	        outFile.close();
+		} catch (IOException ioe) {
+			log.error("Caught an io exception trying to write manifest object to file!", ioe);
+		}*/
+		
+		
+		//String xml = xstream.toXML(manifest);
+		/*ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+		try {
+			ObjectOutputStream out = new ObjectOutputStream(byteOut);
+			out.writeObject(manifest);
+			out.close();
+		} catch (IOException ioe) {
+			log.error("Caught an exception serializing manifest! ", ioe);
+		}*/ 
+		
+		try {
+			//FileInputStream fileIn = new FileInputStream("/home/jrenfro/file.txt");
+			//name = "file.txt";
+			//type = "text/plain";
+			
+			/*int len = 0;
+			byte[] buf = new byte[1024];
+			ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+			
+			while ((len = fileIn.read(buf)) > 0) {
+				byteOut.write(buf,0,len);
+			}
+			
+			fileIn.close();*/
+			
+			ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+			ObjectOutputStream out = new ObjectOutputStream(byteOut);
+			out.writeObject(manifest);
+			out.close();
+			
+			
+			resource = contentService().addAttachmentResource(name, site, tool, type, byteOut.toByteArray(), null);
+		} catch (Exception soe) {
+			log.error("Caught an exception adding an attachment resource!", soe);
+		} finally {
+			//if (null != byteOut)
+			//	try { byteOut.close(); } catch (IOException nioe) { log.warn("Caught io exception closing!"); }
+			
+		}
+		
+		
+		return resource;
+	}
+	
+	
+	public byte[] getFileAsBytes(File file) {
+		int len = 0;
+		byte[] buf = new byte[1024];
+		ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+		
+		try {
+			FileInputStream fileIn = new FileInputStream(file);
+			while ((len = fileIn.read(buf)) > 0) {
+				byteOut.write(buf,0,len);
+			}
+			
+			fileIn.close();
+		} catch (IOException ioe) {
+			log.error("Caught an io exception trying to write file into byte array!", ioe);
+		}
+		
+		return byteOut.toByteArray();
+	}
+	
+	
+	
+	public ContentPackageManifest getManifest(String contentPackageId) {
+		ContentPackageManifest manifest = null;
+		
+		try {
+			ContentResource contentPackageResource = contentService().getResource(contentPackageId);
+			String manifestResourceId = (String)contentPackageResource.getProperties().get("MANIFEST_RESOURCE_ID");
+			ContentResource manifestResource = contentService().getResource(manifestResourceId);
+			
+			byte[] bytes = manifestResource.getContent();
+		
+			ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+			
+			//FileInputStream in = new FileInputStream("/home/jrenfro/manifest.obj");
+	        ObjectInputStream ie = new ObjectInputStream(in);
+	        manifest = (ContentPackageManifest)ie.readObject();
+	        ie.close();
+	        in.close();
+	        
+	        manifest.setUrl(manifestResource.getUrl());
+	        
+	        
+		} catch (Exception ioe) {
+			log.error("Caught io exception reading manifest from file!", ioe);
+		}
+		
+		return manifest;
+	}
+	
+	
+	
+	private ContentPackageManifest createManifest(Document document, CPValidator validator) {
+		ContentPackageManifest manifest = new ContentPackageManifestImpl();
+		
+		Node orgRoot = document.getElementsByTagName("organizations").item(0);
+		String defaultId = DOMTreeUtility.getAttributeValue(orgRoot, "default");
+		
+		NodeList orgs = document.getElementsByTagName("organization");
+
+		Node defaultNode = null;
+		for (int i = 0; i < orgs.getLength(); ++i) {
+			if (DOMTreeUtility.getAttributeValue(orgs.item(i), "identifier")
+					.equalsIgnoreCase(defaultId)) {
+				defaultNode = orgs.item(i);
+				break;
+			}
+		}
+		List titleNodes = DOMTreeUtility.getNodes(defaultNode, "title");
+		
+		String title = null;
+		if (!titleNodes.isEmpty())
+			title = DOMTreeUtility.getNodeValue((Node) titleNodes.get(0));
+		
+		if (null == title) 
+			title = "Unknown";
+		manifest.setTitle(title);
+		
+		// Grab the launch data
+		manifest.setLaunchData(validator.getLaunchData(false, false));
+		
+		
+		Node firstOrg = document.getElementsByTagName("organization").item(0);
+		// Build a new seq activity tree
+		ISeqActivityTree prototype = ADLSeqUtilities.buildActivityTree(firstOrg,
+				DOMTreeUtility.getNode(document, "sequencingCollection"));
+		
+		manifest.setActTreePrototype(prototype);
+		
+		
+		return manifest;
+	}
+	
+	
 	
 	public String getContext() {
 		return toolManager().getCurrentPlacement().getContext();
@@ -154,16 +405,7 @@ public class ScormClientFacadeImpl implements ScormClientFacade {
 	}
 	
 	public ResourceToolActionPipe getResourceToolActionPipe() {
-		ToolSession toolSession = sessionManager().getCurrentToolSession();
-		
-		Enumeration enumeration = toolSession.getAttributeNames();
-		
-		while (enumeration.hasMoreElements()) {
-			String name = (String)enumeration.nextElement();
-			
-			System.out.println("NAME: " + name);
-		}
-		
+		ToolSession toolSession = sessionManager().getCurrentToolSession();	
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 		
 		return pipe;
@@ -215,16 +457,7 @@ public class ScormClientFacadeImpl implements ScormClientFacade {
 		return null;
 	}
 	
-	public IValidatorOutcome validateContentPackage(File contentPackage) {
-		String directoryPath = contentPackage.getParent();
-		CPValidator validator = new CPValidator(directoryPath);
-		validator.setSchemaLocation(directoryPath);
-		validator.setPerformValidationToSchema(true);
-		boolean isValid = validator.validate(contentPackage.getPath(), "pif", "contentaggregation", false);
-
-		
-		return validator.getADLValidatorOutcome();
-	}
+	
 		
 	
 	public void grantAlternativeRef(String resourceId) {
@@ -264,6 +497,15 @@ public class ScormClientFacadeImpl implements ScormClientFacade {
         
         return sequencer;
 	}
+	
+	public ISequencer getSequencer(ContentPackageManifest manifest) {
+		// Create the sequencer and set the tree		
+        ISequencer sequencer = new ADLSequencer();
+        sequencer.setActivityTree(manifest.getActTreePrototype());
+        
+        return sequencer;
+	}
+	
 	
 	public IErrorManager getErrorManager() {
 		return new APIErrorManager(IErrorManager.SCORM_2004_API);

@@ -24,6 +24,12 @@
 			<version>${sakai.version}</version>
 		</dependency>
 		
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-scorm-model-impl</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		
 		<!-- Sakai dependencies -->
 		<dependency>
 			<groupId>sakaiproject</groupId>
@@ -71,6 +77,11 @@
 			<groupId>servletapi</groupId>
 			<artifactId>servletapi</artifactId>
 			<version>2.4</version>
+		</dependency>
+		<dependency>
+			<groupId>xstream</groupId>
+			<artifactId>xstream</artifactId>
+			<version>1.2.1</version>
 		</dependency>
     </dependencies>
 

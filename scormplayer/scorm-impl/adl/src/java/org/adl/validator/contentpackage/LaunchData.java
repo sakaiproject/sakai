@@ -23,6 +23,7 @@
 *******************************************************************************/
 package org.adl.validator.contentpackage;
 
+import java.io.Serializable;
 import java.util.logging.Logger;
 
 
@@ -35,7 +36,7 @@ import java.util.logging.Logger;
  * @author ADL Technical Team
  */
 
-public class LaunchData
+public class LaunchData implements ILaunchData
 {
    /**
     * The variable representing the hideLMSUI value of "previous".
@@ -70,7 +71,7 @@ public class LaunchData
    /**
     * Logger object used for debug logging.
     */
-   private Logger mLogger;
+   private transient Logger mLogger = Logger.getLogger("org.adl.util.debug.validator");
 
    /**
     * The identifier attribute of the <code>&lt;organization&gt;</code> 
@@ -163,7 +164,7 @@ public class LaunchData
     */
    public LaunchData()
    {
-      mLogger = Logger.getLogger("org.adl.util.debug.validator");
+      //mLogger = Logger.getLogger("org.adl.util.debug.validator");
 
       mOrganizationIdentifier       = new String();
       mItemIdentifier               = new String();

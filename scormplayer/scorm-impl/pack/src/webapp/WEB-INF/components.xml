@@ -18,4 +18,12 @@
 		<property name="resourceTypeRegistry"><ref bean="org.sakaiproject.content.api.ResourceTypeRegistry"/></property>
 	</bean>
 
+	<bean id="org.sakaiproject.scorm.client.api.ContentHostingHandler"
+		class="org.sakaiproject.scorm.client.impl.ScormContentHostingHandler"
+		singleton="true">
+		<lookup-method name="contentService" bean="org.sakaiproject.content.api.ContentHostingService" /> 
+
+		<property name="resolver"><ref bean="org.sakaiproject.content.api.ContentHostingHandlerResolver"/></property>
+	</bean>
+
 </beans>
