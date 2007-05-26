@@ -3,7 +3,7 @@ package org.adl.sequencer;
 import java.util.List;
 
 public interface ISeqActivity {
-
+	
 	/**
 	 * Retrieves the value of the ControlMode.Choice Sequencing Definition
 	 * Model Element (<b>element 1.1</b>) for this activity.
