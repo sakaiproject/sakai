@@ -64,8 +64,8 @@ public class UploadContentPackage extends ClientPage {
 		add(ajaxSimpleUploadForm);*/
 		
 		final UploadForm form = new UploadForm("uploadForm");
-		form.setOutputMarkupId(true);
-
+		form.setOutputMarkupId(true); 
+		
 		add(newResourceLabel("title", this));
 		add(form); 
 	}

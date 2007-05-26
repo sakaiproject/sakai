@@ -3,6 +3,7 @@ package org.sakaiproject.scorm.tool.pages;
 import java.io.Serializable;
 
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.PageMap;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -10,6 +11,7 @@ import org.apache.wicket.markup.html.WebComponent;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.IRequestCodingStrategy;
+import org.apache.wicket.request.target.basic.RedirectRequestTarget;
 import org.apache.wicket.request.target.component.BookmarkablePageRequestTarget;
 import org.apache.wicket.request.target.component.PageRequestTarget;
 
@@ -28,7 +30,7 @@ public class LaunchFrameset extends WebPage {
 			IRequestCodingStrategy encoder = cycle.getProcessor().getRequestCodingStrategy();
 			
 			//if (frameTarget.getUrl() == null)
-			return encoder.encode(cycle, new BookmarkablePageRequestTarget("contentFrame",
+				return encoder.encode(cycle, new BookmarkablePageRequestTarget("contentFrame",
 					frameTarget.getFrameClass(), new PageParameters()));
 			//else
 			//	return encoder.encode(cycle, new RedirectRequestTarget(frameTarget.getUrl()));
@@ -42,7 +44,7 @@ public class LaunchFrameset extends WebPage {
 		/** the class of the bookmarkable page. */
 		private Class frameClass;
 		
-		private String url;
+		private String url = null;
 
 		/**
 		 * Construct.
@@ -94,20 +96,25 @@ public class LaunchFrameset extends WebPage {
 	
 	public LaunchFrameset(PageParameters pageParams) {	
 		RequestCycle cycle = getRequestCycle();
-
-		//NavigationFrame navFrame = new NavigationFrame(pageParams);
+				
+		//NavigationFrame navFrame = new NavigationFrame(this, pageParams);
 		
 		IRequestCodingStrategy encoder = cycle.getProcessor().getRequestCodingStrategy();
-		CharSequence navFrameSrc = encoder.encode(cycle, new BookmarkablePageRequestTarget("navFrame", NavigationFrame.class,  new PageParameters()));
-		//CharSequence navFrameSrc = encoder.encode(cycle, new PageRequestTarget(navFrame));
+		CharSequence navFrameSrc = //RequestCycle.get().urlFor(navFrame);
+			encoder.encode(cycle, new BookmarkablePageRequestTarget("navFrame", NavigationFrame.class, pageParams));
 		WebComponent navFrameTag = new WebComponent("navFrame");
 		navFrameTag.add(new AttributeModifier("src", new Model((Serializable)navFrameSrc)));
 		add(navFrameTag);
 
+		//ContentFrame contentFrame = new ContentFrame(new PageParameters());
+		
 		contentFrameTag = new WebComponent("contentFrame");
+		//CharSequence contentFrameSrc = RequestCycle.get().urlFor(PageMap.forName("contentFrame"), ContentFrame.class, new PageParameters());
 		contentFrameTag.setOutputMarkupId(true);
 		contentFrameTag.add(new AttributeModifier("src", new FrameModel()));
+		//contentFrameTag.add(new AttributeModifier("src", new Model((Serializable)contentFrameSrc)));
 		add(contentFrameTag);
+		
 	}
 	
 	public void refreshContent(AjaxRequestTarget target) {

@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -37,6 +38,8 @@ import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Button;
+import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
@@ -52,6 +55,7 @@ import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.scorm.client.api.ScormClientFacade;
+import org.sakaiproject.scorm.model.api.ContentPackageManifest;
 import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
 
@@ -77,6 +81,7 @@ public class UploadForm extends Form {
 	private String copyright;
 	private String userCopyright;
 	private boolean copyrightAlert;
+	private boolean dontValidateSchema;
 
 	
 	/*
@@ -85,14 +90,16 @@ public class UploadForm extends Form {
 	public UploadForm(String id)
 	{
 		super(id);
-	
+		
+		
+		
 		IModel model = new CompoundPropertyModel(this);
 		this.setModel(model);
 		
 		// All upload forms need to be encrypted as multipart/form-data
 		setMultiPart(true);
 		// We need to establish the largest file allowed to be uploaded
-		setMaxSize(Bytes.kilobytes(findMaxFileUploadSize()));	
+		setMaxSize(Bytes.megabytes(findMaxFileUploadSize()));	
 		
 		final DetailsPanel detailsPanel = new DetailsPanel("details", this, model);
 		// Control visibility
@@ -122,8 +129,21 @@ public class UploadForm extends Form {
 		add(newResourceLabel("displayNameLabel", this));
 		add(new TextField("displayName"));
 		add(new FileUploadField("fileInput"));
+		add(new CheckBox("dontValidateSchema"));
+		add(newResourceLabel("validateSchemaCaption", this));
 		add(detailsPanel);
 		add(showDetailsLink);
+		add(new Button("submitUpload"));
+		Button cancelButton = new Button("cancel") {
+			private static final long serialVersionUID = 1L;
+			
+			public void onSubmit()
+			{
+				exit(clientFacade.getCompletionURL());
+			}
+		}.setDefaultFormProcessing(false);
+		cancelButton.setOutputMarkupId(true);
+		add(cancelButton);
 	}
 	
 	public final void notify(String key) {
@@ -135,63 +155,68 @@ public class UploadForm extends Form {
 		return new Label(id, new StringResourceModel(id, component, null));
 	}
 	
-	private boolean validate(FileItem fileItem) {
-		File contentPackage = getContentPackage(fileItem);
-		IValidatorOutcome validatorOutcome = clientFacade.validateContentPackage(contentPackage);
+	private IValidatorOutcome validate(File contentPackage, boolean doValidateSchema) {
+		IValidatorOutcome validatorOutcome = clientFacade.validateContentPackage(contentPackage, doValidateSchema);
 
 		if (!contentPackage.exists()) {
 			notify("noFile");
-			return false;
+			return null;
 		}
 		
 		if (!validatorOutcome.getDoesIMSManifestExist()) {
 			notify("noManifest");
-			return false;
+			return null;
 		}
 		
 		if (!validatorOutcome.getIsWellformed()) {
 			notify("notWellFormed");
-			return false;
+			return null;
 		}
 		
 		if (!validatorOutcome.getIsValidRoot()) {
 			notify("notValidRoot");
-			return false;
+			return null;
 		}
 		
 		if (!validatorOutcome.getIsValidToSchema()) {
 			notify("notValidSchema");
-			return false;
+			return null;
 		}
 		
 		if (!validatorOutcome.getIsValidToApplicationProfile()) {
 			notify("notValidApplicationProfile");
-			return false;
+			return null;
 		}
 		
 		if (!validatorOutcome.getDoRequiredCPFilesExist()) {
 			notify("notExistingRequiredFiles");
-			return false;
+			return null;
 		}
-		
-		Document doc = validatorOutcome.getDocument();
-		
-		String str = Xml.writeDocumentToString(doc);
-		
-		System.out.println(str);
 				
-		return true;
+		return validatorOutcome;
 	}
 	
 	
 	protected void onSubmit() {
 		FileItem fileItem = (FileItem)((WebRequest)getRequest()).getHttpServletRequest().getAttribute("fileInput");
-
-		//validate(fileItem);
-		if (!validate(fileItem))
+		
+		File contentPackage = getContentPackage(fileItem);
+		
+		IValidatorOutcome outcome = validate(contentPackage, !getDontValidateSchema());
+		
+		if (null == outcome)
 			return;
 		
-		ResourceToolActionPipe pipe = clientFacade.getResourceToolActionPipe();
+		String url = clientFacade.getCompletionURL();
+			
+			//clientFacade.addContentPackage(contentPackage, fileItem.getContentType());
+		
+		
+		
+		
+		
+		
+		/*ResourceToolActionPipe pipe = clientFacade.getResourceToolActionPipe();
 		
 		ContentEntity entity = pipe.getContentEntity();
 		ContentCollection containingCollection = null;
@@ -222,7 +247,7 @@ public class UploadForm extends Form {
             
             pipe.setFileName(filename);
             
-            //parseManifest(fileItem);
+            parseManifest(fileItem);
                         
             pipe.setActionCanceled(false);
             pipe.setErrorEncountered(false);
@@ -239,10 +264,12 @@ public class UploadForm extends Form {
 				} catch (IOException nioe) {
 					log.info("Caught an io exception trying to close stream!", nioe);
 				}
-		}
+		}*/
 		
-		String url = clientFacade.getCompletionURL();
-		
+		exit(url);
+	}
+	
+	private void exit(String url) {
 		if (null != url) {
 			getRequestCycle().setRequestTarget(new RedirectRequestTarget(url));
 		}
@@ -253,7 +280,21 @@ public class UploadForm extends Form {
 	}
 	
 	private File getContentPackage(FileItem fileItem) {
-		File contentPackage = new File(getDirectory(), fileItem.getName());
+		if (null == fileItem) {
+			notify("noFile");
+			return null;
+		}
+		
+		if (!CONTENT_TYPE_APPLICATION_ZIP.equals(fileItem.getContentType())) {
+			notify("wrongContentType");
+		}
+		
+		String filename = fileItem.getName();
+        
+        if (null != getDisplayName() && getDisplayName().trim().length() > 0)
+        	filename = getDisplayName();
+        
+		File contentPackage = new File(getDirectory(), filename);
 
 		byte[] bytes = fileItem.get();
 		
@@ -405,18 +446,18 @@ public class UploadForm extends Form {
 	
 	private int findMaxFileUploadSize() {
 		String maxSize = null;
-		int kiloBytes = 1;
+		int megaBytes = 1;
 		try {
 			maxSize = clientFacade.getConfigurationString(FILE_UPLOAD_MAX_SIZE_CONFIG_KEY, "1");
 			if (null == maxSize)
 				log.warn("The sakai property '" + FILE_UPLOAD_MAX_SIZE_CONFIG_KEY + "' is not set!");
 			else
-				kiloBytes = Integer.parseInt(maxSize);
+				megaBytes = Integer.parseInt(maxSize);
 		} catch(NumberFormatException nfe) {
 			log.error("Failed to parse " + maxSize + " as an integer ", nfe);
 		}
 		
-		return kiloBytes;
+		return megaBytes;
 	}
 
 	public String getCopyright() {
@@ -465,6 +506,18 @@ public class UploadForm extends Form {
 
 	public void setUserCopyright(String userCopyright) {
 		this.userCopyright = userCopyright;
+	}
+
+	public boolean getDontValidateSchema() {
+		Boolean dontValidate = Boolean.valueOf(((WebRequest)getRequest()).getHttpServletRequest().getParameter("dontValidateSchema"));
+
+		if (null == dontValidate)
+			return dontValidateSchema;
+		return dontValidate;
+	}
+
+	public void setDontValidateSchema(boolean dontValidateSchema) {
+		this.dontValidateSchema = dontValidateSchema;
 	}
 	
 	

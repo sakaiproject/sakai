@@ -73,7 +73,7 @@ public class ManageContent extends ClientPage {
 		
 		add(new ListView("rows", contentPackageWrappers) {
 		 	public void populateItem(final ListItem item) {
-		 		ContentResourceWrapper resource = (ContentResourceWrapper)item.getModelObject();
+		 		final ContentResourceWrapper resource = (ContentResourceWrapper)item.getModelObject();
 		 		
 		 		String id = resource.getId();
 		 		String[] parts = id.split("/");
@@ -92,7 +92,9 @@ public class ManageContent extends ClientPage {
 		 			
 		 			item.add(new Link("launch") {
 		 				public void onClick() {
-		 					setResponsePage(LaunchFrameset.class, new PageParameters());
+		 					PageParameters pageParams = new PageParameters();
+		 					pageParams.add("contentPackage", resource.getId());
+		 					setResponsePage(LaunchFrameset.class, pageParams);
 		 				}
 		 			}.setPopupSettings(new PopupSettings(PopupSettings.RESIZABLE | PopupSettings.SCROLLBARS).setWindowName("SCORMPlayer")));
 		 		}

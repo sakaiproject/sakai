@@ -1,5 +1,7 @@
 package org.sakaiproject.scorm.tool.pages;
 
+import java.io.Serializable;
+
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
@@ -9,14 +11,27 @@ import org.adl.sequencer.ISeqActivity;
 import org.adl.sequencer.ISequencer;
 import org.adl.sequencer.IValidRequests;
 import org.adl.sequencer.SeqNavRequests;
+import org.adl.validator.contentpackage.ILaunchData;
+import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.MarkupContainer;
+import org.apache.wicket.Page;
 import org.apache.wicket.PageParameters;
+import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.markup.html.WebComponent;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.tree.ITreeState;
 import org.apache.wicket.markup.html.tree.Tree;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.request.IRequestCodingStrategy;
+import org.apache.wicket.request.target.basic.RedirectRequestTarget;
+import org.apache.wicket.request.target.component.BookmarkablePageRequestTarget;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.scorm.client.api.ScormClientFacade;
+import org.sakaiproject.scorm.client.utils.ActivityLink;
+import org.sakaiproject.scorm.client.utils.IActivityLinkCallback;
+import org.sakaiproject.scorm.model.api.ContentPackageManifest;
 import org.sakaiproject.scorm.tool.components.ActivityTree;
 
 public class NavigationFrame extends WebPage {	
@@ -65,12 +80,18 @@ public class NavigationFrame extends WebPage {
 			setResponsePage(frameset);
 		}
 	}*/
-
-	
+		
 	public NavigationFrame(PageParameters pageParams) {
 		super();
 		
-		TreeModel treeModel = createTreeModel();
+		String contentPackageId = pageParams.getString("contentPackage");
+		final ContentPackageManifest manifest = clientFacade.getManifest(contentPackageId);
+		
+		
+		
+		final ISequencer sequencer = clientFacade.getSequencer(manifest);
+		TreeModel treeModel = createTreeModel(sequencer, manifest);
+		
 		final Tree tree = new ActivityTree("tree", treeModel)
 		{
 			protected void onNodeLinkClicked(AjaxRequestTarget target, TreeNode node)
@@ -79,8 +100,59 @@ public class NavigationFrame extends WebPage {
 				
 				ISeqActivity item = (ISeqActivity)((DefaultMutableTreeNode)node).getUserObject();
 				
-				System.out.println("RESOURCE: " + item.getResourceID());					
+				System.out.println("ID: " + item.getID() + " State ID: " + item.getStateID());
+				
+				//RequestCycle cycle = getRequestCycle();
+				
+				/*IRequestCodingStrategy encoder = cycle.getProcessor().getRequestCodingStrategy();
+				CharSequence navFrameSrc = encoder.encode(cycle, new BookmarkablePageRequestTarget("navFrame", NavigationFrame.class, pageParams));
+				//CharSequence navFrameSrc = encoder.encode(cycle, new PageRequestTarget(navFrame));
+				WebComponent navFrameTag = new WebComponent("navFrame");
+				navFrameTag.add(new AttributeModifier("src", new Model((Serializable)navFrameSrc)));
+				add(navFrameTag);*/
+				
+				
+				ILaunch launch = sequencer.navigate(item.getID());
+				String sco = launch.getSco();
+				
+				ILaunchData launchData = manifest.getLaunchData(sco);
+				
+				if (null != launchData) {
+					StringBuffer href = new StringBuffer().append(manifest.getUrl())
+						.append(launchData.getLaunchLine());					
+					
+					if (null != href)
+						target.appendJavascript("parent.content.location.href='" + href + "'");
+				}
+				//TreeModel newTreeModel = refreshTreeModel(sequencer, manifest, item.getStateID());
+				//this.detachModel();
+				
+				
 			}
+			
+			/*@Override
+			protected MarkupContainer newNodeLink(MarkupContainer parent, String id, final TreeNode node)
+			{
+				ISeqActivity item = (ISeqActivity)((DefaultMutableTreeNode)node).getUserObject();
+				String identifier = item.getID();
+				ILaunchData launchData = manifest.getLaunchData(identifier);
+				
+				final String href = null;
+				
+				
+				//System.out.println("State id: " + identifier + " Launch line: " + launchData.getLaunchLine());
+				
+				return new ActivityLink(id, href, new IActivityLinkCallback() {
+					private static final long serialVersionUID = 1L;
+
+					public void onClick(AjaxRequestTarget target)
+					{
+						getTreeState().selectNode(node, !getTreeState().isNodeSelected(node));
+						onNodeLinkClicked(target, node);
+						updateTree(target);
+					}
+				});
+			}*/
 		};
 		add(tree);
 		
@@ -165,9 +237,16 @@ public class NavigationFrame extends WebPage {
 		return false;
 	}*/
 	
-	protected TreeModel createTreeModel() {
-		ISequencer sequencer = clientFacade.getSequencer();
+	protected TreeModel createTreeModel(ISequencer sequencer, ContentPackageManifest manifest) {	
+		
 		ILaunch launchInfo = sequencer.navigate(SeqNavRequests.NAV_START); 
+		IValidRequests validRequests = launchInfo.getNavState();
+		
+		return validRequests.getTreeModel();
+	}
+	
+	protected TreeModel refreshTreeModel(ISequencer sequencer, ContentPackageManifest manifest, String navRequest) {
+		ILaunch launchInfo = sequencer.navigate(navRequest); 
 		IValidRequests validRequests = launchInfo.getNavState();
 		
 		return validRequests.getTreeModel();

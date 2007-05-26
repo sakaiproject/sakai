@@ -85,7 +85,7 @@ public class ActivityTree extends Tree {
 		});
 	}*/
 	
-	@Override
+	/*@Override
 	protected MarkupContainer newNodeLink(MarkupContainer parent, String id, final TreeNode node)
 	{
 		return new ActivityLink(id, "http://www.google.com", new IActivityLinkCallback() {
@@ -98,6 +98,6 @@ public class ActivityTree extends Tree {
 				updateTree(target);
 			}
 		});
-	}
+	}*/
 
 }

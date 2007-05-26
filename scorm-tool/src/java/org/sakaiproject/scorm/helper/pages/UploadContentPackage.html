@@ -34,8 +34,14 @@
 			    <!-- span wicket:id="progress">[[ajax upload progressbar]]</span-->
 	    	</div>
 	    </div>
-	    
-	    <input class="active" type="submit" value="Upload Files Now"/>
+	    <p class="instruction">
+			<input wicket:id="dontValidateSchema" name="dontValidateSchema" type="checkbox" style="border:none" />
+			<span wicket:id="validateSchemaCaption">[Explanation of validation checkbox]</span>
+		</p>
+		<p class="act">
+	    	<input name="submitUpload" wicket:id="submitUpload" class="active" type="submit" value="Upload Files Now" accesskey="s"/>
+	    	<input name="cancel" wicket:id="cancel" type="submit" value="Cancel" accesskey="x"/>
+    	</p>
     </form>
 	
 	</wicket:extend>
