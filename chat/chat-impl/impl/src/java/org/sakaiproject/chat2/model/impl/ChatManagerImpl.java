@@ -318,56 +318,50 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
     * {@inheritDoc}
     */
    public void migrateMessage(String sql, Object[] values) {
-      Connection connection = null;
-      PreparedStatement stmt = null;
-      Session session = getSession();
+      
+	 
       //String statement = "insert into CHAT2_MESSAGE (MESSAGE_ID, CHANNEL_ID, OWNER, MESSAGE_DATE, BODY, migratedMessageId) " +
       //   "select ?, ?, ?, ?, ?, ? from dual where not exists " +  
       //   "(select * from CHAT2_MESSAGE m2 where m2.migratedMessageId=?)";
-      try {
-         connection = session.connection();
-         stmt = connection.prepareStatement(sql);
-         stmt.setString(1, (String)values[0]);
-         stmt.setString(2, (String)values[1]);
-         stmt.setString(3, (String)values[2]);
-         stmt.setObject(4, (Date)values[3]);
-         stmt.setString(5, (String)values[4]);
-         stmt.setString(6, (String)values[5]);
-         stmt.setString(7, (String)values[5]);
-         
-         
-         stmt.execute();
-      } catch (SQLException e) {
-         logger.error("",e);
-         //throw new OspException(e);
-      } catch (HibernateException e) {
-         logger.error("",e);
-         //throw new OspException(e);
-      } finally {
-         if (stmt != null) {
-            //ensure the statement is closed
-            try {
-               stmt.close();
-            } 
-            catch (Exception e) {
-               if (logger.isDebugEnabled()) {
-                  logger.debug(e);
-               }
-            }
-         }
-         if (connection != null) {
-            //ensure the connection is closed
-            //as of hibernate 3.1 we are responsible for this here
-            try {
-                connection.close();  
-            } 
-            catch (Exception e) {
-               if (logger.isDebugEnabled()) {
-                  logger.debug(e);
-               }
-            }
-         }         
-      }
+      
+	  try {
+		  
+		  String messageId = (String) values[0];
+		  String channelId = (String) values[1];
+		  String owner     = (String) values[2];
+		  Date messageDate = (Date) values[3];
+		  String body      = (String) values[4];
+		  String migratedId= (String) values[5];
+		  
+		  logger.debug("migrate message: "+messageId+", "+channelId);
+		  
+	      ChatMessage message = getMessage(messageId);
+	      
+	      if(message == null) {
+	    	  
+	    	  ChatChannel channel = getChatChannel(channelId);
+	    	  
+	    	  message = new ChatMessage();
+	    	  
+	    	  message.setId(messageId);
+	    	  message.setChatChannel(channel);
+	    	  message.setOwner(owner);
+	    	  message.setMessageDate(messageDate);
+	    	  message.setBody(body);
+	    	  //message.setMigratedMessageId((String)values[5]);
+	    	  
+	    	  
+	    	  getHibernateTemplate().save(message);
+	    	  
+	      }
+	      
+	  } catch (Exception e) {
+		  
+		 logger.error("migrateMessage: "+e);
+		  
+	  }
+      
+     
    }
    
    /**
