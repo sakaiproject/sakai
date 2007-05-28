@@ -46,6 +46,7 @@ import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIELBinding;
 import uk.org.ponder.rsf.components.UIForm;
+import uk.org.ponder.rsf.components.UIVerbatim;
 
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UISelect;
@@ -211,16 +212,10 @@ public class PollToolProducer implements ViewComponentProducer,
     for (int i = 0 ; i < polls.size(); i++) {
       Poll poll = (Poll)polls.get(i);
       boolean canVote = pollIsVotable(poll);
-      
-      
-      
-
-      
-     
-	      UIBranchContainer pollrow = UIBranchContainer.make(deleteForm,
-	    		  canVote ? "poll-row:votable"
-	              : "poll-row:nonvotable", poll.getPollId().toString());
-	      m_log.debug("adding poll row for " + poll.getText());
+      UIBranchContainer pollrow = UIBranchContainer.make(deleteForm,
+    		  canVote ? "poll-row:votable"
+    				  : "poll-row:nonvotable", poll.getPollId().toString());
+      m_log.debug("adding poll row for " + poll.getText());
    
       if (canVote) {
     	  UIInternalLink.make(pollrow, NAVIGATE_VOTE, poll.getText(),
@@ -236,9 +231,17 @@ public class PollToolProducer implements ViewComponentProducer,
 		  UIInternalLink.make(pollrow, "poll-results", messageLocator.getMessage("action_view_results"),
 	              new EntityCentredViewParameters(ResultsProducer.VIEW_ID, 
 	                      new EntityID("Poll", poll.getPollId().toString()), EntityCentredViewParameters.MODE_EDIT));
-	      
-      UIOutput.make(pollrow,"poll-open-date",df.format(poll.getVoteOpen()));
-      UIOutput.make(pollrow,"poll-close-date",df.format(poll.getVoteClose()));
+
+      if (poll.getVoteOpen()!=null)
+    	  UIOutput.make(pollrow,"poll-open-date",df.format(poll.getVoteOpen()));
+      else 
+    	  UIVerbatim.make(pollrow,"poll-open-date","  ");
+      
+      if (poll.getVoteClose()!=null)
+    	  UIOutput.make(pollrow,"poll-close-date",df.format(poll.getVoteClose()));
+      else 
+    	  UIVerbatim.make(pollrow,"poll-close-date","  ");
+    	  
       if (pollCanEdit(poll)) {
     	  UIInternalLink.make(pollrow,"poll-revise",messageLocator.getMessage("action_revise_poll"),  
     			  new EntityCentredViewParameters(AddPollProducer.VIEW_ID, 
@@ -295,14 +298,30 @@ public class PollToolProducer implements ViewComponentProducer,
   
   private boolean pollIsVotable(Poll poll)
   {
-	  if (poll.getVoteClose().after(new Date()) && new Date().after(poll.getVoteOpen()))
+	  boolean pollAfterOpen = true;
+	  boolean pollBeforeClose = true;
+	  
+	  if (poll.getVoteClose()!=null) {
+		 if (!poll.getVoteClose().before(new Date())) {
+			 pollBeforeClose=false;
+		 }
+		  
+	  } 
+	  
+	  if (poll.getVoteOpen()!=null) {
+		  if(!new Date().after(poll.getVoteOpen())) {
+			  pollAfterOpen=false;
+		  }
+	  } 
+	  
+	  if (pollAfterOpen && pollBeforeClose)
 	  {
 		if (poll.getLimitVoting() && pollVoteManager.userHasVoted(poll.getPollId())) {
 			return false;
 		}
 		  //the user hasn't voted do they have permission to vote?'
 			m_log.debug("about to check if this user can vote in " + toolManager.getCurrentPlacement().getContext());
-			if (SecurityService.unlock("poll.vote","/site/" + toolManager.getCurrentPlacement().getContext()))
+			if (SecurityService.unlock("poll.vote","/site/" + toolManager.getCurrentPlacement().getContext()) || SecurityService.isSuperUser())
 			{
 				m_log.debug("this poll is votable  " + poll.getText());
 				return true;
