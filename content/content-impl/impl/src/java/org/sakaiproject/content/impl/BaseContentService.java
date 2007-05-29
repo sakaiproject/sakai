@@ -43,6 +43,7 @@ import java.util.Stack;
 import java.util.TreeSet;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
+import java.net.URLEncoder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -5459,9 +5460,25 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			{
 				// use the last part, the file name part of the id, for the download file name
 				String fileName = Validator.getFileName(ref.getId());
-				fileName = Validator.escapeResourceName(fileName);
-
+				
+				// encode filename for utf-8 characters
+				String agent = req.getHeader("USER-AGENT");
+				try
+				{
+					if ( agent != null && agent.indexOf("MSIE")>=0 )
+						fileName = URLEncoder.encode(fileName, "UTF8");
+					else if ( agent != null && agent.indexOf("Mozilla")>=0 && agent.indexOf("Safari") == -1 )
+						fileName = javax.mail.internet.MimeUtility.encodeText(fileName, "UTF8", "B");
+					else
+						fileName = URLEncoder.encode(fileName, "UTF8");
+				}
+				catch (UnsupportedEncodingException e)
+				{
+					M_log.error(e);
+				}
+				
 				String disposition = null;
+				
 				if (Validator.letBrowserInline(contentType))
 				{
 					disposition = "inline; filename=\"" + fileName + "\"";
@@ -5498,7 +5515,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 						res.setContentType(contentType);
 						res.addHeader("Content-Disposition", disposition);
 						res.setContentLength(len);
-
+						
 						// set the buffer of the response to match what we are reading from the request
 						if (len < STREAM_BUFFER_SIZE)
 						{
