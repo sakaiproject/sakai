@@ -51,6 +51,7 @@ public class ChatChannel implements Entity {
    private boolean contextDefaultChannel = false;
    private boolean enableUserOverride = true;
    private Set messages = new HashSet();
+   private String migratedChannelId;
    
    
    public ChatChannel() {
@@ -228,5 +229,13 @@ public class ChatChannel implements Entity {
     */
    public String getUrl(String rootProperty) {
       return getUrl();
+   }
+
+   public String getMigratedChannelId() {
+      return migratedChannelId;
+   }
+
+   public void setMigratedChannelId(String migratedChannelId) {
+      this.migratedChannelId = migratedChannelId;
    }
 }

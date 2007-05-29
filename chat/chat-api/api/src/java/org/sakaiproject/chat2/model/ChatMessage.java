@@ -43,6 +43,7 @@ public class ChatMessage implements Entity {
    private String owner;
    private Date messageDate;
    private String body;
+   private String migratedMessageId;
 
    
    public ChatMessage() {
@@ -162,6 +163,14 @@ public class ChatMessage implements Entity {
     */
    public String getUrl(String rootProperty) {
       return getUrl();
+   }
+
+   public String getMigratedMessageId() {
+      return migratedMessageId;
+   }
+
+   public void setMigratedMessageId(String migratedMessageId) {
+      this.migratedMessageId = migratedMessageId;
    }
    
 }

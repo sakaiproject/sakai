@@ -22,6 +22,7 @@
 		<property name="filterParam" type="int" />
 		<property name="contextDefaultChannel" type="boolean" index="CHAT_CHANNEL_DEFAULT_I"/>
 		<property name="enableUserOverride" type="boolean" column="ENABLE_USER_OVERRIDE" not-null="false"/>
+		<property name="migratedChannelId" type="string" length="99" />
 
 		<set name="messages" cascade="all-delete-orphan" inverse="false"
 			lazy="true">
@@ -45,6 +46,7 @@
 		<property name="messageDate" column="MESSAGE_DATE"
 			type="java.util.Date" index="CHAT_MESSAGE_DATE_I" />
 		<property name="body" column="BODY" type="text" not-null="true" />
+		<property name="migratedMessageId" type="string" length="99" />
 	</class>
 
 	<query name="findChannelsInContext">
@@ -53,6 +55,10 @@
 
 	<query name="findDefaultChannelsInContext">
 		from ChatChannel c WHERE c.context=? and c.contextDefaultChannel=true order by c.title
+	</query>
+	
+	<query name="findMigratedMessage">
+		from ChatMessage m where m.migratedMessageId=?
 	</query>
 
 </hibernate-mapping>

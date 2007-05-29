@@ -335,7 +335,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
 		  
 		  logger.debug("migrate message: "+messageId+", "+channelId);
 		  
-	      ChatMessage message = getMessage(messageId);
+	      ChatMessage message = getMigratedMessage(messageId);
 	      
 	      if(message == null) {
 	    	  
@@ -348,7 +348,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
 	    	  message.setOwner(owner);
 	    	  message.setMessageDate(messageDate);
 	    	  message.setBody(body);
-	    	  //message.setMigratedMessageId((String)values[5]);
+	    	  message.setMigratedMessageId(migratedId);
 	    	  
 	    	  
 	    	  getHibernateTemplate().save(message);
@@ -461,6 +461,17 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
                               ChatMessage.class, chatMessageId);
    }
 
+   /**
+    * {@inheritDoc}
+    */
+   protected ChatMessage getMigratedMessage(String migratedMessageId) {
+      List messages = getHibernateTemplate().findByNamedQuery("findMigratedMessage", migratedMessageId);
+      ChatMessage message = null;
+      if (messages.size() > 0)
+         message = (ChatMessage)messages.get(0);
+      return message;
+   }
+   
    /**
     * {@inheritDoc}
     */
