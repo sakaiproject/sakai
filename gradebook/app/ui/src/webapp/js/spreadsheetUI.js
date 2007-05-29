@@ -41,6 +41,17 @@ function gethandles(){
             :$(this).css("height", $("div#q4 tr:eq(" + i + ")").height() + "px");
       }
    });
+   //check if we need scrollbars - SAK-9969
+   if($("div#q4 div table").width() < $("div#q4").width()){
+      $("div#mainwrap").width($("div#mainwrap").width() - ($("div#q4").width() - $("div#q4 table").width()) + 15);
+      bothtrue = true;
+   }
+   if($("div#q4 div table").height() < $("div#q4").height()){
+      $("div#q3").height($("div#q3").height() - ($("div#q4").height() - $("div#q4 table").height()) + 15);
+      $("div#q4 div").height($("div#q4 div").height() - ($("div#q4").height() - $("div#q4 table").height()) + 15);
+      if(bothtrue) $("div#q4 div").css("overflow", "auto");
+   }
+   //end check if we need scrollbars - SAK-9969
    el1 = $("div#q2 div ul").get(0);
    el2 = $("div#q3 div table").get(0);
    els = $("div#q4 div").get(0);
