@@ -9316,11 +9316,34 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			// sort %%%
 			// Collections.sort(mbrs);
 
-			return copyEntityList(mbrs);
+			cacheEntities(mbrs); 
+			
+			return mbrs;
 
 		} // getMemberResources
 
-		private List copyEntityList(List entities)
+		protected void cacheEntities(List entities)
+        {
+			if(entities == null)
+			{
+				return;
+			}
+			
+			for(ContentEntity entity : (List<ContentEntity>) entities)
+			{
+				String ref = entity.getReference();
+				if(entity instanceof ContentResource)
+				{
+					ThreadLocalManager.set("findResource@" + ref, entity);
+				}
+				else if(entity instanceof ContentCollection)
+				{
+					ThreadLocalManager.set("findCollection@" + ref, entity);
+				}
+			}
+        }
+
+		protected List copyEntityList(List entities)
         {
 			List list = new Vector();
 			
