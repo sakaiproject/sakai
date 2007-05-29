@@ -3461,7 +3461,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 										if (typeOfSubmission != Assignment.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION)
 										{
 											// create the text file only when a text submission is allowed
-											String entryName = submittersName + submittersString + "_submissionText.html";
+											String entryName = submittersName + submittersString + "_submissionText.txt";
 											ZipEntry textEntry = new ZipEntry(entryName);
 											out.putNextEntry(textEntry);
 											out.write(FormattedText.encodeUnicode(submittedText).getBytes());

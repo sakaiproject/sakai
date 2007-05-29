@@ -8842,6 +8842,15 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 	}
 	
+	/**
+	 * returns concatenation of user's first name and last name
+	 * @param u
+	 */
+	private String getUserLastNameFirstName(User u)
+	{
+		return u.getLastName() + "," + u.getFirstName();
+	}
+	
 	public void doUpload_all_upload(RunData data)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
@@ -8900,7 +8909,7 @@ public class AssignmentAction extends PagedResourceActionII
 				{
 					AssignmentSubmission s = (AssignmentSubmission) sIterator.next();
 					User[] users = s.getSubmitters();
-					String uName = users[0].getSortName();
+					String uName = getUserLastNameFirstName(users[0]);
 					submissionTable.put(uName, new UploadGradeWrapper("", "", "", new Vector()));
 				}
 			}
@@ -8979,11 +8988,12 @@ public class AssignmentAction extends PagedResourceActionII
 									        		try
 									        		{
 									        			User u = UserDirectoryService.getUserByEid(items[0]/*user id*/);
-									        			UploadGradeWrapper w = (UploadGradeWrapper) submissionTable.get(u.getSortName());
+									        			String name = getUserLastNameFirstName(u);
+									        			UploadGradeWrapper w = (UploadGradeWrapper) submissionTable.get(name);
 									        			if (w != null)
 									        			{
 									        				w.setGrade(assignment.getContent().getTypeOfGrade() == Assignment.SCORE_GRADE_TYPE?scalePointGrade(state, items[3]):items[3]);
-									        				submissionTable.put(u.getSortName(), w);
+									        				submissionTable.put(name, w);
 									        			}
 									        		}
 									        		catch (Exception e )
@@ -9019,7 +9029,7 @@ public class AssignmentAction extends PagedResourceActionII
 									}
 									else if (hasSubmissions)
 									{
-										if (entryName.endsWith("_submissionText.html"))
+										if (entryName.endsWith("_submissionText.txt"))
 										{
 											// upload the student submission text along with the feedback text
 											String text = StringUtil.trimToNull(readIntoString(zin));
@@ -9053,6 +9063,7 @@ public class AssignmentAction extends PagedResourceActionII
 										        		List attachments = r.getAttachments();
 										        		attachments.add(EntityManager.newReference(attachment.getReference()));
 										        		r.setAttachments(attachments);
+										        		submissionTable.put(userName, r);
 										        }
 											}
 											catch (Exception ee)
@@ -9084,7 +9095,7 @@ public class AssignmentAction extends PagedResourceActionII
 					{
 						AssignmentSubmission s = (AssignmentSubmission) sIterator.next();
 						User[] users = s.getSubmitters();
-						String uName = users[0].getSortName();
+						String uName = getUserLastNameFirstName(users[0]);
 						if (submissionTable.containsKey(uName))
 						{
 							// update the AssignmetnSubmission record
