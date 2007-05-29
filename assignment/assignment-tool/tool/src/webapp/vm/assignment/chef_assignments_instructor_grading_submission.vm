@@ -111,7 +111,7 @@
 					</th>	
 					<td>
 						#if ($submission.Graded)
-							$tlang.getString("gen.gra3")
+							$tlang.getString("grad3")
 						#else
 							$tlang.getString("gen.ung1")
 						#end

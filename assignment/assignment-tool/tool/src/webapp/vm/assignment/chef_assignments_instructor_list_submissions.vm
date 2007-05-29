@@ -324,7 +324,11 @@
 								#if ($returned)
 									#if ($!submitTime && $!returnedTime)
 										#if ($returnedTime.before($submitTime))
-											$tlang.getString("listsub.resubmi") 
+											#if (!$submission.Graded)
+												$tlang.getString("listsub.resubmi")
+											#else
+												$tlang.getString("grad3")
+											#end 
 										#else
 											$tlang.getString("gen.returned")
 										#end
