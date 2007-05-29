@@ -417,7 +417,7 @@
         <description>Synoptic Message Bean</description>
         <managed-bean-name>mfSynopticBean</managed-bean-name>
         <managed-bean-class>org.sakaiproject.tool.messageforums.ui.MessageForumSynopticBean</managed-bean-class>
-        <managed-bean-scope>session</managed-bean-scope>
+        <managed-bean-scope>request</managed-bean-scope>
         <managed-property>
         	<description>Message Manager</description>
         	<property-name>messageManager</property-name>

@@ -177,6 +177,7 @@ public class MessageForumSynopticBean {
 	private transient Boolean myWorkspace = null;
 	private transient Boolean pmEnabled = null;
 	private transient Boolean anyMFToolInSite = null;
+	private transient List myWorkspaceContents = null;
 
 	/** Used to determine if MessageCenter tool part of site */
 	private final String MESSAGE_CENTER_ID = "sakai.messagecenter";
@@ -603,6 +604,11 @@ public class MessageForumSynopticBean {
 	 * 		List of DecoratedCompiledMessageStats to populate MyWorkspace page
 	 */
 	private List getMyWorkspaceContents() {
+		if (myWorkspaceContents != null) {
+			return myWorkspaceContents;
+		}
+		else {
+			
 		final List contents = new ArrayList();
 		Object[] unreadDFCount;
 		Object[] pmCounts;
@@ -616,6 +622,7 @@ public class MessageForumSynopticBean {
 		// no sites to work with, set boolean variable and return
 		if (siteList.isEmpty()) { 
 			sitesToView = false;
+			myWorkspaceContents = contents;
 			return contents; 
 		}
 
@@ -675,6 +682,7 @@ public class MessageForumSynopticBean {
 				sitesToView = true;
 			}
 			
+			myWorkspaceContents = contents;
 			return contents;
 		}
 
@@ -807,7 +815,10 @@ public class MessageForumSynopticBean {
 			}
 		}
 		
+		myWorkspaceContents = contents;
 		return contents;
+		
+		}
 	}
 
 	/**
