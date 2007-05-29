@@ -49,6 +49,7 @@ public abstract class GradebookDependentBean extends InitializableBean {
     private Boolean adding;
     private Boolean middle;
     
+    protected final String BREADCRUMBPAGE = "breadcrumbPage";
 
 	/**
 	 * Marked transient to allow serializable subclasses.
@@ -251,7 +252,7 @@ public abstract class GradebookDependentBean extends InitializableBean {
     		 				String fromPage) {
  		final ToolSession session = SessionManager.getCurrentToolSession();
 		
- 		if (breadcrumbPage != null) session.setAttribute("breadcrumbPage", breadcrumbPage);
+ 		if (breadcrumbPage != null) session.setAttribute(BREADCRUMBPAGE, breadcrumbPage);
  		
  		if (editing != null) session.setAttribute("editing", editing);
  		
@@ -267,7 +268,8 @@ public abstract class GradebookDependentBean extends InitializableBean {
 	 */
 	public String getBreadcrumbPage() {
 		if (breadcrumbPage == null) {
-			return (String) SessionManager.getCurrentToolSession().getAttribute("breadcrumbPage");
+			breadcrumbPage = (String) SessionManager.getCurrentToolSession().getAttribute(BREADCRUMBPAGE);
+			return breadcrumbPage;
 		}
 		else {
 			return breadcrumbPage;
@@ -290,14 +292,14 @@ public abstract class GradebookDependentBean extends InitializableBean {
 	 * bean to a static page.
 	 */
 	public void setBreadcrumbPageParam(String breadcrumbPageParam) {
-		if (SessionManager.getCurrentToolSession().getAttribute("breadcrumbPage") != null) {
+		if (SessionManager.getCurrentToolSession().getAttribute(BREADCRUMBPAGE) != null) {
 			if ((breadcrumbPageParam != null) && !breadcrumbPageParam.equals("null")) {
 				setBreadcrumbPage(breadcrumbPageParam);
-				if (!"".equals(breadcrumbPageParam)) SessionManager.getCurrentToolSession().setAttribute("breadcrumbPage", breadcrumbPageParam);
+				if (!"".equals(breadcrumbPageParam)) SessionManager.getCurrentToolSession().setAttribute(BREADCRUMBPAGE, breadcrumbPageParam);
 			}
 			else {
 				ToolSession session = SessionManager.getCurrentToolSession();
-				final String fromPage = (String) session.getAttribute("breadcrumbPage");
+				final String fromPage = (String) session.getAttribute(BREADCRUMBPAGE);
 				
 				if (fromPage != null) {
 					setBreadcrumbPage(fromPage);
@@ -513,7 +515,7 @@ public abstract class GradebookDependentBean extends InitializableBean {
 	 * tool session, hence attribute setting.
 	 */
 	public String navigateToCourseGrades() {
-		setNav("courseGradeDetails","false","false","false","");
+		setNav("other","false","false","false","");
 		
 		return "courseGradeDetails";
 	}
@@ -528,7 +530,7 @@ public abstract class GradebookDependentBean extends InitializableBean {
 			return breadcrumbPage;
 		}
 		else {
-			String where = (String) SessionManager.getCurrentToolSession().getAttribute("breadcrumbPage");
+			String where = (String) SessionManager.getCurrentToolSession().getAttribute(BREADCRUMBPAGE);
 			
 			if ("assignmentDetails".equals(where)) {
 				where = (String) SessionManager.getCurrentToolSession().getAttribute("fromPage");

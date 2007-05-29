@@ -283,5 +283,20 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 
 		return "spreadsheetListing";
 	}
-	
+
+	/**
+	 * Since Gradebook Items (Overview) is the default page, to deal with the case where
+	 * navigating from another tool/clicked refresh, reset the navigation to "overview" 
+	 */
+	public void setBreadcrumbPageParam(String breadcrumbPageParam) {
+		if (SessionManager.getCurrentToolSession().getAttribute(BREADCRUMBPAGE) != null) {
+			if ((breadcrumbPageParam != null) && !breadcrumbPageParam.equals("null")) {
+				setBreadcrumbPage(breadcrumbPageParam);
+				if (!"".equals(breadcrumbPageParam)) SessionManager.getCurrentToolSession().setAttribute(BREADCRUMBPAGE, breadcrumbPageParam);
+			}
+			else {
+				setBreadcrumbPage("overview");
+			}
+		}
+	}
 }
