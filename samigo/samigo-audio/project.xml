@@ -6,7 +6,7 @@
   <shortDescription>Samigo (Test and Quizzes) recorder applet.</shortDescription>
   <groupId>sakaiproject</groupId>
   <id>sakai-samigo-audio</id>
-  <currentVersion>${sakai.version}</currentVersion>
+  <currentVersion>dev</currentVersion>
 
   <organization>
       <name>Sakai Project</name>
