@@ -77,9 +77,11 @@
 						<h:outputText value="#{msgs.assignment_details_points}"/>
 		            </t:commandSortHeader>
 				</f:facet>
-				<h:outputText value="#{scoreRow.courseGradeRecord.pointsEarned}">
+				<h:outputText value="#{scoreRow.courseGradeRecord.pointsEarned}" rendered="#{scoreRow.calculatedLetterGrade != null}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
 				</h:outputText>
+				
+				<h:outputText value="#{msgs.score_null_placeholder}" rendered="#{scoreRow.calculatedLetterGrade == null}"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header">
@@ -87,12 +89,17 @@
 						<h:outputText value="#{msgs.course_grade_details_calculated_grade}"/>
 		            </t:commandSortHeader>
 				</f:facet>
-				<h:outputText value="#{scoreRow.calculatedLetterGrade}"/>
-				<h:outputText value=" ("/>
-				<h:outputText value="#{scoreRow.calculatedPercentGrade}">
-					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.PRECISE_PERCENTAGE" />
-				</h:outputText>
-				<h:outputText value=")"/>
+				<h:panelGroup rendered="#{scoreRow.calculatedLetterGrade !=  null}">
+					<h:outputText value="#{scoreRow.calculatedLetterGrade}"/>
+					<h:outputText value=" ("/>
+					<h:outputText value="#{scoreRow.calculatedPercentGrade}">
+						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.PRECISE_PERCENTAGE" />
+					</h:outputText>
+					<h:outputText value=")"/>
+				</h:panelGroup>
+
+				<h:outputText value="#{msgs.score_null_placeholder}" rendered="#{scoreRow.calculatedLetterGrade == null}"/>
+
 			</h:column>
 			<h:column>
 				<f:facet name="header">

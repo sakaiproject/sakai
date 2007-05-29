@@ -195,7 +195,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 	 * @throws StaleObjectModificationException
 	 */
 	public void saveScores() throws StaleObjectModificationException {
-        if (logger.isInfoEnabled()) logger.info("saveScores for " + getUserDisplayName());
+        if (logger.isInfoEnabled()) logger.info("saveScores for " + getStudentUid());
 
 		// first, determine which scores were updated
 		List updatedGradeRecords = new ArrayList();

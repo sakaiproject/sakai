@@ -81,12 +81,28 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
             }
 		}
 
+		/**
+		 * 
+		 * @return letter grade representation of grade or null if no course grade yet
+		 */
         public String getCalculatedLetterGrade() {
-        	return gradeMapping.getGrade(courseGradeRecord.getNonNullAutoCalculatedGrade());
+        	Double grade = courseGradeRecord.getAutoCalculatedGrade();
+        	String letterGrade = null;
+        	if (grade != null)
+        		letterGrade = gradeMapping.getGrade(courseGradeRecord.getNonNullAutoCalculatedGrade());
+        	return letterGrade;
         }
-
+        
+        /**
+         * 
+         * @return percent representation of grade or null if no grade yet
+         */
         public Double getCalculatedPercentGrade() {
-        	return new Double(courseGradeRecord.getNonNullAutoCalculatedGrade().doubleValue() / 100.);
+        	Double grade = courseGradeRecord.getAutoCalculatedGrade();
+        	if (grade != null)
+        		grade = new Double(grade.doubleValue() / 100.);
+        	
+        	return grade;
         }
 
         public CourseGradeRecord getCourseGradeRecord() {
