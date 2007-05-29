@@ -2707,6 +2707,9 @@ public class AssignmentAction extends PagedResourceActionII
 
 		// back to the student list view of assignments
 		state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+		
+		// reset sorting
+		setDefaultSort(state);
 
 	} // doCancel_edit_assignment
 
@@ -2722,6 +2725,9 @@ public class AssignmentAction extends PagedResourceActionII
 
 		// back to the student list view of assignments
 		state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+		
+		// reset sorting
+		setDefaultSort(state);
 
 	} // doCancel_new_assignment
 
@@ -4283,8 +4289,19 @@ public class AssignmentAction extends PagedResourceActionII
 			} // if
 
 		} // if
-
+		
+		// set default sorting
+		setDefaultSort(state);
+		
 	} // doPost_assignment
+
+	/**
+	 * default sorting
+	 */
+	private void setDefaultSort(SessionState state) {
+		state.setAttribute(SORTED_BY, SORTED_BY_DEFAULT);
+		state.setAttribute(SORTED_ASC, Boolean.FALSE.toString());
+	}
 
 	/**
 	 * Add submission objects if necessary for non-electronic type of assignment
@@ -6373,12 +6390,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 		if (state.getAttribute(SORTED_BY) == null)
 		{
-			state.setAttribute(SORTED_BY, SORTED_BY_DEFAULT);
-		}
-
-		if (state.getAttribute(SORTED_ASC) == null)
-		{
-			state.setAttribute(SORTED_ASC, Boolean.TRUE.toString());
+			setDefaultSort(state);
 		}
 
 		if (state.getAttribute(SORTED_GRADE_SUBMISSION_BY) == null)
@@ -7026,7 +7038,13 @@ public class AssignmentAction extends PagedResourceActionII
 					{
 						result = 1;
 					}
-					else if (t1.before(t2))
+					else if (t1.equals(t2))
+					{
+						t1 = ((Assignment) o1).getTimeCreated();
+						t2 = ((Assignment) o2).getTimeCreated();
+					}
+					
+					if (t1!=null && t2!=null && t1.before(t2))
 					{
 						result = -1;
 					}
