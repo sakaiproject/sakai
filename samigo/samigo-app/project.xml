@@ -56,7 +56,7 @@
     <dependency>
       <groupId>sakaiproject</groupId>
       <artifactId>sakai-samigo-audio</artifactId>
-      <version>dev</version>
+      <version>${sakai.version}</version>
       <properties>
         <war.target.path>applets</war.target.path>
       </properties>
