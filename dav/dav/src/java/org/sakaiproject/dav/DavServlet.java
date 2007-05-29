@@ -732,15 +732,8 @@ public class DavServlet extends HttpServlet
 		}
 
 		// No, extract the desired path directly from the request
-		String result = request.getPathInfo();
-		if (result == null)
-		{
-			result = request.getServletPath();
-		}
-		if ((result == null) || (result.equals("")))
-		{
-			result = "/";
-		}
+		String result = getRelativePathSAKAI(request);
+		
 		return normalize(result);
 
 	}
@@ -1755,24 +1748,21 @@ public class DavServlet extends HttpServlet
 
 	public String getRelativePathSAKAI(HttpServletRequest req)
 	{
-		String path = req.getPathInfo();
-		// if (path != null)
-		// {
-		// try
-		// {
-		// path = ParameterParser.convertFromRawBytesToUTF8(path);
-		// }
-		// catch (UnsupportedEncodingException e)
-		// {
-		// M_log.warn(e);
-		// }
-		// catch (CharacterCodingException e)
-		// {
-		// M_log.warn(e);
-		// }
-		// }
+		// req.getPathInfo() does not correctly decode utf8
+		// so instead, we figure it out ourselves...
+		String path = "/";
+		try
+		{
+			String requestURI = req.getRequestURI();
+			int pathIndex = requestURI.indexOf(java.io.File.separator, 1); // skip leading slash
+			if ( pathIndex > 0 )
+			{
+				path = requestURI.substring( pathIndex );
+				path = java.net.URLDecoder.decode(path, "UTF-8");
+			}
+		}
+		catch (java.io.UnsupportedEncodingException e) {}
 
-		if (path == null) path = "/";
 		if (M_log.isDebugEnabled()) M_log.debug("getRelativePathSAKAI = " + path);
 		return path;
 
