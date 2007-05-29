@@ -228,8 +228,20 @@ public class AccessServlet extends VmServlet
 		ParameterParser params = (ParameterParser) req.getAttribute(ATTR_PARAMS);
 
 		// get the path info
-		String path = params.getPath();
-		if (path == null) path = "";
+		// params.getPath() && req.getPathInfo() do not correctly decode utf8
+		// so instead, we figure it out ourselves...
+		String path = "";
+		try
+		{
+			String requestURI = req.getRequestURI();
+			int pathIndex = requestURI.indexOf(java.io.File.separator, 1); // skip leading slash
+			if ( pathIndex > 0 )
+			{
+				path = requestURI.substring( pathIndex );
+				path = java.net.URLDecoder.decode(path, "UTF-8");
+			}
+		}
+		catch (java.io.UnsupportedEncodingException e) {}
 
 		if (!m_ready)
 		{
