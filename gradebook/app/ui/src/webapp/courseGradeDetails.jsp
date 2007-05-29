@@ -20,8 +20,8 @@
 		<h:panelGrid cellpadding="0" cellspacing="0" columns="2"
 			columnClasses="itemName"
 			styleClass="itemSummary">
-			<h:outputText id="pointsLabel" value="#{msgs.course_grade_details_points}" rendered="#{!courseDetailsBean.weightingEnabled}"/>
-			<h:outputText id="points" value="#{courseGradeDetailsBean.totalPoints}" rendered="#{!courseDetailsBean.weightingEnabled}">
+			<h:outputText id="pointsLabel" value="#{msgs.course_grade_details_points}" rendered="#{!courseGradeDetailsBean.weightingEnabled}"/>
+			<h:outputText id="points" value="#{courseGradeDetailsBean.totalPoints}" rendered="#{!courseGradeDetailsBean.weightingEnabled}">
 				<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
 			</h:outputText>
 			
@@ -71,7 +71,7 @@
 				</f:facet>
 				<h:outputText value="#{scoreRow.enrollment.user.displayId}"/>
 			</h:column>
-			<h:column>
+			<h:column rendered="#{!courseGradeDetailsBean.weightingEnabled}">
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="pointsEarned" arrow="true" immediate="false" actionListener="#{courseGradeDetailsBean.sort}">
 						<h:outputText value="#{msgs.assignment_details_points}"/>
