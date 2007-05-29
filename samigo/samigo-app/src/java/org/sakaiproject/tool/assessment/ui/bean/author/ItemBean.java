@@ -1049,6 +1049,46 @@ public class ItemBean
 			}
 		}
 		this.setCorrAnswers(corrAnswers);
+		return null;
+	}
+
+  public String removeChoicesSingle() {
+		String labelToRemove = ContextUtil.lookupParam("answeridSingle");
+		ArrayList corranswersList = ContextUtil.paramArrayValueLike("mcradiobtn");
+		Object [] objArray = corranswersList.toArray();
+		String [] corrAnswers = new String[objArray.length];
+		ArrayList list = getMultipleChoiceAnswers(); // get existing list
+		Iterator iter = list.iterator();
+		int currentindex = 0;
+		int correctIndex = 0;
+		boolean delete = false;
+		if (list != null) {
+			while (iter.hasNext()) {
+				AnswerBean answerbean = (AnswerBean) iter.next();
+				if (answerbean.getLabel().equals(labelToRemove)) {
+					// delete selected choices
+					iter.remove();
+					delete = true;
+				} else {
+					currentindex = currentindex + 1;
+					// reset sequence and labels , shift the seq/labels after a
+					// choice is deleted
+					answerbean.setSequence(new Long(currentindex));
+					answerbean.setLabel(AnswerBean.getChoiceLabels()[currentindex - 1]);
+				}
+				
+				// reset correct answers
+				for (int i = 0; i < objArray.length; i++) {
+					if (!labelToRemove.equals(objArray[i])) {
+						if ((delete && AnswerBean.getChoiceLabels()[currentindex].equals(objArray[i])) ||
+								(!delete && AnswerBean.getChoiceLabels()[currentindex - 1].equals(objArray[i]))) {
+							corrAnswers[correctIndex++] = AnswerBean.getChoiceLabels()[currentindex - 1];
+						}
+					}
+				}
+			}
+		}
+		this.setCorrAnswers(corrAnswers);
 		if (corrAnswers.length == 0) {
 			this.setCorrAnswer("");
 		}
@@ -1057,8 +1097,7 @@ public class ItemBean
 		}
 		return null;
 	}
-
-
+  
 // Huong added for matching
 
     public boolean isMatchError(){

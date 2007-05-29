@@ -111,11 +111,13 @@
 	rendered="#{itemauthor.currentItem.multipleCorrect}">
 	<f:selectItem itemValue="#{answer.label}" itemLabel="#{answer.label}"/>
         </h:selectManyCheckbox>
-         
+
+<h:commandLink title="#{authorMessages.t_removeC}" id="removelink" onfocus="document.forms[1].onsubmit();" action="#{itemauthor.currentItem.removeChoices}" rendered="#{itemauthor.currentItem.multipleCorrect}">
+  <h:outputText id="text" value="#{authorMessages.button_remove}"/>
+  <f:param name="answerid" value="#{answer.label}"/>
+</h:commandLink>		 
+
 	<!-- if single correct, use radiobuttons -->
-
-
-
 <h:selectOneRadio onclick="uncheckOthers(this);" onkeypress="uncheckOthers(this);" id="mcradiobtn"
 	layout="pageDirection"
 	value="#{itemauthor.currentItem.corrAnswer}"
@@ -124,10 +126,9 @@
 	<f:selectItem itemValue="#{answer.label}" itemLabel="#{answer.label}"/>
 </h:selectOneRadio>
 
-
-<h:commandLink title="#{authorMessages.t_removeC}" id="removelink" onfocus="document.forms[1].onsubmit();" action="#{itemauthor.currentItem.removeChoices}">
-  <h:outputText id="text" value="#{authorMessages.button_remove}"/>
-  <f:param name="answerid" value="#{answer.label}"/>
+<h:commandLink title="#{authorMessages.t_removeC}" id="removelinkSingle" onfocus="document.forms[1].onsubmit();" action="#{itemauthor.currentItem.removeChoicesSingle}" rendered="#{!itemauthor.currentItem.multipleCorrect}">
+  <h:outputText id="textSingle" value="#{authorMessages.button_remove}"/>
+  <f:param name="answeridSingle" value="#{answer.label}"/>
 </h:commandLink>
  </h:panelGroup>
         <!-- WYSIWYG -->
