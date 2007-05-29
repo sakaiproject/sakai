@@ -2282,29 +2282,17 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 				else if (addUpdateRemoveAssignment.equals("update"))
 				{
-					// is there such record in gradebook?
-					if (isExternalAssignmentDefined && associateGradebookAssignment == null)
-					{
-						try
-						{
-						    Assignment a = AssignmentService.getAssignment(assignmentRef);
-
-						    // update attributes for existing assignment
-					    		g.updateExternalAssessment(gradebookUid, assignmentRef, null, a.getTitle(), a.getContent().getMaxGradePoint()/10.0, new Date(a.getDueTime().getTime()));
-						}
-					    catch(Exception e)
-				        {
-				        		Log.warn("chef", rb.getString("cannot_find_assignment") + assignmentRef + ": " + e.getMessage());
-				        }
-					}
-					else if (associateGradebookAssignment != null && isExternalAssociateAssignmentDefined)
+					if (associateGradebookAssignment != null && isExternalAssociateAssignmentDefined)
 					{
 						try
 						{
 						    Assignment a = AssignmentService.getAssignment(associateGradebookAssignment);
 
-						    // update attributes for existing assignment
-					    		g.updateExternalAssessment(gradebookUid, associateGradebookAssignment, null, newAssignment_title, newAssignment_maxPoints/10.0, new Date(newAssignment_dueTime.getTime()));
+						    // update attributes if the GB assignment was created for the assignment
+						    if (newAssignment_title.equals(associateGradebookAssignment))
+						    {
+					    			g.updateExternalAssessment(gradebookUid, associateGradebookAssignment, null, newAssignment_title, newAssignment_maxPoints/10.0, new Date(newAssignment_dueTime.getTime()));
+						    }
 						}
 					    catch(Exception e)
 				        {
