@@ -62,17 +62,13 @@ public class AssignmentPointsConverter extends PointsConverter {
 					notCounted = assignment.getCategory() == null;
 				}
 			} else if (value instanceof AbstractGradeRecord) {
-				 if(
-					value instanceof AssignmentGradeRecord
+				 if(value instanceof AssignmentGradeRecord
 						&&
 			       ((GradableObject)((AbstractGradeRecord)value).getGradableObject()).getGradebook().getGrade_type() 
-						== GradebookService.GRADE_TYPE_POINTS 
-//						&&
-//				   ((GradableObject)((AbstractGradeRecord)value).getGradableObject()).getGradebook().getCategory_type() 
-//				   		!= GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY
-				   			){
+						== GradebookService.GRADE_TYPE_POINTS ){
 					//if grade by points and no category weighting
 					workingValue = ((AbstractGradeRecord)value).getPointsEarned();
+					notCounted = ((Assignment)((AssignmentGradeRecord)value).getAssignment()).isNotCounted();
 				} else {
 					//display percentage
 					percentage = true;
