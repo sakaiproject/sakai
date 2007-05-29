@@ -52,7 +52,7 @@
 			sortColumn="#{overviewBean.assignmentSortColumn}"
       sortAscending="#{overviewBean.assignmentSortAscending}"
       columnClasses="attach,left,center,center,center,center,center,center,external"
-			styleClass="listHier"
+			styleClass="listHier lines nolines"
 			expanded="true"
 			rowClasses="#{overviewBean.rowStyles}"
 			headerClasses="attach,left,center,center,center,center,center,center,external">
