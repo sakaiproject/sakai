@@ -37,6 +37,7 @@
 			singleton="true">
 
 		<lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" />
+		<lookup-method name="authenticationCache" bean="org.sakaiproject.user.impl.AuthenticationCache" />
 
 	</bean>
 
@@ -60,5 +61,24 @@
  		<property name="locksInDb"><value>false</value></property>
  		<property name="autoDdl"><value>${auto.ddl}</value></property>
 	</bean>
+	
+	<!--
+		Authentication cache to improve the effiency of clients that don't maintain
+		secure sessions, such as DAV.
+	-->
+	<bean id="org.sakaiproject.user.impl.AuthenticationCache" 
+		class="org.sakaiproject.user.impl.AuthenticationCache"
+		init-method="init"
+		singleton="true">
+		<!--  Disabled by default. -->
+		<property name="maximumSize" value="0" />
+		
+		<!--  Default timeout for login success is 2 minutes. -->
+		<property name="timeoutMs" value="120000" />
+		
+		<!-- Default timeout for login failure is 2 minutes. -->
+		<property name="failureThrottleTimeoutMs" value="120000" />
+	</bean>
+	
 
 </beans>

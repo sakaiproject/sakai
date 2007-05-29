@@ -52,6 +52,8 @@ public abstract class UserAuthnComponent implements AuthenticationManager
 	 * @return the UserDirectoryService collaborator.
 	 */
 	protected abstract UserDirectoryService userDirectoryService();
+	
+	protected abstract AuthenticationCache authenticationCache();
 
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -93,15 +95,27 @@ public abstract class UserAuthnComponent implements AuthenticationManager
 			{
 				throw new AuthenticationException("invalid login");
 			}
+			
+			// Check the cache. If repeat authentication failures are being throttled,
+			// an immediate AuthenticationException might be thrown here.
+			Authentication rv = authenticationCache().getAuthentication(evidence.getIdentifier(), evidence.getPassword());
+			if (rv != null) {
+				return rv;
+			}
 
 			// the evidence id must match a defined User
 			User user = userDirectoryService().authenticate(evidence.getIdentifier(), evidence.getPassword());
 			if (user == null)
 			{
+				authenticationCache().putAuthenticationFailure(evidence.getIdentifier(), evidence.getPassword());
 				throw new AuthenticationException("invalid login");
 			}
 
-			Authentication rv = new org.sakaiproject.util.Authentication(user.getId(), user.getEid());
+			rv = new org.sakaiproject.util.Authentication(user.getId(), user.getEid());
+			
+			// Cache the authentication.
+			authenticationCache().putAuthentication(evidence.getIdentifier(), evidence.getPassword(), rv);
+			
 			return rv;
 		}
 
