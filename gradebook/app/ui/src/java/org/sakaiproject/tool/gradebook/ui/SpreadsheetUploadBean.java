@@ -973,7 +973,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         			}
         		}
 
-        		gradeRecords = gradeChanges(assignment, studentRows, index);
+        		gradeRecords = gradeChanges(assignment, studentRows, index+1);
 
         		if (gradeRecords.size() == 0)
         			continue; // no changes to current grade record so go to next one
@@ -1032,7 +1032,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     					if (i == indexOfCumColumn)
     						continue;
     					
-    					String scoreAsString = (String)studentScores.get(i);
+    					String scoreAsString = ((String)studentScores.get(i)).trim();
     					Double scoreAsDouble;
     					if (scoreAsString != null && scoreAsString.length() > 0) {
 	    					try {
@@ -1099,8 +1099,8 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
    				// add uid to each row so can check spreadsheet value against currently stored
    				List linePlus = new ArrayList();
-   				linePlus.addAll(line);
    				linePlus.add(userid);
+   				linePlus.addAll(line);
    				studentRowsWithUids.add(linePlus);
    				
    			}
@@ -1124,15 +1124,19 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 		while(it.hasNext()) {
 			final List aRow = (List) it.next();
 
-			final String user = (String) aRow.get(0);
-			final String userid = (String) aRow.get(aRow.size()-1);
+			final String userid = (String) aRow.get(0);
+			final String user = (String) aRow.get(1);
 			
 			AssignmentGradeRecord gr = findGradeRecord(gbGrades, userid);
 			
-			String points = (String) aRow.get(index);
+			String points = null;
+			if (index < aRow.size()) {
+				points = ((String) aRow.get(index)).trim();
+			}
+
 			Double pointsEarned = null;
 			if (points != null && !"".equals(points)) {
-				pointsEarned = new Double(points.trim());
+				pointsEarned = new Double(points);
 				// truncate to 2 decimal places
 				if (pointsEarned != null)
 					pointsEarned = new Double(FacesUtil.getRoundDown(pointsEarned.doubleValue(), 2));
