@@ -129,7 +129,7 @@
 				columnClasses="attach,left,center,center,center,center,center,center,external"
 				rowClasses="#{instructorViewBean.rowStyles}"
 				headerClasses="attach,left,center,center,center,center,center,center comments,bogus"
-				styleClass="listHier narrowerTable"
+				styleClass="listHier"
 				expanded="true"
 				rowIndexVar="rowIndex">
 				
