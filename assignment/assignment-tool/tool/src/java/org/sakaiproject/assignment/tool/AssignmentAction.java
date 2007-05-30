@@ -2105,7 +2105,12 @@ public class AssignmentAction extends PagedResourceActionII
 				{
 					String userId = (String) showStudentListSetIterator.next();
 					User user = UserDirectoryService.getUser(userId);
-					showStudentAssignments.put(user, AssignmentService.getAssignmentsForContext(contextString, userId));
+					
+					// sort the assignments into the default order before adding
+					Iterator assignmentSorter = AssignmentService.getAssignmentsForContext(contextString, userId);
+					Iterator assignmentSortFinal = new SortedIterator(assignmentSorter, new AssignmentComparator(state, "default", Boolean.TRUE.toString()));
+
+					showStudentAssignments.put(user, assignmentSortFinal);
 				}
 				catch (Exception ee)
 				{
