@@ -2484,8 +2484,7 @@ public class SiteAction extends PagedResourceActionII {
 						.getAttribute(STATE_TERM_SELECTED);
 				context.put("term", t);
 				if (t != null) {
-					String userId = StringUtil.trimToZero(SessionManager
-							.getCurrentSessionUserId());
+					String userId = UserDirectoryService.getCurrentUser().getEid();
 					List courses = prepareCourseAndSectionListing(userId, t
 							.getEid(), state);
 					if (courses != null && courses.size() > 0) {
@@ -6095,8 +6094,7 @@ public class SiteAction extends PagedResourceActionII {
 			removeAddClassContext(state);
 			state.setAttribute(STATE_TEMPLATE_INDEX, "43");
 		} else if (option.equalsIgnoreCase("add")) {
-			String userId = StringUtil.trimToZero(SessionManager
-					.getCurrentSessionUserId());
+			String userId = UserDirectoryService.getCurrentUser().getEid();
 			AcademicSession t = (AcademicSession) state
 					.getAttribute(STATE_TERM_SELECTED);
 			if (t != null) {
