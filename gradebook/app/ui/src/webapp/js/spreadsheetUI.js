@@ -42,14 +42,10 @@ function gethandles(){
       }
    });
    //check if we need scrollbars - SAK-9969
-   if($("div#q4 div table").width() < $("div#q4").width()){
-      $("div#mainwrap").width($("div#mainwrap").width() - ($("div#q4").width() - $("div#q4 table").width()) + 15);
-      bothtrue = true;
-   }
+   $("div#mainwrap").css("max-width", $("div#mainwrap").width() - ($("div#q4").width() - $("div#q4 table").width()) + 15 + (ie?2:0));
    if($("div#q4 div table").height() < $("div#q4").height()){
-      $("div#q3").height($("div#q3").height() - ($("div#q4").height() - $("div#q4 table").height()) + 15);
-      $("div#q4 div").height($("div#q4 div").height() - ($("div#q4").height() - $("div#q4 table").height()) + 15);
-      if(bothtrue) $("div#q4 div").css("overflow", "auto");
+      $("div#q3").height($("div#q3").height() - ($("div#q4").height() - $("div#q4 table").height()) + 15 + (ie?2:0));
+      $("div#q4 div").height($("div#q4 div").height() - ($("div#q4").height() - $("div#q4 table").height()) + 15 + (ie?2:0));
    }
    //end check if we need scrollbars - SAK-9969
    el1 = $("div#q2 div ul").get(0);
