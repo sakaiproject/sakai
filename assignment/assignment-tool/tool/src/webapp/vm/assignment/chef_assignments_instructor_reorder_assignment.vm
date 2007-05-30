@@ -91,7 +91,7 @@
 			#set($count = 1)
 			#foreach($assignment in $assignments)
 			<tr class="sortable">
-			    ## The width attribute here fixes a minor bug of having extra space after the drop down.
+			    ## The 1% width attributes fixes a minor bug of having extra space after the drop down.
 				<td headers="dropdown" width="1%">
 				  <select name="position_$validator.escapeUrl("$assignment.id")" onChange="moveRow(this,this.value);">
 					#foreach($i in [1..$assignmentsize])
@@ -99,14 +99,14 @@
 					#end
 				  </select>
 				</td>
-				<td headers="moveUp" class="moveUp">
+				<td headers="moveUp" width="1%">
 					<a#if($count <= 1) style="display:none;"#end href="#" onclick="moveRow(this,'up')" title="$tlang.getString("sort.moveup")">
-						<img src="#imageLink("silk/bullet_arrow_up.png")" alt="$tlang.getString("sort.moveup")" border="0">
+						<img src="#imageLink("silk/bullet_arrow_up_24x24.png")" alt="$tlang.getString("sort.moveup")" border="0">
 					</a>
 				</td>
-				<td headers="moveDown" class="moveDown">
+				<td headers="moveDown" width="1%">
 					<a#if($count >= $assignmentsize) style="display:none;"#end href="#" onclick="moveRow(this,'down')" title="$tlang.getString("sort.movedn")">
-						<img src="#imageLink("silk/bullet_arrow_down.png")" alt="$tlang.getString("sort.movedn")" border="0">
+						<img src="#imageLink("silk/bullet_arrow_down_24x24.png")" alt="$tlang.getString("sort.movedn")" border="0">
 					</a>
 				</td>
 				<td headers="title">
