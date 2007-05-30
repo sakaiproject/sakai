@@ -11561,14 +11561,17 @@ public class SiteAction extends PagedResourceActionII {
 
 				// 2. check if course offering is cross-listed
 				Set set = cms.getEquivalentCourseOfferings(o.getEid());
-				for (Iterator k = set.iterator(); k.hasNext();) {
-					CourseOffering eo = (CourseOffering) k.next();
-					if (courseOfferingHash.containsKey(eo.getEid())) {
-						// => cross-listed, then list them together
-						CourseOfferingObject coo_equivalent = new CourseOfferingObject(
-								eo, (ArrayList) sectionHash.get(eo.getEid()));
-						l.add(coo_equivalent);
-						dealtWith.add(eo.getEid());
+				if (set != null)
+				{
+					for (Iterator k = set.iterator(); k.hasNext();) {
+						CourseOffering eo = (CourseOffering) k.next();
+						if (courseOfferingHash.containsKey(eo.getEid())) {
+							// => cross-listed, then list them together
+							CourseOfferingObject coo_equivalent = new CourseOfferingObject(
+									eo, (ArrayList) sectionHash.get(eo.getEid()));
+							l.add(coo_equivalent);
+							dealtWith.add(eo.getEid());
+						}
 					}
 				}
 				CourseObject co = new CourseObject(o, l);
