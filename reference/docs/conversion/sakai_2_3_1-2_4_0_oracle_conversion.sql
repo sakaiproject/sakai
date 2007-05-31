@@ -79,6 +79,12 @@ primary key (STUDENTGRADINGSUMMARYID)
 create sequence SAM_STUDENTGRADINGSUMMARY_ID_S;
 create index SAM_PUBLISHEDASSESSMENT2_I on SAM_STUDENTGRADINGSUMMARY_T (PUBLISHEDASSESSMENTID);
 
+-- SAK-10194
+insert into sam_sectionmetadata_t (sectionid, label, entry) (
+select sectionid,'POOLNAME_FOR_RANDOM_DRAW',(select title from sam_questionpool_t where questionpoolid=a.entry)
+from sam_sectionmetadata_t a where a.label='POOLID_FOR_RANDOM_DRAW'
+and not exists (select null from sam_sectionmetadata_t b where a.sectionid=b.sectionid and label='POOLNAME_FOR_RANDOM_DRAW')
+)
 
 ----------------------------------------------------------------------------------------------------------------------------------------
 -- new roster permissions
