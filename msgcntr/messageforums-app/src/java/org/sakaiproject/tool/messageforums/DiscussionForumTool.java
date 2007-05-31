@@ -72,6 +72,8 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
+//import org.sakaiproject.event.api.Event;
+//import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -2984,9 +2986,9 @@ public class DiscussionForumTool
   public String processDfMsgDeleteConfirm()
   {
 	  // if coming from thread view, need to set message info
-    if (getExternalParameterByKey(FROMPAGE) != null) {
+  	fromPage = getExternalParameterByKey(FROMPAGE);
+    if (fromPage != null) {
     	processActionDisplayMessage();
-    	fromPage = getExternalParameterByKey(FROMPAGE);
     }
 
     deleteMsg = true;
@@ -3471,6 +3473,21 @@ public class DiscussionForumTool
     return deleteMsg;
   }
 
+  private String getEventReference(Message message) {
+	  String eventRef;
+	  
+	  if (isForumsTool()) {
+		  eventRef = "/Forums/";
+	  }
+	  else {
+		  eventRef="/Messages&Forums/";
+	  }
+	  
+	  eventRef += message.getId() + "/del by/" + getUserNameOrEid();
+	  
+	  return eventRef;
+  }
+  
   /**
    * Deletes the message by setting boolean deleted switch to TRUE.
    */
@@ -3496,13 +3513,16 @@ public class DiscussionForumTool
 
     this.deleteMsg = false;
 
-    LOG.info("Forum message" + message.getTitle() + "(" + message.getId() + ") has been deleted by " + getUserNameOrEid());
+    // TODO: document it was done for tracking purposes
+//    EventTrackingService.post(EventTrackingService.newEvent("forum.msg.delete", getEventReference(message), true));
+ LOG.info("Forum message" + message.getTitle() + "(" + message.getId() + ") has been deleted by " + getUserNameOrEid());
 
     // go to thread view or all messages depending on
     // where come from
     if (!"".equals(fromPage)) {
     	final String where = fromPage;
     	fromPage = null;
+    	processActionGetDisplayThread();
     	return where;
     }
     else {
