@@ -3,7 +3,7 @@
  * $Id:  $
  ***********************************************************************************
  *
- * Copyright (c) 2006, 2007 The Sakai Foundation.
+ * Copyright (c) 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -45,6 +45,8 @@ public interface ResourceType
 	public static final String MIME_TYPE_METAOBJ = "application/x-osp";
 	public static final String MIME_TYPE_URL = "text/url";
 	
+	public static final int EXPANDABLE_FOLDER_SIZE_LIMIT = 256;
+
 	/**
 	 * Access the action specified by the parameter.  If the action is defined for this resource type,
 	 * it is returned.  Otherwise, the method returns null.
@@ -72,7 +74,11 @@ public interface ResourceType
 	 * Retrieve a reference for the location of the icon for this type. This should  
 	 * be relative to the image library in "/reference/library/src/webapp/image/".  
 	 * For example, the plain-text image is "sakai/text.gif";
-	 * If null, the mimetype of the resource or other info may be used to find an icon.
+	 * If null, the mimetype of the resource or other info may be used to find an icon,
+	 * which may be inappropriate for a particular resource type. In the case of folders
+	 * and other expandable resources, the value returned by this method will be used 
+	 * for top-level folders within a site because, those folders are expanded by default. 
+	 * 
 	 * @param entity The entity for which the icon is needed, or null, especially in
 	 * cases where a specific entity has not yet been created. 
 	 * @return A path to the icon relative to the root of the image library in
@@ -147,5 +153,13 @@ public interface ResourceType
 	 * @return true if the copyright/licensing dialog is included among the resource properties in the UI, false otherwise.
 	 */
 	public boolean hasRightsDialog();
+	
+	/**
+	 * Indicates whether this resource type is one for which an "expand" action is available.
+	 * If this method returns true, the ResourceType registration must implement the ExpandableResourceType
+	 * interface and provide action definitions of type "expand" and "collapse".
+	 * @return
+	 */
+	public boolean isExpandable();
 
 }

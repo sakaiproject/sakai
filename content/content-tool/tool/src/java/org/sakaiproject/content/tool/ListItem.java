@@ -47,6 +47,7 @@ import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.content.api.ExpandableResourceType;
 import org.sakaiproject.content.api.GroupAwareEdit;
 import org.sakaiproject.content.api.GroupAwareEntity;
 import org.sakaiproject.content.api.ResourceToolAction;
@@ -174,8 +175,24 @@ public class ListItem
         	}
 			else if(expandAll)
         	{
-        		expandedFolders.add(entity.getId());
-        	}
+				String typeId = entity.getResourceType();
+				if(typeId != null && registry != null)
+				{
+					ResourceType typeDef = registry.getType(typeId);
+					if(typeDef != null && typeDef.isExpandable())
+					{
+						ServiceLevelAction expandAction = ((ExpandableResourceType) typeDef).getExpandAction();
+						if(expandAction != null && expandAction.available(entity))
+						{
+							expandAction.initializeAction(ref);
+							
+				       		expandedFolders.add(entity.getId());
+				       		
+				       		expandAction.finalizeAction(ref);
+						}
+					}
+				}
+         	}
 
 			if(expandedFolders.contains(entity.getId()))
 			{
@@ -278,11 +295,13 @@ public class ListItem
 	protected boolean selected;
 	protected boolean collection;
 	protected String hoverText;
+	protected String expandLabel;
 	protected String accessUrl;
 	protected String iconLocation;
 	protected String mimetype;
 	protected String resourceType;
 	protected ResourceType resourceTypeDef = null;
+	protected boolean expandable = false;
 	protected boolean isEmpty = true;
 	protected boolean isExpanded = false;
 	protected boolean isSortable = false;
@@ -347,6 +366,8 @@ public class ListItem
 
 	protected boolean nameIsMissing = false;
 
+	private String expandIconLocation;
+
 
 	
 	/**
@@ -405,7 +426,12 @@ public class ListItem
 		if(typeDef != null)
 		{
 			this.hoverText = typeDef.getLocalizedHoverText(entity);
-			this.iconLocation = typeDef.getIconLocation(this.entity);
+			this.iconLocation = typeDef.getIconLocation(entity);
+			if(typeDef.isExpandable())
+			{
+				this.expandIconLocation = ((ExpandableResourceType) typeDef).getIconLocation(this.entity, this.isExpanded);
+				this.expandLabel = ((ExpandableResourceType) typeDef).getLocalizedHoverText(this.entity, this.isExpanded);
+			}
 			String[] args = { typeDef.getLabel() };
 			this.otherActionsLabel = trb.getFormattedMessage("action.other", args);
 		}
@@ -424,8 +450,8 @@ public class ListItem
 	        	setSize(rb.getFormattedMessage("size.items", args));
         	}
 			setIsEmpty(collection_size < 1);
-			setSortable(contentService.isSortByPriorityEnabled() && collection_size > 1 && collection_size < ResourcesAction.EXPANDABLE_FOLDER_SIZE_LIMIT);
-			if(collection_size > ResourcesAction.EXPANDABLE_FOLDER_SIZE_LIMIT)
+			setSortable(contentService.isSortByPriorityEnabled() && collection_size > 1 && collection_size < ResourceType.EXPANDABLE_FOLDER_SIZE_LIMIT);
+			if(collection_size > ResourceType.EXPANDABLE_FOLDER_SIZE_LIMIT)
 			{
 				setIsTooBig(true);
 			}
@@ -2022,11 +2048,29 @@ public class ListItem
 	}
     
     /**
+     * Sets expanded status of the list item.  Also updates the iconLocation 
+     * if the item is of an expandable resource type.
      * @param isExpanded the isExpanded to set
      */
     public void setExpanded(boolean isExpanded)
     {
     	this.isExpanded = isExpanded;
+    	// need resourceTypeDef to update the iconLocation
+    	if(this.resourceTypeDef == null && this.resourceType != null)
+    	{
+    		// need registry to get the resourceTypeDef if it's null and the typeDef's name isn't
+    		ResourceTypeRegistry registry = (ResourceTypeRegistry) ComponentManager.get(ResourceTypeRegistry.class);
+    		if(registry != null)
+    		{
+    			this.resourceTypeDef = registry.getType(this.resourceType);
+    		}
+    	}
+    	// iconLocation needs updating only if it's an expandable type
+    	if(this.resourceTypeDef != null && this.resourceTypeDef instanceof ExpandableResourceType)
+    	{
+ 			this.expandIconLocation = ((ExpandableResourceType) resourceTypeDef).getIconLocation(this.entity, this.isExpanded);
+			this.expandLabel = ((ExpandableResourceType) resourceTypeDef).getLocalizedHoverText(this.entity, this.isExpanded);
+		}
     }
     
     /**
@@ -2662,6 +2706,54 @@ public class ListItem
 			alerts.add(rb.getString("edit.missing"));
 		}
 	    return alerts;
+    }
+
+	/**
+     * @return the expandable
+     */
+    public boolean isExpandable()
+    {
+    	return expandable;
+    }
+
+	/**
+     * @param expandable the expandable to set
+     */
+    public void setExpandable(boolean expandable)
+    {
+    	this.expandable = expandable;
+    }
+
+	/**
+     * @return the expandLabel
+     */
+    public String getExpandLabel()
+    {
+    	return expandLabel;
+    }
+
+	/**
+     * @param expandLabel the expandLabel to set
+     */
+    public void setExpandLabel(String expandLabel)
+    {
+    	this.expandLabel = expandLabel;
+    }
+
+	/**
+     * @return the expandIconLocation
+     */
+    public String getExpandIconLocation()
+    {
+    	return expandIconLocation;
+    }
+
+	/**
+     * @param expandIconLocation the expandIconLocation to set
+     */
+    public void setExpandIconLocation(String expandIconLocation)
+    {
+    	this.expandIconLocation = expandIconLocation;
     }
 	
 }

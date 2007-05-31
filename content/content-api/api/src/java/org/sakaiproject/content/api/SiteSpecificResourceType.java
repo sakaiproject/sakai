@@ -32,5 +32,7 @@ public interface SiteSpecificResourceType extends ResourceType
 	 * @return true if the type is enabled by default and false otherwise. 
 	 */
 	public boolean isEnabledByDefault();
+	
+	
 
 }

@@ -158,6 +158,17 @@ public interface ResourceToolAction
 		REVISE_PERMISSIONS,
 		
 		/**
+		 * Expand a folder to show its members -- Handled by Resources tool.  Available to anybody with 
+		 * content.read permission for the contents of the folder. 
+		 */
+		EXPAND_FOLDER,
+		
+		/**
+		 * Collapse a folder to hide its members -- Handled by Resources tool.  No permission checks. 
+		 */
+		COLLAPSE_FOLDER,
+		
+		/**
 		 * Custom action -- Handled by helper.  May be interactive or service-level.  Custom actions
 		 * 		must implement the CustomToolAction interface to provide Resources tool with a way to 
 		 * 		determine permissions, as well as either InteractionAction or ServiceLevelAction.
@@ -180,6 +191,8 @@ public interface ResourceToolAction
 	public static final String PASTE_COPIED = "paste_copied";
 	public static final String PERMISSIONS = "revise_permissions";
 	public static final String REORDER = "revise_order";
+	public static final String EXPAND = "expand";
+	public static final String COLLAPSE = "collapse";
 	
 	public static final String ACTION_DELIMITER = ":";
 		

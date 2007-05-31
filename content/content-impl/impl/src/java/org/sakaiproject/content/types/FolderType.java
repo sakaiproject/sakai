@@ -37,6 +37,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ExpandableResourceType;
 import org.sakaiproject.content.api.InteractionAction;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
@@ -55,7 +56,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 
-public class FolderType extends BaseResourceType 
+public class FolderType extends BaseResourceType implements ExpandableResourceType 
 {
 	protected String typeId = ResourceType.TYPE_FOLDER;
 	protected String helperId = "sakai.resource.type.helper";
@@ -84,6 +85,8 @@ public class FolderType extends BaseResourceType
 		actions.put(ResourceToolAction.DELETE, new FolderDeleteAction());
 		actions.put(ResourceToolAction.REORDER, new FolderReorderAction());
 		actions.put(ResourceToolAction.PERMISSIONS, new FolderPermissionsAction());
+		actions.put(ResourceToolAction.EXPAND, new FolderExpandAction());
+		actions.put(ResourceToolAction.COLLAPSE, new FolderCollapseAction());
 		
 		// initialize actionMap with an empty List for each ActionType
 		for(ResourceToolAction.ActionType type : ResourceToolAction.ActionType.values())
@@ -1174,15 +1177,163 @@ public class FolderType extends BaseResourceType
 		}
 
 	}
+	
+	public class FolderExpandAction implements ServiceLevelAction
+	{
+
+		public void cancelAction(Reference reference)
+        {
+	        
+        }
+
+		public void finalizeAction(Reference reference)
+        {
+	        
+        }
+
+		public void initializeAction(Reference reference)
+        {
+	        
+        }
+
+		public boolean isMultipleItemAction()
+        {
+	        return false;
+        }
+
+		public boolean available(ContentEntity entity)
+        {
+			boolean isAvailable = (entity != null);
+			if(isAvailable && entity instanceof ContentCollection)
+			{
+				ContentCollection collection = (ContentCollection) entity;
+				int memberCount = collection.getMemberCount();
+				isAvailable = (memberCount > 0) && (memberCount < ResourceType.EXPANDABLE_FOLDER_SIZE_LIMIT);
+			}
+	        return isAvailable;
+        }
+
+		public ActionType getActionType()
+        {
+	        return ActionType.EXPAND_FOLDER;
+        }
+
+		public String getId()
+        {
+	        return ResourceToolAction.EXPAND;
+        }
+
+		public String getLabel()
+        {
+	        return rb.getString("expand.item");
+        }
+
+		public String getTypeId()
+        {
+	        return typeId;
+        }
 		
+	}
+	
+	public class FolderCollapseAction implements ServiceLevelAction
+	{
+
+		public void cancelAction(Reference reference)
+        {
+	        
+        }
+
+		public void finalizeAction(Reference reference)
+        {
+	        
+        }
+
+		public void initializeAction(Reference reference)
+        {
+	        
+        }
+
+		public boolean isMultipleItemAction()
+        {
+	        return false;
+        }
+
+		public boolean available(ContentEntity entity)
+        {
+	        return true;
+        }
+
+		public ActionType getActionType()
+        {
+	        return ActionType.COLLAPSE_FOLDER;
+        }
+
+		public String getId()
+        {
+	        return ResourceToolAction.COLLAPSE;
+        }
+
+		public String getLabel()
+        {
+	        return rb.getString("collapse.item");
+        }
+
+		public String getTypeId()
+        {
+	        return typeId;
+        }
+		
+	}
+	
 	public ResourceToolAction getAction(String actionId) 
 	{
 		return (ResourceToolAction) actions.get(actionId);
 	}
 
+	public String getIconLocation(ContentEntity entity, boolean expanded)
+    {
+		String iconLocation = "sakai/dir_openroot.gif";
+		if(entity.isCollection())
+		{
+			ContentCollection collection = (ContentCollection) entity;
+			int memberCount = collection.getMemberCount();
+			if(memberCount == 0)
+			{
+				iconLocation = "sakai/dir_closed.gif";
+			}
+			else if(memberCount > ResourceType.EXPANDABLE_FOLDER_SIZE_LIMIT)
+			{
+				iconLocation = "sakai/dir_unexpand.gif";
+			}
+			else if(expanded) 
+			{
+				iconLocation = "sakai/dir_openminus.gif";
+			}
+			else 
+			{
+				iconLocation = "sakai/dir_closedplus.gif";
+			}
+		}
+		return iconLocation;
+    }
+	
 	public String getIconLocation(ContentEntity entity) 
 	{
-		return null;
+		String iconLocation = "sakai/dir_openroot.gif";
+		if(entity.isCollection())
+		{
+			ContentCollection collection = (ContentCollection) entity;
+			int memberCount = collection.getMemberCount();
+			if(memberCount == 0)
+			{
+				iconLocation = "sakai/dir_closed.gif";
+			}
+			else if(memberCount > ResourceType.EXPANDABLE_FOLDER_SIZE_LIMIT)
+			{
+				iconLocation = "sakai/dir_unexpand.gif";
+			}
+		}
+		return iconLocation;
 	}
 	
 	public String getId() 
@@ -1194,6 +1345,33 @@ public class FolderType extends BaseResourceType
 	{
 		return rb.getString("type.folder");
 	}
+	
+	public String getLocalizedHoverText(ContentEntity entity, boolean expanded)
+    {
+		String hoverText = rb.getString("type.folder");
+		if(entity.isCollection())
+		{
+			ContentCollection collection = (ContentCollection) entity;
+			int memberCount = collection.getMemberCount();
+			if(memberCount == 0)
+			{
+				hoverText = rb.getString("type.folder");
+			}
+			else if(memberCount > ResourceType.EXPANDABLE_FOLDER_SIZE_LIMIT)
+			{
+				hoverText = rb.getString("list.toobig");
+			}
+			else if(expanded) 
+			{
+				hoverText = rb.getString("sh.close");
+			}
+			else 
+			{
+				hoverText = rb.getString("sh.open");
+			}
+		}
+		return hoverText;
+    }
 	
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.api.ResourceType#getLocalizedHoverText(org.sakaiproject.entity.api.Reference)
@@ -1246,4 +1424,14 @@ public class FolderType extends BaseResourceType
 		return false;
 	}
 	
+	public ServiceLevelAction getCollapseAction()
+    {
+	    return (ServiceLevelAction) this.actions.get(ResourceToolAction.COLLAPSE);
+    }
+
+	public ServiceLevelAction getExpandAction()
+    {
+	    return (ServiceLevelAction) this.actions.get(ResourceToolAction.EXPAND);
+    }
+
 }

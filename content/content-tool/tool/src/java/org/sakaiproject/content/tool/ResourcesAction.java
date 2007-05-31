@@ -63,6 +63,7 @@ import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.content.api.ExpandableResourceType;
 import org.sakaiproject.content.api.GroupAwareEntity;
 import org.sakaiproject.content.api.InteractionAction;
 import org.sakaiproject.content.api.MultiFileUploadPipe;
@@ -919,6 +920,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			ResourceProperties properties = service.getProperties (id);
 			context.put ("properties", properties);
 
+			// TODO: Should Use ResourceType
 			String isCollection = properties.getProperty (ResourceProperties.PROP_IS_COLLECTION);
 			if ((isCollection != null) && isCollection.equals (Boolean.FALSE.toString()))
 			{
@@ -4819,6 +4821,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		//context.put("sysout", System.out);
 		//context.put("tlang",rb);
 		// find the ContentTypeImage service
+		
 		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
 		
 		context.put("copyright_alert_url", COPYRIGHT_ALERT_URL);
@@ -5484,14 +5487,43 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 //			String id = (String) collection.getId();
 		    String id = (String) l.next();
 
-			if (id.indexOf (collectionId)==-1)
+			if (id.startsWith(collectionId))
 			{
-	//			newSet.put(id,collection);
-				newSet.add(id);
+				String refstr = ContentHostingService.getReference(id);
+				if(refstr != null)
+				{
+					Reference reference = EntityManager.newReference(refstr);
+					if(reference != null)
+					{
+						ContentEntity entity = (ContentEntity) reference.getEntity();
+						String typeId = entity.getResourceType();
+						ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+						if(typeId != null && registry != null)
+						{
+							ResourceType typeDef = registry.getType(typeId);
+							if(typeDef != null && typeDef.isExpandable())
+							{
+								ServiceLevelAction collapseAction = ((ExpandableResourceType) typeDef).getCollapseAction();
+								if(collapseAction != null && collapseAction.available(entity))
+								{
+									collapseAction.initializeAction(reference);
+									
+									collapseAction.finalizeAction(reference);
+									
+									folderSortMap.remove(id);
+
+									// add this folder id into the set to be event-observed
+									addObservingPattern(id, state);
+								}
+							}
+						}
+					}
+				}
 			}
 			else
 			{
-				folderSortMap.remove(id);
+				// newSet.put(id,collection);
+				newSet.add(id);
 			}
 		}
 
@@ -6069,11 +6101,38 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		state.setAttribute(STATE_LIST_SELECTIONS, selectedSet);
 
 		String id = params.getString("collectionId");
-		expandedItems.add(id);
+		
+		String refstr = ContentHostingService.getReference(id);
+		if(refstr != null)
+		{
+			Reference reference = EntityManager.newReference(refstr);
+			if(reference != null)
+			{
+				ContentEntity entity = (ContentEntity) reference.getEntity();
+				String typeId = entity.getResourceType();
+				ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+				if(typeId != null && registry != null)
+				{
+					ResourceType typeDef = registry.getType(typeId);
+					if(typeDef != null && typeDef.isExpandable())
+					{
+						ServiceLevelAction expandAction = ((ExpandableResourceType) typeDef).getExpandAction();
+						if(expandAction != null && expandAction.available(entity))
+						{
+							expandAction.initializeAction(reference);
+							
+							expandAction.finalizeAction(reference);
+							
+							expandedItems.add(id);
 
-		// add this folder id into the set to be event-observed
-		addObservingPattern(id, state);
-
+							// add this folder id into the set to be event-observed
+							addObservingPattern(id, state);
+						}
+					}
+				}
+			}
+		}
+		
 	}	// doExpand_collection
 
 	/**
@@ -7030,6 +7089,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 		state.setAttribute(STATE_EXPANDED_COLLECTIONS, new TreeSet());
 		state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, new Hashtable());
+		
+		// TODO: Should iterate over all collectionId's in expandedCollection 
+		//       and call collapseAction.initializeAction() and 
+		//       collapseAction.finalizeAction() for each one.
+		
 		state.setAttribute(STATE_EXPAND_ALL_FLAG, Boolean.FALSE.toString());
 
 	}	// doUnexpandall

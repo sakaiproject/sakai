@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ExpandableResourceType;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ServiceLevelAction;
@@ -73,6 +74,9 @@ public abstract class BaseResourceType implements ResourceType
 		return true;
 	}
 	
-	
+	public boolean isExpandable()
+    {
+	    return (this instanceof ExpandableResourceType);
+    }	
 
 }
