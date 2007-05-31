@@ -46,7 +46,7 @@
 			
 			<h:commandButton
 				action="#{instructorViewBean.processCancel}"
-				value="#{instructorViewBean.returnToPageName}"
+				value="#{instructorViewBean.returnToPageButtonName}"
 				accesskey="l"
 				tabindex="6"/>
 			

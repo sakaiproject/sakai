@@ -141,7 +141,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 	/**
 	 * @return text for "Return to" button
 	 */
-	public String getReturnToPageName() {
+	public String getReturnToPageButtonName() {
 		String pageTitle;
 		if (returnToPage.equals(ASSIGN_DETAILS_PAGE))
 			pageTitle = getLocalizedString("assignment_details_page_title");
@@ -149,6 +149,17 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 			pageTitle = getLocalizedString("roster_page_title");
 
 		return getLocalizedString("inst_view_return_to", new String[] {pageTitle});
+	}
+	
+	/**
+	 * 
+	 * @return page title of originating page
+	 */
+	public String getReturnToPageName() {
+		if (returnToPage.equals(ASSIGN_DETAILS_PAGE))
+			return getLocalizedString("assignment_details_page_title");
+		else
+			return getLocalizedString("roster_page_title");
 	}
 	
 	/**
