@@ -227,6 +227,14 @@
       <version>1.4</version>
       <scope>provided</scope>
     </dependency>
+    
+    <dependency>
+		<groupId>quartz</groupId>
+		<artifactId>quartz</artifactId>
+		<version>1.5.2</version>
+		<scope>provided</scope>
+	</dependency>
+    
   </dependencies>
   <reports/>
   <build>
