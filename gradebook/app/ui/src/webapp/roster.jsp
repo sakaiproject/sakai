@@ -32,6 +32,12 @@
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER" />
 				</h:outputText>
 			</h:panelGroup>
+			<h:outputText value="#{msgs.roster_average_category}" rendered="#{rosterBean.selectedCategory != null}" />
+			<h:panelGroup rendered="#{rosterBean.selectedCategory != null}" >
+				<h:outputText value="#{rosterBean.selectedCategory}">
+					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER" />
+				</h:outputText>
+			</h:panelGroup>
 		</h:panelGrid>
 
 		<t:aliasBean alias="#{bean}" value="#{rosterBean}">

@@ -512,6 +512,28 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         getPreferencesBean().setRosterTableSortColumn(sortColumn);
     }
     
+    public Category getSelectedCategory() {
+    	String selectedUid = getSelectedCategoryUid();
+    	Category selectedCat = null;
+    	
+    	//if selectedUid is not null (not All Categories) then proceed
+    	if (selectedUid != null){
+    		//get a list of all the categories with the stats
+	    	List categories = getGradebookManager().getCategoriesWithStats(getGradebookId(),Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
+	    	for (Iterator iter = categories.iterator(); iter.hasNext(); ){
+	    		Object obj = iter.next();
+	    		//last item of list is the CourseGrade, so ignore
+	    		if (!(obj instanceof Category)) { continue; }
+	    		Category cat = (Category) obj;
+	    		if (cat.getId() == Long.parseLong(selectedUid)){
+	    			selectedCat = cat;
+	    		}
+	    	
+	    	}
+	    }
+       	return selectedCat;
+    }
+    
     // Filtering
     public Integer getSelectedSectionFilterValue() {
         return getPreferencesBean().getRosterTableSectionFilter();
