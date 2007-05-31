@@ -75,4 +75,30 @@
         
     </bean>
 
+
+   <bean id="org.sakaiproject.component.section.sakai.SectionCmMetadataSynchronizer"
+   		class="org.sakaiproject.component.section.sakai.SectionCmMetadataSynchronizer"
+   		init-method="init">
+   		<property name="cmService">
+   			<ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"/>
+   		</property>
+   		<property name="siteService">
+   			<ref bean="org.sakaiproject.site.api.SiteService"/>
+   		</property>
+   	</bean>
+   	
+   <bean id="SectionCmMetadataSynchronizerJob"
+      class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+      singleton="true" init-method="init">
+      <property name="beanId">
+         <value>org.sakaiproject.component.section.sakai.SectionCmMetadataSynchronizer</value>
+      </property>
+      <property name="jobName">
+         <value>Section Metadata Sync Job</value>
+      </property>
+      <property name="schedulerManager">
+         <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+      </property>
+   </bean>
+
 </beans>

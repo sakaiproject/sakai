@@ -312,33 +312,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 			log.error("Site " + group.getContainingSite().getId() + " has a provider id, " + providerId + ", that has no matching section in CM.");
 			return;
 		}
-		decorateGroupWithCmSection(group, officialSection);
-	}
-
-	private CourseSection decorateGroupWithCmSection(Group group, Section officialSection) {
-		CourseSectionImpl section = new CourseSectionImpl(group);
-		
-		section.setTitle(officialSection.getTitle());
-		section.setCategory(officialSection.getCategory());
-		section.setMaxEnrollments(officialSection.getMaxSize());
-		Set officialMeetings = officialSection.getMeetings();
-		if(officialMeetings != null) {
-			List<Meeting> meetings = new ArrayList<Meeting>();
-			for(Iterator meetingIter = officialMeetings.iterator(); meetingIter.hasNext();) {
-				org.sakaiproject.coursemanagement.api.Meeting officialMeeting = (org.sakaiproject.coursemanagement.api.Meeting)meetingIter.next();
-				MeetingImpl meeting = new MeetingImpl(officialMeeting.getLocation(),
-						officialMeeting.getStartTime(), officialMeeting.getFinishTime(),
-						officialMeeting.isMonday(), officialMeeting.isTuesday(), officialMeeting.isWednesday(),
-						officialMeeting.isThursday(), officialMeeting.isFriday(), officialMeeting.isSaturday(), officialMeeting.isSunday());
-				meetings.add(meeting);
-			}
-			section.setMeetings(meetings);
-		}
-		// Ensure that the group is decorated properly, so the group properties are
-		// persisted with the correct section metadata
-		section.decorateGroup(group);
-		
-		return section;
+		CourseSectionUtil.decorateGroupWithCmSection(group, officialSection);
 	}
 	
 	/**
@@ -363,7 +337,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		}
 		Group group = site.addGroup();
 		group.setProviderGroupId(sectionEid);
-		return decorateGroupWithCmSection(group, officialSection);
+		return CourseSectionUtil.decorateGroupWithCmSection(group, officialSection);
 	}
 	
 	// SectionManager Methods
