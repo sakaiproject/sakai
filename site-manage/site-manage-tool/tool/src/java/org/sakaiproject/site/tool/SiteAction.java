@@ -1586,7 +1586,7 @@ public class SiteAction extends PagedResourceActionII {
 				if (state.getAttribute(STATE_ICONS) != null) {
 					List skins = (List) state.getAttribute(STATE_ICONS);
 					for (int i = 0; i < skins.size(); i++) {
-						Icon s = (Icon) skins.get(i);
+						MyIcon s = (MyIcon) skins.get(i);
 						if (!StringUtil
 								.different(s.getUrl(), site.getIconUrl())) {
 							context.put("siteUnit", s.getName());
@@ -5137,11 +5137,11 @@ public class SiteAction extends PagedResourceActionII {
 							List requiredFieldList = (List) requestFields
 									.get(i);
 							for (int j = 0; j < requiredFieldList.size(); j++) {
-								String requiredField = (String) requiredFields
+								SectionField requiredField = (SectionField) requiredFields
 										.get(j);
 
-								buf.append(requiredField + "\t"
-										+ requiredFieldList.get(j) + "\n");
+								buf.append(requiredField.getLabelKey() + "\t"
+										+ requiredField.getValue() + "\n");
 							}
 						}
 						buf.append("\n" + rb.getString("java.sitetitle") + "\t"
@@ -5218,9 +5218,9 @@ public class SiteAction extends PagedResourceActionII {
 			for (int i = 0; i < requestListSize; i++) {
 				List requiredFieldList = (List) requestFields.get(i);
 				for (int j = 0; j < requiredFieldList.size(); j++) {
-					String requiredField = (String) requiredFields.get(j);
+					SectionField requiredField = (SectionField) requiredFields.get(j);
 
-					buf.append(requiredField + "\t" + requiredFieldList.get(j)
+					buf.append(requiredField.getLabelKey() + "\t" + requiredField.getValue()
 							+ "\n");
 				}
 			}
@@ -9572,8 +9572,6 @@ public class SiteAction extends PagedResourceActionII {
 		state.setAttribute(STATE_SITE_INFO, siteInfo);
 		if (state.getAttribute(STATE_MESSAGE) == null) {
 			try {
-				siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
-
 				Site site = SiteService.addSite(id, siteInfo.site_type);
 
 				String title = StringUtil.trimToNull(siteInfo.title);
@@ -10141,7 +10139,7 @@ public class SiteAction extends PagedResourceActionII {
 				&& (iconNames.length == iconUrls.length)
 				&& (iconNames.length == iconSkins.length)) {
 			for (int i = 0; i < iconNames.length; i++) {
-				Icon s = new Icon(StringUtil.trimToNull((String) iconNames[i]),
+				MyIcon s = new MyIcon(StringUtil.trimToNull((String) iconNames[i]),
 						StringUtil.trimToNull((String) iconUrls[i]), StringUtil
 								.trimToNull((String) iconSkins[i]));
 				icons.add(s);
@@ -10163,9 +10161,9 @@ public class SiteAction extends PagedResourceActionII {
 		// if this icon is in the config appearance list, find a skin to set
 		List icons = (List) state.getAttribute(STATE_ICONS);
 		for (Iterator i = icons.iterator(); i.hasNext();) {
-			Icon icon = (Icon) i.next();
-			if (!StringUtil.different(icon.getUrl(), iconUrl)) {
-				edit.setSkin(icon.getSkin());
+			Object icon = (Object) i.next();
+			if (icon instanceof MyIcon && !StringUtil.different(((MyIcon) icon).getUrl(), iconUrl)) {
+				edit.setSkin(((MyIcon) icon).getSkin());
 				return;
 			}
 		}
@@ -10738,14 +10736,14 @@ public class SiteAction extends PagedResourceActionII {
 
 	} // ToolComparator
 
-	public class Icon {
+	public class MyIcon {
 		protected String m_name = null;
 
 		protected String m_url = null;
 
 		protected String m_skin = null;
 
-		public Icon(String name, String url, String skin) {
+		public MyIcon(String name, String url, String skin) {
 			m_name = name;
 			m_url = url;
 			m_skin = skin;
