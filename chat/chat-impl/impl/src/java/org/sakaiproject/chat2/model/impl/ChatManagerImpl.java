@@ -337,7 +337,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
 		  
 	      ChatMessage message = getMigratedMessage(messageId);
 	      
-	      if(message == null) {
+	      if(message == null && body != null && !body.equals("")) {
 	    	  
 	    	  ChatChannel channel = getChatChannel(channelId);
 	    	  
