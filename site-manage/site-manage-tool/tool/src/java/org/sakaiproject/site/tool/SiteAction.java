@@ -4492,9 +4492,9 @@ public class SiteAction extends PagedResourceActionII {
 		// read the user input
 		int validInputSites = 0;
 		boolean validInput = true;
-		List requiredFields = sectionFieldManager.getRequiredFields();
 		List multiCourseInputs = new Vector();
 		for (int i = 0; i < oldNumber; i++) {
+			List requiredFields = sectionFieldManager.getRequiredFields();
 			List aCourseInputs = new Vector();
 			int emptyInputNum = 0;
 
@@ -4543,6 +4543,7 @@ public class SiteAction extends PagedResourceActionII {
 				state.setAttribute(STATE_MANUAL_ADD_COURSE_NUMBER, new Integer(
 						oldNumber + newNumber));
 
+				List requiredFields = sectionFieldManager.getRequiredFields();
 				for (int j = 0; j < newNumber; j++) {
 					// add a new course input
 					List aCourseInputs = new Vector();
