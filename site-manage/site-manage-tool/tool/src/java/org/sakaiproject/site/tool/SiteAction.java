@@ -12036,7 +12036,18 @@ public class SiteAction extends PagedResourceActionII {
 		state.setAttribute(STATE_CM_LEVELS, cmLevels);
 		state.setAttribute(STATE_CM_LEVEL_SELECTIONS, selections);
 
-		state.setAttribute(STATE_TEMPLATE_INDEX, "53");
+		// check the configuration setting for choosing next screen
+		Boolean skipCourseSectionSelection = ServerConfigurationService.getBoolean("wsetup.skipCourseSectionSelection", Boolean.FALSE);
+		if (!skipCourseSectionSelection.booleanValue())
+		{
+			// go to the course/section selection page
+			state.setAttribute(STATE_TEMPLATE_INDEX, "53");
+		}
+		else
+		{
+			// skip the course/section selection page, go directly into the manually create course page
+			state.setAttribute(STATE_TEMPLATE_INDEX, "37");
+		}
 	}
 
 	private void addRequestedSection(SessionState state) {
