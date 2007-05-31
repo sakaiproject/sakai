@@ -230,8 +230,8 @@ public class Category implements Serializable
     {
     	averageScore = new Double(total / numScored);
     	averageTotalPoints = new Double(totalPossible / numOfAssignments);
-    	double roundValue = total / numScored / (totalPossible / numOfAssignments) * 100;
-    	mean = new Double(new BigDecimal(roundValue).setScale(0, BigDecimal.ROUND_HALF_UP).doubleValue()) ;
+    	double value = total / numScored / averageTotalPoints.doubleValue() * 100;
+    	mean = new Double(value) ;
     }
 	}
 

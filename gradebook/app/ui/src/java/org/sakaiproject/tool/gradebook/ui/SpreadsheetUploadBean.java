@@ -1221,7 +1221,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
     	for (Iterator assignIter = assignList.iterator(); assignIter.hasNext(); ) {
     		Assignment assignment = (Assignment) assignIter.next();
     		
-    		if (assignment.getName().equals(name)) {
+    		if (assignment.getName().trim().equals(name.trim())) {
     			// remove for performance
     			assignList.remove(assignment);
     			return assignment;
