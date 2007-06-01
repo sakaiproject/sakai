@@ -5371,6 +5371,31 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	{
 		return true;
 	}
+	
+	/**
+	 ** Encode filename (accomodating UTF-8 characters) for specific browser download/access
+	 ** Sadly, Mozilla uses a different encoding scheme than everyone else
+	 ** Sadly, Safari has a known bug where doesn't correctly translate encoding for user
+	 **/
+	private String encodeFileName(HttpServletRequest req, String fileName )
+	{
+		String agent = req.getHeader("USER-AGENT");
+		try
+		{
+			if ( agent != null && agent.indexOf("MSIE")>=0 )
+				fileName = URLEncoder.encode(fileName, "UTF8");
+			else if ( agent != null && agent.indexOf("Mozilla")>=0 && agent.indexOf("Safari") == -1 )
+				fileName = javax.mail.internet.MimeUtility.encodeText(fileName, "UTF8", "B");
+			else
+				fileName = URLEncoder.encode(fileName, "UTF8");
+		}
+		catch (UnsupportedEncodingException e)
+		{
+			M_log.error(e);
+		}
+		
+		return fileName;		
+	}
 
 	/** stream content requests if true, read all into memory and send if false. */
 	protected static final boolean STREAM_CONTENT = true;
@@ -5459,23 +5484,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			else
 			{
 				// use the last part, the file name part of the id, for the download file name
-				String fileName = Validator.getFileName(ref.getId());
-				
-				// encode filename for utf-8 characters
-				String agent = req.getHeader("USER-AGENT");
-				try
-				{
-					if ( agent != null && agent.indexOf("MSIE")>=0 )
-						fileName = URLEncoder.encode(fileName, "UTF8");
-					else if ( agent != null && agent.indexOf("Mozilla")>=0 && agent.indexOf("Safari") == -1 )
-						fileName = javax.mail.internet.MimeUtility.encodeText(fileName, "UTF8", "B");
-					else
-						fileName = URLEncoder.encode(fileName, "UTF8");
-				}
-				catch (UnsupportedEncodingException e)
-				{
-					M_log.error(e);
-				}
+				String fileName = encodeFileName( req, Validator.getFileName(ref.getId()) );
 				
 				String disposition = null;
 				
