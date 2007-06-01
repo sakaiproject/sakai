@@ -1748,21 +1748,9 @@ public class DavServlet extends HttpServlet
 
 	public String getRelativePathSAKAI(HttpServletRequest req)
 	{
-		// req.getPathInfo() does not correctly decode utf8
-		// so instead, we figure it out ourselves...
-		String path = "/";
-		try
-		{
-			String requestURI = req.getRequestURI();
-			int pathIndex = requestURI.indexOf(java.io.File.separator, 1); // skip leading slash
-			if ( pathIndex > 0 )
-			{
-				path = requestURI.substring( pathIndex );
-				path = java.net.URLDecoder.decode(path, "UTF-8");
-			}
-		}
-		catch (java.io.UnsupportedEncodingException e) {}
-
+		String path = req.getPathInfo();
+		
+		if (path == null) path = "/";
 		if (M_log.isDebugEnabled()) M_log.debug("getRelativePathSAKAI = " + path);
 		return path;
 
