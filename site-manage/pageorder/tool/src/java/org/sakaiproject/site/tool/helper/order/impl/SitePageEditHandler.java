@@ -48,8 +48,14 @@ public class SitePageEditHandler {
     private final String SITE_UPD = "site.upd";
     private final String HELPER_ID = "sakai.tool.helper.id";
     private final String UNHIDEABLES_CFG = "poh.unhideables";
+
+    //System config for which tools can be added to a site more then once
+    private final String MULTI_TOOLS = "sakai.site.multiPlacementTools";
+
     // Tool session attribute name used to schedule a whole page refresh.
     public static final String ATTR_TOP_REFRESH = "sakai.vppa.top.refresh"; 
+
+    private String[] defaultMultiTools = {"sakai.news", "sakai.iframe"};
 
     /**
      * Gets the current tool
@@ -162,14 +168,24 @@ public class SitePageEditHandler {
         
         Set toolRegistrations = toolManager.findTools(categories, null);
         
+        Vector multiPlacementToolIds = new Vector();
+
+        String items[];
+        if (serverConfigurationService.getString(MULTI_TOOLS) != null)
+            items = serverConfigurationService.getString(MULTI_TOOLS).split(",");
+        else
+            items = defaultMultiTools;
+
+        for (int i = 0; i < items.length; i++) {
+            multiPlacementToolIds.add(items[i]);
+        }
+        
         SortedIterator i = new SortedIterator(toolRegistrations.iterator(), new ToolComparator());
         for (; i.hasNext();)
         {
             Tool tr = (Tool) i.next();
             if (tr != null) {
-                //TODO: Find a better way to handle tools that can/will exist multiple times, 
-                //    should be configurable from sakai.properties, or atlest spring injected
-                if (tr.getId().indexOf("sakai.news") != -1 || tr.getId().indexOf("sakai.iframe") != -1) {
+                if (multiPlacementToolIds.contains(tr.getId())) {
                     tools.add(tr);
                 }
                 else if (site.getToolForCommonId(tr.getId()) == null) {
