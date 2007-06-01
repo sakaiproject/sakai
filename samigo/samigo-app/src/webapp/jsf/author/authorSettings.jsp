@@ -762,7 +762,7 @@ function uncheckOther(field){
       <f:param name="assessmentId" value="#{assessmentSettings.assessmentId}"/>
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentSettingsListener" />
   </h:commandButton>
-  <h:commandButton value="#{assessmentSettingsMessages.button_cancel}" type="submit" action="editAssessment" >
+  <h:commandButton value="#{assessmentSettingsMessages.button_cancel}" type="submit" action="editAssessment" immediate="true">
       <f:param name="assessmentId" value="#{assessmentSettings.assessmentId}"/>
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ResetAssessmentAttachmentListener" />
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditAssessmentListener" />

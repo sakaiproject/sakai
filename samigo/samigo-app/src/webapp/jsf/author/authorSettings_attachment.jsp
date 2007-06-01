@@ -46,14 +46,14 @@
   <h:panelGroup rendered="#{!assessmentSettings.hasAttachment}">
     <sakai:button_bar>
       <sakai:button_bar_item action="#{assessmentSettings.addAttachmentsRedirect}"
-             value="#{assessmentSettingsMessages.add_attachments}"/>
+             value="#{assessmentSettingsMessages.add_attachments}" immediate="true"/>
     </sakai:button_bar>
   </h:panelGroup>
 
   <h:panelGroup rendered="#{assessmentSettings.hasAttachment}">
     <sakai:button_bar>
       <sakai:button_bar_item action="#{assessmentSettings.addAttachmentsRedirect}"
-             value="#{assessmentSettingsMessages.add_remove_attachments}"/>
+             value="#{assessmentSettingsMessages.add_remove_attachments}" immediate="true"/>
     </sakai:button_bar>
   </h:panelGroup>
 </div>
