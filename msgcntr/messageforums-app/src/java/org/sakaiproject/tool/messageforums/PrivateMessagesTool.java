@@ -1742,6 +1742,7 @@ public class PrivateMessagesTool
        
     rrepMsg.setTitle(getReplyToSubject()) ; //rrepMsg.setTitle(rMsg.getTitle()) ;
     rrepMsg.setDraft(Boolean.FALSE);
+    rrepMsg.setDeleted(false);
     
     rrepMsg.setAuthor(getAuthorString());
     rrepMsg.setApproved(Boolean.FALSE);
