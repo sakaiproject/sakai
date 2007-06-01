@@ -1320,7 +1320,7 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
 	public String getIconLocation(ContentEntity entity) 
 	{
 		String iconLocation = "sakai/dir_openroot.gif";
-		if(entity.isCollection())
+		if(entity != null && entity.isCollection())
 		{
 			ContentCollection collection = (ContentCollection) entity;
 			int memberCount = collection.getMemberCount();
