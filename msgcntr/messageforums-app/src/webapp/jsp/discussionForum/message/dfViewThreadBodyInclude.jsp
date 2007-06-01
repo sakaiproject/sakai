@@ -106,19 +106,22 @@
 			<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId" />
 			<f:param value="#{ForumTool.selectedTopic.topic.baseForum.id}" name="forumId" />
 		</h:commandLink>
+		<h:outputText value=" #{msgs.cdfm_toolbar_separator} " />
 	</h:panelGroup>
 
 	<%-- Delete other action --%>
-	<h:panelGroup> <%-- TODO: check if they have delete permissionrendered="#{message.delete}" --%>
-		<h:outputText value=" #{msgs.cdfm_toolbar_separator} " />
-		<h:commandLink action="#{ForumTool.processDfMsgDeleteConfirm}"value="#{msgs.cdfm_button_bar_delete}">
+	<%-- TODO: add check for rendering rendered="#{ForumTool.instructor || message.isOwn}" --%>
+	<h:panelGroup>
+		<h:commandLink action="#{ForumTool.processDfMsgDeleteConfirm}" value="#{msgs.cdfm_button_bar_delete}">
 			<f:param value="#{message.message.id}" name="messageId" />
 			<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId" />
 			<f:param value="#{ForumTool.selectedTopic.topic.baseForum.id}" name="forumId" />
 			<f:param value="dfViewThread" name="fromPage" />
 		</h:commandLink>
+		<h:outputText value=" #{msgs.cdfm_toolbar_separator} " rendered="#{ForumTool.selectedTopic.isModeratedAndHasPerm}" />
 	</h:panelGroup>
 
+	<%-- Moderate other action --%>
 	<h:panelGroup rendered="#{ForumTool.selectedTopic.isModeratedAndHasPerm}">
 		<h:commandLink action="#{ForumTool.processActionDisplayMessage}" immediate="true" title=" #{msgs.cdfm_moderate}">
 			<h:outputText value="#{msgs.cdfm_moderate}" />
