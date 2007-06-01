@@ -1281,6 +1281,7 @@ public class PrivateMessagesTool
     
     PrivateMessage dMsg=constructMessage() ;
     dMsg.setDraft(Boolean.TRUE);
+    dMsg.setDeleted(Boolean.FALSE);
     
     if((SET_AS_YES).equals(getComposeSendAsPvtMsg()))
     {
@@ -1742,7 +1743,7 @@ public class PrivateMessagesTool
        
     rrepMsg.setTitle(getReplyToSubject()) ; //rrepMsg.setTitle(rMsg.getTitle()) ;
     rrepMsg.setDraft(Boolean.FALSE);
-    rrepMsg.setDeleted(false);
+    rrepMsg.setDeleted(Boolean.FALSE);
     
     rrepMsg.setAuthor(getAuthorString());
     rrepMsg.setApproved(Boolean.FALSE);
@@ -1843,7 +1844,8 @@ public class PrivateMessagesTool
     PrivateMessage drrepMsg = messageManager.createPrivateMessage() ;
     drrepMsg.setTitle(getReplyToSubject()) ;
     drrepMsg.setDraft(Boolean.TRUE);
-
+    drrepMsg.setDeleted(Boolean.FALSE);
+    
     drrepMsg.setAuthor(getAuthorString());
     drrepMsg.setApproved(Boolean.FALSE);
     drrepMsg.setBody(getReplyToBody()) ;
