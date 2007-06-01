@@ -993,7 +993,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		else
 		{
-			context.put("dropboxMode", Boolean.FALSE);
+			//context.put("dropboxMode", Boolean.FALSE);
 			
 			Boolean preventPublicDisplay = (Boolean) state.getAttribute(STATE_PREVENT_PUBLIC_DISPLAY);
 			if(preventPublicDisplay == null)

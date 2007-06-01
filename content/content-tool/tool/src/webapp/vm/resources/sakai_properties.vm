@@ -169,14 +169,14 @@
 		#end
 	#end
 
-	#if(!$dropboxMode && ! $model.isSiteCollection())
+	#if(!$model.isDropbox() && ! $model.isSiteCollection())
 		<h4>
 			$tlang.getString("props.access")
 		</h4>
 	#end
 	
 	######### begin access section ##########
-	#if(!$dropboxMode && ! $model.isSiteCollection())
+	#if(!$model.isDropbox() && ! $model.isSiteCollection())
 		<p class="instruction">$model.longAccessLabel</p>
 		<div  class="labelindnt">
 			#set ($listDisplay="none")
@@ -287,7 +287,7 @@
 	######### end access section ##########
 
 	######### begin availability section ##########
-	#if($availability_is_enabled && !$model.isInWorkspace() && !$dropboxMode && ! $model.isSiteCollection())
+	#if($availability_is_enabled && !$model.isInWorkspace() && !$model.isDropbox() && ! $model.isSiteCollection())
 		<p class="instruction">
 			#if($model.isCollection())
 				$tlang.getString("instr.access.fldr")

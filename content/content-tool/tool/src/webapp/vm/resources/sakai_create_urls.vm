@@ -58,17 +58,19 @@
 		<p class="act">
 			<a href="#" onclick="javascript:addFileInput();">$tlang.getString("label.addurl")</a>
 		</p>
-		#if ($model.resourceTypeDef.hasNotificationDialog())
-			<p class="shorttext">
-				<label for="notify${DOT}$i">
-					$tlang.getString("gen.email1")
-				</label>	
-				<select name="notify$i" id="notify${DOT}$i">
-					<option value="r">$tlang.getString("gen.email2")</option>
-					<option value="o">$tlang.getString("gen.email3")</option>
-					<option value="n" selected="selected">$tlang.getString("gen.email4")</option>
-				</select>
-			</p>	
+		#if(!$dropboxMode)
+			#if ($model.resourceTypeDef.hasNotificationDialog())
+				<p class="shorttext">
+					<label for="notify${DOT}$i">
+						$tlang.getString("gen.email1")
+					</label>	
+					<select name="notify$i" id="notify${DOT}$i">
+						<option value="r">$tlang.getString("gen.email2")</option>
+						<option value="o">$tlang.getString("gen.email3")</option>
+						<option value="n" selected="selected">$tlang.getString("gen.email4")</option>
+					</select>
+				</p>	
+			#end
 		#end
 		
 		<p class="act">
