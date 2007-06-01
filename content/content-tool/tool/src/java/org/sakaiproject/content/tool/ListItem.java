@@ -921,7 +921,7 @@ public class ListItem
 		if(allowed && id != null)
 		{
 			// don't allow changing name of root collections
-			if(org.sakaiproject.content.api.ContentHostingService.ROOT_COLLECTIONS.contains(this.id))
+			if(ContentHostingService.isRootCollection(this.id))
 			{
 				allowed = false;
 			}

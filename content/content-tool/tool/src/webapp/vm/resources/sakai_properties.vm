@@ -287,7 +287,7 @@
 	######### end access section ##########
 
 	######### begin availability section ##########
-	#if($availability_is_enabled && !$model.isInWorkspace() && !$model.isDropbox() && ! $model.isSiteCollection())
+	#if($availability_is_enabled && !$model.isUserSite() && !$model.isDropbox() && ! $model.isSiteCollection())
 		<p class="instruction">
 			#if($model.isCollection())
 				$tlang.getString("instr.access.fldr")
