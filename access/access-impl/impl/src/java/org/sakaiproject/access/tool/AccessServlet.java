@@ -228,20 +228,8 @@ public class AccessServlet extends VmServlet
 		ParameterParser params = (ParameterParser) req.getAttribute(ATTR_PARAMS);
 
 		// get the path info
-		// params.getPath() && req.getPathInfo() do not correctly decode utf8
-		// so instead, we figure it out ourselves...
-		String path = "";
-		try
-		{
-			String requestURI = req.getRequestURI();
-			int pathIndex = requestURI.indexOf(java.io.File.separator, 1); // skip leading slash
-			if ( pathIndex > 0 )
-			{
-				path = requestURI.substring( pathIndex );
-				path = java.net.URLDecoder.decode(path, "UTF-8");
-			}
-		}
-		catch (java.io.UnsupportedEncodingException e) {}
+		String path = params.getPath();
+		if (path == null) path = "";
 
 		if (!m_ready)
 		{
@@ -312,7 +300,7 @@ public class AccessServlet extends VmServlet
 			accepted.add(aRef.getReference());
 
 			// redirect to the original URL
-			String returnPath = req.getParameter(COPYRIGHT_ACCEPT_URL);
+			String returnPath =  Validator.escapeUrl( req.getParameter(COPYRIGHT_ACCEPT_URL) );
 
 			try
 			{
@@ -320,6 +308,7 @@ public class AccessServlet extends VmServlet
 			}
 			catch (IOException e)
 			{
+				sendError(res, HttpServletResponse.SC_NOT_FOUND);
 			}
 			return;
 		}
