@@ -4584,13 +4584,11 @@ public class SiteAction extends PagedResourceActionII {
 				&& multiCourseInputs.size() > 0) {
 			AcademicSession t = (AcademicSession) state
 					.getAttribute(STATE_TERM_SELECTED);
-			String courseId = sectionFieldManager.getSectionEid(t.getEid(),
+			String sectionEid = sectionFieldManager.getSectionEid(t.getEid(),
 					(List) multiCourseInputs.get(0));
 			String title = "";
 			try {
-				// instead of making up a name, Josh & I decided to use the
-				// section.eid instead
-				title = courseId;
+				title = cms.getSection(sectionEid).getTitle();
 			} catch (Exception e) {
 				// ignore
 			}
@@ -7920,35 +7918,66 @@ public class SiteAction extends PagedResourceActionII {
 		Vector participants = new Vector();
 		try {
 			AuthzGroup realm = AuthzGroupService.getAuthzGroup(realmId);
+			realm.getProviderGroupId();
+			
+			// iterate through the provider list first
+			for (Iterator i=providerCourseList.iterator(); i.hasNext();)
+			{
+				String providerCourseEid = (String) i.next();
+				Set enrollmentSet = cms.getEnrollments(providerCourseEid);
+				for (Iterator eIterator = enrollmentSet.iterator();eIterator.hasNext();)
+				{
+					Enrollment e = (Enrollment) eIterator.next();
+					try 
+					{
+						User user = UserDirectoryService.getUserByEid(e.getUserId());
+						Member member = realm.getMember(user.getId());
+						if (member != null && member.isProvided())
+						{
+							// add provided participant
+							Participant participant = new Participant();
+							participant.course = cms.getSection(providerCourseEid).getTitle();
+							participant.credits = e.getCredits();
+							participant.name = user.getSortName();
+							participant.providerRole = member.getRole()!=null?member.getRole().getId():"";
+							participant.regId = "";
+							participant.removeable = false;
+							participant.role = member.getRole()!=null?member.getRole().getId():"";
+							participant.section = providerCourseEid;
+							participant.uniqname = user.getEid();
+							participants.add(participant);
+						}
+					} catch (UserNotDefinedException exception) {
+						// deal with missing user quietly without throwing a
+						// warning message
+						M_log.warn(exception.getMessage());
+					}
+				}
+			}
+			
+			// now for those not provided users
 			Set grants = realm.getMembers();
-			// Collections.sort(users);
 			for (Iterator i = grants.iterator(); i.hasNext();) {
 				Member g = (Member) i.next();
-				String userString = g.getUserEid();
-				Role r = g.getRole();
-				try {
-					User user = UserDirectoryService.getUserByEid(userString);
-					Participant participant = new Participant();
-					participant.name = user.getSortName();
-					participant.uniqname = user.getId();
-					if (r != null) {
-						participant.role = r.getId();
-					}
-					if (g.isProvided()) {
-						// official member, can't delete
-						participant.removeable = false;
-					} else {
+				if (!g.isProvided())
+				{
+					try {
+						User user = UserDirectoryService.getUserByEid(g.getUserEid());
+						Participant participant = new Participant();
+						participant.name = user.getSortName();
+						participant.uniqname = user.getId();
+						participant.role = g.getRole()!=null?g.getRole().getId():"";
 						participant.removeable = true;
+						participants.add(participant);
+					} catch (UserNotDefinedException e) {
+						// deal with missing user quietly without throwing a
+						// warning message
+						M_log.warn(e.getMessage());
 					}
-					participants.add(participant);
-				} catch (UserNotDefinedException e) {
-					// deal with missing user quietly without throwing a
-					// warning message
-					M_log.warn(e.getMessage());
 				}
 			}
 
-		} catch (GroupNotDefinedException e) {
+		} catch (GroupNotDefinedException ee) {
 			M_log.warn(this + "  IdUnusedException " + realmId);
 		}
 		return participants;
