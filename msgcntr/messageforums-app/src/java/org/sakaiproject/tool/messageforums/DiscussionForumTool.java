@@ -3828,6 +3828,18 @@ public class DiscussionForumTool
 	  
 	  return MESSAGE_VIEW;
   }
+
+  /**
+   * Can user delete this message?
+   */
+  public boolean isCanDelete()
+  {
+	  final boolean isInstructor = isInstructor();
+	  final boolean isDeleteAny = selectedTopic.getIsDeleteAny();
+	  final boolean isDeleteOwn = selectedTopic.getIsDeleteOwn();
+	  final boolean isOwn = selectedMessage.getIsOwn();
+	  return isInstructor || isDeleteAny || isDeleteOwn || isOwn;
+  }
   
   /**
    * Approve option is displayed if:

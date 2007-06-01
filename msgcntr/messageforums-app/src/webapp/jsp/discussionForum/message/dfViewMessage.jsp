@@ -99,8 +99,7 @@
 		  				<h:outputText value=" #{msgs.cdfm_button_bar_reply_to_thread}" />
 		  			</h:commandLink>
 		  		
-			  		<h:commandLink title="#{msgs.cdfm_button_bar_delete_msg}" action="#{ForumTool.processDfMsgDeleteConfirm}" 
-			  			rendered="#{ForumTool.selectedTopic.isDeleteAny || ForumTool.selectedTopic.isDeleteOwn || ForumTool.selectedMessage.isOwn}" >
+			  		<h:commandLink title="#{msgs.cdfm_button_bar_delete_msg}" action="#{ForumTool.processDfMsgDeleteConfirm}" rendered="#{ForumTool.canDelete}" >
 		  				<h:graphicImage value="/images/silk/email_delete.png" alt="#{msgs.cdfm_button_bar_delete_msg}" />
 		  				<h:outputText value=" #{msgs.cdfm_button_bar_delete_msg}" />
 		  			</h:commandLink>
