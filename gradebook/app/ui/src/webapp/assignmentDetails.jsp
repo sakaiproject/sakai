@@ -163,7 +163,7 @@
 			rowIndexVar="scoreRowIndex"
 			sortColumn="#{assignmentDetailsBean.sortColumn}"
 			sortAscending="#{assignmentDetailsBean.sortAscending}"
-			columnClasses="gbMessageAbove,gbMessageAbove,gbMessageAbove,gbMessageAboveNumber,gbMessageAbove"
+			columnClasses="gbMessageAbove,gbMessageAbove,gbMessageAbove,gbMessageAbove,gbMessageAbove"
 			headerClass="gbHeader"
 			styleClass="listHier">
 			<h:column>
@@ -211,7 +211,7 @@
 		      </t:commandSortHeader>
 				</f:facet>
 
-				<t:div styleClass="shorttext">
+				<t:div>
 					<h:inputText id="Score" value="#{scoreRow.score}" size="4" 
 						 rendered="#{!assignmentDetailsBean.assignment.externallyMaintained}"
 						 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
