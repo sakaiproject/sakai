@@ -36,7 +36,7 @@
 		
 	
 		<%--rjlowe: Expanded View to show the message bodies, but not threaded --%>
-		<h:dataTable id="expandedMessages" value="#{ForumTool.pFSelectedThread}" var="message" rendered="#{!ForumTool.threaded}"
+		<h:dataTable id="expandedMessages" value="#{ForumTool.PFSelectedThread}" var="message" rendered="#{!ForumTool.threaded}"
    	 		styleClass="listHier" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
 			<h:column>
 				<f:verbatim><div class="hierItemBlock"></f:verbatim>
@@ -58,7 +58,7 @@
 		</h:dataTable>
 		
 		<%--rjlowe: Expanded View to show the message bodies, threaded --%>
-		<mf:hierDataTable id="expandedThreadedMessages" value="#{ForumTool.pFSelectedThread}" var="message" rendered="#{ForumTool.threaded}"
+		<mf:hierDataTable id="expandedThreadedMessages" value="#{ForumTool.PFSelectedThread}" var="message" rendered="#{ForumTool.threaded}"
    	 		noarrows="true" styleClass="listHier" cellpadding="0" cellspacing="0" width="100%" columnClasses="bogus">
 			<h:column id="_msg_subject">
 				<f:verbatim><div class="hierItemBlock"></f:verbatim>
