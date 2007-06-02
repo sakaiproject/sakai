@@ -110,8 +110,7 @@
 								#set($field = $!form_requiredFields.get($fieldCount))
 								#set($fieldLabel = $!form_requiredFields.get($fieldCount).labelKey)
 								#set($fieldSize = 8)
-								#set($fieldSize = $!form_requiredFieldsSizes.get($fieldCount).getMaxSize())
-								
+								#set($fieldSize = $!form_requiredFields.get($fieldCount).getMaxSize())
 								<td headers="$fieldLabel" class="shorttext">
 									<label  for="id-$fieldLabel$rowcount" class="skip">$fieldLabel</label>
 									<input type="text" name="$fieldLabel$k"  tabindex="$count" size="$!fieldSize" maxlength="$!fieldSize" value="$!courseFieldValues.get($fieldCount).getValue()"  id="id-$fieldLabel$rowcount" /> 
