@@ -63,6 +63,7 @@ create index SAM_ITEM_SECTIONID_I on SAM_ITEM_T (SECTIONID);
 create index SAM_QPOOL_OWNER_I on SAM_QUESTIONPOOL_T (OWNERID);
 
 -- SAK-7093
+-- its ok to ignore the drop errors
 drop table if exists SAM_STUDENTGRADINGSUMMARY_T;
 create table SAM_STUDENTGRADINGSUMMARY_T (
 STUDENTGRADINGSUMMARYID bigint not null auto_increment,
