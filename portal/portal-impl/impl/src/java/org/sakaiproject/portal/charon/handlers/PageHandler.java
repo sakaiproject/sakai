@@ -23,6 +23,7 @@ package org.sakaiproject.portal.charon.handlers;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -249,7 +250,58 @@ public class PageHandler extends BasePortalHandler
 			String sakaiVersion = ServerConfigurationService.getString("version.sakai",
 			"?");
 			String server = ServerConfigurationService.getServerId();
+			String[] bottomNav = ServerConfigurationService.getStrings("bottomnav");
+			String[] poweredByUrl = ServerConfigurationService.getStrings("powered.url");
+			String[] poweredByImage = ServerConfigurationService
+					.getStrings("powered.img");
+			String[] poweredByAltText = ServerConfigurationService
+					.getStrings("powered.alt");
 			
+			{
+				List<Object> l = new ArrayList<Object>();
+				if ((bottomNav != null) && (bottomNav.length > 0))
+				{
+					for (int i = 0; i < bottomNav.length; i++)
+					{
+						l.add(bottomNav[i]);
+					}
+				}
+				rcontext.put("bottomNav", l);
+			}
+
+			// rcontext.put("bottomNavSitNewWindow",
+			// Web.escapeHtml(rb.getString("site_newwindow")));
+
+			if ((poweredByUrl != null) && (poweredByImage != null)
+					&& (poweredByAltText != null)
+					&& (poweredByUrl.length == poweredByImage.length)
+					&& (poweredByUrl.length == poweredByAltText.length))
+			{
+				{
+					List<Object> l = new ArrayList<Object>();
+					for (int i = 0; i < poweredByUrl.length; i++)
+					{
+						Map<String, Object> m = new HashMap<String, Object>();
+						m.put("poweredByUrl", poweredByUrl[i]);
+						m.put("poweredByImage", poweredByImage[i]);
+						m.put("poweredByAltText", poweredByAltText[i]);
+						l.add(m);
+					}
+					rcontext.put("bottomNavPoweredBy", l);
+
+				}
+			}
+			else
+			{
+				List<Object> l = new ArrayList<Object>();
+				Map<String, Object> m = new HashMap<String, Object>();
+				m.put("poweredByUrl", "http://sakaiproject.org");
+				m.put("poweredByImage", "/library/image/sakai_powered.gif");
+				m.put("poweredByAltText", "Powered by Sakai");
+				l.add(m);
+				rcontext.put("bottomNavPoweredBy", l);
+			}
+
 			
 			rcontext.put("bottomNavService", service);
 			rcontext.put("bottomNavCopyright", copyright);
