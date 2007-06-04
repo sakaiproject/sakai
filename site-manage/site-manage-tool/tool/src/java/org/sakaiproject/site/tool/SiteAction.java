@@ -7881,7 +7881,7 @@ public class SiteAction extends PagedResourceActionII {
 							participant.removeable = false;
 							participant.role = member.getRole()!=null?member.getRole().getId():"";
 							participant.section = providerCourseEid;
-							participant.uniqname = user.getEid();
+							participant.uniqname = user.getId();
 							participants.add(participant);
 						}
 					} catch (UserNotDefinedException exception) {
