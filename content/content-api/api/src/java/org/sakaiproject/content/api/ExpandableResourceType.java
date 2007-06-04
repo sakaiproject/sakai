@@ -84,4 +84,14 @@ public interface ExpandableResourceType extends ResourceType
 	 */
 	public ServiceLevelAction getCollapseAction();
 
+	/**
+	 * Determine whether users should be able to perform a particular action to create new resources in 
+	 * a particular collection.  This provides a way for the type registration to disallow creation of
+	 * entities within instances of that type.
+	 * @param action An action to create a ContentEntity of a particular ResourceType.
+	 * @param entity An instance of a ContentEntity whose type is this ExpandableResourceType. 
+	 * @return
+	 */
+	public boolean allowAddAction(ResourceToolAction action, ContentEntity entity);
+
 }

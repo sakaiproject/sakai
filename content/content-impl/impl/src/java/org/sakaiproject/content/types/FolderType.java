@@ -1434,4 +1434,10 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
 	    return (ServiceLevelAction) this.actions.get(ResourceToolAction.EXPAND);
     }
 
+	public boolean allowAddAction(ResourceToolAction action, ContentEntity entity)
+    {
+	    // allow all add actions in regular folders
+	    return true;
+    }
+
 }
