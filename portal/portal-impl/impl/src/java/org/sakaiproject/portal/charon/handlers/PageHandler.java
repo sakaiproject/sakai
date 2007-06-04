@@ -238,6 +238,26 @@ public class PageHandler extends BasePortalHandler
 				}
 				rcontext.put("pageColumn1Tools", toolList);
 			}
+			
+			//Add footer variables to page template context- SAK-10312
+			
+			String copyright = ServerConfigurationService
+			.getString("bottom.copyrighttext");
+			String service = ServerConfigurationService.getString("ui.service", "Sakai");
+			String serviceVersion = ServerConfigurationService.getString(
+			"version.service", "?");
+			String sakaiVersion = ServerConfigurationService.getString("version.sakai",
+			"?");
+			String server = ServerConfigurationService.getServerId();
+			
+			
+			rcontext.put("bottomNavService", service);
+			rcontext.put("bottomNavCopyright", copyright);
+			rcontext.put("bottomNavServiceVersion", serviceVersion);
+			rcontext.put("bottomNavSakaiVersion", sakaiVersion);
+			rcontext.put("bottomNavServer", server);
+			
+			
 		}
 	}
 
