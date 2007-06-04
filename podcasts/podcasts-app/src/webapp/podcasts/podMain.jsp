@@ -17,23 +17,28 @@
       
       <%-- if Resources tool not exist, if instructor, display error message
       		if student, display no podcasts exists --%>
-      <h:panelGroup rendered="#{! podHomeBean.resourceToolExists}" >
+      <h:panelGroup rendered="#{! podHomeBean.resourceToolExists || ! podHomeBean.canAccessFolder}" >
       	<%@ include file="podNoResource.jsp" %>
       </h:panelGroup>
 
-	  <h:panelGroup rendered="#{podHomeBean.resourceToolExists}" >
+	  <h:panelGroup rendered="#{podHomeBean.resourceToolExists && podHomeBean.canAccessFolder}" >
 	  
 	    <h:panelGroup styleClass="podMenuPosition" rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasNewPerm}" >
     	  <sakai:tool_bar>
         	  <sakai:tool_bar_item action="podcastAdd" value="#{msgs.add}" rendered="#{podHomeBean.hasNewPerm || podHomeBean.canUpdateSite}" />
 	          <sakai:tool_bar_item action="podcastOptions" value="#{msgs.options}" rendered="#{podHomeBean.canUpdateSite}" />
-    	  </sakai:tool_bar>
+			  <sakai:tool_bar_item action="podcastPermissions" value="ajaxTest" />
+			  
+	 		  <f:verbatim><a href="#" onclick="javascript:window.parent.location.href='</f:verbatim>
+			  <h:outputText escape="false" value="#{podHomeBean.resourcesPermissionsUrl}';\">" />
+			  <h:outputText value="#{msgs.permissions}" title="#{msgs.permissions}" rendered="#{podHomeBean.canUpdateSite}" />
+			  <f:verbatim></a></f:verbatim>
+    		  </sakai:tool_bar>
     	</h:panelGroup>
       
-		<h:outputText value="#{msgs.no_access}" styleClass="validation" rendered="#{! podHomeBean.hasReadPerm}" />
+      <h:outputText value="#{msgs.no_access}" styleClass="validation" rendered="#{! podHomeBean.hasAllGroups && ! podHomeBean.hasReadPerm }" />
       
-      	<h:panelGroup rendered="#{podHomeBean.hasReadPerm}" >
- 	  
+      <h:panelGroup rendered="#{podHomeBean.hasReadPerm || podHomeBean.hasAllGroups}" > 	  
  	  	<f:verbatim><div></f:verbatim>
  	  	  <h:messages styleClass="alertMessage" id="errorMessages"/> 
  	      <f:verbatim><h3></f:verbatim>
@@ -60,9 +65,8 @@
  		   <f:verbatim>" class="active" target="</f:verbatim>
  		   <h:outputText value="_blank \" " />
  		   <f:verbatim> > </f:verbatim>
- 	       <h:graphicImage value="images/rss-feed-icon.png" styleClass="indnt1 rssIcon" width="25px" height="25px" />
-		 <f:verbatim></a>
-         <br /></f:verbatim>
+ 	       <h:graphicImage value="images/rss-feed-icon.png" styleClass="indnt1 rssIcon" />
+		 <f:verbatim></a><br /></f:verbatim>
  	     
  	     <h:commandLink action="podfeedRevise" styleClass="indnt2" rendered="#{podHomeBean.canUpdateSite}" >
  	         <h:outputText value="#{msgs.revise}" />
@@ -78,67 +82,72 @@
     	<div id="podcast_info" class="indnt1" ></f:verbatim>
       	  <h:dataTable value="#{podHomeBean.contents}" var="eachPodcast" rendered="#{podHomeBean.actPodcastsExist}" >
           <h:column>
-            <h:outputText value="#{eachPodcast.displayDate}" styleClass="podDateFormat" />
-			<f:verbatim><br /></f:verbatim>
+          	<h:panelGroup rendered="#{! eachPodcast.hidden || podHomeBean.hasHidden}">
+	        	<f:verbatim><span class="</f:verbatim>
+    	    	<h:outputText value="#{eachPodcast.styleClass}" />
+        		<f:verbatim>"></f:verbatim>
+        	
+	            <h:outputText value="#{eachPodcast.displayDate}" styleClass="podDateFormat" />
+				<f:verbatim><br /></f:verbatim>
 
-            <h:outputText value="#{eachPodcast.title}" styleClass="podTitleFormat" />
-			<f:verbatim><br /></f:verbatim>
+	            <h:outputText value="#{eachPodcast.title}" styleClass="podTitleFormat" />
+				<f:verbatim><br /></f:verbatim>
 
-            <h:outputText value="#{eachPodcast.description}" styleClass="podDescFormat" />
-			<f:verbatim><br /></f:verbatim>
+	            <h:outputText value="#{eachPodcast.description}" styleClass="podDescFormat" />
+				<f:verbatim><br /></f:verbatim>
             
-            <%--  Download link --%>
-            <f:verbatim><div class="podLinksPosition" ></f:verbatim>
+ 	           <%--  Download link --%>
+    	        <f:verbatim><div class="podLinksPosition" ></f:verbatim>
 
-            <%--  7/17/06 Hack to fix if spaces in name. 
+	            <%--  7/17/06 Hack to fix if spaces in name. 
                   TODO: redo correctly
                   Below is correct JSP. Problem is when rendering what's sent from bean
             		 it escapes spaces which causes link to fail  
-            h:outputLink value="#{eachPodcast.fileURL}" styleClass="active" 
+    	        h:outputLink value="#{eachPodcast.fileURL}" styleClass="active" 
                  h:outputText value="#{msgs.download}" 
-            h:outputLink> --%>
+        	    h:outputLink> --%>
  
- 			 <f:verbatim><a href="</f:verbatim>
- 			 <h:outputText value="#{eachPodcast.fileURL}" />
- 			 <f:verbatim>" class="active" alt="Download the file" target="</f:verbatim>
- 			 <h:outputText value="#{eachPodcast.newWindow}" />
- 			 <f:verbatim>" > </f:verbatim>
+	 			 <f:verbatim><a href="</f:verbatim>
+ 				 <h:outputText value="#{eachPodcast.fileURL}" />
+ 				 <f:verbatim>" class="active" alt="Download the file" target="</f:verbatim>
+ 				 <h:outputText value="#{eachPodcast.newWindow}" />
+	 			 <f:verbatim>" > </f:verbatim>
  			 
- 			 <h:outputText value="#{msgs.download} " />
+	 			 <h:outputText value="#{msgs.download} " />
  			 
- 			 <f:verbatim></a></f:verbatim>
+	 			 <f:verbatim></a></f:verbatim>
  
-              <h:outputText value=" #{msgs.open_paren}" />
-              <h:outputText value="#{eachPodcast.size}" />
+	              <h:outputText value=" #{msgs.open_paren}" />
+    	          <h:outputText value="#{eachPodcast.size}" />
             
-              <h:outputText value=" " /> <%--  type --%>
-              <h:outputText value="#{eachPodcast.type}" />
+	              <h:outputText value=" " /> <%--  type --%>
+    	          <h:outputText value="#{eachPodcast.type}" />
 
-              <%--  go to Revise page --%>
-              <h:outputText value="#{msgs.close_paren}" /><h:outputText value=" " />
-              <h:outputText value=" #{msgs.spacer_bar}" rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasReviseAnyPerm || (podHomeBean.hasReviseOwnPerm && eachPodcast.author == podHomeBean.userName)}" />
-              <h:commandLink action="podcastRevise" actionListener="#{podHomeBean.podMainListener}" value="#{msgs.revise}" styleClass="active" 
-                    rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasReviseAnyPerm || (podHomeBean.hasReviseOwnPerm && eachPodcast.author == podHomeBean.userName)}" >
-                <f:param name="resourceId" value="#{eachPodcast.resourceId}" />
-              </h:commandLink>
+	              <%--  go to Revise page --%>
+    	          <h:outputText value="#{msgs.close_paren}" /><h:outputText value=" " />
+        	      <h:outputText value=" #{msgs.spacer_bar}" rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasReviseAnyPerm || (podHomeBean.hasReviseOwnPerm && eachPodcast.author == podHomeBean.userName)}" />
+            	  <h:commandLink action="podcastRevise" actionListener="#{podHomeBean.podMainListener}" value="#{msgs.revise}" styleClass="active" 
+                	    rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasReviseAnyPerm || (podHomeBean.hasReviseOwnPerm && eachPodcast.author == podHomeBean.userName)}" >
+	                <f:param name="resourceId" value="#{eachPodcast.resourceId}" />
+    	          </h:commandLink>
                  
-              <%--  go to Delete page --%> 
-              <h:outputText value="#{msgs.spacer_bar}" rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasDelAnyPerm || (podHomeBean.hasDelOwnPerm && eachPodcast.author == podHomeBean.userName)}" />
-              <h:commandLink action="podcastDelete" actionListener="#{podHomeBean.podMainListener}" value="#{msgs.delete}" styleClass="active" 
-                    rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasDelAnyPerm || (podHomeBean.hasDelOwnPerm && eachPodcast.author == podHomeBean.userName)}" >
-                <f:param name="resourceId" value="#{eachPodcast.resourceId}" />
-              </h:commandLink>
-              <f:verbatim></div><br /></f:verbatim>
+	              <%--  go to Delete page --%> 
+    	          <h:outputText value="#{msgs.spacer_bar}" rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasDelAnyPerm || (podHomeBean.hasDelOwnPerm && eachPodcast.author == podHomeBean.userName)}" />
+        	      <h:commandLink action="podcastDelete" actionListener="#{podHomeBean.podMainListener}" value="#{msgs.delete}" styleClass="active" 
+            	        rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasDelAnyPerm || (podHomeBean.hasDelOwnPerm && eachPodcast.author == podHomeBean.userName)}" >
+                	<f:param name="resourceId" value="#{eachPodcast.resourceId}" />
+	              </h:commandLink>
+    	          <f:verbatim></div><br /></f:verbatim>
 
-            <f:verbatim><div class="posted podPosition"></f:verbatim>
-              <h:outputText value="#{msgs.posted_by}" />
-              <h:outputText value="#{eachPodcast.author} " />
-              <h:outputText value="#{msgs.at}" />
-              <h:outputText value="#{eachPodcast.postedTime} " />
-              <h:outputText value="#{msgs.on}" />
-              <h:outputText value="#{eachPodcast.postedDate}" />
-            <f:verbatim></div><br /></f:verbatim>
-            
+	            <f:verbatim><div class="posted podPosition"></f:verbatim>
+    	          <h:outputText value="#{msgs.posted_by}" />
+        	      <h:outputText value="#{eachPodcast.author} " />
+            	  <h:outputText value="#{msgs.at}" />
+	              <h:outputText value="#{eachPodcast.postedTime} " />
+    	          <h:outputText value="#{msgs.on}" />
+        	      <h:outputText value="#{eachPodcast.postedDate}" />
+            	<f:verbatim></div><br /></f:verbatim>
+            </h:panelGroup>
           </h:column>
       	</h:dataTable>
       </div>

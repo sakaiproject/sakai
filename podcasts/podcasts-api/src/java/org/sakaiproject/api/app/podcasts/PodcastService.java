@@ -27,6 +27,7 @@ import java.util.List;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdInvalidException;
@@ -175,24 +176,6 @@ public interface PodcastService // extends EntityProducer
 	public String getPodcastFileURL(String resourceId) throws PermissionException, IdUnusedException;
 
 	/**
-	 * Returns an editable resource if ID exists.
-	 * 
-	 * @param String
-	 *            	The resourceId of the resource to get
-	 *            
-	 * @return ContentResourceEdit 
-	 * 				If found, null otherwise
-	 */
-	public ContentResourceEdit getAResource(String resourceId) throws PermissionException, IdUnusedException;
-
-	/**
-	 * Sets the DISPLAY_DATE property of a podcast to CREATION_DATE
-	 * 
-	 * @param rp The ResourceProperties of the podcast to set 
-	 */
-	public void setDISPLAY_DATE(ResourceProperties rp, Time releaseDate);
-
-	/**
 	 * Does the actual adding of podcast to Resources
 	 * 
 	 * @param title User specified title for the podcast
@@ -226,14 +209,8 @@ public interface PodcastService // extends EntityProducer
 	 * 
 	 * @return boolean true if user can modify, false otherwise
 	 */
-	public boolean canUpdateSite(String siteId);
-	
-	/**
-	 * Determines if user can modify the site. Used within the tool.
-	 * 
-	 * @return boolean true if user can modify, false otherwise
-	 */
 	public boolean canUpdateSite();
+	public boolean canUpdateSite(String siteId);
 
 	/**
 	 * Determines if user has the function (permission) passed in
@@ -286,7 +263,9 @@ public interface PodcastService // extends EntityProducer
 
 	/**
 	 * Only add podcast resources whose DISPLAY_DATE is today or earlier
-	 * 2 parameter for filtering podcasts for feed
+	 * 2 parameter for filtering podcasts for feed. First method is
+	 * when activated from within Podcasts tool, second when coming from
+	 * servlet so need to pass in site id wanted.
 	 * 
 	 * @param resourcesList List of podcasts
 	 * 
@@ -360,4 +339,12 @@ public interface PodcastService // extends EntityProducer
 	 */
 	public boolean allowAccess(String id);
 
+	/**
+	 * Returns TRUE if Podcasts folder has been set to HIDDEN.
+	 * 
+	 * @param siteId
+	 * 			The site id to check
+	 */
+	public boolean isPodcastFolderHidden(String siteId)
+			throws IdUnusedException, PermissionException;
 }

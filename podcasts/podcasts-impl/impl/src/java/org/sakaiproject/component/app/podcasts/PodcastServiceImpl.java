@@ -244,8 +244,7 @@ public class PodcastServiceImpl implements PodcastService {
 		try {
 			final String podcastsCollection = retrievePodcastFolderId(siteId);
 
-			collection = contentHostingService
-					.getCollection(podcastsCollection);
+			collection = contentHostingService.getCollection(podcastsCollection);
 
 		} 
 		catch (TypeException e) {
@@ -257,14 +256,14 @@ public class PodcastServiceImpl implements PodcastService {
 		catch (IdUnusedException e) {
 			LOG.warn("IdUnusedException while attempting to get podcast collection. "
 							+ "for site: " + siteId + ". " + e.getMessage(), e);
-			throw e;
+			throw new Error(e);
 
 		}
 		catch (PermissionException e) {
 			// catches PermissionException, IdUnusedException 
 			LOG.warn("PermissionException when trying to get podcast collection for site: "
 							+ siteId + ": " + e.getMessage(), e);
-			throw e;
+			throw new Error(e);
 		}
 
 		return collection;
@@ -379,10 +378,8 @@ public class PodcastServiceImpl implements PodcastService {
 	public String retrievePodcastFolderId(String siteId)
 			throws PermissionException {
 
-		final String siteCollection = contentHostingService
-				.getSiteCollection(siteId);
-		String podcastsCollection = siteCollection + COLLECTION_PODCASTS
-				+ Entity.SEPARATOR;
+		final String siteCollection = contentHostingService.getSiteCollection(siteId);
+		String podcastsCollection = siteCollection + COLLECTION_PODCASTS + Entity.SEPARATOR;
 
 		try {
 			contentHostingService.checkCollection(podcastsCollection);
@@ -414,10 +411,10 @@ public class PodcastServiceImpl implements PodcastService {
 
 			} 
 			catch (PermissionException e1) {
-				// If thrown here, it truly is a PermissionException
+				// If thrown here, it truly is a PermissionException, so log and rethrow
 				LOG.warn("PermissionException while trying to determine correct podcast folder Id String "
-								+ " for site: " + siteId + ". " + e1.getMessage(), e1);
-
+								+ " for site: " + siteId + ". NOTE: folder may be HIDDEN.");
+				throw e1; 
 			}
 		} 
 		catch (IdUnusedException e) {
@@ -433,8 +430,7 @@ public class PodcastServiceImpl implements PodcastService {
 			} 
 			catch (IdUnusedException e1) {
 				// Does not exist, so try to create it
-				podcastsCollection = siteCollection + COLLECTION_PODCASTS
-				+ Entity.SEPARATOR;
+				podcastsCollection = siteCollection + COLLECTION_PODCASTS + Entity.SEPARATOR;
 				
 				createPodcastsFolder(podcastsCollection, siteId);
 				
@@ -442,9 +438,10 @@ public class PodcastServiceImpl implements PodcastService {
 
 			}
 			catch (PermissionException e1) {
-				// Now they truly cannot access.
+				// Now they truly cannot access, so log and rethrow
 				LOG.warn("PermissionException thrown on second attempt at retrieving podcasts folder. "
-							+ " for site: " + siteId + ". " + e1.getMessage(), e1);
+							+ " for site: " + siteId + ".");
+				throw e1;
 			} 
 			catch (TypeException e1) {
 				LOG.error("TypeException while getting podcasts folder using 'podcasts' string: "
@@ -509,11 +506,8 @@ public class PodcastServiceImpl implements PodcastService {
 
 			// if added from Resources will not have this property.
 			// if not, this will call a method to set it.
+			// returns the revised list of podcasts, suitable for framing (sorting)
 			resourcesList = checkDISPLAY_DATE(resourcesList);
-
-			// checkDISPLAY_DATE may modify the collection so get it again
-			final ContentCollection collectionEditRevised = getContentCollection(siteId);
-			resourcesList = collectionEditRevised.getMemberResources();
 
 			// sort based on display (publish) date, most recent first
 			PodcastComparator podcastComparator = new PodcastComparator(
@@ -530,6 +524,32 @@ public class PodcastServiceImpl implements PodcastService {
 	}
 
 	/**
+	 * Pulls a ContentResource from ContentHostingService.
+	 * 
+	 * @param String
+	 *            	The resourceId of the resource to get
+	 *            
+	 * @return ContentResource
+	 * 				If found, null otherwise
+	 */
+	private ContentResource getAResource(String resourceId)
+			throws PermissionException, IdUnusedException {
+		ContentResource crEdit = null;
+
+		try {
+			crEdit = contentHostingService.getResource(resourceId);
+
+		} 
+		catch (TypeException e) {
+			LOG.error("TypeException while attempting to pull resource: "
+					+ resourceId + " for site: " + getSiteId() + ". " + e.getMessage());
+			throw new Error(e);
+		}
+		
+		return crEdit;
+	}
+
+	/**
 	 * Pulls a ContentResourceEdit from ContentHostingService.
 	 * 
 	 * @param String
@@ -538,19 +558,22 @@ public class PodcastServiceImpl implements PodcastService {
 	 * @return ContentResourceEdit 
 	 * 				If found, null otherwise
 	 */
-	public ContentResourceEdit getAResource(String resourceId)
+	private ContentResourceEdit getAResourceEdit(String resourceId)
 			throws PermissionException, IdUnusedException {
 		ContentResourceEdit crEdit = null;
 
 		try {
-			crEdit = (ContentResourceEdit) contentHostingService.getResource(resourceId);
+			crEdit = contentHostingService.editResource(resourceId);
 
 		} 
 		catch (TypeException e) {
 			LOG.error("TypeException while attempting to pull resource: "
 					+ resourceId + " for site: " + getSiteId() + ". " + e.getMessage());
 			throw new Error(e);
-
+		}
+		catch (InUseException e) {
+			// Weirdness, should not be in use
+			return null;
 		}
 
 		return crEdit;
@@ -678,6 +701,40 @@ public class PodcastServiceImpl implements PodcastService {
 
 	}
 
+	private boolean anyPodcastsVisible(List podcasts) {
+		for (Iterator podIter = podcasts.iterator(); podIter.hasNext();) {
+			ContentResource podcastResource = (ContentResource) podIter.next();
+			
+			// get release/publish date
+			try {
+				Date tempDate = null;
+				if (podcastResource.getReleaseDate() == null) {
+					tempDate = getGMTdate(podcastResource.getProperties()
+														.getTimeProperty(DISPLAY_DATE).getTime());
+				} 
+				else {
+					tempDate = new Date(podcastResource.getReleaseDate().getTime());
+				}
+
+				if (! (podcastResource.isHidden() 
+						|| (podcastResource.getRetractDate() != null 
+							&& podcastResource.getRetractDate().getTime() <= TimeService.newTime().getTime())
+						|| tempDate.getTime() >= TimeService.newTime().getTime())) {
+					
+					return true;
+				}
+			}
+			catch (Exception e) {
+				// EntityPropertyNotDefinedException, EntityPropertyTypeException
+				// Weirdness since DISPLAY_DATE should be set before this check
+				// but if occurs, skip over since will assume not visible
+				LOG.error("Exception determining if any podcasts visible for user", e);
+			}
+		}
+		
+		return false;
+	}
+	
 	/**
 	 * Determines if folder contains actual files
 	 * 
@@ -698,9 +755,12 @@ public class PodcastServiceImpl implements PodcastService {
 				if (resourcesList != null) {
 					if (resourcesList.isEmpty())
 						return false;
-					else
+					else if (canUpdateSite())
 						return true;
-				} else
+					else 
+						return anyPodcastsVisible(resourcesList);
+				} 
+				else
 					return false;
 
 			} 
@@ -851,50 +911,68 @@ public class PodcastServiceImpl implements PodcastService {
 		// for each bean
 		// loop to check if DISPLAY_DATE has been set. If not, set it
 		while (podcastIter.hasNext()) {
-			// get its properties from ContentHosting
 			aResource = (ContentResource) podcastIter.next();
 
-			itsProperties = aResource.getProperties();
+			final String id = aResource.getId();  		// save id just in case modified and committed, need to get it back
+			itsProperties = aResource.getProperties();  // get its properties from ContentHosting
 
 			try {
 				// Release/Retract dates implemented after Podcasts
 				// so if null, need to check if old Podcast, ie uses
-				// DISPLAY_DATE property. If so, set release date to it
+				// DISPLAY_DATE property.
+				// Also, if hidden property set, release date becomes null.
 				if (aResource.getReleaseDate() == null) {
-						if (itsProperties.getTimeProperty(DISPLAY_DATE) == null) {
-							setDISPLAY_DATE(itsProperties, null);
-						}
-
+					if (itsProperties.getProperty(DISPLAY_DATE) == null) {
+						aResource = setDISPLAY_DATE(aResource.getId(), null);
+						itsProperties = aResource.getProperties();
+					}
+					
+					if (! aResource.isHidden()) {
 						setReleaseDate(aResource, itsProperties.getTimeProperty(DISPLAY_DATE));
+						
+						try {
+							aResource = getAResource(id);
+						}
+						catch (Exception e) {
+							LOG.error(e);
+						}
+					}
 				}
 				else {
-					setDISPLAY_DATE(itsProperties, aResource.getReleaseDate());
+					if (itsProperties.getProperty(DISPLAY_DATE) == null) {
+						aResource = setDISPLAY_DATE(aResource.getId(), null);
+						itsProperties = aResource.getProperties();
+					}
 				}
-				
-				revisedList.add(aResource);
-
 			} 
 			catch (EntityPropertyNotDefinedException e) {
 				// DISPLAY_DATE does not exist, add it
 				LOG.info("DISPLAY_DATE does not exist for " + aResource.getId() + " attempting to add.");
 
-				setDISPLAY_DATE(itsProperties, null);
+				try {
+					aResource = setDISPLAY_DATE(aResource.getId(), null);
 				
-				if (aResource.getReleaseDate() == null) {
-					try {
-						setReleaseDate(aResource, itsProperties.getTimeProperty(DISPLAY_DATE));
+					if (aResource.getReleaseDate() == null && ! aResource.isHidden()) {
+						if (! aResource.isHidden()) {
+							setReleaseDate(aResource, itsProperties.getTimeProperty(DISPLAY_DATE));
+							aResource = getAResource(id);
+						}
 					}
-					catch (EntityPropertyTypeException e1) {
-						// Weirdness, should have just set it
-						LOG.debug("EntityPropertyTypeException while trying to set Release Date after" +
-										"freshly setting DISPLAY_DATE");
-					}
-					catch (EntityPropertyNotDefinedException e1) {
-						// Weirdness, should have just set it
-						LOG.debug("EntityPropertyNotDefinedException while trying to set Release Date after" +
-										"freshly setting DISPLAY_DATE");						
-					}
-				}				
+				}
+				catch (EntityPropertyTypeException e1) {
+					// Weirdness, should have just set it
+					LOG.debug("EntityPropertyTypeException while trying to set Release Date after" +
+									"freshly setting DISPLAY_DATE");
+				}
+				catch (EntityPropertyNotDefinedException e1) {
+					// Weirdness, should have just set it
+					LOG.debug("EntityPropertyNotDefinedException while trying to set Release Date after" +
+									"freshly setting DISPLAY_DATE");						
+				}
+				catch (Exception e1) {
+					// PermissionException, IdUnusedException from getAResource
+					LOG.error(e1);
+				}
 			} 
 			catch (EntityPropertyTypeException e) {
 				// not a file, skip over it
@@ -905,9 +983,12 @@ public class PodcastServiceImpl implements PodcastService {
 			}
 			finally {
 				SecurityService.clearAdvisors();
-				
-				aResource = null;
 			}
+
+			// aResource values properly set, so add to list
+			revisedList.add(aResource);
+			
+			aResource = null;
 		}
 		
 		return revisedList;
@@ -922,20 +1003,13 @@ public class PodcastServiceImpl implements PodcastService {
 	 * @param displayDate
 	 * 				The Time object the Release Date is set to
 	 */
-	private void setReleaseDate(ContentResource aResource, Time displayDate) {
+	private ContentResource setReleaseDate(ContentResource aResource, Time displayDate) {
+		ContentResource refreshedResource = null;
 		ContentResourceEdit aResourceEdit = null;
-
+		
 		try {
-			try {
-				aResourceEdit = contentHostingService.editResource(aResource.getId());
-			}
-			catch (PermissionException e1) {
-				// Not able to access, add a SecurityAdvisor to force it to work
-				enablePodcastSecurityAdvisor();
-				
-				aResourceEdit = contentHostingService.editResource(aResource.getId());
-			}
-			
+			aResourceEdit = getAResourceEdit(aResource.getId());
+
 			if (aResourceEdit.getReleaseDate() == null) {
 				Time releaseDate = getDISPLAY_DATE(aResourceEdit.getPropertiesEdit());
 				
@@ -945,22 +1019,30 @@ public class PodcastServiceImpl implements PodcastService {
 			
 				// add entry for event tracking
 				final Event event = EventTrackingService.newEvent(EVENT_REVISE_PODCAST,
-						getEventMessage(
-								aResourceEdit.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)),
-								true, NotificationService.NOTI_NONE);
+						getEventMessage(aResourceEdit.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)),
+											true, NotificationService.NOTI_NONE);
 				EventTrackingService.post(event);
 			}
 		}
 		catch (Exception e1) {
 			// catches   PermissionException	IdUnusedException
 			//			TypeException		InUseException
-			LOG.error("Problem getting resource for editing while trying to set DISPLAY_DATE for site " + getSiteId() + ". ");
+			LOG.error("Problem getting resource for editing while trying to set DISPLAY_DATE for site " + getSiteId() + ". ", e1);
 			
 			if (aResourceEdit != null) {
 				contentHostingService.cancelResource(aResourceEdit);						
-			}
-			
+			}			
 		} 
+		
+		try {
+			refreshedResource = getAResource(aResource.getId());
+		}
+		catch (Exception e) {
+			// Weirdness since we just used this to update its release date
+			LOG.error("Problem retrieving updated podcast resource after adding release date.", e);
+		}
+		
+		return refreshedResource;
 	}
 	
 	/**
@@ -971,15 +1053,18 @@ public class PodcastServiceImpl implements PodcastService {
 	 * @param ResourceProperties
 	 *            The ResourceProperties that need DISPLAY_DATE added
 	 */
-	public void setDISPLAY_DATE(ResourceProperties rp, Time releaseDate) {
+	public ContentResource setDISPLAY_DATE(String resourceId, Time releaseDate) {
+		ContentResource refreshedResource = null;
+		
 		final SimpleDateFormat formatterProp = new SimpleDateFormat("yyyyMMddHHmmssSSS");
 		formatterProp.setTimeZone(TimeService.getLocalTimeZone());
-
 		Date tempDate = null;
 
 		try {
-			// Convert GMT time stored by Resources into local time
+			ContentResourceEdit aResource = getAResourceEdit(resourceId);
+			ResourceProperties rp = aResource.getProperties();
 
+			// Convert GMT time stored by Resources into local time
 			if (releaseDate == null) {
 				tempDate = formatterProp.parse(rp.getTimeProperty(
 						ResourceProperties.PROP_MODIFIED_DATE).toStringLocal());
@@ -990,6 +1075,14 @@ public class PodcastServiceImpl implements PodcastService {
 
 			rp.addProperty(DISPLAY_DATE, formatterProp.format(tempDate));
 
+			contentHostingService.commitResource(aResource, NotificationService.NOTI_NONE);
+			
+			// add entry for event tracking
+			final Event event = EventTrackingService.newEvent(EVENT_REVISE_PODCAST,
+					getEventMessage(
+							aResource.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)),
+							true, NotificationService.NOTI_NONE);
+			EventTrackingService.post(event);
 		} 
 		catch (Exception e) {
 			// catches EntityPropertyNotDefinedException
@@ -997,14 +1090,23 @@ public class PodcastServiceImpl implements PodcastService {
 			LOG.error(e.getMessage() + " while setting DISPLAY_DATE for "
 							+ "for file in site " + getSiteId() + ". " + e.getMessage(), e);
 			throw new Error(e);
-
 		} 
 
+		try {
+			refreshedResource = getAResource(resourceId);
+		}
+		catch (Exception e) {
+			// Weirdness since we just used this to update its release date
+			LOG.error("Problem retrieving updated podcast resource after adding release date.", e);
+		}
+		
+		return refreshedResource;
 	}
 
 	/**
 	 * If Release Date property not set, check if DISPLAY_DATE exists
 	 * and if it does, return it so it can be set as the Release Date.
+	 * If DISPLAY_DATE does not exist, default to last modified date.
 	 * 
 	 * @param ResourceProperties
 	 *            The ResourceProperties to get DISPLAY_DATE from
@@ -1137,6 +1239,20 @@ public class PodcastServiceImpl implements PodcastService {
 	 * Determine whether user and update the site
 	 * 
 	 * @param siteId
+	 *           The siteId for the site to test
+	 * 
+	 * @return 
+	 * 			True if can update, False otherwise
+	 */
+	public boolean canUpdateSite() {
+		return canUpdateSite(getSiteId());
+
+	}
+
+	/**
+	 * Determine whether user and update the site
+	 * 
+	 * @param siteId
 	 *            	The siteId for the site to test
 	 * 
 	 * @return True 
@@ -1158,27 +1274,14 @@ public class PodcastServiceImpl implements PodcastService {
 			}
 		} 
 		catch (PermissionException e) {
-			// weirdness since displaying main page so user should have permission
+			// Podcasts folder should be HIDDEN in UI, access/students don't have access
+			// so throw this error
 			LOG.error("PermissionException while trying to determine if user can update site " + getSiteId());
 		}
 	
 		return false;
 	}
 	
-	/**
-	 * Determine whether user and update the site
-	 * 
-	 * @param siteId
-	 *           The siteId for the site to test
-	 * 
-	 * @return 
-	 * 			True if can update, False otherwise
-	 */
-	public boolean canUpdateSite() {
-		return canUpdateSite(getSiteId());
-
-	}
-
 	/**
 	 * 	FUTURE: needed to implement Notification services
 	 *
@@ -1289,6 +1392,22 @@ public class PodcastServiceImpl implements PodcastService {
 	public boolean isPublic(String podcastFolderId) {
 		return contentHostingService.isPubView(podcastFolderId);
 	}
+
+	/**
+	 * Returns TRUE if Podcasts folder has HIDDEN property set
+	 * OR release date is in the future
+	 * OR retract date is in the past
+	 */
+	public boolean isPodcastFolderHidden(String siteId) 
+						throws IdUnusedException, PermissionException {
+		ContentCollection podcastFolder = getContentCollection(siteId);
+		
+		return podcastFolder.isHidden()
+				|| (podcastFolder.getRetractDate() != null 
+						&& podcastFolder.getRetractDate().getTime() <= TimeService.newTime().getTime())
+				|| (podcastFolder.getReleaseDate() != null
+						&& podcastFolder.getReleaseDate().getTime() >= TimeService.newTime().getTime());
+	}
 	
 	/**
 	 * Creates the podcasts folder in Resources
@@ -1303,19 +1422,16 @@ public class PodcastServiceImpl implements PodcastService {
 		try {
 			LOG.info("Could not find podcast folder, attempting to create.");
 
-			// Refactored 11-20-06 since add method is being deprecated
 			ContentCollectionEdit collection = 
 						contentHostingService.addCollection(podcastsCollection);
 			
 			final ResourcePropertiesEdit resourceProperties = collection.getPropertiesEdit();
 			
-			resourceProperties.addProperty(
-					ResourceProperties.PROP_DISPLAY_NAME,
-					COLLECTION_PODCASTS_TITLE);
+			resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME,
+											COLLECTION_PODCASTS_TITLE);
 
-			resourceProperties.addProperty(
-					ResourceProperties.PROP_DESCRIPTION,
-					COLLECTION_PODCASTS_DESCRIPTION);
+			resourceProperties.addProperty(ResourceProperties.PROP_DESCRIPTION,
+											COLLECTION_PODCASTS_DESCRIPTION);
 
 			// Set default feed title and description
 			resourceProperties.addProperty(PODFEED_TITLE,

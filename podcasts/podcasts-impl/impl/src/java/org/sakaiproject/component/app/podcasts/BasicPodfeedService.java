@@ -49,6 +49,7 @@ import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.util.ResourceLoader;
 //import javax.faces.context.FacesContext;
 
@@ -542,18 +543,21 @@ public class BasicPodfeedService implements PodfeedService {
 		try {
 			enablePodfeedSecurityAdvisor();
 			
-			// get the individual podcasts
-			podEntries = podcastService.getPodcasts(siteId);
+			if (podcastService.isPodcastFolderHidden(siteId)) {
+				return entries;
+			}
+			else {
+				// get the individual podcasts
+				podEntries = podcastService.getPodcasts(siteId);
 			
-			// remove any that are in the future
-			podEntries = podcastService.filterPodcasts(podEntries);
-
+				// remove any that are in the future
+				podEntries = podcastService.filterPodcasts(podEntries, siteId);
+			}
 		} 
 		catch (PermissionException e) {
 			LOG.error("PermissionException getting podcasts in order to generate podfeed for site: "
-						+ siteId + ". " + e.getMessage(), e);
+					+ siteId + ". " + e.getMessage(), e);
 			throw new Error(e);
-			
 		} 
 		catch (Exception e) {
 			LOG.info(e.getMessage() + "for site: " + siteId, e);
@@ -577,19 +581,22 @@ public class BasicPodfeedService implements PodfeedService {
 				Date publishDate = null;
 
 				try {
-					// need to put in GMT for the feed
-					publishDate = podcastService.getGMTdate(podcastProperties.getTimeProperty(PodcastService.DISPLAY_DATE).getTime());
-
+					if (podcastResource.getReleaseDate() != null) {
+						publishDate = podcastService.getGMTdate(podcastResource.getReleaseDate().getTime());
+					}
+					else {
+						// need to put in GMT for the feed
+						publishDate = podcastService.getGMTdate(podcastProperties.getTimeProperty(PodcastService.DISPLAY_DATE).getTime());
+					}
 				} 
 				catch (Exception e) {
 					// catches EntityPropertyNotDefinedException, EntityPropertyTypeException
 					LOG.warn(e.getMessage() + " generating podfeed getting DISPLAY_DATE for entry for site: "
 									+ siteId + "while building feed. SKIPPING... " + e.getMessage());
-
 				}
 				
 				// if getting the date generates an error, skip this podcast.
-				if (publishDate != null) {
+				if (publishDate != null && ! hiddenInUI(podcastResource, publishDate)) {
 					try {
 						Map podcastMap = new HashMap();
 						podcastMap.put("date", publishDate);
@@ -814,8 +821,7 @@ public class BasicPodfeedService implements PodfeedService {
 		catch (PermissionException e) {
 			// log and return null to indicate there was a problem generating
 			LOG.error("PermissionException while trying to retrieve Podcast folder Id string "
-							+ "for site " + siteId + e.getMessage());
-			
+							+ "while generating feed for site " + siteId + e.getMessage());
 		}
 		finally {
 			securityService.clearAdvisors();
@@ -862,6 +868,27 @@ public class BasicPodfeedService implements PodfeedService {
 	}
 	
 	/**
+	 * Returns whether podcast should be 'hidden' in UI. Conditions:
+	 * 	Hidden property set
+	 *  Release date is in future
+	 *  Retract date is in past
+	 *  
+	 * @param podcastResource
+	 * 			The actual podcast to check
+	 * @param tempDate
+	 * 			Release date (if exists) or display date (older version)
+	 */
+	private boolean hiddenInUI(ContentResource podcastResource, Date tempDate) {
+		
+		final boolean folderHidden = podcastResource.isHidden(); 
+		final boolean pastRetract = (podcastResource.getRetractDate() != null 
+						&& podcastResource.getRetractDate().getTime() <= TimeService.newTime().getTime());
+		final boolean beforeRelease = tempDate.getTime() >= TimeService.newTime().getTime();
+		
+		return folderHidden || pastRetract || beforeRelease;
+	}
+
+	/**
 	 * Sets the Faces error message by pulling the message from the
 	 * MessageBundle using the name passed in
 	 * 
@@ -873,7 +900,7 @@ public class BasicPodfeedService implements PodfeedService {
 	 */
 	private String getMessageBundleString(String key) {
 		
-		ResourceBundle resbud = ResourceBundle.getBundle(PODFEED_MESSAGE_BUNDLE);
+		final ResourceBundle resbud = ResourceBundle.getBundle(PODFEED_MESSAGE_BUNDLE);
 		
 		return resbud.getString(key);
 	}

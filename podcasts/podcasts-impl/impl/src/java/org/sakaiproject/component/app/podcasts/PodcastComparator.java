@@ -53,23 +53,27 @@ public class PodcastComparator implements Comparator {
 
 	} // PodcastComparator
 
+	/**
+	 * First check if release dates set. May not be due to old podcasts
+	 * or if hidden property set. if release date not set, get the
+	 * custom DISPLAY_DATE property. 
+	 */
 	public int compare(Object o1, Object o2) {
 		int rv = 0;
 
-//		try {
-//			Time t1 = ((ContentResource) o1).getProperties().getTimeProperty(
-//							m_property);
-//			Time t2 = ((ContentResource) o2).getProperties().getTimeProperty(
-//							m_property);
+		try {
 			Time t1 = ((ContentResource) o1).getReleaseDate();
+			if (t1 == null)	 t1 = ((ContentResource) o1).getProperties().getTimeProperty(m_property);
+			
 			Time t2 = ((ContentResource) o2).getReleaseDate();
+			if (t2 == null)  t2 = ((ContentResource) o2).getProperties().getTimeProperty(m_property);
 			
 			rv = t1.compareTo(t2);
 
 			if (!m_ascending)
 				rv = -rv;
 			
-/*		} 
+		} 
 		catch (EntityPropertyTypeException ignore) {
 			LOG.warn("EntityPropertyTypeException while comparing podcast dates. "
 							+ ignore.getMessage());
@@ -78,7 +82,7 @@ public class PodcastComparator implements Comparator {
 			LOG.warn("EntityPropertyNotDefinedException while comparing podcast dates. "
 							+ ignore.getMessage());
 		}
-*/
+
 		return rv;
 	}
 }
