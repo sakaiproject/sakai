@@ -4586,7 +4586,8 @@ public class SiteAction extends PagedResourceActionII {
 					.getAttribute(STATE_TERM_SELECTED);
 			String sectionEid = sectionFieldManager.getSectionEid(t.getEid(),
 					(List) multiCourseInputs.get(0));
-			String title = "";
+			// default title
+			String title = sectionEid;
 			try {
 				title = cms.getSection(sectionEid).getTitle();
 			} catch (Exception e) {
