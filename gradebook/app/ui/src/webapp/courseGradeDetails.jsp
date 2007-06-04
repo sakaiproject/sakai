@@ -13,8 +13,6 @@
 		
 		<h2><h:outputText value="#{msgs.course_grade_details_title}"/></h2>
 
-		<div class="instruction"><h:outputText value="#{msgs.course_grade_details_instruction}" escape="false"/></div>
-
 		<h4><h:outputText value="#{msgs.course_grade_details_page_title}"/></h4>
 		<div class="indnt1">
 		<h:panelGrid cellpadding="0" cellspacing="0" columns="2"
@@ -40,6 +38,8 @@
 		<div class="indnt1">
 
 		<%@include file="/inc/globalMessages.jspf"%>
+		
+		<div class="instruction"><h:outputText value="#{msgs.course_grade_details_instruction}" escape="false"/></div>
 
 		<t:aliasBean alias="#{bean}" value="#{courseGradeDetailsBean}">
 			<%@include file="/inc/filterPaging.jspf"%>
