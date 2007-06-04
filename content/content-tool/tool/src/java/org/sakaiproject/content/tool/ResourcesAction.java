@@ -1924,22 +1924,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
      */
     protected static List<ResourceToolAction> getActions(ContentEntity selectedItem, Set<ContentPermissions> permissions, ResourceTypeRegistry registry)
     {
-	    String resourceType = ResourceType.TYPE_UPLOAD;
 	    Reference ref = EntityManager.newReference(selectedItem.getReference());
 	    List<ResourceToolAction> actions = new Vector<ResourceToolAction>();
-	    if(selectedItem.isCollection())
-	    {
-	    	resourceType = ResourceType.TYPE_FOLDER;
-	    }
-	    else
-	    {
-	    	ContentResource resource = (ContentResource) selectedItem;
-	    	// String mimetype = resource.getContentType();
-	    	resourceType = resource.getResourceType();
-	    }
 	    
-	    // get the registration for the current item's type 
-	    ResourceType typeDef = registry.getType(resourceType);
+	    ResourceType typeDef = getResourceType(selectedItem, registry);
 	    
 	    // if user has content.read, user can view content, view metadata and/or copy
 	    if(permissions.contains(ContentPermissions.READ))
@@ -2002,6 +1990,31 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	    	}
 	    }
 	    return actions;
+    }
+
+	/**
+     * @param selectedItem
+     * @param registry
+     * @return
+     */
+    protected static ResourceType getResourceType(ContentEntity selectedItem, ResourceTypeRegistry registry)
+    {
+	    String resourceType = selectedItem.getResourceType();
+	    if(resourceType == null)
+	    {
+	    	if(selectedItem.isCollection())
+	    	{
+	    		resourceType = ResourceType.TYPE_FOLDER;
+	    	}
+		    else 
+		    {
+		    	resourceType = ResourceType.TYPE_UPLOAD;
+		    }
+	    }
+	    
+	    // get the registration for the current item's type 
+	    ResourceType typeDef = registry.getType(resourceType);
+	    return typeDef;
     }
 	
     public static List<ResourceToolAction> getPasteActions(ContentEntity selectedItem, Set<ContentPermissions> permissions, ResourceTypeRegistry registry, List<String> items_to_be_moved, List<String> items_to_be_copied)
@@ -2125,20 +2138,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	    List<ResourceToolAction> actions = new Vector<ResourceToolAction>();
 	    
 	    if(permissions.contains(ContentPermissions.CREATE))
-	    {
-		    if(selectedItem.isCollection())
-		    {
-		    	resourceType = ResourceType.TYPE_FOLDER;
-		    }
-		    else
-		    {
-		    	ContentResource resource = (ContentResource) selectedItem;
-		    	// String mimetype = resource.getContentType();
-		    	resourceType = resource.getResourceType();
-		    }
-		    
-		    // get the registration for the current item's type 
-		    ResourceType typeDef = registry.getType(resourceType);
+	    {		    
+		    ResourceType typeDef = getResourceType(selectedItem, registry);
 		    
 		    // certain actions are defined elsewhere but pertain only to collections
 		    if(selectedItem.isCollection())
