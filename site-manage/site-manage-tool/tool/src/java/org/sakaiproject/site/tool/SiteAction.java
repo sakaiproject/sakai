@@ -92,7 +92,6 @@ import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.sitemanage.api.SectionField;
 import org.sakaiproject.sitemanage.api.SectionFieldManager;
-import org.sakaiproject.util.SubjectAffiliates;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.cover.TimeService;
@@ -656,11 +655,6 @@ public class SiteAction extends PagedResourceActionII {
 
 		if (state.getAttribute(STATE_TOP_PAGE_MESSAGE) == null) {
 			state.setAttribute(STATE_TOP_PAGE_MESSAGE, new Integer(0));
-		}
-
-		// affiliates if any
-		if (state.getAttribute(STATE_SUBJECT_AFFILIATES) == null) {
-			setupSubjectAffiliates(state);
 		}
 
 		// skins if any
@@ -4870,9 +4864,6 @@ public class SiteAction extends PagedResourceActionII {
 						return;
 					}
 
-					// talk to Zhen, agreed to mve this call out of SiteAction
-					// addSubjectAffliates(state, providerCourseList);
-
 					sendSiteNotification(state, providerCourseList);
 				}
 
@@ -4955,61 +4946,6 @@ public class SiteAction extends PagedResourceActionII {
 		}
 
 	}// doFinish
-
-	/*
-	 * talked to Zhen and we agreed that this shoudl be moved out of SiteAction -
-	 * daisyf, 03/12/07 private void addSubjectAffliates(SessionState state,
-	 * List providerCourseList) { Vector subjAffiliates = new Vector(); Vector
-	 * affiliates = new Vector(); String subject = ""; String affiliate = ""; //
-	 * get all subject and campus pairs for this site for (ListIterator i =
-	 * providerCourseList.listIterator(); i.hasNext();) { String courseId =
-	 * (String) i.next();
-	 * 
-	 * try { Section c = cms.getSection(courseId); if (c != null) // comment
-	 * this out so at least this method won't break //subject =
-	 * CourseIdGenerator.getSubject(c.getEid()); subject = c.getEid();
-	 * subjAffiliates.add(subject); } catch (Exception e) { // M_log.warn(this + "
-	 * cannot find course " + courseId + ". "); } } // remove duplicates
-	 * Collection noDups = new HashSet(subjAffiliates); // get affliates for
-	 * subjects for (Iterator i = noDups.iterator(); i.hasNext();) { subject =
-	 * (String) i.next();
-	 * 
-	 * Collection uniqnames = getSubjectAffiliates(state, subject);
-	 * 
-	 * try { affiliates.addAll(uniqnames); } catch (Exception ignore) { } } //
-	 * remove duplicates Collection addAffiliates = new HashSet(affiliates); //
-	 * try to add uniqnames with appropriate role for (Iterator i =
-	 * addAffiliates.iterator(); i.hasNext();) { affiliate = (String) i.next();
-	 * 
-	 * try { User user = UserDirectoryService.getUserByEid(affiliate); String
-	 * realmId = "/site/" + (String) state.getAttribute(STATE_SITE_INSTANCE_ID);
-	 * if (AuthzGroupService.allowUpdate(realmId)) { try { AuthzGroup realmEdit =
-	 * AuthzGroupService .getAuthzGroup(realmId); Role role =
-	 * realmEdit.getRole("Affiliate"); realmEdit.addMember(user.getId(),
-	 * role.getId(), true, false); AuthzGroupService.save(realmEdit); } catch
-	 * (Exception ignore) { } } } catch (Exception ignore) { M_log.warn(this + "
-	 * cannot find affiliate " + affiliate); } } } // addSubjectAffliates
-	 */
-
-	/**
-	 * @params - SessionState state
-	 * @params - String subject is the University's Subject code
-	 * @return - Collection of uniqnames of affiliates for this subject
-	 */
-	private Collection getSubjectAffiliates(SessionState state, String subject) {
-		Collection rv = null;
-		List allAffiliates = (Vector) state
-				.getAttribute(STATE_SUBJECT_AFFILIATES);
-
-		// iterate through the subjects looking for this subject
-		for (Iterator i = allAffiliates.iterator(); i.hasNext();) {
-			SubjectAffiliates sa = (SubjectAffiliates) i.next();
-			if (subject.equals(sa.getCampus() + "_" + sa.getSubject()))
-				return sa.getUniqnames();
-		}
-		return rv;
-
-	} // getSubjectAffiliates
 
 	/**
 	 * buildExternalRealm creates a site/realm id in one of three formats, for a
@@ -10085,63 +10021,6 @@ public class SiteAction extends PagedResourceActionII {
 		state.setAttribute(FORM_SHORT_DESCRIPTION, "");
 
 	} // setupFormNamesAndConstants
-
-	/**
-	 * Add these Unit affliates to sites in these Subject areas with Instructor
-	 * role
-	 * 
-	 */
-	private void setupSubjectAffiliates(SessionState state) {
-		Vector affiliates = new Vector();
-
-		List subjectList = new Vector();
-		List campusList = new Vector();
-		List uniqnameList = new Vector();
-
-		// get term information
-		if (ServerConfigurationService.getStrings("affiliatesubjects") != null) {
-			subjectList = new ArrayList(Arrays
-					.asList(ServerConfigurationService
-							.getStrings("affiliatesubjects")));
-		}
-		if (ServerConfigurationService.getStrings("affiliatecampus") != null) {
-			campusList = new ArrayList(Arrays.asList(ServerConfigurationService
-					.getStrings("affiliatecampus")));
-		}
-		if (ServerConfigurationService.getStrings("affiliateuniqnames") != null) {
-			uniqnameList = new ArrayList(Arrays
-					.asList(ServerConfigurationService
-							.getStrings("affiliateuniqnames")));
-		}
-
-		if (subjectList.size() > 0 && subjectList.size() == campusList.size()
-				&& subjectList.size() == uniqnameList.size()) {
-			for (int i = 0; i < subjectList.size(); i++) {
-				String[] subjectFields = ((String) subjectList.get(i))
-						.split(",");
-				String[] uniqnameFields = ((String) uniqnameList.get(i))
-						.split(",");
-				String campus = (String) campusList.get(i);
-
-				for (int j = 0; j < subjectFields.length; j++) {
-					String subject = StringUtil.trimToZero(subjectFields[j]);
-
-					SubjectAffiliates affiliate = new SubjectAffiliates();
-					affiliate.setSubject(subject);
-					affiliate.setCampus(campus);
-
-					for (int k = 0; k < uniqnameFields.length; k++) {
-						affiliate.getUniqnames().add(
-								StringUtil.trimToZero(uniqnameFields[k]));
-					}
-					affiliates.add(affiliate);
-				}
-			}
-		}
-
-		state.setAttribute(STATE_SUBJECT_AFFILIATES, affiliates);
-
-	} // setupSubjectAffiliates
 
 	/**
 	 * setupSkins
