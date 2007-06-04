@@ -336,13 +336,9 @@
 						</td>
 						#if ($!isCourseSite)
 							<td headers="coursename">
-								#set($partCourse = "")
-								#if ($participant.getCourse())
-									#set($partCourse = $participant.getCourse())
-								#end
 								#set($partSection = "")
 								#set($partSection = $participant.getSection())
-								$!partCourse $!partSection
+								$!partSection
 							</td>
 							<td headers="id">
 								#set($partId = "")
