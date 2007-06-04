@@ -1744,8 +1744,7 @@ public class DiscussionForumTool
     getSelectedTopic();
     //get thread from message
     getThreadFromMessage();
-    selectedMessage.setRevise(selectedTopic.getIsReviseAny() 
-			|| (selectedTopic.getIsReviseOwn() && message.getCreatedBy().equals(UserDirectoryService.getCurrentUser().getId())));  
+    refreshSelectedMessageSettings(message);
     // selectedTopic= new DiscussionTopicBean(message.getTopic());
     return MESSAGE_VIEW;
   }
@@ -1817,6 +1816,8 @@ public class DiscussionForumTool
 			
 	    messageManager.markMessageReadForUser(selectedTopic.getTopic().getId(),
 	        selectedMessage.getMessage().getId(), true);
+	    
+	    refreshSelectedMessageSettings(message);  
     }
     
     return null;
@@ -1850,6 +1851,8 @@ public class DiscussionForumTool
 			
 	    messageManager.markMessageReadForUser(selectedTopic.getTopic().getId(),
 	        selectedMessage.getMessage().getId(), true);
+	    
+	    refreshSelectedMessageSettings(message);  
     }
     
     return null;
@@ -3707,6 +3710,7 @@ public class DiscussionForumTool
 	  {
 		  messageManager.markMessageApproval(msgId, false);
 		  selectedMessage = new DiscussionMessageBean(messageManager.getMessageByIdWithAttachments(msgId), messageManager);
+		  refreshSelectedMessageSettings(selectedMessage.getMessage());
 		  setSuccessMessage(getResourceBundleString("cdfm_denied_alert"));
 		  getThreadFromMessage();
 	  }
@@ -3746,6 +3750,7 @@ public class DiscussionForumTool
 	  {
 		  messageManager.markMessageApproval(msgId, true);
 		  selectedMessage = new DiscussionMessageBean(messageManager.getMessageByIdWithAttachments(msgId), messageManager);
+		  refreshSelectedMessageSettings(selectedMessage.getMessage());
 		  setSuccessMessage(getResourceBundleString("cdfm_approved_alert"));
 		  getThreadFromMessage();
 	  }
@@ -5769,5 +5774,16 @@ public class DiscussionForumTool
 		 selectedTopic = getDecoratedTopic(topic);
 		 setTopicBeanAssign();
 		 getSelectedTopic();
+	 }
+	 
+	 /**
+	  * Used to refresh any settings (such as revise) that need to be refreshed
+	  * after various actions that re-set the selectedMessage (navigating to prev/next msg, moderating, etc) 
+	  * @param message
+	  */
+	 private void refreshSelectedMessageSettings(Message message) {
+		 
+		 selectedMessage.setRevise(selectedTopic.getIsReviseAny() 
+					|| (selectedTopic.getIsReviseOwn() && message.getCreatedBy().equals(UserDirectoryService.getCurrentUser().getId())));  
 	 }
 }
