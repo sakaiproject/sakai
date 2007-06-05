@@ -23,8 +23,7 @@
 
 	  <h:panelGroup rendered="#{podHomeBean.resourceToolExists && podHomeBean.canAccessFolder}" >
 	  
-	    <h:panelGroup styleClass="podMenuPosition" rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasNewPerm}" >
-    	  <sakai:tool_bar>
+    	  <sakai:tool_bar rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasNewPerm}">
         	  <sakai:tool_bar_item action="podcastAdd" value="#{msgs.add}" rendered="#{podHomeBean.hasNewPerm || podHomeBean.canUpdateSite}" />
 	          <sakai:tool_bar_item action="podcastOptions" value="#{msgs.options}" rendered="#{podHomeBean.canUpdateSite}" />
 			  <sakai:tool_bar_item action="podcastPermissions" value="ajaxTest" />
@@ -34,7 +33,6 @@
 			  <h:outputText value="#{msgs.permissions}" title="#{msgs.permissions}" rendered="#{podHomeBean.canUpdateSite}" />
 			  <f:verbatim></a></f:verbatim>
     		  </sakai:tool_bar>
-    	</h:panelGroup>
       
       <h:outputText value="#{msgs.no_access}" styleClass="validation" rendered="#{! podHomeBean.hasAllGroups && ! podHomeBean.hasReadPerm }" />
       
@@ -150,7 +148,7 @@
             </h:panelGroup>
           </h:column>
       	</h:dataTable>
-      </div>
+      <f:verbatim></div></f:verbatim>
  	</h:panelGroup>
  	
    </h:panelGroup> 
