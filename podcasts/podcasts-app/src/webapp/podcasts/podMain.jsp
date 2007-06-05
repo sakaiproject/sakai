@@ -26,7 +26,7 @@
     	  <sakai:tool_bar rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasNewPerm}">
         	  <sakai:tool_bar_item action="podcastAdd" value="#{msgs.add}" rendered="#{podHomeBean.hasNewPerm || podHomeBean.canUpdateSite}" />
 	          <sakai:tool_bar_item action="podcastOptions" value="#{msgs.options}" rendered="#{podHomeBean.canUpdateSite}" />
-			  <sakai:tool_bar_item action="podcastPermissions" value="ajaxTest" />
+<%--			  <sakai:tool_bar_item action="podcastPermissions" value="ajaxTest" /> --%>
 			  
 	 		  <f:verbatim><a href="#" onclick="javascript:window.parent.location.href='</f:verbatim>
 			  <h:outputText escape="false" value="#{podHomeBean.resourcesPermissionsUrl}';\">" />
