@@ -23,16 +23,19 @@ import org.apache.wicket.markup.html.WebComponent;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.tree.ITreeState;
 import org.apache.wicket.markup.html.tree.Tree;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.IRequestCodingStrategy;
 import org.apache.wicket.request.target.basic.RedirectRequestTarget;
 import org.apache.wicket.request.target.component.BookmarkablePageRequestTarget;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.scorm.client.api.ScormClientFacade;
 import org.sakaiproject.scorm.client.utils.ActivityLink;
 import org.sakaiproject.scorm.client.utils.IActivityLinkCallback;
 import org.sakaiproject.scorm.model.api.ContentPackageManifest;
 import org.sakaiproject.scorm.tool.components.ActivityTree;
+import org.sakaiproject.scorm.tool.components.ApiPanel;
 
 public class NavigationFrame extends WebPage {	
 	private static final long serialVersionUID = 1L;
@@ -84,10 +87,10 @@ public class NavigationFrame extends WebPage {
 	public NavigationFrame(PageParameters pageParams) {
 		super();
 		
+		//add(new ApiPanel("api-panel"));
+		
 		String contentPackageId = pageParams.getString("contentPackage");
 		final ContentPackageManifest manifest = clientFacade.getManifest(contentPackageId);
-		
-		
 		
 		final ISequencer sequencer = clientFacade.getSequencer(manifest);
 		TreeModel treeModel = createTreeModel(sequencer, manifest);
@@ -101,33 +104,34 @@ public class NavigationFrame extends WebPage {
 				ISeqActivity item = (ISeqActivity)((DefaultMutableTreeNode)node).getUserObject();
 				
 				System.out.println("ID: " + item.getID() + " State ID: " + item.getStateID());
-				
-				//RequestCycle cycle = getRequestCycle();
-				
-				/*IRequestCodingStrategy encoder = cycle.getProcessor().getRequestCodingStrategy();
-				CharSequence navFrameSrc = encoder.encode(cycle, new BookmarkablePageRequestTarget("navFrame", NavigationFrame.class, pageParams));
-				//CharSequence navFrameSrc = encoder.encode(cycle, new PageRequestTarget(navFrame));
-				WebComponent navFrameTag = new WebComponent("navFrame");
-				navFrameTag.add(new AttributeModifier("src", new Model((Serializable)navFrameSrc)));
-				add(navFrameTag);*/
-				
-				
+								
 				ILaunch launch = sequencer.navigate(item.getID());
 				String sco = launch.getSco();
 				
 				ILaunchData launchData = manifest.getLaunchData(sco);
 				
 				if (null != launchData) {
-					StringBuffer href = new StringBuffer().append(manifest.getUrl())
-						.append(launchData.getLaunchLine());					
+					String url = manifest.getUrl();
+					String launchLine = launchData.getLaunchLine();
+					
+					StringBuffer href = new StringBuffer().append(url);
+					
+					if (!url.endsWith(Entity.SEPARATOR) && !launchLine.startsWith(Entity.SEPARATOR))
+						href.append(Entity.SEPARATOR);
+						
+					href.append(launchLine);					
 					
 					if (null != href)
-						target.appendJavascript("parent.content.location.href='" + href + "'");
+						target.appendJavascript("parent.content.location.href='" + href.toString() + "'");
 				}
-				//TreeModel newTreeModel = refreshTreeModel(sequencer, manifest, item.getStateID());
-				//this.detachModel();
 				
+				TreeModel newTreeModel = refreshTreeModel(sequencer, manifest, item.getID());
+				if (null != newTreeModel) {
+					this.detachModel();
+					this.setModel(new Model((Serializable)newTreeModel));
+				}
 				
+				target.addComponent(this);
 			}
 			
 			/*@Override
@@ -248,6 +252,9 @@ public class NavigationFrame extends WebPage {
 	protected TreeModel refreshTreeModel(ISequencer sequencer, ContentPackageManifest manifest, String navRequest) {
 		ILaunch launchInfo = sequencer.navigate(navRequest); 
 		IValidRequests validRequests = launchInfo.getNavState();
+		
+		if (null == validRequests)
+			return null;
 		
 		return validRequests.getTreeModel();
 	}
