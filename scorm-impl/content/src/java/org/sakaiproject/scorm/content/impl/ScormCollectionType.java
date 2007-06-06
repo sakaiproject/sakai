@@ -18,7 +18,7 @@
  * limitations under the License.
  *
  **********************************************************************************/
-package org.sakaiproject.scorm.client.impl;
+package org.sakaiproject.scorm.content.impl;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -30,21 +30,21 @@ import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentEntity;
-import org.sakaiproject.content.api.InteractionAction;
+import org.sakaiproject.content.api.ExpandableResourceType;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceType;
+import org.sakaiproject.content.api.ServiceLevelAction;
 import org.sakaiproject.content.api.ResourceToolAction.ActionType;
-import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.content.util.BaseInteractionAction;
 import org.sakaiproject.content.util.BaseServiceLevelAction;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.scorm.client.api.ScormClientFacade;
 
 
-public class ScormContentType implements ResourceType {
-	private static Log log = LogFactory.getLog(ScormContentType.class);
+public class ScormCollectionType implements ExpandableResourceType {
+	private static Log log = LogFactory.getLog(ScormCollectionType.class);
 			
 	public static final String SCORM_CONTENT_LABEL="SCORM Package";
 	public static final String SCORM_CONTENT_TYPE_ID="org.sakaiproject.content.types.scormContentPackage";
@@ -56,15 +56,11 @@ public class ScormContentType implements ResourceType {
 	public static final String SCORM_UPLOAD_HELPER_ID="sakai.scorm.helper"; //="sakai.resource.type.helper";
 	public static final String SCORM_LAUNCH_TOOL_ID="sakai.scorm.helper";
 	
-	
-	private ScormClientFacade scormClientService;
 	private EnumMap<ResourceToolAction.ActionType, List<ResourceToolAction>> actionMap =
 	      new EnumMap<ResourceToolAction.ActionType, List<ResourceToolAction>>(ResourceToolAction.ActionType.class);
 	private Map<String, ResourceToolAction> actions = new Hashtable<String, ResourceToolAction>();
 	
-	public ScormContentType(ScormClientFacade scormClientService) {
-		this.scormClientService = scormClientService;
-		
+	public ScormCollectionType() {	
 		List<String> requiredKeys = new ArrayList<String>();
 	    requiredKeys.add(ResourceProperties.PROP_STRUCTOBJ_TYPE);
 	    //requiredKeys.add(ContentHostingService.PROP_ALTERNATE_REFERENCE);
@@ -80,17 +76,17 @@ public class ScormContentType implements ResourceType {
 	    		log.warn("Finalizing upload action for scorm content!");
 			}
 	    };   
-	    ResourceToolAction launch = new ScormLaunchAction();
+	    //ResourceToolAction launch = new ScormLaunchAction();
 	    ResourceToolAction remove = new BaseServiceLevelAction(ResourceToolAction.DELETE, ResourceToolAction.ActionType.DELETE, SCORM_CONTENT_TYPE_ID, false);
 	    //ResourceToolAction intercept = new BaseInteractionAction(ResourceToolAction.INTERCEPT_CONTENT, ResourceToolAction.ActionType.INTERCEPT_CONTENT, SCORM_CONTENT_TYPE_ID, SCORM_LAUNCH_TOOL_ID, requiredKeys);   
 
 	    actionMap.put(create.getActionType(), makeList(create));
-	    actionMap.put(launch.getActionType(), makeList(launch));
+	    //actionMap.put(launch.getActionType(), makeList(launch));
 	    actionMap.put(remove.getActionType(), makeList(remove));
 	    //actionMap.put(intercept.getActionType(), makeList(intercept));
 	    
 	    actions.put(create.getId(), create);
-	    actions.put(launch.getId(), launch);
+	    //actions.put(launch.getId(), launch);
 	    actions.put(remove.getId(), remove);
 	    //actions.put(intercept.getId(), intercept);
 	}
@@ -170,7 +166,7 @@ public class ScormContentType implements ResourceType {
 	}
 	
 
-	public class ScormUploadCreateAction implements InteractionAction {
+	/*public class ScormUploadCreateAction implements InteractionAction {
 		
 		public ScormUploadCreateAction() { 
 			
@@ -290,13 +286,56 @@ public class ScormContentType implements ResourceType {
         {
 	        return true;
         }
-	}
+	}*/
 	
 
 	protected List<ResourceToolAction> makeList(ResourceToolAction create) {
-	      List returned = new ArrayList<ResourceToolAction>();
+	      List<ResourceToolAction> returned = new ArrayList<ResourceToolAction>();
 	      returned.add(create);
 	      return returned;
 	}
+
+	public ServiceLevelAction getCollapseAction() {
+		return (ServiceLevelAction) this.actions.get(ResourceToolAction.COLLAPSE);
+	}
+
+	public ServiceLevelAction getExpandAction() {
+		return (ServiceLevelAction) this.actions.get(ResourceToolAction.EXPAND);
+	}
+
+	public String getIconLocation(ContentEntity entity, boolean expanded) {
+		String iconLocation = "sakai/dir_openroot.gif";
+		if(entity.isCollection())
+		{
+			ContentCollection collection = (ContentCollection) entity;
+			int memberCount = collection.getMemberCount();
+			if(memberCount == 0)
+			{
+				iconLocation = "sakai/dir_closed.gif";
+			}
+			else if(memberCount > ResourceType.EXPANDABLE_FOLDER_SIZE_LIMIT)
+			{
+				iconLocation = "sakai/dir_unexpand.gif";
+			}
+			else if (!expanded)
+			{
+				iconLocation = "sakai/dir_closedplus.gif";
+			}
+		}
+		return iconLocation;
+	}
+
+	public String getLocalizedHoverText(ContentEntity entity, boolean expanded) {
+		return "Scorm Content Package";
+	}
+
+	public boolean isExpandable() {
+		return true;
+	}
+
+	public boolean allowAddAction(ResourceToolAction action, ContentEntity entity) {
+		return action.getActionType().equals(ResourceToolAction.ActionType.NEW_UPLOAD);
+	}
+	
 	
 }
