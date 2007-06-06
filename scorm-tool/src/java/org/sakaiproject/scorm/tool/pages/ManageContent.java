@@ -45,6 +45,7 @@ import org.sakaiproject.scorm.client.api.ScormClientFacade;
 import org.sakaiproject.scorm.client.utils.ApiAjaxBean;
 import org.sakaiproject.scorm.client.utils.ApiAjaxMethod;
 import org.sakaiproject.scorm.tool.ScormTool;
+import org.sakaiproject.scorm.tool.components.ApiPanel;
 
 public class ManageContent extends ClientPage {
 	private static final long serialVersionUID = 1L;
@@ -62,6 +63,8 @@ public class ManageContent extends ClientPage {
 	public ManageContent(final PageParameters pageParams) {
 		//final String contextId = clientFacade.getContext();
 			
+		add(new ApiPanel("api-panel"));
+		
 		add(newResourceLabel("title", this));
 		
 		List<ContentResource> contentPackages = clientFacade.getContentPackages();
