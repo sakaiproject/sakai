@@ -13,10 +13,7 @@
 		
 		<h2><h:outputText value="#{msgs.course_grade_details_title}"/></h2>
 		<p class="instruction">
-				<h:outputText value="#{msgs.course_grade_details_null_msg}" />
-		</p>
-		<p class="instruction">
-			<h:outputText value="#{msgs.course_grade_details_calc_course_grades_msg}" />
+			<h:outputText value="#{msgs.course_grade_details_null_msg}  " />
 		</p>
 
 		<h4><h:outputText value="#{msgs.course_grade_details_page_title}"/></h4>
