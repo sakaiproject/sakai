@@ -26,10 +26,16 @@
 		
 		<dependency>
 			<groupId>sakaiproject</groupId>
-			<artifactId>sakai-scorm-model-impl</artifactId>
+			<artifactId>sakai-scorm-content-impl</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
 		
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-scorm-model-impl</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+				
 		<!-- Sakai dependencies -->
 		<dependency>
 			<groupId>sakaiproject</groupId>
@@ -68,6 +74,11 @@
 		</dependency>
 		
 		<!-- External dependencies -->
+		<dependency>
+			<groupId>activation</groupId>
+			<artifactId>activation</artifactId>
+			<version>1.0.2</version>
+		</dependency>
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
