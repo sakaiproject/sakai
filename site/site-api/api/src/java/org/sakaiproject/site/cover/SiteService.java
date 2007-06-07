@@ -67,6 +67,10 @@ public class SiteService
 	public static java.lang.String SECURE_REMOVE_SITE = org.sakaiproject.site.api.SiteService.SECURE_REMOVE_SITE;
 
 	public static java.lang.String SECURE_UPDATE_SITE = org.sakaiproject.site.api.SiteService.SECURE_UPDATE_SITE;
+	
+	public static java.lang.String SECURE_UPDATE_SITE_MEMBERSHIP = org.sakaiproject.site.api.SiteService.SECURE_UPDATE_SITE_MEMBERSHIP;
+
+	public static java.lang.String SECURE_UPDATE_GROUP_MEMBERSHIP = org.sakaiproject.site.api.SiteService.SECURE_UPDATE_GROUP_MEMBERSHIP;
 
 	public static java.lang.String SECURE_VIEW_ROSTER = org.sakaiproject.site.api.SiteService.SECURE_VIEW_ROSTER;
 
