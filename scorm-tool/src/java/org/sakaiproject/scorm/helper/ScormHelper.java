@@ -16,7 +16,7 @@ public class ScormHelper extends WebApplication {
 	{
 		addComponentInstantiationListener(new SpringComponentInjector(this));
 		getResourceSettings().setThrowExceptionOnMissingResource(false);
-		//getDebugSettings().setAjaxDebugModeEnabled(true);
+		getDebugSettings().setAjaxDebugModeEnabled(false);
 		//Objects.setObjectStreamFactory(new IObjectStreamFactory.DefaultObjectStreamFactory());
 
 		mountBookmarkablePage("/upload", UploadContentPackage.class);

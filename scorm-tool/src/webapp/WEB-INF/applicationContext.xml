@@ -15,5 +15,12 @@
 			<ref bean="org.sakaiproject.scorm.client.api.ScormClientFacade"/>
 		</property>
     </bean>
+    
+    <bean id="zipHelperWicketApplication" class="org.sakaiproject.ziparchive.helper.ZipArchiveHelper">
+		<property name="clientFacade">
+			<ref bean="org.sakaiproject.scorm.client.api.ScormClientFacade"/>
+		</property>
+    </bean>
+    
 
 </beans>

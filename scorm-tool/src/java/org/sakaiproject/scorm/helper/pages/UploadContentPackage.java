@@ -7,8 +7,8 @@ import java.io.InputStream;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.scorm.client.ClientPage;
 import org.sakaiproject.scorm.client.api.ScormClientFacade;
-import org.sakaiproject.scorm.helper.components.DetailsPanel;
-import org.sakaiproject.scorm.helper.components.UploadForm;
+import org.sakaiproject.scorm.client.components.DetailsPanel;
+import org.sakaiproject.scorm.client.components.UploadForm;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.logging.Log;
@@ -20,6 +20,7 @@ import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitButton;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
+import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.markup.html.form.SubmitLink;
 import org.apache.wicket.markup.html.form.TextField;
@@ -68,6 +69,8 @@ public class UploadContentPackage extends ClientPage {
 		
 		add(newResourceLabel("title", this));
 		add(form); 
+		form.add(new CheckBox("dontValidateSchema"));
+		form.add(newResourceLabel("validateSchemaCaption", this));
 	}
 	
 	/*protected void uploadFile() {

@@ -1,4 +1,4 @@
-package org.sakaiproject.scorm.helper.components;
+package org.sakaiproject.scorm.client.components;
 
 import java.util.Arrays;
 import java.util.List;
