@@ -76,7 +76,9 @@ import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.SessionState;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -6490,6 +6492,8 @@ public class SiteAction extends PagedResourceActionII {
 							.getString("sitegen.siteinfolist.nomaintainuser")
 							+ maintainRoleString + ".");
 				} else {
+					// post event about the participant update
+					EventTrackingService.post(EventTrackingService.newEvent(SiteService.SECURE_UPDATE_SITE_MEMBERSHIP, realmEdit.getId(),false));
 					AuthzGroupService.save(realmEdit);
 				}
 			} catch (GroupNotDefinedException e) {
