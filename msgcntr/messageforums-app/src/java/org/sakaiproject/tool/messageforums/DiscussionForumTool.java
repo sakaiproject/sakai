@@ -3839,11 +3839,9 @@ public class DiscussionForumTool
    */
   public boolean isCanDelete()
   {
-	  final boolean isInstructor = isInstructor();
-	  final boolean isDeleteAny = selectedTopic.getIsDeleteAny();
-	  final boolean isDeleteOwn = selectedTopic.getIsDeleteOwn();
-	  final boolean isOwn = selectedMessage.getIsOwn();
-	  return isInstructor || isDeleteAny || isDeleteOwn || isOwn;
+	  final boolean isInstructor = isInstructor();	  
+	  final boolean isDeleteAny = (selectedTopic != null) ? selectedTopic.getIsDeleteAny() : false;
+	  return isInstructor || isDeleteAny;
   }
   
   /**
