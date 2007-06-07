@@ -20,6 +20,19 @@
 	</filter>
 
 	<filter>
+	    <filter-name>sakai.ziparchive.helper.filter</filter-name>
+	    <filter-class>org.apache.wicket.protocol.http.WicketFilter</filter-class>
+	    <init-param>
+	      	<param-name>applicationFactoryClassName</param-name>
+	      	<param-value>org.apache.wicket.spring.SpringWebApplicationFactory</param-value>
+	    </init-param>
+	    <init-param>
+			<param-name>applicationBean</param-name>
+			<param-value>zipHelperWicketApplication</param-value>
+		</init-param>
+  	</filter>
+
+	<filter>
 	    <filter-name>sakai.scorm.helper.filter</filter-name>
 	    <filter-class>org.apache.wicket.protocol.http.WicketFilter</filter-class>
 	    <init-param>
@@ -46,6 +59,22 @@
 		</init-param>
   	</filter>
 		
+	<filter-mapping>
+	    <filter-name>sakai.request</filter-name>
+	    <servlet-name>sakai.ziparchive.helper</servlet-name>
+	    <dispatcher>REQUEST</dispatcher>
+	    <dispatcher>FORWARD</dispatcher>
+	    <dispatcher>INCLUDE</dispatcher>
+	</filter-mapping>	
+		
+	<filter-mapping>
+    	<filter-name>sakai.ziparchive.helper.filter</filter-name>
+    	<servlet-name>sakai.ziparchive.helper</servlet-name>
+    	<dispatcher>REQUEST</dispatcher>
+	    <dispatcher>FORWARD</dispatcher>
+	    <dispatcher>INCLUDE</dispatcher>
+  	</filter-mapping>	
+	
 	<filter-mapping>
 	    <filter-name>sakai.request</filter-name>
 	    <servlet-name>sakai.scorm.helper</servlet-name>
@@ -86,6 +115,11 @@
   	<servlet>
   		<servlet-name>sakai.scorm.helper</servlet-name>
   		<servlet-class>org.sakaiproject.scorm.helper.HelperServlet</servlet-class>
+  	</servlet>
+  	
+  	<servlet>
+  		<servlet-name>sakai.ziparchive.helper</servlet-name>
+  		<servlet-class>org.sakaiproject.ziparchive.helper.ZipArchiveHelperServlet</servlet-class>
   	</servlet>
 
 	<!--  The ToolListener causes this tool to be registered with Sakai.  -->

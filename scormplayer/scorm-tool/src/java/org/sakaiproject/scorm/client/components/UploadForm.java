@@ -18,7 +18,7 @@
  * limitations under the License.
  *
  **********************************************************************************/
-package org.sakaiproject.scorm.helper.components;
+package org.sakaiproject.scorm.client.components;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -62,13 +62,12 @@ public class UploadForm extends Form {
 	private static Log log = LogFactory.getLog(UploadForm.class);		
 	private static final String FILE_UPLOAD_MAX_SIZE_CONFIG_KEY = "content.upload.max";	
 	private static final String CONTENT_TYPE_APPLICATION_ZIP = "application/zip";
-	private static final String MANIFEST_FILE_LOCATION = "imsmanifest.xml";
-	
 	
 	@SpringBean
 	ScormClientFacade clientFacade;
 	
 	private FileUpload fileInput;
+	private FileItem fileItem;
 	private String displayName;
 	private String description;
 	private String copyright;
@@ -83,8 +82,6 @@ public class UploadForm extends Form {
 	public UploadForm(String id)
 	{
 		super(id);
-		
-		
 		
 		IModel model = new CompoundPropertyModel(this);
 		this.setModel(model);
@@ -122,8 +119,8 @@ public class UploadForm extends Form {
 		add(newResourceLabel("displayNameLabel", this));
 		add(new TextField("displayName"));
 		add(new FileUploadField("fileInput"));
-		add(new CheckBox("dontValidateSchema"));
-		add(newResourceLabel("validateSchemaCaption", this));
+		//add(new CheckBox("dontValidateSchema"));
+		//add(newResourceLabel("validateSchemaCaption", this));
 		add(detailsPanel);
 		add(showDetailsLink);
 		add(new Button("submitUpload"));
@@ -191,78 +188,19 @@ public class UploadForm extends Form {
 	
 	
 	protected void onSubmit() {
-		FileItem fileItem = (FileItem)((WebRequest)getRequest()).getHttpServletRequest().getAttribute("fileInput");
-		
-		File contentPackage = getContentPackage(fileItem);
+		FileItem fileItem = getFileItem();		
+		File contentPackage = getFile(fileItem);
 		
 		IValidatorOutcome outcome = validate(contentPackage, !getDontValidateSchema());
 		
 		if (null == outcome)
 			return;
 		
-		String url = clientFacade.getCompletionURL();
-			
-			//clientFacade.addContentPackage(contentPackage, fileItem.getContentType());
-		
-		
-		
-		
-		
-		
-		/*ResourceToolActionPipe pipe = clientFacade.getResourceToolActionPipe();
-		
-		ContentEntity entity = pipe.getContentEntity();
-		ContentCollection containingCollection = null;
-		
-		if(entity != null && entity instanceof ContentCollection)
-		{
-			containingCollection = (ContentCollection) entity;
-		}
-		
-		InputStream stream = null;
-		try {
-			byte[] bytes = fileItem.get();
-			
-			if (null != bytes) {
-				pipe.setRevisedContent(bytes);
-			} else {
-				stream = fileItem.getInputStream();
-				pipe.setRevisedContentStream(stream);
-			}
-						
-			String contentType = fileItem.getContentType();
-            pipe.setRevisedMimeType(contentType);
-			
-            String filename = fileItem.getName();
-            
-            if (null != getDisplayName() && getDisplayName().trim().length() > 0)
-            	filename = getDisplayName();
-            
-            pipe.setFileName(filename);
-            
-            parseManifest(fileItem);
-                        
-            pipe.setActionCanceled(false);
-            pipe.setErrorEncountered(false);
-            pipe.setActionCompleted(true); 
-		} catch (IOException ioe) {
-			log.error("Caught an io exception trying to upload file!", ioe);
-			info("Unable to save this file...");
-		} finally {
-			if (null != pipe)
-				clientFacade.closePipe(pipe);
-			if (null != stream)
-				try { 
-					stream.close();
-				} catch (IOException nioe) {
-					log.info("Caught an io exception trying to close stream!", nioe);
-				}
-		}*/
-		
+		String url = clientFacade.getCompletionURL();		
 		exit(url);
 	}
 	
-	private void exit(String url) {
+	public void exit(String url) {
 		if (null != url) {
 			getRequestCycle().setRequestTarget(new RedirectRequestTarget(url));
 		}
@@ -272,7 +210,7 @@ public class UploadForm extends Form {
 		return (File)((WebRequest)getRequest()).getHttpServletRequest().getSession().getServletContext().getAttribute("javax.servlet.context.tempdir");
 	}
 	
-	private File getContentPackage(FileItem fileItem) {
+	private File getFile(FileItem fileItem) {
 		if (null == fileItem) {
 			notify("noFile");
 			return null;
@@ -287,7 +225,7 @@ public class UploadForm extends Form {
         if (null != getDisplayName() && getDisplayName().trim().length() > 0)
         	filename = getDisplayName();
         
-		File contentPackage = new File(getDirectory(), filename);
+		File file = new File(getDirectory(), filename);
 
 		byte[] bytes = fileItem.get();
 		
@@ -301,7 +239,7 @@ public class UploadForm extends Form {
 				in = new ByteArrayInputStream(bytes);
 			}
 		
-			out = new FileOutputStream(contentPackage);
+			out = new FileOutputStream(file);
 			
 			byte[] buffer = new byte[1024];
 			int length;
@@ -321,72 +259,9 @@ public class UploadForm extends Form {
 				}
 		}
 		
-		return contentPackage;
+		return file;
 	}
-	
-	
-	private void parseManifest(FileItem item) {
-		String contentType = item.getContentType();
 		
-		if (!CONTENT_TYPE_APPLICATION_ZIP.equals(contentType))
-			return;
-		
-		byte[] bytes = item.get();
-		
-		File manifestFile = findManifestFile(bytes);
-		
-		System.out.println("MANIFEST at " + manifestFile.getAbsolutePath());
-	}
-	
-	private File findManifestFile(byte[] archive) {
-		File manifestFile = null; 
-		
-		ZipInputStream zipStream = new ZipInputStream(new ByteArrayInputStream(archive));
-		ZipEntry entry;
-		String entryName;
-		byte[] buffer = new byte[1024];
-		int length;
-		
-		FileOutputStream out = null;
-		
-		try {
-			manifestFile = File.createTempFile("manifest", ".xml");
-			entry = (ZipEntry) zipStream.getNextEntry();
-			out = new FileOutputStream(manifestFile);
-			while (entry != null) {
-		    	entryName = entry.getName();
-		    	if (entryName.endsWith(MANIFEST_FILE_LOCATION)) {
-		    		while ((length = zipStream.read(buffer)) > 0) {  
-		    			out.write(buffer, 0, length);
-		            }
-		    		
-		    		out.close();
-		    		zipStream.closeEntry();
-		    		zipStream.close();
-		    		return manifestFile;
-		    	}
-		    	entry = (ZipEntry) zipStream.getNextEntry();
-		    }
-		} catch (IOException ioe) {
-			log.error("Caught an io exception writing manifest file to temp space!", ioe);
-			return null;
-		} finally {
-			try {
-				if (null != out)
-					out.close();
-				if (null != zipStream)
-					zipStream.close();
-			} catch (IOException noie) {
-				log.info("Caught an io exception closing streams!");
-			}
-		}
-		
-		return null;
-	}
-	
-	
-
-	
 	
 	/*protected void onSubmit()
 	{	
@@ -502,6 +377,7 @@ public class UploadForm extends Form {
 	}
 
 	public boolean getDontValidateSchema() {
+		String dontValidateString = ((WebRequest)getRequest()).getHttpServletRequest().getParameter("dontValidateSchema");
 		Boolean dontValidate = Boolean.valueOf(((WebRequest)getRequest()).getHttpServletRequest().getParameter("dontValidateSchema"));
 
 		if (null == dontValidate)
@@ -511,6 +387,14 @@ public class UploadForm extends Form {
 
 	public void setDontValidateSchema(boolean dontValidateSchema) {
 		this.dontValidateSchema = dontValidateSchema;
+	}
+
+	public FileItem getFileItem() {
+		return (FileItem)((WebRequest)getRequest()).getHttpServletRequest().getAttribute("fileInput");
+	}
+
+	public void setFileItem(FileItem fileItem) {
+		this.fileItem = fileItem;
 	}
 	
 	
