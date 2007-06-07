@@ -84,7 +84,7 @@ public class ScormClientFacadeImpl implements ScormClientFacade {
 	protected ZipCHH contentHandler;
 	
 	public void init() {
-		getResourceTypeRegistry().register(new ScormCollectionType());
+		//getResourceTypeRegistry().register(new ScormCollectionType());
 		entityManager().registerEntityProducer(this, REFERENCE_ROOT);
 	}
 	

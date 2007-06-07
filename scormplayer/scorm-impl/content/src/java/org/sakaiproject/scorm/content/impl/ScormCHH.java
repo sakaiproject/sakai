@@ -21,13 +21,18 @@ public class ScormCHH extends FastZipCHH {
 	
 	private static Log log = LogFactory.getLog(ScormCHH.class);
 
+	public void init() {
+		super.init();
+		resourceTypeRegistry.register(new ScormCollectionType());
+	}
+	
 	protected ScormContentService scormContentService() {
 		return null;
 	}
 
-	protected ContentCollectionEdit makeCollection(String id, String path,
+	protected ContentCollectionEdit makeCollection(ContentEntity ce, String path,
 			String name) {
-		ContentCollectionEdit collection = super.makeCollection(id, path, name);
+		ContentCollectionEdit collection = super.makeCollection(ce, path, name);
 		collection.setResourceType(ScormCollectionType.SCORM_CONTENT_TYPE_ID);
 		return collection;
 	}
@@ -58,9 +63,9 @@ public class ScormCHH extends FastZipCHH {
 		
 		for (String name : entityNames) {
 			if (name.endsWith(Entity.SEPARATOR))
-				list.add(makeCollection(realParentId, newId(relativePath, name), name));
+				list.add(makeCollection(realParent, newId(relativePath, name), name));
 			else
-				list.add(makeResource(realParentId, newId(relativePath, name), name, null));
+				list.add(makeResource(realParent, newId(relativePath, name), name, null));
 		}
 
 		return list;

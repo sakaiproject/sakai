@@ -21,11 +21,22 @@
 	</bean>
 
 	<bean id="org.sakaiproject.scorm.client.api.ContentHostingHandler"
-		class="org.sakaiproject.scorm.content.impl.FastZipCHH"
-		singleton="true">
-		<!-- lookup-method name="scormContentService" bean="org.sakaiproject.scorm.service.api.ScormContentService"/-->
+		class="org.sakaiproject.scorm.content.impl.ScormCHH"
+		singleton="true"
+		init-method="init">
+		<lookup-method name="scormContentService" bean="org.sakaiproject.scorm.service.api.ScormContentService"/>
 		<lookup-method name="contentService" bean="org.sakaiproject.content.api.ContentHostingService" /> 
 		<property name="resolver"><ref bean="org.sakaiproject.content.api.ContentHostingHandlerResolver"/></property>
+		<property name="resourceTypeRegistry"><ref bean="org.sakaiproject.content.api.ResourceTypeRegistry"/></property>
+	</bean>
+	
+	<bean id="org.sakaiproject.ziparchive.api.ContentHostingHandler"
+		class="org.sakaiproject.scorm.content.impl.FastZipCHH"
+		singleton="true"
+		init-method="init">
+		<lookup-method name="contentService" bean="org.sakaiproject.content.api.ContentHostingService" /> 
+		<property name="resolver"><ref bean="org.sakaiproject.content.api.ContentHostingHandlerResolver"/></property>
+		<property name="resourceTypeRegistry"><ref bean="org.sakaiproject.content.api.ResourceTypeRegistry"/></property>
 	</bean>
 	
 	<bean id="org.sakaiproject.scorm.service.api.ScormContentService"
