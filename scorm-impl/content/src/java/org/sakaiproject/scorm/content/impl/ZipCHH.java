@@ -3,7 +3,6 @@ package org.sakaiproject.scorm.content.impl;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -20,6 +19,7 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.ResourceType;
+import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
@@ -41,6 +41,11 @@ public class ZipCHH implements ContentHostingHandler {
 			
 	protected ContentHostingService contentService() { return null; }
 	private ContentHostingHandlerResolver resolver;
+	protected ResourceTypeRegistry resourceTypeRegistry;
+	
+	public void init() {
+		resourceTypeRegistry.register(new ZipCollectionType());
+	}
 	
 	public void cancel(ContentCollectionEdit edit) {
 
@@ -185,7 +190,17 @@ public class ZipCHH implements ContentHostingHandler {
 		if (path.length() == 0) {
 			// Grab some data from the real content entity
 			String name = (String)realProperties.get(ResourceProperties.PROP_DISPLAY_NAME);			
-			virtualEntity = makeCollection(parentId, path, name);
+			virtualEntity = makeCollection(ce, path, name);
+			
+			if (ce.getVirtualContentEntity() == null) {
+				try {
+					ContentResourceEdit cee = contentService().editResource(ce.getId());
+					cee.setVirtualContentEntity(virtualEntity);
+					contentService().commitResource(cee);
+				} catch (Exception e) {
+					log.error("Caught an exception setting the virtual entity for the parent", e);
+				}
+			}
 		} else {		
 			virtualEntity = uncacheEntity(newId(parentId, path));
 
@@ -198,7 +213,7 @@ public class ZipCHH implements ContentHostingHandler {
 				}
 			}			
 		}
-				
+		
 		return virtualEntity;
 	}
 
@@ -407,7 +422,7 @@ public class ZipCHH implements ContentHostingHandler {
 	}
 		
 	private ContentEntity extractEntity(ContentEntity realEntity, final String path) throws ServerOverloadException {
-		ContentResource cr = (ContentResource)realEntity;
+		final ContentResource cr = (ContentResource)realEntity;
 		
 		byte[] archive = cr.getContent();
 		
@@ -428,9 +443,9 @@ public class ZipCHH implements ContentHostingHandler {
 
 			protected Object processEntry(String entryPath, ByteArrayOutputStream outStream, boolean isDirectory) {
 				if (isDirectory)
-					return makeCollection(id, path, null);
+					return makeCollection(cr, path, null);
 				
-	    		return makeResource(id, path, null, outStream.toByteArray());
+	    		return makeResource(cr, path, null, outStream.toByteArray());
 			}
 			
 		};
@@ -439,7 +454,7 @@ public class ZipCHH implements ContentHostingHandler {
 	}
 	
 	protected List<ContentEntity> extractChildren(ContentEntity parent, int depth)  {
-		ContentResource realParent = (ContentResource)getRealParent(parent);
+		final ContentResource realParent = (ContentResource)getRealParent(parent);
 		
 		byte[] archive = null;
 		
@@ -476,10 +491,10 @@ public class ZipCHH implements ContentHostingHandler {
 					entryPath = entryPath.substring(0, entryPath.length() - 1);
 				
 				if (isDirectory) {
-	    			entity = makeCollection(realParentId, entryPath, null);
+	    			entity = makeCollection(realParent, entryPath, null);
 	    		} else {
 	    			// We don't need content stored for these objects 
-	    			entity = makeResource(realParentId, entryPath, null, null);
+	    			entity = makeResource(realParent, entryPath, null, null);
 	    		}
 				
 				return entity;
@@ -572,7 +587,7 @@ public class ZipCHH implements ContentHostingHandler {
 		return buffer.toString();
 	}
 	
-	protected ContentCollectionEdit makeCollection(String id, String path, String name) {		
+	protected ContentCollectionEdit makeCollection(ContentEntity ce, String path, String name) {		
 		String[] fields = path.split(Entity.SEPARATOR);
 		
 		if (null == name) {
@@ -583,7 +598,7 @@ public class ZipCHH implements ContentHostingHandler {
 				name = fields[fields.length - 1];
 			}
 		}
-		String newId = newId(id, path);
+		String newId = newId(ce.getId(), path);
 		if (!newId.endsWith(Entity.SEPARATOR))
 			newId += Entity.SEPARATOR;
 		
@@ -594,14 +609,16 @@ public class ZipCHH implements ContentHostingHandler {
 		props.addProperty(ContentHostingHandlerResolver.CHH_BEAN_NAME, "org.sakaiproject.scorm.client.api.ContentHostingHandler");
 		props.addProperty(ResourceProperties.PROP_IS_COLLECTION, "true");
 		props.addProperty(VIRTUAL_ZIP_ENTITY_PROPERTY, "true");
-		props.addProperty(REAL_PARENT_ENTITY_PROPERTY, id);
+		props.addProperty(REAL_PARENT_ENTITY_PROPERTY, ce.getId());
 		
+		//collection.setVirtualContentEntity(ce);
+		collection.setResourceType(ZipCollectionType.ZIP_COLLECTION_TYPE_ID);
 		collection.setContentHandler(this);
 		
 		return collection;
 	}
 		
-	protected ContentResourceEdit makeResource(String id, String path, String name, byte[] content) {		
+	protected ContentResourceEdit makeResource(ContentEntity ce, String path, String name, byte[] content) {		
 		String[] fields = path.split(Entity.SEPARATOR);
 		
 		if (null == name) {
@@ -613,7 +630,7 @@ public class ZipCHH implements ContentHostingHandler {
 			}
 		}
 		
-		ContentResourceEdit resource = (ContentResourceEdit)resolver.newResourceEdit(newId(id, path));
+		ContentResourceEdit resource = (ContentResourceEdit)resolver.newResourceEdit(newId(ce.getId(), path));
 		
 		if (null != content) {
 			resource.setContent(content);
@@ -627,11 +644,24 @@ public class ZipCHH implements ContentHostingHandler {
 		props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
 		props.addProperty(ContentHostingHandlerResolver.CHH_BEAN_NAME, "org.sakaiproject.scorm.client.api.ContentHostingHandler");
 		props.addProperty(VIRTUAL_ZIP_ENTITY_PROPERTY, "true");	
-		props.addProperty(REAL_PARENT_ENTITY_PROPERTY, id);
+		props.addProperty(REAL_PARENT_ENTITY_PROPERTY, ce.getId());
+		
+		//resource.setVirtualContentEntity(ce);
 		
 		resource.setContentHandler(this);
 		
 		return resource;
+	}
+	
+	
+	public void setResourceTypeRegistry(ResourceTypeRegistry registry)
+	{
+		resourceTypeRegistry = registry;
+	}
+
+	public ResourceTypeRegistry getResourceTypeRegistry()
+	{
+		return resourceTypeRegistry;
 	}
 
 }

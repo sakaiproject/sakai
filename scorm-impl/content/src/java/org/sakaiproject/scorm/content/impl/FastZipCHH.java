@@ -40,9 +40,9 @@ public class FastZipCHH extends ZipCHH {
 		
 		for (String name : entityNames) {
 			if (name.endsWith(Entity.SEPARATOR))
-				list.add(makeCollection(realParentId, newId(relativePath, name), name));
+				list.add(makeCollection(realParent, newId(relativePath, name), name));
 			else
-				list.add(makeResource(realParentId, newId(relativePath, name), name, null));
+				list.add(makeResource(realParent, newId(relativePath, name), name, null));
 		}
 
 		return list;
