@@ -80,7 +80,7 @@
 
 		<%-- (Hide) Other Actions links --%>
 		<h:panelGroup rendered="#{(ForumTool.selectedTopic.isPostToGradebook && ForumTool.gradebookExist) || ForumTool.selectedTopic.isModeratedAndHasPerm || message.revise 
-									|| ForumTool.canDelete || message.isOwn}">
+									|| ForumTool.canDelete}">
 			<h:outputText value=" #{msgs.cdfm_toolbar_separator} " rendered="#{ForumTool.selectedTopic.isNewResponseToResponse && message.msgApproved}" />
 			<h:outputLink value="#" onclick="toggleDisplay('#{message.message.id}_advanced_box'); toggleHide(this); return false;">
 				<h:graphicImage value="/images/silk/cog.png" alt="#{msgs.cdfm_other_actions}" />
