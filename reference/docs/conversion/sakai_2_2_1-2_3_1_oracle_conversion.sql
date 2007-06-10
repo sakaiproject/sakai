@@ -1,7 +1,7 @@
--- This is the Oracle Sakai 2.2.1 (or later) -> 2.3.0 conversion script
+-- This is the Oracle Sakai 2.2.1 (or later) -> 2.3.1 conversion script
 ----------------------------------------------------------------------------------------------------------------------------------------
 --
--- use this to convert a Sakai database from 2.2.1 or 2.2.2 to 2.3.0.  Run this before you run your first app server.
+-- use this to convert a Sakai database from 2.2.1 (or later) to 2.3.1.  Run this before you run your first app server.
 -- auto.ddl does not need to be enabled in your app server - this script takes care of all new TABLEs, changed TABLEs, and changed data.
 --
 ----------------------------------------------------------------------------------------------------------------------------------------
