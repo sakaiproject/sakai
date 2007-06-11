@@ -42,14 +42,14 @@ languages, as follows:
    Contact: Dov Winer      admin@makash.org.il
    Local ID: iw_IL
 
-7) Brazilian Portugese 
+7) Brazilian Portuguese 
    Status: ??
    Translated by: n/a
    Contact: Nilton Lessa		  nlessa@moleque.com.br
 				Alceu Fernandes Filho   alceu@unisinos.br
    Local ID: pt_BR
    
-8) Portugese
+8) Portuguese
    Status: in progress (see http://elearning.ufp.pt)
    Translated by: n/a
    Contact:  Feliz Gouveia    fribeiro@ufp.pt
