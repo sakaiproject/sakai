@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
+	<bean id="org.sakaiproject.api.app.podcasts.PodcastPermissionsService"
+		class="org.sakaiproject.component.app.podcasts.PodcastPermissionsServiceImpl">
+	</bean>
+	
 	<bean id="org.sakaiproject.api.app.podcasts.PodcastService"
 		class="org.sakaiproject.component.app.podcasts.PodcastServiceImpl">
 		<!-- these properties are defined to be injected into the bean -->
@@ -15,6 +19,11 @@
  			<ref bean="org.sakaiproject.tool.api.ActiveToolManager" />
 		</property>
 		
+		<!-- needed to get information about the site -->
+		<property name="podcastPermissionsService">
+ 			<ref bean="org.sakaiproject.api.app.podcasts.PodcastPermissionsService" />
+		</property>
+
 <!--		<property name="notificationService">
 			<ref bean="org.sakaiproject.event.api.NotificationService" />
 		</property> -->
@@ -25,6 +34,10 @@
        
        <property name="podcastService">
            <ref bean="org.sakaiproject.api.app.podcasts.PodcastService"/>
+       </property>
+       
+       <property name="podcastPermissionsService">
+           <ref bean="org.sakaiproject.api.app.podcasts.PodcastPermissionsService"/>
        </property>
        
 		<!-- needed to get current user's permissions -->

@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2006 The Sakai Foundation.
+ * Copyright (c) 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -72,7 +72,7 @@ public interface PodcastService // extends EntityProducer
 	/** This string is the name of the property for the title of a podcast in the feed **/
 	public static final String DISPLAY_TITLE = "displayTitle";
 	
-	/** This string gives the update function (permission) string for checking permissions **/
+	/** This string gives the update function (permission) string for checking permissions
 	public static final String UPDATE_PERMISSIONS = "site.upd";
 	public static final String NEW_PERMISSIONS = "content.new";
 	public static final String READ_PERMISSIONS = "content.read";
@@ -82,7 +82,7 @@ public interface PodcastService // extends EntityProducer
 	public static final String DELETE_OWN_PERMISSIONS = "content.delete.own";
 	public static final String ALL_GROUPS_PERMISSIONS = "content.all.groups";
 	public static final String HIDDEN_PERMISSIONS = "content.hidden";
-
+ **/
 	/**
 	 * Determines if podcast folder is part of Resources of site.
 	 * If not, creates it.
@@ -203,38 +203,6 @@ public interface PodcastService // extends EntityProducer
 	 */
 	public void revisePodcast(String resourceId, String title, Date date, String description, byte[] body, 
             String filename) throws PermissionException, InUseException, OverQuotaException, ServerOverloadException;
-	
-	/**
-	 * Determines if user can modify the site. Used by feed.
-	 * 
-	 * @return boolean true if user can modify, false otherwise
-	 */
-	public boolean canUpdateSite();
-	public boolean canUpdateSite(String siteId);
-
-	/**
-	 * Determines if user has the function (permission) passed in
-	 * 
-	 * @param function
-	 * 			The permission to check
-	 *
-	 * @return boolean true if user has function (permission), false otherwise.
-	 */
-	public boolean hasPerm(String function);
-
-	/**
-	 * Determines if user has the function (permission) passed in
-	 * Used by feed since there is no site id in context
-	 * 
-	 * @param function
-	 * 			The permission to check
-	 * 
-	 * @param siteId
-	 * 			The site id
-	 * 
-	 * @return boolean true if user has function (permission), false otherwise.
-	 */
-	public boolean hasPerm(String function, String siteId);
 	
 	/**
 	 * Returns the ContentCollection that contains the podcasts.

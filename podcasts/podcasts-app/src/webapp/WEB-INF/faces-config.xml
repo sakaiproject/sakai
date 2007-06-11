@@ -29,6 +29,13 @@
 		<property-name>podcastService</property-name>
 		<value>#{Components["org.sakaiproject.api.app.podcasts.PodcastService"]}</value>
 	</managed-property>
+  
+    <!--	 Needed to access the services of PodcastPermissionsService -->
+    <managed-property>
+		<description>podcastPermissionsService</description>
+		<property-name>podcastPermissionsService</property-name>
+		<value>#{Components["org.sakaiproject.api.app.podcasts.PodcastPermissionsService"]}</value>
+	</managed-property>
   </managed-bean>
   
    <managed-bean>

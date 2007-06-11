@@ -50,6 +50,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.podcasts.PodcastService;
+import org.sakaiproject.api.app.podcasts.PodcastPermissionsService;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -381,6 +382,7 @@ public class podHomeBean {
 
 	// inject the services needed
 	private PodcastService podcastService;
+	private PodcastPermissionsService podcastPermissionsService;
 
 	private Log LOG = LogFactory.getLog(podHomeBean.class);
 
@@ -564,6 +566,10 @@ public class podHomeBean {
 		this.podcastService = podcastService;
 	}
 
+	public void setPodcastPermissionsService(PodcastPermissionsService podcastPermissionsService) {
+		this.podcastPermissionsService = podcastPermissionsService;
+	}
+
 	/**
 	 * Returns whether podcast should be 'hidden' in UI. Conditions:
 	 * 	Hidden property set
@@ -576,10 +582,7 @@ public class podHomeBean {
 	 * 			Release date (if exists) or display date (older version)
 	 */
 	private boolean hiddenInUI(ContentResource podcastResource, Date tempDate) {
-		return podcastResource.isHidden() 
-				|| (podcastResource.getRetractDate() != null 
-						&& podcastResource.getRetractDate().getTime() <= TimeService.newTime().getTime())
-				|| tempDate.getTime() >= TimeService.newTime().getTime();
+		return podcastPermissionsService.isResourceHidden(podcastResource, tempDate);
 	}
 
 	/**
@@ -733,8 +736,9 @@ public class podHomeBean {
 			// return empty list since cannot access
 			// if have proper perms, set switch so all podcasts greyed out in UI
 			if (podcastService.isPodcastFolderHidden(podcastService.getSiteId())) {
-				if (! (podcastService.canUpdateSite()
-						|| podcastService.hasPerm(PodcastService.HIDDEN_PERMISSIONS))) {
+				if (! podcastPermissionsService.hasPerm(PodcastPermissionsService.HIDDEN_PERMISSIONS,
+															podcastService.retrievePodcastFolderId(
+															podcastService.getSiteId()))) {
 					return new ArrayList();
 				}
 				else {
@@ -745,7 +749,7 @@ public class podHomeBean {
 			contents = podcastService.getPodcasts();
 
 			// if cannot update site (ie, student) only display published podcasts
-			if (!podcastService.canUpdateSite(podcastService.getSiteId())) {
+			if (! podcastPermissionsService.canUpdateSite(podcastService.getSiteId())) {
 				contents = podcastService.filterPodcasts(contents);
 			}
 
@@ -797,36 +801,26 @@ public class podHomeBean {
 			while (podcastIter.hasNext()) {
 				try {
 					// get its properties from ContentHosting
-					ContentResource podcastResource = (ContentResource) podcastIter
-							.next();
+					final ContentResource podcastResource = (ContentResource) podcastIter.next();
 					ResourceProperties podcastProperties = podcastResource.getProperties();
 
 					// Create a new decorated bean to store the info
 					DecoratedPodcastBean podcastInfo = getAPodcast(podcastResource, folderHidden);
 
-					// add it to the List to send to the page
-					// if URL, will return null so skip it
+					// add it to the List to send to the page. if URL, will return null so skip it
 					if (podcastInfo != null)
 						decoratedPodcasts.add(podcastInfo);
 
-					// get the next podcast if it exists
 				} 
 				catch (EntityPropertyNotDefinedException e) {
 					LOG.error("EntityPropertyNotDefinedException while creating DecoratedPodcastBean "
-									+ " for site "+ podcastService.getSiteId()
-									+ ". SKIPPING..." + e.getMessage());
-
+									+ " for site "+ podcastService.getSiteId() + ". SKIPPING..." + e.getMessage());
 				}
 				catch (EntityPropertyTypeException e) {
 					LOG.error("EntityPropertyTypeException while creating DecoratedPodcastBean "
-									+ " for site "+ podcastService.getSiteId()
-									+ ". SKIPPING..." + e.getMessage());
-
-
+									+ " for site "+ podcastService.getSiteId() + ". SKIPPING..." + e.getMessage());
 				}
-
 			}
-
 		}
 
 		return decoratedPodcasts;
@@ -842,7 +836,7 @@ public class podHomeBean {
 		boolean actPodcastsExist = false;
 
 		// if student on site that has Podcasts but no Resources, want "There are no..."
-		if (!getResourceToolExists() && !podcastService.canUpdateSite()) {
+		if (!getResourceToolExists() && ! podcastPermissionsService.canUpdateSite()) {
 			return false;
 		}
 		
@@ -1011,89 +1005,122 @@ public class podHomeBean {
 	 * options on main page.
 	 */
 	public boolean getCanUpdateSite() {
-		return podcastService.canUpdateSite();
+		return podcastPermissionsService.canUpdateSite();
 	}
 	
 	public boolean getHasReadPerm() {
-		if (podcastService.canUpdateSite()) {
-			return true;
-		}
-		else if (! getResourceToolExists()){
+		if (! getResourceToolExists()){
 			return false;
 		}
 		else {
-			boolean b = podcastService.hasPerm(PodcastService.READ_PERMISSIONS);
-			return b;
+			try {
+				return podcastPermissionsService.hasPerm(PodcastPermissionsService.READ_PERMISSIONS,
+												podcastService.retrievePodcastFolderId(
+														podcastService.getSiteId()));
+			}
+			catch (PermissionException e) {
+				// problem getting podcast folder id, so return false
+			}
+			return false;
 		}
 	}
 
 	public boolean getHasNewPerm() {
-		if (podcastService.canUpdateSite()) {
-			return true;
-		}
-		else if (! getResourceToolExists()){
+		if (! getResourceToolExists()){
 			return false;
 		}
 		else {
-			return podcastService.hasPerm(PodcastService.NEW_PERMISSIONS);
+			try {
+				return podcastPermissionsService.hasPerm(PodcastPermissionsService.NEW_PERMISSIONS,
+												podcastService.retrievePodcastFolderId(
+														podcastService.getSiteId()));
+			}
+			catch (PermissionException e) {
+				// problem getting podcast folder id, so return false
+			}
+			return false;
 		}
 	}
 	
 	public boolean getHasReviseAnyPerm() {
-		if (podcastService.canUpdateSite()) {
-			return true;
-		}
-		else if (! getResourceToolExists()){
+		if (! getResourceToolExists()){
 			return false;
 		}
 		else {
-			return podcastService.hasPerm(PodcastService.REVISE_ANY_PERMISSIONS);
+			try {
+				return podcastPermissionsService.hasPerm(PodcastPermissionsService.REVISE_ANY_PERMISSIONS,
+												podcastService.retrievePodcastFolderId(
+														podcastService.getSiteId()));
+			}
+			catch (PermissionException e) {
+				// problem getting podcast folder id, so return false
+			}
+			return false;
 		}
 	}
 	
 	public boolean getHasReviseOwnPerm() {
-		if (podcastService.canUpdateSite()) {
-			return true;
+		try {
+			return podcastPermissionsService.hasPerm(PodcastPermissionsService.REVISE_OWN_PERMISSIONS,
+											podcastService.retrievePodcastFolderId(
+													podcastService.getSiteId()));
 		}
-		else {
-			return podcastService.hasPerm(PodcastService.REVISE_OWN_PERMISSIONS);
+		catch (PermissionException e) {
+			// problem getting podcast folder id, so return false
 		}
+		return false;
 	}
 	
 	public boolean getHasDelAnyPerm() {
-		if (podcastService.canUpdateSite()) {
-			return true;
+		try {
+			return podcastPermissionsService.hasPerm(PodcastPermissionsService.DELETE_ANY_PERMISSIONS,
+											podcastService.retrievePodcastFolderId(
+													podcastService.getSiteId()));
 		}
-		else {
-			return podcastService.hasPerm(PodcastService.DELETE_ANY_PERMISSIONS);
+		catch (PermissionException e) {
+			// problem getting podcast folder id, so return false
 		}
+		return false;
 	}
 	
 	public boolean getHasDelOwnPerm() {
-		if (podcastService.canUpdateSite()) {
-			return true;
+		try {
+			return podcastPermissionsService.hasPerm(PodcastPermissionsService.DELETE_OWN_PERMISSIONS,
+											podcastService.retrievePodcastFolderId(
+													podcastService.getSiteId()));
 		}
-		else {
-			return podcastService.hasPerm(PodcastService.DELETE_OWN_PERMISSIONS);
+		catch (PermissionException e) {
+			// problem getting podcast folder id, so return false
 		}
+		return false;
 	}
 
+	/**
+	 * Returns TRUE if user has ALLGROUPS permission (or site.upd which supercedes),
+	 * FALSE if not
+	 */
 	public boolean getHasAllGroups() {
-		if (podcastService.canUpdateSite()) {
-			return true;
+		try {
+			return podcastPermissionsService.hasPerm(PodcastPermissionsService.ALL_GROUPS_PERMISSIONS,
+											podcastService.retrievePodcastFolderId(
+													podcastService.getSiteId()));
 		}
-		else {
-			return podcastService.hasPerm(PodcastService.ALL_GROUPS_PERMISSIONS);
+		catch (PermissionException e) {
+			// problem getting podcast folder id, so return false
 		}
+		return false;
 	}
 	
 	public boolean getHasHidden() {
-		if (podcastService.canUpdateSite()) {
-			return true;
+		try {
+			return podcastPermissionsService.hasPerm(PodcastPermissionsService.HIDDEN_PERMISSIONS,
+											podcastService.retrievePodcastFolderId(
+													podcastService.getSiteId()));
 		}
-		else {
-			return podcastService.hasPerm(PodcastService.HIDDEN_PERMISSIONS);
+		catch (PermissionException e) {
+			// problem getting podcast folder id, so return false
 		}
+		return false;
 	}
 	
 	public String getUserName() {

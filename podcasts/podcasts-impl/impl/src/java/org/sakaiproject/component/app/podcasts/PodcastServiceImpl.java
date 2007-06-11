@@ -3,7 +3,7 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
  * 
  * Licensed under the Educational Community License, Version 1.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -35,6 +35,8 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.podcasts.PodcastService;
+import org.sakaiproject.api.app.podcasts.PodcastPermissionsService;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -64,6 +66,7 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
@@ -109,6 +112,7 @@ public class PodcastServiceImpl implements PodcastService {
 	private ContentHostingService contentHostingService;
 	private ToolManager toolManager;
 	private SessionManager sessionManager;
+	private PodcastPermissionsService podcastPermissionsService;
 
 	// FUTURE; TO BE IMPLEMENTED 
 //	private NotificationService notificationService;
@@ -127,6 +131,11 @@ public class PodcastServiceImpl implements PodcastService {
 	/** Injects ToolManager into this service **/
 	public void setToolManager(ToolManager tm) {
 		toolManager = tm;
+	}
+
+	/** Injects PodcastAuthzService into this service **/
+	public void setPodcastPermissionsService(PodcastPermissionsService podcastPermissionsService) {
+		this.podcastPermissionsService = podcastPermissionsService;
 	}
 
 	/**
@@ -208,7 +217,8 @@ public class PodcastServiceImpl implements PodcastService {
 
 				// has it been published or does user have hidden permission
 				if (podcastTime.getTime() <= now.getTime() || 
-					hasPerm(PodcastService.HIDDEN_PERMISSIONS, siteId)) {
+					podcastPermissionsService.hasPerm(PodcastPermissionsService.HIDDEN_PERMISSIONS, 
+													  retrievePodcastFolderId(siteId), siteId)) {
 					
 					// check if there is a retract date and if so, we have not
 					// passed it
@@ -261,10 +271,13 @@ public class PodcastServiceImpl implements PodcastService {
 
 		}
 		catch (PermissionException e) {
-			// catches PermissionException, IdUnusedException 
+			// catches PermissionException
 			LOG.warn("PermissionException when trying to get podcast collection for site: "
 							+ siteId + ": " + e.getMessage(), e);
-			throw new Error(e);
+			
+			// now group aware, so folder may be restricted to a group
+			// so rethrow exception so UI can capture and deal with
+			throw e;
 		}
 
 		return collection;
@@ -288,9 +301,7 @@ public class PodcastServiceImpl implements PodcastService {
 		try {
 			podcastsCollection = retrievePodcastFolderId(siteId);
 
-			collection = contentHostingService
-					.editCollection(podcastsCollection);
-
+			collection = contentHostingService.editCollection(podcastsCollection);
 		} 
 		catch (TypeException e) {
 			LOG.error("TypeException when trying to get podcast collection for site: "
@@ -331,9 +342,23 @@ public class PodcastServiceImpl implements PodcastService {
 	 * 			List of files to make up the podcasts
 	 */
 	public List filterResources(List resourcesList) {
+		return filterResources(resourcesList, getSiteId());
+	}
+	
+	public List filterResources(List resourcesList, String siteId) {
 		List filteredResources = new ArrayList();
 		ContentResource aResource = null;
 
+		// is this user an instructor?
+		// need to clear advisors so doesn't blindly return true
+		boolean hadAdvisor = false;
+		if (SecurityService.hasAdvisors())  {
+			SecurityService.clearAdvisors();
+			hadAdvisor = true;
+		}
+		final boolean canUpdateSite = podcastPermissionsService.canUpdateSite(siteId);
+		if (hadAdvisor)  enablePodcastSecurityAdvisor();
+		
 		// loop to check if objects are collections (folders) or resources
 		// (files)
 		final Iterator podcastIter = resourcesList.iterator();
@@ -346,17 +371,21 @@ public class PodcastServiceImpl implements PodcastService {
 				 aResource = (ContentResource) podcastIter.next();
 				
 				if (aResource.isResource()) {
-					if (aResource.getAccess().equals(AccessMode.GROUPED)) {
-						
+					final boolean isGrouped = podcastPermissionsService.isGrouped(aResource);
+					
+					if ((! canUpdateSite) && isGrouped) {
+							if (podcastPermissionsService.canAccessViaGroups(aResource.getGroups(), siteId)) {
+								filteredResources.add(aResource);					
+							}
+						}
+					else {
+						filteredResources.add(aResource);
 					}
-					filteredResources.add(aResource);				
 				}
-			} 
-			catch (ClassCastException e) {
-				LOG.info("Non-file resource in podcasts folder, so ignoring. ");
-				
 			}
-
+			catch (ClassCastException e) {
+				LOG.info("Non-file resource in podcasts folder, so ignoring. ");				
+			}
 		}
 
 		return filteredResources;
@@ -436,7 +465,7 @@ public class PodcastServiceImpl implements PodcastService {
 				// Does not exist, so try to create it
 				podcastsCollection = siteCollection + COLLECTION_PODCASTS + Entity.SEPARATOR;
 				
-				if (canUpdateSite()) {
+				if (podcastPermissionsService.canUpdateSite()) {
 					createPodcastsFolder(podcastsCollection, siteId);
 					return podcastsCollection;
 				}
@@ -493,27 +522,29 @@ public class PodcastServiceImpl implements PodcastService {
 	 * 				A List of podcast resources
 	 */
 	public List getPodcasts(String siteId) throws PermissionException,
-			InUseException, IdInvalidException, InconsistentException,
-			IdUsedException {
-
-		List resourcesList = null;
+			InUseException, IdInvalidException, InconsistentException,IdUsedException {
+		List resourcesList = new ArrayList();
 		final String podcastsCollection = retrievePodcastFolderId(siteId);
 
 		try {			
 			checkForFeedInfo(podcastsCollection, siteId);
 
-
-			// just in case anything added from Resources so it does
-			// not have DISPLAY_DATE property
+			// Get podcasts folder collection from Resource for this site
 			final ContentCollection collectionEdit = getContentCollection(siteId);
 
-			// TODO: check if folder is restricted to group access
-			//    and if so, does this user have access?
-			
+			// If not instructor, check if folder is restricted to group access
+			//    and if so, if this user does not have access, return empty List
+			if (! podcastPermissionsService.canUpdateSite(siteId)
+					&& podcastPermissionsService.isGrouped(collectionEdit)
+					&& ! podcastPermissionsService.canAccessViaGroups(collectionEdit.getGroups(), siteId)) {
+						return new ArrayList();
+			}
+
 			resourcesList = collectionEdit.getMemberResources();
 
-			// remove non-file resources from collection
-			resourcesList = filterResources(resourcesList);
+			// remove non-file resources from collection as well as
+			// those restricted to groups (if user non-instructor)
+			resourcesList = filterResources(resourcesList, siteId);
 
 			// if added from Resources will not have this property.
 			// if not, this will call a method to set it.
@@ -528,7 +559,7 @@ public class PodcastServiceImpl implements PodcastService {
 		} 
 		catch (IdUnusedException ex) {
 				// Does not exist, attempt to create it
-			if (canUpdateSite()) {
+			if (podcastPermissionsService.canUpdateSite()) {
 				createPodcastsFolder(podcastsCollection, siteId);
 			}
 			else {
@@ -718,7 +749,10 @@ public class PodcastServiceImpl implements PodcastService {
 	}
 
 	private boolean anyPodcastsVisible(List podcasts) {
-		for (Iterator podIter = podcasts.iterator(); podIter.hasNext();) {
+		final List filteredPodcasts = filterResources(podcasts);
+		
+		return filteredPodcasts != null && ! filteredPodcasts.isEmpty();
+/*		for (Iterator podIter = podcasts.iterator(); podIter.hasNext();) {
 			ContentResource podcastResource = (ContentResource) podIter.next();
 			
 			// get release/publish date
@@ -749,7 +783,7 @@ public class PodcastServiceImpl implements PodcastService {
 		}
 		
 		return false;
-	}
+*/	}
 	
 	/**
 	 * Determines if folder contains actual files
@@ -771,7 +805,7 @@ public class PodcastServiceImpl implements PodcastService {
 				if (resourcesList != null) {
 					if (resourcesList.isEmpty())
 						return false;
-					else if (canUpdateSite())
+					else if (podcastPermissionsService.canUpdateSite())
 						return true;
 					else 
 						return anyPodcastsVisible(resourcesList);
@@ -822,7 +856,7 @@ public class PodcastServiceImpl implements PodcastService {
 					.getPropertiesEdit();
 
 			if (!title.equals(podcastResourceEditable
-					.getProperty(ResourceProperties.PROP_DISPLAY_NAME))) {
+								.getProperty(ResourceProperties.PROP_DISPLAY_NAME))) {
 
 				podcastResourceEditable
 						.removeProperty(ResourceProperties.PROP_DISPLAY_NAME);
@@ -833,7 +867,7 @@ public class PodcastServiceImpl implements PodcastService {
 			}
 
 			if (!description.equals(podcastResourceEditable
-					.getProperty(ResourceProperties.PROP_DESCRIPTION))) {
+									  .getProperty(ResourceProperties.PROP_DESCRIPTION))) {
 
 				podcastResourceEditable
 						.removeProperty(ResourceProperties.PROP_DESCRIPTION);
@@ -846,39 +880,32 @@ public class PodcastServiceImpl implements PodcastService {
 			if (date != null) {
 				podcastResourceEditable.removeProperty(DISPLAY_DATE);
 
-				final SimpleDateFormat formatter = new SimpleDateFormat(
-						"yyyyMMddHHmmssSSS");
+				final SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
 				formatter.setTimeZone(TimeService.getLocalTimeZone());
 
-				podcastResourceEditable.addProperty(DISPLAY_DATE, formatter
-						.format(date));
+				podcastResourceEditable.addProperty(DISPLAY_DATE, formatter.format(date));
 
 				podcastEditable.setReleaseDate(TimeService.newTime(date.getTime()));
 			}
 
 			if (!filename.equals(podcastResourceEditable
-					.getProperty(ResourceProperties.PROP_DISPLAY_NAME))) {
+								   .getProperty(ResourceProperties.PROP_DISPLAY_NAME))) {
 
-				podcastResourceEditable
-						.removeProperty(ResourceProperties.PROP_DISPLAY_NAME);
-
-				podcastResourceEditable.addProperty(
-						ResourceProperties.PROP_DISPLAY_NAME, Validator
-								.escapeResourceName(filename));
-
-				podcastResourceEditable
-						.removeProperty(ResourceProperties.PROP_CONTENT_LENGTH);
-
-				podcastResourceEditable.addProperty(
-						ResourceProperties.PROP_CONTENT_LENGTH, new Integer(
-								body.length).toString());
-
-				podcastResourceEditable
-						.removeProperty(ResourceProperties.PROP_DISPLAY_NAME);
+				podcastResourceEditable.removeProperty(ResourceProperties.PROP_DISPLAY_NAME);
 
 				podcastResourceEditable.addProperty(
 						ResourceProperties.PROP_DISPLAY_NAME, Validator
 								.escapeResourceName(filename));
+
+				podcastResourceEditable.removeProperty(ResourceProperties.PROP_CONTENT_LENGTH);
+
+				podcastResourceEditable.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, 
+														new Integer(body.length).toString());
+
+				podcastResourceEditable.removeProperty(ResourceProperties.PROP_DISPLAY_NAME);
+
+				podcastResourceEditable.addProperty(ResourceProperties.PROP_DISPLAY_NAME, 
+													  Validator.escapeResourceName(filename));
 			}
 
 			// Set for no notification. TODO: when notification implemented,
@@ -1041,7 +1068,7 @@ public class PodcastServiceImpl implements PodcastService {
 			}
 		}
 		catch (Exception e1) {
-			// catches   PermissionException	IdUnusedException
+			// catches  PermissionException	IdUnusedException
 			//			TypeException		InUseException
 			LOG.error("Problem getting resource for editing while trying to set DISPLAY_DATE for site " + getSiteId() + ". ", e1);
 			
@@ -1083,7 +1110,7 @@ public class PodcastServiceImpl implements PodcastService {
 			// Convert GMT time stored by Resources into local time
 			if (releaseDate == null) {
 				tempDate = formatterProp.parse(rp.getTimeProperty(
-						ResourceProperties.PROP_MODIFIED_DATE).toStringLocal());
+							ResourceProperties.PROP_MODIFIED_DATE).toStringLocal());
 			}
 			else {
 				tempDate = new Date(releaseDate.getTime());
@@ -1095,9 +1122,8 @@ public class PodcastServiceImpl implements PodcastService {
 			
 			// add entry for event tracking
 			final Event event = EventTrackingService.newEvent(EVENT_REVISE_PODCAST,
-					getEventMessage(
-							aResource.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)),
-							true, NotificationService.NOTI_NONE);
+									getEventMessage(aResource.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME)),
+										true, NotificationService.NOTI_NONE);
 			EventTrackingService.post(event);
 		} 
 		catch (Exception e) {
@@ -1180,25 +1206,17 @@ public class PodcastServiceImpl implements PodcastService {
 
 				final ResourcePropertiesEdit resourceProperties = podcastsEdit.getPropertiesEdit();
 			
-				resourceProperties.addProperty(
-						ResourceProperties.PROP_DISPLAY_NAME,
-						COLLECTION_PODCASTS_TITLE);
+				resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, COLLECTION_PODCASTS_TITLE);
 
-				resourceProperties.addProperty(
-						ResourceProperties.PROP_DESCRIPTION,
-						COLLECTION_PODCASTS_DESCRIPTION);
+				resourceProperties.addProperty(ResourceProperties.PROP_DESCRIPTION, COLLECTION_PODCASTS_DESCRIPTION);
 
 				try {
 					// Set default feed title and description
-					resourceProperties.addProperty(PODFEED_TITLE,
-							"Podcasts for " + SiteService.getSite(siteId).getTitle());
+					resourceProperties.addProperty(PODFEED_TITLE, SiteService.getSite(siteId).getTitle() + "'s Official Podcasts");
 
 					final String feedDescription = "This is the official podcast for course "
-							+ SiteService.getSite(siteId).getTitle()
-							+ ". Please check back throughout the semester for updates.";
-
-					resourceProperties.addProperty(PODFEED_DESCRIPTION,
-							feedDescription);
+							+ SiteService.getSite(siteId).getTitle() + ". Please check back throughout the semester for updates.";
+					resourceProperties.addProperty(PODFEED_DESCRIPTION, feedDescription);
 			
 					commitContentCollection(podcastsEdit);
 				}
@@ -1250,53 +1268,6 @@ public class PodcastServiceImpl implements PodcastService {
 		return Url;
 	}
 
-	/**
-	 * Determine whether user and update the site
-	 * 
-	 * @param siteId
-	 *           The siteId for the site to test
-	 * 
-	 * @return 
-	 * 			True if can update, False otherwise
-	 */
-	public boolean canUpdateSite() {
-		return canUpdateSite(getSiteId());
-
-	}
-
-	/**
-	 * Determine whether user and update the site
-	 * 
-	 * @param siteId
-	 *            	The siteId for the site to test
-	 * 
-	 * @return True 
-	 * 				True if can update, False otherwise
-	 */
-	public boolean canUpdateSite(String siteId) {
-			return SecurityService.unlock(UPDATE_PERMISSIONS, "/site/"+ siteId);
-	}
-	
-	public boolean hasPerm(String function) {
-		return hasPerm(function, getSiteId());
-	}
-	
-	public boolean hasPerm(String function, String siteId) {
-		try {
-			String podcastFolderId = retrievePodcastFolderId(siteId);
-			if (podcastFolderId != null) {
-				return SecurityService.unlock(function, "/content" + podcastFolderId);
-			}
-		} 
-		catch (PermissionException e) {
-			// Podcasts folder should be HIDDEN in UI, access/students don't have access
-			// so throw this error
-			LOG.error("PermissionException while trying to determine if user can update site " + getSiteId());
-		}
-	
-		return false;
-	}
-	
 	/**
 	 * 	FUTURE: needed to implement Notification services
 	 *
@@ -1359,8 +1330,8 @@ public class PodcastServiceImpl implements PodcastService {
 
 			if (isPublic(podcastsCollection)) {
 				return PUBLIC;
-
-			} else {
+			} 
+			else {
 				return SITE;
 
 			}
@@ -1417,11 +1388,12 @@ public class PodcastServiceImpl implements PodcastService {
 						throws IdUnusedException, PermissionException {
 		ContentCollection podcastFolder = getContentCollection(siteId);
 		
-		return podcastFolder.isHidden()
-				|| (podcastFolder.getRetractDate() != null 
-						&& podcastFolder.getRetractDate().getTime() <= TimeService.newTime().getTime())
-				|| (podcastFolder.getReleaseDate() != null
-						&& podcastFolder.getReleaseDate().getTime() >= TimeService.newTime().getTime());
+		Date tempDate = null;
+		if (podcastFolder.getRetractDate() != null) {
+			tempDate = new Date(podcastFolder.getRetractDate().getTime());
+		}
+
+		return podcastPermissionsService.isResourceHidden(podcastFolder, tempDate);
 	}
 	
 	/**
@@ -1519,7 +1491,7 @@ public class PodcastServiceImpl implements PodcastService {
 	 * 		TRUE - has read access, FALSE - does not
 	 */
 	public boolean allowAccess(String id) {
-		return contentHostingService.allowGetCollection(id);
+		return podcastPermissionsService.allowAccess(id);
 	}
 
 	/**
@@ -1539,6 +1511,7 @@ public class PodcastServiceImpl implements PodcastService {
 	/**
 	 * Establish a security advisor to allow the "embedded" azg work to occur
 	 * with no need for additional security permissions.
+	 * Kept here since don't want to make public.
 	 */
 	protected void enablePodcastSecurityAdvisor() {
 		// put in a security advisor so we can do our podcast work without need
@@ -1550,6 +1523,5 @@ public class PodcastServiceImpl implements PodcastService {
 			}
 		});
 	}
-
 
 }

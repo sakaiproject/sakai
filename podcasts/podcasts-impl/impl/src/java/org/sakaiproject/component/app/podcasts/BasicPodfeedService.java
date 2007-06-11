@@ -36,6 +36,7 @@ import java.util.ResourceBundle;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.podcasts.PodcastService;
+import org.sakaiproject.api.app.podcasts.PodcastPermissionsService;
 import org.sakaiproject.api.app.podcasts.PodfeedService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
@@ -111,6 +112,7 @@ public class BasicPodfeedService implements PodfeedService {
 	private static final Log LOG = LogFactory.getLog(PodcastServiceImpl.class);
 
 	private PodcastService podcastService;
+	private PodcastPermissionsService podcastPermissionsService;
 	private SecurityService securityService;
 
 	/**
@@ -127,6 +129,10 @@ public class BasicPodfeedService implements PodfeedService {
 	 */
 	public void setPodcastService(PodcastService podcastService) {
 		this.podcastService = podcastService;
+	}
+
+	public void setPodcastPermissionsService(PodcastPermissionsService podcastPermissionsService) {
+		this.podcastPermissionsService = podcastPermissionsService;
 	}
 
 	/**
@@ -481,7 +487,6 @@ public class BasicPodfeedService implements PodfeedService {
 					Item nextPodcast = (Item) iter.next();
 
 					lastBuildDate = nextPodcast.getPubDate();
-
 				}
 				else {
 					// only one, so use the first podcast date
@@ -550,7 +555,10 @@ public class BasicPodfeedService implements PodfeedService {
 				// get the individual podcasts
 				podEntries = podcastService.getPodcasts(siteId);
 			
-				// remove any that are in the future
+				// remove any that user cannot access
+				// need to clearAdvisors since now group aware neet to
+				// check if need to filter podcasts based on group membership
+				securityService.clearAdvisors();
 				podEntries = podcastService.filterPodcasts(podEntries, siteId);
 			}
 		} 
@@ -864,7 +872,7 @@ public class BasicPodfeedService implements PodfeedService {
 	 * 		TRUE - has read access, FALSE - does not
 	 */
 	public boolean allowAccess(String id) {
-		return podcastService.allowAccess(id);
+		return podcastPermissionsService.allowAccess(id);
 	}
 	
 	/**
@@ -879,13 +887,7 @@ public class BasicPodfeedService implements PodfeedService {
 	 * 			Release date (if exists) or display date (older version)
 	 */
 	private boolean hiddenInUI(ContentResource podcastResource, Date tempDate) {
-		
-		final boolean folderHidden = podcastResource.isHidden(); 
-		final boolean pastRetract = (podcastResource.getRetractDate() != null 
-						&& podcastResource.getRetractDate().getTime() <= TimeService.newTime().getTime());
-		final boolean beforeRelease = tempDate.getTime() >= TimeService.newTime().getTime();
-		
-		return folderHidden || pastRetract || beforeRelease;
+		return podcastPermissionsService.isResourceHidden(podcastResource, tempDate);
 	}
 
 	/**
