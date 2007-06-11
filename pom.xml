@@ -79,5 +79,6 @@
     <module>mailtool</module>
     <module>polls</module>
     <module>usermembership</module>
+    <module>sakai-mock</module>
   </modules>
 </project>
