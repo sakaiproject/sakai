@@ -115,10 +115,22 @@
 
 <div class="navPanel">
   <div style="float:left; display:inline; width: 33%; padding-top: 0.5em;">
-    <h:commandLink action="#{PrivateMessagesTool.processActionMarkCheckedAsRead}" id="markAsread"  value="#{msgs.cdfm_mark_check_as_read}"
-				title="#{msgs.cdfm_mark_check_as_read}" > 
-	  </h:commandLink>
+    <%-- Mark All As Read --%>
+  	<h:commandLink action="#{PrivateMessagesTool.processActionMarkCheckedAsRead}" id="markAsread" value="#{msgs.cdfm_mark_check_as_read}"
+				title="#{msgs.cdfm_mark_check_as_read}" /> 
+	  
+	<%-- Delete Checked --%>
+	<h:outputText value="  | " rendered="#{PrivateMessagesTool.msgNavMode != 'Deleted'}" />
+	<h:outputText value=" " rendered="#{PrivateMessagesTool.msgNavMode != 'Deleted'}" />
+	<h:commandLink action="#{PrivateMessagesTool.processActionDeleteChecked}" id="deleteMarked" value="#{msgs.cdfm_mark_check_as_delete}"
+				title="#{msgs.cdfm_mark_check_as_delete}" rendered="#{PrivateMessagesTool.msgNavMode != 'Deleted'}" />
+	  
+	<%-- Move Checked To Folder --%>
+	<h:outputText value="  | " /><h:outputText value=" " />
+	<h:commandLink action="#{PrivateMessagesTool.processActionMoveCheckedToFolder}" id="moveCheckedToFolder" value="#{msgs.cdfm_mark_check_move_to_folder}" 
+				title="#{msgs.cdfm_mark_check_move_to_folder}" />
 	</div>
+
   <div style="text-align:center; float:none; display:inline; width:33%;">
     <h:commandButton value="#{msgs.pvt_cmpmsg}" action="#{PrivateMessagesTool.processPvtMsgCompose}" onkeypress="document.forms[0].submit;" accesskey="n" />
   	<h:commandButton action="#{PrivateMessagesTool.processPvtMsgEmptyDelete}" rendered="#{PrivateMessagesTool.msgNavMode == 'Deleted'}" value="#{msgs.pvt_emptydelfol}" onkeypress="document.forms[0].submit;" accesskey="x" />
