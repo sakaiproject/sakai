@@ -33,11 +33,11 @@ public class ToolManager implements org.sakaiproject.tool.api.ToolManager {
 	Set<Tool> tools;
 	Placement currentPlacement;
 
-	public ToolManager() {
+	public ToolManager(org.sakaiproject.mock.domain.Placement placement) {
 		org.sakaiproject.mock.domain.Tool someTool = new org.sakaiproject.mock.domain.Tool();
 		someTool.setId("mock.tool");
 		someTool.setTitle("Mock Tool");
-		currentPlacement = new org.sakaiproject.mock.domain.Placement(someTool);
+		currentPlacement = placement;
 	}
 	
 	public Set findTools(Set categories, Set keywords) {

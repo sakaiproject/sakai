@@ -53,14 +53,13 @@ public class SiteService implements org.sakaiproject.site.api.SiteService {
 		sites = new HashMap<String, org.sakaiproject.mock.domain.Site>();
 	}
 	
-	public Site addSite(String id, String type) throws IdInvalidException,
-			IdUsedException, PermissionException {
+	public org.sakaiproject.mock.domain.Site addSite(String id, String type) {
 		org.sakaiproject.mock.domain.Site site = new org.sakaiproject.mock.domain.Site(id, type);
 		sites.put(id, site);
 		return site;
 	}
 
-	public Site addSite(String id, Site other) throws IdInvalidException,
+	public org.sakaiproject.mock.domain.Site addSite(String id, Site other) throws IdInvalidException,
 			IdUsedException, PermissionException {
 		return addSite(id, other.getType());
 	}
@@ -132,47 +131,42 @@ public class SiteService implements org.sakaiproject.site.api.SiteService {
 	}
 
 	public ToolConfiguration findTool(String id) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public String[] getLayoutNames() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public Site getSite(String id) throws IdUnusedException {
-		// TODO Auto-generated method stub
-		return null;
+		return sites.get(id);
 	}
 
 	public List<SiteAdvisor> getSiteAdvisors() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public String getSiteDisplay(String id) {
-		// TODO Auto-generated method stub
-		return null;
+		Site site = sites.get(id);
+		if(site == null) return null;
+		return site.getTitle();
 	}
 
 	public String getSiteSkin(String id) {
-		// TODO Auto-generated method stub
-		return null;
+		Site site = sites.get(id);
+		if(site == null) return null;
+		return site.getSkin();
 	}
 
 	public String getSiteSpecialId(String site) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public List getSiteTypes() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public String getSiteUserId(String site) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

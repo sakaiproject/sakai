@@ -33,8 +33,9 @@ public class Placement implements org.sakaiproject.tool.api.Placement {
 	
 	Tool tool;
 	
-	public Placement(Tool tool) {
+	public Placement(Tool tool, String context) {
 		this.tool = tool;
+		this.context = context;
 	}
 	
 	public String getToolId() {

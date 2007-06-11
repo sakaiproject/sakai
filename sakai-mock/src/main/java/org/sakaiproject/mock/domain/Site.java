@@ -62,7 +62,7 @@ public class Site extends AuthzGroup implements org.sakaiproject.site.api.Site {
 		return group;
 	}
 
-	public SitePage addPage() {
+	public Page addPage() {
 		Page page = new Page(this);
 		pages.add(page);
 		return page;
