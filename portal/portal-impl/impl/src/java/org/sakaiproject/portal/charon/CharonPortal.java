@@ -27,7 +27,6 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 import java.util.Vector;
 
 import javax.servlet.ServletConfig;
@@ -38,7 +37,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
@@ -48,6 +46,7 @@ import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.portal.render.api.RenderResult;
 import org.sakaiproject.portal.render.cover.ToolRenderService;
 import org.sakaiproject.portal.util.ErrorReporter;
+import org.sakaiproject.portal.util.PortalSiteHelper;
 import org.sakaiproject.portal.util.ToolURLManagerImpl;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -136,6 +135,8 @@ public class CharonPortal extends HttpServlet
 	private boolean enableDirect = false;
 
 	private PortalService portalService;
+
+	private PortalSiteHelper siteHelper = new PortalSiteHelper();
 
 	/**
 	 * Shutdown the servlet.
@@ -2092,9 +2093,7 @@ public class CharonPortal extends HttpServlet
 
 			if (site != null)
 			{
-				boolean thisTool = allowTool(site, placement);
-				// System.out.println(" Allow Tool Display -" +
-				// placement.getTitle() + " retval = " + thisTool);
+				boolean thisTool = siteHelper.allowTool(site, placement);
 				if (!thisTool) continue; // Skip this tool if not allowed
 			}
 
@@ -2130,30 +2129,6 @@ public class CharonPortal extends HttpServlet
 		}
 
 		out.println("</div>");
-	}
-
-	protected boolean allowTool(Site site, Placement placement)
-	{
-		if (placement == null || site == null) return true; // No way to render
-															// an opinion
-
-		boolean retval = true;
-
-		String TOOL_CFG_FUNCTIONS = "functions.require";
-		Properties roleConfig = placement.getConfig();
-		String roleList = roleConfig.getProperty(TOOL_CFG_FUNCTIONS);
-
-		// allow by default, when no config keys are present
-		if (roleList != null && roleList.trim().length() > 0)
-		{
-			String[] result = roleConfig.getProperty(TOOL_CFG_FUNCTIONS).split("\\,");
-			for (int x = 0; x < result.length; x++)
-			{
-				if (!SecurityService.unlock(result[x].trim(), site.getReference()))
-					retval = false;
-			}
-		}
-		return retval;
 	}
 
 	protected void includePageNav(HttpServletRequest req, HttpServletResponse res,
@@ -2229,10 +2204,8 @@ public class CharonPortal extends HttpServlet
 			{
 				ToolConfiguration placement = (ToolConfiguration) iPt.next();
 
-				boolean thisTool = allowTool(site, placement);
+				boolean thisTool = siteHelper.allowTool(site, placement);
 				if (thisTool) allowPage = true;
-				// System.out.println(" Allow Tool -" + tool.getTitle() + "
-				// retval = " + thisTool + " page=" + allowPage);
 			}
 
 			if (!allowPage) continue;

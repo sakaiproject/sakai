@@ -23,14 +23,14 @@ package org.sakaiproject.portal.util;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.HashMap;
-import java.util.Properties;
+import java.util.Set;
+import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -70,8 +70,9 @@ import org.sakaiproject.util.MapUtil;
 
 public class PortalSiteHelper
 {
-
 	private static final Log log = LogFactory.getLog(PortalSiteHelper.class);
+
+	public static final String TOOLCONFIG_REQUIRED_PERMISSIONS = "functions.require";
 
 	private final String PROP_PARENT_ID = SiteService.PROP_PARENT_ID;
 	// 2.3 back port
@@ -171,7 +172,7 @@ public class PortalSiteHelper
 
 	/*
 	 * Get All Sites for the current user. If the user is not logged in we
-	 * return the list of publically viewable gateway sites. 
+	 * return the list of publically viewable gateway sites.
 	 *
 	 * @param includeMyWorkspace When this is true - include the user's My Workspace as
 	 * the first parameter. If false, do not include the MyWorkspace anywhere in
@@ -194,7 +195,7 @@ public class PortalSiteHelper
 			mySites = getGatewaySites();
 			return mySites;
 		}
-	
+
 		// collect the user's sites
 		mySites = SiteService.getSites(
 				org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null,
@@ -273,14 +274,14 @@ public class PortalSiteHelper
 		int siteCount = mySites.size();
 
 		// pick up the rest of the top-level-sites
-		for(int i=0; i< mySites.size(); i++) 
+		for(int i=0; i< mySites.size(); i++)
 		{
 			Site s = mySites.get(i);
 			if ( added.contains(s.getId()) ) continue;
 			ResourceProperties rp = s.getProperties();
 			String ourParent = rp.getProperty(PROP_PARENT_ID);
 			// System.out.println("Top Site:"+s.getTitle()+" parent="+ourParent);
-			if ( siteCount > 200 || ourParent == null ) 
+			if ( siteCount > 200 || ourParent == null )
 			{
 				// System.out.println("Added at root");
 				ordered.add(s);
@@ -292,14 +293,14 @@ public class PortalSiteHelper
 			}
 		}
 
-		// If and only if we have some child nodes, we repeatedly 
+		// If and only if we have some child nodes, we repeatedly
 		// pull up children nodes to be behind their parents
 		// This is O N**2 - so if we had thousands of sites it
 		// it would be costly - hence we only do it for < 200 sites
 		// and limited depth - that makes it O(N) not O(N**2)
 		boolean addedSites = true;
 		int depth = 0;
-		while ( depth < 20 && addedSites && haveChildren ) 
+		while ( depth < 20 && addedSites && haveChildren )
 		{
 			depth++;
 			addedSites = false;
@@ -313,7 +314,7 @@ public class PortalSiteHelper
 				if ( ourParent == null ) continue;
 				haveChildren = true;
 				// System.out.println("Child Site:"+s.getTitle()+" parent="+ourParent);
-				// Search the already added pages for a parent 
+				// Search the already added pages for a parent
 				// or sibling node
 				boolean found = false;
 				int j = -1;
@@ -328,16 +329,16 @@ public class PortalSiteHelper
 					// See if this site is our sibling
 					rp = ps.getProperties();
 					String peerParent = rp.getProperty(PROP_PARENT_ID);
-					if ( ourParent.equals(peerParent) ) 
+					if ( ourParent.equals(peerParent) )
 					{
 						found = true;
 						break;
 					}
 					}
-	
+
 				// We want to insert *after* the identified node
-				j = j + 1; 
-				if ( found && j >= 0 && j < ordered.size()) 
+				j = j + 1;
+				if ( found && j >= 0 && j < ordered.size())
 				{
 					// System.out.println("Added after parent");
 					ordered.insertElementAt(s,j);
@@ -356,7 +357,7 @@ public class PortalSiteHelper
 			ordered.add(s);
 		}
 
-		// All done	
+		// All done
 		mySites = ordered;
 		return mySites;
 	}
@@ -554,7 +555,7 @@ public class PortalSiteHelper
 	/**
 	 * If this is a user site, return an id based on the user EID, otherwise
 	 * just return the site id.
-	 * 
+	 *
 	 * @param site
 	 *        The site.
 	 * @return The effective site id.
@@ -582,7 +583,7 @@ public class PortalSiteHelper
 	/**
 	 * Do the getSiteVisit, but if not found and the id is a user site, try
 	 * translating from user EID to ID.
-	 * 
+	 *
 	 * @param siteId
 	 *        The Site Id.
 	 * @return The Site.
@@ -620,7 +621,7 @@ public class PortalSiteHelper
 
 	/**
 	 * Find the site in the list that has this id - return the position.
-	 * 
+	 *
 	 * @param value
 	 *        The site id to find.
 	 * @param siteList
@@ -642,6 +643,21 @@ public class PortalSiteHelper
 		return -1;
 	}
 
+	/**
+	 * The optional tool configuration tag "functions.require" describes a
+	 * set of permission lists which decide the visibility of the tool link
+	 * for this site user. Lists are separated by "|" and permissions within a
+	 * list are separated by ",". Users must have all the permissions included in
+	 * at least one of the permission lists.
+	 *
+	 * For example, a value like "section.role.student,site.upd|section.role.ta"
+	 * would let a user with "section.role.ta" see the tool, and let a user with
+	 * both "section.role.student" AND "site.upd" see the tool, but not let a user
+	 * who just had "section.role.student" see the tool.
+	 *
+	 * Users with "site.upd" always see the tool. If the configuration tag is not
+	 * set or is null, then all users see the tool.
+	 */
 	public boolean allowTool(Site site, Placement placement)
 	{
 		// No way to render an opinion
@@ -649,27 +665,38 @@ public class PortalSiteHelper
 
 		// The site owner sees all pages !
 		if (SecurityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference()))
-		{
 			return true;
-		}
 
-		boolean retval = true;
+		String requiredPermissionsString = placement.getConfig().getProperty(TOOLCONFIG_REQUIRED_PERMISSIONS);
+		if (log.isDebugEnabled()) log.debug("requiredPermissionsString=" + requiredPermissionsString + " for " + placement.getToolId());
+		if (requiredPermissionsString == null)
+			return true;
+		requiredPermissionsString = requiredPermissionsString.trim();
+		if (requiredPermissionsString.length() == 0)
+			return true;
 
-		String TOOL_CFG_FUNCTIONS = "functions.require";
-		Properties roleConfig = placement.getConfig();
-		String roleList = roleConfig.getProperty(TOOL_CFG_FUNCTIONS);
-
-		// allow by default, when no config keys are present
-		if (roleList != null && roleList.trim().length() > 0)
+		String[] allowedPermissionSets = requiredPermissionsString.split("\\|");
+		for (int i = 0; i < allowedPermissionSets.length; i++)
 		{
-			String[] result = roleConfig.getProperty(TOOL_CFG_FUNCTIONS).split("\\,");
-			for (int x = 0; x < result.length; x++)
+			String[] requiredPermissions = allowedPermissionSets[i].split(",");
+			if (log.isDebugEnabled()) log.debug("requiredPermissions=" + Arrays.asList(requiredPermissions));
+			boolean gotAllInList = true;
+			for (int j = 0; j < requiredPermissions.length; j++)
 			{
-				if (!SecurityService.unlock(result[x].trim(), site.getReference()))
-					retval = false;
+				if (!SecurityService.unlock(requiredPermissions[j].trim(), site.getReference()))
+				{
+					gotAllInList = false;
+					break;
+				}
+			}
+			if (gotAllInList)
+			{
+				return true;
 			}
 		}
-		return retval;
+
+		// No permission sets were matched.
+		return false;
 	}
 
 	/*
@@ -715,7 +742,7 @@ public class PortalSiteHelper
 	/*
 	 * Make sure that we have a proper page selected in the site
 	 * pageid is generally the last page used in the site.
-	 * pageId must be in the site and the user must have 
+	 * pageId must be in the site and the user must have
 	 * permission for the page as well.
          */
 
@@ -725,7 +752,7 @@ public class PortalSiteHelper
                 List pages = getPermittedPagesInOrder(site);
 		if (pages.isEmpty() ) return null;
                 SitePage page = site.getPage(pageId);
-		if ( page == null ) 
+		if ( page == null )
 		{
 			page = (SitePage) pages.get(0);
 			return page;
