@@ -311,9 +311,9 @@
 			<p class="checkbox labelindnt">
 				## enable the maxfield when it is points grade type
 				#if ($value_GradeType == 3)
-					<input name="$name_GradePoints" id="$name_GradePoints" value="$!value_GradePoints" type="text" size="5" maxlength="20"/>
+					<input name="$name_GradePoints" id="$name_GradePoints" value="$!value_GradePoints" type="text" size="5" maxlength="11"/>
 				#else
-					<input name="$name_GradePoints" value="$!value_GradePoints" type="text" size="5" maxlength="20" disabled="disabled" style="background-color:#eee;border:1px solid gray"/>
+					<input name="$name_GradePoints" value="$!value_GradePoints" type="text" size="5" maxlength="11" disabled="disabled" style="background-color:#eee;border:1px solid gray"/>
 				#end
 				<label for="$name_GradePoints">$tlang.getString("gen.forpoi")</label>
 			</p>	
