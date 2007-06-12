@@ -2627,6 +2627,8 @@ public class PrivateMessagesTool
     		for (Iterator movingIter = selectedMoveToFolderItems.iterator(); movingIter.hasNext();)
     		{
     			PrivateMessageDecoratedBean decoMessage = (PrivateMessageDecoratedBean) movingIter.next();
+		        final PrivateMessage initPrivateMessage = prtMsgManager.initMessageWithAttachmentsAndRecipients(decoMessage.getMsg());
+    			decoMessage = new PrivateMessageDecoratedBean(initPrivateMessage);
     			
     			prtMsgManager.movePvtMsgTopic(decoMessage.getMsg(), oldTopic, newTopic);
     		}
@@ -3259,7 +3261,7 @@ public class PrivateMessagesTool
 			if(decoMessage.getIsSelected())
 			{
 				msgSelected = true;
-				selectedMoveToFolderItems.add(decoMessage);
+		        selectedMoveToFolderItems.add(decoMessage);
 			}
 		}
 
@@ -3269,7 +3271,7 @@ public class PrivateMessagesTool
 			return null;
 		}
 		
-	    
+	    moveToTopic = selectedTopicId;
 	    return MOVE_MESSAGE_PG;
 		
 	}
