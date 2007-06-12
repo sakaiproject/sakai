@@ -2093,7 +2093,9 @@ public class CharonPortal extends HttpServlet
 
 			if (site != null)
 			{
-				boolean thisTool = siteHelper.allowTool(site, placement);
+				boolean thisTool = allowTool(site, placement);
+				// System.out.println(" Allow Tool Display -" +
+				// placement.getTitle() + " retval = " + thisTool);
 				if (!thisTool) continue; // Skip this tool if not allowed
 			}
 
@@ -2129,6 +2131,11 @@ public class CharonPortal extends HttpServlet
 		}
 
 		out.println("</div>");
+	}
+
+	protected boolean allowTool(Site site, Placement placement)
+	{
+		return siteHelper.allowTool(site, placement);
 	}
 
 	protected void includePageNav(HttpServletRequest req, HttpServletResponse res,
@@ -2204,8 +2211,10 @@ public class CharonPortal extends HttpServlet
 			{
 				ToolConfiguration placement = (ToolConfiguration) iPt.next();
 
-				boolean thisTool = siteHelper.allowTool(site, placement);
+				boolean thisTool = allowTool(site, placement);
 				if (thisTool) allowPage = true;
+				// System.out.println(" Allow Tool -" + tool.getTitle() + "
+				// retval = " + thisTool + " page=" + allowPage);
 			}
 
 			if (!allowPage) continue;
