@@ -362,7 +362,7 @@
 <!--id: servletapi -->
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
-      <version>2.4</version>
+      <version>${sakai.servletapi.version}</version>
       <scope>provided</scope>
 <!--properties:  war.bundle: false -->
     </dependency>
