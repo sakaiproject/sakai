@@ -3621,6 +3621,10 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			addAlert(state, rb.getString("assig4"));
 		}
+		if (!dueTime.after(openTime))
+		{
+			addAlert(state, rb.getString("assig3"));
+		}
 		if (!Validator.checkDate(dueDay, dueMonth, dueYear))
 		{
 			addAlert(state, rb.getString("date.invalid") + rb.getString("date.duedate") + ".");
@@ -3655,7 +3659,7 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			addAlert(state, rb.getString("date.invalid") + rb.getString("date.closedate") + ".");
 		}
-		if (closeTime.before(openTime))
+		if (!closeTime.after(openTime))
 		{
 			addAlert(state, rb.getString("acesubdea3"));
 		}
@@ -3772,13 +3776,6 @@ public class AssignmentAction extends PagedResourceActionII
 
 		List attachments = (List) state.getAttribute(ATTACHMENTS);
 		state.setAttribute(NEW_ASSIGNMENT_ATTACHMENT, attachments);
-
-		// correct inputs
-		// checks on the times
-		if (validify && dueTime.before(openTime))
-		{
-			addAlert(state, rb.getString("assig3"));
-		}
 
 		if (validify)
 		{
