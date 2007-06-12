@@ -319,29 +319,7 @@
 								#end
 							</td>
 							<td headers="status">
-								#set($returned=false)
-								#set($returned=$submission.Returned)
-								#if ($returned)
-									#if ($!submitTime && $!returnedTime)
-										#if ($returnedTime.before($submitTime))
-											#if (!$submission.Graded)
-												$tlang.getString("listsub.resubmi")
-											#else
-												$tlang.getString("grad3")
-											#end 
-										#else
-											$tlang.getString("gen.returned")
-										#end
-									#end
-								#elseif ($submission.getGraded())
-									#if ($!withGrade)
-										$tlang.getString("grad3")
-									#else
-										$tlang.getString("gen.commented")
-									#end
-								#else
-									$tlang.getString("gen.ung1")
-								#end
+								$submission.getStatus()
 							</td>
 							#if ($withGrade)
 								<td headers="grade">

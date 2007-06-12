@@ -7728,20 +7728,128 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 */
 		public String getStatus()
 		{
-			String retVal = null;
-
-			if (m_submitted)
+			boolean allowGrade = allowGradeSubmission(getReference());
+			String retVal = "";
+			
+			Time submitTime = getTimeSubmitted();
+			Time returnTime = getTimeReturned();
+			Time lastModTime = getTimeLastModified();
+		
+			if (getSubmitted())
 			{
-				if (m_graded && m_gradeReleased)
-					retVal = STATUS_GRADED;
-				else if (m_returned)
-					retVal = STATUS_RETURNED;
+				if (submitTime != null)
+				{
+					if (getReturned())
+					{
+						if (returnTime.before(submitTime))
+						{
+							if (!getGraded())
+							{
+								retVal = rb.getString("listsub.resubmi") + " " + submitTime.toStringLocalFull();
+								if (submitTime.after(getAssignment().getDueTime()))
+									retVal = retVal + rb.getString("gen.late2");
+							}
+									
+							else
+								retVal = rb.getString("gen.returned");
+						}
+						else
+							retVal = rb.getString("gen.returned");
+					}
+					else if (getGraded() && allowGrade)
+					{
+							retVal = getGradeOrComment();
+					}
+					else 
+					{
+						if (allowGrade)
+						{
+							// ungraded submission
+							retVal = rb.getString("gen.ung1");
+						}
+						else
+						{
+							// submitted
+							retVal = rb.getString("gen.subm4");
+							
+							if(submitTime != null)
+							{
+								if (getAssignment().getContent().getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
+									//for non electronic submissions
+									retVal = rb.getString("nonelec");
+								else
+									retVal = rb.getString("gen.subm4") + " " + submitTime.toStringLocalFull();
+							}
+						}
+					}
+				}
 				else
-					retVal = STATUS_SUBMITTED;
+				{
+					if (getReturned())
+					{
+						// instructor can return grading to non-submitted user
+						retVal = rb.getString("gen.returned");
+					}
+					else if (getGraded() && allowGrade)
+					{
+						// instructor can grade non-submitted ones
+						retVal = getGradeOrComment();
+					}
+					else
+					{
+						if (allowGrade)
+						{
+							// show "no submission" to graders
+							retVal = rb.getString("listsub.nosub");
+						}
+						else
+						{
+							// show "not started" to students
+							retVal = rb.getString("gen.notsta");
+						}
+					}
+				}
 			}
 			else
-				retVal = STATUS_DRAFT;
+			{
+				if (getGraded())
+				{
+					if (getReturned())
+					{
+						if (lastModTime.after(returnTime) && !allowGrade)
+						{
+							// working on a returned submission now
+							retVal = rb.getString("gen.dra2") + " " + rb.getString("gen.inpro");
+						}
+						else
+						{
+							// not submitted submmission has been graded and returned
+							retVal = rb.getString("gen.returned");
+						}
+					}
+					else if (allowGrade)
+						// grade saved but not release yet, show this to graders
+						retVal = getGradeOrComment();
+				}
+				else	
+				{
+					if (allowGrade)
+						retVal = rb.getString("gen.ung1");
+					else
+						// submission saved, not submitted.
+						retVal = rb.getString("gen.dra2") + " " + rb.getString("gen.inpro");
+				}
+			}
 
+			return retVal;
+		}
+
+		private String getGradeOrComment() {
+			String retVal;
+			if (getGrade() != null && getGrade().length() > 0)
+				retVal = rb.getString("grad3");
+			else
+				retVal = rb.getString("gen.commented");
 			return retVal;
 		}
 

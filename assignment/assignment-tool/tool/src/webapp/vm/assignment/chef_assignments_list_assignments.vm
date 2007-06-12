@@ -482,41 +482,7 @@
 									#end
 								#else
 									#if ($!submission)
-										#if ($submissionSubmitted && $submitTime)
-											#if ($submissionReturned)
-												#if ($!submitTime && $submission.TimeReturned.after($submitTime) || !$submitTime)
-													$tlang.getString("gen.returned")
-												#else
-													$tlang.getString("gen.resub") #if($!submitTime)$submitTime.toStringLocalFull()#end
-													#if ($!submitTime && $submitTime.after($assignment.DueTime))
-														<span class="highlight"> $tlang.getString("gen.late")</span>
-													#end
-												#end
-											#elseif ($submission.getGraded() && $submission.getGradeReleased())
-												#if ($!withGrade)
-													$tlang.getString("grad3")
-												#else
-													$tlang.getString("gen.commented")
-												#end
-											#else
-												#if($!submitTime)
-													#if ($!assignment.Content.TypeOfSubmission == $!typeNonElectronic)
-														##for non electronic submissions
-														$tlang.getString("nonelec")
-													#else
-														$tlang.getString("gen.subm4") $submitTime.toStringLocalFull()
-													#end
-												#end
-												#if ($!submitTime && $submitTime.after($assignment.DueTime))
-													<span class="highlight">$tlang.getString("gen.late2")</span>
-												#end
-											#end
-										#elseif (!$submissionSubmitted)
-											## drafts
-											<span class="highlight">$tlang.getString("gen.dra2")</span> $tlang.getString("gen.inpro")
-										#else
-											$tlang.getString("gen.notsta")
-										#end
+										$submission.getStatus()
 									#else
 										$tlang.getString("gen.notsta")
 									#end
