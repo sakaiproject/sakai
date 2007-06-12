@@ -209,12 +209,15 @@ public class DiscussionForumTool
   private static final String NO_GRADE_PTS = "cdfm_no_points_for_grade";
   private static final String NO_ASSGN = "cdfm_no_assign_for_grade";
   private static final String CONFIRM_DELETE_MESSAGE="cdfm_delete_msg";
+  private static final String INSUFFICIENT_PRIVILEGES_TO_DELETE = "cdfm_insufficient_privileges_delete_msg";
   
   private static final String FROM_PAGE = "msgForum:mainOrForumOrTopic";
   private String fromPage = null; // keep track of originating page for common functions
   
   private List forums = new ArrayList();
   private List pendingMsgs = new ArrayList();
+  
+  private String userId;
 
   // compose
   private MessageForumsMessageManager messageManager;
@@ -475,11 +478,11 @@ public class DiscussionForumTool
           return forums;
         }
         // TODO: put this logic in database layer
-        if (forum.getDraft().equals(Boolean.FALSE)||(forum.getDraft().equals(Boolean.TRUE)&& forum.getCreatedBy().equals(SessionManager.getCurrentSessionUserId()) 
+        if (forum.getDraft().equals(Boolean.FALSE)||(forum.getDraft().equals(Boolean.TRUE)&& forum.getCreatedBy().equals(getUserId()) 
             )||SecurityService.isSuperUser()
             ||isInstructor()
             ||forum.getCreatedBy().equals(
-            SessionManager.getCurrentSessionUserId()))
+            getUserId()))
         { 
           //DiscussionForumBean decoForum = getDecoratedForum(forum);
         	DiscussionForumBean decoForum = getDecoratedForumWithPersistentForumAndTopics(forum);
@@ -1898,10 +1901,10 @@ public class DiscussionForumTool
       DiscussionTopic topic = (DiscussionTopic) iter.next();
 //    TODO: put this logic in database layer
       if (topic.getDraft().equals(Boolean.FALSE)||
-          (topic.getDraft().equals(Boolean.TRUE)&&topic.getCreatedBy().equals(SessionManager.getCurrentSessionUserId()))
+          (topic.getDraft().equals(Boolean.TRUE)&&topic.getCreatedBy().equals(getUserId()))
           ||isInstructor()
           ||SecurityService.isSuperUser()||topic.getCreatedBy().equals(
-          SessionManager.getCurrentSessionUserId()))
+          getUserId()))
       { 
         topic = (DiscussionTopic) forumManager.getTopicByIdWithAttachments(topic
             .getId());
@@ -1953,10 +1956,10 @@ public class DiscussionForumTool
       DiscussionTopic topic = (DiscussionTopic) iter.next();
 //    TODO: put this logic in database layer
       if (topic.getDraft().equals(Boolean.FALSE)||
-          (topic.getDraft().equals(Boolean.TRUE)&&topic.getCreatedBy().equals(SessionManager.getCurrentSessionUserId()))
+          (topic.getDraft().equals(Boolean.TRUE)&&topic.getCreatedBy().equals(getUserId()))
           ||isInstructor()
           ||SecurityService.isSuperUser()||topic.getCreatedBy().equals(
-          SessionManager.getCurrentSessionUserId()))
+          getUserId()))
       { 
         if (topic != null)
         {
@@ -2174,8 +2177,10 @@ public class DiscussionForumTool
           {
           	decoMsg.setRead(messageManager.isMessageReadForUser(topic.getId(),
               message.getId()));
+          	boolean isOwn = decoMsg.getMessage().getCreatedBy().equals(getUserId());
           	decoMsg.setRevise(decoTopic.getIsReviseAny() 
-          			|| (decoTopic.getIsReviseOwn() && decoMsg.getMessage().getCreatedBy().equals(UserDirectoryService.getCurrentUser().getId())));
+          			|| (decoTopic.getIsReviseOwn() && isOwn));
+          	decoMsg.setUserCanDelete(decoTopic.getIsDeleteAny() || (isOwn && decoTopic.getIsDeleteOwn()));
           	decoTopic.addMessage(decoMsg);
           }
         }
@@ -2651,7 +2656,10 @@ public class DiscussionForumTool
 
   public String getUserId()
   {
-    return SessionManager.getCurrentSessionUserId();
+	  if (userId == null)
+    	userId = SessionManager.getCurrentSessionUserId();
+	  
+	  return userId;
   }
 
   public boolean getFullAccess()
@@ -3496,41 +3504,50 @@ public class DiscussionForumTool
    */
   public String processDfMsgDeleteConfirmYes()
   {
-	Message message = selectedMessage.getMessage();
-	
-	// 'delete' this message
-	message.setDeleted(true);
+	  DiscussionTopic topic = selectedTopic.getTopic();
+	  DiscussionForum forum = selectedForum.getForum();
+	  if(!uiPermissionsManager.isDeleteAny(topic, forum) && !(selectedMessage.getIsOwn() && uiPermissionsManager.isDeleteOwn(topic, forum)))
+	  {
+		  setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_TO_DELETE));
+		  this.deleteMsg = false;
+		  return null;
+	  }
+	  
+	  Message message = selectedMessage.getMessage();
 
-	// reload topic for this message so we can save it
-    message.setTopic((DiscussionTopic) forumManager
-                .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
+	  // 'delete' this message
+	  message.setDeleted(Boolean.TRUE);
 
-    // does the actual save to 'delete' this message
-    forumManager.saveMessage(message);
+	  // reload topic for this message so we can save it
+	  message.setTopic((DiscussionTopic) forumManager
+			  .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
 
-    // reload the topic, forum and reset the topic's base forum
-    selectedTopic = getDecoratedTopic(selectedTopic.getTopic());
-    setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
-            .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));   
-    selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
+	  // does the actual save to 'delete' this message
+	  forumManager.saveMessage(message);
 
-    this.deleteMsg = false;
+	  // reload the topic, forum and reset the topic's base forum
+	  selectedTopic = getDecoratedTopic(selectedTopic.getTopic());
+	  setSelectedForumForCurrentTopic((DiscussionTopic) forumManager
+			  .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));   
+	  selectedTopic.getTopic().setBaseForum(selectedForum.getForum());
 
-    // TODO: document it was done for tracking purposes
-//    EventTrackingService.post(EventTrackingService.newEvent("forum.msg.delete", getEventReference(message), true));
- LOG.info("Forum message" + message.getTitle() + "(" + message.getId() + ") has been deleted by " + getUserNameOrEid());
+	  this.deleteMsg = false;
 
-    // go to thread view or all messages depending on
-    // where come from
-    if (!"".equals(fromPage)) {
-    	final String where = fromPage;
-    	fromPage = null;
-    	processActionGetDisplayThread();
-    	return where;
-    }
-    else {
-    	return ALL_MESSAGES;
-    }
+	  // TODO: document it was done for tracking purposes
+//	  EventTrackingService.post(EventTrackingService.newEvent("forum.msg.delete", getEventReference(message), true));
+	  LOG.info("Forum message " + message.getId() + " has been deleted by " + getUserId());
+
+	  // go to thread view or all messages depending on
+	  // where come from
+	  if (!"".equals(fromPage)) {
+		  final String where = fromPage;
+		  fromPage = null;
+		  processActionGetDisplayThread();
+		  return where;
+	  }
+	  else {
+		  return ALL_MESSAGES;
+	  }
   }
 
   public String processDfMsgDeleteCancel()
@@ -3832,16 +3849,6 @@ public class DiscussionForumTool
 	  forumManager.markMessageReadStatusForUser(currMessage, false, currMessage.getCreatedBy());
 	  
 	  return MESSAGE_VIEW;
-  }
-
-  /**
-   * Can user delete this message?
-   */
-  public boolean isCanDelete()
-  {
-	  final boolean isInstructor = isInstructor();	  
-	  final boolean isDeleteAny = (selectedTopic != null) ? selectedTopic.getIsDeleteAny() : false;
-	  return isInstructor || isDeleteAny;
   }
   
   /**
@@ -5781,8 +5788,9 @@ public class DiscussionForumTool
 	  * @param message
 	  */
 	 private void refreshSelectedMessageSettings(Message message) {
-		 
+		 boolean isOwn = message.getCreatedBy().equals(getUserId());
 		 selectedMessage.setRevise(selectedTopic.getIsReviseAny() 
-					|| (selectedTopic.getIsReviseOwn() && message.getCreatedBy().equals(UserDirectoryService.getCurrentUser().getId())));  
+					|| (selectedTopic.getIsReviseOwn() && isOwn));  
+		 selectedMessage.setUserCanDelete(selectedTopic.getIsDeleteAny() || (isOwn && selectedTopic.getIsDeleteOwn()));
 	 }
 }

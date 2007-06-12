@@ -56,6 +56,7 @@ public class DiscussionMessageBean
   private String parentForumTitle;
   private boolean revise;
   private boolean deleted;
+  private boolean userCanDelete;
 
   private MessageForumsMessageManager messageManager;
 
@@ -309,6 +310,14 @@ public class DiscussionMessageBean
   public boolean getRevise()
   {
 	  return this.revise;
+  }
+  
+  public void setUserCanDelete(boolean userCanDelete) {
+	  this.userCanDelete = userCanDelete;
+  }
+  
+  public boolean getUserCanDelete() {
+	  return userCanDelete;
   }
 
   public boolean getDeleted() 

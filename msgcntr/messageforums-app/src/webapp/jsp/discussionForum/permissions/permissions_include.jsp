@@ -102,7 +102,12 @@
           <h:selectOneRadio id="revisePostings" value="#{permission.revisePostings}"  layout="pageDirection"  onclick="setCorrespondingLevel(this.name);"  disabled="#{not ForumTool.editMode}" styleClass="checkbox inlineForm">
 		        <f:selectItems   value="#{ForumTool.postingOptions}" />
 		      </h:selectOneRadio>
-        </h:panelGroup>        
+        </h:panelGroup> 
+
+				<h:outputLabel for="deletePostings" value="#{msgs.perm_delete_postings}" />	
+		    <h:selectOneRadio id="deletePostings" value="#{permission.deletePostings}"  layout="pageDirection"  onclick="setCorrespondingLevel(this.name);"  disabled="#{not ForumTool.editMode}" styleClass="checkbox inlineForm">
+				  <f:selectItems   value="#{ForumTool.postingOptions}" />
+				</h:selectOneRadio>      
         
       </h:panelGrid>
          
@@ -113,13 +118,6 @@
 
 		<%--<h:selectBooleanCheckbox id="moderatePostings"  value="#{permission.moderatePostings}" onclick="javascript:setCorrespondingLevel(this.id);"  disabled="#{not ForumTool.editMode}"/>
 		<h:outputText value="#{msgs.perm_moderate_postings}" />
-		--%>
-
-		<%--<h:outputText value="#{msgs.perm_delete_postings}" styleClass="emphasize" />--%>
-			
-    	<%--<h:selectOneRadio id="deletePostings" value="#{permission.deletePostings}"  layout="pageDirection"  onclick="setCorrespondingLevel(this.name);"  disabled="#{not ForumTool.editMode}">
-		  <f:selectItems   value="#{ForumTool.postingOptions}" />
-		</h:selectOneRadio>
 		--%>
 
     </h:column>

@@ -5,9 +5,9 @@ function setCorrespondingLevel(checkBox){
   //alert(selectLevel);
 
   changeSettings=getTheElement(var2[0]+":"+ var2[1]+":"+ var2[2]+":changeSetting");
-  //deletePostings=getTheElement(var2[0]+":"+ var2[1]+":"+ var2[2]+":deletePostings");
-  //deleteAny=getDeleteAny(deletePostings);
-  //deleteOwn=getDeleteOwn(deletePostings);
+  deletePostings=getTheElement(var2[0]+":"+ var2[1]+":"+ var2[2]+":deletePostings");
+  deleteAny=getDeleteAny(deletePostings);
+  deleteOwn=getDeleteOwn(deletePostings);
   markAsRead=getTheElement(var2[0]+":"+ var2[1]+":"+ var2[2]+":markAsRead");
   //movePosting=getTheElement(var2[0]+":"+ var2[1]+":"+ var2[2]+":movePosting");
   newForum=getTheElement(var2[0]+":"+ var2[1]+":"+ var2[2]+":newForum");
@@ -27,13 +27,13 @@ function setCorrespondingLevel(checkBox){
   moderatePostings=getTheElement(var2[0]+":"+ var2[1]+":"+ var2[2]+":moderatePostings");
 
   if(selectLevel){
-    if(!(changeSettings && markAsRead && newForum && newResponse && r2R && newTopic && read && revisePostings && moderatePostings)){
+    if(!(changeSettings && markAsRead && newForum && newResponse && r2R && newTopic && read && revisePostings && moderatePostings && deletePostings)){
       //alert(changeSettings + " " + markAsRead + " " + newForum + " " + newResponse + " " + r2R + " " + newTopic + " " + read  + " " + revisePostings);
       setIndexWithTextValue(selectLevel, custom)
     }
     else{
       //var newArray = [changeSettings.checked,deleteAny,deleteOwn,markAsRead.checked, movePosting.checked, newForum.checked, newResponse.checked, r2R.checked, newTopic.checked, postGrades.checked, read.checked, reviseAny, reviseOwn, moderatePostings.checked];
-      var newArray = [changeSettings.checked, markAsRead.checked, newForum.checked, newResponse.checked, r2R.checked, newTopic.checked, postGradesChecked, read.checked, reviseAny, reviseOwn, moderatePostings.checked];
+      var newArray = [changeSettings.checked, markAsRead.checked, newForum.checked, newResponse.checked, r2R.checked, newTopic.checked, postGradesChecked, read.checked, reviseAny, reviseOwn, moderatePostings.checked, deleteAny, deleteOwn];
       //alert(newArray);
       //alert(checkLevel(newArray));
       setIndexWithTextValue(selectLevel, checkLevel(newArray));
@@ -141,9 +141,9 @@ function setCorrespondingCheckboxes(checkBox){
   selectLevel = getTheElement(var2[0]+":"+ var2[1]+":"+ var2[2]+":level");
 
   changeSettings=getTheElement(var2[0]+":"+ var2[1]+":"+ var2[2]+":changeSetting");
-  //deletePostings=getTheElement(var2[0]+":"+ var2[1]+":"+ var2[2]+":deletePostings");
-  //deleteAny=getDeleteAny(deletePostings);
-  //deleteOwn=getDeleteOwn(deletePostings);
+  deletePostings=getTheElement(var2[0]+":"+ var2[1]+":"+ var2[2]+":deletePostings");
+  deleteAny=getDeleteAny(deletePostings);
+  deleteOwn=getDeleteOwn(deletePostings);
   markAsRead=getTheElement(var2[0]+":"+ var2[1]+":"+ var2[2]+":markAsRead");
   //movePosting=getTheElement(var2[0]+":"+ var2[1]+":"+ var2[2]+":movePosting");
   newForum=getTheElement(var2[0]+":"+ var2[1]+":"+ var2[2]+":newForum");
@@ -159,26 +159,26 @@ function setCorrespondingCheckboxes(checkBox){
 
   role=getTheElement(var2[0]+":role");
   if(selectLevel){
-    if(!(changeSettings && markAsRead && newForum && newResponse && r2R && newTopic && read && revisePostings && moderatePostings)){
-      setCheckBoxes(changeSettings, markAsRead, newForum, newResponse,  r2R, newTopic, read, revisePostings, postGrades, moderatePostings, noneLevelArray);
+    if(!(changeSettings && markAsRead && newForum && newResponse && r2R && newTopic && read && revisePostings && moderatePostings && deletePostings)){
+      setCheckBoxes(changeSettings, markAsRead, newForum, newResponse,  r2R, newTopic, read, revisePostings, postGrades, moderatePostings, deletePostings, noneLevelArray);
     }
     if(selectLevel.options[selectLevel.selectedIndex].value==owner){
-      setCheckBoxes(changeSettings, markAsRead, newForum, newResponse,  r2R, newTopic, read, revisePostings, postGrades, moderatePostings, ownerLevelArray);      
+      setCheckBoxes(changeSettings, markAsRead, newForum, newResponse,  r2R, newTopic, read, revisePostings, postGrades, moderatePostings, deletePostings, ownerLevelArray);      
     }
     else if(selectLevel.options[selectLevel.selectedIndex].value==author){
-      setCheckBoxes(changeSettings, markAsRead, newForum, newResponse,  r2R, newTopic, read, revisePostings, postGrades, moderatePostings, authorLevelArray);      				    
+      setCheckBoxes(changeSettings, markAsRead, newForum, newResponse,  r2R, newTopic, read, revisePostings, postGrades, moderatePostings, deletePostings, authorLevelArray);      				    
     }
     else if(selectLevel.options[selectLevel.selectedIndex].value==nonEditingAuthor){
-      setCheckBoxes(changeSettings, markAsRead, newForum, newResponse,  r2R, newTopic, read, revisePostings, postGrades, moderatePostings, noneditingAuthorLevelArray);   
+      setCheckBoxes(changeSettings, markAsRead, newForum, newResponse,  r2R, newTopic, read, revisePostings, postGrades, moderatePostings, deletePostings, noneditingAuthorLevelArray);   
     }
     else if(selectLevel.options[selectLevel.selectedIndex].value==reviewer){
-      setCheckBoxes(changeSettings, markAsRead, newForum, newResponse,  r2R, newTopic, read, revisePostings, postGrades, moderatePostings, reviewerLevelArray);
+      setCheckBoxes(changeSettings, markAsRead, newForum, newResponse,  r2R, newTopic, read, revisePostings, postGrades, moderatePostings, deletePostings, reviewerLevelArray);
     }
     else if(selectLevel.options[selectLevel.selectedIndex].value==none){
-      setCheckBoxes(changeSettings, markAsRead, newForum, newResponse,  r2R, newTopic, read, revisePostings, postGrades, moderatePostings, noneLevelArray);    
+      setCheckBoxes(changeSettings, markAsRead, newForum, newResponse,  r2R, newTopic, read, revisePostings, postGrades, moderatePostings, deletePostings, noneLevelArray);    
     }
     else if(selectLevel.options[selectLevel.selectedIndex].value==contributor){
-      setCheckBoxes(changeSettings, markAsRead, newForum, newResponse,  r2R, newTopic, read, revisePostings, postGrades, moderatePostings, contributorLevelArray);
+      setCheckBoxes(changeSettings, markAsRead, newForum, newResponse,  r2R, newTopic, read, revisePostings, postGrades, moderatePostings, deletePostings, contributorLevelArray);
     }
 
     roleValue=role.options[var2[2]].value;
@@ -190,19 +190,8 @@ function setCorrespondingCheckboxes(checkBox){
 }
 
 
-function setCheckBoxes(changeSettings, markAsRead, newForum, newResponse,  r2R, newTopic, read, revisePostings, postGrades, moderatePostings, arrayLevel){	
+function setCheckBoxes(changeSettings, markAsRead, newForum, newResponse,  r2R, newTopic, read, revisePostings, postGrades, moderatePostings, deletePostings, arrayLevel){	
   changeSettings.checked= arrayLevel[0];
-  //deletePostings
-  //if(arrayLevel[1]==true){
-  //  setRadioButtonValue(deletePostings, all);
-  //}
-  //else if(arrayLevel[2]==true){
-  //  setRadioButtonValue(deletePostings, own);
-  //}
-  //else{
-  //  setRadioButtonValue(deletePostings, none);
-  //}
-
 
   markAsRead.checked= arrayLevel[1];
   //movePosting.checked= arrayLevel[4];
@@ -223,6 +212,18 @@ function setCheckBoxes(changeSettings, markAsRead, newForum, newResponse,  r2R, 
     setRadioButtonValue(revisePostings, none);
   }
   moderatePostings.checked= arrayLevel[10];
+  
+  //deletePostings
+  if(arrayLevel[11]==true){
+    setRadioButtonValue(deletePostings, all);
+  }
+  else if(arrayLevel[12]==true){
+    setRadioButtonValue(deletePostings, own);
+  }
+  else{
+    setRadioButtonValue(deletePostings, none);
+  }
+  
 }
 
 function displayRelevantBlock(){

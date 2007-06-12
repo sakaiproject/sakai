@@ -186,8 +186,6 @@ public class PermissionLevelImpl extends MutableEntityImpl
 	public String toString() {		
 		StringBuffer buffer = new StringBuffer("[");
 		buffer.append(changeSettings);		
-		//buffer.append("," + deleteAny);
-		//buffer.append("," + deleteOwn);
 		buffer.append("," + markAsRead);
 		//buffer.append("," + movePosting);
 		buffer.append("," + newForum);
@@ -199,6 +197,8 @@ public class PermissionLevelImpl extends MutableEntityImpl
 		buffer.append("," + reviseAny);
 		buffer.append("," + reviseOwn);
 		buffer.append("," + moderatePostings);
+		buffer.append("," + deleteAny);
+		buffer.append("," + deleteOwn);
 		buffer.append("]");
 		
 		return buffer.toString();

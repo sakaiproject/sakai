@@ -390,6 +390,7 @@
              join topic.membershipItemSet as membershipItem   
              where area.contextId = :contextId and
              membershipItem.name in ( :membershipList ) and
+             message.deleted = false and
              message.approved = null and
              ((pl.typeUuid != '00000000-0000-0000-7777-000000000000' and 
                pl.name = membershipItem.permissionLevelName) or
@@ -405,6 +406,7 @@
              where topic.id = :topicId and
              topic.draft = false and
              forum.draft = false and
+             message.deleted = false and
              message.approved = null
     ]]>    
   </query>
