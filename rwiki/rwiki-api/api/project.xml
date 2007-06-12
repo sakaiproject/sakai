@@ -58,7 +58,7 @@
     <dependency>
       <groupId>servletapi</groupId>
       <artifactId>servletapi</artifactId>
-      <version>2.4</version>
+      <version>${sakai.servletapi.version}</version>
       <type>jar</type>
     </dependency>
   </dependencies>
