@@ -1044,7 +1044,12 @@ public class AssignmentAction extends PagedResourceActionII
 		try
 		{
 			submission = AssignmentService.getSubmission((String) state.getAttribute(VIEW_GRADE_SUBMISSION_ID));
-			context.put("assignment", submission.getAssignment());
+			Assignment assignment = submission.getAssignment();
+			context.put("assignment", assignment);
+			if (assignment.getContent().getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
+			{
+				context.put("nonElectronicType", Boolean.TRUE);
+			}
 			context.put("submission", submission);
 		}
 		catch (IdUnusedException e)

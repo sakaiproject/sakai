@@ -20,7 +20,7 @@
 	$tlang.getString("stuviewgrad.viewass2")
 		#if ($submission.Returned)
 			<span class="highlight"> - $tlang.getString("gen.returned")</span>
-		#else
+		#elseif (!$!nonElectronicType)
 			<span class="highlight"> - $tlang.getString("gen.subm4")</span>
 		#end
 		</h3>
