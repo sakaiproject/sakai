@@ -84,7 +84,7 @@ limitations under the License.
       
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
-      <version>2.4</version>
+      <version>${sakai.servletapi.version}</version>
       <type>jar</type>
       <scope>provided</scope>
     </dependency>
