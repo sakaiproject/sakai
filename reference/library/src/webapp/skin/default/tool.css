@@ -798,6 +798,8 @@ table.hierItemBlock td h4,table.hierItemBlock td h5,table.hierItemBlock td h6,
 	height: 300px;
 	overflow-y: auto;
 	overflow-x: visible;
+	/* This overflow is for Netscape*/
+	overflow: -moz-scrollbars-vertical;
 }
 
 #chatPresenceWrapper, .chatPresenceWrapper{
