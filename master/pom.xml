@@ -78,6 +78,7 @@
 	<sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
 	<sakai.ehcache.artifactId>ehcache</sakai.ehcache.artifactId>
 	<sakai.ehcache.version>1.2.4</sakai.ehcache.version>
+	<sakai.servletapi.version>2.4</sakai.servletapi.version>
     <sakai.xerces.impl.version>2.6.2</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
     <sakai.pluto.version>1.1.2</sakai.pluto.version>
