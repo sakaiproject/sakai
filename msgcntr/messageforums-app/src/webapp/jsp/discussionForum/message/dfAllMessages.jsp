@@ -159,7 +159,8 @@
 
 		          	<h:outputText value="  " />
 				
-					<h:graphicImage value="/images/silk/email.png" alt="#{msgs.msg_is_unread}" rendered="#{!message.read}" style="cursor:pointer"
+					<h:graphicImage value="/images/silk/email.png" rendered="#{!message.read}" style="cursor:pointer"
+							alt="#{msgs.cdfm_mark_as_read}" title="#{msgs.cdfm_mark_as_read}"
    							onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id}, this);"
 			   	       		onmouseover="this.src=this.src.replace(/email\.png/, 'email_open.png');"
 			   	       		onmouseout="this.src=this.src.replace(/email_open\.png/, 'email.png');" />

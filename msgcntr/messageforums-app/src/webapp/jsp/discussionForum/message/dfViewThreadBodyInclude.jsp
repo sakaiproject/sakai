@@ -35,7 +35,8 @@
 		</h:outputText>
 
 		<h:graphicImage value="/images/silk/email.png" 
-			alt="#{msgs.msg_is_unread}" 
+			alt="#{msgs.cdfm_mark_as_read}" 
+			title="#{msgs.cdfm_mark_as_read}" 
 			rendered="#{!message.read}"
 			style="cursor:pointer"
 			onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id}, this);"
