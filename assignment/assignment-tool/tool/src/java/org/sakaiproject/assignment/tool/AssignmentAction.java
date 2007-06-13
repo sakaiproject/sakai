@@ -6295,7 +6295,7 @@ public class AssignmentAction extends PagedResourceActionII
 				// validate date
 				if (closeTime.before(TimeService.newTime()))
 				{
-					addAlert(state, rb.getString("assig4"));
+					addAlert(state, rb.getString("acesubdea4"));
 				}
 				if (!Validator.checkDate(closeDay, closeMonth, closeYear))
 				{
