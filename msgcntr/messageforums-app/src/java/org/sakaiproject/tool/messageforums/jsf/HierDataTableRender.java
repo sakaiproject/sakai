@@ -353,7 +353,7 @@ public class HierDataTableRender extends HtmlBasicRenderer
 							hideTr += "javascript:showHideDiv('_id_" + new Integer(hideDivNo+i).toString() + "', '" +  RESOURCE_PATH + "');";
 						}
 						writer.write(hideTr);
-						writer.write("setMainFrameHeight('Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId().replace("-","x") + "');");
+						writer.write("mySetMainFrameHeight('Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId().replace("-","x") + "');");
 						writer.write("\" />");
 					}
 					writer.endElement("td");
