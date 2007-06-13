@@ -43,6 +43,7 @@
 		  </h4>
 		    
 		    <h:inputHidden id="msgHidden" value="#{ForumTool.selectedMessage.message.body}" />
+		    <h:inputHidden id="titleHidden" value="#{ForumTool.selectedMessage.message.title}" />
 		    <input type="button" value="Insert Original Message Text" onClick="InsertHTML();" /><br/>
             <sakai:rich_text_area value="#{ForumTool.composeBody}" rows="17" columns="70"/>
             <script language="javascript" type="text/javascript">
@@ -57,11 +58,12 @@
 	        
 	        // set the previous message variable
 	        var messagetext = document.forms['dfCompose'].elements['dfCompose:msgHidden'].value;
+	        var titletext = document.forms['dfCompose'].elements['dfCompose:titleHidden'].value;
 	        
             function InsertHTML() 
             { 
               // These lines will write to the original textarea and makes the quoting work when FCK is not present
-              var finalhtml = '<b><i>Original Message:</i></b><br/><b><i><h:outputText value="#{msgs.cdfm_from}" /></i></b> <i><h:outputText value="#{ForumTool.selectedMessage.message.author}" /><h:outputText value=" #{msgs.cdfm_openb}" /><h:outputText value="#{ForumTool.selectedMessage.message.created}" ><f:convertDateTime pattern="#{msgs.date_format}" /></h:outputText><h:outputText value="#{msgs.cdfm_closeb}" /></i><br/><b><i><h:outputText value="#{msgs.cdfm_subject}" /></i></b> <i><h:outputText value="#{ForumTool.selectedMessage.message.title}" /></i><br/><br/><i>' + messagetext + '</i><br/><br/>';
+              var finalhtml = '<b><i>Original Message:</i></b><br/><b><i><h:outputText value="#{msgs.cdfm_from}" /></i></b> <i><h:outputText value="#{ForumTool.selectedMessage.message.author}" /><h:outputText value=" #{msgs.cdfm_openb}" /><h:outputText value="#{ForumTool.selectedMessage.message.created}" ><f:convertDateTime pattern="#{msgs.date_format}" /></h:outputText><h:outputText value="#{msgs.cdfm_closeb}" /></i><br/><b><i><h:outputText value="#{msgs.cdfm_subject}" /></i></b> <i>' + titletext + '</i><br/><br/><i>' + messagetext + '</i><br/><br/>';
               document.forms['dfCompose'].elements[rteId].value = finalhtml;
               // Get the editor instance that we want to interact with.
               var oEditor = FCKeditorAPI.GetInstance(rteId);
