@@ -260,6 +260,13 @@ public interface AssignmentService extends EntityProducer
 	 * @return the List (User) of users who can addSubmission() for this assignment.
 	 */
 	public List allowAddSubmissionUsers(String assignmentReference);
+	
+	/**
+	 * Get the list of users who can add submission for at lease one assignment within the context
+	 * @param context the context string
+	 * @return the list of user (ids)
+	 */
+	public List allowAddAnySubmissionUsers(String context);
 
 	/**
 	 * Get the List of Users who can add assignment

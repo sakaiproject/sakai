@@ -3019,6 +3019,38 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		return rv;
 
 	} // allowAddSubmissionUsers
+	
+	/**
+	 * @inheritDoc
+	 * @param context
+	 * @return
+	 */
+	public List allowAddAnySubmissionUsers(String context)
+	{
+		List rv = new Vector();
+		
+		try
+		{
+			AuthzGroup group = AuthzGroupService.getAuthzGroup(SiteService.siteReference(context));
+			
+			// get the roles which are allowed for submission but not for all_site control
+			Set rolesAllowSubmission = group.getRolesIsAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION);
+			Set rolesAllowAllSite = group.getRolesIsAllowed(SECURE_ALL_GROUPS);
+			rolesAllowSubmission.removeAll(rolesAllowAllSite);
+			
+			for (Iterator iRoles = rolesAllowSubmission.iterator(); iRoles.hasNext(); )
+			{
+				rv.addAll(group.getUsersHasRole((String) iRoles.next()));
+			}
+		}
+		catch (Exception e)
+		{
+			M_log.warn(this + e.getMessage() + " context=" + context);
+		}
+		
+		return rv;
+		
+	}
 
 	/**
 	 * Get the List of Users who can add assignment
@@ -3190,141 +3222,127 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			// starting from this row, going to input user data
 			Iterator assignments = new SortedIterator(assignmentsList.iterator(), new AssignmentComparator("duedate", "true"));
 	
-			// allow add assignment members
-			List allowAddAssignmentUsers = allowAddAssignmentUsers(context);
 			// site members excluding those who can add assignments
 			List members = new Vector();
 			// hashtable which stores the Excel row number for particular user
 			Hashtable user_row = new Hashtable();
 			
-			try
+			List allowAddAnySubmissionUsers = allowAddAnySubmissionUsers(context);
+			for (Iterator iUserIds = new SortedIterator(allowAddAnySubmissionUsers.iterator(), new AssignmentComparator("sortname", "true")); iUserIds.hasNext();)
 			{
-				AuthzGroup group = AuthzGroupService.getAuthzGroup(SiteService.siteReference(context));
-				Set grants = group.getUsers();
-				for (Iterator iUserIds = new SortedIterator(grants.iterator(), new AssignmentComparator("sortname", "true")); iUserIds.hasNext();)
+				String userId = (String) iUserIds.next();
+				try
 				{
-					String userId = (String) iUserIds.next();
-					try
-					{
-						User u = UserDirectoryService.getUser(userId);
-						// only return student
-						if (!allowAddAssignmentUsers.contains(u))
-						{
-							members.add(u);
-							// create the column for user first
-							row = sheet.createRow(rowNum);
-							// update user_row Hashtable
-							user_row.put(u.getId(), new Integer(rowNum));
-							// increase row
-							rowNum++;
-							// put user displayid and sortname in the first two cells
-							cellNum = 0;
-							row.createCell(cellNum++).setCellValue(u.getSortName());
-							row.createCell(cellNum).setCellValue(u.getDisplayId());
-						}
-					}
-					catch (Exception e)
-					{
-						M_log.warn(this + e.getMessage() + " userId = " + userId);
-					}
+					User u = UserDirectoryService.getUser(userId);
+					members.add(u);
+					// create the column for user first
+					row = sheet.createRow(rowNum);
+					// update user_row Hashtable
+					user_row.put(u.getId(), new Integer(rowNum));
+					// increase row
+					rowNum++;
+					// put user displayid and sortname in the first two cells
+					cellNum = 0;
+					row.createCell(cellNum++).setCellValue(u.getSortName());
+					row.createCell(cellNum).setCellValue(u.getDisplayId());
 				}
-				
-				int index = 0;
-				// the grade data portion starts from the third column, since the first two are used for user's display id and sort name
-				while (assignments.hasNext())
+				catch (Exception e)
 				{
-					Assignment a = (Assignment) assignments.next();
+					M_log.warn(this + e.getMessage() + " userId = " + userId);
+				}
+			}
+				
+			int index = 0;
+			// the grade data portion starts from the third column, since the first two are used for user's display id and sort name
+			while (assignments.hasNext())
+			{
+				Assignment a = (Assignment) assignments.next();
+				
+				int assignmentType = a.getContent().getTypeOfGrade();
+				
+				// for column header, check allow grade permission based on each assignment
+				if(!a.getDraft())
+				{
+					// put in assignment title as the column header
+					rowNum = headerRowNumber;
+					row = sheet.getRow(rowNum++);
+					cellNum = (short) (index + 2);
+					cell = row.createCell(cellNum); // since the first two column is taken by student id and name
+					cell.setCellStyle(style);
+					cell.setCellValue(a.getTitle());
 					
-					int assignmentType = a.getContent().getTypeOfGrade();
-					
-					// for column header, check allow grade permission based on each assignment
-					if(!a.getDraft())
+					for (int loopNum = 0; loopNum < members.size(); loopNum++)
 					{
-						// put in assignment title as the column header
-						rowNum = headerRowNumber;
+						// prepopulate the column with the "no submission" string
 						row = sheet.getRow(rowNum++);
-						cellNum = (short) (index + 2);
-						cell = row.createCell(cellNum); // since the first two column is taken by student id and name
-						cell.setCellStyle(style);
-						cell.setCellValue(a.getTitle());
+						cell = row.createCell(cellNum);
+						cell.setCellType(1);
+						cell.setCellValue(rb.getString("listsub.nosub"));
+					}
+
+					// begin to populate the column for this assignment, iterating through student list
+					for (Iterator sIterator=getSubmissions(a).iterator(); sIterator.hasNext();)
+					{
+						AssignmentSubmission submission = (AssignmentSubmission) sIterator.next();
 						
-						for (int loopNum = 0; loopNum < members.size(); loopNum++)
-						{
-							// prepopulate the column with the "no submission" string
-							row = sheet.getRow(rowNum++);
-							cell = row.createCell(cellNum);
-							cell.setCellType(1);
-							cell.setCellValue(rb.getString("listsub.nosub"));
-						}
-	
-						// begin to populate the column for this assignment, iterating through student list
-						for (Iterator sIterator=getSubmissions(a).iterator(); sIterator.hasNext();)
-						{
-							AssignmentSubmission submission = (AssignmentSubmission) sIterator.next();
-							
-							String userId = (String) submission.getSubmitterIds().get(0);
-							
-							if (user_row.containsKey(userId))
-							{	
-								// find right row
-								row = sheet.getRow(((Integer)user_row.get(userId)).intValue());
-							
-								if (submission.getGraded() && submission.getGradeReleased() && submission.getGrade() != null)
+						String userId = (String) submission.getSubmitterIds().get(0);
+						
+						if (user_row.containsKey(userId))
+						{	
+							// find right row
+							row = sheet.getRow(((Integer)user_row.get(userId)).intValue());
+						
+							if (submission.getGraded() && submission.getGradeReleased() && submission.getGrade() != null)
+							{
+								// graded and released
+								if (assignmentType == 3)
 								{
-									// graded and released
-									if (assignmentType == 3)
+									try
 									{
-										try
-										{
-											// numeric cell type?
-											String grade = submission.getGradeDisplay();
-											Float.parseFloat(grade);
-				
-											// remove the String-based cell first
-											cell = row.getCell(cellNum);
-											row.removeCell(cell);
-											// add number based cell
-											cell=row.createCell(cellNum);
-											cell.setCellType(0);
-											cell.setCellValue(Float.parseFloat(grade));
-				
-											style = wb.createCellStyle();
-											style.setDataFormat(wb.createDataFormat().getFormat("#,##0.0"));
-											cell.setCellStyle(style);
-										}
-										catch (Exception e)
-										{
-											// if the grade is not numeric, let's make it as String type
-											row.removeCell(cell);
-											cell=row.createCell(cellNum);
-											cell.setCellType(1);
-											cell.setCellValue(submission.getGrade());
-										}
-									}
-									else
-									{
-										// String cell type
+										// numeric cell type?
+										String grade = submission.getGradeDisplay();
+										Float.parseFloat(grade);
+			
+										// remove the String-based cell first
 										cell = row.getCell(cellNum);
+										row.removeCell(cell);
+										// add number based cell
+										cell=row.createCell(cellNum);
+										cell.setCellType(0);
+										cell.setCellValue(Float.parseFloat(grade));
+			
+										style = wb.createCellStyle();
+										style.setDataFormat(wb.createDataFormat().getFormat("#,##0.0"));
+										cell.setCellStyle(style);
+									}
+									catch (Exception e)
+									{
+										// if the grade is not numeric, let's make it as String type
+										row.removeCell(cell);
+										cell=row.createCell(cellNum);
+										cell.setCellType(1);
 										cell.setCellValue(submission.getGrade());
 									}
 								}
 								else
 								{
-									// no grade available yet
+									// String cell type
 									cell = row.getCell(cellNum);
-									cell.setCellValue("");
+									cell.setCellValue(submission.getGrade());
 								}
-							} // if
-						}
+							}
+							else
+							{
+								// no grade available yet
+								cell = row.getCell(cellNum);
+								cell.setCellValue("");
+							}
+						} // if
 					}
-					
-					index++;
-					
 				}
-			}
-			catch (Exception e)
-			{
-				M_log.warn(e.getMessage() + " context=" + context);
+				
+				index++;
+				
 			}
 			
 			// output

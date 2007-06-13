@@ -2069,30 +2069,20 @@ public class AssignmentAction extends PagedResourceActionII
 
 		// get the realm and its member
 		List studentMembers = new Vector();
-		String realmId = SiteService.siteReference((String) state.getAttribute(STATE_CONTEXT_STRING));
-		try
+		List allowSubmitMembers = AssignmentService.allowAddAnySubmissionUsers(contextString);
+		for (Iterator allowSubmitMembersIterator=allowSubmitMembers.iterator(); allowSubmitMembersIterator.hasNext();)
 		{
-			AuthzGroup realm = AuthzGroupService.getAuthzGroup(realmId);
-			Set allowSubmitMembers = realm.getUsersIsAllowed(AssignmentService.SECURE_ADD_ASSIGNMENT_SUBMISSION);
-			for (Iterator allowSubmitMembersIterator=allowSubmitMembers.iterator(); allowSubmitMembersIterator.hasNext();)
+			// get user
+			try
 			{
-				// get user
-				try
-				{
-					String userId = (String) allowSubmitMembersIterator.next();
-					User user = UserDirectoryService.getUser(userId);
-					studentMembers.add(user);
-				}
-				catch (Exception ee)
-				{
-					Log.warn("chef", this + ee.getMessage());
-				}
+				String userId = (String) allowSubmitMembersIterator.next();
+				User user = UserDirectoryService.getUser(userId);
+				studentMembers.add(user);
 			}
-		}
-		catch (GroupNotDefinedException e)
-		{
-			Log.warn("chef", this + " IdUnusedException, not found, or not an AuthzGroup object");
-			addAlert(state, rb.getString("java.realm") + realmId);
+			catch (Exception ee)
+			{
+				Log.warn("chef", this + ee.getMessage());
+			}
 		}
 		
 		context.put("studentMembers", studentMembers);
