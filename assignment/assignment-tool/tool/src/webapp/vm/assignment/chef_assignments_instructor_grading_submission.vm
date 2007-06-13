@@ -373,12 +373,9 @@
 									<p class="shorttext">
 										<label for="grade">$tlang.getString("gen.gra2")</label>
 										<select name="$name_grade" id="grade">
-											#foreach ($i in ["ungraded", "A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "D-", "E", "F"])
-												#if ($value_grade.equals($i))
-													<option  value="$i" selected>$i</option>	
-												#else
-													<option  value="$i">$i</option>
-												#end
+											<option  value="" #if($value_grade.equals(""))selected="selected"#end>ungraded</option>
+											#foreach ($i in ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "D-", "E", "F"])
+												<option  value="$i" #if ($value_grade.equals($i))selected#end>$i</option>
 											#end
 										</select>
 									</p>	
@@ -391,12 +388,9 @@
 									<p class="shorttext">
 										<label for="grade">$tlang.getString("gen.gra2")</label>
 										<select name="$name_grade" id="grade" >
-											#foreach ($i in ["ungraded", "Pass", "Fail"])
-												#if ($value_grade.equals($i))
-													<option  value="$i" selected="selected">$i</option>	
-												#else
-													<option  value="$i">$i</option>
-												#end
+											<option  value="" #if($value_grade.equals(""))selected="selected"#end>ungraded</option>
+											#foreach ($i in ["Pass", "Fail"])
+													<option  value="$i" #if ($value_grade.equals($i))selected="selected"#end>$i</option>
 											#end
 										</select>
 									</p>	

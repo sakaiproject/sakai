@@ -2911,11 +2911,19 @@ public class AssignmentAction extends PagedResourceActionII
 				if (typeOfGrade == 1)
 				{
 					sEdit.setGrade("no grade");
-					sEdit.setGraded(true);
 				}
 				else
 				{
 					sEdit.setGrade(grade);
+				}
+				
+				if (grade.length() != 0)
+				{
+					sEdit.setGraded(true);
+				}
+				else
+				{
+					sEdit.setGraded(false);
 				}
 			}
 
