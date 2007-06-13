@@ -302,14 +302,16 @@ public class PollToolProducer implements ViewComponentProducer,
 	  boolean pollBeforeClose = true;
 	  
 	  if (poll.getVoteClose()!=null) {
-		 if (!poll.getVoteClose().before(new Date())) {
+		 if (poll.getVoteClose().before(new Date())) {
+			 m_log.debug("Poll is closed for voting");
 			 pollBeforeClose=false;
 		 }
 		  
 	  } 
 	  
 	  if (poll.getVoteOpen()!=null) {
-		  if(!new Date().after(poll.getVoteOpen())) {
+		  if(new Date().before(poll.getVoteOpen())) {
+			  m_log.debug("Poll is not open yet");
 			  pollAfterOpen=false;
 		  }
 	  } 
