@@ -43,7 +43,7 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 
 
-public class ScormCollectionType implements ExpandableResourceType {
+public class ScormCollectionType extends ZipCollectionType {
 	private static Log log = LogFactory.getLog(ScormCollectionType.class);
 			
 	public static final String SCORM_CONTENT_LABEL="SCORM Package";
@@ -55,10 +55,8 @@ public class ScormCollectionType implements ExpandableResourceType {
 
 	public static final String SCORM_UPLOAD_HELPER_ID="sakai.scorm.helper"; //="sakai.resource.type.helper";
 	public static final String SCORM_LAUNCH_TOOL_ID="sakai.scorm.helper";
+	public static final String SCORM_ACCESS_HELPER_ID="sakai.scorm.access";
 	
-	private EnumMap<ResourceToolAction.ActionType, List<ResourceToolAction>> actionMap =
-	      new EnumMap<ResourceToolAction.ActionType, List<ResourceToolAction>>(ResourceToolAction.ActionType.class);
-	private Map<String, ResourceToolAction> actions = new Hashtable<String, ResourceToolAction>();
 	
 	public ScormCollectionType() {	
 		List<String> requiredKeys = new ArrayList<String>();
@@ -76,17 +74,24 @@ public class ScormCollectionType implements ExpandableResourceType {
 	    		log.warn("Finalizing upload action for scorm content!");
 			}
 	    };   
+	    
+	    ResourceToolAction launch = new BaseInteractionAction(ResourceToolAction.ACCESS_CONTENT, ResourceToolAction.ActionType.VIEW_CONTENT, SCORM_CONTENT_TYPE_ID, SCORM_ACCESS_HELPER_ID, requiredKeys) {
+	    	public String getLabel() {
+	    		return SCORM_LAUNCH_LABEL;
+	    	}
+	    };
+	    
 	    //ResourceToolAction launch = new ScormLaunchAction();
 	    ResourceToolAction remove = new BaseServiceLevelAction(ResourceToolAction.DELETE, ResourceToolAction.ActionType.DELETE, SCORM_CONTENT_TYPE_ID, false);
 	    //ResourceToolAction intercept = new BaseInteractionAction(ResourceToolAction.INTERCEPT_CONTENT, ResourceToolAction.ActionType.INTERCEPT_CONTENT, SCORM_CONTENT_TYPE_ID, SCORM_LAUNCH_TOOL_ID, requiredKeys);   
 
 	    actionMap.put(create.getActionType(), makeList(create));
-	    //actionMap.put(launch.getActionType(), makeList(launch));
+	    actionMap.put(launch.getActionType(), makeList(launch));
 	    actionMap.put(remove.getActionType(), makeList(remove));
 	    //actionMap.put(intercept.getActionType(), makeList(intercept));
 	    
 	    actions.put(create.getId(), create);
-	    //actions.put(launch.getId(), launch);
+	    actions.put(launch.getId(), launch);
 	    actions.put(remove.getId(), remove);
 	    //actions.put(intercept.getId(), intercept);
 	}
@@ -121,8 +126,50 @@ public class ScormCollectionType implements ExpandableResourceType {
 		return list;
 	}
 
-	public String getIconLocation(ContentEntity entity) {
-		return null;
+	public String getIconLocation(ContentEntity entity, boolean expanded)
+    {
+		String iconLocation = "sakai/dir_openroot.gif";
+		if(entity.isCollection())
+		{
+			ContentCollection collection = (ContentCollection) entity;
+			int memberCount = collection.getMemberCount();
+			if(memberCount == 0)
+			{
+				iconLocation = "sakai/ziparchive_closed.gif";
+			}
+			else if(memberCount > ResourceType.EXPANDABLE_FOLDER_SIZE_LIMIT)
+			{
+				iconLocation = "sakai/dir_unexpand.gif";
+			}
+			else if(expanded) 
+			{
+				iconLocation = "sakai/dir_openminus.gif";
+			}
+			else 
+			{
+				iconLocation = "sakai/scorm_closedplus.gif";
+			}
+		}
+		return iconLocation;
+    }
+	
+	public String getIconLocation(ContentEntity entity) 
+	{
+		String iconLocation = "sakai/dir_openroot.gif";
+		if(entity != null && entity.isCollection())
+		{
+			ContentCollection collection = (ContentCollection) entity;
+			int memberCount = collection.getMemberCount();
+			if(memberCount == 0)
+			{
+				iconLocation = "sakai/ziparchive_closed.gif";
+			}
+			else if(memberCount > ResourceType.EXPANDABLE_FOLDER_SIZE_LIMIT)
+			{
+				iconLocation = "sakai/dir_unexpand.gif";
+			}
+		}
+		return iconLocation;
 	}
 
 	public String getId() {
@@ -137,7 +184,7 @@ public class ScormCollectionType implements ExpandableResourceType {
 		return SCORM_CONTENT_LABEL;
 	}
 
-	public boolean hasAvailabilityDialog() {
+	/*public boolean hasAvailabilityDialog() {
 		return false;
 	}
 
@@ -164,7 +211,7 @@ public class ScormCollectionType implements ExpandableResourceType {
 	public boolean hasRightsDialog() {
 		return false;
 	}
-	
+	*/
 
 	/*public class ScormUploadCreateAction implements InteractionAction {
 		
@@ -289,7 +336,7 @@ public class ScormCollectionType implements ExpandableResourceType {
 	}*/
 	
 
-	protected List<ResourceToolAction> makeList(ResourceToolAction create) {
+	/*protected List<ResourceToolAction> makeList(ResourceToolAction create) {
 	      List<ResourceToolAction> returned = new ArrayList<ResourceToolAction>();
 	      returned.add(create);
 	      return returned;
@@ -301,41 +348,19 @@ public class ScormCollectionType implements ExpandableResourceType {
 
 	public ServiceLevelAction getExpandAction() {
 		return (ServiceLevelAction) this.actions.get(ResourceToolAction.EXPAND);
-	}
-
-	public String getIconLocation(ContentEntity entity, boolean expanded) {
-		String iconLocation = "sakai/dir_openroot.gif";
-		if(entity.isCollection())
-		{
-			ContentCollection collection = (ContentCollection) entity;
-			int memberCount = collection.getMemberCount();
-			if(memberCount == 0)
-			{
-				iconLocation = "sakai/dir_closed.gif";
-			}
-			else if(memberCount > ResourceType.EXPANDABLE_FOLDER_SIZE_LIMIT)
-			{
-				iconLocation = "sakai/dir_unexpand.gif";
-			}
-			else if (!expanded)
-			{
-				iconLocation = "sakai/dir_closedplus.gif";
-			}
-		}
-		return iconLocation;
-	}
+	}*/
 
 	public String getLocalizedHoverText(ContentEntity entity, boolean expanded) {
 		return "Scorm Content Package";
 	}
 
-	public boolean isExpandable() {
+	/*public boolean isExpandable() {
 		return true;
 	}
 
 	public boolean allowAddAction(ResourceToolAction action, ContentEntity entity) {
 		return action.getActionType().equals(ResourceToolAction.ActionType.NEW_UPLOAD);
-	}
+	}*/
 	
 	
 }

@@ -22,7 +22,6 @@ public class ScormCHH extends FastZipCHH {
 	private static Log log = LogFactory.getLog(ScormCHH.class);
 
 	public void init() {
-		super.init();
 		resourceTypeRegistry.register(new ScormCollectionType());
 	}
 	
@@ -30,16 +29,16 @@ public class ScormCHH extends FastZipCHH {
 		return null;
 	}
 
+	protected String getContentHostingHandlerName() {
+		return "org.sakaiproject.scorm.content.api.ScormCHH";
+	}	
+	
 	protected ContentCollectionEdit makeCollection(ContentEntity ce, String path,
 			String name) {
 		ContentCollectionEdit collection = super.makeCollection(ce, path, name);
 		collection.setResourceType(ScormCollectionType.SCORM_CONTENT_TYPE_ID);
 		return collection;
 	}
-	
-	/*protected List<ContentEntity> findChildren(ContentEntity ce, int depth) throws ServerOverloadException {
-		return extractChildren(ce, depth);
-	}*/
 		
 	protected int countChildren(ContentEntity parent, int depth) {
 		ContentResource realParent = (ContentResource) getRealParent(parent.getId());

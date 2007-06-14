@@ -18,12 +18,14 @@ import org.adl.validator.IValidatorOutcome;
 import org.adl.validator.contentpackage.CPValidator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingHandlerResolver;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.scorm.content.api.Addable;
 import org.sakaiproject.scorm.content.impl.ScormCollectionType;
 import org.sakaiproject.scorm.model.ContentPackageManifestImpl;
 import org.sakaiproject.scorm.model.api.ContentPackageManifest;
@@ -43,6 +45,7 @@ public abstract class ScormContentServiceImpl implements ScormContentService {
 	protected SessionManager sessionManager() { return null; }
 	protected ToolManager toolManager() { return null; }
 	
+	protected Addable contentHostingHandler() { return null; }
 	
 	public ContentResource addManifest(ContentPackageManifest manifest, String id) {
 		ContentResource resource = null;
@@ -146,6 +149,46 @@ public abstract class ScormContentServiceImpl implements ScormContentService {
 		return outcome;
 	}
 	
+	public void uploadZipArchive(File zipArchive) {
+		// Grab the pipe
+		ToolSession toolSession = sessionManager().getCurrentToolSession();	
+		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+
+		byte[] content = getFileAsBytes(zipArchive);
+			
+        pipe.setRevisedContent(content);
+        pipe.setRevisedMimeType("application/zip");
+        pipe.setFileName(zipArchive.getName());
+        
+        pipe.setRevisedResourceProperty(ContentHostingHandlerResolver.CHH_BEAN_NAME, "org.sakaiproject.scorm.content.api.ZipCHH");
+            
+        pipe.setActionCanceled(false);
+        pipe.setErrorEncountered(false);
+        pipe.setActionCompleted(true); 
+           
+        toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
+	}
+	
+	public String identifyZipArchive() {
+		// Grab the pipe
+		ToolSession toolSession = sessionManager().getCurrentToolSession();	
+		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+
+		
+		ContentEntity ce = pipe.getContentEntity();
+		
+		String id = ce.getId();
+
+        pipe.setActionCanceled(true);
+        pipe.setErrorEncountered(false);
+        pipe.setActionCompleted(false); 
+           
+        toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
+
+        return id;
+	}
+	
+	
 	private String addContentPackage(File contentPackage, CPValidator validator, IValidatorOutcome outcome) {
 		// Grab the pipe
 		ToolSession toolSession = sessionManager().getCurrentToolSession();	
@@ -163,7 +206,7 @@ public abstract class ScormContentServiceImpl implements ScormContentService {
         ContentResource manifestResource = addManifest(manifest, pipe.getContentEntity().getId());
         String manifestResourceId = manifestResource.getId();
         
-        pipe.setRevisedResourceProperty(ContentHostingHandlerResolver.CHH_BEAN_NAME, "org.sakaiproject.scorm.client.api.ContentHostingHandler");
+        pipe.setRevisedResourceProperty(ContentHostingHandlerResolver.CHH_BEAN_NAME, "org.sakaiproject.scorm.content.api.ScormCHH");
         pipe.setRevisedResourceProperty("MANIFEST_RESOURCE_ID", manifestResourceId);
             
         pipe.setActionCanceled(false);

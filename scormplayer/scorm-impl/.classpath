@@ -26,5 +26,7 @@
 	<classpathentry kind="var" path="MAVEN_REPO/xstream/jars/xstream-1.2.1.jar"/>
 	<classpathentry kind="var" path="MAVEN_REPO/xpp3/jars/xpp3-1.1.4.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3.8.1"/>
+	<classpathentry kind="var" path="MAVEN_REPO/activation/jars/activation-1.0.2.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/entity-broker"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

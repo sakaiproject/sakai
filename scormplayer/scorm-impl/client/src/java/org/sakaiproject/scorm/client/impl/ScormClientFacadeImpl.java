@@ -54,8 +54,8 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.scorm.client.api.ScormClientFacade;
-import org.sakaiproject.scorm.content.impl.ScormCollectionType;
-import org.sakaiproject.scorm.content.impl.ZipCHH;
+import org.sakaiproject.scorm.content.impl.FastZipCHH;
+import org.sakaiproject.scorm.content.impl.ScormCHH;
 import org.sakaiproject.scorm.model.api.ContentPackageManifest;
 import org.sakaiproject.scorm.service.api.ScormContentService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -67,6 +67,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class ScormClientFacadeImpl implements ScormClientFacade {
+	private static final long serialVersionUID = 1L;
 	private static Log log = LogFactory.getLog(ScormClientFacadeImpl.class);
 	
 	// Dependency injected lookup methods
@@ -81,10 +82,8 @@ public class ScormClientFacadeImpl implements ScormClientFacade {
 	
 	// Dependency injected properties
 	protected ResourceTypeRegistry resourceTypeRegistry;
-	protected ZipCHH contentHandler;
 	
 	public void init() {
-		//getResourceTypeRegistry().register(new ScormCollectionType());
 		entityManager().registerEntityProducer(this, REFERENCE_ROOT);
 	}
 	
@@ -107,6 +106,18 @@ public class ScormClientFacadeImpl implements ScormClientFacade {
 	public String getContext() {
 		return toolManager().getCurrentPlacement().getContext();
 	}
+	
+	public void uploadZipArchive(File zipArchive) {
+		scormContentService().uploadZipArchive(zipArchive);
+	}
+	
+	public String identifyZipArchive() {
+		return scormContentService().identifyZipArchive();
+	}
+	
+	/*public void uploadZipEntry(File zipEntry, String path) {
+		scormContentService().uploadZipEntry(zipEntry,path);
+	}*/
 	
 	/*public void jumpToTool() {
 		String skin = ServerConfigurationService.getString("skin.default");
@@ -356,12 +367,5 @@ public class ScormClientFacadeImpl implements ScormClientFacade {
 	public boolean willArchiveMerge() {
 		return false;
 	}
-	public ZipCHH getContentHandler() {
-		return contentHandler;
-	}
-	public void setContentHandler(ZipCHH contentHandler) {
-		this.contentHandler = contentHandler;
-	}
-	
 	
 }

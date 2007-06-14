@@ -2,6 +2,8 @@ package org.sakaiproject.scorm.content.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
@@ -29,9 +31,10 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.scorm.content.api.Addable;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 
-public class ZipCHH implements ContentHostingHandler {
+public abstract class ZipCHH implements ContentHostingHandler, Addable {
 	private static final String REAL_PARENT_ENTITY_PROPERTY = "zipCHH@REAL_PARENT_ENTITY_ID";
 	private static final String VIRTUAL_ZIP_ENTITY_PROPERTY = "zipCHH@IS_VIRTUAL_ZIP_ENTITY";
 	private static final String ENTITY_CACHE_KEY = "zipCHHFindEntity@";
@@ -45,6 +48,35 @@ public class ZipCHH implements ContentHostingHandler {
 	
 	public void init() {
 		resourceTypeRegistry.register(new ZipCollectionType());
+		resourceTypeRegistry.register(new CompressedResourceType());
+	}
+	
+	public void add(File file, String id) {
+		try {
+			ContentResource realParent = (ContentResource)getRealParent(id); 
+			byte[] archive = realParent.getContent();
+			InputStream in = new ByteArrayInputStream(archive);
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			
+			ZipWriter writer = new ZipWriter(in, out);
+		
+			InputStream entryStream = new FileInputStream(file);
+				
+			String path = getRelativePath(realParent.getId(), id);
+			newId(path, file.getName());
+			
+			writer.add(path + file.getName(), entryStream);
+			writer.process();
+			
+			if (entryStream != null)
+				entryStream.close();
+
+			ContentResourceEdit realParentEdit = contentService().editResource(realParent.getId());
+			realParentEdit.setContent(out.toByteArray());
+			contentService().commitResource(realParentEdit);
+		} catch (Exception soe) {
+			log.error("Caught an exception trying to add a resource", soe);
+		}
 	}
 	
 	public void cancel(ContentCollectionEdit edit) {
@@ -169,6 +201,8 @@ public class ZipCHH implements ContentHostingHandler {
 		return resources;
 	}
 	
+	protected abstract String getContentHostingHandlerName();
+	
 	public ContentEntity getVirtualContentEntity(ContentEntity ce, String finalId) {
 		ContentEntity virtualEntity = null;
 		
@@ -181,7 +215,7 @@ public class ZipCHH implements ContentHostingHandler {
 		
 		String chhbeanname = realProperties.getProperty(ContentHostingHandlerResolver.CHH_BEAN_NAME);
 		
-		if (chhbeanname == null || !chhbeanname.equals("org.sakaiproject.scorm.client.api.ContentHostingHandler"))
+		if (chhbeanname == null || !chhbeanname.equals(getContentHostingHandlerName()))
 			return getRealEntity(ce.getId());
 			
 		String parentId = ce.getId();
@@ -192,15 +226,8 @@ public class ZipCHH implements ContentHostingHandler {
 			String name = (String)realProperties.get(ResourceProperties.PROP_DISPLAY_NAME);			
 			virtualEntity = makeCollection(ce, path, name);
 			
-			if (ce.getVirtualContentEntity() == null) {
-				try {
-					ContentResourceEdit cee = contentService().editResource(ce.getId());
-					cee.setVirtualContentEntity(virtualEntity);
-					contentService().commitResource(cee);
-				} catch (Exception e) {
-					log.error("Caught an exception setting the virtual entity for the parent", e);
-				}
-			}
+			ce.setContentHandler(this);
+			ce.setVirtualContentEntity(virtualEntity);
 		} else {		
 			virtualEntity = uncacheEntity(newId(parentId, path));
 
@@ -293,7 +320,7 @@ public class ZipCHH implements ContentHostingHandler {
 	}
 	
 	
-	private ContentEntity getRealEntity(String id) {
+	protected ContentEntity getRealEntity(String id) {
 		ContentEntity ce = null;
 
 		try {
@@ -358,7 +385,7 @@ public class ZipCHH implements ContentHostingHandler {
 	 * These cache/uncache methods bind objects to the 'current' request -- since the entire zip stream
 	 * would be read through several times per request otherwise, I think it makes sense to do this.
 	 */
-	private ContentEntity uncacheEntity(String key) {
+	protected ContentEntity uncacheEntity(String key) {
 		ContentEntity ce = null;
 		try {
 			ce = (ContentEntity) ThreadLocalManager.get(ENTITY_CACHE_KEY + key);
@@ -369,7 +396,7 @@ public class ZipCHH implements ContentHostingHandler {
 		return ce;
 	}
 	
-	private void cacheEntity(ContentEntity ce) {
+	protected void cacheEntity(ContentEntity ce) {
 		if (null != ce) {			
 			ThreadLocalManager.set(ENTITY_CACHE_KEY + ce.getId(), ce);
 		}
@@ -421,7 +448,7 @@ public class ZipCHH implements ContentHostingHandler {
 		return null;
 	}
 		
-	private ContentEntity extractEntity(ContentEntity realEntity, final String path) throws ServerOverloadException {
+	protected ContentEntity extractEntity(ContentEntity realEntity, final String path) throws ServerOverloadException {
 		final ContentResource cr = (ContentResource)realEntity;
 		
 		byte[] archive = cr.getContent();
