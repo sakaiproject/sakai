@@ -18,10 +18,10 @@ import org.sakaiproject.scorm.client.utils.ApiAjaxMethod;
 import org.sakaiproject.scorm.tool.ScormTool;
 
 public class ApiPanel extends Panel {
-	private static final ResourceReference API = new CompressedResourceReference(
+	public static final ResourceReference API = new CompressedResourceReference(
 			ApiPanel.class, "API.js");
 
-	private static final ResourceReference API_WRAPPER = new CompressedResourceReference(
+	public static final ResourceReference API_WRAPPER = new CompressedResourceReference(
 			ApiPanel.class, "APIWrapper.js");
 
 	private static final long serialVersionUID = 1L;

@@ -33,6 +33,19 @@
   	</filter>
 
 	<filter>
+	    <filter-name>sakai.zipentry.helper.filter</filter-name>
+	    <filter-class>org.apache.wicket.protocol.http.WicketFilter</filter-class>
+	    <init-param>
+	      	<param-name>applicationFactoryClassName</param-name>
+	      	<param-value>org.apache.wicket.spring.SpringWebApplicationFactory</param-value>
+	    </init-param>
+	    <init-param>
+			<param-name>applicationBean</param-name>
+			<param-value>zipEntryHelperWicketApplication</param-value>
+		</init-param>
+  	</filter>
+
+	<filter>
 	    <filter-name>sakai.scorm.helper.filter</filter-name>
 	    <filter-class>org.apache.wicket.protocol.http.WicketFilter</filter-class>
 	    <init-param>
@@ -58,6 +71,20 @@
 			<param-value>toolWicketApplication</param-value>
 		</init-param>
   	</filter>
+  	
+  	<filter>
+	    <filter-name>sakai.scorm.access.filter</filter-name>
+	    <filter-class>org.apache.wicket.protocol.http.WicketFilter</filter-class>
+	    
+	    <init-param>
+	      	<param-name>applicationFactoryClassName</param-name>
+	      	<param-value>org.apache.wicket.spring.SpringWebApplicationFactory</param-value>
+	    </init-param>
+	    <init-param>
+			<param-name>applicationBean</param-name>
+			<param-value>scormAccessProviderApplication</param-value>
+		</init-param>
+  	</filter>
 		
 	<filter-mapping>
 	    <filter-name>sakai.request</filter-name>
@@ -70,6 +97,22 @@
 	<filter-mapping>
     	<filter-name>sakai.ziparchive.helper.filter</filter-name>
     	<servlet-name>sakai.ziparchive.helper</servlet-name>
+    	<dispatcher>REQUEST</dispatcher>
+	    <dispatcher>FORWARD</dispatcher>
+	    <dispatcher>INCLUDE</dispatcher>
+  	</filter-mapping>	
+  	
+  	<filter-mapping>
+    	<filter-name>sakai.zipentry.helper.filter</filter-name>
+    	<servlet-name>sakai.zipentry.helper</servlet-name>
+    	<dispatcher>REQUEST</dispatcher>
+	    <dispatcher>FORWARD</dispatcher>
+	    <dispatcher>INCLUDE</dispatcher>
+  	</filter-mapping>
+  	
+  	<filter-mapping>
+    	<filter-name>sakai.scorm.access.filter</filter-name>
+    	<servlet-name>sakai.scorm.access</servlet-name>
     	<dispatcher>REQUEST</dispatcher>
 	    <dispatcher>FORWARD</dispatcher>
 	    <dispatcher>INCLUDE</dispatcher>
@@ -121,6 +164,16 @@
   		<servlet-name>sakai.ziparchive.helper</servlet-name>
   		<servlet-class>org.sakaiproject.ziparchive.helper.ZipArchiveHelperServlet</servlet-class>
   	</servlet>
+  	
+  	<servlet>
+  		<servlet-name>sakai.zipentry.helper</servlet-name>
+  		<servlet-class>org.sakaiproject.ziparchive.helper.ZipArchiveHelperServlet</servlet-class>
+  	</servlet>
+  	
+	<servlet>
+  		<servlet-name>sakai.scorm.access</servlet-name>
+  		<servlet-class>org.sakaiproject.scorm.client.ScormAccessServlet</servlet-class>
+  	</servlet>
 
 	<!--  The ToolListener causes this tool to be registered with Sakai.  -->
   	<listener>
@@ -129,6 +182,9 @@
   	<listener>
     	<listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
   	</listener>
+  	<!--listener>
+    	<listener-class>org.sakaiproject.scorm.util.ScormContextLoaderListener</listener-class>
+  	</listener-->
 
 	<!--  session-config>
 		<session-timeout>15</session-timeout>

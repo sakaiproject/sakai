@@ -12,14 +12,14 @@
 	<wicket:extend>
 	<h4 wicket:id="title">[Upload Zip Archive]</h4>
 	
-	<form wicket:id="uploadForm">
+	<form wicket:id="uploadForm" enctype="multipart/form-data">
 	 	<div id="fileInputDiv">
 	 		<span wicket:id="uploadFeedback" class="instruction"/>
 	 		
 	 		<div id="contentDiv" class="highlightPanel">
 	 			<p class="shorttext">
 			    	<label for="fileInput" wicket:id="fileToUploadLabel">[File]</label>
-			    	<input wicket:id="fileInput" id="fileInput" class="upload" type="file"/>
+			    	<input id="fileInput" class="upload" type="file"/>
 			    </p>
 			    <p class="shorttext"> 
 					<label wicket:id="displayNameLabel" for="displayName">[Display Name]</label> 

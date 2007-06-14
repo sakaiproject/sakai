@@ -22,6 +22,7 @@ package org.sakaiproject.scorm.tool;
 
 import org.adl.api.ecmascript.IErrorManager;
 import org.sakaiproject.scorm.client.api.ScormClientFacade;
+import org.sakaiproject.scorm.tool.components.ApiPanel;
 import org.sakaiproject.scorm.tool.pages.ContentFrame;
 import org.sakaiproject.scorm.tool.pages.LaunchFrameset;
 import org.sakaiproject.scorm.tool.pages.ManageContent;
@@ -32,6 +33,7 @@ import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 import org.apache.wicket.util.io.IObjectStreamFactory;
 import org.apache.wicket.util.lang.Objects;
+import org.apache.wicket.util.lang.PackageName;
 
 public class ScormTool extends WebApplication {
 	
@@ -45,10 +47,14 @@ public class ScormTool extends WebApplication {
 		getResourceSettings().setThrowExceptionOnMissingResource(true);
 		//getRequestCycleSettings().addResponseFilter(new AjaxServerAndClientTimeFilter());
 		getDebugSettings().setAjaxDebugModeEnabled(true);
-		this.mountBookmarkablePage("/pages/navigate", "nav", NavigationFrame.class);
-		this.mountBookmarkablePage("/pages/content", "content", ContentFrame.class);
-		this.mountBookmarkablePage("/pages/manage", "content", ManageContent.class);
-		this.mountBookmarkablePage("/pages/launch", "launch", LaunchFrameset.class);
+		this.mountBookmarkablePage("/scorm/navigate", "navFrame", NavigationFrame.class);
+		this.mountBookmarkablePage("/scorm/content", "contentFrame", ContentFrame.class);
+		this.mountBookmarkablePage("/scorm/manage", "contentFrame", ManageContent.class);
+		this.mountBookmarkablePage("/scorm/launch", "launch", LaunchFrameset.class);
+		this.mountSharedResource("/scorm/resource", ApiPanel.API.getSharedResourceKey());
+
+		//this.mount("/scorm", PackageName.forClass(LaunchFrameset.class));
+		
 		//this.mount("/pages", PackageName.forPackage(LaunchFrameset.class.getPackage()));
 		errorManager = clientFacade.getErrorManager();
 		Objects.setObjectStreamFactory(new IObjectStreamFactory.DefaultObjectStreamFactory());
