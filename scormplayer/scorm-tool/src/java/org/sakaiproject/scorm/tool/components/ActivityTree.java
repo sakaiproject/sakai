@@ -10,10 +10,10 @@ import org.sakaiproject.scorm.client.utils.IActivityLinkCallback;
 
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.tree.Tree;
+import org.apache.wicket.markup.html.tree.LinkTree;
 import org.apache.wicket.model.IModel;
 
-public class ActivityTree extends Tree {
+public class ActivityTree extends LinkTree {
 	private static final long serialVersionUID = 1L;
 	
 	public ActivityTree(String id) {
@@ -30,8 +30,10 @@ public class ActivityTree extends Tree {
 		super(id, model);
 	}
 	
+	
+	
 
-	@Override
+	//@Override
 	protected String renderNode(TreeNode node)
 	{
 		ISeqActivity item = (ISeqActivity)((DefaultMutableTreeNode)node).getUserObject();

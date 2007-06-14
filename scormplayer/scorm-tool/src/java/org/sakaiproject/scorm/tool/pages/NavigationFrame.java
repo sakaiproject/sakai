@@ -21,8 +21,9 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebComponent;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.html.tree.BaseTree;
 import org.apache.wicket.markup.html.tree.ITreeState;
-import org.apache.wicket.markup.html.tree.Tree;
+import org.apache.wicket.markup.html.tree.LinkTree;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.IRequestCodingStrategy;
@@ -90,16 +91,58 @@ public class NavigationFrame extends WebPage {
 		//add(new ApiPanel("api-panel"));
 		
 		String contentPackageId = pageParams.getString("contentPackage");
+		
+		if (contentPackageId != null) 		
+			contentPackageId = contentPackageId.replace(':', '/');
+		
 		final ContentPackageManifest manifest = clientFacade.getManifest(contentPackageId);
 		
 		final ISequencer sequencer = clientFacade.getSequencer(manifest);
 		TreeModel treeModel = createTreeModel(sequencer, manifest);
 		
-		final Tree tree = new ActivityTree("tree", treeModel)
+		final LinkTree tree = new LinkTree("tree", treeModel)
 		{
+			@Override
+			protected void onNodeLinkClicked(TreeNode node, BaseTree tree, AjaxRequestTarget target)
+			{
+				super.onNodeLinkClicked(node, (LinkTree)this, target);
+				
+				ISeqActivity item = (ISeqActivity)((DefaultMutableTreeNode)node).getUserObject();
+				
+				System.out.println("ID: " + item.getID() + " State ID: " + item.getStateID());
+								
+				ILaunch launch = sequencer.navigate(item.getID());
+				String sco = launch.getSco();
+				
+				ILaunchData launchData = manifest.getLaunchData(sco);
+				
+				if (null != launchData) {
+					String url = manifest.getUrl();
+					String launchLine = launchData.getLaunchLine();
+					
+					StringBuffer href = new StringBuffer().append(url);
+					
+					if (!url.endsWith(Entity.SEPARATOR) && !launchLine.startsWith(Entity.SEPARATOR))
+						href.append(Entity.SEPARATOR);
+						
+					href.append(launchLine);					
+					
+					if (null != href)
+						target.appendJavascript("parent.content.location.href='" + href.toString() + "'");
+				}
+				
+				TreeModel newTreeModel = refreshTreeModel(sequencer, manifest, item.getID());
+				if (null != newTreeModel) {
+					this.detachModel();
+					this.setModel(new Model((Serializable)newTreeModel));
+				}
+				
+				target.addComponent(this);		
+			}
+			
 			protected void onNodeLinkClicked(AjaxRequestTarget target, TreeNode node)
 			{
-				super.onNodeLinkClicked(target, node);
+				super.onNodeLinkClicked(node, (LinkTree)this, target);
 				
 				ISeqActivity item = (ISeqActivity)((DefaultMutableTreeNode)node).getUserObject();
 				

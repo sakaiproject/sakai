@@ -36,6 +36,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
+import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -66,7 +67,7 @@ public class UploadForm extends Form {
 	@SpringBean
 	ScormClientFacade clientFacade;
 	
-	private FileUpload fileInput;
+	//private FileUpload fileInput;
 	private FileItem fileItem;
 	private String displayName;
 	private String description;
@@ -87,7 +88,7 @@ public class UploadForm extends Form {
 		this.setModel(model);
 		
 		// All upload forms need to be encrypted as multipart/form-data
-		setMultiPart(true);
+		//setMultiPart(true);
 		// We need to establish the largest file allowed to be uploaded
 		setMaxSize(Bytes.megabytes(findMaxFileUploadSize()));	
 		
@@ -118,9 +119,7 @@ public class UploadForm extends Form {
 		add(newResourceLabel("fileToUploadLabel", this));
 		add(newResourceLabel("displayNameLabel", this));
 		add(new TextField("displayName"));
-		add(new FileUploadField("fileInput"));
-		//add(new CheckBox("dontValidateSchema"));
-		//add(newResourceLabel("validateSchemaCaption", this));
+		//add(new FileUploadField("fileInput"));
 		add(detailsPanel);
 		add(showDetailsLink);
 		add(new Button("submitUpload"));
@@ -193,8 +192,8 @@ public class UploadForm extends Form {
 		
 		IValidatorOutcome outcome = validate(contentPackage, !getDontValidateSchema());
 		
-		if (null == outcome)
-			return;
+		//if (null == outcome)
+		//	return;
 		
 		String url = clientFacade.getCompletionURL();		
 		exit(url);
@@ -210,7 +209,7 @@ public class UploadForm extends Form {
 		return (File)((WebRequest)getRequest()).getHttpServletRequest().getSession().getServletContext().getAttribute("javax.servlet.context.tempdir");
 	}
 	
-	private File getFile(FileItem fileItem) {
+	protected File getFile(FileItem fileItem) {
 		if (null == fileItem) {
 			notify("noFile");
 			return null;
@@ -227,6 +226,8 @@ public class UploadForm extends Form {
         
 		File file = new File(getDirectory(), filename);
 
+		System.out.println("FILE IS: " + file.getAbsolutePath());
+		
 		byte[] bytes = fileItem.get();
 		
 		InputStream in = null;
@@ -262,6 +263,12 @@ public class UploadForm extends Form {
 		return file;
 	}
 		
+	protected void onComponentTag(final ComponentTag tag)
+	{
+		super.onComponentTag(tag);
+		setMultiPart(false);
+	}
+	
 	
 	/*protected void onSubmit()
 	{	
@@ -353,20 +360,21 @@ public class UploadForm extends Form {
 	}
 
 	public String getDisplayName() {
-		return ((WebRequest)getRequest()).getHttpServletRequest().getParameter("displayName");
+		//return ((WebRequest)getRequest()).getHttpServletRequest().getParameter("displayName");
+		return displayName;
 	}
 
 	public void setDisplayName(String displayName) {
 		this.displayName = displayName;
 	}
 
-	public FileUpload getFileInput() {
+	/*public FileUpload getFileInput() {
 		return fileInput;
 	}
 
 	public void setFileInput(FileUpload fileUpload) {
 		this.fileInput = fileUpload;
-	}
+	}*/
 
 	public String getUserCopyright() {
 		return ((WebRequest)getRequest()).getHttpServletRequest().getParameter("userCopyright");

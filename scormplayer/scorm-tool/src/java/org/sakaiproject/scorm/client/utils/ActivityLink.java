@@ -15,7 +15,7 @@ import org.apache.wicket.ajax.markup.html.IAjaxLink;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.markup.html.tree.Tree;
+import org.apache.wicket.markup.html.tree.LinkTree;
 import org.apache.wicket.util.string.Strings;
 
 public class ActivityLink extends ExternalLink implements IAjaxLink {

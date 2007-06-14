@@ -1,21 +1,27 @@
 package org.sakaiproject.scorm.client.components;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
 import org.apache.wicket.extensions.markup.html.form.select.Select;
+import org.apache.wicket.extensions.markup.html.form.select.SelectOption;
 import org.apache.wicket.markup.html.form.CheckBox;
+import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.scorm.client.ClientPanel;
 
 public class DetailsPanel extends ClientPanel {
@@ -30,37 +36,52 @@ public class DetailsPanel extends ClientPanel {
 	});
 	
 	private String selectedCopyrightType;
-	
-	/*<option value="Material is in public domain.">Material is in public domain.</option>
-	<option value="I hold copyright.">I hold copyright.</option>
-	<option value="Material is subject to fair use exception.">Material is subject to fair use exception.</option>
-	<option value="I have obtained permission to use this material.">I have obtained permission to use this material.</option>
-
-	<option value="Copyright status is not yet determined.">Copyright status is not yet determined.</option>
-	<option value="Use copyright below.">Use copyright below.</option>*/
-	
-	private Form form;
-	
-	public DetailsPanel(String id, Form form, IModel model) {
+			
+	public DetailsPanel(String id, final Form form, IModel model) {
 		super(id, model);
-		this.form = form;
 		
 		FormComponent descriptionInput = new TextArea("description");
-		Select copyrightInput = new Select("copyright");
-		DropDownChoice choice = new DropDownChoice("ddc", new PropertyModel(this, "selectedCopyrightType"), copyrightTypes);
-		FormComponent copyrightAlertCheckbox = new CheckBox("copyrightAlert");
+		PropertyModel selectionModel = new PropertyModel(this, "selectedCopyrightType");
 		
-		/*MarkupContainer includeCopyright = new MarkupContainer("includeCopyright") {
-			private static final long serialVersionUID = 1L;
-
-			public String getMarkupType() {
-				return "div";
-			}
-		};*/
+		ChoiceRenderer choiceRenderer = new ChoiceRenderer("displayText", "id");
+		
+		FormComponent copyrightAlertCheckbox = new CheckBox("copyrightAlert");
 		
 		final UserCopyrightPanel userCopyrightPanel = new UserCopyrightPanel("includeCopyright", form, model);
 		userCopyrightPanel.setVisible(false);
 		add(userCopyrightPanel);
+		
+		
+		DetailSelectOption[] options = new DetailSelectOption[] {
+			new DetailSelectOption("copyrightType.publicDomainOption", this),
+			new DetailSelectOption("copyrightType.userOwnedOption", this),
+			new DetailSelectOption("copyrightType.fairUseOption", this),
+			new DetailSelectOption("copyrightType.permissionObtainedOption", this),
+			new DetailSelectOption("copyrightType.undeterminedStatus", this),
+			new DetailSelectOption("copyrightType.useCopyrightOption", this)
+		};
+		
+		final DropDownChoice choice = new DropDownChoice("copyrightType", selectionModel, Arrays.asList(options), choiceRenderer);
+		
+		choice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+            protected void onUpdate(AjaxRequestTarget target) {
+            	
+            	System.out.println("onUpdate: " + selectedCopyrightType);
+            	
+            	target.appendJavascript("alert('hello new world');");
+            	
+            	if (selectedCopyrightType.equals("copyrightType.useCopyrightOption")) {
+            		userCopyrightPanel.setVisible(!userCopyrightPanel.isVisible());
+	                target.appendJavascript("setMainFrameHeight( window.name )");
+            	}
+
+                target.addComponent(form);
+            }
+        });
+		
+		
+		
+		
 		
 		/*DropDownChoice choice = new DropDownChoice("ddc", copyrightTypes) {
 			protected void onSelectionChanged(final Object newSelection) {
@@ -108,7 +129,7 @@ public class DetailsPanel extends ClientPanel {
 		add(newResourceLabel("descriptionLabel", this));
 		add(descriptionInput);
 		add(newResourceLabel("copyrightLabel", this));
-		add(copyrightInput);
+		add(choice);
 		//add(includeCopyright);
 		add(newResourceLabel("copyrightAlertLabel", this));
 		add(newResourceLabel("copyrightAlertCaption", this));
@@ -122,5 +143,27 @@ public class DetailsPanel extends ClientPanel {
 	public void setSelectedCopyrightType(String selectedCopyrightType) {
 		this.selectedCopyrightType = selectedCopyrightType;
 	}
-
+	
+	public class DetailSelectOption implements Serializable {
+		private String id;
+		private StringResourceModel model;
+		
+		public DetailSelectOption(String id, Component parent) {
+			this.id = id;
+			this.model = new StringResourceModel(id, parent, null);
+		}
+		
+		public String getId() {
+			return id;
+		}
+		
+		public String getDisplayText() {
+			return model.getString();
+		}
+		
+	}
+	
+	
 }
+
+

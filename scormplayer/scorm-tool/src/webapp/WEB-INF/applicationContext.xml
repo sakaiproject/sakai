@@ -22,5 +22,22 @@
 		</property>
     </bean>
     
-
+    <bean id="zipEntryHelperWicketApplication" class="org.sakaiproject.ziparchive.helper.ZipEntryHelper">
+		<property name="clientFacade">
+			<ref bean="org.sakaiproject.scorm.client.api.ScormClientFacade"/>
+		</property>
+    </bean>
+    
+    <!--bean id="scormAccessProvider" class="org.sakaiproject.scorm.client.ScormAccessProvider"
+    	init-method="init"
+    	singleton="true">
+    	<property name="webApplication"><ref bean="scormAccessProviderApplication"/></property>
+    	<property name="providerManager"><ref bean="org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager"/></property>
+    </bean-->
+    
+    <bean id="scormAccessProviderApplication" class="org.sakaiproject.scorm.client.ScormAccessProviderApplication">
+    	<property name="providerManager"><ref bean="org.sakaiproject.entitybroker.access.HttpServletAccessProviderManager"/></property>
+    </bean>
+    
+    
 </beans>

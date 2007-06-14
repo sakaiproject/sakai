@@ -88,7 +88,7 @@ public abstract class ApiAjaxMethod extends AjaxFormSubmitBehavior {
 		AppendingStringBuffer call = new AppendingStringBuffer("apiCall('").append(
 				formId).append("', '").append(url).append("'");
 
-		return getCallbackScript(call, null, null) + ";";
+		return generateCallbackScript(call) + ";";
 	}
 	
 	@Override
