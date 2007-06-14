@@ -8,8 +8,10 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.ContentEntity;
+import org.sakaiproject.content.api.ContentHostingHandlerResolver;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 
@@ -17,6 +19,10 @@ public class FastZipCHH extends ZipCHH {
 	protected static final String VIRTUAL_FS_CACHE_KEY = "scormCHHVirtualFileSystem@";
 	
 	private static Log log = LogFactory.getLog(FastZipCHH.class);
+	
+	protected String getContentHostingHandlerName() {
+		return "org.sakaiproject.scorm.content.api.ZipCHH";
+	}	
 	
 	protected int countChildren(ContentEntity parent, int depth) {
 		ContentResource realParent = (ContentResource) getRealParent(parent.getId());

@@ -19,14 +19,10 @@ import org.sakaiproject.content.util.BaseInteractionAction;
 import org.sakaiproject.content.util.BaseServiceLevelAction;
 import org.sakaiproject.entity.api.ResourceProperties;
 
-public class ZipCollectionType implements ExpandableResourceType {	
+public class ZipCollectionType extends BaseResourceType implements ExpandableResourceType {	
 	public static final String ZIP_COLLECTION_LABEL="Zip Archive";
 	public static final String ZIP_COLLECTION_TYPE_ID="org.sakaiproject.content.types.zipArchive";
 	public static final String ZIP_UPLOAD_HELPER_ID="sakai.ziparchive.helper";
-	
-	private EnumMap<ResourceToolAction.ActionType, List<ResourceToolAction>> actionMap =
-	      new EnumMap<ResourceToolAction.ActionType, List<ResourceToolAction>>(ResourceToolAction.ActionType.class);
-	private Map<String, ResourceToolAction> actions = new Hashtable<String, ResourceToolAction>();
 	
 	public ZipCollectionType() {
 		List<String> requiredKeys = new ArrayList<String>();
@@ -141,47 +137,16 @@ public class ZipCollectionType implements ExpandableResourceType {
 		return ZIP_COLLECTION_LABEL;
 	}
 
-	public boolean hasAvailabilityDialog() {
-		return false;
-	}
-
-	public boolean hasDescription() {
-		return false;
-	}
-
-	public boolean hasGroupsDialog() {
-		return true;
-	}
-
-	public boolean hasNotificationDialog() {
-		return false;
-	}
-
-	public boolean hasOptionalPropertiesDialog() {
-		return false;
-	}
-
-	public boolean hasPublicDialog() {
-		return true;
-	}
-
-	public boolean hasRightsDialog() {
-		return false;
-	}
+	public String getLocalizedHoverText(ContentEntity entity, boolean expanded) {
+		return ZIP_COLLECTION_LABEL;
+	}	
 
 	public boolean isExpandable() {
 		return true;
 	}
 
-	
-	protected List<ResourceToolAction> makeList(ResourceToolAction create) {
-	      List<ResourceToolAction> returned = new ArrayList<ResourceToolAction>();
-	      returned.add(create);
-	      return returned;
-	}
-
 	public boolean allowAddAction(ResourceToolAction action, ContentEntity entity) {
-		return action.getTypeId().equals(ZIP_COLLECTION_TYPE_ID);
+		return action.getTypeId().equals(CompressedResourceType.COMPRESSED_ITEM_TYPE_ID);
 	}
 
 	public ServiceLevelAction getCollapseAction() {
@@ -191,8 +156,4 @@ public class ZipCollectionType implements ExpandableResourceType {
 	public ServiceLevelAction getExpandAction() {
 		return (ServiceLevelAction) this.actions.get(ResourceToolAction.EXPAND);
 	}
-
-	public String getLocalizedHoverText(ContentEntity entity, boolean expanded) {
-		return ZIP_COLLECTION_LABEL;
-	}	
 }
