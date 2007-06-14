@@ -20,5 +20,9 @@ public interface ScormContentService {
 	
 	public IValidatorOutcome validateContentPackage(File contentPackage, boolean doValidateSchema);
 	
+	public void uploadZipArchive(File zipArchive);
 	
+	public String identifyZipArchive();
+	
+	//public void uploadZipEntry(File zipEntry, String path);
 }

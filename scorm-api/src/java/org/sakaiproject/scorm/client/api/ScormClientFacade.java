@@ -51,6 +51,11 @@ public interface ScormClientFacade extends EntityProducer, Serializable {
 	
 	public ISequencer getSequencer(ContentPackageManifest manifest);
 	
+	public void uploadZipArchive(File zipArchive);
+	
+	public String identifyZipArchive();
+	
+	//public void uploadZipEntry(File zipEntry, String path);
 	
 	public ContentPackageManifest getManifest(String id);
 	
