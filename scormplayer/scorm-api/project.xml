@@ -35,6 +35,16 @@
 		</dependency>
 		<dependency>
 			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-entitybroker-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-component</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>sakaiproject</groupId>
 			<artifactId>sakai-component-api</artifactId>
 			<version>${sakai.version}</version>
 		</dependency>
@@ -64,6 +74,24 @@
 			<version>${sakai.version}</version>
 		</dependency>
 
+
+		<dependency>
+			<groupId>servletapi</groupId>
+			<artifactId>servletapi</artifactId>
+			<version>2.4</version>
+			<url>http://java.sun.com/products/servlet/</url>
+		</dependency>
+
+		<dependency>
+			<groupId>${sakai.spring.groupId}</groupId>
+			<artifactId>${sakai.spring.artifactId}</artifactId>
+			<version>${sakai.spring.version}</version>
+			<url>http://www.springframework.org</url>
+			<properties>
+				<!-- deploy dependency jar to "shared", "common" or "server": use <war.bundle>true</war.bundle> to include in war -->
+				<deploy.target>shared</deploy.target>
+			</properties>
+		</dependency>
 	</dependencies>
 
 	<build>
