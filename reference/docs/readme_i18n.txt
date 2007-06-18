@@ -108,7 +108,9 @@ languages, as follows:
 17) Russian
     Status: ??
     Translated by: n/a
-    Contact: Alexander Glebovsky (glebovsky@rambler.ru)
+    Contact: Alexander Glebovsky (glebovsky@rambler.ru) 1/06
+             Philip Fedchin (philip@smolny.org) 4/07
+             Sergey Belyakov (s.belyakov@gmail.com) 6/07
     Local ID: ru_RU
 
 18) German
