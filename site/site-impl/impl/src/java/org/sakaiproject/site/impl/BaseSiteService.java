@@ -1576,8 +1576,6 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 						description = site.getTitle();
 					}
 
-					// make it safe for html
-					description = Validator.escapeHtml(description);
 					out.println(description);
 					out.println("</div></body></html>");
 				}

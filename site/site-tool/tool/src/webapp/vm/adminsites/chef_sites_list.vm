@@ -54,7 +54,7 @@
 							$tlang.getString("sitlis.des2")
 						</div>
 						<div class="indnt2">
-							$validator.escapeHtml($site.Description)
+							$site.Description
 						</div>
 					#end	
 					#if ($site.IconUrl && $site.IconUrl !="")
