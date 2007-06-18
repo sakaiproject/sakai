@@ -141,12 +141,12 @@
                                                #if ($desc)
 		                                               #if ($desc.length() > 85)
 		                                                       #set ($desc = $desc.substring(0, 85))
-		                                                       $validator.escapeHtml($desc)...
+		                                                       $desc...
 		                                               #else
 		                                               		#if ($desc.equals(""))
 		                                               				&nbsp;
 		                                               		#else
-		                                                       		$validator.escapeHtml($desc)
+		                                                       		$desc
 		                                                    #end
 		                                               #end
                                                #else

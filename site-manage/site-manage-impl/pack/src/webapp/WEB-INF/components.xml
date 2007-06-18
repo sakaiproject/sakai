@@ -3,11 +3,11 @@
 
 <beans>
 
-	<bean id="org.sakaiproject.sitemanage.api.SectionFieldManager"
+<!--	<bean id="org.sakaiproject.sitemanage.api.SectionFieldManager"
 			class="org.sakaiproject.sitemanage.impl.SectionFieldManagerImpl"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
-	</bean>
+	</bean>-->
 
 </beans>

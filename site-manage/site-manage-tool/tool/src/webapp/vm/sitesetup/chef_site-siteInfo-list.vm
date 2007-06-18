@@ -50,7 +50,7 @@
 				$tlang.getString("sitegen.siteinfolist.sitedes")
 			</th>
 			<td>
-				$validator.escapeHtml($!siteDescription)
+				$!siteDescription
 			</td>
 		</tr>
 		#if ($!isCourseSite)

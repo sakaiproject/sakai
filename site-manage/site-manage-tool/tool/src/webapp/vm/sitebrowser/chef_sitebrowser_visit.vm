@@ -47,7 +47,7 @@
 	#end
 	#set ($sdesc = $site.Description)
 	#if ($sdesc && ($sdesc.length() > 0))
-		<p class="indnt1">$validator.escapeHtml($sdesc)</p>
+		<p class="indnt1">$sdesc</p>
 	#end
 	<h4>$tlang.getString("vi.public")</h4>
 	#if ($announcements.size() > 0)

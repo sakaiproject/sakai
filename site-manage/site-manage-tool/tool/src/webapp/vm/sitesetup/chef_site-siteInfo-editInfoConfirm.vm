@@ -37,9 +37,9 @@
 				</th>
 				<td>
 					#if (!$!description.equals($!oDescription))
-						<span class="highlight">$validator.escapeHtml($!description)</span>
+						<span class="highlight">$!description</span>
 					#else
-						$validator.escapeHtml($!description)
+						$!description
 					#end
 				</td>					
 			</tr>
