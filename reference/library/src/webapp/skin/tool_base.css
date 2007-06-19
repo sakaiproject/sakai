@@ -120,8 +120,8 @@ code {
 /*format the th - since jsf cannot do <th> vertically in a column,
  certain tds are classed (header) in jsf based tools to render the same as the th*/
 .itemSummary th, .itemSummary td.header, .itemSummaryLite td.header{
-	font-weight: normal;
-	font-family: Arial,Helvetica,sans-serif;
+	font-weight: bold;
+	color: #555;
 	white-space: nowrap;
 	vertical-align: top;
 	text-align: left;
