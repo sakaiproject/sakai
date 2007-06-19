@@ -15,8 +15,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 <!--[if gt IE 6.0]>
 <style type="text/css">
 	 ul.makeMenu ul{top: 10px !important}
-	 ul.makeMenu {border:none }
-	 ul.makeMenu:hover {border:none }
+	 .attach{width:auto !important}
 </style>
 <![endif]-->
 
