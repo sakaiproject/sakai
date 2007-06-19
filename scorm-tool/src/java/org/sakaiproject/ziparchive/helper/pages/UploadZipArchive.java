@@ -32,12 +32,13 @@ public class UploadZipArchive extends ClientPage {
 				
 				File zipArchive = getFile(fileItem);
 				
-				if (zipArchive != null) {
+				if (zipArchive != null && zipArchive.exists()) {
 					clientFacade.uploadZipArchive(zipArchive);
 					
 					String url = clientFacade.getCompletionURL();
+					System.out.println("Redirecting to " + url);
 					this.exit(url);
-				}
+				} 
 			}
 		};
 		form.setOutputMarkupId(true); 
