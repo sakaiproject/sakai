@@ -49,8 +49,9 @@ div.portletpresence {
     z-index: 2;
 }
 
+/* gsilver: comment out - it is hiding from all UA, not just pda */
 #presenceTitle{
-	display:none;
+	/* display:none; */
 }
 
 div.portletpresencewrapper {
