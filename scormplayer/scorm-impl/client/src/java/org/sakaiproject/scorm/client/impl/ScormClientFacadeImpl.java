@@ -192,21 +192,15 @@ public class ScormClientFacadeImpl implements ScormClientFacade {
 	public String getCompletionURL() {
 		ToolSession toolSession = sessionManager().getCurrentToolSession();
 		
-		Object done = toolSession.getAttribute(ResourceToolAction.DONE);
+		toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
+		toolSession.removeAttribute(ResourceToolAction.STARTED);
+		Tool tool = toolManager().getCurrentTool();
 		
-		if (done != null)
-		{
-			toolSession.removeAttribute(ResourceToolAction.STARTED);
-			Tool tool = toolManager().getCurrentTool();
-		
-			String url = (String) sessionManager().getCurrentToolSession().getAttribute(tool.getId() + Tool.HELPER_DONE_URL);
-		
-			sessionManager().getCurrentToolSession().removeAttribute(tool.getId() + Tool.HELPER_DONE_URL);
-		
-			return url;
-		}
-		
-		return null;
+		String url = (String) sessionManager().getCurrentToolSession().getAttribute(tool.getId() + Tool.HELPER_DONE_URL);
+	
+		sessionManager().getCurrentToolSession().removeAttribute(tool.getId() + Tool.HELPER_DONE_URL);
+			
+		return url;
 	}
 	
 	
