@@ -807,9 +807,14 @@
 												<span class="itemAction"><a href="#toolLinkParam("AnnouncementAction" "doReviseannouncement" "itemReference=$validator.escapeUrl($ann_item.reference)")" title="$tlang.getString("gen.editann") $validator.escapeHtml($ann_item.Header.subject)">$tlang.getString("gen.revise")</a>
 											#end
 											$separator 
+											#set ($ref = $entityManager.newReference($ann_item.Reference))
+											#set($origChannelRef=false)
+											#set ($origChannelRef = $service.channelReference($ref.Context,$ref.Container)) 
 											#if ($channel.allowRemoveMessage($ann_item.Message))
-											<a href="#toolLinkParam("AnnouncementAction" "doDelete_announcement_link" "itemReference=$validator.escapeUrl($ann_item.reference)")" 	title="$tlang.getString("gen.removeann") $validator.escapeHtml($ann_item.Header.subject)">$tlang.getString("gen.delete")</a>
-											#end
+													#if ($origChannelRef.equals($channel.Reference))
+														<a href="#toolLinkParam("AnnouncementAction" "doDelete_announcement_link" "itemReference=$validator.escapeUrl($ann_item.reference)")" 	title="$tlang.getString("gen.removeann") $validator.escapeHtml($ann_item.Header.subject)">$tlang.getString("gen.delete")</a>
+													#end
+												#end
 											</span>
 										</td>
 									#if ($displayOptions.isShowAnnouncementBody())
