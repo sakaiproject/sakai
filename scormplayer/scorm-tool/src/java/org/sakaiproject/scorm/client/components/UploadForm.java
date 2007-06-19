@@ -25,8 +25,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.adl.validator.IValidatorOutcome;
 import org.apache.commons.fileupload.FileItem;
@@ -128,7 +131,9 @@ public class UploadForm extends Form {
 			
 			public void onSubmit()
 			{
-				exit(clientFacade.getCompletionURL());
+				String url = clientFacade.getCompletionURL();
+				System.out.println("Cancel: Redirect to " + url);
+				exit(url);
 			}
 		}.setDefaultFormProcessing(false);
 		cancelButton.setOutputMarkupId(true);
@@ -202,6 +207,8 @@ public class UploadForm extends Form {
 	public void exit(String url) {
 		if (null != url) {
 			getRequestCycle().setRequestTarget(new RedirectRequestTarget(url));
+		
+			
 		}
 	}
 	
@@ -210,15 +217,17 @@ public class UploadForm extends Form {
 	}
 	
 	protected File getFile(FileItem fileItem) {
-		if (null == fileItem) {
+		if (null == fileItem || fileItem.getSize() <= 0) {
 			notify("noFile");
 			return null;
 		}
 		
+
 		if (!CONTENT_TYPE_APPLICATION_ZIP.equals(fileItem.getContentType())) {
 			notify("wrongContentType");
 		}
-		
+
+
 		String filename = fileItem.getName();
         
         if (null != getDisplayName() && getDisplayName().trim().length() > 0)
@@ -232,7 +241,7 @@ public class UploadForm extends Form {
 		
 		InputStream in = null;
 		FileOutputStream out = null;
-		
+				
 		try {
 			if (null == bytes) {
 				in = fileItem.getInputStream();
@@ -247,7 +256,8 @@ public class UploadForm extends Form {
 			
 			while ((length = in.read(buffer)) > 0) {  
     			out.write(buffer, 0, length);
-            }
+			}
+			
 			
 		} catch (IOException ioe) {
 			log.error("Caught an io exception retrieving the uploaded content package!", ioe);
@@ -260,13 +270,13 @@ public class UploadForm extends Form {
 				}
 		}
 		
+		
 		return file;
 	}
 		
-	protected void onComponentTag(final ComponentTag tag)
+	public void setMultiPart(boolean mtiPart)
 	{
-		super.onComponentTag(tag);
-		setMultiPart(false);
+		super.setMultiPart(false);
 	}
 	
 	
@@ -336,7 +346,8 @@ public class UploadForm extends Form {
 	}
 
 	public String getCopyright() {
-		return ((WebRequest)getRequest()).getHttpServletRequest().getParameter("copyright");
+		//return ((WebRequest)getRequest()).getHttpServletRequest().getParameter("copyright");
+		return copyright;
 	}
 
 	public void setCopyright(String copyright) {
@@ -344,7 +355,8 @@ public class UploadForm extends Form {
 	}
 
 	public boolean getCopyrightAlert() {
-		return Boolean.valueOf(((WebRequest)getRequest()).getHttpServletRequest().getParameter("copyrightAlert"));
+		//return Boolean.valueOf(((WebRequest)getRequest()).getHttpServletRequest().getParameter("copyrightAlert"));
+		return copyrightAlert;
 	}
 
 	public void setCopyrightAlert(boolean copyrightAlert) {
@@ -352,7 +364,8 @@ public class UploadForm extends Form {
 	}
 	
 	public String getDescription() {
-		return ((WebRequest)getRequest()).getHttpServletRequest().getParameter("description");
+		//return ((WebRequest)getRequest()).getHttpServletRequest().getParameter("description");
+		return description;
 	}
 
 	public void setDescription(String description) {
@@ -377,7 +390,8 @@ public class UploadForm extends Form {
 	}*/
 
 	public String getUserCopyright() {
-		return ((WebRequest)getRequest()).getHttpServletRequest().getParameter("userCopyright");
+		//return ((WebRequest)getRequest()).getHttpServletRequest().getParameter("userCopyright");
+		return userCopyright;
 	}
 
 	public void setUserCopyright(String userCopyright) {
@@ -385,12 +399,13 @@ public class UploadForm extends Form {
 	}
 
 	public boolean getDontValidateSchema() {
-		String dontValidateString = ((WebRequest)getRequest()).getHttpServletRequest().getParameter("dontValidateSchema");
+		/*String dontValidateString = ((WebRequest)getRequest()).getHttpServletRequest().getParameter("dontValidateSchema");
 		Boolean dontValidate = Boolean.valueOf(((WebRequest)getRequest()).getHttpServletRequest().getParameter("dontValidateSchema"));
 
 		if (null == dontValidate)
 			return dontValidateSchema;
-		return dontValidate;
+		return dontValidate;*/
+		return dontValidateSchema;
 	}
 
 	public void setDontValidateSchema(boolean dontValidateSchema) {
