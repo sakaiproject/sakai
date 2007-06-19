@@ -56,7 +56,7 @@
 					$tlang.getString("newsc.descr")
 				</th>
 				<td>
-					$validator.escapeHtml($description)
+					$description
 				</td>
 			</tr>
 			<tr>

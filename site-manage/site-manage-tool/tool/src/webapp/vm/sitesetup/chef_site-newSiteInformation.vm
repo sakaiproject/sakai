@@ -130,7 +130,16 @@
 			<label for="description" class="block">
 				$tlang.getString("sinfo.descr")
 			</label>
-			<textarea  name="description" id="description" rows="5" cols="40" wrap="virtual">$validator.escapeHtmlTextarea($form_description)</textarea>
+			<table border="0" cellpadding="0" cellspacing="0" >
+					<tr>
+						<td>
+							<textarea name="description" id="description" cols="65" rows="30" wrap="virtual">$validator.escapeHtmlFormattedTextarea($!form_description)</textarea>
+							#chef_setupformattedtextarea("description")
+						</td>
+					</tr>
+			</table>		
+			<span class="instruction">
+			
 			<br /><span class="instruction">
 				$tlang.getString("sinfo.display")
 			</span>
