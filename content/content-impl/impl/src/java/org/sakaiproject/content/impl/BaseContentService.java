@@ -2354,6 +2354,27 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		}
 	}
 
+	protected void cacheEntities(List entities)
+    {
+		if(entities == null)
+		{
+			return;
+		}
+		
+		for(ContentEntity entity : (List<ContentEntity>) entities)
+		{
+			String ref = entity.getReference();
+			if(entity instanceof ContentResource)
+			{
+				ThreadLocalManager.set("findResource@" + ref, entity);
+			}
+			else if(entity instanceof ContentCollection)
+			{
+				ThreadLocalManager.set("findCollection@" + ref, entity);
+			}
+		}
+    }
+
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Resources
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -9330,27 +9351,6 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			return mbrs;
 
 		} // getMemberResources
-
-		protected void cacheEntities(List entities)
-        {
-			if(entities == null)
-			{
-				return;
-			}
-			
-			for(ContentEntity entity : (List<ContentEntity>) entities)
-			{
-				String ref = entity.getReference();
-				if(entity instanceof ContentResource)
-				{
-					ThreadLocalManager.set("findResource@" + ref, entity);
-				}
-				else if(entity instanceof ContentCollection)
-				{
-					ThreadLocalManager.set("findCollection@" + ref, entity);
-				}
-			}
-        }
 
 		protected List copyEntityList(List entities)
         {
