@@ -9673,7 +9673,17 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		public int getMemberCount() 
 		{
-			int count = m_storage.getMemberCount(this.m_id);
+			int count = 0;
+			Integer countObj = (Integer) ThreadLocalManager.get("getMemberCount@" + this.m_id);
+			if(countObj == null)
+			{
+				count = m_storage.getMemberCount(this.m_id);
+				ThreadLocalManager.set("getMemberCount@" + this.m_id, new Integer(count));
+			}
+			else
+			{
+				count = countObj.intValue();
+			}
 			return count;
 		}
 
