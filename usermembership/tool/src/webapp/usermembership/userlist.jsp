@@ -93,7 +93,7 @@
 		                <h:outputText value="#{msgs.user_id}"/>		                
 		            </t:commandSortHeader>
 		        </f:facet>		  
-		        <h:commandLink action="#{SiteListBean.processActionUserId}" value="#{row.userEID}">
+		        <h:commandLink action="#{SiteListBean.processActionUserId}" value="#{row.userDisplayId}">
 					<f:param name="userId" value="#{row.userID}"/>
 				</h:commandLink>      
 			</h:column>

@@ -114,6 +114,7 @@ public class UserListBean {
 		private static final long	serialVersionUID	= 1L;
 		private String				userID;
 		private String				userEID;
+		private String				userDisplayId; 
 		private String				userName;
 		private String				userEmail;
 		private String				userType;
@@ -122,9 +123,10 @@ public class UserListBean {
 		public UserRow() {
 		}
 
-		public UserRow(String userID, String userEID, String userName, String userEmail, String userType, String authority) {
+		public UserRow(String userID, String userEID, String userDisplayId, String userName, String userEmail, String userType, String authority) {
 			this.userID = userID;
 			this.userEID = userEID;
+			this.userDisplayId = userDisplayId;
 			this.userName = userName;
 			this.userEmail = userEmail;
 			this.userType = userType;
@@ -143,6 +145,11 @@ public class UserListBean {
 			return this.userEID;
 		}
 
+		public String getUserDisplayId()
+		{
+			return this.userDisplayId;
+		}
+		
 		public String getUserName() {
 			return this.userName;
 		}
@@ -158,6 +165,7 @@ public class UserListBean {
 		public void setUserRow(UserRow row, String authority) {
 			this.userID = row.getUserID();
 			this.userEID = row.getUserEID();
+			this.userDisplayId = row.getUserDisplayId();
 			this.userName = row.getUserName();
 			this.userEmail = row.getUserEmail();
 			this.userType = row.getUserType();
@@ -288,7 +296,8 @@ public class UserListBean {
 						String f = rs.getString("FIRST_NAME");
 						String l = rs.getString("LAST_NAME");
 						String t = rs.getString("TYPE");
-						userRows.add(new UserRow(id, eid, getFullName(f, l), e, t, USER_AUTH_INTERNAL));
+						// For internal users, making the assumption that eid will do for displayId
+						userRows.add(new UserRow(id, eid, eid, getFullName(f, l), e, t, USER_AUTH_INTERNAL));
 					}
 					rs.close();
 					st.close();
@@ -325,6 +334,7 @@ public class UserListBean {
 				// 3. Get info and filter external users from UserDirectoryProvider
 				String id;
 				String eid;
+				String dispId; 
 				String e;
 				String n;
 				String t;
@@ -337,6 +347,7 @@ public class UserListBean {
 					User u = (User) it.next();
 					id = u.getId();
 					eid = u.getEid();
+					dispId = u.getDisplayId();
 					e = u.getEmail();
 					n = getFullName(u.getFirstName(), u.getLastName());
 					t = u.getType();
@@ -355,7 +366,7 @@ public class UserListBean {
 					}else{
 						add = true;
 					}
-					if(add) userRows.add(new UserRow(id, eid, n, e, t, USER_AUTH_EXTERNAL));
+					if(add) userRows.add(new UserRow(id, eid, dispId, n, e, t, USER_AUTH_EXTERNAL));
 				}
 			}
 		}catch(Exception e){

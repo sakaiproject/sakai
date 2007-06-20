@@ -25,7 +25,7 @@
 	</f:subview>
 
 	<h:form id="sitelistform" rendered="#{SiteListBean.allowed}">
-		<h3><h:outputText value="#{msgs.title_sitelist} (#{SiteListBean.userEid})"/></h3>
+		<h3><h:outputText value="#{msgs.title_sitelist} (#{SiteListBean.userDisplayId})"/></h3>
 		<sakai:instruction_message value="#{msgs.instructions_sitelist}" />
 
 		<t:dataTable

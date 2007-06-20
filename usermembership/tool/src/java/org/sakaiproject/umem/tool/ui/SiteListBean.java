@@ -522,9 +522,9 @@ public class SiteListBean {
 		return !isEmptySiteList();
 	}
 
-	public String getUserEid() {
+	public String getUserDisplayId() {
 		try{
-			return UserDirectoryService.getUserEid(userId);
+			return UserDirectoryService.getUser(userId).getDisplayId();
 		}catch(UserNotDefinedException e){
 			return userId;
 		}
@@ -554,7 +554,7 @@ public class SiteListBean {
 	// CSV export
 	// ######################################################################################
 	public void exportAsCsv(ActionEvent event) {
-		String prefix = "Membership_for_"+getUserEid();
+		String prefix = "Membership_for_"+getUserDisplayId();
 		Export.writeAsCsv(getAsCsv(userSitesRows), prefix);
 	}
 
