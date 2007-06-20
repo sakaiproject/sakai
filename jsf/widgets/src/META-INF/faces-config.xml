@@ -354,8 +354,14 @@
         <renderer-type>org.sakaiproject.JsfContentTypeMap</renderer-type>
         <renderer-class>org.sakaiproject.jsf.renderer.JsfContentTypeMapRenderer</renderer-class>
     </renderer>
-    
-   </render-kit>
+
+    <renderer>
+    	<component-family>javax.faces.Output</component-family>
+    	<renderer-type>org.sakaiproject.SeparatedList</renderer-type>
+    	<renderer-class>org.sakaiproject.jsf.renderer.SeparatedListRenderer</renderer-class>
+    </renderer>
+
+  </render-kit>
 
   <!-- =================== Converters ============== -->
 
