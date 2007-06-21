@@ -43,6 +43,12 @@
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>${sakai.servletapi.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>velocity</groupId>
       <artifactId>velocity</artifactId>
       <version>1.4</version>
