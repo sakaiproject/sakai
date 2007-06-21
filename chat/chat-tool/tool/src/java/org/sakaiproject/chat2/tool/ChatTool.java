@@ -99,6 +99,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    private static final String PAGE_ROOM_CONTROL = "roomControl";
    private static final String PAGE_EDIT_ROOM = "editRoom";
    private static final String PAGE_DELETE_ROOM_CONFIRM = "deleteRoomConfirm";
+   private static final String PAGE_DELETE_ROOM_MESSAGES_CONFIRM = "deleteRoomMessagesConfirm";
    private static final String PAGE_DELETE_MESSAGE_CONFIRM = "deleteMessageConfirm";
    private static final String PAGE_SYNOPTIC = "synoptic";
    private static final String PAGE_SYNOPTIC_OPTIONS = "synopticOptions";
@@ -620,6 +621,49 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       return PAGE_LIST_ROOMS;
    }
    
+   
+   // *************
+   
+   /**
+    * Sets the current room and goes to confirm deleting the room's messages
+    * @param chatChannel
+    * @return String goes to the delete room messages confirmation page
+    */
+   protected String processActionDeleteRoomMessagesConfirm(DecoratedChatChannel chatChannel)
+   {
+      setCurrentChannelEdit(chatChannel);
+      return PAGE_DELETE_ROOM_MESSAGES_CONFIRM;
+   }
+   
+   
+   /**
+    * deletes the current room's messages
+    * @return String goes to the select a room page
+    */
+   public String processActionDeleteRoomMessages()
+   {
+      try {
+         getChatManager().deleteChannelMessages(currentChannelEdit.getChatChannel());
+         setCurrentChannelEdit(null);
+         return PAGE_LIST_ROOMS;
+      }
+      catch (PermissionException e) {
+         setErrorMessage(PERMISSION_ERROR, new String[] {ChatFunctions.CHAT_FUNCTION_DELETE_ANY});
+         return "";
+      }
+   }
+   
+   
+   /**
+    * cancels the deletion of a room's messages via the confirmation
+    * @return String goes to the select a room page
+    */
+   public String processActionDeleteRoomMessagesCancel()
+   {
+      setCurrentChannelEdit(null);
+      return PAGE_LIST_ROOMS;
+   }
+   
    // ********************************************************************
    // Message Process Actions
    
@@ -1064,6 +1108,11 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       return getChatManager().getCanDelete(channel);
    }
 
+   public boolean getCanRemoveChannelMessages(ChatChannel channel)
+   {
+      return getChatManager().getCanDeleteAnyMessage();
+   }
+   
    public boolean getCanEditChannel(ChatChannel channel)
    {
       return getChatManager().getCanEdit(channel);

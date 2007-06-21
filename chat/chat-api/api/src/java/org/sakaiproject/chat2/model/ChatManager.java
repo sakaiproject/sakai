@@ -113,6 +113,12 @@ public interface ChatManager extends EntitySummary {
    public void deleteMessage(ChatMessage message) throws PermissionException;
    
    /**
+    * delete all Chat Messages in a given channel
+    * @param ChatChannel the channel to delete all messages from
+    */
+   public void deleteChannelMessages(ChatChannel channel) throws PermissionException;
+ 
+   /**
     * gets the message with the id
     * @param chatMessageId Id
     * @return ChatMessage
@@ -170,6 +176,11 @@ public interface ChatManager extends EntitySummary {
    
    public boolean getCanDelete(ChatChannel channel);
    //public boolean getCanDelete(ChatChannel channel, String placementId);
+   
+   /**
+    * Returns whether or not the user has permissions to delete any messages
+    */
+   public boolean getCanDeleteAnyMessage();
    
    public boolean getCanEdit(ChatChannel channel);
    

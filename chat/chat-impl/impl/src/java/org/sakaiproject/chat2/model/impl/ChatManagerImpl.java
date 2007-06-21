@@ -381,6 +381,20 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
        
        return canDelete;
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public boolean getCanDeleteAnyMessage() {
+       return getCanDeleteAnyMessage(toolManager.getCurrentPlacement().getId());
+    }
+    
+    protected boolean getCanDeleteAnyMessage(String placementId) {
+       ToolConfiguration toolConfig = SiteService.findTool(placementId);
+       String context = toolConfig.getContext();
+       return can(ChatFunctions.CHAT_FUNCTION_DELETE_ANY, context);
+    }
+    
     public boolean getCanDelete(ChatMessage message)
    {
       return getCanDelete(message, toolManager.getCurrentPlacement().getId());
@@ -396,6 +410,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
         
         return canDelete;
      }
+     
      public boolean getCanDelete(ChatChannel channel)
     {
        return getCanDelete(channel, toolManager.getCurrentPlacement().getId());
@@ -452,6 +467,20 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
       sendDeleteMessage(message);
    }
 
+   /**
+    * {@inheritDoc}
+    */
+   public void deleteChannelMessages(ChatChannel channel) throws PermissionException {
+      if (!getCanDeleteAnyMessage())
+         checkPermission(ChatFunctions.CHAT_FUNCTION_DELETE_ANY);
+      
+      channel = getChatChannel(channel.getId());
+      channel.getMessages().size();
+      channel.getMessages().clear();
+      updateChannel(channel, false);
+      
+      sendDeleteChannelMessages(channel);
+   }
 
    /**
     * {@inheritDoc}
@@ -609,6 +638,20 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
    }
 
    /**
+    * {@inheritDoc}
+    */
+   public void sendDeleteChannelMessages(ChatChannel channel) {
+      ChatChannelMessagesDeleteTxSync txSync = new ChatChannelMessagesDeleteTxSync(channel);
+
+      if (TransactionSynchronizationManager.isSynchronizationActive()) {
+         TransactionSynchronizationManager.registerSynchronization(txSync);
+      }
+      else {
+         txSync.afterCompletion(ChatChannelMessagesDeleteTxSync.STATUS_COMMITTED);
+      }
+   }
+   
+   /**
     * This helps to send out the message when the record is placed in the database
     * @author andersjb
     *
@@ -675,6 +718,28 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
       public void afterCompletion(int status) {
          Event event = null;
          event = EventTrackingService.newEvent(ChatFunctions.CHAT_FUNCTION_DELETE_CHANNEL, 
+                  channel.getReference(), false);
+
+         if (event != null)
+            EventTrackingService.post(event);
+      }
+   }
+   
+   /**
+    * This helps to send out the message when the messages are all deleted
+    * @author andersjb
+    *
+    */
+   private class ChatChannelMessagesDeleteTxSync extends TransactionSynchronizationAdapter {
+      private ChatChannel channel;
+
+      public ChatChannelMessagesDeleteTxSync(ChatChannel channel) {
+         this.channel = channel;
+      }
+
+      public void afterCompletion(int status) {
+         Event event = null;
+         event = EventTrackingService.newEvent(ChatFunctions.CHAT_FUNCTION_DELETE_ANY, 
                   channel.getReference(), false);
 
          if (event != null)

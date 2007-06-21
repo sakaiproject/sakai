@@ -77,6 +77,11 @@ public class DecoratedChatChannel {
       return chatTool.processActionDeleteRoomConfirm(this);
    }
    
+   public String processActionDeleteRoomMessages()
+   {
+      return chatTool.processActionDeleteRoomMessagesConfirm(this);
+   }
+   
    public String processActionSetAsDefaultRoom() {
       return chatTool.processActionSetAsDefaultRoom(this);
    }
@@ -95,6 +100,10 @@ public class DecoratedChatChannel {
       return chatTool.getCanRemoveChannel(chatChannel);
    }
 
+   public boolean getCanDeleteMessages() {
+      return chatTool.getCanRemoveChannelMessages(chatChannel);
+   }
+   
    public boolean getCanEdit() {
       return chatTool.getCanEditChannel(chatChannel);
    }

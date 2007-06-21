@@ -32,9 +32,7 @@
 					<h:outputText value="#{channel.chatChannel.title}"
 						rendered="#{!channel.canRead}" />
 
-					<f:verbatim>
-						<div class="itemAction">
-					</f:verbatim>
+					<sakai:separatedList id="channelActionList" separator=" | " styleClass="itemAction">
 					<f:subview id="editLink" rendered="#{channel.canEdit}">
 						<h:commandLink action="#{channel.processActionEditRoom}">
 							<h:outputText value="#{msgs['gen.edit']}" />
@@ -45,15 +43,19 @@
 							<h:outputText value="#{msgs['gen.delete']}" />
 						</h:commandLink>
 					</f:subview>
+					<f:subview id="clearMessages" rendered="#{ChatTool.maintainer}">
+						<h:commandLink action="#{channel.processActionDeleteRoomMessages}" 
+							title="#{msgs.delete_room_messages}">
+							<h:outputText value="#{msgs.delete_room_messages}" />
+						</h:commandLink>
+					</f:subview>
 					<f:subview id="defaultLink" rendered="#{!channel.chatChannel.contextDefaultChannel && ChatTool.maintainer}">
 						<h:commandLink action="#{channel.processActionSetAsDefaultRoom}" 
 							title="#{channel.setAsDefaultText}">
 							<h:outputText value="#{msgs.set_default}" />
 						</h:commandLink>
 					</f:subview>
-					<f:verbatim>
-						</div>
-					</f:verbatim>
+					</sakai:separatedList>
 				</h:column>
 				<h:column>
 					<f:facet name="header">

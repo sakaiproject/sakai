@@ -92,6 +92,11 @@
       <redirect/>
     </navigation-case>
     <navigation-case>
+      <from-outcome>deleteRoomMessagesConfirm</from-outcome>
+      <to-view-id>/jsp/deleteRoomMessagesConfirm.jsp</to-view-id>
+      <redirect/>
+    </navigation-case>
+    <navigation-case>
       <from-outcome>synoptic</from-outcome>
       <to-view-id>/jsp/synoptic.jsp</to-view-id>
       <redirect/>
