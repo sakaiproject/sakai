@@ -650,10 +650,10 @@ public class PortalSiteHelper
 	 * list are separated by ",". Users must have all the permissions included in
 	 * at least one of the permission lists.
 	 *
-	 * For example, a value like "section.role.student,site.upd|section.role.ta"
+	 * For example, a value like "section.role.student,annc.new|section.role.ta"
 	 * would let a user with "section.role.ta" see the tool, and let a user with
-	 * both "section.role.student" AND "site.upd" see the tool, but not let a user
-	 * who just had "section.role.student" see the tool.
+	 * both "section.role.student" AND "annc.new" see the tool, but not let a user
+	 * who only had "section.role.student" see the tool.
 	 *
 	 * Users with "site.upd" always see the tool. If the configuration tag is not
 	 * set or is null, then all users see the tool.
