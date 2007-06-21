@@ -308,7 +308,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 
 					for (Iterator iter = assignments.iterator(); iter.hasNext(); ) {
 						Assignment assignment = (Assignment)iter.next();
-						if (!assignment.isCounted()) {
+						if (!assignment.isCounted() || assignment.getPointsPossible().doubleValue() <= 0.0) {
    						assignmentsNotCounted.add(assignment.getId());
    					}
     			}
@@ -850,7 +850,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     private double getTotalPointsEarnedInternal(final Long gradebookId, final String studentId, final Session session) {
         double totalPointsEarned = 0;
         Iterator scoresIter = session.createQuery(
-        		"select agr.pointsEarned from AssignmentGradeRecord agr, Assignment asn where agr.gradableObject=asn and agr.studentId=:student and asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false").
+        		"select agr.pointsEarned from AssignmentGradeRecord agr, Assignment asn where agr.gradableObject=asn and agr.studentId=:student and asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false and asn.pointsPossible > 0").
         		setParameter("student", studentId).
         		setParameter("gbid", gradebookId).
         		list().iterator();
@@ -869,13 +869,13 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	double totalPointsEarned = 0;
     	double literalTotalPointsEarned = 0;
     	Iterator scoresIter = session.createQuery(
-    			"select agr.pointsEarned, asn from AssignmentGradeRecord agr, Assignment asn where agr.gradableObject=asn and agr.studentId=:student and asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false").
+    			"select agr.pointsEarned, asn from AssignmentGradeRecord agr, Assignment asn where agr.gradableObject=asn and agr.studentId=:student and asn.gradebook.id=:gbid and asn.removed=false and asn.pointsPossible > 0").
     			setParameter("student", studentId).
     			setParameter("gbid", gradebookId).
     			list().iterator();
 
     	List assgnsList = session.createQuery(
-    	"from Assignment as asn where asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false").
+    	"from Assignment as asn where asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false and asn.pointsPossible > 0").
     	setParameter("gbid", gradebookId).
     	list();
 
@@ -980,13 +980,13 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		public Object doInHibernate(Session session) throws HibernateException {
     			double totalPointsEarned = 0;
     			Iterator scoresIter = session.createQuery(
-    			"select agr.pointsEarned, asn from AssignmentGradeRecord agr, Assignment asn where agr.gradableObject=asn and agr.studentId=:student and asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false").
+    			"select agr.pointsEarned, asn from AssignmentGradeRecord agr, Assignment asn where agr.gradableObject=asn and agr.studentId=:student and asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false and asn.pointsPossible > 0").
     			setParameter("student", studentId).
     			setParameter("gbid", gradebookId).
     			list().iterator();
 
     			List assgnsList = session.createQuery(
-    			"from Assignment as asn where asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false").
+    			"from Assignment as asn where asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false and asn.pointsPossible > 0").
     			setParameter("gbid", gradebookId).
     			list();
 
@@ -1338,12 +1338,12 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		public Object doInHibernate(Session session) throws HibernateException {
     			double totalPointsPossible = 0;
     			List assgnsList = session.createQuery(
-    			"select asn from Assignment asn where asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false").
+    			"select asn from Assignment asn where asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false and asn.pointsPossible > 0").
     			setParameter("gbid", gradebookId).
     			list();
     			
     			Iterator scoresIter = session.createQuery(
-    			"select agr.pointsEarned, asn from AssignmentGradeRecord agr, Assignment asn where agr.gradableObject=asn and agr.studentId=:student and asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false").
+    			"select agr.pointsEarned, asn from AssignmentGradeRecord agr, Assignment asn where agr.gradableObject=asn and agr.studentId=:student and asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false and asn.pointsPossible > 0").
     			setParameter("student", studentId).
     			setParameter("gbid", gradebookId).
     			list().iterator();
@@ -1424,12 +1424,12 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     {
     	double totalPointsPossible = 0;
     	List assgnsList = session.createQuery(
-    			"select asn from Assignment asn where asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false").
+    			"select asn from Assignment asn where asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false and asn.pointsPossible > 0").
     			setParameter("gbid", gradebookId).
     			list();
 
     	Iterator scoresIter = session.createQuery(
-    	"select agr.pointsEarned, asn from AssignmentGradeRecord agr, Assignment asn where agr.gradableObject=asn and agr.studentId=:student and asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false").
+    	"select agr.pointsEarned, asn from AssignmentGradeRecord agr, Assignment asn where agr.gradableObject=asn and agr.studentId=:student and asn.gradebook.id=:gbid and asn.removed=false and asn.notCounted=false and asn.pointsPossible > 0").
     	setParameter("student", studentId).
     	setParameter("gbid", gradebookId).
     	list().iterator();

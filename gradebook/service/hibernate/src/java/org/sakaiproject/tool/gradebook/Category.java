@@ -201,7 +201,7 @@ public class Category implements Serializable
     	Double score = assign.getAverageTotal();
 //    	if(assign.isReleased())
 //    	{
-    	if(assign.isCounted())
+    	if(assign.isCounted() && assign.getPointsPossible().doubleValue() > 0.0)
     	{
     		if (score == null) 
     		{

@@ -373,11 +373,20 @@ public class Assignment extends GradableObject {
             if(!record.getGradableObject().equals(this)) {
                 continue;
             }
-            Double score = record.getGradeAsPercentage();
+            Double score = null;
+            if(pointsPossible > 0)
+            	score = record.getGradeAsPercentage();
             Double points = record.getPointsEarned();
-            if (score == null || points == null) {
+            if (score == null && points == null) {
             	continue;
-            } else {
+            }
+            else if (score == null)
+            {
+            	pointsTotal += points.doubleValue();
+            	numScored++;
+            }
+            else 
+            {
             	total += score.doubleValue();
             	pointsTotal += points.doubleValue();
             	numScored++;
@@ -387,7 +396,14 @@ public class Assignment extends GradableObject {
         	mean = null;
         	averageTotal = null;
         } else {
-        	mean = new Double(total / numScored);
+        	if(pointsPossible > 0)
+        	{
+        		mean = new Double(total / numScored);
+        	}
+        	else
+        	{
+        		mean = null;
+        	}
         	averageTotal = new Double(pointsTotal / numScored);
         }
     }

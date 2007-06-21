@@ -303,6 +303,10 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 //		Assignment assign = gradebookManager.getAssignment(assgn1Long);
 //		Assignment assign2 = gradebookManager.getAssignment(assgn3Long);
 //
+//		//test for assignment with 0 points
+//		Long assign0long = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment0point", new Double(0), new Date(), new Boolean(false), new Boolean(true));
+//		Assignment assign3 = gradebookManager.getAssignment(assign0long);
+//
 //		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
 //		gradebookManager.updateGradebook(persistentGradebook);
 //		assign.setPointsPossible(new Double(5));
@@ -312,6 +316,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 //
 //		List gradeRecords = generateGradeRecords(assign, 5);
 //		List graderRecords2 = generateGradeRecords(assign2, 5);
+//		List gradeRecords3 = generateGradeRecords(assign3, 5);
 //
 ////		Double piontsEearned = gradebookManager.getTotalPointsEarnedInternal(persistentGradebook.getId(), "studentId1", persistentGradebook, categories);
 ////		System.out.println(gradebookManager.getTotalPointsEarnedInternal(persistentGradebook.getId(), "studentId1", persistentGradebook, categories));
@@ -419,6 +424,10 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 //		Assignment assign = gradebookManager.getAssignment(assgn1Long);
 //		Assignment assign2 = gradebookManager.getAssignment(assgn3Long);
 //
+//		//test for assignment with 0 points
+//		Long assign0long = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment0point", new Double(0), new Date(), new Boolean(false), new Boolean(true));
+//		Assignment assign3 = gradebookManager.getAssignment(assign0long);
+//		
 //		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
 //		gradebookManager.updateGradebook(persistentGradebook);
 //		assign.setPointsPossible(new Double(5));
@@ -428,6 +437,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 //
 //		List gradeRecords = generateGradeRecords(assign, 5);
 //		List graderRecords2 = generateGradeRecords(assign2, 5);
+//		List graderRecords3 = generateGradeRecords(assign3, 5);
 //
 //		Assert.assertTrue((new BigDecimal(gradebookManager.getTotalPointsInternal(persistentGradebook.getId(), persistentGradebook, categories, "studentId1"))).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
 //			(new BigDecimal(1.0)).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
@@ -597,6 +607,10 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
 		Assignment assign = gradebookManager.getAssignment(assgn1Long);
 		Assignment assign2 = gradebookManager.getAssignment(assgn3Long);
+		
+		//test for assignment with 0 points
+		Long assign0long = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment0point", new Double(0), new Date(), new Boolean(false), new Boolean(true));
+		Assignment assign3 = gradebookManager.getAssignment(assign0long);
 
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
 		gradebookManager.updateGradebook(persistentGradebook);
@@ -608,9 +622,14 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 
 		List gradeRecords = generateGradeRecords(assign, 5);
 		List gradeRecords2 = generateGradeRecords(assign2, 5);
+		List gradeRecords3 = generateGradeRecords(assign3, 5);
 		for(int i=0; i<gradeRecords2.size(); i++)
 		{
-			gradeRecords.add(gradeRecords.get(i));
+			gradeRecords.add(gradeRecords2.get(i));
+		}
+		for(int i=0; i<gradeRecords3.size(); i++)
+		{
+			gradeRecords.add(gradeRecords3.get(i));
 		}
 
 		List uid = new ArrayList();
@@ -859,6 +878,10 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		Assignment assign = gradebookManager.getAssignment(assgn1Long);
 		Assignment assign2 = gradebookManager.getAssignment(assgn3Long);
 
+		//test for assignment with 0 points
+		Long assign0long = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment0point", new Double(0), new Date(), new Boolean(false), new Boolean(true));
+		Assignment assign3 = gradebookManager.getAssignment(assign0long);
+		
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
 		gradebookManager.updateGradebook(persistentGradebook);
 		assign.setPointsPossible(new Double(5));
@@ -869,9 +892,14 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 
 		List gradeRecords = generateGradeRecords(assign, 5);
 		List gradeRecords2 = generateGradeRecords(assign2, 5);
+		List gradeRecords3 = generateGradeRecords(assign3, 5);
 		for(int i=0; i<gradeRecords2.size(); i++)
 		{
 			gradeRecords.add(gradeRecords2.get(i));
+		}
+		for(int i=0; i<gradeRecords3.size(); i++)
+		{
+			gradeRecords.add(gradeRecords3.get(i));
 		}
 
 		List uid = new ArrayList();
@@ -996,6 +1024,10 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		Assignment assign = gradebookManager.getAssignment(assgn1Long);
 		Assignment assign2 = gradebookManager.getAssignment(assgn3Long);
 
+		//test for assignment with 0 points
+		Long assign0long = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment0point", new Double(0), new Date(), new Boolean(false), new Boolean(true));
+		Assignment assign3 = gradebookManager.getAssignment(assign0long);
+		
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
 		gradebookManager.updateGradebook(persistentGradebook);
 		assign.setPointsPossible(new Double(5));
@@ -1006,11 +1038,16 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 
 		List gradeRecords = generateGradeRecords(assign, 5);
 		List gradeRecords2 = generateGradeRecords(assign2, 5);
+		List gradeRecords3 = generateGradeRecords(assign3, 5);
 		for(int i=0; i<gradeRecords2.size(); i++)
 		{
 			gradeRecords.add(gradeRecords2.get(i));
 		}
-
+		for(int i=0; i<gradeRecords3.size(); i++)
+		{
+			gradeRecords.add(gradeRecords3.get(i));
+		}
+		
 		List uid = new ArrayList();
 		uid.add("studentId1");
 		uid.add("studentId2");
@@ -1322,6 +1359,10 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		Assignment assign = gradebookManager.getAssignment(assgn1Long);
 		Assignment assign2 = gradebookManager.getAssignment(assgn3Long);
 
+		//test for assignment with 0 points
+		Long assign0long = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment0point", new Double(0), new Date(), new Boolean(false), new Boolean(true));
+		Assignment assign3 = gradebookManager.getAssignment(assign0long);
+
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
   	integrationSupport.createCourse(persistentGradebook.getUid(), persistentGradebook.getUid(), false, false, false);
 		gradebookManager.updateGradebook(persistentGradebook);
@@ -1333,9 +1374,14 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 
 		List gradeRecords = generateGradeRecords(assign, 5);
 		List gradeRecords2 = generateGradeRecords(assign2, 5);
+		List gradeRecords3 = generateGradeRecords(assign3, 5);
 		for(int i=0; i<gradeRecords2.size(); i++)
 		{
 			gradeRecords.add(gradeRecords2.get(i));
+		}
+		for(int i=0; i<gradeRecords3.size(); i++)
+		{
+			gradeRecords.add(gradeRecords3.get(i));
 		}
 
 		List uid = new ArrayList();
@@ -1429,12 +1475,34 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		courseGradeRecords = gradebookManager.getPointsEarnedCourseGradeRecordsWithStats(courseGrade, uid);
 		Assert.assertTrue(new BigDecimal(courseGrade.getMean()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
 			new BigDecimal(((4.0/15) + (6.0/15.0) + (8.0/15.0) + (10.0/15.0)) / 4.0 * 100).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+		
+		//test for only 0 point possible assignment has grade records
+		gradebookManager.removeAssignment(assgn1Long);
+		gradebookManager.removeAssignment(assgn3Long);
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		courseGradeRecords = gradebookManager.getPointsEarnedCourseGradeRecordsWithStats(courseGrade, uid);
+		Assert.assertTrue(courseGrade.getMean() == null);
+		
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		courseGradeRecords = gradebookManager.getPointsEarnedCourseGradeRecordsWithStats(courseGrade, uid);
+		Assert.assertTrue(courseGrade.getMean() == null);
+
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		courseGradeRecords = gradebookManager.getPointsEarnedCourseGradeRecordsWithStats(courseGrade, uid);
+		Assert.assertTrue(courseGrade.getMean() == null);
 	}
 
 	public void testGetAssignmentsWithStats() throws Exception{
 		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
 		Assignment assign = gradebookManager.getAssignment(assgn1Long);
 		Assignment assign2 = gradebookManager.getAssignment(assgn3Long);
+
+		//test for assignment with 0 points
+		Long assign0long = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment0point", new Double(0), new Date(), new Boolean(false), new Boolean(true));
+		Assignment assign3 = gradebookManager.getAssignment(assign0long);
 
 		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
 		integrationSupport.createCourse(persistentGradebook.getUid(), persistentGradebook.getUid(), false, false, false);
@@ -1447,9 +1515,14 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 
 		List gradeRecords = generateGradeRecords(assign, 5);
 		List gradeRecords2 = generateGradeRecords(assign2, 5);
+		List gradeRecords3 = generateGradeRecords(assign3, 5);
 		for(int i=0; i<gradeRecords2.size(); i++)
 		{
 			gradeRecords.add(gradeRecords2.get(i));
+		}
+		for(int i=0; i<gradeRecords3.size(); i++)
+		{
+			gradeRecords.add(gradeRecords3.get(i));
 		}
 
 		List uid = new ArrayList();
@@ -1772,6 +1845,10 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		Assignment assign = gradebookManager.getAssignment(assgn1Long);
 		Assignment assign2 = gradebookManager.getAssignment(assgn3Long);
 
+		//test for assignment with 0 points
+		Long assign0long = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cate1Long, "assignment0point", new Double(0), new Date(), new Boolean(false), new Boolean(true));
+		Assignment assign3 = gradebookManager.getAssignment(assign0long);
+
 		integrationSupport.createCourse(persistentGradebook.getUid(), persistentGradebook.getUid(), false, false, false);
 		gradebookManager.updateGradebook(persistentGradebook);
 		assign.setPointsPossible(new Double(5));
@@ -1780,9 +1857,14 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 
 		List gradeRecords = generateGradeRecords(assign, 5);
 		List gradeRecords2 = generateGradeRecords(assign2, 5);
+		List gradeRecords3 = generateGradeRecords(assign3, 5);
 		for(int i=0; i<gradeRecords2.size(); i++)
 		{
 			gradeRecords.add(gradeRecords2.get(i));
+		}
+		for(int i=0; i<gradeRecords3.size(); i++)
+		{
+			gradeRecords.add(gradeRecords3.get(i));
 		}
 
 		List uid = new ArrayList();
@@ -1920,11 +2002,11 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 			new BigDecimal(5.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		Assert.assertTrue(new BigDecimal(cateWithNonRleased.getAverageScore()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() == 
 			new BigDecimal((2.0 + 3 + 4 + 5) / 4.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-		Assert.assertTrue(assignListWithNonReleased.size() == 3);
+		Assert.assertTrue(assignListWithNonReleased.size() == 4);
 		for(int i=0; i<assignListWithNonReleased.size(); i++)
 		{
 			Assignment testAsignmentNonReleased = (Assignment)assignListWithNonReleased.get(i);
-			if(i == 2)
+			if(i == 3)
 				Assert.assertTrue(testAsignmentNonReleased.getName().equals(cateWithNonRleased.getName() + "_assignment_non_released"));
 		}
 		
