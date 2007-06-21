@@ -191,7 +191,7 @@
 		<resources>
 
 			<resource>
-				<directory>${basedir}/src/bundle</directory>
+				<directory>${basedir}/../../assignment-bundles</directory>
 				<includes>
 					<include>**/*.properties</include>
 				</includes>
