@@ -80,14 +80,14 @@ public interface MessageForumsMessageManager {
     
     public int findReadViewableMessageCountByTopicId(Long topicId);
 
-    public List findDiscussionForumMessageCountsForAllSites(final List siteList);
+    public List findDiscussionForumMessageCountsForAllSites(final List siteList, final List roleList);
     
-    public List findDiscussionForumMessageRemoveCountsForAllSites(List siteList, List roleList);
+    public List findDiscussionForumReadMessageCountsForAllSites(final List siteList, final List roleList);
+
+    public List findDiscussionForumMessageCountsForGroupedSitesByTopic(final List siteList, final List roleList); // added
+
+    public List findDiscussionForumReadMessageCountsForGroupedSitesByTopic(final List siteList, final List roleList); // added
     
-    public List findDiscussionForumReadMessageCountsForAllSites();
-
-    public List findDiscussionForumReadMessageRemoveCountsForAllSites(List roleList);
-
     public List findMessagesByTopicId(Long topicId);
 
     public Attachment getAttachmentById(Long attachmentId);

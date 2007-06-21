@@ -191,30 +191,6 @@
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message where message.topic.id = :topicId]]>
   </query>
   
-  <!-- 
-  <query name="findPvtMsgCntByTopicTypeUser">
-    <![CDATA[select count(*) 
-             from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message             
-             left join message.recipients recipient
-             where recipient.userId = :userId and
-                   recipient.typeUuid = :typeUuid and
-                   recipient.contextId = :contextId
-
-    ]]>
-  </query>
-  
-  <query name="findUnreadPvtMsgCntByTopicTypeUser">
-    <![CDATA[select count(*) 
-             from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message
-             left join message.recipients recipient
-             where recipient.userId = :userId and
-                   recipient.typeUuid = :typeUuid and
-                   recipient.contextId = :contextId and
-                   recipient.read = false               
-    ]]>
-  </query>
-  -->
-  
   <!-- ================ Gets count of all unread private messages ================= -->
   <!--  NOTE: do not need site list since private message read status table only has entries for sites user is a part of -->
   
@@ -230,89 +206,116 @@
     ]]>
   </query>
 
-   <query name="findDiscussionForumMessageCountsForAllSites">
-    <![CDATA[select a.contextId, count(*)
-    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages
+<!--  Gets counts of message user can access grouped by site and role/group.
+	  Needed since user can have different roles in different sites -->
+  <query name="findDiscussionForumMessageCountsForAllSites">
+    <![CDATA[select a.contextId, membershipItem.name, count(*)
+    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages,
+    		 org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
     		 join messages.topic as topic
+    		 join topic.membershipItemSet as membershipItem
              join topic.openForum as f
              join f.area as a
              where a.contextId in ( :siteList ) and
+             membershipItem.name in ( :roleList )and
              f.draft = false and
              topic.draft = false and
              messages.draft = false and
-             messages.deleted = false
-             group by a.contextId
+             messages.deleted = false and
+             (((pl.typeUuid != '00000000-0000-0000-7777-000000000000' and pl.name = membershipItem.permissionLevelName) or
+                     membershipItem.permissionLevel = pl.id)  and
+               (pl.read = true and (pl.moderatePostings = false or 
+                              		messages.approved = true or
+               						messages.createdBy = :userId)))
+             group by a.contextId, membershipItem.name
     ]]>
  
  </query>
 
-<!--  Added 11-9-06 to filter out topics that are hidden for this user (role) -->
-<query name="findDiscussionForumMessageRemoveCountsForAllSites"> 
+<!-- Gets count of messages user has already read grouped by site and role/group.
+	 Needed since user can have different roles/groups in different sites or
+	 to deal with access allowed from different groups and/or overlapping
+	 access.  -->
+<query name="findDiscussionForumReadMessageCountsForAllSites">
     <![CDATA[select a.contextId, membershipItem.name, count(*)
     		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages,
-    		 org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
-    		 		 join messages.topic as topic
-    		 		 join topic.membershipItemSet as membershipItem
+    		 org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl,
+    		 org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us
+    		 join messages.topic as topic
+    		 join topic.membershipItemSet as membershipItem
              join topic.openForum as f
              join f.area as a
              where a.contextId in ( :siteList ) and
              membershipItem.name in ( :roleList ) and
-             ((pl.typeUuid != '00000000-0000-0000-7777-000000000000' and 
-               pl.name = membershipItem.permissionLevelName) or
-              membershipItem.permissionLevel = pl.id) and
-             (pl.read = false or
-             (pl.moderatePostings = false and
-               ((messages.approved = null or
-                messages.approved = false) and
-                messages.createdBy != :userId)))
-             group by a.contextId, membershipItem.name
-    ]]>
-    
- </query>
-
-<query name="findDiscussionForumReadMessageCountsForAllSites">
-    <![CDATA[select a.contextId, count(*)
-    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages,
-    		 org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us
-    		 join messages.topic as topic
-             join topic.openForum as f
-             join f.area as a
-             where us.userId = :userId and
+             us.userId = :userId and
              messages.id = us.messageId and
              messages.deleted = false and
              f.draft = false and
-             topic.draft = false
-             group by a.contextId
-    ]]>
-    
- </query>
-
-<!--  Need this since the user might have unread messages before made private -->
-<query name="findDiscussionForumReadMessageRemoveCountsForAllSites">
-    <![CDATA[select a.contextId, membershipItem.name, count(*)
-    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages,
-    		 org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us,
-    		 org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
-     		 		 join messages.topic as topic
-     		 		 join topic.membershipItemSet as membershipItem
-             join topic.openForum as f
-             join f.area as a
-             where us.userId = :userId and
-             messages.id = us.messageId and
-             messages.deleted = false and
-             ((pl.typeUuid != '00000000-0000-0000-7777-000000000000' and 
-               pl.name = membershipItem.permissionLevelName) or
-              membershipItem.permissionLevel = pl.id) and
-             (pl.read = false or
-             (pl.moderatePostings = false and
-               ((messages.approved = null or
-                messages.approved = false) and
-                messages.createdBy != :userId))) and
-             membershipItem.name in ( :roleList )
+             topic.draft = false and
+             (((pl.typeUuid != '00000000-0000-0000-7777-000000000000' and pl.name = membershipItem.permissionLevelName) or
+                     membershipItem.permissionLevel = pl.id)  and
+               (pl.read = true and (pl.moderatePostings = false or 
+                              		messages.approved = true or
+               						messages.createdBy = :userId)))
              group by a.contextId, membershipItem.name
     ]]>
     
  </query>
+
+<!--  Gets count of messages for each site grouped by topic and role/group name.
+		If user member of multiple role/groups, need to filter out overlapping permissions. -->
+<query name="findDiscussionForumMessageCountsForGroupedSitesByTopic">
+    <![CDATA[select a.contextId, topic.id, membershipItem.name, count(*)
+    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages,
+    		 org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
+	 		 join messages.topic as topic
+     		 join topic.membershipItemSet as membershipItem
+             join topic.openForum as f
+             join f.area as a
+             where a.contextId in ( :siteList ) and 
+             membershipItem.name in ( :roleList ) and
+             messages.draft = false and
+             messages.deleted = false and
+             f.draft = false and
+             topic.draft = false and
+             (((pl.typeUuid != '00000000-0000-0000-7777-000000000000' and pl.name = membershipItem.permissionLevelName) or
+                     membershipItem.permissionLevel = pl.id)  and
+               (pl.read = true and (pl.moderatePostings = false or 
+                              		messages.approved = true or
+               						messages.createdBy = :userId)))
+             group by a.contextId, topic, membershipItem.name
+    ]]>
+    
+ </query>
+
+<!--  Gets count of read messages for each site grouped by topic and role/group name.
+		If user member of multiple role/groups, need to filter out overlapping permissions. -->
+<query name="findDiscussionForumReadMessageCountsForGroupedSitesByTopic">
+    <![CDATA[select a.contextId, topic.id, membershipItem.name, count(*)
+    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages,
+    		 org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us,
+    		 org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
+	 		 join messages.topic as topic
+     		 join topic.membershipItemSet as membershipItem
+             join topic.openForum as f
+             join f.area as a
+             where a.contextId in ( :siteList ) and 
+             membershipItem.name in ( :roleList ) and
+             us.userId = :userId and
+             messages.id = us.messageId and
+             messages.deleted = false and
+             f.draft = false and
+             topic.draft = false and
+             (((pl.typeUuid != '00000000-0000-0000-7777-000000000000' and pl.name = membershipItem.permissionLevelName) or
+                     membershipItem.permissionLevel = pl.id)  and
+               (pl.read = true and (pl.moderatePostings = false or 
+                              		messages.approved = true or
+               						messages.createdBy = :userId)))
+             group by a.contextId, topic, membershipItem.name
+    ]]>
+    
+ </query>
+
 <!--  -->
  <query name="findAggregatePvtMsgCntForUserInContext">
     <![CDATA[select recipient.read, recipient.typeUuid, count(*) 
