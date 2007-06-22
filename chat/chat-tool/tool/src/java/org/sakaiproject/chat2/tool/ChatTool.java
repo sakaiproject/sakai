@@ -329,18 +329,33 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    }
    
    /**
-    * Make sure that the channel has a title when saving
+    * Make sure that the channel has a title when saving, the title isn't 
+    * too long, and the description isn't too long
     * @param channel
     * @return Returns if the channel validates
     */
    protected boolean validateChannel(ChatChannel channel) {      
+      boolean validates = true;
       if (channel.getTitle() == null || channel.getTitle().length() == 0) {
          
-         setErrorMessage("title_required", new String[] {});
-         return false;
+         setErrorMessage("editRoomForm:title", "title_required", new String[] {});
+         validates = false;
+      }
+      if (channel.getTitle() != null && channel.getTitle().length() > 64) {
+         
+         setErrorMessage("editRoomForm:title", "title_too_long", new String[] {Integer.toString(64)});
+         validates = false;
+      }
+      if (channel.getDescription() != null && channel.getDescription().length() > 255) {
+         
+         setErrorMessage("editRoomForm:desc", "desc_too_long", new String[] {Integer.toString(255)});
+         validates = false;
       }
       
-      else return true;
+      if (!validates)
+         setErrorMessage("validation_error", new String[] {});
+      
+      return validates;
    }
    
    /**
@@ -1189,8 +1204,13 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    
    private void setErrorMessage(String errorMsg, Object[] extras)
    {
+      setErrorMessage(null, errorMsg, extras);
+   }
+   
+   private void setErrorMessage(String field, String errorMsg, Object[] extras)
+   {
      logger.debug("setErrorMessage(String " + errorMsg + ")");
-     FacesContext.getCurrentInstance().addMessage(null,
+     FacesContext.getCurrentInstance().addMessage(field,
          new FacesMessage(getMessageFromBundle(errorMsg, extras)));
    }
    

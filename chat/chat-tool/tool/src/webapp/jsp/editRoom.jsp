@@ -4,7 +4,8 @@
 		<sakai:view_title value="#{msgs.edit_channel_title}" rendered="#{!ChatTool.currentChannelEdit.newChannel}" />
 		<sakai:view_title value="#{msgs.add_channel_title}" rendered="#{ChatTool.currentChannelEdit.newChannel}" />
 		
-		<sakai:messages />
+		<h:messages globalOnly="true" styleClass="alertMessage" 
+			showDetail="true" showSummary="false" />
 		<h:form id="editRoomForm">
 
 			<h:panelGrid columns="1" styleClass="jsfFormTable" cellpadding="0"
@@ -14,9 +15,7 @@
 					<h:outputLabel id="titleLabel" for="title"
 						value="#{msgs.channel_title}" />
 					<h:inputText id="title"
-						value="#{ChatTool.currentChannelEdit.chatChannel.title}">
-						<f:validateLength minimum="1" maximum="64" />
-					</h:inputText>
+						value="#{ChatTool.currentChannelEdit.chatChannel.title}" />
 					<h:message for="title" styleClass="validationEmbedded" />
 				</h:panelGroup>
 				<h:panelGroup styleClass="longtext"
@@ -24,9 +23,7 @@
 					<h:outputLabel id="descLabel" for="desc"
 						value="#{msgs.channel_description}" styleClass="block" />
 					<h:inputTextarea id="desc" cols="60" rows="6"
-						value="#{ChatTool.currentChannelEdit.chatChannel.description}">
-						<f:validateLength minimum="0" maximum="255" />
-					</h:inputTextarea>
+						value="#{ChatTool.currentChannelEdit.chatChannel.description}" />
 					<h:message for="desc" styleClass="validationEmbedded" />
 				</h:panelGroup>
 				<h:panelGroup>
