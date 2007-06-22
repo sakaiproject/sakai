@@ -23,7 +23,6 @@ package org.sakaiproject.tool.messageforums.ui;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ResourceBundle;
 
 import javax.faces.model.SelectItem;
 
@@ -394,7 +393,7 @@ public class PermissionBean {
 	 */
   public static String getResourceBundleString(String key) 
   {
-      final ResourceBundle rb = ResourceBundle.getBundle(MESSAGECENTER_BUNDLE);
+      final ResourceLoader rb = new ResourceLoader(MESSAGECENTER_BUNDLE);
       return rb.getString(key);
   }
 

@@ -23,7 +23,6 @@ package org.sakaiproject.component.app.messageforums;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.ResourceBundle;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -46,6 +45,7 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.util.ResourceLoader;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -325,7 +325,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
      */
     public String getResourceBundleString(String key) 
     {
-    	final ResourceBundle rb = ResourceBundle.getBundle(MESSAGECENTER_BUNDLE);
+    	final ResourceLoader rb = new ResourceLoader(MESSAGECENTER_BUNDLE);
         return rb.getString(key);
     }	
 }

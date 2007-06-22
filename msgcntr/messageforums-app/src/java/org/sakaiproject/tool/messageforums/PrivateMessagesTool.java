@@ -28,7 +28,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.faces.application.FacesMessage;
@@ -79,6 +78,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.ResourceLoader;
 
 public class PrivateMessagesTool
 {
@@ -90,7 +90,7 @@ public class PrivateMessagesTool
 
   private static final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
  
-  private static final ResourceBundle rb = ResourceBundle.getBundle(MESSAGECENTER_BUNDLE);
+  private static final ResourceLoader rb = new ResourceLoader(MESSAGECENTER_BUNDLE);
   
   /**
    * List individual private messages details

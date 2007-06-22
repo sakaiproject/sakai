@@ -29,7 +29,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.faces.application.FacesMessage;
@@ -72,8 +71,6 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
-//import org.sakaiproject.event.api.Event;
-//import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -93,6 +90,7 @@ import org.sakaiproject.tool.messageforums.ui.PermissionBean;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
@@ -5484,7 +5482,7 @@ public class DiscussionForumTool
 		 */
 	    public static String getResourceBundleString(String key) 
 	    {
-	        final ResourceBundle rb = ResourceBundle.getBundle(MESSAGECENTER_BUNDLE);
+	        final ResourceLoader rb = new ResourceLoader(MESSAGECENTER_BUNDLE);
 	        return rb.getString(key);
 	    }
 

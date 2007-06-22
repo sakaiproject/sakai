@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.Set;
 
 import org.hibernate.Hibernate;
@@ -1453,7 +1452,7 @@ return topicTypeUuid;
    */
   public String getResourceBundleString(String key) 
   {
-//	 ResourceBundle rb = ResourceBundle.getBundle(MESSAGECENTER_BUNDLE);
+//	 ResourceLoader rb = new ResourceLoader(MESSAGECENTER_BUNDLE);
 
       return areaManager.getResourceBundleString(key);
   }
