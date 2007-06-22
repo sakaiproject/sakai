@@ -4280,10 +4280,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 													// filter out the invalid characters in the attachment id
 													// map the attachment area folder name
 													String oldUrl = element5.getAttribute("relative-url");
-													String newUrl = "";
 													if (oldUrl.startsWith("/content/attachment/"))
 													{
-														newUrl = (String) attachmentNames.get(oldUrl);
+														String newUrl = (String) attachmentNames.get(oldUrl);
 														if (newUrl != null)
 														{
 															if (newUrl.startsWith("/attachment/"))
@@ -4297,15 +4296,15 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 													// map any references to this site to the new site id
 													else if (oldUrl.startsWith("/content/group/" + fromSiteId + "/"))
 													{
-														newUrl = "/content/group/" + siteId
+														String newUrl = "/content/group/" + siteId
 																+ oldUrl.substring(15 + fromSiteId.length());
 														element5.setAttribute("relative-url", Validator.escapeQuestionMark(newUrl));
 													}
 													// put the attachment back to the attribute field of content
 													// to satisfy the input need of mergeAssignmentContent
 													String attachmentString = "attachment" + attCount;
-													el3clone.setAttribute(attachmentString, newUrl);
-													attCount++;
+													el3clone.setAttribute(attachmentString, element5.getAttribute("relative-url"));
+													attCount++; 
 
 												} // if
 											} // if
