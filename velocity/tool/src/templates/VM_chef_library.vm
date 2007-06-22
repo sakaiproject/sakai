@@ -413,12 +413,12 @@ scheduleUpdate();
 <td><img src = "#imageLink("sakai/cancelled.gif")" border="0" alt="$tlang.getString('del.cancell')" /> $tlang.getString('del.cancell')</td>
 </tr>
 <tr>
-<td><img src = "#imageLink("sakai/class_dis.gif")" border="0" alt="$tlang.getString('del.class') - $tlang.getString('del.disc')" /> $tlang.getString('del.class') - $tlang.getString('del.disc')</td>
-<td><img src = "#imageLink("sakai/class_lab.gif")" border="0" alt="$tlang.getString('del.class') - $tlang.getString('del.lab')" /> $tlang.getString('del.class') - $tlang.getString('del.lab')</td>
-<td><img src = "#imageLink("sakai/class_lec.gif")" border="0" alt="$tlang.getString('del.class') - $tlang.getString('del.lect')" /> $tlang.getString('del.class') - $tlang.getString('del.lect')</td>
+<td><img src = "#imageLink("sakai/class_dis.gif")" border="0" alt="$tlang.getString('del.class.disc')" /> $tlang.getString('del.class.disc')</td>
+<td><img src = "#imageLink("sakai/class_lab.gif")" border="0" alt="$tlang.getString('del.class.lab')" /> $tlang.getString('del.class.lab')</td>
+<td><img src = "#imageLink("sakai/class_lec.gif")" border="0" alt="$tlang.getString('del.class.lect')" /> $tlang.getString('del.class.lect')</td>
 </tr>
 <tr>
-<td><img src = "#imageLink("sakai/class_sma.gif")" border="0" alt="$tlang.getString('del.class') - $tlang.getString('del.small')" /> $tlang.getString('del.class') - $tlang.getString('del.small')</td>
+<td><img src = "#imageLink("sakai/class_sma.gif")" border="0" alt="$tlang.getString('del.class.small')" /> $tlang.getString('del.class.small')</td>
 <td><img src = "#imageLink("sakai/class_session.gif")" border="0" alt="$tlang.getString('del.classsession')" /> $tlang.getString('del.classsession')</td>
 <td><img src = "#imageLink("sakai/computersession.gif")" border="0" alt="$tlang.getString('del.computer')" /> $tlang.getString('del.computer')</td>
 </tr>
