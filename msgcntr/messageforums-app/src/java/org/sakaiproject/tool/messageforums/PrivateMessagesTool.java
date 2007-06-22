@@ -116,6 +116,7 @@ public class PrivateMessagesTool
   private static final String NO_MARKED_READ_MESSAGE = "pvt_no_message_mark_read";
   private static final String NO_MARKED_DELETE_MESSAGE = "pvt_no_message_mark_delete";
   private static final String NO_MARKED_MOVE_MESSAGE = "pvt_no_message_mark_move";
+  private static final String MULTIDELETE_SUCCESS_MSG = "cdfm_deleted_success";
   
   /** Used to determine if this is combined tool or not */
   private static final String MESSAGECENTER_TOOL_ID = "sakai.messagecenter";
@@ -202,7 +203,9 @@ public class PrivateMessagesTool
   
   //Delete items - Checkbox display and selection - Multiple delete
   private List selectedDeleteItems;
-  private List totalDisplayItems=new ArrayList() ;
+  private boolean multiDeleteSuccess;
+  private String multiDeleteSuccessMsg;
+  private List totalDisplayItems=new ArrayList();
   
   // Move to folder - Checkbox display and selection - Multiple move to folder
   private List selectedMoveToFolderItems;
@@ -795,8 +798,32 @@ public class PrivateMessagesTool
   {
     this.selectView=selectView ;
   }
+  
+  public boolean isMultiDeleteSuccess() 
+  {
+	return multiDeleteSuccess;
+  }
+
+  public void setMultiDeleteSuccess(boolean multiDeleteSuccess) 
+  {
+	this.multiDeleteSuccess = multiDeleteSuccess;
+  }
+
+
+  public String getMultiDeleteSuccessMsg() 
+  {
+	return multiDeleteSuccessMsg;
+  }
+
+  public void setMultiDeleteSuccessMsg(String multiDeleteSuccessMsg) 
+  {
+	this.multiDeleteSuccessMsg = multiDeleteSuccessMsg;
+  }
+
+
   public void processChangeSelectView(ValueChangeEvent eve)
   {
+    multiDeleteSuccess = false;
     String currentValue = (String) eve.getNewValue();
   	if (!currentValue.equalsIgnoreCase(THREADED_VIEW) && selectView != null && selectView.equals(THREADED_VIEW))
   	{
@@ -972,12 +999,14 @@ public class PrivateMessagesTool
   {
     LOG.debug("processActionHome()");
     msgNavMode = "privateMessages";
+    multiDeleteSuccess = false;
     return  MAIN_PG;
   }  
   public String processActionPrivateMessages()
   {
     LOG.debug("processActionPrivateMessages()");                    
     msgNavMode = "privateMessages";            
+    multiDeleteSuccess = false;
     return  MESSAGE_HOME_PG;
   }        
   public String processDisplayForum()
@@ -1033,7 +1062,8 @@ public class PrivateMessagesTool
    */ 
   public String processPvtMsgDetail() {
     LOG.debug("processPvtMsgDetail()");
-    
+    multiDeleteSuccess = false;
+
     String msgId=getExternalParameterByKey("current_msg_detail");
     setCurrentMsgUuid(msgId) ; 
     //retrive the detail for this message with currentMessageId    
@@ -1624,6 +1654,7 @@ public class PrivateMessagesTool
    * processDisplayPreviousFolder()
    */
   public String processDisplayPreviousTopic() {
+	multiDeleteSuccess = false;
     String prevTopicTitle = getExternalParameterByKey("previousTopicTitle");
     if(hasValue(prevTopicTitle))
     {
@@ -1656,7 +1687,8 @@ public class PrivateMessagesTool
    * processDisplayNextFolder()
    */
   public String processDisplayNextTopic()
-  {  	  	
+  { 
+	multiDeleteSuccess = false;
     String nextTitle = getExternalParameterByKey("nextTopicTitle");
     if(hasValue(nextTitle))
     {
@@ -1908,14 +1940,23 @@ public class PrivateMessagesTool
   { 
     LOG.debug("processPvtMsgMultiDelete()");
   
+    boolean deleted = false;
     for (Iterator iter = getSelectedDeleteItems().iterator(); iter.hasNext();)
     {
       PrivateMessage element = ((PrivateMessageDecoratedBean) iter.next()).getMsg();
       if (element != null) 
       {
+    	deleted = true;
         prtMsgManager.deletePrivateMessage(element, getPrivateMessageTypeFromContext(msgNavMode)) ;        
       }      
     }
+    
+    if (deleted)
+    {
+    	multiDeleteSuccessMsg = getResourceBundleString(MULTIDELETE_SUCCESS_MSG);
+    	multiDeleteSuccess = true;
+    }
+
     return DISPLAY_MESSAGES_PG;
   }
 
@@ -1947,7 +1988,8 @@ public class PrivateMessagesTool
   {
     LOG.debug("processCheckAll()");
     selectAll= true;
-    
+    multiDeleteSuccess = false;
+
     return null;
   }
   
@@ -2699,7 +2741,8 @@ public class PrivateMessagesTool
   public String processSearch() 
   {
     LOG.debug("processSearch()");
-    
+    multiDeleteSuccess = false;
+
     List newls = new ArrayList() ;
 //    for (Iterator iter = getDecoratedPvtMsgs().iterator(); iter.hasNext();)
 //    {
@@ -3126,7 +3169,15 @@ public class PrivateMessagesTool
     FacesContext.getCurrentInstance().addMessage(null,
         new FacesMessage(getResourceBundleString(ALERT) + ' ' + errorMsg));
   }
-  
+
+  private void setInformationMessage(String infoMsg)
+  {
+	    LOG.debug("setInformationMessage(String " + infoMsg + ")");
+	    FacesContext.getCurrentInstance().addMessage(null,
+	        new FacesMessage(infoMsg));
+  }
+
+ 
   /**
    * Enable privacy message
    * @return
@@ -3244,7 +3295,7 @@ public class PrivateMessagesTool
 			return null;
 		}
 		
-		return DELETE_MESSAGE_PG;
+		return processPvtMsgMultiDelete();
 	}
 	
 	public String processActionMoveCheckedToFolder() {

@@ -104,7 +104,7 @@
 			<h:outputText value=" " />    
 			<h:panelGroup styleClass="shorttext" style="text-align:right;white-space: nowrap;display:block;padding-right: 0.5em;">
 			  <h:outputText value="#{msgs.pvt_end_date}"/>
-<f:verbatim>&nbsp;&nbsp;&nbsp;</f:verbatim>
+			<f:verbatim>&nbsp;&nbsp;&nbsp;</f:verbatim>
 			  <sakai:input_date  value="#{PrivateMessagesTool.searchToDate}" showDate="true" id="end_date" />
 			</h:panelGroup>	
 		
