@@ -21,6 +21,7 @@
 
 package org.sakaiproject.content.impl;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Hashtable;
@@ -28,8 +29,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.sakaiproject.content.api.ContentEntity;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
+import org.sakaiproject.exception.ServerOverloadException;
 
 public class BasicResourceToolActionPipe 
 	implements ResourceToolActionPipe 
@@ -77,6 +80,21 @@ public class BasicResourceToolActionPipe
 
 	public byte[] getContent() 
 	{
+		if(content == null || content.length < 1)
+		{
+			if(this.contentEntity instanceof ContentResource)
+			{
+				try
+                {
+	                return (((ContentResource) this.contentEntity).getContent());
+                }
+                catch (ServerOverloadException e)
+                {
+	                this.setErrorEncountered(true);
+	                this.setErrorMessage("ServerOverloadException " + e);
+                }
+			}
+		}
 		return this.content;
 	}
 
@@ -87,7 +105,50 @@ public class BasicResourceToolActionPipe
 
 	public InputStream getContentStream() 
 	{
-		return this.contentInputStream;
+		if(this.contentInputStream == null)
+		{
+			if(this.contentEntity == null)
+			{
+	            this.setErrorEncountered(true);
+	            this.setErrorMessage("pipe.getContentStream() no stream and no emtity");
+				return null;
+			}
+		}
+		else
+		{
+			try
+            {
+				int available = this.contentInputStream.available();
+	            if(available > 0)
+	            {
+	        		return this.contentInputStream;
+	            }
+            }
+            catch (IOException e)
+            {
+	            this.setErrorEncountered(true);
+	            this.setErrorMessage("pipe.getContentStream() IOException " + e);
+           }
+
+		}
+		return getStreamFromEntity();
+	}
+
+	protected InputStream getStreamFromEntity()
+    {
+		if(this.contentEntity != null && this.contentEntity instanceof ContentResource)
+		{
+			try
+            {
+	            return ((ContentResource) this.contentEntity).streamContent();
+            }
+            catch (ServerOverloadException e)
+            {
+	            this.setErrorEncountered(true);
+	            this.setErrorMessage("pipe.getStreamFromEntity() ServerOverloadException " + e);
+            }
+		}
+		return null;
 	}
 
 	public String getMimeType() 

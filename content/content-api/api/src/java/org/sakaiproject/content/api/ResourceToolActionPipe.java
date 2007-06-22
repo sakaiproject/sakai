@@ -82,8 +82,9 @@ public interface ResourceToolActionPipe
 	
 	/**
 	 * Used by helper to access current value of resource's "content" in cases where size 
-	 * or type of content requires stream access. Return may be null to indicate 
-	 * that content should be accessed as a byte array. 
+	 * or type of content requires stream access. The stream may be null if the ContentEntity 
+	 * does not support streaming content. Please close the stream when done as it may be 
+	 * holding valuable system resources. 
 	 * @return
 	 */
 	public InputStream getContentStream();
