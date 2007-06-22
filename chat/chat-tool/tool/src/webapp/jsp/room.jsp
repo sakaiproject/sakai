@@ -49,6 +49,7 @@
 					<h:outputFormat value="#{msgs.lay_restricted_note_messages}" rendered="#{ChatTool.canRenderNumberMessages}" >
 						<f:param value="#{ChatTool.currentChannel.chatChannel.filterParam}" />
 					</h:outputFormat>
+					<h:outputText value="#{msgs.lay_restricted_note_none}" rendered="#{ChatTool.canRenderNoMessages}" />
 				</div>
 				<sakai:messages />
 				<div id="Monitor" class="chatListMonitor">

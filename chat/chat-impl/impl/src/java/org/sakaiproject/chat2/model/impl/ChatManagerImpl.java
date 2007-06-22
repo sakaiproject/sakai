@@ -23,7 +23,6 @@ package org.sakaiproject.chat2.model.impl;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -39,7 +38,6 @@ import java.util.Observer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
@@ -247,7 +245,8 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
       
       // Find out which values to use.
       // If the settings of the channel have more strict values then the passed info, use them instead.
-      if (channel.getFilterType().equals(ChatChannel.FILTER_BY_NUMBER)) {
+      if (channel.getFilterType().equals(ChatChannel.FILTER_BY_NUMBER) || 
+            channel.getFilterType().equals(ChatChannel.FILTER_NONE)) {
          if (localItems < 0) localItems = Integer.MAX_VALUE;
          if (!channel.isEnableUserOverride()) {
             localItems = Math.min(localItems, channel.getFilterParam());

@@ -29,6 +29,7 @@ public class DecoratedChatChannel {
    private ChatTool chatTool;
    private int filterParamPast;
    private int filterParamLast;
+   private int filterParamNone = 0;
    private boolean directEdit = false;
    private boolean newChannel = false;
 
@@ -138,6 +139,14 @@ public class DecoratedChatChannel {
 
    public void setFilterParamPast(int filterParamPast) {
       this.filterParamPast = filterParamPast;
+   }
+
+   public int getFilterParamNone() {
+      return filterParamNone;
+   }
+
+   public void setFilterParamNone(int filterParamNone) {
+      this.filterParamNone = filterParamNone;
    }
 
    public boolean isDirectEdit() {

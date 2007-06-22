@@ -39,6 +39,8 @@
 							itemLabel="" />
 						<f:selectItem id="typeTime" itemValue="SelectMessagesByTime"
 							itemLabel="" />
+						<f:selectItem id="typeNone" itemValue="SelectNoneMessages"
+							itemLabel="" />
 
 					</t:selectOneRadio>
 				</h:panelGroup>
@@ -48,6 +50,12 @@
 					<h:panelGrid columns="1" styleClass="jsfFormTable indnt1" cellpadding="0"
 						summary="layout">
 
+						<h:panelGroup>
+							<t:radio for="filterType" index="3" />
+							<h:outputLabel value="#{msgs['shownone']}" />
+							<h:inputHidden id="filterParam_none" 
+								value="#{ChatTool.currentChannelEdit.filterParamNone}" />
+						</h:panelGroup>
 						<h:panelGroup>
 							<t:radio for="filterType" index="0" />
 							<h:outputLabel value="#{msgs['custom.showall']}" />
