@@ -7,13 +7,13 @@
 #elseif ($eventType =="Cancellation")
 <img src = "#imageLink("sakai/cancelled.gif")" alt="$tlang.getString('del.cancell')" border="0">
 #elseif ($eventType =="Class section - Discussion")
-<img src = "#imageLink("sakai/class_dis.gif")" alt ="$tlang.getString('del.class') - $tlang.getString('del.disc')" border="0">
+<img src = "#imageLink("sakai/class_dis.gif")" alt ="$tlang.getString('del.class.disc')" border="0">
 #elseif ($eventType =="Class section - Lab")
-<img src = "#imageLink("sakai/class_lab.gif")" alt="$tlang.getString('del.class') - $tlang.getString('del.lab')" border="0">
+<img src = "#imageLink("sakai/class_lab.gif")" alt="$tlang.getString('del.class.lab')" border="0">
 #elseif ($eventType =="Class section - Lecture")
-<img src = "#imageLink("sakai/class_lec.gif")" alt="$tlang.getString('del.class') - $tlang.getString('del.lect')" border="0">
+<img src = "#imageLink("sakai/class_lec.gif")" alt="$tlang.getString('del.class.lect')" border="0">
 #elseif ($eventType =="Class section - Small Group")
-<img src = "#imageLink("sakai/class_sma.gif")" alt="$tlang.getString('del.class') - $tlang.getString('del.small')" border="0">
+<img src = "#imageLink("sakai/class_sma.gif")" alt="$tlang.getString('del.class.small')" border="0">
 #elseif ($eventType =="Class session")
 <img src = "#imageLink("sakai/class_session.gif")" alt="$tlang.getString('del.classsession')" border="0">
 #elseif ($eventType =="Computer Session")
@@ -181,13 +181,13 @@
                         #elseif ($eventType =="Cancellation")
                         <img src = "#imageLink("sakai/cancelled.gif")" alt="$tlang.getString('del.cancell')" border="0">
                         #elseif ($eventType =="Class section - Discussion")
-                        <img src = "#imageLink("sakai/class_dis.gif")" alt ="$tlang.getString('del.class') - $tlang.getString('del.disc')" border="0">
+                        <img src = "#imageLink("sakai/class_dis.gif")" alt ="$tlang.getString('del.class.disc')" border="0">
                         #elseif ($eventType =="Class section - Lab")
-                        <img src = "#imageLink("sakai/class_lab.gif")" alt="$tlang.getString('del.class') - $tlang.getString('del.lab')" border="0">
+                        <img src = "#imageLink("sakai/class_lab.gif")" alt="$tlang.getString('del.class.lab')" border="0">
                         #elseif ($eventType =="Class section - Lecture")
-                        <img src = "#imageLink("sakai/class_lec.gif")" alt="$tlang.getString('del.class') - $tlang.getString('del.lect')" border="0">
+                        <img src = "#imageLink("sakai/class_lec.gif")" alt="$tlang.getString('del.class.lect')" border="0">
                         #elseif ($eventType =="Class section - Small Group")
-                        <img src = "#imageLink("sakai/class_sma.gif")" alt="$tlang.getString('del.class') - $tlang.getString('del.small')" border="0">
+                        <img src = "#imageLink("sakai/class_sma.gif")" alt="$tlang.getString('del.class.small')" border="0">
                         #elseif ($eventType =="Class session")
                         <img src = "#imageLink("sakai/class_session.gif")" alt="$tlang.getString('del.classsession')" border="0">
                         #elseif ($eventType =="Computer Session")

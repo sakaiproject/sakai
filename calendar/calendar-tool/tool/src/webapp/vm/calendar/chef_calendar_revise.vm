@@ -587,27 +587,27 @@ function ampmChange(FieldName)
 				#end
 				
 				#if ($type =="Class section - Discussion") 
-				<option selected="selected" value="Class section - Discussion">$tlang.getString("del.class") - $tlang.getString("del.disc") </option>  
+				<option selected="selected" value="Class section - Discussion">$tlang.getString("del.class.disc")</option>  
 				#else 
-				<option value="Class section - Discussion">$tlang.getString("del.class") - $tlang.getString("del.disc") </option> 
+				<option value="Class section - Discussion">$tlang.getString("del.class.disc")</option> 
 				#end
 				
 				#if ($type =="Class section - Lab") 
-				<option selected="selected" value="Class section - Lab">$tlang.getString("del.class") - $tlang.getString("del.lab") </option> 
+				<option selected="selected" value="Class section - Lab">$tlang.getString("del.class.lab")</option> 
 				#else 
-				<option value="Class section - Lab">$tlang.getString("del.class") - $tlang.getString("del.lab") </option> 
+				<option value="Class section - Lab">$tlang.getString("del.class.lab")</option> 
 				#end
 				
 				#if ($type =="Class section - Lecture") 
-				<option selected="selected" value="Class section - Lecture">$tlang.getString("del.class") - $tlang.getString("del.lect") </option> 
+				<option selected="selected" value="Class section - Lecture">$tlang.getString("del.class.lect")</option> 
 				#else 
-				<option value="Class section - Lecture">$tlang.getString("del.class") - $tlang.getString("del.lect") </option> 
+				<option value="Class section - Lecture">$tlang.getString("del.class.lect")</option> 
 				#end
 				
 				#if ($type =="Class section - Small Group") 
-				<option selected="selected" value="Class section - Small Group">$tlang.getString("del.class") - $tlang.getString("del.small") </option> 
+				<option selected="selected" value="Class section - Small Group">$tlang.getString("del.class.small") </option> 
 				#else 
-				<option value="Class section - Small Group">$tlang.getString("del.class") - $tlang.getString("del.small") </option> 
+				<option value="Class section - Small Group">$tlang.getString("del.class.small") </option> 
 				#end
 				
 				#if ($type =="Class session") 
