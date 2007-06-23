@@ -69,11 +69,6 @@
       <artifactId>sakai-discussion-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
-    <dependency>
-      <groupId>sakaiproject</groupId>
-      <artifactId>sakai-chat-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
 
 <dependency>
       <groupId>sakaiproject</groupId>
