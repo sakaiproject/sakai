@@ -54,13 +54,13 @@ limitations under the License.
             <artifactId>sakai-poll-model-api</artifactId>
             <version>${sakai.version}</version>
             <scope>provided</scope>
-        </dependency>		
+        </dependency>
         <dependency>
             <groupId>org.sakaiproject</groupId>
             <artifactId>sakai-poll-logic-impl</artifactId>
             <version>${sakai.version}</version>
             <scope>provided</scope>
-        </dependency>	
+        </dependency>
         <dependency>
             <groupId>org.sakaiproject</groupId>
             <artifactId>sakai-poll-logic-api</artifactId>
@@ -132,47 +132,47 @@ limitations under the License.
         <dependency>
             <groupId>uk.org.ponder</groupId>
             <artifactId>ponderutilcore</artifactId>
-            <version>1.2.1</version>
+            <version>1.2.2M4</version>
             <type>jar</type>
         </dependency>
-		
+
         <dependency>
             <groupId>uk.org.ponder</groupId>
             <artifactId>j-servletutil</artifactId>
-            <version>1.2.1</version>
+            <version>1.2.2M4</version>
             <type>jar</type>
         </dependency>
-	
+
         <dependency>
             <groupId>uk.org.ponder.rsfutil</groupId>
             <artifactId>rsfutil</artifactId>
-            <version>0.7.1</version>
+            <version>0.7.2M4</version>
             <type>jar</type>
         </dependency>
 
         <dependency>
             <groupId>uk.org.ponder.sakairsf</groupId>
             <artifactId>SakaiRSF</artifactId>
-            <version>0.7.1-sakai_2.2.x</version>
+            <version>0.7.2M4-sakai_2.2.x</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>uk.org.ponder.rsfutil</groupId>
             <artifactId>RSFComponents-evolvers</artifactId>
-            <version>0.7.1</version>
+            <version>0.7.2M4</version>
             <type>jar</type>
          </dependency>
-    
+
          <dependency>
           <groupId>uk.org.ponder.sakairsf</groupId>
           <artifactId>SakaiRSFComponents-evolvers</artifactId>
-          <version>0.7.1-sakai_2.2.x</version>
+          <version>0.7.2M4-sakai_2.2.x</version>
           <type>jar</type>
         </dependency>
           <dependency>
            <groupId>uk.org.ponder.sakairsf</groupId>
            <artifactId>SakaiRSFComponents-templates</artifactId>
-           <version>0.7.1-sakai_2.2.x</version>
+           <version>0.7.2M4-sakai_2.2.x</version>
            <type>war</type>
          </dependency>
 
