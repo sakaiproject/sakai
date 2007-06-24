@@ -4,17 +4,17 @@
  ***********************************************************************************
  *
  * Copyright (c) 2003, 2004 The Sakai Foundation.
- * 
- * Licensed under the Educational Community License, Version 1.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
+ *
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.opensource.org/licenses/ecl1.php
- * 
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  *
  **********************************************************************************/
@@ -47,9 +47,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Analyzer;
@@ -65,6 +62,8 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Searcher;
 import org.apache.lucene.search.TermQuery;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
 import org.sakaiproject.api.app.help.Category;
 import org.sakaiproject.api.app.help.Context;
 import org.sakaiproject.api.app.help.Glossary;
@@ -84,7 +83,7 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanFactory;
-import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
 import org.springframework.orm.hibernate3.HibernateTransactionManager;
@@ -104,7 +103,7 @@ import sun.misc.BASE64Encoder;
  * HelpManager provides database and search capabilitites for the Sakai help tool.
  * @author <a href="mailto:jlannan.iupui.edu">Jarrod Lannan</a>
  * @version $Id$
- * 
+ *
  */
 public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 {
@@ -122,7 +121,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 
   private static final String TOC_API = "org.sakaiproject.api.app.help.TableOfContents";
 
-  
+
   private static String EXTERNAL_URL;
 
   private Map helpContextConfig = new HashMap();
@@ -138,8 +137,8 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
   private String supportEmailAddress;
 
   private ToolManager toolManager;
-  private HibernateTransactionManager txManager;    
-  
+  private HibernateTransactionManager txManager;
+
   Set allCategories = new TreeSet();
 
   private static final Log LOG = LogFactory.getLog(HelpManagerImpl.class);
@@ -188,13 +187,12 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 
   /**
    * return list of resources matching context id
-   * 
+   *
    * @param contextId
    * @return
    */
   public Set getResources(Long contextId)
   {
-    ContextBean context = (ContextBean) getContext(contextId);
     return searchResources(new TermQuery(new Term("context", "\"" + contextId
         + "\"")));
   }
@@ -204,8 +202,8 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
    * @see org.sakaiproject.api.app.help.HelpManager#storeResource(org.sakaiproject.api.help.Entity)
    */
   public void storeResource(Resource resource)
-  {    
-    getHibernateTemplate().saveOrUpdate(resource);   
+  {
+    getHibernateTemplate().saveOrUpdate(resource);
   }
 
   /**
@@ -332,7 +330,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
     }
     catch (ParseException e)
     {
-      LOG.debug("ParseException parsing Help search query  " + queryStr);
+      LOG.debug("ParseException parsing Help search query  " + queryStr, e);
       return null;
     }
   }
@@ -395,7 +393,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 
   /**
    * Search Lucene
-   * 
+   *
    * @param queryStr
    * @param defaultField
    * @return
@@ -467,7 +465,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
         doc.add(Field.Keyword("context", "\"" + ((String) i.next()) + "\""));
       }
     }
-    
+
 
     URL urlResource;
     URLConnection urlConnection = null;
@@ -497,7 +495,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
         {
           sBuffer.append(cbuf, 0, readReturn);
         }
-        
+
         // if document is coming from corpus then get document name from xml and assign to resource
         String resourceName = getRestConfiguration().getResourceNameFromCorpusDoc(sBuffer.toString());
         resource.setName(resourceName);
@@ -525,11 +523,11 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
     {
       return null;
     }
-    
+
     if (resource.getLocation() != null){
-      doc.add(Field.Keyword("location", resource.getLocation()));  
+      doc.add(Field.Keyword("location", resource.getLocation()));
     }
-    
+
     //doc.add(Field.Keyword("name", resource.getName()));
     doc.add(Field.Keyword("id", resource.getId().toString()));
 
@@ -567,7 +565,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
       //Collection categories = getHibernateTemplate()
       //    .loadAll(CategoryBean.class);
       toc.setCategories(allCategories);
-      
+
     }
     return toc;
   }
@@ -602,7 +600,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
    * @see org.sakaiproject.api.app.help.HelpManager#storeCategory(org.sakaiproject.api.help.Category)
    */
   public void storeCategory(Category category)
-  {    
+  {
     getHibernateTemplate().saveOrUpdate(category);
   }
 
@@ -633,8 +631,8 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
           SQLException
       {
     	  org.hibernate.Query q = session
-            .getNamedQuery(QUERY_GETRESOURCEBYDOCID);                
-        
+            .getNamedQuery(QUERY_GETRESOURCEBYDOCID);
+
         q.setString(DOCID, (docId == null) ? null : docId.toLowerCase());
         if (q.list().size() == 0){
           return null;
@@ -647,7 +645,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
     Resource resource = (Resource) getHibernateTemplate().execute(hcb);
     return resource;
   }
-  
+
   /**
    * @see org.sakaiproject.api.app.help.HelpManager#getWelcomePage()
    */
@@ -670,8 +668,8 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
         }
       }
     };
-    return (String) getHibernateTemplate().execute(hcb);    
-  }  
+    return (String) getHibernateTemplate().execute(hcb);
+  }
 
   /**
    * Find a Category by name
@@ -728,7 +726,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
    * @see org.sakaiproject.api.app.help.HelpManager#getSupportEmailAddress()
    */
   public String getSupportEmailAddress()
-  {    
+  {
     return supportEmailAddress;
   }
 
@@ -783,7 +781,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
   {
     this.restConfiguration = restConfiguration;
   }
-  
+
 
   /**
    * Reinitialize help content from UI
@@ -792,7 +790,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
     initialized = Boolean.FALSE;
     initialize();
   }
-  
+
   /**
    * Synchronize first access to tool.
    * @see org.sakaiproject.api.app.help.HelpManager#initialize()
@@ -810,7 +808,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
         if (!initialized.booleanValue())
         {
           dropExistingContent();
-          
+
           // handle external help content
           EXTERNAL_URL = getServerConfigurationService().getString(
               "help.location");
@@ -851,7 +849,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
     {
       public Object doInTransaction(TransactionStatus status)
       {
-      	getHibernateTemplate().bulkUpdate("delete CategoryBean");        
+      	getHibernateTemplate().bulkUpdate("delete CategoryBean");
         getHibernateTemplate().flush();
         return null;
       }
@@ -859,7 +857,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
   }
 
   /**
-   * Register help content either locally or externally 
+   * Register help content either locally or externally
    * Index resources in Lucene
    */
   private void registerHelpContent()
@@ -888,7 +886,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
     }
     catch (IOException e)
     {
-      LOG.error("failed to create IndexWriter " + e.getMessage());
+      LOG.error("failed to create IndexWriter " + e.getMessage(), e);
     }
 
     for (Iterator i = getResources().iterator(); i.hasNext();)
@@ -912,7 +910,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
       catch (IOException e)
       {
         LOG.error("I/O error while adding resource '" + "' ("
-            + resource.getName() + "): " + e.getMessage());
+            + resource.getName() + "): " + e.getMessage(), e);
       }
     }
     try
@@ -922,7 +920,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
     }
     catch (IOException e)
     {
-      LOG.error("failed to close writer " + e.getMessage());
+      LOG.error("failed to close writer " + e.getMessage(), e);
     }
 
     Date end = new Date();
@@ -952,21 +950,21 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
       InputSource is = new org.xml.sax.InputSource(bis);
       org.w3c.dom.Document xmlDocument = builder.parse(is);
 
-      Node helpRegNode = (Node) xmlDocument.getDocumentElement();      
+      Node helpRegNode = (Node) xmlDocument.getDocumentElement();
       recursiveExternalReg(helpRegNode, null);
-      
+
       // handle corpus docs
       if (!getRestConfiguration().getOrganization().equals("sakai")){
-        
+
         // get corpus document
-        String corpusXml = getRestConfiguration().getCorpusDocument();        
+        String corpusXml = getRestConfiguration().getCorpusDocument();
         DocumentBuilderFactory dbfCorpus = DocumentBuilderFactory.newInstance();
         dbfCorpus.setNamespaceAware(true);
-        DocumentBuilder builderCorpus = dbfCorpus.newDocumentBuilder();        
-        StringReader sReader = new StringReader(corpusXml);                              
+        DocumentBuilder builderCorpus = dbfCorpus.newDocumentBuilder();
+        StringReader sReader = new StringReader(corpusXml);
         InputSource isCorpus = new org.xml.sax.InputSource(sReader);
-        org.w3c.dom.Document xmlDocumentCorpus = builderCorpus.parse(isCorpus);        
-                             
+        org.w3c.dom.Document xmlDocumentCorpus = builderCorpus.parse(isCorpus);
+
         registerCorpusDocs(xmlDocumentCorpus);
         sReader.close();
       }
@@ -993,14 +991,14 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
       try{
         if (bis != null){
           bis.close();
-        }  
+        }
         if (bisCorpus != null){
           bisCorpus.close();
         }
       }
       catch (IOException e){
         LOG.error("error closing stream", e);
-      }            
+      }
     }
   }
 
@@ -1027,16 +1025,16 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
     // add non-standard ids (generic help topics rather than tool help)
     helpClasspathRegList.add("/sakai_iframe_myworkspace/help.xml");
     helpClasspathRegList.add("/sakai_menubar/help.xml");
-    helpClasspathRegList.add("/sakai_course_sites/help.xml");    
+    helpClasspathRegList.add("/sakai_course_sites/help.xml");
     helpClasspathRegList.add("/sakai_permissions/help.xml");
     helpClasspathRegList.add("/sakai_accessibility/help.xml");
 
     //Set allCategories = new TreeSet();
-    
+
 
     for (Iterator i = helpClasspathRegList.iterator(); i.hasNext();)
     {
-      String classpathUrl = (String) i.next();      
+      String classpathUrl = (String) i.next();
 
       URL urlResource = null;
 
@@ -1049,7 +1047,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
         }
         catch (MalformedURLException e)
         {
-          LOG.debug("Unable to load external URL: " + classpathUrl);
+          LOG.debug("Unable to load external URL: " + classpathUrl, e);
           continue;
         }
       }
@@ -1071,8 +1069,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
       }
       try
       {
-        org.springframework.core.io.Resource resource = new InputStreamResource(
-            urlResource.openStream(), classpathUrl);
+        org.springframework.core.io.Resource resource = new UrlResource(urlResource);
         BeanFactory beanFactory = new XmlBeanFactory(resource);
         TableOfContents tocTemp = (TableOfContents) beanFactory
             .getBean(TOC_API);
@@ -1083,13 +1080,13 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
       }
       catch (Exception e)
       {
-        LOG.debug("Unable to load classpath resource: " + classpathUrl);
+        LOG.debug("Unable to load classpath resource: " + classpathUrl, e);
       }
     }
 
     toc = new TableOfContentsBean();
     toc.setCategories(allCategories);
-        
+
   }
 
   private static int cnt = 0;
@@ -1118,7 +1115,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
       }
 
       Node currentNode = nodeList.item(i);
-      
+
       if ("category".equals(currentNode.getNodeName()))
       {
         Category childCategory = new CategoryBean();
@@ -1148,7 +1145,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
           {
             // name required
             resource.setName(nnm.getNamedItem("name").getNodeValue());
-            
+
             if (nnm.getNamedItem("location") != null)
             {
               resource.setLocation(nnm.getNamedItem("location").getNodeValue());
@@ -1170,7 +1167,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
               resource.setDefaultForTool(nnm.getNamedItem("defaultForTool")
                   .getNodeValue());
             }
-            
+
             // welcomePage is an optional attribute
             if (nnm.getNamedItem("welcomePage") != null)
             {
@@ -1188,48 +1185,48 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
           recursiveExternalReg(currentNode, category);
         }
      }
-     
+
   }
-  
+
   /**
    * Parse corpus document
    * @param doc document
    */
   public void registerCorpusDocs(org.w3c.dom.Document doc)
   {
-    if (doc == null)    
+    if (doc == null)
       return;
-    
+
     List arrayCorpus = new ArrayList();
 
     NodeList nodeList = doc.getElementsByTagName("id");
     int nodeListLength = nodeList.getLength();
 
     for (int i = 0; i < nodeListLength; i++)
-    {      
-      Node currentNode = nodeList.item(i);      
+    {
+      Node currentNode = nodeList.item(i);
       NodeList nlChildren = currentNode.getChildNodes();
-      
+
       for (int j = 0; j < nlChildren.getLength(); j++){
         if (nlChildren.item(j).getNodeType() == Node.TEXT_NODE){
           arrayCorpus.add(nlChildren.item(j).getNodeValue());
         }
-      }            
+      }
     }
-    
+
     // iterate through corpus docs and add to home category if not already
     // added by help.xml external registration
-    
+
     // if Home category does not exist, then create it
     if (getCategoryByName("Home") == null){
       Category cat = new CategoryBean();
       cat.setName("Home");
       storeCategory(cat);
     }
-    
+
     for (int i = 0; i < arrayCorpus.size(); i++){
       String currentDocId = (String) arrayCorpus.get(i);
-      
+
       // if the corpus doc does not already exist from help.xml, then add it to the Home category
       if (this.getResourceByDocId(currentDocId) == null){
         Resource resource = new ResourceBean();
@@ -1238,10 +1235,10 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
         Category homeCategory = getCategoryByName("Home");
         resource.setCategory(homeCategory);
         homeCategory.getResources().add(resource);
-        storeResource(resource);    
+        storeResource(resource);
       }
-    }               
-  }  
-      
+    }
+  }
+
 }
 
