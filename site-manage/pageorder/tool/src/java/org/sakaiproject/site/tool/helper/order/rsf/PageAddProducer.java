@@ -81,7 +81,7 @@ public class PageAddProducer implements ViewComponentProducer, ViewParamsReporte
             
 
             for (int i = 0; i < tools.size(); i++ ) {
-                UIBranchContainer toolrow = UIBranchContainer.make(toolList, "tool-row:");
+                UIBranchContainer toolrow = UIBranchContainer.make(toolList, "tool-row:", Integer.toString(i));
                 Tool tool = (Tool) tools.get(i);
                 toolrow.localID = tool.getId();
                 

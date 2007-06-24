@@ -1,11 +1,15 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:rsf="http://ponder.org.uk" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+</head>
+<body>
 <div id="add-item-shell">
 	<div rsf:id="mode-pass:">
 		<div rsf:id="tool-list:">
 			<div class="option_list">
 				<div id="option-label">
 					<a href="#" rsf:id="refresh-link" class="item_control" title="Refresh List" onclick="showAddPage(this.href); return false;">
-						<img src="../images/arrow_refresh.gif" rsf:id="scr=rewrite-url"/>
+						<img src="../images/arrow_refresh.gif" />
 					</a>
 					<strong rsf:id="option-label">Available Pages</strong>
 				</div>
@@ -13,7 +17,7 @@
 					<li class="sortable_item" rsf:id="tool-row:">
 						<div>
 							<a href="#" onclick="addTool($(this).parent().parent(), true); return false;" rsf:id="tool-add-url" class="tool_add_url">
-								<img src="../images/add.gif" rsf:id="scr=rewrite-url"/>
+								<img src="../images/add.gif" />
 							</a>
 							<span rsf:id="tool-name"/>
 						</div>
@@ -40,3 +44,5 @@
 	</div>
 	<li class="sortable_item" rsf:id="page-row:"></li>
 </div>
+</body>
+</html>

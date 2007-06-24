@@ -1,10 +1,10 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns:rsf="http://ponder.org.uk" xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<title>Site Page Order</title>
-	<link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all"/>
-	<link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all"/>
-	<link href="../css/PageList.css" rsf:id="scr=rewrite-url" rel="stylesheet" type="text/css" />
+	<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+	<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+	<link href="../css/PageList.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript" rsf:id="resize"/>
 	<script type="text/javascript" src="../js/jquery/jquery-1.0.1.pack.js" rsf:id="scr=rewrite-url"></script>
 	<script type="text/javascript" src="../js/jquery/iutil.js" rsf:id="scr=rewrite-url"></script>
@@ -15,7 +15,7 @@
 	<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
 </head>
 
-<body rsf:id="scr=sakai-body">
+<body>
  	<div id="page-order-body" class="portletBody">
 		<a href="#" rsf:id="redirect">go back</a>
 		<div rsf:id="content:">
@@ -35,7 +35,7 @@
 								<strong rsf:id="list-label">Current Pages</strong>
 							</div>
 							<ul class="sortable" id="sort1">
-								<li class="sortable_item" title="Click And Drag Pages Into The Order That You Want" rsf:id="page-row:">
+								<li rsf:id="page-row:" id="content:::page-row::" class="sortable_item" title="Click And Drag Pages Into The Order That You Want" >
 									<div class="item_edit_box" style="display: none;">
 										<div>
 											<label rsf:id="page-name-label">Title</label>
@@ -83,7 +83,7 @@
 						<div id="add-panel"></div>
 						<div id="add-control">
 							<a href="#" rsf:id="add-link" class="item_control" title="Display Pages Currently Available To Add To This Site" onclick="showAddPage(this.href, true); return false;">
-								<strong rsf:id="add-page">Add Page</strong><img src="../images/add.gif" rsf:id="scr=rewrite-url"/>
+								<strong rsf:id="add-page">Add Page</strong><img src="../images/add.gif" />
 							</a>
 						</div>
 						<div rsf:id="error:">
@@ -91,7 +91,7 @@
 						</div>
 					</td></tr>
 				</table>
-				<input rsf:id="state-init" type="hidden"/>
+				<input rsf:id="state-init" id="content:::state-init" type="hidden"/>
 				<span id="del-message"><strong rsf:id="del-message" class="hidden"/></span>
 				<span id="exit-message"><strong rsf:id="exit-message" class="hidden"/></span>
 				<span id="reset-message"><strong rsf:id="reset-message" class="hidden"/></span>
