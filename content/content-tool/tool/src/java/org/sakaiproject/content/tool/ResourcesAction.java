@@ -2019,10 +2019,16 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	
     public static List<ResourceToolAction> getPasteActions(ContentEntity selectedItem, Set<ContentPermissions> permissions, ResourceTypeRegistry registry, List<String> items_to_be_moved, List<String> items_to_be_copied)
     {
-	    Reference ref = EntityManager.newReference(selectedItem.getReference());
-	    
 	    List<ResourceToolAction> actions = new Vector<ResourceToolAction>();
 	    
+	    // if nothing to paste, just return an empty list
+    	if((items_to_be_moved == null || items_to_be_moved.isEmpty()) && (items_to_be_copied == null || items_to_be_copied.isEmpty()))
+    	{
+    		return actions;
+    	}
+    	
+	    Reference ref = EntityManager.newReference(selectedItem.getReference());
+	    	    
 	    Set<String> memberIds = new TreeSet<String>();
 	    if(permissions.contains(ContentPermissions.CREATE))
 	    {
