@@ -96,7 +96,7 @@
         <param name="sequence">SAM_STUDENTGRADINGSUMMARY_ID_S</param>
       </generator>
     </id>
-    <property name="publishedAssessmentId" column="PUBLISHEDASSESSMENTID" not-null="true" type="long" index="SAM_STUDENTGRADSUMRY_PUBA_I" />
+    <property name="publishedAssessmentId" column="PUBLISHEDASSESSMENTID" not-null="true" type="long" index="SAM_PUBLISHEDASSESSMENT2_I" />
     <property name="agentId" type="string" length="255" column="AGENTID" not-null="true" />
     <property name="numberRetake" type="integer" column="NUMBERRETAKE" not-null="false" />
     <property name="createdBy" type="string" length="255" column="CREATEDBY" not-null="true" />
