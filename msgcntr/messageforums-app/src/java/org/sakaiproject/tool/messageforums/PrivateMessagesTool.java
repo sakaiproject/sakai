@@ -1679,6 +1679,11 @@ public class PrivateMessagesTool
       //set prev/next message
       setPrevNextMessageDetails();
       
+      if (searchPvtMsgs != null)
+      {
+    	  searchPvtMsgs = null;
+    	  return DISPLAY_MESSAGES_PG;
+      }
     }
     return null;
   }
@@ -1711,7 +1716,14 @@ public class PrivateMessagesTool
       setPrevNextTopicDetails(msgNavMode);
       //set prev/next message
       setPrevNextMessageDetails();
+      
+      if (searchPvtMsgs != null)
+      {
+    	  searchPvtMsgs = null;
+    	  return DISPLAY_MESSAGES_PG;
+      }
     }
+
     return null;
   }
 /////////////////////////////////////     DISPLAY NEXT/PREVIOUS TOPIC     //////////////////////////////////

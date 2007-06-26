@@ -35,33 +35,7 @@
 			<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>		
 			
 			<%--<sakai:tool_bar_message value="#{msgs.pvt_pvtmsg}- #{PrivateMessagesTool.msgNavMode}" /> --%>
-			<h:panelGrid columns="2" summary="layout" width="100%" styleClass="navPanel">
-        <h:panelGroup>
-          	<f:verbatim><div class="breadCrumb specialLink"><h3></f:verbatim>
-				  <h:panelGroup rendered="#{PrivateMessagesTool.messagesandForums}" >
-				  	<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title="#{msgs.cdfm_message_forums}"/>
-				  	<f:verbatim><h:outputText value=" / " /></f:verbatim>
-				  </h:panelGroup>
-	  		      <h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" value="#{msgs.pvt_message_nav}" title=" #{msgs.cdfm_message_forums}"/>
-	              <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
-	 		      <h:outputText value="#{PrivateMessagesTool.msgNavMode}"/>
-			    <f:verbatim></h3></div></f:verbatim>
-        </h:panelGroup>
-        <h:panelGroup styleClass="itemNav specialLink">
-		<%-- gsilver:huh? renders anyway - because it is looking at topics instead of at folders?--%>
-				 <h:commandLink action="#{PrivateMessagesTool.processDisplayPreviousTopic}" value="#{msgs.pvt_prev_folder}"  
-				                rendered="#{PrivateMessagesTool.selectedTopic.hasPreviousTopic}" title=" #{msgs.pvt_prev_folder}">
-	  			   <f:param value="#{PrivateMessagesTool.selectedTopic.previousTopicTitle}" name="previousTopicTitle"/>
-	  		   </h:commandLink>
-				<h:outputText 	value="#{msgs.pvt_prev_folder}"  rendered="#{!PrivateMessagesTool.selectedTopic.hasPreviousTopic}" />
-				  <f:verbatim><h:outputText value=" | " /></f:verbatim>
-	  		   <h:commandLink action="#{PrivateMessagesTool.processDisplayNextTopic}" value="#{msgs.pvt_next_folder}" 
-	  		                  rendered="#{PrivateMessagesTool.selectedTopic.hasNextTopic}" title=" #{msgs.pvt_next_folder}">
-	  			  <f:param value="#{PrivateMessagesTool.selectedTopic.nextTopicTitle}" name="nextTopicTitle"/>
-	  		   </h:commandLink>
-			   				<h:outputText 	 value="#{msgs.pvt_next_folder}"  rendered="#{!PrivateMessagesTool.selectedTopic.hasNextTopic}" />
-        </h:panelGroup>
-      </h:panelGrid>
+			<%@include file="topNav.jsp" %>
  
  			<h:messages styleClass="alertMessage" id="errorMessages" /> 
  			<!-- Display successfully moving checked messsages to Deleted folder -->

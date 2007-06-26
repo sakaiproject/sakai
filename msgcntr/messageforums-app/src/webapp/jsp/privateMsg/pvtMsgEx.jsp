@@ -13,14 +13,7 @@
 		<h:form id="prefs_form_search">
 			<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>		
 			
-			<div class="breadCrumb">
-				<h3>
-				<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"/> /
-	  		  <h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" value="#{msgs.cdfm_message_pvtarea}" title=" #{msgs.cdfm_message_forums}"/> /
-				<h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="#{PrivateMessagesTool.msgNavMode}" title=" #{msgs.cdfm_message_forums}"/> /
-				<h:outputText value="#{msgs.pvt_search}" />
-				</h3>
-		  </div>
+			<%@include file="topNav.jsp" %>
 
 			<h:messages styleClass="alertMessage" id="errorMessages" />
 			<%@include file="msgHeader.jsp"%>

@@ -1,0 +1,41 @@
+<%-- For breadcrumb, displays either Messages & Forums / Messages / or just Messages /
+	 also displays the Previous/Next folder links --%>
+ <h:panelGrid columns="2" summary="layout" width="100%" styleClass="navPanel">	 		
+	<h:panelGroup>
+		<f:verbatim><div class="breadCrumb specialLink"><h3></f:verbatim>
+			<h:panelGroup rendered="#{PrivateMessagesTool.messagesandForums}" >
+				<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title="#{msgs.cdfm_message_forums}"/>
+				<h:outputText value=" / " />
+			</h:panelGroup>
+	  	
+			<h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" value="#{msgs.pvt_message_nav}" title=" #{msgs.cdfm_message_forums}"/>
+			<h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
+			
+			<h:outputText value="#{PrivateMessagesTool.msgNavMode}" rendered="#{PrivateMessagesTool.searchPvtMsgs == null}" />
+		
+			<h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="#{PrivateMessagesTool.msgNavMode}" title=" #{msgs.cdfm_message_forums}"
+								rendered="#{PrivateMessagesTool.searchPvtMsgs != null}" />
+			<h:outputText value=" " />
+			<h:outputText value=" / " rendered="#{PrivateMessagesTool.searchPvtMsgs != null}" />
+			<h:outputText value=" " />
+			
+			<h:outputText value="#{msgs.pvt_search}" rendered="#{PrivateMessagesTool.searchPvtMsgs != null}" />
+		
+		<f:verbatim></h3></div></f:verbatim>
+	</h:panelGroup>
+	<h:panelGroup styleClass="itemNav specialLink">
+		<%-- gsilver:huh? renders anyway - because it is looking at topics instead of at folders?--%>
+		<h:commandLink action="#{PrivateMessagesTool.processDisplayPreviousTopic}" value="#{msgs.pvt_prev_folder}"  
+			                rendered="#{PrivateMessagesTool.selectedTopic.hasPreviousTopic}" title=" #{msgs.pvt_prev_folder}">
+			<f:param value="#{PrivateMessagesTool.selectedTopic.previousTopicTitle}" name="previousTopicTitle"/>
+		</h:commandLink>
+		<h:outputText value="#{msgs.pvt_prev_folder}" rendered="#{!PrivateMessagesTool.selectedTopic.hasPreviousTopic}" />
+		<f:verbatim><h:outputText value=" | " /></f:verbatim>
+	
+		<h:commandLink action="#{PrivateMessagesTool.processDisplayNextTopic}" value="#{msgs.pvt_next_folder}" 
+				  		                  rendered="#{PrivateMessagesTool.selectedTopic.hasNextTopic}" title=" #{msgs.pvt_next_folder}">
+			<f:param value="#{PrivateMessagesTool.selectedTopic.nextTopicTitle}" name="nextTopicTitle"/>
+		</h:commandLink>
+		<h:outputText value="#{msgs.pvt_next_folder}" rendered="#{!PrivateMessagesTool.selectedTopic.hasNextTopic}" />
+	</h:panelGroup>
+</h:panelGrid>
