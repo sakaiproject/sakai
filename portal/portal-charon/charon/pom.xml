@@ -21,6 +21,17 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-portal-impl</artifactId>
       <version>${sakai.version}</version>
+      <exclusions>
+      	<!-- These are in shared and cause problems when packaged here as well. -->
+      	<exclusion>
+      		<groupId>dom4j</groupId>
+      		<artifactId>dom4j</artifactId>
+      	</exclusion>
+      	<exclusion>
+      		<groupId>jdom</groupId>
+      		<artifactId>jdom</artifactId>
+      	</exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
@@ -57,11 +68,6 @@
        <groupId>wurfl</groupId>
        <artifactId>wall-tomcat5</artifactId>
        <version>b1</version>
-    </dependency>
-    <dependency>
-       <groupId>xom</groupId>
-       <artifactId>xom</artifactId>
-       <version>1.1</version>
     </dependency>
   </dependencies>
   <build>
