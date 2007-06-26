@@ -1909,9 +1909,7 @@ public class SiteAction extends PagedResourceActionII {
 					context.put("selectedIcon", site.getIconUrl());
 				}
 
-				setTermListForContext(context, state, false); // false => all
-				// possible
-				// terms
+				setTermListForContext(context, state, true); // true->only future terms
 
 				if (state.getAttribute(FORM_SITEINFO_TERM) == null) {
 					String currentTerm = site.getProperties().getProperty(
@@ -2438,8 +2436,7 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("isCourseSite", Boolean.TRUE);
 				context.put("currentTermId", site.getProperties().getProperty(
 						PROP_SITE_TERM));
-				setTermListForContext(context, state, true); // true =>
-				// upcoming only
+				setTermListForContext(context, state, true); // true upcoming only
 			} else {
 				context.put("isCourseSite", Boolean.FALSE);
 			}
@@ -2451,7 +2448,7 @@ public class SiteAction extends PagedResourceActionII {
 						.getAttribute(SITE_DUPLICATED_NAME));
 			}
 
-			setTermListForContext(context, state, true);
+			setTermListForContext(context, state, true); // true-> upcoming only
 
 			return (String) getContext(data).get("template") + TEMPLATE[29];
 		case 36:
@@ -2466,9 +2463,7 @@ public class SiteAction extends PagedResourceActionII {
 			if (site != null) {
 				context.put("site", site);
 				context.put("siteTitle", site.getTitle());
-				setTermListForContext(context, state, false); // false => all
-				// possible
-				// terms
+				setTermListForContext(context, state, true); // true -> upcoming only
 
 				List providerCourseList = (List) state
 						.getAttribute(SITE_PROVIDER_COURSE_LIST);
@@ -3271,7 +3266,7 @@ public class SiteAction extends PagedResourceActionII {
 				.getAttribute("manualCourseSectionList"));
 		context.put("term", (AcademicSession) state
 				.getAttribute(STATE_TERM_SELECTED));
-		setTermListForContext(context, state, false);
+		setTermListForContext(context, state, true); //-> future terms only
 		context.put(STATE_TERM_COURSE_LIST, state
 				.getAttribute(STATE_TERM_COURSE_LIST));
 		context.put("tlang", rb);
