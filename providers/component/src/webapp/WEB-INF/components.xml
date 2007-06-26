@@ -202,43 +202,5 @@
 				</bean>
 			</property>
 	</bean>
-	
-<!--
-	The CM-based legacy CM provider makes heavy use of the CM service.  So, if we're
-	using the CM RI, wrap the legacy CM provider in a transaction proxy so we
-	can take advantage of hibernate's session-level caching.  If you are using another
-	CM implementation, you should ensure that it performs aggressive caching, since
-	calls from the CM-based legacy CM provider to the CM service are plentiful.
-
-	<bean id="org.sakaiproject.site.api.CourseManagementProvider"
-		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
-			<property name="transactionManager">
-				<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
-			</property>
-			<property name="transactionAttributes">
-				<props>
-					<prop key="*">PROPAGATION_REQUIRED,readOnly</prop>
-				</props>
-			</property>
-			<property name="target">
-				<bean class="org.sakaiproject.coursemanagement.impl.provider.CourseManagementProviderCMImpl">
-					<property name="cmService">
-						<ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"/>
-					</property>
-					<property name="cmGroupProvider">
-						<ref bean="org.sakaiproject.authz.api.GroupProvider"/>
-					</property>
-					<property name="uds">
-						<ref bean="org.sakaiproject.user.api.UserDirectoryService"/>
-					</property>
-					<property name="sectionMappingRoles">
-						<list>
-							<value>Instructor</value>
-						</list>
-					</property>
-				</bean>
-			</property>
-	</bean>
--->
 
 </beans>
