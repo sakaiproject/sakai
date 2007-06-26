@@ -475,10 +475,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 
   public void movePvtMsgTopic(PrivateMessage message, Topic oldTopic, Topic newTopic)
   {
-    List recipients = new UniqueArrayList(); 
-    
-    recipients.add(message.getRecipients());
-    
+    List recipients= message.getRecipients();
     //get new topic type uuid
     String newTopicTypeUuid=getTopicTypeUuid(newTopic.getTitle());
     //get pld topic type uuid
