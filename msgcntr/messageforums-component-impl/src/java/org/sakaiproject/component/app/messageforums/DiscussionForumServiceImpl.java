@@ -86,6 +86,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 	private static final String DRAFT = "draft";
 	private static final String LOCKED = "locked";
 	private static final String MODERATED = "moderated";
+	private static final String SORT_INDEX = "sort_index";
 	private static final String PROPERTIES = "properties";
 	private static final String PROPERTY = "property";
 	private static final String TOPIC_SHORT_DESC = "Classic:bboardForums_description";
@@ -162,6 +163,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 								df_data.setAttribute(DRAFT, forum.getDraft().toString());
 								df_data.setAttribute(LOCKED, forum.getLocked().toString());
 								df_data.setAttribute(MODERATED, forum.getModerated().toString());
+								df_data.setAttribute(SORT_INDEX, forum.getSortIndex().toString());
 
 
 								try {
@@ -393,6 +395,8 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 
 			//List fromDfList = dfManager.getDiscussionForumsByContextId(fromContext);
 			List fromDfList = dfManager.getDiscussionForumsWithTopicsMembershipNoAttachments(fromContext);
+			List existingForums = dfManager.getDiscussionForums();
+			int numExistingForums = existingForums.size();
 
 			if (fromDfList != null && !fromDfList.isEmpty()) {
 				for (int currForum = 0; currForum < fromDfList.size(); currForum++) {
@@ -411,6 +415,13 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 					newForum.setDraft(fromForum.getDraft());
 					newForum.setLocked(fromForum.getLocked());
 					newForum.setModerated(fromForum.getModerated());
+					
+					// set the forum order. any existing forums will be first
+					// if the "from" forum has a 0 sort index, there is no sort order
+					Integer fromSortIndex = fromForum.getSortIndex();
+					if (fromSortIndex != null && fromSortIndex.intValue() > 0) {
+						newForum.setSortIndex(new Integer(fromForum.getSortIndex().intValue() + numExistingForums));
+					}
 
 					// get permissions for "from" site
 					Set membershipItemSet = fromForum.getMembershipItemSet();
@@ -540,6 +551,9 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 
 	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans, Set userListAllowImport)
 	{
+		List existingForums = dfManager.getDiscussionForums();
+		int numExistingForums = existingForums.size();
+		
 		Base64 base64Encoder = new Base64();
 		StringBuffer results = new StringBuffer();
 		if (siteId != null && siteId.trim().length() > 0)
@@ -587,6 +601,17 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 										else
 										{
 											dfForum.setModerated(Boolean.FALSE);
+										}
+										
+										String forumSortIndex = forumElement.getAttribute(SORT_INDEX);
+										if(forumSortIndex != null && forumSortIndex.length() > 0) {
+											try {
+												Integer sortIndex = new Integer(forumSortIndex);
+												sortIndex = new Integer(sortIndex.intValue() + numExistingForums);
+												dfForum.setSortIndex(sortIndex);
+											} catch (NumberFormatException nfe) {
+												// do nothing b/c invalid
+											}
 										}
 
 										String forumDesc = forumElement.getAttribute(DISCUSSION_FORUM_DESC);
