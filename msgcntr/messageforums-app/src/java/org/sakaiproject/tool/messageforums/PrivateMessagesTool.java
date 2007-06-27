@@ -1000,7 +1000,8 @@ public class PrivateMessagesTool
     LOG.debug("processActionHome()");
     msgNavMode = "privateMessages";
     multiDeleteSuccess = false;
-    searchPvtMsgs.clear();
+    if (searchPvtMsgs != null)
+    	searchPvtMsgs.clear();
     return  MAIN_PG;
   }  
   public String processActionPrivateMessages()
@@ -1008,7 +1009,8 @@ public class PrivateMessagesTool
     LOG.debug("processActionPrivateMessages()");                    
     msgNavMode = "privateMessages";            
     multiDeleteSuccess = false;
-    searchPvtMsgs.clear();
+    if (searchPvtMsgs != null) 
+    	searchPvtMsgs.clear();
     return  MESSAGE_HOME_PG;
   }        
   public String processDisplayForum()
