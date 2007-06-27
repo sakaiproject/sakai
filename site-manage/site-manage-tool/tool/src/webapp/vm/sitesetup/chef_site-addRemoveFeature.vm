@@ -55,7 +55,6 @@
 				#end
 				<tr>
 					<td>
-						#if (!$myworkspace_site || ($myworkspace_site && ($toolId.indexOf("sakai.rwiki") != -1 || $toolId.indexOf("sakai.news") != -1 || $toolId.indexOf("sakai.iframe") != -1 || $!defaultTools.indexOf($toolId) != -1)))
 							<input type="checkbox" name="selectedTools" value="$toolId" id="$toolId"  
 								#if ($!defaultTools.indexOf($toolId) != -1)
 									checked="checked" disabled="disabled" 
@@ -69,11 +68,6 @@
 									#end
 								#end
 							/>
-						#elseif ($myworkspace_site && $toolId.indexOf("sakai.rwiki") == -1 && $toolId.indexOf("sakai.news") == -1 && $toolId.indexOf("sakai.iframe") == -1)
-							<input type="hidden" name="selectedTools" value="$toolId" />
-						#else
-							<div class="clear"></div>
-						#end
 					</td>
 					<td>
 						<h4>
