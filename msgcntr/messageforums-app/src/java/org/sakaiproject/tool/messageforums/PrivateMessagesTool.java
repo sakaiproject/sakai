@@ -1000,6 +1000,7 @@ public class PrivateMessagesTool
     LOG.debug("processActionHome()");
     msgNavMode = "privateMessages";
     multiDeleteSuccess = false;
+    searchPvtMsgs.clear();
     return  MAIN_PG;
   }  
   public String processActionPrivateMessages()
@@ -1007,6 +1008,7 @@ public class PrivateMessagesTool
     LOG.debug("processActionPrivateMessages()");                    
     msgNavMode = "privateMessages";            
     multiDeleteSuccess = false;
+    searchPvtMsgs.clear();
     return  MESSAGE_HOME_PG;
   }        
   public String processDisplayForum()
@@ -1681,7 +1683,7 @@ public class PrivateMessagesTool
       
       if (searchPvtMsgs != null)
       {
-    	  searchPvtMsgs = null;
+    	  searchPvtMsgs.clear();
     	  return DISPLAY_MESSAGES_PG;
       }
     }
@@ -1719,7 +1721,7 @@ public class PrivateMessagesTool
       
       if (searchPvtMsgs != null)
       {
-    	  searchPvtMsgs = null;
+    	  searchPvtMsgs.clear();
     	  return DISPLAY_MESSAGES_PG;
       }
     }
@@ -3250,7 +3252,8 @@ public class PrivateMessagesTool
     }
 
 
-    public String getAuthorString() {
+    public String getAuthorString() 
+    {
        String authorString = getUserId();
        
        try
@@ -3266,12 +3269,17 @@ public class PrivateMessagesTool
        return authorString;
     }
     
-    public String getPlacementId() {
+    public String getPlacementId() 
+    {
        return Validator.escapeJavascript("Main" + ToolManager.getCurrentPlacement().getId());
     }
 
+    public boolean isSearchPvtMsgsEmpty()
+    {
+    	return searchPvtMsgs == null || searchPvtMsgs.isEmpty();
+    }
 
-	public void setMsgNavMode(String msgNavMode) {
+    public void setMsgNavMode(String msgNavMode) {
 		this.msgNavMode = msgNavMode;
 	}	
 	
