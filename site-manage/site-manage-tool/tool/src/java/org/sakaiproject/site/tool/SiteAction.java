@@ -5020,27 +5020,12 @@ public class SiteAction extends PagedResourceActionII {
 								+ sessionUserName + ", ");
 						buf.append(rb.getString("java.who") + "\n");
 						if (termExist) {
-							String dateString = term.getStartDate().toString();
-							String year = dateString.substring(dateString
-									.length() - 4);
-							buf.append(term.getTitle() + " " + year + "\n");
-
+							buf.append(term.getTitle());
 						}
 
-						// what are the required fields shown in the UI
-						List requiredFields = sectionFieldManager
-								.getRequiredFields();
-						for (int i = 0; i < requestListSize; i++) {
-							List requiredFieldList = (List) requestFields
-									.get(i);
-							for (int j = 0; j < requiredFieldList.size(); j++) {
-								SectionField requiredField = (SectionField) requiredFields
-										.get(j);
-
-								buf.append(requiredField.getLabelKey() + "\t"
-										+ requiredField.getValue() + "\n");
-							}
-						}
+						// requsted sections
+						addRequestedSectionIntoNotification(state, requestFields, buf);
+						
 						buf.append("\n" + rb.getString("java.sitetitle") + "\t"
 								+ title + "\n");
 						buf.append(rb.getString("java.siteid") + "\t" + id);
@@ -5098,9 +5083,7 @@ public class SiteAction extends PagedResourceActionII {
 						+ rb.getString("java.coursesite") + " ");
 			}
 			if (termExist) {
-				String dateString = term.getStartDate().toString();
-				String year = dateString.substring(dateString.length() - 4);
-				buf.append(term.getTitle() + " " + year);
+				buf.append(term.getTitle());
 			}
 			if (requestListSize > 1) {
 				buf.append(" " + rb.getString("java.forthese") + " "
@@ -5111,16 +5094,8 @@ public class SiteAction extends PagedResourceActionII {
 			}
 
 			// what are the required fields shown in the UI
-			List requiredFields = sectionFieldManager.getRequiredFields();
-			for (int i = 0; i < requestListSize; i++) {
-				List requiredFieldList = (List) requestFields.get(i);
-				for (int j = 0; j < requiredFieldList.size(); j++) {
-					SectionField requiredField = (SectionField) requiredFields.get(j);
-
-					buf.append(requiredField.getLabelKey() + "\t" + requiredField.getValue()
-							+ "\n");
-				}
-			}
+			addRequestedSectionIntoNotification(state, requestFields, buf);
+			
 			buf.append(rb.getString("java.name") + "\t" + sessionUserName
 					+ " (" + noEmailInIdAccountName + " " + cUser.getEid()
 					+ ")\n");
@@ -5162,6 +5137,22 @@ public class SiteAction extends PagedResourceActionII {
 		} // if
 
 	} // sendSiteRequest
+
+	private void addRequestedSectionIntoNotification(SessionState state, List requestFields, StringBuffer buf) {
+		// what are the required fields shown in the UI
+		List requiredFields = state.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS) != null ?(List) state.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS):new Vector();
+		for (int i = 0; i < requiredFields.size(); i++) {
+			List requiredFieldList = (List) requestFields
+					.get(i);
+			for (int j = 0; j < requiredFieldList.size(); j++) {
+				SectionField requiredField = (SectionField) requiredFieldList
+						.get(j);
+
+				buf.append(requiredField.getLabelKey() + "\t"
+						+ requiredField.getValue() + "\n");
+			}
+		}
+	}
 
 	private void sendSiteRequest(SessionState state, String request,
 			List<SectionObject> cmRequestedSections) {
