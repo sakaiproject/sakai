@@ -68,7 +68,7 @@
     </property>
         
     <!-- PrivateForum fields -->
-    <property name="owner">
+    <property name="owner" unique-key="uniquePFOwnerContext">
       <column name="OWNER" length="255" not-null="true" index = "MFR_PRIVATE_FORUM_OWNER_I"/>
     </property>
     <property name="autoForward">
@@ -83,7 +83,7 @@
  
     <many-to-one name="area" column="surrogateKey"
         class="org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl"
-        not-null="false" index="MFR_PF_PARENT_BASEFORUM_I" cascade="none" />
+        not-null="false" index="MFR_PF_PARENT_BASEFORUM_I" cascade="none" unique-key="uniquePFOwnerContext"/>
     <!-- <property name="areaindex" column="area_index_col" type="int" update="true" insert="true"/> -->
       
   </class>
