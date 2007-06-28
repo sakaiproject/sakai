@@ -282,12 +282,12 @@ public class MockCharonPortal extends HttpServlet
 		rcontext.put("loginLogInOutUrl", "logInOutUrl");
 		rcontext.put("loginMessage", "message");
 		rcontext.put("loginImage1", "image1");
-		rcontext.put("image1HasImage1", Boolean.valueOf(true));
+		rcontext.put("loginHasImage1", Boolean.valueOf(true));
 		rcontext.put("loginLogInOutUrl2", "logInOutUrl2");
 		rcontext.put("loginHasLogInOutUrl2", Boolean.valueOf(true));
 		rcontext.put("loginMessage2", "message2");
 		rcontext.put("loginImage2", "image2");
-		rcontext.put("image1HasImage2", Boolean.valueOf(true));
+		rcontext.put("loginHasImage2", Boolean.valueOf(true));
 
 		rcontext.put("loginPortalPath", "portalPath");
 		rcontext.put("loginEidWording", "eidWording");

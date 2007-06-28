@@ -213,7 +213,7 @@ ${responseHead}
 	<div id="loginLinks">
 		<a href="${loginLogInOutUrl}" title="${loginMessage}">
 #if (${loginHasImage1}) 
-			<img src="${loginImage1}"/>
+			<img src="${loginImage1}" alt="${loginMessage}"/>
 #else
 			${loginMessage}
 #end
@@ -221,7 +221,7 @@ ${responseHead}
 #if (${loginHasLogInOutUrl2})
 		<a href="${loginLogInOutUrl2}" title="${loginMessage2}">
 #if (${loginHasImage2}) 
-			<img alt="${loginMessage2}" src="${loginImage2}"/>
+			<img alt="${loginMessage2}" src="${loginImage2} alt="${loginMessage2}"/>
 #else
 			${loginMessage2}
 #end
