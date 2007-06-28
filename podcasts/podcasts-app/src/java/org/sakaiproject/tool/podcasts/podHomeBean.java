@@ -519,6 +519,35 @@ public class podHomeBean {
 		return URL;
 	}
 	
+	private String getPermissionsMessage() {
+		return "Set permissions for " + podcastService.getUserId() + " in worksite " +
+		   		 SiteService.getSiteDisplay(podcastService.getSiteId()) ;
+	}
+
+/*	FUTURE DEVELOPMENT: display change permissions page within Podcasts tool.
+ * public String processPermissions() {
+		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+
+		try {
+			String url = "sakai.permissions.helper.helper/tool?panel=Main" + "&session." +
+							PermissionsHelper.DESCRIPTION + "=" + getPermissionsMessage() +
+							"&session." + PermissionsHelper.TARGET_REF + "=" + 
+							podcastService.retrievePodcastFolderId(podcastService.getSiteId()) + 
+							"&session." + PermissionsHelper.PREFIX + "=" + CONTENT;
+
+	        context.redirect(url);
+	    }
+		catch (IOException e) {
+	            throw new RuntimeException("Failed to redirect to helper", e);
+	    }
+		catch (PermissionException e) {
+			// Mucho weirdness, link that calls this only appears if they have permission
+			LOG.error("Error attempting to get reference for site");
+		}
+	
+		return null;
+	}
+*/
 	public String getResourcesPermissionsUrl() {
 		String url = "";
 
@@ -1765,8 +1794,14 @@ public class podHomeBean {
 		// Should contain date part, time port, AM/PM part
 		String[] wholeDateSplit = date.split(" ");
 
-		String[] dateSplit = wholeDateSplit[0].split("/");
+		// if not in 2 parts, input error
+		if (wholeDateSplit.length != 3) {
+			return false;
+		}
 
+		// since date entered first, check it first
+		String[] dateSplit = wholeDateSplit[0].split("/");
+		
 		if (dateSplit.length != 3) {
 			return false;
 
