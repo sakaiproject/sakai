@@ -10,6 +10,11 @@
     init-method="init"
     destroy-method="destroy"
     singleton="true">
+    
+    <property name="citationsAdminSite"><value>citationsAdmin</value></property>
+    <property name="citationsConfigFolder"><value>config</value></property>
+    <property name="citationsConfigFile"><value>sakai/citationsConfig.xml</value></property>
+    
 
 	<!-- enable/disable entire helper -->
     <property name="citationsEnabledByDefault"><value>true</value></property>
@@ -39,7 +44,7 @@
 
 	<!-- google scholar parameters -->
     <property name="googleBaseUrl"><value>http://scholar.google.com/schhp</value></property>
-    <property name="sakaiServerKey"><value></value></property>
+    <property name="sakaiServerKey"><value>ctools.umich.edu</value></property>
     
 	<!-- site-specific config/authentication/authorization implementation -->
     <property name="osidConfig"><value>org.sakaiproject.citation.impl.SampleSiteOsidConfiguration</value></property>

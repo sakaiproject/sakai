@@ -82,6 +82,12 @@
 
     <dependency>
       <groupId>sakaiproject</groupId>
+      <artifactId>sakai-site-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>sakaiproject</groupId>
       <artifactId>sakai-util</artifactId>
       <version>${sakai.version}</version>
     </dependency>

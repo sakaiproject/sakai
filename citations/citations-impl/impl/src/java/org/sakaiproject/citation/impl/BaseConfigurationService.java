@@ -53,7 +53,14 @@ import org.sakaiproject.citation.api.SiteOsidConfiguration;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.IdUsedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 
 /**
@@ -73,6 +80,10 @@ public class BaseConfigurationService implements ConfigurationService
 	// enable/disable helper features -->
     protected String m_googleSearchEnabled = "false";
     protected String m_librarySearchEnabled = "false";
+    
+    protected String m_citationsAdminSiteName = "citationsAdmin";
+    protected String m_citationsConfigFolder = "config";
+    protected String m_citationsConfigFile = "sakai/citationsConfig.xml";
   	
 	// configuration XML file location
     protected String m_databaseXml;
@@ -626,6 +637,70 @@ public class BaseConfigurationService implements ConfigurationService
  	public void init()
 	{
 		m_log.info("init()");
+		
+		SiteService siteService = (SiteService) ComponentManager.get(SiteService.class);
+		if(this.m_citationsAdminSiteName == null || this.m_citationsAdminSiteName.trim().equals(""))
+		{
+			// can't create
+		}
+		else if(siteService.siteExists(this.m_citationsAdminSiteName))
+		{
+			// no need to create
+		}
+		else
+		{
+			// need to create
+			try
+            {
+				Site adminSite = siteService.addSite(this.m_citationsAdminSiteName, "project");
+				siteService.save(adminSite);
+            }
+            catch (IdInvalidException e)
+            {
+	            // TODO Auto-generated catch block
+	            m_log.warn("IdInvalidException ", e);
+            }
+            catch (IdUsedException e)
+            {
+	            // we've already verified that the site doesn't exist but
+            	// this can occur if site was created by another server
+            	// in a cluster that is starting up at the same time.
+            	m_log.warn("IdUsedException ", e);
+            }
+            catch (PermissionException e)
+            {
+	            // TODO Auto-generated catch block
+            	m_log.warn("PermissionException ", e);
+            }
+            catch (IdUnusedException e)
+            {
+	            // TODO Auto-generated catch block
+	            m_log.warn("IdUnusedException ", e);
+            }
+		}
+		
+		ContentHostingService contentService = (ContentHostingService) ComponentManager.get(ContentHostingService.class);
+		String configFileId = "/group/" + this.m_citationsAdminSiteName + "/" + this.m_citationsConfigFolder + "/" + this.m_citationsConfigFile;
+		try
+        {
+	        contentService.checkResource(configFileId);
+        }
+        catch (IdUnusedException e)
+        {
+	        // if the file is supplied in the war file,
+        	// create a copy in content-hosting
+        	
+        }
+        catch (PermissionException e)
+        {
+	        // TODO Auto-generated catch block
+	        m_log.warn("PermissionException ", e);
+        }
+        catch (TypeException e)
+        {
+	        // TODO Auto-generated catch block
+	        m_log.warn("TypeException ", e);
+        }
 	}
 
 	public void destroy()
@@ -898,4 +973,52 @@ public class BaseConfigurationService implements ConfigurationService
 
 	  m_librarySearchEnabled = "false";
 	}
+
+	/**
+     * @return the citationsAdminSiteName
+     */
+    public String getCitationsAdminSiteName()
+    {
+    	return m_citationsAdminSiteName;
+    }
+
+	/**
+     * @param citationsAdminSiteName the citationsAdminSiteName to set
+     */
+    public void setCitationsAdminSiteName(String citationsAdminSiteName)
+    {
+    	this.m_citationsAdminSiteName = citationsAdminSiteName;
+    }
+
+	/**
+     * @return the citationsConfigFile
+     */
+    public String getCitationsConfigFile()
+    {
+    	return m_citationsConfigFile;
+    }
+
+	/**
+     * @param citationsConfigFile the citationsConfigFile to set
+     */
+    public void setCitationsConfigFile(String citationsConfigFile)
+    {
+    	this.m_citationsConfigFile = citationsConfigFile;
+    }
+
+	/**
+     * @return the citationsConfigFolder
+     */
+    public String getCitationsConfigFolder()
+    {
+    	return m_citationsConfigFolder;
+    }
+
+	/**
+     * @param citationsConfigFolder the citationsConfigFolder to set
+     */
+    public void setCitationsConfigFolder(String citationsConfigFolder)
+    {
+    	this.m_citationsConfigFolder = citationsConfigFolder;
+    }
 }
