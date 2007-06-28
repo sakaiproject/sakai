@@ -3287,47 +3287,14 @@ public class SiteAction extends PagedResourceActionII {
 		if (id == null || id == NULL_STRING) {
 			return rv;
 		}
-		String course_part = NULL_STRING;
-		String section_part = NULL_STRING;
-		String key = NULL_STRING;
-		try {
-			// Break Provider Id into course_nbr parts
-			List course_nbrs = new ArrayList(Arrays.asList(id.split("\\+")));
+		// Break Provider Id into course id parts
+		String[] courseIds = groupProvider.unpackId(id);
+		
+		// Iterate through course ids
+		for (int i=0; i<courseIds.length; i++) {
+			String courseId = (String) courseIds[i];
 
-			// Iterate through course_nbrs
-			for (ListIterator i = course_nbrs.listIterator(); i.hasNext();) {
-				String course_nbr = (String) i.next();
-
-				// Course_nbr pattern will be for either one section or more
-				// than one section
-				if (course_nbr.indexOf("[") == -1) {
-					// This course_nbr matches the pattern for one section
-					try {
-						rv.add(course_nbr);
-					} catch (Exception e) {
-						M_log.warn(this + ": cannot find class " + course_nbr);
-					}
-				} else {
-					// This course_nbr matches the pattern for more than one
-					// section
-					course_part = course_nbr.substring(0, course_nbr
-							.indexOf("[")); // includes trailing ","
-					section_part = course_nbr.substring(
-							course_nbr.indexOf("[") + 1, course_nbr
-									.indexOf("]"));
-					String[] sect = section_part.split(",");
-					for (int j = 0; j < sect.length; j++) {
-						key = course_part + sect[j];
-						try {
-							rv.add(key);
-						} catch (Exception e) {
-							M_log.warn(this + ": cannot find class " + key);
-						}
-					}
-				}
-			}
-		} catch (Exception ee) {
-			M_log.warn(ee.getMessage());
+			rv.add(courseId);
 		}
 		return rv;
 
