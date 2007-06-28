@@ -655,8 +655,7 @@ public class PortalSiteHelper
 	 * both "section.role.student" AND "annc.new" see the tool, but not let a user
 	 * who only had "section.role.student" see the tool.
 	 *
-	 * Users with "site.upd" always see the tool. If the configuration tag is not
-	 * set or is null, then all users see the tool.
+	 * If the configuration tag is not set or is null, then all users see the tool.
 	 */
 	public boolean allowTool(Site site, Placement placement)
 	{
@@ -706,12 +705,6 @@ public class PortalSiteHelper
 	{
 		// Get all of the pages
 		List pages = site.getOrderedPages();
-
-		// The site owner sees all pages !
-		if (SecurityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference()))
-		{
-			return pages;
-		}
 
 		List newPages = new ArrayList();
 
