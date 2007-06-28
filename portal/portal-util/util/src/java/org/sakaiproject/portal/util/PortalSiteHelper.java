@@ -663,10 +663,6 @@ public class PortalSiteHelper
 		// No way to render an opinion
 		if (placement == null || site == null) return true;
 
-		// The site owner sees all pages !
-		if (SecurityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference()))
-			return true;
-
 		String requiredPermissionsString = placement.getConfig().getProperty(TOOLCONFIG_REQUIRED_PERMISSIONS);
 		if (log.isDebugEnabled()) log.debug("requiredPermissionsString=" + requiredPermissionsString + " for " + placement.getToolId());
 		if (requiredPermissionsString == null)
