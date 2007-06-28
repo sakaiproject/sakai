@@ -1549,13 +1549,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				rcontext.put("loginLogInOutUrl", logInOutUrl);
 				rcontext.put("loginMessage", message);
 				rcontext.put("loginImage1", image1);
-				rcontext.put("image1HasImage1", Boolean.valueOf(image1 != null));
+				rcontext.put("loginHasImage1", Boolean.valueOf(image1 != null));
 				rcontext.put("loginLogInOutUrl2", logInOutUrl2);
 				rcontext.put("loginHasLogInOutUrl2", Boolean
 						.valueOf(logInOutUrl2 != null));
 				rcontext.put("loginMessage2", message2);
 				rcontext.put("loginImage2", image2);
-				rcontext.put("image1HasImage2", Boolean.valueOf(image2 != null));
+				rcontext.put("loginHasImage2", Boolean.valueOf(image2 != null));
 				// put out the links version
 
 				// else put out the fields that will send to the login interface
