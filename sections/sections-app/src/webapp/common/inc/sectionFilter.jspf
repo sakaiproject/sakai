@@ -4,7 +4,7 @@
 
 		<h:outputText value="#{msgs.student_view_view}"/>
 
-		<h:selectOneMenu value="#{filterBean.myFilter}" onchange="this.form.submit()" rendered="#{filterBean.sectionAssignable}">
+		<h:selectOneMenu value="#{filterBean.myFilter}" onchange="this.form.submit()" rendered="#{filterBean.sectionAssignable}" immediate="true">
 			<f:selectItem itemLabel="#{msgs.student_view_all}" itemValue=""/>
 			<f:selectItem itemLabel="#{msgs.student_view_my}" itemValue="MY"/>
 		</h:selectOneMenu>
@@ -33,7 +33,7 @@
 
 		<h:outputText value="#{msgs.student_view_view}"/>
 
-		<h:selectOneMenu value="#{filterBean.categoryFilter}" onchange="this.form.submit()">
+		<h:selectOneMenu value="#{filterBean.myFilter}" onchange="this.form.submit()">
 			<f:selectItem itemLabel="#{msgs.filter_all_sections}" itemValue=""/>
 			<f:selectItem itemLabel="#{msgs.filter_my_sections}" itemValue="MY"/>
 		</h:selectOneMenu>
