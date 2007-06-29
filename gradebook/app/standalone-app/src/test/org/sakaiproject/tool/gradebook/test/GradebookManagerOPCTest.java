@@ -2459,4 +2459,66 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 //				System.out.println(agr.getAssignment().getName() + "-----" + agr.getStudentId() + "---" + agr.getPointsEarned());
 		}
 	}
+	
+	public void testCalculateStatisticsPerStudent() throws Exception
+	{
+		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
+		Assignment assign = gradebookManager.getAssignment(assgn1Long);
+		Assignment assign2 = gradebookManager.getAssignment(assgn3Long);
+		
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		assign.setPointsPossible(new Double(5));
+		gradebookManager.updateAssignment(assign);
+
+		List gradeRecords = generateGradeRecords(assign, 5);
+		List gradeRecords2 = generateGradeRecords(assign2, 5);
+		for(int i=0; i<gradeRecords2.size(); i++)
+		{
+			gradeRecords.add(gradeRecords2.get(i));
+		}
+
+		List uid = new ArrayList();
+		uid.add("studentId1");
+		uid.add("studentId2");
+		uid.add("studentId3");
+		uid.add("studentId4");
+		uid.add("studentId5");
+		Map studentIdMap = new HashMap();
+		studentIdMap.put("studentId1", new Double(1.0));
+		studentIdMap.put("studentId2", new Double(2.0));
+		studentIdMap.put("studentId3", new Double(3.0));
+		studentIdMap.put("studentId4", new Double(4.0));
+		studentIdMap.put("studentId5", new Double(5.0));
+
+		
+		Category cate = gradebookManager.getCategory(cate1Long);
+		cate.calculateStatisticsPerStudent(gradeRecords, "studentId1");
+		Assert.assertTrue(cate.getMean().doubleValue() == 20.0);
+		Assert.assertTrue(cate.getAverageScore().doubleValue() == 1.0);
+		Assert.assertTrue(cate.getAverageTotalPoints().doubleValue() == 5.0);
+		cate = gradebookManager.getCategory(cate2Long);
+		cate.calculateStatisticsPerStudent(gradeRecords, "studentId1");
+		Assert.assertTrue(cate.getMean().doubleValue() == 10.0);
+		Assert.assertTrue(cate.getAverageScore().doubleValue() == 1.0);
+		Assert.assertTrue(cate.getAverageTotalPoints().doubleValue() == 10.0);
+
+		//test for setting studentId1's assignment1 to null
+		for(int i=0; i<gradeRecords.size(); i++)
+		{
+			AssignmentGradeRecord agr = (AssignmentGradeRecord)gradeRecords.get(i);
+			if(agr.getAssignment().getId().equals(assgn1Long) && agr.getStudentId().equals("studentId1"))
+				agr.setPointsEarned(null);
+		}
+		cate = gradebookManager.getCategory(cate1Long);
+		cate.calculateStatisticsPerStudent(gradeRecords, "studentId1");
+		Assert.assertTrue(cate.getMean() == null);
+		Assert.assertTrue(cate.getAverageScore() == null);
+		Assert.assertTrue(cate.getAverageTotalPoints() == null);
+		cate = gradebookManager.getCategory(cate2Long);
+		cate.calculateStatisticsPerStudent(gradeRecords, "studentId1");
+		Assert.assertTrue(cate.getMean().doubleValue() == 10.0);
+		Assert.assertTrue(cate.getAverageScore().doubleValue() == 1.0);
+		Assert.assertTrue(cate.getAverageTotalPoints().doubleValue() == 10.0);
+	}
 }

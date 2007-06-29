@@ -5,6 +5,8 @@ import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
 
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+
 public class Category implements Serializable
 {
 	private Long id;
@@ -231,6 +233,65 @@ public class Category implements Serializable
     	averageScore = new Double(total / numScored);
     	averageTotalPoints = new Double(totalPossible / numOfAssignments);
     	double value = total / numScored / averageTotalPoints.doubleValue() * 100;
+    	mean = new Double(value) ;
+    }
+	}
+
+	public void calculateStatisticsPerStudent(List<AssignmentGradeRecord> gradeRecords, String studentUid)
+	{
+    int numScored = 0;
+    int numOfAssignments = 0;
+    double total = 0;
+    double totalPossible = 0;
+
+    if (gradeRecords == null) 
+    {
+    	setAverageScore(null);
+    	setAverageTotalPoints(null);
+    	setMean(null);
+    	return;
+    }
+
+  	boolean weightingEnabled = (getGradebook().getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
+  	
+    for (AssignmentGradeRecord gradeRecord : gradeRecords) 
+    {
+    	if(gradeRecord != null && gradeRecord.getStudentId().equals(studentUid))
+    	{
+    		Assignment assignment = gradeRecord.getAssignment();
+
+    		if (assignment.isCounted() && weightingEnabled && assignment.getPointsPossible().doubleValue() > 0.0) 
+    		{
+    			Category assignCategory = assignment.getCategory();
+    			if (assignCategory != null && assignCategory.getId().equals(id))
+    			{
+    				Double score = gradeRecord.getPointsEarned();
+    				if (score != null) 
+    				{
+    					total += score.doubleValue();
+    					if(assignment.getPointsPossible() != null)
+    					{
+    						totalPossible += assignment.getPointsPossible().doubleValue();
+    						numOfAssignments ++;
+    					}
+    					numScored++;
+    				}
+    			}
+    		}
+    	}
+    }
+
+    if (numScored == 0 || numOfAssignments == 0) 
+    {
+    	averageScore = null;
+    	averageTotalPoints = null;
+    	mean = null;
+    } 
+    else 
+    {
+    	averageScore = new Double(total / numScored);
+    	averageTotalPoints = new Double(totalPossible / numOfAssignments);
+    	double value = total / numScored / (totalPossible / numOfAssignments) * 100;
     	mean = new Double(value) ;
     }
 	}
