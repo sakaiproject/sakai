@@ -88,13 +88,13 @@
 			<h:panelGrid columns="2" width="100%" summary="layout">
 				<h:panelGroup styleClass="specialLink">
 					<h:commandLink title="#{msgs.cdfm_button_bar_reply_to_msg}" action="#{ForumTool.processDfMsgReplyMsg}" 
-		  				rendered="#{ForumTool.selectedTopic.isNewResponseToResponse && ForumTool.selectedMessage.msgApproved}">
+		  				rendered="#{ForumTool.selectedTopic.isNewResponseToResponse && ForumTool.selectedMessage.msgApproved && !ForumTool.selectedTopic.locked}">
 		  				<h:graphicImage value="/images/silk/email_go.png" alt="#{msgs.cdfm_button_bar_reply_to_msg}" rendered="#{ForumTool.selectedTopic.isNewResponseToResponse}" />
 		  				<h:outputText value=" #{msgs.cdfm_button_bar_reply_to_msg}" />
 		  			</h:commandLink>
       			
 		      		<h:commandLink title="#{msgs.cdfm_button_bar_reply_to_thread}" action="#{ForumTool.processDfMsgReplyThread}" 
-			  			rendered="#{ForumTool.selectedTopic.isNewResponse && ForumTool.selectedThreadHead.msgApproved}">
+			  			rendered="#{ForumTool.selectedTopic.isNewResponse && ForumTool.selectedThreadHead.msgApproved && !ForumTool.selectedTopic.locked}">
 		  				<h:graphicImage value="/images/silk/folder_go.png" alt="#{msgs.cdfm_button_bar_reply_to_thread}" />
 		  				<h:outputText value=" #{msgs.cdfm_button_bar_reply_to_thread}" />
 		  			</h:commandLink>

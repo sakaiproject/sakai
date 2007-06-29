@@ -23,7 +23,7 @@
 
 		<sakai:tool_bar separator="#{msgs.cdfm_toolbar_separator}">
 				<sakai:tool_bar_item value="#{msgs.cdfm_container_title_thread}" action="#{ForumTool.processAddMessage}" id="df_compose_message_dfAllMessages"
-		  			rendered="#{ForumTool.selectedTopic.isNewResponse}" />
+		  			rendered="#{ForumTool.selectedTopic.isNewResponse && !ForumTool.selectedTopic.locked}" />
 		  			
 		  		<h:commandLink action="#{ForumTool.processActionMarkAllAsRead}" rendered="#{ForumTool.selectedTopic.isMarkAsRead}"> 
       				<h:graphicImage value="/images/silk/email.png" alt="#{msgs.msg_is_unread}" 

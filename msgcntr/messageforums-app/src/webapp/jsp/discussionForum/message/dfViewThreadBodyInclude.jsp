@@ -68,7 +68,7 @@
 	<h:panelGroup rendered="#{!message.deleted}" >
 
 		<%-- Reply link --%>
-		<h:panelGroup rendered="#{ForumTool.selectedTopic.isNewResponseToResponse && message.msgApproved}">
+		<h:panelGroup rendered="#{ForumTool.selectedTopic.isNewResponseToResponse && message.msgApproved && !ForumTool.selectedTopic.locked}">
 			<h:commandLink action="#{ForumTool.processDfMsgReplyMsgFromEntire}" title="#{msgs.cdfm_reply}"> 
 				<h:graphicImage value="/images/silk/email_go.png" alt="#{msgs.cdfm_button_bar_reply_to_msg}" />
 				<h:outputText value="#{msgs.cdfm_reply}" />
