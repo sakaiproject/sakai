@@ -36,6 +36,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
+import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.exception.RoleConfigurationException;
 import org.sakaiproject.tool.section.decorator.SectionDecorator;
 import org.sakaiproject.tool.section.decorator.StudentSectionDecorator;
@@ -165,7 +166,11 @@ public class StudentViewBean extends EditStudentSectionsBean implements Serializ
 			return;
 		}
 		try {
-			getSectionManager().joinSection(sectionUuid);
+			EnrollmentRecord er = getSectionManager().joinSection(sectionUuid);
+			if(er == null) {
+				// This operation failed
+				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("student_view_already_member_in_category"));
+			}
 		} catch (RoleConfigurationException rce) {
 			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("role_config_error"));
 		}

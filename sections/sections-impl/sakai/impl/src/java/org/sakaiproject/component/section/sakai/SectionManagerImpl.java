@@ -615,33 +615,44 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 	 * {@inheritDoc}
 	 */
 	public EnrollmentRecord joinSection(String sectionUuid) throws RoleConfigurationException {
-		// Disallow if we're in an externally managed site
-		ensureInternallyManaged(getSection(sectionUuid).getCourse().getUuid());
-
-		Group group = siteService().findGroup(sectionUuid);
+		CourseSection section = getSection(sectionUuid);
 		
+		// Disallow if we're in an externally managed site
+		ensureInternallyManaged(section.getCourse().getUuid());
+
 		// It's possible that this section has been deleted
-		if(group == null) {
-			log.error("Section " + sectionUuid + " has been deleted, so it can't be joined.");
+		if(section == null) {
+			log.info("Section " + sectionUuid + " has been deleted, so it can't be joined.");
 			return null;
 		}
 
+		// Don't let users join multiple sections in the same category
+		List categorySections = getSectionsInCategory(section.getCourse().getSiteContext(), section.getCategory());
+		for(Iterator iter = categorySections.iterator(); iter.hasNext();) {
+			CourseSection testSection = (CourseSection)iter.next();
+			String userUid = userDirectoryService.getCurrentUser().getId();
+			if(this.isMember(userUid, testSection)) {
+				log.info("User " + userUid + " can not enroll in section " + sectionUuid + ".  This user is already in section " + testSection.getUuid());
+				return null;
+			}
+		}
+		
+		Group group = siteService().findGroup(sectionUuid);
 		String role = getSectionStudentRole(group);
 		try {
 			authzGroupService.joinGroup(sectionUuid, role);
 			postEvent("section.student.join", sectionUuid);
 		} catch (AuthzPermissionException e) {
-			log.error("access denied while attempting to join authz group: ", e);
+			log.info("access denied while attempting to join authz group: ", e);
 			return null;
 		} catch (GroupNotDefinedException e) {
-			log.error("can not find group while attempting to join authz group: ", e);
+			log.info("can not find group while attempting to join authz group: ", e);
 			return null;
 		}
 		
 		// Return the membership record that the app understands
 		String userUid = sessionManager.getCurrentSessionUserId();
 		User user = SakaiUtil.getUserFromSakai(userUid);
-		CourseSection section = getSection(sectionUuid);
 		
 		return new EnrollmentRecordImpl(section, null, user);
 	}
