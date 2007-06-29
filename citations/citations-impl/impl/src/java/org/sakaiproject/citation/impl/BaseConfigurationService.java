@@ -27,6 +27,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -69,26 +70,26 @@ import org.sakaiproject.tool.api.SessionManager;
 public class BaseConfigurationService implements ConfigurationService
 {
 	private static Log m_log = LogFactory.getLog(BaseConfigurationService.class);
-	
+
 	/*
 	 * All the following properties will be set by Spring using components.xml
 	 */
 	// enable/disable entire helper
     protected boolean m_citationsEnabledByDefault = false;
     protected boolean m_allowSiteBySiteOverride = false;
-    
+
 	// enable/disable helper features -->
     protected String m_googleSearchEnabled = "false";
     protected String m_librarySearchEnabled = "false";
-    
+
     protected String m_citationsAdminSiteName = "citationsAdmin";
     protected String m_citationsConfigFolder = "config";
     protected String m_citationsConfigFile = "sakai/citationsConfig.xml";
-  	
+
 	// configuration XML file location
     protected String m_databaseXml;
     protected String m_siteConfigXml;
-    
+
   	// metasearch engine parameters
     protected String m_metasearchUsername;
     protected String m_metasearchPassword;
@@ -104,10 +105,10 @@ public class BaseConfigurationService implements ConfigurationService
 	// google scholar parameters -->
     protected String m_googleBaseUrl;
     protected String m_sakaiServerKey;
-    
+
 	// site-specific config/authentication/authorization implementation -->
     protected String m_osidConfig;
-    
+
 	// other config services -->
 	protected SessionManager m_sessionManager;
 	protected ServerConfigurationService m_serverConfigurationService;
@@ -120,13 +121,22 @@ public class BaseConfigurationService implements ConfigurationService
 	 */
 	private static SiteOsidConfiguration m_siteConfigInstance = null;
 
+  /*
+   * Dynamic configuration parameters
+   */
+  private static HashMap<String, Map> m_configMaps = new HashMap();
+  /*
+   * Failed configurations (didn't parse properly)
+   */
+  private static ArrayList<String> m_failedConfigs = new ArrayList();
+
 	/*
 	 * Interface methods
 	 */
 
 	/**
 	 * Fetch the appropriate XML configuration document for this user
-	 * @return Configuration XML (eg file:///tomcat-home/sakai/config.xml)
+	 * @return Configuration XML resource name
 	 */
 	public String getConfigurationXml() throws OsidConfigurationException
 	{
@@ -159,7 +169,7 @@ public class BaseConfigurationService implements ConfigurationService
     	{
     		return false;
     	}
-    	
+
     	// not null, try to open it for reading
     	java.io.FileInputStream fis = new java.io.FileInputStream( configXml );
     }
@@ -176,7 +186,7 @@ public class BaseConfigurationService implements ConfigurationService
 
   /**
    * Fetch the appropriate XML database hierarchy document for this user
-   * @return Hierarchy XML (eg file:///tomcat-home/sakai/database.xml)
+   * @return Hierarchy XML resource name
    */
   public String getDatabaseHierarchyXml() throws OsidConfigurationException
   {
@@ -209,7 +219,7 @@ public class BaseConfigurationService implements ConfigurationService
     	{
     		return false;
     	}
-    	
+
     	// not null, try to open it for reading
     	java.io.FileInputStream fis = new java.io.FileInputStream( dbXml );
     }
@@ -245,7 +255,7 @@ public class BaseConfigurationService implements ConfigurationService
    * Fetch the site specific Repository OSID package name
    * @return Repository Package (eg org.sakaibrary.osid.repository.xserver)
    */
-  public String getSiteConfigOsidPackageName()
+  public synchronized String getSiteConfigOsidPackageName()
   {
     String value = getConfigurationParameter("osid-impl");
 
@@ -256,7 +266,7 @@ public class BaseConfigurationService implements ConfigurationService
    * Fetch the meta-search username
    * @return the username
    */
-  public String getSiteConfigMetasearchUsername()
+  public synchronized String getSiteConfigMetasearchUsername()
   {
     String value = getConfigurationParameter("metasearch-username");
 
@@ -267,7 +277,7 @@ public class BaseConfigurationService implements ConfigurationService
    * Fetch the meta-search password
    * @return the password
    */
-  public String getSiteConfigMetasearchPassword()
+  public synchronized String getSiteConfigMetasearchPassword()
   {
     String value = getConfigurationParameter("metasearch-password");
 
@@ -278,7 +288,7 @@ public class BaseConfigurationService implements ConfigurationService
    * Fetch the meta-search base-URL
    * @return the username
    */
-  public String getSiteConfigMetasearchBaseUrl()
+  public synchronized String getSiteConfigMetasearchBaseUrl()
   {
     String value = getConfigurationParameter("metasearch-baseurl");
 
@@ -289,7 +299,7 @@ public class BaseConfigurationService implements ConfigurationService
    * Fetch the OpenURL label
    * @return the label text
    */
-  public String getSiteConfigOpenUrlLabel()
+  public synchronized String getSiteConfigOpenUrlLabel()
   {
     String value = getConfigurationParameter("openurl-label");
 
@@ -298,9 +308,9 @@ public class BaseConfigurationService implements ConfigurationService
 
   /**
    * Fetch the OpenURL resolver address
-   * @return the resolver address (domain name ir IP)
+   * @return the resolver address (domain name or IP)
    */
-  public String getSiteConfigOpenUrlResolverAddress()
+  public synchronized String getSiteConfigOpenUrlResolverAddress()
   {
     String value = getConfigurationParameter("openurl-resolveraddress");
 
@@ -311,7 +321,7 @@ public class BaseConfigurationService implements ConfigurationService
    * Fetch the Google base-URL
    * @return the URL
    */
-  public String getSiteConfigGoogleBaseUrl()
+  public synchronized String getSiteConfigGoogleBaseUrl()
   {
     String value = getConfigurationParameter("google-baseurl");
 
@@ -322,13 +332,13 @@ public class BaseConfigurationService implements ConfigurationService
    * Fetch the Sakai server key
    * @return the key text
    */
-  public String getSiteConfigSakaiServerKey()
+  public synchronized String getSiteConfigSakaiServerKey()
   {
     String value = getConfigurationParameter("sakai-serverkey");
 
     return (value != null) ? value : getSakaiServerKey();
   }
-  
+
   /**
    * Enable/disable Citations Helper by default
    * @param state true to set default 'On'
@@ -346,7 +356,7 @@ public class BaseConfigurationService implements ConfigurationService
   {
     return m_citationsEnabledByDefault;
   }
-  
+
   /**
    * Enable/disable site by site Citations Helper override
    * @param state true to enable site by site Citations Helper
@@ -366,7 +376,7 @@ public class BaseConfigurationService implements ConfigurationService
   }
 
   /**
-   * Enable/disable Google support (no support for site spefic XML configuration)
+   * Enable/disable Google support (no support for site specific XML configuration)
    * @param state true to enable Google support
    */
   public void setGoogleScholarEnabled(boolean state)
@@ -377,7 +387,7 @@ public class BaseConfigurationService implements ConfigurationService
   }
 
   /**
-   * Is Google search enabled? (no support for site spefic XML configuration)
+   * Is Google search enabled? (no support for site specific XML configuration)
    * @return true if so
    */
   public boolean isGoogleScholarEnabled()
@@ -388,7 +398,7 @@ public class BaseConfigurationService implements ConfigurationService
   }
 
   /**
-   * Enable/disable library search support (no support for site spefic XML configuration)
+   * Enable/disable library search support (no support for site specific XML configuration)
    * @param state true to enable support
    */
   public void setLibrarySearchEnabled(boolean state)
@@ -399,7 +409,7 @@ public class BaseConfigurationService implements ConfigurationService
   }
 
   /**
-   * Is library search enabled? (no support for site spefic XML configuration)
+   * Is library search enabled? (no support for site specific XML configuration)
    * @return true if so
    */
   public boolean isLibrarySearchEnabled()
@@ -420,23 +430,48 @@ public class BaseConfigurationService implements ConfigurationService
    */
   protected String getConfigurationParameter(String parameter)
   {
-    String value = null;
+    Map<String, String> parameterMap  = null;
 
     try
     {
       SiteOsidConfiguration siteConfig = getSiteOsidConfiguration();
-
-      if (siteConfig != null)
+      String configXml;
+      /*
+       * Fetch the configuration XML resource name
+       */
+      if (siteConfig == null)
       {
-        value = getConfigurationFromXml(siteConfig.getConfigurationXml(), parameter);
+        return null;
+      }
+
+      if ((configXml = siteConfig.getConfigurationXml()) == null)
+      {
+        return null;
+      }
+      /*
+       * Look up the requested configuration Map - if it doesn't already exist,
+       * try to load it "on the fly"
+       */
+      synchronized (this)
+      {
+        parameterMap = m_configMaps.get(configXml);
+        if (parameterMap == null)
+        {
+          populateConfigOnReference(siteConfig.getConfigurationXml());
+          parameterMap = m_configMaps.get(configXml);
+        }
       }
     }
     catch (OsidConfigurationException exception)
     {
-      m_log.warn("Failed to get XML calue for " + parameter + ", using components.xml value");
+      m_log.warn("Failed to get dynamic XML value for " + parameter);
     }
-    return value;
+    /*
+     * Finally, return the requested configuration parameter
+     */
+    return (parameterMap == null) ? null : parameterMap.get(parameter);
   }
+
 
   /**
    * Load and initialize the site-specific OSID configuration code
@@ -480,29 +515,96 @@ public class BaseConfigurationService implements ConfigurationService
   }
 
   /**
-   * Fetch a configuration parameter from the site-selected configuration file
+   * Populate cached values from configuration XML.  Don't even try
+   * if the requested XML resource has already failed to parse.
+   *
+   * Invoked by <code>getConfigurationParameter()</code>.
+   *
+   * @param configurationXml Configuration resource name
    */
-  protected String getConfigurationFromXml(String configurationXml, String parameter)
+  private void populateConfigOnReference(String configurationXml)
+  {
+    if (m_failedConfigs.contains(configurationXml))
+    {
+      return;
+    }
+    populateConfig(configurationXml);
+  }
+
+  /**
+   * Populate cached values from a configuration XML resource.  We always try
+   * to parse the resource, regardless of any prior success or failure.
+   *
+   * @param configurationXml Configuration resource name (this doubles as a
+   *                         unique key into the configuration cache)
+   */
+  public void populateConfig(String configurationXml)
   {
     org.w3c.dom.Document  document;
     String                value;
 
     if (configurationXml == null)
     {
-      return null;
+      return;
     }
 
-   document = parseXmlFromUri(configurationXml);
-   if (document == null)
-    {
-      return null;
-    }
+    document = parseXmlFromUri(configurationXml);
 
-    if ((value = getText(document, parameter)) != null)
+    synchronized (this)
     {
-      m_log.debug("GetConfigurationFromXml " + parameter + " = " + value);
+      Map<String, String> parameterMap;
+
+      /*
+       * If the parse fails, flag it and give up now
+       */
+      if (document == null)
+      {
+        if (!m_failedConfigs.contains(configurationXml))
+        {
+          m_failedConfigs.add(configurationXml);
+        }
+        return;
+      }
+      /*
+       * Successful parse - save the values (and clear the "failed" flag)
+       */
+      m_failedConfigs.remove(configurationXml);
+
+      if ((parameterMap = m_configMaps.get(configurationXml)) == null)
+      {
+        parameterMap = new HashMap();
+      }
+      parameterMap.clear();
+
+      saveParameter(document, parameterMap, "osid-impl");
+      saveParameter(document, parameterMap, "metasearch-username");
+      saveParameter(document, parameterMap, "metasearch-password");
+      saveParameter(document, parameterMap, "metasearch-baseurl");
+      saveParameter(document, parameterMap, "openurl-label");           // obsolete?
+      saveParameter(document, parameterMap, "openurl-resolveraddress");
+      saveParameter(document, parameterMap, "google-baseurl");
+      saveParameter(document, parameterMap, "sakai-serverkey");
+
+      m_configMaps.put(configurationXml, parameterMap);
     }
-    return value;
+  }
+
+  /**
+   * Lookup and save one dynamic configuration parameter
+   * @param Configuration XML
+   * @param parameterMap Parameter name=value pairs
+   * @param name Parameter name
+   */
+  private void saveParameter(org.w3c.dom.Document document,
+                             Map parameterMap, String name)
+  {
+    String value;
+
+    if ((value = getText(document, name)) != null)
+    {
+      parameterMap.put(name, value);
+      m_log.debug("New configuration value: " + name + " = " + value);
+    }
   }
 
   /**
@@ -523,7 +625,7 @@ public class BaseConfigurationService implements ConfigurationService
     }
     catch (Exception exception)
     {
-      //m_log.debug("XML parse on \"" + filename + "\" failed: " + exception);
+      m_log.warn("XML parse on \"" + filename + "\" failed: " + exception);
     }
     return null;
   }
@@ -637,7 +739,7 @@ public class BaseConfigurationService implements ConfigurationService
  	public void init()
 	{
 		m_log.info("init()");
-		
+
 		SiteService siteService = (SiteService) ComponentManager.get(SiteService.class);
 		if(this.m_citationsAdminSiteName == null || this.m_citationsAdminSiteName.trim().equals(""))
 		{
@@ -678,7 +780,7 @@ public class BaseConfigurationService implements ConfigurationService
 	            m_log.warn("IdUnusedException ", e);
             }
 		}
-		
+
 		ContentHostingService contentService = (ContentHostingService) ComponentManager.get(ContentHostingService.class);
 		String configFileId = "/group/" + this.m_citationsAdminSiteName + "/" + this.m_citationsConfigFolder + "/" + this.m_citationsConfigFile;
 		try
@@ -689,7 +791,7 @@ public class BaseConfigurationService implements ConfigurationService
         {
 	        // if the file is supplied in the war file,
         	// create a copy in content-hosting
-        	
+
         }
         catch (PermissionException e)
         {
