@@ -161,8 +161,10 @@ public class SectionAwarenessImpl implements SectionAwareness {
         for(Iterator iter = sakaiMembers.iterator(); iter.hasNext();) {
         	org.sakaiproject.user.api.User sakaiUser = (org.sakaiproject.user.api.User)iter.next();
         	User user = SakaiUtil.convertUser(sakaiUser);
-    		InstructorRecordImpl record = new InstructorRecordImpl(course, user);
-    		membersList.add(record);
+		if (user != null) {
+    			InstructorRecordImpl record = new InstructorRecordImpl(course, user);
+    			membersList.add(record);
+		}
         }
         return membersList;
 	}
@@ -179,8 +181,10 @@ public class SectionAwarenessImpl implements SectionAwareness {
         for(Iterator iter = sakaiMembers.iterator(); iter.hasNext();) {
         	org.sakaiproject.user.api.User sakaiUser = (org.sakaiproject.user.api.User)iter.next();
         	User user = SakaiUtil.convertUser(sakaiUser);
-    		EnrollmentRecordImpl record = new EnrollmentRecordImpl(course, null, user);
-    		membersList.add(record);
+		if (user != null) {
+ 	   		EnrollmentRecordImpl record = new EnrollmentRecordImpl(course, null, user);
+    			membersList.add(record);
+		}
         }
         return membersList;
 	}
@@ -197,8 +201,10 @@ public class SectionAwarenessImpl implements SectionAwareness {
         for(Iterator iter = sakaiMembers.iterator(); iter.hasNext();) {
         	org.sakaiproject.user.api.User sakaiUser = (org.sakaiproject.user.api.User)iter.next();
         	User user = SakaiUtil.convertUser(sakaiUser);
-    		TeachingAssistantRecordImpl record = new TeachingAssistantRecordImpl(course, user);
-    		membersList.add(record);
+		if (user != null) {
+    			TeachingAssistantRecordImpl record = new TeachingAssistantRecordImpl(course, user);
+    			membersList.add(record);
+		}
         }
         return membersList;
 	}
@@ -290,14 +296,16 @@ public class SectionAwarenessImpl implements SectionAwareness {
 			Member member = (Member)iter.next();
 			String roleString = member.getRole().getId();
 			User user = SakaiUtil.getUserFromSakai(member.getUserId());
-			ParticipationRecord record = null;
-			if(taRoles.contains(roleString)) {
-				record = new TeachingAssistantRecordImpl(section, user);
-			} else if(studentRoles.contains(roleString)) {
-				record = new EnrollmentRecordImpl(section, null, user);
-			}
-			if(record != null) {
-				sectionMembershipRecords.add(record);
+			if (user != null) {
+				ParticipationRecord record = null;
+				if(taRoles.contains(roleString)) {
+					record = new TeachingAssistantRecordImpl(section, user);
+				} else if(studentRoles.contains(roleString)) {
+					record = new EnrollmentRecordImpl(section, null, user);
+				}
+				if(record != null) {
+					sectionMembershipRecords.add(record);
+				}
 			}
 		}
 		return sectionMembershipRecords;		
@@ -358,8 +366,10 @@ public class SectionAwarenessImpl implements SectionAwareness {
         List<EnrollmentRecord> membersList = new ArrayList<EnrollmentRecord>();
         for(Iterator iter = sakaiUsers.iterator(); iter.hasNext();) {
         	User user = SakaiUtil.convertUser((org.sakaiproject.user.api.User) iter.next());
-    		EnrollmentRecordImpl record = new EnrollmentRecordImpl(section, null, user);
-    		membersList.add(record);
+		if (user != null) {
+    			EnrollmentRecordImpl record = new EnrollmentRecordImpl(section, null, user);
+    			membersList.add(record);
+		}
         }
         return membersList;
 	}
@@ -386,8 +396,10 @@ public class SectionAwarenessImpl implements SectionAwareness {
         List<TeachingAssistantRecordImpl> membersList = new ArrayList<TeachingAssistantRecordImpl>();
         for(Iterator iter = sakaiUsers.iterator(); iter.hasNext();) {
         	User user = SakaiUtil.convertUser((org.sakaiproject.user.api.User) iter.next());
-    		TeachingAssistantRecordImpl record = new TeachingAssistantRecordImpl(section, user);
-    		membersList.add(record);
+		if (user != null) {
+    			TeachingAssistantRecordImpl record = new TeachingAssistantRecordImpl(section, user);
+    			membersList.add(record);
+		}
         }
         return membersList;
 	}

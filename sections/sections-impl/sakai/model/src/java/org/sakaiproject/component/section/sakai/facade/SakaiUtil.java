@@ -44,8 +44,7 @@ public class SakaiUtil {
 		try {
 			sakaiUser = UserDirectoryService.getUser(userUid);
 		} catch (UserNotDefinedException e) {
-			log.error("User not found: " + userUid);
-			e.printStackTrace();
+			log.warn("User not found: " + userUid);
 			return null;
 		}
 		return convertUser(sakaiUser);
