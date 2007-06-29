@@ -24,18 +24,18 @@
         </t:div>
 
 		<t:selectOneRadio id="externallyManaged" layout="spread" value="#{optionsBean.management}"
-			rendered="#{optionsBean.managementToggleEnabled}" disabled="#{optionsBean.confirmMode}"
+			disabled="#{optionsBean.confirmMode}"
 			onclick="updateOptionBoxes(this);">
 			<f:selectItem itemValue="external" itemLabel="#{msgs.options_externally_managed_description}"/>
 			<f:selectItem itemValue="internal" itemLabel="#{msgs.options_internally_managed_description}"/>
 		</t:selectOneRadio>
 
         <t:div>
-			<t:radio for="externallyManaged" index="0" />
+			<t:radio for="externallyManaged" index="0" rendered="#{optionsBean.managementToggleEnabled}" />
         </t:div>
 
         <t:div>
-			<t:radio for="externallyManaged" index="1" />
+			<t:radio for="externallyManaged" index="1" rendered="#{optionsBean.managementToggleEnabled}" />
 	        <t:div styleClass="indent">
 	            <h:selectBooleanCheckbox id="selfRegister" value="#{optionsBean.selfRegister}" disabled="#{optionsBean.confirmMode ||  ! optionsBean.sectionOptionsManagementEnabled}"/>
 	            <h:outputLabel for="selfRegister" value="#{msgs.options_self_register_label}"/>

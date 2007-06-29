@@ -78,7 +78,7 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 	}
 
 	public String update() {
-		return update(true);
+		return update(managementToggleEnabled);
 	}
 	
 	public String update(boolean checkForConfirmation) {
@@ -98,10 +98,13 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 				return null;
 			}
 		}
-		if(log.isInfoEnabled()) log.info("*** Persisting externallyManaged as " + management);
-		getSectionManager().setExternallyManaged(courseUuid, EXTERNAL.equals(management));
+		if(managementToggleEnabled) {
+			if(log.isInfoEnabled()) log.info("*** Persisting externallyManaged as " + management);
+			getSectionManager().setExternallyManaged(courseUuid, EXTERNAL.equals(management));
+		}
+		
 		// If we're externally managed, these will automatically be set to false
-		if(INTERNAL.equals(management)) {
+		if(INTERNAL.equals(management) || management == null) {
 			getSectionManager().setJoinOptions(courseUuid, selfRegister, selfSwitch);
 		}
 		
