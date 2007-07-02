@@ -441,67 +441,6 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     }
     
     /**
-     * Calculates and sets averageScore, averageTotalPoints, and mean for this
-     * category for this student
-     * @param category
-     * @param gradeRows
-     */
-    private void calculateCategoryAverages(Category category, List gradeRows) {
-    	if (category == null)
-    		return;
-    	
-    	if (gradeRows == null || gradeRows.isEmpty()) {
-    		category.setAverageScore(null);
-        	category.setAverageTotalPoints(null);
-        	category.setMean(null);
-        	return;
-    	}
-    	
-    	int numScored = 0;
-        int numOfAssignments = 0;
-        double total = 0;
-        double totalPossible = 0;
-
-        Iterator gradeRowIter = gradeRows.iterator();
-        while (gradeRowIter.hasNext()) {
-        	AssignmentGradeRow gradeRow = (AssignmentGradeRow) gradeRowIter.next();
-        	AssignmentGradeRecord gradeRecord = gradeRow.getGradeRecord();
-        	Assignment assignment = gradeRow.getAssociatedAssignment();
-        	
-        	// if weighted gb and no category for assignment,
-        	// it is not counted toward course grade
-        	boolean counted = assignment.isCounted();
-        	if (counted && getWeightingEnabled()) {
-        		Category assignCategory = assignment.getCategory();
-        		if (assignCategory == null)
-        			counted = false;
-        	}
-
-        	if (gradeRecord != null && counted) {
-        		Double score = gradeRecord.getPointsEarned();
-        		if (score != null) {
-        			total += score.doubleValue();
-        			if (assignment.getPointsPossible() != null) {
-        				totalPossible += assignment.getPointsPossible().doubleValue();
-        				numOfAssignments++;
-        			}
-        			numScored++;
-        		}	
-        	}
-        }
-        if (numScored == 0 || numOfAssignments == 0) {
-        	category.setAverageScore(null);
-        	category.setAverageTotalPoints(null);
-        	category.setMean(null);
-        } 
-        else {
-        	category.setAverageScore(new Double(total / numScored));
-        	category.setAverageTotalPoints(new Double(totalPossible / numOfAssignments));
-        	category.setMean(new Double(total / numScored / (totalPossible / numOfAssignments) * 100));
-        }
-    }
-    
-    /**
      * Sets up the grade/category rows for student
      * @param userUid
      * @param gradebook
@@ -548,7 +487,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     						if (catAssign != null && !catAssign.isEmpty()) {
     							// we want to create the grade rows for these assignments
     							List gradeRows = retrieveGradeRows(catAssign, gradeRecords);
-								calculateCategoryAverages(category, gradeRows);
+    							category.calculateStatisticsPerStudent(gradeRecords, studentUid);
     							if (gradeRows != null && !gradeRows.isEmpty()) {
     								gradebookItems.addAll(gradeRows);
     							}
@@ -569,8 +508,10 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
 
     				// now create grade rows for the unassigned assignments
     				List gradeRows = retrieveGradeRows(assignNoCat, gradeRecords);
-    				if (!getWeightingEnabled())
-    					calculateCategoryAverages(unassignedCat, gradeRows);
+    				/*  we display N/A for the category avg for unassigned category,
+    				 * so don't need to calc this anymore
+    				 if (!getWeightingEnabled())
+    					unassignedCat.calculateStatisticsPerStudent(gradeRecords, studentUid);*/
     				if (gradeRows != null && !gradeRows.isEmpty()) {
     					gradebookItems.addAll(gradeRows);
     				}
