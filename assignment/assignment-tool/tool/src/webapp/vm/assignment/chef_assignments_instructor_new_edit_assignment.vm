@@ -395,10 +395,10 @@
 				#else
 					#set ($addToGBDisplay="block")
 				#end
-				<p style="display:$!addToGBDisplay">
 					<h4>
 						$!tlang.getString('grading')
 					</h4>
+					<p style="display:$!addToGBDisplay">
 					<div class="checkbox  indnt2" style="display:$!addToGBDisplay">
 						## hide the assignment list from Gradebook when clicked
 						<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_no" value="$!gradebookChoice_no" #if($!gradebookChoice.equals("$!gradebookChoice_no"))checked#end onclick="if (document.getElementById('gradebookList')) document.getElementById('gradebookList').style.display = 'none';" >
