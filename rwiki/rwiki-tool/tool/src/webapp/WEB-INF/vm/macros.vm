@@ -13,8 +13,8 @@
     </head>
     <body onload="setMainFrameHeightNoScroll('${request.getAttribute("sakai.tool.placement.id")}');setFocus(focus_path);parent.updCourier(doubleDeep,ignoreCourier); ${extraonload} callAllLoaders(); "  >
 
-  	#if (${requestScope.headerScriptSource}) 
-  		<script  type="text/javascript" src="${requestScope.headerScriptSource}"> <!-- don't reduce this! --></script>
+  	#if (${request.getAttribute("headerScriptSource")}) 
+  		<script  type="text/javascript" src="${request.getAttribute("headerScriptSource")}"> <!-- don't reduce this! --></script>
   	#end
 <script type="text/javascript" >
 var placementid = "Main${request.getAttribute("sakai.tool.placement.id").toString().replace('-','x')}";
@@ -93,8 +93,8 @@ LOG-LOG-LOG-LOG-LOG
 
 
     <div id="guillotineFixer">&nbsp;</div>
-    #if ( $requestScope.FooterScript ) 
-    <script type="text/javascript" >${requestScope.footerScript}</script>
+    #if ( $request.getAttribute("footerScript") ) 
+    <script type="text/javascript" >${request.getAttribute("footerScript")}</script>
     #end
     #if ( ${requestScope.removeAutoSave} )
 	  <script type="text/javascript" >
