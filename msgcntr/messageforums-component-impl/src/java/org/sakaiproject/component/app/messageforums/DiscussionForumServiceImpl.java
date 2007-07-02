@@ -395,7 +395,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 
 			//List fromDfList = dfManager.getDiscussionForumsByContextId(fromContext);
 			List fromDfList = dfManager.getDiscussionForumsWithTopicsMembershipNoAttachments(fromContext);
-			List existingForums = dfManager.getDiscussionForums();
+			List existingForums = dfManager.getDiscussionForumsByContextId(toContext);
 			int numExistingForums = existingForums.size();
 
 			if (fromDfList != null && !fromDfList.isEmpty()) {
@@ -468,7 +468,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 					}
 
 					// save the forum
-					Area area = areaManager.getDiscusionArea();
+					Area area = areaManager.getDiscussionArea(toContext);
 					newForum.setArea(area);
 					
 					if ("false".equalsIgnoreCase(ServerConfigurationService.getString("import.importAsDraft")))
@@ -551,7 +551,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 
 	public String merge(String siteId, Element root, String archivePath, String fromSiteId, Map attachmentNames, Map userIdTrans, Set userListAllowImport)
 	{
-		List existingForums = dfManager.getDiscussionForums();
+		List existingForums = dfManager.getDiscussionForumsByContextId(siteId);
 		int numExistingForums = existingForums.size();
 		
 		Base64 base64Encoder = new Base64();
@@ -831,7 +831,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 
 													if(!hasTopic)
 													{
-														Area area = areaManager.getDiscusionArea();
+														Area area = areaManager.getDiscussionArea(siteId);
 														dfForum.setArea(area);
 														if ("false".equalsIgnoreCase(ServerConfigurationService.getString("import.importAsDraft")))
 														{
@@ -852,7 +852,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 
 										if(!hasTopic)
 										{
-											Area area = areaManager.getDiscusionArea();
+											Area area = areaManager.getDiscussionArea(siteId);
 											dfForum.setArea(area);
 											if ("false".equalsIgnoreCase(ServerConfigurationService.getString("import.importAsDraft")))
 											{
