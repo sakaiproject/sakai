@@ -21,6 +21,7 @@
 
 package org.sakaiproject.citation.api;
 
+import java.util.Collection;
 import java.util.List;
 import org.sakaiproject.citation.util.api.OsidConfigurationException;
 
@@ -48,10 +49,31 @@ public interface ConfigurationService
   public String getDatabaseHierarchyXml() throws OsidConfigurationException;
 
   /**
+   * Fetch the identifiers for all XML database hierarchy documents known
+   * to the ConfigurationService.
+   * @return Hierarchy XML (eg file:///tomcat-home/sakai/database.xml)
+   */
+  public Collection<String> getAllCategoryXml();
+
+  /**
    * Is the database hierarchy XML file provided and readable
    * @return true If the XML file is provided and readable, false otherwise
    */
   public boolean isDatabaseHierarchyXmlAvailable();
+
+  /**
+   * Fetch the reference string for the folder in ContentHosting containing 
+   * the config files, or null if access from CHS is not enabled.
+   * @return the reference string (eg /content/group/citationsAdmin/config/)
+   */
+  public String getConfigFolderReference();
+
+  /**
+   * Fetch the collection-id for the folder in ContentHosting containing 
+   * the config files, or null if access from CHS is not enabled.
+   * @return the resource-id string (eg /group/citationsAdmin/config/)
+   */
+  public String getConfigFolderId();
 
   /**
    * Fetch this user's group affiliations

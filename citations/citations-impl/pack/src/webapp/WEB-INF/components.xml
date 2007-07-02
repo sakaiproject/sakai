@@ -11,10 +11,10 @@
     destroy-method="destroy"
     singleton="true">
     
-    <property name="citationsAdminSite"><value>citationsAdmin</value></property>
-    <property name="citationsConfigFolder"><value>config</value></property>
-    <property name="citationsConfigFile"><value>sakai/citationsConfig.xml</value></property>
-    
+    <property name="adminSiteName"><value></value></property>
+    <property name="configFolder"><value></value></property>
+    <property name="configXml"><value></value></property>
+    <property name="categoriesXml"><value></value></property>
 
 	<!-- enable/disable entire helper -->
     <property name="citationsEnabledByDefault"><value>true</value></property>

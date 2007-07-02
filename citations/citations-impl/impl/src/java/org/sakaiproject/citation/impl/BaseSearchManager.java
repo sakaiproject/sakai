@@ -22,13 +22,18 @@
 package org.sakaiproject.citation.impl;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Random;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
 
@@ -46,7 +51,11 @@ import org.osid.shared.ObjectIterator;
 import org.osid.shared.SharedException;
 import org.osid.shared.Type;
 import org.osid.shared.TypeIterator;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.citation.util.api.CQLSearchQuery;
+import org.sakaiproject.citation.util.api.OsidConfigurationException;
 import org.sakaiproject.citation.util.api.SearchQuery;
 import org.sakaiproject.citation.api.ActiveSearch;
 import org.sakaiproject.citation.api.Citation;
@@ -61,8 +70,17 @@ import org.sakaiproject.citation.cover.CitationService;
 import org.sakaiproject.citation.util.api.SearchException;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.ServerOverloadException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 
@@ -77,7 +95,7 @@ import javax.xml.parsers.SAXParser;
 /**
  *
  */
-public class BaseSearchManager implements SearchManager
+public class BaseSearchManager implements SearchManager, Observer
 {
 	public class BasicObjectIterator
 	implements ObjectIterator
@@ -1232,6 +1250,172 @@ public class BaseSearchManager implements SearchManager
 			}
 		}
 
+		public BasicSearchDatabaseHierarchy(String databaseHierarchyResourceRef)
+        {
+			/*
+			 * Any basic user authn/authz things we can check to not go
+			 * further than we have to?
+			 */
+			
+			// get a ConfigurationService instance
+			if( m_configService == null )
+			{
+				m_log.warn( "BasicSearchDatabaseHierarchy() m_configService is " +
+						"null - components.xml injection did not work... getting instance from cover" );
+				m_configService = org.sakaiproject.citation.cover.ConfigurationService.getInstance();
+			}
+
+			try
+			{
+				/*
+				 * Determine which repository implementation this user should get
+				 * access to
+				 *  - ip-based
+				 *  - other things?
+				 *
+				 *  (currently assuming X-Server)
+				 */
+//				repositoryPkgName = "org.sakaibrary.osid.repository.xserver";
+				repositoryPkgName = m_configService.getSiteConfigOsidPackageName();
+				if(isNull(repositoryPkgName))
+				{
+					// cannot continue
+					isConfigured = false;
+					return;
+				}
+
+				/*
+				 * Now we know which metasearch engine, get the corresponding XML
+				 * for that database
+				 *  - XML describes all accessible databases/categories for a given
+				 *  metasearch engine
+				 *
+				 *  (currently assuming CATEGORIES_XML for all users)
+				 */
+
+				/*
+				 * Determine which groups this user is a member of
+				 *  - should get an array of strings with group names/ids
+				 *  which should appear in the XML
+				 */
+//				String[] tempGroups = { "all", "free" };
+//				groups = tempGroups;
+				groups = m_configService.getGroupIds();
+
+				/*
+				 * Parse the XML using the group information to build a hierarchy
+				 * of categories and databases this user has access to
+				 */
+				recommendedDatabaseFlag = false;
+				hierarchyDepth = 0;
+				databaseMap = new java.util.Hashtable<String, SearchDatabase>();
+				categoryMap = new java.util.Hashtable<String, SearchCategory>();
+				categoryStack = new java.util.Stack<BasicSearchCategory>();
+				
+				Reference ref = EntityManager.newReference(databaseHierarchyResourceRef);
+				if(ref == null)
+				{
+					// TODO: Has the meaning of isConfigured changed?
+					isConfigured = false;
+				}
+				else
+				{
+					enableSecurityAdvisor();
+					ContentResource resource = ContentHostingService.getResource(ref.getId());
+					if(resource == null)
+					{
+						isConfigured = false;
+					}
+					else
+					{
+						isConfigured = true;
+						parseXML( resource.streamContent() );
+					}
+				}
+			}
+			catch( org.sakaiproject.citation.util.api.OsidConfigurationException oce )
+			{
+				m_log.warn( "BasicSearchDatabaseHierarchy() ran into problems with the ConfigurationService", oce );
+			}
+            catch (ServerOverloadException e)
+            {
+	            // TODO Auto-generated catch block
+            	m_log.warn("ServerOverloadException ", e);
+            }
+            catch (PermissionException e)
+            {
+	            // TODO Auto-generated catch block
+	            m_log.warn("PermissionException ", e);
+            }
+            catch (IdUnusedException e)
+            {
+	            m_log.info("XML file which defines Citations search category hierarchy is missing (" + databaseHierarchyResourceRef + "); Citations SearchManager will watch for its creation");
+            }
+            catch (TypeException e)
+            {
+	            // TODO Auto-generated catch block
+	            m_log.warn("TypeException ", e);
+            }
+        }
+
+		protected void parseXML(InputStream stream)
+        {
+			// Use the default (non-validating) parser
+	        SAXParserFactory factory = SAXParserFactory.newInstance();
+
+	        try {
+	            // Parse the input
+	            SAXParser saxParser = factory.newSAXParser();
+	            saxParser.parse( stream, this );
+	        } catch (SAXParseException spe) {
+	            // Use the contained exception, if any
+	            Exception x = spe;
+
+	            if (spe.getException() != null) {
+	                x = spe.getException();
+	            }
+
+	            // Error generated by the parser
+	        	m_log.warn("parseXML() parsing exception: " +
+	        			spe.getMessage() + " - xml line " + spe.getLineNumber()
+	        			+ ", uri " + spe.getSystemId(), x);
+
+	        	// unset configuration flag
+	        	isConfigured = false;
+	        } catch (SAXException sxe) {
+	            // Error generated by this application
+	            // (or a parser-initialization error)
+	            Exception x = sxe;
+
+	            if (sxe.getException() != null) {
+	                x = sxe.getException();
+	            }
+
+	            m_log.warn( "parseXML() SAX exception: " +
+	            		sxe.getMessage(), x );
+	            // unset configuration flag
+	        	isConfigured = false;
+	        } catch (ParserConfigurationException pce) {
+	            // Parser with specified options can't be built
+	        	m_log.warn( "parseXML() SAX parser cannot be built " +
+	        			"with specified options" );
+
+	        	// unset configuration flag
+	        	isConfigured = false;
+	        } catch (IOException ioe) {
+	            // I/O error
+	        	m_log.warn( "parseXML() IO exception", ioe );
+
+	        	// unset configuration flag
+	        	isConfigured = false;
+	        } catch (Throwable t) {
+	        	m_log.warn( "parseXML() exception", t );
+
+	        	// unset configuration flag
+	        	isConfigured = false;
+	        }
+        }
+
 		protected void setDefaultCategory( SearchCategory defaultCategory )
 		{
 			if( defaultCategory != null )
@@ -1676,6 +1860,8 @@ public class BaseSearchManager implements SearchManager
 	// String array for databases being searched and database hierarchy
 	protected String[] m_databaseIds;
 	protected SearchDatabaseHierarchy hierarchy;
+	protected Map<String,SearchDatabaseHierarchy> hierarchyMap = new Hashtable<String,SearchDatabaseHierarchy>();
+    protected SortedSet<String> updatableResources = new TreeSet<String>();
 
 	private static Random m_generator;
 
@@ -1686,6 +1872,8 @@ public class BaseSearchManager implements SearchManager
 	protected ConfigurationService m_configService = null;
 	/** Dependency: ServerConfigurationService. */
 	protected ServerConfigurationService serverConfigurationService = null;
+
+	protected String databaseHierarchyResourceRef;
 
 	public void setSessionManager(SessionManager sessionManager)
 	{
@@ -2202,9 +2390,29 @@ public class BaseSearchManager implements SearchManager
 	public void init()
 	{
 		m_log.info("BaseSearchManager.init()");
+		
+		EventTrackingService.addObserver(this);
+
 		long seed = TimeService.newTime().getTime();
 		m_generator = new Random(seed);
 		setupTypes();
+		
+		String configFolderRef = m_configService.getConfigFolderReference();
+		Collection<String> hierarchyIds = m_configService.getAllCategoryXml();
+		for(String hierarchyId : hierarchyIds)
+		{
+			this.updateHierarchy(configFolderRef + hierarchyId);
+			this.updatableResources.add(configFolderRef + hierarchyId);
+
+		}
+		
+//		String databaseHierarchyResourceRef = m_configService.getConfigFolderReference();
+//		if(databaseHierarchyResourceRef != null)
+//		{
+//			updatableResources.add(databaseHierarchyResourceRef);
+//			updateHierarchy(databaseHierarchyResourceRef);
+//		}
+		
 	}
 
 	protected void setupTypes() {
@@ -2219,8 +2427,41 @@ public class BaseSearchManager implements SearchManager
      */
     public SearchDatabaseHierarchy getSearchHierarchy() throws SearchException
     {
-    	this.hierarchy = new BasicSearchDatabaseHierarchy();
-    	return this.hierarchy;
+    	SearchDatabaseHierarchy hierarchy = null;
+        try
+        {
+        	String configFolderRef = m_configService.getConfigFolderReference();
+        	String hierarchyXml = m_configService.getDatabaseHierarchyXml();
+	       	if(isNull(configFolderRef) || isNull(hierarchyXml))
+	    	{
+	    		//
+	    	}
+	    	else
+	    	{
+		    	hierarchy = this.hierarchyMap.get(hierarchyXml);
+		    	if(hierarchy == null)
+		    	{
+		    		updateHierarchy(configFolderRef + hierarchyXml);
+		    		hierarchy = this.hierarchyMap.get(hierarchyXml);
+		    	}
+	    	}
+        }
+        catch (OsidConfigurationException e)
+        {
+	        // TODO Auto-generated catch block
+	        m_log.warn("OsidConfigurationException ", e);
+	        
+        }
+     	return hierarchy;
+    }
+
+	public void updateHierarchy(String databaseXmlReference)
+    {
+		SearchDatabaseHierarchy hierarchy = new BasicSearchDatabaseHierarchy(databaseXmlReference);
+		if(hierarchy != null && hierarchy.isConfigured())
+		{
+			this.hierarchyMap.put(databaseXmlReference, hierarchy);
+		}
     }
 
 	/* (non-Javadoc)
@@ -2296,5 +2537,46 @@ public class BaseSearchManager implements SearchManager
 		// TODO Auto-generated method stub
 		this.m_databaseIds = databaseIds;
 	}
+
+	public void update(Observable arg0, Object arg1)
+    {
+	    if(arg1 instanceof Event)
+	    {
+	    	Event event = (Event) arg1;
+	    	String refstr = event.getResource();
+	    	if(this.updatableResources.contains(refstr))
+	    	{
+	    		// update the hierarchy
+	    		this.updateHierarchy(refstr);
+	    	}
+	    }
+
+    }
+
+	/**
+	 * Establish a security advisor to allow the "embedded" azg work to occur
+	 * with no need for additional security permissions.
+	 */
+	protected void enableSecurityAdvisor() 
+	{
+		// put in a security advisor so we can create citationAdmin site without need
+		// of further permissions
+		SecurityService.pushAdvisor(new SecurityAdvisor() {
+			public SecurityAdvice isAllowed(String userId, String function, String reference) 
+			{
+				return SecurityAdvice.ALLOWED;
+			}
+		});
+	}
+
+	  /**
+	   * Null (or empty) String?
+	   * @param string String to check
+	   * @return true if so
+	   */
+		private boolean isNull(String string)
+		{
+			return (string == null) || (string.trim().equals(""));
+		}
 
 }
