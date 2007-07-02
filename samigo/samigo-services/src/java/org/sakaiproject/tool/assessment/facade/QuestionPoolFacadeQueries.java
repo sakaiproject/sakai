@@ -597,9 +597,9 @@ public class QuestionPoolFacadeQueries
           ArrayList metaList = new ArrayList();
           for (int j=0; j<list.size(); j++){
             String itemId = ((QuestionPoolItemData)list.get(j)).getItemId();
-            String query = "from ItemMetaData as meta where meta.item.itemId="+itemId+
-              " and meta.label='"+ItemMetaDataIfc.POOLID+"'";
-            List m = getHibernateTemplate().find(query);
+            String query = "from ItemMetaData as meta where meta.item.itemId=? and meta.label=?";
+            Object [] values = {Long.valueOf(itemId), ItemMetaDataIfc.POOLID};
+    	    List m = getHibernateTemplate().find(query, values);
             if (m.size()>0){
               ItemMetaDataIfc meta = (ItemMetaDataIfc)m.get(0);
               meta.setEntry(null);

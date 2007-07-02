@@ -26,6 +26,9 @@ import java.util.List;
 public interface PagingUtilQueriesAPI{
 
   public List getAll(final int pageSize, final int pageNumber,
-      final String queryString);
+      final String queryString, final Integer value);
+  
+  public List getAll(final int pageSize, final int pageNumber,
+	      final String queryString);
 
 }

@@ -161,8 +161,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       final HibernateCallback hcb = new HibernateCallback(){
       	public Object doInHibernate(Session session) throws HibernateException, SQLException {
       		Query q = session.createQuery(
-      				"from AssessmentGradingData a where a.publishedAssessmentId=? and a.forGrade=1");
+      				"from AssessmentGradingData a where a.publishedAssessmentId=? and a.forGrade=?");
       		q.setLong(0, Long.parseLong(publishedId));
+      		q.setBoolean(1, true);
       		return q.list();
       	};
       };
@@ -410,8 +411,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
 
   public int getSubmissionSizeOfPublishedAssessment(Long publishedAssessmentId){
-    List size = getHibernateTemplate().find(
-        "select count(a) from AssessmentGradingData a where a.forGrade=1 and a.publishedAssessmentId=?"+ publishedAssessmentId);
+	Object [] values = {Boolean.valueOf(true), publishedAssessmentId};
+	List size = getHibernateTemplate().find(
+        "select count(a) from AssessmentGradingData a where a.forGrade=? and a.publishedAssessmentId=?", values);
     Iterator iter = size.iterator();
     if (iter.hasNext()){
       int i = ((Integer)iter.next()).intValue();
@@ -425,7 +427,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   public HashMap getSubmissionSizeOfAllPublishedAssessments(){
     HashMap h = new HashMap();
     List list = getHibernateTemplate().find(
-        "select new PublishedAssessmentData(a.publishedAssessmentId, count(a)) from AssessmentGradingData a where a.forGrade=1 group by a.publishedAssessmentId");
+        "select new PublishedAssessmentData(a.publishedAssessmentId, count(a)) from AssessmentGradingData a where a.forGrade=? group by a.publishedAssessmentId", Boolean.valueOf(true));
     Iterator iter = list.iterator();
     while (iter.hasNext()){
       PublishedAssessmentData o = (PublishedAssessmentData)iter.next();

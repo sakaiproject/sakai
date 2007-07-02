@@ -853,7 +853,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				+ " a.publishedAssessmentId, count(a)) "
 				+ " from AssessmentGradingData as a, AuthorizationData as az "
 				+ " where a.agentId=? and a.forGrade=? and az.agentIdString=? "
-				+ " and az.functionId='TAKE_PUBLISHED_ASSESSMENT' and az.qualifierId=a.publishedAssessmentId"
+				+ " and az.functionId=? and az.qualifierId=a.publishedAssessmentId"
 				+ " group by a.publishedAssessmentId";
 
 		final HibernateCallback hcb = new HibernateCallback() {
@@ -863,6 +863,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				q.setString(0, agentId);
 				q.setBoolean(1, true);
 				q.setString(2, siteId);
+				q.setString(3, "TAKE_PUBLISHED_ASSESSMENT");
 				return q.list();
 			};
 		};
@@ -920,13 +921,13 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		String queryString = "from PublishedAssessmentData p order by p."
 				+ orderBy;
 		if (!status.equals(PublishedAssessmentFacade.ANY_STATUS)) {
-			queryString = "from PublishedAssessmentData p where p.status ="
-					+ status.intValue() + " order by p." + orderBy;
+			queryString = "from PublishedAssessmentData p where p.status = ? "
+					+ " order by p." + orderBy;
 		}
 		PagingUtilQueriesAPI pagingUtilQueries = PersistenceService
 				.getInstance().getPagingUtilQueries();
 		List pageList = pagingUtilQueries.getAll(pageSize, pageNumber,
-				queryString);
+				queryString, status);
 		log.debug("**** pageList=" + pageList);
 		ArrayList assessmentList = new ArrayList();
 		for (int i = 0; i < pageList.size(); i++) {
@@ -1027,8 +1028,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		String query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
 				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate) "
 				+ " from PublishedAssessmentData p, PublishedAccessControl c, AuthorizationData z  "
-				+ " where c.assessment = p and p.status=1 and "
-				+ " p.publishedAssessmentId=z.qualifierId and z.functionId='OWN_PUBLISHED_ASSESSMENT' "
+				+ " where c.assessment = p and p.status=? and "
+				+ " p.publishedAssessmentId=z.qualifierId and z.functionId=? "
 				+ " and z.agentIdString= ? order by p." + orderBy;
 		if (ascending == true)
 			query += " asc";
@@ -1040,7 +1041,9 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
 				Query q = session.createQuery(hql);
-				q.setString(0, siteAgentId);
+				q.setInteger(0, 1);
+				q.setString(1, "OWN_PUBLISHED_ASSESSMENT");
+				q.setString(2, siteAgentId);
 				return q.list();
 			};
 		};
@@ -1085,8 +1088,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		String query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title,"
 				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate) from PublishedAssessmentData p,"
 				+ " PublishedAccessControl c, AuthorizationData z  "
-				+ " where c.assessment=p and (p.status=0 or c.dueDate<= ? or  c.retractDate<= ?)"
-				+ " and p.publishedAssessmentId=z.qualifierId and z.functionId='OWN_PUBLISHED_ASSESSMENT' "
+				+ " where c.assessment=p and (p.status=? or c.dueDate<= ? or  c.retractDate<= ?)"
+				+ " and p.publishedAssessmentId=z.qualifierId and z.functionId=? "
 				+ " and z.agentIdString= ? order by p." + orderBy;
 
 		if (ascending)
@@ -1099,9 +1102,11 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
 				Query q = session.createQuery(hql);
-				q.setTimestamp(0, new Date());
+				q.setInteger(0, 0);
 				q.setTimestamp(1, new Date());
-				q.setString(2, siteAgentId);
+				q.setTimestamp(2, new Date());
+				q.setString(3, "OWN_PUBLISHED_ASSESSMENT");
+				q.setString(4, siteAgentId);
 				return q.list();
 			};
 		};
@@ -1135,8 +1140,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 	 */
 	public HashSet getSectionSetForAssessment(PublishedAssessmentIfc assessment) {
 		List sectionList = getHibernateTemplate().find(
-				"from PublishedSectionData s where s.assessment.publishedAssessmentId="
-						+ assessment.getPublishedAssessmentId());
+				"from PublishedSectionData s where s.assessment.publishedAssessmentId=? ", 
+				assessment.getPublishedAssessmentId());
 		HashSet set = new HashSet();
 		for (int j = 0; j < sectionList.size(); j++) {
 			set.add((PublishedSectionData) sectionList.get(j));
@@ -1183,7 +1188,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				+ " and p.publishedAssessmentId = f.assessment.publishedAssessmentId "
 				+ " and p.publishedAssessmentId = em.assessment.publishedAssessmentId "
 				+ " and p.status=? and az.agentIdString=? "
-				+ " and az.functionId='TAKE_PUBLISHED_ASSESSMENT' and az.qualifierId=p.publishedAssessmentId"
+				+ " and az.functionId=? and az.qualifierId=p.publishedAssessmentId"
 				+ " order by ";
 
 		if (ascending == false) {
@@ -1208,6 +1213,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				Query q = session.createQuery(hql);
 				q.setInteger(0, status.intValue());
 				q.setString(1, siteId);
+				q.setString(2, "TAKE_PUBLISHED_ASSESSMENT");
 				return q.list();
 			};
 		};
@@ -1247,7 +1253,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				+ " a.comments, a.status, a.gradedBy, a.gradedDate, a.attemptDate,"
 				+ " a.timeElapsed) "
 				+ " from AssessmentGradingData a, PublishedAssessmentData p"
-				+ " where a.publishedAssessmentId = p.publishedAssessmentId  and a.forGrade=1 and a.agentId=?"
+				+ " where a.publishedAssessmentId = p.publishedAssessmentId  and a.forGrade=? and a.agentId=?"
 				+ " order by p.publishedAssessmentId DESC, a.submittedDate DESC";
 
 		/*
@@ -1262,7 +1268,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
 				Query q = session.createQuery(query);
-				q.setString(0, agentId);
+				q.setBoolean(0, true);
+				q.setString(1, agentId);
 				return q.list();
 			};
 		};
@@ -1321,15 +1328,16 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 
 	public Integer getTotalSubmission(final String agentId,
 			final Long publishedAssessmentId) {
-		final String query = "select count(a) from AssessmentGradingData a where a.forGrade=1 "
+		final String query = "select count(a) from AssessmentGradingData a where a.forGrade=? "
 				+ " and a.agentId=? and a.publishedAssessmentId=?";
 
 		final HibernateCallback hcb = new HibernateCallback() {
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
 				Query q = session.createQuery(query);
-				q.setString(0, agentId);
-				q.setLong(1, publishedAssessmentId.longValue());
+				q.setBoolean(0, true);
+				q.setString(1, agentId);
+				q.setLong(2, publishedAssessmentId.longValue());
 				return q.list();
 			};
 		};
@@ -1439,9 +1447,9 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 	public String getPublishedAssessmentOwner(String publishedAssessmentId) {
 		// HashMap h = new HashMap();
 		String query = "select a from AuthorizationData a where "
-				+ " a.functionId='OWN_PUBLISHED_ASSESSMENT' and a.qualifierId="
-				+ publishedAssessmentId;
-		List l = getHibernateTemplate().find(query);
+				+ " a.functionId=? and a.qualifierId=? ";
+		Object [] values = {"OWN_PUBLISHED_ASSESSMENT", publishedAssessmentId};
+	    List l = getHibernateTemplate().find(query, values);
 		if (l.size() > 0) {
 			AuthorizationData a = (AuthorizationData) l.get(0);
 			return a.getAgentIdString();
@@ -1457,8 +1465,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		boolean isUnique = true;
 		final String query = "select new PublishedAssessmentData(a.publishedAssessmentId, a.title, a.lastModifiedDate)"
 				+ " from PublishedAssessmentData a, AuthorizationData z where "
-				+ " a.title=? and a.publishedAssessmentId!=? and a.status!=2 and "
-				+ " z.functionId='OWN_PUBLISHED_ASSESSMENT' and "
+				+ " a.title=? and a.publishedAssessmentId!=? and a.status!=? and "
+				+ " z.functionId=? and "
 				+ " a.publishedAssessmentId=z.qualifierId and z.agentIdString=?";
 
 		final HibernateCallback hcb = new HibernateCallback() {
@@ -1467,7 +1475,9 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				Query q = session.createQuery(query);
 				q.setString(0, title);
 				q.setLong(1, assessmentBaseId.longValue());
-				q.setString(2, currentSiteId);
+				q.setInteger(2, 2);
+				q.setString(3, "OWN_PUBLISHED_ASSESSMENT");
+				q.setString(4, currentSiteId);
 				return q.list();
 			};
 		};
@@ -1704,8 +1714,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 
 	public HashSet getSectionSetForAssessment(Long publishedAssessmentId) {
 		List sectionList = getHibernateTemplate().find(
-				"from PublishedSectionData s where s.assessment.publishedAssessmentId="
-						+ publishedAssessmentId);
+				"from PublishedSectionData s where s.assessment.publishedAssessmentId=?", 
+				 publishedAssessmentId);
 		HashSet set = new HashSet();
 		for (int j = 0; j < sectionList.size(); j++) {
 			set.add((PublishedSectionData) sectionList.get(j));
@@ -1795,16 +1805,18 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				+ " a.timeElapsed) "
 				+ " from AssessmentGradingData a, PublishedAssessmentData p, AuthorizationData az"
 				+ " where a.publishedAssessmentId = p.publishedAssessmentId"
-				+ " and a.forGrade=1 and a.agentId=? and az.agentIdString=? "
-				+ " and az.functionId='TAKE_PUBLISHED_ASSESSMENT' and az.qualifierId=p.publishedAssessmentId"
+				+ " and a.forGrade=? and a.agentId=? and az.agentIdString=? "
+				+ " and az.functionId=? and az.qualifierId=p.publishedAssessmentId"
 				+ " order by p.publishedAssessmentId DESC, a.finalScore DESC, a.submittedDate DESC";
 
 		final HibernateCallback hcb_last = new HibernateCallback() {
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
 				Query q = session.createQuery(last_query);
-				q.setString(0, agentId);
-				q.setString(1, siteId);
+				q.setBoolean(0, true);
+				q.setString(1, agentId);
+				q.setString(2, siteId);
+				q.setString(3, "TAKE_PUBLISHED_ASSESSMENT");
 				return q.list();
 			};
 		};
@@ -1816,8 +1828,10 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
 				Query q = session.createQuery(highest_query);
-				q.setString(0, agentId);
-				q.setString(1, siteId);
+				q.setBoolean(0, true);
+				q.setString(1, agentId);
+				q.setString(2, siteId);
+				q.setString(3, "TAKE_PUBLISHED_ASSESSMENT");
 				return q.list();
 			};
 		};
@@ -2013,10 +2027,10 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 
 	  public String getPublishedAssessmentSiteId(String publishedAssessmentId) {
 		    String query = "select a from AuthorizationData a " +
-		    		"where a.functionId = 'TAKE_PUBLISHED_ASSESSMENT' and " 
-		    		+ "a.qualifierId = " + publishedAssessmentId;
-		    
-		    List l = getHibernateTemplate().find(query);
+		    		"where a.functionId = ? and " 
+		    		+ "a.qualifierId = ? ";
+		    Object [] values = {"TAKE_PUBLISHED_ASSESSMENT", publishedAssessmentId};
+		    List l = getHibernateTemplate().find(query, values);
 		    if (l.size()>0){
 		    	AuthorizationData a = (AuthorizationData) l.get(0);
 		      return a.getAgentIdString();

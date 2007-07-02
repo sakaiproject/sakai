@@ -315,14 +315,15 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		final String agent = AgentFacade.getAgentString();
 		final Long typeId = TypeD.TEMPLATE_SYSTEM_DEFINED;
 		final String query = "select new AssessmentTemplateData(a.assessmentBaseId, a.title, a.lastModifiedDate, a.typeId)"
-				+ " from AssessmentTemplateData a where a.assessmentBaseId=1 or"
+				+ " from AssessmentTemplateData a where a.assessmentBaseId=? or"
 				+ " a.createdBy=? or a.typeId=? order by a.title";
 		HibernateCallback hcb = new HibernateCallback() {
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
 				Query q = session.createQuery(query);
-				q.setString(0, agent);
-				q.setLong(1, typeId.longValue());
+				q.setLong(0, Long.valueOf(1));
+				q.setString(1, agent);
+				q.setLong(2, typeId.longValue());
 				return q.list();
 			};
 		};
@@ -345,14 +346,16 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		final String agent = AgentFacade.getAgentString();
 		final Long typeId = TypeD.TEMPLATE_SYSTEM_DEFINED;
 		final String query = "select new AssessmentTemplateData(a.assessmentBaseId, a.title, a.lastModifiedDate, a.typeId)"
-				+ " from AssessmentTemplateData a where a.status=1 and (a.assessmentBaseId=1 or"
+				+ " from AssessmentTemplateData a where a.status=? and (a.assessmentBaseId=? or"
 				+ " a.createdBy=? or a.typeId=?) order by a.title";
 		HibernateCallback hcb = new HibernateCallback() {
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
 				Query q = session.createQuery(query);
-				q.setString(0, agent);
-				q.setLong(1, typeId.longValue());
+				q.setInteger(0, 1);
+				q.setLong(1, Long.valueOf(1));
+				q.setString(2, agent);
+				q.setLong(3, typeId.longValue());
 				return q.list();
 			};
 		};
@@ -383,14 +386,16 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		final String agent = AgentFacade.getAgentString();
 		final Long typeId = TypeD.TEMPLATE_SYSTEM_DEFINED;
 		final String query = "select new AssessmentTemplateData(a.assessmentBaseId, a.title) "
-				+ " from AssessmentTemplateData a where a.status=1 and "
-				+ " (a.assessmentBaseId=1 or a.createdBy=? or typeId=?) order by a.title";
+				+ " from AssessmentTemplateData a where a.status=? and "
+				+ " (a.assessmentBaseId=? or a.createdBy=? or typeId=?) order by a.title";
 		HibernateCallback hcb = new HibernateCallback() {
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
 				Query q = session.createQuery(query);
-				q.setString(0, agent);
-				q.setLong(1, typeId.longValue());
+				q.setInteger(0, 1);
+				q.setLong(1, Long.valueOf(1));
+				q.setString(2, agent);
+				q.setLong(3, typeId.longValue());
 				return q.list();
 			};
 		};
@@ -427,8 +432,8 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 	 */
 	private HashSet getSectionSetForAssessment(AssessmentData assessment) {
 		List sectionList = getHibernateTemplate().find(
-				"from SectionData s where s.assessment.assessmentBaseId="
-						+ assessment.getAssessmentBaseId());
+				"from SectionData s where s.assessment.assessmentBaseId=?",
+						assessment.getAssessmentBaseId());
 		HashSet set = new HashSet();
 		for (int j = 0; j < sectionList.size(); j++) {
 			set.add((SectionData) sectionList.get(j));
@@ -709,7 +714,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 
 	public ArrayList getAllActiveAssessments(String orderBy) {
 		List list = getHibernateTemplate().find(
-				"from AssessmentData a where a.status=1 order by a." + orderBy);
+				"from AssessmentData a where a.status=? order by a." + orderBy, Integer.valueOf(1));
 		ArrayList assessmentList = new ArrayList();
 		for (int i = 0; i < list.size(); i++) {
 			AssessmentData a = (AssessmentData) list.get(i);
@@ -723,7 +728,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 	public ArrayList getBasicInfoOfAllActiveAssessments(String orderBy,
 			boolean ascending) {
 
-		String query = "select new AssessmentData(a.assessmentBaseId, a.title, a.lastModifiedDate)from AssessmentData a where a.status=1 order by a."
+		String query = "select new AssessmentData(a.assessmentBaseId, a.title, a.lastModifiedDate)from AssessmentData a where a.status=? order by a."
 				+ orderBy;
 
 		if (ascending) {
@@ -732,7 +737,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			query += " desc";
 		}
 
-		List list = getHibernateTemplate().find(query);
+		List list = getHibernateTemplate().find(query, Integer.valueOf(1));
 
 		ArrayList assessmentList = new ArrayList();
 		for (int i = 0; i < list.size(); i++) {
@@ -747,8 +752,8 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 	public ArrayList getBasicInfoOfAllActiveAssessmentsByAgent(String orderBy,
 			final String siteAgentId, boolean ascending) {
 		String query = "select new AssessmentData(a.assessmentBaseId, a.title, a.lastModifiedDate) "
-				+ " from AssessmentData a, AuthorizationData z where a.status=1 and "
-				+ " a.assessmentBaseId=z.qualifierId and z.functionId='EDIT_ASSESSMENT' "
+				+ " from AssessmentData a, AuthorizationData z where a.status=? and "
+				+ " a.assessmentBaseId=z.qualifierId and z.functionId=? "
 				+ " and z.agentIdString=? order by a." + orderBy;
 		if (ascending)
 			query += " asc";
@@ -760,7 +765,9 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
 				Query q = session.createQuery(hql);
-				q.setString(0, siteAgentId);
+				q.setInteger(0, 1);
+				q.setString(1, "EDIT_ASSESSMENT");
+				q.setString(2, siteAgentId);
 				return q.list();
 			};
 		};
@@ -782,15 +789,17 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 	public ArrayList getBasicInfoOfAllActiveAssessmentsByAgent(String orderBy,
 			final String siteAgentId) {
 		final String query = "select new AssessmentData(a.assessmentBaseId, a.title, a.lastModifiedDate) "
-				+ " from AssessmentData a, AuthorizationData z where a.status=1 and "
-				+ " a.assessmentBaseId=z.qualifierId and z.functionId='EDIT_ASSESSMENT' "
+				+ " from AssessmentData a, AuthorizationData z where a.status=? and "
+				+ " a.assessmentBaseId=z.qualifierId and z.functionId=? "
 				+ " and z.agentIdString=? order by a." + orderBy;
 
 		HibernateCallback hcb = new HibernateCallback() {
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
 				Query q = session.createQuery(query);
-				q.setString(0, siteAgentId);
+				q.setInteger(0, 1);
+				q.setString(1, "EDIT_ASSESSMENT");
+				q.setString(2, siteAgentId);
 				return q.list();
 			};
 		};
@@ -820,7 +829,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 
 	public ArrayList getSettingsOfAllActiveAssessments(String orderBy) {
 		List list = getHibernateTemplate().find(
-				"from AssessmentData a where a.status=1 order by a." + orderBy);
+				"from AssessmentData a where a.status=? order by a." + orderBy, 1);
 		ArrayList assessmentList = new ArrayList();
 		// IMPORTANT:
 		// 1. we do not want any Section info, so set loadSection to false
@@ -1231,15 +1240,16 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		final String agent = AgentFacade.getAgentString();
 		final Long typeId = TypeD.TEMPLATE_SYSTEM_DEFINED;
 		final String query = "select new AssessmentTemplateData(a.assessmentBaseId, a.title, a.lastModifiedDate, a.typeId)"
-				+ " from AssessmentTemplateData a where a.status=1 and (a.assessmentBaseId=1 or"
+				+ " from AssessmentTemplateData a where a.status=1 and (a.assessmentBaseId=? or"
 				+ " a.createdBy=? or typeId=?) order by a." + orderBy;
 
 		HibernateCallback hcb = new HibernateCallback() {
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
 				Query q = session.createQuery(query);
-				q.setString(0, agent);
-				q.setLong(1, typeId.longValue());
+				q.setLong(0, Long.valueOf(1));
+				q.setString(1, agent);
+				q.setLong(2, typeId.longValue());
 				return q.list();
 			};
 		};
@@ -1323,7 +1333,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		if (isTemplate.booleanValue()) { // templates are person scoped
 			query = "select new AssessmentTemplateData(a.assessmentBaseId, a.title, a.lastModifiedDate)"
 					+ " from AssessmentTemplateData a, AuthorizationData z where "
-					+ " a.title=? and a.assessmentBaseId!=? and a.createdBy=? and a.status=1";
+					+ " a.title=? and a.assessmentBaseId!=? and a.createdBy=? and a.status=?";
 
 			final String hql = query;
 			final String titlef = title;
@@ -1334,6 +1344,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 					q.setString(0, titlef);
 					q.setLong(1, assessmentBaseId.longValue());
 					q.setString(2, agentString);
+					q.setInteger(3,1);
 					return q.list();
 				};
 			};
@@ -1346,7 +1357,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		} else { // assessments are site scoped
 			query = "select new AssessmentData(a.assessmentBaseId, a.title, a.lastModifiedDate)"
 					+ " from AssessmentData a, AuthorizationData z where "
-					+ " a.title=? and a.assessmentBaseId!=? and z.functionId='EDIT_ASSESSMENT' and "
+					+ " a.title=? and a.assessmentBaseId!=? and z.functionId=? and "
 					+ " a.assessmentBaseId=z.qualifierId and z.agentIdString=?";
 
 			final String hql = query;
@@ -1357,7 +1368,8 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 					Query q = session.createQuery(hql);
 					q.setString(0, titlef);
 					q.setLong(1, assessmentBaseId.longValue());
-					q.setString(2, currentSiteId);
+					q.setString(2, "EDIT_ASSESSMENT");
+					q.setString(3, currentSiteId);
 					return q.list();
 				};
 			};
@@ -1745,15 +1757,17 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 
 	public List getAllActiveAssessmentsByAgent(final String siteAgentId) {
 		final String query = "select a "
-				+ " from AssessmentData a,AuthorizationData z where a.status=1 and "
-				+ "a.assessmentBaseId=z.qualifierId and z.functionId='EDIT_ASSESSMENT' "
+				+ " from AssessmentData a,AuthorizationData z where a.status=? and "
+				+ "a.assessmentBaseId=z.qualifierId and z.functionId=? "
 				+ " and z.agentIdString=?";
 
 		HibernateCallback hcb = new HibernateCallback() {
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
 				Query q = session.createQuery(query);
-				q.setString(0, siteAgentId);
+				q.setInteger(0, 1);
+				q.setString(1, "EDIT_ASSESSMENT");
+				q.setString(2, siteAgentId);
 				return q.list();
 			};
 		};
@@ -2164,8 +2178,9 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
   public String getAssessmentSiteId (String assessmentId){
 	    String query =
 	        "select a from AuthorizationData a where "+
-	        " a.functionId='EDIT_ASSESSMENT' and a.qualifierId="+assessmentId;
-	    List l = getHibernateTemplate().find(query);
+	        " a.functionId=? and a.qualifierId=?";
+	    Object [] values = {"EDIT_ASSESSMENT", assessmentId};
+	    List l = getHibernateTemplate().find(query, values);
 	    if (l.size()>0){
 	      AuthorizationData a = (AuthorizationData) l.get(0);
 	      return a.getAgentIdString();
@@ -2174,8 +2189,8 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
   }
   
   public String getAssessmentCreatedBy(String assessmentId) {
-    String query = "select a from AssessmentData a where a.assessmentBaseId = " + assessmentId;
-    List l = getHibernateTemplate().find(query);
+    String query = "select a from AssessmentData a where a.assessmentBaseId = ?";
+    List l = getHibernateTemplate().find(query, Long.valueOf(assessmentId));
     if (l.size()>0){
     	AssessmentData a = (AssessmentData) l.get(0);
       return a.getCreatedBy();

@@ -42,12 +42,15 @@ public class PagingUtilQueries
   }
 
   public List getAll(final int pageSize, final int pageNumber,
-                                final String queryString) {
+                                final String queryString, final Integer value) {
 
     HibernateCallback callback = new HibernateCallback(){
        public Object doInHibernate(Session session) throws HibernateException{
          ArrayList page = new ArrayList();
          Query q = session.createQuery(queryString);
+         if (value != null) {
+        	 q.setInteger(0, value.intValue());
+         }
          ScrollableResults assessmentList = q.scroll();
          if (assessmentList.first()){ // check that result set is not empty
            int first = pageSize * (pageNumber - 1);
@@ -64,6 +67,11 @@ public class PagingUtilQueries
     };
     List pageList = (List) getHibernateTemplate().execute(callback);
     return pageList;
+  }
+  
+  public List getAll(final int pageSize, final int pageNumber,
+          final String queryString) {
+	  return getAll(pageSize, pageNumber, queryString, null);
   }
 
 }

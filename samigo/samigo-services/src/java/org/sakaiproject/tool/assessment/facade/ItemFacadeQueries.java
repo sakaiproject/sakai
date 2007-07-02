@@ -591,8 +591,9 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
 
 	    final HibernateCallback hcb3 = new HibernateCallback(){
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	    		Query q = session.createQuery("select ab from ItemData ab, ItemMetaData md where md.item=ab and md.entry like ?  and md.label= 'KEYWORD' ");
+	    		Query q = session.createQuery("select ab from ItemData ab, ItemMetaData md where md.item=ab and md.entry like ?  and md.label= ? ");
 	    		q.setString(0, keyword);
+	    		q.setString(1, "KEYWORD");
 	    		return q.list();
 	    	};
 	    };
