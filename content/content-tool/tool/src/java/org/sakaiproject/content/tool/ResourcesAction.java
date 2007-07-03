@@ -7172,6 +7172,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			{
 				edit.setContent(content);
 			}
+			
 			// update properties
 			if(action instanceof InteractionAction)
 			{
@@ -7197,9 +7198,17 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					}
 				}
 			}
+			
+			int notification = NotificationService.NOTI_NONE;
+			Object obj = pipe.getRevisedListItem();
+			if(obj instanceof ListItem)
+			{
+				notification = ((ListItem) obj).getNotification();
+			}
+			
 			// update mimetype
 			edit.setContentType(pipe.getRevisedMimeType());
-			ContentHostingService.commitResource(edit);
+			ContentHostingService.commitResource(edit, notification);
 		}
 		catch (PermissionException e)
 		{

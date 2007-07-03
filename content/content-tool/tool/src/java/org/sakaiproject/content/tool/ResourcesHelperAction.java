@@ -770,6 +770,28 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
             }
             
 			ListItem newFile = new ListItem(filename);
+			// notification
+			int noti = NotificationService.NOTI_NONE;
+			// %%STATE_MODE_RESOURCES%%
+			if (newFile.isDropbox())
+			{
+				// set noti to none if in dropbox mode
+				noti = NotificationService.NOTI_NONE;
+			}
+			else
+			{
+				// read the notification options
+				String notification = params.getString("notify");
+				if ("r".equals(notification))
+				{
+					noti = NotificationService.NOTI_REQUIRED;
+				}
+				else if ("o".equals(notification))
+				{
+					noti = NotificationService.NOTI_OPTIONAL;
+				}
+			}
+			newFile.setNotification(noti);
 			
 			pipe.setRevisedListItem(newFile);
 			
