@@ -10,7 +10,7 @@
 		$required
 	</p>
 	
-	<form name="propertyForm" id="propertyForm" action="#toolLinkParam("ResourcesAction" "doCompleteCreateWizard" "flow=update")" method="post">
+	<form name="$DETAILS_FORM_NAME" id="$DETAILS_FORM_NAME" action="#toolLinkParam("ResourcesAction" "doCompleteCreateWizard" "flow=update")" method="post">
 		<input type="hidden" name="sakai_action" id="sakai_action" value="doCompleteCreateWizard" />
 		<input type="hidden" name="user_action" id="user_action" value="save" />
 		<input type="hidden" name="user_action" id="user_action" value="save" />
@@ -47,8 +47,8 @@
 		
 	
 		<p class="act">
-			<input type="button" class="active" id="finish_button" onclick="document.getElementById('user_action').value='save';submitform('propertyForm');" value="$tlang.getString("label.finish")" accesskey="s" />
-			<input type="button" id="cancel_button" onclick="javascript:document.getElementById('user_action').value='cancel';submitform('propertyForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
+			<input type="button" class="active" id="finish_button" onclick="document.getElementById('user_action').value='save';submitform('$DETAILS_FORM_NAME');" value="$tlang.getString("label.finish")" accesskey="s" />
+			<input type="button" id="cancel_button" onclick="javascript:document.getElementById('user_action').value='cancel';submitform('$DETAILS_FORM_NAME');" value="$tlang.getString("label.cancel")" accesskey="x" />
 		</p>
 		
 	</form>

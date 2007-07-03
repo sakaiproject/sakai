@@ -1137,6 +1137,100 @@ public class ListItem
 		}
 	}
 
+	protected static void captureOptionalPropertyValues(ParameterParser params, List properties)
+	{
+		Iterator it = properties.iterator();
+		while(it.hasNext())
+		{
+			ResourcesMetadata prop = (ResourcesMetadata) it.next();
+			String propname = prop.getDottedname();
+
+			if(ResourcesMetadata.WIDGET_NESTED.equals(prop.getWidget()))
+			{
+				// do nothing
+			}
+			else if(ResourcesMetadata.WIDGET_BOOLEAN.equals(prop.getWidget()))
+			{
+				String value = params.getString(propname);
+				if(value == null || Boolean.FALSE.toString().equals(value))
+				{
+					prop.setValue(0, Boolean.FALSE.toString());
+				}
+				else
+				{
+					prop.setValue(0, Boolean.TRUE.toString());
+				}
+			}
+			else if(ResourcesMetadata.WIDGET_DATE.equals(prop.getWidget()) || ResourcesMetadata.WIDGET_DATETIME.equals(prop.getWidget()) || ResourcesMetadata.WIDGET_TIME.equals(prop.getWidget()))
+			{
+				int year = 0;
+				int month = 0;
+				int day = 0;
+				int hour = 0;
+				int minute = 0;
+				int second = 0;
+				int millisecond = 0;
+				String ampm = "";
+
+				if(prop.getWidget().equals(ResourcesMetadata.WIDGET_DATE) ||
+					prop.getWidget().equals(ResourcesMetadata.WIDGET_DATETIME))
+				{
+					year = params.getInt(propname + "_year", year);
+					month = params.getInt(propname + "_month", month);
+					day = params.getInt(propname + "_day", day);
+				}
+				if(prop.getWidget().equals(ResourcesMetadata.WIDGET_TIME) ||
+					prop.getWidget().equals(ResourcesMetadata.WIDGET_DATETIME))
+				{
+					hour = params.getInt(propname + "_hour", hour);
+					minute = params.getInt(propname + "_minute", minute);
+					second = params.getInt(propname + "_second", second);
+					millisecond = params.getInt(propname + "_millisecond", millisecond);
+					ampm = params.getString(propname + "_ampm");
+
+					if("pm".equalsIgnoreCase(ampm))
+					{
+						if(hour < 12)
+						{
+							hour += 12;
+						}
+					}
+					else if(hour == 12)
+					{
+						hour = 0;
+					}
+				}
+				if(hour > 23)
+				{
+					hour = hour % 24;
+					day++;
+				}
+
+				Time value = TimeService.newTimeLocal(year, month, day, hour, minute, second, millisecond);
+				prop.setValue(0, value);
+			}
+			else if(ResourcesMetadata.WIDGET_ANYURI.equals(prop.getWidget()))
+			{
+				String value = params.getString(propname);
+				if(value != null && ! value.trim().equals(""))
+				{
+					Reference ref = EntityManager.newReference(ContentHostingService.getReference(value));
+					prop.setValue(0, ref);
+				}
+			}
+			else
+			{
+				String value = params.getString(propname);
+				if(value != null)
+				{
+					prop.setValue(0, value);
+				}
+			}
+		}
+
+	}	// capturePropertyValues
+
+
 	protected void captureMimetypeChange(ParameterParser params, String index) 
 	{
 		String mimeCategory = params.getString("mime_category" + index);

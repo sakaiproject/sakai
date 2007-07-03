@@ -21,6 +21,25 @@
 	  window.open("$copyright_alert_url","SampleCopyrightAlert","scrollbars=no,menubar=no,height=400,width=700,resizable=no,toolbar=no,location=no,status=no");
 	  return false;
 	}
+	function hideOptionalProperties(index, metadataGroup)
+	{
+		var shownBar = document.getElementById("metadataShown_" + index + "_" + metadataGroup);
+		var hiddenBar = document.getElementById("metadataHidden_" + index + "_" + metadataGroup);
+		var metadataDiv = document.getElementById("metadataDiv_" + index + "_" + metadataGroup);
+		shownBar.style.display = "none";
+		hiddenBar.style.display = "block";
+		metadataDiv.style.display = "none";
+	}
+	function showOptionalProperties(index, metadataGroup)
+	{
+		var shownBar = document.getElementById("metadataShown_" + index + "_" + metadataGroup);
+		var hiddenBar = document.getElementById("metadataHidden_" + index + "_" + metadataGroup);
+		var metadataDiv = document.getElementById("metadataDiv_" + index + "_" + metadataGroup);
+		shownBar.style.display = "block";
+		hiddenBar.style.display = "none";
+		metadataDiv.style.display = "block";
+	}
+	
 	function attachEventHandlers()
 	{
 		for(var i = 0; i < document.links.length; i++)

@@ -490,4 +490,7 @@
 			#end
 		</table> 
 	#end
+#parse("/vm/resources/sakai_metadata-edit.vm")
+	
+
 		

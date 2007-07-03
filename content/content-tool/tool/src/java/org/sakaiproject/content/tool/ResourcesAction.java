@@ -886,7 +886,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	/**
 	* Build the context to show the list of resource properties
 	*/
-	public static String buildMoreContext (	VelocityPortlet portlet,
+	public String buildMoreContext (	VelocityPortlet portlet,
 									Context context,
 									RunData data,
 									SessionState state)
@@ -1020,6 +1020,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			context.put("copyrightTypes", copyrightTypes);
 		}
 
+		context.put("DETAILS_FORM_NAME", "detailsForm");
 		metadataGroupsIntoContext(state, context);
 
 		// String template = (String) getContext(data).get("template");
@@ -1145,110 +1146,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 //
 //	}	// captureMultipleValues
 //
-	protected static void capturePropertyValues(ParameterParser params, ResourcesEditItem item, List properties)
-	{
-		// use the item's properties if they're not supplied
-		if(properties == null)
-		{
-			properties = item.getProperties();
-		}
-		// if max cardinality > 1, value is a list (Iterate over members of list)
-		// else value is an object, not a list
-
-		// if type is nested, object is a Map (iterate over name-value pairs for the properties of the nested object)
-		// else object is type to store value, usually a string or a date/time
-
-		Iterator it = properties.iterator();
-		while(it.hasNext())
-		{
-			ResourcesMetadata prop = (ResourcesMetadata) it.next();
-			String propname = prop.getDottedname();
-
-			if(ResourcesMetadata.WIDGET_NESTED.equals(prop.getWidget()))
-			{
-				// do nothing
-			}
-			else if(ResourcesMetadata.WIDGET_BOOLEAN.equals(prop.getWidget()))
-			{
-				String value = params.getString(propname);
-				if(value == null || Boolean.FALSE.toString().equals(value))
-				{
-					prop.setValue(0, Boolean.FALSE.toString());
-				}
-				else
-				{
-					prop.setValue(0, Boolean.TRUE.toString());
-				}
-			}
-			else if(ResourcesMetadata.WIDGET_DATE.equals(prop.getWidget()) || ResourcesMetadata.WIDGET_DATETIME.equals(prop.getWidget()) || ResourcesMetadata.WIDGET_TIME.equals(prop.getWidget()))
-			{
-				int year = 0;
-				int month = 0;
-				int day = 0;
-				int hour = 0;
-				int minute = 0;
-				int second = 0;
-				int millisecond = 0;
-				String ampm = "";
-
-				if(prop.getWidget().equals(ResourcesMetadata.WIDGET_DATE) ||
-					prop.getWidget().equals(ResourcesMetadata.WIDGET_DATETIME))
-				{
-					year = params.getInt(propname + "_year", year);
-					month = params.getInt(propname + "_month", month);
-					day = params.getInt(propname + "_day", day);
-				}
-				if(prop.getWidget().equals(ResourcesMetadata.WIDGET_TIME) ||
-					prop.getWidget().equals(ResourcesMetadata.WIDGET_DATETIME))
-				{
-					hour = params.getInt(propname + "_hour", hour);
-					minute = params.getInt(propname + "_minute", minute);
-					second = params.getInt(propname + "_second", second);
-					millisecond = params.getInt(propname + "_millisecond", millisecond);
-					ampm = params.getString(propname + "_ampm");
-
-					if("pm".equalsIgnoreCase(ampm))
-					{
-						if(hour < 12)
-						{
-							hour += 12;
-						}
-					}
-					else if(hour == 12)
-					{
-						hour = 0;
-					}
-				}
-				if(hour > 23)
-				{
-					hour = hour % 24;
-					day++;
-				}
-
-				Time value = TimeService.newTimeLocal(year, month, day, hour, minute, second, millisecond);
-				prop.setValue(0, value);
-			}
-			else if(ResourcesMetadata.WIDGET_ANYURI.equals(prop.getWidget()))
-			{
-				String value = params.getString(propname);
-				if(value != null && ! value.trim().equals(""))
-				{
-					Reference ref = EntityManager.newReference(ContentHostingService.getReference(value));
-					prop.setValue(0, ref);
-				}
-			}
-			else
-			{
-				String value = params.getString(propname);
-				if(value != null)
-				{
-					prop.setValue(0, value);
-				}
-			}
-		}
-
-	}	// capturePropertyValues
-
 	/**
 	 *
 	 * put copyright info into context
@@ -3407,7 +3304,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	/**
 	 * initialize the metadata context
 	 */
-	private static void initMetadataContext(SessionState state)
+	protected void initMetadataContext(SessionState state)
 	{
 		// define MetadataSets map
 		List metadataGroups = (List) state.getAttribute(STATE_METADATA_GROUPS);
@@ -3518,7 +3415,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 * Add variables and constants to the velocity context to render an editor
 	 * for inputing and modifying optional metadata properties about a resource.
 	 */
-	private static void metadataGroupsIntoContext(SessionState state, Context context)
+	protected void metadataGroupsIntoContext(SessionState state, Context context)
 	{
 
 		context.put("STRING", ResourcesMetadata.WIDGET_STRING);
@@ -4235,6 +4132,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	{
 		context.put("tlang",trb);
 		
+		context.put("DETAILS_FORM_NAME", "detailsForm");
+		metadataGroupsIntoContext(state, context);
+
 		String template = "content/sakai_resources_cwiz_finish";
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
@@ -5078,6 +4978,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	public String buildReviseMetadataContext(VelocityPortlet portlet, Context context, RunData data, SessionState state)
 	{
 		context.put("tlang", trb);
+		
+		context.put("DETAILS_FORM_NAME", "detailsForm");
+		metadataGroupsIntoContext(state, context);
 		
 		ResourceToolAction action = (ResourceToolAction) state.getAttribute(STATE_REVISE_PROPERTIES_ACTION);
 		context.put("action", action);
@@ -6881,6 +6784,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		String name = params.getString("metadataGroup");
 
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		
+		
+		
 		List metadataGroups = (List) state.getAttribute(STATE_METADATA_GROUPS);
 		if(metadataGroups != null && ! metadataGroups.isEmpty())
 		{
