@@ -65,6 +65,7 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InconsistentException;
 import org.sakaiproject.exception.PermissionException;
@@ -96,6 +97,9 @@ public class ListItem
     private static final Log logger = LogFactory.getLog(ListItem.class);
     
     protected static Comparator DEFAULT_COMPARATOR = ContentHostingService.newContentHostingComparator(ResourceProperties.PROP_DISPLAY_NAME, true);
+
+	protected List<ResourcesMetadata> properties;
+	
     protected static final Comparator PRIORITY_SORT_COMPARATOR = ContentHostingService.newContentHostingComparator(ResourceProperties.PROP_CONTENT_PRIORITY, true);
 
 	/** A long representing the number of milliseconds in one week.  Used for date calculations */
@@ -367,6 +371,8 @@ public class ListItem
 	protected boolean nameIsMissing = false;
 
 	private String expandIconLocation;
+
+	protected int notification = NotificationService.NOTI_NONE;
 
 
 	
@@ -699,7 +705,7 @@ public class ListItem
 
 	}
 
-	private void setSizzle(String sizzle) 
+	protected void setSizzle(String sizzle) 
 	{
 		this.sizzle = sizzle;
 	}
@@ -1137,12 +1143,12 @@ public class ListItem
 		}
 	}
 
-	protected static void captureOptionalPropertyValues(ParameterParser params, List properties)
+	protected void captureOptionalPropertyValues(ParameterParser params, String index)
 	{
-		Iterator it = properties.iterator();
+		Iterator<ResourcesMetadata> it = properties.iterator();
 		while(it.hasNext())
 		{
-			ResourcesMetadata prop = (ResourcesMetadata) it.next();
+			ResourcesMetadata prop = it.next();
 			String propname = prop.getDottedname();
 
 			if(ResourcesMetadata.WIDGET_NESTED.equals(prop.getWidget()))
@@ -1446,7 +1452,7 @@ public class ListItem
     	return addActions;
     }
 	
-	private Collection<Group> getAllowedRemoveGroupRefs() 
+	protected Collection<Group> getAllowedRemoveGroupRefs() 
 	{
 		// TODO Auto-generated method stub
 		return new TreeSet<Group>(this.allowedAddGroups);
@@ -1656,7 +1662,7 @@ public class ListItem
 		return label;
     }
 	
-	private int getNumberOfGroups()
+	protected int getNumberOfGroups()
     {
 		int size = 0;
     	
@@ -2146,7 +2152,7 @@ public class ListItem
     	this.createdBy = createdBy;
     }
 
-	private void setCreatedTime(String createdTime) 
+	protected void setCreatedTime(String createdTime) 
 	{
 		this.createdTime = createdTime;
 	}
@@ -2293,7 +2299,7 @@ public class ListItem
 		this.mimetype = mimetype;
 	}
 
-	private void setModifiedBy(String modifiedBy) 
+	protected void setModifiedBy(String modifiedBy) 
 	{
 		this.modifiedBy = modifiedBy;
 	}
@@ -2875,6 +2881,19 @@ public class ListItem
     public void setExpandIconLocation(String expandIconLocation)
     {
     	this.expandIconLocation = expandIconLocation;
+    }
+
+	public void setNotification(int noti)
+    {
+	    this.notification = noti;
+    }
+
+	/**
+     * @return the notification
+     */
+    public int getNotification()
+    {
+    	return notification;
     }
 	
 }

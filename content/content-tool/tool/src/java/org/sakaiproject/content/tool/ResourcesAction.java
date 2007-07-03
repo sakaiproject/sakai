@@ -1258,7 +1258,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 * @param pipe
 	 * @param state 
 	 */
-	protected static List<ContentCollection> createFolders(SessionState state, ResourceToolActionPipe pipe)
+	protected List<ContentCollection> createFolders(SessionState state, ResourceToolActionPipe pipe)
 	{
 		List<ContentCollection> new_collections = new Vector<ContentCollection>();
 		String collectionId = pipe.getContentEntity().getId();
@@ -1325,7 +1325,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	/**
 	 * @param pipe
 	 */
-	public static List<ContentResource> createResources(ResourceToolActionPipe pipe)
+	public List<ContentResource> createResources(ResourceToolActionPipe pipe)
 	{
 		boolean item_added = false;
 		String collectionId = null;
@@ -1382,10 +1382,12 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 				resource.setContentType(fp.getRevisedMimeType());
 				resource.setResourceType(pipe.getAction().getTypeId());
+				int notification = NotificationService.NOTI_NONE;
 				Object obj = fp.getRevisedListItem();
 				if(obj != null && obj instanceof ListItem)
 				{
 					((ListItem) obj).updateContentResourceEdit(resource);
+					notification = ((ListItem) obj).getNotification();
 				}
 				
 				ResourcePropertiesEdit resourceProperties = resource.getPropertiesEdit();
@@ -1403,7 +1405,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 //					resourceProperties.addProperty(ResourceProperties.PROP_CONTENT_ENCODING, UTF_8_ENCODING);
 //				}
 				
-				ContentHostingService.commitResource(resource, NotificationService.NOTI_NONE);
+				ContentHostingService.commitResource(resource, notification);
 				item_added = true;
 				new_resources.add(resource);
 			}
@@ -8052,7 +8054,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 // 		observer.setDeliveryId(deliveryId);
 	}
 
-	public static List<ContentResource> createUrls(SessionState state, ResourceToolActionPipe pipe)
+	public List<ContentResource> createUrls(SessionState state, ResourceToolActionPipe pipe)
     {
 		boolean item_added = false;
 		String collectionId = null;
@@ -8109,12 +8111,14 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 				resource.setContentType(fp.getRevisedMimeType());
 				resource.setResourceType(pipe.getAction().getTypeId());
+				int notification = NotificationService.NOTI_NONE;
 				Object obj = fp.getRevisedListItem();
 				if(obj != null && obj instanceof ListItem)
 				{
 					((ListItem) obj).updateContentResourceEdit(resource);
+					notification = ((ListItem) obj).getNotification();
 				}
-				ContentHostingService.commitResource(resource, NotificationService.NOTI_NONE);
+				ContentHostingService.commitResource(resource, notification);
 				item_added = true;
 				new_resources.add(resource);
 			}

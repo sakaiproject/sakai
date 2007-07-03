@@ -60,10 +60,10 @@
 		#if(!$dropboxMode)
 			#if ($model.resourceTypeDef.hasNotificationDialog())
 				<p class="shorttext">
-					<label for="notify${DOT}$i">
+					<label for="notify">
 						$tlang.getString("gen.email1")
 					</label>	
-					<select name="notify$i" id="notify${DOT}$i">
+					<select name="notify" id="notify">
 						<option value="r">$tlang.getString("gen.email2")</option>
 						<option value="o">$tlang.getString("gen.email3")</option>
 						<option value="n" selected="selected">$tlang.getString("gen.email4")</option>

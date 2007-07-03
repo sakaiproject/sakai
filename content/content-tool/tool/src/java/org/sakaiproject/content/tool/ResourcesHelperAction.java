@@ -57,6 +57,7 @@ import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.SessionState;
+import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -681,7 +682,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			
 			// capture properties
 			newFolder.captureProperties(params, ListItem.DOT + i);
-			
+ 						
 			fp.setRevisedListItem(newFolder);
 			
 			c++;
@@ -875,6 +876,28 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			
 			// capture properties
 			newFile.captureProperties(params, ListItem.DOT + i);
+			// notification
+			int noti = NotificationService.NOTI_NONE;
+			// %%STATE_MODE_RESOURCES%%
+			if (newFile.isDropbox())
+			{
+				// set noti to none if in dropbox mode
+				noti = NotificationService.NOTI_NONE;
+			}
+			else
+			{
+				// read the notification options
+				String notification = params.getString("notify");
+				if ("r".equals(notification))
+				{
+					noti = NotificationService.NOTI_REQUIRED;
+				}
+				else if ("o".equals(notification))
+				{
+					noti = NotificationService.NOTI_OPTIONAL;
+				}
+			}
+			newFile.setNotification(noti);
 			
 			//alerts.addAll(newFile.checkRequiredProperties());
 			            
@@ -1042,6 +1065,28 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
     			// capture properties
     			newFile.captureProperties(params, ListItem.DOT + i);
     			
+    			// notification
+    			int noti = NotificationService.NOTI_NONE;
+    			// %%STATE_MODE_RESOURCES%%
+    			if (newFile.isDropbox())
+    			{
+    				// set noti to none if in dropbox mode
+    				noti = NotificationService.NOTI_NONE;
+    			}
+    			else
+    			{
+    				// read the notification options
+    				String notification = params.getString("notify");
+    				if ("r".equals(notification))
+    				{
+    					noti = NotificationService.NOTI_REQUIRED;
+    				}
+    				else if ("o".equals(notification))
+    				{
+    					noti = NotificationService.NOTI_OPTIONAL;
+    				}
+    			}
+    			newFile.setNotification(noti);
     			// allAlerts.addAll(newFile.checkRequiredProperties());
     			
     			pipe.setRevisedListItem(newFile);
