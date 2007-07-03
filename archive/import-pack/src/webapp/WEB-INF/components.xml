@@ -15,7 +15,7 @@
 	</bean>
 	
 	<!-- <bean id="org.sakaiproject.importer.api.ImportFileParser-Bb6" -->
-	<!-- 		class="org.sakaiproject.importer.impl.Bb6FileParser" -->
+	<!-- 		class="org.sakaiproject.importer.impl.Blackboard6FileParser" -->
 	<!-- 		singleton="false"> -->
 	<!-- </bean> -->
 	<!-- Handlers -->
