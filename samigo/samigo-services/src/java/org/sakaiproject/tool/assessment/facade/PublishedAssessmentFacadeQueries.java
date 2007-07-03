@@ -1790,8 +1790,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				+ " a.timeElapsed) "
 				+ " from AssessmentGradingData a, PublishedAssessmentData p, AuthorizationData az"
 				+ " where a.publishedAssessmentId = p.publishedAssessmentId"
-				+ " and a.forGrade=1 and a.agentId=? and az.agentIdString=? "
-				+ " and az.functionId='TAKE_PUBLISHED_ASSESSMENT' and az.qualifierId=p.publishedAssessmentId"
+				+ " and a.forGrade=? and a.agentId=? and az.agentIdString=? "
+				+ " and az.functionId=? and az.qualifierId=p.publishedAssessmentId"
 				+ " order by p.publishedAssessmentId DESC, a.submittedDate DESC";
 
 		// Get total no. of submission per assessment by the given agent
