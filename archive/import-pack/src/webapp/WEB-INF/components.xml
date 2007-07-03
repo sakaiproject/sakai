@@ -13,30 +13,37 @@
 			class="org.sakaiproject.importer.impl.CommonCartridgeFileParser"
 			singleton="false">
 	</bean>
-
+	
+	<!-- <bean id="org.sakaiproject.importer.api.ImportFileParser-Bb6" -->
+	<!-- 		class="org.sakaiproject.importer.impl.Bb6FileParser" -->
+	<!-- 		singleton="false"> -->
+	<!-- </bean> -->
 	<!-- Handlers -->
-<!--
-	<bean id="org.sakaiproject.importer.impl.handlers.AnnouncementHandler"
-			class="org.sakaiproject.importer.impl.handlers.AnnouncementHandler"
-			singleton="true">
-		<property name="announcementService">
-			<ref bean="org.sakaiproject.announcement.api.AnnouncementService" /> 
-		</property>
-	</bean>
--->
 
 	<bean id="org.sakaiproject.importer.impl.handlers.ResourcesHandler"
 			class="org.sakaiproject.importer.impl.handlers.ResourcesHandler"
 			singleton="true">
 	</bean>
 	
-	<!-- <bean id="org.sakaiproject.importer.impl.handlers.SamigoHandler" -->
-	<!-- 		class="org.sakaiproject.importer.impl.handlers.SamigoHandler" -->
+	<!-- <bean id="org.sakaiproject.importer.impl.handlers.AnnouncementHandler" -->
+	<!-- 		class="org.sakaiproject.importer.impl.handlers.AnnouncementHandler" -->
+	<!-- 		singleton="true"> -->
+	<!-- 	<property name="announcementService"> -->
+	<!-- 		<ref bean="org.sakaiproject.announcement.api.AnnouncementService" />  -->
+	<!-- 	</property> -->
+	<!-- </bean> -->
+	<!-- <bean id="org.sakaiproject.importer.impl.handlers.SamigoAssessmentHandler" -->
+	<!-- 		class="org.sakaiproject.importer.impl.handlers.SamigoAssessmentHandler" -->
 	<!-- 		singleton="true"> -->
 	<!-- </bean> -->
 	<!--  -->
-	<!-- <bean id="org.sakaiproject.importer.impl.handlers.ForumsHandler" -->
-	<!-- 		class="org.sakaiproject.importer.impl.handlers.ForumsHandler" -->
+	<!-- <bean id="org.sakaiproject.importer.impl.handlers.SamigoPoolHandler" -->
+	<!-- 		class="org.sakaiproject.importer.impl.handlers.SamigoPoolHandler" -->
+	<!-- 		singleton="true"> -->
+	<!-- </bean> -->
+	<!--  -->
+	<!-- <bean id="org.sakaiproject.importer.impl.handlers.MessageCenterHandler" -->
+	<!-- 		class="org.sakaiproject.importer.impl.handlers.MessageCenterHandler" -->
 	<!-- 		singleton="true"> -->
 	<!-- </bean> -->
 	
@@ -49,13 +56,16 @@
 			<list>
 				<ref bean="org.sakaiproject.importer.api.ImportFileParser-Sakai"/>
 				<ref bean="org.sakaiproject.importer.api.ImportFileParser-CommonCartridge"/>
+				<!-- <ref bean="org.sakaiproject.importer.api.ImpoertFileParser-Bb6"/> -->
 			</list>
 		</property>
 		<property name="resourceHandlers">
 			<list>
 				<ref bean="org.sakaiproject.importer.impl.handlers.ResourcesHandler"/>
-				<!-- <ref bean="org.sakaiproject.importer.impl.handlers.SamigoHandler"/> -->
-				<!-- <ref bean="org.sakaiproject.importer.impl.handlers.ForumsHandler"/> -->
+				<!-- <ref bean="org.sakaiproject.importer.impl.handlers.SamigoAssessmentHandler"/> -->
+				<!-- <ref bean="org.sakaiproject.importer.impl.handlers.SamigoPoolHandler"/> -->
+				<!-- <ref bean="org.sakaiproject.importer.impl.handlers.AnnouncementHandler"/> -->
+				<!-- <ref bean="org.sakaiproject.importer.impl.handlers.MessageCenterHandler"/> -->
 			</list>
 		</property>
 	</bean>
