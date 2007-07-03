@@ -132,6 +132,7 @@ public abstract class IMSFileParser extends ZipFileParser {
 			folder.setPath(contextPath);
 			folder.setTitle(folderTitle);
 			folder.setDescription(getDescriptionForNode(node));
+			folder.setSequenceNum(priority);
 			if (parent != null) {
   				folder.setParent(parent);
   				folder.setLegacyGroup(parent.getLegacyGroup());
@@ -140,6 +141,11 @@ public abstract class IMSFileParser extends ZipFileParser {
 			// construct a new path and make sure we replace any forward slashes from the resource title
 			String folderPath = contextPath + folderTitle.replaceAll("/", "_") + "/";
 			if (isCompoundDocument(manifestHelper.getResourceForId(itemResourceId, archiveManifest),resourceDescriptor)) {
+				if (wantsCompanionForCompoundDocument()) {
+					priority++;
+					folder.setSequenceNum(priority);
+					branchOfImportables.add(getCompanionForCompoundDocument(resourceDescriptor, folder));
+				}
 				branchOfImportables.addAll(translateFromNodeToImportables(manifestHelper.getResourceForId(itemResourceId, archiveManifest), folderPath, priority, folder));
 			} else {
 	  			List children = XPathHelper.selectNodes("./item", node);
@@ -207,13 +213,17 @@ public abstract class IMSFileParser extends ZipFileParser {
 				if (!"".equals(dependency)) {
 					dependencies.put(resourceHelper.getId(node), dependency);
 				}
-//				 find out if something depends on this.
-				if (dependencies.containsValue(resourceHelper.getId(node))) {
-					resource.setLegacyGroup("mandatory");
-				} else if (parent != null) {
-					resource.setParent(parent);
-					resource.setLegacyGroup(parent.getLegacyGroup());
-				} else resource.setLegacyGroup(resourceHelper.getTitle(node));
+				// section to twiddle with the Importable's legacyGroup,
+				// which we only want to do if it hasn't already been set.
+				if ((resource.getLegacyGroup() == null) || ("".equals(resource.getLegacyGroup()))) {
+					// find out if something depends on this.
+					if (dependencies.containsValue(resourceHelper.getId(node))) {
+						resource.setLegacyGroup("mandatory");
+					} else if (parent != null) {
+						resource.setParent(parent);
+						resource.setLegacyGroup(parent.getLegacyGroup());
+					} else resource.setLegacyGroup(resourceHelper.getTitle(node));
+				}
 				branchOfImportables.add(resource);
 				parent = resource;
 			}
@@ -229,6 +239,10 @@ public abstract class IMSFileParser extends ZipFileParser {
 		}
 		return branchOfImportables;
 	}
+
+	protected abstract Importable getCompanionForCompoundDocument(Document resourceForId, Folder folder);
+
+	protected abstract boolean wantsCompanionForCompoundDocument();
 
 	protected String getTitleForNode(Node node) {
 		if ("item".equals(node.getNodeName())) {
@@ -287,7 +301,7 @@ public abstract class IMSFileParser extends ZipFileParser {
 		}
 		
 		public String getFilenameForNode(Node node) {
-			String sourceFilePath = XPathHelper.getNodeValue("./@href", node);
+			String sourceFilePath = XPathHelper.getNodeValue("./@href", node).replaceAll("\\\\", "/");
 			return (sourceFilePath.lastIndexOf("/") < 0) ? sourceFilePath 
 					: sourceFilePath.substring(sourceFilePath.lastIndexOf("/") + 1);
 		}

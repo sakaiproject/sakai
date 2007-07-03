@@ -73,7 +73,7 @@ public class AnnouncementHandler implements HandlesImportable {
 			}
 
 			try {
-				ac.addAnnouncementMessage(item.getTitle(), false, null, item.getDescription());
+				ac.addAnnouncementMessage(item.getTitle(), true, null, item.getDescription());
 			} catch (PermissionException e) {
 				log.error("Failed to create announcement message: " + e);
 				e.printStackTrace();

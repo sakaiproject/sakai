@@ -108,8 +108,9 @@ public abstract class ZipFileParser implements ImportFileParser {
 	        //for attachment type files
 	            // Get the directory part.
 	            int ix = zipName.lastIndexOf('/');
+	            if (ix <= 0) ix = zipName.lastIndexOf('\\');
 	            if (ix > 0) {
-	              String dirName = zipName.substring(0, ix);
+	              String dirName = zipName.substring(0, ix).replace("\\", "/");
 	              if (!dirsMade.contains(dirName)) {
 	                File d = new File(dir.getPath() + "/" + dirName);
 	                // If it already exists as a dir, don't do anything
@@ -122,7 +123,7 @@ public abstract class ZipFileParser implements ImportFileParser {
 	                }
 	              }
 	            }
-	            File zipEntryFile = new File(dir.getPath() + "/" + entry.getName());
+	            File zipEntryFile = new File(dir.getPath() + "/" + zipName.replace("\\", "/"));
 	            if (!zipEntryFile.isDirectory()) {
 		            FileOutputStream ofile = new FileOutputStream(zipEntryFile);
 		            byte[] buffer = new byte[1024 * 10];

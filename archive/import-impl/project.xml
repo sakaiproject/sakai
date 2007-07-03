@@ -64,6 +64,12 @@
 					<include>**/*.xml</include>
 				</includes>
 			</resource>
+			<resource>
+				<directory>${basedir}/src/ruby</directory>
+				<includes>
+					<include>**/*.rb</include>
+				</includes>
+			</resource>
 		</resources>
 	</build>
 </project>

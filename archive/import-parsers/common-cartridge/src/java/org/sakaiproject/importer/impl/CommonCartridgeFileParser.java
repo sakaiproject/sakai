@@ -46,6 +46,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.sakaiproject.archive.api.ImportMetadata;
 import org.sakaiproject.importer.api.ImportDataSource;
 import org.sakaiproject.importer.api.ImportFileParser;
+import org.sakaiproject.importer.api.Importable;
 import org.sakaiproject.importer.impl.importables.FileResource;
 import org.sakaiproject.importer.impl.importables.Folder;
 import org.sakaiproject.importer.impl.importables.WebLink;
@@ -219,6 +220,18 @@ public class CommonCartridgeFileParser extends IMSFileParser {
 		public String getFilePathForNode(Node node, String basePath) {
 			return XPathHelper.getNodeValue("./@href", node);
 		}
+	}
+
+	@Override
+	protected Importable getCompanionForCompoundDocument(Document resourceDescriptor, Folder folder) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected boolean wantsCompanionForCompoundDocument() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
