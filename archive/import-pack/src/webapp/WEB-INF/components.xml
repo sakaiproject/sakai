@@ -51,7 +51,7 @@
 			<list>
 				<ref bean="org.sakaiproject.importer.api.ImportFileParser-Sakai"/>
 				<ref bean="org.sakaiproject.importer.api.ImportFileParser-CommonCartridge"/>
-				<!-- <ref bean="org.sakaiproject.importer.api.ImpoertFileParser-Bb6"/> -->
+				<!-- <ref bean="org.sakaiproject.importer.api.ImportFileParser-Bb6"/> -->
 			</list>
 		</property>
 		<property name="resourceHandlers">
