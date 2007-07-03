@@ -558,6 +558,11 @@ public class ExtractionHelper
     {
       feedback.setFeedbackDelivery(feedback.IMMEDIATE_FEEDBACK);
     }
+    else if ("ON_SUBMISSION".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+    "FEEDBACK_DELIVERY")))
+    {
+      feedback.setFeedbackDelivery(feedback.FEEDBACK_ON_SUBMISSION);
+    }
     else
     {
       feedback.setFeedbackDelivery(feedback.NO_FEEDBACK);

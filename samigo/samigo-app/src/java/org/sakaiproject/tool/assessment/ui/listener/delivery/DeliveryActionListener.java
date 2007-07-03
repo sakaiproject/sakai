@@ -1819,6 +1819,7 @@ public class DeliveryActionListener
     case 3: // review assessment
             if (delivery.getFeedbackComponent()!=null 
                 && (delivery.getFeedbackComponent().getShowImmediate() 
+                	|| delivery.getFeedbackComponent().getShowOnSubmission()
                     || (delivery.getFeedbackComponent().getShowDateFeedback())
                         && delivery.getSettings()!=null
                         && delivery.getSettings().getFeedbackDate()!=null

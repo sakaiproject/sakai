@@ -514,6 +514,7 @@ public class SelectActionListener
     }
 
     if ((AssessmentFeedbackIfc.IMMEDIATE_FEEDBACK).equals(p.getFeedbackDelivery())
+    	|| (AssessmentFeedbackIfc.FEEDBACK_ON_SUBMISSION).equals(p.getFeedbackDelivery())	
         || ((AssessmentFeedbackIfc.FEEDBACK_BY_DATE).equals(p.getFeedbackDelivery()) && p.getFeedbackDate()!= null && currentDate.after(p.getFeedbackDate())))
     {
       hasFeedback="true";

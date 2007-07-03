@@ -283,7 +283,7 @@ sorting actions for table:
         rendered="#{reviewable.feedbackDelivery eq '2'}" >
       </h:outputText>
       <h:outputText value="#{selectIndexMessages.immediate}" 
-        rendered="#{reviewable.feedbackDelivery eq '1'}" />
+        rendered="#{reviewable.feedbackDelivery eq '1' || reviewable.feedbackDelivery eq '4'}" />
        <h:outputText value="#{selectIndexMessages.not_applicable}" 
         rendered="#{reviewable.feedbackDelivery==null || reviewable.feedbackDelivery eq '3'}" />
     </h:column>

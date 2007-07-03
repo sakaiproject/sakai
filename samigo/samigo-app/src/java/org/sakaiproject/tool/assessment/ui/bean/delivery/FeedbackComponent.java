@@ -44,6 +44,7 @@ public class FeedbackComponent implements Serializable
   private boolean showSelectionLevel;
   private boolean showStats;
   private boolean showImmediate;
+  private boolean showOnSubmission;
   private boolean showStudentScore;
   private boolean showStudentQuestionScore;
   private boolean showDateFeedback;
@@ -138,6 +139,22 @@ public class FeedbackComponent implements Serializable
     this.showImmediate = showImmediate;
   }
 
+  /**
+   * If feedback is displayed on submission.
+   * @return true if feedback is displayed on submission.
+   */
+  public boolean getShowOnSubmission() {
+    return showOnSubmission;
+  }
+
+  /**
+   * If feedback is displayed after submission.
+   * @param showAfterSubmission if feedback is displayed on submission.
+   */
+  public void setShowOnSubmission(boolean showOnSubmission) {
+    this.showOnSubmission = showOnSubmission;
+  }
+  
   /**
    * If feedback is displayed on date.
    * @return if feedback is displayed on the date level.
@@ -264,6 +281,7 @@ public class FeedbackComponent implements Serializable
     Integer feedbackDelivery = feedback.getFeedbackDelivery();
     setShowDateFeedback(AssessmentFeedbackIfc.FEEDBACK_BY_DATE.equals(feedbackDelivery));
     setShowImmediate(AssessmentFeedbackIfc.IMMEDIATE_FEEDBACK.equals(feedbackDelivery));
+    setShowOnSubmission(AssessmentFeedbackIfc.FEEDBACK_ON_SUBMISSION.equals(feedbackDelivery));
     setShowNoFeedback(AssessmentFeedbackIfc.NO_FEEDBACK.equals(feedbackDelivery));
   }
 

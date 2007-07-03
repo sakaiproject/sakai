@@ -122,6 +122,10 @@ public abstract class AssessmentHelperBase
     {
       assessmentXml.setFieldentry("FEEDBACK_DELIVERY", "IMMEDIATE");
     }
+    else if (feedback.FEEDBACK_ON_SUBMISSION.equals(feedbackDelivery))
+    {
+      assessmentXml.setFieldentry("FEEDBACK_DELIVERY", "ON_SUBMISSION");
+    }
     else //feedback.NO_FEEDBACK
     {
       assessmentXml.setFieldentry("FEEDBACK_DELIVERY", "NONE");

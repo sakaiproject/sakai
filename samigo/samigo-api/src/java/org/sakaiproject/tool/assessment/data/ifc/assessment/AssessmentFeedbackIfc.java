@@ -30,6 +30,7 @@ public interface AssessmentFeedbackIfc
   public static Integer IMMEDIATE_FEEDBACK = new Integer(1);
   public static Integer FEEDBACK_BY_DATE = new Integer(2);
   public static Integer NO_FEEDBACK = new Integer(3);
+  public static Integer FEEDBACK_ON_SUBMISSION = new Integer(4);
 
   public static Integer QUESTIONLEVEL_FEEDBACK = new Integer(1);
   public static Integer SECTIONLEVEL_FEEDBACK = new Integer(2);
