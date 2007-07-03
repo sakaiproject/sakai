@@ -41,11 +41,6 @@
 	<!-- 		class="org.sakaiproject.importer.impl.handlers.SamigoPoolHandler" -->
 	<!-- 		singleton="true"> -->
 	<!-- </bean> -->
-	<!--  -->
-	<!-- <bean id="org.sakaiproject.importer.impl.handlers.MessageCenterHandler" -->
-	<!-- 		class="org.sakaiproject.importer.impl.handlers.MessageCenterHandler" -->
-	<!-- 		singleton="true"> -->
-	<!-- </bean> -->
 	
 	<!-- Import service -->
 	<!-- Add your handlers to the property list -->
@@ -65,7 +60,6 @@
 				<!-- <ref bean="org.sakaiproject.importer.impl.handlers.SamigoAssessmentHandler"/> -->
 				<!-- <ref bean="org.sakaiproject.importer.impl.handlers.SamigoPoolHandler"/> -->
 				<!-- <ref bean="org.sakaiproject.importer.impl.handlers.AnnouncementHandler"/> -->
-				<!-- <ref bean="org.sakaiproject.importer.impl.handlers.MessageCenterHandler"/> -->
 			</list>
 		</property>
 	</bean>
