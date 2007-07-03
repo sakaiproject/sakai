@@ -164,7 +164,7 @@ public class BaseSearchManager implements SearchManager, Observer
 		protected int end = DEFAULT_PAGE_SIZE;
 		protected int m_viewPageSize = DEFAULT_PAGE_SIZE;
 		protected String statusMessage = null;
-		
+
 		// saves the thread that the current search is running in
 		protected Thread m_searchThread;
 
@@ -1256,7 +1256,7 @@ public class BaseSearchManager implements SearchManager, Observer
 			 * Any basic user authn/authz things we can check to not go
 			 * further than we have to?
 			 */
-			
+
 			// get a ConfigurationService instance
 			if( m_configService == null )
 			{
@@ -1311,7 +1311,7 @@ public class BaseSearchManager implements SearchManager, Observer
 				databaseMap = new java.util.Hashtable<String, SearchDatabase>();
 				categoryMap = new java.util.Hashtable<String, SearchCategory>();
 				categoryStack = new java.util.Stack<BasicSearchCategory>();
-				
+
 				Reference ref = EntityManager.newReference(databaseHierarchyResourceRef);
 				if(ref == null)
 				{
@@ -1848,7 +1848,7 @@ public class BaseSearchManager implements SearchManager, Observer
 	public static final String SAKAI_SESSION = "sakai.session";
 	public static final String SAKAI_KEY = "sakai.key";
 	public static final String SAKAI_HOST = "sakai.host";
-	
+
 	public static final String SERVLET_NAME = "savecite";
 
 	// Our types (defined in setupTypes())
@@ -1859,9 +1859,8 @@ public class BaseSearchManager implements SearchManager, Observer
 
 	// String array for databases being searched and database hierarchy
 	protected String[] m_databaseIds;
-	protected SearchDatabaseHierarchy hierarchy;
 	protected Map<String,SearchDatabaseHierarchy> hierarchyMap = new Hashtable<String,SearchDatabaseHierarchy>();
-    protected SortedSet<String> updatableResources = new TreeSet<String>();
+  protected SortedSet<String> updatableResources = new TreeSet<String>();
 
 	private static Random m_generator;
 
@@ -2061,13 +2060,23 @@ public class BaseSearchManager implements SearchManager, Observer
      */
 	public ActiveSearch doSearch(ActiveSearch search)
 		throws SearchException
-	{	
+	{
 		// search parameters
-		Repository repository     = hierarchy.getRepository();
 		Integer    pageSize       = search.getPageSize();
 		Integer    startRecord    = search.getStartRecord();
 		String     sortBy         = search.getSortBy();
 		String     guid           = search.getSearchId();
+//	Repository repository     = hierarchy.getRepository();
+
+    /*
+     * Repository set up
+     */
+    SearchDatabaseHierarchy hierarchy = getSearchHierarchy();
+    if (hierarchy == null)
+    {
+   		throw new SearchException("ERROR: No appropriate database hierarchy available");
+    }
+    Repository repository = hierarchy.getRepository();
 
 		// CQL search query setup
 		String cqlQuery = null;
@@ -2261,7 +2270,7 @@ public class BaseSearchManager implements SearchManager, Observer
 			throw new SearchException( re.getMessage() );
 		}
 	}
-	
+
 	protected String newSearchId()
 	{
 /******* A unique ID per-session ********/
@@ -2390,13 +2399,13 @@ public class BaseSearchManager implements SearchManager, Observer
 	public void init()
 	{
 		m_log.info("BaseSearchManager.init()");
-		
+
 		EventTrackingService.addObserver(this);
 
 		long seed = TimeService.newTime().getTime();
 		m_generator = new Random(seed);
 		setupTypes();
-		
+
 		String configFolderRef = m_configService.getConfigFolderReference();
 		Collection<String> hierarchyIds = m_configService.getAllCategoryXml();
 		for(String hierarchyId : hierarchyIds)
@@ -2405,14 +2414,14 @@ public class BaseSearchManager implements SearchManager, Observer
 			this.updatableResources.add(configFolderRef + hierarchyId);
 
 		}
-		
+
 //		String databaseHierarchyResourceRef = m_configService.getConfigFolderReference();
 //		if(databaseHierarchyResourceRef != null)
 //		{
 //			updatableResources.add(databaseHierarchyResourceRef);
 //			updateHierarchy(databaseHierarchyResourceRef);
 //		}
-		
+
 	}
 
 	protected void setupTypes() {
@@ -2422,36 +2431,39 @@ public class BaseSearchManager implements SearchManager, Observer
 		repositoryType = new BasicType( "sakaibrary", "repository", "metasearch" );
 	}
 
-	/* (non-Javadoc)
+	  /*
+	   * Fetch the appropriate database hierarchy resource from our cache (a new
+	   * hiearchy resource is created if none exists).
+	   *
      * @see org.sakaiproject.citation.api.SearchManager#listRepositories()
      */
     public SearchDatabaseHierarchy getSearchHierarchy() throws SearchException
     {
     	SearchDatabaseHierarchy hierarchy = null;
-        try
-        {
-        	String configFolderRef = m_configService.getConfigFolderReference();
-        	String hierarchyXml = m_configService.getDatabaseHierarchyXml();
-	       	if(isNull(configFolderRef) || isNull(hierarchyXml))
-	    	{
-	    		//
-	    	}
-	    	else
-	    	{
-		    	hierarchy = this.hierarchyMap.get(hierarchyXml);
-		    	if(hierarchy == null)
-		    	{
-		    		updateHierarchy(configFolderRef + hierarchyXml);
-		    		hierarchy = this.hierarchyMap.get(hierarchyXml);
-		    	}
-	    	}
-        }
-        catch (OsidConfigurationException e)
-        {
-	        // TODO Auto-generated catch block
-	        m_log.warn("OsidConfigurationException ", e);
-	        
-        }
+
+      try
+      {
+      	String configFolderRef  = m_configService.getConfigFolderReference();
+      	String hierarchyXml     = m_configService.getDatabaseHierarchyXml();
+
+       	if(!isNull(configFolderRef) && !isNull(hierarchyXml))
+      	{
+          String hierarchyRef = configFolderRef + hierarchyXml;
+
+          m_log.debug("Fetch search hierarchy for: " + hierarchyRef);
+
+  	    	hierarchy = this.hierarchyMap.get(hierarchyRef);
+  	    	if(hierarchy == null)
+  	    	{
+  	    		updateHierarchy(hierarchyRef);
+  	    		hierarchy = this.hierarchyMap.get(hierarchyRef);
+  	    	}
+      	}
+      }
+      catch (OsidConfigurationException e)
+      {
+        m_log.warn("OsidConfigurationException ", e);
+      }
      	return hierarchy;
     }
 
@@ -2533,8 +2545,10 @@ public class BaseSearchManager implements SearchManager, Observer
     	this.serverConfigurationService = serverConfigurationService;
     }
 
+  /*
+   * Set database IDs (used by our client to specify databases to search)
+   */
 	public void setDatabaseIds(String[] databaseIds) {
-		// TODO Auto-generated method stub
 		this.m_databaseIds = databaseIds;
 	}
 
@@ -2557,12 +2571,12 @@ public class BaseSearchManager implements SearchManager, Observer
 	 * Establish a security advisor to allow the "embedded" azg work to occur
 	 * with no need for additional security permissions.
 	 */
-	protected void enableSecurityAdvisor() 
+	protected void enableSecurityAdvisor()
 	{
 		// put in a security advisor so we can create citationAdmin site without need
 		// of further permissions
 		SecurityService.pushAdvisor(new SecurityAdvisor() {
-			public SecurityAdvice isAllowed(String userId, String function, String reference) 
+			public SecurityAdvice isAllowed(String userId, String function, String reference)
 			{
 				return SecurityAdvice.ALLOWED;
 			}
