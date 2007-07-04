@@ -856,9 +856,20 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// if missing, set it to home or gateway
 			if ((option == null) || ("/".equals(option)))
 			{
+
 				if (session.getUserId() == null)
 				{
-					option = "/site/" + ServerConfigurationService.getGatewaySiteId();
+					String siteId = null;
+                                	if (siteHelper.doGatewaySiteList())
+                                	{
+                                        	List<Site> mySites = siteHelper.getAllSites(req, session, true);
+                                        	if ( mySites.size() > 0 ) siteId = mySites.get(0).getId();
+                                	}
+                                	if ( siteId == null )
+                                	{
+                                        	siteId = ServerConfigurationService.getGatewaySiteId();
+                                	}
+					option = "/site/" + siteId;
 				}
 				else
 				{
