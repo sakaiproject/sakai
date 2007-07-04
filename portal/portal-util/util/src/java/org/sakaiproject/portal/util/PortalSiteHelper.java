@@ -52,6 +52,7 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -546,7 +547,12 @@ public class PortalSiteHelper
 		}
 		else
 		{
-			m.put("rssPubDate", (site.getModifiedTime().toStringRFC822Local()));
+			Time modDate = site.getModifiedTime();
+			// Yes, some sites have never been modified
+			if ( modDate != null ) 
+			{
+				m.put("rssPubDate", (modDate.toStringRFC822Local()));
+			}
 			return false;
 		}
 
