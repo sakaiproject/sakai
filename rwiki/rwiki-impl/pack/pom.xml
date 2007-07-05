@@ -90,6 +90,13 @@ limitations under the License.
       <type>jar</type>
     </dependency>
     <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-search-util</artifactId>
+      <version>${sakai.version}</version>
+      <type>jar</type>
+    </dependency>
+    
+    <dependency>
       
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-event-util</artifactId>

@@ -69,6 +69,15 @@
     </dependency>
     <dependency>
       <groupId>sakaiproject</groupId>
+      <artifactId>sakai-search-util</artifactId>
+      <version>${sakai.version}</version>
+      <type>jar</type>
+ 	  <properties>
+		<war.bundle>true</war.bundle>
+      </properties>
+    </dependency>
+    <dependency>
+      <groupId>sakaiproject</groupId>
       <artifactId>sakai-event-util</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
