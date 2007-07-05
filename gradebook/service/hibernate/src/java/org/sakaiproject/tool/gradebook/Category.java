@@ -252,15 +252,13 @@ public class Category implements Serializable
     	return;
     }
 
-  	boolean weightingEnabled = (getGradebook().getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY);
-  	
     for (AssignmentGradeRecord gradeRecord : gradeRecords) 
     {
     	if(gradeRecord != null && gradeRecord.getStudentId().equals(studentUid))
     	{
     		Assignment assignment = gradeRecord.getAssignment();
 
-    		if (assignment.isCounted() && weightingEnabled && assignment.getPointsPossible().doubleValue() > 0.0) 
+    		if (assignment.isCounted() && assignment.getPointsPossible().doubleValue() > 0.0) 
     		{
     			Category assignCategory = assignment.getCategory();
     			if (assignCategory != null && assignCategory.getId().equals(id))
