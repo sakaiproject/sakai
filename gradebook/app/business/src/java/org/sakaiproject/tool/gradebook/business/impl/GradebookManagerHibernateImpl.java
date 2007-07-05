@@ -201,37 +201,34 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     				continue;
     			}
     			Category category = (Category) obj; 		
-    			double total = 0;
-        		double studentTotal = 0;
 	    		
 	    		List categoryAssignments = category.getAssignmentList();
 	    		if (categoryAssignments == null){
 	    			continue;
 	    		}
+	    		
+	    		List gradeRecords = new ArrayList();
+								
 	    		for (Iterator assignmentsIter = categoryAssignments.iterator(); assignmentsIter.hasNext(); ){
 	    			Assignment assignment = (Assignment) assignmentsIter.next();
-	    			if (!assignment.isCounted()) {
-	    				continue;
-	    			}
 	    			AbstractGradeRecord gradeRecord = (AbstractGradeRecord) studentMap.get(assignment.getId());
-	    			total += assignment.getPointsPossible();
-	    			
-	    			if (gradeRecord != null) {
-	    				Double pointsEarned = gradeRecord.getPointsEarned();
-	    				if (pointsEarned != null)
-	    					studentTotal += pointsEarned.doubleValue();
-	    			}
-	    				
+	    			gradeRecords.add(gradeRecord);
+			
 	    		}
+	    		category.calculateStatisticsPerStudent(gradeRecords, studentUid);
+
 	    		Map studentCategoryMap = (Map) categoryResultMap.get(studentUid);
 		    	if (studentCategoryMap == null) {
 		    		studentCategoryMap = new HashMap();
 		    		categoryResultMap.put(studentUid, studentCategoryMap);
 		    	}
 		    	Map stats = new HashMap();
-		    	stats.put("studentPoints", studentTotal);
-		    	stats.put("categoryPoints", total);
+		    	stats.put("studentAverageScore", category.getAverageScore());
+		    	stats.put("studentAverageTotalPoints", category.getAverageTotalPoints());
+		    	stats.put("studentMean", category.getMean());
+		    	
 		    	stats.put("category", category);
+
 		    	studentCategoryMap.put(category.getId(), stats);
 	    	}
     	}

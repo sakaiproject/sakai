@@ -50,28 +50,21 @@ public class CategoryPointsConverter extends PointsConverter {
 
 		String formattedScore;
 		boolean notCounted = false;
-		Double studentPoints = 0.0;
-		Double categoryPoints = 0.0;
+		Double studentMean = 0.0;
 		Category cat = null;
 		
 		if (value != null) {
 			if (value instanceof Map) {
-				studentPoints = (Double) ((Map)value).get("studentPoints");
-				categoryPoints = (Double) ((Map)value).get("categoryPoints");
+				studentMean = (Double) ((Map)value).get("studentMean");
 				cat = (Category) ((Map)value).get("category");
 			}
 		}
 		//if Category is null, then this is "Unassigned" therefore n/a
-		if( cat == null){
+		if( cat == null || studentMean == null){
 			formattedScore = FacesUtil.getLocalizedString("overview_unassigned_cat_avg");
-		} else if( cat.getGradebook().getGrade_type() == GradebookService.GRADE_TYPE_POINTS){
-			//if grade by points 
-			formattedScore = 
-				super.getAsString(context, component, studentPoints) + "/" +
-				super.getAsString(context, component, categoryPoints);
 		} else {
 			//display percentage
-			formattedScore = super.getAsString(context, component,((studentPoints / categoryPoints) * 100)) + "%";
+			formattedScore = super.getAsString(context, component, studentMean) + "%";
 		}
 		return formattedScore;
 	}
