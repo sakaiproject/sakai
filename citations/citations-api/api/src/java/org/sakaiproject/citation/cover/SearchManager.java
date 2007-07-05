@@ -2,13 +2,13 @@ package org.sakaiproject.citation.cover;
 
 import org.sakaiproject.component.cover.ComponentManager;
 
-public class SearchManager 
+public class SearchManager
 {
 	private static org.sakaiproject.citation.api.SearchManager m_instance;
 
 	/**
 	 * Access the component instance: special cover only method.
-	 * 
+	 *
 	 * @return the component instance.
 	 */
 	public static org.sakaiproject.citation.api.SearchManager getInstance()
@@ -70,15 +70,15 @@ public class SearchManager
 
 		return instance.getSearchHierarchy();
 	}
-	
-	public static org.sakaiproject.citation.api.ActiveSearch newSearch() 
+
+	public static org.sakaiproject.citation.api.ActiveSearch newSearch()
 	{
 		org.sakaiproject.citation.api.SearchManager instance = getInstance();
 		if(instance == null)
 		{
 			return null;
 		}
-	
+
 		return instance.newSearch();
 	}
 
@@ -93,17 +93,16 @@ public class SearchManager
 		{
 			return null;
 		}
-	
+
 		return instance.newSearch(savedResults);
     }
-    
+
+    /**
+     * @deprecated Replaced by {@link org.sakaiproject.citation.api.ActiveSearch#getDatabaseids()}
+     */
     public static void setDatabaseIds( String[] databaseIds )
     {
-		org.sakaiproject.citation.api.SearchManager instance = getInstance();
-		if(instance != null)
-		{
-			instance.setDatabaseIds( databaseIds );
-		}
+      throw new RuntimeException("Not implemented. See org.sakaiproject.citation.api.ActiveSearch.getDatabaseids()");
     }
 
     public static String getGoogleScholarUrl(String resourceId)
@@ -113,7 +112,7 @@ public class SearchManager
 		{
 			return null;
 		}
-	
+
 		return instance.getGoogleScholarUrl(resourceId);
     }
 }

@@ -142,6 +142,7 @@ public class BaseSearchManager implements SearchManager, Observer
 		protected boolean m_newSearch;
 		protected Integer m_pageSize;
 		protected Integer m_startRecord;
+  	protected String[] m_databaseIds;
 
 		protected AssetIterator m_assetIterator;
 		protected Integer m_numRecordsFetched;
@@ -185,7 +186,7 @@ public class BaseSearchManager implements SearchManager, Observer
 	        m_pageSize = new Integer(DEFAULT_PAGE_SIZE);
 	        m_startRecord = new Integer(DEFAULT_START_RECORD);
 	        m_sortBy = DEFAULT_SORT_BY;
-
+          m_databaseIds = null;
         }
 
 		/**
@@ -204,7 +205,7 @@ public class BaseSearchManager implements SearchManager, Observer
 	        m_pageSize = new Integer(DEFAULT_PAGE_SIZE);
 	        m_startRecord = new Integer(DEFAULT_START_RECORD);
 	        m_sortBy = DEFAULT_SORT_BY;
-
+          m_databaseIds = null;
         }
 
 		/* (non-Javadoc)
@@ -356,6 +357,24 @@ public class BaseSearchManager implements SearchManager, Observer
         public String getStatusMessage()
         {
         	return this.statusMessage;
+        }
+
+        /**
+         * Set the selected list of searchable databases
+         * @param A list of database IDs
+         */
+        public void setDatabaseIds(String[] databaseIds)
+        {
+        	m_databaseIds = databaseIds;
+        }
+
+        /**
+         * Fetch the selected list of searchable databases
+         * @return The list of database IDs (null if none)
+         */
+        public String[] getDatabaseIds()
+        {
+        	return m_databaseIds;
         }
 
 		/* (non-Javadoc)
@@ -1858,7 +1877,6 @@ public class BaseSearchManager implements SearchManager, Observer
 	protected static BasicType repositoryType;
 
 	// String array for databases being searched and database hierarchy
-	protected String[] m_databaseIds;
 	protected Map<String,SearchDatabaseHierarchy> hierarchyMap = new Hashtable<String,SearchDatabaseHierarchy>();
   protected SortedSet<String> updatableResources = new TreeSet<String>();
 
@@ -2066,7 +2084,7 @@ public class BaseSearchManager implements SearchManager, Observer
 		Integer    startRecord    = search.getStartRecord();
 		String     sortBy         = search.getSortBy();
 		String     guid           = search.getSearchId();
-//	Repository repository     = hierarchy.getRepository();
+		String[]   searchDbs      = search.getDatabaseIds();
 
     /*
      * Repository set up
@@ -2117,7 +2135,7 @@ public class BaseSearchManager implements SearchManager, Observer
 
 	    	// put selected databases
 	    	List<String> databaseIds = new java.util.ArrayList<String>();
-	    	for( String databaseId : m_databaseIds )
+	    	for( String databaseId : searchDbs )
 	    	{
 	    		databaseIds.add( databaseId );
 	    	}
@@ -2545,12 +2563,6 @@ public class BaseSearchManager implements SearchManager, Observer
     	this.serverConfigurationService = serverConfigurationService;
     }
 
-  /*
-   * Set database IDs (used by our client to specify databases to search)
-   */
-	public void setDatabaseIds(String[] databaseIds) {
-		this.m_databaseIds = databaseIds;
-	}
 
 	public void update(Observable arg0, Object arg1)
     {
