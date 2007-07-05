@@ -79,7 +79,7 @@
 			<ul>
 				#foreach ($sect in $!cmRequestedSections)
 				<li>
-					$sect.eid: $sect.title, $sect.categoryDescription (Pending approval by $sect.authorizer)
+					$sect.eid: $sect.title, $sect.categoryDescription ($lang.getString("sitegen.pending") $sect.authorizer)
                                         <!-- Remove Section -->
                                         (<a href="#" onclick="javascript:submitRemoveSection('$sect.eid');">Remove</a>)
                                         <input type="hidden" id="removeSection$sect.eid" name="removeSection$sect.eid" value="" />
