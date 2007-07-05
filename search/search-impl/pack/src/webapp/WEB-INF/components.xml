@@ -25,7 +25,6 @@
 <beans>
  
    <import resource="coreSearchComponents.xml" />
-   <import resource="rwikiAdapterComponents.xml" />
    <import resource="messageAdapterComponents.xml" />
    <import resource="contentAdapterComponents.xml" />
   

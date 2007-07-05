@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakai.search.index.impl.test;
+package org.sakaiproject.search.util.test;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -31,7 +31,7 @@ import java.util.Properties;
 import junit.framework.TestCase;
 
 import org.sakaiproject.search.api.SearchUtils;
-import org.sakaiproject.search.component.adapter.contenthosting.HTMLParser;
+import org.sakaiproject.search.util.HTMLParser;
 
 /**
  * @author ieb

@@ -34,6 +34,7 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.search.api.SearchUtils;
 import org.sakaiproject.search.component.adapter.util.DigestHtml;
+import org.sakaiproject.search.util.HTMLParser;
 import org.w3c.tidy.Tidy;
 
 /**

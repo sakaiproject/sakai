@@ -53,9 +53,8 @@
   </build>
   <dependencies>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-rwiki-util</artifactId>
+      <artifactId>sakai-search-util</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>

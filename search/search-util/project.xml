@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <extend>../../master/project.xml</extend>
+  <pomVersion>3</pomVersion>
+  <name>sakai-search-util</name>
+  <groupId>sakaiproject</groupId>
+  <artifactId>sakai-search-util</artifactId>
+  <currentVersion>${sakai.version}</currentVersion>
+  <properties>
+    <deploy.type>jar</deploy.type>
+  </properties>
+  <build>
+    <!-- java source -->
+    <sourceDirectory>src/java</sourceDirectory>
+    <unitTestSourceDirectory>src/test</unitTestSourceDirectory>
+    <unitTest>
+      <includes>
+      <include>**/*Test</include>
+      </includes>
+      <resources>
+        <resource>
+          <directory>${basedir}/src/testBundle</directory>
+          <includes>
+            <include>**/*.*</include>
+          </includes>
+          <filtering>false</filtering>
+        </resource>
+      </resources>
+    </unitTest>
+    <!-- other resources for the jar - the message bundles -->
+    <resources>
+      <resource>
+        <directory>${basedir}/src/bundle</directory>
+        <includes>
+          <include>**/*.*</include>
+        </includes>
+        <filtering>false</filtering>
+      </resource>
+
+     <resource>
+        <directory>${basedir}/src/sql</directory>
+        <includes>
+          <include>**/*.sql</include>
+        </includes>
+        <filtering>false</filtering>
+      </resource>
+
+      <resource>
+        <directory>${basedir}/src/java</directory>
+        <includes>
+          <include>**/*.xml</include>
+          <include>**/*.xslt</include>
+        </includes>
+        <filtering>false</filtering>
+      </resource>
+    </resources>
+  </build>
+  <dependencies>
+    <dependency>
+      <groupId>sakaiproject</groupId>
+      <artifactId>sakai-search-api</artifactId>
+      <version>${sakai.version}</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
+      <type>jar</type>
+    </dependency>
+  </dependencies>
+</project>
+

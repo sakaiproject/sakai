@@ -69,7 +69,6 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-search-model</artifactId>
       <version>${sakai.version}</version>
@@ -77,20 +76,10 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-rwiki-api</artifactId>
+      <artifactId>sakai-search-util</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-rwiki-util</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       

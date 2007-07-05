@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.search.component.adapter.contenthosting;
+package org.sakaiproject.search.util;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -48,7 +48,7 @@ public class HTMLParser implements Iterator<String>
 		try
 		{
 			BufferedReader br = new BufferedReader(new InputStreamReader(HTMLParser.class
-					.getResourceAsStream("/org/sakaiproject/search/component/bundle/htmlentities.config")));
+					.getResourceAsStream("/org/sakaiproject/search/util/htmlentities.config")));
 			for ( String line = br.readLine(); line != null; line = br.readLine() ) {
 				if ( !line.startsWith("#") )   {
 				String[] parts = line.split("=");
