@@ -93,7 +93,7 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.sitemanage.api.SectionField;
-import org.sakaiproject.sitemanage.api.SectionFieldManager;
+import org.sakaiproject.sitemanage.api.SectionFieldProvider;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.cover.TimeService;
@@ -154,8 +154,8 @@ public class SiteAction extends PagedResourceActionII {
 	private org.sakaiproject.authz.api.AuthzGroupService authzGroupService = (org.sakaiproject.authz.api.AuthzGroupService) ComponentManager
 			.get(org.sakaiproject.authz.api.AuthzGroupService.class);
 
-	private org.sakaiproject.sitemanage.api.SectionFieldManager sectionFieldManager = (org.sakaiproject.sitemanage.api.SectionFieldManager) ComponentManager
-			.get(org.sakaiproject.sitemanage.api.SectionFieldManager.class);
+	private org.sakaiproject.sitemanage.api.SectionFieldProvider sectionFieldProvider = (org.sakaiproject.sitemanage.api.SectionFieldProvider) ComponentManager
+			.get(org.sakaiproject.sitemanage.api.SectionFieldProvider.class);
 
 	private static final String SITE_MODE_SITESETUP = "sitesetup";
 
@@ -1176,7 +1176,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("form_site_contact_email", siteInfo.site_contact_email);
 
 			// those manual inputs
-			context.put("form_requiredFields", sectionFieldManager
+			context.put("form_requiredFields", sectionFieldProvider
 					.getRequiredFields());
 			context.put("fieldValues", state
 					.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS));
@@ -1541,7 +1541,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("siteService", SiteService.getInstance());
 
 			// those manual inputs
-			context.put("form_requiredFields", sectionFieldManager
+			context.put("form_requiredFields", sectionFieldProvider
 					.getRequiredFields());
 			context.put("fieldValues", state
 					.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS));
@@ -2581,7 +2581,7 @@ public class SiteAction extends PagedResourceActionII {
 				coursesIntoContext(state, context, site);
 			}
 			buildInstructorSectionsList(state, params, context);
-			context.put("form_requiredFields", sectionFieldManager
+			context.put("form_requiredFields", sectionFieldProvider
 					.getRequiredFields());
 			context.put("form_additional", siteInfo.additional);
 			context.put("form_title", siteInfo.title);
@@ -2703,7 +2703,7 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("backIndex", "36");
 			}
 			// those manual inputs
-			context.put("form_requiredFields", sectionFieldManager
+			context.put("form_requiredFields", sectionFieldProvider
 					.getRequiredFields());
 			context.put("fieldValues", state
 					.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS));
@@ -4450,7 +4450,7 @@ public class SiteAction extends PagedResourceActionII {
 		boolean validInput = true;
 		List multiCourseInputs = new Vector();
 		for (int i = 0; i < oldNumber; i++) {
-			List requiredFields = sectionFieldManager.getRequiredFields();
+			List requiredFields = sectionFieldProvider.getRequiredFields();
 			List aCourseInputs = new Vector();
 			int emptyInputNum = 0;
 
@@ -4499,13 +4499,13 @@ public class SiteAction extends PagedResourceActionII {
 				state.setAttribute(STATE_MANUAL_ADD_COURSE_NUMBER, new Integer(
 						oldNumber + newNumber));
 
-				List requiredFields = sectionFieldManager.getRequiredFields();
+				List requiredFields = sectionFieldProvider.getRequiredFields();
 				for (int j = 0; j < newNumber; j++) {
 					// add a new course input
 					List aCourseInputs = new Vector();
 					// iterate through all required fields
 					for (int m = 0; m < requiredFields.size(); m++) {
-						aCourseInputs = sectionFieldManager.getRequiredFields();
+						aCourseInputs = sectionFieldProvider.getRequiredFields();
 					}
 					multiCourseInputs.add(aCourseInputs);
 				}
@@ -4540,7 +4540,7 @@ public class SiteAction extends PagedResourceActionII {
 				&& multiCourseInputs.size() > 0) {
 			AcademicSession t = (AcademicSession) state
 					.getAttribute(STATE_TERM_SELECTED);
-			String sectionEid = sectionFieldManager.getSectionEid(t.getEid(),
+			String sectionEid = sectionFieldProvider.getSectionEid(t.getEid(),
 					(List) multiCourseInputs.get(0));
 			// default title
 			String title = sectionEid;
@@ -4841,7 +4841,7 @@ public class SiteAction extends PagedResourceActionII {
 					// the required fields)
 					for (int j = 0; j < manualAddNumber; j++) {
 						manualSections = manualSections.concat(
-								sectionFieldManager.getSectionEid(
+								sectionFieldProvider.getSectionEid(
 										term.getEid(),
 										(List) manualCourseInputs.get(j)))
 								.concat("+");
@@ -7342,7 +7342,7 @@ public class SiteAction extends PagedResourceActionII {
 					AcademicSession a = (AcademicSession) state
 							.getAttribute(STATE_TERM_SELECTED);
 					for (int m = 0; m < manualAddNumber && a != null; m++) {
-						String manualAddClassId = sectionFieldManager
+						String manualAddClassId = sectionFieldProvider
 								.getSectionEid(a.getEid(),
 										(List) manualAddFields.get(m));
 						manualList.add(manualAddClassId);

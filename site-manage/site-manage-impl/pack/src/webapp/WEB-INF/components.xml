@@ -3,8 +3,8 @@
 
 <beans>
 
-	<bean id="org.sakaiproject.sitemanage.api.SectionFieldManager"
-			class="org.sakaiproject.sitemanage.impl.SectionFieldManagerImpl"
+	<bean id="org.sakaiproject.sitemanage.api.SectionFieldProvider"
+			class="org.sakaiproject.sitemanage.impl.SectionFieldProviderImpl"
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true">
