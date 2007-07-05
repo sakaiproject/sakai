@@ -338,4 +338,18 @@ public interface ResourceToolActionPipe
 	 * @return
 	 */
 	public Object getRevisedListItem();
+
+	/**
+	 * Used by helper to indicate the priority to be assigned for notifications to
+	 * users about the changes completed by the helper.
+	 * @param priority
+	 */
+	public void setNotification(int priority);
+	
+	/**
+	 * Used by Resources tool to access the priority assigned for notifications to
+	 * users about the changes completed by the helper.
+	 * @return
+	 */
+	public int getNotification();
 }

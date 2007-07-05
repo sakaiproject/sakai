@@ -407,6 +407,17 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		String typeId = pipe.getAction().getTypeId();
 		String mimetype = pipe.getMimeType();
 		
+		// context.put("inDropbox", ContentHostingService.isInDropbox(pipe.getContentEntity().getId()));
+		ResourceTypeRegistry registry = (ResourceTypeRegistry) ComponentManager.get(ResourceTypeRegistry.class);
+		if(registry != null)
+		{
+			ResourceType typedef = registry.getType(typeId);
+			if(typedef != null)
+			{
+				context.put("hasNotificationDialog", typedef.hasNotificationDialog());
+			}
+		}
+		
 		context.put("pipe", pipe);
 
 		if(ResourceType.TYPE_TEXT.equals(typeId))
@@ -564,11 +575,25 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		String resourceType = pipe.getAction().getTypeId();
 		String mimetype = pipe.getMimeType();
 		
+		// notification
+		int noti = NotificationService.NOTI_NONE;
+		// read the notification options
+		String notification = params.getString("notify");
+		if ("r".equals(notification))
+		{
+			noti = NotificationService.NOTI_REQUIRED;
+		}
+		else if ("o".equals(notification))
+		{
+			noti = NotificationService.NOTI_OPTIONAL;
+		}
+		
 		pipe.setRevisedMimeType(pipe.getMimeType());
 		if(ResourceType.TYPE_TEXT.equals(resourceType) || ResourceType.MIME_TYPE_TEXT.equals(mimetype))
 		{
 			pipe.setRevisedMimeType(ResourceType.MIME_TYPE_TEXT);
 			pipe.setRevisedResourceProperty(ResourceProperties.PROP_CONTENT_ENCODING, ResourcesAction.UTF_8_ENCODING);
+			pipe.setNotification(noti);
 
 		}
 		else if(ResourceType.TYPE_HTML.equals(resourceType) || ResourceType.MIME_TYPE_HTML.equals(mimetype))
@@ -577,6 +602,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			content = FormattedText.processHtmlDocument(content, alertMsg);
 			pipe.setRevisedMimeType(ResourceType.MIME_TYPE_HTML);
 			pipe.setRevisedResourceProperty(ResourceProperties.PROP_CONTENT_ENCODING, ResourcesAction.UTF_8_ENCODING);
+			pipe.setNotification(noti);
 			if (alertMsg.length() > 0)
 			{
 				addAlert(state, alertMsg.toString());
@@ -586,6 +612,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		else if(ResourceType.TYPE_URL.equals(resourceType))
 		{
 			pipe.setRevisedMimeType(ResourceType.MIME_TYPE_URL);
+			pipe.setNotification(noti);
 		}
 		else if(ResourceType.TYPE_FOLDER.equals(resourceType))
 		{
@@ -599,9 +626,10 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 				ResourceToolActionPipe fp = pipes.get(i);
 				String folderName = params.getString("folder" + (i + 1));
 				fp.setFileName(folderName);
+				fp.setNotification(noti);
 			}
 		}
-	
+		
 		pipe.setRevisedContent(content.getBytes());
 		pipe.setActionCanceled(false);
 		pipe.setErrorEncountered(false);
