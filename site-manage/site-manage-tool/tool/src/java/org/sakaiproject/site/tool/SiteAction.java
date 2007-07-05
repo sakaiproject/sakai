@@ -92,6 +92,7 @@ import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.sitemanage.api.AffiliatedSectionProvider;
 import org.sakaiproject.sitemanage.api.SectionField;
 import org.sakaiproject.sitemanage.api.SectionFieldProvider;
 import org.sakaiproject.time.api.Time;
@@ -156,6 +157,9 @@ public class SiteAction extends PagedResourceActionII {
 
 	private org.sakaiproject.sitemanage.api.SectionFieldProvider sectionFieldProvider = (org.sakaiproject.sitemanage.api.SectionFieldProvider) ComponentManager
 			.get(org.sakaiproject.sitemanage.api.SectionFieldProvider.class);
+	
+	private org.sakaiproject.sitemanage.api.AffiliatedSectionProvider affiliatedSectionProvider = (org.sakaiproject.sitemanage.api.AffiliatedSectionProvider) ComponentManager
+	.get(org.sakaiproject.sitemanage.api.AffiliatedSectionProvider.class);
 
 	private static final String SITE_MODE_SITESETUP = "sitesetup";
 
@@ -11292,36 +11296,53 @@ public class SiteAction extends PagedResourceActionII {
 			String role = (String) map.get(sectionEid);
 			if (includeRole(role, roleSet)) {
 				Section section = null;
-				try {
-					section = cms.getSection(sectionEid);
-				} catch (IdNotFoundException e) {
-					M_log.warn(e.getMessage());
-				}
-				if (section != null) {
-					String courseOfferingEid = section.getCourseOfferingEid();
-					CourseOffering courseOffering = cms
-							.getCourseOffering(courseOfferingEid);
-					String sessionEid = courseOffering.getAcademicSession()
-							.getEid();
-					if (academicSessionEid.equals(sessionEid)) {
-						// a long way to the conclusion that yes, this course
-						// offering
-						// should be included in the selected list. Sigh...
-						// -daisyf
-						ArrayList sectionList = (ArrayList) sectionHash
-								.get(courseOffering.getEid());
-						if (sectionList == null) {
-							sectionList = new ArrayList();
-						}
-						sectionList.add(new SectionObject(section));
-						sectionHash.put(courseOffering.getEid(), sectionList);
-						courseOfferingHash.put(courseOffering.getEid(),
-								courseOffering);
-					}
-				}
+				getCourseOfferingAndSectionMap(academicSessionEid, courseOfferingHash, sectionHash, sectionEid, section);
 			}
 		}
+		
+		// now consider those user with affiliated sections
+		List affiliatedSectionEids = affiliatedSectionProvider.getAffiliatedSectionEids(userId, academicSessionEid);
+		if (affiliatedSectionEids != null)
+		{
+			for (int k = 0; k < affiliatedSectionEids.size(); k++) {
+				String sectionEid = (String) affiliatedSectionEids.get(k);
+				Section section = null;
+				getCourseOfferingAndSectionMap(academicSessionEid, courseOfferingHash, sectionHash, sectionEid, section);
+			}
+		}
+		
+		
 	} // prepareCourseAndSectionMap
+
+	private void getCourseOfferingAndSectionMap(String academicSessionEid, HashMap courseOfferingHash, HashMap sectionHash, String sectionEid, Section section) {
+		try {
+			section = cms.getSection(sectionEid);
+		} catch (IdNotFoundException e) {
+			M_log.warn(e.getMessage());
+		}
+		if (section != null) {
+			String courseOfferingEid = section.getCourseOfferingEid();
+			CourseOffering courseOffering = cms
+					.getCourseOffering(courseOfferingEid);
+			String sessionEid = courseOffering.getAcademicSession()
+					.getEid();
+			if (academicSessionEid.equals(sessionEid)) {
+				// a long way to the conclusion that yes, this course
+				// offering
+				// should be included in the selected list. Sigh...
+				// -daisyf
+				ArrayList sectionList = (ArrayList) sectionHash
+						.get(courseOffering.getEid());
+				if (sectionList == null) {
+					sectionList = new ArrayList();
+				}
+				sectionList.add(new SectionObject(section));
+				sectionHash.put(courseOffering.getEid(), sectionList);
+				courseOfferingHash.put(courseOffering.getEid(),
+						courseOffering);
+			}
+		}
+	}
 
 	/**
 	 * for 2.4

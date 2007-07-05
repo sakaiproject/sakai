@@ -9,5 +9,13 @@
 			destroy-method="destroy"
 			singleton="true">
 	</bean>
+	
+	<bean id="org.sakaiproject.sitemanage.api.AffiliatedSectionProvider"
+			class="org.sakaiproject.sitemanage.impl.AffiliatedSectionProviderImpl"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+	</bean>
+	
 
 </beans>
