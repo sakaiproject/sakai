@@ -595,7 +595,11 @@ public class ListItem
 		{
 			for(Group gr : (Collection<Group>) site.getGroups())
 			{
-				if(gr.getId().equals(site.getId()))
+				if(gr == null)
+				{
+					// ignore?
+				}
+				else if(gr.getId().equals(site.getId()))
 				{
 					// ignore
 				}
@@ -955,7 +959,11 @@ public class ListItem
     	
     	for(Group gr : this.allowedRemoveGroups)
     	{
-    		if(gr.getId().equals(group.getId()))
+    		if(gr == null)
+    		{
+    			// ignore?
+    		}
+    		else if(gr.getId().equals(group.getId()))
     		{
     			allowed = true;
     			break;
@@ -1598,8 +1606,15 @@ public class ListItem
     	}
     	for(Group group : groups)
     	{
-    		names[index] = group.getTitle();
-    		index++;
+    		if(group == null)
+    		{
+    			// ignore
+    		}
+    		else
+    		{
+	    		names[index] = group.getTitle();
+	    		index++;
+    		}
     	}
     	
     	return names;
@@ -1701,7 +1716,10 @@ public class ListItem
     	SortedSet<String> refs = new TreeSet<String>();
     	for(Group group : this.groups)
     	{
-    		refs.add(group.getReference());
+    		if(group != null)
+    		{
+    			refs.add(group.getReference());
+    		}
     	}
     	return refs;
     }
@@ -1746,7 +1764,10 @@ public class ListItem
     	SortedSet<String> refs = new TreeSet<String>();
     	for(Group group : this.inheritedGroups)
     	{
-    		refs.add(group.getReference());
+    		if(group != null)
+    		{
+    			refs.add(group.getReference());
+    		}
     	}
     	return refs;
     }
@@ -1830,7 +1851,10 @@ public class ListItem
     	SortedSet<String> refs = new TreeSet<String>();
     	for(Group group : this.possibleGroups)
     	{
-    		refs.add(group.getReference());
+    		if(group != null)
+    		{
+    			refs.add(group.getReference());
+    		}
     	}
     	return refs;
     }
@@ -1967,7 +1991,11 @@ public class ListItem
     	
     	for(Group gr : this.groups)
     	{
-    		if(gr.getId().equals(group.getId()))
+    		if(gr == null)
+    		{
+    			// ignore
+    		}
+    		else if(gr.getId().equals(group.getId()))
     		{
     			isLocal = true;
     			break;
@@ -2006,7 +2034,11 @@ public class ListItem
     	
     	for(Group gr : groupsToCheck)
     	{
-    		if(gr.getId().equals(group.getId()))
+    		if(gr == null)
+    		{
+    			// ignore
+    		}
+    		else if(gr.getId().equals(group.getId()))
     		{
     			isPossible = true;
     			break;
@@ -2390,7 +2422,10 @@ public class ListItem
     	this.siteGroupsMap.clear();
         for(Group group : siteGroups)
         {
-        	this.siteGroupsMap.put(group.getId(), group);
+        	if(group != null)
+        	{
+        		this.siteGroupsMap.put(group.getId(), group);
+        	}
         }
     }
 
