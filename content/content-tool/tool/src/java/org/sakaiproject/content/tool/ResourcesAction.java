@@ -3771,7 +3771,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			// update mimetype
 			edit.setContentType(pipe.getRevisedMimeType());
-			ContentHostingService.commitResource(edit);
+			ContentHostingService.commitResource(edit, pipe.getNotification());
 		}
 		catch (PermissionException e)
 		{
