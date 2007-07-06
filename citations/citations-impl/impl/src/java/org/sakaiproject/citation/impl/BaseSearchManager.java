@@ -23,8 +23,10 @@ package org.sakaiproject.citation.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -85,6 +87,7 @@ import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 
 import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
@@ -1256,7 +1259,7 @@ public class BaseSearchManager implements SearchManager, Observer
 				if( m_configService.isDatabaseHierarchyXmlAvailable() )
 				{
 					isConfigured = true;
-					parseXML( m_configService.getDatabaseHierarchyXml() );
+					parseXML( m_configService.getDatabaseHierarchyXml(), null );
 				}
 				else
 				{
@@ -1269,7 +1272,7 @@ public class BaseSearchManager implements SearchManager, Observer
 			}
 		}
 
-		public BasicSearchDatabaseHierarchy(String databaseHierarchyResourceRef)
+		public BasicSearchDatabaseHierarchy(String xmlContent)
         {
 			/*
 			 * Any basic user authn/authz things we can check to not go
@@ -1284,6 +1287,7 @@ public class BaseSearchManager implements SearchManager, Observer
 				m_configService = org.sakaiproject.citation.cover.ConfigurationService.getInstance();
 			}
 
+      isConfigured = false;
 			try
 			{
 				/*
@@ -1299,7 +1303,6 @@ public class BaseSearchManager implements SearchManager, Observer
 				if(isNull(repositoryPkgName))
 				{
 					// cannot continue
-					isConfigured = false;
 					return;
 				}
 
@@ -1331,61 +1334,25 @@ public class BaseSearchManager implements SearchManager, Observer
 				categoryMap = new java.util.Hashtable<String, SearchCategory>();
 				categoryStack = new java.util.Stack<BasicSearchCategory>();
 
-				Reference ref = EntityManager.newReference(databaseHierarchyResourceRef);
-				if(ref == null)
-				{
-					// TODO: Has the meaning of isConfigured changed?
-					isConfigured = false;
-				}
-				else
-				{
-					enableSecurityAdvisor();
-					ContentResource resource = ContentHostingService.getResource(ref.getId());
-					if(resource == null)
-					{
-						isConfigured = false;
-					}
-					else
-					{
-						isConfigured = true;
-						parseXML( resource.streamContent() );
-					}
-				}
+				parseXML(xmlContent);
+				isConfigured = true;
 			}
-			catch( org.sakaiproject.citation.util.api.OsidConfigurationException oce )
+			catch (Exception exception)
 			{
-				m_log.warn( "BasicSearchDatabaseHierarchy() ran into problems with the ConfigurationService", oce );
+				m_log.warn("Exception seen in BasicSearchDatabaseHierarchy() constructor", exception);
 			}
-            catch (ServerOverloadException e)
-            {
-	            // TODO Auto-generated catch block
-            	m_log.warn("ServerOverloadException ", e);
-            }
-            catch (PermissionException e)
-            {
-	            // TODO Auto-generated catch block
-	            m_log.warn("PermissionException ", e);
-            }
-            catch (IdUnusedException e)
-            {
-	            m_log.info("XML file which defines Citations search category hierarchy is missing (" + databaseHierarchyResourceRef + "); Citations SearchManager will watch for its creation");
-            }
-            catch (TypeException e)
-            {
-	            // TODO Auto-generated catch block
-	            m_log.warn("TypeException ", e);
-            }
-        }
+  }
 
-		protected void parseXML(InputStream stream)
+		protected void parseXML(String xmlContent)
         {
 			// Use the default (non-validating) parser
 	        SAXParserFactory factory = SAXParserFactory.newInstance();
+	        InputSource source = new InputSource(new StringReader(xmlContent));
 
 	        try {
 	            // Parse the input
 	            SAXParser saxParser = factory.newSAXParser();
-	            saxParser.parse( stream, this );
+	            saxParser.parse( source, this );
 	        } catch (SAXParseException spe) {
 	            // Use the contained exception, if any
 	            Exception x = spe;
@@ -1467,7 +1434,7 @@ public class BaseSearchManager implements SearchManager, Observer
 			}
 		}
 
-		protected void parseXML( String categoriesFileName )
+		protected void parseXML( String categoriesFileName, String bogus )
 		{
 			// Use the default (non-validating) parser
 	        SAXParserFactory factory = SAXParserFactory.newInstance();
@@ -1877,8 +1844,8 @@ public class BaseSearchManager implements SearchManager, Observer
 	protected static BasicType repositoryType;
 
 	// String array for databases being searched and database hierarchy
-	protected Map<String,SearchDatabaseHierarchy> hierarchyMap = new Hashtable<String,SearchDatabaseHierarchy>();
-  protected SortedSet<String> updatableResources = new TreeSet<String>();
+	protected Map<String, String> hierarchyMap = new HashMap<String, String>();
+  protected SortedSet<String>   updatableResources = new TreeSet<String>();
 
 	private static Random m_generator;
 
@@ -2432,14 +2399,6 @@ public class BaseSearchManager implements SearchManager, Observer
 			this.updatableResources.add(configFolderRef + hierarchyId);
 
 		}
-
-//		String databaseHierarchyResourceRef = m_configService.getConfigFolderReference();
-//		if(databaseHierarchyResourceRef != null)
-//		{
-//			updatableResources.add(databaseHierarchyResourceRef);
-//			updateHierarchy(databaseHierarchyResourceRef);
-//		}
-
 	}
 
 	protected void setupTypes() {
@@ -2457,7 +2416,7 @@ public class BaseSearchManager implements SearchManager, Observer
      */
     public SearchDatabaseHierarchy getSearchHierarchy() throws SearchException
     {
-    	SearchDatabaseHierarchy hierarchy = null;
+    	SearchDatabaseHierarchy hierarchy;
 
       try
       {
@@ -2466,33 +2425,71 @@ public class BaseSearchManager implements SearchManager, Observer
 
        	if(!isNull(configFolderRef) && !isNull(hierarchyXml))
       	{
-          String hierarchyRef = configFolderRef + hierarchyXml;
+          String hierarchyRef   = configFolderRef + hierarchyXml;
+        	String xmlContent;
 
-          m_log.debug("Fetch search hierarchy for: " + hierarchyRef);
+          m_log.debug("Looking for hierarchy: " + hierarchyRef);
 
-  	    	hierarchy = this.hierarchyMap.get(hierarchyRef);
-  	    	if(hierarchy == null)
-  	    	{
-  	    		updateHierarchy(hierarchyRef);
-  	    		hierarchy = this.hierarchyMap.get(hierarchyRef);
-  	    	}
+          synchronized (this)
+          {
+            /*
+             * Look for the requested hierarchy in cache - if not found, see
+             * if we can load it as a content resource
+             */
+    	    	xmlContent = this.hierarchyMap.get(hierarchyRef);
+     	    	if (xmlContent == null)
+    	    	{
+    	    		updateHierarchy(hierarchyRef);
+
+    	    		xmlContent = this.hierarchyMap.get(hierarchyRef);
+      	    	if (xmlContent == null)
+      	    	{
+      	    	  return null;
+      	    	}
+              /*
+               * We have a new resource, add it to the observation list
+               */
+      				if (!this.updatableResources.contains(hierarchyRef))
+      				{
+      				  this.updatableResources.add(hierarchyRef);
+      				  m_log.debug("*** Added " + hierarchyRef + " for observation");
+      				}
+    	    	}
+          }
+          /*
+           * Set up the per-user database hierarchy
+           */
+  	    	hierarchy = new BasicSearchDatabaseHierarchy(xmlContent);
+  	    	return hierarchy.isConfigured() ? hierarchy : null;
       	}
       }
-      catch (OsidConfigurationException e)
+      catch (OsidConfigurationException exception)
       {
-        m_log.warn("OsidConfigurationException ", e);
+        m_log.warn("Failed to get configuration details: " + exception);
       }
-     	return hierarchy;
+     	return null;
     }
 
-	public void updateHierarchy(String databaseXmlReference)
+  public synchronized void updateHierarchy(String databaseXmlReference)
+  {
+    try
     {
-		SearchDatabaseHierarchy hierarchy = new BasicSearchDatabaseHierarchy(databaseXmlReference);
-		if(hierarchy != null && hierarchy.isConfigured())
-		{
-			this.hierarchyMap.put(databaseXmlReference, hierarchy);
-		}
+      String xmlContent = getResourceContent(databaseXmlReference);
+
+      m_log.debug("*** UpdateHierarchy(): " + databaseXmlReference);
+      if (xmlContent != null)
+      {
+  		  this.hierarchyMap.put(databaseXmlReference, xmlContent);
+      }
     }
+    catch (Exception exception)
+    {
+      m_log.warn("Failed to load "
+              +  databaseXmlReference
+              +  " (no changes made): "
+              +  exception);
+    }
+  }
 
 	/* (non-Javadoc)
      * @see org.sakaiproject.citation.api.SearchManager#newSearch(java.lang.String)
@@ -2570,11 +2567,16 @@ public class BaseSearchManager implements SearchManager, Observer
 	    {
 	    	Event event = (Event) arg1;
 	    	String refstr = event.getResource();
-	    	if(this.updatableResources.contains(refstr))
-	    	{
-	    		// update the hierarchy
-	    		this.updateHierarchy(refstr);
-	    	}
+
+        m_log.debug("*** IS " + refstr + " IN " + updatableResources);
+        synchronized (this)
+        {
+  	    	if (this.updatableResources.contains(refstr))
+  	    	{
+  	    		// update the hierarchy
+  	    		this.updateHierarchy(refstr);
+  	    	}
+        }
 	    }
 
     }
@@ -2595,14 +2597,62 @@ public class BaseSearchManager implements SearchManager, Observer
 		});
 	}
 
-	  /**
-	   * Null (or empty) String?
-	   * @param string String to check
-	   * @return true if so
-	   */
-		private boolean isNull(String string)
+  /**
+   * Fetch the content from a Resource
+   * @param resource Content hosting resource
+   */
+  public String getResourceContent(ContentResource resource)
+                                   throws IOException, ServerOverloadException
+  {
+    InputStream   input     = resource.streamContent();
+    StringBuffer  content   = new StringBuffer();
+    byte[]        bytesIn   = new byte[1024 * 8];
+    int           count;
+
+    while ((count = input.read(bytesIn)) != -1)
+    {
+      content.append(new String(bytesIn, 0, count, "UTF-8"));
+    }
+    return content.toString();
+  }
+
+  /**
+   * Fetch content from a resource reference (a named resource)
+   * @param resourceReference Resource reference
+   * @return Resource content (null if none)
+   */
+  public String getResourceContent(String resourceReference)
+                                               throws IOException,
+                                                      IdUnusedException,
+                                                      PermissionException,
+                                                      ServerOverloadException,
+                                                      TypeException
+  {
+    Reference       reference;
+    ContentResource resource;
+
+    reference = EntityManager.newReference(resourceReference);
+		if (reference == null)
 		{
-			return (string == null) || (string.trim().equals(""));
+		  return null;
 		}
 
+		enableSecurityAdvisor();
+		resource = ContentHostingService.getResource(reference.getId());
+		if (resource == null)
+		{
+      return null;
+    }
+    return getResourceContent(resource);
+  }
+
+  /**
+   * Null (or empty) String?
+   * @param string String to check
+   * @return true if so
+   */
+	private boolean isNull(String string)
+	{
+		return (string == null) || (string.trim().equals(""));
+	}
 }

@@ -103,9 +103,9 @@ public class BaseConfigurationService implements ConfigurationService, Observer
     protected String m_configFolder = "config";
     protected String m_configXml = "sakai/citationsConfig.xml";
     protected String m_categoriesXml = "sakai/databaseHierarchy.xml";
-    
+
     protected SortedSet<String> m_updatableResources = new TreeSet<String>();
- 
+
 	// configuration XML file location
     protected String m_databaseXml;
     protected String m_siteConfigXml;
@@ -149,9 +149,9 @@ public class BaseConfigurationService implements ConfigurationService, Observer
    * Dynamic configuration parameters
    */
   protected static Map<String, Map<String,String>> m_configMaps = new HashMap<String, Map<String,String>>();
-  
+
   protected static String m_configListRef = null;
-  
+
   /*
    * Failed configurations (didn't parse properly)
    */
@@ -198,13 +198,15 @@ public class BaseConfigurationService implements ConfigurationService, Observer
     	}
 
     	// not null, try to open it for reading
-    	java.io.FileInputStream fis = new java.io.FileInputStream( configXml );
+    	//java.io.FileInputStream fis = new java.io.FileInputStream( configXml );
     }
+/*
     catch( java.io.FileNotFoundException fnfe )
     {
     	// file not found
     	return false;
     }
+*/
     catch (OsidConfigurationException ignore) { }
 
     // filename is not null and the file is readable
@@ -218,10 +220,10 @@ public class BaseConfigurationService implements ConfigurationService, Observer
 		{
 			configFolderRef = "/content/group/" + this.m_adminSiteName + "/" + this.m_configFolder + "/";
 		}
-		return configFolderRef; 
-		
+		return configFolderRef;
+
     }
-	
+
 	public String getConfigFolderId()
 	{
 		String configFolderId = null;
@@ -229,7 +231,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
 		{
 			configFolderId = "/group/" + this.m_adminSiteName + "/" + this.m_configFolder + "/";
 		}
-		return configFolderId; 
+		return configFolderId;
 	}
 
   /**
@@ -269,13 +271,15 @@ public class BaseConfigurationService implements ConfigurationService, Observer
     	}
 
     	// not null, try to open it for reading
-    	java.io.FileInputStream fis = new java.io.FileInputStream( dbXml );
+    	// java.io.FileInputStream fis = new java.io.FileInputStream( dbXml );
     }
+/*
     catch( java.io.FileNotFoundException fnfe )
     {
     	// file not found
     	return false;
     }
+*/
     catch (OsidConfigurationException ignore) { }
 
     // filename is not null and the file is readable
@@ -506,19 +510,33 @@ public class BaseConfigurationService implements ConfigurationService, Observer
         parameterMap = m_configMaps.get(configXmlRef);
         if (parameterMap == null)
         {
-        	// TODO: Try to get config from CHS rather than filesystem
+          m_log.debug("New configuration requested from: " + configXml);
+
           updateConfig(configXmlRef);
+
           parameterMap = m_configMaps.get(configXmlRef);
+          if (parameterMap != null)
+          {
+   	    	  if (!this.m_updatableResources.contains(configXmlRef))
+   	    	  {
+   	    	    this.m_updatableResources.add(configXmlRef);
+            }
+            m_log.debug("Now observing " + configXml);
+          }
         }
       }
     }
     catch (OsidConfigurationException exception)
     {
-      m_log.warn("Failed to get dynamic XML value for " + parameter);
+      m_log.warn("Failed to get dynamic XML value for "
+              +  parameter
+              +  ": "
+              +  exception);
     }
     /*
      * Finally, return the requested configuration parameter
      */
+    m_log.debug("getParameter() returns: " + ((parameterMap == null) ? null : parameterMap.get(parameter)));
     return (parameterMap == null) ? null : parameterMap.get(parameter);
   }
 
@@ -636,7 +654,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
       saveParameter(document, parameterMap, "sakai-serverkey");
       saveParameter(document, parameterMap, "config-id");
       saveParameter(document, parameterMap, "hierarchy-xml");
-      
+
       m_configMaps.put(configurationXml, parameterMap);
     }
   }
@@ -691,7 +709,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
       saveParameter(document, parameterMap, "sakai-serverkey");
       saveParameter(document, parameterMap, "config-id");
       saveParameter(document, parameterMap, "database-xml");
-      
+
       m_configMaps.put(configurationXml, parameterMap);
     }
   }
@@ -866,12 +884,12 @@ public class BaseConfigurationService implements ConfigurationService, Observer
 	 * Establish a security advisor to allow the "embedded" azg work to occur
 	 * with no need for additional security permissions.
 	 */
-	protected void enableSecurityAdvisor() 
+	protected void enableSecurityAdvisor()
 	{
 		// put in a security advisor so we can create citationAdmin site without need
 		// of further permissions
 		SecurityService.pushAdvisor(new SecurityAdvisor() {
-			public SecurityAdvice isAllowed(String userId, String function, String reference) 
+			public SecurityAdvice isAllowed(String userId, String function, String reference)
 			{
 				return SecurityAdvice.ALLOWED;
 			}
@@ -889,7 +907,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
 
 		SiteService siteService = (SiteService) ComponentManager.get(SiteService.class);
 		ContentHostingService contentService = (ContentHostingService) ComponentManager.get(ContentHostingService.class);
-		
+
 		if(isNull(this.m_adminSiteName))
 		{
 			// can't create
@@ -905,11 +923,11 @@ public class BaseConfigurationService implements ConfigurationService, Observer
             {
 				enableSecurityAdvisor();
 				Site adminSite = siteService.addSite(this.m_adminSiteName, "project");
-				
+
 				// add Resources tool
 				SitePage resPage = adminSite.addPage();
 				resPage.addTool("sakai.resources");
-				
+
 				enableSecurityAdvisor();
 				siteService.save(adminSite);
             }
@@ -1287,6 +1305,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
 	    {
 	    	Event event = (Event) arg1;
 	    	String refstr = event.getResource();
+
 	    	if(this.m_updatableResources.contains(refstr))
 	    	{
 	    		// update the hierarchy
@@ -1298,6 +1317,9 @@ public class BaseConfigurationService implements ConfigurationService, Observer
 	protected void updateConfig(String configFileRef)
     {
 		Reference ref = EntityManager.newReference(configFileRef);
+
+		m_log.debug("UpdateConfig() processing: configFileRef = " + configFileRef);
+
 		if(ref != null)
 		{
 			ContentHostingService contentService = (ContentHostingService) ComponentManager.get(ContentHostingService.class);
@@ -1328,7 +1350,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
             }
 		}
 		m_updatableResources.add(configFileRef);
-		
+
     }
 
 	/**
