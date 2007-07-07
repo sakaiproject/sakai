@@ -42,7 +42,6 @@ import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.event.cover.NotificationService;
 
 public class AttachmentHelper {
 	private static Log log = LogFactory.getLog(AttachmentHelper.class);
