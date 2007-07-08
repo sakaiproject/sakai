@@ -3,6 +3,14 @@
 
 <beans>
 
+    <!-- database beans -->
+    <bean id="org.sakaiproject.site.impl.SiteServiceSqlDb2"       class="org.sakaiproject.site.impl.SiteServiceSqlDb2"     singleton="true"/>
+    <bean id="org.sakaiproject.site.impl.SiteServiceSqlDefault"   class="org.sakaiproject.site.impl.SiteServiceSqlDefault" singleton="true"/>
+    <bean id="org.sakaiproject.site.impl.SiteServiceSqlHSql"      class="org.sakaiproject.site.impl.SiteServiceSqlHSql"    singleton="true"/>
+    <bean id="org.sakaiproject.site.impl.SiteServiceSqlMsSql"     class="org.sakaiproject.site.impl.SiteServiceSqlMsSql"   singleton="true"/>
+    <bean id="org.sakaiproject.site.impl.SiteServiceSqlMySql"     class="org.sakaiproject.site.impl.SiteServiceSqlMySql"   singleton="true"/>
+    <bean id="org.sakaiproject.site.impl.SiteServiceSqlOracle"    class="org.sakaiproject.site.impl.SiteServiceSqlOracle"  singleton="true"/>
+
 	<bean id="org.sakaiproject.site.api.SiteService"
 			class="org.sakaiproject.site.impl.DbSiteService"
 			init-method="init"
@@ -23,6 +31,16 @@
 		<lookup-method name="authzGroupService" bean="org.sakaiproject.authz.api.AuthzGroupService" />
 
  		<property name="autoDdl"><value>${auto.ddl}</value></property>
+        <property name="databaseBeans">
+           <map>
+              <entry key="db2"    ><ref bean="org.sakaiproject.site.impl.SiteServiceSqlDb2"    /></entry>
+              <entry key="default"><ref bean="org.sakaiproject.site.impl.SiteServiceSqlDefault"/></entry>
+              <entry key="hsqldb" ><ref bean="org.sakaiproject.site.impl.SiteServiceSqlHSql"   /></entry>
+              <entry key="mssql"  ><ref bean="org.sakaiproject.site.impl.SiteServiceSqlMsSql"  /></entry>
+              <entry key="mysql"  ><ref bean="org.sakaiproject.site.impl.SiteServiceSqlMySql"  /></entry>
+              <entry key="oracle" ><ref bean="org.sakaiproject.site.impl.SiteServiceSqlOracle" /></entry>
+           </map>
+        </property>
  		<property name="cacheMinutes"><value>5</value></property>
  		<property name="cacheCleanerMinutes"><value>15</value></property>
 	</bean>
