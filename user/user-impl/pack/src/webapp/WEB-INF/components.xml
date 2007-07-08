@@ -2,6 +2,13 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
+    <!-- database beans -->
+    <bean id="org.sakaiproject.user.impl.UserServiceSqlDb2"       class="org.sakaiproject.user.impl.UserServiceSqlDb2"     singleton="true"/>
+    <bean id="org.sakaiproject.user.impl.UserServiceSqlDefault"   class="org.sakaiproject.user.impl.UserServiceSqlDefault" singleton="true"/>
+    <bean id="org.sakaiproject.user.impl.UserServiceSqlHSql"      class="org.sakaiproject.user.impl.UserServiceSqlHSql"    singleton="true"/>
+    <bean id="org.sakaiproject.user.impl.UserServiceSqlMsSql"     class="org.sakaiproject.user.impl.UserServiceSqlMsSql"   singleton="true"/>
+    <bean id="org.sakaiproject.user.impl.UserServiceSqlMySql"     class="org.sakaiproject.user.impl.UserServiceSqlMySql"   singleton="true"/>
+    <bean id="org.sakaiproject.user.impl.UserServiceSqlOracle"    class="org.sakaiproject.user.impl.UserServiceSqlOracle"  singleton="true"/>
 
 	<bean id="org.sakaiproject.user.api.UserDirectoryService"
 			class="org.sakaiproject.user.impl.DbUserService"
@@ -27,7 +34,18 @@
  		<property name="cacheCleanerMinutes"><value>15</value></property>
  		<property name="caseSensitiveId"><value>false</value></property>
  		<property name="separateIdEid"><value>true</value></property>
- 
+
+        <property name="databaseBeans">
+           <map>
+              <entry key="db2"    ><ref bean="org.sakaiproject.user.impl.UserServiceSqlDb2"    /></entry>
+              <entry key="default"><ref bean="org.sakaiproject.user.impl.UserServiceSqlDefault"/></entry>
+              <entry key="hsqldb" ><ref bean="org.sakaiproject.user.impl.UserServiceSqlHSql"   /></entry>
+              <entry key="mssql"  ><ref bean="org.sakaiproject.user.impl.UserServiceSqlMsSql"  /></entry>
+              <entry key="mysql"  ><ref bean="org.sakaiproject.user.impl.UserServiceSqlMySql"  /></entry>
+              <entry key="oracle" ><ref bean="org.sakaiproject.user.impl.UserServiceSqlOracle" /></entry>
+           </map>
+        </property>
+
 	</bean>
 
 	<bean id="org.sakaiproject.user.api.AuthenticationManager"

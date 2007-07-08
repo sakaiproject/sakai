@@ -3,18 +3,18 @@
  * $Id$
  ***********************************************************************************
  *
- * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
- * 
- * Licensed under the Educational Community License, Version 1.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
+ * Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
+ *
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.opensource.org/licenses/ecl1.php
- * 
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  *
  **********************************************************************************/
@@ -25,6 +25,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import org.apache.commons.logging.Log;
@@ -64,21 +65,21 @@ public abstract class DbUserService extends BaseUserDirectoryService
 	protected String m_sortField2 = "FIRST_NAME";
 
 	/** All fields. */
-	protected String[] m_fieldNames = { "USER_ID", "EMAIL", "EMAIL_LC", "FIRST_NAME", "LAST_NAME", "TYPE", "PW", "CREATEDBY",
-			"MODIFIEDBY", "CREATEDON", "MODIFIEDON" };
+	protected String[] m_fieldNames = {"USER_ID", "EMAIL", "EMAIL_LC", "FIRST_NAME", "LAST_NAME", "TYPE", "PW", "CREATEDBY", "MODIFIEDBY",
+			"CREATEDON", "MODIFIEDON"};
 
-	/**********************************************************************************************************************************************************************************************************************************************************
+	/*************************************************************************************************************************************************
 	 * Dependencies
-	 *********************************************************************************************************************************************************************************************************************************************************/
+	 ************************************************************************************************************************************************/
 
 	/**
 	 * @return the MemoryService collaborator.
 	 */
 	protected abstract SqlService sqlService();
 
-	/**********************************************************************************************************************************************************************************************************************************************************
+	/*************************************************************************************************************************************************
 	 * Configuration
-	 *********************************************************************************************************************************************************************************************************************************************************/
+	 ************************************************************************************************************************************************/
 
 	/**
 	 * Configuration: set the table name
@@ -119,9 +120,33 @@ public abstract class DbUserService extends BaseUserDirectoryService
 		m_autoDdl = new Boolean(value).booleanValue();
 	}
 
-	/**********************************************************************************************************************************************************************************************************************************************************
+	/** The map of database dependent handler. */
+	protected Map<String, UserServiceSql> databaseBeans;
+
+	/** The database handler we are using. */
+	protected UserServiceSql userServiceSql;
+
+	public void setDatabaseBeans(Map databaseBeans)
+	{
+		this.databaseBeans = databaseBeans;
+	}
+
+	public UserServiceSql getUserServiceSql()
+	{
+		return userServiceSql;
+	}
+
+	/**
+	 * sets which bean containing database dependent code should be used depending on the database vendor.
+	 */
+	public void setUserServiceSql(String vendor)
+	{
+		this.userServiceSql = (databaseBeans.containsKey(vendor) ? databaseBeans.get(vendor) : databaseBeans.get("default"));
+	}
+
+	/*************************************************************************************************************************************************
 	 * Init and Destroy
-	 *********************************************************************************************************************************************************************************************************************************************************/
+	 ************************************************************************************************************************************************/
 
 	/**
 	 * Final initialization, once all dependencies are set.
@@ -146,6 +171,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			}
 
 			super.init();
+			setUserServiceSql(sqlService().getVendor());
 
 			M_log.info("init(): table: " + m_tableName + " external locks: " + m_useExternalLocks);
 
@@ -156,9 +182,9 @@ public abstract class DbUserService extends BaseUserDirectoryService
 		}
 	}
 
-	/**********************************************************************************************************************************************************************************************************************************************************
+	/*************************************************************************************************************************************************
 	 * BaseUserService extensions
-	 *********************************************************************************************************************************************************************************************************************************************************/
+	 ************************************************************************************************************************************************/
 
 	/**
 	 * Construct a Storage object.
@@ -170,9 +196,9 @@ public abstract class DbUserService extends BaseUserDirectoryService
 		return new DbStorage(this);
 	}
 
-	/**********************************************************************************************************************************************************************************************************************************************************
+	/*************************************************************************************************************************************************
 	 * Storage implementation
-	 *********************************************************************************************************************************************************************************************************************************************************/
+	 ************************************************************************************************************************************************/
 
 	/**
 	 * Covers for the BaseXmlFileStorage, providing User and UserEdit parameters
@@ -290,12 +316,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			fields[2] = search.toLowerCase();
 			fields[3] = search;
 			fields[4] = search;
-			List rv = super
-					.getSelectedResources(
-							"SAKAI_USER.USER_ID = SAKAI_USER_ID_MAP.USER_ID AND (SAKAI_USER.USER_ID = ? OR UPPER(EID) LIKE UPPER(?) OR EMAIL_LC LIKE ? OR UPPER(FIRST_NAME) LIKE UPPER(?) OR UPPER(LAST_NAME) LIKE UPPER(?))",
-							"SAKAI_USER_ID_MAP.EID",
-							fields,
-							"SAKAI_USER_ID_MAP");
+			List rv = super.getSelectedResources(userServiceSql.getUserWhereSql(), "SAKAI_USER_ID_MAP.EID", fields, "SAKAI_USER_ID_MAP");
 
 			return rv;
 		}
@@ -309,11 +330,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			fields[2] = search.toLowerCase();
 			fields[3] = search;
 			fields[4] = search;
-			int rv = super
-					.countSelectedResources(
-							"SAKAI_USER.USER_ID = SAKAI_USER_ID_MAP.USER_ID AND (SAKAI_USER.USER_ID = ? OR UPPER(EID) LIKE UPPER(?) OR EMAIL_LC LIKE ? OR UPPER(FIRST_NAME) LIKE UPPER(?) OR UPPER(LAST_NAME) LIKE UPPER(?))",
-							fields,
-							"SAKAI_USER_ID_MAP");
+			int rv = super.countSelectedResources(userServiceSql.getUserWhereSql(), fields, "SAKAI_USER_ID_MAP");
 
 			return rv;
 		}
@@ -470,7 +487,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			// if we are not doing separate id/eid, do nothing
 			if (!m_separateIdEid) return true;
 
-			String statement = "insert into SAKAI_USER_ID_MAP (USER_ID, EID) values (?,?)";
+			String statement = userServiceSql.getInsertUserIdSql();
 
 			Object fields[] = new Object[2];
 			fields[0] = id;
@@ -506,7 +523,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			if (eidAlready.equals(eid)) return true;
 
 			// we have a mapping that needs to be updated
-			String statement = "update SAKAI_USER_ID_MAP set EID=? where USER_ID=?";
+			String statement = userServiceSql.getUpdateUserIdSql();
 
 			Object fields[] = new Object[2];
 			fields[0] = eid;
@@ -526,7 +543,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			// if we are not doing separate id/eid, do nothing
 			if (!m_separateIdEid) return;
 
-			String statement = "delete from SAKAI_USER_ID_MAP where USER_ID=?";
+			String statement = userServiceSql.getDeleteUserIdSql();
 
 			Object fields[] = new Object[1];
 			fields[0] = id;
@@ -546,7 +563,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			// if we are not doing separate id/eid, return the id
 			if (!m_separateIdEid) return id;
 
-			String statement = "select EID from SAKAI_USER_ID_MAP where USER_ID=?";
+			String statement = userServiceSql.getUserEidSql();
 			Object fields[] = new Object[1];
 			fields[0] = id;
 			List rv = sqlService().dbRead(statement, fields, null);
@@ -572,7 +589,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			// if we are not doing separate id/eid, do nothing
 			if (!m_separateIdEid) return eid;
 
-			String statement = "select USER_ID from SAKAI_USER_ID_MAP where EID=?";
+			String statement = userServiceSql.getUserIdSql();
 			Object fields[] = new Object[1];
 			fields[0] = eid;
 			List rv = sqlService().dbRead(statement, fields, null);
