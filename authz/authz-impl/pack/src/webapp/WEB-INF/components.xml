@@ -2,6 +2,13 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
+    <!-- database beans -->
+    <bean id="org.sakaiproject.authz.impl.DbAuthzGroupSqlDb2"       class="org.sakaiproject.authz.impl.DbAuthzGroupSqlDb2"     singleton="true"/>
+    <bean id="org.sakaiproject.authz.impl.DbAuthzGroupSqlDefault"   class="org.sakaiproject.authz.impl.DbAuthzGroupSqlDefault" singleton="true"/>
+    <bean id="org.sakaiproject.authz.impl.DbAuthzGroupSqlHSql"      class="org.sakaiproject.authz.impl.DbAuthzGroupSqlHSql"    singleton="true"/>
+    <bean id="org.sakaiproject.authz.impl.DbAuthzGroupSqlMsSql"     class="org.sakaiproject.authz.impl.DbAuthzGroupSqlMsSql"   singleton="true"/>
+    <bean id="org.sakaiproject.authz.impl.DbAuthzGroupSqlMySql"     class="org.sakaiproject.authz.impl.DbAuthzGroupSqlMySql"   singleton="true"/>
+    <bean id="org.sakaiproject.authz.impl.DbAuthzGroupSqlOracle"    class="org.sakaiproject.authz.impl.DbAuthzGroupSqlOracle"  singleton="true"/>
 
 	<bean id="org.sakaiproject.authz.api.AuthzGroupService"
 			class="org.sakaiproject.authz.impl.DbAuthzGroupService"
@@ -18,8 +25,18 @@
 		<lookup-method name="timeService" bean="org.sakaiproject.time.api.TimeService" />
  		<lookup-method name="eventTrackingService" bean="org.sakaiproject.event.api.EventTrackingService" />
  		<lookup-method name="sessionManager" bean="org.sakaiproject.tool.api.SessionManager" />
- 
+
  		<property name="autoDdl"><value>${auto.ddl}</value></property>
+        <property name="databaseBeans">
+           <map>
+              <entry key="db2"    ><ref bean="org.sakaiproject.authz.impl.DbAuthzGroupSqlDb2"    /></entry>
+              <entry key="default"><ref bean="org.sakaiproject.authz.impl.DbAuthzGroupSqlDefault"/></entry>
+              <entry key="hsqldb" ><ref bean="org.sakaiproject.authz.impl.DbAuthzGroupSqlHSql"   /></entry>
+              <entry key="mssql"  ><ref bean="org.sakaiproject.authz.impl.DbAuthzGroupSqlMsSql"  /></entry>
+              <entry key="mysql"  ><ref bean="org.sakaiproject.authz.impl.DbAuthzGroupSqlMySql"  /></entry>
+              <entry key="oracle" ><ref bean="org.sakaiproject.authz.impl.DbAuthzGroupSqlOracle" /></entry>
+           </map>
+        </property>
 	</bean>
 
 	<bean id="org.sakaiproject.authz.api.SecurityService"

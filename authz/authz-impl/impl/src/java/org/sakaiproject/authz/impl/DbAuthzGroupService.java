@@ -4,17 +4,17 @@
  ***********************************************************************************
  *
  * Copyright (c) 2003, 2004, 2005, 2006 2007 The Sakai Foundation.
- * 
- * Licensed under the Educational Community License, Version 1.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
+ *
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.opensource.org/licenses/ecl1.php
- * 
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
  * limitations under the License.
  *
  **********************************************************************************/
@@ -78,35 +78,59 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 	protected String m_realmDbidField = "REALM_KEY";
 
 	/** All "fields" for realm reading. */
-	protected String[] m_realmReadFieldNames = { "REALM_ID", "PROVIDER_ID",
-			"(select MAX(ROLE_NAME) from SAKAI_REALM_ROLE where ROLE_KEY = MAINTAIN_ROLE)", "CREATEDBY", "MODIFIEDBY", "CREATEDON",
-			"MODIFIEDON", "REALM_KEY" };
+	protected String[] m_realmReadFieldNames = {"REALM_ID", "PROVIDER_ID",
+			"(select MAX(ROLE_NAME) from SAKAI_REALM_ROLE where ROLE_KEY = MAINTAIN_ROLE)", "CREATEDBY", "MODIFIEDBY", "CREATEDON", "MODIFIEDON",
+			"REALM_KEY"};
 
 	/** All "fields" for realm update. */
-	protected String[] m_realmUpdateFieldNames = { "REALM_ID", "PROVIDER_ID",
-			"MAINTAIN_ROLE = (select MAX(ROLE_KEY) from SAKAI_REALM_ROLE where ROLE_NAME = ?)", "CREATEDBY", "MODIFIEDBY",
-			"CREATEDON", "MODIFIEDON" };
+	protected String[] m_realmUpdateFieldNames = {"REALM_ID", "PROVIDER_ID",
+			"MAINTAIN_ROLE = (select MAX(ROLE_KEY) from SAKAI_REALM_ROLE where ROLE_NAME = ?)", "CREATEDBY", "MODIFIEDBY", "CREATEDON", "MODIFIEDON"};
 
 	/** All "fields" for realm insert. */
-	protected String[] m_realmInsertFieldNames = { "REALM_ID", "PROVIDER_ID", "MAINTAIN_ROLE", "CREATEDBY", "MODIFIEDBY",
-			"CREATEDON", "MODIFIEDON" };
+	protected String[] m_realmInsertFieldNames = {"REALM_ID", "PROVIDER_ID", "MAINTAIN_ROLE", "CREATEDBY", "MODIFIEDBY", "CREATEDON", "MODIFIEDON"};
 
 	/** All "field values" for realm insert. */
-	protected String[] m_realmInsertValueNames = { "?", "?", "(select MAX(ROLE_KEY) from SAKAI_REALM_ROLE where ROLE_NAME = ?)",
-			"?", "?", "?", "?" };
+	protected String[] m_realmInsertValueNames = {"?", "?", "(select MAX(ROLE_KEY) from SAKAI_REALM_ROLE where ROLE_NAME = ?)", "?", "?", "?", "?"};
 
-	/**********************************************************************************************************************************************************************************************************************************************************
+	/*************************************************************************************************************************************************
 	 * Dependencies
-	 *********************************************************************************************************************************************************************************************************************************************************/
+	 ************************************************************************************************************************************************/
+
+	/** map of database handlers. */
+	protected Map<String, DbAuthzGroupSql> databaseBeans;
+
+	/** The database handler we are using. */
+	protected DbAuthzGroupSql dbAuthzGroupSql;
+
+	public void setDatabaseBeans(Map databaseBeans)
+	{
+		this.databaseBeans = databaseBeans;
+	}
+
+	/**
+	 * returns the bean which contains database dependent code.
+	 */
+	public DbAuthzGroupSql getDbAuthzGroupSql()
+	{
+		return dbAuthzGroupSql;
+	}
+
+	/**
+	 * sets which bean containing database dependent code should be used depending on the database vendor.
+	 */
+	public void setDbAuthzGroupSql(String vendor) throws Exception
+	{
+		this.dbAuthzGroupSql = (databaseBeans.containsKey(vendor) ? databaseBeans.get(vendor) : databaseBeans.get("default"));
+	}
 
 	/**
 	 * @return the ServerConfigurationService collaborator.
 	 */
 	protected abstract SqlService sqlService();
 
-	/**********************************************************************************************************************************************************************************************************************************************************
+	/*************************************************************************************************************************************************
 	 * Configuration
-	 *********************************************************************************************************************************************************************************************************************************************************/
+	 ************************************************************************************************************************************************/
 
 	/** If true, we do our locks in the remote database, otherwise we do them here. */
 	protected boolean m_useExternalLocks = true;
@@ -136,9 +160,9 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		m_autoDdl = new Boolean(value).booleanValue();
 	}
 
-	/**********************************************************************************************************************************************************************************************************************************************************
+	/*************************************************************************************************************************************************
 	 * Init and Destroy
-	 *********************************************************************************************************************************************************************************************************************************************************/
+	 ************************************************************************************************************************************************/
 
 	/**
 	 * Final initialization, once all dependencies are set.
@@ -155,6 +179,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			}
 
 			super.init();
+			setDbAuthzGroupSql(sqlService().getVendor());
 
 			// pre-cache role and function names
 			cacheRoleNames();
@@ -168,9 +193,9 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		}
 	}
 
-	/**********************************************************************************************************************************************************************************************************************************************************
+	/*************************************************************************************************************************************************
 	 * BaseAuthzGroupService extensions
-	 *********************************************************************************************************************************************************************************************************************************************************/
+	 ************************************************************************************************************************************************/
 
 	/**
 	 * Construct a Storage object.
@@ -198,7 +223,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		if (m_roleNameCache.contains(name)) return;
 
 		// see if we have it in the db
-		String statement = "select count(1) from SAKAI_REALM_ROLE where ROLE_NAME = ?";
+		String statement = dbAuthzGroupSql.getCountRealmRoleSql();
 		Object[] fields = new Object[1];
 		fields[0] = name;
 
@@ -227,20 +252,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		// write if we didn't find it
 		if (!rv)
 		{
-			if ("oracle".equals(sqlService().getVendor()))
-			{
-				statement = "insert into SAKAI_REALM_ROLE (ROLE_KEY, ROLE_NAME) values (SAKAI_REALM_ROLE_SEQ.NEXTVAL, ?)";
-			}
-			else if ("mysql".equals(sqlService().getVendor()))
-			{
-				statement = "insert into SAKAI_REALM_ROLE (ROLE_KEY, ROLE_NAME) values (DEFAULT, ?)";
-			}
-			else
-			// if ("hsqldb".equals(m_sql.getVendor()))
-			{
-				statement = "insert into SAKAI_REALM_ROLE (ROLE_KEY, ROLE_NAME) values (NEXT VALUE FOR SAKAI_REALM_ROLE_SEQ, ?)";
-			}
-
+			statement = dbAuthzGroupSql.getInsertRealmRoleSql();
 			// write, but if it fails, we don't really care - it will fail if another app server has just written this role name
 			sqlService().dbWriteFailQuiet(null, statement, fields);
 		}
@@ -258,7 +270,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 	{
 		synchronized (m_roleNameCache)
 		{
-			String statement = "select ROLE_NAME from SAKAI_REALM_ROLE";
+			String statement = dbAuthzGroupSql.getSelectRealmRoleSql();
 			List results = sqlService().dbRead(statement, null, new SqlReader()
 			{
 				public Object readSqlResultRecord(ResultSet result)
@@ -293,7 +305,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		if (m_functionCache.contains(name)) return;
 
 		// see if we have this on the db
-		String statement = "select count(1) from SAKAI_REALM_FUNCTION where FUNCTION_NAME = ?";
+		String statement = dbAuthzGroupSql.getCountRealmFunctionSql();
 		Object[] fields = new Object[1];
 		fields[0] = name;
 
@@ -322,20 +334,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		// write if we didn't find it
 		if (!rv)
 		{
-			if ("oracle".equals(sqlService().getVendor()))
-			{
-				statement = "insert into SAKAI_REALM_FUNCTION (FUNCTION_KEY, FUNCTION_NAME) values (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, ?)";
-			}
-			else if ("mysql".equals(sqlService().getVendor()))
-			{
-				statement = "insert into SAKAI_REALM_FUNCTION (FUNCTION_KEY, FUNCTION_NAME) values (DEFAULT, ?)";
-			}
-			else
-			// if ("hsqldb".equals(m_sql.getVendor()))
-			{
-				statement = "insert into SAKAI_REALM_FUNCTION (FUNCTION_KEY, FUNCTION_NAME) values (NEXT VALUE FOR SAKAI_REALM_FUNCTION_SEQ, ?)";
-			}
-
+			statement = dbAuthzGroupSql.getInsertRealmFunctionSql();
 			// write, but if it fails, we don't really care - it will fail if another app server has just written this function
 			sqlService().dbWriteFailQuiet(null, statement, fields);
 		}
@@ -354,7 +353,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 	{
 		synchronized (m_functionCache)
 		{
-			String statement = "select FUNCTION_NAME from SAKAI_REALM_FUNCTION";
+			String statement = dbAuthzGroupSql.getSelectRealmFunction1Sql();
 			List results = sqlService().dbRead(statement, null, new SqlReader()
 			{
 				public Object readSqlResultRecord(ResultSet result)
@@ -374,9 +373,9 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		}
 	}
 
-	/**********************************************************************************************************************************************************************************************************************************************************
+	/*************************************************************************************************************************************************
 	 * Storage implementation
-	 *********************************************************************************************************************************************************************************************************************************************************/
+	 ************************************************************************************************************************************************/
 
 	/**
 	 * Covers for the BaseXmlFileStorage, providing AuthzGroup and RealmEdit parameters
@@ -388,8 +387,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		 */
 		public DbStorage()
 		{
-			super(m_realmTableName, m_realmIdFieldName, m_realmReadFieldNames, m_realmPropTableName, m_useExternalLocks, null,
-					sqlService());
+			super(m_realmTableName, m_realmIdFieldName, m_realmReadFieldNames, m_realmPropTableName, m_useExternalLocks, null, sqlService());
 			m_reader = this;
 
 			setDbidField(m_realmDbidField);
@@ -462,10 +460,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			}
 
 			// read the roles and role functions
-			String sql = "SELECT SAKAI_REALM_ROLE.ROLE_NAME, SAKAI_REALM_FUNCTION.FUNCTION_NAME FROM SAKAI_REALM_RL_FN"
-					+ " INNER JOIN SAKAI_REALM ON SAKAI_REALM.REALM_KEY = SAKAI_REALM_RL_FN.REALM_KEY AND SAKAI_REALM.REALM_ID = ?"
-					+ " INNER JOIN SAKAI_REALM_ROLE ON SAKAI_REALM_ROLE.ROLE_KEY = SAKAI_REALM_RL_FN.ROLE_KEY"
-					+ " INNER JOIN SAKAI_REALM_FUNCTION ON SAKAI_REALM_FUNCTION.FUNCTION_KEY = SAKAI_REALM_RL_FN.FUNCTION_KEY";
+			String sql = dbAuthzGroupSql.getSelectRealmRoleFunctionSql();
 			Object fields[] = new Object[1];
 			fields[0] = realm.getId();
 			List all = m_sql.dbRead(conn, sql, fields, new SqlReader()
@@ -499,10 +494,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			});
 
 			// read the role descriptions
-			sql = "SELECT SAKAI_REALM_ROLE.ROLE_NAME, SAKAI_REALM_ROLE_DESC.DESCRIPTION, SAKAI_REALM_ROLE_DESC.PROVIDER_ONLY"
-					+ " FROM SAKAI_REALM_ROLE_DESC"
-					+ " INNER JOIN SAKAI_REALM ON SAKAI_REALM.REALM_KEY = SAKAI_REALM_ROLE_DESC.REALM_KEY AND SAKAI_REALM.REALM_ID = ?"
-					+ " INNER JOIN SAKAI_REALM_ROLE ON SAKAI_REALM_ROLE.ROLE_KEY = SAKAI_REALM_ROLE_DESC.ROLE_KEY";
+			sql = dbAuthzGroupSql.getSelectRealmRoleDescriptionSql();
 			m_sql.dbRead(conn, sql, fields, new SqlReader()
 			{
 				public Object readSqlResultRecord(ResultSet result)
@@ -525,7 +517,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 
 						// set the description
 						role.setDescription(description);
-						
+
 						// set the provider only flag
 						role.setProviderOnly(providerOnly);
 
@@ -539,10 +531,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			});
 
 			// read the role grants
-			sql = "SELECT SAKAI_REALM_ROLE.ROLE_NAME, SAKAI_REALM_RL_GR.USER_ID, SAKAI_REALM_RL_GR.ACTIVE, SAKAI_REALM_RL_GR.PROVIDED"
-					+ " FROM SAKAI_REALM_RL_GR"
-					+ " INNER JOIN SAKAI_REALM ON SAKAI_REALM.REALM_KEY = SAKAI_REALM_RL_GR.REALM_KEY AND SAKAI_REALM.REALM_ID = ?"
-					+ " INNER JOIN SAKAI_REALM_ROLE ON SAKAI_REALM_ROLE.ROLE_KEY = SAKAI_REALM_RL_GR.ROLE_KEY";			
+			sql = dbAuthzGroupSql.getSelectRealmRoleGroup1Sql();
 			all = m_sql.dbRead(conn, sql, fields, new SqlReader()
 			{
 				public Object readSqlResultRecord(ResultSet result)
@@ -666,9 +655,9 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		 */
 		public Set getProviderIds(String authzGroupId)
 		{
-			String statement = "select srp.PROVIDER_ID from SAKAI_REALM sr INNER JOIN SAKAI_REALM_PROVIDER srp on sr.REALM_KEY = srp.REALM_KEY where sr.REALM_ID=?";
-			List results = sqlService().dbRead(statement, new Object[] {authzGroupId}, null);	
-			if(results == null)
+			String statement = dbAuthzGroupSql.getSelectRealmProviderId1Sql();
+			List results = sqlService().dbRead(statement, new Object[] {authzGroupId}, null);
+			if (results == null)
 			{
 				return new HashSet();
 			}
@@ -680,15 +669,15 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		 */
 		public Set getAuthzGroupIds(String providerId)
 		{
-			String statement = "select sr.REALM_ID from SAKAI_REALM sr INNER JOIN SAKAI_REALM_PROVIDER srp on sr.REALM_KEY = srp.REALM_KEY where srp.PROVIDER_ID=?";
-			List results = sqlService().dbRead(statement, new Object[] {providerId}, null);	
-			if(results == null)
+			String statement = dbAuthzGroupSql.getSelectRealmIdSql();
+			List results = sqlService().dbRead(statement, new Object[] {providerId}, null);
+			if (results == null)
 			{
 				return new HashSet();
 			}
 			return new HashSet(results);
 		}
-		
+
 		/**
 		 * {@inheritDoc}
 		 */
@@ -708,32 +697,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			// Ignore realms where anon or auth satisfy the lock.
 
 			boolean auth = (userId != null) && (!userDirectoryService().getAnonymousUser().getId().equals(userId));
-			String sql = "";
-			StringBuffer sqlBuf = null;
-
-			// Assemble SQL
-			sqlBuf = new StringBuffer();
-			sqlBuf.append("select SR.REALM_ID ");
-			sqlBuf.append("from SAKAI_REALM_FUNCTION SRF ");
-			sqlBuf.append("inner join SAKAI_REALM_RL_FN SRRF on SRF.FUNCTION_KEY = SRRF.FUNCTION_KEY ");
-			sqlBuf.append("inner join SAKAI_REALM_RL_GR SRRG on SRRF.ROLE_KEY = SRRG.ROLE_KEY and SRRF.REALM_KEY = SRRG.REALM_KEY ");
-			sqlBuf.append("inner join SAKAI_REALM SR on SRRF.REALM_KEY = SR.REALM_KEY ");
-			sqlBuf.append("where SRF.FUNCTION_NAME = ? ");
-			sqlBuf.append("and SRRG.USER_ID = ? ");
-			sqlBuf.append("and SRRG.ACTIVE = '1' ");
-
-			if (azGroups != null)
-			{
-				sqlBuf.append("and SR.REALM_ID in (");
-				for (int i = 0; i < azGroups.size() - 1; i++)
-				{
-					sqlBuf.append("?,");
-				}
-				sqlBuf.append("?) ");
-			}
-
-			sql = sqlBuf.toString();
-
+			String sql = dbAuthzGroupSql.getSelectRealmIdSql(azGroups);
 			int size = 2;
 			if (azGroups != null)
 			{
@@ -817,7 +781,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			{
 				public void run()
 				{
-					saveTx(edit);					
+					saveTx(edit);
 				}
 			}, "azg:" + edit.getId());
 
@@ -846,8 +810,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			save_REALM_ROLE_DESC(edit);
 
 			// update the main realm table and properties
-			super.commitResource(edit, fields(edit.getId(), ((BaseAuthzGroup) edit), true), edit.getProperties(), ((BaseAuthzGroup) edit)
-					.getKey());
+			super.commitResource(edit, fields(edit.getId(), ((BaseAuthzGroup) edit), true), edit.getProperties(), ((BaseAuthzGroup) edit).getKey());
 		}
 
 		protected void save_REALM_RL_FN(AuthzGroup azg)
@@ -868,10 +831,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			final Set<RoleAndFunction> toDelete = new HashSet<RoleAndFunction>();
 
 			// read what we have there now
-			String sql = "SELECT RR.ROLE_NAME, RF.FUNCTION_NAME FROM SAKAI_REALM_RL_FN RRF"
-					+ " INNER JOIN SAKAI_REALM R ON RRF.REALM_KEY = R.REALM_KEY AND R.REALM_ID = ?"
-					+ " INNER JOIN SAKAI_REALM_ROLE RR ON RRF.ROLE_KEY = RR.ROLE_KEY"
-					+ " INNER JOIN SAKAI_REALM_FUNCTION RF ON RRF.FUNCTION_KEY = RF.FUNCTION_KEY";
+			String sql = dbAuthzGroupSql.getSelectRealmFunction2Sql();
 			Object fields[] = new Object[1];
 			fields[0] = caseId(azg.getId());
 			m_sql.dbRead(sql, fields, new SqlReader()
@@ -909,21 +869,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			fields[0] = caseId(azg.getId());
 
 			// delete what we need to
-			if ("mysql".equals(sqlService().getVendor()))
-			{
-				sql = "DELETE RRF FROM SAKAI_REALM_RL_FN RRF"
-						+ " INNER JOIN SAKAI_REALM R ON RRF.REALM_KEY = R.REALM_KEY AND R.REALM_ID = ?"
-						+ " INNER JOIN SAKAI_REALM_ROLE RR ON RRF.ROLE_KEY = RR.ROLE_KEY AND RR.ROLE_NAME = ?"
-						+ " INNER JOIN SAKAI_REALM_FUNCTION RF ON RRF.FUNCTION_KEY = RF.FUNCTION_KEY AND RF.FUNCTION_NAME = ?";
-			}
-			else
-			{
-				sql = "DELETE FROM SAKAI_REALM_RL_FN" 
-					+ " WHERE REALM_KEY IN (SELECT REALM_KEY FROM SAKAI_REALM WHERE REALM_ID = ?)"
-					+ " AND ROLE_KEY IN (SELECT ROLE_KEY FROM SAKAI_REALM_ROLE WHERE ROLE_NAME = ?)"
-					+ " AND FUNCTION_KEY IN (SELECT FUNCTION_KEY FROM SAKAI_REALM_FUNCTION WHERE FUNCTION_NAME = ?)";
-				
-			}
+			sql = dbAuthzGroupSql.getDeleteRealmRoleFunction1Sql();
 			for (RoleAndFunction raf : toDelete)
 			{
 				fields[1] = raf.role;
@@ -932,10 +878,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			}
 
 			// add what we need to
-			sql = "INSERT INTO SAKAI_REALM_RL_FN (REALM_KEY, ROLE_KEY, FUNCTION_KEY) VALUES ("
-					+ " (SELECT REALM_KEY FROM SAKAI_REALM WHERE REALM_ID = ?)," 
-					+ " (SELECT ROLE_KEY FROM SAKAI_REALM_ROLE WHERE ROLE_NAME = ?),"
-					+ " (SELECT FUNCTION_KEY FROM SAKAI_REALM_FUNCTION WHERE FUNCTION_NAME = ?))";
+			sql = dbAuthzGroupSql.getInsertRealmRoleFunctionSql();
 			for (RoleAndFunction raf : toAdd)
 			{
 				fields[1] = raf.role;
@@ -959,9 +902,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			final Set<UserAndRole> toDelete = new HashSet<UserAndRole>();
 
 			// read what we have there now
-			String sql = "SELECT RRG.USER_ID, RR.ROLE_NAME, RRG.ACTIVE, RRG.PROVIDED FROM SAKAI_REALM_RL_GR RRG "
-					+ " INNER JOIN SAKAI_REALM R ON RRG.REALM_KEY = R.REALM_KEY AND R.REALM_ID = ?"
-					+ " INNER JOIN SAKAI_REALM_ROLE RR ON RRG.ROLE_KEY = RR.ROLE_KEY";	
+			String sql = dbAuthzGroupSql.getSelectRealmRoleGroup2Sql();
 			Object fields[] = new Object[1];
 			fields[0] = caseId(azg.getId());
 			m_sql.dbRead(sql, fields, new SqlReader()
@@ -1001,20 +942,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			fields[0] = caseId(azg.getId());
 
 			// delete what we need to
-			if ("mysql".equals(sqlService().getVendor()))
-			{
-				sql = "DELETE RRG FROM SAKAI_REALM_RL_GR RRG"
-						+ " INNER JOIN SAKAI_REALM R ON RRG.REALM_KEY = R.REALM_KEY AND R.REALM_ID = ?"
-						+ " INNER JOIN SAKAI_REALM_ROLE RR ON RRG.ROLE_KEY = RR.ROLE_KEY AND RR.ROLE_NAME = ?"
-						+ " WHERE RRG.USER_ID = ? AND RRG.ACTIVE = ? AND RRG.PROVIDED = ?";
-			}
-			else
-			{
-				sql = "DELETE FROM SAKAI_REALM_RL_GR"
-					+ " WHERE REALM_KEY IN (SELECT REALM_KEY FROM SAKAI_REALM WHERE REALM_ID = ?)"
-					+ " AND ROLE_KEY IN (SELECT ROLE_KEY FROM SAKAI_REALM_ROLE WHERE ROLE_NAME = ?)"
-					+ " AND USER_ID = ? AND ACTIVE = ? AND PROVIDED = ?";				
-			}
+			sql = dbAuthzGroupSql.getDeleteRealmRoleGroup1Sql();
 			for (UserAndRole uar : toDelete)
 			{
 				fields[1] = uar.role;
@@ -1022,12 +950,10 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				fields[3] = uar.active ? "1" : "0";
 				fields[4] = uar.provided ? "1" : "0";
 				m_sql.dbWrite(sql, fields);
-			}			
+			}
 
 			// add what we need to
-			sql = "INSERT INTO SAKAI_REALM_RL_GR (REALM_KEY, USER_ID, ROLE_KEY, ACTIVE, PROVIDED) VALUES ("
-					+ " (SELECT REALM_KEY FROM SAKAI_REALM WHERE REALM_ID = ?), ?, "
-					+ " (SELECT ROLE_KEY FROM SAKAI_REALM_ROLE WHERE ROLE_NAME = ?), ?, ?)";
+			sql = dbAuthzGroupSql.getInsertRealmRoleGroup1Sql();
 			for (UserAndRole uar : toAdd)
 			{
 				fields[1] = uar.userId;
@@ -1043,17 +969,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			// we we are not provider, delete any for this realm
 			if ((azg.getProviderGroupId() == null) || (m_provider == null))
 			{
-				String sql = null;
-				if ("mysql".equals(sqlService().getVendor()))
-				{
-					sql = "DELETE RP FROM SAKAI_REALM_PROVIDER RP"
-							+ " INNER JOIN SAKAI_REALM R ON RP.REALM_KEY = R.REALM_KEY AND R.REALM_ID = ?";
-				}
-				else
-				{
-					sql = "DELETE FROM SAKAI_REALM_PROVIDER"
-						+ " WHERE REALM_KEY IN (SELECT REALM_KEY FROM SAKAI_REALM WHERE REALM_ID = ?)";					
-				}
+				String sql = dbAuthzGroupSql.getDeleteRealmProvider1Sql();
 				Object[] fields = new Object[1];
 				fields[0] = caseId(azg.getId());
 				m_sql.dbWrite(sql, fields);
@@ -1075,8 +991,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			final Set<String> toDelete = new HashSet<String>();
 
 			// read what we have there now
-			String sql = "SELECT RP.PROVIDER_ID FROM SAKAI_REALM_PROVIDER RP"
-					+ " INNER JOIN SAKAI_REALM R ON RP.REALM_KEY = R.REALM_KEY AND R.REALM_ID = ?";
+			String sql = dbAuthzGroupSql.getSelectRealmProviderId2Sql();
 			Object fields[] = new Object[1];
 			fields[0] = caseId(azg.getId());
 			m_sql.dbRead(sql, fields, new SqlReader()
@@ -1112,27 +1027,15 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			fields[0] = caseId(azg.getId());
 
 			// delete what we need to
-			if ("mysql".equals(sqlService().getVendor()))
-			{	
-				sql = "DELETE RP FROM SAKAI_REALM_PROVIDER RP"
-						+ " INNER JOIN SAKAI_REALM R ON RP.REALM_KEY = R.REALM_KEY AND R.REALM_ID = ?"
-						+ " WHERE RP.PROVIDER_ID = ?";
-			}
-			else
-			{
-				sql = "DELETE FROM SAKAI_REALM_PROVIDER"
-					+ " WHERE REALM_KEY IN (SELECT REALM_KEY FROM SAKAI_REALM WHERE REALM_ID = ?)"
-					+ " AND PROVIDER_ID = ?";
-			}
+			sql = dbAuthzGroupSql.getDeleteRealmProvider2Sql();
 			for (String provider : toDelete)
 			{
 				fields[1] = provider;
 				m_sql.dbWrite(sql, fields);
-			}			
+			}
 
 			// add what we need to
-			sql = "INSERT INTO SAKAI_REALM_PROVIDER (REALM_KEY, PROVIDER_ID) VALUES ("
-					+ " (SELECT REALM_KEY FROM SAKAI_REALM WHERE REALM_ID = ?), ?)";
+			sql = dbAuthzGroupSql.getInsertRealmProviderSql();
 			for (String provider : toAdd)
 			{
 				fields[1] = provider;
@@ -1154,9 +1057,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			final Set<RoleAndDescription> toDelete = new HashSet<RoleAndDescription>();
 
 			// read what we have there now
-			String sql = "SELECT RR.ROLE_NAME, RRD.DESCRIPTION, RRD.PROVIDER_ONLY FROM SAKAI_REALM_ROLE_DESC RRD"
-					+ " INNER JOIN SAKAI_REALM R ON RRD.REALM_KEY = R.REALM_KEY AND R.REALM_ID = ?"
-					+ " INNER JOIN SAKAI_REALM_ROLE RR ON RRD.ROLE_KEY = RR.ROLE_KEY";
+			String sql = dbAuthzGroupSql.getSelectRealmProvider2Sql();
 			Object fields[] = new Object[1];
 			fields[0] = caseId(azg.getId());
 			m_sql.dbRead(sql, fields, new SqlReader()
@@ -1195,31 +1096,18 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			fields[0] = caseId(azg.getId());
 
 			// delete what we need to
-			if ("mysql".equals(sqlService().getVendor()))
-			{
-				sql = "DELETE RRD FROM SAKAI_REALM_ROLE_DESC RRD"
-						+ " INNER JOIN SAKAI_REALM R ON RRD.REALM_KEY = R.REALM_KEY AND R.REALM_ID = ?"
-						+ " INNER JOIN SAKAI_REALM_ROLE RR ON RRD.ROLE_KEY = RR.ROLE_KEY AND RR.ROLE_NAME = ?";
-			}
-			else
-			{
-				sql = "DELETE FROM SAKAI_REALM_ROLE_DESC"
-					+ " WHERE REALM_KEY IN (SELECT REALM_KEY FROM SAKAI_REALM WHERE REALM_ID = ?)"
-					+ " AND ROLE_KEY IN (SELECT ROLE_KEY FROM SAKAI_REALM_ROLE WHERE ROLE_NAME = ?)";
-			}
+			sql = dbAuthzGroupSql.getDeleteRealmRoleDescription1Sql();
 			for (RoleAndDescription rad : toDelete)
 			{
 				fields[1] = rad.role;
 				m_sql.dbWrite(sql, fields);
-			}			
+			}
 
 			fields = new Object[4];
 			fields[0] = caseId(azg.getId());
 
 			// add what we need to
-			sql = "INSERT INTO SAKAI_REALM_ROLE_DESC (REALM_KEY, ROLE_KEY, DESCRIPTION, PROVIDER_ONLY) VALUES ("
-					+ " (SELECT REALM_KEY FROM SAKAI_REALM WHERE REALM_ID = ?)," 
-					+ " (SELECT ROLE_KEY FROM SAKAI_REALM_ROLE WHERE ROLE_NAME = ?), ?, ?)";
+			sql = dbAuthzGroupSql.getInsertRealmRoleDescriptionSql();
 			for (RoleAndDescription rad : toAdd)
 			{
 				fields[1] = rad.role;
@@ -1241,7 +1129,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			{
 				public void run()
 				{
-					removeTx(edit);					
+					removeTx(edit);
 				}
 			}, "azgRemove:" + edit.getId());
 		}
@@ -1258,46 +1146,16 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			Object fields[] = new Object[1];
 			fields[0] = caseId(edit.getId());
 
-			String statement = null;
-			
-			if ("mysql".equals(sqlService().getVendor()))
-			{
-				statement = "DELETE SAKAI_REALM_RL_FN FROM SAKAI_REALM_RL_FN INNER JOIN SAKAI_REALM ON SAKAI_REALM_RL_FN.REALM_KEY = SAKAI_REALM.REALM_KEY AND SAKAI_REALM.REALM_ID = ?";
-			}
-			else
-			{
-				statement = "DELETE FROM SAKAI_REALM_RL_FN WHERE REALM_KEY IN (SELECT REALM_KEY FROM SAKAI_REALM WHERE REALM_ID = ?)";
-			}
+			String statement = dbAuthzGroupSql.getDeleteRealmRoleFunction2Sql();
 			m_sql.dbWrite(statement, fields);
 
-			if ("mysql".equals(sqlService().getVendor()))
-			{
-				statement = "DELETE SAKAI_REALM_RL_GR FROM SAKAI_REALM_RL_GR INNER JOIN SAKAI_REALM ON SAKAI_REALM_RL_GR.REALM_KEY = SAKAI_REALM.REALM_KEY AND SAKAI_REALM.REALM_ID = ?";
-			}
-			else
-			{
-				statement = "DELETE FROM SAKAI_REALM_RL_GR WHERE REALM_KEY IN (SELECT REALM_KEY FROM SAKAI_REALM WHERE REALM_ID = ?)";
-			}
+			statement = dbAuthzGroupSql.getDeleteRealmRoleGroup2Sql();
 			m_sql.dbWrite(statement, fields);
 
-			if ("mysql".equals(sqlService().getVendor()))
-			{
-				statement = "DELETE SAKAI_REALM_PROVIDER FROM SAKAI_REALM_PROVIDER INNER JOIN SAKAI_REALM ON SAKAI_REALM_PROVIDER.REALM_KEY = SAKAI_REALM.REALM_KEY AND SAKAI_REALM.REALM_ID = ?";
-			}
-			else
-			{
-				statement = "DELETE FROM SAKAI_REALM_PROVIDER WHERE REALM_KEY IN (SELECT REALM_KEY FROM SAKAI_REALM WHERE REALM_ID = ?)";
-			}
+			statement = dbAuthzGroupSql.getDeleteRealmProvider1Sql();
 			m_sql.dbWrite(statement, fields);
 
-			if ("mysql".equals(sqlService().getVendor()))
-			{
-				statement = "DELETE SAKAI_REALM_ROLE_DESC FROM SAKAI_REALM_ROLE_DESC INNER JOIN SAKAI_REALM ON SAKAI_REALM_ROLE_DESC.REALM_KEY = SAKAI_REALM.REALM_KEY AND SAKAI_REALM.REALM_ID = ?";
-			}
-			else
-			{
-				statement = "DELETE FROM SAKAI_REALM_ROLE_DESC WHERE REALM_KEY IN (SELECT REALM_KEY FROM SAKAI_REALM WHERE REALM_ID = ?)";
-			}
+			statement = dbAuthzGroupSql.getDeleteRealmRoleDescription2Sql();
 			m_sql.dbWrite(statement, fields);
 
 			// delete the realm and properties
@@ -1406,24 +1264,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			// does the user have any roles granted that include this lock, based on grants or anon/auth?
 			boolean auth = (userId != null) && (!userDirectoryService().getAnonymousUser().getId().equals(userId));
 
-			String statement = "select count(1) "
-					+ "from "
-					+ "  SAKAI_REALM_RL_FN MAINTABLE "
-					+ "     LEFT JOIN SAKAI_REALM_RL_GR GRANTED_ROLES "
-					+ "        ON (MAINTABLE.REALM_KEY = GRANTED_ROLES.REALM_KEY AND MAINTABLE.ROLE_KEY = GRANTED_ROLES.ROLE_KEY), "
-					+ "  SAKAI_REALM REALMS, " + "  SAKAI_REALM_ROLE ROLES, "
-					+ "  SAKAI_REALM_FUNCTION FUNCTIONS "
-					+ "where "
-					+
-					// our criteria
-					"  ( " + "    ROLES.ROLE_NAME in('" + ANON_ROLE + "'" + (auth ? ",'" + AUTH_ROLE + "'" : "") + ") " + "    or "
-					+ "    ( " + "      GRANTED_ROLES.USER_ID = ? " + "      AND GRANTED_ROLES.ACTIVE = 1 " + "    ) " + "  )"
-					+ "  AND FUNCTIONS.FUNCTION_NAME = ? " + "  AND REALMS.REALM_ID in (?) "
-					+
-					// for the join
-					"  AND MAINTABLE.REALM_KEY = REALMS.REALM_KEY " + "  AND MAINTABLE.FUNCTION_KEY = FUNCTIONS.FUNCTION_KEY "
-					+ "  AND MAINTABLE.ROLE_KEY = ROLES.ROLE_KEY ";
-
+			String statement = dbAuthzGroupSql.getCountRealmRoleFunctionSql(ANON_ROLE, AUTH_ROLE, auth);
 			Object[] fields = new Object[3];
 			fields[0] = userId;
 			fields[1] = lock;
@@ -1484,32 +1325,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 
 			String inClause = orInClause(realms.size(), "SAKAI_REALM.REALM_ID");
 
-			String statement = null;
-
 			// any of the grant or role realms
-			if ("mysql".equals(sqlService().getVendor()))
-			{
-				statement = "select count(1) from SAKAI_REALM_RL_FN,SAKAI_REALM force index "
-						+ "(AK_SAKAI_REALM_ID) where SAKAI_REALM_RL_FN.REALM_KEY = SAKAI_REALM.REALM_KEY "
-						+ "and " + inClause;
-			}
-			else
-			// oracle and hsql
-			{
-				statement = "select count(1) from SAKAI_REALM_RL_FN "
-						+ "where REALM_KEY in (select REALM_KEY from SAKAI_REALM where " + inClause + ")";
-			}
-			statement = statement
-					+ " and FUNCTION_KEY in (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = ?) "
-					+ "and (ROLE_KEY in "
-					+ "(select ROLE_KEY from SAKAI_REALM_RL_GR where ACTIVE = '1' and USER_ID = ? "
-					+
-					// granted in any of the grant or role realms
-					"and REALM_KEY in (select REALM_KEY from SAKAI_REALM where " + inClause + ")) "
-					+ "or ROLE_KEY in (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = '" + ANON_ROLE + "') "
-					+ (auth ? "or ROLE_KEY in (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = '" + AUTH_ROLE + "') " : "")
-					+ ")";
-
+			String statement = dbAuthzGroupSql.getCountRealmRoleFunctionSql(ANON_ROLE, AUTH_ROLE, auth, inClause);
 			Object[] fields = new Object[2 + (2 * realms.size())];
 			int pos = 0;
 			for (Iterator i = realms.iterator(); i.hasNext();)
@@ -1561,41 +1378,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		{
 			if ((lock == null) || (realms == null) || (realms.isEmpty())) return new HashSet();
 
-			String sql = "";
-			StringBuffer sqlBuf = null;
-			
-			// Assemble SQL
-			sqlBuf = new StringBuffer();
-			sqlBuf.append("select SRRG.USER_ID ");
-			sqlBuf.append("from SAKAI_REALM_RL_GR SRRG ");
-			if ("mysql".equals(sqlService().getVendor()))
-			{
-				sqlBuf.append("inner join SAKAI_REALM SR force index (AK_SAKAI_REALM_ID) ON SRRG.REALM_KEY = SR.REALM_KEY ");
-			}
-			else
-			// oracle and hsql
-			{
-				sqlBuf.append("inner join SAKAI_REALM SR ON SRRG.REALM_KEY = SR.REALM_KEY ");
-			}
-			sqlBuf.append("where " + orInClause(realms.size(), "SR.REALM_ID") + " ");
-			sqlBuf.append("and SRRG.ACTIVE = '1' ");
-			sqlBuf.append("and SRRG.ROLE_KEY in ");
-			sqlBuf.append("(select SRRF.ROLE_KEY ");
-			sqlBuf.append("from SAKAI_REALM_RL_FN SRRF ");
-			sqlBuf.append("inner join SAKAI_REALM_FUNCTION SRF ON SRRF.FUNCTION_KEY = SRF.FUNCTION_KEY ");
-			if ("mysql".equals(sqlService().getVendor()))
-			{
-				sqlBuf.append("inner join SAKAI_REALM SR1 force index (AK_SAKAI_REALM_ID) ON SRRF.REALM_KEY = SR1.REALM_KEY ");
-			}
-			else
-			// oracle and hsql
-			{
-				sqlBuf.append("inner join SAKAI_REALM SR1 ON SRRF.REALM_KEY = SR1.REALM_KEY ");
-			}
-			sqlBuf.append("where SRF.FUNCTION_NAME = ? ");
-			sqlBuf.append("and " + orInClause(realms.size(), "SR1.REALM_ID") + ")");
-			sql = sqlBuf.toString();
-
+			String sql = dbAuthzGroupSql.getSelectRealmRoleGroupUserIdSql(orInClause(realms.size(), "SR.REALM_ID"), orInClause(realms.size(),
+					"SR1.REALM_ID"));
 			Object[] fields = new Object[1 + (2 * realms.size())];
 			int pos = 0;
 			for (Iterator i = realms.iterator(); i.hasNext();)
@@ -1626,20 +1410,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		{
 			if ((role == null) || (realms == null) || (realms.isEmpty())) return new HashSet();
 
-			String sql = "";
-			StringBuffer sqlBuf = null;
-
-			// Assemble SQL
-			sqlBuf = new StringBuffer();
-			sqlBuf.append("select DISTINCT FUNCTION_NAME ");
-			sqlBuf.append("from SAKAI_REALM_FUNCTION SRF ");
-			sqlBuf.append("inner join SAKAI_REALM_RL_FN SRRF on SRF.FUNCTION_KEY = SRRF.FUNCTION_KEY ");
-			sqlBuf.append("inner join SAKAI_REALM_ROLE SRR on SRRF.ROLE_KEY = SRR.ROLE_KEY ");
-			sqlBuf.append("inner join SAKAI_REALM SR on SRRF.REALM_KEY = SR.REALM_KEY ");
-			sqlBuf.append("where SRR.ROLE_NAME = ? ");
-			sqlBuf.append("and " + orInClause(realms.size(), "SR.REALM_ID"));
-			sql = sqlBuf.toString();
-
+			String sql = dbAuthzGroupSql.getSelectRealmFunctionFunctionNameSql(orInClause(realms.size(), "SR.REALM_ID"));
 			Object[] fields = new Object[1 + realms.size()];
 			fields[0] = role;
 			int pos = 1;
@@ -1665,19 +1436,12 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		{
 			if (userId == null) return;
 
-			String sql = "";
+			String sql = dbAuthzGroupSql.getSelectRealmRoleGroup3Sql();
 			String sqlParam = "";
 			StringBuffer sqlBuf = null;
 			StringBuffer sqlParamBuf = null;
 
 			// read this user's grants from all realms
-			sqlBuf = new StringBuffer();
-			sqlBuf.append("select SRRG.REALM_KEY, SRR.ROLE_NAME, SRRG.ACTIVE, SRRG.PROVIDED ");
-			sqlBuf.append("from SAKAI_REALM_ROLE SRR ");
-			sqlBuf.append("inner join SAKAI_REALM_RL_GR SRRG on SRR.ROLE_KEY = SRRG.ROLE_KEY ");
-			sqlBuf.append("where SRRG.USER_ID = ?");
-			sql = sqlBuf.toString();
-
 			Object[] fields = new Object[1];
 			fields[0] = userId;
 
@@ -1748,13 +1512,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				// SRP.PROVIDER_ID and SR.PROVIDER_ID as the values in SRP.PROVIDER_ID often include
 				// additional concatenated course values. It may be worth reviewing this strategy.
 
-				sqlBuf = new StringBuffer();
-				sqlBuf.append("select distinct SRP.REALM_KEY, SR.PROVIDER_ID ");
-				sqlBuf.append("from SAKAI_REALM_PROVIDER SRP ");
-				sqlBuf.append("inner join SAKAI_REALM SR on SRP.REALM_KEY = SR.REALM_KEY ");
-				sqlBuf.append("where " + orInClause(providerGrants.size(), "SRP.PROVIDER_ID"));
-				sql = sqlBuf.toString();
-
+				sql = dbAuthzGroupSql.getSelectRealmProviderSql(orInClause(providerGrants.size(), "SRP.PROVIDER_ID"));
 				Object[] fieldsx = new Object[providerGrants.size()];
 				int pos = 0;
 				for (Iterator f = providerGrants.keySet().iterator(); f.hasNext();)
@@ -1839,7 +1597,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				// caused by transactions modifying more than one row at a time.
 
 				// delete
-				sql = "delete from SAKAI_REALM_RL_GR where REALM_KEY = ? and USER_ID = ?";
+				sql = dbAuthzGroupSql.getDeleteRealmRoleGroup3Sql();
 				fields = new Object[2];
 				fields[1] = userId;
 				for (Iterator i = toDelete.iterator(); i.hasNext();)
@@ -1850,8 +1608,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				}
 
 				// insert
-				sql = "insert into SAKAI_REALM_RL_GR (REALM_KEY, USER_ID, ROLE_KEY, ACTIVE, PROVIDED) "
-						+ "values (?, ?, (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = ?), '1', '1')";
+				sql = dbAuthzGroupSql.getInsertRealmRoleGroup2Sql();
 				fields = new Object[3];
 				fields[1] = userId;
 				for (Iterator i = toInsert.iterator(); i.hasNext();)
@@ -1881,14 +1638,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			Map target = m_provider.getUserRolesForGroup(realm.getProviderGroupId());
 
 			// read the realm's grants
-			sqlBuf = new StringBuffer();
-			sqlBuf.append("select SRRG.USER_ID, SRR.ROLE_NAME, SRRG.ACTIVE, SRRG.PROVIDED ");
-			sqlBuf.append("from SAKAI_REALM_RL_GR SRRG ");
-			sqlBuf.append("inner join SAKAI_REALM SR on SRRG. REALM_KEY = SR. REALM_KEY ");
-			sqlBuf.append("inner join SAKAI_REALM_ROLE SRR on SRRG.ROLE_KEY = SRR.ROLE_KEY ");
-			sqlBuf.append("where SR.REALM_ID = ?");
-			sql = sqlBuf.toString();
-
+			sql = dbAuthzGroupSql.getSelectRealmRoleGroup4Sql();
 			Object[] fields = new Object[1];
 			fields[0] = caseId(realm.getId());
 
@@ -1980,7 +1730,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 					String userId = userDirectoryService().getUserId(userEid);
 
 					String role = (String) entry.getValue();
-	
+
 					String existingRole = (String) existing.get(userId);
 					String nonProviderRole = (String) nonProvider.get(userId);
 					if ((nonProviderRole == null) && ((existingRole == null) || (!existingRole.equals(role))))
@@ -2001,18 +1751,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				// caused by transactions modifying more than one row at a time.
 
 				// delete
-				if ("mysql".equals(sqlService().getVendor()))
-				{
-					sql = "DELETE SAKAI_REALM_RL_GR FROM SAKAI_REALM_RL_GR INNER JOIN SAKAI_REALM"
-						+ " ON SAKAI_REALM_RL_GR.REALM_KEY = SAKAI_REALM.REALM_KEY AND SAKAI_REALM.REALM_ID = ?"
-						+ " WHERE SAKAI_REALM_RL_GR.USER_ID = ?";
-				}
-				else
-				{
-					sql = "DELETE FROM SAKAI_REALM_RL_GR "
-						+ " WHERE REALM_KEY IN (SELECT REALM_KEY FROM SAKAI_REALM WHERE REALM_ID = ?)"
-						+ " AND USER_ID = ?";
-				}
+				sql = dbAuthzGroupSql.getDeleteRealmRoleGroup4Sql();
 				fields = new Object[2];
 				fields[0] = caseId(realm.getId());
 				for (Iterator i = toDelete.iterator(); i.hasNext();)
@@ -2023,8 +1762,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				}
 
 				// insert
-				sql = "insert into SAKAI_REALM_RL_GR (REALM_KEY, USER_ID, ROLE_KEY, ACTIVE, PROVIDED)"
-						+ " values ((select REALM_KEY from SAKAI_REALM where REALM_ID = ?), ?, (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = ?), '1', '1')";
+				sql = dbAuthzGroupSql.getInsertRealmRoleGroup3Sql();
 				fields = new Object[3];
 				fields[0] = caseId(realm.getId());
 				for (Iterator i = toInsert.iterator(); i.hasNext();)
@@ -2077,12 +1815,11 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				if (StringUtil.different(this.role, other.role)) return false;
 				if (this.provided != other.provided) return false;
 				if (this.active != other.active) return false;
-				if (((this.realmId == null) && (other.realmId != null))
-						|| ((this.realmId != null) && (other.realmId == null))
+				if (((this.realmId == null) && (other.realmId != null)) || ((this.realmId != null) && (other.realmId == null))
 						|| ((this.realmId != null) && (other.realmId != null) && (!this.realmId.equals(other.realmId)))) return false;
 				return true;
 			}
-			
+
 			public int hashCode()
 			{
 				return (this.role + Boolean.valueOf(this.provided).toString() + Boolean.valueOf(this.active).toString() + this.realmId).hashCode();
@@ -2118,13 +1855,13 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				if (StringUtil.different(this.userId, other.userId)) return false;
 				return true;
 			}
-			
+
 			public int hashCode()
 			{
 				return (this.role + Boolean.valueOf(this.provided).toString() + Boolean.valueOf(this.active).toString() + this.userId).hashCode();
 			}
 		}
-		
+
 		public class RoleAndFunction
 		{
 			public String role;
@@ -2146,7 +1883,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				if (StringUtil.different(this.function, other.function)) return false;
 				return true;
 			}
-			
+
 			public int hashCode()
 			{
 				return (this.role + this.function).hashCode();
@@ -2158,7 +1895,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			public String role;
 
 			public String description;
-			
+
 			public boolean providerOnly;
 
 			public RoleAndDescription(String role, String description, boolean providerOnly)
@@ -2178,7 +1915,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				if (this.providerOnly != other.providerOnly) return false;
 				return true;
 			}
-			
+
 			public int hashCode()
 			{
 				return (this.role + this.description + Boolean.valueOf(this.providerOnly).toString()).hashCode();
@@ -2192,11 +1929,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		{
 			if ((userId == null) || (azGroupId == null)) return null;
 
-			String sql = "select SRR.ROLE_NAME from SAKAI_REALM_RL_GR SRRG "
-					+ "inner join SAKAI_REALM SR on SRRG.REALM_KEY = SR.REALM_KEY "
-					+ "inner join SAKAI_REALM_ROLE SRR on SRRG.ROLE_KEY = SRR.ROLE_KEY "
-					+ "where SR.REALM_ID = ? and SRRG.USER_ID = ? and SRRG.ACTIVE = '1'";
-
+			String sql = dbAuthzGroupSql.getSelectRealmRoleNameSql();
 			Object[] fields = new Object[2];
 			fields[0] = azGroupId;
 			fields[1] = userId;
@@ -2229,12 +1962,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			}
 
 			String inClause = orInClause(userIds.size(), "SRRG.USER_ID");
-
-			String sql = "select SRRG.USER_ID, SRR.ROLE_NAME from SAKAI_REALM_RL_GR SRRG "
-					+ "inner join SAKAI_REALM SR on SRRG.REALM_KEY = SR.REALM_KEY "
-					+ "inner join SAKAI_REALM_ROLE SRR on SRRG.ROLE_KEY = SRR.ROLE_KEY " + "where SR.REALM_ID = ? and " + inClause
-					+ " and SRRG.ACTIVE = '1'";
-
+			String sql = dbAuthzGroupSql.getSelectRealmUserRoleSql(inClause);
 			Object[] fields = new Object[1 + userIds.size()];
 			fields[0] = azGroupId;
 			int pos = 1;
@@ -2289,7 +2017,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 	 */
 	protected String orInClause(int size, String field)
 	{
-		// Note: to avoide the dreaded ORA-01795 and the like, we need to limit to <100 the items in each in(?, ?, ...) clause, connecting them with ORs -ggolden
+		// Note: to avoide the dreaded ORA-01795 and the like, we need to limit to <100 the items in each in(?, ?, ...) clause, connecting them with
+		// ORs -ggolden
 		int ors = size / MAX_IN_CLAUSE;
 		int leftover = size - (ors * MAX_IN_CLAUSE);
 		StringBuffer buf = new StringBuffer();
@@ -2301,7 +2030,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		}
 
 		buf.append(" " + field + " IN ");
-		
+
 		// do all the full MAX_IN_CLAUSE '?' in/ors
 		if (ors > 0)
 		{
