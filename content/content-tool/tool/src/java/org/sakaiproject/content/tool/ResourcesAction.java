@@ -4184,7 +4184,13 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 			String typeId = pipe.getAction().getTypeId();
 			
-			ListItem parent = new ListItem(pipe.getContentEntity());
+			ListItem parent = new ListItem(collection);
+			List<MetadataGroup> metadata_groups = (List<MetadataGroup>) state.getAttribute(STATE_METADATA_GROUPS);
+			if(metadata_groups != null)
+			{
+				parent.setMetadata(metadata_groups, collection.getProperties());
+			}
+
 			parent.setPubviewPossible(! preventPublicDisplay);
 			ListItem item = new ListItem(pipe, parent, defaultRetractDate);
 			//item.setPubviewPossible(! preventPublicDisplay);
@@ -7248,7 +7254,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	protected void initState(SessionState state, VelocityPortlet portlet, JetspeedRunData data)
 	{
 		super.initState(state, portlet, data);
-
+		
 		if(state.getAttribute(STATE_INITIALIZED) == null)
 		{
 			initCopyContext(state);

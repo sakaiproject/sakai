@@ -29,6 +29,7 @@
 		shownBar.style.display = "none";
 		hiddenBar.style.display = "block";
 		metadataDiv.style.display = "none";
+		resizeFrame('grow');
 	}
 	function showOptionalProperties(index, metadataGroup)
 	{
@@ -38,6 +39,7 @@
 		shownBar.style.display = "block";
 		hiddenBar.style.display = "none";
 		metadataDiv.style.display = "block";
+		resizeFrame('grow');
 	}
 	
 	function attachEventHandlers()

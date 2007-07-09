@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -59,6 +60,7 @@ import org.sakaiproject.content.api.ServiceLevelAction;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.content.tool.ResourcesAction.ContentPermissions;
+import org.sakaiproject.content.tool.ResourcesAction.MetadataGroup;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.Reference;
@@ -374,6 +376,8 @@ public class ListItem
 
 	protected int notification = NotificationService.NOTI_NONE;
 
+	protected List<MetadataGroup> metadataGroups;
+
 
 	
 	/**
@@ -381,12 +385,21 @@ public class ListItem
 	 */
 	public ListItem(ContentEntity entity)
 	{
+		set(entity);
+
+	}
+
+	/**
+     * @param entity
+     */
+    protected void set(ContentEntity entity)
+    {
 		this.entity = entity;
 		if(entity == null)
 		{
 			return;
 		}
-		String refstr = entity.getReference();
+	    String refstr = entity.getReference();
 		Reference ref = EntityManager.newReference(refstr);
 		String contextId = ref.getContext();
 		boolean isUserSite = false;
@@ -706,8 +719,7 @@ public class ListItem
 			this.retractDate = retractDate;
 		}
 		this.isAvailable = entity.isAvailable();
-
-	}
+    }
 
 	protected void setSizzle(String sizzle) 
 	{
@@ -884,11 +896,42 @@ public class ListItem
 	public ListItem(String entityId)
 	{
 		this.id = entityId;
-		this.containingCollectionId = ContentHostingService.getContainingCollectionId(entityId);
+		org.sakaiproject.content.api.ContentHostingService contentService = ContentHostingService.getInstance();
 		
-		String refstr = ContentHostingService.getReference(id);
-		this.isSiteCollection = this.siteCollection(refstr);
+		ContentEntity entity = null;
+		try
+        {
+			if(contentService.isCollection(entityId))
+			{
+				entity = contentService.getCollection(entityId);
+		        set(entity);
+			}
+			else
+			{
+				entity = contentService.getResource(entityId);
+		        set(entity);
+			}
+        }
+        catch (IdUnusedException e)
+        {
+            // TODO Auto-generated catch block
+            logger.warn("IdUnusedException " + e);
+        }
+        catch (TypeException e)
+        {
+            // TODO Auto-generated catch block
+            logger.warn("TypeException " + e);
+        }
+        catch (PermissionException e)
+        {
+            // TODO Auto-generated catch block
+            logger.warn("PermissionException " + e);
+        }
 
+		this.containingCollectionId = contentService.getContainingCollectionId(entityId);
+		
+		String refstr = contentService.getReference(id);
+		this.isSiteCollection = this.siteCollection(refstr);
 	}
 
 	/**
@@ -1157,7 +1200,7 @@ public class ListItem
 		while(it.hasNext())
 		{
 			ResourcesMetadata prop = it.next();
-			String propname = prop.getDottedname();
+			String propname = prop.getDottedname() + index;
 
 			if(ResourcesMetadata.WIDGET_NESTED.equals(prop.getWidget()))
 			{
@@ -2929,6 +2972,66 @@ public class ListItem
     public int getNotification()
     {
     	return notification;
+    }
+    
+    public void setMetadata(Collection<MetadataGroup> metadata_groups, ResourceProperties properties)
+    {
+    	this.metadataGroups = new Vector<MetadataGroup>();
+		//Map metadata = new Hashtable();
+		if(metadata_groups != null && ! metadata_groups.isEmpty())
+		{
+			for(MetadataGroup metadata_group : metadata_groups)
+			{
+				if(metadata_group == null)
+				{
+					continue;
+				}
+				MetadataGroup newGroup = new MetadataGroup(metadata_group.getName());
+				metadata_groups.add(newGroup);
+				for(ResourcesMetadata prop : (List<ResourcesMetadata>) metadata_group)
+				{
+					if(prop == null)
+					{
+						continue;
+					}
+					ResourcesMetadata newProp = new ResourcesMetadata(prop);
+					newGroup.add(newProp);
+					String name = prop.getFullname();
+					String widget = prop.getWidget();
+					if(widget.equals(ResourcesMetadata.WIDGET_DATE) || widget.equals(ResourcesMetadata.WIDGET_DATETIME) || widget.equals(ResourcesMetadata.WIDGET_TIME))
+					{
+						Time time = null;
+						if(properties == null)
+						{
+							// use "now" as default in that case
+							time = TimeService.newTime();
+						}
+						else
+						{
+							try
+							{
+								time = properties.getTimeProperty(name);
+							}
+							catch(Exception e)
+							{
+								// use "now" as default in that case
+								time = TimeService.newTime();
+							}
+						}
+						newProp.setValue(name, time);
+					}
+					else
+					{
+						if(properties != null)
+						{
+							String value = properties.getPropertyFormatted(name);
+							newProp.setValue(name, value);
+						}
+					}
+				}
+			}
+		}
+
     }
 	
 }
