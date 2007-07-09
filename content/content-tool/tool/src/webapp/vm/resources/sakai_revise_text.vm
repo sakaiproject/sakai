@@ -9,9 +9,9 @@
 	#end
 	<form name="addContentForm" id="addContentForm" method="post" action="#toolForm("ResourcesHelperAction")" >
 		#if($!{item.isMissing("content")})
-			<p class="longtext validation">
+			<p class="longtext validation"  style="margin-bottom:1em">
 		#else
-			<p class="longtext">
+			<p class="longtext"   style="margin-bottom:1em">
 		#end
 			<textarea name="content" id="content" rows="10" cols="60" wrap="virtual">$!validator.escapeHtmlTextarea($!{pipe.contentstring})</textarea>
 		</p>

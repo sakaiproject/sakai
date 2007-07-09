@@ -9,16 +9,16 @@
 	#end
 	<form name="addContentForm" id="addContentForm" method="post" action="#toolForm("ResourcesHelperAction")" >
 		#if($!{item.isMissing("content")})
-			<p class="longtext validation">
+			<p class="longtext validation"  style="margin-bottom:1em">
 		#else
-			<p class="longtext">
+			<p class="longtext"  style="margin-bottom:1em">
 		#end
 			<label for="content" class="block">$tlang.getString("label.url")</label>
 			<input type="text" name="content" id="content" size="60" value="$!validator.escapeHtml("$!pipe.contentstring")" />
 		</p>
 		#if ($hasNotificationDialog)
-			<p class="shorttext">
-				<label for="notify">
+			<p class="longtext" >
+				<label for="notify" class="block">
 					$tlang.getString("gen.email1")
 				</label>	
 				<select name="notify" id="notify">
