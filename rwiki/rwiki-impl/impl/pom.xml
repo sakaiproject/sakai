@@ -73,155 +73,118 @@ limitations under the License.
   </build>
   <dependencies>
     <dependency>
-      
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
-    <dependency>
-      
+    <dependency>      
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
       <version>${sakai.servletapi.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
-    <dependency>
-      
+    <dependency>      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-radeox</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
-    <dependency>
-      
+    <dependency>      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-rwiki-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
-    <dependency>
-      
+    <dependency>      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-rwiki-model</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
-    <dependency>
-      
+    <dependency>      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-rwiki-util</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-tool-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
-    <dependency>
-      
+    <dependency>      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-entity-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-site-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-event-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
-    <dependency>
-      
+    <dependency>      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-event-util</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
-    <dependency>
-      
+    <dependency>      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-component-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-component</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-email-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-user-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-content-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-util-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-db-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-search-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
@@ -230,102 +193,86 @@ limitations under the License.
       <type>jar</type>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-util</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-authz-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-entity-util</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>${sakai.hibernate.groupId}</groupId>
       <artifactId>${sakai.hibernate.artifactId}</artifactId>
       <version>${sakai.hibernate.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
-<groupId>${sakai.ehcache.groupId}</groupId>
+	  <groupId>${sakai.ehcache.groupId}</groupId>
       <artifactId>${sakai.ehcache.artifactId}</artifactId>
       <version>${sakai.ehcache.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>${sakai.spring.groupId}</groupId>
       <artifactId>${sakai.spring.artifactId}</artifactId>
       <version>${sakai.spring.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>${sakai.spring.groupId}</groupId>
       <artifactId>${sakai.spring.mock.artifactId}</artifactId>
       <version>${sakai.spring.mock.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
+      <scope>test</scope>
     </dependency>
     <dependency>
-      
       <groupId>easymock</groupId>
       <artifactId>easymock</artifactId>
       <version>1.1</version>
       <type>jar</type>
-      <scope>provided</scope>
+      <scope>test</scope>
     </dependency>
     <dependency>
-      
       <groupId>fop</groupId>
       <artifactId>fop</artifactId>
       <version>20070301</version>
       <type>jar</type>
-      <scope>provided</scope>
+    </dependency>
+    <!-- this will pull the dependencies for fop the 20070301 is a patched 0.93 -->
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>fop</artifactId>
+      <version>0.93</version>
+      <type>pom</type>
     </dependency>
     <dependency>
-      
-      <groupId>avalon-framework</groupId>
-      <artifactId>avalon-framework-api</artifactId>
-      <version>4.2.0</version>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>xmlgraphics-commons</artifactId>
+      <version>1.1</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
-      <groupId>avalon-framework</groupId>
-      <artifactId>avalon-framework-impl</artifactId>
-      <version>4.2.0</version>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>xmlgraphics-commons</artifactId>
+      <version>1.1</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
-    
     <dependency>
       <groupId>xerces</groupId>
       <artifactId>xmlParserAPIs</artifactId>

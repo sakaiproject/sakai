@@ -72,20 +72,16 @@ limitations under the License.
 <!-- other resources for the jar - the message bundles -->
   </build>
   <dependencies>
-    <dependency>
-      
+    <dependency>      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-rwiki-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>${sakai.hibernate.groupId}</groupId>
       <artifactId>${sakai.hibernate.artifactId}</artifactId>
       <version>${sakai.hibernate.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
   </dependencies>
 </project>
