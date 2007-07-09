@@ -23,6 +23,23 @@
     <jservletutil.version>1.2.2M4</jservletutil.version>
   </properties>
 
+<!--- 
+  WARNING: This project is using Milestone builds of RSF
+  Which are not suitable for production use.
+  This repository location must be removed before code freeze
+-->
+<repositories>
+    <repository>
+      <id>caret-dev</id>
+      <name>Caret Dev Repo</name>
+      <layout>default</layout>
+      <url>http://www2.caret.cam.ac.uk/maven2dev</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+
   <dependencies>
     <dependency>
       <groupId>uk.org.ponder.rsfsamples</groupId>
