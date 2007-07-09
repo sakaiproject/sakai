@@ -78,8 +78,8 @@ limitations under the License.
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      <groupId>${sakai.hibernate.groupId}</groupId>
-      <artifactId>${sakai.hibernate.artifactId}</artifactId>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate</artifactId>
       <version>${sakai.hibernate.version}</version>
       <type>jar</type>
     </dependency>

@@ -217,26 +217,26 @@ limitations under the License.
       <type>jar</type>
     </dependency>
     <dependency>
-      <groupId>${sakai.hibernate.groupId}</groupId>
-      <artifactId>${sakai.hibernate.artifactId}</artifactId>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate</artifactId>
       <version>${sakai.hibernate.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
-	  <groupId>${sakai.ehcache.groupId}</groupId>
-      <artifactId>${sakai.ehcache.artifactId}</artifactId>
+	  <groupId>net.sf.ehcache</groupId>
+      <artifactId>ehcache</artifactId>
       <version>${sakai.ehcache.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
-      <groupId>${sakai.spring.groupId}</groupId>
-      <artifactId>${sakai.spring.artifactId}</artifactId>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring</artifactId>
       <version>${sakai.spring.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
-      <groupId>${sakai.spring.groupId}</groupId>
-      <artifactId>${sakai.spring.mock.artifactId}</artifactId>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-mock</artifactId>
       <version>${sakai.spring.mock.version}</version>
       <type>jar</type>
       <scope>test</scope>
@@ -273,6 +273,7 @@ limitations under the License.
       <version>1.1</version>
       <type>jar</type>
     </dependency>
+    
     <dependency>
       <groupId>xerces</groupId>
       <artifactId>xmlParserAPIs</artifactId>
