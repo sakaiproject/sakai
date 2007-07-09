@@ -188,7 +188,7 @@
 			        <f:verbatim><br></f:verbatim>
 				</t:dataList>
 				<f:verbatim><p></f:verbatim><f:verbatim><p></f:verbatim><f:verbatim><p></f:verbatim>
-				<h:outputLink value="#{CalBean.selectedEvent.url}" target="_parent">
+				<h:outputLink value="#{CalBean.selectedEvent.url}" rendered="#{CalBean.selectedEvent.url != null}" target="_parent">
 			    	<h:outputText value="#{msgs.openInSchedule}"/>
 			    </h:outputLink>
 				

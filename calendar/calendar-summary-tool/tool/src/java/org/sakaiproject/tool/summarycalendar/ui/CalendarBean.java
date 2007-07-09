@@ -741,15 +741,19 @@ public class CalendarBean {
 	
 	private String buildEventUrl(Site site, String eventRef) {
 		StringBuffer url = new StringBuffer();
-		ToolConfiguration tc = site.getToolForCommonId(SCHEDULE_TOOL_ID);			
-		url.append(ServerConfigurationService.getPortalUrl());
-		url.append("/directtool/");
-		url.append(tc.getId());
-		url.append("?eventReference=");
-		url.append(eventRef);
-		url.append("&panel=Main&sakai_action=doDescription");
-		
-		return url.toString();
+		ToolConfiguration tc = site.getToolForCommonId(SCHEDULE_TOOL_ID);
+		if(tc != null) {
+			url.append(ServerConfigurationService.getPortalUrl());
+			url.append("/directtool/");
+			url.append(tc.getId());
+			url.append("?eventReference=");
+			url.append(eventRef);
+			url.append("&panel=Main&sakai_action=doDescription");		
+			return url.toString();
+		}else{
+			// no schedule tool in site
+			return null;
+		}
 	}
 
 	public Map getEventImageMap() {
