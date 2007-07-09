@@ -127,6 +127,12 @@
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
+		
+		<dependency>
+			<groupId>sakaiproject</groupId>
+			<artifactId>sakai-assignment-api</artifactId>
+			<version>${sakai.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>commons-logging</groupId>
