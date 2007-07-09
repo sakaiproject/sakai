@@ -17,6 +17,7 @@
           <value>org/sakaiproject/tool/gradebook/Spreadsheet.hbm.xml</value>
           <value>org/sakaiproject/tool/gradebook/Comment.hbm.xml</value>
           <value>org/sakaiproject/tool/gradebook/Category.hbm.xml</value>
+          <value>org/sakaiproject/tool/gradebook/LetterGradePercenteMapping.hbm.xml</value>
         </list>
 		</property>
    </bean>
