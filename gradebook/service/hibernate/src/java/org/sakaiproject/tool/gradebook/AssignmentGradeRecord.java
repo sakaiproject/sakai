@@ -31,6 +31,7 @@ package org.sakaiproject.tool.gradebook;
  */
 public class AssignmentGradeRecord extends AbstractGradeRecord {
     private Double pointsEarned;
+    private String letterEarned;
 
     public AssignmentGradeRecord() {
         super();
@@ -88,6 +89,28 @@ public class AssignmentGradeRecord extends AbstractGradeRecord {
     public Assignment getAssignment() {
     	return (Assignment)getGradableObject();
     }
+
+		public String getLetterEarned()
+		{
+			return letterEarned;
+		}
+
+		public void setLetterEarned(String letterEarned)
+		{
+			this.letterEarned = letterEarned;
+		}
+		
+		public AssignmentGradeRecord clone()
+		{
+			AssignmentGradeRecord agr = new AssignmentGradeRecord();
+			agr.setDateRecorded(dateRecorded);
+			agr.setGradableObject(gradableObject);
+			agr.setGraderId(graderId);
+			agr.setLetterEarned(letterEarned);
+			agr.setPointsEarned(pointsEarned);
+			agr.setStudentId(studentId);
+			return agr;
+		}
 }
 
 

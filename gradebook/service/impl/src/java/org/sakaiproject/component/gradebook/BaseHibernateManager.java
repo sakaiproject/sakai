@@ -21,6 +21,7 @@
 **********************************************************************************/
 package org.sakaiproject.component.gradebook;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -58,6 +59,8 @@ import org.sakaiproject.tool.gradebook.facades.EventTrackingService;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateOptimisticLockingFailureException;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 
 import java.lang.IllegalArgumentException;
 
@@ -544,5 +547,269 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	} catch (Exception e) {
     		throw new StaleObjectModificationException(e);
     	}
+    }
+    
+    public LetterGradePercentMapping getDefaultLetterGradePercentMapping()
+    {
+    	HibernateCallback hc = new HibernateCallback() 
+    	{
+    		public Object doInHibernate(Session session) throws HibernateException 
+    		{
+    			List defaultMapping = (session.createQuery(
+    			"select lgpm from LetterGradePercentMapping as lgpm where lgpm.mappingType = 1")).list();
+    			if(defaultMapping == null || defaultMapping.size() == 0) 
+    			{
+    				log.info("Default letter grade mapping hasn't been created in DB in GradebookManagerHibernateImpl.getDefaultLetterGradePercentMapping");
+    				return null;
+    			}
+    			if(defaultMapping.size() > 1) 
+    			{
+    				log.error("Duplicate default letter grade mapping was created in DB in GradebookManagerHibernateImpl.getDefaultLetterGradePercentMapping");
+    				return null;
+    			}
+
+    			return ((LetterGradePercentMapping) defaultMapping.get(0));
+
+    		}
+    	};
+
+    	return (LetterGradePercentMapping) getHibernateTemplate().execute(hc);
+    }
+    
+    public void createOrUpdateDefaultLetterGradePercentMapping(final Map gradeMap)
+    {
+    	if(gradeMap == null)
+    		throw new IllegalArgumentException("gradeMap is null in BaseHibernateManager.createOrUpdateDefaultLetterGradePercentMapping");
+
+    	LetterGradePercentMapping lgpm = getDefaultLetterGradePercentMapping();
+    	
+    	if(lgpm != null)
+    	{
+    		updateDefaultLetterGradePercentMapping(gradeMap, lgpm);
+    	}
+    	else
+    	{
+    		createDefaultLetterGradePercentMapping(gradeMap);
+    	}
+    }
+    
+    private void updateDefaultLetterGradePercentMapping(final Map gradeMap, final LetterGradePercentMapping lgpm)
+    {
+  		Set keySet = gradeMap.keySet();
+
+  		if(keySet.size() != GradebookService.validLetterGrade.length) //we only consider letter grade with -/+ now.
+  			throw new IllegalArgumentException("gradeMap doesn't have right size in BaseHibernateManager.updateDefaultLetterGradePercentMapping");
+
+  		if(validateLetterGradeMapping(gradeMap) == false)
+  			throw new IllegalArgumentException("gradeMap contains invalid letter in BaseHibernateManager.updateDefaultLetterGradePercentMapping");
+
+  		HibernateCallback hcb = new HibernateCallback()
+  		{
+  			public Object doInHibernate(Session session) throws HibernateException,
+  			SQLException
+  			{
+  				Map saveMap = new HashMap();
+  				for(Iterator iter = gradeMap.keySet().iterator(); iter.hasNext();)
+  				{
+  					String key = (String) iter.next();
+  					saveMap.put(key, gradeMap.get(key));
+  				}
+  				lgpm.setGradeMap(saveMap);
+  				session.update(lgpm);          
+  				return null;
+  			}
+  		}; 
+  		getHibernateTemplate().execute(hcb);
+    }
+    
+    public void createDefaultLetterGradePercentMapping(final Map gradeMap)
+    {
+    	if(getDefaultLetterGradePercentMapping() != null)
+    		throw new IllegalArgumentException("gradeMap has already been created in BaseHibernateManager.createDefaultLetterGradePercentMapping");
+    	
+    	if(gradeMap == null)
+    		throw new IllegalArgumentException("gradeMap is null in BaseHibernateManager.createDefaultLetterGradePercentMapping");
+    	
+    	Set keySet = gradeMap.keySet();
+    	
+    	if(keySet.size() != GradebookService.validLetterGrade.length) //we only consider letter grade with -/+ now.
+    		throw new IllegalArgumentException("gradeMap doesn't have right size in BaseHibernateManager.createDefaultLetterGradePercentMapping");
+    	
+    	if(validateLetterGradeMapping(gradeMap) == false)
+    		throw new IllegalArgumentException("gradeMap contains invalid letter in BaseHibernateManager.createDefaultLetterGradePercentMapping");
+    	
+      HibernateCallback hcb = new HibernateCallback()
+      {
+        public Object doInHibernate(Session session) throws HibernateException,
+            SQLException
+        {
+        	LetterGradePercentMapping lgpm = new LetterGradePercentMapping();
+        	Map saveMap = new HashMap();
+        	for(Iterator iter = gradeMap.keySet().iterator(); iter.hasNext();)
+        	{
+        		String key = (String) iter.next();
+        		saveMap.put(key, gradeMap.get(key));
+        	}
+          if (lgpm != null)
+          {                    
+          	lgpm.setGradeMap(saveMap);
+          	lgpm.setMappingType(1);
+            session.save(lgpm);          
+          }           
+          return null;
+        }
+      }; 
+      getHibernateTemplate().execute(hcb);
+    }
+    
+    public LetterGradePercentMapping getLetterGradePercentMapping(final Gradebook gradebook)
+    {
+    	HibernateCallback hc = new HibernateCallback() 
+    	{
+    		public Object doInHibernate(Session session) throws HibernateException 
+    		{
+    			LetterGradePercentMapping mapping = (LetterGradePercentMapping) ((session.createQuery(
+    			"from LetterGradePercentMapping as lgpm where lgpm.gradebookId=:gradebookId and lgpm.mappingType=2")).
+    			setLong("gradebookId", gradebook.getId().longValue())).
+    			uniqueResult();
+    			if(mapping == null ) 
+    			{
+    				LetterGradePercentMapping lgpm = getDefaultLetterGradePercentMapping();
+    				LetterGradePercentMapping returnLgpm = new LetterGradePercentMapping();
+    				returnLgpm.setGradebookId(gradebook.getId());
+    				returnLgpm.setGradeMap(lgpm.getGradeMap());
+    				returnLgpm.setMappingType(2);
+    				return returnLgpm;
+    			}
+    			return mapping;
+
+    		}
+    	};
+
+    	return (LetterGradePercentMapping) getHibernateTemplate().execute(hc);
+    }
+    
+    /**
+     * this method is different with getLetterGradePercentMapping - 
+     * it returns null if no mapping exists for gradebook instead of
+     * returning default mapping.
+     */
+    private LetterGradePercentMapping getLetterGradePercentMappingForGradebook(final Gradebook gradebook)
+    {
+    	HibernateCallback hc = new HibernateCallback() 
+    	{
+    		public Object doInHibernate(Session session) throws HibernateException 
+    		{
+    			LetterGradePercentMapping mapping = (LetterGradePercentMapping) ((session.createQuery(
+    			"from LetterGradePercentMapping as lgpm where lgpm.gradebookId=:gradebookId and lgpm.mappingType=2")).
+    			setLong("gradebookId", gradebook.getId().longValue())).
+    			uniqueResult();
+    			return mapping;
+
+    		}
+    	};
+
+    	return (LetterGradePercentMapping) getHibernateTemplate().execute(hc);
+    }
+    
+    public void saveOrUpdateLetterGradePercentMapping(final Map gradeMap, final Gradebook gradebook)
+    {
+    	if(gradeMap == null)
+    		throw new IllegalArgumentException("gradeMap is null in BaseHibernateManager.saveOrUpdateLetterGradePercentMapping");
+
+    	LetterGradePercentMapping lgpm = getLetterGradePercentMappingForGradebook(gradebook);
+
+    	if(lgpm == null)
+    	{
+      	Set keySet = gradeMap.keySet();
+      	
+      	if(keySet.size() != GradebookService.validLetterGrade.length) //we only consider letter grade with -/+ now.
+      		throw new IllegalArgumentException("gradeMap doesn't have right size in BaseHibernateManager.saveOrUpdateLetterGradePercentMapping");
+      	
+      	if(validateLetterGradeMapping(gradeMap) == false)
+      		throw new IllegalArgumentException("gradeMap contains invalid letter in BaseHibernateManager.saveOrUpdateLetterGradePercentMapping");
+      	
+      	HibernateCallback hcb = new HibernateCallback()
+    		{
+    			public Object doInHibernate(Session session) throws HibernateException,
+    			SQLException
+    			{
+    				LetterGradePercentMapping lgpm = new LetterGradePercentMapping();
+    				if (lgpm != null)
+    				{                    
+    					lgpm.setGradeMap(gradeMap);
+    					lgpm.setGradebookId(gradebook.getId());
+    					lgpm.setMappingType(2);
+    					session.save(lgpm);
+    				}
+    				return null;
+    			}
+    		}; 
+    		getHibernateTemplate().execute(hcb);
+    	}
+    	else
+    	{
+    		udpateLetterGradePercentMapping(gradeMap, gradebook);
+    	}
+    }
+    
+    private void udpateLetterGradePercentMapping(final Map gradeMap, final Gradebook gradebook)
+    {
+      HibernateCallback hcb = new HibernateCallback()
+      {
+      	public Object doInHibernate(Session session) throws HibernateException, SQLException
+      	{
+      		LetterGradePercentMapping lgpm = getLetterGradePercentMapping(gradebook);
+
+      		if( lgpm == null)
+      			throw new IllegalArgumentException("LetterGradePercentMapping is null in BaseHibernateManager.updateLetterGradePercentMapping");
+
+      		if(gradeMap == null)
+      			throw new IllegalArgumentException("gradeMap is null in BaseHibernateManager.updateLetterGradePercentMapping");
+
+      		Set keySet = gradeMap.keySet();
+
+      		if(keySet.size() != GradebookService.validLetterGrade.length) //we only consider letter grade with -/+ now.
+      			throw new IllegalArgumentException("gradeMap doesn't have right size in BaseHibernateManager.udpateLetterGradePercentMapping");
+
+      		if(validateLetterGradeMapping(gradeMap) == false)
+      			throw new IllegalArgumentException("gradeMap contains invalid letter in BaseHibernateManager.udpateLetterGradePercentMapping");
+
+        	Map saveMap = new HashMap();
+        	for(Iterator iter = gradeMap.keySet().iterator(); iter.hasNext();)
+        	{
+        		String key = (String) iter.next();
+        		saveMap.put(key, gradeMap.get(key));
+        	}
+
+        	lgpm.setGradeMap(saveMap);
+      		session.save(lgpm);
+      		
+      		return null;
+      	}
+      }; 
+      getHibernateTemplate().execute(hcb);
+    }
+
+    private boolean validateLetterGradeMapping(Map gradeMap)
+    {
+    	Set keySet = gradeMap.keySet();
+
+    	for(Iterator iter = keySet.iterator(); iter.hasNext(); )
+    	{
+    		String key = (String) iter.next();
+    		boolean validLetter = false;
+    		for(int i=0; i<GradebookService.validLetterGrade.length; i++)
+    		{
+    			if(key.equalsIgnoreCase(GradebookService.validLetterGrade[i]))
+    			{
+    				validLetter = true;
+    				break;
+    			}
+    		}
+    		if(validLetter == false)
+    			return false;
+    	}
+    	return true;
     }
 }

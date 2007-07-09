@@ -15,6 +15,7 @@ import org.sakaiproject.tool.gradebook.GradingEvents;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -58,6 +59,29 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 			Long assign2 = gradebookManager.createAssignmentForCategory(persistentGradebook.getId(), cat.getId(), 
 					cat.getName() + "_assignment_2", new Double(10.0), new Date(), new Boolean(false), new Boolean(true));
 		}
+		
+		LetterGradePercentMapping returnedGradeMap = gradebookManager.getDefaultLetterGradePercentMapping();
+		Assert.assertTrue(returnedGradeMap == null);
+		
+		Map gradeMap = new HashMap();
+		gradeMap.put("a+", new Double(0.98));
+		gradeMap.put("a", new Double(0.95));
+		gradeMap.put("a-", new Double(0.90));
+		gradeMap.put("b+", new Double(0.88));
+		gradeMap.put("b", new Double(0.85));
+		gradeMap.put("b-", new Double(0.80));
+		gradeMap.put("c+", new Double(0.78));
+		gradeMap.put("c", new Double(0.75));
+		gradeMap.put("c-", new Double(0.70));
+		gradeMap.put("d+", new Double(0.68));
+		gradeMap.put("d", new Double(0.65));
+		gradeMap.put("d-", new Double(0.60));
+		gradeMap.put("f", new Double(0.0));
+		
+		gradebookManager.createDefaultLetterGradePercentMapping(gradeMap);
+		
+		returnedGradeMap = gradebookManager.getDefaultLetterGradePercentMapping();
+
 	}
 
 //change them into onSetUpInTransaction
@@ -246,7 +270,25 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 			Assert.assertTrue((new BigDecimal(agr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP)).doubleValue() == (0.9 * (assign.getPointsPossible())));
 //			System.out.println("student::" + agr.getStudentId() + "--assign::" + agr.getAssignment() + "--grade::" + agr.getPointsEarned());
 //			System.out.println(new BigDecimal(agr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP));			
-		}		
+		}
+		
+		persistentGradebook.setGrade_type(GradebookService.GRADE_TYPE_LETTER);
+		returnGradeRecords = gradebookManager.getAssignmentGradeRecords(assign, studentUids);
+		convertGradeRecords = new ArrayList();
+		for(int i=0; i<returnGradeRecords.size(); i++)
+		{
+			AssignmentGradeRecord agr = (AssignmentGradeRecord)returnGradeRecords.get(i);
+			agr.setLetterEarned("a");
+			convertGradeRecords.add(agr);
+		}
+		gradebookManager.updateAssignmentGradeRecords(assign, convertGradeRecords, GradebookService.GRADE_TYPE_LETTER);
+		returnGradeRecords = gradebookManager.getAssignmentGradeRecords(assign, studentUids);
+		for(int i=0; i<returnGradeRecords.size(); i++)
+		{
+			AssignmentGradeRecord agr = (AssignmentGradeRecord)returnGradeRecords.get(i);
+			Assert.assertTrue((new BigDecimal(agr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP)).doubleValue() == (0.95 * (assign.getPointsPossible())));
+		}
+
 	}
 
 	private List generateGradeRecords(Assignment go, int gradeRecordsToGenerate) {
@@ -2449,14 +2491,32 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		gradebookManager.convertGradePointsForUpdatedTotalPoints(persistentGradebook, assign, new Double(10), studentUids);
 		assign.setPointsPossible(new Double(10));
 		gradebookManager.updateAssignment(assign);
+		
 		List records = gradebookManager.getAllAssignmentGradeRecordsConverted(persistentGradebook.getId(), studentUids);
+		
 		for(int i=0; i<records.size(); i++)
 		{
 			AssignmentGradeRecord agr = (AssignmentGradeRecord) records.get(i);
 			if(agr.getAssignment().getCategory().getName().equals("cate 1"))
 				Assert.assertTrue(agr.getPointsEarned().doubleValue() == ((Double)studentIdMap.get(agr.getStudentId())).doubleValue() * 2.0 / 10.0 * 100.0);
 			
-//				System.out.println(agr.getAssignment().getName() + "-----" + agr.getStudentId() + "---" + agr.getPointsEarned());
+//			System.out.println(agr.getAssignment().getName() + "-----" + agr.getStudentId() + "---" + agr.getPointsEarned());
+		}
+
+		persistentGradebook.setGrade_type(GradebookService.GRADE_TYPE_LETTER);
+		gradebookManager.updateGradebook(persistentGradebook);
+		gradebookManager.convertGradePointsForUpdatedTotalPoints(persistentGradebook, assign, new Double(6), studentUids);
+		assign.setPointsPossible(new Double(6.0));
+		gradebookManager.updateAssignment(assign);
+		records = gradebookManager.getAllAssignmentGradeRecordsConverted(persistentGradebook.getId(), studentUids);
+		LetterGradePercentMapping lgpm = gradebookManager.getLetterGradePercentMapping(persistentGradebook);
+		for(int i=0; i<records.size(); i++)
+		{
+			AssignmentGradeRecord agr = (AssignmentGradeRecord) records.get(i);
+			if(agr.getAssignment().getCategory().getName().equals("cate 1"))
+			{
+				Assert.assertTrue(agr.getLetterEarned().equals(lgpm.getGrade(((Double)studentIdMap.get(agr.getStudentId())).doubleValue() * 2.0 / 10.0)));
+			}
 		}
 	}
 	
@@ -2520,5 +2580,46 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		Assert.assertTrue(cate.getMean().doubleValue() == 10.0);
 		Assert.assertTrue(cate.getAverageScore().doubleValue() == 1.0);
 		Assert.assertTrue(cate.getAverageTotalPoints().doubleValue() == 10.0);
+	}
+	
+	public void testGetLetterGradePercentMapping() throws Exception
+	{
+		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
+		LetterGradePercentMapping lgpm = null;
+		
+		Map gradeMap = new HashMap();
+		gradeMap.put("a+", new Double(0.98));
+		gradeMap.put("a", new Double(0.95));
+		gradeMap.put("a-", new Double(0.90));
+		gradeMap.put("b+", new Double(0.88));
+		gradeMap.put("b", new Double(0.85));
+		gradeMap.put("b-", new Double(0.80));
+		gradeMap.put("c+", new Double(0.78));
+		gradeMap.put("c", new Double(0.75));
+		gradeMap.put("c-", new Double(0.70));
+		gradeMap.put("d+", new Double(0.68));
+		gradeMap.put("d", new Double(0.65));
+		gradeMap.put("d-", new Double(0.60));
+		gradeMap.put("f", new Double(0.0));
+
+		gradebookManager.createOrUpdateDefaultLetterGradePercentMapping(gradeMap);
+		
+		lgpm = gradebookManager.getLetterGradePercentMapping(persistentGradebook);
+		Assert.assertTrue(lgpm.getValue("a").equals(new Double("0.95")));
+
+		gradeMap.put("a", new Double("0.96"));
+		lgpm = gradebookManager.getLetterGradePercentMapping(persistentGradebook);
+		Assert.assertTrue(lgpm.getValue("a").equals(new Double("0.95")));
+
+		gradebookManager.saveOrUpdateLetterGradePercentMapping(gradeMap, persistentGradebook);
+
+		lgpm = gradebookManager.getLetterGradePercentMapping(persistentGradebook);
+		Assert.assertTrue(lgpm.getValue("a").equals(new Double("0.96")));
+		
+		lgpm = gradebookManager.getDefaultLetterGradePercentMapping();
+		Assert.assertTrue(lgpm.getValue("a").equals(new Double("0.95")));
+		
+		gradebookManager.createOrUpdateDefaultLetterGradePercentMapping(gradeMap);
+		Assert.assertTrue(lgpm.getValue("a").equals(new Double("0.96")));
 	}
 }

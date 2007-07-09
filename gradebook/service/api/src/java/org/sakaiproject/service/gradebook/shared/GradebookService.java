@@ -50,6 +50,9 @@ public interface GradebookService {
 	public static final int CATEGORY_TYPE_ONLY_CATEGORY = 2;
 	public static final int CATEGORY_TYPE_WEIGHTED_CATEGORY = 3;
 
+	public static final String[] validLetterGrade = {"a+", "a", "a-", "b+", "b", "b-",
+    "c+", "c", "c-", "d+", "d", "d-", "f"};
+
 
 	/**
      * Checks to see whether a gradebook with the given uid exists.

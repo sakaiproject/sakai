@@ -551,4 +551,43 @@ public interface GradebookManager {
      * @param studentUids List of student uid.
      */
     public void convertGradePointsForUpdatedTotalPoints(Gradebook gradebook, Assignment assignment, Double newTotal, List studentUids);
+    
+    /**
+     * Get the default letter grading percentage mappings. 
+     * This method will return defult mapping if no mapping for the certain gradebook exists.
+     *  
+     *  @return LetterGradePercentMapping
+     */
+    public LetterGradePercentMapping getDefaultLetterGradePercentMapping();
+    
+    /**
+     * Create or update the default letter grading percentage mappings.
+     *  
+     *  @param gradeMap
+     */
+    public void createOrUpdateDefaultLetterGradePercentMapping(final Map gradeMap);
+    
+    /**
+     * Create the default letter grading percentage mappings.
+     *  
+     *  @param gradeMap
+     */
+    public void createDefaultLetterGradePercentMapping(Map gradeMap);
+
+    /**
+     * Get letter grading percentage mappings for a gradebook.
+     *  
+     *  @param gradebook
+     *  @return LetterGradePercentMapping
+     */
+    public LetterGradePercentMapping getLetterGradePercentMapping(final Gradebook gradebook);
+
+    /**
+     * Create letter grading percentage mappings for a gradebook.
+     * 
+     *  @param gradeMap letter grade percentage map
+     *  @param gradebook
+     */
+    public void saveOrUpdateLetterGradePercentMapping(final Map gradeMap, final Gradebook gradebook);
+    
 }
