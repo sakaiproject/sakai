@@ -378,6 +378,8 @@ public class ListItem
 
 	protected List<MetadataGroup> metadataGroups;
 
+	private int constructor;
+
 
 	
 	/**
@@ -385,8 +387,8 @@ public class ListItem
 	 */
 	public ListItem(ContentEntity entity)
 	{
+		this.constructor = 2;
 		set(entity);
-
 	}
 
 	/**
@@ -749,6 +751,7 @@ public class ListItem
 
 	public ListItem(ResourceToolActionPipe pipe, ListItem parent, Time defaultRetractTime)
 	{
+		this.constructor = 3;
 		org.sakaiproject.content.api.ContentHostingService contentService = ContentHostingService.getInstance();
 		this.entity = null;
 		this.containingCollectionId = parent.getId();
@@ -895,6 +898,7 @@ public class ListItem
 	 */
 	public ListItem(String entityId)
 	{
+		this.constructor = 1;
 		this.id = entityId;
 		org.sakaiproject.content.api.ContentHostingService contentService = ContentHostingService.getInstance();
 		
@@ -1415,7 +1419,12 @@ public class ListItem
 		{
 			checkParent();
 			//Site has *NO* groups and public-view is *NOT* enabled on the server 
-			if(this.parent != null)
+			if(this.parent == null)
+			{
+				label = trb.getString("access.site.noparent");
+				logger.warn("ListItem.getLongAccessLabel(): Unable to display label because isSiteOnly == true and parent == null and constructor == " + this.constructor);  
+			}
+			else
 			{
 				label = trb.getFormattedMessage("access.site.nochoice", new String[]{parent.getName()});
 			}
@@ -1428,7 +1437,12 @@ public class ListItem
 		else if(isPubviewInherited())
 		{
 			checkParent();
-			if(parent != null)
+			if(parent == null)
+			{
+				label = trb.getString("access.public.noparent");
+				logger.warn("ListItem.getLongAccessLabel(): Unable to display label because isPubviewInherited == true and parent == null and constructor == " + this.constructor);  
+			}
+			else
 			{
 				label = trb.getFormattedMessage("access.public.nochoice", new String[]{parent.getName()});
 			}
@@ -1455,6 +1469,11 @@ public class ListItem
 	    {
 	    	if(this.containingCollectionId == null)
 	    	{
+	    		if(this.id == null)
+	    		{
+					logger.warn("ListItem.checkParent(): parent == null, containingCollectionId == null, id == null and constructor == " + this.constructor);  
+	    			return;
+	    		}
 	    		this.containingCollectionId = ContentHostingService.getContainingCollectionId(this.id);
 	    	}
 	    	try
