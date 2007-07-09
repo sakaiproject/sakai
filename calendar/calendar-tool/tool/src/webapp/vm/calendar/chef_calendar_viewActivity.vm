@@ -198,6 +198,42 @@
 			</tr>
 			#end
 		</table>
+		
+		#set ($size = 0)
+		#set ($props = false)
+		#foreach ($attachment in $assignment.getContent().getAttachments()) 
+			#set ($props = $attachment.Properties) 
+			#if ($!props)
+				#set ($size = $size + 1)
+			#end
+		#end
+		#if ($size == 0)
+		##	$tlang.getString("gen.noatt")
+		#else
+			<h4>
+				$tlang.getString("gen.assatt")
+			</h4>	
+			<ul class="attachList">
+				#foreach ($attachment in $assignment.getContent().getAttachments()) 
+					#set ($props = false)
+					#set ($props = $attachment.Properties) 
+					#if ($!props)
+						<li>
+							#if ($props.getBooleanProperty($props.NamePropIsCollection))
+								<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+							#else
+								<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+							#end
+							<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+							#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+								($props.getPropertyFormatted($props.NamePropContentLength))
+							#end
+						</li>
+					#end
+				#end
+			</ul>
+		#end	
+		
 			<div class="navPanel">
 				<div class="act">
 					<form name="form" action="#toolForm("$action")" method="post" class="inlineForm">
