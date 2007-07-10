@@ -11,6 +11,47 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>base</artifactId>
   <packaging>pom</packaging>
+
+
+  <url>http://www.sakaiproject.org/</url>
+  <prerequisites>
+    <maven>2.0</maven>
+  </prerequisites>
+  <issueManagement>
+    <system>Jira</system>
+    <url>http://issues.sakaiproject.org/jira/browse/SAK</url>
+  </issueManagement>
+
+  <mailingLists>
+    <mailingList>
+      <name>Sakai Dev List</name>
+      <subscribe>http://collab.sakaiproject.org</subscribe>
+      <unsubscribe>http://collab.sakaiproject.org</unsubscribe>
+      <archive>http://blog.gmane.org/gmane.comp.cms.sakai.devel</archive>
+    </mailingList>
+  </mailingLists>
+
+  <licenses>
+    <license>
+      <name>Educational Community License, Version 1.0</name>
+      <url>http://www.opensource.org/licenses/ecl1.php</url>
+      <distribution>svn</distribution>
+    </license>
+  </licenses>
+
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/sakai/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/sakai/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/sakai/trunk</url>
+  </scm>
+
+  <organization>
+    <name>The Sakai Foundation</name>
+    <url>http://www.sakaiproject.org/</url>
+  </organization>
+
+
+
   <profiles>
     <profile>
       <id>mini</id>
@@ -150,4 +191,6 @@
       </modules>
     </profile>
   </profiles>
+
+
 </project>
