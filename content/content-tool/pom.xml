@@ -4,15 +4,14 @@
   <packaging>pom</packaging>
   <name>plugin-holder</name>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>content-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../../master/pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <groupId>org.sakaiproject</groupId>
   <artifactId>plugin-holder</artifactId>
   <inceptionYear>2005</inceptionYear>
   <dependencies>
-<!-- our plugin -->
   </dependencies>
 </project>
