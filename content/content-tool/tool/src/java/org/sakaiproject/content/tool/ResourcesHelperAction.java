@@ -28,6 +28,7 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -239,6 +240,26 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 				else
 				{
 					attributes += "\t" + attrName + " ==> " + val + "\n";
+				}
+			}
+			attributes += "ResourcesHelperAction.buildMainPanelContext() SAK-8449 dump of toolSession.attributes:\n";
+			Enumeration toolNames = toolSession.getAttributeNames();
+			while(toolNames.hasMoreElements())
+			{
+				String name = (String) toolNames.nextElement();
+				Object val = toolSession.getAttribute(name);
+				if(val instanceof Collection)
+				{
+					int i = 0;
+					for(Object obj : (Collection) val)
+					{
+						attributes += "\t" + name + "[" + i + "] ==> " + obj + "\n";
+						i++;
+					}
+				}
+				else
+				{
+					attributes += "\t" + name + " ==> " + val + "\n";
 				}
 			}
 			logger.debug(attributes, new Throwable());
