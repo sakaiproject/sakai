@@ -3006,7 +3006,7 @@ public class ListItem
 					continue;
 				}
 				MetadataGroup newGroup = new MetadataGroup(metadata_group.getName());
-				metadata_groups.add(newGroup);
+				metadataGroups.add(newGroup);
 				for(ResourcesMetadata prop : (List<ResourcesMetadata>) metadata_group)
 				{
 					if(prop == null)
