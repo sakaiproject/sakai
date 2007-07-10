@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>announcement-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../../../master/pom.xml</relativePath>
+    <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-announcement-pack</name>
   <groupId>org.sakaiproject</groupId>
@@ -21,48 +21,12 @@
   </properties>
   <dependencies>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-announcement-impl</artifactId>
       <version>${sakai.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-message-impl</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-event-util</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-db-storage</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-entity-util</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
   </dependencies>
   <build>
-    
-    
-    
-    
-    
-    
     <resources/>
-    
   </build>
 </project>
