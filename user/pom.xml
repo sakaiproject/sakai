@@ -2,15 +2,22 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../master/pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai User Project</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>user-base</artifactId>
   <packaging>pom</packaging>
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/user/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/user/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/user/trunk</url>
+  </scm>
+
+
   <modules>
     <module>user-api/api</module>
     <module>user-impl/impl</module>
