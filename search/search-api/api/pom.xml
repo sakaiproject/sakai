@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>search-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../../../master/pom.xml</relativePath>
+    <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-search-api</name>
   <groupId>org.sakaiproject</groupId>
@@ -53,12 +53,10 @@
   </build>
   <dependencies>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-event-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
   </dependencies>
 </project>

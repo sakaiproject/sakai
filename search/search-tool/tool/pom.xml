@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>search-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../../../master/pom.xml</relativePath>
+    <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-search-tool</name>
   <groupId>org.sakaiproject</groupId>
@@ -15,11 +15,6 @@
   </description>
   <packaging>war</packaging>
   <build>
-    
-    
-    
-    
-    
     <resources>
       <resource>
         <directory>${basedir}/src/bundle</directory>
@@ -37,8 +32,6 @@
       </resource>
     </resources>
 <!-- java source -->
-    
-    
     <testResources>
       <testResource>
         <directory>${basedir}/src/testBundle</directory>
@@ -53,99 +46,76 @@
   </build>
   <dependencies>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-search-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-tool-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-site-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-authz-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-entity-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-component</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-util-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
         <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-util</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-component-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>${sakai.spring.groupId}</groupId>
       <artifactId>${sakai.spring.artifactId}</artifactId>
       <version>${sakai.spring.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
       <version>${sakai.servletapi.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     
     <dependency>
@@ -159,9 +129,7 @@
       <artifactId>commons-collections</artifactId>
       <version>3.1</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
-    
    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -190,7 +158,5 @@
       <type>jar</type>
       <scope>test</scope>
     </dependency>
-
-    
   </dependencies>
 </project>

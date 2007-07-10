@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>search-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../../../master/pom.xml</relativePath>
+    <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-search-pack</name>
   <groupId>org.sakaiproject</groupId>
@@ -54,24 +54,11 @@
   <dependencies>
     <dependency>
       <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-search-util</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util</artifactId>
-      <version>${sakai.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      
-      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-search-impl</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
     </dependency>
+<!--
     <dependency>
       
       <groupId>lucene</groupId>
@@ -140,5 +127,6 @@
       <version>4aug2000r7-dev</version>
       <type>jar</type>
     </dependency>
+-->
   </dependencies>
 </project>

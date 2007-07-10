@@ -3,10 +3,10 @@
   <modelVersion>4.0.0</modelVersion>
   <packaging>pom</packaging>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>search-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../../master/pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <name>sakai-search-integration-test</name>
   <groupId>org.sakaiproject</groupId>
@@ -15,30 +15,19 @@
 <!--  Sakai plugin -->
 <!-- Test harness -->
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-test-harness</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>${sakai.spring.groupId}</groupId>
       <artifactId>${sakai.spring.mock.artifactId}</artifactId>
       <version>${sakai.spring.mock.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
   </dependencies>
   <build>
-    
-    
-    
-    
-    
-    
     <resources/>
-    
     <testResources>
       <testResource>
         <directory>${basedir}/src/testBundle</directory>

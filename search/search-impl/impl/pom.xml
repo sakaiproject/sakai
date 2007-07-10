@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>search-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../../../master/pom.xml</relativePath>
+    <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-search-impl</name>
   <groupId>org.sakaiproject</groupId>
@@ -15,11 +15,6 @@
     <deploy.target/>
   </properties>
   <build>
-    
-    
-    
-    
-    
     <resources>
       <resource>
         <directory>${basedir}/src/bundle</directory>
@@ -61,19 +56,16 @@
   </build>
   <dependencies>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-search-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-search-model</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
@@ -82,188 +74,142 @@
       <type>jar</type>
     </dependency>
     <dependency>
-      
       <groupId>${sakai.hibernate.groupId}</groupId>
       <artifactId>${sakai.hibernate.artifactId}</artifactId>
       <version>${sakai.hibernate.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>${sakai.spring.groupId}</groupId>
       <artifactId>${sakai.spring.artifactId}</artifactId>
       <version>${sakai.spring.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>lucene</groupId>
       <artifactId>lucene-core</artifactId>
       <version>1.9.1</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>commons-dbcp</groupId>
       <artifactId>commons-dbcp</artifactId>
       <version>1.2.1</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-event-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-component-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-component</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-util</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-util-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-entity-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-user-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-tool-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-content-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-site-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-authz-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-message-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-db-api</artifactId>
       <version>${sakai.version}</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>commons-id</groupId>
       <artifactId>commons-id</artifactId>
       <version>0.1-dev</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>jtidy</groupId>
       <artifactId>jtidy</artifactId>
       <version>4aug2000r7-dev</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>poi</groupId>
       <artifactId>poi</artifactId>
       <version>3.0-alpha3-20070301</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>poi</groupId>
       <artifactId>poi-scratchpad</artifactId>
       <version>3.0-alpha3-20070301</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>pdfbox</groupId>
       <artifactId>pdfbox</artifactId>
       <version>0.7.1</version>
       <type>jar</type>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>commons-codec</groupId>

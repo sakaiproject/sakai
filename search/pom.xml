@@ -2,15 +2,22 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../master/pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Search Project</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>search-base</artifactId>
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/search/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/search/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/search/trunk</url>
+  </scm>
   <packaging>pom</packaging>
+
+
   <modules>
     <module>search-api/api</module>
     <module>search-help</module>
