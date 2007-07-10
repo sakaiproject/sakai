@@ -11,6 +11,14 @@
   <groupId>org.sakaiproject</groupId>
   <artifactId>velocity-base</artifactId>
   <packaging>pom</packaging>
+
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/velocity/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/velocity/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/velocity/trunk</url>
+  </scm>
+
+
   <modules>
     <module>tool</module>
     <module>tool-api</module>
