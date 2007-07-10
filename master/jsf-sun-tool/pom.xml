@@ -35,84 +35,67 @@
   <dependencies>
 <!-- Generic JSF Dependencies Below -->
     <dependency>
-      
       <groupId>jsf</groupId>
       <artifactId>jsf-impl</artifactId>
       <version>1.1.01</version>
     </dependency>
     <dependency>
-      
       <groupId>jsf</groupId>
       <artifactId>jsf-api</artifactId>
       <version>1.1.01</version>
     </dependency>
     <dependency>
-      
       <groupId>commons-fileupload</groupId>
       <artifactId>commons-fileupload</artifactId>
       <version>1.1.1</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>javax.servlet</groupId>
       <artifactId>jsp-api</artifactId>
       <version>2.0</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
       <version>${sakai.servletapi.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>javax.servlet</groupId>
       <artifactId>jstl</artifactId>
       <version>1.0.2</version>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-tool</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-app</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-widgets</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-widgets-sun</artifactId>
       <version>${sakai.version}</version>
     </dependency>
 <!--try for sakai tag and wysiwyg-->
     <dependency>
-      
       <groupId>commons-digester</groupId>
       <artifactId>commons-digester</artifactId>
       <version>1.6</version>
     </dependency>
     <dependency>
-      
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
       <version>3.1</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>commons-beanutils</groupId>
       <artifactId>commons-beanutils</artifactId>
       <version>1.7.0</version>
@@ -126,13 +109,11 @@
       <groupId>xalan</groupId>
       <artifactId>xalan</artifactId>
       <version>2.6.0</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>xml-apis</groupId>
       <artifactId>xml-apis</artifactId>
       <version>2.0.2</version>
-      <scope>provided</scope>
     </dependency>
     
   </dependencies>
