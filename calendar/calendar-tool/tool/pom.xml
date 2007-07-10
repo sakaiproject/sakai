@@ -25,7 +25,12 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-assignment-api</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-component-api</artifactId>
       <version>${sakai.version}</version>
