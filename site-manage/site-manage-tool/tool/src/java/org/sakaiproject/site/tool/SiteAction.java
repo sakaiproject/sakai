@@ -11285,6 +11285,12 @@ public class SiteAction extends PagedResourceActionII {
 		// 2. that the specified user has right to attach its section to a
 		// course site
 		// map = (section.eid, sakai rolename)
+		if (groupProvider == null)
+		{
+			M_log.warn("Group provider not found");
+			return;
+		}
+		
 		Map map = groupProvider.getGroupRolesForUser(userId);
 		if (map == null)
 			return;
