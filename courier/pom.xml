@@ -2,15 +2,23 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../master/pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Courier Project</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>courier-base</artifactId>
   <packaging>pom</packaging>
+
+ <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/courier/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/courier/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/courier/trunk</url>
+  </scm>
+
+
   <modules>
     <module>courier-api/api</module>
     <module>courier-impl/impl</module>
