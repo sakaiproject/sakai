@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>tool-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../../../master/pom.xml</relativePath>
+    <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-tool-tool-su</name>
   <groupId>org.sakaiproject</groupId>
@@ -18,118 +18,93 @@
   <packaging>war</packaging>
   <dependencies>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-authz-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-component-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-entity-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-event-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-tool-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-user-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-util</artifactId>
       <version>${sakai.version}</version>
     </dependency>
 <!-- Generic Sakai JSF Tool Dependencies -->
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-tool</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-app</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-widgets</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-widgets-sun</artifactId>
       <version>${sakai.version}</version>
     </dependency>
 <!-- Generic JSF Dependencies Below -->
     <dependency>
-      
       <groupId>jsf</groupId>
       <artifactId>jsf-impl</artifactId>
       <version>1.1.01</version>
     </dependency>
     <dependency>
-      
       <groupId>jsf</groupId>
       <artifactId>jsf-api</artifactId>
       <version>1.1.01</version>
     </dependency>
     <dependency>
-      
       <groupId>javax.servlet</groupId>
       <artifactId>jstl</artifactId>
       <version>1.0.2</version>
     </dependency>
     <dependency>
-      
       <groupId>taglibs</groupId>
       <artifactId>standard</artifactId>
       <version>1.0.4</version>
     </dependency>
     <dependency>
-      
       <groupId>commons-digester</groupId>
       <artifactId>commons-digester</artifactId>
       <version>1.6</version>
     </dependency>
     <dependency>
-      
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
       <version>3.1</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>commons-beanutils</groupId>
       <artifactId>commons-beanutils</artifactId>
       <version>1.7.0</version>
@@ -138,14 +113,6 @@
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
-      <scope>provided</scope>
-    </dependency>
-<!-- provided deps that would otherwise be bundled -->
-    <dependency>
-      <groupId>xml-apis</groupId>
-      <artifactId>xml-apis</artifactId>
-      <version>2.0.2</version>
-      <scope>provided</scope>
     </dependency>
   </dependencies>
   <build>
