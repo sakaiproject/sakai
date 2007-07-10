@@ -23,6 +23,7 @@
 package org.sakaiproject.service.gradebook.shared;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -52,8 +53,43 @@ public interface GradebookService {
 
 	public static final String[] validLetterGrade = {"a+", "a", "a-", "b+", "b", "b-",
     "c+", "c", "c-", "d+", "d", "d-", "f"};
-
-
+	
+	public static Comparator lettergradeComparator = new Comparator() 
+	{
+		public int compare(Object o1, Object o2) 
+		{
+			if(((String)o1).toLowerCase().charAt(0) == ((String)o2).toLowerCase().charAt(0))
+			{
+				if(((String)o1).length() == 2 && ((String)o2).length() == 2)
+				{
+					if(((String)o1).charAt(1) == '+')
+						return 0;
+					else
+						return 1;
+				}
+				if(((String)o1).length() == 1 && ((String)o2).length() == 2)
+				{
+					if(((String)o2).charAt(1) == '+')
+						return 1;
+					else
+						return 0;
+				}
+				if(((String)o1).length() == 2 && ((String)o2).length() == 1)
+				{
+					if(((String)o1).charAt(1) == '+')
+						return 0;
+					else
+						return 1;
+				}
+				return 0;
+			}
+			else
+			{
+				return ((String)o1).toLowerCase().compareTo(((String)o2).toLowerCase());
+			}
+		}
+	};
+	
 	/**
      * Checks to see whether a gradebook with the given uid exists.
      *

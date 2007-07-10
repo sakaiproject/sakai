@@ -19,10 +19,10 @@
 
 		<property name="gradebookId" column="GRADEBOOK_ID" type="long" unique-key="uniqueTypeGradebook"/>
 
-		<map name="gradeMap" cascade="all" lazy="false">
+		<map name="gradeMap" table="GB_LETTERGRADE_MAPPING" cascade="all" lazy="false">
     	<key column="id"/>
       <index column="grade" type="string" />
-      <element column="property_value" type="double" />
+      <element column="value" type="double" />
     </map>
 
 	</class>
