@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>jsf-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../../master/pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai JSF Widgets - Sun RI</name>
   <groupId>org.sakaiproject</groupId>
@@ -24,43 +24,30 @@
     <deploy.target/>
   </properties>
   <dependencies>
-<!-- Sakai plugin -->
     <dependency>
-      
       <groupId>jsf</groupId>
       <artifactId>jsf-api</artifactId>
       <version>1.1.01</version>
-<!--url: http://java.sun.com/j2ee/javaserverfaces/ -->
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>jsf</groupId>
       <artifactId>jsf-impl</artifactId>
       <version>1.1.01</version>
-<!--url: http://java.sun.com/j2ee/javaserverfaces/ -->
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
       <version>${sakai.servletapi.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>javax.servlet</groupId>
       <artifactId>jsp-api</artifactId>
       <version>2.0</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
-      <scope>provided</scope>
     </dependency>
   </dependencies>
   <build>
