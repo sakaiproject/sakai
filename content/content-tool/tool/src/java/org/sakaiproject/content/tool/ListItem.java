@@ -1471,7 +1471,7 @@ public class ListItem
 	    	{
 	    		if(this.id == null)
 	    		{
-					logger.warn("ListItem.checkParent(): parent == null, containingCollectionId == null, id == null and constructor == " + this.constructor);  
+					logger.warn("ListItem.checkParent(): parent == null, containingCollectionId == null, id == null and constructor == " + this.constructor, new Throwable());  
 	    			return;
 	    		}
 	    		this.containingCollectionId = ContentHostingService.getContainingCollectionId(this.id);
