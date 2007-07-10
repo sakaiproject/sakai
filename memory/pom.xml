@@ -2,15 +2,22 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../master/pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Memory Project</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>memory-base</artifactId>
   <packaging>pom</packaging>
+
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/memory/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/memory/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/memory/trunk</url>
+  </scm>
+
   <modules>
     <module>memory-api/api</module>
     <module>memory-impl/impl</module>
