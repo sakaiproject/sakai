@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>archive-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../../../master/pom.xml</relativePath>
+    <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>Sakai Import Common Cartridge</name>
   <groupId>org.sakaiproject</groupId>
@@ -21,55 +21,37 @@
   </properties>
   <dependencies>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-import-impl</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-archive-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>3.8.1</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-import-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>jaxen</groupId>
       <artifactId>jaxen</artifactId>
       <version>1.0-FCS-full</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>saxpath</groupId>
       <artifactId>saxpath</artifactId>
       <version>1.0-FCS</version>
-      <scope>provided</scope>
     </dependency>
   </dependencies>
   <build>
-    
-    
-    
-    
-    
-    
     <resources>
       <resource>
         <directory>${basedir}/src/config</directory>
@@ -79,7 +61,6 @@
         </includes>
       </resource>
     </resources>
-    
 <!-- other resources for the jar - properties and xml files-->
   </build>
 </project>

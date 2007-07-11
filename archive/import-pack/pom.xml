@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>archive-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../../master/pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Import Components Package</name>
   <groupId>org.sakaiproject</groupId>
@@ -21,89 +21,28 @@
   </properties>
   <dependencies>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-import-impl</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-common-cartridge</artifactId>
+      <artifactId>sakai-samigo-qti</artifactId>
       <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-import-announcement</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-import-content</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-import-sam</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-samigo-qti</artifactId>
-			<version>${sakai.version}</version>
-                         <exclusions>
-                          <exclusion>
-                            <groupId>jsf</groupId>
-                            <artifactId>jsf-api</artifactId>
-                          </exclusion>
-                          <exclusion>
-                            <groupId>jsf</groupId>
-                            <artifactId>jsf-impl</artifactId>
-                          </exclusion>
-                        </exclusions>
-		</dependency>
-    <dependency>
-      
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-archive-import</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      
-      <groupId>javax.activation</groupId>
-      <artifactId>activation</artifactId>
-      <version>1.0.2</version>
-    </dependency>
-    <dependency>
-      
-      <groupId>jaxen</groupId>
-      <artifactId>jaxen</artifactId>
-      <version>1.0-FCS-full</version>
-    </dependency>
-    <dependency>
-      
-      <groupId>saxpath</groupId>
-      <artifactId>saxpath</artifactId>
-      <version>1.0-FCS</version>
+      <exclusions>
+        <exclusion>
+          <groupId>jsf</groupId>
+          <artifactId>jsf-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>jsf</groupId>
+          <artifactId>jsf-impl</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
   <build>
-    
-    
-    
-    
-    
-    
     <resources/>
 <!-- java source -->
-    
   </build>
 </project>

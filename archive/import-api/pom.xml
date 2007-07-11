@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>archive-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../../master/pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Import API</name>
   <groupId>org.sakaiproject</groupId>
@@ -21,20 +21,12 @@
   </properties>
   <dependencies>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-component</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
   </dependencies>
   <build>
-    
-    
-    
-    
-    
-    
     <resources>
       <resource>
         <directory>${basedir}/src/config</directory>
@@ -44,7 +36,6 @@
         </includes>
       </resource>
     </resources>
-    
 <!-- other resources for the jar - properties and xml files-->
   </build>
 </project>
