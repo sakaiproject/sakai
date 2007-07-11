@@ -3,92 +3,69 @@
   <modelVersion>4.0.0</modelVersion>
   <packaging>jar</packaging>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>gradebook-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../../../master/pom.xml</relativePath>
+    <relativePath>../../pom.xml</relativePath>
   </parent>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-gradebook-standalone-app</artifactId>
   <name>sakai-gradebook-standalone-app</name>
   <dependencies>
     <dependency>
-
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-gradebook-app-ui</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-gradebook-app-business</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
 <!-- Needed for unit testing with Hibernate 3. -->
     <dependency>
-
       <groupId>antlr</groupId>
       <artifactId>antlr</artifactId>
       <version>2.7.6rc1</version>
-      <scope>provided</scope>
     </dependency>
-
-
-
     <dependency>
-
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-gradebook-service-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-gradebook-service-hibernate</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-gradebook-service-impl</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
 <!-- Section Awareness -->
     <dependency>
-
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
 <!-- Standalone component -->
     <dependency>
-
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-impl-standalone</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
 <!-- Used only for test data. -->
     <dependency>
-
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-integrationsupport</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
 <!-- this is required for any Sakai JSF tool -->
     <dependency>
-
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-tool</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
 <!-- sakai2 plugin -->
 <!--
@@ -98,37 +75,29 @@
 		-->
 <!-- Uuid generator -->
     <dependency>
-
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-util-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-util-impl</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
-	<dependency>
-		<groupId>org.sakaiproject</groupId>
-		<artifactId>sakai-component-api</artifactId>
-		<version>${sakai.version}</version>
-	</dependency>
-	
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-tool-api</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		
     <dependency>
-
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-component-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-tool-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
       <groupId>commons-id</groupId>
       <artifactId>commons-id</artifactId>
       <version>0.1-dev</version>
-      <scope>provided</scope>
 <!--url: http://brutus.apache.org/gump/public/jakarta-commons-sandbox/commons-id/ -->
     </dependency>
 <!-- End Sakai2 Dependencies -->
@@ -136,11 +105,9 @@
 <!-- Please contact the gradebook development team before removing these -->
 <!-- Uncomment as necessary to run tests, or to generate new db schemas -->
     <dependency>
-
       <groupId>hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
       <version>1.7.3.0</version>
-      <scope>provided</scope>
     </dependency>
 <!-- Since none of these JDBC libraries will be used except in standalone test -->
 <!-- builds, we specify the '_g' Oracle JAR to obtain more debugging information. -->
@@ -155,150 +122,110 @@
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 			<version>3.1.12</version>
-      <scope>provided</scope>
 		</dependency>
 
 -->
 <!-- End database dependencies -->
     <dependency>
-
       <groupId>${sakai.spring.groupId}</groupId>
       <artifactId>${sakai.spring.artifactId}</artifactId>
       <version>${sakai.spring.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-
       <groupId>${sakai.spring.groupId}</groupId>
       <artifactId>${sakai.spring.mock.artifactId}</artifactId>
       <version>${sakai.spring.mock.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-
       <groupId>aopalliance</groupId>
       <artifactId>aopalliance</artifactId>
       <version>1.0</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-
       <groupId>jta</groupId>
       <artifactId>jta</artifactId>
       <version>h2.1.8</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-
       <groupId>${sakai.hibernate.groupId}</groupId>
       <artifactId>${sakai.hibernate.artifactId}</artifactId>
       <version>${sakai.hibernate.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-
-<groupId>${sakai.ehcache.groupId}</groupId>
+      <groupId>${sakai.ehcache.groupId}</groupId>
       <artifactId>${sakai.ehcache.artifactId}</artifactId>
       <version>${sakai.ehcache.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-
       <groupId>cglib</groupId>
       <artifactId>cglib-nodep</artifactId>
       <version>2.1_3</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-
       <groupId>odmg</groupId>
       <artifactId>odmg</artifactId>
       <version>3.0</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-
       <groupId>commons-dbcp</groupId>
       <artifactId>commons-dbcp</artifactId>
       <version>1.2</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-
       <groupId>commons-pool</groupId>
       <artifactId>commons-pool</artifactId>
       <version>1.2</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
       <version>${sakai.commons.lang.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
       <version>3.1</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-
       <groupId>commons-digester</groupId>
       <artifactId>commons-digester</artifactId>
       <version>1.6</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-
       <groupId>commons-beanutils</groupId>
       <artifactId>commons-beanutils</artifactId>
       <version>1.7.0</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <version>1.2</version>
-      <scope>provided</scope>
     </dependency>
-      <dependency>
-          <groupId>com.thoughtworks.xstream</groupId>
-          <artifactId>xstream</artifactId>
-          <version>1.2.1</version>
-          <scope>provided</scope>
-      </dependency>
-
     <dependency>
-
+      <groupId>com.thoughtworks.xstream</groupId>
+      <artifactId>xstream</artifactId>
+      <version>1.2.1</version>
+    </dependency>
+    <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
       <version>1.2.9</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-
       <groupId>dom4j</groupId>
       <artifactId>dom4j</artifactId>
       <version>1.4</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-
       <groupId>poi</groupId>
       <artifactId>poi</artifactId>
       <version>2.5.1</version>
-      <scope>provided</scope>
     </dependency>
 <!-- MyFaces JSF -->
     <dependency>
@@ -317,85 +244,65 @@
       <version>1.1.3</version>
       <exclusions>
         <exclusion>
-            <!-- shared -->
-            <groupId>antlr</groupId>
-            <artifactId>antlr</artifactId>
+<!-- shared -->
+          <groupId>antlr</groupId>
+          <artifactId>antlr</artifactId>
         </exclusion>
       </exclusions>
-
     </dependency>
-
 <!-- Needed by MyFaces ExtensionsFilter -->
     <dependency>
-
       <groupId>commons-fileupload</groupId>
       <artifactId>commons-fileupload</artifactId>
       <version>1.1.1</version>
-      <scope>provided</scope>
     </dependency>
 <!-- base64 used to implement STATE_SAVING_METHOD client -->
     <dependency>
-
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
       <version>1.2</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-
       <groupId>javax.servlet</groupId>
       <artifactId>jstl</artifactId>
       <version>1.1.2</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-
       <groupId>taglibs</groupId>
       <artifactId>standard</artifactId>
       <version>1.1.2</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-
 <!--id: servletapi -->
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
       <version>${sakai.servletapi.version}</version>
-      <scope>provided</scope>
 <!--properties:  war.bundle: false -->
     </dependency>
     <dependency>
-
       <groupId>javax.servlet</groupId>
       <artifactId>jsp-api</artifactId>
       <version>2.0</version>
-      <scope>provided</scope>
 <!--properties:  war.bundle: false -->
     </dependency>
-
 <!-- Sakai tag library -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-widgets</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-widgets-myfaces</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-spreadsheet</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
-
   </dependencies>
   <build>
-
     <plugins>
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
@@ -406,7 +313,7 @@
               <tasks>
                 <echo message="Copying shared resources into webapp"/>
                 <copy todir="${project.build.directory}/${project.build.finalName}" overwrite="true">
-                        <fileset dir="${basedir}/../ui/src/webapp" />
+                  <fileset dir="${basedir}/../ui/src/webapp"/>
                 </copy>
               </tasks>
             </configuration>
@@ -416,8 +323,7 @@
           </execution>
         </executions>
       </plugin>
-
-      <!--
+<!--
 		Until the Gradebook source is restructured for Maven 2, eliminate
 		incorrect execution of data loaders by excluding "Test*.java" files.
       	(For Maven 1, JUnit tests were filtered and ordered by going
@@ -432,9 +338,7 @@
           </excludes>
         </configuration>
       </plugin>
-
     </plugins>
-
     <resources>
       <resource>
         <directory>${basedir}/../ui/src/bundle</directory>
@@ -449,7 +353,6 @@
         <directory>src/resources</directory>
       </resource>
     </resources>
-
     <testResources>
       <testResource>
         <directory>${basedir}/../ui/src/webapp/WEB-INF</directory>
@@ -474,6 +377,5 @@
         <directory>src/resource</directory>
       </testResource>
     </testResources>
-
   </build>
 </project>
