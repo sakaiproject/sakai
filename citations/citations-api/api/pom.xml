@@ -7,49 +7,41 @@
     <version>M2</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
-  
   <name>sakai-citations-api</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-citations-api</artifactId>
   <description>
     This project creates the general APIs used by the Sakai Citations Helper
   </description>
-  
   <organization>
     <name>University of Michigan</name>
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
-  
   <packaging>jar</packaging>
   <properties>
     <deploy.target>shared</deploy.target>
   </properties>
-  
   <dependencies>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-component</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-entity-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-util-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>OKI</groupId>
       <artifactId>OkiOSID</artifactId>
       <version>2.0</version>
-      <scope>provided</scope>
     </dependency>
   </dependencies>
   <build>

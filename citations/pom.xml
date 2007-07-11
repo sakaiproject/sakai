@@ -2,24 +2,24 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../master/pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Citations Project</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-citations</artifactId>
   <packaging>pom</packaging>
- <modules>
-<module>citations-servlet/servlet</module>
-<module>citations-api/api</module>
-<module>citations-tool/tool</module>
-<module>citations-util/util</module>
-<module>citations-osid/web2bridge</module>
-<module>citations-osid/xserver</module>
-<module>citations-impl/impl</module>
-<module>citations-impl/pack</module>
-<module>citations-shared-deploy</module>
- </modules>
+  <modules>
+    <module>citations-servlet/servlet</module>
+    <module>citations-api/api</module>
+    <module>citations-tool/tool</module>
+    <module>citations-util/util</module>
+    <module>citations-osid/web2bridge</module>
+    <module>citations-osid/xserver</module>
+    <module>citations-impl/impl</module>
+    <module>citations-impl/pack</module>
+    <module>citations-shared-deploy</module>
+  </modules>
 </project>

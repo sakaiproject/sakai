@@ -24,20 +24,17 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-citations-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>zing</groupId>
       <artifactId>cql-java</artifactId>
       <version>0.7</version>
-      <scope>provided</scope>
 <!--properties:  deploy.target: shared -->
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
-      <scope>provided</scope>
     </dependency>
   </dependencies>
   <build>

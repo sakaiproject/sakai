@@ -24,31 +24,26 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-citations-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-citations-util</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>OKI</groupId>
       <artifactId>OkiOSID</artifactId>
       <version>2.0</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>${sakai.ehcache.groupId}</groupId>
       <artifactId>${sakai.ehcache.artifactId}</artifactId>
       <version>${sakai.ehcache.version}</version>
-      <scope>provided</scope>
     </dependency>
   </dependencies>
   <build>

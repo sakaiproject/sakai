@@ -24,25 +24,21 @@
       <groupId>javax.servlet</groupId>
       <artifactId>servlet-api</artifactId>
       <version>${sakai.servletapi.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>${sakai.ehcache.groupId}</groupId>
       <artifactId>${sakai.ehcache.artifactId}</artifactId>
       <version>${sakai.ehcache.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>OKI</groupId>
       <artifactId>OkiOSID</artifactId>
       <version>2.0</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>OKI</groupId>
