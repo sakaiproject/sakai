@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>sections-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../../../master/pom.xml</relativePath>
+    <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-sections-integrationsupport</name>
   <groupId>org.sakaiproject</groupId>
@@ -21,48 +21,36 @@
   </properties>
   <dependencies>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-impl-standalone</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-util-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-util-impl</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>commons-id</groupId>
       <artifactId>commons-id</artifactId>
       <version>0.1-dev</version>
 <!--url: http://brutus.apache.org/gump/public/jakarta-commons-sandbox/commons-id/ -->
-      <scope>provided</scope>
     </dependency>
 <!-- Database dependencies -->
     <dependency>
-      
       <groupId>hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
       <version>1.8.0.5</version>
-      <scope>provided</scope>
     </dependency>
 <!-- Uncomment as necessary to run tests -->
 <!-- 
@@ -79,137 +67,98 @@
         -->
 <!-- End database dependencies -->
     <dependency>
-      
       <groupId>${sakai.spring.groupId}</groupId>
       <artifactId>${sakai.spring.artifactId}</artifactId>
       <version>${sakai.spring.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>${sakai.spring.groupId}</groupId>
       <artifactId>${sakai.spring.mock.artifactId}</artifactId>
       <version>${sakai.spring.mock.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>aopalliance</groupId>
       <artifactId>aopalliance</artifactId>
       <version>1.0</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>jta</groupId>
       <artifactId>jta</artifactId>
       <version>h2.1.8</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>${sakai.hibernate.groupId}</groupId>
       <artifactId>${sakai.hibernate.artifactId}</artifactId>
       <version>${sakai.hibernate.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
-<groupId>${sakai.ehcache.groupId}</groupId>
+      <groupId>${sakai.ehcache.groupId}</groupId>
       <artifactId>${sakai.ehcache.artifactId}</artifactId>
       <version>${sakai.ehcache.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>cglib</groupId>
       <artifactId>cglib-nodep</artifactId>
       <version>2.1_3</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>antlr</groupId>
       <artifactId>antlr</artifactId>
       <version>2.7.6rc1</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>odmg</groupId>
       <artifactId>odmg</artifactId>
       <version>3.0</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>commons-dbcp</groupId>
       <artifactId>commons-dbcp</artifactId>
       <version>1.2</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>commons-pool</groupId>
       <artifactId>commons-pool</artifactId>
       <version>1.2</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
       <version>${sakai.commons.lang.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
       <version>3.1</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>commons-digester</groupId>
       <artifactId>commons-digester</artifactId>
       <version>1.6</version>
     </dependency>
     <dependency>
-      
       <groupId>commons-beanutils</groupId>
       <artifactId>commons-beanutils</artifactId>
       <version>1.7.0</version>
     </dependency>
     <dependency>
-      
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
       <version>1.2.9</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>dom4j</groupId>
       <artifactId>dom4j</artifactId>
       <version>1.4</version>
-      <scope>provided</scope>
     </dependency>
   </dependencies>
   <reports/>
   <build>
-    
-    
-    
-    
-    
     <resources>
       <resource>
         <directory>${basedir}/src/conf/</directory>
@@ -219,8 +168,6 @@
         </includes>
       </resource>
     </resources>
-    
-    
     <testResources>
       <testResource>
         <directory>${basedir}/../../sections-app/</directory>
@@ -234,7 +181,6 @@
           <include>hibernate.properties</include>
         </includes>
       </testResource>
-
     </testResources>
   </build>
 </project>
