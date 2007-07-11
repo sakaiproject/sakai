@@ -24,6 +24,7 @@ package org.sakaiproject.citation.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -86,16 +87,16 @@ import org.sakaiproject.tool.api.SessionManager;
  */
 public class BaseConfigurationService implements ConfigurationService, Observer
 {
-	private static Log m_log = LogFactory.getLog(BaseConfigurationService.class);
+  private static Log m_log = LogFactory.getLog(BaseConfigurationService.class);
 
-	/*
-	 * All the following properties will be set by Spring using components.xml
-	 */
-	// enable/disable entire helper
+  /*
+   * All the following properties will be set by Spring using components.xml
+   */
+  // enable/disable entire helper
     protected boolean m_citationsEnabledByDefault = false;
     protected boolean m_allowSiteBySiteOverride = false;
 
-	// enable/disable helper features -->
+  // enable/disable helper features -->
     protected String m_googleSearchEnabled = "false";
     protected String m_librarySearchEnabled = "false";
 
@@ -104,83 +105,78 @@ public class BaseConfigurationService implements ConfigurationService, Observer
     protected String m_configXml = "sakai/citationsConfig.xml";
     protected String m_categoriesXml = "sakai/databaseHierarchy.xml";
 
-    protected SortedSet<String> m_updatableResources = new TreeSet<String>();
+    protected SortedSet<String> m_updatableResources = Collections.synchronizedSortedSet(new TreeSet<String>());
 
-	// configuration XML file location
+  // configuration XML file location
     protected String m_databaseXml;
     protected String m_siteConfigXml;
 
-  	// metasearch engine parameters
+    // metasearch engine parameters
     protected String m_metasearchUsername;
     protected String m_metasearchPassword;
     protected String m_metasearchBaseUrl;
 
-	// which osid impl to use
+  // which osid impl to use
     protected String m_osidImpl;
 
-	// openURL parameters -->
+  // openURL parameters -->
     protected String m_openUrlLabel;
     protected String m_openUrlResolverAddress;
 
-	// google scholar parameters -->
+  // google scholar parameters -->
     protected String m_googleBaseUrl;
     protected String m_sakaiServerKey;
 
-	// site-specific config/authentication/authorization implementation -->
+  // site-specific config/authentication/authorization implementation -->
     protected String m_osidConfig;
 
-	// other config services -->
-	protected SessionManager m_sessionManager;
-	protected ServerConfigurationService m_serverConfigurationService;
+  // other config services -->
+  protected SessionManager m_sessionManager;
+  protected ServerConfigurationService m_serverConfigurationService;
 
-	private TreeSet<String> m_categories;
+  private TreeSet<String> m_categories;
+  private TreeSet<String> m_configs;
+  /*
+   * End of components.xml properties
+   */
 
-	private TreeSet<String> m_configs;
-	/*
-	 * End of components.xml properties
-	 */
-
-	/*
-	 * Site specific OSID configuration instance
-	 */
-	private static SiteOsidConfiguration m_siteConfigInstance = null;
+  /*
+   * Site specific OSID configuration instance
+   */
+  private static SiteOsidConfiguration m_siteConfigInstance = null;
 
   /*
    * Dynamic configuration parameters
    */
   protected static Map<String, Map<String,String>> m_configMaps = new HashMap<String, Map<String,String>>();
+  protected static SortedSet<String> m_failedConfigs = Collections.synchronizedSortedSet(new TreeSet<String>());
 
   protected static String m_configListRef = null;
 
   /*
-   * Failed configurations (didn't parse properly)
+   * Interface methods
    */
-  protected static List<String> m_failedConfigs = new ArrayList<String>();
 
-	/*
-	 * Interface methods
-	 */
+  /**
+   * Fetch the appropriate XML configuration document for this user
+   * @return Configuration XML resource name
+   */
+  public String getConfigurationXml() throws OsidConfigurationException
+  {
+    SiteOsidConfiguration siteConfig  = getSiteOsidConfiguration();
+    String                configXml   = null;
 
-	/**
-	 * Fetch the appropriate XML configuration document for this user
-	 * @return Configuration XML resource name
-	 */
-	public String getConfigurationXml() throws OsidConfigurationException
-	{
-		SiteOsidConfiguration siteConfig  = getSiteOsidConfiguration();
-		String                configXml   = null;
+    if (siteConfig != null)
+    {
+      configXml = siteConfig.getConfigurationXml();
+    }
 
-		if (siteConfig != null)
-		{
-			configXml = siteConfig.getConfigurationXml();
-		}
-
-		if (isNull(configXml))
-		{
-			configXml = m_siteConfigXml;
-		}
-		return configXml;
-	}
+    if (isNull(configXml))
+    {
+      configXml = m_siteConfigXml;
+    }
+    return configXml;
+  }
 
   /**
    * Is the configuration XML file provided and readable
@@ -190,49 +186,41 @@ public class BaseConfigurationService implements ConfigurationService, Observer
   {
     try
     {
-    	// get the xml filename
-    	String configXml = getConfigurationXml();
-    	if( configXml == null )
-    	{
-    		return false;
-    	}
+      String configXml = getConfigurationXml();
 
-    	// not null, try to open it for reading
-    	//java.io.FileInputStream fis = new java.io.FileInputStream( configXml );
+      if (configXml == null)
+      {
+        return false;
+      }
+      return exists(configXml);
     }
-/*
-    catch( java.io.FileNotFoundException fnfe )
+    catch (OsidConfigurationException exception)
     {
-    	// file not found
-    	return false;
+      m_log.warn("Unexpected exception: " + exception);
     }
-*/
-    catch (OsidConfigurationException ignore) { }
-
-    // filename is not null and the file is readable
-    return true;
+    return false;
   }
 
-	public String getConfigFolderReference()
+  public String getConfigFolderReference()
     {
-	    String configFolderRef = null;
-		if(! isNull(this.m_adminSiteName) && ! isNull(this.m_configFolder))
-		{
-			configFolderRef = "/content/group/" + this.m_adminSiteName + "/" + this.m_configFolder + "/";
-		}
-		return configFolderRef;
+      String configFolderRef = null;
+    if(! isNull(this.m_adminSiteName) && ! isNull(this.m_configFolder))
+    {
+      configFolderRef = "/content/group/" + this.m_adminSiteName + "/" + this.m_configFolder + "/";
+    }
+    return configFolderRef;
 
     }
 
-	public String getConfigFolderId()
-	{
-		String configFolderId = null;
-		if(! isNull(this.m_adminSiteName) && ! isNull(this.m_configFolder))
-		{
-			configFolderId = "/group/" + this.m_adminSiteName + "/" + this.m_configFolder + "/";
-		}
-		return configFolderId;
-	}
+  public String getConfigFolderId()
+  {
+    String configFolderId = null;
+    if(! isNull(this.m_adminSiteName) && ! isNull(this.m_configFolder))
+    {
+      configFolderId = "/group/" + this.m_adminSiteName + "/" + this.m_configFolder + "/";
+    }
+    return configFolderId;
+  }
 
   /**
    * Fetch the appropriate XML database hierarchy document for this user
@@ -263,27 +251,19 @@ public class BaseConfigurationService implements ConfigurationService, Observer
   {
     try
     {
-    	// get the xml filename
-    	String dbXml = getDatabaseHierarchyXml();
-    	if( dbXml == null )
-    	{
-    		return false;
-    	}
+      String dbXml = getDatabaseHierarchyXml();
 
-    	// not null, try to open it for reading
-    	// java.io.FileInputStream fis = new java.io.FileInputStream( dbXml );
+      if( dbXml == null )
+      {
+        return false;
+      }
+      return exists(dbXml);
     }
-/*
-    catch( java.io.FileNotFoundException fnfe )
+    catch (OsidConfigurationException exception)
     {
-    	// file not found
-    	return false;
+      m_log.warn("Unexpected exception: " + exception);
     }
-*/
-    catch (OsidConfigurationException ignore) { }
-
-    // filename is not null and the file is readable
-    return true;
+    return false;
   }
 
   /**
@@ -415,7 +395,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
    */
   public void setAllowSiteBySiteOverride(boolean allowSiteBySiteOverride)
   {
-	  m_allowSiteBySiteOverride = allowSiteBySiteOverride;
+    m_allowSiteBySiteOverride = allowSiteBySiteOverride;
   }
 
   /**
@@ -486,11 +466,12 @@ public class BaseConfigurationService implements ConfigurationService, Observer
 
     try
     {
-      SiteOsidConfiguration siteConfig = getSiteOsidConfiguration();
-      String configXml;
+      SiteOsidConfiguration siteConfig;
+      String configXml, configXmlRef;
       /*
        * Fetch the configuration XML resource name
        */
+      siteConfig = getSiteOsidConfiguration();
       if (siteConfig == null)
       {
         return null;
@@ -500,35 +481,26 @@ public class BaseConfigurationService implements ConfigurationService, Observer
       {
         return null;
       }
-      String configXmlRef = this.getConfigFolderReference() + configXml;
       /*
-       * Look up the requested configuration Map - if it doesn't already exist,
-       * try to load it "on the fly"
+       * Construct the full reference and look up the requested configuration
        */
+      configXmlRef = this.getConfigFolderReference() + configXml;
       synchronized (this)
       {
         parameterMap = m_configMaps.get(configXmlRef);
         if (parameterMap == null)
         {
-          m_log.debug("New configuration requested from: " + configXml);
-
-          updateConfig(configXmlRef);
-
+          /*
+           * No configuration found, try to load it "on the fly"
+           */
+          updateConfigOnDemand(configXmlRef);
           parameterMap = m_configMaps.get(configXmlRef);
-          if (parameterMap != null)
-          {
-   	    	  if (!this.m_updatableResources.contains(configXmlRef))
-   	    	  {
-   	    	    this.m_updatableResources.add(configXmlRef);
-            }
-            m_log.debug("Now observing " + configXml);
-          }
         }
       }
     }
     catch (OsidConfigurationException exception)
     {
-      m_log.warn("Failed to get dynamic XML value for "
+      m_log.warn("Failed to get a dynamic XML value for "
               +  parameter
               +  ": "
               +  exception);
@@ -536,10 +508,8 @@ public class BaseConfigurationService implements ConfigurationService, Observer
     /*
      * Finally, return the requested configuration parameter
      */
-    m_log.debug("getParameter() returns: " + ((parameterMap == null) ? null : parameterMap.get(parameter)));
     return (parameterMap == null) ? null : parameterMap.get(parameter);
   }
-
 
   /**
    * Load and initialize the site-specific OSID configuration code
@@ -548,18 +518,18 @@ public class BaseConfigurationService implements ConfigurationService, Observer
    */
   protected SiteOsidConfiguration getSiteOsidConfiguration()
   {
-	  SiteOsidConfiguration siteConfig;
+    SiteOsidConfiguration siteConfig;
 
     try
     {
-	    siteConfig = getConfigurationHandler(m_osidConfig);
-	    siteConfig.init();
-	  }
-	  catch (Exception exception)
-	  {
-	    m_log.warn("Failed to get " + m_osidConfig + ": " + exception);
-	    siteConfig = null;
-	  }
+      siteConfig = getConfigurationHandler(m_osidConfig);
+      siteConfig.init();
+    }
+    catch (Exception exception)
+    {
+      m_log.warn("Failed to get " + m_osidConfig + ": " + exception);
+      siteConfig = null;
+    }
     return siteConfig;
   }
 
@@ -570,8 +540,8 @@ public class BaseConfigurationService implements ConfigurationService, Observer
   public synchronized
          SiteOsidConfiguration getConfigurationHandler(String osidConfigHandler)
                                       throws  java.lang.ClassNotFoundException,
-      							  					              java.lang.InstantiationException,
-  	    												              java.lang.IllegalAccessException
+                                              java.lang.InstantiationException,
+                                              java.lang.IllegalAccessException
   {
     if (m_siteConfigInstance == null)
     {
@@ -580,83 +550,6 @@ public class BaseConfigurationService implements ConfigurationService, Observer
       m_siteConfigInstance = (SiteOsidConfiguration) configClass.newInstance();
     }
     return m_siteConfigInstance;
-  }
-
-  /**
-   * Populate cached values from configuration XML.  Don't even try
-   * if the requested XML resource has already failed to parse.
-   *
-   * Invoked by <code>getConfigurationParameter()</code>.
-   *
-   * @param configXmlRef Configuration resource name
-   */
-  protected void populateConfigOnReference(String configXmlRef)
-  {
-    if (m_failedConfigs.contains(configXmlRef))
-    {
-      return;
-    }
-    populateConfig(configXmlRef);
-  }
-
-  /**
-   * Populate cached values from a configuration XML resource.  We always try
-   * to parse the resource, regardless of any prior success or failure.
-   *
-   * @param configurationXml Configuration resource name (this doubles as a
-   *                         unique key into the configuration cache)
-   */
-  public void populateConfig(String configurationXml)
-  {
-    org.w3c.dom.Document  document;
-    String                value;
-
-    if (configurationXml == null)
-    {
-      return;
-    }
-
-    document = parseXmlFromUri(configurationXml);
-
-    synchronized (this)
-    {
-      Map<String, String> parameterMap;
-
-      /*
-       * If the parse fails, flag it and give up now
-       */
-      if (document == null)
-      {
-        if (!m_failedConfigs.contains(configurationXml))
-        {
-          m_failedConfigs.add(configurationXml);
-        }
-        return;
-      }
-      /*
-       * Successful parse - save the values (and clear the "failed" flag)
-       */
-      m_failedConfigs.remove(configurationXml);
-
-      if ((parameterMap = m_configMaps.get(configurationXml)) == null)
-      {
-        parameterMap = new HashMap<String, String>();
-      }
-      parameterMap.clear();
-
-      saveParameter(document, parameterMap, "osid-impl");
-      saveParameter(document, parameterMap, "metasearch-username");
-      saveParameter(document, parameterMap, "metasearch-password");
-      saveParameter(document, parameterMap, "metasearch-baseurl");
-      saveParameter(document, parameterMap, "openurl-label");           // obsolete?
-      saveParameter(document, parameterMap, "openurl-resolveraddress");
-      saveParameter(document, parameterMap, "google-baseurl");
-      saveParameter(document, parameterMap, "sakai-serverkey");
-      saveParameter(document, parameterMap, "config-id");
-      saveParameter(document, parameterMap, "hierarchy-xml");
-
-      m_configMaps.put(configurationXml, parameterMap);
-    }
   }
 
   /**
@@ -671,25 +564,21 @@ public class BaseConfigurationService implements ConfigurationService, Observer
     org.w3c.dom.Document  document;
     String                value;
 
-    document = parseXmlFromStream(stream);
+    /*
+     * Parse the XML - if that fails, give up now
+     */
+    if ((document = parseXmlFromStream(stream)) == null)
+    {
+      m_failedConfigs.add(configurationXml);
+      return;
+    }
 
     synchronized (this)
     {
       Map<String, String> parameterMap;
 
       /*
-       * If the parse fails, flag it and give up now
-       */
-      if (document == null)
-      {
-        if (!m_failedConfigs.contains(configurationXml))
-        {
-          m_failedConfigs.add(configurationXml);
-        }
-        return;
-      }
-      /*
-       * Successful parse - save the values (and clear the "failed" flag)
+       * Successful parse - note success and save the values
        */
       m_failedConfigs.remove(configurationXml);
 
@@ -728,35 +617,15 @@ public class BaseConfigurationService implements ConfigurationService, Observer
     if ((value = getText(document, name)) != null)
     {
       parameterMap.put(name, value);
-      m_log.debug("New configuration value: " + name + " = " + value);
     }
   }
 
-  /**
-   * Parse an XML file into a Document.
-   * @param filename The filename (or URI) to parse
-   * @return DOM Document (null if parse fails)
+  /*
+   * XML helpers
    */
-  protected Document parseXmlFromUri(String filename)
-  {
-    try
-    {
-      DocumentBuilder documentBuilder = getXmlDocumentBuilder();
-
-      if (documentBuilder != null)
-      {
-        return documentBuilder.parse(filename);
-      }
-    }
-    catch (Exception exception)
-    {
-      m_log.warn("XML parse on \"" + filename + "\" failed: " + exception);
-    }
-    return null;
-  }
 
   /**
-   * Parse an XML file into a Document.
+   * Parse an XML resource
    * @param filename The filename (or URI) to parse
    * @return DOM Document (null if parse fails)
    */
@@ -809,7 +678,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
    */
   protected String normalizeText(String original, String update)
   {
-  	StringBuffer	result;
+    StringBuffer  result;
 
     if (original == null)
     {
@@ -870,169 +739,144 @@ public class BaseConfigurationService implements ConfigurationService, Observer
     return text == null ? text : text.trim();
   }
 
-  /**
-   * Null (or empty) String?
-   * @param string String to check
-   * @return true if so
-   */
-	private boolean isNull(String string)
-	{
-		return (string == null) || (string.trim().equals(""));
-	}
-
-	/**
-	 * Establish a security advisor to allow the "embedded" azg work to occur
-	 * with no need for additional security permissions.
-	 */
-	protected void enableSecurityAdvisor()
-	{
-		// put in a security advisor so we can create citationAdmin site without need
-		// of further permissions
-		SecurityService.pushAdvisor(new SecurityAdvisor() {
-			public SecurityAdvice isAllowed(String userId, String function, String reference)
-			{
-				return SecurityAdvice.ALLOWED;
-			}
-		});
-	}
-
   /*
    * Inititialize and destroy
    */
- 	public void init()
-	{
-		m_log.info("init()");
+  public void init()
+  {
+    m_log.info("init()");
 
-		EventTrackingService.addObserver(this);
+    EventTrackingService.addObserver(this);
 
-		SiteService siteService = (SiteService) ComponentManager.get(SiteService.class);
-		ContentHostingService contentService = (ContentHostingService) ComponentManager.get(ContentHostingService.class);
+    SiteService siteService = (SiteService) ComponentManager.get(SiteService.class);
+    ContentHostingService contentService = (ContentHostingService) ComponentManager.get(ContentHostingService.class);
 
-		if(isNull(this.m_adminSiteName))
-		{
-			// can't create
-		}
-		else if(siteService.siteExists(this.m_adminSiteName))
-		{
-			// no need to create
-		}
-		else
-		{
-			// need to create
-			try
+    if(isNull(this.m_adminSiteName))
+    {
+      // can't create
+    }
+    else if(siteService.siteExists(this.m_adminSiteName))
+    {
+      // no need to create
+    }
+    else
+    {
+      // need to create
+      try
             {
-				enableSecurityAdvisor();
-				Site adminSite = siteService.addSite(this.m_adminSiteName, "project");
+        enableSecurityAdvisor();
+        Site adminSite = siteService.addSite(this.m_adminSiteName, "project");
 
-				// add Resources tool
-				SitePage resPage = adminSite.addPage();
-				resPage.addTool("sakai.resources");
+        // add Resources tool
+        SitePage resPage = adminSite.addPage();
+        resPage.addTool("sakai.resources");
 
-				enableSecurityAdvisor();
-				siteService.save(adminSite);
+        enableSecurityAdvisor();
+        siteService.save(adminSite);
             }
             catch (IdInvalidException e)
             {
-	            // TODO Auto-generated catch block
-	            m_log.warn("IdInvalidException ", e);
+              // TODO Auto-generated catch block
+              m_log.warn("IdInvalidException ", e);
             }
             catch (IdUsedException e)
             {
-	            // we've already verified that the site doesn't exist but
-            	// this can occur if site was created by another server
-            	// in a cluster that is starting up at the same time.
-            	m_log.warn("IdUsedException ", e);
+              // we've already verified that the site doesn't exist but
+              // this can occur if site was created by another server
+              // in a cluster that is starting up at the same time.
+              m_log.warn("IdUsedException ", e);
             }
             catch (PermissionException e)
             {
-	            // TODO Auto-generated catch block
-            	m_log.warn("PermissionException ", e);
+              // TODO Auto-generated catch block
+              m_log.warn("PermissionException ", e);
             }
             catch (IdUnusedException e)
             {
-	            // TODO Auto-generated catch block
-	            m_log.warn("IdUnusedException ", e);
+              // TODO Auto-generated catch block
+              m_log.warn("IdUnusedException ", e);
             }
-		}
+    }
 
-		for(String config : this.m_configs)
-		{
-			String configFileRef = this.getConfigFolderReference() + config;
-	        updateConfig(configFileRef);
-		}
-	}
+    for(String config : this.m_configs)
+    {
+      String configFileRef = this.getConfigFolderReference() + config;
 
-	public void destroy()
-	{
-		m_log.info("destroy()");
-	}
+      updateConfig(configFileRef);
+    }
+  }
+
+  public void destroy()
+  {
+    m_log.info("destroy()");
+  }
 
   /*
    * Getters/setters for components.xml parameters
    */
 
-	/**
+  /**
    * @return the OSID package name
    */
   public String getOsidImpl()
   {
-  	return m_osidImpl;
+    return m_osidImpl;
   }
 
-	/**
+  /**
    * @param osidImpl the OSID package name
    */
-	public void setOsidImpl(String osidImpl)
-	{
-		m_osidImpl = osidImpl;
-	}
+  public void setOsidImpl(String osidImpl)
+  {
+    m_osidImpl = osidImpl;
+  }
 
-	/**
+  /**
    * @return the m_metasearchUsername
    */
   public String getMetasearchUsername()
   {
-  	return m_metasearchUsername;
+    return m_metasearchUsername;
   }
 
-	/**
+  /**
    * @param username the m_metasearchUsername to set
    */
   public void setMetasearchUsername(String username)
   {
-  	m_metasearchUsername = username;
+    m_metasearchUsername = username;
   }
 
-	/**
+  /**
    * @return the m_metasearchBaseUrl
    */
   public String getMetasearchBaseUrl()
   {
-  	return m_metasearchBaseUrl;
+    return m_metasearchBaseUrl;
   }
 
-	/**
+  /**
    * @param baseUrl the m_metasearchBaseUrl to set
    */
   public void setMetasearchBaseUrl(String baseUrl)
   {
-  	m_metasearchBaseUrl = baseUrl;
+    m_metasearchBaseUrl = baseUrl;
   }
 
-	/**
+  /**
    * @return the m_metasearchPassword
    */
   public String getMetasearchPassword()
   {
-  	return m_metasearchPassword;
+    return m_metasearchPassword;
   }
 
-	/**
+  /**
    * @param password the m_metasearchPassword to set
    */
   public void setMetasearchPassword(String password)
   {
-  	m_metasearchPassword = password;
+    m_metasearchPassword = password;
   }
 
   /**
@@ -1040,356 +884,464 @@ public class BaseConfigurationService implements ConfigurationService, Observer
    */
   public String getGoogleBaseUrl()
   {
-  	return m_googleBaseUrl;
+    return m_googleBaseUrl;
   }
 
-	/**
+  /**
    * @param googleBaseUrl the base URL to set
    */
   public void setGoogleBaseUrl(String googleBaseUrl)
   {
-  	m_googleBaseUrl = googleBaseUrl;
+    m_googleBaseUrl = googleBaseUrl;
   }
 
-	/**
+  /**
    * @return the sakaiServerKey
    */
   public String getSakaiServerKey()
   {
-  	return m_sakaiServerKey;
+    return m_sakaiServerKey;
   }
 
-	/**
+  /**
    * @param sakaiServerKey the sakaiServerKey to set
    */
   public void setSakaiServerKey(String sakaiId)
   {
-  	m_sakaiServerKey = sakaiId;
+    m_sakaiServerKey = sakaiId;
   }
 
-	/**
+  /**
    * @return the OpenURL label
    */
   public String getOpenUrlLabel()
   {
-  	return m_openUrlLabel;
+    return m_openUrlLabel;
   }
 
-	/**
+  /**
    * @param set the OpenURL label
    */
   public void setOpenUrlLabel(String openUrlLabel)
   {
-  	m_openUrlLabel = openUrlLabel;
+    m_openUrlLabel = openUrlLabel;
   }
 
-	/**
+  /**
    * @return the OpenURL resolver address
    */
   public String getOpenUrlResolverAddress()
   {
-  	return m_openUrlResolverAddress;
+    return m_openUrlResolverAddress;
   }
 
-	/**
+  /**
    * @param set the OpenURL resolver address
    */
   public void setOpenUrlResolverAddress(String openUrlResolverAddress)
   {
-  	m_openUrlResolverAddress = openUrlResolverAddress;
+    m_openUrlResolverAddress = openUrlResolverAddress;
   }
 
-	/**
+  /**
    * @return the database hierarchy XML filename/URI
    */
   public String getDatabaseXml()
   {
-  	return m_databaseXml;
+    return m_databaseXml;
   }
 
-	/**
+  /**
    * @param set the database hierarchy XML filename/URI
    */
   public void setDatabaseXml(String databaseXml)
   {
-  	m_databaseXml = databaseXml;
+    m_databaseXml = databaseXml;
   }
 
-	/**
+  /**
    * @return the configuration XML filename/URI
    */
   public String getSiteConfigXml()
   {
-  	return m_siteConfigXml;
+    return m_siteConfigXml;
   }
 
-	/**
+  /**
    * @param set the configuration XML filename/URI
    */
   public void setSiteConfigXml(String siteConfigXml)
   {
-  	m_siteConfigXml = siteConfigXml;
+    m_siteConfigXml = siteConfigXml;
   }
 
-	/**
+  /**
    * @return the serverConfigurationService
    */
   public ServerConfigurationService getServerConfigurationService()
   {
-  	return m_serverConfigurationService;
+    return m_serverConfigurationService;
   }
 
-	/**
+  /**
    * @param serverConfigurationService the serverConfigurationService to set
    */
   public void setServerConfigurationService(ServerConfigurationService serverConfigurationService)
   {
-  	m_serverConfigurationService = serverConfigurationService;
+    m_serverConfigurationService = serverConfigurationService;
   }
 
-	/**
+  /**
    * @param sessionManager the SessionManager to save
    */
-	public void setSessionManager(SessionManager sessionManager)
-	{
-		m_sessionManager = sessionManager;
-	}
+  public void setSessionManager(SessionManager sessionManager)
+  {
+    m_sessionManager = sessionManager;
+  }
 
-	/**
+  /**
    * @return the SessionManager
    */
-	public SessionManager getSessionManager()
-	{
-		return m_sessionManager;
-	}
+  public SessionManager getSessionManager()
+  {
+    return m_sessionManager;
+  }
 
-	/**
+  /**
    * @return the site specific "OSID configuration" package name
    */
   public String getOsidConfig()
   {
-  	return m_osidConfig;
+    return m_osidConfig;
   }
 
-	/**
+  /**
    * @param osidConfig the site specific "OSID configuration" package name
    */
-	public void setOsidConfig(String osidConfig)
-	{
-		m_osidConfig = osidConfig;
-	}
+  public void setOsidConfig(String osidConfig)
+  {
+    m_osidConfig = osidConfig;
+  }
 
-	/**
+  /**
    * @return Google search support status
    */
   public String getGoogleSearchEnabled()
   {
-  	return m_googleSearchEnabled;
+    return m_googleSearchEnabled;
   }
 
-	/**
+  /**
    * @param googleSearchEnabled ("true" or "false")
    */
-	public void setGoogleSearchEnabled(String googleSearchEnabled)
-	{
-	  if (googleSearchEnabled.equalsIgnoreCase("true") ||
-			  googleSearchEnabled.equalsIgnoreCase("false"))
-	  {
-	    m_googleSearchEnabled = googleSearchEnabled;
-	    return;
-	  }
+  public void setGoogleSearchEnabled(String googleSearchEnabled)
+  {
+    if (googleSearchEnabled.equalsIgnoreCase("true") ||
+        googleSearchEnabled.equalsIgnoreCase("false"))
+    {
+      m_googleSearchEnabled = googleSearchEnabled;
+      return;
+    }
 
-	  m_log.warn("Invalid Google support setting \""
-	        +    googleSearchEnabled
-	        +    "\", disabling Google search");
+    m_log.warn("Invalid Google support setting \""
+          +    googleSearchEnabled
+          +    "\", disabling Google search");
 
-	  m_googleSearchEnabled = "false";
-	}
+    m_googleSearchEnabled = "false";
+  }
 
-	/**
+  /**
    * @return library search support status
    */
   public String getLibrarySearchEnabled()
   {
-  	return m_librarySearchEnabled;
+    return m_librarySearchEnabled;
   }
 
-	/**
+  /**
    * @param librarySearchEnabled ("true" or "false")
    */
-	public void setLibrarySearchEnabled(String librarySearchEnabled)
-	{
-	  if (librarySearchEnabled.equalsIgnoreCase("true") ||
-			  librarySearchEnabled.equalsIgnoreCase("false"))
-	  {
-	    m_librarySearchEnabled = librarySearchEnabled;
-	    return;
-	  }
-
-	  m_log.warn("Invalid library support setting \""
-	        +    librarySearchEnabled
-	        +    "\", disabling library search");
-
-	  m_librarySearchEnabled = "false";
-	}
-
-	/**
-     * @return the adminSiteName
-     */
-    public String getAdminSiteName()
+  public void setLibrarySearchEnabled(String librarySearchEnabled)
+  {
+    if (librarySearchEnabled.equalsIgnoreCase("true") ||
+        librarySearchEnabled.equalsIgnoreCase("false"))
     {
-    	return m_adminSiteName;
+      m_librarySearchEnabled = librarySearchEnabled;
+      return;
     }
 
-	/**
+    m_log.warn("Invalid library support setting \""
+          +    librarySearchEnabled
+          +    "\", disabling library search");
+
+    m_librarySearchEnabled = "false";
+  }
+
+  /**
+   * @return the adminSiteName
+   */
+  public String getAdminSiteName()
+  {
+    return m_adminSiteName;
+  }
+
+  /**
      * @param adminSiteName the adminSiteName to set
      */
     public void setAdminSiteName(String adminSiteName)
     {
-    	this.m_adminSiteName = adminSiteName;
+      this.m_adminSiteName = adminSiteName;
     }
 
-	/**
-     * @return the configFile
-     */
+  /**
+   * @return the configFile
+   */
     public String getConfigXml()
     {
-       	StringBuffer buf = new StringBuffer();
-    	for(Iterator<String> it = this.m_configs.iterator(); it.hasNext();)
+      StringBuffer buf = new StringBuffer();
+
+      for(Iterator<String> it = this.m_configs.iterator(); it.hasNext();)
+      {
+        String str = it.next();
+        buf.append(str);
+        if(it.hasNext())
+        {
+          buf.append(',');
+        }
+      }
+      return buf.toString();
+    }
+
+  /**
+   * @param configFile the configFile to set
+   */
+  public void setConfigXml(String configXml)
+  {
+    this.m_configs = new TreeSet<String>();
+
+    if(!isNull(configXml))
+    {
+      String[] configs = configXml.split("\\s*,\\s*");
+      for(String config : configs)
+      {
+            this.m_configs.add(config);
+          }
+      }
+    }
+
+  /**
+   * @return the configFolder
+   */
+  public String getConfigFolder()
+  {
+    return m_configFolder;
+  }
+
+  /**
+   * @param configFolder the configFolder to set
+   */
+  public void setConfigFolder(String configFolder)
+  {
+    this.m_configFolder = configFolder;
+  }
+
+  /**
+   * Called when an observed object chnages (@see java.util.Observer#update)
+   * @param arg0 - The observed object
+   * @param arg1 - Event argument
+   */
+  public void update(Observable arg0, Object arg1)
+  {
+    if (arg1 instanceof Event)
+    {
+      Event event = (Event) arg1;
+      /*
+       * Modified?  If so (and this is our file) update the the configuration
+       */
+      if (event.getModify())
+      {
+        String  refstr = event.getResource();
+
+        if (this.m_updatableResources.contains(refstr))
+        {
+          m_log.debug("Updating configuration from " + refstr);
+          updateConfig(refstr);
+        }
+      }
+    }
+  }
+
+  /**
+   * Update configuration data from an XML resource.  Don't try
+   * if the requested XML resource has already failed to parse.
+   *
+   * Invoked by <code>getConfigurationParameter()</code>.
+   *
+   * @param configXmlRef Configuration resource name
+   */
+  protected void updateConfigOnDemand(String configXmlRef)
+  {
+    if (m_failedConfigs.contains(configXmlRef))
+    {
+      return;
+    }
+    updateConfig(configXmlRef);
+  }
+
+
+
+  /**
+   * Update configuration data from an XML resource
+   * @param configFileRef XML configuration reference (/content/...)
+   */
+  protected void updateConfig(String configFileRef)
+  {
+    Reference ref = EntityManager.newReference(configFileRef);
+
+    if (ref != null)
+    {
+      try
+      {
+        ContentResource resource;
+        /*
+         * Fetch configuration details from our XML resource
+         */
+        enableSecurityAdvisor();
+
+        resource = org.sakaiproject.content.cover.ContentHostingService.getResource(ref.getId());
+        if (resource != null)
+        {
+          populateConfig(configFileRef, resource.streamContent());
+        }
+      }
+      catch (PermissionException e)
+      {
+        m_log.warn("Exception: " + e + ", continuing");
+      }
+      catch (IdUnusedException e)
+      {
+        m_log.info("Citations configuration XML is missing ("
+              +    configFileRef
+              +    "); Citations ConfigurationService will watch for its creation");
+      }
+      catch (TypeException e)
+      {
+        m_log.warn("Exception: " + e + ", continuing");
+      }
+      catch (ServerOverloadException e)
+      {
+        m_log.warn("Exception: " + e + ", continuing");
+      }
+    }
+    /*
+     * Always add our reference to the list of observed resources
+     */
+    m_updatableResources.add(configFileRef);
+  }
+
+  /**
+   * @return the categoriesXml resource names
+   */
+  public String getCategoriesXml()
+  {
+    StringBuffer buf = new StringBuffer();
+
+    for(Iterator<String> it = this.m_categories.iterator(); it.hasNext();)
+    {
+      String str = it.next();
+
+      buf.append(str);
+      if(it.hasNext())
+      {
+        buf.append(',');
+      }
+    }
+    return buf.toString();
+  }
+
+  /**
+   * @param categoriesXml the categoriesXml to set
+   */
+  public void setCategoriesXml(String categoriesXml)
+  {
+    this.m_categories = new TreeSet<String>();
+
+    if(!isNull(categoriesXml))
+    {
+      String[] categories = categoriesXml.split("\\s*,\\s*");
+      for(String category : categories)
+      {
+        this.m_categories.add(category);
+      }
+    }
+  }
+
+  public Collection<String> getAllCategoryXml()
+  {
+    return new TreeSet<String>(this.m_categories);
+  }
+
+  /*
+   * Miscellanous helpers
+   */
+
+  /**
+   * Does the specified configuration/hierarchy resource exist?
+   * @param resourceName Resource name
+   * @return true If we can access this content
+   */
+  private boolean exists(String resourceName)
+  {
+    try
+    {
+    	String configFolderRef  = getConfigFolderReference();
+
+
+     	if (!isNull(configFolderRef) && !isNull(resourceName))
     	{
-    		String str = it.next();
-    		buf.append(str);
-    		if(it.hasNext())
-    		{
-    			buf.append(',');
-    		}
-    	}
-    	return buf.toString();
-    }
+        String referenceName   = configFolderRef + resourceName;
 
-	/**
-     * @param configFile the configFile to set
-     */
-    public void setConfigXml(String configXml)
-    {
-    	this.m_configs = new TreeSet<String>();
-    	if(!isNull(configXml))
-    	{
-    	   	String[] configs = configXml.split("\\s*,\\s*");
-    	   	for(String config : configs)
-    	   	{
-    	   		this.m_configs.add(config);
-    	   	}
+        m_log.debug("Looking for: " + referenceName);
+
+        Reference reference = EntityManager.newReference(referenceName);
+    		if (reference == null) return false;
+
+    		enableSecurityAdvisor();
+    		ContentResource resource = org.sakaiproject.content.cover.ContentHostingService.getResource(reference.getId());
+
+    		return (resource != null);
     	}
     }
-
-	/**
-     * @return the configFolder
-     */
-    public String getConfigFolder()
+    catch (Exception exception)
     {
-    	return m_configFolder;
+      m_log.warn("Failed to get configuration details: " + exception);
     }
+   	return false;
+  }
 
-	/**
-     * @param configFolder the configFolder to set
-     */
-    public void setConfigFolder(String configFolder)
-    {
-    	this.m_configFolder = configFolder;
-    }
+  /**
+   * Establish a security advisor to allow the "embedded" azg work to occur
+   * with no need for additional security permissions.
+   */
+  protected void enableSecurityAdvisor()
+  {
+    // put in a security advisor so we can create citationAdmin site without need
+    // of further permissions
+    SecurityService.pushAdvisor(new SecurityAdvisor() {
+      public SecurityAdvice isAllowed(String userId, String function, String reference)
+      {
+        return SecurityAdvice.ALLOWED;
+      }
+    });
+  }
 
-	public void update(Observable arg0, Object arg1)
-    {
-	    if(arg1 instanceof Event)
-	    {
-	    	Event event = (Event) arg1;
-	    	String refstr = event.getResource();
-
-	    	if(this.m_updatableResources.contains(refstr))
-	    	{
-	    		// update the hierarchy
-	    		updateConfig(refstr);
-	    	}
-	    }
-    }
-
-	protected void updateConfig(String configFileRef)
-    {
-		Reference ref = EntityManager.newReference(configFileRef);
-
-		m_log.debug("UpdateConfig() processing: configFileRef = " + configFileRef);
-
-		if(ref != null)
-		{
-			ContentHostingService contentService = (ContentHostingService) ComponentManager.get(ContentHostingService.class);
-			try
-            {
-				enableSecurityAdvisor();
-				ContentResource resource = contentService.getResource(ref.getId());
-	            populateConfig(configFileRef, resource.streamContent());
-            }
-            catch (PermissionException e)
-            {
-	            // TODO Auto-generated catch block
-	            m_log.warn("PermissionException ", e);
-            }
-            catch (IdUnusedException e)
-            {
-	            m_log.info("XML file which defines Citations configuration is missing (" + configFileRef + "); Citations ConfigurationService will watch for its creation");
-            }
-            catch (TypeException e)
-            {
-	            // TODO Auto-generated catch block
-	            m_log.warn("TypeException ", e);
-            }
-            catch (ServerOverloadException e)
-            {
-	            // TODO Auto-generated catch block
-	            m_log.warn("ServerOverloadException ", e);
-            }
-		}
-		m_updatableResources.add(configFileRef);
-
-    }
-
-	/**
-     * @return the categoriesXml
-     */
-    public String getCategoriesXml()
-    {
-    	StringBuffer buf = new StringBuffer();
-    	for(Iterator<String> it = this.m_categories.iterator(); it.hasNext();)
-    	{
-    		String str = it.next();
-    		buf.append(str);
-    		if(it.hasNext())
-    		{
-    			buf.append(',');
-    		}
-    	}
-    	return buf.toString();
-    }
-
-	/**
-     * @param categoriesXml the categoriesXml to set
-     */
-    public void setCategoriesXml(String categoriesXml)
-    {
-    	this.m_categories = new TreeSet<String>();
-    	if(!isNull(categoriesXml))
-    	{
-    	   	String[] categories = categoriesXml.split("\\s*,\\s*");
-    	   	for(String category : categories)
-    	   	{
-    	   		this.m_categories.add(category);
-    	   	}
-    	}
-    }
-
-	public Collection<String> getAllCategoryXml()
-    {
-	    return new TreeSet<String>(this.m_categories);
-    }
-
+  /**
+   * Null (or empty) String?
+   * @param string String to check
+   * @return true if so
+   */
+  private boolean isNull(String string)
+  {
+    return (string == null) || (string.trim().equals(""));
+  }
 }
