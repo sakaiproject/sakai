@@ -188,6 +188,8 @@
         <module>polls</module>
         <module>usermembership</module>
         <module>sakai-mock</module>
+        <module>warehouse</module>
+        <module>reports</module>
       </modules>
     </profile>
   </profiles>
