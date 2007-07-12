@@ -9,7 +9,7 @@
   </parent>
   <name>Citations Project</name>
   <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-citations</artifactId>
+  <artifactId>citations-base</artifactId>
   <packaging>pom</packaging>
   <modules>
     <module>citations-servlet/servlet</module>

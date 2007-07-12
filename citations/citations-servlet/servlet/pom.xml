@@ -2,7 +2,7 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>sakai-citations</artifactId>
+    <artifactId>citations-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
     <relativePath>../../pom.xml</relativePath>
@@ -22,10 +22,34 @@
       <artifactId>sakai-citations-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
+<!-- these exclusions need reviewing -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-citations-impl</artifactId>
       <version>${sakai.version}</version>
+      <exclusions>
+        <exclusion>
+                <groupId>OKI</groupId>
+                <artifactId>OkiOSID</artifactId>
+        </exclusion>
+        <exclusion>
+                <groupId>zing</groupId>
+                <artifactId>cql-java</artifactId>
+        </exclusion>
+        <exclusion>
+                <groupId>org.sakaiproject</groupId>
+                <artifactId>sakai-citations-util</artifactId>
+        </exclusion>
+        <exclusion>
+                <groupId>org.sakaiproject</groupId>
+                <artifactId>sakai-velocity-tool</artifactId>
+        </exclusion>
+        <exclusion>
+                <groupId>org.sakaiproject</groupId>
+                <artifactId>sakai-content-util</artifactId>
+        </exclusion>
+      </exclusions>
+
 <!--properties:  war.bundle: true -->
     </dependency>
     <dependency>

@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <name>sakai-citations-xserver</name>
   <parent>
-    <artifactId>sakai-citations</artifactId>
+    <artifactId>citations-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
     <relativePath>../../pom.xml</relativePath>

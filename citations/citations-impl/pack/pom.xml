@@ -2,7 +2,7 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>sakai-citations</artifactId>
+    <artifactId>citations-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
     <relativePath>../../pom.xml</relativePath>
@@ -24,8 +24,43 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-citations-impl</artifactId>
       <version>${sakai.version}</version>
-<!--properties:  war.bundle: true -->
+      <exclusions>
+	<exclusion>
+		<groupId>OKI</groupId>
+		<artifactId>OkiOSID</artifactId>
+	</exclusion>
+	<exclusion>
+		<groupId>zing</groupId>
+		<artifactId>cql-java</artifactId>
+	</exclusion>
+	<exclusion>
+		<groupId>org.sakaiproject</groupId>
+		<artifactId>sakai-citations-util</artifactId>
+	</exclusion>
+	<exclusion>
+		<groupId>org.sakaiproject</groupId>
+		<artifactId>sakai-velocity-tool</artifactId>
+	</exclusion>
+      </exclusions>
     </dependency>
+    <!-- the following are NOT dependencies of the Impl, please check they are 
+	really needed -->
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-db-storage</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-entity-util</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-event-util</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+
   </dependencies>
   <build>
     <resources/>
