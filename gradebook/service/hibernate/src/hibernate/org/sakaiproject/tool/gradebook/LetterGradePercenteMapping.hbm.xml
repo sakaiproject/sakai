@@ -9,7 +9,7 @@
 
 		<id name="id" column="ID" type="long">
 			<generator class="native">
-				<param name="sequence">GB_LETTERGRADE_PERCENT_MAPPING_S</param>
+				<param name="sequence">GB_LETTER_MAPPING_S</param>
 			</generator>
 		</id>
 
