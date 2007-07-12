@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>presence-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../../../master/pom.xml</relativePath>
+    <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-presence-pack</name>
   <groupId>org.sakaiproject</groupId>
@@ -21,27 +21,18 @@
   </properties>
   <dependencies>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-presence-impl</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-privacy-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
   </dependencies>
   <build>
-    
-    
-    
-    
-    
-    
     <resources/>
 <!-- java source -->
-    
   </build>
 </project>
