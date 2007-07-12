@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>jobscheduler-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../../master/pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Scheduler Component</name>
   <groupId>org.sakaiproject</groupId>
@@ -21,63 +21,45 @@
   </properties>
   <dependencies>
     <dependency>
-      
       <groupId>quartz</groupId>
       <artifactId>quartz</artifactId>
       <version>1.5.2</version>
 <!--properties:  deploy.target: shared -->
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-scheduler-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-component-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-db-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-component</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
-    
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-util-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
-    
     <dependency>
-      
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>commons-dbcp</groupId>
       <artifactId>commons-dbcp</artifactId>
       <version>1.1</version>
-      <scope>provided</scope>
     </dependency>
 <!--<dependency>
 			<groupId>commons-pool</groupId>
@@ -130,12 +112,6 @@
         -->
   </dependencies>
   <build>
-    
-    
-    
-    
-    
-    
     <resources>
       <resource>
         <directory>${basedir}/src/sql</directory>
@@ -154,6 +130,5 @@
         </excludes>
       </resource>
     </resources>
-    
   </build>
 </project>

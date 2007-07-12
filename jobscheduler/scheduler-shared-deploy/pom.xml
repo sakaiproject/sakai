@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>jobscheduler-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../../master/pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <description>Shared Deployment Descriptor for Scheduler</description>
   <name>sakai-scheduler-shared-deploy</name>
@@ -21,7 +21,7 @@
     <deploy.target>shared</deploy.target>
   </properties>
   <dependencies>
-   <dependency>
+    <dependency>
       <groupId>quartz</groupId>
       <artifactId>quartz</artifactId>
       <version>1.5.2</version>
