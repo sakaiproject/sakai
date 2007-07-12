@@ -582,6 +582,7 @@ public class SiteAction extends PagedResourceActionII {
 	// the string marks the protocol part in url
 	private static final String PROTOCOL_STRING = "://";
 
+	private static final String TOOL_ID_SUMMARY_CALENDAR = "sakai.summary.calendar";
 	/**
 	 * Populate the state object, if needed.
 	 */
@@ -1708,15 +1709,7 @@ public class SiteAction extends PagedResourceActionII {
 
 					// if the page order helper is available, not
 					// stealthed and not hidden, show the link
-					if (ToolManager.getTool("sakai-site-pageorder-helper") != null
-							&& !ServerConfigurationService
-									.getString(
-											"stealthTools@org.sakaiproject.tool.api.ActiveToolManager")
-									.contains("sakai-site-pageorder-helper")
-							&& !ServerConfigurationService
-									.getString(
-											"hiddenTools@org.sakaiproject.tool.api.ActiveToolManager")
-									.contains("sakai-site-pageorder-helper")) {
+					if (notStealthOrHiddenTool("sakai-site-pageorder-helper")) {
 						b.add(new MenuEntry(rb.getString("java.orderpages"),
 								"doPageOrderHelper"));
 					}
@@ -8041,14 +8034,11 @@ public class SiteAction extends PagedResourceActionII {
 							}
 						}
 						if (tool.getTool().getId().equals(
-								"sakai.summary.calendar")) {
+								TOOL_ID_SUMMARY_CALENDAR)) {
 							hadSchedule = true;
-							if (!hasSchedule) {
-								removeToolList.add(tool);// if Schedule
-								// tool isn't
-								// selected, remove
-								// the synotic
-								// Schedule
+							if (!hasSchedule || !notStealthOrHiddenTool(TOOL_ID_SUMMARY_CALENDAR)) {
+								// if Schedule tool isn't selected, or the summary calendar tool is stealthed or hidden, remove the synotic Schedule
+								removeToolList.add(tool);
 							}
 						}
 						if (tool.getTool().getId().equals(
@@ -8118,8 +8108,9 @@ public class SiteAction extends PagedResourceActionII {
 								.getString("java.recent"), "2,1");
 					}
 					if (hasSchedule && !hadSchedule) {
-						// Add synoptic schedule tool
-						addSynopticTool(page, "sakai.summary.calendar", rb
+						// Add synoptic schedule tool if not stealth or hidden
+						if (notStealthOrHiddenTool(TOOL_ID_SUMMARY_CALENDAR))
+						addSynopticTool(page, TOOL_ID_SUMMARY_CALENDAR, rb
 								.getString("java.reccal"), "3,1");
 					}
 					if (hasAnnouncement || hasDiscussion || hasChat
@@ -8438,6 +8429,23 @@ public class SiteAction extends PagedResourceActionII {
 	} // getRevisedFeatures
 
 	/**
+	 * Is the tool stealthed or hidden
+	 * @param toolId
+	 * @return
+	 */
+	private boolean notStealthOrHiddenTool(String toolId) {
+		return (ToolManager.getTool(toolId) != null
+		&& !ServerConfigurationService
+				.getString(
+						"stealthTools@org.sakaiproject.tool.api.ActiveToolManager")
+				.contains(toolId)
+		&& !ServerConfigurationService
+				.getString(
+						"hiddenTools@org.sakaiproject.tool.api.ActiveToolManager")
+				.contains(toolId));
+	}
+
+	/**
 	 * getFeatures gets features for a new site
 	 * 
 	 */
@@ -8722,11 +8730,11 @@ public class SiteAction extends PagedResourceActionII {
 						tool.setLayoutHints("2,1");
 					}
 
-					if (hasSchedule) {
+					if (hasSchedule && notStealthOrHiddenTool(TOOL_ID_SUMMARY_CALENDAR)) {
 						// Add synoptic schedule tool
 						tool = page.addTool();
-						tool.setTool("sakai.summary.calendar", ToolManager
-								.getTool("sakai.summary.calendar"));
+						tool.setTool(TOOL_ID_SUMMARY_CALENDAR, ToolManager
+								.getTool(TOOL_ID_SUMMARY_CALENDAR));
 						tool.setTitle(rb.getString("java.reccal"));
 						tool.setLayoutHints("3,1");
 					}
