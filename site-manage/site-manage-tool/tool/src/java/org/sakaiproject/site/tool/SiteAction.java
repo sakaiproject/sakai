@@ -11870,39 +11870,14 @@ public class SiteAction extends PagedResourceActionII {
 	}
 
 	private List<String> getCMLevelLabels() {
-		List<String> cmLevels = new ArrayList(3);
-
-		String level = null;
-
-		cmLevels = new ArrayList<String>(3);
-
-		level = ServerConfigurationService
-				.getString("site-manage.cms.subject.label");
-		if (level == null) {
-			M_log
-					.warn("site-manage.cms.subject.label is not set in sakai.properties.");
-			// return cmLevels;
+		List<String> rv = new Vector<String>();
+		List<SectionField> fields = sectionFieldProvider.getRequiredFields();
+		for (int k = 0; k < fields.size(); k++) 
+		{
+			SectionField sectionField = (SectionField) fields.get(k);
+			rv.add(sectionField.getLabelKey());
 		}
-
-		cmLevels.add(level);
-
-		level = rb.getString("nscourse.cms.courseoffering.label");
-		if (level == null) {
-			M_log
-					.warn("nscourse.cms.courseoffering.label is not set in sitesetupgeneric.properties.");
-			// return cmLevels;
-		}
-		cmLevels.add(level);
-
-		level = rb.getString("nscourse.cms.section.label");
-		if (level == null) {
-			M_log
-					.warn("nscourse.cms.section.label is not set in sitesetupgeneric.properties.");
-			// return cmLevels;
-		}
-		cmLevels.add(level);
-
-		return cmLevels;
+		return rv;
 	}
 
 	private void prepFindPage(SessionState state) {
