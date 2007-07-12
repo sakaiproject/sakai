@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>chat-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../../../master/pom.xml</relativePath>
+    <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-chat-pack</name>
   <groupId>org.sakaiproject</groupId>
@@ -20,81 +20,58 @@
     <deploy.target>components</deploy.target>
   </properties>
   <dependencies>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-chat-impl</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-util</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-message-impl</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-event-util</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-db-storage</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-entity-util</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		
-		
-
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-util-api</artifactId>
-            <version>${sakai.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-component</artifactId>
-            <version>${sakai.version}</version>
-            <scope>provided</scope>
-        </dependency>       
-        
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-tool-api</artifactId>
-            <version>${sakai.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-       <dependency>
-         <groupId>org.sakaiproject</groupId>
-         <artifactId>sakai-authz-api</artifactId>
-         <version>${sakai.version}</version>
-            <scope>provided</scope>
-       </dependency>
-		
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-chat-impl</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-util</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-message-impl</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-event-util</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-db-storage</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-entity-util</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-util-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-component</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-tool-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-authz-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
   </dependencies>
   <build>
-    
-    
-    
-    
-    
-    
     <resources/>
-    
   </build>
 </project>
