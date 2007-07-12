@@ -26,21 +26,25 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-impl-standalone</artifactId>
       <version>${sakai.version}</version>
+      <scope>provided</scope> <!-- FIXME: is this required here ? -->
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-model</artifactId>
       <version>${sakai.version}</version>
+      <scope>provided</scope> <!-- FIXME: is this required here ? -->
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-impl</artifactId>
       <version>${sakai.version}</version>
+      <scope>provided</scope> <!-- FIXME: is this required here ? -->
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sections-integrationsupport</artifactId>
       <version>${sakai.version}</version>
+      <scope>provided</scope> <!-- FIXME: is this required here ? -->
 <!--properties:	war.bundle: false -->
     </dependency>
     <dependency>
@@ -103,11 +107,13 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-util-impl</artifactId>
       <version>${sakai.version}</version>
+      <scope>provided</scope> <!-- FIXME: is this required here ? -->
     </dependency>
     <dependency>
       <groupId>commons-id</groupId>
       <artifactId>commons-id</artifactId>
       <version>0.1-dev</version>
+      <scope>provided</scope> <!-- FIXME: is this required here ? -->
 <!--url: http://brutus.apache.org/gump/public/jakarta-commons-sandbox/commons-id/ -->
     </dependency>
 <!-- Sakai plugin -->
@@ -141,11 +147,13 @@
       <groupId>${sakai.spring.groupId}</groupId>
       <artifactId>${sakai.spring.mock.artifactId}</artifactId>
       <version>${sakai.spring.mock.version}</version>
+      <scope>provided</scope> <!-- FIXME: is this required here ? -->
     </dependency>
     <dependency>
       <groupId>aopalliance</groupId>
       <artifactId>aopalliance</artifactId>
       <version>1.0</version>
+      <scope>provided</scope> <!-- FIXME: is this required here ? -->
     </dependency>
     <dependency>
       <groupId>jta</groupId>
@@ -166,6 +174,7 @@
       <groupId>cglib</groupId>
       <artifactId>cglib-nodep</artifactId>
       <version>2.1_3</version>
+      <scope>provided</scope> <!-- FIXME: is this required here ? -->
     </dependency>
     <dependency>
       <groupId>antlr</groupId>
@@ -176,6 +185,7 @@
       <groupId>odmg</groupId>
       <artifactId>odmg</artifactId>
       <version>3.0</version>
+      <scope>provided</scope> <!-- FIXME: is this required here ? -->
     </dependency>
     <dependency>
       <groupId>commons-dbcp</groupId>
@@ -237,13 +247,6 @@
       <groupId>org.apache.myfaces.tomahawk</groupId>
       <artifactId>tomahawk</artifactId>
       <version>1.1.3</version>
-      <exclusions>
-        <exclusion>
-<!-- shared -->
-          <groupId>antlr</groupId>
-          <artifactId>antlr</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 <!--	New for myfaces 1.1.1 update -->
     <dependency>
@@ -296,28 +299,27 @@
       <version>2.0</version>
 <!--properties:	war.bundle: false -->
     </dependency>
-<!-- blocking for m2 build -->
-    <dependency>
-      <groupId>commons-el</groupId>
-      <artifactId>commons-el</artifactId>
-      <version>1.0</version>
-    </dependency>
-<!-- blocking for m2 build -->
-    <dependency>
-      <groupId>commons-fileupload</groupId>
-      <artifactId>commons-fileupload</artifactId>
-      <version>1.1.1</version>
-    </dependency>
-<!-- blocking for m2 build -->
-    <dependency>
-      <groupId>xml-apis</groupId>
-      <artifactId>xml-apis</artifactId>
-      <version>2.0.2</version>
-    </dependency>
   </dependencies>
   <reports/>
   <build>
     <plugins>
+       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>2.0</version>
+        <configuration>
+          <webResources>
+            <resource>
+<!-- this is relative to the this pom.xml directory -->
+              <directory>${basedir}/src/webapp/sakai</directory>
+              <includes>
+                <include>**/*.*</include>
+              </includes>
+            </resource>
+          </webResources>
+        </configuration>
+      </plugin>
+
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
         <executions>
