@@ -880,7 +880,6 @@
                 <scope>provided</scope>
            </dependency>
 
-
            <dependency>
                 <groupId>org.sakaiproject</groupId>
                 <artifactId>sakai-usermembership-api</artifactId>
@@ -894,6 +893,13 @@
       		<version>${sakai.version}</version>
       		<scope>provided</scope>
        	  </dependency>
+
+           <dependency>
+                <groupId>org.sakaiproject</groupId>
+                <artifactId>sakai-contentreview-service-api</artifactId>
+                <version>${sakai.version}</version>
+                <scope>provided</scope>
+           </dependency>
 
 	</dependencies>
   </dependencyManagement>
