@@ -27,6 +27,27 @@
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-import-content</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-common-cartridge</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-archive-import</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-import-announcement</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+<!--
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-samigo-qti</artifactId>
       <version>${sakai.version}</version>
       <exclusions>
@@ -40,6 +61,7 @@
         </exclusion>
       </exclusions>
     </dependency>
+-->
   </dependencies>
   <build>
     <resources/>

@@ -1,0 +1,8 @@
+There are some differences in the M1 and M2 builds
+
+
+Jaxen which was packed in M1 is part of shared and so not packed in M2
+same goes for activation.
+
+
+
