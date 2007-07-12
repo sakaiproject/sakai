@@ -1,5 +1,7 @@
 <!-- sakai_properties.vm -->
 #if($calendarcounter)<!-- calendarcounter == $calendarcounter -->#else#set($calendarcounter = 0)#end
+#if($item && !$model)#set($model = $item)#end
+#if(!$item && $model)#set($item = $model)#end
 
 #*
 	var calendarcounter = document.calendarcounter++;

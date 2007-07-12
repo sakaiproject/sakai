@@ -668,8 +668,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	
 	protected static final String STATE_LIST_VIEW_SORT = PREFIX + "list_view_sort";
 	
-	private static final String STATE_METADATA_GROUPS = PREFIX + "metadata.types";
-
 	/** The resources, helper or dropbox mode. */
 	public static final String STATE_MODE_RESOURCES = PREFIX + "resources_mode";
 	
@@ -1021,7 +1019,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 
 		context.put("DETAILS_FORM_NAME", "detailsForm");
-		metadataGroupsIntoContext(state, context);
+		//item.metadataGroupsIntoContext(context);
 
 		// String template = (String) getContext(data).get("template");
 		return TEMPLATE_MORE;
@@ -2563,46 +2561,46 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				item.setCopyrightAlert(false);
 			}
 			
-			Map metadata = new Hashtable();
-			List groups = (List) state.getAttribute(STATE_METADATA_GROUPS);
-			if(groups != null && ! groups.isEmpty())
-			{
-				Iterator it = groups.iterator();
-				while(it.hasNext())
-				{
-					MetadataGroup group = (MetadataGroup) it.next();
-					Iterator propIt = group.iterator();
-					while(propIt.hasNext())
-					{
-						ResourcesMetadata prop = (ResourcesMetadata) propIt.next();
-						String name = prop.getFullname();
-						String widget = prop.getWidget();
-						if(widget.equals(ResourcesMetadata.WIDGET_DATE) || widget.equals(ResourcesMetadata.WIDGET_DATETIME) || widget.equals(ResourcesMetadata.WIDGET_TIME))
-						{
-							Time time = TimeService.newTime();
-							try
-							{
-								time = properties.getTimeProperty(name);
-							}
-							catch(Exception ignore)
-							{
-								// use "now" as default in that case
-							}
-							metadata.put(name, time);
-						}
-						else
-						{
-							String value = properties.getPropertyFormatted(name);
-							metadata.put(name, value);
-						}
-					}
-				}
-				item.setMetadata(metadata);
-			}
-			else
-			{
-				item.setMetadata(new Hashtable());
-			}
+//			Map metadata = new Hashtable();
+//			List groups = (List) state.getAttribute(ListItem.STATE_METADATA_GROUPS);
+//			if(groups != null && ! groups.isEmpty())
+//			{
+//				Iterator it = groups.iterator();
+//				while(it.hasNext())
+//				{
+//					MetadataGroup group = (MetadataGroup) it.next();
+//					Iterator propIt = group.iterator();
+//					while(propIt.hasNext())
+//					{
+//						ResourcesMetadata prop = (ResourcesMetadata) propIt.next();
+//						String name = prop.getFullname();
+//						String widget = prop.getWidget();
+//						if(widget.equals(ResourcesMetadata.WIDGET_DATE) || widget.equals(ResourcesMetadata.WIDGET_DATETIME) || widget.equals(ResourcesMetadata.WIDGET_TIME))
+//						{
+//							Time time = TimeService.newTime();
+//							try
+//							{
+//								time = properties.getTimeProperty(name);
+//							}
+//							catch(Exception ignore)
+//							{
+//								// use "now" as default in that case
+//							}
+//							metadata.put(name, time);
+//						}
+//						else
+//						{
+//							String value = properties.getPropertyFormatted(name);
+//							metadata.put(name, value);
+//						}
+//					}
+//				}
+//				item.setMetadata(metadata);
+//			}
+//			else
+//			{
+//				item.setMetadata(new Hashtable());
+//			}
 			// for collections only
 			if(item.isFolder())
 			{
@@ -3304,70 +3302,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	}	// initCopyContent
 
 	/**
-	 * initialize the metadata context
-	 */
-	protected void initMetadataContext(SessionState state)
-	{
-		// define MetadataSets map
-		List metadataGroups = (List) state.getAttribute(STATE_METADATA_GROUPS);
-		if(metadataGroups == null)
-		{
-			metadataGroups = new Vector();
-			state.setAttribute(STATE_METADATA_GROUPS, metadataGroups);
-		}
-		// define DublinCore
-		if( !metadataGroups.contains(new MetadataGroup(rb.getString("opt_props"))) )
-		{
-			MetadataGroup dc = new MetadataGroup( rb.getString("opt_props") );
-			// dc.add(ResourcesMetadata.PROPERTY_DC_TITLE);
-			// dc.add(ResourcesMetadata.PROPERTY_DC_DESCRIPTION);
-			dc.add(ResourcesMetadata.PROPERTY_DC_ALTERNATIVE);
-			dc.add(ResourcesMetadata.PROPERTY_DC_CREATOR);
-			dc.add(ResourcesMetadata.PROPERTY_DC_PUBLISHER);
-			dc.add(ResourcesMetadata.PROPERTY_DC_SUBJECT);
-			dc.add(ResourcesMetadata.PROPERTY_DC_CREATED);
-			dc.add(ResourcesMetadata.PROPERTY_DC_ISSUED);
-			// dc.add(ResourcesMetadata.PROPERTY_DC_MODIFIED);
-			// dc.add(ResourcesMetadata.PROPERTY_DC_TABLEOFCONTENTS);
-			dc.add(ResourcesMetadata.PROPERTY_DC_ABSTRACT);
-			dc.add(ResourcesMetadata.PROPERTY_DC_CONTRIBUTOR);
-			// dc.add(ResourcesMetadata.PROPERTY_DC_TYPE);
-			// dc.add(ResourcesMetadata.PROPERTY_DC_FORMAT);
-			// dc.add(ResourcesMetadata.PROPERTY_DC_IDENTIFIER);
-			// dc.add(ResourcesMetadata.PROPERTY_DC_SOURCE);
-			// dc.add(ResourcesMetadata.PROPERTY_DC_LANGUAGE);
-			// dc.add(ResourcesMetadata.PROPERTY_DC_COVERAGE);
-			// dc.add(ResourcesMetadata.PROPERTY_DC_RIGHTS);
-			dc.add(ResourcesMetadata.PROPERTY_DC_AUDIENCE);
-			dc.add(ResourcesMetadata.PROPERTY_DC_EDULEVEL);
-			
-			/* Filesystem and file-like mount points */
-			dc.add(ResourcesMetadata.PROPERTY_FSMOUNT_ACTIVE);
-				
-			metadataGroups.add(dc);
-			state.setAttribute(STATE_METADATA_GROUPS, metadataGroups);
-		}
-		/*
-		// define DublinCore
-		if(!metadataGroups.contains(new MetadataGroup("Test of Datatypes")))
-		{
-			MetadataGroup dc = new MetadataGroup("Test of Datatypes");
-			dc.add(ResourcesMetadata.PROPERTY_DC_TITLE);
-			dc.add(ResourcesMetadata.PROPERTY_DC_DESCRIPTION);
-			dc.add(ResourcesMetadata.PROPERTY_DC_ANYURI);
-			dc.add(ResourcesMetadata.PROPERTY_DC_DOUBLE);
-			dc.add(ResourcesMetadata.PROPERTY_DC_DATETIME);
-			dc.add(ResourcesMetadata.PROPERTY_DC_TIME);
-			dc.add(ResourcesMetadata.PROPERTY_DC_DATE);
-			dc.add(ResourcesMetadata.PROPERTY_DC_BOOLEAN);
-			dc.add(ResourcesMetadata.PROPERTY_DC_INTEGER);
-			metadataGroups.add(dc);
-			state.setAttribute(STATE_METADATA_GROUPS, metadataGroups);
-		}
-		*/
-	}
-
-	/**
 	* initialize the copy context
 	*/
 	private static void initMoveContext (SessionState state)
@@ -3412,34 +3346,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		return operations_stack.isEmpty();
 	}
 
-
-	/**
-	 * Add variables and constants to the velocity context to render an editor
-	 * for inputing and modifying optional metadata properties about a resource.
-	 */
-	protected void metadataGroupsIntoContext(SessionState state, Context context)
-	{
-
-		context.put("STRING", ResourcesMetadata.WIDGET_STRING);
-		context.put("TEXTAREA", ResourcesMetadata.WIDGET_TEXTAREA);
-		context.put("BOOLEAN", ResourcesMetadata.WIDGET_BOOLEAN);
-		context.put("INTEGER", ResourcesMetadata.WIDGET_INTEGER);
-		context.put("DOUBLE", ResourcesMetadata.WIDGET_DOUBLE);
-		context.put("DATE", ResourcesMetadata.WIDGET_DATE);
-		context.put("TIME", ResourcesMetadata.WIDGET_TIME);
-		context.put("DATETIME", ResourcesMetadata.WIDGET_DATETIME);
-		context.put("ANYURI", ResourcesMetadata.WIDGET_ANYURI);
-		context.put("WYSIWYG", ResourcesMetadata.WIDGET_WYSIWYG);
-
-		context.put("today", TimeService.newTime());
-
-		List metadataGroups = (List) state.getAttribute(STATE_METADATA_GROUPS);
-		if(metadataGroups != null && !metadataGroups.isEmpty())
-		{
-			context.put("metadataGroups", metadataGroups);
-		}
-
-	}	// metadataGroupsIntoContext
 
 	protected static List newEditItems(String collectionId, String itemtype, String encoding, String defaultCopyrightStatus, boolean preventPublicDisplay, Time defaultRetractDate, int number)
 	{
@@ -4135,7 +4041,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		context.put("tlang",trb);
 		
 		context.put("DETAILS_FORM_NAME", "detailsForm");
-		metadataGroupsIntoContext(state, context);
 
 		String template = "content/sakai_resources_cwiz_finish";
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
@@ -4185,15 +4090,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			String typeId = pipe.getAction().getTypeId();
 			
 			ListItem parent = new ListItem(collection);
-			List<MetadataGroup> metadata_groups = (List<MetadataGroup>) state.getAttribute(STATE_METADATA_GROUPS);
-			if(metadata_groups != null)
-			{
-				parent.setMetadata(metadata_groups, collection.getProperties());
-			}
 
 			parent.setPubviewPossible(! preventPublicDisplay);
 			ListItem item = new ListItem(pipe, parent, defaultRetractDate);
 			//item.setPubviewPossible(! preventPublicDisplay);
+			item.metadataGroupsIntoContext(context);
 			
 			context.put("item", item);
 			
@@ -4814,11 +4715,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			// build the context for the basic step of delete confirm page
 			template = buildDeleteFinishContext (portlet, context, data, state);
 		}
-		else if (mode.equals (MODE_MORE))
-		{
-			// build the context to display the property list
-			template = buildMoreContext (portlet, context, data, state);
-		}
+//		else if (mode.equals (MODE_MORE))
+//		{
+//			// build the context to display the property list
+//			template = buildMoreContext (portlet, context, data, state);
+//		}
 //		else if (mode.equals (MODE_EDIT))
 //		{
 //			// build the context to display the property list
@@ -4985,7 +4886,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		context.put("tlang", trb);
 		
 		context.put("DETAILS_FORM_NAME", "detailsForm");
-		metadataGroupsIntoContext(state, context);
 		
 		ResourceToolAction action = (ResourceToolAction) state.getAttribute(STATE_REVISE_PROPERTIES_ACTION);
 		context.put("action", action);
@@ -5015,6 +4915,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			item = getListItem(state);
 			state.setAttribute(STATE_REVISE_PROPERTIES_ITEM, item);
 		}
+		item.metadataGroupsIntoContext(context);
 		context.put("item", item);
 		
 		if(ContentHostingService.isAvailabilityEnabled())
@@ -6184,34 +6085,34 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	}	// doDelete
 
-    /**
-	 * @param data
-	 */
-	public void doHide_metadata(RunData data)
-	{
-		ParameterParser params = data.getParameters ();
-		String name = params.getString("metadataGroup");
-
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-		List metadataGroups = (List) state.getAttribute(STATE_METADATA_GROUPS);
-		if(metadataGroups != null && ! metadataGroups.isEmpty())
-		{
-			boolean found = false;
-			MetadataGroup group = null;
-			Iterator it = metadataGroups.iterator();
-			while(!found && it.hasNext())
-			{
-				group = (MetadataGroup) it.next();
-				found = (name.equals(Validator.escapeUrl(group.getName())) || name.equals(group.getName()));
-			}
-			if(found)
-			{
-				group.setShowing(false);
-			}
-		}
-
-	}	// doHide_metadata
-
+//    /**
+//	 * @param data
+//	 */
+//	public void doHide_metadata(RunData data)
+//	{
+//		ParameterParser params = data.getParameters ();
+//		String name = params.getString("metadataGroup");
+//
+//		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+//		List metadataGroups = (List) state.getAttribute(ListItem.STATE_METADATA_GROUPS);
+//		if(metadataGroups != null && ! metadataGroups.isEmpty())
+//		{
+//			boolean found = false;
+//			MetadataGroup group = null;
+//			Iterator it = metadataGroups.iterator();
+//			while(!found && it.hasNext())
+//			{
+//				group = (MetadataGroup) it.next();
+//				found = (name.equals(Validator.escapeUrl(group.getName())) || name.equals(group.getName()));
+//			}
+//			if(found)
+//			{
+//				group.setShowing(false);
+//			}
+//		}
+//
+//	}	// doHide_metadata
+//
 	/**
 	 * @param data
 	 */
@@ -6780,36 +6681,36 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 	}	// doSaveOrder
 
-	/**
-	 * @param data
-	 */
-	public void doShow_metadata(RunData data)
-	{
-		ParameterParser params = data.getParameters ();
-		String name = params.getString("metadataGroup");
-
-		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-		
-		
-		
-		List metadataGroups = (List) state.getAttribute(STATE_METADATA_GROUPS);
-		if(metadataGroups != null && ! metadataGroups.isEmpty())
-		{
-			boolean found = false;
-			MetadataGroup group = null;
-			Iterator it = metadataGroups.iterator();
-			while(!found && it.hasNext())
-			{
-				group = (MetadataGroup) it.next();
-				found = (name.equals(Validator.escapeUrl(group.getName())) || name.equals(group.getName()));
-			}
-			if(found)
-			{
-				group.setShowing(true);
-			}
-		}
-
-	}	// doShow_metadata
+//	/**
+//	 * @param data
+//	 */
+//	public void doShow_metadata(RunData data)
+//	{
+//		ParameterParser params = data.getParameters ();
+//		String name = params.getString("metadataGroup");
+//
+//		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+//		
+//		
+//		
+//		List metadataGroups = (List) state.getAttribute(ListItem.STATE_METADATA_GROUPS);
+//		if(metadataGroups != null && ! metadataGroups.isEmpty())
+//		{
+//			boolean found = false;
+//			MetadataGroup group = null;
+//			Iterator it = metadataGroups.iterator();
+//			while(!found && it.hasNext())
+//			{
+//				group = (MetadataGroup) it.next();
+//				found = (name.equals(Validator.escapeUrl(group.getName())) || name.equals(group.getName()));
+//			}
+//			if(found)
+//			{
+//				group.setShowing(true);
+//			}
+//		}
+//
+//	}	// doShow_metadata
 
 	/**
 	* Show information about WebDAV
@@ -7468,11 +7369,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 		}
 
-		// get resources mode from tool registry
+		// are optional properties enabled on the server/cluster?
 		String optional_properties = portlet.getPortletConfig().getInitParameter("optional_properties");
 		if(optional_properties != null && "true".equalsIgnoreCase(optional_properties))
 		{
-			initMetadataContext(state);
+			ListItem.setOptionalPropertiesEnabled(true);
 		}
 		
 		state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, Boolean.FALSE);

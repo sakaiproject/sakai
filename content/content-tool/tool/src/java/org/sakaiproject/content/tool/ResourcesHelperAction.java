@@ -203,6 +203,13 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		context.put("DOT", ListItem.DOT);
 		context.put("calendarMap", new HashMap());
 		
+		String mode = (String) state.getAttribute(ResourceToolAction.STATE_MODE);
+
+		if (mode == null)
+		{
+			initHelper(portlet, context, data, state);
+		}
+
 		if(state.getAttribute(ResourcesAction.STATE_MESSAGE) != null)
 		{
 			context.put("itemAlertMessage", state.getAttribute(ResourcesAction.STATE_MESSAGE));
@@ -212,13 +219,6 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		ContentTypeImageService contentTypeImageService = (ContentTypeImageService) state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE);
 		context.put("contentTypeImageService", contentTypeImageService);
 		
-		String mode = (String) state.getAttribute(ResourceToolAction.STATE_MODE);
-
-		if (mode == null)
-		{
-			initHelper(portlet, context, data, state);
-		}
-
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
 		if(pipe == null)
@@ -337,6 +337,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		ListItem parent = new ListItem(pipe.getContentEntity());
 		parent.setPubviewPossible(! preventPublicDisplay);
 		ListItem model = new ListItem(pipe, parent, defaultRetractDate);
+		model.metadataGroupsIntoContext(context);
 		// model.setPubviewPossible(! preventPublicDisplay);
 				
 		context.put("model", model);
@@ -390,6 +391,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		ListItem parent = new ListItem(pipe.getContentEntity());
 		parent.setPubviewPossible(! preventPublicDisplay);
 		ListItem model = new ListItem(pipe, parent, defaultRetractDate);
+		model.metadataGroupsIntoContext(context);
 		// model.setPubviewPossible(! preventPublicDisplay);
 		
 		context.put("model", model);
@@ -548,6 +550,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		ListItem parent = new ListItem(pipe.getContentEntity());
 		parent.setPubviewPossible(! preventPublicDisplay);
 		ListItem model = new ListItem(pipe, parent, defaultRetractDate);
+		model.metadataGroupsIntoContext(context);
 		// model.setPubviewPossible(! preventPublicDisplay);
 				
 		context.put("model", model);
@@ -753,10 +756,14 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 					newFolder.setId(folderName);
 				}
 			}
-			
+			if(ListItem.isOptionalPropertiesEnabled())
+			{
+				newFolder.initMetadataGroups(null);
+			}
+
 			// capture properties
 			newFolder.captureProperties(params, ListItem.DOT + i);
- 						
+
 			fp.setRevisedListItem(newFolder);
 			
 			c++;
@@ -970,6 +977,11 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 				}
 			}
 			
+			if(ListItem.isOptionalPropertiesEnabled())
+			{
+				newFile.initMetadataGroups(null);
+			}
+			
 			// capture properties
 			newFile.captureProperties(params, ListItem.DOT + i);
 			// notification
@@ -1156,6 +1168,11 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
     					newFile.setName(filename);
     					newFile.setId(filename);
     				}
+    			}
+
+    			if(ListItem.isOptionalPropertiesEnabled())
+    			{
+    				newFile.initMetadataGroups(null);
     			}
 
     			// capture properties
