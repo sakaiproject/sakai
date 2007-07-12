@@ -3206,7 +3206,7 @@ public class ListItem
 
 			for(ResourcesMetadata prop : (List<ResourcesMetadata>) metadataGroup)
 			{
-				if(prop == null)
+				if(prop == null || prop.getValue(0) == null)
 				{
 					continue;
 				}
@@ -3214,7 +3214,6 @@ public class ListItem
 				props.addProperty(prop.getFullname(), prop.getValue(0).toString());
 			}
 		}
-		
 	}
 
 	public static void setOptionalPropertiesEnabled(boolean b)
