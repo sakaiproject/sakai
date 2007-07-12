@@ -22,7 +22,7 @@ limitations under the License.
     <version>M2</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
-  <name>sakai-rwiki-api</name>
+  <name>sakai-contentreview-model-api</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-contentreview-model-api</artifactId>
   <description>
