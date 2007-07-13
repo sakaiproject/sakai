@@ -25,6 +25,7 @@
       <groupId>commons-math</groupId>
       <artifactId>commons-math</artifactId>
       <version>1.0</version>
+      <scope>compile</scope>
     </dependency>
   </dependencies>
 </project>
