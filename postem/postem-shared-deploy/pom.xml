@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>postem-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../../master/pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <description>Shared Deployment Descriptor for postem</description>
   <name>sakai-postem-shared-deploy</name>
@@ -21,7 +21,7 @@
     <deploy.target>shared</deploy.target>
   </properties>
   <dependencies>
-   <dependency>
+    <dependency>
       <groupId>commons-math</groupId>
       <artifactId>commons-math</artifactId>
       <version>1.0</version>

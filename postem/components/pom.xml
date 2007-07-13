@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>postem-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../../master/pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <name>sakai-postem-pack</name>
   <groupId>org.sakaiproject</groupId>
@@ -21,26 +21,18 @@
   </properties>
   <dependencies>
     <dependency>
-      
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-postem-api</artifactId>
-      <version>${sakai.version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-postem-impl</artifactId>
       <version>${sakai.version}</version>
+      <exclusions>
+      	<exclusion>
+      		<groupId>org.sakaiproject</groupId>
+      		<artifactId>sakai-postem-hbm</artifactId>
+      	</exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
   <build>
-    
-    
-    
-    
-    
-    
     <resources>
       <resource>
         <directory>src/java</directory>
@@ -49,6 +41,5 @@
         </includes>
       </resource>
     </resources>
-    
   </build>
 </project>
