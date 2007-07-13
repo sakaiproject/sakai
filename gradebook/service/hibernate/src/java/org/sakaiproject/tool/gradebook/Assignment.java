@@ -63,6 +63,7 @@ public class Assignment extends GradableObject {
     private boolean released;
     private Category category;
     private Double averageTotal;
+    private boolean ungraded;
 
     static {
         dateComparator = new Comparator() {
@@ -374,7 +375,7 @@ public class Assignment extends GradableObject {
                 continue;
             }
             Double score = null;
-            if(pointsPossible > 0)
+            if(!ungraded && pointsPossible > 0)
             	score = record.getGradeAsPercentage();
             Double points = record.getPointsEarned();
             if (score == null && points == null) {
@@ -396,7 +397,7 @@ public class Assignment extends GradableObject {
         	mean = null;
         	averageTotal = null;
         } else {
-        	if(pointsPossible > 0)
+        	if(!ungraded && pointsPossible > 0)
         	{
         		mean = new Double(total / numScored);
         	}
@@ -428,7 +429,15 @@ public class Assignment extends GradableObject {
 		{
 			this.averageTotal = averageTotal;
 		}
+
+
+		public boolean isUngraded()
+		{
+			return ungraded;
+		}
+
+		public void setUngraded(boolean ungraded)
+		{
+			this.ungraded = ungraded;
+		}
 }
-
-
-

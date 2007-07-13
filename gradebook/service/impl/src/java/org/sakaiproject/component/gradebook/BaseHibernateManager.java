@@ -107,7 +107,8 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 
     protected List getCountedStudentGradeRecords(Long gradebookId, String studentId, Session session) throws HibernateException {
         return session.createQuery(
-        	"select agr from AssignmentGradeRecord as agr, Assignment as asn where agr.studentId=? and agr.gradableObject=asn and asn.removed=false and asn.notCounted=false and asn.gradebook.id=?").
+        	"select agr from AssignmentGradeRecord as agr, Assignment as asn where agr.studentId=? and agr.gradableObject=asn and asn.removed=false and asn.notCounted=false and asn.gradebook.id=?" +
+        	" and asn.ungraded=false").
         	setString(0, studentId).
         	setLong(1, gradebookId.longValue()).
         	list();
@@ -259,6 +260,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
                    asn.setName(name);
                    asn.setPointsPossible(points);
                    asn.setDueDate(dueDate);
+             			 asn.setUngraded(false);
                    if (isNotCounted != null) {
                        asn.setNotCounted(isNotCounted.booleanValue());
                    }
@@ -452,6 +454,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     			asn.setName(name);
     			asn.setPointsPossible(points);
     			asn.setDueDate(dueDate);
+    			asn.setUngraded(false);
     			if (isNotCounted != null) {
     				asn.setNotCounted(isNotCounted.booleanValue());
     			}
@@ -812,4 +815,87 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	}
     	return true;
     }
+    
+    public Long createUngradedAssignment(final Long gradebookId, final String name, 
+    		final Date dueDate, final Boolean isNotCounted, final Boolean isReleased)
+    throws ConflictingAssignmentNameException, StaleObjectModificationException
+    {
+    	HibernateCallback hc = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException {
+    			Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
+    			int numNameConflicts = ((Integer)session.createQuery(
+    			"select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
+    			setString(0, name).
+    			setEntity(1, gb).
+    			uniqueResult()).intValue();
+    			if(numNameConflicts > 0) {
+    				throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
+    			}
+
+    			Assignment asn = new Assignment();
+    			asn.setGradebook(gb);
+    			asn.setName(name);
+    			asn.setDueDate(dueDate);
+    			asn.setUngraded(true);
+    			if (isNotCounted != null) {
+    				asn.setNotCounted(isNotCounted.booleanValue());
+    			}
+
+    			if(isReleased!=null){
+    				asn.setReleased(isReleased.booleanValue());
+    			}
+
+    			Long id = (Long)session.save(asn);
+
+    			return id;
+    		}
+    	};
+    	return (Long)getHibernateTemplate().execute(hc);
+    }
+
+    public Long createUngradedAssignmentForCategory(final Long gradebookId, final Long categoryId, 
+    		final String name, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased)
+    throws ConflictingAssignmentNameException, StaleObjectModificationException, IllegalArgumentException
+    {
+    	if(gradebookId == null || categoryId == null)
+    	{
+    		throw new IllegalArgumentException("gradebookId or categoryId is null in BaseHibernateManager.createUngradedAssignmentForCategory");
+    	}
+
+    	HibernateCallback hc = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException {
+    			Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
+    			Category cat = (Category)session.load(Category.class, categoryId);
+    			int numNameConflicts = ((Integer)session.createQuery(
+    			"select count(go) from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
+    			setString(0, name).
+    			setEntity(1, gb).
+    			uniqueResult()).intValue();
+    			if(numNameConflicts > 0) {
+    				throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
+    			}
+
+    			Assignment asn = new Assignment();
+    			asn.setGradebook(gb);
+    			asn.setCategory(cat);
+    			asn.setName(name);
+    			asn.setDueDate(dueDate);
+    			asn.setUngraded(true);
+    			if (isNotCounted != null) {
+    				asn.setNotCounted(isNotCounted.booleanValue());
+    			}
+
+    			if(isReleased!=null){
+    				asn.setReleased(isReleased.booleanValue());
+    			}
+
+    			Long id = (Long)session.save(asn);
+
+    			return id;
+    		}
+    	};
+
+    	return (Long)getHibernateTemplate().execute(hc);
+    }
+
 }

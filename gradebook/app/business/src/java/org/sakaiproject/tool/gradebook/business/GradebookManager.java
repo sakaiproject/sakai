@@ -590,4 +590,34 @@ public interface GradebookManager {
      */
     public void saveOrUpdateLetterGradePercentMapping(final Map gradeMap, final Gradebook gradebook);
     
+    /**
+     * Add a new ungraded assignment to a gradebook
+     *
+     * @param gradebookId The gradebook ID to which this new assignment belongs
+     * @param name The assignment's name (must be unique in the gradebook and not be null)
+     * @param points The number of points possible for this assignment (must not be null)
+     * @param dueDate The due date for the assignment (optional)
+     * @param isNotCounted True if the assignment should not count towards the final course grade (optional)
+     * @param isReleased  True if the assignment should be release/ or visble to students
+     * @return The ID of the new assignment
+     */
+    public Long createUngradedAssignment(Long gradebookId, String name, Date dueDate, Boolean isNotCounted, Boolean isReleased)
+    	throws ConflictingAssignmentNameException, StaleObjectModificationException;
+
+    /**
+     * Add a new ungraded assignment to a category
+     *
+     * @param gradebookId The gradebook ID to which this new assignment belongs
+     * @param categoryId The category ID to which this new assignment belongs
+     * @param name The assignment's name (must be unique in the gradebook and not be null)
+     * @param points The number of points possible for this assignment (must not be null)
+     * @param dueDate The due date for the assignment (optional)
+     * @param isNotCounted True if the assignment should not count towards the final course grade (optional)
+     * @param isReleased  True if the assignment should be release/ or visble to students
+     * @return The ID of the new assignment
+     * @throws ConflictingAssignmentNameException StaleObjectModificationException IllegalArgumentException
+     */
+    public Long createUngradedAssignmentForCategory(Long gradebookId, Long categoryId, String name, Date dueDate, Boolean isNotCounted, Boolean isReleased)
+    	throws ConflictingAssignmentNameException, StaleObjectModificationException, IllegalArgumentException;
+
 }
