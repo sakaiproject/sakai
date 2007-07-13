@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>providers-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../../master/pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <name>sakai-provider-pack</name>
   <groupId>org.sakaiproject</groupId>
@@ -23,7 +23,6 @@
 <!-- Needed for the sample provider
 		-->
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-sample-provider</artifactId>
       <version>${sakai.version}</version>
@@ -34,18 +33,12 @@
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-jldap-provider</artifactId>
 			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
 		</dependency>
 	
 		<dependency> 
 			<groupId>openldap</groupId> 
 			<artifactId>ldap</artifactId> 
  			<version>2005.03.29</version> 
- 			<properties> 
-				<war.bundle>true</war.bundle> 
-			</properties> 
 		</dependency> 
 	 	-->
 <!-- Needed for the Kerberos Provider 
@@ -53,9 +46,6 @@
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-kerberos-provider</artifactId>
 			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
 		</dependency>
 	 	-->
 <!-- Needed for the IMS Enterprise Provider 
@@ -63,52 +53,31 @@
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-imsent-provider</artifactId>
 			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
 		</dependency>
 	 	-->
 <!--
 			Needed for the (new as of Sakai 2.3) CM-based
 			AuthzGroupProvider and legacy CourseManagementProvider
 		-->
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-coursemanagement-authz-provider-impl</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-coursemanagement-cm-provider-impl</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-coursemanagement-authz-provider-impl</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-coursemanagement-cm-provider-impl</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
 <!-- Needed for the Federated provider
 		<dependency>
 			<groupId>org.sakaiproject</groupId>
 			<artifactId>sakai-federating-provider</artifactId>
 			<version>${sakai.version}</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-			</properties>
 		</dependency>
 		-->
-    <dependency>
-      
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-util</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
   </dependencies>
   <build>
-    
-    
-    
-    
-    
-    
     <resources/>
-    
   </build>
 </project>
