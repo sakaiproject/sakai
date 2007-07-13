@@ -3,10 +3,10 @@
   <modelVersion>4.0.0</modelVersion>
   <name>sakai-messageforums-hbm</name>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>msgcntr-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../../master/pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-messageforums-hbm</artifactId>
@@ -21,62 +21,42 @@
   </properties>
   <dependencies>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-messageforums-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-site-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-user-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-authz-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-util-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>commons-beanutils</groupId>
       <artifactId>commons-beanutils</artifactId>
       <version>1.7.0</version>
-      <scope>provided</scope>
     </dependency>
   </dependencies>
   <build>
-    
-    
-    
-    
-    
-    
     <resources>
       <resource>
         <directory>${basedir}/src/sql</directory>
@@ -91,6 +71,5 @@
         </includes>
       </resource>
     </resources>
-    
   </build>
 </project>
