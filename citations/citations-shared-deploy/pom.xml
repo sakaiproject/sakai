@@ -25,6 +25,7 @@
       <groupId>zing</groupId>
       <artifactId>cql-java</artifactId>
       <version>0.7</version>
+      <scope>compile</scope>
     </dependency>
   </dependencies>
 </project>
