@@ -23,7 +23,7 @@ limitations under the License.
     <relativePath>../pom.xml</relativePath>
   </parent>
   <groupId>org.sakaiproject</groupId>
-  <artifactId>contentreview-base</artifactId>
+  <artifactId>content-review-base</artifactId>
   <name>Sakai Content Review API</name>
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/content-review/trunk</connection>
