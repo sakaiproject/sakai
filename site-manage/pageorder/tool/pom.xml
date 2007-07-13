@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>site-manage-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../../../master/pom.xml</relativePath>
+    <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-site-pageorder-helper</name>
   <groupId>org.sakaiproject</groupId>
@@ -22,13 +22,12 @@
     <ponderutilcore.version>1.2.2M4</ponderutilcore.version>
     <jservletutil.version>1.2.2M4</jservletutil.version>
   </properties>
-
 <!--- 
   WARNING: This project is using Milestone builds of RSF
   Which are not suitable for production use.
   This repository location must be removed before code freeze
 -->
-<repositories>
+  <repositories>
     <repository>
       <id>caret-dev</id>
       <name>Caret Dev Repo</name>
@@ -39,7 +38,6 @@
       </snapshots>
     </repository>
   </repositories>
-
   <dependencies>
     <dependency>
       <groupId>uk.org.ponder.rsfsamples</groupId>
@@ -59,96 +57,71 @@
       <version>${rsfutil.version}-sakai_${sakairsf.sakai.version}</version>
       <type>jar</type>
     </dependency>
-
-    <!-- Various Sakai dependencies -->
+<!-- Various Sakai dependencies -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-authz-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
-
-    <!-- this is needed to use the ServerConfigurationService -->
+<!-- this is needed to use the ServerConfigurationService -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-component-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
-
-    <!-- this is needed to access the SqlService -->
+<!-- this is needed to access the SqlService -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-db-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
-
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-entity-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
-
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-event-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
-
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-site-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
-
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-tool-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
-
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-user-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
-
- <!-- Sakai Util is required to resolve user's Locale -->
+<!-- Sakai Util is required to resolve user's Locale -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-util</artifactId>
       <version>${sakai.version}</version>
     </dependency>
-
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-util-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
-
-    <!-- Commons JARS put in shared/lib by Sakai -->
+<!-- Commons JARS put in shared/lib by Sakai -->
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
       <version>2.1</version>
-      <scope>provided</scope>
     </dependency>
-
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
-      <scope>provided</scope>
     </dependency>
-
-
   </dependencies>
   <build>
     <sourceDirectory>src/java</sourceDirectory>
