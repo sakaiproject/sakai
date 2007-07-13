@@ -57,8 +57,8 @@ public class ShowAreaRender extends Renderer
       // width=\"100%\" STYLE=\"word-wrap: break-all; white-space: -moz-pre-wrap;
       // text-overflow:ellipsis; overflow: auto;\">");
       value = value.replaceAll("<a title=", "<a target=\"_new\" title=");
-      value = value.replaceAll("<a href=",
-          "<a title=\"Open a new window\" target=\"_new\" href=");
+ //     value = value.replaceAll("<a href=",
+ //         "<a title=\"Open a new window\" target=\"_new\" href=");
       if (hideBorder != null && hideBorder.equals("true"))
       {
         writer

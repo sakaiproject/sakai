@@ -125,6 +125,14 @@
             <to-view-id>/jsp/pvtMsgReply.jsp</to-view-id>
             <redirect/>
         </navigation-case> 
+        
+        <!-- SAKAI-10505 -->
+          <navigation-case>
+            <from-outcome>pvtMsgForward</from-outcome>
+            <to-view-id>/jsp/pvtMsgForward.jsp</to-view-id>
+            <redirect/>
+        </navigation-case> 
+        
         <navigation-case>
             <from-outcome>pvtMsgDelete</from-outcome>
             <to-view-id>/jsp/privateMsg/pvtMsgDelete.jsp</to-view-id>

@@ -96,6 +96,8 @@ public class PrivateMessagesTool
    * List individual private messages details
    */
   private static final String REPLY_SUBJECT_PREFIX = "pvt_reply_prefix";
+  //SAKAI-10505
+  private static final String FORWARD_SUBJECT_PREFIX = "pvt_forward_prefix";
   private static final String ALERT = "pvt_alert";
   private static final String NO_MATCH_FOUND = "pvt_no_match_found";
   private static final String MISSING_BEG_END_DATE = "pvt_missing_date_range";
@@ -150,6 +152,8 @@ public class PrivateMessagesTool
   public static final String MESSAGE_STATISTICS_PG="pvtMsgStatistics";
   public static final String MESSAGE_HOME_PG="pvtMsgHpView";
   public static final String MESSAGE_REPLY_PG="pvtMsgReply";
+  //SAKAI-10505
+  public static final String MESSAGE_FORWARD_PG="pvtMsgForward";
   public static final String DELETE_MESSAGE_PG="pvtMsgDelete";
   public static final String REVISE_FOLDER_PG="pvtMsgFolderRevise";
   public static final String MOVE_MESSAGE_PG="pvtMsgMove";
@@ -1020,6 +1024,14 @@ public class PrivateMessagesTool
     	searchPvtMsgs.clear();
     return DISPLAY_MESSAGES_PG;
   }
+ //SAKAI-10505 
+  public String processDisplayMessages()
+  {
+    LOG.debug("processDisplayMessages()");
+    if (searchPvtMsgs != null)
+    	searchPvtMsgs.clear();
+    return SELECTED_MESSAGE_PG;
+  }
   public String processPvtMsgTopic()
   {
     LOG.debug("processPvtMsgTopic()");
@@ -1157,6 +1169,29 @@ public class PrivateMessagesTool
     return MESSAGE_REPLY_PG;
   }
   
+  
+  //SAKAI-10505 add forward.
+  /**
+   * called from Single delete Page
+   * @return - pvtMsgForward
+   */ 
+  public String processPvtMsgForward() {
+	    LOG.debug("processPvtMsgForward()");
+
+	    if(getDetailMsg() != null)
+	    {
+	    	if(getDetailMsg().getMsg().getTitle() != null && !getDetailMsg().getMsg().getTitle().startsWith(getResourceBundleString(FORWARD_SUBJECT_PREFIX)))
+	    		replyToSubject = getResourceBundleString(FORWARD_SUBJECT_PREFIX) + ' ' + getDetailMsg().getMsg().getTitle();
+	    	else
+	    		replyToSubject = getDetailMsg().getMsg().getTitle();
+	    }
+	    
+	    //from message detail screen
+	    this.setDetailMsg(getDetailMsg()) ;
+
+	    return MESSAGE_FORWARD_PG;
+	  }
+	  
   /**
    * called from Single delete Page
    * @return - pvtMsgDetail
@@ -1868,7 +1903,107 @@ public class PrivateMessagesTool
     return DISPLAY_MESSAGES_PG;
 
   }
+  
+  
+  //SAKAI-10505
+  //////////////////////Forward SEND  /////////////////
+  public String processPvtMsgForwardSend() {
+    LOG.debug("processPvtMsgForwardSend()");
+    
+    PrivateMessage currentMessage = getDetailMsg().getMsg() ;
+  
+    if(!hasValue(getReplyToSubject()))
+    {
+      setErrorMessage(getResourceBundleString(MISSING_SUBJECT));
+      return null ;
+    }
+    
+    if(getSelectedComposeToList().size()<1)
+    {
+      setErrorMessage(getResourceBundleString(SELECT_MSG_RECIPIENT));
+      return null ;
+    }
+
+        
+    PrivateMessage rrepMsg = messageManager.createPrivateMessage() ;
+       
+    rrepMsg.setTitle(getReplyToSubject()) ; //rrepMsg.setTitle(rMsg.getTitle()) ;
+    rrepMsg.setDraft(Boolean.FALSE);
+    rrepMsg.setDeleted(Boolean.FALSE);
+    
+    rrepMsg.setAuthor(getAuthorString());
+    rrepMsg.setApproved(Boolean.FALSE);
+    rrepMsg.setBody(getReplyToBody()) ;
+    
+    rrepMsg.setLabel(getSelectedLabel());
+    
+    rrepMsg.setInReplyTo(currentMessage) ;
+    
+    //Add the recipientList as String for display in Sent folder
+    // Since some users may be hidden, if some of these are recipients
+    // filter them out (already checked if no recipients)
+    // if only 1 recipient no need to check visibility
+    String sendToString="";
+    String sendToHiddenString="";
+    
+    if (selectedComposeToList.size() == 1) {
+        MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectedComposeToList.get(0));
+        if(membershipItem != null)
+        {
+      		  sendToString +=membershipItem.getName()+"; " ;
+        }          
+    }
+    else {
+    	for (int i = 0; i < selectedComposeToList.size(); i++)
+    	{
+    		MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectedComposeToList.get(i));
+    		if(membershipItem != null)
+    		{
+    			if (membershipItem.isViewable()) {
+    				sendToString +=membershipItem.getName()+"; " ;
+    			}
+   		       	else {
+   	        		sendToHiddenString += membershipItem.getName() + "; ";
+   	        	}
+   	        }          
+    	}
+    }
+
+    if (! "".equals(sendToString)) {
+  	  sendToString=sendToString.substring(0, sendToString.length()-2); //remove last comma and space
+    }
+
+    if ("".equals(sendToHiddenString)) {
+        rrepMsg.setRecipientsAsText(sendToString);
+    }
+    else {
+    	sendToHiddenString=sendToHiddenString.substring(0, sendToHiddenString.length()-2); //remove last comma and space    
+    	rrepMsg.setRecipientsAsText(sendToString + " (" + sendToHiddenString + ")");
+    }    
+    
+    //Add attachments
+    for(int i=0; i<allAttachments.size(); i++)
+    {
+      prtMsgManager.addAttachToPvtMsg(rrepMsg, ((DecoratedAttachment)allAttachments.get(i)).getAttachment());         
+    }            
+    
+    if((SET_AS_YES).equals(getComposeSendAsPvtMsg()))
+    {
+      prtMsgManager.sendPrivateMessage(rrepMsg, getRecipients(), false);
+    }
+    else{
+      prtMsgManager.sendPrivateMessage(rrepMsg, getRecipients(), true);
+    }
+    
+    //reset contents
+    resetComposeContents();
+    
+    return DISPLAY_MESSAGES_PG;
+
+  }
  
+ //END SAKAI-10505
+  
   /**
    * process from Compose screen
    * @return - pvtMsg
