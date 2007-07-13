@@ -22,13 +22,6 @@
       <artifactId>sakai-portal-impl</artifactId>
       <version>${sakai.version}</version>
     </dependency>
-<!--
-    <dependency>
-      <groupId>wurfl</groupId>
-      <artifactId>wall-tomcat5</artifactId>
-      <version>b1</version>
-    </dependency>
--->
   </dependencies>
   <build>
     <resources/>
