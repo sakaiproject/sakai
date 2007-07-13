@@ -25,16 +25,6 @@
       <artifactId>sakai-calendar-impl</artifactId>
       <version>${sakai.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-db-storage</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>ical4j</groupId>
-      <artifactId>ical4j</artifactId>
-      <version>0.9.20</version>
-    </dependency>
   </dependencies>
   <build>
     <resources/>
