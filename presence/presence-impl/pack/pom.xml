@@ -25,11 +25,12 @@
       <artifactId>sakai-presence-impl</artifactId>
       <version>${sakai.version}</version>
     </dependency>
-    <dependency>
+<!--    <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-privacy-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
+-->
   </dependencies>
   <build>
     <resources/>
