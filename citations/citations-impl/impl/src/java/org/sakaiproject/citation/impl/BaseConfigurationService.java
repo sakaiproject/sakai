@@ -80,7 +80,9 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.UserDirectoryService;
 
 /**
  *
@@ -758,52 +760,56 @@ public class BaseConfigurationService implements ConfigurationService, Observer
     else if(siteService.siteExists(this.m_adminSiteName))
     {
       // no need to create
+        m_log.info("init() site " + this.m_adminSiteName + " already exists");
     }
     else
     {
-      // need to create
-      try
-            {
-        enableSecurityAdvisor();
-        Site adminSite = siteService.addSite(this.m_adminSiteName, "project");
-
-        // add Resources tool
-        SitePage resPage = adminSite.addPage();
-        resPage.addTool("sakai.resources");
-
-        enableSecurityAdvisor();
-        siteService.save(adminSite);
-            }
-            catch (IdInvalidException e)
-            {
-              // TODO Auto-generated catch block
-              m_log.warn("IdInvalidException ", e);
-            }
-            catch (IdUsedException e)
-            {
-              // we've already verified that the site doesn't exist but
-              // this can occur if site was created by another server
-              // in a cluster that is starting up at the same time.
-              m_log.warn("IdUsedException ", e);
-            }
-            catch (PermissionException e)
-            {
-              // TODO Auto-generated catch block
-              m_log.warn("PermissionException ", e);
-            }
-            catch (IdUnusedException e)
-            {
-              // TODO Auto-generated catch block
-              m_log.warn("IdUnusedException ", e);
-            }
-    }
-
-    for(String config : this.m_configs)
-    {
-      String configFileRef = this.getConfigFolderReference() + config;
-
-      updateConfig(configFileRef);
-    }
+    	// need to create
+    	try
+    	{
+    		enableSecurityAdvisor();
+    		Session s = m_sessionManager.getCurrentSession();
+    		s.setUserId(UserDirectoryService.ADMIN_ID);
+			
+			Site adminSite = siteService.addSite(this.m_adminSiteName, "project");
+			
+			// add Resources tool
+			SitePage page = adminSite.addPage();
+			page.addTool("sakai.resources");
+			
+			siteService.save(adminSite);
+	        m_log.debug("init() site " + this.m_adminSiteName + " has been created");
+		}
+		catch (IdInvalidException e)
+		{
+		  // TODO Auto-generated catch block
+		  m_log.warn("IdInvalidException ", e);
+		}
+		catch (IdUsedException e)
+		{
+		  // we've already verified that the site doesn't exist but
+		  // this can occur if site was created by another server
+		  // in a cluster that is starting up at the same time.
+		  m_log.warn("IdUsedException ", e);
+		}
+		catch (PermissionException e)
+		{
+		  // TODO Auto-generated catch block
+		  m_log.warn("PermissionException ", e);
+		}
+		catch (IdUnusedException e)
+		{
+		  // TODO Auto-generated catch block
+		  m_log.warn("IdUnusedException ", e);
+		}
+	}
+	
+	for(String config : this.m_configs)
+	{
+	  String configFileRef = this.getConfigFolderReference() + config;
+	
+	  updateConfig(configFileRef);
+	}
   }
 
   public void destroy()
