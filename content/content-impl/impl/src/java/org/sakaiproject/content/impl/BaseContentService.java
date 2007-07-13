@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -357,7 +358,18 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	{
 		try
 		{
-			m_bodyVolumes = StringUtil.split(value, ",");
+			String[] bodyVolumes = StringUtil.split(value, ",");
+			List<String> list = new Vector<String>();
+			for(int i = 0; i < bodyVolumes.length; i++)
+			{
+				String name = bodyVolumes[i];
+				if(name == null || name.trim().equals(""))
+				{
+					continue;
+				}
+				list.add(name.trim());
+			}
+			this.m_bodyVolumes = (String[]) list.toArray();
 		}
 		catch (Throwable t)
 		{
