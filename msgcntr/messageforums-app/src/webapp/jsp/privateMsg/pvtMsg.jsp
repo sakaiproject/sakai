@@ -34,6 +34,10 @@
 		<h:form id="prefs_pvt_form">
 			<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>		
 			
+			<sakai:tool_bar>
+       			<sakai:tool_bar_item value="#{msgs.pvt_compose}" action="#{PrivateMessagesTool.processPvtMsgCompose}" />
+ 			</sakai:tool_bar>
+
 			<%--<sakai:tool_bar_message value="#{msgs.pvt_pvtmsg}- #{PrivateMessagesTool.msgNavMode}" /> --%>
 			<%@include file="topNav.jsp" %>
  
@@ -54,7 +58,7 @@
  					               title="#{msgs.cdfm_checkall}" />
 		     <%--<h:commandButton alt="SelectAll" image="/sakai-messageforums-tool/images/checkbox.gif" action="#{PrivateMessagesTool.processSelectAllJobs}"/>--%>
 		    </f:facet>
-				<h:selectBooleanCheckbox value="#{rcvdItems.isSelected}"/>
+				<h:selectBooleanCheckbox value="#{rcvdItems.isSelected}" onclick="updateCount(this.checked); toggleBulkOperations(anyChecked(), 'prefs_pvt_form');" />
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">					
@@ -178,7 +182,7 @@
  					               title="#{msgs.cdfm_checkall}"/>
 		     <%--<h:commandButton alt="SelectAll" image="/sakai-messageforums-tool/images/checkbox.gif" action="#{PrivateMessagesTool.processSelectAllJobs}"/>--%>
 		    </f:facet>
-				<h:selectBooleanCheckbox value="#{rcvdItems.isSelected}"/>
+				<h:selectBooleanCheckbox value="#{rcvdItems.isSelected}" onclick="updateCount(this.checked); toggleBulkOperations(anyChecked(), 'prefs_pvt_form');" />
 		  </h:column>
 		  <h:column>
 				<f:facet name="header">
@@ -229,6 +233,15 @@
 		  </h:column>
 		</mf:hierPvtMsgDataTable>
 		
+<%-- Added if user clicks Check All --%>
+    <script language="Javascript" type="text/javascript">
+     // setting number checked just in case Check All being processed
+     // needed to 'enable' bulk operations
+     numberChecked = <h:outputText value="#{PrivateMessagesTool.numberChecked}" />;
+
+     toggleBulkOperations(numberChecked > 0, 'prefs_pvt_form');
+     </script>
+
 		 </h:form>
 	</sakai:view>
 </f:view>

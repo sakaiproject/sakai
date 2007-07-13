@@ -17,6 +17,9 @@
 				  	<f:verbatim>&nbsp; / </f:verbatim>
 				  </h:panelGroup>
 				  <h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" value="#{msgs.cdfm_message_pvtarea}" title=" #{msgs.cdfm_message_pvtarea}"/> /
+				  <h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="#{PrivateMessagesTool.msgNavMode}" title=" #{msgs.cdfm_message_forums}" 
+									rendered="#{! PrivateMessagesTool.fromMain}" />
+				  <h:outputText escape="false" value=" / " rendered="#{! PrivateMessagesTool.fromMain}" />
 				  <h:outputText value="#{msgs.pvt_compose1}" />
 				</h3>
 			</div>

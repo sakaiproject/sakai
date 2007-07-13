@@ -67,9 +67,9 @@
 						actionListener="#{mfSynopticBean.processReadAll}"
 						rendered="#{eachSite.unreadPrivateAmt > 0}"
 						styleClass="active">
-							<h:graphicImage url="/images/silk/email_edit.png" title="#{msgs.syn_mark_as_read}"
-								onmouseover="ImageRollOver(this, '/sakai-messageforums-tool/images/silk/email_open.png');"
-								onmouseout="ImageRollOver(this, '/sakai-messageforums-tool/images/silk/email_edit.png');"
+							<h:graphicImage url="#{PrivateMessagesTool.serverUrl}/library/image/silk/email_edit.png" title="#{msgs.syn_mark_as_read}"
+								onmouseover="ImageRollOver(this, '#{PrivateMessagesTool.serverUrl}/library/image/silk/email_open.png');"
+								onmouseout="ImageRollOver(this, '#{PrivateMessagesTool.serverUrl}/library/image/silk/email_edit.png');"
 								rendered="#{eachSite.unreadPrivateAmt > 0}" />
 							<f:param name="contextId" value="#{eachSite.siteId}" />
 					</h:commandLink>
@@ -89,7 +89,7 @@
 							escape="false" title="#{msgs.syn_goto_forums}" rendered="#{eachSite.unreadForumsAmt > 0}"/>
 					<h:outputText value="  " rendered="#{eachSite.unreadForumsAmt > 0}" />
 
-					<h:graphicImage url="/images/silk/email.png" rendered="#{eachSite.unreadForumsAmt > 0}" />
+					<h:graphicImage url="#{PrivateMessagesTool.serverUrl}/library/image/silk/email.png" rendered="#{eachSite.unreadForumsAmt > 0}" />
 
 					<h:outputText value="#{msgs.syn_no_messages}" rendered="#{eachSite.unreadForumsAmt == 0}" />
 				</h:panelGroup>
@@ -122,9 +122,9 @@
 				<h:outputText value="  " rendered="true" />
 
 	 			<h:commandLink action="synMain" actionListener="#{mfSynopticBean.processReadAll}" styleClass="active" >
-					<h:graphicImage url="/images/silk/email_edit.png" title="#{msgs.syn_mark_as_read}" 
-						onmouseover="ImageRollOver(this, '/sakai-messageforums-tool/images/silk/email_open.png');"
-						onmouseout="ImageRollOver(this, '/sakai-messageforums-tool/images/silk/email_edit.png');" />
+					<h:graphicImage url="#{PrivateMessagesTool.serverUrl}/library/image/silk/email_edit.png" title="#{msgs.syn_mark_as_read}" 
+						onmouseover="ImageRollOver(this, '#{PrivateMessagesTool.serverUrl}/library/image/silk/email_open.png');"
+						onmouseout="ImageRollOver(this, '#{PrivateMessagesTool.serverUrl}/library/image/silk/email_edit.png');" />
 					<f:param name="contextId" value="#{eachSite.siteId}" />
 				</h:commandLink>
 			</h:panelGroup>
@@ -143,11 +143,9 @@
 							escape="false" title="#{msgs.syn_goto_forums}" rendered="#{mfSynopticBean.siteInfo.unreadForumsAmt > 0}"/>
 			<h:outputText value="  " rendered="true" />
 
-			<h:graphicImage url="/images/silk/email.png" rendered="#{mfSynopticBean.siteInfo.unreadForumsAmt > 0}" />
+			<h:graphicImage url="#{PrivateMessagesTool.serverUrl}/library/image/silk/email.png" rendered="#{mfSynopticBean.siteInfo.unreadForumsAmt > 0}" />
 		</h:panelGroup>
 	</h:panelGrid>
-
-    </h:form> 
 
     <!-- This is the div for the popup definition. It is not displayed until the element is moused over -->
     <div id="markAsRead" class="markasread_popup" 
@@ -155,6 +153,7 @@
   	  <h:outputText value="#{msgs.syn_mark_as_read}" />
     </div>
 
+    </h:form> 
   </sakai:view>
  </f:view>
 

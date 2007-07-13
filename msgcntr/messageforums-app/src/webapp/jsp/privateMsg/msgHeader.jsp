@@ -22,6 +22,120 @@
 			}
 		}
 	}
+	
+	// global counter to determine if any checkboxes are checked
+	var numberChecked = 0;
+	
+	function updateCount(checked)
+	{ 
+		if (checked)
+		{
+			numberChecked++;
+		}
+		else
+		{
+			numberChecked--;
+		}
+	}
+	
+	function anyChecked()
+	{
+		return numberChecked > 0;
+	}
+
+	// storage for onclick properties of bulk operations
+	// for enabling/disabling
+	var readOnClick, deleteOnClick, moveOnClick;
+	
+	// needed for disabling in non-IE browsers
+	var readTextColor, deleteTextColor, moveTextColor;
+	
+	// storage for style information of bulk operations
+	// so if 'disabled', remove underline
+	var readStyle, deleteStyle, moveStyle;
+	
+	function toggleBulkOperations(anyChecked, formRef)
+	{ 
+		// stores link object since multiple access methods
+		var readEl, deleteEl, moveEl;
+		var IEbrowser;
+		var markAsread = formRef + ':markAsread';
+		var deleteMarked = formRef + ':deleteMarked';
+		var deleteChecked = formRef + ':deleteChecked';
+		var moveChecked = formRef + ':moveCheckedToFolder';
+		
+		if (document.all)
+		{
+			readEl = document.all[markAsread];
+			if (document.all[deleteMarked])
+				deleteEl = document.all[deleteMarked];
+			else
+				deleteEl = document.all[deleteChecked];
+			moveEl = document.all[moveChecked];
+			IEbrowser=true;
+		}
+		else
+		{
+			readEl = document.getElementById(markAsread);
+			if (document.getElementById(deleteMarked))
+				deleteEl = document.getElementById(deleteMarked);
+			else
+				deleteEl = document.getElementById(deleteChecked);
+			moveEl = document.getElementById(moveChecked);
+			IEbrowser=false;
+		}
+
+		if (anyChecked)
+		{ 
+			// toggle onclick functionality
+			readEl.onclick = readOnClick;
+			deleteEl.onclick = deleteOnClick;
+			moveEl.onclick = moveOnClick;
+
+			if (IEbrowser) 
+			{	// IE - just set disabled property to false	
+				readEl.disabled =  false;
+				deleteEl.disabled = false;
+				moveEl.disabled = false;
+			}
+			else
+			{ // non-IE - reset text color
+				readEl.style.color = readTextColor;
+				deleteEl.style.color = readTextColor;
+				moveEl.style.color = readTextColor;
+			}
+		}
+		else
+		{
+			// toggle onclick functionality
+			readOnClick = readEl.onclick;
+			deleteOnClick = deleteEl.onclick;
+			moveOnClick = moveEl.onclick;
+
+			// 'disable'
+			readEl.onclick = 'return false;';
+			deleteEl.onclick = 'return false;';
+			moveEl.onclick = 'return false;';
+
+			if (IEbrowser) 
+			{ // IE - set disabled property to true
+				readEl.disabled = true;
+				deleteEl.disabled = true;
+				moveEl.disabled = true;
+			}
+			else
+			{ // non-IE - set color to grey and onclick to return false
+				readTextColor = readEl.style.color;
+				readEl.style.color = 'grey';
+
+				deleteTextColor = readEl.style.color;
+				deleteEl.style.color = 'grey';
+
+				moveTextColor = readEl.style.color;
+				moveEl.style.color = 'grey';
+			}
+		}
+	}		
 </script>
 <sakai:script contextBase="/sakai-jsf-resource" path="/inputDate/inputDate.js"/>		
 <sakai:script contextBase="/sakai-jsf-resource" path="/inputDate/calendar1.js"/>		
@@ -116,58 +230,33 @@
 <div class="navPanel">
   <div style="float:left; display:inline; width: 33%; padding-top: 0.5em;">
     <%-- Mark All As Read --%>
-  	<h:commandLink action="#{PrivateMessagesTool.processActionMarkCheckedAsRead}" id="markAsread" value="#{msgs.cdfm_mark_check_as_read}"
-				title="#{msgs.cdfm_mark_check_as_read}" /> 
-	  
-	<%-- Delete Checked --%>
-	<h:outputText value="  | " rendered="#{PrivateMessagesTool.msgNavMode != 'Deleted'}" />
-	<h:outputText value=" " rendered="#{PrivateMessagesTool.msgNavMode != 'Deleted'}" />
-	<h:commandLink action="#{PrivateMessagesTool.processActionDeleteChecked}" id="deleteMarked" value="#{msgs.cdfm_mark_check_as_delete}"
-				title="#{msgs.cdfm_mark_check_as_delete}" rendered="#{PrivateMessagesTool.msgNavMode != 'Deleted'}" />
-	  
+  	<h:commandLink action="#{PrivateMessagesTool.processActionMarkCheckedAsRead}" id="markAsread" title="#{msgs.cdfm_mark_check_as_read}" >
+ 		<h:graphicImage value="#{PrivateMessagesTool.serverUrl}/library/image/silk/email.png" />
+ 		<h:outputText value=" #{msgs.cdfm_mark_check_as_read}" />
+ 	</h:commandLink>
+ 	
+	<%-- Delete Checked 
+			first link renders on non-Deleted folders and moves to Deleted folder
+			second link renders on Deleted folder page and does the 'actual' delete --%>
+	<h:outputText value="  | " /><h:outputText value=" " />
+	<h:commandLink action="#{PrivateMessagesTool.processActionDeleteChecked}" id="deleteMarked"
+				title="#{msgs.cdfm_mark_check_as_delete}" rendered="#{PrivateMessagesTool.msgNavMode != 'Deleted'}" >
+		<h:graphicImage value="#{PrivateMessagesTool.serverUrl}/library/image/silk/email_delete.png" />
+		<h:outputText value=" #{msgs.cdfm_mark_check_as_delete}" />
+	</h:commandLink>
+ 	<h:commandLink id="deleteChecked" action="#{PrivateMessagesTool.processPvtMsgEmptyDelete}" rendered="#{PrivateMessagesTool.msgNavMode == 'Deleted'}" 
+ 				 onkeypress="document.forms[0].submit;" accesskey="x" >
+ 		<h:graphicImage value="#{PrivateMessagesTool.serverUrl}/library/image/silk/email_delete.png" />
+		<h:outputText value=" #{msgs.cdfm_mark_check_as_delete}" />
+  	</h:commandLink>
+ 	  
 	<%-- Move Checked To Folder --%>
 	<h:outputText value="  | " /><h:outputText value=" " />
-	<h:commandLink action="#{PrivateMessagesTool.processActionMoveCheckedToFolder}" id="moveCheckedToFolder" value="#{msgs.cdfm_mark_check_move_to_folder}" 
-				title="#{msgs.cdfm_mark_check_move_to_folder}" />
+	<h:commandLink action="#{PrivateMessagesTool.processActionMoveCheckedToFolder}" id="moveCheckedToFolder" title="#{msgs.cdfm_mark_check_move_to_folder}" >
+		<h:graphicImage value="/images/page_move.png" alt="#{msgs.msg_is_unread}"  />
+		<h:outputText value=" #{msgs.cdfm_mark_check_move_to_folder}" />
+	</h:commandLink>
 	</div>
 
-  <div style="text-align:center; float:none; display:inline; width:33%;">
-    <h:commandButton value="#{msgs.pvt_cmpmsg}" action="#{PrivateMessagesTool.processPvtMsgCompose}" onkeypress="document.forms[0].submit;" accesskey="n" />
-  	<h:commandButton action="#{PrivateMessagesTool.processPvtMsgEmptyDelete}" rendered="#{PrivateMessagesTool.msgNavMode == 'Deleted'}" value="#{msgs.pvt_emptydelfol}" onkeypress="document.forms[0].submit;" accesskey="x" />
-  </div>
   <div style="float:right; display:inline; width:33%;"></div>
 </div>
-			
-	    			
-	    			<%--<h:outputText value="#{msgs.pvt_advsearch}" />--%>
-	 
-	    <!-- <table class="pvtMsgs">
-	      <tr>
-	        <td>
-	        <%--
-	          <h:outputText value="#{msgs.pvt_markread}"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	        	<h:outputText value="#{msgs.pvt_pntformat}"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	        --%>
-	        </td>
-	        
-	        <td id="pvtMsgComposeButton">
-	   			<h:commandButton value="#{msgs.pvt_cmpmsg}" action="#{PrivateMessagesTool.processPvtMsgCompose}" onkeypress="document.forms[0].submit;"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	        	<h:commandButton action="#{PrivateMessagesTool.processPvtMsgEmptyDelete}" rendered="#{PrivateMessagesTool.msgNavMode == 'Deleted'}" value="#{msgs.pvt_emptydelfol}" onkeypress="document.forms[0].submit;"/>  
-	        </td>
-	        
-	        <td>
-	        <%--
-	        <h:commandLink value="#{msgs.pvt_dispop}" action="#{PrivateMessagesTool.processPvtMsgDispOtions}" onkeypress="document.forms[0].submit;"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-	       
-	        <h:commandLink value="#{msgs.pvt_foldersettings}" action="#{PrivateMessagesTool.processPvtMsgFolderSettings}" onkeypress="document.forms[0].submit;">  
-	   	<f:param value="#{PrivateMessagesTool.selectedTopicTitle}" name="pvtMsgTopicTitle"/>
-					<f:param value="#{PrivateMessagesTool.selectedTopicId}" name="pvtMsgTopicId"/>
-	   </h:commandLink>
-	 	--%>
-	        </td>
-	      </tr>                                    
-	    </table>-->
-	    
-
-    		
-  

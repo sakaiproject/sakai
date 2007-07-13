@@ -8,7 +8,24 @@
 	<sakai:view title="#{msgs.pvt_move} #{msgs.pvt_rcvd_msgs}">
 <!--jsp/privateMsg/pvtMsgMove.jsp-->	
 		<h:form id="pvtMsgMove">
-		  <sakai:tool_bar_message value="#{msgs.pvt_msgs_label} #{msgs.pvt_move_msg_to}" /> 
+		<f:verbatim><div class="breadCrumb specialLink"><h3></f:verbatim>
+			<h:panelGroup rendered="#{PrivateMessagesTool.messagesandForums}" >
+				<h:commandLink action="#{PrivateMessagesTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title="#{msgs.cdfm_message_forums}"/>
+				<h:outputText value=" / " />
+			</h:panelGroup>
+	  	
+			<h:commandLink action="#{PrivateMessagesTool.processActionPrivateMessages}" value="#{msgs.pvt_message_nav}" title=" #{msgs.cdfm_message_forums}"/>
+			<h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " />
+		
+			<h:commandLink action="#{PrivateMessagesTool.processDisplayForum}" value="#{PrivateMessagesTool.msgNavMode}" title=" #{msgs.cdfm_message_forums}" />
+			<h:outputText value=" " />
+			<h:outputText value=" / " />
+			<h:outputText value=" " />
+			
+			<h:outputText value="#{msgs.pvt_move_msg_to}" />	
+		<f:verbatim></h3></div></f:verbatim>
+		
+<%--		  <sakai:tool_bar_message value="#{msgs.pvt_msgs_label} #{msgs.pvt_move_msg_to}" /> --%>
 			<h:messages styleClass="alertMessage" id="errorMessages" /> 
 
 			<h:dataTable value="#{PrivateMessagesTool.decoratedForum}" var="forum">

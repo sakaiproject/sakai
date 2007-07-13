@@ -27,7 +27,7 @@
  					               title="#{msgs.cdfm_checkall}" />
 		     <%--<h:commandButton alt="SelectAll" image="/sakai-messageforums-tool/images/checkbox.gif" action="#{PrivateMessagesTool.processSelectAllJobs}"/>--%>
 		    </f:facet>
-				<h:selectBooleanCheckbox value="#{rcvdItems.isSelected}" />
+				<h:selectBooleanCheckbox value="#{rcvdItems.isSelected}" onclick="updateCount(this.checked); toggleBulkOperations(anyChecked(), 'prefs_form_search');" />
 		  </h:column>
 		  <h:column>
 				<f:facet name="header">
@@ -90,7 +90,7 @@
 		    	<h:commandLink action="#{PrivateMessagesTool.processCheckAll}" value="#{msgs.cdfm_checkall}" 
  					               title="#{msgs.cdfm_checkall}" />
 		    </f:facet>
-		    <h:selectBooleanCheckbox value="#{rcvdItems.isSelected}"/>
+		    <h:selectBooleanCheckbox value="#{rcvdItems.isSelected}" onclick="updateCount(this.checked); toggleBulkOperations(anyChecked(), 'prefs_form_search');" />
 		  </h:column>
 		  <h:column>
 				<f:facet name="header">
@@ -141,8 +141,16 @@
 		  </h:column>
 		</mf:hierPvtMsgDataTable>
 		
-		
-		</h:form>
+<%-- Added if user clicks Check All --%>
+    <script language="Javascript" type="text/javascript">
+     // setting number checked just in case Check All being processed
+     // needed to 'enable' bulk operations
+     numberChecked = <h:outputText value="#{PrivateMessagesTool.numberChecked}" />;
+
+     toggleBulkOperations(numberChecked > 0, 'prefs_form_search');
+     </script>
+ 
+   	</h:form>
 
 	</sakai:view>
 </f:view>
