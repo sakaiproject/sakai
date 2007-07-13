@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>podcasts-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../../master/pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <name>sakai-podcasts-pack</name>
   <groupId>org.sakaiproject</groupId>
@@ -21,64 +21,48 @@
   </properties>
   <dependencies>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-podcasts-impl</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-util</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-entity-util</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-event-util</artifactId>
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-site-api</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>rome</groupId>
       <artifactId>rome</artifactId>
       <version>0.8</version>
     </dependency>
     <dependency>
-      
       <groupId>jdom</groupId>
       <artifactId>jdom</artifactId>
       <version>1.0</version>
     </dependency>
     <dependency>
-      
       <groupId>rome</groupId>
       <artifactId>itunes</artifactId>
       <version>0.3</version>
     </dependency>
   </dependencies>
   <build>
-    
-    
-    
-    
-    
-    
     <resources/>
 <!-- java source -->
-    
   </build>
 </project>
