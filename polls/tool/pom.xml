@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!--
 Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
 
@@ -15,11 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>sakai-poll-base</artifactId>
@@ -39,7 +34,7 @@ limitations under the License.
   Which are not suitable for production use.
   This repository location must be removed before code freeze
 -->
-<repositories>
+  <repositories>
     <repository>
       <id>caret-dev</id>
       <name>Caret Dev Repo</name>
@@ -50,167 +45,151 @@ limitations under the License.
       </snapshots>
     </repository>
   </repositories>
-
   <dependencies>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>${sakai.servletapi.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <!-- Sakai dependencies (all RSF apps must have this) -->
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-util</artifactId>
-            <version>${sakai.version}</version>
-        </dependency>
-
-        <!--to the tool Api -->
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-poll-model-api</artifactId>
-            <version>${sakai.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-poll-logic-impl</artifactId>
-            <version>${sakai.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-poll-logic-api</artifactId>
-            <version>${sakai.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <!-- Other Sakai dependencies -->
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-util-api</artifactId>
-            <version>${sakai.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-user-api</artifactId>
-            <version>${sakai.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-entity-api</artifactId>
-            <version>${sakai.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-site-api</artifactId>
-            <version>${sakai.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-tool-api</artifactId>
-            <version>${sakai.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-authz-api</artifactId>
-            <version>${sakai.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.sakaiproject</groupId>
-            <artifactId>sakai-event-api</artifactId>
-            <version>${sakai.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- Apache commons dependencies -->
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.0.4</version>
-            <scope>provided</scope>
-        </dependency>
-        <!-- Spring dependency -->
-        <dependency>
-            <groupId>${sakai.spring.groupId}</groupId>
-            <artifactId>${sakai.spring.artifactId}</artifactId>
-            <version>${sakai.spring.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- RSF dependencies -->
-        <dependency>
-            <groupId>uk.org.ponder</groupId>
-            <artifactId>ponderutilcore</artifactId>
-            <version>1.2.2M4</version>
-            <type>jar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>uk.org.ponder</groupId>
-            <artifactId>j-servletutil</artifactId>
-            <version>1.2.2M4</version>
-            <type>jar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>uk.org.ponder.rsfutil</groupId>
-            <artifactId>rsfutil</artifactId>
-            <version>0.7.2M4</version>
-            <type>jar</type>
-        </dependency>
-
-        <dependency>
-            <groupId>uk.org.ponder.sakairsf</groupId>
-            <artifactId>SakaiRSF</artifactId>
-            <version>0.7.2M4-sakai_2.2.x</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>uk.org.ponder.rsfutil</groupId>
-            <artifactId>RSFComponents-evolvers</artifactId>
-            <version>0.7.2M4</version>
-            <type>jar</type>
-         </dependency>
-
-         <dependency>
-          <groupId>uk.org.ponder.sakairsf</groupId>
-          <artifactId>SakaiRSFComponents-evolvers</artifactId>
-          <version>0.7.2M4-sakai_2.2.x</version>
-          <type>jar</type>
-        </dependency>
-          <dependency>
-           <groupId>uk.org.ponder.sakairsf</groupId>
-           <artifactId>SakaiRSFComponents-templates</artifactId>
-           <version>0.7.2M4-sakai_2.2.x</version>
-           <type>war</type>
-         </dependency>
-
-        <!-- XML pull parser - required for RSF -->
-        <dependency>
-            <groupId>xpp3</groupId>
-            <artifactId>xpp3_min</artifactId>
-            <version>1.1.3.4.O</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.9</version>
-            <type>jar</type>
-        </dependency>
-
-    </dependencies>
-    <build>
-      <plugins>
-        <plugin>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>${sakai.servletapi.version}</version>
+    </dependency>
+<!-- Sakai dependencies (all RSF apps must have this) -->
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-util</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+<!--to the tool Api -->
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-poll-model-api</artifactId>
+      <version>${sakai.version}</version>
+      <scope>provided</scope>
+    </dependency>
+<!--
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-poll-logic-impl</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+-->
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-poll-logic-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+<!-- Other Sakai dependencies -->
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-util-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-user-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-entity-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-site-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-tool-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-authz-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-event-api</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+<!-- Apache commons dependencies -->
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.0.4</version>
+    </dependency>
+<!-- Spring dependency -->
+    <dependency>
+      <groupId>${sakai.spring.groupId}</groupId>
+      <artifactId>${sakai.spring.artifactId}</artifactId>
+      <version>${sakai.spring.version}</version>
+    </dependency>
+<!-- RSF dependencies -->
+    <dependency>
+      <groupId>uk.org.ponder</groupId>
+      <artifactId>ponderutilcore</artifactId>
+      <version>1.2.2M4</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>uk.org.ponder</groupId>
+      <artifactId>j-servletutil</artifactId>
+      <version>1.2.2M4</version>
+      <type>jar</type>
+      <exclusions>
+      <exclusion>
+	      <groupId>org.springframework</groupId>
+	      <artifactId>spring-mock</artifactId>
+      </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>uk.org.ponder.rsfutil</groupId>
+      <artifactId>rsfutil</artifactId>
+      <version>0.7.2M4</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>uk.org.ponder.sakairsf</groupId>
+      <artifactId>SakaiRSF</artifactId>
+      <version>0.7.2M4-sakai_2.2.x</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>uk.org.ponder.rsfutil</groupId>
+      <artifactId>RSFComponents-evolvers</artifactId>
+      <version>0.7.2M4</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>uk.org.ponder.sakairsf</groupId>
+      <artifactId>SakaiRSFComponents-evolvers</artifactId>
+      <version>0.7.2M4-sakai_2.2.x</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>uk.org.ponder.sakairsf</groupId>
+      <artifactId>SakaiRSFComponents-templates</artifactId>
+      <version>0.7.2M4-sakai_2.2.x</version>
+      <type>war</type>
+    </dependency>
+<!-- XML pull parser - required for RSF -->
+    <dependency>
+      <groupId>xpp3</groupId>
+      <artifactId>xpp3_min</artifactId>
+      <version>1.1.3.4.O</version>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.9</version>
+      <type>jar</type>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
         <executions>
@@ -221,7 +200,7 @@ limitations under the License.
               <goal>unpack-dependencies</goal>
             </goals>
             <configuration>
-               <includeTypes>war</includeTypes>
+              <includeTypes>war</includeTypes>
               <outputDirectory>
                 ${project.build.directory}/webapp/
               </outputDirectory>
