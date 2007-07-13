@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>webservices-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../../master/pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Axis Servlet</name>
   <groupId>org.sakaiproject</groupId>
@@ -28,87 +28,66 @@
             161701 28 Feb 22:39 wsdl4j.jar
 	-->
     <dependency>
-      
       <groupId>axis</groupId>
       <artifactId>axis</artifactId>
       <version>1.3</version>
     </dependency>
     <dependency>
-      
       <groupId>axis</groupId>
       <artifactId>axis-jaxrpc</artifactId>
       <version>1.3</version>
     </dependency>
     <dependency>
-      
       <groupId>axis</groupId>
       <artifactId>axis-saaj</artifactId>
       <version>1.3</version>
     </dependency>
     <dependency>
-      
       <groupId>axis</groupId>
       <artifactId>axis-wsdl4j</artifactId>
       <version>1.5.1</version>
     </dependency>
     <dependency>
-      
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
       <version>1.2.8</version>
 <!--properties:  dependencyType: lib -->
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>xml-apis</groupId>
       <artifactId>xml-apis</artifactId>
       <version>2.0.2</version>
     </dependency>
 <!-- Xerxces is endorsed in Sakai -->
     <dependency>
-      
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
 <!--properties:  -->
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>commons-discovery</groupId>
       <artifactId>commons-discovery</artifactId>
       <version>0.2</version>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-component</artifactId>
       <version>${sakai.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
-      
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-util</artifactId>
       <version>${sakai.version}</version>
     </dependency>
-
     <dependency>
-       <groupId>org.sakaiproject</groupId>
-       <artifactId>sakai-util-axis</artifactId>
-       <version>${sakai.version}</version>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-util-axis</artifactId>
+      <version>${sakai.version}</version>
     </dependency>
   </dependencies>
   <build>
-    
-    
-    
-    
-    
-    
     <resources/>
 <!-- java source -->
-    
   </build>
 </project>
