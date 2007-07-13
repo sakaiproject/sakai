@@ -185,6 +185,12 @@
                 <version>1.0</version>
                 <scope>provided</scope>
            </dependency>
+           <dependency>
+                <groupId>org.sakaiproject</groupId>
+                <artifactId>sakai-dav-common</artifactId>
+                <version>${sakai.version}</version>
+                <scope>provided</scope>
+           </dependency>
       <!-- parser API inconsistancies -->
 	   <!-- force this version where used  -->
            <dependency>
@@ -615,55 +621,43 @@
 
 	<!-- release apis -->
            <dependency>
-                <groupId>org.sakaiproject</groupId>
+                <groupId>org.sakaiproject.osp</groupId>
                 <artifactId>osp-common-api</artifactId>
                 <version>${sakai.version}</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
-                <groupId>org.sakaiproject</groupId>
+                <groupId>org.sakaiproject.osp</groupId>
                 <artifactId>osp-glossary-api</artifactId>
                 <version>${sakai.version}</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
-                <groupId>org.sakaiproject</groupId>
+                <groupId>org.sakaiproject.osp</groupId>
                 <artifactId>osp-integration-api</artifactId>
                 <version>${sakai.version}</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
-                <groupId>org.sakaiproject</groupId>
+                <groupId>org.sakaiproject.osp</groupId>
                 <artifactId>osp-matrix-api</artifactId>
                 <version>${sakai.version}</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
-                <groupId>org.sakaiproject</groupId>
+                <groupId>org.sakaiproject.osp</groupId>
                 <artifactId>osp-portal-api</artifactId>
                 <version>${sakai.version}</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
-                <groupId>org.sakaiproject</groupId>
+                <groupId>org.sakaiproject.osp</groupId>
                 <artifactId>osp-presentation-api</artifactId>
                 <version>${sakai.version}</version>
                 <scope>provided</scope>
            </dependency>
            <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>osp-reports-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
-                <artifactId>osp-warehouse-api</artifactId>
-                <version>${sakai.version}</version>
-                <scope>provided</scope>
-           </dependency>
-           <dependency>
-                <groupId>org.sakaiproject</groupId>
+                <groupId>org.sakaiproject.osp</groupId>
                 <artifactId>osp-wizard-api</artifactId>
                 <version>${sakai.version}</version>
                 <scope>provided</scope>
@@ -893,6 +887,12 @@
                 <scope>provided</scope>
            </dependency>
 
+           <dependency>
+                <groupId>org.sakaiproject</groupId>
+                <artifactId>sakai-reports-api</artifactId>
+                <version>${sakai.version}</version>
+                <scope>provided</scope>
+           </dependency>
           <dependency>
       		<groupId>org.sakaiproject</groupId>
       		<artifactId>sakai-warehouse-api</artifactId>
