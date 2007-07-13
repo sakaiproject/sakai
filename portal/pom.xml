@@ -2,30 +2,30 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>master</artifactId>
+    <artifactId>base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../master/pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai</name>
   <groupId>org.sakaiproject</groupId>
-  <artifactId>charon_velocity_portal</artifactId>
+  <artifactId>portal-base</artifactId>
   <packaging>pom</packaging>
- <modules>
-<module>portal-api/api</module>
-<module>portal-charon/charon</module>
-<module>portal-impl/impl</module>
-<module>portal-mercury/mercury</module>
-<module>portal-render-api/api</module>
-<module>portal-render-impl/impl</module>
-<module>portal-render-impl/pack</module>
-<module>portal-render-engine-impl/impl</module>
-<module>portal-render-engine-impl/pack</module>
-<module>portal-service-impl/impl</module>
-<module>portal-service-impl/pack</module>
-<module>portal-tool/tool</module> 
-<module>portal-util/util</module>
-<module>portal-shared-deploy</module>
+  <modules>
+    <module>portal-api/api</module>
+    <module>portal-charon/charon</module>
+    <module>portal-impl/impl</module>
+    <module>portal-mercury/mercury</module>
+    <module>portal-render-api/api</module>
+    <module>portal-render-impl/impl</module>
+    <module>portal-render-impl/pack</module>
+    <module>portal-render-engine-impl/impl</module>
+    <module>portal-render-engine-impl/pack</module>
+    <module>portal-service-impl/impl</module>
+    <module>portal-service-impl/pack</module>
+    <module>portal-tool/tool</module>
+    <module>portal-util/util</module>
+    <module>portal-shared-deploy</module>
 <!-- <module>portal-portlet-tool/tool</module> -->
- </modules>
+  </modules>
 </project>
