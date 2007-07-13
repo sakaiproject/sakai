@@ -45,23 +45,6 @@
       <artifactId>sakai-import-announcement</artifactId>
       <version>${sakai.version}</version>
     </dependency>
-<!--
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-samigo-qti</artifactId>
-      <version>${sakai.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>jsf</groupId>
-          <artifactId>jsf-api</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>jsf</groupId>
-          <artifactId>jsf-impl</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
--->
   </dependencies>
   <build>
     <resources/>
