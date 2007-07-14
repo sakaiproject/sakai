@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>sakai-jsf-sun-ri-tool</artifactId>
+    <artifactId>postem-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../jsf-sun-tool/pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <name>Sakai Postem Tool</name>
   <groupId>org.sakaiproject</groupId>
@@ -63,15 +63,47 @@
       <version>1.0.4</version>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-jsf-widgets-myfaces</artifactId>
-      <version>${sakai.version}</version>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>${sakai.servletapi.version}</version>
     </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>jsp-api</artifactId>
+      <version>2.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>${sakai.servletapi.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-jsf-myfaces-tool</artifactId>
+      <version>${sakai.version}</version>
+      <exclusions>
+        <!-- since postem doesnt work with th latest myfaces we have to replace the library -->
+      	<exclusion>
+      		<groupId>org.apache.myfaces.core</groupId>
+      		<artifactId>myfaces-api</artifactId>
+      	</exclusion>
+      	<exclusion>
+      		<groupId>org.apache.myfaces.core</groupId>
+      		<artifactId>myfaces-impl</artifactId>
+      	</exclusion>
+      </exclusions>
+      <type>pom</type>
+    </dependency>
+<!-- postem requires and older version of myfaces -->
     <dependency>
       <groupId>myfaces</groupId>
       <artifactId>myfaces</artifactId>
       <version>1.0.9</version>
+      <scope>compile</scope>
     </dependency>
+
+
   </dependencies>
   <build>
     <resources>
