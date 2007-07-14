@@ -29,5 +29,7 @@
     <module>widgets-myfaces</module>
     <module>widgets-sun</module>
     <module>spreadsheet</module>
+    <module>depend-widgets-sun</module>
+    <module>depend-widgets-myfaces</module>
   </modules>
 </project>
