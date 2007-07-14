@@ -293,42 +293,14 @@
 <!-- Sakai tag library -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-jsf-widgets</artifactId>
+      <artifactId>sakai-depend-jsf-widgets-myfaces</artifactId>
       <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-jsf-widgets-myfaces</artifactId>
-      <version>${sakai.version}</version>
+      <type>pom</type>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-spreadsheet</artifactId>
       <version>${sakai.version}</version>
-    </dependency>
-<!-- blocking unwanted transitive dependency -->
-    <dependency>
-      <groupId>commons-el</groupId>
-      <artifactId>commons-el</artifactId>
-      <version>1.0</version>
-    </dependency>
-<!-- blocking unwanted transitive dependency -->
-    <dependency>
-      <groupId>commons-validator</groupId>
-      <artifactId>commons-validator</artifactId>
-      <version>1.1.4</version>
-    </dependency>
-<!-- blocking unwanted transitive dependency -->
-    <dependency>
-      <groupId>oro</groupId>
-      <artifactId>oro</artifactId>
-      <version>2.0.8</version>
-    </dependency>
-<!-- blocking unwanted transitive dependency -->
-    <dependency>
-      <groupId>xml-apis</groupId>
-      <artifactId>xml-apis</artifactId>
-      <version>2.0.2</version>
     </dependency>
   </dependencies>
   <build>
