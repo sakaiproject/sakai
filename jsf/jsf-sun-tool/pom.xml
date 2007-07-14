@@ -1,0 +1,119 @@
+<?xml version="1.0"?>
+<!-- This is an include file used to express the common dependencies across those 
+     JSF tools which use the SUN Reference Implementation.  This file will reduce
+     the cutting and pasting into the JSF tools project.xml files.
+
+ In Maven 2 dependencies are transient, so the parent of your project should be master/pom.xml
+ and you should depnd on this pom... eg
+
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-jsf-sun-ri-tool</artifactId>
+      <version>${sakai.version}</version>
+      <type>pom</type>
+    </dependency>
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>M2</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <name>Sakai JSF Tool Using Sun's Reference Implementation</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>sakai-jsf-sun-ri-tool</artifactId>
+  <version>M2</version>
+  <organization>
+    <name>Sakai Project</name>
+    <url>http://www.sakaiproject.org/</url>
+  </organization>
+  <inceptionYear>2005</inceptionYear>
+  <packaging>pom</packaging>
+  <dependencies>
+<!-- Generic JSF Dependencies Below -->
+    <dependency>
+      <groupId>jsf</groupId>
+      <artifactId>jsf-impl</artifactId>
+      <version>1.1.01</version>
+    </dependency>
+    <dependency>
+      <groupId>jsf</groupId>
+      <artifactId>jsf-api</artifactId>
+      <version>1.1.01</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-fileupload</groupId>
+      <artifactId>commons-fileupload</artifactId>
+      <version>1.1.1</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>jsp-api</artifactId>
+      <version>2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>${sakai.servletapi.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>jstl</artifactId>
+      <version>1.0.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-jsf-tool</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-jsf-app</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-depend-jsf-widgets-sun</artifactId>
+      <version>${sakai.version}</version>
+      <type>pom</type>
+    </dependency>
+<!--try for sakai tag and wysiwyg-->
+    <dependency>
+      <groupId>commons-digester</groupId>
+      <artifactId>commons-digester</artifactId>
+      <version>1.6</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+      <version>3.1</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-beanutils</groupId>
+      <artifactId>commons-beanutils</artifactId>
+      <version>1.7.0</version>
+    </dependency>
+    <dependency>
+      <groupId>taglibs</groupId>
+      <artifactId>standard</artifactId>
+      <version>1.0.4</version>
+    </dependency>
+    <dependency>
+      <groupId>xalan</groupId>
+      <artifactId>xalan</artifactId>
+      <version>2.6.0</version>
+    </dependency>
+    <dependency>
+      <groupId>xml-apis</groupId>
+      <artifactId>xml-apis</artifactId>
+      <version>2.0.2</version>
+    </dependency>
+    
+  </dependencies>
+  <build>
+<!--  Nothing here... -->
+  </build>
+</project>
