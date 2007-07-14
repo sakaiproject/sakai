@@ -321,16 +321,42 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	protected boolean m_caching = false;
 
 	/**
-	 * Configuration: set the locks-in-db
+	 * Configuration: cache, or not. 
 	 * 
-	 * @param path
-	 *        The storage path.
+	 * @param value
+	 *        True/false
 	 */
 	public void setCaching(String value)
 	{
 		try
 		{
 			m_caching = new Boolean(value).booleanValue();
+		}
+		catch (Throwable t)
+		{
+		}
+	}
+
+	/** Configuration: Do we protect attachments in sites with the site AuthZGroup. */
+	// TODO: Make sure to set this to true before the 2.5 release
+	// To be upwards compatible for 2.4 releases - this must be false but
+	// it should be set to true for 2.5 - Chuck - Sat Jul 14 10:59:35 EDT 2007
+	protected boolean m_siteAttachments = false; // Default to true
+
+	/**
+	 * Configuration: Do we protect attachments in sites with the site AuthZGroup. 
+	 * 
+	 * @param value
+	 *        true - We protect the site scoped attachments with the site's AZG
+	 *        false - We use the /content/attachment hierarchy to protect attachments
+	 *
+	 *        Default is true.
+	 */
+	public void setSiteAttachments(String value)
+	{
+		try
+		{
+			 m_siteAttachments = new Boolean(value).booleanValue();
 		}
 		catch (Throwable t)
 		{
@@ -5865,12 +5891,32 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		try
 		{
 			boolean isDropbox = false;
+			boolean attachmentOverride = false;
 			// special check for group-user : the grant's in the user's My Workspace site
 			String parts[] = StringUtil.split(ref.getId(), Entity.SEPARATOR);
 			if ((parts.length > 3) && (parts[1].equals("group-user")))
 			{
 				rv.add(m_siteService.siteReference(m_siteService.getUserSiteId(parts[3])));
 				isDropbox = true;
+			}
+
+			// If this is a site-scoped attachment, use the site grant as the only grant
+			// Old attachments format: (use /content/attachment realm)
+			//   /content/attachment/guid/filename.pd
+			// New attachment format:
+			//   /content/attachment/siteid/type/guid/filename.pd
+			// But since we need to protect all paths from 
+			//   /content/attachment/siteid/
+			// and below we simply check to see f the guid is a valid site ID.
+			if ( m_siteAttachments && (parts.length >= 3) && (parts[1].equals("attachment")))
+			{
+				String siteId = parts[2];
+				if ( m_siteService.siteExists(siteId) )
+				{
+					rv.clear();  // Ignore the hierarchical inheritance in /attachment
+					rv.add(m_siteService.siteReference(siteId));
+					attachmentOverride = true;  // Nothing else is needed
+				}
 			}
 
 			ContentEntity entity = null;
@@ -5894,8 +5940,12 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			
 			boolean inherited = false;
 			AccessMode access = entity.getAccess();
-			
-			if(AccessMode.INHERITED.equals(access))
+
+			if ( attachmentOverride )
+			{
+				// No further inheritance
+			}
+			else if(AccessMode.INHERITED.equals(access))
 			{
 				inherited = true;
 				access = entity.getInheritedAccess();
