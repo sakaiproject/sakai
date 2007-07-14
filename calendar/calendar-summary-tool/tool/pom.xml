@@ -92,45 +92,9 @@
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-jsf-widgets</artifactId>
+      <artifactId>sakai-depend-jsf-widgets-myfaces</artifactId>
       <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-jsf-widgets-myfaces</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-<!-- JSP, JSF & MyFaces 1.1.1 -->
-    <dependency>
-      <groupId>org.apache.myfaces.core</groupId>
-      <artifactId>myfaces-api</artifactId>
-      <version>1.1.5</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.myfaces.core</groupId>
-      <artifactId>myfaces-impl</artifactId>
-      <version>1.1.5</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.myfaces.tomahawk</groupId>
-      <artifactId>tomahawk</artifactId>
-      <version>1.1.3</version>
-    </dependency>
-<!--  New for myfaces 1.1.1 update -->
-    <dependency>
-      <groupId>commons-validator</groupId>
-      <artifactId>commons-validator</artifactId>
-      <version>1.3.0</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-codec</groupId>
-      <artifactId>commons-codec</artifactId>
-      <version>1.3</version>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>jstl</artifactId>
-      <version>1.1.2</version>
+      <type>pom</type>
     </dependency>
 <!-- Apache Commons -->
     <dependency>
@@ -152,42 +116,6 @@
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>1.0.4</version>
-    </dependency>
-<!-- removing transitive dependency to match maven 1 build -->
-    <dependency>
-      <groupId>xml-apis</groupId>
-      <artifactId>xml-apis</artifactId>
-      <version>2.0.2</version>
-    </dependency>
-<!-- removing transitive dependency to match maven 1 build -->
-    <dependency>
-      <groupId>commons-codec</groupId>
-      <artifactId>commons-codec</artifactId>
-      <version>1.3</version>
-    </dependency>
-<!-- removing transitive dependency to match maven 1 build -->
-    <dependency>
-      <groupId>commons-collections</groupId>
-      <artifactId>commons-collections</artifactId>
-      <version>2.1</version>
-    </dependency>
-<!-- removing transitive dependency to match maven 1 build -->
-    <dependency>
-      <groupId>commons-el</groupId>
-      <artifactId>commons-el</artifactId>
-      <version>1.0</version>
-    </dependency>
-<!-- removing transitive dependency to match maven 1 build -->
-    <dependency>
-      <groupId>commons-fileupload</groupId>
-      <artifactId>commons-fileupload</artifactId>
-      <version>1.1.1</version>
-    </dependency>
-    <dependency>
-<!-- removing transitive dependency to match maven 1 build -->
-      <groupId>oro</groupId>
-      <artifactId>oro</artifactId>
-      <version>2.0.8</version>
     </dependency>
   </dependencies>
   <build>
