@@ -1,1 +1,5 @@
 Testing Jira-Subversion Log Message Parsing
+
+SAK-1234
+sak-1234
+http://bugs.sakaiproject.org/jira/browse/SAK-1234
