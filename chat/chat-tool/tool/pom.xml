@@ -157,15 +157,19 @@
       <artifactId>sakai-jsf-app</artifactId>
       <version>${sakai.version}</version>
     </dependency>
+    <!-- this will pull the correct dependency set for a Sun Widget Set -->
     <dependency>
       <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-jsf-widgets</artifactId>
+      <artifactId>sakai-depend-jsf-widgets-sun</artifactId>
       <version>${sakai.version}</version>
+      <type>pom</type>
     </dependency>
+    <!-- tomahawk tags are being used, so we have to pull them seperately -->
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-jsf-widgets-sun</artifactId>
-      <version>${sakai.version}</version>
+        <groupId>org.apache.myfaces.tomahawk</groupId>
+        <artifactId>tomahawk</artifactId>
+ 	<version>1.1.3</version>
+	<scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>commons-digester</groupId>
