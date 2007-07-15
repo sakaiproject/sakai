@@ -79,6 +79,8 @@
         <module>jsf</module>
         <module>login</module>
         <module>master</module>
+        <module>master/jsf-sun-tool</module>
+        <module>master/jsf-myfaces-tool</module>
         <module>message/message-api/api</module>
         <module>message/message-impl/impl</module>
         <module>mailarchive/mailarchive-api/api</module>
@@ -122,6 +124,7 @@
       <modules>
         <module>master</module>
         <module>master/jsf-sun-tool</module>
+        <module>master/jsf-myfaces-tool</module>
         <module>access</module>
         <module>alias</module>
         <module>announcement</module>
