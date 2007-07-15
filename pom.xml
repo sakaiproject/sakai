@@ -77,8 +77,6 @@
         <module>entity</module>
         <module>event</module>
         <module>jsf</module>
-        <module>jsf/jsf-sun-tool</module>
-        <module>jsf/jsf-myfaces-tool</module>
         <module>login</module>
         <module>master</module>
         <module>message/message-api/api</module>
@@ -149,8 +147,6 @@
         <module>help</module>
         <module>jobscheduler</module>
         <module>jsf</module>
-        <module>jsf/jsf-sun-tool</module>
-        <module>jsf/jsf-myfaces-tool</module>
         <module>linktool</module>
         <module>login</module>
         <module>mailarchive</module>
