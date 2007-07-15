@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>sakai-jsf-sun-ri-tool</artifactId>
+    <artifactId>syllabus-base</artifactId>
     <groupId>org.sakaiproject</groupId>
     <version>M2</version>
-    <relativePath>../jsf-sun-tool/pom.xml</relativePath>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <name>sakai-syllabus-tool</name>
   <groupId>org.sakaiproject</groupId>
@@ -17,6 +17,28 @@
   <inceptionYear>2003</inceptionYear>
   <packaging>war</packaging>
   <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-jsf-sun-ri-tool</artifactId>
+      <version>${sakai.version}</version>
+      <type>pom</type>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>${sakai.servletapi.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>jsp-api</artifactId>
+      <version>2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-fileupload</groupId>
+      <artifactId>commons-fileupload</artifactId>
+      <version>${sakai.commons.fileupload.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-syllabus-api</artifactId>
