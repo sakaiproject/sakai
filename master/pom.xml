@@ -130,6 +130,8 @@
         <enabled>false</enabled>
       </snapshots>
     </repository>
+<!--
+This is not needed now that pluto have been released
     <repository>
       <id>Pluto Repor</id>
       <name>Pluto Dev Repository</name>
@@ -139,6 +141,7 @@
         <enabled>false</enabled>
       </snapshots>
     </repository>
+-->
     <repository>
     	<id>apache-repo</id>
     	<name>apache-repo</name>
