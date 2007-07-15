@@ -31,5 +31,7 @@
     <module>spreadsheet</module>
     <module>depend-widgets-sun</module>
     <module>depend-widgets-myfaces</module>
+    <module>jsf-sun-tool</module>
+    <module>jsf-myfaces-tool</module>
   </modules>
 </project>

@@ -24,7 +24,7 @@
   </parent>
   <name>Sakai JSF Tool Using Sun's Reference Implementation</name>
   <groupId>org.sakaiproject</groupId>
-  <artifactId>sakai-jsf-myfaces-ri-tool</artifactId>
+  <artifactId>sakai-jsf-myfaces-tool</artifactId>
   <version>M2</version>
   <organization>
     <name>Sakai Project</name>
