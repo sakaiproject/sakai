@@ -36,6 +36,7 @@ import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.GroupFullException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.db.api.SqlReader;
@@ -751,8 +752,161 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			}
 
 			return edit;
+
+		}
+		
+		/**
+		 * @inheritDoc
+		 */
+		public void addNewUser(final AuthzGroup azGroup, final String userId, final String role, final int maxSize) throws GroupFullException
+		{
+			
+			// run our save code in a transaction that will restart on deadlock
+			// if deadlock retry fails, or any other error occurs, a runtime error will be thrown
+
+			m_sql.transact(new Runnable()
+			{
+				public void run() 
+				{		
+					addNewUserTx(azGroup, userId, role, maxSize);
+				}
+			}, "azg:" + azGroup.getId());
+		
 		}
 
+		/**
+		 * The transaction code to save the azg.
+		 * 
+		 * @param edit
+		 *        The azg to save.
+		 */
+		protected void addNewUserTx(AuthzGroup edit, String userId, String role, int maxSize) throws GroupFullException
+		{
+			// Assume that users added in this way are always active and never provided
+			boolean active = true;
+			boolean provided = false;
+			
+			String sql;
+			
+			// Lock the table and count users if required
+			if (maxSize > 0) {
+				
+				// Get the REALM_KEY and lock the realm for update
+				sql = dbAuthzGroupSql.getSelectRealmUpdate();
+				Object fields[] = new Object[1];
+				fields[0] = edit.getId();
+				
+				List resultsKey = m_sql.dbRead(sql, fields, new SqlReader()
+						{
+							public Object readSqlResultRecord(ResultSet result)
+							{
+								try
+								{
+									int realm_key = result.getInt(1);
+									return new Integer(realm_key);
+								}
+								catch (Throwable e)
+								{
+									M_log.warn("addNewUserTx: " + e.toString());
+									return null;
+								}
+							}
+						});
+				
+				int realm_key = -1;
+				if (!resultsKey.isEmpty())
+				{
+					realm_key = ((Integer) resultsKey.get(0)).intValue();
+				} else 
+				{
+					// Can't find the REALM_KEY for this REALM (should never happen) 
+					M_log.error("addNewUserTx: can't find realm " + edit.getId());
+				}
+				
+				// Count the number of users already in the realm
+				sql = dbAuthzGroupSql.getSelectRealmSize();
+				fields[0] = new Integer(realm_key);
+				
+				List resultsSize = m_sql.dbRead(sql, fields, new SqlReader()
+						{
+							public Object readSqlResultRecord(ResultSet result)
+							{
+								try
+								{
+									int count = result.getInt(1);
+									return new Integer(count);
+								}
+								catch (Throwable e)
+								{
+									M_log.warn("addNewUserTx: " + e.toString());
+									return null;
+								}
+							}
+						});
+
+				int currentSize = resultsSize.isEmpty() ? -1 : ((Integer) resultsSize.get(0)).intValue();
+	
+				if ((currentSize < 0) || (currentSize >= maxSize)) {
+					// We can't add the user - group already full, or we can't find the size
+					throw new GroupFullException(edit.getId());
+				}
+			}
+			
+			// Add the user to SAKAI_REALM_RL_GR
+			sql = dbAuthzGroupSql.getInsertRealmRoleGroup1Sql();
+			
+			Object fields[] = new Object[5];
+			fields[0] = edit.getId();
+			fields[1] = userId;
+			fields[2] = role;
+			fields[3] = active ? "1" : "0";
+			fields[4] = provided ? "1" : "0";
+			m_sql.dbWrite(sql, fields);
+			
+			// update the main realm table for new modified time and last-modified-by
+			super.commitResource(edit, fields(edit.getId(), ((BaseAuthzGroup) edit), true), null);
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public void removeUser(final AuthzGroup azGroup, final String userId)
+		{
+			
+			// run our save code in a transaction that will restart on deadlock
+			// if deadlock retry fails, or any other error occurs, a runtime error will be thrown
+
+			m_sql.transact(new Runnable()
+			{
+				public void run() 
+				{		
+					removeUserTx(azGroup, userId);
+				}
+			}, "azg:" + azGroup.getId());
+		
+		}
+
+		/**
+		 * The transaction code to save the azg.
+		 * 
+		 * @param edit
+		 *        The azg to save.
+		 */
+		protected void removeUserTx(AuthzGroup edit, String userId)
+		{						
+			// Remove the user from SAKAI_REALM_RL_GR
+			String sql = dbAuthzGroupSql.getDeleteRealmRoleGroup4Sql(); 
+			
+			Object fields[] = new Object[2];
+			fields[0] = edit.getId();
+			fields[1] = userId;
+			m_sql.dbWrite(sql, fields);
+			
+			// update the main realm table for new modified time and last-modified-by
+			super.commitResource(edit, fields(edit.getId(), ((BaseAuthzGroup) edit), true), null);
+		}
+		
+		
 		/**
 		 * @inheritDoc
 		 */

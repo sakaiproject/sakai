@@ -37,6 +37,7 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.GroupAlreadyDefinedException;
+import org.sakaiproject.authz.api.GroupFullException;
 import org.sakaiproject.authz.api.GroupIdInvalidException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.GroupProvider;
@@ -355,6 +356,14 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 	 */
 	public void joinGroup(String authzGroupId, String roleId) throws GroupNotDefinedException, AuthzPermissionException
 	{
+		joinGroup(authzGroupId, roleId, 0);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void joinGroup(String authzGroupId, String roleId, int maxSize) throws GroupNotDefinedException, AuthzPermissionException, GroupFullException
+	{
 		String user = sessionManager().getCurrentSessionUserId();
 		if (user == null) throw new AuthzPermissionException(user, SECURE_UPDATE_OWN_AUTHZ_GROUP, authzGroupId);
 
@@ -368,7 +377,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 			throw new GroupNotDefinedException(authzGroupId);
 		}
 
-		// check the role
+		// check that the role exists
 		Role role = azGroup.getRole(roleId);
 		if (role == null)
 		{
@@ -377,24 +386,21 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 
 		((BaseAuthzGroup) azGroup).setEvent(SECURE_UPDATE_OWN_AUTHZ_GROUP);
 
-		// see if already joined
+		// see if already a member
 		BaseMember grant = (BaseMember) azGroup.getMember(user);
-		if (grant != null)
-		{
-			// if inactive, make it active
-			if (!grant.active) grant.active = true;
-		}
-
-		// give the user this role
-		else
-		{
-			azGroup.addMember(user, roleId, true, false);
-		}
-
-		// and save
-		completeSave(azGroup);
+		
+		if (grant == null)
+			addMemberToGroup(azGroup, user, roleId, maxSize);
+		else		
+			// if inactive, deny permission to join
+			if (!grant.active) 
+				throw new AuthzPermissionException(user, SECURE_UPDATE_OWN_AUTHZ_GROUP, authzGroupId); 
+			
+		// If the user is already in the group and active, or is already in the group and active but
+		// with a different role, no action will be taken
+		
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -430,21 +436,19 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 			}
 		}
 
-		((BaseAuthzGroup) azGroup).setEvent(SECURE_UPDATE_OWN_AUTHZ_GROUP);
-
-		// if the grant is provider, make it inactive so it doesn't revert to provider status
+		// if the grant is provided, disallow the unjoin. There would be no point in 
+		// allowing the user to unjoin, since the user will rejoin the realm the next
+		// time it is updated or he/she logs in.
+		
 		if (grant.isProvided())
 		{
-			grant.active = false;
-		}
-		else
-		{
-			// remove the user completely
-			((BaseAuthzGroup) azGroup).removeMember(user);
+			throw new AuthzPermissionException(user, SECURE_UPDATE_OWN_AUTHZ_GROUP, authzGroupId);
 		}
 
-		// and save
-		completeSave(azGroup);
+		((BaseAuthzGroup) azGroup).setEvent(SECURE_UPDATE_OWN_AUTHZ_GROUP);
+
+		removeMemberFromGroup(azGroup, user);
+
 	}
 
 	/**
@@ -580,6 +584,67 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 		((BaseAuthzGroup) azGroup).setEvent(null);
 	}
 
+	/**
+	 * Add member to a group, once id and security checks have been cleared.
+	 * 
+	 * @param azGroup
+	 */
+	protected void addMemberToGroup(AuthzGroup azGroup, String userId, String roleId, int maxSize) throws GroupFullException
+	{
+		 // update the properties (sets last modified time and modified-by)
+        addLiveUpdateProperties((BaseAuthzGroup) azGroup);
+
+		// add user to the azGroup
+		m_storage.addNewUser(azGroup, userId, roleId, maxSize);
+
+		// track it
+		String event = ((BaseAuthzGroup) azGroup).getEvent();
+		if (event == null) event = SECURE_UPDATE_AUTHZ_GROUP;
+		eventTrackingService().post(eventTrackingService().newEvent(event, azGroup.getReference(), true));
+
+		// close the azGroup object
+		((BaseAuthzGroup) azGroup).closeEdit();
+
+		// update the db with latest provider, and site security with the latest changes, using the updated azGroup
+		BaseAuthzGroup updatedRealm = (BaseAuthzGroup) m_storage.get(azGroup.getId());
+		updateSiteSecurity(updatedRealm);
+
+		// clear the event for next time
+		((BaseAuthzGroup) azGroup).setEvent(null);
+	}
+
+
+	/**
+	 * Add member to a group, once id and security checks have been cleared.
+	 * 
+	 * @param azGroup
+	 */
+	protected void removeMemberFromGroup(AuthzGroup azGroup, String userId) 
+	{
+		 // update the properties (sets last modified time and modified-by)
+        addLiveUpdateProperties((BaseAuthzGroup) azGroup);
+
+		// remove user from the azGroup
+		m_storage.removeUser(azGroup, userId);
+
+		// track it
+		String event = ((BaseAuthzGroup) azGroup).getEvent();
+		if (event == null) event = SECURE_UPDATE_AUTHZ_GROUP;
+		eventTrackingService().post(eventTrackingService().newEvent(event, azGroup.getReference(), true));
+
+		// close the azGroup object
+		((BaseAuthzGroup) azGroup).closeEdit();
+
+		// update the db with latest provider, and site security with the latest changes, using the updated azGroup
+		BaseAuthzGroup updatedRealm = (BaseAuthzGroup) m_storage.get(azGroup.getId());
+		updateSiteSecurity(updatedRealm);
+
+		// clear the event for next time
+		((BaseAuthzGroup) azGroup).setEvent(null);
+	}
+
+
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1075,6 +1140,30 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 		 */
 		void save(AuthzGroup azGroup);
 
+		/**
+		 * Add a user to the AuthzGroup
+		 * 
+		 * @param azGroup
+		 *        The AuthzGroup to which the user is being added
+		 * @param userId
+		 *        The user to add
+		 * @param roleId
+		 *        The user's role
+		 * @param maxSize
+		 *        The maximum size of the group.
+		 */
+		void addNewUser(AuthzGroup azGroup, String userId, String roleId, int maxSize) throws GroupFullException;
+
+		/**
+		 * Remove a user from the AuthzGroup
+		 * 
+		 * @param azGroup
+		 *        The AuthzGroup to which the user is being added
+		 * @param userId
+		 *        The user to remove
+		 */
+		void removeUser(AuthzGroup azGroup, String userId);
+		
 		/**
 		 * Remove this AuthzGroup.
 		 * 

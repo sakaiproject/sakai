@@ -336,4 +336,14 @@ public class DbAuthzGroupSqlDefault implements DbAuthzGroupSql
 				+ "inner join SAKAI_REALM_ROLE SRR on SRRG.ROLE_KEY = SRR.ROLE_KEY " + "where SR.REALM_ID = ? and " + inClause
 				+ " and SRRG.ACTIVE = '1'";
 	}
+	
+	public String getSelectRealmUpdate()
+	{
+		return "select REALM_KEY from SAKAI_REALM where REALM_ID = ? FOR UPDATE";
+	}
+	
+	public String getSelectRealmSize()
+	{
+		return "select COUNT(REALM_KEY) from SAKAI_REALM_RL_GR where REALM_KEY = ?";
+	}
 }

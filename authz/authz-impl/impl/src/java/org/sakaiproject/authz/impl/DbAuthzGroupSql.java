@@ -112,4 +112,8 @@ public interface DbAuthzGroupSql
 	String getSelectRealmRoleSql();
 
 	String getSelectRealmUserRoleSql(String inClause);
+	
+	String getSelectRealmUpdate();
+	
+	String getSelectRealmSize();
 }

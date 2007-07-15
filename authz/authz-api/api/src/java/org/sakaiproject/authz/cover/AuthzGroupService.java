@@ -211,6 +211,16 @@ public class AuthzGroupService
 		service.joinGroup(param0, param1);
 	}
 
+	public static void joinGroup(java.lang.String param0, java.lang.String param1, int param2)
+	throws org.sakaiproject.authz.api.GroupNotDefinedException, org.sakaiproject.authz.api.AuthzPermissionException, org.sakaiproject.authz.api.GroupFullException
+	{
+		org.sakaiproject.authz.api.AuthzGroupService service = getInstance();
+		if (service == null) return;
+
+		service.joinGroup(param0, param1, param2);
+	}
+
+	
 	public static void unjoinGroup(java.lang.String param0) throws org.sakaiproject.authz.api.GroupNotDefinedException,
 			org.sakaiproject.authz.api.AuthzPermissionException
 	{
