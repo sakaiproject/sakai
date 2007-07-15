@@ -44,8 +44,10 @@ public class ScoreConverter extends PointsConverter {
 
 		String formattedPtsPossible;
 		String formattedScore;
-		boolean isPoints = false;
-		boolean isPercent = false;
+		String gradeEntryMethod=null;
+		final String POINTS = "points";
+		final String PERCENT = "percent";
+		final String LETTER = "letter";
 		Object score = null;
 		Object pointsPossible = null;
 		Gradebook gradebook;
@@ -56,10 +58,13 @@ public class ScoreConverter extends PointsConverter {
 				gradebook = gradeRow.getGradebook();
 				score = gradeRow.getScore();
 				if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS) {
-					isPoints = true;
+					gradeEntryMethod = POINTS;
 					pointsPossible = gradeRow.getAssociatedAssignment().getPointsPossible();
 				} else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
-					isPercent = true;
+					gradeEntryMethod = PERCENT;
+				} else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER) {
+					gradeEntryMethod = LETTER;
+					score = gradeRow.getLetterScore();
 				}
 			}
 		}
@@ -68,9 +73,9 @@ public class ScoreConverter extends PointsConverter {
 		formattedPtsPossible = getFormattedValue(context, component, pointsPossible);
 		
 		if (score != null) {
-			if (isPoints) {
+			if (gradeEntryMethod.equals(POINTS)) {
 				formattedScore = FacesUtil.getLocalizedString("overview_avg_display_points", new String[] {formattedScore, formattedPtsPossible} );
-			} else if (isPercent) {
+			} else if (gradeEntryMethod.equals(PERCENT)) {
 				formattedScore = FacesUtil.getLocalizedString("overview_avg_display_percent", new String[] {formattedScore} );
 			}
 		}
@@ -85,8 +90,10 @@ public class ScoreConverter extends PointsConverter {
 			if (value instanceof Number) {
 				// Truncate to 2 decimal places.
 				value = new Double(FacesUtil.getRoundDown(((Number)value).doubleValue(), 2));
+				formattedValue = super.getAsString(context, component, value);
+			} else {
+				formattedValue = value.toString();
 			}
-			formattedValue = super.getAsString(context, component, value);
 		}
 		
 		return formattedValue;

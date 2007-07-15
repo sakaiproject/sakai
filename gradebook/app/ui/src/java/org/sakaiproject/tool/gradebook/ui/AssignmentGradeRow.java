@@ -35,6 +35,7 @@ public class AssignmentGradeRow implements Serializable {
     private String commentText;
     private Gradebook gradebook;
     private Double score;
+    private String letterScore;
     private List eventRows;
     private String eventsLogTitle;
 
@@ -85,6 +86,13 @@ public class AssignmentGradeRow implements Serializable {
 	}
 	public void setScore(Double score) {
 		this.score = score;
+	}
+	
+	public String getLetterScore() {
+		return letterScore;
+	}
+	public void setLetterScore(String letterScore) {
+		this.letterScore = letterScore;
 	}
 	
 	public List getEventRows() {

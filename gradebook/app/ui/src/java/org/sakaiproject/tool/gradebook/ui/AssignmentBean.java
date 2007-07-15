@@ -119,10 +119,10 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			Double newPointsPossible = assignment.getPointsPossible();
 			boolean scoresEnteredForAssignment = getGradebookManager().isEnteredAssignmentScores(assignmentId);
 			
-			/* If grade entry by percentage and the points possible has changed for this assignment,
-			 * we need to convert all of the stored point values to retain the same percentage value
+			/* If grade entry by percentage or letter and the points possible has changed for this assignment,
+			 * we need to convert all of the stored point values to retain the same value
 			 */
-			if (getGradeEntryByPercent() && scoresEnteredForAssignment) {
+			if ((getGradeEntryByPercent() || getGradeEntryByLetter()) && scoresEnteredForAssignment) {
 				if (!newPointsPossible.equals(origPointsPossible)) {
 					List enrollments = getSectionAwareness().getSiteMembersInRole(getGradebookUid(), Role.STUDENT);
 			        List studentUids = new ArrayList();
@@ -136,7 +136,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			getGradebookManager().updateAssignment(assignment);
 			
 			if ((!origPointsPossible.equals(newPointsPossible)) && scoresEnteredForAssignment) {
-				if (getGradeEntryByPercent())
+				if (getGradeEntryByPercent() || getGradeEntryByLetter())
 					FacesUtil.addRedirectSafeMessage(getLocalizedString("edit_assignment_save_converted", new String[] {assignment.getName()}));
 				else
 					FacesUtil.addRedirectSafeMessage(getLocalizedString("edit_assignment_save_scored", new String[] {assignment.getName()}));

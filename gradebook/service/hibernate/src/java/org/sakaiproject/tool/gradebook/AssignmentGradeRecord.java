@@ -32,6 +32,7 @@ package org.sakaiproject.tool.gradebook;
 public class AssignmentGradeRecord extends AbstractGradeRecord {
     private Double pointsEarned;
     private String letterEarned;
+    private Double percentEarned;
 
     public AssignmentGradeRecord() {
         super();
@@ -89,28 +90,37 @@ public class AssignmentGradeRecord extends AbstractGradeRecord {
     public Assignment getAssignment() {
     	return (Assignment)getGradableObject();
     }
+    
+    public Double getPercentEarned() {
+    	return percentEarned;
+    }
+    
+    public void setPercentEarned(Double percentEarned) {
+    	this.percentEarned = percentEarned;
+    }
 
-		public String getLetterEarned()
-		{
-			return letterEarned;
-		}
+    public String getLetterEarned()
+    {
+    	return letterEarned;
+    }
 
-		public void setLetterEarned(String letterEarned)
-		{
-			this.letterEarned = letterEarned;
-		}
-		
-		public AssignmentGradeRecord clone()
-		{
-			AssignmentGradeRecord agr = new AssignmentGradeRecord();
-			agr.setDateRecorded(dateRecorded);
-			agr.setGradableObject(gradableObject);
-			agr.setGraderId(graderId);
-			agr.setLetterEarned(letterEarned);
-			agr.setPointsEarned(pointsEarned);
-			agr.setStudentId(studentId);
-			return agr;
-		}
+    public void setLetterEarned(String letterEarned)
+    {
+    	this.letterEarned = letterEarned;
+    }
+
+    public AssignmentGradeRecord clone()
+    {
+    	AssignmentGradeRecord agr = new AssignmentGradeRecord();
+    	agr.setDateRecorded(dateRecorded);
+    	agr.setGradableObject(gradableObject);
+    	agr.setGraderId(graderId);
+    	agr.setLetterEarned(letterEarned);
+    	agr.setPointsEarned(pointsEarned);
+    	agr.setPercentEarned(percentEarned);
+    	agr.setStudentId(studentId);
+    	return agr;
+    }
 }
 
 

@@ -94,17 +94,48 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 		}
 
 		public Double getScore() {
-			return gradeRecord.getPointsEarned();
+			if (getGradeEntryByPercent())
+				return gradeRecord.getPercentEarned();
+			else
+				return gradeRecord.getPointsEarned();
 		}
 		public void setScore(Double score) {
-			Double originalScore = gradeRecord.getPointsEarned();
-			if (originalScore != null) {
-				// truncate to two decimals for more accurate comparison
-				originalScore = new Double(FacesUtil.getRoundDown(originalScore.doubleValue(), 2));
+			if (getGradeEntryByPoints()) {
+				Double originalScore = gradeRecord.getPointsEarned();
+				if (originalScore != null) {
+					// truncate to two decimals for more accurate comparison
+					originalScore = new Double(FacesUtil.getRoundDown(originalScore.doubleValue(), 2));
+				}
+				if ( (originalScore != null && !originalScore.equals(score)) ||
+						(originalScore == null && score != null) ) {
+					gradeRecord.setPointsEarned(score);
+					updatedGradeRecords.add(gradeRecord);
+				}
+			} else if (getGradeEntryByPercent()) {
+				Double originalScore = gradeRecord.getPercentEarned();
+				if (originalScore != null) {
+					// truncate to two decimals for more accurate comparison
+					originalScore = new Double(FacesUtil.getRoundDown(originalScore.doubleValue(), 2));
+				}
+				if ( (originalScore != null && !originalScore.equals(score)) ||
+						(originalScore == null && score != null) ) {
+					gradeRecord.setPercentEarned(score);
+					updatedGradeRecords.add(gradeRecord);
+				}
 			}
-			if ( (originalScore != null && !originalScore.equals(score)) ||
-					(originalScore == null && score != null) ) {
-				gradeRecord.setPointsEarned(score);
+		}
+		
+		public String getLetterScore() {
+			return gradeRecord.getLetterEarned();
+		}
+		
+		public void setLetterScore(String letterScore) {
+			if (letterScore != null)
+				letterScore = letterScore.trim();
+			String originalLetterScore = gradeRecord.getLetterEarned();
+			if ((originalLetterScore != null && !originalLetterScore.equals(letterScore)) ||
+					(originalLetterScore == null && letterScore != null)) {
+				gradeRecord.setLetterEarned(letterScore);
 				updatedGradeRecords.add(gradeRecord);
 			}
 		}
@@ -224,9 +255,9 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 				List gradeRecords = new ArrayList();
 				if (getGradeEntryByPoints())
 					gradeRecords = getGradebookManager().getAssignmentGradeRecords(assignment, studentUids);
-				else if (getGradeEntryByPercent())
+				else 
 					gradeRecords = getGradebookManager().getAssignmentGradeRecordsConverted(assignment, studentUids);
-
+				
 				if (!isEnrollmentSort()) {
 					// Need to sort and page based on a scores column.
 					List scoreSortedStudentUids = new ArrayList();
@@ -372,12 +403,24 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
         if(updatedComments.size() > 0){
             getGradebookBean().getEventTrackingService().postEvent("gradebook.comment","/gradebook/"+getGradebookId()+"/"+updatedComments.size()+"/"+getAuthzLevel());
         }
-        String messageKey = (excessiveScores.size() > 0) ?
-                "assignment_details_scores_saved_excessive" :
-                "assignment_details_scores_saved";
-
+        
+        String messageKey = null;
+        if (updatedGradeRecords.size() > 0) {
+        	if (excessiveScores.size() > 0) {
+        		messageKey = "assignment_details_scores_saved_excessive";
+        	} else if (updatedComments.size() > 0) {
+        		messageKey = "assignment_details_scores_comments_saved";
+        	} else {
+        		messageKey = "assignment_details_scores_saved";
+        	}
+        } else if (updatedComments.size() > 0) {
+        	messageKey = "assignment_details_comments_saved";
+        }
+        
         // Let the user know.
-        FacesUtil.addMessage(getLocalizedString(messageKey));
+        if (messageKey != null) {
+        	FacesUtil.addMessage(getLocalizedString(messageKey));
+        }
     }
 
     public void toggleEditableComments(ActionEvent event) {

@@ -23,9 +23,11 @@ package org.sakaiproject.tool.gradebook.ui;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.HashMap;
 
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
@@ -36,6 +38,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 import org.sakaiproject.service.gradebook.shared.ConflictingCategoryNameException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -53,6 +56,10 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	private double runningTotal;
 	private double neededTotal;
 	private String pageName;
+	private List letterGradeRows;
+	private List letterGradesList;
+	private LetterGradePercentMapping lgpm;
+	private LetterGradePercentMapping defaultLGPM;
 
 	private static final int NUM_EXTRA_CAT_ENTRIES = 50;
 	private static final String ENTRY_OPT_POINTS = "points";
@@ -76,8 +83,45 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 			intializeGradeEntryAndCategorySettings();
 			categoriesToRemove = new ArrayList();
 		}
-
+		
+		/*Map gradeMap = new HashMap();
+		gradeMap.put("A+", new Double(97));
+		gradeMap.put("A", new Double(93));
+		gradeMap.put("A-", new Double(90));
+		gradeMap.put("B+", new Double(87));
+		gradeMap.put("B", new Double(83));
+		gradeMap.put("B-", new Double(80));
+		gradeMap.put("C+", new Double(77));
+		gradeMap.put("C", new Double(73));
+		gradeMap.put("C-", new Double(70));
+		gradeMap.put("D+", new Double(67));
+		gradeMap.put("D", new Double(63));
+		gradeMap.put("D-", new Double(60));
+		gradeMap.put("F", new Double(0));
+		getGradebookManager().createOrUpdateDefaultLetterGradePercentMapping(gradeMap);*/
 		calculateRunningTotal();
+		
+		defaultLGPM = getGradebookManager().getDefaultLetterGradePercentMapping();
+		letterGradesList = new ArrayList(defaultLGPM.getGradeMap().keySet());
+		Collections.sort(letterGradesList, GradebookService.lettergradeComparator);
+		
+		lgpm = getGradebookManager().getLetterGradePercentMapping(localGradebook);
+		if (lgpm != null && lgpm.getGradeMap().size() > 0) {	
+			initLetterGradeRows();
+		}
+	}
+	
+	private void initLetterGradeRows() {
+		letterGradeRows = new ArrayList();
+		
+		for (Iterator iter = letterGradesList.iterator(); iter.hasNext(); ) {
+			String grade = (String)iter.next();
+			
+			// Bottom grades (with a lower bound of 0%)
+			Double d = defaultLGPM.getValue(grade);
+			boolean editable = ((d != null) && (d.doubleValue() > 0.0));
+			letterGradeRows.add(new LetterGradeRow(lgpm, grade, editable));
+		}
 	}
 
 	private void reset()
@@ -113,12 +157,17 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		this.categorySetting = categorySetting;
 	} 
 
-	/*
-	 * True if grade entry type is "Letter Grades"
+	/**
+	 * 
+	 * @return String value of display:none or display:block for initial display
+	 * of grade entry scale
 	 */
-	public boolean isDisplayGradeMap()
+	public String getDisplayGradeEntryScaleStyle()
 	{
-		return gradeEntryMethod != null && gradeEntryMethod.equals(ENTRY_OPT_LETTER);
+		if (gradeEntryMethod != null && gradeEntryMethod.equals(ENTRY_OPT_LETTER))
+			return "display:block;";
+		else
+			return "display:none;";
 	}
 
 	/**
@@ -156,15 +205,39 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		{
 			localGradebook.setGrade_type(GradebookService.GRADE_TYPE_PERCENTAGE);
 		}
-		/*else if (gradeEntryMethod.equals(ENTRY_OPT_LETTER))
-			{
-				localGradebook.setGrade_type(GradebookService.GRADE_TYPE_LETTER);
-			}*/
+		else if (gradeEntryMethod.equals(ENTRY_OPT_LETTER))
+		{
+			localGradebook.setGrade_type(GradebookService.GRADE_TYPE_LETTER);
+		}
 		else
 		{
 			localGradebook.setGrade_type(GradebookService.GRADE_TYPE_POINTS);
 		}
-
+		
+		if (lgpm != null) {
+			if (!isMappingValid(lgpm)) {
+				return "failure";
+			}
+			
+			LetterGradePercentMapping originalLgpm = getGradebookManager().getLetterGradePercentMapping(localGradebook);
+			boolean lgpmUpdate = false;
+			for (Iterator iter = letterGradesList.iterator(); iter.hasNext(); ) {
+				String grade = (String) iter.next();
+				Double originalPercent = null;
+				if (originalLgpm != null)
+					originalPercent = (Double) originalLgpm.getValue(grade);
+				Double currentPercent = (Double) lgpm.getValue(grade);
+				if (!originalPercent.equals(currentPercent)) {
+					lgpmUpdate = true;
+					break;
+				}
+			}
+			
+			if (lgpmUpdate) {
+				getGradebookManager().saveOrUpdateLetterGradePercentMapping(lgpm.getGradeMap(), localGradebook);
+			}
+		}
+		
 		if (categorySetting == null || (!categorySetting.equals(CATEGORY_OPT_CAT_ONLY) && 
 				!categorySetting.equals(CATEGORY_OPT_CAT_AND_WEIGHT) && !categorySetting.equals(CATEGORY_OPT_NONE)))
 		{
@@ -485,6 +558,17 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
     public void setPageName(String pageName) {
         this.pageName = pageName;
     }
+    
+    /**
+     * Grading scale used if grade entry by letter
+     * @return
+     */
+    public List getLetterGradeRows() {
+    	return letterGradeRows;
+    }
+    public void setLetterGradeRows(List letterGradeRows) {
+    	this.letterGradeRows = letterGradeRows;
+    }
 
 
 	/**
@@ -564,6 +648,64 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 					myCat.setWeight(new Double(weight.doubleValue() * 100));
 				}
 			}
+		}
+	}
+	
+	private boolean isMappingValid(LetterGradePercentMapping lgpm) {
+		boolean valid = true;
+		Double previousPercentage = null;
+		for (Iterator iter = letterGradesList.iterator(); iter.hasNext(); ) {
+			String grade = (String)iter.next();
+			Double percentage = (Double)lgpm.getValue(grade);
+			if (logger.isDebugEnabled()) logger.debug("checking percentage " + percentage + " for validity");
+
+			// Grades that are percentage-based need to remain percentage-based,
+			// be in descending order, and end with 0.
+			if (percentage == null) {
+				FacesUtil.addUniqueErrorMessage(getLocalizedString("gb_setup_require_all_values"));
+				valid = false;
+			} else if (percentage.doubleValue() < 0) {
+				FacesUtil.addUniqueErrorMessage(getLocalizedString("gb_setup_require_positive"));
+				valid = false;
+			} else if ((previousPercentage != null) && (previousPercentage.doubleValue() < percentage.doubleValue())) {
+				FacesUtil.addUniqueErrorMessage(getLocalizedString("gb_setup_require_descending_order"));
+				valid = false;
+			}
+			previousPercentage = percentage;
+		}
+		return valid;
+	}
+	
+	/**
+	 * UI for the letter grade entry scale
+	 */
+	public class LetterGradeRow implements Serializable {
+    	private String grade;
+    	private boolean editable;
+    	private LetterGradePercentMapping lgpm;
+    	
+    	public LetterGradeRow() {
+    	}
+    	
+    	public LetterGradeRow(LetterGradePercentMapping lgpm, String grade, boolean editable) {
+    		this.lgpm = lgpm;
+    		this.grade = grade;
+    		this.editable = editable;
+    	}
+
+    	public String getGrade() {
+    		return grade;
+    	}
+
+    	public Double getMappingValue() {
+    		return (Double)lgpm.getGradeMap().get(grade);
+    	}
+    	public void setMappingValue(Double value) {
+    		lgpm.getGradeMap().put(grade, value);
+    	}
+
+    	public boolean isEditable() {
+			return editable;
 		}
 	}
 

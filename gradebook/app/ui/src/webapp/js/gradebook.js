@@ -355,3 +355,22 @@ function mySetMainFrameHeight(id)
 
 	}
 }
+	
+function displayHideElement(myForm, displayId, radioId, radioElementValue) {
+	displayElement = getTheElement(myForm.name + ":" + displayId);
+	radioElement = getTheElement(myForm.name + ":" + radioId);
+	
+	var inputs = radioElement.getElementsByTagName ('input');
+  for (i=0;i<inputs.length;i++){
+    if (inputs[i].checked==true){
+      var selection = inputs[i].value;
+      if (selection == radioElementValue) 
+				 displayElement.style.display="block";
+			else
+				displayElement.style.display="none";
+			
+			break;
+    }
+  }
+}
+

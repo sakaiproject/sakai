@@ -57,6 +57,7 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
+import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
@@ -255,7 +256,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		
         Map enrollmentMap = getOrderedEnrollmentMap();
 
-		List gradeRecords = getGradebookManager().getAllAssignmentGradeRecords(getGradebookId(), enrollmentMap.keySet());
+		List gradeRecords = getGradebookManager().getAllAssignmentGradeRecordsConverted(getGradebookId(), enrollmentMap.keySet());
         workingEnrollments = new ArrayList(enrollmentMap.values());
 
         gradeRecordMap = new HashMap();
@@ -652,26 +653,34 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         	row.add(student.getDisplayId());
         	row.add(student.getSortName());
         	for (Object gradableObject : gradableObjects) {
-        		Double score = null;
+        		Object score = null;
+        		String letterScore = null;
         		if (studentMap != null) {
         			AbstractGradeRecord gradeRecord = (AbstractGradeRecord)studentMap.get(((GradableObject)gradableObject).getId()); 
         			if (gradeRecord != null) {
         				if (gradeRecord.isCourseGradeRecord()) { 
         					if (includeCourseGrade) {
-        						if (getGradeEntryByPercent()) {
+        						if (getGradeEntryByPercent() || getGradeEntryByLetter()) {
         							score = gradeRecord.getGradeAsPercentage();
         						} else {
         							score = gradeRecord.getPointsEarned();
         						}
         					}
         				} else {
-        					score = gradeRecord.getPointsEarned();
+        					if (getGradeEntryByPoints()) {
+        						score = gradeRecord.getPointsEarned();
+        					} else if (getGradeEntryByPercent()) {
+        						score = ((AssignmentGradeRecord)gradeRecord).getPercentEarned();
+        					}	else if (getGradeEntryByLetter()) {
+        						score = ((AssignmentGradeRecord)gradeRecord).getLetterEarned();
+        					}
         				}
         			}
         		}
-        		if (score != null)
-        			score = new Double(FacesUtil.getRoundDown(score.doubleValue(), 2));
-    			row.add(score);
+        		if (score != null && score instanceof Double)
+        			score = new Double(FacesUtil.getRoundDown(((Double)score).doubleValue(), 2));
+    			
+        		row.add(score);
         	}
         	spreadsheetData.add(row);
         }

@@ -348,9 +348,6 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
 
     	for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
     		AssignmentGradeRecord asnGr = (AssignmentGradeRecord)iter.next();
-    		if(logger.isDebugEnabled()) 
-    			logger.debug("Adding " + asnGr.getPointsEarned() + " to totalPointsEarned");
-
 
     		// Update the AssignmentGradeRow in the map
     		AssignmentGradeRow asnGradeRow = (AssignmentGradeRow)asnMap.get(asnGr.getAssignment());
@@ -370,14 +367,18 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     			// course grade
     			if (!counted && !isInstructorView) {
     				asnGr.setPointsEarned(null);
+    				asnGr.setPercentEarned(null);
+    				asnGr.setLetterEarned(null);
     			}
     			asnGradeRow.setGradeRecord(asnGr);
     			
     			if (asnGr != null) {
     				if (getGradeEntryByPercent())
-    					asnGradeRow.setScore(asnGr.getGradeAsPercentage());
-    				else if (getGradeEntryByPoints()) 
-    					asnGradeRow.setScore(asnGr.getPointsEarned());
+    					asnGradeRow.setScore(asnGr.getPercentEarned());
+    				else if(getGradeEntryByPoints())
+    					asnGradeRow.setScore(asnGr.getPointsEarned()); 
+    				else if (getGradeEntryByLetter())
+    					asnGradeRow.setLetterScore(asnGr.getLetterEarned());
     			}
     		}
     		
@@ -461,7 +462,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     		}
 
     		// get the student grade records
-    		List gradeRecords = getGradebookManager().getStudentGradeRecords(gradebook.getId(), studentUid);
+    		List gradeRecords = getGradebookManager().getStudentGradeRecordsConverted(gradebook.getId(), studentUid);
 
     		// The display may include categories and assignments, so we need a generic list
     		gradebookItems = new ArrayList();

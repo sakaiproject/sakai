@@ -208,17 +208,26 @@
 		      <t:commandSortHeader columnName="studentScore" arrow="true" immediate="false" actionListener="#{assignmentDetailsBean.sort}">
 					  <h:outputText value="#{msgs.assignment_details_points}" rendered="#{assignmentDetailsBean.gradeEntryByPoints}"/>
 					  <h:outputText value="#{msgs.assignment_details_percent}" rendered="#{assignmentDetailsBean.gradeEntryByPercent}"/>
+					  <h:outputText value="#{msgs.assignment_details_letters}" rendered="#{assignmentDetailsBean.gradeEntryByLetter}" />
 		      </t:commandSortHeader>
 				</f:facet>
 
 				<t:div>
-					<h:inputText id="Score" value="#{scoreRow.score}" size="4" 
-						 rendered="#{!assignmentDetailsBean.assignment.externallyMaintained}"
-						 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
-						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
-						<f:validateDoubleRange minimum="0"/>
-						<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
-					</h:inputText>
+					<h:panelGroup rendered="#{!assignmentDetailsBean.assignment.externallyMaintained}">
+						<h:inputText id="Score" value="#{scoreRow.score}" size="6" 
+							 rendered="#{assignmentDetailsBean.gradeEntryByPoints || assignmentDetailsBean.gradeEntryByPercent}"
+							 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
+							<f:validateDoubleRange minimum="0"/>
+							<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
+						</h:inputText>
+						<h:inputText id="LetterScore" value="#{scoreRow.letterScore}" size="6" 
+							 rendered="#{assignmentDetailsBean.gradeEntryByLetter}"
+							 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.LETTER_GRADE_CONVERTER" />
+						</h:inputText>
+						
+					</h:panelGroup>
 
 					<h:outputText value="#{scoreRow.score}" rendered="#{assignmentDetailsBean.assignment.externallyMaintained}">
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
@@ -240,6 +249,7 @@
 					</h:panelGroup>
 				</f:facet>
 				<h:message for="Score" styleClass="validationEmbedded gbMessageAdjustForContent"/>
+				<h:message for="LetterScore" styleClass="validationEmbedded gbMessageAdjustForContent"/>
 				<t:div styleClass="gbTextOnRow" rendered="#{!scoreRow.commentEditable}">
 					<h:outputText value="#{scoreRow.commentText}"/>
 				</t:div>

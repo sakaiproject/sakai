@@ -121,4 +121,24 @@ public class LetterGradePercentMapping implements Serializable
 	{
 		this.gradebookId = gradebookId;
 	}
+	
+	/**
+     * Enable any-case input of grades (typically lowercase input
+     * for uppercase grades). Look for a case-insensitive match
+     * to the input text and if it's found, return the official
+     * version.
+     *
+     * @return The normalized version of the grade, or null if not found.
+     */
+    public String standardizeInputGrade(String inputGrade) {
+    	String standardizedGrade = null;
+    	for (Iterator iter = gradeMap.keySet().iterator(); iter.hasNext(); ) {
+    		String grade = (String)iter.next();
+    		if (grade.equalsIgnoreCase(inputGrade)) {
+    			standardizedGrade = grade;
+    			break;
+    		}
+    	}
+    	return standardizedGrade;
+    }
 }

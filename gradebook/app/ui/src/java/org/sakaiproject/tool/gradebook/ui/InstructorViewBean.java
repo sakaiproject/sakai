@@ -218,26 +218,49 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 					AssignmentGradeRow gradeRow = (AssignmentGradeRow) item;
 					AssignmentGradeRecord gradeRecord = gradeRow.getGradeRecord();
 
-					if (gradeRecord == null && gradeRow.getScore() != null) {
+					if (gradeRecord == null && (gradeRow.getScore() != null || gradeRow.getLetterScore() != null)) {
 						// this is a new grade
 						gradeRecord = new AssignmentGradeRecord(gradeRow.getAssociatedAssignment(), getStudentUid(), null);
 					}
 					if (gradeRecord != null) {
-						Double originalScore = null;
-						if (getGradeEntryByPoints()) {
+						if (getGradeEntryByPoints()) { 
+							Double originalScore = null;
 							originalScore = gradeRecord.getPointsEarned();
-						} else if (getGradeEntryByPercent()) {
-							originalScore = gradeRecord.getGradeAsPercentage();
-						}
-						if (originalScore != null) {
-							// truncate to two decimals for more accurate comparison
-							originalScore = new Double(FacesUtil.getRoundDown(originalScore.doubleValue(), 2));
-						}
-						Double newScore = gradeRow.getScore();
-						if ( (originalScore != null && !originalScore.equals(newScore)) ||
-								(originalScore == null && newScore != null) ) {
-							gradeRecord.setPointsEarned(newScore);
-							updatedGradeRecords.add(gradeRecord);
+
+							if (originalScore != null) {
+								// truncate to two decimals for more accurate comparison
+								originalScore = new Double(FacesUtil.getRoundDown(originalScore.doubleValue(), 2));
+							}
+							Double newScore = gradeRow.getScore();
+							if ( (originalScore != null && !originalScore.equals(newScore)) ||
+									(originalScore == null && newScore != null) ) {
+								gradeRecord.setPointsEarned(newScore);
+								updatedGradeRecords.add(gradeRecord);
+							}
+						} else if(getGradeEntryByPercent()) {
+							Double originalScore = null;
+							originalScore = gradeRecord.getPercentEarned();
+
+							if (originalScore != null) {
+								// truncate to two decimals for more accurate comparison
+								originalScore = new Double(FacesUtil.getRoundDown(originalScore.doubleValue(), 2));
+							}
+							Double newScore = gradeRow.getScore();
+							if ( (originalScore != null && !originalScore.equals(newScore)) ||
+									(originalScore == null && newScore != null) ) {
+								gradeRecord.setPercentEarned(newScore);
+								updatedGradeRecords.add(gradeRecord);
+							}
+
+						}	else if (getGradeEntryByLetter()) {
+
+							String originalScore = gradeRecord.getLetterEarned();
+							String newScore = gradeRow.getLetterScore();
+							if ( (originalScore != null && !originalScore.equals(newScore)) ||
+									(originalScore == null && newScore != null) ) {
+								gradeRecord.setLetterEarned(newScore);
+								updatedGradeRecords.add(gradeRecord);
+							}
 						}
 					} 
 				}
@@ -358,7 +381,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 			Assignment prevAssignment = getGradebookManager().getAssignment(assignmentIdAsLong);
 			if (getGradeEntryByPoints())
 				assignGradeRecords = getGradebookManager().getAssignmentGradeRecords(prevAssignment, studentUids);
-			else if (getGradeEntryByPercent())
+			else if (getGradeEntryByPercent() || getGradeEntryByLetter())
 				assignGradeRecords = getGradebookManager().getAssignmentGradeRecordsConverted(prevAssignment, studentUids);
 
 			// Need to sort and page based on a scores column.

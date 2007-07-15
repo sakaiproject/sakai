@@ -28,10 +28,12 @@ import javax.faces.context.FacesContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.gradebook.ui.AssignmentGradeRow;
+import org.sakaiproject.tool.gradebook.ui.GradebookBean;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 
 /**
@@ -45,8 +47,12 @@ public class ClassAvgConverterBasicDisplay extends PointsConverter {
 		if (log.isDebugEnabled()) log.debug("getAsString(" + context + ", " + component + ", " + value + ")");
 
 		String formattedAvg;
-		boolean isPoints = false;
-		boolean isPercent = false;
+		
+		String entryMethod = null;
+		final String POINTS = "points";
+		final String PERCENT = "percent";
+		final String LETTER = "letter";
+		
 		Object avg = null;
 		Gradebook gradebook;
 
@@ -56,11 +62,19 @@ public class ClassAvgConverterBasicDisplay extends PointsConverter {
 				gradebook = assignment.getGradebook();
 
 				if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_POINTS) {
-					isPoints = true;
+					entryMethod = POINTS;
 					avg = assignment.getAverageTotal();
 				} else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
-					isPercent = true;
+					entryMethod = PERCENT;
 					avg = assignment.getMean();
+				} else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER) {
+					entryMethod = LETTER;
+					GradebookBean gbb = (GradebookBean)FacesUtil.resolveVariable("gradebookBean");
+					Double mean = assignment.getMean();
+					if (mean != null) {
+						LetterGradePercentMapping mapping = gbb.getGradebookManager().getLetterGradePercentMapping(gradebook);
+						avg = mapping.getGrade(mean);
+					}
 				}
 				
 			} else if (value instanceof Category) {
@@ -71,12 +85,12 @@ public class ClassAvgConverterBasicDisplay extends PointsConverter {
 				if (category.getId() == null && gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY) {
 					return FacesUtil.getLocalizedString("overview_unassigned_cat_avg");
 				}
-				isPercent = true;
+				entryMethod = PERCENT;
 				avg = category.getMean();
 		
 			} else if (value instanceof CourseGrade) {
 				// course grade is always displayed as %
-				isPercent = true;
+				entryMethod = PERCENT;
 				CourseGrade courseGrade = (CourseGrade) value;
 				avg = courseGrade.getMean();	
 				
@@ -85,7 +99,7 @@ public class ClassAvgConverterBasicDisplay extends PointsConverter {
 				gradebook = gradeRow.getGradebook();
 				avg = gradeRow.getScore();
 				if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
-					isPercent = true;
+					entryMethod = PERCENT;
 				}
 			}
 		}
@@ -93,7 +107,7 @@ public class ClassAvgConverterBasicDisplay extends PointsConverter {
 		formattedAvg = getFormattedValue(context, component, avg);
 		
 		if (avg != null) {
-			if (isPercent) {
+			if (entryMethod.equals(PERCENT)) {
 				formattedAvg = FacesUtil.getLocalizedString("overview_avg_display_percent", new String[] {formattedAvg} );
 			}
 		}
@@ -108,8 +122,10 @@ public class ClassAvgConverterBasicDisplay extends PointsConverter {
 			if (value instanceof Number) {
 				// Truncate to 0 decimal places.
 				value = new Double(FacesUtil.getRoundDown(((Number)value).doubleValue(), 0));
+				formattedValue = super.getAsString(context, component, value);
+			} else {
+				formattedValue = value.toString();
 			}
-			formattedValue = super.getAsString(context, component, value);
 		}
 		
 		return formattedValue;

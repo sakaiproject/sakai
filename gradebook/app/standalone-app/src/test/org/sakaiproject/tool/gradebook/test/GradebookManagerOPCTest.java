@@ -65,18 +65,18 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		Assert.assertTrue(returnedGradeMap == null);
 		
 		Map gradeMap = new HashMap();
-		gradeMap.put("a+", new Double(0.98));
-		gradeMap.put("a", new Double(0.95));
-		gradeMap.put("a-", new Double(0.90));
-		gradeMap.put("b+", new Double(0.88));
-		gradeMap.put("b", new Double(0.85));
-		gradeMap.put("b-", new Double(0.80));
-		gradeMap.put("c+", new Double(0.78));
-		gradeMap.put("c", new Double(0.75));
-		gradeMap.put("c-", new Double(0.70));
-		gradeMap.put("d+", new Double(0.68));
-		gradeMap.put("d", new Double(0.65));
-		gradeMap.put("d-", new Double(0.60));
+		gradeMap.put("a+", new Double(98));
+		gradeMap.put("a", new Double(95));
+		gradeMap.put("a-", new Double(90));
+		gradeMap.put("b+", new Double(88));
+		gradeMap.put("b", new Double(85));
+		gradeMap.put("b-", new Double(80));
+		gradeMap.put("c+", new Double(78));
+		gradeMap.put("c", new Double(75));
+		gradeMap.put("c-", new Double(70));
+		gradeMap.put("d+", new Double(68));
+		gradeMap.put("d", new Double(65));
+		gradeMap.put("d-", new Double(60));
 		gradeMap.put("f", new Double(0.0));
 		
 		gradebookManager.createDefaultLetterGradePercentMapping(gradeMap);
@@ -259,7 +259,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 			AssignmentGradeRecord agr = (AssignmentGradeRecord)returnGradeRecords.get(i);
 //			System.out.println("student::" + agr.getStudentId() + "--assign::" + agr.getAssignment() + "--grade::" + agr.getPointsEarned());
 			//agr.setPointsEarned(new Double((agr.getPointsEarned().doubleValue() * 0.9) / assign.getPointsPossible()));
-			agr.setPointsEarned(new Double(90.0));
+			agr.setPercentEarned(new Double(90.0));
 			convertGradeRecords.add(agr);
 		}
 		gradebookManager.updateAssignmentGradeRecords(assign, convertGradeRecords, GradebookService.GRADE_TYPE_PERCENTAGE);
@@ -330,7 +330,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		for(int i=0; i<returnGradeRecords.size(); i++)
 		{
 			AssignmentGradeRecord agr = (AssignmentGradeRecord)returnGradeRecords.get(i);
-			Assert.assertTrue((new BigDecimal(agr.getPointsEarned()).setScale(2, BigDecimal.ROUND_HALF_UP)).doubleValue() == new BigDecimal(((double)(i+1))/assign.getPointsPossible().doubleValue() * 100.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+			Assert.assertTrue((new BigDecimal(agr.getPercentEarned()).setScale(2, BigDecimal.ROUND_HALF_UP)).doubleValue() == new BigDecimal(((double)(i+1))/assign.getPointsPossible().doubleValue() * 100.0).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 //			System.out.println(new BigDecimal(((double)(i+1))/assign.getPointsPossible().doubleValue()).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 //			System.out.println("student::" + agr.getStudentId() + "--assign::" + agr.getAssignment() + "--point possible::" + agr.getAssignment().getPointsPossible() + "--grade::" + agr.getPointsEarned());
 		}
@@ -1384,7 +1384,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		for(int i=0; i<returnGradeRecords.size(); i++)
 		{
 			AssignmentGradeRecord agr = (AssignmentGradeRecord)returnGradeRecords.get(i);
-			agr.setPointsEarned(90.0);
+			agr.setPercentEarned(90.0);
 			convertGradeRecords.add(agr);
 		}
 		Collection comments = new ArrayList();
@@ -2574,7 +2574,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		{
 			AssignmentGradeRecord agr = (AssignmentGradeRecord) records.get(i);
 			if(agr.getAssignment().getCategory().getName().equals("cate 1"))
-				Assert.assertTrue(agr.getPointsEarned().doubleValue() == ((Double)studentIdMap.get(agr.getStudentId())).doubleValue() * 2.0 / 10.0 * 100.0);
+				Assert.assertTrue(agr.getPercentEarned().doubleValue() == ((Double)studentIdMap.get(agr.getStudentId())).doubleValue() * 2.0 / 10.0 * 100.0);
 			
 //			System.out.println(agr.getAssignment().getName() + "-----" + agr.getStudentId() + "---" + agr.getPointsEarned());
 		}
@@ -2591,7 +2591,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 			AssignmentGradeRecord agr = (AssignmentGradeRecord) records.get(i);
 			if(agr.getAssignment().getCategory().getName().equals("cate 1"))
 			{
-				Assert.assertTrue(agr.getLetterEarned().equals(lgpm.getGrade(((Double)studentIdMap.get(agr.getStudentId())).doubleValue() * 2.0 / 10.0)));
+				Assert.assertTrue(agr.getLetterEarned().equals(lgpm.getGrade(((Double)studentIdMap.get(agr.getStudentId())).doubleValue() * 2.0 / 10.0 * 100)));
 			}
 		}
 	}
@@ -2673,39 +2673,39 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		LetterGradePercentMapping lgpm = null;
 		
 		Map gradeMap = new HashMap();
-		gradeMap.put("a+", new Double(0.98));
-		gradeMap.put("a", new Double(0.95));
-		gradeMap.put("a-", new Double(0.90));
-		gradeMap.put("b+", new Double(0.88));
-		gradeMap.put("b", new Double(0.85));
-		gradeMap.put("b-", new Double(0.80));
-		gradeMap.put("c+", new Double(0.78));
-		gradeMap.put("c", new Double(0.75));
-		gradeMap.put("c-", new Double(0.70));
-		gradeMap.put("d+", new Double(0.68));
-		gradeMap.put("d", new Double(0.65));
-		gradeMap.put("d-", new Double(0.60));
-		gradeMap.put("f", new Double(0.0));
+		gradeMap.put("a+", new Double(98));
+		gradeMap.put("a", new Double(95));
+		gradeMap.put("a-", new Double(90));
+		gradeMap.put("b+", new Double(88));
+		gradeMap.put("b", new Double(85));
+		gradeMap.put("b-", new Double(80));
+		gradeMap.put("c+", new Double(78));
+		gradeMap.put("c", new Double(75));
+		gradeMap.put("c-", new Double(70));
+		gradeMap.put("d+", new Double(68));
+		gradeMap.put("d", new Double(65));
+		gradeMap.put("d-", new Double(60));
+		gradeMap.put("f", new Double(0));
 
 		gradebookManager.createOrUpdateDefaultLetterGradePercentMapping(gradeMap);
 		
 		lgpm = gradebookManager.getLetterGradePercentMapping(persistentGradebook);
-		Assert.assertTrue(lgpm.getValue("a").equals(new Double("0.95")));
+		Assert.assertTrue(lgpm.getValue("a").equals(new Double("95")));
 
-		gradeMap.put("a", new Double("0.96"));
+		gradeMap.put("a", new Double("96"));
 		lgpm = gradebookManager.getLetterGradePercentMapping(persistentGradebook);
-		Assert.assertTrue(lgpm.getValue("a").equals(new Double("0.95")));
+		Assert.assertTrue(lgpm.getValue("a").equals(new Double("95")));
 
 		gradebookManager.saveOrUpdateLetterGradePercentMapping(gradeMap, persistentGradebook);
 
 		lgpm = gradebookManager.getLetterGradePercentMapping(persistentGradebook);
-		Assert.assertTrue(lgpm.getValue("a").equals(new Double("0.96")));
+		Assert.assertTrue(lgpm.getValue("a").equals(new Double("96")));
 		
 		lgpm = gradebookManager.getDefaultLetterGradePercentMapping();
-		Assert.assertTrue(lgpm.getValue("a").equals(new Double("0.95")));
+		Assert.assertTrue(lgpm.getValue("a").equals(new Double("95")));
 		
 		gradebookManager.createOrUpdateDefaultLetterGradePercentMapping(gradeMap);
-		Assert.assertTrue(lgpm.getValue("a").equals(new Double("0.96")));
+		Assert.assertTrue(lgpm.getValue("a").equals(new Double("96")));
 	}
 	
 	public void testCreateUngradedAssignment() throws Exception

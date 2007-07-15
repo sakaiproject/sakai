@@ -724,15 +724,15 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 
     	if(lgpm == null)
     	{
-      	Set keySet = gradeMap.keySet();
-      	
-      	if(keySet.size() != GradebookService.validLetterGrade.length) //we only consider letter grade with -/+ now.
-      		throw new IllegalArgumentException("gradeMap doesn't have right size in BaseHibernateManager.saveOrUpdateLetterGradePercentMapping");
-      	
-      	if(validateLetterGradeMapping(gradeMap) == false)
-      		throw new IllegalArgumentException("gradeMap contains invalid letter in BaseHibernateManager.saveOrUpdateLetterGradePercentMapping");
-      	
-      	HibernateCallback hcb = new HibernateCallback()
+    		Set keySet = gradeMap.keySet();
+
+    		if(keySet.size() != GradebookService.validLetterGrade.length) //we only consider letter grade with -/+ now.
+    			throw new IllegalArgumentException("gradeMap doesn't have right size in BaseHibernateManager.saveOrUpdateLetterGradePercentMapping");
+
+    		if(validateLetterGradeMapping(gradeMap) == false)
+    			throw new IllegalArgumentException("gradeMap contains invalid letter in BaseHibernateManager.saveOrUpdateLetterGradePercentMapping");
+
+    		HibernateCallback hcb = new HibernateCallback()
     		{
     			public Object doInHibernate(Session session) throws HibernateException,
     			SQLException
@@ -740,7 +740,14 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     				LetterGradePercentMapping lgpm = new LetterGradePercentMapping();
     				if (lgpm != null)
     				{                    
-    					lgpm.setGradeMap(gradeMap);
+    					Map saveMap = new HashMap();
+    					for (Iterator gradeIter = gradeMap.keySet().iterator(); gradeIter.hasNext();) {
+    						String letterGrade = (String)gradeIter.next();
+    						Double value = (Double)gradeMap.get(letterGrade);
+    						saveMap.put(letterGrade, value);
+    					}
+    					
+    					lgpm.setGradeMap(saveMap);
     					lgpm.setGradebookId(gradebook.getId());
     					lgpm.setMappingType(2);
     					session.save(lgpm);
