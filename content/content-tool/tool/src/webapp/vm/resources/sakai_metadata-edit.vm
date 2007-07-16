@@ -1,0 +1,98 @@
+##
+############################################# macro prop_dateSelection 
+#macro(prop_dateSelectionWidget $propName $propValue)	
+## Setup a date selection widget
+#set($theDate = $propValue.breakdownLocal())
+#set($year = $theDate.year)
+#set($earliestYear = $year - 10)
+#set($latestYear = $year + 10)	
+#set($month = $theDate.month)
+#set($day = $theDate.day)
+#custom_dateselectionwidget("${propName}_year" "${propName}_month" "${propName}_day" "$earliestYear" "$latestYear" "$year" "$month" "$day" "")
+#end
+############################################# end of macro prop_dateSelection 
+
+		######################## ================ Optional Properties of Item ================ ########################
+		<input type="hidden" name="metadataGroup${DOT}$i" id="metadataGroup${DOT}$i" value="" />
+		#if(!$item && $model)#set($item = $model)#end
+		#if($item && $item.metadataGroups)
+		## && $type.hasOptionalPropertiesDialog())
+			#foreach($group in $item.metadataGroups)	
+				<p class="discTria" id="metadataShown${DOT}${i}_$validator.escapeJavascript($group.name)"#if ($group.isShowing()) style="display:block;"#else style="display:none;"#end>
+					<a href="#" onclick="javascript:hideOptionalProperties('${i}','$validator.escapeJavascript($group.name)');"  title="$tlang.getString("edit.hide") $group.name">
+						<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("edit.hide") $group.name" border="0" width="13" height="13" align="top" />
+					</a>
+					$validator.escapeHtml($group.name)
+				</p>
+				<p class="discTria" id="metadataHidden${DOT}${i}_$validator.escapeJavascript($group.name)"#if ($group.isShowing()) style="display:none;"#else style="display:block;"#end>
+					<a href="#" onclick="javascript:showOptionalProperties('${i}','$validator.escapeJavascript($group.name)');"   title="$tlang.getString("edit.show") $group.name">
+						<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("edit.show") $group.name" border="0" width="13" height="13" align="top" />
+					</a>
+					$validator.escapeHtml($group.name)
+				</p>
+				<div id="metadataDiv${DOT}${i}_$validator.escapeJavascript($group.name)"#if ($group.isShowing()) style="display:block;"#else style="display:none;"#end>
+					#foreach($tag in $group)
+						<p class="shorttext">
+							#if("$!tag.widget" == "$!STRING")
+			 					<label for ="$validator.escapeJavascript("$!{tag.fullname}")${DOT}$i">
+									$tag.label
+								</label>
+								<input type="text" size="40"
+									name="$!{tag.fullname}${DOT}$i" 
+									id="$validator.escapeJavascript("$!{tag.fullname}")${DOT}$i" 
+									value="$!tag.value" 
+								/>
+							#elseif("$!tag.widget" == "$!TEXTAREA")
+								<label for ="$validator.escapeJavascript("$!{tag.fullname}")${DOT}${i}">
+									$tag.label
+								</label>
+								<textarea rows="4" cols="30" 
+									name="$!{tag.fullname}${DOT}$i" 
+									id="$validator.escapeJavascript("$!{tag.fullname}")${DOT}$i" >$validator.escapeHtmlTextarea("$!tag.value")</textarea>
+							#elseif("$!tag.widget" == "$!DATE")
+								<label for ="$validator.escapeJavascript("$!{tag.fullname}")${DOT}$i">
+									$tag.label
+								</label>
+								#if($!tag.value)
+									#set($theValue = $!tag.value)
+								#else
+									#set($theValue = $today)
+								#end 
+								<input type="hidden" name="$!{tag.fullname}${DOT}${i}" id="$validator.escapeJavascript("$!{tag.fullname}")${DOT}${i}" value="$!theValue" />
+								#resources_dateselectionwidget("$!{tag.fullname}" "${i}" $theValue)
+							#elseif("$!tag.widget" == "$!DATETIME")
+								<label for ="$validator.escapeJavascript("$!{tag.fullname}")${DOT}${i}">
+									$tag.label
+								</label>
+								#if($!tag.value)
+									#set($theValue = $!tag.value)
+								#else
+									#set($theValue = $today)
+								#end 
+								<input type="hidden" name="$!{tag.fullname}${DOT}${i}" id="$validator.escapeJavascript("$!{tag.fullname}")${DOT}${i}" value="$!theValue" />
+								#resources_dateselectionwidget("$!{tag.fullname}" "${i}" $theValue)
+								#resources_timeSelectionWidget("$!{tag.fullname}" "${i}" $theValue)
+							#elseif("$!tag.widget" == "$!TIME")
+								<label for ="$validator.escapeJavascript("$!{tag.fullname}")${DOT}${i}">
+									$tag.label
+								</label>
+								#if($!tag.value)
+									#set($theValue = $!tag.value)
+								#else
+									#set($theValue = $today)
+								#end 
+								<input type="hidden" name="$!{tag.fullname}${DOT}${i}" id="$validator.escapeJavascript("$!{tag.fullname}")${DOT}${i}" value="$!theValue" />
+								#resources_timeSelectionWidget("$!{tag.fullname}" "${i}" $theValue)
+	
+							#else
+								$tag.fullname<br />
+								$tag.widget<br />
+								$!tag.value<br />
+							#end
+						</p>
+					#end
+				</div>			  
+			#end
+		#end
+		############################################# end of section to show metadata 
+

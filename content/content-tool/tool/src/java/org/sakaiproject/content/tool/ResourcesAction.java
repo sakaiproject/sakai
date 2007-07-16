@@ -4242,9 +4242,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 		context.put("TYPE_UPLOAD", TYPE_UPLOAD);
 		
-		context.put("listStack", new Stack());
-		context.put("tempStack", new Stack());
-
 		context.put("SITE_ACCESS", AccessMode.SITE);
 		context.put("GROUP_ACCESS", AccessMode.GROUPED);
 		context.put("INHERITED_ACCESS", AccessMode.INHERITED);
@@ -4262,7 +4259,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 		// find the ContentHosting service
 		org.sakaiproject.content.api.ContentHostingService contentService = ContentHostingService.getInstance();
-		context.put ("service", contentService);
+		//context.put ("service", contentService);
 
 		ResourceTypeRegistry registry = (ResourceTypeRegistry) state.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
 		if(registry == null)

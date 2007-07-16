@@ -20,12 +20,6 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 <![endif]-->
 
 #set($num = 0)
-#set($removeCount = 0)
-#set($moveCount = 0)
-#set($copyCount = 0)
-#set($rCount = 0)
-#set($mCount = 0)
-#set($cCount = 0)
 <div class="portletBody">
 	#set($itemsOnLine = 0)
 	#if(!$dropboxMode)
