@@ -16,6 +16,7 @@
   </organization>
   <inceptionYear>2005</inceptionYear>
   <packaging>war</packaging>
+
   <dependencies>
 <!-- Samigo API -->
     <dependency>
@@ -28,6 +29,7 @@
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-samigo-hibernate</artifactId>
       <version>${sakai.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
@@ -524,10 +526,31 @@
     </dependency>
   </dependencies>
   <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>2.0</version>
+        <configuration>
+   <!-- the resources order is important the first take precidence -->
+          <webResources>
+            <resource>
+              <directory>${basedir}/sakai-samigo/webapp</directory>
+              <includes>
+                <include>**/*.*</include>
+              </includes>
+            </resource>
+            <resource>
+              <directory>${basedir}/src/webapp</directory>
+              <includes>
+                <include>**/*.*</include>
+              </includes>
+            </resource>
+          </webResources>
+        </configuration>
+      </plugin>
+    </plugins>
     <resources>
-      <resource>
-        <directory>src/webapp/WEB-INF</directory>
-      </resource>
       <resource>
         <directory>${basedir}/src/java</directory>
         <excludes>
