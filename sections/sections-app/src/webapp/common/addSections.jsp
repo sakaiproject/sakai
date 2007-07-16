@@ -46,7 +46,8 @@
 			action="#{addSectionsBean.addSections}"
 			disabled="#{empty addSectionsBean.category}"
 			value="#{msgs.add_sections_add}"
-			styleClass="active" />
+			styleClass="active"
+			onclick="reEnableLimits();" />
 		
 		<h:commandButton action="overview" immediate="true" value="#{msgs.add_sections_cancel}"/>
 	</t:div>
