@@ -1429,7 +1429,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			catch (IdLengthException e)
 			{
-				// TODO Auto-generated catch block
+				// TODO Need to give error message to user
 				logger.warn("IdLengthException ", e);
 			}
 			catch (OverQuotaException e)

@@ -2757,6 +2757,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		
 		String name = basename + extension;
 		String id = collectionId + name;
+		if(id.length() > ContentHostingService.MAXIMUM_RESOURCE_ID_LENGTH)
+		{
+			throw new IdLengthException(id);
+		}
 		
 		BaseResourceEdit edit = null;
 		
