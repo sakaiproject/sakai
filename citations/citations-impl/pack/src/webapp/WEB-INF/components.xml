@@ -10,24 +10,24 @@
     init-method="init"
     destroy-method="destroy"
     singleton="true">
-    
+
     <property name="adminSiteName"><value></value></property>
     <property name="configFolder"><value></value></property>
-    <property name="configXml"><value></value></property>
-    <property name="categoriesXml"><value></value></property>
+    <property name="configXmlCache"><value></value></property>
+    <property name="databaseXmlCache"><value></value></property>
 
 	<!-- enable/disable entire helper -->
     <property name="citationsEnabledByDefault"><value>true</value></property>
 	<property name="allowSiteBySiteOverride"><value>true</value></property>
-	
+
 	<!-- enable/disable helper features -->
 	<property name="googleSearchEnabled"><value>true</value></property>
   	<property name="librarySearchEnabled"><value>true</value></property>
-  	
+
 	<!-- configuration XML file location -->
-    <property name="databaseXml"><value>${sakai.home}sakai/org.sakaiproject.citation/categories.xml</value></property>
-    <property name="siteConfigXml"><value>${sakai.home}sakai/org.sakaiproject.citation/config.xml</value></property>
-    
+    <property name="databaseXml"><value>categories.xml</value></property>
+    <property name="siteConfigXml"><value>config.xml</value></property>
+
   	<!-- metasearch engine parameters -->
     <property name="metasearchUsername"><value></value></property>
     <property name="metasearchPassword"><value></value></property>
@@ -44,11 +44,11 @@
 
 	<!-- google scholar parameters -->
     <property name="googleBaseUrl"><value>http://scholar.google.com/schhp</value></property>
-    <property name="sakaiServerKey"><value>ctools.umich.edu</value></property>
-    
+    <property name="sakaiServerKey"><value>default</value></property>
+
 	<!-- site-specific config/authentication/authorization implementation -->
     <property name="osidConfig"><value>org.sakaiproject.citation.impl.SampleSiteOsidConfiguration</value></property>
-	
+
 	<!-- other config services -->
     <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
     <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
@@ -59,7 +59,7 @@
     init-method="init"
     destroy-method="destroy"
     singleton="true">
-    
+
     <property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
     <property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
     <property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>

@@ -151,8 +151,6 @@ public class BaseConfigurationService implements ConfigurationService, Observer
    * Dynamic configuration parameters
    */
   protected static Map<String, Map<String,String>> m_configMaps = new HashMap<String, Map<String,String>>();
-  protected static SortedSet<String> m_failedConfigs = Collections.synchronizedSortedSet(new TreeSet<String>());
-
   protected static String m_configListRef = null;
 
   /*
@@ -490,14 +488,6 @@ public class BaseConfigurationService implements ConfigurationService, Observer
       synchronized (this)
       {
         parameterMap = m_configMaps.get(configXmlRef);
-        if (parameterMap == null)
-        {
-          /*
-           * No configuration found, try to load it "on the fly"
-           */
-          updateConfigOnDemand(configXmlRef);
-          parameterMap = m_configMaps.get(configXmlRef);
-        }
       }
     }
     catch (OsidConfigurationException exception)
@@ -571,7 +561,6 @@ public class BaseConfigurationService implements ConfigurationService, Observer
      */
     if ((document = parseXmlFromStream(stream)) == null)
     {
-      m_failedConfigs.add(configurationXml);
       return;
     }
 
@@ -580,10 +569,8 @@ public class BaseConfigurationService implements ConfigurationService, Observer
       Map<String, String> parameterMap;
 
       /*
-       * Successful parse - note success and save the values
+       * Successful parse - save the values
        */
-      m_failedConfigs.remove(configurationXml);
-
       if ((parameterMap = m_configMaps.get(configurationXml)) == null)
       {
         parameterMap = new HashMap<String, String>();
@@ -770,13 +757,13 @@ public class BaseConfigurationService implements ConfigurationService, Observer
     		enableSecurityAdvisor();
     		Session s = m_sessionManager.getCurrentSession();
     		s.setUserId(UserDirectoryService.ADMIN_ID);
-			
+
 			Site adminSite = siteService.addSite(this.m_adminSiteName, "project");
-			
+
 			// add Resources tool
 			SitePage page = adminSite.addPage();
 			page.addTool("sakai.resources");
-			
+
 			siteService.save(adminSite);
 	        m_log.debug("init() site " + this.m_adminSiteName + " has been created");
 		}
@@ -803,11 +790,11 @@ public class BaseConfigurationService implements ConfigurationService, Observer
 		  m_log.warn("IdUnusedException ", e);
 		}
 	}
-	
+
 	for(String config : this.m_configs)
 	{
 	  String configFileRef = this.getConfigFolderReference() + config;
-	
+
 	  updateConfig(configFileRef);
 	}
   }
@@ -1092,17 +1079,33 @@ public class BaseConfigurationService implements ConfigurationService, Observer
   }
 
   /**
-     * @param adminSiteName the adminSiteName to set
-     */
-    public void setAdminSiteName(String adminSiteName)
-    {
-      this.m_adminSiteName = adminSiteName;
-    }
+   * @param adminSiteName the adminSiteName to set
+   */
+  public void setAdminSiteName(String adminSiteName)
+  {
+    this.m_adminSiteName = adminSiteName;
+  }
+
+  /**
+   * @return the configFolder
+   */
+  public String getConfigFolder()
+  {
+    return m_configFolder;
+  }
+
+  /**
+   * @param configFolder the configFolder to set
+   */
+  public void setConfigFolder(String configFolder)
+  {
+    this.m_configFolder = configFolder;
+  }
 
   /**
    * @return the configFile
    */
-    public String getConfigXml()
+    public String getConfigXmlCache()
     {
       StringBuffer buf = new StringBuffer();
 
@@ -1121,7 +1124,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
   /**
    * @param configFile the configFile to set
    */
-  public void setConfigXml(String configXml)
+  public void setConfigXmlCache(String configXml)
   {
     this.m_configs = new TreeSet<String>();
 
@@ -1136,20 +1139,50 @@ public class BaseConfigurationService implements ConfigurationService, Observer
     }
 
   /**
-   * @return the configFolder
+   * @return the categoriesXml resource names
    */
-  public String getConfigFolder()
+  public String getDatabaseXmlCache()
   {
-    return m_configFolder;
+    StringBuffer buf = new StringBuffer();
+
+    for(Iterator<String> it = this.m_categories.iterator(); it.hasNext();)
+    {
+      String str = it.next();
+
+      buf.append(str);
+      if(it.hasNext())
+      {
+        buf.append(',');
+      }
+    }
+    return buf.toString();
   }
 
   /**
-   * @param configFolder the configFolder to set
+   * @param categoriesXml the categoriesXml to set
    */
-  public void setConfigFolder(String configFolder)
+  public void setDatabaseXmlCache(String categoriesXml)
   {
-    this.m_configFolder = configFolder;
+    this.m_categories = new TreeSet<String>();
+
+    if(!isNull(categoriesXml))
+    {
+      String[] categories = categoriesXml.split("\\s*,\\s*");
+      for(String category : categories)
+      {
+        this.m_categories.add(category);
+      }
+    }
   }
+
+  public Collection<String> getAllCategoryXml()
+  {
+    return new TreeSet<String>(this.m_categories);
+  }
+
+  /*
+   * Configuration update
+   */
 
   /**
    * Called when an observed object chnages (@see java.util.Observer#update)
@@ -1176,25 +1209,6 @@ public class BaseConfigurationService implements ConfigurationService, Observer
       }
     }
   }
-
-  /**
-   * Update configuration data from an XML resource.  Don't try
-   * if the requested XML resource has already failed to parse.
-   *
-   * Invoked by <code>getConfigurationParameter()</code>.
-   *
-   * @param configXmlRef Configuration resource name
-   */
-  protected void updateConfigOnDemand(String configXmlRef)
-  {
-    if (m_failedConfigs.contains(configXmlRef))
-    {
-      return;
-    }
-    updateConfig(configXmlRef);
-  }
-
-
 
   /**
    * Update configuration data from an XML resource
@@ -1245,47 +1259,6 @@ public class BaseConfigurationService implements ConfigurationService, Observer
     m_updatableResources.add(configFileRef);
   }
 
-  /**
-   * @return the categoriesXml resource names
-   */
-  public String getCategoriesXml()
-  {
-    StringBuffer buf = new StringBuffer();
-
-    for(Iterator<String> it = this.m_categories.iterator(); it.hasNext();)
-    {
-      String str = it.next();
-
-      buf.append(str);
-      if(it.hasNext())
-      {
-        buf.append(',');
-      }
-    }
-    return buf.toString();
-  }
-
-  /**
-   * @param categoriesXml the categoriesXml to set
-   */
-  public void setCategoriesXml(String categoriesXml)
-  {
-    this.m_categories = new TreeSet<String>();
-
-    if(!isNull(categoriesXml))
-    {
-      String[] categories = categoriesXml.split("\\s*,\\s*");
-      for(String category : categories)
-      {
-        this.m_categories.add(category);
-      }
-    }
-  }
-
-  public Collection<String> getAllCategoryXml()
-  {
-    return new TreeSet<String>(this.m_categories);
-  }
 
   /*
    * Miscellanous helpers
@@ -1305,9 +1278,7 @@ public class BaseConfigurationService implements ConfigurationService, Observer
 
      	if (!isNull(configFolderRef) && !isNull(resourceName))
     	{
-        String referenceName   = configFolderRef + resourceName;
-
-        m_log.debug("Looking for: " + referenceName);
+        String referenceName = configFolderRef + resourceName;
 
         Reference reference = EntityManager.newReference(referenceName);
     		if (reference == null) return false;
@@ -1315,12 +1286,12 @@ public class BaseConfigurationService implements ConfigurationService, Observer
     		enableSecurityAdvisor();
     		ContentResource resource = org.sakaiproject.content.cover.ContentHostingService.getResource(reference.getId());
 
-    		return (resource != null);
+        return (resource != null);
     	}
     }
     catch (Exception exception)
     {
-      m_log.warn("Failed to get configuration details: " + exception);
+      m_log.warn("exists() failed find resource: " + exception);
     }
    	return false;
   }

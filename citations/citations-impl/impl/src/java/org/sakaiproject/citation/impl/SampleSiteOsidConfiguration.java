@@ -37,10 +37,18 @@ public class SampleSiteOsidConfiguration implements SiteOsidConfiguration
  	private static Log _log = LogFactory.getLog(SampleSiteOsidConfiguration.class);
 
  	/*
- 	 * Citation Helper XML configuration files (rooted in <sakai.home>)
+ 	 * Citation Helper XML database and configuration file names
+ 	 *
+ 	 * Set to null to force the use of values from components.xml
  	 */
-  public static final String  CATEGORIES_XML      = "org.sakaiproject.citation/categories.xml";
-  public static final String  CONFIGURATION_XML   = "org.sakaiproject.citation/configuration.xml";
+  public static final String  CATEGORIES_XML      = "categories.xml";
+  public static final String  CONFIGURATION_XML   = "config.xml";
+
+ 	/*
+ 	 * Group membership
+ 	 */
+  public static final String  FULL_ACCESS_GROUP   = "all";
+  public static final String  GUEST_ACCESS_GROUP  = "free";
 
   /**
    * Simple public constructor
@@ -62,35 +70,33 @@ public class SampleSiteOsidConfiguration implements SiteOsidConfiguration
 
   /**
    * Fetch the appropriate XML configuration document for this user.  Typically,
-   * this will be a path relative to the root folder for citations configurations 
+   * this will be a path relative to the root folder for citations configurations
    * ( e.g. samples/config.xml)
    *<p>
    * Return null to force the use of the siteConfigXml property from
    * components.xml
    *
-   * @return Configuration XML (eg samples/config.xml)
+   * @return Configuration XML (eg config.xml or samples/config.xml)
    */
   public String getConfigurationXml() throws OsidConfigurationException
   {
-	  return "config01.xml";
-    //return CONFIGURATION_XML;
+    return CONFIGURATION_XML;
   }
 
   /**
   /**
    * Fetch the appropriate XML database document for this user.  Typically,
-   * this will be a path relative to the root folder for citations configurations 
+   * this will be a path relative to the root folder for citations configurations
    * ( e.g. samples/categories.xml)
    *<p>
    * Return null to force the use of the databaseXml property from
    * components.xml
    *
-   * @return Hierarchy XML (eg /tomcat-home/sakai/database.xml)
+   * @return Hierarchy XML (eg categories.xml or samples/categories.xml)
    */
   public String getDatabaseHierarchyXml() throws OsidConfigurationException
   {
-	  return "categories01.xml";
-    //return CATEGORIES_XML;
+    return CATEGORIES_XML;
   }
 
   /**
@@ -101,31 +107,9 @@ public class SampleSiteOsidConfiguration implements SiteOsidConfiguration
   {
     ArrayList<String> groupList = new ArrayList();
 
-    groupList.add("all");
-    groupList.add("free");
+    groupList.add(FULL_ACCESS_GROUP);
+    groupList.add(GUEST_ACCESS_GROUP);
 
     return groupList;
-  }
-
-  /*
-   * Helpers
-   */
-
-  /**
-   * Using a relative path specification, create a full path based
-   * on the system level <code>sakai.home</code> property.
-   *
-   * @param relativePath Relative file specification (eg sakaibrary/config.xml)
-   */
-  private static String sakaiHome(String relativePath)
-  {
-    String sakaiHome = System.getProperty("sakai.home", "sakai");
-    String separator = System.getProperty("file.separator");
-
-    if ((!sakaiHome.endsWith(separator)) && (!sakaiHome.endsWith("/")))
-    {
-      sakaiHome += "/";
-    }
-    return sakaiHome + relativePath;
   }
 }
