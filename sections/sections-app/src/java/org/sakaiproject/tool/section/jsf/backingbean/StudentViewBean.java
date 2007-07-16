@@ -187,7 +187,8 @@ public class StudentViewBean extends EditStudentSectionsBean implements Serializ
 			// There's nothing we can do in the UI, really.
 			return;
 		}
-	
+		refresh();
+		
 		//check that there are still places available
 		int maxEnrollments = Integer.MAX_VALUE;
 		if(section.getMaxEnrollments() != null) {
