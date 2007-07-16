@@ -34,6 +34,7 @@ import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
 import org.sakaiproject.section.api.coursemanagement.SectionEnrollments;
 import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.section.api.exception.MembershipException;
+import org.sakaiproject.section.api.exception.SectionFullException;
 import org.sakaiproject.section.api.exception.RoleConfigurationException;
 import org.sakaiproject.section.api.facade.Role;
 
@@ -163,7 +164,17 @@ public interface SectionManager {
      * if there is more than one group-scoped role flagged as a student role.
      */
     public EnrollmentRecord joinSection(String sectionUuid) throws RoleConfigurationException;
-        
+
+    /**
+     * Adds the current user to a section as a student, enforcing a maximum permitted size.
+     * @param sectionUuid
+     * @param maxSize
+     * @throws RoleConfigurationException If there is no valid student role, or
+     * if there is more than one group-scoped role flagged as a student role.
+     * @throws SectionFullException If adding the user would exceed the size limit
+     */
+    public EnrollmentRecord joinSection(String sectionUuid, int maxSize) throws RoleConfigurationException, SectionFullException;
+    
     /**
      * Switches a student's currently assigned section.  If the student is enrolled
      * in another section of the same type, that enrollment will be dropped.
@@ -175,6 +186,20 @@ public interface SectionManager {
      * if there is more than one group-scoped role flagged as a student role.
      */
     public void switchSection(String newSectionUuid) throws RoleConfigurationException;
+
+    /**
+     * Switches a student's currently assigned section, enforcing a maximum permitted size.
+     * If the student is enrolled in another section of the same type, that enrollment 
+     * will be dropped.
+     * 
+     * This is a convenience method to allow a drop/add (a switch) in a single transaction.
+     * 
+     * @param newSectionUuid The new section uuid to which the student should be assigned
+     * @throws RoleConfigurationException If there is no valid student role, or
+     * if there is more than one group-scoped role flagged as a student role.
+     * @throws SectionFullException If adding the user would exceed the size limit
+     */
+    public void switchSection(String newSectionUuid, int maxSize) throws RoleConfigurationException, SectionFullException;
     
     /**
      * Returns the total number of students enrolled in a learning context.  Useful for

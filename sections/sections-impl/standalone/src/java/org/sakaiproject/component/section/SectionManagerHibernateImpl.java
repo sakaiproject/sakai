@@ -304,6 +304,13 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
 	/**
 	 * {@inheritDoc}
 	 */
+    public EnrollmentRecord joinSection(final String sectionUuid, int maxSize) {
+    	return joinSection(sectionUuid);
+    }
+
+	/**
+	 * {@inheritDoc}
+	 */
     public EnrollmentRecord joinSection(final String sectionUuid) {
         HibernateCallback hc = new HibernateCallback(){
             public Object doInHibernate(Session session) throws HibernateException {
@@ -334,6 +341,13 @@ public class SectionManagerHibernateImpl extends HibernateDaoSupport implements
         return (EnrollmentRecord)getHibernateTemplate().execute(hc);
     }
 
+	/**
+	 * {@inheritDoc}
+	 */
+    public void switchSection(final String newSectionUuid, int maxSize) {
+    	switchSection(newSectionUuid);
+    }
+    
 	/**
 	 * {@inheritDoc}
 	 */

@@ -45,6 +45,7 @@ import org.sakaiproject.section.api.coursemanagement.SectionEnrollments;
 import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.section.api.exception.MembershipException;
 import org.sakaiproject.section.api.exception.RoleConfigurationException;
+import org.sakaiproject.section.api.exception.SectionFullException;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.section.sakai.facade.SakaiUtil;
@@ -56,6 +57,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
+import org.sakaiproject.authz.api.GroupFullException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.GroupProvider;
 import org.sakaiproject.authz.api.Member;
@@ -610,11 +612,23 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		Event event = eventTrackingService.newEvent(message, objectReference, true);
 		eventTrackingService.post(event);
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */	
+	public EnrollmentRecord joinSection(String sectionUuid) throws RoleConfigurationException {
+		try {
+			return joinSection(sectionUuid, 0);
+		} catch (SectionFullException e) {
+			// will never happen
+			return null;
+		}
+	}			
 	
 	/**
 	 * {@inheritDoc}
 	 */
-	public EnrollmentRecord joinSection(String sectionUuid) throws RoleConfigurationException {
+	public EnrollmentRecord joinSection(String sectionUuid, int maxSize) throws RoleConfigurationException, SectionFullException {
 		CourseSection section = getSection(sectionUuid);
 		
 		// Disallow if we're in an externally managed site
@@ -636,19 +650,29 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 				return null;
 			}
 		}
+
+		return joinSection(section, maxSize);
+	}
+
+	/**
+	 * Join a section by CourseSection
+	 */
+	private EnrollmentRecord joinSection(CourseSection section, int maxSize) throws RoleConfigurationException, SectionFullException {
 		
-		Group group = siteService().findGroup(sectionUuid);
+		Group group = siteService().findGroup(section.getUuid());
 		String role = getSectionStudentRole(group);
 		try {
-			authzGroupService.joinGroup(sectionUuid, role);
-			postEvent("section.student.join", sectionUuid);
+			authzGroupService.joinGroup(section.getUuid(), role, maxSize);
+			postEvent("section.student.join", section.getUuid());
 		} catch (AuthzPermissionException e) {
 			log.info("access denied while attempting to join authz group: ", e);
 			return null;
 		} catch (GroupNotDefinedException e) {
 			log.info("can not find group while attempting to join authz group: ", e);
 			return null;
-		}
+		} catch (GroupFullException e) {
+			throw new SectionFullException("section full");
+ 		}
 		
 		// Return the membership record that the app understands
 		String userUid = sessionManager.getCurrentSessionUserId();
@@ -657,6 +681,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		return new EnrollmentRecordImpl(section, null, user);
 	}
 
+	
 	private String getSectionStudentRole(AuthzGroup group) throws RoleConfigurationException {
 		Set roleStrings = group.getRolesIsAllowed(SectionAwareness.STUDENT_MARKER);
 		if(roleStrings.size() != 1) {
@@ -678,11 +703,23 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		}
 		return (String)roleStrings.iterator().next();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public void switchSection(String newSectionUuid) throws RoleConfigurationException {
+		try {
+			switchSection(newSectionUuid, 0);
+		} catch (SectionFullException e) {
+			// will never happen
+			return;
+		}
+	}
+	 		
+	/**
+	 * {@inheritDoc}
+	 */
+	public void switchSection(String newSectionUuid, int maxSize) throws RoleConfigurationException, SectionFullException {
 		// Disallow if we're in an externally managed site
 		ensureInternallyManaged(getSection(newSectionUuid).getCourse().getUuid());
 
@@ -706,6 +743,15 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		// allow a student to update the authZ groups directly.
 		List categorySections = getSectionsInCategory(newSection.getCourse().getSiteContext(), newSection.getCategory());
 		
+		// Join the new section (could fail if it has filled up since the UI check)
+		try {
+			if (joinSection(newSection, maxSize) == null)
+				// Joining a new section has failed, so don't remove the user from old section 
+				return;
+		} catch (GroupFullException e) {
+			throw new SectionFullException("section full");
+		}
+
 		boolean errorDroppingSection = false;
 		
 		String oldSectionUuid = null;
@@ -730,15 +776,22 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 			}
 		}
 
-		// Only allow the user to join the new section if there were no errors dropping section(s)
-		if(!errorDroppingSection) {
-			// Join the new section
-			joinSection(newSectionUuid);
-			
-			// Post the events
-			postEvent("section.student.unjoin", oldSectionUuid);
-			postEvent("section.student.switch", newSectionUuid);
-		}
+		// Only allow the user to remain in the new section if there were no errors dropping section(s)
+		if(errorDroppingSection) {
+			// Unjoin the newly joined section
+			try {
+				authzGroupService.unjoinGroup(newSectionUuid);
+			} catch (GroupNotDefinedException e) {
+				log.debug("Error unjoining newly joined group " + newSectionUuid);
+			} catch (AuthzPermissionException e) {
+				log.error("Permission denied while " + userUid + " attempted to unjoin authzGroup " + newSectionUuid);
+			} 
+			return;
+		} 	
+		
+		// Success, post the events
+		postEvent("section.student.unjoin", oldSectionUuid);
+		postEvent("section.student.switch", newSectionUuid);
 
 	}
 

@@ -38,6 +38,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.exception.RoleConfigurationException;
+import org.sakaiproject.section.api.exception.SectionFullException;
 import org.sakaiproject.tool.section.decorator.SectionDecorator;
 import org.sakaiproject.tool.section.decorator.StudentSectionDecorator;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
@@ -166,13 +167,22 @@ public class StudentViewBean extends EditStudentSectionsBean implements Serializ
 			return;
 		}
 		try {
-			EnrollmentRecord er = getSectionManager().joinSection(sectionUuid);
+			EnrollmentRecord er;
+			
+			if (maxEnrollments == Integer.MAX_VALUE)
+				er = getSectionManager().joinSection(sectionUuid);
+			else
+				er = getSectionManager().joinSection(sectionUuid, maxEnrollments);
+			
 			if(er == null) {
 				// This operation failed
 				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("student_view_already_member_in_category"));
 			}
 		} catch (RoleConfigurationException rce) {
 			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("role_config_error"));
+		} catch (SectionFullException sfe) {
+			if(log.isDebugEnabled()) log.debug("Attempted to join a section with no spaces");
+			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("student_view_membership_full", new String[] {section.getTitle()}));
 		}
 	}
 
@@ -201,9 +211,15 @@ public class StudentViewBean extends EditStudentSectionsBean implements Serializ
 			return;
 		}
 		try {
+			if (maxEnrollments == Integer.MAX_VALUE)
 			getSectionManager().switchSection(sectionUuid);
+			else
+				getSectionManager().switchSection(sectionUuid, maxEnrollments);
 		} catch (RoleConfigurationException rce) {
 			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("role_config_error"));
+		} catch (SectionFullException sfe) {
+			if(log.isDebugEnabled()) log.debug("Attempted to join a section with no spaces");
+			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("student_view_membership_full", new String[] {section.getTitle()}));
 		}
 	}
 
