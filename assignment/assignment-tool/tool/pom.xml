@@ -147,6 +147,12 @@
           <include>**/*.properties</include>
         </includes>
       </resource>
+      <resource>
+        <directory>${basedir}/../../assignment-bundles</directory>
+        <includes>
+        	<include>**/*.properties</include>
+        </includes>
+      </resource>
     </resources>
   </build>
 </project>
