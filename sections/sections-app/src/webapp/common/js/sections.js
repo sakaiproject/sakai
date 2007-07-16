@@ -34,6 +34,29 @@ function updateLimit(component) {
 	}
 }
 
+
+function reEnableLimits(component) {
+	if(component == null) {
+		// Enable all of the size limits on the page
+		// This stupid hack is a response to the weak support for
+		// disabled components in myfaces
+		var allElements = document.forms[0].elements;
+		for(i=0; i < allElements.length; i++) {
+			var currentElement = allElements[i];
+			if(currentElement.name.indexOf(":limit") != -1) {
+				// Recursive function call
+				reEnableLimits(currentElement);
+			}
+		}
+	} else {
+		var nameArray = component.name.split(":");
+		nameArray.pop();
+		nameArray.push("maxEnrollmentInput");
+		document.getElementById(nameArray.join(":")).disabled = false;
+	}
+}
+
+
 /* Javascript for enabling or disabling self join/switch options */
 
 function updateOptionBoxes(externallyManaged) {

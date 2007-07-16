@@ -167,6 +167,9 @@ public class EditSectionBean extends AddSectionsBean implements SectionEditor, S
 		}
 		
 		// Perform the update
+		
+		log.info("----------Updating section to have " + section.getMaxEnrollments() + " max enrollments");
+		
 		getSectionManager().updateSection(sectionUuid, section.getTitle(),
 				section.getMaxEnrollments(), section.getMeetings());
 		

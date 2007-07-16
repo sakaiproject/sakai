@@ -20,7 +20,8 @@
         <h:commandButton
         	action="#{editSectionBean.update}"
         	value="#{msgs.section_update}"
-        	styleClass="active" />
+        	styleClass="active"
+        	onclick="reEnableLimits();" />
 
         <h:commandButton action="overview" value="#{msgs.section_cancel}" immediate="true" />
     </t:div>
