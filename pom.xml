@@ -54,6 +54,12 @@
 
   <profiles>
     <profile>
+      <id>pack-demo</id>
+      <modules>
+        <module>pack-demo</module>
+      </modules>
+    </profile>
+    <profile>
       <id>mini</id>
       <modules>
         <module>access</module>
