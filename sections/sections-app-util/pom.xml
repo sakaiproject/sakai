@@ -82,6 +82,14 @@
           <include>**/*.properties</include>
         </includes>
       </resource>
+      <resource>
+         <directory>${basedir}/src</directory>
+         <includes>
+         	<include>META-INF/*.tld</include>
+         	<include>META-INF/*.xml</include>
+         </includes>
+      </resource>
+
     </resources>
     <sourceDirectory>src/java</sourceDirectory>
   </build>
