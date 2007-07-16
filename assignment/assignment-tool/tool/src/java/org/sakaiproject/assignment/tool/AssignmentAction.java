@@ -22,6 +22,9 @@
 package org.sakaiproject.assignment.tool;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.Collator;
 import java.util.ArrayList;
@@ -40,6 +43,9 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import java.nio.channels.*;
+import java.nio.*;
 
 import org.sakaiproject.announcement.api.AnnouncementChannel;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
@@ -78,9 +84,11 @@ import org.sakaiproject.cheftool.VelocityPortlet;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -9047,21 +9055,33 @@ public class AssignmentAction extends PagedResourceActionII
 											{
 												if (submissionTable.containsKey(userName))
 										        {
-													// add the file as attachment
-													ResourceProperties properties = ContentHostingService.newResourceProperties();
-													properties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, fName);
-													ContentResource attachment = ContentHostingService.addAttachmentResource(
-																				fName, 
-																				contextString, 
-																				toolTitle, 
-																				iService.getContentType(fName.substring(fName.lastIndexOf(".") + 1)),
-																				readIntoString(zin).getBytes(), 
-																				properties);
-										        		UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userName);
-										        		List attachments = r.getAttachments();
-										        		attachments.add(EntityManager.newReference(attachment.getReference()));
-										        		r.setAttachments(attachments);
-										        		submissionTable.put(userName, r);
+													// get file extension for detecting content type
+													// ignore those hidden files
+													String extension = "";
+													if(fName.contains(".") && fName.indexOf(".") != 0)
+													{
+//														 add the file as attachment
+														ResourceProperties properties = ContentHostingService.newResourceProperties();
+														properties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, fName);
+														
+														String[] parts = fName.split("\\.");
+														if(parts.length > 1)
+														{
+															extension = parts[parts.length - 1];
+														}
+														String contentType = ((ContentTypeImageService) state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE)).getContentType(extension);
+														ContentResourceEdit attachment = ContentHostingService.addAttachmentResource(fName);
+														attachment.setContent(readIntoBytes(zin, entryName, entry.getSize()));
+														attachment.setContentType(contentType);
+														attachment.getPropertiesEdit().addAll(properties);
+														ContentHostingService.commitResource(attachment);
+														
+											        		UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userName);
+											        		List attachments = r.getAttachments();
+											        		attachments.add(EntityManager.newReference(attachment.getReference()));
+											        		r.setAttachments(attachments);
+											        		submissionTable.put(userName, r);
+													}
 										        }
 											}
 											catch (Exception ee)
@@ -9152,6 +9172,36 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 	}
 
+		private byte[] readIntoBytes(ZipInputStream zin, String fName, long length) throws IOException {
+		
+			StringBuffer b = new StringBuffer();
+			
+			byte[] buffer = new byte[4096];
+			
+			File f = new File(fName);
+			f.getParentFile().mkdirs();
+			
+			FileOutputStream fout = new FileOutputStream(f);
+			int len;
+			while ((len = zin.read(buffer)) > 0)
+			{
+				fout.write(buffer, 0, len);
+			}
+			zin.closeEntry();
+			fout.close();
+			
+			FileInputStream fis = new FileInputStream(f);
+			FileChannel fc = fis.getChannel();
+			byte[] data = new byte[(int)(fc.size())];   // fc.size returns the size of the file which backs the channel
+			ByteBuffer bb = ByteBuffer.wrap(data);
+			fc.read(bb);
+			
+			//remove the file
+			f.delete();
+			
+			return data;
+	}
+	
 	private String readIntoString(ZipInputStream zin) throws IOException {
 		byte[] buf = new byte[1024];
 		int len;
@@ -9161,7 +9211,6 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		return b.toString();
 	}
-	
 	/**
 	 * 
 	 * @return
