@@ -460,7 +460,21 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService, Storag
 		if (user == null) return false;
 
 		// check security (throws if not permitted)
-		return unlockCheck(SECURE_UPDATE_OWN_AUTHZ_GROUP, authzGroupId);
+		if (!unlockCheck(SECURE_UPDATE_OWN_AUTHZ_GROUP, authzGroupId))
+				return false;
+		
+		// get the AuthzGroup
+		AuthzGroup azGroup = m_storage.get(authzGroupId);
+		if (azGroup == null)
+				return false;
+		
+		// If already a member and inactive, disallow join
+		BaseMember grant = (BaseMember) azGroup.getMember(user);
+		
+		if ((grant != null) && (!grant.active))
+			return false;
+		
+		return true;
 	}
 
 	/**
