@@ -61,27 +61,28 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 					cat.getName() + "_assignment_2", new Double(10.0), new Date(), new Boolean(false), new Boolean(true));
 		}
 		
-		LetterGradePercentMapping returnedGradeMap = gradebookManager.getDefaultLetterGradePercentMapping();
-		Assert.assertTrue(returnedGradeMap == null);
-		
-		Map gradeMap = new HashMap();
-		gradeMap.put("a+", new Double(98));
-		gradeMap.put("a", new Double(95));
-		gradeMap.put("a-", new Double(90));
-		gradeMap.put("b+", new Double(88));
-		gradeMap.put("b", new Double(85));
-		gradeMap.put("b-", new Double(80));
-		gradeMap.put("c+", new Double(78));
-		gradeMap.put("c", new Double(75));
-		gradeMap.put("c-", new Double(70));
-		gradeMap.put("d+", new Double(68));
-		gradeMap.put("d", new Double(65));
-		gradeMap.put("d-", new Double(60));
-		gradeMap.put("f", new Double(0.0));
-		
-		gradebookManager.createDefaultLetterGradePercentMapping(gradeMap);
-		
-		returnedGradeMap = gradebookManager.getDefaultLetterGradePercentMapping();
+//create default in GradebookFrameworkServiceImpl
+//		LetterGradePercentMapping returnedGradeMap = gradebookManager.getDefaultLetterGradePercentMapping();
+//		Assert.assertTrue(returnedGradeMap == null);
+//		
+//		Map gradeMap = new HashMap();
+//		gradeMap.put("a+", new Double(98));
+//		gradeMap.put("a", new Double(95));
+//		gradeMap.put("a-", new Double(90));
+//		gradeMap.put("b+", new Double(88));
+//		gradeMap.put("b", new Double(85));
+//		gradeMap.put("b-", new Double(80));
+//		gradeMap.put("c+", new Double(78));
+//		gradeMap.put("c", new Double(75));
+//		gradeMap.put("c-", new Double(70));
+//		gradeMap.put("d+", new Double(68));
+//		gradeMap.put("d", new Double(65));
+//		gradeMap.put("d-", new Double(60));
+//		gradeMap.put("f", new Double(0.0));
+//		
+//		gradebookManager.createDefaultLetterGradePercentMapping(gradeMap);
+//		
+//		returnedGradeMap = gradebookManager.getDefaultLetterGradePercentMapping();
 
 	}
 

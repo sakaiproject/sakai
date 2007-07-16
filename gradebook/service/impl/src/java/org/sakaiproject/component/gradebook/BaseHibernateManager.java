@@ -562,12 +562,12 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     			"select lgpm from LetterGradePercentMapping as lgpm where lgpm.mappingType = 1")).list();
     			if(defaultMapping == null || defaultMapping.size() == 0) 
     			{
-    				log.info("Default letter grade mapping hasn't been created in DB in GradebookManagerHibernateImpl.getDefaultLetterGradePercentMapping");
+    				log.info("Default letter grade mapping hasn't been created in DB in BaseHibernateManager.getDefaultLetterGradePercentMapping");
     				return null;
     			}
     			if(defaultMapping.size() > 1) 
     			{
-    				log.error("Duplicate default letter grade mapping was created in DB in GradebookManagerHibernateImpl.getDefaultLetterGradePercentMapping");
+    				log.error("Duplicate default letter grade mapping was created in DB in BaseHibernateManager.getDefaultLetterGradePercentMapping");
     				return null;
     			}
 
@@ -801,7 +801,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
       getHibernateTemplate().execute(hcb);
     }
 
-    private boolean validateLetterGradeMapping(Map gradeMap)
+    protected boolean validateLetterGradeMapping(Map gradeMap)
     {
     	Set keySet = gradeMap.keySet();
 

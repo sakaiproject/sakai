@@ -21,6 +21,7 @@
 **********************************************************************************/
 package org.sakaiproject.component.gradebook;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -45,6 +46,7 @@ import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingScale;
 import org.sakaiproject.tool.gradebook.LetterGradeMapping;
+import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 import org.sakaiproject.tool.gradebook.LetterGradePlusMinusMapping;
 import org.sakaiproject.tool.gradebook.PassNotPassMapping;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -62,6 +64,8 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
         }
         if (log.isInfoEnabled()) log.info("Adding gradebook uid=" + uid + " by userUid=" + getUserUid());
 
+        createDefaultLetterGradeMapping(getHardDefaultLetterMapping());
+        
         getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
 				// Get available grade mapping templates.
@@ -286,5 +290,59 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
         hibTempl.flush();
         hibTempl.clear();
 	}
+	
+	private void createDefaultLetterGradeMapping(final Map gradeMap)
+	{
+		if(getDefaultLetterGradePercentMapping() == null)
+		{	
+			Set keySet = gradeMap.keySet();
 
+			if(keySet.size() != GradebookService.validLetterGrade.length) //we only consider letter grade with -/+ now.
+				throw new IllegalArgumentException("gradeMap doesn't have right size in BaseHibernateManager.createDefaultLetterGradePercentMapping");
+
+			if(validateLetterGradeMapping(gradeMap) == false)
+				throw new IllegalArgumentException("gradeMap contains invalid letter in BaseHibernateManager.createDefaultLetterGradePercentMapping");
+
+			HibernateCallback hc = new HibernateCallback() {
+				public Object doInHibernate(Session session) throws HibernateException {
+					LetterGradePercentMapping lgpm = new LetterGradePercentMapping();
+					session.save(lgpm);
+					Map saveMap = new HashMap();
+					for(Iterator iter = gradeMap.keySet().iterator(); iter.hasNext();)
+					{
+						String key = (String) iter.next();
+						saveMap.put(key, gradeMap.get(key));
+					}
+					if (lgpm != null)
+					{                    
+						lgpm.setGradeMap(saveMap);
+						lgpm.setMappingType(1);
+						session.update(lgpm);
+					}
+					return null;
+				}
+			};
+			getHibernateTemplate().execute(hc);
+		}
+	}
+	
+  private Map getHardDefaultLetterMapping()
+  {
+  	Map gradeMap = new HashMap();
+		gradeMap.put("a+", new Double(98));
+		gradeMap.put("a", new Double(95));
+		gradeMap.put("a-", new Double(90));
+		gradeMap.put("b+", new Double(88));
+		gradeMap.put("b", new Double(85));
+		gradeMap.put("b-", new Double(80));
+		gradeMap.put("c+", new Double(78));
+		gradeMap.put("c", new Double(75));
+		gradeMap.put("c-", new Double(70));
+		gradeMap.put("d+", new Double(68));
+		gradeMap.put("d", new Double(65));
+		gradeMap.put("d-", new Double(60));
+		gradeMap.put("f", new Double(0.0));
+		
+		return gradeMap;
+  }
 }
