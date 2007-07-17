@@ -38,6 +38,8 @@ import org.sakaiproject.portal.render.portlet.services.state.PortletState;
 import org.sakaiproject.portal.render.portlet.services.state.PortletStateAccess;
 import org.sakaiproject.portal.render.portlet.services.state.PortletStateEncoder;
 
+import org.sakaiproject.component.cover.ServerConfigurationService;
+
 /**
  * @author csev
  * @since Sakai 2.4
@@ -174,6 +176,14 @@ public class SakaiPortalCallbackService implements PortalCallbackService
 			return new StringBuilder(baseUrl).append("?").append(
 					PORTLET_STATE_QUERY_PARAM).append("=").append(
 					portletStateEncoder.encode(portletState)).toString();
+		}
+
+		public boolean isSecureSupported()
+		{
+			String portalUrl = ServerConfigurationService.getPortalUrl();
+			if ( portalUrl == null ) return false;
+			if ( portalUrl.startsWith("https:") ) return true;
+			return false;
 		}
 	}
 
