@@ -32,6 +32,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,6 +51,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
@@ -172,6 +174,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    /** the worksite the tool is in */
    private Site worksite = null;
    
+   private String toolContext = null;
    
    /*  error conditions */
    /** an error that could display on the select a chat room page */
@@ -214,6 +217,12 @@ public class ChatTool implements RoomObserver, PresenceObserver {
          
       
       ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+      
+      HttpServletRequest req = (HttpServletRequest) context.getRequest();
+      req.setAttribute(Tool.NATIVE_URL, null); //signal to WrappedRequest that we want the Sakai managed
+      setToolContext(req.getContextPath());
+      req.setAttribute(Tool.NATIVE_URL, Tool.NATIVE_URL);
+      
       
       try {
            context.redirect(url);
@@ -825,6 +834,15 @@ public class ChatTool implements RoomObserver, PresenceObserver {
     * @return the currentMessage
     */
    public DecoratedChatMessage getCurrentMessage() {
+      DecoratedChatMessage tmpCurrent = null;
+      if (currentMessage == null) {         
+         String messageId = (String)SessionManager.getCurrentToolSession().getAttribute("current_message");
+         if(messageId != null) {
+            ChatMessage message = getChatManager().getMessage(messageId);
+            tmpCurrent = new DecoratedChatMessage(this, message);
+            return tmpCurrent;
+         }
+      }
       return currentMessage;
    }
 
@@ -1297,6 +1315,14 @@ public class ChatTool implements RoomObserver, PresenceObserver {
          }*/
       }
       return toolBundle.getString(key);
+   }
+
+   public String getToolContext() {
+      return toolContext;
+   }
+
+   public void setToolContext(String toolContext) {
+      this.toolContext = toolContext;
    }
    
    

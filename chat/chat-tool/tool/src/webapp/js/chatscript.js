@@ -59,9 +59,9 @@ function appendMessage(uname, uid, removeable, pdate, ptime, msg, msgId)
 	{
 		newComponentId = $(transcript).children("li").size();
 		var builtId = "topForm:chatList:" + newComponentId + ":deleteMessage";
-		deleteUrl = "document.forms['topForm']['topForm:_idcl'].value='" + builtId + "'; document.forms['topForm'].submit(); return false;";
+		var tmpdeleteUrl = deleteUrl + msgId;
 		deleteHtml = 
-			" <a id=\"" + builtId + "\" href=\"#\" onclick=\"" + deleteUrl + "\" title=\"" + deleteMsg + "\" >" +
+			" <a id=\"" + builtId + "\" href=\"#\" onclick=\"location.href='" + tmpdeleteUrl + "'\" title=\"" + deleteMsg + "\" >" +
 			"<img src=\"/library/image/sakai/delete.gif\" border=\"0\" alt=\"" + deleteMsg + "\" /></a>";
 	}
 
@@ -74,9 +74,6 @@ function appendMessage(uname, uid, removeable, pdate, ptime, msg, msgId)
 	// adjust scroll
 	var objDiv = document.getElementById("Monitor");
    objDiv.scrollTop = objDiv.scrollHeight;
-
-	//Force a refresh of the content (doesn't actually reload the page)
-   $.ajax({type: "GET", url: location.href, data: ""});
 
 }
 
