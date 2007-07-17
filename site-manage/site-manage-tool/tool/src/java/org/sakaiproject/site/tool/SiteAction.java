@@ -6595,12 +6595,6 @@ public class SiteAction extends PagedResourceActionII {
 			}
 		}
 
-		// if editing an existing site, refresh the whole page so that the
-		// publish/unpublish icon could be updated
-		if (sEdit != null) {
-			scheduleTopRefresh();
-		}
-
 	} // doUpdate_site_access
 
 	/**
