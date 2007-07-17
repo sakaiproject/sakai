@@ -86,6 +86,12 @@ public class ResourceTypeLabeler
 				case REPLACE_CONTENT:
 					label = ResourcesAction.trb.getString("action.replace");
 					break;
+				case PASTE_COPIED:
+					label = ResourcesAction.trb.getString("action.pastecopy");
+					break;
+				case PASTE_MOVED:
+					label = ResourcesAction.trb.getString("action.pastemove");
+					break;
 				default:
 					ResourcesAction.logger.info("No label provided for ResourceToolAction: " + action.getTypeId() + ResourceToolAction.ACTION_DELIMITER + action.getId());
 					label = action.getId();

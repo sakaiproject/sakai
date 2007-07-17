@@ -7537,6 +7537,14 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					ref = EntityManager.newReference(contentService.getReference(newId));
 					
 					slAction.finalizeAction(ref);
+					
+					SortedSet<String> expandedCollections = (SortedSet<String>) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+					if(expandedCollections == null)
+					{
+						expandedCollections = new TreeSet();
+						state.setAttribute(STATE_EXPANDED_COLLECTIONS, expandedCollections);
+					}
+					expandedCollections.add(collectionId);
 				}
 				
 				ref = null;

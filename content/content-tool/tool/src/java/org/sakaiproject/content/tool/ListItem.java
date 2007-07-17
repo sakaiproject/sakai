@@ -281,9 +281,24 @@ public class ListItem
 			item.setIconLocation( ContentTypeImageService.getContentTypeImage("folder"));
         }
         
-		item.setOtherActions(ResourcesAction.getActions(entity, item.getPermissions(), registry));
+        List<ResourceToolAction> otherActions = ResourcesAction.getActions(entity, item.getPermissions(), registry);
+        List<ResourceToolAction> pasteActions = ResourcesAction.getPasteActions(entity, item.getPermissions(), registry, items_to_be_moved, items_to_be_copied);
+        
+        if(pasteActions != null && ! pasteActions.isEmpty())
+        {
+        	if(otherActions == null)
+        	{
+        		otherActions = new Vector<ResourceToolAction>(pasteActions);
+        	}
+        	else
+        	{
+        		otherActions.addAll(0, pasteActions);
+        	}
+        }
+        
+		item.setOtherActions(otherActions);
 		
-		item.setPasteActions(ResourcesAction.getPasteActions(entity, item.getPermissions(), registry, items_to_be_moved, items_to_be_copied));
+		item.setPasteActions(pasteActions);
 		
 		return item;
 	}
