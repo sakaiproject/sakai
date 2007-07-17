@@ -946,6 +946,7 @@ This is not needed now that pluto have been released
     </resources>
     <plugins>
       <plugin>
+        <inherited>true</inherited>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
@@ -954,6 +955,21 @@ This is not needed now that pluto have been released
         </configuration>
       </plugin>
       <plugin>
+        <inherited>true</inherited>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-one-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>install-maven-one-repository</goal>
+            </goals>
+            <phase>install</phase>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <inherited>true</inherited>
         <groupId>org.sakaiproject.maven.plugins</groupId>
         <artifactId>sakai</artifactId>
         <version>M2</version>
@@ -972,6 +988,7 @@ This is not needed now that pluto have been released
         </configuration>
       </plugin>
       <plugin>
+        <inherited>true</inherited>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
         <version>2.0</version>
