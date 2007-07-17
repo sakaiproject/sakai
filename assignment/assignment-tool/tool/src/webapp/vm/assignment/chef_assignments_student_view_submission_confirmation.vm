@@ -4,10 +4,8 @@
 		$tlang.getString('confirm.submission.title')
 	</h3>
 		<form name="addSubmissionForm" action="#toolForm($action)" method="post" onsubmit="return true;">
+		<h4>$tlang.getString('confirm.submission.success')</h4>
 			<table class="itemSummary" border="0" cellspacing="0" summary="$tlang.getString('confirm.submission.title')">
-				<tr colspan="2">
-					<th><h4>$tlang.getString('confirm.submission.success')</h4></th>
-				</tr>
 				## user
 				<tr>
 					<th>
@@ -53,12 +51,10 @@
 						$!submit_time
 					</td>
 				</tr>
-				<tr colspan="2">
-					<th><h4>$tlang.getString('confirm.submission.inclue')</h4></th>
-				</tr>
-				## submission text
-				<tr colspan="2">
-					<td>
+			</table>
+			<h4>$tlang.getString('confirm.submission.inclue')</h4>
+			## submission text
+			<div class="longtext">
 						#if ($!submit_text)
 							<p class="indnt1">
 								$!submit_text
@@ -67,14 +63,9 @@
 						#else
 							$tlang.getString('confirm.submission.notext')
 						#end
-					</td>
-				</tr>
+			</div>
 				##submission attachment
-				<tr>
-					<th>
-						$tlang.getString('confirm.submission.attachments')
-					</th>
-					<td>
+			<h4>$tlang.getString('confirm.submission.attachments')</h4>
 						#set ($size = 0)
 						#set ($props = false)
 						#foreach ($attachment in $!submit_attachments) 
@@ -98,15 +89,10 @@
 									#end
 								#end
 							</ul>
-						#end	
-					</td>
-				</tr>
-				#if ($!email_confirmation)
-				<tr colspan="2">
-					<th><h4>$tlang.getString('confirm.submission.email')</h4></th>
-				</tr>
-				#end
-		<table>
+						#end
+		#if ($!email_confirmation)
+			<h4>$tlang.getString('confirm.submission.email')</h4>
+		#end
 		<p class="act">
 			<input type="submit" accesskey="x" name="eventSubmit_doConfirm_assignment_submission" value="$tlang.getString('confirm.submission.button')" />
 		</p>
