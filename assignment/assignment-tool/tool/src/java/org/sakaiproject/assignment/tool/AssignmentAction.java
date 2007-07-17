@@ -9021,6 +9021,11 @@ public class AssignmentAction extends PagedResourceActionII
 										{
 											userName = userName.substring(userName.lastIndexOf("/")+1, userName.length());
 										}
+										// remove the eid part
+										if (userName.indexOf("(") != -1)
+										{
+											userName = userName.substring(0, userName.indexOf("("));
+										}
 									}
 									if (hasComments && entryName.endsWith("comments.txt"))
 									{
