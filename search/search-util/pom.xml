@@ -48,6 +48,13 @@
         </includes>
         <filtering>false</filtering>
       </testResource>
+      <testResource>
+        <directory>${basedir}/src/test</directory>
+        <excludes>
+          <exclude>**/*.java</exclude>
+        </excludes>
+        <filtering>false</filtering>
+      </testResource>
 <!--includes:  include: **/*Test -->
     </testResources>
 <!-- other resources for the jar - the message bundles -->

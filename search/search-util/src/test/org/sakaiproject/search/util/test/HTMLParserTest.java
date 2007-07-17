@@ -78,7 +78,7 @@ public class HTMLParserTest extends TestCase
 				SearchUtils.appendCleanString(n, sb);
 			}
 			String result = sb.toString();
-			System.err.println("Result is "+result);
+//			System.err.println("Result is "+result);
 			if ( p.containsKey(tname+".result") ) {
 				assertEquals("Tokens dont match ", loadFile(p.getProperty(tname+".result")), sb.toString());
 			}
