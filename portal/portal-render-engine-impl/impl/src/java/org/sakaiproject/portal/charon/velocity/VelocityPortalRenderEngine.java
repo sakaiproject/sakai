@@ -21,6 +21,7 @@
 
 package org.sakaiproject.portal.charon.velocity;
 
+import java.io.InputStream;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,13 +39,13 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.runtime.RuntimeConstants;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.PortalRenderEngine;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.api.StyleAbleProvider;
 import org.sakaiproject.tool.api.Placement;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.SessionManager;
 
 /**
  * A velocity render engine adapter
@@ -72,11 +73,28 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 
 	private PortalService portalService;
 
+	private ServerConfigurationService serverConfigurationService;
+
+	private SessionManager sessionManager;
+
+	private String portalConfig = "portalvelocity.config";
+
 	public void init() throws Exception
 	{
-		styleAble = ServerConfigurationService.getBoolean("portal.styleable", false);
-		styleAbleContentSummary = ServerConfigurationService.getBoolean(
-				"portal.styleable.contentSummary", false);
+		try
+		{
+			styleAble = serverConfigurationService.getBoolean("portal.styleable", false);
+			styleAbleContentSummary = serverConfigurationService.getBoolean(
+					"portal.styleable.contentSummary", false);
+		}
+		catch (Exception ex)
+		{
+			log
+					.warn("No Server configuration service available, assuming default settings ");
+		}
+		if ( sessionManager == null ) {
+			log.warn("No session Manager, assuming test mode ");
+		}
 
 		vengine = new VelocityEngine();
 
@@ -86,7 +104,13 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 				"org.apache.velocity.runtime.log.SimpleLog4JLogSystem");
 		vengine.setProperty("runtime.log.logsystem.log4j.category", "ve.portal");
 		Properties p = new Properties();
-		p.load(this.getClass().getResourceAsStream("portalvelocity.config"));
+		InputStream in = this.getClass().getResourceAsStream(portalConfig );
+		if ( in == null ) {
+			throw new RuntimeException("Unable to load configuration "+portalConfig);
+		} else {
+			log.info("Loaded "+portalConfig);
+		}
+		p.load(in);
 		vengine.init(p);
 		availablePortalSkins = new ArrayList();
 		Map m = new HashMap();
@@ -236,7 +260,11 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 
 	private String getCurrentUserId()
 	{
-		return SessionManager.getCurrentSession().getUserId();
+		if ( sessionManager == null ) {
+			return "test-mode-user";
+		} else {
+			return sessionManager.getCurrentSession().getUserId();
+		}
 	}
 
 	public boolean isDebug()
@@ -337,6 +365,56 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 	{
 		this.portalService = instance;
 
+	}
+
+	/**
+	 * @return the serverConfigurationService
+	 */
+	public ServerConfigurationService getServerConfigurationService()
+	{
+		return serverConfigurationService;
+	}
+
+	/**
+	 * @param serverConfigurationService
+	 *        the serverConfigurationService to set
+	 */
+	public void setServerConfigurationService(
+			ServerConfigurationService serverConfigurationService)
+	{
+		this.serverConfigurationService = serverConfigurationService;
+	}
+
+	/**
+	 * @return the sessionManager
+	 */
+	public SessionManager getSessionManager()
+	{
+		return sessionManager;
+	}
+
+	/**
+	 * @param sessionManager the sessionManager to set
+	 */
+	public void setSessionManager(SessionManager sessionManager)
+	{
+		this.sessionManager = sessionManager;
+	}
+
+	/**
+	 * @return the portalConfig
+	 */
+	public String getPortalConfig()
+	{
+		return portalConfig;
+	}
+
+	/**
+	 * @param portalConfig the portalConfig to set
+	 */
+	public void setPortalConfig(String portalConfig)
+	{
+		this.portalConfig = portalConfig;
 	}
 
 }

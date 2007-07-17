@@ -21,15 +21,26 @@
 
 package org.sakaiproject.portal.charon.test;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import javax.servlet.RequestDispatcher;
+import javax.servlet.Servlet;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 
 import org.apache.commons.logging.Log;
@@ -55,14 +66,15 @@ public class MockCharonPortal extends HttpServlet
 	/** Our log (commons). */
 	private static Log log = LogFactory.getLog(MockCharonPortal.class);
 
-	private PortalRenderEngine rengine;
+	private VelocityPortalRenderEngine rengine;
 
 	public MockCharonPortal() throws Exception
 	{
 		String renderEngineClass = VelocityPortalRenderEngine.class.getName();
 
 		Class c = Class.forName(renderEngineClass);
-		rengine = (PortalRenderEngine) c.newInstance();
+		rengine = (VelocityPortalRenderEngine) c.newInstance();
+		rengine.setPortalConfig("/testportalvelocity.config");
 		rengine.init();
 
 	}

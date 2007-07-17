@@ -26,8 +26,10 @@ import javax.servlet.ServletContextListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.cover.PortalService;
+import org.sakaiproject.tool.cover.SessionManager;
 
 /**
  * Context Listener for the render engine.
@@ -67,6 +69,8 @@ public class PortalRenderEngineContextListener implements ServletContextListener
 		{
 			vengine = new VelocityPortalRenderEngine();
 			vengine.setContext(event.getServletContext());
+			vengine.setServerConfigurationService(ServerConfigurationService.getInstance());
+			vengine.setSessionManager(SessionManager.getInstance());
 			vengine.init();
 			vengine.setPortalService(PortalService.getInstance());
 			PortalService.getInstance().addRenderEngine(Portal.DEFAULT_PORTAL_CONTEXT,

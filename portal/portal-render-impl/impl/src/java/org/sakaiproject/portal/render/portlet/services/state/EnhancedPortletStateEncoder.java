@@ -149,7 +149,8 @@ public class EnhancedPortletStateEncoder implements PortletStateEncoder
 			throw new IllegalStateException("This should never occor");
 		}
 
-		return urlSafeEncoder.encode(out.toByteArray()) + normalParms;
+		return urlSafeEncoder.encode(out.toByteArray()); 
+		//IEB Removed this, why are we encoding normal params raw when they are just a copy of the encoded ones + normalParms;
 	}
 
 	public PortletState decode(String uri)

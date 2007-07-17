@@ -35,7 +35,9 @@ public class EnhancedPortletStateEncoderTest extends TestCase
 		state.setParameters(parms);
 
 		String uriSafe = encoder.encode(state);
-
+		
+		System.err.println("URI is "+uriSafe);
+		
 		assertNotNull(uriSafe);
 		assertEquals(-1, uriSafe.indexOf(" "));
 		assertEquals(-1, uriSafe.indexOf("/"));
