@@ -452,6 +452,29 @@ public class ListItem
 		this.collection = entity.isCollection();
 		this.id = entity.getId();
 		this.name = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+		if(name == null || name.trim().equals(""))
+		{
+			String siteCollectionId = contentService.getSiteCollection(ref.getContext());
+			if(siteCollectionId != null && siteCollectionId.equals(id))
+			{
+				Site site;
+                try
+                {
+	                site = SiteService.getSite(ref.getContext());
+	                String siteTitle = site.getTitle();
+	                if(siteTitle == null || siteTitle.trim().equals(""))
+	                {
+	                	siteTitle = site.getId();
+	                }
+					name = trb.getFormattedMessage("title.resources", new String[]{siteTitle});
+                }
+                catch (IdUnusedException e)
+                {
+	                // TODO Auto-generated catch block
+	                logger.warn("IdUnusedException ", e);
+                }
+			}
+		}
 		this.description = props.getProperty(ResourceProperties.PROP_DESCRIPTION);
 		
 		this.permissions = new TreeSet<ContentPermissions>();
@@ -496,7 +519,7 @@ public class ListItem
 			// setup for quota - ADMIN only, site-root collection only
 			if (SecurityService.isSuperUser())
 			{
-				String siteCollectionId = ContentHostingService.getSiteCollection(contextId);
+				String siteCollectionId = contentService.getSiteCollection(contextId);
 				if(siteCollectionId.equals(entity.getId()))
 				{
 					setCanSetQuota(true);
