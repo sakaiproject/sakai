@@ -61,55 +61,6 @@
       <artifactId>commons-dbcp</artifactId>
       <version>1.1</version>
     </dependency>
-<!--<dependency>
-			<groupId>commons-pool</groupId>
-			<artifactId>commons-pool</artifactId>
-			<version>1.1</version>
-		</dependency>
-
-		<dependency>
-			<groupId>jta</groupId>
-			<artifactId>jta</artifactId>
-			<version>1.0.1b</version>
-			<url>http://java.sun.com/products/jta/</url>
-		</dependency>
-
-		<dependency>
-			<groupId>dom4j</groupId>
-			<artifactId>dom4j</artifactId>
-			<version>1.4</version>
-		</dependency>
-
-		<dependency>
-			<groupId>commons-collections</groupId>
-			<artifactId>commons-collections</artifactId>
-			<version>3.1</version>
-		</dependency>
-
-		<dependency>
-			<groupId>cglib</groupId>
-			<artifactId>cglib-full</artifactId>
-			<version>2.0.1</version>
-		</dependency>
-
-		<dependency>
-			<groupId>odmg</groupId>
-			<artifactId>odmg</artifactId>
-			<version>3.0</version>
-		</dependency>
-
-		<dependency>
-			<groupId>${sakai.ehcache.groupId}</groupId>
-      <artifactId>${sakai.ehcache.artifactId}</artifactId>
-      <version>${sakai.ehcache.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>hsqldb</groupId>
-			<artifactId>hsqldb</artifactId>
-			<version>1.7.2.2</version>
-		</dependency>
-        -->
   </dependencies>
   <build>
     <resources>
