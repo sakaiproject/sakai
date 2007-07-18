@@ -2944,6 +2944,12 @@ public class AssignmentAction extends PagedResourceActionII
 				sEdit.setTimeReturned(TimeService.newTime());
 				sEdit.setHonorPledgeFlag(Boolean.FALSE.booleanValue());
 			}
+			else if (gradeOption.equals("save"))
+			{
+				sEdit.setGradeReleased(false);
+				sEdit.setReturned(false);
+				sEdit.setTimeReturned(null);
+			}
 
 			if (state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null)
 			{
