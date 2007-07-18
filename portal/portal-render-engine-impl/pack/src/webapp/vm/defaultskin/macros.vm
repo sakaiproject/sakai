@@ -84,8 +84,7 @@ ${responseHead}
 			<div class="title">
 #if (${toolPlacement.toolShowResetButton})
                 <a href="${toolPlacement.toolResetActionUrl}" target="${toolPlacement.toolPlacementIDJS}" title="${rloader.sit_reset}">
-                        <img src="/library/image/transparent.gif" alt="${rloader.sit_reset}" border="1" />
-                </a>
+                        <img src="/library/image/transparent.gif" alt="${rloader.sit_reset}" border="1" /></a>
 #end
 				<h2>${toolPlacement.toolRenderResult.getTitle()}</h2>
 			</div>
@@ -103,8 +102,7 @@ ${responseHead}
 		 target="_blank" onclick="openWindow('${toolPlacement.toolHelpActionUrl}', 'Help',
 		  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
 	#end
-			<img src="/library/image/transparent.gif"  alt="${rloader.sit_help}" border="0" />
-		</a>
+			<img src="/library/image/transparent.gif"  alt="${rloader.sit_help}" border="0" /></a>
 #end
 			</div>
 		</div>
@@ -115,8 +113,7 @@ ${responseHead}
 			<div class="title">
 #if (${toolPlacement.toolShowResetButton})
                 <a href="${toolPlacement.toolResetActionUrl} target="${toolPlacement.toolPlacementIDJS}" title="${sitReset}">
-                        <img src="/library/image/transparent.gif" alt="${sitReset}" border="1" />
-                </a>
+                        <img src="/library/image/transparent.gif" alt="${sitReset}" border="1" /></a>
 #end	
 				<h2>${toolPlacement.toolTitle}</h2>
 			</div>
@@ -125,8 +122,7 @@ ${responseHead}
 		<a accesskey="h" href="${toolPlacement.toolHelpActionUrl}" title="${rloader.sit_help}" 
 		 target="_blank" onclick="openWindow('${toolPlacement.toolHelpActionUrl}', 'Help',
 		  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
-			<img src="/library/image/transparent.gif"  alt="${rloader.sit_help}" border="0" />
-		</a>
+			<img src="/library/image/transparent.gif"  alt="${rloader.sit_help}" border="0" /></a>
 #end
 			</div>
 		</div>
