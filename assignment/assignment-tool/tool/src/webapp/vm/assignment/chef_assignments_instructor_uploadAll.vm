@@ -46,6 +46,9 @@
 				## instructor comments
 				<input name="instructorComments" type="checkbox" value="instructorComments" id="instructorComments" #if($!hasComments)checked="checked"#end />
 				<label for="instructorComments">$tlang.getString("uploadall.choose.file.instComments")</label><br/>	
+			 ## instructor attachments
+				<input name="instructorAttachments" type="checkbox" value="instructorAttachments" id="instructorAttachments" #if($!hasAttachments)checked="checked"#end />
+				<label for="instructorAttachments">$tlang.getString("uploadall.choose.file.instAttachments")</label><br/>
 			</p>
 			<h4>$tlang.getString("uploadall.releaseOption")</h4>
 			<div class="checkbox  indnt2">

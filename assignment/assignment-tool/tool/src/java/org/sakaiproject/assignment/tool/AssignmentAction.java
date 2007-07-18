@@ -627,6 +627,7 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String UPLOAD_ALL_HAS_SUBMISSIONS = "upload_all_has_submissions";
 	private static final String UPLOAD_ALL_HAS_GRADEFILE = "upload_all_has_gradefile";
 	private static final String UPLOAD_ALL_HAS_COMMENTS= "upload_all_has_comments";
+	private static final String UPLOAD_ALL_HAS_ATTACHMENTS = "upload_all_has_attachments";
 	private static final String UPLOAD_ALL_RELEASE_GRADES = "upload_all_release_grades";
 	
 	/**
@@ -8874,6 +8875,7 @@ public class AssignmentAction extends PagedResourceActionII
 		boolean hasSubmissions = false;
 		boolean hasGradeFile = false;
 		boolean hasComments = false;
+		boolean hasAttachments = false;
 		boolean releaseGrades = false;
 		
 		// check against the content elements selection
@@ -8889,8 +8891,13 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		if (params.getString("instructorComments") != null)
 		{
-			// comments.xml should be available
+			// comments.txt should be available
 			hasComments = true;
+		}
+		if (params.getString("instructorAttachments") != null)
+		{
+			// attachments
+			hasAttachments = true;
 		}
 		if (params.getString("release") != null)
 		{
@@ -8900,6 +8907,7 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(UPLOAD_ALL_HAS_SUBMISSIONS, Boolean.valueOf(hasSubmissions));
 		state.setAttribute(UPLOAD_ALL_HAS_GRADEFILE, Boolean.valueOf(hasGradeFile));
 		state.setAttribute(UPLOAD_ALL_HAS_COMMENTS, Boolean.valueOf(hasComments));
+		state.setAttribute(UPLOAD_ALL_HAS_ATTACHMENTS, Boolean.valueOf(hasAttachments));
 		state.setAttribute(UPLOAD_ALL_RELEASE_GRADES, Boolean.valueOf(releaseGrades));
 		
 		if (!hasSubmissions && !hasGradeFile && !hasComments)
@@ -9044,61 +9052,58 @@ public class AssignmentAction extends PagedResourceActionII
 								        		submissionTable.put(userName, r);
 								        }
 									}
-									else if (hasSubmissions)
+									else if ((hasSubmissions) && (entryName.endsWith("_submissionText.txt")))
 									{
-										if (entryName.endsWith("_submissionText.txt"))
+										// upload the student submission text along with the feedback text
+										String text = StringUtil.trimToNull(readIntoString(zin));
+										if (submissionTable.containsKey(userName) && text != null)
+								        {
+								        		UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userName);
+								        		r.setText(text);
+								        		submissionTable.put(userName, r);
+								        }
+									}
+									else if (hasAttachments)
+									{
+										// upload all the files as instuctor attachments to the submission for grading purpose
+										String fName = entryName.substring(entryName.lastIndexOf("/") + 1, entryName.length());
+										ContentTypeImageService iService = (ContentTypeImageService) state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE);
+										try
 										{
-											// upload the student submission text along with the feedback text
-											String text = StringUtil.trimToNull(readIntoString(zin));
-											if (submissionTable.containsKey(userName) && text != null)
+											if (submissionTable.containsKey(userName))
 									        {
-									        		UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userName);
-									        		r.setText(text);
-									        		submissionTable.put(userName, r);
+												// get file extension for detecting content type
+												// ignore those hidden files
+												String extension = "";
+												if(fName.contains(".") && fName.indexOf(".") != 0)
+												{
+													// add the file as attachment
+													ResourceProperties properties = ContentHostingService.newResourceProperties();
+													properties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, fName);
+													
+													String[] parts = fName.split("\\.");
+													if(parts.length > 1)
+													{
+														extension = parts[parts.length - 1];
+													}
+													String contentType = ((ContentTypeImageService) state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE)).getContentType(extension);
+													ContentResourceEdit attachment = ContentHostingService.addAttachmentResource(fName);
+													attachment.setContent(readIntoBytes(zin, entryName, entry.getSize()));
+													attachment.setContentType(contentType);
+													attachment.getPropertiesEdit().addAll(properties);
+													ContentHostingService.commitResource(attachment);
+													
+										        		UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userName);
+										        		List attachments = r.getAttachments();
+										        		attachments.add(EntityManager.newReference(attachment.getReference()));
+										        		r.setAttachments(attachments);
+										        		submissionTable.put(userName, r);
+												}
 									        }
 										}
-										else
+										catch (Exception ee)
 										{
-											// upload all the files as instuctor attachments to the submission for grading purpose
-											String fName = entryName.substring(entryName.lastIndexOf("/") + 1, entryName.length());
-											ContentTypeImageService iService = (ContentTypeImageService) state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE);
-											try
-											{
-												if (submissionTable.containsKey(userName))
-										        {
-													// get file extension for detecting content type
-													// ignore those hidden files
-													String extension = "";
-													if(fName.contains(".") && fName.indexOf(".") != 0)
-													{
-//														 add the file as attachment
-														ResourceProperties properties = ContentHostingService.newResourceProperties();
-														properties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, fName);
-														
-														String[] parts = fName.split("\\.");
-														if(parts.length > 1)
-														{
-															extension = parts[parts.length - 1];
-														}
-														String contentType = ((ContentTypeImageService) state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE)).getContentType(extension);
-														ContentResourceEdit attachment = ContentHostingService.addAttachmentResource(fName);
-														attachment.setContent(readIntoBytes(zin, entryName, entry.getSize()));
-														attachment.setContentType(contentType);
-														attachment.getPropertiesEdit().addAll(properties);
-														ContentHostingService.commitResource(attachment);
-														
-											        		UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userName);
-											        		List attachments = r.getAttachments();
-											        		attachments.add(EntityManager.newReference(attachment.getReference()));
-											        		r.setAttachments(attachments);
-											        		submissionTable.put(userName, r);
-													}
-										        }
-											}
-											catch (Exception ee)
-											{
-												Log.warn("chef", ee.toString());
-											}
+											Log.warn("chef", ee.toString());
 										}
 									}
 								}
