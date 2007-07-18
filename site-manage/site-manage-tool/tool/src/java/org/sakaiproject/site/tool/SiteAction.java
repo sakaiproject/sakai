@@ -2613,7 +2613,9 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			
 			// v2.4 - added & modified by daisyf
-			if (courseManagementIsImplemented()) {
+			if (courseManagementIsImplemented() && state.getAttribute(STATE_TERM_COURSE_LIST) != null)
+			{
+				// back to the list view of sections
 				context.put("back", "36");
 			} else {
 				context.put("back", "1");
@@ -2844,8 +2846,13 @@ public class SiteAction extends PagedResourceActionII {
 			AcademicSession t = (AcademicSession) state
 					.getAttribute(STATE_TERM_SELECTED);
 
-			final List cmLevels = (List) state.getAttribute(STATE_CM_LEVELS), selections = (List) state
+			List cmLevels = (List) state.getAttribute(STATE_CM_LEVELS), selections = (List) state
 					.getAttribute(STATE_CM_LEVEL_SELECTIONS);
+			
+			if (cmLevels == null)
+			{
+				cmLevels = getCMLevelLabels();
+			}
 
 			SectionObject selectedSect = (SectionObject) state
 					.getAttribute(STATE_CM_SELECTED_SECTION);
@@ -2896,7 +2903,6 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("manualAddNumber", new Integer(courseInd - 1));
 				context.put("manualAddFields", state
 						.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS));
-				context.put("back", "37");
 			}
 
 			context.put("term", (AcademicSession) state
@@ -2908,7 +2914,14 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("requestedSections", requestedSections);
 			if (((String) state.getAttribute(STATE_SITE_MODE))
 					.equalsIgnoreCase(SITE_MODE_SITESETUP)) {
-				context.put("backIndex", "36");
+				if (state.getAttribute(STATE_TERM_COURSE_LIST) != null)
+				{
+					context.put("backIndex", "36");
+				}
+				else
+				{
+					context.put("backIndex", "1");
+				}
 			}
 			// else if (((String) state.getAttribute(STATE_SITE_MODE))
 			// .equalsIgnoreCase(SITE_MODE_SITEINFO)) {
@@ -3976,14 +3989,16 @@ public class SiteAction extends PagedResourceActionII {
 						state.setAttribute(STATE_AUTO_ADD, Boolean.TRUE);
 					} else {
 						state.removeAttribute(STATE_TERM_COURSE_LIST);
-					}
-					// v2.4 added by daisyf
-					if (courseManagementIsImplemented()) {
-						state.setAttribute(STATE_TEMPLATE_INDEX, "36");
-						totalSteps = 5;
-					} else {
-						state.setAttribute(STATE_TEMPLATE_INDEX, "37");
-						totalSteps = 6;
+						
+						Boolean skipCourseSectionSelection = ServerConfigurationService.getBoolean("wsetup.skipCourseSectionSelection", Boolean.FALSE);
+						if (!skipCourseSectionSelection.booleanValue() && courseManagementIsImplemented())
+						{
+							state.setAttribute(STATE_TEMPLATE_INDEX, "53");
+						}
+						else
+						{
+							state.setAttribute(STATE_TEMPLATE_INDEX, "37");
+						}		
 					}
 
 				} else { // type!="course"
