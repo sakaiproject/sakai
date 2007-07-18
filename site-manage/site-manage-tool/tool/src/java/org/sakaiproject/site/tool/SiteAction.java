@@ -7808,31 +7808,34 @@ public class SiteAction extends PagedResourceActionII {
 			{
 				String providerCourseEid = (String) i.next();
 				Set enrollmentSet = cms.getEnrollments(providerCourseEid);
-				for (Iterator eIterator = enrollmentSet.iterator();eIterator.hasNext();)
+				if (enrollmentSet != null)
 				{
-					Enrollment e = (Enrollment) eIterator.next();
-					try 
+					for (Iterator eIterator = enrollmentSet.iterator();eIterator.hasNext();)
 					{
-						User user = UserDirectoryService.getUserByEid(e.getUserId());
-						Member member = realm.getMember(user.getId());
-						if (member != null && member.isProvided())
+						Enrollment e = (Enrollment) eIterator.next();
+						try 
 						{
-							// add provided participant
-							Participant participant = new Participant();
-							participant.credits = e.getCredits();
-							participant.name = user.getSortName();
-							participant.providerRole = member.getRole()!=null?member.getRole().getId():"";
-							participant.regId = "";
-							participant.removeable = false;
-							participant.role = member.getRole()!=null?member.getRole().getId():"";
-							participant.section = cms.getSection(providerCourseEid).getTitle();
-							participant.uniqname = user.getId();
-							participants.add(participant);
+							User user = UserDirectoryService.getUserByEid(e.getUserId());
+							Member member = realm.getMember(user.getId());
+							if (member != null && member.isProvided())
+							{
+								// add provided participant
+								Participant participant = new Participant();
+								participant.credits = e.getCredits();
+								participant.name = user.getSortName();
+								participant.providerRole = member.getRole()!=null?member.getRole().getId():"";
+								participant.regId = "";
+								participant.removeable = false;
+								participant.role = member.getRole()!=null?member.getRole().getId():"";
+								participant.section = cms.getSection(providerCourseEid).getTitle();
+								participant.uniqname = user.getId();
+								participants.add(participant);
+							}
+						} catch (UserNotDefinedException exception) {
+							// deal with missing user quietly without throwing a
+							// warning message
+							M_log.warn(exception.getMessage());
 						}
-					} catch (UserNotDefinedException exception) {
-						// deal with missing user quietly without throwing a
-						// warning message
-						M_log.warn(exception.getMessage());
 					}
 				}
 			}
