@@ -324,4 +324,5 @@ public interface GradebookService {
 	/**return Object to avoid circular dependency with sakai-gradebook-tool */
 	public Object getGradebook(String uid) throws GradebookNotFoundException;
 
+	public boolean checkStuendsNotSubmitted(String gradebookUid);
 }

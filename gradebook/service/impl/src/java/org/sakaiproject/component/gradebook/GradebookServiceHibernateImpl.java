@@ -25,6 +25,8 @@ package org.sakaiproject.component.gradebook;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -468,6 +470,13 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		try
 		{
 			Gradebook thisGradebook = getGradebook(gradebookUid);
+			
+			List assignList = getAssignmentsCounted(thisGradebook.getId());
+			if(assignList == null || assignList.size() < 1)
+			{
+				return null;
+			}
+			
 			Long gradebookId = thisGradebook.getId();
 			CourseGrade courseGrade = getCourseGrade(gradebookId);
 
@@ -763,5 +772,137 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	public Gradebook getGradebook(Long id) {
 		return (Gradebook)getHibernateTemplate().load(Gradebook.class, id);
 	}
-}
 
+	protected List getAssignmentsCounted(final Long gradebookId) throws HibernateException 
+	{
+		HibernateCallback hc = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				List assignments = session.createQuery(
+						"from Assignment as asn where asn.gradebook.id=? and asn.removed=false and asn.notCounted=false").
+						setLong(0, gradebookId.longValue()).
+						list();
+				return assignments;
+			}
+		};
+		return (List)getHibernateTemplate().execute(hc);
+	}
+	
+  public boolean checkStuendsNotSubmitted(String gradebookUid)
+  {
+  	Gradebook gradebook = getGradebook(gradebookUid);
+  	Set studentUids = getAllStudentUids(getGradebookUid(gradebook.getId()));
+  	if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY || gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY)
+  	{
+  		List records = getAllAssignmentGradeRecords(gradebook.getId(), studentUids);
+  		List assigns = getAssignments(gradebook.getId(), Assignment.DEFAULT_SORT, true);
+  		List filteredAssigns = new ArrayList();
+  		for(Iterator iter = assigns.iterator(); iter.hasNext();)
+  		{
+  			Assignment assignment = (Assignment)iter.next();
+  			if(assignment.isCounted() && !assignment.isUngraded())
+  				filteredAssigns.add(assignment);
+  		}
+  		List filteredRecords = new ArrayList();
+  		for(Iterator iter = records.iterator(); iter.hasNext();)
+  		{
+  			AssignmentGradeRecord agr = (AssignmentGradeRecord)iter.next();
+  			if(!agr.isCourseGradeRecord() && agr.getAssignment().isCounted() && !agr.getAssignment().isUngraded())
+  			{
+  				if(agr.getPointsEarned() == null)
+  					return true;
+  				filteredRecords.add(agr);
+  			}
+  		}
+
+  		if(filteredRecords.size() < (filteredAssigns.size() * studentUids.size()))
+  			return true;
+  		
+  		return false;
+  	}
+  	else
+  	{
+    	List assigns = getAssignments(gradebook.getId(), Assignment.DEFAULT_SORT, true);
+    	List records = getAllAssignmentGradeRecords(gradebook.getId(), studentUids);
+    	Set filteredAssigns = new HashSet();
+    	for (Iterator iter = assigns.iterator(); iter.hasNext(); )
+    	{
+    		Assignment assign = (Assignment) iter.next();
+    		if(assign != null && assign.isCounted() && !assign.isUngraded())
+    		{
+    			if(assign.getCategory() != null && !assign.getCategory().isRemoved())
+    			{
+    				filteredAssigns.add(assign.getId());
+    			}
+    		}
+    	}
+    	
+  		List filteredRecords = new ArrayList();
+  		for(Iterator iter = records.iterator(); iter.hasNext();)
+  		{
+  			AssignmentGradeRecord agr = (AssignmentGradeRecord)iter.next();
+  			if(filteredAssigns.contains(agr.getAssignment().getId()) && !agr.isCourseGradeRecord())
+  			{
+  				if(agr.getPointsEarned() == null)
+  					return true;
+  				filteredRecords.add(agr);
+  			}
+  		}
+
+  		if(filteredRecords.size() < filteredAssigns.size() * studentUids.size())
+  			return true;
+
+  		return false;
+  	}
+  }
+
+  public List getAllAssignmentGradeRecords(final Long gradebookId, final Collection studentUids) {
+  	HibernateCallback hc = new HibernateCallback() {
+  		public Object doInHibernate(Session session) throws HibernateException {
+  			if(studentUids.size() == 0) {
+  				// If there are no enrollments, no need to execute the query.
+  				if(log.isInfoEnabled()) log.info("No enrollments were specified.  Returning an empty List of grade records");
+  				return new ArrayList();
+  			} else {
+  				Query q = session.createQuery("from AssignmentGradeRecord as agr where agr.gradableObject.removed=false and " +
+  				"agr.gradableObject.gradebook.id=:gradebookId order by agr.pointsEarned");
+  				q.setLong("gradebookId", gradebookId.longValue());
+  				return filterGradeRecordsByStudents(q.list(), studentUids);
+  			}
+  		}
+  	};
+  	return (List)getHibernateTemplate().execute(hc);
+  }
+
+  public List getAssignments(final Long gradebookId, final String sortBy, final boolean ascending) {
+  	return (List)getHibernateTemplate().execute(new HibernateCallback() {
+  		public Object doInHibernate(Session session) throws HibernateException {
+  			List assignments = getAssignments(gradebookId, session);
+
+  			sortAssignments(assignments, sortBy, ascending);
+  			return assignments;
+  		}
+  	});
+  }
+  private void sortAssignments(List assignments, String sortBy, boolean ascending) {
+  	Comparator comp;
+  	if(Assignment.SORT_BY_NAME.equals(sortBy)) {
+  		comp = Assignment.nameComparator;
+  	} else if(Assignment.SORT_BY_MEAN.equals(sortBy)) {
+  		comp = Assignment.meanComparator;
+  	} else if(Assignment.SORT_BY_POINTS.equals(sortBy)) {
+  		comp = Assignment.pointsComparator;
+  	}else if(Assignment.SORT_BY_RELEASED.equals(sortBy)){
+  		comp = Assignment.releasedComparator;
+  	} else if(Assignment.SORT_BY_COUNTED.equals(sortBy)){
+  		comp = Assignment.countedComparator;
+  	} else if(Assignment.SORT_BY_EDITOR.equals(sortBy)){
+  		comp = Assignment.gradeEditorComparator;
+  	} else {
+  		comp = Assignment.dateComparator;
+  	}
+  	Collections.sort(assignments, comp);
+  	if(!ascending) {
+  		Collections.reverse(assignments);
+  	}
+  }
+}
