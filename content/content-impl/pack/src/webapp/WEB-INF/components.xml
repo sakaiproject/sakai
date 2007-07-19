@@ -110,5 +110,17 @@
         <property name="sqlService"> <ref bean="org.sakaiproject.db.api.SqlService"/> </property>
         <property name="autoDdl">    <value>${auto.ddl}</value>                       </property>
 	</bean>
+	
+	<bean id="org.sakaiproject.content.impl.DropboxContextObserver"
+			class="org.sakaiproject.content.impl.DropboxContextObserver"
+            init-method="init" destroy-method="destroy" singleton="true">
+
+        <property name="contentService">
+        	<ref bean="org.sakaiproject.content.api.ContentHostingService"/>
+		</property>
+        <property name="entityManager">
+        	<ref bean="org.sakaiproject.entity.api.EntityManager"/>
+		</property>
+	</bean>
 
 </beans>

@@ -6821,25 +6821,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public void contextCreated(String context, boolean toolPlacement)
 	{
-		try 
+		if (toolPlacement)
 		{
-			if (toolPlacement)
-			{
-				Site site = m_siteService.getSite(context);
-				if(site.getToolForCommonId("sakai.dropbox") != null)
-				{
-					enableDropbox(context);
-				}
-				if(site.getToolForCommonId("sakai.resources") != null)
-				{
-					enableResources(context);
-				}
-			}
-			
-		} 
-		catch (IdUnusedException e) 
-		{
-			// ignore -- nothing to enable
+			enableResources(context);
 		}
 	}
 	
@@ -6848,25 +6832,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	public void contextUpdated(String context, boolean toolPlacement)
 	{
-		try 
+		if (toolPlacement)
 		{
-			if (toolPlacement)
-			{
-				Site site = m_siteService.getSite(context);
-				if(site.getToolForCommonId("sakai.dropbox") != null)
-				{
-					enableDropbox(context);
-				}
-				if(site.getToolForCommonId("sakai.resources") != null)
-				{
-					enableResources(context);
-				}
-			}
-			
-		} 
-		catch (IdUnusedException e) 
-		{
-			// ignore -- nothing to enable
+			enableResources(context);
 		}
 	}
 
@@ -6877,25 +6845,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	{
 		// TODO This avoids disabling the collection if the tool still exists, but ...
 		// does it catch the case where the tool is being deleted from the site?
-		try 
+		if (toolPlacement)
 		{
-			if (toolPlacement)
-			{
-				Site site = m_siteService.getSite(context);
-				if(site.getToolForCommonId("sakai.dropbox") == null)
-				{
-					disableDropbox(context);
-				}
-				if(site.getToolForCommonId("sakai.resources") == null)
-				{
-					disableResources(context);
-				}
-			}
-			
-		} 
-		catch (IdUnusedException e) 
-		{
-			// ignore -- nothing to enable
+			disableResources(context);
 		}
 	}
 
@@ -8164,6 +8116,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 					e.printStackTrace();
 				}
 				
+				// these need to be moved to language bundle
 				props.addProperty(ResourceProperties.PROP_DISPLAY_NAME, siteId + DROPBOX_ID);
 				props.addProperty(ResourceProperties.PROP_DESCRIPTION, PROP_SITE_DROPBOX_DESCRIPTION);
 				commitCollection(edit);
