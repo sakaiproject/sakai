@@ -472,9 +472,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			Gradebook thisGradebook = getGradebook(gradebookUid);
 			
 			List assignList = getAssignmentsCounted(thisGradebook.getId());
+			boolean nonAssignment = false;
 			if(assignList == null || assignList.size() < 1)
 			{
-				return null;
+				nonAssignment = true;
 			}
 			
 			Long gradebookId = thisGradebook.getId();
@@ -504,9 +505,14 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				if(enr != null)
 				{
 					if(gradeRecord.getEnteredGrade() != null && !gradeRecord.getEnteredGrade().equalsIgnoreCase(""))
+					{
 						returnMap.put(enr.getUser().getDisplayId(), gradeRecord.getEnteredGrade());
+					}
 					else
-						returnMap.put(enr.getUser().getDisplayId(), (String)gradeMap.getGrade(gradeRecord.getNonNullAutoCalculatedGrade()));
+					{
+						if(!nonAssignment)
+							returnMap.put(enr.getUser().getDisplayId(), (String)gradeMap.getGrade(gradeRecord.getNonNullAutoCalculatedGrade()));
+					}
 				}
 			}
 		}
