@@ -207,6 +207,18 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
       tmpDate.set(Calendar.DAY_OF_MONTH, tmpDate.get(Calendar.DAY_OF_MONTH)-offset);
       return new Date(tmpDate.getTimeInMillis());
    }
+   
+   /**
+    * {@inheritDoc}
+    */
+   public int countChannelMessages(ChatChannel channel) {
+      Criteria c = this.getSession().createCriteria(ChatMessage.class);
+      if (channel != null) {
+         c.add(Expression.eq("chatChannel", channel));      
+      }
+      List messages = c.list();
+      return messages.size();
+   }
 
    /**
     * {@inheritDoc}

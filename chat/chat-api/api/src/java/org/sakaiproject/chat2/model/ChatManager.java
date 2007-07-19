@@ -213,4 +213,11 @@ public interface ChatManager extends EntitySummary {
     */
    public void migrateMessage(String sql, Object[] values);
    
+   /**
+    * Get the number of messages in a given chat channel
+    * @param channel ChatChannel to find the number of messages
+    * @return int the number of messages in the passed channel
+    */
+   public int countChannelMessages(ChatChannel channel);
+   
 }

@@ -1098,6 +1098,10 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       return true;
    }
    
+   protected int countChannelMessages(ChatChannel channel) {
+      return getChatManager().countChannelMessages(channel);
+   }
+   
    public List getRoomMessages()
    {
       Date xDaysOld = null;

@@ -7,10 +7,10 @@
 	<h:form styleClass="portletBody">
 	
 	<sakai:panel_edit>
-		<h:outputLabel for="title" value="#{msgs.channel_title}" />
+		<h:outputLabel for="title" value="#{msgs.channel_title_colon}" />
 		<h:outputText id="title" value="#{ChatTool.currentChannelEdit.chatChannel.title}" />
 
-		<h:outputLabel for="desc" value="#{msgs.channel_description}" />
+		<h:outputLabel for="desc" value="#{msgs.channel_description_colon}" />
 		<h:outputText id="desc" value="#{ChatTool.currentChannelEdit.chatChannel.description}" />
 
 	</sakai:panel_edit>
