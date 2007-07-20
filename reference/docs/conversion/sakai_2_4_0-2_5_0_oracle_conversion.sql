@@ -22,6 +22,5 @@ alter table searchbuilderitem add index isearchbuilderitem_sco(itemscope);
 alter table MFR_MESSAGE_T add DELETED number(1, 0) default '0' not null;
 create index MFR_MESSAGE_DELETED_I on MFR_MESSAGE_T (DELETED);
 
-
-
-
+--Chat SAK-10682
+alter table CHAT2_CHANNEL modify (CONTEXT VARCHAR2(99));
