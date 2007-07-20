@@ -228,10 +228,15 @@
 						</h:inputText>
 						
 					</h:panelGroup>
-
-					<h:outputText value="#{scoreRow.score}" rendered="#{assignmentDetailsBean.assignment.externallyMaintained}">
-						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
-					</h:outputText>
+					<h:panelGroup rendered="#{assignmentDetailsBean.assignment.externallyMaintained}">
+						<h:outputText value="#{scoreRow.score}" rendered="#{assignmentDetailsBean.gradeEntryByPoints || assignmentDetailsBean.gradeEntryByPercent}">
+							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
+						</h:outputText>
+						<h:outputText value="#{scoreRow.letterScore}" 
+							 rendered="#{assignmentDetailsBean.gradeEntryByLetter}">
+							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.LETTER_GRADE_CONVERTER" />
+						</h:outputText>
+					</h:panelGroup>
 				</t:div>
 			</h:column>
 			<h:column>
