@@ -18,6 +18,7 @@
           <value>org/sakaiproject/tool/gradebook/Comment.hbm.xml</value>
           <value>org/sakaiproject/tool/gradebook/Category.hbm.xml</value>
           <value>org/sakaiproject/tool/gradebook/LetterGradePercenteMapping.hbm.xml</value>
+          <value>org/sakaiproject/tool/gradebook/Permission.hbm.xml</value>
         </list>
 		</property>
    </bean>
@@ -88,6 +89,15 @@
             <ref bean="org_sakaiproject_service_gradebook_GradebookExternalAssessmentService" />
         </property>
 	</bean>
+	<bean id="org_sakaiproject_service_gradebook_GradebookPermissionServiceTarget"
+          class="org.sakaiproject.component.gradebook.GradebookPermissionServiceImpl"
+          name="org.sakaiproject.service.gradebook.GradebookPermissionServiceTarget">
+        <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
+		<property name="authn">
+			<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />
+		</property>
+	</bean>
+	
 
 	<bean id="gradebookServiceTemplate"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
@@ -143,6 +153,16 @@
 		    <list>
 				<value>sakai.gradebook.tool</value>
 			</list>
+		</property>
+	</bean>
+	
+	<!-- Gradebook Permission Service -->
+	<bean id="org_sakaiproject_service_gradebook_GradebookPermissionService"
+		name="org.sakaiproject.service.gradebook.GradebookPermissionService"
+		parent="gradebookServiceTemplate"
+		singleton="true">
+		<property name="target">
+			<ref bean="org_sakaiproject_service_gradebook_GradebookPermissionServiceTarget"/>
 		</property>
 	</bean>
 

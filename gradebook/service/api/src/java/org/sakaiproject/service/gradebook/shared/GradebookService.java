@@ -54,6 +54,9 @@ public interface GradebookService {
 	public static final String[] validLetterGrade = {"a+", "a", "a-", "b+", "b", "b-",
     "c+", "c", "c-", "d+", "d", "d-", "f"};
 	
+	public static final String gradePermission = "grade";
+	public static final String viewPermission = "view";
+	
 	public static Comparator lettergradeComparator = new Comparator() 
 	{
 		public int compare(Object o1, Object o2) 

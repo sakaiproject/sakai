@@ -1,4 +1,4 @@
-/**********************************************************************************
+ /**********************************************************************************
 *
 * $Id$
 *
@@ -54,6 +54,7 @@ import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradebookProperty;
+import org.sakaiproject.tool.gradebook.Permission;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.EventTrackingService;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -905,4 +906,233 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	return (Long)getHibernateTemplate().execute(hc);
     }
 
+    public Long addPermission(final Long gradebookId, final String userId, final String function, final Long categoryId, final String groupId)
+    throws IllegalArgumentException
+    {
+    	if(gradebookId == null || userId == null || function == null)
+    		throw new IllegalArgumentException("Null parameter(s) in BaseHibernateManager.addPermission");
+    	if(!function.equalsIgnoreCase(GradebookService.gradePermission) && !function.equalsIgnoreCase(GradebookService.viewPermission))
+    		throw new IllegalArgumentException("Function is not grade or view in BaseHibernateManager.addPermission");
+
+    	HibernateCallback hc = new HibernateCallback() 
+    	{
+    		public Object doInHibernate(Session session) throws HibernateException 
+    		{
+    			Permission permission = new Permission();
+    			permission.setCategoryId(categoryId);
+    			permission.setGradebookId(gradebookId);
+    			permission.setGroupId(groupId);
+    			permission.setFunction(function);
+    			permission.setUserId(userId);
+
+    			Long permissionId = (Long) session.save(permission);
+
+    			return permissionId;
+    		}
+    	};
+
+    	return (Long)getHibernateTemplate().execute(hc);
+    }
+
+    public List getPermissionsForGB(final Long gradebookId) throws IllegalArgumentException
+    {
+    	if(gradebookId == null)
+    		throw new IllegalArgumentException("Null parameter(s) in BaseHibernateManager.getPermissionsForGB");
+
+    	HibernateCallback hc = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException {
+    			Query q = session.createQuery("from Permission as perm where perm.gradebookId=:gradebookId");
+    			q.setLong("gradebookId", gradebookId);
+
+    			return q.list();
+    		}
+    	};
+    	return (List)getHibernateTemplate().execute(hc);
+    }
+
+    public void updatePermission(Collection perms)
+    {
+    	for(Iterator iter = perms.iterator(); iter.hasNext(); )
+    	{
+    		Permission perm = (Permission) iter.next();
+    		if(perm != null)
+    			updatePermission(perm);
+    	}
+    }
+
+    public void updatePermission(final Permission perm) throws IllegalArgumentException
+    {
+    	if(perm == null)
+    		throw new IllegalArgumentException("Null parameter(s) in BaseHibernateManager.updatePermission");
+    	if(perm.getId() == null)
+    		throw new IllegalArgumentException("Object is not persistent in BaseHibernateManager.updatePermission");
+
+    	HibernateCallback hc = new HibernateCallback() 
+    	{
+    		public Object doInHibernate(Session session) throws HibernateException 
+    		{
+    			session.update(perm);
+
+    			return null;
+    		}
+    	};
+
+    	getHibernateTemplate().execute(hc);
+    }
+    
+    public void deletePermission(final Permission perm) throws IllegalArgumentException
+    {
+    	if(perm == null)
+    		throw new IllegalArgumentException("Null parameter(s) in BaseHibernateManager.deletePermission");
+    	if(perm.getId() == null)
+    		throw new IllegalArgumentException("Object is not persistent in BaseHibernateManager.deletePermission");
+    	
+    	HibernateCallback hc = new HibernateCallback() 
+    	{
+    		public Object doInHibernate(Session session) throws HibernateException 
+    		{
+    			session.delete(perm);
+
+    			return null;
+    		}
+    	};
+
+    	getHibernateTemplate().execute(hc);
+    }
+
+    public List getPermissionsForUser(final Long gradebookId, final String userId) throws IllegalArgumentException
+    {
+    	if(gradebookId == null || userId == null)
+    		throw new IllegalArgumentException("Null parameter(s) in BaseHibernateManager.getPermissionsForUser");
+
+    	HibernateCallback hc = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException {
+    			Query q = session.createQuery("from Permission as perm where perm.gradebookId=:gradebookId and perm.userId=:userId");
+    			q.setLong("gradebookId", gradebookId);
+    			q.setString("userId", userId);
+
+    			return q.list();
+    		}
+    	};
+    	return (List)getHibernateTemplate().execute(hc);    	
+    }
+
+    public List getPermissionsForUserForCategory(final Long gradebookId, final String userId, final List cateIds) throws IllegalArgumentException
+    {
+    	if(gradebookId == null || userId == null)
+    		throw new IllegalArgumentException("Null parameter(s) in BaseHibernateManager.getPermissionsForUserForCategory");
+
+    	if(cateIds != null)
+    	{
+    		HibernateCallback hc = new HibernateCallback() {
+    			public Object doInHibernate(Session session) throws HibernateException {
+    				Query q = session.createQuery("from Permission as perm where perm.gradebookId=:gradebookId and perm.userId=:userId and perm.categoryId in (:cateIds)");
+    				q.setLong("gradebookId", gradebookId);
+    				q.setString("userId", userId);
+    				q.setParameterList("cateIds", cateIds);
+
+    				return q.list();
+    			}
+    		};
+    		return (List)getHibernateTemplate().execute(hc);
+    	}
+    	else
+    	{
+    		return null;
+    	}
+    }
+
+    public List getPermissionsForUserAnyCategory(final Long gradebookId, final String userId) throws IllegalArgumentException
+    {
+    	if(gradebookId == null || userId == null)
+    		throw new IllegalArgumentException("Null parameter(s) in BaseHibernateManager.getPermissionsForUserAnyCategory");
+
+    	HibernateCallback hc = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException {
+    			Query q = session.createQuery("from Permission as perm where perm.gradebookId=:gradebookId and perm.userId=:userId and perm.categoryId is null");
+    			q.setLong("gradebookId", gradebookId);
+    			q.setString("userId", userId);
+
+    			return q.list();
+    		}
+    	};
+    	return (List)getHibernateTemplate().execute(hc);
+    }
+
+    public List getPermissionsForUserAnyGroup(final Long gradebookId, final String userId) throws IllegalArgumentException
+    {
+    	if(gradebookId == null || userId == null)
+    		throw new IllegalArgumentException("Null parameter(s) in BaseHibernateManager.getPermissionsForUserAnyGroup");
+
+    	HibernateCallback hc = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException {
+    			Query q = session.createQuery("from Permission as perm where perm.gradebookId=:gradebookId and perm.userId=:userId and perm.groupId is null");
+    			q.setLong("gradebookId", gradebookId);
+    			q.setString("userId", userId);
+
+    			return q.list();
+    		}
+    	};
+    	return (List)getHibernateTemplate().execute(hc);    	
+    }
+    
+    public List getPermissionsForUserAnyGroupForCategory(final Long gradebookId, final String userId, final List cateIds) throws IllegalArgumentException
+    {
+    	if(gradebookId == null || userId == null)
+    		throw new IllegalArgumentException("Null parameter(s) in BaseHibernateManager.getPermissionsForUserAnyGroupForCategory");
+
+    	if(cateIds != null)
+    	{
+    		HibernateCallback hc = new HibernateCallback() {
+    			public Object doInHibernate(Session session) throws HibernateException {
+    				Query q = session.createQuery("from Permission as perm where perm.gradebookId=:gradebookId and perm.userId=:userId and perm.categoryId in (:cateIds) and perm.groupId is null");
+    				q.setLong("gradebookId", gradebookId);
+    				q.setString("userId", userId);
+    				q.setParameterList("cateIds", cateIds);
+
+    				return q.list();
+    			}
+    		};
+    		return (List)getHibernateTemplate().execute(hc);
+    	}
+    	else
+    	{
+    		return null;
+    	}    	
+    }
+
+    public List getPermissionsForUserAnyGroupAnyCategory(final Long gradebookId, final String userId) throws IllegalArgumentException
+    {
+    	if(gradebookId == null || userId == null)
+    		throw new IllegalArgumentException("Null parameter(s) in BaseHibernateManager.getPermissionsForUserAnyGroupForCategory");
+
+    	HibernateCallback hc = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException {
+    			Query q = session.createQuery("from Permission as perm where perm.gradebookId=:gradebookId and perm.userId=:userId and perm.categoryId is null and perm.groupId is null");
+    			q.setLong("gradebookId", gradebookId);
+    			q.setString("userId", userId);
+
+    			return q.list();
+    		}
+    	};
+    	return (List)getHibernateTemplate().execute(hc);
+    }
+
+    public List getPermissionsForUserForGoupsAnyCategory(final Long gradebookId, final String userId, final List groupIds) throws IllegalArgumentException
+    {
+    	if(gradebookId == null || userId == null)
+    		throw new IllegalArgumentException("Null parameter(s) in BaseHibernateManager.getPermissionsForUserForGoupsAnyCategory");
+
+    	HibernateCallback hc = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException {
+    			Query q = session.createQuery("from Permission as perm where perm.gradebookId=:gradebookId and perm.userId=:userId and perm.categoryId is null and perm.groupId in (:groupIds) ");
+    			q.setLong("gradebookId", gradebookId);
+    			q.setString("userId", userId);
+    			q.setParameterList("groupIds", groupIds);
+
+    			return q.list();
+    		}
+    	};
+    	return (List)getHibernateTemplate().execute(hc);
+    }
 }
