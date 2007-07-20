@@ -329,19 +329,19 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
   private Map getHardDefaultLetterMapping()
   {
   	Map gradeMap = new HashMap();
-		gradeMap.put("a+", new Double(98));
-		gradeMap.put("a", new Double(95));
-		gradeMap.put("a-", new Double(90));
-		gradeMap.put("b+", new Double(88));
-		gradeMap.put("b", new Double(85));
-		gradeMap.put("b-", new Double(80));
-		gradeMap.put("c+", new Double(78));
-		gradeMap.put("c", new Double(75));
-		gradeMap.put("c-", new Double(70));
-		gradeMap.put("d+", new Double(68));
-		gradeMap.put("d", new Double(65));
-		gradeMap.put("d-", new Double(60));
-		gradeMap.put("f", new Double(0.0));
+		gradeMap.put("A+", new Double(98));
+		gradeMap.put("A", new Double(95));
+		gradeMap.put("A-", new Double(90));
+		gradeMap.put("B+", new Double(88));
+		gradeMap.put("B", new Double(85));
+		gradeMap.put("B-", new Double(80));
+		gradeMap.put("C+", new Double(78));
+		gradeMap.put("C", new Double(75));
+		gradeMap.put("C-", new Double(70));
+		gradeMap.put("D+", new Double(68));
+		gradeMap.put("D", new Double(65));
+		gradeMap.put("D-", new Double(60));
+		gradeMap.put("F", new Double(0.0));
 		
 		return gradeMap;
   }
