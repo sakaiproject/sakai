@@ -12,7 +12,7 @@
 			<generator class="org.sakaiproject.id.hbm.IdGenerator"/>
 		</id>
 		<property name="context" column="CONTEXT" type="string"
-			length="36" not-null="true" index="CHAT_CHANNEL_CONTEXT_I"/>
+			length="99" not-null="true" index="CHAT_CHANNEL_CONTEXT_I"/>
 		<property name="creationDate" column="CREATION_DATE"
 			type="java.util.Date" />
 
