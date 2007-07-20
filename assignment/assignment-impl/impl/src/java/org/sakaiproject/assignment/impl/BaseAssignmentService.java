@@ -1922,6 +1922,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				// releasing a submitted assignment or releasing grade to an unsubmitted assignment
 				EventTrackingService.post(EventTrackingService.newEvent(EVENT_GRADE_ASSIGNMENT_SUBMISSION, submissionRef, true));
 			}
+			else if (submittedTime == null) /*grading non-submission*/
+			{
+				// releasing a submitted assignment or releasing grade to an unsubmitted assignment
+				EventTrackingService.post(EventTrackingService.newEvent(EVENT_GRADE_ASSIGNMENT_SUBMISSION, submissionRef, true));
+			}
 			else
 			{
 				// submitting a submission
