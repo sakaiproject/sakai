@@ -280,7 +280,7 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 		for(int i=0; i<returnGradeRecords.size(); i++)
 		{
 			AssignmentGradeRecord agr = (AssignmentGradeRecord)returnGradeRecords.get(i);
-			agr.setLetterEarned("a");
+			agr.setLetterEarned("A");
 			convertGradeRecords.add(agr);
 		}
 		gradebookManager.updateAssignmentGradeRecords(assign, convertGradeRecords, GradebookService.GRADE_TYPE_LETTER);
