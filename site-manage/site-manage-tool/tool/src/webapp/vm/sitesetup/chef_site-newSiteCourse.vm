@@ -168,7 +168,7 @@ function redirectBasedOnSelection(){
 			<label for="selectTerm">
 				$tlang.getString("nscourse.acad2")
 			</label>	
-			<select name="selectTerm" id="selectTerm" onchange="javascript:document.addCourseForm.option.value='change';document.addCourseForm.submit();">
+			<select name="selectTerm" id="selectTerm" onchange="javascript:document.getElementById('option').value='change';document.addCourseForm.submit();">
 				#foreach($t in $termList)
 					<option value ="$t.eid"
 						#if($t.eid == $term.eid)
