@@ -89,8 +89,7 @@ public class IFrameToolRenderService implements ToolRenderService
 				Web.escapeJavascript("Main" + configuration.getId())).append("\"\n")
 				.append("	id=\"").append(
 						Web.escapeJavascript("Main" + configuration.getId()))
-				.append("\n").append("\"").append("\n").append("	title=\"").append(
-						titleString).append(" ").
+				.append("\"\n	title=\"").append(titleString).append(" ").
 				/* append(Web.escapeHtml(rb.getString("sit.contentporttit"))). */
 				append("\"").append("\n").append("	class =\"portletMainIframe\"").append(
 						"\n").append("	height=\"50\"").append("\n").append(
