@@ -1251,7 +1251,8 @@ public class FilePickerAction extends PagedResourceHelperAction
 		if(fileitem == null)
 		{
 			// "The user submitted a file to upload but it was too big!"
-			addAlert(state, hrb.getString("size") + " " + max_file_size_mb + "MB " + hrb.getString("exceeded2"));
+			addAlert(state, trb.getFormattedMessage("size.exceeded", new Object[]{ max_file_size_mb }));
+			//addAlert(state, hrb.getString("size") + " " + max_file_size_mb + "MB " + hrb.getString("exceeded2"));
 		}
 		else if (fileitem.getFileName() == null || fileitem.getFileName().length() == 0)
 		{
@@ -1265,7 +1266,8 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 			if(bytes.length >= max_bytes)
 			{
-				addAlert(state, hrb.getString("size") + " " + max_file_size_mb + "MB " + hrb.getString("exceeded2"));
+				addAlert(state, trb.getFormattedMessage("size.exceeded", new Object[]{ max_file_size_mb }));
+				// addAlert(state, hrb.getString("size") + " " + max_file_size_mb + "MB " + hrb.getString("exceeded2"));
 			}
 			else if(bytes.length > 0)
 			{

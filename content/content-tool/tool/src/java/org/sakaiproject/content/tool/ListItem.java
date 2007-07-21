@@ -134,18 +134,16 @@ public class ListItem
 		boolean isAvailabilityEnabled = contentService.isAvailabilityEnabled();
         
         Reference ref = EntityManager.newReference(entity.getReference());
-
-        if(entity == null)
+       if(entity == null)
         {
         	item = new ListItem("");
         }
         else
         {
         	item = new ListItem(entity);
-        }
+       }
         item.setPubviewPossible(! preventPublicDisplay);
         item.setDepth(depth);
-        
         /*
          * calculate permissions for this entity.  If its access mode is 
          * GROUPED, we need to calculate permissions based on current user's 
@@ -201,7 +199,6 @@ public class ListItem
 					}
 				}
          	}
-
 			if(expandedFolders.contains(entity.getId()))
 			{
 				item.setExpanded(true);
@@ -233,9 +230,8 @@ public class ListItem
 						comparator = DEFAULT_COMPARATOR;
 					}
 				}
-				
-				Collections.sort(children, comparator);
-
+	    		Collections.sort(children, comparator);
+	    		
 	        	Iterator<ContentEntity> childIt = children.iterator();
 	        	while(childIt.hasNext())
 	        	{
@@ -275,12 +271,10 @@ public class ListItem
 	        		item.addMember(child);
 	        	}
 			}
-			
 			item.setAddActions(ResourcesAction.getAddActions(entity, item.getPermissions(), registry));
 			//this.members = coll.getMembers();
 			item.setIconLocation( ContentTypeImageService.getContentTypeImage("folder"));
         }
-        
         List<ResourceToolAction> otherActions = ResourcesAction.getActions(entity, item.getPermissions(), registry);
         List<ResourceToolAction> pasteActions = ResourcesAction.getPasteActions(entity, item.getPermissions(), registry, items_to_be_moved, items_to_be_copied);
         
