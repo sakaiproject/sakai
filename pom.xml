@@ -14,22 +14,10 @@
 
 
   <url>http://www.sakaiproject.org/</url>
-  <prerequisites>
-    <maven>2.0</maven>
-  </prerequisites>
   <issueManagement>
     <system>Jira</system>
     <url>http://issues.sakaiproject.org/jira/browse/SAK</url>
   </issueManagement>
-
-  <mailingLists>
-    <mailingList>
-      <name>Sakai Dev List</name>
-      <subscribe>http://collab.sakaiproject.org</subscribe>
-      <unsubscribe>http://collab.sakaiproject.org</unsubscribe>
-      <archive>http://blog.gmane.org/gmane.comp.cms.sakai.devel</archive>
-    </mailingList>
-  </mailingLists>
 
   <licenses>
     <license>
