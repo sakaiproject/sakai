@@ -2980,30 +2980,30 @@ public class ListItem
 			if( !optionalPropertiesDefined )
 			{
 				MetadataGroup dc = new MetadataGroup( rb.getString("opt_props") );
-				// dc.add(ResourcesMetadata.PROPERTY_DC_TITLE);
-				// dc.add(ResourcesMetadata.PROPERTY_DC_DESCRIPTION);
-				dc.add(ResourcesMetadata.PROPERTY_DC_ALTERNATIVE);
-				dc.add(ResourcesMetadata.PROPERTY_DC_CREATOR);
-				dc.add(ResourcesMetadata.PROPERTY_DC_PUBLISHER);
-				dc.add(ResourcesMetadata.PROPERTY_DC_SUBJECT);
-				dc.add(ResourcesMetadata.PROPERTY_DC_CREATED);
-				dc.add(ResourcesMetadata.PROPERTY_DC_ISSUED);
-				// dc.add(ResourcesMetadata.PROPERTY_DC_MODIFIED);
-				// dc.add(ResourcesMetadata.PROPERTY_DC_TABLEOFCONTENTS);
-				dc.add(ResourcesMetadata.PROPERTY_DC_ABSTRACT);
-				dc.add(ResourcesMetadata.PROPERTY_DC_CONTRIBUTOR);
-				// dc.add(ResourcesMetadata.PROPERTY_DC_TYPE);
-				// dc.add(ResourcesMetadata.PROPERTY_DC_FORMAT);
-				// dc.add(ResourcesMetadata.PROPERTY_DC_IDENTIFIER);
-				// dc.add(ResourcesMetadata.PROPERTY_DC_SOURCE);
-				// dc.add(ResourcesMetadata.PROPERTY_DC_LANGUAGE);
-				// dc.add(ResourcesMetadata.PROPERTY_DC_COVERAGE);
+				// dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_DC_TITLE));
+				// dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_DC_DESCRIPTION));
+				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_DC_ALTERNATIVE));
+				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_DC_CREATOR));
+				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_DC_PUBLISHER));
+				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_DC_SUBJECT));
+				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_DC_CREATED));
+				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_DC_ISSUED));
+				// dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_DC_MODIFIED));
+				// dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_DC_TABLEOFCONTENTS));
+				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_DC_ABSTRACT));
+				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_DC_CONTRIBUTOR));
+				// dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_DC_TYPE));
+				// dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_DC_FORMAT));
+				// dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_DC_IDENTIFIER));
+				// dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_DC_SOURCE));
+				// dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_DC_LANGUAGE));
+				// dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_DC_COVERAGE));
 				// dc.add(ResourcesMetadata.PROPERTY_DC_RIGHTS);
-				dc.add(ResourcesMetadata.PROPERTY_DC_AUDIENCE);
-				dc.add(ResourcesMetadata.PROPERTY_DC_EDULEVEL);
+				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_DC_AUDIENCE));
+				dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_DC_EDULEVEL));
 				
 				/* Filesystem and file-like mount points */
-				//dc.add(ResourcesMetadata.PROPERTY_FSMOUNT_ACTIVE);
+				//dc.add(new ResourcesMetadata(ResourcesMetadata.PROPERTY_FSMOUNT_ACTIVE));
 					
 				metadataGroups.add(dc);
 			}

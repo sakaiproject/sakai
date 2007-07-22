@@ -430,6 +430,15 @@ public class ResourcesAction
 			m_isShowing = isShowing;
 		}
 
+		public String getShowLabel()
+		{
+			return trb.getFormattedMessage("metadata.show", new String[]{this.m_name});
+		}
+		
+		public String getHideLabel()
+		{
+			return trb.getFormattedMessage("metadata.hide", new String[]{this.m_name});
+		}
 	}
 	
 	/** Resource bundle using current language locale */
