@@ -104,14 +104,14 @@
                 <!-- zip it -->
                 <delete file="sakai-demo-${sakai.version}.zip" />
                 <zip destfile="sakai-demo-${sakai.version}.zip" compress="yes" >
-                        <zipfileset dir="${basedir}/target/pack/" prefix="sakai-demoi-${sakai.version}" />
+                        <zipfileset dir="${basedir}/target/pack/" prefix="sakai-demo-${sakai.version}" />
                 </zip>
                 <echo>* * * sakai-demo-${sakai.version}.zip</echo>
 
                 <!-- tar it -->
                 <delete file="sakai-demo-${sakai.version}.tar.gz" />
                 <tar destfile="sakai-demo-${sakai.version}.tar.gz" longfile="gnu" compression="gzip">
-                        <tarfileset dir="${basedir}/target/pack/" mode="755" prefix="sakai-demo">
+                        <tarfileset dir="${basedir}/target/pack/" mode="755" prefix="sakai-demo-${sakai.version}">
                                 <include name="**/*.sh"/>
                         </tarfileset>
                         <tarfileset dir="${basedir}/target/pack/" prefix="sakai-demo-${sakai.version}">
