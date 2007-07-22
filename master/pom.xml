@@ -24,6 +24,9 @@
      </notifiers>
   </ciManagement>
   <inceptionYear>2003</inceptionYear>
+  <prerequisites>
+    <maven>2.0.6</maven>
+  </prerequisites>
   <!-- Mailing Lists ======================================================= -->
 
     <mailingLists>
@@ -922,6 +925,93 @@ This is not needed now that pluto have been released
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+   <reporting>
+      <plugins>
+         <plugin>
+            <!-- javadocs -->
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <configuration>
+               <debug>true</debug>
+               <links>
+                  <link>http://java.sun.com/j2se/1.4.2/docs/api/</link>
+               </links>
+               <breakiterator>true</breakiterator>
+               <verbose>true</verbose>
+            </configuration>
+         </plugin>
+         <plugin>
+            <!-- junit test reports -->
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+         </plugin>
+         <plugin>
+            <!-- unit test coverage reporting -->
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>cobertura-maven-plugin</artifactId>
+         </plugin>
+         <plugin>
+            <!-- Code analysis report -->
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-pmd-plugin</artifactId>
+            <configuration>
+               <targetjdk>1.5</targetjdk>
+               <rulesets>
+                  <ruleset>/rulesets/basic.xml</ruleset>
+                  <ruleset>/rulesets/codesize.xml</ruleset>
+                  <ruleset>/rulesets/design.xml</ruleset>
+                  <ruleset>/rulesets/finalizers.xml</ruleset>
+                  <ruleset>/rulesets/imports.xml</ruleset>
+                  <ruleset>/rulesets/logging-java.xml</ruleset>
+                  <ruleset>/rulesets/migrating.xml</ruleset>
+                  <ruleset>/rulesets/strings.xml</ruleset>
+                  <ruleset>/rulesets/unusedcode.xml</ruleset>
+               </rulesets>
+             <!--  <format>xml</format> -->
+               <linkXref>true</linkXref>
+               <sourceEncoding>utf-8</sourceEncoding>
+               <minimumTokens>100</minimumTokens>
+            </configuration>
+         </plugin>
+         <plugin>
+            <!-- Changelog report -->
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>changelog-maven-plugin</artifactId>
+            <configuration>
+               <type>range</type>
+               <range>90</range><!-- days -->
+            </configuration>
+         </plugin>
+         <plugin>
+            <!-- TODO tags report -->
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>taglist-maven-plugin</artifactId>
+            <configuration>
+               <tags>
+                  <tag>TODO</tag>
+                  <tag>FIXME</tag>
+                  <tag>@deprecated</tag>
+               </tags>
+            </configuration>
+         </plugin>
+         <plugin>
+            <!-- jdepend code analysis -->
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>jdepend-maven-plugin</artifactId>
+         </plugin>
+         <plugin>
+            <!-- jxr source code cross linking -->
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>jxr-maven-plugin</artifactId>
+            <configuration>
+               <linkJavadoc>true</linkJavadoc>
+               <javadocDir>apidocs</javadocDir>
+            </configuration>
+         </plugin>
+      </plugins>
+   </reporting>
+
   <build>
     <directory>m2-target</directory>
     <outputDirectory>m2-target/classes</outputDirectory>
