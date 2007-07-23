@@ -45,6 +45,7 @@
                 <value>spreadsheetEntireGBImport</value>
                 <value>spreadsheetEntireGBVerify</value>
                 <value>gradebookSetup</value>
+                <value>graderRules</value>
             </list>
 		</property>
 		<property name="userAbleToGradePages">

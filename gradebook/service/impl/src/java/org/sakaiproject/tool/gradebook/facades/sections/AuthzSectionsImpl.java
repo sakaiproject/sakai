@@ -133,6 +133,15 @@ public class AuthzSectionsImpl implements Authz {
 
 		return availableSections;
 	}
+	
+	public List getAllSections(String gradebookUid) {
+		SectionAwareness sectionAwareness = getSectionAwareness();
+		List sections = sectionAwareness.getSections(gradebookUid);
+
+		return sections;
+	}
+	
+	
 
 	private List getSectionEnrollmentsTrusted(String sectionUid) {
 		return getSectionAwareness().getSectionMembersInRole(sectionUid, Role.STUDENT);

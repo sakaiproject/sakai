@@ -67,6 +67,13 @@
 					</div>
 				</div>
 			</div>
+			
+			<h4><h:outputText value="#{msgs.gb_setup_grader_perms_title}"/></h4>
+			<div class="indnt1 gbSection">
+				<h:commandLink action="graderRules">
+					<h:outputText value="#{msgs.gb_setup_modify_grader_perms}"/>
+				</h:commandLink>
+			</div>
 	 
 		  <t:aliasBean alias="#{bean}" value="#{gradebookSetupBean}">
 				<%@include file="/inc/categoryEdit.jspf"%>

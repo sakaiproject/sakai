@@ -98,6 +98,11 @@
             <from-outcome>studentView</from-outcome>
             <to-view-id>/studentView.jsp</to-view-id>
         </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>graderRules</from-outcome>
+            <to-view-id>/graderRules.jsp</to-view-id>
+        </navigation-case>
 
     </navigation-rule>
 </faces-config>

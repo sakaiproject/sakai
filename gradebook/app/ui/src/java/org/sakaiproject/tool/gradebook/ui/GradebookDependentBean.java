@@ -186,6 +186,10 @@ public abstract class GradebookDependentBean extends InitializableBean {
 	public List findMatchingEnrollments(String searchString, String optionalSectionUid) {
 		return getGradebookBean().getAuthzService().findMatchingEnrollments(getGradebookUid(), searchString, optionalSectionUid);
 	}
+	
+	public List getAllSections() {
+		return getGradebookBean().getAuthzService().getAllSections(getGradebookUid());
+	}
 
 	/**
 	 * Get the gradebook context.

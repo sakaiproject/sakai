@@ -152,3 +152,22 @@ td.gbMessageAboveNumber {vertical-align:top; text-align:right; padding-right:2em
 	text-align: right;
 }
 
+/* for the Grader Rules UI */
+
+.graderRuleMenu {
+	margin: 0 1.0em 0 1.0em;
+}
+
+.graderName {
+	padding-right:3.0em;
+	font-weight: bold;
+}
+
+.graderRulesAdd {
+	margin-top: 1.0em;
+}
+
+.selectGrader {
+	font-weight: bold;
+	margin-bottom: 1.0em;
+}

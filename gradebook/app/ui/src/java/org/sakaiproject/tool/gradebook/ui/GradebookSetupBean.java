@@ -84,21 +84,6 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 			categoriesToRemove = new ArrayList();
 		}
 		
-		/*Map gradeMap = new HashMap();
-		gradeMap.put("A+", new Double(97));
-		gradeMap.put("A", new Double(93));
-		gradeMap.put("A-", new Double(90));
-		gradeMap.put("B+", new Double(87));
-		gradeMap.put("B", new Double(83));
-		gradeMap.put("B-", new Double(80));
-		gradeMap.put("C+", new Double(77));
-		gradeMap.put("C", new Double(73));
-		gradeMap.put("C-", new Double(70));
-		gradeMap.put("D+", new Double(67));
-		gradeMap.put("D", new Double(63));
-		gradeMap.put("D-", new Double(60));
-		gradeMap.put("F", new Double(0));
-		getGradebookManager().createOrUpdateDefaultLetterGradePercentMapping(gradeMap);*/
 		calculateRunningTotal();
 		
 		defaultLGPM = getGradebookManager().getDefaultLetterGradePercentMapping();

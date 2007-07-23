@@ -119,10 +119,6 @@
 			<value>#{param.studentUid}</value>
 		</managed-property>
 		<managed-property>
-			<property-name>returnToPage</property-name>
-			<value>#{param.returnToPage}</value>
-		</managed-property>
-		<managed-property>
 			<property-name>assignmentId</property-name>
 			<value>#{param.assignmentId}</value>
 		</managed-property>
@@ -258,6 +254,16 @@
 		<managed-property>
 			<property-name>pageName</property-name>
 			<value>gradebookSetup</value>
+		</managed-property>
+	</managed-bean>
+	
+	<managed-bean>
+		<managed-bean-name>graderRulesBean</managed-bean-name>
+		<managed-bean-class>org.sakaiproject.tool.gradebook.ui.GraderRulesBean</managed-bean-class>
+		<managed-bean-scope>request</managed-bean-scope>
+		<managed-property>
+			<property-name>pageName</property-name>
+			<value>graderRules</value>
 		</managed-property>
 	</managed-bean>
 

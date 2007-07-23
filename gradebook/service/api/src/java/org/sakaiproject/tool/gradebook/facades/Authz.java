@@ -53,6 +53,12 @@ public interface Authz {
 	 *  belongs to.
 	 */
 	public List getAvailableSections(String gradebookUid);
+	
+	/**
+	 * @param gradebookUid
+	 * @return all of the CourseSections for this site
+	 */
+	public List getAllSections(String gradebookUid);
 
 	/**
 	 * The section enrollment list will not be returned unless the user
