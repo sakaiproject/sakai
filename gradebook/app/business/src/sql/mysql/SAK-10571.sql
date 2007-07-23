@@ -5,16 +5,16 @@ create table GB_LETTERGRADE_PERCENT_MAPPING (ID bigint not null auto_increment, 
 alter table GB_LETTERGRADE_MAPPING add index FKC8CDDC5CE7F3A761 (id), add constraint FKC8CDDC5CE7F3A761 foreign key (id) references GB_LETTERGRADE_PERCENT_MAPPING (ID);
 
 insert into GB_LETTERGRADE_PERCENT_MAPPING values (null,  0, 1, null);
-insert into GB_LETTERGRADE_MAPPING values (1, 98.0, 'A+');
+insert into GB_LETTERGRADE_MAPPING values (1, 100.0, 'A+');
 insert into GB_LETTERGRADE_MAPPING values (1, 95.0, 'A');
 insert into GB_LETTERGRADE_MAPPING values (1, 90.0, 'A-');
-insert into GB_LETTERGRADE_MAPPING values (1, 88.0, 'B+');
-insert into GB_LETTERGRADE_MAPPING values (1, 85.0, 'B');
+insert into GB_LETTERGRADE_MAPPING values (1, 87.0, 'B+');
+insert into GB_LETTERGRADE_MAPPING values (1, 83.0, 'B');
 insert into GB_LETTERGRADE_MAPPING values (1, 80.0, 'B-');
-insert into GB_LETTERGRADE_MAPPING values (1, 78.0, 'C+');
-insert into GB_LETTERGRADE_MAPPING values (1, 75.0, 'C');
+insert into GB_LETTERGRADE_MAPPING values (1, 77.0, 'C+');
+insert into GB_LETTERGRADE_MAPPING values (1, 73.0, 'C');
 insert into GB_LETTERGRADE_MAPPING values (1, 70.0, 'C-');
-insert into GB_LETTERGRADE_MAPPING values (1, 68.0, 'D+');
-insert into GB_LETTERGRADE_MAPPING values (1, 65.0, 'D');
+insert into GB_LETTERGRADE_MAPPING values (1, 67.0, 'D+');
+insert into GB_LETTERGRADE_MAPPING values (1, 63.0, 'D');
 insert into GB_LETTERGRADE_MAPPING values (1, 60.0, 'D-');
 insert into GB_LETTERGRADE_MAPPING values (1, 0.0, 'F');
