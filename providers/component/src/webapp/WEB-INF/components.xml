@@ -128,8 +128,18 @@
  -->
  
 	<!--
-		CourseManagement-backed Group and Course Providers
+		CourseManagement-backed Group Provider
 	-->
+
+	<bean id="org.sakaiproject.authz.api.GroupProvider" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="targetName" value="${org.sakaiproject.authz.api.GroupProvider}" />
+		<property name="proxyInterfaces">
+			<list>
+                <value>org.sakaiproject.authz.api.GroupProvider</value>
+			</list>
+		</property>
+		
+	</bean>
 
 <!--
 	The CM-based group provider makes heavy use of the CM service.  So, if we're
@@ -138,8 +148,7 @@
 	CM implementation, you should ensure that it performs aggressive caching, since
 	calls from the CM-based group provider to the CM service are plentiful.
 -->
-
-	<bean id="org.sakaiproject.authz.api.GroupProvider"
+	<bean id="org.sakaiproject.coursemanagement.impl.provider.CourseManagementGroupProvider"
 		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
 		singleton="true">
 			<property name="transactionManager">
