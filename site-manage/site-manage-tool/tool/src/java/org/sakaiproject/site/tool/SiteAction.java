@@ -220,7 +220,7 @@ public class SiteAction extends PagedResourceActionII {
 			"-siteInfo-group", // 49
 			"-siteInfo-groupedit", // 50
 			"-siteInfo-groupDeleteConfirm", // 51,
-			"", // 52 - no template; used by daisyf. for remove course section
+			"",
 			"-findCourse" // 53
 	};
 
@@ -2464,9 +2464,7 @@ public class SiteAction extends PagedResourceActionII {
 
 				List providerCourseList = (List) state
 						.getAttribute(SITE_PROVIDER_COURSE_LIST);
-				context.put("providerCourseList", providerCourseList);
-				context.put("manualCourseList", state
-						.getAttribute(SITE_MANUAL_COURSE_LIST));
+				coursesIntoContext(state, context, site);
 
 				AcademicSession t = (AcademicSession) state
 						.getAttribute(STATE_TERM_SELECTED);
@@ -2611,24 +2609,28 @@ public class SiteAction extends PagedResourceActionII {
 						.getAttribute(STATE_CM_REQUESTED_SECTIONS);
 				context.put("requestedSections", l);
 			}
-			
-			// v2.4 - added & modified by daisyf
-			if (courseManagementIsImplemented() && state.getAttribute(STATE_TERM_COURSE_LIST) != null)
-			{
-				// back to the list view of sections
-				context.put("back", "36");
-			} else {
-				context.put("back", "1");
-			}
 
 			if (site == null) {
-				if (state.getAttribute(STATE_AUTO_ADD) != null) {
-					context.put("autoAdd", Boolean.TRUE);
-					// context.put("back", "36");
+				// v2.4 - added & modified by daisyf
+				if (courseManagementIsImplemented() && state.getAttribute(STATE_TERM_COURSE_LIST) != null)
+				{
+					// back to the list view of sections
+					context.put("back", "36");
 				} else {
 					context.put("back", "1");
 				}
+				if (state.getAttribute(STATE_AUTO_ADD) != null) {
+					context.put("autoAdd", Boolean.TRUE);
+					// context.put("back", "36");
+				}
 			}
+			else
+			{
+				// editing site
+				context.put("back", "36");
+			}
+			
+			isFutureTermSelected(state);
 			context.put("isFutureTerm", state
 					.getAttribute(STATE_FUTURE_TERM_SELECTED));
 			context.put("weeksAhead", ServerConfigurationService.getString(
@@ -3962,26 +3964,7 @@ public class SiteAction extends PagedResourceActionII {
 					List sections = prepareCourseAndSectionListing(userId, t
 							.getEid(), state);
 
-					int weeks = 0;
-					Calendar c = (Calendar) Calendar.getInstance().clone();
-					try {
-						weeks = Integer
-								.parseInt(ServerConfigurationService
-										.getString(
-												"roster.available.weeks.before.term.start",
-												"0"));
-						c.add(Calendar.DATE, weeks * 7);
-					} catch (Exception ignore) {
-					}
-
-					if (c.getTimeInMillis() < t.getStartDate().getTime()) {
-						// if a future term is selected
-						state.setAttribute(STATE_FUTURE_TERM_SELECTED,
-								Boolean.TRUE);
-					} else {
-						state.setAttribute(STATE_FUTURE_TERM_SELECTED,
-								Boolean.FALSE);
-					}
+					isFutureTermSelected(state);
 
 					if (sections != null && sections.size() > 0) {
 						state.setAttribute(STATE_TERM_COURSE_LIST, sections);
@@ -4043,6 +4026,35 @@ public class SiteAction extends PagedResourceActionII {
 		}
 
 	} // doSite_type
+
+	/**
+	 * Determine whether the selected term is considered of "future term"
+	 * @param state
+	 * @param t
+	 */
+	private void isFutureTermSelected(SessionState state) {
+		AcademicSession t = (AcademicSession) state.getAttribute(STATE_TERM_SELECTED);
+		int weeks = 0;
+		Calendar c = (Calendar) Calendar.getInstance().clone();
+		try {
+			weeks = Integer
+					.parseInt(ServerConfigurationService
+							.getString(
+									"roster.available.weeks.before.term.start",
+									"0"));
+			c.add(Calendar.DATE, weeks * 7);
+		} catch (Exception ignore) {
+		}
+
+		if (c.getTimeInMillis() < t.getStartDate().getTime()) {
+			// if a future term is selected
+			state.setAttribute(STATE_FUTURE_TERM_SELECTED,
+					Boolean.TRUE);
+		} else {
+			state.setAttribute(STATE_FUTURE_TERM_SELECTED,
+					Boolean.FALSE);
+		}
+	}
 
 	public void doChange_user(RunData data) {
 		doSite_type(data);
@@ -4369,6 +4381,29 @@ public class SiteAction extends PagedResourceActionII {
 		state.setAttribute(STATE_TEMPLATE_INDEX, "49");
 
 	} // doMenu_group
+	
+	/**
+	 * 
+	 */
+	private void removeSection(SessionState state, ParameterParser params)
+	{
+		// v2.4 - added by daisyf
+		// RemoveSection - remove any selected course from a list of
+		// provider courses
+		// check if any section need to be removed
+		removeAnyFlagedSection(state, params);
+		
+		SiteInfo siteInfo = new SiteInfo();
+		if (state.getAttribute(STATE_SITE_INFO) != null) {
+			siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
+		}
+
+		List providerChosenList = (List) state
+				.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN);
+		collectNewSiteInfo(siteInfo, state, params, providerChosenList);
+		// next step
+		//state.setAttribute(SITE_CREATE_CURRENT_STEP, new Integer(2));
+	}
 
 	/**
 	 * dispatch to different functions based on the option value in the
@@ -4387,10 +4422,7 @@ public class SiteAction extends PagedResourceActionII {
 					.getString("uniqname"));
 			state.setAttribute(STATE_SITE_QUEST_UNIQNAME, uniqname);
 
-			if (getStateSite(state) == null) {
-				// creating new site
-				updateSiteInfo(params, state);
-			}
+			updateSiteInfo(params, state);
 
 			if (option.equalsIgnoreCase("add")) {
 
@@ -4441,9 +4473,43 @@ public class SiteAction extends PagedResourceActionII {
 			} else {
 				doCancel(data);
 			}
+		} else if (option.equalsIgnoreCase("removeSection"))
+		{
+			// remove selected section
+			removeSection(state, params);
 		}
 
 	} // doManual_add_course
+	
+
+	/**
+	 * dispatch to different functions based on the option value in the
+	 * parameter
+	 */
+	public void doSite_information(RunData data) {
+		SessionState state = ((JetspeedRunData) data)
+				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		ParameterParser params = data.getParameters();
+
+		String option = params.getString("option");
+		if (option.equalsIgnoreCase("continue"))
+		{
+			doContinue(data);
+		} else if (option.equalsIgnoreCase("back")) {
+			doBack(data);
+		} else if (option.equalsIgnoreCase("cancel")) {
+			if (getStateSite(state) == null) {
+				doCancel_create(data);
+			} else {
+				doCancel(data);
+			}
+		} else if (option.equalsIgnoreCase("removeSection"))
+		{
+			// remove selected section
+			removeSection(state, params);
+		}
+
+	} // doSite_information
 
 	/**
 	 * read the input information of subject, course and section in the manual
@@ -4722,6 +4788,10 @@ public class SiteAction extends PagedResourceActionII {
 	 * 
 	 */
 	public void doContinue_new_course(RunData data) {
+		SessionState state = ((JetspeedRunData) data)
+				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		ParameterParser params = data.getParameters();
+		
 		String option = data.getParameters().getString("option");
 		if (option.equals("continue")) {
 			doContinue(data);
@@ -4731,6 +4801,22 @@ public class SiteAction extends PagedResourceActionII {
 			doBack(data);
 		} else if (option.equals("cancel")) {
 			doCancel_create(data);
+		}
+		else if (option.equalsIgnoreCase("change")) {
+			// change term
+			String termId = params.getString("selectTerm");
+			AcademicSession t = cms.getAcademicSession(termId);
+			state.setAttribute(STATE_TERM_SELECTED, t);
+			isFutureTermSelected(state);
+		} else if (option.equalsIgnoreCase("cancel_edit")) {
+			// cancel
+			state.removeAttribute(STATE_TERM_SELECTED);
+			removeAddClassContext(state);
+			state.setAttribute(STATE_TEMPLATE_INDEX, "43");
+		} else if (option.equalsIgnoreCase("add")) {
+			isFutureTermSelected(state);
+			// continue
+			doContinue(data);
 		}
 	} // doContinue_new_course
 
@@ -5977,61 +6063,6 @@ public class SiteAction extends PagedResourceActionII {
 	} // doMenu_siteInfo_addClass
 
 	/**
-	 * first step of adding class
-	 */
-	public void doAdd_class_select(RunData data) {
-		SessionState state = ((JetspeedRunData) data)
-				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		ParameterParser params = data.getParameters();
-		String option = params.getString("option");
-		if (option.equalsIgnoreCase("change")) {
-			// change term
-			String termId = params.getString("selectTerm");
-			AcademicSession t = cms.getAcademicSession(termId);
-			state.setAttribute(STATE_TERM_SELECTED, t);
-		} else if (option.equalsIgnoreCase("cancel")) {
-			// cancel
-			state.removeAttribute(STATE_TERM_SELECTED);
-			removeAddClassContext(state);
-			state.setAttribute(STATE_TEMPLATE_INDEX, "43");
-		} else if (option.equalsIgnoreCase("add")) {
-			String userId = UserDirectoryService.getCurrentUser().getEid();
-			AcademicSession t = (AcademicSession) state
-					.getAttribute(STATE_TERM_SELECTED);
-			if (t != null) {
-				List courses = prepareCourseAndSectionListing(userId, t
-						.getEid(), state);
-
-				// future term? roster information is not available yet?
-				int weeks = 0;
-				try {
-					weeks = Integer.parseInt(ServerConfigurationService
-							.getString(
-									"roster.available.weeks.before.term.start",
-									"0"));
-				} catch (Exception ignore) {
-					M_log.warn(ignore.getMessage());
-				}
-				if ((courses == null || courses != null && courses.size() == 0)
-						&& System.currentTimeMillis() + weeks * 7 * 24 * 60
-								* 60 * 1000 < t.getStartDate().getTime()) {
-					// if a future term is selected
-					state
-							.setAttribute(STATE_FUTURE_TERM_SELECTED,
-									Boolean.TRUE);
-				} else {
-					state.setAttribute(STATE_FUTURE_TERM_SELECTED,
-							Boolean.FALSE);
-				}
-			}
-
-			// continue
-			doContinue(data);
-		}
-
-	} // doAdd_class_select
-
-	/**
 	 * doMenu_siteInfo_duplicate
 	 */
 	public void doMenu_siteInfo_duplicate(RunData data) {
@@ -7255,19 +7286,6 @@ public class SiteAction extends PagedResourceActionII {
 				state.setAttribute(SITE_CREATE_CURRENT_STEP, new Integer(2));
 			}
 			break;
-		case 52:
-			// v2.4 - added by daisyf
-			// RemoveSection - remove any selected course from a list of
-			// provider courses
-			// check if any section need to be removed
-			removeAnyFlagedSection(state, params);
-
-			List providerChosenList = (List) state
-					.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN);
-			collectNewSiteInfo(siteInfo, state, params, providerChosenList);
-			// next step
-			state.setAttribute(SITE_CREATE_CURRENT_STEP, new Integer(2));
-			break;
 		case 38:
 			break;
 		case 39:
@@ -7414,6 +7432,7 @@ public class SiteAction extends PagedResourceActionII {
 		state.removeAttribute(SITE_CREATE_CURRENT_STEP);
 		state.removeAttribute(STATE_IMPORT_SITE_TOOL);
 		state.removeAttribute(STATE_IMPORT_SITES);
+		sitePropertiesIntoState(state);
 
 	} // removeAddClassContext
 
@@ -9585,6 +9604,7 @@ public class SiteAction extends PagedResourceActionII {
 			siteInfo.joinerRole = site.getJoinerRole();
 			siteInfo.published = site.isPublished();
 			siteInfo.include = site.isPubView();
+			siteInfo.additional = "";
 			siteInfo.short_description = site.getShortDescription();
 			state.setAttribute(STATE_SITE_TYPE, siteInfo.site_type);
 
@@ -11676,12 +11696,12 @@ public class SiteAction extends PagedResourceActionII {
 		List all = new ArrayList();
 		List providerCourseList = (List) state
 				.getAttribute(STATE_ADD_CLASS_PROVIDER_CHOSEN);
-		if (providerCourseList != null) {
+		if (providerCourseList != null && providerCourseList.size() > 0) {
 			all.addAll(providerCourseList);
 		}
 		List manualCourseList = (List) state
 				.getAttribute(SITE_MANUAL_COURSE_LIST);
-		if (manualCourseList != null) {
+		if (manualCourseList != null && manualCourseList.size() > 0) {
 			all.addAll(manualCourseList);
 		}
 		
@@ -11787,11 +11807,11 @@ public class SiteAction extends PagedResourceActionII {
 				if (getStateSite(state) != null) {
 					// if revising a site, go to the confirmation
 					// page of adding classes
-					state.setAttribute(STATE_TEMPLATE_INDEX, "44");
+					//state.setAttribute(STATE_TEMPLATE_INDEX, "37");
 				} else {
 					// if creating a site, go the the site
 					// information entry page
-					state.setAttribute(STATE_TEMPLATE_INDEX, "2");
+					//state.setAttribute(STATE_TEMPLATE_INDEX, "2");
 				}
 			}
 		}

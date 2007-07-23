@@ -20,9 +20,10 @@
 	
 	function submitRemoveSection(index){
 		id = "removeSection"+index;
-    	removeSection = document.getElementById(id);
+  removeSection = document.getElementById(id);
 		removeSection.value="true";
-		document.removeSectionForm.submit();
+		document.getElementById("option").value="removeSection";
+		document.siteInfoForm.submit();
 		return false;
 }
 	
@@ -55,11 +56,9 @@
 		<div class="clear"></div>
 	#end
 	
-	<form name = "removeSectionForm" method="post" action="#toolForm($action)">
-		<input type="hidden" name="eventSubmit_doContinue" value="$tlang.getString('gen.continue')" />
-		<input type="hidden" name="back" value="1" />
-		<input type="hidden" name="template-index" value="52" />
-	
+	<form name="siteInfoForm" action="#toolForm("$action")" method="post">
+		<input type="hidden" name="option" id="option" value="continue" />
+		<input type="hidden" name="eventSubmit_doSite_information" value="x" />	
 	#if ($isCourseSite)
 		#if ($!selectedProviderCourse)
 		$tlang.getString("sinfo.youare")
@@ -106,9 +105,7 @@
 			</ul>
 		#end
 	#end
-	</form>
 	
-	<form action="#toolForm("$action")" method="post">	
 	<p class="instruction">
 		$tlang.getString("sinfo.enter3")#if ($!isProjectSite) $tlang.getString("sinfo.simplea") <span class ="reqStarInline">*</span> $tlang.getString("sinfo.means") #end
 	</p>
@@ -194,11 +191,22 @@
 		<input type="hidden" name="template-index" value="2" />
 		<input type="hidden" name="continue" value="3" />
 		<p class="act">
-			<input id="continueButton" type="submit" accesskey="s" class="active" name="eventSubmit_doContinue" value="$tlang.getString('gen.continue')" />
-			#if ($!siteTypes.size() > 1)
-				<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" />
-			#end
-			<input type="submit" accesskey="x" name="eventSubmit_doCancel_create" value="$tlang.getString('gen.cancel')" />
+				<input type="button" name="continueButton" id="continueButton"
+						value="$tlang.getString('gen.continue')" 
+						class="active" 
+						accesskey="s" 
+						onclick="document.siteInfoForm.option.value='continue'; document.siteInfoForm.submit(); return false;" />
+				#if ($!siteTypes.size() > 1)
+					<input type="button" name="Back" 
+							value="$tlang.getString('gen.back')"
+							accesskey="b"
+							onclick="document.siteInfoForm.option.value='back'; document.siteInfoForm.submit(); return false;" />
+				#end
+				<input type="button" name="Cancel" 
+						value="$tlang.getString('gen.cancel')"
+						accesskey="x"
+						onclick="document.siteInfoForm.option.value='cancel'; document.siteInfoForm.submit(); return false;" />
+			</p>
 		</p>
 	</form>
 </div>
