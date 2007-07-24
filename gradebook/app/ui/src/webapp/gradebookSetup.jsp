@@ -19,15 +19,16 @@
 			<div class="indnt1">
 				<div class="instruction"><h:outputText value="#{msgs.grade_entry_info}" escape="false"/></div>
 			
-				<h:selectOneRadio value="#{gradebookSetupBean.gradeEntryMethod}" id="gradeEntryMethod" layout="pageDirection" 
-					onclick="javascript:displayHideElement(this.form, 'gradeEntryScale', 'gradeEntryMethod', 'letterGrade'); resize();">
+				<h:selectOneRadio value="#{gradebookSetupBean.gradeEntryMethod}" id="gradeEntryMethod" layout="pageDirection">
 					<f:selectItem itemValue="points" itemLabel="#{msgs.entry_opt_points}" />
 	        <f:selectItem itemValue="percent" itemLabel="#{msgs.entry_opt_percent}" /> 
 	        <f:selectItem itemValue="letterGrade" itemLabel="#{msgs.entry_opt_letters}" />
 				</h:selectOneRadio>
 			</div>
 			
-			<h:panelGroup id="gradeEntryScale" style="#{gradebookSetupBean.displayGradeEntryScaleStyle}">
+			<% /*Per SAK-10879, no longer allow user to customize letter grading scale. set rendered="false" and removed js call from select radio button */
+				/*onclick="javascript:displayHideElement(this.form, 'gradeEntryScale', 'gradeEntryMethod', 'letterGrade'); resize();"*/ %>
+			<h:panelGroup id="gradeEntryScale" style="#{gradebookSetupBean.displayGradeEntryScaleStyle}" rendered="false">
 				<f:verbatim><h4 class="indnt3"></f:verbatim>
 					<h:outputText value="#{msgs.grade_entry_scale}" />
 				<f:verbatim></h4></f:verbatim>

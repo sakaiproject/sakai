@@ -198,7 +198,8 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 		{
 			localGradebook.setGrade_type(GradebookService.GRADE_TYPE_POINTS);
 		}
-		
+		// SAK-10879 - comment out ability to customize lgpm
+		/*
 		if (lgpm != null) {
 			if (!isMappingValid(lgpm)) {
 				return "failure";
@@ -221,7 +222,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 			if (lgpmUpdate) {
 				getGradebookManager().saveOrUpdateLetterGradePercentMapping(lgpm.getGradeMap(), localGradebook);
 			}
-		}
+		}*/
 		
 		if (categorySetting == null || (!categorySetting.equals(CATEGORY_OPT_CAT_ONLY) && 
 				!categorySetting.equals(CATEGORY_OPT_CAT_AND_WEIGHT) && !categorySetting.equals(CATEGORY_OPT_NONE)))
