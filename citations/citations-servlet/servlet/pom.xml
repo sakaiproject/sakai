@@ -31,6 +31,10 @@
       <version>${sakai.version}</version>
       <exclusions>
         <exclusion>
+          <groupId>org.sakaiproject</groupId>
+          <artifactId>sakai-citations-util</artifactId>
+        </exclusion>
+        <exclusion>
           <groupId>OKI</groupId>
           <artifactId>OkiOSID</artifactId>
         </exclusion>
