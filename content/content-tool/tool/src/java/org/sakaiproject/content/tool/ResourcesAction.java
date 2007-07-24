@@ -1289,6 +1289,28 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				{
 					((ListItem) obj).updateContentCollectionEdit(edit);
 				}
+				ResourcePropertiesEdit resourceProperties = edit.getPropertiesEdit();
+				String displayName = null;
+				if(obj != null && obj instanceof ListItem)
+				{
+					displayName = ((ListItem) obj).getName();
+				}
+				if(displayName == null || displayName.trim().equals(""))
+				{
+					displayName = name;
+				}
+				if(displayName != null)
+				{
+					resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, displayName);
+				}
+				Map values = pipe.getRevisedResourceProperties(); 	 
+				Iterator valueIt = values.keySet().iterator(); 	 
+				while(valueIt.hasNext()) 	 
+				{ 	 
+					String pname = (String) valueIt.next(); 	 
+					String pvalue = (String) values.get(pname); 	 
+					resourceProperties.addProperty(pname, pvalue);
+				}
 				ContentHostingService.commitCollection(edit);
 				new_collections.add(edit);
 			}
@@ -1398,6 +1420,19 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				}
 				
 				ResourcePropertiesEdit resourceProperties = resource.getPropertiesEdit();
+				String displayName = null;
+				if(obj != null && obj instanceof ListItem)
+				{
+					displayName = ((ListItem) obj).getName();
+				}
+				if(displayName == null || displayName.trim().equals(""))
+				{
+					displayName = name;
+				}
+				if(displayName != null)
+				{
+					resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, displayName);
+				}
 				Map values = pipe.getRevisedResourceProperties(); 	 
 				Iterator valueIt = values.keySet().iterator(); 	 
 				while(valueIt.hasNext()) 	 
@@ -8049,6 +8084,28 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				{
 					((ListItem) obj).updateContentResourceEdit(resource);
 					notification = ((ListItem) obj).getNotification();
+				}
+				ResourcePropertiesEdit resourceProperties = resource.getPropertiesEdit();
+				String displayName = null;
+				if(obj != null && obj instanceof ListItem)
+				{
+					displayName = ((ListItem) obj).getName();
+				}
+				if(displayName == null || displayName.trim().equals(""))
+				{
+					displayName = name;
+				}
+				if(displayName != null)
+				{
+					resourceProperties.addProperty(ResourceProperties.PROP_DISPLAY_NAME, displayName);
+				}
+				Map values = pipe.getRevisedResourceProperties(); 	 
+				Iterator valueIt = values.keySet().iterator(); 	 
+				while(valueIt.hasNext()) 	 
+				{ 	 
+					String pname = (String) valueIt.next(); 	 
+					String pvalue = (String) values.get(pname); 	 
+					resourceProperties.addProperty(pname, pvalue);
 				}
 				ContentHostingService.commitResource(resource, notification);
 				item_added = true;
