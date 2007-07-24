@@ -25,7 +25,7 @@
 	</p>
 	<br/>
 	<p class="instruction">
-		$tlang.getString('uploadall.instruction2')
+		$tlang.getString('uploadall.instruction2')(<a href="$accessPointUrl" title="$!tlang.getString('downall')">$tlang.getString('uploadall.instruction3')</a>) $tlang.getString('uploadall.instruction4')
 	</p>
 	<form id="uploadAllForm" name="uploadAllForm" action="#toolForm('AssignmentAction')" method="post" onsubmit="return true;" enctype="multipart/form-data">
 			<input type="hidden" name="sakai_action" id="sakai_action" value="doUpload_all" />

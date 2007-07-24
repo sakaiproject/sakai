@@ -2198,7 +2198,10 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("hasGradeFile", state.getAttribute(UPLOAD_ALL_HAS_GRADEFILE));
 		context.put("hasComments", state.getAttribute(UPLOAD_ALL_HAS_COMMENTS));
 		context.put("releaseGrades", state.getAttribute(UPLOAD_ALL_RELEASE_GRADES));
-		
+		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
+		context.put("accessPointUrl", (ServerConfigurationService.getAccessUrl()).concat(AssignmentService.submissionsZipReference(
+				contextString, (String) state.getAttribute(EXPORT_ASSIGNMENT_REF))));
+
 		String template = (String) getContext(data).get("template");
 		return template + TEMPLATE_INSTRUCTOR_UPLOAD_ALL;
 

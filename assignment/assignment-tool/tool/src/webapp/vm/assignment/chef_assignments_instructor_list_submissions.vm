@@ -62,10 +62,7 @@
 		</p>
 	#else
 		<div class="navIntraTool">
-			#if ($submissionType != 4)
-				## exclude the link for non-electronic submission
-				<a href="$accessPointUrl" title="$!tlang.getString('downall')">$!tlang.getString('downall')</a> | 
-			#end
+			<a href="$accessPointUrl" title="$!tlang.getString('downall')">$!tlang.getString('downall')</a> | 
 			#if ($withGrade)
 				<a href="#toolLinkParam("$action" "doRelease_grades" "assignmentId=$validator.escapeUrl($!assignment.Reference)")" title="$!tlang.getString('relgrad')">$!tlang.getString('relgrad')</a>
 			#else
