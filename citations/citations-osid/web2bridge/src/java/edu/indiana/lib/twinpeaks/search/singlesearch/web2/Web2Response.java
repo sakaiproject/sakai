@@ -74,7 +74,7 @@ public class Web2Response extends SearchResultBase {
 
 	/**
 	 * Save various attributes of the general search request
-	 * 
+	 *
 	 * @param query
 	 *            The QueryBase extension that sent the search request
 	 */
@@ -87,7 +87,7 @@ public class Web2Response extends SearchResultBase {
 	/**
 	 * Parse the search engine response as XML Overrides
 	 * <code>SearchResultBase#parseResponse()</code>
-	 * 
+	 *
 	 * @return Response as a DOM Document
 	 */
 	protected Document parseResponse() throws SearchException {
@@ -113,7 +113,7 @@ public class Web2Response extends SearchResultBase {
 				.getDocumentElement(), "RESULTS");
 		recordList = DomUtils.getElementList(resultElement, "RECORD");
 
-		for (int i = 0; i < recordList.getLength(); i++) 
+		for (int i = 0; i < recordList.getLength(); i++)
 		{
 			MatchItem item;
 			Element dataElement, recordElement;
@@ -188,14 +188,14 @@ public class Web2Response extends SearchResultBase {
 
 			title = getText(dataElement, "TITLE");
 			if (StringUtils.isNull(title)) {
-				_log.warn("No TITLE text in server response");
+				_log.debug("No TITLE text in server response");
 				displayXml(recordElement);
 				title = "";
 			}
 
 			description = getText(dataElement, "DESCRIPTION");
 			if (StringUtils.isNull(description)) {
-				_log.warn("No DESCRIPTION text in server response");
+				_log.debug("No DESCRIPTION text in server response");
 				description = "";
 			}
 			/*
@@ -221,13 +221,13 @@ public class Web2Response extends SearchResultBase {
 			/*
 			 * In-line Citation information
 			 */
-			
+
 			if (!addPartStructure(dataElement, "CITATION", item,
 					InLineCitationPartStructure.getPartStructureId())) {
 
 				if (!addPartStructure(dataElement, "SOURCE", item,
 						InLineCitationPartStructure.getPartStructureId())) {
-					
+
 					if (!addPartStructure(dataElement, "DESCRIPTION", item,
 							InLineCitationPartStructure.getPartStructureId())) {
 
@@ -235,7 +235,7 @@ public class Web2Response extends SearchResultBase {
 								InLineCitationPartStructure.getPartStructureId());
 					}
 
-					
+
 				}
 
 			}
@@ -339,12 +339,12 @@ public class Web2Response extends SearchResultBase {
 	 * It compares the citation to a known set of regular expressions contained
 	 * in REGULAR_EXPRESSION. Adding a new regular expression entails adding a
 	 * new case for parsing in this method.
-	 * 
+	 *
 	 * @param citation
 	 *            inLineCitation to be parsed
 	 */
 
-	private void doRegexParse(String database, MatchItem item) 
+	private void doRegexParse(String database, MatchItem item)
 	{
 		Pattern pattern;
 		Matcher matcher;
@@ -356,14 +356,14 @@ public class Web2Response extends SearchResultBase {
 		boolean hasStartPage = false;
 		boolean hasEndPage = false;
 		boolean hasSourceTitle = false;
-		
-		
-		try 
+
+
+		try
 		{
 			String      citation;
 			DataSource  dataSource;
 	  	boolean     regExpFound;
-			
+
 			citation    = (String) ((MatchItem.PartPair) getPartPair(
                				InLineCitationPartStructure.getPartStructureId(), item))
 				                                         .getValue() ;
@@ -394,8 +394,8 @@ public class Web2Response extends SearchResultBase {
 
  		 hasSourceTitle = recordHasPart(SourceTitlePartStructure
 			 .getPartStructureId(), item);
-			
-			
+
+
 			if (!hasVolume) {
 				pattern = Pattern.compile(dataSource.getVolumeToken());
 				matcher = pattern.matcher(citation);
@@ -417,7 +417,7 @@ public class Web2Response extends SearchResultBase {
 			if (!hasDate) {
 				pattern = Pattern.compile(dataSource.getDateToken());
 				matcher = pattern.matcher(citation);
-							
+
 				if (matcher.find()) {
 					String date = matcher.group().substring(
 							dataSource.getReplaceStartToken(),
@@ -427,11 +427,11 @@ public class Web2Response extends SearchResultBase {
 							.getId(), date);
 				}
 			}
-			
+
 			if (!hasYear) {
 				pattern = Pattern.compile(dataSource.getYearToken());
 				matcher = pattern.matcher(citation);
-							
+
 				if (matcher.find()) {
 					String year = matcher.group().substring(
 							dataSource.getReplaceStartToken(),
@@ -441,7 +441,7 @@ public class Web2Response extends SearchResultBase {
 							.getId(), year);
 				}
 			}
-			
+
 			if (!hasStartPage || !hasEndPage) {
 				pattern = Pattern.compile(dataSource.getPagesToken());
 				matcher = pattern.matcher(citation);
@@ -449,7 +449,7 @@ public class Web2Response extends SearchResultBase {
 					createPagesPart(matcher.group(), item);
 				}
 			}
-			
+
 			if(!hasSourceTitle) {
 				pattern = Pattern.compile(dataSource.getSourceTitleToken());
 				matcher = pattern.matcher( citation );
@@ -460,7 +460,7 @@ public class Web2Response extends SearchResultBase {
 							sourceTitle );
 				}
 			}
-			
+
 		} catch (org.osid.repository.RepositoryException e) {
 			_log.warn("doRegexParse() failed", e);
 		}
@@ -512,7 +512,7 @@ public class Web2Response extends SearchResultBase {
 	/**
 	 * This method searches the current record for a Part using its
 	 * PartStructure Type.
-	 * 
+	 *
 	 * @param partStructureId
 	 *            PartStructure Type of Part you need.
 	 * @return the Part if it exists in the current record, null if it does not.
@@ -540,7 +540,7 @@ public class Web2Response extends SearchResultBase {
 			}
 
 		}
-		
+
 		return null;
 	}
 
@@ -550,7 +550,7 @@ public class Web2Response extends SearchResultBase {
 
 	/**
 	 * Locate (and save as PartStructure id/value pairs) all matching items
-	 * 
+	 *
 	 * @param rootElement
 	 *            Start looking here
 	 * @param partDataName
@@ -581,7 +581,7 @@ public class Web2Response extends SearchResultBase {
 
 	/**
 	 * Save (add new) PartStructure data
-	 * 
+	 *
 	 * @param item
 	 *            Current MatchItem (eg Asset)
 	 * @param id
@@ -608,7 +608,7 @@ public class Web2Response extends SearchResultBase {
 
 	/**
 	 * Locate (in response XML) and save PartStructure data
-	 * 
+	 *
 	 * @param parentElement
 	 *            Parent Element - the search starts here
 	 * @param partDataName
@@ -628,7 +628,7 @@ public class Web2Response extends SearchResultBase {
 
 	/**
 	 * Locate text
-	 * 
+	 *
 	 * @param parent
 	 *            Search from here
 	 * @param name
@@ -647,7 +647,7 @@ public class Web2Response extends SearchResultBase {
 
 	/**
 	 * Display XML (with optional warning header)
-	 * 
+	 *
 	 * @param errorText
 	 *            Error message (null for none)
 	 * @param recordElement
@@ -663,7 +663,7 @@ public class Web2Response extends SearchResultBase {
 
 	/**
 	 * Display XML information
-	 * 
+	 *
 	 * @param xmlObject
 	 *            XML to display (Document, Element)
 	 */

@@ -2178,7 +2178,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		// do operation
 		if(operation.equalsIgnoreCase("add"))
 		{
-			logger.info("adding citation " + citationId + " to " + collectionId);
+			logger.debug("adding citation " + citationId + " to " + collectionId);
 			citation.setAdded( true );
 			collection.add( citation );
 			CitationService.save(collection);
