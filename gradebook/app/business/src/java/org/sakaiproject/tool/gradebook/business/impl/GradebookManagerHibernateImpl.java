@@ -1304,7 +1304,19 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
             }
         };
         try {
+        	/** synchronize from external application*/
+        	String oldTitle = null;
+        	if(synchronizer != null)
+        	{
+        		Assignment assign = getAssignment(assignment.getId());
+        		oldTitle = assign.getName();
+        	}
             getHibernateTemplate().execute(hc);
+        	/** synchronize from external application*/
+        	if(synchronizer != null && oldTitle != null)
+        	{
+        		synchronizer.updateAssignment(oldTitle, assignment.getName());
+        	}
         } catch (HibernateOptimisticLockingFailureException holfe) {
             if(log.isInfoEnabled()) log.info("An optimistic locking failure occurred while attempting to update an assignment");
             throw new StaleObjectModificationException(holfe);

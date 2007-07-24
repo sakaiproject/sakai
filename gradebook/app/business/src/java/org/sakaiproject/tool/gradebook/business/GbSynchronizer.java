@@ -31,4 +31,6 @@ public interface GbSynchronizer
   public Map getPersistentRecords(final Long gradableObjId);
 
   public void synchrornizeAssignments(List assignments);
+  
+  public void updateAssignment(String title, String newTitle);
 }
