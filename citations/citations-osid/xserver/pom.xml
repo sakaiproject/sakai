@@ -16,9 +16,11 @@
   </organization>
   <inceptionYear>2003</inceptionYear>
   <packaging>jar</packaging>
+<!--
   <properties>
     <deploy.target>shared</deploy.target>
   </properties>
+-->
   <dependencies>
     <dependency>
       <groupId>org.sakaiproject</groupId>

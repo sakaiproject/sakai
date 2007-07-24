@@ -19,49 +19,72 @@
   <properties>
     <deploy.target>components</deploy.target>
   </properties>
+
   <dependencies>
+
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-citations-impl</artifactId>
       <version>${sakai.version}</version>
+
       <exclusions>
-	<exclusion>
-		<groupId>OKI</groupId>
-		<artifactId>OkiOSID</artifactId>
-	</exclusion>
-	<exclusion>
-		<groupId>zing</groupId>
-		<artifactId>cql-java</artifactId>
-	</exclusion>
-	<exclusion>
-		<groupId>org.sakaiproject</groupId>
-		<artifactId>sakai-citations-util</artifactId>
-	</exclusion>
-	<exclusion>
-		<groupId>org.sakaiproject</groupId>
-		<artifactId>sakai-velocity-tool</artifactId>
-	</exclusion>
+      	<exclusion>
+      		<groupId>OKI</groupId>
+      		<artifactId>OkiOSID</artifactId>
+      	</exclusion>
+
+      	<exclusion>
+      		<groupId>org.sakaiproject</groupId>
+      		<artifactId>sakai-user-util</artifactId>
+      	</exclusion>
+
+      	<exclusion>
+      		<groupId>org.sakaiproject</groupId>
+      		<artifactId>sakai-velocity-tool</artifactId>
+      	</exclusion>
+
       </exclusions>
+
     </dependency>
-    <!-- the following are NOT dependencies of the Impl, please check they are 
-	really needed -->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-db-storage</artifactId>
+
+  	<dependency>
+  		<groupId>org.sakaiproject</groupId>
+  		<artifactId>sakai-citations-util</artifactId>
       <version>${sakai.version}</version>
-    </dependency>
+  	</dependency>
+
     <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-entity-util</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-event-util</artifactId>
+  		<groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-citations-web2bridge</artifactId>
       <version>${sakai.version}</version>
     </dependency>
 
+    <dependency>
+  		<groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-citations-xserver</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+
+    <dependency>
+  		<groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-util</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+
+    <dependency>
+  		<groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-content-util</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+
+  	<dependency>
+  		<groupId>zing</groupId>
+  		<artifactId>cql-java</artifactId>
+      <version>0.7</version>
+  	</dependency>
+
   </dependencies>
+
   <build>
     <resources/>
 <!-- java source -->

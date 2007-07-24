@@ -20,6 +20,9 @@
   <properties>
     <deploy.target>shared</deploy.target>
   </properties>
+
+  <!-- Shared deployment is not required at present
+
   <dependencies>
     <dependency>
       <groupId>zing</groupId>
@@ -28,4 +31,7 @@
       <scope>compile</scope>
     </dependency>
   </dependencies>
+
+  -->
+
 </project>
