@@ -304,10 +304,6 @@
 								#end
 							</td>
 							<td headers="submitted">
-								#if ($submissionType == 4)
-									## show "Non-electronic" when the assignment is for this type
-									$tlang.getString("nonelec")
-								#else
 									#if ($!submission)
 										#if($!submitTime)$submitTime.toStringLocalFull()#end
 										#if ($!submitTime && $submitTime.after($assignment.DueTime))
@@ -316,7 +312,6 @@
 									#else
 										$tlang.getString("listsub.nosub")
 									#end
-								#end
 							</td>
 							<td headers="status">
 								$submission.getStatus()

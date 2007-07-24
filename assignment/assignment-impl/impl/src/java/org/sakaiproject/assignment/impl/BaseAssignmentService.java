@@ -7801,11 +7801,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							
 							if(submitTime != null)
 							{
-								if (getAssignment().getContent().getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
-									//for non electronic submissions
-									retVal = rb.getString("nonelec");
-								else
-									retVal = rb.getString("gen.subm4") + " " + submitTime.toStringLocalFull();
+								retVal = rb.getString("gen.subm4") + " " + submitTime.toStringLocalFull();
 							}
 						}
 					}
