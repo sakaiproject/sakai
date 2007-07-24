@@ -8249,7 +8249,7 @@ public class AssignmentAction extends PagedResourceActionII
 	} // add2ndToolbarFields
 
 	/**
-	 * valid grade?
+	 * valid grade for point based type
 	 */
 	private void validPointGrade(SessionState state, String grade)
 	{
@@ -8314,6 +8314,31 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 
 	} // validPointGrade
+	
+	/**
+	 * valid grade for point based type
+	 */
+	private void validLetterGrade(SessionState state, String grade)
+	{
+		String VALID_CHARS_FOR_LETTER_GRADE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ+-";
+		boolean invalid = false;
+		if (grade != null)
+		{
+			grade = grade.toUpperCase();
+			for (int i = 0; i < grade.length() && !invalid; i++)
+			{
+				char c = grade.charAt(i);
+				if (VALID_CHARS_FOR_LETTER_GRADE.indexOf(c) == -1)
+				{
+					invalid = true;
+				}
+			}
+			if (invalid)
+			{
+				addAlert(state, rb.getString("plesuse0"));
+			}
+		}
+	}
 
 	private void alertInvalidPoint(SessionState state, String grade)
 	{
@@ -9012,8 +9037,21 @@ public class AssignmentAction extends PagedResourceActionII
 									        			UploadGradeWrapper w = (UploadGradeWrapper) submissionTable.get(name);
 									        			if (w != null)
 									        			{
-									        				w.setGrade(assignment.getContent().getTypeOfGrade() == Assignment.SCORE_GRADE_TYPE?scalePointGrade(state, items[3]):items[3]);
-									        				submissionTable.put(name, w);
+									        				String itemString = items[3];
+									        				int gradeType = assignment.getContent().getTypeOfGrade();
+									        				if (gradeType == Assignment.SCORE_GRADE_TYPE)
+									        				{
+									        					validPointGrade(state, itemString);
+									        				}
+									        				else
+									        				{
+									        					validLetterGrade(state, itemString);
+									        				}
+									        				if (state.getAttribute(STATE_MESSAGE) == null)
+									        				{
+										        				w.setGrade(gradeType == Assignment.SCORE_GRADE_TYPE?scalePointGrade(state, itemString):itemString);
+										        				submissionTable.put(name, w);
+									        				}
 									        			}
 									        		}
 									        		catch (Exception e )
