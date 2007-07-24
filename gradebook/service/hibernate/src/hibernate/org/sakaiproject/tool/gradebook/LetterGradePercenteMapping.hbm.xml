@@ -20,7 +20,7 @@
 		<property name="gradebookId" column="GRADEBOOK_ID" type="long" unique-key="uniqueTypeGradebook"/>
 
 		<map name="gradeMap" table="GB_LETTERGRADE_MAPPING" cascade="all" lazy="false">
-    	<key column="LG_MAPPING_ID "/>
+    	<key column="LG_MAPPING_ID"/>
       <index column="grade" type="string" />
       <element column="value" type="double" />
     </map>
