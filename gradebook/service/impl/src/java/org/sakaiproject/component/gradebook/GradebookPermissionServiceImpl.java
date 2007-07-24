@@ -619,4 +619,28 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 		else
 			return new HashMap();
 	}
+	
+	public Map getAvailableItemsForStudents(Long gradebookId, String userId, List studentIds, Collection groups) throws IllegalArgumentException
+	{
+		if(gradebookId == null || userId == null)
+			throw new IllegalArgumentException("Null parameter(s) in GradebookPermissionServiceImpl.getAvailableItemsForStudents");
+		
+		if(studentIds != null)
+		{
+			Map studentsMap = new HashMap();
+			for(Iterator iter = studentIds.iterator(); iter.hasNext();)
+			{
+				Map assignMap = new HashMap();
+				String studentId = (String) iter.next();
+				if(studentId != null)
+				{
+					assignMap = getAvailableItemsForStudent(gradebookId, userId, studentId, groups);
+					studentsMap.put(studentId, assignMap);
+				}
+			}
+			return studentsMap;
+		}
+		
+		return new HashMap();
+	}
 }
