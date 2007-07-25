@@ -1,6 +1,6 @@
 ## version: $Id$
 <!-- chef_resources_cwiz_finish.vm, use with org.sakaiproject.tool.content.ResourcesAction.java -->
-<div class="portletBody">
+<div class="portletBody specialLink">
 	<h3>
 		$title 
 	</h3>

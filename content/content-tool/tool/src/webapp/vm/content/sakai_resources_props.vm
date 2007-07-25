@@ -453,7 +453,7 @@
 	}
 	//-->
 </script>
-<div class="portletBody">
+<div class="portletBody specialLink">
 	<form name="createForm" id="createForm" action="#toolLink("ResourcesAction" "doCreateitem")" method="post" >
 		<input type="hidden" name="sakai_action" value="doCreateitem" />
 		<input type="hidden" name="flow" id="flow" value="create" />

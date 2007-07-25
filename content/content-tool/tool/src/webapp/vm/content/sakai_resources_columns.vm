@@ -18,7 +18,7 @@
 	}
 	//-->
 </script>
-<div class="portletBody">
+<div class="portletBody specialLink">
 	#set($itemsOnLine = 0)
 	<div class="navIntraTool">
 		$tlang.getString("list.site")

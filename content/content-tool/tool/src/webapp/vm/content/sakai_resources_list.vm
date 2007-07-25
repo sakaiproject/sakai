@@ -20,7 +20,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 <![endif]-->
 
 #set($num = 0)
-<div class="portletBody">
+<div class="portletBody specialLink">
 	#set($itemsOnLine = 0)
 	#if(!$dropboxMode)
 		#if ($atHome && $atHome == $TRUE)

@@ -16,7 +16,7 @@
 	}
 	//-->
 </script>
-<div class="portletBody">
+<div class="portletBody specialLink">
 	<form name="optionsForm" id="optionsForm" action="#toolForm("ResourcesAction")" method="post" >
 		<input type="hidden" name="sakai_action" id="sakai_action" value="doUpdateOptions" />
 		<input type="hidden" name="siteId" id="siteId" value="$siteId" />

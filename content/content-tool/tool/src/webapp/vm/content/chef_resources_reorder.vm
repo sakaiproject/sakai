@@ -2,7 +2,7 @@
 <!-- chef_resources_reorder.vm, use with org.sakaiproject.tool.content.ResourcesAction.java -->
 <!-- this is the reorder template -->
 
-<div class="portletBody">
+<div class="portletBody specialLink">
 	<form name="reorderForm" id="reorderForm" action="#toolForm("ResourcesAction")" method="post">
 		<input name="folderId" id="folderId" value="$folderId" type="hidden" />
 		<input name="sakai_action" id="sakai_action" value="doSaveOrder" type="hidden" />
