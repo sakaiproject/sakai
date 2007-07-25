@@ -741,4 +741,15 @@ public interface GradebookManager {
      * @throws IllegalArgumentException
      */
     public List getPermissionsForUserForGoupsAnyCategory(final Long gradebookId, final String userId, final List groupIds) throws IllegalArgumentException;
+    
+    /**
+     * Get permission for user when the user can grade/view for certain groups.
+     * 
+     * @param gradebookId gradebook ID
+     * @param userId grader ID
+     * @param groupsIds group IDs
+     * @return List of permissions
+     * @throws IllegalArgumentException
+     */    
+    public List getPermissionsForUserForGroup(final Long gradebookId, final String userId, final List groupIds) throws IllegalArgumentException;
 }

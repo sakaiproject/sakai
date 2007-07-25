@@ -64,5 +64,18 @@ public interface GradebookPermissionService
 	   * @throws IllegalArgumentException
 	   * @return Map 
 	   */
-		 public Map getAvailableItemsForStudents(Long gradebookId, String userId, List studentIds, Collection groups) throws IllegalArgumentException;
+	 public Map getAvailableItemsForStudents(Long gradebookId, String userId, List studentIds, Collection groups) throws IllegalArgumentException;
+
+	 /**
+	  * Get a map with student IDs as key and view/grade as value for their course grade.
+	  * (For course grade page) 
+	  * 
+	  * @param gradebookId Gradebook ID
+	  * @param userId grader ID
+	  * @param studentIds List of student IDs
+	  * @param groups List of groups for current site (Should be all groups the current site has.)
+	  * @throws IllegalArgumentException
+	  * @return Map of student IDs with view/grade as function value 
+	  */
+	 public Map getCourseGradePermission(Long gradebookId, String userId, List studentIds, List groups) throws IllegalArgumentException;
 }

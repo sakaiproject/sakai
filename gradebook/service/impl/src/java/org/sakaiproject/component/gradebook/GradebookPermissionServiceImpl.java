@@ -572,44 +572,41 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 			for(Iterator iter = perms.iterator(); iter.hasNext();)
 			{
 				Permission perm = (Permission)iter.next();
-				if(perm != null)
+				if(perm != null && perm.getCategoryId() != null)
 				{
-					if(perm.getCategoryId() != null)
+					for(Iterator cateIter = categoryList.iterator(); cateIter.hasNext();)
 					{
-						for(Iterator cateIter = categoryList.iterator(); cateIter.hasNext();)
+						Category cate = (Category) cateIter.next();
+						if(cate != null && cate.getId().equals(perm.getCategoryId()))
 						{
-							Category cate = (Category) cateIter.next();
-							if(cate != null && cate.getId().equals(perm.getCategoryId()))
+							List assignmentList = getAssignmentsForCategory(cate.getId());
+							for(Iterator assignIter = assignmentList.iterator(); assignIter.hasNext();)
 							{
-								List assignmentList = getAssignmentsForCategory(cate.getId());
-								for(Iterator assignIter = assignmentList.iterator(); assignIter.hasNext();)
+								Assignment as = (Assignment)assignIter.next();
+								if(as != null)
 								{
-									Assignment as = (Assignment)assignIter.next();
-									if(as != null)
+									Long assignId = as.getId();
+									for(Iterator groupIter = groups.iterator(); groupIter.hasNext();)
 									{
-										Long assignId = as.getId();
-										for(Iterator groupIter = groups.iterator(); groupIter.hasNext();)
+										Group grp = (Group) groupIter.next();
+										if(grp.getMember(studentId) != null && as.getCategory() != null)
 										{
-											Group grp = (Group) groupIter.next();
-											if(grp.getMember(studentId) != null && as.getCategory() != null)
+											if(assignmentMap.containsKey(assignId) && grp.getId().equals(perm.getGroupId()) && ((String)assignmentMap.get(assignId)).equalsIgnoreCase(GradebookService.viewPermission))
 											{
-												if(assignmentMap.containsKey(assignId) && grp.getId().equals(perm.getGroupId()) && ((String)assignmentMap.get(assignId)).equalsIgnoreCase(GradebookService.viewPermission))
+												if(perm.getFunction().equalsIgnoreCase(GradebookService.gradePermission))
 												{
-													if(perm.getFunction().equalsIgnoreCase(GradebookService.gradePermission))
-													{
-														assignmentMap.put(assignId, GradebookService.gradePermission);
-													}
+													assignmentMap.put(assignId, GradebookService.gradePermission);
 												}
-												else if(!assignmentMap.containsKey(assignId) && grp.getId().equals(perm.getGroupId()))
-												{
-													assignmentMap.put(assignId, perm.getFunction());
-												}
+											}
+											else if(!assignmentMap.containsKey(assignId) && grp.getId().equals(perm.getGroupId()))
+											{
+												assignmentMap.put(assignId, perm.getFunction());
 											}
 										}
 									}
 								}
-								break;
 							}
+							break;
 						}
 					}
 				}
@@ -619,7 +616,7 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 		else
 			return new HashMap();
 	}
-	
+
 	public Map getAvailableItemsForStudents(Long gradebookId, String userId, List studentIds, Collection groups) throws IllegalArgumentException
 	{
 		if(gradebookId == null || userId == null)
@@ -640,7 +637,232 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 			}
 			return studentsMap;
 		}
-		
+
+		return new HashMap();
+	}
+
+	public Map getCourseGradePermission(Long gradebookId, String userId, List studentIds, List groups) throws IllegalArgumentException
+	{
+		if(gradebookId == null || userId == null)
+			throw new IllegalArgumentException("Null parameter(s) in GradebookPermissionServiceImpl.getCourseGradePermission");
+
+		if(studentIds != null)
+		{
+			Map studentsMap = new HashMap();
+
+			List perms = getPermissionsForUserAnyGroupAnyCategory(gradebookId, userId);
+			if(perms != null)
+			{
+				Map studentMapForGroups = filterPermissionForGraderForAllStudent(perms, studentIds);
+				for(Iterator iter = studentMapForGroups.keySet().iterator(); iter.hasNext();)
+				{
+					String key = (String)iter.next();
+					if((studentsMap.containsKey(key) && ((String)studentsMap.get(key)).equalsIgnoreCase(GradebookService.viewPermission))
+							|| !studentsMap.containsKey(key))
+						studentsMap.put(key, studentMapForGroups.get(key));
+				}
+			}
+
+			List groupIds = new ArrayList();
+			if(groups != null)
+			{
+				for(Iterator iter = groups.iterator(); iter.hasNext();)
+				{
+					Group grp = (Group) iter.next();
+					if(grp != null)
+						groupIds.add(grp.getId());
+				}
+				
+				perms = getPermissionsForUserForGoupsAnyCategory(gradebookId, userId, groupIds);
+				if(perms != null)
+				{
+					Map studentMapForGroups = filterPermissionForGrader(perms, studentIds, groups);
+					for(Iterator iter = studentMapForGroups.keySet().iterator(); iter.hasNext();)
+					{
+						String key = (String)iter.next();
+						if((studentsMap.containsKey(key) && ((String)studentsMap.get(key)).equalsIgnoreCase(GradebookService.viewPermission))
+								|| !studentsMap.containsKey(key))
+							studentsMap.put(key, studentMapForGroups.get(key));
+					}
+				}
+				
+				Gradebook gradebook = getGradebook(getGradebookUid(gradebookId));
+				if(gradebook != null && (gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY || 
+						gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY))
+				{
+					List cateList = getCategories(gradebookId);
+					
+					perms = getPermissionsForUserForGroup(gradebookId, userId, groupIds);
+					if(perms != null)
+					{
+						Map studentMapForGroups = filterForAllCategoryStudents(perms, groups, studentIds, cateList);
+						for(Iterator iter = studentMapForGroups.keySet().iterator(); iter.hasNext();)
+						{
+							String key = (String)iter.next();
+							if((studentsMap.containsKey(key) && ((String)studentsMap.get(key)).equalsIgnoreCase(GradebookService.viewPermission))
+									|| !studentsMap.containsKey(key))
+								studentsMap.put(key, studentMapForGroups.get(key));
+						}
+					}
+					
+					List cateIdList = new ArrayList();
+					for(Iterator iter = cateList.iterator(); iter.hasNext();)
+					{
+						Category cate = (Category) iter.next();
+						if(cate != null)
+							cateIdList.add(cate.getId());
+					}
+					perms = getPermissionsForUserAnyGroupForCategory(gradebookId, userId, cateIdList);
+					Map studentMap = new HashMap();
+					if(perms != null && perms.size() > 0)
+					{
+						Map studentMapForGroups = filterForAllCategoryStudentsAnyGroup(perms, groups, studentIds, cateList);
+						for(Iterator iter = studentMapForGroups.keySet().iterator(); iter.hasNext();)
+						{
+							String key = (String)iter.next();
+							if((studentsMap.containsKey(key) && ((String)studentsMap.get(key)).equalsIgnoreCase(GradebookService.viewPermission))
+									|| !studentsMap.containsKey(key))
+								studentsMap.put(key, studentMapForGroups.get(key));
+						}
+					}
+				}
+			}
+
+			return studentsMap;
+		}
+		return new HashMap();
+	}
+	
+	private Map filterForAllCategoryStudents(List perms, List groups, List studentIds, List cateList)
+	{
+		if(perms != null && groups != null && studentIds != null && cateList != null)
+		{
+			List cateIdList = new ArrayList();
+			for(Iterator iter = cateList.iterator(); iter.hasNext();)
+			{
+				Category cate = (Category) iter.next();
+				if(cate != null)
+					cateIdList.add(cate.getId());
+			}
+
+			Map studentCateMap = new HashMap();
+			for(Iterator studentIter = studentIds.iterator(); studentIter.hasNext();)
+			{
+				String studentId = (String) studentIter.next();
+				studentCateMap.put(studentId, new HashMap());
+				if(studentId != null)
+				{
+					for(Iterator grpIter = groups.iterator(); grpIter.hasNext();)
+					{
+						Group grp = (Group) grpIter.next();
+						if(grp != null && grp.getMember(studentId) != null)
+						{								
+							for(Iterator permIter = perms.iterator(); permIter.hasNext();)
+							{
+								Permission perm = (Permission) permIter.next();
+								if(perm != null && perm.getGroupId().equals(grp.getId()) && perm.getCategoryId() != null && cateIdList.contains(perm.getCategoryId()))
+								{
+									Map cateMap = (Map) studentCateMap.get(studentId);
+									if(cateMap.get(perm.getCategoryId()) == null || ((String)cateMap.get(perm.getCategoryId())).equals(GradebookService.viewPermission))
+										cateMap.put(perm.getCategoryId(), perm.getFunction());
+									studentCateMap.put(studentId, cateMap);
+								}
+							}
+						}
+					}
+				}
+			}
+			
+			Map studentPermissionMap = new HashMap();
+			for(Iterator iter = studentCateMap.keySet().iterator(); iter.hasNext();)
+			{
+				String studentId = (String) iter.next();
+				Map cateMap = (Map) studentCateMap.get(studentId);
+				if(cateMap != null)
+				{
+					for(Iterator allCatesIter = cateIdList.iterator(); allCatesIter.hasNext();)
+					{
+						Long existCateId = (Long) allCatesIter.next();
+						if(existCateId != null)
+						{
+							boolean hasPermissionForCate = false;
+							String permission = null;
+							for(Iterator cateIter = cateMap.keySet().iterator(); cateIter.hasNext();)
+							{
+								Long cateId = (Long) cateIter.next();
+								if(cateId.equals(existCateId))
+								{
+									hasPermissionForCate = true;
+									permission = (String) cateMap.get(cateId);
+									break;
+								}
+							}
+							if(hasPermissionForCate && permission != null)
+							{
+								if(studentPermissionMap.get(studentId) == null || ((String)studentPermissionMap.get(studentId)).equals(GradebookService.gradePermission))
+									studentPermissionMap.put(studentId, permission);
+							}
+							else if(!hasPermissionForCate)
+							{
+								if(studentPermissionMap.get(studentId) != null)
+									studentPermissionMap.remove(studentId);
+							}
+						}
+					}
+				}
+			}
+			return studentPermissionMap;
+		}
+		return new HashMap();
+	}
+
+	private Map filterForAllCategoryStudentsAnyGroup(List perms, List groups, List studentIds, List cateList)
+	{
+		if(perms != null && groups != null && studentIds != null && cateList != null)
+		{	
+			Map cateMap = new HashMap();
+			for(Iterator cateIter = cateList.iterator(); cateIter.hasNext();)
+			{
+				Category cate = (Category) cateIter.next();
+				if(cate != null)
+				{
+					boolean permissionExistForCate = false;
+					for(Iterator permIter = perms.iterator(); permIter.hasNext();)
+					{
+						Permission perm = (Permission) permIter.next();
+						if(perm != null && perm.getCategoryId().equals(cate.getId()))
+						{
+							if((cateMap.get(cate.getId()) == null || ((String)cateMap.get(cate.getId())).equals(GradebookService.viewPermission)))
+								cateMap.put(cate.getId(), perm.getFunction());
+							permissionExistForCate = true;
+						}
+					}
+					if(!permissionExistForCate)
+						return new HashMap();
+				}
+			}
+			
+			boolean view = false;
+			for(Iterator iter = cateMap.keySet().iterator(); iter.hasNext();)
+			{
+				String permission = (String) cateMap.get((Long)iter.next());
+				if(permission != null && permission.equals(GradebookService.viewPermission))
+				{
+					view = true;
+				}
+			}
+			Map studentMap = new HashMap();
+			for(Iterator studentIter = studentIds.iterator(); studentIter.hasNext();)
+			{
+				String studentId = (String) studentIter.next();
+				if(view)
+					studentMap.put(studentId, GradebookService.viewPermission);
+				else
+					studentMap.put(studentId, GradebookService.gradePermission);
+			}
+			
+			return studentMap;
+		}
 		return new HashMap();
 	}
 }
