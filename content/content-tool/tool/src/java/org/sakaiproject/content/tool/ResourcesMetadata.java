@@ -356,8 +356,8 @@ public class ResourcesMetadata
 	public static final String PROPERTY_NAME_DC_CREATED = "created";
 	public static final String PROPERTY_LABEL_DC_CREATED = rb.getString("label.dc_created");
 	public static final String PROPERTY_DESCRIPTION_DC_CREATED = rb.getString("descr.dc_created");
-	public static final String PROPERTY_TYPE_DC_CREATED = NAMESPACE_XSD + XSD_DATE;
-	public static final String PROPERTY_WIDGET_DC_CREATED = WIDGET_DATE;
+	public static final String PROPERTY_TYPE_DC_CREATED = NAMESPACE_XSD + XSD_NORMALIZED_STRING;  //XSD_DATE;
+	public static final String PROPERTY_WIDGET_DC_CREATED = WIDGET_STRING; // WIDGET_DATE;
 	
 	public static final ResourcesMetadata PROPERTY_DC_CREATED
 		= new ResourcesMetadata(
@@ -372,8 +372,8 @@ public class ResourcesMetadata
 	public static final String PROPERTY_NAME_DC_ISSUED = "issued";
 	public static final String PROPERTY_LABEL_DC_ISSUED = rb.getString("label.dc_issued");
 	public static final String PROPERTY_DESCRIPTION_DC_ISSUED = rb.getString("descr.dc_issued");
-	public static final String PROPERTY_TYPE_DC_ISSUED = NAMESPACE_XSD + XSD_DATE;
-	public static final String PROPERTY_WIDGET_DC_ISSUED = WIDGET_DATE;
+	public static final String PROPERTY_TYPE_DC_ISSUED = NAMESPACE_XSD + XSD_NORMALIZED_STRING;  //XSD_DATE;
+	public static final String PROPERTY_WIDGET_DC_ISSUED = WIDGET_STRING; // WIDGET_DATE;
 	
 	public static final ResourcesMetadata PROPERTY_DC_ISSUED
 		= new ResourcesMetadata(
@@ -388,8 +388,8 @@ public class ResourcesMetadata
 	public static final String PROPERTY_NAME_DC_MODIFIED = "modified";
 	public static final String PROPERTY_LABEL_DC_MODIFIED = rb.getString("label.dc_modified");
 	public static final String PROPERTY_DESCRIPTION_DC_MODIFIED = rb.getString("descr.dc_modified");
-	public static final String PROPERTY_TYPE_DC_MODIFIED = NAMESPACE_XSD + XSD_DATE;
-	public static final String PROPERTY_WIDGET_DC_MODIFIED = WIDGET_DATE;
+	public static final String PROPERTY_TYPE_DC_MODIFIED = NAMESPACE_XSD + XSD_NORMALIZED_STRING;  //XSD_DATE;
+	public static final String PROPERTY_WIDGET_DC_MODIFIED = WIDGET_STRING; // WIDGET_DATE;
 	
 	public static final ResourcesMetadata PROPERTY_DC_MODIFIED
 		= new ResourcesMetadata(
