@@ -1338,7 +1338,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 				}
 				catch(ServerOverloadException e)
 				{
-					addAlert(state, hrb.getString("failed"));
+					addAlert(state, crb.getString("failed"));
 				}
 				catch(IdInvalidException ignore)
 				{
@@ -1355,7 +1355,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 				catch(RuntimeException e)
 				{
 					logger.debug("ResourcesAction.doAttachupload ***** Unknown Exception ***** " + e.getMessage());
-					addAlert(state, hrb.getString("failed"));
+					addAlert(state, crb.getString("failed"));
 				}
 			}
 			else
@@ -1447,7 +1447,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 		}
 		catch(ServerOverloadException e)
 		{
-			addAlert(state, hrb.getString("failed"));
+			addAlert(state, crb.getString("failed"));
 		}
 		catch(IdInvalidException ignore)
 		{
@@ -1464,7 +1464,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 		catch(RuntimeException e)
 		{
 			logger.debug("ResourcesAction.doAttachurl ***** Unknown Exception ***** " + e.getMessage());
-			addAlert(state, hrb.getString("failed"));
+			addAlert(state, crb.getString("failed"));
 		}
 
 		toolSession.setAttribute(STATE_FILEPICKER_MODE, MODE_ATTACHMENT_SELECT_INIT);
@@ -1787,7 +1787,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 			}
 			catch(ServerOverloadException e)
 			{
-				addAlert(state, hrb.getString("failed"));
+				addAlert(state, crb.getString("failed"));
 			}
 			catch(IdInvalidException ignore)
 			{
@@ -1812,7 +1812,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 			catch(RuntimeException e)
 			{
 				logger.debug("ResourcesAction.attachItem ***** Unknown Exception ***** " + e.getMessage());
-				addAlert(state, hrb.getString("failed"));
+				addAlert(state, crb.getString("failed"));
 			}
 			finally
 			{
@@ -1932,7 +1932,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 			catch(RuntimeException e)
 			{
 				logger.debug("ResourcesAction.attachItem ***** Unknown Exception ***** " + e.getMessage());
-				addAlert(state, hrb.getString("failed"));
+				addAlert(state, crb.getString("failed"));
 			}
 		}
 		toolSession.setAttribute(STATE_ADDED_ITEMS, new_items);
