@@ -6055,8 +6055,36 @@ public class SiteAction extends PagedResourceActionII {
 
 		Site site = getStateSite(state);
 		String termEid = site.getProperties().getProperty(PROP_SITE_TERM_EID);
-		state
-				.setAttribute(STATE_TERM_SELECTED, cms
+		if (termEid == null)
+		{
+			// no term eid stored, need to get term eid from the term title
+			String termTitle = site.getProperties().getProperty(PROP_SITE_TERM);
+			List asList = cms.getAcademicSessions();
+			if (termTitle != null && asList != null)
+			{
+				boolean found = false;
+				for (int i = 0; i<asList.size() && !found; i++)
+				{
+					AcademicSession as = (AcademicSession) asList.get(i);
+					if (as.getTitle().equals(termTitle))
+					{
+						termEid = as.getEid();
+						site.getPropertiesEdit().addProperty(PROP_SITE_TERM_EID, termEid);
+						
+						try
+						{
+							SiteService.save(site);
+						}
+						catch (Exception e)
+						{
+							M_log.warn(this + e.getMessage() + site.getId());
+						}
+						found=true;
+					}
+				}
+			}
+		}
+		state.setAttribute(STATE_TERM_SELECTED, cms
 						.getAcademicSession(termEid));
 		state.setAttribute(STATE_TEMPLATE_INDEX, "36");
 
