@@ -11811,7 +11811,7 @@ public class SiteAction extends PagedResourceActionII {
 				} else {
 					// if creating a site, go the the site
 					// information entry page
-					//state.setAttribute(STATE_TEMPLATE_INDEX, "2");
+					state.setAttribute(STATE_TEMPLATE_INDEX, "2");
 				}
 			}
 		}
