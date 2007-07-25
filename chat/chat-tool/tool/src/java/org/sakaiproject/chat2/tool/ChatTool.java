@@ -752,9 +752,16 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       return "/courier/" + getCurrentChatChannelId() + "/" + getToolString();
    }
    
+   /**
+    * Check for add/edit/del perms on the channel
+    * @return
+    */
    public boolean getCanManageTool()
    {
-      return getMaintainer();
+      boolean any = getCanCreateChannel() || 
+         getCanEditChannel(null) || 
+         getCanRemoveChannel(null);
+      return any;
    }
    
    

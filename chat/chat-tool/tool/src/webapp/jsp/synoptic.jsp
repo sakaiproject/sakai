@@ -3,7 +3,7 @@
       <h:form>
       
          <sakai:tool_bar>
-            <h:commandLink action="#{ChatTool.processActionSynopticOptions}" rendered="#{ChatTool.canManageTool}">
+            <h:commandLink action="#{ChatTool.processActionSynopticOptions}" rendered="#{ChatTool.maintainer}">
                <h:outputText value="#{msgs.manage_tool}" />
             </h:commandLink>
          </sakai:tool_bar>

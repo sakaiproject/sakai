@@ -6,7 +6,7 @@
 	focus_path = [ "Control", "mainForm:message" ];
 </script>
       
-         <sakai:tool_bar rendered="#{ChatTool.canManageTool or ChatTool.siteChannelCount > 1 or ChatTool.maintainer}">
+         <sakai:tool_bar rendered="#{ChatTool.canManageTool || ChatTool.siteChannelCount > 1 || ChatTool.maintainer}">
             <h:commandLink action="#{ChatTool.processActionListRooms}" rendered="#{ChatTool.canManageTool}">
                <h:outputText value="#{msgs.manage_tool}" />
             </h:commandLink>
