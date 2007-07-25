@@ -1,5 +1,5 @@
 <f:view>
-	<script type="text/javascript" src="/library/js/jquery-1.1.2.js"></script>
+	<script type="text/javascript" src="/library/js/jquery.js"></script>
 	<script type="text/javascript" src="${pageContext.request.contextPath}/js/spreadsheetUI.js"></script>
 	<div class="portletBody">
 	  <h:form id="gbForm">

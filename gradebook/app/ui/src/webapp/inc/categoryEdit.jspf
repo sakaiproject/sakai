@@ -1,5 +1,5 @@
 
-<script type="text/javascript" src="/library/js/jquery-1.1.2.js"></script>
+<script type="text/javascript" src="/library/js/jquery.js"></script>
 <h4><h:outputText value="#{msgs.cat_heading}" styleClass="gbSection" /></h4>
 
 <div class="indnt1 gbSection">
