@@ -100,7 +100,7 @@ public class podHomeBean {
 
 	private static final String LAST_MODIFIED_TIME_FORMAT = "hh:mm a z";
 	private static final String LAST_MODIFIED_DATE_FORMAT = "MM/dd/yyyy";
-
+	
 	// error handling variables
 	private boolean displayNoFileErrMsg = false;
 	private boolean displayNoDateErrMsg = false;
@@ -353,7 +353,7 @@ public class podHomeBean {
 	private static final String BYTE_NUMBER_FORMAT = "#,###";
 
 	// Permissions prefix
-	private final String CONTENT = "content";
+	private final String CONTENT = "content.";
 	
 	// For date String conversion
 	private static final Map monStrings; 
@@ -519,71 +519,38 @@ public class podHomeBean {
 		return URL;
 	}
 	
+	/**
+	 * Returns String to be passed to permissions page.
+	 */
 	private String getPermissionsMessage() {
-		return "Set permissions for " + podcastService.getUserId() + " in worksite " +
-		   		 SiteService.getSiteDisplay(podcastService.getSiteId()) ;
+		return Validator.escapeUrl("Set permissions for Podcasts folder in worksite " +
+		   		 SiteService.getSiteDisplay(podcastService.getSiteId()));
 	}
 
-/*	FUTURE DEVELOPMENT: display change permissions page within Podcasts tool.
- * public String processPermissions() {
-		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
+	 /**
+	  * Constructs call to permissions helper and redirects to it to display
+	  * Podcasts folder permissions page.
+	  */ 
+	 public String processPermissions() {
+			ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
 
-		try {
-			String url = "sakai.permissions.helper.helper/tool?panel=Main" + "&session." +
-							PermissionsHelper.DESCRIPTION + "=" + getPermissionsMessage() +
-							"&session." + PermissionsHelper.TARGET_REF + "=" + 
-							podcastService.retrievePodcastFolderId(podcastService.getSiteId()) + 
-							"&session." + PermissionsHelper.PREFIX + "=" + CONTENT;
+			try {
+				String url = "sakai.permissions.helper.helper/tool?session." +
+								PermissionsHelper.DESCRIPTION + "=" + getPermissionsMessage() +
+								"&session." + PermissionsHelper.TARGET_REF + "=" + 
+								podcastService.getPodcastsFolderRef() + 
+								"&session." + PermissionsHelper.PREFIX + "=" + CONTENT +
+								"&session." + PermissionsHelper.ROLES_REF + "=" +
+								"/site/" + podcastService.getSiteId();
 
-	        context.redirect(url);
-	    }
-		catch (IOException e) {
-	            throw new RuntimeException("Failed to redirect to helper", e);
-	    }
-		catch (PermissionException e) {
-			// Mucho weirdness, link that calls this only appears if they have permission
-			LOG.error("Error attempting to get reference for site");
+		        context.redirect(url);
+		    }
+			catch (IOException e) {
+		            throw new RuntimeException("Failed to redirect to helper", e);
+		    }
+		
+			return null;
 		}
-	
-		return null;
-	}
-*/
-	public String getResourcesPermissionsUrl() {
-		String url = "";
-
-		ExternalContext context = FacesContext.getCurrentInstance().getExternalContext();
-	       
-		try {
-		   ToolSession currentToolSession = SessionManager.getCurrentToolSession();
-		   currentToolSession.setAttribute(PermissionsHelper.DESCRIPTION, "Set permissions for " + podcastService.getUserId() + " in worksite "
-				   + SiteService.getSiteDisplay(podcastService.getSiteId()) );
-		   currentToolSession.setAttribute(PermissionsHelper.TARGET_REF, podcastService.retrievePodcastFolderId(podcastService.getSiteId()) );
-		   currentToolSession.setAttribute(PermissionsHelper.PREFIX, CONTENT);
-
-		   ToolConfiguration resourcesTool = SiteService.getSite(podcastService.getSiteId()).getToolForCommonId("sakai.resources");	    	
-
-		   /*
-		    *  Navigates you to Podcast folder permissions page within Resources
-		    *  QueryString:
-		    *    panel=Main  	- so repaints entire screen
-		    *    collectionId	- what collection to display permissions for
-		    *    doPermissions	- what vm template to build (ie, what page to display)
-		    */
-		   url = ServerConfigurationService.getPortalUrl() + "/directtool/" + resourcesTool.getId() 
-							+ "?panel=Main&selectedItemId=" + podcastService.retrievePodcastFolderId(podcastService.getSiteId()) 
-							+ "&rt_action=org.sakaiproject.content.types.folder:revise_permissions"
-							+ "&sakai_action=doDispatchAction";
-		}
-		catch (PermissionException e) {
-			LOG.error("PermissionException while generating reference for permission helper");
-		} 
-		catch (IdUnusedException e) {
-			// Weirdness since within a site to do this
-			LOG.error("IdUnusedException attempting to get Site object while attempting to display Podcast folder permissions within Podcasts tool");
-		}
-
-		return url;
-	}
 
 	/**
 	 * Used to inject the podcast service into this bean.

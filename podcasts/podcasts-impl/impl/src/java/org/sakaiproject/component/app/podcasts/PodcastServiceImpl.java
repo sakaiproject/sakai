@@ -332,6 +332,23 @@ public class PodcastServiceImpl implements PodcastService {
 	}
 
 	/**
+	 * Returns a reference to Podcasts folder in Resources to pass to
+	 * permissions page.
+	 */
+	public String getPodcastsFolderRef() {
+		try {
+			ContentCollection podcastFolder = getContentCollection(getSiteId());
+		
+			return podcastFolder.getReference();
+		}
+		catch (Exception e) {
+			LOG.error("Exception thrown while attempting to retrieve podcast folder reference.");
+		}
+		
+		return null;
+	}
+
+	/**
 	 * Remove non-file resources from list of potential podcasts and
 	 * files restricted to groups user not part of
 	 * 

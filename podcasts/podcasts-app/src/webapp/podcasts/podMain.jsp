@@ -26,13 +26,8 @@
     	  <sakai:tool_bar rendered="#{podHomeBean.canUpdateSite || podHomeBean.hasNewPerm}">
         	  <sakai:tool_bar_item action="podcastAdd" value="#{msgs.add}" rendered="#{podHomeBean.hasNewPerm || podHomeBean.canUpdateSite}" />
 	          <sakai:tool_bar_item action="podcastOptions" value="#{msgs.options}" rendered="#{podHomeBean.canUpdateSite}" />
-<%--			  <sakai:tool_bar_item action="podcastPermissions" value="ajaxTest" /> --%>
-			  
-	 		  <f:verbatim><a href="#" onclick="javascript:window.parent.location.href='</f:verbatim>
-			  <h:outputText escape="false" value="#{podHomeBean.resourcesPermissionsUrl}';\">" />
-			  <h:outputText value="#{msgs.permissions}" title="#{msgs.permissions}" rendered="#{podHomeBean.canUpdateSite}" />
-			  <f:verbatim></a></f:verbatim>
-    		  </sakai:tool_bar>
+			  <sakai:tool_bar_item action="#{podHomeBean.processPermissions}" value="#{msgs.permissions}" rendered="#{podHomeBean.canUpdateSite}" /> 
+		  </sakai:tool_bar>
       
       <h:outputText value="#{msgs.no_access}" styleClass="validation" rendered="#{! podHomeBean.hasAllGroups && ! podHomeBean.hasReadPerm }" />
       

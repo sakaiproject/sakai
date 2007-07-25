@@ -44,7 +44,7 @@
 		 correct information -->
      <servlet>
       <servlet-name>sakai.podcasts</servlet-name>
-      <servlet-class>org.sakaiproject.jsf.util.JsfTool</servlet-class>
+      <servlet-class>org.sakaiproject.jsf.util.HelperAwareJsfTool</servlet-class>
         <init-param>
             <param-name>path</param-name>
             <param-value>/podcasts</param-value>

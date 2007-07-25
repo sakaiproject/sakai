@@ -176,6 +176,12 @@ public interface PodcastService // extends EntityProducer
 	public String getPodcastFileURL(String resourceId) throws PermissionException, IdUnusedException;
 
 	/**
+	 * Returns a reference to the Podcasts folder in Resources. 
+	 * Used to display permissions page.
+	 */
+	public String getPodcastsFolderRef();
+	
+	/**
 	 * Does the actual adding of podcast to Resources
 	 * 
 	 * @param title User specified title for the podcast
