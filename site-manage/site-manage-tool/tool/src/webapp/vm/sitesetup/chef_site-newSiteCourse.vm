@@ -369,4 +369,10 @@ function redirectBasedOnSelection(){
 			#end
 
 	</form>
+	<script type="text/javascript">
+	// <![CDATA[
+	setContinueButton();
+	// ]]>
+	</script> 
+	
 </div>
