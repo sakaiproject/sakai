@@ -8167,12 +8167,12 @@ public class AssignmentAction extends PagedResourceActionII
 		String sort = "";
 		ascending = (String) state.getAttribute(SORTED_ASC);
 		sort = (String) state.getAttribute(SORTED_BY);
-		if (mode.equalsIgnoreCase(MODE_INSTRUCTOR_GRADE_ASSIGNMENT) && !sort.startsWith("sorted_grade_submission_by"))
+		if (mode.equalsIgnoreCase(MODE_INSTRUCTOR_GRADE_ASSIGNMENT) && (sort == null || !sort.startsWith("sorted_grade_submission_by")))
 		{
 			ascending = (String) state.getAttribute(SORTED_GRADE_SUBMISSION_ASC);
 			sort = (String) state.getAttribute(SORTED_GRADE_SUBMISSION_BY);
 		}
-		else if (mode.equalsIgnoreCase(MODE_INSTRUCTOR_REPORT_SUBMISSIONS) && sort.startsWith("sorted_submission_by"))
+		else if (mode.equalsIgnoreCase(MODE_INSTRUCTOR_REPORT_SUBMISSIONS) && (sort == null || sort.startsWith("sorted_submission_by")))
 		{
 			ascending = (String) state.getAttribute(SORTED_SUBMISSION_ASC);
 			sort = (String) state.getAttribute(SORTED_SUBMISSION_BY);
