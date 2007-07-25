@@ -14,7 +14,7 @@ deleteUrl = "<h:outputText value="#{ChatTool.toolContext}/sakai.chat.deleteMessa
 </script>
 
 	<sakai:script contextBase="/sakai-chat-tool" path="/js/chatscript.js"/>
-	<sakai:script contextBase="/library" path="/js/jquery-1.1.2.js" />
+	<sakai:script contextBase="/library" path="/js/jquery.js" />
 	
 	<sakai:messages />
 	
