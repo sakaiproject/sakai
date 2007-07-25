@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.quartz.Job;
+import org.quartz.StatefulJob;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.sakaiproject.api.app.scheduler.DelayedInvocation;
@@ -16,7 +16,7 @@ import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
 
-public class ScheduledInvocationRunner implements Job {
+public class ScheduledInvocationRunner implements StatefulJob {
 
 	private static final Log LOG = LogFactory.getLog(ScheduledInvocationRunner.class);
 
