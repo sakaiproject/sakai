@@ -1313,6 +1313,7 @@
 					metadataShownGraph.style.display = "block";
 					metadataHiddenGraph.style.display = "none";
 					metadataDiv.style.display = "block";
+					resizeFrame('grow');
 				}
 			}
 		}
@@ -1340,6 +1341,7 @@
 					metadataShownGraph.style.display = "none";
 					metadataHiddenGraph.style.display = "block";
 					metadataDiv.style.display = "none";
+					resizeFrame('grow');
 				}
 			}
 		}
