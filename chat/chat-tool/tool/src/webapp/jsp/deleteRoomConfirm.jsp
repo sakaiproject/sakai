@@ -3,6 +3,7 @@
 	<sakai:view_title value="#{msgs.delete_room_confirm_title}" />
 	
 	<h:outputText value="#{msgs.delete_room_confirm_alert}" styleClass="alertMessage" />
+	<sakai:messages />
 	
 	<h:form styleClass="portletBody">
 	

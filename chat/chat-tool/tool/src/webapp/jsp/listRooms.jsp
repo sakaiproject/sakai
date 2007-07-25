@@ -43,7 +43,7 @@
 							<h:outputText value="#{msgs['gen.delete']}" />
 						</h:commandLink>
 					</f:subview>
-					<f:subview id="clearMessages" rendered="#{ChatTool.maintainer && channel.numberChannelMessages > 0}">
+					<f:subview id="clearMessages" rendered="#{channel.canDeleteMessages && channel.numberChannelMessages > 0}">
 						<h:commandLink action="#{channel.processActionDeleteRoomMessages}" 
 							title="#{msgs.delete_room_messages}">
 							<h:outputText value="#{msgs.delete_room_messages}" />

@@ -3,6 +3,7 @@
 		<sakai:view_title value="#{msgs['delete.delete']}"/>
 		
 		<h:outputText value="#{msgs['delete.sure']}" styleClass="alertMessage" />
+		<sakai:messages />
 		
 		<h:form styleClass="portletBody">
 		
