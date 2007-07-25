@@ -6,6 +6,7 @@
 	<form name="reorderForm" id="reorderForm" action="#toolForm("ResourcesAction")" method="post">
 		<input name="folderId" id="folderId" value="$folderId" type="hidden" />
 		<input name="sakai_action" id="sakai_action" value="doSaveOrder" type="hidden" />
+		<input name="flow" id="flow" value="save" type="hidden" />
 		<div class ="breadCrumb specialLink">
 			<h3>
 				$tlang.getString("sort.title")
@@ -106,8 +107,8 @@
 			</tbody>
 		</table>
 		<p class="act" style="margin:0;padding:.3em 0;">
-			<input name="flow" id="save" value="$tlang.getString("sort.save")" type="submit" class="active"/> 
-			<input name="flow" id="cancel" value="$tlang.getString("sort.cancel")" type="submit" />																			
+			<input id="save" value="$tlang.getString("sort.save")" type="button" class="active" onclick="submitThis('reorderForm','save');" /> 
+			<input id="cancel" value="$tlang.getString("sort.cancel")" type="button" onclick="submitThis('reorderForm','cancel');" />																			
 		</p>
 	</form>						
 
@@ -125,6 +126,11 @@
 			{
 				theForm.submit();
 			}
+		}
+		function submitThis(id, flow)
+		{
+			document.getElementById("flow").value = flow;
+			submitform(id);
 		}
 		function moveRow (clickedObj, destination) {
 			
