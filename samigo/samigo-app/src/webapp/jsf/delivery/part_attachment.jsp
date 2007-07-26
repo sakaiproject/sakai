@@ -30,12 +30,10 @@
       </h:column>
       <h:column>
         <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
-	  <h:outputText escape="false" value="
-	    <embed src=\"#{delivery.protocol}/samigo/servlet/ShowAttachmentMedia?resourceId=#{attach.resourceId}&mimeType=#{attach.mimeType}&filename=#{attach.filename}\" volume=\"50\" height=\"25\" width=\"300\" autostart=\"false\"/>" rendered="#{attach.isAudio}"/>
-      <h:outputText escape="false" value="
-	    <embed src=\"#{delivery.protocol}/samigo/servlet/ShowAttachmentMedia?resourceId=#{attach.resourceId}&mimeType=#{attach.mimeType}&filename=#{attach.filename}\" volume=\"50\" height=\"350\" width=\"400\" autostart=\"false\"/>" rendered="#{attach.isVideo}"/>
-	  <h:outputText escape="false" value="
-	    <img src=\"#{delivery.protocol}/samigo/servlet/ShowAttachmentMedia?resourceId=#{attach.resourceId}&mimeType=#{attach.mimeType}&filename=#{attach.filename}\" />" rendered="#{attach.isImage}"/>
+        <h:outputText escape="false" value="
+	      <embed src=\"#{delivery.protocol}/samigo/servlet/ShowAttachmentMedia?resourceId=#{attach.resourceId}&mimeType=#{attach.mimeType}&filename=#{attach.filename}\" volume=\"50\" height=\"350\" width=\"400\" autostart=\"false\"/>" rendered="#{attach.isInlineVideo}"/>
+	    <h:outputText escape="false" value="
+	      <img src=\"#{delivery.protocol}/samigo/servlet/ShowAttachmentMedia?resourceId=#{attach.resourceId}&mimeType=#{attach.mimeType}&filename=#{attach.filename}\" />" rendered="#{attach.isInlineImage}"/>
 		<h:outputLink value="#{attach.filename}" target="new_window" rendered="#{attach.isLink && !attach.isMedia}">
           <h:outputText escape="false" value="#{attach.filename}" />
         </h:outputLink>

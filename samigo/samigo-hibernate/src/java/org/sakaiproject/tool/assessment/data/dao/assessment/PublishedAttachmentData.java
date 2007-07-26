@@ -225,8 +225,8 @@ private Long attachmentId;
   public void setAttachmentType(Long attachmentType) {
   }
 
-  public boolean getIsAudio() {
-	  if (this.mimeType.startsWith("audio")) {
+  public boolean getIsInlineVideo() {
+	  if (this.mimeType.equals("video/quicktime")) {
 		  return true;
 	  }
 	  else {
@@ -234,17 +234,8 @@ private Long attachmentId;
 	  } 
   }
   
-  public boolean getIsVideo() {
-	  if (this.mimeType.startsWith("video")) {
-		  return true;
-	  }
-	  else {
-		  return false;
-	  } 
-  }
-  
-  public boolean getIsImage() {
-	  if (this.mimeType.startsWith("image")) {
+  public boolean getIsInlineImage() {
+	  if (this.mimeType.equalsIgnoreCase("image/jpeg") || this.mimeType.equalsIgnoreCase("image/gif")) {
 		  return true;
 	  }
 	  else {
@@ -253,6 +244,6 @@ private Long attachmentId;
   }
   
   public boolean getIsMedia() {
-	  return (getIsAudio() || getIsVideo() || getIsImage());
+	  return (getIsInlineVideo() || getIsInlineImage());
   }
 }
