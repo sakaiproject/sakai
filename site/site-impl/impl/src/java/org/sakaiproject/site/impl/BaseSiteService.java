@@ -723,7 +723,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	 */
 	public boolean allowUpdateSiteMembership(String id)
 	{
-		return unlockCheck2(SECURE_UPDATE_SITE, SECURE_UPDATE_SITE_MEMBERSHIP, siteReference(id));
+		return unlockCheck(SECURE_UPDATE_SITE_MEMBERSHIP, siteReference(id));
 	}
 
 	/**
@@ -731,7 +731,7 @@ public abstract class BaseSiteService implements SiteService, StorageUser
 	 */
 	public boolean allowUpdateGroupMembership(String id)
 	{
-		return unlockCheck2(SECURE_UPDATE_SITE, SECURE_UPDATE_GROUP_MEMBERSHIP, siteReference(id));
+		return unlockCheck(SECURE_UPDATE_GROUP_MEMBERSHIP, siteReference(id));
 	}
 
 	/**
