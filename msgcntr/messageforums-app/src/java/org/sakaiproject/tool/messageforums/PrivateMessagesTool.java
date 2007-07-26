@@ -118,7 +118,8 @@ public class PrivateMessagesTool
   private static final String NO_MARKED_READ_MESSAGE = "pvt_no_message_mark_read";
   private static final String NO_MARKED_DELETE_MESSAGE = "pvt_no_message_mark_delete";
   private static final String NO_MARKED_MOVE_MESSAGE = "pvt_no_message_mark_move";
-  private static final String MULTIDELETE_SUCCESS_MSG = "cdfm_deleted_success";
+  private static final String MULTIDELETE_SUCCESS_MSG = "pvt_deleted_success";
+  private static final String PERM_DELETE_SUCCESS_MSG = "pvt_perm_deleted_success";
   
   /** Used to determine if this is combined tool or not */
   private static final String MESSAGECENTER_TOOL_ID = "sakai.messagecenter";
@@ -2116,7 +2117,11 @@ public void processChangeSelectView(ValueChangeEvent eve)
     
     if (deleted)
     {
-    	multiDeleteSuccessMsg = getResourceBundleString(MULTIDELETE_SUCCESS_MSG);
+    	if ("Deleted".equals(msgNavMode))
+    		multiDeleteSuccessMsg = getResourceBundleString(PERM_DELETE_SUCCESS_MSG);
+    	else
+    		multiDeleteSuccessMsg = getResourceBundleString(MULTIDELETE_SUCCESS_MSG);
+    	
     	multiDeleteSuccess = true;
     }
 
