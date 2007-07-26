@@ -2925,10 +2925,10 @@ public class SiteAction extends PagedResourceActionII {
 					context.put("backIndex", "1");
 				}
 			}
-			// else if (((String) state.getAttribute(STATE_SITE_MODE))
-			// .equalsIgnoreCase(SITE_MODE_SITEINFO)) {
-			// context.put("backIndex", "");
-			// }
+			else if (((String) state.getAttribute(STATE_SITE_MODE)).equalsIgnoreCase(SITE_MODE_SITEINFO)) 
+			{
+				context.put("backIndex", "36");
+			}
 
 			return (String) getContext(data).get("template") + TEMPLATE[53];
 		}
