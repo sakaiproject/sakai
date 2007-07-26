@@ -93,9 +93,7 @@
           class="org.sakaiproject.component.gradebook.GradebookPermissionServiceImpl"
           name="org.sakaiproject.service.gradebook.GradebookPermissionServiceTarget">
         <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
-		<property name="authn">
-			<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />
-		</property>
+        <property name="sectionAwareness"><ref bean="org.sakaiproject.section.api.SectionAwareness"/></property>
 	</bean>
 	
 

@@ -12,11 +12,16 @@ import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.tool.gradebook.GradingEvents;
+import org.sakaiproject.tool.gradebook.Permission;
+import org.sakaiproject.section.api.coursemanagement.Course;
+import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.section.api.coursemanagement.User;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -2749,5 +2754,369 @@ public class GradebookManagerOPCTest extends GradebookTestBase {
 			//System.out.print((String)list.get(i) + "::");
 		}
 		//System.out.println();
+	}
+	
+	public void testAddPermissionGetPermissionsForGB() throws Exception
+	{
+		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
+		Long permId = gradebookManager.addPermission(persistentGradebook.getId(), "grader1", GradebookService.gradePermission, cate1Long,"fake section");
+		Long permId1 = gradebookManager.addPermission(persistentGradebook.getId(), "grader2", GradebookService.viewPermission, null,"section1");
+		Long permId2 = gradebookManager.addPermission(persistentGradebook.getId(), "grader3", GradebookService.viewPermission, cate1Long, null);
+		
+		List permList = gradebookManager.getPermissionsForGB(persistentGradebook.getId());
+		
+		Assert.assertTrue(permList.size() == 3);
+	}
+	
+	public void testUpdatePermission() throws Exception
+	{
+		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
+		Long permId = gradebookManager.addPermission(persistentGradebook.getId(), "grader1", GradebookService.gradePermission, cate1Long,"fake section");
+		Long permId1 = gradebookManager.addPermission(persistentGradebook.getId(), "grader2", GradebookService.viewPermission, null,"section1");
+		Long permId2 = gradebookManager.addPermission(persistentGradebook.getId(), "grader3", GradebookService.viewPermission, cate1Long, null);
+		
+		List permList = gradebookManager.getPermissionsForGB(persistentGradebook.getId());
+		for(int i=0; i<permList.size(); i++)
+		{
+			Permission perm = (Permission) permList.get(i);
+			perm.setFunction(GradebookService.gradePermission);
+			perm.setGroupId("another section");
+		}
+
+		gradebookManager.updatePermission(permList);
+		permList = gradebookManager.getPermissionsForGB(persistentGradebook.getId());
+		
+		//gradebookManager.deletePermission((Permission)permList.get(0));
+		//permList = gradebookManager.getPermissionsForGB(persistentGradebook.getId());
+		
+		Long permId3 = gradebookManager.addPermission(persistentGradebook.getId(), "grader1", GradebookService.viewPermission, cate1Long, null);
+		permList = gradebookManager.getPermissionsForUser(persistentGradebook.getId(), "grader1");
+	}
+	
+	public void testGetCategoriesForUser() throws Exception
+	{
+		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		
+		Long permId = gradebookManager.addPermission(persistentGradebook.getId(), "grader1", GradebookService.gradePermission, cate1Long,"fake section");
+		Long permId1 = gradebookManager.addPermission(persistentGradebook.getId(), "grader2", GradebookService.viewPermission, null,"section1");
+		Long permId2 = gradebookManager.addPermission(persistentGradebook.getId(), "grader3", GradebookService.viewPermission, cate1Long, null);
+		Long permId4 = gradebookManager.addPermission(persistentGradebook.getId(), "grader1", GradebookService.gradePermission, cate1Long,"another section");
+		Long permId5 = gradebookManager.addPermission(persistentGradebook.getId(), "grader1", GradebookService.gradePermission, null,"another section");
+		
+		List cateList = gradebookPermissionService.getCategoriesForUser(persistentGradebook.getId(), "grader1", gradebookManager.getCategories(persistentGradebook.getId()), GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
+		
+//		for(int i=0; i<cateList.size(); i++)
+//		{
+//			System.out.println(((Category)cateList.get(i)).getName());
+//		}
+	}
+	
+	public void testGetStudentsForItem() throws Exception
+	{
+		try
+		{
+			Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
+			persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
+			gradebookManager.updateGradebook(persistentGradebook);
+
+			Course courseSite = integrationSupport.createCourse("test site", "test site", false, true, true);
+      User student1 = userManager.createUser("studentId1", "studentId1", "studentId1-last, studentId1-first", "studentId1");
+      User student2 = userManager.createUser("studentId2", "studentId2", "studentId2-last, studentId2-first", "studentId2");
+      User student3 = userManager.createUser("studentId3", "studentId3", "studentId3-last, studentId3-first", "studentId3");
+
+      integrationSupport.addSiteMembership(student1.getUserUid(), courseSite.getSiteContext(), Role.STUDENT);
+      integrationSupport.addSiteMembership(student2.getUserUid(), courseSite.getSiteContext(), Role.STUDENT);
+      integrationSupport.addSiteMembership(student3.getUserUid(), courseSite.getSiteContext(), Role.STUDENT);
+      
+  		List sectionCategories = sectionAwareness.getSectionCategories(courseSite.getSiteContext());
+  		String catId = (String)sectionCategories.get(1);
+      
+			CourseSection grp1 = integrationSupport.createSection(courseSite.getUuid(), "grp1", catId, new Integer(40), "Room 2", null, null, true, false, true,  false, false, false, false);
+			CourseSection grp2 = integrationSupport.createSection(courseSite.getUuid(),"grp2", catId, new Integer(40), "Room 2", null, null, true, false, true,  false, false, false, false);
+			
+			integrationSupport.addSectionMembership(student1.getUserUid(), grp1.getUuid(), Role.STUDENT);
+			integrationSupport.addSectionMembership("studentId2", grp1.getUuid(), Role.STUDENT);
+			integrationSupport.addSectionMembership("studentId1", grp2.getUuid(), Role.STUDENT);
+			integrationSupport.addSectionMembership("studentId2", grp2.getUuid(), Role.STUDENT);
+			integrationSupport.addSectionMembership("studentId3", grp2.getUuid(), Role.STUDENT);
+			
+			Long permId1 = gradebookManager.addPermission(persistentGradebook.getId(), "grader1", GradebookService.gradePermission, cate1Long,grp1.getUuid());
+			permId1 = gradebookManager.addPermission(persistentGradebook.getId(), "grader2", GradebookService.viewPermission, cate1Long, grp1.getUuid());
+			gradebookManager.addPermission(persistentGradebook.getId(), "grader2", GradebookService.gradePermission, null, null);
+			Long permId2 = gradebookManager.addPermission(persistentGradebook.getId(), "grader3", GradebookService.viewPermission, cate1Long, null);
+			Long permId3 = gradebookManager.addPermission(persistentGradebook.getId(), "grader1", GradebookService.viewPermission, cate1Long,null);
+			Long permId5 = gradebookManager.addPermission(persistentGradebook.getId(), "grader1", GradebookService.viewPermission, null,grp2.getUuid());
+			gradebookManager.addPermission(persistentGradebook.getId(), "grader5", GradebookService.viewPermission, null, grp1.getUuid());
+			gradebookManager.addPermission(persistentGradebook.getId(), "grader5", GradebookService.gradePermission, cate1Long, grp2.getUuid());
+
+			List grps = new ArrayList();
+			grps.add(grp1);
+			grps.add(grp2);
+
+			List studentIds = new ArrayList();
+			studentIds.add("studentId1");
+			studentIds.add("studentId2");
+			studentIds.add("studentId3");
+
+			Map permMap = gradebookPermissionService.getStudentsForItem(persistentGradebook.getId(), "grader1", studentIds, GradebookService.CATEGORY_TYPE_NO_CATEGORY, null, grps);
+			Map permMap1 = gradebookPermissionService.getStudentsForItem(persistentGradebook.getId(), "grader2", studentIds, GradebookService.CATEGORY_TYPE_NO_CATEGORY, null, grps);
+//			for(Iterator iter = permMap.keySet().iterator(); iter.hasNext();)
+//			{
+//				String key = (String)iter.next();
+//				String value = (String)permMap.get(key);
+//				System.out.println(key + "---" + value);
+//			}
+//			System.out.println("++++++++++");
+//			for(Iterator iter = permMap1.keySet().iterator(); iter.hasNext();)
+//			{
+//				String key = (String)iter.next();
+//				String value = (String)permMap1.get(key);
+//				System.out.println(key + "---" + value);
+//			}
+
+			persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
+			gradebookManager.updateGradebook(persistentGradebook);
+
+			permMap = gradebookPermissionService.getStudentsForItem(persistentGradebook.getId(), "grader1", studentIds, GradebookService.CATEGORY_TYPE_ONLY_CATEGORY, cate1Long, grps);
+			permMap1 = gradebookPermissionService.getStudentsForItem(persistentGradebook.getId(), "grader2", studentIds, GradebookService.CATEGORY_TYPE_ONLY_CATEGORY, cate1Long, grps);
+//			System.out.println("------with category-------");
+//			for(Iterator iter = permMap.keySet().iterator(); iter.hasNext();)
+//			{
+//				String key = (String)iter.next();
+//				String value = (String)permMap.get(key);
+//				System.out.println(key + "---" + value);
+//			}
+//			System.out.println("++++++++++");
+//			for(Iterator iter = permMap1.keySet().iterator(); iter.hasNext();)
+//			{
+//				String key = (String)iter.next();
+//				String value = (String)permMap1.get(key);
+//				System.out.println(key + "---" + value);
+//			}
+			Map grader5Map = gradebookPermissionService.getStudentsForItem(persistentGradebook.getId(), "grader5", studentIds, GradebookService.CATEGORY_TYPE_ONLY_CATEGORY, null, grps);
+			Map grader5Map1 = gradebookPermissionService.getStudentsForItem(persistentGradebook.getId(), "grader5", studentIds, GradebookService.CATEGORY_TYPE_ONLY_CATEGORY, cate1Long, grps);
+//			for(Iterator iter = grader5Map.keySet().iterator(); iter.hasNext();)
+//			{
+//				String key = (String)iter.next();
+//				String value = (String)grader5Map.get(key);
+//				System.out.println(key + "---" + value);
+//			}
+//			for(Iterator iter = grader5Map1.keySet().iterator(); iter.hasNext();)
+//			{
+//				String key = (String)iter.next();
+//				String value = (String)grader5Map1.get(key);
+//				System.out.println(key + "---" + value);
+//			}
+		}
+		catch(Exception e)
+		{			
+			e.printStackTrace();
+		}
+	}
+	
+	public void testGtetAvailableItemsForStudent() throws Exception
+	{
+		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+
+		Course courseSite = integrationSupport.createCourse("test site", "test site", false, true, true);
+    User student1 = userManager.createUser("studentId1", "studentId1", "studentId1-last, studentId1-first", "studentId1");
+    User student2 = userManager.createUser("studentId2", "studentId2", "studentId2-last, studentId2-first", "studentId2");
+    User student3 = userManager.createUser("studentId3", "studentId3", "studentId3-last, studentId3-first", "studentId3");
+
+    integrationSupport.addSiteMembership(student1.getUserUid(), courseSite.getSiteContext(), Role.STUDENT);
+    integrationSupport.addSiteMembership(student2.getUserUid(), courseSite.getSiteContext(), Role.STUDENT);
+    integrationSupport.addSiteMembership(student3.getUserUid(), courseSite.getSiteContext(), Role.STUDENT);
+    
+		List sectionCategories = sectionAwareness.getSectionCategories(courseSite.getSiteContext());
+		String catId = (String)sectionCategories.get(1);
+    
+		CourseSection grp1 = integrationSupport.createSection(courseSite.getUuid(), "grp1", catId, new Integer(40), "Room 2", null, null, true, false, true,  false, false, false, false);
+		CourseSection grp2 = integrationSupport.createSection(courseSite.getUuid(),"grp2", catId, new Integer(40), "Room 2", null, null, true, false, true,  false, false, false, false);
+		
+		integrationSupport.addSectionMembership(student1.getUserUid(), grp1.getUuid(), Role.STUDENT);
+		integrationSupport.addSectionMembership("studentId2", grp1.getUuid(), Role.STUDENT);
+		integrationSupport.addSectionMembership("studentId1", grp2.getUuid(), Role.STUDENT);
+		integrationSupport.addSectionMembership("studentId2", grp2.getUuid(), Role.STUDENT);
+		integrationSupport.addSectionMembership("studentId3", grp2.getUuid(), Role.STUDENT);
+		
+		Long permId1 = gradebookManager.addPermission(persistentGradebook.getId(), "grader1", GradebookService.gradePermission, cate1Long,grp1.getUuid());
+		permId1 = gradebookManager.addPermission(persistentGradebook.getId(), "grader2", GradebookService.viewPermission, cate1Long, grp1.getUuid());
+		gradebookManager.addPermission(persistentGradebook.getId(), "grader2", GradebookService.gradePermission, null, null);
+		Long permId2 = gradebookManager.addPermission(persistentGradebook.getId(), "grader3", GradebookService.viewPermission, cate1Long, null);
+		Long permId3 = gradebookManager.addPermission(persistentGradebook.getId(), "grader1", GradebookService.viewPermission, cate1Long,null);
+		Long permId5 = gradebookManager.addPermission(persistentGradebook.getId(), "grader1", GradebookService.viewPermission, null,grp2.getUuid());
+		gradebookManager.addPermission(persistentGradebook.getId(), "grader5", GradebookService.viewPermission, null, grp1.getUuid());
+		gradebookManager.addPermission(persistentGradebook.getId(), "grader5", GradebookService.gradePermission, cate1Long, grp2.getUuid());
+		
+		List grps = new ArrayList();
+		grps.add(grp1);
+		grps.add(grp2);
+
+		List studentIds = new ArrayList();
+		studentIds.add("studentId1");
+		studentIds.add("studentId2");
+		studentIds.add("studentId3");
+
+		Map assignMap = gradebookPermissionService.getAvailableItemsForStudent(persistentGradebook.getId(), "grader1", "studentId1", grps);
+//		System.out.println("grader1" + "---" + "student1");
+//		for(Iterator iter = assignMap.keySet().iterator(); iter.hasNext();)
+//		{
+//			Long key = (Long)iter.next();
+//			String value = (String)assignMap.get(key);
+//			System.out.println(key + "---" + value);
+//		}
+//		assignMap = gradebookPermissionService.getAvailableItemsForStudent(persistentGradebook.getId(), "grader1", "studentId2", grps);
+//		System.out.println("grader1" + "---" + "student2");
+//		for(Iterator iter = assignMap.keySet().iterator(); iter.hasNext();)
+//		{
+//			Long key = (Long)iter.next();
+//			String value = (String)assignMap.get(key);
+//			System.out.println(key + "---" + value);
+//		}
+//		assignMap = gradebookPermissionService.getAvailableItemsForStudent(persistentGradebook.getId(), "grader1", "studentId3", grps);
+//		System.out.println("grader1" + "---" + "student3");
+//		for(Iterator iter = assignMap.keySet().iterator(); iter.hasNext();)
+//		{
+//			Long key = (Long)iter.next();
+//			String value = (String)assignMap.get(key);
+//			System.out.println(key + "---" + value);
+//		}
+		
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);		
+//		assignMap = gradebookPermissionService.getAvailableItemsForStudent(persistentGradebook.getId(), "grader1", "studentId1", grps);
+//		System.out.println("grader1" + "---" + "student1");
+//		for(Iterator iter = assignMap.keySet().iterator(); iter.hasNext();)
+//		{
+//			Long key = (Long)iter.next();
+//			String value = (String)assignMap.get(key);
+//			System.out.println(key + "---" + value);
+//		}
+//		assignMap = gradebookPermissionService.getAvailableItemsForStudent(persistentGradebook.getId(), "grader1", "studentId2", grps);
+//		System.out.println("grader1" + "---" + "student2");
+//		for(Iterator iter = assignMap.keySet().iterator(); iter.hasNext();)
+//		{
+//			Long key = (Long)iter.next();
+//			String value = (String)assignMap.get(key);
+//			System.out.println(key + "---" + value);
+//		}
+//		assignMap = gradebookPermissionService.getAvailableItemsForStudent(persistentGradebook.getId(), "grader1", "studentId3", grps);
+//		System.out.println("grader1" + "---" + "student3");
+//		for(Iterator iter = assignMap.keySet().iterator(); iter.hasNext();)
+//		{
+//			Long key = (Long)iter.next();
+//			String value = (String)assignMap.get(key);
+//			System.out.println(key + "---" + value);
+//		}
+		assignMap = gradebookPermissionService.getAvailableItemsForStudent(persistentGradebook.getId(), "grader2", "studentId1", grps);
+//		System.out.println("grader2" + "---" + "student1");
+//		for(Iterator iter = assignMap.keySet().iterator(); iter.hasNext();)
+//		{
+//			Long key = (Long)iter.next();
+//			String value = (String)assignMap.get(key);
+//			System.out.println(key + "---" + value);
+//		}
+		assignMap = gradebookPermissionService.getAvailableItemsForStudent(persistentGradebook.getId(), "grader2", "studentId2", grps);
+//		System.out.println("grader2" + "---" + "student2");
+//		for(Iterator iter = assignMap.keySet().iterator(); iter.hasNext();)
+//		{
+//			Long key = (Long)iter.next();
+//			String value = (String)assignMap.get(key);
+//			System.out.println(key + "---" + value);
+//		}
+		assignMap = gradebookPermissionService.getAvailableItemsForStudent(persistentGradebook.getId(), "grader2", "studentId3", grps);
+//		System.out.println("grader2" + "---" + "student3");
+//		for(Iterator iter = assignMap.keySet().iterator(); iter.hasNext();)
+//		{
+//			Long key = (Long)iter.next();
+//			String value = (String)assignMap.get(key);
+//			System.out.println(key + "---" + value);
+//		}
+		
+		Map studentMap = gradebookPermissionService.getAvailableItemsForStudents(persistentGradebook.getId(), "grader2", studentIds, grps);
+//		for(Iterator iter = studentMap.keySet().iterator(); iter.hasNext();)
+//		{
+//			String studentKey = (String)(iter.next());
+//			Map assignmentMap = (Map) studentMap.get(studentKey);
+//			System.out.println("--------" + studentKey);
+//			for(Iterator assignIter = assignmentMap.keySet().iterator(); assignIter.hasNext();)
+//			{
+//				Long key = (Long)assignIter.next();
+//				System.out.println(key + "--" + assignmentMap.get(key));
+//			}
+//		}
+	}
+	
+	public void testGetCourseGradePermission() throws Exception
+	{
+		Gradebook persistentGradebook = gradebookManager.getGradebook(this.getClass().getName());
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+
+		Course courseSite = integrationSupport.createCourse("test site", "test site", false, true, true);
+    User student1 = userManager.createUser("studentId1", "studentId1", "studentId1-last, studentId1-first", "studentId1");
+    User student2 = userManager.createUser("studentId2", "studentId2", "studentId2-last, studentId2-first", "studentId2");
+    User student3 = userManager.createUser("studentId3", "studentId3", "studentId3-last, studentId3-first", "studentId3");
+
+    integrationSupport.addSiteMembership(student1.getUserUid(), courseSite.getSiteContext(), Role.STUDENT);
+    integrationSupport.addSiteMembership(student2.getUserUid(), courseSite.getSiteContext(), Role.STUDENT);
+    integrationSupport.addSiteMembership(student3.getUserUid(), courseSite.getSiteContext(), Role.STUDENT);
+    
+		List sectionCategories = sectionAwareness.getSectionCategories(courseSite.getSiteContext());
+		String catId = (String)sectionCategories.get(1);
+    
+		CourseSection grp1 = integrationSupport.createSection(courseSite.getUuid(), "grp1", catId, new Integer(40), "Room 2", null, null, true, false, true,  false, false, false, false);
+		CourseSection grp2 = integrationSupport.createSection(courseSite.getUuid(),"grp2", catId, new Integer(40), "Room 2", null, null, true, false, true,  false, false, false, false);
+		
+		integrationSupport.addSectionMembership(student1.getUserUid(), grp1.getUuid(), Role.STUDENT);
+		integrationSupport.addSectionMembership("studentId2", grp1.getUuid(), Role.STUDENT);
+		integrationSupport.addSectionMembership("studentId1", grp2.getUuid(), Role.STUDENT);
+		integrationSupport.addSectionMembership("studentId2", grp2.getUuid(), Role.STUDENT);
+		integrationSupport.addSectionMembership("studentId3", grp2.getUuid(), Role.STUDENT);
+		
+		Long permId1 = gradebookManager.addPermission(persistentGradebook.getId(), "grader1", GradebookService.gradePermission, cate1Long,grp1.getUuid());
+		permId1 = gradebookManager.addPermission(persistentGradebook.getId(), "grader2", GradebookService.viewPermission, cate1Long, grp1.getUuid());
+		gradebookManager.addPermission(persistentGradebook.getId(), "grader2", GradebookService.gradePermission, null, null);
+		Long permId2 = gradebookManager.addPermission(persistentGradebook.getId(), "grader3", GradebookService.viewPermission, cate1Long, null);
+		Long permId3 = gradebookManager.addPermission(persistentGradebook.getId(), "grader1", GradebookService.viewPermission, cate1Long,null);
+		Long permId5 = gradebookManager.addPermission(persistentGradebook.getId(), "grader1", GradebookService.viewPermission, null,grp2.getUuid());
+		gradebookManager.addPermission(persistentGradebook.getId(), "grader5", GradebookService.viewPermission, null, grp1.getUuid());
+		gradebookManager.addPermission(persistentGradebook.getId(), "grader5", GradebookService.gradePermission, cate1Long, grp2.getUuid());
+		
+		List grps = new ArrayList();
+		grps.add(grp1);
+		grps.add(grp2);
+
+		List studentIds = new ArrayList();
+		studentIds.add("studentId1");
+		studentIds.add("studentId2");
+		studentIds.add("studentId3");
+		studentIds.add("studentId4");
+
+		Map courseGradePermMap = gradebookPermissionService.getCourseGradePermission(persistentGradebook.getId(), "grader1", studentIds, grps);
+//		for(Iterator iter = courseGradePermMap.keySet().iterator(); iter.hasNext();)
+//		{
+//			String studentKey = (String)(iter.next());
+//			System.out.println("--------" + studentKey + "--" + courseGradePermMap.get(studentKey));
+//		}
+		
+		persistentGradebook.setCategory_type(GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
+		gradebookManager.updateGradebook(persistentGradebook);
+		courseGradePermMap = gradebookPermissionService.getCourseGradePermission(persistentGradebook.getId(), "grader1", studentIds, grps);
+//		for(Iterator iter = courseGradePermMap.keySet().iterator(); iter.hasNext();)
+//		{
+//			String studentKey = (String)(iter.next());
+//			System.out.println("--------" + studentKey + "--" + courseGradePermMap.get(studentKey));
+//		}
+		courseGradePermMap = gradebookPermissionService.getCourseGradePermission(persistentGradebook.getId(), "grader2", studentIds, grps);
+//		for(Iterator iter = courseGradePermMap.keySet().iterator(); iter.hasNext();)
+//		{
+//			String studentKey = (String)(iter.next());
+//			System.out.println("--------" + studentKey + "--" + courseGradePermMap.get(studentKey));
+//		}		
+
 	}
 }

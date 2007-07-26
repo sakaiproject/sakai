@@ -33,6 +33,7 @@ import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
+import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.CourseGrade;
@@ -67,6 +68,7 @@ public abstract class GradebookTestBase extends AbstractTransactionalSpringConte
 	protected IntegrationSupport integrationSupport;
 	protected UserManager userManager;
     protected EventTrackingService eventTrackingService;
+    protected GradebookPermissionService gradebookPermissionService;
 
     protected void onSetUpInTransaction() throws Exception {
         authn = (Authn)applicationContext.getBean("org_sakaiproject_tool_gradebook_facades_Authn");
@@ -80,6 +82,7 @@ public abstract class GradebookTestBase extends AbstractTransactionalSpringConte
         integrationSupport = (IntegrationSupport)applicationContext.getBean("org.sakaiproject.component.section.support.IntegrationSupport");
         userManager = (UserManager)applicationContext.getBean("org.sakaiproject.component.section.support.UserManager");
         eventTrackingService = (EventTrackingService) applicationContext.getBean("org_sakaiproject_tool_gradebook_facades_EventTrackingService");
+        gradebookPermissionService = (GradebookPermissionService) applicationContext.getBean("org_sakaiproject_service_gradebook_GradebookPermissionService");
     }
 
     /**
@@ -152,5 +155,16 @@ public abstract class GradebookTestBase extends AbstractTransactionalSpringConte
     	}
     	return null;
     }
+
+		public GradebookPermissionService getGradebookPermissionService()
+		{
+			return gradebookPermissionService;
+		}
+
+		public void setGradebookPermissionService(
+				GradebookPermissionService gradebookPermissionService)
+		{
+			this.gradebookPermissionService = gradebookPermissionService;
+		}
 
 }

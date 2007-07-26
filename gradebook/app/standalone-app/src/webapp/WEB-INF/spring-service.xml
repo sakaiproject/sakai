@@ -63,4 +63,10 @@
 		</property>
 	</bean>
 
+	<bean id="org_sakaiproject_service_gradebook_GradebookPermissionService"
+		class="org.sakaiproject.component.gradebook.GradebookPermissionServiceImpl"
+		name="org.sakaiproject.service.gradebook.GradebookPermissionService">
+		<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
+		<property name="sectionAwareness"><ref bean="org.sakaiproject.section.api.SectionAwareness"/></property>
+	</bean>
 </beans>

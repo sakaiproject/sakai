@@ -17,11 +17,13 @@ import org.sakaiproject.tool.gradebook.Permission;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.ParticipationRecord;
-import org.sakaiproject.component.section.cover.SectionAwareness;
+import org.sakaiproject.section.api.SectionAwareness;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
 public class GradebookPermissionServiceImpl extends BaseHibernateManager implements GradebookPermissionService
 {
+	private SectionAwareness sectionAwareness;
+	
 	public List getCategoriesForUser(Long gradebookId, String userId, List categoryList, int cateType) throws IllegalArgumentException
 	{
 		if(gradebookId == null || userId == null)
@@ -240,7 +242,7 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 					for(Iterator groupIter = courseSections.iterator(); groupIter.hasNext();)
 					{
 						CourseSection grp = (CourseSection) groupIter.next();
-						List members = SectionAwareness.getSectionMembers(grp.getUuid());
+						List members = sectionAwareness.getSectionMembers(grp.getUuid());
 						List memberIdList = new ArrayList();
 						for(Iterator<ParticipationRecord> memberIter = members.iterator(); memberIter.hasNext();)
 						{
@@ -558,7 +560,7 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 					{
 						CourseSection grp = (CourseSection) groupIter.next();
 						
-						List members = SectionAwareness.getSectionMembers(grp.getUuid());
+						List members = sectionAwareness.getSectionMembers(grp.getUuid());
 						List memberIdList = new ArrayList();
 						for(Iterator<ParticipationRecord> memberIter = members.iterator(); memberIter.hasNext();)
 						{
@@ -614,7 +616,7 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 									for(Iterator groupIter = courseSections.iterator(); groupIter.hasNext();)
 									{
 										CourseSection grp = (CourseSection) groupIter.next();
-										List members = SectionAwareness.getSectionMembers(grp.getUuid());
+										List members = sectionAwareness.getSectionMembers(grp.getUuid());
 										List memberIdList = new ArrayList();
 										for(Iterator<ParticipationRecord> memberIter = members.iterator(); memberIter.hasNext();)
 										{
@@ -792,7 +794,7 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 					for(Iterator grpIter = courseSections.iterator(); grpIter.hasNext();)
 					{
 						CourseSection grp = (CourseSection) grpIter.next();
-						List members = SectionAwareness.getSectionMembers(grp.getUuid());
+						List members = sectionAwareness.getSectionMembers(grp.getUuid());
 						List memberIdList = new ArrayList();
 						for(Iterator<ParticipationRecord> memberIter = members.iterator(); memberIter.hasNext();)
 						{
@@ -913,5 +915,15 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 			return studentMap;
 		}
 		return new HashMap();
+	}
+
+	public SectionAwareness getSectionAwareness()
+	{
+		return sectionAwareness;
+	}
+
+	public void setSectionAwareness(SectionAwareness sectionAwareness)
+	{
+		this.sectionAwareness = sectionAwareness;
 	}
 }
