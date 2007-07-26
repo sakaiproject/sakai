@@ -20,6 +20,20 @@ public interface GradebookPermissionService
 	public List getCategoriesForUser(Long gradebookId, String userId, List categoryList, int cateType) throws IllegalArgumentException;
 	
   /**
+   * Get true/false value for current user which indicats if he has permission for all
+   * assignments in a gradebook with category turned off or he has permission for
+   * assignments without category associated with in a gradebook with category
+   * turned on.
+   * (For overview page)
+   * 
+   * @param gradebookId Gradebook ID
+   * @param userId grader ID
+   * @throws IllegalArgumentException
+   * @return boolean of true/false
+   */
+	public boolean getPermissionForUserForAllAssignment(Long gradebookId, String userId) throws IllegalArgumentException;
+
+	/**
    * Get students IDs that the current grader can either view or grade.
    * When categoryId is null and cateType is with category - return students' map that the grader
    * can grade/view any category for course sections. (this is mostly for items that have no category 

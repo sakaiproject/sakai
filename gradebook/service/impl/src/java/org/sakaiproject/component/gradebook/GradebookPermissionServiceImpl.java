@@ -68,6 +68,21 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 			return filteredCates;
 		}
 	}
+	
+	public boolean getPermissionForUserForAllAssignment(Long gradebookId, String userId) throws IllegalArgumentException
+	{
+		if(gradebookId == null || userId == null)
+			throw new IllegalArgumentException("Null parameter(s) in GradebookPermissionServiceImpl.getPermissionForUserForAllAssignment");
+		
+		List anyCategoryPermission = getPermissionsForUserAnyCategory(gradebookId, userId);
+
+		if(anyCategoryPermission != null && anyCategoryPermission.size() > 0 )
+		{
+			return true;
+		}
+
+		return false;
+	}
 
 	public Map getStudentsForItem(Long gradebookId, String userId, List studentIds, int cateType, Long categoryId, List courseSections)
 	throws IllegalArgumentException
