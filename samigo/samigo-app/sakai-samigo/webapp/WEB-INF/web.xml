@@ -210,6 +210,13 @@
     <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.cp.DownloadCPServlet</servlet-class>
   </servlet>
 
+  <servlet>
+    <description>Show attachment media file.</description>
+    <display-name>Show Attachment Media</display-name>
+    <servlet-name>ShowAttachmentMediaServlet</servlet-name>
+    <servlet-class>org.sakaiproject.tool.assessment.ui.servlet.delivery.ShowAttachmentMediaServlet</servlet-class>
+  </servlet>
+
   <servlet-mapping>
     <servlet-name>ShowMediaServlet</servlet-name>
     <url-pattern>/servlet/ShowMedia</url-pattern>
@@ -233,6 +240,11 @@
   <servlet-mapping>
     <servlet-name>DownloadCPServlet</servlet-name>
     <url-pattern>/servlet/DownloadCP</url-pattern>
+  </servlet-mapping>
+
+    <servlet-mapping>
+    <servlet-name>ShowAttachmentMediaServlet</servlet-name>
+    <url-pattern>/servlet/ShowAttachmentMedia</url-pattern>
   </servlet-mapping>
 
   <!-- initialization servlets -->

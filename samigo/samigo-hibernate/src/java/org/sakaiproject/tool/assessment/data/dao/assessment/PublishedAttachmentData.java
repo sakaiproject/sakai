@@ -21,11 +21,11 @@
 
 package org.sakaiproject.tool.assessment.data.dao.assessment;
 
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import java.io.Serializable;
 import java.util.Date;
-//import java.util.ResourceBundle;
+
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 
 public class PublishedAttachmentData
     implements Serializable, AttachmentIfc
@@ -50,7 +50,7 @@ private Long attachmentId;
   private String lastModifiedBy;
   private Date lastModifiedDate;
   private Long attachmentType;
-
+  
   public PublishedAttachmentData()
   {
   }
@@ -96,7 +96,7 @@ private Long attachmentId;
     this.lastModifiedBy = lastModifiedBy;
     this.lastModifiedDate = lastModifiedDate;
   }
-
+  
   public Long getAttachmentId()
   {
     return attachmentId;
@@ -225,5 +225,34 @@ private Long attachmentId;
   public void setAttachmentType(Long attachmentType) {
   }
 
-
+  public boolean getIsAudio() {
+	  if (this.mimeType.startsWith("audio")) {
+		  return true;
+	  }
+	  else {
+		  return false;
+	  } 
+  }
+  
+  public boolean getIsVideo() {
+	  if (this.mimeType.startsWith("video")) {
+		  return true;
+	  }
+	  else {
+		  return false;
+	  } 
+  }
+  
+  public boolean getIsImage() {
+	  if (this.mimeType.startsWith("image")) {
+		  return true;
+	  }
+	  else {
+		  return false;
+	  } 
+  }
+  
+  public boolean getIsMedia() {
+	  return (getIsAudio() || getIsVideo() || getIsImage());
+  }
 }
