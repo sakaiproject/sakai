@@ -1865,7 +1865,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			
 			if(collection != null)
 			{
-				ThreadLocalManager.set("findCollection@" + ref, new BaseCollectionEdit(collection));
+				ThreadLocalManager.set("findCollection@" + ref, collection);	// new BaseCollectionEdit(collection));
 			}
 		}
 		else
@@ -3610,7 +3610,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			
 			if(resource != null)
 			{
-				ThreadLocalManager.set("findResource@" + ref, new BaseResourceEdit(resource));
+				ThreadLocalManager.set("findResource@" + ref, resource); 	// new BaseResourceEdit(resource));
 			}
 		}
 		else
@@ -9408,12 +9408,12 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				if(entity instanceof ContentResource)
 				{
 					copy = new BaseResourceEdit((ContentResource) entity);
-					ThreadLocalManager.set("findResource@" + ref, new BaseResourceEdit((ContentResource) entity));
+					ThreadLocalManager.set("findResource@" + ref, entity);	// new BaseResourceEdit((ContentResource) entity));
 				}
 				else if(entity instanceof ContentCollection)
 				{
 					copy = new BaseCollectionEdit((ContentCollection) entity);
-					ThreadLocalManager.set("findCollection@" + ref, new BaseCollectionEdit((ContentCollection) entity));
+					ThreadLocalManager.set("findCollection@" + ref, entity); 	// new BaseCollectionEdit((ContentCollection) entity));
 				}
 				if(copy != null)
 				{
