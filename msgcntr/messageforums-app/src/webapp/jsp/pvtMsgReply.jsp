@@ -200,7 +200,7 @@
 <%--					  <h:outputLink value="#{eachAttach.attachmentUrl}" target="_blank">
 					  	<h:outputText value="#{eachAttach.attachmentName}"/>
 						</h:outputLink>--%>
-					  <h:outputLink value="#{eachAttach.attachment.attachmentUrl}" target="_blank">
+					  <h:outputLink value="#{eachAttach.url}" target="_blank">
 					  	<h:outputText value="#{eachAttach.attachment.attachmentName}"/>
 						</h:outputLink>
 						
