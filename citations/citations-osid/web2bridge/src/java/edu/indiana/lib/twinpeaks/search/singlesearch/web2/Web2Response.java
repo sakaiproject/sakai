@@ -181,7 +181,7 @@ public class Web2Response extends SearchResultBase {
 			 */
 			if ((dataElement = DomUtils.getElement(recordElement, "DATA")) == null) {
 				_log.error("No DATA element present in server response");
-				displayXml(recordElement);
+  			displayXml(recordElement);
 				throw new SearchException(
 						"Missing mandatory <DATA> element in server response");
 			}
@@ -189,7 +189,6 @@ public class Web2Response extends SearchResultBase {
 			title = getText(dataElement, "TITLE");
 			if (StringUtils.isNull(title)) {
 				_log.debug("No TITLE text in server response");
-				displayXml(recordElement);
 				title = "";
 			}
 

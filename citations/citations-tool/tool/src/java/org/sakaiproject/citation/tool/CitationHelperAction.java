@@ -2185,7 +2185,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		}
 		else if(operation.equalsIgnoreCase("remove"))
 		{
-			logger.info("removing citation " + citationId + " from " + collectionId);
+			logger.debug("removing citation " + citationId + " from " + collectionId);
 			collection.remove( citation );
 			citation.setAdded( false );
 			CitationService.save(collection);
@@ -2193,7 +2193,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		else
 		{
 			// do nothing
-			logger.info("null operation: " + operation);
+			logger.debug("null operation: " + operation);
 		}
 
 		// store the citation's new id to send back to UI
