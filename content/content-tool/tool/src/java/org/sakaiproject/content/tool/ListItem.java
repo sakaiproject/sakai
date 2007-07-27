@@ -2663,6 +2663,10 @@ public class ListItem
 			{
 				edit.clearGroupAccess();
 			}
+			else if(ContentHostingService.isPubView(this.id) && ! this.isPubview)
+			{
+				edit.clearPublicAccess();
+			}
 		} 
 		catch (InconsistentException e) 
 		{
