@@ -346,16 +346,12 @@ public class SiteHandler extends WorksiteHandler
 				myWorkspaceSiteId = siteHelper.getSiteEffectiveId(myWorkspaceSite);
 			}
 
-			int prefTabs = 4;
-			int tabsToDisplay = prefTabs;
+			int tabsToDisplay = 4;
 
-			// Get the list of sites in the right order,
-			// My WorkSpace will be the first in the list
-			List<Site> mySites = siteHelper.getAllSites(req, session, true);
 			if (!loggedIn)
 			{
-				prefTabs = ServerConfigurationService.getInt(
-						"gatewaySiteListDisplayCount", prefTabs);
+				tabsToDisplay = ServerConfigurationService.getInt(
+						"gatewaySiteListDisplayCount", tabsToDisplay);
 			}
 			else
 			{
@@ -364,13 +360,31 @@ public class SiteHandler extends WorksiteHandler
 				ResourceProperties props = prefs.getProperties("sakai:portal:sitenav");
 				try
 				{
-					prefTabs = (int) props.getLongProperty("tabs");
+					tabsToDisplay = (int) props.getLongProperty("tabs");
 				}
 				catch (Exception any)
 				{
 				}
 			}
-
+         
+			// Get the list of sites in the right order,
+			// My WorkSpace will be the first in the list
+			List<Site> mySites = siteHelper.getAllSites(req, session, true);
+         
+			// if public workgroup/gateway site is not included, add to list
+			boolean siteFound = false;
+			for ( int i=0; i< mySites.size(); i++ )
+			{
+				if ( ((Site)mySites.get(i)).getId().equals(siteId) )
+					siteFound = true;
+			}
+			try
+			{
+				if (!siteFound)
+					mySites.add( SiteService.getSite(siteId) );
+			}
+			catch ( IdUnusedException e) {} // ignore
+				
 			// Note that if there are exactly one more site
 			// than tabs allowed - simply put the site on
 			// instead of a dropdown with one site
