@@ -25,6 +25,7 @@
 		</ul>
 		#if ($!manualAddNumber)
 			<ul>
+				##for manually entered requested sites
 				#foreach ($k in [0..$manualAddNumber])
 						#set($courseFieldValues = $!fieldValues.get($k))
 						#set($bound = $!form_requiredFields.size())
@@ -37,6 +38,12 @@
 				#end
 			</ul>
 		#end
+		<ul>
+			#foreach ($sect in $!selectedRequestedCourse)
+				<li>
+					$sect.eid
+				#end
+		</ul>
 		<br />
 	#end
 	<form name="addSiteForm" action="#toolForm("$action")" method="post">

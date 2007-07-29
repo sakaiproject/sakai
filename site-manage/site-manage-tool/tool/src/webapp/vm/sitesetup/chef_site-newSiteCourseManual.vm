@@ -1,10 +1,19 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-newSiteCourseManual.vm,v 1.4 2005/06/03 14:08:16 gsilver.umich.edu Exp $ -->
 <script type="text/javascript">
-	function submitRemoveSection(index){
-		id = "removeSection"+index;
+	function submitRemoveRequestedSection(index){
+		id = "removeRequestedSection"+index;
 		removeSection = document.getElementById(id);
 		removeSection.value="true";
-		document.getElementById("option").value="removeSection";
+		document.getElementById("option").value="removeRequestedSection";
+		document.requestCourseForm.submit();
+		return false;
+}
+
+	function submitRemoveSelectedSection(index){
+		id = "removeSelectedSection"+index;
+		removeSection = document.getElementById(id);
+		removeSection.value="true";
+		document.getElementById("option").value="removeSelectedSection";
 		document.requestCourseForm.submit();
 		return false;
 }
@@ -44,29 +53,40 @@
 					</p>
 				#end
 			#end
-				#if ($!selectedProviderCourse)
+			#if ($!editSite)
+							#foreach($section in $!cmRequestedSections)
+								<p class="indnt2">
+										$section.eid <span class="highlight">$tlang.getString("man.requested")</span>
+								</p>
+							#end
+				#end
 				<p class="instruction">$tlang.getString("man.sofar") #if($!site) $tlang.getString("man.toaddto") #else $tlang.getString("java.for") #end $tlang.getString("man.this")</p> 
-				<ul>
 					#foreach ($item in $!selectedProviderCourse)
-						<li>$item 
+						<p class="indnt2">$item 
 							<!-- Remove Section -->
 							(<a href="#" onclick="javascript:submitRemoveSection('$item');">Remove</a>)
 							<input type="hidden" id="removeSection$item" name="removeSection$item" value="" />
-						</li>
+						</p>
 					#end
-				</ul>
-				<ul>
-					#foreach($section in $!requestedSections)
-					<li class="indnt2">
-							$section.title ($section.eid)
-							<!-- Remove Section -->
-							(<a href="#" onclick="javascript:submitRemoveSection('$section.eid');">Remove</a>)
-							<input type="hidden" id="removeSection$section.eid" name="removeSection$section.eid" value="" />
-					</li>
+						#if (!$!editSite)
+							#foreach($section in $!cmRequestedSections)
+								<p class="indnt2">
+										$section.eid
+										<!-- Remove Section -->
+										(<a href="#" onclick="javascript:submitRemoveRequestedSection('$section.eid');">Remove</a>)
+										<input type="hidden" id="removeRequestedSection$section.eid" name="removeRequestedSection$section.eid" value="" />
+								</p>
+							#end
+						#else
+							#foreach($s in $!cmSelectedSections)
+								<p class="indnt2">
+										$s.eid
+										<!-- Remove Section -->
+										(<a href="#" onclick="javascript:submitRemoveSelectedSection('$s.eid');">Remove</a>)
+										<input type="hidden" id="removeSelectedSection$s.eid" name="removeSelectedSection$s.eid" value="" />
+								</p>
+							#end
 					#end
-				</ul>
-				#end
-				
 				<p class="instruction">
 					#if (!$!isFutureTerm)
 						$tlang.getString("man.please_enter")

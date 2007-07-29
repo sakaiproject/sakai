@@ -62,6 +62,9 @@
 					#foreach($id in $!providerCourseList)
 						$id<br />
 					#end
+					#foreach($id in $!cmRequestedCourseList)
+						$id.eid $tlang.getString("man.requested")<br />
+					#end
 					#foreach($id in $!manualCourseList)
 						$id $tlang.getString("man.requested")<br />
 					#end

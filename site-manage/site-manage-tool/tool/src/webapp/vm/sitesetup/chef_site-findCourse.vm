@@ -8,14 +8,6 @@
 		return false;
 	}
 	
-	function submitRemoveRequestedSection(index){
-		id = "removeRequestedSection"+index;
-    	removeSection = document.getElementById(id);
-		removeSection.value="true";
-		document.removeSectionForm.submit();
-		return false;
-	}
-	
 	function resetOption(action){
 		document.findCourseForm.option.value=action;
 		document.findCourseForm.submit();
@@ -48,7 +40,7 @@
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<p class="instruction">
 		    #if ($selectedProviderCourse || $requestedSections)
-				$tlang.getString("nscourse.already")
+				$tlang.getString("sitegen.addcourse.you")
 				<form name = "removeSectionForm" method="post" action="#toolForm($action)">
 					<input type="hidden" name="eventSubmit_doContinue" value="$tlang.getString('gen.continue')" />
 					<input type="hidden" name="eventSubmit_doFind_course" value="x" />
@@ -65,15 +57,28 @@
 								</label>
 							</li>
 						#end
-						#foreach($section in $!requestedSections)
-							<li>
-								<label for = "$id">
-									$section.title ($section.eid)
-									<!-- Remove Section -->
-									(<a href="#" onclick="javascript:submitRemoveRequestedSection('$section.eid');">Remove</a>)
-									<input type="hidden" id="removeRequestedSection$section.eid" name="removeSection$section.eid" value="" />
-								</label>
-							</li>
+						#if (!$!editSite)
+							#foreach($section in $!cmRequestedSections)
+								<li>
+									<label for = "$id">
+										$section.eid
+										<!-- Remove Section -->
+										(<a href="#" onclick="javascript:submitRemoveSection('$section.eid');">Remove</a>)
+										<input type="hidden" id="removeSection$section.eid" name="removeSection$section.eid" value="" />
+									</label>
+								</li>
+							#end
+						#else
+							#foreach($s in $!cmSelectedSections)
+								<li>
+									<label for = "$id">
+										$s.eid
+										<!-- Remove Section -->
+										(<a href="#" onclick="javascript:submitRemoveSection('$s.eid');">Remove</a>)
+										<input type="hidden" id="removeSection$s.eid" name="removeSection$s.eid" value="" />
+									</label>
+								</li>
+							#end
 						#end
 					</ul>
 				</form>
@@ -196,7 +201,6 @@
 
 		<input id="index" type="hidden" name="template-index" value="53" />
 		<input type="hidden" name="back" value="$backIndex" />
-		<input type="hidden" name="continue" value="2"/>
 		<input type="hidden" name="eventSubmit_doFind_course" value="x" />
 		<input type="hidden" name="option" value="find"/>
 		<p class="act">

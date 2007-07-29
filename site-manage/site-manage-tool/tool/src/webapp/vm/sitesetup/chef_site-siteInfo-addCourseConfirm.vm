@@ -24,9 +24,14 @@
 				$c
 			</li>
 		#end
+		#foreach($id in $!cmRequestedCourseList)
+				<li>
+						$id.eid $tlang.getString("man.requested")<br />
+				</li>
+			#end
 		#foreach($c in $manualCourseList)
 			<li>
-				$c $tlang.getString("man.requested")
+				$c $tlang.getString("man.requested")<br />
 			</li>
 		#end
 	</ul>
@@ -39,7 +44,15 @@
 				$c
 			</li>
 		#end
-	</ul>	
+	</ul>
+	#foreach ($c in $!cmSelectedSections)
+			<ul>
+				## for cm request section based on course lookup
+				<li>
+						$c.eid
+					</li>
+			</ul>
+		#end	
 		#if ($!manualAddNumber)
 			<ul>
 				#foreach ($k in [0..$manualAddNumber])

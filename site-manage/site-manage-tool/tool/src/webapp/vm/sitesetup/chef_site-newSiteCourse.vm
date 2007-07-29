@@ -155,9 +155,14 @@ function redirectBasedOnSelection(){
 						$id
 				</li>
 			#end
+			#foreach($id in $!cmRequestedCourseList)
+				<li>
+						$id.eid $tlang.getString("man.requested")<br />
+				</li>
+			#end
 			#foreach($id in $!manualCourseList)
 				<li>
-						$id
+						$id $tlang.getString("man.requested")<br />
 				</li>
 			#end
 		</ul>
