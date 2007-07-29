@@ -31,11 +31,11 @@ public interface DbAuthzGroupSql
 {
 	String getCountRealmFunctionSql();
 
+	String getCountRealmRoleFunctionEndSql(String anonymousRole, String authorizationRole, boolean authorized, String inClause);
+
 	String getCountRealmRoleFunctionSql(String anonymousRole, String authorizationRole, boolean authorized);
 
 	String getCountRealmRoleFunctionSql(String anonymousRole, String authorizationRole, boolean authorized, String inClause);
-
-	String getCountRealmRoleFunctionEndSql(String anonymousRole, String authorizationRole, boolean authorized, String inClause);
 
 	String getCountRealmRoleSql();
 
@@ -63,13 +63,33 @@ public interface DbAuthzGroupSql
 
 	String getInsertRealmProviderSql();
 
+	String getInsertRealmRoleDescription1Sql();
+
+	String getInsertRealmRoleDescription2Sql();
+
 	String getInsertRealmRoleDescriptionSql();
+
+	String getInsertRealmRoleFunction1Sql();
+
+	String getInsertRealmRoleFunction2Sql();
+
+	String getInsertRealmRoleFunction3Sql();
 
 	String getInsertRealmRoleFunctionSql();
 
+	String getInsertRealmRoleGroup1_1Sql();
+
+	String getInsertRealmRoleGroup1_2Sql();
+
 	String getInsertRealmRoleGroup1Sql();
 
+	String getInsertRealmRoleGroup2_1Sql();
+
 	String getInsertRealmRoleGroup2Sql();
+
+	String getInsertRealmRoleGroup3_1Sql();
+
+	String getInsertRealmRoleGroup3_2Sql();
 
 	String getInsertRealmRoleGroup3Sql();
 
@@ -111,9 +131,9 @@ public interface DbAuthzGroupSql
 
 	String getSelectRealmRoleSql();
 
-	String getSelectRealmUserRoleSql(String inClause);
-	
-	String getSelectRealmUpdate();
-	
 	String getSelectRealmSize();
+
+	String getSelectRealmUpdate();
+
+	String getSelectRealmUserRoleSql(String inClause);
 }

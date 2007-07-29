@@ -754,24 +754,24 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			return edit;
 
 		}
-		
+
 		/**
 		 * @inheritDoc
 		 */
 		public void addNewUser(final AuthzGroup azGroup, final String userId, final String role, final int maxSize) throws GroupFullException
 		{
-			
+
 			// run our save code in a transaction that will restart on deadlock
 			// if deadlock retry fails, or any other error occurs, a runtime error will be thrown
 
 			m_sql.transact(new Runnable()
 			{
-				public void run() 
-				{		
+				public void run()
+				{
 					addNewUserTx(azGroup, userId, role, maxSize);
 				}
 			}, "azg:" + azGroup.getId());
-		
+
 		}
 
 		/**
@@ -785,76 +785,79 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			// Assume that users added in this way are always active and never provided
 			boolean active = true;
 			boolean provided = false;
-			
+
 			String sql;
-			
+
 			// Lock the table and count users if required
-			if (maxSize > 0) {
-				
+			if (maxSize > 0)
+			{
+
 				// Get the REALM_KEY and lock the realm for update
 				sql = dbAuthzGroupSql.getSelectRealmUpdate();
 				Object fields[] = new Object[1];
 				fields[0] = edit.getId();
-				
+
 				List resultsKey = m_sql.dbRead(sql, fields, new SqlReader()
+				{
+					public Object readSqlResultRecord(ResultSet result)
+					{
+						try
 						{
-							public Object readSqlResultRecord(ResultSet result)
-							{
-								try
-								{
-									int realm_key = result.getInt(1);
-									return new Integer(realm_key);
-								}
-								catch (Throwable e)
-								{
-									M_log.warn("addNewUserTx: " + e.toString());
-									return null;
-								}
-							}
-						});
-				
+							int realm_key = result.getInt(1);
+							return new Integer(realm_key);
+						}
+						catch (Throwable e)
+						{
+							M_log.warn("addNewUserTx: " + e.toString());
+							return null;
+						}
+					}
+				});
+
 				int realm_key = -1;
 				if (!resultsKey.isEmpty())
 				{
 					realm_key = ((Integer) resultsKey.get(0)).intValue();
-				} else 
+				}
+				else
 				{
-					// Can't find the REALM_KEY for this REALM (should never happen) 
+					// Can't find the REALM_KEY for this REALM (should never happen)
 					M_log.error("addNewUserTx: can't find realm " + edit.getId());
 				}
-				
+
 				// Count the number of users already in the realm
 				sql = dbAuthzGroupSql.getSelectRealmSize();
 				fields[0] = new Integer(realm_key);
-				
+
 				List resultsSize = m_sql.dbRead(sql, fields, new SqlReader()
+				{
+					public Object readSqlResultRecord(ResultSet result)
+					{
+						try
 						{
-							public Object readSqlResultRecord(ResultSet result)
-							{
-								try
-								{
-									int count = result.getInt(1);
-									return new Integer(count);
-								}
-								catch (Throwable e)
-								{
-									M_log.warn("addNewUserTx: " + e.toString());
-									return null;
-								}
-							}
-						});
+							int count = result.getInt(1);
+							return new Integer(count);
+						}
+						catch (Throwable e)
+						{
+							M_log.warn("addNewUserTx: " + e.toString());
+							return null;
+						}
+					}
+				});
 
 				int currentSize = resultsSize.isEmpty() ? -1 : ((Integer) resultsSize.get(0)).intValue();
-	
-				if ((currentSize < 0) || (currentSize >= maxSize)) {
+
+				if ((currentSize < 0) || (currentSize >= maxSize))
+				{
 					// We can't add the user - group already full, or we can't find the size
 					throw new GroupFullException(edit.getId());
 				}
 			}
-			
+
 			// Add the user to SAKAI_REALM_RL_GR
 			sql = dbAuthzGroupSql.getInsertRealmRoleGroup1Sql();
-			
+
 			Object fields[] = new Object[5];
 			fields[0] = edit.getId();
 			fields[1] = userId;
@@ -862,7 +865,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 			fields[3] = active ? "1" : "0";
 			fields[4] = provided ? "1" : "0";
 			m_sql.dbWrite(sql, fields);
-			
+
 			// update the main realm table for new modified time and last-modified-by
 			super.commitResource(edit, fields(edit.getId(), ((BaseAuthzGroup) edit), true), null);
 		}
@@ -872,18 +875,18 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		 */
 		public void removeUser(final AuthzGroup azGroup, final String userId)
 		{
-			
+
 			// run our save code in a transaction that will restart on deadlock
 			// if deadlock retry fails, or any other error occurs, a runtime error will be thrown
 
 			m_sql.transact(new Runnable()
 			{
-				public void run() 
-				{		
+				public void run()
+				{
 					removeUserTx(azGroup, userId);
 				}
 			}, "azg:" + azGroup.getId());
-		
+
 		}
 
 		/**
@@ -893,20 +896,19 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		 *        The azg to save.
 		 */
 		protected void removeUserTx(AuthzGroup edit, String userId)
-		{						
+		{
 			// Remove the user from SAKAI_REALM_RL_GR
-			String sql = dbAuthzGroupSql.getDeleteRealmRoleGroup4Sql(); 
-			
+			String sql = dbAuthzGroupSql.getDeleteRealmRoleGroup4Sql();
+
 			Object fields[] = new Object[2];
 			fields[0] = edit.getId();
 			fields[1] = userId;
 			m_sql.dbWrite(sql, fields);
-			
+
 			// update the main realm table for new modified time and last-modified-by
 			super.commitResource(edit, fields(edit.getId(), ((BaseAuthzGroup) edit), true), null);
 		}
-		
-		
+
 		/**
 		 * @inheritDoc
 		 */
@@ -1033,10 +1035,12 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 
 			// add what we need to
 			sql = dbAuthzGroupSql.getInsertRealmRoleFunctionSql();
+
+			fields[0] = getValueForSubquery(dbAuthzGroupSql.getInsertRealmRoleFunction1Sql(), fields[0]);
 			for (RoleAndFunction raf : toAdd)
 			{
-				fields[1] = raf.role;
-				fields[2] = raf.function;
+				fields[1] = getValueForSubquery(dbAuthzGroupSql.getInsertRealmRoleFunction2Sql(), raf.role);
+				fields[2] = getValueForSubquery(dbAuthzGroupSql.getInsertRealmRoleFunction3Sql(), raf.function);
 				m_sql.dbWrite(sql, fields);
 			}
 		}
@@ -1108,10 +1112,11 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 
 			// add what we need to
 			sql = dbAuthzGroupSql.getInsertRealmRoleGroup1Sql();
+			fields[0] = getValueForSubquery(dbAuthzGroupSql.getInsertRealmRoleGroup1_1Sql(), fields[0]);
 			for (UserAndRole uar : toAdd)
 			{
 				fields[1] = uar.userId;
-				fields[2] = uar.role;
+				fields[2] = getValueForSubquery(dbAuthzGroupSql.getInsertRealmRoleGroup1_2Sql(), uar.role);
 				fields[3] = uar.active ? "1" : "0";
 				fields[4] = uar.provided ? "1" : "0";
 				m_sql.dbWrite(sql, fields);
@@ -1262,9 +1267,10 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 
 			// add what we need to
 			sql = dbAuthzGroupSql.getInsertRealmRoleDescriptionSql();
+			fields[0] = getValueForSubquery(dbAuthzGroupSql.getInsertRealmRoleDescription1Sql(), fields[0]);
 			for (RoleAndDescription rad : toAdd)
 			{
-				fields[1] = rad.role;
+				fields[1] = getValueForSubquery(dbAuthzGroupSql.getInsertRealmRoleDescription2Sql(), rad.role);
 				fields[2] = rad.description;
 				fields[3] = rad.providerOnly ? "1" : "0";
 				m_sql.dbWrite(sql, fields);
@@ -1769,7 +1775,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				{
 					RealmAndRole rar = (RealmAndRole) i.next();
 					fields[0] = rar.realmId;
-					fields[2] = rar.role;
+					fields[2] = getValueForSubquery(dbAuthzGroupSql.getInsertRealmRoleGroup2_1Sql(), rar.role);
 
 					m_sql.dbWrite(sql, fields);
 				}
@@ -1919,11 +1925,12 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 				sql = dbAuthzGroupSql.getInsertRealmRoleGroup3Sql();
 				fields = new Object[3];
 				fields[0] = caseId(realm.getId());
+				fields[0] = getValueForSubquery(dbAuthzGroupSql.getInsertRealmRoleGroup3_1Sql(), fields[0]);
 				for (Iterator i = toInsert.iterator(); i.hasNext();)
 				{
 					UserAndRole uar = (UserAndRole) i.next();
 					fields[1] = uar.userId;
-					fields[2] = uar.role;
+					fields[2] = getValueForSubquery(dbAuthzGroupSql.getInsertRealmRoleGroup3_2Sql(), uar.role);
 
 					m_sql.dbWrite(sql, fields);
 				}
@@ -2226,5 +2233,25 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService
 		}
 
 		return buf.toString();
+	}
+
+	/**
+	 * Get value for query & return that; needed for mssql which doesn't support select stmts in VALUES clauses
+	 * 
+	 * @param sqlQuery
+	 * @param bindParameter
+	 * @return value if mssql, bindparameter if not (basically a no-op for others)
+	 */
+	protected Object getValueForSubquery(String sqlQuery, Object bindParameter)
+	{
+		if (!"mssql".equals(sqlService().getVendor()))
+		{
+			return bindParameter;
+		}
+		else
+		{
+			List result = sqlService().dbRead(sqlQuery, new Object[] {bindParameter}, null);
+			return (result.size() > 0 ? result.get(0) : null);
+		}
 	}
 }

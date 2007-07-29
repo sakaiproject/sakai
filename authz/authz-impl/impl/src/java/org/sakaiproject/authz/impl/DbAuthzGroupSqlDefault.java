@@ -33,6 +33,17 @@ public class DbAuthzGroupSqlDefault implements DbAuthzGroupSql
 		return "select count(1) from SAKAI_REALM_FUNCTION where FUNCTION_NAME = ?";
 	}
 
+	public String getCountRealmRoleFunctionEndSql(String anonymousRole, String authorizationRole, boolean authorized, String inClause)
+	{
+		return " and FUNCTION_KEY in (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = ?) "
+				+ " and (ROLE_KEY in (select ROLE_KEY from SAKAI_REALM_RL_GR where ACTIVE = '1' and USER_ID = ? "
+				+
+				// granted in any of the grant or role realms
+				" and REALM_KEY in (select REALM_KEY from SAKAI_REALM where " + inClause + ")) "
+				+ " or ROLE_KEY in (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = '" + anonymousRole + "') "
+				+ (authorized ? "or ROLE_KEY in (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = '" + authorizationRole + "') " : "") + ")";
+	}
+
 	public String getCountRealmRoleFunctionSql(String anonymousRole, String authorizationRole, boolean authorized)
 	{
 		return "select count(1) " + "from   SAKAI_REALM_RL_FN MAINTABLE "
@@ -51,17 +62,6 @@ public class DbAuthzGroupSqlDefault implements DbAuthzGroupSql
 	{
 		return "select count(1) from SAKAI_REALM_RL_FN " + "where  REALM_KEY in (select REALM_KEY from SAKAI_REALM where " + inClause + ")"
 				+ getCountRealmRoleFunctionEndSql(anonymousRole, authorizationRole, authorized, inClause);
-	}
-
-	public String getCountRealmRoleFunctionEndSql(String anonymousRole, String authorizationRole, boolean authorized, String inClause)
-	{
-		return " and FUNCTION_KEY in (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = ?) "
-				+ " and (ROLE_KEY in (select ROLE_KEY from SAKAI_REALM_RL_GR where ACTIVE = '1' and USER_ID = ? "
-				+
-				// granted in any of the grant or role realms
-				" and REALM_KEY in (select REALM_KEY from SAKAI_REALM where " + inClause + ")) "
-				+ " or ROLE_KEY in (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = '" + anonymousRole + "') "
-				+ (authorized ? "or ROLE_KEY in (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = '" + authorizationRole + "') " : "") + ")";
 	}
 
 	public String getCountRealmRoleSql()
@@ -133,10 +133,50 @@ public class DbAuthzGroupSqlDefault implements DbAuthzGroupSql
 		return "INSERT INTO SAKAI_REALM_PROVIDER (REALM_KEY, PROVIDER_ID) VALUES ( (SELECT REALM_KEY FROM SAKAI_REALM WHERE REALM_ID = ?), ?)";
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getInsertRealmRoleDescription1Sql()
+	{
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getInsertRealmRoleDescription2Sql()
+	{
+		return null;
+	}
+
 	public String getInsertRealmRoleDescriptionSql()
 	{
 		return "INSERT INTO SAKAI_REALM_ROLE_DESC (REALM_KEY, ROLE_KEY, DESCRIPTION, PROVIDER_ONLY) VALUES ("
 				+ " (SELECT REALM_KEY FROM SAKAI_REALM WHERE REALM_ID = ?)," + " (SELECT ROLE_KEY FROM SAKAI_REALM_ROLE WHERE ROLE_NAME = ?), ?, ?)";
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getInsertRealmRoleFunction1Sql()
+	{
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getInsertRealmRoleFunction2Sql()
+	{
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getInsertRealmRoleFunction3Sql()
+	{
+		return null;
 	}
 
 	public String getInsertRealmRoleFunctionSql()
@@ -146,6 +186,22 @@ public class DbAuthzGroupSqlDefault implements DbAuthzGroupSql
 				+ " (SELECT FUNCTION_KEY FROM SAKAI_REALM_FUNCTION WHERE FUNCTION_NAME = ?))";
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getInsertRealmRoleGroup1_1Sql()
+	{
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getInsertRealmRoleGroup1_2Sql()
+	{
+		return null;
+	}
+
 	public String getInsertRealmRoleGroup1Sql()
 	{
 		return "INSERT INTO SAKAI_REALM_RL_GR (REALM_KEY, USER_ID, ROLE_KEY, ACTIVE, PROVIDED) VALUES ("
@@ -153,9 +209,33 @@ public class DbAuthzGroupSqlDefault implements DbAuthzGroupSql
 				+ " (SELECT ROLE_KEY FROM SAKAI_REALM_ROLE WHERE ROLE_NAME = ?), ?, ?)";
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getInsertRealmRoleGroup2_1Sql()
+	{
+		return null;
+	}
+
 	public String getInsertRealmRoleGroup2Sql()
 	{
 		return "insert into SAKAI_REALM_RL_GR (REALM_KEY, USER_ID, ROLE_KEY, ACTIVE, PROVIDED) values (?, ?, (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = ?), '1', '1')";
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getInsertRealmRoleGroup3_1Sql()
+	{
+		return null;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getInsertRealmRoleGroup3_2Sql()
+	{
+		return null;
 	}
 
 	public String getInsertRealmRoleGroup3Sql()
@@ -330,20 +410,20 @@ public class DbAuthzGroupSqlDefault implements DbAuthzGroupSql
 		return "select ROLE_NAME from SAKAI_REALM_ROLE";
 	}
 
+	public String getSelectRealmSize()
+	{
+		return "select COUNT(REALM_KEY) from SAKAI_REALM_RL_GR where REALM_KEY = ?";
+	}
+
+	public String getSelectRealmUpdate()
+	{
+		return "select REALM_KEY from SAKAI_REALM where REALM_ID = ? FOR UPDATE";
+	}
+
 	public String getSelectRealmUserRoleSql(String inClause)
 	{
 		return "select SRRG.USER_ID, SRR.ROLE_NAME from SAKAI_REALM_RL_GR SRRG " + "inner join SAKAI_REALM SR on SRRG.REALM_KEY = SR.REALM_KEY "
 				+ "inner join SAKAI_REALM_ROLE SRR on SRRG.ROLE_KEY = SRR.ROLE_KEY " + "where SR.REALM_ID = ? and " + inClause
 				+ " and SRRG.ACTIVE = '1'";
-	}
-	
-	public String getSelectRealmUpdate()
-	{
-		return "select REALM_KEY from SAKAI_REALM where REALM_ID = ? FOR UPDATE";
-	}
-	
-	public String getSelectRealmSize()
-	{
-		return "select COUNT(REALM_KEY) from SAKAI_REALM_RL_GR where REALM_KEY = ?";
 	}
 }
