@@ -24,7 +24,7 @@ a:link{
 }
 
 a:visited{
-	color: #53b;
+	color: red;
 	text-decoration: underline !important;
 }
 
