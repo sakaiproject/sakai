@@ -24,3 +24,6 @@ create index MFR_MESSAGE_DELETED_I on MFR_MESSAGE_T (DELETED);
 
 --Chat SAK-10682
 alter table CHAT2_CHANNEL modify (CONTEXT VARCHAR2(99));
+
+--OSP SAK-10396: Add a default layout to be specified for a portfolio
+alter table osp_presentation add layout_id varchar2(36) NULL;
