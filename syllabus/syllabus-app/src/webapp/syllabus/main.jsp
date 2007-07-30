@@ -42,7 +42,7 @@
 					</h:outputLink>
 				</syllabus:syllabus_ifnot>
 				<syllabus:syllabus_if test="#{SyllabusTool.editAble}" >
-					<h:outputLink id="printIcon" value="javascript:printFriendly('#{SyllabusTool.printFriendlyUrl}');">
+					<h:outputLink id="printIcon" value="javascript:printFriendly('#{SyllabusTool.printFriendlyUrl}', '#{SyllabusTool.syllabusItem.redirectURL}');">
 						<h:graphicImage url="/images/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
 					</h:outputLink>
 				</syllabus:syllabus_if>
