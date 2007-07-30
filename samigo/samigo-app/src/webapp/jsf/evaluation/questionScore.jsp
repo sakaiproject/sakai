@@ -255,7 +255,7 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
 	</p>
 	</h:panelGroup>
 	<h:panelGroup rendered="#{questionScores.typeId == '6'}">
-		<h:outputLink title="#{evaluationMessages.t_fileUpload}" value="/samigo/servlet/DownloadAllMedia?publishedId=#{questionScores.publishedId}&publishedItemId=#{questionScores.itemId}&createdBy=#{question.itemData.createdBy}&assessmentName=#{totalScores.assessmentName}&partNumber=#{part.partNumber}&anonymous=#{totalScores.anonymous}&scoringType=#{questionScores.allSubmissions}">
+		<h:outputLink title="#{evaluationMessages.t_fileUpload}" value="/samigo/servlet/DownloadAllMedia?publishedId=#{questionScores.publishedId}&publishedItemId=#{questionScores.itemId}&createdBy=#{question.itemData.createdBy}&partNumber=#{part.partNumber}&anonymous=#{totalScores.anonymous}&scoringType=#{questionScores.allSubmissions}">
 		<h:outputText escape="false" value="#{evaluationMessages.download_all}" />
 		</h:outputLink>
 	 </h:panelGroup>

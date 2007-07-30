@@ -92,9 +92,11 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
     boolean accessDenied = true;
     String agentIdString = getAgentString(req, res);
     String currentSiteId="";
+    String assessmentName = "";
     
     PublishedAssessmentIfc pub = gradingService.getPublishedAssessmentByPublishedItemId(publishedItemId.toString()); 
     if (pub != null){
+    	assessmentName = pub.getTitle();
     	PublishedAssessmentService service = new PublishedAssessmentService();
     	log.debug("pub.getPublishedAssessmentId() = " + pub.getPublishedAssessmentId());
         currentSiteId = service.getPublishedAssessmentOwner(pub.getPublishedAssessmentId());
@@ -112,7 +114,6 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
     }
     else {
     	res.setContentType("application/x-zip-compressed");
-    	String assessmentName = req.getParameter("assessmentName");
   	    StringBuffer zipFilename = new StringBuffer();
   	    zipFilename.append(assessmentName);
   	    String partAndQues = getPartNumAndQuestionNum(publishedItemId);
@@ -377,6 +378,7 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
                           String agentId, String currentSiteId, String assessmentCreatedBy){
     AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBeanFromExternalServlet(
 			   "authorization", req, res);
+    
     log.debug("agentId=" + agentId);
     log.debug("currentSiteId=" + currentSiteId);
     log.debug("assessmentCreatedBy=" + assessmentCreatedBy);
@@ -384,6 +386,10 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
     boolean hasPrivilege_own0 = authzBean.getGradeOwnAssessment(req, currentSiteId);
     boolean hasPrivilege_own = (hasPrivilege_own0 && isOwner(agentId, assessmentCreatedBy));
     boolean hasPrivilege = (hasPrivilege_any || hasPrivilege_own);
+    log.debug("hasPrivilege_any=" + hasPrivilege_any);
+    log.debug("hasPrivilege_own0=" + hasPrivilege_own0);
+    log.debug("hasPrivilege_own=" + hasPrivilege_own);
+    log.debug("hasPrivilege=" + hasPrivilege);
     return hasPrivilege;    
   }
 
@@ -391,6 +397,7 @@ private static Log log = LogFactory.getLog(DownloadAllMediaServlet.class);
   public boolean isOwner(String agentId, String ownerId){
     boolean isOwner = false;
     isOwner = agentId.equals(ownerId);
+    log.debug("isOwner=" + isOwner);
     return isOwner;
   }
   
