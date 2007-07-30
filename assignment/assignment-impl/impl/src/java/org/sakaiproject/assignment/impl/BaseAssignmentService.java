@@ -2003,13 +2003,17 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		{
 			//send notification
 			User u = UserDirectoryService.getCurrentUser();
-			List receivers = new Vector();
-			receivers.add(u);
-			List headers = new Vector();
-			headers.add(rb.getString("noti.subject.label") + rb.getString("noti.subject.content"));
 			
-			String messageBody = getNotificationMessage(s);
-			EmailService.sendToUsers(receivers, headers, messageBody);
+			if (StringUtil.trimToNull(u.getEmail()) != null)
+			{
+				List receivers = new Vector();
+				receivers.add(u);
+				List headers = new Vector();
+				headers.add(rb.getString("noti.subject.label") + rb.getString("noti.subject.content"));
+				
+				String messageBody = getNotificationMessage(s);
+				EmailService.sendToUsers(receivers, headers, messageBody);
+			}
 		}
 	}
 

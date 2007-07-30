@@ -91,7 +91,12 @@
 							</ul>
 						#end
 		#if ($!email_confirmation)
-			<h4>$tlang.getString('confirm.submission.email')</h4>
+			#if ($!userEmail)
+				<h4>$tlang.getString('confirm.submission.email')</h4>
+			#else
+				## no email could be sent due to the missing recipent email address
+				<div class="alertMessage">$tlang.getString('confirm.submission.email.noEmailAddress')</div>
+			#end
 		#end
 		<p class="act">
 			<input type="submit" accesskey="x" name="eventSubmit_doConfirm_assignment_submission" value="$tlang.getString('confirm.submission.button')" />

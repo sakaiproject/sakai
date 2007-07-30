@@ -920,6 +920,8 @@ public class AssignmentAction extends PagedResourceActionII
 		User user = (User) state.getAttribute(STATE_USER);
 		context.put("user_name", user.getDisplayName());
 		context.put("user_id", user.getDisplayId());
+		if (StringUtil.trimToNull(user.getEmail()) != null)
+			context.put("user_email", user.getEmail());
 		
 		// get site information
 		try
