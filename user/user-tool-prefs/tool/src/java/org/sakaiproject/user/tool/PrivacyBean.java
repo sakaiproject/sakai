@@ -34,9 +34,13 @@ public class PrivacyBean {
 	private final String SET_SHOW_ALL_STRING = "privacy_show_all_set";
 	private final String SET_HIDE_ALL_STRING = "privacy_hide_all_set";
 	private final String SHOW_ME="Show Me";
+	private final String HIDDEN_VALUE = "hidden";
+	private final String VISIBLE_VALUE = "visible";
 	
 	private String checkboxText;
 	private boolean changeStatus;
+	private String privacyStatus;
+	private String userMadeSelection;	
 	private String selectedSite;
 	private boolean siteSelected = false;
 	private String curSite;
@@ -100,6 +104,24 @@ public class PrivacyBean {
 		this.selectedSite = selectedSite;
 	}
 
+	public String getUserMadeSelection() {
+		if (!isMyWorkspace()) {
+			curSite = getContextId();
+		}
+		if (userMadeSelection == null || userMadeSelection.equals("")) {
+			userMadeSelection = (privacyManager.userMadeSelection(curSite, getUserId()) ? "true" : "false");
+		}
+		return userMadeSelection;
+	}
+	
+	public String getVisibleValue() {
+		return VISIBLE_VALUE;
+	}
+	
+	public String getHiddenValue() {
+		return HIDDEN_VALUE;
+	}
+	
 	/**
 	 * Returns 'visible' or 'hidden' based on status within site
 	 */
@@ -116,6 +138,15 @@ public class PrivacyBean {
 		}
 	}
 
+	public String getPrivacyStatus() {
+		return getCurrentStatus();
+	}
+	
+	public void setPrivacyStatus(String privacyStatus) {
+		this.privacyStatus = privacyStatus;
+	}
+
+	
 	/**
 	 * Return TRUE if privacy set to visible, FALSE if set to hidden
 	 */
@@ -204,7 +235,13 @@ public class PrivacyBean {
 			
 			return "main";
 		}
+		
+		if (!privacyStatus.equals("")){
+			processChoice(isMyWorkspace() ? curSite : getContextId(), privacyStatus.equals(HIDDEN_VALUE) ? false : true);
+		}
+		userMadeSelection = "true";
 
+		/**
 		// if user checked the checkbox
 		if (changeStatus) {
 			processChoice(isMyWorkspace() ? curSite : getContextId(), 
@@ -213,6 +250,7 @@ public class PrivacyBean {
 			// Reset the checkbox to not checked
 			changeStatus = false;
 		}
+		***/
 
 		return "main";
 	}

@@ -45,18 +45,39 @@
       <f:verbatim><div class="instruction"></f:verbatim>
       <h:outputText value="#{msgs.privacy_stmt1}" />
  
-	  <f:verbatim><b></f:verbatim>
+	  <f:verbatim><strong></f:verbatim>
 	  <h:outputText value="#{privacyBean.currentStatus}" />
-	  <f:verbatim></b></f:verbatim>
+	  <f:verbatim></strong></f:verbatim>
  	        
  	  <h:outputText value="#{msgs.privacy_stmt_show} " rendered="#{privacyBean.show}" />
  	  <h:outputText value="#{msgs.privacy_stmt_hide} " rendered="#{! privacyBean.show}" />    
  	     
  	  <h:outputText value="#{msgs.privacy_change_directions}" />
+ 	  <%--
  	  <h:outputText value=" #{privacyBean.checkboxText} " />
  	  <h:outputText value="#{msgs.privacy_change_directions2}" />
+ 	  --%>
       <f:verbatim></div></f:verbatim>
      
+     
+      <f:verbatim><p></f:verbatim>
+      <h:outputText value="#{msgs.privacy_choice_heading}" />
+      <f:verbatim></p></f:verbatim>
+      <h:selectOneRadio value="#{privacyBean.privacyStatus}">
+      	<f:selectItem itemLabel="#{msgs.privacy_choice_hidden}" itemValue="#{privacyBean.hiddenValue}" />
+      	<f:selectItem itemLabel="#{msgs.privacy_choice_visible}" itemValue="#{privacyBean.visibleValue}" />
+      	<f:selectItem itemLabel="#{msgs.privacy_choice_later}" itemValue="" />
+      </h:selectOneRadio>
+     
+      <h:commandButton action="#{privacyBean.processUpdate}" value="#{msgs.privacy_update}"
+      	   title="#{msgs.privacy_update_title}" styleClass="active" rendered="#{!privacyBean.myWorkspace}" 
+      	   onclick="parent.privacy_hide_popup();" />
+      	   
+      <f:verbatim><p></f:verbatim>
+      <h:outputText value="#{msgs.privacy_change_later_instructions}" escape="false" styleClass="instruction" />
+	  <f:verbatim></p></f:verbatim>
+     
+     	<%--
   	  <f:verbatim> <table> <tr> <td class="shorttext"> </f:verbatim>
   	  
 	  <h:selectBooleanCheckbox value="#{privacyBean.changeStatus}" id="statusChange" />
@@ -74,6 +95,9 @@
       </h:panelGroup>
 
       <f:verbatim></tr></table></f:verbatim>
+	--%>
+	  <h:outputText escape="false" rendered="#{!privacyBean.userMadeSelection}"
+	  	value="<script type=\"text/javascript\">parent.privacy_show_popup();</script>" />
 
   	</h:panelGroup>
          
