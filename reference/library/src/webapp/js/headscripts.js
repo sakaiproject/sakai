@@ -585,3 +585,16 @@ function portalWindowRefresh(url)
 		location.replace(url);
 	}
 }
+
+function privacy_show_popup(id){
+	el = document.getElementById("privacy_tool_popup");
+	if(el){el.style.display='block';}
+	overlaydiv = document.createElement("div");
+	overlaydiv.id = "privacy_overlay";
+	document.body.appendChild(overlaydiv);
+}
+
+function privacy_hide_popup(){
+   if(document.getElementById("privacy_overlay")){document.body.removeChild(document.getElementById("privacy_overlay"));}
+   if(document.getElementById("privacy_tool_popup")){document.getElementById("privacy_tool_popup").style.display="none";}
+}
