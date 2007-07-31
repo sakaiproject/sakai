@@ -312,8 +312,13 @@ private List attachmentList;
    */
   public ArrayList getPoolsAvailable()
   {
-  
-    ArrayList resultPoolList= new ArrayList();
+    ArrayList resultPoolList= new ArrayList();  
+	if (this.getType() != null && this.getType().equals(SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString())) {
+		this.setSelectedPool("");
+		this.setNumberSelected("");
+		return resultPoolList;
+	}
+
     AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
     //ItemAuthorBean itemauthorBean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
 
