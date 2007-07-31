@@ -152,7 +152,11 @@ ${responseHead}
 #end
 
 #macro( includeTool $tool)
+#if (${tool.toolId.equals("sakai.privacy")})
+<div class="portlet" id="privacy_tool_popup" style="display:none">
+#else
 <div class="portlet">
+#end
 #includeToolTitle( $tool )
 #includeToolBody( $tool )
 </div>
