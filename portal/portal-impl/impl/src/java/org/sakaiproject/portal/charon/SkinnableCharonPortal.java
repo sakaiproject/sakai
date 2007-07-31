@@ -552,6 +552,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		String toolUrl = ServerConfigurationService.getToolUrl() + "/"
 				+ Web.escapeUrl(placement.getId()) + "/";
 		String titleString = Web.escapeHtml(placement.getTitle());
+		String toolId = Web.escapeHtml(placement.getToolId());
 
 		// Reset the tool state if requested
 		if ("true".equals(req.getParameter(portalService.getResetStateParam()))
@@ -648,6 +649,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		toolMap.put("toolShowResetButton", Boolean.valueOf(showResetButton));
 		toolMap.put("toolShowHelpButton", Boolean.valueOf(showHelpButton));
 		toolMap.put("toolHelpActionUrl", helpActionUrl);
+		toolMap.put("toolId", toolId);
 		return toolMap;
 	}
 
