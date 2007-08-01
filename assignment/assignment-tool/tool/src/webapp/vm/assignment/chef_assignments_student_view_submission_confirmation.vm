@@ -3,103 +3,99 @@
 	<h3>
 		$tlang.getString('confirm.submission.title')
 	</h3>
-		<form name="addSubmissionForm" action="#toolForm($action)" method="post" onsubmit="return true;">
-		<h4>$tlang.getString('confirm.submission.success')</h4>
-			<table class="itemSummary" border="0" cellspacing="0" summary="$tlang.getString('confirm.submission.title')">
-				## user
-				<tr>
-					<th>
-						$tlang.getString('confirm.submission.label.user')
-					</th>
-					<td>
-						$!user_name#if($!user_id)($!user_id)#end
-					</td>
-				</tr>
-				##site
-				<tr>
-					<th>
-						$tlang.getString('confirm.submission.label.classsite')
-					</th>
-					<td>
-						$!site_title
-					</td>
-				</tr>
-				##assignment title
-				<tr>
-					<th>
-						$tlang.getString('confirm.submission.label.assignment')
-					</th>
-					<td>
-						$!assignment_title
-					</td>
-				</tr>
-				##submission id
-				<tr>
-					<th>
-						$tlang.getString('confirm.submission.label.submission.id')
-					</th>
-					<td>
-						$!submission_id
-					</td>
-				</tr>
-				##submit time
-				<tr>
-					<th>
-						$tlang.getString('confirm.submission.label.submittedon')
-					</th>
-					<td>
-						$!submit_time
-					</td>
-				</tr>
-			</table>
-			<h4>$tlang.getString('confirm.submission.inclue')</h4>
-			## submission text
-			<div class="longtext">
-						#if ($!submit_text)
-							<p class="indnt1">
-								$!submit_text
-								##$validator.escapeHtmlFormattedText($!submit_text)
-							</p>
-						#else
-							$tlang.getString('confirm.submission.notext')
-						#end
+	<p class="success">$tlang.getString('confirm.submission.success')
+	#if ($!email_confirmation) 
+	$tlang.getString('confirm.submission.email')
+	#end
+</p>
+	<form name="addSubmissionForm" action="#toolForm($action)" method="post" onsubmit="return true;">
+		<table class="itemSummary" border="0" cellspacing="0" summary="$tlang.getString('confirm.submission.title')" summary="layout">
+			## user
+			<tr>
+				<th>
+					$tlang.getString('confirm.submission.label.user')
+				</th>
+				<td>
+					$!user_name#if($!user_id)($!user_id)#end
+				</td>
+			</tr>
+			##site
+			<tr>
+				<th>
+					$tlang.getString('confirm.submission.label.classsite')
+				</th>
+				<td>
+					$!site_title
+				</td>
+			</tr>
+			##assignment title
+			<tr>
+				<th>
+					$tlang.getString('confirm.submission.label.assignment')
+				</th>
+				<td>
+					$!assignment_title
+				</td>
+			</tr>
+			##submission id
+			<tr>
+				<th>
+					$tlang.getString('confirm.submission.label.submission.id')
+				</th>
+				<td  class="highlight">
+					$!submission_id
+				</td>
+			</tr>
+			##submit time
+			<tr>
+				<th>
+					$tlang.getString('confirm.submission.label.submittedon')
+				</th>
+				<td>
+					$!submit_time
+				</td>
+			</tr>
+		</table>
+		<h4>$tlang.getString('confirm.submission.inclue')</h4>			
+		## submission text
+		#if ($!submit_text)
+			<div class="textPanel indnt2">
+				$!submit_text
+				##$validator.escapeHtmlFormattedText($!submit_text)
 			</div>
-				##submission attachment
-			<h4>$tlang.getString('confirm.submission.attachments')</h4>
-						#set ($size = 0)
-						#set ($props = false)
-						#foreach ($attachment in $!submit_attachments) 
-							#set ($props = $attachment.Properties) 
-							#if ($!props)
-								#set ($size = $size + 1)
-							#end
-						#end 
-						#if ($size == 0)
-							 $tlang.getString("gen.noatt")
-						#else
-							#foreach ($attachment in $!submit_attachments) 
-									#set ($props = false)
-									#set ($props = $attachment.Properties) 
-									#if ($!props)
-										$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))						
-										#if (!$props.getBooleanProperty($props.NamePropIsCollection))
-											($props.getPropertyFormatted($props.NamePropContentLength))
-										#end
-										<br/>
-									#end
-								#end
-							</ul>
-						#end
-		#if ($!email_confirmation)
-			#if ($!userEmail)
-				<h4>$tlang.getString('confirm.submission.email')</h4>
-			#else
-				## no email could be sent due to the missing recipent email address
-				<div class="alertMessage">$tlang.getString('confirm.submission.email.noEmailAddress')</div>
-			#end
+		#else
+			<p class="indnt2">
+				$tlang.getString('confirm.submission.notext')
+			</p>	
 		#end
+		<h4>$tlang.getString('confirm.submission.attachments')</h4>
+		#set ($size = 0)
+		#set ($props = false)
+		#foreach ($attachment in $!submit_attachments) 
+			#set ($props = $attachment.Properties) 
+			#if ($!props)
+				#set ($size = $size + 1)
+			#end
+		#end 
+		#if ($size == 0)
+			 $tlang.getString("gen.noatt")
+		#else
+			<ul class="attachList indnt2">
+			#foreach ($attachment in $!submit_attachments) 
+					#set ($props = false)
+					#set ($props = $attachment.Properties) 
+					#if ($!props)
+						<li>$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))						
+						#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+							($props.getPropertyFormatted($props.NamePropContentLength))
+						#end
+						</li>
+					#end
+				#end
+			</ul>
+		#end	
 		<p class="act">
-			<input type="submit" accesskey="x" name="eventSubmit_doConfirm_assignment_submission" value="$tlang.getString('confirm.submission.button')" />
+			<input type="submit" accesskey="x" name="eventSubmit_doConfirm_assignment_submission" value="$tlang.getString('confirm.submission.button')"  class="active" />
 		</p>
 	</form>
 </div>
