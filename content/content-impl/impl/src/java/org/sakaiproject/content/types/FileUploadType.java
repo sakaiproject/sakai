@@ -71,6 +71,7 @@ public class FileUploadType extends BaseResourceType
 		//actions.put(ResourceToolAction.ACCESS_CONTENT, new FileUploadAccessAction());
 		actions.put(ResourceToolAction.REVISE_CONTENT, new FileUploadReviseAction());
 		actions.put(ResourceToolAction.REPLACE_CONTENT, new FileUploadReplaceAction());
+		actions.put(ResourceToolAction.ACCESS_PROPERTIES, new FileUploadViewPropertiesAction());
 		actions.put(ResourceToolAction.REVISE_METADATA, new FileUploadPropertiesAction());
 		actions.put(ResourceToolAction.DUPLICATE, new FileUploadDuplicateAction());
 		actions.put(ResourceToolAction.COPY, new FileUploadCopyAction());
@@ -157,6 +158,83 @@ public class FileUploadType extends BaseResourceType
 		public String getLabel()
 		{
 			return rb.getString("action.props");
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getTypeId()
+		 */
+		public String getTypeId()
+		{
+			return typeId;
+		}
+
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(ContentEntity entity)
+        {
+	        return true;
+        }
+		
+	}
+	
+	public class FileUploadViewPropertiesAction implements ServiceLevelAction
+	{
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#cancelAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void cancelAction(Reference reference)
+		{
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#finalizeAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void finalizeAction(Reference reference)
+		{
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#initializeAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void initializeAction(Reference reference)
+		{
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#isMultipleItemAction()
+		 */
+		public boolean isMultipleItemAction()
+		{
+			return false;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
+		 */
+		public ActionType getActionType()
+		{
+			return ResourceToolAction.ActionType.VIEW_METADATA;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getId()
+		 */
+		public String getId()
+		{
+			return ResourceToolAction.ACCESS_PROPERTIES;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getLabel()
+		 */
+		public String getLabel()
+		{
+			return rb.getString("action.access");
 		}
 
 		/* (non-Javadoc)

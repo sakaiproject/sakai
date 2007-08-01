@@ -458,6 +458,7 @@ public class ResourcesAction
 	public static final List<ActionType> CONTENT_NEW_ACTIONS = new Vector<ActionType>();
 	public static final List<ActionType> CONTENT_NEW_FOR_PARENT_ACTIONS = new Vector<ActionType>();
 	public static final List<ActionType> CONTENT_READ_ACTIONS = new Vector<ActionType>();
+	public static final List<ActionType> CONTENT_PROPERTIES_ACTIONS = new Vector<ActionType>();
 	
 	public static final List<ActionType> CREATION_ACTIONS = new Vector<ActionType>();
 
@@ -554,7 +555,7 @@ public class ResourcesAction
 	
 	private static final String MODE_REORDER = "reorder";
 	
-	static final String MODE_REVISE_METADATA = "revise_metadata";
+	protected static final String MODE_REVISE_METADATA = "revise_metadata";
 
 	private static final String STATE_NEW_COPYRIGHT_INPUT = PREFIX + "new_copyright_input";
 
@@ -685,6 +686,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	
 	/** The more id */
 	private static final String STATE_MORE_ID = PREFIX + "more_id";
+	
+	private static final String STATE_MORE_ACTION = PREFIX + "more_action";
+	
+	private static final String STATE_MORE_ITEM = PREFIX + "more_item";
 	
 	/** The move flag */
 	private static final String STATE_MOVE_FLAG = PREFIX + "move_flag";
@@ -829,8 +834,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		CONTENT_NEW_FOR_PARENT_ACTIONS.add(ActionType.DUPLICATE);
 		
 		CONTENT_READ_ACTIONS.add(ActionType.VIEW_CONTENT);
-		CONTENT_READ_ACTIONS.add(ActionType.VIEW_METADATA);
 		CONTENT_READ_ACTIONS.add(ActionType.COPY);
+		
+		CONTENT_PROPERTIES_ACTIONS.add(ActionType.VIEW_METADATA);
 		
 		CONTENT_MODIFY_ACTIONS.add(ActionType.REVISE_METADATA);
 		CONTENT_MODIFY_ACTIONS.add(ActionType.REVISE_CONTENT);
@@ -899,17 +905,13 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 									SessionState state)
 	{
 		context.put("tlang",rb);
+		
 		// find the ContentTypeImage service
 		context.put ("contentTypeImageService", state.getAttribute (STATE_CONTENT_TYPE_IMAGE_SERVICE));
-		// find the ContentHosting service
-		org.sakaiproject.content.api.ContentHostingService service = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
-		context.put ("service", service);
 
-		Map current_stack_frame = peekAtStack(state);
-
-		String id = (String) current_stack_frame.get(STATE_MORE_ID);
-		context.put ("id", id);
-		String collectionId = (String) current_stack_frame.get(STATE_MORE_COLLECTION_ID);
+		String entityId = (String) state.getAttribute(STATE_MORE_ID);
+		context.put ("id", entityId);
+		String collectionId = (String) state.getAttribute(STATE_MORE_COLLECTION_ID);
 		context.put ("collectionId", collectionId);
 		String homeCollectionId = (String) (String) state.getAttribute (STATE_HOME_COLLECTION_ID);
 		context.put("homeCollectionId", homeCollectionId);
@@ -918,75 +920,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		String navRoot = (String) state.getAttribute(STATE_NAVIGATION_ROOT);
 		context.put("navRoot", navRoot);
 		
-		ResourcesEditItem item = getEditItem(id, collectionId, data);
+		ListItem item = new ListItem(entityId);
 		context.put("item", item);
 
-		// for the resources of type URL or plain text, show the content also
-		try
-		{
-			ResourceProperties properties = service.getProperties (id);
-			context.put ("properties", properties);
-
-			// TODO: Should Use ResourceType
-			String isCollection = properties.getProperty (ResourceProperties.PROP_IS_COLLECTION);
-			if ((isCollection != null) && isCollection.equals (Boolean.FALSE.toString()))
-			{
-				String copyrightAlert = properties.getProperty(properties.getNamePropCopyrightAlert());
-				context.put("hasCopyrightAlert", copyrightAlert);
-
-				String type = properties.getProperty (ResourceProperties.PROP_CONTENT_TYPE);
-				if (type.equalsIgnoreCase (MIME_TYPE_DOCUMENT_PLAINTEXT) || type.equalsIgnoreCase (MIME_TYPE_DOCUMENT_HTML) || type.equalsIgnoreCase (ResourceProperties.TYPE_URL))
-				{
-					ContentResource moreResource = service.getResource (id);
-					// read the body
-					String body = "";
-					byte[] content = null;
-					try
-					{
-						content = moreResource.getContent();
-						if (content != null)
-						{
-							body = new String(content);
-						}
-					}
-					catch(ServerOverloadException e)
-					{
-						// this represents server's file system is temporarily unavailable
-						// report problem to user? log problem?
-					}
-					context.put ("content", body);
-				}	// if
-			}	// if
-
-			else
-			{
-				// setup for quota - ADMIN only, collection only
-				if (SecurityService.isSuperUser())
-				{
-					try
-					{
-						// Getting the quota as a long validates the property
-						long quota = properties.getLongProperty(ResourceProperties.PROP_COLLECTION_BODY_QUOTA);
-						context.put("hasQuota", Boolean.TRUE);
-						context.put("quota", properties.getProperty(ResourceProperties.PROP_COLLECTION_BODY_QUOTA));
-					}
-					catch (Exception any) {}
-				}
-			}
-		}
-		catch (IdUnusedException e)
-		{
-			addAlert(state,rb.getString("notexist1"));
-			context.put("notExistFlag", new Boolean(true));
-		}
-		catch (TypeException e)
-		{
-			addAlert(state, rb.getString("typeex") + " ");
-		}
-		catch (PermissionException e)
-		{
-			addAlert(state," " + rb.getString("notpermis2") + " " + id + ". ");
-		}	// try-catch
 
 		if (state.getAttribute(STATE_MESSAGE) == null)
 		{
@@ -1012,8 +948,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			if(preventPublicDisplay.equals(Boolean.FALSE))
 			{
 				// find out about pubview
-				boolean pubview = ContentHostingService.isInheritingPubView(id);
-				if (!pubview) pubview = ContentHostingService.isPubView(id);
+				boolean pubview = ContentHostingService.isInheritingPubView(entityId);
+				if (!pubview) pubview = ContentHostingService.isPubView(entityId);
 				context.put("pubview", new Boolean(pubview));
 			}
 
@@ -1021,16 +957,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		
 		context.put("siteTitle", state.getAttribute(STATE_SITE_TITLE));
 
-		if (state.getAttribute(STATE_COPYRIGHT_TYPES) != null)
-		{
-			List copyrightTypes = (List) state.getAttribute(STATE_COPYRIGHT_TYPES);
-			context.put("copyrightTypes", copyrightTypes);
-		}
-
-		context.put("DETAILS_FORM_NAME", "detailsForm");
-		//item.metadataGroupsIntoContext(context);
-
-		// String template = (String) getContext(data).get("template");
 		return TEMPLATE_MORE;
 
 	}	// buildMoreContext
@@ -1887,6 +1813,14 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		    if(contentModifyActions != null)
 		    {
 		    	actions.addAll(contentModifyActions);
+		    }
+	    }
+	    else if(permissions.contains(ContentPermissions.READ))
+	    {
+		    List<ResourceToolAction> contentPropertiesActions = typeDef.getActions(CONTENT_PROPERTIES_ACTIONS);
+		    if(contentPropertiesActions != null)
+		    {
+		    	actions.addAll(contentPropertiesActions);
 		    }
 	    }
 	    
@@ -4784,6 +4718,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			template = buildReviseMetadataContext(portlet, context, data, state);
 		}
+		else if(mode.equals(MODE_PROPERTIES))
+		{
+			template = buildMoreContext(portlet, context, data, state);
+		}
 
 		return template;
 
@@ -5863,6 +5801,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					state.setAttribute(STATE_ITEMS_TO_BE_MOVED, items_to_be_moved);
 					break;
 				case VIEW_METADATA:
+					// sAction.initializeAction(reference);
+					state.setAttribute(STATE_MORE_ID, selectedItemId);
+					//state.setAttribute(STATE_MORE_ACTION, action);
+					state.setAttribute (STATE_MODE, MODE_PROPERTIES);
 					break;
 				case REVISE_METADATA:
 					// sAction.initializeAction(reference);

@@ -132,16 +132,16 @@ public class ListItem
 		org.sakaiproject.content.api.ContentHostingService contentService = ContentHostingService.getInstance();
 		
 		boolean isAvailabilityEnabled = contentService.isAvailabilityEnabled();
-        
+		
         Reference ref = EntityManager.newReference(entity.getReference());
-       if(entity == null)
+        if(entity == null)
         {
         	item = new ListItem("");
         }
         else
         {
         	item = new ListItem(entity);
-       }
+        }
         item.setPubviewPossible(! preventPublicDisplay);
         item.setDepth(depth);
         /*
@@ -199,12 +199,12 @@ public class ListItem
 					}
 				}
          	}
-			if(expandedFolders.contains(entity.getId()))
+ 			if(expandedFolders.contains(entity.getId()))
 			{
 				item.setExpanded(true);
 
 		       	List<ContentEntity> children = collection.getMemberResources();
-		       	
+
 				Comparator comparator = null;
 				if(userSelectedSort != null)
 				{
@@ -277,7 +277,7 @@ public class ListItem
         }
         List<ResourceToolAction> otherActions = ResourcesAction.getActions(entity, item.getPermissions(), registry);
         List<ResourceToolAction> pasteActions = ResourcesAction.getPasteActions(entity, item.getPermissions(), registry, items_to_be_moved, items_to_be_copied);
-        
+
         if(pasteActions != null && ! pasteActions.isEmpty())
         {
         	if(otherActions == null)
@@ -365,7 +365,7 @@ public class ListItem
 	protected Time retractDate;
 	
 	protected String description;
-	protected String copyrightInfo;
+	protected String copyrightInfo = "";
 	protected String copyrightStatus;
 	protected boolean copyrightAlert;
 
@@ -503,6 +503,7 @@ public class ListItem
         	{
 	        	String[] args = { Integer.toString(collection_size) };
 	        	setSize(rb.getFormattedMessage("size.items", args));
+	        	setSizzle(rb.getFormattedMessage("size.items", args));
         	}
 			setIsEmpty(collection_size < 1);
 			setSortable(contentService.isSortByPriorityEnabled() && collection_size > 1 && collection_size < ResourceType.EXPANDABLE_FOLDER_SIZE_LIMIT);
@@ -598,7 +599,10 @@ public class ListItem
 			setSizzle(sizzle);
 			
 			this.copyrightStatus = props.getProperty(ResourceProperties.PROP_COPYRIGHT_CHOICE);
-			this.copyrightInfo = props.getProperty(ResourceProperties.PROP_COPYRIGHT);
+			if(props.getProperty(ResourceProperties.PROP_COPYRIGHT) != null)
+			{
+				this.copyrightInfo = props.getProperty(ResourceProperties.PROP_COPYRIGHT);
+			}
 			try 
 			{
 				this.copyrightAlert = props.getBooleanProperty(ResourceProperties.PROP_COPYRIGHT_ALERT);

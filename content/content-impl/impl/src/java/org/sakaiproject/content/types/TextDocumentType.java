@@ -78,6 +78,7 @@ public class TextDocumentType extends BaseResourceType
 		// actions.put(ResourceToolAction.ACCESS_CONTENT, new TextDocumentAccessAction());
 		actions.put(ResourceToolAction.REVISE_CONTENT, new TextDocumentReviseAction());
 		actions.put(ResourceToolAction.REPLACE_CONTENT, new TextDocumentReplaceAction());
+		actions.put(ResourceToolAction.ACCESS_PROPERTIES, new TextDocumentViewPropertiesAction());
 		actions.put(ResourceToolAction.REVISE_METADATA, new TextDocumentPropertiesAction());
 		actions.put(ResourceToolAction.COPY, new TextDocumentCopyAction());
 		actions.put(ResourceToolAction.DUPLICATE, new TextDocumentDuplicateAction());
@@ -234,6 +235,90 @@ public class TextDocumentType extends BaseResourceType
 		{
 			// TODO Auto-generated method stub
 			return rb.getString("action.props");
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getTypeId()
+		 */
+		public String getTypeId()
+		{
+			// TODO Auto-generated method stub
+			return typeId;
+		}
+		
+	}
+
+	public class TextDocumentViewPropertiesAction implements ServiceLevelAction
+	{
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(ContentEntity entity)
+        {
+	        return true;
+        }
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#cancelAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void cancelAction(Reference reference)
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#finalizeAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void finalizeAction(Reference reference)
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#initializeAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void initializeAction(Reference reference)
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#isMultipleItemAction()
+		 */
+		public boolean isMultipleItemAction()
+		{
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
+		 */
+		public ActionType getActionType()
+		{
+			// TODO Auto-generated method stub
+			return ResourceToolAction.ActionType.VIEW_METADATA;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getId()
+		 */
+		public String getId()
+		{
+			// TODO Auto-generated method stub
+			return ResourceToolAction.ACCESS_PROPERTIES;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getLabel()
+		 */
+		public String getLabel()
+		{
+			// TODO Auto-generated method stub
+			return rb.getString("action.access");
 		}
 
 		/* (non-Javadoc)

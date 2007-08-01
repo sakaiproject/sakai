@@ -195,6 +195,90 @@ public class UrlResourceType extends BaseResourceType
 		
 	}
 
+	public class UrlResourceViewPropertiesAction implements ServiceLevelAction
+	{
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(ContentEntity entity)
+        {
+	        return true;
+        }
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#cancelAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void cancelAction(Reference reference)
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#finalizeAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void finalizeAction(Reference reference)
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#initializeAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void initializeAction(Reference reference)
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#isMultipleItemAction()
+		 */
+		public boolean isMultipleItemAction()
+		{
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
+		 */
+		public ActionType getActionType()
+		{
+			// TODO Auto-generated method stub
+			return ResourceToolAction.ActionType.VIEW_METADATA;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getId()
+		 */
+		public String getId()
+		{
+			// TODO Auto-generated method stub
+			return ResourceToolAction.ACCESS_PROPERTIES;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getLabel()
+		 */
+		public String getLabel()
+		{
+			// TODO Auto-generated method stub
+			return rb.getString("action.access");
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getTypeId()
+		 */
+		public String getTypeId()
+		{
+			// TODO Auto-generated method stub
+			return typeId;
+		}
+		
+	}
+
 	public class UrlResourceCopyAction implements ServiceLevelAction
 	{
 		/* (non-Javadoc)
@@ -658,6 +742,7 @@ public class UrlResourceType extends BaseResourceType
 		//actions.put(ResourceToolAction.ACCESS_CONTENT, new UrlResourceAccessAction());
 		actions.put(ResourceToolAction.REVISE_CONTENT, new UrlResourceReviseAction());
 		//actions.put(ResourceToolAction.REPLACE_CONTENT, new UrlResourceReplaceAction());
+		actions.put(ResourceToolAction.ACCESS_PROPERTIES, new UrlResourceViewPropertiesAction());
 		actions.put(ResourceToolAction.REVISE_METADATA, new UrlResourcePropertiesAction());
 		actions.put(ResourceToolAction.DUPLICATE, new UrlResourceDuplicateAction());
 		actions.put(ResourceToolAction.COPY, new UrlResourceCopyAction());

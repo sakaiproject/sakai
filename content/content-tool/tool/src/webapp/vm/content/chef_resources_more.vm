@@ -17,31 +17,17 @@
 		<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
 		<div style="display:block;clear:both"></div>
 	#end
-	<div class ="chefBreadCrumb">
-		$tlang.getString("gen.location")
-		<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" />
-		#foreach ($item in $collectionPath)
-			#if($item.isLast())
-				#if ($dropboxMode && $velocityCount == 1)
-					$siteTitle $tlang.getString("gen.drop")
-				#elseif($velocityCount == 1)
-					$siteTitle $tlang.getString("gen.reso")
-				#else
-					$validator.escapeHtml("$item.name")
+	<div class ="breadCrumb specialLink">
+		<h3>
+			$tlang.getString("gen.location")
+			<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" />
+			#foreach ($i in $item.collectionPath)
+				#if($velocityCount > 1)
+					/
 				#end
-			#else
-				##<a href="#toolLinkParam("ResourcesAction" "doNavigate" "collectionId=$validator.escapeUrl($item.id)&navRoot=$validator.escapeUrl($navRoot)")" title ="$tlang.getString('sh.go')">
-					#if ($dropboxMode && $velocityCount == 1)
-						$siteTitle $tlang.getString("gen.drop")
-					#elseif($velocityCount == 1)
-						$siteTitle $tlang.getString("gen.reso")
-					#else
-						$validator.escapeHtml("$item.name")
-					#end
-				##</a>
-				/
+				$validator.escapeHtml("$i.name")
 			#end
-		#end
+		</h3>
 	</div>		
 
 	#if (!$notExistFlag)
@@ -98,22 +84,12 @@
 						#if($pubview) 
 							$tlang.getString("more.yes") 
 						#else
-							$item.effectiveGroups
+							$item.effectiveGroupsLabel
 						#end
 					</span>
 				</td>
 			</tr>
 		#end
-#if($hasQuota)
-		<tr> 
-			<th> 
-				$tlang.getString("gen.quota") <br \>(KBytes):
-			</th>
-			<td>
-				<span class="chefPre">$quota</span>
-			</td>
-		</tr>
-#end
 	#if (!($dropboxMode && $collectionId==$homeCollection))
 		<tr> 
 			<th> 
@@ -140,67 +116,54 @@
 				$item.modifiedTime
 			</td>
 		</tr>
-	#if (!($dropboxMode && $collectionId==$homeCollection))
-		<tr> 
-			<th> 
-				$tlang.getString("gen.lastby")
-			</th>
-			<td>
-				$item.modifiedBy
-			</td>
-		</tr>
-	#end
-		#if (! $item.isFolder())
+		#if (!($dropboxMode && $collectionId==$homeCollection))
+			<tr> 
+				<th> 
+					$tlang.getString("gen.lastby")
+				</th>
+				<td>
+					$item.modifiedBy
+				</td>
+			</tr>
+		#end
+		#if(! $item.isUrl() && ! $item.isCollection() && "$!{item.mimetype}" != "")
 			<tr> 
 				<th> 
 					$tlang.getString("gen.type")
 				</th>
 				<td>
-					$item.mimeType
+					$item.mimetype
 				</td>
 			</tr>
+		#end
+		<tr> 
+			<th> 
+				$tlang.getString("gen.size")
+			</th>
+			<td>
+				$item.sizzle
+			</td>
+		</tr>
+		#if ($item.isUrl())
 			<tr> 
 				<th> 
-					$tlang.getString("gen.size")
-				</th>
-				<td>
-					$item.size ##$properties.getPropertyFormatted($properties.NamePropContentLength) ($validator.getFileSizeWithDividor($properties.getProperty($properties.NamePropContentLength)) bytes)
+					$tlang.getString("gen.original")
+				</t>
+				<th>
+					$item.contentString
 				</td>
 			</tr>
-			#* only allow open in new window for 2003 fall release
-			<tr>
-				<th> 
-					$tlang.getString("gen.open")
-				</td>
-				<td>
-					#set ($openIn=$properties.getPropertyFormatted($properties.NamePropOpenNewWindow))
-					#if (($openIn == "false") || ( $openIn == "_self"))
-						$tlang.getString("gen.thiswin")
-					#else 
-						$tlang.getString("gen.newwin")
-					#end
-				</td>
-			</tr>
-			*#
-				#if ($item.isUrl())
-					<tr> 
-						<th> 
-							$tlang.getString("gen.original")
-						</t>
-						<th>
-							$item.contentString
-						</td>
-					</tr>
-				#end
-			#end
-			<tr>
-				<th> 
-					$tlang.getString("gen.stored")
-				</th>
-				<td>
-					$item.url
-				</td>
-			</tr>
+		#end
+		<tr>
+			<th> 
+				$tlang.getString("gen.stored")
+			</th>
+			<td>
+				<a href="$item.accessUrl" target="$item.target">
+					$item.accessUrl
+				</a>
+			</td>
+		</tr>
 ############################################# this is the section to show ematadata  
 #if($metadataGroups)
 #foreach($group in $metadataGroups)				  

@@ -76,6 +76,7 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
 		//actions.put(ResourceToolAction.PASTE_MOVED, new FolderPasteMovedAction());
 		//actions.put(ResourceToolAction.PASTE_COPIED, new FolderPasteCopiedAction());
 		actions.put(ResourceToolAction.CREATE, new FolderCreateAction());
+		actions.put(ResourceToolAction.ACCESS_PROPERTIES, new FolderViewPropertiesAction());
 		actions.put(ResourceToolAction.REVISE_METADATA, new FolderPropertiesAction());
 		//actions.put(ResourceToolAction.DUPLICATE, new FolderDuplicateAction());
 		actions.put(ResourceToolAction.PASTE_COPIED, new FolderPasteCopyAction());
@@ -958,6 +959,85 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
 		public String getLabel()
 		{
 			return rb.getString("action.props");
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getTypeId()
+		 */
+		public String getTypeId()
+		{
+			return typeId;
+		}
+		
+	}
+
+	public class FolderViewPropertiesAction implements ServiceLevelAction
+	{
+		/* (non-Javadoc)
+         * @see org.sakaiproject.content.api.ResourceToolAction#available(java.lang.String)
+         */
+        public boolean available(ContentEntity entity)
+        {
+ 	        return true;
+        }
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#cancelAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void cancelAction(Reference reference)
+		{
+			// do nothing
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#finalizeAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void finalizeAction(Reference reference)
+		{
+			// do nothing
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#initializeAction(org.sakaiproject.entity.api.Reference)
+		 */
+		public void initializeAction(Reference reference)
+		{
+			// do nothing
+			
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ServiceLevelAction#isMultipleItemAction()
+		 */
+		public boolean isMultipleItemAction()
+		{
+			return false;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getActionType()
+		 */
+		public ActionType getActionType()
+		{
+			return ResourceToolAction.ActionType.VIEW_METADATA;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getId()
+		 */
+		public String getId()
+		{
+			return ResourceToolAction.ACCESS_PROPERTIES;
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sakaiproject.content.api.ResourceToolAction#getLabel()
+		 */
+		public String getLabel()
+		{
+			return rb.getString("action.access");
 		}
 
 		/* (non-Javadoc)
