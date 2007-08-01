@@ -10,7 +10,7 @@
 
     <h:form id="msgForum">
     	<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
-		<sakai:script contextBase="/library" path="/js/jquery-1.1.2.js" />
+		<sakai:script contextBase="/library" path="/js/jquery.js" />
 <!--jsp/discussionForum/forum/dfForumDetail.jsp-->
       <h:panelGrid columns="2" summary="layout" width="100%" styleClass="navPanel  specialLink">
         <h:panelGroup>

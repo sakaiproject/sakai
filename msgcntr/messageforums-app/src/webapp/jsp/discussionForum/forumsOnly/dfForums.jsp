@@ -15,8 +15,8 @@ org.sakaiproject.tool.cover.SessionManager.getCurrentToolSession().
 
 <f:view>
   <sakai:view title="#{msgs.cdfm_discussion_forums}">
+		<sakai:script contextBase="/library" path="/js/jquery.js" />
 		<sakai:script contextBase="/sakai-messageforums-tool" path="/js/forum.js"/>
-		<sakai:script contextBase="/library" path="/js/jquery-1.1.2.js" />
 	<h:form id="msgForum">
 
   <sakai:tool_bar separator="#{msgs.cdfm_toolbar_separator}" rendered="#{ForumTool.newForum || ForumTool.instructor || ForumTool.displayPendingMsgQueue}">
