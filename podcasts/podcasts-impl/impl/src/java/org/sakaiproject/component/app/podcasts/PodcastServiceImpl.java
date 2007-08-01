@@ -1491,7 +1491,7 @@ public class PodcastServiceImpl implements PodcastService {
 	 * 			The String to be used to post the event
 	 */
 	private String getEventMessage(Object object) {
-		return "/content/group/podcast/" + getCurrentUser() + Entity.SEPARATOR + object.toString();
+		return "/content/group/" + getSiteId() + "/Podcasts/" + getCurrentUser() + Entity.SEPARATOR + object.toString();
 	}
 	
 	private String getCurrentUser() {        
