@@ -231,3 +231,19 @@ function doAjax(messageId, topicId, self){
 	$.ajax({type: "GET", url: location.href, data: ""});
 	return false;
 }
+
+//fix for double click stack traces in IE - SAK-10625
+//add Jquery if necessary
+if(typeof($) == "undefined"){
+   js = document.createElement('script');
+   js.setAttribute('language', 'javascript');
+   js.setAttribute('type', 'text/javascript');
+   js.setAttribute('src','/library/js/jquery.js');
+   document.getElementsByTagName('head').item(0).appendChild(js);
+//document.write('<script type="text/javascript" src="/library/js/jquery.js"></script>');}
+}
+js = document.createElement('script');
+js.setAttribute('language', 'javascript');
+js.setAttribute('type', 'text/javascript');
+js.setAttribute('src','/sakai-messageforums-tool/js/sak-10625.js');
+document.getElementsByTagName('head').item(0).appendChild(js);
