@@ -243,7 +243,16 @@ private Long attachmentId;
 	  } 
   }
   
+  public boolean getIsInlineFlash() {
+	  if (this.mimeType.equalsIgnoreCase("application/x-shockwave-flash")) {
+		  return true;
+	  }
+	  else {
+		  return false;
+	  } 
+  }
+  
   public boolean getIsMedia() {
-	  return (getIsInlineVideo() || getIsInlineImage());
+	  return (getIsInlineVideo() || getIsInlineImage() || getIsInlineFlash());
   }
 }
