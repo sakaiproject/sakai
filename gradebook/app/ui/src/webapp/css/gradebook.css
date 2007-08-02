@@ -164,10 +164,18 @@ td.gbMessageAboveNumber {vertical-align:top; text-align:right; padding-right:2em
 }
 
 .graderRulesAdd {
+	position: relative;
+	right: 0;
 	margin-top: 1.0em;
 }
 
 .selectGrader {
 	font-weight: bold;
 	margin-bottom: 1.0em;
+}
+
+.graderRulesWrap {
+   background-color: #eee;
+   padding: 5px;
+   width: 100%;
 }

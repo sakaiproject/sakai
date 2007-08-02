@@ -495,6 +495,16 @@ public abstract class GradebookDependentBean extends InitializableBean {
 	}
 	
 	/**
+	 * Go to permissions page. State is kept in
+	 * tool session, hence attribute setting.
+	 */
+	public String navigateToPermissionSettings() {
+		setNav("other","false","false","false","");
+		
+		return "graderRules";
+	}
+	
+	/**
 	 * Go to gradebook course grade setup. State is kept in
 	 * tool session, hence attribute setting.
 	 */
