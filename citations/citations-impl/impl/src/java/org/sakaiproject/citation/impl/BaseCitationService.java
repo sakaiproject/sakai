@@ -107,17 +107,17 @@ import org.w3c.dom.Element;
 public abstract class BaseCitationService implements CitationService
 {
 	protected boolean attemptToMatchSchema = false;
-	
+
 	protected static final List<String> AUTHOR_AS_KEY = new Vector<String>();
-	static 
-	{ 
+	static
+	{
 		AUTHOR_AS_KEY.add( CitationCollection.SORT_BY_AUTHOR );
 		AUTHOR_AS_KEY.add( CitationCollection.SORT_BY_UUID );
 	};
 
 	protected static final List<String> TITLE_AS_KEY = new Vector<String>();
 
-	static 
+	static
 	{
 		TITLE_AS_KEY.add( CitationCollection.SORT_BY_TITLE );
 		TITLE_AS_KEY.add( CitationCollection.SORT_BY_AUTHOR );
@@ -143,7 +143,7 @@ public abstract class BaseCitationService implements CitationService
 		GS_TAGS.put("rft.issn", "id");
 		GS_TAGS.put("rft.isbn", "id");
 	}
-	
+
 	/**
 	 *
 	 */
@@ -1003,7 +1003,8 @@ public abstract class BaseCitationService implements CitationService
 				return "";
 			}
 
-			// default to journal type
+			// default to journal type, article genre
+			boolean articleGenre = true;
 			boolean journalOpenUrlType = true;
 			String referentValueFormat = OPENURL_JOURNAL_FORMAT;
 			// check to see whether we should construct a journal OpenUrl
@@ -1019,11 +1020,13 @@ public abstract class BaseCitationService implements CitationService
 			{
 				if (type.equals("article") || type.equals("report") || type.equals("unknown"))
 				{
+				  articleGenre = true;
 					journalOpenUrlType = true;
 					referentValueFormat = OPENURL_JOURNAL_FORMAT;
 				}
 				else
 				{
+				  articleGenre = false;
 					journalOpenUrlType = false;
 					referentValueFormat = OPENURL_BOOK_FORMAT;
 				}
@@ -1038,6 +1041,12 @@ public abstract class BaseCitationService implements CitationService
 				openUrl.append("?url_ver=" + URLEncoder.encode(OPENURL_VERSION, "utf8")
 						+ "&url_ctx_fmt=" + URLEncoder.encode(OPENURL_CONTEXT_FORMAT, "utf8")
 						+ "&rft_val_fmt=" + URLEncoder.encode(referentValueFormat, "utf8"));
+
+        // flag articles
+        if (articleGenre)
+        {
+					openUrl.append("&rft.genre=article");
+			  }
 
 				// get first author
 				String author = getFirstAuthor();
@@ -1409,12 +1418,12 @@ public abstract class BaseCitationService implements CitationService
 					}
 				}
 			}
-			
+
 			if (source.length() > 1 && !source.endsWith(".") && !source.endsWith("?") && !source.endsWith("!") && !source.endsWith(","))
 			{
 				source = source.trim() + ". ";
 			}
-			
+
 			if( source.trim().endsWith( ".." ) )
 			{
 				source = source.substring( 0, source.length()-2 );
@@ -1433,24 +1442,24 @@ public abstract class BaseCitationService implements CitationService
 				return null;
 			}
 		}
-		
+
 		public String getSubjectString() {
 			Object subjects = getCitationProperty( "subject" );
-			
+
 			if ( subjects instanceof List )
 			{
 				List subjectList = ( List ) subjects;
 				ListIterator subjectListIterator = subjectList.listIterator();
-				
+
 				StringBuffer subjectStringBuf = new StringBuffer();
-				
+
 				while ( subjectListIterator.hasNext() )
 				{
 					subjectStringBuf.append( ((String)subjectListIterator.next()).trim() + ", " );
 				}
-				
+
 				String subjectString = subjectStringBuf.substring( 0, subjectStringBuf.length() - 2 );
-				
+
 				if ( subjectString.equals("") )
 				{
 					return null;
@@ -1463,9 +1472,9 @@ public abstract class BaseCitationService implements CitationService
 			else
 			{
 				return null;
-			}			
+			}
 		}
-		
+
 		/*
 		 * (non-Javadoc)
 		 *
@@ -1722,12 +1731,12 @@ public abstract class BaseCitationService implements CitationService
         {
      		SessionManager sessionManager = (SessionManager) ComponentManager.get("org.sakaiproject.tool.api.SessionManager");
     		String sessionId = sessionManager.getCurrentSession().getId();
- 
+
 	        String url = m_serverConfigurationService.getServerUrl() + "/savecite/" + collectionId + "?sakai.session=" + sessionId;
-	        
+
 	        String genre = this.getSchema().getIdentifier();
 	        url += "&genre=" + genre;
-	        
+
 	        String openUrlParams = this.getOpenurlParameters();
 	        String[] params = openUrlParams.split("&");
 	        for(int i = 0; i < params.length; i++)
@@ -1739,7 +1748,7 @@ public abstract class BaseCitationService implements CitationService
         			url += "&" + key + "=" + parts[1];
         		}
 	        }
-	        
+
 	        return url;
         }
 
@@ -1751,25 +1760,25 @@ public abstract class BaseCitationService implements CitationService
 	public class BasicCitationCollection implements CitationCollection
 	{
 		protected final Comparator DEFAULT_COMPARATOR = new BasicCitationCollection.TitleComparator(true);
-		
+
 		public class MultipleKeyComparator implements Comparator
 		{
 			protected List<String> m_keys = new Vector<String>();
-			
+
 			protected boolean m_ascending = true;
 
 			public MultipleKeyComparator(List<String> keys, boolean ascending)
 			{
 				m_keys.addAll(keys);
-				
+
 			}
-			
+
 			public MultipleKeyComparator( MultipleKeyComparator mkc )
 			{
 				this.m_keys      = mkc.m_keys;
 				this.m_ascending = mkc.m_ascending;
 			}
-			
+
 			/* (non-Javadoc)
              * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
              */
@@ -1803,7 +1812,7 @@ public abstract class BaseCitationService implements CitationService
 	            		*/
 	            		String title0 = ((String)cit0.getCitationProperty( Schema.TITLE )).toLowerCase();;
 	            		String title1 = ((String)cit1.getCitationProperty( Schema.TITLE )).toLowerCase();;
-	            		
+
 	            		if (title0 == null)
 	            		{
 	            			title0 = "";
@@ -1814,7 +1823,7 @@ public abstract class BaseCitationService implements CitationService
 	            			title1 = "";
 	            		}
 
-	            		rv = m_ascending ? title0.compareTo(title1) : title1.compareTo(title0); 
+	            		rv = m_ascending ? title0.compareTo(title1) : title1.compareTo(title0);
 	            	}
 	            	else if(CitationCollection.SORT_BY_AUTHOR.equalsIgnoreCase(key))
 	            	{
@@ -1840,13 +1849,13 @@ public abstract class BaseCitationService implements CitationService
 	            }
 	            return rv;
             }
-			
+
             public void addKey(String key)
             {
             	m_keys.add(key);
             }
 		}
-		
+
 		public class AuthorComparator extends MultipleKeyComparator
 		{
 			/**
@@ -2101,7 +2110,7 @@ public abstract class BaseCitationService implements CitationService
 		public BasicCitationCollection(boolean temporary)
 		{
 			m_order = new TreeSet<String>(m_comparator);
-			
+
 			m_temporary = temporary;
 			if (temporary)
 			{
@@ -2137,7 +2146,7 @@ public abstract class BaseCitationService implements CitationService
 		public BasicCitationCollection(String collectionId)
 		{
 			m_id = collectionId;
-			
+
 			m_order = new TreeSet(m_comparator);
 		}
 
@@ -2192,7 +2201,7 @@ public abstract class BaseCitationService implements CitationService
 		{
 			return this.m_citations.containsKey(citation.getId());
 		}
-		
+
 		protected void copy(BasicCitationCollection other)
 		{
 			this.m_ascending = other.m_ascending;
@@ -2202,7 +2211,7 @@ public abstract class BaseCitationService implements CitationService
 			this.m_pageSize = other.m_pageSize;
 			this.m_temporary = other.m_temporary;
 			this.m_title = other.m_title;
-			
+
 			/*
 			 * Get new instance of comparator
 			 */
@@ -2215,7 +2224,7 @@ public abstract class BaseCitationService implements CitationService
 				// default to title, ascending
 				this.m_comparator = new MultipleKeyComparator( TITLE_AS_KEY, true );
 			}
-			
+
 			if(this.m_citations == null)
 			{
 				this.m_citations = new Hashtable<String, Citation>();
@@ -2243,7 +2252,7 @@ public abstract class BaseCitationService implements CitationService
 					M_log.warn("copy(" + oldCitation.getId() + ") ==> " + newCitation.getId(), e);
 				}
 			}
-			
+
 		}
 
 		public void exportRis(StringBuffer buffer, List<String>  citationIds) throws IOException
@@ -2416,7 +2425,7 @@ public abstract class BaseCitationService implements CitationService
         public String getSaveUrl()
         {
 	        String url = m_serverConfigurationService.getServerUrl() + "/savecite/" + this.getId() + "/";
-	        
+
 	        return url;
         }
 
@@ -3323,10 +3332,10 @@ public abstract class BaseCitationService implements CitationService
 		}
 
 	}
-	
+
 	/** Dependency: CitationsConfigurationService. */
 	protected ConfigurationService m_configService = null;
-	
+
 	/** Dependency: ServerConfigurationService. */
 	protected ServerConfigurationService m_serverConfigurationService = null;
 
@@ -3347,7 +3356,7 @@ public abstract class BaseCitationService implements CitationService
 	 * Dependency: the ResourceTypeRegistry
 	 */
 	protected ResourceTypeRegistry m_resourceTypeRegistry;
-	
+
 	/**
 	 * Dependency: inject the ResourceTypeRegistry
 	 * @param registry
@@ -3356,7 +3365,7 @@ public abstract class BaseCitationService implements CitationService
 	{
 		m_resourceTypeRegistry = registry;
 	}
-	
+
 	/**
 	 * @return the ResourceTypeRegistry
 	 */
@@ -3364,11 +3373,11 @@ public abstract class BaseCitationService implements CitationService
 	{
 		return m_resourceTypeRegistry;
 	}
-	
+
 	public static final String PROP_TEMPORARY_CITATION_LIST = "citations.temporary_citation_list";
 
 	/**
-	 * Checks permissions to add a CitationList.  Returns true if the user 
+	 * Checks permissions to add a CitationList.  Returns true if the user
 	 * has permission to add a resource in the collection identified by the
 	 * parameter.
 	 * @param contentCollectionId
@@ -3378,16 +3387,16 @@ public abstract class BaseCitationService implements CitationService
 	{
 		return m_contentHostingService.allowAddResource(contentCollectionId + "testing");
 	}
-	
+
 	/**
-	 * Checks permission to revise a CitationList, including permissions 
+	 * Checks permission to revise a CitationList, including permissions
 	 * to add, remove or revise citations within the CitationList. Returns
 	 * true if the user has permission to revise the resource identified by
 	 * the parameter.  Also returns true if all of these conditions are met:
 	 * (1) the user is the creator of the specified resource, (2) the specified
 	 * resource is a temporary CitationList (as identified by the value of
-	 * the PROP_TEMPORARY_CITATION_LIST property), and (3) the user has 
-	 * permission to add resources in the collection containing the 
+	 * the PROP_TEMPORARY_CITATION_LIST property), and (3) the user has
+	 * permission to add resources in the collection containing the
 	 * resource.
 	 * @param contentResourceId
 	 * @return
@@ -3405,7 +3414,7 @@ public abstract class BaseCitationService implements CitationService
 				String contentCollectionId = m_contentHostingService.getContainingCollectionId(contentResourceId);
 	     		SessionManager sessionManager = (SessionManager) ComponentManager.get("org.sakaiproject.tool.api.SessionManager");
 				String currentUser = sessionManager.getCurrentSessionUserId();
-				
+
 				allowed = this.allowAddCitationList(contentCollectionId) && (temp_res != null) && currentUser.equals(creator);
 			}
 			catch(PermissionException e)
@@ -3419,9 +3428,9 @@ public abstract class BaseCitationService implements CitationService
 		}
 		return allowed;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public boolean allowRemoveCitationList(String contentResourceId)
@@ -3437,7 +3446,7 @@ public abstract class BaseCitationService implements CitationService
 				String contentCollectionId = m_contentHostingService.getContainingCollectionId(contentResourceId);
 	     		SessionManager sessionManager = (SessionManager) ComponentManager.get("org.sakaiproject.tool.api.SessionManager");
 				String currentUser = sessionManager.getCurrentSessionUserId();
-				
+
 				allowed = this.allowAddCitationList(contentCollectionId) && (temp_res != null) && currentUser.equals(creator);
 			}
 			catch(PermissionException e)
@@ -3453,7 +3462,7 @@ public abstract class BaseCitationService implements CitationService
 	}
 
 
-	
+
 	public Citation addCitation(String mediatype)
 	{
 		Citation edit = m_storage.addCitation(mediatype);
@@ -3855,7 +3864,7 @@ public abstract class BaseCitationService implements CitationService
 		return names;
 
 	} // getValidPropertyNames
-	
+
 	public class CitationListCreateAction extends BaseInteractionAction
 	{
 
@@ -3879,8 +3888,8 @@ public abstract class BaseCitationService implements CitationService
         {
 	        return super.available(entity);
         }
-		
-        
+
+
 	}
 
 	/**
@@ -3894,72 +3903,72 @@ public abstract class BaseCitationService implements CitationService
 		{
 			m_storage = newStorage();
 			m_nextSerialNumber = new Integer(0);
-	
+
 			m_relativeAccessPoint = CitationService.REFERENCE_ROOT;
-	
+
 			// register as an entity producer
 			m_entityManager.registerEntityProducer(this, REFERENCE_ROOT);
-	
+
 			rb = new ResourceLoader("citations");
-	
+
 			//initializeSchemas();
 		    m_defaultSchema = "article";
-			
+
 			registerResourceType();
 		}
 	}
 
 	/**
-     * 
+     *
      */
     protected void registerResourceType()
     {
 	    ResourceTypeRegistry registry = getResourceTypeRegistry();
-	    
+
 	    List requiredPropertyKeys = new Vector();
 	    requiredPropertyKeys.add(ContentHostingService.PROP_ALTERNATE_REFERENCE);
 	    requiredPropertyKeys.add(ResourceProperties.PROP_CONTENT_TYPE);
-	    
-	    BaseInteractionAction createAction = new CitationListCreateAction(ResourceToolAction.CREATE,  
-	    		ResourceToolAction.ActionType.CREATE, 
-	    		CitationService.CITATION_LIST_ID, 
-	    		CitationService.HELPER_ID, 
+
+	    BaseInteractionAction createAction = new CitationListCreateAction(ResourceToolAction.CREATE,
+	    		ResourceToolAction.ActionType.CREATE,
+	    		CitationService.CITATION_LIST_ID,
+	    		CitationService.HELPER_ID,
 	    		new Vector());
-	    
+
 	    createAction.setLocalizer(
 	    		new BaseResourceAction.Localizer()
-	    		{ 
+	    		{
 	    			public String getLabel()
 	    			{
 	    				return rb.getString("action.create");
-	    			} 
+	    			}
 	    		});
 
-	    BaseInteractionAction reviseAction = new BaseInteractionAction(ResourceToolAction.REVISE_CONTENT,  
-	    		ResourceToolAction.ActionType.REVISE_CONTENT, 
-	    		CitationService.CITATION_LIST_ID, 
-	    		CitationService.HELPER_ID, 
+	    BaseInteractionAction reviseAction = new BaseInteractionAction(ResourceToolAction.REVISE_CONTENT,
+	    		ResourceToolAction.ActionType.REVISE_CONTENT,
+	    		CitationService.CITATION_LIST_ID,
+	    		CitationService.HELPER_ID,
 	    		new Vector());
-	    
+
 	    reviseAction.setLocalizer(
 	    		new BaseResourceAction.Localizer()
-	    		{ 
+	    		{
 	    			public String getLabel()
 	    			{
 	    				return rb.getString("action.revise");
-	    			} 
+	    			}
 	    		});
 
 	    BaseServiceLevelAction moveAction = new BaseServiceLevelAction(ResourceToolAction.MOVE,
 	    		ResourceToolAction.ActionType.MOVE,
-	    		CitationService.CITATION_LIST_ID, 
+	    		CitationService.CITATION_LIST_ID,
 	    		true );
-	    
+
 	    BaseServiceLevelAction revisePropsAction = new BaseServiceLevelAction(ResourceToolAction.REVISE_METADATA,
 	    		ResourceToolAction.ActionType.REVISE_METADATA,
-	    		CitationService.CITATION_LIST_ID, 
+	    		CitationService.CITATION_LIST_ID,
 	    		false );
-	    
+
 	    BasicSiteSelectableResourceType typedef = new BasicSiteSelectableResourceType(CitationService.CITATION_LIST_ID);
 	    typedef.setLocalizer(new CitationLocalizer());
 	    typedef.addAction(createAction);
@@ -3974,12 +3983,12 @@ public abstract class BaseCitationService implements CitationService
 	    typedef.setEnabledByDefault(m_configService.isCitationsEnabledByDefault());
 	    typedef.setIconLocation("sakai/citationlist.gif");
 	    typedef.setHasRightsDialog(false);
-	    
+
 	    registry.register(typedef);
     }
 
 	/**
-     * 
+     *
      */
     protected void initializeSchemas()
     {
@@ -3997,23 +4006,23 @@ public abstract class BaseCitationService implements CitationService
 
 	    BasicSchema report = new BasicSchema();
 	    report.setIdentifier("report");
-	    
+
 	    /* schema ordering is different for different types */
-	    
+
 	    /*
 	     * UNKNOWN (GENERIC)
 	     */
 	    unknown.addField(Schema.CREATOR, Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
 	    unknown.addAlternativeIdentifier(Schema.CREATOR, RIS_FORMAT, "A1");
-	    
+
 	    unknown.addField(Schema.TITLE, Schema.SHORTTEXT, true, true, 1, 1);
 	    unknown.addAlternativeIdentifier(Schema.TITLE, RIS_FORMAT, "T1");
-	    
+
 	    unknown.addField(Schema.YEAR, Schema.NUMBER, true, false, 0, 1);
-	    
+
 	    unknown.addField("date", Schema.NUMBER, true, false, 0, 1);
 	    unknown.addAlternativeIdentifier("date", RIS_FORMAT, "Y1");
-	    
+
 	    unknown.addField(Schema.PUBLISHER, Schema.SHORTTEXT, true, false, 0, 1);
 	    unknown.addAlternativeIdentifier(Schema.PUBLISHER, RIS_FORMAT, "PB");
 
@@ -4022,7 +4031,7 @@ public abstract class BaseCitationService implements CitationService
 
 	    unknown.addField(Schema.VOLUME, Schema.NUMBER, true, false, 0, 1);
 	    unknown.addAlternativeIdentifier(Schema.VOLUME, RIS_FORMAT, "VL");
-	    
+
 	    unknown.addField(Schema.ISSUE, Schema.NUMBER, true, false, 0, 1);
 	    unknown.addAlternativeIdentifier(Schema.ISSUE, RIS_FORMAT, "IS");
 
@@ -4031,10 +4040,10 @@ public abstract class BaseCitationService implements CitationService
 
 	    unknown.addField("startPage", Schema.NUMBER, true, false, 0, 1);
 	    unknown.addAlternativeIdentifier("startPage", RIS_FORMAT, "SP");
-	    
+
 	    unknown.addField("endPage", Schema.NUMBER, true, false, 0, 1);
 	    unknown.addAlternativeIdentifier("endPage", RIS_FORMAT, "EP");
-	    
+
 	    unknown.addField("edition", Schema.NUMBER, true, false, 0, 1);
 	    unknown.addAlternativeIdentifier("edition", RIS_FORMAT, "VL");
 
@@ -4068,24 +4077,24 @@ public abstract class BaseCitationService implements CitationService
 	    unknown.addField("doi", Schema.NUMBER, true, false, 0, 1);
 
 	    unknown.addField("rights", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
-	    
+
 	    /*
 	     * ARTICLE
 	     */
 	    article.addField(Schema.CREATOR, Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
 	    article.addAlternativeIdentifier(Schema.CREATOR, RIS_FORMAT, "A1");
-	    
+
 	    article.addField(Schema.TITLE, Schema.SHORTTEXT, true, true, 1, 1);
 	    article.addAlternativeIdentifier(Schema.TITLE, RIS_FORMAT, "T1");
-	    
+
 	    article.addField(Schema.SOURCE_TITLE, Schema.SHORTTEXT, true, false, 0, 1);
 	    article.addAlternativeIdentifier(Schema.SOURCE_TITLE, RIS_FORMAT, "JF");
-	    
+
 	    article.addField(Schema.YEAR, Schema.NUMBER, true, false, 0, 1);
 
 	    article.addField("date", Schema.NUMBER, true, false, 0, 1);
 	    article.addAlternativeIdentifier("date", RIS_FORMAT, "Y1");
-	    
+
 	    article.addField(Schema.VOLUME, Schema.NUMBER, true, false, 0, 1);
 	    article.addAlternativeIdentifier(Schema.VOLUME, RIS_FORMAT, "VL");
 
@@ -4093,38 +4102,38 @@ public abstract class BaseCitationService implements CitationService
 	    article.addAlternativeIdentifier(Schema.ISSUE, RIS_FORMAT, "IS");
 
 	    article.addField(Schema.PAGES, Schema.NUMBER, true, false, 0, 1);
-	    
+
 	    article.addField("startPage", Schema.NUMBER, true, false, 0, 1);
 	    article.addAlternativeIdentifier("startPage", RIS_FORMAT, "SP");
-	    
+
 	    article.addField("endPage", Schema.NUMBER, true, false, 0, 1);
 	    article.addAlternativeIdentifier("endPage", RIS_FORMAT, "EP");
-	    
+
 	    article.addField("abstract", Schema.LONGTEXT, true, false, 0, 1);
 	    article.addAlternativeIdentifier("abstract", RIS_FORMAT, "N2");
-	    
+
 	    article.addField("note", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
 	    article.addAlternativeIdentifier("note", RIS_FORMAT, "N1");
-	    
+
 	    article.addField(Schema.ISN, Schema.SHORTTEXT, true, false, 0, 1);
 	    article.addAlternativeIdentifier(Schema.ISN, RIS_FORMAT, "SN");
-	    
+
 	    article.addField("subject", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
 	    article.addAlternativeIdentifier("subject", RIS_FORMAT, "KW");
-	    
+
 	    article.addField("Language", Schema.NUMBER, true, false, 0, 1);
-	    
+
 	    article.addField("locIdentifier", Schema.SHORTTEXT, true, false, 0, 1);
 	    article.addAlternativeIdentifier("locIdentifier", RIS_FORMAT, "M1");
-	    
+
 	    article.addField("dateRetrieved", Schema.DATE, false, false, 0, 1);
-	    
+
 	    article.addField("openURL", Schema.SHORTTEXT, false, false, 0, 1);
-	    
+
 	    article.addField("doi", Schema.NUMBER, true, false, 0, 1);
-	    
+
 	    article.addField("rights", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
-	    
+
 	    /*
 	     * BOOK
 	     */
@@ -4141,16 +4150,16 @@ public abstract class BaseCitationService implements CitationService
 
 	    book.addField(Schema.PUBLISHER, Schema.SHORTTEXT, true, false, 0, 1);
 	    book.addAlternativeIdentifier(Schema.PUBLISHER, RIS_FORMAT, "PB");
-	    
+
 	    book.addField("publicationLocation", Schema.SHORTTEXT, true, false, 0, 1);
 	    book.addAlternativeIdentifier("publicationLocation", RIS_FORMAT, "CY");
-	    
+
 	    book.addField("edition", Schema.NUMBER, true, false, 0, 1);
 	    book.addAlternativeIdentifier("edition", RIS_FORMAT, "VL");
-	    
+
 	    book.addField("editor", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
 	    book.addAlternativeIdentifier("editor", RIS_FORMAT, "A3");
-	    
+
 	    book.addField(Schema.SOURCE_TITLE, Schema.SHORTTEXT, true, false, 0, 1);
 	    book.addAlternativeIdentifier(Schema.SOURCE_TITLE, RIS_FORMAT, "T3");
 
@@ -4180,62 +4189,62 @@ public abstract class BaseCitationService implements CitationService
 	    book.addField("rights", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
 
 	    book.addAlternativeIdentifier(Schema.PAGES, RIS_FORMAT, "SP");
-	    
+
 	    /*
 	     * CHAPTER
 	     */
 	    chapter.addField(Schema.CREATOR, Schema.SHORTTEXT, true, true, 1, Schema.UNLIMITED);
 	    chapter.addAlternativeIdentifier(Schema.CREATOR, RIS_FORMAT, "A1");
-	    
+
 	    chapter.addField(Schema.TITLE, Schema.SHORTTEXT, true, true, 1, 1);
 	    chapter.addAlternativeIdentifier(Schema.TITLE, RIS_FORMAT, "CT");
-	    
+
 	    chapter.addField(Schema.YEAR, Schema.NUMBER, true, false, 0, 1);
-	    
+
 	    chapter.addField("date", Schema.NUMBER, true, false, 0, 1);
 	    chapter.addAlternativeIdentifier("date", RIS_FORMAT, "Y1");
-	    
+
 	    chapter.addField(Schema.PUBLISHER, Schema.SHORTTEXT, true, false, 0, 1);
 	    chapter.addAlternativeIdentifier(Schema.PUBLISHER, RIS_FORMAT, "PB");
-	    
+
 	    chapter.addField("publicationLocation", Schema.SHORTTEXT, true, false, 0, 1);
 	    chapter.addAlternativeIdentifier("publicationLocation", RIS_FORMAT, "CY");
-	    
+
 	    chapter.addField("edition", Schema.NUMBER, true, false, 0, 1);
 	    chapter.addAlternativeIdentifier("edition", RIS_FORMAT, "VL");
-	    
+
 	    chapter.addField("editor", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
 	    chapter.addAlternativeIdentifier("editor", RIS_FORMAT, "ED");
-	    
+
 	    chapter.addField(Schema.SOURCE_TITLE, Schema.SHORTTEXT, true, false, 0, 1);
 	    chapter.addAlternativeIdentifier(Schema.SOURCE_TITLE, RIS_FORMAT, "BT");
-	    
+
 	    chapter.addField(Schema.PAGES, Schema.NUMBER, true, false, 0, 1);
 	    chapter.addAlternativeIdentifier(Schema.PAGES, RIS_FORMAT, "SP");
-	    
+
 	    chapter.addField("startPage", Schema.NUMBER, true, false, 0, 1);
 	    chapter.addAlternativeIdentifier("startPage", RIS_FORMAT, "SP");
 
 	    chapter.addField("endPage", Schema.NUMBER, true, false, 0, 1);
 	    chapter.addAlternativeIdentifier("endPage", RIS_FORMAT, "EP");
-	    
+
 	    chapter.addField("abstract", Schema.LONGTEXT, true, false, 0, 1);
 	    chapter.addAlternativeIdentifier("abstract", RIS_FORMAT, "N2");
-	    
+
 	    chapter.addField("note", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
 	    chapter.addAlternativeIdentifier("note", RIS_FORMAT, "N1");
-	    
+
 	    chapter.addField(Schema.ISN, Schema.SHORTTEXT, true, false, 0, 1);
 	    chapter.addAlternativeIdentifier(Schema.ISN, RIS_FORMAT, "SN");
-	    
+
 	    chapter.addField("subject", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
 	    chapter.addAlternativeIdentifier("subject", RIS_FORMAT, "KW");
-	    
+
 	    chapter.addField("Language", Schema.NUMBER, true, false, 0, 1);
-	    
+
 	    chapter.addField("locIdentifier", Schema.SHORTTEXT, true, false, 0, 1);
 	    chapter.addAlternativeIdentifier("locIdentifier", RIS_FORMAT, "M1");
-	    
+
 	    chapter.addField("dateRetrieved", Schema.DATE, false, false, 0, 1);
 
 	    chapter.addField("openURL", Schema.SHORTTEXT, false, false, 0, 1);
@@ -4243,27 +4252,27 @@ public abstract class BaseCitationService implements CitationService
 	    chapter.addField("doi", Schema.NUMBER, true, false, 0, 1);
 
 	    chapter.addField("rights", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
-	    
+
 	    /*
 	     * REPORT
 	     */
 	    report.addField(Schema.CREATOR, Schema.SHORTTEXT, true, true, 1, Schema.UNLIMITED);
 	    report.addAlternativeIdentifier(Schema.CREATOR, RIS_FORMAT, "A1");
-	    
+
 	    report.addField(Schema.TITLE, Schema.SHORTTEXT, true, true, 1, 1);
 	    report.addAlternativeIdentifier(Schema.TITLE, RIS_FORMAT, "T1");
-	    
+
 	    report.addField(Schema.YEAR, Schema.NUMBER, true, false, 0, 1);
-	    
+
 	    report.addField("date", Schema.NUMBER, true, false, 0, 1);
 	    report.addAlternativeIdentifier("date", RIS_FORMAT, "Y1");
-	    
+
 	    report.addField(Schema.PUBLISHER, Schema.SHORTTEXT, true, false, 0, 1);
 	    report.addAlternativeIdentifier(Schema.PUBLISHER, RIS_FORMAT, "PB");
 
 	    report.addField("publicationLocation", Schema.SHORTTEXT, true, false, 0, 1);
 	    report.addAlternativeIdentifier("publicationLocation", RIS_FORMAT, "CY");
-	    
+
 	    report.addField("editor", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
 	    report.addAlternativeIdentifier("editor", RIS_FORMAT, "A3");
 
@@ -4300,7 +4309,7 @@ public abstract class BaseCitationService implements CitationService
 	    report.addField("doi", Schema.NUMBER, true, false, 0, 1);
 
 	    report.addField("rights", Schema.SHORTTEXT, true, false, 0, Schema.UNLIMITED);
-	    
+
 	    /* IGNORING 'Citation' field for now...
 	    unknown.addField("inlineCitation", Schema.SHORTTEXT, false, false, 0, Schema.UNLIMITED);
 	    article.addField("inlineCitation", Schema.SHORTTEXT, false, false, 0, Schema.UNLIMITED);
@@ -4355,14 +4364,14 @@ public abstract class BaseCitationService implements CitationService
 	    }
 
     }
-	
+
 	public class CitationListDeleteAction extends BaseServiceLevelAction
 	{
 		public CitationListDeleteAction()
 		{
 			super(ResourceToolAction.DELETE, ResourceToolAction.ActionType.DELETE, CitationService.CITATION_LIST_ID, true);
 		}
-		
+
 		public void finalizeAction(Reference reference)
 		{
 			try
@@ -4382,7 +4391,7 @@ public abstract class BaseCitationService implements CitationService
 			}
 		}
 	}
-	
+
 	public class CitationLocalizer implements BasicResourceType.Localizer
 	{
 		/**
@@ -4393,7 +4402,7 @@ public abstract class BaseCitationService implements CitationService
 		{
 			return rb.getString("list.title");
 		}
-		
+
 		/**
 		 *
 		 * @param member
@@ -4401,22 +4410,22 @@ public abstract class BaseCitationService implements CitationService
 		 */
 		public String getLocalizedHoverText(ContentEntity member)
 		{
-			
+
 			return rb.getString("list.title");
 		}
-		
+
 	}
-	
+
 	public class CitationListCopyAction extends BaseServiceLevelAction
 	{
 
-		public CitationListCopyAction() 
+		public CitationListCopyAction()
 		{
 			super(ResourceToolAction.COPY, ResourceToolAction.ActionType.COPY, CitationService.CITATION_LIST_ID, true);
 		}
 
 		@Override
-		public void finalizeAction(Reference reference) 
+		public void finalizeAction(Reference reference)
 		{
 			copyCitationCollection(reference);
 		}
@@ -4426,13 +4435,13 @@ public abstract class BaseCitationService implements CitationService
 	public class CitationListPasteMoveAction extends BaseServiceLevelAction
 	{
 
-		public CitationListPasteMoveAction() 
+		public CitationListPasteMoveAction()
 		{
 			super(ResourceToolAction.PASTE_COPIED, ResourceToolAction.ActionType.PASTE_MOVED, CitationService.CITATION_LIST_ID, true);
 		}
 
 		@Override
-		public void finalizeAction(Reference reference) 
+		public void finalizeAction(Reference reference)
 		{
 			copyCitationCollection(reference);
 		}
@@ -4442,13 +4451,13 @@ public abstract class BaseCitationService implements CitationService
 	public class CitationListPasteCopyAction extends BaseServiceLevelAction
 	{
 
-		public CitationListPasteCopyAction() 
+		public CitationListPasteCopyAction()
 		{
 			super(ResourceToolAction.PASTE_COPIED, ResourceToolAction.ActionType.PASTE_COPIED, CitationService.CITATION_LIST_ID, true);
 		}
 
 		@Override
-		public void finalizeAction(Reference reference) 
+		public void finalizeAction(Reference reference)
 		{
 			copyCitationCollection(reference);
 		}
@@ -4458,13 +4467,13 @@ public abstract class BaseCitationService implements CitationService
 	public class CitationListDuplicateAction extends BaseServiceLevelAction
 	{
 
-		public CitationListDuplicateAction() 
+		public CitationListDuplicateAction()
 		{
 			super(ResourceToolAction.DUPLICATE, ResourceToolAction.ActionType.DUPLICATE, CitationService.CITATION_LIST_ID, false);
 		}
 
 		@Override
-		public void finalizeAction(Reference reference) 
+		public void finalizeAction(Reference reference)
 		{
 			copyCitationCollection(reference);
 		}
@@ -4659,7 +4668,7 @@ public abstract class BaseCitationService implements CitationService
 	{
 		m_configService = service;
 	}
-	
+
 	/**
 	 * Dependency: ContentHostingService.
 	 *
@@ -4782,20 +4791,20 @@ public abstract class BaseCitationService implements CitationService
 		catch(ServerOverloadException e)
 		{
 			M_log.warn("ServerOverloadException ", e);
-		} 
-		catch (PermissionException e) 
+		}
+		catch (PermissionException e)
 		{
 			M_log.warn("PermissionException ", e);
-		} 
-		catch (TypeException e) 
+		}
+		catch (TypeException e)
 		{
 			M_log.warn("TypeException ", e);
-		} 
-		catch (InUseException e) 
+		}
+		catch (InUseException e)
 		{
 			M_log.warn("InUseException ", e);
-		} 
-		catch (OverQuotaException e) 
+		}
+		catch (OverQuotaException e)
 		{
 			M_log.warn("OverQuotaException ", e);
 		}
