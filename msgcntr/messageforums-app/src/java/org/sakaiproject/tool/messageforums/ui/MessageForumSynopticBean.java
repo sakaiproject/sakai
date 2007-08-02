@@ -42,6 +42,7 @@ import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
+// import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
@@ -688,6 +689,8 @@ public class MessageForumSynopticBean {
 	 * 		List of unread message counts grouped by site
 	 */
 	private List compileDFMessageCount(List siteList) {
+		List unreadDFMessageCounts = new ArrayList();
+
 		// retrieve what possible roles user could be in sites
 		final List roleList = getUserRoles(siteList);
 
@@ -697,47 +700,49 @@ public class MessageForumSynopticBean {
 		// get List of sites where user is part of a group since
 		// need to process differently since could affect which messages
 		// able to view.
-		List groupedSites = getMultiMembershipSites(siteList);
+		final List groupedSites = getMultiMembershipSites(siteList);
 		
 		siteListMinusGrouped.removeAll(groupedSites);
 
-		List groupedSitesCounts = getGroupedSitesCounts(groupedSites);
+		final List groupedSitesCounts = getGroupedSitesCounts(groupedSites);
 		
 		// ******* Pulls total discussion forum message counts from DB *******
-		List unreadDFMessageCounts = new ArrayList();
-		List discussionForumMessageCounts = messageManager
+		// If grouped in all sites, no processing needed
+		if (! siteListMinusGrouped.isEmpty()) {
+			List discussionForumMessageCounts = messageManager
 						.findDiscussionForumMessageCountsForAllSites(siteListMinusGrouped, roleList);
 
-		discussionForumMessageCounts = filterMessageCountsByRole(discussionForumMessageCounts);
+			discussionForumMessageCounts = filterMessageCountsByRole(discussionForumMessageCounts);
 		
-		// if still messages, keep processing
-		if (! discussionForumMessageCounts.isEmpty()) {
-			// Pulls read discussion forum message counts from DB
-			List discussionForumReadMessageCounts = messageManager
+			// if still messages, keep processing
+			if (! discussionForumMessageCounts.isEmpty()) {
+				// Pulls read discussion forum message counts from DB
+				List discussionForumReadMessageCounts = messageManager
 											.findDiscussionForumReadMessageCountsForAllSites(siteListMinusGrouped, roleList);
 
-			// if no read messages, totals are current message counts
-			if (discussionForumReadMessageCounts.isEmpty()) {
-				for (Iterator iter = discussionForumMessageCounts.iterator(); iter.hasNext();) {
-					Object [] count = (Object []) iter.next();
+				// if no read messages, totals are current message counts
+				if (discussionForumReadMessageCounts.isEmpty()) {
+					for (Iterator iter = discussionForumMessageCounts.iterator(); iter.hasNext();) {
+						Object [] count = (Object []) iter.next();
 						
-					Object [] finalCount = new Object [2];
-					finalCount[0] = count[0];
-					finalCount[1] = count[2];
+						Object [] finalCount = new Object [2];
+						finalCount[0] = count[0];
+						finalCount[1] = count[2];
 						
-					unreadDFMessageCounts.add(finalCount);
+						unreadDFMessageCounts.add(finalCount);
+					}
 				}
-			}
-			else {
-				// else get correct read count and
-				discussionForumReadMessageCounts = filterMessageCountsByRole(discussionForumReadMessageCounts);
+				else {
+					// else get correct read count
+					discussionForumReadMessageCounts = filterMessageCountsByRole(discussionForumReadMessageCounts);
 				
-				// subtract read from total to get unread counts
-				unreadDFMessageCounts = computeUnreadDFMessages(
+					// subtract read from total to get unread counts
+					unreadDFMessageCounts = computeUnreadDFMessages(
 												discussionForumMessageCounts,
 												discussionForumReadMessageCounts);
-			} // end (discussionForumReadMessageCounts.isEmpty()) - after retrieving read messages from db 
-		} // end (! discussionForumMessageCounts.isEmpty()) - after initial retrieval of messages from db
+				} // end (discussionForumReadMessageCounts.isEmpty()) - after retrieving read messages from db 
+			} // end (! discussionForumMessageCounts.isEmpty()) - after initial retrieval of messages from db
+		} // end (! discussionForumMessageCounts.isEmpty())
 
 		unreadDFMessageCounts.addAll(groupedSitesCounts);
 		
@@ -1333,10 +1338,9 @@ public class MessageForumSynopticBean {
 	 * @return
 	 */
 	private boolean isToolInSite(Site thisSite, String toolId) {
-		Collection toolsInSite = thisSite.getTools(toolId);
+		final Collection toolsInSite = thisSite.getTools(toolId);
 
-		return ! toolsInSite.isEmpty();
-		
+		return ! toolsInSite.isEmpty();		
 	}
 
 	/**
