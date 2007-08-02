@@ -65,6 +65,11 @@ public class DecoratedChatMessage {
       return messageTime.toStringLocalTimeZ();
    }
    
+   public String getId()
+   {
+      return messageTime.toString();
+   }
+   
    /**
     * Returns the body of the message, but limited to the number of characters 
     * specified in the tool's configuration properties

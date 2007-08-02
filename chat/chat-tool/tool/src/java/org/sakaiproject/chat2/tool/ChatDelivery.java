@@ -143,10 +143,26 @@ public class ChatDelivery extends BaseDelivery
          
          Time messageTime = TimeService.newTime(message.getMessageDate().getTime());
 
-			retval = "try { appendMessage('" + sender.getDisplayName() + "', '" + sender.getId() + "', '"
-					+ new Boolean(chatManager.getCanDelete(message, placementId)) + "', '" + messageTime.toStringLocalDate() + "', '"
-					+ messageTime.toStringLocalTimeZ() + "', '" + msgbody + "','" + message.getId()
-					+ "'); } catch (error) {alert(error);} ";
+			StringBuffer retvalBuf = new StringBuffer();
+			retvalBuf.append( "try { appendMessage('" );
+			retvalBuf.append( sender.getDisplayName() );
+			retvalBuf.append( "', '" );
+			retvalBuf.append( sender.getId() );
+			retvalBuf.append( "', '" );
+			retvalBuf.append( String.valueOf(chatManager.getCanDelete(message, placementId)).toString() );
+			retvalBuf.append( "', '" );
+			retvalBuf.append( messageTime.toStringLocalDate() );
+			retvalBuf.append( "', '" );
+			retvalBuf.append( messageTime.toStringLocalTimeZ() );
+			retvalBuf.append( "', '" );
+			retvalBuf.append( messageTime.toString() );
+			retvalBuf.append( "', '" );
+			retvalBuf.append( msgbody );
+			retvalBuf.append( "','" );
+			retvalBuf.append( message.getId() );
+			retvalBuf.append( "'); } catch (error) {alert(error);} " );
+			
+			retval = retvalBuf.toString();
 		}
 
 		if (m_beepOnDelivery && (sender != null) && sender.compareTo(myself) != 0)

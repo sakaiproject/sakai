@@ -115,10 +115,11 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    private static final int MESSAGEOPTIONS_MESSAGES_BY_NUMBER = 1;
    private static final int MESSAGEOPTIONS_NO_MESSAGES = 2;
    
-   private static final int DATETIME_DISPLAY_NONE = 0;
-   private static final int DATETIME_DISPLAY_TIME = 1;
-   private static final int DATETIME_DISPLAY_DATE = 2;
-   private static final int DATETIME_DISPLAY_DATETIME = 3;
+   private static final int DATETIME_DISPLAY_NONE = 0x00;
+   private static final int DATETIME_DISPLAY_TIME = 0x01;
+   private static final int DATETIME_DISPLAY_DATE = 0x02;
+   private static final int DATETIME_DISPLAY_DATETIME = 0x03;
+   private static final int DATETIME_DISPLAY_ID   = 0x04;
    
    
    private static final String PARAM_CHANNEL = "channel";
@@ -156,7 +157,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    /** The location where the new message text goes */
    private String newMessageText = "";
    
-   /** display the time (1), date(2), both(3), or neither(0) */
+   /** display the time (1), date(2), both(3), neither(0), or uniqueid(4) */
    private int viewOptions = DATETIME_DISPLAY_DATETIME;
    
    /** display all messages (-1), past 3 days (0) */
@@ -1014,18 +1015,20 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    
    public boolean getDisplayDate()
    {
-      //2
       int val = Integer.parseInt(getViewOptions());
-      return ((val & 2) == 2);
-      //return true;
+      return ((val & DATETIME_DISPLAY_DATE) == DATETIME_DISPLAY_DATE);
    }
    
    public boolean getDisplayTime()
    {
-      //1
       int val = Integer.parseInt(getViewOptions());
-      return ((val & 1) == 1);
-      //return true;
+      return ((val & DATETIME_DISPLAY_TIME) == DATETIME_DISPLAY_TIME);
+   }
+   
+   public boolean getDisplayId()
+   {
+      int val = Integer.parseInt(getViewOptions());
+      return ((val & DATETIME_DISPLAY_ID) == DATETIME_DISPLAY_ID);
    }
    
    public boolean getCanRenderAllMessages() {

@@ -30,6 +30,7 @@
 						<f:selectItem itemValue="3" itemLabel="#{msgs.timeAndDate}" />
 						<f:selectItem itemValue="2" itemLabel="#{msgs.dateOnly}" />
 						<f:selectItem itemValue="0" itemLabel="#{msgs.neitherDateOrTime}" />
+						<f:selectItem itemValue="4" itemLabel="#{msgs.uniqueid}" />
 					</h:selectOneMenu> 
 					<h:selectOneMenu id="messageOptions"
 							value="#{ChatTool.messageOptions}" 

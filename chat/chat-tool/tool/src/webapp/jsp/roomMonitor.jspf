@@ -32,6 +32,9 @@ deleteUrl = "<h:outputText value="#{ChatTool.toolContext}/sakai.chat.deleteMessa
 				</h:commandLink>
 
 				<h:outputText
+					rendered="#{ChatTool.displayId}"
+					value=" (#{message.id}) " styleClass="chatDate" />
+				<h:outputText
 					rendered="#{ChatTool.displayDate and ChatTool.displayTime}"
 					value=" (#{message.dateTime}) " styleClass="chatDate" />
 				<h:outputText
@@ -60,6 +63,7 @@ deleteUrl = "<h:outputText value="#{ChatTool.toolContext}/sakai.chat.deleteMessa
 	
 		var display_date = <c:out value="${ChatTool.displayDate}" />;
 		var display_time = <c:out value="${ChatTool.displayTime}" />;
+		var display_id = <c:out value="${ChatTool.displayId}" />;
 		var sound_alert = <c:out value="${ChatTool.soundAlert}" />;
 		
 		var objDiv = document.getElementById("Monitor");

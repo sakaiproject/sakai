@@ -20,7 +20,7 @@
  **********************************************************************************/
 
 // add a message to the chat list from chef_chat-List.vm 
-function appendMessage(uname, uid, removeable, pdate, ptime, msg, msgId)
+function appendMessage(uname, uid, removeable, pdate, ptime, pid, msg, msgId)
 {
 	var undefined;
 	var position = 100000, docheight = 0, frameheight = 300;	  
@@ -39,6 +39,10 @@ function appendMessage(uname, uid, removeable, pdate, ptime, msg, msgId)
 	else if(window.display_time)
 	{
 		msgTime = " (" + ptime + ") " ;
+	}
+	else if(window.display_id)
+	{
+		msgTime = " (" + pid + ") " ;
 	}
 	
 
