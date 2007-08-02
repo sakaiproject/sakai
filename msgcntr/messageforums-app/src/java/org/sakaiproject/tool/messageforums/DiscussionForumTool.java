@@ -4192,7 +4192,6 @@ public class DiscussionForumTool
 	  				dmb.setDepth(0);
 	  				orderedList.add(dmb);
 	  				//for performance speed - operate with existing selectedTopic msgs instead of getting from manager through DB again 
-	  				//recursiveGetThreadedMsgs(msgsList, orderedList, dmb);
 	  				//use arrays so as to pass by reference during recursion
 	  				recursiveGetThreadedMsgsFromListWithCounts(msgsList, orderedList, dmb, new int[1], new int[1]);
 	  			}
@@ -4201,32 +4200,6 @@ public class DiscussionForumTool
 	  	
 	  	selectedTopic.setMessages(orderedList);
 	}
- 
-  }
-
-  public void recursiveGetThreadedMsgs(List msgsList, List returnList,
-      DiscussionMessageBean currentMsg)
-  {
-  	List childList = messageManager.getFirstLevelChildMsgs(currentMsg.getMessage().getId());
-		
-		for(int j=0; j<childList.size(); j++)
-		{
-			Message currentChild = (Message)childList.get(j);
-			for(int k=0; k<msgsList.size(); k++)
-			{
-				Message existedMsg = ((DiscussionMessageBean)msgsList.get(k)).getMessage();
-				if(currentChild.getId().equals(existedMsg.getId()))
-				{
-					DiscussionMessageBean dmb = new DiscussionMessageBean(currentChild, messageManager);
-/*					dmb.setDepth(currentMsg.getDepth() + 1);
-					returnList.add(dmb);*/
-					((DiscussionMessageBean)msgsList.get(k)).setDepth(currentMsg.getDepth() + 1);
-					returnList.add(((DiscussionMessageBean)msgsList.get(k)));
-					recursiveGetThreadedMsgs(msgsList, returnList, ((DiscussionMessageBean)msgsList.get(k)));
-					break;
-				}
-			}
-		}
  
   }
   
