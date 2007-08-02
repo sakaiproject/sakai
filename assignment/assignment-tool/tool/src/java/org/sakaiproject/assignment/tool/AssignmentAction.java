@@ -2309,10 +2309,7 @@ public class AssignmentAction extends PagedResourceActionII
 						    Assignment a = AssignmentService.getAssignment(associateGradebookAssignment);
 
 						    // update attributes if the GB assignment was created for the assignment
-						    if (newAssignment_title.equals(associateGradebookAssignment))
-						    {
-					    			g.updateExternalAssessment(gradebookUid, associateGradebookAssignment, null, newAssignment_title, newAssignment_maxPoints/10.0, new Date(newAssignment_dueTime.getTime()));
-						    }
+						    g.updateExternalAssessment(gradebookUid, associateGradebookAssignment, null, newAssignment_title, newAssignment_maxPoints/10.0, new Date(newAssignment_dueTime.getTime()));
 						}
 					    catch(Exception e)
 				        {
