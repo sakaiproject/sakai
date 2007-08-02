@@ -3060,6 +3060,14 @@ public class ListItem
 							if(properties != null)
 							{
 								String value = properties.getPropertyFormatted(name);
+								try
+								{
+									Time time = properties.getTimeProperty(name);
+									value = time.toStringLocalDate();
+								}
+								catch(Exception ignore)
+								{
+								}
 								prop.setValue(name, value);
 							}
 						}
