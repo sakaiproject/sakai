@@ -44,7 +44,7 @@ deleteUrl = "<h:outputText value="#{ChatTool.toolContext}/sakai.chat.deleteMessa
 					rendered="#{not ChatTool.displayDate and ChatTool.displayTime}"
 					value=" (#{message.time}) " styleClass="chatDate" />
 
-				<h:outputText value="#{message.chatMessage.body}" />
+				<h:outputText escape="false" value="#{message.chatMessage.body}" />
 
 			</t:dataList>
 

@@ -76,7 +76,7 @@ public class DecoratedChatMessage {
     * @return
     */
    public String getRestrictedBody() {
-      String message = chatMessage.getBody();
+      String message = chatMessage.getUnformattedBody();
       int maxLength = chatTool.lookupSynopticOptions().getChars();
       int actualLength = message.length();
       if (maxLength < actualLength) {

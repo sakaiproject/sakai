@@ -15,7 +15,7 @@
 				<h:outputText id="date" value="#{ChatTool.currentMessage.chatMessage.messageDate}" />
 	
 				<h:outputLabel for="message" value="#{msgs['gen.mess']}" />
-				<h:outputText id="message" value="#{ChatTool.currentMessage.chatMessage.body}" />
+				<h:outputText id="message" value="#{ChatTool.currentMessage.chatMessage.unformattedBody}" />
 	
 			</sakai:panel_edit>
 			<sakai:button_bar>

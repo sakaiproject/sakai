@@ -72,18 +72,11 @@ function appendMessage(uname, uid, removeable, pdate, ptime, pid, msg, msgId)
 	newDiv.innerHTML = '<span style="color: ' + color + '">' + uname + '</span>'
 		+ deleteHtml
 		+ '<span class="chatDate">' + msgTime + '</span>'
-		+ escapeHTML(msg);
+		+ msg;
 	transcript.appendChild(newDiv);
 
 	// adjust scroll
 	var objDiv = document.getElementById("Monitor");
    objDiv.scrollTop = objDiv.scrollHeight;
 
-}
-
-function escapeHTML(text) {
-	text=text.replace(/&/g,'&amp;');
-	text=text.replace(/</g,'&lt;');
-	text=text.replace(/>/g,'&gt;');
-	return text;
 }

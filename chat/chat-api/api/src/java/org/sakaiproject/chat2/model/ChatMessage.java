@@ -49,12 +49,75 @@ public class ChatMessage implements Entity {
    public ChatMessage() {
    }
    
+   static String urlRegexp = "https?://[\\S]+";
+   static String bodyRegexp = ".*"+urlRegexp+".*";
+   static String cleanRegexp = "\\s+";
+   static String firstRegexp = "^";
+   
+   static String href_1  = "<a target=\"_new_\" href=\"";
+   static String href_1b = " "+href_1;
+   static String href_1regexp = ".*"+href_1+".*";
+   static String href_2 = "\">";
+   static String href_3 = "</a> ";
+   
+   /** Get body of chat message
+    **/
    public String getBody() {
       return body;
    }
-   public void setBody(String body) {
-      this.body = body;
+   
+   /** Get body of chat message, stripped of any html anchor tags
+    **/
+   public String getUnformattedBody() {
+      String unformattedBody = body;
+      
+      while ( unformattedBody.matches(href_1regexp) )
+      {
+         int a1 = unformattedBody.indexOf(href_1);
+         int a2 = unformattedBody.indexOf(href_2);
+         int a3 = unformattedBody.indexOf(href_3);
+			String formatText = unformattedBody.substring(a1, a3+4); 
+			String cleanText = unformattedBody.substring(a2+2, a3);
+         unformattedBody = 
+            unformattedBody.replaceFirst( formatText, cleanText );
+      }
+      return unformattedBody;
    }
+   
+   /** Set body of chat message, adding html anchor tags as appropriate
+    **/
+   public void setBody(String body) {
+      String formattedBody = body;
+      
+      // create hyperlinks from urls
+      if ( formattedBody.matches(bodyRegexp) )
+      {
+         String[] parts = formattedBody.split("\\s");
+      
+         for (int i=0; i<parts.length; i++)
+         {
+            if ( parts[i].matches(urlRegexp) )
+            {
+               StringBuffer href = new StringBuffer(href_1b);
+               href.append(parts[i]);
+               href.append(href_2);
+               href.append(parts[i]);
+               href.append(href_3);
+					
+					// replace url that's embedded in text
+               formattedBody = 
+						formattedBody.replaceFirst( cleanRegexp+parts[i], 
+                                              href.toString() );
+					// replace url that's first in text
+               formattedBody = 
+						formattedBody.replaceFirst( firstRegexp+parts[i], 
+                                              href.toString() );
+            }
+         }
+      }
+      this.body = formattedBody;
+   }
+
    public ChatChannel getChatChannel() {
       return chatChannel;
    }
