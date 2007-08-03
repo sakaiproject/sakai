@@ -314,8 +314,7 @@ public class RosterBean extends CourseDependentBean implements Serializable {
         header.add(JsfUtil.getLocalizedMessage("roster_table_header_id"));
 
         for (Iterator iter = getUsedCategories().iterator(); iter.hasNext();){
-            String category = (String)iter.next();
-            if(log.isDebugEnabled())log.debug("category.........."+category);
+            String category = (String)iter.next();          
             String categoryName = getCategoryName(category);
             header.add(categoryName);
         }

@@ -92,6 +92,20 @@ table tr.nextSectionRow table tr td {border-top:none; padding-top:0em; padding-b
 table.rosterTable {border:none; border-collapse:collapse;width:auto;}
 table.rosterTable th {padding-right:1.5em !important;}
 table.rosterTable tr td {padding-right:1.5em !important;border-color:gray !important; border-top:solid; border-width:1px; border-collapse:collapse;}
+/*styling for download and print button */
+table.rosterPageHeader {
+	width:100%;
+}
+
+.rosterPageHeaderLeft  {
+	vertical-align:top;
+    text-align:left;
+}
+
+.rosterPageHeaderRight  {
+	vertical-align:top;
+    text-align:right;
+}
 
 /*
     It would be better to use margin-right in a div or to apply this to specific
@@ -106,3 +120,6 @@ table.narrowTable tr th {
 
 /* Indent options checkboxes */
 .indent {text-indent: 1em;}
+
+
+
