@@ -216,16 +216,16 @@ public class GradingService
 
   private ArrayList getAssessmentGradingsByScoringType(
        Integer scoringType, Long publishedAssessmentId){
-    ArrayList l = new ArrayList();
+    List l = null;
     // get the list of highest score
     if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE)){
-      l = getHighestAssessmentGradingList(publishedAssessmentId);
+      l = getHighestSubmittedAssessmentGradingList(publishedAssessmentId);
     }
     // get the list of last score
     else {
-      l = getLastAssessmentGradingList(publishedAssessmentId);
+      l = getLastSubmittedAssessmentGradingList(publishedAssessmentId);
     }
-    return l;
+    return new ArrayList(l);
   }
 
   public Integer getScoringType(PublishedAssessmentIfc pub){
@@ -788,7 +788,7 @@ public class GradingService
       AssessmentGradingIfc d = data; // data is the last submission
       // need to decide what to tell gradebook
       if ((scoringType).equals(EvaluationModelIfc.HIGHEST_SCORE))
-        d = getHighestAssessmentGrading(pub.getPublishedAssessmentId().toString(), data.getAgentId());
+        d = getHighestSubmittedAssessmentGrading(pub.getPublishedAssessmentId().toString(), data.getAgentId());
       notifyGradebook(d, pub);
     }
   }
