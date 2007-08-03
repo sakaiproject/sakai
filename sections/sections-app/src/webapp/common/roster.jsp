@@ -64,7 +64,7 @@
             </h:commandLink>
             <h:outputText
                 value="#{enrollment.user.sortName}"
-                rendered="#{ ! navMenuBean.sectionEnrollmentMangementEnabled}"/>
+                rendered="#{!navMenuBean.sectionEnrollmentMangementEnabled}"/>
         </h:column>
         <h:column>
             <f:facet name="header">

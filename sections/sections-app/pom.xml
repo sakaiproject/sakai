@@ -77,6 +77,11 @@
       <artifactId>sakai-jsf-tool</artifactId>
       <version>${sakai.version}</version>
     </dependency>
+      <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-jsf-spreadsheet</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-jsf-app</artifactId>

@@ -26,3 +26,11 @@
 	    <h:outputText value="#{msgs.nav_options}" rendered="#{viewName eq 'options'}" styleClass="currentView" />
 	</h:panelGroup>
 </t:div>
+
+<h:panelGrid columns="1">
+	<h:panelGroup>
+		<h:commandButton actionListener="#{rosterBean.export}" value="#{msgs.nav_download}" rendered="#{viewName eq 'roster'}" title="#{msgs.nav_download}"/>
+		<h:commandButton onclick="javascript:window.print();return false;" value="#{msgs.nav_print}"  rendered="#{viewName eq 'roster'}" title="#{msgs.nav_print}"/>
+	</h:panelGroup>
+</h:panelGrid>
+
