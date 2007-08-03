@@ -40,7 +40,7 @@ public class PrivacyBean {
 	private String checkboxText;
 	private boolean changeStatus;
 	private String privacyStatus;
-	private String userMadeSelection;	
+	private Boolean displayPopup;	
 	private String selectedSite;
 	private boolean siteSelected = false;
 	private String curSite;
@@ -104,14 +104,21 @@ public class PrivacyBean {
 		this.selectedSite = selectedSite;
 	}
 
-	public String getUserMadeSelection() {
+	public Boolean getDisplayPopup() {
 		if (!isMyWorkspace()) {
 			curSite = getContextId();
 		}
-		if (userMadeSelection == null || userMadeSelection.equals("")) {
-			userMadeSelection = (privacyManager.userMadeSelection(curSite, getUserId()) ? "true" : "false");
+		//Display popup for when user has not made a selection AND system default is hidden
+		if (displayPopup == null) {
+			Boolean userMadeSelection = false;
+			Boolean currentStatus = false;
+			
+			userMadeSelection = privacyManager.userMadeSelection(curSite, getUserId());
+			currentStatus = privacyManager.isViewable(curSite, getUserId());
+						
+			displayPopup = (userMadeSelection || currentStatus ? false : true);
 		}
-		return userMadeSelection;
+		return displayPopup;
 	}
 	
 	public String getVisibleValue() {
@@ -239,7 +246,7 @@ public class PrivacyBean {
 		if (!privacyStatus.equals("")){
 			processChoice(isMyWorkspace() ? curSite : getContextId(), privacyStatus.equals(HIDDEN_VALUE) ? false : true);
 		}
-		userMadeSelection = "true";
+		displayPopup = false;
 
 		/**
 		// if user checked the checkbox

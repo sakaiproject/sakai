@@ -96,7 +96,7 @@
 
       <f:verbatim></tr></table></f:verbatim>
 	--%>
-	  <h:outputText escape="false" rendered="#{!privacyBean.userMadeSelection}"
+	  <h:outputText escape="false" rendered="#{privacyBean.displayPopup}"
 	  	value="<script type=\"text/javascript\">parent.privacy_show_popup();</script>" />
 
   	</h:panelGroup>
