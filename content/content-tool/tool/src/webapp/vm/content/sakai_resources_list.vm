@@ -54,13 +54,7 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 				<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0"  alt="folder" />
 				#foreach ($item in $collectionPath)
 					#if($item.isLast())
-						#if ($dropboxMode && $velocityCount == 1)
-							$siteTitle $tlang.getString("gen.drop")
-						#elseif($velocityCount == 1)
-							$siteTitle $tlang.getString("gen.reso")
-						#else
-							$validator.escapeHtml("$item.name")
-						#end
+						$validator.escapeHtml("$item.name")
 						#if($upOneLevel)
 							<a href="#"
 								onclick="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$upOneLevel.id';document.getElementById('navRoot').value='$upOneLevel.root';document.getElementById('showForm').submit();"
@@ -69,20 +63,15 @@ ul.makeMenu ul {  /* copy of above declaration without the > selector */
 								<img src="/library/image/sakai/onelevelup.gif" border="0" alt ="$tlang.getString('sh.one')"/>
 							</a>
 						#end
-					#else
+					#elseif($item.canRead())
 						<a href="#" 
 							onclick="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$item.id';document.getElementById('navRoot').value='$item.root';document.getElementById('showForm').submit();"
 							title= "$tlang.getString('sh.go')">
-						##<a href="#toolLinkParam("ResourcesAction" "doNavigate" "collectionId=$validator.escapeUrl($item.id)&navRoot=$validator.escapeUrl($item.root)")" title ="$tlang.getString('sh.go')">
-							#if ($dropboxMode && $velocityCount == 1)
-								$siteTitle $tlang.getString("gen.drop")
-							#elseif($velocityCount == 1)
-								$siteTitle $tlang.getString("gen.reso")
-							#else
-								$validator.escapeHtml("$item.name")
-							#end
+							$validator.escapeHtml("$item.name")
 						</a> /
 						#set($upOneLevel = $item)
+					#else
+						$validator.escapeHtml("$item.name")
 					#end
 				#end
 			</h3>

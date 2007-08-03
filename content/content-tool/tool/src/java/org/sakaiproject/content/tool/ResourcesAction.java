@@ -915,8 +915,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		context.put ("collectionId", collectionId);
 		String homeCollectionId = (String) (String) state.getAttribute (STATE_HOME_COLLECTION_ID);
 		context.put("homeCollectionId", homeCollectionId);
-		List cPath = getCollectionPath(state);
-		context.put ("collectionPath", cPath);
+		//List cPath = getCollectionPath(state);
+		//context.put ("collectionPath", cPath);
 		String navRoot = (String) state.getAttribute(STATE_NAVIGATION_ROOT);
 		context.put("navRoot", navRoot);
 		
@@ -2125,8 +2125,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				boolean canRead = contentService.allowGetCollection(id) || contentService.allowGetResource(id);
 				item.setCanRead(canRead);
 
-				String url = contentService.getUrl(id);
-				item.setUrl(url);
+				if(canRead)
+				{
+					String url = contentService.getUrl(id);
+					item.setUrl(url);
+				}
 
 				item.setLast(collectionPath.isEmpty());
 				if(id.equals(homeCollectionId))
