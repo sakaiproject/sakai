@@ -4832,9 +4832,7 @@ public class SiteAction extends PagedResourceActionII {
 			isFutureTermSelected(state);
 		} else if (option.equalsIgnoreCase("cancel_edit")) {
 			// cancel
-			state.removeAttribute(STATE_TERM_SELECTED);
-			removeAddClassContext(state);
-			state.setAttribute(STATE_TEMPLATE_INDEX, "43");
+			doCancel(data);
 		} else if (option.equalsIgnoreCase("add")) {
 			isFutureTermSelected(state);
 			// continue
@@ -5787,11 +5785,13 @@ public class SiteAction extends PagedResourceActionII {
 				state.setAttribute(STATE_TEMPLATE_INDEX, "12");
 			}
 			removeEditToolState(state);
-		} else if (currentIndex.equals("37") || currentIndex.equals("44")) {
+		} else if (currentIndex.equals("37") || currentIndex.equals("44") || currentIndex.equals("53") || currentIndex.equals("36")) {
 			// cancel back to edit class view
-			state.setAttribute(STATE_TEMPLATE_INDEX, "43");
+			state.removeAttribute(STATE_TERM_SELECTED);
 			removeAddClassContext(state);
+			state.setAttribute(STATE_TEMPLATE_INDEX, "43");
 		}
+		
 
 	} // doCancel
 
@@ -12233,7 +12233,14 @@ public class SiteAction extends PagedResourceActionII {
 				doBack(data);
 				return;
 			} else if ("cancel".equals(option)) {
-				doCancel_create(data);
+				if (getStateSite(state) == null) 
+				{
+					doCancel_create(data);// cancel from new site creation
+				}
+				else
+				{
+					doCancel(data);// cancel from site info editing
+				}
 				return;
 			} else if (option.equals("add")) {
 				addRequestedSection(state);
