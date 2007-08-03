@@ -63,7 +63,7 @@
       <f:verbatim><p></f:verbatim>
       <h:outputText value="#{msgs.privacy_choice_heading}" />
       <f:verbatim></p></f:verbatim>
-      <h:selectOneRadio value="#{privacyBean.privacyStatus}">
+      <h:selectOneRadio value="#{privacyBean.privacyStatus}" layout="pageDirection">
       	<f:selectItem itemLabel="#{msgs.privacy_choice_hidden}" itemValue="#{privacyBean.hiddenValue}" />
       	<f:selectItem itemLabel="#{msgs.privacy_choice_visible}" itemValue="#{privacyBean.visibleValue}" />
       	<f:selectItem itemLabel="#{msgs.privacy_choice_later}" itemValue="" />
