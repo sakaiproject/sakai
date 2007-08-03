@@ -1098,6 +1098,7 @@ public abstract class SectionManagerImpl implements SectionManager, SiteAdvisor 
 		
 		// Set the fields of the course section
 		courseSection.setTitle(title);
+		courseSection.setDescription(group.getContainingSite().getTitle() + ", " + title);
 		courseSection.setCategory(category);
 		courseSection.setMaxEnrollments(maxEnrollments);
 		courseSection.setMeetings(filterMeetings(meetings));

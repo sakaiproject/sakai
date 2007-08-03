@@ -110,16 +110,17 @@ public class CourseSectionImpl implements CourseSection, Comparable<CourseSectio
 	}
 
 	public CourseSectionImpl(Group group) {
+		this.group = group;
+		this.uuid = group.getReference();
+		this.course = new CourseImpl(group.getContainingSite());
+		this.title = group.getTitle();
+		this.description = group.getDescription();
+
+		ResourceProperties props = group.getProperties();
+		this.category = props.getProperty(CourseSectionImpl.CATEGORY);
 		this.meetings = new ArrayList<Meeting>();
 		// We always start with a single empty meeting
 		meetings.add(new MeetingImpl());
-		this.group = group;
-		ResourceProperties props = group.getProperties();
-		this.uuid = group.getReference();
-		this.title = group.getTitle();
-		this.description = group.getContainingSite().getTitle() + ", " + this.title;
-		this.course = new CourseImpl(group.getContainingSite());
-		this.category = props.getProperty(CourseSectionImpl.CATEGORY);
 		String str = props.getProperty(MAX_ENROLLMENTS);
 		if(StringUtils.trimToNull(str) != null) {
 			try {
