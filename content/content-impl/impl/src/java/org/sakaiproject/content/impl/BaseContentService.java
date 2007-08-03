@@ -984,7 +984,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		{
 			// only for /group-user/SITEID/USERID/ refs.
 			String[] parts = StringUtil.split(id, "/");
-			if (parts.length >= 4)
+			if (parts.length >= 3)
 			{
 				return AUTH_DROPBOX_MAINTAIN;
 			}
