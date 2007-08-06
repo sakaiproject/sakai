@@ -324,7 +324,7 @@ private List attachmentList;
 
     QuestionPoolService delegate = new QuestionPoolService();
     
-     ArrayList allpoollist = delegate.getBasicInfoOfAllPools(AgentFacade.getAgentString());
+    ArrayList allpoollist = delegate.getBasicInfoOfAllPools(AgentFacade.getAgentString());
 
     HashMap allPoolsMap= new HashMap();
     for (int i=0; i<allpoollist.size();i++){
@@ -353,10 +353,10 @@ private List attachmentList;
     while (pooliter.hasNext()) {
       QuestionPoolFacade pool = (QuestionPoolFacade) allPoolsMap.get(pooliter.next());
       //Huong's new
-      ArrayList itemlist = delegate.getAllItems(pool.getQuestionPoolId() );
-      if(itemlist.size()>0){
-	  String resultListName= pool.getDisplayName()+"("+ itemlist.size()+")" ;	
-	  resultPoolList.add(new SelectItem((pool.getQuestionPoolId().toString()),resultListName) );
+      int items = delegate.getCountItems(pool.getQuestionPoolId() );	
+      if(items>0){
+    	  String resultListName= pool.getDisplayName()+"("+ items +")" ;	
+    	  resultPoolList.add(new SelectItem((pool.getQuestionPoolId().toString()),resultListName) );
       }
     }
     //  add pool which is currently used in current Part for modify part
@@ -367,13 +367,12 @@ private List attachmentList;
 	QuestionPoolFacade currPool= delegate.getPool(new Long(this.getSelectedPool()), AgentFacade.getAgentString());
     // now add the current pool used  to the list, so it's available in the pulldown 
         if (currPool!=null) {
-          // if the pool still exists, it's possible that the pool has been deleted 
-	  ArrayList currItemlist = delegate.getAllItems(currPool.getQuestionPoolId());
-	  if(currItemlist.size()>0){
-	    String currPoolName= currPool.getDisplayName()+"("+ currItemlist.size()+")" ;
-	    resultPoolList.add(new SelectItem((currPool.getQuestionPoolId().toString()), currPoolName));
-     
-	  }
+          // if the pool still exists, it's possible that the pool has been deleted  
+          int currItems = delegate.getCountItems(currPool.getQuestionPoolId());
+          if(currItems>0){
+        	String currPoolName= currPool.getDisplayName()+"("+ currItems +")" ;
+            resultPoolList.add(new SelectItem((currPool.getQuestionPoolId().toString()), currPoolName));  
+          }
         }
         else {
           // the pool has been deleted, 

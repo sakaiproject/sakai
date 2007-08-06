@@ -206,4 +206,7 @@ public interface QuestionPoolFacadeQueriesAPI
   public HashMap getQuestionPoolItemMap();
 
   public Long copyItemFacade(ItemDataIfc itemData);
+  
+  public Integer getCountItemFacades(Long questionPoolId);
+
 }

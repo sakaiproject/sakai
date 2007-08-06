@@ -501,4 +501,20 @@ public class QuestionPoolService
  public Long copyItemFacade(ItemDataIfc itemData){
    return PersistenceService.getInstance().getQuestionPoolFacadeQueries().copyItemFacade(itemData);
  }
+ 
+ /**
+  * Get the count of items for a published assessment from the back end.
+  */
+  public int getCountItems(Long poolId)
+  {
+     Integer result = null;
+     try {
+       result =
+         PersistenceService.getInstance().
+            getQuestionPoolFacadeQueries().getCountItemFacades(poolId);
+     } catch (Exception e) {
+       e.printStackTrace();
+     }
+     return result.intValue();
+  }
 }

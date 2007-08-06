@@ -1315,4 +1315,18 @@ public class QuestionPoolFacadeQueries
 	    }
 	    return toSet;
   }
+  
+  public Integer getCountItemFacades(final Long questionPoolId) {	    
+	  final HibernateCallback hcb = new HibernateCallback(){
+		  public Object doInHibernate(Session session) throws HibernateException, SQLException {
+			  Query q = session.createQuery("select count(ab) from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = ?");
+			  q.setLong(0, questionPoolId.longValue());
+			  return q.uniqueResult();
+		  };
+	  };
+	  	    
+	  Integer count = (Integer)getHibernateTemplate().execute(hcb);	    
+	  return count;
+  }
+
 }
