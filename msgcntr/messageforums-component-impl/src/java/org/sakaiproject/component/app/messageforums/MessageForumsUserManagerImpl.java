@@ -109,7 +109,8 @@ public class MessageForumsUserManagerImpl extends HibernateDaoSupport implements
       newUser.setUuid(getNextUuid());
       newUser.setUserId(userId);
       saveForumUser(newUser);
-      eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_ADD, getEventMessage(newUser), false));
+ // commented out when splitting events between Messages tool and Forums tool
+ //     eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_ADD, getEventMessage(newUser), false));
       return newUser;
     }
     else{

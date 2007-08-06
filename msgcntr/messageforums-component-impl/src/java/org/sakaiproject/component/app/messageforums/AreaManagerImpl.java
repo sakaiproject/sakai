@@ -249,17 +249,19 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         
         getHibernateTemplate().saveOrUpdate(area);
 
-        if (isNew) {
-            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_ADD, getEventMessage(area), false));
-        } else {
-            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_WRITE, getEventMessage(area), false));
-        }
+        // Commented out when splitting events between Messages tool and Forums tool
+//        if (isNew) {
+//            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_ADD, getEventMessage(area), false));
+//        } else {
+//            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_WRITE, getEventMessage(area), false));
+//        }
 
         LOG.debug("saveArea executed with areaId: " + area.getId());
     }
 
     public void deleteArea(Area area) {
-        eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_REMOVE, getEventMessage(area), false));
+    	// commented out when splitting events between Messages tool and Forums tool
+//        eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_REMOVE, getEventMessage(area), false));
         getHibernateTemplate().delete(area);
         LOG.debug("deleteArea executed with areaId: " + area.getId());
     }

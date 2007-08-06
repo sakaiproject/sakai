@@ -41,6 +41,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.Attachment;
+import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.MembershipManager;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
@@ -62,10 +63,12 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -138,7 +141,7 @@ public class PrivateMessagesTool
     
   /** Dependency Injected   */
   private MessageForumsTypeManager typeManager;
-  
+ 
   /** Naigation for JSP   */
   public static final String MAIN_PG="main";
   public static final String DISPLAY_MESSAGES_PG="pvtMsg";
@@ -2113,6 +2116,9 @@ public void processChangeSelectView(ValueChangeEvent eve)
     	deleted = true;
         prtMsgManager.deletePrivateMessage(element, getPrivateMessageTypeFromContext(msgNavMode)) ;        
       }      
+      
+      if ("Deleted".equals(msgNavMode))
+    	  EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_REMOVE, getEventMessage((Message) element), false));
     }
     
     if (deleted)
@@ -2125,7 +2131,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
     	multiDeleteSuccess = true;
     }
 
-    return DISPLAY_MESSAGES_PG;
+
+	return DISPLAY_MESSAGES_PG;
   }
 
   
@@ -3624,5 +3631,20 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	 */
 	private boolean isMessagesPageInSite(String siteId) {
 		return messageManager.isToolInSite(siteId, MESSAGES_TOOL_ID);
+	}
+	
+	private String getEventMessage(Object object) {
+	  	String eventMessagePrefix = "";
+	  	final String toolId = ToolManager.getCurrentTool().getId();
+		  	
+		if (toolId.equals(DiscussionForumService.MESSAGE_CENTER_ID))
+			eventMessagePrefix = "/MessagesAndForums/site/";
+		else if (toolId.equals(DiscussionForumService.MESSAGES_TOOL_ID))
+			eventMessagePrefix = "/Messages/site/";
+		else
+			eventMessagePrefix = "/Forums/site/";
+	  	
+	  	return eventMessagePrefix + ToolManager.getCurrentPlacement().getContext() + 
+	  				"/" + object.toString() + "/" + SessionManager.getCurrentSessionUserId();
 	}
 }

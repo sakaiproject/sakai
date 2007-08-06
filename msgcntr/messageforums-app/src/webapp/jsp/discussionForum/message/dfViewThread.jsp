@@ -25,7 +25,7 @@
 		  			rendered="#{ForumTool.selectedTopic.isNewResponse && ForumTool.selectedThreadHead.msgApproved && !ForumTool.selectedTopic.locked}" />
 		  		
 		  		<h:commandLink action="#{ForumTool.processActionMarkAllThreadAsRead}" rendered="#{ForumTool.selectedTopic.isMarkAsRead}"> 
-      				<h:graphicImage value="/images/silk/email.png" alt="#{msgs.msg_is_unread}" 
+      				<h:graphicImage value="/../../library/image/silk/email.png" alt="#{msgs.msg_is_unread}" 
 				   	    onmouseover="this.src=this.src.replace(/email\.png/, 'email_open.png');"
    	        			onmouseout="this.src=this.src.replace(/email_open\.png/, 'email.png');" />
    	        		<h:outputText value=" #{msgs.cdfm_mark_all_as_read}" />
@@ -36,7 +36,7 @@
 					--%>
 					
 				<h:outputLink id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyUrlThread}');">
-					<h:graphicImage url="/images/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
+					<h:graphicImage url="/../../library/image/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
 				</h:outputLink>
  		</sakai:tool_bar>
 			<h:panelGrid columns="2" summary="layout" width="100%" styleClass="navPanel specialLink">

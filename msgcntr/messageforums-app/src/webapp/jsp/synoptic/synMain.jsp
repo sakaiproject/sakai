@@ -67,9 +67,9 @@
 						actionListener="#{mfSynopticBean.processReadAll}"
 						rendered="#{eachSite.unreadPrivateAmt > 0}"
 						styleClass="active">
-							<h:graphicImage url="#{PrivateMessagesTool.serverUrl}/library/image/silk/email_edit.png" title="#{msgs.syn_mark_as_read}"
-								onmouseover="ImageRollOver(this, '#{PrivateMessagesTool.serverUrl}/library/image/silk/email_open.png');"
-								onmouseout="ImageRollOver(this, '#{PrivateMessagesTool.serverUrl}/library/image/silk/email_edit.png');"
+							<h:graphicImage url="/../library/image/silk/email_edit.png" title="#{msgs.syn_mark_as_read}"
+								onmouseover="ImageRollOver(this, '/..//library/image/silk/email_open.png');"
+								onmouseout="ImageRollOver(this, '/../library/image/silk/email_edit.png');"
 								rendered="#{eachSite.unreadPrivateAmt > 0}" />
 							<f:param name="contextId" value="#{eachSite.siteId}" />
 					</h:commandLink>
@@ -122,9 +122,9 @@
 				<h:outputText value="  " rendered="true" />
 
 	 			<h:commandLink action="synMain" actionListener="#{mfSynopticBean.processReadAll}" styleClass="active" >
-					<h:graphicImage url="#{PrivateMessagesTool.serverUrl}/library/image/silk/email_edit.png" title="#{msgs.syn_mark_as_read}" 
-						onmouseover="ImageRollOver(this, '#{PrivateMessagesTool.serverUrl}/library/image/silk/email_open.png');"
-						onmouseout="ImageRollOver(this, '#{PrivateMessagesTool.serverUrl}/library/image/silk/email_edit.png');" />
+					<h:graphicImage url="/../library/image/silk/email_edit.png" title="#{msgs.syn_mark_as_read}" 
+						onmouseover="ImageRollOver(this, '/../library/image/silk/email_open.png');"
+						onmouseout="ImageRollOver(this, '/../library/image/silk/email_edit.png');" />
 					<f:param name="contextId" value="#{eachSite.siteId}" />
 				</h:commandLink>
 			</h:panelGroup>
@@ -143,7 +143,7 @@
 							escape="false" title="#{msgs.syn_goto_forums}" rendered="#{mfSynopticBean.siteInfo.unreadForumsAmt > 0}"/>
 			<h:outputText value="  " rendered="true" />
 
-			<h:graphicImage url="#{PrivateMessagesTool.serverUrl}/library/image/silk/email.png" rendered="#{mfSynopticBean.siteInfo.unreadForumsAmt > 0}" />
+			<h:graphicImage url="/../library/image/silk/email.png" rendered="#{mfSynopticBean.siteInfo.unreadForumsAmt > 0}" />
 		</h:panelGroup>
 	</h:panelGrid>
 

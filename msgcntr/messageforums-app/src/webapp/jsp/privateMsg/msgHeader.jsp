@@ -94,7 +94,7 @@
   <div style="float:left; display:inline; width: 33%; padding-top: 0.5em;">
     <%-- Mark All As Read --%>
   	<h:commandLink action="#{PrivateMessagesTool.processActionMarkCheckedAsRead}" id="markAsread" title="#{msgs.cdfm_mark_check_as_read}" >
- 		<h:graphicImage value="#{PrivateMessagesTool.serverUrl}/library/image/silk/email.png" />
+ 		<h:graphicImage value="/../../library/image/silk/email.png" />
  		<h:outputText value=" #{msgs.cdfm_mark_check_as_read}" />
  	</h:commandLink>
  	
@@ -104,12 +104,12 @@
 	<h:outputText value="  | " /><h:outputText value=" " />
 	<h:commandLink action="#{PrivateMessagesTool.processActionDeleteChecked}" id="deleteMarked"
 				title="#{msgs.cdfm_mark_check_as_delete}" rendered="#{PrivateMessagesTool.msgNavMode != 'Deleted'}" >
-		<h:graphicImage value="/../library/image/silk/email_delete.png" />
+		<h:graphicImage value="/../../library/image/silk/email_delete.png" />
 		<h:outputText value=" #{msgs.cdfm_mark_check_as_delete}" />
 	</h:commandLink>
  	<h:commandLink id="deleteChecked" action="#{PrivateMessagesTool.processPvtMsgEmptyDelete}" rendered="#{PrivateMessagesTool.msgNavMode == 'Deleted'}" 
  				 onkeypress="document.forms[0].submit;" accesskey="x" >
- 		<h:graphicImage value="/../library/image/silk/email_delete.png" />
+ 		<h:graphicImage value="/../../library/image/silk/email_delete.png" />
 		<h:outputText value=" #{msgs.cdfm_mark_check_as_delete}" />
   	</h:commandLink>
  	  

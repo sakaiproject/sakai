@@ -29,14 +29,52 @@ public interface DiscussionForumService extends EntityProducer
 	
 	public static final String REFERENCE_ROOT = Entity.SEPARATOR + "messageforum";
 	
-	public static final String EVENT_RESOURCE_ADD = "msgcntr.new";
+	// Events for the (Private) Messages tool 
+	public static final String EVENT_MESSAGES_ADD = "messages.new";
 
-	public static final String EVENT_RESOURCE_READ = "msgcntr.read";
+	public static final String EVENT_MESSAGES_FOLDER_ADD = "messages.newfolder";
 
-	public static final String EVENT_RESOURCE_WRITE = "msgcntr.revise";
+	public static final String EVENT_MESSAGES_FOLDER_REVISE = "messages.revisefolder";
 
-	public static final String EVENT_RESOURCE_REMOVE = "msgcntr.delete";
+	public static final String EVENT_MESSAGES_READ = "messages.read";
+
+	public static final String EVENT_MESSAGES_REMOVE = "messages.delete";
 	
-	public static final String EVENT_RESOURCE_RESPONSE = "msgcntr.response";
+	public static final String EVENT_MESSAGES_FOLDER_REMOVE = "messages.deletefolder";
 	
+	public static final String EVENT_MESSAGES_RESPONSE = "messages.reply";
+
+	public static final String EVENT_MESSAGES_FORWARD = "messages.forward";
+
+	// Events for the (Discussion) Forums tool
+	public static final String EVENT_FORUMS_ADD = "forums.new";
+
+	public static final String EVENT_FORUMS_FORUM_ADD = "forums.newforum";
+
+	public static final String EVENT_FORUMS_TOPIC_ADD = "forums.newtopic";
+
+	public static final String EVENT_FORUMS_READ = "forums.read";
+
+	public static final String EVENT_FORUMS_RESPONSE = "forums.response";
+
+	public static final String EVENT_FORUMS_REMOVE = "forums.delete";
+	
+	public static final String EVENT_FORUMS_FORUM_REMOVE = "forums.deleteforum";
+	
+	public static final String EVENT_FORUMS_TOPIC_REMOVE = "forums.deletetopic";
+	
+	public static final String EVENT_FORUMS_REVISE = "forums.revise";
+
+	public static final String EVENT_FORUMS_FORUM_REVISE = "forums.reviseforum";
+
+	public static final String EVENT_FORUMS_TOPIC_REVISE = "forums.revisetopic";
+
+	public static final String EVENT_FORUMS_GRADE = "forums.grade";
+
+	/** Used to determine if MessageCenter tool part of site */
+	public static final String MESSAGE_CENTER_ID = "sakai.messagecenter";
+	
+	public static final String FORUMS_TOOL_ID = "sakai.forums";
+	
+	public static final String MESSAGES_TOOL_ID = "sakai.messages";
 }

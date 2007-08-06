@@ -42,11 +42,11 @@
 				<f:facet name="header">
 					<h:panelGroup style="text-align: right; float:right;">
 						<h:commandLink id="denyMsgs" title="#{msgs.cdfm_button_bar_deny}" action="#{ForumTool.markCheckedAsDenied}">
-		  				<h:graphicImage value="/images/silk/cross.png" alt="#{msgs.cdfm_button_bar_deny}" />
+		  				<h:graphicImage value="/../../library/image/silk/cross.png" alt="#{msgs.cdfm_button_bar_deny}" />
 		  				<h:outputText value=" #{msgs.cdfm_button_bar_deny} " />
 		  			</h:commandLink>
 						<h:commandLink id="approveMsgs" title="#{msgs.cdfm_button_bar_approve}" action="#{ForumTool.markCheckedAsApproved}" style="padding-left: 1.0em; padding-right: 1.0em;">
-		  				<h:graphicImage value="/images/silk/tick.png" alt="#{msgs.cdfm_button_bar_approve}" />
+		  				<h:graphicImage value="/../../library/image/silk/tick.png" alt="#{msgs.cdfm_button_bar_approve}" />
 		  				<h:outputText value=" #{msgs.cdfm_button_bar_approve}" />
 		  		</h:commandLink>
 					</h:panelGroup>

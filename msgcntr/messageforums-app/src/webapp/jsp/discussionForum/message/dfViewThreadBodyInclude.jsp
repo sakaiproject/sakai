@@ -34,7 +34,7 @@
 			<f:convertDateTime pattern="#{msgs.date_format_paren}" />
 		</h:outputText>
 
-		<h:graphicImage value="/images/silk/email.png" 
+		<h:graphicImage value="/../../library/image/silk/email.png" 
 			alt="#{msgs.cdfm_mark_as_read}" 
 			title="#{msgs.cdfm_mark_as_read}" 
 			rendered="#{!message.read}"
@@ -70,7 +70,7 @@
 		<%-- Reply link --%>
 		<h:panelGroup rendered="#{ForumTool.selectedTopic.isNewResponseToResponse && message.msgApproved && !ForumTool.selectedTopic.locked}">
 			<h:commandLink action="#{ForumTool.processDfMsgReplyMsgFromEntire}" title="#{msgs.cdfm_reply}"> 
-				<h:graphicImage value="/images/silk/email_go.png" alt="#{msgs.cdfm_button_bar_reply_to_msg}" />
+				<h:graphicImage value="/../../library/image/silk/email_go.png" alt="#{msgs.cdfm_button_bar_reply_to_msg}" />
 				<h:outputText value="#{msgs.cdfm_reply}" />
 
 				<f:param value="#{message.message.id}" name="messageId" />
@@ -84,7 +84,7 @@
 									|| message.userCanDelete}">
 			<h:outputText value=" #{msgs.cdfm_toolbar_separator} " rendered="#{ForumTool.selectedTopic.isNewResponseToResponse && message.msgApproved}" />
 			<h:outputLink value="#" onclick="toggleDisplay('#{message.message.id}_advanced_box'); toggleHide(this); return false;">
-				<h:graphicImage value="/images/silk/cog.png" alt="#{msgs.cdfm_other_actions}" />
+				<h:graphicImage value="/../../library/image/silk/cog.png" alt="#{msgs.cdfm_other_actions}" />
 				<h:outputText value="#{msgs.cdfm_other_actions}" />
 			</h:outputLink>
 		</h:panelGroup>

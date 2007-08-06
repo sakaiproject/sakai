@@ -30,7 +30,7 @@
 							rendered="#{ForumTool.selectedTopic.changeSettings}" />
 					
 				<h:outputLink id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyUrl}');">
-					<h:graphicImage url="/images/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
+					<h:graphicImage url="/../../library/image/silk/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
 				</h:outputLink>
  		</sakai:tool_bar>
  			
@@ -159,7 +159,7 @@
 
 		          	<h:outputText value="  " />
 				
-					<h:graphicImage value="/images/silk/email.png" rendered="#{!message.read}" style="cursor:pointer"
+					<h:graphicImage value="/../../library/image/silk/email.png" rendered="#{!message.read}" style="cursor:pointer"
 							alt="#{msgs.cdfm_mark_as_read}" title="#{msgs.cdfm_mark_as_read}"
    							onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id}, this);"
 			   	       		onmouseover="this.src=this.src.replace(/email\.png/, 'email_open.png');"

@@ -42,7 +42,7 @@ import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
-// import org.sakaiproject.api.app.messageforums.DiscussionForumService;
+import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
@@ -183,11 +183,6 @@ public class MessageForumSynopticBean {
 	private transient Boolean pmEnabled = null;
 	private transient Boolean anyMFToolInSite = null;
 	private transient List myWorkspaceContents = null;
-
-	/** Used to determine if MessageCenter tool part of site */
-	private final String MESSAGE_CENTER_ID = "sakai.messagecenter";
-	private final String FORUMS_TOOL_ID = "sakai.forums";
-	private final String MESSAGES_TOOL_ID = "sakai.messages";
 
 	/** Used to get contextId when tool on MyWorkspace to set all private messages to Read status */
 	private final String CONTEXTID="contextId";
@@ -1269,7 +1264,7 @@ public class MessageForumSynopticBean {
 	 *         FALSE otherwise
 	 */
 	private boolean isMessageForumsPageInSite(Site thisSite) {
-		return isToolInSite(thisSite, MESSAGE_CENTER_ID);
+		return isToolInSite(thisSite, DiscussionForumService.MESSAGE_CENTER_ID);
 	}
 	
 	/**
@@ -1296,7 +1291,7 @@ public class MessageForumSynopticBean {
 	 *         FALSE otherwise
 	 */
 	private boolean isForumsPageInSite(Site thisSite) {
-		return isToolInSite(thisSite, FORUMS_TOOL_ID);
+		return isToolInSite(thisSite, DiscussionForumService.FORUMS_TOOL_ID);
 	}
 
 	/**
@@ -1323,7 +1318,7 @@ public class MessageForumSynopticBean {
 	 *         FALSE otherwise
 	 */
 	private boolean isMessagesPageInSite(Site thisSite) {
-		return isToolInSite(thisSite, MESSAGES_TOOL_ID);
+		return isToolInSite(thisSite, DiscussionForumService.MESSAGES_TOOL_ID);
 	}
 
 	/**
@@ -1369,27 +1364,27 @@ public class MessageForumSynopticBean {
 	    	final Site site = getSite(siteId);
 	    	
 	    	if (isMessageForumsPageInSite(site)) {
-	    		toolId = MESSAGE_CENTER_ID;
+	    		toolId = DiscussionForumService.MESSAGE_CENTER_ID;
 	    	}
 	    	else if (isForumsPageInSite(site)) {
-	    		toolId = FORUMS_TOOL_ID;
+	    		toolId = DiscussionForumService.FORUMS_TOOL_ID;
 	    	}
 	    	else if (isMessagesPageInSite(site)) {
-	    		toolId = MESSAGES_TOOL_ID;
+	    		toolId = DiscussionForumService.MESSAGES_TOOL_ID;
 	    	}
 
     		mcTool = site.getToolForCommonId(toolId);
 
 	    	if (mcTool != null) {
-	    		if (toolId == MESSAGE_CENTER_ID) {
+	    		if (toolId == DiscussionForumService.MESSAGE_CENTER_ID) {
 	    			url = ServerConfigurationService.getPortalUrl() + "/directtool/"
 	    							+ mcTool.getId() + "/sakai.messageforums.helper.helper/main";
 	    		}
-	    		else if (toolId == FORUMS_TOOL_ID) {
+	    		else if (toolId == DiscussionForumService.FORUMS_TOOL_ID) {
 	    			url = ServerConfigurationService.getPortalUrl() + "/directtool/"
 	    							+ mcTool.getId() + "/sakai.messageforums.helper.helper/discussionForum/forumsOnly/dfForums";
 	    		}
-	    		else if (toolId == MESSAGES_TOOL_ID) {
+	    		else if (toolId == DiscussionForumService.MESSAGES_TOOL_ID) {
 	    			url = ServerConfigurationService.getPortalUrl() + "/directtool/"
 	    							+ mcTool.getId() + "/sakai.messageforums.helper.helper/privateMsg/pvtMsgHpView";
 	    		}
@@ -1550,13 +1545,13 @@ public class MessageForumSynopticBean {
 		    	final Site site = SiteService.getSite(contextId);
 		    	
 		    	if (isMessageForumsPageInSite(site)) {
-		    		toolId = MESSAGE_CENTER_ID;
+		    		toolId = DiscussionForumService.MESSAGE_CENTER_ID;
 		    	}
 		    	else if (isMessagesPageInSite(site)) {
-		    		toolId = MESSAGES_TOOL_ID;
+		    		toolId = DiscussionForumService.MESSAGES_TOOL_ID;
 		    	}
 		    	else if (isForumsPageInSite(site)) {
-		    		toolId = FORUMS_TOOL_ID;
+		    		toolId = DiscussionForumService.FORUMS_TOOL_ID;
 		    	}
 
 	    		mcTool = site.getToolForCommonId(toolId);

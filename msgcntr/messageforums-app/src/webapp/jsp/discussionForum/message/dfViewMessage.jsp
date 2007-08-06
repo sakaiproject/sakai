@@ -89,48 +89,48 @@
 				<h:panelGroup styleClass="specialLink">
 					<h:commandLink title="#{msgs.cdfm_button_bar_reply_to_msg}" action="#{ForumTool.processDfMsgReplyMsg}" 
 		  				rendered="#{ForumTool.selectedTopic.isNewResponseToResponse && ForumTool.selectedMessage.msgApproved && !ForumTool.selectedTopic.locked}">
-		  				<h:graphicImage value="/images/silk/email_go.png" alt="#{msgs.cdfm_button_bar_reply_to_msg}" rendered="#{ForumTool.selectedTopic.isNewResponseToResponse}" />
+		  				<h:graphicImage value="/../../library/image/silk/email_go.png" alt="#{msgs.cdfm_button_bar_reply_to_msg}" rendered="#{ForumTool.selectedTopic.isNewResponseToResponse}" />
 		  				<h:outputText value=" #{msgs.cdfm_button_bar_reply_to_msg}" />
 		  			</h:commandLink>
       			
 		      		<h:commandLink title="#{msgs.cdfm_button_bar_reply_to_thread}" action="#{ForumTool.processDfMsgReplyThread}" 
 			  			rendered="#{ForumTool.selectedTopic.isNewResponse && ForumTool.selectedThreadHead.msgApproved && !ForumTool.selectedTopic.locked}">
-		  				<h:graphicImage value="/images/silk/folder_go.png" alt="#{msgs.cdfm_button_bar_reply_to_thread}" />
+		  				<h:graphicImage value="/../../library/image/silk/folder_go.png" alt="#{msgs.cdfm_button_bar_reply_to_thread}" />
 		  				<h:outputText value=" #{msgs.cdfm_button_bar_reply_to_thread}" />
 		  			</h:commandLink>
 		  		
 			  		<h:commandLink title="#{msgs.cdfm_button_bar_delete_msg}" action="#{ForumTool.processDfMsgDeleteConfirm}" rendered="#{ForumTool.selectedMessage.userCanDelete}" >
-		  				<h:graphicImage value="/images/silk/email_delete.png" alt="#{msgs.cdfm_button_bar_delete_msg}" />
+		  				<h:graphicImage value="/../../library/image/silk/email_delete.png" alt="#{msgs.cdfm_button_bar_delete_msg}" />
 		  				<h:outputText value=" #{msgs.cdfm_button_bar_delete_msg}" />
 		  			</h:commandLink>
 		  		
 			  		<h:commandLink title="#{msgs.cdfm_button_bar_revise}" action="#{ForumTool.processDfMsgRvs}" 
 			  			rendered="#{ForumTool.selectedMessage.revise}">
-			  			<h:graphicImage value="/images/silk/email_edit.png" alt="#{msgs.cdfm_button_bar_revise}" />
+			  			<h:graphicImage value="/../../library/image/silk/email_edit.png" alt="#{msgs.cdfm_button_bar_revise}" />
 		  				<h:outputText value=" #{msgs.cdfm_button_bar_revise}" />
 		  			</h:commandLink>
 		  		
 			  		<h:commandLink title="#{msgs.cdfm_button_bar_grade}" action="#{ForumTool.processDfMsgGrd}" 
 			  			rendered="#{ForumTool.selectedTopic.isPostToGradebook && ForumTool.gradebookExist}">
-			  			<h:graphicImage value="/images/silk/award_star_gold_1.png" alt="#{msgs.cdfm_button_bar_grade}" />
+			  			<h:graphicImage value="/../../library/image/silk/award_star_gold_1.png" alt="#{msgs.cdfm_button_bar_grade}" />
 		  				<h:outputText value=" #{msgs.cdfm_button_bar_grade}" />
 		  			</h:commandLink>
 			  	</h:panelGroup>
 			  	<h:panelGroup styleClass="specialLink" style="text-align:right;float:right;">
 			  		<h:commandLink title="#{msgs.cdfm_button_bar_deny}" action="#{ForumTool.processDfMsgDeny}" 
 		  							rendered="#{ForumTool.allowedToDenyMsg}">
-			  			<h:graphicImage value="/images/silk/cross.png" alt="#{msgs.cdfm_button_bar_deny}" />
+			  			<h:graphicImage value="/../../library/image/silk/cross.png" alt="#{msgs.cdfm_button_bar_deny}" />
 			  			<h:outputText value=" #{msgs.cdfm_button_bar_deny}" />
 			  		</h:commandLink>
 		  			<h:commandLink title="#{msgs.cdfm_button_bar_add_comment}" action="#{ForumTool.processDfMsgAddComment}" 
 		  				rendered="#{ForumTool.allowedToApproveMsg && ForumTool.selectedMessage.msgDenied}">
-			  			<h:graphicImage value="/images/silk/comment.png" alt="#{msgs.cdfm_button_bar_add_comment}" />
+			  			<h:graphicImage value="/../../library/image/silk/comment.png" alt="#{msgs.cdfm_button_bar_add_comment}" />
 			  			<h:outputText value=" #{msgs.cdfm_button_bar_add_comment}" />
 			  		</h:commandLink>
 		  		
 		  			<h:commandLink title="#{msgs.cdfm_button_bar_approve}" action="#{ForumTool.processDfMsgApprove}" 
 		  				rendered="#{ForumTool.allowedToApproveMsg}">
-		  				<h:graphicImage value="/images/silk/tick.png" alt="#{msgs.cdfm_button_bar_approve}" />
+		  				<h:graphicImage value="/../../library/image/silk/tick.png" alt="#{msgs.cdfm_button_bar_approve}" />
 			  			<h:outputText value=" #{msgs.cdfm_button_bar_approve}" />
 			  		</h:commandLink>
 			  	</h:panelGroup>
