@@ -23,6 +23,7 @@ package org.sakaiproject.site.impl;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.DerivedCache;
@@ -32,8 +33,6 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 
-import EDU.oswego.cs.dl.util.concurrent.ConcurrentReaderHashMap;
-
 /**
  * <p>
  * SiteCacheImpl is a cache tuned for Site (and page / tool) access.
@@ -42,13 +41,13 @@ import EDU.oswego.cs.dl.util.concurrent.ConcurrentReaderHashMap;
 public class SiteCacheImpl implements DerivedCache
 {
 	/** Map of a tool id to a cached site's tool configuration instance. */
-	protected Map m_tools = new ConcurrentReaderHashMap();
+	protected Map m_tools = new ConcurrentHashMap();
 
 	/** Map of a page id to a cached site's SitePage instance. */
-	protected Map m_pages = new ConcurrentReaderHashMap();
+	protected Map m_pages = new ConcurrentHashMap();
 
 	/** Map of a group id to a cached site's Group instance. */
-	protected Map m_groups = new ConcurrentReaderHashMap();
+	protected Map m_groups = new ConcurrentHashMap();
 
 	/** The base cache. */
 	protected Cache m_cache = null;
