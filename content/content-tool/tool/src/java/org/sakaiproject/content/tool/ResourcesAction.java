@@ -56,6 +56,7 @@ import org.sakaiproject.cheftool.PagedResourceHelperAction;
 import org.sakaiproject.cheftool.PortletConfig;
 import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
+import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
@@ -677,7 +678,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	private static final String STATE_LIST_SELECTIONS = PREFIX + "ignore_delete_selections";
 	
 	protected static final String STATE_LIST_VIEW_SORT = PREFIX + "list_view_sort";
-	
+
+	private static final String STATE_MESSAGE_LIST = PREFIX + "message_list";
+
 	/** The resources, helper or dropbox mode. */
 	public static final String STATE_MODE_RESOURCES = PREFIX + "resources_mode";
 	
@@ -1282,6 +1285,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 */
 	public static List<ContentResource> createResources(ResourceToolActionPipe pipe)
 	{
+		ToolSession toolSession = null;
 		boolean item_added = false;
 		String collectionId = null;
 		List<ContentResource> new_resources = new Vector<ContentResource>();
@@ -1399,8 +1403,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			catch (IdLengthException e)
 			{
+				addAlert(trb.getFormattedMessage("alert.toolong", new String[]{name}));
+				
 				// TODO Need to give error message to user
-				logger.warn("IdLengthException ", e);
+				logger.warn("IdLengthException " + e);
 			}
 			catch (OverQuotaException e)
 			{
@@ -1603,7 +1609,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			catch(IdLengthException e)
 			{
-				addAlert(state, rb.getString("toolong") + " " + e.getMessage());
+				addAlert(state, rb.getFormattedMessage("alert.toolong", new String[]{e.getMessage()}));
 			}
 			catch(IdUniquenessException e)
 			{
@@ -1720,7 +1726,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		catch(IdLengthException e)
 		{
-			addAlert(state, rb.getString("toolong") + " " + e.getMessage());
+			addAlert(state, rb.getFormattedMessage("alert.toolong", new String[]{e.getMessage()}));
 		}
 		catch(IdUniquenessException e)
 		{
@@ -4649,7 +4655,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			toolSession.removeAttribute(ResourceToolAction.DONE);
 		}
-
+		
 		String template = null;
 		
 		// place if notification is enabled and current site is not of My Workspace type
@@ -5531,8 +5537,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
             }
             catch (IdLengthException e)
             {
+				addAlert(state, rb.getFormattedMessage("alert.toolong", new String[]{e.getMessage()}));
 	            // TODO Auto-generated catch block
-	            logger.warn("IdLengthException ", e);
+	            logger.warn("IdLengthException " + e);
             }
 			
 		}
@@ -7039,6 +7046,15 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		default:
 			state.setAttribute(STATE_MODE, MODE_LIST);
 		}
+		if(toolSession.getAttribute(STATE_MESSAGE_LIST) != null)
+		{
+			Collection<String> messages = (Collection<String>) toolSession.getAttribute(STATE_MESSAGE_LIST);
+			for(String msg : messages)
+			{
+				addAlert(state, msg);
+			}
+			toolSession.removeAttribute(STATE_MESSAGE_LIST);
+		}
 	}
 
 	protected void replaceContent(ResourceToolActionPipe pipe) 
@@ -8078,6 +8094,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			catch (IdLengthException e)
 			{
+				addAlert(state, rb.getFormattedMessage("alert.toolong", new String[]{e.getMessage()}));
 				// TODO Auto-generated catch block
 				logger.warn("IdLengthException ", e);
 			}
@@ -8096,5 +8113,16 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		return (item_added ? new_resources : null);
    }
 
+	public static void addAlert(String message)
+	{
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		Collection<String> errorMessages = (Collection<String>) toolSession.getAttribute(STATE_MESSAGE_LIST);
+		if(errorMessages == null)
+		{
+			errorMessages = new TreeSet();
+			toolSession.setAttribute(STATE_MESSAGE_LIST, errorMessages);
+		}
+		errorMessages.add(message);
+	}
 	
 }	// ResourcesAction
