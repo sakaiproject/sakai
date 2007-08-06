@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -44,8 +45,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import EDU.oswego.cs.dl.util.concurrent.ConcurrentReaderHashMap;
 
 /**
  * <p>
@@ -64,7 +63,7 @@ public abstract class ToolComponent implements ToolManager
 	protected final static String CURRENT_TOOL = "sakai:ToolComponent:current.tool";
 
 	/** The registered tools. */
-	protected Map m_tools = new ConcurrentReaderHashMap();
+	protected Map m_tools = new ConcurrentHashMap();
 
 	/** tool ids to be hidden - their catagories don't matter, they don't show up on any catagorized listing. */
 	protected String[] m_toolIdsToHide = null;

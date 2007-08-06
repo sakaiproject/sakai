@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
@@ -48,8 +49,6 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.util.IteratorEnumeration;
 
-import EDU.oswego.cs.dl.util.concurrent.ConcurrentReaderHashMap;
-
 /**
  * <p>
  * Standard implementation of the Sakai SessionManager.
@@ -61,7 +60,7 @@ public abstract class SessionComponent implements SessionManager
 	private static Log M_log = LogFactory.getLog(SessionComponent.class);
 
 	/** The sessions - keyed by session id. */
-	protected Map m_sessions = new ConcurrentReaderHashMap();
+	protected Map m_sessions = new ConcurrentHashMap();
 
 	/** The maintenance. */
 	protected Maintenance m_maintenance = null;
@@ -311,13 +310,13 @@ public abstract class SessionComponent implements SessionManager
 	public class MySession implements Session, HttpSession
 	{
 		/** Hold attributes in a Map. TODO: ConcurrentHashMap may be better for multiple writers */
-		protected Map m_attributes = new ConcurrentReaderHashMap();
+		protected Map m_attributes = new ConcurrentHashMap();
 
 		/** Hold toolSessions in a Map, by placement id. TODO: ConcurrentHashMap may be better for multiple writers */
-		protected Map m_toolSessions = new ConcurrentReaderHashMap();
+		protected Map m_toolSessions = new ConcurrentHashMap();
 
 		/** Hold context toolSessions in a Map, by context (webapp) id. TODO: ConcurrentHashMap may be better for multiple writers */
-		protected Map m_contextSessions = new ConcurrentReaderHashMap();
+		protected Map m_contextSessions = new ConcurrentHashMap();
 
 		/** The creation time of the session. */
 		protected long m_created = 0;
@@ -862,7 +861,7 @@ public abstract class SessionComponent implements SessionManager
 	public class MyLittleSession implements ToolSession, ContextSession, HttpSession
 	{
 		/** Hold attributes in a Map. TODO: ConcurrentHashMap may be better for multiple writers */
-		protected Map m_attributes = new ConcurrentReaderHashMap();
+		protected Map m_attributes = new ConcurrentHashMap();
 
 		/** The creation time of the session. */
 		protected long m_created = 0;
