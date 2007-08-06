@@ -272,14 +272,22 @@ INSERT INTO SAKAI_REALM_ROLE VALUES (/* DEFAULT, */ '.anon')
 INSERT INTO SAKAI_REALM_ROLE VALUES (/* DEFAULT, */ '.auth')
 INSERT INTO SAKAI_REALM_ROLE VALUES (/* DEFAULT, */ 'access')
 INSERT INTO SAKAI_REALM_ROLE VALUES (/* DEFAULT, */ 'admin')
+INSERT INTO SAKAI_REALM_ROLE VALUES (/* DEFAULT, */ 'CIG Coordinator');
+INSERT INTO SAKAI_REALM_ROLE VALUES (/* DEFAULT, */ 'CIG Participant');
+INSERT INTO SAKAI_REALM_ROLE VALUES (/* DEFAULT, */ 'Evaluator');
 INSERT INTO SAKAI_REALM_ROLE VALUES (/* DEFAULT, */ 'Instructor')
 INSERT INTO SAKAI_REALM_ROLE VALUES (/* DEFAULT, */ 'maintain')
+INSERT INTO SAKAI_REALM_ROLE VALUES (/* DEFAULT, */ 'Program Admin');
+INSERT INTO SAKAI_REALM_ROLE VALUES (/* DEFAULT, */ 'Program Coordinator');
 INSERT INTO SAKAI_REALM_ROLE VALUES (/* DEFAULT, */ 'pubview')
+INSERT INTO SAKAI_REALM_ROLE VALUES (/* DEFAULT, */ 'Reviewer');
 INSERT INTO SAKAI_REALM_ROLE VALUES (/* DEFAULT, */ 'Student')
 INSERT INTO SAKAI_REALM_ROLE VALUES (/* DEFAULT, */ 'Teaching Assistant')
 -- rSmart CLE customizations
 INSERT INTO SAKAI_REALM_ROLE VALUES (/* DEFAULT, */ 'Guest')
 INSERT INTO SAKAI_REALM_ROLE VALUES (/* DEFAULT, */ 'Tech Support')
+
+
 --
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'annc.all.groups')
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (/* DEFAULT, */ 'annc.delete.any')
@@ -397,7 +405,13 @@ select @role_maintain=ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'maintain
 select @role_access=ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'access'
 select @role_anon=ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = '.anon'
 select @role_auth=ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = '.auth'
+select @role_cig_coordinator=ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'CIG Coordinator'
+select @role_cig_participant=ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'CIG Participant'
+select @role_evaluator=ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Evaluator'
 select @role_instructor = ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'
+select @role_program_admin = ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Program Admin'
+select @role_program_Coordinator = ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Program Coordinator'
+select @role_reviewer = ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Reviewer'
 select @role_student = ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Student'
 select @role_ta = ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Teaching Assistant'
 select @role_guest = ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Guest'
@@ -669,6 +683,26 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_access, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.update'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_access, @f1)
+
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_access, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.use'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_access, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_access, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.copy'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_access, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.comment'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_access, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_access, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_access, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_access, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.view'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_access, @f1)
+
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.all.groups'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.delete.any'
@@ -813,6 +847,90 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit.unp'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.globalPublish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.suggestGlobalPublish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.add'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.review'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.evaluate'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.viewOwner'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.review'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.copy'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.comment'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.copy'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.suggestPublish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.review'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template, @role_maintain, @f1)
+
 INSERT INTO SAKAI_REALM VALUES (/* DEFAULT, */ '!site.template.course', '', @role_instructor, 'admin', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 select @realm_site_course_template=REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.all.groups'
@@ -1045,6 +1163,402 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.
 -- INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
+
+
+INSERT INTO SAKAI_REALM VALUES (/* DEFAULT, */ '!site.template.portfolio', '', NULL, 'admin', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+select @realm_site_template_portfolio=REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.portfolio'
+
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.all.groups'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.delete.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.read.drafts'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.anyannc.revise.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.anyasn.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.anyasn.grade'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.anyasn.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.anyasn.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.anyasn.revise'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.anyasn.submit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.createAssessment'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.deleteAssessment.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.deleteAssessment.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.editAssessment.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.editAssessment.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.gradeAssessment.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.gradeAssessment.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.publishAssessment.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.publishAssessment.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.questionpool.copy.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.questionpool.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.questionpool.delete.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.questionpool.edit.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.template.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.template.delete.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.template.edit.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.delete.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.delete.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.new.topic'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.revise.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'dropbox.maintain'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'mail.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'mail.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'mail.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metaobj.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metaobj.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metaobj.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metaobj.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metaobj.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metaobj.suggest.global.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'realm.del'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'realm.upd'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.admin'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.update'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'section.role.instructor'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.del'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.upd'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit.unp'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.globalPublish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.suggestGlobalPublish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.add'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.review'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.evaluate'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.viewOwner'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.review'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.copy'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.comment'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.copy'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.suggestPublish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.review'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_coordinator, @f1)
+
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.submit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.submitAssessmentForGrade'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.takeAssessment'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.revise.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'dropbox.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'mail.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'reports.runReport'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'reports.viewReport'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.update'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'section.role.student'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.use'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.copy'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.comment'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.view'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_cig_participant, @f1)
+  
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.submit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.submitAssessmentForGrade'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.takeAssessment'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.revise.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'dropbox.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'mail.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'reports.runReport'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'reports.viewReport'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.update'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'section.role.student'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.review'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.copy'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.comment'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.review'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_reviewer, @f1)
+
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.submit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.submitAssessmentForGrade'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.takeAssessment'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.revise.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'dropbox.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'mail.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'reports.runReport'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'reports.viewReport'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.update'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'section.role.student'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.evaluate'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.viewOwner'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.copy'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.comment'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.evaluate'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_template_portfolio, @role_evaluator, @f1)
+
+
 INSERT INTO SAKAI_REALM VALUES (/* DEFAULT, */ '!group.template', '', NULL, 'admin', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 select @realm_group_template=REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template'
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.read'
@@ -1063,6 +1577,26 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'secti
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_access, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_access, @f1)
+
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_access, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.use'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_access, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_access, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.copy'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_access, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.comment'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_access, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_access, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_access, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_access, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.view'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_access, @f1)
+
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.new'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.read'
@@ -1113,6 +1647,91 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit.unp'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.globalPublish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.suggestGlobalPublish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.add'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.review'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.evaluate'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.viewOwner'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.review'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.copy'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.comment'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.copy'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.suggestPublish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.review'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template, @role_maintain, @f1)
+
+
 
 INSERT INTO SAKAI_REALM VALUES (/* DEFAULT, */ '!group.template.course', '', @role_instructor, 'admin', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 select @realm_group_course_template=REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template.course'
@@ -1233,6 +1852,855 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'secti
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
+
+INSERT INTO SAKAI_REALM VALUES (/* DEFAULT, */ '!group.template.portfolio', '', NULL, 'admin', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+select @realm_group_template_portfolio=REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template.portfolio'
+
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.all.groups'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.delete.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.read.drafts'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.anyannc.revise.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.anyasn.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.anyasn.grade'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.anyasn.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.anyasn.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.anyasn.revise'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.anyasn.submit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.createAssessment'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.deleteAssessment.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.deleteAssessment.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.editAssessment.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.editAssessment.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.gradeAssessment.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.gradeAssessment.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.publishAssessment.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.publishAssessment.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.questionpool.copy.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.questionpool.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.questionpool.delete.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.questionpool.edit.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.template.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.template.delete.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.template.edit.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.delete.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.delete.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.new.topic'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.revise.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'dropbox.maintain'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'mail.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'mail.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'mail.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metaobj.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metaobj.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metaobj.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metaobj.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metaobj.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metaobj.suggest.global.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'realm.del'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'realm.upd'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.admin'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.update'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'section.role.instructor'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.del'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.upd'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit.unp'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.globalPublish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.suggestGlobalPublish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.add'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.review'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.evaluate'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.viewOwner'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.review'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.copy'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.comment'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.copy'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.suggestPublish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.review'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_coordinator, @f1)
+
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.submit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.submitAssessmentForGrade'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.takeAssessment'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.revise.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'dropbox.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'mail.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'reports.runReport'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'reports.viewReport'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.update'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'section.role.student'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.use'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.copy'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.comment'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.view'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_cig_participant, @f1)
+
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.submit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.submitAssessmentForGrade'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.takeAssessment'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.revise.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'dropbox.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'mail.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'reports.runReport'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'reports.viewReport'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.update'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'section.role.student'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.review'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.copy'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.comment'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_reviewer, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.review'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_reviewer, @f1)
+
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'asn.submit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.submitAssessmentForGrade'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.takeAssessment'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.revise.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'dropbox.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'mail.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'reports.runReport'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'reports.viewReport'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.update'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'section.role.student'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.evaluate'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.viewOwner'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.copy'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.comment'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_evaluator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.evaluate'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_evaluator, @f1)
+
+INSERT INTO SAKAI_REALM VALUES (/* DEFAULT, */ '!group.template.portfolioAdmin', '', NULL, 'admin', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+select @realm_group_template_portfolioAdmin=REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template.portfolioAdmin'
+
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.all.groups'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.delete.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.read.drafts'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.anyannc.revise.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.anyasn.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.anyasn.grade'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.anyasn.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.anyasn.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.anyasn.revise'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.anyasn.submit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.createAssessment'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.deleteAssessment.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.deleteAssessment.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.editAssessment.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.editAssessment.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.gradeAssessment.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.gradeAssessment.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.publishAssessment.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.publishAssessment.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.questionpool.copy.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.questionpool.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.questionpool.delete.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.questionpool.edit.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.template.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.template.delete.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.template.edit.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.delete.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.delete.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.new.topic'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.revise.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'dropbox.maintain'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'mail.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'mail.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'mail.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metaobj.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metaobj.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metaobj.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metaobj.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metaobj.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metaobj.suggest.global.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'realm.del'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'realm.upd'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.admin'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.update'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'section.role.instructor'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.del'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.upd'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit.unp'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.globalPublish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.suggestGlobalPublish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.add'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.review'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.evaluate'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.viewOwner'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.review'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.copy'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.comment'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.copy'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.suggestPublish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.review'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_admin, @f1)
+
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.all.groups'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.delete.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.read.drafts'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.anyannc.revise.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.anyasn.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.anyasn.grade'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.anyasn.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.anyasn.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.anyasn.revise'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.revise.anyasn.submit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.createAssessment'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.deleteAssessment.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.deleteAssessment.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.editAssessment.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.editAssessment.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.gradeAssessment.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.gradeAssessment.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.publishAssessment.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.publishAssessment.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.questionpool.copy.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.questionpool.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.questionpool.delete.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.questionpool.edit.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.template.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.template.delete.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'assessment.template.edit.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.revise'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.delete.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'chat.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.revise'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.delete.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.new.topic'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.revise.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'disc.revise.own'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'dropbox.maintain'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'mail.delete.any'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'mail.new'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'mail.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metaobj.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metaobj.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metaobj.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metaobj.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metaobj.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'metaobj.suggest.global.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'realm.del'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'realm.upd'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.admin'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.read'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'rwiki.update'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'section.role.instructor'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.del'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.upd'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit.unp'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.globalPublish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.style.suggestGlobalPublish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.add'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.help.glossary.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.review'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.scaffolding.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.evaluate'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.viewOwner'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.matrix.review'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.copy'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.comment'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.copy'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.template.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.presentation.layout.suggestPublish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.publish'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.delete'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.create'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.edit'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.review'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.export'
+INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolioAdmin, @role_program_coordinator, @f1)
+
+
+
 INSERT INTO SAKAI_REALM VALUES (/* DEFAULT, */ '/content/public/', '', NULL, 'admin', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 select @r_temp = REALM_KEY from SAKAI_REALM where REALM_ID = '/content/public/'
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'content.read'
