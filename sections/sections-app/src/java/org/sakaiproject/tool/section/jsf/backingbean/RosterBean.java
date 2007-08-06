@@ -329,10 +329,9 @@ public class RosterBean extends CourseDependentBean implements Serializable {
                 String category = (String)iter.next();
                 CourseSection section = sectionEnrollments.getSection(enrollment.getUser().getUserUid(), category);
 
-                try{
-                  row.add(section.getTitle());
-                }catch(NullPointerException npe){
-                    if(log.isDebugEnabled())log.debug("section type has no enrollments");
+                if(section!=null){
+                    row.add(section.getTitle());
+                }else{
                     row.add("");
                 }
             }
