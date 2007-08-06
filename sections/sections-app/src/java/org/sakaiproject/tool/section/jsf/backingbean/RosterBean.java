@@ -328,7 +328,13 @@ public class RosterBean extends CourseDependentBean implements Serializable {
             for (Iterator iter = getUsedCategories().iterator(); iter.hasNext();){
                 String category = (String)iter.next();
                 CourseSection section = sectionEnrollments.getSection(enrollment.getUser().getUserUid(), category);
-                row.add(section.getTitle());
+
+                try{
+                  row.add(section.getTitle());
+                }catch(NullPointerException npe){
+                    if(log.isDebugEnabled())log.debug("section type has no enrollments");
+                    row.add("");
+                }
             }
             spreadsheetData.add(row);
         }
