@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,8 +34,6 @@ import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.MultiRefCache;
-
-import EDU.oswego.cs.dl.util.concurrent.ConcurrentReaderHashMap;
 
 /**
  * <p>
@@ -97,7 +96,7 @@ public class MultiRefCacheImpl extends MemCache implements MultiRefCache
 	{
 		super(memoryService, eventTrackingService, sleep, "");
 		m_softRefs = false;
-		m_refs = new ConcurrentReaderHashMap();
+		m_refs = new ConcurrentHashMap();
 	}
 
 	/**

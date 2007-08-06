@@ -30,6 +30,7 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
 import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,8 +40,6 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.DerivedCache;
-
-import EDU.oswego.cs.dl.util.concurrent.ConcurrentReaderHashMap;
 
 /**
  * <p>
@@ -250,7 +249,7 @@ public class MemCache implements Cache, Runnable, Observer
 		m_memoryService = memoryService;
 		m_eventTrackingService = eventTrackingService;
 
-		m_map = new ConcurrentReaderHashMap();
+		m_map = new ConcurrentHashMap();
 
 		// register as a cacher
 		m_memoryService.registerCacher(this);
