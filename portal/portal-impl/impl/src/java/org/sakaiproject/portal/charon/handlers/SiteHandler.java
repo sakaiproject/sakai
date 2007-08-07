@@ -431,7 +431,21 @@ public class SiteHandler extends WorksiteHandler
 				}
 
 				// check to see if we need to re-add the current site
-				if (currentSelectedSite != null)
+				if (currentSelectedSite == null)
+				{
+					try
+					{
+						// SAK-10394
+						currentSelectedSite = siteHelper.getSiteVisit(siteId);
+					}
+					catch (PermissionException e)
+					{
+					}
+					catch (IdUnusedException e)
+					{
+					}
+				}
+				if ( currentSelectedSite != null ) 
 				{
 					mySites.add(currentSelectedSite);
 				}
