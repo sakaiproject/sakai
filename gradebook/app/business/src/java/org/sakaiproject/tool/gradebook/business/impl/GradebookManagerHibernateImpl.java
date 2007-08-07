@@ -180,6 +180,9 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     public void addToGradeRecordMap(Map gradeRecordMap, List gradeRecords) {
 		for (Iterator iter = gradeRecords.iterator(); iter.hasNext(); ) {
 			AbstractGradeRecord gradeRecord = (AbstractGradeRecord)iter.next();
+			if (gradeRecord instanceof AssignmentGradeRecord) {
+				((AssignmentGradeRecord)gradeRecord).setUserAbleToView(true);
+			}
 			String studentUid = gradeRecord.getStudentId();
 			Map studentMap = (Map)gradeRecordMap.get(studentUid);
 			if (studentMap == null) {
@@ -187,6 +190,35 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 				gradeRecordMap.put(studentUid, studentMap);
 			}
 			studentMap.put(gradeRecord.getGradableObject().getId(), gradeRecord);
+		}
+    }
+    
+    public void addToGradeRecordMap(Map gradeRecordMap, List gradeRecords, Map studentIdItemIdFunctionMap) {
+		for (Iterator iter = gradeRecords.iterator(); iter.hasNext(); ) {
+			AbstractGradeRecord gradeRecord = (AbstractGradeRecord)iter.next();
+			String studentUid = gradeRecord.getStudentId();
+			Map studentMap = (Map)gradeRecordMap.get(studentUid);
+			if (studentMap == null) {
+				studentMap = new HashMap();
+				gradeRecordMap.put(studentUid, studentMap);
+			}
+			Long itemId = gradeRecord.getGradableObject().getId();
+			// check to see if this item is included in the items that the current user is able to view/grade
+			Map itemIdFunctionMap = (Map)studentIdItemIdFunctionMap.get(studentUid);
+			if (gradeRecord instanceof AssignmentGradeRecord) {
+				
+				if (itemIdFunctionMap != null && itemIdFunctionMap.get(itemId) != null) {
+					((AssignmentGradeRecord)gradeRecord).setUserAbleToView(true);
+				} else {
+					((AssignmentGradeRecord)gradeRecord).setUserAbleToView(false);
+					((AssignmentGradeRecord)gradeRecord).setLetterEarned(null);
+					((AssignmentGradeRecord)gradeRecord).setPointsEarned(null);
+					((AssignmentGradeRecord)gradeRecord).setPercentEarned(null);
+				}
+				studentMap.put(itemId, gradeRecord);
+			} else {
+				studentMap.put(itemId, gradeRecord);
+			}
 		}
     }
     

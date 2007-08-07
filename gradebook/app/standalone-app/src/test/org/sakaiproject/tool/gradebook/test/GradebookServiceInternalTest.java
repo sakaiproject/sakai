@@ -320,7 +320,7 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
 				Assert.assertTrue(ASN_TITLE.equals(assignment.getName()));
 				Assert.assertTrue(assignment.getPoints().equals(ASN_POINTS));
 
-				Assert.assertFalse(gradebookService.isUserAbleToGradeStudent(GRADEBOOK_UID, STUDENT_NOT_IN_SECTION_UID));
+				Assert.assertFalse(gradebookService.isUserAbleToGradeItemForStudent(GRADEBOOK_UID, assignment.getId(), STUDENT_NOT_IN_SECTION_UID));
 				boolean gotSecurityException = false;
 				try {
 					if (log.isInfoEnabled()) log.info("Ignore the upcoming authorization error...");
@@ -337,7 +337,7 @@ public class GradebookServiceInternalTest extends GradebookTestBase {
 				}
 				Assert.assertTrue(gotSecurityException);
 
-				Assert.assertTrue(gradebookService.isUserAbleToGradeStudent(GRADEBOOK_UID, STUDENT_IN_SECTION_UID));
+				Assert.assertTrue(gradebookService.isUserAbleToGradeItemForStudent(GRADEBOOK_UID, assignment.getId(), STUDENT_IN_SECTION_UID));
 				Double score = gradebookService.getAssignmentScore(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID);
 				Assert.assertTrue(score == null);
 				gradebookService.setAssignmentScore(GRADEBOOK_UID, ASN_TITLE, STUDENT_IN_SECTION_UID, new Double(39), "Service Test");

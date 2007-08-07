@@ -13,7 +13,8 @@
 		
 		<h2><h:outputText value="#{msgs.course_grade_details_title}"/></h2>
 		<p class="instruction">
-			<h:outputText value="#{msgs.course_grade_details_null_msg}  " />
+			<h:outputText value="#{msgs.course_grade_details_null_msg}  " rendered="#{courseGradeDetailsBean.userAbleToGradeAll}"/>
+			<h:outputText value="#{msgs.course_grade_details_null_msg_ta_view} " rendered="#{!courseGradeDetailsBean.userAbleToGradeAll}"/>
 		</p>
 
 		<h4><h:outputText value="#{msgs.course_grade_details_page_title}"/></h4>
@@ -121,13 +122,18 @@
 		            </t:commandSortHeader>
 				</f:facet>
 				<t:div styleClass="shorttext">
-					<h:inputText
+					<h:inputText rendered="#{scoreRow.userCanGrade}"
 						id="Grade"
 						value="#{scoreRow.enteredGrade}"
 						size="4"
 						onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
 						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.COURSE_GRADE" />
 					</h:inputText>
+					<h:outputText rendered="#{!scoreRow.userCanGrade && scoreRow.enteredGrade != null}" value="#{scoreRow.enteredGrade}">
+						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.COURSE_GRADE" />
+					</h:outputText>
+					<h:outputText rendered="#{!scoreRow.userCanGrade && scoreRow.enteredGrade == null}" value="#{msgs.score_null_placeholder}" />
+
 				</t:div>
 			</h:column>
 			<h:column>
@@ -152,18 +158,21 @@
 				value="#{msgs.assignment_details_submit}"
 				actionListener="#{courseGradeDetailsBean.processUpdateGrades}"
 				rendered="#{!courseGradeDetailsBean.emptyEnrollments}"
+				disabled="#{courseGradeDetailsBean.allStudentsViewOnly}"
 				/>
 			<h:commandButton
 				value="#{msgs.assignment_details_cancel}"
 				action="overview"
 				immediate="true"
 				rendered="#{!courseGradeDetailsBean.emptyEnrollments}"
+				disabled="#{courseGradeDetailsBean.allStudentsViewOnly}"
 				/>
-				
-			&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+
 			<h:commandButton
 				value="#{msgs.course_grade_details_calculate_course_grade}"
 				action="calculateCourseGrades"
+				rendered="#{courseGradeDetailsBean.userAbleToGradeAll}"
+				style="margin-left: 5em;"
 			/>
 			<h:commandButton
 				value="#{msgs.course_grade_details_export_course_grades}"

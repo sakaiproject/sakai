@@ -428,6 +428,23 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	return (List) getHibernateTemplate().execute(hc);
     }
     
+    public List getCategoriesWithAssignments(Long gradebookId) {
+    	List categories = getCategories(gradebookId);
+    	List categoriesWithAssignments = new ArrayList();
+    	if (categories != null) {
+    		for (Iterator catIter = categories.iterator(); catIter.hasNext();) {
+    			Category category = (Category) catIter.next();
+    			if (category != null) {
+    				List assignments = getAssignmentsForCategory(category.getId());
+    				category.setAssignmentList(assignments);
+    				categoriesWithAssignments.add(category);
+    			}
+    		}
+    	}
+    	
+    	return categoriesWithAssignments;
+    }
+    
     public Long createAssignmentForCategory(final Long gradebookId, final Long categoryId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased)
     throws ConflictingAssignmentNameException, StaleObjectModificationException, IllegalArgumentException
     {
@@ -1022,7 +1039,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	if(gradebookId == null || userId == null)
     		throw new IllegalArgumentException("Null parameter(s) in BaseHibernateManager.getPermissionsForUserForCategory");
 
-    	if(cateIds != null)
+    	if(cateIds != null && cateIds.size() > 0)
     	{
     		HibernateCallback hc = new HibernateCallback() {
     			public Object doInHibernate(Session session) throws HibernateException {
@@ -1081,13 +1098,37 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	if(gradebookId == null || userId == null)
     		throw new IllegalArgumentException("Null parameter(s) in BaseHibernateManager.getPermissionsForUserAnyGroupForCategory");
 
-    	if(cateIds != null)
+    	if(cateIds != null && cateIds.size() > 0)
     	{
     		HibernateCallback hc = new HibernateCallback() {
     			public Object doInHibernate(Session session) throws HibernateException {
     				Query q = session.createQuery("from Permission as perm where perm.gradebookId=:gradebookId and perm.userId=:userId and perm.categoryId in (:cateIds) and perm.groupId is null");
     				q.setLong("gradebookId", gradebookId);
     				q.setString("userId", userId);
+    				q.setParameterList("cateIds", cateIds);
+
+    				return q.list();
+    			}
+    		};
+    		return (List)getHibernateTemplate().execute(hc);
+    	}
+    	else
+    	{
+    		return null;
+    	}    	
+    }
+    
+    public List getPermissionsForGBForCategoryIds(final Long gradebookId, final List cateIds) throws IllegalArgumentException
+    {
+    	if(gradebookId == null)
+    		throw new IllegalArgumentException("Null parameter(s) in BaseHibernateManager.getPermissionsForUserAnyGroupForCategory");
+
+    	if(cateIds != null && cateIds.size() > 0)
+    	{
+    		HibernateCallback hc = new HibernateCallback() {
+    			public Object doInHibernate(Session session) throws HibernateException {
+    				Query q = session.createQuery("from Permission as perm where perm.gradebookId=:gradebookId and perm.categoryId in (:cateIds)");
+    				q.setLong("gradebookId", gradebookId);
     				q.setParameterList("cateIds", cateIds);
 
     				return q.list();

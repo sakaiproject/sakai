@@ -19,6 +19,19 @@ public interface GradebookPermissionService
    */
 	public List getCategoriesForUser(Long gradebookId, String userId, List categoryList, int cateType) throws IllegalArgumentException;
 	
+	/**
+	 * Returns viewable categories for a user for a specific student
+	 * @param gradebookId
+	 * @param userId
+	 * @param studentId
+	 * @param categories
+	 * @param cateType
+	 * @param sectionIds
+	 * @return
+	 * @throws IllegalArgumentException
+	 */
+	public List getCategoriesForUserForStudentView(Long gradebookId, String userId, String studentId, List categories, int cateType, List sectionIds) throws IllegalArgumentException;
+	
   /**
    * Get true/false value for current user which indicats if he has permission for all
    * assignments in a gradebook with category turned off or he has permission for
@@ -33,6 +46,18 @@ public interface GradebookPermissionService
    */
 	public boolean getPermissionForUserForAllAssignment(Long gradebookId, String userId) throws IllegalArgumentException;
 
+	/**
+	 * Get true/false value for current user which indicates if he has permission for
+	 * all gb items for a given student
+	 * @param gradebookId
+	 * @param userId
+	 * @param studentId
+	 * @param sectionIds
+	 * @return
+	 * @throws IllegalArgumentException
+	 */
+	public boolean getPermissionForUserForAllAssignmentForStudent(Long gradebookId, String userId, String studentId, List sectionIds) throws IllegalArgumentException;
+	
 	/**
    * Get students IDs that the current grader can either view or grade.
    * When categoryId is null and cateType is with category - return students' map that the grader
@@ -92,4 +117,32 @@ public interface GradebookPermissionService
 	  * @return Map of student IDs with view/grade as function value 
 	  */
 	 public Map getCourseGradePermission(Long gradebookId, String userId, List studentIds, List courseSections) throws IllegalArgumentException;
+	 /**
+	  * Get all Permission records associated with this user and gradebook
+	  * @param gradebookId
+	  * @param userId
+	  * @return List of Permission records for user and gradebook
+	  */
+	 public List getGraderPermissionsForUser(Long gradebookId, String userId); 
+
+	 /**
+	  * Get all group ids associated with groups that contain at least one member
+	  * that the user is authorized to view/grade
+	  * @param gradebookId
+	  * @param userId
+	  * @param groupIds
+	  * @return List of group ids that user has some authorization to view
+	  */
+	 public List getViewableGroupsForUser(Long gradebookId, String userId, List groupIds);
+	 
+	 /**
+	  * Get a unique list of students that the current user has grader permissions to view in some capacity
+	  * @param gradebookId
+	  * @param userId
+	  * @param studentIds
+	  * @param sections
+	  * @return List of student ids
+	  */
+	 public List getViewableStudentsForUser(Long gradebookId, String userId, List studentIds, List sections);
+	 
 }

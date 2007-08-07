@@ -35,14 +35,14 @@
           init-method="init">
         <property name="sectionAwareness"><ref bean="org.sakaiproject.section.api.SectionAwareness"/></property>
         <property name="authn"><ref bean="org_sakaiproject_tool_gradebook_facades_Authn"/></property>
+        <property name="gradebookPermissionService"><ref bean="org_sakaiproject_service_gradebook_GradebookPermissionService"/></property>
+				<property name="gradebookService"><ref bean="org_sakaiproject_service_gradebook_GradebookService"/></property>
     </bean>
 
     <bean id="org_sakaiproject_tool_gradebook_facades_EventTrackingService"
           class="org.sakaiproject.tool.gradebook.facades.sakai2impl.EventTrackingServiceSakai2Impl">
         <property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
     </bean>
-
-
 
     <!-- Service implementation hook-up with Sakai DB -->
 

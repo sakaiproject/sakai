@@ -99,48 +99,64 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 			/* if categories are enabled, we need to display a table that includes
 			 * categories, assignments, and the course grade.
 			 */
-			List categoryList = getGradebookManager().getCategoriesWithStats(getGradebookId(), getAssignmentSortColumn(), isAssignmentSortAscending(), getCategorySortColumn(), isCategorySortAscending());
+			List categoryListWithCG = getGradebookManager().getCategoriesWithStats(getGradebookId(), getAssignmentSortColumn(), isAssignmentSortAscending(), getCategorySortColumn(), isCategorySortAscending());
+			List categoryList = new ArrayList();
+			
+			// first, remove the CourseGrade from the Category list
+			for (Iterator catIter = categoryListWithCG.iterator(); catIter.hasNext();) {
+				Object catOrCourseGrade = catIter.next();
+				if (catOrCourseGrade instanceof Category) {
+					categoryList.add((Category)catOrCourseGrade);
+				} else if (catOrCourseGrade instanceof CourseGrade) {
+					courseGrade = (CourseGrade) catOrCourseGrade;
+				}
+			}
+			
+			// then, we need to check for special grader permissions that may limit which categories may be viewed
+			if (!isUserAbleToGradeAll() && isUserHasGraderPermissions()) {
+				categoryList = getGradebookPermissionService().getCategoriesForUser(getGradebookId(), getUserUid(), categoryList, getGradebook().getCategory_type());
+			}
+
 			if (categoryList != null && !categoryList.isEmpty()) {
 				Iterator catIter = categoryList.iterator();
 				while (catIter.hasNext()) {
-					Object catOrCourseGrade = catIter.next();
-					if (catOrCourseGrade instanceof Category) {
-						Category myCat = (Category) catOrCourseGrade;
-						gradebookItemList.add(myCat);
-						List assignmentList = myCat.getAssignmentList();
-						if (assignmentList != null && !assignmentList.isEmpty()) {
-							Iterator assignIter = assignmentList.iterator();
-							while (assignIter.hasNext()) {
-								Assignment assign = (Assignment) assignIter.next();
-								if (assign.isExternallyMaintained())
-									displayGradeEditorCol = true;
-								gradebookItemList.add(assign);
-							}
+					Category myCat = (Category)catIter.next();
+
+					gradebookItemList.add(myCat);
+					List assignmentList = myCat.getAssignmentList();
+					if (assignmentList != null && !assignmentList.isEmpty()) {
+						Iterator assignIter = assignmentList.iterator();
+						while (assignIter.hasNext()) {
+							Assignment assign = (Assignment) assignIter.next();
+							if (assign.isExternallyMaintained())
+								displayGradeEditorCol = true;
+							gradebookItemList.add(assign);
 						}
 					}
-					else if (catOrCourseGrade instanceof CourseGrade) {
-						courseGrade = (CourseGrade) catOrCourseGrade;
-					}
 				}
-
 			}
-			List unassignedList = getGradebookManager().getAssignmentsWithNoCategoryWithStats(getGradebookId(), getAssignmentSortColumn(), isAssignmentSortAscending());
-			if (unassignedList != null && !unassignedList.isEmpty()) {
-				Category unassignedCat = new Category();
-				unassignedCat.setGradebook(getGradebook());
-				unassignedCat.setAverageScore(new Double(0));
-				unassignedCat.setName(getLocalizedString("cat_unassigned"));
-				unassignedCat.setAssignmentList(unassignedList);
-				if (!getWeightingEnabled())
-					unassignedCat.calculateStatistics(unassignedList);
-				gradebookItemList.add(unassignedCat);
-
-				Iterator unassignedIter = unassignedList.iterator();
-				while (unassignedIter.hasNext()) {
-					Assignment assignWithNoCat = (Assignment) unassignedIter.next();
-					if (assignWithNoCat.isExternallyMaintained())
-						displayGradeEditorCol = true;
-					gradebookItemList.add(assignWithNoCat);
+			
+			if (!isUserAbleToGradeAll() && (isUserHasGraderPermissions() && !getGradebookPermissionService().getPermissionForUserForAllAssignment(getGradebookId(), getUserUid()))) {
+				// is not authorized to view the "Unassigned" Category
+			} else {
+				List unassignedList = getGradebookManager().getAssignmentsWithNoCategoryWithStats(getGradebookId(), getAssignmentSortColumn(), isAssignmentSortAscending());
+				if (unassignedList != null && !unassignedList.isEmpty()) {
+					Category unassignedCat = new Category();
+					unassignedCat.setGradebook(getGradebook());
+					unassignedCat.setAverageScore(new Double(0));
+					unassignedCat.setName(getLocalizedString("cat_unassigned"));
+					unassignedCat.setAssignmentList(unassignedList);
+					if (!getWeightingEnabled())
+						unassignedCat.calculateStatistics(unassignedList);
+					gradebookItemList.add(unassignedCat);
+	
+					Iterator unassignedIter = unassignedList.iterator();
+					while (unassignedIter.hasNext()) {
+						Assignment assignWithNoCat = (Assignment) unassignedIter.next();
+						if (assignWithNoCat.isExternallyMaintained())
+							displayGradeEditorCol = true;
+						gradebookItemList.add(assignWithNoCat);
+					}
 				}
 			}
 	        

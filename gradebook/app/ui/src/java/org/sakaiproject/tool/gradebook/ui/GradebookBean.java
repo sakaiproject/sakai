@@ -33,6 +33,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.section.api.SectionAwareness;
 
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
+import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.facades.*;
@@ -62,6 +63,7 @@ public class GradebookBean extends InitializableBean {
     private ContextManagement contextManagementService;
     private EventTrackingService eventTrackingService;
     private ConfigurationBean configurationBean;
+    private GradebookPermissionService gradebookPermissionService;
 
     /**
      * @return Returns the gradebookId.
@@ -205,6 +207,13 @@ public class GradebookBean extends InitializableBean {
 	}
 	public void setConfigurationBean(ConfigurationBean configurationBean) {
 		this.configurationBean = configurationBean;
+	}
+	
+	public GradebookPermissionService getGradebookPermissionService() {
+		return gradebookPermissionService;
+	}
+	public void setGradebookPermissionService(GradebookPermissionService gradebookPermissionService) {
+		this.gradebookPermissionService = gradebookPermissionService;
 	}
 }
 

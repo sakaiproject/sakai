@@ -22,6 +22,8 @@
 
 package org.sakaiproject.tool.gradebook;
 
+import java.util.Comparator;
+
 
 /**
  * An AssignmentGradeRecord is a grade record that can be associated with an
@@ -33,6 +35,7 @@ public class AssignmentGradeRecord extends AbstractGradeRecord {
     private Double pointsEarned;
     private String letterEarned;
     private Double percentEarned;
+    private boolean userAbleToView;
 
     public AssignmentGradeRecord() {
         super();
@@ -51,6 +54,37 @@ public class AssignmentGradeRecord extends AbstractGradeRecord {
         this.studentId = studentId;
         this.pointsEarned = grade;
 	}
+	
+	public static Comparator<AssignmentGradeRecord> calcComparator;
+
+    static {
+        calcComparator = new Comparator<AssignmentGradeRecord>() {
+            public int compare(AssignmentGradeRecord agr1, AssignmentGradeRecord agr2) {
+                if(agr1 == null && agr2 == null) {
+                    return 0;
+                }
+                if(agr1 == null) {
+                    return -1;
+                }
+                if(agr2 == null) {
+                    return 1;
+                }
+                Double agr1Points = agr1.getPointsEarned();
+                Double agr2Points = agr2.getPointsEarned();
+                
+                if (agr1Points == null && agr2Points == null) {
+                	return 0;
+                }
+                if (agr1Points == null && agr2Points != null) {
+                	return -1;
+                }
+                if (agr1Points != null && agr2Points == null) {
+                	return 1;
+                }
+                return agr1Points.compareTo(agr2Points);
+            }
+        };
+    }
 
     /**
      * @return Returns the pointsEarned
@@ -107,6 +141,13 @@ public class AssignmentGradeRecord extends AbstractGradeRecord {
     public void setLetterEarned(String letterEarned)
     {
     	this.letterEarned = letterEarned;
+    }
+    
+    public boolean isUserAbleToView() {
+    	return userAbleToView;
+    }
+    public void setUserAbleToView(boolean userAbleToView) {
+    	this.userAbleToView = userAbleToView;
     }
 
     public AssignmentGradeRecord clone()

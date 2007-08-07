@@ -36,6 +36,7 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
+import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradableObject;
@@ -301,17 +302,45 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 		setSortColumn(getPreferencesBean().getRosterTableSortColumn());
 		setSortAscending(getPreferencesBean().isRosterTableSortAscending());
 
-		Map enrollmentMap = getOrderedEnrollmentMap();
+		Map enrollmentMap = getOrderedEnrollmentMapForAllItems();
 
-		List workingEnrollments = new ArrayList(enrollmentMap.values());
+		List workingEnrollments = new ArrayList(enrollmentMap.keySet());
 
 		if (isEnrollmentSort()) {
 			return workingEnrollments;
 		}
+		
+		Map studentIdItemIdFunctionMap = new HashMap();
+		for (Iterator enrIter = workingEnrollments.iterator(); enrIter.hasNext();) {
+        	EnrollmentRecord enr = (EnrollmentRecord) enrIter.next();
+        	if (enr != null) {
+        		String studentId = enr.getUser().getUserUid();      		
+        		Map itemFunctionMap = (Map)enrollmentMap.get(enr);
+        		
+				studentIdItemIdFunctionMap.put(studentId, itemFunctionMap);
+        	}
+        }
 
-		List rosterGradeRecords = getGradebookManager().getAllAssignmentGradeRecords(getGradebookId(), enrollmentMap.keySet());
+		List rosterGradeRecords = getGradebookManager().getAllAssignmentGradeRecords(getGradebookId(), studentIdItemIdFunctionMap.keySet());
 		Map gradeRecordMap = new HashMap();
-		getGradebookManager().addToGradeRecordMap(gradeRecordMap, rosterGradeRecords);
+		
+		if (!isUserAbleToGradeAll() && isUserHasGraderPermissions()) {
+			getGradebookManager().addToGradeRecordMap(gradeRecordMap, rosterGradeRecords, studentIdItemIdFunctionMap);
+			// we need to re-sort these records b/c some may actually be null based upon permissions.
+			// retrieve updated grade recs from gradeRecordMap
+			List updatedGradeRecs = new ArrayList();
+			for (Iterator iter = gradeRecordMap.keySet().iterator(); iter.hasNext();) {
+				String studentId = (String)iter.next();
+				Map itemIdGradeRecMap = (Map)gradeRecordMap.get(studentId);
+				if (!itemIdGradeRecMap.isEmpty()) {
+					updatedGradeRecs.addAll(itemIdGradeRecMap.values());
+				}
+			}
+			Collections.sort(updatedGradeRecs, AssignmentGradeRecord.calcComparator);
+			rosterGradeRecords = updatedGradeRecs;
+		} else {
+			getGradebookManager().addToGradeRecordMap(gradeRecordMap, rosterGradeRecords);
+		}
 		if (logger.isDebugEnabled()) logger.debug("init - gradeRecordMap.keySet().size() = " + gradeRecordMap.keySet().size());
 
 		List assignments = null;
@@ -366,19 +395,24 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 		setSortColumn(getPreferencesBean().getAssignmentDetailsTableSortColumn());
 		setSortAscending(getPreferencesBean().isAssignmentDetailsTableSortAscending());
 
-		Map enrollmentMap = getOrderedEnrollmentMap();
-
-		if (isEnrollmentSort()) {
-			return new ArrayList(enrollmentMap.values());
-		}
-
 		List assignGradeRecords = new ArrayList();
 		List enrollments = new ArrayList();
-		List studentUids = new ArrayList(enrollmentMap.keySet());
 
 		Long assignmentIdAsLong = getAssignmentIdAsLong();
 		if (assignmentIdAsLong != null) {
 			Assignment prevAssignment = getGradebookManager().getAssignment(assignmentIdAsLong);
+			Category category = prevAssignment.getCategory();
+			Long catId = null;
+			if (category != null)
+				catId = category.getId();
+			
+			Map enrollmentMap = getOrderedStudentIdEnrollmentMapForItem(catId);
+			if (isEnrollmentSort()) {
+				return new ArrayList(enrollmentMap.values());
+			}
+			
+			List studentUids = new ArrayList(enrollmentMap.keySet());
+			
 			if (getGradeEntryByPoints())
 				assignGradeRecords = getGradebookManager().getAssignmentGradeRecords(prevAssignment, studentUids);
 			else if (getGradeEntryByPercent() || getGradeEntryByLetter())

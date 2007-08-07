@@ -30,12 +30,14 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.service.gradebook.shared.UnknownUserException;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.AssignmentGradeRecord;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Comment;
+import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.GradableObject;
 import org.sakaiproject.tool.gradebook.Gradebook;
@@ -60,6 +62,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     private boolean assignmentsReleased;
     private boolean anyNotCounted;
     private boolean anyExternallyMaintained = false;
+    private boolean isAllItemsViewOnly = true;
 
     private boolean sortAscending;
     private String sortColumn;
@@ -183,6 +186,8 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     public void init() {
     	// Get the active gradebook
     	gradebook = getGradebook();
+    	
+    	isAllItemsViewOnly = true;
 
     	// Set the display name
     	try {
@@ -293,6 +298,14 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     }
     
     /**
+     * if all items are "view-only", we need to disable the action buttons
+     * @return
+     */
+    public boolean isAllItemsViewOnly() {
+    	return isAllItemsViewOnly;
+    }
+    
+    /**
      * 
      * @return true if the gradebook contains any externally maintained assignments
      */
@@ -337,14 +350,41 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     		logger.debug(assignments.size() + " total assignments");
     		logger.debug(gradeRecords.size()  +"  grade records");
     	}
+    	
+		boolean userHasGraderPerms;
+		if (isUserAbleToGradeAll())
+			userHasGraderPerms = false;
+		else if (isUserHasGraderPermissions())
+			userHasGraderPerms = true;
+		else
+			userHasGraderPerms = false;
+		
+		Map viewableAssignmentsMap = new HashMap();
+		if (userHasGraderPerms) {
+			viewableAssignmentsMap = getGradebookPermissionService().getAvailableItemsForStudent(gradebook.getId(), getUserUid(), studentUid, getAllSections());
+		}
 
     	// Create a map of assignments to assignment grade rows
     	Map asnMap = new HashMap();
     	for(Iterator iter = assignments.iterator(); iter.hasNext();) {
 
     		Assignment asn = (Assignment)iter.next();
-    		asnMap.put(asn, new AssignmentGradeRow(asn, gradebook));
+
+    		if (userHasGraderPerms) {
+    			String function = (String)viewableAssignmentsMap.get(asn.getId());
+    			if (function != null) {
+    				boolean userCanGrade = function.equalsIgnoreCase(GradebookService.gradePermission);
+    				if (userCanGrade)
+    					isAllItemsViewOnly = false;
+    				asnMap.put(asn, new AssignmentGradeRow(asn, gradebook, userCanGrade));
+    			}
+    		} else {
+    			asnMap.put(asn, new AssignmentGradeRow(asn, gradebook, true));
+    			isAllItemsViewOnly = false;
+    		}
     	}
+    	
+    	assignments = new ArrayList(asnMap.keySet());
 
     	for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
     		AssignmentGradeRecord asnGr = (AssignmentGradeRecord)iter.next();
@@ -450,7 +490,7 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     	
     	// do not retrieve assignments if not displayed for students
     	if (assignmentsReleased || isInstructorView) {
-
+    		
     		//get grade comments and load them into a map assignmentId->comment
     		commentMap = new HashMap();
     		List assignmentComments = getGradebookManager().getStudentAssignmentComments(studentUid, gradebook.getId());
@@ -470,11 +510,25 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     		if (getCategoriesEnabled()) {
     			// we will also have to determine the student's category avg - the category stats
     			// are for class avg
-    			List categoryList = new ArrayList();
+    			List categoryListWithCG = new ArrayList();
     			if (sortColumn.equals(Category.SORT_BY_WEIGHT))
-    				categoryList = getGradebookManager().getCategoriesWithStats(getGradebookId(), Assignment.DEFAULT_SORT, true, sortColumn, sortAscending);
+    				categoryListWithCG = getGradebookManager().getCategoriesWithStats(getGradebookId(), Assignment.DEFAULT_SORT, true, sortColumn, sortAscending);
     			else
-    				categoryList = getGradebookManager().getCategoriesWithStats(getGradebookId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
+    				categoryListWithCG = getGradebookManager().getCategoriesWithStats(getGradebookId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
+  
+    			List categoryList = new ArrayList();
+    			
+    			// first, remove the CourseGrade from the Category list
+    			for (Iterator catIter = categoryListWithCG.iterator(); catIter.hasNext();) {
+    				Object catOrCourseGrade = catIter.next();
+    				if (catOrCourseGrade instanceof Category) {
+    					categoryList.add((Category)catOrCourseGrade);
+    				} 
+    			}
+    			
+    			if (!isUserAbleToGradeAll() && isUserHasGraderPermissions()) {
+    				categoryList = getGradebookPermissionService().getCategoriesForUserForStudentView(getGradebookId(), getUserUid(), studentUid, categoryList, getGradebook().getCategory_type(), getViewableSectionIds());
+    			}
     			
     			// first, we deal with the categories and their associated assignments
     			if (categoryList != null && !categoryList.isEmpty()) {
@@ -496,25 +550,30 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     					}
     				}
     			}
+    			
     			// now we need to grab all of the assignments w/o a category
-    			List assignNoCat = getGradebookManager().getAssignmentsWithNoCategory(getGradebookId(), Assignment.DEFAULT_SORT, true);
-    			if (assignNoCat != null && !assignNoCat.isEmpty()) {
-    				Category unassignedCat = new Category();
-    				unassignedCat.setGradebook(gradebook);
-    				unassignedCat.setName(getLocalizedString("cat_unassigned"));
-    				unassignedCat.setAssignmentList(assignNoCat);
+    			if (!isUserAbleToGradeAll() && (isUserHasGraderPermissions() && !getGradebookPermissionService().getPermissionForUserForAllAssignmentForStudent(getGradebookId(), getUserUid(), studentUid, getViewableSectionIds()))) {
+    				// user is not authorized to view/grade the unassigned category for the current student
+    			} else {
+    				List assignNoCat = getGradebookManager().getAssignmentsWithNoCategory(getGradebookId(), Assignment.DEFAULT_SORT, true);
+    				if (assignNoCat != null && !assignNoCat.isEmpty()) {
+    					Category unassignedCat = new Category();
+    					unassignedCat.setGradebook(gradebook);
+    					unassignedCat.setName(getLocalizedString("cat_unassigned"));
+    					unassignedCat.setAssignmentList(assignNoCat);
 
-    				//add this category to our list
-    				gradebookItems.add(unassignedCat);
+    					//add this category to our list
+    					gradebookItems.add(unassignedCat);
 
-    				// now create grade rows for the unassigned assignments
-    				List gradeRows = retrieveGradeRows(assignNoCat, gradeRecords);
-    				/*  we display N/A for the category avg for unassigned category,
-    				 * so don't need to calc this anymore
+    					// now create grade rows for the unassigned assignments
+    					List gradeRows = retrieveGradeRows(assignNoCat, gradeRecords);
+    					/*  we display N/A for the category avg for unassigned category,
+    					 * so don't need to calc this anymore
     				 if (!getWeightingEnabled())
     					unassignedCat.calculateStatisticsPerStudent(gradeRecords, studentUid);*/
-    				if (gradeRows != null && !gradeRows.isEmpty()) {
-    					gradebookItems.addAll(gradeRows);
+    					if (gradeRows != null && !gradeRows.isEmpty()) {
+    						gradebookItems.addAll(gradeRows);
+    					}
     				}
     			}
 

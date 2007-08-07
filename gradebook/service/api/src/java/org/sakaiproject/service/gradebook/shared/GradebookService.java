@@ -102,11 +102,11 @@ public interface GradebookService {
     public boolean isGradebookDefined(String gradebookUid);
 
 	/**
-	 * Check to see if the current user is allowed to grade the given student in
+	 * Check to see if the current user is allowed to grade the given item for the given student in
 	 * the given gradebook. This will give clients a chance to avoid a security
 	 * exception.
 	 */
-	public boolean isUserAbleToGradeStudent(String gradebookUid,
+	public boolean isUserAbleToGradeItemForStudent(String gradebookUid, Long itemId,
 			String studentUid);
 
 	/**

@@ -66,19 +66,23 @@ public class AssignmentPointsConverter extends PointsConverter {
 			} else if (value instanceof AssignmentGradeRecord) {
 				Gradebook gradebook = ((GradableObject)((AbstractGradeRecord)value).getGradableObject()).getGradebook();
 				int gradeType = gradebook.getGrade_type();
-				
-				if(gradeType == GradebookService.GRADE_TYPE_POINTS ){
-					//if grade by points and no category weighting
-					workingValue = ((AbstractGradeRecord)value).getPointsEarned();	
-				} else if (gradeType == GradebookService.GRADE_TYPE_LETTER) {
-					workingValue = ((AssignmentGradeRecord)value).getLetterEarned();
+				AssignmentGradeRecord agr = (AssignmentGradeRecord)value;
+				if (agr.isUserAbleToView()) {
+					if(gradeType == GradebookService.GRADE_TYPE_POINTS ){
+						//if grade by points and no category weighting
+						workingValue = ((AbstractGradeRecord)value).getPointsEarned();	
+					} else if (gradeType == GradebookService.GRADE_TYPE_LETTER) {
+						workingValue = agr.getLetterEarned();
+					} else {
+						//display percentage
+						percentage = true;
+						workingValue = agr.getPercentEarned();
+					}
 				} else {
-					//display percentage
-					percentage = true;
-					workingValue = ((AssignmentGradeRecord)value).getPercentEarned();
+					workingValue = " ";
 				}
-				
-				Assignment assignment = ((AssignmentGradeRecord)value).getAssignment();
+
+				Assignment assignment = agr.getAssignment();
 				notCounted = assignment.isNotCounted();
 				// if weighting enabled, item is only counted if assigned
 				// a category

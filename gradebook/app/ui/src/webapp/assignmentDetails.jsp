@@ -137,7 +137,7 @@
 				styleClass="active"
 				value="#{msgs.assignment_details_submit}"
 				actionListener="#{assignmentDetailsBean.processUpdateScores}"
-				disabled="#{assignmentDetailsBean.assignment.externallyMaintained}"
+				disabled="#{assignmentDetailsBean.assignment.externallyMaintained || assignmentDetailsBean.allStudentsViewOnly}"
 				rendered="#{!assignmentDetailsBean.emptyEnrollments}"
 				accesskey="s"
 				tabindex="9998"
@@ -146,7 +146,7 @@
 				id="cancelButton1"
 				value="#{msgs.assignment_details_cancel}"
 				action="assignmentDetails"
-				disabled="#{assignmentDetailsBean.assignment.externallyMaintained}"
+				disabled="#{assignmentDetailsBean.assignment.externallyMaintained || assignmentDetailsBean.allStudentsViewOnly}"
 				rendered="#{!assignmentDetailsBean.emptyEnrollments}"
 				accesskey="c"
 				immediate="true"
@@ -213,7 +213,7 @@
 				</f:facet>
 
 				<t:div>
-					<h:panelGroup rendered="#{!assignmentDetailsBean.assignment.externallyMaintained}">
+					<h:panelGroup rendered="#{!assignmentDetailsBean.assignment.externallyMaintained && scoreRow.userCanGrade}">
 						<h:inputText id="Score" value="#{scoreRow.score}" size="6" 
 							 rendered="#{assignmentDetailsBean.gradeEntryByPoints || assignmentDetailsBean.gradeEntryByPercent}"
 							 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
@@ -228,7 +228,7 @@
 						</h:inputText>
 						
 					</h:panelGroup>
-					<h:panelGroup rendered="#{assignmentDetailsBean.assignment.externallyMaintained}">
+					<h:panelGroup rendered="#{assignmentDetailsBean.assignment.externallyMaintained || !scoreRow.userCanGrade}">
 						<h:outputText value="#{scoreRow.score}" rendered="#{assignmentDetailsBean.gradeEntryByPoints || assignmentDetailsBean.gradeEntryByPercent}">
 							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
 						</h:outputText>
@@ -247,7 +247,7 @@
 						<h:commandButton
 							value="#{assignmentDetailsBean.commentsToggle}"
 							actionListener="#{assignmentDetailsBean.toggleEditableComments}"
-							disabled="#{assignmentDetailsBean.assignment.externallyMaintained}"
+							disabled="#{assignmentDetailsBean.assignment.externallyMaintained || assignmentDetailsBean.allStudentsViewOnly}"
 							rendered="#{!assignmentDetailsBean.allCommentsEditable}"/>
 						<h:outputText
 							value="#{assignmentDetailsBean.commentsToggle}"
@@ -282,7 +282,7 @@
 				styleClass="active"
 				value="#{msgs.assignment_details_submit}"
 				actionListener="#{assignmentDetailsBean.processUpdateScores}"
-				disabled="#{assignmentDetailsBean.assignment.externallyMaintained}"
+				disabled="#{assignmentDetailsBean.assignment.externallyMaintained || assignmentDetailsBean.allStudentsViewOnly}"
 				rendered="#{!assignmentDetailsBean.emptyEnrollments}"
 				tabindex="9998"
 				title="#{msgs.assignment_details_submit}"/>
@@ -291,7 +291,7 @@
 				value="#{msgs.assignment_details_cancel}"
 				action="assignmentDetails"
 				immediate="true"
-				disabled="#{assignmentDetailsBean.assignment.externallyMaintained}"
+				disabled="#{assignmentDetailsBean.assignment.externallyMaintained || assignmentDetailsBean.allStudentsViewOnly}"
 				rendered="#{!assignmentDetailsBean.emptyEnrollments}"
 				tabindex="9999"
 				title="#{msgs.assignment_details_cancel}">

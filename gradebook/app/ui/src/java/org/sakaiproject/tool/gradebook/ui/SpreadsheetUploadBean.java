@@ -107,7 +107,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
         //initialize rosteMap which is map of displayid and user objects
         rosterMap = new HashMap();
-        List  enrollments = getAvailableEnrollments();
+        List  enrollments = new ArrayList(findMatchingEnrollmentsForAllItems(null, null).keySet());
         if(logger.isDebugEnabled()) logger.debug("enrollment size " +enrollments.size());
 
         Iterator iter;
@@ -124,7 +124,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 
 		// The first choice is always "Unassigned"
 		categoriesSelectList.add(new SelectItem(AssignmentBean.UNASSIGNED_CATEGORY, FacesUtil.getLocalizedString("cat_unassigned")));
-		List gbCategories = getAvailableCategories();
+		List gbCategories = getViewableCategories();
 		if (gbCategories != null && gbCategories.size() > 0)
 		{
 			Iterator catIter = gbCategories.iterator();

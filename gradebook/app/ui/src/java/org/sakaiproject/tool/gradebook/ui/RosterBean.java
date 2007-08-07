@@ -4,7 +4,7 @@
 *
 ***********************************************************************************
 *
-* Copyright (c) 2005 The Regents of the University of California, The MIT Corporation
+* Copyright (c) 2005, 2006, 2007 The Regents of the University of California, The MIT Corporation
 *
 * Licensed under the Educational Community License, Version 1.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -43,6 +43,7 @@ import javax.faces.component.UIParameter;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
+import javax.faces.event.ValueChangeEvent;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -78,6 +79,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 	// View maintenance fields - serializable.
 	private List gradableObjectColumns;	// Needed to build table columns
     private List workingEnrollments;
+    private Map enrollmentMap;
     
     private CourseGrade avgCourseGrade;
     
@@ -184,104 +186,205 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 		
 		//get the selected categoryUID 
 		String selectedCategoryUid = getSelectedCategoryUid();
-
-		CourseGrade courseGrade = getGradebookManager().getCourseGrade(getGradebookId());
-		//first add Cumulative if not a selected category
-		if(selectedCategoryUid == null){
-			gradableObjectColumns.add(new GradableObjectColumn(courseGrade));
+		
+		CourseGrade courseGrade = null;
+		if (isUserAbleToGradeAll()) {
+			courseGrade = getGradebookManager().getCourseGrade(getGradebookId());
+			// first add Cumulative if not a selected category
+			if(selectedCategoryUid == null){
+				gradableObjectColumns.add(new GradableObjectColumn(courseGrade));
+			}	
 		}
 		
-		
-		//next get all of the categories
-		List categories = getGradebookManager().getCategoriesWithStats(getGradebookId(),Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
-		int categoryCount = categories.size();
-		
-		for (Iterator iter = categories.iterator(); iter.hasNext(); ){
-			Object obj = iter.next();
-			if(!(obj instanceof Category)){
-				if(obj instanceof CourseGrade){
-					avgCourseGrade = (CourseGrade) obj;
-				}
-				continue;
-			}
-			Category cat = (Category) obj;
+		List categories = new ArrayList();
+		if (getCategoriesEnabled()) {
+			//next get all of the categories
+			List categoryListWithCG = getGradebookManager().getCategoriesWithStats(getGradebookId(),Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
 
-			if(selectedCategoryUid == null || selectedCategoryUid.equals(cat.getId().toString())){
+			// first, remove the CourseGrade from the Category list
+			for (Iterator catIter = categoryListWithCG.iterator(); catIter.hasNext();) {
+				Object catOrCourseGrade = catIter.next();
+				if (catOrCourseGrade instanceof Category) {
+					categories.add((Category)catOrCourseGrade);
+				} 
+			}
 			
-				//get the category column
-				GradableObjectColumn categoryColumn = new GradableObjectColumn();
-				String name = cat.getName();
-				if(getWeightingEnabled()){
-					//if weighting is enabled, then add "(weight)" to column
-					Double value = (Double) ((Number)cat.getWeight());
-					name = name + " (" +  NumberFormat.getNumberInstance().format(value * 100.0) + "%)";
-					//name = name + " (" + Integer.toString(cat.getWeight() * 100) + "%)";
-				}
-				categoryColumn.setName(name);
-				categoryColumn.setId(cat.getId());
-				categoryColumn.setCategoryColumn(true);
+			if (!isUserAbleToGradeAll() && isUserHasGraderPermissions()) {
+				categories = getGradebookPermissionService().getCategoriesForUser(getGradebookId(), getUserUid(), categories, getGradebook().getCategory_type());
+			}
+
+			int categoryCount = categories.size();
+			
+			for (Iterator iter = categories.iterator(); iter.hasNext(); ){
+				Category cat = (Category) iter.next();
+	
+				if(selectedCategoryUid == null || selectedCategoryUid.equals(cat.getId().toString())){
 				
-				//if selectedCategoryUID, then we want the category first, otherwise after
-				if(selectedCategoryUid != null) {
-					gradableObjectColumns.add(categoryColumn);
+					//get the category column
+					GradableObjectColumn categoryColumn = new GradableObjectColumn();
+					String name = cat.getName();
+					if(getWeightingEnabled()){
+						//if weighting is enabled, then add "(weight)" to column
+						Double value = (Double) ((Number)cat.getWeight());
+						name = name + " (" +  NumberFormat.getNumberInstance().format(value * 100.0) + "%)";
+						//name = name + " (" + Integer.toString(cat.getWeight() * 100) + "%)";
+					}
+					categoryColumn.setName(name);
+					categoryColumn.setId(cat.getId());
+					categoryColumn.setCategoryColumn(true);
+					
+					//if selectedCategoryUID, then we want the category first, otherwise after
+					if(selectedCategoryUid != null) {
+						gradableObjectColumns.add(categoryColumn);
+					}
+					
+					//add assignments
+					List assignments = getGradebookManager().getAssignmentsForCategory(cat.getId());
+					for (Iterator assignmentsIter = assignments.iterator(); assignmentsIter.hasNext();){
+						gradableObjectColumns.add(new GradableObjectColumn((GradableObject)assignmentsIter.next()));
+					}
+					//if not selectedCategoryUID, then add category field after
+					if(selectedCategoryUid == null) {
+						gradableObjectColumns.add(categoryColumn);
+					}
 				}
-				
-				//add assignments
-				List assignments = getGradebookManager().getAssignmentsForCategory(cat.getId());
-				for (Iterator assignmentsIter = assignments.iterator(); assignmentsIter.hasNext();){
-					gradableObjectColumns.add(new GradableObjectColumn((GradableObject)assignmentsIter.next()));
-				}
-				//if not selectedCategoryUID, then add category field after
-				if(selectedCategoryUid == null) {
-					gradableObjectColumns.add(categoryColumn);
+			}
+			if(selectedCategoryUid == null){
+				if (!isUserAbleToGradeAll() && (isUserHasGraderPermissions() && !getGradebookPermissionService().getPermissionForUserForAllAssignment(getGradebookId(), getUserUid()))) {
+					// not allowed to view the unassigned category
+				} else {
+					//get Assignments with no category
+					List unassignedAssignments = getGradebookManager().getAssignmentsWithNoCategory(getGradebookId(), Assignment.DEFAULT_SORT, true);
+					int unassignedAssignmentCount = unassignedAssignments.size();
+					for (Iterator assignmentsIter = unassignedAssignments.iterator(); assignmentsIter.hasNext(); ){
+						gradableObjectColumns.add(new GradableObjectColumn((GradableObject) assignmentsIter.next()));
+					}
+					//If there are categories and there are unassigned assignments, then display Unassigned Category column
+					if (getCategoriesEnabled() && unassignedAssignmentCount > 0){
+						//add Unassigned column
+						GradableObjectColumn unassignedCategoryColumn = new GradableObjectColumn();
+						unassignedCategoryColumn.setName(FacesUtil.getLocalizedString("cat_unassigned"));
+						unassignedCategoryColumn.setCategoryColumn(true);
+						gradableObjectColumns.add(unassignedCategoryColumn);
+					}
 				}
 			}
 		}
-		if(selectedCategoryUid == null){
-			//get Assignments with no category
-			List unassignedAssignments = getGradebookManager().getAssignmentsWithNoCategory(getGradebookId(), Assignment.DEFAULT_SORT, true);
-			int unassignedAssignmentCount = unassignedAssignments.size();
-			for (Iterator assignmentsIter = unassignedAssignments.iterator(); assignmentsIter.hasNext(); ){
+		
+		List allAssignments = getGradebookManager().getAssignments(getGradebookId());
+		if (isRefreshRoster()) {
+			enrollmentMap = getOrderedEnrollmentMapForAllItems(); // Map of EnrollmentRecord --> Map of Item --> function (grade/view)
+			setRefreshRoster(false);
+		}
+		Map studentIdEnrRecMap = new HashMap();
+        Map studentIdItemIdFunctionMap = new HashMap();
+        
+        // get all of the items included in the item --> function map for each viewable enrollee
+		List viewableAssignmentIds = new ArrayList();
+        for (Iterator enrIter = enrollmentMap.keySet().iterator(); enrIter.hasNext();) {
+        	EnrollmentRecord enr = (EnrollmentRecord) enrIter.next();
+        	if (enr != null) {
+        		String studentId = enr.getUser().getUserUid();
+        		studentIdEnrRecMap.put(studentId, enr);
+        		
+        		Map itemFunctionMap = (Map)enrollmentMap.get(enr);
+        		
+				studentIdItemIdFunctionMap.put(studentId, itemFunctionMap);
+				if (itemFunctionMap != null) {
+	        		for (Iterator itemIter = itemFunctionMap.keySet().iterator(); itemIter.hasNext();) {
+	        			Long itemId = (Long) itemIter.next();
+	        			if (itemId != null) {
+	        				viewableAssignmentIds.add(itemId);
+	        			}
+	        		}
+				}
+        	}
+        }
+        
+        Map viewableAssignmentMap = new HashMap();
+        if (!allAssignments.isEmpty()) {
+        	for (Iterator assignIter = allAssignments.iterator(); assignIter.hasNext();) {
+        		Assignment assignment = (Assignment) assignIter.next();
+        		if (assignment != null) {
+        			Long assignId = assignment.getId();
+        			if (viewableAssignmentIds.contains(assignId)) {
+        				viewableAssignmentMap.put(assignId, assignment);
+        			}
+        		}
+        	}
+        }
+        
+        List assignments = new ArrayList(viewableAssignmentMap.values());
+		List gradeRecords = getGradebookManager().getAllAssignmentGradeRecordsConverted(getGradebookId(), new ArrayList(studentIdEnrRecMap.keySet()));
+        
+		if (!getCategoriesEnabled()) {
+			int unassignedAssignmentCount = assignments.size();
+			for (Iterator assignmentsIter = assignments.iterator(); assignmentsIter.hasNext(); ){
 				gradableObjectColumns.add(new GradableObjectColumn((GradableObject) assignmentsIter.next()));
 			}
-			//If there are categories and there are unassigned assignments, then display Unassigned Category column
-			if (getCategoriesEnabled() && unassignedAssignmentCount > 0){
-				//add Unassigned column
-				GradableObjectColumn unassignedCategoryColumn = new GradableObjectColumn();
-				unassignedCategoryColumn.setName(FacesUtil.getLocalizedString("cat_unassigned"));
-				unassignedCategoryColumn.setCategoryColumn(true);
-				gradableObjectColumns.add(unassignedCategoryColumn);
-			}
 		}
 		
-        Map enrollmentMap = getOrderedEnrollmentMap();
-
-		List gradeRecords = getGradebookManager().getAllAssignmentGradeRecordsConverted(getGradebookId(), enrollmentMap.keySet());
-        workingEnrollments = new ArrayList(enrollmentMap.values());
+		workingEnrollments = new ArrayList(enrollmentMap.keySet());
 
         gradeRecordMap = new HashMap();
-        getGradebookManager().addToGradeRecordMap(gradeRecordMap, gradeRecords);
+        if (!isUserAbleToGradeAll() && isUserHasGraderPermissions()) {
+        	// first, add dummy grade records for all of the missing "unviewable" grade records
+        	// this will allow us to display grade entries that are not viewable differently
+        	// than null grade records
+        	for (Iterator studentIter = studentIdItemIdFunctionMap.keySet().iterator(); studentIter.hasNext();) {
+        		String studentId = (String)studentIter.next();
+        		if (studentId != null) {
+        			Map itemIdFunctionMap = (Map)studentIdItemIdFunctionMap.get(studentId);
+        			for (Iterator itemIter = allAssignments.iterator(); itemIter.hasNext();) {
+        				Assignment assign = (Assignment) itemIter.next();
+        				if (assign != null) {
+        					Long itemId = assign.getId();
+        					if (itemIdFunctionMap == null || itemIdFunctionMap.get(itemId) == null){
+        						AssignmentGradeRecord agr = new AssignmentGradeRecord(assign, studentId, null);
+        						gradeRecords.add(agr);
+        					}
+        				}
+        			}
+        		}
+        	}
+        	
+        	getGradebookManager().addToGradeRecordMap(gradeRecordMap, gradeRecords, studentIdItemIdFunctionMap);
+        	
+        	
+        } else {
+        	getGradebookManager().addToGradeRecordMap(gradeRecordMap, gradeRecords);
+        }
 		if (logger.isDebugEnabled()) logger.debug("init - gradeRecordMap.keySet().size() = " + gradeRecordMap.keySet().size());
-
-		List assignments = null;
-		if(selectedCategoryUid == null) {
-			assignments = getGradebookManager().getAssignments(getGradebookId());
-		} else {
-			assignments = getGradebookManager().getAssignmentsForCategory(getSelectedSectionFilterValue().longValue());
+		
+		if (!isEnrollmentSort() && !isUserAbleToGradeAll() && isUserHasGraderPermissions()) {
+			// we need to re-sort these records b/c some may actually be null based upon permissions.
+			// retrieve updated grade recs from gradeRecordMap
+			List updatedGradeRecs = new ArrayList();
+			for (Iterator iter = gradeRecordMap.keySet().iterator(); iter.hasNext();) {
+				String studentId = (String)iter.next();
+				Map itemIdGradeRecMap = (Map)gradeRecordMap.get(studentId);
+				if (!itemIdGradeRecMap.isEmpty()) {
+					updatedGradeRecs.addAll(itemIdGradeRecMap.values());
+				}
+			}
+			Collections.sort(updatedGradeRecs, AssignmentGradeRecord.calcComparator);
+			gradeRecords = updatedGradeRecs;
 		}
-			
-		List courseGradeRecords = getGradebookManager().getPointsEarnedCourseGradeRecords(courseGrade, enrollmentMap.keySet(), assignments, gradeRecordMap);
-		Collections.sort(courseGradeRecords, CourseGradeRecord.calcComparator);
-        getGradebookManager().addToGradeRecordMap(gradeRecordMap, courseGradeRecords);
-        gradeRecords.addAll(courseGradeRecords);
+		
+		// only display course grade if user has "grade all" perm
+		if (isUserAbleToGradeAll()) {
+			List courseGradeRecords = getGradebookManager().getPointsEarnedCourseGradeRecords(courseGrade, studentIdEnrRecMap.keySet(), assignments, gradeRecordMap);
+			Collections.sort(courseGradeRecords, CourseGradeRecord.calcComparator);
+	        getGradebookManager().addToGradeRecordMap(gradeRecordMap, courseGradeRecords);
+	        gradeRecords.addAll(courseGradeRecords);
+		}
         
         //do category results
         categoryResultMap = new HashMap();
-        getGradebookManager().addToCategoryResultMap(categoryResultMap, categories, gradeRecordMap, enrollmentMap);
+        getGradebookManager().addToCategoryResultMap(categoryResultMap, categories, gradeRecordMap, studentIdEnrRecMap);
         if (logger.isDebugEnabled()) logger.debug("init - categoryResultMap.keySet().size() = " + categoryResultMap.keySet().size());
 
-        
-        
+
         if (!isEnrollmentSort()) {
         	// Need to sort and page based on a scores column.
         	String sortColumn = getSortColumn();
@@ -289,7 +392,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 			for(Iterator iter = gradeRecords.iterator(); iter.hasNext();) {
 				AbstractGradeRecord agr = (AbstractGradeRecord)iter.next();
 				if(getColumnHeader(agr.getGradableObject()).equals(sortColumn)) {
-					scoreSortedEnrollments.add(enrollmentMap.get(agr.getStudentId()));
+					scoreSortedEnrollments.add(studentIdEnrRecMap.get(agr.getStudentId()));
 				}
 			}
 
@@ -473,8 +576,8 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
                 
 
                 // Distinguish the "Cumulative" score for the course, which, by convention,
-                // is always the first column.
-                if (colpos == 0) {
+                // is always the first column. Only viewable if user has Grade All perm
+                if (colpos == 0 && (isUserAbleToGradeAll() || getSelectedCategoryUid() != null)) {
                 	contents.setStyleClass("courseGrade center");
                 }
 
@@ -494,6 +597,13 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 
 	public List getStudentRows() {
 		return studentRows;
+	}
+	
+	public String getColLock() {
+		if (isUserAbleToGradeAll() || getSelectedCategoryUid() != null)
+			return "3";
+		else
+			return "2";
 	}
 
 	// Sorting
@@ -568,40 +678,80 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
     public void exportCsv(ActionEvent event){
         if(logger.isInfoEnabled()) logger.info("exporting roster as CSV for gradebook " + getGradebookUid());
         getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadRoster","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
-        SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(true), 
+        if (isUserAbleToGradeAll()) {
+        	SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(true), 
         		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
         		new SpreadsheetDataFileWriterCsv());
+        } else {
+        	SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(false), 
+            		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
+            		new SpreadsheetDataFileWriterCsv());
+        }
     }
 
     public void exportExcel(ActionEvent event){
         if(logger.isInfoEnabled()) logger.info("exporting roster as Excel for gradebook " + getGradebookUid());
         String authzLevel = (getGradebookBean().getAuthzService().isUserAbleToGradeAll(getGradebookUid())) ?"instructor" : "TA";
         getGradebookBean().getEventTrackingService().postEvent("gradebook.downloadRoster","/gradebook/"+getGradebookId()+"/"+getAuthzLevel());
-        SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(true), 
+        if (isUserAbleToGradeAll()) {
+        	SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(true), 
         		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
         		new SpreadsheetDataFileWriterXls());
+        } else {
+        	SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(false), 
+            		getDownloadFileName(getLocalizedString("export_gradebook_prefix")), 
+            		new SpreadsheetDataFileWriterXls());
+        }
     }
     
     private List<List<Object>> getSpreadsheetData(boolean includeCourseGrade) {
     	// Get the full list of filtered enrollments and scores (not just the current page's worth).
-    	List filteredEnrollments = getWorkingEnrollments();
+    	Map enrRecItemIdFunctionMap = getOrderedEnrollmentMapForAllItems();
+    	List filteredEnrollments = new ArrayList(enrRecItemIdFunctionMap.keySet());  
     	Collections.sort(filteredEnrollments, ENROLLMENT_NAME_COMPARATOR);
     	Set<String> studentUids = new HashSet<String>();
+    	
+    	Map studentIdItemIdFunctionMap = new HashMap();
+    	List availableItems = new ArrayList();
     	for (Iterator iter = filteredEnrollments.iterator(); iter.hasNext(); ) {
     		EnrollmentRecord enrollment = (EnrollmentRecord)iter.next();
-    		studentUids.add(enrollment.getUser().getUserUid());
+    		String studentUid = enrollment.getUser().getUserUid();
+    		studentUids.add(studentUid);
+    		
+    		Map itemIdFunctionMap = (Map)enrRecItemIdFunctionMap.get(enrollment);
+    		studentIdItemIdFunctionMap.put(studentUid, itemIdFunctionMap);
+    		// get the actual items to determine the gradable objects
+    		if (!itemIdFunctionMap.isEmpty()) {
+    			availableItems.addAll(itemIdFunctionMap.keySet());
+    		}
     	}
 
 		Map filteredGradesMap = new HashMap();
 		List gradeRecords = getGradebookManager().getAllAssignmentGradeRecordsConverted(getGradebookId(), studentUids);
-
-        getGradebookManager().addToGradeRecordMap(filteredGradesMap, gradeRecords);
+		
+		if (!isUserAbleToGradeAll() && isUserHasGraderPermissions()) {
+			getGradebookManager().addToGradeRecordMap(filteredGradesMap, gradeRecords, studentIdItemIdFunctionMap);
+		} else {
+			getGradebookManager().addToGradeRecordMap(filteredGradesMap, gradeRecords);
+		}
         
-		List gradableObjects = getGradebookManager().getAssignments(getGradebookId());
-		CourseGrade courseGrade = getGradebookManager().getCourseGrade(getGradebookId());
-		List courseGradeRecords = getGradebookManager().getPointsEarnedCourseGradeRecords(courseGrade, studentUids, gradableObjects, filteredGradesMap);
-        getGradebookManager().addToGradeRecordMap(filteredGradesMap, courseGradeRecords);
-        gradableObjects.add(courseGrade);
+		List gradableObjects = new ArrayList();
+		List allAssignments = getGradebookManager().getAssignments(getGradebookId());
+		if (!allAssignments.isEmpty()) {
+			for (Iterator assignIter = allAssignments.iterator(); assignIter.hasNext();) {
+				Assignment assign = (Assignment) assignIter.next();
+				if (availableItems.contains(assign.getId())) {
+					gradableObjects.add(assign);
+				}
+			}
+		}
+		
+		if (isUserAbleToGradeAll()) {
+			CourseGrade courseGrade = getGradebookManager().getCourseGrade(getGradebookId());
+			List courseGradeRecords = getGradebookManager().getPointsEarnedCourseGradeRecords(courseGrade, studentUids, gradableObjects, filteredGradesMap);
+	        getGradebookManager().addToGradeRecordMap(filteredGradesMap, courseGradeRecords);
+	        gradableObjects.add(courseGrade);
+		}
     	return getSpreadsheetData(filteredEnrollments, filteredGradesMap, gradableObjects, includeCourseGrade);
     }
  
@@ -656,7 +806,10 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
         		Object score = null;
         		String letterScore = null;
         		if (studentMap != null) {
-        			AbstractGradeRecord gradeRecord = (AbstractGradeRecord)studentMap.get(((GradableObject)gradableObject).getId()); 
+        			Long gradableObjectId = ((GradableObject)gradableObject).getId();
+        			
+        			AbstractGradeRecord gradeRecord = (AbstractGradeRecord)studentMap.get(gradableObjectId); 
+
         			if (gradeRecord != null) {
         				if (gradeRecord.isCourseGradeRecord()) { 
         					if (includeCourseGrade) {

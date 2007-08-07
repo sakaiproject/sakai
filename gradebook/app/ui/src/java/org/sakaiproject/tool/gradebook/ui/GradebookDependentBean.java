@@ -24,16 +24,21 @@ package org.sakaiproject.tool.gradebook.ui;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.section.api.SectionAwareness;
+import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
 import org.sakaiproject.tool.gradebook.facades.Authn;
@@ -134,6 +139,10 @@ public abstract class GradebookDependentBean extends InitializableBean {
 	public Authn getAuthnService() {
 		return getGradebookBean().getAuthnService();
 	}
+	
+	public GradebookPermissionService getGradebookPermissionService() {
+		return getGradebookBean().getGradebookPermissionService();
+	}
 
 	// Because these methods are referred to inside "rendered" tag attributes,
 	// JSF will call them multiple times in every request. To cut back on
@@ -154,37 +163,112 @@ public abstract class GradebookDependentBean extends InitializableBean {
 		}
 		return userAbleToGradeAll.booleanValue();
 	}
-	private transient Map userAbleToGradeSectionMap;
-	public boolean isUserAbleToGradeSection(String sectionUid) {
-		if (userAbleToGradeSectionMap == null) {
-			userAbleToGradeSectionMap = new HashMap();
-		}
-		Boolean isAble = (Boolean)userAbleToGradeSectionMap.get(sectionUid);
-		if (isAble == null) {
-			isAble = new Boolean(getGradebookBean().getAuthzService().isUserAbleToGradeSection(sectionUid));
-			userAbleToGradeSectionMap.put(sectionUid, isAble);
-		}
-		return isAble.booleanValue();
-	}
 
-	public List getAvailableEnrollments() {
-		return getGradebookBean().getAuthzService().getAvailableEnrollments(getGradebookUid());
-	}
-
-	public List getAvailableSections() {
-		return getGradebookBean().getAuthzService().getAvailableSections(getGradebookUid());
+	private transient List viewableSections;
+	public List getViewableSections() {
+		if (viewableSections == null) {
+			viewableSections = getGradebookBean().getAuthzService().getViewableSections(getGradebookUid());	
+		}
+		
+		return viewableSections;
 	}
 	
-	public List getAvailableCategories() {
-		return getGradebookManager().getCategories(getGradebookId());
+	private transient List viewableSectionIds;
+	public List getViewableSectionIds() {
+		if (viewableSectionIds == null) {
+			viewableSectionIds = new ArrayList();
+			
+			List sectionList = getViewableSections();
+			if (sectionList == null || sectionList.isEmpty()) {
+				return viewableCategoryIds;
+			}
+			
+			if (!sectionList.isEmpty()) {
+				for (Iterator sectionIter = sectionList.iterator(); sectionIter.hasNext();) {
+					CourseSection section = (CourseSection) sectionIter.next();
+					if (section != null) {
+						viewableSectionIds.add(section.getUuid());
+					}
+				}
+			}
+		}
+		return viewableSectionIds;
 	}
-
-	public List getSectionEnrollments(String sectionUid) {
-		return getGradebookBean().getAuthzService().getSectionEnrollments(getGradebookUid(), sectionUid);
+	
+	private transient Boolean userHasGraderPermissions;
+	public boolean isUserHasGraderPermissions() {
+		if (userHasGraderPermissions == null) {
+			userHasGraderPermissions = new Boolean(getGradebookBean().getAuthzService().isUserHasGraderPermissions(getGradebookId(), getUserUid()));
+		}
+		
+		return userHasGraderPermissions.booleanValue();
 	}
-
-	public List findMatchingEnrollments(String searchString, String optionalSectionUid) {
-		return getGradebookBean().getAuthzService().findMatchingEnrollments(getGradebookUid(), searchString, optionalSectionUid);
+	
+	private transient Boolean userHasPermissionsForAllItems;
+	public boolean isUserHasPermissionsForAllItems() {
+		if (userHasPermissionsForAllItems == null) {
+			userHasPermissionsForAllItems = new Boolean(getGradebookBean().getGradebookPermissionService().getPermissionForUserForAllAssignment(getGradebookId(), getUserUid()));
+		}
+		
+		return userHasPermissionsForAllItems.booleanValue();
+	}
+	
+	private transient List viewableCategories;
+	public List getViewableCategories() {
+		if (viewableCategories == null) {
+			viewableCategories = new ArrayList();
+			
+			List categoryList = getGradebookManager().getCategories(getGradebookId());
+			if (categoryList == null || categoryList.isEmpty()) {
+				return viewableCategories;
+			}
+			
+			if (isUserAbleToGradeAll()) {
+				viewableCategories = categoryList;
+			} else {
+				if (getGradebookBean().getAuthzService().isUserHasGraderPermissions(getGradebookId(), getUserUid())) {
+					viewableCategories = getGradebookBean().getGradebookPermissionService().getCategoriesForUser(getGradebookId(), getUserUid(), categoryList, getGradebook().getCategory_type());
+				} else {
+					viewableCategories = categoryList;
+				}
+			}
+		}
+		return viewableCategories;
+	}
+	
+	private transient List viewableCategoryIds;
+	public List getViewableCategoryIds() {
+		if (viewableCategoryIds == null) {
+			viewableCategoryIds = new ArrayList();
+			
+			List categoryList = getViewableCategories();
+			if (categoryList == null || categoryList.isEmpty()) {
+				return viewableCategoryIds;
+			}
+			
+			if (!categoryList.isEmpty()) {
+				for (Iterator catIter = categoryList.iterator(); catIter.hasNext();) {
+					Category category = (Category) catIter.next();
+					if (category != null) {
+						viewableCategoryIds.add(category.getId());
+					}
+				}
+			}
+		}
+		return viewableCategories;
+	}
+	
+	
+	public Map findMatchingEnrollmentsForItem(Long categoryId, String optionalSearchString, String optionalSectionUid) {
+		return getGradebookBean().getAuthzService().findMatchingEnrollmentsForItem(getGradebookUid(), categoryId, optionalSearchString, optionalSectionUid);
+	}
+	
+	public Map findMatchingEnrollmentsForAllItems(String optionalSearchString, String optionalSectionUid) {
+		return getGradebookBean().getAuthzService().findMatchingEnrollmentsForViewableItems(getGradebookUid(), optionalSearchString, optionalSectionUid);
+	}
+	
+	public Map findMatchingEnrollmentsForViewableCourseGrade(String optionalSearchString, String optionalSectionUid) {
+		return getGradebookBean().getAuthzService().findMatchingEnrollmentsForViewableCourseGrade(getGradebookUid(), optionalSearchString, optionalSectionUid);
 	}
 	
 	public List getAllSections() {

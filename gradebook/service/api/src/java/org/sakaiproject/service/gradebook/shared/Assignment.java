@@ -34,6 +34,7 @@ public class Assignment implements Serializable {
 	private static final long serialVersionUID = 1L;
 
     private String name;
+    private Long id;
     private Double points;
     private Date dueDate;
     private boolean counted;
@@ -53,6 +54,14 @@ public class Assignment implements Serializable {
 	 */
 	public String getName() {
 		return name;
+	}
+	
+	/**
+	 * 
+	 * @return Returns the ID of the assignment in the gradebook
+	 */
+	public Long getId() {
+		return id;
 	}
 
 	/**
@@ -137,6 +146,10 @@ public class Assignment implements Serializable {
 
 	public void setReleased(boolean released) {
 		this.released = released;
+	}
+	
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 }

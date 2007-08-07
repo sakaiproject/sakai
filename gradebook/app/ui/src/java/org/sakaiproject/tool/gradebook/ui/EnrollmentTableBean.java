@@ -98,6 +98,8 @@ public abstract class EnrollmentTableBean
     private int scoreDataRows;
     private boolean emptyEnrollments;	// Needed to render buttons
     private String defaultSearchString;
+    
+    private boolean refreshRoster=true; // To prevent unnecessary roster loading
 
 	// The section selection menu will include some choices that aren't
 	// real sections (e.g., "All Sections" or "Unassigned Students".
@@ -144,15 +146,18 @@ public abstract class EnrollmentTableBean
     public void search(ActionEvent event) {
         // We don't need to do anything special here, since init will handle the search
         if (log.isDebugEnabled()) log.debug("search");
+        setRefreshRoster(true);
     }
     public void clear(ActionEvent event) {
         if (log.isDebugEnabled()) log.debug("clear");
         setSearchString(null);
+        setRefreshRoster(true);
     }
 
     // Sorting
     public void sort(ActionEvent event) {
         setFirstRow(0); // clear the paging whenever we update the sorting
+        setRefreshRoster(true);
     }
 
     public abstract boolean isSortAscending();
@@ -199,53 +204,198 @@ public abstract class EnrollmentTableBean
 	private boolean isFilteredSearch() {
         return !StringUtils.equals(searchString, defaultSearchString);
 	}
-
-	protected Map getOrderedEnrollmentMap() {
-        List enrollments = getWorkingEnrollments();
+	
+	/**
+	 * 
+	 * @return Map of EnrollmentRecord to Map of gbItems and function (grade/view). 
+	 * 			This is the group of students viewable on the roster page
+	 */
+	protected Map getOrderedEnrollmentMapForAllItems() {
+        Map enrollments = getWorkingEnrollmentsForAllItems();
 
 		scoreDataRows = enrollments.size();
 		emptyEnrollments = enrollments.isEmpty();
 
-		return transformToOrderedEnrollmentMap(enrollments);
+		return transformToOrderedEnrollmentMapForAllItems(enrollments);
 	}
+	
+	/**
+	 * 
+	 * @return Map of studentId to EnrollmentRecord in order. This is the group of
+	 * 			students viewable for the course grade page
+	 */
+	protected Map getOrderedEnrollmentMapForCourseGrades() {
+		Map enrollments = getWorkingEnrollmentsForCourseGrade();
+		
+		scoreDataRows = enrollments.size();
+		emptyEnrollments = enrollments.isEmpty();
+		
+		return transformToOrderedEnrollmentMapWithFunction(enrollments);
+	}
+	
+	/**
+	 * 
+	 * @param itemId
+	 * @param categoryId
+	 * @return Map of studentId to EnrollmentRecord in order. This is the group of
+	 * 			students viewable for a particular category associated with gb item
+	 */
+	protected Map getOrderedEnrollmentMapForItem(Long categoryId) {
+		Map enrollments = getWorkingEnrollmentsForItem(categoryId);
+		
+		scoreDataRows = enrollments.size();
+		emptyEnrollments = enrollments.isEmpty();
+		
+		return transformToOrderedEnrollmentMapWithFunction(enrollments);
+	}
+	
+	/**
+	 * 
+	 * @param categoryId - optional category filter
+	 * @return Map of studentId to EnrollmentRecord in order.
+	 */
+	protected Map getOrderedStudentIdEnrollmentMapForItem(Long categoryId) {
+		Map enrollments = getWorkingEnrollmentsForItem(categoryId);
+		
+		scoreDataRows = enrollments.size();
+		emptyEnrollments = enrollments.isEmpty();
+		
+		return transformToOrderedEnrollmentMap(new ArrayList(enrollments.keySet()));
+	}
+	
+	protected Map getWorkingEnrollmentsForAllItems() {
+		Map enrollments;
 
-	protected List getWorkingEnrollments() {
-		List enrollments;
-
+		String selSearchString = null;
 		if (isFilteredSearch()) {
-			String sectionUid;
-			if (isAllSectionsSelected()) {
-				sectionUid = null;
-			} else {
-				sectionUid = getSelectedSectionUid();
-			}
-			enrollments = findMatchingEnrollments(searchString, sectionUid);
-		} else if (isAllSectionsSelected()) {
-			enrollments = getAvailableEnrollments();
-		} else {
-			// The user has selected a particular section.
-			enrollments = getSectionEnrollments(getSelectedSectionUid());
+			selSearchString = searchString;
 		}
+		
+		String selSectionUid = null;
+		if (!isAllSectionsSelected()) {
+			selSectionUid = getSelectedSectionUid();
+		}
+		
+		enrollments = findMatchingEnrollmentsForAllItems(selSearchString, selSectionUid);
 
 		return enrollments;
 	}
+	
+	protected Map getWorkingEnrollmentsForItem(Long categoryId) {
+		Map enrollments;
+		String selSearchString = null;
+		if (isFilteredSearch()) {
+			selSearchString = searchString;
+		}
+		
+		String selSectionUid = null;
+		if (!isAllSectionsSelected()) {
+			selSectionUid = getSelectedSectionUid();
+		}
+		
+		enrollments = findMatchingEnrollmentsForItem(categoryId, selSearchString, selSectionUid);
 
-	private Map transformToOrderedEnrollmentMap(List enrollments) {
+		return enrollments;
+	}
+	
+	/**
+	 * 
+	 * @return Map of EnrollmentRecord --> function (view/grade) that the current user
+	 * has grade/view permission for every gb item
+	 */
+	protected Map getWorkingEnrollmentsForCourseGrade() {
+		Map enrollments;
+		String selSearchString = null;
+		if (isFilteredSearch()) {
+			selSearchString = searchString;
+		}
+		
+		String selSectionUid = null;
+		if (!isAllSectionsSelected()) {
+			selSectionUid = getSelectedSectionUid();
+		}
+		
+		enrollments = findMatchingEnrollmentsForViewableCourseGrade(selSearchString, selSectionUid);
+
+		return enrollments;
+	}
+	
+	/**
+	 * 
+	 * @param enrollmentList - list of EnrollmentRecords
+	 * @return Ordered Map of student Id to EnrollmentRecord 
+	 */
+	private Map transformToOrderedEnrollmentMap(List enrollmentList) {
 		Map enrollmentMap;
+
 		if (isEnrollmentSort()) {
-			Collections.sort(enrollments, (Comparator)columnSortMap.get(getSortColumn()));
-			enrollments = finalizeSortingAndPaging(enrollments);
+			Collections.sort(enrollmentList, (Comparator)columnSortMap.get(getSortColumn()));
+			enrollmentList = finalizeSortingAndPaging(enrollmentList);
 			enrollmentMap = new LinkedHashMap();	// Preserve ordering
         } else {
         	enrollmentMap = new HashMap();
         }
 
-        for (Iterator iter = enrollments.iterator(); iter.hasNext(); ) {
+        for (Iterator iter = enrollmentList.iterator(); iter.hasNext(); ) {
         	EnrollmentRecord enr = (EnrollmentRecord)iter.next();
         	enrollmentMap.put(enr.getUser().getUserUid(), enr);
         }
 
         return enrollmentMap;
+	}
+	
+	/**
+	 * 
+	 * @param enrollmentMap - map of EnrollmentRecord --> function
+	 * @return Ordered Map of student Id to map of EnrollmentRecord to function
+	 */
+	private Map transformToOrderedEnrollmentMapWithFunction(Map enrRecFunctionMap) {
+		Map studentIdEnrRecFunctionMap;
+		Map enrollmentMap;
+		List enrollmentList = new ArrayList(enrRecFunctionMap.keySet());
+
+		if (isEnrollmentSort()) {
+			Collections.sort(enrollmentList, (Comparator)columnSortMap.get(getSortColumn()));
+			enrollmentList = finalizeSortingAndPaging(enrollmentList);
+			enrollmentMap = new LinkedHashMap();	// Preserve ordering
+        } else {
+        	enrollmentMap = new HashMap();
+        }
+
+        for (Iterator iter = enrollmentList.iterator(); iter.hasNext(); ) {
+        	EnrollmentRecord enr = (EnrollmentRecord)iter.next();
+        	Map newEnrRecFunctionMap = new HashMap();
+        	newEnrRecFunctionMap.put(enr, enrRecFunctionMap.get(enr));
+        	enrollmentMap.put(enr.getUser().getUserUid(), newEnrRecFunctionMap);
+        }
+
+        return enrollmentMap;
+	}
+	
+	/**
+	 * 
+	 * @param enrollmentMapAllItems
+	 * @return an ordered map of EnrollmentRecords to a map of gb Items to function (grade/view)
+	 */
+	private Map transformToOrderedEnrollmentMapForAllItems(Map enrollmentMapAllItems) {
+		Map enrollmentMap;
+
+		List enrRecList = new ArrayList(enrollmentMapAllItems.keySet());
+
+		if (isEnrollmentSort()) {
+			Collections.sort(enrRecList, (Comparator)columnSortMap.get(getSortColumn()));
+			enrRecList = finalizeSortingAndPaging(enrRecList);
+			enrollmentMap = new LinkedHashMap();	// Preserve ordering
+		} else {
+			enrollmentMap = new HashMap();
+		}
+
+		for (Iterator iter = enrRecList.iterator(); iter.hasNext(); ) {
+			EnrollmentRecord enr = (EnrollmentRecord)iter.next();
+			enrollmentMap.put(enr, (Map)enrollmentMapAllItems.get(enr));
+		}
+
+		return enrollmentMap;
 	}
 
 	protected List finalizeSortingAndPaging(List list) {
@@ -277,7 +427,7 @@ public abstract class EnrollmentTableBean
 		}
 
 		// Section filtering.
-		availableSections = getAvailableSections();
+		availableSections = getViewableSections();
 		sectionFilterSelectItems = new ArrayList();
 
 		// The first choice is always "All available enrollments"
@@ -300,7 +450,7 @@ public abstract class EnrollmentTableBean
 		}
 
 		// Category filtering
-		availableCategories = getAvailableCategories();
+		availableCategories = getViewableCategories();
 		categoryFilterSelectItems = new ArrayList();
 		
 		// The first choice is always "All Categories"
@@ -327,7 +477,7 @@ public abstract class EnrollmentTableBean
 			return null;
 		} else {
 			if (availableSections == null) 
-				availableSections = getAvailableSections();
+				availableSections = getViewableSections();
 			CourseSection section = (CourseSection)availableSections.get(filterValue);
 			return section.getUuid();
 		}
@@ -340,6 +490,7 @@ public abstract class EnrollmentTableBean
 		if (!selectedSectionFilterValue.equals(this.selectedSectionFilterValue)) {
 			this.selectedSectionFilterValue = selectedSectionFilterValue;
 			setFirstRow(0); // clear the paging when we update the search
+			setRefreshRoster(true);
 		}
 	}
 
@@ -383,6 +534,7 @@ public abstract class EnrollmentTableBean
 		if (!selectedCategoryFilterValue.equals(this.selectedCategoryFilterValue)) {
 			this.selectedCategoryFilterValue = selectedCategoryFilterValue;
 			setFirstRow(0); // clear the paging when we update the search
+			setRefreshRoster(true);
 		}
 	}
 	
@@ -391,6 +543,7 @@ public abstract class EnrollmentTableBean
 		if (!newValue.equals(this.selectedCategoryFilterValue)) {
 			this.selectedCategoryFilterValue = newValue;
 			setFirstRow(0); // clear the paging when we update the search
+			setRefreshRoster(true);
 		}
 	}
 	
@@ -400,6 +553,13 @@ public abstract class EnrollmentTableBean
 
     public boolean isEmptyEnrollments() {
         return emptyEnrollments;
+    }
+    
+    public boolean isRefreshRoster() {
+    	return refreshRoster;
+    }
+    public void setRefreshRoster(boolean refreshRoster) {
+    	this.refreshRoster = refreshRoster;
     }
 
     // Map grader UIDs to grader names for the grading event log.

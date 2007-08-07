@@ -23,6 +23,7 @@
 package org.sakaiproject.tool.gradebook.facades;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Facade to external role and authorization service.
@@ -30,57 +31,83 @@ import java.util.List;
 public interface Authz {
 	public boolean isUserAbleToGrade(String gradebookUid);
 	public boolean isUserAbleToGradeAll(String gradebookUid);
-	public boolean isUserAbleToGradeSection(String sectionUid);
 	public boolean isUserAbleToEditAssessments(String gradebookUid);
 	public boolean isUserAbleToViewOwnGrades(String gradebookUid);
+	public boolean isUserHasGraderPermissions(String gradebookUid);
+	public boolean isUserHasGraderPermissions(Long gradebookId, String userUid);
 
 	/**
-	 * This method is used by the external gradebook service but not
-	 * by the gradebook application itself.
+	 * 
+	 * @param gradebookUid
+	 * @param itemId
+	 * @param studentUid
+	 * @return is user authorized to grade this gradebook item for this student?
+	 * 		first checks for special grader perms. if none, uses default perms
 	 */
-	public boolean isUserAbleToGradeStudent(String gradebookUid, String studentUid);
-
+	public boolean isUserAbleToGradeItemForStudent(String gradebookUid, Long itemId, String studentUid)  throws IllegalArgumentException;
+	
 	/**
-	 * @return
-	 *	an EnrollmentRecord list for each student that the current user
-	 *  is allowed to grade.
+	 * 
+	 * @param gradebookUid
+	 * @param itemName
+	 * @param studentUid
+	 * @return is user authorized to grade this gradebook item for this student?
+	 * 		first checks for special grader perms. if none, uses default perms
 	 */
-	public List getAvailableEnrollments(String gradebookUid);
-
-	/**
-	 * @return
-	 *	a CourseSection list for each group that the current user
-	 *  belongs to.
-	 */
-	public List getAvailableSections(String gradebookUid);
+	public boolean isUserAbleToGradeItemForStudent(String gradebookUid, String itemName, String studentUid) throws IllegalArgumentException;
 	
 	/**
 	 * @param gradebookUid
 	 * @return all of the CourseSections for this site
 	 */
 	public List getAllSections(String gradebookUid);
-
+	
 	/**
-	 * The section enrollment list will not be returned unless the user
-	 * has access to it.
-	 *
-	 * @return
-	 *  an EnrollmentRecord list for all the students in the given group.
+	 * 
+	 * @param gradebookUid
+	 * @return all CourseSections that the current user may view or grade
 	 */
-	public List getSectionEnrollments(String gradebookUid, String sectionUid);
-
+	public List getViewableSections(String gradebookUid);
+	
 	/**
-	 * @param searchString
-	 *  a substring search for student name or display UID; the exact rules are
-	 *  up to the implementation
-	 *
+	 * 
+	 * @param gradebookUid
+	 * @param categoryId
+	 * 			The category id that the desired item is associated with
+	 * @param optionalSearchString
+	 * 			a substring search for student name or display UID; the exact rules are
+	 *  		up to the implementation - leave null to use all students
 	 * @param optionalSectionUid
-	 *  null if the search should be made across all sections
-	 *
-	 * @return
-	 *  an EnrollmentRecord list for all matching available students.
+	 * 			null if the search should be made across all sections
+	 * @return a map of EnrollmentRecords to grade/view permission that the current user is authorized to
+	 * 			view or grade for the given gradebook item
 	 */
-	public List findMatchingEnrollments(String gradebookUid, String searchString, String optionalSectionUid);
+	public Map findMatchingEnrollmentsForItem(String gradebookUid, Long categoryId, String optionalSearchString, String optionalSectionUid);
+	
+	/**
+	 * 
+	 * @param gradebookUid
+	 * @param optionalSearchString
+	 * @param optionalSectionUid
+	 * @return Map of EnrollmentRecord --> function (grade/view) for all students that the current user has permission to
+	 * 			view/grade every item in the gradebook. If he/she can grade everything, GRADE function is
+	 * 			returned. Otherwise, function is VIEW. May only modify course grade if he/she can grade
+	 * 			everything in the gradebook for that student. If he/she can grade only a subset of the items, the
+	 * 			student is not returned.
+	 */
+	public Map findMatchingEnrollmentsForViewableCourseGrade(String gradebookUid, String optionalSearchString, String optionalSectionUid);
+	/**
+	 * 
+	 * @param gradebookUid
+	 * @param optionalSearchString
+	 * 			a substring search for student name or display UID; the exact rules are
+	 *  		up to the implementation - leave null to use all students
+	 * @param optionalSectionUid
+	 * 			null if the search should be made across all sections
+	 * @return a map of EnrollmentRecords to a map of item id and function (grade/view) that the user is
+	 * 			authorized to view/grade
+	 */
+	public Map findMatchingEnrollmentsForViewableItems(String gradebookUid, String optionalSearchString, String optionalSectionUid);
 	
 	/**
 	 * 

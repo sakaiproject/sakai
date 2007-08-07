@@ -41,6 +41,11 @@
 			<property-name>eventTrackingService</property-name>
 			<value>#{org_sakaiproject_tool_gradebook_facades_EventTrackingService}</value>
 		</managed-property>
+		<managed-property>
+			<description>Gradebook Permission Service</description>
+			<property-name>gradebookPermissionService</property-name>
+			<value>#{org_sakaiproject_service_gradebook_GradebookPermissionService}</value>
+		</managed-property>
         <managed-property>
 			<property-name>configurationBean</property-name>
 			<value>#{configurationBean}</value>

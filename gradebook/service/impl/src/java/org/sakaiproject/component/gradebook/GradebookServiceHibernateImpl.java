@@ -32,7 +32,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -93,8 +92,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		return (authz.isUserAbleToEditAssessments(gradebookUid) || authz.isUserAbleToGrade(gradebookUid));
 	}
 
-	public boolean isUserAbleToGradeStudent(String gradebookUid, String studentUid) {
-		return getAuthz().isUserAbleToGradeStudent(gradebookUid, studentUid);
+	public boolean isUserAbleToGradeItemForStudent(String gradebookUid, Long itemId, String studentUid) {
+		return getAuthz().isUserAbleToGradeItemForStudent(gradebookUid, itemId, studentUid);
 	}
 
 	public List<org.sakaiproject.service.gradebook.shared.Assignment> getAssignments(String gradebookUid)
@@ -147,22 +146,24 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     	assignmentDefinition.setExternalAppName(internalAssignment.getExternalAppName());
     	assignmentDefinition.setExternalId(internalAssignment.getExternalId());
     	assignmentDefinition.setReleased(internalAssignment.isReleased());
+    	assignmentDefinition.setId(internalAssignment.getId());
     	return assignmentDefinition;
     }
 
 	public Double getAssignmentScore(final String gradebookUid, final String assignmentName, final String studentUid)
 		throws GradebookNotFoundException, AssessmentNotFoundException {
 		final boolean studentRequestingOwnScore = authn.getUserUid().equals(studentUid);
-		if (!studentRequestingOwnScore && !isUserAbleToGradeStudent(gradebookUid, studentUid)) {
-			log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to retrieve grade for student " + studentUid);
-			throw new SecurityException("You do not have permission to perform this operation");
-		}
 
 		Double assignmentScore = (Double)getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
 				Assignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentName, session);
 				if (assignment == null) {
 					throw new AssessmentNotFoundException("There is no assignment named " + assignmentName + " in gradebook " + gradebookUid);
+				}
+				
+				if (!studentRequestingOwnScore && !isUserAbleToGradeItemForStudent(gradebookUid, assignment.getId(), studentUid)) {
+					log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to retrieve grade for student " + studentUid + " for assignment " + assignmentName);
+					throw new SecurityException("You do not have permission to perform this operation");
 				}
 				
 				// If this is the student, then the assignment needs to have
@@ -187,10 +188,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 	public void setAssignmentScore(final String gradebookUid, final String assignmentName, final String studentUid, final Double score, final String clientServiceDescription)
 		throws GradebookNotFoundException, AssessmentNotFoundException {
-		if (!isUserAbleToGradeStudent(gradebookUid, studentUid)) {
-			log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to grade student " + studentUid + " from " + clientServiceDescription);
-			throw new SecurityException("You do not have permission to perform this operation");
-		}
+
 
 		getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
@@ -200,6 +198,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				}
 				if (assignment.isExternallyMaintained()) {
 					log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to grade externally maintained assignment " + assignmentName + " from " + clientServiceDescription);
+					throw new SecurityException("You do not have permission to perform this operation");
+				}
+
+				if (!isUserAbleToGradeItemForStudent(gradebookUid, assignment.getId(), studentUid)) {
+					log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to grade student " + studentUid + " from " + clientServiceDescription + " for item " + assignmentName);
 					throw new SecurityException("You do not have permission to perform this operation");
 				}
 
@@ -483,11 +486,12 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 			Map enrollmentMap;
 			String userUid = authn.getUserUid();
-			List enrollments = authz.getAvailableEnrollments(gradebookUid);
+			
+			Map viewableEnrollmentsMap = authz.findMatchingEnrollmentsForViewableCourseGrade(gradebookUid, null, null);
 			enrollmentMap = new HashMap();
 
 			Map enrollmentMapUid = new HashMap();
-			for (Iterator iter = enrollments.iterator(); iter.hasNext(); ) 
+			for (Iterator iter = viewableEnrollmentsMap.keySet().iterator(); iter.hasNext(); ) 
 			{
 				EnrollmentRecord enr = (EnrollmentRecord)iter.next();
 				enrollmentMap.put(enr.getUser().getUserUid(), enr);

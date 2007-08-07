@@ -121,6 +121,18 @@ public interface GradebookManager {
     
     public List<CourseGradeRecord> getPointsEarnedCourseGradeRecords(CourseGrade courseGrade, Collection studentUids, Collection assignments, Map scoreMap);
     public void addToGradeRecordMap(Map gradeRecordMap, List gradeRecords);
+    
+    /**
+     * Adds student grade records to map but takes into account grader permissions
+     * passed as studentIdItemIdFunctionMap. If not allowed to view/grade item, grade record is
+     * set to null
+     * @param gradeRecordMap
+     * @param gradeRecords
+     * @param studentIdItemIdFunctionMap
+     * 			Map of studentId to Map of Item to function (grade/view)
+     */
+    public void addToGradeRecordMap(Map gradeRecordMap, List gradeRecords, Map studentIdItemIdFunctionMap);
+    
     public void addToCategoryResultMap(Map categoryResultMap, List categories, Map gradeRecordMap, Map enrollmentMap);
    
     /**
@@ -494,6 +506,12 @@ public interface GradebookManager {
      */
     public List getCategoriesWithStats(Long gradebookId, String assignmentSort, boolean assignAscending, String categorySort, boolean categoryAscending);
     
+    /**
+     * 
+     * @param gradebookId
+     * @return list of categories with populated assignmentList
+     */ 
+    public List getCategoriesWithAssignments(Long gradebookId) ;
     
     /**
      * Get all assignments with no categories
@@ -645,6 +663,15 @@ public interface GradebookManager {
      */
     public List getPermissionsForGB(Long gradebookId)
     throws IllegalArgumentException;
+    
+    /**
+     * Get all permissions for a given list of category Ids
+     * @param gradebookId
+     * @param cateIds
+     * @return List of permissions
+     * @throws IllegalArgumentException
+     */
+    public List getPermissionsForGBForCategoryIds(final Long gradebookId, final List cateIds) throws IllegalArgumentException;
 
     /**
      * Update permissions.

@@ -38,11 +38,18 @@ public class AssignmentGradeRow implements Serializable {
     private String letterScore;
     private List eventRows;
     private String eventsLogTitle;
+    private boolean userCanGrade;
 
     public AssignmentGradeRow(Assignment assignment, Gradebook gradebook) {
     	this.assignment = assignment;
     	this.gradebook = gradebook;
     	commentText = "";
+    }
+    public AssignmentGradeRow(Assignment assignment, Gradebook gradebook, boolean userCanGrade) {
+    	this.assignment = assignment;
+    	this.gradebook = gradebook;
+    	commentText = "";
+    	this.userCanGrade = userCanGrade;
     }
     public void setGradeRecord(AssignmentGradeRecord gradeRecord) {
     	this.gradeRecord = gradeRecord;
@@ -123,6 +130,13 @@ public class AssignmentGradeRow implements Serializable {
      */
     public boolean isAssignment() {
     	return true;
+    }
+    
+    public boolean isUserCanGrade() {
+    	return userCanGrade;
+    }
+    public void setUserCanGrader(boolean userCanGrade) {
+    	this.userCanGrade = userCanGrade;
     }
 
 }

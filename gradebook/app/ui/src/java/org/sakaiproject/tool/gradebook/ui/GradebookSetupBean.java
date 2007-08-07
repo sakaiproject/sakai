@@ -39,6 +39,7 @@ import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.LetterGradePercentMapping;
+import org.sakaiproject.tool.gradebook.Permission;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
 import org.sakaiproject.service.gradebook.shared.ConflictingCategoryNameException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -245,6 +246,21 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 					getGradebookManager().removeCategory(removeCat.getId());
 				}
 			}
+			
+			// check to see if any permissions need to be removed
+			List sections = getAllSections();
+			List gbPermissions = getGradebookManager().getPermissionsForGB(localGradebook.getId());
+			if (gbPermissions != null) {
+				for (Iterator permIter = gbPermissions.iterator(); permIter.hasNext();) {
+					Permission perm = (Permission) permIter.next();
+					// if there is a specific category associated with this permission or if
+					// there are no sections defined in the site, we need to delete this permission
+					if (perm.getCategoryId() != null || sections == null || sections.size() == 0) {
+						logger.debug("Permission " + perm.getId() + " was deleted b/c gb changed to no categories");
+						getGradebookManager().deletePermission(perm);
+					}
+				}
+			}
 
 			getGradebookManager().updateGradebook(localGradebook);
 			reset();
@@ -365,6 +381,15 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 			while (removeIter.hasNext()) {
 				Long removeId = (Long) removeIter.next();
 				getGradebookManager().removeCategory(removeId);
+			}
+			
+			List permsToRemove = getGradebookManager().getPermissionsForGBForCategoryIds(localGradebook.getId(), categoriesToRemove);
+			if (!permsToRemove.isEmpty()) {
+				for (Iterator permIter = permsToRemove.iterator(); permIter.hasNext();) {
+					Permission perm = (Permission) permIter.next();
+					logger.debug("Permission " + perm.getId() + " was deleted b/c category deleted");
+					getGradebookManager().deletePermission(perm);
+				}
 			}
 		}
 

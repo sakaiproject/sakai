@@ -24,7 +24,7 @@
   	<h:panelGrid cellpadding="0" cellspacing="0" columns="2"
 			columnClasses="itemName"
 			styleClass="itemSummary"
-			rendered="#{roster.userAbleToGradeAll}">
+			rendered="#{rosterBean.userAbleToGradeAll}">
 			<h:outputText id="courseGradeLabel" value="#{msgs.avg_course_grade_name}"  />
 			<h:panelGroup>
 				<h:outputText id="letterGrade" value="#{rosterBean.avgCourseGradeLetter} " />
@@ -45,7 +45,7 @@
 		</t:aliasBean>
 
 		<gbx:spreadsheetUI 
-			colLock="3"
+			colLock="#{rosterBean.colLock}"
 			initialHeight="200px"
 			value="#{rosterBean.studentRows}" 
 			binding="#{rosterBean.rosterDataTable}" 
