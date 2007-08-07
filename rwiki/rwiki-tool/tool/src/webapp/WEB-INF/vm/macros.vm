@@ -27,7 +27,7 @@ var placementid = "Main${request.getAttribute("sakai.tool.placement.id").toStrin
 ##  debug output will appear on the screnn
 ##
 <OBJECT classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" 
- codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0" 
+ codebase="https://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0" 
  WIDTH="1" HEIGHT="1" id="localstore" ALIGN="" >
  <PARAM NAME="movie" VALUE="/sakai-rwiki-tool/scripts/localstore.swf"> 
  <PARAM NAME="quality" VALUE="high"> 
@@ -44,7 +44,7 @@ var placementid = "Main${request.getAttribute("sakai.tool.placement.id").toStrin
  swLiveConnect="true"
  ALIGN=""
  TYPE="application/x-shockwave-flash" 
- PLUGINSPAGE="http://www.macromedia.com/go/getflashplayer">
+ PLUGINSPAGE="https://www.macromedia.com/go/getflashplayer">
  </EMBED>
 </OBJECT>
 
