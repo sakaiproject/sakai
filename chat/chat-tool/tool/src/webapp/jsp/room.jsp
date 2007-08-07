@@ -1,9 +1,9 @@
 <f:view>
    <sakai:view title="#{msgs['custom.chatroom']}">
       <h:form id="topForm">
-      
       <script type="text/javascript">
-	focus_path = [ "Control", "mainForm:message" ];
+	//focus_path = [ "Control", "mainForm:message" ];
+
 </script>
       
          <sakai:tool_bar rendered="#{ChatTool.canManageTool || ChatTool.siteChannelCount > 1 || ChatTool.maintainer}">
@@ -75,7 +75,8 @@
 					marginheight="0"
 					scrolling="no"
 					style="clear:both;display:block"
-					src="roomControl">
+					src="roomControl"
+					onLoad="window.scroll(0,0);">
 				</iframe>
       </h:form>
 <!--  We can't use the sakai:courier tag because it works from the tool placement id...  and this is now specific to presence in the room  -->
