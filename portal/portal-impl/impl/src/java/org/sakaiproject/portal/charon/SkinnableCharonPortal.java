@@ -1685,7 +1685,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				} else {
 					m.put("menuClass", "icon-default-tool" );					
 				}
-				l.add(m);
+            m.put("pageProps", createPageProps(p));            
+            l.add(m);
 				continue;
 			}
 
@@ -1743,6 +1744,16 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		return theMap;
 	}
+
+   protected Map createPageProps(SitePage p) {
+      Map properties = new HashMap();
+      for (Iterator<String> i=p.getProperties().getPropertyNames();i.hasNext();) {
+         String propName = i.next();
+         properties.put(propName, p.getProperties().get(propName));
+      }
+
+      return properties;
+   }
 
 	public void includeWorksite(PortalRenderContext rcontext, HttpServletResponse res,
 			HttpServletRequest req, Session session, Site site, SitePage page,
