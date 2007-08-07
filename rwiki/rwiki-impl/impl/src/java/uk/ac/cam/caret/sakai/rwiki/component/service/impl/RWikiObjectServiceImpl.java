@@ -39,6 +39,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.db.cover.SqlService;
 import org.sakaiproject.email.api.DigestService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityAccessOverloadException;
@@ -135,6 +136,19 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 
 	private SecurityService securityService;
 
+	/** Configuration: to run the ddl on init or not. */
+	protected boolean autoDdl = false;
+
+	/**
+	 * Configuration: to run the ddl on init or not.
+	 * 
+	 * @param value
+	 *        the auto ddl value.
+	 */
+	public void setAutoDdl(String value)
+	{
+		autoDdl = new Boolean(value).booleanValue();
+	}
 	/**
 	 * Register this as an EntityProducer
 	 */
@@ -188,7 +202,21 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 					this.threadLocalManager, this.timeService,
 					this.digestService));
 		}
-
+		
+		
+		try
+		{
+			if (autoDdl)
+			{
+				SqlService.getInstance().ddl(this.getClass().getClassLoader(),
+						"sakai_rwiki");
+			}
+		}
+		catch (Exception ex)
+		{
+			log.error("Perform additional SQL setup", ex);
+		}
+		
 		log.debug("init end"); //$NON-NLS-1$
 
 	}
