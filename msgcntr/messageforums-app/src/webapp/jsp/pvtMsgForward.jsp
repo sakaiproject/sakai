@@ -136,8 +136,64 @@
                  
             </script>
             
-          
-        
+            
+            <%--********************* Attachment *********************--%>	
+
+	         <h4> <h:outputText value="#{msgs.pvt_att}"/></h4>
+
+	      
+	        	<p class="instruction"><h:outputText value="#{msgs.pvt_noatt}" rendered="#{empty PrivateMessagesTool.allAttachments}"/></p>	        
+	          <sakai:button_bar>
+	          	<sakai:button_bar_item action="#{PrivateMessagesTool.processAddAttachmentRedirect}" value="#{msgs.cdfm_button_bar_add_attachment_redirect}" accesskey="a" />
+	          </sakai:button_bar>
+	        	        
+					<h:dataTable styleClass="listHier lines nolines" id="attmsgrep" width="100%" cellpadding="0" cellspacing="0" columnClasses="bogus,itemAction specialLink,bogus,bogus"
+					             rendered="#{!empty PrivateMessagesTool.allAttachments}" value="#{PrivateMessagesTool.allAttachments}" var="eachAttach" >
+					  <h:column >
+							<f:facet name="header">
+								<h:outputText value="#{msgs.pvt_title}"/>
+							</f:facet>
+							<sakai:doc_section>
+								<h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-excel'}" alt="" />
+								<h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/html'}"  alt="" />
+								<h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/pdf'}" alt="" />
+								<h:graphicImage url="/images/ppt.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-powerpoint'}" alt="" />
+								<h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/plain'}" alt="" />
+								<h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/msword'}" alt="" />
+<%--													  <h:outputLink value="#{eachAttach.attachmentUrl}" target="_blank">
+									<h:outputText value="#{eachAttach.attachmentName}"/>
+								</h:outputLink>--%>
+							  <h:outputLink value="#{eachAttach.url}" target="_blank">
+									<h:outputText value="#{eachAttach.attachment.attachmentName}"/>
+								</h:outputLink>
+
+							</sakai:doc_section>
+						</h:column>
+						<h:column >
+							<sakai:doc_section>
+								<h:commandLink action="#{PrivateMessagesTool.processDeleteReplyAttach}" 
+									immediate="true"
+									onfocus="document.forms[0].onsubmit();">
+									<h:outputText value="#{msgs.pvt_attrem}"/>
+									<f:param value="#{eachAttach.attachment.attachmentId}" name="remsg_current_attach"/>
+								</h:commandLink>
+							</sakai:doc_section>
+							
+						</h:column>
+					  <h:column>
+							<f:facet name="header">
+								<h:outputText value="#{msgs.pvt_attsize}" />
+							</f:facet>
+							<h:outputText value="#{eachAttach.attachment.attachmentSize}"/>
+						</h:column>
+					  <h:column >
+							<f:facet name="header">
+		  			    <h:outputText value="#{msgs.pvt_atttype}" />
+							</f:facet>
+							<h:outputText value="#{eachAttach.attachment.attachmentType}"/>
+						</h:column>
+						</h:dataTable>   
+						           
       	
       <sakai:button_bar>
         <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgForwardSend}" value="#{msgs.pvt_send}" accesskey="s" styleClass="active" />
