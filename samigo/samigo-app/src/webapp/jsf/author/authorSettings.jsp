@@ -575,13 +575,30 @@ function uncheckOther(field){
           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.immediate_feedback}"/>
           <f:selectItem itemValue="4" itemLabel="#{assessmentSettingsMessages.feedback_on_submission} #{assessmentSettingsMessages.note_of_feedback_on_submission}"/>
           <f:selectItem itemValue="3" itemLabel="#{assessmentSettingsMessages.no_feedback}"/>
-          <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.feedback_by_date}"/>
+          <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.feedback_by_date} "/>
         </h:selectOneRadio>
 
-        <samigo:datePicker value="#{assessmentSettings.feedbackDateString}" size="25" id="feedbackDate" >
-          <f:convertDateTime pattern="#{generalMessages.output_date_picker}" />
-        </samigo:datePicker>
-     
+	    <h:panelGrid columns="7" >
+		  <h:outputText value=" "/>
+		  <h:outputText value=" "/>
+		  <h:outputText value=" "/>
+		  <h:outputText value=" "/>
+		  <h:outputText value=" "/>
+		  <h:outputText value=" "/>
+          <samigo:datePicker value="#{assessmentSettings.feedbackDateString}" size="25" id="feedbackDate" >
+            <f:convertDateTime pattern="#{generalMessages.output_date_picker}" />
+          </samigo:datePicker>
+        </h:panelGrid>
+
+	    <h:panelGrid columns="7" >
+		  <h:outputText value=" "/>
+		  <h:outputText value=" "/>
+		  <h:outputText value=" "/>
+		  <h:outputText value=" "/>
+		  <h:outputText value=" "/>
+		  <h:outputText value=" "/>
+          <h:outputText value="#{assessmentSettingsMessages.gradebook_note_f}" />
+        </h:panelGrid>
       </h:panelGrid>
   
 <f:verbatim></div></f:verbatim>
@@ -665,10 +682,10 @@ function uncheckOther(field){
       <h:panelGrid columns="2"  >
         <h:selectOneRadio id="toDefaultGradebook" value="#{assessmentSettings.toDefaultGradebook}"  layout="pageDirection">
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.to_no_gradebook}"/>
-          <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.to_default_gradebook}"/>
+          <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.to_default_gradebook} #{assessmentSettingsMessages.gradebook_note_g}"/>
         </h:selectOneRadio>
       </h:panelGrid>
-<f:verbatim></div></f:verbatim>
+	<f:verbatim></div></f:verbatim>
     </h:panelGroup>
 
     <!-- RECORDED SCORE AND MULTIPLES -->

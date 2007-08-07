@@ -416,9 +416,28 @@ function disableAllFeedbackCheck(feedbackType)
           <f:selectItem itemValue="3" itemLabel="#{assessmentSettingsMessages.no_feedback}"/>
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.feedback_by_date}"/>
         </h:selectOneRadio>
-        <samigo:datePicker value="#{publishedSettings.feedbackDateString}" size="25" id="feedbackDate">
-          <f:convertDateTime pattern="#{generalMessages.output_date_picker}" />
-        </samigo:datePicker>
+
+	    <h:panelGrid columns="7" >
+		  <h:outputText value=" "/>
+		  <h:outputText value=" "/>
+		  <h:outputText value=" "/>
+		  <h:outputText value=" "/>
+		  <h:outputText value=" "/>
+		  <h:outputText value=" "/>
+          <samigo:datePicker value="#{assessmentSettings.feedbackDateString}" size="25" id="feedbackDate" >
+            <f:convertDateTime pattern="#{generalMessages.output_date_picker}" />
+          </samigo:datePicker>
+        </h:panelGrid>
+
+	    <h:panelGrid columns="7" >
+		  <h:outputText value=" "/>
+		  <h:outputText value=" "/>
+		  <h:outputText value=" "/>
+		  <h:outputText value=" "/>
+		  <h:outputText value=" "/>
+		  <h:outputText value=" "/>
+          <h:outputText value="#{assessmentSettingsMessages.gradebook_note_f}" />
+        </h:panelGrid>
       </h:panelGrid>
     </h:panelGroup>
 </div><div class="longtext">
@@ -549,7 +568,7 @@ function disableAllFeedbackCheck(feedbackType)
         <h:selectOneRadio id="toDefaultGradebook"
             value="#{publishedSettings.toDefaultGradebook}"  layout="pageDirection">
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.to_no_gradebook}"/>
-          <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.to_default_gradebook}"/>
+          <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.to_default_gradebook} #{assessmentSettingsMessages.gradebook_note_g}"/>
         </h:selectOneRadio>
       </h:panelGrid>
 	<f:verbatim></div></f:verbatim>
