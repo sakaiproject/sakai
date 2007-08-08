@@ -49,7 +49,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.store.Directory;
 import org.hibernate.HibernateException;
 import org.sakaiproject.component.api.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Reference;
 // import org.sakaiproject.entity.api.Entity;
 // import org.sakaiproject.entity.api.EntityManager;
@@ -109,6 +109,8 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 
 	private DataSource dataSource = null;
 
+	private ServerConfigurationService serverConfigurationService;
+
 	public void init()
 	{
 		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager
@@ -120,8 +122,12 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 				.getName(), true);
 		rdfSearchService = (RDFSearchService) load(cm, RDFSearchService.class.getName(),
 				false);
+		
+		serverConfigurationService = (ServerConfigurationService)load(cm, ServerConfigurationService.class.getName(),
+				false);
+		
 
-		enabled = "true".equals(ServerConfigurationService.getString("search.enable",
+		enabled = "true".equals(serverConfigurationService.getString("search.enable",
 				"false"));
 
 		try
@@ -448,8 +454,8 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 								doc.add(new Field(SearchService.FIELD_TOOL,
 										filterNull(sep.getTool()), Field.Store.COMPRESS,
 										Field.Index.UN_TOKENIZED));
-								doc.add(new Field(SearchService.FIELD_URL, filterNull(sep
-										.getUrl(ref)), Field.Store.COMPRESS,
+								doc.add(new Field(SearchService.FIELD_URL, filterUrl(filterNull(sep
+										.getUrl(ref))), Field.Store.COMPRESS,
 										Field.Index.UN_TOKENIZED));
 								doc.add(new Field(SearchService.FIELD_SITEID,
 										filterNull(sep.getSiteId(ref)),
@@ -625,6 +631,23 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 			}
 		}
 
+	}
+
+	/**
+	 * @param string
+	 * @return
+	 */
+	private String filterUrl(String url)
+	{
+		String serverURL = serverConfigurationService.getServerUrl();
+		if ( url != null && url.startsWith(serverURL) ) {
+			String absUrl = url.substring(serverURL.length());
+			if ( !absUrl.startsWith("/") ) {
+				absUrl = "/" + absUrl;
+			}
+			return absUrl;
+		}
+		return url;
 	}
 
 	/**
