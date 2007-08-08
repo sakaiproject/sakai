@@ -37,6 +37,8 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.Scorer;
+import org.apache.lucene.search.highlight.SimpleHTMLEncoder;
+import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchResult;
@@ -159,14 +161,16 @@ public class SearchResultResponseImpl implements SearchResult
 
 	public String getTitle()
 	{
-		return StringUtils.escapeHtml((String) attributes
-				.get("title"), false); //$NON-NLS-1$
+		// I Have a feeling that this is not required as its already HTML Encoded
+		return (String) attributes
+				.get("title"); //$NON-NLS-1$
 	}
 
 	public String getTool()
 	{
-		return StringUtils.escapeHtml((String) attributes
-				.get("tool"), false); //$NON-NLS-1$
+		// I Have a feeling that this is not required as its already HTML encoded
+		return (String) attributes
+				.get("tool"); //$NON-NLS-1$
 
 	}
 
@@ -180,7 +184,7 @@ public class SearchResultResponseImpl implements SearchResult
 		try
 		{
 			Scorer scorer = new QueryScorer(query);
-			Highlighter hightlighter = new Highlighter(scorer);
+			Highlighter hightlighter = new Highlighter(new SimpleHTMLFormatter(), new SimpleHTMLEncoder(), scorer);
 			StringBuffer sb = new StringBuffer();
 			// contents no longer contains the digested contents, so we need to
 			// fetch it from the EntityContentProducer
@@ -191,7 +195,7 @@ public class SearchResultResponseImpl implements SearchResult
 			{
 				sb.append(sep.getContent(getReference()));
 			}
-			String text = StringUtils.escapeHtml(sb.toString(), false);
+			String text = sb.toString();
 			TokenStream tokenStream = analyzer.tokenStream(
 					SearchService.FIELD_CONTENTS, new StringReader(text));
 			return hightlighter.getBestFragments(tokenStream, text, 5, " ... "); //$NON-NLS-1$
