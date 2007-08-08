@@ -55,11 +55,11 @@ public class SakaiPortalLogin {
 	String portalIPs = ServerConfigurationService.getString("webservice.portalIP");
 	String ipCheck = ServerConfigurationService.getString("webservice.IPCheck");
 
-	// Leave this in for a while until this is better tested
-
-	System.out.println("SakaiPortalLogin.loginAndCreate id="+id+" pw="+pw+" sec="+portalSecret);
-	System.out.println("SakaiPortalLogin.loginAndCreate ip="+ipAddress+" portalIP="+portalIPs+" IPCheck="+ipCheck);
-	System.out.println("        fn="+firstName+" ln="+lastName+" em="+eMail+" ip="+ipAddress);
+	if (LOG.isDebugEnabled()) {
+		LOG.debug("SakaiPortalLogin.loginAndCreate id="+id);
+		LOG.debug("SakaiPortalLogin.loginAndCreate ip="+ipAddress+" portalIP="+portalIPs+" IPCheck="+ipCheck);
+		LOG.debug("        fn="+firstName+" ln="+lastName+" em="+eMail+" ip="+ipAddress);		
+	}
 
 	if ( portalSecret == null || pw == null || 
 	     portalSecret.equals("") || ! portalSecret.equals(pw) ) {
@@ -71,7 +71,6 @@ public class SakaiPortalLogin {
 	if ( "true".equalsIgnoreCase(ipCheck) )
 	{
 		if (  portalIPs == null || portalIPs.equals("") ||  portalIPs.indexOf(ipAddress) == -1 ) {
-			System.out.println(" SakaiPortalLogin Trusted IP not found" );
 		 	LOG.info("SakaiPortalLogin Trusted IP not found");
                  	throw new AxisFault("Failed login");
 		}
@@ -80,7 +79,7 @@ public class SakaiPortalLogin {
         User user = getSakaiUser(id,pw);
 
 	if ( user == null && firstName != null && lastName != null && eMail != null ) {
-		System.out.println("Creating Sakai Account...");
+		LOG.debug("Creating Sakai Account...");
 		try {
 			// Set password to something unguessable - they can set a new PW once they are logged in
 			String hiddenPW = IdManager.createUuid();
@@ -94,7 +93,7 @@ public class SakaiPortalLogin {
 	}
 
 	if ( user != null ) {
-		System.out.println("Have User");
+		LOG.debug("Have User");
                 Session s = SessionManager.startSession();
                 SessionManager.setCurrentSession(s);
                 if (s == null)
@@ -113,9 +112,9 @@ public class SakaiPortalLogin {
 
 			try {
 				String siteId = SiteService.getUserSiteId(s.getUserId());
-				System.out.println("Site exists..."+siteId);
+				LOG.debug("Site exists..."+siteId);
 			} catch(Exception e) {
-				System.out.println("Site does not exist...");
+				LOG.debug("Site does not exist...");
         			throw new AxisFault("Failed login");
 			}
                 	if ( LOG.isDebugEnabled() ) LOG.debug("Sakai Portal Login id="+id+" ip="+ipAddress+" session="+s.getId());
@@ -129,7 +128,7 @@ public class SakaiPortalLogin {
     public String login(String id,String pw) 
         throws AxisFault
     {
-	System.out.println("SakiaPortalLogin.login()");
+	LOG.debug("SakiaPortalLogin.login()");
 	return loginAndCreate(id, pw, null, null, null);
     }
 
