@@ -8113,6 +8113,7 @@ public class SiteAction extends PagedResourceActionII {
 		boolean hasDiscussion = false;
 		boolean hasEmail = false;
 		boolean hasNewSiteInfo = false;
+		boolean hasMessageCenter = false;
 
 		// Special case - Worksite Setup Home comes from a hardcoded checkbox on
 		// the vm template rather than toolRegistrationList
@@ -8170,6 +8171,8 @@ public class SiteAction extends PagedResourceActionII {
 				hasChat = true;
 			} else if (choice.equals("sakai.discussion")) {
 				hasDiscussion = true;
+			}  else if (choice.equals("sakai.messages") || choice.equals("sakai.forums") || choice.equals("sakai.messagecenter")) {
+				hasMessageCenter = true;
 			}
 		}
 
@@ -8186,7 +8189,7 @@ public class SiteAction extends PagedResourceActionII {
 			SitePage page = null;
 			// Were the synoptic views of Announcement, Discussioin, Chat
 			// existing before the editing
-			boolean hadAnnouncement = false, hadDiscussion = false, hadChat = false, hadSchedule = false;
+			boolean hadAnnouncement = false, hadDiscussion = false, hadChat = false, hadSchedule = false, hadMessageCenter = false;
 
 			if (homeInWSetupPageList) {
 				if (!SiteService.isUserSite(site.getId())) {
@@ -8249,6 +8252,16 @@ public class SiteAction extends PagedResourceActionII {
 								// synoptic Chat
 							}
 						}
+						if (tool.getTool().getId()
+								.equals("sakai.synoptic.messagecenter")) {
+							hadMessageCenter = true;
+							if (!hasMessageCenter) {
+								removeToolList.add(tool);// if Messages and/or Forums tools
+								// isn't selected,
+								// remove the
+								// synoptic Message Center tool
+							}
+						}
 					}
 					// remove those synoptic tools
 					for (ListIterator rToolList = removeToolList.listIterator(); rToolList
@@ -8300,8 +8313,13 @@ public class SiteAction extends PagedResourceActionII {
 						addSynopticTool(page, TOOL_ID_SUMMARY_CALENDAR, rb
 								.getString("java.reccal"), "3,1");
 					}
+					if (hasMessageCenter && !hadMessageCenter) {
+						// Add synoptic Message Center
+						addSynopticTool(page, "sakai.synoptic.messagecenter", rb
+								.getString("java.recmsg"), "4,1");
+					}
 					if (hasAnnouncement || hasDiscussion || hasChat
-							|| hasSchedule) {
+							|| hasSchedule || hasMessageCenter) {
 						page.setLayout(SitePage.LAYOUT_DOUBLE_COL);
 					} else {
 						page.setLayout(SitePage.LAYOUT_SINGLE_COL);
@@ -8751,6 +8769,7 @@ public class SiteAction extends PagedResourceActionII {
 		boolean hasChat = false;
 		boolean hasDiscussion = false;
 		boolean hasSiteInfo = false;
+		boolean hasMessageCenter = false;
 
 		List chosenList = (List) state
 				.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
@@ -8863,6 +8882,8 @@ public class SiteAction extends PagedResourceActionII {
 					hasDiscussion = true;
 				} else if (toolId.equals("sakai.siteinfo")) {
 					hasSiteInfo = true;
+				} else if (toolId.equals("sakai.messages") || toolId.equals("sakai.forums") || toolId.equals("sakai.messagecenter")) {
+					hasMessageCenter = true;
 				}
 
 			} // for
@@ -8924,6 +8945,15 @@ public class SiteAction extends PagedResourceActionII {
 								.getTool(TOOL_ID_SUMMARY_CALENDAR));
 						tool.setTitle(rb.getString("java.reccal"));
 						tool.setLayoutHints("3,1");
+					}
+					
+					if (hasMessageCenter) {
+						// Add synoptic Message Center tool
+						tool = page.addTool();
+						tool.setTool("sakai.synoptic.messagecenter", ToolManager
+								.getTool("sakai.synoptic.messagecenter"));
+						tool.setTitle(rb.getString("java.recmsg"));
+						tool.setLayoutHints("4,1");
 					}
 
 				} catch (Exception e) {
