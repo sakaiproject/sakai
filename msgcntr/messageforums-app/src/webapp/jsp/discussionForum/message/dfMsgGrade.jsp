@@ -21,23 +21,13 @@
 			<h:messages globalOnly="true" infoClass="success" errorClass="alertMessage" />
 			  
 		  <div class="instruction">
-  	    <h:outputText value="#{msgs.cdfm_required}"/> <h:outputText value="#{msgs.pvt_star}" styleClass="reqStarInline" />
+  	    <h:outputText value="#{msgs.cdfm_required}"rendered="#{ForumTool.allowedToGradeItem}"/> 
+  	    <h:outputText value="#{msgs.pvt_star}" styleClass="reqStarInline" rendered="#{ForumTool.allowedToGradeItem}" />
 		  </div>
    
     <h:panelGrid styleClass="jsfFormTable" columns="2">
-     
-      <h:panelGroup styleClass="shorttext required">
-				<h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStar"/>  
-        <h:outputLabel for="dfMsgGradeGradePoint" value="#{msgs.cdfm_grade_points}"/>
-      </h:panelGroup>
-      <h:panelGroup styleClass="shorttext">
-        <h:inputText value="#{ForumTool.gradePoint}" id="dfMsgGradeGradePoint" size="5">
-        </h:inputText>
-        <h:message for="dfMsgGradeGradePoint" styleClass="alertMessage" />
-      </h:panelGroup>
-      
-      <h:panelGroup styleClass="shorttext required">
-				<h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStar"/> 
+    	<h:panelGroup styleClass="shorttext required">
+				<h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStar" rendered="#{ForumTool.allowedToGradeItem}"/> 
         <h:outputLabel for="assignment" value="#{msgs.cdfm_assignments}"/>
       </h:panelGroup>
       <h:panelGroup styleClass="shorttext">
@@ -45,15 +35,42 @@
               onchange="document.forms[0].submit();">
            <f:selectItems value="#{ForumTool.assignments}" />
          </h:selectOneMenu>
+         <h:outputFormat value=" #{msgs.cdfm_points_possible}" rendered="#{!ForumTool.selGBItemRestricted && ForumTool.gbItemPointsPossible != null}">
+						<f:param value="#{ForumTool.gbItemPointsPossible}"/>
+					</h:outputFormat>
+      </h:panelGroup>
+      
+      <h:outputText value="" rendered="#{ForumTool.selGBItemRestricted && !ForumTool.noItemSelected}" />
+      <h:outputText value="#{msgs.cdfm_no_gb_perm}" rendered="#{ForumTool.selGBItemRestricted && !ForumTool.noItemSelected}" 
+      		styleClass="alertMessage"/>
+     
+      <h:panelGroup styleClass="shorttext required" rendered="#{!ForumTool.selGBItemRestricted}">
+				<h:outputText value="#{msgs.cdfm_info_required_sign}" styleClass="reqStar" rendered="#{ForumTool.allowedToGradeItem}"/>  
+        <h:outputLabel for="dfMsgGradeGradePoint" value="#{msgs.cdfm_grade_points}"/>
+      </h:panelGroup>
+      
+      <h:panelGroup styleClass="shorttext" rendered="#{!ForumTool.selGBItemRestricted}">
+	    	<h:panelGroup rendered="#{ForumTool.allowedToGradeItem}">
+	    		<h:inputText value="#{ForumTool.gradePoint}" id="dfMsgGradeGradePoint" size="5" rendered="#{ForumTool.allowedToGradeItem}" />
+	    		<h:message for="dfMsgGradeGradePoint" styleClass="alertMessage" />
+	      </h:panelGroup>
+	      
+	      <h:panelGroup rendered="#{!ForumTool.allowedToGradeItem}" >
+	        <h:outputText value="#{ForumTool.gradePoint}" rendered="#{ForumTool.gradePoint != null}" />
+	        <h:outputText value="#{msgs.cdfm_null_points}" rendered="#{ForumTool.gradePoint == null}" />
+				</h:panelGroup>
       </h:panelGroup>
 
-        <h:outputLabel styleClass="shorttext required" for="comments" value="#{msgs.cdfm_comments}" style="display:block"/>
-        <h:inputTextarea id="comments" value="#{ForumTool.gradeComment}" rows="5" cols="50"/>
+       <h:outputLabel styleClass="shorttext required" for="comments" value="#{msgs.cdfm_comments}" 
+       		style="display:block" rendered="#{!ForumTool.selGBItemRestricted}"/>
+       <h:inputTextarea id="comments" value="#{ForumTool.gradeComment}" rows="5" cols="50"
+       		rendered="#{!ForumTool.selGBItemRestricted}" readonly="#{!ForumTool.allowedToGradeItem}"/>
 
     </h:panelGrid>
 
     <sakai:button_bar>
-      <sakai:button_bar_item action="#{ForumTool.processDfGradeSubmit}" value="#{msgs.cdfm_submit_grade}" accesskey="s" styleClass="active"/>
+      <sakai:button_bar_item action="#{ForumTool.processDfGradeSubmit}" value="#{msgs.cdfm_submit_grade}" 
+      		accesskey="s" styleClass="active" disabled="#{!ForumTool.allowedToGradeItem}"/>
       <sakai:button_bar_item action="#{ForumTool.processDfGradeCancel}" value="#{msgs.cdfm_cancel}" accesskey="x" />
     </sakai:button_bar>
     
@@ -66,7 +83,7 @@
 				<h:outputText value="#{msgs.cdfm_authoredby}" />
 				<h:panelGroup>
 	      	<h:outputText value="#{ForumTool.selectedMessage.message.author}" />
-	      	<h:outputText value=" #{msgs.cdfm_openb}" />
+	      	<h:outputText value=" #{msgs.cdfm_openb} " />
 	      	<h:outputText value="#{ForumTool.selectedMessage.message.created}" >
          	 <f:convertDateTime pattern="#{msgs.date_format}" />  
        	 </h:outputText>

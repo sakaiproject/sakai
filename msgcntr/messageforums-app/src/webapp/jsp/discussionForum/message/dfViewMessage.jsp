@@ -170,7 +170,7 @@
     	<h:outputText value="#{msgs.cdfm_authoredby}" rendered="#{!ForumTool.selectedMessage.message.deleted}" />
     	<h:panelGroup rendered="#{!ForumTool.selectedMessage.message.deleted}" >
 	    	<h:outputText value="#{ForumTool.selectedMessage.message.author}" />
-	    	<h:outputText value=" #{msgs.cdfm_openb}" />
+	    	<h:outputText value=" #{msgs.cdfm_openb} " />
 	      	<h:outputText value="#{ForumTool.selectedMessage.message.created}" >
           		<f:convertDateTime pattern="#{msgs.date_format}" />  
         	</h:outputText>
