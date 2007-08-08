@@ -311,6 +311,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 		}
 		
 		Map studentIdItemIdFunctionMap = new HashMap();
+		Map studentIdEnrRecMap = new HashMap();
 		for (Iterator enrIter = workingEnrollments.iterator(); enrIter.hasNext();) {
         	EnrollmentRecord enr = (EnrollmentRecord) enrIter.next();
         	if (enr != null) {
@@ -318,6 +319,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
         		Map itemFunctionMap = (Map)enrollmentMap.get(enr);
         		
 				studentIdItemIdFunctionMap.put(studentId, itemFunctionMap);
+				studentIdEnrRecMap.put(studentId, enr);
         	}
         }
 
@@ -352,7 +354,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 			assignments = getGradebookManager().getAssignmentsForCategory(new Long(getSelectedSectionFilterValue().longValue()));
 		}
 
-		List courseGradeRecords = getGradebookManager().getPointsEarnedCourseGradeRecords(courseGrade, enrollmentMap.keySet(), assignments, gradeRecordMap);
+		List courseGradeRecords = getGradebookManager().getPointsEarnedCourseGradeRecords(courseGrade, studentIdItemIdFunctionMap.keySet(), assignments, gradeRecordMap);
 		Collections.sort(courseGradeRecords, CourseGradeRecord.calcComparator);
 		getGradebookManager().addToGradeRecordMap(gradeRecordMap, courseGradeRecords);
 		rosterGradeRecords.addAll(courseGradeRecords);
@@ -360,7 +362,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 		//do category results
 		Map categoryResultMap = new HashMap();
 		List categories = getGradebookManager().getCategories(getGradebookId());
-		getGradebookManager().addToCategoryResultMap(categoryResultMap, categories, gradeRecordMap, enrollmentMap);
+		getGradebookManager().addToCategoryResultMap(categoryResultMap, categories, gradeRecordMap, studentIdEnrRecMap);
 		if (logger.isDebugEnabled()) logger.debug("init - categoryResultMap.keySet().size() = " + categoryResultMap.keySet().size());
 
 
@@ -370,7 +372,7 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 		for(Iterator iter = rosterGradeRecords.iterator(); iter.hasNext();) {
 			AbstractGradeRecord agr = (AbstractGradeRecord)iter.next();
 			if(getColumnHeader(agr.getGradableObject()).equals(sortColumn)) {
-				scoreSortedEnrollments.add(enrollmentMap.get(agr.getStudentId()));
+				scoreSortedEnrollments.add(studentIdEnrRecMap.get(agr.getStudentId()));
 			}
 		}
 

@@ -10,9 +10,9 @@
 				<f:selectItems value="#{bean.sectionFilterSelectItems}" />
 			</h:selectOneMenu>
 			
-			<h:outputText value="#{msgs.search_categories_filter} " rendered="#{bean.categoriesEnabled}"/>
+			<h:outputText value="#{msgs.search_categories_filter} "/>
 			<h:selectOneMenu id="selectCategoryFilter" immediate="true" value="#{bean.selectedCategoryFilterValue}" onchange="this.form.submit()"
-				valueChangeListener="#{bean.setSelectedCategoryFilterValue}" rendered="#{bean.categoriesEnabled}">
+				valueChangeListener="#{bean.setSelectedCategoryFilterValue}">
 				<f:selectItems value="#{bean.categoryFilterSelectItems}" />
 			</h:selectOneMenu>
 		</t:div>
