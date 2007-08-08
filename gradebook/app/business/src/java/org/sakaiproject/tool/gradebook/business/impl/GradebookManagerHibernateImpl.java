@@ -2093,18 +2093,16 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		AssignmentGradeRecord agr = (AssignmentGradeRecord) studentRecordsFromDB.get(i);
     		if(agr != null && agr.getPointsEarned() != null)
     		{
-    			AssignmentGradeRecord newAgr = agr.clone();
     			double pointsPossible = agr.getAssignment().getPointsPossible().doubleValue();
-    			newAgr.setDateRecorded(agr.getDateRecorded());
-    			newAgr.setGraderId(agr.getGraderId());
-    			newAgr.setPercentEarned(new Double((agr.getPointsEarned().doubleValue() * 100.0)/pointsPossible));
-    			percentageList.add(newAgr);
+    			agr.setDateRecorded(agr.getDateRecorded());
+    			agr.setGraderId(agr.getGraderId());
+    			agr.setPercentEarned(new Double((agr.getPointsEarned().doubleValue() * 100.0)/pointsPossible));
+    			percentageList.add(agr);
     		}
     		else if(agr != null)
     		{
-    			AssignmentGradeRecord newAgr = agr.clone();
-    			newAgr.setPercentEarned(null);
-    			percentageList.add(newAgr);
+    			agr.setPercentEarned(null);
+    			percentageList.add(agr);
     		}
     	}
     	return percentageList;
