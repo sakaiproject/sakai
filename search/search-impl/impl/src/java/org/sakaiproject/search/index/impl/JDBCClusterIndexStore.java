@@ -498,12 +498,6 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				}
 			}
 
-			// process the remove list
-			for (Iterator i = removeDBSegments.iterator(); i.hasNext();)
-			{
-				SegmentInfo rmsi = (SegmentInfo) i.next();
-				removeDBSegment(connection, rmsi);
-			}
 			// process the get list
 			for (Iterator i = updateDBSegments.iterator(); i.hasNext();)
 			{
@@ -520,6 +514,13 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				segmentList.add(si);
 				if (log.isDebugEnabled()) log.debug("Segments saved " + f.getName());
 
+			}
+			
+			// process the remove list, the update was Ok so we can remove all the old segments
+			for (Iterator i = removeDBSegments.iterator(); i.hasNext();)
+			{
+				SegmentInfo rmsi = (SegmentInfo) i.next();
+				removeDBSegment(connection, rmsi);
 			}
 			connection.commit();
 			deleteAllSegments(badLocalSegments);
