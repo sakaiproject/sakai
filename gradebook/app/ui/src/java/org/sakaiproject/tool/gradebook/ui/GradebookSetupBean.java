@@ -71,6 +71,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	private static final String CATEGORY_OPT_CAT_AND_WEIGHT = "categoriesAndWeighting";
 
 	private static final String GB_SETUP_PAGE = "gradebookSetup";
+	private static final String GB_OVERVIEW_PAGE = "overview";
 
 	private static final String ROW_INDEX_PARAM = "rowIndex";
 
@@ -451,7 +452,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	public String processCancelGradebookSetup()
 	{
 		reset();
-		return GB_SETUP_PAGE;
+		return GB_OVERVIEW_PAGE;
 	}
 
 	/*
