@@ -108,6 +108,60 @@ public interface GradebookService {
 	 */
 	public boolean isUserAbleToGradeItemForStudent(String gradebookUid, Long itemId,
 			String studentUid);
+	
+	/**
+	 * Check to see if the current user is allowed to grade the given item for the given student in
+	 * the given gradebook. This will give clients a chance to avoid a security
+	 * exception.
+	 * @param gradebookUid
+	 * @param itemId
+	 * @param studentUid
+	 * @return
+	 */
+	public boolean isUserAbleToGradeItemForStudent(String gradebookUid, String itemName, String studentUid);
+	
+	/**
+	 * Check to see if the current user is allowed to view the given item for the given student in
+	 * the given gradebook. This will give clients a chance to avoid a security
+	 * exception.
+	 * @param gradebookUid
+	 * @param itemId
+	 * @param studentUid
+	 * @return
+	 */
+	public boolean isUserAbleToViewItemForStudent(String gradebookUid, Long itemId, String studentUid);
+	
+	/**
+	 * Check to see if the current user is allowed to view the given item for the given student in
+	 * the given gradebook. This will give clients a chance to avoid a security
+	 * exception.
+	 * @param gradebookUid
+	 * @param itemName
+	 * @param studentUid
+	 * @return
+	 */
+	public boolean isUserAbleToViewItemForStudent(String gradebookUid, String itemName, String studentUid);
+	
+	/**
+	 * Check to see if current user may grade or view the given student for the given item in the given gradebook.
+	 * Returns string representation of function per GradebookService vars (view/grade) or null if no permission
+	 * @param gradebookUid
+	 * @param itemId
+	 * @param studentUid
+	 * @return GradebookService.gradePermission, GradebookService.viewPermission, or null if no permission
+	 */
+	public String getGradeViewFunctionForUserForStudentForItem(String gradebookUid, Long itemId, String studentUid);
+	
+	/**
+	 * Check to see if current user may grade or view the given student for the given item in the given gradebook.
+	 * Returns string representation of function per GradebookService vars (view/grade) or null if no permission
+	 * @param gradebookUid
+	 * @param itemName
+	 * @param studentUid
+	 * @return GradebookService.gradePermission, GradebookService.viewPermission, or null if no permission
+	 */
+	public String getGradeViewFunctionForUserForStudentForItem(String gradebookUid, String itemName, String studentUid);
+	
 
 	/**
 	 * @return Returns a list of Assignment objects describing the assignments

@@ -95,6 +95,57 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	public boolean isUserAbleToGradeItemForStudent(String gradebookUid, Long itemId, String studentUid) {
 		return getAuthz().isUserAbleToGradeItemForStudent(gradebookUid, itemId, studentUid);
 	}
+	
+	public boolean isUserAbleToGradeItemForStudent(String gradebookUid, String itemName, String studentUid) {
+		
+		if (itemName == null || studentUid == null) {
+			throw new IllegalArgumentException("Null parameter(s) in GradebookServiceHibernateImpl.isUserAbleToGradeItemForStudent");
+		}
+		
+		org.sakaiproject.service.gradebook.shared.Assignment assignment = getAssignment(gradebookUid, itemName);
+		if (assignment != null) {
+			return isUserAbleToGradeItemForStudent(gradebookUid, assignment.getId(), studentUid);
+		}
+		
+		return false;
+
+	}
+	
+	public boolean isUserAbleToViewItemForStudent(String gradebookUid, Long itemId, String studentUid) {
+		return getAuthz().isUserAbleToViewItemForStudent(gradebookUid, itemId, studentUid);
+	}
+	
+	public boolean isUserAbleToViewItemForStudent(String gradebookUid, String itemName, String studentUid) {
+		
+		if (itemName == null || studentUid == null) {
+			throw new IllegalArgumentException("Null parameter(s) in GradebookServiceHibernateImpl.isUserAbleToGradeItemForStudent");
+		}
+		
+		org.sakaiproject.service.gradebook.shared.Assignment assignment = getAssignment(gradebookUid, itemName);
+		if (assignment != null) {
+			return isUserAbleToViewItemForStudent(gradebookUid, assignment.getId(), studentUid);
+		}
+		
+		return false;
+
+	}
+	
+	public String getGradeViewFunctionForUserForStudentForItem(String gradebookUid, Long itemId, String studentUid) {
+		return getAuthz().getGradeViewFunctionForUserForStudentForItem(gradebookUid, itemId, studentUid);
+	}
+	
+	public String getGradeViewFunctionForUserForStudentForItem(String gradebookUid, String itemName, String studentUid) {
+		if (itemName == null || studentUid == null) {
+			throw new IllegalArgumentException("Null parameter(s) in G.isUserAbleToGradeItemForStudent");
+		}
+		
+		org.sakaiproject.service.gradebook.shared.Assignment assignment = getAssignment(gradebookUid, itemName);
+		if (assignment != null) {
+			return getGradeViewFunctionForUserForStudentForItem(gradebookUid, assignment.getId(), studentUid);
+		}
+		
+		return null;
+	}
 
 	public List<org.sakaiproject.service.gradebook.shared.Assignment> getAssignments(String gradebookUid)
 		throws GradebookNotFoundException {
@@ -161,7 +212,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					throw new AssessmentNotFoundException("There is no assignment named " + assignmentName + " in gradebook " + gradebookUid);
 				}
 				
-				if (!studentRequestingOwnScore && !isUserAbleToGradeItemForStudent(gradebookUid, assignment.getId(), studentUid)) {
+				if (!studentRequestingOwnScore && !isUserAbleToViewItemForStudent(gradebookUid, assignment.getId(), studentUid)) {
 					log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to retrieve grade for student " + studentUid + " for assignment " + assignmentName);
 					throw new SecurityException("You do not have permission to perform this operation");
 				}

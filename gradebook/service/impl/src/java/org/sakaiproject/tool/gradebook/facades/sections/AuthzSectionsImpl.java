@@ -96,6 +96,63 @@ public class AuthzSectionsImpl implements Authz {
 		return getSectionAwareness().isSiteMemberInRole(gradebookUid, userUid, Role.STUDENT);
 	}
 	
+	public String getGradeViewFunctionForUserForStudentForItem(String gradebookUid, Long itemId, String studentUid) {
+		if (itemId == null || studentUid == null || gradebookUid == null) {
+			throw new IllegalArgumentException("Null parameter(s) in AuthzSectionsServiceImpl.isUserAbleToGradeItemForStudent");
+		}
+		
+		if (isUserAbleToGradeAll(gradebookUid)) {
+			return GradebookService.gradePermission;
+		}
+		
+		Long gradebookId = getGradebookId(gradebookUid);
+		String userUid = authn.getUserUid();
+		
+		List viewableSections = getViewableSections(gradebookUid);
+		List sectionIds = new ArrayList();
+		if (viewableSections != null && !viewableSections.isEmpty()) {
+			for (Iterator sectionIter = viewableSections.iterator(); sectionIter.hasNext();) {
+				CourseSection section = (CourseSection) sectionIter.next();
+				sectionIds.add(section.getUuid());
+			}
+		}
+		
+		if (isUserHasGraderPermissions(gradebookId, userUid)) {
+
+			// get the map of authorized item (assignment) ids to grade/view function
+			Map itemIdFunctionMap = gradebookPermissionService.getAvailableItemsForStudent(gradebookId, userUid, studentUid, viewableSections);
+			
+			if (itemIdFunctionMap == null || itemIdFunctionMap.isEmpty()) {
+				return null;  // not authorized to grade/view any items for this student
+			}
+			
+			String functionValueForItem = (String)itemIdFunctionMap.get(itemId);
+			String view = GradebookService.viewPermission;
+			String grade = GradebookService.gradePermission;
+			
+			if (functionValueForItem != null) {
+				if (functionValueForItem.equalsIgnoreCase(grade))
+					return GradebookService.gradePermission;
+				
+				if (functionValueForItem.equalsIgnoreCase(view))
+					return GradebookService.viewPermission;
+			}
+	
+			return null;
+			
+		} else {
+			// use OOTB permissions based upon TA section membership
+			for (Iterator iter = sectionIds.iterator(); iter.hasNext(); ) {
+				String sectionUuid = (String) iter.next();
+				if (isUserTAinSection(sectionUuid) && getSectionAwareness().isSectionMemberInRole(sectionUuid, studentUid, Role.STUDENT)) {
+					return GradebookService.gradePermission;
+				}
+			}
+	
+			return null;
+		}
+	}
+	
 	private boolean isUserAbleToGradeOrViewItemForStudent(String gradebookUid, Long itemId, String studentUid, String function) throws IllegalArgumentException {
 		if (itemId == null || studentUid == null || function == null) {
 			throw new IllegalArgumentException("Null parameter(s) in AuthzSectionsServiceImpl.isUserAbleToGradeItemForStudent");
@@ -160,19 +217,6 @@ public class AuthzSectionsImpl implements Authz {
 	
 	public boolean isUserAbleToViewItemForStudent(String gradebookUid, Long itemId, String studentUid) throws IllegalArgumentException {
 		return isUserAbleToGradeOrViewItemForStudent(gradebookUid, itemId, studentUid, GradebookService.viewPermission);
-	}
-	
-	public boolean isUserAbleToGradeItemForStudent(String gradebookUid, String itemName, String studentUid) throws IllegalArgumentException {
-		if (itemName == null || studentUid == null) {
-			throw new IllegalArgumentException("Null parameter(s) in AuthzSectionsServiceImpl.isUserAbleToGradeItemForStudent");
-		}
-		
-		Assignment assignment = gradebookService.getAssignment(gradebookUid, itemName);
-		if (assignment != null) {
-			return isUserAbleToGradeItemForStudent(gradebookUid, assignment.getId(), studentUid);
-		}
-		
-		return false;
 	}
 	
 	public List getViewableSections(String gradebookUid) {

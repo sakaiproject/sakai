@@ -49,12 +49,12 @@ public interface Authz {
 	/**
 	 * 
 	 * @param gradebookUid
-	 * @param itemName
+	 * @param itemId
 	 * @param studentUid
-	 * @return is user authorized to grade this gradebook item for this student?
+	 * @return is user authorized to view this gradebook item for this student?
 	 * 		first checks for special grader perms. if none, uses default perms
 	 */
-	public boolean isUserAbleToGradeItemForStudent(String gradebookUid, String itemName, String studentUid) throws IllegalArgumentException;
+	public boolean isUserAbleToViewItemForStudent(String gradebookUid, Long itemId, String studentUid)  throws IllegalArgumentException;
 	
 	/**
 	 * @param gradebookUid
@@ -124,4 +124,14 @@ public interface Authz {
 	 * @return a list of the section membership names for the give studentUid
 	 */
 	public List getStudentSectionMembershipNames(String gradebookUid, String studentUid);
+	
+	/**
+	 * Check to see if current user may grade or view the given student for the given item in the given gradebook.
+	 * Returns string representation of function per GradebookService vars (view/grade) or null if no permission
+	 * @param gradebookUid
+	 * @param itemId
+	 * @param studentUid
+	 * @return GradebookService.gradePermission, GradebookService.viewPermission, or null if no permission
+	 */
+	public String getGradeViewFunctionForUserForStudentForItem(String gradebookUid, Long itemId, String studentUid);
 }
