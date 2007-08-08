@@ -6994,7 +6994,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		
 		public String getReviewReport() {
 //			 Code to get updated report if default
-			if (m_submittedAttachments.isEmpty()) M_log.warn("No attachments submitted.");
+			if (m_submittedAttachments.isEmpty()) M_log.debug("No attachments submitted.");
 			else
 			{
 				try {

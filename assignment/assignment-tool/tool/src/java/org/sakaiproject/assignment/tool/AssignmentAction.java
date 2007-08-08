@@ -1163,7 +1163,7 @@ public class AssignmentAction extends PagedResourceActionII
 					// if there is any newly added user who doesn't have a submission object yet, add the submission
 					try
 					{
-						addSubmissionsForNonElectronicAssignment(state, AssignmentService.getAssignment(a.getReference())); 
+						addSubmissionsForNonElectronicAssignment(state, allowAddSubmissionUsers, AssignmentService.getAssignment(a.getReference())); 
 					}
 					catch (Exception e)
 					{
@@ -4250,24 +4250,6 @@ public class AssignmentAction extends PagedResourceActionII
 				
 				// comment the changes to Assignment object
 				commitAssignmentEdit(state, post, ac, a, title, openTime, dueTime, closeTime, enableCloseDate, s, range, groups);
-
-				// in case of non-electronic submission, create submissions for all students and mark it as submitted
-				if (ac.getTypeOfSubmission()== Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
-				{
-					try
-					{
-						Iterator sList = AssignmentService.getSubmissions(a).iterator();
-						if (sList == null || !sList.hasNext())
-						{
-							// add non-electronic submissions if there is none yet
-							addSubmissionsForNonElectronicAssignment(state, a);
-						}
-					}
-					catch (Exception ee)
-					{
-						Log.warn("chef", this + ee.getMessage());
-					}
-				}
 	
 				if (state.getAttribute(STATE_MESSAGE) == null)
 				{
@@ -4320,11 +4302,10 @@ public class AssignmentAction extends PagedResourceActionII
 	 * @param state
 	 * @param a
 	 */
-	private void addSubmissionsForNonElectronicAssignment(SessionState state, Assignment a) 
+	private void addSubmissionsForNonElectronicAssignment(SessionState state, List allowAddSubmissionUsers, Assignment a) 
 	{
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 		String authzGroupId = SiteService.siteReference(contextString);
-		List allowAddSubmissionUsers = AssignmentService.allowAddSubmissionUsers(a.getReference());
 		try
 		{
 			AuthzGroup group = AuthzGroupService.getAuthzGroup(authzGroupId);
