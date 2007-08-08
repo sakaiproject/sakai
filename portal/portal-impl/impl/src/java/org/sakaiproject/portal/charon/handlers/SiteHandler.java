@@ -375,15 +375,19 @@ public class SiteHandler extends WorksiteHandler
 			boolean siteFound = false;
 			for ( int i=0; i< mySites.size(); i++ )
 			{
-				if ( ((Site)mySites.get(i)).getId().equals(siteId) )
+				if ( ((Site)mySites.get(i)).getId().equals(siteId) ) {
 					siteFound = true;
+				}
 			}
 			try
 			{
-				if (!siteFound)
+				if (!siteFound) {
 					mySites.add( SiteService.getSite(siteId) );
+				} 
 			}
-			catch ( IdUnusedException e) {} // ignore
+			catch ( IdUnusedException e) {
+				
+			} // ignore
 				
 			// Note that if there are exactly one more site
 			// than tabs allowed - simply put the site on
@@ -431,20 +435,6 @@ public class SiteHandler extends WorksiteHandler
 				}
 
 				// check to see if we need to re-add the current site
-				if (currentSelectedSite == null)
-				{
-					try
-					{
-						// SAK-10394
-						currentSelectedSite = siteHelper.getSiteVisit(siteId);
-					}
-					catch (PermissionException e)
-					{
-					}
-					catch (IdUnusedException e)
-					{
-					}
-				}
 				if ( currentSelectedSite != null ) 
 				{
 					mySites.add(currentSelectedSite);
