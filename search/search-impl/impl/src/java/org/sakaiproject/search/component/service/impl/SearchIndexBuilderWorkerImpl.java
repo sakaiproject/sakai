@@ -304,12 +304,17 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 	public void run()
 	{
 		if (!enabled) return;
+		
+		
 	
-		String threadName = Thread.currentThread().getName();
-		String tn = threadName.substring("SearchBuilder_".length());
-		log.debug("Index Builder Run " + tn + "_" + threadName);
-		int threadno = Integer.parseInt(tn);
-
+		int threadno = -1;
+		Thread tt = Thread.currentThread();
+		for ( int i = 0; i < indexBuilderThread.length; i++ ) {
+			if ( indexBuilderThread[i] == tt ) {
+				threadno = i;
+			}
+		}
+		
 		String nodeID = getNodeID();
 
 		org.sakaiproject.component.cover.ComponentManager.waitTillConfigured();
@@ -533,8 +538,10 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 		finally
 		{
 
-			log.debug("IndexBuilder run exit " + threadName);
-			indexBuilderThread[threadno] = null;
+			log.debug("IndexBuilder run exit " + tt.getName());
+			if ( threadno != -1 ) {
+				indexBuilderThread[threadno] = null;
+			}
 		}
 	}
 
