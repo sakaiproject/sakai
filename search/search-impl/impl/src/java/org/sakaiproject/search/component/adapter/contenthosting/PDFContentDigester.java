@@ -20,6 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.search.component.adapter.contenthosting;
 
+import java.io.BufferedInputStream;
+import java.io.CharArrayWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -27,6 +29,7 @@ import java.io.StringReader;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.pdfbox.pdfparser.PDFParser;
 import org.pdfbox.pdmodel.PDDocument;
 import org.pdfbox.util.PDFTextStripper;
 import org.sakaiproject.content.api.ContentResource;
@@ -47,18 +50,29 @@ public class PDFContentDigester extends BaseContentDigester
 		}
 
 		InputStream contentStream = null;
-		PDDocument pddoc = null;
+		PDFParser parser = null;
 		try
 		{
+			parser = new PDFParser(new BufferedInputStream(contentStream));
 			contentStream = contentResource.streamContent();
+			parser.parse();
+			PDDocument pddoc = parser.getPDDocument();
+			
 			PDFTextStripper stripper = new PDFTextStripper();
-			pddoc = PDDocument.load(contentStream);
-			String text = stripper.getText(pddoc);
+			stripper.setLineSeparator("\n");		
+			CharArrayWriter cw = new CharArrayWriter();
+			stripper.writeText(pddoc, cw);
 			pddoc.close();
-			return SearchUtils.appendCleanString(text,null).toString();
+			return SearchUtils.appendCleanString(cw.toCharArray(),null).toString();
 		}
 		catch (Exception ex)
 		{
+			try {
+				PDDocument pddoc = parser.getPDDocument();
+				pddoc.close();
+			} catch ( Exception e ) {
+				
+			}
 			throw new RuntimeException("Failed to get content for indexing", ex);
 		}
 		finally
@@ -72,11 +86,6 @@ public class PDFContentDigester extends BaseContentDigester
 				catch (IOException e)
 				{
 				}
-			}
-			try {
-				pddoc.close();
-			} catch ( Exception ex) {
-				
 			}
 		}
 	}

@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.search.component.adapter.contenthosting;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -27,7 +28,11 @@ import java.io.StringReader;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.poi.hslf.extractor.PowerPointExtractor;
+import org.apache.poi.poifs.eventfilesystem.POIFSReader;
+import org.apache.poi.poifs.eventfilesystem.POIFSReaderEvent;
+import org.apache.poi.poifs.eventfilesystem.POIFSReaderListener;
+import org.apache.poi.poifs.filesystem.DocumentInputStream;
+import org.apache.poi.util.LittleEndian;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.search.api.SearchUtils;
 
@@ -38,8 +43,10 @@ public class PPTContentDigester extends BaseContentDigester
 {
 	private static Log log = LogFactory.getLog(PPTContentDigester.class);
 
-	static {
-		System.setProperty("org.apache.poi.util.POILogger", "org.apache.poi.util.NullLogger");
+	static
+	{
+		System.setProperty("org.apache.poi.util.POILogger",
+				"org.apache.poi.util.NullLogger");
 	}
 
 	/*
@@ -47,29 +54,65 @@ public class PPTContentDigester extends BaseContentDigester
 	 * 
 	 * @see org.sakaiproject.search.component.adapter.contenthosting.BaseContentDigester#getContent(org.sakaiproject.content.api.ContentResource)
 	 */
-	
+
 	public String getContent(ContentResource contentResource)
 	{
-		if ( contentResource != null && 
-				contentResource.getContentLength() > maxDigestSize  ) {
-			throw new RuntimeException("Attempt to get too much content as a string on "+contentResource.getReference());
+		if (contentResource != null && contentResource.getContentLength() > maxDigestSize)
+		{
+			throw new RuntimeException("Attempt to get too much content as a string on "
+					+ contentResource.getReference());
 		}
 		InputStream contentStream = null;
 
 		try
 		{
+			// this is informed by the text extractors in Jackrabbit
+
+			final ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+			POIFSReaderListener listener = new POIFSReaderListener()
+			{
+				public void processPOIFSReaderEvent(POIFSReaderEvent event)
+				{
+					try
+					{
+						if (!event.getName().equalsIgnoreCase("PowerPoint Document"))
+						{
+							return;
+						}
+						DocumentInputStream input = event.getStream();
+						byte[] buffer = new byte[input.available()];
+						input.read(buffer, 0, input.available());
+						for (int i = 0; i < buffer.length - 20; i++)
+						{
+							long type = LittleEndian.getUShort(buffer, i + 2);
+							long size = LittleEndian.getUInt(buffer, i + 4);
+							if (type == 4008)
+							{
+								os.write(buffer, i + 4 + 1, (int) size + 3);
+								i = i + 4 + 1 + (int) size - 1;
+							}
+						}
+					}
+					catch (Exception e)
+					{
+
+					}
+				}
+			};
+
+			POIFSReader reader = new POIFSReader();
+			reader.registerListener(listener);
 			contentStream = contentResource.streamContent();
-			PowerPointExtractor pptExtractor = new PowerPointExtractor(contentStream);
+			reader.read(contentStream);
+			os.flush();
 			StringBuilder sb = new StringBuilder();
-			SearchUtils.appendCleanString(pptExtractor.getText(), sb);
-			sb.append(" ");
-			SearchUtils.appendCleanString(pptExtractor.getNotes(), sb);
+			SearchUtils.appendCleanString(new String(os.toByteArray(), "UTF-8"), sb);
 			return sb.toString();
 		}
 		catch (Exception e)
 		{
-			throw new RuntimeException("Failed to read content for indexing ",
-					e);
+			throw new RuntimeException("Failed to read content for indexing ", e);
 		}
 		finally
 		{
@@ -91,7 +134,7 @@ public class PPTContentDigester extends BaseContentDigester
 	 * 
 	 * @see org.sakaiproject.search.component.adapter.contenthosting.BaseContentDigester#getContentReader(org.sakaiproject.content.api.ContentResource)
 	 */
-	
+
 	public Reader getContentReader(ContentResource contentResource)
 	{
 		return new StringReader(getContent(contentResource));

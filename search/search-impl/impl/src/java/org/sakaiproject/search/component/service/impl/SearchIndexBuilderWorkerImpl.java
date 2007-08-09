@@ -533,7 +533,8 @@ public class SearchIndexBuilderWorkerImpl implements Runnable, SearchIndexBuilde
 		}
 		catch (Throwable t)
 		{
-			log.warn("Failed in IndexBuilder ", t);
+			
+			log.warn("Failed in IndexBuilder when indexing document: "+getNowIndexing(), t);
 		}
 		finally
 		{

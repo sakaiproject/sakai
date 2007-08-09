@@ -106,14 +106,16 @@ public class SearchUtils
 	 * @param string
 	 * @param sb
 	 */
-	public static StringBuilder appendCleanString(String string, StringBuilder sb)
+	public static StringBuilder appendCleanString(String string, StringBuilder sb) {
+		return appendCleanString(string.toCharArray(),sb);
+	}
+	public static StringBuilder appendCleanString(char[] content, StringBuilder sb)
 	{
 		if (sb == null)
 		{
 			sb = new StringBuilder();
 		}
 		boolean ignore = true;
-		char[] content = string.toCharArray();
 		for (int i = 0; i < content.length; i++)
 		{
 			char c = content[i];
