@@ -47,6 +47,7 @@ import org.sakaiproject.content.api.ResourceToolAction.ActionType;
 import org.sakaiproject.content.util.BaseResourceType;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.cover.SiteService;
@@ -68,6 +69,7 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
 
 	protected Map<String, ResourceToolAction> actions = new Hashtable<String, ResourceToolAction>();	
 	protected UserDirectoryService userDirectoryService;
+	protected ContentHostingService contentService;
 	
 	public FolderType()
 	{
@@ -729,6 +731,30 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
     			if(parent == null || ContentHostingService.ROOT_COLLECTIONS.contains(parent.getId()))
     			{
     				ok = false;
+    			}
+    			else
+    			{
+    				ContentCollection grandparent = parent.getContainingCollection();
+    				if(grandparent != null && ContentHostingService.COLLECTION_DROPBOX.equals(grandparent.getId()))
+    				{
+    					Reference ref = EntityManager.newReference(entity.getReference());
+    					if(ref != null)
+    					{
+	    					String siteId = ref.getContext();
+	    					if(siteId != null)
+	    					{
+	        					if(contentService == null)
+	        					{
+	        						contentService = (ContentHostingService) ComponentManager.get(ContentHostingService.class);
+	        					}
+	    						String dropboxId = contentService.getDropboxCollection(siteId);
+	    						if(entity.getId().equals(dropboxId))
+	    						{
+	    							ok = false;
+	    						}
+	    					}
+    					}
+    				}
     			}
     		}
         	if(ok && entity instanceof ContentCollection)
