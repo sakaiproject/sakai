@@ -463,7 +463,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 
 								// add the custom properties
 
-								Map m = sep.getCustomProperties();
+								Map m = sep.getCustomProperties(ref);
 								if (m != null)
 								{
 									for (Iterator cprops = m.keySet().iterator(); cprops
@@ -507,7 +507,7 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 
 								log.debug("Done Indexing Document " + doc); //$NON-NLS-1$
 
-								processRDF(sep);
+								processRDF(ref, sep);
 
 							}
 							else
@@ -902,11 +902,11 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 		}
 	}
 
-	private void processRDF(EntityContentProducer sep) throws RDFIndexException
+	private void processRDF(String ref, EntityContentProducer sep) throws RDFIndexException
 	{
 		if (rdfSearchService != null)
 		{
-			String s = sep.getCustomRDF();
+			String s = sep.getCustomRDF(ref);
 			if (s != null)
 			{
 				rdfSearchService.addData(s);

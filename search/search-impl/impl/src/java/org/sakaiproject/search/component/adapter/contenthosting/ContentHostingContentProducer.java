@@ -24,6 +24,7 @@ package org.sakaiproject.search.component.adapter.contenthosting;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,8 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.search.api.EntityContentProducer;
 import org.sakaiproject.search.api.SearchIndexBuilder;
 import org.sakaiproject.search.api.SearchService;
@@ -92,6 +95,18 @@ public class ContentHostingContentProducer implements EntityContentProducer
 	private int readerSizeLimit = 1024 * 1024 * 2; // (2M)
 
 	private int digesterSizeLimit = 1024 * 1024 * 5; // (5M)
+
+	/**
+	 * A list of custom properties in the form indexkey.entitykey;indexkey.entitykey;indexkey.entitykey;
+	 */
+	private List<String> customProperties = null;
+	
+	
+	public ContentHostingContentProducer() {
+		customProperties = new ArrayList<String>();
+		customProperties.add("dc_title.http://purl.org/dc/elements/1.1/title");
+		customProperties.add("dc_creator.http://purl.org/dc/elements/1.1/creator;");
+	}
 
 	public void init()
 	{
@@ -637,11 +652,37 @@ public class ContentHostingContentProducer implements EntityContentProducer
 
 	public Map getCustomProperties(String ref)
 	{
-		
-		
-		
-		
-		
+		try
+		{
+			Reference reference = entityManager.newReference(ref);
+			ContentResource contentResource;
+			contentResource = contentHostingService.getResource(reference.getId());
+
+			Map<String, String> cp = new HashMap<String, String>();
+			for (String propname : customProperties)
+			{
+				String[] propKey = propname.split(".", 2);
+				if (propKey.length == 2)
+				{
+					String prop = contentResource.getProperties().getProperty(propKey[1]);
+					if (prop != null)
+					{
+						cp.put(propKey[0], prop);
+
+					}
+				}
+			}
+			return cp;
+		}
+		catch (PermissionException e)
+		{
+		}
+		catch (IdUnusedException e)
+		{
+		}
+		catch (TypeException e)
+		{
+		}
 		return null;
 	}
 
@@ -774,6 +815,22 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		{
 			return "";
 		}
+	}
+
+	/**
+	 * @return the customProperties
+	 */
+	public List<String> getCustomProperties()
+	{
+		return customProperties;
+	}
+
+	/**
+	 * @param customProperties the customProperties to set
+	 */
+	public void setCustomProperties(List<String> customProperties)
+	{
+		this.customProperties = customProperties;
 	}
 
 }
