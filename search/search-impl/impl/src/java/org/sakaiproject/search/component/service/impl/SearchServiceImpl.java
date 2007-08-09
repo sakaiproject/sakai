@@ -57,6 +57,7 @@ import org.apache.lucene.search.TermQuery;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.db.cover.SqlService;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
@@ -154,7 +155,26 @@ public class SearchServiceImpl implements SearchService
 	private Object reloadObjectSemaphore = new Object();
 
 	private boolean inreload = false;
+	
+	/** Configuration: to run the ddl on init or not. */
+	protected boolean autoDdl = false;
 
+	/**
+	 * Configuration: to run the ddl on init or not.
+	 * 
+	 * @param value
+	 *        the auto ddl value.
+	 */
+	public void setAutoDdl(String value)
+	{
+		autoDdl = new Boolean(value).booleanValue();
+	}
+	/**
+	 */
+	public String getAutoDdl()
+	{
+		return String.valueOf(autoDdl);
+	}
 	/**
 	 * Register a notification action to listen to events and modify the search
 	 * index
@@ -253,12 +273,28 @@ public class SearchServiceImpl implements SearchService
 
 			// Finally set up the static multithreaded HttpClient
 			httpClient = new HttpClient(httpConnectionManager);
+			
+			
+			try
+			{
+				if (autoDdl)
+				{
+					SqlService.getInstance().ddl(this.getClass().getClassLoader(),
+							"sakai_search");
+				}
+			}
+			catch (Exception ex)
+			{
+				log.error("Perform additional SQL setup", ex);
+			}
 
 			initComplete = true;
 			if (log.isDebugEnabled())
 			{
 				log.debug("init end"); //$NON-NLS-1$
 			}
+			
+			
 		}
 		catch (Throwable t)
 		{

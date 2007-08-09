@@ -28,6 +28,7 @@
   <bean id="org.sakaiproject.search.api.SearchService"
     class="org.sakaiproject.search.component.service.impl.SearchServiceImpl" 
     init-method="init" >
+    <property name="autoDdl"><value>${auto.ddl}</value></property>
     <property name="indexStorage"><ref bean="org.sakaiproject.search.index.IndexStorage" /></property>
     <property name="filter"><ref bean="searchSecurityFilterImpl" /></property>
     <property name="defaultSorter"><value>none</value></property>
