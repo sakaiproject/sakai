@@ -290,14 +290,14 @@ public class ChatContentProducer implements EntityContentProducer {
    /**
     * {@inheritDoc}
     */
-   public Map getCustomProperties() {
+   public Map getCustomProperties(String ref) {
       return null;
    }
 
    /**
     * {@inheritDoc}
     */
-   public String getCustomRDF() {
+   public String getCustomRDF(String ref) {
       return null;
    }
 
