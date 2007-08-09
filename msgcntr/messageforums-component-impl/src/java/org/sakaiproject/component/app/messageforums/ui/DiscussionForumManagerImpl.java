@@ -38,6 +38,7 @@ import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
+import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.DummyDataHelperApi;
 import org.sakaiproject.api.app.messageforums.ForumControlPermission;
@@ -66,6 +67,7 @@ import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsU
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -345,7 +347,11 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    * 
    * @see org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager#saveMessage(org.sakaiproject.api.app.messageforums.Message)
    */
-  public void saveMessage(Message message)
+  public void saveMessage(Message message) {
+	  saveMessage(message, true);
+  }
+  
+  public void saveMessage(Message message, boolean logEvent)
   {
     if (LOG.isDebugEnabled())
     {
@@ -355,7 +361,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     {
       message.setTopic(getTopicById(message.getTopic().getId()));
     }
-    messageManager.saveMessage(message);
+    messageManager.saveMessage(message, logEvent);
   }
 
   /*
@@ -998,6 +1004,13 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       forumManager.saveDiscussionForum(forum, forum.getDraft().booleanValue());
       //sak-5146 forumManager.saveDiscussionForum(forum);
     }
+    
+    if (topic.getId() == null) {
+        EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_TOPIC_ADD, getEventMessage(topic), false));
+    } else {
+        EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_TOPIC_REVISE, getEventMessage(topic), false));
+    }
+
   }
 
   /*
@@ -2030,4 +2043,19 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 		return forumManager.getNumModTopicCurrentUserHasModPermFor(membershipList);
 	}
 
+    private String getEventMessage(Object object) {
+    	String eventMessagePrefix = "";
+    	final String toolId = ToolManager.getCurrentTool().getId();
+    	
+    		if (toolId.equals(DiscussionForumService.MESSAGE_CENTER_ID))
+    			eventMessagePrefix = "/messagesAndForums/site/";
+    		else if (toolId.equals(DiscussionForumService.MESSAGES_TOOL_ID))
+    			eventMessagePrefix = "/messages/site/";
+    		else
+    			eventMessagePrefix = "/forums/site/";
+    	
+    	return eventMessagePrefix + getContextSiteId() + "/" + object.toString() + "/" + sessionManager.getCurrentSessionUserId();
+    }
+    
+    
 }

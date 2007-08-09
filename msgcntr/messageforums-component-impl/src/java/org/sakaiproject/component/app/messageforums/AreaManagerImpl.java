@@ -39,7 +39,6 @@ import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.UserPermissionManager;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl;
-import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
@@ -68,8 +67,6 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
 
     private MessageForumsTypeManager typeManager;
 
-    private EventTrackingService eventTrackingService;
-
     private UserPermissionManager userPermissionManager;
 
     public void init() {
@@ -78,26 +75,7 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
     }
 
     public UserPermissionManager getUserPermissionManager() {
-        // userPermissionManager can not be injected by spring because of
-        // circluar dependancies so it is loaded by the BeanFactory instead
-//        if (userPermissionManager == null) {
-//            try {
-//                org.springframework.core.io.Resource resource = new InputStreamResource(urlResource.openStream(), classpathUrl);
-//                BeanFactory beanFactory = new XmlBeanFactory(resource);
-//                userPermissionManager = (UserPermissionManagerImpl) beanFactory.getBean(UserPermissionManager.BEAN_NAME);
-//            } catch (Exception e) {
-//                LOG.debug("Unable to load classpath resource: " + classpathUrl);
-//            }
-//        }
         return userPermissionManager;
-    }
-
-    public EventTrackingService getEventTrackingService() {
-        return eventTrackingService;
-    }
-
-    public void setEventTrackingService(EventTrackingService eventTrackingService) {
-        this.eventTrackingService = eventTrackingService;
     }
 
     public MessageForumsTypeManager getTypeManager() {
@@ -249,19 +227,10 @@ public class AreaManagerImpl extends HibernateDaoSupport implements AreaManager 
         
         getHibernateTemplate().saveOrUpdate(area);
 
-        // Commented out when splitting events between Messages tool and Forums tool
-//        if (isNew) {
-//            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_ADD, getEventMessage(area), false));
-//        } else {
-//            eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_WRITE, getEventMessage(area), false));
-//        }
-
         LOG.debug("saveArea executed with areaId: " + area.getId());
     }
 
     public void deleteArea(Area area) {
-    	// commented out when splitting events between Messages tool and Forums tool
-//        eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_REMOVE, getEventMessage(area), false));
         getHibernateTemplate().delete(area);
         LOG.debug("deleteArea executed with areaId: " + area.getId());
     }

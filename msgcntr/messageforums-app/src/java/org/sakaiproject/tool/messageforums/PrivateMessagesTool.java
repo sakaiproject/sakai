@@ -1298,13 +1298,9 @@ public void processChangeSelectView(ValueChangeEvent eve)
     if(!hasValue(getComposeSubject()))
     {
       setErrorMessage(getResourceBundleString(MISSING_SUBJECT));
-      return null ;
+      return null;
     }
-//    if(!hasValue(getComposeBody()) )
-//    {
-//      setErrorMessage("Please enter message body for this compose message.");
-//      return null ;
-//    }
+
     if(getSelectedComposeToList().size()<1)
     {
       setErrorMessage(getResourceBundleString(SELECT_MSG_RECIPIENT));
@@ -1323,6 +1319,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
 
     //reset contents
     resetComposeContents();
+
+    EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_ADD, getEventMessage(pMsg), false));
 
     if(fromMainOrHp != null && !fromMainOrHp.equals(""))
     {
@@ -1413,9 +1411,6 @@ public void processChangeSelectView(ValueChangeEvent eve)
     {
       aMsg.setTitle(getComposeSubject());
       aMsg.setBody(getComposeBody());
-      // these are set by the create method above -- you can remove them or keep them if you really want :)
-      //aMsg.setCreatedBy(getUserId());
-      //aMsg.setCreated(getTime()) ;
       
       aMsg.setAuthor(getAuthorString());
       aMsg.setDraft(Boolean.FALSE);      
@@ -1916,6 +1911,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
     //reset contents
     resetComposeContents();
     
+    EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_RESPONSE, getEventMessage(rrepMsg), false));
+
     return DISPLAY_MESSAGES_PG;
 
   }
@@ -2014,6 +2011,8 @@ public void processChangeSelectView(ValueChangeEvent eve)
     //reset contents
     resetComposeContents();
     
+    EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_FORWARD, getEventMessage(rrepMsg), false));
+    
     return DISPLAY_MESSAGES_PG;
 
   }
@@ -2032,11 +2031,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
       setErrorMessage(getResourceBundleString(MISSING_SUBJECT));
       return null ;
     }
-//    if(!hasValue(getReplyToBody()) )
-//    {
-//      setErrorMessage("You must enter a message content before you may send this message.");
-//      return null ;
-//    }
+
     if(getSelectedComposeToList().size()<1)
     {
       setErrorMessage(getResourceBundleString(SELECT_RECIPIENT_LIST_FOR_REPLY));
@@ -2044,7 +2039,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
     }
     
     PrivateMessage drMsg=getDetailMsg().getMsg() ;
-    //drMsg.setDraft(Boolean.TRUE);
+
     PrivateMessage drrepMsg = messageManager.createPrivateMessage() ;
     drrepMsg.setTitle(getReplyToSubject()) ;
     drrepMsg.setDraft(Boolean.TRUE);
@@ -2724,7 +2719,7 @@ public void processChangeSelectView(ValueChangeEvent eve)
       		}
       	}
       	tmpPM.setRecipients(tmpRecipList);
-      	prtMsgManager.savePrivateMessage(tmpPM);
+      	prtMsgManager.savePrivateMessage(tmpPM, false);
       }
     }
     setSelectedTopicTitle(newTopicTitle) ;
@@ -3638,11 +3633,11 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	  	final String toolId = ToolManager.getCurrentTool().getId();
 		  	
 		if (toolId.equals(DiscussionForumService.MESSAGE_CENTER_ID))
-			eventMessagePrefix = "/MessagesAndForums/site/";
+			eventMessagePrefix = "/messages&Forums/site/";
 		else if (toolId.equals(DiscussionForumService.MESSAGES_TOOL_ID))
-			eventMessagePrefix = "/Messages/site/";
+			eventMessagePrefix = "/messages/site/";
 		else
-			eventMessagePrefix = "/Forums/site/";
+			eventMessagePrefix = "/forums/site/";
 	  	
 	  	return eventMessagePrefix + ToolManager.getCurrentPlacement().getContext() + 
 	  				"/" + object.toString() + "/" + SessionManager.getCurrentSessionUserId();

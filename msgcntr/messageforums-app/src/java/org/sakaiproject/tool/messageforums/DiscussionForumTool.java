@@ -46,6 +46,7 @@ import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DBMembershipItem;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
+import org.sakaiproject.api.app.messageforums.DiscussionForumService;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.MembershipManager;
 import org.sakaiproject.api.app.messageforums.Message;
@@ -71,6 +72,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -3495,10 +3497,10 @@ public class DiscussionForumTool
 	  String eventRef;
 	  
 	  if (isForumsTool()) {
-		  eventRef = "/Forums/";
+		  eventRef = "/forums/";
 	  }
 	  else {
-		  eventRef="/Messages&Forums/";
+		  eventRef="/messages&Forums/";
 	  }
 	  
 	  eventRef += message.getId() + "/del by/" + getUserNameOrEid();
@@ -3530,7 +3532,7 @@ public class DiscussionForumTool
 			  .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
 
 	  // does the actual save to 'delete' this message
-	  forumManager.saveMessage(message);
+	  forumManager.saveMessage(message, false);
 
 	  // reload the topic, forum and reset the topic's base forum
 	  selectedTopic = getDecoratedTopic(selectedTopic.getTopic());
@@ -3541,7 +3543,7 @@ public class DiscussionForumTool
 	  this.deleteMsg = false;
 
 	  // TODO: document it was done for tracking purposes
-//	  EventTrackingService.post(EventTrackingService.newEvent("forum.msg.delete", getEventReference(message), true));
+	  EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_REMOVE, getEventReference(message), true));
 	  LOG.info("Forum message " + message.getId() + " has been deleted by " + getUserId());
 
 	  // go to thread view or all messages depending on
@@ -4428,7 +4430,7 @@ public class DiscussionForumTool
         msg.setGradeAssignmentName(selectedAssignName);
         msg.setTopic((DiscussionTopic) forumManager
                 .getTopicByIdWithMessages(selectedTopic.getTopic().getId()));
-        forumManager.saveMessage(msg);
+        forumManager.saveMessage(msg, false);
         
         setSuccessMessage(getResourceBundleString(GRADE_SUCCESSFUL));
     } 
@@ -4442,6 +4444,8 @@ public class DiscussionForumTool
       e.printStackTrace(); 
     } 
         
+    EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_GRADE, getEventReference(selectedMessage.getMessage()), true));
+    
     gradeNotify = false; 
     selectedAssign = DEFAULT_GB_ITEM; 
     resetGradeInfo();  

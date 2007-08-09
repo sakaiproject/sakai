@@ -112,6 +112,7 @@ public interface PrivateMessageManager {
      * @param recipients
      */
     void savePrivateMessage(Message message);
+    void savePrivateMessage(Message message, boolean logEvent);
             
     /**
      * find message count for type

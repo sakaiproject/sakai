@@ -214,9 +214,6 @@
 		        <property name="forumManager">
         		    <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsForumManager"/>
 		        </property>		       
-		        <property name="eventTrackingService">
-        		    <ref bean="org.sakaiproject.event.api.EventTrackingService"/>
-		        </property>
             </bean>            
         </property>
          <property name="transactionAttributes">

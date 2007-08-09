@@ -38,6 +38,8 @@ public interface MessageForumsMessageManager {
 
     public void saveMessage(Message message);
 
+    public void saveMessage(Message message, boolean logEvent);
+
     public void deleteMessage(Message message);
 
     public Message getMessageById(Long messageId);

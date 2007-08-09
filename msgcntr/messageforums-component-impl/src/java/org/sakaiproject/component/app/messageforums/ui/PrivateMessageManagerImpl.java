@@ -58,6 +58,7 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.component.app.messageforums.TestUtil;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageRecipientImpl;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.email.api.EmailService;
@@ -270,6 +271,14 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     messageManager.saveMessage(message);
   }
 
+  /**
+   * @see org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager#savePrivateMessage(org.sakaiproject.api.app.messageforums.Message, boolean logEvent)
+   */
+  public void savePrivateMessage(Message message, boolean logEvent)
+  {
+	  messageManager.saveMessage(message, logEvent);
+  }
+  
   public Message getMessageById(Long id)
   {
     return messageManager.getMessageById(id);
@@ -431,9 +440,11 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
         element.setTitle(newName);
         element.setModifiedBy(userId);
         element.setModified(new Date());
+        
+        EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_FOLDER_REVISE, getEventMessage(element), false));
       }      
     }
-    forumManager.savePrivateForum(pf);  
+    forumManager.savePrivateForum(pf);
   }
 
   public void deleteTopicFolder(PrivateForum pf,String topicUuid)
@@ -445,6 +456,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       if(element.getUuid().equals(topicUuid))
       {
         pf.removeTopic(element);
+
+        EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_FOLDER_REMOVE, getEventMessage(element), false));
         break;
       }
     }
@@ -491,7 +504,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
         element.setTypeUuid(newTopicTypeUuid);
       }
     }
-    savePrivateMessage(message);
+    savePrivateMessage(message, false);
     
   }
   
@@ -985,7 +998,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 
       recipientList.add(receiver);
       message.setRecipients(recipientList);
-      savePrivateMessage(message);
+      savePrivateMessage(message, false);
       return;
     }
 
@@ -1123,18 +1136,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 
     message.setRecipients(recipientList);
 
-    savePrivateMessage(message);
-
-    /** enable if users are stored in message forums user table
-     Iterator i = recipients.iterator();
-     while (i.hasNext()){
-     String userId = (String) i.next();
-     
-     //getForumUser will create user if forums user does not exist
-     message.addRecipient(userManager.getForumUser(userId.trim()));
-     }
-     **/
-
+    savePrivateMessage(message, false);
   }
 
   /**
@@ -1142,45 +1144,8 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
    */
   public void markMessageAsReadForUser(final PrivateMessage message)
   {
-
-    if (LOG.isDebugEnabled())
-    {
-      LOG.debug("markMessageAsReadForUser(message: " + message + ")");
-    }
-
-    if (message == null)
-    {
-      throw new IllegalArgumentException("Null Argument");
-    }
-
-    final String userId = getCurrentUser();
-
-    /** fetch recipients for message */
-    PrivateMessage pvtMessage = getPrivateMessageWithRecipients(message);
-
-    /** create PrivateMessageRecipientImpl to search for recipient to update */
-    PrivateMessageRecipientImpl searchRecipient = new PrivateMessageRecipientImpl(
-        userId, typeManager.getReceivedPrivateMessageType(), getContextId(),
-        Boolean.FALSE);
-
-    List recipientList = pvtMessage.getRecipients();
-
-    if (recipientList == null || recipientList.size() == 0)
-    {
-      LOG.error("markMessageAsReadForUser(message: " + message
-          + ") has empty recipient list");
-      throw new Error("markMessageAsReadForUser(message: " + message
-          + ") has empty recipient list");
-    }
-
-    int recordIndex = pvtMessage.getRecipients().indexOf(searchRecipient);
-
-    if (recordIndex != -1)
-    {
-      ((PrivateMessageRecipientImpl) recipientList.get(recordIndex))
-          .setRead(Boolean.TRUE);
-    }
-  }
+	  markMessageAsReadForUser(message, getContextId());
+   }
 
   /**
    * FOR SYNOPTIC TOOL:
@@ -1223,8 +1188,11 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 
     if (recordIndex != -1)
     {
-      ((PrivateMessageRecipientImpl) recipientList.get(recordIndex))
-          .setRead(Boolean.TRUE);
+    	if (! ((PrivateMessageRecipientImpl) recipientList.get(recordIndex)).getRead()) {
+    		((PrivateMessageRecipientImpl) recipientList.get(recordIndex)).setRead(Boolean.TRUE);
+    		
+      	  EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_READ, getEventMessage(pvtMessage), false));
+    	}
     }
   }
 
@@ -1454,4 +1422,21 @@ return topicTypeUuid;
 
       return areaManager.getResourceBundleString(key);
   }
+
+  /**
+   * Constructs the event message string
+   */
+  private String getEventMessage(Object object) {
+  	String eventMessagePrefix = "";
+  	final String toolId = ToolManager.getCurrentTool().getId();
+		  	
+	if (toolId.equals(DiscussionForumService.MESSAGE_CENTER_ID))
+		eventMessagePrefix = "/messages&Forums/site/";
+	else if (toolId.equals(DiscussionForumService.MESSAGES_TOOL_ID))
+		eventMessagePrefix = "/messages/site/";
+	else
+		eventMessagePrefix = "/forums/site/";
+  	
+  	return eventMessagePrefix + getContextId() + "/" + object.toString() + "/" + getCurrentUser();
+	}
 }

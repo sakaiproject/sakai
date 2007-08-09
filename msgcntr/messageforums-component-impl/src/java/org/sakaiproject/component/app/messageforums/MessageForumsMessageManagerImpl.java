@@ -508,6 +508,9 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     
     public void markMessageReadForUser(Long topicId, Long messageId, boolean read, String userId)
     {
+    	// to only add to event log if not read
+    	boolean trulyUnread;
+    	
     	if (messageId == null || topicId == null || userId == null) {
             LOG.error("markMessageReadForUser failed with topicId: " + topicId + ", messageId: " + messageId + ", userId: " + userId);
             throw new IllegalArgumentException("Null Argument");
@@ -518,17 +521,25 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         UnreadStatus status = findUnreadStatusByUserId(topicId, messageId, userId);
         if (status == null) {
             status = new UnreadStatusImpl();
-        }        
+            trulyUnread = true;
+        }
+        else {
+        	trulyUnread = status.getRead().booleanValue();
+        	trulyUnread = !trulyUnread;
+        }
+        
         status.setTopicId(topicId);
         status.setMessageId(messageId);
         status.setUserId(userId);
         status.setRead(new Boolean(read));
-        
-        Message message = (Message) getMessageById(messageId);
-        if (isMessageFromForums(message))
-        	eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_READ, getEventMessage(message), false));
-        else
-        	eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_READ, getEventMessage(message), false));
+
+        if (trulyUnread) {
+        	Message message = (Message) getMessageById(messageId);
+        	if (isMessageFromForums(message))
+        		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_READ, getEventMessage(message), false));
+        	else
+        		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_READ, getEventMessage(message), false));
+        }
         	
         getHibernateTemplate().saveOrUpdate(status);
     }
@@ -595,6 +606,10 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     }
 
     public void saveMessage(Message message) {
+    	saveMessage(message, true);
+    }
+
+    public void saveMessage(Message message, boolean logEvent) {
         boolean isNew = message.getId() == null;
         
         if (!(message instanceof PrivateMessage)){                  
@@ -616,19 +631,20 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         	LOG.error("null attribute(s) for saving message in MessageForumsMessageManagerImpl.saveMessage");
         }
         getHibernateTemplate().saveOrUpdate(message);
-        
-        if (isNew) {
-        	if (isMessageFromForums(message))
-        		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_ADD, getEventMessage(message), false));
-        	else
-        		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_ADD, getEventMessage(message), false));
-        } else {
-        	if (isMessageFromForums(message))
-        		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_RESPONSE, getEventMessage(message), false));
-        	else
-        		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_RESPONSE, getEventMessage(message), false));
+    
+        if (logEvent) {
+        	if (isNew) {
+        		if (isMessageFromForums(message))
+        			eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_ADD, getEventMessage(message), false));
+        		else
+        			eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_ADD, getEventMessage(message), false));
+        	} else {
+        		if (isMessageFromForums(message))
+        			eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_RESPONSE, getEventMessage(message), false));
+        		else
+        			eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_RESPONSE, getEventMessage(message), false));
+        	}
         }
-//        eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_RESOURCE_RESPONSE, getEventMessage(message), false));
         
         LOG.info("message " + message.getId() + " saved successfully");
     }
@@ -769,8 +785,6 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     	
     	for(int i=0; i<thisList.size(); i++)
     	{
-    		//Message delMessage = getMessageByIdWithAttachments(((Message)thisList.get(i)).getId());
-    		//deleteMessage(getMessageById(((Message)thisList.get(i)).getId()));
     		Message delMessage = getMessageById(((Message)thisList.get(i)).getId());
     		deleteMessage(delMessage);
     	}
@@ -888,17 +902,15 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
     	final String toolId = ToolManager.getCurrentTool().getId();
     	
     		if (toolId.equals(DiscussionForumService.MESSAGE_CENTER_ID))
-    			eventMessagePrefix = "/MessagesAndForums/site/";
+    			eventMessagePrefix = "/messagesAndForums/site/";
     		else if (toolId.equals(DiscussionForumService.MESSAGES_TOOL_ID))
-    			eventMessagePrefix = "/Messages/site/";
+    			eventMessagePrefix = "/messages/site/";
     		else
-    			eventMessagePrefix = "/Forums/site/";
+    			eventMessagePrefix = "/forums/site/";
     	
     	return eventMessagePrefix + getContextId() + "/" + object.toString() + "/" + getCurrentUser();
-      //return "MessageCenter::" + getCurrentUser() + "::" + object.toString();
     }
-    
-    
+        
     public List getAllRelatedMsgs(final Long messageId)
     {
     	Message rootMsg = getMessageById(messageId); 

@@ -78,6 +78,7 @@ public interface DiscussionForumManager
    * @param message
    */
   void saveMessage(Message message);
+  void saveMessage(Message message, boolean logEvent);
 
   /**
    * @param message
