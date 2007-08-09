@@ -23,12 +23,10 @@ package org.sakaiproject.search.component.test;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.Date;
 import java.util.PropertyResourceBundle;
 
 import junit.extensions.TestSetup;
@@ -53,10 +51,6 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
 
-import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
-import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiSecurityService;
-import uk.ac.cam.caret.sakai.rwiki.service.api.RenderService;
-import uk.ac.cam.caret.sakai.rwiki.service.message.api.PreferenceService;
 
 /**
  * @author ieb
@@ -78,17 +72,10 @@ public class LoaderComponentIntegrationTest extends TestCase
 
 	private UserDirectoryService userDirService;
 
-	private RWikiObjectService rwikiObjectservice = null;
 
 	private SecurityService securityService = null;
 
 	private AuthzGroupService authzGroupService = null;
-
-	private RWikiSecurityService rwikiSecurityService = null;
-
-	private RenderService renderService = null;
-
-	private PreferenceService preferenceService = null;
 
 	private SearchService searchService = null;
 
@@ -123,16 +110,12 @@ public class LoaderComponentIntegrationTest extends TestCase
 		// Get the services we need for the tests
 		siteService = (SiteService) getService(SiteService.class.getName());
 		userDirService = (UserDirectoryService) getService(UserDirectoryService.class.getName());
-		rwikiObjectservice = (RWikiObjectService) getService(RWikiObjectService.class.getName());
-		renderService = (RenderService) getService(RenderService.class.getName());
 
 		securityService = (SecurityService) getService(SecurityService.class.getName());
 
-		rwikiSecurityService = (RWikiSecurityService) getService(RWikiSecurityService.class.getName());
 
 		authzGroupService = (AuthzGroupService) getService(AuthzGroupService.class.getName());
 
-		preferenceService = (PreferenceService) getService(PreferenceService.class.getName());
 
 		searchService = (SearchService) getService(SearchService.class.getName());
 		searchIndexBuilder = (SearchIndexBuilder) getService(SearchIndexBuilder.class.getName());
@@ -144,8 +127,6 @@ public class LoaderComponentIntegrationTest extends TestCase
 		assertNotNull(
 				"Cant find site service as org.sakaiproject.service.legacy.security.SecurityService ",
 				securityService);
-		assertNotNull("Cant find site service as securityService ",
-				rwikiSecurityService);
 
 		assertNotNull(
 				"Cant find site service as org.sakaiproject.service.legacy.site.SiteService ",
@@ -153,13 +134,6 @@ public class LoaderComponentIntegrationTest extends TestCase
 		assertNotNull(
 				"Cant find User Directory service as org.sakaiproject.service.legacy.user.UserDirectoryService ",
 				userDirService);
-		assertNotNull(
-				"Cant find User Preference Service as uk.ac.cam.caret.sakai.rwiki.service.message.api.PreferenceService ",
-				preferenceService);
-		assertNotNull("Cant find RWiki Object service as "
-				+ RWikiObjectService.class.getName(), rwikiObjectservice);
-		assertNotNull("Cant find Render Service service as "
-				+ RenderService.class.getName(), renderService);
 		assertNotNull(
 				"Cant find Search Service as org.sakaiproject.search.api.SearchService ",
 				searchService);
@@ -281,53 +255,6 @@ public class LoaderComponentIntegrationTest extends TestCase
 		}
 	}
 
-	public void testLoadFromDisk() throws Exception
-	{
-		File d = new File(loaderDirectory);
-		if (!d.exists())
-		{
-			d.mkdirs();
-			logger
-					.error("Directory for loader information does not exist so it has been created at "
-							+ d.getAbsolutePath());
-		}
-		File[] files = d.listFiles();
-		for (int i = 0; i < files.length; i++)
-		{
-			File f = files[i];
-			String pageName = f.getName();
-			int li = pageName.lastIndexOf(".");
-			if (li > -1)
-			{
-				pageName = pageName.substring(0, li);
-			}
-			FileReader fr = new FileReader(f);
-			char[] c = new char[4096];
-			StringBuffer contents = new StringBuffer();
-			int ci = -1;
-			while ((ci = fr.read(c)) != -1)
-			{
-				contents.append(c, 0, ci);
-			}
-			try
-			{
-				logger.info("Adding " + pageName);
-				rwikiObjectservice.update(pageName, site.getReference(),
-						new Date(), contents.toString());
-				logger.info("Added " + pageName);
-			}
-			catch (Exception ex)
-			{
-				logger.error("Problem ", ex);
-			}
-		}
-		while (!searchIndexBuilder.isBuildQueueEmpty())
-		{
-			Thread.sleep(5000);
-		}
-		searchIndexBuilder.destroy();
-		Thread.sleep(15000);
-	}
 
 	public void testRefreshIndex() throws Exception
 	{
