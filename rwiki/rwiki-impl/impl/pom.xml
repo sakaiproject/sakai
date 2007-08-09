@@ -56,6 +56,13 @@ limitations under the License.
         </includes>
         <filtering>false</filtering>
       </resource>
+      <resource>
+        <directory>${basedir}/src/sql</directory>
+        <includes>
+          <include>**/*.*</include>
+        </includes>
+        <filtering>false</filtering>
+      </resource>
     </resources>
     
     

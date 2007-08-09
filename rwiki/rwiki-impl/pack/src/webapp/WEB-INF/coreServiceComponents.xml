@@ -59,6 +59,7 @@
   <bean id="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService"
     class="uk.ac.cam.caret.sakai.rwiki.component.service.impl.RWikiObjectServiceImpl"
     init-method="init"  >
+    <property name="autoDdl"><value>${auto.ddl}</value></property>
     <property name="RWikiCurrentObjectDao"><ref bean="rwikiCurrentObjectDao"/></property>
     <property name="RWikiHistoryObjectDao"><ref bean="rwikiHistoryObjectDao"/></property>
     <property name="handlers">
@@ -78,6 +79,7 @@
         <entry key="changes.xml"><ref bean="rwikiChangesHandler"/></entry>
       </map>
     </property>
+    
   </bean>
 
   <!-- The base level radeox render engine -->
