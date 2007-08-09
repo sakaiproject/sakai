@@ -371,7 +371,7 @@ public class GraderRulesBean extends GradebookDependentBean implements Serializa
 		}
 
 		List graderRules = selectedGrader.getGraderRules();
-		if (graderRules != null || graderRules.size() > 0) {
+		if (graderRules != null && graderRules.size() > 0) {
 
 			for (Iterator rulesIter = graderRules.iterator(); rulesIter.hasNext();) {
 				GraderRule rule = (GraderRule) rulesIter.next();
