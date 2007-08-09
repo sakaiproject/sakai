@@ -160,6 +160,7 @@ public interface EntityContentProducer
 	 * The value is expected to be a String or String[], containig the value, values to be
 	 * added. Before using this method in your entity producer, be certain that the value
 	 * is not already in the index. ( See SearchService for list of Fields)
+	 * If the key starts with a "T" then the index will be tokenized and the T removed to form the index name
 	 * @return
 	 */
 	Map getCustomProperties(String ref);

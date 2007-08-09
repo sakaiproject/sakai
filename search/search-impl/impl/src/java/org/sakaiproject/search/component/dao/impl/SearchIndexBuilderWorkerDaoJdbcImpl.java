@@ -492,10 +492,21 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 										{
 											for (int i = 0; i < values.length; i++)
 											{
-												doc.add(new Field(key,
-														filterNull(values[i]),
-														Field.Store.COMPRESS,
-														Field.Index.UN_TOKENIZED));
+												if (key.startsWith("T"))
+												{
+													key = key.substring(1);
+													doc.add(new Field(key,
+															filterNull(values[i]),
+															Field.Store.COMPRESS,
+															Field.Index.TOKENIZED,Field.TermVector.YES));
+												}
+												else
+												{
+													doc.add(new Field(key,
+															filterNull(values[i]),
+															Field.Store.COMPRESS,
+															Field.Index.UN_TOKENIZED));
+												}
 											}
 										}
 									}
