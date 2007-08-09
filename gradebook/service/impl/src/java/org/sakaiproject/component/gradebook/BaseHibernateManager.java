@@ -1163,35 +1163,43 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     {
     	if(gradebookId == null || userId == null)
     		throw new IllegalArgumentException("Null parameter(s) in BaseHibernateManager.getPermissionsForUserForGoupsAnyCategory");
-
-    	HibernateCallback hc = new HibernateCallback() {
-    		public Object doInHibernate(Session session) throws HibernateException {
-    			Query q = session.createQuery("from Permission as perm where perm.gradebookId=:gradebookId and perm.userId=:userId and perm.categoryId is null and perm.groupId in (:groupIds) ");
-    			q.setLong("gradebookId", gradebookId);
-    			q.setString("userId", userId);
-    			q.setParameterList("groupIds", groupIds);
-
-    			return q.list();
-    		}
-    	};
-    	return (List)getHibernateTemplate().execute(hc);
+    	
+    	if (groupIds != null && groupIds.size() > 0) {
+	    	HibernateCallback hc = new HibernateCallback() {
+	    		public Object doInHibernate(Session session) throws HibernateException {
+	    			Query q = session.createQuery("from Permission as perm where perm.gradebookId=:gradebookId and perm.userId=:userId and perm.categoryId is null and perm.groupId in (:groupIds) ");
+	    			q.setLong("gradebookId", gradebookId);
+	    			q.setString("userId", userId);
+	    			q.setParameterList("groupIds", groupIds);
+	
+	    			return q.list();
+	    		}
+	    	};
+	    	return (List)getHibernateTemplate().execute(hc);
+    	} else {
+    		return null;
+    	}
     }
     
     public List getPermissionsForUserForGroup(final Long gradebookId, final String userId, final List groupIds) throws IllegalArgumentException
     {
     	if(gradebookId == null || userId == null)
     		throw new IllegalArgumentException("Null parameter(s) in BaseHibernateManager.getPermissionsForUserForGroup");
-
-    	HibernateCallback hc = new HibernateCallback() {
-    		public Object doInHibernate(Session session) throws HibernateException {
-    			Query q = session.createQuery("from Permission as perm where perm.gradebookId=:gradebookId and perm.userId=:userId and perm.groupId in (:groupIds) ");
-    			q.setLong("gradebookId", gradebookId);
-    			q.setString("userId", userId);
-    			q.setParameterList("groupIds", groupIds);
-
-    			return q.list();
-    		}
-    	};
-    	return (List)getHibernateTemplate().execute(hc);    	
+    	
+    	if (groupIds != null && groupIds.size() > 0) {
+	    	HibernateCallback hc = new HibernateCallback() {
+	    		public Object doInHibernate(Session session) throws HibernateException {
+	    			Query q = session.createQuery("from Permission as perm where perm.gradebookId=:gradebookId and perm.userId=:userId and perm.groupId in (:groupIds) ");
+	    			q.setLong("gradebookId", gradebookId);
+	    			q.setString("userId", userId);
+	    			q.setParameterList("groupIds", groupIds);
+	
+	    			return q.list();
+	    		}
+	    	};
+	    	return (List)getHibernateTemplate().execute(hc);  
+    	} else {
+    		return null;
+    	}
     }
 }

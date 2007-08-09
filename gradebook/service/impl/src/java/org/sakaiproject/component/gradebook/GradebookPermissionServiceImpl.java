@@ -267,24 +267,27 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 							studentMap.put(key, studentMapForGroups.get(key));
 					}
 				}
-
-				List groupIds = new ArrayList();
-				for(Iterator iter = courseSections.iterator(); iter.hasNext();)
-				{
-					CourseSection grp = (CourseSection) iter.next();
-					if(grp != null)
-						groupIds.add(grp.getUuid());
-				}
-				perms = getPermissionsForUserForGoupsAnyCategory(gradebookId, userId, groupIds);
-				if(perms != null)
-				{
-					Map studentMapForGroups = filterPermissionForGrader(perms, studentIds, sectionIdStudentIdsMap);
-					for(Iterator iter = studentMapForGroups.keySet().iterator(); iter.hasNext();)
+				
+				if (courseSections != null && !courseSections.isEmpty()) {
+					List groupIds = new ArrayList();
+					for(Iterator iter = courseSections.iterator(); iter.hasNext();)
 					{
-						String key = (String)iter.next();
-						if((studentMap.containsKey(key) && ((String)studentMap.get(key)).equalsIgnoreCase(GradebookService.viewPermission))
-								|| !studentMap.containsKey(key))
-							studentMap.put(key, studentMapForGroups.get(key));
+						CourseSection grp = (CourseSection) iter.next();
+						if(grp != null)
+							groupIds.add(grp.getUuid());
+					}
+
+					perms = getPermissionsForUserForGoupsAnyCategory(gradebookId, userId, groupIds);
+					if(perms != null)
+					{
+						Map studentMapForGroups = filterPermissionForGrader(perms, studentIds, sectionIdStudentIdsMap);
+						for(Iterator iter = studentMapForGroups.keySet().iterator(); iter.hasNext();)
+						{
+							String key = (String)iter.next();
+							if((studentMap.containsKey(key) && ((String)studentMap.get(key)).equalsIgnoreCase(GradebookService.viewPermission))
+									|| !studentMap.containsKey(key))
+								studentMap.put(key, studentMapForGroups.get(key));
+						}
 					}
 				}
 
