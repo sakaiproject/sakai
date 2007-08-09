@@ -629,12 +629,12 @@ public class MessageContentProducer implements EntityContentProducer
 		return false;
 	}
 
-	public Map getCustomProperties()
+	public Map getCustomProperties(String ref)
 	{
 		return null;
 	}
 
-	public String getCustomRDF()
+	public String getCustomRDF(String ref)
 	{
 		return null;
 	}

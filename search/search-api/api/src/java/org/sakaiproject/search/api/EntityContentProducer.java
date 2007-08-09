@@ -162,7 +162,7 @@ public interface EntityContentProducer
 	 * is not already in the index. ( See SearchService for list of Fields)
 	 * @return
 	 */
-	Map getCustomProperties();
+	Map getCustomProperties(String ref);
 
 	/**
 	 * At the moment this is a placeholder, but eventually
@@ -171,7 +171,7 @@ public interface EntityContentProducer
 	 * already processing. 
 	 * @return
 	 */
-	String getCustomRDF();
+	String getCustomRDF(String ref);
 
 	/**
 	 * @param ref
