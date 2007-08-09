@@ -1163,7 +1163,7 @@ public class AssignmentAction extends PagedResourceActionII
 					// if there is any newly added user who doesn't have a submission object yet, add the submission
 					try
 					{
-						addSubmissionsForNonElectronicAssignment(state, allowAddSubmissionUsers, AssignmentService.getAssignment(a.getReference())); 
+						addSubmissionsForNonElectronicAssignment(state, submissions, allowAddSubmissionUsers, AssignmentService.getAssignment(a.getReference())); 
 					}
 					catch (Exception e)
 					{
@@ -4302,8 +4302,22 @@ public class AssignmentAction extends PagedResourceActionII
 	 * @param state
 	 * @param a
 	 */
-	private void addSubmissionsForNonElectronicAssignment(SessionState state, List allowAddSubmissionUsers, Assignment a) 
+	private void addSubmissionsForNonElectronicAssignment(SessionState state, List submissions, List allowAddSubmissionUsers, Assignment a) 
 	{
+		// get the string for all submitters
+		HashSet<String> submitterIdSet = new HashSet<String>();
+		for (Iterator iSubmissions=submissions.iterator(); iSubmissions.hasNext();)
+		{
+			List submitterIds = ((AssignmentSubmission) iSubmissions.next()).getSubmitterIds();
+			if (submitterIds != null && submitterIds.size() > 0)
+			{
+				for (int i = 0; i < submitterIds.size(); i++)
+				{
+					submitterIdSet.add((String) submitterIds.get(i));
+				}
+			}
+		}
+		
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 		String authzGroupId = SiteService.siteReference(contextString);
 		try
@@ -4313,14 +4327,14 @@ public class AssignmentAction extends PagedResourceActionII
 			for (Iterator iUserIds = grants.iterator(); iUserIds.hasNext();)
 			{
 				String userId = (String) iUserIds.next();
-				try
+				if (!submitterIdSet.contains(userId))
 				{
-					User u = UserDirectoryService.getUser(userId);
-					// only include those users that can submit to this assignment
-					if (u != null && allowAddSubmissionUsers.contains(u))
+					try
 					{
-						if (AssignmentService.getSubmission(a.getReference(), u) == null)
-						{
+						User u = UserDirectoryService.getUser(userId);
+						// only include those users that can submit to this assignment
+						if (u != null && allowAddSubmissionUsers.contains(u))
+						{System.out.println("here");
 							// construct fake submissions for grading purpose
 							AssignmentSubmissionEdit submission = AssignmentService.addSubmission(contextString, a.getId());
 							submission.removeSubmitter(UserDirectoryService.getCurrentUser());
@@ -4331,10 +4345,10 @@ public class AssignmentAction extends PagedResourceActionII
 							AssignmentService.commitEdit(submission);
 						}
 					}
-				}
-				catch (Exception e)
-				{
-					Log.warn("chef", this + e.toString() + " here userId = " + userId);
+					catch (Exception e)
+					{
+						Log.warn("chef", this + e.toString() + " here userId = " + userId);
+					}
 				}
 			}
 		}
