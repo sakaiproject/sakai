@@ -22,10 +22,12 @@ table.gbContainerNav {
 .gbLeftNav  {
 	vertical-align:bottom;
     text-align:left;
+    white-space:nowrap;
 }
 .gbRightNav  {
 	vertical-align:bottom;
     text-align:right;
+    white-space:nowrap;
 }
 
 tr.internal {}
