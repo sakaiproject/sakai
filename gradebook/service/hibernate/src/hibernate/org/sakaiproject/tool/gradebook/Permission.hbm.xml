@@ -7,7 +7,7 @@
 
 	<class name="org.sakaiproject.tool.gradebook.Permission" table="GB_PERMISSION_T" >
 
-		<id name="id" column="ID" type="long">
+		<id name="id" column="GB_PERMISSION_ID" type="long">
 			<generator class="native">
 				<param name="sequence">GB_PERMISSION_S</param>
 			</generator>
@@ -15,11 +15,11 @@
 
 		<version type="integer" name="version" column="VERSION" />
 
-		<property name="gradebookId" column="GRADEBOOK_ID" type="long"/>
+		<property name="gradebookId" column="GRADEBOOK_ID" type="long" not-null="true"/>
 		
 		<property name="userId" column="USER_ID" type="string" not-null="true"/>
 
-		<property name="function" column="FUNCTION" type="string" not-null="true"/>
+		<property name="function" column="FUNCTION_NAME" type="string" not-null="true"/>
 		
 		<property name="categoryId" column="CATEGORY_ID" type="long"/>
 		
