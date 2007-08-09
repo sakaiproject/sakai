@@ -102,7 +102,7 @@ public class GraderRulesBean extends GradebookDependentBean implements Serializa
 			graderIdDisplayNameMap = new HashMap();
 			graderNameSelectMenu = new ArrayList();
 			
-			graderNameSelectMenu.add(new SelectItem(NONE, ""));
+			graderNameSelectMenu.add(new SelectItem(NONE, FacesUtil.getLocalizedString("grader_rules_select_menu_none")));
 			for (Iterator taIter = taList.iterator(); taIter.hasNext();) {
 				ParticipationRecord participationRecord = (ParticipationRecord)taIter.next();
 				User user = participationRecord.getUser();

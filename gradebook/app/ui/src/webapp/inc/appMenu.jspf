@@ -32,11 +32,11 @@
      <h:outputText value="#{msgs.appmenu_gb_setup} &nbsp;" escape="false" rendered="#{bean.pageName eq 'gradebookSetup' && bean.userAbleToEditAssessments}" styleClass="currentView" />
 
 	<%-- Permission Settings --%>
-     <h:commandLink action="#{bean.navigateToPermissionSettings}" immediate="true" rendered="#{bean.pageName ne 'graderRules' && bean.userAbleToEditAssessments}">
+     <h:commandLink action="#{bean.navigateToPermissionSettings}" immediate="true" rendered="#{bean.pageName ne 'graderRules' && bean.userAbleToEditAssessments && bean.userWithTaFlagExistsInSite}">
          <h:outputText value="#{msgs.appmenu_perm_settings}" />
          <f:param name="pageName" value="graderRules"/>
      </h:commandLink>
-     <h:outputText value="#{msgs.appmenu_perm_settings} &nbsp;" escape="false" rendered="#{bean.pageName eq 'graderRules' && bean.userAbleToEditAssessments}" styleClass="currentView" />
+     <h:outputText value="#{msgs.appmenu_perm_settings} &nbsp;" escape="false" rendered="#{bean.pageName eq 'graderRules' && bean.userAbleToEditAssessments && bean.userWithTaFlagExistsInSite}" styleClass="currentView" />
 
 	<%-- Course Grade Options menu --%>
      <h:commandLink action="#{bean.navigateToFeedbackOptions}" immediate="true" rendered="#{bean.pageName ne 'feedbackOptions' && bean.userAbleToEditAssessments}">

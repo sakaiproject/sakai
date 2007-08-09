@@ -34,6 +34,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
+import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
 import org.sakaiproject.tool.api.ToolSession;
@@ -202,6 +203,16 @@ public abstract class GradebookDependentBean extends InitializableBean {
 		}
 		
 		return userHasGraderPermissions.booleanValue();
+	}
+	
+	private transient Boolean userWithTaFlagExistsInSite;
+	public boolean isUserWithTaFlagExistsInSite() {
+		if (userWithTaFlagExistsInSite == null) {
+			List tas = getSectionAwareness().getSiteMembersInRole(getGradebookUid(), Role.TA);
+			userWithTaFlagExistsInSite =  new Boolean(tas != null && tas.size() > 0);
+		}
+		
+		return userWithTaFlagExistsInSite.booleanValue();
 	}
 	
 	private transient Boolean userHasPermissionsForAllItems;

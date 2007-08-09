@@ -40,7 +40,7 @@
 						<f:verbatim><br /><br /></f:verbatim>
 						<h:commandLink action="#{graderRulesBean.processAddRule}" title="#{msgs.grader_rules_add_rule}" styleClass="graderRulesAdd"
 								rendered="#{graderRulesBean.selectedGrader != null}">
-							<h:graphicImage value="images/silk/add.png" alt="#{msgs.grader_rules_add_rule}"/>
+							<h:graphicImage value="/../../library/image/silk/add.png" alt="#{msgs.grader_rules_add_rule}"/>
 							<h:outputText value="#{msgs.grader_rules_add_rule} " />
 						</h:commandLink>
 					<f:verbatim></td></f:verbatim>
@@ -79,7 +79,7 @@
 								</h:column>
 								<h:column>
 									<h:commandLink actionListener="#{graderRulesBean.processRemoveRule}" title="#{msgs.grader_rules_remove_rule}">
-										<h:graphicImage value="images/silk/delete.png" alt="#{msgs.grader_rules_remove_rule}"/>
+										<h:graphicImage value="/../../library/image/silk/delete.png" alt="#{msgs.grader_rules_remove_rule}"/>
 										<f:param name="rowIndex" value="#{rowIndex}"/>
 									</h:commandLink>
 								</h:column>
