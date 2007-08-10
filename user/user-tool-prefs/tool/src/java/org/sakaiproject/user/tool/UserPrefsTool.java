@@ -70,6 +70,9 @@ public class UserPrefsTool
 
 	/** The string to get whether privacy status should be visible */
 	private static final String ENABLE_PRIVACY_STATUS = "enable.privacy.status";
+   
+   /** Should research/collab specific preferences (no syllabus) be displayed */
+	private static final String PREFS_RESEARCH = "prefs.research.collab";
 	
 	/**
 	 * Represents a name value pair in a keyed preferences set.
@@ -1815,6 +1818,15 @@ public class UserPrefsTool
 	 */
 	public boolean isPrivacyEnabled()
 	{
-		return new Boolean(ServerConfigurationService.getString(ENABLE_PRIVACY_STATUS)).booleanValue();
+		return ServerConfigurationService.getBoolean(ENABLE_PRIVACY_STATUS, false);
+	}
+   
+	/**
+	 * Should research/collab specific preferences (no syllabus) be displayed?
+	 * 
+	 */
+	public boolean isResearchCollab()
+	{
+		return ServerConfigurationService.getBoolean(PREFS_RESEARCH, false);
 	}
 }

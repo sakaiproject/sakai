@@ -51,12 +51,15 @@
     			<f:selectItem itemValue="2" itemLabel="#{UserPrefsTool.msgNotiRsrc2}"/>
     			<f:selectItem itemValue="1" itemLabel="#{UserPrefsTool.msgNotiRsrc1}"/>
   			</h:selectOneRadio>
+         
+			<f:subview id="syllabus" rendered="#{!UserPrefsTool.researchCollab}">
   			<h4><h:outputText value="#{msgs.noti_syll}"/></h4>
 				<h:selectOneRadio value="#{UserPrefsTool.selectedSyllItem}" layout="pageDirection" styleClass="indnt2">
     			<f:selectItem itemValue="3" itemLabel="#{UserPrefsTool.msgNotiSyll3}"/>
     			<f:selectItem itemValue="2" itemLabel="#{UserPrefsTool.msgNotiSyll2}"/>
     			<f:selectItem itemValue="1" itemLabel="#{UserPrefsTool.msgNotiSyll1}"/>
-  			</h:selectOneRadio>  			
+  			</h:selectOneRadio>
+			</f:subview>
   				
 				<p class="act">
 				<h:commandButton accesskey="s" id="submit" styleClass="active" value="#{msgs.update_pref}" action="#{UserPrefsTool.processActionNotiSave}"></h:commandButton>
