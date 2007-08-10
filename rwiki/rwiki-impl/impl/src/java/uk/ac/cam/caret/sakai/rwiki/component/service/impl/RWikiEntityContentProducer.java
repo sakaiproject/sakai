@@ -122,7 +122,7 @@ public class RWikiEntityContentProducer implements EntityContentProducer
 		String pageName = rwo.getName();
 		String pageSpace = NameHelper.localizeSpace(pageName, rwo.getRealm());
 		String renderedPage = renderService.renderPage(rwo, pageSpace, objectService
-				.getComponentPageLinkRender(pageSpace));
+				.getComponentPageLinkRender(pageSpace,true));
 		StringBuilder sb = new StringBuilder();
 		for (HTMLParser hp = new HTMLParser(renderedPage); hp.hasNext();)
 		{

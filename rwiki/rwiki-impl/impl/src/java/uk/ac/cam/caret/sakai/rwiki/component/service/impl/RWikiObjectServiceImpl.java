@@ -1647,9 +1647,9 @@ public class RWikiObjectServiceImpl implements RWikiObjectService
 	/**
 	 * {@inheritDoc}
 	 */
-	public PageLinkRenderer getComponentPageLinkRender(String pageSpace)
+	public PageLinkRenderer getComponentPageLinkRender(String pageSpace, boolean withBreadCrumb)
 	{
-		return new ComponentPageLinkRenderImpl(pageSpace);
+		return new ComponentPageLinkRenderImpl(pageSpace,withBreadCrumb);
 	}
 
 }

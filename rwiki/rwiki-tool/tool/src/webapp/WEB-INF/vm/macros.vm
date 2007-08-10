@@ -228,6 +228,7 @@ ${util.formatDateTime($date,$request)}
 
 
 #macro( breadcrumbs )
+#if ( ${requestScope.withBreadcrumbs} ) 
 #set ($recentlyVisitedBean = ${requestScope.RecentlyVisitedBean})
 #set ( $links = ${recentlyVisitedBean.breadcrumbLinks} )
 <p class="breadcrumb" >
@@ -242,8 +243,10 @@ ${util.formatDateTime($date,$request)}
 	#end
 </p>
 #end
+#end
 
 #macro( publicbreadcrumbs )
+#if ( ${requestScope.withBreadcrumbs} ) 
 #set ($recentlyVisitedBean = ${requestScope.RecentlyVisitedBean})
 #set ( $links = ${recentlyVisitedBean.publicBreadcrumbLinks} )
 <p class="breadcrumb" >
@@ -257,6 +260,7 @@ ${util.formatDateTime($date,$request)}
 		#end
 	#end
 </p>
+#end
 #end
 
 

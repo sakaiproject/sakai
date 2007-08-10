@@ -111,8 +111,10 @@
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>
-    <property name="anchorLinkFormat" ><value>/access/wiki{0}.#{1}</value></property>
-    <property name="standardLinkFormat" ><value>/access/wiki{0}.</value></property>
+    <property name="anchorLinkFormat" ><value>/access/wiki{0}.{2}#{1}</value></property>
+    <property name="standardLinkFormat" ><value>/access/wiki{0}.{1}</value></property>
+    <property name="breadCrumbParameterFormat" ><value>?breadcrumb=0</value></property>
+    <property name="breadCrumbParameter" ><value>breadcrumb</value></property>
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
     <property name="accessURLStart" ><value>/wiki/</value></property>
     <property name="responseHeaders">
@@ -141,8 +143,10 @@
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>
-    <property name="anchorLinkFormat" ><value>/access/wiki{0}.html#{1}</value></property>
-    <property name="standardLinkFormat" ><value>/access/wiki{0}.html</value></property>
+    <property name="anchorLinkFormat" ><value>/access/wiki{0}.html{2}#{1}</value></property>
+    <property name="standardLinkFormat" ><value>/access/wiki{0}.html{1}</value></property>
+    <property name="breadCrumbParameterFormat" ><value>?breadcrumb=0</value></property>
+    <property name="breadCrumbParameter" ><value>breadcrumb</value></property>
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
     <property name="accessURLStart" ><value>/wiki/</value></property>
     <property name="feedFormat"><value>&lt;a href="{0}html" target="feeds"&gt;&lt;img src="/library/image/sakai/html.gif" border="0"  alt="Html" /&gt; Public View &lt;/a&gt;</value></property>
@@ -179,8 +183,10 @@
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>
-    <property name="anchorLinkFormat" ><value>/access/wiki{0}.html#{1}</value></property>
-    <property name="standardLinkFormat" ><value>/access/wiki{0}.html</value></property>
+    <property name="anchorLinkFormat" ><value>/access/wiki{0}.html{2}#{1}</value></property>
+    <property name="standardLinkFormat" ><value>/access/wiki{0}.html{1}</value></property>
+    <property name="breadCrumbParameterFormat" ><value>?breadcrumb=0</value></property>
+    <property name="breadCrumbParameter" ><value>breadcrumb</value></property>
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
     <property name="accessURLStart" ><value>/wiki/</value></property>
     <property name="feedFormat"><value>&lt;a href="{0}pdf" target="feeds"&gt;&lt;img src="/library/image/sakai/pdf.gif" border="0"  alt="PDF" /&gt;PDF&lt;/a&gt;</value></property>
@@ -208,8 +214,10 @@
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>
-    <property name="anchorLinkFormat" ><value>/access/wiki{0}.html#{1}</value></property>
-    <property name="standardLinkFormat" ><value>/access/wiki{0}.html</value></property>
+    <property name="anchorLinkFormat" ><value>/access/wiki{0}.html{2}#{1}</value></property>
+    <property name="standardLinkFormat" ><value>/access/wiki{0}.html{1}</value></property>
+    <property name="breadCrumbParameterFormat" ><value>?breadcrumb=0</value></property>
+    <property name="breadCrumbParameter" ><value>breadcrumb</value></property>
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
     <property name="accessURLStart" ><value>/wiki/</value></property>
     <property name="feedFormat"><value>&lt;a href="{0}rtf" target="feeds"&gt;&lt;img src="/library/image/sakai/word.gif" border="0"  alt="RTF" /&gt;&lt;/a&gt;</value></property>
@@ -237,8 +245,10 @@
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>
-    <property name="anchorLinkFormat" ><value>/access/wiki{0}.html#{1}</value></property>
-    <property name="standardLinkFormat" ><value>/access/wiki{0}.html</value></property>
+    <property name="anchorLinkFormat" ><value>/access/wiki{0}.html{2}#{1}</value></property>
+    <property name="standardLinkFormat" ><value>/access/wiki{0}.html{1}</value></property>
+    <property name="breadCrumbParameterFormat" ><value>?breadcrumb=0</value></property>
+    <property name="breadCrumbParameter" ><value>breadcrumb</value></property>
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
     <property name="accessURLStart" ><value>/wiki/</value></property>
 <!--
@@ -271,8 +281,10 @@ DISABLED
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>
-    <property name="anchorLinkFormat" ><value>/access/wiki{0}.html#{1}</value></property>
-    <property name="standardLinkFormat" ><value>/access/wiki{0}.html</value></property>
+    <property name="anchorLinkFormat" ><value>/access/wiki{0}.html{2}#{1}</value></property>
+    <property name="standardLinkFormat" ><value>/access/wiki{0}.html{1}</value></property>
+    <property name="breadCrumbParameterFormat" ><value>?breadcrumb=0</value></property>
+    <property name="breadCrumbParameter" ><value>breadcrumb</value></property>
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
     <property name="accessURLStart" ><value>/wiki/</value></property>
     <property name="feedFormat"><value>&lt;a href="{0}odt" target="feeds"&gt;&lt;img src="/library/image/sakai/word.gif" border="0"  alt="ODT" /&gt;&lt;/a&gt;</value></property>
@@ -288,8 +300,10 @@ DISABLED
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>
-    <property name="anchorLinkFormat" ><value>/access/wiki{0}.html#{1}</value></property>
-    <property name="standardLinkFormat" ><value>/access/wiki{0}.html</value></property>
+    <property name="anchorLinkFormat" ><value>/access/wiki{0}.html{2}#{1}</value></property>
+    <property name="standardLinkFormat" ><value>/access/wiki{0}.html{1}</value></property>
+    <property name="breadCrumbParameterFormat" ><value>?breadcrumb=0</value></property>
+    <property name="breadCrumbParameter" ><value>breadcrumb</value></property>
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
     <property name="accessURLStart" ><value>/wiki/</value></property>
     <property name="rwikiObjectService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService" /></property>
@@ -318,8 +332,10 @@ DISABLED
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>
-    <property name="anchorLinkFormat" ><value>/access/wiki{0}.html#{1}</value></property>
-    <property name="standardLinkFormat" ><value>/access/wiki{0}.html</value></property>
+    <property name="anchorLinkFormat" ><value>/access/wiki{0}.html{2}#{1}</value></property>
+    <property name="standardLinkFormat" ><value>/access/wiki{0}.html{1}</value></property>
+    <property name="breadCrumbParameterFormat" ><value>?breadcrumb=0</value></property>
+    <property name="breadCrumbParameter" ><value>breadcrumb</value></property>
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
     <property name="accessURLStart" ><value>/wiki/</value></property>
     <property name="rwikiObjectService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService" /></property>
@@ -348,8 +364,10 @@ DISABLED
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>
-    <property name="anchorLinkFormat" ><value>/access/wiki{0}.html#{1}</value></property>
-    <property name="standardLinkFormat" ><value>/access/wiki{0}.html</value></property>
+    <property name="anchorLinkFormat" ><value>/access/wiki{0}.html{2}#{1}</value></property>
+    <property name="standardLinkFormat" ><value>/access/wiki{0}.html{1}</value></property>
+    <property name="breadCrumbParameterFormat" ><value>?breadcrumb=0</value></property>
+    <property name="breadCrumbParameter" ><value>breadcrumb</value></property>
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
     <property name="accessURLStart" ><value>/wiki/</value></property>
     <property name="rwikiObjectService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService" /></property>
@@ -378,8 +396,10 @@ DISABLED
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>
-    <property name="anchorLinkFormat" ><value>/access/wiki{0}.html#{1}</value></property>
-    <property name="standardLinkFormat" ><value>/access/wiki{0}.html</value></property>
+    <property name="anchorLinkFormat" ><value>/access/wiki{0}.html{2}#{1}</value></property>
+    <property name="standardLinkFormat" ><value>/access/wiki{0}.html{1}</value></property>
+    <property name="breadCrumbParameterFormat" ><value>?breadcrumb=0</value></property>
+    <property name="breadCrumbParameter" ><value>breadcrumb</value></property>
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
     <property name="accessURLStart" ><value>/wiki/</value></property>
     <property name="rwikiObjectService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService" /></property>
@@ -408,8 +428,10 @@ DISABLED
     <property name="defaultStackTrace"><value>Failed To generate Stack Trace : {0}</value></property>
     <property name="errorFormat"><value>Error encounvered performing transform : {0} \n {1}</value></property>
     <property name="authZPrefix" ><value>/wiki</value></property>
-    <property name="anchorLinkFormat" ><value>/access/wiki{0}.html#{1}</value></property>
-    <property name="standardLinkFormat" ><value>/access/wiki{0}.html</value></property>
+    <property name="anchorLinkFormat" ><value>/access/wiki{0}.html{2}#{1}</value></property>
+    <property name="standardLinkFormat" ><value>/access/wiki{0}.html{1}</value></property>
+    <property name="breadCrumbParameterFormat" ><value>?breadcrumb=0</value></property>
+    <property name="breadCrumbParameter" ><value>breadcrumb</value></property>
     <property name="hrefTagFormat" ><value>&lt;a href="{0}" &gt;{1}&lt;/a&gt;</value></property>
     <property name="accessURLStart" ><value>/wiki/</value></property>
     <property name="rwikiObjectService"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService" /></property>

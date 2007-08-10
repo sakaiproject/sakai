@@ -226,7 +226,7 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 							SchemaNames.EL_RENDEREDCONTENT,
 							SchemaNames.EL_NSRENDEREDCONTENT, dummyAttributes);
 
-					renderToXML(rwo, ch);
+					renderToXML(rwo, ch,true);
 					ch.endElement(SchemaNames.NS_CONTAINER,
 							SchemaNames.EL_RENDEREDCONTENT,
 							SchemaNames.EL_NSRENDEREDCONTENT);
@@ -323,7 +323,7 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 
 			ch.startElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_CHANGE,
 					SchemaNames.EL_NSCHANGE, propA);
-			renderToXML(rwco, ch);
+			renderToXML(rwco, ch,true);
 			ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_CHANGE,
 					SchemaNames.EL_NSCHANGE);
 		}
@@ -382,7 +382,7 @@ public class XLSTChangesHandler extends XSLTEntityHandler
 							.getVersion()));
 			ch.startElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_CHANGE,
 					SchemaNames.EL_NSCHANGE, propA);
-			renderToXML(rwco, ch);
+			renderToXML(rwco, ch, true);
 			ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_CHANGE,
 					SchemaNames.EL_NSCHANGE);
 		}

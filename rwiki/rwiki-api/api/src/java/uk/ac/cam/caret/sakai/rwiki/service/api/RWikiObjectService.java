@@ -348,6 +348,6 @@ public interface RWikiObjectService extends EntityProducer, EntityTransferrer, C
 	 * @param pageSpace
 	 * @return
 	 */
-	PageLinkRenderer getComponentPageLinkRender(String pageSpace);
+	PageLinkRenderer getComponentPageLinkRender(String pageSpace, boolean withBreadCrumb);
 
 }

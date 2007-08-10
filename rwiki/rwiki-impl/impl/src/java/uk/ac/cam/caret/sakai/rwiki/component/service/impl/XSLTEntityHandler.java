@@ -153,6 +153,10 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 
 	private SerializerFactory serializerFactory;
 
+	private String breadCrumbParameter = "breadcrumb";
+
+	private String breadCrumbParameterFormat = "?breadcrumb=0";
+
 	private Object load(ComponentManager cm, String name)
 	{
 		Object o = cm.get(name);
@@ -219,6 +223,8 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 			PageVisits pageVisits = (PageVisits) s.getAttribute(XSLTEntityHandler.class
 					.getName()
 					+ this.getMinorType() + "_visits");
+			
+			boolean withBreadcrumbs = !"0".equals(request.getParameter(breadCrumbParameter ) );
 			if (pageVisits == null)
 			{
 				pageVisits = new PageVisits();
@@ -293,6 +299,7 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 			ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_REQUEST_PROPERTIES,
 					SchemaNames.EL_NSREQUEST_PROPERTIES);
 
+			if ( withBreadcrumbs ) {
 			ch.startElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_PAGEVISITS,
 					SchemaNames.EL_NSPAGEVISITS, dummyAttributes);
 
@@ -309,6 +316,7 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 			}
 			ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_PAGEVISITS,
 					SchemaNames.EL_NSPAGEVISITS);
+			}
 
 			ch.startElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_ENTITY,
 					SchemaNames.EL_NSENTITY, dummyAttributes);
@@ -361,7 +369,7 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 				RWikiObject rwo = rwe.getRWikiObject();
 				ch.startElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_RENDEREDCONTENT,
 						SchemaNames.EL_NSRENDEREDCONTENT, dummyAttributes);
-				renderToXML(rwo, ch);
+				renderToXML(rwo, ch, withBreadcrumbs);
 				ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_RENDEREDCONTENT,
 						SchemaNames.EL_NSRENDEREDCONTENT);
 			}
@@ -389,7 +397,7 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 
 				ch.startElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_RENDEREDCONTENT,
 						SchemaNames.EL_NSRENDEREDCONTENT, dummyAttributes);
-				renderToXML(sbrwo, ch);
+				renderToXML(sbrwo, ch, withBreadcrumbs);
 				ch.endElement(SchemaNames.NS_CONTAINER, SchemaNames.EL_RENDEREDCONTENT,
 						SchemaNames.EL_NSRENDEREDCONTENT);
 
@@ -468,15 +476,16 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	 * 
 	 * @param rwo
 	 * @param ch
+	 * @param withBreadCrumb 
 	 */
-	public void renderToXML(RWikiObject rwo, final ContentHandler ch)
+	public void renderToXML(RWikiObject rwo, final ContentHandler ch, boolean withBreadCrumb)
 			throws SAXException, IOException
 	{
 
 		String renderedPage;
 		try
 		{
-			renderedPage = render(rwo);
+			renderedPage = render(rwo,withBreadCrumb);
 		}
 		catch (Exception e)
 		{
@@ -643,13 +652,14 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 		xmlReader.parse(ins);
 	}
 
-	public String render(RWikiObject rwo)
+	public String render(RWikiObject rwo, boolean withBreadCrumb)
 	{
 		String localSpace = NameHelper.localizeSpace(rwo.getName(), rwo.getRealm());
-		ComponentPageLinkRenderImpl plr = new ComponentPageLinkRenderImpl(localSpace);
+		ComponentPageLinkRenderImpl plr = new ComponentPageLinkRenderImpl(localSpace,withBreadCrumb);
 
 		plr.setAnchorURLFormat(anchorLinkFormat);
 		plr.setStandardURLFormat(standardLinkFormat);
+		plr.setBreadcrumbSwitch(breadCrumbParameterFormat );
 		plr.setUrlFormat(hrefTagFormat);
 
 		if (renderService == null)
@@ -1159,5 +1169,37 @@ public class XSLTEntityHandler extends BaseEntityHandlerImpl
 	public void setEntityManager(EntityManager entityManager)
 	{
 		this.entityManager = entityManager;
+	}
+
+	/**
+	 * @return the breadCrumbParameterFormat
+	 */
+	public String getBreadCrumbParameterFormat()
+	{
+		return breadCrumbParameterFormat;
+	}
+
+	/**
+	 * @param breadCrumbParameterFormat the breadCrumbParameterFormat to set
+	 */
+	public void setBreadCrumbParameterFormat(String breadCrumbParameterFormat)
+	{
+		this.breadCrumbParameterFormat = breadCrumbParameterFormat;
+	}
+
+	/**
+	 * @return the breadCrumbParameter
+	 */
+	public String getBreadCrumbParameter()
+	{
+		return breadCrumbParameter;
+	}
+
+	/**
+	 * @param breadCrumbParameter the breadCrumbParameter to set
+	 */
+	public void setBreadCrumbParameter(String breadCrumbParameter)
+	{
+		this.breadCrumbParameter = breadCrumbParameter;
 	}
 }

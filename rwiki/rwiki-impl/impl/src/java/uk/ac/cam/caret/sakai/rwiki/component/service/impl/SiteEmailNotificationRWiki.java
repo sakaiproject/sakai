@@ -198,7 +198,7 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 			RWikiObject rwikiObject = rwe.getRWikiObject();
 
 			String pageSpace = NameHelper.localizeSpace(pageName, realm);
-			ComponentPageLinkRenderImpl cplr = new ComponentPageLinkRenderImpl(pageSpace);
+			ComponentPageLinkRenderImpl cplr = new ComponentPageLinkRenderImpl(pageSpace,true);
 			content = renderService.renderPage(rwikiObject, pageSpace, cplr);
 			content = DigestHtml.digest(content);
 			if (content.length() > 1000)
