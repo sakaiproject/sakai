@@ -86,6 +86,11 @@ public interface Portal
 	 * Configuration option to enable/disable state reset on navigation change
 	 */
 	public static final String CONFIG_AUTO_RESET = "portal.experimental.auto.reset";
+	
+    /**
+	* Configuration option for default number of site tabs to display to users
+	*/
+	public static final String CONFIG_DEFAULT_TABS = "portal.default.tabs";
 
 	/**
 	 * Names of tool config/registration attributes that control the rendering
@@ -98,6 +103,7 @@ public interface Portal
 	public static final String TOOLCONFIG_HELP_DOCUMENT_ID = "help.id";
 
 	public static final String TOOLCONFIG_HELP_DOCUMENT_URL = "help.url";
+
 
 	/**
 	 * prepare the response and send it to the render engine

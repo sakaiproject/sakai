@@ -71,9 +71,12 @@ public class SiteHandler extends WorksiteHandler
 
 	private PortalSiteHelper siteHelper = new PortalSiteHelper();
 
+	private int configuredTabsToDisplay = 5;
+
 	public SiteHandler()
 	{
 		urlFragment = "site";
+        configuredTabsToDisplay  = ServerConfigurationService.getInt(Portal.CONFIG_DEFAULT_TABS, 5);
 	}
 
 	@Override
@@ -346,7 +349,7 @@ public class SiteHandler extends WorksiteHandler
 				myWorkspaceSiteId = siteHelper.getSiteEffectiveId(myWorkspaceSite);
 			}
 
-			int tabsToDisplay = 4;
+            int tabsToDisplay = configuredTabsToDisplay;
 
 			if (!loggedIn)
 			{
