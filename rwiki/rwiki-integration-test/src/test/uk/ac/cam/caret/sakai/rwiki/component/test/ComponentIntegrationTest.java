@@ -449,7 +449,7 @@ public class ComponentIntegrationTest extends TestCase
 					"HomeTestPageRENDER", site.getReference());
 			d = rwo.getVersion();
 			ComponentPageLinkRenderImpl cplr = new ComponentPageLinkRenderImpl(
-					site.getReference());
+					site.getReference(),true);
 			cplr.setCachable(false);
 			cplr.setUseCache(false);
 			SimpleCoverage.cover("render page ");
