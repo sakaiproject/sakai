@@ -21,21 +21,15 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.util;
 
-import java.io.UnsupportedEncodingException;
-
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
-import javax.mail.MessagingException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
-import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
-import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
-import org.sakaiproject.tool.assessment.util.SamigoEmailService;
+import org.sakaiproject.tool.assessment.ui.bean.util.EmailBean;
 
 public class EmailListener implements ActionListener {
 	private static Log log = LogFactory.getLog(EmailListener.class);
@@ -61,13 +55,15 @@ public class EmailListener implements ActionListener {
 		sb.append(" ");
 		sb.append(agent.getLastName());
 		emailBean.setFromName(sb.toString());
-			
-		// From Email is set in TotalScoreListener
-			
+		
 		// To
-		String toName = ContextUtil.lookupParam("toName");
+		String toUserId = ContextUtil.lookupParam("toUserId");
+		agent = new AgentFacade(toUserId);
+		String toFirstName = agent.getFirstName();
+		String toName = toFirstName + " " + agent.getLastName();
+		String toEmailAddress = agent.getEmail();
+		emailBean.setToFirstName(toFirstName);
 		emailBean.setToName(toName);
-		String toEmailAddress = ContextUtil.lookupParam("toEmailAddress");
 		emailBean.setToEmailAddress(toEmailAddress);
 			
 		// Cc
@@ -83,8 +79,6 @@ public class EmailListener implements ActionListener {
 		emailBean.setSubject(sb.toString());
 			
 		// Message
-		String toFirstName = ContextUtil.lookupParam("toFirstName");
-		emailBean.setToFirstName(toFirstName);
 		emailBean.setMessageTemplate();
 	}
 }

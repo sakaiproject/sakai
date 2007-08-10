@@ -263,9 +263,7 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
    	</span>
 	<h:commandLink id="hiddenlink1" value="">
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.util.EmailListener" />
-		  <f:param name="toName" value="#{description.firstName} #{description.lastName}" />
-  		  <f:param name="toEmailAddress" value="#{description.email}" />
-  		  <f:param name="toFirstName" value="#{description.firstName}" />
+		  <f:param name="toUserId" value="#{description.idString}" />
 	</h:commandLink>
     </h:column>
 
@@ -315,9 +313,7 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
    	</span>
 	<h:commandLink id="hiddenlink2" value="">
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.util.EmailListener" />
-		  <f:param name="toName" value="#{description.firstName} #{description.lastName}" />
-  		  <f:param name="toEmailAddress" value="#{description.email}" />
-  		  <f:param name="toFirstName" value="#{description.firstName}" />
+		  <f:param name="toUserId" value="#{description.idString}" />
 	</h:commandLink>
     </h:column>
 
@@ -369,9 +365,7 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
 
 	<h:commandLink id="hiddenlink3" action="totalScores" value="">
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.util.EmailListener" />
-		  <f:param name="toName" value="#{description.firstName} #{description.lastName}" />
-  		  <f:param name="toEmailAddress" value="#{description.email}" />
-  		  <f:param name="toFirstName" value="#{description.firstName}" />
+		  <f:param name="toUserId" value="#{description.idString}" />
 	</h:commandLink>
 	</h:column>
     
