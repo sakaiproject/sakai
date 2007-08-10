@@ -93,11 +93,6 @@ public interface IndexStorage extends Diagnosable
 	 */
 	void setRecoverCorruptedIndex(boolean recover);
 	
-	/**
-	 * The location of the storage
-	 * @param location
-	 */
-	void setLocation(String location);
 
 	long getLastUpdate();
 

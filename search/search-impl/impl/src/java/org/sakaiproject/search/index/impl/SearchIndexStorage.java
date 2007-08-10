@@ -40,8 +40,6 @@ import org.sakaiproject.search.index.IndexStorage;
  * indexStorageName@org.sakaiproject.search.index.IndexStorage = cluster
  * indexStorageName@org.sakaiproject.search.index.IndexStorage = db
  * recoverCorruptedIndex@org.sakaiproject.search.index.IndexStorage = false
- * location@org.sakaiproject.search.index.IndexStorage =
- * tableName|localDirectory Default is to use the local filesystem These values
  * may cahnge, and it is worth looking in the components for the real values.
  * 
  * @author ieb
@@ -188,12 +186,6 @@ public class SearchIndexStorage implements IndexStorage
 	public void setRecoverCorruptedIndex(boolean recover)
 	{
 		this.recover = recover;
-
-	}
-
-	public void setLocation(String location)
-	{
-		this.location = location;
 
 	}
 

@@ -59,12 +59,6 @@ public class ClusterFSIndexStorage implements IndexStorage
 	private static final Log log = LogFactory.getLog(ClusterFSIndexStorage.class);
 
 	/**
-	 * Location of the index store on local disk, passed to the underlying index
-	 * store
-	 */
-	private String searchIndexDirectory = null;
-
-	/**
 	 * The token analyzer
 	 */
 	private AnalyzerFactory analyzerFactory = null;
@@ -335,16 +329,6 @@ public class ClusterFSIndexStorage implements IndexStorage
 	public Analyzer getAnalyzer()
 	{
 		return analyzerFactory.newAnalyzer();
-	}
-
-	public void setLocation(String location)
-	{
-		searchIndexDirectory = location;
-		if (clusterFS != null)
-		{
-			clusterFS.setLocation(location);
-		}
-
 	}
 
 	public void doPreIndexUpdate() throws IOException

@@ -124,20 +124,20 @@
     class="org.sakaiproject.search.index.impl.SearchIndexStorage" 
     init-method="init"
     >
-    <property name="defaultIndexStorage"><ref bean="filesystemSearchStorageImpl" /></property>
+    <property name="defaultIndexStorage"><ref bean="org.sakaiproject.search.api.SearchService.ClusterIndexStorage" /></property>
     <property name="indexStorageName"><value>cluster</value></property>    
     <property name="recoverCorruptedIndex"><value>true</value></property>
     <property name="currentStores">
       <map>
-        <entry key="filesystem"><ref bean="filesystemSearchStorageImpl"/></entry>
-        <entry key="cluster"><ref bean="clusterSearchStorageImpl"/></entry>
+        <entry key="filesystem"><ref bean="org.sakaiproject.search.api.SearchService.LocalIndexStorage"/></entry>
+        <entry key="cluster"><ref bean="org.sakaiproject.search.api.SearchService.ClusterIndexStorage"/></entry>
       </map>
     </property>
   </bean>
   
   
   
-  <bean id="filesystemSearchStorageImpl" 
+  <bean id="org.sakaiproject.search.api.SearchService.LocalIndexStorage" 
     class="org.sakaiproject.search.index.impl.FSIndexStorage" 
     init-method="init" >
     <property name="location"><value>${sakai.home}searchindex</value></property>
@@ -145,10 +145,9 @@
     <property name="analyzerFactory" ><ref bean="org.sakaiproject.search.index.AnalyzerFactory" /></property>    
   </bean>
 
-  <bean id="clusterSearchStorageImpl" 
+  <bean id="org.sakaiproject.search.api.SearchService.ClusterIndexStorage" 
     class="org.sakaiproject.search.index.impl.ClusterFSIndexStorage" 
     init-method="init" >
-    <property name="location"><value>${sakai.home}searchindex</value></property>
     <property name="analyzerFactory" ><ref bean="org.sakaiproject.search.index.AnalyzerFactory" /></property>    
     <property name="clusterFS" ><ref bean="org.sakaiproject.search.api.SearchService.SegmentStore" /></property>    
   </bean>
@@ -160,8 +159,8 @@
     class="org.sakaiproject.search.index.impl.JDBCClusterIndexStore" 
     init-method="init" >
     <property name="searchService"><ref bean="org.sakaiproject.search.api.SearchService" /></property>
-    <property name="sharedSegments"><value>${sakai.home}sharedsegments</value></property>
     <property name="location"><value>${sakai.home}searchindex</value></property>
+    <property name="sharedSegments"><value>${sakai.home}sharedsegments</value></property>
     <property name="dataSource"><ref bean="javax.sql.DataSource"/></property>
     <property name="autoDdl"><value>${auto.ddl}</value></property>
   </bean>
