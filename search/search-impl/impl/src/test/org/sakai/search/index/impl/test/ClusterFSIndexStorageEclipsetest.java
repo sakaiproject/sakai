@@ -131,7 +131,7 @@ public class ClusterFSIndexStorageEclipsetest extends TestCase
 		cfs = new ClusterFSIndexStorage();
 		cfs.setAnalyzerFactory(new SnowballAnalyzerFactory());
 		cfs.setClusterFS(cis);
-		cfs.setLocation("tmpindexstore");
+		cis.setLocation("tmpindexstore");
 	}
 
 	protected void tearDown() throws Exception
