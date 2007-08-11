@@ -200,11 +200,15 @@
 					<p class="instruction">
 						$tlang.getString("gen.submittedtext")
 					</p>
-					<p class="instruction">$tlang.getString("gradingsub.belisthe")</p>
-					<table border="0" summary="layout"><tr><td>
-					<textarea name="$name_feedback_text" id="$name_feedback_text" rows="30" wrap="virtual" cols="80">$cheffeedbackhelper.escapeAssignmentFeedbackTextarea("$!value_feedback_text")</textarea>		
-					#chef_setupformattedtextarea($name_feedback_text)
-					</td></tr></table>
+					#if($submission.submitted && $!value_feedback_text.length() >0 )
+						<p class="instruction">$tlang.getString("gradingsub.belisthe")</p>
+						<table border="0" summary="layout"><tr><td>
+						<textarea name="$name_feedback_text" id="$name_feedback_text" rows="30" wrap="virtual" cols="80">$cheffeedbackhelper.escapeAssignmentFeedbackTextarea("$!value_feedback_text")</textarea>		
+						#chef_setupformattedtextarea($name_feedback_text)
+						</td></tr></table>
+					#else
+						<p class="instruction">$tlang.getString("gradingsub.nosubmittedtext")</p>
+					#end
 					## for returned submission, show the instructor comment as well
 					#if ($!prevFeedbackText)
 						<h4>$tlang.getString("gradingsub.prefeetex")</h4>
@@ -215,15 +219,16 @@
 				#end
 				## submitted attachment
 				
-				 #if ($submissionType!=1 && $submissionType!=4) ## do not show attach messages if no attach are allowed...
+			 #if ($submissionType!=1 && $submissionType!=4) ## do not show attach messages if no attach are allowed...
 					<h4>$tlang.getString("gen.stuatt")</h4>
 					#set ($size = 0)
-					#set ($size = 0)
-					#set ($props = false)
-					#foreach ($attachment in $submission.SubmittedAttachments) 
-						#set ($props = $attachment.Properties) 
-						#if ($!props)
-							#set ($size = $size + 1)
+					#if ($!submission.submitted)
+						#set ($props = false)
+						#foreach ($attachment in $submission.SubmittedAttachments) 
+							#set ($props = $attachment.Properties) 
+							#if ($!props)
+								#set ($size = $size + 1)
+							#end
 						#end
 					#end
 					#if ($size == 0)

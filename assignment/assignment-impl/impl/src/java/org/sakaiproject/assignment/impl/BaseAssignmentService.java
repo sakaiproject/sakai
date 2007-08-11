@@ -7766,7 +7766,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			Time returnTime = getTimeReturned();
 			Time lastModTime = getTimeLastModified();
 		
-			if (getSubmitted())
+			if (getSubmitted() || (!getSubmitted() && allowGrade))
 			{
 				if (submitTime != null)
 				{

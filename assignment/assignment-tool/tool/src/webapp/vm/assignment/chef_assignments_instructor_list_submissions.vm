@@ -261,7 +261,7 @@
 					#set($siteUser = $userSubmission.User)
 					#set($submitTime=false)
 					#set($returnedTime=false)
-					#if ($!submission && $submission.submitted) 
+					#if ($!submission)## && $submission.submitted) 
 						#set($returnedTime = $submission.getTimeReturned())
 						#set($submitTime = $submission.getTimeSubmitted())
 						<tr> 

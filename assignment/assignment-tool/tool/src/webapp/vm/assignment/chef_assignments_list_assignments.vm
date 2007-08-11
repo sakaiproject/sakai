@@ -372,7 +372,7 @@
 										#else
 											#if($!allowSubmit)
 												## for those who can submit
-												#if ($!submission && $!submitTime)
+												#if ($!submission && ($!submitTime || $!submissionReturned))
 													## is there a submission already?
 													#set($allowResubmitNumber=$!submissionProperties.getProperty($!allowResubmitNumberProp))
 													#if(!$!allowResubmitNumber.equals("0"))
@@ -382,14 +382,14 @@
 														#end
 													#end
 													## if not submitted or returned and still allowed to submit within the due time
-													#if (($!submissionReturned && !$!allowResubmitNumber.equals("0") && $!allowResubmitCloseTime && $currentTime.before($!allowResubmitCloseTime)) || !$!submissionSubmitted)
+													#if (($!submissionReturned && !$!allowResubmitNumber.equals("0") && $!allowResubmitCloseTime && $currentTime.before($!allowResubmitCloseTime)) || (!$!submissionSubmitted && !$!submissionReturned))
 														## go to view submission page when (1) submission has been returned and allow for resubmit;(2)submission has not been posted yet.
 														<h4><a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</a></h4>
 													#else
 														<h4><a href="#toolLinkParam("AssignmentAction" "doView_grade" "submissionId=$validator.escapeUrl($submission.Reference)")">$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</a></h4>														
 													#end
 												#else
-													<h4><a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</a></h4>
+												 <h4><a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)")">$validator.limit($validator.escapeHtml($assignment.getTitle()), 40)</a></h4>
 												#end
 												#if ($taggable)
 													<div class="itemAction">
