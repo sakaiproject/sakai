@@ -91,7 +91,9 @@
 			
 			<%--SAKAI-10505 --%>
 			
-		
+			 <h:inputHidden id="msgHidden" value="#{PrivateMessagesTool.detailMsg.msg.body}" />
+			 
+			 <h:inputHidden id="titleHidden" value="#{PrivateMessagesTool.detailMsg.msg.title}" />		
 		   	
 		   	
 	      <sakai:rich_text_area rows="17" columns="70"  value="#{PrivateMessagesTool.replyToBody}" />	 
@@ -120,15 +122,17 @@
          function InsertHTML() 
             { 
             
-             var message = <mf:htmlShowArea value="#{PrivateMessagesTool.detailMsg.msg.body}" id="htmlMsgText" hideBorder="true" />;
+              var messagetext = document.forms['pvtMsgForward'].elements['pvtMsgForward:msgHidden'].value;
+              var subject = document.forms['pvtMsgForward'].elements['pvtMsgForward:titleHidden'].value;
+	        
                                  
               var finalhtml = '<b><i><h:outputText value="#{msgs.pvt_forward}" /> </i></b><br><br>' + 
                '<b><h:outputText value="#{msgs.pvt_authby}" /></b> <h:outputText value="#{PrivateMessagesTool.detailMsg.msg.author}" /> <h:outputText value=" #{msgs.pvt_openb}" /> <h:outputText value="#{PrivateMessagesTool.detailMsg.msg.created}" ><f:convertDateTime pattern="#{msgs.date_format}" /></h:outputText><h:outputText value=" #{msgs.pvt_closeb}" /> <br>' +
                '<b> <h:outputText value="#{msgs.pvt_to}" /></b> <h:outputText value="#{PrivateMessagesTool.detailMsg.msg.recipientsAsText}" /><br>' +
-               '<b><h:outputText value="#{msgs.pvt_subject}" /></b> <h:outputText value="#{PrivateMessagesTool.detailMsg.msg.title}" /> <br>' +
+               '<b><h:outputText value="#{msgs.pvt_subject}" /></b>' + subject + '<br>' +
                '<b><h:outputText value="#{msgs.pvt_label}" /></b> <h:outputText value="#{PrivateMessagesTool.detailMsg.msg.label}" /><br>'+
                '<b><h:outputText value="#{msgs.pvt_att}" rendered="#{!empty PrivateMessagesTool.detailMsg.attachList}"/></b>'  + attachment().toString() +
-               message.toString();
+               messagetext;
  
               return finalhtml;
           
