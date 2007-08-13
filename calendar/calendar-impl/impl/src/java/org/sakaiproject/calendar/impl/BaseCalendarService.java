@@ -118,9 +118,11 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.CalendarUtil;
+import org.sakaiproject.util.DefaultEntityHandler;
 import org.sakaiproject.util.EntityCollections;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.SAXEntityReader;
 import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
@@ -129,6 +131,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
 
 import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.property.CalScale;
@@ -150,7 +155,7 @@ import net.fortuna.ical4j.util.CompatibilityHints;
  * BaseCalendarService is an base implementation of the CalendarService. Extension classes implement object creation, access and storage.
  * </p>
  */
-public abstract class BaseCalendarService implements CalendarService, StorageUser, CacheRefresher, ContextObserver, EntityTransferrer
+public abstract class BaseCalendarService implements CalendarService, StorageUser, CacheRefresher, ContextObserver, EntityTransferrer, SAXEntityReader
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BaseCalendarService.class);
@@ -507,6 +512,9 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 	
 	/** Dependency: SiteService. */
 	protected SiteService m_siteService = null;
+
+	/** A map of services used in SAX serialization */
+	private Map<String, Object> m_services;
 	
 	/**
 	 * Dependency: AliasService.
@@ -2085,6 +2093,10 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			m_properties.addAll(other.getProperties());
 
 		} // BaseCalendarEdit
+		
+		protected BaseCalendarEdit() {
+			m_properties = new BaseResourcePropertiesEdit();			
+		}
 
 		/**
 		 * Construct from a calendar (and possibly events) already defined in XML in a DOM tree. The Calendar is added to storage.
@@ -3447,6 +3459,32 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 
 		} // valueUnbound
 
+		/**
+		 * @return
+		 */
+		public ContentHandler getContentHandler(Map<String,Object> services)
+		{
+			final Entity thisEntity = this;
+			return new DefaultEntityHandler() {
+				/* (non-Javadoc)
+				 * @see org.sakaiproject.util.DefaultEntityHandler#startElement(java.lang.String, java.lang.String, java.lang.String, org.xml.sax.Attributes)
+				 */
+				@Override
+				public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException
+				{
+					if ( doStartElement(uri, localName, qName, attributes) ) {
+						if ( "calendar".equals(qName) && entity == null ) {
+							m_id = attributes.getValue("id");
+							m_context = attributes.getValue("context");	
+							entity = thisEntity;
+						} else {
+							M_log.warn("Unexpected element "+qName);
+						}
+					}
+				}
+			};
+		}
+
 	} // class BaseCalendar
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -3712,6 +3750,19 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 			}
 
 		} // BaseCalendarEventEdit
+
+		/**
+		 * 
+		 */
+		public BaseCalendarEventEdit(Entity container)
+		{
+			m_calendar = (BaseCalendarEdit) container;
+
+			m_properties = new BaseResourcePropertiesEdit();
+			m_attachments = m_entityManager.newReferenceList();
+
+		}
+
 
 		/**
 		 * Take all values from this object.
@@ -4620,6 +4671,144 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 				}
 				return allGroupString;
 			}
+		}
+
+		/**
+		 * @return
+		 */
+		public ContentHandler getContentHandler(final Map<String,Object> services)
+		{
+			final Entity thisEntity = this;
+			return new DefaultEntityHandler() {
+				/* (non-Javadoc)
+				 * @see org.sakaiproject.util.DefaultEntityHandler#startElement(java.lang.String, java.lang.String, java.lang.String, org.xml.sax.Attributes)
+				 */
+				@Override
+				public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException
+				{
+					if ( doStartElement(uri, localName, qName, attributes) ) {
+						if ( "event".equals(qName) && entity == null ) {
+							m_id = attributes.getValue("id");
+							m_range = ((org.sakaiproject.time.api.TimeService)services.get("timeservice")).newTimeRange(attributes
+									.getValue("range"));
+
+							m_access = CalendarEvent.EventAccess.SITE;
+							String access_str = String.valueOf(attributes
+									.getValue("access"));
+							if (access_str.equals(CalendarEvent.EventAccess.GROUPED
+									.toString()))
+								m_access = CalendarEvent.EventAccess.GROUPED;
+							entity = thisEntity;
+						} 
+						else if ("attachment".equals(qName))
+						{
+							m_attachments.add(m_entityManager.newReference(attributes
+									.getValue("relative-url")));
+						}
+						else if ("group".equals(qName))
+						{
+							m_groups.add(attributes.getValue("authzGroup"));
+						}
+						else if ("rules".equals(qName))
+						{
+							// we can ignore this as its a contianer
+						}
+						else if ("rule".equals(qName))
+						{
+							// get the rule name - modern style encoding
+							String ruleName = StringUtil.trimToNull(attributes
+									.getValue("name"));
+
+							// deal with old data
+							if (ruleName == null)
+							{
+								try
+								{
+									// get the class - this is old CHEF 1.2.10 style
+									// encoding
+									String ruleClassOld = attributes.getValue("class");
+
+									// use the last class name minus the package
+									ruleName = ruleClassOld.substring(ruleClassOld
+											.lastIndexOf('.') + 1);
+								}
+								catch (Throwable t)
+								{
+									M_log.warn(": trouble loading rule: " + ruleName + " : "
+											+ t);
+								}
+							}
+
+							// put my package on the class name
+							String ruleClass = this.getClass().getPackage().getName() + "."
+									+ ruleName;
+
+							// construct
+							try
+							{
+								m_singleRule = (RecurrenceRule) Class.forName(ruleClass)
+										.newInstance();
+								setContentHandler(m_singleRule.getContentHandler(services), uri, localName, qName, attributes);
+							}
+							catch (Throwable t)
+							{
+								M_log
+										.warn(": trouble loading rule: " + ruleClass + " : "
+												+ t);
+							}
+						}
+						else if ("ex-rule".equals(qName))
+						{
+							// get the rule name - modern style encoding
+							String ruleName = StringUtil.trimToNull(attributes
+									.getValue("name"));
+
+							// deal with old data
+							if (ruleName == null)
+							{
+								try
+								{
+									// get the class - this is old CHEF 1.2.10 style
+									// encoding
+									String ruleClassOld = attributes.getValue("class");
+
+									// use the last class name minus the package
+									ruleName = ruleClassOld.substring(ruleClassOld
+											.lastIndexOf('.') + 1);
+								}
+								catch (Throwable t)
+								{
+									M_log.warn(": trouble loading rule: " + ruleName + " : "
+											+ t);
+								}
+							}
+
+							// put my package on the class name
+							String ruleClass = this.getClass().getPackage().getName() + "."
+									+ ruleName;
+
+							// construct
+							try
+							{
+								m_exclusionRule = (RecurrenceRule) Class.forName(
+										ruleClass).newInstance();
+								setContentHandler(m_exclusionRule.getContentHandler(services), uri, localName, qName, attributes);
+							}
+							catch (Throwable t)
+							{
+								M_log
+										.warn(": trouble loading rule: " + ruleClass + " : "
+												+ t);
+							}
+						} else {
+							M_log.warn("Unexpected Element "+qName);
+						}
+					} 
+				}
+			};
+			
+			
+
 		}
 
 	} // BaseCalendarEvent
@@ -6841,6 +7030,74 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
          return (Source)(new StreamSource(in));
       }
    }
+   
+   
+   /*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.util.SAXEntityReader#getDefaultHandler()
+	 */
+	public DefaultEntityHandler getDefaultHandler(final Map<String,Object> services)
+	{
+		return new DefaultEntityHandler()
+		{
+
+
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see org.xml.sax.helpers.DefaultHandler#startElement(java.lang.String,
+			 *      java.lang.String, java.lang.String, org.xml.sax.Attributes)
+			 */
+			@Override
+			public void startElement(String uri, String localName, String qName,
+					Attributes attributes) throws SAXException
+			{
+				if (doStartElement(uri, localName, qName, attributes))
+				{
+					if (entity == null)
+					{
+						if ("calendar".equals(qName))
+						{
+							BaseCalendarEdit bce = new BaseCalendarEdit();
+							entity = bce;
+							setContentHandler(bce.getContentHandler(services), uri, localName,
+									qName, attributes);
+						}
+						else if ("event".equals(qName))
+						{
+							BaseCalendarEventEdit bcee = new BaseCalendarEventEdit(
+									container);
+							entity = bcee;
+							setContentHandler(bcee.getContentHandler(services), uri, localName,
+									qName, attributes);
+
+						} else {
+							M_log.warn("Unexpected Element in XML ["+qName+"]");
+						}
+
+					}
+				}
+			}
+
+		};
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.util.SAXEntityReader#getServices()
+	 */
+	public Map<String, Object> getServices()
+	{
+		if ( m_services == null ) {
+			m_services = new HashMap<String, Object>();
+			m_services.put("timeservice", TimeService.getInstance());
+		}
+		return m_services;
+	}
+	public void setServices(Map<String,Object> services) {
+		m_services = services;
+	}
+
 
 } // BaseCalendarService
 

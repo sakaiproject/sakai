@@ -23,6 +23,7 @@ package org.sakaiproject.calendar.impl;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import java.util.TimeZone;
 import java.util.Vector;
@@ -32,10 +33,16 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.calendar.api.RecurrenceRule;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
+import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.util.DefaultEntityHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 /**
 * <p>ExclusionSeqRecurrenceRule is a rule which excludes specific sequence numbers from a list of instances.</p>
@@ -200,6 +207,42 @@ public class ExclusionSeqRecurrenceRule
 	public int getInterval()
 	{
 		return 0;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.calendar.api.RecurrenceRule#getContentHandler()
+	 */
+	public ContentHandler getContentHandler(Map<String,Object> services)
+	{
+		return new DefaultHandler()
+		{
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see org.xml.sax.helpers.DefaultHandler#startElement(java.lang.String,
+			 *      java.lang.String, java.lang.String, org.xml.sax.Attributes)
+			 */
+			@Override
+			public void startElement(String uri, String localName, String qName,
+					Attributes attributes) throws SAXException
+			{
+				// the children (time ranges)
+				if ("exclude".equals(qName))
+				{
+					try
+					{
+						m_exclusions.add(new Integer(attributes.getValue("sequence")));
+					}
+					catch (Exception e)
+					{
+						M_log.warn("set: while reading exclude sequence: " + e);
+					}
+				}
+			}
+
+		};
 	}
 
 }	// ExclusionSeqRecurrenceRule

@@ -30,6 +30,7 @@ import org.sakaiproject.calendar.api.CalendarEdit;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.util.BaseDbDoubleStorage;
 import org.sakaiproject.util.StorageUser;
 
@@ -235,6 +236,13 @@ public class DbCalendarService
 
 		public void removeEvent(Calendar calendar, CalendarEventEdit edit)
 			{ super.removeResource(calendar, edit); }
+		
+		public Entity readContainerTest(String xml) {
+			return readContainer(xml);
+		}
+		public Entity readResourceTest(Entity container, String xml) {
+			return readResource(container, xml);
+		}
 
 	}   // DbStorage
 

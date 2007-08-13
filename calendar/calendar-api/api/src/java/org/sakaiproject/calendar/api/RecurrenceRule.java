@@ -22,6 +22,7 @@
 package org.sakaiproject.calendar.api;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import java.util.TimeZone;
 
@@ -29,6 +30,7 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.xml.sax.ContentHandler;
 
 /**
 * <p>RecurrenceRule is the interface for objects which add or remove multiple occurrences of timeranges.</p>
@@ -88,6 +90,12 @@ public interface RecurrenceRule
 	 * @return The number of natural frequency units between repeats.
 	 */
 	int getInterval();
+	
+	/**
+	 * get a content handler to accept SAX events for this object
+	 * @return
+	 */
+	ContentHandler getContentHandler(Map<String, Object> services);
 }
 
 

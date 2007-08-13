@@ -23,21 +23,30 @@ package org.sakaiproject.calendar.impl;
 
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.Vector;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.calendar.api.RecurrenceRule;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.cover.TimeService;
 import org.w3c.dom.Element;
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * This is a common base for the daily, weekly, monthly, and yearly recurrence rules.
  */
 public abstract class RecurrenceRuleBase implements RecurrenceRule
 {
+	protected static final Log M_log = LogFactory.getLog(RecurrenceRuleBase.class);
+
 	/** Every this many number of units: 1 would be daily/monthly/annually. */
 	private int interval = 1;
 
@@ -272,6 +281,58 @@ public abstract class RecurrenceRuleBase implements RecurrenceRule
 		}
 		catch (Exception any) {}
 	
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.sakaiproject.calendar.api.RecurrenceRule#getContentHandler()
+	 */
+	public ContentHandler getContentHandler(final Map<String,Object> services)
+	{
+		return new DefaultHandler()
+		{
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see org.xml.sax.helpers.DefaultHandler#startElement(java.lang.String,
+			 *      java.lang.String, java.lang.String, org.xml.sax.Attributes)
+			 */
+			@Override
+			public void startElement(String uri, String localName, String qName,
+					Attributes attributes) throws SAXException
+			{
+				// read the interval
+				try
+				{
+					setInterval(Integer.parseInt(attributes.getValue("interval")));
+				}
+				catch (Exception any)
+				{
+				}
+
+				// read the count
+				try
+				{
+					setCount(Integer.parseInt(attributes.getValue("count")));
+//					M_log.debug("Set count to "+attributes.getValue("count"));
+				}
+				catch (Exception any)
+				{
+				}
+
+				// read the until
+				try
+				{
+					setUntil(((org.sakaiproject.time.api.TimeService)services.get("timeservice")).newTimeGmt(attributes.getValue("until")));
+//					M_log.debug("Set until to "+attributes.getValue("until"));
+				}
+				catch (Exception any)
+				{
+				}
+
+			}
+		};
 	}
 
 	/**

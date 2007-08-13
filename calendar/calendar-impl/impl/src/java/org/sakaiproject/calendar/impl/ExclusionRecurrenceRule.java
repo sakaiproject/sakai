@@ -21,8 +21,10 @@
 
 package org.sakaiproject.calendar.impl;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import java.util.TimeZone;
 import java.util.Vector;
@@ -33,10 +35,14 @@ import org.sakaiproject.calendar.api.RecurrenceRule;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.util.DefaultEntityHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
 
 /**
 * <p>ExclusionRecurrenceRule is a rule which excludes specific time ranges from a list of instances.</p>
@@ -201,6 +207,43 @@ public class ExclusionRecurrenceRule
 	public int getInterval()
 	{
 		return 0;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.calendar.api.RecurrenceRule#getContentHandler()
+	 */
+	public ContentHandler getContentHandler(final Map<String,Object> services)
+	{
+		return new DefaultEntityHandler()
+		{
+
+			/*
+			 * (non-Javadoc)
+			 * 
+			 * @see org.xml.sax.helpers.DefaultHandler#startElement(java.lang.String,
+			 *      java.lang.String, java.lang.String, org.xml.sax.Attributes)
+			 */
+			@Override
+			public void startElement(String uri, String localName, String qName,
+					Attributes attributes) throws SAXException
+			{
+				if ("range".equals(qName))
+				{
+					try
+					{
+						m_ranges.add(((org.sakaiproject.time.api.TimeService)services.get("timeservice")).newTimeRange(attributes
+								.getValue("range")));
+					}
+					catch (Exception e)
+					{
+						M_log.warn("set: while reading time range: " + e);
+					}
+				}
+
+			}
+
+
+		};
 	}
 
 }	// ExclusionRecurrenceRule
