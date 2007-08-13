@@ -85,7 +85,17 @@
 			  <sakai:rich_text_area rows="17" columns="70"  value="#{PrivateMessagesTool.replyToBody}" />	 
 	         </sakai:doc_section>    
 	        </sakai:panel_edit>
-	    
+	        
+	        <script language="javascript" type="text/javascript">
+	            
+	        function FCKeditor_OnComplete(editorInstance )
+	        {
+	      
+	           editorInstance.SetHTML("");
+	         
+	        }
+	        
+	    </script>
 
 <%--********************* Attachment *********************--%>	
 
