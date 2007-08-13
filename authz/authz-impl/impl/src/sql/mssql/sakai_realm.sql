@@ -1210,7 +1210,7 @@ select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_site_course_template, @role_ta, @f1)
 
 
-INSERT INTO SAKAI_REALM VALUES (/* DEFAULT, */ '!site.template.portfolio', '', NULL, 'admin', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+INSERT INTO SAKAI_REALM VALUES (/* DEFAULT, */ '!site.template.portfolio', '', @role_cig_coordinator, 'admin', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 select @realm_site_template_portfolio=REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.portfolio'
 
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.all.groups'
@@ -1898,7 +1898,7 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'site.visit'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_course_template, @role_ta, @f1)
 
-INSERT INTO SAKAI_REALM VALUES (/* DEFAULT, */ '!group.template.portfolio', '', NULL, 'admin', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+INSERT INTO SAKAI_REALM VALUES (/* DEFAULT, */ '!group.template.portfolio', '', @role_cig_coordinator, 'admin', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 select @realm_group_template_portfolio=REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template.portfolio'
 
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.all.groups'
@@ -2291,7 +2291,7 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_eval
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'osp.wizard.evaluate'
 INSERT INTO SAKAI_REALM_RL_FN VALUES(@realm_group_template_portfolio, @role_evaluator, @f1)
 
-INSERT INTO SAKAI_REALM VALUES (/* DEFAULT, */ '!group.template.portfolioAdmin', '', NULL, 'admin', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+INSERT INTO SAKAI_REALM VALUES (/* DEFAULT, */ '!group.template.portfolioAdmin', '', @role_program_admin, 'admin', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 select @realm_group_template_portfolioAdmin=REALM_KEY from SAKAI_REALM where REALM_ID = '!group.template.portfolioAdmin'
 
 select @f1 = FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'annc.all.groups'
