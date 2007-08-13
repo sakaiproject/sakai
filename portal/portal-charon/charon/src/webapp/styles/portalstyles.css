@@ -101,7 +101,8 @@ div.portletloginarea {
 .toolSubMenuHeading {
 	text-align: left;
 	padding-left: 2px;
-   
+   background-color:#F0F0F0;
+   margin: 3px;
 }
 .toolSubMenuHolder_tools {
 	padding-left: 7px;
