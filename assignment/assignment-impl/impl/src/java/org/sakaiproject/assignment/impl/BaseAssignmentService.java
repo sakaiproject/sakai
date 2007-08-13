@@ -3491,15 +3491,14 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 										if (typeOfSubmission != Assignment.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION)
 										{
 											// create the text file only when a text submission is allowed
-											String entryName = submittersName + submittersString + "_submissionText.txt";
-											ZipEntry textEntry = new ZipEntry(entryName);
+											ZipEntry textEntry = new ZipEntry(submittersName + submittersString + "_submissionText.html");
 											out.putNextEntry(textEntry);
-											out.write(FormattedText.encodeUnicode(submittedText).getBytes());
+											out.write(submittedText.getBytes());
 											out.closeEntry();
 										}
 										
 										// the comments.txt file to show instructor's comments
-										ZipEntry textEntry = new ZipEntry(submittersName + "comments.txt");
+										ZipEntry textEntry = new ZipEntry(submittersName + "comments.html");
 										out.putNextEntry(textEntry);
 										out.write(FormattedText.encodeUnicode(s.getFeedbackComment()).getBytes());
 										out.closeEntry();
