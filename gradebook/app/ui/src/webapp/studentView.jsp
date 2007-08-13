@@ -95,6 +95,7 @@
 					<f:facet name="header">
 						<t:commandSortHeader columnName="pointsEarned" immediate="true" arrow="true">
 							<h:outputText value="#{msgs.student_view_grade}"/>
+							<h:outputText value="#{msgs.student_view_footnote_symbol1}" />
 						</t:commandSortHeader>
 					</f:facet>
 					
@@ -130,6 +131,14 @@
 		       <h:outputText value="#{msgs.overview_from} #{row.associatedAssignment.externalAppName}" rendered="#{row.assignment && row.associatedAssignment.externallyMaintained}" />
 		    </h:column>
 		  </gbx:gradebookItemTable>
+		  
+		  <h:panelGrid styleClass="instruction gbSection" cellpadding="0" cellspacing="0" columns="1">
+				<h:outputText value="#{msgs.student_view_legend_title}" />
+				<h:panelGroup>
+					<h:outputText value="#{msgs.student_view_footnote_symbol1}" />
+					<h:outputText value="#{msgs.student_view_footnote_legend1}" />
+				</h:panelGroup>
+			</h:panelGrid>
 
 </h:form>
 </div>
