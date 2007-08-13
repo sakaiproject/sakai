@@ -37,13 +37,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Properties;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -52,16 +53,27 @@ import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamSource;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+
+import net.fortuna.ical4j.data.CalendarOutputter;
+import net.fortuna.ical4j.model.DateTime;
+import net.fortuna.ical4j.model.Property;
+import net.fortuna.ical4j.model.TimeZoneRegistry;
+import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
+import net.fortuna.ical4j.model.component.VEvent;
+import net.fortuna.ical4j.model.parameter.Value;
+import net.fortuna.ical4j.model.property.CalScale;
+import net.fortuna.ical4j.model.property.ProdId;
+import net.fortuna.ical4j.model.property.TzId;
+import net.fortuna.ical4j.model.property.Uid;
+import net.fortuna.ical4j.model.property.Version;
 
 import org.apache.avalon.framework.logger.ConsoleLogger;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.fop.apps.Driver;
 import org.apache.fop.messaging.MessageHandler;
-import org.sakaiproject.alias.cover.AliasService;
 import org.sakaiproject.alias.api.Alias;
+import org.sakaiproject.alias.cover.AliasService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.cover.AuthzGroupService;
@@ -134,21 +146,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
-
-import net.fortuna.ical4j.model.Property;
-import net.fortuna.ical4j.model.property.CalScale;
-import net.fortuna.ical4j.model.property.Version;
-import net.fortuna.ical4j.model.property.ProdId;
-import net.fortuna.ical4j.model.property.Uid;
-import net.fortuna.ical4j.model.property.TzId;
-import net.fortuna.ical4j.model.parameter.Value;
-import net.fortuna.ical4j.model.DateTime;
-import net.fortuna.ical4j.model.TimeZoneRegistry;
-import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
-import net.fortuna.ical4j.model.component.VEvent;
-import net.fortuna.ical4j.data.CalendarOutputter;
-import net.fortuna.ical4j.model.ValidationException;
-import net.fortuna.ical4j.util.CompatibilityHints;
 
 /**
  * <p>
@@ -3460,6 +3457,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		} // valueUnbound
 
 		/**
+		 * Get a ContentHandler suitable for populating this object from SAX Events
 		 * @return
 		 */
 		public ContentHandler getContentHandler(Map<String,Object> services)
@@ -4674,6 +4672,7 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 		}
 
 		/**
+		 * Get a content handler suitable for populating this object from SAX events
 		 * @return
 		 */
 		public ContentHandler getContentHandler(final Map<String,Object> services)
@@ -7032,8 +7031,8 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
    }
    
    
-   /*
-	 * (non-Javadoc)
+   /**
+	 * Get a DefaultHandler so that the StorageUser here can parse using SAX events.
 	 * 
 	 * @see org.sakaiproject.util.SAXEntityReader#getDefaultHandler()
 	 */
