@@ -77,9 +77,6 @@
 						<h:selectBooleanCheckbox id="countAssignment" value="#{spreadsheetUploadBean.assignment.counted}"
 							onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
 						<h:outputLabel for="countAssignment" value="#{msgs.add_assignment_counted}" />
-						
-						<h:outputText escape="false" value="&nbsp;" />
-						<h:outputText styleClass="instruction" value="#{msgs.add_assignment_counted_detail}" />
 					</h:panelGrid>
 				</h:panelGrid>
 				<h:outputText escape="false" value="<script type='text/javascript'>cat = #{spreadsheetUploadBean.categoriesEnabled};</script>" />
