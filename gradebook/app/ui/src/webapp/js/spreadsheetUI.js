@@ -42,7 +42,8 @@ function gethandles(){
       }
    });
    //check if we need scrollbars - SAK-9969
-   $("div#mainwrap").css("max-width", $("div#mainwrap").width() - ($("div#q4").width() - $("div#q4 table").width()) + 15 + (ie?2:0));
+   maxwidth = $("div#mainwrap").width() - ($("div#q4").width() - $("div#q4 table").width()) + 15 + (ie?2:0);
+   if(maxwidth < $("body").width() - 2) $("div#mainwrap").css("max-width", maxwidth);
    if($("div#q4 div table").height() < $("div#q4").height()){
       $("div#q3").height($("div#q3").height() - ($("div#q4").height() - $("div#q4 table").height()) + 15 + (ie?2:0));
       $("div#q4 div").height($("div#q4 div").height() - ($("div#q4").height() - $("div#q4 table").height()) + 15 + (ie?2:0));
