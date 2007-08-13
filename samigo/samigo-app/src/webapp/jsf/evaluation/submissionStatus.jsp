@@ -193,7 +193,6 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
         <h:outputText value="#{evaluationMessages.allow_retake}"/>
         <f:param name="agentIdString" value="#{description.idString}" />
         <f:param name="publishedAssessmentId" value="#{totalScores.publishedId}" />
-        <f:param name="studentName" value="#{description.firstName} #{description.lastName}" />
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ConfirmRetakeAssessmentListener" />
      </h:commandLink>
 	 </span>
@@ -239,7 +238,6 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
         <h:outputText value="#{evaluationMessages.allow_retake}"/>
         <f:param name="agentIdString" value="#{description.idString}" />
         <f:param name="publishedAssessmentId" value="#{totalScores.publishedId}" />
-        <f:param name="studentName" value="#{description.firstName} #{description.lastName}" />
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ConfirmRetakeAssessmentListener" />
      </h:commandLink>
 	 </span>
@@ -286,7 +284,6 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
         <h:outputText value="#{evaluationMessages.allow_retake}"/>
         <f:param name="agentIdString" value="#{description.idString}" />
         <f:param name="publishedAssessmentId" value="#{totalScores.publishedId}" />
-        <f:param name="studentName" value="#{description.firstName} #{description.lastName}" />
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ConfirmRetakeAssessmentListener" />
      </h:commandLink>
 	 </span>

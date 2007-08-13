@@ -9,6 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Category;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
@@ -23,6 +25,10 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 public class ItemData
     implements java.io.Serializable,
     ItemDataIfc, Comparable {
+	private static Log log = LogFactory.getLog(ItemData.class);
+	private static final String ESCAPE_URL_SPECIAL = "^?;";
+	private static final String ESCAPE_URL = "$&+,:;=?@ '\"<>#%{}|\\^~[]`";
+	
   static Category errorLogger = Category.getInstance("errorLogger");
 
   private static final long serialVersionUID = 7526471155622776147L;
@@ -736,12 +742,132 @@ public class ItemData
       Iterator iter = itemAttachmentSet.iterator();
       while (iter.hasNext()){
         ItemAttachmentIfc a = (ItemAttachmentIfc)iter.next();
+        log.debug("original Location: " + a.getLocation());
+		log.debug("escaped Location:" + escapeUrl(a.getLocation()));
+		a.setLocation(escapeUrl(a.getLocation()));
         list.add(a);
       }
     }
     return list;
   }
 
+  /**
+	 * Return a string based on id that is fully escaped using URL rules, using a UTF-8 underlying encoding.
+	 *
+	 * Note: java.net.URLEncode.encode() provides a more standard option
+	 *       FormattedText.decodeNumericCharacterReferences() undoes this op
+	 * 
+	 * @param id
+	 *        The string to escape.
+	 * @return id fully escaped using URL rules.
+	 */
+	public static String escapeUrl(String id)
+	{
+		if (id == null) return "";
+		id = id.trim();
+		try
+		{
+			// convert the string to bytes in UTF-8
+			byte[] bytes = id.getBytes("UTF-8");
 
+			StringBuffer buf = new StringBuffer();
+			for (int i = 0; i < bytes.length; i++)
+			{
+				byte b = bytes[i];
+				// escape ascii control characters, ascii high bits, specials
+				if (ESCAPE_URL_SPECIAL.indexOf((char) b) != -1)
+				{
+					buf.append("^^x"); // special funky way to encode bad URL characters 
+					buf.append(toHex(b));
+					buf.append('^');
+				}
+				else if ((ESCAPE_URL.indexOf((char) b) != -1) || (b <= 0x1F) || (b == 0x7F) || (b >= 0x80))
+				{
+					buf.append("%");
+					buf.append(toHex(b));
+				}
+				else
+				{
+					buf.append((char) b);
+				}
+			}
 
+			String rv = buf.toString();
+			return rv;
+		}
+		catch (Exception e)
+		{
+			log.warn("Validator.escapeUrl: ", e);
+			return id;
+		}
+	} // escapeUrl
+	
+	/**
+	 * Returns a hex representation of a byte.
+	 * 
+	 * @param b
+	 *        The byte to convert to hex.
+	 * @return The 2-digit hex value of the supplied byte.
+	 */
+	private static final String toHex(byte b)
+	{
+
+		char ret[] = new char[2];
+
+		ret[0] = hexDigit((b >>> 4) & (byte) 0x0F);
+		ret[1] = hexDigit((b >>> 0) & (byte) 0x0F);
+
+		return new String(ret);
+	}
+
+	/**
+	 * Returns the hex digit cooresponding to a number between 0 and 15.
+	 * 
+	 * @param i
+	 *        The number to get the hex digit for.
+	 * @return The hex digit cooresponding to that number.
+	 * @exception java.lang.IllegalArgumentException
+	 *            If supplied digit is not between 0 and 15 inclusive.
+	 */
+	private static final char hexDigit(int i)
+	{
+
+		switch (i)
+		{
+			case 0:
+				return '0';
+			case 1:
+				return '1';
+			case 2:
+				return '2';
+			case 3:
+				return '3';
+			case 4:
+				return '4';
+			case 5:
+				return '5';
+			case 6:
+				return '6';
+			case 7:
+				return '7';
+			case 8:
+				return '8';
+			case 9:
+				return '9';
+			case 10:
+				return 'A';
+			case 11:
+				return 'B';
+			case 12:
+				return 'C';
+			case 13:
+				return 'D';
+			case 14:
+				return 'E';
+			case 15:
+				return 'F';
+		}
+
+		throw new IllegalArgumentException("Invalid digit:" + i);
+	}
 }

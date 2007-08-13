@@ -25,6 +25,7 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.RetakeAssessmentBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
@@ -47,8 +48,8 @@ public class ConfirmRetakeAssessmentListener implements ActionListener {
 		RetakeAssessmentBean retakeAssessment = (RetakeAssessmentBean) ContextUtil.lookupBean("retakeAssessment");
 		String publishedAssessmentId = ContextUtil.lookupParam("publishedAssessmentId");
 		String agentIdString = ContextUtil.lookupParam("agentIdString");
-		String studentName = ContextUtil.lookupParam("studentName");
-		//String assessmentGradingId = ContextUtil.lookupParam("assessmentGradingId");
+		AgentFacade agent = new AgentFacade(agentIdString);
+		String studentName = agent.getDisplayName();
 		retakeAssessment.setPublishedAssessmentId(Long.valueOf(publishedAssessmentId));
 		retakeAssessment.setAgentId(agentIdString);
 		retakeAssessment.setStudentName(studentName);
