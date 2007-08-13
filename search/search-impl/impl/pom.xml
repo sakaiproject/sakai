@@ -100,7 +100,7 @@
     <dependency>
       <groupId>commons-dbcp</groupId>
       <artifactId>commons-dbcp</artifactId>
-      <version>1.2.1</version>
+      <version>1.2.2</version>
       <type>jar</type>
     </dependency>
     <dependency>
