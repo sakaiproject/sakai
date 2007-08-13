@@ -263,7 +263,7 @@ public class ItemAddListener
 	    // Following the above logic, at this point, no matter the last choice (lable is corrChoices[counter])
 	    // is a correct answer or not, it will be the last value in array corrChoice[].
 	    // Therefore, make a call to isCorrectChoice() to see if it is indeed a correct choice
-	    if (!isCorrectChoice(item, corrChoices[counter])) {
+	    if (counter < corrChoices.length && !isCorrectChoice(item, corrChoices[counter])) {
 	    	corrChoices[counter] = null;
 	    }
 	    item.setCorrAnswers(corrChoices);
