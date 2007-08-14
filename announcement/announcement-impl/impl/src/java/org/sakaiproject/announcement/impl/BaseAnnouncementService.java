@@ -1269,4 +1269,23 @@ public abstract class BaseAnnouncementService extends BaseMessageService impleme
 
 	} // PrivacyFilter
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.entity.api.EntitySummary#summarizableToolIds()
+	 */
+	public String[] summarizableToolIds()
+	{
+		return new String[] {
+				"sakai.announcements",
+				"sakai.motd"
+		};
+	}
+	public String getSummarizableReference(String siteId, String toolIdentifier)
+	{
+		if ( "sakai.motd".equals(toolIdentifier) ) {
+			return "/announcement/channel/!site/motd";
+		} else {
+			return super.getSummarizableReference(siteId, toolIdentifier);
+		}
+	}
+
 }
