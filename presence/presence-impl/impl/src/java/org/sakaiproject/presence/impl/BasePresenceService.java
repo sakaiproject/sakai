@@ -35,6 +35,10 @@ import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.Notification;
+import org.sakaiproject.event.api.NotificationAction;
+import org.sakaiproject.event.api.NotificationEdit;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.presence.api.PresenceService;
@@ -44,6 +48,7 @@ import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.w3c.dom.Element;
 
 /**
  * <p>
@@ -144,6 +149,10 @@ public abstract class BasePresenceService implements PresenceService
 	/** Configuration: milliseconds till a non-refreshed presence entry times out. */
 	protected int m_timeout = 60000;
 
+	private NotificationEdit notification;
+
+	private NotificationService notificationService;
+
 	/**
 	 * Configuration: SECONDS till a non-refreshed presence entry times out.
 	 * 
@@ -176,6 +185,42 @@ public abstract class BasePresenceService implements PresenceService
 			m_storage = newStorage();
 
 			M_log.info("init()");
+			
+			// register a transient notification for resources
+			notification = notificationService.addTransientNotification();
+
+			// add all the functions that are registered to trigger search index
+			// modification
+
+			notification.setFunction(UsageSessionService.EVENT_LOGOUT);
+
+			// set the action
+			notification.setAction(new NotificationAction(){
+				
+				public NotificationAction getClone()
+				{
+					return null;
+				}
+
+				public void notify(Notification notification, Event event)
+				{
+					removeSessionPresence(event.getSessionId());					
+				}
+
+				public void set(Element el)
+				{					
+				}
+
+				public void set(NotificationAction other)
+				{
+				}
+
+				public void toXml(Element el)
+				{
+				}
+				
+			});
+
 
 		}
 		catch (Throwable t)
@@ -587,5 +632,21 @@ public abstract class BasePresenceService implements PresenceService
 				m_eventTrackingService.post(event, m_session);
 			}
 		}
+	}
+
+	/**
+	 * @return the notificationService
+	 */
+	public NotificationService getNotificationService()
+	{
+		return notificationService;
+	}
+
+	/**
+	 * @param notificationService the notificationService to set
+	 */
+	public void setNotificationService(NotificationService notificationService)
+	{
+		this.notificationService = notificationService;
 	}
 }
