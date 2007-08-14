@@ -39,6 +39,11 @@
       <f:verbatim><div class="hierItemBlockWrapper"></f:verbatim>
       	<f:verbatim><div class="hierItemBlock"></f:verbatim>
 		  <p class="textPanel">
+		  
+		  <h4>
+		  <h:outputText value="#{ForumTool.selectedForum.forum.title}" />
+		  </h4>
+		  
 		  <h:outputText value="#{ForumTool.selectedForum.forum.shortDescription}" />
 		  </p>
 		  <p class="textPanelFooter specialLink">
