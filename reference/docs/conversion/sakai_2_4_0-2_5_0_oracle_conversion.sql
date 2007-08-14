@@ -25,5 +25,18 @@ create index MFR_MESSAGE_DELETED_I on MFR_MESSAGE_T (DELETED);
 --Chat SAK-10682
 alter table CHAT2_CHANNEL modify (CONTEXT VARCHAR2(99));
 
+--Chat SAK-10163
+ALTER TABLE CHAT2_CHANNEL ADD PLACEMENT_ID varchar2(99) NULL;
+ALTER TABLE CHAT2_CHANNEL RENAME COLUMN contextDefaultChannel TO placementDefaultChannel;
+
+update CHAT2_CHANNEL cc
+set cc.PLACEMENT_ID = (select st.TOOL_ID from SAKAI_SITE_TOOL st where st.REGISTRATION = 'sakai.chat' 
+   and cc.placementDefaultChannel = 1
+   and cc.CONTEXT = st.SITE_ID )
+where EXISTS 
+(select st.TOOL_ID from SAKAI_SITE_TOOL st where st.REGISTRATION = 'sakai.chat' 
+   and cc.placementDefaultChannel = 1
+   and cc.CONTEXT = st.SITE_ID)
+
 --OSP SAK-10396: Add a default layout to be specified for a portfolio
 alter table osp_presentation add layout_id varchar2(36) NULL;
