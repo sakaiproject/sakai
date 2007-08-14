@@ -770,16 +770,16 @@ below they are contextually defined depending on the column as an example,as you
 /*	background-image : url(../../image/silk/new.png); */
 }
 .icon-osp-evaluation {
-/*	background-image : url(../../image/silk/new.png); */
+	background-image : url(../../image/silk/thumb_up.png);
 }
 .icon-sakai-metaobj {
-/*	background-image : url(../../image/silk/new.png); */
+	background-image : url(../../image/silk/application_form.png);
 }
 .icon-sakai-forums {
 /*	background-image : url(../../image/silk/new.png); */
 }
 .icon-osp-glossary {
-/*	background-image : url(../../image/silk/new.png); */
+	background-image : url(../../image/silk/text_list_bullets.png);
 }
 .icon-sakai-rutgers-linktool {
 /*	background-image : url(../../image/silk/new.png); */
@@ -788,7 +788,7 @@ below they are contextually defined depending on the column as an example,as you
 /*	background-image : url(../../image/silk/new.png); */
 }
 .icon-osp-matrix {
-/*	background-image : url(../../image/silk/new.png); */
+	background-image : url(../../image/silk/chart_line.png);
 }
 .icon-sakai-messages {
 /*	background-image : url(../../image/silk/new.png); */
@@ -800,23 +800,33 @@ below they are contextually defined depending on the column as an example,as you
 /*	background-image : url(../../image/silk/new.png); */
 }
 .icon-osp-presLayout {
-/*	background-image : url(../../image/silk/new.png); */
+	background-image : url(../../image/silk/layout_content.png); 
 }
 .icon-osp-presTemplate {
-/*	background-image : url(../../image/silk/new.png); */
+	background-image : url(../../image/silk/application_view_tile.png); 
+}
+.icon-osp-presentation {
+	background-image : url(../../image/silk/briefcase.png);
 }
 .icon-sakai-postem {
 /*	background-image : url(../../image/silk/new.png); */
 }
-.icon-osp-reports {
-/*	background-image : url(../../image/silk/new.png); */
+.icon-sakai-reports {
+	background-image : url(../../image/silk/report.png); 
 }
 .icon-osp-style {
-/*	background-image : url(../../image/silk/new.png); */
+	background-image : url(../../image/silk/style.png); 
 }
 .icon-osp-wizard {
-/*	background-image : url(../../image/silk/new.png); */
+	background-image : url(../../image/silk/wand.png); 
 }
+.icon-sakai-gmt {
+	background-image : url(../../image/silk/award_star_gold_3.png); 
+}	
+.icon-sakai-datapoint {
+	background-image : url(../../image/silk/chart_line.png); 
+}
+
 
 /** Privacy Popup Styles **/
 div#privacy_tool_popup {
