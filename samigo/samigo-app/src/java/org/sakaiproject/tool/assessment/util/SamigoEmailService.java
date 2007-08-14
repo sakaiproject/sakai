@@ -73,9 +73,6 @@ public class SamigoEmailService {
 	private String message;
 	private String smtpServer;
 	private String smtpPort;
-	private String bypassAuth;
-	private String username;
-	private String password;
 	private String prefixedPath;
 	
 	/**
@@ -92,9 +89,6 @@ public class SamigoEmailService {
 		this.message = message;
 		this.smtpServer = ServerConfigurationService.getString("samigo.smtp.server");
 		this.smtpPort = ServerConfigurationService.getString("samigo.smtp.port");
-		this.bypassAuth = ServerConfigurationService.getString("samigo.email.bypassAuth");
-		this.username = ServerConfigurationService.getString("samigo.email.username");
-		this.password = ServerConfigurationService.getString("samigo.email.password");
 		this.prefixedPath = ServerConfigurationService.getString("samigo.email.prefixedPath");
 	}
 	
@@ -106,8 +100,13 @@ public class SamigoEmailService {
 			
 			// Server
 			if (smtpServer == null || smtpServer.equals("")) {
-				log.error("samigo.email.smtpServer is not set");
-				return "error";
+				log.info("samigo.email.smtpServer is not set");
+				smtpServer = ServerConfigurationService.getString("smtp@org.sakaiproject.email.api.EmailService");
+				if (smtpServer == null || smtpServer.equals("")) {
+					log.info("smtp@org.sakaiproject.email.api.EmailService is not set");
+					log.error("Please set the value of samigo.email.smtpServer or smtp@org.sakaiproject.email.api.EmailService");
+					return "error";
+				}
 			}
 			props.setProperty("mail.smtp.host", smtpServer);
 
@@ -119,22 +118,7 @@ public class SamigoEmailService {
 			}
 
 			Session session;
-			// Authentication
-			if (bypassAuth != null && bypassAuth.equals("true")) {
-				log.info("samigo.email.bypassAuth is set to true");
-				session = Session.getInstance(props, null);
-			}
-			else {
-				if ((username == null || username.equals(""))
-						|| (password == null || password.equals(""))) {
-					log.error("At least one of samigo.email.username and samigo.email.password is not set");
-					return "error";
-				} else {
-					SamigoEmailAuthenticator samigoEmailAuthenticator = new SamigoEmailAuthenticator();
-					session = Session.getInstance(props, samigoEmailAuthenticator);
-				}
-			}
-
+			session = Session.getInstance(props);
 			session.setDebug(true);
 			MimeMessage msg = new MimeMessage(session);
 			
