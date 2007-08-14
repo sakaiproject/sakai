@@ -37,6 +37,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.Portal;
@@ -47,6 +48,8 @@ import org.sakaiproject.portal.util.PortalSiteHelper;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.alias.cover.AliasService;
+import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.user.api.Preferences;
@@ -154,8 +157,7 @@ public class SiteHandler extends WorksiteHandler
 		}
 		catch (IdUnusedException e)
 		{
-			portal.doError(req, res, session, Portal.ERROR_SITE);
-			return;
+			// continue on to alias check
 		}
 		catch (PermissionException e)
 		{
@@ -167,14 +169,62 @@ public class SiteHandler extends WorksiteHandler
 				ss.setToolContextPath(toolContextPath);
 				portalService.setStoredState(ss);
 				portal.doLogin(req, res, session, req.getPathInfo(), false);
+				return;
 			}
-			else
-			{
-				portal.doError(req, res, session, Portal.ERROR_SITE);
-			}
-			return;
+			// otherwise continue on to alias check
 		}
 
+		// Now check for site alias
+		if ( site == null )
+		{
+			try
+			{
+				// First check for site alias
+				if ( siteId!= null && !siteId.equals("") && !SiteService.siteExists(siteId) )
+				{
+					String refString = AliasService.getTarget(siteId);
+					siteId = EntityManager.newReference(refString).getContainer();
+				}
+				
+				site = siteHelper.getSiteVisit(siteId);
+			}
+			catch (IdUnusedException e)
+			{
+				portal.doError(req, res, session, Portal.ERROR_SITE);
+				return;
+			}
+			catch (PermissionException e)
+			{
+				// if not logged in, give them a chance
+				if (session.getUserId() == null)
+				{
+					StoredState ss = portalService.newStoredState("directtool", "tool");
+					ss.setRequest(req);
+					ss.setToolContextPath(toolContextPath);
+					portalService.setStoredState(ss);
+					portal.doLogin(req, res, session, req.getPathInfo(), false);
+				}
+				else
+				{
+					portal.doError(req, res, session, Portal.ERROR_SITE);
+				}
+				return;
+			}
+		}
+
+		// Try to lookup alias if pageId not found
+		if (pageId != null && !pageId.equals("") && site.getPage(pageId) == null)
+		{
+			try
+			{
+				String refString = AliasService.getTarget(pageId);
+				pageId = EntityManager.newReference(refString).getId();
+			}
+			catch (IdUnusedException e) {
+				log.warn("Alias does not resolve "+e.getMessage());
+			}
+		}
+		
 		// Lookup the page in the site - enforcing access control
 		// business rules
 		SitePage page = siteHelper.lookupSitePage(pageId, site);
