@@ -50,22 +50,6 @@
       <artifactId>sakai-entity-api</artifactId>
       <version>${sakai.version}</version>
     </dependency>
-<!-- For synpotic -->
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-announcement-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-message-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject</groupId>
-      <artifactId>sakai-discussion-api</artifactId>
-      <version>${sakai.version}</version>
-    </dependency>
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-tool-util</artifactId>

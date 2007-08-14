@@ -36,10 +36,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.announcement.cover.AnnouncementService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.discussion.cover.DiscussionService;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntitySummary;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -462,54 +460,10 @@ public class PortalSiteHelper
 
 		setTemporaryPlacement(site);
 		Map newMap = null;
-		if ("sakai.motd".equals(toolIdentifier))
-		{
-			try
-			{
-				String channel = "/announcement/channel/!site/motd";
-				newMap = AnnouncementService.getSummary(channel, 5, 30);
-			}
-			catch (Exception e)
-			{
-				newMap = null;
-			}
-		}
-		/*
-		 * else if ("sakai.chat".equals(toolIdentifier)) { //This is now being
-		 * done by the EntitySummary stuff - chmaurer 3/2007 try { String
-		 * channel = ChatService.getInstance().channelReference(site.getId(),
-		 * SiteService.MAIN_CONTAINER); newMap = ChatService.getSummary(channel,
-		 * 5, 30); } catch (Exception e) { newMap = null; } }
-		 */
-		else if ("sakai.discussion".equals(toolIdentifier))
-		{
-			try
-			{
-				String channel = DiscussionService.getInstance().channelReference(
-						site.getId(), SiteService.MAIN_CONTAINER);
-				newMap = DiscussionService.getSummary(channel, 5, 30);
-			}
-			catch (Exception e)
-			{
-				newMap = null;
-			}
-		}
-		else if ("sakai.announcements".equals(toolIdentifier))
-		{
-			try
-			{
-				String channel = AnnouncementService.getInstance().channelReference(
-						site.getId(), SiteService.MAIN_CONTAINER);
-				newMap = AnnouncementService.getSummary(channel, 5, 30);
-			}
-			catch (Exception e)
-			{
-				newMap = null;
-			}
-		}
 
 		/*
 		 * This is a new, cooler way to do this (I hope) chmaurer...
+		 * (ieb) Yes:) All summaries now through this interface
 		 */
 
 		// offer to all EntityProducers
@@ -526,7 +480,7 @@ public class PortalSiteHelper
 					if (ArrayUtil.contains(es.summarizableToolIds(), toolIdentifier))
 					{
 						String summarizableReference = es.getSummarizableReference(site
-								.getId());
+								.getId(),toolIdentifier);
 						es.getSummary(summarizableReference, 5, 30);
 					}
 				}
