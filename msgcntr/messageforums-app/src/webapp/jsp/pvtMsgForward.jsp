@@ -126,7 +126,7 @@
               var subject = document.forms['pvtMsgForward'].elements['pvtMsgForward:titleHidden'].value;
 	        
                                  
-              var finalhtml = '<b><i><h:outputText value="#{msgs.pvt_forward}" /> </i></b><br><br>' + 
+              var finalhtml = '<b><i><h:outputText value="#{msgs.pvt_forwarded_msg_heading}" /> </i></b><br><br>' + 
                '<b><h:outputText value="#{msgs.pvt_authby}" /></b> <h:outputText value="#{PrivateMessagesTool.detailMsg.msg.author}" /> <h:outputText value=" #{msgs.pvt_openb}" /> <h:outputText value="#{PrivateMessagesTool.detailMsg.msg.created}" ><f:convertDateTime pattern="#{msgs.date_format}" /></h:outputText><h:outputText value=" #{msgs.pvt_closeb}" /> <br>' +
                '<b> <h:outputText value="#{msgs.pvt_to}" /></b> <h:outputText value="#{PrivateMessagesTool.detailMsg.msg.recipientsAsText}" /><br>' +
                '<b><h:outputText value="#{msgs.pvt_subject}" /></b>' + subject + '<br>' +
