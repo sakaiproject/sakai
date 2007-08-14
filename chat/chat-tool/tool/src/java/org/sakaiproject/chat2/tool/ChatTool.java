@@ -209,7 +209,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       //Really onl calling this just to make sure a room gets created
       List rooms = getSiteChannels();
       
-      ChatChannel defaultChannel = getChatManager().getDefaultChannel(placement.getContext());
+      ChatChannel defaultChannel = getChatManager().getDefaultChannel(placement.getContext(), placement.getId());
       setCurrentChannel(new DecoratedChatChannel(this, defaultChannel));
          
       // if there is no room selected to enter then go to select a room
@@ -259,7 +259,8 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    protected boolean refreshPresence() {
       if (getCurrentChannel() == null) {
          ChatChannel defaultChannel = getChatManager().getDefaultChannel(
-               getToolManager().getCurrentPlacement().getContext());
+               getToolManager().getCurrentPlacement().getContext(),
+               getToolManager().getCurrentPlacement().getId());
          setCurrentChannel(new DecoratedChatChannel(this, defaultChannel));
       }
       if(getCurrentChannel() != null) {
@@ -381,15 +382,15 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    
    public String processActionSetAsDefaultRoom(DecoratedChatChannel decoChannel) {
       ChatChannel channel = decoChannel.getChatChannel();
-      channel.setContextDefaultChannel(true);
-      getChatManager().makeDefaultContextChannel(channel);
+      channel.setPlacementDefaultChannel(true);
+      getChatManager().makeDefaultContextChannel(channel, getToolManager().getCurrentPlacement().getId());
       return PAGE_LIST_ROOMS;
    }
    
    public String processActionAddRoom()
    {
       try {
-         ChatChannel newChannel = getChatManager().createNewChannel(getContext(), "", false, true);
+         ChatChannel newChannel = getChatManager().createNewChannel(getContext(), "", false, true, getToolManager().getCurrentPlacement().getId());
          currentChannelEdit = new DecoratedChatChannel(this, newChannel, true);
          
          //init the filter param
@@ -580,7 +581,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
          try {
             getChatManager().updateChannel(channel, true);
             
-            if (getCurrentChannel().getChatChannel().getId().equals(channel.getId())) {
+            if (getCurrentChannel() != null && getCurrentChannel().getChatChannel().getId().equals(channel.getId())) {
                setCurrentChannel(new DecoratedChatChannel(this, channel));
             }
             //setCurrentChannel(channel);
@@ -1283,7 +1284,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
     * @return List of ChatChannel
     */
    protected List getSiteChannels() {
-      return getChatManager().getContextChannels(getContext(), getMessageFromBundle("default_new_channel_title"));
+      return getChatManager().getContextChannels(getContext(), getMessageFromBundle("default_new_channel_title"), getToolManager().getCurrentPlacement().getId());
    }
    
    
@@ -1292,7 +1293,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
     * @return int
     */
    public int getSiteChannelCount() {
-      return getChatManager().getContextChannels(getContext(), getMessageFromBundle("default_new_channel_title")).size();
+      return getChatManager().getContextChannels(getContext(), getMessageFromBundle("default_new_channel_title"), getToolManager().getCurrentPlacement().getId()).size();
    }
    
    
