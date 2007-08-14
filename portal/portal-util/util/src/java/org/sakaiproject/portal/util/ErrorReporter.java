@@ -385,7 +385,12 @@ public class ErrorReporter
 							"no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0");
 			res.addHeader("Pragma", "no-cache");
 
-			PrintWriter out = res.getWriter();
+			PrintWriter out = null;
+			try {
+				out = res.getWriter();
+			} catch (Exception ex ) {
+				out = new PrintWriter(res.getOutputStream());
+			}
 			out
 					.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
 			out
