@@ -43,13 +43,14 @@ public class ChatChannel implements Entity {
    public static final int MAX_MESSAGES = -999;
    
    private String id;
+   private String placement;
    private String context;
    private Date creationDate;
    private String title;
    private String description;
    private String filterType = FILTER_BY_TIME;
    private int filterParam = 3;
-   private boolean contextDefaultChannel = false;
+   private boolean placementDefaultChannel = false;
    private boolean enableUserOverride = true;
    private Set messages = new HashSet();
    private String migratedChannelId;
@@ -116,11 +117,11 @@ public class ChatChannel implements Entity {
    public void setFilterParam(int filterParam) {
       this.filterParam = filterParam;
    }
-   public boolean isContextDefaultChannel() {
-      return contextDefaultChannel;
+   public boolean isPlacementDefaultChannel() {
+      return placementDefaultChannel;
    }
-   public void setContextDefaultChannel(boolean contextDefaultChannel) {
-      this.contextDefaultChannel = contextDefaultChannel;
+   public void setPlacementDefaultChannel(boolean placementDefaultChannel) {
+      this.placementDefaultChannel = placementDefaultChannel;
    }   
    public boolean isEnableUserOverride() {
       return enableUserOverride;
@@ -163,7 +164,7 @@ public class ChatChannel implements Entity {
       channel.setAttribute("creationDate", Long.toString(getCreationDate().getTime()));
       channel.setAttribute("filterType", getFilterType());
       channel.setAttribute("filterParam", Integer.toString(getFilterParam()));
-      channel.setAttribute("contextDefaultChannel", Boolean.toString(isContextDefaultChannel()));
+      channel.setAttribute("placementDefaultChannel", Boolean.toString(isPlacementDefaultChannel()));
       
       stack.pop();
 
@@ -190,7 +191,7 @@ public class ChatChannel implements Entity {
       tmpChannel.setCreationDate(new Date(Long.parseLong(channelElement.getAttribute("creationDate"))));
       tmpChannel.setFilterType(channelElement.getAttribute("filterType"));
       tmpChannel.setFilterParam(Integer.parseInt(channelElement.getAttribute("filterParam")));
-      tmpChannel.setContextDefaultChannel(Boolean.parseBoolean(channelElement.getAttribute("contextDefaultChannel")));
+      tmpChannel.setPlacementDefaultChannel(Boolean.parseBoolean(channelElement.getAttribute("placementDefaultChannel")));
       
       return tmpChannel;
    }
@@ -239,4 +240,18 @@ public class ChatChannel implements Entity {
    public void setMigratedChannelId(String migratedChannelId) {
       this.migratedChannelId = migratedChannelId;
    }
+
+/**
+ * @return the placement
+ */
+public String getPlacement() {
+	return placement;
+}
+
+/**
+ * @param placement the placement to set
+ */
+public void setPlacement(String placement) {
+	this.placement = placement;
+}
 }

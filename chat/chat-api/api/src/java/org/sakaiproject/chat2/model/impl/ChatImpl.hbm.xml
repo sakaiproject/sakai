@@ -11,6 +11,8 @@
 		<id name="id" length="99" column="CHANNEL_ID">
 			<generator class="org.sakaiproject.id.hbm.IdGenerator"/>
 		</id>
+		<property name="placement" column="PLACEMENT_ID" type="string"
+			length="99" not-null="false"/>
 		<property name="context" column="CONTEXT" type="string"
 			length="99" not-null="true" index="CHAT_CHANNEL_CONTEXT_I"/>
 		<property name="creationDate" column="CREATION_DATE"
@@ -20,7 +22,7 @@
 		<property name="description" type="string" length="255" />
 		<property name="filterType" type="string" length="25" />
 		<property name="filterParam" type="int" />
-		<property name="contextDefaultChannel" type="boolean" index="CHAT_CHANNEL_DEFAULT_I"/>
+		<property name="placementDefaultChannel" type="boolean" index="CHAT_CHANNEL_DEFAULT_I"/>
 		<property name="enableUserOverride" type="boolean" column="ENABLE_USER_OVERRIDE" not-null="false"/>
 		<property name="migratedChannelId" type="string" length="99" />
 
@@ -54,7 +56,7 @@
 	</query>
 
 	<query name="findDefaultChannelsInContext">
-		from ChatChannel c WHERE c.context=? and c.contextDefaultChannel=true order by c.title
+		from ChatChannel c WHERE c.context=? and c.placement=? and c.placementDefaultChannel=true order by c.title
 	</query>
 	
 	<query name="findMigratedMessage">

@@ -55,11 +55,12 @@ public interface ChatManager extends EntitySummary {
     * Creates a new ChatChannel but doesn't put it in the database.
     * @param context Id of what the channel is linked to
     * @param title String the title of the channel
-    * @param contextDefaultChannel boolean to set this as the default channel in the context
+    * @param placementDefaultChannel boolean to set this as the default channel in the context
     * @param checkAuthz boolean indicating if we should check for authorization before creating the channel
+    * @param placement String id of the tool placement
     * @return ChatChannel the new un-saved channel
     */
-   public ChatChannel createNewChannel(String context, String title, boolean contextDefaultChannel, boolean checkAuthz) throws PermissionException;
+   public ChatChannel createNewChannel(String context, String title, boolean placementDefaultChannel, boolean checkAuthz, String placement) throws PermissionException;
    
    /**
     * updates the channel back into the database
@@ -159,16 +160,18 @@ public interface ChatManager extends EntitySummary {
     * If no rooms are found, one is created with the passed title
     * @param contextId Id
     * @param defaultNewTitle String the default name of a new ChatChannel
+    * @param placement
     * @return List of ChatChannel
     */
-   public List getContextChannels(String contextId, String defaultNewTitle);
+   public List getContextChannels(String contextId, String defaultNewTitle, String placement);
    
    /**
     * Returns the context's default channel, or null if none.
     * @param contextId
+    * @param placement
     * @return
     */
-   public ChatChannel getDefaultChannel(String contextId);
+   public ChatChannel getDefaultChannel(String contextId, String placement);
 
 
    public boolean getCanDelete(ChatMessage chatMessage);
@@ -192,8 +195,9 @@ public interface ChatManager extends EntitySummary {
    /**
     * Makes the passed channel the dfault in the channel's context
     * @param channel
+    * @param placement
     */
-   public void makeDefaultContextChannel(ChatChannel channel);
+   public void makeDefaultContextChannel(ChatChannel channel, String placement);
    
    /**
     * Returns a Date object that is the offset number of days before the current date
