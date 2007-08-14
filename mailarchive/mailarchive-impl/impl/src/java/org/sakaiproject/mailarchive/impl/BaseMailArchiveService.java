@@ -1203,6 +1203,15 @@ public abstract class BaseMailArchiveService extends BaseMessageService implemen
 		} // toXml
 
 	} // BaseMailArchiveMessageHeader
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.entity.api.EntitySummary#summarizableToolIds()
+	 */
+	public String[] summarizableToolIds()
+	{
+		return new String[] {
+				"sakai.mailarchive"
+		};
+	}
 
 } // BaseMailArchiveService
 
