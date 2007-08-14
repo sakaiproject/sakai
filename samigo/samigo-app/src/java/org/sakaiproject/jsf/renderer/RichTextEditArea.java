@@ -435,8 +435,10 @@ public class RichTextEditArea extends Renderer
     writer.write("\n\telse if (status.value == \"expaneded\") {");
     writer.write("\n\t\tstatus.value = \"collapsed\";");
     writer.write("\n\t\tcollapseMenu(client_id);\n\t}");    
+    writer.write("\n");
+    writer.write("\n\tsetMainFrameHeight('Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId().replace("-","x") + "');");
     writer.write("\n}\n");
-  
+    
     
     writer.write("function chef_setupformattedtextarea(client_id,shouldToggle){\n");
     
