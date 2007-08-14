@@ -1221,4 +1221,15 @@ public abstract class BaseChatService extends BaseMessageService implements Chat
 			return false;
 		}
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.entity.api.EntitySummary#summarizableToolIds()
+	 */
+	public String[] summarizableToolIds()
+	{
+		return new String[] {
+				"sakai.chat"
+		};
+	}
+
 }

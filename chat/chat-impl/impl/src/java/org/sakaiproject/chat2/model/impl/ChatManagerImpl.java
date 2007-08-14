@@ -1009,7 +1009,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
    /**
     * {@inheritDoc}
     */
-   public String getSummarizableReference(String siteId) {
+   public String getSummarizableReference(String siteId, String toolIdentifier) {
       //I think this should just return null so we get all channels.
       String channel = null;
       return channel;
