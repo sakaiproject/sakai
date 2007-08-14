@@ -1158,12 +1158,40 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				List allowAddSubmissionUsers = AssignmentService.allowAddSubmissionUsers(a.getReference());
 				List submissions = AssignmentService.getSubmissions(a);
-				if (submissions != null && allowAddSubmissionUsers != null && allowAddSubmissionUsers.size() != submissions.size())
+				
+				HashSet<String> submittersIdSet = getSubmittersIdSet(submissions);
+				HashSet<String> allowAddSubmissionUsersIdSet = getAllowAddSubmissionUsersIdSet(allowAddSubmissionUsers);
+				
+				if (!submittersIdSet.equals(allowAddSubmissionUsersIdSet))
 				{
-					// if there is any newly added user who doesn't have a submission object yet, add the submission
+					// get the difference between two sets
 					try
 					{
-						addSubmissionsForNonElectronicAssignment(state, submissions, allowAddSubmissionUsers, AssignmentService.getAssignment(a.getReference())); 
+						HashSet<String> addSubmissionUserIdSet = (HashSet<String>) allowAddSubmissionUsersIdSet.clone();
+						addSubmissionUserIdSet.removeAll(submittersIdSet);
+						HashSet<String> removeSubmissionUserIdSet = (HashSet<String>) submittersIdSet.clone();
+						removeSubmissionUserIdSet.removeAll(allowAddSubmissionUsersIdSet);
+						
+						// temporarily allow the user to read and write from assignments (asn.revise permission)
+				        SecurityService.pushAdvisor(new SecurityAdvisor()
+				            {
+				                public SecurityAdvice isAllowed(String userId, String function, String reference)
+				                {
+				                    return SecurityAdvice.ALLOWED;
+				                }
+				            });
+				        
+						try
+						{
+							addRemoveSubmissionsForNonElectronicAssignment(state, submissions, addSubmissionUserIdSet, removeSubmissionUserIdSet, a); 
+						}
+						catch (Exception ee)
+						{
+							Log.warn("chef", this + ee.getMessage());
+						}
+						
+						// clear temporary permissions
+						SecurityService.clearAdvisors();
 					}
 					catch (Exception e)
 					{
@@ -1246,6 +1274,30 @@ public class AssignmentAction extends PagedResourceActionII
 		return template + TEMPLATE_LIST_ASSIGNMENTS;
 
 	} // build_list_assignments_context
+	
+	private HashSet<String> getSubmittersIdSet(List submissions)
+	{
+		HashSet<String> rv = new HashSet<String>();
+		for (Iterator iSubmissions=submissions.iterator(); iSubmissions.hasNext();)
+		{
+			List submitterIds = ((AssignmentSubmission) iSubmissions.next()).getSubmitterIds();
+			if (submitterIds != null && submitterIds.size() > 0)
+			{
+				rv.add((String) submitterIds.get(0));
+			}
+		}
+		return rv;
+	}
+	
+	private HashSet<String> getAllowAddSubmissionUsersIdSet(List users)
+	{
+		HashSet<String> rv = new HashSet<String>();
+		for (Iterator iUsers=users.iterator(); iUsers.hasNext();)
+		{
+			rv.add(((User) iUsers.next()).getId());
+		}
+		return rv;
+	}
 
 	/**
 	 * build the instructor view of creating a new assignment or editing an existing one
@@ -4302,7 +4354,7 @@ public class AssignmentAction extends PagedResourceActionII
 	 * @param state
 	 * @param a
 	 */
-	private void addSubmissionsForNonElectronicAssignment(SessionState state, List submissions, List allowAddSubmissionUsers, Assignment a) 
+	private void addRemoveSubmissionsForNonElectronicAssignment(SessionState state, List submissions, HashSet<String> addSubmissionForUsers, HashSet<String> removeSubmissionForUsers, Assignment a) 
 	{
 		// get the string for all submitters
 		HashSet<String> submitterIdSet = new HashSet<String>();
@@ -4318,44 +4370,61 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 		}
 		
-		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
-		String authzGroupId = SiteService.siteReference(contextString);
-		try
+		// create submission object for those user who doesn't have one yet
+		for (Iterator iUserIds = addSubmissionForUsers.iterator(); iUserIds.hasNext();)
 		{
-			AuthzGroup group = AuthzGroupService.getAuthzGroup(authzGroupId);
-			Set grants = group.getUsers();
-			for (Iterator iUserIds = grants.iterator(); iUserIds.hasNext();)
+			String userId = (String) iUserIds.next();
+			try
 			{
-				String userId = (String) iUserIds.next();
-				if (!submitterIdSet.contains(userId))
+				User u = UserDirectoryService.getUser(userId);
+				// only include those users that can submit to this assignment
+				if (u != null)
 				{
-					try
-					{
-						User u = UserDirectoryService.getUser(userId);
-						// only include those users that can submit to this assignment
-						if (u != null && allowAddSubmissionUsers.contains(u))
-						{System.out.println("here");
-							// construct fake submissions for grading purpose
-							AssignmentSubmissionEdit submission = AssignmentService.addSubmission(contextString, a.getId());
-							submission.removeSubmitter(UserDirectoryService.getCurrentUser());
-							submission.addSubmitter(u);
-							submission.setTimeSubmitted(TimeService.newTime());
-							submission.setSubmitted(true);
-							submission.setAssignment(a);
-							AssignmentService.commitEdit(submission);
-						}
-					}
-					catch (Exception e)
-					{
-						Log.warn("chef", this + e.toString() + " here userId = " + userId);
-					}
+					// construct fake submissions for grading purpose
+					AssignmentSubmissionEdit submission = AssignmentService.addSubmission(a.getContext(), a.getId());
+					submission.removeSubmitter(UserDirectoryService.getCurrentUser());
+					submission.addSubmitter(u);
+					submission.setTimeSubmitted(TimeService.newTime());
+					submission.setSubmitted(true);
+					submission.setAssignment(a);
+					AssignmentService.commitEdit(submission);
+				}
+			}
+			catch (Exception e)
+			{
+				Log.warn("chef", this + e.toString() + "error adding submission for userId = " + userId);
+			}
+		}
+		
+		// remove submission object for those who no longer in the site
+		for (Iterator iUserIds = removeSubmissionForUsers.iterator(); iUserIds.hasNext();)
+		{
+			String userId = (String) iUserIds.next();
+			String submissionRef = null;
+			// TODO: we don't have an efficient way to retrieve specific user's submission now, so until then, we still need to iterate the whole submission list
+			for (Iterator iSubmissions=submissions.iterator(); iSubmissions.hasNext() && submissionRef != null;)
+			{
+				AssignmentSubmission submission = (AssignmentSubmission) iSubmissions.next();
+				List submitterIds = submission.getSubmitterIds();
+				if (submitterIds != null && submitterIds.size() > 0 && userId.equals((String) submitterIds.get(0)))
+				{
+					submissionRef = submission.getReference();
+				}
+			}
+			if (submissionRef != null)
+			{
+				try
+				{
+					AssignmentSubmissionEdit submissionEdit = AssignmentService.editSubmission(submissionRef);
+					AssignmentService.removeSubmission(submissionEdit);
+				}
+				catch (Exception e)
+				{
+					Log.warn("chef", this + e.toString() + " error remove submission for userId = " + userId);
 				}
 			}
 		}
-		catch (Exception e)
-		{
-			Log.warn("chef", this + e.getMessage() + " authGroupId=" + authzGroupId);
-		}
+		
 	}
 	
 	private void initIntegrateWithGradebook(SessionState state, String siteId, String aOldTitle, String oAssociateGradebookAssignment, AssignmentEdit a, String title, Time dueTime, int gradeType, String gradePoints, String addtoGradebook, String associateGradebookAssignment, String range) {
