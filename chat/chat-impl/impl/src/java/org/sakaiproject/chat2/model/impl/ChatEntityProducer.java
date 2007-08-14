@@ -663,6 +663,9 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
    
    /**
     * {@inheritDoc}
+    * 
+    * TODO: link the old placement id to the new placement id instead of passing null in line:
+    * ChatChannel newChannel = getChatManager().createNewChannel(toContext, oldChannel.getTitle(), false, false, null);
     */
    public void transferCopyEntities(String fromContext, String toContext, List ids) 
    {
@@ -676,11 +679,11 @@ public class ChatEntityProducer implements EntityProducer, EntityTransferrer {
             while (channelIterator.hasNext()) 
             {
                ChatChannel oldChannel = (ChatChannel)channelIterator.next();
-               ChatChannel newChannel = getChatManager().createNewChannel(toContext, oldChannel.getTitle(), false, false);
+               ChatChannel newChannel = getChatManager().createNewChannel(toContext, oldChannel.getTitle(), false, false, null);
                newChannel.setDescription(oldChannel.getDescription());
                newChannel.setFilterType(oldChannel.getFilterType());
                newChannel.setFilterParam(oldChannel.getFilterParam());
-               newChannel.setContextDefaultChannel(oldChannel.isContextDefaultChannel());
+               newChannel.setPlacementDefaultChannel(oldChannel.isPlacementDefaultChannel());
                try {
                   getChatManager().updateChannel(newChannel, false);
                } 

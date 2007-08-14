@@ -154,7 +154,7 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
    /**
     * {@inheritDoc}
     */
-   public ChatChannel createNewChannel(String context, String title, boolean contextDefaultChannel, boolean checkAuthz) throws PermissionException {
+   public ChatChannel createNewChannel(String context, String title, boolean placementDefaultChannel, boolean checkAuthz, String placement) throws PermissionException {
       if (checkAuthz)
          checkPermission(ChatFunctions.CHAT_FUNCTION_NEW_CHANNEL);
       
@@ -163,7 +163,11 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
       channel.setCreationDate(new Date());
       channel.setContext(context);
       channel.setTitle(title);
-      channel.setContextDefaultChannel(contextDefaultChannel);
+      channel.setPlacementDefaultChannel(placementDefaultChannel);
+      if(placementDefaultChannel){
+    	  channel.setPlacement(placement);  
+      }
+      
       
       return channel;
    }
@@ -529,12 +533,12 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
    /**
     * {@inheritDoc}
     */
-   public List getContextChannels(String context, String defaultNewTitle) {
+   public List getContextChannels(String context, String defaultNewTitle, String placement) {
       List channels = getHibernateTemplate().findByNamedQuery("findChannelsInContext", context);
       
       if(channels.size() == 0) {
          try {
-            ChatChannel channel = createNewChannel(context, defaultNewTitle, true, false);
+            ChatChannel channel = createNewChannel(context, defaultNewTitle, true, false, placement);
             getHibernateTemplate().save(channel);
             channels.add(channel);
          }
@@ -550,10 +554,10 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
    /**
     * {@inheritDoc}
     */
-   public ChatChannel getDefaultChannel(String contextId) {
-      List channels = getHibernateTemplate().findByNamedQuery("findDefaultChannelsInContext", contextId);
+   public ChatChannel getDefaultChannel(String contextId, String placement) {
+      List channels = getHibernateTemplate().findByNamedQuery("findDefaultChannelsInContext", new Object[] {contextId, placement});
       if (channels.size() == 0) {
-         channels = getContextChannels(contextId, "");
+         channels = getContextChannels(contextId, "", placement);
       }
       if (channels.size() >= 1)
          return (ChatChannel)channels.get(0);
@@ -815,12 +819,14 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
     * Resets the passed context's default channel
     *
     */
-   protected void resetContextDefaultChannel(String context) {
+   protected void resetPlacementDefaultChannel(String context, String placement) {
       Session session = null;
       Connection conn = null;
       PreparedStatement statement = null;
       
-      String query="update CHAT2_CHANNEL c set c.contextDefaultChannel=? WHERE c.context=?";
+     
+      String query="update CHAT2_CHANNEL c set c.placementDefaultChannel=?, c.PLACEMENT_ID=? " +
+      		"WHERE c.context=? and c.PLACEMENT_ID=?";
       
       try{
         session = getSession();
@@ -828,7 +834,9 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
         
         statement = conn.prepareStatement(query);
         statement.setBoolean(1, false);
-        statement.setString(2, context);
+        statement.setString(2, null);
+        statement.setString(3, context);
+        statement.setString(4, placement);
         statement.executeUpdate();
       }
       catch(Exception e){
@@ -855,14 +863,15 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
       }
    }
    
-   public void makeDefaultContextChannel(ChatChannel channel) {
+   public void makeDefaultContextChannel(ChatChannel channel, String placement) {
       //reset context's defaults
       if (isMaintainer()) {
          try {
-            resetContextDefaultChannel(channel.getContext());
+            resetPlacementDefaultChannel(channel.getContext(), placement);
          
             //set new one as default
-            channel.setContextDefaultChannel(true);
+            channel.setPlacementDefaultChannel(true);
+            channel.setPlacement(placement);
             updateChannel(channel, false);
          }
          catch (PermissionException e) {
