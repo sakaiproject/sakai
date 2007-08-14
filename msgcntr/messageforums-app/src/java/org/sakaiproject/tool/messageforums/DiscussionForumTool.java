@@ -2922,6 +2922,7 @@ public class DiscussionForumTool
 		  if (assgnComment != null) {
 			  gbItemComment = assgnComment.getCommentText();
 		  }
+		  setSelectedAssignForMessage(selAssignmentName);
 	  } else {
 		  resetGradeInfo();
 		  setSelectedAssignForMessage(selAssignmentName);
@@ -4349,7 +4350,7 @@ public class DiscussionForumTool
      }
      catch (NumberFormatException e) 
      {
-       e.printStackTrace();
+       //e.printStackTrace();
        return false;
      }
    }
@@ -4395,6 +4396,8 @@ public class DiscussionForumTool
   
   public String processDfGradeSubmit() 
   { 
+	  gbItemScore = gradePoint;
+	  gbItemComment = gradeComment;
 	  if(selectedAssign == null || selectedAssign.trim().length()==0 || selectedAssign.equalsIgnoreCase(DEFAULT_GB_ITEM)) 
 	    { 
 			setErrorMessage(getResourceBundleString(NO_ASSGN)); 
