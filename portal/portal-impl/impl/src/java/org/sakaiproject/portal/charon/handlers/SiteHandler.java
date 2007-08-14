@@ -23,6 +23,10 @@ package org.sakaiproject.portal.charon.handlers;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -46,9 +50,7 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.user.api.Preferences;
-import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.PreferencesService;
-import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.Web;
 
 /**
@@ -73,10 +75,13 @@ public class SiteHandler extends WorksiteHandler
 
 	private int configuredTabsToDisplay = 5;
 
+	private boolean useDHTMLMore = false;
+
 	public SiteHandler()
 	{
 		urlFragment = "site";
         configuredTabsToDisplay  = ServerConfigurationService.getInt(Portal.CONFIG_DEFAULT_TABS, 5);
+        useDHTMLMore =  Boolean.valueOf(ServerConfigurationService.getBoolean("portal.use.dhtml.more", false));
 	}
 
 	@Override
@@ -351,6 +356,11 @@ public class SiteHandler extends WorksiteHandler
 
             int tabsToDisplay = configuredTabsToDisplay;
 
+			
+			
+			
+			
+			
 			if (!loggedIn)
 			{
 				tabsToDisplay = ServerConfigurationService.getInt(
@@ -443,6 +453,136 @@ public class SiteHandler extends WorksiteHandler
 					mySites.add(currentSelectedSite);
 				}
 			}
+			
+			
+			if (useDHTMLMore)
+			{
+				List<Site> allSites = new ArrayList<Site>();
+				allSites.addAll(mySites);
+				// get Sections
+				Map<String, List> termsToSites = new HashMap<String, List>();
+				Map<String, List> tabsMoreTerms = new HashMap<String, List>();
+				for (int i = 0; i < allSites.size(); i++)
+				{
+					Site site = allSites.get(i);
+					ResourceProperties siteProperties = site.getProperties();
+
+					String type = site.getType();
+					String term = null;
+
+					if ("course".equals(type))
+					{
+						term = siteProperties.getProperty("term");
+					}
+					else if ("project".equals(type))
+					{
+						term = "PROJECTS";
+					}
+					else if ("portfolio".equals(type))
+					{
+						term = "PORTFOLIOS";
+					}
+					else if ("admin".equals(type))
+					{
+						term = "ADMINISTRATION";
+					}
+					else
+					{
+						term = "OTHER";
+					}
+
+					List<Site> currentList = new ArrayList();
+					if (termsToSites.containsKey(term))
+					{
+						currentList = termsToSites.get(term);
+						termsToSites.remove(term);
+					}
+					currentList.add(site);
+					termsToSites.put(term, currentList);
+				}
+
+				class TitleSorter implements Comparator<Map>
+				{
+
+					public int compare(Map first, Map second)
+					{
+
+						if (first == null && second == null) return 0;
+
+						String firstTitle = (String) first.get("siteTitle");
+						String secondTitle = (String) second.get("siteTitle");
+
+						if (firstTitle != null)
+							return firstTitle.compareToIgnoreCase(secondTitle);
+
+						return 0;
+
+					}
+
+				}
+
+				Comparator<Map> titleSorter = new TitleSorter();
+
+				// now loop through each section and convert the Lists to maps
+				for (String key : termsToSites.keySet())
+				{
+					List<Site> currentList = termsToSites.get(key);
+					List<Map> temp = portal.convertSitesToMaps(req, currentList, prefix,
+							siteId, myWorkspaceSiteId,
+							/* includeSummary */false, /* expandSite */false,
+							/* resetTools */"true".equals(ServerConfigurationService
+									.getString(Portal.CONFIG_AUTO_RESET)),
+							/* doPages */true, /* toolContextPath */null, loggedIn);
+
+					Collections.sort(temp, titleSorter);
+
+					tabsMoreTerms.put(key, temp);
+
+				}
+
+				String[] termOrder = ServerConfigurationService
+						.getStrings("portal.term.order");
+				List<String> tabsMoreSortedTermList = new ArrayList<String>();
+
+				// Order term column headers according to order specified in
+				// portal.term.order
+				// Filter out terms for which user is not a member of any sites
+
+				if (termOrder != null)
+				{
+					for (int i = 0; i < termOrder.length; i++)
+					{
+
+						if (tabsMoreTerms.containsKey(termOrder[i]))
+						{
+
+							tabsMoreSortedTermList.add(termOrder[i]);
+
+						}
+
+					}
+				}
+
+				Iterator i = tabsMoreTerms.keySet().iterator();
+				while (i.hasNext())
+				{
+					String term = (String) i.next();
+					if (!tabsMoreSortedTermList.contains(term))
+					{
+						tabsMoreSortedTermList.add(term);
+
+					}
+				}
+				rcontext.put("tabsMoreTerms", tabsMoreTerms);
+				rcontext.put("tabsMoreSortedTermList", tabsMoreSortedTermList);
+			}
+			rcontext.put("useDHTMLMore", useDHTMLMore);
+		
+		
+			
+			
+			
+		
 
 			String cssClass = (siteType != null) ? "siteNavWrap " + siteType
 					: "siteNavWrap";
