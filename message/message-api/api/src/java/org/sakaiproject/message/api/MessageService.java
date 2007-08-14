@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.sakaiproject.entity.api.EntityProducer;
+import org.sakaiproject.entity.api.EntitySummary;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
@@ -44,7 +45,7 @@ import org.sakaiproject.time.api.Time;
  * Channels and Messages can be worked with through the MessageChannel and Message APIs and their extensions.
  * </p>
  */
-public interface MessageService extends EntityProducer
+public interface MessageService extends EntityProducer, EntitySummary
 {
 	/** Security function / event for reading channel / message. */
 	public static final String SECURE_READ = "read";

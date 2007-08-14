@@ -4564,5 +4564,16 @@ public abstract class BaseMessageService implements MessageService, StorageUser,
             }
             return null;
         }
+        
+    	/* (non-Javadoc)
+    	 * @see org.sakaiproject.entity.api.EntitySummary#getSummarizableReference(java.lang.String)
+    	 */
+    	public String getSummarizableReference(String siteId, String toolIdentifier)
+    	{
+			return channelReference(
+					siteId, SiteService.MAIN_CONTAINER);
+    	}
+
+
 
 }
