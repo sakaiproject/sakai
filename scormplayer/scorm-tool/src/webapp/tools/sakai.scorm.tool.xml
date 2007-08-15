@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<registration>
-	<tool id="sakai.scorm.tool" title="Scorm Player"
-		description="For playing SCORM content">
-		<category name="course" />
-		<category name="project" />
-	</tool>
-</registration>

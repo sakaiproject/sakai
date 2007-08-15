@@ -1,4 +1,0 @@
-#!/bin/sh
-. /home/QtPalmtop/bin/installdir.sh # set INSTALLDIR 
-cd $QPEDIR/../root/hsqldb
-$QPEDIR/bin/evm  -XappName=$0 -Xprogress -cp $INSTALLDIR/java/hsqldbz.jar:$INSTALLDIR/java org.hsqldb.util.ZaurusDatabaseManager -database 'test'
