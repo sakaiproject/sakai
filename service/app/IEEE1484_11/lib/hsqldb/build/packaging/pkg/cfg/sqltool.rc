@@ -1,8 +1,0 @@
-# Sqltool runtime config file.
-# See the HSQLDB User Guide at /opt/hsqldb/doc/guide/index.html or 
-# http://hsqldb.org .
-
-urlid localhostdb1
-url jdbc:hsqldb:hsql://localhost
-username sa
-password
