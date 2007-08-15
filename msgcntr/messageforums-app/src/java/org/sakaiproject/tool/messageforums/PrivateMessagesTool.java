@@ -1267,12 +1267,15 @@ public void processChangeSelectView(ValueChangeEvent eve)
 	    				forwardedText.append("<img alt=\"\" src=\"" + imageUrl + "\" />");
 	    			}
 	    			
-	    			forwardedText.append("<a href=\"" + decoAttach.getUrl() + "\">" + decoAttach.getAttachment().getAttachmentName() + "</a></li>");
+	    			forwardedText.append("<a href=\"" + decoAttach.getUrl() + "\" target=\"_blank\">" + decoAttach.getAttachment().getAttachmentName() + "</a></li>");
 	    		}
 	    	}
 	    	forwardedText.append("</ul>");
 	    }
-	    forwardedText.append(pm.getBody());
+	    String origBody = pm.getBody();
+	    if (origBody != null && origBody.trim().length() > 0) {
+	    	forwardedText.append(pm.getBody());
+	    }
 	    
 	    this.setForwardBody(forwardedText.toString());
 	    //from message detail screen
