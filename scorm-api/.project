@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>scorm-api</name>
+	<comment>This project creates the general APIs used by the Sakai Scorm Tool</comment>
+	<projects>
+		<project>sakai-component</project>
+		<project>sakai-user-api</project>
+		<project>sakai-content-api</project>
+		<project>sakai-tool-api</project>
+		<project>sakai-entity-api</project>
+		<project>sakai-util-api</project>
+		<project>sakai-entitybroker-api</project>
+		<project>sakai-component-api</project>
+		<project>sakai-util</project>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>org.eclipse.jdt.core.javabuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>org.eclipse.jdt.core.javanature</nature>
+	</natures>
+</projectDescription>

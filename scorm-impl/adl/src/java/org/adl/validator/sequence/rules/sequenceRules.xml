@@ -1,0 +1,710 @@
+<!--
+******************************************************************************
+**
+** Advanced Distributed Learning Co-Laboratory (ADL Co-Lab) Hub grants you
+** ("Licensee") a non-exclusive, royalty free, license to use, modify and
+** redistribute this software in source and binary code form, provided that
+** i) this copyright notice and license appear on all copies of the software;
+** and ii) Licensee does not utilize the software in a manner which is
+** disparaging to ADL Co-Lab Hub.
+**
+** This software is provided "AS IS," without a warranty of any kind.  ALL
+** EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING
+** ANY IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE
+** OR NON-INFRINGEMENT, ARE HEREBY EXCLUDED.  ADL Co-Lab Hub AND ITS LICENSORS
+** SHALL NOT BE LIABLE FOR ANY DAMAGES SUFFERED BY LICENSEE AS A RESULT OF
+** USING, MODIFYING OR DISTRIBUTING THE SOFTWARE OR ITS DERIVATIVES.  IN NO
+** EVENT WILL ADL Co-Lab Hub OR ITS LICENSORS BE LIABLE FOR ANY LOST REVENUE,
+** PROFIT OR DATA, OR FOR DIRECT, INDIRECT, SPECIAL, CONSEQUENTIAL,
+** INCIDENTAL OR PUNITIVE DAMAGES, HOWEVER CAUSED AND REGARDLESS OF THE
+** THEORY OF LIABILITY, ARISING OUT OF THE USE OF OR INABILITY TO USE
+** SOFTWARE, EVEN IF ADL Co-Lab Hub HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
+** DAMAGES.
+**
+******************************************************************************
+-->
+
+<rules type="sequence" appprof="sequence">
+
+   <element name="sequencingCollection" path="">
+     <min>0</min>
+     <max>1</max>
+     <datatype>parent</datatype>
+   </element>
+
+   <element name="sequencing" path="sequencingCollection">
+     <min>1</min>
+     <attrib name="ID">
+       <min>1</min>
+       <max>1</max>
+       <datatype>id</datatype>
+     </attrib>
+     <attrib name="IDRef">
+       <min>0</min>
+       <max>0</max>
+       <datatype>idref</datatype>
+     </attrib>
+     <datatype>parent</datatype>
+   </element>
+
+   <element name="sequencing" path="">
+     <min>0</min>
+     <max>1</max>
+     <attrib name="ID">
+       <min>0</min>
+       <max>1</max>
+       <datatype>id</datatype>
+     </attrib>
+     <attrib name="IDRef">
+       <min>0</min>
+       <max>1</max>
+       <datatype>idref</datatype>
+     </attrib>
+     <datatype>parent</datatype>
+   </element>
+
+   <element name="controlMode" path="sequencing">
+     <min>0</min>
+     <max>1</max>
+     <attrib name="choice">
+       <min>0</min>
+       <max>1</max>
+       <datatype>boolean</datatype>
+     </attrib>
+     <attrib name="choiceExit">
+       <min>0</min>
+       <max>1</max>
+       <datatype>boolean</datatype>
+     </attrib>
+     <attrib name="flow">
+       <min>0</min>
+       <max>1</max>
+       <datatype>boolean</datatype>
+     </attrib>
+     <attrib name="forwardOnly">
+       <min>0</min>
+       <max>1</max>
+       <datatype>boolean</datatype>
+     </attrib>
+     <attrib name="useCurrentAttemptObjectiveInfo">
+       <min>0</min>
+       <max>1</max>
+       <datatype>boolean</datatype>
+     </attrib>
+     <attrib name="useCurrentAttemptProgressInfo">
+       <min>0</min>
+       <max>1</max>
+       <datatype>boolean</datatype>
+     </attrib>
+     <datatype>leaf</datatype>
+   </element>
+
+   <element name="sequencingRules" path="sequencing">
+      <min>0</min>
+      <max>1</max>
+      <datatype>parent</datatype>
+   </element>
+
+   <element name="preConditionRule" path="sequencing.sequencingRules">
+      <min>0</min>
+      <datatype>parent</datatype>
+   </element>
+
+   <element name="ruleConditions" path="sequencing.sequencingRules.preConditionRule">
+      <min>0</min>
+      <max>1</max>
+      <attrib name="conditionCombination">
+         <min>0</min>
+         <max>1</max>
+         <datatype>vocabulary</datatype>
+         <vocab restriction="restricted">all</vocab>
+         <vocab restriction="restricted">any</vocab>
+      </attrib>
+      <datatype>parent</datatype>
+   </element>
+
+   <element name="ruleCondition" path="sequencing.sequencingRules.preConditionRule.ruleConditions">
+      <min>1</min>
+      <attrib name="referencedObjective">
+         <min>0</min>
+         <max>1</max>
+         <datatype>text</datatype>
+      </attrib>
+      <attrib name="measureThreshold">
+         <min>0</min>
+         <max>1</max>
+         <datatype>decimal</datatype>
+      </attrib>
+      <attrib name="operator">
+         <min>0</min>
+         <max>1</max>
+         <datatype>vocabulary</datatype>
+         <vocab restriction="restricted">not</vocab>
+         <vocab restriction="restricted">noOp</vocab>
+      </attrib>
+      <attrib name="condition">
+         <min>1</min>
+         <max>1</max>
+         <datatype>vocabulary</datatype>
+         <vocab restriction="restricted">satisfied</vocab>
+         <vocab restriction="restricted">objectiveStatusKnown</vocab>
+         <vocab restriction="restricted">objectiveMeasureKnown</vocab>
+         <vocab restriction="restricted">objectiveMeasureGreaterThan</vocab>
+         <vocab restriction="restricted">objectiveMeasureLessThan</vocab>
+         <vocab restriction="restricted">completed</vocab>
+         <vocab restriction="restricted">activityProgressKnown</vocab>
+         <vocab restriction="restricted">attempted</vocab>
+         <vocab restriction="restricted">attemptLimitExceeded</vocab>
+         <vocab restriction="restricted">timeLimitExceeded</vocab>
+         <vocab restriction="restricted">outsideAvailableTimeRange</vocab>
+         <vocab restriction="restricted">always</vocab>
+      </attrib>
+      <datatype>leaf</datatype>
+   </element>
+
+   <element name="ruleAction" path="sequencing.sequencingRules.preConditionRule">
+      <min>1</min>
+      <max>1</max>
+      <attrib name="action">
+         <min>1</min>
+         <max>1</max>
+         <datatype>vocabulary</datatype>
+         <vocab restriction="restricted">skip</vocab>
+         <vocab restriction="restricted">disabled</vocab>
+         <vocab restriction="restricted">hiddenFromChoice</vocab>
+         <vocab restriction="restricted">stopForwardTraversal</vocab>
+      </attrib>
+      <datatype>leaf</datatype>
+   </element>
+
+   <element name="exitConditionRule" path="sequencing.sequencingRules">
+      <min>0</min>
+      <datatype>parent</datatype>
+   </element>
+
+   <element name="ruleConditions" path="sequencing.sequencingRules.exitConditionRule">
+      <min>0</min>
+      <max>1</max>
+      <attrib name="conditionCombination">
+         <min>0</min>
+         <max>1</max>
+         <datatype>vocabulary</datatype>
+         <vocab restriction="restricted">all</vocab>
+         <vocab restriction="restricted">any</vocab>
+      </attrib>
+      <datatype>parent</datatype>
+   </element>
+
+   <element name="ruleCondition" path="sequencing.sequencingRules.exitConditionRule.ruleConditions">
+      <min>1</min>
+      <attrib name="referencedObjective">
+         <min>0</min>
+         <max>1</max>
+         <datatype>text</datatype>
+      </attrib>
+      <attrib name="measureThreshold">
+         <min>0</min>
+         <max>1</max>
+         <datatype>decimal</datatype>
+      </attrib>
+      <attrib name="operator">
+         <min>0</min>
+         <max>1</max>
+         <datatype>vocabulary</datatype>
+         <vocab restriction="restricted">not</vocab>
+         <vocab restriction="restricted">noOp</vocab>
+      </attrib>
+      <attrib name="condition">
+         <min>1</min>
+         <max>1</max>
+         <datatype>vocabulary</datatype>
+         <vocab restriction="restricted">satisfied</vocab>
+         <vocab restriction="restricted">objectiveStatusKnown</vocab>
+         <vocab restriction="restricted">objectiveMeasureKnown</vocab>
+         <vocab restriction="restricted">objectiveMeasureGreaterThan</vocab>
+         <vocab restriction="restricted">objectiveMeasureLessThan</vocab>
+         <vocab restriction="restricted">completed</vocab>
+         <vocab restriction="restricted">activityProgressKnown</vocab>
+         <vocab restriction="restricted">attempted</vocab>
+         <vocab restriction="restricted">attemptLimitExceeded</vocab>
+         <vocab restriction="restricted">timeLimitExceeded</vocab>
+         <vocab restriction="restricted">outsideAvailableTimeRange</vocab>
+         <vocab restriction="restricted">always</vocab>
+      </attrib>
+      <datatype>parent</datatype>
+   </element>
+
+   <element name="ruleAction" path="sequencing.sequencingRules.exitConditionRule">
+      <min>1</min>
+      <max>1</max>
+      <attrib name="action">
+         <min>1</min>
+         <max>1</max>
+         <datatype>vocabulary</datatype>
+         <vocab restriction="restricted">exit</vocab>
+      </attrib>
+      <datatype>leaf</datatype>
+   </element>
+
+   <element name="postConditionRule" path="sequencing.sequencingRules">
+      <min>0</min>
+      <datatype>parent</datatype>
+   </element>
+
+   <element name="ruleConditions" path="sequencing.sequencingRules.postConditionRule">
+      <min>0</min>
+      <max>1</max>
+      <attrib name="conditionCombination">
+         <min>0</min>
+         <max>1</max>
+         <datatype>vocabulary</datatype>
+         <vocab restriction="restricted">all</vocab>
+         <vocab restriction="restricted">any</vocab>
+      </attrib>
+      <datatype>parent</datatype>
+   </element>
+
+   <element name="ruleCondition" path="sequencing.sequencingRules.postConditionRule.ruleConditions">
+      <min>1</min>
+      <attrib name="referencedObjective">
+         <min>0</min>
+         <max>1</max>
+         <datatype>text</datatype>
+      </attrib>
+      <attrib name="measureThreshold">
+         <min>0</min>
+         <max>1</max>
+         <datatype>decimal</datatype>
+      </attrib>
+      <attrib name="operator">
+         <min>0</min>
+         <max>1</max>
+         <datatype>vocabulary</datatype>
+         <vocab restriction="restricted">not</vocab>
+         <vocab restriction="restricted">noOp</vocab>
+      </attrib>
+      <attrib name="condition">
+         <min>1</min>
+         <max>1</max>
+         <datatype>vocabulary</datatype>
+         <vocab restriction="restricted">satisfied</vocab>
+         <vocab restriction="restricted">objectiveStatusKnown</vocab>
+         <vocab restriction="restricted">objectiveMeasureKnown</vocab>
+         <vocab restriction="restricted">objectiveMeasureGreaterThan</vocab>
+         <vocab restriction="restricted">objectiveMeasureLessThan</vocab>
+         <vocab restriction="restricted">completed</vocab>
+         <vocab restriction="restricted">activityProgressKnown</vocab>
+         <vocab restriction="restricted">attempted</vocab>
+         <vocab restriction="restricted">attemptLimitExceeded</vocab>
+         <vocab restriction="restricted">timeLimitExceeded</vocab>
+         <vocab restriction="restricted">outsideAvailableTimeRange</vocab>
+         <vocab restriction="restricted">always</vocab>
+      </attrib>
+      <datatype>parent</datatype>
+   </element>
+
+   <element name="ruleAction" path="sequencing.sequencingRules.postConditionRule">
+      <min>1</min>
+      <max>1</max>
+      <attrib name="action">
+         <min>1</min>
+         <max>1</max>
+         <datatype>vocabulary</datatype>
+         <vocab restriction="restricted">exitParent</vocab>
+         <vocab restriction="restricted">exitAll</vocab>
+         <vocab restriction="restricted">retry</vocab>
+         <vocab restriction="restricted">retryAll</vocab>
+         <vocab restriction="restricted">continue</vocab>
+         <vocab restriction="restricte">previous</vocab>
+      </attrib>
+      <datatype>leaf</datatype>
+   </element>
+
+   <element name="limitConditions" path="sequencing">
+      <min>0</min>
+      <max>1</max>
+      <attrib name="attemptLimit">
+         <min>0</min>
+         <max>1</max>
+         <datatype>integer</datatype>
+      </attrib>
+      <attrib name="attemptAbsoluteDurationLimit">
+         <min>0</min>
+         <max>1</max>
+         <datatype>duration</datatype>
+      </attrib>
+     <attrib name="attemptExperiencedDurationLimit">
+         <min>0</min>
+         <max>1</max>
+         <datatype>duration</datatype>
+      </attrib>
+      <attrib name="activityAbsoluteDurationLimit">
+         <min>0</min>
+         <max>1</max>
+         <datatype>duration</datatype>
+      </attrib>
+      <attrib name="activityExperiencedDurationLimit">
+         <min>0</min>
+         <max>1</max>
+         <datatype>duration</datatype>
+      </attrib>
+      <attrib name="beginTimeLimit">
+         <min>0</min>
+         <max>1</max>
+         <datatype>dateTime</datatype>
+      </attrib>
+      <attrib name="endTimeLimit">
+         <min>0</min>
+         <max>1</max>
+         <datatype>dateTime</datatype>
+      </attrib>
+      <datatype>leaf</datatype>
+   </element>
+
+   <element name="auxiliaryResources" path="sequencing">
+      <min>0</min>
+      <max>1</max>
+      <datatype>parent</datatype>
+   </element>
+
+   <element name="auxiliaryResource" path="sequencing.auxiliaryResources">
+      <min>0</min>
+      <attrib name="auxiliaryResourceID">
+         <min>1</min>
+         <max>1</max>
+         <datatype>text</datatype>
+      </attrib>
+      <attrib name="purpose">
+         <min>1</min>
+         <max>1</max>
+         <datatype>text</datatype>
+      </attrib>
+      <datatype>leaf</datatype>
+   </element>
+
+   <element name="rollupRules" path="sequencing">
+      <min>0</min>
+      <max>1</max>
+      <attrib name="rollupObjectiveSatisfied">
+         <min>0</min>
+         <max>1</max>
+         <datatype>boolean</datatype>
+      </attrib>
+      <attrib name="rollupProgressCompletion">
+         <min>0</min>
+         <max>1</max>
+         <datatype>boolean</datatype>
+      </attrib>
+      <attrib name="objectiveMeasureWeight">
+         <min>0</min>
+         <max>1</max>
+         <datatype>decimal</datatype>
+      </attrib>
+      <datatype>parent</datatype>
+   </element>
+
+   <element name="rollupRule" path="sequencing.rollupRules">
+      <min>0</min>
+      <attrib name="childActivitySet">
+         <min>0</min>
+         <max>1</max>
+         <datatype>vocabulary</datatype>
+         <vocab restriction="restricted">all</vocab>
+         <vocab restriction="restricted">any</vocab>
+         <vocab restriction="restricted">none</vocab>
+         <vocab restriction="restricted">atLeastCount</vocab>
+         <vocab restriction="restricted">atLeastPercent</vocab>
+      </attrib>
+      <attrib name="minimumCount">
+         <min>0</min>
+         <max>1</max>
+         <datatype>integer</datatype>
+      </attrib>
+      <attrib name="minimumPercent">
+         <min>0</min>
+         <max>1</max>
+         <datatype>decimal</datatype>
+      </attrib>
+      <datatype>parent</datatype>
+   </element>
+
+   <element name="rollupConditions" path="sequencing.rollupRules.rollupRule">
+      <min>1</min>
+      <max>1</max>
+      <attrib name="conditionCombination">
+         <min>0</min>
+         <max>1</max>
+         <datatype>vocabulary</datatype>
+         <vocab restriction="restricted">any</vocab>
+         <vocab restriction="restricted">all</vocab>
+      </attrib>
+      <datatype>parent</datatype>
+   </element>
+
+   <element name="rollupCondition" path="sequencing.rollupRules.rollupRule.rollupConditions">
+      <min>1</min>
+      <attrib name="operator">
+         <min>0</min>
+         <max>1</max>
+         <datatype>vocabulary</datatype>
+         <vocab restriction="restricted">noOp</vocab>
+         <vocab restriction="restricted">not</vocab>
+      </attrib>
+      <attrib name="condition">
+         <min>1</min>
+         <max>1</max>
+         <datatype>vocabulary</datatype>
+         <vocab restriction="restricted">satisfied</vocab>
+         <vocab restriction="restricted">objectiveStatusKnown</vocab>
+         <vocab restriction="restricted">objectiveMeasureKnown</vocab>
+         <vocab restriction="restricted">completed</vocab>
+         <vocab restriction="restricted">activityProgressKnown</vocab>
+         <vocab restriction="restricted">attempted</vocab>
+         <vocab restriction="restricted">attemptLimitExceeded</vocab>
+         <vocab restriction="restricted">timeLimitExceeded</vocab>
+         <vocab restriction="restricted">outsideAvailableTimeRange</vocab>
+      </attrib>
+      <datatype>leaf</datatype>
+   </element>
+
+   <element name="rollupAction" path="sequencing.rollupRules.rollupRule.rollupConditions">
+      <min>1</min>
+      <max>1</max>
+      <attrib name="action">
+         <min>1</min>
+         <max>1</max>
+         <datatype>vocabulary</datatype>
+         <vocab restriction="restricted">satisfied</vocab>
+         <vocab restriction="restricted">notSatisfied</vocab>
+         <vocab restriction="restricted">completed</vocab>
+         <vocab restriction="restricted">incomplete</vocab>
+      </attrib>
+      <datatype>leaf</datatype>
+   </element>
+
+   <element name="objectives" path="sequencing">
+      <min>0</min>
+      <max>1</max>
+      <datatype>parent</datatype>
+   </element>
+
+   <element name="primaryObjective" path="sequencing.objectives">
+      <min>1</min>
+      <max>1</max>
+      <attrib name="satisfiedByMeasure">
+         <min>0</min>
+         <max>1</max>
+         <datatype>boolean</datatype>
+      </attrib>
+      <attrib name="objectiveID">
+         <min>0</min>
+         <max>1</max>
+         <datatype>text</datatype>
+      </attrib>
+      <datatype>parent</datatype>
+   </element>
+
+   <element name="minNormalizedMeasure" path="sequencing.objectives.primaryObjective">
+      <min>0</min>
+      <max>1</max>
+      <datatype>decimal</datatype>
+   </element>
+
+   <element name="mapInfo" path="sequencing.objectives.primaryObjective">
+      <min>0</min>
+      <attrib name="targetObjectiveID">
+         <min>1</min>
+         <max>1</max>
+         <datatype>text</datatype>
+      </attrib>
+      <attrib name="readSatifsfiedStatus">
+         <min>0</min>
+         <max>1</max>
+         <datatype>boolean</datatype>
+      </attrib>
+      <attrib name="readNormalizedMeasure">
+         <min>0</min>
+         <max>1</max>
+         <datatype>boolean</datatype>
+      </attrib>
+      <attrib name="writeSatisfiedStatus">
+         <min>0</min>
+         <max>1</max>
+         <datatype>boolean</datatype>
+      </attrib>
+      <attrib name="writeNormalizedMeasure">
+         <min>0</min>
+         <max>1</max>
+         <datatype>boolean</datatype>
+      </attrib>
+      <datatype>leaf</datatype>
+   </element>
+
+   <element name="objective" path="sequencing.objectives">
+      <min>0</min>
+      <attrib name="satisfiedByMeasure">
+         <min>0</min>
+         <max>1</max>
+         <datatype>boolean</datatype>
+      </attrib>
+      <attrib name="objectiveID">
+         <min>1</min>
+         <max>1</max>
+         <datatype>text</datatype>
+      </attrib>
+      <datatype>parent</datatype>
+   </element>
+
+   <element name="minNormalizedMeasure" path="sequencing.objectives.objective">
+      <min>0</min>
+      <max>1</max>
+      <datatype>decimal</datatype>
+   </element>
+
+   <element name="mapInfo" path="sequencing.objectives.objective">
+      <min>0</min>
+      <attrib name="targetObjectiveID">
+         <min>1</min>
+         <max>1</max>
+         <datatype>text</datatype>
+      </attrib>
+      <attrib name="readSatifsfiedStatus">
+         <min>0</min>
+         <max>1</max>
+         <datatype>boolean</datatype>
+      </attrib>
+      <attrib name="readNormalizedMeasure">
+         <min>0</min>
+         <max>1</max>
+         <datatype>boolean</datatype>
+      </attrib>
+      <attrib name="writeSatisfiedStatus">
+         <min>0</min>
+         <max>1</max>
+         <datatype>boolean</datatype>
+      </attrib>
+      <attrib name="writeNormalizedMeasure">
+         <min>0</min>
+         <max>1</max>
+         <datatype>boolean</datatype>
+      </attrib>
+      <datatype>leaf</datatype>
+   </element>
+
+   <element name="randomizationControls" path="sequencing">
+      <min>0</min>
+      <max>1</max>
+      <attrib name="randomizationTiming">
+         <min>0</min>
+         <max>1</max>
+         <datatype>vocabulary</datatype>
+         <vocab restriction="restricted">never</vocab>
+         <vocab restriction="restricted">once</vocab>
+         <vocab restriction="restricted">onEachNewAttempt</vocab>
+      </attrib>
+      <attrib name="selectCount">
+         <min>0</min>
+         <max>1</max>
+         <datatype>integer</datatype>
+      </attrib>
+      <attrib name="reorderChildren">
+         <min>0</min>
+         <max>1</max>
+         <datatype>boolean</datatype>
+      </attrib>
+      <attrib name="selectionTiming">
+         <min>0</min>
+         <max>1</max>
+         <datatype>vocabulary</datatype>
+         <vocab restriction="restricted">never</vocab>
+         <vocab restriction="restricted">once</vocab>
+         <vocab restriction="restricted">onEachNewAttempt</vocab>
+      </attrib>
+      <datatype>leaf</datatype>
+   </element>
+
+   <element name="deliveryControls" path="sequencing">
+      <min>0</min>
+      <max>1</max>
+      <attrib name="tracked">
+         <min>0</min>
+         <max>1</max>
+         <datatype>boolean</datatype>
+      </attrib>
+      <attrib name="completionSetByContent">
+         <min>0</min>
+         <max>1</max>
+         <datatype>boolean</datatype>
+      </attrib>
+      <attrib name="objectiveSetByContent">
+         <min>0</min>
+         <max>1</max>
+         <datatype>boolean</datatype>
+      </attrib>
+      <datatype>parent</datatype>
+   </element>
+
+   <element name="constrainedChoiceConsiderations" path="sequencing">
+      <min>0</min>
+      <max>1</max>
+      <attrib name="preventActivation">
+         <min>0</min>
+         <max>1</max>
+         <datatype>boolean</datatype>
+      </attrib>
+      <attrib name="constrainChoice">
+         <min>0</min>
+         <max>1</max>
+         <datatype>boolean</datatype>
+      </attrib>
+      <datatype>parent</datatype>
+   </element>
+
+   <element name="rollupConsiderations" path="sequencing">
+      <min>0</min>
+      <max>1</max>
+      <attrib name="requiredForSatisfied">
+         <min>0</min>
+         <max>1</max>
+         <datatype>vocabulary</datatype>
+         <vocab restriction="restricted">always</vocab>
+         <vocab restriction="restricted">ifAttempted</vocab>
+         <vocab restriction="restricted">ifNotSkipped</vocab>
+         <vocab restriction="restricted">ifNotSuspended</vocab>
+      </attrib>
+      <attrib name="requiredForNotSatisfied">
+         <min>0</min>
+         <max>1</max>
+         <datatype>vocabulary</datatype>
+         <vocab restriction="restricted">always</vocab>
+         <vocab restriction="restricted">ifAttempted</vocab>
+         <vocab restriction="restricted">ifNotSkipped</vocab>
+         <vocab restriction="restricted">ifNotSuspended</vocab>
+      </attrib>
+      <attrib name="requiredForCompleted">
+         <min>0</min>
+         <max>1</max>
+         <datatype>vocabulary</datatype>
+         <vocab restriction="restricted">always</vocab>
+         <vocab restriction="restricted">ifAttempted</vocab>
+         <vocab restriction="restricted">ifNotSkipped</vocab>
+         <vocab restriction="restricted">ifNotSuspended</vocab>
+      </attrib>
+      <attrib name="requiredForIncomplete">
+         <min>0</min>
+         <max>1</max>
+         <datatype>vocabulary</datatype>
+         <vocab restriction="restricted">always</vocab>
+         <vocab restriction="restricted">ifAttempted</vocab>
+         <vocab restriction="restricted">ifNotSkipped</vocab>
+         <vocab restriction="restricted">ifNotSuspended</vocab>
+      </attrib>
+      <attrib name="measureSatisfactionIfActive">
+         <min>0</min>
+         <max>1</max>
+         <datatype>boolean</datatype>
+      </attrib>
+      <datatype>parent</datatype>
+   </element>
+
+</rules>
