@@ -25,6 +25,7 @@ CREATE TABLE CITATION_CITATION
 -----------------------------------------------------------------------------
 -- CITATION_SCHEMA
 -----------------------------------------------------------------------------
+DROP TABLE IF EXISTS CITATION_SCHEMA;
 
 CREATE TABLE CITATION_SCHEMA
 (
@@ -37,6 +38,7 @@ CREATE TABLE CITATION_SCHEMA
 -----------------------------------------------------------------------------
 -- CITATION_SCHEMA_FIELD
 -----------------------------------------------------------------------------
+DROP TABLE IF EXISTS CITATION_SCHEMA_FIELD;
 
 CREATE TABLE CITATION_SCHEMA_FIELD
 (

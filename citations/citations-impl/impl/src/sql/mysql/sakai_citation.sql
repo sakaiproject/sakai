@@ -2,7 +2,7 @@
 -- CITATION_COLLECTION
 -----------------------------------------------------------------------------
 
-CREATE TABLE CITATION_COLLECTION
+CREATE TABLE IF NOT EXISTS CITATION_COLLECTION
 (
 	COLLECTION_ID VARCHAR (36) NOT NULL,
 	PROPERTY_NAME VARCHAR (255),
@@ -14,7 +14,7 @@ CREATE TABLE CITATION_COLLECTION
 -- CITATION_CITATION
 -----------------------------------------------------------------------------
 
-CREATE TABLE CITATION_CITATION
+CREATE TABLE IF NOT EXISTS CITATION_CITATION
 (
 	CITATION_ID VARCHAR (36) NOT NULL,
 	PROPERTY_NAME VARCHAR (255),
@@ -25,6 +25,7 @@ CREATE TABLE CITATION_CITATION
 -----------------------------------------------------------------------------
 -- CITATION_SCHEMA
 -----------------------------------------------------------------------------
+DROP TABLE IF EXISTS CITATION_SCHEMA;
 
 CREATE TABLE CITATION_SCHEMA
 (
@@ -37,6 +38,7 @@ CREATE TABLE CITATION_SCHEMA
 -----------------------------------------------------------------------------
 -- CITATION_SCHEMA_FIELD
 -----------------------------------------------------------------------------
+DROP TABLE IF EXISTS CITATION_SCHEMA_FIELD;
 
 CREATE TABLE CITATION_SCHEMA_FIELD
 (
