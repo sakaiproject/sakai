@@ -25,9 +25,7 @@
 				<h:outputText value="#{msgs.pvt_forward}" />
 			<f:verbatim></h3></div></f:verbatim>
 	</h:panelGroup>
-    	
-	<%-- gsilver:commenting this header out as redundant--%>		
-      <%-- gsilver:<sakai:tool_bar_message value="#{msgs.pvt_reply}" />--%> 
+
 
 			<div class="instruction">
  			  <h:outputText value="#{msgs.cdfm_required}"/> <h:outputText value="#{msgs.pvt_star}" styleClass="reqStarInline"/>
@@ -79,7 +77,7 @@
   					<h:outputLabel for="subject" ><h:outputText value="#{msgs.pvt_subject}"  /></h:outputLabel>
   			</h:panelGroup>
   			<h:panelGroup styleClass="shorttext">
-					<h:inputText value="#{PrivateMessagesTool.replyToSubject}" id="subject" size="45" />
+					<h:inputText value="#{PrivateMessagesTool.forwardSubject}" id="subject" size="45" />
 				</h:panelGroup>		
 				
 			</h:panelGrid>
@@ -87,59 +85,8 @@
 			
 			
 			<h4><h:outputText value="#{msgs.pvt_message}" /></h4>
-			
-			
-			<%--SAKAI-10505 --%>
-			
-			 <h:inputHidden id="msgHidden" value="#{PrivateMessagesTool.detailMsg.msg.body}" />
-			 
-			 <h:inputHidden id="titleHidden" value="#{PrivateMessagesTool.detailMsg.msg.title}" />		
-		   	
-		   	
-	      <sakai:rich_text_area rows="17" columns="70"  value="#{PrivateMessagesTool.replyToBody}" />	 
-		   	
-		   	<script language="javascript" type="text/javascript">
-		   	
- 
-	          
-	        function FCKeditor_OnComplete(editorInstance )
-	        {
-	      
-	           editorInstance.SetHTML(InsertHTML());
-	         
-	        }
-	        
-	        function attachment() {
-	        	 var attachment; 
-	        	 var hasAttachment = <h:outputText value="#{!empty PrivateMessagesTool.detailMsg.attachList}" />;
-//	        	 alert(hasAttachment);
-	        	 attachment = (hasAttachment) ? <h:dataTable value="#{PrivateMessagesTool.detailMsg.attachList}" var="eachAttach"  styleClass="attachListJSF" ><h:column><h:graphicImage url="/images/excel.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-excel'}" alt=""/><h:graphicImage url="/images/html.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/html'}" alt=""/><h:graphicImage url="/images/pdf.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/pdf'}" alt=""/><h:graphicImage url="/sakai-messageforums-tool/images/ppt.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/vnd.ms-powerpoint'}" alt=""/><h:graphicImage url="/images/text.gif" rendered="#{eachAttach.attachment.attachmentType == 'text/plain'}" alt=""/><h:graphicImage url="/images/word.gif" rendered="#{eachAttach.attachment.attachmentType == 'application/msword'}" alt=""/><h:outputLink value="#{eachAttach.url}" target="_blank"><h:outputText value="#{eachAttach.attachment.attachmentName}"/></h:outputLink></h:column></h:dataTable> : '';
-
- //            alert(attachment);
- //             alert(attachment.toString());
-              return attachment;
-         	}
-         function InsertHTML() 
-            { 
-            
-              var messagetext = document.forms['pvtMsgForward'].elements['pvtMsgForward:msgHidden'].value;
-              var subject = document.forms['pvtMsgForward'].elements['pvtMsgForward:titleHidden'].value;
-	        
-                                 
-              var finalhtml = '<b><i><h:outputText value="#{msgs.pvt_forwarded_msg_heading}" /> </i></b><br><br>' + 
-               '<b><h:outputText value="#{msgs.pvt_authby}" /></b> <h:outputText value="#{PrivateMessagesTool.detailMsg.msg.author}" /> <h:outputText value=" #{msgs.pvt_openb}" /> <h:outputText value="#{PrivateMessagesTool.detailMsg.msg.created}" ><f:convertDateTime pattern="#{msgs.date_format}" /></h:outputText><h:outputText value=" #{msgs.pvt_closeb}" /> <br>' +
-               '<b> <h:outputText value="#{msgs.pvt_to}" /></b> <h:outputText value="#{PrivateMessagesTool.detailMsg.msg.recipientsAsText}" /><br>' +
-               '<b><h:outputText value="#{msgs.pvt_subject}" /></b>' + subject + '<br>' +
-               '<b><h:outputText value="#{msgs.pvt_label}" /></b> <h:outputText value="#{PrivateMessagesTool.detailMsg.msg.label}" /><br>'+
-               '<b><h:outputText value="#{msgs.pvt_att}" rendered="#{!empty PrivateMessagesTool.detailMsg.attachList}"/></b>'  + attachment().toString() +
-               messagetext;
- 
-              return finalhtml;
-          
-            }
-                 
-            </script>
-            
+					   	
+	     <sakai:rich_text_area rows="17" columns="70"  value="#{PrivateMessagesTool.forwardBody}" />            
             
             <%--********************* Attachment *********************--%>	
 
@@ -201,7 +148,6 @@
       	
       <sakai:button_bar>
         <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgForwardSend}" value="#{msgs.pvt_send}" accesskey="s" styleClass="active" />
-        <%--<sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgReplySaveDraft}" value="Save Draft" />--%>
         <sakai:button_bar_item action="#{PrivateMessagesTool.processPvtMsgCancelToDetailView}" value="#{msgs.pvt_cancel}" accesskey="x" />
       </sakai:button_bar>
     </h:form>

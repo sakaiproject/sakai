@@ -20,6 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.tool.messageforums;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -68,6 +69,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
@@ -99,7 +101,6 @@ public class PrivateMessagesTool
    * List individual private messages details
    */
   private static final String REPLY_SUBJECT_PREFIX = "pvt_reply_prefix";
-  //SAKAI-10505
   private static final String FORWARD_SUBJECT_PREFIX = "pvt_forward_prefix";
   private static final String ALERT = "pvt_alert";
   private static final String NO_MATCH_FOUND = "pvt_no_match_found";
@@ -221,6 +222,11 @@ public class PrivateMessagesTool
   //reply to 
   private String replyToBody;
   private String replyToSubject;
+  
+  //forwarding
+  private String forwardBody;
+  private String forwardSubject;
+  
   //Setting Screen
   private String activatePvtMsg=SET_AS_NO; 
   private String forwardPvtMsg=SET_AS_NO;
@@ -791,6 +797,23 @@ public class PrivateMessagesTool
   {
     this.replyToSubject = replyToSubject;
   }
+  
+  // Forward a message
+  public String getForwardBody() {
+    return forwardBody;
+  }
+  public void setForwardBody(String forwardBody) {
+    this.forwardBody=forwardBody;
+  }
+  public String getForwardSubject()
+  {
+    return forwardSubject;
+  }
+  public void setForwardSubject(String forwardSubject)
+  {
+    this.forwardSubject = forwardSubject;
+  }
+  
 
 
   //message header Getter 
@@ -1185,22 +1208,73 @@ public void processChangeSelectView(ValueChangeEvent eve)
   }
   
   
-  //SAKAI-10505 add forward.
   /**
-   * called from Single delete Page
+   * navigate to "forward" a private message
    * @return - pvtMsgForward
    */ 
   public String processPvtMsgForward() {
 	    LOG.debug("processPvtMsgForward()");
-
-	    if(getDetailMsg() != null)
-	    {
-	    	if(getDetailMsg().getMsg().getTitle() != null && !getDetailMsg().getMsg().getTitle().startsWith(getResourceBundleString(FORWARD_SUBJECT_PREFIX)))
-	    		replyToSubject = getResourceBundleString(FORWARD_SUBJECT_PREFIX) + ' ' + getDetailMsg().getMsg().getTitle();
-	    	else
-	    		replyToSubject = getDetailMsg().getMsg().getTitle();
-	    }
+	    if (getDetailMsg() == null)
+	    	return null;
 	    
+	    PrivateMessage pm = getDetailMsg().getMsg();
+	    
+	    String title = pm.getTitle();
+    	if(title != null && !title.startsWith(getResourceBundleString(FORWARD_SUBJECT_PREFIX)))
+    		forwardSubject = getResourceBundleString(FORWARD_SUBJECT_PREFIX) + ' ' + title;
+    	else
+    		forwardSubject = title;
+
+    	// format the created date according to the setting in the bundle
+	    SimpleDateFormat formatter = new SimpleDateFormat(getResourceBundleString("date_format"));
+		formatter.setTimeZone(TimeService.getLocalTimeZone());
+		String formattedCreateDate = formatter.format(pm.getCreated());
+		
+		StringBuffer forwardedText = new StringBuffer();
+	    
+	    // populate replyToBody with the forwarded text
+		forwardedText.append(getResourceBundleString("pvt_msg_fwd_heading") + "<br /><br />" +
+	    	getResourceBundleString("pvt_msg_fwd_authby", new Object[] {pm.getAuthor(), formattedCreateDate}) +  "<br />" +
+	    	getResourceBundleString("pvt_msg_fwd_to", new Object[] {pm.getRecipientsAsText()}) + "<br />" +
+	    	getResourceBundleString("pvt_msg_fwd_subject", new Object[] {pm.getTitle()}) + "<br />" +
+	    	getResourceBundleString("pvt_msg_fwd_label", new Object[] {pm.getLabel()}) + "<br />");
+	    
+	    List attachList = getDetailMsg().getAttachList();
+	    if (attachList != null && attachList.size() > 0) {
+	    	forwardedText.append(getResourceBundleString("pvt_msg_fwd_attachments") + "<br />");
+	    	forwardedText.append("<ul style=\"list-style-type:none;margin:0;padding:0;padding-left:0.5em;\">");
+	    	for (Iterator attachIter = attachList.iterator(); attachIter.hasNext();) {
+	    		DecoratedAttachment decoAttach = (DecoratedAttachment) attachIter.next();
+	    		if (decoAttach != null) {
+	    			forwardedText.append("<li>");
+	    			// It seems like there must be a better way to do the attachment image...
+	    			String fileType = decoAttach.getAttachment().getAttachmentType();
+	    			String imageUrl = null;
+	    			if (fileType.equalsIgnoreCase("application/vnd.ms-excel"))
+	    				imageUrl = "/sakai-messageforums-tool/images/excel.gif";
+	    			else if (fileType.equalsIgnoreCase("text/html"))
+	    				imageUrl = "/sakai-messageforums-tool/images/html.gif";
+	    			else if (fileType.equalsIgnoreCase("application/pdf"))
+	    				imageUrl = "/sakai-messageforums-tool/images/pdf.gif";
+	    			else if (fileType.equalsIgnoreCase("application/vnd.ms-powerpoint"))
+	    				imageUrl = "/sakai-messageforums-tool/images/ppt.gif";
+	    			else if (fileType.equalsIgnoreCase("text/plain"))
+	    				imageUrl = "/sakai-messageforums-tool/images/text.gif";
+	    			else if (fileType.equalsIgnoreCase("application/msword"))
+	    				imageUrl = "/sakai-messageforums-tool/images/word.gif";
+	    			
+	    			if (imageUrl != null) {
+	    				forwardedText.append("<img alt=\"\" src=\"" + imageUrl + "\" />");
+	    			}
+	    			
+	    			forwardedText.append("<a href=\"" + decoAttach.getUrl() + "\">" + decoAttach.getAttachment().getAttachmentName() + "</a></li>");
+	    		}
+	    	}
+	    	forwardedText.append("</ul>");
+	    }
+	    forwardedText.append(pm.getBody());
+	    
+	    this.setForwardBody(forwardedText.toString());
 	    //from message detail screen
 	    this.setDetailMsg(getDetailMsg()) ;
 
@@ -1917,15 +1991,13 @@ public void processChangeSelectView(ValueChangeEvent eve)
 
   }
   
-  
-  //SAKAI-10505
   //////////////////////Forward SEND  /////////////////
   public String processPvtMsgForwardSend() {
     LOG.debug("processPvtMsgForwardSend()");
     
     PrivateMessage currentMessage = getDetailMsg().getMsg() ;
   
-    if(!hasValue(getReplyToSubject()))
+    if(!hasValue(getForwardSubject()))
     {
       setErrorMessage(getResourceBundleString(MISSING_SUBJECT));
       return null ;
@@ -1940,13 +2012,13 @@ public void processChangeSelectView(ValueChangeEvent eve)
         
     PrivateMessage rrepMsg = messageManager.createPrivateMessage() ;
        
-    rrepMsg.setTitle(getReplyToSubject()) ; //rrepMsg.setTitle(rMsg.getTitle()) ;
+    rrepMsg.setTitle(getForwardSubject()) ; 
     rrepMsg.setDraft(Boolean.FALSE);
     rrepMsg.setDeleted(Boolean.FALSE);
     
     rrepMsg.setAuthor(getAuthorString());
     rrepMsg.setApproved(Boolean.FALSE);
-    rrepMsg.setBody(getReplyToBody()) ;
+    rrepMsg.setBody(getForwardBody()) ;
     
     rrepMsg.setLabel(getSelectedLabel());
     
@@ -2016,8 +2088,6 @@ public void processChangeSelectView(ValueChangeEvent eve)
     return DISPLAY_MESSAGES_PG;
 
   }
- 
- //END SAKAI-10505
   
   /**
    * process from Compose screen
@@ -3415,6 +3485,10 @@ public void processChangeSelectView(ValueChangeEvent eve)
     public static String getResourceBundleString(String key) 
     {
         return rb.getString(key);
+    }
+    
+    public static String getResourceBundleString(String key, Object[] args) {
+    	return rb.getFormattedMessage(key, args);
     }
 
 
