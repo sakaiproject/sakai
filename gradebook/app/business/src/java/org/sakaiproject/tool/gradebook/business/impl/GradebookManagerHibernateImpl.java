@@ -222,47 +222,51 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 		}
     }
     
-    public void addToCategoryResultMap(Map categoryResultMap, List categories, Map gradeRecordMap, Map enrollmentMap) {
+    public void addToCategoryResultMap(Map categoryResultMap, List categories, Map gradeRecordMap, Map enrollmentMap) {    	
+    	if (gradeRecordMap == null || gradeRecordMap.isEmpty())
+    		return;
     	
     	for (Iterator stuIter = enrollmentMap.keySet().iterator(); stuIter.hasNext(); ){
     		String studentUid = (String) stuIter.next();
     		Map studentMap = (Map) gradeRecordMap.get(studentUid);
     		
-    		for (Iterator iter = categories.iterator(); iter.hasNext(); ){
-    			Object obj = iter.next();
-    			if(!(obj instanceof Category)){
-    				continue;
-    			}
-    			Category category = (Category) obj; 		
-	    		
-	    		List categoryAssignments = category.getAssignmentList();
-	    		if (categoryAssignments == null){
-	    			continue;
-	    		}
-	    		
-	    		List gradeRecords = new ArrayList();
-								
-	    		for (Iterator assignmentsIter = categoryAssignments.iterator(); assignmentsIter.hasNext(); ){
-	    			Assignment assignment = (Assignment) assignmentsIter.next();
-	    			AbstractGradeRecord gradeRecord = (AbstractGradeRecord) studentMap.get(assignment.getId());
-	    			gradeRecords.add(gradeRecord);
-			
-	    		}
-	    		category.calculateStatisticsPerStudent(gradeRecords, studentUid);
-
-	    		Map studentCategoryMap = (Map) categoryResultMap.get(studentUid);
-		    	if (studentCategoryMap == null) {
-		    		studentCategoryMap = new HashMap();
-		    		categoryResultMap.put(studentUid, studentCategoryMap);
+    		if (studentMap != null) {
+	    		for (Iterator iter = categories.iterator(); iter.hasNext(); ){
+	    			Object obj = iter.next();
+	    			if(!(obj instanceof Category)){
+	    				continue;
+	    			}
+	    			Category category = (Category) obj; 		
+		    		
+		    		List categoryAssignments = category.getAssignmentList();
+		    		if (categoryAssignments == null){
+		    			continue;
+		    		}
+		    		
+		    		List gradeRecords = new ArrayList();
+									
+		    		for (Iterator assignmentsIter = categoryAssignments.iterator(); assignmentsIter.hasNext(); ){
+		    			Assignment assignment = (Assignment) assignmentsIter.next();
+		    			AbstractGradeRecord gradeRecord = (AbstractGradeRecord) studentMap.get(assignment.getId());
+		    			gradeRecords.add(gradeRecord);
+				
+		    		}
+		    		category.calculateStatisticsPerStudent(gradeRecords, studentUid);
+	
+		    		Map studentCategoryMap = (Map) categoryResultMap.get(studentUid);
+			    	if (studentCategoryMap == null) {
+			    		studentCategoryMap = new HashMap();
+			    		categoryResultMap.put(studentUid, studentCategoryMap);
+			    	}
+			    	Map stats = new HashMap();
+			    	stats.put("studentAverageScore", category.getAverageScore());
+			    	stats.put("studentAverageTotalPoints", category.getAverageTotalPoints());
+			    	stats.put("studentMean", category.getMean());
+			    	
+			    	stats.put("category", category);
+	
+			    	studentCategoryMap.put(category.getId(), stats);
 		    	}
-		    	Map stats = new HashMap();
-		    	stats.put("studentAverageScore", category.getAverageScore());
-		    	stats.put("studentAverageTotalPoints", category.getAverageTotalPoints());
-		    	stats.put("studentMean", category.getMean());
-		    	
-		    	stats.put("category", category);
-
-		    	studentCategoryMap.put(category.getId(), stats);
 	    	}
     	}
     	
