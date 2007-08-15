@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN"
+  "http://www.w3.org/TR/html4/frameset.dtd">
+<HTML>
+<HEAD>
+<TITLE>A simple frameset document</TITLE>
+</HEAD>
+
+<body>
+<!-- span wicket:id="api-panel">[api panel]</span-->
+
+<table border="0" height="100%" width="100%">
+<tr>
+	<td valign="top">
+<iframe	name="nav"
+	wicket:id="navFrame"
+	title="Scorm Navigation Panel"
+	height="100%"
+	width="250px"
+	frameborder="2"
+	marginwidth="0"
+	marginheight="0"
+	scrolling="auto"
+	src=""></iframe>
+	</td>
+	<td valign="top">
+<iframe	name="content"
+	wicket:id="contentFrame"
+	title="Scorm Content Panel"
+	height="800"
+	width="auto"
+	frameborder="1"
+	marginwidth="0"
+	marginheight="0"
+	scrolling="auto"
+	src=""></iframe>
+	</td>
+</tr>
+</table>
+</body>
+<!-- FRAMESET cols="250px,*" border="1">
+     <FRAME wicket:id="navFrame" src="" name="navFrame"/>
+     <FRAME wicket:id="contentFrame" src="" name="content"/>
+</FRAMESET-->
+</HTML>
+

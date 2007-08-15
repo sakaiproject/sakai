@@ -1,0 +1,26 @@
+<projectDescription>
+  <name>sakai-scorm-client-impl</name>
+  <comment>This project creates the client implementation used by the Sakai Scorm Tool</comment>
+  <projects>
+    <project>sakai-scorm-api</project>
+    <project>sakai-user-api</project>
+    <project>sakai-content-api</project>
+    <project>sakai-util</project>
+    <project>sakai-tool-api</project>
+    <project>sakai-entity-api</project>
+    <project>sakai-component-api</project>
+    <project>sakai-scorm-adl-impl</project>
+    <project>sakai-entitybroker-api</project>
+    <project>sakai-scorm-model-impl</project>
+    <project>sakai-util-api</project>
+    <project>sakai-scorm-content-impl</project>
+  </projects>
+  <buildSpec>
+    <buildCommand>
+      <name>org.eclipse.jdt.core.javabuilder</name>
+    </buildCommand>
+  </buildSpec>
+  <natures>
+    <nature>org.eclipse.jdt.core.javanature</nature>
+  </natures>
+</projectDescription>

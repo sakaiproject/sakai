@@ -1,0 +1,18 @@
+<projectDescription>
+  <name>sakai-scorm-model-impl</name>
+  <comment>This project creates the model implementation used by the Sakai Scorm Tool</comment>
+  <projects>
+    <project>sakai-scorm-adl-impl</project>
+    <project>sakai-util</project>
+    <project>sakai-scorm-api</project>
+    <project>sakai-entitybroker-api</project>
+  </projects>
+  <buildSpec>
+    <buildCommand>
+      <name>org.eclipse.jdt.core.javabuilder</name>
+    </buildCommand>
+  </buildSpec>
+  <natures>
+    <nature>org.eclipse.jdt.core.javanature</nature>
+  </natures>
+</projectDescription>

@@ -1,0 +1,25 @@
+<wicket:panel>
+	<div style="background: lightgray">
+		<form wicket:id="buttonForm">
+			<input type="button" wicket:id="startButton" value="Start"/>
+			<input type="button" wicket:id="suspendButton" value="Suspend"/>
+			<input type="button" wicket:id="quitButton" value="Quit"/>
+			<input type="button" wicket:id="prevButton" value="Back"/>
+			<input type="button" wicket:id="nextButton" value="Next"/>
+		</form>
+	</div>
+	<div class="navPanel" wicket:id="navPanel"/>
+	<div class="contentPanel">
+		<iframe	name="content"
+			wicket:id="contentFrame"
+			title="Scorm Content Panel"
+			height="100%"
+			width="70%"
+			frameborder="0"
+			marginwidth="0"
+			marginheight="0"
+			scrolling="auto"
+			src=""></iframe>
+	</div>
+	<div wicket:id="api-panel"/>
+</wicket:panel>
