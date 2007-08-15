@@ -44,6 +44,11 @@
 					$sect.eid
 				#end
 		</ul>
+		<ul>
+			#foreach ($item in $!selectedAuthorizerCourse)
+			<li>$item.eid </li>
+			#end
+		</ul>
 		<br />
 	#end
 	<form name="addSiteForm" action="#toolForm("$action")" method="post">
