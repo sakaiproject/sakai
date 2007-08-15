@@ -70,7 +70,9 @@
         <module>email</module>
         <module>entity</module>
         <module>event</module>
+<!--
         <module>jcr</module>
+-->
         <module>jsf</module>
         <module>login</module>
         <module>master</module>
@@ -141,7 +143,9 @@
         <module>gradebook</module>
         <module>help</module>
         <module>jobscheduler</module>
+<!--
         <module>jcr</module>
+-->
         <module>jsf</module>
         <module>linktool</module>
         <module>login</module>
