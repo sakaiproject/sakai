@@ -283,7 +283,7 @@ function saveTime()
   </h:panelGroup>
 
   <%-- SAVE AND EXIT --%>
-  <h:commandButton accesskey="#{deliveryMessages.a_saveAndExit}" type="submit" value="#{deliveryMessages.button_save_x}"
+  <h:commandButton accesskey="#{deliveryMessages.a_saveAndExit}" type="submit" value="#{deliveryMessages.button_save_for_later}"
     action="#{delivery.saveAndExit}" id="saveAndExit"
     rendered="#{(delivery.actionString=='previewAssessment'  
                  || delivery.actionString=='takeAssessment')
@@ -304,7 +304,7 @@ function saveTime()
     onclick="pauseTiming='false'; disableQuit()" onkeypress="pauseTiming='false'"  /> 
 
   <%-- SAVE AND EXIT FOR LINEAR ACCESS --%>
-  <h:commandButton accesskey="#{deliveryMessages.a_saveAndExit}" type="submit" value="#{deliveryMessages.button_save_x}"
+  <h:commandButton accesskey="#{deliveryMessages.a_saveAndExit}" type="submit" value="#{deliveryMessages.button_save_for_later}"
     action="#{delivery.saveAndExit}" id="saveAndExit2"
     rendered="#{delivery.actionString=='takeAssessment'
             && delivery.navigation eq '1' && delivery.continue}"

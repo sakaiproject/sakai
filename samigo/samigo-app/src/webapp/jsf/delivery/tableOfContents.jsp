@@ -198,7 +198,7 @@ function clickSubmitForGrade(){
     rendered="#{delivery.actionString=='takeAssessmentViaUrl'}" />
 
 <!-- SAVE AND EXIT BUTTON FOR TAKE ASSESMENT AND PREVIEW ASSESSMENT-->
-  <h:commandButton accesskey="#{deliveryMessages.a_saveAndExit}" type="submit" value="#{deliveryMessages.button_save_x}"
+  <h:commandButton accesskey="#{deliveryMessages.a_saveAndExit}" type="submit" value="#{deliveryMessages.button_save_for_later}"
     action="#{delivery.saveAndExit}"
     onclick="javascript:saveTime()" onkeypress="javascript:saveTime()"
     rendered="#{delivery.actionString=='takeAssessment'
