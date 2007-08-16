@@ -6,11 +6,12 @@
 	<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
 	<link href="../css/PageList.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript" rsf:id="resize"/>
-	<script type="text/javascript" src="../js/jquery/jquery-1.0.1.pack.js" rsf:id="scr=rewrite-url"></script>
+	<script type="text/javascript" src="/library/js/jquery-1.1.2.js"></script>
 	<script type="text/javascript" src="../js/jquery/iutil.js" rsf:id="scr=rewrite-url"></script>
 	<script type="text/javascript" src="../js/jquery/idrag.js" rsf:id="scr=rewrite-url"></script>
 	<script type="text/javascript" src="../js/jquery/idrop.js" rsf:id="scr=rewrite-url"></script>
 	<script type="text/javascript" src="../js/jquery/isortables.js" rsf:id="scr=rewrite-url"></script>
+	<script type="text/javascript" src="../js/jquery/ikey.js" rsf:id="scr=rewrite-url"></script>
 	<script type="text/javascript" src="../js/orderUtil.js" rsf:id="scr=rewrite-url"></script>
 	<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
 </head>
@@ -21,7 +22,7 @@
 		<div rsf:id="content:">
 			<form rsf:id="pages-form" class="order_action_form">
 				<p class="act">
-					<input rsf:id="save" value="Save" type="submit" onclick="serialize('sort1');"/>
+					<input rsf:id="save" class="active" value="Save" type="submit" onclick="serialize('sort1');"/>
 					<input rsf:id="revert" value="Cancel" type="submit"/>
 					<input rsf:id="reset" value="Reset" type="submit" onclick="return checkReset();"/>
 				</p>
@@ -34,7 +35,7 @@
 							<div id="list-label">
 								<strong rsf:id="list-label">Current Pages</strong>
 							</div>
-							<ul class="sortable" id="sort1">
+							<ul tabIndex="2" class="sortable" id="sort1">
 								<li rsf:id="page-row:" id="content:::page-row::" class="sortable_item" title="Click And Drag Pages Into The Order That You Want" >
 									<div class="item_edit_box" style="display: none;">
 										<div>
@@ -96,9 +97,9 @@
 				<span id="exit-message"><strong rsf:id="exit-message" class="hidden"/></span>
 				<span id="reset-message"><strong rsf:id="reset-message" class="hidden"/></span>
 				<p class="act">
-					<input rsf:id="save" value="Save" type="submit" onclick="serialize('sort1');"/>
-					<input rsf:id="revert" value="Cancel" type="submit"/>
-					<input rsf:id="reset" value="Reset" type="submit" onclick="return checkReset();"/>
+					<input accesskey ="s" class="active" rsf:id="save" value="Save" type="submit" onclick="serialize('sort1');"/>
+					<input accesskey ="x" rsf:id="revert" value="Cancel" type="submit"/>
+					<input accesskey ="r" rsf:id="reset" value="Reset" type="submit" onclick="return checkReset();"/>
 				</p>					
 			</form>
 		</div>

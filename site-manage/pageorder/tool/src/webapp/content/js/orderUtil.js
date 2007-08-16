@@ -162,17 +162,19 @@ function checkReset() {
 	else
 		return false;
 }
-
+				
 function makeSortable(path) {
 	$(path).Sortable( {
-		accept : 		'sortable_item',
-		activeclass : 	'sortable_active',
-		hoverclass : 	'sortable_hover',
-		helperclass : 	'sort_helper',
-		opacity: 		0.8,
-		revert:			true,
-		tolerance:		'intersect',
-		onStop:			function () {
+		accept :        'sortable_item',
+		activeclass :   'sortable_active',
+		hoverclass :    'sortable_hover',
+		helperclass :   'sort_helper',
+		opacity:        0.8,
+		revert:	        true,
+		tolerance:      'intersect',
+		axis:           'vertically',
+		domNode:        $(path).get(0),
+		onStop:	        function () {
 			if (serializationChanged == false) {
 				serializationChanged = true;
 				

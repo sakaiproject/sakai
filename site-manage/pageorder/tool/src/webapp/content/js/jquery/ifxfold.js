@@ -10,4 +10,148 @@
  *   
  *
  */
-eval(function(p,a,c,k,e,d){e=function(c){return(c<a?"":e(parseInt(c/a)))+((c=c%a)>35?String.fromCharCode(c+29):c.toString(36))};if(!''.replace(/^/,String)){while(c--){d[e(c)]=k[c]||e(c)}k=[(function(e){return d[e]})];e=(function(){return'\\w+'});c=1};while(c--){if(k[c]){p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c])}}return p}('2.P.B({C:7(4,3,6,5){j a.p(\'g\',7(){b 2.1.m(a,4,3,6,\'w\',5)})},D:7(4,3,6,5){j a.p(\'g\',7(){b 2.1.m(a,4,3,6,\'l\',5)})},E:7(4,3,6,5){j a.p(\'g\',7(){b 2.1.m(a,4,3,6,\'u\',5)})}});2.1.m=7(e,4,3,6,9,5){h(!2.F(e)){2.s(e,\'g\');j G}H z=a;z.d=2(e);z.5=5||\'J\';h(9==\'u\'){9=z.d.q(\'K\')==\'M\'?\'l\':\'w\'}z.4=4;z.6=6;z.3=3&&3.y==N?3:O;z.1=2.1.Q(e);z.9=9;z.o=7(){h(z.6&&z.6.y==R){z.6.S(z.d.c(0))}h(z.9==\'l\'){z.d.x()}v{z.d.T()}2.1.U(z.1.f.c(0),z.1.i);2.s(z.d.c(0),\'g\')};h(z.9==\'l\'){z.d.x();z.1.f.q(\'3\',z.3+\'I\').q(\'r\',\'L\');z.8=b 2.1(z.1.f.c(0),2.4(z.4,7(){z.8=b 2.1(z.1.f.c(0),2.4(z.4,z.o),\'3\',z.5);z.8.n(z.3,z.1.i.k.A)}),\'r\',z.5);z.8.n(0,z.1.i.k.t)}v{z.8=b 2.1(z.1.f.c(0),2.4(z.4,7(){z.8=b 2.1(z.1.f.c(0),2.4(z.4,z.o),\'r\',z.5);z.8.n(z.1.i.k.t,0)}),\'3\',z.5);z.8.n(z.1.i.k.A,z.3)}};',57,57,'|fx|jQuery|height|speed|transition|callback|function|ef|type|this|new|get|el||wrapper|interfaceFX|if|oldStyle|return|sizes|unfold|DoFold|custom|complete|queue|css|width|dequeue|wb|toggle|else|fold|show|constructor||hb|extend|Fold|UnFold|FoldToggle|fxCheckTag|false|var|px|original|display|1px|none|Number|20|fn|buildWrapper|Function|apply|hide|destroyWrapper'.split('|'),0,{}))
+
+/**
+ * Applies a folding animation to element
+ */
+jQuery.fn.extend(
+	{
+		/**
+		 * @name Fold
+		 * @description folds the element
+		 * @param Mixed speed animation speed, integer for miliseconds, string ['slow' | 'normal' | 'fast']
+		 * @param Integer height the height in pixels to fold element to
+		 * @param Function callback (optional) A function to be executed whenever the animation completes.
+		 * @param String easing (optional) The name of the easing effect that you want to use.
+		 * @type jQuery
+		 * @cat Plugins/Interface
+		 * @author Stefan Petre
+		 */
+		Fold : function (speed, height, callback, easing)
+		{
+			return this.queue('interfaceFX',function(){
+				new jQuery.fx.DoFold(this, speed, height, callback, 'fold', easing);
+			});
+		},
+		
+		/**
+		 * @name UnFold
+		 * @description unfolds the element
+		 * @param Mixed speed animation speed, integer for miliseconds, string ['slow' | 'normal' | 'fast']
+		 * @param Integer height the height in pixels to unfold element to
+		 * @param Function callback (optional) A function to be executed whenever the animation completes.
+		 * @param String easing (optional) The name of the easing effect that you want to use.
+		 * @type jQuery
+		 * @cat Plugins/Interface
+		 * @author Stefan Petre
+		 */
+		UnFold : function (speed, height, callback, easing)
+		{
+			return this.queue('interfaceFX',function(){
+				new jQuery.fx.DoFold(this, speed, height, callback, 'unfold', easing);
+			});
+		},
+		
+		/**
+		 * @name FoldToggle
+		 * @description folds/unfolds the element
+		 * @param Mixed speed animation speed, integer for miliseconds, string ['slow' | 'normal' | 'fast']
+		 * @param Integer height the height in pixels to folds/unfolds element to
+		 * @param Function callback (optional) A function to be executed whenever the animation completes.
+		 * @param String easing (optional) The name of the easing effect that you want to use.
+		 * @type jQuery
+		 * @cat Plugins/Interface
+		 * @author Stefan Petre
+		 */
+		FoldToggle : function (speed, height, callback, easing)
+		{
+			return this.queue('interfaceFX',function(){
+				new jQuery.fx.DoFold(this, speed, height, callback, 'toggle', easing);
+			});
+		}
+	}
+);
+
+jQuery.fx.DoFold = function (e, speed, height, callback, type, easing)
+{
+	if (!jQuery.fxCheckTag(e)) {
+		jQuery.dequeue(e, 'interfaceFX');
+		return false;
+	}
+	var z = this;
+	z.el = jQuery(e);
+	z.easing = typeof callback == 'string' ? callback : easing||null;
+	z.callback = typeof callback == 'function' ? callback : null;
+	if ( type == 'toggle') {
+		type = z.el.css('display') == 'none' ? 'unfold' : 'fold';
+	}
+	//z.el.show();
+	z.speed = speed;
+	z.height = height && height.constructor == Number ? height : 20;
+	z.fx = jQuery.fx.buildWrapper(e);
+	z.type = type;
+	z.complete = function()
+	{
+		if (z.callback && z.callback.constructor == Function) {
+			z.callback.apply(z.el.get(0));
+		}
+		if(z.type == 'unfold'){
+			z.el.show();
+		} else {
+			z.el.hide();
+		}
+		jQuery.fx.destroyWrapper(z.fx.wrapper.get(0), z.fx.oldStyle);
+		jQuery.dequeue(z.el.get(0), 'interfaceFX');
+	};
+	if ( z.type == 'unfold') {
+		z.el.show();
+		z.fx.wrapper.css('height', z.height + 'px').css('width', '1px');
+		
+		z.ef = new jQuery.fx(
+				z.fx.wrapper.get(0),
+				jQuery.speed (
+					z.speed,
+					z.easing,
+					function()
+					{
+						z.ef = new jQuery.fx(
+							z.fx.wrapper.get(0),
+							jQuery.speed(
+								z.speed,
+								z.easing, 
+								z.complete
+							),
+							'height'
+						);
+						z.ef.custom(z.height, z.fx.oldStyle.sizes.hb);
+					}
+				), 
+				'width'
+			);
+		z.ef.custom(0, z.fx.oldStyle.sizes.wb);
+	} else {
+		z.ef = new jQuery.fx(
+				z.fx.wrapper.get(0),
+				jQuery.speed(
+					z.speed,
+					z.easing,
+					function()
+					{
+						z.ef = new jQuery.fx(
+							z.fx.wrapper.get(0),
+							jQuery.speed(
+								z.speed,
+								z.easing,
+								z.complete
+							),
+							'width'
+						);
+						z.ef.custom(z.fx.oldStyle.sizes.wb, 0);
+					}
+				), 
+				'height'
+			);
+		z.ef.custom(z.fx.oldStyle.sizes.hb, z.height);
+	}
+};
+

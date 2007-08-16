@@ -10,4 +10,88 @@
  *   
  *
  */
-eval(function(p,a,c,k,e,d){e=function(c){return(c<a?"":e(parseInt(c/a)))+((c=c%a)>35?String.fromCharCode(c+29):c.toString(36))};if(!''.replace(/^/,String)){while(c--){d[e(c)]=k[c]||e(c)}k=[(function(e){return d[e]})];e=(function(){return'\\w+'});c=1};while(c--){if(k[c]){p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c])}}return p}('6.G.q=a(b,7){t c.I(\'s\',a(){i(!6.C(c)){6.w(c,\'s\');t E}u e=j 6.d.q(c,b,7);e.p()})};6.d.q=a(e,b,7){u z=c;z.5=6(e);z.5.F();z.b=r(b)||3;z.7=z.7;z.n=1;z.2={};z.2.8=z.5.9(\'8\');z.2.f=r(z.5.9(\'f\'))||0;z.2.4=r(z.5.9(\'4\'))||0;i(z.2.8!=\'x\'&&z.2.8!=\'H\'){z.5.9(\'8\',\'x\')}z.p=a(){z.n++;z.e=j 6.d(z.5.g(0),{k:l,m:a(){z.e=j 6.d(z.5.g(0),{k:l,m:a(){z.e=j 6.d(e,{k:l,m:a(){i(z.n<=z.b)z.p();B{z.5.9(\'8\',z.2.8).9(\'f\',z.2.f+\'v\').9(\'4\',z.2.4+\'v\');6.w(z.5.g(0),\'s\');i(z.7&&z.7.y==A){z.7.D(z.5.g(0))}}}},\'4\');z.e.o(z.2.4-h,z.2.4)}},\'4\');z.e.o(z.2.4+h,z.2.4-h)}},\'4\');z.e.o(z.2.4,z.2.4+h)}};',45,45,'||oldStyle||left|el|jQuery|callback|position|css|function|times|this|fx||top|get|20|if|new|duration|60|complete|cnt|custom|shake|Shake|parseInt|interfaceFX|return|var|px|dequeue|relative|constructor||Function|else|fxCheckTag|apply|false|show|fn|absolute|queue'.split('|'),0,{}))
+
+/**
+ * @name Shake
+ * @description makes the element to shake
+ * @param Integer times how many tomes to shake the element
+ * @param Function callback (optional) A function to be executed whenever the animation completes.
+ * @type jQuery
+ * @cat Plugins/Interface
+ * @author Stefan Petre
+ */
+jQuery.fn.Shake = function (times, callback) {
+	return this.queue('interfaceFX',function(){
+		if (!jQuery.fxCheckTag(this)) {
+			jQuery.dequeue(this, 'interfaceFX');
+			return false;
+		}
+		var e = new jQuery.fx.Shake(this, times, callback);
+		e.shake();
+	});
+};
+jQuery.fx.Shake = function (e, times, callback)
+{
+	var z = this;
+	z.el = jQuery(e);
+	z.el.show();
+	z.times = parseInt(times)||3;
+	z.callback = callback;
+	z.cnt = 1;
+	z.oldStyle = {};
+	z.oldStyle.position = z.el.css('position');
+	z.oldStyle.top = parseInt(z.el.css('top'))||0;
+	z.oldStyle.left = parseInt(z.el.css('left'))||0;
+	
+	if (z.oldStyle.position != 'relative' && z.oldStyle.position != 'absolute') {
+		z.el.css('position', 'relative');
+	}
+	
+	z.shake = function ()
+	{
+		z.cnt ++;
+		
+		z.e = new jQuery.fx(
+			z.el.get(0), 
+			{
+				duration: 60,
+				complete : function ()
+				{
+					z.e = new jQuery.fx(
+						z.el.get(0), 
+						 {
+							 duration: 60,
+							 complete : function ()
+							 {
+								z.e = new jQuery.fx(
+									e,
+									{
+										duration: 60, 
+										complete: function(){
+											if (z.cnt <= z.times)
+												z.shake();
+											else {
+												z.el.css('position', z.oldStyle.position).css('top', z.oldStyle.top + 'px').css('left', z.oldStyle.left + 'px');
+												jQuery.dequeue(z.el.get(0), 'interfaceFX');
+												if (z.callback && z.callback.constructor == Function) {
+													z.callback.apply(z.el.get(0));
+												}
+											}
+										}
+									},
+									'left'
+								);
+								z.e.custom (z.oldStyle.left-20, z.oldStyle.left);
+							 }
+						},
+						'left'
+					);
+					z.e.custom (z.oldStyle.left+20, z.oldStyle.left-20);
+				}
+			},
+			'left'
+		);
+		z.e.custom (z.oldStyle.left, z.oldStyle.left+20);
+	};
+		
+};

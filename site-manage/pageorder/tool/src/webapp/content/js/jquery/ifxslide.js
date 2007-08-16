@@ -10,4 +10,340 @@
  *   
  *
  */
-eval(function(p,a,c,k,e,d){e=function(c){return(c<a?"":e(parseInt(c/a)))+((c=c%a)>35?String.fromCharCode(c+29):c.toString(36))};if(!''.replace(/^/,String)){while(c--){d[e(c)]=k[c]||e(c)}k=[(function(e){return d[e]})];e=(function(){return'\\w+'});c=1};while(c--){if(k[c]){p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c])}}return p}('4.1d.Z({U:6(1,5,3){d 7.f(\'a\',6(){8 4.2.b(7,1,5,\'E\',\'l\',3)})},1c:6(1,5,3){d 7.f(\'a\',6(){8 4.2.b(7,1,5,\'E\',\'o\',3)})},11:6(1,5,3){d 7.f(\'a\',6(){8 4.2.b(7,1,5,\'E\',\'u\',3)})},12:6(1,5,3){d 7.f(\'a\',6(){8 4.2.b(7,1,5,\'w\',\'l\',3)})},19:6(1,5,3){d 7.f(\'a\',6(){8 4.2.b(7,1,5,\'w\',\'o\',3)})},13:6(1,5,3){d 7.f(\'a\',6(){8 4.2.b(7,1,5,\'w\',\'u\',3)})},14:6(1,5,3){d 7.f(\'a\',6(){8 4.2.b(7,1,5,\'s\',\'l\',3)})},15:6(1,5,3){d 7.f(\'a\',6(){8 4.2.b(7,1,5,\'s\',\'o\',3)})},17:6(1,5,3){d 7.f(\'a\',6(){8 4.2.b(7,1,5,\'s\',\'u\',3)})},18:6(1,5,3){d 7.f(\'a\',6(){8 4.2.b(7,1,5,\'x\',\'l\',3)})},1a:6(1,5,3){d 7.f(\'a\',6(){8 4.2.b(7,1,5,\'x\',\'o\',3)})},1b:6(1,5,3){d 7.f(\'a\',6(){8 4.2.b(7,1,5,\'x\',\'u\',3)})}});4.2.b=6(e,1,5,D,j,3){m(!4.L(e)){4.J(e,\'a\');d M}N z=7;z.9=4(e);z.3=3||\'O\';m(j==\'u\'){j=z.9.r(\'A\')==\'G\'?\'l\':\'o\'}m(!e.B)e.B=z.9.r(\'A\');z.9.P();z.1=1;z.5=5;z.2=4.2.Q(e);z.j=j;z.D=D;z.v=6(){m(z.j==\'o\')z.9.r(\'I\',\'S\');4.2.T(z.2.F.k(0),z.2.c);m(z.j==\'l\'){z.9.r(\'A\',z.9.k(0).B==\'G\'?\'V\':z.9.k(0).B)}t{z.9.r(\'A\',\'G\');z.9.r(\'I\',\'W\')}m(z.5&&z.5.X==Y){z.5.10(z.9.k(0))}4.J(z.9.k(0),\'a\')};16(z.D){y\'E\':z.i=8 4.2(z.9.k(0),4.1(z.1,z.v),\'H\',z.3);z.q=8 4.2(z.2.F.k(0),4.1(z.1),\'K\',z.3);m(z.j==\'l\'){z.i.g(-z.2.c.h.p,0);z.q.g(0,z.2.c.h.p)}t{z.i.g(0,-z.2.c.h.p);z.q.g(z.2.c.h.p,0)}C;y\'w\':z.i=8 4.2(z.9.k(0),4.1(z.1,z.v),\'H\',z.3);m(z.j==\'l\'){z.i.g(z.2.c.h.p,0)}t{z.i.g(0,z.2.c.h.p)}C;y\'s\':z.i=8 4.2(z.9.k(0),4.1(z.1,z.v),\'s\',z.3);z.q=8 4.2(z.2.F.k(0),4.1(z.1),\'R\',z.3);m(z.j==\'l\'){z.i.g(-z.2.c.h.n,0);z.q.g(0,z.2.c.h.n)}t{z.i.g(0,-z.2.c.h.n);z.q.g(z.2.c.h.n,0)}C;y\'x\':z.i=8 4.2(z.9.k(0),4.1(z.1,z.v),\'s\',z.3);m(z.j==\'l\'){z.i.g(z.2.c.h.n,0)}t{z.i.g(0,z.2.c.h.n)}C}};',62,76,'|speed|fx|transition|jQuery|callback|function|this|new|el|interfaceFX|slide|oldStyle|return||queue|custom|sizes|ef|type|get|in|if|wb|out|hb|efx|css|left|else|toggle|complete|down|right|case||display|ifxFirstDisplay|break|direction|up|wrapper|none|top|visibility|dequeue|height|fxCheckTag|false|var|original|show|buildWrapper|width|hidden|destroyWrapper|SlideInUp|block|visible|constructor|Function|extend|apply|SlideToggleUp|SlideInDown|SlideToggleDown|SlideInLeft|SlideOutLeft|switch|SlideToggleLeft|SlideInRight|SlideOutDown|SlideOutRight|SlideToggleRight|SlideOutUp|fn'.split('|'),0,{}))
+
+/**
+ * Slides the element
+ */
+jQuery.fn.extend(
+	{
+		/**
+		 * @name SlideInUp
+		 * @description slides the element in up
+		 * @param Mixed speed animation speed, integer for miliseconds, string ['slow' | 'normal' | 'fast']
+		 * @param Function callback (optional) A function to be executed whenever the animation completes.
+		 * @param String easing (optional) The name of the easing effect that you want to use.
+		 * @type jQuery
+		 * @cat Plugins/Interface
+		 * @author Stefan Petre
+		 */
+		SlideInUp : function (speed,callback, easing)
+		{
+			return this.queue('interfaceFX', function(){
+				new jQuery.fx.slide(this, speed, callback, 'up', 'in', easing);
+			});
+		},
+		
+		/**
+		 * @name SlideOutUp
+		 * @description slides the element out up
+		 * @param Mixed speed animation speed, integer for miliseconds, string ['slow' | 'normal' | 'fast']
+		 * @param Function callback (optional) A function to be executed whenever the animation completes.
+		 * @param String easing (optional) The name of the easing effect that you want to use.
+		 * @type jQuery
+		 * @cat Plugins/Interface
+		 * @author Stefan Petre
+		 */
+		SlideOutUp : function (speed,callback, easing)
+		{
+			return this.queue('interfaceFX', function(){
+				new jQuery.fx.slide(this, speed, callback, 'up', 'out', easing);
+			});
+		},
+		
+		/**
+		 * @name SlideToggleUp
+		 * @description slides the element in/out up
+		 * @param Mixed speed animation speed, integer for miliseconds, string ['slow' | 'normal' | 'fast']
+		 * @param Function callback (optional) A function to be executed whenever the animation completes.
+		 * @param String easing (optional) The name of the easing effect that you want to use.
+		 * @type jQuery
+		 * @cat Plugins/Interface
+		 * @author Stefan Petre
+		 */
+		SlideToggleUp : function (speed,callback, easing)
+		{
+			return this.queue('interfaceFX', function(){
+				new jQuery.fx.slide(this, speed, callback, 'up', 'toggle', easing);
+			});
+		},
+		
+		/**
+		 * @name SlideInDown
+		 * @description slides the element in down
+		 * @param Mixed speed animation speed, integer for miliseconds, string ['slow' | 'normal' | 'fast']
+		 * @param Function callback (optional) A function to be executed whenever the animation completes.
+		 * @param String easing (optional) The name of the easing effect that you want to use.
+		 * @type jQuery
+		 * @cat Plugins/Interface
+		 * @author Stefan Petre
+		 */
+		SlideInDown : function (speed,callback, easing)
+		{
+			return this.queue('interfaceFX', function(){
+				new jQuery.fx.slide(this, speed, callback, 'down', 'in', easing);
+			});
+		},
+		
+		/**
+		 * @name SlideOutDown
+		 * @description slides the element out down
+		 * @param Mixed speed animation speed, integer for miliseconds, string ['slow' | 'normal' | 'fast']
+		 * @param Function callback (optional) A function to be executed whenever the animation completes.
+		 * @param String easing (optional) The name of the easing effect that you want to use.
+		 * @type jQuery
+		 * @cat Plugins/Interface
+		 * @author Stefan Petre
+		 */
+		SlideOutDown : function (speed,callback, easing)
+		{
+			return this.queue('interfaceFX', function(){
+				new jQuery.fx.slide(this, speed, callback, 'down', 'out', easing);
+			});
+		},
+		
+		/**
+		 * @name SlideToggleDown
+		 * @description slides the element in/out down
+		 * @param Mixed speed animation speed, integer for miliseconds, string ['slow' | 'normal' | 'fast']
+		 * @param Function callback (optional) A function to be executed whenever the animation completes.
+		 * @param String easing (optional) The name of the easing effect that you want to use.
+		 * @type jQuery
+		 * @cat Plugins/Interface
+		 * @author Stefan Petre
+		 */
+		SlideToggleDown : function (speed,callback, easing)
+		{
+			return this.queue('interfaceFX', function(){
+				new jQuery.fx.slide(this, speed, callback, 'down', 'toggle', easing);
+			});
+		},
+		
+		/**
+		 * @name SlideInLeft
+		 * @description slides the element in left
+		 * @param Mixed speed animation speed, integer for miliseconds, string ['slow' | 'normal' | 'fast']
+		 * @param Function callback (optional) A function to be executed whenever the animation completes.
+		 * @param String easing (optional) The name of the easing effect that you want to use.
+		 * @type jQuery
+		 * @cat Plugins/Interface
+		 * @author Stefan Petre
+		 */
+		SlideInLeft : function (speed,callback, easing)
+		{
+			return this.queue('interfaceFX', function(){
+				new jQuery.fx.slide(this, speed, callback, 'left', 'in', easing);
+			});
+		},
+		
+		/**
+		 * @name SlideOutLeft
+		 * @description slides the element out left
+		 * @param Mixed speed animation speed, integer for miliseconds, string ['slow' | 'normal' | 'fast']
+		 * @param Function callback (optional) A function to be executed whenever the animation completes.
+		 * @param String easing (optional) The name of the easing effect that you want to use.
+		 * @type jQuery
+		 * @cat Plugins/Interface
+		 * @author Stefan Petre
+		 */
+		SlideOutLeft :  function (speed,callback, easing)
+		{
+			return this.queue('interfaceFX', function(){
+				new jQuery.fx.slide(this, speed, callback, 'left', 'out', easing);
+			});
+		},
+		
+		/**
+		 * @name SlideToggleLeft
+		 * @description slides the element in/out left
+		 * @param Mixed speed animation speed, integer for miliseconds, string ['slow' | 'normal' | 'fast']
+		 * @param Function callback (optional) A function to be executed whenever the animation completes.
+		 * @param String easing (optional) The name of the easing effect that you want to use.
+		 * @type jQuery
+		 * @cat Plugins/Interface
+		 * @author Stefan Petre
+		 */
+		SlideToggleLeft : function (speed,callback, easing)
+		{
+			return this.queue('interfaceFX', function(){
+				new jQuery.fx.slide(this, speed, callback, 'left', 'toggle', easing);
+			});
+		},
+		
+		/**
+		 * @name SlideInRight
+		 * @description slides the element in right
+		 * @param Mixed speed animation speed, integer for miliseconds, string ['slow' | 'normal' | 'fast']
+		 * @param Function callback (optional) A function to be executed whenever the animation completes.
+		 * @param String easing (optional) The name of the easing effect that you want to use.
+		 * @type jQuery
+		 * @cat Plugins/Interface
+		 * @author Stefan Petre
+		 */
+		SlideInRight : function (speed,callback, easing)
+		{
+			return this.queue('interfaceFX', function(){
+				new jQuery.fx.slide(this, speed, callback, 'right', 'in', easing);
+			});
+		},
+		
+		/**
+		 * @name SlideOutRight
+		 * @description slides the element out right
+		 * @param Mixed speed animation speed, integer for miliseconds, string ['slow' | 'normal' | 'fast']
+		 * @param Function callback (optional) A function to be executed whenever the animation completes.
+		 * @param String easing (optional) The name of the easing effect that you want to use.
+		 * @type jQuery
+		 * @cat Plugins/Interface
+		 * @author Stefan Petre
+		 */
+		SlideOutRight : function (speed,callback, easing)
+		{
+			return this.queue('interfaceFX', function(){
+				new jQuery.fx.slide(this, speed, callback, 'right', 'out', easing);
+			});
+		},
+		
+		/**
+		 * @name SlideToggleRight
+		 * @description slides the element in/out right
+		 * @param Mixed speed animation speed, integer for miliseconds, string ['slow' | 'normal' | 'fast']
+		 * @param Function callback (optional) A function to be executed whenever the animation completes.
+		 * @param String easing (optional) The name of the easing effect that you want to use.
+		 * @type jQuery
+		 * @cat Plugins/Interface
+		 * @author Stefan Petre
+		 */
+		SlideToggleRight : function (speed,callback, easing)
+		{
+			return this.queue('interfaceFX', function(){
+				new jQuery.fx.slide(this, speed, callback, 'right', 'toggle', easing);
+			});
+		}
+	}
+);
+
+jQuery.fx.slide = function(e, speed, callback, direction, type, easing)
+{
+	if (!jQuery.fxCheckTag(e)) {
+		jQuery.dequeue(e, 'interfaceFX');
+		return false;
+	}
+	var z = this;
+	z.el = jQuery(e);
+	z.easing = typeof callback == 'string' ? callback : easing||null;
+	z.callback = typeof callback == 'function' ? callback : null;
+	if ( type == 'toggle') {
+		type = z.el.css('display') == 'none' ? 'in' : 'out';
+	}
+	if (!e.ifxFirstDisplay)
+		e.ifxFirstDisplay = z.el.css('display');
+	z.el.show();
+	
+	z.speed = speed;
+	z.fx = jQuery.fx.buildWrapper(e);
+	
+	z.type = type;
+	z.direction = direction;
+	z.complete = function()
+	{
+		if(z.type == 'out')
+			z.el.css('visibility', 'hidden');
+		jQuery.fx.destroyWrapper(z.fx.wrapper.get(0), z.fx.oldStyle);
+		if(z.type == 'in'){
+			z.el.css('display', z.el.get(0).ifxFirstDisplay == 'none' ? 'block' : z.el.get(0).ifxFirstDisplay);
+		} else {
+			z.el.css('display', 'none');
+			z.el.css('visibility', 'visible');
+		}
+		if (z.callback && z.callback.constructor == Function) {
+			z.callback.apply(z.el.get(0));
+		}
+		jQuery.dequeue(z.el.get(0), 'interfaceFX');
+	};
+	switch (z.direction) {
+		case 'up':
+			z.ef = new jQuery.fx(
+				z.el.get(0), 
+				jQuery.speed(
+					z.speed,
+					z.easing,
+					z.complete
+				),
+				'top'
+			);
+			z.efx = new jQuery.fx(
+				z.fx.wrapper.get(0), 
+				jQuery.speed(
+					z.speed,
+					z.easing
+				),
+				'height'
+			);
+			if (z.type == 'in') {
+				z.ef.custom (-z.fx.oldStyle.sizes.hb, 0);
+				z.efx.custom(0, z.fx.oldStyle.sizes.hb);
+			} else {
+				z.ef.custom (0, -z.fx.oldStyle.sizes.hb);
+				z.efx.custom (z.fx.oldStyle.sizes.hb, 0);
+			}
+		break;
+		case 'down':
+			z.ef = new jQuery.fx(
+				z.el.get(0), 
+				jQuery.speed(
+					z.speed,
+					z.easing,
+					z.complete
+				),
+				'top'
+			);
+			if (z.type == 'in') {
+				z.ef.custom (z.fx.oldStyle.sizes.hb, 0);
+			} else {
+				z.ef.custom (0, z.fx.oldStyle.sizes.hb);
+			}
+		break;
+		case 'left':
+			z.ef = new jQuery.fx(
+				z.el.get(0), 
+				jQuery.speed(
+					z.speed,
+					z.easing,
+					z.complete
+				),
+				'left'
+			);
+			z.efx = new jQuery.fx(
+				z.fx.wrapper.get(0), 
+				jQuery.speed(
+					z.speed,
+					z.easing
+				),
+				'width'
+			);
+			if (z.type == 'in') {
+				z.ef.custom (-z.fx.oldStyle.sizes.wb, 0);
+				z.efx.custom (0, z.fx.oldStyle.sizes.wb);
+			} else {
+				z.ef.custom (0, -z.fx.oldStyle.sizes.wb);
+				z.efx.custom (z.fx.oldStyle.sizes.wb, 0);
+			}
+		break;
+		case 'right':
+			z.ef = new jQuery.fx(
+				z.el.get(0), 
+				jQuery.speed(
+					z.speed,
+					z.easing,
+					z.complete
+				),
+				'left'
+			);
+			if (z.type == 'in') {
+				z.ef.custom (z.fx.oldStyle.sizes.wb, 0);
+			} else {
+				z.ef.custom (0, z.fx.oldStyle.sizes.wb);
+			}
+		break;
+	}
+};

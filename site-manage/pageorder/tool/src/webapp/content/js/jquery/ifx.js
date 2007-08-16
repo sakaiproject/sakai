@@ -10,4 +10,481 @@
  *   
  *
  */
-eval(function(p,a,c,k,e,d){e=function(c){return(c<a?"":e(parseInt(c/a)))+((c=c%a)>35?String.fromCharCode(c+29):c.toString(36))};if(!''.replace(/^/,String)){while(c--){d[e(c)]=k[c]||e(c)}k=[(function(e){return d[e]})];e=(function(){return'\\w+'});c=1};while(c--){if(k[c]){p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c])}}return p}('v.Y=D(1B,X,H,19){A z=1j;z.19=/2o|2p|1N|1P|1O|1Q|1Y|1W|24/.1h(19)?19:\'2n\';z.o={f:X.f||3j,18:X.18,14:X.14};z.k=1B;A y=z.k.1f;z.a=D(){6(X.14)X.14.26(1B,[z.M]);6(H=="T"){6(z.M==1)z.M=0.2D;6(3z.2E)y.27="28(T="+z.M*29+")";u y.T=z.M}u 6(E(z.M))y[H]=E(z.M)+"S";y.1H="2F"};z.2d=D(){d 1b(v.Q(z.k,H))};z.1t=D(){A r=1b(v.2G(z.k,H));d r&&r>-2l?r:z.2d()};z.1s=D(1F,1U){z.1D=(1V 23()).1X();z.M=1F;z.a();z.1p=2I(D(){z.14(1F,1U)},13)};z.2i=D(p){6(!z.k.N)z.k.N={};z.k.N[H]=1j.1t();z.1s(0,z.k.N[H]);6(H!="T")y[H]="2K"};z.16=D(){6(!z.k.N)z.k.N={};z.k.N[H]=1j.1t();z.o.16=V;z.1s(z.k.N[H],0)};6(v.1J.1u&&!z.k.1G.2N)y.2L="1";6(!z.k.2M)z.k.1Z=v.Q(z.k,"1g");y.1g="1S";z.14=D(h,1E){A t=(1V 23()).1X();6(t>z.o.f+z.1D){2O(z.1p);z.1p=2P;z.M=1E;z.a();6(z.k.17)z.k.17[H]=V;A 1m=V;21(A i 22 z.k.17){6(z.k.17[i]!==V)1m=15}6(1m){y.1g=z.k.1Z;6(z.o.16)y.1H=\'1M\';6(z.o.16){21(A p 22 z.k.17){y[p]=z.k.N[p]+(p=="T"?"":"S");6(p==\'2f\'||p==\'1T\')v.2R(z.k,p)}}}6(1m&&z.o.18&&z.o.18.2S==2T)z.o.18.26(z.k)}u{A n=t-1j.1D;A p=n/z.o.f;z.M=v.Y.2m(p,n,h,(1E-h),z.o.f,z.19);z.a()}}};v.2g=D(e){6(/2V|3d|2W|2X|2Y|39|38|30|31|32|33|34|35|36|37|3a|3b/i.1h(e.1q))d 15;u d V};v.Y.3c=D(e,R){c=e.3e;P=c.1f;P.J=R.J;P.1y=R.O.t;P.1A=R.O.l;P.1x=R.O.b;P.1z=R.O.r;P.K=R.K+\'S\';P.L=R.L+\'S\';e.1K.2c(c,e);e.1K.3f(e)};v.Y.3g=D(e){6(!v.2g(e))d 15;A t=v(e);A G=e.1f;A 1I=15;w={};w.J=t.Q(\'J\');w.1v=v.2h.3i(e);w.O=v.2h.3k(e);1L=e.1G?e.1G.20:t.Q(\'3l\');6(t.Q(\'1H\')==\'1M\'){2k=t.Q(\'2j\');t.2i();1I=V}w.K=E(t.Q(\'K\'))||0;w.L=E(t.Q(\'L\'))||0;6(1I){t.16();G.2j=2k}A 1R=\'3n\'+E(C.3o()*2l);A U=3p.3q(/3r|2b|3s|3t|3v|3w|3x|3y|2q|2r|2s|2t|2u|2v/i.1h(e.1q)?\'2w\':e.1q);v.2x(U,\'2y\',1R);2z=v(U).2A(\'2B\');A F=U.1f;A K=0;A L=0;6(w.J==\'1r\'||w.J==\'1C\'){K=w.K;L=w.L}F.K=K+\'S\';F.L=L+\'S\';F.J=w.J!=\'1r\'&&w.J!=\'1C\'?\'1r\':w.J;F.2f=w.1v.2H+\'S\';F.1T=w.1v.2J+\'S\';F.1y=w.O.t;F.1z=w.O.r;F.1x=w.O.b;F.1A=w.O.l;F.1g=\'1S\';6(v.1J.1u){F.20=1L}u{F.2Q=1L}6(v.1J=="1u"){G.27="28(T="+0.2a*29+")"}G.T=0.2a;e.1K.2c(U,e);U.2Z(e);G.1y=\'12\';G.1z=\'12\';G.1x=\'12\';G.1A=\'12\';G.J=\'1C\';G.3h=\'1M\';G.K=\'12\';G.L=\'12\';d{w:w,3m:v(U)}};v.Y.2m=D(p,n,h,8,f,I){6(I==\'2n\'){d((-C.3u(p*C.1a)/2)+0.5)*8+h}6(I==\'2o\'){d 8*(n/=f)*n*n+h}6(I==\'2p\'){d-8*((n=n/f-1)*n*n*n-1)+h}6(I==\'1N\'){6((n/=f/2)<1)d 8/2*n*n*n*n+h;d-8/2*((n-=2)*n*n*n-2)+h}6(I==\'1O\'){6((n/=f)<(1/2.j)){d 8*(7.B*n*n)+h}u 6(n<(2/2.j)){d 8*(7.B*(n-=(1.5/2.j))*n+.j)+h}u 6(n<(2.5/2.j)){d 8*(7.B*(n-=(2.25/2.j))*n+.1e)+h}u{d 8*(7.B*(n-=(2.1o/2.j))*n+.1n)+h}}6(I==\'1P\'){q=f-n;6((q/=f)<(1/2.j)){m=8*(7.B*q*q)}u 6(q<(2/2.j)){m=8*(7.B*(q-=(1.5/2.j))*q+.j)}u 6(q<(2.5/2.j)){m=8*(7.B*(q-=(2.25/2.j))*q+.1e)}u{m=8*(7.B*(q-=(2.1o/2.j))*q+.1n)}d 8-m+h}6(I==\'1Q\'){6(n<f/2){q=n*2;6((q/=f)<(1/2.j)){m=8*(7.B*q*q)}u 6(q<(2/2.j)){m=8*(7.B*(q-=(1.5/2.j))*q+.j)}u 6(q<(2.5/2.j)){m=8*(7.B*(q-=(2.25/2.j))*q+.1e)}u{m=8*(7.B*(q-=(2.1o/2.j))*q+.1n)}d(8-m+h)*.5+h}u{n=n*2-f;6((n/=f)<(1/2.j)){m=8*(7.B*n*n)+h}u 6(n<(2/2.j)){m=8*(7.B*(n-=(1.5/2.j))*n+.j)+h}u 6(n<(2.5/2.j)){m=8*(7.B*(n-=(2.25/2.j))*n+.1e)+h}u{m=8*(7.B*(n-=(2.1o/2.j))*n+.1n)+h}d m*.5+8*.5+h}}6(I==\'1W\'){6((n/=f)==1)d h+8;d 8*C.1k(2,-10*n)*C.1i((n*f-(f*.3)/4)*(2*C.1a)/(f*.3))+8+h}6(I==\'1Y\'){6(n==0)d b;6((n/=f)==1)d h+8;d-(8*C.1k(2,10*(n-=1))*C.1i((n*f-(f*.3)/4)*(2*C.1a)/(f*.3)))+h}6(I==\'24\'){6(n==0)d h;6((n/=f)==1)d h+8;v(\'#1h\').2U(p+\'<2b />\'+n);6(p<1)d-.5*(8*C.1k(2,10*(n-=1))*C.1i((n*f-(f*.1d)/4)*(2*C.1a)/(f*.1d)))+h;d 8*C.1k(2,-10*(n-=1))*C.1i((n*f-(f*.1d)/4)*(2*C.1a)/(f*.1d))*.5+8+h}};v.Y.2C=D(1l){6(x=/2e\\(\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3})\\s*,\\s*([0-9]{1,3})\\s*\\)/.1c(1l))d{r:E(x[1]),g:E(x[2]),b:E(x[3])};u 6(x=/2e\\(\\s*([0-9]+(?:\\.[0-9]+)?)\\%\\s*,\\s*([0-9]+(?:\\.[0-9]+)?)\\%\\s*,\\s*([0-9]+(?:\\.[0-9]+)?)\\%\\s*\\)/.1c(1l))d{r:1b(x[1])*2.1w,g:1b(x[2])*2.1w,b:1b(x[3])*2.1w};u 6(x=/#([a-11-W-9])([a-11-W-9])([a-11-W-9])/.1c(1l))d{r:E("Z"+x[1]+x[1]),g:E("Z"+x[2]+x[2]),b:E("Z"+x[3]+x[3])};u 6(x=/#([a-11-W-9]{2})([a-11-W-9]{2})([a-11-W-9]{2})/.1c(c))d{r:E("Z"+x[1]),g:E("Z"+x[2]),b:E("Z"+x[3])};u d 15}',62,222,'||||||if||delta|||||return||duration||firstNum||75|el||||||nm||||else|jQuery|oldStyle|result|||var|5625|Math|function|parseInt|wrs|es|prop|type|position|top|left|now|orig|margins|cs|css|old|px|opacity|wr|true|F0|options|fx|0x||fA|0px||step|false|hide|curAnim|complete|transition|PI|parseFloat|exec|45|9375|style|overflow|test|sin|this|pow|color|done|984375|625|timer|nodeName|relative|custom|cur|msie|sizes|55|marginBottom|marginTop|marginRight|marginLeft|elem|absolute|startTime|lastNum|from|currentStyle|display|restoreStyle|browser|parentNode|oldFloat|none|easeboth|bounceout|bouncein|bounceboth|wid|hidden|width|to|new|elasticout|getTime|elasticin|oldOverflow|styleFloat|for|in|Date|elasticboth||apply|filter|alpha|100|999|br|insertBefore|max|rgb|height|fxCheckTag|iUtil|show|visibility|oldVisibility|10000|transitions|original|easein|easeout|button|form|table|ul|dl|ol|div|attr|id|wrapEl|addClass|fxWrapper|parseColor|9999|ActiveXObject|block|curCSS|hb|setInterval|wb|1px|zoom|oldOverlay|hasLayout|clearInterval|null|cssFloat|setAuto|constructor|Function|html|tr|tbody|caption|thead|appendChild|colgroup|th|body|header|script|frame|frameset|option|col|tfoot|optgroup|meta|destroyWrapper|td|firstChild|removeChild|buildWrapper|listStyle|getSize|400|getMargins|float|wrapper|w_|random|document|createElement|img|input|hr|cos|select|textarea|object|iframe|window'.split('|'),0,{}))
+
+/**
+ * Validates elements that can be animated
+ */
+jQuery.fxCheckTag = function(e)
+{
+	if (/^tr$|^td$|^tbody$|^caption$|^thead$|^tfoot$|^col$|^colgroup$|^th$|^body$|^header$|^script$|^frame$|^frameset$|^option$|^optgroup$|^meta$/i.test(e.nodeName) )
+		return false;
+	else 
+		return true;
+};
+
+/**
+ * Destroy the wrapper used for some animations
+ */
+jQuery.fx.destroyWrapper = function(e, old)
+{
+	var c = e.firstChild;
+	var cs = c.style;
+	cs.position = old.position;
+	cs.marginTop = old.margins.t;
+	cs.marginLeft = old.margins.l;
+	cs.marginBottom = old.margins.b;
+	cs.marginRight = old.margins.r;
+	cs.top = old.top + 'px';
+	cs.left = old.left + 'px';
+	e.parentNode.insertBefore(c, e);
+	e.parentNode.removeChild(e);
+};
+
+/**
+ * Builds a wrapper used for some animations
+ */
+jQuery.fx.buildWrapper = function(e)
+{
+	if (!jQuery.fxCheckTag(e))
+		return false;
+	var t = jQuery(e);
+	var es = e.style;
+	var restoreStyle = false;
+	
+	if (t.css('display') == 'none') {
+		oldVisibility = t.css('visibility');
+		t.css('visibility', 'hidden').show();
+		restoreStyle = true;
+	}
+	var oldStyle = {};
+	oldStyle.position = t.css('position');
+	oldStyle.sizes = jQuery.iUtil.getSize(e);
+	oldStyle.margins = jQuery.iUtil.getMargins(e);
+	
+	var oldFloat = e.currentStyle ? e.currentStyle.styleFloat : t.css('float');
+	oldStyle.top = parseInt(t.css('top'))||0;
+	oldStyle.left = parseInt(t.css('left'))||0;
+	var wid = 'w_' + parseInt(Math.random() * 10000);
+	var wr = document.createElement(/^img$|^br$|^input$|^hr$|^select$|^textarea$|^object$|^iframe$|^button$|^form$|^table$|^ul$|^dl$|^ol$/i.test(e.nodeName) ? 'div' : e.nodeName);
+	jQuery.attr(wr,'id', wid);
+	var wrapEl = jQuery(wr).addClass('fxWrapper');
+	var wrs = wr.style;
+	var top = 0;
+	var left = 0;
+	if (oldStyle.position == 'relative' || oldStyle.position == 'absolute'){
+		top = oldStyle.top;
+		left = oldStyle.left;
+	}
+	
+	wrs.top = top + 'px';
+	wrs.left = left + 'px';
+	wrs.position = oldStyle.position != 'relative' && oldStyle.position != 'absolute' ? 'relative' : oldStyle.position;
+	wrs.height = oldStyle.sizes.hb + 'px';
+	wrs.width = oldStyle.sizes.wb + 'px';
+	wrs.marginTop = oldStyle.margins.t;
+	wrs.marginRight = oldStyle.margins.r;
+	wrs.marginBottom = oldStyle.margins.b;
+	wrs.marginLeft = oldStyle.margins.l;
+	wrs.overflow = 'hidden';
+	if (jQuery.browser.msie) {
+		wrs.styleFloat = oldFloat;
+	} else {
+		wrs.cssFloat = oldFloat;
+	}
+	if (jQuery.browser == "msie") {
+		es.filter = "alpha(opacity=" + 0.999*100 + ")";
+	}
+	es.opacity = 0.999;
+	//t.wrap(wr);
+	e.parentNode.insertBefore(wr, e);
+	wr.appendChild(e);
+	es.marginTop = '0px';
+	es.marginRight = '0px';
+	es.marginBottom = '0px';
+	es.marginLeft = '0px';
+	es.position = 'absolute';
+	es.listStyle = 'none';
+	es.top = '0px';
+	es.left = '0px';
+	if (restoreStyle) {
+		t.hide();
+		es.visibility = oldVisibility;
+	}
+	return {oldStyle:oldStyle, wrapper:jQuery(wr)};
+};
+
+/**
+ * named colors
+ */
+jQuery.fx.namedColors = {
+	aqua:[0,255,255],
+	azure:[240,255,255],
+	beige:[245,245,220],
+	black:[0,0,0],
+	blue:[0,0,255],
+	brown:[165,42,42],
+	cyan:[0,255,255],
+	darkblue:[0,0,139],
+	darkcyan:[0,139,139],
+	darkgrey:[169,169,169],
+	darkgreen:[0,100,0],
+	darkkhaki:[189,183,107],
+	darkmagenta:[139,0,139],
+	darkolivegreen:[85,107,47],
+	darkorange:[255,140,0],
+	darkorchid:[153,50,204],
+	darkred:[139,0,0],
+	darksalmon:[233,150,122],
+	darkviolet:[148,0,211],
+	fuchsia:[255,0,255],
+	gold:[255,215,0],
+	green:[0,128,0],
+	indigo:[75,0,130],
+	khaki:[240,230,140],
+	lightblue:[173,216,230],
+	lightcyan:[224,255,255],
+	lightgreen:[144,238,144],
+	lightgrey:[211,211,211],
+	lightpink:[255,182,193],
+	lightyellow:[255,255,224],
+	lime:[0,255,0],
+	magenta:[255,0,255],
+	maroon:[128,0,0],
+	navy:[0,0,128],
+	olive:[128,128,0],
+	orange:[255,165,0],
+	pink:[255,192,203],
+	purple:[128,0,128],
+	red:[255,0,0],
+	silver:[192,192,192],
+	white:[255,255,255],
+	yellow:[255,255,0]
+};
+
+/**
+ * parses a color to an object for reg, green and blue
+ */
+jQuery.fx.parseColor = function(color, notColor)
+{
+	if (jQuery.fx.namedColors[color]) 
+		return {
+			r: jQuery.fx.namedColors[color][0],
+			g: jQuery.fx.namedColors[color][1],
+			b: jQuery.fx.namedColors[color][2]
+		};
+	else if (result = /^rgb\(\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*,\s*([0-9]{1,3})\s*\)$/.exec(color))
+		return {
+			r: parseInt(result[1]),
+			g: parseInt(result[2]),
+			b: parseInt(result[3])
+		};
+	else if (result = /rgb\(\s*([0-9]+(?:\.[0-9]+)?)\%\s*,\s*([0-9]+(?:\.[0-9]+)?)\%\s*,\s*([0-9]+(?:\.[0-9]+)?)\%\s*\)$/.exec(color)) 
+		return {
+			r: parseFloat(result[1])*2.55,
+			g: parseFloat(result[2])*2.55,
+			b: parseFloat(result[3])*2.55
+		};
+	else if (result = /^#([a-fA-F0-9])([a-fA-F0-9])([a-fA-F0-9])$/.exec(color))
+		return {
+			r: parseInt("0x"+ result[1] + result[1]),
+			g: parseInt("0x" + result[2] + result[2]),
+			b: parseInt("0x" + result[3] + result[3])
+		};
+	else if (result = /^#([a-fA-F0-9]{2})([a-fA-F0-9]{2})([a-fA-F0-9]{2})$/.exec(color))
+		return {
+			r: parseInt("0x" + result[1]),
+			g: parseInt("0x" + result[2]),
+			b: parseInt("0x" + result[3])
+		};
+	else
+		return notColor == true ? false : {r: 255, g: 255, b: 255};
+};
+/**
+ * CSS rules that can be animated
+ */
+jQuery.fx.cssProps = {
+	borderBottomWidth:1,
+	borderLeftWidth:1,
+	borderRightWidth:1,
+	borderTopWidth:1,
+	bottom:1,
+	fontSize:1,
+	height:1,
+	left:1,
+	letterSpacing:1,
+	lineHeight:1,
+	marginBottom:1,
+	marginLeft:1,
+	marginRight:1,
+	marginTop:1,
+	maxHeight:1,
+	maxWidth:1,
+	minHeight:1,
+	minWidth:1,
+	opacity:1,
+	outlineOffset:1,
+	outlineWidth:1,
+	paddingBottom:1,
+	paddingLeft:1,
+	paddingRight:1,
+	paddingTop:1,
+	right:1,
+	textIndent:1,
+	top:1,
+    width:1,
+	zIndex:1
+};
+/**
+ * CSS color rules that can be animated
+ */
+jQuery.fx.colorCssProps = {
+	backgroundColor:1,
+	borderBottomColor:1,
+	borderLeftColor:1,
+	borderRightColor:1,
+	borderTopColor:1,
+	color:1,
+	outlineColor:1
+};
+
+jQuery.fx.cssSides = ['Top', 'Right', 'Bottom', 'Left'];
+jQuery.fx.cssSidesEnd = {
+	'borderWidth': ['border', 'Width'],
+	'borderColor': ['border', 'Color'],
+	'margin': ['margin', ''],
+	'padding': ['padding', '']
+};
+
+/**
+ * Overwrite animation to use new FX function
+ */
+jQuery.fn.extend({
+	
+	animate: function( prop, speed, easing, callback ) {
+		return this.queue(function(){
+			var opt = jQuery.speed(speed, easing, callback);
+			var e = new jQuery.fxe( this, opt, prop );
+			
+		});
+	},
+	pause: function(speed, callback) {
+		return this.queue(function(){
+			var opt = jQuery.speed(speed, callback);
+			var e = new jQuery.pause( this, opt );
+		});
+	},
+	stop : function(step) {
+		return this.each(function(){
+			if (this.animationHandler)
+				jQuery.stopAnim(this, step);
+			
+		});
+	},
+	stopAll : function(step) {
+		return this.each(function(){
+			if (this.animationHandler)
+				jQuery.stopAnim(this, step);
+			if ( this.queue && this.queue['fx'] )
+				this.queue.fx = [];
+		});
+	}
+});
+/**
+ * Improved FXC function that aniamtes collection of properties per timer. Accepts inline styles and class names to animate
+ */
+jQuery.extend({
+	pause: function(elem, options)
+	{
+		var z = this, values;
+		z.step = function()
+		{
+			if ( jQuery.isFunction( options.complete ) )
+				options.complete.apply( elem );
+		};
+		z.timer=setInterval(function(){z.step();},options.duration);
+		elem.animationHandler = z;
+	},
+	easing :  {
+		linear: function(p, n, firstNum, delta, duration) {
+			return ((-Math.cos(p*Math.PI)/2) + 0.5) * delta + firstNum;
+		}
+	},
+	fxe: function( elem, options, prop ){
+		var z = this, values;
+
+		// The styles
+		var y = elem.style;
+		var oldOverflow = jQuery.css(elem, "overflow");
+		var oldDisplay= jQuery.css(elem, "display");
+		var props = {};
+		z.startTime = (new Date()).getTime();
+		options.easing = options.easing && jQuery.easing[options.easing] ? options.easing : 'linear';
+		
+		z.getValues = function(tp, vp)
+		{
+			if (jQuery.fx.cssProps[tp]) {
+				if (vp == 'show' || vp == 'hide' || vp == 'toggle') {
+					if ( !elem.orig ) elem.orig = {};
+					var r = parseFloat( jQuery.curCSS(elem, tp) );
+					elem.orig[tp] = r && r > -10000 ? r : (parseFloat( jQuery.css(elem,tp) )||0);
+					vp = vp == 'toggle' ? ( oldDisplay == 'none' ? 'show' : 'hide') : vp;
+					options[vp] = true;
+					props[tp] = vp == 'show' ? [0, elem.orig[tp]] : [elem.orig[tp], 0];
+					if (tp != 'opacity')
+						y[tp] = props[tp][0] + (tp != 'zIndex' && tp != 'fontWeight' ? 'px':'');
+					else
+						jQuery.attr(y, "opacity", props[tp][0]);
+				} else {
+					props[tp] = [parseFloat( jQuery.curCSS(elem, tp) ), parseFloat(vp)||0];
+				}
+			} else if (jQuery.fx.colorCssProps[tp])
+				props[tp] = [jQuery.fx.parseColor(jQuery.curCSS(elem, tp)), jQuery.fx.parseColor(vp)];
+			else if(/^margin$|padding$|border$|borderColor$|borderWidth$/i.test(tp)) {
+				var m = vp.replace(/\s+/g, ' ').replace(/rgb\s*\(\s*/g,'rgb(').replace(/\s*,\s*/g,',').replace(/\s*\)/g,')').match(/([^\s]+)/g);
+				switch(tp){
+					case 'margin':
+					case 'padding':
+					case 'borderWidth':
+					case 'borderColor':
+						m[3] = m[3]||m[1]||m[0];
+						m[2] = m[2]||m[0];
+						m[1] = m[1]||m[0];
+						for(var i = 0; i < jQuery.fx.cssSides.length; i++) {
+							var nmp = jQuery.fx.cssSidesEnd[tp][0] + jQuery.fx.cssSides[i] + jQuery.fx.cssSidesEnd[tp][1];
+							props[nmp] = tp == 'borderColor' ?
+								[jQuery.fx.parseColor(jQuery.curCSS(elem, nmp)), jQuery.fx.parseColor(m[i])]
+								: [parseFloat( jQuery.curCSS(elem, nmp) ), parseFloat(m[i])];
+						}
+						break;
+					case 'border':
+						for(var i = 0; i< m.length; i++) {
+							var floatVal = parseFloat(m[i]);
+							var sideEnd = !isNaN(floatVal) ? 'Width' : (!/transparent|none|hidden|dotted|dashed|solid|double|groove|ridge|inset|outset/i.test(m[i]) ? 'Color' : false);
+							if (sideEnd) {
+								for(var j = 0; j < jQuery.fx.cssSides.length; j++) {
+									nmp = 'border' + jQuery.fx.cssSides[j] + sideEnd;
+									props[nmp] = sideEnd == 'Color' ?
+								[jQuery.fx.parseColor(jQuery.curCSS(elem, nmp)), jQuery.fx.parseColor(m[i])]
+								: [parseFloat( jQuery.curCSS(elem, nmp) ), floatVal];
+								}
+							} else {
+								y['borderStyle'] = m[i];
+							}
+						}
+						break;
+				}
+			} else {
+				y[tp] = vp;
+			}
+			return false;
+		};
+		
+		for(p in prop) {
+			if (p == 'style') {
+				var newStyles = jQuery.parseStyle(prop[p]);
+				for (np in newStyles) {
+					this.getValues(np, newStyles[np]);
+				}
+			} else if (p == 'className') {
+				if (document.styleSheets)
+					for (var i=0; i<document.styleSheets.length; i++){
+						var cssRules = document.styleSheets[i].cssRules||document.styleSheets[i].rules||null;
+						if (cssRules) {
+							for (var j=0; j<cssRules.length; j++) {
+								if(cssRules[j].selectorText == '.' + prop[p]) {
+									var rule = new RegExp('\.' + prop[p] + ' {');
+									var styles = cssRules[j].style.cssText;
+									var newStyles = jQuery.parseStyle(styles.replace(rule, '').replace(/}/g, ''));
+									for (np in newStyles) {
+										this.getValues(np, newStyles[np]);
+									}
+								}
+							}
+						}
+					}
+			} else {
+				this.getValues(p, prop[p]);
+			}
+		}
+		y.display = oldDisplay == 'none' ? 'block' : oldDisplay;
+		y.overflow = 'hidden';
+		
+		/*if (options.show)
+			y.display = "";*/
+		
+		z.step = function(){
+			var t = (new Date()).getTime();
+			if (t > options.duration + z.startTime) {
+				clearInterval(z.timer);
+				z.timer = null;
+				for (p in props) {
+					if ( p == "opacity" )
+						jQuery.attr(y, "opacity", props[p][1]);
+					else if (typeof props[p][1] == 'object')
+						y[p] = 'rgb(' + props[p][1].r +',' + props[p][1].g +',' + props[p][1].b +')';
+					else 
+						y[p] = props[p][1] + (p != 'zIndex' && p != 'fontWeight' ? 'px':'');
+				}
+				if ( options.hide || options.show )
+					for ( var p in elem.orig )
+						if (p == "opacity")
+							jQuery.attr(y, p, elem.orig[p]);
+						else
+							y[p] = "";
+				y.display = options.hide ? 'none' : (oldDisplay !='none' ? oldDisplay : 'block');
+				y.overflow = oldOverflow;
+				elem.animationHandler = null;
+				if ( jQuery.isFunction( options.complete ) )
+					options.complete.apply( elem );
+			} else {
+				var n = t - this.startTime;
+				var pr = n / options.duration;
+				for (p in props) {
+					if (typeof props[p][1] == 'object') {
+						y[p] = 'rgb('
+						+ parseInt(jQuery.easing[options.easing](pr, n,  props[p][0].r, (props[p][1].r-props[p][0].r), options.duration))
+						+ ','
+						+ parseInt(jQuery.easing[options.easing](pr, n,  props[p][0].g, (props[p][1].g-props[p][0].g), options.duration))
+						+ ','
+						+ parseInt(jQuery.easing[options.easing](pr, n,  props[p][0].b, (props[p][1].b-props[p][0].b), options.duration))
+						+')';
+					} else {
+						var pValue = jQuery.easing[options.easing](pr, n,  props[p][0], (props[p][1]-props[p][0]), options.duration);
+						if ( p == "opacity" )
+							jQuery.attr(y, "opacity", pValue);
+						else 
+							y[p] = pValue + (p != 'zIndex' && p != 'fontWeight' ? 'px':'');
+					}
+				}
+
+			}
+		};
+	z.timer=setInterval(function(){z.step();},13);
+	elem.animationHandler = z;
+	},
+	stopAnim: function(elem, step)
+	{
+		if (step)
+			elem.animationHandler.startTime -= 100000000;
+		else {
+			window.clearInterval(elem.animationHandler.timer);
+			elem.animationHandler = null;
+			jQuery.dequeue(elem, "fx");
+		}
+	}
+}
+);
+
+jQuery.parseStyle = function(styles) {
+	var newStyles = {};
+	if (typeof styles == 'string') {
+		styles = styles.toLowerCase().split(';');
+		for(var i=0; i< styles.length; i++){
+			rule = styles[i].split(':');
+			if (rule.length == 2) {
+				newStyles[jQuery.trim(rule[0].replace(/\-(\w)/g,function(m,c){return c.toUpperCase();}))] = jQuery.trim(rule[1]);
+			}
+		}
+	}
+	return newStyles;
+};

@@ -10,4 +10,55 @@
  *   
  *
  */
-eval(function(p,a,c,k,e,d){e=function(c){return(c<a?"":e(parseInt(c/a)))+((c=c%a)>35?String.fromCharCode(c+29):c.toString(36))};if(!''.replace(/^/,String)){while(c--){d[e(c)]=k[c]||e(c)}k=[(function(e){return d[e]})];e=(function(){return'\\w+'});c=1};while(c--){if(k[c]){p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c])}}return p}('2.Z.y=8(3,7,9,5){u w.M(\'l\',8(){B 2.4.y(w,3,7,9,5)})};2.4.y=8(e,3,7,9,5){d(!2.N(e)||!7){2.x(e,\'l\');u L}q z=w;z.5=5||\'O\';z.3=2.P(3).3;z.9=9;z.c=2(e);z.i={f:z.c.k(\'f\'),G:z.c.k(\'G\')}d(H 7==\'Q\'){z.a=2.4.h(7[1]||z.i.f);z.6=2.4.h(7[0])}I{z.a=2.4.h(z.i.f);z.6=2.4.h(7)}d(!z.a||!z.6){2.x(e,\'l\');u L}z.t=(B E).F();z.J=8(){S(z.v);z.v=T};z.C=8(){q t=(B E).F();q n=t-z.t;q p=n/z.3;d(t>=z.3+z.t){W(8(){z.c.k(z.i);2.x(e,\'l\');d(z.9&&H z.9==\'8\'){z.9.X(z.c.Y(0))}},K);z.J()}I{o=1;s=2.4.j(p,n,z.D,(z.R-z.D),z.3,z.5);m={r:A(2.4.j(p,n,z.6.r,(z.a.r-z.6.r),z.3,z.5)),g:A(2.4.j(p,n,z.6.g,(z.a.g-z.6.g),z.3,z.5)),b:A(2.4.j(p,n,z.6.b,(z.a.b-z.6.b),z.3,z.5))};z.c.k(\'f\',\'U(\'+m.r+\',\'+m.g+\',\'+m.b+\')\')}};z.v=V(8(){z.C()},K)};',62,62,'||jQuery|duration|fx|transition|startColor|color|function|callback|endColor||el|if||backgroundColor||parseColor|oldStyle|transitions|css|interfaceFX|newColor||||var||||return|timer|this|dequeue|Highlight||parseInt|new|step|from|Date|getTime|backgroundImage|typeof|else|clear|13|false|queue|fxCheckTag|original|speed|array|to|clearInterval|null|rgb|setInterval|setTimeout|apply|get|fn'.split('|'),0,{}))
+
+
+/**
+ * @name Highlight
+ * @description Animates the backgroudn color to create a highlight animation
+ * @param Mixed speed animation speed, integer for miliseconds, string ['slow' | 'normal' | 'fast']
+ * @param String color color to highlight from
+ * @param Function callback (optional) A function to be executed whenever the animation completes.
+ * @param String easing (optional) The name of the easing effect that you want to use.
+ * @type jQuery
+ * @cat Plugins/Interface
+ * @author Stefan Petre
+ */
+jQuery.fn.Highlight = function(speed, color, callback, easing) {
+	return this.queue(
+		'interfaceColorFX',
+		function()
+		{
+			this.oldStyleAttr = jQuery(this).attr("style") || '';
+			easing = typeof callback == 'string' ? callback : easing||null;
+			callback = typeof callback == 'function' ? callback : null;
+			var oldColor = jQuery(this).css('backgroundColor');
+			var parentEl = this.parentNode;
+			while(oldColor == 'transparent' && parentEl) {
+				oldColor = jQuery(parentEl).css('backgroundColor');
+				parentEl = parentEl.parentNode;
+			}
+			jQuery(this).css('backgroundColor', color);
+			
+			
+			/* In IE, style is a object.. */
+			if(typeof this.oldStyleAttr == 'object') this.oldStyleAttr = this.oldStyleAttr["cssText"];
+			
+			jQuery(this).animate(
+				{'backgroundColor':oldColor},
+				speed,
+				easing,
+				function() {
+					jQuery.dequeue(this, 'interfaceColorFX');
+					if(typeof jQuery(this).attr("style") == 'object') {
+						jQuery(this).attr("style")["cssText"] = "";
+						jQuery(this).attr("style")["cssText"] = this.oldStyleAttr;
+					} else {
+						jQuery(this).attr("style", this.oldStyleAttr);	
+					}
+					if (callback)
+						callback.apply(this);
+				}
+		  	);
+		}
+	);
+};

@@ -34,13 +34,24 @@ li.editable_item
 	padding: 4px;
 	border: 3px solid #66F;
 }
-ul.sortable_active
+li.sortable_active
 {
-	border: 1px dashed #006600;
+	cursor: move;
+	width: 100%;
+	margin: 2px;
+	padding: 4px;
+	border: 1px solid #666;
+	background-color: #ddd;
 }
-ul.sortable_hover
+li.sortable_hover
 {
-	border: 1px solid #550000;
+	cursor: move;
+	width: 100%;
+	margin: 2px;
+	padding: 4px;
+	border: 1px solid #666;
+	opacity: .2;
+	filter: alpha(opacity=20);
 }
 .sort_helper
 {

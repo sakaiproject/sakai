@@ -1,13 +1,588 @@
 /**
  * Interface Elements for jQuery
  * Draggable
- * 
- * http://interface.eyecon.ro
- * 
- * Copyright (c) 2006 Stefan Petre
- * Dual licensed under the MIT (MIT-LICENSE.txt) 
- * and GPL (GPL-LICENSE.txt) licenses.
- *   
  *
+ * http://interface.eyecon.ro
+ *
+ * Copyright (c) 2006 Stefan Petre
+ * Dual licensed under the MIT (MIT-LICENSE.txt)
+ * and GPL (GPL-LICENSE.txt) licenses.
  */
-eval(function(p,a,c,k,e,d){e=function(c){return(c<a?"":e(parseInt(c/a)))+((c=c%a)>35?String.fromCharCode(c+29):c.toString(36))};if(!''.replace(/^/,String)){while(c--){d[e(c)]=k[c]||e(c)}k=[(function(e){return d[e]})];e=(function(){return'\\w+'});c=1};while(c--){if(k[c]){p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c])}}return p}('8.a={m:W,7:W,2b:q(){n c.2A(q(){9(c.20){c.1c=W;8(c).1Z(\'2o\',8.a.27)}})},2r:q(e){9(8.a.7!=W){8.a.1y(e);n d}23 6=c.1c;8(19).1P(\'2x\',8.a.24).1P(\'2y\',8.a.1y);6.5.A=8.B.2P(e);6.5.R=6.5.A;6.5.1G=d;6.5.3o=c!=c.1c;8.a.7=6;9(6.5.10&&c!=c.1c){21=8.B.28(6.1g);1L=8.B.1v(6);1M={x:u(8.z(6,\'H\'))||0,y:u(8.z(6,\'G\'))||0};j=6.5.R.x-21.x-1L.18/2-1M.x;g=6.5.R.y-21.y-1L.Q/2-1M.y;8.1J.2Y(6,[j,g])}n d},27:q(e){6=8.a.7;6.5.1G=E;1z=6.D;6.5.1E=8.z(6,\'T\');6.5.1h=8.z(6,\'1r\');9(!6.5.2d)6.5.2d=6.5.1h;6.5.p={x:u(8.z(6,\'H\'))||0,y:u(8.z(6,\'G\'))||0};6.5.1m=0;6.5.1n=0;9(8.1j.1Q){1V=8.B.1U(6,E);6.5.1m=1V.l||0;6.5.1n=1V.t||0}6.5.f=8.1F(8.B.28(6),8.B.1v(6));9(6.5.1h!=\'2l\'&&6.5.1h!=\'2n\'){1z.1r=\'2l\'}8.a.m.2s();K=6.2Z(E);8(K).z({T:\'2f\',H:\'14\',G:\'14\'});K.D.29=\'0\';K.D.2g=\'0\';K.D.2a=\'0\';K.D.2h=\'0\';8.a.m.1H(K);9(6.5.17)6.5.17.1l(6,[K]);C=8.a.m.V(0).D;9(6.5.1T){C.1R=\'2O\';C.1S=\'2O\'}J{C.1S=6.5.f.Q+\'M\';C.1R=6.5.f.18+\'M\'}C.T=\'2f\';C.29=\'14\';C.2g=\'14\';C.2a=\'14\';C.2h=\'14\';8.1F(6.5.f,8.B.1v(K));9(6.5.v){9(6.5.v.H){6.5.p.x+=6.5.A.x-6.5.f.x-6.5.v.H;6.5.f.x=6.5.A.x-6.5.v.H}9(6.5.v.G){6.5.p.y+=6.5.A.y-6.5.f.y-6.5.v.G;6.5.f.y=6.5.A.y-6.5.v.G}9(6.5.v.1O){6.5.p.x+=6.5.A.x-6.5.f.x-6.5.f.Q+6.5.v.1O;6.5.f.x=6.5.A.x-6.5.f.18+6.5.v.1O}9(6.5.v.25){6.5.p.y+=6.5.A.y-6.5.f.y-6.5.f.Q+6.5.v.25;6.5.f.y=6.5.A.y-6.5.f.Q+6.5.v.25}}6.5.1p=6.5.p.x;6.5.1I=6.5.p.y;9(6.5.1b||6.5.k==\'1s\'){1i=8.B.1U(6.1g,E);6.5.f.x=6.32+(8.1j.1Q?0:8.1j.2C?-1i.l:1i.l);6.5.f.y=6.33+(8.1j.1Q?0:8.1j.2C?-1i.t:1i.t);8(6.1g).1H(8.a.m.V(0))}9(6.5.k){8.a.2m(6);6.5.O.k=8.a.2I}9(6.5.10){8.1J.35(6)}C.H=6.5.f.x-6.5.1m+\'M\';C.G=6.5.f.y-6.5.1n+\'M\';C.1R=6.5.f.18+\'M\';C.1S=6.5.f.Q+\'M\';8.a.7.5.1u=d;9(6.5.12){6.5.O.U=8.a.2G}9(6.5.11!=d){8.a.m.z(\'11\',6.5.11)}9(6.5.I){8.a.m.z(\'I\',6.5.I);9(1B.1C){8.a.m.z(\'2u\',\'2v(I=\'+6.5.I*2w+\')\')}}9(6.5.15==d){1z.T=\'1k\'}9(8.F&&8.F.1X>0){8.F.36(6)}n d},2m:q(6){9(6.5.k.L==2t){9(6.5.k==\'1s\'){6.5.s=8.1F({x:0,y:0},8.B.1v(6.1g));1e=8.B.1U(6.1g,E);6.5.s.w=6.5.s.18-1e.l-1e.r;6.5.s.h=6.5.s.Q-1e.t-1e.b}J 9(6.5.k==\'19\'){1Y=8.B.37();6.5.s={x:0,y:0,w:1Y.w,h:1Y.h}}}J 9(6.5.k.L==2B){6.5.s={x:u(6.5.k[0])||0,y:u(6.5.k[1])||0,w:u(6.5.k[2])||0,h:u(6.5.k[3])||0}}6.5.s.j=6.5.s.x-6.5.f.x;6.5.s.g=6.5.s.y-6.5.f.y},1A:q(7){9(7.5.1b||7.5.k==\'1s\'){8(\'2i\',19).1H(8.a.m.V(0))}8.a.m.2s().3b().z(\'I\',1);9(1B.1C){8.a.m.z(\'2u\',\'2v(I=2w)\')}},1y:q(e){8(19).1Z(\'2x\',8.a.24).1Z(\'2y\',8.a.1y);9(8.a.7==W){n}7=8.a.7;8.a.7=W;9(7.5.1G==d){n d}9(7.5.1w==E){8(7).z(\'1r\',7.5.1h)}1z=7.D;9(7.10){8.a.m.z(\'2p\',\'2q\')}9(7.5.26==d){9(7.5.N>0){x=2M 8.N(7,7.5.N,\'H\');y=2M 8.N(7,7.5.N,\'G\');x.2z(7.5.p.x,7.5.1o);y.2z(7.5.p.y,7.5.1q)}J{7.D.H=7.5.1o+\'M\';7.D.G=7.5.1q+\'M\'}8.a.1A(7);9(7.5.15==d){8(7).z(\'T\',7.5.1E)}}J 9(7.5.N>0){7.5.1u=E;9(8.F&&8.F.2D&&8.1D){1a=8.B.28(8.1D.m.V(0))}J{1a=d}8.a.m.3f({H:1a?1a.x:7.5.f.x,G:1a?1a.y:7.5.f.y},7.5.N,q(){7.5.1u=d;9(7.5.15==d){7.D.T=7.5.1E}8.a.1A(7)})}J{8.a.1A(7);9(7.5.15==d){8(7).z(\'T\',7.5.1E)}}9(8.F&&8.F.1X>0){8.F.3h(7)}9(8.1D&&8.F.2D){8.1D.3i(7)}9(7.5.Y&&(7.5.1o!=7.5.p.x||7.5.1q!=7.5.p.y)){7.5.Y.1l(7,7.5.3j)}9(7.5.13)7.5.13.1l(7);n d},2G:q(x,y,j,g){9(j!=0)j=u((j+(c.5.12*j/P.2H(j))/2)/c.5.12)*c.5.12;9(g!=0)g=u((g+(c.5.1d*g/P.2H(g))/2)/c.5.1d)*c.5.1d;n{j:j,g:g,x:0,y:0}},2I:q(x,y,j,g){j=P.2J(P.2K(j,c.5.s.j),c.5.s.w+c.5.s.j-c.5.f.18);g=P.2J(P.2K(g,c.5.s.g),c.5.s.h+c.5.s.g-c.5.f.Q);n{j:j,g:g,x:0,y:0}},24:q(e){9(8.a.7==W||8.a.7.5.1u==E){n}23 7=8.a.7;7.5.R=8.B.2P(e);9(7.5.1G==d){2R=P.3n(P.2Q(7.5.A.x-7.5.R.x,2)+P.2Q(7.5.A.y-7.5.R.y,2));9(2R<7.5.1t){n}J{8.a.27(e)}}j=7.5.R.x-7.5.A.x;g=7.5.R.y-7.5.A.y;2T(i 2U 7.5.O){X=7.5.O[i].1l(7,[7.5.p.x+j,7.5.p.y+g,j,g]);9(X&&X.L==2V){j=i!=\'1W\'?X.j:(X.x-7.5.p.x);g=i!=\'1W\'?X.g:(X.y-7.5.p.y)}}7.5.1p=7.5.f.x+j-7.5.1m;7.5.1I=7.5.f.y+g-7.5.1n;9(7.5.10&&(7.5.16||7.5.Y)){8.1J.16(7,7.5.1p,7.5.1I)}9(!7.5.Z||7.5.Z==\'2e\'){7.5.1o=7.5.p.x+j;8.a.m.V(0).D.H=7.5.1p+\'M\'}9(!7.5.Z||7.5.Z==\'2c\'){7.5.1q=7.5.p.y+g;8.a.m.V(0).D.G=7.5.1I+\'M\'}9(8.F&&8.F.1X>0){8.F.30(7,K)}n d},2L:q(o){9(!8.a.m){8(\'2i\',19).1H(\'<2j 34="2k"></2j>\');8.a.m=8(\'#2k\');1x=8.a.m.V(0);S=1x.D;S.1r=\'2n\';S.T=\'1k\';S.2p=\'2q\';S.38=\'1k\';S.3a=\'3c\';9(1B.1C){1x.2E=q(){n d};1x.2F=q(){n d}}J{S.3d=\'1k\';S.3e=\'1k\'}}9(!o){o={}}n c.2A(q(){9(c.20&&!8.B)n;9(1B.1C){c.2E=q(){n d};c.2F=q(){n d}}23 1N=o.2N?8(c).3l(o.2N):8(c);c.5={26:o.26?E:d,15:o.15?E:d,1w:o.1w?o.1w:d,10:o.10?o.10:d,1b:o.1b?o.1b:d,11:o.11?u(o.11)||0:d,I:o.I?2W(o.I):d,N:u(o.N)||W,1K:o.1K?o.1K:d,O:{},A:{},17:o.17&&o.17.L==1f?o.17:d,13:o.13&&o.13.L==1f?o.13:d,Y:o.Y&&o.Y.L==1f?o.Y:d,Z:/2c|2e/.31(o.Z)?o.Z:d,1t:o.1t?u(o.1t)||0:0,v:o.v?o.v:d,1T:o.1T?E:d};9(o.O&&o.O.L==1f)c.5.O.1W=o.O;9(o.k&&((o.k.L==2t&&(o.k==\'1s\'||o.k==\'19\'))||(o.k.L==2B&&o.k.2S==4))){c.5.k=o.k}9(o.22){c.5.22=o.22}9(o.U){9(3k o.U==\'3m\'){c.5.12=u(o.U)||1;c.5.1d=u(o.U)||1}J 9(o.U.2S==2){c.5.12=u(o.U[0])||1;c.5.1d=u(o.U[1])||1}}9(o.16&&o.16.L==1f){c.5.16=o.16}c.20=E;1N.V(0).1c=c;1N.1P(\'2o\',8.a.2r)})}};8.3g.1F({2X:8.a.2b,39:8.a.2L});',62,211,'|||||dragCfg|elm|dragged|jQuery|if|iDrag||this|false||oC|dy|||dx|containment||helper|return||oR|function||cont||parseInt|cursorAt||||css|pointer|iUtil|dhs|style|true|iDrop|top|left|opacity|else|clonedEl|constructor|px|fx|onDrag|Math|hb|currentPointer|els|display|grid|get|null|newCoords|onChange|axis|si|zIndex|gx|onStop|0px|ghosting|onSlide|onStart|wb|document|dh|insideParent|dragElem|gy|contBorders|Function|parentNode|oP|parentBorders|browser|none|apply|diffX|diffY|nRx|nx|nRy|position|parent|snapDistance|prot|getSize|so|el|dragstop|dEs|hidehelper|window|ActiveXObject|iSort|oD|extend|init|append|ny|iSlider|hpc|sliderSize|sliderPos|dhe|right|bind|msie|width|height|autoSize|getBorder|oldBorder|user|count|clnt|unbind|isDraggable|parentPos|fractions|var|dragmove|bottom|revert|dragstart|getPosition|marginTop|marginBottom|destroy|vertically|initialPosition|horizontally|block|marginRight|marginLeft|body|div|dragHelper|relative|getContainment|absolute|mousedown|cursor|move|draginit|empty|String|filter|alpha|100|mousemove|mouseup|custom|each|Array|opera|overzone|onselectstart|ondragstart|snapToGrid|abs|fitToContainer|min|max|build|new|handle|auto|getPointer|pow|distance|length|for|in|Object|parseFloat|DraggableDestroy|dragmoveBy|cloneNode|checkhover|test|offsetLeft|offsetTop|id|modifyContainer|highlight|getClient|listStyle|Draggable|overflow|hide|hidden|mozUserSelect|userSelect|animate|fn|checkdrop|check|lastSi|typeof|find|number|sqrt|fromHandler'.split('|'),0,{}))
+ 
+/**
+ * Create a draggable element with a number of advanced options including callback, Google Maps type draggables,
+ * reversion, ghosting, and grid dragging.
+ * 
+ * @name Draggable
+ * @descr Creates draggable elements that can be moved across the page.
+ * @param Hash hash A hash of parameters. All parameters are optional.
+ * @option String handle (optional) The jQuery selector matching the handle that starts the draggable
+ * @option DOMElement handle (optional) The DOM Element of the handle that starts the draggable
+ * @option Boolean revert (optional) When true, on stop-drag the element returns to initial position
+ * @option Boolean ghosting (optional) When true, a copy of the element is moved
+ * @option Integer zIndex (optional) zIndex depth for the element while it is being dragged
+ * @option Float opacity (optional) A number between 0 and 1 that indicates the opacity of the element while being dragged
+ * @option Integer grid (optional) (optional) A number of pixels indicating the grid that the element should snap to
+ * @option Array grid (optional) A number of x-pixels and y-pixels indicating the grid that the element should snap to
+ * @option Integer fx (optional) Duration for the effect (like ghosting or revert) applied to the draggable
+ * @option String containment (optional) Define the zone where the draggable can be moved. 'parent' moves it inside parent
+ *                           element, while 'document' prevents it from leaving the document and forcing additional
+ *                           scrolling
+ * @option Array containment An 4-element array (left, top, width, height) indicating the containment of the element
+ * @option String axis (optional) Set an axis: vertical (with 'vertically') or horizontal (with 'horizontally')
+ * @option Function onStart (optional) Callback function triggered when the dragging starts
+ * @option Function onStop (optional) Callback function triggered when the dragging stops
+ * @option Function onChange (optional) Callback function triggered when the dragging stop *and* the element was moved at least
+ *                          one pixel
+ * @option Function onDrag (optional) Callback function triggered while the element is dragged. Receives two parameters: x and y
+ *                        coordinates. You can return an object with new coordinates {x: x, y: y} so this way you can
+ *                        interact with the dragging process (for instance, build your containment)
+ * @option Boolean insideParent Forces the element to remain inside its parent when being dragged (like Google Maps)
+ * @option Integer snapDistance (optional) The element is not moved unless it is dragged more than snapDistance. You can prevent
+ *                             accidental dragging and keep regular clicking enabled (for links or form elements, 
+ *                             for instance)
+ * @option Object cursorAt (optional) The dragged element is moved to the cursor position with the offset specified. Accepts value
+ *                        for top, left, right and bottom offset. Basically, this forces the cursor to a particular
+ *                        position during the entire drag operation.
+ * @option Boolean autoSize (optional) When true, the drag helper is resized to its content, instead of the dragged element's sizes
+ * @option String frameClass (optional) When is set the cloned element is hidden so only a frame is dragged
+ * @type jQuery
+ * @cat Plugins/Interface
+ * @author Stefan Petre
+ */
+
+jQuery.iDrag =	{
+	helper : null,
+	dragged: null,
+	destroy : function()
+	{
+		return this.each(
+			function ()
+			{
+				if (this.isDraggable) {
+					this.dragCfg.dhe.unbind('mousedown', jQuery.iDrag.draginit);
+					this.dragCfg = null;
+					this.isDraggable = false;
+					if(jQuery.browser.msie) {
+						this.unselectable = "off";
+					} else {
+						this.style.MozUserSelect = '';
+						this.style.KhtmlUserSelect = '';
+						this.style.userSelect = '';
+					}
+				}
+			}
+		);
+	},
+	draginit : function (e)
+	{
+		if (jQuery.iDrag.dragged != null) {
+			jQuery.iDrag.dragstop(e);
+			return false;
+		}
+		var elm = this.dragElem;
+		jQuery(document)
+			.bind('mousemove', jQuery.iDrag.dragmove)
+			.bind('mouseup', jQuery.iDrag.dragstop);
+		elm.dragCfg.pointer = jQuery.iUtil.getPointer(e);
+		elm.dragCfg.currentPointer = elm.dragCfg.pointer;
+		elm.dragCfg.init = false;
+		elm.dragCfg.fromHandler = this != this.dragElem;
+		jQuery.iDrag.dragged = elm;
+		if (elm.dragCfg.si && this != this.dragElem) {
+				parentPos = jQuery.iUtil.getPosition(elm.parentNode);
+				sliderSize = jQuery.iUtil.getSize(elm);
+				sliderPos = {
+					x : parseInt(jQuery.css(elm,'left')) || 0,
+					y : parseInt(jQuery.css(elm,'top')) || 0
+				};
+				dx = elm.dragCfg.currentPointer.x - parentPos.x - sliderSize.wb/2 - sliderPos.x;
+				dy = elm.dragCfg.currentPointer.y - parentPos.y - sliderSize.hb/2 - sliderPos.y;
+				jQuery.iSlider.dragmoveBy(elm, [dx, dy]);
+		}
+		return jQuery.selectKeyHelper||false;
+	},
+
+	dragstart : function(e)
+	{
+		var elm = jQuery.iDrag.dragged;
+		elm.dragCfg.init = true;
+
+		var dEs = elm.style;
+
+		elm.dragCfg.oD = jQuery.css(elm,'display');
+		elm.dragCfg.oP = jQuery.css(elm,'position');
+		if (!elm.dragCfg.initialPosition)
+			elm.dragCfg.initialPosition = elm.dragCfg.oP;
+
+		elm.dragCfg.oR = {
+			x : parseInt(jQuery.css(elm,'left')) || 0,
+			y : parseInt(jQuery.css(elm,'top')) || 0
+		};
+		elm.dragCfg.diffX = 0;
+		elm.dragCfg.diffY = 0;
+		if (jQuery.browser.msie) {
+			var oldBorder = jQuery.iUtil.getBorder(elm, true);
+			elm.dragCfg.diffX = oldBorder.l||0;
+			elm.dragCfg.diffY = oldBorder.t||0;
+		}
+
+		elm.dragCfg.oC = jQuery.extend(
+			jQuery.iUtil.getPosition(elm),
+			jQuery.iUtil.getSize(elm)
+		);
+		if (elm.dragCfg.oP != 'relative' && elm.dragCfg.oP != 'absolute') {
+			dEs.position = 'relative';
+		}
+
+		jQuery.iDrag.helper.empty();
+		var clonedEl = elm.cloneNode(true);
+		
+		jQuery(clonedEl).css(
+			{
+				display:	'block',
+				left:		'0px',
+				top: 		'0px'
+			}
+		);
+		clonedEl.style.marginTop = '0';
+		clonedEl.style.marginRight = '0';
+		clonedEl.style.marginBottom = '0';
+		clonedEl.style.marginLeft = '0';
+		jQuery.iDrag.helper.append(clonedEl);
+		
+		var dhs = jQuery.iDrag.helper.get(0).style;
+
+		if (elm.dragCfg.autoSize) {
+			dhs.width = 'auto';
+			dhs.height = 'auto';
+		} else {
+			dhs.height = elm.dragCfg.oC.hb + 'px';
+			dhs.width = elm.dragCfg.oC.wb + 'px';
+		}
+
+		dhs.display = 'block';
+		dhs.marginTop = '0px';
+		dhs.marginRight = '0px';
+		dhs.marginBottom = '0px';
+		dhs.marginLeft = '0px';
+
+		//remeasure the clone to check if the size was changed by user's functions
+		jQuery.extend(
+			elm.dragCfg.oC,
+			jQuery.iUtil.getSize(clonedEl)
+		);
+
+		if (elm.dragCfg.cursorAt) {
+			if (elm.dragCfg.cursorAt.left) {
+				elm.dragCfg.oR.x += elm.dragCfg.pointer.x - elm.dragCfg.oC.x - elm.dragCfg.cursorAt.left;
+				elm.dragCfg.oC.x = elm.dragCfg.pointer.x - elm.dragCfg.cursorAt.left;
+			}
+			if (elm.dragCfg.cursorAt.top) {
+				elm.dragCfg.oR.y += elm.dragCfg.pointer.y - elm.dragCfg.oC.y - elm.dragCfg.cursorAt.top;
+				elm.dragCfg.oC.y = elm.dragCfg.pointer.y - elm.dragCfg.cursorAt.top;
+			}
+			if (elm.dragCfg.cursorAt.right) {
+				elm.dragCfg.oR.x += elm.dragCfg.pointer.x - elm.dragCfg.oC.x -elm.dragCfg.oC.hb + elm.dragCfg.cursorAt.right;
+				elm.dragCfg.oC.x = elm.dragCfg.pointer.x - elm.dragCfg.oC.wb + elm.dragCfg.cursorAt.right;
+			}
+			if (elm.dragCfg.cursorAt.bottom) {
+				elm.dragCfg.oR.y += elm.dragCfg.pointer.y - elm.dragCfg.oC.y - elm.dragCfg.oC.hb + elm.dragCfg.cursorAt.bottom;
+				elm.dragCfg.oC.y = elm.dragCfg.pointer.y - elm.dragCfg.oC.hb + elm.dragCfg.cursorAt.bottom;
+			}
+		}
+		elm.dragCfg.nx = elm.dragCfg.oR.x;
+		elm.dragCfg.ny = elm.dragCfg.oR.y;
+
+		if (elm.dragCfg.insideParent || elm.dragCfg.containment == 'parent') {
+			parentBorders = jQuery.iUtil.getBorder(elm.parentNode, true);
+			elm.dragCfg.oC.x = elm.offsetLeft + (jQuery.browser.msie ? 0 : jQuery.browser.opera ? -parentBorders.l : parentBorders.l);
+			elm.dragCfg.oC.y = elm.offsetTop + (jQuery.browser.msie ? 0 : jQuery.browser.opera ? -parentBorders.t : parentBorders.t);
+			jQuery(elm.parentNode).append(jQuery.iDrag.helper.get(0));
+		}
+		if (elm.dragCfg.containment) {
+			jQuery.iDrag.getContainment(elm);
+			elm.dragCfg.onDragModifier.containment = jQuery.iDrag.fitToContainer;
+		}
+
+		if (elm.dragCfg.si) {
+			jQuery.iSlider.modifyContainer(elm);
+		}
+
+		dhs.left = elm.dragCfg.oC.x - elm.dragCfg.diffX + 'px';
+		dhs.top = elm.dragCfg.oC.y - elm.dragCfg.diffY + 'px';
+		//resize the helper to fit the clone
+		dhs.width = elm.dragCfg.oC.wb + 'px';
+		dhs.height = elm.dragCfg.oC.hb + 'px';
+
+		jQuery.iDrag.dragged.dragCfg.prot = false;
+
+		if (elm.dragCfg.gx) {
+			elm.dragCfg.onDragModifier.grid = jQuery.iDrag.snapToGrid;
+		}
+		if (elm.dragCfg.zIndex != false) {
+			jQuery.iDrag.helper.css('zIndex', elm.dragCfg.zIndex);
+		}
+		if (elm.dragCfg.opacity) {
+			jQuery.iDrag.helper.css('opacity', elm.dragCfg.opacity);
+			if (window.ActiveXObject) {
+				jQuery.iDrag.helper.css('filter', 'alpha(opacity=' + elm.dragCfg.opacity * 100 + ')');
+			}
+		}
+
+		if(elm.dragCfg.frameClass) {
+			jQuery.iDrag.helper.addClass(elm.dragCfg.frameClass);
+			jQuery.iDrag.helper.get(0).firstChild.style.display = 'none';
+		}
+		if (elm.dragCfg.onStart)
+			elm.dragCfg.onStart.apply(elm, [clonedEl, elm.dragCfg.oR.x, elm.dragCfg.oR.y]);
+		if (jQuery.iDrop && jQuery.iDrop.count > 0 ){
+			jQuery.iDrop.highlight(elm);
+		}
+		if (elm.dragCfg.ghosting == false) {
+			dEs.display = 'none';
+		}
+		return false;
+	},
+
+	getContainment : function(elm)
+	{
+		if (elm.dragCfg.containment.constructor == String) {
+			if (elm.dragCfg.containment == 'parent') {
+				elm.dragCfg.cont = jQuery.extend(
+					{x:0,y:0},
+					jQuery.iUtil.getSize(elm.parentNode)
+				);
+				var contBorders = jQuery.iUtil.getBorder(elm.parentNode, true);
+				elm.dragCfg.cont.w = elm.dragCfg.cont.wb - contBorders.l - contBorders.r;
+				elm.dragCfg.cont.h = elm.dragCfg.cont.hb - contBorders.t - contBorders.b;
+			} else if (elm.dragCfg.containment == 'document') {
+				var clnt = jQuery.iUtil.getClient();
+				elm.dragCfg.cont = {
+					x : 0,
+					y : 0,
+					w : clnt.w,
+					h : clnt.h
+				};
+			}
+		} else if (elm.dragCfg.containment.constructor == Array) {
+			elm.dragCfg.cont = {
+				x : parseInt(elm.dragCfg.containment[0])||0,
+				y : parseInt(elm.dragCfg.containment[1])||0,
+				w : parseInt(elm.dragCfg.containment[2])||0,
+				h : parseInt(elm.dragCfg.containment[3])||0
+			};
+		}
+		elm.dragCfg.cont.dx = elm.dragCfg.cont.x - elm.dragCfg.oC.x;
+		elm.dragCfg.cont.dy = elm.dragCfg.cont.y - elm.dragCfg.oC.y;
+	},
+
+	hidehelper : function(dragged)
+	{
+		if (dragged.dragCfg.insideParent || dragged.dragCfg.containment == 'parent') {
+			jQuery('body', document).append(jQuery.iDrag.helper.get(0));
+		}
+		jQuery.iDrag.helper.empty().hide().css('opacity', 1);
+		if (window.ActiveXObject) {
+			jQuery.iDrag.helper.css('filter', 'alpha(opacity=100)');
+		}
+	},
+
+	dragstop : function(e)
+	{
+
+		jQuery(document)
+			.unbind('mousemove', jQuery.iDrag.dragmove)
+			.unbind('mouseup', jQuery.iDrag.dragstop);
+
+		if (jQuery.iDrag.dragged == null) {
+			return;
+		}
+		var dragged = jQuery.iDrag.dragged;
+
+		jQuery.iDrag.dragged = null;
+
+		if (dragged.dragCfg.init == false) {
+			return false;
+		}
+		if (dragged.dragCfg.so == true) {
+			jQuery(dragged).css('position', dragged.dragCfg.oP);
+		}
+		var dEs = dragged.style;
+
+		if (dragged.si) {
+			jQuery.iDrag.helper.css('cursor', 'move');
+		}
+		if(dragged.dragCfg.frameClass) {
+			jQuery.iDrag.helper.removeClass(dragged.dragCfg.frameClass);
+		}
+
+		if (dragged.dragCfg.revert == false) {
+			if (dragged.dragCfg.fx > 0) {
+				if (!dragged.dragCfg.axis || dragged.dragCfg.axis == 'horizontally') {
+					var x = new jQuery.fx(dragged,{duration:dragged.dragCfg.fx}, 'left');
+					x.custom(dragged.dragCfg.oR.x,dragged.dragCfg.nRx);
+				}
+				if (!dragged.dragCfg.axis || dragged.dragCfg.axis == 'vertically') {
+					var y = new jQuery.fx(dragged,{duration:dragged.dragCfg.fx}, 'top');
+					y.custom(dragged.dragCfg.oR.y,dragged.dragCfg.nRy);
+				}
+			} else {
+				if (!dragged.dragCfg.axis || dragged.dragCfg.axis == 'horizontally')
+					dragged.style.left = dragged.dragCfg.nRx + 'px';
+				if (!dragged.dragCfg.axis || dragged.dragCfg.axis == 'vertically')
+					dragged.style.top = dragged.dragCfg.nRy + 'px';
+			}
+			jQuery.iDrag.hidehelper(dragged);
+			if (dragged.dragCfg.ghosting == false) {
+				jQuery(dragged).css('display', dragged.dragCfg.oD);
+			}
+		} else if (dragged.dragCfg.fx > 0) {
+			dragged.dragCfg.prot = true;
+			var dh = false;
+			if(jQuery.iDrop && jQuery.iSort && dragged.dragCfg.so) {
+				dh = jQuery.iUtil.getPosition(jQuery.iSort.helper.get(0));
+			}
+			jQuery.iDrag.helper.animate(
+				{
+					left : dh ? dh.x : dragged.dragCfg.oC.x,
+					top : dh ? dh.y : dragged.dragCfg.oC.y
+				},
+				dragged.dragCfg.fx,
+				function()
+				{
+					dragged.dragCfg.prot = false;
+					if (dragged.dragCfg.ghosting == false) {
+						dragged.style.display = dragged.dragCfg.oD;
+					}
+					jQuery.iDrag.hidehelper(dragged);
+				}
+			);
+		} else {
+			jQuery.iDrag.hidehelper(dragged);
+			if (dragged.dragCfg.ghosting == false) {
+				jQuery(dragged).css('display', dragged.dragCfg.oD);
+			}
+		}
+
+		if (jQuery.iDrop && jQuery.iDrop.count > 0 ){
+			jQuery.iDrop.checkdrop(dragged);
+		}
+		if (jQuery.iSort && dragged.dragCfg.so) {
+			jQuery.iSort.check(dragged);
+		}
+		if (dragged.dragCfg.onChange && (dragged.dragCfg.nRx != dragged.dragCfg.oR.x || dragged.dragCfg.nRy != dragged.dragCfg.oR.y)){
+			dragged.dragCfg.onChange.apply(dragged, dragged.dragCfg.lastSi||[0,0,dragged.dragCfg.nRx,dragged.dragCfg.nRy]);
+		}
+		if (dragged.dragCfg.onStop)
+			dragged.dragCfg.onStop.apply(dragged);
+		return false;
+	},
+
+	snapToGrid : function(x, y, dx, dy)
+	{
+		if (dx != 0)
+			dx = parseInt((dx + (this.dragCfg.gx * dx/Math.abs(dx))/2)/this.dragCfg.gx) * this.dragCfg.gx;
+		if (dy != 0)
+			dy = parseInt((dy + (this.dragCfg.gy * dy/Math.abs(dy))/2)/this.dragCfg.gy) * this.dragCfg.gy;
+		return {
+			dx : dx,
+			dy : dy,
+			x: 0,
+			y: 0
+		};
+	},
+
+	fitToContainer : function(x, y, dx, dy)
+	{
+		dx = Math.min(
+				Math.max(dx,this.dragCfg.cont.dx),
+				this.dragCfg.cont.w + this.dragCfg.cont.dx - this.dragCfg.oC.wb
+			);
+		dy = Math.min(
+				Math.max(dy,this.dragCfg.cont.dy),
+				this.dragCfg.cont.h + this.dragCfg.cont.dy - this.dragCfg.oC.hb
+			);
+
+		return {
+			dx : dx,
+			dy : dy,
+			x: 0,
+			y: 0
+		}
+	},
+
+	dragmove : function(e)
+	{
+		if (jQuery.iDrag.dragged == null || jQuery.iDrag.dragged.dragCfg.prot == true) {
+			return;
+		}
+
+		var dragged = jQuery.iDrag.dragged;
+
+		dragged.dragCfg.currentPointer = jQuery.iUtil.getPointer(e);
+		if (dragged.dragCfg.init == false) {
+			distance = Math.sqrt(Math.pow(dragged.dragCfg.pointer.x - dragged.dragCfg.currentPointer.x, 2) + Math.pow(dragged.dragCfg.pointer.y - dragged.dragCfg.currentPointer.y, 2));
+			if (distance < dragged.dragCfg.snapDistance){
+				return;
+			} else {
+				jQuery.iDrag.dragstart(e);
+			}
+		}
+
+		var dx = dragged.dragCfg.currentPointer.x - dragged.dragCfg.pointer.x;
+		var dy = dragged.dragCfg.currentPointer.y - dragged.dragCfg.pointer.y;
+
+		for (var i in dragged.dragCfg.onDragModifier) {
+			var newCoords = dragged.dragCfg.onDragModifier[i].apply(dragged, [dragged.dragCfg.oR.x + dx, dragged.dragCfg.oR.y + dy, dx, dy]);
+			if (newCoords && newCoords.constructor == Object) {
+				dx = i != 'user' ? newCoords.dx : (newCoords.x - dragged.dragCfg.oR.x);
+				dy = i != 'user' ? newCoords.dy : (newCoords.y - dragged.dragCfg.oR.y);
+			}
+		}
+
+		dragged.dragCfg.nx = dragged.dragCfg.oC.x + dx - dragged.dragCfg.diffX;
+		dragged.dragCfg.ny = dragged.dragCfg.oC.y + dy - dragged.dragCfg.diffY;
+
+		if (dragged.dragCfg.si && (dragged.dragCfg.onSlide || dragged.dragCfg.onChange)) {
+			jQuery.iSlider.onSlide(dragged, dragged.dragCfg.nx, dragged.dragCfg.ny);
+		}
+
+		if(dragged.dragCfg.onDrag)
+			dragged.dragCfg.onDrag.apply(dragged, [dragged.dragCfg.oR.x + dx, dragged.dragCfg.oR.y + dy]);
+			
+		if (!dragged.dragCfg.axis || dragged.dragCfg.axis == 'horizontally') {
+			dragged.dragCfg.nRx = dragged.dragCfg.oR.x + dx;
+			jQuery.iDrag.helper.get(0).style.left = dragged.dragCfg.nx + 'px';
+		}
+		if (!dragged.dragCfg.axis || dragged.dragCfg.axis == 'vertically') {
+			dragged.dragCfg.nRy = dragged.dragCfg.oR.y + dy;
+			jQuery.iDrag.helper.get(0).style.top = dragged.dragCfg.ny + 'px';
+		}
+		
+		if (jQuery.iDrop && jQuery.iDrop.count > 0 ){
+			jQuery.iDrop.checkhover(dragged);
+		}
+		return false;
+	},
+
+	build : function(o)
+	{
+		if (!jQuery.iDrag.helper) {
+			jQuery('body',document).append('<div id="dragHelper"></div>');
+			jQuery.iDrag.helper = jQuery('#dragHelper');
+			var el = jQuery.iDrag.helper.get(0);
+			var els = el.style;
+			els.position = 'absolute';
+			els.display = 'none';
+			els.cursor = 'move';
+			els.listStyle = 'none';
+			els.overflow = 'hidden';
+			if (window.ActiveXObject) {
+				el.unselectable = "on";
+			} else {
+				els.mozUserSelect = 'none';
+				els.userSelect = 'none';
+				els.KhtmlUserSelect = 'none';
+			}
+		}
+		if (!o) {
+			o = {};
+		}
+		return this.each(
+			function()
+			{
+				if (this.isDraggable || !jQuery.iUtil)
+					return;
+				if (window.ActiveXObject) {
+					this.onselectstart = function(){return false;};
+					this.ondragstart = function(){return false;};
+				}
+				var el = this;
+				var dhe = o.handle ? jQuery(this).find(o.handle) : jQuery(this);
+				if(jQuery.browser.msie) {
+					dhe.each(
+						function()
+						{
+							this.unselectable = "on";
+						}
+					);
+				} else {
+					dhe.css('-moz-user-select', 'none');
+					dhe.css('user-select', 'none');
+					dhe.css('-khtml-user-select', 'none');
+				}
+				this.dragCfg = {
+					dhe: dhe,
+					revert : o.revert ? true : false,
+					ghosting : o.ghosting ? true : false,
+					so : o.so ? o.so : false,
+					si : o.si ? o.si : false,
+					insideParent : o.insideParent ? o.insideParent : false,
+					zIndex : o.zIndex ? parseInt(o.zIndex)||0 : false,
+					opacity : o.opacity ? parseFloat(o.opacity) : false,
+					fx : parseInt(o.fx)||null,
+					hpc : o.hpc ? o.hpc : false,
+					onDragModifier : {},
+					pointer : {},
+					onStart : o.onStart && o.onStart.constructor == Function ? o.onStart : false,
+					onStop : o.onStop && o.onStop.constructor == Function ? o.onStop : false,
+					onChange : o.onChange && o.onChange.constructor == Function ? o.onChange : false,
+					axis : /vertically|horizontally/.test(o.axis) ? o.axis : false,
+					snapDistance : o.snapDistance ? parseInt(o.snapDistance)||0 : 0,
+					cursorAt: o.cursorAt ? o.cursorAt : false,
+					autoSize : o.autoSize ? true : false,
+					frameClass : o.frameClass || false
+					
+				};
+				if (o.onDragModifier && o.onDragModifier.constructor == Function)
+					this.dragCfg.onDragModifier.user = o.onDragModifier;
+				if (o.onDrag && o.onDrag.constructor == Function)
+					this.dragCfg.onDrag = o.onDrag;
+				if (o.containment && ((o.containment.constructor == String && (o.containment == 'parent' || o.containment == 'document')) || (o.containment.constructor == Array && o.containment.length == 4) )) {
+					this.dragCfg.containment = o.containment;
+				}
+				if(o.fractions) {
+					this.dragCfg.fractions = o.fractions;
+				}
+				if(o.grid){
+					if(typeof o.grid == 'number'){
+						this.dragCfg.gx = parseInt(o.grid)||1;
+						this.dragCfg.gy = parseInt(o.grid)||1;
+					} else if (o.grid.length == 2) {
+						this.dragCfg.gx = parseInt(o.grid[0])||1;
+						this.dragCfg.gy = parseInt(o.grid[1])||1;
+					}
+				}
+				if (o.onSlide && o.onSlide.constructor == Function) {
+					this.dragCfg.onSlide = o.onSlide;
+				}
+
+				this.isDraggable = true;
+				dhe.each(
+					function(){
+						this.dragElem = el;
+					}
+				);
+				dhe.bind('mousedown', jQuery.iDrag.draginit);
+			}
+		)
+	}
+};
+
+/**
+ * Destroy an existing draggable on a collection of elements
+ * 
+ * @name DraggableDestroy
+ * @descr Destroy a draggable
+ * @type jQuery
+ * @cat Plugins/Interface
+ * @example $('#drag2').DraggableDestroy();
+ */
+
+jQuery.fn.extend(
+	{
+		DraggableDestroy : jQuery.iDrag.destroy,
+		Draggable : jQuery.iDrag.build
+	}
+);
