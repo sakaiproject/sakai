@@ -39,3 +39,6 @@ where st.REGISTRATION = 'sakai.chat'
 
 --OSP SAK-10396: Add a default layout to be specified for a portfolio
 alter table osp_presentation add column layout_id varchar(36) NULL;
+
+--Profile add dateOfBirth property SAK-8423
+alter table SAKAI_PERSON_T add column dateOfBirth date;
