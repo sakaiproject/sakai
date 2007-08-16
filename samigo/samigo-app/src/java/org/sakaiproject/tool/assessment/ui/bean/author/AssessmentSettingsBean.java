@@ -330,26 +330,53 @@ public class AssessmentSettingsBean
       if (feedback != null) {
         if (feedback.getFeedbackDelivery()!=null)
           this.feedbackDelivery = feedback.getFeedbackDelivery().toString();
-     if (feedback.getFeedbackAuthoring()!=null)
+        if (feedback.getFeedbackAuthoring()!=null)
           this.feedbackAuthoring = feedback.getFeedbackAuthoring().toString();
+        
         if ((Boolean.TRUE).equals(feedback.getShowQuestionText()))
           this.showQuestionText = true;
+        else
+            this.showQuestionText = false;
+        
         if ((Boolean.TRUE).equals(feedback.getShowStudentResponse()))
           this.showStudentResponse = true;
+        else
+            this.showStudentResponse = false;
+        
         if ((Boolean.TRUE).equals(feedback.getShowCorrectResponse()))
           this.showCorrectResponse = true;
+        else
+            this.showCorrectResponse = false;
+        
         if ((Boolean.TRUE).equals(feedback.getShowStudentScore()))
           this.showStudentScore = true;
+        else
+            this.showStudentScore = false;
+        
         if ((Boolean.TRUE).equals(feedback.getShowStudentQuestionScore()))
           this.showStudentQuestionScore = true;
+        else
+            this.showStudentQuestionScore = false;
+        
         if ((Boolean.TRUE).equals(feedback.getShowQuestionLevelFeedback()))
           this.showQuestionLevelFeedback = true;
+        else
+            this.showQuestionLevelFeedback = false;
+        
         if ((Boolean.TRUE).equals(feedback.getShowSelectionLevelFeedback()))
           this.showSelectionLevelFeedback = true;// must be MC
+        else
+            this.showSelectionLevelFeedback = false;
+        
         if ((Boolean.TRUE).equals(feedback.getShowGraderComments()))
           this.showGraderComments = true;
+        else
+            this.showGraderComments = false;
+        
         if ((Boolean.TRUE).equals(feedback.getShowStatistics()))
           this.showStatistics = true;
+        else
+            this.showStatistics = false;
       }
 
       // properties of EvaluationModel
