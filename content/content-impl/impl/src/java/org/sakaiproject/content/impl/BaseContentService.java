@@ -9770,7 +9770,14 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		{
 			ContentEntity ce  = m_storage.getCollection(nextId);
 			if ( ce == null ) {
-				ce = m_storage.getResource(nextId);
+				try
+				{
+					ce = m_storage.getResource(nextId);
+				}
+				catch (TypeException e)
+				{
+					M_log.error("Type Exception ",e);
+				}
 			}
 			return ce;
 			/*
@@ -10603,8 +10610,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		/**
 		 * Return the identified resource, or null if not found.
+		 * @throws TypeException 
 		 */
-		public ContentResource getResource(String id);
+		public ContentResource getResource(String id) throws TypeException;
 
 		/**
 		 * Return true if the identified resource exists.
@@ -10711,7 +10719,14 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		}
 		else
 		{
-			rv = m_storage.getResource(id);
+			try
+			{
+				rv = m_storage.getResource(id);
+			}
+			catch (TypeException e)
+			{
+				M_log.error("Type Exception",e);
+			}
 		}
 
 		return rv;

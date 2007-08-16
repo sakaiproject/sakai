@@ -41,6 +41,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
+import org.sakaiproject.content.api.ContentHostingHandlerResolver;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.api.LockManager;
@@ -273,12 +274,13 @@ public class DbContentService extends BaseContentService
 	 */
 	public void init()
 	{
-		setContentServiceSql(m_sqlService.getVendor());
-
+		if ( m_sqlService != null ) {
+			setContentServiceSql(m_sqlService.getVendor());
+		}
 		try
 		{
 			// if we are auto-creating our schema, check and create
-			if (m_autoDdl)
+			if ( m_sqlService != null && m_autoDdl)
 			{
 				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_content");
 
@@ -292,14 +294,16 @@ public class DbContentService extends BaseContentService
 			super.init();
 
 			// convert?
-			if (m_convertToFile)
-			{
-				m_convertToFile = false;
-				convertToFile();
+			if ( m_sqlService != null ) {
+				if (m_convertToFile)
+				{
+					m_convertToFile = false;
+					convertToFile();
+				}
+	
+				M_log.info("init(): tables: " + m_collectionTableName + " " + m_resourceTableName + " " + m_resourceBodyTableName + " "
+						+ m_groupTableName + " locks-in-db: " + m_locksInDb + " bodyPath: " + m_bodyPath);
 			}
-
-			M_log.info("init(): tables: " + m_collectionTableName + " " + m_resourceTableName + " " + m_resourceBodyTableName + " "
-					+ m_groupTableName + " locks-in-db: " + m_locksInDb + " bodyPath: " + m_bodyPath);
 		}
 		catch (Throwable t)
 		{
@@ -310,7 +314,7 @@ public class DbContentService extends BaseContentService
 	/**
 	 *
 	 */
-	private int countQuery(String sql, String param) throws IdUnusedException
+	protected int countQuery(String sql, String param) throws IdUnusedException
 	{
 
 		Object[] fields = new Object[1];
@@ -445,7 +449,7 @@ public class DbContentService extends BaseContentService
 	 * private utility method to search for UUID for given id
 	 */
 
-	private String findUuid(String id)
+	protected String findUuid(String id)
 	{
 		String sql = contentServiceSql.getResourceUuidSql();
 		Object[] fields = new Object[1];
@@ -510,8 +514,9 @@ public class DbContentService extends BaseContentService
 	 */
 	protected Storage newStorage()
 	{
-		return new DbStorage(new CollectionStorageUser(), new ResourceStorageUser(), (m_bodyPath != null), contentHostingHandlerResolver);
-
+		Storage storage =  new DbStorage(new CollectionStorageUser(), new ResourceStorageUser(), (m_bodyPath != null), contentHostingHandlerResolver);
+		contentHostingHandlerResolver.setStorage(storage);
+		return storage;
 	} // newStorage
 
 	/*************************************************************************************************************************************************
@@ -528,7 +533,7 @@ public class DbContentService extends BaseContentService
 		/** htripath- Storage for resources delete */
 		protected BaseDbSingleStorage m_resourceDeleteStore = null;
 
-		protected BaseContentHostingHandlerResolver resolver = null;
+		protected ContentHostingHandlerResolverImpl resolver = null;
 
 		private ThreadLocal stackMarker = new ThreadLocal();
 
@@ -540,11 +545,12 @@ public class DbContentService extends BaseContentService
 		 * @param resourceUser
 		 *        The StorageUser class to call back for creation of resource objects.
 		 */
-		public DbStorage(StorageUser collectionUser, StorageUser resourceUser, boolean bodyInFile, BaseContentHostingHandlerResolver resolver)
+		public DbStorage(StorageUser collectionUser, StorageUser resourceUser, boolean bodyInFile, ContentHostingHandlerResolverImpl resolver)
 		{
 			this.resolver = resolver;
 			this.resolver.setResourceUser(resourceUser);
 			this.resolver.setCollectionUser(collectionUser);
+			
 
 			// build the collection store - a single level store
 			m_collectionStore = new BaseDbSingleStorage(m_collectionTableName, "COLLECTION_ID", COLLECTION_FIELDS, m_locksInDb, "collection",
@@ -634,7 +640,7 @@ public class DbContentService extends BaseContentService
 			{
 				if (resolver != null && goin)
 				{
-					return resolver.checkCollection(this, id);
+					return resolver.checkCollection(id);
 				}
 				else
 				{
@@ -658,7 +664,7 @@ public class DbContentService extends BaseContentService
 			{
 				if (resolver != null && goin)
 				{
-					return resolver.getCollection(this, id);
+					return resolver.getCollection(id);
 				}
 				else
 				{
@@ -682,7 +688,7 @@ public class DbContentService extends BaseContentService
 			{
 				if (resolver != null && goin)
 				{
-					return resolver.getCollections(this, collection);
+					return resolver.getCollections(collection);
 				}
 				else
 				{
@@ -728,7 +734,7 @@ public class DbContentService extends BaseContentService
 			{
 				if (resolver != null && goin)
 				{
-					return (ContentCollectionEdit) resolver.putCollection(this, id);
+					return (ContentCollectionEdit) resolver.putCollection(id);
 				}
 				else
 				{
@@ -752,7 +758,7 @@ public class DbContentService extends BaseContentService
 			{
 				if (resolver != null && goin)
 				{
-					return (ContentCollectionEdit) resolver.editCollection(this, id);
+					return (ContentCollectionEdit) resolver.editCollection(id);
 				}
 				else
 				{
@@ -779,7 +785,7 @@ public class DbContentService extends BaseContentService
 			{
 				if (resolver != null && goin)
 				{
-					resolver.cancelResource(this, edit);
+					resolver.cancelResource(edit);
 				}
 				else
 				{
@@ -803,7 +809,7 @@ public class DbContentService extends BaseContentService
 			{
 				if (resolver != null && goin)
 				{
-					resolver.commitCollection(this, edit);
+					resolver.commitCollection(edit);
 				}
 				else
 				{
@@ -823,7 +829,7 @@ public class DbContentService extends BaseContentService
 			{
 				if (resolver != null && goin)
 				{
-					resolver.cancelCollection(this, edit);
+					resolver.cancelCollection(edit);
 				}
 				else
 				{
@@ -844,7 +850,7 @@ public class DbContentService extends BaseContentService
 			{
 				if (resolver != null && goin)
 				{
-					resolver.removeCollection(this, edit);
+					resolver.removeCollection(edit);
 				}
 				else
 				{
@@ -870,7 +876,7 @@ public class DbContentService extends BaseContentService
 			{
 				if (resolver != null && goin)
 				{
-					return resolver.checkResource(this, id);
+					return resolver.checkResource(id);
 				}
 				else
 				{
@@ -894,7 +900,7 @@ public class DbContentService extends BaseContentService
 			{
 				if (resolver != null && goin)
 				{
-					return (ContentResource) resolver.getResource(this, id);
+					return (ContentResource) resolver.getResource(id);
 				}
 				else
 				{
@@ -914,7 +920,7 @@ public class DbContentService extends BaseContentService
 			{
 				if (resolver != null && goin)
 				{
-					return resolver.getResources(this, collection);
+					return resolver.getResources(collection);
 				}
 				else
 				{
@@ -957,7 +963,7 @@ public class DbContentService extends BaseContentService
 			{
 				if (resolver != null && goin)
 				{
-					rv = resolver.getFlatResources(this, collectionId);
+					rv = resolver.getFlatResources(collectionId);
 				}
 				else
 				{
@@ -982,7 +988,7 @@ public class DbContentService extends BaseContentService
 			{
 				if (resolver != null && goin)
 				{
-					return (ContentResourceEdit) resolver.putResource(this, id);
+					return (ContentResourceEdit) resolver.putResource(id);
 				}
 				else
 				{
@@ -1006,7 +1012,7 @@ public class DbContentService extends BaseContentService
 			{
 				if (resolver != null && goin)
 				{
-					return (ContentResourceEdit) resolver.editResource(this, id);
+					return (ContentResourceEdit) resolver.editResource(id);
 				}
 				else
 				{
@@ -1028,7 +1034,7 @@ public class DbContentService extends BaseContentService
 			{
 				if (resolver != null && goin)
 				{
-					resolver.commitResource(this, edit);
+					resolver.commitResource(edit);
 				}
 				else
 				{
@@ -1107,7 +1113,7 @@ public class DbContentService extends BaseContentService
 			{
 				if (resolver != null && goin)
 				{
-					return (ContentResourceEdit) resolver.putDeleteResource(this, id, uuid, userId);
+					return (ContentResourceEdit) resolver.putDeleteResource(id, uuid, userId);
 				}
 				else
 				{
@@ -1130,7 +1136,7 @@ public class DbContentService extends BaseContentService
 			{
 				if (resolver != null && goin)
 				{
-					resolver.commitDeleteResource(this, edit, uuid);
+					resolver.commitDeleteResource(edit, uuid);
 				}
 				else
 				{
@@ -1156,7 +1162,7 @@ public class DbContentService extends BaseContentService
 			{
 				if (resolver != null && goin)
 				{
-					resolver.removeResource(this, edit);
+					resolver.removeResource(edit);
 				}
 				else
 				{
@@ -1205,7 +1211,7 @@ public class DbContentService extends BaseContentService
 			{
 				if (resolver != null && goin)
 				{
-					return resolver.getResourceBody(this, resource);
+					return resolver.getResourceBody(resource);
 				}
 				else
 				{
@@ -1308,7 +1314,7 @@ public class DbContentService extends BaseContentService
 			{
 				if (resolver != null && goin)
 				{
-					return resolver.streamResourceBody(this, resource);
+					return resolver.streamResourceBody(resource);
 				}
 				else
 				{
@@ -1668,7 +1674,7 @@ public class DbContentService extends BaseContentService
 			{
 				if (resolver != null && goin)
 				{
-					return resolver.getMemberCount(this, collectionId);
+					return resolver.getMemberCount(collectionId);
 				}
 				else
 				{

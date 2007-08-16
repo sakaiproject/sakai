@@ -24,7 +24,17 @@
     <module>content-help</module>
     <module>content-impl/hbm</module>
     <module>content-impl/impl</module>
+<!--
+This only builds a jar 
+Uncomment when the JCR API issues are sorted
+
+    <module>content-impl-jcr/impl</module>
+-->
     <module>content-impl/pack</module>
+<!--
+To add the  JCR CHS as well as the DB CHS to sakai 
+    <module>content-impl-jcr/pack</module>
+-->
     <module>content-tool</module>
     <module>content-tool/tool</module>
     <module>content-util/util</module>
