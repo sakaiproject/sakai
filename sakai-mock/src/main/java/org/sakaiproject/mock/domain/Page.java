@@ -232,4 +232,10 @@ public class Page implements SitePage {
 		this.activeEdit = activeEdit;
 	}
 
+	public void setupPageCategory(String toolId)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
 }
