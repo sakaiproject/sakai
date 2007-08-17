@@ -76,10 +76,10 @@ import org.sakaiproject.content.api.ServiceLevelAction;
 import org.sakaiproject.content.api.SiteSpecificResourceType;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.api.ResourceToolAction.ActionType;
+import org.sakaiproject.content.api.providers.SiteContentAdvisor;
+import org.sakaiproject.content.api.providers.SiteContentAdvisorProvider;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
-import org.sakaiproject.coursemanagement.api.AcademicSession;
-import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
@@ -7383,7 +7383,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		state.setAttribute(STATE_PREVENT_PUBLIC_DISPLAY, Boolean.FALSE);
 		String[] siteTypes = ServerConfigurationService.getStrings("prevent.public.resources");
 		String siteType = null;
-		Site site;
+		Site site = null;
 		try
 		{
 			site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
@@ -7408,35 +7408,20 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			// allow public display
 		}
-
-		CourseManagementService courseManagementService = (CourseManagementService) ComponentManager.get(CourseManagementService.class);
-
-		Time defaultRetractTime = TimeService.newTime(TimeService.newTime().getTime() + ONE_WEEK);
-		Time guess = null;
-		Time now = TimeService.newTime();
-		if(siteType != null && siteType.equalsIgnoreCase("course") && courseManagementService != null)
-		{
-			List<AcademicSession> terms = courseManagementService.getAcademicSessions();
-			boolean found = false;
-			for(AcademicSession term : terms)
-			{
-				if(term.getEndDate() != null && term.getEndDate().getTime() > now.getTime())
-				{
-					if(guess == null)
-					{
-						guess = TimeService.newTime(term.getEndDate().getTime());
-					}
-					else if(term.getEndDate().getTime() < guess.getTime())
-					{
-						guess.setTime(term.getEndDate().getTime());
-					}
-				}
-			}
-			if(guess != null)
-			{
-				defaultRetractTime = guess;
+		
+		Time defaultRetractTime = null;
+		defaultRetractTime = TimeService.newTime(TimeService.newTime().getTime() + ONE_WEEK);			
+		org.sakaiproject.content.api.ContentHostingService chs = ContentHostingService.getInstance();
+		if ( site != null && chs instanceof SiteContentAdvisorProvider ) {
+			SiteContentAdvisorProvider scap = (SiteContentAdvisorProvider) chs;
+			SiteContentAdvisor sca =  scap.getContentAdvisor(site);
+			System.err.println("Got SiteContentAdvisor as "+sca);
+			if ( sca != null ) {
+				defaultRetractTime = TimeService.newTime(sca.getDefaultRetractTime());
 			}
 		}
+		
+		
 		state.setAttribute(STATE_DEFAULT_RETRACT_TIME, defaultRetractTime);
 		
 		if(state.getAttribute(STATE_LIST_PREFERENCE) == null)

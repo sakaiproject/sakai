@@ -74,6 +74,9 @@ import org.sakaiproject.content.api.GroupAwareEntity;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
+import org.sakaiproject.content.api.providers.SiteContentAdvisor;
+import org.sakaiproject.content.api.providers.SiteContentAdvisorProvider;
+import org.sakaiproject.content.api.providers.SiteContentAdvisorTypeRegistry;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.content.types.FileUploadType;
 import org.sakaiproject.content.types.FolderType;
@@ -145,7 +148,8 @@ import org.w3c.dom.NodeList;
  * BaseContentService is an abstract base implementation of the Sakai ContentHostingService.
  * </p>
  */
-public abstract class BaseContentService implements ContentHostingService, CacheRefresher, ContextObserver, EntityTransferrer
+public abstract class BaseContentService implements ContentHostingService, CacheRefresher, ContextObserver, EntityTransferrer, 
+	SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BaseContentService.class);
@@ -7454,6 +7458,8 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	}
   	private Map<String, SizeHolder> quotaMap = new ConcurrentHashMap<String, SizeHolder>();
 
+	private Map<String, SiteContentAdvisorProvider> siteContentAdvisorsProviders = new HashMap<String, SiteContentAdvisorProvider>();
+
 	private long getCachedBodySizeK(BaseCollectionEdit collection) {
 		return getCachedSizeHolder(collection,true).size;
 	}
@@ -10732,6 +10738,32 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		return rv;
 
 	} // refresh
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.api.SiteContentAdvisorProvider#getContentAdvisor(org.sakaiproject.site.api.Site)
+	 */
+	public SiteContentAdvisor getContentAdvisor(Site site)
+	{
+		if ( site == null ) {
+			return null;
+		}
+		SiteContentAdvisorProvider scap = siteContentAdvisorsProviders.get(site.getType());
+		if ( scap == null ) {
+			return null;
+		}
+		return scap.getContentAdvisor(site);
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.content.api.SiteContentAdvisorTypeRegistry#registerSiteContentAdvisorProvidor(org.sakaiproject.content.api.SiteContentAdvisorProvider, java.lang.String)
+	 */
+	public void registerSiteContentAdvisorProvidor(SiteContentAdvisorProvider advisor, String type)
+	{
+		siteContentAdvisorsProviders.put(type, advisor);		
+	}
+
+	
 
 } // BaseContentService
 
