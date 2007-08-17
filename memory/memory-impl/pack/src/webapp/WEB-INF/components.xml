@@ -16,4 +16,11 @@
  		<property name="cacheLogging"><value>false</value></property>
 	</bean>
 
+
+	<bean id="org.sakaiproject.memory.api.MemoryService.cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+  		<property name="configLocation">
+    	<value>classpath:org/sakaiproject/memory/api/ehcache.xml</value>
+  		</property>
+	</bean>
+
 </beans>

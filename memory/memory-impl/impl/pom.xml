@@ -47,7 +47,13 @@
     </dependency>
   </dependencies>
   <build>
-    <resources/>
-<!-- java source -->
+  <resources>
+      <resource>
+        <directory>${basedir}/src/java</directory>
+        <includes>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+    </resources><!-- java source -->
   </build>
 </project>
