@@ -5170,6 +5170,25 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		}
 
 		/**
+		 * @inheritDoc
+		 */
+		public String getStatus()
+		{
+			Time currentTime = TimeService.newTime();
+			
+			if (this.getDraft())
+				return rb.getString("gen.dra1");
+			else if (this.getOpenTime().after(currentTime))
+				return rb.getString("gen.notope");
+			else if (this.getDueTime().after(currentTime))
+				return rb.getString("gen.open");
+			else if ((this.getCloseTime() != null) && (this.getCloseTime().before(currentTime)))
+				return rb.getString("gen.closed");
+			else
+				return rb.getString("gen.due1");
+		}
+
+		/**
 		 * Access the time that this object was created.
 		 * 
 		 * @return The Time object representing the time of creation.
@@ -5273,6 +5292,17 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			return m_openTime;
 		}
 
+	  /**
+		* @inheritDoc
+		*/
+		public String getOpenTimeString()
+		{
+			if ( m_openTime == null )
+				return "";
+			else
+				return m_openTime.toStringLocalFull();
+		}
+
 		/**
 		 * Access the time at which the assignment is due; may be null.
 		 * 
@@ -5283,6 +5313,17 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			return m_dueTime;
 		}
 
+	  /**
+		* @inheritDoc
+		*/
+		public String getDueTimeString()
+		{
+			if ( m_dueTime == null )
+				return "";
+			else
+				return m_dueTime.toStringLocalFull();
+		}
+
 		/**
 		 * Access the drop dead time after which responses to this assignment are considered late; may be null.
 		 * 
@@ -5291,6 +5332,17 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		public Time getDropDeadTime()
 		{
 			return m_dropDeadTime;
+		}
+
+	  /**
+		* @inheritDoc
+		*/
+		public String getDropDeadTimeString()
+		{
+			if ( m_dropDeadTime == null )
+				return "";
+			else
+				return m_dropDeadTime.toStringLocalFull();
 		}
 
 		/**
@@ -5305,6 +5357,17 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				m_closeTime = m_dueTime;
 			}
 			return m_closeTime;
+		}
+
+	  /**
+		* @inheritDoc
+		*/
+		public String getCloseTimeString()
+		{
+			if ( m_closeTime == null )
+				return "";
+			else
+				return m_closeTime.toStringLocalFull();
 		}
 
 		/**

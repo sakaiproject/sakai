@@ -127,11 +127,25 @@ public interface Assignment extends Entity, Comparable
 	public Time getOpenTime();
 
 	/**
+	 * Access the first time at which the assignment can be viewed; (String)
+	 * 
+	 * @return The Time at which the assignment is due, or "" if unspecified.
+	 */
+	public String getOpenTimeString();
+
+	/**
 	 * Access the time at which the assignment is due; may be null.
 	 * 
 	 * @return The Time at which the Assignment is due, or null if unspecified.
 	 */
 	public Time getDueTime();
+
+	/**
+	 * Access the time at which the assignment is due; (String)
+	 * 
+	 * @return The Time at which the Assignment is due,or "" if unspecified
+	 */
+	public String getDueTimeString();
 
 	/**
 	 * Access the drop dead time after which responses to this assignment are considered late; may be null.
@@ -141,11 +155,25 @@ public interface Assignment extends Entity, Comparable
 	public Time getDropDeadTime();
 
 	/**
+	 * Access the drop dead time after which responses to this assignment are considered late; (String)
+	 * 
+	 * @return The Time object representing the drop dead time, or "" if unspecified.
+	 */
+	public String getDropDeadTimeString();
+
+	/**
 	 * Access the close time after which this assignment can no longer be viewed, and after which submissions will not be accepted. May be null.
 	 * 
 	 * @return The Time after which the Assignment is closed, or null if unspecified.
 	 */
 	public Time getCloseTime();
+
+	/**
+	 * Access the close time after which this assignment can no longer be viewed, and after which submissions will not be accepted. (String)
+	 * 
+	 * @return The Time after which the Assignment is closed, or "" if unspecified.
+	 */
+	public String getCloseTimeString();
 
 	/**
 	 * Access the section info.
@@ -209,6 +237,13 @@ public interface Assignment extends Entity, Comparable
 	 * @return The Assignment's title.
 	 */
 	public String getTitle();
+	
+	/**
+	 * Return string representation of assignment status
+	 * 
+	 * @return The Assignment's status
+	 */
+	public String getStatus();
 	
 	/**
 	 * Access the position order field for the assignment.

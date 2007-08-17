@@ -461,19 +461,7 @@
 							#end
 							<td headers="status">
 								#if ($allowAddAssignment && $!view.equals('lisofass1'))
-									#if ($!assignment.Draft)
-										<span class="highlight">$tlang.getString("gen.dra1")</span>
-									#else
-										#if ($!assignment.getOpenTime().after($currentTime))
-											$tlang.getString("gen.notope")
-										#elseif ($!assignment.getDueTime().after($currentTime))
-											$tlang.getString("gen.open")
-										#elseif (($!assignment.getCloseTime())&&($assignment.getCloseTime().before($currentTime)))
-											$tlang.getString("gen.closed")
-										#else
-											$tlang.getString("gen.due1")
-										#end
-									#end
+								   $!assignment.getStatus()
 								#else
 									#if ($!submission)
 										$submission.getStatus()
