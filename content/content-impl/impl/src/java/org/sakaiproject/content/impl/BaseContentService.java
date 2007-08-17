@@ -29,7 +29,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -44,7 +43,6 @@ import java.util.Stack;
 import java.util.TreeSet;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
-import java.net.URLEncoder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -133,6 +131,8 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.Blob;
+import org.sakaiproject.util.DefaultEntityHandler;
+import org.sakaiproject.util.SAXEntityReader;
 import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
@@ -142,6 +142,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.Attributes;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
 
 /**
  * <p>
@@ -675,8 +678,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	/**
 	 * Storage user for collections - in the resource side, not container
 	 */
-	protected class CollectionStorageUser implements StorageUser
+	protected class CollectionStorageUser implements StorageUser, SAXEntityReader
 	{
+		private Map<String,Object> m_services;
+
 		public Entity newContainer(String ref)
 		{
 			return null;
@@ -791,13 +796,76 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			return null;
 		}
 
+		/***********************************************************************
+		 * SAXEntityReader
+		 */
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.sakaiproject.util.SAXEntityReader#getDefaultHandler(java.util.Map)
+		 */
+		public DefaultEntityHandler getDefaultHandler(final Map<String, Object> services)
+		{
+			return new DefaultEntityHandler()
+			{
+
+				/*
+				 * (non-Javadoc)
+				 * 
+				 * @see org.xml.sax.helpers.DefaultHandler#startElement(java.lang.String,
+				 *      java.lang.String, java.lang.String,
+				 *      org.xml.sax.Attributes)
+				 */
+				@Override
+				public void startElement(String uri, String localName, String qName,
+						Attributes attributes) throws SAXException
+				{
+					if (doStartElement(uri, localName, qName, attributes))
+					{
+						if (entity == null)
+						{
+							if ("collection".equals(qName))
+							{
+								BaseCollectionEdit bre = new BaseCollectionEdit();
+								entity = bre;
+								setContentHandler(bre.getContentHandler(services), uri,
+										localName, qName, attributes);
+							}
+							else
+							{
+								M_log.warn("Unexpected Element in XML [" + qName + "]");
+							}
+
+						}
+					}
+				}
+
+			};
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.sakaiproject.util.SAXEntityReader#getServices()
+		 */
+		public Map<String, Object> getServices()
+		{
+			if (m_services == null)
+			{
+				m_services = new HashMap<String, Object>();
+			}
+			return m_services;
+		}
+
 	} // class CollectionStorageUser
 
 	/**
 	 * Storage user for resources - in the resource side, not container
 	 */
-	protected class ResourceStorageUser implements StorageUser
+	protected class ResourceStorageUser implements StorageUser, SAXEntityReader
 	{
+		private Map<String, Object> m_services;
+
 		public Entity newContainer(String ref)
 		{
 			return null;
@@ -924,6 +992,69 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		{
 			return null;
 		}
+
+		/***********************************************************************
+		 * SAXEntityReader
+		 */
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.sakaiproject.util.SAXEntityReader#getDefaultHandler(java.util.Map)
+		 */
+		public DefaultEntityHandler getDefaultHandler(final Map<String, Object> services)
+		{
+			return new DefaultEntityHandler()
+			{
+
+				/*
+				 * (non-Javadoc)
+				 * 
+				 * @see org.xml.sax.helpers.DefaultHandler#startElement(java.lang.String,
+				 *      java.lang.String, java.lang.String,
+				 *      org.xml.sax.Attributes)
+				 */
+				@Override
+				public void startElement(String uri, String localName, String qName,
+						Attributes attributes) throws SAXException
+				{
+					if (doStartElement(uri, localName, qName, attributes))
+					{
+						if (entity == null)
+						{
+							if ("resource".equals(qName))
+							{
+								BaseResourceEdit bre = new BaseResourceEdit(container);
+								entity = bre;
+								setContentHandler(bre.getContentHandler(services), uri,
+										localName, qName, attributes);
+							}
+							else
+							{
+								M_log.warn("Unexpected Element in XML [" + qName + "]");
+							}
+
+						}
+					}
+				}
+
+			};
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see org.sakaiproject.util.SAXEntityReader#getServices()
+		 */
+		public Map<String, Object> getServices()
+		{
+			if (m_services == null)
+			{
+				m_services = new HashMap<String, Object>();
+			}
+			return m_services;
+		}
+		
+
 
 	} // class ResourceStorageUser
 
@@ -9026,6 +9157,112 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		} // BaseCollectionEdit
 
 		/**
+		 * @param services
+		 * @return
+		 */
+		public ContentHandler getContentHandler(Map<String, Object> services)
+		{
+			final Entity thisEntity = this;
+			return new DefaultEntityHandler()
+			{
+				/*
+				 * (non-Javadoc)
+				 * 
+				 * @see org.sakaiproject.util.DefaultEntityHandler#startElement(java.lang.String,
+				 *      java.lang.String, java.lang.String,
+				 *      org.xml.sax.Attributes)
+				 */
+				@Override
+				public void startElement(String uri, String localName, String qName,
+						Attributes attributes) throws SAXException
+				{
+					if (doStartElement(uri, localName, qName, attributes))
+					{
+						if ("collection".equals(qName) && entity == null)
+						{
+							m_id = attributes.getValue("id");
+							m_resourceType = ResourceType.TYPE_FOLDER;
+
+							String refStr = getReference(m_id);
+							Reference ref = m_entityManager.newReference(refStr);
+							String context = ref.getContext();
+							Site site = null;
+							try
+							{
+								site = m_siteService.getSite(ref.getContext());
+							}
+							catch (IdUnusedException e)
+							{
+
+							}
+
+							// extract access
+							AccessMode access = AccessMode.INHERITED;
+							String access_mode = attributes.getValue(ACCESS_MODE);
+							if (access_mode != null && !access_mode.trim().equals(""))
+							{
+								access = AccessMode.fromString(access_mode);
+							}
+
+							m_access = access;
+							if (m_access == null || AccessMode.SITE == m_access)
+							{
+								m_access = AccessMode.INHERITED;
+							}
+
+							// extract release date
+							// m_releaseDate = TimeService.newTime(0);
+							String date0 = attributes.getValue(RELEASE_DATE);
+							if (date0 != null && !date0.trim().equals(""))
+							{
+								m_releaseDate = TimeService.newTimeGmt(date0);
+								if (m_releaseDate.getTime() <= START_OF_TIME)
+								{
+									m_releaseDate = null;
+								}
+							}
+
+							// extract retract date
+							// m_retractDate = TimeService.newTimeGmt(9999,12,
+							// 31, 23, 59, 59, 999);
+							String date1 = attributes.getValue(RETRACT_DATE);
+							if (date1 != null && !date1.trim().equals(""))
+							{
+								m_retractDate = TimeService.newTimeGmt(date1);
+								if (m_retractDate.getTime() >= END_OF_TIME)
+								{
+									m_retractDate = null;
+								}
+							}
+
+							String hidden = attributes.getValue(HIDDEN);
+							m_hidden = hidden != null && !hidden.trim().equals("")
+									&& !Boolean.FALSE.toString().equalsIgnoreCase(hidden);
+							entity = thisEntity;
+						}
+						else if (GROUP_LIST.equals(qName))
+						{
+							String groupRef = attributes.getValue(GROUP_NAME);
+							if (groupRef != null)
+							{
+								m_groups.add(groupRef);
+							}
+						}
+						else if ("rightsAssignment".equals(qName))
+						{
+
+						}
+						else
+						{
+							M_log.warn("Unexpected Element " + qName);
+						}
+
+					}
+				}
+			};
+		}
+
+		/**
 		 * Construct as a copy of another.
 		 * 
 		 * @param other
@@ -9141,6 +9378,14 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			m_hidden = hidden != null && ! hidden.trim().equals("") && ! Boolean.FALSE.toString().equalsIgnoreCase(hidden);
 			
 		} // BaseCollectionEdit
+
+		/**
+		 * 
+		 */
+		public BaseCollectionEdit()
+		{
+			m_properties = new BaseResourcePropertiesEdit();
+		}
 
 		/**
 		 * Take all values from this object.
@@ -9842,6 +10087,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			}
 		} // BaseResourceEdit
 
+
 		/**
 		 * Construct as a copy of another
 		 * 
@@ -9933,6 +10179,14 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		} // set
 
+		/**
+		 * 
+		 */
+		public BaseResourceEdit(Entity container)
+		{
+			// we ignore the container
+			m_properties = new BaseResourcePropertiesEdit();
+		}
 		/**
 		 * Construct from information in XML in a DOM element.
 		 * 
@@ -10053,6 +10307,132 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 				
 			}
 		} // BaseResourceEdit
+		/**
+		 * @param services
+		 * @return
+		 */
+		public ContentHandler getContentHandler(Map<String, Object> services)
+		{
+			final Entity thisEntity = this;
+			return new DefaultEntityHandler()
+			{
+				/*
+				 * (non-Javadoc)
+				 * 
+				 * @see org.sakaiproject.util.DefaultEntityHandler#startElement(java.lang.String,
+				 *      java.lang.String, java.lang.String,
+				 *      org.xml.sax.Attributes)
+				 */
+				@Override
+				public void startElement(String uri, String localName, String qName,
+						Attributes attributes) throws SAXException
+				{
+					if (doStartElement(uri, localName, qName, attributes))
+					{
+						if ("resource".equals(qName) && entity == null)
+						{
+							m_id = attributes.getValue("id");
+							String contentType = StringUtil.trimToNull(attributes
+									.getValue("content-type"));
+							setContentType(contentType);
+							m_contentLength = 0;
+							try
+							{
+								m_contentLength = Integer.parseInt(attributes
+										.getValue("content-length"));
+							}
+							catch (Exception ignore)
+							{
+							}
+							ResourceTypeRegistry registry = getResourceTypeRegistry();
+							String typeId = StringUtil.trimToNull(attributes
+									.getValue("resource-type"));
+							if (typeId == null || registry.getType(typeId) == null)
+							{
+								typeId = registry.mimetype2resourcetype(contentType);
+							}
+							setResourceType(typeId);
+
+							String enc = StringUtil.trimToNull(attributes
+									.getValue("body"));
+							if (enc != null)
+							{
+								byte[] decoded = null;
+								try
+								{
+									decoded = Base64.decodeBase64(enc.getBytes("UTF-8"));
+								}
+								catch (UnsupportedEncodingException e)
+								{
+									M_log.error(e);
+								}
+								m_body = new byte[m_contentLength];
+								System.arraycopy(decoded, 0, m_body, 0, m_contentLength);
+							}
+
+							m_filePath = StringUtil.trimToNull(attributes
+									.getValue("filePath"));
+							AccessMode access = AccessMode.INHERITED;
+							String access_mode = attributes.getValue(ACCESS_MODE);
+							if (access_mode != null && !access_mode.trim().equals(""))
+							{
+								access = AccessMode.fromString(access_mode);
+							}
+							m_access = access;
+							if (m_access == null || AccessMode.SITE == m_access)
+							{
+								m_access = AccessMode.INHERITED;
+							}
+
+							String hidden = attributes.getValue(HIDDEN);
+							m_hidden = hidden != null && !hidden.trim().equals("")
+									&& !Boolean.FALSE.toString().equalsIgnoreCase(hidden);
+
+							if (m_hidden)
+							{
+								m_releaseDate = null;
+								m_retractDate = null;
+							}
+							else
+							{
+								// extract release date
+								String date0 = attributes.getValue(RELEASE_DATE);
+								if (date0 != null && !date0.trim().equals(""))
+								{
+									m_releaseDate = TimeService.newTimeGmt(date0);
+									if (m_releaseDate.getTime() <= START_OF_TIME)
+									{
+										m_releaseDate = null;
+									}
+								}
+
+								// extract retract date
+								String date1 = attributes.getValue(RETRACT_DATE);
+								if (date1 != null && !date1.trim().equals(""))
+								{
+									m_retractDate = TimeService.newTimeGmt(date1);
+									if (m_retractDate.getTime() >= END_OF_TIME)
+									{
+										m_retractDate = null;
+									}
+								}
+							}
+							entity = thisEntity;
+						}
+						else if (GROUP_LIST.equals(qName))
+						{
+							m_groups.add(attributes.getValue(GROUP_NAME));
+						}
+						else
+						{
+							M_log.warn("Unexpected Element " + qName);
+						}
+
+					}
+				}
+			};
+		}
+
 
 		/**
 		 * Clean up.
