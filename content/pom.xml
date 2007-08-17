@@ -27,9 +27,9 @@
 <!--
 This only builds a jar 
 Uncomment when the JCR API issues are sorted
-    <module>content-impl-jcr/impl</module>
 -->
 
+    <module>content-impl-jcr/impl</module>
     <module>content-impl/pack</module>
 <!--
 To add the  JCR CHS as well as the DB CHS to sakai 
