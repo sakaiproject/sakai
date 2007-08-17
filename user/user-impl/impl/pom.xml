@@ -110,6 +110,13 @@
 		<artifactId>commons-collections</artifactId>
 		<version>3.2</version>
 	</dependency>
+	
+	  <dependency>
+         <groupId>${sakai.ehcache.groupId}</groupId>
+         <artifactId>${sakai.ehcache.artifactId}</artifactId>
+         <version>${sakai.ehcache.version}</version>
+      </dependency>
+	
   </dependencies>
   <build>
 

@@ -34,6 +34,9 @@
  		<property name="cacheCleanerMinutes"><value>15</value></property>
  		<property name="caseSensitiveId"><value>false</value></property>
  		<property name="separateIdEid"><value>true</value></property>
+ 		
+ 		<!-- This is s LRU cache managed by the memory service currently using ehcache -->
+ 		<property name="cache" ><ref bean="org.sakaiproject.user.api.UserDirectoryService.cache" /></property>
 
         <property name="databaseBeans">
            <map>
@@ -98,5 +101,15 @@
 		<property name="failureThrottleTimeoutMs" value="120000" />
 	</bean>
 	
+	
+	<bean id="org.sakaiproject.user.api.UserDirectoryService.cache" 
+	     class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+ 		<property name="cacheManager">
+    		<ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
+  		</property>
+  		<property name="cacheName">
+    		<value>org.sakaiproject.user.api.UserDirectoryService</value>
+  		</property>
+	</bean>
 
 </beans>

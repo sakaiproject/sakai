@@ -28,6 +28,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.Element;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.db.api.SqlReader;
@@ -38,6 +41,7 @@ import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.util.BaseDbFlatStorage;
 import org.sakaiproject.util.StorageUser;
 import org.sakaiproject.util.StringUtil;
+
 
 /**
  * <p>
@@ -126,6 +130,8 @@ public abstract class DbUserService extends BaseUserDirectoryService
 	/** The database handler we are using. */
 	protected UserServiceSql userServiceSql;
 
+	protected Cache cache = null;
+
 	public void setDatabaseBeans(Map databaseBeans)
 	{
 		this.databaseBeans = databaseBeans;
@@ -205,6 +211,10 @@ public abstract class DbUserService extends BaseUserDirectoryService
 	 */
 	protected class DbStorage extends BaseDbFlatStorage implements Storage, SqlReader
 	{
+		private static final String EIDCACHE = "eid:";
+		private static final String IDCACHE = "id:";
+		private static final String CACHE_NAME = "DbUserService.DbStorage";
+		
 		/** A prior version's storage model. */
 		protected Storage m_oldStorage = null;
 
@@ -493,7 +503,12 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			fields[0] = id;
 			fields[1] = eid;
 
-			return m_sql.dbWrite(statement, fields);
+			if ( m_sql.dbWrite(statement, fields) ) {
+				cache.put(new Element(IDCACHE+eid,id));
+				cache.put(new Element(EIDCACHE+id,eid));
+				return true;
+			}
+			return false;
 		}
 
 		/**
@@ -521,15 +536,23 @@ public abstract class DbUserService extends BaseUserDirectoryService
 
 			// we have a mapping, is it what we want?
 			if (eidAlready.equals(eid)) return true;
-
+			
+			// update the cache
 			// we have a mapping that needs to be updated
 			String statement = userServiceSql.getUpdateUserIdSql();
+			
+			
 
 			Object fields[] = new Object[2];
 			fields[0] = eid;
 			fields[1] = id;
 
-			return m_sql.dbWrite(statement, fields);
+			if ( m_sql.dbWrite(statement, fields) ) {
+				cache.put(new Element(IDCACHE+eid,id));
+				cache.put(new Element(EIDCACHE+id,eid));
+				return true;
+			}
+			return false;
 		}
 
 		/**
@@ -542,6 +565,13 @@ public abstract class DbUserService extends BaseUserDirectoryService
 		{
 			// if we are not doing separate id/eid, do nothing
 			if (!m_separateIdEid) return;
+
+			// clear both sides of the cache
+			String eid = checkMapForEid(id);
+			if ( eid != null ) {
+				cache.remove(IDCACHE+eid);
+			}
+			cache.remove(EIDCACHE+id);
 
 			String statement = userServiceSql.getDeleteUserIdSql();
 
@@ -562,7 +592,14 @@ public abstract class DbUserService extends BaseUserDirectoryService
 		{
 			// if we are not doing separate id/eid, return the id
 			if (!m_separateIdEid) return id;
-
+			
+			{
+				Element e = cache.get(EIDCACHE+id);
+				if ( e != null ) {
+					return (String) e.getObjectValue();
+				}
+			}
+			
 			String statement = userServiceSql.getUserEidSql();
 			Object fields[] = new Object[1];
 			fields[0] = id;
@@ -571,11 +608,14 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			if (rv.size() > 0)
 			{
 				String eid = (String) rv.get(0);
+				cache.put(new Element(EIDCACHE+id,eid));
 				return eid;
 			}
+			cache.put(new Element(EIDCACHE+id,null));
 
 			return null;
 		}
+
 
 		/**
 		 * Check the id -> eid mapping: lookup this eid and return the id if found
@@ -589,6 +629,13 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			// if we are not doing separate id/eid, do nothing
 			if (!m_separateIdEid) return eid;
 
+			{
+				Element e = cache.get(IDCACHE+eid);
+				if ( e != null ) {
+					return (String) e.getObjectValue();
+				}
+			}
+
 			String statement = userServiceSql.getUserIdSql();
 			Object fields[] = new Object[1];
 			fields[0] = eid;
@@ -597,10 +644,30 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			if (rv.size() > 0)
 			{
 				String id = (String) rv.get(0);
+				cache.put(new Element(IDCACHE+eid,id));
 				return id;
 			}
 
+			cache.put(new Element(IDCACHE+eid,null));
 			return null;
 		}
+		
+
+	}
+
+	/**
+	 * @return the cache
+	 */
+	public Cache getCache()
+	{
+		return cache;
+	}
+
+	/**
+	 * @param cache the cache to set
+	 */
+	public void setCache(Cache cache)
+	{
+		this.cache = cache;
 	}
 }
