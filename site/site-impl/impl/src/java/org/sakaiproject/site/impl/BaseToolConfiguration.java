@@ -23,22 +23,20 @@ package org.sakaiproject.site.impl;
 
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.Properties;
 import java.util.Stack;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.util.StringUtil;
-import org.sakaiproject.util.Xml;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.util.StringUtil;
+import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -46,10 +44,12 @@ import org.w3c.dom.NodeList;
 
 /**
  * <p>
- * BaseToolConfiguration is an implementation of the Site API's ToolConfiguration.
+ * BaseToolConfiguration is an implementation of the Site API's
+ * ToolConfiguration.
  * </p>
  */
-public class BaseToolConfiguration extends org.sakaiproject.util.Placement implements ToolConfiguration, Identifiable
+public class BaseToolConfiguration extends org.sakaiproject.util.Placement implements
+		ToolConfiguration, Identifiable
 {
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(BaseToolConfiguration.class);
@@ -94,7 +94,8 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 	 * @param pageOrder
 	 *        The order within the page.
 	 */
-	protected BaseToolConfiguration(SitePage page, String id, String toolId, String title, String layoutHints, int pageOrder)
+	protected BaseToolConfiguration(SitePage page, String id, String toolId,
+			String title, String layoutHints, int pageOrder)
 	{
 		super(id, toolId, ToolManager.getTool(toolId), null, null, title);
 
@@ -103,10 +104,12 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		m_pageOrder = pageOrder;
 
 		m_configLazy = true;
+		setPageCategory();
 	}
 
 	/**
-	 * ReConstruct - if we don't have a page to follow up to get to certain page and site info.
+	 * ReConstruct - if we don't have a page to follow up to get to certain page
+	 * and site info.
 	 * 
 	 * @param id
 	 *        The tool (placement) id.
@@ -125,8 +128,8 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 	 * @param pageOrder
 	 *        The order within the page.
 	 */
-	protected BaseToolConfiguration(String id, String toolId, String title, String layoutHints, String pageId, String siteId,
-			String skin, int pageOrder)
+	protected BaseToolConfiguration(String id, String toolId, String title,
+			String layoutHints, String pageId, String siteId, String skin, int pageOrder)
 	{
 		super(id, toolId, ToolManager.getTool(toolId), null, null, title);
 
@@ -139,6 +142,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		m_pageOrder = pageOrder;
 
 		m_configLazy = true;
+		setPageCategory();
 	}
 
 	/**
@@ -170,27 +174,30 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		m_layoutHints = other.getLayoutHints();
 		m_pageId = bOther.m_pageId;
 		m_pageOrder = bOther.m_pageOrder;
-		
+
 		m_siteId = getContainingPage().getContainingSite().getId();
 		m_skin = bOther.m_skin;
 
 		Hashtable h = other.getPlacementConfig();
-		// exact copying of ToolConfiguration items vs replacing occurence of site id within item value, depending on "exact" setting	-zqian
+		// exact copying of ToolConfiguration items vs replacing occurence of
+		// site id within item value, depending on "exact" setting -zqian
 		if (exact)
 		{
 			m_config.putAll(other.getPlacementConfig());
 		}
 		else
 		{
-			for (Enumeration e=h.keys(); e.hasMoreElements();)
+			for (Enumeration e = h.keys(); e.hasMoreElements();)
 			{
 				// replace site id string inside configuration
 				String pOtherConfig = (String) e.nextElement();
 				String pOtherConfigValue = (String) h.get(pOtherConfig);
-				m_config.put(pOtherConfig, pOtherConfigValue.replaceAll(bOther.getSiteId(), m_siteId));
+				m_config.put(pOtherConfig, pOtherConfigValue.replaceAll(bOther
+						.getSiteId(), m_siteId));
 			}
 		}
 		m_configLazy = bOther.m_configLazy;
+		setPageCategory();
 	}
 
 	/**
@@ -221,6 +228,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		super(IdManager.createUuid(), reg.getId(), reg, null, null, null);
 
 		m_page = page;
+		setPageCategory();
 	}
 
 	/**
@@ -236,6 +244,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		super(IdManager.createUuid(), toolId, null, null, null, null);
 
 		m_page = page;
+		setPageCategory();
 	}
 
 	/**
@@ -267,7 +276,10 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		for (int i = 0; i < length; i++)
 		{
 			Node child = children.item(i);
-			if (child.getNodeType() != Node.ELEMENT_NODE) continue;
+			if (child.getNodeType() != Node.ELEMENT_NODE)
+			{
+				continue;
+			}
 			Element element = (Element) child;
 
 			// look for properties
@@ -277,6 +289,7 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 				Xml.xmlToProperties(m_config, element);
 			}
 		}
+		setPageCategory();
 	}
 
 	/**
@@ -287,7 +300,8 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		// if the config has not yet been read, read it
 		if (m_configLazy)
 		{
-			((BaseSiteService) (SiteService.getInstance())).m_storage.readToolProperties(this, m_config);
+			((BaseSiteService) (SiteService.getInstance())).m_storage.readToolProperties(
+					this, m_config);
 			m_configLazy = false;
 		}
 
@@ -295,7 +309,8 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 	}
 
 	/**
-	 * Acces the m_config, which is inherited and not visible to this package outside this class -ggolden
+	 * Acces the m_config, which is inherited and not visible to this package
+	 * outside this class -ggolden
 	 */
 	protected Properties getMyConfig()
 	{
@@ -317,9 +332,15 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 	{
 		try
 		{
-			if (m_layoutHints == null) return null;
+			if (m_layoutHints == null)
+			{
+				return null;
+			}
 			String[] parts = StringUtil.split(m_layoutHints, ",");
-			if (parts.length < 2) return null;
+			if (parts.length < 2)
+			{
+				return null;
+			}
 			int[] rv = new int[2];
 			rv[0] = Integer.parseInt(parts[0]);
 			rv[1] = Integer.parseInt(parts[1]);
@@ -445,9 +466,18 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 
 		element.setAttribute("id", getId());
 		String toolId = getToolId();
-		if (toolId != null) element.setAttribute("toolId", toolId);
-		if (m_title != null) element.setAttribute("title", m_title);
-		if (m_layoutHints != null) element.setAttribute("layoutHints", m_layoutHints);
+		if (toolId != null)
+		{
+			element.setAttribute("toolId", toolId);
+		}
+		if (m_title != null)
+		{
+			element.setAttribute("title", m_title);
+		}
+		if (m_layoutHints != null)
+		{
+			element.setAttribute("layoutHints", m_layoutHints);
+		}
 
 		// properties
 		Xml.propertiesToXml(getPlacementConfig(), doc, stack);
@@ -466,7 +496,22 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 		((BaseSiteService) (SiteService.getInstance())).m_storage.saveToolConfig(this);
 
 		// track the site change
-		EventTrackingService.post(EventTrackingService.newEvent(SiteService.SECURE_UPDATE_SITE, SiteService
-				.siteReference(getSiteId()), true));
+		EventTrackingService.post(EventTrackingService.newEvent(
+				SiteService.SECURE_UPDATE_SITE, SiteService.siteReference(getSiteId()),
+				true));
+	}
+
+	protected void setPageCategory()
+	{
+		m_page.setupPageCategory(m_toolId);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setTool(String toolId, Tool tool)
+	{
+		super.setTool(toolId, tool);
+		setPageCategory();
 	}
 }

@@ -41,6 +41,8 @@ public interface SitePage extends Edit, Serializable
 	/** Layout value for a double column layout. */
 	public static final int LAYOUT_DOUBLE_COL = 1;
 
+	public static final String PAGE_CATEGORY_PROP = "sitePage.pageCategory";
+
 	/** @return The human readable Title of this SitePage. */
 	public String getTitle();
 
@@ -53,15 +55,21 @@ public interface SitePage extends Edit, Serializable
 	/** @return The List (ToolConfiguration) of tools on this page. */
 	public List getTools();
 
-	/** @return The List (ToolConfiguration) of tools on this column (0 based) of this page. */
+	/**
+	 * @return The List (ToolConfiguration) of tools on this column (0 based) of
+	 *         this page.
+	 */
 	public List getTools(int col);
 
 	/**
-	 * Get all the tools placed in the site on this page that are of any of these tool ids.
+	 * Get all the tools placed in the site on this page that are of any of
+	 * these tool ids.
 	 * 
 	 * @param tooldIds
-	 *        The tool id array (String, such as sakai.chat, not a tool configuration / placement uuid) to search for.
-	 * @return A Collection (ToolConfiguration) of all the tools placed in the site on this page that are of this tool id (may be empty).
+	 *        The tool id array (String, such as sakai.chat, not a tool
+	 *        configuration / placement uuid) to search for.
+	 * @return A Collection (ToolConfiguration) of all the tools placed in the
+	 *         site on this page that are of this tool id (may be empty).
 	 */
 	Collection getTools(String[] toolIds);
 
@@ -122,7 +130,8 @@ public interface SitePage extends Edit, Serializable
 	public ToolConfiguration addTool();
 
 	/**
-	 * Add a new tool to the page, initialized to the tool registration information provided.
+	 * Add a new tool to the page, initialized to the tool registration
+	 * information provided.
 	 * 
 	 * @param reg
 	 *        The tool registration information used to initialize the tool.
@@ -148,17 +157,20 @@ public interface SitePage extends Edit, Serializable
 	public void removeTool(ToolConfiguration tool);
 
 	/**
-	 * Move this page one step towards the start of the order of pages in this site.
+	 * Move this page one step towards the start of the order of pages in this
+	 * site.
 	 */
 	public void moveUp();
 
 	/**
-	 * Move this page one step towards the end of the order of pages in this site.
+	 * Move this page one step towards the end of the order of pages in this
+	 * site.
 	 */
 	public void moveDown();
 
 	/**
-	 * Move this page to a specific (0 based index) position within the site's pages.
+	 * Move this page to a specific (0 based index) position within the site's
+	 * pages.
 	 */
 	public void setPosition(int pos);
 
@@ -166,4 +178,6 @@ public interface SitePage extends Edit, Serializable
 	 * get the 0 based index position of the page within the site's pages.
 	 */
 	public int getPosition();
+
+	public void setupPageCategory(String toolId);
 }

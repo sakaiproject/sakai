@@ -24,6 +24,7 @@ package org.sakaiproject.site.impl;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
@@ -47,6 +48,8 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -54,8 +57,6 @@ import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Xml;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.cover.SessionManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -149,10 +150,16 @@ public class BaseSite implements Site
 	/** The azg from the AuthzGroupService that is my AuthzGroup impl. */
 	protected AuthzGroup m_azg = null;
 
-	/** Set to true if we have changed our azg, so it need to be written back on save. */
+	/**
+	 * Set to true if we have changed our azg, so it need to be written back on
+	 * save.
+	 */
 	protected boolean m_azgChanged = false;
 
-	/** Set to true to use the site's page order, or false to let a toolOrder override the page order. */
+	/**
+	 * Set to true to use the site's page order, or false to let a toolOrder
+	 * override the page order.
+	 */
 	protected boolean m_customPageOrdered = false;
 
 	/**
@@ -176,7 +183,8 @@ public class BaseSite implements Site
 
 		// if the id is not null (a new site, rather than a reconstruction)
 		// add the automatic (live) properties
-		if (m_id != null) ((BaseSiteService) (SiteService.getInstance())).addLiveProperties(this);
+		if (m_id != null)
+			((BaseSiteService) (SiteService.getInstance())).addLiveProperties(this);
 	}
 
 	/**
@@ -185,7 +193,8 @@ public class BaseSite implements Site
 	 * @param site
 	 *        The other site to copy values from.
 	 * @param exact
-	 *        If true, we copy ids - else we generate new ones for site, page and tools.
+	 *        If true, we copy ids - else we generate new ones for site, page
+	 *        and tools.
 	 */
 	public BaseSite(Site other)
 	{
@@ -199,7 +208,8 @@ public class BaseSite implements Site
 	 * @param site
 	 *        The other site to copy values from.
 	 * @param exact
-	 *        If true, we copy ids - else we generate new ones for site, page and tools.
+	 *        If true, we copy ids - else we generate new ones for site, page
+	 *        and tools.
 	 */
 	public BaseSite(Site other, boolean exact)
 	{
@@ -231,14 +241,16 @@ public class BaseSite implements Site
 		m_description = StringUtil.trimToNull(el.getAttribute("description"));
 		if (m_description == null)
 		{
-			m_description = StringUtil.trimToNull(Xml.decodeAttribute(el, "description-enc"));
+			m_description = StringUtil.trimToNull(Xml.decodeAttribute(el,
+					"description-enc"));
 		}
 
 		// short description might be encripted
 		m_shortDescription = StringUtil.trimToNull(el.getAttribute("short-description"));
 		if (m_shortDescription == null)
 		{
-			m_shortDescription = StringUtil.trimToNull(Xml.decodeAttribute(el, "short-description-enc"));
+			m_shortDescription = StringUtil.trimToNull(Xml.decodeAttribute(el,
+					"short-description-enc"));
 		}
 
 		m_joinable = Boolean.valueOf(el.getAttribute("joinable")).booleanValue();
@@ -286,10 +298,12 @@ public class BaseSite implements Site
 			m_customPageOrdered = Boolean.valueOf(customOrder).booleanValue();
 		}
 
-		// get pubView setting - but old versions (pre 1.42 of this file) won't have it and will have a property instead
+		// get pubView setting - but old versions (pre 1.42 of this file) won't
+		// have it and will have a property instead
 		String pubViewValue = StringUtil.trimToNull(el.getAttribute("pubView"));
 
-		// get the type - but old versions (pre 1.42 of this file) won't have it and will have a property instead
+		// get the type - but old versions (pre 1.42 of this file) won't have it
+		// and will have a property instead
 		String typeValue = StringUtil.trimToNull(el.getAttribute("type"));
 
 		// the children (properties and page list)
@@ -318,7 +332,8 @@ public class BaseSite implements Site
 				m_properties.removeProperty("CTNG:site-include");
 				m_properties.removeProperty("site-include");
 
-				// look for type (pre 1.42 of this file) in properties (two possibilities)
+				// look for type (pre 1.42 of this file) in properties (two
+				// possibilities)
 				if (typeValue == null)
 				{
 					typeValue = m_properties.getProperty("SAKAI:site-type");
@@ -330,20 +345,24 @@ public class BaseSite implements Site
 				m_properties.removeProperty("SAKAI:site-type");
 				m_properties.removeProperty("CTNG:site-type");
 
-				// look for short description (pre 1.42 of this file) in properties
+				// look for short description (pre 1.42 of this file) in
+				// properties
 				if (m_shortDescription == null)
 				{
-					m_shortDescription = m_properties.getProperty("CTNG:short-description");
+					m_shortDescription = m_properties
+							.getProperty("CTNG:short-description");
 
 					if (m_shortDescription == null)
 					{
-						m_shortDescription = m_properties.getProperty("short-description");
+						m_shortDescription = m_properties
+								.getProperty("short-description");
 					}
 				}
 				m_properties.removeProperty("CTNG:short-description");
 				m_properties.removeProperty("short-description");
 
-				// pull out some properties into fields to convert old (pre 1.42) versions
+				// pull out some properties into fields to convert old (pre
+				// 1.42) versions
 				if (m_createdUserId == null)
 				{
 					m_createdUserId = m_properties.getProperty("CHEF:creator");
@@ -366,7 +385,8 @@ public class BaseSite implements Site
 				{
 					try
 					{
-						m_lastModifiedTime = m_properties.getTimeProperty("DAV:getlastmodified");
+						m_lastModifiedTime = m_properties
+								.getTimeProperty("DAV:getlastmodified");
 					}
 					catch (Exception ignore)
 					{
@@ -397,7 +417,8 @@ public class BaseSite implements Site
 			}
 		}
 
-		// set the pubview, now it's found in either the attribute or the properties
+		// set the pubview, now it's found in either the attribute or the
+		// properties
 		if (pubViewValue != null)
 		{
 			m_pubView = Boolean.valueOf(pubViewValue).booleanValue();
@@ -407,7 +428,8 @@ public class BaseSite implements Site
 			m_pubView = false;
 		}
 
-		// set the type, now it's found in either the attribute or the properties
+		// set the type, now it's found in either the attribute or the
+		// properties
 		m_type = typeValue;
 	}
 
@@ -433,9 +455,11 @@ public class BaseSite implements Site
 	 * @param modifiedBy
 	 * @param modifiedOn
 	 */
-	public BaseSite(String id, String title, String type, String shortDesc, String description, String iconUrl, String infoUrl,
-			String skin, boolean published, boolean joinable, boolean pubView, String joinRole, boolean isSpecial, boolean isUser,
-			String createdBy, Time createdOn, String modifiedBy, Time modifiedOn, boolean customPageOrdered)
+	public BaseSite(String id, String title, String type, String shortDesc,
+			String description, String iconUrl, String infoUrl, String skin,
+			boolean published, boolean joinable, boolean pubView, String joinRole,
+			boolean isSpecial, boolean isUser, String createdBy, Time createdOn,
+			String modifiedBy, Time modifiedOn, boolean customPageOrdered)
 	{
 		// setup for properties
 		m_properties = new BaseResourcePropertiesEdit();
@@ -466,7 +490,8 @@ public class BaseSite implements Site
 		m_lastModifiedTime = modifiedOn;
 		m_customPageOrdered = customPageOrdered;
 
-		// setup for properties, but mark them lazy since we have not yet established them from data
+		// setup for properties, but mark them lazy since we have not yet
+		// established them from data
 		((BaseResourcePropertiesEdit) m_properties).setLazy(true);
 
 		m_pagesLazy = true;
@@ -479,7 +504,8 @@ public class BaseSite implements Site
 	 * @param bOther
 	 *        the other to copy.
 	 * @param exact
-	 *        If true, we copy ids - else we generate new ones for site, page and tools.
+	 *        If true, we copy ids - else we generate new ones for site, page
+	 *        and tools.
 	 */
 	protected void set(BaseSite other, boolean exact)
 	{
@@ -510,8 +536,10 @@ public class BaseSite implements Site
 			m_createdUserId = UserDirectoryService.getCurrentUser().getId();
 		}
 		m_lastModifiedUserId = other.m_lastModifiedUserId;
-		if (other.m_createdTime != null) m_createdTime = (Time) other.m_createdTime.clone();
-		if (other.m_lastModifiedTime != null) m_lastModifiedTime = (Time) other.m_lastModifiedTime.clone();
+		if (other.m_createdTime != null)
+			m_createdTime = (Time) other.m_createdTime.clone();
+		if (other.m_lastModifiedTime != null)
+			m_lastModifiedTime = (Time) other.m_lastModifiedTime.clone();
 
 		m_properties = new BaseResourcePropertiesEdit();
 		ResourceProperties pOther = other.getProperties();
@@ -525,10 +553,12 @@ public class BaseSite implements Site
 			while (l.hasNext())
 			{
 				String pOtherName = (String) l.next();
-				m_properties.addProperty(pOtherName, pOther.getProperty(pOtherName).replaceAll(other.getId(), getId()));
+				m_properties.addProperty(pOtherName, pOther.getProperty(pOtherName)
+						.replaceAll(other.getId(), getId()));
 			}
 		}
-		((BaseResourcePropertiesEdit) m_properties).setLazy(((BaseResourceProperties) other.getProperties()).isLazy());
+		((BaseResourcePropertiesEdit) m_properties)
+				.setLazy(((BaseResourceProperties) other.getProperties()).isLazy());
 
 		// deep copy the pages
 		m_pages = new ResourceVector();
@@ -563,13 +593,16 @@ public class BaseSite implements Site
 	 */
 	public String getUrl()
 	{
-                Session s = SessionManager.getCurrentSession();
-                String controllingPortal = (String) s.getAttribute("sakai-controlling-portal");
-                String siteString  = "/site/";
-                if ( controllingPortal != null ) {
-                        siteString = "/" + controllingPortal + "/" ;
-                }
-		return ((BaseSiteService) (SiteService.getInstance())).serverConfigurationService().getPortalUrl() + siteString + m_id;
+		Session s = SessionManager.getCurrentSession();
+		String controllingPortal = (String) s.getAttribute("sakai-controlling-portal");
+		String siteString = "/site/";
+		if (controllingPortal != null)
+		{
+			siteString = "/" + controllingPortal + "/";
+		}
+		return ((BaseSiteService) (SiteService.getInstance()))
+				.serverConfigurationService().getPortalUrl()
+				+ siteString + m_id;
 	}
 
 	/**
@@ -604,7 +637,8 @@ public class BaseSite implements Site
 		// if lazy, resolve
 		if (((BaseResourceProperties) m_properties).isLazy())
 		{
-			((BaseSiteService) (SiteService.getInstance())).m_storage.readSiteProperties(this, m_properties);
+			((BaseSiteService) (SiteService.getInstance())).m_storage.readSiteProperties(
+					this, m_properties);
 			((BaseResourcePropertiesEdit) m_properties).setLazy(false);
 		}
 
@@ -730,7 +764,8 @@ public class BaseSite implements Site
 	 */
 	public String getIconUrlFull()
 	{
-		return ((BaseSiteService) (SiteService.getInstance())).convertReferenceUrl(m_icon);
+		return ((BaseSiteService) (SiteService.getInstance()))
+				.convertReferenceUrl(m_icon);
 	}
 
 	/**
@@ -748,7 +783,8 @@ public class BaseSite implements Site
 	{
 		if (m_info == null) return null;
 
-		return ((BaseSiteService) (SiteService.getInstance())).convertReferenceUrl(m_info);
+		return ((BaseSiteService) (SiteService.getInstance()))
+				.convertReferenceUrl(m_info);
 	}
 
 	/**
@@ -758,7 +794,8 @@ public class BaseSite implements Site
 	{
 		if (m_pagesLazy)
 		{
-			((BaseSiteService) (SiteService.getInstance())).m_storage.readSitePages(this, m_pages);
+			((BaseSiteService) (SiteService.getInstance())).m_storage.readSitePages(this,
+					m_pages);
 			m_pagesLazy = false;
 		}
 
@@ -772,7 +809,8 @@ public class BaseSite implements Site
 	{
 		if (m_groupsLazy)
 		{
-			((BaseSiteService) (SiteService.getInstance())).m_storage.readSiteGroups(this, m_groups);
+			((BaseSiteService) (SiteService.getInstance())).m_storage.readSiteGroups(
+					this, m_groups);
 			m_groupsLazy = false;
 		}
 
@@ -795,7 +833,7 @@ public class BaseSite implements Site
 				rv.add(g);
 			}
 		}
-		
+
 		return rv;
 	}
 
@@ -815,7 +853,7 @@ public class BaseSite implements Site
 				rv.add(g);
 			}
 		}
-		
+
 		return rv;
 	}
 
@@ -843,7 +881,8 @@ public class BaseSite implements Site
 		getGroups();
 
 		// now all properties
-		((BaseSiteService) (SiteService.getInstance())).m_storage.readAllSiteProperties(this);
+		((BaseSiteService) (SiteService.getInstance())).m_storage
+				.readAllSiteProperties(this);
 	}
 
 	/**
@@ -854,13 +893,19 @@ public class BaseSite implements Site
 		// if we are set to use our custom page order, do so
 		if (m_customPageOrdered) return getPages();
 
-		List order = ((BaseSiteService) (SiteService.getInstance())).serverConfigurationService().getToolOrder(getType());
+		List order = ((BaseSiteService) (SiteService.getInstance()))
+				.serverConfigurationService().getToolOrder(getType());
 		if (order.isEmpty()) return getPages();
+
+		Map<String, String> pageCategoriesByTool = ((BaseSiteService) (SiteService
+				.getInstance())).serverConfigurationService().getToolToCategoryMap(
+				getType());
 
 		// get a copy we can modify without changing the site!
 		List pages = new Vector(getPages());
 
-		// find any pages that include the tool type for each tool in the ordering, move them into the newOrder and remove from the old
+		// find any pages that include the tool type for each tool in the
+		// ordering, move them into the newOrder and remove from the old
 		List newOrder = new Vector();
 
 		// for each entry in the order
@@ -872,14 +917,21 @@ public class BaseSite implements Site
 			for (Iterator p = pages.iterator(); p.hasNext();)
 			{
 				SitePage page = (SitePage) p.next();
+				page.getProperties().removeProperty(SitePage.PAGE_CATEGORY_PROP);
 				List tools = page.getTools();
 				for (Iterator t = tools.iterator(); t.hasNext();)
 				{
 					ToolConfiguration tool = (ToolConfiguration) t.next();
 					if (tool.getToolId().equals(toolId))
 					{
-						// this page has this tool, so move it from the pages to the newOrder
+						// this page has this tool, so move it from the pages to
+						// the newOrder
 						newOrder.add(page);
+						if (pageCategoriesByTool.get(toolId) != null)
+						{
+							page.getProperties().addProperty(SitePage.PAGE_CATEGORY_PROP,
+									pageCategoriesByTool.get(toolId));
+						}
 						p.remove();
 						break;
 					}
@@ -923,8 +975,8 @@ public class BaseSite implements Site
 	 */
 	public Collection getTools(String commonToolId)
 	{
-		String [] toolIds = new String[1];
-                toolIds[0] = commonToolId;
+		String[] toolIds = new String[1];
+		toolIds[0] = commonToolId;
 		return getTools(toolIds);
 	}
 
@@ -934,9 +986,10 @@ public class BaseSite implements Site
 	public ToolConfiguration getToolForCommonId(String commonToolId)
 	{
 		Collection col = getTools(commonToolId);
-		if ( col == null ) return null;
-		if ( col.size() == 0 ) return null;
-		return (ToolConfiguration) col.iterator().next(); // Return first element
+		if (col == null) return null;
+		if (col.size() == 0) return null;
+		return (ToolConfiguration) col.iterator().next(); // Return first
+															// element
 	}
 
 	/**
@@ -964,11 +1017,14 @@ public class BaseSite implements Site
 	{
 		if (id == null) return null;
 
-		// if this is a reference, starting with a "/", parse it, make sure it's a group, in this site, and pull the id
+		// if this is a reference, starting with a "/", parse it, make sure it's
+		// a group, in this site, and pull the id
 		if (id.startsWith(Entity.SEPARATOR))
 		{
-			Reference ref = ((BaseSiteService) (SiteService.getInstance())).entityManager().newReference(id);
-			if ((SiteService.APPLICATION_ID.equals(ref.getType())) && (SiteService.GROUP_SUBTYPE.equals(ref.getSubType()))
+			Reference ref = ((BaseSiteService) (SiteService.getInstance()))
+					.entityManager().newReference(id);
+			if ((SiteService.APPLICATION_ID.equals(ref.getType()))
+					&& (SiteService.GROUP_SUBTYPE.equals(ref.getSubType()))
 					&& (m_id.equals(ref.getContainer())))
 			{
 				return (Group) ((ResourceVector) getGroups()).getById(ref.getId());
@@ -1099,10 +1155,12 @@ public class BaseSite implements Site
 		if (m_title != null) site.setAttribute("title", m_title);
 
 		// encode the short description
-		if (m_shortDescription != null) Xml.encodeAttribute(site, "short-description-enc", m_shortDescription);
+		if (m_shortDescription != null)
+			Xml.encodeAttribute(site, "short-description-enc", m_shortDescription);
 
 		// encode the description
-		if (m_description != null) Xml.encodeAttribute(site, "description-enc", m_description);
+		if (m_description != null)
+			Xml.encodeAttribute(site, "description-enc", m_description);
 
 		site.setAttribute("joinable", new Boolean(m_joinable).toString());
 		if (m_joinerRole != null) site.setAttribute("joiner-role", m_joinerRole);
@@ -1111,7 +1169,8 @@ public class BaseSite implements Site
 		if (m_info != null) site.setAttribute("info", m_info);
 		if (m_skin != null) site.setAttribute("skin", m_skin);
 		site.setAttribute("pubView", Boolean.valueOf(m_pubView).toString());
-		site.setAttribute("customPageOrdered", Boolean.valueOf(m_customPageOrdered).toString());
+		site.setAttribute("customPageOrdered", Boolean.valueOf(m_customPageOrdered)
+				.toString());
 		site.setAttribute("type", m_type);
 
 		site.setAttribute("created-id", m_createdUserId);
@@ -1261,7 +1320,8 @@ public class BaseSite implements Site
 		// if lazy, resolve
 		if (((BaseResourceProperties) m_properties).isLazy())
 		{
-			((BaseSiteService) (SiteService.getInstance())).m_storage.readSiteProperties(this, m_properties);
+			((BaseSiteService) (SiteService.getInstance())).m_storage.readSiteProperties(
+					this, m_properties);
 			((BaseResourcePropertiesEdit) m_properties).setLazy(false);
 		}
 
@@ -1284,6 +1344,7 @@ public class BaseSite implements Site
 		m_pubView = pubView;
 
 	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1364,7 +1425,9 @@ public class BaseSite implements Site
 	}
 
 	/**
-	 * Access (find if needed) the azg from the AuthzGroupService that implements my grouping.
+	 * Access (find if needed) the azg from the AuthzGroupService that
+	 * implements my grouping.
+	 * 
 	 * @return My azg.
 	 */
 	protected AuthzGroup getAzg()
@@ -1379,9 +1442,11 @@ public class BaseSite implements Site
 			{
 				try
 				{
-					// create the site's azg, but don't store it yet (that happens if save is called)
-	
-					// try the site created-by user for the maintain role in the site
+					// create the site's azg, but don't store it yet (that
+					// happens if save is called)
+
+					// try the site created-by user for the maintain role in the
+					// site
 					String userId = getCreatedBy().getId();
 					if (userId != null)
 					{
@@ -1395,7 +1460,7 @@ public class BaseSite implements Site
 							userId = null;
 						}
 					}
-					
+
 					// use the current user if needed
 					if (userId == null)
 					{
@@ -1404,7 +1469,8 @@ public class BaseSite implements Site
 					}
 
 					// find the template for the new azg
-					String groupAzgTemplate = ((BaseSiteService) (SiteService.getInstance())).siteAzgTemplate(this);
+					String groupAzgTemplate = ((BaseSiteService) (SiteService
+							.getInstance())).siteAzgTemplate(this);
 					AuthzGroup template = null;
 					try
 					{
@@ -1414,7 +1480,8 @@ public class BaseSite implements Site
 					{
 						try
 						{
-							// if the template is not defined, try the fall back template
+							// if the template is not defined, try the fall back
+							// template
 							template = AuthzGroupService.getAuthzGroup("!site.template");
 						}
 						catch (Exception e2)
@@ -1422,7 +1489,8 @@ public class BaseSite implements Site
 						}
 					}
 
-					m_azg = AuthzGroupService.newAuthzGroup(getReference(), template, userId);
+					m_azg = AuthzGroupService.newAuthzGroup(getReference(), template,
+							userId);
 					m_azgChanged = true;
 				}
 				catch (Throwable t)
@@ -1431,7 +1499,7 @@ public class BaseSite implements Site
 				}
 			}
 		}
-		
+
 		return m_azg;
 	}
 

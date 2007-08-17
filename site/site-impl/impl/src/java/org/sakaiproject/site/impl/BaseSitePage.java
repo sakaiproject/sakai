@@ -24,11 +24,13 @@ package org.sakaiproject.site.impl;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.id.cover.IdManager;
@@ -36,10 +38,10 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.StringUtil;
-import org.sakaiproject.tool.api.Tool;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -119,7 +121,8 @@ public class BaseSitePage implements SitePage, Identifiable
 	 * @param popup
 	 *        The page popup setting.
 	 */
-	protected BaseSitePage(Site site, String id, String title, String layout, boolean popup)
+	protected BaseSitePage(Site site, String id, String title, String layout,
+			boolean popup)
 	{
 		m_site = site;
 		m_id = id;
@@ -145,7 +148,8 @@ public class BaseSitePage implements SitePage, Identifiable
 	}
 
 	/**
-	 * ReConstruct - if we don't have a site to follow up to get to certain site info.
+	 * ReConstruct - if we don't have a site to follow up to get to certain site
+	 * info.
 	 * 
 	 * @param pageId
 	 *        The page id.
@@ -160,7 +164,8 @@ public class BaseSitePage implements SitePage, Identifiable
 	 * @param skin
 	 *        The page's site's skin.
 	 */
-	protected BaseSitePage(String pageId, String title, String layout, boolean popup, String siteId, String skin)
+	protected BaseSitePage(String pageId, String title, String layout, boolean popup,
+			String siteId, String skin)
 	{
 		m_site = null;
 		m_id = pageId;
@@ -197,7 +202,8 @@ public class BaseSitePage implements SitePage, Identifiable
 	 * @param site
 	 *        The site in which this page lives.
 	 * @param exact
-	 *        If true, we copy ids - else we generate new ones for page and tools.
+	 *        If true, we copy ids - else we generate new ones for page and
+	 *        tools.
 	 */
 	protected BaseSitePage(SitePage other, Site site, boolean exact)
 	{
@@ -219,7 +225,8 @@ public class BaseSitePage implements SitePage, Identifiable
 
 		m_properties = new BaseResourcePropertiesEdit();
 		ResourceProperties pOther = other.getProperties();
-		// exact copying of SitePage properties vs replacing occurence of site id within, depending on "exact" setting --- zqian
+		// exact copying of SitePage properties vs replacing occurence of site
+		// id within, depending on "exact" setting --- zqian
 		if (exact)
 		{
 			m_properties.addAll(pOther);
@@ -230,11 +237,13 @@ public class BaseSitePage implements SitePage, Identifiable
 			while (l.hasNext())
 			{
 				String pOtherName = (String) l.next();
-				m_properties.addProperty(pOtherName, pOther.getProperty(pOtherName).replaceAll(bOther.getSiteId(), getSiteId()));
+				m_properties.addProperty(pOtherName, pOther.getProperty(pOtherName)
+						.replaceAll(bOther.getSiteId(), getSiteId()));
 			}
 		}
 
-		((BaseResourcePropertiesEdit) m_properties).setLazy(((BaseResourceProperties) other.getProperties()).isLazy());
+		((BaseResourcePropertiesEdit) m_properties)
+				.setLazy(((BaseResourceProperties) other.getProperties()).isLazy());
 
 		// deep copy the tools
 		m_tools = new ResourceVector();
@@ -342,7 +351,8 @@ public class BaseSitePage implements SitePage, Identifiable
 	{
 		if (m_site != null)
 		{
-			return ((BaseSiteService) (SiteService.getInstance())).adjustSkin(m_site.getSkin(), m_site.isPublished());
+			return ((BaseSiteService) (SiteService.getInstance())).adjustSkin(m_site
+					.getSkin(), m_site.isPublished());
 		}
 
 		return m_skin;
@@ -384,7 +394,8 @@ public class BaseSitePage implements SitePage, Identifiable
 	{
 		if (m_toolsLazy)
 		{
-			((BaseSiteService) (SiteService.getInstance())).m_storage.readPageTools(this, m_tools);
+			((BaseSiteService) (SiteService.getInstance())).m_storage.readPageTools(this,
+					m_tools);
 			m_toolsLazy = false;
 		}
 
@@ -552,6 +563,18 @@ public class BaseSitePage implements SitePage, Identifiable
 		return ((ResourceVector) m_site.getPages()).indexOf(this);
 	}
 
+	public void setupPageCategory(String toolId)
+	{
+		String defaultCategory = null;
+		Map<String, String> toolCategories = ServerConfigurationService
+				.getToolToCategoryMap(m_site.getType());
+		defaultCategory = toolCategories.get(toolId);
+		if (getProperties().get(PAGE_CATEGORY_PROP) == null && defaultCategory != null)
+		{
+			getProperties().addProperty(PAGE_CATEGORY_PROP, defaultCategory);
+		}
+	}
+
 	/**
 	 * @inheritDoc
 	 */
@@ -568,7 +591,8 @@ public class BaseSitePage implements SitePage, Identifiable
 	{
 		if (((BaseResourceProperties) m_properties).isLazy())
 		{
-			((BaseSiteService) (SiteService.getInstance())).m_storage.readPageProperties(this, m_properties);
+			((BaseSiteService) (SiteService.getInstance())).m_storage.readPageProperties(
+					this, m_properties);
 			((BaseResourcePropertiesEdit) m_properties).setLazy(false);
 		}
 
@@ -607,12 +631,16 @@ public class BaseSitePage implements SitePage, Identifiable
 		String rv = null;
 		if (m_site == null)
 		{
-			rv = ((BaseSiteService) (SiteService.getInstance())).serverConfigurationService().getPortalUrl()
-					+ ((BaseSiteService) (SiteService.getInstance())).sitePageReference(m_siteId, m_id);
+			rv = ((BaseSiteService) (SiteService.getInstance()))
+					.serverConfigurationService().getPortalUrl()
+					+ ((BaseSiteService) (SiteService.getInstance())).sitePageReference(
+							m_siteId, m_id);
 		}
 
-		rv = ((BaseSiteService) (SiteService.getInstance())).serverConfigurationService().getPortalUrl()
-				+ ((BaseSiteService) (SiteService.getInstance())).sitePageReference(m_site.getId(), m_id);
+		rv = ((BaseSiteService) (SiteService.getInstance())).serverConfigurationService()
+				.getPortalUrl()
+				+ ((BaseSiteService) (SiteService.getInstance())).sitePageReference(
+						m_site.getId(), m_id);
 
 		return rv;
 	}
@@ -624,10 +652,12 @@ public class BaseSitePage implements SitePage, Identifiable
 	{
 		if (m_site == null)
 		{
-			return ((BaseSiteService) (SiteService.getInstance())).sitePageReference(m_siteId, m_id);
+			return ((BaseSiteService) (SiteService.getInstance())).sitePageReference(
+					m_siteId, m_id);
 		}
 
-		return ((BaseSiteService) (SiteService.getInstance())).sitePageReference(m_site.getId(), m_id);
+		return ((BaseSiteService) (SiteService.getInstance())).sitePageReference(m_site
+				.getId(), m_id);
 	}
 
 	/**
@@ -669,7 +699,8 @@ public class BaseSitePage implements SitePage, Identifiable
 	{
 		if (((BaseResourceProperties) m_properties).isLazy())
 		{
-			((BaseSiteService) (SiteService.getInstance())).m_storage.readPageProperties(this, m_properties);
+			((BaseSiteService) (SiteService.getInstance())).m_storage.readPageProperties(
+					this, m_properties);
 			((BaseResourcePropertiesEdit) m_properties).setLazy(false);
 		}
 
