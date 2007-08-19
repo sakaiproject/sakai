@@ -180,6 +180,15 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			setUserServiceSql(sqlService().getVendor());
 
 			M_log.info("init(): table: " + m_tableName + " external locks: " + m_useExternalLocks);
+			
+			M_log.info("EID cache is \n" +
+					"Max Elements in Memory "+cache.getMaxElementsInMemory()+"\n"+
+					"Max Elements on Disk "+cache.getMaxElementsOnDisk()+"\n"+
+					"Time to Idle (seconds) "+cache.getTimeToIdleSeconds()+"\n"+
+					"Time to Live (seconds) "+cache.getTimeToLiveSeconds()+"\n"+
+					"Memory Store Eviction Policy "+cache.getMemoryStoreEvictionPolicy()+"\n");
+						
+			
 
 		}
 		catch (Throwable t)
@@ -567,8 +576,9 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			if (!m_separateIdEid) return;
 
 			// clear both sides of the cache
-			String eid = checkMapForEid(id);
-			if ( eid != null ) {
+			Element e = cache.get(EIDCACHE+id);
+			if ( e != null ) {
+				String eid = (String) e.getObjectValue();
 				cache.remove(IDCACHE+eid);
 			}
 			cache.remove(EIDCACHE+id);
@@ -608,6 +618,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			if (rv.size() > 0)
 			{
 				String eid = (String) rv.get(0);
+				cache.put(new Element(IDCACHE+eid,id));
 				cache.put(new Element(EIDCACHE+id,eid));
 				return eid;
 			}
@@ -644,6 +655,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			if (rv.size() > 0)
 			{
 				String id = (String) rv.get(0);
+				cache.put(new Element(EIDCACHE+id,eid));
 				cache.put(new Element(IDCACHE+eid,id));
 				return id;
 			}
