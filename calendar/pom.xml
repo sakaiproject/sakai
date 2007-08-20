@@ -19,6 +19,5 @@
     <module>calendar-summary-tool/tool</module>
     <module>calendar-tool/tool</module>
     <module>calendar-util/util</module>
-    <module>mergedlist-util/util</module>
   </modules>
 </project>
