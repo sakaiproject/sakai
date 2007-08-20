@@ -55,7 +55,7 @@
 		       </td>
 		       <td class="pageRight">
 		        #set ( ${historyBean.interestedRevision} = ${diffBean.right.revision} )
-		        <a href="${util.escapeHtml(${historyBean.viewRevisionUrl})} >${rlb.jsp_page_version} ${diffBean.right.revision}</a>
+		        <a href="${util.escapeHtml(${historyBean.viewRevisionUrl})}" >${rlb.jsp_page_version} ${diffBean.right.revision}</a>
 		        <br/>
 		        (${rlb.jsp_page_modified}: 
 		        #formatDateTime(${diffBean.right.version})
