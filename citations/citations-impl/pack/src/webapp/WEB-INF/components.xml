@@ -79,6 +79,38 @@
 	<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
     <property name="configurationService"><ref bean="org.sakaiproject.citation.api.ConfigurationService"/></property>
     <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+    
+    
+    <property name="sessionContextCache"><ref bean="org.sakaiproject.citation.api.SearchManager.sessionContextCache"/></property>
+    
+	<property name="metasearchSessionManagerCache"><ref bean="org.sakaiproject.citation.api.SearchManager.metasearchSessionManagerCache"/></property>
+    
   </bean>
 
+
+
+ 	
+ 	<!-- cache definitions -->
+ 	<bean id="org.sakaiproject.citation.api.SearchManager.sessionContextCache" 
+  			class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+  		<property name="cacheManager"><ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/></property>
+    	<property name="cacheName"><value>org.sakaiproject.citation.api.SearchManager.sessionContextCache</value></property>
+    	<property name="maxElementsInMemory" ><value>50</value></property>
+    	<property name="diskPersistent" ><value>true</value></property>
+    	<property name="eternal" ><value>false</value></property>
+    	<property name="timeToLive" ><value>43200</value></property>
+    	<property name="timeToIdle" ><value>15</value></property>
+  	</bean>
+
+ 	<bean id="org.sakaiproject.citation.api.SearchManager.metasearchSessionManagerCache" 
+  			class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+  		<property name="cacheManager"><ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/></property>
+    	<property name="cacheName"><value>org.sakaiproject.citation.api.SearchManager.metasearchSessionManagerCache</value></property>
+    	<property name="maxElementsInMemory" ><value>50</value></property>
+    	<property name="diskPersistent" ><value>true</value></property>
+    	<property name="eternal" ><value>false</value></property>
+    	<property name="timeToLive" ><value>0</value></property>
+    	<property name="timeToIdle" ><value>900</value></property>
+  	</bean>
+ 	
 </beans>

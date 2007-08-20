@@ -40,6 +40,8 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
 
+import net.sf.ehcache.Cache;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osid.OsidContext;
@@ -54,6 +56,7 @@ import org.osid.shared.ObjectIterator;
 import org.osid.shared.SharedException;
 import org.osid.shared.Type;
 import org.osid.shared.TypeIterator;
+import org.sakaibrary.xserver.session.MetasearchSessionManager;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -91,6 +94,8 @@ import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
+
+import edu.indiana.lib.twinpeaks.util.SessionContext;
 
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -1725,6 +1730,10 @@ public class BaseSearchManager implements SearchManager, Observer
 
 	protected String databaseHierarchyResourceRef;
 
+	private Cache sessionContextCache;
+
+	private Cache metasearchSessionManagerCache;
+
 	public void setSessionManager(SessionManager sessionManager)
 	{
 		m_sessionManager = sessionManager;
@@ -2249,6 +2258,13 @@ public class BaseSearchManager implements SearchManager, Observer
 
 	public void init()
 	{
+		
+		
+		
+		SessionContext.setCache(sessionContextCache);
+		MetasearchSessionManager.setCache(metasearchSessionManagerCache);
+
+		
 		m_log.info("BaseSearchManager.init()");
 
 		EventTrackingService.addObserver(this);
@@ -2507,5 +2523,37 @@ m_log.debug("******input: " + input);
 	private boolean isNull(String string)
 	{
 		return (string == null) || (string.trim().equals(""));
+	}
+
+	/**
+	 * @return the metasearchSessionManagerCache
+	 */
+	public Cache getMetasearchSessionManagerCache()
+	{
+		return metasearchSessionManagerCache;
+	}
+	
+	/**
+	 * @param metasearchSessionManagerCache the metasearchSessionManagerCache to set
+	 */
+	public void setMetasearchSessionManagerCache(Cache metasearchSessionManagerCache)
+	{
+		this.metasearchSessionManagerCache = metasearchSessionManagerCache;
+	}
+	
+	/**
+	 * @return the sessionContextCache
+	 */
+	public Cache getSessionContextCache()
+	{
+		return sessionContextCache;
+	}
+	
+	/**
+	 * @param sessionContextCache the sessionContextCache to set
+	 */
+	public void setSessionContextCache(Cache sessionContextCache)
+	{
+		this.sessionContextCache = sessionContextCache;
 	}
 }

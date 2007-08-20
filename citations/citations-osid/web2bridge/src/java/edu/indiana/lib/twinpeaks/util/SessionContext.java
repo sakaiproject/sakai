@@ -64,6 +64,12 @@ public class SessionContext
 	 * Local storage for name=value pairs
 	 */
 	private HashMap	_parameterMap							= null;
+	
+	/**
+	 * The cache to use, since the cache manager is managed by Sakai, this
+	 * has to be injected and set on startup of the parent component
+	 */
+	private static Cache cache;
 
   /**
    * Private constructor - set up the cache as required
@@ -74,37 +80,38 @@ public class SessionContext
 
 		try
 		{
-			CacheManager	cacheManager;
-	  	Cache					cache;
-
-			/*
-			 * Fetch singleton cache manager
-			 */
-			cacheManager = CacheManager.create();
-			/*
-			 * And create our cache (if necessary)
-			 */
-			if ((cache = cacheManager.getCache(CACHENAME)) == null)
-			{
-				cache = new Cache(CACHENAME,							// Name
-													CACHE_MEMORY_ELEMENTS, 	// Elements held in memory
-													                        // Eviction policy
-													net.sf.ehcache.store.MemoryStoreEvictionPolicy.LRU,
-													true, 									// Overflow to disk?
-                          "ignored",              // Disk store - ignored, CacheManager sets it using injection
-													false, 									// Disk elements live forever?
-													CACHE_TTL, 							// Element maximum time to live
-													CACHE_IDLE_TIME, 				// Element idle time removal
-													false, 									// Disk content exists across VM restart?
-													240L,										// Disk content idle check frequency
-													null,                   // Event listeners
-													null);                  // Bootstrap cache loader
-
-				cacheManager.addCache(cache);
-				_log.debug("Cache created: " + CACHENAME);
+			if ( cache == null ) {
+				CacheManager	cacheManager;
+	  		
+				/*
+				 * Fetch singleton cache manager
+				 */
+				cacheManager = CacheManager.create();
+				/*
+				 * And create our cache (if necessary)
+				 */
+				if ((cache = cacheManager.getCache(CACHENAME)) == null)
+				{
+					cache = new Cache(CACHENAME,							// Name
+														CACHE_MEMORY_ELEMENTS, 	// Elements held in memory
+														                        // Eviction policy
+														net.sf.ehcache.store.MemoryStoreEvictionPolicy.LRU,
+														true, 									// Overflow to disk?
+	                          "ignored",              // Disk store - ignored, CacheManager sets it using injection
+														false, 									// Disk elements live forever?
+														CACHE_TTL, 							// Element maximum time to live
+														CACHE_IDLE_TIME, 				// Element idle time removal
+														false, 									// Disk content exists across VM restart?
+														240L,										// Disk content idle check frequency
+														null,                   // Event listeners
+														null);                  // Bootstrap cache loader
+	
+					cacheManager.addCache(cache);
+					_log.debug("Cache created: " + CACHENAME);
+				}
+				_log.debug(CACHENAME + " size = " + cache.getSize());
+				_log.debug(CACHENAME + " keys = " + cache.getKeys().toString());
 			}
-			_log.debug(CACHENAME + " size = " + cache.getSize());
-			_log.debug(CACHENAME + " keys = " + cache.getKeys().toString());
 			/*
 			 * Fetch the session cache (create a new one if necessary)
 			 */
@@ -217,4 +224,20 @@ public class SessionContext
      */
     return "";
   }
+
+	/**
+	 * @return the cache
+	 */
+	public static Cache getCache()
+	{
+		return cache;
+	}
+	
+	/**
+	 * @param cache the cache to set
+	 */
+	public static void setCache(Cache cache)
+	{
+		SessionContext.cache = cache;
+	}
 }

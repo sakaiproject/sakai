@@ -26,6 +26,18 @@
       <version>${sakai.version}</version>
     </dependency>
     <dependency>
+  	  <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-citations-web2bridge</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+
+    <dependency>
+  		<groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-citations-xserver</artifactId>
+      <version>${sakai.version}</version>
+    </dependency>
+    
+    <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-citations-util</artifactId>
       <version>${sakai.version}</version>
@@ -120,6 +132,14 @@
       <artifactId>sakai-user-util</artifactId>
       <version>${sakai.version}</version>
     </dependency>
+    
+    <dependency>
+	  <groupId>net.sf.ehcache</groupId>
+      <artifactId>ehcache</artifactId>
+      <version>${sakai.ehcache.version}</version>
+      <type>jar</type>
+    </dependency>
+    
   </dependencies>
   <build>
     <resources>
