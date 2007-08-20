@@ -10,6 +10,9 @@
 <body rsf:id="scr=sakai-body">
 <div class="portletBody">
 <h3 rsf:id="new_poll_title">Add a question</h3>
+<div rsf:id="error-row:">
+  <div class="alertMessage" rsf:id="error">We Have Errors!</div>
+</div>
 <form rsf:id="add-poll-form">
 <table>
 
@@ -25,91 +28,20 @@
   <tr>
     <td> <span class="reqStarInline">*</span> <span rsf:id="new-poll-open-label">Opening</span></td>
     <td>
-<select name="open_day" id="open_day" onchange="blur()" rsf:id="new-poll-opend">
-	<option value="1">1</option>
-</select>
-<select name="open_month" id="open_month" onchange="blur()" rsf:id="new-poll-openm">  
-	<option value="1">JAN</option>         
-</select>
-<select name="open_year" id="open_year" onchange="blur()" rsf:id="new-poll-openy">
-	<option value="2006">2006</option>
-	<option value="2007">2007</option>
-	<option value="2008">2008</option>
-	<option value="2009">2009</option>
-	<option value="2010">2010</option>
-</select>
-
-        &nbsp;at 
-        <select name="open_hour" id="open_hour" onchange="blur()" rsf:id="new-poll-openh"> 
-	<option value="1">1</option>         
-	<option value="2">2</option>         
-	<option value="3">3</option>         
-	<option value="4">4</option>         
-	<option value="5">5</option>         
-	<option value="6">6</option>         
-	<option value="7">7</option>         
-	<option value="8">8</option>         
-	<option value="9">9</option>         
-	<option value="10">10</option>         
-	<option value="11">11</option>         
-	<option value="12">12</option> 
-</select>
-<select name="open_minute" id="open_minute" onchange="blur()" rsf:id="new-poll-openms">  
-	<option value="00">00</option>         
-	<option value="15">15</option>         
-	<option value="30">30</option>                  
-	<option value="45">45</option>         
-</select>
-<select name="open_ampm" id="open_ampm" onchange="blur()" rsf:id="new-poll-openampm">
-	<option value="am">AM</option>
-	<option value="pm">PM</option>
-</select>
+		<span  rsf:id="openDate:">
+							 <input type="text" id="start_date_dummy" name="start_date_dummy" value="MM/DD/YYYY" size="12" maxlength="10"/>
+							  <img src="../images/calendar.gif" />
+		</span>
 	</td>
   </tr>
   <tr>
     <td> <span class="reqStarInline">*</span> <span rsf:id="new-poll-close-label">Closing Date</span></td>
     <td>
-<select name="close_day" id="close_day" onchange="blur()" rsf:id="new-poll-closed">
-	<option value="1">1</option>
-</select>
-<select name="close_month" id="close_month" onchange="blur()" rsf:id="new-poll-closem">  
-	<option value="1">JAN</option>         
-</select>
-<select name="close_year" id="close_year" onchange="blur()" rsf:id="new-poll-closey">
-	<option value="2006">2006</option>
-	<option value="2007">2007</option>
-	<option value="2008">2008</option>
-	<option value="2009">2009</option>
-	<option value="2010">2010</option>
-</select>
-<script type="text/javascript" src="/library/calendar/sakai-calendar.js"></script>
-<!--<script type="text/javascript">chef_dateselectionwidgetpopup('yearSelect', 'month', 'day');</script>-->
-        &nbsp;at 
-        <select name="close_hour" id="close_hour" onchange="blur()" rsf:id="new-poll-closeh">  
-	<option value="1">1</option>         
-	<option value="2">2</option>         
-	<option value="3">3</option>         
-	<option value="4">4</option>         
-	<option value="5">5</option>         
-	<option value="6">6</option>         
-	<option value="7">7</option>         
-	<option value="8">8</option>         
-	<option value="9">9</option>         
-	<option value="10">10</option>         
-	<option value="11">11</option>         
-	<option value="12">12</option> 
-</select>
-<select name="close_minute" id="close_minute" onchange="blur()" rsf:id="new-poll-closems">  
-	<option value="00">00</option>         
-	<option value="15">15</option>         
-	<option value="30">30</option>                  
-	<option value="45">45</option>         
-</select>
-<select name="close_ampm" id="close_ampm" onchange="blur()" rsf:id="new-poll-closeampm">
-	<option value="am">AM</option>
-	<option value="pm">PM</option>
-</select>
-	</td>
+    		<span  rsf:id="closeDate:">
+							 <input type="text" id="start_date_dummy" name="start_date_dummy" value="MM/DD/YYYY" size="12" maxlength="10"/>
+							  <img src="../images/calendar.gif" />
+		</span>
+    	</td>
   </tr>
 </table>
 

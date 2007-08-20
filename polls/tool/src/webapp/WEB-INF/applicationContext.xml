@@ -42,11 +42,20 @@
    </bean>
 	
 	
-	
+	   <bean id="pollGuard" parent="writeGuardParent">
+     <property name="guardedPath" value="poll"/>
+     <property name="guard">
+         <bean class="org.sakaiproject.poll.tool.validators.PollValidator">
+       <!-- 	<property name="pollListManager" ref="org.sakaiproject.tool.poll.api.PollListManager"/>
+ 			<property name="messageLocator" ref="messageLocator"/>
+ 	    	<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" /> -->
+ 		</bean>
+     </property>
+   </bean>
 
 	
   <bean parent="requestAddressibleParent">
-    <property name="value" value="pollToolBean, voteBean, pollVoteProducer, voteCollection,option, permissionAction, roleperms, optionValidator" />
+    <property name="value" value="pollToolBean, voteBean, pollVoteProducer, voteCollection,option,poll, pollGuard, permissionAction, roleperms, optionValidator" />
   </bean>
   <bean id="voteBean" class="org.sakaiproject.poll.tool.params.VoteBean" />
   <!-- Scope for the vote bean -->

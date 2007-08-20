@@ -37,6 +37,7 @@ import org.sakaiproject.poll.tool.params.VoteBean;
 
 import uk.org.ponder.beanutil.entity.EntityID;
 import uk.org.ponder.messageutil.MessageLocator;
+import uk.org.ponder.messageutil.TargettedMessageList;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.view.ComponentChecker;
@@ -58,6 +59,7 @@ import uk.org.ponder.rsf.components.UISelectLabel;
 import uk.org.ponder.rsf.components.UIOutputMany;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
+import uk.org.ponder.rsf.evolvers.FormatAwareDateInputEvolver;
 import uk.org.ponder.rsf.evolvers.TextInputEvolver;
 //import uk.org.ponder.rsf.components.decorators.UITextDimensionsDecorator;
 //import uk.org.ponder.rsf.components.decorators.DecoratorList;
@@ -113,11 +115,49 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 				this.richTextEvolver = richTextEvolver;
 	  }
 		
+	  private TargettedMessageList tml;
+	  public void setTargettedMessageList(TargettedMessageList tml) {
+		    this.tml = tml;
+	  }
+	  
+	  private Poll poll;
+	  public void setPoll(Poll p) {
+		  poll =p;
+	  }
+		
+	  
+		/*
+		 * You can change the date input to accept time as well by uncommenting the lines like this:
+		 * dateevolver.setStyle(FormatAwareDateInputEvolver.DATE_TIME_INPUT);
+		 * and commenting out lines like this:
+		 * dateevolver.setStyle(FormatAwareDateInputEvolver.DATE_INPUT);
+		 * -AZ
+		 */
+		private FormatAwareDateInputEvolver dateevolver;
+		public void setDateEvolver(FormatAwareDateInputEvolver dateevolver) {
+			this.dateevolver = dateevolver;
+		}
+		
+		
 		
 	  public void fillComponents(UIContainer tofill, ViewParameters viewparams,
 		      ComponentChecker checker) {
 		  
 		
+		  //process any messages
+		if (tml.size() > 0) {
+		    	for (int i = 0; i < tml.size(); i ++ ) {
+		    		UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:", new Integer(i).toString());
+		    		String output;
+		    		if (tml.messageAt(i).args != null ) {	    		
+		    			output = messageLocator.getMessage(tml.messageAt(i).acquireMessageCode(),tml.messageAt(i).args[0]);
+		    		} else {
+		    			output = messageLocator.getMessage(tml.messageAt(i).acquireMessageCode());
+		    		}
+		    		UIOutput.make(errorRow,"error", output);
+		    	}
+			}
+		  
 		  
 	    User currentuser = userDirectoryService.getCurrentUser();
 	    String currentuserid = currentuser.getId();
@@ -131,7 +171,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 	    	poll = voteBean.getPoll();
 	    	UIOutput.make(tofill,"new_poll_title",messageLocator.getMessage("new_poll_title"));
 	    	isNew = false;
-	    	newPoll.parameters.add(new UIELBinding("#{pollToolBean.newPoll.pollId}",
+	    	newPoll.parameters.add(new UIELBinding("#{poll.pollId}",
 			           poll.getPollId()));
 	    	
 	    } else if (ecvp.mode.equals(EntityCentredViewParameters.MODE_NEW)) {
@@ -145,7 +185,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 			m_log.debug("got id of " + strId);
 			poll = pollListManager.getPollById(new Long(strId));
 			voteBean.setPoll(poll);
-			newPoll.parameters.add(new UIELBinding("#{pollToolBean.newPoll.pollId}",
+			newPoll.parameters.add(new UIELBinding("#{poll.pollId}",
 			           poll.getPollId()));
 
 			isNew = false;
@@ -189,99 +229,33 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		  
 		  //the form fields
 		  
-		  UIInput.make(newPoll, "new-poll-text", "#{pollToolBean.newPoll.text}",poll.getText());
+		  UIInput.make(newPoll, "new-poll-text", "#{poll.text}",poll.getText());
 			/*
-		  UIInput itemText = UIInput.make(newPoll, "new-poll-text:", "#{pollToolBean.newPoll.text}", poll.getText()); //$NON-NLS-1$ //$NON-NLS-2$
+		  UIInput itemText = UIInput.make(newPoll, "new-poll-text:", "#{poll.newPoll.text}", poll.getText()); //$NON-NLS-1$ //$NON-NLS-2$
 			itemText.decorators = new DecoratorList(new UITextDimensionsDecorator(40, 4));
 			richTextEvolver.evolveTextInput(itemText);
 		  */
-		  UIInput.make(newPoll, "new-poll-descr", "#{pollToolBean.newPoll.details}", poll.getDetails());
+		  UIInput.make(newPoll, "new-poll-descr", "#{poll.details}", poll.getDetails());
 			/*
-		  UIInput itemDescr = UIInput.make(newPoll, "newpolldescr:", "#{pollToolBean.newPoll.details}", poll.getDetails()); //$NON-NLS-1$ //$NON-NLS-2$
+		  UIInput itemDescr = UIInput.make(newPoll, "newpolldescr:", "#{poll.newPoll.details}", poll.getDetails()); //$NON-NLS-1$ //$NON-NLS-2$
 			itemDescr.decorators = new DecoratorList(new UITextDimensionsDecorator(40, 4));
 			richTextEvolver.evolveTextInput(itemDescr);
 		  */
 		  
-		  //we need a date fomater
-		    SimpleDateFormat dayf = new SimpleDateFormat("d");
 		  
-//		  build a days array
-		  String[] days = new String[] {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31"};
-		  UISelect oDay = UISelect.make(newPoll,"new-poll-opend", days, "#{pollToolBean.openDay}",dayf.format(poll.getVoteOpen()));
-		  UISelect cDay = UISelect.make(newPoll,"new-poll-closed", days,"#{pollToolBean.closeDay}",dayf.format(poll.getVoteClose()));
-		   
-		  oDay.optionlist = UIOutputMany.make(days);
-		  oDay.optionnames = UIOutputMany.make(days);
-		  cDay.optionlist = UIOutputMany.make(days);
-		  cDay.optionnames = UIOutputMany.make(days);
-		  
-		  //build the month array
-		  
-		  String[] months = new String[12];
-		  String[] monthsI = new String[12];
-		  SimpleDateFormat monthIn = new SimpleDateFormat("M");
-		  SimpleDateFormat monthf = new SimpleDateFormat("MMM",localegetter.get());
-		  for (int i = 0; i < 12; i++) {
-			  
-			  try {
-				  Date d = monthIn.parse(Integer.toString(i+1));
-				  months[i]= monthf.format(d);
-				  monthsI[i] = Integer.toString(i+1);
-			  } 
-			  catch (ParseException e) {
-				  e.printStackTrace();
-			  }
-			  
-		  }
-		  
-		  m_log.debug("this poll opens in month " +monthIn.format(poll.getVoteOpen()) + " on day " + dayf.format(poll.getVoteOpen()) + " and closes in month: " + monthIn.format(poll.getVoteClose()));
-		  UISelect oMonth = UISelect.make(newPoll,"new-poll-openm",monthsI, "#{pollToolBean.openMonth}",monthIn.format(poll.getVoteOpen()));
-		  UISelect cMonth = UISelect.make(newPoll,"new-poll-closem",monthsI,"#{pollToolBean.closeMonth}",monthIn.format(poll.getVoteClose()));
-		  //oMonth.optionlist = UIOutputMany.make(months);
-		  oMonth.optionnames = UIOutputMany.make(months);
-		  //cMonth.optionlist = UIOutputMany.make(months);
-		  cMonth.optionnames = UIOutputMany.make(months);
+		  UIInput voteOpen = UIInput.make(newPoll, "openDate:", "poll.voteOpen");
+		  UIInput voteClose = UIInput.make(newPoll, "closeDate:", "poll.voteClose");
+		  dateevolver.setStyle(FormatAwareDateInputEvolver.DATE_TIME_INPUT);
+		  dateevolver.evolveDateInput(voteOpen, poll.getVoteOpen());
+		  dateevolver.evolveDateInput(voteClose, poll.getVoteClose());
 		  
 		  
-		  String[] years = new String[] {"2006","2007","2008","2009","2010"};
-		  SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
 		  
-		  UISelect oYear = UISelect.make(newPoll,"new-poll-openy",years,"#{pollToolBean.openYear}", yearf.format(poll.getVoteOpen()));
-		  UISelect cYear = UISelect.make(newPoll,"new-poll-closey",years, "#{pollToolBean.closeYear}", yearf.format(poll.getVoteClose()));
-		  oYear.optionnames = UIOutputMany.make(years);
-		  cYear.optionnames = UIOutputMany.make(years);
-		  
-		  String[] hours = new String[] {"1","2","3","4","5","6","7","8","9","10","11","12"};
-		  SimpleDateFormat hoursf = new SimpleDateFormat("h");
-		  UISelect oHours = UISelect.make(newPoll,"new-poll-openh",hours,"#{pollToolBean.openHour}", hoursf.format(poll.getVoteOpen()));
-		  UISelect cHours = UISelect.make(newPoll,"new-poll-closeh",hours,"#{pollToolBean.closeHour}",hoursf.format(poll.getVoteClose()));
-		  cHours.optionnames = UIOutputMany.make(hours);
-		  oHours.optionnames = UIOutputMany.make(hours);
-		  
-		  SimpleDateFormat minf = new SimpleDateFormat("m");
-		  String[] minutes = new String[]{"00","15","30","45"};
-		  String openM = null;
-		  String closeM = null;
-		  if (poll == null) {
-			  openM ="00";
-			  closeM ="00";
-		  } else {
-			  openM=minf.format(poll.getVoteOpen());
-			  closeM=minf.format(poll.getVoteClose());
-		  }
-		  
-		  UISelect.make(newPoll,"new-poll-openms",minutes,"#{pollToolBean.openMinutes}",openM);
-		  UISelect.make(newPoll,"new-poll-closems",minutes,"#{pollToolBean.closeMinutes}", closeM);
-		  
-		  SimpleDateFormat amf = new SimpleDateFormat("a");
-		  String[] ampm = new String[]{"AM","PM"};
-		  UISelect.make(newPoll,"new-poll-openampm",ampm,"#{pollToolBean.openAmPm}",amf.format(poll.getVoteOpen()));
-		  UISelect.make(newPoll,"new-poll-closeampm",ampm,"#{pollToolBean.closeAmPm}", amf.format(poll.getVoteClose()));
 		  
 		  String[] minVotes = new String[]{"0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"};
 		  String[] maxVotes = new String[]{"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"};
-		  UISelect.make(newPoll,"min-votes",minVotes,"#{pollToolBean.newPoll.minOptions}",Integer.toString(poll.getMinOptions()));
-		  UISelect.make(newPoll,"max-votes",maxVotes,"#{pollToolBean.newPoll.maxOptions}",Integer.toString(poll.getMaxOptions()));
+		  UISelect.make(newPoll,"min-votes",minVotes,"#{poll.minOptions}",Integer.toString(poll.getMinOptions()));
+		  UISelect.make(newPoll,"max-votes",maxVotes,"#{poll.maxOptions}",Integer.toString(poll.getMaxOptions()));
 		  /*
 			 * 	open - can be viewd at any time
 			 * 	never - not diplayed
@@ -290,7 +264,9 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 			 * 
 			 */
 		  
-		  m_log.debug("finished with the date controlls");
+		  
+		  
+		 
 		  
 		    String[] values = new String[] { "open", "never", "afterVoting", "afterClosing" };
 		    String[] labels = new String[] {
@@ -302,7 +278,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		    
 
 		    UISelect radioselect = UISelect.make(newPoll, "release-select", values,
-		        "#{pollToolBean.newPoll.displayResult}", poll.getDisplayResult());
+		        "#{poll.displayResult}", poll.getDisplayResult());
 		    
 		    radioselect.optionnames = UIOutputMany.make(labels);
 		    
@@ -322,7 +298,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		    
 		    
 		    m_log.debug("About to close the form");
-		    newPoll.parameters.add(new UIELBinding("#{pollToolBean.newPoll.owner}",
+		    newPoll.parameters.add(new UIELBinding("#{poll.owner}",
 		    		currentuserid));
 		    String siteId = toolManager.getCurrentPlacement().getContext();
 		    newPoll.parameters.add(new UIELBinding("#{pollToolBean.siteID}",siteId));

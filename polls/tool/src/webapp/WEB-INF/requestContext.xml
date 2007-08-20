@@ -16,6 +16,7 @@
   <property name="pollVoteManager" ref="org.sakaiproject.tool.poll.api.PollVoteManagerDao" />
   <property name="voteCollection" ref="voteCollection" />
   <property name="option" ref="option" />
+  <property name="poll" ref="poll" />
   <property name="localeGetter" ref="requestLocaleProxy" />
  </bean>	
 
@@ -87,7 +88,9 @@
 	<property name="pollListManager" 
 		ref="org.sakaiproject.tool.poll.api.PollListManager"/>
 	<property name="richTextEvolver" ref="richTextEvolver" />
-</bean>
+	<property name="targettedMessageList" ref="targettedMessageList" /> 
+	 <property name="dateEvolver" ref="fieldDateInputEvolver"/>
+	</bean>
 
   
  <bean id="pollVoteProducer" class="org.sakaiproject.poll.tool.producers.PollVoteProducer">
@@ -112,4 +115,21 @@
 
 	<bean id="voteCollection" class="org.sakaiproject.poll.model.VoteCollection" />
  	<bean id="option" class="org.sakaiproject.poll.model.Option" />
+ 	<bean id="poll" class="org.sakaiproject.poll.model.Poll" />
+
+
+
+  <bean id="fieldDateTransit" parent="beanExploder">
+    <property name="factory">
+      <bean class="uk.org.ponder.dateutil.StandardFieldDateTransit"
+        init-method="init">
+        <property name="locale" ref="requestLocale" />
+        <property name="timeZone" ref="requestTimeZone"/>
+      </bean>
+    </property>
+  </bean>
+
 </beans>
+
+
+  

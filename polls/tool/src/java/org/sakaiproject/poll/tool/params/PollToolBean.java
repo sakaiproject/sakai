@@ -52,8 +52,8 @@ import uk.org.ponder.localeutil.LocaleGetter;
 
 
 public class PollToolBean {
-  /** A holder for the single new task that may be in creation **/
-  public Poll newPoll = new Poll();
+  
+  //public Poll newPoll = new Poll();
   public String siteID;
   
   
@@ -110,17 +110,24 @@ public class PollToolBean {
 	  this.option = o;
   }
  
+  private Poll poll;
+  public void setPoll(Poll p) {
+	  poll = p;
+  }
+  
   private LocaleGetter localegetter;
 
   public void setLocaleGetter(LocaleGetter localegetter) {
     this.localegetter = localegetter;
   }
+  
+  /*
   public String processActionAdd() {
 	  
 	  
 	  
 
-	  Poll poll = null;
+	  
 	  boolean isNew = true;
 	  if (newPoll.getPollId()!=null) {
 		  m_log.debug("Actualy updating poll " + newPoll.getPollId());
@@ -259,7 +266,38 @@ public class PollToolBean {
 	  	  return "option";
       }
   }
+	*/
+  
+  public String processActionAdd() {
+	  boolean isNew = true;
+	  if (poll.getPollId()!=null) {
+		  m_log.debug("Actualy updating poll " + poll.getPollId());
+		  isNew = false;
+		  //check for possible unchanged values
+		  m_log.debug(" newPoll test is " + poll.getText()+ " while poll text is " + poll.getText());
+		  if (poll.getText().equals("") && poll.getText()!=null)
+			  poll.setText(poll.getText());
 		  
+		  if (poll.getDetails().equals("") && poll.getDetails() != null)
+			  poll.setDetails(poll.getDetails());
+	  }
+	  
+      m_log.debug("about to save poll " + poll);
+      manager.savePoll(poll);
+     
+      m_log.info("Poll saved with id of " + poll.getPollId());
+      
+      voteBean.poll = poll;
+    
+      if (!isNew) {
+    	  return "added";
+      } else {
+    	  m_log.info("returning option");
+	  	  return "option";
+      }
+  }
+  
+  
   public void processActionDelete() {
     
     	for (int i = 0; i < deleteids.length; i ++) {
