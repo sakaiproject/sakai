@@ -222,13 +222,17 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 
 		return message;
 	}
+	
+	protected String plainTextContent() {
+		return getMessage(this.event);
+	}
 
 	/**
 	 * @inheritDoc
 	 */
 	protected List getHeaders(Event e)
 	{
-		List rv = new ArrayList(1);
+		List rv = super.getHeaders(e);
 		Reference ref = entityManager.newReference(e.getResource());
 		ResourceProperties props = ref.getProperties();
 
