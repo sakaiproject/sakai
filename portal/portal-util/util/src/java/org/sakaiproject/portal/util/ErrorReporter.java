@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.MessageDigest;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -61,8 +63,16 @@ public class ErrorReporter
 	/** messages. */
 	private static ResourceLoader rb = new ResourceLoader("portal-util");
 
+	private Map<String, String> censoredHeaders = new HashMap<String, String>();
+
+	private Map<String, String> censoredParameters = new HashMap<String, String>();
+
+	private Map<String, String> censoredAttributes = new HashMap<String, String>();
+
 	public ErrorReporter()
 	{
+		censoredParameters.put("pw", "pw");
+		censoredParameters.put("eid", "eid");
 	}
 
 	/** Following two methods borrowed from RWikiObjectImpl.java * */
@@ -559,25 +569,28 @@ public class ErrorReporter
 			for (Enumeration e = request.getHeaderNames(); e.hasMoreElements();)
 			{
 				String headerName = (String) e.nextElement();
+				boolean censor =  ( censoredHeaders.get(headerName) != null );
 				for (Enumeration he = request.getHeaders(headerName); he
 						.hasMoreElements();)
 				{
 					String headerValue = (String) he.nextElement();
 					sb.append(rb.getString("bugreport.request.header"))
-							.append(headerName).append(":").append(headerValue).append(
+							.append(headerName).append(":").append(censor?"---censored---":headerValue).append(
 									"\n");
 				}
 			}
 			sb.append(rb.getString("bugreport.request.parameters")).append("\n");
 			for (Enumeration e = request.getParameterNames(); e.hasMoreElements();)
 			{
+				
 				String parameterName = (String) e.nextElement();
+				boolean censor =  ( censoredParameters.get(parameterName) != null );
 				String[] paramvalues = request.getParameterValues(parameterName);
 				for (int i = 0; i < paramvalues.length; i++)
 				{
 					sb.append(rb.getString("bugreport.request.parameter")).append(
 							parameterName).append(":").append(i).append(":").append(
-							paramvalues[i]).append("\n");
+							censor?"----censored----":paramvalues[i]).append("\n");
 				}
 			}
 			sb.append(rb.getString("bugreport.request.attributes")).append("\n");
@@ -585,8 +598,9 @@ public class ErrorReporter
 			{
 				String attributeName = (String) e.nextElement();
 				Object attribute = request.getAttribute(attributeName);
+				boolean censor =  ( censoredAttributes.get(attributeName) != null );
 				sb.append(rb.getString("bugreport.request.attribute")).append(
-						attributeName).append(":").append(attribute).append("\n");
+						attributeName).append(":").append(censor?"----censored----":attribute).append("\n");
 			}
 			HttpSession session = request.getSession(false);
 			if (session != null)
@@ -603,8 +617,9 @@ public class ErrorReporter
 				{
 					String attributeName = (String) e.nextElement();
 					Object attribute = session.getAttribute(attributeName);
+					boolean censor =  ( censoredAttributes.get(attributeName) != null );
 					sb.append(rb.getString("bugreport.session.attribute")).append(
-							attributeName).append(":").append(attribute).append("\n");
+							attributeName).append(":").append(censor?"----censored----":attribute).append("\n");
 				}
 
 			}
