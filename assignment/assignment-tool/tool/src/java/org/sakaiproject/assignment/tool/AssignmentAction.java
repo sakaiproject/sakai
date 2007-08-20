@@ -1514,9 +1514,13 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("attachments", state.getAttribute(ATTACHMENTS));
 		context.put("contentTypeImageService", state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE));
 
-		String range = (String) state.getAttribute(NEW_ASSIGNMENT_RANGE);
+		String range = StringUtil.trimToNull((String) state.getAttribute(NEW_ASSIGNMENT_RANGE));
+		if (range != null)
+		{
+			context.put("range", range);
+		}
+		
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
-
 		// put site object into context
 		try
 		{
@@ -1532,15 +1536,18 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			Collection groupsAllowAddAssignment = AssignmentService.getGroupsAllowAddAssignment(contextString);
 			
-			if (AssignmentService.allowAddSiteAssignment(contextString))
+			if (range == null)
 			{
-				// default to make site selection
-				context.put("range", "site");
-			}
-			else if (groupsAllowAddAssignment.size() > 0)
-			{
-				// to group otherwise
-				context.put("range", "groups");
+				if (AssignmentService.allowAddSiteAssignment(contextString))
+				{
+					// default to make site selection
+					context.put("range", "site");
+				}
+				else if (groupsAllowAddAssignment.size() > 0)
+				{
+					// to group otherwise
+					context.put("range", "groups");
+				}
 			}
 			
 			// group list which user can add message to
