@@ -120,13 +120,6 @@ public abstract class DynaRendererBase
       while (iter.hasNext())
       {
         UIComponent child = (UIComponent) iter.next();
-        System.out.println("child.getClass().getName()="+child.getClass().getName());
-
-        // we skip if children are not of the type we want, we can add tests as needed
-//        if (!(child instanceof UIColumn) && !(child instanceof MultiColumnComponent))
-//        {
-//          continue;
-//        }
 
         if (child instanceof UIColumn)
         {
@@ -141,69 +134,7 @@ public abstract class DynaRendererBase
           child.encodeBegin(context);
           child.encodeChildren(context);
           child.encodeEnd(context);
-
-//          RendererUtil.encodeRecursive(context, child);
-
-//          UIData multiData = (UIData) child;
-//          int mFirst = multiData.getFirst();
-//          int mRows = multiData.getRows();
-//          String value = RendererUtil.getAttribute(context, )
-//          mFirst=0; mRows=2;
-//          mFirst=0; mRows=0;
-//          System.out.println("mFirst="+mFirst);
-//          System.out.println("mRows="+mRows);
-//          for (int j = mFirst, m = 0; m < mRows; j++, m++)
-//          {
-//            System.out.println("j="+j);
-//            System.out.println("m="+m);
-//            System.out.println("data.isRowAvailable()="+data.isRowAvailable());
-//            data.setRowIndex(j);
-//            if (!data.isRowAvailable())
-//            {
-//              break;
-//            }
-//            Iterator multIter = multiData.getChildren().iterator();
-//            while (multIter.hasNext()) {
-//              UIComponent multiChild = (UIComponent) multIter.next();
-//
-//              if (multiChild instanceof UIColumn)
-//              {
-//                writer.startElement("td", multiChild);
-//                RendererUtil.encodeRecursive(context, multiChild);
-//                writer.endElement("td");
-//              }
-//            }
-//          }
         }
-
-
-//        ////////////////////////////////////
-//        //  TD
-//        ////////////////////////////////////
-//        if (child instanceof UIColumn) writer.startElement("td", child);
-//        RendererUtil.encodeRecursive(context, child);
-//        ////////////////////////////////////
-//        //  /TD
-//        ////////////////////////////////////
-//        if (child instanceof UIColumn) writer.endElement("td");
-
-//        if (child instanceof UIColumn)
-//        {
-//          ////////////////////////////////////
-//          //  TD
-//          ////////////////////////////////////
-//          writer.startElement("td", child);
-//          RendererUtil.encodeRecursive(context, child);
-//          ////////////////////////////////////
-//          //  /TD
-//          ////////////////////////////////////
-//          writer.endElement("td");
-//        }
-//        else if (child instanceof MultiColumnComponent
-//                 && !multiColumn) // cannot nest MultiColumnComponents!
-//        {
-//          renderData(context, child);
-//        }
       }
       ////////////////////////////////////
       //  /TR

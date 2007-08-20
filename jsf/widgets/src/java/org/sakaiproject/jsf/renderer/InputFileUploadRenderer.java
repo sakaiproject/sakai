@@ -127,8 +127,6 @@ public class InputFileUploadRenderer extends Renderer
             return;
         }
 
-        //System.out.println("inputFileUpload: item: " + item + " name: " + item.getName() + " length: " + item.getSize());
-
         if (directory == null || directory.length() == 0)
         {
             // just passing on the FileItem as the value of the component, without persisting it.
@@ -319,7 +317,6 @@ public class InputFileUploadRenderer extends Renderer
     {
         context.addMessage(clientId, new FacesMessage(FacesMessage.SEVERITY_ERROR,
                 message, message));
-        System.out.println(message);
     }
 
     /**

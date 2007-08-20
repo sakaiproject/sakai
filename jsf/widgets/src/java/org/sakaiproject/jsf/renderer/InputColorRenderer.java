@@ -142,13 +142,10 @@ public class InputColorRenderer extends Renderer
     if (component instanceof UIInput)
     {
       value = ( (UIInput) component).getSubmittedValue();
-      System.out.println("renderer component is UIInput, value=" + value);
     }
     if (value == null && component instanceof ValueHolder)
     {
       value = ( (ValueHolder) component).getValue();
-      System.out.println("renderer component is ValueHolder, value=" +
-        value);
     }
     String valString = "";
     if (value != null)
