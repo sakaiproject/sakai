@@ -85,6 +85,7 @@
     <sakai.xerces.impl.version>2.6.2</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
     <sakai.pluto.version>1.1.2</sakai.pluto.version>
+    <sakai.jcr.version>1.0</sakai.jcr.version>
   </properties>
 <pluginRepositories>
   <pluginRepository>
@@ -439,6 +440,13 @@ This is not needed now that pluto have been released
                 <version>2.0</version>
                 <scope>provided</scope>
            </dependency>
+           <dependency>
+                <groupId>javax.jcr</groupId>
+                <artifactId>jcr</artifactId>
+                <version>${sakai.jcr.version}</version>
+                <scope>provided</scope>
+           </dependency>
+
 
 	<!-- kernel apis -->
            <dependency>
@@ -752,6 +760,12 @@ This is not needed now that pluto have been released
            <dependency>
                 <groupId>org.sakaiproject</groupId>
                 <artifactId>sakai-gradebook-service-api</artifactId>
+                <version>${sakai.version}</version>
+                <scope>provided</scope>
+           </dependency>
+           <dependency>
+                <groupId>org.sakaiproject</groupId>
+                <artifactId>sakai-jcr-api</artifactId>
                 <version>${sakai.version}</version>
                 <scope>provided</scope>
            </dependency>
