@@ -18,14 +18,33 @@
     <url>https://source.sakaiproject.org/svn/tool/trunk</url>
   </scm>
 
-
-  <modules>
-    <module>tool-api/api</module>
-    <module>tool-impl/impl</module>
-    <module>tool-impl/pack</module>
-    <module>tool-tool/su</module>
-    <module>tool-util/servlet</module>
-    <module>tool-util/util</module>
-    <module>tool-shared-deploy</module>
-  </modules>
+   
+  <profiles>
+    <profile>
+        <id>mini</id>
+        <modules>
+            <module>tool-api/api</module>
+            <module>tool-impl/impl</module>
+            <module>tool-impl/pack</module>
+            <module>tool-util/servlet</module>
+            <module>tool-util/util</module>
+            <module>tool-shared-deploy</module>
+        </modules>
+     </profile>
+     <profile>
+        <id>full</id>
+        <activation>
+          <activeByDefault>true</activeByDefault>
+        </activation>
+  	<modules>
+	    <module>tool-api/api</module>
+	    <module>tool-impl/impl</module>
+	    <module>tool-impl/pack</module>
+	    <module>tool-tool/su</module>
+	    <module>tool-util/servlet</module>
+	    <module>tool-util/util</module>
+	    <module>tool-shared-deploy</module>
+	</modules>
+     </profile>
+  </profiles>
 </project>
