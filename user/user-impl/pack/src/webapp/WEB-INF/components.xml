@@ -110,6 +110,11 @@
   		<property name="cacheName">
     		<value>org.sakaiproject.user.api.UserDirectoryService</value>
   		</property>
+  		<property name="maxElementsInMemory" ><value>100000</value></property>
+        <property name="diskPersistent" ><value>false</value></property>
+        <property name="eternal" ><value>false</value></property>
+        <property name="timeToLive" ><value>7200</value></property>
+        <property name="timeToIdle" ><value>7200</value></property>
 	</bean>
 
 </beans>
