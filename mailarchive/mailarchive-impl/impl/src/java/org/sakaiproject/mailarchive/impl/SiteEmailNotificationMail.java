@@ -37,6 +37,7 @@ import org.sakaiproject.mailarchive.api.MailArchiveMessageHeader;
 import org.sakaiproject.mailarchive.api.MailArchiveService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.util.EmailNotification;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.SiteEmailNotification;
 
@@ -76,19 +77,125 @@ public class SiteEmailNotificationMail extends SiteEmailNotification
 	/**
 	 * @inheritDoc
 	 */
-	public NotificationAction getClone()
+	protected List getHeaders(Event event)
 	{
-		SiteEmailNotificationMail clone = new SiteEmailNotificationMail();
-		clone.set(this);
+		// send most of the headers from the original message, removing some
+		Reference ref = EntityManager.newReference(event.getResource());
+		MailArchiveMessage msg = (MailArchiveMessage) ref.getEntity();
+		MailArchiveMessageHeader hdr = (MailArchiveMessageHeader) msg.getMailArchiveHeader();
+		List headers = hdr.getMailHeaders();
 
-		return clone;
+		List filteredHeaders = super.getHeaders(event);
+		String innerContentType = null;
+		String outerContentType = null;
+		String contentType = null;
+
+		for (int i = 0; i < headers.size(); i++)
+		{
+			String headerStr = (String) headers.get(i);
+
+			if (headerStr.startsWith("Return-Path") || headerStr.startsWith("Content-Transfer-Encoding")) continue;
+
+			if (headerStr.startsWith(MailArchiveService.HEADER_INNER_CONTENT_TYPE + ": ")) innerContentType = headerStr;
+			if (headerStr.startsWith(MailArchiveService.HEADER_OUTER_CONTENT_TYPE + ": ")) outerContentType = headerStr;
+
+			if (!headerStr.startsWith("Content-Type: "))
+			{
+				filteredHeaders.add(headerStr);
+			}
+			else
+			{
+				contentType = headerStr;
+			}
+		}
+
+		if (innerContentType != null)
+		{
+			// use the content type of the inner email message body
+			//filteredHeaders.add(innerContentType.replaceAll(MailArchiveService.HEADER_INNER_CONTENT_TYPE, "Content-Type"));
+		}
+		else if (outerContentType != null)
+		{
+			// use the content type from the outer message (content type as set in the email originally)
+			//filteredHeaders.add(outerContentType.replaceAll(MailArchiveService.HEADER_OUTER_CONTENT_TYPE, "Content-Type"));
+		}
+		else if (contentType != null)
+		{
+			// Oh well, use the plain old Content-Type header
+			//filteredHeaders.add(contentType);
+		}
+
+		return filteredHeaders;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	protected String getMessage(Event event)
+	protected String getTag(String newline, String title)
 	{
+		// tag the message
+		String rv = newline + rb.getString("separator") + newline + rb.getString("this") + " "
+				+ ServerConfigurationService.getString("ui.service", "Sakai") + " (" + ServerConfigurationService.getPortalUrl()
+				+ ") " + rb.getString("forthe") + " " + title + " " + rb.getString("site") + newline + rb.getString("youcan")
+				+ newline;
+		return rv;
+	}
+
+	@Override
+	protected String htmlContent() {
+		StringBuffer buf = new StringBuffer();
+
+		// get the message
+		Reference ref = EntityManager.newReference(event.getResource());
+		MailArchiveMessage msg = (MailArchiveMessage) ref.getEntity();
+		MailArchiveMessageHeader hdr = (MailArchiveMessageHeader) msg.getMailArchiveHeader();
+
+		// use either the configured site, or if not configured, the site (context) of the resource
+		String siteId = (getSite() != null) ? getSite() : ref.getContext();
+
+		// get a site title
+		String title = siteId;
+		try
+		{
+			Site site = SiteService.getSite(siteId);
+			title = site.getTitle();
+		}
+		catch (Exception ignore)
+		{
+		}
+
+		// use the message's body
+		buf.append(msg.getBody());
+
+		// add any attachments
+		List attachments = hdr.getAttachments();
+		if (attachments.size() > 0)
+		{
+			buf.append("<br/>\n" + "Attachments:<br/>\n");
+			for (Iterator iAttachments = attachments.iterator(); iAttachments.hasNext();)
+			{
+				Reference attachment = (Reference) iAttachments.next();
+				String attachmentTitle = attachment.getProperties().getPropertyFormatted(ResourceProperties.PROP_DISPLAY_NAME);
+				buf.append("<br/>\n<a href=\"" + attachment.getUrl() + "\" >" + attachmentTitle + "</a><br/>\n");
+			}
+		}
+		
+		// tag the message
+		buf.append("<br/>\n<hr/><br/>\n" + rb.getString("this") + " "
+				+ ServerConfigurationService.getString("ui.service", "Sakai") + " (<a href=\"" + ServerConfigurationService.getPortalUrl()
+				+ "\" >" + ServerConfigurationService.getPortalUrl() + "<a/>) " + rb.getString("forthe") + " " + title + " " + rb.getString("site") + "<br/>\n" + rb.getString("youcan")
+				+ "<br/>\n");
+
+		return buf.toString();
+	}
+
+	@Override
+	protected EmailNotification makeEmailNotification() {
+		return new SiteEmailNotificationMail();
+	}
+
+	@Override
+	protected String plainTextContent() {
 		StringBuffer buf = new StringBuffer();
 
 		// get the message
@@ -128,75 +235,13 @@ public class SiteEmailNotificationMail extends SiteEmailNotification
 				buf.append("\n" + attachment.getUrl() + "\n");
 			}
 		}
+		
+		// tag the message
+		buf.append("\n" + rb.getString("separator") + "\n" + rb.getString("this") + " "
+				+ ServerConfigurationService.getString("ui.service", "Sakai") + " (" + ServerConfigurationService.getPortalUrl()
+				+ ") " + rb.getString("forthe") + " " + title + " " + rb.getString("site") + "\n" + rb.getString("youcan")
+				+ "\n");
 
 		return buf.toString();
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	protected List getHeaders(Event event)
-	{
-		// send most of the headers from the original message, removing some
-		Reference ref = EntityManager.newReference(event.getResource());
-		MailArchiveMessage msg = (MailArchiveMessage) ref.getEntity();
-		MailArchiveMessageHeader hdr = (MailArchiveMessageHeader) msg.getMailArchiveHeader();
-		List headers = hdr.getMailHeaders();
-
-		List filteredHeaders = new ArrayList();
-		String innerContentType = null;
-		String outerContentType = null;
-		String contentType = null;
-
-		for (int i = 0; i < headers.size(); i++)
-		{
-			String headerStr = (String) headers.get(i);
-
-			if (headerStr.startsWith("Return-Path") || headerStr.startsWith("Mime-Version")
-					|| headerStr.startsWith("Content-Transfer-Encoding")) continue;
-
-			if (headerStr.startsWith(MailArchiveService.HEADER_INNER_CONTENT_TYPE + ": ")) innerContentType = headerStr;
-			if (headerStr.startsWith(MailArchiveService.HEADER_OUTER_CONTENT_TYPE + ": ")) outerContentType = headerStr;
-
-			if (!headerStr.startsWith("Content-Type: "))
-			{
-				filteredHeaders.add(headerStr);
-			}
-			else
-			{
-				contentType = headerStr;
-			}
-		}
-
-		if (innerContentType != null)
-		{
-			// use the content type of the inner email message body
-			filteredHeaders.add(innerContentType.replaceAll(MailArchiveService.HEADER_INNER_CONTENT_TYPE, "Content-Type"));
-		}
-		else if (outerContentType != null)
-		{
-			// use the content type from the outer message (content type as set in the email originally)
-			filteredHeaders.add(outerContentType.replaceAll(MailArchiveService.HEADER_OUTER_CONTENT_TYPE, "Content-Type"));
-		}
-		else if (contentType != null)
-		{
-			// Oh well, use the plain old Content-Type header
-			filteredHeaders.add(contentType);
-		}
-
-		return filteredHeaders;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	protected String getTag(String newline, String title)
-	{
-		// tag the message
-		String rv = newline + rb.getString("separator") + newline + rb.getString("this") + " "
-				+ ServerConfigurationService.getString("ui.service", "Sakai") + " (" + ServerConfigurationService.getPortalUrl()
-				+ ") " + rb.getString("forthe") + " " + title + " " + rb.getString("site") + newline + rb.getString("youcan")
-				+ newline;
-		return rv;
 	}
 }
