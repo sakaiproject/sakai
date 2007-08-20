@@ -124,14 +124,25 @@ public class Encoder
 		StringBuffer result = new StringBuffer();
 
 		org.radeox.regex.Compiler compiler = org.radeox.regex.Compiler.create();
-		Pattern entityPattern = compiler.compile("&(#?[0-9a-fA-F]+);");
+		Pattern entityPattern = compiler.compile("&(#?[0-9a-fA-F]+|gt|lt|amp);");
 
 		Matcher matcher = Matcher.create(str, entityPattern);
 		result.append(matcher.substitute(new Substitution()
 		{
 			public void handleMatch(StringBuffer buffer, MatchResult result)
 			{
-				buffer.append(toChar(result.group(1)));
+				
+				String m = result.group(1);
+				if ( "amp".equals(m)) {					
+					buffer.append("&");
+				} else if ( "gt".equals(m)) {					
+					buffer.append(">");
+				} else if ( "lt".equals(m)) {					
+					buffer.append("<");
+				} else {
+					buffer.append(toChar(result.group(1)));
+				}
+
 			}
 		}));
 		return result.toString();
