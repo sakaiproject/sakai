@@ -22,7 +22,6 @@
 package uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl;
 
 import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
 import org.apache.commons.logging.Log;
@@ -33,16 +32,13 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.radeox.RenderCache;
 /**
  * @author ieb
  */
-// FIXME: Component
 public class RenderCacheImpl implements RenderCache
 {
 
 	private static Log log = LogFactory.getLog(RenderCacheImpl.class);
 
 	private Cache cache = null;
-
-	private String cacheName = null;
-
+	
 	public String getRenderedContent(String key)
 	{
 		String cacheValue = null;
@@ -68,50 +64,37 @@ public class RenderCacheImpl implements RenderCache
 
 	public void putRenderedContent(String key, String content)
 	{
-		try
-		{
 			Element e = new Element(key, content);
 			cache.put(e);
 			log.debug("Put " + key + " size " + content.length());
-		}
-		catch (Exception ex)
-		{
-			log.warn(" RWiki Cache PUT Failure, restarting cache ", ex);
-			init();
-		}
 	}
 
 	public void init()
 	{
-		try
-		{
-			CacheManager cacheManager = CacheManager.create();
-			if (cacheManager.cacheExists(cacheName))
-				cacheManager.removeCache(cacheName);
-			cacheManager.addCache(cacheName);
-			cache = cacheManager.getCache(cacheName);
-		}
-		catch (Exception ex)
-		{
-			log.warn("Failed to start RWiki cache ");
-		}
+		log.info(cache.getName()+" cache is " +
+				"Max Elements in Memory=["+cache.getMaxElementsInMemory()+"]"+
+				"Max Elements on Disk=["+cache.getMaxElementsOnDisk()+"]"+
+				"Time to Idle (seconds)=["+cache.getTimeToIdleSeconds()+"]"+
+				"Time to Live (seconds)=["+cache.getTimeToLiveSeconds()+"]"+
+				"Memory Store Eviction Policy=["+cache.getMemoryStoreEvictionPolicy()+"]");
+
 	}
 
 	/**
-	 * @return Returns the cacheName.
+	 * @return the cache
 	 */
-	public String getCacheName()
+	public Cache getCache()
 	{
-		return cacheName;
+		return cache;
 	}
 
 	/**
-	 * @param cacheName
-	 *        The cacheName to set.
+	 * @param cache the cache to set
 	 */
-	public void setCacheName(String cacheName)
+	public void setCache(Cache cache)
 	{
-		this.cacheName = cacheName;
+		this.cache = cache;
 	}
+
 
 }
