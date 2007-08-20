@@ -1028,7 +1028,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		String query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
 				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate) "
 				+ " from PublishedAssessmentData p, PublishedAccessControl c, AuthorizationData z  "
-				+ " where c.assessment = p and p.status=? and "
+				+ " where c.assessment.publishedAssessmentId = p.publishedAssessmentId and p.status=? and "
 				+ " p.publishedAssessmentId=z.qualifierId and z.functionId=? "
 				+ " and z.agentIdString= ? order by p." + orderBy;
 		if (ascending == true)
@@ -1088,7 +1088,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		String query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title,"
 				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate) from PublishedAssessmentData p,"
 				+ " PublishedAccessControl c, AuthorizationData z  "
-				+ " where c.assessment=p and (p.status=? or c.dueDate<= ? or  c.retractDate<= ?)"
+				+ " where c.assessment.publishedAssessmentId=p.publishedAssessmentId and (p.status=? or c.dueDate<= ? or  c.retractDate<= ?)"
 				+ " and p.publishedAssessmentId=z.qualifierId and z.functionId=? "
 				+ " and z.agentIdString= ? order by p." + orderBy;
 
