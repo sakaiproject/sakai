@@ -1982,16 +1982,14 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	protected ContentCollection findCollection(String id) throws TypeException
 	{
-		String ref = getReference(id);
-		
 		ContentCollection collection = null;
 		try
 		{
-			collection = (ContentCollection) ThreadLocalManager.get("findCollection@" + ref);
+			collection = (ContentCollection) ThreadLocalManager.get("findCollection@" + id);
 		}
 		catch(ClassCastException e)
 		{
-			throw new TypeException(ref);
+			throw new TypeException(id);
 		}
 		
 		if(collection == null)
@@ -2000,7 +1998,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			
 			if(collection != null)
 			{
-				ThreadLocalManager.set("findCollection@" + ref, collection);	// new BaseCollectionEdit(collection));
+				ThreadLocalManager.set("findCollection@" + id, collection);	// new BaseCollectionEdit(collection));
 			}
 		}
 		else
@@ -2197,8 +2195,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		((BaseCollectionEdit) edit).setRemoved();
 
 		// remove the old version from thread-local cache.
-		String ref = edit.getReference();
-		ThreadLocalManager.set("findCollection@" + ref, null);
+		ThreadLocalManager.set("findCollection@" + edit.getId(), null);
 
 		// remove any realm defined for this resource
 		try
@@ -2324,10 +2321,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		((BaseCollectionEdit) edit).closeEdit();
 
 		// the collection has changed so we must remove the old version from thread-local cache
-		String ref = edit.getReference();
-		ThreadLocalManager.set("findCollection@" + ref, null);
+		ThreadLocalManager.set("findCollection@" + edit.getId(), null);
 		String containerId = isolateContainingId(edit.getId());
-		ThreadLocalManager.set("findCollection@" + getReference( containerId ), null);
+		ThreadLocalManager.set("findCollection@" + containerId, null);
 		ThreadLocalManager.set("members@" + containerId, null);
 		ThreadLocalManager.set("getCollections@" + containerId, null);
 		//ThreadLocalManager.set("getResources@" + containerId, null);
@@ -2546,14 +2542,13 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		
 		for(ContentEntity entity : (List<ContentEntity>) entities)
 		{
-			String ref = entity.getReference();
 			if(entity instanceof ContentResource)
 			{
-				ThreadLocalManager.set("findResource@" + ref, entity);
+				ThreadLocalManager.set("findResource@" + entity.getId(), entity);
 			}
 			else if(entity instanceof ContentCollection)
 			{
-				ThreadLocalManager.set("findCollection@" + ref, entity);
+				ThreadLocalManager.set("findCollection@" + entity.getId(), entity);
 			}
 		}
     }
@@ -3727,16 +3722,14 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 	 */
 	protected ContentResource findResource(String id) throws TypeException
 	{
-		String ref = getReference(id);
-		
 		ContentResource resource = null;
 		try
 		{
-			resource = (ContentResource) ThreadLocalManager.get("findResource@" + ref);
+			resource = (ContentResource) ThreadLocalManager.get("findResource@" + id);
 		}
 		catch(ClassCastException e)
 		{
-			throw new TypeException(ref);
+			throw new TypeException(id);
 		}
 		
 		if(resource == null)
@@ -3745,7 +3738,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			
 			if(resource != null)
 			{
-				ThreadLocalManager.set("findResource@" + ref, resource); 	// new BaseResourceEdit(resource));
+				ThreadLocalManager.set("findResource@" + id, resource); 	// new BaseResourceEdit(resource));
 			}
 		}
 		else
@@ -3880,8 +3873,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		((BaseResourceEdit) edit).setRemoved();
 
 		// remove old version of this edit from thread-local cache
-		String ref = edit.getReference();
-		ThreadLocalManager.set("findResource@" + ref, null);
+		ThreadLocalManager.set("findResource@" + edit.getId(), null);
 
 		// remove any realm defined for this resource
 		try
@@ -5028,10 +5020,9 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 		// must remove old version of this edit from thread-local cache
 		// so we get new version if we try to retrieve it in same thread
-		String ref = edit.getReference();
-		ThreadLocalManager.set("findResource@" + ref, null);
+		ThreadLocalManager.set("findResource@" + edit.getId(), null);
 		String containerId = isolateContainingId(edit.getId());
-		ThreadLocalManager.set("findCollection@" +  getReference( containerId ), null);
+		ThreadLocalManager.set("findCollection@" +  containerId, null);
 		ThreadLocalManager.set("members@" + containerId, null);
 		//ThreadLocalManager.set("getCollections@" + containerId, null);
 		ThreadLocalManager.set("getResources@" + containerId, null);
@@ -6094,10 +6085,13 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			if(entity == null)
 			{
 				String refId = ref.getId();
-				while (entity == null && refId != null )
+				while (entity == null && refId != null && ! refId.trim().equals(""))
 				{
 					refId = isolateContainingId(refId);
-					entity = findCollection(refId);
+					if(refId != null && ! refId.trim().equals(""))
+					{
+						entity = findCollection(refId);
+					}
 				}
 			}
 			
@@ -9289,18 +9283,18 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			m_id = el.getAttribute("id");
 			m_resourceType = ResourceType.TYPE_FOLDER;
 			
-			String refStr = getReference(m_id);
-			Reference ref = m_entityManager.newReference(refStr);
-			String context = ref.getContext();
-			Site site = null;
-			try
-			{
-				site = m_siteService.getSite(ref.getContext());
-			}
-			catch (IdUnusedException e)
-			{
-				
-			}
+//			String refStr = getReference(m_id);
+//			Reference ref = m_entityManager.newReference(refStr);
+//			String context = ref.getContext();
+//			Site site = null;
+//			try
+//			{
+//				site = m_siteService.getSite(ref.getContext());
+//			}
+//			catch (IdUnusedException e)
+//			{
+//				
+//			}
 
 			// the children (properties)
 			NodeList children = el.getChildNodes();
@@ -9661,17 +9655,16 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			
 			for(ContentEntity entity : (List<ContentEntity>)entities)
 			{
-				String ref = entity.getReference();
 				ContentEntity copy = null;
 				if(entity instanceof ContentResource)
 				{
 					copy = new BaseResourceEdit((ContentResource) entity);
-					ThreadLocalManager.set("findResource@" + ref, entity);	// new BaseResourceEdit((ContentResource) entity));
+					ThreadLocalManager.set("findResource@" + entity.getId(), entity);	// new BaseResourceEdit((ContentResource) entity));
 				}
 				else if(entity instanceof ContentCollection)
 				{
 					copy = new BaseCollectionEdit((ContentCollection) entity);
-					ThreadLocalManager.set("findCollection@" + ref, entity); 	// new BaseCollectionEdit((ContentCollection) entity));
+					ThreadLocalManager.set("findCollection@" + entity.getId(), entity); 	// new BaseCollectionEdit((ContentCollection) entity));
 				}
 				if(copy != null)
 				{
@@ -9933,8 +9926,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 							((BaseCollectionEdit) entity).closeEdit();
 
 							// the collection has changed so we must remove the old version from thread-local cache
-							String ref = entity.getReference();
-							ThreadLocalManager.set("findCollection@" + ref, null);
+							ThreadLocalManager.set("findCollection@" + entity.getId(), null);
 						}
 						else
 						{
@@ -9950,8 +9942,7 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 
 							// must remove old version of this edit from thread-local cache
 							// so we get new version if we try to retrieve it in same thread
-							String ref = entity.getReference();
-							ThreadLocalManager.set("findResource@" + ref, null);
+							ThreadLocalManager.set("findResource@" + entity.getId(), null);
 							
 							// close the edit object
 							((BaseResourceEdit) entity).closeEdit();
