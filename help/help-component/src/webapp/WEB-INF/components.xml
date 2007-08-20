@@ -83,9 +83,18 @@
 					true
 				</prop>
 				<prop key="hibernate.cache.use_query_cache">true</prop>
+				<!--
+				This will share the cache with the main sessions, but the queries should 
+				be unique as will be the resuts so they will not collide.
+				-->
+	            <prop key="hibernate.cache.provider_class">
+				     org.sakaiproject.springframework.orm.hibernate.SakaiCacheProvider
+				</prop>
+				<!--
 				<prop key="hibernate.cache.provider_class">
 					org.hibernate.cache.EhCacheProvider
 				</prop>
+				-->
 			</props>
 		</property>
 
