@@ -53,6 +53,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.util.EmailNotification;
 import org.sakaiproject.util.SiteEmailNotification;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.util.ResourceLoader;
@@ -111,17 +112,6 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	protected String getResourceAbility()
 	{
 		return AnnouncementService.SECURE_ANNC_READ;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public NotificationAction getClone()
-	{
-		SiteEmailNotificationAnnc clone = new SiteEmailNotificationAnnc();
-		clone.set(this);
-
-		return clone;
 	}
 
 	/**
@@ -236,7 +226,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	 */
 	protected List getHeaders(Event event)
 	{
-		List rv = new Vector();
+		List rv = super.getHeaders(event);
 
 		// Set the content type of the message body to HTML
 		rv.add("Content-Type: text/html");
@@ -395,6 +385,22 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 				return SecurityAdvice.ALLOWED;
 			}
 		});
+	}
+
+	@Override
+	protected String htmlContent() {
+		return getMessage(this.event);
+	}
+
+	@Override
+	protected EmailNotification makeEmailNotification() {
+		return new SiteEmailNotificationAnnc();
+	}
+
+	@Override
+	protected String plainTextContent() {
+		// TODO replace this with a reasonable plain text equivalent
+		return getMessage(this.event);
 	}
 
 }
