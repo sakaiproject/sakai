@@ -338,7 +338,8 @@
 													#end
 												#end
 											#end
-											#if (!$assignment.draft && $allowGradeSubmission)#if($prevAction) | #end<a href="#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")">#if ($withGrade)$!tlang.getString("grad1")#else$!tlang.getString("viewsubmissions")#end</a>#end
+											#if (!$assignment.draft && $allowGradeSubmission)#if($prevAction) | #end
+											<a href="#" onclick="this.onclick='';this.style.color='#000';window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")'" >#if ($withGrade)$!tlang.getString("grad1")#else$!tlang.getString("viewsubmissions")#end</a>#end										
 										</div>
 									#else
 										#if ($!allowAddAssignment)
@@ -522,7 +523,7 @@
 											#end
 										#end
 									#end
-									<a href="#" onclick="location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")'; return false;" >
+									<a href="#" onclick="this.onclick='';this.style.color='#000';window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")'" >
 									$totalNumber/$ungradedNumber</a>
 								</td>
 								#end
