@@ -5,7 +5,9 @@ import java.io.Serializable;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.RequestCycle;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebComponent;
+import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.request.IRequestCodingStrategy;
@@ -28,10 +30,10 @@ public class LaunchPanel extends Panel {
 	
 	//private ClientBean clientBean;
 	
-	private ApiPanel apiPanel;
+	private CommunicationPanel communicationPanel;
 	private TreePanel treePanel;
 	private ButtonForm buttonForm;
-	
+		
 	public LaunchPanel(String id, RunState runState) {
 		super(id);
 		
@@ -47,17 +49,21 @@ public class LaunchPanel extends Panel {
 		
 		//clientBean = new ClientBean(clientFacade, runState);
 		
-		apiPanel = new ApiPanel("api-panel", runState, this);
-		apiPanel.setOutputMarkupId(true);
-		add(apiPanel);
+		communicationPanel = new CommunicationPanel("api-panel", runState, this);
+		communicationPanel.setOutputMarkupId(true);
+		add(communicationPanel);
 				
 		treePanel = new TreePanel("navPanel", runState, this);
 		treePanel.setOutputMarkupId(true);
 		add(treePanel);
 		
+		//treePanel.setVisible(false);
+		
 		buttonForm = new ButtonForm("buttonForm", runState, this);
 		buttonForm.setOutputMarkupId(true);
 		add(buttonForm);
+		
+		//buttonForm.setVisible(false);
 	}
 	
 	
@@ -150,8 +156,8 @@ public class LaunchPanel extends Panel {
 		return treePanel;
 	}
 
-	public ApiPanel getApiPanel() {
-		return apiPanel;
+	public CommunicationPanel getCommunicationPanel() {
+		return communicationPanel;
 	}
 	
 }
