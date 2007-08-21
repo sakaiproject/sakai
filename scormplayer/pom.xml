@@ -18,7 +18,7 @@
   </scm>
 
   <properties>
-    <sakai.wicket.version>1.3.0-beta2</sakai.wicket.version>
+    <sakai.wicket.version>1.3.0-SNAPSHOT</sakai.wicket.version>
   </properties>
 
   <packaging>pom</packaging>
