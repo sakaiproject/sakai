@@ -43,7 +43,6 @@ public class NontrailingDoubleConverter extends NumberConverter {
 
 	public NontrailingDoubleConverter() {
 		setType("number");
-		setMaxFractionDigits(2);
 	}
 
 	/**

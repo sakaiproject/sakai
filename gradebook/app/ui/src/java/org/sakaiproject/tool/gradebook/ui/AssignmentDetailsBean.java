@@ -101,9 +101,9 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 
 		public Double getScore() {
 			if (getGradeEntryByPercent())
-				return gradeRecord.getPercentEarned();
+				return truncateScore(gradeRecord.getPercentEarned());
 			else
-				return gradeRecord.getPointsEarned();
+				return truncateScore(gradeRecord.getPointsEarned());
 		}
 		public void setScore(Double score) {
 			if (getGradeEntryByPoints()) {

@@ -22,8 +22,10 @@
 
 package org.sakaiproject.tool.gradebook;
 
+import java.math.BigDecimal;
 import java.util.Comparator;
 
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 
 /**
  * An AssignmentGradeRecord is a grade record that can be associated with an
@@ -109,9 +111,10 @@ public class AssignmentGradeRecord extends AbstractGradeRecord {
         if (pointsEarned == null) {
             return null;
         }
-        double earned = pointsEarned.doubleValue();
-        double possible = ((Assignment)getGradableObject()).getPointsPossible().doubleValue();
-        return new Double(earned / possible * 100);
+        BigDecimal bdPointsEarned = new BigDecimal(pointsEarned.toString());
+        BigDecimal bdPossible = new BigDecimal(((Assignment)getGradableObject()).getPointsPossible().toString());
+        BigDecimal bdPercent = bdPointsEarned.divide(bdPossible, GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));
+        return new Double(bdPercent.doubleValue());
     }
 
 	/**

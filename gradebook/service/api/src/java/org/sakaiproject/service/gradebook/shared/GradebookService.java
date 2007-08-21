@@ -22,6 +22,8 @@
  **********************************************************************************/
 package org.sakaiproject.service.gradebook.shared;
 
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
@@ -56,6 +58,8 @@ public interface GradebookService {
 	
 	public static final String gradePermission = "grade";
 	public static final String viewPermission = "view";
+	
+	public static final MathContext MATH_CONTEXT = new MathContext(10, RoundingMode.HALF_DOWN);
 	
 	public static Comparator lettergradeComparator = new Comparator() 
 	{

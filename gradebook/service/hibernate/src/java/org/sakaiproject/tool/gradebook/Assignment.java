@@ -22,9 +22,12 @@
 
 package org.sakaiproject.tool.gradebook;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
+
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 
 /**
  * An Assignment is the basic unit that composes a gradebook.  It represents a
@@ -367,8 +370,8 @@ public class Assignment extends GradableObject {
      */
     public void calculateStatistics(Collection<AssignmentGradeRecord> gradeRecords) {
         int numScored = 0;
-        double total = 0;
-        double pointsTotal = 0;
+        BigDecimal total = new BigDecimal("0");
+        BigDecimal pointsTotal = new BigDecimal("0");
         for (AssignmentGradeRecord record : gradeRecords) {
             // Skip grade records that don't apply to this gradable object
             if(!record.getGradableObject().equals(this)) {
@@ -383,13 +386,13 @@ public class Assignment extends GradableObject {
             }
             else if (score == null)
             {
-            	pointsTotal += points.doubleValue();
+            	pointsTotal = pointsTotal.add(new BigDecimal(points.toString()));
             	numScored++;
             }
             else 
             {
-            	total += score.doubleValue();
-            	pointsTotal += points.doubleValue();
+            	total = total.add(new BigDecimal(score.toString()));
+            	pointsTotal = pointsTotal.add(new BigDecimal(points.toString()));
             	numScored++;
             }
         }
@@ -397,15 +400,16 @@ public class Assignment extends GradableObject {
         	mean = null;
         	averageTotal = null;
         } else {
+        	BigDecimal bdNumScored = new BigDecimal(numScored);
         	if(!ungraded && pointsPossible > 0)
         	{
-        		mean = new Double(total / numScored);
+        		mean = new Double(total.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
         	}
         	else
         	{
         		mean = null;
         	}
-        	averageTotal = new Double(pointsTotal / numScored);
+        	averageTotal = new Double(pointsTotal.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
         }
     }
 

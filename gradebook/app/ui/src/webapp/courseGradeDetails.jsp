@@ -94,12 +94,10 @@
 		            </t:commandSortHeader>
 				</f:facet>
 				<h:panelGroup rendered="#{scoreRow.calculatedLetterGrade !=  null}">
-					<h:outputText value="#{scoreRow.calculatedLetterGrade}"/>
-					<h:outputText value=" ("/>
-					<h:outputText value="#{scoreRow.calculatedPercentGrade}">
-						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.PRECISE_PERCENTAGE" />
-					</h:outputText>
-					<h:outputText value=")"/>
+					<h:outputFormat value="#{msgs.course_grade_details_grade_display}" >
+						<f:param value="#{scoreRow.calculatedLetterGrade}" />
+						<f:param value="#{scoreRow.calculatedPercentGrade}" />
+					</h:outputFormat>
 				</h:panelGroup>
 
 				<h:outputText value="#{msgs.score_null_placeholder}" rendered="#{scoreRow.calculatedLetterGrade == null}"/>

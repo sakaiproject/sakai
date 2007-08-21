@@ -22,6 +22,7 @@
 
 package org.sakaiproject.tool.gradebook.business.impl;
 
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -1962,6 +1963,16 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		return null;
     }
     
+    private Double calculateEquivalentPointValueForPercent(Double doublePointsPossible, Double doublePercentEarned) {
+    	if (doublePointsPossible == null || doublePercentEarned == null)
+    		return null;
+    	
+    	BigDecimal pointsPossible = new BigDecimal(doublePointsPossible.toString());
+		BigDecimal percentEarned = new BigDecimal(doublePercentEarned.toString());
+		BigDecimal equivPoints = pointsPossible.multiply(percentEarned.divide(new BigDecimal("100"), GradebookService.MATH_CONTEXT));
+		return new Double(equivPoints.doubleValue());
+    }
+    
     private Double calculateDoublePointForLetterGradeRecord(AssignmentGradeRecord gradeRecordFromCall)
     {
     	Assignment assign = getAssignment(gradeRecordFromCall.getAssignment().getId()); 
@@ -1977,7 +1988,8 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     				log.error("percentage for " + gradeRecordFromCall.getLetterEarned() + " is not found in letter grade mapping in GradebookManagerHibernateImpl.calculateDoublePointForLetterGradeRecord");
     				return null;
     			}
-    			return new Double(assign.getPointsPossible().doubleValue() * (doublePercentage.doubleValue()/100));
+    			
+    			return calculateEquivalentPointValueForPercent(assign.getPointsPossible(), doublePercentage);
     		}
     		return null;
     	}
@@ -2000,7 +2012,8 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     				log.error("percentage for " + gradeRecordFromCall.getLetterEarned() + " is not found in letter grade mapping in GradebookManagerHibernateImpl.calculateDoublePointForLetterGrade");
     				return null;
     			}
-    			return new Double(assign.getPointsPossible().doubleValue() * (doublePercentage.doubleValue()/100));
+    			
+    			return calculateEquivalentPointValueForPercent(assign.getPointsPossible(), doublePercentage);
     		}
     		return null;
     	}
@@ -2027,9 +2040,9 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
 
     private List convertPointsToPercentage(Assignment assignment, Gradebook gradebook, List assignRecordsFromDB)
     {
-    	double pointPossible = assignment.getPointsPossible().doubleValue();
+    	Double pointPossible = assignment.getPointsPossible();
     	List percentageList = new ArrayList();
-    	if(pointPossible > 0)
+    	if(pointPossible.doubleValue() > 0)
     	{
 
     		for(int i=0; i<assignRecordsFromDB.size(); i++)
@@ -2039,7 +2052,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     			agr.setGraderId(agr.getGraderId());
     			if(agr != null && agr.getPointsEarned() != null)
     			{
-    				agr.setPercentEarned(new Double((agr.getPointsEarned().doubleValue() * 100.0)/pointPossible));
+    				agr.setPercentEarned(calculateEquivalentPercent(pointPossible, agr.getPointsEarned()));
     				percentageList.add(agr);
     			}
     			else if(agr != null)
@@ -2054,8 +2067,8 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     
     private List convertPointsToLetterGrade(Assignment assignment, Gradebook gradebook, List assignRecordsFromDB)
     {
-    	double pointPossible = assignment.getPointsPossible().doubleValue();
-    	if(pointPossible > 0)
+    	Double pointPossible = assignment.getPointsPossible();
+    	if(pointPossible.doubleValue() > 0)
     	{
     		List letterGradeList = new ArrayList();
     		LetterGradePercentMapping lgpm = getLetterGradePercentMapping(assignment.getGradebook());
@@ -2066,8 +2079,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
       		agr.setGraderId(agr.getGraderId());
       		if(agr != null && agr.getPointsEarned() != null )
       		{
-        		String letterGrade = lgpm.getGrade(
-        				new Double (agr.getPointsEarned().doubleValue() / agr.getAssignment().getPointsPossible().doubleValue() * 100));
+        		String letterGrade = lgpm.getGrade(calculateEquivalentPercent(pointPossible, agr.getPointsEarned()));
       			agr.setLetterEarned(letterGrade);
       			letterGradeList.add(agr);
       		}
@@ -2081,8 +2093,21 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	}
     	return null;
     }
-
     
+    private Double calculateEquivalentPercent(Double doublePointsPossible, Double doublePointsEarned) {
+ 	
+    	if (doublePointsEarned == null || doublePointsPossible == null)
+    		return null;
+    	
+    	// scale to handle points stored as repeating decimals
+    	BigDecimal pointsEarned = new BigDecimal(doublePointsEarned.toString());
+    	BigDecimal pointsPossible = new BigDecimal(doublePointsPossible.toString());
+
+    	BigDecimal equivPercent = pointsEarned.divide(pointsPossible, GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));
+    	return new Double(equivPercent.doubleValue());
+    	
+    }
+   
     /**
      * Converts points to percentage for all assignments for a single student
      * @param gradebook
@@ -2097,10 +2122,10 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		AssignmentGradeRecord agr = (AssignmentGradeRecord) studentRecordsFromDB.get(i);
     		if(agr != null && agr.getPointsEarned() != null)
     		{
-    			double pointsPossible = agr.getAssignment().getPointsPossible().doubleValue();
+    			Double pointsPossible = agr.getAssignment().getPointsPossible();
     			agr.setDateRecorded(agr.getDateRecorded());
     			agr.setGraderId(agr.getGraderId());
-    			agr.setPercentEarned(new Double((agr.getPointsEarned().doubleValue() * 100.0)/pointsPossible));
+    			agr.setPercentEarned(calculateEquivalentPercent(pointsPossible, agr.getPointsEarned()));
     			percentageList.add(agr);
     		}
     		else if(agr != null)
@@ -2125,13 +2150,12 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     	for(int i=0; i < studentRecordsFromDB.size(); i++)
     	{
     		AssignmentGradeRecord agr = (AssignmentGradeRecord) studentRecordsFromDB.get(i);
-    		double pointsPossible = agr.getAssignment().getPointsPossible().doubleValue();
+    		Double pointsPossible = agr.getAssignment().getPointsPossible();
     		agr.setDateRecorded(agr.getDateRecorded());
     		agr.setGraderId(agr.getGraderId());
     		if(agr != null && agr.getPointsEarned() != null )
     		{
-      		String letterGrade = lgpm.getGrade(
-      				new Double (agr.getPointsEarned().doubleValue() / agr.getAssignment().getPointsPossible().doubleValue() * 100) );
+      		String letterGrade = lgpm.getGrade(calculateEquivalentPercent(pointsPossible, agr.getPointsEarned()));
     			agr.setLetterEarned(letterGrade);
     			letterGradeList.add(agr);
     		}
@@ -2288,12 +2312,11 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     			if (ge.getGrade() != null) {
 	    			if(grade_type == GradebookService.GRADE_TYPE_PERCENTAGE)
 	    			{
-	    				ge.setGrade(new Double((new Double(ge.getGrade()).doubleValue()  * 100.0) / assign.getPointsPossible().doubleValue()).toString());
+	    				ge.setGrade(calculateEquivalentPercent(assign.getPointsPossible(), new Double(ge.getGrade())).toString());
 	    			} else if(grade_type == GradebookService.GRADE_TYPE_LETTER) {
 	    				String letterGrade = null;
 	    				if (lgpm != null) {
-	    					letterGrade = lgpm.getGrade(
-	    	      				new Double (new Double(ge.getGrade()).doubleValue() / assign.getPointsPossible().doubleValue() * 100));
+	    					letterGrade = lgpm.getGrade(calculateEquivalentPercent(assign.getPointsPossible(), new Double(ge.getGrade())));
 	    				}
 	    				ge.setGrade(letterGrade);	
 	    			}
@@ -2421,7 +2444,7 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     			AssignmentGradeRecord agr = (AssignmentGradeRecord) iter.next();
     			if(agr != null && agr.getPercentEarned() != null)
     			{
-    				agr.setPointsEarned(new Double(agr.getPercentEarned().doubleValue() * newTotal.doubleValue() / 100.0));
+    				agr.setPointsEarned(calculateEquivalentPointValueForPercent(newTotal, agr.getPercentEarned()));
     			}
     		}
     		updateAssignmentGradeRecords(assignment, records);
@@ -2434,8 +2457,13 @@ public class GradebookManagerHibernateImpl extends BaseHibernateManager
     		{
     			AssignmentGradeRecord agr = (AssignmentGradeRecord) iter.next();
     			if(agr != null && agr.getLetterEarned() != null)
-    			{
-    				agr.setPointsEarned(new Double(lgpm.getValue(agr.getLetterEarned()).doubleValue() * newTotal.doubleValue()/100));
+	    		{	
+    				Double doublePercentage = lgpm.getValue(agr.getLetterEarned());
+    				if (doublePercentage != null) {
+	    				agr.setPointsEarned(calculateEquivalentPointValueForPercent(newTotal, agr.getPercentEarned()));
+    				} else {
+    					log.error("No equivalent % mapping for letter grade: " + agr.getLetterEarned() + " in method convertGradePointsForTotalUpdatedPoints");
+    				}
     			}
     		}
     		updateAssignmentGradeRecords(assignment, records);

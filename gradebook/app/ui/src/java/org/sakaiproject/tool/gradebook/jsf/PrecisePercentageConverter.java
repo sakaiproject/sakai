@@ -41,7 +41,7 @@ public class PrecisePercentageConverter extends NumberConverter {
 
 	public PrecisePercentageConverter() {
 		setType("percent");
-		setMaxFractionDigits(2);
+		// setMaxFractionDigits(2); remove this b/c actually rounding to 2 digits 
 	}
 
 	public String getAsString(FacesContext context, UIComponent component, Object value) {

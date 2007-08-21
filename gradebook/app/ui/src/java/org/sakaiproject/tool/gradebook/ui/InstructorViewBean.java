@@ -272,14 +272,15 @@ public class InstructorViewBean extends ViewByStudentBean implements Serializabl
 
 		if(updatedGradeRecords.size() > 0){
 			getGradebookBean().getEventTrackingService().postEvent("gradebook.updateItemScores","/gradebook/"+getGradebookId()+"/"+updatedGradeRecords.size()+"/"+getAuthzLevel());
+			String messageKey = (excessiveScores.size() > 0) ?
+					"inst_view_scores_saved_excessive" :
+						"inst_view_scores_saved";
+			
+			// Let the user know.
+			FacesUtil.addMessage(getLocalizedString(messageKey));
 		}
 
-		String messageKey = (excessiveScores.size() > 0) ?
-				"inst_view_scores_saved_excessive" :
-					"inst_view_scores_saved";
 
-		// Let the user know.
-		FacesUtil.addMessage(getLocalizedString(messageKey));
 	}
 
 	private String getColumnHeader(GradableObject gradableObject) {

@@ -40,7 +40,6 @@ public class PointsConverter extends NumberConverter {
 
 	public PointsConverter() {
 		setType("number");
-		setMaxFractionDigits(2);
 	}
 
 	public String getAsString(FacesContext context, UIComponent component, Object value) {

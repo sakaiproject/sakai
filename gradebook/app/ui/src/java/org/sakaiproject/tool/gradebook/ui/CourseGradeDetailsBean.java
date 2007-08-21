@@ -22,6 +22,7 @@
 
 package org.sakaiproject.tool.gradebook.ui;
 
+import java.math.BigDecimal;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -98,13 +99,18 @@ public class CourseGradeDetailsBean extends EnrollmentTableBean {
         }
         
         /**
-         * 
+         * Because the PrecisePercentageConverter is actually rounding at 2 decimals instead of
+         * truncating, do the formatting here. 
          * @return percent representation of grade or null if no grade yet
          */
         public Double getCalculatedPercentGrade() {
         	Double grade = courseGradeRecord.getAutoCalculatedGrade();
-        	if (grade != null)
-        		grade = new Double(grade.doubleValue() / 100.);
+        	if (grade != null) {
+        		// to emulate the converter, truncate to 4 decimal places, then return 2
+        		grade = new Double(FacesUtil.getRoundDown(grade.doubleValue(), 4));
+        		BigDecimal bdGrade = (new BigDecimal(grade.toString())).setScale(2, BigDecimal.ROUND_DOWN);
+        		grade = new Double(bdGrade.doubleValue());
+        	}
         	
         	return grade;
         }

@@ -22,10 +22,13 @@
 
 package org.sakaiproject.tool.gradebook;
 
+import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 
 /**
  * A CourseGradeRecord is a grade record that can be associated with a CourseGrade.
@@ -184,10 +187,12 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 	public void initNonpersistentFields(double totalPointsPossible, double totalPointsEarned) {
 		Double percentageEarned;
 		calculatedPointsEarned = totalPointsEarned;
+		BigDecimal bdTotalPointsPossible = new BigDecimal(totalPointsPossible);
+		BigDecimal bdTotalPointsEarned = new BigDecimal(totalPointsEarned);
 		if (totalPointsPossible == 0.0) {
 			percentageEarned = null;
 		} else {
-			percentageEarned = new Double(totalPointsEarned / totalPointsPossible * 100);
+			percentageEarned = new Double(bdTotalPointsEarned.divide(bdTotalPointsPossible, GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100")).doubleValue());
 		}
 		autoCalculatedGrade = percentageEarned;
 	}
@@ -196,10 +201,13 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 		Double percentageEarned;
 		//calculatedPointsEarned = totalPointsEarned;
 		calculatedPointsEarned = literalTotalPointsEarned;
+		BigDecimal bdTotalPointsPossible = new BigDecimal(totalPointsPossible);
+		BigDecimal bdTotalPointsEarned = new BigDecimal(totalPointsEarned);
+
 		if (totalPointsPossible <= 0.0) {
 			percentageEarned = null;
 		} else {
-			percentageEarned = new Double(totalPointsEarned / totalPointsPossible * 100);
+			percentageEarned = new Double(bdTotalPointsEarned.divide(bdTotalPointsPossible, GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100")).doubleValue());
 		}
 		autoCalculatedGrade = percentageEarned;
 	}

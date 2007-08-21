@@ -22,7 +22,10 @@
 
 package org.sakaiproject.tool.gradebook;
 
+import java.math.BigDecimal;
 import java.util.Collection;
+
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 
 /**
  * A CourseGrade is a GradableObject that represents the overall course grade
@@ -69,15 +72,15 @@ public class CourseGrade extends GradableObject {
 
     /**
 	 * Calculate the mean course grade (whether entered or calulated) as a
-	 * percentage for all enrollments, counting null grades as zero, but leaving
+	 * percentage for all enrollments, leaving
 	 * students who've explicitly been given non-percentage-valued manual-only
-	 * course grades (such as "I" for incomplete) out of the calculation.
+	 * course grades (such as "I" for incomplete) or null scores out of the calculation.
 	 */
     public void calculateStatistics(Collection<CourseGradeRecord> gradeRecords, int numEnrollments) {
         // Ungraded but enrolled students count as if they have 0% in the course.
         int numScored = numEnrollments - gradeRecords.size();
-        double total = 0;
-        double average = 0;
+        BigDecimal total = new BigDecimal("0");
+        BigDecimal average = new BigDecimal("0");
 
         for (CourseGradeRecord record : gradeRecords) {
             Double score = record.getGradeAsPercentage();
@@ -88,8 +91,8 @@ public class CourseGrade extends GradableObject {
         	}
         	
         	if (score != null && record.getPointsEarned() != null) {
-        		average += record.getPointsEarned().doubleValue();
-        		total += score.doubleValue();
+        		average = average.add(new BigDecimal(record.getPointsEarned().toString()));
+        		total = total.add(new BigDecimal(score.toString()));
           	numScored++;
         	}
 //        	numScored++;
@@ -98,8 +101,8 @@ public class CourseGrade extends GradableObject {
         	mean = null;
         	averageScore = null;
         } else {
-        	mean = new Double(total / numScored);
-        	averageScore = new Double(average / numScored);
+        	mean = new Double(total.divide(new BigDecimal(numScored), GradebookService.MATH_CONTEXT).doubleValue());
+        	averageScore = new Double(average.divide(new BigDecimal(numScored), GradebookService.MATH_CONTEXT).doubleValue());
         }
     }
 

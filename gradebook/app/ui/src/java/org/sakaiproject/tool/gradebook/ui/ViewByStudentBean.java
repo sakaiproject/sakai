@@ -407,9 +407,9 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     			
     			if (asnGr != null) {
     				if (getGradeEntryByPercent())
-    					asnGradeRow.setScore(asnGr.getPercentEarned());
+    					asnGradeRow.setScore(truncateScore(asnGr.getPercentEarned()));
     				else if(getGradeEntryByPoints())
-    					asnGradeRow.setScore(asnGr.getPointsEarned()); 
+    					asnGradeRow.setScore(truncateScore(asnGr.getPointsEarned())); 
     				else if (getGradeEntryByLetter())
     					asnGradeRow.setLetterScore(asnGr.getLetterEarned());
     			}

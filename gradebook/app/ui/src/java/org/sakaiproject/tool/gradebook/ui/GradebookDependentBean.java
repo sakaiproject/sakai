@@ -649,4 +649,17 @@ public abstract class GradebookDependentBean extends InitializableBean {
 			return where;
 		}
 	}
+	
+	/**
+	 * We can't rely on the converters to properly display 2 decimals for us,
+	 * b/c setMaxFractionDigits rounds 
+	 * @param score
+	 * @return
+	 */
+	public Double truncateScore(Double score) {
+		if (score == null)
+			return null;
+		
+		return new Double(FacesUtil.getRoundDown(score.doubleValue(), 2));	
+	}
 }

@@ -206,7 +206,9 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 				Object catOrCourseGrade = catIter.next();
 				if (catOrCourseGrade instanceof Category) {
 					categories.add((Category)catOrCourseGrade);
-				} 
+				} else if (catOrCourseGrade instanceof CourseGrade) {
+					avgCourseGrade = (CourseGrade)catOrCourseGrade;
+				}
 			}
 			
 			if (!isUserAbleToGradeAll() && isUserHasGraderPermissions()) {
