@@ -3493,14 +3493,18 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 											// create the text file only when a text submission is allowed
 											ZipEntry textEntry = new ZipEntry(submittersName + submittersString + "_submissionText.html");
 											out.putNextEntry(textEntry);
-											out.write(submittedText.getBytes());
+											byte[] text = submittedText.getBytes();
+											out.write(text);
+											textEntry.setSize(text.length);
 											out.closeEntry();
 										}
 										
 										// the comments.txt file to show instructor's comments
 										ZipEntry textEntry = new ZipEntry(submittersName + "comments.html");
 										out.putNextEntry(textEntry);
-										out.write(FormattedText.encodeUnicode(s.getFeedbackComment()).getBytes());
+										byte[] b = FormattedText.encodeUnicode(s.getFeedbackComment()).getBytes();
+										out.write(b);
+										textEntry.setSize(b.length);
 										out.closeEntry();
 		
 										// create the attachment file(s)
@@ -3592,7 +3596,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			// create a grades.csv file into zip
 			ZipEntry gradesCSVEntry = new ZipEntry(root + "grades.csv");
 			out.putNextEntry(gradesCSVEntry);
-			out.write(gradesBuffer.toString().getBytes());
+			byte[] grades = gradesBuffer.toString().getBytes();
+			out.write(grades);
+			gradesCSVEntry.setSize(grades.length);
 			out.closeEntry();
 			
 			// Complete the ZIP file
@@ -7848,7 +7854,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				{
 					if (getReturned())
 					{
-						if (returnTime.before(submitTime))
+						if (returnTime != null && returnTime.before(submitTime))
 						{
 							if (!getGraded())
 							{
@@ -7919,7 +7925,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				{
 					if (getReturned())
 					{
-						if (lastModTime.after(returnTime) && !allowGrade)
+						if (lastModTime != null && returnTime != null && lastModTime.after(returnTime) && !allowGrade)
 						{
 							// working on a returned submission now
 							retVal = rb.getString("gen.dra2") + " " + rb.getString("gen.inpro");

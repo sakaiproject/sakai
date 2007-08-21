@@ -8986,6 +8986,8 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		String contextString = ToolManager.getCurrentPlacement().getContext();
 		String toolTitle = ToolManager.getTool("sakai.assignment").getTitle();
+		String aReference = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
+		String associateGradebookAssignment = null;
 		
 		boolean hasSubmissions = false;
 		boolean hasGradeFile = false;
@@ -9037,8 +9039,9 @@ public class AssignmentAction extends PagedResourceActionII
 			Assignment assignment = null;
 			try
 			{
-				assignment = AssignmentService.getAssignment((String) state.getAttribute(EXPORT_ASSIGNMENT_REF));
-				
+				assignment = AssignmentService.getAssignment(aReference);
+				associateGradebookAssignment = StringUtil.trimToNull(assignment.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+
 				Iterator sIterator = AssignmentService.getSubmissions(assignment).iterator();
 				while (sIterator.hasNext())
 				{
@@ -9102,7 +9105,7 @@ public class AssignmentAction extends PagedResourceActionII
 							if (!entry.isDirectory())
 							{
 								String entryName = entry.getName();
-								if (entryName.endsWith("grades.csv"))
+								if (entryName.endsWith("grades.csv") && !entryName.endsWith("._grades.csv"))
 								{
 									if (hasGradeFile)
 									{
@@ -9169,10 +9172,10 @@ public class AssignmentAction extends PagedResourceActionII
 											userName = userName.substring(0, userName.indexOf("("));
 										}
 									}
-									if (hasComments && entryName.endsWith("comments.txt"))
+									if (hasComments && entryName.indexOf("comments") != -1)
 									{
 										// read the comments file
-								        String comment = StringUtil.trimToNull(readIntoString(zin));
+										String comment = getBodyTextFromZipHtml(zin);
 								        if (submissionTable.containsKey(userName) && comment != null)
 								        {
 								        		UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userName);
@@ -9180,10 +9183,10 @@ public class AssignmentAction extends PagedResourceActionII
 								        		submissionTable.put(userName, r);
 								        }
 									}
-									else if ((hasSubmissions) && (entryName.endsWith("_submissionText.txt")))
+									else if (hasSubmissions && entryName.indexOf("_submissionText") != -1)
 									{
 										// upload the student submission text along with the feedback text
-										String text = StringUtil.trimToNull(readIntoString(zin));
+										String text = getBodyTextFromZipHtml(zin);
 										if (submissionTable.containsKey(userName) && text != null)
 								        {
 								        		UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userName);
@@ -9294,6 +9297,15 @@ public class AssignmentAction extends PagedResourceActionII
 								// release or not
 								sEdit.setGradeReleased(releaseGrades);
 								sEdit.setReturned(releaseGrades);
+								if (releaseGrades)
+								{
+									sEdit.setTimeReturned(TimeService.newTime());
+									// update grade in gradebook
+									if (associateGradebookAssignment != null)
+									{
+										integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, sEdit.getReference(), "update");
+									}
+								}
 								
 								// commit
 								AssignmentService.commitEdit(sEdit);
@@ -9316,6 +9328,29 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 	}
 
+	private String getBodyTextFromZipHtml(ZipInputStream zin)
+	{
+		String rv = "";
+		try
+		{
+			rv = StringUtil.trimToNull(readIntoString(zin));
+		}
+		catch (IOException e)
+		{
+			Log.debug("chef", this + " " + e.toString());
+		}
+		if (rv != null)
+		{
+			int start = rv.indexOf("<body>");
+			int end = rv.indexOf("</body>");
+			if (start != -1 && end != -1)
+			{
+				// get the text in between
+				rv = rv.substring(start+6, end);
+			}
+		}
+		return rv;
+	}
 		private byte[] readIntoBytes(ZipInputStream zin, String fName, long length) throws IOException {
 		
 			StringBuffer b = new StringBuffer();
@@ -9346,14 +9381,31 @@ public class AssignmentAction extends PagedResourceActionII
 			return data;
 	}
 	
-	private String readIntoString(ZipInputStream zin) throws IOException {
-		byte[] buf = new byte[1024];
-		int len;
-		StringBuffer b = new StringBuffer();
-		while ((len = zin.read(buf)) > 0) {
-		    b.append(new String(buf));
-		}
-		return b.toString();
+	private String readIntoString(ZipInputStream zin) throws IOException 
+	{
+		StringBuffer buffer = new StringBuffer();
+		int size = 2048;
+		byte[] data = new byte[2048];
+		while (true)
+		{
+			try
+			{
+				size = zin.read(data, 0, data.length);
+				if (size > 0)
+				{
+					buffer.append(new String(data, 0, size));
+	             }
+	             else
+	             {
+	                 break;
+	             }
+			}
+			catch (IOException e)
+			{
+				Log.debug("chef", "readIntoString " + e.toString());
+			}
+         }
+		return buffer.toString();
 	}
 	/**
 	 * 
