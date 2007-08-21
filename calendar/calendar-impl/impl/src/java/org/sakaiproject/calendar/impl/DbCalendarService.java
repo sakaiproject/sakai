@@ -212,7 +212,9 @@ public class DbCalendarService
 			{ return super.getAllResources(calendar); }
 
 		public List getEvents(Calendar calendar, String startDate, String endDate)
-			{ 
+         { 
+            startDate = startDate.substring(0, 8); // only use date YYYYMMDD
+            endDate = endDate.substring(0, 8); // only use date YYYYMMDD
             StringBuffer filter = new StringBuffer("(");
             filter.append("EVENT_START >= '");
             filter.append( startDate );

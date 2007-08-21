@@ -2380,17 +2380,18 @@ public abstract class BaseCalendarService implements CalendarService, StorageUse
 							eventCache.processEvents();
 						}
                   
-						// now filter out the events to just those in the range
-						// Note: if no range, we won't filter, which means we don't expand recurring events, but just
-						// return it as a single event. This is very good for an archive... -ggolden
-						if (range != null)
-						{
-							events = filterEvents(events, range);
-						}
 					}
 				}
 			}
 
+			// now filter out the events to just those in the range
+			// Note: if no range, we won't filter, which means we don't expand recurring events, but just
+			// return it as a single event. This is very good for an archive... -ggolden
+			if (range != null)
+			{
+				events = filterEvents(events, range);
+			}
+						
 			if (events.size() == 0) return events;
 
 			// filter out based on the filter
