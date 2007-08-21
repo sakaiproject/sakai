@@ -14,6 +14,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
+import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.calldecorator.CancelEventIfNoAjaxDecorator;
@@ -33,10 +34,7 @@ import org.sakaiproject.scorm.client.api.ScormClientFacade;
 import org.sakaiproject.scorm.client.utils.ActivityAjaxEventBehavior;
 import org.sakaiproject.scorm.tool.RunState;
 
-public class ActivityTree extends LinkTree {
-	private static final String BRANCH_NODE_IMAGE = "image/silk/application_side_tree.png";
-	private static final String LEAF_NODE_IMAGE = "image/silk/tag_blue.png";
-	
+public class ActivityTree extends LinkTree {	
 	private static Log log = LogFactory.getLog(ActivityTree.class);
 	
 	private static final long serialVersionUID = 1L;
@@ -248,8 +246,12 @@ public class ActivityTree extends LinkTree {
 		}
 	}
 	
+	private static final ResourceReference RESOURCE_FOLDER_OPEN = new ResourceReference(ActivityLinkIconPanel.class, "res/application_side_tree.gif");
+	private static final ResourceReference RESOURCE_FOLDER_CLOSED = new ResourceReference(ActivityLinkIconPanel.class, "res/application_side_tree.gif");
+	private static final ResourceReference RESOURCE_ITEM = new ResourceReference(ActivityLinkIconPanel.class, "res/tag_blue.gif");	
 	
 	public class ActivityLinkIconPanel extends LinkIconPanel {
+		
 		private Log log = LogFactory.getLog(ActivityLinkIconPanel.class);
 		private RunState runState;
 		
@@ -262,7 +264,6 @@ public class ActivityTree extends LinkTree {
 		
 		protected void onNodeLinkClicked(TreeNode node, BaseTree tree, AjaxRequestTarget target)
 		{
-			//super.onNodeLinkClicked(node, tree, target);
 			ActivityTree.this.onNodeLinkClicked(node, tree, target);
 		}
 		
@@ -274,7 +275,38 @@ public class ActivityTree extends LinkTree {
 			
 			return new Label(componentId, text);
 		}
-	}
+		
+		
+		/**
+		 * Returns resource reference for closed folder icon.
+		 * @param node
+		 * @return resource reference
+		 */
+		protected ResourceReference getResourceFolderClosed(TreeNode node)
+		{
+			return RESOURCE_FOLDER_CLOSED;
+		}
 
+		/**
+		 * Returns resource reference for open folder icon.
+		 * @param node
+		 * @return resource reference
+		 */
+		protected ResourceReference getResourceFolderOpen(TreeNode node)
+		{
+			return RESOURCE_FOLDER_OPEN;
+		}
+
+		/**
+		 * Returns resource reference for a leaf icon.
+		 * @param node
+		 * @return resource reference
+		 */
+		protected ResourceReference getResourceItemLeaf(TreeNode node)
+		{
+			return RESOURCE_ITEM;
+		}
+	}
+	
 
 }
