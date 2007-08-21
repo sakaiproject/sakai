@@ -58,6 +58,8 @@ import uk.org.ponder.rsf.components.UISelectChoice;
 import uk.org.ponder.rsf.components.UISelectLabel;
 import uk.org.ponder.rsf.components.UIOutputMany;
 import uk.org.ponder.rsf.components.UIBranchContainer;
+import uk.org.ponder.rsf.components.decorators.DecoratorList;
+import uk.org.ponder.rsf.components.decorators.UITextDimensionsDecorator;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 import uk.org.ponder.rsf.evolvers.FormatAwareDateInputEvolver;
 import uk.org.ponder.rsf.evolvers.TextInputEvolver;
@@ -177,6 +179,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 	    } else if (ecvp.mode.equals(EntityCentredViewParameters.MODE_NEW)) {
 			UIOutput.make(tofill,"new_poll_title",messageLocator.getMessage("new_poll_title"));
 			//build an empty poll 
+			m_log.debug("this is a new poll");
 			poll = new Poll();
 	    } else { 
 			UIOutput.make(tofill,"new_poll_title",messageLocator.getMessage("new_poll_title_edit"));  
@@ -235,12 +238,13 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 			itemText.decorators = new DecoratorList(new UITextDimensionsDecorator(40, 4));
 			richTextEvolver.evolveTextInput(itemText);
 		  */
-		  UIInput.make(newPoll, "new-poll-descr", "#{poll.details}", poll.getDetails());
-			/*
-		  UIInput itemDescr = UIInput.make(newPoll, "newpolldescr:", "#{poll.newPoll.details}", poll.getDetails()); //$NON-NLS-1$ //$NON-NLS-2$
-			itemDescr.decorators = new DecoratorList(new UITextDimensionsDecorator(40, 4));
-			richTextEvolver.evolveTextInput(itemDescr);
-		  */
+		  //UIInput.make(newPoll, "new-poll-descr", "#{poll.details}", poll.getDetails());
+			
+		 
+		  m_log.debug("about to create rich text input");
+		  UIInput itemDescr = UIInput.make(newPoll, "newpolldescr:", "#{poll.details}", poll.getDetails()); //$NON-NLS-1$ //$NON-NLS-2$
+		  itemDescr.decorators = new DecoratorList(new UITextDimensionsDecorator(40, 4));
+		  richTextEvolver.evolveTextInput(itemDescr);
 		  
 		  
 		  UIInput voteOpen = UIInput.make(newPoll, "openDate:", "poll.voteOpen");
@@ -301,7 +305,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		    newPoll.parameters.add(new UIELBinding("#{poll.owner}",
 		    		currentuserid));
 		    String siteId = toolManager.getCurrentPlacement().getContext();
-		    newPoll.parameters.add(new UIELBinding("#{pollToolBean.siteID}",siteId));
+		    newPoll.parameters.add(new UIELBinding("#{poll.siteId}",siteId));
 		  
 		    if (ecvp.mode!= null && ecvp.mode.equals(EntityCentredViewParameters.MODE_NEW))	 {
 		    	UICommand.make(newPoll, "submit-new-poll", messageLocator.getMessage("new_poll_saveoption"),

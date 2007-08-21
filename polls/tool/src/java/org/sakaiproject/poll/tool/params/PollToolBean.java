@@ -41,6 +41,7 @@ import org.sakaiproject.poll.model.VoteCollection;
 import org.sakaiproject.poll.model.Vote;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
+import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.exception.PermissionException;
 
 import org.apache.commons.logging.Log;
@@ -48,6 +49,7 @@ import org.apache.commons.logging.LogFactory;
 
 
 import uk.org.ponder.localeutil.LocaleGetter;
+import uk.org.ponder.stringutil.StringUtil;
 
 
 
@@ -121,153 +123,7 @@ public class PollToolBean {
     this.localegetter = localegetter;
   }
   
-  /*
-  public String processActionAdd() {
-	  
-	  
-	  
-
-	  
-	  boolean isNew = true;
-	  if (newPoll.getPollId()!=null) {
-		  m_log.debug("Actualy updating poll " + newPoll.getPollId());
-		  poll = manager.getPollById(newPoll.getPollId());
-		  isNew = false;
-		  //check for possible unchanged values
-		  m_log.debug(" newPoll test is " + newPoll.getText()+ " while poll text is " + poll.getText());
-		  if (newPoll.getText().equals("") && poll.getText()!=null)
-			  newPoll.setText(poll.getText());
-		  
-		  if (newPoll.getDetails().equals("") && poll.getDetails() != null)
-			  newPoll.setDetails(poll.getDetails());
-	  }
-	  
-	  SimpleDateFormat yearf = new SimpleDateFormat("yyyy");
-	  if (openYear == null && poll!=null) {
-		  openYear = yearf.format(poll.getVoteOpen());
-	  } else if (openYear == null) {
-		  openYear = yearf.format(new Date());
-	  }
-	  if (closeYear == null && poll!=null) {
-		  closeYear = yearf.format(poll.getVoteClose());
-	  } else if (closeYear == null) {
-		  closeYear = yearf.format(new Date());
-	  }
-	  
-	  SimpleDateFormat monthf = new SimpleDateFormat("M",localegetter.get());
-	  if (openMonth == null && poll!=null) {
-		  openMonth = monthf.format(poll.getVoteOpen());
-	  } else if (openMonth == null) {
-		  openMonth = monthf.format(new Date());
-	  }
-	  if (closeMonth == null && poll!=null) {
-		  closeMonth = monthf.format(poll.getVoteClose());
-	  } else if (closeMonth == null) {
-		  closeMonth = monthf.format(new Date());
-	  }
-	  
-	  SimpleDateFormat dayf = new SimpleDateFormat("d");
-	  if (openDay == null && poll!=null) {
-		  openDay = dayf.format(poll.getVoteOpen());
-	  } else if (openDay == null) {
-		  openDay = dayf.format(new Date());
-	  }
-	  if (closeDay == null && poll!=null) {
-		  closeDay = dayf.format(poll.getVoteClose());
-	  } else if (closeDay == null) {
-		  closeDay = dayf.format(new Date());
-	  }
-	  
-	  
-	  SimpleDateFormat hoursf = new SimpleDateFormat("h");
-	  if (openHour == null && poll!=null) {
-		  openHour = hoursf.format(poll.getVoteOpen());
-	  } else if (openHour == null) {
-		  openHour = hoursf.format(new Date());
-	  }
-	  if (closeHour == null && poll!=null) {
-		  closeHour = hoursf.format(poll.getVoteClose());
-	  } else if (closeHour == null) {
-		  closeHour = hoursf.format(new Date());
-	  }
-	  
-	  SimpleDateFormat minf = new SimpleDateFormat("m");
-	  if (openMinutes == null && poll!=null) {
-		  openMinutes = minf.format(poll.getVoteOpen());
-	  } else if (openMinutes == null) {
-		  openMinutes = minf.format(new Date());
-	  }
-	  if (closeMinutes == null && poll!=null) {
-		  closeMinutes = minf.format(poll.getVoteClose());
-	  } else if (closeMinutes == null) {
-		  closeMinutes = minf.format(new Date());
-	  }
-	  
-	  SimpleDateFormat amf = new SimpleDateFormat("a");
-	  if (openAmPm == null && poll!=null) {
-		  openAmPm = amf.format(poll.getVoteOpen());
-	  } else if (openAmPm == null) {
-		  openAmPm = amf.format(new Date());
-	  }
-	  if (closeAmPm == null && poll!=null) {
-		  closeAmPm = amf.format(poll.getVoteClose());
-	  } else if (closeAmPm == null) {
-		  closeAmPm = amf.format(new Date());
-	  }
-	  
-	  String openString =   openYear+ "/" + openMonth + "/" + openDay  + " "	  
-	  	+ openHour  + ":" + openMinutes  + " " + openAmPm;
-	  
-	  String closeString =   closeYear  + "/"  + closeMonth + "/" + closeDay + " "	  
-	  	+ closeHour  + ":" + closeMinutes  + " " + closeAmPm;	  
-	  
-	  
-	  
-	  //conver to dates
-	  String strFormat = "yyyy/M/d h:mm a";
-	                      //2006/12/26 10:00 PM
-	  DateFormat myDateFormat = new SimpleDateFormat(strFormat);
-	  Date openDate = null;
-	  Date closeDate = null;
-	  try {
-		  openDate = myDateFormat.parse(openString);
-		  closeDate = myDateFormat.parse(closeString);
-	  }
-	  catch (Exception e)
-	  {
-		 m_log.error("error converting date" + e);
-	  }
-	  
-	  
-	  	  
-	  
-	  newPoll.setLimitVoting(true);
  
-	  if (poll == null)
-		  newPoll.setCreationDate(new Date());
-	  else 
-		  newPoll.setCreationDate(poll.getCreationDate());
-      
-	  newPoll.setVoteOpen(openDate);
-      newPoll.setVoteClose(closeDate);
-      newPoll.setSiteId(siteID);
-      
-      m_log.debug("about to save poll " + newPoll);
-      manager.savePoll(newPoll);
-     
-      m_log.info("Poll saved with id of " + newPoll.getPollId());
-      
-      voteBean.poll = newPoll;
-    
-      if (!isNew) {
-    	  return "added";
-      } else {
-    	  m_log.info("returning option");
-	  	  return "option";
-      }
-  }
-	*/
-  
   public String processActionAdd() {
 	  boolean isNew = true;
 	  if (poll.getPollId()!=null) {
@@ -282,7 +138,8 @@ public class PollToolBean {
 			  poll.setDetails(poll.getDetails());
 	  }
 	  
-      m_log.debug("about to save poll " + poll);
+	  poll.setDetails(FormattedText.processFormattedText(poll.getDetails(), new StringBuffer()));
+	  m_log.debug("about to save poll " + poll);
       manager.savePoll(poll);
      
       m_log.info("Poll saved with id of " + poll.getPollId());
