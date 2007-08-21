@@ -490,9 +490,12 @@
 					</td>
 				</tr>
 			#end
+			#if ($showMountPointProperty)
+				<tr>
+					<td>mountpoint</td>
+					<td><input type="textbox" name="sakai:handler-bean-id" id="sakai:handler-bean-id" value="" /></td>
+				</tr>
+			#end
 		</table> 
 	#end
 #parse("/vm/resources/sakai_metadata-edit.vm")
-	
-
-		

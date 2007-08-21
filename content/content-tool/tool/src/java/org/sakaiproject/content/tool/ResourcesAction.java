@@ -4917,7 +4917,12 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		context.put("GROUP_ACCESS", AccessMode.GROUPED.toString());
 		context.put("INHERITED_ACCESS", AccessMode.INHERITED.toString());
 		context.put("PUBLIC_ACCESS", PUBLIC_ACCESS);
-		
+
+		if(ContentHostingService.isContentHostingHandlersEnabled())
+		{
+			context.put("showMountPointProperty", Boolean.TRUE.toString());
+		}
+
 		return TEMPLATE_REVISE_METADATA;
 	}
 

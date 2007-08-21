@@ -56,6 +56,7 @@ import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceToolActionPipe;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceTypeRegistry;
+import org.sakaiproject.content.api.ContentHostingHandlerResolver;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.content.api.ServiceLevelAction;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
@@ -330,6 +331,8 @@ public class ListItem
 	protected String modifiedBy;
 	protected String modifiedTime;
 	protected int depth;
+
+	protected String chhmountpoint; // Content Hosting Handler bean name
 
 	protected Map<String, ResourceToolAction> multipleItemActions = new HashMap<String, ResourceToolAction>();
 
@@ -1224,8 +1227,16 @@ public class ListItem
 		this.setDescription(description);
 	}
 
+	protected void captureCHHMountpoint(ParameterParser params, String index) 
+	{
+		// content hosting handler bean name
+		String chhmountpoint = params.getString(ContentHostingHandlerResolver.CHH_BEAN_NAME);
+		this.setCHHMountpoint(chhmountpoint);
+	}
+
 	public void captureProperties(ParameterParser params, String index) 
 	{
+		captureCHHMountpoint(params, index);
 		captureDisplayName(params, index);
 		captureDescription(params, index);
 		captureCopyright(params, index);
@@ -2219,6 +2230,16 @@ public class ListItem
 	{
 		this.description = description;
 	}
+
+	/**
+     * @param chhmountpoint the chhmountpoint (bean name) to set
+     */
+    public void setCHHMountpoint(String chhmountpoint)
+    {
+    	this.chhmountpoint = chhmountpoint;
+    }
+
+	/**
     
     /**
      * Sets expanded status of the list item.  Also updates the iconLocation 
@@ -2690,9 +2711,18 @@ public class ListItem
 		}
 	}
 
+	protected void setCHHMountpoint(ResourcePropertiesEdit props) 
+	{
+		if(this.chhmountpoint != null)
+		{
+			props.addProperty(ContentHostingHandlerResolver.CHH_BEAN_NAME, this.chhmountpoint);
+		}
+	}
+
 	public void updateContentResourceEdit(ContentResourceEdit edit) 
 	{
 		ResourcePropertiesEdit props = edit.getPropertiesEdit();
+		setCHHMountpoint(props);
 		setDisplayNameOnEntity(props);
 		setDescriptionOnEntity(props);
 		setCopyrightOnEntity(props);

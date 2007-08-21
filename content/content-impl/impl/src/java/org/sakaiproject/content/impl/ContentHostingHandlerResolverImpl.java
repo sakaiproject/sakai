@@ -347,7 +347,9 @@ public class ContentHostingHandlerResolverImpl implements ContentHostingHandlerR
 			ContentHostingHandler chh = ce.getContentHandler();
 			if (chh != null)
 			{
-				return chh.getContentCollectionEdit(id);
+				ContentCollectionEdit cce = chh.getContentCollectionEdit(id);
+				cce.setVirtualContentEntity(getVirtualChild(id, getRealParent(id), false).getVirtualContentEntity());
+				return cce;
 			}
 		}
 		return storage.editCollection(id);
@@ -365,7 +367,9 @@ public class ContentHostingHandlerResolverImpl implements ContentHostingHandlerR
 			ContentHostingHandler chh = ce.getContentHandler();
 			if (chh != null)
 			{
-				return chh.getContentResourceEdit(id);
+				ContentResourceEdit cre = chh.getContentResourceEdit(id);
+				cre.setVirtualContentEntity(getVirtualChild(id, getRealParent( id), false).getVirtualContentEntity());
+				return cre;
 			}
 		}
 		return storage.editResource(id);
@@ -533,7 +537,9 @@ public class ContentHostingHandlerResolverImpl implements ContentHostingHandlerR
 			ContentHostingHandler chh = ce.getContentHandler();
 			if (chh != null)
 			{
-				return chh.getContentCollectionEdit(id);
+				ContentCollectionEdit cce = chh.getContentCollectionEdit(id);
+				cce.setVirtualContentEntity(getVirtualChild(id, getRealParent(id), false).getVirtualContentEntity());
+				return cce;
 			}
 		}
 		return storage.putCollection(id);
@@ -550,7 +556,9 @@ public class ContentHostingHandlerResolverImpl implements ContentHostingHandlerR
 			ContentHostingHandler chh = ce.getContentHandler();
 			if (chh != null)
 			{
-				return chh.putDeleteResource(id, uuid, userId);
+				ContentResourceEdit cre = chh.putDeleteResource(id, uuid, userId);
+				cre.setVirtualContentEntity(getVirtualChild(id, getRealParent(id), false).getVirtualContentEntity());
+				return cre;
 			}
 		}
 		return storage.putDeleteResource(id, uuid, userId);
@@ -567,7 +575,9 @@ public class ContentHostingHandlerResolverImpl implements ContentHostingHandlerR
 			ContentHostingHandler chh = ce.getContentHandler();
 			if (chh != null)
 			{
-				return chh.getContentResourceEdit(id);
+				ContentResourceEdit cre = chh.getContentResourceEdit(id);
+				cre.setVirtualContentEntity(getVirtualChild(id, getRealParent(id), false).getVirtualContentEntity());
+				return cre;
 			}
 		}
 		return storage.putResource(id);

@@ -39,6 +39,7 @@ import java.util.Stack;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingHandlerResolver;
@@ -89,6 +90,9 @@ public class DbContentService extends BaseContentService
 	/** Table name for entity-group relationships. */
 	protected String m_groupTableName = "CONTENT_ENTITY_GROUPS";
 
+	/** Property name used in sakai.properties to turn on/off Content Hosting Handler support */
+	protected String m_chhEnableFlagName = "content.useCHH";
+	
 	/**
 	 * If true, we do our locks in the remote database, otherwise we do them here.
 	 */
@@ -290,6 +294,12 @@ public class DbContentService extends BaseContentService
 				// do the 2.1.0 conversions
 				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_content_2_1_0");
 			}
+
+			// If CHH resolvers are turned off in sakai.properties, unset the resolver property.
+			// This MUST happen before super.init() calls newStorage()
+			// (since that's when obj refs to the contentHostingHandlerResovler are passed around).
+			if (!ServerConfigurationService.getBoolean(m_chhEnableFlagName,false))
+				this.contentHostingHandlerResolver = null;
 
 			super.init();
 
@@ -548,8 +558,11 @@ public class DbContentService extends BaseContentService
 		public DbStorage(StorageUser collectionUser, StorageUser resourceUser, boolean bodyInFile, ContentHostingHandlerResolverImpl resolver)
 		{
 			this.resolver = resolver;
-			this.resolver.setResourceUser(resourceUser);
-			this.resolver.setCollectionUser(collectionUser);
+			if (resolver != null)
+			{
+				this.resolver.setResourceUser(resourceUser);
+				this.resolver.setCollectionUser(collectionUser);
+			}
 			
 
 			// build the collection store - a single level store
@@ -2023,5 +2036,10 @@ public class DbContentService extends BaseContentService
 	public void setContentHostingHandlerResolver(ContentHostingHandlerResolverImpl contentHostingHandlerResolver)
 	{
 		this.contentHostingHandlerResolver = contentHostingHandlerResolver;
+	}
+	
+	public boolean isContentHostingHandlersEnabled()
+	{
+		return (this.contentHostingHandlerResolver != null);
 	}
 }

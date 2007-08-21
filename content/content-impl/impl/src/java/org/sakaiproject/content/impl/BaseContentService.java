@@ -10605,6 +10605,10 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 			{
 				rv = new ByteArrayInputStream(m_body);
 			}
+			else if (m_contentStream != null)
+			{
+				return m_contentStream;
+			}
 			else
 			{
 				rv = m_storage.streamResourceBody(this);
@@ -11109,6 +11113,14 @@ public abstract class BaseContentService implements ContentHostingService, Cache
 		return rv;
 
 	} // refresh
+
+	
+	/* Content Hosting Handlers are not implemented in the Base Content Service */
+	public boolean isContentHostingHandlersEnabled()
+	{
+		return false;
+	} // isContentHostingHandlersEnabled
+	
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.api.SiteContentAdvisorProvider#getContentAdvisor(org.sakaiproject.site.api.Site)

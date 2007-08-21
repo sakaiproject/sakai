@@ -1038,4 +1038,16 @@ public class ContentHostingService
 
       return service.getQuota(collection);
 	}
+
+    /**
+     * Access flag indicating whether ContentHostingHandlers are enabled in this content hosting service.
+     * @return true if ContentHostingHandlers are enabled, false otherwise.
+     */
+    public static boolean isContentHostingHandlersEnabled()
+    {
+    	org.sakaiproject.content.api.ContentHostingService service = getInstance();
+		if (service == null) return false;
+
+		return service.isContentHostingHandlersEnabled();
+    }
 }

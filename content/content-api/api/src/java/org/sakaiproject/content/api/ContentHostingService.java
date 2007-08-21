@@ -1625,5 +1625,11 @@ public interface ContentHostingService extends EntityProducer
     * @return the quota in kb
     */
     public long getQuota(org.sakaiproject.content.api.ContentCollection collection);
+    
+    /**
+     * Access flag indicating whether ContentHostingHandlers are enabled in this content hosting service.
+     * @return true if ContentHostingHandlers are enabled, false otherwise.
+     */
+    public boolean isContentHostingHandlersEnabled();
 
 }
