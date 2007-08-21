@@ -143,14 +143,6 @@
 		<servlet-name>sakai.rwiki</servlet-name>
 		<url-pattern>/rwiki/*</url-pattern>
 	</servlet-mapping>
-	<error-page>
-		<exception-type>java.lang.Exception</exception-type>
-		<location>/WEB-INF/command-pages/errorpage.jsp</location>
-	</error-page>
-	<error-page>
-		<exception-type>java.lang.RuntimeException</exception-type>
-		<location>/WEB-INF/command-pages/errorpage.jsp</location>
-	</error-page>
 	<welcome-file-list>
 		<welcome-file>index.html</welcome-file>
 	</welcome-file-list>

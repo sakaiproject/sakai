@@ -60,8 +60,6 @@ public class CommandServiceImpl implements CommandService
 
 	private String permissionPath = "/WEB-INF/command-pages/permission.jsp";
 
-	public String errorPath = "/WEB-INF/command-pages/errorpage.jsp";
-
 	private boolean trackReads = false;
 
 	private EventTrackingService eventTrackingService = null;
@@ -85,11 +83,7 @@ public class CommandServiceImpl implements CommandService
 			}
 			catch (Exception e)
 			{
-				if (request.getAttribute(PageContext.EXCEPTION) == null)
-				{
-					request.setAttribute(PageContext.EXCEPTION, e);
-				}
-				dispatcher.dispatch(errorPath, request, response);
+				throw new RuntimeException(e);
 			}
 		}
 	}
@@ -130,11 +124,7 @@ public class CommandServiceImpl implements CommandService
 				}
 				else
 				{
-					if (request.getAttribute(PageContext.EXCEPTION) == null)
-					{
-						request.setAttribute(PageContext.EXCEPTION, e);
-					}
-					dispatcher.dispatch(errorPath, request, response);
+					throw new RuntimeException(e);
 				}
 			}
 			catch (PermissionException e)

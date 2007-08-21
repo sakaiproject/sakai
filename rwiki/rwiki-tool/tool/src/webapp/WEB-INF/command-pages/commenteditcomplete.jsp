@@ -26,7 +26,6 @@
   xmlns:fn="http://java.sun.com/jsp/jstl/functions"
   ><jsp:directive.page language="java"
     contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"
-    errorPage="/WEB-INF/command-pages/errorpage.jsp" 
     /><jsp:text
     ><![CDATA[<?xml version="1.0" encoding="UTF-8" ?>]]>
   </jsp:text>

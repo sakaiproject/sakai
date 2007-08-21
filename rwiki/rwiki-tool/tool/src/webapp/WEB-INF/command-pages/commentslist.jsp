@@ -27,7 +27,6 @@
   
   ><jsp:directive.page language="java"
 		contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"
-		errorPage="/WEB-INF/command-pages/errorpage.jsp" 
 	/>
   
 <!-- this page delivers an DIV suitable for use by AJAX in the browser -->  
