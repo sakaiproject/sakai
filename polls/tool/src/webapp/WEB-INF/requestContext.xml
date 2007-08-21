@@ -69,6 +69,7 @@
 	<property name="messageLocator" ref="messageLocator"/>
 	<property name="pollListManager" ref="org.sakaiproject.tool.poll.api.PollListManager"/>
 	<property name="targettedMessageList" ref="targettedMessageList" /> 
+	<property name="richTextEvolver" ref="richTextEvolver" />
 </bean>
 
 <bean id="pollOptionDeleteProducer" class="org.sakaiproject.poll.tool.producers.PollOptionDeleteProducer">		

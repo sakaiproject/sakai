@@ -46,6 +46,7 @@ import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.tool.params.VoteBean;
 //import org.sakaiproject.tool.poll.impl.PollListManagerDaoImpl;
 
+import uk.org.ponder.rsf.evolvers.TextInputEvolver;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
@@ -53,6 +54,8 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.EntityCentredViewParameters;
 import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.rsf.components.UIInput;
+import uk.org.ponder.rsf.components.decorators.DecoratorList;
+import uk.org.ponder.rsf.components.decorators.UITextDimensionsDecorator;
 import uk.org.ponder.beanutil.entity.EntityID;
 
 import java.util.List;
@@ -101,6 +104,12 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 	  private TargettedMessageList tml;
 	  public void setTargettedMessageList(TargettedMessageList tml) {
 		    this.tml = tml;
+	  }
+	  
+	  
+	  private TextInputEvolver richTextEvolver;
+	  public void setRichTextEvolver(TextInputEvolver richTextEvolver) {
+				this.richTextEvolver = richTextEvolver;
 	  }
 	  
 	  
@@ -163,7 +172,8 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 		if (optionBean == null) {
 			m_log.debug("setting the option bean");
 			optionBean = new Option();
-			//make sure the option is null
+			option = optionBean;
+			
 			
 		}
 		
@@ -172,6 +182,8 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 		UIForm form = UIForm.make(tofill,"opt-form");
 		
 		UIOutput.make(form,"option-label",messageLocator.getMessage("new_poll_option"));
+		
+		/*
 		if (ecvp.mode.equals(EntityCentredViewParameters.MODE_NEW) ) {
 			UIInput.make(form,"opt-text","#{option.optionText}","");
 			m_log.debug("here we are! " + ecvp.mode);
@@ -181,7 +193,13 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 			form.parameters.add(new UIELBinding("#{option.optionId}",
 			           option.getOptionId()));
 		}
+		*/
+		if (option.getOptionText() == null)
+			option.setOptionText("");
 		
+		UIInput optText = UIInput.make(form,"optText:","#{option.optionText}",option.getOptionText());
+		optText.decorators = new DecoratorList(new UITextDimensionsDecorator(40, 4));
+		  richTextEvolver.evolveTextInput(optText);
 		
 		form.parameters.add(new UIELBinding("#{option.pollId}",
 		           poll.getPollId()));

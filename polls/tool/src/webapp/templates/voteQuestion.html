@@ -19,14 +19,17 @@
 
 <div class="instruction" rsf:id="poll-description">{Additional instructions}</div>
 <form rsf:id="options-form">
-
+<table>
 <span rsf:id="optionform" />
-	<div rsf:id="option:radio">
-		<input type="radio" rsf:id="option-radio" /><span rsf:id="option-label">options</span><br />
-	</div>
-	<div rsf:id="option:select">
-		<input type="checkbox" rsf:id="option-radio" /><span rsf:id="option-label">options</span><br />
-	</div>
+
+	<tr rsf:id="option:radio">
+		<td valign="middle"><input type="radio" rsf:id="option-radio" /></td><td><span rsf:id="option-label">options</span></td>
+	</tr>
+	
+	<tr rsf:id="option:select">
+		<td valign="middle"><input type="checkbox" rsf:id="option-radio" /></td><td><span rsf:id="option-label">options</span></td>
+	</tr>
+</table>
 
 <p class="act">
   <input name="submit" type="submit" id="submit" value="Vote!" rsf:id="submit-new-vote" class="active"/>

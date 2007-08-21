@@ -233,6 +233,7 @@ public class PollToolBean {
 		// return null;
 	 }
 		 
+	 option.setOptionText(FormattedText.processFormattedText(option.getOptionText(), new StringBuffer()));
 	 
 	 manager.saveOption(option);
 	 m_log.info("Succesuly save option with id" + option.getId());

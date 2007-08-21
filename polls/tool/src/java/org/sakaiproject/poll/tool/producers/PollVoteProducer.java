@@ -220,8 +220,8 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 					              : "option:radio"						 
 						 ,Integer.toString(i));
 				 UISelectChoice.make(radioRow,"option-radio",selectID,i);
-				 UISelectLabel.make(radioRow,"option-label",selectID,i);
-				 //UIOutput.make(radioRow,"option-label",labels[i]);
+				 //UISelectLabel.make(radioRow,"option-label",selectID,i);
+				 UIVerbatim.make(radioRow,"option-label",labels[i]);
 			 }
 			 //bind some parameters
 			 voteForm.parameters.add(new UIELBinding("#{voteCollection.pollId}", poll.getPollId()));

@@ -58,6 +58,7 @@ import uk.org.ponder.rsf.components.UISelectChoice;
 import uk.org.ponder.rsf.components.UISelectLabel;
 import uk.org.ponder.rsf.components.UIOutputMany;
 import uk.org.ponder.rsf.components.UIBranchContainer;
+import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.components.decorators.DecoratorList;
 import uk.org.ponder.rsf.components.decorators.UITextDimensionsDecorator;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
@@ -209,7 +210,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 			for (int i = 0; i <options.size();i++){
 				Option o = (Option)options.get(i);
 				UIBranchContainer oRow = UIBranchContainer.make(newPoll,"options-row:",o.getOptionId().toString());
-				UIOutput.make(oRow,"options-name",o.getOptionText());
+				UIVerbatim.make(oRow,"options-name",o.getOptionText());
 				UIInternalLink.make(oRow,"option-edit",messageLocator.getMessage("new_poll_option_edit"),
 						new EntityCentredViewParameters(PollOptionProducer.VIEW_ID, 
 			                      new EntityID("Option", "Option_" + o.getOptionId().toString()), EntityCentredViewParameters.MODE_EDIT));
