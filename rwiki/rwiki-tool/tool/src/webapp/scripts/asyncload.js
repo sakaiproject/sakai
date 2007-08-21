@@ -110,7 +110,7 @@ AsyncDIVLoader.prototype.encodeContent = function(contentObject) {
     
     if ( contentObject.length ) {
         for (var i = 0; i < contentObject.length-1; i+=2 ) {
-            form_contents += (form_contents ? '&' : '') + contentObject[i] + '=' + escape(contentObject[i+1]);
+            form_contents += (form_contents ? '&' : '') + contentObject[i] + '=' + this.encodeFormElement(contentObject[i+1]);
         }
     } else {
         if ( contentObject.elements ) {
@@ -120,17 +120,33 @@ AsyncDIVLoader.prototype.encodeContent = function(contentObject) {
                       (thisElement.type.toLowerCase() == 'checkbox' ||
                       thisElement.type.toLowerCase() == 'radio') ) {
                       form_contents += (form_contents ? '&' : '') + 
-                          thisElement.name + '=' +escape(thisElement.checked);
+                          thisElement.name + '=' +this.encodeFormElement(thisElement.checked);
                                      
                   } else {
                       form_contents += (form_contents ? '&' : '') + 
-                          thisElement.name + '=' +escape(thisElement.value);
+                          thisElement.name + '=' +this.encodeFormElement(thisElement.value);
                   } 
             }
         }
     }
     log("FORM Content XXX encoded as "+form_contents);
     return form_contents;
+}
+AsyncDIVLoader.prototype.encodeFormElement = function(formVar) {
+	var result = encodeURIComponent(formVar);
+	result = result.replace(/%20/g,"+");
+	for ( var p = result.indexOf("%u"); p != -1; p = result.indexOf("%u")  ) {
+	   var code = result.substr(p,6);
+	   var rep = '%' + code.substr(2,2) + '%' + code.substr(4,2);
+	   result = result.replace(code,rep);
+	}
+	var p = -1;
+	for ( p = result.indexOf("%",p+1); p != -1; p = result.indexOf("%",p+1)  ) {
+	   var code = result.substr(p,3);
+	   var rep = code.toUpperCase();
+	   result = result.replace(code,rep);
+	}
+	return result;
 }
 
 AsyncDIVLoader.prototype.createFormObject = function(contentObject,url) {
@@ -172,10 +188,10 @@ AsyncDIVLoader.prototype.createFormObject = function(contentObject,url) {
 }
 
 AsyncDIVLoader.prototype.createFormContent = function(contentObject,url,formID) {
-    var form_contents = '<form action="'+escape(url)+'" method="POST" id="'+formID+'" >';
+    var form_contents = '<form action="'+encodeURIComponent(url)+'" method="POST" id="'+formID+'" >';
     if ( contentObject.length ) {
         for (var i = 0; i < contentObject.length-1; i+=2 ) {
-            form_contents += '<input type="hidden" name="'+contentObject[i]+'" value="'+escape(contentObject[i+1])+'" />"';
+            form_contents += '<input type="hidden" name="'+contentObject[i]+'" value="'+this.encodeAttribute(contentObject[i+1])+'" />"';
         }
     } else {
         if ( contentObject.elements ) {
@@ -189,7 +205,7 @@ AsyncDIVLoader.prototype.createFormContent = function(contentObject,url,formID) 
                                         
                   } else {
                       form_contents +=  
-                          '<input type="hidden" name="'+thisElement.name+'" value="'+escape(thisElement.value)+'" /> "';
+                          '<input type="hidden" name="'+thisElement.name+'" value="'+this.encodeAttribute(thisElement.value)+'" /> "';
                   } 
             }
         }
@@ -198,7 +214,15 @@ AsyncDIVLoader.prototype.createFormContent = function(contentObject,url,formID) 
     log("FORM Content encoded as "+form_contents);
     return form_contents;
 }
-
+AsyncDIVLoader.prototype.createFormContent = function encodeAttribute(text) {
+	var textneu = text.replace(/&/,"&amp;");
+	textneu = textneu.replace(/</,"&lt;");
+	textneu = textneu.replace(/>/,"&gt;");
+	textneu = textneu.replace(/\r\n/,"<br>");
+	textneu = textneu.replace(/\n/,"<br>");
+	textneu = textneu.replace(/\r/,"<br>");
+	return(textneu);
+}
 AsyncDIVLoader.prototype.fullLoadXMLDoc = function(url,callBackFunction,method,content) {
     		// branch for native XMLHttpRequest object
     		if ( this.async ) 
@@ -223,7 +247,7 @@ AsyncDIVLoader.prototype.fullLoadXMLDoc = function(url,callBackFunction,method,c
         					} else {
         					    // encode the contents of the post and submit
         					    log(" Doing a post for "+url);
-           	 			    this.req.open('POST',url,true);
+           	 			     this.req.open('POST',url,true);
                              this.req.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
                              this.req.send(this.encodeContent(content));
                              

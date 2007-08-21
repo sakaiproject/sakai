@@ -926,4 +926,22 @@ public class RequestScopeSuperBean
 		} 
 		return rwo.getContent();
 	}
+	
+
+	public RenderBean getPreviewRenderBean()
+	{
+		String key = "renderBean";
+		if (map.get(key) == null)
+		{
+			ViewParamsHelperBean vphb = getNameHelperBean();
+
+			RenderBean rb = new RenderBean(getCurrentRWikiObject(),
+					toolRenderService, objectService, getWithBreadcrumbs());
+			String content = vphb.getContent();
+			rb.setPreviewContent(content);
+			map.put(key, rb);
+		}
+		return (RenderBean) map.get(key);
+	}
+
 }

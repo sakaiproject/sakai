@@ -27,7 +27,6 @@ import uk.ac.cam.caret.sakai.rwiki.service.api.RWikiObjectService;
 import uk.ac.cam.caret.sakai.rwiki.service.api.dao.ObjectProxy;
 import uk.ac.cam.caret.sakai.rwiki.service.api.model.RWikiObject;
 import uk.ac.cam.caret.sakai.rwiki.service.exception.PermissionException;
-import uk.ac.cam.caret.sakai.rwiki.tool.RequestScopeSuperBean;
 import uk.ac.cam.caret.sakai.rwiki.tool.api.ToolRenderService;
 import uk.ac.cam.caret.sakai.rwiki.tool.bean.helper.ResourceLoaderHelperBean;
 import uk.ac.cam.caret.sakai.rwiki.utils.NameHelper;
@@ -50,6 +49,8 @@ public class RenderBean
 	private boolean withBreadcrumbs = true;
 
 	private boolean canEdit = false;
+
+	private String previewContent = null;
 
 	private static final String PERMISSION_PROBLEM = "You do not have permission to view this page";
 
@@ -157,7 +158,11 @@ public class RenderBean
 
 	public String getPreviewPage()
 	{
-		return toolRenderService.renderPage(rwo, false);
+		String oldcontent = rwo.getContent();
+		rwo.setContent(previewContent);
+		String page = toolRenderService.renderPage(rwo, false);
+		rwo.setContent(oldcontent);
+		return page;
 	}
 
 	/**
@@ -493,5 +498,15 @@ public class RenderBean
 				.getName(), rwo.getRealm()));
 		return vb.getListSpaceChatURL();
 	}
+
+
+	/**
+	 * @param previewContent the previewContent to set
+	 */
+	public void setPreviewContent(String previewContent)
+	{
+		this.previewContent = previewContent;
+	}
+
 
 }

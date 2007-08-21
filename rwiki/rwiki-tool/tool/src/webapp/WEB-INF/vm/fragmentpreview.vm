@@ -1,8 +1,4 @@
-#set ( $currentRWikiObject = ${requestScope.currentRWikiObject} )
-#set ( $editBean = ${requestScope.editBean} )
-#set ( $renderBean = ${requestScope.renderBean} )
+#set ( $previewRenderBean = ${requestScope.previewRenderBean} )
 #set ( $rlb = ${requestScope.resourceLoaderBean} )		
-#set ( $currentContent = ${currentRWikiObject.content} )
-#set ( ${currentRWikiObject.content} = ${editBean.previousContent} ) 	    
-${renderBean.previewPage}<br/>
+${previewRenderBean.previewPage}<br/>
 
