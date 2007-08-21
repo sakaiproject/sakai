@@ -52,7 +52,7 @@ public class RenderBean
 
 	private String previewContent = null;
 
-	private static final String PERMISSION_PROBLEM = "You do not have permission to view this page";
+	public static final String PERMISSION_PROBLEM = "You do not have permission to view this page";
 
 	/**
 	 * Create new RenderBean from given RWikiObject
