@@ -13,7 +13,6 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.html.resources.CompressedResourceReference;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.sakaiproject.scorm.client.utils.ApiAjaxBean;
-import org.sakaiproject.scorm.client.utils.BlankSjaxCall;
 import org.sakaiproject.scorm.client.utils.SJAXCall;
 import org.sakaiproject.scorm.tool.RunState;
 import org.sakaiproject.scorm.tool.ScoBean;
