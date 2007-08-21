@@ -152,9 +152,12 @@ public class SaveAssessmentSettings
     // g. set password
     control.setPassword(assessmentSettings.getPassword());
     // h. set finalPageUrl
-    String finalPageUrl = assessmentSettings.getFinalPageUrl().trim();
-    if (finalPageUrl.length() != 0 && !finalPageUrl.toLowerCase().startsWith("http")) {
-    	finalPageUrl = "http://" + finalPageUrl;
+    String finalPageUrl = assessmentSettings.getFinalPageUrl();
+    if (finalPageUrl != null) {
+    	finalPageUrl = finalPageUrl.trim();
+    	if (finalPageUrl.length() != 0 && !finalPageUrl.toLowerCase().startsWith("http")) {
+    		finalPageUrl = "http://" + finalPageUrl;
+    	}
     }
     control.setFinalPageUrl(finalPageUrl);
 
