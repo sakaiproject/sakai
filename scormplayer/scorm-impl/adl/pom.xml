@@ -62,13 +62,6 @@
 		</dependency>	
 		
 		<dependency>
-			<groupId>scormdeps</groupId>
-			<artifactId>scormdeps</artifactId>
-			<version>1.0</version>
-			<type>jar</type>
-		</dependency>
-		
-		<dependency>
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time</artifactId>
 			<version>1.4</version>
