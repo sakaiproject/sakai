@@ -57,20 +57,29 @@
 			<type>jar</type>
 		</dependency>
 		
-		<!-- Sakai dependencies -->
-		<!--dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-content-util</artifactId>
-			<version>${sakai.version}</version>
-			<type>jar</type>
+		<dependency>
+			<groupId>xerces</groupId>
+    		<artifactId>xercesImpl</artifactId>
+    		<version>2.6.2</version>
+    		<type>jar</type>
+    		<scope>runtime</scope>
 		</dependency>
 		
 		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-util</artifactId>
-			<version>${sakai.version}</version>
-			<type>jar</type>
-		</dependency-->
+    		<groupId>xalan</groupId>
+    		<artifactId>xalan</artifactId>
+    		<version>2.6.0</version>
+    		<type>jar</type>
+    		<scope>runtime</scope>
+		</dependency>
+		
+		<dependency>
+      		<groupId>xerces</groupId>
+      		<artifactId>xmlParserAPIs</artifactId>
+      		<version>2.6.2</version>
+      		<type>jar</type>
+      		<scope>runtime</scope>
+    	</dependency>
 	
 	</dependencies>
 	
