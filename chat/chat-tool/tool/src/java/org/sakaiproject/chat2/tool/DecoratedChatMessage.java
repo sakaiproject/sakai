@@ -79,7 +79,7 @@ public class DecoratedChatMessage {
       String message = chatMessage.getUnformattedBody();
       int maxLength = chatTool.lookupSynopticOptions().getChars();
       int actualLength = message.length();
-      if (maxLength < actualLength) {
+      if (maxLength < actualLength && maxLength >= 0) {
          message = message.substring(0, maxLength).concat("...");
       }
       return message;

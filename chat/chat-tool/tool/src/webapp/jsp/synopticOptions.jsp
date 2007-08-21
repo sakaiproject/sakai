@@ -8,14 +8,14 @@
 
 				<h:outputLabel for="days" value="#{msgs.number_days}" />
 				<h:inputText id="days"
-					value="#{ChatTool.currentSynopticOptions.days}" size="2" />
+					value="#{ChatTool.currentSynopticOptions.days}" size="2" validator="#{ChatTool.validatePositiveNumber}" />
 
 				<h:outputLabel for="messages" value="#{msgs.number_messages}" />
 				<h:inputText id="messages"
-					value="#{ChatTool.currentSynopticOptions.items}" size="2" />
+					value="#{ChatTool.currentSynopticOptions.items}" size="2" validator="#{ChatTool.validatePositiveNumber}" />
 
 				<h:outputLabel for="chars" value="#{msgs.number_chars}" />
-				<h:inputText id="chars" value="#{ChatTool.currentSynopticOptions.chars}" size="2" />
+				<h:inputText id="chars" value="#{ChatTool.currentSynopticOptions.chars}" size="2" validator="#{ChatTool.validatePositiveNumber}"/>
 
 				
 			</sakai:panel_edit>

@@ -29,9 +29,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.faces.application.FacesMessage;
+import javax.faces.component.UIComponent;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.faces.validator.ValidatorException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
@@ -1137,8 +1139,12 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    public List getSynopticMessages()
    {
       DecoratedSynopticOptions dso = lookupSynopticOptions();
-      Date date = getChatManager().calculateDateByOffset(dso.getDays());
-      return getMessages(getContext(), date, dso.getItems(), false);
+      if(getChatManager() == null){
+    	  return null;
+      }else{
+    	  Date date = getChatManager().calculateDateByOffset(dso.getDays());
+    	  return getMessages(getContext(), date, dso.getItems(), false);
+      }
    }
    
    /**
@@ -1204,7 +1210,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
    
    public boolean getMaintainer()
    {
-      return getChatManager().isMaintainer();
+      return (getChatManager() == null) ? false : getChatManager().isMaintainer();
    }
    
    public String getMessageOwnerDisplayName(ChatMessage message)
@@ -1340,5 +1346,19 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       this.toolContext = toolContext;
    }
    
+
+   public void validatePositiveNumber(FacesContext context, UIComponent component, Object value){
+	    if (value != null)
+	    {
+	
+		    if ((Integer) value < 0)
+		    {
+		      FacesMessage message = new FacesMessage(getMessageFromBundle("neg_num_error",null));
+		      message.setSeverity(FacesMessage.SEVERITY_WARN);
+		      throw new ValidatorException(message);
+		    }
+	
+	    }
+   }
    
 }
