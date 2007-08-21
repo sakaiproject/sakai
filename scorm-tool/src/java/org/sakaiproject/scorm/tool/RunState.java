@@ -15,11 +15,17 @@ import org.adl.sequencer.SeqNavRequests;
 import org.adl.validator.contentpackage.ILaunchData;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.wicket.PageParameters;
+import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.protocol.http.request.WebRequestCodingStrategy;
+import org.apache.wicket.request.IRequestCodingStrategy;
+import org.apache.wicket.request.target.component.BookmarkablePageRequestTarget;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.scorm.client.api.IRunState;
 import org.sakaiproject.scorm.client.api.ScormClientFacade;
 import org.sakaiproject.scorm.model.api.ContentPackageManifest;
+import org.sakaiproject.scorm.tool.pages.NavigationFrame;
 
 public class RunState implements IRunState {
 	private static final long serialVersionUID = 1L;
@@ -41,6 +47,7 @@ public class RunState implements IRunState {
 	private ISeqActivityTree activityTree = null;
 	
 	private boolean isSuspended = false;
+	private boolean isEnded = false;
 	
 	private String baseHref;
 	private String contentPackageId;
@@ -92,7 +99,7 @@ public class RunState implements IRunState {
 		}
 	}
 	
-	private void initialize(ISequencer sequencer, ILaunch launch) {
+	private void updateState(ISequencer sequencer, ILaunch launch) {
 		this.currentActivityId = launch.getActivityId();
 		this.currentSco = launch.getSco();
 		this.currentNavState = launch.getNavState();
@@ -108,13 +115,21 @@ public class RunState implements IRunState {
         		|| status.equals("_SEQABANDONALL_")) ) {
         	getSequencer().clearSeqState();
         	
-        	// FIXME: Add a special 'end session' state.
+        	isEnded = true;
         } 
 	}
 	
 	private void displayContent(Object target) {
 		if (null == target)
 			return;
+		
+		if (isEnded) {
+			//IRequestCodingStrategy encoder = new WebRequestCodingStrategy();
+			//CharSequence navFrameSrc =
+			//	encoder.encode(cycle, new BookmarkablePageRequestTarget("navFrame", NavigationFrame.class, new PageParameters()));
+			((AjaxRequestTarget)target).appendJavascript("window.location.href='http://www.google.com'");
+		}
+		
 		
 		String url = getCurrentHref();
 		if (null != url) {
@@ -131,7 +146,7 @@ public class RunState implements IRunState {
 		log.info("navigate (" + navRequest + ")");
 		ISequencer sequencer = getSequencer();
 		ILaunch launch = sequencer.navigate(navRequest);
-		initialize(sequencer, launch);
+		updateState(sequencer, launch);
 		
 		if (navRequest == SeqNavRequests.NAV_SUSPENDALL) 
 			isSuspended = true;
@@ -147,7 +162,7 @@ public class RunState implements IRunState {
 		log.info("navigate (" + navRequest + ")");
 		ISequencer sequencer = getSequencer();
 		ILaunch launch = sequencer.navigate(navRequest);
-		initialize(sequencer, launch);
+		updateState(sequencer, launch);
 		displayContent(target);
 	}
 	
@@ -159,7 +174,7 @@ public class RunState implements IRunState {
 			log.debug("navigate (" + currentActivityId + ")");
 			
 		ILaunch launch = sequencer.navigate(currentActivityId);
-		initialize(sequencer, launch);
+		updateState(sequencer, launch);
 		displayContent(target);
 	}
 	
@@ -273,5 +288,9 @@ public class RunState implements IRunState {
 
 	public List getCurrentObjStatusSet() {
 		return currentObjStatusSet;
+	}
+
+	public boolean isEnded() {
+		return isEnded;
 	}
 }
