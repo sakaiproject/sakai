@@ -9,7 +9,9 @@ import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.form.AjaxFormSubmitBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.behavior.IBehaviorListener;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.util.string.AppendingStringBuffer;
 import org.sakaiproject.scorm.tool.RunState;
@@ -19,7 +21,6 @@ public class ButtonForm extends Form {
 
 	private AjaxButton prevButton, nextButton, startButton, quitButton, suspendButton;
 	private LaunchPanel launchPanel;
-	
 	
 	public ButtonForm(String id, final RunState runState, LaunchPanel launchPanel) {
 		super(id);
@@ -89,7 +90,7 @@ public class ButtonForm extends Form {
 		runState.navigate(seqRequest, target);
 		getLaunchPanel().synchronizeState(runState, target);
 		getLaunchPanel().getTreePanel().getActivityTree().selectNode();
-		getLaunchPanel().getApiPanel().updatePageSco(runState.getCurrentSco(), target);
+		getLaunchPanel().getCommunicationPanel().updatePageSco(runState.getCurrentSco(), target);
 	}
 	
 	
@@ -118,10 +119,9 @@ public class ButtonForm extends Form {
 		public ActivityAjaxButton(String id, final Form form) {
 			super(id);
 			this.form = form;
-
+						
 			add(new AjaxFormSubmitBehavior(form, "onclick")
 			{
-
 				private static final long serialVersionUID = 1L;
 
 				protected void onSubmit(AjaxRequestTarget target)
@@ -167,7 +167,6 @@ public class ButtonForm extends Form {
 
 					return url;
 				}
-
 			});
 		}
 		

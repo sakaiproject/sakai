@@ -4,6 +4,8 @@ import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.markup.html.IAjaxLink;
+import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 import org.apache.wicket.markup.html.link.ExternalLink;
 
 public class ActivityLink extends ExternalLink implements IAjaxLink {
@@ -25,11 +27,9 @@ public class ActivityLink extends ExternalLink implements IAjaxLink {
 			{
 				return new ActivityCallDecorator(ActivityLink.this.getAjaxCallDecorator());
 			}
-
 		});
 	}
-	
-	
+		
 	protected IAjaxCallDecorator getAjaxCallDecorator()
 	{
 		return null;

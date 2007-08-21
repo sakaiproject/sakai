@@ -20,6 +20,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.util.string.AppendingStringBuffer;
+import org.apache.wicket.util.time.Duration;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -202,9 +203,14 @@ public abstract class ApiAjaxMethod extends AjaxFormSubmitBehavior {
 		WebRequest webRequest = (WebRequest)getComponent().getRequest();
 		HttpServletRequest servletRequest = webRequest.getHttpServletRequest();
 
+		String scheme = servletRequest.getScheme();
+		String hostname = servletRequest.getLocalName();
+		int port = servletRequest.getLocalPort();
 		String toolUrl = servletRequest.getContextPath();
 		
 		AppendingStringBuffer url = new AppendingStringBuffer();
+		url.append(scheme).append("://");
+		url.append(hostname).append(":").append(port);
 		url.append(toolUrl).append("/");
 		url.append(getComponent().urlFor(this, rli));
 

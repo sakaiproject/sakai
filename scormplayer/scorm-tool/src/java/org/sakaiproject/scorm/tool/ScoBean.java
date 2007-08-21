@@ -413,7 +413,8 @@ public class ScoBean implements SCORM13APIInterface, Serializable {
 						// It's a choice event
 						String choiceEvent = navDM.getChoiceEvent();
 						
-						runState.navigate(choiceEvent, target);
+						if (null != choiceEvent)
+							runState.navigate(choiceEvent, target);
 					}
 				}
 			}

@@ -1,5 +1,6 @@
 package org.sakaiproject.scorm.tool.components;
 
+import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.sakaiproject.scorm.tool.RunState;
 
@@ -9,7 +10,7 @@ public class TreePanel extends Panel {
 
 	private ActivityTree tree;
 	private LaunchPanel launchPanel;
-	
+		
 	public TreePanel(String id, RunState runState, LaunchPanel launchPanel) {
 		super(id);
 		this.launchPanel = launchPanel;
@@ -21,7 +22,7 @@ public class TreePanel extends Panel {
 	
 	public void setTreeVisible(boolean isVisible, AjaxRequestTarget target) {
 		if (null != tree && tree.isVisible() != isVisible) {
-			tree.setVisible(isVisible);
+			tree.setVisible(true);
 		
 			if (target != null)
 				target.addComponent(this);

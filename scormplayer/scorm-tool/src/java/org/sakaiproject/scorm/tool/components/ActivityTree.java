@@ -28,11 +28,15 @@ import org.apache.wicket.markup.html.tree.LinkTree;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.wicket.util.time.Duration;
 import org.sakaiproject.scorm.client.api.ScormClientFacade;
 import org.sakaiproject.scorm.client.utils.ActivityAjaxEventBehavior;
 import org.sakaiproject.scorm.tool.RunState;
 
 public class ActivityTree extends LinkTree {
+	private static final String BRANCH_NODE_IMAGE = "image/silk/application_side_tree.png";
+	private static final String LEAF_NODE_IMAGE = "image/silk/tag_blue.png";
+	
 	private static Log log = LogFactory.getLog(ActivityTree.class);
 	
 	private static final long serialVersionUID = 1L;
@@ -44,7 +48,7 @@ public class ActivityTree extends LinkTree {
 	
 	@SpringBean
 	ScormClientFacade clientFacade;
-	
+		
 	public ActivityTree(String id, RunState runState, TreePanel parent) {
 		super(id);
 		this.runState = runState;
@@ -53,7 +57,7 @@ public class ActivityTree extends LinkTree {
 		bindModel(runState);
 		treePanel.getLaunchPanel().synchronizeState(runState, null);
 	}
-	
+		
 	private void bindModel(RunState runState) {
 		IValidRequests requests = runState.getCurrentNavState();
 				
@@ -240,7 +244,7 @@ public class ActivityTree extends LinkTree {
 						super.onComponentTag(tag);
 					}
 				}
-			});
+			}.setThrottleDelay(Duration.ONE_SECOND));
 		}
 	}
 	

@@ -26,8 +26,11 @@ public final class ApiAjaxCallDecorator extends AjaxPostprocessingCallDecorator 
 				.append(argIds[i]).append("').value;\n");
 		}*/
 		
-		buffer.append(script)
-			.append("\n return document.getElementById('").append(resultId).append("').value;\n");
+		buffer.append(script).append("\n").append("return wcall;\n");
+		
+		//buffer.append("var sjaxResult = ").append(script).append("\n").append("return sjaxResult;");
+		//	.append("return api_result;");
+		//	.append("\n return document.getElementById('").append(resultId).append("').value;\n");
 		return buffer.toString();
 	}
 }
