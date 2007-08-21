@@ -17,7 +17,7 @@
 	// print out will look like
 	function printFriendly(url, redirectURL) {
 		if ("" != redirectURL) {
-			if (redirectURL.indexOf("http://") == -1)
+			if ((redirectURL.indexOf("http://") != -1) && (redirectURL.indexOf("https://") == -1))
 				redirectURL = "http://" + redirectURL;
 			
 			window.open(redirectURL,"mywindow");
