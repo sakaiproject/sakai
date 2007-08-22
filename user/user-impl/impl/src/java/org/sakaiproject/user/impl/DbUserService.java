@@ -181,12 +181,12 @@ public abstract class DbUserService extends BaseUserDirectoryService
 
 			M_log.info("init(): table: " + m_tableName + " external locks: " + m_useExternalLocks);
 			
-			M_log.info("EID cache is \n" +
-					"Max Elements in Memory "+cache.getMaxElementsInMemory()+"\n"+
-					"Max Elements on Disk "+cache.getMaxElementsOnDisk()+"\n"+
-					"Time to Idle (seconds) "+cache.getTimeToIdleSeconds()+"\n"+
-					"Time to Live (seconds) "+cache.getTimeToLiveSeconds()+"\n"+
-					"Memory Store Eviction Policy "+cache.getMemoryStoreEvictionPolicy()+"\n");
+			M_log.info("Cache [" + cache.getName() +"] " +
+					"Max Elements in Memory ["+cache.getMaxElementsInMemory()+"] "+
+					"Max Elements on Disk ["+cache.getMaxElementsOnDisk()+"] "+
+					"Time to Idle (seconds) ["+cache.getTimeToIdleSeconds()+"] "+
+					"Time to Live (seconds) ["+cache.getTimeToLiveSeconds()+"] "+
+					"Memory Store Eviction Policy ["+cache.getMemoryStoreEvictionPolicy()+"] ");
 						
 			
 
