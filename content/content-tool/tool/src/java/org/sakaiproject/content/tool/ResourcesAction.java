@@ -7420,7 +7420,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		if ( site != null && chs instanceof SiteContentAdvisorProvider ) {
 			SiteContentAdvisorProvider scap = (SiteContentAdvisorProvider) chs;
 			SiteContentAdvisor sca =  scap.getContentAdvisor(site);
-			System.err.println("Got SiteContentAdvisor as "+sca);
 			if ( sca != null ) {
 				defaultRetractTime = TimeService.newTime(sca.getDefaultRetractTime());
 			}
