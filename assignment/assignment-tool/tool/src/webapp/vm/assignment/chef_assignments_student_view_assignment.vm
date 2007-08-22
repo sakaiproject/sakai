@@ -130,7 +130,7 @@
 			</ul>
 		#end	
 		#if ($taggable)
-        	#parse ("/vm/assignment/chef_assignment_tags_list.vm")
+        	#parse ("/vm/assignment/chef_assignments_tags_list.vm")
 		#end
 		#else
 			<p class="discTria">
