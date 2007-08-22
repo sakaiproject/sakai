@@ -218,7 +218,7 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification
 				+ moddate + "\n" + Messages.getString("SiteEmailNotificationRWiki.18") + user + "\n" + " \n" + " 	Page: " + localName + " " + url + " \n" + " \n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
 				+ Messages.getString("SiteEmailNotificationRWiki.4") + content + "\n"; //$NON-NLS-1$ //$NON-NLS-2$
 		
-		log.error("Message is "+message);
+		log.debug("Message is "+message);
 
 		return message;
 	}
