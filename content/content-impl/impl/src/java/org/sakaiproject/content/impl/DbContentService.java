@@ -90,8 +90,6 @@ public class DbContentService extends BaseContentService
 	/** Table name for entity-group relationships. */
 	protected String m_groupTableName = "CONTENT_ENTITY_GROUPS";
 
-	/** Property name used in sakai.properties to turn on/off Content Hosting Handler support */
-	protected String m_chhEnableFlagName = "content.useCHH";
 	
 	/**
 	 * If true, we do our locks in the remote database, otherwise we do them here.
@@ -119,6 +117,9 @@ public class DbContentService extends BaseContentService
 
 	/** The chunk size used when streaming (100k). */
 	protected static final int STREAM_BUFFER_SIZE = 102400;
+
+	/** Property name used in sakai.properties to turn on/off Content Hosting Handler support */
+	private static final String CHH_ENABLE_FLAG = "content.useCHH";
 
 	/*************************************************************************************************************************************************
 	 * Constructors, Dependencies and their setter methods
@@ -298,7 +299,7 @@ public class DbContentService extends BaseContentService
 			// If CHH resolvers are turned off in sakai.properties, unset the resolver property.
 			// This MUST happen before super.init() calls newStorage()
 			// (since that's when obj refs to the contentHostingHandlerResovler are passed around).
-			if (!ServerConfigurationService.getBoolean(m_chhEnableFlagName,false))
+			if (!ServerConfigurationService.getBoolean(CHH_ENABLE_FLAG,false))
 				this.contentHostingHandlerResolver = null;
 
 			super.init();
@@ -525,7 +526,9 @@ public class DbContentService extends BaseContentService
 	protected Storage newStorage()
 	{
 		Storage storage =  new DbStorage(new CollectionStorageUser(), new ResourceStorageUser(), (m_bodyPath != null), contentHostingHandlerResolver);
-		contentHostingHandlerResolver.setStorage(storage);
+		if ( contentHostingHandlerResolver != null ) {
+			contentHostingHandlerResolver.setStorage(storage);
+		}
 		return storage;
 	} // newStorage
 
