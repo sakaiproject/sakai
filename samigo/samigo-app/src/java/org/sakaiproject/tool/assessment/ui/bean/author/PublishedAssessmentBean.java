@@ -43,6 +43,8 @@ public class PublishedAssessmentBean implements Serializable
 
   /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 206375673822116682L;
+  private String assessmentId;
+  private String title;
   private int hours;
   private int minutes;
   private int weeks;
@@ -77,6 +79,22 @@ public class PublishedAssessmentBean implements Serializable
   private String isActive;
   private String publishedName;
   private String maxAttempts;
+
+  public String getAssessmentId() {
+	return this.assessmentId;
+  }
+
+  public void setAssessmentId(String assessmentId) {
+	this.assessmentId = assessmentId;
+  }
+
+  public String getTitle() {
+	return this.title;
+  }
+
+  public void setTitle(String title) {
+	this.title = title;
+  }
 
   /**
    * @return

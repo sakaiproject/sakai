@@ -265,14 +265,17 @@
         <f:param name="publishedAssessmentId" value="#{publishedAssessment.publishedAssessmentId}"/>
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditPublishedSettingsListener" />
       </h:commandLink>
-<%-- This is a convenient link for Daisy, hide it for now
-       <h:outputText value=" #{authorFrontDoorMessages.separator} " />
-      <h:commandLink id="removeAssessment" immediate="true" action="removeAssessment" title="#{authorFrontDoorMessages.t_removeAssessment}">
+
+      <h:outputText value=" #{authorFrontDoorMessages.separator} " />
+
+	  <h:commandLink title="#{authorFrontDoorMessages.t_removeAssessment}" id="confirmRemovePublishedAssessment" immediate="true" 
+        rendered="#{authorization.deleteAnyAssessment or authorization.deleteOwnAssessment}"
+        action="#{author.getOutcome}">
         <h:outputText id="linkRemove" value="#{authorFrontDoorMessages.link_remove}"/>
         <f:param name="publishedAssessmentId" value="#{publishedAssessment.publishedAssessmentId}"/>
-        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.RemovePublishedAssessmentListener" />
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRemovePublishedAssessmentListener" />
       </h:commandLink>
---%>
+
       <h:outputText value=" #{authorFrontDoorMessages.separator} " 
          rendered="#{publishedAssessment.submissionSize >0 and (authorization.publishAnyAssessment or authorization.publishOwnAssessment)}"/>
       <h:commandLink title="#{authorFrontDoorMessages.t_score}" action="#{author.getOutcome}" immediate="true" id="authorIndexToScore1" 
@@ -434,14 +437,17 @@
         <f:param name="publishedAssessmentId" value="#{inactivePublishedAssessment.publishedAssessmentId}"/>
         <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditPublishedSettingsListener" />
       </h:commandLink>
-<%-- This is a convenient link for Daisy, hide it for now
-       <h:outputText value=" #{authorFrontDoorMessages.separator} " />
-      <h:commandLink title="#{authorFrontDoorMessages.t_removeAssessment}" id="removeAssessment" immediate="true" action="removeAssessment">
+
+      <h:outputText value=" #{authorFrontDoorMessages.separator} " />
+
+	  <h:commandLink title="#{authorFrontDoorMessages.t_removeAssessment}" id="confirmRemovePublishedAssessment" immediate="true" 
+        rendered="#{authorization.deleteAnyAssessment or authorization.deleteOwnAssessment}"
+        action="#{author.getOutcome}">
         <h:outputText id="linkRemove" value="#{authorFrontDoorMessages.link_remove}"/>
         <f:param name="publishedAssessmentId" value="#{inactivePublishedAssessment.publishedAssessmentId}"/>
-        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.RemovePublishedAssessmentListener" />
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.ConfirmRemovePublishedAssessmentListener" />
       </h:commandLink>
---%>
+
       <h:outputText value=" #{authorFrontDoorMessages.separator} "
           rendered="#{inactivePublishedAssessment.submissionSize >0 and (authorization.publishAnyAssessment or authorization.publishOwnAssessment)}"
       />

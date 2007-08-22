@@ -220,10 +220,14 @@ public class PublishedAssessmentService {
   }
 
   public void removeAssessment(String assessmentId) {
-    PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
-        removeAssessment(new Long(assessmentId));
+	  this.removeAssessment(assessmentId, null);
   }
 
+  public void removeAssessment(String assessmentId, String action) {
+	    PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().
+	        removeAssessment(new Long(assessmentId), action);
+  }
+  
   public ArrayList getBasicInfoOfAllActivePublishedAssessments(String orderBy,boolean ascending) {
     String siteAgentId = AgentFacade.getCurrentSiteId();
     return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().

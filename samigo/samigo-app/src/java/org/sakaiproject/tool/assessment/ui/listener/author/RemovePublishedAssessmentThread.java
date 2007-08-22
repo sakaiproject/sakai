@@ -22,7 +22,6 @@
 
 
 package org.sakaiproject.tool.assessment.ui.listener.author;
-import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -41,14 +40,20 @@ public class RemovePublishedAssessmentThread extends Thread
 
   private static Log log = LogFactory.getLog(RemovePublishedAssessmentThread.class);
   private String assessmentId;
+  private String action;
   public RemovePublishedAssessmentThread(String assessmentId){
     this.assessmentId = assessmentId;
+  }
+  
+  public RemovePublishedAssessmentThread(String assessmentId, String action){
+	    this.assessmentId = assessmentId;
+	    this.action = action;
   }
 
   public void run(){
     PublishedAssessmentService assessmentService = new PublishedAssessmentService();
-    //log.info("** remove assessmentId= "+this.assessmentId);
-    assessmentService.removeAssessment(this.assessmentId);
+    log.debug("** remove assessmentId= "+this.assessmentId);
+    assessmentService.removeAssessment(this.assessmentId, this.action);
   }
 
 }

@@ -323,7 +323,7 @@ public class BeginDeliveryActionListener implements ActionListener
 	  personBean.setResourceIdListInPreview(resourceIdList);
           //log.info("****publishedId="+publishedId);
           //log.info("****clone publishedId="+pub.getPublishedAssessmentId());
-          RemovePublishedAssessmentThread thread = new RemovePublishedAssessmentThread(publishedId);
+          RemovePublishedAssessmentThread thread = new RemovePublishedAssessmentThread(publishedId, "preview");
           thread.start();
         } 
         catch (Exception e) {

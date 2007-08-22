@@ -24,20 +24,16 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
-import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
-import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
-import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.PublishedAssessmentBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 /**
  * <p>Title: Samigo</p>
@@ -51,54 +47,43 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 public class RemovePublishedAssessmentListener
     implements ActionListener
 {
+  private static Log log = LogFactory.getLog(RemovePublishedAssessmentListener.class);
   public RemovePublishedAssessmentListener()
   {
   }
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    PublishedAssessmentService service = new PublishedAssessmentService();
-    // #1 - remove selected assessment
-    String assessmentId = (String) FacesContext.getCurrentInstance().
-        getExternalContext().getRequestParameterMap().get("publishedAssessmentId");
-
-    if (assessmentId == null)  // means from the preview assessment button in delivery
+    PublishedAssessmentBean pulishedAssessment = (PublishedAssessmentBean) ContextUtil.lookupBean("publishedassessment");
+    String assessmentId = pulishedAssessment.getAssessmentId();
+    if (assessmentId != null)
     {
-       DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
-       assessmentId = delivery.getAssessmentId();
-       PublishedAssessmentIfc pub = service.getPublishedAssessment(assessmentId.toString());
-       storeResourceIdListInPersonBean(pub);
-       RemovePublishedAssessmentThread thread = new RemovePublishedAssessmentThread(assessmentId);
-       thread.start();
-    }
-    else
-    {
-      PublishedAssessmentIfc pub = service.getPublishedAssessment(assessmentId.toString());
-      storeResourceIdListInPersonBean(pub);
-      RemovePublishedAssessmentThread thread = new RemovePublishedAssessmentThread(assessmentId);
+      log.debug("assessmentId = " + assessmentId); 	
+      RemovePublishedAssessmentThread thread = new RemovePublishedAssessmentThread(assessmentId, "remove");
       thread.start();
-      PublishedAssessmentService assessmentService = new PublishedAssessmentService();
-
-      //#3 - goto authorIndex.jsp so fix the assessment List in author bean after
-      // removing an assessment
       AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
-      ArrayList assessmentList = assessmentService.getBasicInfoOfAllActivePublishedAssessments(
-        author.getPublishedAssessmentOrderBy(),author.isPublishedAscending());
-      // get the managed bean, author and set the list
-      author.setPublishedAssessments(assessmentList);
-
-      ArrayList inactivePublishedList = assessmentService.getBasicInfoOfAllInActivePublishedAssessments(
-        author.getInactivePublishedAssessmentOrderBy(),author.isInactivePublishedAscending());
-       // get the managed bean, author and set the list
-       author.setInactivePublishedAssessments(inactivePublishedList);
+      ArrayList publishedAssessmentList = author.getPublishedAssessments();
+      ArrayList list = new ArrayList();
+      for (int i=0; i<publishedAssessmentList.size();i++){
+    	  PublishedAssessmentFacade pa = (PublishedAssessmentFacade) publishedAssessmentList.get(i);
+        if (!(assessmentId).equals(pa.getPublishedAssessmentId().toString())) {
+          list.add(pa);
+        }
+      }
+      author.setPublishedAssessments(list);
+      
+      ArrayList inactivePublishedAssessmentList = author.getInactivePublishedAssessments();
+      ArrayList inactiveList = new ArrayList();
+      for (int i=0; i<inactivePublishedAssessmentList.size();i++){
+    	  PublishedAssessmentFacade pa = (PublishedAssessmentFacade) inactivePublishedAssessmentList.get(i);
+        if (!(assessmentId).equals(pa.getPublishedAssessmentId().toString())) {
+        	inactiveList.add(pa);
+        }
+      }
+      author.setInactivePublishedAssessments(inactiveList);
     }
-
-  }
-
-  private void storeResourceIdListInPersonBean(AssessmentIfc pub){
-    AssessmentService s = new AssessmentService();
-    List resourceIdList = s.getAssessmentResourceIdList(pub);
-    PersonBean personBean = (PersonBean) ContextUtil.lookupBean("person");
-    personBean.setResourceIdListInPreview(resourceIdList);
+    else {
+    	log.warn("Could not remove published assessment - assessment id is null");
+    }
   }
 }

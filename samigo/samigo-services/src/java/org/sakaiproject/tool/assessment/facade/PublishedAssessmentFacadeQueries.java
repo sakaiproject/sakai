@@ -941,33 +941,27 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		}
 		return assessmentList;
 	}
-
-	public void removeAssessment(Long assessmentId) {
+	
+	public void removeAssessment(Long assessmentId, String action) {
 		PublishedAssessmentData assessment = (PublishedAssessmentData) getHibernateTemplate()
 				.load(PublishedAssessmentData.class, assessmentId);
-		// if AssessmentGradingData exist, simply set pub assessment to inactive
-		// else delete assessment
-		List count = getHibernateTemplate()
-				.find(
-						"select count(g) from AssessmentGradingData g where g.publishedAssessmentId=?",
-						assessment.getPublishedAssessmentId());
-		log.debug("no. of Assessment Grading =" + count.size());
-		Iterator iter = count.iterator();
-		int i = ((Integer) iter.next()).intValue();
-		if (i > 0) {
-			assessment.setStatus(PublishedAssessmentIfc.DEAD_STATUS);
-			try {
-				saveOrUpdate(assessment);
-			} catch (Exception e) {
-				log.warn(e.getMessage());
-			}
-		} else {
+		// for preview, delete assessment
+		// for others, simply set pub assessment to inactive
+		if (action == null || action.equals("preview")) {
 			delete(assessment);
 			// remove authorization
 			PersistenceService.getInstance().getAuthzQueriesFacade()
 					.removeAuthorizationByQualifier(
 							assessment.getPublishedAssessmentId().toString(),
 							true);
+		}
+		else {
+			assessment.setStatus(PublishedAssessmentIfc.DEAD_STATUS);
+			try {
+				saveOrUpdate(assessment);
+			} catch (Exception e) {
+				log.warn(e.getMessage());
+			}			
 		}
 	}
 
@@ -1088,7 +1082,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		String query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title,"
 				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate) from PublishedAssessmentData p,"
 				+ " PublishedAccessControl c, AuthorizationData z  "
-				+ " where c.assessment.publishedAssessmentId=p.publishedAssessmentId and (p.status=? or c.dueDate<= ? or  c.retractDate<= ?)"
+				+ " where c.assessment.publishedAssessmentId=p.publishedAssessmentId and p.status=? and (c.dueDate<= ? or  c.retractDate<= ?)"
 				+ " and p.publishedAssessmentId=z.qualifierId and z.functionId=? "
 				+ " and z.agentIdString= ? order by p." + orderBy;
 
@@ -1102,7 +1096,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			public Object doInHibernate(Session session)
 					throws HibernateException, SQLException {
 				Query q = session.createQuery(hql);
-				q.setInteger(0, 0);
+				q.setInteger(0, 1);
 				q.setTimestamp(1, new Date());
 				q.setTimestamp(2, new Date());
 				q.setString(3, "OWN_PUBLISHED_ASSESSMENT");
