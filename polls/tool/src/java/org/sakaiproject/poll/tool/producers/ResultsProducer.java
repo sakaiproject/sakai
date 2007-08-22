@@ -48,6 +48,7 @@ import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UICommand;
+import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.util.NumberFormatter;
 
 
@@ -159,12 +160,13 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 		 for (int i=0; i <pollOptions.size(); i++ ) {
 			 CollatedVote collatedVote = new CollatedVote();
 			 Option option = (Option) pollOptions.get(i);
+			 m_log.debug("collating option " + option.getOptionId());
 			 collatedVote.setoptionId(option.getOptionId());
 			 collatedVote.setOptionText(option.getOptionText());
 			 for (int q=0; q <votes.size(); q++ ) {
 				 Vote vote = (Vote)votes.get(q);
-				 if (vote.getPollOption().equals(option.getId())){
-					 m_log.debug("got a vote for option " + option.getId());
+				 if (vote.getPollOption().equals(option.getOptionId())){
+					 m_log.debug("got a vote for option " + option.getOptionId());
 					 collatedVote.incrementVotes();
 					 
 				 }
@@ -179,7 +181,7 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 		 for (int i=0; i <collation.size(); i++ ) {
 			 CollatedVote cv = (CollatedVote)collation.get(i);
 			 UIBranchContainer resultRow = UIBranchContainer.make(tofill,"answer-row:",cv.getoptionId().toString());
-			 UIOutput.make(resultRow,"answer-option",cv.getOptionText());
+			 UIVerbatim.make(resultRow,"answer-option",cv.getOptionText());
 			 UIOutput.make(resultRow,"answer-numVotes",new Long(cv.getVotes()).toString());
 			 m_log.debug("about to do the calc: (" + cv.getVotes()+"/"+ totalVotes +")*100");
 			 double percent = (double)0;
@@ -193,6 +195,10 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 			 
 		 }
 		UIOutput.make(tofill,"votes-total",new Integer(totalVotes).toString());
+		if (totalVotes > 0)
+			UIOutput.make(tofill,"total-percent","100%");
+		else
+			UIOutput.make(tofill,"total-percent","0%");
 		 //the cancel button
 		 UIForm form = UIForm.make(tofill,"actform");
 		 UICommand.make(form,"cancel",messageLocator.getMessage("results_cancel"),"#{pollToolBean.cancel}"); 
