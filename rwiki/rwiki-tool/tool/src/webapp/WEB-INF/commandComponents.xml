@@ -189,7 +189,7 @@
   <bean id="updatePreferencesCommand" 
   	class="uk.ac.cam.caret.sakai.rwiki.tool.command.UpdatePreferencesCommand"
 	init-method="init" >
-    <property name="successfulPath"><value>/WEB-INF/command-pages/info.jsp</value></property>
+    <property name="successfulPath"><value>/WEB-INF/command-pages/view.jsp</value></property>
   </bean>
   
   <!-- Real/AuthZgroups edit command -->
