@@ -259,6 +259,7 @@ public class DiscussionForumTool
   private String gradePoint; 
   private String gradeComment; 
   private boolean gradebookExist = false;
+  private boolean gradebookExistChecked = false;
   private boolean displayDeniedMsg = false;
   private transient boolean selGBItemRestricted;
   private transient boolean allowedToGradeItem;
@@ -5480,18 +5481,27 @@ public class DiscussionForumTool
 
 		public boolean getGradebookExist() 
 		{
-	 	    try 
-		    { 
-	 	    	GradebookService gradebookService = (org.sakaiproject.service.gradebook.shared.GradebookService) 
-	 	    	ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
-	 	    	gradebookExist = gradebookService.isGradebookDefined(ToolManager.getCurrentPlacement().getContext());
-	 	    	return gradebookExist;
-		    }
-	 	    catch(Exception e)
-	 	    {
-	 	    	gradebookExist = false;
-	 	    	return gradebookExist;
-	 	    }
+			if (!gradebookExistChecked)
+			{
+		 	    try 
+			    { 
+		 	    	GradebookService gradebookService = (org.sakaiproject.service.gradebook.shared.GradebookService) 
+		 	    	ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+		 	    	gradebookExist = gradebookService.isGradebookDefined(ToolManager.getCurrentPlacement().getContext());
+		 	    	gradebookExistChecked = true;
+		 	    	return gradebookExist;
+			    }
+		 	    catch(Exception e)
+		 	    {
+		 	    	gradebookExist = false;
+		 	    	gradebookExistChecked = true;
+		 	    	return gradebookExist;
+		 	    }
+			}
+		 	else
+		 	{
+		 		return gradebookExist;
+		 	}
 		}
 
 		public void setGradebookExist(boolean gradebookExist) 

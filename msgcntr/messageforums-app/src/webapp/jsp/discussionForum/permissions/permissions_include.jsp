@@ -124,25 +124,25 @@
   </h:dataTable>
   
   <h:panelGrid columns="2" summary="layout" rendered="#{ForumTool.gradebookExist}">
-    <h:panelGroup styleClass="shorttext" rendered="#{ForumTool.gradebookExist}">
-      <h:outputLabel for="forum_assignments" rendered="#{ ForumTool.permissionMode == 'forum' && ForumTool.gradebookExist}" value="#{msgs.perm_choose_assignment}"></h:outputLabel>  
+    <h:panelGroup styleClass="shorttext">
+      <h:outputLabel for="forum_assignments" rendered="#{ ForumTool.permissionMode == 'forum'}" value="#{msgs.perm_choose_assignment}"></h:outputLabel>  
       </h:panelGroup>
-	  <h:panelGroup rendered="#{ForumTool.gradebookExist}">
-  	    <h:selectOneMenu id="forum_assignments" value="#{ForumTool.selectedForum.gradeAssign}" rendered="#{ ForumTool.permissionMode == 'forum' && ForumTool.gradebookExist}" disabled="#{not ForumTool.editMode}">
+	  <h:panelGroup>
+  	    <h:selectOneMenu id="forum_assignments" value="#{ForumTool.selectedForum.gradeAssign}" rendered="#{ ForumTool.permissionMode == 'forum'}" disabled="#{not ForumTool.editMode}">
    	    <f:selectItems value="#{ForumTool.assignments}" />
       </h:selectOneMenu>
     </h:panelGroup>
-    </h:panelGrid>
-	<h:panelGrid columns="2" summary="layout" rendered="#{ForumTool.gradebookExist}">
-    <h:panelGroup rendered="#{ForumTool.gradebookExist}">  	
-  	    <h:outputLabel for="topic_assignments" rendered="#{ ForumTool.permissionMode == 'topic' && ForumTool.gradebookExist}" value="#{msgs.perm_choose_assignment}"  ></h:outputLabel>
+  </h:panelGrid>
+  <h:panelGrid columns="2" summary="layout" rendered="#{ForumTool.gradebookExist}">
+    <h:panelGroup>  	
+  	    <h:outputLabel for="topic_assignments" rendered="#{ ForumTool.permissionMode == 'topic'}" value="#{msgs.perm_choose_assignment}"  ></h:outputLabel>
   	</h:panelGroup>		
-  	<h:panelGroup rendered="#{ForumTool.gradebookExist}">
-  	    <h:selectOneMenu value="#{ForumTool.selectedTopic.gradeAssign}" id="topic_assignments" rendered="#{ ForumTool.permissionMode == 'topic' && ForumTool.gradebookExist}" disabled="#{not ForumTool.editMode}">
+  	<h:panelGroup>
+  	    <h:selectOneMenu value="#{ForumTool.selectedTopic.gradeAssign}" id="topic_assignments" rendered="#{ ForumTool.permissionMode == 'topic'}" disabled="#{not ForumTool.editMode}">
      	    <f:selectItems value="#{ForumTool.assignments}" />
   	    </h:selectOneMenu>
   	  </h:panelGroup>
-  	</h:panelGrid>
+  </h:panelGrid>
   	
   <sakai:script contextBase="/sakai-messageforums-tool" path="/js/permissions_footer.js"/>	 	
 </mf:forumHideDivision>
