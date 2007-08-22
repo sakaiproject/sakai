@@ -197,11 +197,7 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 			 
 			 
 			 m_log.debug("result is "+ percent);
-			 /*
-			 NumberFormatter nf = new NumberFormatter();
-			 */
 			 NumberFormat nf = NumberFormat.getPercentInstance(localegetter.get());
-			 
 			 UIOutput.make(resultRow,"answer-percVotes", nf.format(percent));
 			 
 		 }
