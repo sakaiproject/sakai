@@ -52,8 +52,10 @@ import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.util.NumberFormatter;
 
 
+import java.text.NumberFormat;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -178,6 +180,7 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 		 
 		 UIOutput.make(tofill,"answers-title",messageLocator.getMessage("results_answers_title"));
 		 
+	 
 		 for (int i=0; i <collation.size(); i++ ) {
 			 CollatedVote cv = (CollatedVote)collation.get(i);
 			 UIBranchContainer resultRow = UIBranchContainer.make(tofill,"answer-row:",cv.getoptionId().toString());
@@ -186,16 +189,20 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 			 m_log.debug("about to do the calc: (" + cv.getVotes()+"/"+ totalVotes +")*100");
 			 double percent = (double)0;
 			 if (totalVotes>0  && poll.getMaxOptions() == 1)
-				 percent = ((double)cv.getVotes()/(double)totalVotes)*(double)100;
+				 percent = ((double)cv.getVotes()/(double)totalVotes); //*(double)100;
 			 else if (totalVotes>0  && poll.getMaxOptions() > 1)
-				 percent = ((double)cv.getVotes()/(double)voters)*(double)100;
+				 percent = ((double)cv.getVotes()/(double)voters); //*(double)100;
 			 else
 				 percent = (double) 0;
 			 
 			 
 			 m_log.debug("result is "+ percent);
+			 /*
 			 NumberFormatter nf = new NumberFormatter();
-			 UIOutput.make(resultRow,"answer-percVotes", nf.format(percent) + "%");
+			 */
+			 NumberFormat nf = NumberFormat.getPercentInstance(localegetter.get());
+			 
+			 UIOutput.make(resultRow,"answer-percVotes", nf.format(percent));
 			 
 		 }
 		UIOutput.make(tofill,"votes-total",new Integer(totalVotes).toString());

@@ -117,6 +117,7 @@
 	<property name="toolManager"
 			ref="org.sakaiproject.tool.api.ToolManager" />
 			<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
+			<property name="localeGetter" ref="requestLocaleProxy" />
 </bean>
 
 	<bean id="voteCollection" class="org.sakaiproject.poll.model.VoteCollection" />
