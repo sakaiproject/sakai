@@ -35,7 +35,7 @@
   
   <div class="rwiki_help_popup" >
 	    <form action="?#" method="post" >
-	    <c:out value="${rlb.jsp_new_comment}"/><br/>
+	    <nobr><c:out value="${rlb.jsp_new_comment}"/></nobr><br/>
 		<textarea cols="40" rows="10" name="content" id="content" >&#160;</textarea>
 		<input type="hidden" name="action" value="commentnewsave"/>
 		<input type="hidden" name="panel" value="Main"/>

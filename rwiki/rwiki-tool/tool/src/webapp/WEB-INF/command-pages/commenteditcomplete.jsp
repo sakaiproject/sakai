@@ -35,7 +35,7 @@
   <c:set var="rlb" value="${requestScope.rsacMap.resourceLoaderBean}"/>
   
   <div class="rwiki_help_popup" >
-  <c:out value="${rlb.jsp_comment_saved}"/>
+  <nobr><c:out value="${rlb.jsp_comment_saved}"/></nobr>
   <a href="#" onclick="toggleComments(null); toggleComments(null); return false;" ><c:out value="${rlb.jsp_button_ok}"/></a>
   </div>
 </jsp:root>

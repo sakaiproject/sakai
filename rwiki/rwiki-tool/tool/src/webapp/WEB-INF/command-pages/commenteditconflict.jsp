@@ -35,6 +35,6 @@
   </jsp:text>
     <c:set var="rlb" value="${requestScope.rsacMap.resourceLoaderBean}"/>
   <div class="rwiki_help_popup" >
-  <c:out value="${rlb.jsp_comment_conflict}"/>
+  <nobr><c:out value="${rlb.jsp_comment_conflict}"/></nobr>
   </div>
 </jsp:root>
