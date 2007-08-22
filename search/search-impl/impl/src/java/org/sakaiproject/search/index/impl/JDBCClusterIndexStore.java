@@ -70,7 +70,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 	private static final String INDEX_PATCHNAME = "indexpatch";
 
-	private static final long MAX_BLOCK_SIZE = 1024*10*10; // 10M blocks
+	private static final long MAX_BLOCK_SIZE = 1024*1024*10; // 10M blocks
 
 	private boolean autoDdl = false;
 
