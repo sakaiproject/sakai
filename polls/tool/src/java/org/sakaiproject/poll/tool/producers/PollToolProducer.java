@@ -299,8 +299,12 @@ public class PollToolProducer implements ViewComponentProducer,
   private boolean pollIsVotable(Poll poll)
   {
 	  //poll must have options to be votable
-	  if (poll.getPollOptions().size() == 0)
+	  
+	  poll.setOptions(pollListManager.getOptionsForPoll(poll));
+	  if (poll.getPollOptions()== null || poll.getPollOptions().size() == 0) {
+		m_log.debug("poll has no options");
 		  return false;
+	  }
 	  
 	  boolean pollAfterOpen = true;
 	  boolean pollBeforeClose = true;

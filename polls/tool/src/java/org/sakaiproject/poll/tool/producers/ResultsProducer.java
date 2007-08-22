@@ -22,6 +22,7 @@
 package org.sakaiproject.poll.tool.producers;
 
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
@@ -65,12 +66,14 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 	  private UserDirectoryService userDirectoryService;
 	  private PollListManager pollListManager;
 	  private PollVoteManager pollVoteManager;
-	  private ToolManager toolManager;
 	  private MessageLocator messageLocator;
 	  private LocaleGetter localegetter;
-	  
+	  private ToolManager toolManager;	  
 	  
 	  private static Log m_log  = LogFactory.getLog(ResultsProducer.class);
+	  
+
+
 	  
 	public String getViewID() {
 		// TODO Auto-generated method stub
@@ -103,6 +106,13 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 	  }
 		public void setPollVoteManager(PollVoteManager pvm){
 			this.pollVoteManager = pvm;
+		}
+		
+		
+		
+		private EventTrackingService eventTrackingService;
+		public void setEventTrackingService(EventTrackingService ets) {
+			eventTrackingService = ets;
 		}
 		
 	public void fillComponents(UIContainer tofill, ViewParameters viewparams,
@@ -186,8 +196,8 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 		 //the cancel button
 		 UIForm form = UIForm.make(tofill,"actform");
 		 UICommand.make(form,"cancel",messageLocator.getMessage("results_cancel"),"#{pollToolBean.cancel}"); 
+		 eventTrackingService.post(eventTrackingService.newEvent("poll.viewResult", "poll/site/" + toolManager.getCurrentPlacement().getContext() +"/poll/" +  poll.getPollId(), false));
 		 
-
 	}
 	
 	  public List reportNavigationCases() {

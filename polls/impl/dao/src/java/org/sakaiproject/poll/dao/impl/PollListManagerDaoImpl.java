@@ -222,11 +222,14 @@ public class PollListManagerDaoImpl extends HibernateDaoSupport implements PollL
 	}
 	
 	public void deleteOption(Option option) {
+		
+
 		try {
 			getHibernateTemplate().delete(option);
 		} catch (DataAccessException e) {
 			log.error("Hibernate could not delete: " + e.toString());
 			e.printStackTrace();
+			return;
 		}
 		log.info("Option id " + option.getId() + " deleted");
 		

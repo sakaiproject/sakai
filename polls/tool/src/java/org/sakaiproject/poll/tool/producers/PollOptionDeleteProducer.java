@@ -31,6 +31,7 @@ import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UIInternalLink;
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UICommand;
+import uk.org.ponder.rsf.components.UIVerbatim;
 
 import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
@@ -94,7 +95,7 @@ public class PollOptionDeleteProducer implements ViewComponentProducer,Navigatio
 	  
 	public void fillComponents(UIContainer tofill, ViewParameters viewparams,
 			ComponentChecker arg2) {
-		m_log.info("rendering view");
+		m_log.debug("rendering view");
 		Poll poll = null;
 		Option option = null;
 		UIOutput.make(tofill,"confirm_delete",messageLocator.getMessage("delete_confirm"));
@@ -110,14 +111,18 @@ public class PollOptionDeleteProducer implements ViewComponentProducer,Navigatio
 				if (type.equals("Poll")) {
 					poll = pollListManager.getPollById(new Long(id));
 				} else { 
+					m_log.debug("getting option: " + id);
 					option = pollListManager.getOptionById(new Long(id));
+					m_log.debug("got option: " + option.getOptionId());
 					poll = pollListManager.getPollById(option.getPollId());
 				}
 		}
-		UIOutput.make(tofill,"poll_text",option.getOptionText());
+		UIVerbatim.make(tofill,"poll_text",option.getOptionText());
 		UIForm form = UIForm.make(tofill,"opt-form");
 		UIInput.make(form,"opt-text","#{option.optionText}",option.getOptionText());
 		
+		form.parameters.add(new UIELBinding("#{option.optionId}",
+		           option.getOptionId()));
 		form.parameters.add(new UIELBinding("#{option.id}",
 		           option.getId()));
 		form.parameters.add(new UIELBinding("#{option.pollId}",

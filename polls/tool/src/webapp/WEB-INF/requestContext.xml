@@ -91,6 +91,8 @@
 	<property name="richTextEvolver" ref="richTextEvolver" />
 	<property name="targettedMessageList" ref="targettedMessageList" /> 
 	 <property name="dateEvolver" ref="fieldDateInputEvolver"/>
+	 <property name="pollVoteManager" 
+			ref="org.sakaiproject.tool.poll.api.PollVoteManagerDao" />
 	</bean>
 
   
@@ -112,6 +114,9 @@
 	<property name="pollListManager" ref="org.sakaiproject.tool.poll.api.PollListManager"/>
 	<property name="pollVoteManager" 
 			ref="org.sakaiproject.tool.poll.api.PollVoteManagerDao" />
+	<property name="toolManager"
+			ref="org.sakaiproject.tool.api.ToolManager" />
+			<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
 </bean>
 
 	<bean id="voteCollection" class="org.sakaiproject.poll.model.VoteCollection" />

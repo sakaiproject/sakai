@@ -33,6 +33,7 @@ import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.Option;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.logic.PollListManager;
+import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.poll.tool.params.VoteBean;
 
 import uk.org.ponder.beanutil.entity.EntityID;
@@ -127,6 +128,13 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 	  public void setPoll(Poll p) {
 		  poll =p;
 	  }
+	  
+	  
+	  private PollVoteManager pollVoteManager;
+		
+	public void setPollVoteManager(PollVoteManager pvm){
+		this.pollVoteManager = pvm;
+	}
 		
 	  
 		/*
@@ -211,12 +219,18 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 				Option o = (Option)options.get(i);
 				UIBranchContainer oRow = UIBranchContainer.make(newPoll,"options-row:",o.getOptionId().toString());
 				UIVerbatim.make(oRow,"options-name",o.getOptionText());
-				UIInternalLink.make(oRow,"option-edit",messageLocator.getMessage("new_poll_option_edit"),
-						new EntityCentredViewParameters(PollOptionProducer.VIEW_ID, 
-			                      new EntityID("Option", "Option_" + o.getOptionId().toString()), EntityCentredViewParameters.MODE_EDIT));
-				UIInternalLink.make(oRow,"option-delete",messageLocator.getMessage("new_poll_option_delete"),
-						new EntityCentredViewParameters(PollOptionDeleteProducer.VIEW_ID, 
-								new EntityID("Option", "Option_" + o.getOptionId().toString())));
+				//only if there are no votes on this poll
+				
+				List votes = pollVoteManager.getAllVotesForPoll(poll);
+				if (votes == null || votes.size() == 0 ) {
+					
+					UIInternalLink.make(oRow,"option-edit",messageLocator.getMessage("new_poll_option_edit"),
+							new EntityCentredViewParameters(PollOptionProducer.VIEW_ID, 
+									new EntityID("Option", "Option_" + o.getOptionId().toString()), EntityCentredViewParameters.MODE_EDIT));
+					UIInternalLink.make(oRow,"option-delete",messageLocator.getMessage("new_poll_option_delete"),
+							new EntityCentredViewParameters(PollOptionDeleteProducer.VIEW_ID, 
+									new EntityID("Option", "Option_" + o.getOptionId().toString())));
+				}
 			}
 	    }
 	    

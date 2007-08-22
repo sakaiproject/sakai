@@ -96,4 +96,6 @@ public interface PollListManager extends EntityProducer {
 	public Option getOptionById(Long optionId);
 	
 	public void deleteOption(Option option);
+	
+	public List getOptionsForPoll(Poll poll);
 }

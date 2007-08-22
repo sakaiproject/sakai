@@ -74,7 +74,7 @@ public class PollVoteManagerDaoImpl extends HibernateDaoSupport implements PollV
 		//we need the siteID
 		
 		log.debug(" Vote  " + vote.getId() + " successfuly saved");
-		EventTrackingService.post(EventTrackingService.newEvent("poll.vote", "poll/site/" + ToolManager.getCurrentPlacement().getContext() +"/poll/" +  vote.getPollId(), false));
+		EventTrackingService.post(EventTrackingService.newEvent("poll.vote", "poll/site/" + ToolManager.getCurrentPlacement().getContext() +"/poll/" +  vote.getPollId(), true));
 		return true;
 	}
 
