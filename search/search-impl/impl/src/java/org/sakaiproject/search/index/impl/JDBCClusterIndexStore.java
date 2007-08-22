@@ -70,6 +70,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 
 	private static final String INDEX_PATCHNAME = "indexpatch";
 
+	private static final long MAX_BLOCK_SIZE = 1024*10*10; // 10M blocks
+
 	private boolean autoDdl = false;
 
 	private boolean parallelIndex = false;
@@ -950,7 +952,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				sharedTempFile.getParentFile().mkdirs();
 				sharedStream = new FileOutputStream(sharedTempFile).getChannel();
 
-				sharedStream.transferFrom(packetStream, 0, packetStream.size());
+				doBlockedStream(packetStream, sharedStream);
 
 				packetStream.close();
 				sharedStream.close();
@@ -1567,7 +1569,7 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				dstChannel = new FileOutputStream(t).getChannel();
 
 				// Copy file contents from source to destination
-				dstChannel.transferFrom(srcChannel, 0, srcChannel.size());
+				doBlockedStream(srcChannel, dstChannel);
 
 				// Close the channels
 			}
@@ -1839,7 +1841,8 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 				sharedStream = new FileOutputStream(sharedTempFile).getChannel();
 
 				// Copy file contents from source to destination
-				sharedStream.transferFrom(packetStream, 0, packetStream.size());
+				doBlockedStream(packetStream, sharedStream);
+				
 
 				packetStream.close();
 				sharedStream.close();
@@ -1928,6 +1931,32 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			}
 		}
 
+	}
+
+	/**
+	 * @param packetStream
+	 * @param sharedStream
+	 * @throws IOException 
+	 */
+	private void doBlockedStream(FileChannel from, FileChannel to) throws IOException
+	{
+		to.position(0);
+		long size = from.size();
+		for ( long pos = 0;  pos < size; ) {
+			long count = size - pos;
+			if ( count > MAX_BLOCK_SIZE ) {
+				count = MAX_BLOCK_SIZE;
+				
+			}
+			
+			to.position(pos);
+			long cpos = to.position();
+			log.info("NIOTransfering |"+count+"| bytes from |"+pos+"| to |"+cpos+"|");
+			long t = to.transferFrom(from, pos, count);
+			pos = pos + t;
+		}
+		log.info("  Final Size Source        "+from.size());
+		log.info("  Final Size Destination   "+to.size());
 	}
 
 	private String getSharedFileName(String name, boolean structured)
