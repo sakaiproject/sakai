@@ -480,7 +480,7 @@
 							#if ($!allowGradeSubmission)
 								#if ($!view.equals('lisofass1'))
 								<td headers="num_submissions" class="specialLink">
-							#set ($totalSubmission = $service.getSubmissions($assignment))
+							#set ($totalSubmission = $!assignments_submissions.get($assignment.getReference()))
 									#set ($totalNumber = 0)
 									#set ($ungradedNumber = 0)
 									#foreach ($s in $totalSubmission)

@@ -1148,16 +1148,18 @@ public class AssignmentAction extends PagedResourceActionII
 			context.put("view", state.getAttribute(STATE_SELECTED_VIEW));
 		}
 
+		Hashtable assignments_submissions = new Hashtable();
 		List assignments = prepPage(state);
 		
 		// make sure for all non-electronic submission type of assignment, the submission number matches the number of site members
 		for (int i = 0; i < assignments.size(); i++)
 		{
 			Assignment a = (Assignment) assignments.get(i);
+			List submissions = AssignmentService.getSubmissions(a);
+			assignments_submissions.put(a.getReference(), submissions);
 			if (a.getContent() != null && a.getContent().getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
 			{
 				List allowAddSubmissionUsers = AssignmentService.allowAddSubmissionUsers(a.getReference());
-				List submissions = AssignmentService.getSubmissions(a);
 				
 				HashSet<String> submittersIdSet = getSubmittersIdSet(submissions);
 				HashSet<String> allowAddSubmissionUsersIdSet = getAllowAddSubmissionUsersIdSet(allowAddSubmissionUsers);
@@ -1202,6 +1204,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 
 		context.put("assignments", assignments.iterator());
+		context.put("assignments_submissions", assignments_submissions);
 
 		// allow get assignment
 		context.put("allowGetAssignment", Boolean.valueOf(AssignmentService.allowGetAssignment(contextString)));
@@ -4229,7 +4232,7 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 
 			// sections
-			String s = (String) state.getAttribute(NEW_ASSIGNMENT_SECTION);
+			String section = (String) state.getAttribute(NEW_ASSIGNMENT_SECTION);
 
 			int submissionType = ((Integer) state.getAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE)).intValue();
 
@@ -4308,7 +4311,7 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 				
 				// comment the changes to Assignment object
-				commitAssignmentEdit(state, post, ac, a, title, openTime, dueTime, closeTime, enableCloseDate, s, range, groups);
+				commitAssignmentEdit(state, post, ac, a, title, openTime, dueTime, closeTime, enableCloseDate, section, range, groups);
 	
 				if (state.getAttribute(STATE_MESSAGE) == null)
 				{
@@ -4320,6 +4323,33 @@ public class AssignmentAction extends PagedResourceActionII
 				if (post)
 				{
 					// only if user is posting the assignment
+					if (ac.getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
+					{
+						// for non-electronic assignment
+						List submissions = AssignmentService.getSubmissions(a);
+						if (submissions != null && submissions.size() >0)
+						{
+							// assignment already exist and with submissions
+							for (Iterator iSubmissions = submissions.iterator(); iSubmissions.hasNext();)
+							{
+								AssignmentSubmission s = (AssignmentSubmission) iSubmissions.next();
+								// remove all submissions
+								try
+								{
+									AssignmentSubmissionEdit sEdit = AssignmentService.editSubmission(s.getReference());
+									AssignmentService.removeSubmission(sEdit);
+								}
+								catch (Exception e)
+								{
+									Log.debug("chef", this + e.getMessage() + s.getReference());
+								}
+							}
+						}
+						
+						// add submission for every one who can submit
+						HashSet<String> addSubmissionUserIdSet = (HashSet<String>) getAllowAddSubmissionUsersIdSet(AssignmentService.allowAddSubmissionUsers(a.getReference()));	
+						addRemoveSubmissionsForNonElectronicAssignment(state, submissions, addSubmissionUserIdSet, new HashSet(), a);
+					}
 
 					// add the due date to schedule if the schedule exists
 					integrateWithCalendar(state, a, title, dueTime, checkAddDueTime, oldDueTime, aPropertiesEdit);
