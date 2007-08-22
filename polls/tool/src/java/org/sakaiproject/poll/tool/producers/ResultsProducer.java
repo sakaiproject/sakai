@@ -185,17 +185,21 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 			 UIOutput.make(resultRow,"answer-numVotes",new Long(cv.getVotes()).toString());
 			 m_log.debug("about to do the calc: (" + cv.getVotes()+"/"+ totalVotes +")*100");
 			 double percent = (double)0;
-			 if (totalVotes>0)
+			 if (totalVotes>0  && poll.getMaxOptions() == 1)
 				 percent = ((double)cv.getVotes()/(double)totalVotes)*(double)100;
-			 else 
+			 else if (totalVotes>0  && poll.getMaxOptions() > 1)
+				 percent = ((double)cv.getVotes()/(double)voters)*(double)100;
+			 else
 				 percent = (double) 0;
+			 
+			 
 			 m_log.debug("result is "+ percent);
 			 NumberFormatter nf = new NumberFormatter();
 			 UIOutput.make(resultRow,"answer-percVotes", nf.format(percent) + "%");
 			 
 		 }
 		UIOutput.make(tofill,"votes-total",new Integer(totalVotes).toString());
-		if (totalVotes > 0)
+		if (totalVotes > 0 && poll.getMaxOptions() == 1)
 			UIOutput.make(tofill,"total-percent","100%");
 		
 		 //the cancel button
