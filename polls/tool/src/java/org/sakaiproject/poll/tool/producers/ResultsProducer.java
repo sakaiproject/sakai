@@ -197,8 +197,7 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 		UIOutput.make(tofill,"votes-total",new Integer(totalVotes).toString());
 		if (totalVotes > 0)
 			UIOutput.make(tofill,"total-percent","100%");
-		else
-			UIOutput.make(tofill,"total-percent","0%");
+		
 		 //the cancel button
 		 UIForm form = UIForm.make(tofill,"actform");
 		 UICommand.make(form,"cancel",messageLocator.getMessage("results_cancel"),"#{pollToolBean.cancel}"); 
