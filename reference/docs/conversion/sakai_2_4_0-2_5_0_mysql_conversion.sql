@@ -42,3 +42,9 @@ alter table osp_presentation add column layout_id varchar(36) NULL;
 
 --Profile add dateOfBirth property SAK-8423
 alter table SAKAI_PERSON_T add column dateOfBirth date;
+
+-- SAK-8780, SAK-7452 - Add SESSION_ACTIVE flag to explicitly indicate when
+-- a session is active rather than relying on SESSION_START and SESSION_END
+-- having the same value.
+alter table SAKAI_SESSION add column SESSION_ACTIVE tinyint(1);
+create index SESSION_ACTIVE_IE on SAKAI_SESSION (SESSION_ACTIVE);
