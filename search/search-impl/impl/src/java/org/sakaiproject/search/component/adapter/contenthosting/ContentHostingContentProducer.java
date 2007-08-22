@@ -233,12 +233,14 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		}
 		catch (Exception ex)
 		{
-			log.debug("Failed to generate content with " + digester, ex);
+			log.debug("Failed to digest "+ref+" with " + digester, ex);
+			log.warn("Failed to digest "+ref+" with " + digester + " cause: " + ex.getMessage());
 			if (!digester.equals(defaultDigester))
 			{
 				try
 				{
 					reader = defaultDigester.getContentReader(contentResource);
+					log.info("Digested "+ref+" into a Reader with Default Digester ");
 				}
 				catch (Exception ex2)
 				{
@@ -252,7 +254,7 @@ public class ContentHostingContentProducer implements EntityContentProducer
 			else
 			{
 				throw new RuntimeException("Failed to extract content from "
-						+ contentResource + " using " + digester, ex);
+						+ ref + " using " + digester, ex);
 			}
 		}
 		if (debug)
@@ -300,19 +302,21 @@ public class ContentHostingContentProducer implements EntityContentProducer
 		}
 		catch (Exception ex)
 		{
-			log.debug("Failed to generate content with " + digester, ex);
+			log.debug("Failed to digest "+ref+" with " + digester, ex);
+			log.warn("Failed to digest "+ref+" with " + digester + " cause: " + ex.getMessage());
 			if (!digester.equals(defaultDigester))
 			{
 				try
 				{
 					content = defaultDigester.getContent(contentResource);
+					log.info("Digested "+ref+" into "+content.length()+" characters with Default Digester ");
 				}
 				catch (Exception ex2)
 				{
-					log.debug("Failed to extract content from " + contentResource
+					log.debug("Failed to extract content from " + ref
 							+ " using " + defaultDigester, ex2);
 					throw new RuntimeException("Failed to extract content from "
-							+ contentResource + " using " + defaultDigester + " and "
+							+ ref + " using " + defaultDigester + " and "
 							+ digester, ex);
 				}
 			}
@@ -323,7 +327,7 @@ public class ContentHostingContentProducer implements EntityContentProducer
 					log.debug("Failed To extract content");
 				}
 				throw new RuntimeException("Failed to extract content from "
-						+ contentResource + " using " + digester, ex);
+						+ ref + " using " + digester, ex);
 			}
 		}
 		if (debug)

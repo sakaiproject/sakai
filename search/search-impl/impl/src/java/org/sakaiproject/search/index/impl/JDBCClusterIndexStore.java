@@ -1951,12 +1951,12 @@ public class JDBCClusterIndexStore implements ClusterFilesystem
 			
 			to.position(pos);
 			long cpos = to.position();
-			log.info("NIOTransfering |"+count+"| bytes from |"+pos+"| to |"+cpos+"|");
+			log.debug("NIOTransfering |"+count+"| bytes from |"+pos+"| to |"+cpos+"|");
 			long t = to.transferFrom(from, pos, count);
 			pos = pos + t;
 		}
-		log.info("  Final Size Source        "+from.size());
-		log.info("  Final Size Destination   "+to.size());
+		log.debug("  Final Size Source        "+from.size());
+		log.debug("  Final Size Destination   "+to.size());
 	}
 
 	private String getSharedFileName(String name, boolean structured)

@@ -27,11 +27,9 @@ import java.io.StringReader;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.poi.hwpf.HWPFDocument;
-import org.apache.poi.hwpf.extractor.WordExtractor;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.search.api.SearchUtils;
+import org.textmining.text.extraction.WordExtractor;
 
 /**
  * @author ieb
@@ -60,15 +58,15 @@ public class WordContentDigester extends BaseContentDigester
 		InputStream contentStream = null;
 		try
 		{
+			
+            WordExtractor extractor = new WordExtractor();
+
 			contentStream = contentResource.streamContent();
-			POIFSFileSystem poifs = new POIFSFileSystem(contentStream);
-			HWPFDocument hwpf = new HWPFDocument(poifs);
-			WordExtractor wordExtractor = new WordExtractor(hwpf);
-		
-			String paragraphs = wordExtractor.getTextFromPieces();
+            String text = extractor.extractText(contentStream);
+
 			
 			StringBuilder sb = new StringBuilder();
-			SearchUtils.appendCleanString(paragraphs,sb);
+			SearchUtils.appendCleanString(text,sb);
 			return sb.toString();
 		}
 		catch (Exception e)

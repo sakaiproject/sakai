@@ -436,13 +436,20 @@ public class SearchIndexBuilderWorkerDaoJdbcImpl implements SearchIndexBuilderWo
 								if (sep.isContentFromReader(ref))
 								{
 									contentReader = sep.getContentReader(ref);
+									if ( log.isDebugEnabled() ) {
+										log.debug("Adding Content for "+ref+" using "+contentReader);
+									}
 									doc.add(new Field(SearchService.FIELD_CONTENTS,
 											contentReader, Field.TermVector.YES));
 								}
 								else
 								{
+									String content = sep.getContent(ref);
+									if ( log.isDebugEnabled() ) {
+										log.debug("Adding Content for "+ref+" as ["+content+"]");
+									}
 									doc.add(new Field(SearchService.FIELD_CONTENTS,
-											filterNull(sep.getContent(ref)),
+											filterNull(content),
 											Field.Store.NO, Field.Index.TOKENIZED,
 											Field.TermVector.YES));
 								}

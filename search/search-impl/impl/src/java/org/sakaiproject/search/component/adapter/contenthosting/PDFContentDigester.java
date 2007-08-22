@@ -53,8 +53,8 @@ public class PDFContentDigester extends BaseContentDigester
 		PDFParser parser = null;
 		try
 		{
-			parser = new PDFParser(new BufferedInputStream(contentStream));
 			contentStream = contentResource.streamContent();
+			parser = new PDFParser(new BufferedInputStream(contentStream));
 			parser.parse();
 			PDDocument pddoc = parser.getPDDocument();
 			
@@ -73,7 +73,7 @@ public class PDFContentDigester extends BaseContentDigester
 			} catch ( Exception e ) {
 				
 			}
-			throw new RuntimeException("Failed to get content for indexing", ex);
+			throw new RuntimeException("Failed to get content for indexing: cause: "+ex.getMessage(), ex);
 		}
 		finally
 		{

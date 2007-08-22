@@ -20,20 +20,22 @@
  **********************************************************************************/
 package org.sakaiproject.search.component.adapter.contenthosting;
 
+import java.io.CharArrayReader;
+import java.io.CharArrayWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-import java.io.StringReader;
+import java.io.Writer;
+import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFRichTextString;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.search.api.SearchUtils;
 
 /**
  * @author ieb
@@ -52,40 +54,48 @@ public class XLContentDigester extends BaseContentDigester
 	 * @see org.sakaiproject.search.component.adapter.contenthosting.BaseContentDigester#getContent(org.sakaiproject.content.api.ContentResource)
 	 */
 	
-	public String getContent(ContentResource contentResource)
+	public void loadContent(Writer writer, ContentResource contentResource)
 	{
 		if ( contentResource != null && 
 				contentResource.getContentLength() > maxDigestSize  ) {
 			throw new RuntimeException("Attempt to get too much content as a string on "+contentResource.getReference());
 		}
 		InputStream contentStream = null;
-		try
+	    try
 		{
 			contentStream = contentResource.streamContent();
-			HSSFWorkbook workbook = new HSSFWorkbook(contentStream);
-			StringBuilder sb = new StringBuilder();
-			int nsheets = workbook.getNumberOfSheets();
+			
+            POIFSFileSystem fs = new POIFSFileSystem(contentStream);
+            HSSFWorkbook workbook = new HSSFWorkbook(fs);
 
-			for (int i = 0; i < nsheets; i++)
-			{
-				HSSFSheet sheet = workbook.getSheetAt(i);
-				int r = sheet.getFirstRowNum();
-				int lr = sheet.getLastRowNum();
-				for (; r <= lr; r++)
-				{
-					HSSFRow row = sheet.getRow(r);
-					short c = row.getFirstCellNum();
-					short lc = row.getLastCellNum();
-					for (; c <= lc; c++)
-					{
-						HSSFCell cell = row.getCell(c);
-						HSSFRichTextString cstr = cell.getRichStringCellValue();
-						SearchUtils.appendCleanString(cstr.getString(),sb);
-						sb.append(" ");
-					}
-				}
-			}
-			return sb.toString();
+            for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
+                HSSFSheet sheet = workbook.getSheetAt(i);
+
+                Iterator rows = sheet.rowIterator();
+                while (rows.hasNext()) {
+                    HSSFRow row = (HSSFRow) rows.next();
+
+                    Iterator cells = row.cellIterator();
+                    while (cells.hasNext()) {
+                        HSSFCell cell = (HSSFCell) cells.next();
+                        switch (cell.getCellType()) {
+                        case HSSFCell.CELL_TYPE_NUMERIC:
+                            String num = Double.toString(cell.getNumericCellValue()).trim();
+                            if (num.length() > 0) {
+                                writer.write(num + " ");
+                            }
+                            break;
+                        case HSSFCell.CELL_TYPE_STRING:
+                            String text = cell.getStringCellValue().trim();
+                            if (text.length() > 0) {
+                                writer.write(text + " ");
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+
 		}
 		catch (Exception e)
 		{
@@ -116,7 +126,21 @@ public class XLContentDigester extends BaseContentDigester
 	
 	public Reader getContentReader(ContentResource contentResource)
 	{
-		return new StringReader(getContent(contentResource));
+		CharArrayWriter writer = new CharArrayWriter();
+		loadContent(writer, contentResource);
+		return new CharArrayReader(writer.toCharArray());
 	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.search.component.adapter.contenthosting.ContentDigester#getContent(org.sakaiproject.content.api.ContentResource)
+	 */
+	public String getContent(ContentResource contentResource)
+	{
+		CharArrayWriter writer = new CharArrayWriter();
+		loadContent(writer, contentResource);
+		return new String(writer.toCharArray());
+	}
+	
+	
 	
 }
