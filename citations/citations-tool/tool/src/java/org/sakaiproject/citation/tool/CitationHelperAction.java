@@ -24,6 +24,9 @@ package org.sakaiproject.citation.tool;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Hashtable;
