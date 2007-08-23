@@ -305,6 +305,11 @@ public class BasicCitationService extends BaseCitationService
 			return copy;
 		}
 
+		public long mostRecentUpdate(String collectionId) 
+		{
+			return 0;
+		}
+
 	}
 
 	/* (non-Javadoc)
