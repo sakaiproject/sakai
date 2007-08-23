@@ -25,6 +25,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
@@ -33,8 +34,11 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 //import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.MediaIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.ItemService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -990,6 +994,35 @@ public class ItemContentsBean implements Serializable {
         hasAttachment = true;
     }
     return hasAttachment;
+  }
+
+  public Float getUpdatedScore () {
+	  return itemData.getScore();
+  }
+	 
+  public void setUpdatedScore(Float score) {
+	  if (!score.equals(itemData.getScore())) {
+          ItemService itemService = new ItemService();
+          ItemFacade item = itemService.getItem(itemData.getItemId(), AgentFacade.getAgentString());
+          item.setScore(score);
+
+          ItemDataIfc data = item.getData();
+          Set itemTextSet = data.getItemTextSet();
+          Iterator iter = itemTextSet.iterator();
+          while (iter.hasNext()) {
+              ItemTextIfc itemText = (ItemTextIfc) iter.next();
+              Set answerSet = itemText.getAnswerSet();
+              Iterator iter2 = answerSet.iterator();
+              while (iter2.hasNext()) {
+                  AnswerIfc answer = (AnswerIfc)iter2.next();
+                  log.debug("old value " + answer.getScore() +
+                                     "new value " + score);
+                  answer.setScore(score);
+              }
+          }
+          itemService.saveItem(item);
+          itemData.setScore(score);
+	  }
   }
 
 }

@@ -33,6 +33,7 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{authorMessages.create_modify_a}" /></title>
 <script language="javascript" style="text/JavaScript">
+<%@ include file="/js/samigotree.js" %>
 <!--
 function resetSelectMenus(){
   var selectlist = document.getElementsByTagName("SELECT");
@@ -62,7 +63,7 @@ document.links[newindex].onclick();
 //-->
 </script>
 </head>
-<body onload="document.forms[0].reset(); resetSelectMenus(); ;<%= request.getAttribute("html.body.onload") %>">
+<body onload="document.forms[0].reset(); disableIt(); resetSelectMenus(); ;<%= request.getAttribute("html.body.onload") %>">
 
 <div class="portletBody">
 <!-- content... -->
@@ -181,6 +182,7 @@ document.links[newindex].onclick();
           <f:param name="sectionId" value="#{partBean.sectionId}"/>
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EditPartListener" />
         </h:commandLink>
+
   </h:panelGroup>
     </h:panelGrid>
       <f:verbatim></h4></f:verbatim>
@@ -239,7 +241,10 @@ document.links[newindex].onclick();
      <h:outputText rendered="#{question.itemData.typeId== 7}" value=" #{authorMessages.audio_recording}"/>
      <h:outputText rendered="#{question.itemData.typeId== 6}" value=" #{authorMessages.file_upload}"/>
 
-		<h:outputText value=" #{authorMessages.dash} #{question.itemData.score}" />
+     <h:outputText value=" #{authorMessages.dash} " />
+     <h:inputText id="answerptr" value="#{question.updatedScore}" required="true" size="6" onkeydown="inIt()" >
+	<f:validateDoubleRange /></h:inputText>
+
 		<h:outputText rendered="#{question.itemData.score > 1}" value=" #{authorMessages.points_lower_case}"/>
 		<h:outputText rendered="#{question.itemData.score == 1}" value=" #{authorMessages.point_lower_case}"/>
 		<h:outputText rendered="#{question.itemData.score == 0}" value=" #{authorMessages.points_lower_case}"/>
@@ -327,9 +332,12 @@ document.links[newindex].onclick();
   </h:column>
 </h:dataTable>
 
+<h:commandButton value="Update points" id="pointsUpdate" action="editAssessment" />
+
+<div style="margin-top:1em">
 <h:outputText rendered="#{assessmentBean.hasRandomDrawPart}" value="#{authorMessages.random_draw_total_score}"/>
 </div>
-
+</div>
 
 </h:form>
 <!-- end content -->
