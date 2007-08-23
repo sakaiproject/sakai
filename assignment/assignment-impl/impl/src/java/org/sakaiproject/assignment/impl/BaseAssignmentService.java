@@ -1969,7 +1969,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			// need to send notification email
 			String context = s.getContext();
 			
+			// compare the list of users with the receive.notifications and list of users who can actually grade this assignment
 			List receivers = allowReceiveSubmissionNotificationUsers(context);
+			List allowGradeAssignmentUsers = allowGradeAssignmentUsers(a.getReference());
+			receivers.retainAll(allowGradeAssignmentUsers);
 			
 			List headers = new Vector();
 			headers.add(rb.getString("noti.subject.label") + rb.getString("noti.subject.content"));
@@ -2994,19 +2997,16 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		return unlockCheck(SECURE_ADD_ASSIGNMENT_SUBMISSION, resourceString);
 	}
-
+	
 	/**
-	 * Get the List of Users who can addSubmission() for this assignment.
-	 * 
-	 * @param assignmentReference -
-	 *        a reference to an assignment
-	 * @return the List (User) of users who can addSubmission() for this assignment.
+	 * Get the list of Users who can do certain function for this assignment
+	 * @inheritDoc
 	 */
-	public List allowAddSubmissionUsers(String assignmentReference)
+	public List allowAssignmentFunctionUsers(String assignmentReference, String function)
 	{
 		List rv = new Vector();
 		
-		rv = SecurityService.unlockUsers(SECURE_ADD_ASSIGNMENT_SUBMISSION, assignmentReference);
+		rv = SecurityService.unlockUsers(function, assignmentReference);
 		
 		// get the list of users who have SECURE_ALL_GROUPS
 		List allGroupUsers = new Vector();
@@ -3026,8 +3026,33 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		rv.addAll(allGroupUsers);
 		
 		return rv;
+	}
+	
+	/**
+	 * Get the List of Users who can addSubmission() for this assignment.
+	 * 
+	 * @param assignmentReference -
+	 *        a reference to an assignment
+	 * @return the List (User) of users who can addSubmission() for this assignment.
+	 */
+	public List allowAddSubmissionUsers(String assignmentReference)
+	{
+		return allowAssignmentFunctionUsers(assignmentReference, SECURE_ADD_ASSIGNMENT_SUBMISSION);
 
 	} // allowAddSubmissionUsers
+	
+	/**
+	 * Get the List of Users who can grade submission for this assignment.
+	 * 
+	 * @param assignmentReference -
+	 *        a reference to an assignment
+	 * @return the List (User) of users who can grade submission for this assignment.
+	 */
+	public List allowGradeAssignmentUsers(String assignmentReference)
+	{
+		return allowAssignmentFunctionUsers(assignmentReference, SECURE_GRADE_ASSIGNMENT_SUBMISSION);
+
+	} // allowGradeAssignmentUsers
 	
 	/**
 	 * @inheritDoc
