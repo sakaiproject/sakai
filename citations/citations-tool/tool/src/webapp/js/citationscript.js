@@ -519,6 +519,17 @@ function removeAllCitations( formname ) {
   submitform( formname );
 }
 
+/*
+ * Sort citations
+ */
+function sortAllCitations( formname, sortby ) 
+{
+  document.getElementById('sakai_action').value='doSortAllCitations';
+// use hidden form element citationId to hold sort type
+  document.getElementById('citationId').value = sortby;
+  submitform( formname );
+}
+
 function changePageSize( action, location, formname ) {
   showSpinner( '.pageLoad' );
   document.getElementById( 'sakai_action' ).value = action;
