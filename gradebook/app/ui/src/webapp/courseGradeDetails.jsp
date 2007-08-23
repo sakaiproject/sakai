@@ -61,7 +61,7 @@
 			styleClass="listHier">
 			<h:column>
 				<f:facet name="header">
-		            <t:commandSortHeader columnName="studentSortName" arrow="true" immediate="false" actionListener="#{courseGradeDetailsBean.sort}">
+		            <t:commandSortHeader columnName="studentSortName" propertyName="studentSortName" arrow="true" immediate="false" actionListener="#{courseGradeDetailsBean.sort}">
 						<h:outputText value="#{msgs.assignment_details_student_name}"/>
 		            </t:commandSortHeader>
 				</f:facet>
@@ -69,7 +69,7 @@
 			</h:column>
 			<h:column>
 				<f:facet name="header">
-		            <t:commandSortHeader columnName="studentDisplayId" arrow="true" immediate="false" actionListener="#{courseGradeDetailsBean.sort}">
+		            <t:commandSortHeader columnName="studentDisplayId" propertyName="studentDisplayId" arrow="true" immediate="false" actionListener="#{courseGradeDetailsBean.sort}">
 						<h:outputText value="#{msgs.assignment_details_student_id}"/>
 		            </t:commandSortHeader>
 				</f:facet>
@@ -77,7 +77,7 @@
 			</h:column>
 			<h:column rendered="#{!courseGradeDetailsBean.weightingEnabled}">
 				<f:facet name="header">
-		            <t:commandSortHeader columnName="pointsEarned" arrow="true" immediate="false" actionListener="#{courseGradeDetailsBean.sort}">
+		            <t:commandSortHeader columnName="pointsEarned" propertyName="pointsEarned" arrow="true" immediate="false" actionListener="#{courseGradeDetailsBean.sort}">
 						<h:outputText value="#{msgs.assignment_details_points}"/>
 		            </t:commandSortHeader>
 				</f:facet>
@@ -89,7 +89,7 @@
 			</h:column>
 			<h:column>
 				<f:facet name="header">
-		            <t:commandSortHeader columnName="autoCalc" arrow="true" immediate="false" actionListener="#{courseGradeDetailsBean.sort}">
+		            <t:commandSortHeader columnName="autoCalc" propertyName="autoCalc" arrow="true" immediate="false" actionListener="#{courseGradeDetailsBean.sort}">
 						<h:outputText value="#{msgs.course_grade_details_calculated_grade}"/>
 		            </t:commandSortHeader>
 				</f:facet>
@@ -115,7 +115,7 @@
 			</h:column>
 			<h:column>
 				<f:facet name="header">
-		            <t:commandSortHeader columnName="override" arrow="true" immediate="false" actionListener="#{courseGradeDetailsBean.sort}">
+		            <t:commandSortHeader columnName="override" propertyName="override" arrow="true" immediate="false" actionListener="#{courseGradeDetailsBean.sort}">
 						<h:outputText value="#{msgs.course_grade_details_grade}"/>
 		            </t:commandSortHeader>
 				</f:facet>

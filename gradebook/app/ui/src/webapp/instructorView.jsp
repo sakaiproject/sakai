@@ -146,7 +146,7 @@
 				
 				<h:column id="_title">
 					<f:facet name="header">
-						<t:commandSortHeader columnName="name" immediate="true" arrow="true">
+						<t:commandSortHeader columnName="name" propertyName="name" immediate="true" arrow="true">
 							<h:outputText value="#{msgs.inst_view_title}"/>
 							<h:outputText value="#{msgs.inst_view_footnote_symbol1}" />
 						</t:commandSortHeader>
@@ -170,7 +170,7 @@
 				
 				<h:column>
 					<f:facet name="header">
-						<t:commandSortHeader columnName="dueDate" immediate="true" arrow="true">
+						<t:commandSortHeader columnName="dueDate" propertyName="dueDate" immediate="true" arrow="true">
 							<h:outputText value="#{msgs.inst_view_due_date}"/>
 						</t:commandSortHeader>
 					</f:facet>
@@ -183,7 +183,7 @@
 				    
         <h:column rendered="#{instructorViewBean.weightingEnabled}">
 					<f:facet name="header">
-			    	<t:commandSortHeader columnName="weight" immediate="true" arrow="true">
+			    	<t:commandSortHeader columnName="weight" propertyName="weight" immediate="true" arrow="true">
 							<h:outputText value="#{msgs.inst_view_weight}"/>
 			      </t:commandSortHeader>
 			    </f:facet>
@@ -206,7 +206,7 @@
 				
 				<h:column>
 					<f:facet name="header">
-						<t:commandSortHeader columnName="pointsEarned" immediate="true" arrow="true">
+						<t:commandSortHeader columnName="pointsEarned" propertyName="pointsEarned" immediate="true" arrow="true">
 							<h:outputText value="#{msgs.inst_view_grade}" rendered="#{instructorViewBean.gradeEntryByPoints}" />
 							<h:outputText value="#{msgs.inst_view_grade_percent}" rendered="#{instructorViewBean.gradeEntryByPercent}" />
 							<h:outputText value="#{msgs.inst_view_grade_letter}" rendered="#{instructorViewBean.gradeEntryByLetter}" />
@@ -247,7 +247,7 @@
         
         <h:column>
         	<f:facet name="header" >
-        		<t:commandSortHeader columnName="itemValue" immediate="true" arrow="true">
+        		<t:commandSortHeader columnName="itemValue" propertyName="itemValue" immediate="true" arrow="true">
 							<h:outputText value="#{msgs.inst_view_item_value}"/>
 						</t:commandSortHeader>
         	</f:facet>
@@ -268,7 +268,7 @@
 		    
 		    <h:column rendered="#{instructorViewBean.anyExternallyMaintained}">
 					<f:facet name="header">
-	        	<t:commandSortHeader columnName="gradeEditor" immediate="true" arrow="true">
+	        	<t:commandSortHeader columnName="gradeEditor" propertyName="gradeEditor" immediate="true" arrow="true">
 	          	<h:outputText value="#{msgs.inst_view_grade_editor}" />
 	          </t:commandSortHeader>
 	        </f:facet>

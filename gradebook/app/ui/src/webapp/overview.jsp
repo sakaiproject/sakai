@@ -65,7 +65,7 @@
 			
 			<h:column id="_title">
 				<f:facet name="header">
-		    	<t:commandSortHeader columnName="name" immediate="true" arrow="true">
+		    	<t:commandSortHeader columnName="name" propertyName="name" immediate="true" arrow="true">
 		      	<h:outputText value="#{msgs.overview_assignments_header_name}" />
 		      	<h:outputText value="#{msgs.overview_footnote_symbol1}" />
 		      </t:commandSortHeader>
@@ -101,7 +101,7 @@
 			
 			<h:column rendered="#{overviewBean.userAbleToGradeAll}">
 				<f:facet name="header">
-		    	<t:commandSortHeader columnName="mean" immediate="true" arrow="true">
+		    	<t:commandSortHeader columnName="mean" propertyName="mean" immediate="true" arrow="true">
 						<h:outputText value="#{msgs.overview_assignments_header_average}" />
 						<h:outputText value="#{msgs.overview_footnote_symbol2}" />
 		      </t:commandSortHeader>
@@ -114,7 +114,7 @@
 			
 			<h:column rendered="#{overviewBean.weightingEnabled}">
 				<f:facet name="header">
-		    	<t:commandSortHeader columnName="weight" immediate="true" arrow="true">
+		    	<t:commandSortHeader columnName="weight" propertyName="weight" immediate="true" arrow="true">
 						<h:outputText value="#{msgs.overview_weight}"/>
 		      </t:commandSortHeader>
 		    </f:facet>
@@ -126,7 +126,7 @@
 			
 			<h:column>
 				<f:facet name="header">
-		    	<t:commandSortHeader columnName="dueDate" immediate="true" arrow="true">
+		    	<t:commandSortHeader columnName="dueDate" propertyName="dueDate" immediate="true" arrow="true">
 						<h:outputText value="#{msgs.overview_assignments_header_due_date}"/>
 		      </t:commandSortHeader>
 		    </f:facet>
@@ -139,7 +139,7 @@
 			
 			<h:column>
 				<f:facet name="header">
-        	<t:commandSortHeader columnName="released" immediate="true" arrow="true">
+        	<t:commandSortHeader columnName="released" propertyName="released" immediate="true" arrow="true">
           	<h:outputText value="#{msgs.overview_released}" escape="false"/>
           </t:commandSortHeader>
         </f:facet>
@@ -149,7 +149,7 @@
 			
 			<h:column>
 				<f:facet name="header">
-        	<t:commandSortHeader columnName="counted" immediate="true" arrow="true">
+        	<t:commandSortHeader columnName="counted" propertyName="counted" immediate="true" arrow="true">
           	<h:outputText value="#{msgs.overview_included_in_cum}" escape="false"/>
           </t:commandSortHeader>
         </f:facet>
@@ -159,7 +159,7 @@
 			
 			<h:column rendered="#{overviewBean.displayGradeEditorCol}">
 				<f:facet name="header">
-        	<t:commandSortHeader columnName="gradeEditor" immediate="true" arrow="true">
+        	<t:commandSortHeader columnName="gradeEditor" propertyName="gradeEditor" immediate="true" arrow="true">
           	<h:outputText value="#{msgs.overview_grade_editor}" />
 						<h:outputText value="#{msgs.overview_footnote_symbol3}" />
           </t:commandSortHeader>

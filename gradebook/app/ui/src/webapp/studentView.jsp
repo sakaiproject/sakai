@@ -70,7 +70,7 @@
 				
 				<h:column id="_title">
 					<f:facet name="header">
-						<t:commandSortHeader columnName="name" immediate="true" arrow="true">
+						<t:commandSortHeader columnName="name" propertyName="name" immediate="true" arrow="true">
 							<h:outputText value="#{msgs.student_view_title}"/>
 						</t:commandSortHeader>
 					</f:facet>
@@ -80,7 +80,7 @@
 				
 				<h:column>
 					<f:facet name="header">
-						<t:commandSortHeader columnName="dueDate" immediate="true" arrow="true">
+						<t:commandSortHeader columnName="dueDate" propertyName="dueDate" immediate="true" arrow="true">
 							<h:outputText value="#{msgs.student_view_due_date}"/>
 						</t:commandSortHeader>
 					</f:facet>
@@ -93,7 +93,7 @@
 				
 				<h:column>
 					<f:facet name="header">
-						<t:commandSortHeader columnName="pointsEarned" immediate="true" arrow="true">
+						<t:commandSortHeader columnName="pointsEarned" propertyName="pointsEarned" immediate="true" arrow="true">
 							<h:outputText value="#{msgs.student_view_grade}"/>
 							<h:outputText value="#{msgs.student_view_footnote_symbol1}" />
 						</t:commandSortHeader>
@@ -110,7 +110,7 @@
         
         <h:column rendered="#{studentViewBean.weightingEnabled}">
 					<f:facet name="header">
-			    	<t:commandSortHeader columnName="weight" immediate="true" arrow="true">
+			    	<t:commandSortHeader columnName="weight" propertyName="weight" immediate="true" arrow="true">
 							<h:outputText value="#{msgs.student_view_weight}"/>
 			      </t:commandSortHeader>
 			    </f:facet>
