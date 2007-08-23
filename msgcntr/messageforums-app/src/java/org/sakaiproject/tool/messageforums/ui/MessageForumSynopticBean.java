@@ -20,21 +20,16 @@
  **********************************************************************************/
 package org.sakaiproject.tool.messageforums.ui;
 
-import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
-import javax.faces.event.ActionEvent;
-import javax.faces.application.FacesMessage;
-import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
-import javax.faces.model.SelectItem;
+import javax.faces.event.ActionEvent;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -53,24 +48,17 @@ import org.sakaiproject.api.app.messageforums.UniqueArrayList;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
-import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.content.api.GroupAwareEntity;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.Preferences;
-import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
-import org.sakaiproject.util.ResourceLoader;
 
 public class MessageForumSynopticBean {
 
@@ -183,7 +171,13 @@ public class MessageForumSynopticBean {
 	private transient Boolean pmEnabled = null;
 	private transient Boolean anyMFToolInSite = null;
 	private transient List myWorkspaceContents = null;
-
+	private transient String pvtTopicMessageUrl = null;
+	private transient List groupedSitesCounts = null;
+	private transient List userRoles = null;
+	private transient List multiMembershipSites = null;
+	private transient List compiledDFMessageCounts = null;
+	private transient Map currentUserMembershipsBySite = null;
+	
 	/** Used to get contextId when tool on MyWorkspace to set all private messages to Read status */
 	private final String CONTEXTID="contextId";
 
@@ -327,13 +321,21 @@ public class MessageForumSynopticBean {
 		}
 
 		List resultList = new ArrayList();
+		List roles;
 		
 		for (Iterator dfCountIter = dfCounts.iterator(); dfCountIter.hasNext();) {
 			final Object [] aCount = (Object []) dfCountIter.next();
 			
-			List siteRoles = uiPermissionsManager.getCurrentUserMemberships((String) aCount[0]);
+			if ( currentUserMembershipsBySite == null) {
+				currentUserMembershipsBySite = new HashMap();
+			}
 			
-			String roleId = ((String) siteRoles.get(0));
+			if ((roles = (List) currentUserMembershipsBySite.get(aCount[0])) == null) {
+				roles = uiPermissionsManager.getCurrentUserMemberships((String) aCount[0]);
+				currentUserMembershipsBySite.put((String) aCount[0], roles);
+			}
+			
+			String roleId = ((String) roles.get(0));
 				
 			if (roleId.equals((String) aCount[1])) {
 				resultList.add(aCount);
@@ -413,28 +415,34 @@ public class MessageForumSynopticBean {
 	 * 		List of role ids user has for all sites passed in
 	 */
 	private List getUserRoles(List siteList) {
-		final List roles = new UniqueArrayList();
-		final Iterator siteIter = siteList.iterator();
-		
-		while (siteIter.hasNext()) {
-			try {
-				List thisSiteRoles = uiPermissionsManager.getCurrentUserMemberships(getSite((String) siteIter.next()).getId());
-
-				for (Iterator i = thisSiteRoles.iterator(); i.hasNext();) {
-					String roleGroupName = (String) i.next();
+		if (userRoles == null) {
+			userRoles = new UniqueArrayList();
+			final Iterator siteIter = siteList.iterator();
+			List roles;
+			
+			while (siteIter.hasNext()) {
+				String siteId = (String) siteIter.next();
+				
+				if ( currentUserMembershipsBySite == null) {
+					currentUserMembershipsBySite = new HashMap();
+				}
 					
-					if (!roles.contains(roleGroupName)) {
-						roles.addAll(thisSiteRoles);						
+				if ((roles = (List) currentUserMembershipsBySite.get(siteId)) == null) {
+					roles = uiPermissionsManager.getCurrentUserMemberships(siteId);
+					currentUserMembershipsBySite.put((String) siteId, roles);
+				}
+
+				for (Iterator i = roles.iterator(); i.hasNext();) {
+					String roleGroupName = (String) i.next();
+				
+					if (! userRoles.contains(roleGroupName)) {
+						userRoles.addAll(roles);						
 					}
 				}
 			}
-			catch (IdUnusedException e) {
-				// Mucho weirdness, found by getSites() earlier but now cannot find
-				LOG.error("IdUnusedException while accessing site to determine user roles and group memberships.");
-			}
 		}
 		
-		return roles;
+		return userRoles;
 	}
 
 	/**
@@ -504,19 +512,21 @@ public class MessageForumSynopticBean {
 	 * multiple memberships (ie, grouped).
 	 */
 	private List getMultiMembershipSites(List siteList) {
-		List results = new ArrayList();
+		if (multiMembershipSites == null) {
+			multiMembershipSites = new ArrayList();
 		
-		for (Iterator siteIter = siteList.iterator(); siteIter.hasNext();) {
-			final String siteId = (String) siteIter.next();
+			for (Iterator siteIter = siteList.iterator(); siteIter.hasNext();) {
+				final String siteId = (String) siteIter.next();
 			
-			List roles = uiPermissionsManager.getCurrentUserMemberships(siteId);
+				List roles = uiPermissionsManager.getCurrentUserMemberships(siteId);
 			
-			if (roles.size() > 1) {
-				results.add(siteId);
+				if (roles.size() > 1) {
+					multiMembershipSites.add(siteId);
+				}
 			}
 		}
 		
-		return results;
+		return multiMembershipSites;
 	}
 
 	private List filterAndAggragateGroupCounts(List counts)
@@ -653,24 +663,27 @@ public class MessageForumSynopticBean {
 	 */
 	private List getGroupedSitesCounts(List groupedSites) 
 	{
-		if (groupedSites.isEmpty()) {
-			return groupedSites;
+		if (groupedSitesCounts == null) {
+			if (groupedSites.isEmpty()) {
+				groupedSitesCounts = groupedSites;
+			}
+			else {
+				List results;
+
+				final List roleList = getUserRoles(groupedSites);
+
+
+				List dfTopicCounts = messageManager.findDiscussionForumMessageCountsForGroupedSitesByTopic(groupedSites, roleList);
+				List dfTopicReadCounts = messageManager.findDiscussionForumReadMessageCountsForGroupedSitesByTopic(groupedSites, roleList);
+		
+				dfTopicCounts = filterAndAggragateGroupCounts(dfTopicCounts);
+				dfTopicReadCounts = filterAndAggragateGroupCounts(dfTopicReadCounts);
+		
+				groupedSitesCounts = computeGroupedSitesUnreadCounts(dfTopicCounts, dfTopicReadCounts);
+			}			
 		}
 		
-		List results;
-
-		final List roleList = getUserRoles(groupedSites);
-
-
-		List dfTopicCounts = messageManager.findDiscussionForumMessageCountsForGroupedSitesByTopic(groupedSites, roleList);
-		List dfTopicReadCounts = messageManager.findDiscussionForumReadMessageCountsForGroupedSitesByTopic(groupedSites, roleList);
-		
-		dfTopicCounts = filterAndAggragateGroupCounts(dfTopicCounts);
-		dfTopicReadCounts = filterAndAggragateGroupCounts(dfTopicReadCounts);
-		
-		results = computeGroupedSitesUnreadCounts(dfTopicCounts, dfTopicReadCounts);
-		
-		return results;
+		return groupedSitesCounts;
 	}
 	
 	/**
@@ -684,64 +697,66 @@ public class MessageForumSynopticBean {
 	 * 		List of unread message counts grouped by site
 	 */
 	private List compileDFMessageCount(List siteList) {
-		List unreadDFMessageCounts = new ArrayList();
+		if (compiledDFMessageCounts == null) {
+			compiledDFMessageCounts = new ArrayList();
 
-		// retrieve what possible roles user could be in sites
-		final List roleList = getUserRoles(siteList);
+			// retrieve what possible roles user could be in sites
+			final List roleList = getUserRoles(siteList);
 
-		final List siteListMinusGrouped = new ArrayList();
-		siteListMinusGrouped.addAll(siteList);
+			final List siteListMinusGrouped = new ArrayList();
+			siteListMinusGrouped.addAll(siteList);
 		
-		// get List of sites where user is part of a group since
-		// need to process differently since could affect which messages
-		// able to view.
-		final List groupedSites = getMultiMembershipSites(siteList);
+			// get List of sites where user is part of a group since
+			// need to process differently since could affect which messages
+			// able to view.
+			final List groupedSites = getMultiMembershipSites(siteList);
 		
-		siteListMinusGrouped.removeAll(groupedSites);
+			siteListMinusGrouped.removeAll(groupedSites);
 
-		final List groupedSitesCounts = getGroupedSitesCounts(groupedSites);
+			final List groupedSitesCounts = getGroupedSitesCounts(groupedSites);
 		
-		// ******* Pulls total discussion forum message counts from DB *******
-		// If grouped in all sites, no processing needed
-		if (! siteListMinusGrouped.isEmpty()) {
-			List discussionForumMessageCounts = messageManager
+			// ******* Pulls total discussion forum message counts from DB *******
+			// If grouped in all sites, no processing needed
+			if (! siteListMinusGrouped.isEmpty()) {
+				List discussionForumMessageCounts = messageManager
 						.findDiscussionForumMessageCountsForAllSites(siteListMinusGrouped, roleList);
 
-			discussionForumMessageCounts = filterMessageCountsByRole(discussionForumMessageCounts);
+				discussionForumMessageCounts = filterMessageCountsByRole(discussionForumMessageCounts);
 		
-			// if still messages, keep processing
-			if (! discussionForumMessageCounts.isEmpty()) {
-				// Pulls read discussion forum message counts from DB
-				List discussionForumReadMessageCounts = messageManager
+				// if still messages, keep processing
+				if (! discussionForumMessageCounts.isEmpty()) {
+					// Pulls read discussion forum message counts from DB
+					List discussionForumReadMessageCounts = messageManager
 											.findDiscussionForumReadMessageCountsForAllSites(siteListMinusGrouped, roleList);
 
-				// if no read messages, totals are current message counts
-				if (discussionForumReadMessageCounts.isEmpty()) {
-					for (Iterator iter = discussionForumMessageCounts.iterator(); iter.hasNext();) {
-						Object [] count = (Object []) iter.next();
+					// if no read messages, totals are current message counts
+					if (discussionForumReadMessageCounts.isEmpty()) {
+						for (Iterator iter = discussionForumMessageCounts.iterator(); iter.hasNext();) {
+							Object [] count = (Object []) iter.next();
 						
-						Object [] finalCount = new Object [2];
-						finalCount[0] = count[0];
-						finalCount[1] = count[2];
+							Object [] finalCount = new Object [2];
+							finalCount[0] = count[0];
+							finalCount[1] = count[2];
 						
-						unreadDFMessageCounts.add(finalCount);
+							compiledDFMessageCounts.add(finalCount);
+						}
 					}
-				}
-				else {
-					// else get correct read count
-					discussionForumReadMessageCounts = filterMessageCountsByRole(discussionForumReadMessageCounts);
+					else {
+						// else get correct read count
+						discussionForumReadMessageCounts = filterMessageCountsByRole(discussionForumReadMessageCounts);
 				
-					// subtract read from total to get unread counts
-					unreadDFMessageCounts = computeUnreadDFMessages(
+						// subtract read from total to get unread counts
+						compiledDFMessageCounts = computeUnreadDFMessages(
 												discussionForumMessageCounts,
 												discussionForumReadMessageCounts);
-				} // end (discussionForumReadMessageCounts.isEmpty()) - after retrieving read messages from db 
-			} // end (! discussionForumMessageCounts.isEmpty()) - after initial retrieval of messages from db
-		} // end (! discussionForumMessageCounts.isEmpty())
+					} // end (discussionForumReadMessageCounts.isEmpty()) - after retrieving read messages from db 
+				} // end (! discussionForumMessageCounts.isEmpty()) - after initial retrieval of messages from db
+			} // end (! discussionForumMessageCounts.isEmpty())
 
-		unreadDFMessageCounts.addAll(groupedSitesCounts);
+			compiledDFMessageCounts.addAll(groupedSitesCounts);
+		}
 		
-		return unreadDFMessageCounts;
+		return compiledDFMessageCounts;
 	}
 
 	/**
@@ -1036,7 +1051,7 @@ public class MessageForumSynopticBean {
 			dcms.setSiteName(getSiteName());
 			dcms.setSiteId(getSiteId());
 
-			// Get private message area so we can get the private messasge forum so we can get the
+			// Get private message area so we can get the private message forum so we can get the
 			// List of topics so we can get the Received topic to finally determine number of unread messages
 			// only check if Messages & Forums in site, just Messages is on by default
 			boolean isEnabled;
@@ -1499,9 +1514,8 @@ public class MessageForumSynopticBean {
 		while (lsi.hasNext()) {
 			Site site = (Site) lsi.next();
 
-			// filter out unpublished or no messsage center
-			if (site.isPublished() && (isMessageForumsPageInSite(site)
-					|| isForumsPageInSite(site) || isMessagesPageInSite(site))) {
+			// filter out unpublished
+			if (site.isPublished()) {
 				siteList.add(site.getId());
 			}
 		}
@@ -1521,52 +1535,58 @@ public class MessageForumSynopticBean {
 	 * 			to the Private Message section of a site
 	 */
 	public String generatePrivateTopicMessagesUrl(String contextId) {
-		Topic receivedTopic = null;
-		String receivedTopicUuid = null;
+		if (pvtTopicMessageUrl != null) {
+			return pvtTopicMessageUrl;
+		}
+		else {
+			Topic receivedTopic = null;
+			String receivedTopicUuid = null;
 		
-	    Area area = areaManager.getAreaByContextIdAndTypeId(contextId, typeManager.getPrivateMessageAreaType());
+			Area area = areaManager.getAreaByContextIdAndTypeId(contextId, typeManager.getPrivateMessageAreaType());
         
-	    if (area != null) {
-	    	if (isMessagesPageInSite() || area.getEnabled().booleanValue() || pvtMessageManager.isInstructor()){
-	    		PrivateForum pf = pvtMessageManager.initializePrivateMessageArea(area);
-	    		pf = pvtMessageManager.initializationHelper(pf, area);
-	    		List pvtTopics = pf.getTopics();
-	    		Collections.sort(pvtTopics, PrivateTopicImpl.TITLE_COMPARATOR);   //changed to date comparator
+			if (area != null) {
+				if (isMessagesPageInSite() || area.getEnabled().booleanValue() || pvtMessageManager.isInstructor()){
+					PrivateForum pf = pvtMessageManager.initializePrivateMessageArea(area);
+					pf = pvtMessageManager.initializationHelper(pf, area);
+					List pvtTopics = pf.getTopics();
+					Collections.sort(pvtTopics, PrivateTopicImpl.TITLE_COMPARATOR);   //changed to date comparator
 	      
-	    		receivedTopic = (Topic) pvtTopics.iterator().next();
-	    		receivedTopicUuid = receivedTopic.getUuid();
-	    	} 
+					receivedTopic = (Topic) pvtTopics.iterator().next();
+					receivedTopicUuid = receivedTopic.getUuid();
+				} 
 
-	    	ToolConfiguration mcTool = null;
-	    	String url = null;
+				ToolConfiguration mcTool = null;
+				String url = null;
 	    
-	    	try {
-		    	String toolId = "";
-		    	final Site site = SiteService.getSite(contextId);
+				try {
+					String toolId = "";
+					final Site site = SiteService.getSite(contextId);
 		    	
-		    	if (isMessageForumsPageInSite(site)) {
-		    		toolId = DiscussionForumService.MESSAGE_CENTER_ID;
-		    	}
-		    	else if (isMessagesPageInSite(site)) {
-		    		toolId = DiscussionForumService.MESSAGES_TOOL_ID;
-		    	}
-		    	else if (isForumsPageInSite(site)) {
-		    		toolId = DiscussionForumService.FORUMS_TOOL_ID;
-		    	}
+					if (isMessageForumsPageInSite(site)) {
+						toolId = DiscussionForumService.MESSAGE_CENTER_ID;
+					}
+					else if (isMessagesPageInSite(site)) {
+						toolId = DiscussionForumService.MESSAGES_TOOL_ID;
+					}
+					else if (isForumsPageInSite(site)) {
+						toolId = DiscussionForumService.FORUMS_TOOL_ID;
+					}
 
-	    		mcTool = site.getToolForCommonId(toolId);
+					mcTool = site.getToolForCommonId(toolId);
 
-	    		if (mcTool != null) {
-	    			url = ServerConfigurationService.getPortalUrl() + "/directtool/"
+					if (mcTool != null) {
+						pvtTopicMessageUrl = ServerConfigurationService.getPortalUrl() + "/directtool/"
 		    					+ mcTool.getId() + "/sakai.messageforums.helper.helper/privateMsg/pvtMsg?pvtMsgTopicId=" 
 		    					+ receivedTopicUuid + "&contextId=" + contextId + "&selectedTopic=Received";
-	    			return url;
+	    			return pvtTopicMessageUrl;
 	    		}
 	    	}
 	    	catch (IdUnusedException e) {
 	    		LOG.error("IdUnusedException attempting to move to Private Messages for a site. Site id used is: " + contextId);
 	    	}
 	    }
+			
+		}
 
 	    return "";
     }
