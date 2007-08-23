@@ -2501,6 +2501,9 @@ public abstract class BaseCitationService implements CitationService
 		public void setSort(Comparator comparator)
 		{
 			this.m_comparator = comparator;
+			SortedSet oldSet = this.m_order;
+            this.m_order = new TreeSet<String>(this.m_comparator);
+            this.m_order.addAll(oldSet);
 		}
 
 		/**
@@ -2512,20 +2515,36 @@ public abstract class BaseCitationService implements CitationService
 		{
 			m_ascending = ascending;
 
+			String status = "UNSET";
+			
 			if (sortBy == null || sortBy.equalsIgnoreCase(SORT_BY_DEFAULT_ORDER))
 			{
 				this.m_comparator = null;
 			}
-			else if (sortBy.equalsIgnoreCase(SORT_BY_AUTHOR))
+			else
 			{
-				this.m_comparator = new AuthorComparator(ascending);
+				if (sortBy.equalsIgnoreCase(SORT_BY_AUTHOR))
+			    {
+				  this.m_comparator = new AuthorComparator(ascending);
+				  status = "AUTHOR SET";
+			    }
+			    else 
+			    {
+			    	if (sortBy.equalsIgnoreCase(SORT_BY_TITLE))
+			        {
+				      this.m_comparator = new TitleComparator(ascending);
+			        }
+			    }
 			}
-			else if (sortBy.equalsIgnoreCase(SORT_BY_TITLE))
+			
+			if (this.m_comparator != null)
 			{
-				this.m_comparator = new TitleComparator(ascending);
+				SortedSet oldSet = this.m_order;
+				this.m_order = new TreeSet<String>(this.m_comparator);
+                this.m_order.addAll(oldSet);
 			}
 
-		}
+		} // end setSort(String, boolean)
 
 		public int size()
 		{
