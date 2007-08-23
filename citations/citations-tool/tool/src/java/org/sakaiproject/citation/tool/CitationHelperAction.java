@@ -3188,6 +3188,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 				
 		        logger.debug("doSortCitations() tempcit 1 = " + tempCit.getDisplayName());				
 			}
+		}
 		setMode(state, Mode.LIST);
 
 	}  // doSortCitations
