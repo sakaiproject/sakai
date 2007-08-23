@@ -3133,6 +3133,64 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		}
 
 	}
+	
+	public void doSortAllCitations( RunData data )
+	{
+		// get the state object
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		ParameterParser params = data.getParameters();
+
+		String collectionId = params.getString("collectionId");
+
+		CitationCollection collection = null;
+
+		if(collectionId == null)
+		{
+			collectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
+		}
+		if(collectionId == null)
+		{
+			// TODO add alert and log error
+		}
+		else
+		{
+			try
+			{
+				collection = CitationService.getCollection(collectionId);
+			}
+			catch(IdUnusedException e)
+			{
+				// TODO add alert and log error
+		        logger.warn("doSortCitations() unable to retrieve collection: " + collectionId);
+			}
+		}
+
+		if(collection == null)
+		{
+			// TODO add alert and log error
+	        logger.warn("doSortCitations() collection null: " + collectionId);
+		}
+		else
+		{
+			// sort the citation list
+			
+	        logger.debug("doSortCitations() ready to sort");
+			collection.setSort(CitationCollection.SORT_BY_AUTHOR, true);
+			
+			Iterator iter = collection.iterator();
+			
+			while (iter.hasNext())
+			{
+				Citation tempCit = (Citation) iter.next();
+				
+				logger.debug("doSortCitaitons() tempcit 1 -------------");
+				logger.debug("doSortCitaitons() tempcit 1 (author) = " + tempCit.getFirstAuthor());
+				
+		        logger.debug("doSortCitations() tempcit 1 = " + tempCit.getDisplayName());				
+			}
+		setMode(state, Mode.LIST);
+
+	}  // doSortCitations
 
 	public class CitationListSecurityAdviser implements SecurityAdvisor
 	{
