@@ -1535,7 +1535,7 @@ public class MessageForumSynopticBean {
 	 * 			to the Private Message section of a site
 	 */
 	public String generatePrivateTopicMessagesUrl(String contextId) {
-		if (pvtTopicMessageUrl != null) {
+		if (pvtTopicMessageUrl != null && pvtTopicMessageUrl.contains(contextId)) {
 			return pvtTopicMessageUrl;
 		}
 		else {
