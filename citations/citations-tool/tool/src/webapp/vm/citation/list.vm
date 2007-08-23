@@ -169,4 +169,27 @@ function doCitationAction( action ) {
     }
   );
 }
+
+/*
+ * Dispatches Sorting Actions
+*/
+
+function doCitationSortAction( action ) 
+{
+  // do action
+  if( action == "sortByTitleSelected" ) 
+  {
+      sortAllCitations( "$FORM_NAME", "byTitle" );
+  } 
+  else 
+  {
+      alert( "$tlang.getString( "select.warn.list" )" );
+  }
+  
+  // reset select boxes
+  $( ".citationActionSelect" ).each( function() {
+      this.selectedIndex = 0;
+    }
+  );
+}
 </script>
