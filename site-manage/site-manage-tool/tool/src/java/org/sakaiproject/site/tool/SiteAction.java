@@ -43,6 +43,7 @@ import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.velocity.tools.generic.SortTool;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.cover.AliasService;
 import org.sakaiproject.archive.api.ImportMetadata;
@@ -68,7 +69,13 @@ import org.sakaiproject.cheftool.menu.MenuImpl;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.coursemanagement.api.AcademicSession;
+import org.sakaiproject.coursemanagement.api.CourseOffering;
+import org.sakaiproject.coursemanagement.api.Enrollment;
+import org.sakaiproject.coursemanagement.api.Section;
+import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.email.cover.EmailService;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
@@ -76,25 +83,25 @@ import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.cover.EntityManager;
-import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
+import org.sakaiproject.exception.ImportException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.id.cover.IdManager;
+import org.sakaiproject.importer.api.ImportDataSource;
+import org.sakaiproject.importer.api.ImportService;
+import org.sakaiproject.importer.api.SakaiArchive;
 import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.mailarchive.api.MailArchiveService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.sitemanage.api.AffiliatedSectionProvider;
 import org.sakaiproject.sitemanage.api.SectionField;
-import org.sakaiproject.sitemanage.api.SectionFieldProvider;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.cover.TimeService;
@@ -109,26 +116,12 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ArrayUtil;
-// import org.sakaiproject.util.CourseIdGenerator;
 import org.sakaiproject.util.FileItem;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
-
-import org.sakaiproject.importer.api.ImportService;
-import org.sakaiproject.importer.api.ImportDataSource;
-import org.sakaiproject.importer.api.SakaiArchive;
-
-import org.sakaiproject.coursemanagement.api.AcademicSession;
-import org.sakaiproject.coursemanagement.api.CourseOffering;
-import org.sakaiproject.coursemanagement.api.Section;
-import org.sakaiproject.coursemanagement.api.Enrollment;
-import org.sakaiproject.coursemanagement.api.Membership;
-import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
-import org.sakaiproject.authz.api.GroupProvider;
-import org.apache.velocity.tools.generic.SortTool;
 
 /**
  * <p>
@@ -11364,11 +11357,12 @@ public class SiteAction extends PagedResourceActionII {
 	 * @return The mail archive channel reference for this site.
 	 */
 	protected String mailArchiveChannelReference(String siteId) {
-		MailArchiveService m = (org.sakaiproject.mailarchive.api.MailArchiveService) ComponentManager
+				
+		Object m = ComponentManager
 				.get("org.sakaiproject.mailarchive.api.MailArchiveService");
 
 		if (m != null) {
-			return m.channelReference(siteId, SiteService.MAIN_CONTAINER);
+			return "/mailarchive"+Entity.SEPARATOR+"channel"+Entity.SEPARATOR+siteId+Entity.SEPARATOR+SiteService.MAIN_CONTAINER;
 		} else {
 			return "";
 		}
