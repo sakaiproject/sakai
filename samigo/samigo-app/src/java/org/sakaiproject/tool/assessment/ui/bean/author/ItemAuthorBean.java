@@ -26,6 +26,7 @@ package org.sakaiproject.tool.assessment.ui.bean.author;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -737,10 +738,18 @@ public class ItemAuthorBean
     catch (Exception e){
 		throw new RuntimeException(e);
     }
-
+    Collections.sort(poolListSelectItems, new itemComparator());
     return poolListSelectItems;
   }
 
+  class itemComparator implements Comparator {
+		public int compare(Object o1, Object o2) {
+			SelectItem i1 = (SelectItem) o1;
+			SelectItem i2 = (SelectItem) o2;
+			return i1.getLabel().compareToIgnoreCase(i2.getLabel());
+		}
+	}
+  
   /**
    * Corresponding answer number list ordered for match
    * @return answer number
