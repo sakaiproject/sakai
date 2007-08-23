@@ -61,6 +61,9 @@ for (i=0; i<document.links.length; i++) {
 
 document.links[newindex].onclick();
 window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height=600,scrollbars=yes, resizable=yes');
+
+document.location='../evaluation/totalScores';
+
 }
 
 
@@ -255,13 +258,13 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
      </h:panelGroup>
      <f:verbatim><br/></f:verbatim>
 	 <span class="itemAction">
-	   <h:outputLink id="createEmail1" onclick="clickEmailLink(this);" value="../evaluation/totalScores">
+	   <h:outputLink id="createEmail1" onclick="clickEmailLink(this);" value="#">
 	     <h:outputText value="  #{evaluationMessages.email}" rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
 	   </h:outputLink>
 	 </span>
 
    	</span>
-	<h:commandLink id="hiddenlink1" value="">
+	<h:commandLink id="hiddenlink1" value="" action="totalScores">
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.util.EmailListener" />
 		  <f:param name="toUserId" value="#{description.idString}" />
 	</h:commandLink>
@@ -306,12 +309,12 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
      </h:panelGroup>
      <f:verbatim><br/></f:verbatim>
 	 <span class="itemAction">
-	   <h:outputLink id="createEmail2" onclick="clickEmailLink(this);" value="../evaluation/totalScores">
+	   <h:outputLink id="createEmail2" onclick="clickEmailLink(this);" value="#">
 	     <h:outputText value="  #{evaluationMessages.email}" rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
 	   </h:outputLink>
 	 </span>
    	</span>
-	<h:commandLink id="hiddenlink2" value="">
+	<h:commandLink id="hiddenlink2" value="" action="totalScores">
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.util.EmailListener" />
 		  <f:param name="toUserId" value="#{description.idString}" />
 	</h:commandLink>
@@ -357,13 +360,13 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
      <f:verbatim><br/></f:verbatim>
      <f:verbatim><br/></f:verbatim>
 	 <span class="itemAction">
-	  <h:outputLink id="createEmail3" value="../evaluation/totalScores" onclick="clickEmailLink(this);">
+	  <h:outputLink id="createEmail3" onclick="clickEmailLink(this);" value="#">
     	<h:outputText value="  #{evaluationMessages.email}" rendered="#{description.email != null && description.email != '' && email.fromEmailAddress != null && email.fromEmailAddress != ''}" />
 	  </h:outputLink>
 	  </span>
    	</span>
 
-	<h:commandLink id="hiddenlink3" action="totalScores" value="">
+	<h:commandLink id="hiddenlink3" value="" action="totalScores">
           <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.util.EmailListener" />
 		  <f:param name="toUserId" value="#{description.idString}" />
 	</h:commandLink>
@@ -873,7 +876,7 @@ window.open('../evaluation/createNewEmail.faces','createEmail','width=600,height
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
    </h:commandButton>
-   <h:commandButton value="#{evaluationMessages.cancel}" action="author" immediate="true"/>
+   <h:commandButton value="#{evaluationMessages.cancel}" action="author"/>
 
 </p>
 </div>

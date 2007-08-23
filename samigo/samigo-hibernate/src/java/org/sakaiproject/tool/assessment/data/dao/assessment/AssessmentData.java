@@ -27,6 +27,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
@@ -39,6 +41,7 @@ public class AssessmentData extends org.sakaiproject.tool.assessment.data.dao.as
 	 * 
 	 */
 	private static final long serialVersionUID = -2260656620640273214L;
+	private static Log log = LogFactory.getLog(AssessmentData.class);
 // both Assessment and AssessmentTemplate inherits all the properties & methods from
   // AssessmentBaseData.
   // These are the properties that an assessment has and an assessmentTemplate don't
@@ -97,7 +100,24 @@ public class AssessmentData extends org.sakaiproject.tool.assessment.data.dao.as
   public void setSectionSet(Set sectionSet) {
     this.sectionSet = sectionSet;
   }
-
+  /*
+  public Set getSectionSetWithAllItems() {
+	  Iterator iter = sectionSet.iterator();
+	  while(iter.hasNext()) {
+		  SectionData sectionData = (SectionData) iter.next();
+		  //if (sectionData.getSectionMetaDataByLabel("updatePoolScore") != null || sectionData.getSectionMetaDataByLabel("updatePoolScore").equals("")) {
+		  String poolId = null;
+		  if ((sectionData.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && 
+			  (sectionData.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString()))) {
+			  poolId = sectionData.getSectionMetaDataByLabel(SectionDataIfc.POOLID_FOR_RANDOM_DRAW);
+			  log.debug(poolId);
+		  }
+		  //}
+	  }
+	  
+	  return sectionSet;
+  }
+  */
   public ArrayList getSectionArray() {
     ArrayList list = new ArrayList();
     Iterator iter = sectionSet.iterator();

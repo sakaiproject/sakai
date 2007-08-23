@@ -67,6 +67,8 @@ $Id: createNewEmail.jsp 18063 2006-11-09 00:00:17Z ktsao@stanford.edu $
 	<h:outputText value="" />
 	</h:panelGrid>
 
+        <h:inputHidden id="messageBode" value="#{email.message}" />
+
 	<f:facet name="footer">
 		<h:panelGrid columns="1" columnClasses="navView" border="0">	
 			<h:panelGroup>
@@ -81,7 +83,7 @@ $Id: createNewEmail.jsp 18063 2006-11-09 00:00:17Z ktsao@stanford.edu $
 
 			<h:panelGrid columns="2" border="0">
 				<h:commandButton id="send" accesskey="#{evaluationMessages.a_send}" styleClass="active" value="#{evaluationMessages.send}" action="#{email.send}" type="submit" />
-				<h:commandButton id="cancel"onclick="window.close();" onkeypress="window.close();"  accesskey="#{evaluationMessages.a_cancel}" value="#{evaluationMessages.cancel}" action="#{email.cancel}" immediate="true"/>
+				<h:commandButton id="cancel"onclick="window.close();" onkeypress="window.close();"  accesskey="#{evaluationMessages.a_cancel}" value="#{evaluationMessages.cancel}" action="#{email.cancel}"/>
 			</h:panelGrid>
 		</h:panelGrid>
 	</f:facet>
