@@ -476,6 +476,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		ERROR,
 		LIST,
 		ADD_CITATIONS,
+		IMPORT_CITATIONS,
 		MESSAGE,
 		SEARCH,
 		RESULTS,
